@@ -24,7 +24,7 @@
 
 </section>
 
-<section id="quit"><title>Extensions-1.2. Quitting Lisp</title>
+<section id="quit"><title>Extensions-1.2. Quitting &clisp;</title>
 
 <para>The functions <literal role="sexp">(<function>ext:exit</function>
  [<replaceable>errorp</replaceable>])</literal>, <literal
@@ -82,7 +82,7 @@ package.</para>
    </simpara></listitem></varlistentry>
 </variablelist>
 
-<section id="domain"><title>domain</title>
+<section id="domain"><title>Domain</title>
  <para>The &domain; is a string identifier denoting the program that
 is requesting the translation.  The pathname of the message catalog
 depends on the &domain;: usually it is located at
@@ -115,7 +115,7 @@ are not saved in a &mem-image;.</para>
 
 </section>
 
-<section id="category"><title>category</title>
+<section id="category"><title>Category</title>
 <para>The &category; argument of the &gettext; and &ngettext;
 functions denotes which locale facet the result should depend on.
 The default value is <constant>:LC_MESSAGES</constant>.
@@ -315,17 +315,18 @@ localized.</para>
  &stream-class;s with &stream-element-type; &character-class;.</para>
 
 <para>An &encoding; is an object composed of the following facets:
-<itemizedlist>
-  <listitem><simpara>A <link linkend="charset"><emphasis>character
-   set</emphasis></link>.  This denotes both the set of characters that
+<variablelist>
+ <varlistentry><term><link linkend="charset">character set</link></term>
+  <listitem><simpara>This denotes both the set of characters that
    can be represented and passed through the I/O channel, and the way
    these characters translate into raw bytes.  In this context, for
    example, "UTF-8" and "UCS-4" are considered different, although they
-   can represent the same set of characters.</simpara></listitem>
-  <listitem><simpara>A <emphasis>&line-term; mode</emphasis>.
-   This denotes the way newline characters are represented.
-   </simpara></listitem>
-</itemizedlist></para>
+   can represent the same set of characters.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&line-term; mode</term>
+  <listitem><simpara>This denotes the way newline characters are
+   represented.</simpara></listitem></varlistentry>
+</variablelist></para>
 
 </section>
 
@@ -835,10 +836,10 @@ localized.</para>
  &mac-k; line terminators.</para>
 
 <para>The line terminator mode is relevant only for output (writing to a
- &file-pipe-socket;).  During input, all three kinds of line
- terminators are recognized.  If you do not want this, i.e., if you
- really want to distinguish &lf-c;, &cr-c; and &cr-c;/&lf-c;, you have
- to resort to binary input (function &read-byte;).</para>
+ &file-pipe-socket;).  During input, all three kinds of line terminators
+ are recognized.  If you do not want this, i.e., if you really want to
+ distinguish &lf-c;, &cr-c; and &cr-c;/&lf-c;, you have to resort to
+ binary input (function &read-byte;).</para>
 
 <para>See also <link linkend="clhs-newline">13.1.8 Treatment of Newline
  during Input and Output</link>.</para>
@@ -1245,16 +1246,14 @@ N. Gray to X3J13.</para>
    role="sexp">(&length; &string-r;)</literal>.
    </simpara><simpara>The default method calls
    <function>gray:stream-write-char-sequence</function>;
-   this is always sufficient.
-  </simpara></listitem></varlistentry>
+   this is always sufficient.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>gray:stream-terpri</function>
                  &stream-r;)</literal></term>
   <listitem><simpara>Outputs a &nl-c; character.
    </simpara><simpara>The default method calls
    <function>gray:stream-write-char</function>;
-   this is always sufficient.
-  </simpara></listitem></varlistentry>
+   this is always sufficient.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>gray:stream-fresh-line</function>
                  &stream-r;)</literal></term>
@@ -1525,7 +1524,7 @@ N. Gray to X3J13.</para>
 <varlistentry><term><literal
     role="sexp">(<function>ext:weak-pointer-value</function>
     <replaceable>weak-pointer</replaceable>)</literal></term>
- <listitem><simpara> returns two values: The original value and &t;, if
+ <listitem><simpara>returns two values: The original value and &t;, if
     the value has not yet been &gc;ed, else &nil; and &nil;.
   </simpara></listitem></varlistentry>
 </variablelist>
@@ -2021,11 +2020,14 @@ containing:</para>
   <listitem><para>Call Xlib functions from &clisp;.  Two
    implementations are supplied:
    <itemizedlist>
-    <listitem><simpara>mit-clx, from MIT <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z">ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</ulink></simpara></listitem>
+    <listitem><simpara>mit-clx, from MIT
+     <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"
+                >ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</ulink>
+    </simpara></listitem>
     <listitem><simpara>new-clx, by <ulink
     url="http://www.uni-karlsruhe.de/~unk6/">Gilbert Baumann</ulink>
-    <ulink
-    url="mailto:unk6@rz.uni-karlsruhe.de">unk6@rz.uni-karlsruhe.de</ulink>.
+    <ulink url="mailto:unk6@rz.uni-karlsruhe.de"
+                  >&lt;unk6@rz.uni-karlsruhe.de&gt;</ulink>.
     </simpara></listitem>
    </itemizedlist></para></listitem></varlistentry>
  <varlistentry><term>postgresql632, postgresql642</term>
@@ -2607,7 +2609,7 @@ and possibly the calling convention.</para></section>
    return.  When viewed as a Lisp function, there is no Lisp argument
    corresponding to this, instead it means an additional return value.
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:in-out</constant> (means: read-write):</term>
+ <varlistentry><term><constant>:IN-OUT</constant> (means: read-write):</term>
   <listitem><simpara>Information is passed from the caller to the callee
    and then back to the caller.  When viewed as a Lisp function, the
    &out-k; value is returned as an additional multiple value.
