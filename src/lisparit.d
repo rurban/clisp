@@ -1,5 +1,6 @@
-# Arithmetik für CLISP
-# Bruno Haible 1990-2001
+# Arithmetics for CLISP
+# Bruno Haible 1990-2002
+# Sam Steingold 1998-2002
 
 #include "lispbibl.c"
 
@@ -2253,6 +2254,8 @@ LISPFUNN(log10,1)
         var object obj;
         #ifdef intQsize
         encode_DF(0,-DF_mant_len,bit(DF_mant_len)+1, obj=);
+        #elif (defined(unix) && defined(linux) && defined(i386))
+        encode2_DF(0,-DF_mant_len,bit(DF_mant_len-32)|bit(DF_mant_len-32-DF_exp_len),1, obj=);
         #else
         encode2_DF(0,-DF_mant_len,bit(DF_mant_len-32),1, obj=);
         #endif
@@ -2262,6 +2265,8 @@ LISPFUNN(log10,1)
         var object obj;
         #ifdef intQsize
         encode_DF(0,-DF_mant_len-1,bit(DF_mant_len)+1, obj=);
+        #elif (defined(unix) && defined(linux) && defined(i386))
+        encode2_DF(0,-DF_mant_len-1,bit(DF_mant_len-32)|bit(DF_mant_len-32-DF_exp_len),1, obj=);
         #else
         encode2_DF(0,-DF_mant_len-1,bit(DF_mant_len-32),1, obj=);
         #endif

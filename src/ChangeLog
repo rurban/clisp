@@ -1,5 +1,11 @@
 2002-02-12  Sam Steingold  <sds@gnu.org>
 
+	* lisparit.d (init_arith): define DOUBLE-FLOAT-EPSILON and
+	DOUBLE-FLOAT-NEGATIVE-EPSILON differently on linux-x86
+	because of the 80-bit floating registers
+
+2002-02-12  Sam Steingold  <sds@gnu.org>
+
 	* package.d (%SET-PACKAGE-LOCK): call test_package_arg() on the
 	single arg
 
