@@ -14,6 +14,8 @@
 	(get_shape_kind): default=ShapeBounding
 	(get_shape_operation): default=ShapeSet
 	(XLIB:SHAPE-COMBINE): reply on these defaults
+	(general_draw_text, XLIB:TEXT-EXTENTS, XLIB:TEXT-WIDTH):
+	removed the SIMPLE-STRING limitation
 
 2005-03-28  Sam Steingold  <sds@gnu.org>
 

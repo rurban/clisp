@@ -3574,7 +3574,6 @@ DEFUN(XLIB:DRAW-ARCS, drawable gcontext arcs &optional fill-p)
 
 /* 6.7  Drawing Text */
 
-#ifdef UNICODE
 /* Conversion from chart array to XChar2b array.
 Returns 1 if a char array was generated, or 2 if a XChar2b array was
 generated. */
@@ -3616,7 +3615,6 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src,
   }
   return 2;
 }
-#endif
 
 void general_draw_text (int image_p)
 { /* General text drawing routine to not to have to duplicate code for
@@ -3696,15 +3694,15 @@ void general_draw_text (int image_p)
   GC gcon = get_gcontext (STACK_8);
   int x = get_sint16 (STACK_7);
   int y = get_sint16 (STACK_6);
-  int len = vector_length (STACK_5);
-  if (!simple_string_p(STACK_5)) { NOTIMPLEMENTED; }
+  STACK_5 = check_string(STACK_5);
 
-#ifdef UNICODE
   {
     object font;
     XFontStruct* font_info = get_font_info_and_display(STACK_8,&font,0);
+    unsigned long len, offset;
+    object s_string = unpack_string_ro(STACK_5,&len,&offset);
     const chart* charptr;
-    unpack_sstring_alloca(STACK_5,len,0,charptr=);
+    unpack_sstring_alloca(s_string,len,offset,charptr=);
     { DYNAMIC_ARRAY(str,XChar2b,len);
       if (to_XChar2b(font,font_info,charptr,str,len) == 1)
         X_CALL((image_p ? XDrawImageString : XDrawString)
@@ -3715,12 +3713,6 @@ void general_draw_text (int image_p)
       FREE_DYNAMIC_ARRAY(str);
     }
   }
-#else
-  { char* str = (char*)(TheSstring(STACK_5)->data);
-    X_CALL((image_p ? XDrawImageString : XDrawString)
-           (dpy, da, gcon, x, y, str, len));
-  }
-#endif
 
   VALUES0;
   skipSTACK(10);
@@ -4479,58 +4471,52 @@ DEF_CHAR_ATTR(XLIB:CHAR-DESCENT,       sint16, descent)
 DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
 { /* FIXME: Could font be a graphics context?!
      -- yes! This is handled by get_font_info_and_display already */
-  if (simple_string_p (STACK_3)) {
-    object font;
-    XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
-    int start = get_uint16_0 (STACK_2);
-    int end   = missingp(STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
-    int dir;
-    int font_ascent, font_descent;
-    XCharStruct overall;
-
-#  ifdef UNICODE
-    const chart* charptr;
-    unpack_sstring_alloca(STACK_3,end-start,start,charptr=);
-    { DYNAMIC_ARRAY(str,XChar2b,end-start);
-      if (to_XChar2b(font,font_info,charptr,str,end-start) == 1)
-        X_CALL(XTextExtents (font_info, (char*)str, end-start, &dir,
-                             &font_ascent, &font_descent, &overall));
-      else
-        X_CALL(XTextExtents16 (font_info, str, end-start, &dir,
-                               &font_ascent, &font_descent, &overall));
-      FREE_DYNAMIC_ARRAY(str);
-    }
-#  else
-    { char* string = (char*)(TheSstring(STACK_3)->data);
-      X_CALL(XTextExtents (font_info, string + start, end - start, &dir,
+  object font;
+  XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
+  int start = get_uint16_0 (STACK_2);
+  int dir;
+  int font_ascent, font_descent;
+  XCharStruct overall;
+  unsigned long len, offset;
+  object s_string = unpack_string_ro(STACK_3=check_string(STACK_3),
+                                     &len,&offset);
+  const chart* charptr;
+  int end = missingp(STACK_1) ? len : get_uint16(STACK_1);
+  /* START/END handling should be done via test_string_limits_ro ... */
+  if (end > len) end = len;
+  if (start > end) start = end;
+  unpack_sstring_alloca(s_string,end-start,start+offset,charptr=);
+  { DYNAMIC_ARRAY(str,XChar2b,end-start);
+    if (to_XChar2b(font,font_info,charptr,str,end-start) == 1)
+      X_CALL(XTextExtents (font_info, (char*)str, end-start, &dir,
                            &font_ascent, &font_descent, &overall));
-    }
-#  endif
-
-    pushSTACK(make_sint32(overall.width));      /* width */
-    pushSTACK(make_sint16(overall.ascent));     /* ascent */
-    pushSTACK(make_sint16(overall.descent));    /* descent */
-    pushSTACK(make_sint16(overall.lbearing));   /* left */
-    pushSTACK(make_sint16(overall.rbearing));   /* right */
-    pushSTACK(make_sint16(font_ascent));        /* font-ascent */
-    pushSTACK(make_sint16(font_descent));       /* font-descent */
-    pushSTACK(make_draw_direction (dir));       /* direction */
-    pushSTACK(NIL);                             /* first-not-done */
-
-    value9 = popSTACK();
-    value8 = popSTACK();
-    value7 = popSTACK();
-    value6 = popSTACK();
-    value5 = popSTACK();
-    value4 = popSTACK();
-    value3 = popSTACK();
-    value2 = popSTACK();
-    value1 = popSTACK();
-    mv_count = 9;
-    skipSTACK(5);
-  } else {
-    NOTIMPLEMENTED;
+    else
+      X_CALL(XTextExtents16 (font_info, str, end-start, &dir,
+                             &font_ascent, &font_descent, &overall));
+    FREE_DYNAMIC_ARRAY(str);
   }
+
+  pushSTACK(make_sint32(overall.width));      /* width */
+  pushSTACK(make_sint16(overall.ascent));     /* ascent */
+  pushSTACK(make_sint16(overall.descent));    /* descent */
+  pushSTACK(make_sint16(overall.lbearing));   /* left */
+  pushSTACK(make_sint16(overall.rbearing));   /* right */
+  pushSTACK(make_sint16(font_ascent));        /* font-ascent */
+  pushSTACK(make_sint16(font_descent));       /* font-descent */
+  pushSTACK(make_draw_direction (dir));       /* direction */
+  pushSTACK(NIL);                             /* first-not-done */
+
+  value9 = popSTACK();
+  value8 = popSTACK();
+  value7 = popSTACK();
+  value6 = popSTACK();
+  value5 = popSTACK();
+  value4 = popSTACK();
+  value3 = popSTACK();
+  value2 = popSTACK();
+  value1 = popSTACK();
+  mv_count = 9;
+  skipSTACK(5);
 }
 
 /* -> width - Type int32
@@ -4540,16 +4526,17 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
   object font;
   XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
 
-  /* First fetch the quite common special case where sequence
-     is a simple string: */
-  if (simple_string_p (STACK_3)) {
+  if (stringp(STACK_3)) {
     int start = get_uint16_0 (STACK_2);
-    int end   = missingp(STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
     int w;
-
-#  ifdef UNICODE
+    unsigned long len, offset;
+    object s_string = unpack_string_ro(STACK_3,&len,&offset);
     const chart* charptr;
-    unpack_sstring_alloca(STACK_3,end-start,start,charptr=);
+    int end = missingp(STACK_1) ? len : get_uint16(STACK_1);
+    /* START/END handling should be done via test_string_limits_ro ... */
+    if (end > len) end = len;
+    if (start > end) start = end;
+    unpack_sstring_alloca(s_string,end-start,start+offset,charptr=);
     { DYNAMIC_ARRAY(str,XChar2b,end-start);
       if (to_XChar2b(font,font_info,charptr,str,end-start) == 1)
         X_CALL(w = XTextWidth (font_info, (char*)str, end-start));
@@ -4557,26 +4544,20 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
         X_CALL(w = XTextWidth16 (font_info, str, end-start));
       FREE_DYNAMIC_ARRAY(str);
     }
-#  else
-    { char* string = (char*) (TheSstring(STACK_3)->data);
-      X_CALL(w = XTextWidth (font_info, string+start, end-start));
-    }
-#  endif
-
     VALUES2(make_sint32 (w),NIL);
-  } else if (listp (STACK_3))
+  } else if (listp (STACK_3)) {
     /* Now the generic case for lists
      XXX -- Fix this also above
      XXX This is faked, isn't it. */
     VALUES2(make_sint32(0),NIL);
-  else if (vectorp (STACK_3)) {
+  } else if (vectorp (STACK_3)) {
     /* Generic case for vectors.
      XXX faked. */
     int start = get_uint16_0 (STACK_2);
     int end   = missingp(STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
     VALUES2(make_sint32(0),NIL);
   } else
-    NOTIMPLEMENTED;
+    my_type_error(`SEQUENCE`,STACK_3);
 
   skipSTACK(5);
 }
