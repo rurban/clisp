@@ -1,5 +1,10 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * configure: Recommend --with-unicode.
+        * makemake.in (*/makefile*): Pass --with-unicode to makemake.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * macros2.lsp (with-output-to-printer): Declare arg as IGNORE.
 
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
