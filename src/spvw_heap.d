@@ -72,7 +72,7 @@ typedef struct {
   #endif
   #endif
   #ifdef SELFMADE_MMAP
-  uintL memfile_offset;
+  off_t memfile_offset;
   uintL memfile_numpages;
   uintB* memfile_pages;
   #endif

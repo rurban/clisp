@@ -1,6 +1,14 @@
 2003-09-30  Bruno Haible  <bruno@clisp.org>
 
-	* stream.d (socket_options): Avoid warnings from ansidecl.
+	* spvw_heap.d (Heap): Change type of memfile_offset to off_t.
+	* spvw_memfile.d (savemem, loadmem_from_handle): Use off_t where
+	appropriate.
+	* spvw_fault.d (handle_mmap_fault, selfmade_mmap): Change type of
+	'offset' argument to off_t.
+
+2003-09-30  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (SOCKET-OPTIONS): Avoid warnings from ansidecl.
 
 2003-09-29  Sam Steingold  <sds@gnu.org>
 
