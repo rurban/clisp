@@ -10810,12 +10810,12 @@ extern bool string_eqcomp (object string1, uintL offset1, object string2, uintL 
 extern bool string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
 # is used by PREDTYPE
 
-# UP: converts the Characters of a partial string to downcase
+# UP: converts the Characters of a partial string to upcase
 # nstring_upcase(charptr,len);
 # > chart* charptr: Characters start from here on
 # > uintL len: number of characters
 extern void nstring_upcase (chart* charptr, uintL len);
-# is used by
+# is not used at this time (except in CHARSTRG, of course)
 
 # UP: converts the Characters of a partial string to downcase
 # nstring_downcase(charptr,len);
