@@ -175,21 +175,6 @@ extern RETMMAPTYPE mmap ();
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
 #endif
-#ifdef __cplusplus
-#ifdef OPEN_DOTS
-extern "C" int open (OPEN_CONST char* path, int flags, ...);
-#else
-extern "C" int open (OPEN_CONST char* path, int flags, mode_t mode);
-#endif
-#elif defined(__STDC__)
-#ifdef OPEN_DOTS
-extern int open (OPEN_CONST char* path, int flags, ...);
-#else
-extern int open (OPEN_CONST char* path, int flags, mode_t mode);
-#endif
-#else
-extern int open ();
-#endif
 #endif
 
 /* Declare shmget(), shmat(), shmctl(). */
