@@ -1,5 +1,10 @@
 2004-04-21  Bruno Haible  <bruno@clisp.org>
 
+	* disassem.lisp (disassemble-machine-code): Add the function object as
+	argument. Give a nice message when gdb is not found.
+
+2004-04-21  Bruno Haible  <bruno@clisp.org>
+
 	* utils/clispload.lsp: Set *warn-on-floating-point...contagion* to nil.
 
 2004-04-21  Bruno Haible  <bruno@clisp.org>

@@ -18,7 +18,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
   #+UNIX (:method ((object string) &rest junk)
            (declare (ignore junk))
            (disassemble-machine-code
-            (sys::program-name) (sys::program-id) object))
+            (sys::program-name) (sys::program-id) nil object))
   (:method ((object clos::standard-method) &rest junk)
     (declare (ignore junk))
     (disassemble (clos::std-method-function object))
@@ -49,7 +49,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
     #+UNIX (when (sys::code-address-of object)
              (return-from disassemble
                (disassemble-machine-code
-                (sys::program-name) (sys::program-id)
+                (sys::program-name) (sys::program-id) object
                 (format nil "0x~X" (sys::code-address-of object)))))
     (unless (sys::closurep object)
       (error-of-type 'error (TEXT "Cannot disassemble ~S") object))
@@ -72,8 +72,15 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
 ;; Bruno Haible 1995
 ;; you may customize it to your needs.
 #+UNIX
-(defun disassemble-machine-code (program-name pid address)
+(defun disassemble-machine-code (program-name pid function address)
   ;; This uses gdb.
+  (unless (= (shell "gdb --version > /dev/null 2>&1") 0)
+    (when function
+      ;; Show at least some basic information about the function.
+      (describe function))
+    (fresh-line)
+    (format t (TEXT "Cannot show machine instructions: gdb not found."))
+    (return-from disassemble-machine-code nil))
   (unless (stringp address) (setq address (format nil "~A" address)))
   (let ((tempfilename (format nil "/tmp/gdbcomm~D" pid))
         (outfilename (format nil "/tmp/gdbdis~D" pid))
