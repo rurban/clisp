@@ -2338,15 +2338,17 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
           /* already found -> was already contained in the alist further
              on the left, and in alists the first association (left)
              shadows all other associations of the same key. */
+          ht = STACK_0; /* restore ht */
         } else { /* not found -> make a new entry: */
           var object freelist = /* start of the free-list in the next-vector */
             TheHashedAlist(TheHashtable(STACK_0)->ht_kvtable)->hal_freelist;
           if (eq(freelist,nix)) { /* empty "list" ? */
-            pushSTACK(ht); /* hash-table */
+            pushSTACK(STACK_0); /* hash-table */
             pushSTACK(S(make_hash_table));
             fehler(serious_condition,
                    GETTEXT("~S: internal error while building ~S"));
           }
+          ht = STACK_0; /* restore ht */
           next = Car(STACK_1); /* restore next */
           hash_store(Car(next),Cdr(next)); /* make entry */
         }
