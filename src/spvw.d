@@ -7538,7 +7538,7 @@ local uintC generation;
       begin_system_call();
       free(addr);
       end_system_call();
-      #if defined(AMIGAOS) && !(defined(WIDE) || defined(MC68000))
+      #if defined(AMIGAOS) && !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
       # Wir machen einen zweiten Versuch mit veränderten Flags.
       if (!(default_allocmemflag == retry_allocmemflag))
         { begin_system_call();
