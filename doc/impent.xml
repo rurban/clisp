@@ -62,6 +62,7 @@
 <!ENTITY previous-k "<constant>:PRECIOUS</constant>">
 <!ENTITY print-k "<constant>:PRINT</constant>">
 <!ENTITY print-function-k "<constant>:PRINT-FUNCTION</constant>">
+<!ENTITY ro-k "<constant>:READ-ONLY</constant>">
 <!ENTITY relative-k "<constant>:RELATIVE</constant>">
 <!ENTITY root-k "<constant>:ROOT</constant>">
 <!ENTITY start-k "<constant>:START</constant>">
@@ -142,6 +143,7 @@
 <!ENTITY term-enc "<link linkend='term-enc'><varname>CUSTOM:*TERMINAL-ENCODING*</varname></link>">
 <!ENTITY misc-enc "<link linkend='misc-enc'><varname>CUSTOM:*MISC-ENCODING*</varname></link>">
 <!ENTITY foreign-enc "<link linkend='foreign-enc'><varname>CUSTOM:*FOREIGN-ENCODING*</varname></link>">
+<!ENTITY utf-8 "<link linkend='charset-UTF-8'><constant>CHARSET:UTF-8</constant></link>">
 <!ENTITY endianness "<link linkend='endianness'><replaceable>ENDIANNESS</replaceable></link>">
 <!ENTITY extfmt "<link linkend='extfmt'><constant>:EXTERNAL-FORMAT</constant></link>">
 <!ENTITY count-ansi "<link linkend='count-ansi'><varname>CUSTOM:*SEQUENCE-COUNT-ANSI*</varname></link>">
@@ -292,11 +294,24 @@
 <!ENTITY foreign-function "<link linkend='dffi'><classname>FFI:FOREIGN-FUNCTION</classname></link>">
 <!ENTITY foreign-variable "<link linkend='dffi-variables'><classname>FFI:FOREIGN-VARIABLE</classname></link>">
 <!ENTITY foreign-pointer "<classname>FFI:FOREIGN-POINTER</classname>">
+<!ENTITY foreign-address-t "<classname>FFI:FOREIGN-ADDRESS</classname>">
 <!ENTITY foreign-address-null "<link linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
+<!ENTITY foreign-address "<link linkend='faddr'><function>FFI:FOREIGN-ADDRESS</function></link>">
+<!ENTITY foreign-address-unsigned "<link linkend='faddr-u'><function>FFI:FOREIGN-ADDRESS-UNSIGNED</function></link>">
+<!ENTITY unsigned-foreign-address "<link linkend='faddr-u'><function>FFI:UNSIGNED-FOREIGN-ADDRESS</function></link>">
 <!ENTITY with-foreign-object "<link linkend='foreign-stack'><function>FFI:WITH-FOREIGN-OBJECT</function></link>">
+<!ENTITY with-foreign-string "<link linkend='foreign-stack-string'><function>FFI:WITH-FOREIGN-STRING</function></link>">
 <!ENTITY with-c-var "<link linkend='foreign-stack'><function>FFI:WITH-C-VAR</function></link>">
+<!ENTITY foreign-allocate "<link linkend='foreign-heap'><function>FFI:FOREIGN-ALLOCATE</function></link>">
+<!ENTITY foreign-free "<link linkend='foreign-heap'><function>FFI:FOREIGN-FREE</function></link>">
+<!ENTITY allocate-deep "<link linkend='foreign-heap'><function>FFI:ALLOCATE-DEEP</function></link>">
+<!ENTITY allocate-shallow "<link linkend='foreign-heap'><function>FFI:ALLOCATE-SHALLOW</function></link>">
+<!ENTITY parse-c-type "<link linkend='c-type-parse'><function>FFI:PARSE-C-TYPE</function></link>">
+<!ENTITY deparse-c-type "<link linkend='c-type-parse'><function>FFI:DEPARSE-C-TYPE</function></link>">
 <!ENTITY f-ent "<replaceable>foreign-entity</replaceable>">
+<!ENTITY f-addr "<replaceable>foreign-address</replaceable>">
 <!ENTITY linkset "<link linkend='modules'>linking set</link>">
+<!ENTITY modinfo "<link linkend='modinfo'><function>EXT:MODULE-INFO</function></link>">
 
 <!-- *** Byte code *** -->
 <!ENTITY SP "<link linkend='vm'><literal>SP</literal></link>">
@@ -333,8 +348,10 @@
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
 <!ENTITY command-r "<replaceable>command</replaceable>">
 <!ENTITY cont-r "<replaceable>contents</replaceable>">
+<!ENTITY count-r "<replaceable>count</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
+<!ENTITY ctypei-r "<replaceable>c-type-internal</replaceable>">
 <!ENTITY ch-r "<replaceable>char</replaceable>">
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY digits-r "<replaceable>digits</replaceable>">

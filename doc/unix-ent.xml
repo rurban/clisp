@@ -16,6 +16,7 @@
 
 <!-- functions (system calls) -->
 <!ENTITY unix-f "&unix-top;/functions">
+<!ENTITY calloc "<ulink url='&unix-f;/calloc.html'><function>calloc</function></ulink>">
 <!ENTITY dup "<ulink url='&unix-f;/dup.html'><function>dup/dup2</function></ulink>">
 <!ENTITY flock "<ulink url='&unix-f;/flockfile.html'><function>flock</function></ulink>">
 <!ENTITY free "<ulink url='&unix-f;/free.html'><function>free</function></ulink>">
@@ -29,9 +30,13 @@
 <!ENTITY link "<ulink url='&unix-f;/link.html'><function>link</function></ulink>">
 <!ENTITY lstat "<ulink url='&unix-f;/lstat.html'><function>lstat</function></ulink>">
 <!ENTITY malloc "<ulink url='&unix-f;/malloc.html'><function>malloc</function></ulink>">
+<!ENTITY mblen "<ulink url='&unix-f;/mblen.html'><function>mblen</function></ulink>">
+<!ENTITY mbstowcs "<ulink url='&unix-f;/mbstowcs.html'><function>mbstowcs</function></ulink>">
+<!ENTITY mbtowc "<ulink url='&unix-f;/mbtowc.html'><function>mbtowc</function></ulink>">
+<!ENTITY mmap "<ulink url='&unix-f;/mmap.html'><function>mmap</function></ulink>">
 <!ENTITY qsort "<ulink url='&unix-f;/qsort.html'><function>qsort</function></ulink>">
+<!ENTITY read-c "<ulink url='&unix-f;/read.html'><function>read</function></ulink>">
 <!ENTITY rename "<ulink url='&unix-f;/rename.html'><function>rename</function></ulink>">
-<!ENTITY read "<ulink url='&unix-f;/read.html'><function>read</function></ulink>">
 <!ENTITY select "<ulink url='&unix-f;/select.html'><function>select</function></ulink>">
 <!ENTITY setsockopt "<ulink url='&unix-f;/setsockopt.html'><function>setsockopt</function></ulink>">
 <!ENTITY shutdown "<ulink url='&unix-f;/shutdown.html'><function>shutdown</function></ulink>">
@@ -39,7 +44,8 @@
 <!ENTITY symlink "<ulink url='&unix-f;/symlink.html'><function>symlink</function></ulink>">
 <!ENTITY sysconf "<ulink url='&unix-f;/sysconf.html'><function>sysconf</function></ulink>">
 <!ENTITY uname "<ulink url='&unix-f;/uname.html'><function>uname</function></ulink>">
-<!ENTITY mmap "<ulink url='&unix-f;/mmap.html'><function>mmap</function></ulink>">
+<!ENTITY wcstombs "<ulink url='&unix-f;/wcstombs.html'><function>wcstombs</function></ulink>">
+<!ENTITY wctomb "<ulink url='&unix-f;/wctomb.html'><function>wctomb</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">
