@@ -1,3 +1,8 @@
+2004-10-05  Sam Steingold  <sds@gnu.org>
+
+	* path.tst [win32]: check that ABSOLUTE-PATHNAME does not crash on
+	wild device
+
 2004-09-20  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Add many new protocol tests.

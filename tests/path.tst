@@ -832,3 +832,8 @@ NIL
                                :displaced-to "foo"
                                :displaced-index-offset 1)))
 (#P"" 0)
+
+#+(and clisp win32)
+(absolute-pathname (make-pathname :device :wild))
+#+(and clisp win32)
+error
