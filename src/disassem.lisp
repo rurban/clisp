@@ -65,7 +65,8 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
                             (sys::%record-ref object 5) ; fenv
                             (sys::%record-ref object 6) ; benv
                             (sys::%record-ref object 7) ; genv
-                            (sys::%record-ref object 8)))) ; denv
+                            (sys::%record-ref object 8) ; denv
+                            nil)))  ; no error even on failure
     ;; object is a compiled closure.
     (sys::disassemble-closure object) ; disassemble
     object)) ; compiled closure as value
