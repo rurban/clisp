@@ -1,5 +1,10 @@
 1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (PARSE-NAMESTRING): Don't make strong assumptions about
+          the algorithm employed by nreconc. Fixes a bug parsing "~/foo/".
+
+1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (install_root): New variable.
           (installdirs, install-bin, install-man, install-doc, uninstall-bin,
            uninstall-man,): Prepend $(install_root) to every installation
