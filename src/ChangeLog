@@ -1,5 +1,15 @@
 2003-10-11  Sam Steingold  <sds@gnu.org>
 
+	fixed a bug in READ-BYTE-SEQUENCE :NO-HANG T on unbuffered
+	streams whereby the first byte is eaten and returned last
+	* stream.d (UnbufferedStream_pop_all): new function
+	(low_read_array_unbuffered_handle): use it after
+	low_listen_unbuffered_handle() which can add to bytebuf
+	Reported by Basim Al-Shaikhli <bacilo@gmx.net>
+	<http://article.gmane.org/gmane.lisp.clisp.general/7619>
+
+2003-10-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (clisp.h): check that the typedef sizes in clisp.h
 	and lispbibl.d are the same
 	* genclisph.d: when supplied an argument, create a test file to
@@ -14,6 +24,7 @@
 	or from the EVAL-WHEN/COMPILE, it does not assume that a LOAD
 	will happen before the code it generates is executed.
 	Reported by Don Cohen <don-sourceforge@isis.cs3-inc.com>
+	<http://article.gmane.org/gmane.lisp.clisp.devel/10566>
 
 2003-10-09  Sam Steingold  <sds@gnu.org>
 

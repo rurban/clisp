@@ -4948,18 +4948,28 @@ local bool low_clear_input_unbuffered_handle (object stream) {
   return true;
 }
 
-local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
-                                               uintL len, bool no_hang) {
-  if (UnbufferedStream_status(stream) < 0) # already EOF?
-    return byteptr;
-  while (UnbufferedStream_status(stream) > 0) { # bytebuf contains valid bytes?
+local inline uintB* UnbufferedStream_pop_all
+(object stream, uintB* byteptr, uintL *len)
+{ /* pop bytebuf into byteptr */
+  while (UnbufferedStream_status(stream) > 0) { /* have valid bytes? */
     UnbufferedStreamLow_pop_byte(stream,b);
     *byteptr++ = b;
-    len--;
-    if (len == 0)
-      return byteptr;
+    if (--*len == 0)
+      break;
   }
+  return byteptr;
+}
+
+local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
+                                               uintL len, bool no_hang) {
+  if (UnbufferedStream_status(stream) < 0) /* already EOF? */
+    return byteptr;
+  byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
+  if (len == 0) return byteptr;
   if (!no_hang || ls_avail_p(low_listen_unbuffered_handle(stream))) {
+    /* low_listen_unbuffered_handle could add to bytebuf */
+    byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
+    if (len == 0) return byteptr;
     var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
     run_time_stop(); /* hold run time clock */
     begin_system_call();
