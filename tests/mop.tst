@@ -2289,15 +2289,7 @@ T
 
 
 (progn
-  #+SBCL
-  (defun clos::compute-effective-method-as-function (gf methods args)
-    (declare (ignore args))
-    (if methods
-      (let ((emf (clos::get-effective-method-function gf methods)))
-        #'(lambda (&rest args) (clos::invoke-emf emf args)))
-      #'(lambda (&rest args) (apply 'no-applicable-method gf args))))
-  (unless (fboundp 'clos::compute-effective-method-as-function)
-    (error "compute-effective-method-as-function not yet implemented"))
+  (load "mop-aux.lisp")
   t)
 t
 
