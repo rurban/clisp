@@ -1277,13 +1277,15 @@ interpreter compiler
 (proclaim '(special *load-level*))
 (setq *load-level* 0)
 
-; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format] [:echo] [:compiling]),
+; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
+;                [:echo] [:compiling] [:extra-file-types]),
 ; CLTL S. 426
 (fmakunbound 'load)
 (defun load (filename
              &key (verbose *load-verbose*) (print *load-print*)
                   (if-does-not-exist t) (external-format ':default)
-                  (echo *load-echo*) (compiling *load-compiling*))
+                  (echo *load-echo*) (compiling *load-compiling*)
+                  (extra-file-types '()))
   (let ((stream
           (if (streamp filename)
             filename
@@ -1306,7 +1308,7 @@ interpreter compiler
                 ; Extensions "LISP", "FAS" die neueste:
                 (let ((present-files
                         (search-file filename
-                          (append *compiled-file-types* *source-file-types*))))
+                          (append extra-file-types *compiled-file-types* *source-file-types*))))
                   (if (endp present-files)
                     nil
                     (open (setq filename (first present-files))
