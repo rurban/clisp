@@ -280,7 +280,8 @@
   #endif
   #ifdef HAVE_UALARM
     #ifdef UNIX_CYGWIN32
-      extern_C long ualarm (long value, long interval);
+      /* <sys/types.h>: typedef long useconds_t; */
+      extern_C useconds_t ualarm (useconds_t value, useconds_t interval);
     #else
       extern_C unsigned int ualarm (unsigned int value, unsigned int interval);
     #endif
