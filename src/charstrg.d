@@ -912,9 +912,9 @@ global bool string_equal (object string1, object string2) {
       if (len > 0) {
         #ifdef UNICODE
         SstringCase(string,
-          { copy_8bit_32bit(&TheS8string(string)->data[offset],&TheSstring(new_string)->data[0],len); },
-          { copy_16bit_32bit(&TheS16string(string)->data[offset],&TheSstring(new_string)->data[0],len); },
-          { copy_32bit_32bit(&TheS32string(string)->data[offset],&TheSstring(new_string)->data[0],len); });
+          { copy_8bit_32bit(&TheS8string(string)->data[offset],&TheS32string(new_string)->data[0],len); },
+          { copy_16bit_32bit(&TheS16string(string)->data[offset],&TheS32string(new_string)->data[0],len); },
+          { copy_32bit_32bit(&TheS32string(string)->data[offset],&TheS32string(new_string)->data[0],len); });
         #else
         copy_8bit_8bit(&TheSstring(string)->data[offset],&TheSstring(new_string)->data[0],len);
         #endif
@@ -3563,9 +3563,9 @@ LISPFUNN(name_char,1) # (NAME-CHAR name), CLTL S. 243
       if (count > 0) {
         #ifdef UNICODE
         SstringCase(string,
-          { copy_8bit_32bit(&TheS8string(string)->data[start],&TheSstring(new_string)->data[0],count); },
-          { copy_16bit_32bit(&TheS16string(string)->data[start],&TheSstring(new_string)->data[0],count); },
-          { copy_32bit_32bit(&TheS32string(string)->data[start],&TheSstring(new_string)->data[0],count); });
+          { copy_8bit_32bit(&TheS8string(string)->data[start],&TheS32string(new_string)->data[0],count); },
+          { copy_16bit_32bit(&TheS16string(string)->data[start],&TheS32string(new_string)->data[0],count); },
+          { copy_32bit_32bit(&TheS32string(string)->data[start],&TheS32string(new_string)->data[0],count); });
         #else
         copy_8bit_8bit(&TheSstring(string)->data[start],&TheSstring(new_string)->data[0],count);
         #endif
@@ -3613,9 +3613,9 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
       string = unpack_string_ro(string,&len,&offset);
       #ifdef UNICODE
       SstringCase(string,
-        { copy_8bit_32bit(&TheS8string(string)->data[offset+start],&TheSstring(new_string)->data[0],count); },
-        { copy_16bit_32bit(&TheS16string(string)->data[offset+start],&TheSstring(new_string)->data[0],count); },
-        { copy_32bit_32bit(&TheS32string(string)->data[offset+start],&TheSstring(new_string)->data[0],count); });
+        { copy_8bit_32bit(&TheS8string(string)->data[offset+start],&TheS32string(new_string)->data[0],count); },
+        { copy_16bit_32bit(&TheS16string(string)->data[offset+start],&TheS32string(new_string)->data[0],count); },
+        { copy_32bit_32bit(&TheS32string(string)->data[offset+start],&TheS32string(new_string)->data[0],count); });
       #else
       copy_8bit_8bit(&TheSstring(string)->data[offset+start],&TheSstring(new_string)->data[0],count);
       #endif
@@ -3652,7 +3652,7 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
       # total_length ist jetzt die Gesamtlänge.
       var object new_string = allocate_string(total_length); # neuer String
       if (argcount > 0) {
-        var chart* charptr2 = &TheSstring(new_string)->data[0];
+        var cint32* charptr2 = &TheS32string(new_string)->data[0];
         var object* argptr = args_pointer;
         do {
           var object arg = NEXT(argptr); # nächster Argument-String

@@ -462,7 +462,7 @@
       var object string = allocate_string(erg.len);
       if (erg.len > 0) {
         var const chart* p = erg.MSBptr;
-        var cint32* q = &TheSstring(string)->data[0];
+        var cint32* q = &TheS32string(string)->data[0];
         var uintL count;
         dotimespL(count,erg.len, { *q++ = as_cint(*p++); });
       }

@@ -1517,7 +1517,7 @@ typedef struct {
 
 # Tests whether the current character at Z satisfies pred.
 #define Z_AT_SLASH(z,pred,st) \
-  (((z).count != 0) && pred(as_cint(schar(st,(z).index))))
+  (((z).count != 0) && pred(schar(st,(z).index)))
 
 # Replace this string with a substring.
 #define Z_SUB(z,s) ((s) = subsstring((s),(z).index,(z).index+(z).count), (z).index = 0)
@@ -5139,7 +5139,7 @@ local void wildcard_diff_ab (object pattern, object sample,
         : (cc = schar(pattern,m_index),
            chareq(cc,ascii('*')) || chareq(cc,ascii('?'))
            || (b_index < Sstring_length(sample)
-               && equal_pathchar(as_chart(schar(sample,b_index)),cc)))) {
+               && equal_pathchar(schar(sample,b_index),cc)))) {
       # wildcard_diff_ab() recursive call, with extended previous:
       pushSTACK(pattern); pushSTACK(sample);
       # (SUBSTRING sample b_start_index b_index)
