@@ -7992,7 +7992,7 @@ Simplification-Rules for Operations:
                             (k21 (third (car right)))
                             (k12 (second (car middle)))
                             (k22 (third (car middle)))
-                            (n2 (third (car middle))))
+                            (n2 (fourth (car middle))))
                         (replace2 `(SKIPI ,(+ k11 k12) ,(+ k21 k22) ,n2))))))
                   (SKIPSP ; rule 2
                    (case (first (car right))

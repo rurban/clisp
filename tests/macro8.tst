@@ -693,3 +693,23 @@ nil
                        (list *print-level*))))
   (setq *print-level* nil))     ; restore the value
 (T (30 40 40) (30 40 40))
+
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=874859&group_id=1355&atid=101355>
+(test-compiler
+ (lambda (d)
+   (gcd 39 (catch 'ct2
+             (block b7
+               (throw 'ct2
+                 (unwind-protect (return-from b7 17)
+                   (return-from b7 (progv '(*s6*) (list 31) d))))))))
+ 65)
+(T 13 13)
+
+(test-compiler
+ (lambda (d)
+   (block b7
+     (throw 'ct2
+       (unwind-protect (return-from b7 17)
+         (return-from b7 (progv '(*s6*) (list 31) d))))))
+ 65)
+(T 65 65)
