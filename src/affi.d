@@ -523,7 +523,6 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
     var object wert = STACK_1;
     var object type = STACK_2; # Größe in Byte oder *
     skipSTACK(4);
-    if (!integerp(wert)) goto bad_arg;
     if (eq(type,S(mal))) # pointer dereference
       { if (integerp(wert))
           { *(aint*)address = I_to_UL(wert); }
