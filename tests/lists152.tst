@@ -787,8 +787,10 @@ ERROR
 
 (handler-bind ((error (lambda (c) (princ c) (terpri) (use-value '(9 8 7 6)))))
   (list (butlast 123 2)
-        (butlast '#1=(1 2 3 . #1#) 2)))
-((9 8) (9 8))
+        (butlast '#1=(1 2 3 . #1#) 2)
+        (last 123 2)
+        (last '#1# 2)))
+((9 8) (9 8) (7 6) (7 6))
 
 ;; <http://www.lisp.org/HyperSpec/Body/fun_revappendcm_nreconc.html>
 (let ((list-1 (list 1 2 3))

@@ -727,10 +727,22 @@ LISPFUNNR(conses_p,2)
   skipSTACK(2);
 }
 
+/* get a replacement for the circular list
+ can trigger GC */
+local object replace_circular_list (object list) {
+  dynamic_bind(S(print_circle),T);
+  pushSTACK(NIL);               /* no PLACE */
+  pushSTACK(list); pushSTACK(TheSubr(subr_self)->name);
+  check_value(error,GETTEXT("~S: ~S is a circular list"));
+  dynamic_unbind(S(print_circle));
+  return value1;
+}
+
 LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (LAST list [n]), CLtL2 p. 416-417, dpANS p. 14-34
  (defun last (list &optional (n 1))
    (check-type n (integer 0 *))
+   (check-type list list)
    (do ((l list (cdr l))
         (r list)
         (i 0 (+ i 1)))
@@ -739,33 +751,56 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
   var object intarg = popSTACK();
   /* check optional integer argument: */
   var uintL count = (boundp(intarg) ? get_integer_truncate(intarg) : 1);
-  var object list = popSTACK();
+  var object list = check_list(popSTACK());
   # Optimierung der beiden häufigsten Fälle count=1 und count=0:
   switch (count) {
-    case 0:
-      while (consp(list)) { list = Cdr(list); }
-      break;
-    case 1: {
+    case 0: { last_0_restart:
+      var object slow = list;
+      while (consp(list)) {
+        list = Cdr(list);
+        if (atomp(list)) break;
+        if (eq(list,slow)) {
+          list = check_list(replace_circular_list(list));
+          goto last_0_restart;
+        }
+        list = Cdr(list);
+        slow = Cdr(slow);
+      }
+    } break;
+    case 1: { last_1_restart:
       var object list2;
+      var object slow = list;
       if (consp(list)) {
         loop {
-          # Hier ist list ein Cons.
-          list2 = Cdr(list);
-          if (atomp(list2))
-            break;
-          list = list2;
+          /* list is a Cons. */
+          list2 = Cdr(list); if (atomp(list2)) break; list = list2;
+          if (eq(list,slow)) {
+            list = check_list(replace_circular_list(list));
+            goto last_1_restart;
+          }
+          list2 = Cdr(list); if (atomp(list2)) break; list = list2;
+          slow = Cdr(slow);
         }
       }
     }
       break;
-    default: {
+    default: { last_default_restart:
       var object list2 = list;
-      dotimespL(count,count, {
+      var object slow = list;
+      var uintL ii = count;
+      do {
         if (atomp(list2))
           goto done;
         list2 = Cdr(list2);
-      });
-      while (consp(list2)) { list2 = Cdr(list2); list = Cdr(list); }
+      } while (--ii);
+      while (consp(list2)) {
+        list2 = Cdr(list2); list = Cdr(list); if (atomp(list2)) break;
+        if (eq(list,slow)) {
+          list = check_list(replace_circular_list(list));
+          goto last_default_restart;
+        }
+        list2 = Cdr(list2); list = Cdr(list);
+      }
        done: ;
     }
       break;
@@ -1005,12 +1040,7 @@ local inline uintL check_list_length (gcv_object_t *list_) {
     var object dotted_p;
     var object llen = list_length(*list_,&dotted_p);
     if (!nullp(llen)) return I_to_UL(llen);
-    dynamic_bind(S(print_circle),T);
-    pushSTACK(NIL);               /* no PLACE */
-    pushSTACK(*list_); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: ~S is a circular list"));
-    *list_ = value1;
-    dynamic_unbind(S(print_circle));
+    *list_ = replace_circular_list(*list_);
   }
 }
 
