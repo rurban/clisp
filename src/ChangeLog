@@ -1,3 +1,7 @@
+2004-03-03  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (make-anode): avoid compiler warning
+
 2004-03-02  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-NTH, c-SETNTH): when the index is not an
