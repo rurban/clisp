@@ -1174,6 +1174,13 @@ for-value   NIL or T
 ;; so to speak like (dolist (v (list var1 ... varn)) (push v *venv*)).
 (defun push-*venv* (&rest varlist)
   (when varlist
+    #|; the alternative definition conses less but is longer and thus slower
+    (let* ((len (ash (length varlist) 1)) (idx -1)
+           (ret (make-array (1+ len))))
+      (setf (svref ret len) *venv* *venv* ret)
+      (dolist (var varlist *venv*)
+        (setf (aref ret (incf idx)) (var-name var)
+              (aref ret (incf idx)) var))) |#
     (let ((l (list *venv*)))
       (dolist (var varlist) (setq l (list* (var-name var) var l)))
       (setq *venv* (apply #'vector l)))))
@@ -5277,6 +5284,14 @@ for-value   NIL or T
              `(c-error-c
                (TEXT "Illegal function definition syntax in ~S: ~S")
                ,specform ,fdef))
+           (add-fenv (namelist fenvconslist)
+             `(do ((namelistr ,namelist (cdr namelistr))
+                   (fenvconslistr ,fenvconslist (cdr fenvconslistr))
+                   (L nil))
+                  ((null namelistr)
+                   (apply #'vector (nreverse (cons *fenv* L))))
+                (push (car namelistr) L)
+                (push (car fenvconslistr) L)))
            (get-anode (type)
              `(let* ((closurevars (checking-movable-var-list
                                    varlist anodelist))
@@ -5419,14 +5434,7 @@ for-value   NIL or T
         ;; fenvconslist = list of Conses (fdescr . var) for *fenv*
         ;; (fdescr still without fnode, which is inserted later).
         (let ((*fenv* ; activate function-name
-                (do ((namelistr namelist (cdr namelistr))
-                     (fenvconslistr fenvconslist (cdr fenvconslistr))
-                     (L nil))
-                    ((null namelistr)
-                     (push *fenv* L)
-                     (apply #'vector (nreverse L)))
-                  (push (car namelistr) L)
-                  (push (car fenvconslistr) L))))
+               (add-fenv namelist fenvconslist)))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
           (let* ((fnodelist ; compile functions
                    (mapcar #'(lambda (name lambdaname lambdabody fenvcons)
@@ -5660,14 +5668,7 @@ for-value   NIL or T
         ;; fenvconslist = list of Conses (fdescr . var) for *fenv*,
         ;; formlist = list of Constructor-Forms of the generic functions.
         (let ((*fenv* ; activate function-names
-                (do ((namelistr namelist (cdr namelistr))
-                     (fenvconslistr fenvconslist (cdr fenvconslistr))
-                     (L nil))
-                    ((null namelistr)
-                     (push *fenv* L)
-                     (apply #'vector (nreverse L)))
-                  (push (car namelistr) L)
-                  (push (car fenvconslistr) L))))
+               (add-fenv namelist fenvconslist)))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
           (let* ((anodelist
                   (mapcar #'(lambda (form) (c-form form 'ONE)) formlist))
@@ -5684,8 +5685,7 @@ for-value   NIL or T
   (do ((L1 (second *form*) (cdr L1))
        (L2 '()))
       ((null L1)
-       (push *fenv* L2)
-       (let ((*fenv* (apply #'vector (nreverse L2)))) ; extend *fenv*
+       (let ((*fenv* (apply #'vector (nreverse (cons *fenv* L2)))))
          ;; compile the remaining forms:
          (funcall c `(PROGN ,@(skip-declarations (cddr *form*))))))
     (let* ((macrodef (car L1))
