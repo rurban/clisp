@@ -2414,7 +2414,7 @@ global int main (argc_t argc, char* argv[]) {
             SP_bound = SP_bottom + 0x1000; # 1024 pointer safety margin
           }
           #endif
-          #ifdef WIN32_NATIVE
+          #if defined(WIN32_NATIVE) && !defined(NO_SP_CHECK)
             # Even if the NOCOST_SP_CHECK stack overflow detection (using a
             # guard page) works, we set SP_bound.
             # Normally, the stack's `AllocationBase' is = 0x30000, the guard
