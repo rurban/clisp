@@ -675,7 +675,9 @@
           (let ((new-class-precedence-list
                   (and (>= (class-initialized class) 6) (class-precedence-list class))))
             (unless (equal old-class-precedence-list new-class-precedence-list)
-              (update-subclass-instance-specializer-generic-functions class)))
+              (update-subclass-instance-specializer-generic-functions class)
+              (update-subclass-cpl-specializer-generic-functions class
+                old-class-precedence-list new-class-precedence-list)))
           (install-class-direct-accessors class))
         ;; Instances don't need to be updated:
         (progn
@@ -2044,6 +2046,127 @@
           ;; The effective method cache does not need to be invalidated.
           #|(setf (std-gf-effective-method-cache gf) '())|#
           (finalize-fast-gf gf))))))
+
+;; After a class redefinition that changed the class-precedence-list,
+;; update the generic functions that could be affected.
+(defun update-subclass-cpl-specializer-generic-functions (class old-cpl new-cpl)
+  ;; Class definitions change the type hierarchy, therefore the discriminating
+  ;; function of some generic functions has to be invalidated and recomputed
+  ;; later.
+  ;; The effective method cache does not need to be invalidated, since it takes
+  ;; a sorted method list as input and compute-effective-method-as-function
+  ;; doesn't do computations in the type hierarchy.
+  ;;
+  ;; Now, which generic functions are affected? The discriminating function of
+  ;; a generic depends on the following. (x denotes an object occurring as
+  ;; argument, and x-class means (class-of x).)
+  ;; 1. The computation of the applicable method list for given arguments x
+  ;;    depends on
+  ;;      (subclassp x-class specializer)
+  ;;    for all specializers occurring in methods of the GF.
+  ;; 2. The discriminating function is also free to exploit the result of
+  ;;      (subclassp specializer1 specializer2)
+  ;;    for any two specializer1, specializer2 occurring in methods of the GF.
+  ;; 3. The sorting of the applicable method list for given arguments x
+  ;;    depends on the relative order of specializer1 and specializer2 in
+  ;;    (cpl x-class), for any two specializer1, specializer2 occurring in
+  ;;    methods of the GF.
+  ;;
+  ;; What effects can a change of (cpl class) = old-cpl -> new-cpl have?
+  ;; Assume that some classes S+ are added, some classes S- are removed from
+  ;; the CPL, and some classes S* are reordered in the CPL. What effects does
+  ;; this have on (cpl o-class), where o-class is any other class?
+  ;; - If o-class is not a subclass of class, (cpl o-class) doesn't change.
+  ;; - If o-class if subclass of class,
+  ;;     the elements of S+ are added or, if already present, possibly
+  ;;     reordered,
+  ;;     the elements of S- are possibly removed or reordered,
+  ;;     the elements of S* are possibly reordered.
+  ;;   ("Possibly" because o-class can also inherit from other classes that
+  ;;   are not under the given class but under elements of S+, S-, S*.)
+  ;;
+  ;; Now back to the problem of finding the affected generic functions.
+  ;; 1. (subclassp x-class specializer) == (member specializer (cpl x-class))
+  ;;    - doesn't change if x-class is not a subclass of class,
+  ;;    - doesn't change if specializer is not an element of S+ or S-.
+  ;;    Because of the implicit "for all x", we cannot exploit the first
+  ;;    statement. But the second statement tells us that we have to go
+  ;;    from the elements of S+ and S- to the methods and generic functions
+  ;;    using these classes as specializers.
+  ;; 2. (subclassp specializer1 specializer2)
+  ;;    == (member specializer2 (cpl specializer1))
+  ;;    - doesn't change if specializer1 is not a subclass of class,
+  ;;    - doesn't change if specializer2 is not an element of S+ or S-.
+  ;;    So we have to intersect
+  ;;    - the set of GFs using a subclass of class as specializer,
+  ;;    - the set of GFs using an element of S+ or S- as specializer.
+  ;;    This is a subset of the one we got in point 1. It is redundant.
+  ;; 3. We know that if
+  ;;          old (cpl x-class) = (... specializer1 ... specializer2 ...)
+  ;;    and   new (cpl x-class) = (... specializer2 ... specializer1 ...)
+  ;;    then x-class is a subclass of the given class, and one of
+  ;;    specializer1, specializer2 (at least) is a member of S+, S- or S*.
+  ;;    Because of the implicit "for all x", the first condition is hard to
+  ;;    exploit: we need to recurse through all x-class that are subclasses
+  ;;    the given class. It is easier to exploit the second condition:
+  ;;    Go from the elements of S+, S-, S* to the methods and generic functions
+  ;;    using these classes as specializers.
+  ;;
+  ;; Cf. MOP p. 41 compute-discriminating-function item (iv). This says that
+  ;; all generic functions which use a specializer whose class precedence list
+  ;; has changed (i.e. essentially a specializer which is a subclass of the
+  ;; given class) should invalidate their discriminating function. This is not
+  ;; needed!
+  ;;
+  ;; Cf. MOP p. 41 compute-discriminating-function item (v). This says that
+  ;; all generic functions which have a cache entry containing a class whose
+  ;; class precedence list has changed (i.e. essentially a subclass of the
+  ;; given class) should invalidate their discriminating function. This is
+  ;; also far more than is needed; all that's needed is 1. and 3.
+  ;;
+  (declare (ignore class))
+  (let* ((added-superclasses (set-difference new-cpl old-cpl))
+         (removed-superclasses (set-difference old-cpl new-cpl))
+         (permuted-superclasses
+           (let ((common-superclasses-in-old-order
+                   (remove-if #'(lambda (x) (memq x removed-superclasses))
+                              (the list old-cpl)))
+                 (common-superclasses-in-new-order
+                   (remove-if #'(lambda (x) (memq x added-superclasses))
+                              (the list new-cpl))))
+             (assert (= (length common-superclasses-in-old-order)
+                        (length common-superclasses-in-new-order)))
+             (subseq common-superclasses-in-old-order
+                     0
+                     (or (mismatch common-superclasses-in-old-order
+                                   common-superclasses-in-new-order
+                                   :test #'eq
+                                   :from-end t)
+                         0)))))
+    ;; Build the set of affected generic functions.
+    (let ((gf-set
+            (make-hash-table :key-type 'generic-function :value-type '(eql t)
+                             :test 'ext:fasthash-eq)))
+      (dolist (specializer (append added-superclasses removed-superclasses
+                                   permuted-superclasses))
+        (dolist (gf (specializer-direct-generic-functions specializer))
+          (setf (gethash gf gf-set) t)))
+      #|
+      (format *debug-io* "~&added = ~:S, removed = ~:S, permuted = ~:S, affected = ~:S~%"
+                         added-superclasses removed-superclasses permuted-superclasses
+                         (let ((l '()))
+                           (maphash #'(lambda (gf ignored)
+                                        (declare (ignore ignored))
+                                        (push gf l))
+                                    gf-set)
+                           l))
+      |#
+      ;; Clear their discriminating function.
+      (maphash #'(lambda (gf ignored)
+                   (declare (ignore ignored))
+                   (when (typep-class gf <standard-generic-function>)
+                     (finalize-fast-gf gf)))
+               gf-set))))
 
 ;; Store the information needed by the update of obsolete instances in a
 ;; class-version object. Invoked when an instance needs to be updated.

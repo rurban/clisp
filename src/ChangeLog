@@ -1,3 +1,11 @@
+2004-11-09  Bruno Haible  <bruno@clisp.org>
+
+	Implement notification from class redefinition to generic functions,
+	part 2.
+	* clos-class3.lisp (update-subclass-cpl-specializer-generic-functions):
+	New function.
+	(reinitialize-instance-<class>): Call it.
+
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
 	Implement notification from class redefinition to generic functions,
