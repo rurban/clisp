@@ -381,7 +381,8 @@
 (defvar *<structure-class>-defclass*
   '(defclass structure-class (slotted-class)
      (($names              ; encoding of the include-nesting, a list
-        :type cons)
+                           ; (name_1 ... name_i-1 name_i) with name=name_1,
+        :type cons)        ; name_1 contains name_2, ..., name_i-1 contains name_i.
       ($kconstructor       ; name of keyword constructor function
         :type symbol))
      (:fixed-slot-locations t)))

@@ -1,3 +1,13 @@
+2004-10-15  Bruno Haible  <bruno@clisp.org>
+
+	* defstruct.lisp: Remove names and directslotlist from the defstruct-
+	description.
+	(ds-typep, ds-typep-expansion, ds-canonicalize-type): Update.
+	(defstruct): Cons up a new names list only when type = T. Take the
+	names list from the class, not from the defstruct-description.
+	* io.d (structure_reader): Update.
+	* clos-class3.lisp (structure-object): Update.
+
 2004-10-12  Bruno Haible  <bruno@clisp.org>
 
 	Respect user-defined methods on generic-function-lambda-list.

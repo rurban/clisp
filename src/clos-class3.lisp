@@ -2225,11 +2225,9 @@
             'names (list 'structure-object))))
   (setf (find-class 'structure-object) <structure-object>)
   (setf (get 'structure-object 'sys::defstruct-description)
-        (vector (class-names <structure-object>)
-                'T
+        (vector 'T
                 (class-instance-size <structure-object>)
                 nil
-                '()
                 '()))
 
   ;; 10. Define other classes whose definition was delayed.
