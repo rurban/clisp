@@ -35,6 +35,7 @@ User visible changes
     MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
       arguments to be proper lists;
     TAILP uses EQL, not EQ, to compare the sublists;
+    sequence functions (MAP, LENGTH and such) no longer accept dotted lists;
     a character is now accepted as a package designator.
 
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.

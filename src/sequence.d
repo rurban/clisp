@@ -668,39 +668,35 @@ LISPFUNN(copy_seq,1) # (COPY-SEQ sequence), CLTL S. 248
     return_Values copy_seq_onto();
   }
 
-LISPFUNN(length,1) # (LENGTH sequence), CLTL S. 248
-  { var object arg = popSTACK();
-    if (consp(arg))
-      { # arg ist ein Cons
-        VALUES1(fixnum(llength(arg))); /* list length as fixnum */
-        return;
-      }
-    elif (symbolp(arg))
-      { # arg ist ein Symbol
-        if (nullp(arg))
-          { VALUES1(Fixnum_0); /* NIL is a list of length 0 */
-            return;
-      }   } # sonstige Symbole sind keine Sequences
-    elif (vectorp(arg))
-      { # arg ist ein Vektor
-        VALUES1(fixnum(vector_length(arg))); /* vector length as fixnum */
-        return;
-      }
-    else
-      { # arg ist weder eine Liste noch ein Vektor
-        var object typdescr = get_valid_seq_type(arg); # hier evtl. Fehlermeldung
-        # sonstige Sequences:
-        pushSTACK(arg); funcall(seq_length(typdescr),1); # (SEQ-LENGTH arg) aufrufen
-        return;
-      }
-    # arg is not a sequence
-    pushSTACK(arg);         # TYPE-ERROR slot DATUM
-    pushSTACK(S(sequence)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(arg); pushSTACK(S(length));
-    fehler(type_error,
-           GETTEXT("~: ~ is not a sequence")
-          );
+LISPFUNN(length,1)
+{ /* (LENGTH sequence), CLTL p. 248 */
+  var object arg = popSTACK();
+  if (consp(arg)) { /* arg is a Cons */
+    var object last;
+    var uintL len = llength1(arg,&last);
+    if (!nullp(last)) fehler_proper_list(last);
+    VALUES1(fixnum(len));
+    return;
+  } else if (symbolp(arg)) { /* arg is a symbol */
+    if (nullp(arg)) { /* other symbols are not sequences */
+      VALUES1(Fixnum_0); /* NIL is a list of length 0 */
+      return;
+    }
+  } else if (vectorp(arg)) { /* arg is a vector */
+    VALUES1(fixnum(vector_length(arg))); /* vector length as fixnum */
+    return;
+  } else { /* arg is neither a list nor a vector */
+    var object typdescr = get_valid_seq_type(arg); /* maybe error */
+    /* other sequences: */
+    pushSTACK(arg); funcall(seq_length(typdescr),1); /* (SEQ-LENGTH arg) */
+    return;
   }
+  /* arg is not a sequence */
+  pushSTACK(arg);         /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(arg); pushSTACK(S(length));
+  fehler(type_error,GETTEXT("~: ~ is not a sequence"));
+}
 
 LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
   { var object arg = STACK_0;
