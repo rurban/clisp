@@ -70,6 +70,7 @@
 
 <!-- *** packages *** -->
 <!ENTITY ext-pac "<link linkend='ext-pac'><quote>EXT</quote></link>">
+<!ENTITY clos-pac "<link linkend='classes'><quote>CLOS</quote></link>">
 <!ENTITY ldap-pac "<link linkend='dir-key'><quote>LDAP</quote></link>">
 <!ENTITY posix-pac "<link linkend='syscalls'><quote>POSIX</quote></link>">
 <!ENTITY socket-pac "<link linkend='socket'><quote>SOCKET</quote></link>">
