@@ -85,8 +85,7 @@
 <arg><option><link linkend="opt-ilisp">-I</link></option></arg>
 <arg><option><link linkend="opt-ansi">-ansi</link></option> |
   <option><link linkend="opt-traditional" >-traditional</link></option></arg>
-<arg><option><link linkend="opt-pack">-p
-   <replaceable>package-name</replaceable></link></option></arg>
+<arg><option><link linkend="opt-pack">-p &pack-r;</link></option></arg>
 <arg><option><link linkend="opt-load-comp">-C</link></option></arg>
 <arg><option><link linkend="opt-norc">-norc</link></option></arg>
 <arg rep="repeat"><option><link linkend="opt-init">-i
@@ -366,10 +365,9 @@ that can be executed more efficiently.</para>
    <option><link linkend="opt-ansi">-ansi</link></option>
    in the saved &mem-img;.</simpara></listitem></varlistentry>
 
-<varlistentry id="opt-pack"><term><option>-p</option>
-  <replaceable>package-name</replaceable></term>
+<varlistentry id="opt-pack"><term><option>-p</option> &pack-r;</term>
  <listitem><simpara>At startup the value of the variable &package-var;
-   will be set to the package named <replaceable>package-name</replaceable>.
+   will be set to the package named &pack-r;.
    The default is the package which was active when the image was
    <olink targetdoc="impnotes" targetptr="image">saved</olink>,
    normally &clu-pac;.</simpara></listitem></varlistentry>
@@ -476,7 +474,8 @@ that can be executed more efficiently.</para>
 
 <variablelist>
 <varlistentry><term>help</term>
- <listitem><simpara>get context-sensitive on-line help.
+ <listitem><simpara>get context-sensitive on-line help, see
+   <olink targetdoc="impnotes" targetptr="environment"/>.
 </simpara></listitem></varlistentry>
 
 <varlistentry><term>(&apropos; &name-r;)</term>
@@ -692,7 +691,7 @@ following information:</para>
 <orderedlist>
  <listitem><simpara>What is your platform (<command>"uname -a"</command>
    on a Unix system)?  Compiler version?
-   LIBC version (on Linux)?</simpara></listitem>
+   GLIBC version (on GNU/Linux)?</simpara></listitem>
  <listitem><simpara>Where did you get the sources?  When?
    (Absolute dates are preferred over the relative ones).</simpara></listitem>
  <listitem><simpara>How did you build &clisp;? (What command, options &amp;c.)
@@ -706,8 +705,8 @@ following information:</para>
    and report the backtrace.</simpara></listitem>
  <listitem><simpara>If you are using pre-built binaries, the problem is
    likely to be in the incompatibilities between the platform on which
-   the binary was built and yours;
-   please try compiling the sources.</simpara></listitem>
+   the binary was built and yours; please try compiling the sources.
+ </simpara></listitem>
  <listitem><simpara>What is the output of
    <command><link linkend="opt-version">"clisp
      --version"</link></command>?</simpara></listitem>
@@ -728,8 +727,9 @@ following information:</para>
 <listitem><simpara>No on-line documentation beyond &apropos;
   and &describe; is available.</simpara></listitem>
 <!-- #ifdef UNIX_COHERENT -->
-<listitem><simpara><varname>*keyboard-input*</varname> does not
-  recognize <keycombo>&ctrl;<keysym>S</keysym></keycombo>
+<listitem><simpara><olink targetdoc="impnotes" targetptr="terminal"
+                          ><varname>*KEYBOARD-INPUT*</varname></olink>
+  does not recognize <keycombo>&ctrl;<keysym>S</keysym></keycombo>
   and <keycombo>&ctrl;<keysym>Q</keysym></keycombo>.</simpara></listitem>
 <!-- #endif -->
 </itemizedlist>

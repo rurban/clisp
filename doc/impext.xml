@@ -299,8 +299,8 @@ she will get the output
  <firstterm>&curr-lang;<indexterm id="curr-lang" significance="preferred">
    <primary id="curr-lang-i"><varname>*CURRENT-LANGUAGE*</varname>
  </primary></indexterm></firstterm>,
- which can be set at run time as well as using <ulink
- url="clisp.html#opt-lang"><option>-L</option></ulink> start-up option.
+ which can be set at run time as well as using <olink targetdoc="man"
+ targetptr="opt-lang"><option>-L</option></olink> start-up option.
  If you wish to change the
  <olink targetdoc="man" targetptr="opt-locale">locale directory</olink>
  at run time too, you can do that by setting &curr-lang; to a &cons-t;
@@ -346,7 +346,7 @@ she will get the output
 
 <section id="encodings-intro"><title>Introduction</title>
 
-<para>An <emphasis>encoding</emphasis> describes the correspondence
+<para>An <quote>encoding</quote> describes the correspondence
  between &character-t;s and raw bytes during input/output via
  &stream-t;s with &stream-element-type; &character-t;.</para>
 
@@ -354,17 +354,17 @@ she will get the output
 <variablelist>
  <varlistentry><term><link linkend="charset">character set</link></term>
   <listitem><simpara>This denotes both the set of characters that
-   can be represented and passed through the I/O channel, and the way
-   these characters translate into raw bytes.  In this context, for
-   example, "UTF-8" and "UCS-4" are considered different, although they
-   can represent the same set of characters.
-  </simpara></listitem></varlistentry>
+    can be represented and passed through the I/O channel, and the way
+    these characters translate into raw bytes.  In this context, for
+    example, "UTF-8" and "UCS-4" are considered different, although they
+    can represent the same set of characters.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&line-term; mode</term>
   <listitem><simpara>This denotes the way newline characters are
-   represented.</simpara></listitem></varlistentry>
+    represented.</simpara></listitem></varlistentry>
 </variablelist></para>
 
-<para>Encodings are also types.  As such, they represent the set of
+<para>&encoding;s are also types.  As such, they represent the set of
  characters encodable in the character set.  In this context, the way
  characters are translated into raw bytes is ignored, and the line
  terminator mode is ignored as well.  &typep; and &subtypep; can be used
@@ -1747,7 +1747,7 @@ returns two values:
 <literal role="sexp">(locally (print 3))</literal> (the expansion) and
 &t; (an indicator that some expansion has actually been done).</para>
 
-<para>This is sometimes called a <emphasis>code walker</emphasis>,
+<para>This is sometimes called a <quote>code walker</quote>,
  except that the code walker would probably leave the &macrolet; and
  &symbol-macrolet; forms intact and just do the expansion.</para>
 </section>
