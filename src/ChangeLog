@@ -1,7 +1,16 @@
 2004-08-26  Bruno Haible  <bruno@clisp.org>
 
+	Avoid a crash when using a hash-table as hash-table key in TYPECODES
+	mode.
+	* hashtabl.d (hashcode4_atom): Handle case_machine, case_subr,
+	case_system.
+	Found by the sacla-tests on MacOS X.
+
+2004-08-26  Bruno Haible  <bruno@clisp.org>
+
 	Avoid link error when compiling without optimization.
-	* makemake.in (clisp.h): Define COMPILE_STANDALONE also when using <clisp.h>.
+	* makemake.in (clisp.h): Define COMPILE_STANDALONE also when using
+	<clisp.h>.
 	* genclisph.d (main): Wrap check_list and posfixnum_default2 in #ifndef
 	COMPILE_STANDALONE.
 
