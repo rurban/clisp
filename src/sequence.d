@@ -681,10 +681,13 @@ LISPFUNNR(length,1)
 { /* (LENGTH sequence), CLTL p. 248 */
   var object arg = popSTACK();
   if (consp(arg)) { /* arg is a Cons */
-    var object last;
-    var uintL len = llength1(arg,&last);
-    if (!nullp(last)) fehler_proper_list(S(length),last);
-    VALUES1(UL_to_I(len));
+    var object tail = NIL;
+    var object len = list_length(arg,&tail);
+    if (nullp(len))
+      fehler_proper_list_circular(S(length),arg);
+    if (!nullp(tail))
+      fehler_proper_list_dotted(S(length),tail);
+    VALUES1(len);
     return;
   } else if (symbolp(arg)) { /* arg is a symbol */
     if (nullp(arg)) { /* other symbols are not sequences */

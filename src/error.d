@@ -809,16 +809,29 @@ global object check_list_replacement (object obj) {
   return obj;
 }
 
-/* error-message, if an object is not a proper list.
- fehler_proper_list(caller,obj);
+/* Error message, if an object isn't a proper list because it is dotted.
+ fehler_proper_list_dotted(caller,obj);
  > caller: the caller (a symbol)
  > obj: end of the list, non-list */
-nonreturning_function(global, fehler_proper_list, (object caller, object obj))
+nonreturning_function(global, fehler_proper_list_dotted, (object caller, object obj))
 {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
   fehler(type_error,GETTEXT("~S: A proper list must not end with ~S"));
+}
+
+/* Error message, if an object isn't a proper list because it is circular.
+ fehler_proper_list_circular(caller,obj);
+ > caller: the caller (a symbol)
+ > obj: circular list */
+nonreturning_function(global, fehler_proper_list_circular, (object caller, object obj))
+{
+  dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
+  pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj); pushSTACK(caller);
+  fehler(type_error,GETTEXT("~S: A proper list must not be circular: ~S"));
 }
 
 /* check_symbol_replacement(obj)

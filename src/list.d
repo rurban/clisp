@@ -528,7 +528,7 @@ global bool endp (object obj) {
   else if (nullp(obj))
     return true;
   else
-    fehler_proper_list(TheSubr(subr_self)->name,obj);
+    fehler_proper_list_dotted(TheSubr(subr_self)->name,obj);
 }
 
 LISPFUNNF(endp,1)
@@ -536,10 +536,14 @@ LISPFUNNF(endp,1)
   VALUES_IF(endp(popSTACK()));
 }
 
-/* find the length of a possibly circular or dotted list
- returns the length (fixnum or NIL for circular lists) and
- the last atom, i.e., the indicator whether the list is dotted
-   (defun list-length (list)
+/* Finds the length of a possibly circular or dotted list.
+ list_length(list,&dotted)
+ > list: an object
+ < result: the length (integer >= 0, or NIL for circular lists)
+ < dotted: if non-circular, the last atom, i.e., the indicator whether the list
+           is dotted */
+global object list_length (object list, object *dottedp) {
+/* (defun list-length (list)
      (do ((n 0 (+ n 2))
           (fast list (cddr fast))
           (slow list (cdr slow)))
@@ -548,7 +552,6 @@ LISPFUNNF(endp,1)
        (when (endp (cdr fast)) (return (1+ n)))
        (when (eq (cdr fast) slow) (return nil))))
  (see CLtL p 265) */
-local inline object list_length (object list, object *dottedp) {
   var object fast = list;
   var object slow = fast;
   var uintL n = 0;
@@ -569,8 +572,10 @@ LISPFUNNR(list_length,1)
 { /* (LIST-LENGTH list), CLTL p. 265 */
   var object tail = NIL;
   var object len = list_length(popSTACK(),&tail);
-  if (nullp(tail)) VALUES1(len);
-  else fehler_proper_list(S(list_length),tail);
+  if (nullp(tail))
+    VALUES1(len);
+  else
+    fehler_proper_list_dotted(S(list_length),tail);
 }
 
 LISPFUNNR(list_length_dotted,1)
@@ -902,7 +907,7 @@ LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
           lauf = popSTACK(); # Ende der Kopie
           list1 = popSTACK(); # ganze Kopie
           /*if (!nullp(Cdr(lauf))) ????
-            fehler_proper_list(TheSubr(subr_self)->name,Cdr(lauf));*/
+            fehler_proper_list_dotted(TheSubr(subr_self)->name,Cdr(lauf));*/
           Cdr(lauf) = STACK_0; # bisherige Gesamtkopie einhängen
           STACK_0 = list1; # und die Kopie ist die neue Gesamtliste
         }
@@ -1622,7 +1627,7 @@ global object memq (const object obj, const object lis) {
     l = Cdr(l);
   }
   if (!nullp(l))
-    fehler_proper_list(TheSubr(subr_self)->name,l);
+    fehler_proper_list_dotted(TheSubr(subr_self)->name,l);
   return NIL;
 }
 
@@ -1952,10 +1957,14 @@ LISPFUNN(list_access_set,3)
 
 LISPFUNN(list_llength,1)
 { /* #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((endp L) N))) */
-  var object last;
-  var uintL len = llength1(popSTACK(),&last);
-  if (!nullp(last)) fehler_proper_list(S(list_llength),last);
-  VALUES1(fixnum(len));
+  var object list = popSTACK();
+  var object tail = NIL;
+  var object len = list_length(list,&tail);
+  if (nullp(len))
+    fehler_proper_list_circular(S(list_llength),list);
+  if (!nullp(tail))
+    fehler_proper_list_dotted(S(list_llength),tail);
+  VALUES1(len);
 }
 
 /* UP: get the list element at the given index

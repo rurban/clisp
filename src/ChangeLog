@@ -1,5 +1,21 @@
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (list_length): New declarations.
+	(fehler_proper_list_dotted): Renamed from fehler_proper_list.
+	(fehler_proper_list_circular): New declaration.
+	(list_to_mv): Update.
+	* genclisph.d (main): Emit fehler_proper_list_dotted instead of
+	fehler_proper_list.
+	* error.d (fehler_proper_list_dotted): Renamed from fehler_proper_list.
+	(fehler_proper_list_circular): New function.
+	* list.d (endp, LIST-LENGTH, memq): Update.
+	(list_length): Export.
+	(SYS::LIST-LLENGTH): Instead of llength1, use list_length. Signal an
+	error when the argument is a circular list.
+	* sequence.d (LENGTH): Likewise.
+
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun2.lisp (gf-keyword-arguments): Enable keyword checking
 	also when the generic function mentions &key but no method mentions it.
 

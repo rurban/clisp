@@ -161,6 +161,9 @@ User visible changes
   recursions in the tracer.
   See <http://clisp.cons.org/impnotes.html#trace> for details.
 
+* The function LENGTH and a few other sequence functions now signal a
+  TYPE-ERROR when a circular list has been given as argument.
+
 * Function UPGRADED-COMPLEX-PART-TYPE is now as precise as possible.
   See <http://clisp.cons.org/impnotes.html#ucpt> for details.
 
