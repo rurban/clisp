@@ -2533,7 +2533,7 @@ if [ $TOS = unix ] ; then
   echotab "if test -d data; then rm -rf data; fi"
   echotab "mkdir data"
   echotab "\$(LN) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt data${NEXT}UnicodeData.txt"
-  echotab "\$(LN) ${PARENT_SRCTOPDIR}src{NEXT}clhs.txt data${NEXT}clhs.txt"
+  echotab "\$(LN) ${PARENT_SRCTOPDIR}src${NEXT}clhs.txt data${NEXT}clhs.txt"
   echol
   XCL_DATA='data'
 else

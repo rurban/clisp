@@ -22,8 +22,11 @@
                  #-unix (pathname-directory libdir)))))
 
 (defvar *browsers*              ; alist of browsers & commands
-  '((:netscape "/usr/local/bin/netscape" "-remote" "openURL(~a,new-window)")
-    (:emacs-w3 "/usr/local/bin/gnudoit" "(w3-fetch \"~a\")")))
+  '((:netscape "netscape" "-remote" "openURL(~a,new-window)")
+    (:lynx "xterm" "-e" "lynx" "~a")
+    (:mmm "mmm" "-external" "~a")
+    (:mosaic "xmosaic" "~a")
+    (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")")))
 
 (defun read-from-file (file &key (out *standard-output*))
   "Read an object from a file.
