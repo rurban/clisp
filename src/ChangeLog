@@ -30,6 +30,7 @@
 	fixed bug #[ 528886 ] (typep x (type-of x)) must => T (FFI)
 	* type.lisp (foreign-function, foreign-variable, foreign-address)
 	(foreign-pointer): new types
+	(subtypep): FOREIGN-FUNCTION is a FUNCTION
 
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
