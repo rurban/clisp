@@ -1,3 +1,10 @@
+1999-10-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (elt_reverse, elt_nreverse): New declarations.
+        * array.d (elt_reverse, elt_nreverse): New functions.
+        * sequence.d (REVERSE): For vectors, use elt_reverse.
+          (NREVERSE): For vectors, use elt_nreverse.
+
 1999-10-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (uint1_p, uint2_p, uint4_p): New macros.

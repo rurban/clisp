@@ -8,8 +8,9 @@ Other modifications
 -------------------
 
 * Speed up some sequence functions when operating on vectors: MAKE-SEQUENCE,
-  CONCATENATE, COPY-SEQ, COERCE, SUBSEQ, REPLACE, FILL, REMOVE[-IF[-NOT]]
-  with :START/:END, SUBSTITUTE[-IF[-NOT]] with :START/:END, SORT.
+  CONCATENATE, COPY-SEQ, COERCE, SUBSEQ, REPLACE, FILL, REVERSE, NREVERSE,
+  REMOVE[-IF[-NOT]] with :START/:END, SUBSTITUTE[-IF[-NOT]] with :START/:END,
+  SORT.
 
 * Speed up ADJUST-ARRAY.
 
