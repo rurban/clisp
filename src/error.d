@@ -721,7 +721,7 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
      (when (typep condition *break-on-signals*)
        ; Enter the debugger prior to signalling the condition
        (restart-case (invoke-debugger condition)
-         (continue ())))
+         (CONTINUE ())))
      (invoke-handlers condition)
      nil)) */
 {

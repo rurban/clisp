@@ -481,7 +481,7 @@
     (when (typep condition *break-on-signals*)
       ; Enter the debugger prior to signalling the condition
       (restart-case (invoke-debugger condition)
-        (continue ())))
+        (CONTINUE ())))
     ; CLtL2 p. 884: "A handler is executed in the dynamic context of the
     ; signaler, except that the set of available condition handlers will
     ; have been rebound to the value that was active at the time the condition
@@ -1013,23 +1013,23 @@
 
 ;; ABORT, CLtL2 p. 913
 (defun abort (&optional condition)
-  (invoke-restart-condition 'abort condition))
+  (invoke-restart-condition 'ABORT condition))
 
 ;; CONTINUE, CLtL2 p. 913
 (defun continue (&optional condition)
-  (invoke-restart-condition-if-exists 'continue condition))
+  (invoke-restart-condition-if-exists 'CONTINUE condition))
 
 ;; MUFFLE-WARNING, CLtL2 p. 913
 (defun muffle-warning (&optional condition)
-  (invoke-restart-condition 'muffle-warning condition))
+  (invoke-restart-condition 'MUFFLE-WARNING condition))
 
 ;; STORE-VALUE, CLtL2 p. 913
 (defun store-value (value &optional condition)
-  (invoke-restart-condition-if-exists 'store-value condition value))
+  (invoke-restart-condition-if-exists 'STORE-VALUE condition value))
 
 ;; USE-VALUE, CLtL2 p. 914
 (defun use-value (value &optional condition)
-  (invoke-restart-condition-if-exists 'use-value condition value))
+  (invoke-restart-condition-if-exists 'USE-VALUE condition value))
 
 
 ;;; 29.4.2. Assertions
@@ -1164,7 +1164,7 @@
   (let ((*active-restarts*
          (nconc
           (list (make-restart
-                 :name 'use-value
+                 :name 'USE-VALUE
                  :report
                    (lambda (stream)
                      (format stream (report-one-new-value-string-instead)
@@ -1174,7 +1174,7 @@
                    (lambda (val) (return-from check-value (values val nil)))))
           (when (and (consp place) (eq 'fdefinition (car place)))
             (list (make-restart ; for check_fdefinition() only!
-                   :name 'continue
+                   :name 'CONTINUE
                    :report (lambda (stream)
                              (format stream (report-no-new-value-string)))
                    :interactive #'assert-restart-no-prompts
@@ -1184,7 +1184,7 @@
                        (return-from check-value (values nil 0))))))
           (when place
             (list (make-restart
-                   :name 'store-value
+                   :name 'STORE-VALUE
                    :report
                      (lambda (stream)
                        (format stream (report-one-new-value-string) place))

@@ -421,7 +421,7 @@ Continue       :c       switch off single step mode, continue evaluation
                    &aux
                    (may-continue
                     (or continuable
-                        (and condition (find-restart 'continue condition))))
+                        (and condition (find-restart 'CONTINUE condition))))
                    (interactive-p (interactive-stream-p *debug-io*))
                    (commandsr '()))
   (when (and print-it (typep condition (clos:find-class 'condition)))
