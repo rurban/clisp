@@ -1,5 +1,11 @@
 2004-08-16  Sam Steingold  <sds@gnu.org>
 
+	* install.lisp (*clisp-runtime*): always enclose pathname in quotes
+	(*clisp-args*): fixed slashes
+	Reported by "Слепнев Владимир" <slepnev_v@rambler.ru>
+
+2004-08-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/postgresql.lisp: updated for PostgreSQL 7.4
 
 2004-08-13  Sam Steingold  <sds@gnu.org>
