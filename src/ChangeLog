@@ -1,5 +1,11 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	ANSI CL compliance.
+	* clos.lisp (ensure-class): Don't modify the old class if it doesn't
+	have a "proper name".
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	ANSI CL compliance: Remove nickname of the keyword package.
 	* package.d (init_packages): Drop nickname "" of the KEYWORD package.
 	* complete.lisp (complete): Map prefix "" to "KEYWORD". Handle
