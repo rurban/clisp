@@ -14675,11 +14675,11 @@ local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
 
 local void test_socket_server (object obj, bool check_open) {
   if (!socket_server_p(obj)) {
-    pushSTACK(obj);
-    pushSTACK(S(socket_server));
-    pushSTACK(obj);
+    pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(socket_server)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(socket_server)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~ is not a SOCKET-SERVER"));
+    fehler(type_error,GETTEXT("~: ~ is not a ~"));
   }
   if (check_open && nullp(TheSocketServer(obj)->socket_handle)) {
     pushSTACK(obj);
