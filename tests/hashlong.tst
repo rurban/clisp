@@ -73,31 +73,29 @@ T
   (loop :for kk :being :each :hash-key :of ht :collect kk))
 hash-table-keys
 
-(defun check-hash-unique (ht)
-  (do* ((keys (hash-table-keys ht) (cdr keys))
-        (key (car keys) (car keys)) (error-count 0)
-        (other-keys (cdr keys) (cdr keys)))
-       ((null keys) error-count)
-    (when (member key other-keys :test (hash-table-test ht))
-      (format t "<ERROR> key ~s occurs multiple times!~%" key)
-      (incf error-count))))
-check-hash-unique
+(defun check-hash-unique-vec (ht size)
+  (let ((vec (make-array size)) (error-count 0))
+    (maphash (lambda (key val)
+               (let* ((pos (1- (cdr key))) (elt (svref vec pos)))
+                 (cond (elt
+                        (push val (cdr elt))
+                        (incf error-count)
+                        (format t "<ERROR> key ~s occurs multiple times: ~S!~%"
+                                key (cdr elt)))
+                       ((setf (svref vec pos)
+                              (list key val))))))
+             ht)
+    error-count))
+check-hash-unique-vec
 
 (defun do-hash-test (ht &key (size 15000))
   (clrhash ht)
   (loop :for countval :from 1 :to size
-    :for key = (format nil "HT-~D" countval)
+    :for key = (cons "HT" countval)
     :do (setf (gethash key ht) t
               (gethash key ht) countval))
-  (check-hash-unique ht))
+  (check-hash-unique-vec ht size))
 do-hash-test
-
-;; compile the test for a 17% speedup
-(progn (compile 'hash-table-keys)
-       (compile 'check-hash-unique)
-       (compile 'do-hash-test)
-       nil)
-nil
 
 (loop :for test :in '(eq eql equal equalp)
   :do (format t "~& === ~10@S:" test)
