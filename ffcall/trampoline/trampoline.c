@@ -880,13 +880,16 @@ __TR_function alloc_trampoline (address, variable, data)
    *    .long   <data>
    *    .long   <address>
    */
-  *(long *) (function + 0) = ((long *) ((char*)&tramp-2))[0];
-  *(long *) (function + 4) = (long) (function + 8);
-  *(long *) (function + 8) = (long) variable;
-  *(long *) (function +12) = (long) data;
-  *(long *) (function +16) = (long) address;
+  { /* work around a bug in gcc 3.* */
+    void* tramp_address = &tramp;
+    *(long *) (function + 0) = ((long *) ((char*)tramp_address-2))[0];
+    *(long *) (function + 4) = (long) (function + 8);
+    *(long *) (function + 8) = (long) variable;
+    *(long *) (function +12) = (long) data;
+    *(long *) (function +16) = (long) address;
+  }
 #define is_tramp(function)  \
-  ((long *) function)[0] == ((long *) ((char*)&tramp-2))[0]
+  ((long *) function)[0] == ((long *) ((char*)tramp_address-2))[0]
 #define tramp_address(function)  \
   ((long *) function)[4]
 #define tramp_variable(function)  \
@@ -1259,6 +1262,7 @@ int is_trampoline (function)
 {
 #ifdef is_tramp
 #ifdef __hppanew__
+  void* tramp_address = &tramp;
   if (!(((long)function & 3) == (TRAMP_BIAS & 3))) return 0;
 #endif
   return ((is_tramp(((char*)function - TRAMP_BIAS))) ? 1 : 0);
