@@ -15435,7 +15435,7 @@ local void fehler_value_stream (object sym) {
   pushSTACK(stream); # new variable value
   pushSTACK(oldvalue); # old variable value
   pushSTACK(sym); # Variable
-  fehler(type_error,GETTEXT("The value of ~ was not a stream: ~. It has been changed to ~."));
+  fehler(type_error,GETTEXT("The value of ~ was not an open stream: ~. It has been changed to ~."));
 }
 
 #ifdef GNU_READLINE
