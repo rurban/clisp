@@ -1223,11 +1223,12 @@ interpreter compiler
 (proclaim '(special *load-level*))
 (setq *load-level* 0)
 
-; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:echo] [:compiling]),
+; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format] [:echo] [:compiling]),
 ; CLTL S. 426
 (fmakunbound 'load)
 (defun load (filename
-             &key (verbose *load-verbose*) (print *load-print*) (if-does-not-exist t)
+             &key (verbose *load-verbose*) (print *load-print*)
+                  (if-does-not-exist t) (external-format ':default)
                   (echo *load-echo*) (compiling *load-compiling*))
   (let ((stream
           (if (streamp filename)
@@ -1235,6 +1236,15 @@ interpreter compiler
             (or (open (setq filename (pathname filename))
                   :direction :input-immutable
                   :element-type 'character
+                  #+UNICODE :external-format
+                  #+UNICODE (if (member (make-pathname
+                                          :type (pathname-type filename))
+                                        *compiled-file-types*
+                                        :test #'equal
+                                )
+                              charset:utf-8
+                              external-format
+                            )
                   :if-does-not-exist nil
                 )
                 ; Datei mit genau diesem Namen nicht vorhanden.
@@ -1246,8 +1256,17 @@ interpreter compiler
                   (if (endp present-files)
                     nil
                     (open (setq filename (first present-files))
-                          :direction :input-immutable
-                          :element-type 'character
+                      :direction :input-immutable
+                      :element-type 'character
+                      #+UNICODE :external-format
+                      #+UNICODE (if (member (make-pathname
+                                              :type (pathname-type filename))
+                                            *compiled-file-types*
+                                            :test #'equal
+                                    )
+                                  charset:utf-8
+                                  external-format
+                                )
        )) ) )   ) ) )
     (if stream
       (let* ((input-stream

@@ -16,6 +16,8 @@ User visible changes
 * Implemented ANSI CL function INSPECT,
   and a function LISP:CLHS for access of Common Lisp HyperSpec.
 
+* ANSI CL compliance: LOAD has a new keyword argument :EXTERNAL-FORMAT.
+
 * ANSI CL compliance: When an end-of-stream occurs, READ, READ-CHAR, PEEK-CHAR,
   READ-CHAR-NO-HANG, READ-LINE, READ-BYTE, READ-INTEGER, READ-FLOAT, called
   with arguments eof-error-p = NIL and without eof-value, now return NIL
