@@ -101,7 +101,12 @@ cache-rs6000.lo : $(srcdir)/cache-rs6000-sysv4.s $(srcdir)/cache-rs6000-macos.s
 	  macos* | darwin*) syntax=macos;; \
 	  *) syntax=sysv4;; \
 	esac; \
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-$${syntax}.s ; mv -f cache-rs6000-$${syntax}.o cache-rs6000.o ; mv -f cache-rs6000-$${syntax}.lo cache-rs6000.lo
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-$${syntax}.s ; \
+	cp cache-rs6000-$${syntax}.lo cache-rs6000.lo ; rm -f cache-rs6000-$${syntax}.lo ; \
+	if test -f cache-rs6000-$${syntax}.o; then cp cache-rs6000-$${syntax}.o cache-rs6000.o; fi
+# Note that cache-rs6000-${syntax}.o is kept in place, because in some cases
+# cache-rs6000-${syntax}.lo contains a symbolic reference to it and therefore
+# libtool may want to access it.
 
 cache-convex.lo : $(srcdir)/cache-convex.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-convex.s
