@@ -4,19 +4,20 @@
 ;; Sam Steingold 2004
 ;; <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
 
-(defpackage "RAWSOCK"
+(defpackage #:rawsock
   (:documentation "Raw Socket access")
-  (:use "LISP")
-  (:export "BUFFER" "OPEN-UNIX-SOCKET" "OPEN-UNIX-SOCKET-STREAM"
-           "ACCEPT" "BIND" "CONNECT"
-           "GETPEERNAME" "GETSOCKNAME"
-           "LISTEN" "RECV" "RECVFROM" "RECVMSG"
-           "SEND" "SENDMSG" "SENDTO"
-           "SHUTDOWN" "SOCKET" "SOCKETPAIR"
-           "SOCK-READ" "SOCK-WRITE" "SOCK-CLOSE" "POLL"
-           "SOCKADDR" "MAKE-SOCKADDR" "SOCKADDR-FAMILY" "SOCKADDR-DATA"
-           "SOCKADDR-FAMILY-SIZE" "MSGHDR" "MAKE-MSGHDR"
-           "CONFIGDEV" "IPCSUM" "ICMPCSUM" "TCPCSUM" "UDPCSUM"))
+  (:use #:lisp)
+  (:export #:buffer #:open-unix-socket #:open-unix-socket-stream
+           #:accept #:bind #:connect
+           #:getpeername #:getsockname
+           #:listen #:recv #:recvfrom #:recvmsg
+           #:send #:sendmsg #:sendto
+           #:shutdown #:socket #:socketpair
+           #:sock-read #:sock-write #:sock-close
+           #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-data
+           #:sockaddr-family-size #:msghdr #:make-msghdr
+           #:htonl #:htons #:ntohl #:ntohs
+           #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum))
 
 (in-package "RAWSOCK")
 (pushnew :rawsock *features*)
