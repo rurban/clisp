@@ -1,27 +1,38 @@
 ;;;; Apropos, Describe
 
-(in-package "SYSTEM")
+(common-lisp:in-package "SYSTEM")
+(export
+ '(custom::*apropos-matcher* custom::*apropos-do-more*)
+ "CUSTOM")
+(re-export "CUSTOM" "EXT")
 
 ;;-----------------------------------------------------------------------------
 ;; APROPOS
 
+(defvar *apropos-matcher* nil
+  "A function of one argument, a pattern (a string),
+returning a new function of one argument, a symbol name (also a string),
+which returns non-NIL when the symbol name matches the pattern
+for the purposes of APROPOS.
+When this variable is NIL, SEARCH is used.")
+
 (defun apropos-list (string &optional (package nil))
   (let* ((L nil)
-         (fun #'(lambda (sym)
-                  (when
-                      #| (search string (symbol-name sym) :test #'char-equal) |#
-                      (sys::search-string-equal string sym) ; 15 mal schneller!
-                    (push sym L)
-                ) )
-        ))
+         (matcher (and *apropos-matcher* (funcall *apropos-matcher* string)))
+         (fun (if matcher
+                  (lambda (sym)
+                    (when (funcall matcher (symbol-name sym))
+                      (push sym L)))
+                  (lambda (sym)
+                    (when
+                        ;; (search string (symbol-name sym) :test #'char-equal)
+                        (sys::search-string-equal string sym) ; 15x faster!
+                      (push sym L))))))
     (if package
       (system::map-symbols fun package)
-      (system::map-all-symbols fun)
-    )
+      (system::map-all-symbols fun))
     (stable-sort (delete-duplicates L :test #'eq :from-end t)
-                 #'string< :key #'symbol-name
-    )
-) )
+                 #'string< :key #'symbol-name)))
 
 (defvar *apropos-do-more* nil
   "Print values of the symbols in `apropos'.

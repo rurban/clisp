@@ -8,6 +8,7 @@
   (:use "LISP")
   (:export "PCRE-VERSION" "PCRE-CONFIG" "PCRE-COMPILE" "PCRE-EXEC" "PATTERN"
            "PATTERN-INFO" "PCRE-NAME-TO-INDEX" "MATCH-SUBSTRING"
+           "PCRE-MATCHER"
            "MATCH-STRINGS" "MATCH-STRING" "MATCH" "MATCH-START" "MATCH-END"))
 
 (in-package "PCRE")
@@ -40,3 +41,8 @@ If which is a name of the sub-pattern, pattern must be supplied."
                     (integer which)
                     (string (pcre-name-to-index pattern which))))
    subject))
+
+(defun pcre-matcher (pattern)
+  "A valid value for *APROPOS-MATCHER*."
+  (let ((compiled (pcre-compile pattern :extended t :ignore-case t :study t)))
+    (lambda (name) (pcre-exec compiled name :boolean t))))

@@ -3,7 +3,7 @@
 
 (defpackage "WILDCARD"
   (:use "FFI" "COMMON-LISP")
-  (:export "MATCH"))
+  (:export "MATCH" "WILDCARD-MATCHER"))
 (in-package "WILDCARD")
 
 (default-foreign-language :stdc)
@@ -35,3 +35,7 @@
   (zerop
     (fnmatch pattern string
              (logior FNM_PATHNAME (if case-insensitive FNM_CASEFOLD 0)))))
+
+(defun wildcard-matcher (pattern)
+  "A valid value for *APROPOS-MATCHER*."
+  (lambda (name) (zerop (fnmatch pattern name FNM_CASEFOLD))))

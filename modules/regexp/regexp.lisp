@@ -7,6 +7,7 @@
    "POSIX Regular Expressions - matching, compiling, executing.")
   (:use "LISP")
   (:export "MATCH" "MATCH-START" "MATCH-END" "MATCH-STRING" "REGEXP-QUOTE"
+           "REGEXP-MATCHER"
            "REGEXP-COMPILE" "REGEXP-EXEC" "REGEXP-SPLIT" "WITH-LOOP-SPLIT"))
 
 (in-package "REGEXP")
@@ -136,3 +137,8 @@ The line is split with REGEXP-SPLIT using PATTERN."
              (regexp-split ,compiled-pattern ,line :start ,be :end ,en
                            :notbol ,nb :noteol ,ne))
       ,@forms)))
+
+(defun regexp-matcher (pattern)
+  "A valid value for *APROPOS-MATCHER*."
+  (let ((compiled (regexp-compile pattern :extended t :ignore-case t)))
+    (lambda (name) (regexp-exec compiled name :boolean t))))

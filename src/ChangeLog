@@ -1,5 +1,16 @@
 2004-01-12  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (*apropos-matcher*): new user variable
+	(*apropos-do-more*): exported
+	(apropos-list): use it
+	* modules/wildcard/wildcard.lisp (wildcard-matcher): new function
+	* modules/regexp/regexp.lisp (regexp-matcher): new function
+	* modules/regexp/regexi.c (regexp-exec): new option :BOOLEAN
+	* modules/pcre/pcre.lisp (pcre-matcher): new function
+	* modules/pcre/cpcre.c (pcre-exec): new option :BOOLEAN
+
+2004-01-12  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (TRACE_CALL, ERROR): new debugging macros
 	(funcall_iclosure, apply_subr, apply_closure, funcall_subr)
 	(funcall_closure): use TRACE_CALL() instead of trace_call()
