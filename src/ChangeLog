@@ -1,3 +1,7 @@
+1999-03-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (CLISP_INTERNAL_CHARSET): For HP-UX, set it to "ucs2".
+
 1999-03-17  Sam Steingold  <sds@gnu.org>
 
 	* describe.lsp (describe-object): handle CLOS classes in a
