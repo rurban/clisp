@@ -1,10 +1,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.30\n"
-"POT-Creation-Date: 2002-09-13 10:53:58 EDT\n"
-"PO-Revision-Date: 2002-09-13 10:53:56 EDT\n"
-"Last-Translator: Automatically generated <sds@glip.premonitia.com>\n"
+"Project-Id-Version: clisp 2.32.93\n"
+"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
+"PO-Revision-Date: 2004-03-12 14:25:23 EST\n"
+"Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
@@ -24,20 +24,20 @@ msgstr ""
 "\n"
 "*** - Lisp stack overflow. RESET"
 
-msgid "Unknown signature of an FSUBR\n"
-msgstr "Unknown signature of an FSUBR\n"
+msgid "Unknown FSUBR signature: %d %d %d\n"
+msgstr "Unknown FSUBR signature: %d %d %d\n"
 
-msgid "Unknown signature of a SUBR\n"
-msgstr "Unknown signature of a SUBR\n"
+msgid "Unknown SUBR signature: %d %d %d %d"
+msgstr "Unknown SUBR signature: %d %d %d %d"
 
 msgid "module `%s' requires package %s.\n"
 msgstr "module `%s' requires package %s.\n"
 
 msgid ""
-"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
-"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"is an ANSI Common Lisp.\n"
 "Usage:  "
 
 msgid ""
@@ -99,11 +99,17 @@ msgstr " -Edomain encoding - set encoding\n"
 msgid "Interoperability:\n"
 msgstr "Interoperability:\n"
 
-msgid " -q, --quiet, --silent - do not print the banner\n"
-msgstr " -q, --quiet, --silent - do not print the banner\n"
+msgid ""
+" -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
+"     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
+msgstr ""
+" -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
+"     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
-msgid " -w            - wait for keypress after program termination\n"
-msgstr " -w            - wait for keypress after program termination\n"
+msgid " -w            - wait for a keypress after program termination\n"
+msgstr " -w            - wait for a keypress after program termination\n"
 
 msgid " -I            - be ILISP-friendly\n"
 msgstr " -I            - be ILISP-friendly\n"
@@ -135,8 +141,8 @@ msgstr "Actions:\n"
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 
-msgid " -x expression - execute the expression, then exit\n"
-msgstr " -x expression - execute the expression, then exit\n"
+msgid " -x expressions - execute the expressions, then exit\n"
+msgstr " -x expressions - execute the expressions, then exit\n"
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " lispfile [argument ...] - load lispfile, then exit\n"
@@ -146,6 +152,9 @@ msgstr "These actions put CLISP into a batch mode, which is overridden by\n"
 
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr " -interactive-debug - allow interaction for failed ASSERT and friends\n"
+
+msgid " -repl              - enter the interactive read-eval-print loop when done\n"
+msgstr " -repl              - enter the interactive read-eval-print loop when done\n"
 
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "Default action is an interactive read-eval-print loop.\n"
@@ -174,8 +183,8 @@ msgstr "Only %d bytes available.\n"
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Could not determine the end of the SP stack!\n"
 
-msgid "Not enough memory for Lisp.\n"
-msgstr "Not enough memory for Lisp.\n"
+msgid "%s: Not enough memory for Lisp.\n"
+msgstr "%s: Not enough memory for Lisp.\n"
 
 msgid ""
 "\n"
@@ -191,8 +200,8 @@ msgstr ""
 "\n"
 "*** - Memory exhausted. RESET"
 
-msgid "Cannot map memory to address 0x%x ."
-msgstr "Cannot map memory to address 0x%x ."
+msgid "Cannot map memory to address 0x%x .\n"
+msgstr "Cannot map memory to address 0x%x .\n"
 
 msgid "Cannot reserve address range at 0x%x ."
 msgstr "Cannot reserve address range at 0x%x ."
@@ -215,56 +224,47 @@ msgstr "VirtualFree() failed."
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() failed."
 
-msgid "Cannot open /dev/zero ."
-msgstr "Cannot open /dev/zero ."
+msgid "Cannot open <%s>."
+msgstr "Cannot open <%s>."
 
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 
-msgid "Cannot open %s ."
-msgstr "Cannot open %s ."
+msgid "Cannot delete <%s>."
+msgstr "Cannot delete <%s>."
 
-msgid "Cannot delete %s ."
-msgstr "Cannot delete %s ."
+msgid "** WARNING: ** Too little free disk space for <%s>.\n"
+msgstr "** WARNING: ** Too little free disk space for <%s>.\n"
 
-msgid "** WARNING: ** Too few free disk space for %s .\n"
-msgstr "** WARNING: ** Too few free disk space for %s .\n"
+msgid "Please restart LISP with less memory (option -m).\n"
+msgstr "Please restart LISP with less memory (option -m).\n"
 
-msgid "Please restart LISP with fewer memory (option -m).\n"
-msgstr "Please restart LISP with fewer memory (option -m).\n"
+msgid "Cannot make <%s> long enough."
+msgstr "Cannot make <%s> long enough."
 
-msgid "Cannot make %s long enough."
-msgstr "Cannot make %s long enough."
+msgid "Cannot fill <%s>."
+msgstr "Cannot fill <%s>."
 
-msgid "Cannot fill %s ."
-msgstr "Cannot fill %s ."
-
-msgid "Cannot close %s ."
-msgstr "Cannot close %s ."
-
-msgid "Cannot close /dev/zero ."
-msgstr "Cannot close /dev/zero ."
+msgid "Cannot close <%s>."
+msgstr "Cannot close <%s>."
 
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Recompile your operating system with SYSV IPC support.\n"
 
-msgid "Cannot allocate private shared memory segment."
-msgstr "Cannot allocate private shared memory segment."
+msgid "Cannot allocate private shared memory segment of size %d."
+msgstr "Cannot allocate private shared memory segment of size %d."
 
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Cannot map shared memory to address 0x%x."
 
-msgid "Cannot fill shared memory."
-msgstr "Cannot fill shared memory."
-
-msgid "Could not fill shared memory."
-msgstr "Could not fill shared memory."
+msgid "%s: Cannot fill shared memory."
+msgstr "%s: Cannot fill shared memory."
 
 msgid "Cannot remove shared memory segment."
 msgstr "Cannot remove shared memory segment."
 
-msgid "mprotect() failed."
-msgstr "mprotect() failed."
+msgid "mprotect(0x%x,%d,%d) failed."
+msgstr "mprotect(0x%x,%d,%d) failed."
 
 msgid ""
 "\n"
@@ -289,20 +289,20 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr "Trying to make room through a GC...\n"
 
-msgid "operating system error during load of initialization file `%s'\n"
-msgstr "operating system error during load of initialization file `%s'\n"
+msgid "%s: operating system error during load of initialization file `%s'\n"
+msgstr "%s: operating system error during load of initialization file `%s'\n"
 
-msgid "Cannot map the initialization file into memory."
-msgstr "Cannot map the initialization file into memory."
+msgid "%s: Cannot map the initialization file `%s' into memory."
+msgstr "%s: Cannot map the initialization file `%s' into memory."
 
-msgid "operating system error during load of initialization file\n"
-msgstr "operating system error during load of initialization file\n"
+msgid "%s: operating system error during load of initialization file `%s'"
+msgstr "%s: operating system error during load of initialization file `%s'"
 
-msgid "initialization file was not created by this version of LISP\n"
-msgstr "initialization file was not created by this version of LISP\n"
+msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
+msgstr "%s: initialization file `%s' was not created by this version of CLISP\n"
 
-msgid "not enough memory for initialization\n"
-msgstr "not enough memory for initialization\n"
+msgid "%s: not enough memory for initialization\n"
+msgstr "%s: not enough memory for initialization\n"
 
 msgid "Invalid multibyte or wide character"
 msgstr "Invalid multibyte or wide character"
@@ -579,87 +579,6 @@ msgstr "Remote address changed"
 
 msgid "Function not implemented"
 msgstr "Function not implemented"
-
-msgid "Not supported under MS-DOS"
-msgstr "Not supported under MS-DOS"
-
-msgid "This version of CLISP runs only in low address memory.\n"
-msgstr "This version of CLISP runs only in low address memory.\n"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
