@@ -16,15 +16,7 @@ environment, using native system calls
         cd ..
 
         cd ffcall
-        cd avcall
         nmake -f Makefile.msvc check
-        cd ..
-        cd vacall
-        nmake -f Makefile.msvc check
-        cd ..
-        cd trampoline
-        nmake -f Makefile.msvc check
-        cd ..
         cd ..
 
    Copy the appropriate makefile to src/makefile:
