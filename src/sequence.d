@@ -2705,11 +2705,11 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > *(stackptr-6): :TEST-NOT-Argument
 # < *(stackptr-5): verarbeitetes :TEST-Argument
 # < *(stackptr-6): verarbeitetes :TEST-NOT-Argument
-# < up2_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
-#       > stackptr: derselbe Pointer in den Stack,
-#         *(stackptr-5) = :test-Argument, *(stackptr-6) = :test-not-Argument,
-#       > x,y: Argumente
-#       < true, falls der Test erfüllt ist, false sonst.
+# < up2_fun: address of a test function, with specification:
+#       > stackptr: the same pointer into the stack,
+#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
+#       > x,y: arguments
+#       < true, if the test is satisfied, false otherwise.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
   typedef bool (*up2_function) (const gcv_object_t* stackptr, object x, object y);
   local up2_function test_test2_args (gcv_object_t* stackptr)
@@ -2735,68 +2735,311 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       fehler_both_tests();
   }
 
-# UP: führt eine Sequence-Duplicates-Operation aus.
-# seq_duplicates(help_fun)
-# Eine Sequence wird durchlaufen und dabei in einem Bit-Vektor abgespeichert,
-# welche Elemente doppelt vorkommen. Dann wird eine Routine aufgerufen, die
-# den Rest erledigt.
-# > Stackaufbau:
+# UP: Executes a REMOVE-DUPLICATES operation on a list.
+# > Stack layout:
+#     sequence from-end start end key test test-not
+#     typdescr l.
+# > up2_fun: address of a test function, with specification:
+#       > stackptr: the same pointer into the stack,
+#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
+#       > x,y: arguments
+#       < true, if the test is satisfied, false otherwise.
+# > bvl: = end - start
+# < mv_space/mv_count: values
+# can trigger GC
+  local Values remove_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
+  {
+    var gcv_object_t* stackptr = &STACK_(6+2);
+    pushSTACK(NIL); # result1 := NIL
+    pushSTACK(STACK_(6+3)); # result2 := sequence
+    pushSTACK(STACK_(6+4)); # sequence
+    pushSTACK(STACK_(4+4+1)); # start
+    funcall(seq_init_start(STACK_(3+2)),2); # (SEQ-INIT-START sequence start)
+    pushSTACK(value1); # =: pointer1
+    # Stack layout:
+    #   sequence [stackptr], from-end, start, end, key, test, test-not,
+    #   typdescr, l, result1, result2, pointer1.
+    # pointer1 goes from left to right (from start to end).
+    var uintL l1 = bvl;
+    for (; l1 > 1; l1--) {
+      # Fetch next element:
+      pushSTACK(STACK_(6+5)); # sequence
+      pushSTACK(STACK_(0+1)); # pointer1
+      funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer1)
+      funcall_key(STACK_(2+5)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+      pushSTACK(value1); # =: item1
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, result1, result2, pointer1,
+      #   item1.
+      # Loop over the remaining elements:
+      # pointer2 := (SEQ-COPY pointer1):
+      pushSTACK(STACK_(0+1));
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, result1, result2, pointer1,
+      #   item1, pointer2.
+      var uintL l2 = l1-1;
+      do {
+        # pointer2 := (SEQ-UPD sequence pointer2) :
+        STACK_0 = Cdr(STACK_0);
+        pushSTACK(STACK_(6+5+2)); # sequence
+        pushSTACK(STACK_(0+1)); # pointer2
+        funcall(seq_access(STACK_(4+2+2)),2); # (SEQ-ACCESS sequence pointer2)
+        funcall_key(STACK_(2+5+2)); # (FUNCALL key (SEQ-ACCESS sequence pointer2))
+        # value1 =: item2
+        # Compare item1 and item2:
+        if ((*up2_fun)(stackptr,STACK_1,value1))
+          # Test satisfied -> terminate the inner loop and remove item1:
+          break;
+      } while (--l2 > 0);
+      skipSTACK(2);
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, result1, result2, pointer1.
+      if (l2 > 0) {
+        # Remove item1:
+        # result1 := (nreconc (ldiff result2 pointer1) result1)
+        pushSTACK(STACK_1); pushSTACK(STACK_(0+1)); funcall(L(ldiff),2);
+        STACK_2 = nreconc(value1,STACK_2);
+        # result2 := (setq pointer1 (cdr pointer1))
+        STACK_1 = STACK_0 = Cdr(STACK_0);
+      } else {
+        # (setq pointer1 (cdr pointer1))
+        STACK_0 = Cdr(STACK_0);
+      }
+    }
+    # Return (nreconc result1 result2):
+    VALUES1(nreconc(STACK_2,STACK_1));
+    skipSTACK(7+5);
+  }
+
+# UP: Executes a DELETE-DUPLICATES operation on a list.
+# > Stack layout:
+#     sequence from-end start end key test test-not
+#     typdescr l.
+# > up2_fun: address of a test function, with specification:
+#       > stackptr: the same pointer into the stack,
+#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
+#       > x,y: arguments
+#       < true, if the test is satisfied, false otherwise.
+# > bvl: = end - start
+# < mv_space/mv_count: values
+# can trigger GC
+  local Values delete_duplicates_list_from_start (up2_function up2_fun, uintL bvl)
+  {
+    var gcv_object_t* stackptr = &STACK_(6+2);
+    pushSTACK(STACK_(6+2)); # result := sequence
+    pushSTACK(STACK_(6+3)); # sequence
+    pushSTACK(STACK_(4+3+1)); # start
+    funcall(seq_init_start(STACK_(2+2)),2); # (SEQ-INIT-START sequence start)
+    pushSTACK(value1); # =: pointer1
+    if (eq(STACK_(4+4),Fixnum_0)) # start=0 ?
+      pushSTACK(NIL); # lastpointer1 := NIL
+    else {
+      pushSTACK(STACK_(6+4)); # sequence
+      pushSTACK(fixnum_inc(STACK_(4+4+1),-1)); # start-1
+      funcall(seq_init_start(STACK_(3+2)),2); # (SEQ-INIT-START sequence start-1)
+      pushSTACK(value1); # =: lastpointer1
+    }
+    # Stack layout:
+    #   sequence [stackptr], from-end, start, end, key, test, test-not,
+    #   typdescr, l, result, pointer1, lastpointer1.
+    # pointer1 goes from left to right (from start to end).
+    var uintL l1 = bvl;
+    for (; l1 > 1; l1--) {
+      # Fetch next element:
+      pushSTACK(STACK_(6+5)); # sequence
+      pushSTACK(STACK_(1+1)); # pointer1
+      funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer1)
+      funcall_key(STACK_(2+5)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+      pushSTACK(value1); # =: item1
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, result, pointer1, lastpointer1,
+      #   item1.
+      # Loop over the remaining elements:
+      # pointer2 := (SEQ-COPY pointer1):
+      pushSTACK(STACK_(1+1));
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, result, pointer1, lastpointer1,
+      #   item1, pointer2.
+      var uintL l2 = l1-1;
+      do {
+        # pointer2 := (SEQ-UPD sequence pointer2) :
+        STACK_0 = Cdr(STACK_0);
+        pushSTACK(STACK_(6+5+2)); # sequence
+        pushSTACK(STACK_(0+1)); # pointer2
+        funcall(seq_access(STACK_(4+2+2)),2); # (SEQ-ACCESS sequence pointer2)
+        funcall_key(STACK_(2+5+2)); # (FUNCALL key (SEQ-ACCESS sequence pointer2))
+        # value1 =: item2
+        # Compare item1 and item2:
+        if ((*up2_fun)(stackptr,STACK_1,value1))
+          # Test satisfied -> terminate the inner loop and remove item1:
+          break;
+      } while (--l2 > 0);
+      skipSTACK(2);
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, result, pointer1, lastpointer1.
+      if (l2 > 0) {
+        # Remove item1:
+        if (!nullp(STACK_0)) { # lastpointer1/=NIL?
+          # (cdr lastpointer1) := (setq pointer1 (cdr pointer1))
+          Cdr(STACK_0) = STACK_1 = Cdr(STACK_1);
+        } else {
+          # result := (setq pointer1 (cdr pointer1))
+          STACK_2 = STACK_1 = Cdr(STACK_1);
+        }
+      } else {
+        # lastpointer1 := pointer1, (setq pointer1 (cdr pointer1))
+        STACK_0 = STACK_1;
+        STACK_1 = Cdr(STACK_1);
+      }
+    }
+    # Return result:
+    VALUES1(STACK_2);
+    skipSTACK(7+5);
+  }
+
+# UP: Executes a DELETE-DUPLICATES operation on a list.
+# > Stack layout:
+#     sequence from-end start end key test test-not
+#     typdescr l.
+# > up2_fun: address of a test function, with specification:
+#       > stackptr: the same pointer into the stack,
+#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
+#       > x,y: arguments
+#       < true, if the test is satisfied, false otherwise.
+# > bvl: = end - start
+# < mv_space/mv_count: values
+# can trigger GC
+  local Values delete_duplicates_list_from_end (up2_function up2_fun, uintL bvl)
+  {
+    var gcv_object_t* stackptr = &STACK_(6+2);
+    pushSTACK(STACK_(6+2)); # sequence
+    pushSTACK(STACK_(4+2+1)); # start
+    funcall(seq_init_start(STACK_(1+2)),2); # (SEQ-INIT-START sequence start)
+    pushSTACK(value1); # =: pointer1
+    # Stack layout:
+    #   sequence [stackptr], from-end, start, end, key, test, test-not,
+    #   typdescr, l, pointer1.
+    # pointer1 goes from left to right (from start to end).
+    var uintL l1 = bvl;
+    for (; l1 > 1; l1--) {
+      # Fetch next element:
+      pushSTACK(STACK_(6+3)); # sequence
+      pushSTACK(STACK_(0+1)); # pointer1
+      funcall(seq_access(STACK_(2+2)),2); # (SEQ-ACCESS sequence pointer1)
+      funcall_key(STACK_(2+3)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+      pushSTACK(value1); # =: item1
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, pointer1,
+      #   item1.
+      # Loop over the remaining elements:
+      # pointer2 := (SEQ-COPY pointer1):
+      pushSTACK(STACK_(0+1));
+      # lastpointer2 := pointer2 :
+      pushSTACK(STACK_0);
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, pointer1,
+      #   item1, pointer2, lastpointer2.
+      # pointer2 := (SEQ-UPD sequence pointer2) :
+      STACK_1 = Cdr(STACK_1);
+      var uintL l2 = l1-1;
+      do {
+        pushSTACK(STACK_(6+3+3)); # sequence
+        pushSTACK(STACK_(1+1)); # pointer2
+        funcall(seq_access(STACK_(2+3+2)),2); # (SEQ-ACCESS sequence pointer2)
+        funcall_key(STACK_(2+3+3)); # (FUNCALL key (SEQ-ACCESS sequence pointer2))
+        # value1 =: item2
+        # Compare item1 and item2:
+        if ((*up2_fun)(stackptr,STACK_2,value1)) {
+          # Test satisfied -> remove item2:
+          # (cdr lastpointer2) := (setq pointer2 (cdr pointer2))
+          Cdr(STACK_0) = STACK_1 = Cdr(STACK_1);
+          # And update the outer loop's counter.
+          l1--;
+        } else {
+          # lastpointer2 := pointer2, (setq pointer2 (cdr pointer2))
+          STACK_0 = STACK_1;
+          STACK_1 = Cdr(STACK_1);
+        }
+      } while (--l2 > 0);
+      skipSTACK(3);
+      # Stack layout:
+      #   sequence [stackptr], from-end, start, end, key, test, test-not,
+      #   typdescr, l, pointer1.
+      # (setq pointer1 (cdr pointer1))
+      STACK_0 = Cdr(STACK_0);
+    }
+    # Return sequence:
+    VALUES1(STACK_(6+3));
+    skipSTACK(7+3);
+  }
+
+# UP: Executes a sequence duplicates-removal operation.
+# seq_duplicates(up2_fun,help_fun)
+# It traverses a sequence and stores in a bit vector which elements occur
+# twice. Then a routine is called which does the rest.
+# > Stack layout:
 #     sequence from-end start end key test test-not [STACK]
-# > help_fun: Adresse einer Hilfsroutine, die den Rest erledigt.
-#     Spezifiziert durch:
-#       > stackptr: Pointer in den Stack,
+# > help_fun: address of a helper routine which does the rest. Specification:
+#       > stackptr: pointer into the stack,
 #         *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 #       > STACK_2: typdescr,
-#       > STACK_1: Länge der Sequence,
-#       > STACK_0: Bit-Vektor bv,
-#       > bvl: Länge des Bit-Vektors (= end - start),
-#       > dl: Anzahl der im Bit-Vektor gesetzten Bits,
-#       < ergebnis: Ergebnis
+#       > STACK_1: length l of the sequence,
+#       > STACK_0: bit vector bv,
+#       > bvl: length of the bit vector (= end - start),
+#       > dl: number of bits that are set in the bit vector,
+#       < result: result
 #       can trigger GC
-# < mv_space/mv_count: Werte
+# < mv_space/mv_count: values
 # can trigger GC
   local Values seq_duplicates (help_function help_fun)
   {
     var gcv_object_t* stackptr = &STACK_6;
-    # Stackaufbau:
+    # Stack layout:
     #   sequence [stackptr], from-end, start, end, key, test, test-not.
-    # sequence überprüfen:
+    # Check sequence:
     {
       var object sequence = *(stackptr STACKop 0);
-      pushSTACK(get_valid_seq_type(sequence)); # typdescr auf den Stack
+      pushSTACK(get_valid_seq_type(sequence)); # typdescr on the Stack
     }
-    # Stackaufbau:
+    # Stack layout:
     #   sequence [stackptr], from-end, start, end, key, test, test-not,
     #   typdescr.
-    # :test und :test-not überprüfen:
+    # Check :test and :test-not:
     var up2_function up2_fun = test_test2_args(stackptr);
-    # key überprüfen:
+    # Check key:
     test_key_arg(stackptr);
-    # Defaultwert für from-end ist NIL:
+    # Default value for from-end is NIL:
     default_NIL(*(stackptr STACKop -1));
-    # Defaultwert für start ist 0:
+    # Default value for start is 0:
     start_default_0(*(stackptr STACKop -2));
-    # Defaultwert für end ist nil:
+    # Default value for end is NIL:
     default_NIL(*(stackptr STACKop -3));
-    # start und end überprüfen:
+    # Check start and end:
     test_start_end_1(&O(kwpair_start),&*(stackptr STACKop -3));
-    # Länge der Sequence bestimmen:
+    # Determine the length of the sequence:
     pushSTACK(STACK_(6+1)); # sequence
     funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
     pushSTACK(value1); # l
-    # Stackaufbau:
+    # Stack layout:
     #   sequence [stackptr], from-end, start, end, key, test, test-not,
     #   typdescr, l.
-    # Defaultwert für end ist l = (length sequence):
+    # Default value for end is l = (length sequence):
     if (nullp(*(stackptr STACKop -3))) {
       *(stackptr STACKop -3) = STACK_0; # end := l
-      # Dann nochmals start und end überprüfen:
+      # Then check start and end again:
       test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
     }
-    # Nun sind alle Argumente überprüft.
+    # Now all arguments are checked.
     var uintL bvl; # Bitvektor-Länge
-    var uintL dl; # Anzahl der im Bitvektor gesetzten Bits
-    # (- end start) bestimmen und neuen Bitvektor allozieren:
+    # (- end start) bestimmen:
     {
       var object size = I_I_minus_I(STACK_(3+2),STACK_(4+2));
       # size = (- end start), ein Integer >=0
@@ -2806,26 +3049,32 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       }
       bvl = posfixnum_to_L(size);
     }
-    pushSTACK(allocate_bit_vector_0(bvl));
-    # Stackaufbau:
-    #   sequence [stackptr], from-end, start, end, key, test, test-not,
-    #   typdescr, l, bv.
-    dl = 0; # dl := 0
+    var uintL dl = 0; # Anzahl der im Bitvektor gesetzten Bits
     # Bei :test #'eq/eql/equal und großer Länge verwende Hashtabelle:
     if (bvl < 10)
       goto standard;
     if (!(up2_fun == &up2_test))
       goto standard;
     {
-      var object test = STACK_(1+3);
+      var object test = STACK_(1+2);
       if (!(eq(test,L(eq)) || eq(test,L(eql)) || eq(test,L(equal))
             || eq(test,S(eq)) || eq(test,S(eql)) || eq(test,S(equal))))
         goto standard;
     }
     if (false) {
       standard: # Standardmethode
-      if (!(nullp(STACK_(5+3)))) { # from-end abfragen
-        # from-end ist angegeben
+      if (!(nullp(STACK_(5+2)))) { # from-end abfragen
+        # from-end ist specified.
+        if (eq(seq_type(STACK_1),S(list))) { # type LIST ?
+          # In this case we don't need to allocate a bit vector.
+          if (help_fun == &delete_help) {
+            # Delete duplicates from a list.
+            delete_duplicates_list_from_end(up2_fun,bvl);
+            return;
+          }
+        }
+        # Neuen Bitvektor allozieren:
+        pushSTACK(allocate_bit_vector_0(bvl));
         {
           pushSTACK(STACK_(6+3)); # sequence
           pushSTACK(STACK_(4+3+1)); # start
@@ -2900,7 +3149,22 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         }
         skipSTACK(1); # pointer1 vergessen
       } else {
-        # from-end ist nicht angegeben
+        # from-end is not specified.
+        if (eq(seq_type(STACK_1),S(list))) { # type LIST ?
+          # In this case we don't need to allocate a bit vector.
+          if (help_fun == &remove_help) {
+            # Remove duplicates from a list.
+            remove_duplicates_list_from_start(up2_fun,bvl);
+            return;
+          }
+          if (help_fun == &delete_help) {
+            # Delete duplicates from a list.
+            delete_duplicates_list_from_start(up2_fun,bvl);
+            return;
+          }
+        }
+        # Neuen Bitvektor allozieren:
+        pushSTACK(allocate_bit_vector_0(bvl));
         {
           pushSTACK(STACK_(6+3)); # sequence
           pushSTACK(STACK_(4+3+1)); # start
@@ -2983,6 +3247,8 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       }
     } else {
       # Methode mit Hash-Tabelle
+      # Neuen Bitvektor allozieren:
+      pushSTACK(allocate_bit_vector_0(bvl));
       # mit (MAKE-HASH-TABLE :test test) eine leere Hash-Tabelle bauen:
       pushSTACK(S(Ktest)); pushSTACK(STACK_(1+3+1)); funcall(L(make_hash_table),2);
       pushSTACK(value1); # ht retten
