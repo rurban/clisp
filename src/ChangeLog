@@ -1,5 +1,10 @@
 2002-07-19  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (GNU_GETTEXT): define based on NO_GETTEXT and
+	ENABLE_NLS, not complex heuristics
+
+2002-07-19  Sam Steingold  <sds@gnu.org>
+
 	do not distribute readline and termcap with CLISP
 	* configure, makemake.in: dropped termcap and readline
 	* m4/termcap.m4 (LIBTERMCAP): set to "broken" when termcap does

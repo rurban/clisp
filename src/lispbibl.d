@@ -1856,14 +1856,9 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: extend CONSTOBJ, CHARSTRG, FORMAT.LISP.
 
 # Whether to use the GNU gettext library for internationalization:
-#if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
-  # If only one language is needed, we don't have to use gettext.
-  # The gettext library cannot be compiled with a C++-Compiler.
-  # If the character set is not ISOLATIN nor IBMPC, spanish.lisp
-  # cannot be loaded nor compiled.
+#if defined(ENABLE_NLS) && !defined(NO_GETTEXT)
   #define GNU_GETTEXT
 #endif
-# When changed: do nothing
 
 # Whether to create a stream *KEYBOARD-INPUT*
 # and whether it will be used for the stream *TERMINAL-IO*:
