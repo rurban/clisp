@@ -54,6 +54,13 @@
 #define CTRL_CHAR(c) ((c) < control_character_threshold && (c) >= 0)
 #define META_CHAR(c) ((c) > meta_character_threshold && (c) <= largest_char)
 
+/* ADVANCES_CURSOR is 1 for ASCII characters and for the first raw character
+   of a UTF-8 sequence; it's 0 for the tail of a UTF-8 sequence. In a string
+   of correct UTF-8, the number of logical characters is equal to the sum
+   of ADVANCES_CURSOR applied to its characters. */
+#define ADVANCES_CURSOR(c) \
+  (!rl_utf8_mode || (unsigned char)(c) < 0x80 || (unsigned char)(c) >= 0xC0)
+
 #define CTRL(c) ((c) & control_character_mask)
 #define META(c) ((c) | meta_character_bit)
 
