@@ -738,8 +738,8 @@ local uintC generation;
         var Heap* heap = &mem.heaps[heapnr];
         var aint gen0_start = heap->heap_gen0_start;
         var aint gen0_end = heap->heap_gen0_end;
-        var DYNAMIC_ARRAY(cache_buffer,old_new_pointer,physpagesize/sizeof(object));
         if ((gen0_start < gen0_end) && !(heap->physpages==NULL)) {
+          var DYNAMIC_ARRAY(cache_buffer,old_new_pointer,physpagesize/sizeof(object));
           var physpage_state* physpage = heap->physpages;
           gen0_start &= -physpagesize;
           do {
@@ -789,8 +789,8 @@ local uintC generation;
             gen0_start += physpagesize;
             physpage++;
           } while (gen0_start < gen0_end);
+          FREE_DYNAMIC_ARRAY(cache_buffer);
         }
-        FREE_DYNAMIC_ARRAY(cache_buffer);
       }
     }
 
