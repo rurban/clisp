@@ -1,3 +1,9 @@
+2005-01-31  Sam Steingold  <sds@gnu.org>
+
+	print diagnostics instead of usage on argument error
+	* spvw.d (arg_error, ILLEGAL_ARG): added
+	(parse_options): call them instead of usage()
+
 2005-01-30  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (activate_specdecl, specdecled_p): moved here from
