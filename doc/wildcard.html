@@ -1,0 +1,88 @@
+<HTML>
+<HEAD>
+<!-- This HTML file has been created by texi2html 1.52
+     from ../modules/wildcard/wildcard.texinfo on 14 September 2001 -->
+
+<TITLE>Untitled Document</TITLE>
+</HEAD>
+<BODY>
+<H1>Untitled Document</H1>
+<P>
+<P><HR><P>
+<H1>Table of Contents</H1>
+<UL>
+<LI><A NAME="TOC1" HREF="wildcard.html#SEC1">The Wildcard Module</A>
+<LI><A NAME="TOC2" HREF="wildcard.html#SEC2">Wildcard Syntax</A>
+</UL>
+<P><HR><P>
+<P>
+@newindex {fn}
+
+</P>
+
+
+<H1><A NAME="SEC1" HREF="wildcard.html#TOC1">The Wildcard Module</A></H1>
+
+<P>
+Wildcards, also called "Shell Filename Patterns", describe sets of file names.
+
+</P>
+<P>
+The <CODE>wildcard</CODE> package exports the following symbol:
+
+</P>
+<P>
+<DL>
+<DT><U>Function:</U> <B>match</B> <I>pattern string [:start] [:end] [:case-insensitive]</I>
+<DD><A NAME="IDX1"></A>
+This function returns a non-<CODE>nil</CODE> value if the <VAR>string</VAR> matches
+the <VAR>pattern</VAR>.
+
+</P>
+</DL>
+
+
+
+<H1><A NAME="SEC2" HREF="wildcard.html#TOC2">Wildcard Syntax</A></H1>
+
+<DL COMPACT>
+
+<DT><CODE>*</CODE>
+<DD>
+Matches any zero or more characters.
+
+<DT><CODE>?</CODE>
+<DD>
+Matches any one character.
+
+<DT><CODE>[<VAR>string</VAR>]</CODE>
+<DD>
+Matches exactly one character that is a member of the string
+<VAR>string</VAR>.  This is called a <EM>character class</EM>.  As a shorthand,
+<VAR>string</VAR> may contain ranges, which consist of two characters with a
+dash between them.  For example, the class <SAMP>`[a-z0-9_]'</SAMP> matches a
+lowercase letter, a number, or an underscore.  You can negate a class by
+placing a <SAMP>`!'</SAMP> or <SAMP>`^'</SAMP> immediately after the opening bracket.
+Thus, <SAMP>`[^A-Z@]'</SAMP> matches any character except an uppercase letter
+or an at sign.
+
+<DT><CODE>\</CODE>
+<DD>
+Removes the special meaning of the character that follows it.  This
+works even in character classes.
+</DL>
+
+<P>
+Slash characters have no special significance in the wildcard matching,
+unlike in the shell, in
+which wildcards do not match them.  Therefore, a pattern <SAMP>`foo*bar'</SAMP>
+can match a file name <SAMP>`foo3/bar'</SAMP>, and a pattern <SAMP>`./sr*sc'</SAMP> can
+match a file name <SAMP>`./src/misc'</SAMP>.
+
+</P>
+<P><HR><P>
+This document was generated on 14 September 2001 using the
+<A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
+translator version 1.52.</P>
+</BODY>
+</HTML>
