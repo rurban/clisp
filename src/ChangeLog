@@ -1,3 +1,9 @@
+2003-12-15  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp (sys::%expand-form): Call %expand-form on the result of a
+	symbol-macro expansion, instead of returning the expansion directly.
+	Reported by Conrad Barski.
+
 2003-12-12  Sam Steingold  <sds@gnu.org>
 
 	prompt is now fully customizable by the user
