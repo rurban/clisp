@@ -1,3 +1,9 @@
+2003-11-17  Sam Steingold  <sds@gnu.org>
+
+	new module for interface to Berkley DB
+	<http://www.sleepycat.com/docs/api_c/dbt_class.html>
+	* modules/berkeley-db: new directory
+
 2003-11-14  Sam Steingold  <sds@gnu.org>
 
 	* io.d (FORMAT-TABULATE): do not lose the top empty string
@@ -858,7 +864,7 @@
 
 2003-08-11  Sam Steingold  <sds@gnu.org>
 
-	* wrap.lisp (*license*): new variable
+	* modules/netica/wrap.lisp (*license*): new variable
 	(start-netica): license is a keyword parameter
 	(*features*): push :netica
 

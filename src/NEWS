@@ -7,6 +7,11 @@ User visible changes
 * Support files larger than 2 GB or 4 GB on platforms with LFS
   (Large File Support).
 
+* New module berkeley-db interfaces to
+  <http://www.sleepycat.com/docs/api_c/dbt_class.html>
+  and allows working the Berkeley DB databases.
+  See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
+
 * Readline is now used properly on Cygwin/X11.
 
 

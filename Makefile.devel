@@ -134,6 +134,7 @@ CONFIGURES = src/configure						 \
 	modules/clx/new-clx/configure modules/postgresql/configure	 \
 	modules/dirkey/configure modules/syscalls/configure 		 \
 	modules/oracle/configure modules/fastcgi/configure		 \
+	modules/berkeley-db/configure					 \
 	ffcall/configure ffcall/avcall/configure ffcall/vacall/configure \
 	ffcall/trampoline/configure ffcall/callback/configure		 \
 	ffcall/callback/vacall_r/configure				 \
@@ -143,6 +144,7 @@ CONFIGURES = src/configure						 \
 CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in	\
 	modules/dirkey/config.h.in modules/syscalls/config.h.in		\
 	modules/clx/new-clx/config.h.in modules/postgresql/config.h.in  \
+	modules/berkeley-db/config.h.in					\
 	src/unixconf.h.in
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)

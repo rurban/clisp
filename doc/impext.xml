@@ -2151,6 +2151,9 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
     explore).</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="dir-key">dirkey</link></term>
   <listitem><simpara>Directory Access</simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="berkeley-db">berkeley-db</link></term>
+  <listitem><simpara>&sleepycat-berkeley-db;
+    interface</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="regexp">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
    Expressions</ulink> matching, compiling, executing.
@@ -2165,6 +2168,8 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
 &netica;
 
 &dirkey;
+
+&berkeley-db;
 
 &regexp;
 

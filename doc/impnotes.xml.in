@@ -12,6 +12,7 @@
   <!ENTITY imp-ext SYSTEM "impext.xml">
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
   <!ENTITY dirkey SYSTEM "../modules/dirkey/dirkey.xml">
+  <!ENTITY berkeley-db SYSTEM "../modules/berkeley-db/berkeley-db.xml">
   <!ENTITY netica SYSTEM "../modules/netica/netica.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
