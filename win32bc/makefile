@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host david as the output of the command:
+# This file was created on host SSTEINGOLD as the output of the command:
 # ./makemake --with-dir-key win32bc bcc32i
 
 # -------------- Start of configurable section --------------------
@@ -413,6 +413,7 @@ foreign1.lisp \
 clhs.lisp \
 inspect.lisp \
 gray.lisp \
+dirkey.lisp \
 german.lisp \
 french.lisp \
 spanish.lisp \
@@ -460,6 +461,7 @@ foreign1.fas \
 clhs.fas \
 inspect.fas \
 gray.fas \
+dirkey.fas \
 german.fas \
 french.fas \
 spanish.fas \
@@ -512,6 +514,7 @@ stage\foreign1.lisp \
 stage\clhs.lisp \
 stage\inspect.lisp \
 stage\gray.lisp \
+stage\dirkey.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
@@ -559,6 +562,7 @@ stage\foreign1.fas \
 stage\clhs.fas \
 stage\inspect.fas \
 stage\gray.fas \
+stage\dirkey.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
@@ -1995,6 +1999,9 @@ inspect.fas : inspect.lisp lisp.exe interpreted.mem
 gray.fas : gray.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c gray.lisp
 
+dirkey.fas : dirkey.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c dirkey.lisp
+
 german.fas : german.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c german.lisp
 
@@ -2155,6 +2162,9 @@ stage\inspect.lisp : inspect.lisp
 stage\gray.lisp : gray.lisp
 	$(LN_S) gray.lisp stage
 
+stage\dirkey.lisp : dirkey.lisp
+	$(LN_S) dirkey.lisp stage
+
 stage\german.lisp : german.lisp
 	$(LN_S) german.lisp stage
 
@@ -2289,6 +2299,9 @@ stage\inspect.fas : stage\inspect.lisp lisp.exe lispinit.mem
 
 stage\gray.fas : stage\gray.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/gray.lisp
+
+stage\dirkey.fas : stage\dirkey.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/dirkey.lisp
 
 stage\german.fas : stage\german.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/german.lisp
