@@ -11,7 +11,7 @@
 	(TrueName): similar to FullName, but tries to resolve every
 	pathname component up to filename.
 	(resolve_shell_symlink): changed result type, input parameters.
-	(assure_dir_exists): splitted MSDOS and WIN32_NATIVE, latter
+	(assure_dir_exists): split MSDOS and WIN32_NATIVE, the latter
 	is rewritten.
 	(directory_search_1subdir) [WIN32_NATIVE]: separated from others.
 	Uses TrueName to handle links.
@@ -24,8 +24,8 @@
 	Fix build for MSVC.
 	* win32.d (MyCreateProcess): declare 1st parameter as const
 	* win32aux.d (MyCreateProcess): same.
-	* stream.d (sock_opt_bool, sock_opt_int, sock_opt_time,
-	SOCKET-OPTIONS): change length parameter of [g|s]etsockopt
+	* stream.d (sock_opt_bool, sock_opt_int, sock_opt_time)
+	(SOCKET-OPTIONS): change length parameter of [g|s]etsockopt
 	to type int (uint is absent). Cast option to (char *) - as
 	declared in winsock (won't hurt (void *) unix declaration).
 
