@@ -116,11 +116,12 @@ and
 
 <para>The <link linkend="clhs-chapters">first part</link> of these notes
  is indexed in parallel to the &hyperspec; and documents how &clisp;
- implements the standard &ansi-cl;, including the &amop;.</para>
+ implements the standard &ansi-cl;.</para>
 
 <para>The <link linkend="extensions">second part</link> documents the
  &clisp; extensions, i.e., the functionality that goes beyond the
- &ansi-cl; requirements.</para>
+ &ansi-cl; requirements.  It includes widely portable common extensions,
+ e.g., the &amop;, as well as &clisp;-specific extensions.</para>
 
 <para>The <link linkend="internals">third part</link> is intended mostly
  for developers as it documents the &clisp; internals, e.g., &gc;ion,
@@ -149,15 +150,15 @@ and
      <entry><literal role="sexp">(&cons; 1 2)</literal></entry></row>
     <row><entry>Data (&clisp; is likely to print it)</entry>
      <entry><literal role="data">#(1 2 3)</literal></entry></row>
-    <row><entry>Code sample</entry><entry><programlisting>
+    <row><entry>Code sample</entry><entry><programlisting role="lisp">
 (defun cycle-length (n &optional-amp; (len 1) (top 0))
   (cond ((= n 1) (values len top))
         ((evenp n) (cycle-length (ash n -1) (1+ len) (max top n)))
         (t (let ((next (1+ (* 3 n))))
              (cycle-length next (1+ len) (max top next))))))
     </programlisting></entry></row>
-    <row><entry>Bytecode</entry><entry><literal role="byte">(STOREV
-       &k-r; &m-r;)</literal></entry></row>
+    <row><entry>Bytecode instruction</entry><entry><literal
+      role="byte">(STOREV &k-r; &m-r;)</literal></entry></row>
     <row><entry>first mention of an entity</entry>
      <entry><firstterm>firstterm</firstterm></entry></row>
 </tbody></tgroup></informaltable></para></preface>
