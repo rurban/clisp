@@ -1,5 +1,11 @@
 2002-01-31  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (hashtable_test): new macro
+	* io.d (pr_orecord): use it
+	* hashtable.d (HASH-TABLE-TEST): ditto
+
+2002-01-31  Sam Steingold  <sds@gnu.org>
+
 	* record.d (mk_weakpointer): new local helper function
 	(allocate_weakpointer): new global function, uses mk_weakpointer()
 	(MAKE-WEAK-POINTER): use mk_weakpointer()

@@ -4433,6 +4433,10 @@ typedef struct {
   #define mark_ht_valid(ptr)  record_flags_clr(ptr,bit(7))
   #define ht_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
 #endif
+#define hashtable_test(flags)                                   \
+  (flags & bit(0) ? S(eq) :    flags & bit(1) ? S(eql) :        \
+   flags & bit(2) ? S(equal) : flags & bit(3) ? S(equalp) :     \
+   (NOTREACHED,nullobj))
 
 # Readtables
 typedef struct {

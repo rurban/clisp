@@ -1539,11 +1539,7 @@ LISPFUNN(hash_table_test,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
   var uintB flags = record_flags(TheHashtable(ht));
-  value1 = (flags & bit(0) ? S(eq) : # EQ
-            flags & bit(1) ? S(eql) : # EQL
-            flags & bit(2) ? S(equal) : # EQUAL
-            flags & bit(3) ? S(equalp) : # EQUALP
-            NIL /*NOTREACHED*/);
+  value1 = hashtable_test(flags);
   mv_count=1; # symbol as value
 }
 
