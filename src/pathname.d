@@ -7992,11 +7992,10 @@ LISPFUNN(rename_file,2)
         return make_file_stream(handle,direction,type,eltype_size,append_flag);
     } }
 
-LISPFUN(open,1,0,norest,key,4,\
-        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist)) )
-# (OPEN filename :direction :element-type :if-exists :if-does-not-exist),
-# CLTL S. 418
-  { var object filename = STACK_4; # filename
+LISPFUN(open,1,0,norest,key,5,\
+        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
+# (OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format)
+  { var object filename = STACK_5; # filename
     if (streamp(filename))
       { # muß File-Stream sein:
         filename = as_file_stream(filename);
@@ -8013,7 +8012,7 @@ LISPFUN(open,1,0,norest,key,4,\
     var uintB type;
     var object eltype_size = NIL;
     # :direction überprüfen und in direction übersetzen:
-    { var object arg = STACK_3;
+    { var object arg = STACK_4;
       if (eq(arg,unbound) || eq(arg,S(Kinput))) { direction = 1; }
       elif (eq(arg,S(Kinput_immutable))) { direction = 3; }
       elif (eq(arg,S(Koutput))) { direction = 4; }
@@ -8031,7 +8030,7 @@ LISPFUN(open,1,0,norest,key,4,\
               );
     } }
     # :element-type überprüfen und in type und eltype_size übersetzen:
-    { var object arg = STACK_2;
+    { var object arg = STACK_3;
       if (eq(arg,unbound) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # STRING-CHAR, :DEFAULT
         { type = strmtype_sch_file; goto eltype_ok; }
       if (eq(arg,S(character))) # CHARACTER
@@ -8112,7 +8111,7 @@ LISPFUN(open,1,0,norest,key,4,\
           goto eltype_integer;
         }
      bad_eltype:
-      pushSTACK(STACK_2); pushSTACK(S(open));
+      pushSTACK(STACK_3); pushSTACK(S(open));
       fehler(error,
              DEUTSCH ? "~: Als :ELEMENT-TYPE-Argument ist ~ unzulässig." :
              ENGLISH ? "~: illegal :ELEMENT-TYPE argument ~" :
@@ -8130,7 +8129,7 @@ LISPFUN(open,1,0,norest,key,4,\
      eltype_ok: ;
     }
     # :if-exists überprüfen und in if_exists übersetzen:
-    { var object arg = STACK_1;
+    { var object arg = STACK_2;
       if (eq(arg,unbound)) { if_exists = 0; }
       elif (eq(arg,S(Kerror))) { if_exists = 1; }
       elif (eq(arg,NIL)) { if_exists = 2; }
@@ -8151,7 +8150,7 @@ LISPFUN(open,1,0,norest,key,4,\
               );
     } }
     # :if-does-not-exist überprüfen und in if_not_exists übersetzen:
-    { var object arg = STACK_0;
+    { var object arg = STACK_1;
       if (eq(arg,unbound)) { if_not_exists = 0; }
       elif (eq(arg,S(Kerror))) { if_not_exists = 1; }
       elif (eq(arg,NIL)) { if_not_exists = 2; }
@@ -8167,8 +8166,21 @@ LISPFUN(open,1,0,norest,key,4,\
                ""
               );
     } }
+    # :external-format überprüfen:
+    { var object arg = STACK_0;
+      if (!(eq(arg,unbound) || eq(arg,S(Kdefault))))
+        { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_external_format)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(arg); pushSTACK(S(open));
+          fehler(type_error,
+                 DEUTSCH ? "~: Als :EXTERNAL-FORMAT-Argument ist ~ unzulässig." :
+                 ENGLISH ? "~: illegal :EXTERNAL-FORMAT argument ~" :
+                 FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :EXTERNAL-FORMAT." :
+                 ""
+                );
+    }   }
     # File öffnen:
-    skipSTACK(5);
+    skipSTACK(6);
     value1 = open_file(filename,direction,if_exists,if_not_exists,type,eltype_size);
     mv_count=1;
   }}

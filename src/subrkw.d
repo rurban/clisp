@@ -145,7 +145,7 @@ s(make_logical_pathname)
 #endif
 v(2, (kw(all),kw(merge)) )
 s(translate_pathname)
-v(4, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist)) )
+v(5, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
 s(open)
 v(2, (kw(circle),kw(full)) )
 s(directory)

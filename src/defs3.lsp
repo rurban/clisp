@@ -130,10 +130,11 @@ copy-structure
 eval constantp make-synonym-stream make-broadcast-stream
 make-concatenated-stream make-two-way-stream make-echo-stream
 make-string-input-stream make-string-output-stream get-output-stream-string
-streamp open-stream-p input-stream-p output-stream-p stream-element-type close
-broadcast-stream-streams concatenated-stream-streams echo-stream-input-stream
-echo-stream-output-stream synonym-stream-symbol two-way-stream-input-stream
-two-way-stream-output-stream interactive-stream-p
+streamp open-stream-p input-stream-p output-stream-p stream-element-type
+stream-external-format close broadcast-stream-streams
+concatenated-stream-streams echo-stream-input-stream echo-stream-output-stream
+synonym-stream-symbol two-way-stream-input-stream two-way-stream-output-stream
+interactive-stream-p
 copy-readtable readtablep set-syntax-from-char set-macro-character
 get-macro-character make-dispatch-macro-character
 set-dispatch-macro-character get-dispatch-macro-character readtable-case
