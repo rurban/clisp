@@ -11850,6 +11850,9 @@ extern inline bool input_stream_p(const object stream);
 # Function: Tests whether an object is an output-stream.
 extern inline bool output_stream_p(const object stream);
 
+# Function: test whether a stream is a terminal stream.
+extern bool terminal_stream_p(const object stream);
+
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
 # Returns the file descriptor of a stream.

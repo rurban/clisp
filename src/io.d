@@ -1328,6 +1328,8 @@ LISPFUNN(set_readtable_case,2)
     var object ch;
     var uintWL scode;
     {
+      if (terminal_stream_p(*stream_))
+        dynamic_bind(S(terminal_read_open_object),S(symbol));
       # fetch empty Token-Buffers, upon STACK:
       get_buffers(); # (don't need to save ch)
       # the two buffers lie up th the end of read_token_1 in the Stack.
@@ -1428,6 +1430,8 @@ LISPFUNN(set_readtable_case,2)
       token_escape_flag = escape_flag; # store Escape-Flag
       O(token_buff_2) = popSTACK(); # Attributecode-Buffer
       O(token_buff_1) = popSTACK(); # Character-Buffer
+      if (terminal_stream_p(*stream_))
+        dynamic_unbind(); # S(terminal_read_open_object)
     }
 
 # --------------- READ between token-level and objekt-level ------------------
@@ -2557,6 +2561,8 @@ LISPFUNN(set_readtable_case,2)
       # (for error-message, in order to know about the line with the opening parenthese):
       var object lineno = stream_line_number(*stream_);
       dynamic_bind(S(read_line_number),lineno);
+      if (terminal_stream_p(*stream_))
+        dynamic_bind(S(terminal_read_open_object),S(list));
       var object ergebnis;
       # possibly bind SYS::*READ-RECURSIVE-P* to T, first:
       if (test_value(S(read_recursive_p))) { # recursive?
@@ -2567,6 +2573,8 @@ LISPFUNN(set_readtable_case,2)
         ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
         dynamic_unbind();
       }
+      if (terminal_stream_p(*stream_))
+        dynamic_unbind(); # S(terminal_read_open_object)
       dynamic_unbind();
       return ergebnis;
     }
@@ -2777,6 +2785,8 @@ LISPFUNN(rpar_reader,2) # reads )
 LISPFUNN(string_reader,2) # reads "
   {
     var object* stream_ = test_stream_arg(STACK_1);
+    if (terminal_stream_p(*stream_))
+      dynamic_bind(S(terminal_read_open_object),S(string));
     # stack layout: stream, char.
     if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
       # yes -> only read ahead of string:
@@ -2833,6 +2843,8 @@ LISPFUNN(string_reader,2) # reads "
       # free Buffer for reuse:
       O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
     }
+    if (terminal_stream_p(*stream_))
+      dynamic_unbind(); # S(terminal_read_open_object)
     mv_count=1; skipSTACK(2);
     return;
    fehler_eof:
