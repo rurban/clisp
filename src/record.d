@@ -677,54 +677,66 @@ LISPFUNN(function_macro_expander,1)
     value1 = TheFunctionMacro(obj)->functionmacro_macro_expander; mv_count=1;
   }
 
-# ==============================================================================
+# ===========================================================================
 # Weak-Pointer:
 
-LISPFUNN(make_weak_pointer,1)
-# (MAKE-WEAK-POINTER value) returns a fresh weak pointer referring to value.
-  {
-    var object wp = allocate_weakpointer();
-    var object obj = popSTACK();
-    TheWeakpointer(wp)->wp_value = obj;
-    if (gcinvariant_object_p(obj)) {
-      TheWeakpointer(wp)->wp_cdr = Fixnum_0; # a GC-invariant dummy
-    } else {
-      TheWeakpointer(wp)->wp_cdr = O(all_weakpointers);
+# UP: make a weakpointer to popSTACK()
+# can trigger GC, modifies STACK
+local object mk_weakpointer () {
+  var object wp = allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,
+                                   weakpointer_xlength,orecord_type);
+  var object obj = popSTACK();
+  TheWeakpointer(wp)->wp_value = obj;
+  if (gcinvariant_object_p(obj)) {
+    TheWeakpointer(wp)->wp_cdr = Fixnum_0; # a GC-invariant dummy
+  } else {
+    TheWeakpointer(wp)->wp_cdr = O(all_weakpointers);
       O(all_weakpointers) = wp;
-    }
-    value1 = wp; mv_count=1;
   }
+  return wp;
+}
 
-LISPFUNN(weak_pointer_p,1)
+# UP: allocates a Weakpointer to the given object
+# allocate_weakpointer(obj)
+# > obj: a Lisp object to which the result should point
+# < result: a fresh weak-pointer
+# can trigger GC
+global object allocate_weakpointer (object obj) {
+  pushSTACK(obj);
+  return mk_weakpointer();
+}
+
+# (MAKE-WEAK-POINTER value) returns a fresh weak pointer referring to value.
+LISPFUNN(make_weak_pointer,1) {
+  value1 = mk_weakpointer(); mv_count=1;
+}
+
 # (WEAK-POINTER-P object) returns true if the object is of type WEAK-POINTER.
-  {
-    var object obj = popSTACK();
-    value1 = (weakpointerp(obj) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(weak_pointer_p,1) {
+  var object obj = popSTACK();
+  value1 = (weakpointerp(obj) ? T : NIL); mv_count=1;
+}
 
-LISPFUNN(weak_pointer_value,1)
-# (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value and
-# T, if the value has not yet been garbage collected, else NIL and NIL.
-  {
-    var object wp = popSTACK();
-    if (!weakpointerp(wp)) {
-      pushSTACK(wp); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(S(weak_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(wp);
-      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-      fehler(type_error,
-             GETTEXT("~: ~ is not a weak pointer")
-            );
-    }
-    if (eq(TheWeakpointer(wp)->wp_cdr,unbound)) {
-      value1 = NIL; value2 = NIL;
-    } else {
-      value1 = TheWeakpointer(wp)->wp_value; value2 = T;
-    }
-    mv_count=2;
+# (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value
+# and T, if the value has not yet been garbage collected, else NIL and NIL.
+LISPFUNN(weak_pointer_value,1) {
+  var object wp = popSTACK();
+  if (!weakpointerp(wp)) {
+    pushSTACK(wp); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(S(weak_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(wp);
+    pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+    fehler(type_error,GETTEXT("~: ~ is not a weak pointer"));
   }
+  if (weakpointer_broken_p(wp)) {
+    value1 = NIL; value2 = NIL;
+  } else {
+    value1 = TheWeakpointer(wp)->wp_value; value2 = T;
+  }
+  mv_count=2;
+}
 
-# ==============================================================================
+# ===========================================================================
 # Finalisierer:
 
 LISPFUN(finalize,2,1,norest,nokey,0,NIL)
@@ -745,8 +757,8 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL)
     skipSTACK(3); value1 = NIL; mv_count=1;
   }
 
-# ==============================================================================
-# CLOS-Objekte:
+# ===========================================================================
+# CLOS-Object:
 
 LISPFUNN(structure_object_p,1)
 # (CLOS::STRUCTURE-OBJECT-P object) überprüft, ob object eine Structure ist.
