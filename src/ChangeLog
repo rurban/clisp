@@ -2,6 +2,7 @@
 
 	* disassem.lisp (orig-fundef): new aux function
 	(disassemble): moved here and made into a generic function
+	handle SYMBOL-MACROs too
 	* compiler.lisp (disassemble): removed
 	* init.lisp: load "disassem" after CLOS
 	* makemake.in (LPARTS): reorder
