@@ -28,14 +28,12 @@ image.fas: image.lisp clx.lib
 clx.e: clx.f
 	$(CCMP2C) clx.f > genclx.c
 	$(CC) $(CFLAGS) $(WANTS) genclx.c -o genclx
-	./genclx > clx.e
+	./genclx -l -o clx.e > clx.e
 	$(RM) genclx.c
 	$(RM) genclx
 
 clx.c: clx.e $(MODPREP)
-	$(RM) clx.d
-	echo "#line 1 \"clx.f\"" > clx.d
-	cat clx.e >> clx.d
+	cp clx.e clx.d
 	$(CLISP) $(MODPREP) clx.d clx.c
 
 clx.o: clx.c
