@@ -1,3 +1,45 @@
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
+	* clos.lisp (find-method-combination): Renamed from
+	method-combination-object.
+	(method-combination): Add slots check-method-qualifiers,
+	call-next-method-allowed.
+	(method-combination STANDARD): Delay initialization until ready.
+	Initialize the two new method-combination slots.
+	(analyze-method-description): Return the qualifiers in the order they
+	were given in the method description, not in reverse order. Fix bug
+	introduced on 2004-02-09.
+	(standard-method-combination-expander): Style improvement. Rename
+	inner function apply-forms to forms-for-invoking-sequentially.
+	(short-form-method-combination-check-method-qualifiers): New function.
+	(standard-method-combination-call-next-method-allowed): New function.
+	(check-method-qualifiers): New function.
+	(invalid-method-qualifiers-error): New function.
+	(std-add-method): Invoke check-method-qualifiers.
+	(analyze-defgeneric): Return method combination as 3rd value, not as
+	5th value. Better error message.
+	(defgeneric, ensure-generic-function): Update.
+	(make-generic-function): Set the method combination before adding the
+	methods, not after.
+	(do-defgeneric): Likewise. When changing the method combination of an
+	existing generic function, check its methods' qualifiers against it.
+	(make-generic-function-form): Update.
+	(no-next-method): Invoke call-next-method-allowed and provide a more
+	appropriate error message.
+	(qualifiers-match-p): Fix typo in error message.
+	(compute-method-partition-lambdas): Renamed from
+	compute-method-partition-lambda. Provide a second lambda form as a
+	second value. Use symbol CLOS::METHD instead of CL:METHOD.
+	(define-method-combination): Initialize the two new method-combination
+	slots. Don't use (COMPILE NIL ...) on code that comes partially from
+	the user.
+	(compute-effective-method-function): Style improvement.
+	(compute-short-form-effective-method-form): Remove first argument.
+	(short-form-method-combination-call-next-method-allowed): New function.
+	(long-form-method-combination-call-next-method-allowed): New function.
+	(method-combination AND APPEND ... PROGN +): Initialize the two new
+	method-combination slots.
+
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d: Use 'extern' instead of 'global'.
