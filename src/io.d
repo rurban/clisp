@@ -7904,12 +7904,11 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
           switch (atype) {
             case Atype_Bit: # print whole bitvectors instead of single bits
               locals.pr_one_elt = &pr_array_elt_bvector;
-              goto nicht_einzeln;
+              goto not_single;
             case Atype_Char: # print whole Strings instead of single Characters
               locals.pr_one_elt = &pr_array_elt_string;
-          nicht_einzeln:
-                  # don't print single einzelne elements, but one-dimensional
-                  # sub-arrays.
+            not_single:
+              # don't print single elements, but one-dimensional sub-arrays.
               depth--; # therefore depth := r-1
               locals.info.count = dims_sizes[0].dim; # Dim_r as "Elementary length"
               locals.dims_sizes++; # consider only Dim_1, ..., Dim_(r-1)
