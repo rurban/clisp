@@ -4006,14 +4006,14 @@ bash$
  <listitem><simpara>The functions &run-cmd; and &run-prog; are the
    general interface to &shell; and the above:</simpara>
 
-   <simpara><literal role="sexp">(&run-cmd; &command-r; &key-amp;
-   &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
+  <simpara><literal role="sexp">(&run-cmd; &command-r; &key-amp;
+    &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
    runs a shell command (including shell built-in commands,
    like <command>DIR</command> on &win32;/&os2;
    and <command>for/do/done</command> on &unix;).</simpara>
 
-   <simpara><literal role="sexp">(&run-prog; &program-r; &key-amp;
-   &arguments-k; &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
+  <simpara><literal role="sexp">(&run-prog; &program-r; &key-amp;
+    &arguments-k; &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
    runs an external program.</simpara>
 
   <variablelist>
@@ -4041,22 +4041,25 @@ bash$
      program.</simpara></listitem></varlistentry>
    <varlistentry><term>&input-k;</term>
     <listitem><simpara>where the program's input is to come from: either
-     <constant>:TERMINAL</constant> (the standard input) or &stream-k;
-     (a Lisp stream to be created) or a pathname (an input file) or
+     <constant>:TERMINAL</constant> (the standard input, default) or
+     &stream-k; (a Lisp stream to be created) or
+     a pathname (an input file) or
      &nil; (no input at all).</simpara></listitem></varlistentry>
    <varlistentry><term>&output-k;</term>
     <listitem><simpara>where the program's output is to be sent to: either
-     <constant>:TERMINAL</constant> (the standard output) or &stream-k;
-     (a Lisp stream to be created) or a pathname (an output file) or
+     <constant>:TERMINAL</constant> (the standard output, default) or
+     &stream-k; (a Lisp stream to be created) or
+     a pathname (an output file) or
      &nil; (ignore the output).</simpara></listitem></varlistentry>
    <varlistentry><term>&if-output-exists;</term>
-    <listitem><simpara>what to do if the &output-k; file already
-     exists.  The possible values are &overwrite-k;, &append-k;,
-     &error-k;, with the same meaning as for &open;.
+    <listitem><simpara>what to do if the &output-k; file already exists.
+     The possible values are &overwrite-k;, &append-k;, &error-k;,
+     with the same meaning as for &open;. The default is &overwrite-k;.
     </simpara></listitem></varlistentry>
    <varlistentry><term>&wait-k;</term>
-    <listitem><simpara>wether to wait for program termination or not
-     (this is useful when no i/o to the process is needed).
+    <listitem><simpara>whether to wait for program termination or not
+     (this is useful when no i/o to the process is needed);
+     the default is &t;, i.e., synchronous execution.
     </simpara></listitem></varlistentry>
 <!-- #ifdef UNIX -->
    <varlistentry><term><constant>:MAY-EXEC</constant></term>
