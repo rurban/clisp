@@ -1,3 +1,8 @@
+2004-12-14  Bruno Haible  <bruno@clisp.org>
+
+	* configure: Unset CDPATH.
+	Reported by Robert Olney <rolney@pcug.org.au>.
+
 2004-12-13  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp: Call disable-note.
