@@ -135,5 +135,5 @@
                      :LAMBDA-LIST ',lambda-list
                      'SIGNATURE ,sig
                      :SPECIALIZERS (LIST ,@(nreverse req-specializer-forms))
-                     ,@(if (eq caller 'DEFGENERIC) `(:ORIGIN T)))
+                     ,@(if (eq caller 'DEFGENERIC) `('FROM-DEFGENERIC T)))
                   sig)))))))))
