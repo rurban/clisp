@@ -58,6 +58,11 @@ section   toc
 set       toc,title
 </xsl:param>
 
+<xsl:template match="programlisting/computeroutput">
+ <xsl:text>&#8658;&#160;</xsl:text> <!-- &rArr; + &nbsp; -->
+ <xsl:apply-imports/>
+</xsl:template>
+
 <xsl:template match="varlistentry/term">
  <xsl:call-template name="anchor"/>
  <xsl:apply-templates/>
