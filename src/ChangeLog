@@ -1,5 +1,10 @@
 2005-02-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/Makefile.in, modules/regexp/Makefile.in:
+	* modules/rawsock/Makefile.in (DISTRIBFILES): added preload.lisp
+
+2005-02-14  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (require): search in *LIB-DIRECTORY*/dynmod too
 	* makemake.in (install): install dynmod
 	(distrib): distribute dynmod
