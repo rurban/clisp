@@ -4,6 +4,9 @@
 
 <chapter id="source-files"><title>The source files of &clisp;</title>
 
+<para>For files in &clisp; binary distributions,
+ see <olink targetdoc="man" targetptr="files"/>.</para>
+
 <section id="scr-file-types"><title>File Types</title>
 
 <variablelist>
@@ -423,8 +426,8 @@
     </simpara></listitem></varlistentry>
     <varlistentry><term><filename>cfgwin32.lisp</filename></term>
      <listitem><simpara>for the &win32;
-    </simpara></listitem></varlistentry>
-</variablelist></para></listitem></varlistentry>
+    </simpara></listitem></varlistentry></variablelist>
+   See <xref linkend="customize"/>.</para></listitem></varlistentry>
 <varlistentry><term><filename>compiler.lisp</filename></term>
  <listitem><simpara>compiles Lisp code
    to <link linkend="bytecode">bytecode</link>

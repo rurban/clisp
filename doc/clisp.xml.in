@@ -17,7 +17,7 @@
   <!ENTITY exprs "<replaceable>expressions</replaceable>">
   <!ENTITY opt-c "<option><link linkend='opt-compile'>-c</link></option>">
   <!ENTITY opt-x "<option><link linkend='opt-exec-expr'>-x</link></option>">
-  <!ENTITY config-lisp "<link linkend='config-file'><filename>config.lisp</filename></link>">
+  <!ENTITY config-lisp "<link linkend='config-lisp'><filename>config.lisp</filename></link>">
 ]>
 
 <refentry id="clisp">
@@ -514,7 +514,7 @@ compiles the specified lisp files to a platform-independent
 <varlistentry><term><filename>lispinit.mem</filename></term>
 <listitem><simpara>initial &mem-image;</simpara></listitem></varlistentry>
 
-<varlistentry id="config-file"><term><filename>config.lisp</filename></term>
+<varlistentry id="config-lisp"><term><filename>config.lisp</filename></term>
 <listitem><simpara>site-dependent configuration (should have been
   customized before &clisp; was built); see
   <olink targetdoc="impnotes" targetptr="customize"/>
@@ -538,6 +538,8 @@ compiles the specified lisp files to a platform-independent
  (see <olink targetdoc="impnotes" targetptr="dffi"/>)
 </simpara></listitem></varlistentry>
 </variablelist>
+<para>For the &clisp; source files,
+ see <olink targetdoc="impnotes" targetptr="source-files"/>.</para>
 </refsection>
 
 <!-- #ifdef HAVE_ENVIRONMENT -->
