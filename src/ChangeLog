@@ -1,3 +1,20 @@
+2004-10-23  Bruno Haible  <bruno@clisp.org>
+
+	New generic function compute-effective-slot-definition-initargs.
+	* init.lisp: Export compute-effective-slot-definition-initargs.
+	* clos-package.lisp: Likewise.
+	* clos-slotdef1.lisp (<direct-slot-definition>): New variable.
+	(direct-slot-definition-p): New function.
+	* clos-class3.lisp (compute-effective-slot-definition-initargs-<class>):
+	New function.
+	(compute-effective-slot-definition-initargs): New preliminary function.
+	(compute-effective-slot-definition-<class>): Call it.
+	(<direct-slot-definition>): Initialize.
+	* clos-genfun2b.lisp (*dynamically-modifiable-generic-function-names*):
+	Add compute-effective-slot-definition-initargs.
+	* clos-class6.lisp (compute-effective-slot-definition-initargs): New
+	generic function.
+
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class6.lisp (class-funcallablep): Fix function name in error

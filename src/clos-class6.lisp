@@ -340,6 +340,11 @@
   (:method ((class class))
     (compute-class-precedence-list-<class> class)))
 
+;; Not in MOP.
+(defgeneric compute-effective-slot-definition-initargs (class direct-slot-definitions)
+  (:method ((class class) direct-slot-definitions)
+    (compute-effective-slot-definition-initargs-<class> class direct-slot-definitions)))
+
 ;; MOP p. 42
 (defgeneric compute-effective-slot-definition (class slotname direct-slot-definitions)
   (:method ((class class) slotname direct-slot-definitions)

@@ -1042,73 +1042,104 @@
 ;; ----------------------------------------------------------------------------
 ;; CLtL2 28.1.3.2., ANSI CL 7.5.3. Inheritance of Slots and Slot Options
 
+(defun compute-effective-slot-definition-initargs-<class> (class directslotdefs)
+  (declare (ignore class))
+  (unless (and (proper-list-p directslotdefs) (consp directslotdefs))
+    (error (TEXT "~S: argument should be a non-empty proper list, not ~S")
+           'compute-effective-slot-definition-initargs directslotdefs))
+  (dolist (slot directslotdefs)
+    (unless (direct-slot-definition-p slot)
+      (error (TEXT "~S: argument list element is not a ~S: ~S")
+             'compute-effective-slot-definition-initargs 'direct-slot-definition
+             slot)))
+  (let ((name (slot-definition-name (first directslotdefs))))
+    (dolist (slot (rest directslotdefs))
+      (unless (eql name (slot-definition-name slot))
+        (error (TEXT "~S: argument list elements should all have the same name, not ~S and ~S")
+               'compute-effective-slot-definition-initargs name (slot-definition-name slot))))
+    `(:name ,name
+      ; "The allocation of a slot is controlled by the most
+      ;  specific slot specifier."
+      :allocation ,(slot-definition-allocation (first directslotdefs))
+      ; "The set of initialization arguments that initialize a
+      ;  given slot is the union of the initialization arguments
+      ;  declared in the :initarg slot options in all the slot
+      ;  specifiers.
+      ,@(let ((initargs
+                (remove-duplicates
+                  (mapcap #'slot-definition-initargs directslotdefs)
+                  :from-end t)))
+          (if initargs `(:initargs ,initargs)))
+      ; "The default initial value form for a slot is the value
+      ;  of the :initform slot option in the most specific slot
+      ;  specifier that contains one."
+      ,@(dolist (slot directslotdefs '())
+          (when (slot-definition-initfunction slot)
+            (return `(:initform ,(slot-definition-initform slot)
+                      :initfunction ,(slot-definition-initfunction slot)
+                      inheritable-initer ,(slot-definition-inheritable-initer slot)))))
+      ; "The contents of a slot will always be of type
+      ;  (and T1 ... Tn) where T1 ...Tn are the values of the
+      ;  :type slot options contained in all of the slot specifiers."
+      ,@(let ((types '()))
+          (dolist (slot directslotdefs)
+            (push (slot-definition-type slot) types))
+          `(:type ,(if types `(AND ,@(nreverse types)) 'T)))
+      ; "The documentation string for a slot is the value of the
+      ;  :documentation slot option in the most specific slot
+      ;  specifier that contains one."
+      ,@(dolist (slot directslotdefs '())
+          (when (slot-definition-documentation slot)
+            (return `(:documentation ,(slot-definition-documentation slot)
+                      inheritable-doc ,(slot-definition-inheritable-doc slot)))))
+      #|| ; Commented out because <effective-slot-definition>
+          ; doesn't have readers and writers.
+      ,@(let ((readers (mapcap #'slot-definition-readers directslotdefs)))
+          (if readers `(:readers ,readers)))
+      ,@(let ((writers (mapcap #'slot-definition-writers directslotdefs)))
+          (if writers `(:writers ,writers)))
+      ||#
+     )))
+
+;; Preliminary.
+(defun compute-effective-slot-definition-initargs (class direct-slot-definitions)
+  (compute-effective-slot-definition-initargs-<class> class direct-slot-definitions))
+
 (defun compute-effective-slot-definition-<class> (class name directslotdefs)
-  (let* ((args
-           `(:name ,name
-             ; "The allocation of a slot is controlled by the most
-             ;  specific slot specifier."
-             :allocation ,(slot-definition-allocation (first directslotdefs))
-             ; "The set of initialization arguments that initialize a
-             ;  given slot is the union of the initialization arguments
-             ;  declared in the :initarg slot options in all the slot
-             ;  specifiers.
-             ,@(let ((initargs
-                       (remove-duplicates
-                         (mapcap #'slot-definition-initargs directslotdefs)
-                         :from-end t)))
-                 (if initargs `(:initargs ,initargs)))
-             ; "The default initial value form for a slot is the value
-             ;  of the :initform slot option in the most specific slot
-             ;  specifier that contains one."
-             ,@(dolist (slot directslotdefs '())
-                 (when (slot-definition-initfunction slot)
-                   (return `(:initform ,(slot-definition-initform slot)
-                             :initfunction ,(slot-definition-initfunction slot)
-                             inheritable-initer ,(slot-definition-inheritable-initer slot)))))
-             ; "The contents of a slot will always be of type
-             ;  (and T1 ... Tn) where T1 ...Tn are the values of the
-             ;  :type slot options contained in all of the slot specifiers."
-             ,@(let ((types '()))
-                 (dolist (slot directslotdefs)
-                   (push (slot-definition-type slot) types))
-                 `(:type ,(if types `(AND ,@(nreverse types)) 'T)))
-             ; "The documentation string for a slot is the value of the
-             ;  :documentation slot option in the most specific slot
-             ;  specifier that contains one."
-             ,@(dolist (slot directslotdefs '())
-                 (when (slot-definition-documentation slot)
-                   (return `(:documentation ,(slot-definition-documentation slot)
-                             inheritable-doc ,(slot-definition-inheritable-doc slot)))))
-             #|| ; Commented out because <effective-slot-definition>
-                 ; doesn't have readers and writers.
-             ,@(let ((readers
-                       (mapcap #'slot-definition-readers directslotdefs)))
-                 (if readers `(:readers ,readers)))
-             ,@(let ((writers
-                       (mapcap #'slot-definition-writers directslotdefs)))
-                 (if writers `(:writers ,writers)))
-             ||#
-             ))
-         (slot-definition-class
-           (apply #'effective-slot-definition-class class args)))
-    (cond ((semi-standard-class-p class)
-           (unless (or ; for bootstrapping
-                       (eq slot-definition-class 'standard-effective-slot-definition)
-                       (and (class-p slot-definition-class)
-                            (subclassp slot-definition-class <standard-effective-slot-definition>)))
-             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                    'effective-slot-definition-class (class-name class)
-                    'standard-effective-slot-definition slot-definition-class)))
-          ((structure-class-p class)
-           (unless (and (class-p slot-definition-class)
-                        (subclassp slot-definition-class <structure-effective-slot-definition>))
-             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                    'effective-slot-definition-class (class-name class)
-                    'structure-effective-slot-definition slot-definition-class))))
-    (apply (cond ((eq slot-definition-class 'standard-effective-slot-definition)
-                  #'make-instance-<standard-effective-slot-definition>)
-                 (t #'make-instance))
-           slot-definition-class args)))
+  (let ((args (compute-effective-slot-definition-initargs class directslotdefs)))
+    ; Some checks, to guarantee that user-defined primary methods on
+    ; compute-effective-slot-definition-initargs don't break our CLOS.
+    (unless (and (proper-list-p args) (evenp (length args)))
+      (error (TEXT "Wrong ~S result for ~S: not a list of keyword/value pairs: ~S")
+             'compute-effective-slot-definition-initargs class args))
+    (let* ((default '#:default)
+           (returned-name (getf args ':name '#:default)))
+      (unless (eql returned-name name)
+        (if (eq returned-name default)
+          (error (TEXT "Wrong ~S result for ~S: missing ~S")
+                 'compute-effective-slot-definition-initargs class ':name)
+          (error (TEXT "Wrong ~S result for ~S: invalid ~S value")
+                 'compute-effective-slot-definition-initargs class ':name))))
+    (let ((slot-definition-class
+            (apply #'effective-slot-definition-class class args)))
+      (cond ((semi-standard-class-p class)
+             (unless (or ; for bootstrapping
+                         (eq slot-definition-class 'standard-effective-slot-definition)
+                         (and (class-p slot-definition-class)
+                              (subclassp slot-definition-class <standard-effective-slot-definition>)))
+               (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                      'effective-slot-definition-class (class-name class)
+                      'standard-effective-slot-definition slot-definition-class)))
+            ((structure-class-p class)
+             (unless (and (class-p slot-definition-class)
+                          (subclassp slot-definition-class <structure-effective-slot-definition>))
+               (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                      'effective-slot-definition-class (class-name class)
+                      'structure-effective-slot-definition slot-definition-class))))
+      (apply (cond ((eq slot-definition-class 'standard-effective-slot-definition)
+                    #'make-instance-<standard-effective-slot-definition>)
+                   (t #'make-instance))
+             slot-definition-class args))))
 
 ;; Preliminary.
 (defun compute-effective-slot-definition (class slotname direct-slot-definitions)
@@ -2230,8 +2261,9 @@
     (form))
 
   ;; Define the class <direct-slot-definition>.
-  (macrolet ((form () *<direct-slot-definition>-defclass*))
-    (form))
+  (setq <direct-slot-definition>
+        (macrolet ((form () *<direct-slot-definition>-defclass*))
+          (form)))
 
   ;; Define the class <effective-slot-definition>.
   (setq <effective-slot-definition>
