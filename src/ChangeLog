@@ -1,5 +1,10 @@
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
+	* condition.lisp (define-condition, handler-case, restart-bind): Pass
+	both :FORM and :DETAIL when signalling a source-program-error.
+
+2004-09-17  Bruno Haible  <bruno@clisp.org>
+
 	* constsym.d (CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*,
 	SYS::SPECIALIZED-LAMBDA-LIST-TO-ORDINARY): Align C names.
 	* spvw.d (init_symbol_values): Update.
