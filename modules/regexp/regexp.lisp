@@ -48,7 +48,7 @@
   (let ((compiled-pattern (aref (cdr patternbox) (if extended 0 1)
                                 (if ignore-case 0 1) (if newline 0 1)
                                 (if nosub 0 1))))
-    (unless (and compiled-pattern (ffi:validp compiled-pattern))
+    (unless (and compiled-pattern #+ffi(ffi:validp compiled-pattern))
       (setq compiled-pattern (regexp-compile (car patternbox)
                                              :extended extended
                                              :ignore-case ignore-case
