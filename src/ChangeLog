@@ -1,5 +1,9 @@
 2005-03-03  Sam Steingold  <sds@gnu.org>
 
+	* built.d (built_flags): added libiconv version
+
+2005-03-03  Sam Steingold  <sds@gnu.org>
+
 	ported DYNAMIC_MODULES to WIN32_NATIVE
 	* spvw.d (libopen, find_name): moved here from foreign.d
 	(get_module_symbol): new function
