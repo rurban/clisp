@@ -5098,6 +5098,11 @@ typedef struct {
 } *  Instance;
 # Bit masks in the flags:
   #define instflags_forwarded_B    bit(0)
+  # The following are only used during garbage collection.
+  #define instflags_backpointer_B  bit(1)
+  #define instflags_relocated_B    bit(2)
+  #define mark_inst_clean(ptr)  \
+    record_flags_clr(ptr,instflags_backpointer_B|instflags_relocated_B)
 
 # Closures
 typedef struct {
