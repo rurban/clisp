@@ -1,3 +1,11 @@
+2002-09-05  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (LN_S) [win32gcc]: do not redefine: Arseny made
+	CLISP understand symlinks!
+	(CPP) [win32gcc]: make sure it contains -mno-cygwin
+	(comment5) [win32gcc]: avoid -mno-cygwin so that comment5.exe
+	understands symbolic links
+
 2002-09-04  Sam Steingold  <sds@gnu.org>
 
 	* realtran.d (R_cos_sin_R_R): avoid one sqrt() and use
