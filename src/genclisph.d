@@ -2220,6 +2220,7 @@ int main(int argc, char* argv[])
   printf("extern object I_I_plus_I (object x, object y);\n");
   printf("extern object I_I_minus_I (object x, object y);\n");
 #endif
+  printf("extern uintL I_integer_length (object x);\n");
   printf("extern object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);\n");
   printf("extern object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);\n");
   printf("extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);\n");
