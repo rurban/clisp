@@ -13042,16 +13042,16 @@
 	* french.lisp: spell FRANCAIS with a cedilla
 	* makemake.in (LPARTS): include french.lisp only with_unicode
 	* international.lisp: export ENGLISH here
-	* affi1.lisp, amigasock.lisp, backquote.lisp, beossock.lisp
-	* cfgacorn.lisp, cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp
-	* cfgunix.lisp, cfgwin32.lisp, clos.lisp, cmacros.lisp,
-	* compiler.lisp, condition.lisp, defmacro.lisp, defs1.lisp
-	* defs2.lisp, defstruct.lisp, describe.lisp, dirkey.lisp
-	* disassem.lisp, dribble.lisp, edit.lisp, floatprint.lisp
-	* foreign1.lisp, format.lisp, init.lisp, international.lisp
-	* loop.lisp, macros1.lisp, macros2.lisp, macros3.lisp
-	* places.lisp, pprint.lisp, query.lisp, reploop.lisp, rexx1.lisp,
-	* room.lisp, runprog.lisp, screen.lisp, trace.lisp, type.lisp,
+	* affi1.lisp, amigasock.lisp, backquote.lisp, beossock.lisp:
+	* cfgacorn.lisp, cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp:
+	* cfgunix.lisp, cfgwin32.lisp, clos.lisp, cmacros.lisp:
+	* compiler.lisp, condition.lisp, defmacro.lisp, defs1.lisp:
+	* defs2.lisp, defstruct.lisp, describe.lisp, dirkey.lisp:
+	* disassem.lisp, dribble.lisp, edit.lisp, floatprint.lisp:
+	* foreign1.lisp, format.lisp, init.lisp, international.lisp:
+	* loop.lisp, macros1.lisp, macros2.lisp, macros3.lisp:
+	* places.lisp, pprint.lisp, query.lisp, reploop.lisp, rexx1.lisp:
+	* room.lisp, runprog.lisp, screen.lisp, trace.lisp, type.lisp:
 	* xcharin.lisp: use TEXT instead of ENGLISH
 
 2002-02-22  Sam Steingold  <sds@gnu.org>
