@@ -1272,7 +1272,7 @@ for-value   NIL or T
     package pathname random-state ratio rational readtable real sequence
     short-float simple-array simple-base-string simple-bit-vector
     simple-string simple-vector single-float standard-char stream string
-    string-char symbol t vector
+    cs-cl:string string-char symbol t vector
     ;; Additional Declarations:
     compile ; statement, that the form resp. function is to be compiled
     sys::source ; the Source-Lambdabody (unexpanded) within a Lambdabody
