@@ -367,5 +367,5 @@ Discussion:
 
   6. There is an even better Emacs mode, called ilisp-mode.
      [Merge here stuff from Marcus, Matthias, Peter.??]
-     XEmacs 19.14 comes with ILISP version 5.7. A newer version is at
-     ftp://ftp.icsi.berkeley.edu/pub/software/elisp/ilisp-5.8*.tar.gz .
+     XEmacs 19.14 comes with ILISP version 5.7. A newer version with much
+     better support for CLISP is at http://ilisp.cons.org/ .
