@@ -72,7 +72,7 @@
 <!ENTITY fsf "<ulink url='http://www.fsf.org'>Free Software Foundation (FSF)</ulink>">
 <!ENTITY eff "<ulink url='http://www.eff.org'>Electronic Frontier Foundation</ulink>">
 <!ENTITY gnu "<ulink url='http://www.gnu.org'>GNU</ulink>">
-<!ENTITY readline "&gnu; <ulink url='ftp://ftp.gnu.org/gnu/readline/'>readline</ulink>">
+<!ENTITY readline "&gnu; <ulink url='http://cnswww.cns.cwru.edu/~chet/readline/rltop.html'>readline</ulink>">
 <!ENTITY gpl "<ulink url='http://www.gnu.org/copyleft/gpl.html'>GPL</ulink>">
 <!ENTITY lgpl "<ulink url='http://www.gnu.org/copyleft/lgpl.html'>LGPL</ulink>">
 <!ENTITY gfdl "<ulink url='http://www.gnu.org/copyleft/fdl.html'>GFDL</ulink>">
