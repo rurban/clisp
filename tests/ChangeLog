@@ -1,3 +1,7 @@
+2004-05-08  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Update a test.
+
 2004-05-25  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: ATANH blows up at -1 and 1

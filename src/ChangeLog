@@ -1,3 +1,9 @@
+2004-05-08  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class2.lisp (map-direct-subclasses): Remove function.
+	(add-direct-subclass, remove-direct-subclass, list-direct-subclasses):
+	Use a weak-list instead of a list of weak-pointers.
+
 2004-05-26  Bruno Haible  <bruno@clisp.org>
 
 	* functions.lisp (function-lambda-expression): Moved to here from

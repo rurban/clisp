@@ -582,21 +582,23 @@ FOO
 
 ;; The direct-subclasses list must be weak.
 #+clisp
-(let (old1-weakpointers-count old-subclasses-count old2-weakpointers-count
-      new-subclasses-count new-weakpointers-count)
-  (defclass foo64a () ())
-  (defclass foo64b (foo64a) ())
-  (let ((usymbol (gensym)))
-    (eval `(defclass ,usymbol (foo64a) ()))
-    (setq old1-weakpointers-count (length (clos::class-direct-subclasses (find-class 'foo64a))))
-    (setf (symbol-value usymbol) (1- (length (clos::list-all-subclasses (find-class 'foo64a)))))
-    (setq old2-weakpointers-count (length (clos::class-direct-subclasses (find-class 'foo64a))))
-    (setq old-subclasses-count (symbol-value usymbol)))
-  (gc)
-  (setq new-subclasses-count (1- (length (clos::list-all-subclasses (find-class 'foo64a)))))
-  (setq new-weakpointers-count (length (clos::class-direct-subclasses (find-class 'foo64a))))
-  (list old1-weakpointers-count old-subclasses-count old2-weakpointers-count
-        new-subclasses-count new-weakpointers-count))
+(flet ((weak-list-length (w)
+         (if w (sys::%record-ref (sys::%record-ref w 0) 1) 0)))
+  (let (old1-weakpointers-count old-subclasses-count old2-weakpointers-count
+        new-subclasses-count new-weakpointers-count)
+    (defclass foo64a () ())
+    (defclass foo64b (foo64a) ())
+    (let ((usymbol (gensym)))
+      (eval `(defclass ,usymbol (foo64a) ()))
+      (setq old1-weakpointers-count (weak-list-length (clos::class-direct-subclasses (find-class 'foo64a))))
+      (setf (symbol-value usymbol) (1- (length (clos::list-all-subclasses (find-class 'foo64a)))))
+      (setq old2-weakpointers-count (weak-list-length (clos::class-direct-subclasses (find-class 'foo64a))))
+      (setq old-subclasses-count (symbol-value usymbol)))
+    (gc)
+    (setq new-subclasses-count (1- (length (clos::list-all-subclasses (find-class 'foo64a)))))
+    (setq new-weakpointers-count (weak-list-length (clos::class-direct-subclasses (find-class 'foo64a))))
+    (list old1-weakpointers-count old-subclasses-count old2-weakpointers-count
+          new-subclasses-count new-weakpointers-count)))
 #+clisp
 (2 2 2 1 1)
 
