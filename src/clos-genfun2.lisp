@@ -598,8 +598,8 @@
            (method-combination-options combination)))
 
 (defun gf-keyword-arguments (restp signature methods)
-  ;; CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5. Keyword Arguments in
-  ;;                                                    Generic Functions
+  ;; CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5.
+  ;; Keyword Arguments in Generic Functions
   (when restp
     ;; The generic function has &REST or &KEY, thus try all methods.
     ;; "If the lambda-list of ... the generic function definition
