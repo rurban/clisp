@@ -1,6 +1,6 @@
                                                Hey Emacs! -*- coding: utf-8 -*-
 
-            Copyright (c) 1992-2002 Bruno Haible and Michael Stoll
+            Copyright (c) 1992-2003 Bruno Haible and Michael Stoll
                            All Rights Reserved
 
 
@@ -84,7 +84,7 @@ Authors:
 Maintenance:     Bruno Haible, Michael Stoll 1992, 1993
                  Bruno Haible, Marcus Daniels 1994-1997
                  Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998
-                 Bruno Haible, Sam Steingold 1999-2002
+                 Bruno Haible, Sam Steingold 1999-2003
 
 Email addresses (September 1992 or newer):
   Bruno Haible       bruno@clisp.org
