@@ -1,3 +1,17 @@
+2003-06-08  Sam Steingold  <sds@gnu.org>
+
+	* io.d (check_readtable): new function, replaces function
+	fehler_readtable() and macro check_readtable()
+	(COPY-READTABLE): modified accordingly
+	(SET-SYNTAX-FROM-CHAR): ditto, also
+	use check_char() instead of fehler_char()
+	(test_readtable_arg, test_readtable_null_arg, test_nontermp_arg):
+	accept an argument instead of using popSTACK()
+	(SET-MACRO-CHARACTER, GET-MACRO-CHARACTER, SET-READTABLE-CASE)
+	(MAKE-DISPATCH-MACRO-CHARACTER, SET-DISPATCH-MACRO-CHARACTER)
+	(GET-DISPATCH-MACRO-CHARACTER, READTABLE-CASE):
+	modified accordingly, use check_char() instead of fehler_char()
+
 2003-06-07  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (*suppress-check-redefinition*): new user variable

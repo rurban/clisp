@@ -479,6 +479,30 @@ check-use-value
 (check-use-value fdefinition cons "CONS") t
 (check-use-value string "123" 123) t
 
+(handler-bind
+    ((type-error
+      (lambda (c)
+        (princ c) (terpri)
+        (use-value
+         (case (type-error-datum c)
+           (1 *readtable*)
+           (2 :upcase)
+           (t (error "huh?")))))))
+  (setf (readtable-case 1) 2))
+:UPCASE
+
+(handler-bind
+    ((type-error
+      (lambda (c)
+        (princ c) (terpri)
+        (use-value
+         (case (type-error-datum c)
+           (1 #\#)
+           (2 *readtable*)
+           (t (error "huh?")))))))
+  (nth-value 1 (get-macro-character 1 2)))
+T
+
 (handler-bind ((type-error
                 (lambda (c)
                   (princ c) (terpri)
