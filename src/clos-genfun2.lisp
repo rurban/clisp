@@ -567,13 +567,15 @@
 ;;   )        )
 
 #||
-(defun make-gf (generic-function-class name lambdabody lambda-list argument-precedence-order method-combination methods)
+(defun make-gf (generic-function-class name lambdabody lambda-list argument-precedence-order method-combination user-defined-args methods)
   (let ((final
-          (make-generic-function-instance generic-function-class
+          (apply #'make-generic-function-instance generic-function-class
             :name name
             :lambda-list lambda-list
             :argument-precedence-order argument-precedence-order
-            :method-combination method-combination))
+            :method-combination method-combination
+            (mapcan #'(lambda (option) (list (first option) (rest option)))
+                    user-defined-args)))
         (preliminary
          (eval `(LET ()
                   (DECLARE (COMPILE))
@@ -587,15 +589,17 @@
 
 #|| ;; Generic functions with primitive dispatch:
 
- (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation methods)
+ (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation user-defined-args methods)
   (let* ((final
-           (make-generic-function-instance generic-function-class
+           (apply #'make-generic-function-instance generic-function-class
              :name name
              :lambda-list lambda-list
              :argument-precedence-order argument-precedence-order
              :method-class method-class
              :declarations declspecs
-             :documentation documentation))
+             :documentation documentation
+             (mapcan #'(lambda (option) (list (first option) (rest option)))
+                     user-defined-args)))
          (preliminary
            (eval `(LET ((GF ',final))
                     (DECLARE (COMPILE))
