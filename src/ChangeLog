@@ -1,5 +1,11 @@
 2003-05-21  Sam Steingold  <sds@gnu.org>
 
+	* clos.lisp (%no-applicable-method): new function
+	(compute-dispatch): use it instead of calling NO-APPLICABLE-METHOD
+	directly to avoid funcalling the return value of NO-APPLICABLE-METHOD
+
+2003-05-21  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_fdefinition): fixed stack handling
 	(check_function): get(sym,ind) may not be a symbol
 	* eval.d (eval1): do not use apply() after check_fdefinition()
