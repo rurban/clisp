@@ -157,7 +157,7 @@
                      )
          == (void*)(-1)
        ) {
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x .\n"),
               map_addr);
       errno_out(errno);
       return -1; # error
