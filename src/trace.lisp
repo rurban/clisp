@@ -164,8 +164,7 @@ This will not work with closures that use lexical variables!"
 ;; fill SYMB, CUR-DEF and LOCAL-P slots of TRR and return TRR
 (defun check-traceable (funname trr caller)
   (cond ((function-name-p funname)
-         (let ((sym (if (atom funname) funname
-                        (get-setf-symbol (second funname)))))
+         (let ((sym (get-funname-symbol funname)))
            (unless (fboundp sym)
              (error (TEXT "~S: undefined function ~S") caller funname))
            (when (special-operator-p sym)
