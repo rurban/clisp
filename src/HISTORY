@@ -1,5 +1,9 @@
 Version  Date            New features
 
+2.33     2004-03-17      CUSTOM:*APROPOS-MATCHER*, EXT:MOD-EXPT, EXT:ARGV,
+                         GRAY:STREAM-POSITION, DEFINE-METHOD-COMBINATION,
+                         portability: removed Acorn/Amiga/OS2, fixed UNIXes
+
 2.32     2003-12-29      LFS, Berkeley-DB, PCRE
 
 2.31     2003-09-01      fastcgi, dirkey, syscalls, bindings/win32, netica;
