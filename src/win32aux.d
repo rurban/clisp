@@ -67,6 +67,11 @@
       }
     }
 
+global void done_win32 (void) {
+  if (WSACleanup()) {
+    SOCK_error();
+  }
+}
 
 # Ctrl-C-interruptibility.
 # We treat Ctrl-C as under Unix: Enter a break loop, continuable if possible.
@@ -662,6 +667,40 @@
         WSASetLastError(WSAEINTR); return -1;
       }
     }
+
+# interruptible win32 wait
+local DWORD WINAPI do_wait (LPVOID arg) {
+ restart_select:
+  begin_system_call();
+  {
+    var int ret;
+    var fd_set handle_set;
+    FD_ZERO(&handle_set); FD_SET(*((SOCKET *)(((void **)arg)[0])),&handle_set);
+    ret = select(FD_SETSIZE,&handle_set,NULL,NULL,
+                 (struct timeval *)(((void **)arg)[1]));
+    if (ret < 0) {
+      if (sock_errno_is(EINTR)) {
+        end_system_call(); goto restart_select;
+      }
+      SOCK_error();
+    }
+    end_system_call();
+    if (ret != SOCKET_ERROR && ret != 0) # success
+      (((void **)arg)[2]) = arg;         # not NULL
+    return 0;
+  }
+}
+
+# actual interface. return true on successfull wait, false when timeout
+# expires or Ctrl-C or Ctrl-Break pressed
+global int interruptible_wait (SOCKET socket_handle,
+                               struct timeval * timeout_ptr) {
+  var void * paramp[3]; # parameters for interruptible function
+  paramp[0] = &socket_handle;
+  paramp[1] = timeout_ptr;
+  paramp[2] = NULL; # success indicator, success is when paramp[3]!=NULL
+  return DoInterruptible(&do_wait,paramp,true) && paramp[2];
+}
 
 # Testing for possibly interactive handle.
   global int isatty (HANDLE handle);

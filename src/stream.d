@@ -14082,9 +14082,6 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 local void low_close_socket (object stream, object handle) {
   begin_system_call();
- #ifdef WIN32_NATIVE
-  if (shutdown(TheSocket(handle),SHUT_RDWR)) { SOCK_error(); }
- #endif
   if (!( closesocket(TheSocket(handle)) ==0)) { SOCK_error(); }
   end_system_call();
 }
@@ -14731,6 +14728,9 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL) {
   var struct timeval * timeout_ptr = sec_usec(STACK_1,STACK_0,&timeout);
   test_socket_server(STACK_2,true);
   handle = TheSocket(TheSocketServer(STACK_2)->socket_handle);
+ #if defined(WIN32_NATIVE)
+  value1 = interruptible_wait(handle,timeout_ptr) ? T : NIL;
+ #else
  restart_select:
   begin_system_call();
   {
@@ -14747,6 +14747,7 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL) {
     end_system_call();
     value1 = (ret == 0) ? NIL : T;
   }
+ #endif # WIN32_NATIVE
  #else
   value1 = NIL;
  #endif
@@ -15131,7 +15132,7 @@ LISPFUNN(socket_stream_shutdown,2) {
       if (ChannelStream_buffered(STACK_0))
         buffered_flush_everything(STACK_0);
       begin_system_call();
-      if (shutdown(ChannelStream_ihandle(STACK_0),shutdown_how))
+      if (shutdown(TheSocket(ChannelStream_ihandle(STACK_0)),shutdown_how))
         { SOCK_error(); }
       end_system_call();
       break;
