@@ -1037,6 +1037,157 @@ T
            (funcall (formatter "~10I") s)))
 T
 
+;; Test elastic-newline as a FORMAT directive.
+
+(format nil "~&abc~.")
+"abc
+"
+
+(with-output-to-string (s) (funcall (formatter "~&abc~.") s))
+"abc
+"
+
+(format nil "~&abc~.~%")
+"abc
+"
+
+(format nil "~&abc~3.")
+"abc
+
+
+"
+
+(format nil "~&abc~0.")
+"abc"
+
+;; Test elastic-newline on string-output-stream.
+
+(with-output-to-string (stream)
+  (format stream "~&abc~."))
+"abc
+"
+
+(with-output-to-string (stream)
+  (format stream "~&abc~.")
+  (format stream "def"))
+"abc
+def"
+
+(with-output-to-string (stream)
+  (format stream "~&abc~.")
+  (format stream "~%def"))
+"abc
+def"
+
+(with-output-to-string (stream)
+  (format stream "~&abc~.")
+  (format stream "~&def"))
+"abc
+def"
+
+(with-output-to-string (stream)
+  (format stream "~&abc~.~.")
+  (format stream "~&~&def"))
+"abc
+def"
+
+(with-output-to-string (stream)
+  (format stream "~&abc~%~.")
+  (format stream "~&def"))
+"abc
+
+def"
+
+(with-output-to-string (stream)
+  (format stream "~&abc~.")
+  (format stream "~&~%def"))
+"abc
+
+def"
+
+(with-output-to-string (stream)
+  (format stream "~&abc~%~.")
+  (format stream "~&~%def"))
+"abc
+
+
+def"
+
+;; Test elastic-newline also on Gray streams.
+(progn
+  (defclass gray-string-output-stream (fundamental-character-output-stream)
+    ((accumulator :type string)))
+  (defmethod initialize-instance :after ((s gray-string-output-stream) &rest args)
+    (setf (slot-value s 'accumulator)
+          (make-array 0 :element-type 'character :adjustable t :fill-pointer 0)))
+  (defmethod stream-write-char ((s gray-string-output-stream) ch)
+    (vector-push-extend ch (slot-value s 'accumulator)))
+  (defmethod stream-line-column ((s gray-string-output-stream))
+    (let* ((a (slot-value s 'accumulator))
+           (j (length a))
+           (i (1+ (or (position #\Newline a :from-end t) -1))))
+      (string-width a :start i :end j)))
+  (list
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~.")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~.")
+      (format stream "def")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~.")
+      (format stream "~%def")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~.")
+      (format stream "~&def")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~.~.")
+      (format stream "~&~&def")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~%~.")
+      (format stream "~&def")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~.")
+      (format stream "~&~%def")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))
+    (let ((stream (make-instance 'gray-string-output-stream)))
+      (format stream "~&abc~%~.")
+      (format stream "~&~%def")
+      (close stream)
+      (coerce (slot-value stream 'accumulator) 'simple-string))))
+("abc
+"
+"abc
+def"
+"abc
+def"
+"abc
+def"
+"abc
+def"
+"abc
+
+def"
+"abc
+
+def"
+"abc
+
+
+def")
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)

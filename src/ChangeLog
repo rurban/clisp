@@ -1,3 +1,10 @@
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
+	New format directive "~.".
+	* format.lisp (format-parse-cs): Add support for ~..
+	(format-elastic-newline): New function.
+	(formatter-main-1): Add support for ~..
+
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp: import SYS:SYMBOL-KEYWORD
