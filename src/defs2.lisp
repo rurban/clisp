@@ -327,6 +327,7 @@
            (SYSTEM::*PRIN-LINELENGTH*   79)  ; CLISP specific
            (SYSTEM::*PRIN-LINE-PREFIX*  NIL) ; CLISP specific
            (CUSTOM::*PRINT-SYMBOLS-LONG* NIL) ; CLISP specific
+           (COMPILER::*LOAD-FORMS*      NIL) ; CLISP specific
            ;; reader variables:
            (*READ-BASE*                 10)
            (*READ-DEFAULT-FLOAT-FORMAT* 'SINGLE-FLOAT)
