@@ -2,6 +2,7 @@ This file presents
 * a list of platforms CLISP is known to run on,
 * special hints for the following platforms:
     NetBSD/sparc 1.4.1
+    PC 386 under FreeBSD 4.0
     BSDI 1.0
     PC 386 under GNU 0.2
     Sun4 (Sparc) under Linux
@@ -391,6 +392,12 @@ On NetBSD/sparc 1.4.1:
 
 The default stack limit is 512 KB, which is not sufficient for building CLISP.
 Use the "ulimit -s" command to increase it.
+
+
+On PC 386 under FreeBSD 4.0:
+
+gcc 2.95.2 miscompiles io.d at optimization level -O2. Replace -O2 with -O
+in the CFLAGS in the makefile.
 
 
 On BSDI 1.0:
