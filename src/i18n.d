@@ -46,7 +46,7 @@ LISPFUNN(set_current_language,1) {
     fehler(error,GETTEXT("~: cannot set language to ~"));
   }
  #endif
-  VALUES1(O(current_language); skipSTACK(1));
+  VALUES1(O(current_language)); skipSTACK(1);
 }
 
 # (SYS::TEXT english) returns the message in the current language
