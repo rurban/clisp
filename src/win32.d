@@ -21,9 +21,11 @@
   #ifdef __MINGW32__
     # `unused' is used in function declarations.
     #undef unused
+    #define ULONGLONG OS_ULONGLONG
     #define ULONG OS_ULONG
     #include <windows.h>
     #undef ULONG
+    #undef ULONGLONG
     #define unused (void)
   #else
     #include <windows.h>
@@ -187,7 +189,20 @@
 # used by spvw.d, stream.d
 
 # Socket connections
+#ifdef __MINGW32__
+# this kills a warning in </usr/include/w32api/winsock.h>:
+# "fd_set and associated macros have been defined in sys/types.
+#  This may cause runtime problems with W32 sockets"
+# Bruno said:
+# I think this warning means that read(), write() don't work on sockets
+# in mingw32.  Like on BeOS.  CLISP already handles this.
+# See the #ifs around stream.d:low_write_unbuffered_socket() etc.
+#define USE_SYS_TYPES_FD_SET
+#endif
   #include <winsock.h>
+#ifdef __mingw32__
+#undef USE_SYS_TYPES_FD_SET
+#endif
   # extern int WSAStartup (WORD VersionRequested, WSADATA* WSAData);
   # extern int WSAGetLastError (void);
   # extern void WSASetLastError (int Error);

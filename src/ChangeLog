@@ -1,5 +1,12 @@
 2001-07-24  Sam Steingold  <sds@gnu.org>
 
+	mingw32 compilation - kill more warnings
+	* win32.d (ULONGLONG): define to OS_ULONGLONG
+	 around #include <windows.h>
+	(USE_SYS_TYPES_FD_SET): define around #include <winsock.h>
+
+2001-07-24  Sam Steingold  <sds@gnu.org>
+
 	Tweak the MAKE-LOAD-FORM patch
 	* loadform.lisp: new file; moved `make-load-form',
 	`make-load-form-saving-slots' and `make-init-form' here
