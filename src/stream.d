@@ -3501,20 +3501,24 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
 
 #if defined(WIN32_NATIVE)
 
-# UP: Deletes already entered interactive Input from a Handle.
+/* signal OS_error unless the error is cause by invalid arguments */
+local void error_unless_invalid (void) {
+  switch (GetLastError()) {
+    case ERROR_INVALID_HANDLE: case ERROR_INVALID_PARAMETER:
+    case ERROR_INVALID_FUNCTION: break;
+    default: OS_error();
+  }
+}
+
+/* UP: Deletes already entered interactive Input from a Handle. */
 local void clear_tty_input (Handle handle) {
   begin_system_call();
-  # Maybe it's a serial communication.
-  if (!PurgeComm(handle,PURGE_RXABORT|PURGE_RXCLEAR)) {
-    if (!(GetLastError()==ERROR_INVALID_HANDLE
-          || GetLastError()==ERROR_INVALID_FUNCTION))
-      { OS_error(); }
-  }
-  # Maybe it's a console.
-  if (!FlushConsoleInputBuffer(handle)) {
-    if (!(GetLastError()==ERROR_INVALID_HANDLE))
-      { OS_error(); }
-  }
+  /* Maybe it's a serial communication. */
+  if (!PurgeComm(handle,PURGE_RXABORT|PURGE_RXCLEAR))
+    error_unless_invalid();
+  /* Maybe it's a console. */
+  if (!FlushConsoleInputBuffer(handle))
+    error_unless_invalid();
   end_system_call();
 }
 
@@ -3531,11 +3535,8 @@ local void clear_tty_input (Handle handle) {
 local void clear_tty_output (Handle handle) {
   begin_system_call();
   # Maybe it's a serial communication.
-  if (!PurgeComm(handle,PURGE_TXABORT|PURGE_TXCLEAR)) {
-    if (!(GetLastError()==ERROR_INVALID_HANDLE
-          || GetLastError()==ERROR_INVALID_FUNCTION))
-      { OS_error(); }
-  }
+  if (!PurgeComm(handle,PURGE_TXABORT|PURGE_TXCLEAR))
+    error_unless_invalid();
   end_system_call();
 }
 
