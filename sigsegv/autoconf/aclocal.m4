@@ -484,7 +484,10 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-/* volatile */ int gotsig=0;
+#if !defined(__STDC__) || __STDC__ != 1
+#define volatile
+#endif
+volatile int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 #ifdef __cplusplus
@@ -677,7 +680,10 @@ signal_handler mysignal (sig, handler)
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
 }
-/* volatile */ int gotsig=0;
+#if !defined(__STDC__) || __STDC__ != 1
+#define volatile
+#endif
+volatile int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be reinstalled */
