@@ -1131,7 +1131,7 @@ typedef signed int  signean;
   #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
 #endif
 # Determine the offset of an array 'ident' in a struct of the type 'type':
-#ifdef __cplusplus
+#if defined (__cplusplus) || defined (MICROSOFT)
   #define offsetofa(type,ident)  offsetof(type,ident)
 #else
   #define offsetofa(type,ident)  offsetof(type,ident[0])
