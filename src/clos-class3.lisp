@@ -527,9 +527,15 @@
 (defun list-direct-subclasses (class) ...)
 |#
 (def-weak-set-accessors class-direct-subclasses-table class
-  add-direct-subclass
-  remove-direct-subclass
+  add-direct-subclass-internal
+  remove-direct-subclass-internal
   list-direct-subclasses)
+
+;; Preliminary.
+(defun add-direct-subclass (class subclass)
+  (add-direct-subclass-internal class subclass))
+(defun remove-direct-subclass (class subclass)
+  (remove-direct-subclass-internal class subclass))
 
 (defun update-subclasses-sets (class old-direct-superclasses new-direct-superclasses)
   ;; Drop classes that are not yet defined; they have no subclasses list.
