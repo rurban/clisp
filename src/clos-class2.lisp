@@ -12,6 +12,7 @@
 
 ;; Metaclasses:
 (defvar <class>)                       ; <standard-class>
+(defvar <forward-referenced-class>)    ; <standard-class>
 (defvar <defined-class>)               ; <standard-class>
 (defvar <standard-class>)              ; <standard-class>
 (defvar <funcallable-standard-class>)  ; <standard-class>
@@ -108,7 +109,11 @@
     ;; Should we do (setf (class-name h) nil) ? No, because CLHS of FIND-CLASS
     ;; says that "the class object itself is not affected".
     (sys::check-redefinition symbol '(setf find-class)
-                             (and (defined-class-p h) "class")))
+                             (and (defined-class-p h) "class"))
+    (when (and h (typep-class h <forward-referenced-class>) new-value)
+      ;; Move the list of subclasses from the old class object to the new one.
+      (dolist (subclass (class-direct-subclasses h))
+        (add-direct-subclass new-value subclass))))
   (if new-value
     (setf (get symbol 'CLOSCLASS) new-value)
     (progn (remprop symbol 'CLOSCLASS) nil)))

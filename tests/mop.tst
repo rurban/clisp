@@ -283,6 +283,72 @@ AS-STRING
 #-(or CLISP CMU SBCL) UNKNOWN
 
 
+;; Check that undefined classes are treated as undefined, even though they
+;; are represented by a FORWARD-REFERENCED-CLASS.
+(progn
+  (defclass foo132 (forwardclass02) ())
+  (defparameter *forwardclass* (first (clos:class-direct-superclasses (find-class 'foo132))))
+  t)
+T
+(typep 1 *forwardclass*)
+ERROR
+(locally (declare (compile)) (typep 1 *forwardclass*))
+ERROR
+(type-expand *forwardclass*)
+ERROR
+(subtypep *forwardclass* 't)
+ERROR
+(subtypep 'nil *forwardclass*)
+ERROR
+(sys::subtype-integer *forwardclass*)
+ERROR
+(sys::subtype-sequence *forwardclass*)
+NIL ; should also be ERROR
+(write-to-string *forwardclass* :readably t)
+ERROR
+(setf (find-class 'foo132a) *forwardclass*)
+ERROR
+(class-name *forwardclass*)
+FORWARDCLASS02
+(setf (class-name *forwardclass*) 'forwardclass03)
+ERROR
+(class-name *forwardclass*)
+FORWARDCLASS02
+(clos:class-direct-superclasses *forwardclass*)
+NIL
+(clos:class-direct-slots *forwardclass*)
+NIL
+(clos:class-direct-default-initargs *forwardclass*)
+NIL
+(clos:class-precedence-list *forwardclass*)
+ERROR
+(clos:class-slots *forwardclass*)
+ERROR
+(clos:class-default-initargs *forwardclass*)
+ERROR
+(clos:class-finalized-p *forwardclass*)
+NIL
+(clos:class-prototype *forwardclass*)
+ERROR
+(clos:finalize-inheritance *forwardclass*)
+ERROR
+(clos:class-finalized-p *forwardclass*)
+NIL
+(eval `(defmethod foo132a ((x ,*forwardclass*))))
+ERROR
+(progn
+  (defgeneric foo132b (x)
+    (:method ((x integer)) x))
+  (clos:add-method #'foo132b
+    (make-instance 'standard-method
+      :qualifiers '()
+      :lambda-list '(x)
+      :specializers (list *forwardclass*)
+      :function #'(lambda (args next-methods) (first args))))
+  #-CLISP (foo132b 7))
+ERROR
+
+
 ;; Check that defclass supports user-defined options.
 (progn
   (defclass option-class (standard-class)

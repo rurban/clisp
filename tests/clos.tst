@@ -4046,3 +4046,32 @@ T
   (make-instance 'foo130)
   *foo130-counter*)
 1
+
+;; Check that undefined classes are treated as undefined, even though they
+;; are represented by a FORWARD-REFERENCED-CLASS.
+(progn
+  (defclass foo131 (forwardclass01) ())
+  t)
+T
+(find-class 'forwardclass01)
+ERROR
+(find-class 'forwardclass01 nil)
+NIL
+(typep 1 'forwardclass01)
+ERROR
+(locally (declare (compile)) (typep 1 'forwardclass01))
+ERROR
+(type-expand 'forwardclass01)
+ERROR
+(subtypep 'forwardclass01 't)
+ERROR
+(subtypep 'nil 'forwardclass01)
+ERROR
+(sys::subtype-integer 'forwardclass01)
+NIL ; should also be ERROR
+(sys::subtype-sequence 'forwardclass01)
+NIL ; should also be ERROR
+(defstruct (foo131a (:include forwardclass01)))
+ERROR
+(defmethod foo131b ((x forwardclass01)))
+ERROR
