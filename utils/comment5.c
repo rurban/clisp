@@ -121,9 +121,9 @@ int main (int argc, char* argv[]) {
   fclose(infile);
   fclose(outfile);
   if (ferror(infile))
-    { perror(infile); exit(__LINE__); }
+    { perror(infilenamebuffer); exit(__LINE__); }
   if (ferror(outfile))
-    { perror(outfile); exit(__LINE__); }
+    { perror(outfilenamebuffer); exit(__LINE__); }
   exit(0); /* OK */
 }
 
