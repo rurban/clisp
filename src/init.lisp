@@ -1762,6 +1762,7 @@
 (LOAD "type")                   ; TYPEP
 
 (LOAD "clos-package")           ; Early CLOS
+(LOAD "clos-macros")
 (LOAD "clos-class0")
 (LOAD "clos-slotdef1")
 (LOAD "clos-stablehash1")
