@@ -122,7 +122,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
     stream = open_file_stream_handle(STACK_5,&fd);
   }
   if (missingp(STACK_0)) { /* no :LENGTH => use file size */
-    if (posfixnump(STACK_0)) { /* no stream given, use OS to get file size */
+    if (posfixnump(STACK_5)) { /* no stream given, use OS to get file size */
 #    if defined(WIN32_NATIVE)
       LARGE_INTEGER size;
       begin_system_call();
@@ -144,12 +144,11 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #    else
       length = 0;
 #    endif
-    } else {
-      /* FIXME: This will crash if stream is nullobj. */
+    } else { /* a valid stream has been supplied */
       pushSTACK(stream); funcall(L(file_length),1);
       length = I_to_UL(value1);
     }
-  } else length = I_to_L(STACK_0);
+  } else length = I_to_UL(STACK_0);
   begin_system_call();
 #if defined(WIN32_NATIVE)
   if (lock_p) {
