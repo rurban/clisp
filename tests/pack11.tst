@@ -72,11 +72,11 @@ T
      nil)
 nil
 
-(package-name (rename-package (find-package "TEST1") (find-package "TEST1")))
-"TEST1"
-
 ;make-package
 (package-name (make-package 'test1 :nicknames '(t1 tst1)))
+"TEST1"
+
+(package-name (rename-package (find-package "TEST1") (find-package "TEST1")))
 "TEST1"
 
 ;package-use-list
