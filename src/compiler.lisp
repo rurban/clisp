@@ -1444,7 +1444,7 @@ for-value   NIL or T
   (loop
     (when (atom denv)
       (return-from declared-optimize 1))
-    (let ((declspec (car denv)))
+    (let ((declspec (pop denv)))
       (when (eq (car declspec) 'OPTIMIZE)
         (dolist (optimspec (cdr declspec))
           (cond ((eq optimspec quality)
@@ -1457,8 +1457,7 @@ for-value   NIL or T
                        (if (<= value 3)
                          (floor value)
                          3)
-                       0))))))))
-    (setq denv (cdr denv))))
+                       0))))))))))
 
 
 ;;;;****             FUNCTION   MANAGEMENT
@@ -2434,12 +2433,13 @@ for-value   NIL or T
 ;; we need to check *known-functions* to make sure that the side-effect
 ;; class is computed correctly
 (defun f-side-effect (fun)
+  ;; we start with FUNCTION-SIDE-EFFECT to ensure that FUN is indeed a function
   (multiple-value-bind (seclass fdef name) (function-side-effect fun)
-    ;; If SAFETY = 3, ANSI CL 3.5 requires us to signal errors about invalid
-    ;; arguments, and the simplest way to implement this requirement is to
-    ;; not omit the call. We don't keep track of the possibility of errors
-    ;; through the SECLASS currently. Therefore pretend the function has
-    ;; arbitrary side-effects.
+    ;; If SAFETY = 3, ANSI CL 3.5 requires us to signal errors about
+    ;; invalid arguments, and the simplest way to implement this
+    ;; requirement is to not omit the call. We don't keep track of the
+    ;; possibility of errors through the SECLASS currently.
+    ;; Therefore pretend the function has arbitrary side-effects.
     (if (>= (declared-optimize 'SAFETY) 3)
       *seclass-dirty*
       ;; For NOTINLINE functions, side effects are unpredictable!
@@ -3041,14 +3041,9 @@ for-value   NIL or T
              (if check ; (and (<= req n) (or rest-p (<= n (+ req opt))))
                ;; we make the call INLINE.
                (let ((sideeffects ; side-effect-class of the function-execution
-                       (function-side-effect fun)))
-                 ;; If SAFETY = 3, ANSI CL 3.5 requires us to signal errors about invalid
-                 ;; arguments, and the simplest way to implement this requirement is to
-                 ;; not omit the call. We don't keep track of the possibility of errors
-                 ;; through the SECLASS currently. Therefore pretend the function has
-                 ;; arbitrary side-effects.
-                 (when (>= (declared-optimize 'SAFETY) 3)
-                   (setq sideeffects *seclass-dirty*))
+                      (if (>= (declared-optimize 'SAFETY) 3)
+                        *seclass-dirty* ; see comment in F-SIDE-EFFECT
+                        (function-side-effect fun)))) ; no need for a check
                  (if (and (null *for-value*) (null (cdr sideeffects)))
                    ;; don't have to call the function,
                    ;; only evaluate the arguments
