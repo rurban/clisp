@@ -2674,9 +2674,18 @@ LISPFUNN(call_with_foreign_string,6)
   unpack_sstring_alloca(data_array,arg.len, arg.offset+arg.index, srcptr=);
   var object encoding = STACK_0;
   var uintL charsize = arg.len;
+ #ifdef UNICODE
   var uintL bytesize = cslen(encoding,srcptr,charsize);
+ #else
+  var uintL bytesize = charsize; /* encoding is ignored */
+ #endif
   var DYNAMIC_ARRAY(stack_data,uintB,bytesize+zeroes);
+ #ifdef UNICODE
   cstombs(encoding,srcptr,charsize,&stack_data[0],bytesize);
+ #else
+  if (charsize>0)
+    copy_mem_b(stack_data,(uintB*)srcptr,charsize);
+ #endif
   if (zeroes != 0) { /* add terminating zero bytes */
     do {stack_data[bytesize++] = 0;} while (--zeroes);
     charsize++;
