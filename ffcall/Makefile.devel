@@ -52,28 +52,30 @@ autoconf/aclocal.m4 : m4/general.m4 m4/proto.m4 m4/cc-gcc.m4 m4/as-underscore.m4
 
 configures : $(CONFIGURES)
 
-AUTOCONF_FILES = autoconf/aclocal.m4 autoconf/autoconf.m4f
+AUTOCONF_FILES = autoconf/aclocal.m4
+AUTOCONF_VERSION ?= 2.53
+AUTOCONF = autoconf-$(AUTOCONF_VERSION)
 
 configure : configure.in $(AUTOCONF_FILES)
-	autoconf/autoconf -A autoconf -l autoconf
+	$(AUTOCONF) --include autoconf
 
 avcall/configure : avcall/configure.in $(AUTOCONF_FILES)
-	cd avcall ; ../autoconf/autoconf -A ../autoconf -l ../autoconf
+	cd avcall ; $(AUTOCONF) --include ../autoconf
 
 vacall/configure : vacall/configure.in $(AUTOCONF_FILES)
-	cd vacall ; ../autoconf/autoconf -A ../autoconf -l ../autoconf
+	cd vacall ; $(AUTOCONF) --include ../autoconf
 
 trampoline/configure : trampoline/configure.in $(AUTOCONF_FILES)
-	cd trampoline ; ../autoconf/autoconf -A ../autoconf -l ../autoconf
+	cd trampoline ; $(AUTOCONF) --include ../autoconf
 
 callback/configure : callback/configure.in $(AUTOCONF_FILES)
-	cd callback ; ../autoconf/autoconf -A ../autoconf -l ../autoconf
+	cd callback ; $(AUTOCONF) --include ../autoconf
 
 callback/vacall_r/configure : callback/vacall_r/configure.in $(AUTOCONF_FILES)
-	cd callback/vacall_r ; ../../autoconf/autoconf -A ../../autoconf -l ../../autoconf
+	cd callback/vacall_r ; $(AUTOCONF) --include ../../autoconf
 
 callback/trampoline_r/configure : callback/trampoline_r/configure.in $(AUTOCONF_FILES)
-	cd callback/trampoline_r ; ../../autoconf/autoconf -A ../../autoconf -l ../../autoconf
+	cd callback/trampoline_r ; $(AUTOCONF) --include ../../autoconf
 
 check-configures : $(CONFIGURES)
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done
