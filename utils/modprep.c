@@ -1,52 +1,46 @@
-# MODPREP - CLISP module preprocessor
-# Bruno Haible 20.9.1998, 10.-11.10.1998
+/*
+ * MODPREP - CLISP module preprocessor
+ * Bruno Haible 20.9.1998, 10.-11.10.1998
+ */
 
-# This preprocessor generates all necessary tables for a CLISP module.
-# The input file is normal C code, modified like this:
-# - It includes "clisp.h".
-# - There is one (and only one) declaration
-#     DEFMODULE(module_name,"PACKAGE-NAME")
-#   module_name is the clisp module name.
-#   PACKAGE-NAME is the default package name (in upper case) for Lisp
-#   functions.
-# - Constant Lisp objects can be referred to using the backquote syntax:
-#     pushSTACK(`:TEST`);
-#     value1 = `#()`;
-#   The backquoted strings are read in at module load time.
-# - The definition of Lisp functions is done using the macro
-#     DEFUN(function_name, lambda_list)
-#   for example
-#     DEFUN(foo::bar, x y [&optional z] [&rest foo | &key a b c] )
-#   &rest and &key cannot be combined (this is a restriction for SUBRs).
-#   &key requires at least one keyword (this is a restriction for SUBRs too).
-# - Variables containing Lisp objects (known to the garbage collector) are
-#   defined using the macro
-#     DEFVAR(variable_name, initform)
-#   where initform is a C form. (You can also specify a Lisp initform, by
-#   using the backquote syntax.) The variable can be referred to as
-#     O(variable_name)
-#   These variables are private to the module.
+/* This preprocessor generates all necessary tables for a CLISP module.
+The input file is normal C code, modified like this:
+- It includes "clisp.h".
+- There is one (and only one) declaration
+    DEFMODULE(module_name,"PACKAGE-NAME")
+  module_name is the clisp module name.
+  PACKAGE-NAME is the default package name (in upper case) for Lisp
+  functions.
+- Constant Lisp objects can be referred to using the backquote syntax:
+    pushSTACK(`:TEST`);
+    value1 = `#()`;
+  The backquoted strings are read in at module load time.
+- The definition of Lisp functions is done using the macro
+    DEFUN(function_name, lambda_list)
+  for example
+    DEFUN(foo::bar, x y [&optional z] [&rest foo | &key a b c] )
+  &rest and &key cannot be combined (this is a restriction for SUBRs).
+  &key requires at least one keyword (this is a restriction for SUBRs too).
+- Variables containing Lisp objects (known to the garbage collector) are
+  defined using the macro
+    DEFVAR(variable_name, initform)
+  where initform is a C form. (You can also specify a Lisp initform, by
+  using the backquote syntax.) The variable can be referred to as
+    O(variable_name)
+  These variables are private to the module.
 
-# Restrictions and caveats:
-# - A module should consist of a single file.
-# - The last line in the input file should be terminated with a newline.
-# - #line lines should not be separated into multiple lines using
-#   backslash-newline.
-# - No multi-line comments should start in a preprocessor line.
-# - #if conditions are assumed to be constant from the DEFMODULE call to
-#   the end of the file. All necessary #define's should therefore be done
-#   before the DEFMODULE call.
+Restrictions and caveats:
+- A module should consist of a single file.
+- The last line in the input file should be terminated with a newline.
+- #line lines should not be separated into multiple lines using
+  backslash-newline.
+- No multi-line comments should start in a preprocessor line.
+- #if conditions are assumed to be constant from the DEFMODULE call to
+  the end of the file. All necessary #define's should therefore be done
+  before the DEFMODULE call.
+*/
 
-
-#define local static
-#define global
-#define var
-#define loop  while (1)
-#define until(exp)  while (!(exp))
-typedef unsigned char  uintB;
-typedef unsigned short  uintW;
-typedef unsigned long  uintL;
-typedef int  boolean;
+typedef int boolean_t;
 #define FALSE 0
 #define TRUE 1
 
@@ -55,10 +49,6 @@ typedef int  boolean;
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
-
-#ifndef NULL
-#define NULL ((void*)0)
-#endif
 
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -69,11 +59,10 @@ extern "C" void exit(int);
 #endif
 
 
-# Memory utilities.
-
-local char* xmalloc (uintL count)
+/* Memory utilities. */
+static char* xmalloc (unsigned long count)
 {
-  var char* tmp = (char*)malloc(count);
+  char* tmp = (char*)malloc(count);
   if (!tmp) {
     fprintf(stderr,"Virtual memory exhausted.\n");
     exit(1);
@@ -81,9 +70,9 @@ local char* xmalloc (uintL count)
   return tmp;
 }
 
-local char* xrealloc (void* data, uintL count)
+static char* xrealloc (void* data, unsigned long count)
 {
-  var char* tmp = (char*)realloc(data,count);
+  char* tmp = (char*)realloc(data,count);
   if (!tmp) {
     fprintf(stderr,"Virtual memory exhausted.\n");
     exit(1);
@@ -91,61 +80,61 @@ local char* xrealloc (void* data, uintL count)
   return tmp;
 }
 
-local inline void xfree (void* ptr)
+static inline void xfree (void* ptr)
 {
   free((char*)ptr);
 }
 
 
-# Character utilities.
+/* Character utilities. */
 
-# Determine whether a character (not newline) is whitespace.
-local inline boolean is_whitespace (char c)
+/* Determine whether a character (not newline) is whitespace. */
+static inline boolean_t is_whitespace (char c)
 {
   return (c == ' ') || (c == '\t');
 }
 
-# Determine whether a charater is a digit (locale independent).
-local inline boolean is_digit (char c)
+/* Determine whether a charater is a digit (locale independent). */
+static inline boolean_t is_digit (char c)
 {
   return (c >= '0') && (c <= '9');
 }
 
 
-# String utilities.
+/* String utilities. */
 
-# Returns the freshly allocated contenation of 2 strings.
-local char* concat2 (const char* str1, const char* str2)
+/* Returns the freshly allocated contenation of 2 strings. */
+static char* concat2 (const char* str1, const char* str2)
 {
-  var uintL len1 = strlen(str1);
-  var uintL len2 = strlen(str2);
-  var char* result = xmalloc(len1+len2+1);
+  unsigned long len1 = strlen(str1);
+  unsigned long len2 = strlen(str2);
+  char* result = xmalloc(len1+len2+1);
   memcpy(result+0,str1,len1);
   memcpy(result+len1,str2,len2+1);
   return result;
 }
 
-# Returns the freshly allocated contenation of 3 strings.
-local char* concat3 (const char* str1, const char* str2, const char* str3)
+/* Returns the freshly allocated contenation of 3 strings. */
+static char* concat3 (const char* str1, const char* str2, const char* str3)
 {
-  var uintL len1 = strlen(str1);
-  var uintL len2 = strlen(str2);
-  var uintL len3 = strlen(str3);
-  var char* result = xmalloc(len1+len2+len3+1);
+  unsigned long len1 = strlen(str1);
+  unsigned long len2 = strlen(str2);
+  unsigned long len3 = strlen(str3);
+  char* result = xmalloc(len1+len2+len3+1);
   memcpy(result+0,str1,len1);
   memcpy(result+len1,str2,len2);
   memcpy(result+len1+len2,str3,len3+1);
   return result;
 }
 
-# Returns the freshly allocated contenation of 4 strings.
-local char* concat4 (const char* str1, const char* str2, const char* str3, const char* str4)
+/* Returns the freshly allocated contenation of 4 strings. */
+static char* concat4 (const char* str1, const char* str2, const char* str3, const char* str4)
 {
-  var uintL len1 = strlen(str1);
-  var uintL len2 = strlen(str2);
-  var uintL len3 = strlen(str3);
-  var uintL len4 = strlen(str4);
-  var char* result = xmalloc(len1+len2+len3+len4+1);
+  unsigned long len1 = strlen(str1);
+  unsigned long len2 = strlen(str2);
+  unsigned long len3 = strlen(str3);
+  unsigned long len4 = strlen(str4);
+  char* result = xmalloc(len1+len2+len3+len4+1);
   memcpy(result+0,str1,len1);
   memcpy(result+len1,str2,len2);
   memcpy(result+len1+len2,str3,len3);
@@ -153,40 +142,40 @@ local char* concat4 (const char* str1, const char* str2, const char* str3, const
   return result;
 }
 
-# Returns a freshly allocated substring.
-local char* substring (const char* str, uintL index1, uintL index2)
+/* Returns a freshly allocated substring. */
+static char* substring (const char* str, unsigned long index1, unsigned long index2)
 {
   if (!(index1 <= index2)) abort();
   if (!(index2 <= strlen(str))) abort();
-  { var uintL len = index2-index1;
-    var char* result = xmalloc(len+1);
+  { unsigned long len = index2-index1;
+    char* result = xmalloc(len+1);
     if (len > 0) memcpy(result,str+index1,len);
     result[len] = '\0';
     return result;
 } }
 
-# Returns a freshly allocated substring.
-local char* substring_from_to (const char* p1, const char* p2)
+/* Returns a freshly allocated substring. */
+static char* substring_from_to (const char* p1, const char* p2)
 {
-  var uintL length = p2 - p1;
-  var char* result = (char*) xmalloc(length+1);
+  unsigned long length = p2 - p1;
+  char* result = (char*) xmalloc(length+1);
   memcpy(result,p1,length);
   result[length] = '\0';
   return result;
 }
 
-# Compares two strings for equality.
-local inline boolean String_equals (const char* str1, const char* str2)
+/* Compares two strings for equality. */
+static inline boolean_t String_equals (const char* str1, const char* str2)
 {
   return !strcmp(str1,str2);
 }
 
-# Compares two strings for case-insensitive equality.
-local boolean String_equalsIgnoreCase (const char* str1, const char* str2)
+/* Compares two strings for case-insensitive equality. */
+static boolean_t String_equalsIgnoreCase (const char* str1, const char* str2)
 {
   while (*str1 != '\0' && *str2 != '\0') {
-    var unsigned char c1 = (unsigned char)(*str1++);
-    var unsigned char c2 = (unsigned char)(*str2++);
+    unsigned char c1 = (unsigned char)(*str1++);
+    unsigned char c2 = (unsigned char)(*str2++);
     if (c1 < 0x80) /* isascii(c1) */
       c1 = toupper(c1);
     if (c2 < 0x80) /* isascii(c2) */
@@ -194,32 +183,32 @@ local boolean String_equalsIgnoreCase (const char* str1, const char* str2)
     if (c1 != c2)
       return FALSE;
   }
-  # Now *str1 == '\0' || *str2 == '\0'.
+  /* Now *str1 == '\0' || *str2 == '\0'. */
   return (*str1 == *str2);
 }
 
 
-# Extensible vectors.
+/* Extensible vectors. */
 
 typedef struct {
-  uintL index;
-  uintL size;
+  unsigned long index;
+  unsigned long size;
   const void* * data;
 } Vector;
 
-local inline void Vector_init (Vector* v)
+static inline void Vector_init (Vector* v)
 {
   v->size = 5;
   v->data = (const void* *) xmalloc(v->size * sizeof(const void*));
   v->index = 0;
 }
 
-local inline uintL Vector_length (const Vector* v)
+static inline unsigned long Vector_length (const Vector* v)
 {
   return v->index;
 }
 
-local void Vector_add (Vector* v, const void* elt)
+static void Vector_add (Vector* v, const void* elt)
 {
   if (v->index >= v->size) {
     v->size = 2 * v->size;
@@ -228,7 +217,7 @@ local void Vector_add (Vector* v, const void* elt)
   v->data[v->index++] = elt;
 }
 
-local const void * Vector_element (const Vector* v, uintL i)
+static const void * Vector_element (const Vector* v, unsigned long i)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -237,7 +226,7 @@ local const void * Vector_element (const Vector* v, uintL i)
   return v->data[i];
 }
 
-local void Vector_set_element (Vector* v, uintL i, const void* elt)
+static void Vector_set_element (Vector* v, unsigned long i, const void* elt)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -246,7 +235,7 @@ local void Vector_set_element (Vector* v, uintL i, const void* elt)
   v->data[i] = elt;
 }
 
-local void Vector_remove_element (Vector* v, uintL i)
+static void Vector_remove_element (Vector* v, unsigned long i)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -258,7 +247,7 @@ local void Vector_remove_element (Vector* v, uintL i)
 }
 
 #ifdef unused
-local void Vector_init_clone (Vector* w, const Vector* v)
+static void Vector_init_clone (Vector* w, const Vector* v)
 {
   w->size = (v->size < 5 ? 5 : v->size);
   w->data = (const void* *) xmalloc(w->size * sizeof(const void*));
@@ -268,91 +257,91 @@ local void Vector_init_clone (Vector* w, const Vector* v)
 #endif
 
 #ifdef unused
-local Vector* Vector_clone (const Vector* v)
+static Vector* Vector_clone (const Vector* v)
 {
-  var Vector* w = (Vector*) xmalloc(sizeof(Vector));
+  Vector* w = (Vector*) xmalloc(sizeof(Vector));
   Vector_init_clone(w,v);
   return w;
 }
 #endif
 
 
-# All data is bufferized in lines.
+/* All data is bufferized in lines. */
 
 typedef struct {
   long number;
   char* contents;
 } Line;
 
-local inline Line* make_Line (long number, char* contents)
+static inline Line* make_Line (long number, char* contents)
 {
-  var Line* result = (Line*) xmalloc(sizeof(Line));
+  Line* result = (Line*) xmalloc(sizeof(Line));
   result->number = number;
   result->contents = contents;
   return result;
 }
 
 
-# Current source file.
+/* Current source file. */
 
-local const char* file = "(stdin)";
+static const char* file = "(stdin)";
 
-# Current line number (used for input and later the output as well).
+/* Current line number (used for input and later the output as well). */
 
-local long lineno;
+static long lineno;
 
 
-# A vector of lines.
+/* A vector of lines. */
 
 typedef struct {
   Vector rep;
 } VectorLine;
 
-local inline void VectorLine_init (VectorLine* v)
+static inline void VectorLine_init (VectorLine* v)
 {
   Vector_init(&v->rep);
 }
 
-local inline uintL VectorLine_length (const VectorLine* v)
+static inline unsigned long VectorLine_length (const VectorLine* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorLine_add (VectorLine* v, const Line* elt)
+static inline void VectorLine_add (VectorLine* v, const Line* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline Line* VectorLine_element (const VectorLine* v, uintL i)
+static inline Line* VectorLine_element (const VectorLine* v, unsigned long i)
 {
   return (Line*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-local inline void VectorLine_set_element (VectorLine* v, uintL i, const Line* elt)
+static inline void VectorLine_set_element (VectorLine* v, unsigned long i, const Line* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 #endif
 
 
-# ================================== INPUT ==================================
+/* =============================== INPUT ================================== */
 
 
-# The vector of all lines read.
+/* The vector of all lines read. */
 
-local VectorLine* lines;
+static VectorLine* lines;
 
 
-# Read a line, or NULL if EOF is encountered.
+/* Read a line, or NULL if EOF is encountered. */
 
-local char* get_line (FILE* fp)
+static char* get_line (FILE* fp)
 {
-  var int len = 1;
-  var char* line = (char*) xmalloc(len);
-  var int index = 0;
-  loop {
-    var int c = getc(fp);
+  int len = 1;
+  char* line = (char*) xmalloc(len);
+  int index = 0;
+  while (1) {
+    int c = getc(fp);
     if (c==EOF) { if (index>0) break; else { xfree(line); return NULL; } }
     if (c=='\n') break;
     if (index >= len-1) {
@@ -366,23 +355,23 @@ local char* get_line (FILE* fp)
 }
 
 
-# Decode a #line directive. If the line represents a #line directive,
-# return the line number. Else return -1.
+/* Decode a #line directive. If the line represents a #line directive,
+return the line number. Else return -1. */
 
-local int decode_line_directive (const char* line)
+static int decode_line_directive (const char* line)
 {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Parse a '#'.
+  /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return -1;
-  # Skip whitespace.
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "line".
+  /* Check for "line". */
   if (i+4 < n
       && line[i+0] == 'l'
       && line[i+1] == 'i'
@@ -392,28 +381,28 @@ local int decode_line_directive (const char* line)
     i += 4;
     for (; i < n && is_whitespace(line[i]); i++);
   }
-  # Check for a digit.
+  /* Check for a digit. */
   if (!(i < n && is_digit(line[i])))
     return -1;
-  { var uintL i1 = i;
+  { unsigned long i1 = i;
     for (; i < n && is_digit(line[i]); i++);
-    { var uintL i2 = i;
-      # Convert digit string to a `long'.
-      var char* digits = substring(line,i1,i2);
+    { unsigned long i2 = i;
+      /* Convert digit string to a `long'. */
+      char* digits = substring(line,i1,i2);
       errno = 0;
-      { var long result = strtol(digits,NULL,10);
+      { long result = strtol(digits,NULL,10);
         xfree(digits);
         if (errno != 0) return -1;
         if (result < 0) abort();
-        # Check for a source file name.
+        /* Check for a source file name. */
         for (; i < n && is_whitespace(line[i]); i++);
         if (i < n && line[i] == '"') {
-          var uintL i3;
+          unsigned long i3;
           i++;
           i3 = i;
           for (; i < n && line[i] != '"'; i++);
           if (i < n && line[i] == '"') {
-            var uintL i4 = i;
+            unsigned long i4 = i;
             file = substring(line,i3,i4);
           }
         }
@@ -421,28 +410,28 @@ local int decode_line_directive (const char* line)
 } } } }
 
 
-# Read the input file. Fill `lines'.
+/* Read the input file. Fill `lines'. */
 
-local void read_all_input (FILE* fp)
+static void read_all_input (FILE* fp)
 {
   lineno = 1;
   lines = (VectorLine*)xmalloc(sizeof(VectorLine)); VectorLine_init(lines);
   {
-    var boolean is_continuation_line = FALSE;
-    loop {
-      var char* line = get_line(fp);
+    boolean_t is_continuation_line = FALSE;
+    while (1) {
+      char* line = get_line(fp);
       if (!line) break;
       if (is_continuation_line) {
-        var Line* last = VectorLine_element(lines,VectorLine_length(lines)-1);
-        var char* prev = substring(last->contents,0,strlen(last->contents)-1);
-        var char* conc = concat2(prev,line);
+        Line* last = VectorLine_element(lines,VectorLine_length(lines)-1);
+        char* prev = substring(last->contents,0,strlen(last->contents)-1);
+        char* conc = concat2(prev,line);
         xfree(last->contents);
         xfree(prev);
         xfree(line);
         line = last->contents = conc;
         lineno++;
       } else {
-        var long line_directive = decode_line_directive(line);
+        long line_directive = decode_line_directive(line);
         if (line_directive >= 0) {
           lineno = line_directive;
           line = "";
@@ -451,76 +440,76 @@ local void read_all_input (FILE* fp)
           lineno++;
         }
       }
-      { var uintL linelen = strlen(line);
+      { unsigned long linelen = strlen(line);
         is_continuation_line = (linelen > 0 && line[linelen-1] == '\\');
       }
     }
 } }
 
 
-# ================================== PARSE ==================================
+/* =============================== PARSE ================================== */
 
 
-# A vector of strings.
+/* A vector of strings. */
 
 typedef struct {
   Vector rep;
 } VectorString;
 
-local inline void VectorString_init (VectorString* v)
+static inline void VectorString_init (VectorString* v)
 {
   Vector_init(&v->rep);
 }
 
-local VectorString* make_VectorString ()
+static VectorString* make_VectorString (void)
 {
-  var VectorString* v = (VectorString*) xmalloc(sizeof(VectorString));
+  VectorString* v = (VectorString*) xmalloc(sizeof(VectorString));
   VectorString_init(v);
   return v;
 }
 
-local inline uintL VectorString_length (const VectorString* v)
+static inline unsigned long VectorString_length (const VectorString* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorString_add (VectorString* v, const char* elt)
+static inline void VectorString_add (VectorString* v, const char* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline const char* VectorString_element (const VectorString* v, uintL i)
+static inline const char* VectorString_element (const VectorString* v, unsigned long i)
 {
   return (const char*) Vector_element(&v->rep,i);
 }
 
-local inline void VectorString_set_element (VectorString* v, uintL i, const char* elt)
+static inline void VectorString_set_element (VectorString* v, unsigned long i, const char* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 
 #ifdef unused
-local inline void VectorString_init_clone (VectorString* w, const VectorString* v)
+static inline void VectorString_init_clone (VectorString* w, const VectorString* v)
 {
   Vector_init_clone(&w->rep,&v->rep);
 }
 #endif
 
 #ifdef unused
-local VectorString* VectorString_clone (const VectorString* v)
+static VectorString* VectorString_clone (const VectorString* v)
 {
-  var VectorString* w = (VectorString*) xmalloc(sizeof(VectorString));
+  VectorString* w = (VectorString*) xmalloc(sizeof(VectorString));
   VectorString_init_clone(w,v);
   return w;
 }
 #endif
 
-# Tests whether v starts with w.
-local boolean VectorString_startsWith (const VectorString* v, const VectorString* w)
+/* Tests whether v starts with w. */
+static boolean_t VectorString_startsWith (const VectorString* v, const VectorString* w)
 {
-  var uintL n = VectorString_length(w);
+  unsigned long n = VectorString_length(w);
   if (VectorString_length(v) >= n) {
-    var uintL i;
+    unsigned long i;
     for (i = 0; i < n; i++)
       if (!String_equals(VectorString_element(v,i),VectorString_element(w,i)))
         return FALSE;
@@ -530,69 +519,69 @@ local boolean VectorString_startsWith (const VectorString* v, const VectorString
 }
 
 
-# A stack of vectors of strings.
+/* A stack of vectors of strings. */
 
 typedef struct {
   Vector rep;
 } StackVectorString;
 
-local inline void StackVectorString_init (StackVectorString* v)
+static inline void StackVectorString_init (StackVectorString* v)
 {
   Vector_init(&v->rep);
 }
 
-local StackVectorString* make_StackVectorString ()
+static StackVectorString* make_StackVectorString (void)
 {
-  var StackVectorString* v = (StackVectorString*) xmalloc(sizeof(StackVectorString));
+  StackVectorString* v = (StackVectorString*) xmalloc(sizeof(StackVectorString));
   StackVectorString_init(v);
   return v;
 }
 
-local inline uintL StackVectorString_length (const StackVectorString* v)
+static inline unsigned long StackVectorString_length (const StackVectorString* v)
 {
   return Vector_length(&v->rep);
 }
 
 #ifdef unused
-local inline boolean StackVectorString_is_empty (const StackVectorString* v)
+static inline boolean_t StackVectorString_is_empty (const StackVectorString* v)
 {
   return StackVectorString_length(v) == 0;
 }
 #endif
 
-local inline void StackVectorString_push (StackVectorString* v, const VectorString* elt)
+static inline void StackVectorString_push (StackVectorString* v, const VectorString* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline VectorString* StackVectorString_element (const StackVectorString* v, uintL i)
+static inline VectorString* StackVectorString_element (const StackVectorString* v, unsigned long i)
 {
   return (VectorString*) Vector_element(&v->rep,i);
 }
 
-local VectorString* StackVectorString_peek (StackVectorString* v)
+static VectorString* StackVectorString_peek (StackVectorString* v)
 {
-  var uintL n = StackVectorString_length(v);
+  unsigned long n = StackVectorString_length(v);
   if (n == 0) { fprintf(stderr,"stack empty\n"); exit(1); }
   return StackVectorString_element(v,n-1);
 }
 
-local VectorString* StackVectorString_pop (StackVectorString* v)
+static VectorString* StackVectorString_pop (StackVectorString* v)
 {
-  var uintL n = StackVectorString_length(v);
+  unsigned long n = StackVectorString_length(v);
   if (n == 0) { fprintf(stderr,"stack empty\n"); exit(1); }
-  { var VectorString* result = StackVectorString_element(v,n-1);
+  { VectorString* result = StackVectorString_element(v,n-1);
     v->rep.index -= 1;
     return result;
 } }
 
-# Push elt, and optimize: elt can be removed if is starts with an already
-# present string sequence. If another element starts with elt, that one can
-# be removed.
-local void StackVectorString_push_optimize (StackVectorString* v, const VectorString* elt)
+/* Push elt, and optimize: elt can be removed if is starts with an already
+present string sequence. If another element starts with elt, that one can
+be removed. */
+static void StackVectorString_push_optimize (StackVectorString* v, const VectorString* elt)
 {
-  var uintL n = StackVectorString_length(v);
-  var uintL i;
+  unsigned long n = StackVectorString_length(v);
+  unsigned long i;
   for (i = 0; i < n; i++)
     if (VectorString_startsWith(elt,StackVectorString_element(v,i)))
       return;
@@ -606,60 +595,60 @@ local void StackVectorString_push_optimize (StackVectorString* v, const VectorSt
 }
 
 
-# The #if[def] stack. All the conditions are implicitly combined by &&.
-# For every #if we start a new entry in the stack, which is popped when we
-# see the corresponding #endif. This is a stack of vector of string, not a
-# stack of string, because when a #elif is seen, we add an element to the
-# stack without popping the previous one.
+/* The #if[def] stack. All the conditions are implicitly combined by &&.
+For every #if we start a new entry in the stack, which is popped when we
+see the corresponding #endif. This is a stack of vector of string, not a
+stack of string, because when a #elif is seen, we add an element to the
+stack without popping the previous one. */
 
-local StackVectorString* ifdef_stack;
+static StackVectorString* ifdef_stack;
 
-# Operations on the #if[def] stack.
+/* Operations on the #if[def] stack. */
 
-local void do_if (const char * condition)
+static void do_if (const char * condition)
 {
-  var VectorString* v = make_VectorString();
+  VectorString* v = make_VectorString();
   VectorString_add(v,condition);
   StackVectorString_push(ifdef_stack,v);
 }
 
-local void do_else ()
+static void do_else (void)
 {
-  var VectorString* v = StackVectorString_peek(ifdef_stack);
-  var uintL i = VectorString_length(v) - 1;
-  var const char* lastcondition = VectorString_element(v,i);
+  VectorString* v = StackVectorString_peek(ifdef_stack);
+  unsigned long i = VectorString_length(v) - 1;
+  const char* lastcondition = VectorString_element(v,i);
   lastcondition = concat3("!(",lastcondition,")");
   VectorString_set_element(v,i,lastcondition);
 }
 
-local void do_elif (const char * condition)
+static void do_elif (const char * condition)
 {
-  var VectorString* v = StackVectorString_peek(ifdef_stack);
-  var uintL i = VectorString_length(v) - 1;
-  var const char* lastcondition = VectorString_element(v,i);
+  VectorString* v = StackVectorString_peek(ifdef_stack);
+  unsigned long i = VectorString_length(v) - 1;
+  const char* lastcondition = VectorString_element(v,i);
   lastcondition = concat3("!(",lastcondition,")");
   VectorString_set_element(v,i,lastcondition);
   VectorString_add(v,condition);
 }
 
-local void do_endif ()
+static void do_endif (void)
 {
   StackVectorString_pop(ifdef_stack);
 }
 
-# Returns the current #if condition.
-# It is a vector of strings, implicitly combined by &&.
-# The vector is freshly constructed, but the strings are shared.
+/* Returns the current #if condition.
+It is a vector of strings, implicitly combined by &&.
+The vector is freshly constructed, but the strings are shared. */
 
-local VectorString* current_condition ()
+static VectorString* current_condition (void)
 {
-  var VectorString* result = make_VectorString();
-  var uintL n = StackVectorString_length(ifdef_stack);
-  var uintL i;
+  VectorString* result = make_VectorString();
+  unsigned long n = StackVectorString_length(ifdef_stack);
+  unsigned long i;
   for (i = 0; i < n; i++) {
-    var const VectorString* v = StackVectorString_element(ifdef_stack,i);
-    var uintL m = VectorString_length(v);
-    var uintL j;
+    const VectorString* v = StackVectorString_element(ifdef_stack,i);
+    unsigned long m = VectorString_length(v);
+    unsigned long j;
     for (j = 0; j < m; j++)
       VectorString_add(result,VectorString_element(v,j));
   }
@@ -667,22 +656,22 @@ local VectorString* current_condition ()
 }
 
 
-# Parsing of #if/#else/#elif/#endif lines.
+/* Parsing of #if/#else/#elif/#endif lines. */
 
-local const char* is_if (const char* line)
+static const char* is_if (const char* line)
 {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Parse a '#'.
+  /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return NULL;
-  # Skip whitespace.
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "if".
+  /* Check for "if". */
   if (i+2 < n
       && line[i+0] == 'i'
       && line[i+1] == 'f'
@@ -692,7 +681,7 @@ local const char* is_if (const char* line)
     for (; n > i && is_whitespace(line[n-1]); n--);
     return substring(line,i,n);
   }
-  # Check for "ifdef".
+  /* Check for "ifdef". */
   if (i+5 < n
       && line[i+0] == 'i'
       && line[i+1] == 'f'
@@ -703,12 +692,12 @@ local const char* is_if (const char* line)
     i += 6;
     for (; i < n && is_whitespace(line[i]); i++);
     for (; n > i && is_whitespace(line[n-1]); n--);
-    { var char* term = substring(line,i,n);
-      var const char* result = concat3("defined(",term,")");
+    { char* term = substring(line,i,n);
+      const char* result = concat3("defined(",term,")");
       xfree(term);
       return result;
   } }
-  # Check for "ifndef".
+  /* Check for "ifndef". */
   if (i+6 < n
       && line[i+0] == 'i'
       && line[i+1] == 'f'
@@ -720,28 +709,28 @@ local const char* is_if (const char* line)
     i += 7;
     for (; i < n && is_whitespace(line[i]); i++);
     for (; n > i && is_whitespace(line[n-1]); n--);
-    { var char* term = substring(line,i,n);
-      var const char* result = concat3("!defined(",term,")");
+    { char* term = substring(line,i,n);
+      const char* result = concat3("!defined(",term,")");
       xfree(term);
       return result;
   } }
   return NULL;
 }
 
-local boolean is_else (const char* line)
+static boolean_t is_else (const char* line)
 {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Parse a '#'.
+  /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return FALSE;
-  # Skip whitespace.
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "else".
+  /* Check for "else". */
   if (i+4 <= n
       && line[i+0] == 'e'
       && line[i+1] == 'l'
@@ -753,20 +742,20 @@ local boolean is_else (const char* line)
   return FALSE;
 }
 
-local const char* is_elif (const char* line)
+static const char* is_elif (const char* line)
 {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Parse a '#'.
+  /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return NULL;
-  # Skip whitespace.
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "elif".
+  /* Check for "elif". */
   if (i+4 < n
       && line[i+0] == 'e'
       && line[i+1] == 'l'
@@ -781,20 +770,20 @@ local const char* is_elif (const char* line)
   return NULL;
 }
 
-local boolean is_endif (const char* line)
+static boolean_t is_endif (const char* line)
 {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Parse a '#'.
+  /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return FALSE;
-  # Skip whitespace.
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "endif".
+  /* Check for "endif". */
   if (i+5 <= n
       && line[i+0] == 'e'
       && line[i+1] == 'n'
@@ -808,17 +797,17 @@ local boolean is_endif (const char* line)
 }
 
 
-# When we see the DEFMODULE(name,package) line, we store the name.
-local const char* name_defmodule = NULL;
-local uintL line_defmodule = 0; # index of line containing DEFMODULE
-local const char* default_packname = NULL;
+/* When we see the DEFMODULE(name,package) line, we store the name. */
+static const char* name_defmodule = NULL;
+static unsigned long line_defmodule = 0; /* index of line containing DEFMODULE */
+static const char* default_packname = NULL;
 
-local boolean is_defmodule (const char* line) {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+static boolean_t is_defmodule (const char* line) {
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "DEFMODULE".
+  /* Check for "DEFMODULE". */
   if (i+9 < n
       && line[i+0] == 'D'
       && line[i+1] == 'E'
@@ -833,7 +822,7 @@ local boolean is_defmodule (const char* line) {
     i += 9;
     for (; i < n && is_whitespace(line[i]); i++);
     if (i < n && line[i] == '(') {
-      var uintL i1, i2;
+      unsigned long i1, i2;
       i += 1;
       i1 = i;
       for (; i < n; i++)
@@ -841,7 +830,7 @@ local boolean is_defmodule (const char* line) {
           break;
       i2 = i;
       if (i < n && line[i] == ',') {
-        var uintL i3, i4;
+        unsigned long i3, i4;
         i += 1;
         i3 = i;
         for (; i < n; i++)
@@ -849,7 +838,7 @@ local boolean is_defmodule (const char* line) {
             break;
         i4 = i;
         if (i < n && line[i] == ')') {
-          # First macro argument is from i1 to i2, second is from i3 to i4.
+          /* First macro argument is from i1 to i2, second is from i3 to i4. */
           while (i1 < i2 && is_whitespace(line[i1])) i1++;
           while (i1 < i2 && is_whitespace(line[i2-1])) i2--;
           while (i3 < i4 && is_whitespace(line[i3])) i3++;
@@ -869,100 +858,100 @@ local boolean is_defmodule (const char* line) {
 }
 
 
-# Entries for the object table.
+/* Entries for the object table. */
 
 typedef struct {
-  const char* initstring; # The string that, when read by the Lisp reader,
-                          # initializes the object.
-  const char* tag;        # The struct tag we use for this object.
-  StackVectorString* condition; # The #if condition of this object.
+  const char* initstring; /* The string that, when read by the Lisp reader, */
+                          /* initializes the object. */
+  const char* tag;        /* The struct tag we use for this object. */
+  StackVectorString* condition; /* The #if condition of this object. */
 } Objdef;
 
 
-# A vector of Objdef.
+/* A vector of Objdef. */
 
 typedef struct {
   Vector rep;
 } VectorObjdef;
 
-local inline void VectorObjdef_init (VectorObjdef* v)
+static inline void VectorObjdef_init (VectorObjdef* v)
 {
   Vector_init(&v->rep);
 }
 
-local VectorObjdef* make_VectorObjdef ()
+static VectorObjdef* make_VectorObjdef (void)
 {
-  var VectorObjdef* v = (VectorObjdef*) xmalloc(sizeof(VectorObjdef));
+  VectorObjdef* v = (VectorObjdef*) xmalloc(sizeof(VectorObjdef));
   VectorObjdef_init(v);
   return v;
 }
 
-local inline uintL VectorObjdef_length (const VectorObjdef* v)
+static inline unsigned long VectorObjdef_length (const VectorObjdef* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorObjdef_add (VectorObjdef* v, Objdef* elt)
+static inline void VectorObjdef_add (VectorObjdef* v, Objdef* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline Objdef* VectorObjdef_element (const VectorObjdef* v, uintL i)
+static inline Objdef* VectorObjdef_element (const VectorObjdef* v, unsigned long i)
 {
   return (Objdef*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-local inline void VectorObjdef_set_element (VectorObjdef* v, uintL i, Objdef* elt)
+static inline void VectorObjdef_set_element (VectorObjdef* v, unsigned long i, Objdef* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 #endif
 
 
-# The table of all Objdefs.
+/* The table of all Objdefs. */
 
-local VectorObjdef* objdefs;
+static VectorObjdef* objdefs;
 
-# Looks up an Objdef with a given tag.
+/* Looks up an Objdef with a given tag. */
 
-local Objdef* get_objdef_from_tag (const char* tag)
+static Objdef* get_objdef_from_tag (const char* tag)
 {
-  var uintL n = VectorObjdef_length(objdefs);
-  var uintL i;
+  unsigned long n = VectorObjdef_length(objdefs);
+  unsigned long i;
   for (i = 0; i < n; i++) {
-    var Objdef* odef = VectorObjdef_element(objdefs,i);
+    Objdef* odef = VectorObjdef_element(objdefs,i);
     if (String_equals(odef->tag,tag))
       return odef;
   }
   return NULL;
 }
 
-# Looks up or creates an Objdef for a given initstring.
+/* Looks up or creates an Objdef for a given initstring. */
 
-local Objdef* get_objdef_aux (const char* initstring, VectorString* condition)
+static Objdef* get_objdef_aux (const char* initstring, VectorString* condition)
 {
-  var Objdef* odef;
-  # First search in the table.
+  Objdef* odef;
+  /* First search in the table. */
   {
-    var uintL n = VectorObjdef_length(objdefs);
-    var uintL i;
+    unsigned long n = VectorObjdef_length(objdefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
       odef = VectorObjdef_element(objdefs,i);
       if (String_equals(odef->initstring,initstring))
         goto found;
     }
   }
-  # Create the tag.
+  /* Create the tag. */
   {
-    var char* tagbuf = (char*) xmalloc(3*strlen(initstring)+10);
-    var char* q = tagbuf;
+    char* tagbuf = (char*) xmalloc(3*strlen(initstring)+10);
+    char* q = tagbuf;
     strcpy(q,"object_");
     q += strlen(q);
     {
-      var const char* p;
+      const char* p;
       for (p = initstring; *p != '\0'; p++) {
-        var char c = *p;
+        char c = *p;
         if (c >= 'A' && c <= 'Z')
           *q++ = c+32;
         else if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
@@ -978,17 +967,17 @@ local Objdef* get_objdef_aux (const char* initstring, VectorString* condition)
     }
     *q = '\0';
     if (get_objdef_from_tag(tagbuf) != NULL) {
-      var int i;
-      # Append a suffix to make sure tags are unique.
+      int i;
+      /* Append a suffix to make sure tags are unique. */
       for (i = 1; ; i++) {
         sprintf(q,"_%d",i);
         if (get_objdef_from_tag(tagbuf) == NULL)
           break;
       }
     }
-    # Found a unique tag. Allocate a new Objdef.
+    /* Found a unique tag. Allocate a new Objdef. */
     {
-      var char* tag = (char*) xmalloc(strlen(tagbuf)+1);
+      char* tag = (char*) xmalloc(strlen(tagbuf)+1);
       strcpy(tag,tagbuf);
       xfree(tagbuf);
       odef = (Objdef*) xmalloc(sizeof(Objdef));
@@ -1003,35 +992,35 @@ found:
   return odef;
 }
 
-local inline Objdef* get_objdef (const char* initstring)
+static inline Objdef* get_objdef (const char* initstring)
 {
   return get_objdef_aux(initstring,current_condition());
 }
 
 
-# Representation of a function signature.
+/* Representation of a function signature. */
 
 typedef struct {
   int req;
   int opt;
-  boolean rest;
-  boolean key;
+  boolean_t rest;
+  boolean_t key;
   VectorObjdef* keywords;
-  StackVectorString* condition; # The #if condition of this object.
+  StackVectorString* condition; /* The #if condition of this object. */
 } Signature;
 
-# Compares two signatures for equality (without condition).
+/* Compares two signatures for equality (without condition). */
 
-local boolean Signature_equals (const Signature* sig1, const Signature* sig2)
+static boolean_t Signature_equals (const Signature* sig1, const Signature* sig2)
 {
   if (sig1->req == sig2->req) {
     if (sig1->opt == sig2->opt) {
       if (sig1->rest == sig2->rest) {
         if (sig1->key == sig2->key) {
-          var uintL len1 = VectorObjdef_length(sig1->keywords);
-          var uintL len2 = VectorObjdef_length(sig2->keywords);
+          unsigned long len1 = VectorObjdef_length(sig1->keywords);
+          unsigned long len2 = VectorObjdef_length(sig2->keywords);
           if (len1 == len2) {
-            var uintL i;
+            unsigned long i;
             for (i = 0; i < len1; i++)
               if (VectorObjdef_element(sig1->keywords,i) != VectorObjdef_element(sig2->keywords,i))
                 return FALSE;
@@ -1044,22 +1033,22 @@ local boolean Signature_equals (const Signature* sig1, const Signature* sig2)
   return FALSE;
 }
 
-# Returns the signature (without condition) denoted by the line, or NULL
-# in case of syntax error.
-# Example for line: "x y [&optional z] [&rest foo | &key a b c]"
+/* Returns the signature (without condition) denoted by the line, or NULL
+in case of syntax error.
+Example for line: "x y [&optional z] [&rest foo | &key a b c]" */
 
-local Signature* parseSignature (const char* line)
+static Signature* parseSignature (const char* line)
 {
-  var int req = 0;
-  var int opt = 0;
-  var int rest = 0;
-  var VectorObjdef* keywords = make_VectorObjdef();
-  var boolean optional_seen = FALSE;
-  var boolean rest_seen = FALSE;
-  var boolean key_seen = FALSE;
-  # Go through the line and tokenize it.
-  var const char* p1 = line;
-  var const char* p2;
+  int req = 0;
+  int opt = 0;
+  int rest = 0;
+  VectorObjdef* keywords = make_VectorObjdef();
+  boolean_t optional_seen = FALSE;
+  boolean_t rest_seen = FALSE;
+  boolean_t key_seen = FALSE;
+  /* Go through the line and tokenize it. */
+  const char* p1 = line;
+  const char* p2;
   for (;;) {
     while (is_whitespace(*p1))
       p1++;
@@ -1068,10 +1057,10 @@ local Signature* parseSignature (const char* line)
     p2 = p1;
     while (*p2 != '\0' && !is_whitespace(*p2))
       p2++;
-    # Found a token from p1 to p2.
+    /* Found a token from p1 to p2. */
     {
-      var char* token = substring_from_to(p1,p2);
-      # Analyze the token.
+      char* token = substring_from_to(p1,p2);
+      /* Analyze the token. */
       if (String_equalsIgnoreCase(token,"&optional")) {
         if (optional_seen || rest_seen || key_seen)
           return NULL;
@@ -1088,9 +1077,9 @@ local Signature* parseSignature (const char* line)
         if (rest_seen)
           rest++;
         else if (key_seen) {
-          var char* keyword_name;
-          var char* keyword_initstring;
-          var Objdef* keyword_odef;
+          char* keyword_name;
+          char* keyword_initstring;
+          Objdef* keyword_odef;
           if ((keyword_name = strrchr(token,':')) != NULL)
             keyword_name = keyword_name+1;
           else
@@ -1110,7 +1099,7 @@ local Signature* parseSignature (const char* line)
   if (rest_seen && rest != 1)
     return NULL;
   {
-    var Signature* sig = (Signature*) xmalloc(sizeof(Signature));
+    Signature* sig = (Signature*) xmalloc(sizeof(Signature));
     sig->req = req;
     sig->opt = opt;
     sig->rest = rest_seen;
@@ -1121,129 +1110,129 @@ local Signature* parseSignature (const char* line)
 }
 
 
-# A vector of Signature.
+/* A vector of Signature. */
 
 typedef struct {
   Vector rep;
 } VectorSignature;
 
-local inline void VectorSignature_init (VectorSignature* v)
+static inline void VectorSignature_init (VectorSignature* v)
 {
   Vector_init(&v->rep);
 }
 
-local VectorSignature* make_VectorSignature ()
+static VectorSignature* make_VectorSignature (void)
 {
-  var VectorSignature* v = (VectorSignature*) xmalloc(sizeof(VectorSignature));
+  VectorSignature* v = (VectorSignature*) xmalloc(sizeof(VectorSignature));
   VectorSignature_init(v);
   return v;
 }
 
-local inline uintL VectorSignature_length (const VectorSignature* v)
+static inline unsigned long VectorSignature_length (const VectorSignature* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorSignature_add (VectorSignature* v, Signature* elt)
+static inline void VectorSignature_add (VectorSignature* v, Signature* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline Signature* VectorSignature_element (const VectorSignature* v, uintL i)
+static inline Signature* VectorSignature_element (const VectorSignature* v, unsigned long i)
 {
   return (Signature*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-local inline void VectorSignature_set_element (VectorSignature* v, uintL i, Signature* elt)
+static inline void VectorSignature_set_element (VectorSignature* v, unsigned long i, Signature* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 #endif
 
 
-# Entries for the function table.
+/* Entries for the function table. */
 
 typedef struct {
-  const char* packname;  # The symbol's package name
-  const char* printname; # The symbol's print name
-  const char* tag;       # The struct tag we use for this function
-  StackVectorString* condition; # The total #if condition of this function.
-  VectorSignature* signatures; # The functions possible signatures, together
-                               # with their individual #if conditions.
+  const char* packname;  /* The symbol's package name */
+  const char* printname; /* The symbol's print name */
+  const char* tag;       /* The struct tag we use for this function */
+  StackVectorString* condition; /* The total #if condition of this function. */
+  VectorSignature* signatures; /* The functions possible signatures, together
+with their individual #if conditions. */
 } Fundef;
 
 
-# A vector of Fundef.
+/* A vector of Fundef. */
 
 typedef struct {
   Vector rep;
 } VectorFundef;
 
-local inline void VectorFundef_init (VectorFundef* v)
+static inline void VectorFundef_init (VectorFundef* v)
 {
   Vector_init(&v->rep);
 }
 
-local VectorFundef* make_VectorFundef ()
+static VectorFundef* make_VectorFundef (void)
 {
-  var VectorFundef* v = (VectorFundef*) xmalloc(sizeof(VectorFundef));
+  VectorFundef* v = (VectorFundef*) xmalloc(sizeof(VectorFundef));
   VectorFundef_init(v);
   return v;
 }
 
-local inline uintL VectorFundef_length (const VectorFundef* v)
+static inline unsigned long VectorFundef_length (const VectorFundef* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorFundef_add (VectorFundef* v, Fundef* elt)
+static inline void VectorFundef_add (VectorFundef* v, Fundef* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline Fundef* VectorFundef_element (const VectorFundef* v, uintL i)
+static inline Fundef* VectorFundef_element (const VectorFundef* v, unsigned long i)
 {
   return (Fundef*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-local inline void VectorFundef_set_element (VectorFundef* v, uintL i, Fundef* elt)
+static inline void VectorFundef_set_element (VectorFundef* v, unsigned long i, Fundef* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 #endif
 
 
-# The table of all Fundefs.
+/* The table of all Fundefs. */
 
-local VectorFundef* fundefs;
+static VectorFundef* fundefs;
 
-# Looks up an Fundef with a given tag.
+/* Looks up an Fundef with a given tag. */
 
-local Fundef* get_fundef_from_tag (const char* tag)
+static Fundef* get_fundef_from_tag (const char* tag)
 {
-  var uintL n = VectorFundef_length(fundefs);
-  var uintL i;
+  unsigned long n = VectorFundef_length(fundefs);
+  unsigned long i;
   for (i = 0; i < n; i++) {
-    var Fundef* fdef = VectorFundef_element(fundefs,i);
+    Fundef* fdef = VectorFundef_element(fundefs,i);
     if (String_equals(fdef->tag,tag))
       return fdef;
   }
   return NULL;
 }
 
-# Looks up or creates a Fundef for a given function name, and adds the given
-# signature to it.
+/* Looks up or creates a Fundef for a given function name,
+   and adds the given signature to it. */
 
-local Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString* condition)
+static Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString* condition)
 {
-  var Fundef* fdef;
-  # Split the function name into a package name and a print name.
-  var const char* packname;
-  var const char* printname;
+  Fundef* fdef;
+  /* Split the function name into a package name and a print name. */
+  const char* packname;
+  const char* printname;
   {
-    var const char* tmp = strchr(funname,':');
+    const char* tmp = strchr(funname,':');
     if (tmp) {
       packname = substring_from_to(funname,tmp);
       tmp++;
@@ -1264,27 +1253,27 @@ local Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString*
       }
     }
   }
-  # First search in the table.
+  /* First search in the table. */
   {
-    var uintL n = VectorFundef_length(fundefs);
-    var uintL i;
+    unsigned long n = VectorFundef_length(fundefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
       fdef = VectorFundef_element(fundefs,i);
       if (String_equals(fdef->packname,packname) && String_equals(fdef->printname,printname))
         goto found;
     }
   }
-  # Create the tag.
+  /* Create the tag. */
   {
-    var char* initstring = concat3(packname,":",printname);
-    var char* tagbuf = (char*) xmalloc(3*strlen(initstring)+10);
-    var char* q = tagbuf;
+    char* initstring = concat3(packname,":",printname);
+    char* tagbuf = (char*) xmalloc(3*strlen(initstring)+10);
+    char* q = tagbuf;
     strcpy(q,"subr_t");
     q += strlen(q);
     {
-      var const char* p;
+      const char* p;
       for (p = initstring; *p != '\0'; p++) {
-        var char c = *p;
+        char c = *p;
         if (c >= 'A' && c <= 'Z')
           *q++ = c+32;
         else if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
@@ -1301,17 +1290,17 @@ local Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString*
     }
     *q = '\0';
     if (get_fundef_from_tag(tagbuf) != NULL) {
-      var int i;
-      # Append a suffix to make sure tags are unique.
+      int i;
+      /* Append a suffix to make sure tags are unique. */
       for (i = 1; ; i++) {
         sprintf(q,"_%d",i);
         if (get_fundef_from_tag(tagbuf) == NULL)
           break;
       }
     }
-    # Found a unique tag. Allocate a new Fundef.
+    /* Found a unique tag. Allocate a new Fundef. */
     {
-      var char* tag = (char*) xmalloc(strlen(tagbuf)+1);
+      char* tag = (char*) xmalloc(strlen(tagbuf)+1);
       strcpy(tag,tagbuf);
       xfree(tagbuf);
       fdef = (Fundef*) xmalloc(sizeof(Fundef));
@@ -1325,13 +1314,13 @@ local Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString*
   }
 found:
   StackVectorString_push_optimize(fdef->condition,condition);
-  # Now add the signature.
+  /* Now add the signature. */
   {
-    var VectorSignature* signatures = fdef->signatures;
-    var uintL n = VectorSignature_length(signatures);
-    var uintL i;
+    VectorSignature* signatures = fdef->signatures;
+    unsigned long n = VectorSignature_length(signatures);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Signature* sig_i = VectorSignature_element(signatures,i);
+      Signature* sig_i = VectorSignature_element(signatures,i);
       if (Signature_equals(sig_i,sig)) {
         StackVectorString_push_optimize(sig_i->condition,condition);
         goto done_signature;
@@ -1345,24 +1334,24 @@ done_signature:
   return fdef;
 }
 
-local inline Fundef* get_fundef (const char* funname, Signature* sig)
+static inline Fundef* get_fundef (const char* funname, Signature* sig)
 {
   return get_fundef_aux(funname,sig,current_condition());
 }
 
 
-# Print a signature in a form suitable as argument list for LISPFUN.
+/* Print a signature in a form suitable as argument list for LISPFUN. */
 
-local char* get_signature_for_LISPFUN (const Fundef* fdef, const Signature* sig)
+static char* get_signature_for_LISPFUN (const Fundef* fdef, const Signature* sig)
 {
-  # sprintf(buffer,"(%s,%d,%d,%s,%s,%lu,NIL)",
-  #                fdef->tag,
-  #                sig->req,
-  #                sig->opt,
-  #                (sig->rest?"rest":"norest"),
-  #                (sig->key?"key":"nokey"),
-  #                VectorObjdef_length(sig->keywords));
-  var char buffer[1+10+1+10+1+6+1+5+10+5+1];
+  /* sprintf(buffer,"(%s,%d,%d,%s,%s,%lu,NIL)",
+             fdef->tag,
+             sig->req,
+             sig->opt,
+             (sig->rest?"rest":"norest"),
+             (sig->key?"key":"nokey"),
+             VectorObjdef_length(sig->keywords)); */
+  char buffer[1+10+1+10+1+6+1+5+10+5+1];
   sprintf(buffer,",%d,%d,%s,%s,%lu,NIL)",
                  sig->req,
                  sig->opt,
@@ -1373,15 +1362,15 @@ local char* get_signature_for_LISPFUN (const Fundef* fdef, const Signature* sig)
 }
 
 
-# Parse a  DEFUN(funname,lambdalist)  line,
-# and turn it into  DEFUN(funname,lambdalist,signature).
+/* Parse a  DEFUN(funname,lambdalist)  line,
+and turn it into  DEFUN(funname,lambdalist,signature). */
 
-local char* is_defun (const char* line) {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+static char* is_defun (const char* line) {
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "DEFUN".
+  /* Check for "DEFUN". */
   if (i+5 < n
       && line[i+0] == 'D'
       && line[i+1] == 'E'
@@ -1392,7 +1381,7 @@ local char* is_defun (const char* line) {
     i += 5;
     for (; i < n && is_whitespace(line[i]); i++);
     if (i < n && line[i] == '(') {
-      var uintL i1, i2, i3, i4;
+      unsigned long i1, i2, i3, i4;
       i += 1;
       i1 = i;
       for (; i < n; i++)
@@ -1407,19 +1396,19 @@ local char* is_defun (const char* line) {
             break;
         i4 = i;
         if (i < n && line[i] == ')') {
-          # First macro argument is from i1 to i2, second is from i3 to i4.
+          /* First macro argument is from i1 to i2, second is from i3 to i4. */
           while (i1 < i2 && is_whitespace(line[i1])) i1++;
           while (i1 < i2 && is_whitespace(line[i2-1])) i2--;
           {
-            var char* funname = substring(line,i1,i2);
-            var char* lambdalist = substring(line,i3,i4);
-            var Signature* signature = parseSignature(lambdalist);
+            char* funname = substring(line,i1,i2);
+            char* lambdalist = substring(line,i3,i4);
+            Signature* signature = parseSignature(lambdalist);
             if (signature == NULL) {
               fprintf(stderr,"%s:%ld: invalid lambdalist syntax for function `%s': %s\n",file,lineno,funname,lambdalist);
               exit(1);
             }
             {
-              var Fundef* fdef = get_fundef(funname,signature);
+              Fundef* fdef = get_fundef(funname,signature);
               return concat4(substring(line,0,i),",",get_signature_for_LISPFUN(fdef,signature),substring(line,i,n));
             }
           }
@@ -1433,81 +1422,81 @@ local char* is_defun (const char* line) {
 }
 
 
-# Entries for the variable table.
+/* Entries for the variable table. */
 
 typedef struct {
-  const char* tag;              # The struct tag of this variable.
-  StackVectorString* condition; # The total #if condition of this variable.
+  const char* tag;              /* The struct tag of this variable. */
+  StackVectorString* condition; /* The total #if condition of this variable. */
 } Vardef;
 
 
-# A vector of Vardef.
+/* A vector of Vardef. */
 
 typedef struct {
   Vector rep;
 } VectorVardef;
 
-local inline void VectorVardef_init (VectorVardef* v)
+static inline void VectorVardef_init (VectorVardef* v)
 {
   Vector_init(&v->rep);
 }
 
-local VectorVardef* make_VectorVardef ()
+static VectorVardef* make_VectorVardef (void)
 {
-  var VectorVardef* v = (VectorVardef*) xmalloc(sizeof(VectorVardef));
+  VectorVardef* v = (VectorVardef*) xmalloc(sizeof(VectorVardef));
   VectorVardef_init(v);
   return v;
 }
 
-local inline uintL VectorVardef_length (const VectorVardef* v)
+static inline unsigned long VectorVardef_length (const VectorVardef* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorVardef_add (VectorVardef* v, Vardef* elt)
+static inline void VectorVardef_add (VectorVardef* v, Vardef* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline Vardef* VectorVardef_element (const VectorVardef* v, uintL i)
+static inline Vardef* VectorVardef_element (const VectorVardef* v, unsigned long i)
 {
   return (Vardef*) Vector_element(&v->rep,i);
 }
 
-local inline void VectorVardef_set_element (VectorVardef* v, uintL i, Vardef* elt)
+static inline void VectorVardef_set_element (VectorVardef* v, unsigned long i, Vardef* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 
 
-# The table of all Vardefs.
+/* The table of all Vardefs. */
 
-local VectorVardef* vardefs;
+static VectorVardef* vardefs;
 
 
-# Looks up an Vardef with a given tag.
+/* Looks up an Vardef with a given tag. */
 
-local Vardef* get_vardef_from_tag (const char* tag)
+static Vardef* get_vardef_from_tag (const char* tag)
 {
-  var uintL n = VectorVardef_length(vardefs);
-  var uintL i;
+  unsigned long n = VectorVardef_length(vardefs);
+  unsigned long i;
   for (i = 0; i < n; i++) {
-    var Vardef* vdef = VectorVardef_element(vardefs,i);
+    Vardef* vdef = VectorVardef_element(vardefs,i);
     if (String_equals(vdef->tag,tag))
       return vdef;
   }
   return NULL;
 }
 
-# Looks up or creates a Vardef for a given variable name.
+/* Looks up or creates a Vardef for a given variable name. */
 
-local Vardef* get_vardef_aux (const char* varname, VectorString* condition)
+static Vardef* get_vardef_aux (const char* varname, VectorString* condition)
 {
-  var Vardef* vdef;
-  # First search in the table.
+  Vardef* vdef;
+  /* First search in the table. */
   vdef = get_vardef_from_tag(varname);
   if (vdef == NULL) {
-    # Allocate a new Vardef.
+    /* Allocate a new Vardef. */
     vdef = (Vardef*) xmalloc(sizeof(Vardef));
     vdef->tag = varname;
     vdef->condition = make_StackVectorString();
@@ -1517,24 +1506,24 @@ local Vardef* get_vardef_aux (const char* varname, VectorString* condition)
   return vdef;
 }
 
-local inline Vardef* get_vardef (const char* varname)
+static inline Vardef* get_vardef (const char* varname)
 {
   return get_vardef_aux(varname,current_condition());
 }
 
 
-# Variable initializers. (We treat them separately from the variables
-# themselves, so that they are executed in order.)
+/* Variable initializers. (We treat them separately from the variables
+ themselves, so that they are executed in order.) */
 
 typedef struct {
-  const char* tag;         # The struct tag of this variable.
-  const char* initform;    # A C expression initializing this variable.
-  VectorString* condition; # The #if condition of this initializer.
+  const char* tag;         /* The struct tag of this variable. */
+  const char* initform;    /* A C expression initializing this variable. */
+  VectorString* condition; /* The #if condition of this initializer. */
 } Varinit;
 
-local inline Varinit* make_Varinit (const char* tag, const char* initform, VectorString* condition)
+static inline Varinit* make_Varinit (const char* tag, const char* initform, VectorString* condition)
 {
-  var Varinit* v = (Varinit*) xmalloc(sizeof(Varinit));
+  Varinit* v = (Varinit*) xmalloc(sizeof(Varinit));
   v->tag = tag;
   v->initform = initform;
   v->condition = condition;
@@ -1542,60 +1531,60 @@ local inline Varinit* make_Varinit (const char* tag, const char* initform, Vecto
 }
 
 
-# A vector of Varinit.
+/* A vector of Varinit. */
 
 typedef struct {
   Vector rep;
 } VectorVarinit;
 
-local inline void VectorVarinit_init (VectorVarinit* v)
+static inline void VectorVarinit_init (VectorVarinit* v)
 {
   Vector_init(&v->rep);
 }
 
-local VectorVarinit* make_VectorVarinit ()
+static VectorVarinit* make_VectorVarinit (void)
 {
-  var VectorVarinit* v = (VectorVarinit*) xmalloc(sizeof(VectorVarinit));
+  VectorVarinit* v = (VectorVarinit*) xmalloc(sizeof(VectorVarinit));
   VectorVarinit_init(v);
   return v;
 }
 
-local inline uintL VectorVarinit_length (const VectorVarinit* v)
+static inline unsigned long VectorVarinit_length (const VectorVarinit* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorVarinit_add (VectorVarinit* v, Varinit* elt)
+static inline void VectorVarinit_add (VectorVarinit* v, Varinit* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline Varinit* VectorVarinit_element (const VectorVarinit* v, uintL i)
+static inline Varinit* VectorVarinit_element (const VectorVarinit* v, unsigned long i)
 {
   return (Varinit*) Vector_element(&v->rep,i);
 }
 
-local inline void VectorVarinit_set_element (VectorVarinit* v, uintL i, Varinit* elt)
+static inline void VectorVarinit_set_element (VectorVarinit* v, unsigned long i, Varinit* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 
 
-# The list of all variable initializers, as they appear in the source.
+/* The list of all variable initializers, as they appear in the source. */
 
-local VectorVarinit* varinits;
+static VectorVarinit* varinits;
 
 
-# Parse a  DEFVAR(varname,initform)  line, and turn it into  DEFVAR(varname).
-# (We remove the initform because it might contain backquoted stuff including
-# commas and parentheses.)
+/* Parse a  DEFVAR(varname,initform)  line, and turn it into  DEFVAR(varname).
+ (We remove the initform because it might contain backquoted stuff including
+  commas and parentheses.) */
 
-local char* is_defvar (const char* line) {
-  var uintL n = strlen(line);
-  var uintL i = 0;
-  # Skip whitespace.
+static char* is_defvar (const char* line) {
+  unsigned long n = strlen(line);
+  unsigned long i = 0;
+  /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
-  # Check for "DEFVAR".
+  /* Check for "DEFVAR". */
   if (i+6 < n
       && line[i+0] == 'D'
       && line[i+1] == 'E'
@@ -1607,7 +1596,7 @@ local char* is_defvar (const char* line) {
     i += 6;
     for (; i < n && is_whitespace(line[i]); i++);
     if (i < n && line[i] == '(') {
-      var uintL i1, i2, i3, i4;
+      unsigned long i1, i2, i3, i4;
       i += 1;
       i1 = i;
       for (; i < n; i++)
@@ -1617,23 +1606,23 @@ local char* is_defvar (const char* line) {
       if (i < n && line[i] == ',') {
         i += 1;
         i3 = i;
-        # Start a lexical analysis.
+        /* Start a lexical analysis. */
         {
-          var int in_comment = 0; # comment depth
-          var boolean in_string = FALSE; # in "..." ?
-          var boolean in_char = FALSE;   # in '...' ?
-          var boolean in_subst = FALSE;  # in `...` ?
-          var long subst_start = -1;
-          var int in_paren = 0;   # parentheses depth
+          int in_comment = 0; /* comment depth */
+          boolean_t in_string = FALSE; /* in "..." ? */
+          boolean_t in_char = FALSE;   /* in '...' ? */
+          boolean_t in_subst = FALSE;  /* in `...` ? */
+          long subst_start = -1;
+          int in_paren = 0;   /* parentheses depth */
           while (i < n) {
-            var char c = line[i];
+            char c = line[i];
             if (!in_comment && !in_char && !in_string && !in_subst
                 && c == '(') {
               in_paren++;
               i++;
             } else if (!in_comment && !in_char && !in_string && !in_subst
                        && !in_paren && c == ',') {
-              fprintf(stderr,"%s:%ld: DEFVAR macro with two many arguments\n",file,lineno);
+              fprintf(stderr,"%s:%ld: DEFmacro with two many arguments\n",file,lineno);
               exit(1);
             } else if (!in_comment && !in_char && !in_string && !in_subst
                        && c == ')') {
@@ -1654,7 +1643,7 @@ local char* is_defvar (const char* line) {
               i += 2;
             } else if (i+1 < n && c == '\\') {
               if (in_subst && line[i+1] == '`') {
-                # Inside subst, convert \` to simple `
+                /* Inside subst, convert \` to simple ` */
                 line = concat2(substring(line,0,i),substring(line,i+1,n));
                 n--;
                 i++;
@@ -1672,8 +1661,8 @@ local char* is_defvar (const char* line) {
                 subst_start = i;
                 i++;
               } else {
-                var const char* initstring = substring(line,subst_start+1,i);
-                var Objdef* odef = get_objdef(initstring);
+                const char* initstring = substring(line,subst_start+1,i);
+                Objdef* odef = get_objdef(initstring);
                 line = concat3(substring(line,0,subst_start),odef->tag,substring(line,i+1,n));
                 n = strlen(line);
                 i = subst_start + strlen(odef->tag);
@@ -1697,61 +1686,61 @@ local char* is_defvar (const char* line) {
               exit(1);
             }
             if (in_comment) {
-              fprintf(stderr,"%s:%ld: comment inside DEFVAR not terminated\n",file,lineno);
+              fprintf(stderr,"%s:%ld: comment inside DEFnot terminated\n",file,lineno);
               exit(1);
             }
-            fprintf(stderr,"%s:%ld: DEFVAR macro not terminated\n",file,lineno);
+            fprintf(stderr,"%s:%ld: DEFmacro not terminated\n",file,lineno);
             exit(1);
           }
         }
         i4 = i;
-        # First macro argument is from i1 to i2, second is from i3 to i4.
+        /* First macro argument is from i1 to i2, second is from i3 to i4. */
         while (i1 < i2 && is_whitespace(line[i1])) i1++;
         while (i1 < i2 && is_whitespace(line[i2-1])) i2--;
         {
-          var char* varname = substring(line,i1,i2);
-          var Vardef* vdef = get_vardef(varname);
+          char* varname = substring(line,i1,i2);
+          Vardef* vdef = get_vardef(varname);
           VectorVarinit_add(varinits,make_Varinit(vdef->tag,substring(line,i3,i4),current_condition()));
-          # Remove the second macro argument.
+          /* Remove the second macro argument. */
           return concat2(substring(line,0,i3-1),substring(line,i4,n));
         }
       }
     }
-    fprintf(stderr,"%s:%ld: invalid DEFVAR macro syntax: %s\n",file,lineno,line);
+    fprintf(stderr,"%s:%ld: invalid DEFmacro syntax: %s\n",file,lineno,line);
     exit(1);
   }
   return NULL;
 }
 
 
-# Parse the entire input.
+/* Parse the entire input. */
 
-local void parse ()
+static void parse (void)
 {
-  # Initialize variables.
+  /* Initialize variables. */
   ifdef_stack = make_StackVectorString();
   objdefs = make_VectorObjdef();
   fundefs = make_VectorFundef();
   vardefs = make_VectorVardef();
   varinits = make_VectorVarinit();
   {
-    var int in_comment = 0; # comment depth
-    var boolean in_string = FALSE; # in "..." ?
-    var boolean in_char = FALSE;   # in '...' ?
-    var boolean in_subst = FALSE;  # in `...` ?
-    var long subst_start = -1;
-    var int m = VectorLine_length(lines);
-    var int j;
+    int in_comment = 0; /* comment depth */
+    boolean_t in_string = FALSE; /* in "..." ? */
+    boolean_t in_char = FALSE;   /* in '...' ? */
+    boolean_t in_subst = FALSE;  /* in `...` ? */
+    long subst_start = -1;
+    int m = VectorLine_length(lines);
+    int j;
     for (j = 0; j < m; j++) {
-      var char* line = VectorLine_element(lines,j)->contents;
+      char* line = VectorLine_element(lines,j)->contents;
       lineno = VectorLine_element(lines,j)->number;
       if (in_comment == 0) {
-        # Check for DEFMODULE.
+        /* Check for DEFMODULE. */
         if (is_defmodule(line))
           line_defmodule = j;
-        # Check for preprocessor commands.
+        /* Check for preprocessor commands. */
         {
-          var const char* condition;
+          const char* condition;
           if ((condition = is_if(line)) != NULL)
             do_if(condition);
           else if (is_else(line))
@@ -1761,25 +1750,25 @@ local void parse ()
           else if (is_endif(line))
             do_endif();
         }
-        # Check for DEFUN.
+        /* Check for DEFUN. */
         {
-          var char* expanded_line = is_defun(line);
+          char* expanded_line = is_defun(line);
           if (expanded_line != NULL)
             line = expanded_line;
         }
-        # Check for DEFVAR.
+        /* Check for DEFVAR. */
         {
-          var char* expanded_line = is_defvar(line);
+          char* expanded_line = is_defvar(line);
           if (expanded_line != NULL)
             line = expanded_line;
         }
       }
-      # General lexical analysis of the line.
+      /* General lexical analysis of the line. */
       {
-        var uintL n = strlen(line);
-        var uintL i;
+        unsigned long n = strlen(line);
+        unsigned long i;
         for (i = 0; i < n; ) {
-          var char c = line[i];
+          char c = line[i];
           if (!in_char && !in_string && !in_subst
               && i+1 < n && c == '/' && line[i+1] == '*') {
             in_comment++;
@@ -1792,7 +1781,7 @@ local void parse ()
             i += 2;
           } else if (i+1 < n && c == '\\') {
             if (in_subst && line[i+1] == '`') {
-              # Inside subst, convert \` to simple `
+              /* Inside subst, convert \` to simple ` */
               line = concat2(substring(line,0,i),substring(line,i+1,n));
               n--;
               i++;
@@ -1810,8 +1799,8 @@ local void parse ()
               subst_start = i;
               i++;
             } else {
-              var const char* initstring = substring(line,subst_start+1,i);
-              var Objdef* odef = get_objdef(initstring);
+              const char* initstring = substring(line,subst_start+1,i);
+              Objdef* odef = get_objdef(initstring);
               line = concat3(substring(line,0,subst_start),odef->tag,substring(line,i+1,n));
               n = strlen(line);
               i = subst_start + strlen(odef->tag);
@@ -1840,13 +1829,13 @@ local void parse ()
 }
 
 
-# ================================== OUTPUT =================================
+/* =============================== OUTPUT ================================= */
 
 
-# Print a list (cond1 && cond2 && ...) to a stream.
-local void print_condition_part (FILE* stream, const VectorString* condition)
+/* Print a list (cond1 && cond2 && ...) to a stream. */
+static void print_condition_part (FILE* stream, const VectorString* condition)
 {
-  var uintL n = VectorString_length(condition);
+  unsigned long n = VectorString_length(condition);
   if (n == 0) {
     fprintf(stream,"1");
     return;
@@ -1856,7 +1845,7 @@ local void print_condition_part (FILE* stream, const VectorString* condition)
     return;
   }
   {
-    var uintL i;
+    unsigned long i;
     for (i = 0; i < n; i++) {
       if (i > 0)
         fprintf(stream," && ");
@@ -1865,17 +1854,17 @@ local void print_condition_part (FILE* stream, const VectorString* condition)
   }
 }
 
-# Tests whether a condition is equivalent to 1 (true).
-local inline boolean is_true_condition_part (VectorString* condition)
+/* Tests whether a condition is equivalent to 1 (true). */
+static inline boolean_t is_true_condition_part (VectorString* condition)
 {
-  var uintL n = VectorString_length(condition);
+  unsigned long n = VectorString_length(condition);
   return (n == 0);
 }
 
-# Print a list of lists (cond1 || cond2 || ...) to a stream.
-local void print_condition (FILE* stream, StackVectorString* condition)
+/* Print a list of lists (cond1 || cond2 || ...) to a stream. */
+static void print_condition (FILE* stream, StackVectorString* condition)
 {
-  var uintL n = StackVectorString_length(condition);
+  unsigned long n = StackVectorString_length(condition);
   if (n == 0) {
     fprintf(stream,"0");
     return;
@@ -1885,7 +1874,7 @@ local void print_condition (FILE* stream, StackVectorString* condition)
     return;
   }
   {
-    var uintL i;
+    unsigned long i;
     for (i = 0; i < n; i++) {
       if (i > 0)
         fprintf(stream," || ");
@@ -1896,37 +1885,37 @@ local void print_condition (FILE* stream, StackVectorString* condition)
   }
 }
 
-# Tests whether a condition is equivalent to 0 (false).
-local inline boolean is_false_condition (StackVectorString* condition)
+/* Tests whether a condition is equivalent to 0 (false). */
+static inline boolean_t is_false_condition (StackVectorString* condition)
 {
-  var uintL n = StackVectorString_length(condition);
+  unsigned long n = StackVectorString_length(condition);
   return (n == 0);
 }
 
-# Tests whether a condition is equivalent to 1 (true).
-local boolean is_true_condition (StackVectorString* condition)
+/* Tests whether a condition is equivalent to 1 (true). */
+static boolean_t is_true_condition (StackVectorString* condition)
 {
-  var uintL n = StackVectorString_length(condition);
-  var uintL i;
+  unsigned long n = StackVectorString_length(condition);
+  unsigned long i;
   for (i = 0; i < n; i++)
     if (is_true_condition_part(StackVectorString_element(condition,i)))
       return TRUE;
   return FALSE;
 }
 
-# Prints a newline. Don't print a "\n" directly!
-local inline void print_nl (FILE* stream)
+/* Prints a newline. Don't print a "\n" directly! */
+static inline void print_nl (FILE* stream)
 {
   fprintf(stream,"\n");
   lineno++;
 }
 
-# Prints a string in C syntax.
-local void print_C_string (FILE* stream, const char* data)
+/* Prints a string in C syntax. */
+static void print_C_string (FILE* stream, const char* data)
 {
   putc('"',stream);
   for (; *data != '\0'; data++) {
-    var char c = *data;
+    char c = *data;
     if (c == '"' || c == '\\')
       putc('\\',stream);
     putc(c,stream);
@@ -1934,22 +1923,22 @@ local void print_C_string (FILE* stream, const char* data)
   putc('"',stream);
 }
 
-# Output the tables just after the DEFMODULE line.
-local void output_tables1 (FILE* stream)
+/* Output the tables just after the DEFMODULE line. */
+static void output_tables1 (FILE* stream)
 {
-  var const char* modname = name_defmodule;
-  var const char* object_tab = concat3("module__",modname,"__object_tab");
-  var const char* object_tab_initdata = concat3("module__",modname,"__object_tab_initdata");
+  const char* modname = name_defmodule;
+  const char* object_tab = concat3("module__",modname,"__object_tab");
+  const char* object_tab_initdata = concat3("module__",modname,"__object_tab_initdata");
   fprintf(stream,"#define O(varname) %s._##varname",object_tab);
   print_nl(stream);
   print_nl(stream);
   fprintf(stream,"struct {");
   print_nl(stream);
   {
-    var uintL n = VectorObjdef_length(objdefs);
-    var uintL i;
+    unsigned long n = VectorObjdef_length(objdefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         if (!is_true_condition(odef->condition)) {
           fprintf(stream,"#if ");
@@ -1966,10 +1955,10 @@ local void output_tables1 (FILE* stream)
     }
   }
   {
-    var uintL n = VectorVardef_length(vardefs);
-    var uintL i;
+    unsigned long n = VectorVardef_length(vardefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Vardef* vdef = VectorVardef_element(vardefs,i);
+      Vardef* vdef = VectorVardef_element(vardefs,i);
       if (!is_false_condition(vdef->condition)) {
         if (!is_true_condition(vdef->condition)) {
           fprintf(stream,"#if ");
@@ -1988,10 +1977,10 @@ local void output_tables1 (FILE* stream)
   fprintf(stream,"} %s;",object_tab);
   print_nl(stream);
   {
-    var uintL n = VectorObjdef_length(objdefs);
-    var uintL i;
+    unsigned long n = VectorObjdef_length(objdefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         fprintf(stream,"#define %s  %s._%s",odef->tag,object_tab,odef->tag);
         print_nl(stream);
@@ -2004,10 +1993,10 @@ local void output_tables1 (FILE* stream)
   fprintf(stream,"struct {");
   print_nl(stream);
   {
-    var uintL n = VectorObjdef_length(objdefs);
-    var uintL i;
+    unsigned long n = VectorObjdef_length(objdefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         if (!is_true_condition(odef->condition)) {
           fprintf(stream,"#if ");
@@ -2024,10 +2013,10 @@ local void output_tables1 (FILE* stream)
     }
   }
   {
-    var uintL n = VectorVardef_length(vardefs);
-    var uintL i;
+    unsigned long n = VectorVardef_length(vardefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Vardef* vdef = VectorVardef_element(vardefs,i);
+      Vardef* vdef = VectorVardef_element(vardefs,i);
       if (!is_false_condition(vdef->condition)) {
         if (!is_true_condition(vdef->condition)) {
           fprintf(stream,"#if ");
@@ -2048,10 +2037,10 @@ local void output_tables1 (FILE* stream)
   fprintf(stream,"} %s = {",object_tab_initdata);
   print_nl(stream);
   {
-    var uintL n = VectorObjdef_length(objdefs);
-    var uintL i;
+    unsigned long n = VectorObjdef_length(objdefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Objdef* odef = VectorObjdef_element(objdefs,i);
+      Objdef* odef = VectorObjdef_element(objdefs,i);
       if (!is_false_condition(odef->condition)) {
         if (!is_true_condition(odef->condition)) {
           fprintf(stream,"#if ");
@@ -2070,10 +2059,10 @@ local void output_tables1 (FILE* stream)
     }
   }
   {
-    var uintL n = VectorVardef_length(vardefs);
-    var uintL i;
+    unsigned long n = VectorVardef_length(vardefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Vardef* vdef = VectorVardef_element(vardefs,i);
+      Vardef* vdef = VectorVardef_element(vardefs,i);
       if (!is_false_condition(vdef->condition)) {
         if (!is_true_condition(vdef->condition)) {
           fprintf(stream,"#if ");
@@ -2098,20 +2087,20 @@ local void output_tables1 (FILE* stream)
   print_nl(stream);
 }
 
-# Output the tables at the end of the file.
-local void output_tables2 (FILE* stream)
+/* Output the tables at the end of the file. */
+static void output_tables2 (FILE* stream)
 {
-  var const char* modname = name_defmodule;
-  var const char* subr_tab = concat3("module__",modname,"__subr_tab");
-  var const char* subr_tab_initdata = concat3("module__",modname,"__subr_tab_initdata");
+  const char* modname = name_defmodule;
+  const char* subr_tab = concat3("module__",modname,"__subr_tab");
+  const char* subr_tab_initdata = concat3("module__",modname,"__subr_tab_initdata");
   print_nl(stream);
   fprintf(stream,"struct {");
   print_nl(stream);
   {
-    var uintL n = VectorFundef_length(fundefs);
-    var uintL i;
+    unsigned long n = VectorFundef_length(fundefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Fundef* fdef = VectorFundef_element(fundefs,i);
+      Fundef* fdef = VectorFundef_element(fundefs,i);
       if (!is_false_condition(fdef->condition)) {
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#if ");
@@ -2132,15 +2121,15 @@ local void output_tables2 (FILE* stream)
   fprintf(stream,"} %s = {",subr_tab);
   print_nl(stream);
   {
-    var uintL n = VectorFundef_length(fundefs);
-    var uintL i;
+    unsigned long n = VectorFundef_length(fundefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Fundef* fdef = VectorFundef_element(fundefs,i);
-      var VectorSignature* signatures = fdef->signatures;
-      var uintL m = VectorSignature_length(signatures);
-      var uintL j;
+      Fundef* fdef = VectorFundef_element(fundefs,i);
+      VectorSignature* signatures = fdef->signatures;
+      unsigned long m = VectorSignature_length(signatures);
+      unsigned long j;
       for (j = 0; j < m; j++) {
-        var Signature* sig = VectorSignature_element(signatures,j);
+        Signature* sig = VectorSignature_element(signatures,j);
         if (!is_false_condition(sig->condition)) {
           if (!is_true_condition(sig->condition)) {
             fprintf(stream,"#if ");
@@ -2167,10 +2156,10 @@ local void output_tables2 (FILE* stream)
   fprintf(stream,"struct {");
   print_nl(stream);
   {
-    var uintL n = VectorFundef_length(fundefs);
-    var uintL i;
+    unsigned long n = VectorFundef_length(fundefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Fundef* fdef = VectorFundef_element(fundefs,i);
+      Fundef* fdef = VectorFundef_element(fundefs,i);
       if (!is_false_condition(fdef->condition)) {
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#if ");
@@ -2191,10 +2180,10 @@ local void output_tables2 (FILE* stream)
   fprintf(stream,"} %s = {",subr_tab_initdata);
   print_nl(stream);
   {
-    var uintL n = VectorFundef_length(fundefs);
-    var uintL i;
+    unsigned long n = VectorFundef_length(fundefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Fundef* fdef = VectorFundef_element(fundefs,i);
+      Fundef* fdef = VectorFundef_element(fundefs,i);
       if (!is_false_condition(fdef->condition)) {
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#if ");
@@ -2224,15 +2213,15 @@ local void output_tables2 (FILE* stream)
   fprintf(stream,"{");
   print_nl(stream);
   {
-    var uintL n = VectorFundef_length(fundefs);
-    var uintL i;
+    unsigned long n = VectorFundef_length(fundefs);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Fundef* fdef = VectorFundef_element(fundefs,i);
-      var VectorSignature* signatures = fdef->signatures;
-      var uintL m = VectorSignature_length(signatures);
-      var uintL j;
+      Fundef* fdef = VectorFundef_element(fundefs,i);
+      VectorSignature* signatures = fdef->signatures;
+      unsigned long m = VectorSignature_length(signatures);
+      unsigned long j;
       for (j = 0; j < m; j++) {
-        var Signature* sig = VectorSignature_element(signatures,j);
+        Signature* sig = VectorSignature_element(signatures,j);
         if (sig->key) {
           if (!is_false_condition(sig->condition)) {
             if (!is_true_condition(sig->condition)) {
@@ -2241,8 +2230,8 @@ local void output_tables2 (FILE* stream)
               print_nl(stream);
             }
             {
-              var uintL o = VectorObjdef_length(sig->keywords);
-              var uintL k;
+              unsigned long o = VectorObjdef_length(sig->keywords);
+              unsigned long k;
               for (k = 0; k < o; k++) {
                 fprintf(stream,"  pushSTACK(%s);",VectorObjdef_element(sig->keywords,k)->tag);
                 print_nl(stream);
@@ -2260,10 +2249,10 @@ local void output_tables2 (FILE* stream)
     }
   }
   {
-    var uintL n = VectorVarinit_length(varinits);
-    var uintL i;
+    unsigned long n = VectorVarinit_length(varinits);
+    unsigned long i;
     for (i = 0; i < n; i++) {
-      var Varinit* vinit = VectorVarinit_element(varinits,i);
+      Varinit* vinit = VectorVarinit_element(varinits,i);
       if (!is_true_condition_part(vinit->condition)) {
         fprintf(stream,"#if ");
         print_condition_part(stream,vinit->condition);
@@ -2288,17 +2277,17 @@ local void output_tables2 (FILE* stream)
   print_nl(stream);
 }
 
-# Output everything.
-local void output (FILE* stream, const char* infilename)
+/* Output everything. */
+static void output (FILE* stream, const char* infilename)
 {
   if (infilename != NULL)
     fprintf(stdout,"#line 1 \"%s\"\n",infilename);
   lineno = 1;
   {
-    var uintL m = VectorLine_length(lines);
-    var uintL j;
+    unsigned long m = VectorLine_length(lines);
+    unsigned long j;
     for (j = 0; j < m; j++) {
-      var const Line* line = VectorLine_element(lines,j);
+      const Line* line = VectorLine_element(lines,j);
       if (line->number != lineno) {
         fprintf(stream,"#line %ld\n",line->number);
         lineno = line->number;
@@ -2313,14 +2302,14 @@ local void output (FILE* stream, const char* infilename)
 }
 
 
-# =============================== MAIN PROGRAM ==============================
+/* ============================ MAIN PROGRAM ============================== */
 
 int main (int argc, char* argv[])
 {
-  var char* infilename;
-  var FILE* infile;
-  var FILE* outfile;
-  # Argument parsing.
+  char* infilename;
+  FILE* infile;
+  FILE* outfile;
+  /* Argument parsing. */
   if (argc == 2) {
     infilename = argv[1];
     infile = fopen(infilename,"r");
@@ -2333,11 +2322,11 @@ int main (int argc, char* argv[])
   } else
     exit(1);
   outfile = stdout;
-  # Main job.
+  /* Main job. */
   read_all_input(infile);
   parse();
   output(stdout,infilename);
-  # Clean up.
+  /* Clean up. */
   if (ferror(infile) || ferror(outfile)) {
     fclose(infile);
     fclose(outfile);

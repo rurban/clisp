@@ -2151,9 +2151,13 @@ if [ $CROSS = true ] ; then
   echol
 fi
 for util in $UTILS ; do
-  if [ $util = ccpaux -o $util = deema ] ; then
+  if [ $util = ccpaux -o $util = deema -o $util = txt2c -o $util = ccmp2c -o $util = modprep ] ; then
+    flags=''
+    if [ $util = ccmp2c ] ; then
+      flags=' -I.'
+    fi
     echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) ${flags}" "${UTILDIR_CC}${util}.c" "${util}"
     echol
   fi
   if [ $util = cv_lt_pc ] ; then
@@ -2177,9 +2181,7 @@ for util in $UTILS ; do
     fi
   fi
   if [ $util = ansidecl ] ; then
-    if [ $util = ansidecl ] ; then
-      flags="${ANSIDECLFLAGS}"
-    fi
+    flags="${ANSIDECLFLAGS}"
     echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
     echotab "\$(LN_S) ${UTILDIR_}${util}.d ${util}.d"
     echotab "\$(COMMENT5) ${util}.d ${util}.c"
@@ -2189,24 +2191,13 @@ for util in $UTILS ; do
     echol
     OBSOLETE=$OBSOLETE" ${util}.c"
   fi
-  if [ $util = varbrace -o $util = ccmp2c -o $util = modprep ] ; then
-    flags=''
-    if [ $util = ccmp2c ] ; then
-      flags=' -I.'
-    fi
+  if [ $util = varbrace ] ; then
     echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE} ansidecl${HEXE}"
     echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d | \$(ANSIDECL) > ${util}.c"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${flags}" "${util}.c" "${util}"
+    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${util}.c" "${util}"
     echotab "\$(RM) ${util}.c"
     echol
     OBSOLETE=$OBSOLETE" ${util}.c"
-  fi
-  if [ $util = txt2c ] ; then
-    echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ansidecl${HEXE}"
-    echotab "\$(ANSIDECL) < ${UTILDIR_}${util}.c > ${util}.c"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${TXT2CFLAGS}" "${util}.c" "${util}"
-    echotab "\$(RM) ${util}.c"
-    echol
   fi
 done
 
