@@ -1,3 +1,7 @@
+2004-01-02  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst (test-compiler): new function, used throughout the file
+
 2003-10-09  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-all-tests): optional argument to disable risky tests
