@@ -29,13 +29,7 @@
 # endif
 #endif
 #if defined(HAVE_UNISTD_H)
-# ifdef __sun__
-#  define __EXTENSIONS__         /* needed for confstr() */
-# endif
 # include <unistd.h>
-# ifdef __sun__
-#  undef __EXTENSIONS__
-# endif
 #endif
 #if defined(HAVE_SYS_UNISTD_H)
 # include <sys/unistd.h>
@@ -157,17 +151,11 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 
 /* posix math functions in <math.h> */
 /* Must include <math.h> */
-#ifdef __sun__
-# define _REENTRANT             /* needed for lgamma_r() */
-#endif
 #define decimal_string  solaris_decimal_string  /* needed on Solaris */
 #undef floor  /* needed on Linux */
 #include <math.h>
 #define floor(a,b)  ((a) / (b))
 #undef decimal_string
-#ifdef __sun__
-# undef _REENTRANT
-#endif
 
 #define D_S           to_double(popSTACK())
 #define I_S           to_int(popSTACK())
