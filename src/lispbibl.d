@@ -12497,6 +12497,7 @@ extern bool equalp (object obj1, object obj2);
 # (recursively, unless once_p is true)
 # > type_spec: Lisp object
 # < result: the expansion (when not a deftyped type, returns the argument)
+# can trigger GC
 extern object expand_deftype (object type_spec, bool once_p);
 # used by predtype.d, sequence.d
 
