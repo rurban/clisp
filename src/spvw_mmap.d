@@ -63,7 +63,7 @@
   {
     if (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)
         != KERN_SUCCESS) {
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
       fputs("\n",stderr);
       return -1; /* error */
@@ -167,7 +167,7 @@
         addr += info.RegionSize;
       }
       if (largest_len < 0x10000) {
-        fprintf(stderr,GETTEXTL("Cannot reserve address range at 0x%x ."),
+        fprintf(stderr,GETTEXTL("Cannot reserve address range at 0x%lx ."),
                 *map_addr);
         # DumpProcessMemoryMap();
         return -1;
@@ -177,14 +177,14 @@
     }
     if (!VirtualAlloc((void*)start_addr,end_addr-start_addr,MEM_RESERVE,PAGE_NOACCESS/*dummy*/)) {
       var DWORD errcode = GetLastError();
-      fprintf(stderr,GETTEXTL("Cannot reserve address range 0x%x-0x%x ."),
+      fprintf(stderr,GETTEXTL("Cannot reserve address range 0x%lx-0x%lx ."),
               start_addr,end_addr-1);
       errno_out(errcode);
       # DumpProcessMemoryMap();
       return -1;
     }
     #ifdef DEBUG_SPVW
-    fprintf(stderr,"Reserved address range 0x%x-0x%x .\n",
+    fprintf(stderr,"Reserved address range 0x%lx-0x%lx .\n",
             start_addr,end_addr-1);
     #endif
     return 0;
@@ -194,7 +194,7 @@
   {
     if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE)) {
       var DWORD errcode = GetLastError();
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
       fputs("\n",stderr);
       errno_out(errcode);
@@ -355,7 +355,7 @@
                       map_flags | MAP_FIXED, /* exactly at this address! */
                       mmap_zero_fd, 0) /* put empty pages */
          == (void*)(-1)) {
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
       fputs("\n",stderr);
       errno_out(errno);
