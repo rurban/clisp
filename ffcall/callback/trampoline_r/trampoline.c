@@ -129,7 +129,12 @@ extern RETGETPAGESIZETYPE getpagesize (void);
 extern RETGETPAGESIZETYPE getpagesize ();
 #endif
 #else
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#else
+/* Not Unix, e.g. mingw32 */
+#define PAGESIZE 4096
+#endif
 #define getpagesize() PAGESIZE
 #endif
 
