@@ -1,3 +1,14 @@
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (small_read_label_type): Renamed from read_label_type.
+	(make_small_read_label): Renamed from make_read_label.
+	(small_read_label_integer_p): Renamed from read_label_integer_p.
+	(small_read_label_p): Renamed from read_label_p.
+	* spvw_circ.d (subst_circ_mark, subst_circ_unmark, subst): Update.
+	* io.d (lookup_label, prin_object_dispatch): Update.
+	* hashtabl.d (sxhash_atom): Update.
+	* predtype.d (TYPE-OF, CLASS-OF): Update.
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	Implement the scope of other free declarations as ANSI CL 3.3.4

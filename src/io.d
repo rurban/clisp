@@ -2216,7 +2216,7 @@ local maygc object read_recursive_no_dot (const gcv_object_t* stream_) {
 # UP: disentangles #n# - References to #n= - markings in an Object.
 # > value of SYS::*READ-REFERENCE-TABLE*:
 #     Aliste of Pairs (marking . marked Object), where
-#     each margink is an Object  #<READ-LABEL n>.
+#     each marking is an Object  #<READ-LABEL n>.
 # > obj: Object
 # < result: destructively  modified Object without References
 local object make_references (object obj) {
@@ -3632,7 +3632,7 @@ local object lookup_label (void) {
            GETTEXT("~S from ~S: a number must be given between #"" and ~C"));
   }
   # n is an Integer >=0
-  if (!read_label_integer_p(n)) { # n is too big
+  if (!small_read_label_integer_p(n)) { # n is too big
     pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
     pushSTACK(STACK_(1+1)); # sub-char
     pushSTACK(STACK_(0+2)); # n
@@ -3640,7 +3640,7 @@ local object lookup_label (void) {
     pushSTACK(S(read));
     fehler(reader_error,GETTEXT("~S from ~S: label #~S? too large"));
   }
-  var object label = make_read_label(posfixnum_to_L(n)); # Internal-Label with Nummer n
+  var object label = make_small_read_label(posfixnum_to_L(n)); # Internal-Label with Nummer n
   var object alist = # value of SYS::*READ-REFERENCE-TABLE*
     Symbol_value(S(read_reference_table));
   # execute (assoc label alist :test #'eq):
@@ -6886,12 +6886,13 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
       pr_character(stream_,obj); break;
     case_subr: # SUBR
       pr_subr(stream_,obj); break;
-    case_system: # Frame-Pointer, Read-Label, System
+    case_system: # Frame-Pointer, Small-Read-Label, System
       if (as_oint(obj) & wbit(0 + oint_addr_shift)) {
         if (as_oint(obj) & wbit(oint_data_len-1 + oint_addr_shift)) {
           # System-Pointer
           pr_system(stream_,obj);
-        } else { # Read-Label
+        } else {
+          # Small-Read-Label
           pr_readlabel(stream_,obj);
         }
       } else { # Frame-Pointer
@@ -6919,7 +6920,7 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
     pr_subr(stream_,obj);
   else if (machinep(obj))
     pr_machine(stream_,obj);
-  else if (read_label_p(obj))
+  else if (small_read_label_p(obj))
     pr_readlabel(stream_,obj);
   else if (systemp(obj))
     pr_system(stream_,obj);
@@ -8403,7 +8404,7 @@ local maygc void pr_machine (const gcv_object_t* stream_, object obj) {
   pr_hex6_obj(stream_,obj,O(printstring_address));
 }
 
-#        -------- Frame-Pointer, Read-Label, System --------
+#        -------- Frame-Pointer, Small-Read-Label, System --------
 
 # UP: prints systempointer to stream.
 # pr_system(&stream,obj);
@@ -8433,7 +8434,7 @@ local maygc void pr_system (const gcv_object_t* stream_, object obj) {
   }
 }
 
-# UP: prints  read-label to stream.
+# UP: prints read-label to stream.
 # pr_readlabel(&stream,obj);
 # > obj: Read-Label
 # > stream: Stream
@@ -10215,7 +10216,7 @@ LISPFUNN(pcirclep,2) {
     write_ascii_char(&STACK_0,'.');
     write_ascii_char(&STACK_0,' ');
     prin_object(&STACK_0,STACK_1);
-    VALUES1(T); /* make_read_label(ci.n); */
+    VALUES1(T); /* make_small_read_label(ci.n); */
   }
   skipSTACK(2);
 }

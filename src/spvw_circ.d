@@ -631,7 +631,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
       case_machine: # Machine Pointer
       case_char: # Character
       case_subr: # Subr
-      case_system: # Frame-pointer, Read-label, system
+      case_system: # Frame-pointer, Small-Read-label, system
       case_fixnum: # Fixnum
       case_sfloat: # Short-Float
       #ifdef IMMEDIATE_FFLOAT
@@ -992,7 +992,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
       case_machine: # Machine Pointer
       case_char: # Character
       case_subr: # Subr
-      case_system: # Frame-pointer, Read-label, system
+      case_system: # Frame-pointer, Small-Read-label, system
       case_fixnum: # Fixnum
       case_sfloat: # Short-Float
       #ifdef IMMEDIATE_FFLOAT
@@ -1215,7 +1215,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
       case_machine: # Machine Pointer
       case_char: # Character
       case_subr: # Subr
-      case_system: # Frame-pointer, Read-label, system
+      case_system: # Frame-pointer, Small-Read-label, system
       case_fixnum: # Fixnum
       case_sfloat: # Short-Float
       #ifdef IMMEDIATE_FFLOAT
@@ -1277,8 +1277,8 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         goto case_subr;
       } elif (machinep(obj)) {
         goto case_machine;
-      } elif (read_label_p(obj)) {
-        goto case_read_label;
+      } elif (small_read_label_p(obj)) {
+        goto case_small_read_label;
       } elif (systemp(obj)) {
         return;
       } else switch (0)
@@ -1338,17 +1338,17 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           }
           return;
         #ifdef TYPECODES
-        case_system: # Frame-Pointer or Read-Label or System
+        case_system: # Frame-Pointer or Small-Read-Label or System
           if (!(as_oint(obj) & wbit(0+oint_addr_shift))) {
             # Frame-Pointer
           } else
-            # Read-Label or System
+            # Small-Read-Label or System
             if (as_oint(obj) & wbit(oint_data_len-1+oint_addr_shift)) {
               # System
             } else
         #endif
-            case_read_label:
-              # Read-Label
+            case_small_read_label:
+              # Small-Read-Label
               {
                 # search Read-Label obj in the Alist:
                 var object alist = env->alist;
@@ -1467,8 +1467,8 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         goto case_subr;
       } elif (machinep(obj)) {
         goto case_machine;
-      } elif (read_label_p(obj)) {
-        goto case_read_label;
+      } elif (small_read_label_p(obj)) {
+        goto case_small_read_label;
       } elif (systemp(obj)) {
         return;
       } else switch (0)
@@ -1517,17 +1517,17 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           }
           break;
         #ifdef TYPECODES
-        case_system: # Frame-Pointer or Read-Label or System
+        case_system: # Frame-Pointer or Small-Read-Label or System
           if (!(as_oint(obj) & wbit(0+oint_addr_shift))) {
             # Frame-Pointer
           } else
-            # Read-Label or System
+            # Small-Read-Label or System
             if (as_oint(obj) & wbit(oint_data_len-1+oint_addr_shift)) {
               # System
             } else
         #endif
-            case_read_label:
-              # Read-Label
+            case_small_read_label:
+              # Small-Read-Label
               {
                 # search Read-Label obj in the Alist:
                 var object alist = subst_circ_alist;
@@ -1636,8 +1636,8 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         goto case_subr;
       } elif (machinep(obj)) {
         goto case_machine;
-      } elif (read_label_p(obj)) {
-        goto case_read_label;
+      } elif (small_read_label_p(obj)) {
+        goto case_small_read_label;
       } elif (systemp(obj)) {
         return;
       } else switch (0)
@@ -1699,17 +1699,17 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           }
           return;
         #ifdef TYPECODES
-        case_system: # Frame-Pointer or Read-Label or System
+        case_system: # Frame-Pointer or Small-Read-Label or System
           if (!(as_oint(obj) & wbit(0+oint_addr_shift))) {
             # Frame-Pointer
           } else
-            # Read-Label or System
+            # Small-Read-Label or System
             if (as_oint(obj) & wbit(oint_data_len-1+oint_addr_shift)) {
               # System
             } else
         #endif
-            case_read_label:
-              # Read-Label
+            case_small_read_label:
+              # Small-Read-Label
               {
                 # search Read-Label obj in the Alist:
                 var object alist = subst_circ_alist;
@@ -1776,7 +1776,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         goto case_subr;
       } elif (machinep(obj)) {
         goto case_machine;
-      } elif (read_label_p(obj) || systemp(obj)) {
+      } elif (small_read_label_p(obj) || systemp(obj)) {
         goto case_system;
       } else switch (0)
       #endif
@@ -1840,7 +1840,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           subst_circ_unmark(&TheCons(obj)->car);
           # end-recursive: subst_circ_unmark(&Cdr(obj))
           ptr = &TheCons(obj)->cdr; goto enter_subst;
-        case_system: # Frame-Pointer or Read-Label or System
+        case_system: # Frame-Pointer or Small-Read-Label or System
         case_machine: # Machine Pointer
         case_bvector: # Bit-Vector
         case_b2vector: # 2Bit-Vector
