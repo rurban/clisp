@@ -32,24 +32,24 @@ string
    (gethash 10f0 h)))
 ("foo" NIL "bar" "foo" "foo" "bar")
 
-#+nil
 (let ((h (make-hash-table
           :test `(= . ,(lambda (x) (sxhash (coerce x 'short-float)))))))
   (loop :for i :from 0 :to 1000
     :do (setf (gethash i h) (format nil "~r" i)))
   (loop :for i :from 0 :to 1000
-    :unless (string= (gethash (float i 1d0)) (gethash (float i 1s0)))
+    :unless (string= (gethash (float i 1d0) h)
+                     (gethash (float i 1s0) h))
     :collect i))
 nil
 
-#+nil
 (let ((h (make-hash-table
           :test `(,(lambda (a b) (print (list '= a b)) (= a b)) .
                   ,(lambda (x) (let ((z (sxhash (coerce x 'double-float))))
-                                 (print (list x z)) z))))))
+                                 (print `((hash ,x) => ,z)) z))))))
   (loop :for i :from 0 :to 1000
     :do (setf (gethash i h) (format nil "~r" i)))
   (loop :for i :from 0 :to 1000
-    :unless (string= (gethash (float i 1d0)) (gethash (float i 1s0)))
+    :unless (string= (gethash (float i 1d0) h)
+                     (gethash (float i 1s0) h))
     :collect i))
 nil
