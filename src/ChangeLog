@@ -1,3 +1,8 @@
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method1.lisp (print-object-<standard-method>): Don't signal an
+	error if the method is not yet initialized.
+
 2004-07-28  Sam Steingold  <sds@gnu.org>
 
 	composite streams operate on their constituent streams, not themselves
