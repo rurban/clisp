@@ -6,7 +6,8 @@
 #include "lispbibl.c"
 #include "arilev0.c" # for Division in pr_uint
 
-#define IO_DEBUG 0
+# IO_DEBUG must be undefined in the code comitted to CVS
+# define IO_DEBUG 0
 #ifdef IO_DEBUG
 #include <stdio.h>
 global object car (object o) { return Car(o); }
@@ -5601,7 +5602,7 @@ global object cons_ssstring (const object* stream_, object nl_type) {
 #define PPH_TAB_COL_I(tab_spec) TheSvector(tab_spec)->data[3]
 #ifdef IO_DEBUG
 #define PPH_FORMAT_TAB(out,spec)                                \
-  (4 != vector_length(spec) ? NOTREACHED,0 :                    \
+  (!vectorp(spec) || 4 != vector_length(spec) ? NOTREACHED,0 :  \
    format_tab(out,PPH_TAB_COLON(spec),PPH_TAB_ATSIG(spec),      \
               PPH_TAB_COL_N(spec),PPH_TAB_COL_I(spec)))
 #else
@@ -6632,8 +6633,7 @@ local void pr_enter_1 (const object* stream_, object obj,
         goto skip_NL;
       } else STACK_0 = Cdr(STACK_0);
       # Symbol_value(S(prin_lines)) = Fixnum_0;
-      do {
-        # NL & indent
+      do { # NL & indent
         var object top = Car(STACK_0);
         var object indent = Fixnum_0;
         if (mconsp(top)) { # if :FILL and the next string fits the line
@@ -6675,7 +6675,7 @@ local void pr_enter_1 (const object* stream_, object obj,
       #   while (!nullp(Cdr(STACK_0))) STACK_0 = Cdr(STACK_0);
       #   if (stringp(Car(STACK_0))) write_string(stream_,Car(STACK_0));
       # }
-      skipSTACK(1); # list of PPHELP stream strings
+      skipSTACK(1); # strm_pphelp_strings
       dynamic_unbind(); # SYS::*PRIN-LM*
       dynamic_unbind(); # SYS::*PRIN-L1*
     } else { # already a PPHELP-stream
