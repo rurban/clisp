@@ -470,28 +470,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
 
-# Das Betriebssystem erlaubt es, an willkürlichen Adressen Speicher hinzulegen,
-# der sich genauso benimmt wie malloc()-allozierter Speicher.
-
-# Länge einer Speicherseite des Betriebssystems:
-  local /* uintL */ aint map_pagesize; # wird eine Zweierpotenz sein, meist 4096.
-
-# Initialisierung:
-# initmap()
-  #define initmap()  mmap_init()
-
-# In einen Speicherbereich [map_addr,map_addr+map_len-1] leere Seiten legen:
-# (map_addr und map_len durch map_pagesize teilbar.)
-# zeromap(map_addr,map_len)
-  #define zeromap  mmap_zeromap
-  #define prepare_zeromap  mmap_prepare
-
-#ifdef HAVE_MMAP
-# In einen Speicherbereich [map_addr,map_addr+map_len-1] private Kopien des
-# Inhalts eines File legen. (map_addr und map_len durch map_pagesize teilbar.)
-# filemap(map_addr,map_len,fd,offset)
-  #define filemap  mmap_filemap
-#endif
+#include "spvw_singlemap.c"
 
 #if defined(SINGLEMAP_MEMORY) && defined(HAVE_WIN32_VM)
   # Despite of SINGLEMAP_MEMORY, a relocation may be necessary at loadmem() time.
@@ -9179,7 +9158,7 @@ local uintC generation;
      #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
      mmap_init_pagesize();
      #endif
-     #ifdef MULTIMAP_MEMORY
+     #if defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
      init_map_pagesize();
      #endif
      #ifdef SPVW_PURE
@@ -9382,7 +9361,6 @@ local uintC generation;
         #endif
       #endif
       #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) # <==> SPVW_PURE_BLOCKS || TRIVIALMAP_MEMORY
-        map_pagesize = mmap_pagesize; # Länge einer Hardware-Speicherseite
         if ( initmap() <0) goto no_mem;
         #ifdef SINGLEMAP_MEMORY
         # Alle Heaps vor-initialisieren:
