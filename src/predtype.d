@@ -1129,7 +1129,7 @@ global bool equalp (object obj1, object obj2)
        #ifdef TYPECODES
         case_subr: /* SUBR */
           return false; /* should already have been EQ */
-        case_system: /* SYSTEM, read-label, FRAME-pointer */
+        case_system: /* SYSTEM, small-read-label, FRAME-pointer */
           return false; /* should already have been EQ */
         case_machine: /* machine pointer */
           return false; /* should already have been EQ */
@@ -1406,8 +1406,8 @@ LISPFUNNR(type_of,1)
     goto case_sfloat;
   } else if (machinep(arg)) {
     goto case_machine;
-  } else if (read_label_p(arg)) {
-    goto case_read_label;
+  } else if (small_read_label_p(arg)) {
+    goto case_small_read_label;
   } else if (systemp(arg)) {
     goto case_system;
   } else
@@ -1753,7 +1753,7 @@ LISPFUNNR(type_of,1)
           value1 = S(system_internal);
       break;
    #else
-    case_read_label: /* -> READ-LABEL */
+    case_small_read_label: /* -> READ-LABEL */
       value1 = S(read_label); break;
     case_system: /* -> SYSTEM-INTERNAL */
       value1 = S(system_internal); break;
@@ -1852,7 +1852,7 @@ LISPFUNNR(class_of,1)
     goto case_float;
   } else if (machinep(arg)) {
     goto case_machine;
-  } else if (read_label_p(arg)) {
+  } else if (small_read_label_p(arg)) {
     goto case_system;
   } else if (systemp(arg)) {
     goto case_system;

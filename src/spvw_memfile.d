@@ -720,7 +720,7 @@ local void loadmem_update (gcv_object_t* objptr)
       break;
     /*---NOTREACHED---*/
    #ifdef TYPECODES
-    case_system: /* frame-pointer or read-label or system-constant */
+    case_system: /* frame-pointer or small-read-label or system-constant */
       if ((as_oint(*objptr) & wbit(0+oint_addr_shift)) ==0) {
         /* Frame-Pointer -> #<DISABLED> */
         *objptr = disabled;
