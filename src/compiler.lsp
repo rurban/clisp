@@ -2878,7 +2878,7 @@ der Docstring (oder NIL).
 ; gehandhabt werden darf.
 (defun l-constantp (form)
   (if (atom form)
-    (or (numberp form) (characterp form) (stringp form) (bit-vector-p form)
+    (or (numberp form) (characterp form) (arrayp form)
         (and (symbolp form)
              (cond ((keywordp form) t)
                    ((eq (symbol-package form) *lisp-package*)
@@ -2895,7 +2895,7 @@ der Docstring (oder NIL).
 ; Bei *compiling-from-file* = nil ist das mit (l-constantp form) identisch.
 (defun c-constantp (form)
   (if (atom form)
-    (or (numberp form) (characterp form) (stringp form) (bit-vector-p form)
+    (or (numberp form) (characterp form) (arrayp form)
         (and (symbolp form)
              (cond ((keywordp form) t)
                    ((and *compiling-from-file*
@@ -2917,8 +2917,7 @@ der Docstring (oder NIL).
   (if (atom form)
     (cond ((numberp form) form)
           ((characterp form) form)
-          ((stringp form) form)
-          ((bit-vector-p form) form)
+          ((arrayp form) form)
           ((symbolp form)
            (cond ((keywordp form) form)
                  ((eq (symbol-package form) *lisp-package*)
