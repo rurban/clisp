@@ -281,15 +281,21 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
           (ENGLISH "The lambda list of macro ~S is missing a variable after &REST/&BODY.")
           name
       ) )
-      (unless (symbolp (car lambdalistr))
-        (error-of-type 'source-program-error
-          (ENGLISH "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
-          name (car lambdalistr)
-      ) )
       (let ((restvar (car lambdalistr))
             (listr (cdr lambdalistr)))
         (setq %restp t)
-        (setq %let-list (cons `(,restvar ,restexp) %let-list))
+        (cond ((symbolp restvar)
+               (setq %let-list (cons `(,restvar ,restexp) %let-list))
+              )
+              ((atom restvar)
+               (error-of-type 'source-program-error
+                 (ENGLISH "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
+                 name restvar
+              ))
+              (t
+               (let ((%min-args 0) (%arg-count 0) (%restp nil))
+                 (analyze1 restvar restexp name restexp)
+        )     ))
         (cond ((null listr))
               ((atom listr)
                (cerror (ENGLISH "The rest of the lambda list will be ignored.")
