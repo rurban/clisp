@@ -304,7 +304,7 @@ static int fetch_row(struct db_conn * db)
       sprintf(db->errmsg, "Error getting error status checking for EOF\n");
       return db->success = 0;
     }
-    
+
     /* Check for EOF */
     if ( errcode == 1403 ) {
       db->eof = 1;
@@ -332,6 +332,21 @@ static int fetch_row(struct db_conn * db)
     }
   }
 
+  /* If row-level truncation indicator given, make sure it was not because of
+	 a ROWID being in the result (which will always trigger that indicator).
+	 In this case, scan the result columns for a ROWID type, and if one appears,
+	 turn off the global truncation and NULL flags */
+  if ( truncated )
+	for ( n=0; n < db->ncol; n++ ) {
+	  col = &db->columns[n];
+	  if ( col->dtype == SQLT_RDD ) {
+		truncated = 0;
+		null = 0;
+		/* Platform-dependent ROWID Descriptor gives its length in the indicator, usually 18 bytes */
+		col->indicator = 0; /* Reset it as if not truncated */
+	  }
+	}
+	  
   /* Positive indicator means truncated because it was that large, -2 means truncated from value so large, size does not fit in a SB2 */
   for ( n=0; n < db->ncol; n++ ) {
     col = &db->columns[n];
@@ -1093,22 +1108,24 @@ static char * decode_data_type(int dtype)
 {
   static char buf[100];
   switch (dtype) {
-  case 1:   return "VARCHAR2";
-  case 2:   return "NUMBER";
-  case 3:   return "INTEGER";
-  case 4:   return "FLOAT";
-  case 8:   return "LONG";
-  case 11:  return "ROWID";
-  case 12:  return "DATE";
-  case 23:  return "RAW";
-  case 24:  return "LONG RAW";
-  case 96:  return "CHAR";
-  case 104: return "ROWID DESC";
-  case 105: return "MLSLABEL";
-  case 108: return "User defined";
-  case 111: return "REF";
-  case 112: return "CLOB";
-  case 113: return "BLOB";
+  case 1:   return "VARCHAR2";             /* SQLT_CHR */
+  case 2:   return "NUMBER";               /* SQLT_NUM */
+  case 3:   return "INTEGER";              /* SQLT_INT */
+  case 4:   return "FLOAT";                /* SQLT_FLT */
+  case 8:   return "LONG";                 /* SQLT_LNG */
+  case 11:  return "ROWID";                /* SQLT_RID -- through Oracle 7 */
+  case 12:  return "DATE";                 /* SQLT_DAT */
+  case 23:  return "RAW";                  /* SQLT_BIN */
+  case 24:  return "LONG RAW";             /* SQLT_LBI */
+  case 96:  return "CHAR";                 /* SQLT_AFC (ANSI Fixed Char) */
+  case 104: return "ROWID DESC";           /* SQLT_RDD (RowId Descriptor) */
+  case 105: return "MLSLABEL";             /* SQLT_LAB */
+  case 108: return "User defined";         /* SQLT_NTY (Named Type) */
+  case 111: return "REF";                  /* ? */
+  case 112: return "CLOB";                 /* SQLT_CLOB - Character LOB */
+  case 113: return "BLOB";                 /* SQLT_BLOB - Binary LOB */
+  case 114: return "BFILE";                /* SQLT_BFILEE - Binary file LOB */
+  case 115: return "CFILE";                /* SQLT_CFILEE - Character file LOB */
   }
   sprintf("<Unknown type %d>", buf);
   return buf;
@@ -1141,6 +1158,9 @@ static int fetch_data_len(int dtype, int dlen, int long_len)
   case 4:   /* FLOAT (SQLT_FLT) */
     return 50;
     
+  case 104: /* ROWID DESC (SQLT_RDD) */
+	return 50;
+
   case 8:   /* LONG (SQLT_LNG) */
   case 112: /* CLOB (SQLT_CLOB) */
   case 113: /* BLOB (SQLT_BLOB) */
