@@ -1,20 +1,12 @@
 #include "asmmips.h"
 	.file	1 "avcall-mips64.c"
 	.set	nobopt
-
- 
-
- 
-
- 
- 
- 
-
 	.text
 	.align	2
 	.globl	__builtin_avcall
 	DECLARE_FUNCTION(__builtin_avcall)
 
+	.text
 	.text
 	.ent	__builtin_avcall
 __builtin_avcall:
@@ -27,243 +19,255 @@ __builtin_avcall:
 	sd	$31,2096($sp)
 	sd	$fp,2088($sp)
 	ld	$2,40($16)
-	li	$3,8
+	dli	$3,0x8		
 	dsubu	$2,$2,96
 	dsubu	$2,$2,$16
-	ddiv	$2,$2,$3
+	ddiv	$0,$2,$3
 	move	$fp,$sp
+	move	$8,$sp
+	mflo	$2
+	
+	.set	noreorder
+	beql	$3,$0,1f
+	break	7
+1:
+	.set	reorder
 	lw	$3,52($16)
 	dsll	$4,$2,32
 	dsra	$4,$4,32
 	.set	noreorder
 	.set	nomacro
-	beq	$3,$0,$L2
-	move	$5,$sp
+	beq	$3,$0,$L3
+	andi	$2,$3,0x1
 	.set	macro
 	.set	reorder
 
-	andi	$2,$3,0x0001
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L119
-	andi	$2,$3,0x0002
+	beq	$2,$0,$L121
+	andi	$2,$3,0x2
 	.set	macro
 	.set	reorder
 
  
 	lwc1 $f12,60($16)
  
-	andi	$2,$3,0x0002
-$L119:
+	andi	$2,$3,0x2
+$L121:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L120
-	andi	$2,$3,0x0004
+	beq	$2,$0,$L122
+	andi	$2,$3,0x4
 	.set	macro
 	.set	reorder
 
  
 	lwc1 $f13,64($16)
  
-	andi	$2,$3,0x0004
-$L120:
+	andi	$2,$3,0x4
+$L122:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L121
-	andi	$2,$3,0x0008
+	beq	$2,$0,$L123
+	andi	$2,$3,0x8
 	.set	macro
 	.set	reorder
 
  
 	lwc1 $f14,68($16)
  
-	andi	$2,$3,0x0008
-$L121:
+	andi	$2,$3,0x8
+$L123:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L122
-	andi	$2,$3,0x0010
+	beq	$2,$0,$L124
+	andi	$2,$3,0x10
 	.set	macro
 	.set	reorder
 
  
 	lwc1 $f15,72($16)
  
-	andi	$2,$3,0x0010
-$L122:
+	andi	$2,$3,0x10
+$L124:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L123
-	andi	$2,$3,0x0020
+	beq	$2,$0,$L125
+	andi	$2,$3,0x20
 	.set	macro
 	.set	reorder
 
  
 	lwc1 $f16,76($16)
  
-	andi	$2,$3,0x0020
-$L123:
+	andi	$2,$3,0x20
+$L125:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L124
-	andi	$2,$3,0x0040
+	beq	$2,$0,$L126
+	andi	$2,$3,0x40
 	.set	macro
 	.set	reorder
 
  
 	lwc1 $f17,80($16)
  
-	andi	$2,$3,0x0040
-$L124:
+	andi	$2,$3,0x40
+$L126:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L125
-	andi	$2,$3,0x0080
+	beq	$2,$0,$L127
+	andi	$2,$3,0x80
 	.set	macro
 	.set	reorder
 
  
 	lwc1 $f18,84($16)
  
-	andi	$2,$3,0x0080
-$L125:
-	beq	$2,$0,$L2
+	andi	$2,$3,0x80
+$L127:
+	.set	noreorder
+	.set	nomacro
+	beql	$2,$0,$L128
+	lw	$3,56($16)
+	.set	macro
+	.set	reorder
+
  
 	lwc1 $f19,88($16)
  
-$L2:
-	lw	$3,56($16)
+$L3:
 	
+	lw	$3,56($16)
+$L128:
 	.set	noreorder
 	.set	nomacro
-	beq	$3,$0,$L11
-	andi	$2,$3,0x0001
+	beq	$3,$0,$L12
+	andi	$2,$3,0x1
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L126
-	andi	$2,$3,0x0002
+	beq	$2,$0,$L129
+	andi	$2,$3,0x2
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f12,96($16)
  
-	andi	$2,$3,0x0002
-$L126:
+	andi	$2,$3,0x2
+$L129:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L127
-	andi	$2,$3,0x0004
+	beq	$2,$0,$L130
+	andi	$2,$3,0x4
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f13,104($16)
  
-	andi	$2,$3,0x0004
-$L127:
+	andi	$2,$3,0x4
+$L130:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L128
-	andi	$2,$3,0x0008
+	beq	$2,$0,$L131
+	andi	$2,$3,0x8
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f14,112($16)
  
-	andi	$2,$3,0x0008
-$L128:
+	andi	$2,$3,0x8
+$L131:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L129
-	andi	$2,$3,0x0010
+	beq	$2,$0,$L132
+	andi	$2,$3,0x10
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f15,120($16)
  
-	andi	$2,$3,0x0010
-$L129:
+	andi	$2,$3,0x10
+$L132:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L130
-	andi	$2,$3,0x0020
+	beq	$2,$0,$L133
+	andi	$2,$3,0x20
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f16,128($16)
  
-	andi	$2,$3,0x0020
-$L130:
+	andi	$2,$3,0x20
+$L133:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L131
-	andi	$2,$3,0x0040
+	beq	$2,$0,$L134
+	andi	$2,$3,0x40
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f17,136($16)
  
-	andi	$2,$3,0x0040
-$L131:
+	andi	$2,$3,0x40
+$L134:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L132
-	andi	$2,$3,0x0080
+	beq	$2,$0,$L135
+	andi	$2,$3,0x80
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f18,144($16)
  
-	andi	$2,$3,0x0080
-$L132:
+	andi	$2,$3,0x80
+$L135:
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L133
-	li	$6,8
+	beq	$2,$0,$L136
+	dli	$7,0x8		
 	.set	macro
 	.set	reorder
 
  
 	ldc1 $f19,152($16)
  
-$L11:
-	li	$6,8
-$L133:
-	dsll	$2,$4,32
-	dsra	$3,$2,32
-	slt	$2,$6,$3
+$L12:
+	dli	$7,0x8		
+$L136:
+	move	$5,$4
+	slt	$2,$7,$5
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L21
-	move	$4,$3
+	beq	$2,$0,$L22
+	daddu	$6,$16,96
 	.set	macro
 	.set	reorder
 
-	dsll	$3,$6,3
-$L134:
-	daddu	$2,$16,$3
-	ld	$2,96($2)
-	daddu	$6,$6,1
-	daddu	$3,$3,$5
-	sd	$2,-64($3)
-	slt	$2,$6,$4
+$L24:
+	dsll	$3,$7,3
+	daddu	$2,$6,$3
+	ld	$4,0($2)
+	daddu	$7,$7,1
+	daddu	$3,$3,$8
+	slt	$2,$7,$5
 	.set	noreorder
 	.set	nomacro
-	bne	$2,$0,$L134
-	dsll	$3,$6,3
+	bne	$2,$0,$L24
+	sd	$4,-64($3)
 	.set	macro
 	.set	reorder
 
-$L21:
+$L22:
  
 	ld $4,96($16)
 	ld $5,104($16)
@@ -278,119 +282,119 @@ $L21:
 	
 	jal	$31,$25
 	lw	$4,24($16)
-	move	$6,$2
-	li	$2,0x00000001		
+	move	$7,$2
+	li	$2,1			
 	.set	noreorder
 	.set	nomacro
-	beql	$4,$2,$L135
+	beq	$4,$2,$L120
 	move	$2,$0
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$0,$L115
-	li	$2,0x00000002		
-	.set	macro
-	.set	reorder
-
-	.set	noreorder
-	.set	nomacro
-	beq	$4,$2,$L116
-	li	$2,0x00000003		
-	.set	macro
-	.set	reorder
-
-	.set	noreorder
-	.set	nomacro
-	beq	$4,$2,$L116
-	li	$2,0x00000004		
-	.set	macro
-	.set	reorder
-
-	.set	noreorder
-	.set	nomacro
-	beq	$4,$2,$L116
-	li	$2,0x00000005		
+	beq	$4,$0,$L116
+	li	$2,2			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
 	beq	$4,$2,$L117
-	li	$2,0x00000006		
+	li	$2,3			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
 	beq	$4,$2,$L117
-	li	$2,0x00000007		
+	li	$2,4			
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$2,$L117
+	li	$2,5			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
 	beq	$4,$2,$L118
-	li	$2,0x00000008		
+	li	$2,6			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
 	beq	$4,$2,$L118
-	li	$2,0x00000009		
+	li	$2,7			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$2,$L115
-	li	$2,0x0000000a		
+	beq	$4,$2,$L119
+	li	$2,8			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$2,$L115
-	li	$2,0x0000000b		
+	beq	$4,$2,$L119
+	li	$2,9			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$2,$L115
-	li	$2,0x0000000c		
+	beq	$4,$2,$L116
+	li	$2,10			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$2,$L115
-	li	$2,0x0000000d		
+	beq	$4,$2,$L116
+	li	$2,11			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L51
-	li	$2,0x0000000e		
+	beq	$4,$2,$L116
+	li	$2,12			
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$2,$L116
+	li	$2,13			
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$4,$2,$L52
+	li	$2,14			
 	.set	macro
 	.set	reorder
 
 	ld	$2,16($16)
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	s.s	$f0,0($2)
 	.set	macro
 	.set	reorder
 
-$L51:
+$L52:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L53
-	li	$2,0x0000000f		
+	bne	$4,$2,$L54
+	li	$2,15			
 	.set	macro
 	.set	reorder
 
@@ -399,33 +403,33 @@ $L51:
 	s.d	$f0,0($2)
 	.set	noreorder
 	.set	nomacro
-	j	$L135
+	j	$L120
 	move	$2,$0
 	.set	macro
 	.set	reorder
 
-$L53:
+$L54:
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$2,$L115
-	li	$2,0x00000010		
+	beq	$4,$2,$L116
+	li	$2,16			
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L135
+	bne	$4,$2,$L120
 	move	$2,$0
 	.set	macro
 	.set	reorder
 
 	lw	$4,8($16)
 	
-	andi	$2,$4,0x0001
+	andi	$2,$4,0x1
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L58
-	li	$2,1
+	beq	$2,$0,$L59
+	dli	$2,0x1		
 	.set	macro
 	.set	reorder
 
@@ -433,119 +437,116 @@ $L53:
 	
 	.set	noreorder
 	.set	nomacro
-	bne	$3,$2,$L59
-	li	$2,2
+	bne	$3,$2,$L60
+	dli	$2,0x2		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	lbu	$2,0($6)
+	lbu	$2,0($7)
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sb	$2,0($3)
 	.set	macro
 	.set	reorder
 
-$L59:
+$L60:
 	.set	noreorder
 	.set	nomacro
-	bne	$3,$2,$L61
-	li	$2,4
+	bne	$3,$2,$L62
+	dli	$2,0x4		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	lhu	$2,0($6)
+	lhu	$2,0($7)
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sh	$2,0($3)
 	.set	macro
 	.set	reorder
 
-$L61:
+$L62:
 	.set	noreorder
 	.set	nomacro
-	bne	$3,$2,$L63
-	li	$4,8
+	bne	$3,$2,$L64
+	dli	$2,0x8		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	lw	$2,0($6)
+	lw	$2,0($7)
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sw	$2,0($3)
 	.set	macro
 	.set	reorder
 
-$L63:
+$L64:
 	.set	noreorder
 	.set	nomacro
-	bne	$3,$4,$L65
+	bne	$3,$2,$L66
 	daddu	$2,$3,7
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	ld	$2,0($6)
+	ld	$2,0($7)
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sd	$2,0($3)
 	.set	macro
 	.set	reorder
 
-$L65:
-	ddivu	$2,$2,$4
-	dsll	$5,$2,32
-	dsra	$5,$5,32
-	addu	$5,$5,-1
+$L66:
+	dsll	$6,$2,29
+	dsra	$6,$6,32
+	addu	$6,$6,-1
 	.set	noreorder
 	.set	nomacro
-	bltz	$5,$L135
+	bltz	$6,$L120
 	move	$2,$0
 	.set	macro
 	.set	reorder
 
-$L69:
-	dsll	$3,$5,32
-	dsra	$3,$3,32
-	dsll	$3,$3,3
-	ld	$4,16($16)
-	daddu	$2,$6,$3
-	ld	$2,0($2)
-	addu	$5,$5,-1
-	daddu	$4,$4,$3
+$L70:
+	dsll	$5,$6,3
+	ld	$3,16($16)
+	daddu	$2,$7,$5
+	ld	$4,0($2)
+	addu	$6,$6,-1
+	daddu	$3,$3,$5
 	.set	noreorder
 	.set	nomacro
-	bgez	$5,$L69
-	sd	$2,0($4)
+	bgez	$6,$L70
+	sd	$4,0($3)
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	j	$L135
+	j	$L120
 	move	$2,$0
 	.set	macro
 	.set	reorder
 
-$L58:
-	andi	$2,$4,0x0200
+$L59:
+	andi	$2,$4,0x200
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L26
-	andi	$2,$4,0x0004
+	beq	$2,$0,$L27
+	andi	$2,$4,0x4
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L73
-	li	$2,1
+	beq	$2,$0,$L74
+	dli	$2,0x1		
 	.set	macro
 	.set	reorder
 
@@ -553,353 +554,348 @@ $L58:
 	
 	.set	noreorder
 	.set	nomacro
-	bne	$3,$2,$L74
-	li	$2,2
-	.set	macro
-	.set	reorder
-
-$L116:
-	ld	$3,16($16)
-	andi	$2,$6,0x00ff
-	.set	noreorder
-	.set	nomacro
-	j	$L26
-	sb	$2,0($3)
-	.set	macro
-	.set	reorder
-
-$L74:
-	.set	noreorder
-	.set	nomacro
-	bne	$3,$2,$L76
-	li	$2,4
+	bne	$3,$2,$L75
+	dli	$2,0x2		
 	.set	macro
 	.set	reorder
 
 $L117:
 	ld	$3,16($16)
-	andi	$2,$6,0xffff
+	andi	$2,$7,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sh	$2,0($3)
+	j	$L27
+	sb	$2,0($3)
 	.set	macro
 	.set	reorder
 
-$L76:
+$L75:
 	.set	noreorder
 	.set	nomacro
-	bne	$3,$2,$L78
-	li	$2,8
+	bne	$3,$2,$L77
+	dli	$2,0x4		
 	.set	macro
 	.set	reorder
 
 $L118:
 	ld	$3,16($16)
-	dsll	$2,$6,32
+	andi	$2,$7,0xffff
+	.set	noreorder
+	.set	nomacro
+	j	$L27
+	sh	$2,0($3)
+	.set	macro
+	.set	reorder
+
+$L77:
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L79
+	dli	$2,0x8		
+	.set	macro
+	.set	reorder
+
+$L119:
+	ld	$3,16($16)
+	dsll	$2,$7,32
 	dsra	$2,$2,32
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sw	$2,0($3)
 	.set	macro
 	.set	reorder
 
-$L78:
+$L79:
 	.set	noreorder
 	.set	nomacro
-	bne	$3,$2,$L135
+	bne	$3,$2,$L120
 	move	$2,$0
 	.set	macro
 	.set	reorder
 
-$L115:
+$L116:
 	ld	$2,16($16)
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sd	$6,0($2)
+	j	$L27
+	sd	$7,0($2)
 	.set	macro
 	.set	reorder
 
-$L73:
-	ld	$5,32($16)
+$L74:
+	ld	$4,32($16)
 	
-	sltu	$4,$0,$5
-	dsll	$4,$4,32
-	dsra	$4,$4,32
-	sltu	$2,$5,17
-	dsll	$2,$2,32
-	dsra	$2,$2,32
-	and	$4,$4,$2
+	dsubu	$2,$4,1
+	sltu	$2,$2,16
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$0,$L26
-	li	$2,1
+	beq	$2,$0,$L27
+	dli	$2,0x1		
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	bne	$5,$2,$L83
-	li	$2,2
+	bne	$4,$2,$L84
+	dli	$2,0x2		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	dsra	$2,$6,56
+	dsra	$2,$7,56
 	andi	$2,$2,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sb	$2,0($3)
 	.set	macro
 	.set	reorder
 
-$L83:
+$L84:
 	.set	noreorder
 	.set	nomacro
-	bne	$5,$2,$L85
-	li	$2,3
+	bne	$4,$2,$L86
+	dli	$2,0x3		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	dsra	$2,$6,56
+	dsra	$2,$7,56
 	andi	$2,$2,0x00ff
 	sb	$2,0($3)
-	ld	$3,16($16)
-	dsra	$2,$6,48
+	ld	$4,16($16)
+	dsra	$2,$7,48
 	andi	$2,$2,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$2,1($3)
+	j	$L27
+	sb	$2,1($4)
 	.set	macro
 	.set	reorder
 
-$L85:
+$L86:
 	.set	noreorder
 	.set	nomacro
-	bne	$5,$2,$L87
-	li	$2,4
+	bne	$4,$2,$L88
+	dli	$2,0x4		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	dsra	$2,$6,56
+	dsra	$2,$7,56
 	andi	$2,$2,0x00ff
 	sb	$2,0($3)
-	ld	$3,16($16)
-	dsra	$2,$6,48
+	ld	$4,16($16)
+	dsra	$2,$7,48
 	andi	$2,$2,0x00ff
-	sb	$2,1($3)
+	sb	$2,1($4)
 	ld	$3,16($16)
-	dsra	$2,$6,40
+	dsra	$2,$7,40
 	andi	$2,$2,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sb	$2,2($3)
 	.set	macro
 	.set	reorder
 
-$L87:
+$L88:
 	.set	noreorder
 	.set	nomacro
-	bne	$5,$2,$L89
-	li	$2,5
+	bne	$4,$2,$L90
+	dli	$2,0x5		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	dsra	$2,$6,56
+	dsra	$2,$7,56
 	andi	$2,$2,0x00ff
 	sb	$2,0($3)
-	ld	$3,16($16)
-	dsra	$2,$6,48
+	ld	$4,16($16)
+	dsra	$2,$7,48
 	andi	$2,$2,0x00ff
-	sb	$2,1($3)
+	sb	$2,1($4)
 	ld	$3,16($16)
-	dsra	$2,$6,40
+	dsra	$2,$7,40
 	andi	$2,$2,0x00ff
 	sb	$2,2($3)
-	ld	$3,16($16)
-	dsra	$2,$6,32
+	ld	$4,16($16)
+	dsra	$2,$7,32
 	andi	$2,$2,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$2,3($3)
+	j	$L27
+	sb	$2,3($4)
 	.set	macro
 	.set	reorder
 
-$L89:
+$L90:
 	.set	noreorder
 	.set	nomacro
-	bne	$5,$2,$L91
-	li	$2,6
+	bne	$4,$2,$L92
+	dli	$2,0x6		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	dsra	$2,$6,56
+	dsra	$2,$7,56
 	andi	$2,$2,0x00ff
 	sb	$2,0($3)
-	ld	$3,16($16)
-	dsra	$2,$6,48
+	ld	$4,16($16)
+	dsra	$2,$7,48
 	andi	$2,$2,0x00ff
-	sb	$2,1($3)
+	sb	$2,1($4)
 	ld	$3,16($16)
-	dsra	$2,$6,40
+	dsra	$2,$7,40
 	andi	$2,$2,0x00ff
 	sb	$2,2($3)
-	ld	$3,16($16)
-	dsra	$2,$6,32
+	ld	$4,16($16)
+	dsra	$2,$7,32
 	andi	$2,$2,0x00ff
-	sb	$2,3($3)
+	sb	$2,3($4)
 	ld	$3,16($16)
-	dsra	$2,$6,24
+	dsra	$2,$7,24
 	andi	$2,$2,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sb	$2,4($3)
 	.set	macro
 	.set	reorder
 
-$L91:
+$L92:
 	.set	noreorder
 	.set	nomacro
-	bne	$5,$2,$L93
-	li	$2,7
+	bne	$4,$2,$L94
+	dli	$2,0x7		
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	dsra	$2,$6,56
+	dsra	$2,$7,56
 	andi	$2,$2,0x00ff
 	sb	$2,0($3)
-	ld	$3,16($16)
-	dsra	$2,$6,48
+	ld	$4,16($16)
+	dsra	$2,$7,48
 	andi	$2,$2,0x00ff
-	sb	$2,1($3)
+	sb	$2,1($4)
 	ld	$3,16($16)
-	dsra	$2,$6,40
+	dsra	$2,$7,40
 	andi	$2,$2,0x00ff
 	sb	$2,2($3)
-	ld	$3,16($16)
-	dsra	$2,$6,32
+	ld	$4,16($16)
+	dsra	$2,$7,32
 	andi	$2,$2,0x00ff
-	sb	$2,3($3)
+	sb	$2,3($4)
 	ld	$3,16($16)
-	dsra	$2,$6,24
+	dsra	$2,$7,24
 	andi	$2,$2,0x00ff
 	sb	$2,4($3)
-	ld	$3,16($16)
-	dsra	$2,$6,16
+	ld	$4,16($16)
+	dsra	$2,$7,16
 	andi	$2,$2,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$2,5($3)
+	j	$L27
+	sb	$2,5($4)
 	.set	macro
 	.set	reorder
 
-$L93:
+$L94:
 	.set	noreorder
 	.set	nomacro
-	bne	$5,$2,$L95
-	dsubu	$2,$5,8
+	bne	$4,$2,$L96
+	dsubu	$2,$4,8
 	.set	macro
 	.set	reorder
 
 	ld	$3,16($16)
-	dsra	$2,$6,56
+	dsra	$2,$7,56
 	andi	$2,$2,0x00ff
 	sb	$2,0($3)
-	ld	$3,16($16)
-	dsra	$2,$6,48
+	ld	$4,16($16)
+	dsra	$2,$7,48
 	andi	$2,$2,0x00ff
-	sb	$2,1($3)
+	sb	$2,1($4)
 	ld	$3,16($16)
-	dsra	$2,$6,40
+	dsra	$2,$7,40
 	andi	$2,$2,0x00ff
 	sb	$2,2($3)
-	ld	$3,16($16)
-	dsra	$2,$6,32
+	ld	$4,16($16)
+	dsra	$2,$7,32
 	andi	$2,$2,0x00ff
-	sb	$2,3($3)
+	sb	$2,3($4)
 	ld	$3,16($16)
-	dsra	$2,$6,24
+	dsra	$2,$7,24
 	andi	$2,$2,0x00ff
 	sb	$2,4($3)
-	ld	$3,16($16)
-	dsra	$2,$6,16
+	ld	$4,16($16)
+	dsra	$2,$7,16
 	andi	$2,$2,0x00ff
-	sb	$2,5($3)
+	sb	$2,5($4)
 	ld	$3,16($16)
-	dsra	$2,$6,8
+	dsra	$2,$7,8
 	andi	$2,$2,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sb	$2,6($3)
 	.set	macro
 	.set	reorder
 
-$L95:
+$L96:
 	sltu	$2,$2,9
 	.set	noreorder
 	.set	nomacro
-	beq	$2,$0,$L26
-	dsra	$2,$6,56
+	beq	$2,$0,$L27
+	dsra	$2,$7,56
 	.set	macro
 	.set	reorder
 
 	ld	$4,16($16)
 	andi	$2,$2,0x00ff
 	sb	$2,0($4)
-	ld	$4,16($16)
-	dsra	$2,$6,48
+	ld	$5,16($16)
+	dsra	$2,$7,48
 	andi	$2,$2,0x00ff
-	sb	$2,1($4)
+	sb	$2,1($5)
 	ld	$4,16($16)
-	dsra	$2,$6,40
+	dsra	$2,$7,40
 	andi	$2,$2,0x00ff
 	sb	$2,2($4)
-	ld	$4,16($16)
-	dsra	$2,$6,32
+	ld	$5,16($16)
+	dsra	$2,$7,32
 	andi	$2,$2,0x00ff
-	sb	$2,3($4)
+	sb	$2,3($5)
 	ld	$4,16($16)
-	dsra	$2,$6,24
+	dsra	$2,$7,24
 	andi	$2,$2,0x00ff
 	sb	$2,4($4)
-	ld	$4,16($16)
-	dsra	$2,$6,16
+	ld	$5,16($16)
+	dsra	$2,$7,16
 	andi	$2,$2,0x00ff
-	sb	$2,5($4)
-	ld	$4,16($16)
-	dsra	$2,$6,8
+	sb	$2,5($5)
+	ld	$6,16($16)
+	dsra	$2,$7,8
 	andi	$2,$2,0x00ff
-	sb	$2,6($4)
+	sb	$2,6($6)
 	ld	$4,16($16)
-	andi	$2,$6,0x00ff
+	andi	$2,$7,0x00ff
 	sb	$2,7($4)
 	ld	$4,32($16)
-	li	$2,8
+	dli	$2,0x8		
 	.set	noreorder
 	.set	nomacro
-	beq	$4,$2,$L26
-	li	$2,9
+	beq	$4,$2,$L27
+	dli	$2,0x9		
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L100
-	li	$2,10
+	bne	$4,$2,$L101
+	dli	$2,0xa		
 	.set	macro
 	.set	reorder
 
@@ -908,16 +904,16 @@ $L95:
 	andi	$3,$3,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
+	j	$L27
 	sb	$3,8($2)
 	.set	macro
 	.set	reorder
 
-$L100:
+$L101:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L102
-	li	$2,11
+	bne	$4,$2,$L103
+	dli	$2,0xb		
 	.set	macro
 	.set	reorder
 
@@ -925,21 +921,21 @@ $L100:
 	dsra	$2,$3,56
 	andi	$2,$2,0x00ff
 	sb	$2,8($4)
-	ld	$2,16($16)
+	ld	$5,16($16)
 	dsra	$3,$3,48
 	andi	$3,$3,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$3,9($2)
+	j	$L27
+	sb	$3,9($5)
 	.set	macro
 	.set	reorder
 
-$L102:
+$L103:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L104
-	li	$2,12
+	bne	$4,$2,$L105
+	dli	$2,0xc		
 	.set	macro
 	.set	reorder
 
@@ -947,25 +943,25 @@ $L102:
 	dsra	$2,$3,56
 	andi	$2,$2,0x00ff
 	sb	$2,8($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,48
 	andi	$2,$2,0x00ff
-	sb	$2,9($4)
-	ld	$2,16($16)
+	sb	$2,9($5)
+	ld	$4,16($16)
 	dsra	$3,$3,40
 	andi	$3,$3,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$3,10($2)
+	j	$L27
+	sb	$3,10($4)
 	.set	macro
 	.set	reorder
 
-$L104:
+$L105:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L106
-	li	$2,13
+	bne	$4,$2,$L107
+	dli	$2,0xd		
 	.set	macro
 	.set	reorder
 
@@ -973,29 +969,29 @@ $L104:
 	dsra	$2,$3,56
 	andi	$2,$2,0x00ff
 	sb	$2,8($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,48
 	andi	$2,$2,0x00ff
-	sb	$2,9($4)
+	sb	$2,9($5)
 	ld	$4,16($16)
 	dsra	$2,$3,40
 	andi	$2,$2,0x00ff
 	sb	$2,10($4)
-	ld	$2,16($16)
+	ld	$5,16($16)
 	dsra	$3,$3,32
 	andi	$3,$3,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$3,11($2)
+	j	$L27
+	sb	$3,11($5)
 	.set	macro
 	.set	reorder
 
-$L106:
+$L107:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L108
-	li	$2,14
+	bne	$4,$2,$L109
+	dli	$2,0xe		
 	.set	macro
 	.set	reorder
 
@@ -1003,33 +999,33 @@ $L106:
 	dsra	$2,$3,56
 	andi	$2,$2,0x00ff
 	sb	$2,8($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,48
 	andi	$2,$2,0x00ff
-	sb	$2,9($4)
+	sb	$2,9($5)
 	ld	$4,16($16)
 	dsra	$2,$3,40
 	andi	$2,$2,0x00ff
 	sb	$2,10($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,32
 	andi	$2,$2,0x00ff
-	sb	$2,11($4)
-	ld	$2,16($16)
+	sb	$2,11($5)
+	ld	$4,16($16)
 	dsra	$3,$3,24
 	andi	$3,$3,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$3,12($2)
+	j	$L27
+	sb	$3,12($4)
 	.set	macro
 	.set	reorder
 
-$L108:
+$L109:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L110
-	li	$2,15
+	bne	$4,$2,$L111
+	dli	$2,0xf		
 	.set	macro
 	.set	reorder
 
@@ -1037,37 +1033,37 @@ $L108:
 	dsra	$2,$3,56
 	andi	$2,$2,0x00ff
 	sb	$2,8($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,48
 	andi	$2,$2,0x00ff
-	sb	$2,9($4)
+	sb	$2,9($5)
 	ld	$4,16($16)
 	dsra	$2,$3,40
 	andi	$2,$2,0x00ff
 	sb	$2,10($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,32
 	andi	$2,$2,0x00ff
-	sb	$2,11($4)
+	sb	$2,11($5)
 	ld	$4,16($16)
 	dsra	$2,$3,24
 	andi	$2,$2,0x00ff
 	sb	$2,12($4)
-	ld	$2,16($16)
+	ld	$5,16($16)
 	dsra	$3,$3,16
 	andi	$3,$3,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$3,13($2)
+	j	$L27
+	sb	$3,13($5)
 	.set	macro
 	.set	reorder
 
-$L110:
+$L111:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L112
-	li	$2,16
+	bne	$4,$2,$L113
+	dli	$2,0x10		
 	.set	macro
 	.set	reorder
 
@@ -1075,40 +1071,40 @@ $L110:
 	dsra	$2,$3,56
 	andi	$2,$2,0x00ff
 	sb	$2,8($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,48
 	andi	$2,$2,0x00ff
-	sb	$2,9($4)
+	sb	$2,9($5)
 	ld	$4,16($16)
 	dsra	$2,$3,40
 	andi	$2,$2,0x00ff
 	sb	$2,10($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,32
 	andi	$2,$2,0x00ff
-	sb	$2,11($4)
+	sb	$2,11($5)
 	ld	$4,16($16)
 	dsra	$2,$3,24
 	andi	$2,$2,0x00ff
 	sb	$2,12($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,16
 	andi	$2,$2,0x00ff
-	sb	$2,13($4)
-	ld	$2,16($16)
+	sb	$2,13($5)
+	ld	$4,16($16)
 	dsra	$3,$3,8
 	andi	$3,$3,0x00ff
 	.set	noreorder
 	.set	nomacro
-	j	$L26
-	sb	$3,14($2)
+	j	$L27
+	sb	$3,14($4)
 	.set	macro
 	.set	reorder
 
-$L112:
+$L113:
 	.set	noreorder
 	.set	nomacro
-	bne	$4,$2,$L135
+	bne	$4,$2,$L120
 	move	$2,$0
 	.set	macro
 	.set	reorder
@@ -1117,40 +1113,46 @@ $L112:
 	dsra	$2,$3,56
 	andi	$2,$2,0x00ff
 	sb	$2,8($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,48
 	andi	$2,$2,0x00ff
-	sb	$2,9($4)
+	sb	$2,9($5)
 	ld	$4,16($16)
 	dsra	$2,$3,40
 	andi	$2,$2,0x00ff
 	sb	$2,10($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,32
 	andi	$2,$2,0x00ff
-	sb	$2,11($4)
+	sb	$2,11($5)
 	ld	$4,16($16)
 	dsra	$2,$3,24
 	andi	$2,$2,0x00ff
 	sb	$2,12($4)
-	ld	$4,16($16)
+	ld	$5,16($16)
 	dsra	$2,$3,16
 	andi	$2,$2,0x00ff
-	sb	$2,13($4)
-	ld	$4,16($16)
+	sb	$2,13($5)
+	ld	$6,16($16)
 	dsra	$2,$3,8
 	andi	$2,$2,0x00ff
-	sb	$2,14($4)
-	ld	$2,16($16)
+	sb	$2,14($6)
+	ld	$4,16($16)
 	andi	$3,$3,0x00ff
-	sb	$3,15($2)
-$L26:
+	sb	$3,15($4)
+$L27:
 	move	$2,$0
-$L135:
-	move	$sp,$fp			
+$L120:
+	move	$sp,$fp
 	ld	$31,2096($sp)
 	ld	$fp,2088($sp)
 	ld	$16,2080($sp)
-	daddu	$sp,$sp,2104
+	
+	.set	noreorder
+	.set	nomacro
 	j	$31
+	daddu	$sp,$sp,2104
+	.set	macro
+	.set	reorder
+
 	.end	__builtin_avcall

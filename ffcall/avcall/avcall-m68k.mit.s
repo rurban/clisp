@@ -1,9 +1,34 @@
-#include "asmm68k.h"
+# 1 "avcall-m68k.mit.S"
+# 1 "asmm68k.h" 1
+ 
+ 
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+ 
+ 
+
+
+
+
+
+# 1 "avcall-m68k.mit.S" 2
+
 .text
 	.even
-.globl C(__builtin_avcall)
-	DECLARE_FUNCTION(__builtin_avcall)
-C(__builtin_avcall:)
+.globl  __builtin_avcall  
+	.type   __builtin_avcall   ,@function 
+ __builtin_avcall:  
 	moveml #0x3030,$sp@-
 	movel $sp@(20),$a2
 	lea $sp@(-1024),$sp
