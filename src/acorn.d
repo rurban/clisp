@@ -10,6 +10,7 @@
 
 #define stdin_handle   0  # File-Handle von Standard-Input
 #define stdout_handle  1  # File-Handle von Standard-Output
+#define stderr_handle  2  /* the file handle for the standard error */
 
 # This file supports UnixLib 3.7b.
 
