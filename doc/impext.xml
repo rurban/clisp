@@ -1384,6 +1384,7 @@ N. Gray to X3J13.</para>
   url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>
   &ansi-cl; Issue 283.</simpara></listitem>
  <listitem><simpara>Setting &pathmerge; to &t;.</simpara></listitem>
+ <listitem><simpara>Setting &parsename; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
  <listitem><simpara>Adding <emphasis
   role="strong"><constant>:ansi-cl</constant></emphasis> to
@@ -1410,6 +1411,7 @@ N. Gray to X3J13.</para>
   url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>
   &ansi-cl; Issue 283.</simpara></listitem>
  <listitem><simpara>Setting &pathmerge; to &nil;.</simpara></listitem>
+ <listitem><simpara>Setting &parsename; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &flocont; to &nil;.</simpara></listitem>
  <listitem><simpara>Deleting <emphasis
   role="strong"><constant>:ansi-cl</constant></emphasis> from

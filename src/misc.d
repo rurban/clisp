@@ -393,6 +393,8 @@ LISPFUNN(set_ansi,1)
     Symbol_value(S(merge_pathnames_ansi)) = val;
     # (SETQ *PRINT-PATHNAMES-ANSI* val)
     Symbol_value(S(print_pathnames_ansi)) = val;
+    # (SETQ *PARSE-NAMESTRING-ANSI* val)
+    Symbol_value(S(parse_namestring_ansi)) = val;
     # (SETQ *SEQUENCE-COUNT-ANSI* val)
     Symbol_value(S(sequence_count_ansi)) = val;
     # (SETQ *COERCE-FIXNUM-CHAR-ANSI* val)

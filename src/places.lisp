@@ -1034,6 +1034,7 @@
  "This symbol-macro modifies some variables for maximum ANSI CL compliance.
 Variables affected: `lisp:*floating-point-contagion-ansi*',
  `lisp:*merge-pathnames-ansi*', `lisp:*print-pathnames-ansi*',
+ `lisp:*parse-namestring-ansi*',
  `lisp:*sequence-count-ansi*', `lisp:*coerce-fixnum-char-ansi*'.
 Also, `:ansi-cl' is added to (or removed from) `*features*'.
 Invoking CLISP with `-a' sets this to T.")

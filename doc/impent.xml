@@ -79,6 +79,7 @@
 <!ENTITY kbd-in "<link linkend='terminal'><varname>lisp:*keyboard-input*</varname></link>">
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY lfd "<link linkend='lfd'><function>lisp:long-float-digits</function></link>">
+<!ENTITY parsename "<link linkend='parsename'><varname>lisp:*parse-namestring-ansi*</varname></link>">
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>lisp:*merge-pathnames-ansi*</varname></link>">
 <!ENTITY pathprint "<link linkend='pathprint'><varname>lisp:*print-pathnames-ansi*</varname></link>">
 <!ENTITY pr-closure "<link linkend='pr-closure'><varname>lisp:*print-closure*</varname></link>">

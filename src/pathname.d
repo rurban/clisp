@@ -1,6 +1,7 @@
 # Pathnames für CLISP
 # Bruno Haible 1990-2000
 # Logical Pathnames: Marcus Daniels 16.9.1994
+# ANSI compliance: Sam Steingold 1999-2000
 
 #include "lispbibl.c"
 
@@ -1443,12 +1444,12 @@ local boolean legal_logical_word_char(ch)
 
 #endif
 
-# Typ für PARSE-NAMESTRING:
-# Der String wird durchlaufen.
+# Type for PARSE-NAMESTRING:
+# The stringe is passed through.
   typedef struct {
-    uintL index; # Index (incl. Offset)
-    object FNindex; # Index als Fixnum
-    uintL count; # Anzahl der verbleibenden Characters
+    uintL index; # index (incl. offset)
+    object FNindex; # index as a fixnum
+    uintL count; # number of the remaining characters
   } zustand;
 
 #ifdef LOGICAL_PATHNAMES
@@ -1543,46 +1544,54 @@ local boolean all_digits(string)
     return TRUE;
   }
 
+local object logical_host(zp,string)
+  zustand *zp;
+  object string;
+{
+  var object host;
+  uintL index = zp->index;
+  var chart ch;
+  # a sequence of alphanumeric characters and then ':'
+  loop {
+    if (zp->count==0)
+      return NIL; # string already ended -> no host
+    ch = TheSstring(string)->data[zp->index]; # next character
+    if (!legal_logical_word_char(ch))
+      break;
+        # ignore alphanumeric character:
+    zp->index++; zp->FNindex = fixnum_inc(zp->FNindex,1); zp->count--;
+  }
+  if (!chareq(ch,ascii(':')))
+    return NIL; # no ':' -> no host
+  # make host-string:
+  {
+    var uintL len = zp->index - index;
+    host = allocate_string(len);
+    # and fill it:
+    if (len > 0) {
+      var const chart* ptr1 = &TheSstring(string)->data[index];
+      var chart* ptr2 = &TheSstring(host)->data[0];
+      dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
+    }
+  }
+  # skip ':'
+  zp->index++; zp->FNindex = fixnum_inc(zp->FNindex,1); zp->count--;
+  return host;
+}
+
 local uintL parse_logical_pathnamestring(z)
   var zustand z;
   {
     # Host-Specification parsen:
     {
-      var object host;
-      var zustand startz; startz = z; # Start-Zustand
-      var chart ch;
-      # Kommt eine Folge von alphanumerischen Zeichen und dann ein ':' ?
-      loop {
-        if (z.count==0)
-          goto no_hostspec; # String schon zu Ende -> kein Host
-        ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-        if (!legal_logical_word_char(ch))
-          break;
-        # alphanumerisches Character übergehen:
-        z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
+      var zustand startz = z;
+      var object host = logical_host(&z,STACK_1);
+      if (nullp(host)) {
+        z = startz; # back to the start
+        host = STACK_(3+2); # Default-Host
+      } else { # enter host:
+        TheLogpathname(STACK_0)->pathname_host = host;
       }
-      if (!chareq(ch,ascii(':')))
-        goto no_hostspec; # kein ':' -> kein Host
-      # Host-String bilden:
-      {
-        var uintL len = z.index - startz.index;
-        host = allocate_string(len);
-        # und füllen:
-        if (len > 0) {
-          var const chart* ptr1 = &TheSstring(STACK_1)->data[startz.index];
-          var chart* ptr2 = &TheSstring(host)->data[0];
-          dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
-        }
-      }
-      # Character ':' übergehen:
-      z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
-      goto hostspec_ok;
-     no_hostspec: # keine Host-Specification
-      z = startz; # zum Start zurück
-      host = STACK_(3+2); # Default-Host
-     hostspec_ok:
-      # Host eintragen:
-      TheLogpathname(STACK_0)->pathname_host = host;
     }
     # Directory-Start eintragen:
     {
@@ -1719,6 +1728,16 @@ local uintL parse_logical_pathnamestring(z)
     }
 #endif
 
+#ifdef LOGICAL_PATHNAMES
+local object string_logical_path_p(zz,string)
+  zustand zz;
+  object string;
+{
+  object host = logical_host(&zz,string);
+  return !nullp(host) && logical_host_p(host) ? host : NIL;
+}
+#endif
+
 LISPFUN(parse_namestring,1,2,norest,key,3,\
         (kw(start),kw(end),kw(junk_allowed)) )
 # (PARSE-NAMESTRING thing [host [defaults [:start] [:end] [:junk-allowed]]]),
@@ -1821,6 +1840,15 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       z.count = arg.len;           # z.count = Anzahl der Characters.
       z.FNindex = fixnum(z.index); # z.FNindex = start-Index als Fixnum.
       z.index += arg.offset;
+      #ifdef LOGICAL_PATHNAMES
+      if (!parse_logical && !nullp(Symbol_value(S(parse_namestring_ansi)))) {
+        object host = string_logical_path_p(z,string);
+        if (!nullp(host)) {
+          parse_logical = TRUE;
+          STACK_3 = host;
+        }
+      }
+      #endif
       # Coerce string to be a normal-simple-string.
       if (thing_symbol && !parse_logical) {
         #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
