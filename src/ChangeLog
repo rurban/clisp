@@ -1,3 +1,7 @@
+2001-08-14  Sam Steingold  <sds@gnu.org>
+
+	* .gdbinit: set args and define zout
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* hashtabl.d (SXHASH): Perform 32-bit -> 24-bit mapping by dividing
