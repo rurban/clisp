@@ -2273,7 +2273,7 @@ for f in $DFILES ; do
   echol "${f}.c : ${f}.d comment5${HEXE}${XDECL_DEPENDENCIES}"
   case ${f} in
     pathname )                  # has '# ' inside comments
-      echotabpipe "cat ${f}.d${CHSCONVERT_FILTER} ${XDECL_FILTER} > ${f}.c" ;;
+      echotabpipe "(echo '#line 1 \"${f}.d\"'; cat ${f}.d)${CHSCONVERT_FILTER} ${XDECL_FILTER} > ${f}.c" ;;
     * )
       echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER} ${XDECL_FILTER} > ${f}.c" ;;
     esac
