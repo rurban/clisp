@@ -1,5 +1,10 @@
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
+	* genclisph.d (main): Emit definitions for check_fpointer,
+	check_posfixnum, check_string.
+
+2004-04-22  Bruno Haible  <bruno@clisp.org>
+
 	* genclisph.d (main): Use "#if notused" instead of C comments to mark
 	definitions not yet used.
 
