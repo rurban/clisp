@@ -712,7 +712,7 @@
                (if (minusp arg) (1- oldstring-length) oldstring-length) )
              (number-of-commas
                (if commaflag (floor (1- number-of-digits) commainterval) 0) )
-             (positive-sign (and positive-sign-flag (> arg 0)))
+             (positive-sign (and positive-sign-flag (>= arg 0)))
              (newstring-length
                (+ (if positive-sign 1 0) ; Vorzeichen
                   oldstring-length number-of-commas ; Ziffern, Kommas
