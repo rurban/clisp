@@ -1,3 +1,8 @@
+1999-05-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * macros2.lsp (check-type): Don't quote the string argument.
+        * conditio.lsp (check-type): Likewise.
+
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in (distrib): Reorganize. Distribute the data/ directory

@@ -175,7 +175,7 @@
        (WHEN (TYPEP ,place ',typespec) (GO ,tag2))
        (CERROR (REPORT-ONE-NEW-VALUE-STRING)
          (TYPE-ERROR-STRING)
-         (CHECK-TYPE-ERROR-STRING ',place ',string ',typespec)
+         (CHECK-TYPE-ERROR-STRING ',place ,string ',typespec)
          ,place
        )
        (FORMAT *QUERY-IO* (PROMPT-FOR-NEW-VALUE-STRING) ',place)

@@ -138,6 +138,8 @@ User visible changes
   crash, instead of returning NIL, if there is no macro-character function
   associated with sub-char after disp-char.
 
+* Fixed a bug: (CHECK-TYPE place typespec string) did not evaluate `string'.
+
 * Fixed a bug: Calling the function FINALIZE caused a crash during the next GC
   on many platforms.
 
