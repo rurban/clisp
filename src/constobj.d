@@ -34,8 +34,6 @@
 # for SPVW.D:
   # chained list of all active weak-pointers:
   LISPOBJ(all_weakpointers,"0")
-  # chained list of all active weak key-value tables:
-  LISPOBJ(all_weakkvtables,"0")
   # list of all finalizers:
   LISPOBJ(all_finalizers,"0")
   # During GC: the list of finalizers to be processed after the GC:
@@ -280,7 +278,6 @@
   LISPOBJ(hs_weak_and_mapping,"EXT::WEAK-AND-MAPPING")
   LISPOBJ(hs_weak_or_mapping,"EXT::WEAK-OR-MAPPING")
   LISPOBJ(hs_internal_weak_alist,"SYS::INTERNAL-WEAK-ALIST")
-  LISPOBJ(hs_weakkvt,"EXT::WEAK-KEY-VALUE-TABLE")
   LISPOBJ(hs_system_function,"EXT::SYSTEM-FUNCTION")
   LISPOBJ(hs_bignum,"BIGNUM")
   LISPOBJ(hs_ratio,"RATIO")

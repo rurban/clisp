@@ -1,5 +1,26 @@
 2004-05-08  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (Rectype_WeakKVT): Remove enum value.
+	(weakkvt_t, WeakKVT): Remove types.
+	(weakkvt_length, Weakkvt_length, TheWeakKVT): Remove macros.
+	(Lrecord_nonweak_length): Update.
+	(if_recordp): Remove handling of Rectype_WeakKVT.
+	(weakkvtp): Remove macro.
+	(allocate_weakkvt): Remove declaration.
+	* spvw.d (main): Don't initialize O(all_weakkvtables).
+	* spvw_garcol.d (gar_col_normal): Remove obsolete and broken handling
+	of weakkvt objects.
+	* spvw_gcmark.d (gc_mark): Remove handling of Rectype_WeakKVT.
+	* spvw_typealloc.d (allocate_weakkvt_low, allocate_weakkvt): Remove
+	functions.
+	* io.d (pr_weakkvt): Remove function.
+	(pr_orecord): Remove handling of Rectype_WeakKVT.
+	* predtype.d (TYPE-OF, CLASS-OF): Remove handling of Rectype_WeakKVT.
+	(enum_hs_weakkvt): Remove enum value.
+	(heap_statistics_mapper): Remove handling of Rectype_WeakKVT.
+
+2004-05-08  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class2.lisp (map-direct-subclasses): Remove function.
 	(add-direct-subclass, remove-direct-subclass, list-direct-subclasses):
 	Use a weak-list instead of a list of weak-pointers.

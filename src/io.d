@@ -6611,7 +6611,6 @@ local pr_routine_t pr_number;
 local pr_routine_t pr_array_nil;
 local pr_routine_t pr_bvector;
 local pr_routine_t pr_vector;
-local pr_routine_t pr_weakkvt;
 local pr_routine_t pr_nilvector;
 local pr_routine_t pr_array;
 local pr_routine_t pr_instance;
@@ -7594,38 +7593,6 @@ local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt,
     pr_pair(stream_,ptr[0],ptr[1]);
   }
  kvt_finish: ;
-}
-
-# UP: prints weak key-value table to stream.
-# pr_weakkvt(&stream,wkvt);
-# > wkvt: weak key-value table
-# > stream: stream
-# < stream: stream
-# can trigger GC
-local void pr_weakkvt (const gcv_object_t* stream_, object wkvt) {
-  ASSERT(weakkvtp(wkvt));
-  var uintL len = Weakkvt_length(wkvt);
-  pushSTACK(wkvt);
-  var gcv_object_t* wkvt_ = &STACK_0;
-  CHECK_PRINT_READABLY(*wkvt_);
-  LEVEL_CHECK;
-  UNREADABLE_START;
-  JUSTIFY_LAST(false);
-  prin_object(stream_,S(weak_kvtable));
-  JUSTIFY_SPACE; JUSTIFY_LAST(false);
-  prin_object(stream_,TheWeakKVT(*wkvt_)->wkvt_type);
-  if (!nullpSv(print_array)) {
-    pr_kvtable(stream_,wkvt_,len,len);
-  } else {
-    JUSTIFY_SPACE; JUSTIFY_LAST(false);
-    pr_uint(stream_,len);
-    JUSTIFY_SPACE; JUSTIFY_LAST(true);
-    pr_hex6(stream_,wkvt);
-  }
-  JUSTIFY_END_FILL;
-  UNREADABLE_END;
-  LEVEL_END;
-  skipSTACK(1);
 }
 
 #                -------- Nil-Vectors --------
@@ -9327,9 +9294,6 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
     case Rectype_WeakAlist_Both: # #<INTERNAL-WEAK-ALIST>
       CHECK_PRINT_READABLY(obj);
       write_sstring_case(stream_,O(printstring_internal_weak_alist));
-      break;
-    case Rectype_WeakKVT: # weak key-value table
-      pr_weakkvt(stream_,obj);
       break;
     default:
       pushSTACK(S(print));

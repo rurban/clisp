@@ -970,7 +970,6 @@ local void init_object_tab_1 (void) {
   });
  #endif
   O(all_weakpointers) = Fixnum_0;
-  O(all_weakkvtables) = Fixnum_0;
   O(all_finalizers) = Fixnum_0; O(pending_finalizers) = Fixnum_0;
 }
 # initialize other modules coarsely:
