@@ -1,3 +1,18 @@
+2004-02-15  Bruno Haible  <bruno@clisp.org>
+
+	Enforce 8-byte alignment needed by GENERATIONAL_GC in WIDE_SOFT mode,
+	working around a gcc-3.3 bug.
+	* lispbibl.d (INNARDS_OF_GCV_OBJECT): Add _attribute_aligned_object_.
+	(_attribute_aligned_object_): Default to empty.
+	(record_, srecord_, xrecord_, cons_, ratio_, complex_, symbol_,
+	svector_, siarray_, iarray_, Package, Hashtable, Readtable, Pathname,
+	Logpathname, Random_state, Byte, Fsubr, Loadtimeeval, Symbolmacro,
+	Macro, FunctionMacro, Encoding, Faddress, Fvariable, Ffunction,
+	Weakpointer, weakkvt_t, Finalizer, Socket_server, Yetanother, Stream,
+	Class, Instance, Closure, Iclosure, Cclosure, subr_t): Add
+	_attribute_aligned_object_ to all fields of type gcv_object_t.
+	* genclisph.d (main): Adjust accordingly.
+
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
 	* lists153.tst: Reduce the memory size, so that it needs only 80 MB,
