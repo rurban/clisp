@@ -482,16 +482,16 @@ msgid "Couldn't determine the end of the SP stack!\n"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!\n"
 
 #: spvw.d:2696
-msgid "                    Amiga version: Jörg Höhle                     \n"
-msgstr "                    Amiga-Version: Jörg Höhle                     \n"
+msgid "                    Amiga version: Jörg Höhle\n"
+msgstr "                    Amiga-Version: Jörg Höhle\n"
 
 #: spvw.d:2706
-msgid "                    RISCOS port: Peter Burwood, Bruno Haible      \n"
+msgid "                    RISCOS port: Peter Burwood, Bruno Haible\n"
 msgstr "                    RISCOS-Portierung: Peter Burwood, Bruno Haible\n"
 
 #: spvw.d:2716
-msgid "                    DOS port: Jürgen Weber, Bruno Haible          \n"
-msgstr "                    DOS-Portierung: Jürgen Weber, Bruno Haible    \n"
+msgid "                    DOS port: Jürgen Weber, Bruno Haible\n"
+msgstr "                    DOS-Portierung: Jürgen Weber, Bruno Haible\n"
 
 #: spvw.d:2743
 msgid ""
