@@ -6,10 +6,10 @@
 
 2003-08-20  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (create-fun-obj): use *fasoutput-stream* instead
-	of *compiling-from-file* to check whether the constant will be
-	read before being evaluated - necessary for the recent
-	COMPILE-FORM-IN-TOPLEVEL-ENVIRONMENT change
+	* compiler.lisp (create-fun-obj, c-LOAD-TIME-VALUE): use
+	*fasoutput-stream* instead of *compiling-from-file* to check
+	whether the constant will be read before being evaluated
+	- necessary for the recent COMPILE-FORM-IN-TOPLEVEL-ENVIRONMENT change
 	Reported by Douglas Philips <dgou@mac.com>
 	<http://article.gmane.org/gmane.lisp.clisp.general/7393>
 

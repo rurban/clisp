@@ -463,3 +463,14 @@ dm2b
     '(list (list #'equal 2 2) (list #'equal 2 3))))
   :collect (funcall (car a) (cadr a) (caddr a)))
 #+CLISP (T NIL)
+
+#+CLISP
+(progn
+  (defclass t1 () ((foo :accessor foo :initform :foo)))
+  (list
+   (funcall
+    (compile nil (lambda () (typep (make-instance 't1) 't1))))
+   (funcall
+    (sys::compile-form-in-toplevel-environment
+     '(typep (make-instance 't1) 't1)))))
+#+CLISP (T T)
