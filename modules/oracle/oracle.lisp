@@ -98,7 +98,7 @@ to-sqlval to-string update-row valid-symbol
 
 ; CONNECT
 
-(defun connect (user password server &optional schema (auto-commit t) (prefetch-buffer-bytes 0) (long-len -1) (truncate-ok t))
+(defun connect (user password server &optional schema (auto-commit t) (prefetch-buffer-bytes 0) (long-len -1) truncate-ok)
 "(ORACLE::CONNECT user password server &optional schema auto-commit prefetch-buffer-bytes long-len truncate-ok)
 
 Connect to an Oracle database.  All subsequent operations will affect
