@@ -1,3 +1,9 @@
+2004-04-29  Bruno Haible  <bruno@clisp.org>
+
+	* disassem.lisp (*disassemble-use-live-process*): New variable.
+	(disassemble-machine-code): Use it.
+	* .gdbinit (ansi_tests): Set it to nil.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	* reploop.lisp (main-loop, break-loop, step-hook-fn): Install a ABORT
