@@ -1,3 +1,10 @@
+2005-01-10  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (GCC_VERSION, GCC_SOURCE_FILE, GCC_SOURCE_URL): New
+	variable.
+	(GCC_INSTALL_DIR): New computed variable.
+	(install-gcc): New target.
+
 2005-01-09  Bruno Haible  <bruno@clisp.org>
 
 	Distribute the manual page also in PDF format.
