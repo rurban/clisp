@@ -181,7 +181,7 @@
           (GENERIC-STREAM-P, SYS::TERMINAL-RAW): Use builtin_stream_p.
         * predtype.d (SYS::BUILT-IN-STREAM-P): New function.
 
-1999-04-29  <wolfgang@mat.univie.ac.at>
+1999-04-29  Wolfgang Jenkner <wolfgang@mat.univie.ac.at>
 
         * control.d (make_variable_frame): Treat special-declared variables
           like special-proclaimed ones.
