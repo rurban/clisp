@@ -1,3 +1,9 @@
+2002-01-15  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe): flush the pending output _before_
+	increasing indentation
+	(describe-object) [symbol]: handle unbound special variables too
+
 2002-01-14  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (*system-package-list*): new custom variable
