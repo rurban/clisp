@@ -1,3 +1,21 @@
+Important notes
+---------------
+
+* The CLISP extensions have been moved from the CLtL1 package LISP to
+  separate packages.
+  If you reply on any of the CLISP extensions, you will need to make
+  your packages use package EXT, which re-exports all exported symbols
+  from all extension packages.
+
+User visible changes
+--------------------
+
+* "LISP" is now a nickname of the ANSI-CL package COMMON-LISP.
+  "USER" is now a nickname of the ANSI-CL package COMMON-LISP-USER.
+  Support for CLtL1 has thus been removed.
+
+
+
 2.25.1 (2001-04-06)
 ===================
 
