@@ -7,6 +7,7 @@
 # File handles of standard input and standard output
   global Handle stdin_handle = INVALID_HANDLE_VALUE;
   global Handle stdout_handle = INVALID_HANDLE_VALUE;
+  global Handle stderr_handle = INVALID_HANDLE_VALUE;
 
 # Auxiliary event for full_read and full_write.
   local HANDLE aux_event;
@@ -29,6 +30,9 @@
   local HANDLE sigint_event;
   local HANDLE sigbreak_event;
 
+# Winsock library initialization flag
+  local bool winsock_initialized = 0;
+
 # Initialization.
   global void init_win32 (void);
   global void init_win32()
@@ -36,6 +40,7 @@
       # Standard input/output handles.
       stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
       stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+      stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
       # What to do if one of these is == INVALID_HANDLE_VALUE ??
       # Auxiliary events.
       aux_event = CreateEvent(NULL, true, false, NULL);
@@ -63,15 +68,17 @@
       {
         var WSADATA data;
         if (WSAStartup(MAKEWORD(1,1),&data)) {
-          SOCK_error();
-        }
+          winsock_initialized = 0;
+          earlylate_asciz_error("\n*** - Failed to initialize winsock library\n",0);
+        } else winsock_initialized = 1;
       }
     }
 
 global void done_win32 (void) {
-  if (WSACleanup()) {
-    SOCK_error();
+  if (winsock_initialized && WSACleanup()) {
+    earlylate_asciz_error("\n*** - Failed to shutdown winsock library\n",0);
   }
+  winsock_initialized = 0;
 }
 
 # Ctrl-C-interruptibility.
@@ -535,6 +542,17 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       }
       return done;
     }
+
+   global void earlylate_asciz_error (const char * description, bool fatal_p);
+   global void earlylate_asciz_error (description,fatal_p)
+     const char * description;
+     bool fatal_p;
+     {
+       full_write(stderr_handle,description,strlen(description));
+       if (fatal_p) _exit(1); # no finalization
+                              # no closing files
+                              # that should be solved
+     }
 
 # Reading from a socket.
   # This is the non-interruptible routine.
