@@ -1,5 +1,14 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Assume memset() is available.
+        * aclocal.m4 (CL_MEMSET): Don't test for memset.
+          (CL_SIGACTION_REINSTALL, CL_SIGACTION_UNBLOCK): Assume memset exists.
+        * spvw.d: Likewise.
+        * unix.d: Likewise.
+        * unixaux.d (install_signal_handler): Likewise.
+        * unixconf.h.in: Don't define HAVE_MEMSET.
+        * win32.d: Likewise.
+
         * configure.in: Remove AC_C_CONST call.
         * unixconf.h.in (const): Don't define.
 

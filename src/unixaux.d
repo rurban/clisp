@@ -380,11 +380,7 @@
       #if defined(USE_SIGACTION)
         var struct sigaction old_sa;
         var struct sigaction new_sa;
-        #ifdef HAVE_MEMSET
         memset(&new_sa,0,sizeof(new_sa));
-        #else
-        bzero(&new_sa,sizeof(new_sa));
-        #endif
         new_sa.sa_handler = handler;
         # Do not block other signals, except possibly SIGINT and SIGALRM
         # (because our SIGINT/SIGALRM handlers expects the STACK_register

@@ -547,15 +547,11 @@
       #define FD_CLR(n,p)  ((p)->fds_bits[(n)/NFDBITS] &= ~bit((n)%NFDBITS))
       #define FD_ISSET(n,p)  ((p)->fds_bits[(n)/NFDBITS] & bit((n)%NFDBITS))
       #define FD_ZERO(p)  bzero((char*)(p),sizeof(*(p)))
-      #ifdef HAVE_MEMSET
-        #include <string.h>
-        #ifndef memset
-          extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
-        #endif
-        #define bzero(ptr,len)  memset(ptr,0,len)
-      #else
-        extern_C void bzero (void* ptr, int len); # siehe BZERO(3)
+      #include <string.h>
+      #ifndef memset
+        extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
       #endif
+      #define bzero(ptr,len)  memset(ptr,0,len)
     #endif
     extern_C int select (SELECT_WIDTH_T width, SELECT_SET_T* readfds,
                        SELECT_SET_T* writefds, SELECT_SET_T* exceptfds,

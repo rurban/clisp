@@ -28,16 +28,11 @@
 
 #include <string.h> # declares strchr() and possibly memset()
 #ifdef MULTITHREAD
-  #ifdef HAVE_MEMSET
-    #ifndef memset
-      extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
-    #endif
-    #define bzero(ptr,len)  memset(ptr,0,len)
-    #define bcopy(source,dest,len)  memcpy(dest,source,len)
-  #else
-    extern_C void bzero (void* ptr, int len); # siehe BZERO(3)
-    extern_C void bcopy (void* source, void* dest, int len);
+  #ifndef memset
+    extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
   #endif
+  #define bzero(ptr,len)  memset(ptr,0,len)
+  #define bcopy(source,dest,len)  memcpy(dest,source,len)
 #endif
 
 # In diesem File haben die Tabellenmacros eine andere Verwendung:
