@@ -116,7 +116,7 @@ int main (int argc, char* argv[]) {
          if (!(c=='\n')) { fputc('\\',outfile); goto L2a; }
          fput_endcomment(outfile); fputc('\\',outfile); fputc(c,outfile);
          goto L1;
-    L4a: /* possibly start of '/*' comment */
+    L4a: /* possibly start of '／＊' comment */
          /* EOF impossible */
          fputc(c,outfile);
          if (!(c=='/')) {  goto L1; } 
@@ -124,13 +124,13 @@ int main (int argc, char* argv[]) {
          if (c==EOF){ goto L3; }
          fputc(c,outfile);
          if (!(c=='*')) goto L1;
-    L5:  /* Inside '/*' comment */
+    L5:  /* Inside '／＊' comment */
          c = fgetc(infile) ;
     L5a: if (c==EOF){ goto L3; } /* do not fix programmer errors */
          fputc(c,outfile);
          if (c=='*') goto L6;
          goto L5;
-    L6:  /* after asterisk in '/*' comment */
+    L6:  /* after asterisk in '／＊' comment */
          c = fgetc(infile) ;
     L6a: if (c==EOF){ goto L3; }
          fputc(c,outfile);
