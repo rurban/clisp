@@ -1,3 +1,11 @@
+2003-03-10  Joerg Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	FFI heap allocation interface
+	* foreign.d (FOREIGN-ALLOCATE, FOREIGN-FREE): heap memory (de)alloc
+	* subr.d, subrkw.d, constsym.d (foreign_allocate, foreign_free): added
+	* foreign1.lisp (allocate-deep, allocate-shallow): new macros
+
 2003-03-08  Sam Steingold  <sds@gnu.org>
 
 	* list.d (cons_from_stack): new function
