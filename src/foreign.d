@@ -3900,8 +3900,9 @@ LISPFUNN(foreign_library_variable,4)
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
   }
+  STACK_0 = fvar; /* save */
   push_foreign_object(fvar,STACK_(2+1));
-  VALUES1(fvar); skipSTACK(4+1);
+  VALUES1(STACK_0/*fvar*/); skipSTACK(4+1);
 }
 
 /* (FFI::FOREIGN-LIBRARY-FUNCTION name library offset c-function-type)
@@ -3931,8 +3932,9 @@ LISPFUNN(foreign_library_function,4)
   TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
   TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
   TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
+  STACK_0 = ffun; /* save */
   push_foreign_object(ffun,STACK_(2+1));
-  VALUES1(ffun); skipSTACK(4+1);
+  VALUES1(STACK_0/*ffun*/); skipSTACK(4+1);
 }
 
 #else /* not AMIGA WIN32_NATIVE HAVE_DLOPEN */
