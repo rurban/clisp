@@ -7,6 +7,7 @@
 (export '(nth-value function-lambda-expression defpackage define-symbol-macro
           print-unreadable-object declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
+          read-sequence write-sequence
 )        )
 (in-package "SYSTEM")
 
@@ -507,6 +508,83 @@
     (%defio #'dispatch-reader vector-index)
   )
 )
+
+;-------------------------------------------------------------------------------
+
+; READ-SEQUENCE and WRITE-SEQUENCE are badly specified because they assume
+; that the stream has a unique element type, either subtype of CHARACTER or
+; subtype of INTEGER. But some streams (esp. generic-streams) have a type
+; of (OR CHARACTER INTEGER).
+
+; This is a little hack to get the non-ambigouous cases right.
+
+(defun stream-input-element-type (stream)
+  (loop
+    (typecase stream
+      (SYNONYM-STREAM
+        (setq stream (symbol-value (synonym-stream-symbol stream)))
+      )
+      (ECHO-STREAM
+        (setq stream (echo-stream-input-stream stream))
+      )
+      (TWO-WAY-STREAM
+        (setq stream (two-way-stream-input-stream stream))
+      )
+      (T (return))
+  ) )
+  (stream-element-type stream)
+)
+
+(defun stream-output-element-type (stream)
+  (loop
+    (typecase stream
+      (SYNONYM-STREAM
+        (setq stream (symbol-value (synonym-stream-symbol stream)))
+      )
+      (ECHO-STREAM
+        (setq stream (echo-stream-output-stream stream))
+      )
+      (TWO-WAY-STREAM
+        (setq stream (two-way-stream-output-stream stream))
+      )
+      (T (return))
+  ) )
+  (stream-element-type stream)
+)
+
+(defun read-sequence (sequence stream &rest rest &key (start 0) (end nil))
+  (declare (ignore start end))
+  (let ((eltype (stream-input-element-type stream)))
+    (cond ((or (eq eltype 'NIL) (eq eltype 'STRING-CHAR) (eq eltype 'CHARACTER))
+           (apply #'read-char-sequence sequence stream rest)
+          )
+          ((subtypep eltype 'INTEGER)
+           (apply #'read-byte-sequence sequence stream rest)
+          )
+          (t
+           (error (DEUTSCH "~S: ~S von ~S ist nicht eindeutig. Benutzen Sie ~S oder ~S."
+                   ENGLISH "~S: ~S of ~S is ambiguous. Please use ~S or ~S."
+                   FRANCAIS "~S : ~S de ~S est ambigu. Utilisez ~S ou ~S.")
+                  'read-sequence 'stream-element-type stream
+                  'read-char-sequence 'read-byte-sequence
+) ) )     ))
+
+(defun write-sequence (sequence stream &rest rest &key (start 0) (end nil))
+  (declare (ignore start end))
+  (let ((eltype (stream-output-element-type stream)))
+    (cond ((or (eq eltype 'NIL) (eq eltype 'STRING-CHAR) (eq eltype 'CHARACTER))
+           (apply #'write-char-sequence sequence stream rest)
+          )
+          ((subtypep eltype 'INTEGER)
+           (apply #'write-byte-sequence sequence stream rest)
+          )
+          (t
+           (error (DEUTSCH "~S: ~S von ~S ist nicht eindeutig. Benutzen Sie ~S oder ~S."
+                   ENGLISH "~S: ~S of ~S is ambiguous. Please use ~S or ~S."
+                   FRANCAIS "~S : ~S de ~S est ambigu. Utilisez ~S ou ~S.")
+                  'write-sequence 'stream-element-type stream
+                  'write-char-sequence 'write-byte-sequence
+) ) )     ))
 
 ;-------------------------------------------------------------------------------
 

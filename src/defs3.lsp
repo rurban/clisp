@@ -141,8 +141,9 @@ read read-preserving-whitespace read-delimited-list read-line read-char
 unread-char peek-char listen read-char-no-hang clear-input read-from-string
 parse-integer read-byte write prin1 print pprint princ write-to-string
 prin1-to-string princ-to-string write-char write-string write-line terpri
-fresh-line finish-output force-output clear-output write-byte format y-or-n-p
-yes-or-no-p wild-pathname-p pathname-match-p translate-pathname
+fresh-line finish-output force-output clear-output write-byte read-sequence
+write-sequence format y-or-n-p yes-or-no-p
+wild-pathname-p pathname-match-p translate-pathname
 #+LOGICAL-PATHNAMES logical-pathname
 #+LOGICAL-PATHNAMES translate-logical-pathname
 #+LOGICAL-PATHNAMES logical-pathname-translations
