@@ -98,6 +98,8 @@ Portability
 Other modifications
 -------------------
 
+* Speed up the function DIRECTORY on Unix in some cases.
+
 
 1999-01-08
 ==========
