@@ -1,5 +1,15 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * charstrg.d (char_name): Return #\Uxxxx as a name for every Unicode
+          character.
+          (name_char): Accept #\Uxxxx as a name for any Unicode character.
+        * io.d (char_reader): Remove #\Uxxxx recognition code, now done by
+          `name_char'.
+          (pr_character): For graphic standard characters, don't look up the
+          name.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Improve error checking in parse-namestring.
         * pathname.d (legal_namechar): Don't accept Unicode characters which
           are not 1 byte in the pathname_encoding.

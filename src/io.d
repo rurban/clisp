@@ -3083,33 +3083,6 @@ LISPFUNN(char_reader,3) # liest #\
            value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3); return;
          }}
        not_codexxxx:
-       #ifdef UNICODE
-       # Test auf Characternamen "Uxxxx" (xxxx Hexadezimalzahl)
-       if (sub_len == 5)
-         { var chart ch = TheSstring(token)->data[pos];
-           if (chareq(ch,ascii('U')) || chareq(ch,ascii('u')))
-             # Hexadezimalzahl entziffern:
-             { var uintL code = 0;
-               var uintL index = pos+1;
-               var const chart* charptr = &TheSstring(token)->data[index];
-               loop
-                 { var cint c = as_cint(*charptr++); # nächstes Character
-                   # soll Hexadezimalziffer sein:
-                   if (c > 'f') break;
-                   if (c >= 'a') { c -= 'a'-'A'; }
-                   if (c < '0') break;
-                   if (c <= '9') { c = c - '0'; }
-                   else if ((c >= 'A') && (c <= 'F')) { c = c - 'A' + 10; }
-                   else break;
-                   code = 16*code + c; # Ziffer dazunehmen
-                   # code soll < char_code_limit bleiben:
-                   if (code >= char_code_limit) break; # sollte nicht passieren
-                   index++;
-                   if (index == len)
-                     # Charactername war vom Typ "Uxxxx" mit code = xxxx < char_code_limit
-                     { value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3); return; }
-         }   }   }
-       #endif
        # Test auf Pseudo-Character-Namen ^X:
        if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^')))
          { var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
@@ -7123,14 +7096,18 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         { write_ascii_char(stream_,'#');
           write_ascii_char(stream_,'\\');
          {var chart code = char_code(ch); # Code
-          var object charname = char_name(code); # Name des Characters
-          if (nullp(charname))
-            # kein Name vorhanden
+          if (as_cint(code) > 0x20 && as_cint(code) < 0x7F)
+            # graphic standard character -> don't even lookup the name
             { write_code_char(stream_,code); }
             else
-            # Namen (Simple-String) ausgeben
-            { write_sstring_case(stream_,charname); }
-        }}
+            { var object charname = char_name(code); # Name des Characters
+              if (nullp(charname))
+                # kein Name vorhanden
+                { write_code_char(stream_,code); }
+                else
+                # Namen (Simple-String) ausgeben
+                { write_sstring_case(stream_,charname); }
+        }}  }
         else
         # Character ohne Escape-Zeichen ausgeben
         { write_char(stream_,ch); } # ch selbst ausgeben
