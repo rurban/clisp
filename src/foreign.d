@@ -58,7 +58,8 @@ local maygc object foreign_address (object obj, bool allocate_p)
   fehler_foreign_object(obj);
 }
 
-/* return the foreign pointer of the foreign object */
+/* return the foreign pointer of the foreign object
+ or nullobj if the argument is not a foreign object */
 local object foreign_pointer (object obj)
 {
   if (orecordp(obj)) {
@@ -77,7 +78,8 @@ local object foreign_pointer (object obj)
   return nullobj; /* non-foreign object */
 }
 
-/* FIXME: COMMENT! */
+/* return the foreign pointer of the foreign object
+ and signal an error if the argument is not a foreign object */
 local object foreign_pointer_strict (object obj)
 {
   var object fp = foreign_pointer(obj);
@@ -3926,7 +3928,7 @@ local inline void * libopen (char* libname, uintL version)
 }
 
 /* FIXME: COMMENT! */
-/* Open a library.
+/* Open a library with the given name and version
  can trigger GC */
 local maygc void * open_library (gcv_object_t* name, uintL version)
 {
@@ -4046,8 +4048,8 @@ local inline void* find_name (void *handle, char *name)
 /* FIXME: BETTER COMMENT! */
 /* return the handle of the object (string) in the library (name fpointer ...)
  can trigger GC */
-local maygc void* object_handle (object library, gcv_object_t *name, bool retry_p)
-{
+local maygc void* object_handle (object library, gcv_object_t *name,
+                                 bool retry_p) {
   void * address;
  object_handle_restart:
   with_string_0(*name,O(foreign_encoding),namez, {
