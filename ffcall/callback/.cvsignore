@@ -1,5 +1,6 @@
 callback.h
 callback.lib
-tests.out*
+tests.out
+tests.output.*
 trampoline_r.h
 vacall_r.h

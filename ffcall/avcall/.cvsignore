@@ -1,3 +1,4 @@
 avcall.h
 avcall.lib
-tests.out*
+tests.out
+tests.output.*
