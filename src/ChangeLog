@@ -1,3 +1,12 @@
+2003-04-05  Sam Steingold  <sds@gnu.org>
+
+	Implemented ANSI CL ENSURE-GENERIC-FUNCTION
+	* clos.lisp (ensure-generic-function): new generic function
+	(*gf-warn-on-removing-all-methods*): removed
+	(do-defgeneric): do not remove the existing methods;
+	check signature congruence instead
+	* init.lisp (ensure-generic-function): export
+
 2003-04-04  Sam Steingold  <sds@gnu.org>
 
 	* pprint.lisp (pprint-logical-block): avoid a package-lock cerror

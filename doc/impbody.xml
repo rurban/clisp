@@ -45,13 +45,12 @@
 <section id="cl-symb"><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
-<para>The 7 symbols missing from the &cl-pac; package
+<para>The 6 symbols missing from the &cl-pac; package
  (out of 978 specified by the &ansi-cl;):</para>
 
 <simplelist type="horiz" columns="3">
  <member>&call-method;</member>
  <member>&define-method-combination;</member>
- <member>&ensure-generic-function;</member>
  <member>&invalid-method-error;</member>
  <member>&make-method;</member>
  <member>&method-combination-error;</member>
