@@ -143,7 +143,7 @@ is what the GNU standards recommend:
                 && string_equal(line,Car(Car(alist)))
                ) {
 
-Use `emacs/clisp-indent.el' to make Emacs indent your *.d files.
+Use `emacs/d-mode.el' to make Emacs indent and fontify your *.d files.
 
                                Comments
                                --------
