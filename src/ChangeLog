@@ -1,3 +1,10 @@
+2005-03-06  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1157691 ]: (optimize (debug 3)) fails
+	* compiler.lisp (parse-optimize-quality): extracted code from
+	PROCESS-DECLARATIONS; use CL:DEBUG instead of DEBUG
+	(process-declarations): use parse-optimize-quality
+
 2005-03-03  Sam Steingold  <sds@gnu.org>
 
 	* built.d (built_flags): added libiconv version

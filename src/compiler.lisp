@@ -1381,7 +1381,7 @@ for-value   NIL or T
 ;;        >= 2 =>
 ;;        >= 1 =>
 ;; DEBUG >= 3 =>
-;;       >= 2 => every function has an exit restart
+;;       >= 2 => every function has an exit restart [not implemented yet]
 ;;       >= 1 =>
 ;; SPACE >= 3 =>
 ;;       >= 2 =>
@@ -1404,6 +1404,27 @@ for-value   NIL or T
           (when spec
             (return-from declared-optimize (second spec))))))
     (setq denv (cdr denv))))
+
+;; return 2 values: the quality and the value
+;; or issue a warning and return NIL
+(defun parse-optimize-quality (spec)
+  (macrolet ((broken (&rest args)
+               `(progn
+                  (funcall (if (boundp '*warning-count*) #'c-warn 'warn) ,@args)
+                  (values))))
+    (if (or (symbolp spec)
+            (and (consp spec) (symbolp (car spec))
+                 (consp (cdr spec)) (realp (cadr spec))
+                 (null (cddr spec))))
+      (let ((quality (if (consp spec) (car spec) spec)))
+        (if (memq quality '(COMPILATION-SPEED CL:DEBUG SAFETY SPACE SPEED))
+          (if (or (atom spec) (typep (cadr spec) '(INTEGER 0 3)))
+            ;; Canonicalize, for easier search by quality.
+              (list (if (atom spec) `(,spec 3) spec))
+              (broken (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
+                      quality (cadr spec)))
+          (broken (TEXT "~S is not a valid ~S quality.") 'optimize quality)))
+      (broken (TEXT "Not a valid ~S specifier: ~S") 'optimize spec))))
 
 ;; (process-declarations declspeclist) analyzes the declarations (as they come
 ;; from PARSE-BODY) and returns:
@@ -1494,27 +1515,8 @@ for-value   NIL or T
                   (setq declspec
                         (cons declspectype
                               (mapcan #'(lambda (x)
-                                          (if (or (symbolp x)
-                                                  (and (consp x) (symbolp (car x))
-                                                       (consp (cdr x)) (realp (cadr x))
-                                                       (null (cddr x))))
-                                            (let ((quality (if (consp x) (car x) x)))
-                                              (if (memq quality '(COMPILATION-SPEED DEBUG SAFETY SPACE SPEED))
-                                                (if (or (atom x) (typep (cadr x) '(INTEGER 0 3)))
-                                                  ; Canonicalize, for easier search by quality.
-                                                  (list (if (atom x) `(,x 3) x))
-                                                  (progn
-                                                    (c-warn (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
-                                                            quality (cadr x))
-                                                    '()))
-                                                (progn
-                                                  (c-warn (TEXT "~S is not a valid OPTIMIZE quality.")
-                                                          quality)
-                                                  '())))
-                                            (progn
-                                              (c-warn (TEXT "Not a valid OPTIMIZE specifier: ~S")
-                                                      x)
-                                              '())))
+                                          (multiple-value-list
+                                           (parse-optimize-quality x)))
                                       (cdr declspec)))))
                  (DYNAMIC-EXTENT
                   (setq declspec
@@ -3296,18 +3298,6 @@ for-value   NIL or T
         (apply #'c-warn (string-concat
                          (TEXT "Function ~S is deprecated.") " ~@?")
                         deprecation-info)))))
-
-;; return 2 values: the quality and the value
-;; or issue a warning and return NIL
-(defun parse-optimize-quality (spec)
-  (typecase spec
-    ((cons #1=(member COMPILATION-SPEED DEBUG SAFETY SPACE SPEED)
-           (cons (integer 0 3) null))
-     (values (first spec) (second spec)))
-    (#1# (values spec 3))
-    ;; WARN is defined in CONDITION so we cannot use #'WARN here
-    (t (funcall (if (boundp '*warning-count*) #'c-warn 'warn)
-                (TEXT "Invalid ~S declaration ~S") 'optimize spec))))
 
 ;; note global OPTIMIZE proclamations
 ;; sed by c-PROCLAIM and PROCLAIM in control.d
