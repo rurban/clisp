@@ -1,5 +1,11 @@
 2005-02-13  Bruno Haible  <bruno@clisp.org>
 
+	* i18n/gettext.c (I18N:GETTEXT): Let the category argument default
+	to LC_MESSAGES.
+	(I18N:NGETTEXT): Likewise. Small optimizations.
+
+2005-02-13  Bruno Haible  <bruno@clisp.org>
+
 	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Assume that only AIX on RS6000
 	have non-executable malloc'ed memory, not other operating systems.
 	For MacOS X.
