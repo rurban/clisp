@@ -396,6 +396,7 @@ if test -n "$do_config"; then
         subdir_srcdir_args="--srcdir=$RREL_SRCDIR/src/$subdir"
       fi
       ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
+         `if test $subdir = gettext; then echo "--with-included-gettext"; fi` \
          $subdir_configure_args
     cd ..
     fi
