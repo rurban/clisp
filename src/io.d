@@ -5925,7 +5925,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     {
       var object stream = *stream_;
-      if (!(TheStream(stream)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(stream)
+            && (TheStream(stream)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream
         write_ascii_char(stream_,'(');
       } else {
@@ -5952,7 +5954,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     {
       var object stream = *stream_;
-      if (!(TheStream(stream)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(stream)
+            && (TheStream(stream)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream
         write_ascii_char(stream_,')');
       } else {
@@ -6059,8 +6063,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void justify_start (const object* stream_);
   local void justify_start(stream_)
     var const object* stream_;
-    { var object stream = *stream_;
-      if (!(TheStream(stream)->strmtype == strmtype_pphelp)) {
+    {
+      var object stream = *stream_;
+      if (!(builtin_stream_p(stream)
+            && (TheStream(stream)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
@@ -6114,7 +6121,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void justify_space(stream_)
     var const object* stream_;
     {
-      if (!(TheStream(*stream_)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(*stream_)
+            && (TheStream(*stream_)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream -> nur ein Space
         write_ascii_char(stream_,' ');
       } else {
@@ -6136,7 +6145,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void justify_end_eng(stream_)
     var const object* stream_;
     {
-      if (!(TheStream(*stream_)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(*stream_)
+            && (TheStream(*stream_)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
@@ -6232,7 +6243,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void justify_end_weit(stream_)
     var const object* stream_;
     {
-      if (!(TheStream(*stream_)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(*stream_)
+            && (TheStream(*stream_)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
@@ -6351,7 +6364,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var uintL delta;
     {
-      if (!(TheStream(*stream_)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(*stream_)
+            && (TheStream(*stream_)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
@@ -6377,7 +6392,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void indent_end(stream_)
     var const object* stream_;
     {
-      if (!(TheStream(*stream_)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(*stream_)
+            && (TheStream(*stream_)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
@@ -6408,7 +6425,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     {
       var object stream = *stream_;
-      if (!(TheStream(stream)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(stream)
+            && (TheStream(stream)->strmtype == strmtype_pphelp)
+         ) ) {
         # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
@@ -6428,7 +6447,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     {
       var object stream = *stream_;
-      if (!(TheStream(stream)->strmtype == strmtype_pphelp)) {
+      if (!(builtin_stream_p(stream)
+            && (TheStream(stream)->strmtype == strmtype_pphelp)
+         ) ) {
         return 0; # normaler Stream -> nichts zu tun
       } else {
         # Pretty-Print-Hilfs-Stream
@@ -6670,7 +6691,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # *PRINT-PRETTY* /= NIL.
         # Falls *stream_ kein PPHELP-Stream ist,
         # muss er durch einen PPHELP-Stream ersetzt werden:
-        if (!(TheStream(*stream_)->strmtype == strmtype_pphelp)) {
+        if (!(builtin_stream_p(*stream_)
+              && (TheStream(*stream_)->strmtype == strmtype_pphelp)
+           ) ) {
           # noch ein normaler Stream
           dynamic_bind(S(prin_l1),Fixnum_0); # SYS::*PRIN-L1* an 0 binden
           dynamic_bind(S(prin_lm),Fixnum_0); # SYS::*PRIN-LM* an 0 binden
@@ -6726,7 +6749,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # *PRINT-PRETTY* = NIL.
         # Falls *stream_ ein PPHELP-Stream ist, muss er durch einen
         # einelementigen Broadcast-Stream ersetzt werden:
-        if (!(TheStream(*stream_)->strmtype == strmtype_pphelp)) {
+        if (!(builtin_stream_p(*stream_)
+              && (TheStream(*stream_)->strmtype == strmtype_pphelp)
+           ) ) {
           # normaler Stream
           (*pr_xxx)(stream_,obj);
         } else {
