@@ -1,3 +1,11 @@
+2003-06-13  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (open_file): when :DIRECTION is :PROBE, open the file
+	for input and then immediately close the handle, as suggested by
+	the ANSI CL spec; this allows FILE-LENGTH and FILE-WRITE-DATE to
+	work on :PROBE streams
+	Reported by Pascal Bourguignon <pjb@informatimago.com>
+
 2003-06-12  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: on win32gcc, translate /cygdrive/ prefixes to the
