@@ -175,12 +175,34 @@ static void *mempcpy PARAMS ((void *dest, const void *src, size_t n));
 # define PATH_MAX _POSIX_PATH_MAX
 #endif
 
+/* Pathname support.
+   ISSLASH(C)           tests whether C is a directory separator character.
+   IS_ABSOLUTE_PATH(P)  tests whether P is an absolute path.  If it is not,
+                        it may be concatenated to a directory pathname.
+   IS_PATH_WITH_DIR(P)  tests whether P contains a directory specification.
+ */
+#if defined _WIN32 || defined __WIN32__ || defined __EMX__ || defined __DJGPP__
+  /* Win32, OS/2, DOS */
+# define ISSLASH(C) ((C) == '/' || (C) == '\\')
+# define HAS_DEVICE(P) \
+    ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) \
+     && (P)[1] == ':')
+# define IS_ABSOLUTE_PATH(P) (ISSLASH ((P)[0]) || HAS_DEVICE (P))
+# define IS_PATH_WITH_DIR(P) \
+    (strchr (P, '/') != NULL || strchr (P, '\\') != NULL || HAS_DEVICE (P))
+#else
+  /* Unix */
+# define ISSLASH(C) ((C) == '/')
+# define IS_ABSOLUTE_PATH(P) ISSLASH ((P)[0])
+# define IS_PATH_WITH_DIR(P) (strchr (P, '/') != NULL)
+#endif
+
 /* XPG3 defines the result of `setlocale (category, NULL)' as:
    ``Directs `setlocale()' to query `category' and return the current
      setting of `local'.''
-   However it does not specify the exact format.  And even worse: POSIX
-   defines this not at all.  So we can use this feature only on selected
-   system (e.g. those using GNU C Library).  */
+   However it does not specify the exact format.  Neither do SUSV2 and
+   ISO C 99.  So we can use this feature only on selected systems (e.g.
+   those using GNU C Library).  */
 #ifdef _LIBC
 # define HAVE_LOCALE_NULL
 #endif
@@ -322,7 +344,7 @@ typedef struct transmem_list
 } transmem_block_t;
 static struct transmem_list *transmem_list;
 #else
-typedef char transmem_block_t;
+typedef unsigned char transmem_block_t;
 #endif
 
 
@@ -449,7 +471,7 @@ DCIGETTEXT (domainname, msgid1, msgid2, plural, n, category)
 
   if (binding == NULL)
     dirname = (char *) _nl_default_dirname;
-  else if (binding->dirname[0] == '/')
+  else if (IS_ABSOLUTE_PATH (binding->dirname))
     dirname = binding->dirname;
   else
     {
@@ -461,16 +483,18 @@ DCIGETTEXT (domainname, msgid1, msgid2, plural, n, category)
       path_max = (unsigned int) PATH_MAX;
       path_max += 2;		/* The getcwd docs say to do this.  */
 
-      dirname = (char *) alloca (path_max + dirname_len);
-      ADD_BLOCK (block_list, dirname);
-
-      __set_errno (0);
-      while ((ret = getcwd (dirname, path_max)) == NULL && errno == ERANGE)
+      for (;;)
 	{
-	  path_max += PATH_INCR;
 	  dirname = (char *) alloca (path_max + dirname_len);
 	  ADD_BLOCK (block_list, dirname);
+
 	  __set_errno (0);
+	  ret = getcwd (dirname, path_max);
+	  if (ret != NULL || errno != ERANGE)
+	    break;
+
+	  path_max += path_max / 2;
+	  path_max += PATH_INCR;
 	}
 
       if (ret == NULL)
@@ -531,7 +555,7 @@ DCIGETTEXT (domainname, msgid1, msgid2, plural, n, category)
 
 	  /* When this is a SUID binary we must not allow accessing files
 	     outside the dedicated directories.  */
-	  if (ENABLE_SECURE && strchr (single_locale, '/') != NULL)
+	  if (ENABLE_SECURE && IS_PATH_WITH_DIR (single_locale))
 	    /* Ingore this entry.  */
 	    continue;
 	}
@@ -780,7 +804,7 @@ _nl_find_msg (domain_file, msgid, lengthp)
 
 	  __libc_lock_lock (lock);
 
-	  inbuf = result;
+	  inbuf = (const unsigned char *) result;
 	  outbuf = freemem + sizeof (size_t);
 
 	  malloc_count = 0;
@@ -890,7 +914,7 @@ _nl_find_msg (domain_file, msgid, lengthp)
 	  /* We have now in our buffer a converted string.  Put this
 	     into the table of conversions.  */
 	  *(size_t *) freemem = outbuf - freemem - sizeof (size_t);
-	  domain->conv_tab[act] = freemem;
+	  domain->conv_tab[act] = (char *) freemem;
 	  /* Shrink freemem, but keep it aligned.  */
 	  freemem_size -= outbuf - freemem;
 	  freemem = outbuf;
@@ -985,6 +1009,18 @@ plural_eval (pexp, n)
     case minus:
       return (plural_eval (pexp->val.args2.left, n)
 	      - plural_eval (pexp->val.args2.right, n));
+    case less_than:
+      return (plural_eval (pexp->val.args2.left, n)
+	      < plural_eval (pexp->val.args2.right, n));
+    case greater_than:
+      return (plural_eval (pexp->val.args2.left, n)
+	      > plural_eval (pexp->val.args2.right, n));
+    case less_or_equal:
+      return (plural_eval (pexp->val.args2.left, n)
+	      <= plural_eval (pexp->val.args2.right, n));
+    case greater_or_equal:
+      return (plural_eval (pexp->val.args2.left, n)
+	      >= plural_eval (pexp->val.args2.right, n));
     case equal:
       return (plural_eval (pexp->val.args2.left, n)
 	      == plural_eval (pexp->val.args2.right, n));
