@@ -1737,12 +1737,14 @@
                            (mapcar #'pathname *load-paths*))))
       (let ((search-filename (merge-pathnames (merge-pathnames filename dir))))
         (unless (member search-filename already-searched :test #'equal)
-          (let ((xpathnames (directory search-filename :full t :circle t)))
+          (let ((xpathnames (directory search-filename :full t :circle t
+                                       :if-does-not-exist :ignore)))
             (when (eq :wild (pathname-type search-filename))
               (setq xpathnames
                     (nconc xpathnames
-                           (directory (make-pathname :type nil
-                                                     :defaults search-filename)
+                           (directory (make-pathname
+                                       :type nil :defaults search-filename)
+                                      :if-does-not-exist :ignore
                                       :full t :circle t))))
             (when (and use-extensions extensions)
               ;; filter the extensions
