@@ -1,5 +1,9 @@
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
+	* eval.d (symbol_env_search): Fix definition of binds_sym_p.
+
+2004-01-20  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (listen_handle): Use 'var'.
 
 2004-01-20  Bruno Haible  <bruno@clisp.org>
