@@ -1,5 +1,5 @@
 # Liste aller dem C-Programm bekannten Symbole ("Programmkonstanten")
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 # Der Macro LISPSYM deklariert ein LISP-Symbol.
 # LISPSYM(name,printname,package)
@@ -1152,6 +1152,7 @@ LISPSYM(Kdos,"DOS",keyword)
 LISPSYM(Kinput_error_action,"INPUT-ERROR-ACTION",keyword)
 LISPSYM(Koutput_error_action,"OUTPUT-ERROR-ACTION",keyword)
 LISPSYM(Kansi_cl,"ANSI-CL",keyword)
+LISPSYM(Kextra_file_types,"EXTRA-FILE-TYPES",keyword)
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)
 LISPSYM(Kstring,"STRING",keyword)

@@ -1,5 +1,5 @@
 # Liste aller dem C-Programm bekannten Objekte ("Programmkonstanten")
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 # Die Symbole sind bereits speziell abgehandelt.
 # Es wird eine Tabelle aller sonstigen dem C-Programm bekannten Objekte
@@ -932,6 +932,10 @@
   LISPOBJ_S(showstack_string_BENV_frame,NLstring "  BLOCK_ENV <--> ")
   LISPOBJ_S(showstack_string_GENV_frame,NLstring "  GO_ENV <--> ")
   LISPOBJ_S(showstack_string_DENV_frame,NLstring "  DECL_ENV <--> ")
+# zu SPVW.D:
+ #ifdef WIN32_NATIVE
+  LISPOBJ(load_extra_file_types,"(\".BAT\")")
+ #endif
 # zu REXX.D:
  #ifdef REXX
   LISPOBJ(rexx_inmsg_list,"NIL")

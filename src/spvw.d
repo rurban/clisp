@@ -1,5 +1,5 @@
 # Speicherverwaltung für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 # Inhalt:
 # Modulverwaltung
@@ -2926,7 +2926,9 @@ local void print_banner ()
         #            #'SYS::UNIX-EXECUTABLE-READER)
         #   (SETQ *LOAD-VERBOSE* NIL)
         #   (DEFPARAMETER *ARGS* argv_execute_args)
-        #   (EXIT-ON-ERROR (APPEASE-CERRORS (LOAD argv_execute_file)))
+        #   (EXIT-ON-ERROR
+        #     (APPEASE-CERRORS
+        #       (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)))
         #   (EXIT)
         # )
         # durchführen:
@@ -2952,7 +2954,13 @@ local void print_banner ()
               { pushSTACK(S(standard_input)); } # *STANDARD-INPUT*
               else
               { pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding))); } # "..."
-            form = listof(2);
+            pushSTACK(S(Kextra_file_types));
+            #ifdef WIN32_NATIVE
+            pushSTACK(O(load_extra_file_types));
+            #else
+            pushSTACK(NIL);
+            #endif
+            form = listof(4);
             pushSTACK(S(batchmode_errors)); pushSTACK(form);
             form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
             eval_noenv(form); # ausführen
