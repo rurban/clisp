@@ -157,7 +157,7 @@
 #if defined(__vax__)
   #define VAX
 #endif
-#if defined(arm) || defined(__arm)
+#if defined(arm) || defined(__arm) || defined(__arm__)
   #define ARM
 #endif
 #ifdef WIN32
@@ -1424,7 +1424,7 @@
     #define intWLsize intLsize
     #define intBWLsize intLsize
   #else
-    #error "Preferred integer sizes depend on CPU -- Größen intBWsize, intWLsize, intBWLsize neu einstellen!"
+    #error "Preferred integer sizes depend on CPU -- readjust intBWsize, intWLsize, intBWLsize!"
   #endif
   typedef signed_int_with_n_bits(intBWsize)    sintBW;
   typedef unsigned_int_with_n_bits(intBWsize)  uintBW;
