@@ -184,7 +184,7 @@ local int exitcode;
     # Blocks grow like this:         |******-->     <--****|
     #define SPVW_MIXED_BLOCKS_OPPOSITE
   #else # defined(TRIVIALMAP_MEMORY)
-    #if !defined(WIDE_SOFT) && !defined(SELFMADE_MMAP)
+    #if (!defined(WIDE_SOFT) || defined(CONS_HEAP_GROWS_DOWN)) && !defined(CONS_HEAP_GROWS_UP) && !defined(SELFMADE_MMAP)
       # Blocks grow like this:       |******-->     <--****|
       #define SPVW_MIXED_BLOCKS_OPPOSITE
     #else
