@@ -1,5 +1,9 @@
 2001-02-01  Bruno Haible  <haible@clisp.cons.org>
 
+        * io.d (pr_sstring_ab): Make GC safe.
+
+2001-02-01  Bruno Haible  <haible@clisp.cons.org>
+
         * stream.d (read_line): When EOF was reached, always set
           strm_rd_ch_last to eof_value.
 
