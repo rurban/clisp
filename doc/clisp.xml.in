@@ -237,14 +237,14 @@ compiles the specified lisp files to a platform-independent
    <envar>LANG</envar>,
    provided the corresponding message catalog is installed.
 <!-- #endif -->
-   The language may be changed dynamically using the symbol macro
+   The language may be changed dynamically using the &symbol-macro;
    &curr-lang;.</para></listitem></varlistentry>
 
 <varlistentry id="opt-locale"><term><option>-N</option> &ld;</term>
 <listitem><simpara>Specifies the base directory of locale files.
   &clisp; will search its message catalogs in
   <filename>&ld;/&lang-r;/LC_MESSAGES/clisp.mo</filename>.
-  This directory may be changed dynamically using the symbol macro
+  This directory may be changed dynamically using the &symbol-macro;
   &curr-lang;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-enc">
@@ -330,7 +330,7 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-ansi"><term><option>-ansi</option></term>
  <listitem><simpara>Comply with the &ansi-cl; specification
    even where &clisp; has been traditionally different.
-   It sets the symbol macro &ansi; to &t;.
+   It sets the &symbol-macro; &ansi; to &t;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-traditional"><term><option>-traditional</option></term>
@@ -348,7 +348,7 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-pack"><term><option>-p</option> &pack-r;</term>
  <listitem><simpara>At startup the value of the variable &package-var;
    will be set to the package named &pack-r;.
-   The default is the package which was active when the image was
+   The default is the value of &package-var; when the image was
    <olink targetdoc="impnotes" targetptr="image">saved</olink>,
    normally &clu-pac;.</simpara></listitem></varlistentry>
 
