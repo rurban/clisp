@@ -10478,7 +10478,7 @@ The function make-closure is required.
             (if trace-flag
               (setf (get symbol 'sys::traced-definition) definition)
               (setf (symbol-function symbol) definition)))
-          (return-from compile name))
+          (return-from compile (values (or name definition) nil nil)))
         (when name
           (setq save-flag
                 (cons `(SETF (FDEFINITION ',name) ',definition)
@@ -10498,7 +10498,7 @@ The function make-closure is required.
           (setq definition (macro-expander definition)))
         (when (sys::%compiled-function-p definition)
           (warn (TEXT "~S is already compiled.") name)
-          (return-from compile name))))
+          (return-from compile (values (or name definition) nil nil)))))
     (unless (or (and (consp definition) (eq (car definition) 'lambda))
                 (sys::closurep definition))
       (error-of-type 'error
