@@ -1,3 +1,9 @@
+2004-08-26  Bruno Haible  <bruno@clisp.org>
+
+	Make instance_of_stablehash_p work during bootstrapping.
+	* clos-class0.lisp (*dummy-class*): New variable.
+	(make-class-version): Use it as default.
+
 2004-08-24  Bruno Haible  <bruno@clisp.org>
 
 	Update ISO-8859-7 converter to version 2003.
