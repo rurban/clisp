@@ -4,6 +4,9 @@
 #include "lispbibl.c"
 #include "arilev0.c" # for bit_op, also defines mulu24 and mulu32_unchecked
 
+# ============================================================================
+#                    Global auxiliary functions
+
 # Function: Copies a simple-vector.
 # copy_svector(vector)
 # > vector: simple-vector
@@ -176,6 +179,9 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     value1 = vectorof(argcount); mv_count=1;
   }
 
+# ============================================================================
+#               Index checking, retrieving the storage vector
+
 # An indirect array contains a pointer to another array: TheIarray(array)->data.
 # The "storage vector" of an array is the a 1-dimensional array, of the same
 # element type as the original array, without fill-pointer or adjustable bit.
@@ -305,6 +311,9 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
      fehler_bad_index:
       fehler_displaced_inconsistent();
     }
+
+# ============================================================================
+#                  Accessing and storing a single element
 
 # Error message.
 # > obj: non-array
@@ -784,6 +793,9 @@ LISPFUNN(row_major_store,3)
     skipSTACK(2);
   }
 
+# ============================================================================
+#                  Information about an array
+
 # Function: Returns the element-type of an array.
 # array_element_type(array)
 # > array: an array
@@ -1089,6 +1101,9 @@ LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
     }
     mv_count=2;
   }
+
+# ============================================================================
+#                      Bit arrays and bit vectors
 
 # Fehlermeldung
 # fehler_bit_array()
@@ -1783,6 +1798,9 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     return_Values bit_up(&bitpack_not);
   }
 
+# ============================================================================
+#                 Fill pointers, extendable vectors
+
 # Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
 # > array: ein Array
@@ -2070,6 +2088,9 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     skipSTACK(2);
   }
 
+# ============================================================================
+#                      Bit vectors
+
 # Function: Allocates a new simple-bit-vector, filled with zeroes.
 # allocate_bit_vector_0(len)
 # > uintL len: length of the desired bit-vector (number of bits)
@@ -2119,6 +2140,9 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     }
 
 #endif
+
+# ============================================================================
+#                    Semi-simple strings
 
 # The following functions work on "semi-simple string"s.
 # That are CHARACTER arrays with FILL-POINTER, (pro forma) not adjustable and
@@ -2256,6 +2280,9 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return ssstring;
     }
 
+# ============================================================================
+#                 Semi-simple byte vectors
+
 # The following functions work on "semi-simple byte-vector"s.
 # That are bit vectors with FILL-POINTER, (pro forma) not adjustable and
 # not displaced, whose storagevector is a simple-bit-vector. When their
@@ -2328,6 +2355,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return ssbvector;
     }
 
+# ============================================================================
+#                            MAKE-ARRAY
 
 # Stackaufbau bei MAKE-ARRAY :
 #   dims, adjustable, element-type, initial-element, initial-contents,
@@ -2954,6 +2983,9 @@ LISPFUN(make_array,1,0,norest,key,7,\
     value1 = array; mv_count=1; skipSTACK(8);
   }
 
+# ============================================================================
+#                            ADJUST-ARRAY
+
 # Hilfsfunktion für die Umfüllaufgabe bei ADJUST-ARRAY:
 # Füllt den Datenvektor eines Arrays teilweise mit dem Inhalt eines anderen
 # Datenvektors, und zwar so, dass die Elemente zu Indextupeln, die für beide
@@ -3258,6 +3290,8 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     }
   }
 
+# ============================================================================
+#                       Arrays as sequences
 
 # Funktionen, die Vektoren zu Sequences machen:
 
