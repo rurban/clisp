@@ -4589,12 +4589,11 @@ for-value   NIL or T
                  |#
                  (inline-callable-lambdabody-p (inline-lambdabody fun) n))))))
 
-;; Special-declared Symbols:
-
-(defvar *specials*)   ; list of all lastly special-deklared symbols
-(defvar *ignores*)    ; list of all lastly ignore-declared symbols
-(defvar *ignorables*) ; list of all lastly ignorable-declared symbols
-(defvar *readonlys*)  ; list of all lastly read-only declared symbols
+;; specially declared symbols:
+(defvar *specials*)   ; list of all symbols recently declared special
+(defvar *ignores*)    ; list of all symbols recently declared ignore
+(defvar *ignorables*) ; list of all symbols recently declared ignorable
+(defvar *readonlys*)  ; list of all symbols recently declared read-only
 
 ;; push all symbols for special variables into *venv* :
 (defun push-specials ()
