@@ -1,5 +1,13 @@
 2004-06-22  Sam Steingold  <sds@gnu.org>
 
+	* defpackage.lisp (defpackage): use (SETF PACKAGE-DOCUMENTATION)
+	* documentation.lisp (documentation): use PACKAGE-DOCUMENTATION
+	((setf documentation)): use (SETF PACKAGE-DOCUMENTATION)
+	* clos-package.lisp, screen.lisp: use the :DOCUMENTATION
+	option in DEFPACKAGE
+
+2004-06-22  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (fehler_string): removed again
 	* package.d ((SETF PACKAGE-DOCUMENTATION)): use check_string()
 
