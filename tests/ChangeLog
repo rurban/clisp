@@ -1,3 +1,7 @@
+1999-01-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * alltest.tst: Add a test for GET-DISPATCH-MACRO-CHARACTER.
+
 1999-01-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * number2.tst: Add two more XGCD tests.
