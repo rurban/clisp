@@ -169,3 +169,10 @@
  described in the &ansi-cl; section <ulink url='&clhs;/Body/sec_7-5-3.html'
  >7.5.3 <quote>Inheritance of Slots and Options</quote></ulink>.</simpara>">
 <!ENTITY dsds-r "<replaceable>direct-slot-definitions</replaceable>">
+<!ENTITY c-mo "<link linkend='mop-class-mo'>class metaobject</link>">
+<!ENTITY dsdmo "<link linkend='mop-dsd-mo'>direct</link> &sdmo;">
+<!ENTITY esdmo "<link linkend='mop-esd-mo'>effective</link> &sdmo;">
+<!ENTITY gfmo "<link linkend='mop-gen-fun-mo'>generic function metaobject</link>">
+<!ENTITY m-mo "<link linkend='mop-method-mo'>method metaobject</link>">
+<!ENTITY mcmo "<link linkend='mop-meth-comp-mo'>method combination metaobject</link>">
+<!ENTITY sdmo "<link linkend='mop-slot-def-mo'>slot definition metaobject</link>">
