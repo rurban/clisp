@@ -45,7 +45,8 @@ show-dbe
       (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
       (loop :for l = (read-line st nil nil) :while l
         :do (format t "--> ~S~%" l))))
-  (null (delete-file file)))
+  (delete-file file)
+  (probe-file file))
 finish-file
 (progn
   (defmethod close :before ((h bdb:bdb-handle) &key abort)
@@ -279,6 +280,6 @@ nil
 (show-dbe *dbe*) NIL
 (close *dbe*)    T
 
-(finish-file "bdb-errors") T    ; no errors, bdb-errors does not exist
+(finish-file "bdb-errors") NIL
 (rmrf "bdb-home/") T
 (rmrf "bdb-data/") T

@@ -4,6 +4,7 @@
 	(time_stamp): new function
 	(CLOSE_ERRFILE): call time_stamp() before fclose()
 	(my_fopen): call time_stamp() after fopen()
+	* modules/berkeley-db/test.tst (finish-file): always return NIL
 	* modules/berkeley-db/configure.in: check for gettimeofday(),
 	localtime() and strftime(); also check for <sys/time.h> and <time.h>
 
