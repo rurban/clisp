@@ -7,6 +7,8 @@
 2004-02-11  Sam Steingold  <sds@gnu.org>
 
 	* modules/pcre/cpcre.c: <pcre.h> may be actually <pcre/pcre.h>
+	* modules/berkeley-db/dbi.lisp (with-open-db):
+	do not pass environment to PARSE-BODY
 
 2004-02-11  Sam Steingold  <sds@gnu.org>
 
