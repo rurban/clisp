@@ -9930,6 +9930,7 @@ The function make-closure is required.
 (defvar *toplevel-for-value*)
 (defun compile-toplevel-form (form &optional (*toplevel-name* *toplevel-name*))
   (declare (special *toplevel-name*))
+  (unless form (return-from compile-toplevel-form))
   (catch 'c-error
     ;; CLtL2 p. 90: "Processing of top-level forms in the file compiler ..."
     ;; 1. step: macro expansion
