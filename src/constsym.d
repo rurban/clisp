@@ -1790,7 +1790,8 @@ LISPSYM(compile_file,"COMPILE-FILE",lisp) # als Funktion für SPVW
 LISPSYM(load_compiling,"*LOAD-COMPILING*",custom) # als Variable für SPVW
 LISPSYM(load_verbose,"*LOAD-VERBOSE*",lisp) # als Variable für SPVW
 LISPSYM(args,"*ARGS*",ext) # als Variable in SPVW
-LISPSYM(batchmode_errors,"BATCHMODE-ERRORS",system) # als Macro für SPVW
+LISPSYM(appease_cerrors,"APPEASE-CERRORS",ext) # a macro for SPVW
+LISPSYM(batchmode_errors,"BATCHMODE-ERRORS",system) # a macro for SPVW
 LISPSYM(wait_keypress,"WAIT-KEYPRESS",system) # als Funktion für SPVW
 # ---------- FFI ----------
 #ifdef DYNAMIC_FFI

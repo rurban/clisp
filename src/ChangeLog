@@ -1,3 +1,9 @@
+2002-04-22  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main): new option: `-interactive-debug', which
+	overrides batch-mode for -c, -x and exec-file
+	* constsym.d (APPEASE-CERRORS): define here for the above
+
 2002-04-22  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 

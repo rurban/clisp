@@ -68,6 +68,9 @@ clisp \- Common Lisp language interpreter and compiler
 .B \-\-silent
 ]
 [
+.B \-interactive-debug
+]
+[
 .B \-w
 ]
 [
@@ -310,6 +313,14 @@ You have to use the init file to set them on startup.
 Quiet:
 .B clisp
 displays no banner at startup and no good-bye message when quitting.
+
+.TP
+.B \-interactive-debug
+Override the batch mode imposed by
+.BR \-c ", " \-x ", and " lispfile
+and allow interactive handling of
+.I ASSERT
+and friends.
 
 .TP
 .B \-w

@@ -208,7 +208,7 @@ int main (int argc, char* argv[])
             OPTION_ARG;
             break;
           case 'i':
-            argv_for = for_init;
+            if (arg[2] == '\0') argv_for = for_init;
             break;
           case 'c':
             argv_for = for_compile;

@@ -1521,6 +1521,8 @@ nonreturning_function (local, usage, (int exit_code)) {
   asciz_out(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring));
   asciz_out(GETTEXTL(" -x expression - execute the expression, then exit" NLstring));
   asciz_out(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit" NLstring));
+  asciz_out(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by" NLstring));
+  asciz_out(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends" NLstring));
   asciz_out(GETTEXTL("Default action is an interactive read-eval-print loop." NLstring));
   quit_sofort (exit_code); # abnormal end of program
 }
@@ -1698,6 +1700,7 @@ global int main (argc_t argc, char* argv[]) {
   var local bool argv_compile = false;
   var local bool argv_compile_listing = false;
   var local bool argv_norc = false;
+  var local bool argv_interactive_debug = false;
   var local uintL argv_compile_filecount = 0;
   typedef struct { char* input_file; char* output_file; } argv_compile_file;
   var local argv_compile_file* argv_compile_files;
@@ -1737,6 +1740,7 @@ global int main (argc_t argc, char* argv[]) {
   #   -ansi           more ANSI CL Compliance
   #   -traditional    traditional (undoes -ansi)
   #   -x expr         execute LISP-expressions, then leave LISP
+  #   -interactive-debug  override batch-mode for -c, -x and file
   #   -w              wait for keypress after termination
   #   --help          print usage and exit (should be the only option)
   #   --version       print version and exit (should be the only option)
@@ -1894,8 +1898,10 @@ global int main (argc_t argc, char* argv[]) {
             if (arg[2] != '\0') usage (1);
             break;
           case 'i': # initialization files
-            argv_for = for_init;
-            if (arg[2] != '\0') usage (1);
+            if (arg[2] == '\0') argv_for = for_init;
+            else if (asciz_equal(&arg[1],"interactive-debug"))
+              argv_interactive_debug = true;
+            else usage (1);
             break;
           case 'c': # files to be compiled
             argv_compile = true;
@@ -2656,7 +2662,8 @@ global int main (argc_t argc, char* argv[]) {
     pushSTACK(asciz_to_string(argv_lisplibdir,O(pathname_encoding)));
     funcall(L(set_lib_directory),1);
   }
-  if (argv_compile || argv_expr != NULL || argv_execute_file != NULL) {
+  if ((argv_compile || argv_expr != NULL || argv_execute_file != NULL)
+      && !argv_interactive_debug) {
     # '-c' or '-x' or file specified -> LISP runs in batch-mode:
     # (setq *debug-io*
     #   (make-two-way-stream (make-string-input-stream "") *query-io*)
@@ -2777,7 +2784,8 @@ global int main (argc_t argc, char* argv[]) {
           });
         }
         var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
-        pushSTACK(S(batchmode_errors));
+        if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
+        else pushSTACK(S(batchmode_errors));
         pushSTACK(form);
         form = listof(2); # `(SYS::BATCHMODE-ERRORS (COMPILE-FILE ',...))
         eval_noenv(form); # execute
@@ -2830,7 +2838,9 @@ global int main (argc_t argc, char* argv[]) {
       pushSTACK(NIL);
      #endif
       form = listof(4);
-      pushSTACK(S(batchmode_errors)); pushSTACK(form);
+      if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
+      else pushSTACK(S(batchmode_errors));
+      pushSTACK(form);
       form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
       eval_noenv(form); # execute
       quit();
@@ -2852,7 +2862,9 @@ global int main (argc_t argc, char* argv[]) {
       # )
       var object form;
       pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
-      pushSTACK(S(batchmode_errors)); pushSTACK(form); form = listof(2);
+      if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
+      else pushSTACK(S(batchmode_errors));
+      pushSTACK(form); form = listof(2);
       eval_noenv(form);
       quit();
     }
