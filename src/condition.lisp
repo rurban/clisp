@@ -1601,10 +1601,11 @@ Todo:
     (when restart
       (if (restart-meaningfulp restart)
         (let ((res-int (restart-interactive restart)))
-          (case (and res-int (closure-name res-int))
+          (case (closure-name res-int)
             ((assert-restart-prompt) ; prompt for new values
              (if (interactive-stream-p *debug-io*)
                (progn
+                 ;; Show the condition in the same way as the break-loop would.
                  (fresh-line *error-output*)
                  (write-string "** - " *error-output*)
                  (write-string (TEXT "Continuable Error") *error-output*)
@@ -1621,9 +1622,7 @@ Todo:
                               (when report-function
                                 (terpri stream)
                                 (funcall report-function stream))))))
-             (if (restart-interactive restart)
-               (invoke-restart-interactively restart)
-               (invoke-restart restart)))))
+             (invoke-restart-interactively restart))))
         (if (interactive-stream-p *debug-io*)
           (invoke-debugger condition)
           (exitunconditionally condition))))))
