@@ -6,13 +6,13 @@
 
 2004-12-21  Bruno Haible  <bruno@clisp.org>
 
-	* format.lisp (format-error): Take additional arguments specifying the
-	error type and initargs.
-	(format-parse-cs, next-arg, format-old-roman, format-new-roman,
-	format-cardinal, format-radix, format-character,
-	format-indirection-cserror, format-indirection-lerror,
-	format-conditional, format-conditional-error, format-iteration,
-	format-logical-block, format-logical-block-parse, formatter-main-1):
+	* format.lisp (format-error): Take additional arguments specifying
+	the error type and initargs.
+	(format-parse-cs, next-arg, format-old-roman, format-new-roman)
+	(format-cardinal, format-radix, format-character)
+	(format-indirection-cserror, format-indirection-lerror)
+	(format-conditional, format-conditional-error, format-iteration)
+	(format-logical-block, format-logical-block-parse, formatter-main-1):
 	Pass error type and initargs to format-error.
 
 2004-12-19  Bruno Haible  <bruno@clisp.org>
