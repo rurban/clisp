@@ -34,12 +34,6 @@
 /* Define if C symbols are prefixed by an underscore in assembly language. */
 #undef ASM_UNDERSCORE
 
-/* CL_SHELLARGS */
-/* Define if /bin/sh is broken and /bin/ksh should be used instead. */
-#undef UNIX_USE_KSH
-/* Define if /bin/sh is broken and /bin/ksh is not available. */
-#undef UNIX_BROKEN_SH
-
 
 /* compiler characteristics */
 

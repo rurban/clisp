@@ -1,5 +1,23 @@
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make `clisp' an executable, also in the case of UNIX_BINARY_DISTRIB.
+        * _clisp.c [UNIX_BINARY_DISTRIB]
+          (room_for_lisplibdir, room_for_localedir): New arrays.
+          (LISPLIBDIR, LOCALEDIR): New definitions, pointing into the arrays.
+        * utils/hardcode.c: New file.
+        * _distmakefile: Treat UNIX_BINARY_DISTRIB like other UNIX platforms.
+          (install): Create `clisp' as an executable, using `hardcode', not as
+          a shell script.
+        * makemake.in (BINARY_DISTRIB): Also define on HP-UX 11.
+          (GOOD_SH): Remove definition.
+          (distrib): Distribute `clisp' and `hardcode'.
+        * spvw.d (main, usage): Option -K is now available on all Unix
+          platforms.
+        * configure.in: Remove call to CL_SHELLARGS.
+        * unixconf.h.in (UNIX_USE_KSH, UNIX_BROKEN_SH): Remove definitions.
+
+1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (install-bin): Copy base/ and full/ using cp, not tar,
           because they contain symbolic links.
 

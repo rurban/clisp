@@ -1,4 +1,4 @@
-.TH CLISP 1 "13 May 1999"
+.TH CLISP 1 "20 May 1999"
 
 
 .SH NAME
@@ -30,7 +30,7 @@ clisp \- Common Lisp language interpreter and compiler
 .B -B
 .I lisplibdir
 ]
-#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+#ifdef UNIX
 [
 .B -K
 .I linking-set
@@ -189,7 +189,7 @@ is already built-in in the
 executable.
 #endif
 
-#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+#ifdef UNIX
 .TP
 .BI "-K " linking-set
 Specifies the linking set to be run. This is a directory containing at least

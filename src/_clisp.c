@@ -53,6 +53,18 @@ extern int perror (const char *);
 # endif
 #endif
 
+#ifdef UNIX_BINARY_DISTRIB
+
+char room_for_lisplibdir[10240] = "%MAGIC%LISPLIBDIR=" LISPLIBDIR;
+# undef LISPLIBDIR
+# define LISPLIBDIR  &room_for_lisplibdir[7 + strlen("LISPLIBDIR") + 1]
+
+char room_for_localedir[10240] = "%MAGIC%LOCALEDIR=" LOCALEDIR;
+# undef LOCALEDIR
+# define LOCALEDIR  &room_for_localedir[7 + strlen("LOCALEDIR") + 1]
+
+#endif
+
 int main (int argc, char* argv[])
 {
   char* lisplibdir = LISPLIBDIR;
