@@ -1,3 +1,14 @@
+2005-02-16  Bruno Haible  <bruno@clisp.org>
+
+	Simplify the version handling.
+	* version.sh: New file.
+	* src/configure.in: Source the version.sh file. Call AC_INIT without
+	arguments. Set PACKAGE_NAME, PACKAGE_TARNAME, PACKAGE_VERSION,
+	PACKAGE_STRING, PACKAGE_BUGREPORT ourselves.
+	* Makefile.devel (all): Remove src/VERSION.
+	(src/VERSION): Remove rule.
+	(src/version.h): Generate from version.sh, not using src/configure.
+
 2005-02-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c: use SOCKLEN_T instead of socklen_t
