@@ -2219,6 +2219,10 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
 
 &syscalls;
 
+&oracle;
+
+&fastcgi;
+
 </section>
 
 </section>

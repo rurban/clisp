@@ -13,6 +13,8 @@
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
   <!ENTITY dirkey SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY berkeley-db SYSTEM "../modules/berkeley-db/berkeley-db.xml">
+  <!ENTITY oracle SYSTEM "../modules/oracle/oracle.xml">
+  <!ENTITY fastcgi SYSTEM "../modules/fastcgi/fastcgi.xml">
   <!ENTITY netica SYSTEM "../modules/netica/netica.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY pcre SYSTEM "../modules/pcre/pcre.xml">
