@@ -460,6 +460,15 @@ static const uint16 nop_page[256] = {
   }
 #endif
 
+#ifdef HAVE_SMALL_SSTRING
+/* retrieve / set che SIMPLE-STRING element */
+global inline cint32 schar (object string, uintL index) {
+  SstringDispatch(string,X, {
+    return (cint32)(((SstringX)TheVarobject(string))->data[index]);
+  });
+}
+#endif
+
 #if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
 # Copies an array of uint8 to an array of uint8.
 # copy_8bit_8bit(src,dest,len);
@@ -1244,10 +1253,8 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
         var uintL offset;
         var object string = unpack_string_ro(obj,&len,&offset);
         # ab ptr kommen len Characters
-        if (len==1) {
-          SstringDispatch(string,X,
-            { return code_char(((SstringX)TheVarobject(string))->data[offset]); });
-        }
+        if (len==1)
+          return code_char(as_chart(schar(string,offset)));
       } elif (nullp(Symbol_value(S(coerce_fixnum_char_ansi)))
               && posfixnump(obj)) {
         var uintL code = posfixnum_to_L(obj);
@@ -2322,11 +2329,7 @@ LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
       string = iarray_displace_check(string,len,&offset);
     }
     var uintL index = test_index_arg(len);
-    var chart ch;
-    SstringDispatch(string,X, {
-      ch = as_chart(((SstringX)TheVarobject(string))->data[offset+index]);
-    });
-    value1 = code_char(ch); mv_count=1;
+    value1 = code_char(as_chart(schar(string,offset+index))); mv_count=1;
     skipSTACK(2);
   }
 
@@ -2337,11 +2340,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
       fehler_sstring(string);
     simple_array_to_storage(string);
     var uintL index = test_index_arg(Sstring_length(string));
-    var chart ch;
-    SstringDispatch(string,X, {
-      ch = as_chart(((SstringX)TheVarobject(string))->data[index]);
-    });
-    value1 = code_char(ch); mv_count=1;
+    value1 = code_char(as_chart(schar(string,index))); mv_count=1;
     skipSTACK(2);
   }
 

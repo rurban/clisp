@@ -1530,13 +1530,6 @@ typedef struct {
 #define semicolonp(c)  (chareq(c,ascii(';')))
 #define slashp(c)      (semicolonp(c) || pslashp(c))
 
-/* access the INDEX-th character in the simple string */
-local chart schar (object string, uintL index) {
-  SstringDispatch(string,X, {
-    return as_chart(((SstringX)TheVarobject(string))->data[index]);
-  });
-}
-
 /* copy LEN characters in string ORIG starting at ORIG_OFFSET to string DEST,
    starting at DEST_OFFSET, up-casing all characters */
 local object copy_upcase (object dest, uintL dest_offset,
@@ -1564,7 +1557,7 @@ local object copy_upcase (object dest, uintL dest_offset,
 local object parse_logical_word (zustand* z, bool subdirp) {
   ASSERT(sstring_normal_p(STACK_2));
   var zustand startz = *z; # start-state
-  var chart ch;
+  var cint ch;
   # Is there a sequence of alphanumeric characters or '*',
   # no two '*' adjacent (except "**", if subdirp),
   # and, if subdirp, a ';' ?
@@ -1574,8 +1567,8 @@ local object parse_logical_word (zustand* z, bool subdirp) {
     if (z->count == 0)
       break;
     ch = schar(STACK_2,z->index); # next character
-    if (!legal_logical_word_char(ch)) {
-      if (chareq(ch,ascii('*'))) {
+    if (!legal_logical_word_char(as_chart(ch))) {
+      if (ch == '*') {
         if (last_was_star) {
           if (subdirp && (z->index - startz.index == 1))
             seen_starstar = true;
@@ -1599,7 +1592,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
   }
   if (len==0)
     return NIL;
-  else if ((len==1) && chareq(schar(STACK_2,startz.index),ascii('*')))
+  else if ((len==1) && (schar(STACK_2,startz.index) == '*'))
     return S(Kwild);
   else if ((len==2) && seen_starstar)
     return S(Kwild_inferiors);
@@ -1662,7 +1655,7 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
   loop {
     if (zp->count==0)
       return NIL; # string already ended -> no host
-    ch = schar(string,zp->index); # next character
+    ch = as_chart(schar(string,zp->index)); # next character
     if (!legal_logical_word_char(ch))
       break;
     # go past alphanumeric character:
@@ -1791,7 +1784,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
   { # parse Name:
     var object name = parse_logical_word(&z,false);
     TheLogpathname(STACK_1)->pathname_name = name;
-    if ((z.count > 0) && chareq(schar(STACK_2,z.index),ascii('.'))) {
+    if ((z.count > 0) && (schar(STACK_2,z.index) == '.')) {
       var zustand z_name = z;
       # skip Character '.' :
       Z_SHIFT(z,1);
@@ -1799,7 +1792,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
       var object type = parse_logical_word(&z,false);
       TheLogpathname(STACK_1)->pathname_type = type;
       if (!nullp(type)) {
-        if ((z.count > 0) && chareq(schar(STACK_2,z.index),ascii('.'))) {
+        if ((z.count > 0) && (schar(STACK_2,z.index) == '.')) {
           var zustand z_type = z;
           # skip Character '.' :
           Z_SHIFT(z,1);
@@ -2363,7 +2356,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
      #if defined(USER_HOMEDIR) && defined(PATHNAME_UNIX)
       # if there is a '~' immediately, a username is read up to the next '/'
       # or string-end and the Home-Directory of this user is inserted:
-      if ((z.count != 0) && chareq(schar(STACK_2,z.index),ascii('~'))) {
+      if ((z.count != 0) && (schar(STACK_2,z.index) == '~')) {
         # there is a '~' immediately.
         # skip character:
         Z_SHIFT(z,1);
@@ -2536,7 +2529,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
             var chart ch;
             if (z.count == 0)
               break;
-            ch = schar(STACK_2,z.index); # next character
+            ch = as_chart(schar(STACK_2,z.index)); # next character
             if (!legal_namechar(ch)) # valid character ?
               break;
             # yes -> part of the name
@@ -5104,21 +5097,21 @@ LISPFUNN(pathname_match_p,2) {
 local void wildcard_diff_ab (object pattern, object sample,
                              uintL m_index, uintL b_index,
                              const object* previous, object* solutions) {
-  var chart c;
+  var cint cc;
   loop {
     if (m_index == Sstring_length(pattern)) {
       if (b_index == Sstring_length(sample))
         push_solution();
       return;
     }
-    c = schar(pattern,m_index++);
-    if (chareq(c,ascii('*')))
+    cc = schar(pattern,m_index++);
+    if (cc == '*')
       break;
     if (b_index == Sstring_length(sample))
       return;
-    if (chareq(c,ascii('?'))) {
+    if (cc == '?') {
       # recursive call to wildcard_diff_ab(), with extended previous:
-      c = schar(sample,b_index++);
+      cc = schar(sample,b_index++);
       pushSTACK(pattern); pushSTACK(sample);
       {
         var object new_string = allocate_string(1);
@@ -5136,7 +5129,7 @@ local void wildcard_diff_ab (object pattern, object sample,
       skipSTACK(3);
       return;
     } else {
-      if (!equal_pathchar(schar(sample,b_index++),c))
+      if (!equal_pathchar(as_chart(schar(sample,b_index++)),as_chart(cc)))
         return;
     }
   }
@@ -5145,10 +5138,11 @@ local void wildcard_diff_ab (object pattern, object sample,
     # to reduce consing, intercept cases when wildcard_diff_ab() does nothing
     if (m_index == Sstring_length(pattern)
         ? b_index == Sstring_length(sample)
-        : (c = schar(pattern,m_index),
-           chareq(c,ascii('*')) || chareq(c,ascii('?'))
+        : (cc = schar(pattern,m_index),
+           (cc == '*') || (cc == '?')
            || (b_index < Sstring_length(sample)
-               && equal_pathchar(schar(sample,b_index),c)))) {
+               && equal_pathchar(as_chart(schar(sample,b_index)),
+                                 as_chart(cc))))) {
       # wildcard_diff_ab() recursive call, with extended previous:
       pushSTACK(pattern); pushSTACK(sample);
       # (SUBSTRING sample b_start_index b_index)
@@ -5616,15 +5610,15 @@ local object translate_nametype_aux (object* subst, object pattern,
     var uintL stringcount = 0; # number of strings on the stack
     loop {
       var uintL last_index = index;
-      var chart c;
+      var cint cc;
       # search next wildcard-character:
       pattern = *pattern_;
       loop {
         if (index == len)
           break;
-        c = schar(pattern,index);
-        if ((chareq(c,ascii('*')) # wildcard for arbitrary many characters
-             || (!logical && singlewild_char_p(c))) # wildcard for exactly one character
+        cc = schar(pattern,index);
+        if (((cc == '*') # wildcard for arbitrary many characters
+             || (!logical && singlewild_char_p(as_chart(cc)))) # wildcard for exactly one character
             && mconsp(*subst))
           break;
         index++;
@@ -9567,9 +9561,7 @@ local object ensure_last_slash (object dir_string) {
   ASSERT(stringp(dir_string));
   var uintL len, offset;
   var object str = unpack_string_ro(dir_string,&len,&offset);
-  var chart ch;
-  SstringDispatch(str,X,
-    { ch = as_chart(((SstringX)TheVarobject(str))->data[len+offset-1]); });
+  var chart ch = as_chart(schar(str,len+offset-1));
   if (!slashp(ch)) {
     var char sl = (looks_logical_p(dir_string) ? ';' : slash);
     with_sstring_0(str,O(pathname_encoding),asciz, {
