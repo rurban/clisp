@@ -1202,7 +1202,7 @@ muffle-cerrors appease-cerrors exit-on-error
            (ERROR-OF-TYPE 'TYPE-ERROR
              :DATUM ,var :EXPECTED-TYPE ',typespec
              (TYPE-ERROR-STRING)
-             (CHECK-TYPE-ERROR-STRING ',place ',string ',typespec)
+             (CHECK-TYPE-ERROR-STRING ',place ,string ',typespec)
              ,var
            )
            ; only one restart, will "continue" invoke it?
