@@ -1,5 +1,11 @@
 2005-03-01  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (checker): added slot suffix
+	(to-C-name, new-checker): accept suffix
+	(print-tables-1): use suffix
+
+2005-03-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/configure.in: check for getpriority and setpriority
 	* modules/syscalls/posix.lisp (priority, process-id): export
 	(priority): defsetf

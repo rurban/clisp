@@ -50,7 +50,7 @@ The input file is normal C code, modified like this:
     return ret;
   }}
   it is convenient for parsing flag arguments to DEFUNs
-- DEFCHECKER(c_name, [enum|type]=..., prefix=..., default=...,
+- DEFCHECKER(c_name, [enum|type]=..., suffix= ..., prefix=..., default=...,
              C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
@@ -81,7 +81,7 @@ The input file is normal C code, modified like this:
     NOTREACHED;
   }
  enum means no #ifdef
- prefix defaults to ""
+ prefix, suffix default to ""
  default defaults to C_CONST1
 
 Restrictions and caveats:
@@ -617,13 +617,14 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
 (defstruct (checker (:include cpp-helper))
-  enum-p type prefix default cpp-odefs type-odef)
+  enum-p type prefix suffix default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
-(defun to-C-name (name prefix)
+(defun to-C-name (name prefix suffix)
   (setq name (substitute #\_ #\- name))
   (when prefix (setq name (ext:string-concat prefix "_" name)))
+  (when suffix (setq name (ext:string-concat name "_" suffix)))
   name)
-(defun new-checker (name cpp-names &key type prefix default enum
+(defun new-checker (name cpp-names &key type prefix suffix default enum
                     (condition (current-condition)))
   (setq default (unless (eq default T)
                   (and default
@@ -631,7 +632,8 @@ and turn it into DEFUN(funname,lambdalist,signature)."
   (when (and type enum)
     (error "~S(~S): cannot specify both ~A=~S and ~A=~S"
            'new-checker name :type type :enum enum))
-  (let ((ch (make-checker :type (or type enum) :name name :prefix prefix
+  (let ((ch (make-checker :type (or type enum) :name name
+                          :prefix prefix :suffix suffix
                           :enum-p (not (null enum)) :cpp-names cpp-names
                           :default default))
         (type-odef (if default
@@ -653,7 +655,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
            (setq type-odef (list type-odef))
            (dolist (name cpp-names)
              (let ((co (ext:string-concat
-                        "defined(" (to-C-name name prefix) ")")))
+                        "defined(" (to-C-name name prefix suffix) ")")))
                (push (init-to-objdef (ext:string-concat ":" name)
                                      (concatenate 'vector condition (list co)))
                      cpp-odefs)
@@ -986,8 +988,8 @@ commas and parentheses."
             (formatln out "  return flags;")
             (formatln out "}")))
     (newline out)
-    (loop :for ch :across *checkers*
-      :for prefix = (checker-prefix ch) :for default = (checker-default ch)
+    (loop :for ch :across *checkers* :for default = (checker-default ch)
+      :for prefix = (checker-prefix ch) :for suffix = (checker-suffix ch)
       :for type-tag = (objdef-tag (checker-type-odef ch))
       :for c-name = (checker-name ch) :for c-type = (checker-type ch)
       :for enum-p = (checker-enum-p ch) :for need-default = (stringp default)
@@ -997,7 +999,7 @@ commas and parentheses."
       :do (with-conditional (out (checker-cond-stack ch))
             (formatln out "static struct c_lisp_pair ~A_table[] = {" c-name)
             (loop :for name :in (checker-cpp-names ch)
-              :for C-name = (to-C-name name prefix)
+              :for C-name = (to-C-name name prefix suffix)
               :for odef :in (checker-cpp-odefs ch)
               :do (unless enum-p (formatln out " #ifdef ~A" C-name))
               (formatln out "  { ~A, &(O(~A)) }," C-name (objdef-tag odef))
