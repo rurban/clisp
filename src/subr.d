@@ -219,7 +219,7 @@ LISPFUN(search_string_gleich,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(search_string_equal,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(make_string,1,0,norest,key,1, (kw(initial_element)) )
+LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
 LISPFUNN(string_both_trim,3)
 LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )

@@ -2162,14 +2162,14 @@ LISPFUN(search_string_equal,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(make_string,1,0,norest,key,1, (kw(initial_element)) )
-# (MAKE-STRING size :initial-element), CLTL S. 302
+LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
+# (MAKE-STRING size :initial-element :element-type)
   { var uintL size;
     # size überprüfen:
-    if (!(posfixnump(STACK_1))) # size muß Fixnum >= 0 sein
-      { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+    if (!(posfixnump(STACK_2))) # size muß Fixnum >= 0 sein
+      { pushSTACK(STACK_2); # Wert für Slot DATUM von TYPE-ERROR
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-        pushSTACK(STACK_(1+2)); pushSTACK(TheSubr(subr_self)->name);
+        pushSTACK(STACK_(2+2)); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
                DEUTSCH ? "~: ~ ist als Stringlänge nicht geeignet, da kein Fixnum >= 0." :
                ENGLISH ? "~: the string length ~ should be nonnegative fixnum" :
@@ -2177,10 +2177,28 @@ LISPFUN(make_string,1,0,norest,key,1, (kw(initial_element)) )
                ""
               );
       }
-    size = posfixnum_to_L(STACK_1);
+    size = posfixnum_to_L(STACK_2);
+    # element-type überprüfen:
+    if (!eq(STACK_0,unbound))
+      { var object eltype = STACK_0;
+        if (!(eq(eltype,S(character)) || eq(eltype,S(string_char))))
+          { # Verify (SUBTYPEP eltype 'CHARACTER):
+            pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
+            if (nullp(value1))
+              { pushSTACK(STACK_0); # eltype
+                pushSTACK(S(character)); # CHARACTER
+                pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
+                pushSTACK(S(make_string));
+                fehler(error,
+                       DEUTSCH ? "~: ~-Argument muss ein Untertyp von ~ sein, nicht ~" :
+                       ENGLISH ? "~: ~ argument must be a subtype of ~, not ~" :
+                       FRANCAIS ? "~ : L'argument ~ doit être un sous-type de ~, et non ~" :
+                       ""
+                      );
+      }   }   }
    {var object new_string = allocate_string(size); # neuen String besorgen
     # evtl. mit initial-element füllen:
-    var object initial_element = STACK_0;
+    var object initial_element = STACK_1;
     if (eq(initial_element,unbound))
       ; # nicht angegeben -> nichts zu tun
       else
@@ -2202,7 +2220,7 @@ LISPFUN(make_string,1,0,norest,key,1, (kw(initial_element)) )
             { var uintB* charptr = &TheSstring(new_string)->data[0];
               dotimespL(size,size, { *charptr++ = ch; } );
         }   }
-    value1 = new_string; mv_count=1; skipSTACK(2);
+    value1 = new_string; mv_count=1; skipSTACK(3);
   }}
 
 LISPFUNN(string_both_trim,3)

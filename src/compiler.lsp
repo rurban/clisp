@@ -1372,7 +1372,7 @@ for-value   NIL oder T
           #+(or UNIX OS/2 WIN32) (make-pipe-io-stream 1 0 nil nil nil)
           (make-random-state 0 1 nil nil nil)
           (make-sequence 2 0 nil (:initial-element :update) nil)
-          (make-string 1 0 nil (:initial-element) nil)
+          (make-string 1 0 nil (:initial-element :element-type) nil)
           (make-string-input-stream 1 2 nil nil nil)
           (make-string-output-stream 0 1 nil nil nil)
           (system::make-string-push-stream 1 0 nil nil nil)
