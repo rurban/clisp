@@ -575,6 +575,7 @@ else
   PARENT_M="$PARENT_"
   NEXT_M="$NEXT_"
 fi
+HERE_='`pwd`'"${NEXT_}"
 
 if [ $H_DOS = "true" ] ; then
   # Replace '/' with '\':
@@ -617,14 +618,17 @@ else
   txt=txt
 fi
 
-# RM = command for deleting files
+# RM = command for deleting files; RMRF - recursively
 if [ $H_DOS = "true" ] ; then
   RM='del /q'
+  RMRF='del /q /s'
 else
   if [ $HOS = acorn ] ; then
     RM='remove'
+    RMRF='remove' # FIXME
   else
     RM='rm -f'
+    RMRF='rm -rf'
   fi
 fi
 
@@ -1823,9 +1827,11 @@ echol "MV = ${MV}"
 echol "CAT = ${CAT}"
 if [ $HOS = win32 ] ; then
   echol "RM = -${RM}"
+  echol "RMRF = -${RMRF}"
   echol "TOUCH = -${TOUCH}"
 else
   echol "RM = ${RM}"
+  echol "RMRF = ${RMRF}"
   echol "TOUCH = ${TOUCH}"
 fi
 echol "GREP = ${GREP}"
@@ -2696,8 +2702,8 @@ for f in ${DATA_FILES_TOP_PATH}; do
   data_target="${data_target} ${SRCTOPDIR_}${f}"
 done
 echol "${data_target}"
-echotab "-\$(RM) data${NEXT_}*"
-echotab "-mkdir data"
+echotab "\$(RMRF) data"
+echotab "mkdir data"
 for f in ${DATA_FILES_TOP_PATH}; do
   echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR_}${f} ."
 done
@@ -2882,6 +2888,13 @@ fi
 
 echol
 
+if [ -n "$USE_GETTEXT" ] ; then
+  localeflags=' -B `pwd` -N '"${HERE_}locale"
+else
+  localeflags=' -B `pwd`'
+fi
+CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem$localeflags -Efile UTF-8 -norc"
+
 if [ $CROSS = false ] ; then
 
   echol "# Perform self-tests."
@@ -2964,13 +2977,8 @@ if [ $CROSS = false ] ; then
 
   echol
 
-  if [ -n "$USE_GETTEXT" ] ; then
-      localeflags=' -B `pwd` -N `pwd`/locale'
-  else
-      localeflags=' -B `pwd`'
-  fi
   echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "LISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -Efile UTF-8 -norc\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
+  echotab "LISP=\"${CLISP_}\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
   echol
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"
@@ -2990,62 +2998,54 @@ if [ $HOS = unix ] && [ $XCC_GCC = true ] ; then
   echol
 fi
 
-if [ $HOS = unix ] && [ $CROSS = false ] ; then
-  echol "clisp.h : genclisph.o unixconf.h intparam.h"
-  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
-  echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
-  echotab "\$(RM) genclisph${HEXE}"
-  echol
-  echol
-  echol "linkkit : modules.d modules.c clisp.h"
-  echotab "\$(RM) -r linkkit"
-  echotab "mkdir linkkit"
-  echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
-  echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
-  echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
-  echol
-  echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
-  echodummyrule modular
-  echol
-  echol "makevars :"
-  echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
-  echol
-  for f in clisp-link ; do
-    echol "${f} : ${SRCDIR}${f}.in"
-    XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-    if [ "$TSYSOS" = cygwin32 ] ; then
-      # Cygwin32 doesn't mark real executables as being executables,
-      # so replace "test -x " with "test -r ".
-      echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's, -x \"\\\$\$, -r \"\$\$,g' < ${SRCDIR}${f}.in > ${f}"
-    else
-      echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' < ${SRCDIR}${f}.in > ${f}"
-    fi
-    echotab "chmod a+x ${f}"
-    echol
-  done
-  echol "base : modular lispinit.mem"
-  echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp.run lispinit.mem; do \$(LN_S) ../\$\$f \$\$f; done) || (\$(RM) -r base ; exit 1)"
-  echol
-  # Some "make"s don't support empty target lists. Hence the "anymodule".
-  echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
-  echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR}modules/\$@ \$@"
-  echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ./configure --cache-file="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache ; fi"
-  EVERY_INCLUDES_DOTS_C=''
-  for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
-    EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
-  done
-  if [ -n "$USE_GETTEXT" ] ; then
-    localeflags=' -B `pwd` -N `pwd`/locale'
+echol "clisp.h : genclisph.o unixconf.h intparam.h"
+echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
+echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
+echotab "\$(RM) genclisph${HEXE}"
+echol
+echol "linkkit : modules.d modules.c clisp.h"
+echotab "-\$(RMRF) linkkit"
+echotab "mkdir linkkit"
+echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
+echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
+echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
+echol
+echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
+echodummyrule modular
+echol
+echol "makevars :"
+echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
+echol
+for f in clisp-link ; do
+  echol "${f} : ${SRCDIR}${f}.in"
+  XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
+  if [ "$TSYSOS" = cygwin32 ] ; then
+    # Cygwin32 doesn't mark real executables as being executables,
+    # so replace "test -x " with "test -r ".
+    echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's, -x \"\\\$\$, -r \"\$\$,g' < ${SRCDIR}${f}.in > ${f}"
   else
-    localeflags=' -B `pwd`'
+    echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' < ${SRCDIR}${f}.in > ${f}"
   fi
-  echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -Efile UTF-8 -norc\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+  echotab "chmod a+x ${f}"
   echol
-  echol "full : modular base \$(MODULES)"
-  echotab "test -d full || CLISP_LINKKIT=. ./clisp-link add-module-sets base full \$(MODULES) || (\$(RM) -r full ; exit 1)"
-  echol
-fi
-OBSOLETE=$OBSOLETE" genclisph${HEXE} wgenclisph${HEXE} linkkit"
+done
+echol "base : modular lispinit.mem"
+echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp.run lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f \$\$f; done) || (\$(RMRF) base ; exit 1)"
+echol
+# Some "make"s don't support empty target lists. Hence the "anymodule".
+echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
+echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
+echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ./configure --cache-file="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache ; fi"
+EVERY_INCLUDES_DOTS_C=''
+for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
+  EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
+done
+echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echol
+echol "full : modular base \$(MODULES)"
+echotab "test -d full || CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
+echol
+OBSOLETE=$OBSOLETE" genclisph${HEXE} linkkit"
 
 if test -n "$GROFF"; then
   manual_dvi=' clisp.dvi'
@@ -3265,7 +3265,7 @@ if [ $CROSS = false ] ; then
       echotab "\$(INSTALL_DATA) data/${f} \$(DESTDIR)\$(lisplibdir)/data/${f}"
     done
     echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/linkkit"
-    echotab "(cd \$(DESTDIR)\$(lisplibdir) && rm -rf base full)"
+    echotab "(cd \$(DESTDIR)\$(lisplibdir) && ${RMRF} base full)"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/base"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
     echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do \\"
@@ -3551,7 +3551,7 @@ echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
 echotab "chmod a+x \$(TOPDIR)/. \$(TOPDIR)/*/."
 echotab "\$(PACK) \$(PACKOPT) \$(DISTFILE) \$(TOPDIR)"
 echotab "${HLN} \$(DISTFILE) clisp\$(PACKEXT)"
-echotab "\$(RM) -r \$(TOPDIR)"
+echotab "\$(RMRF) \$(TOPDIR)"
 echol
 echol
 fi
@@ -3633,7 +3633,7 @@ if [ $HOS = win32 ] ; then
   echotab "chmod 644 \`find \$\$distdir -type f -print\` ; \\"
   echotab "rm -f \$\$distfile ; \\"
   echotab "(echo \"CLISP version \$\$version for Win32.\"; echo \".\") | zip -r -9 -z \$\$distfile \$\$distdir ; \\"
-  echotab "rm -rf \$\$distdir"
+  echotab "${RMRF} \$\$distdir"
   echol
 fi
 
@@ -3693,7 +3693,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
 	cd gettext/intl && \$(MAKE) clean
 	cd gettext/po && \$(MAKE) clean
-	-\$(RM) -r locale
+	-\$(RMRF) locale
 !!
 if [ -n "$GETTEXTLIB" ] ; then
 cat <<!!
@@ -3754,7 +3754,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
 	cd gettext/intl && \$(MAKE) distclean
 	cd gettext/po && \$(MAKE) distclean
-	-\$(RM) -r locale
+	-\$(RMRF) locale
 !!
 fi
 if [ -n "$USE_TERMCAP" ] ; then
@@ -3764,7 +3764,7 @@ cat <<!!
 fi
 if [ $HOS = unix ] && [ $CROSS = false ] ; then
 cat <<!!
-	-\$(RM) -r \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
+	-\$(RMRF) \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
 !!
 fi
 cat <<!!
