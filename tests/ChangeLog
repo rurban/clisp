@@ -1,3 +1,7 @@
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * conditions.tst (style-warning): New test.
+
 1998-12-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * number2.tst: Add two XGCD tests.

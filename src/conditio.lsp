@@ -12,7 +12,7 @@ floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
 cell-error unbound-variable undefined-function unbound-slot
 type-error package-error print-not-readable parse-error stream-error
-end-of-file reader-error file-error storage-condition warning
+end-of-file reader-error file-error storage-condition warning style-warning
 simple-condition simple-error simple-type-error simple-warning
 ;; macros:
 define-condition handler-bind ignore-errors handler-case
@@ -257,6 +257,8 @@ muffle-cerrors appease-cerrors exit-on-error
 ;   |-- warning
 ;       |
 ;       |-- simple-warning
+;       |
+;       |-- style-warning
 ;
 
 ; X3J13 writeup <CONDITION-SLOTS:HIDDEN> wants the slot names to be hidden,
@@ -358,7 +360,8 @@ muffle-cerrors appease-cerrors exit-on-error
 ; conditions for which user notification is appropriate
 (define-condition warning () ())
 
-#+ANSI-CL (define-condition style-warning (warning) ())
+  ; conditions which are a matter of programming style (not serious)
+  (define-condition style-warning (warning) ())
 
 ;; These shouldn't be separate types but we cannot adjoin slots without
 ;; defining subtypes.

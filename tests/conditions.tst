@@ -45,7 +45,7 @@ CHECK-SUPERCLASSES
 ;;;
 
 (check-superclasses 'warning '()) T
-#+ANSI-CL (check-superclasses 'style-warning '(warning)) #+ANSI-CL T
+(check-superclasses 'style-warning '(warning)) T
 (check-superclasses 'serious-condition '()) T
 (check-superclasses 'error '(serious-condition)) T
 (check-superclasses 'cell-error '(error serious-condition)) T

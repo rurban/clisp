@@ -1,3 +1,16 @@
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * conditio.lsp: Export STYLE-WARNING.
+          (STYLE-WARNING): New condition type.
+        * defs3.lsp: Export STYLE-WARNING.
+        * compiler.lsp (*style-warning-count*): New variable.
+          (c-style-warn): New function.
+          (ignore-check): Call c-style-warn instead of c-warn.
+          (c-CASE): Likewise.
+          (compile-lambda): Bind *style-warning-count*.
+          (compile, compile-file): Bind *style-warning-count*. Return three
+          values depending on *style-warning-count*.
+
 1999-01-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (I_to_uint8, I_to_sint8, I_to_uint16, I_to_sint16,
