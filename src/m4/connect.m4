@@ -11,7 +11,9 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.13)
 
 AC_DEFUN([CL_CONNECT],
-[CL_PROTO([connect], [
+[AC_CHECK_FUNCS(connect)
+if test $ac_cv_func_connect = yes; then
+CL_PROTO([connect], [
 for x in '' 'const'; do
 for y in 'struct sockaddr *' 'void*'; do
 for z in 'int' 'size_t' 'socklen_t'; do
@@ -41,4 +43,4 @@ fi
 AC_DEFINE_UNQUOTED(CONNECT_CONST,$cl_cv_proto_connect_arg2a,[does declaration of connect() need const?])
 AC_DEFINE_UNQUOTED(CONNECT_NAME_T,$cl_cv_proto_connect_arg2b,[type of `name' in connect() declaration])
 AC_DEFINE_UNQUOTED(CONNECT_ADDRLEN_T,$cl_cv_proto_connect_arg3,[type of `addrlen' in connect() declaration])
-])
+fi])
