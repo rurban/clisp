@@ -13286,6 +13286,7 @@ extern void symbol_value_check_lock (object caller, object symbol);
 
 # UP: Initializes the package-management
 # init_packages();
+# can trigger GC
 extern void init_packages (void);
 # is used by SPVW
 
@@ -13627,6 +13628,7 @@ extern object read_char (const gcv_object_t* stream_);
 # > ch: last read character
 # > stream: Stream
 # < stream: Stream
+# can trigger GC
 extern void unread_char (const gcv_object_t* stream_, object ch);
 # is used by IO, DEBUG
 
@@ -13818,6 +13820,7 @@ extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* b
 # > uintL len: length of byte sequence to be written
 # > perseverance_t persev: how to react on incomplete I/O
 # < uintL result: number of bytes that have been written
+# can trigger GC
 extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 # is used by SEQUENCE
 
@@ -13838,6 +13841,7 @@ extern uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* c
 # > object chararray: not-reallocated simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
+# can trigger GC
 extern void write_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
 # is used by SEQUENCE
 
@@ -14411,12 +14415,14 @@ extern object decimal_string (object x);
 # The foreign data is allocated through malloc() and has more than dynamic
 # extent. (Not exactly indefinite extent: It is deallocated the next time
 # free_foreign() is called on it.)
+# can trigger GC
   extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);
 
 # Convert Lisp data to foreign data.
 # The foreign data storage is reused.
 # DANGEROUS, especially for type C-STRING !!
 # Also beware against NULL pointers! They are not treated specially.
+# can trigger GC
   extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);
 
 # Initialize the FFI.

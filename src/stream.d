@@ -573,9 +573,10 @@ global void write_byte (object stream, object byte) {
 # > uintL len: length of byte sequence to be written
 # > perseverance_t persev: how to react on incomplete I/O
 # < uintL result: number of bytes that have been written
+# can trigger GC
 global uintL write_byte_array (const gcv_object_t* stream_,
-                              const gcv_object_t* bytearray_,
-                              uintL start, uintL len, perseverance_t persev) {
+                               const gcv_object_t* bytearray_,
+                               uintL start, uintL len, perseverance_t persev) {
   if (len==0)
     return 0;
   var object stream = *stream_;
@@ -657,6 +658,7 @@ global object read_char (const gcv_object_t* stream_) {
 # > ch: last read Character
 # > stream: Stream
 # < stream: Stream
+# can trigger GC
 global void unread_char (const gcv_object_t* stream_, object ch) {
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
@@ -839,6 +841,7 @@ global void write_char (const gcv_object_t* stream_, object ch) {
 # > object chararray: not-reallocated simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
+# can trigger GC
 global void write_char_array (const gcv_object_t* stream_,
                               const gcv_object_t* chararray_,
                               uintL start, uintL len) {
