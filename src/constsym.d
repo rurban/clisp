@@ -843,7 +843,6 @@ LISPSYM(make_pipe_io_stream,"MAKE-PIPE-IO-STREAM",lisp)
 #endif
 #ifdef X11SOCKETS
 LISPSYM(make_x11socket_stream,"MAKE-SOCKET-STREAM",system)
-LISPSYM(listen_byte,"LISTEN-BYTE",system)
 LISPSYM(read_n_bytes,"READ-N-BYTES",system)
 LISPSYM(write_n_bytes,"WRITE-N-BYTES",system)
 #endif
@@ -875,6 +874,9 @@ LISPSYM(set_stream_external_format,"SET-STREAM-EXTERNAL-FORMAT",system)
 LISPSYM(interactive_stream_p,"INTERACTIVE-STREAM-P",lisp)
 LISPSYM(built_in_stream_close,"BUILT-IN-STREAM-CLOSE",system)
 LISPSYM(read_byte,"READ-BYTE",lisp)
+LISPSYM(read_byte_lookahead,"READ-BYTE-LOOKAHEAD",lisp)
+LISPSYM(read_byte_will_hang_p,"READ-BYTE-WILL-HANG-P",lisp)
+LISPSYM(read_byte_no_hang,"READ-BYTE-NO-HANG",lisp)
 LISPSYM(read_integer,"READ-INTEGER",lisp)
 LISPSYM(read_float,"READ-FLOAT",lisp)
 LISPSYM(write_byte,"WRITE-BYTE",lisp)
@@ -1219,6 +1221,7 @@ LISPSYM(cerror,"CERROR",lisp) # als Funktion für ERROR
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) # als Variable für ERROR
 LISPSYM(safe_typep,"SAFE-TYPEP",system) # als Funktion für ERROR
 LISPSYM(stream_read_byte,"STREAM-READ-BYTE",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_byte_lookahead,"STREAM-READ-BYTE-LOOKAHEAD",lisp) # als Funktion für STREAM
 LISPSYM(stream_read_byte_sequence,"STREAM-READ-BYTE-SEQUENCE",lisp) # als Funktion für STREAM
 LISPSYM(stream_write_byte,"STREAM-WRITE-BYTE",lisp) # als Funktion für STREAM
 LISPSYM(stream_write_byte_sequence,"STREAM-WRITE-BYTE-SEQUENCE",lisp) # als Funktion für STREAM

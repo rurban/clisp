@@ -46,7 +46,7 @@
     pushSTACK(STACK_2);
     pushSTACK(STACK_3); pushSTACK(NIL); funcall(L(terminal_raw),2); pushSTACK(value1);
     # Stackaufbau: ostream, istream, prompt, command-list, inputstream, raw.
-    var signean status = stream_listen(STACK_4); # horchen
+    var signean status = listen_char(STACK_4); # horchen
     if (ls_eof_p(status))
       goto eof;
     # bereits Zeichen verfügbar (und nicht im ilisp_mode) -> kein Prompt
@@ -169,7 +169,7 @@
         pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
         # wartenden Input bis Zeilenende löschen
         if (interactive_stream_p(STACK_(4+1))) {
-          while (ls_avail_p(stream_listen(STACK_(4+1)))) {
+          while (ls_avail_p(listen_char(STACK_(4+1)))) {
             var object ch = peek_char(&STACK_(4+1));
             if (eq(ch,eof_value))
               break;

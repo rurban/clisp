@@ -1598,9 +1598,11 @@
   #.(declare-buffun)
   (let ((stream (display-input-stream display)))
     (cond ((and (eql timeout 0)
-                (not (#-have-listen-byte listen
-                      #+have-listen-byte sys::listen-byte
-                       stream)))
+                #-have-read-byte-lookahead
+                  (not (listen stream))
+                #+have-read-byte-lookahead
+                  (null (lisp:read-byte-lookahead stream))
+           )
            :timeout)
           (t (system::read-n-bytes stream vector start (- end start)) nil)
 ) ) )

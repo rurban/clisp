@@ -35,6 +35,9 @@
           stream-advance-to-column
           ; Generic functions for binary input:
           stream-read-byte
+          stream-read-byte-lookahead
+          stream-read-byte-will-hang-p
+          stream-read-byte-no-hang
           stream-read-byte-sequence
           ; Generic functions for binary output:
           stream-write-byte
@@ -288,6 +291,22 @@
 ;; Generic functions for binary input
 
 (clos:defgeneric stream-read-byte (stream))
+
+(clos:defgeneric stream-read-byte-lookahead (stream))
+
+(clos:defgeneric stream-read-byte-will-hang-p (stream)
+  (:method ((stream fundamental-input-stream))
+    (eq (stream-read-byte-lookahead stream) 'NIL)
+  )
+)
+
+(clos:defgeneric stream-read-byte-no-hang (stream)
+  (:method ((stream fundamental-input-stream))
+    (if (stream-read-byte-lookahead stream)
+      (stream-read-byte stream)
+      nil
+  ) )
+)
 
 (clos:defgeneric stream-read-byte-sequence (stream sequence &optional start end)
   (:method ((stream fundamental-input-stream) (sequence vector) &optional (start 0) (end nil))

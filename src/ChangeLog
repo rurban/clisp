@@ -1,3 +1,41 @@
+2000-09-12  Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d (listen_char): Renamed from stream_listen.
+          (listen_byte): New declaration.
+        * debug.d (read_form): Update.
+        * io.d (LISTEN, READ-CHAR-WILL-HANG-P, READ-CHAR-NO-HANG): Update.
+        * stream.d (listen_char_synonym): Renamed from listen_synonym.
+          (listen_byte_synonym): New function.
+          (listen_char_concat): Renamed from listen_concat.
+          (listen_byte_concat): New function.
+          (listen_char_twoway): Renamed from listen_twoway.
+          (listen_byte_twoway): New function.
+          (listen_char_str_in): Renamed from listen_str_in.
+          (listen_char_buff_in): Renamed from listen_buff_in.
+          (listen_char_generic): Renamed from listen_generic.
+          (listen_byte_ia8_unbuffered): New function.
+          (listen_char_unbuffered): Renamed from listen_unbuffered.
+          (listen_char_buffered): Renamed from listen_buffered.
+          (listen_byte_ia8_buffered): New function.
+          (listen_char_keyboard): Renamed from listen_keyboard.
+          (listen_char_terminal): Renamed from listen_terminal.
+          (listen_char_terminal1): Renamed from listen_terminal1.
+          (listen_char_terminal2): Renamed from listen_terminal2.
+          (listen_char_terminal3): Renamed from listen_terminal3.
+          (SYSTEM::LISTEN-BYTE): Remove function.
+          (listen_char): Renamed from stream_listen.
+          (listen_byte): New function.
+          (READ-BYTE-LOOKAHEAD, READ-BYTE-WILL-HANG-P, READ-BYTE-NO-HANG): New
+          functions.
+        * gstream.lisp: Export STREAM-READ-BYTE-LOOKAHEAD,
+          STREAM-READ-BYTE-WILL-HANG-P, STREAM-READ-BYTE-NO-HANG.
+          (STREAM-READ-BYTE-LOOKAHEAD, STREAM-READ-BYTE-WILL-HANG-P,
+           STREAM-READ-BYTE-NO-HANG): New generic functions.
+        * modules/clx/mit-clx/depdefs.lisp: Remove feature test for
+          sys::listen-byte. Add feature test for read-byte-lookahead.
+        * modules/clx/mit-clx/dependent.lisp (buffer-read-default) [CLISP]:
+          Use read-byte-lookahead instead of sys::listen-byte.
+
 2000-09-06  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-form): Handle simple vectors as a constant.
