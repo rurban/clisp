@@ -571,6 +571,7 @@ local object convert_function_from_foreign (void* address, object resulttype,
 /* (FFI:FOREIGN-FUNCTION address c-type &key name) constructor */
 LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
 {
+ foreign_function_restart:
   var object fa = STACK_2;
   if (ffunctionp(fa)) {
     if (missingp(STACK_0))
@@ -578,15 +579,16 @@ LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
     fa = TheFfunction(fa)->ff_address;
   }
   /* If you believe objects of type foreign-variable should be accepted,
-     then you probably missed an indirection. */
+   * then you probably missed an indirection. */
   if (!faddressp(fa)) {
+    pushSTACK(NIL);             /* no PLACE */
     pushSTACK(fa);              /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(or)); pushSTACK(S(foreign_function));
-    pushSTACK(S(foreign_address));
-    pushSTACK(listof(3));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(O(type_foreign_function)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_0); pushSTACK(fa);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    STACK_2 = value1;
+    goto foreign_function_restart;
   }
   var object fvd = STACK_1;
   if (simple_vector_p(fvd)
@@ -2213,7 +2215,7 @@ LISPFUNN(lookup_foreign_variable,2)
 /* (FFI:FOREIGN-VARIABLE address c-type &key name) constructor */
 LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
 {
- check_restart:
+ foreign_variable_restart:
   var object fa = STACK_2;
   if (fvariablep(fa))
     { fa = TheFvariable(fa)->fv_address; }
@@ -2222,14 +2224,12 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
   if (!faddressp(fa)) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(fa);              /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(or)); pushSTACK(S(foreign_variable));
-    pushSTACK(S(foreign_address));
-    pushSTACK(listof(3));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(O(type_foreign_variable)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_0); pushSTACK(fa);
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
     STACK_2 = value1;
-    goto check_restart;
+    goto foreign_variable_restart;
   }
   if (!missingp(STACK_0)) STACK_0 = coerce_ss(STACK_0);
   var object fvar = allocate_fvariable();
@@ -2243,7 +2243,7 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
     TheFvariable(fvar)->fv_address = TheFvariable(old_fvar)->fv_address;
     record_flags_replace(TheFvariable(fvar),
                          record_flags(TheFvariable(old_fvar)));
-    
+
     if (nullp(TheFvariable(fvar)->fv_name)) {
       TheFvariable(fvar)->fv_name  = TheFvariable(old_fvar)->fv_name;
     }
