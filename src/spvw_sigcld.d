@@ -24,28 +24,27 @@
 # calls):
 #   SIGNAL(SIGCLD,SIG_IGN);
 
-  local void install_sigcld_handler (void);
-  local void install_sigcld_handler ()
-    {
-      #if defined(SIGCLD)
-        SIGNAL(SIGCLD,SIG_IGN);
-      #endif
-    }
+  local void install_sigcld_handler (void)
+  {
+    #if defined(SIGCLD)
+      SIGNAL(SIGCLD,SIG_IGN);
+    #endif
+  }
 
   global void begin_want_sigcld ()
-    {
-      #if defined(SIGCLD)
-        SIGNAL(SIGCLD,SIG_DFL);
-      #endif
-    }
+  {
+    #if defined(SIGCLD)
+      SIGNAL(SIGCLD,SIG_DFL);
+    #endif
+  }
   global void end_want_sigcld ()
-    {
-      #if defined(SIGCLD)
-        SIGNAL(SIGCLD,SIG_IGN);
-        # Try to remove zombies which may have been created since the last
-        # begin_want_sigcld() call.
-        while (waitpid(-1,NULL,WNOHANG) > 0);
-      #endif
-    }
+  {
+    #if defined(SIGCLD)
+      SIGNAL(SIGCLD,SIG_IGN);
+      # Try to remove zombies which may have been created since the last
+      # begin_want_sigcld() call.
+      while (waitpid(-1,NULL,WNOHANG) > 0);
+    #endif
+  }
 
 #endif

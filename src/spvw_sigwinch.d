@@ -47,7 +47,7 @@ local void update_linelength (void) {
       if (term_name==NULL)
         term_name = "unknown";
       var char termcap_entry_buf[10000];
-      if ( tgetent(&!termcap_entry_buf,term_name) ==1) {
+      if ( tgetent(termcap_entry_buf,term_name) ==1) {
         /* lines = tgetnum("li"); if (lines<0) { lines = 0; } */
         columns = tgetnum("co"); if (columns<0) { columns = 0; }
       }

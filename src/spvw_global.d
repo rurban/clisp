@@ -171,9 +171,11 @@
 
 # Iteration through heaps.
 #define for_each_heap(heapvar,statement)  \
-  do { var uintL heapnr;                                        \
-       for (heapnr=0; heapnr<heapcount; heapnr++)               \
-         { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  do {                                                   \
+    var uintL heapnr;                                    \
+    for (heapnr=0; heapnr<heapcount; heapnr++) {         \
+      var Heap* heapvar = &mem.heaps[heapnr]; statement; \
+    }                                                    \
   } while(0)
 #define for_each_varobject_heap(heapvar,statement)  \
   do { var Heap* heapvar = &mem.varobjects; statement; } while(0)
@@ -182,9 +184,10 @@
 
 # Iteration through pages.
 #define for_each_page(pagevar,statement)  \
-  do { var uintL heapnr;                                \
-       for (heapnr=0; heapnr<heapcount; heapnr++)       \
-         map_heap(mem.heaps[heapnr],pagevar,statement); \
+  do {                                               \
+    var uintL heapnr;                                \
+    for (heapnr=0; heapnr<heapcount; heapnr++)       \
+      map_heap(mem.heaps[heapnr],pagevar,statement); \
   } while(0)
 #define for_each_varobject_page(pagevar,statement)  \
   map_heap(mem.varobjects,pagevar,statement)
@@ -206,48 +209,58 @@
 
 # Iteration through heaps.
 #define for_each_heap(heapvar,statement)  \
-  do { var uintL heapnr;                                          \
-       for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-         if (mem.heaptype[heapnr] >= 0)                           \
-           { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  do {                                                     \
+    var uintL heapnr;                                      \
+    for (heapnr=0; heapnr<heapcount; heapnr++)             \
+      if (mem.heaptype[heapnr] >= 0) {                     \
+        var Heap* heapvar = &mem.heaps[heapnr]; statement; \
+      }                                                    \
   } while(0)
 #define for_each_varobject_heap(heapvar,statement)  \
-  do { var uintL heapnr;                                          \
-       for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-         if (mem.heaptype[heapnr] > 0)                            \
-           { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  do {                                                     \
+    var uintL heapnr;                                      \
+    for (heapnr=0; heapnr<heapcount; heapnr++)             \
+      if (mem.heaptype[heapnr] > 0) {                      \
+        var Heap* heapvar = &mem.heaps[heapnr]; statement; \
+      }                                                    \
   } while(0)
 #define for_each_cons_heap(heapvar,statement)  \
-  do { var uintL heapnr;                                          \
-       for (heapnr=0; heapnr<heapcount; heapnr++)                 \
-         if (mem.heaptype[heapnr] == 0)                           \
-           { var Heap* heapvar = &mem.heaps[heapnr]; statement; } \
+  do {                                                     \
+    var uintL heapnr;                                      \
+    for (heapnr=0; heapnr<heapcount; heapnr++)             \
+      if (mem.heaptype[heapnr] == 0) {                     \
+        var Heap* heapvar = &mem.heaps[heapnr]; statement; \
+      }                                                    \
   } while(0)
 
 # Iteration through pages.
 #define for_each_page(pagevar,statement)  \
-  do { var uintL heapnr;                                  \
-       for (heapnr=0; heapnr<heapcount; heapnr++)         \
-         if (mem.heaptype[heapnr] >= 0)                   \
-           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  do {                                                     \
+    var uintL heapnr;                                  \
+    for (heapnr=0; heapnr<heapcount; heapnr++)         \
+      if (mem.heaptype[heapnr] >= 0)                   \
+        map_heap(mem.heaps[heapnr],pagevar,statement); \
   } while(0)
 #define for_each_varobject_page(pagevar,statement)  \
-  do { var uintL heapnr;                                  \
-       for (heapnr=0; heapnr<heapcount; heapnr++)         \
-         if (mem.heaptype[heapnr] > 0)                    \
-           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  do {                                                     \
+    var uintL heapnr;                                  \
+    for (heapnr=0; heapnr<heapcount; heapnr++)         \
+      if (mem.heaptype[heapnr] > 0)                    \
+        map_heap(mem.heaps[heapnr],pagevar,statement); \
   } while(0)
 #define for_each_cons_page(pagevar,statement)  \
-  do { var uintL heapnr;                                  \
-       for (heapnr=0; heapnr<heapcount; heapnr++)         \
-         if (mem.heaptype[heapnr] == 0)                   \
-           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  do {                                                     \
+    var uintL heapnr;                                  \
+    for (heapnr=0; heapnr<heapcount; heapnr++)         \
+      if (mem.heaptype[heapnr] == 0)                   \
+        map_heap(mem.heaps[heapnr],pagevar,statement); \
   } while(0)
 #define for_each_cons_page_reversed(pagevar,statement)  \
-  do { var uintL heapnr;                                  \
-       for (heapnr=heapcount; heapnr-- > 0; )             \
-         if (mem.heaptype[heapnr] == 0)                   \
-           map_heap(mem.heaps[heapnr],pagevar,statement); \
+  do {                                                 \
+    var uintL heapnr;                                  \
+    for (heapnr=heapcount; heapnr-- > 0; )             \
+      if (mem.heaptype[heapnr] == 0)                   \
+        map_heap(mem.heaps[heapnr],pagevar,statement); \
   } while(0)
 
 # Heap classification.
@@ -262,56 +275,53 @@
   #if defined(SPVW_PAGES) && defined(DEBUG_SPVW)
     # check, if the administration of the pages is okay:
       #define CHECK_AVL_CONSISTENCY()  check_avl_consistency()
-      local void check_avl_consistency (void);
-      local void check_avl_consistency()
-        {
-          #ifdef DEBUG_AVL
-          var uintL heapnr;
-          for (heapnr=0; heapnr<heapcount; heapnr++) {
-            AVL(AVLID,check) (mem.heaps[heapnr].inuse);
-          }
-          #endif
+      local void check_avl_consistency (void)
+      {
+        #ifdef DEBUG_AVL
+        var uintL heapnr;
+        for (heapnr=0; heapnr<heapcount; heapnr++) {
+          AVL(AVLID,check) (mem.heaps[heapnr].inuse);
         }
+        #endif
+      }
     # check, if the boundaries of the pages are okay:
       #define CHECK_GC_CONSISTENCY()  check_gc_consistency()
-      local void check_gc_consistency (void);
-      local void check_gc_consistency()
-        {
-          for_each_page(page,
-            if ((sintL)page->page_room < 0) {
-              fprintf(stderr,"\npage overrun at address 0x%x\n",page); abort();
-            }
-            if (page->page_start != page_start0(page)) {
-              fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
-              abort();
-            }
-            if (page->page_end + page->page_room
-                != round_down(page->m_start + page->m_length,
-                              varobject_alignment)) {
-              fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
-              abort();
-            }
-          );
-        }
+      local void check_gc_consistency (void)
+      {
+        for_each_page(page,
+          if ((sintL)page->page_room < 0) {
+            fprintf(stderr,"\npage overrun at address 0x%x\n",page); abort();
+          }
+          if (page->page_start != page_start0(page)) {
+            fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
+            abort();
+          }
+          if (page->page_end + page->page_room
+              != round_down(page->m_start + page->m_length,
+                            varobject_alignment)) {
+            fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
+            abort();
+          }
+        );
+      }
     # check, if the boundaries of the pages are okay
     # during the compacting GC:
       #define CHECK_GC_CONSISTENCY_2()  check_gc_consistency_2()
-      local void check_gc_consistency_2 (void);
-      local void check_gc_consistency_2()
-        {
-          for_each_page(page,
-            if ((sintL)page->page_room < 0) {
-              fprintf(stderr,"\npage overrun at address 0x%x\n",page); abort();
-            }
-            if (page->page_end + page->page_room -
-                (page->page_start - page_start0(page))
-                != round_down(page->m_start + page->m_length,
-                              varobject_alignment)) {
-              fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
-              abort();
-            }
-          );
-        }
+      local void check_gc_consistency_2 (void)
+      {
+        for_each_page(page,
+          if ((sintL)page->page_room < 0) {
+            fprintf(stderr,"\npage overrun at address 0x%x\n",page); abort();
+          }
+          if (page->page_end + page->page_room -
+              (page->page_start - page_start0(page))
+              != round_down(page->m_start + page->m_length,
+                            varobject_alignment)) {
+            fprintf(stderr,"\ninconsistent page at address 0x%x\n",page);
+            abort();
+          }
+        );
+      }
   #else
     #define CHECK_AVL_CONSISTENCY()
     #define CHECK_GC_CONSISTENCY()
@@ -320,98 +330,96 @@
   #ifdef DEBUG_SPVW
     # check, if the tables of the packages are to some extent okay:
       #define CHECK_PACK_CONSISTENCY()  check_pack_consistency()
-      global void check_pack_consistency (void);
-      global void check_pack_consistency()
-        {
-          var object plist = O(all_packages);
-          while (consp(plist)) {
-            var object pack = Car(plist);
-            var object symtabs[2];
-            var uintC i;
-            symtabs[0] = ThePackage(pack)->pack_external_symbols;
-            symtabs[1] = ThePackage(pack)->pack_internal_symbols;
-            for (i = 0; i < 2; i++) {
-              var object symtab = symtabs[i];
-              var object table = TheSvector(symtab)->data[1];
-              var uintL index = Svector_length(table);
-              until (index==0) {
-                var object entry = TheSvector(table)->data[--index];
-                var uintC count = 0;
-                while (consp(entry)) {
-                  if (!symbolp(Car(entry))) abort();
-                  entry = Cdr(entry);
-                  count++; if (count>=10000) abort();
-                }
+      global void check_pack_consistency (void)
+      {
+        var object plist = O(all_packages);
+        while (consp(plist)) {
+          var object pack = Car(plist);
+          var object symtabs[2];
+          var uintC i;
+          symtabs[0] = ThePackage(pack)->pack_external_symbols;
+          symtabs[1] = ThePackage(pack)->pack_internal_symbols;
+          for (i = 0; i < 2; i++) {
+            var object symtab = symtabs[i];
+            var object table = TheSvector(symtab)->data[1];
+            var uintL index = Svector_length(table);
+            until (index==0) {
+              var object entry = TheSvector(table)->data[--index];
+              var uintC count = 0;
+              while (consp(entry)) {
+                if (!symbolp(Car(entry)))
+                  abort();
+                entry = Cdr(entry);
+                count++; if (count>=10000) abort();
               }
             }
-            plist = Cdr(plist);
           }
+          plist = Cdr(plist);
         }
+      }
   #else
       #define CHECK_PACK_CONSISTENCY()
   #endif
 
 # Initializations.
   #ifdef SPVW_PURE
-    local inline void init_mem_heaptypes (void);
-    local inline void init_mem_heaptypes()
-      {
-        var uintL heapnr;
-        for (heapnr=0; heapnr<heapcount; heapnr++) {
-          switch (heapnr) {
-            case_sstring:
-            case_sbvector:
-            case_sb2vector:
-            case_sb4vector:
-            case_sb8vector:
-            case_sb16vector:
-            case_sb32vector:
-            case_bignum:
-            #ifndef IMMEDIATE_FFLOAT
-            case_ffloat:
-            #endif
-            case_dfloat:
-            case_lfloat:
-              mem.heaptype[heapnr] = 2; break;
-            case_ostring:
-            case_obvector:
-            case_ob2vector:
-            case_ob4vector:
-            case_ob8vector:
-            case_ob16vector:
-            case_ob32vector:
-            case_weakkvt:
-            case_vector:
-            case_mdarray:
-            case_record:
-            case_symbol:
-              mem.heaptype[heapnr] = 1; break;
-            case_pair:
-              mem.heaptype[heapnr] = 0; break;
-            case_subr:
-              mem.heaptype[heapnr] = -1; break;
-            default:
-              mem.heaptype[heapnr] = -2; break;
-          }
+    local inline void init_mem_heaptypes (void)
+    {
+      var uintL heapnr;
+      for (heapnr=0; heapnr<heapcount; heapnr++) {
+        switch (heapnr) {
+          case_sstring:
+          case_sbvector:
+          case_sb2vector:
+          case_sb4vector:
+          case_sb8vector:
+          case_sb16vector:
+          case_sb32vector:
+          case_bignum:
+          #ifndef IMMEDIATE_FFLOAT
+          case_ffloat:
+          #endif
+          case_dfloat:
+          case_lfloat:
+            mem.heaptype[heapnr] = 2; break;
+          case_ostring:
+          case_obvector:
+          case_ob2vector:
+          case_ob4vector:
+          case_ob8vector:
+          case_ob16vector:
+          case_ob32vector:
+          case_weakkvt:
+          case_vector:
+          case_mdarray:
+          case_record:
+          case_symbol:
+            mem.heaptype[heapnr] = 1; break;
+          case_pair:
+            mem.heaptype[heapnr] = 0; break;
+          case_subr:
+            mem.heaptype[heapnr] = -1; break;
+          default:
+            mem.heaptype[heapnr] = -2; break;
         }
       }
+    }
   #endif
   #if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
-    local inline void init_mem_heapnr_from_type (void);
-    local inline void init_mem_heapnr_from_type()
-      {
-        var uintL type;
-        for (type = 0; type < typecount; type++) {
-          #ifdef MULTIMAP_MEMORY
-          switch (type) {
-            MM_TYPECASES break;
-            default: mem.heapnr_from_type[type] = -1; continue;
-          }
-          #endif
-          switch (type) {
-            case_pair: mem.heapnr_from_type[type] = 1; break;
-            default:   mem.heapnr_from_type[type] = 0; break;
-          }
+    local inline void init_mem_heapnr_from_type (void)
+    {
+      var uintL type;
+      for (type = 0; type < typecount; type++) {
+        #ifdef MULTIMAP_MEMORY
+        switch (type) {
+          MM_TYPECASES break;
+          default: mem.heapnr_from_type[type] = -1; continue;
+        }
+        #endif
+        switch (type) {
+          case_pair: mem.heapnr_from_type[type] = 1; break;
+          default:   mem.heapnr_from_type[type] = 0; break;
         }
       }
+    }
   #endif

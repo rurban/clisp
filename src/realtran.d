@@ -2,87 +2,98 @@
 
 # pi_F_float_F(f) liefert die Zahl pi im selben Float-Format wie f.
 # can trigger GC
-  local object pi_F_float_F (object f);
-  local object pi_F_float_F(f)
-    var object f;
-    { floatcase(f,
-                { return O(SF_pi); },
-                { return O(FF_pi); },
-                { return O(DF_pi); },
-                ;
-               );
-     {var object pi = O(LF_pi);
-      var uintC f_len = Lfloat_length(f); # gewünschte Länge von Pi
-      var uintC oldlen = Lfloat_length(pi); # vorhandene Länge
-      var uintC newlen;
-      if (f_len < oldlen) { return LF_shorten_LF(pi,f_len); }
-      if (f_len == oldlen) { return pi; }
-      # Lfloat_length(O(LF_pi)) um mindestens einen konstanten Faktor
-      # > 1 wachsen lassen, damit es nicht zu häufig nachberechnet wird:
-      oldlen += floor(oldlen,2); # oldlen * 3/2
-      newlen = (f_len < oldlen ? oldlen : f_len);
-      # gewünschte > vorhandene Länge -> muss nachberechnen:
-      # Methode:
-      # [Richard P. Brent: Fast multiple-precision evaluation of elementary
-      #  functions. J. ACM 23(1976), 242-251.]
-      # d=f_len, n:=16*d. Verwende Long-Floats mit 16*(d+1) Mantissenbits.
-      # (let* ((a (coerce 1 'long-float)) ; 1
-      #        (b (sqrt (scale-float a -1))) ; 2^-(1/2)
-      #        (eps (scale-float a (- n))) ; 2^-n
-      #        (t (scale-float a -2)) ; 1/4
-      #        (x 0)
-      #       )
-      #   (loop
-      #     (when (< (- a b) eps) (return))
-      #     (let ((y a))
-      #       (setq a (scale-float (+ a b) -1))
-      #       (setq b (sqrt (* b y)))
-      #       (setq t (- t (scale-float (expt (- a y) 2) x)))
-      #     )
-      #     (incf x)
-      #   )
-      #   (/ (expt a 2) t)
-      # )
-      {var uintC len = newlen + 1; # Arbeite mit Long-Floats mit len Digits
-       if (uintWCoverflow(len)) { fehler_LF_toolong(); }
-       {var uintL uexp_limit = LF_exp_mid - intDsize*(uintL)newlen; # LF_exp_mid - n
-        # Ein Long-Float ist genau dann betragsmäßig <2^-n, wenn
-        # sein Exponent < LF_exp_mid-n = uexp_limit ist.
-        {var object temp = I_to_LF(Fixnum_1,len); # 1 als Long-Float
-         pushSTACK(temp); # =: a
-         temp = LF_I_scale_float_LF(temp,Fixnum_minus1); # (scale-float a -1)
-         pushSTACK(LF_sqrt_LF(temp)); # daraus die Wurzel, =: b
-         pushSTACK(Fixnum_0); # x:=0
-         temp = LF_I_scale_float_LF(STACK_2,sfixnum(-2)); # (scale-float a -2)
-         pushSTACK(temp); # =: t
-        }# Stackaufbau: a, b, x, t.
-        loop
-          {{var object temp;
-            temp = LF_LF_minus_LF(STACK_3,STACK_2); # (- a b)
-            if (TheLfloat(temp)->expo < uexp_limit) # Exponent < uexp_limit
-              break; } # ja -> |a-b| < 2^-n -> fertig
-           {var object temp;
-            temp = LF_LF_plus_LF(STACK_3,STACK_2); # a+b
-            temp = LF_I_scale_float_LF(temp,Fixnum_minus1); # (a+b)/2
-            pushSTACK(temp); } # neues a
-            STACK_(2+1) = LF_sqrt_LF(LF_LF_mal_LF(STACK_(3+1),STACK_(2+1))); # b := sqrt(a*b)
-           {var object temp;
-            temp = STACK_(3+1); # altes a
-            temp = LF_LF_minus_LF(STACK_(3+1) = STACK_0, temp); # neues a - altes a
-            temp = LF_square_LF(temp); # quadieren
-            temp = LF_I_scale_float_LF(temp,STACK_(1+1)); # mal 2^x
-            skipSTACK(1);
-            STACK_0 = LF_LF_minus_LF(STACK_0,temp); # von t subtrahieren
-            STACK_1 = fixnum_inc(STACK_1,1); # x:=x+1
-          }}
-        {var object temp;
-         temp = LF_square_LF(STACK_3); # a quadieren
-         temp = LF_LF_durch_LF(temp,STACK_0); # durch t dividieren
-         skipSTACK(4);
-         # temp = Pi ist fertig.
-         temp = O(LF_pi) = LF_shorten_LF(temp,newlen); # wieder verkürzen, als LF_pi abspeichern
-         return (f_len < newlen ? LF_shorten_LF(temp,f_len) : temp);
-    }}}}}
+  local object pi_F_float_F (object f)
+  {
+    floatcase(f,
+              { return O(SF_pi); },
+              { return O(FF_pi); },
+              { return O(DF_pi); },
+              ;
+             );
+    var object pi = O(LF_pi);
+    var uintC f_len = Lfloat_length(f); # gewünschte Länge von Pi
+    var uintC oldlen = Lfloat_length(pi); # vorhandene Länge
+    var uintC newlen;
+    if (f_len < oldlen)
+      return LF_shorten_LF(pi,f_len);
+    if (f_len == oldlen)
+      return pi;
+    # Lfloat_length(O(LF_pi)) um mindestens einen konstanten Faktor
+    # > 1 wachsen lassen, damit es nicht zu häufig nachberechnet wird:
+    oldlen += floor(oldlen,2); # oldlen * 3/2
+    newlen = (f_len < oldlen ? oldlen : f_len);
+    # gewünschte > vorhandene Länge -> muss nachberechnen:
+    # Methode:
+    # [Richard P. Brent: Fast multiple-precision evaluation of elementary
+    #  functions. J. ACM 23(1976), 242-251.]
+    # d=f_len, n:=16*d. Verwende Long-Floats mit 16*(d+1) Mantissenbits.
+    # (let* ((a (coerce 1 'long-float)) ; 1
+    #        (b (sqrt (scale-float a -1))) ; 2^-(1/2)
+    #        (eps (scale-float a (- n))) ; 2^-n
+    #        (t (scale-float a -2)) ; 1/4
+    #        (x 0)
+    #       )
+    #   (loop
+    #     (when (< (- a b) eps) (return))
+    #     (let ((y a))
+    #       (setq a (scale-float (+ a b) -1))
+    #       (setq b (sqrt (* b y)))
+    #       (setq t (- t (scale-float (expt (- a y) 2) x)))
+    #     )
+    #     (incf x)
+    #   )
+    #   (/ (expt a 2) t)
+    # )
+    var uintC len = newlen + 1; # Arbeite mit Long-Floats mit len Digits
+    if (uintWCoverflow(len)) { fehler_LF_toolong(); }
+    var uintL uexp_limit = LF_exp_mid - intDsize*(uintL)newlen; # LF_exp_mid - n
+    # Ein Long-Float ist genau dann betragsmäßig <2^-n, wenn
+    # sein Exponent < LF_exp_mid-n = uexp_limit ist.
+    {
+      var object temp = I_to_LF(Fixnum_1,len); # 1 als Long-Float
+      pushSTACK(temp); # =: a
+      temp = LF_I_scale_float_LF(temp,Fixnum_minus1); # (scale-float a -1)
+      pushSTACK(LF_sqrt_LF(temp)); # daraus die Wurzel, =: b
+      pushSTACK(Fixnum_0); # x:=0
+      temp = LF_I_scale_float_LF(STACK_2,sfixnum(-2)); # (scale-float a -2)
+      pushSTACK(temp); # =: t
+    }
+    # Stackaufbau: a, b, x, t.
+    loop {
+      {
+        var object temp;
+        temp = LF_LF_minus_LF(STACK_3,STACK_2); # (- a b)
+        if (TheLfloat(temp)->expo < uexp_limit) # Exponent < uexp_limit
+          break; # ja -> |a-b| < 2^-n -> fertig
+      }
+      {
+        var object temp;
+        temp = LF_LF_plus_LF(STACK_3,STACK_2); # a+b
+        temp = LF_I_scale_float_LF(temp,Fixnum_minus1); # (a+b)/2
+        pushSTACK(temp); # neues a
+      }
+      STACK_(2+1) = LF_sqrt_LF(LF_LF_mal_LF(STACK_(3+1),STACK_(2+1))); # b := sqrt(a*b)
+      {
+        var object temp;
+        temp = STACK_(3+1); # altes a
+        temp = LF_LF_minus_LF(STACK_(3+1) = STACK_0, temp); # neues a - altes a
+        temp = LF_square_LF(temp); # quadieren
+        temp = LF_I_scale_float_LF(temp,STACK_(1+1)); # mal 2^x
+        skipSTACK(1);
+        STACK_0 = LF_LF_minus_LF(STACK_0,temp); # von t subtrahieren
+        STACK_1 = fixnum_inc(STACK_1,1); # x:=x+1
+      }
+    }
+    {
+      var object temp;
+      temp = LF_square_LF(STACK_3); # a quadieren
+      temp = LF_LF_durch_LF(temp,STACK_0); # durch t dividieren
+      skipSTACK(4);
+      # temp = Pi ist fertig.
+      temp = O(LF_pi) = LF_shorten_LF(temp,newlen); # wieder verkürzen, als LF_pi abspeichern
+      return (f_len < newlen ? LF_shorten_LF(temp,f_len) : temp);
+    }
+  }
 
 # pi(x) returns the number pi in default-float-format or the format of x
 # can trigger GC
@@ -138,57 +149,60 @@ local object pi (object x) {
 # Aufwand: asymptotisch d^2.5 .
 
 # Generiert eine Funktion wie F_atanx_F
-  #define GEN_F_atanx(name,Fixnum_plusminus1,F_plusminus_F)                          \
-    local object CONCAT3(F_,name,_F) (var object x)                                  \
-      { if (R_zerop(x)) { return x; }                                                \
-       {var uintL d = F_float_digits(x);                                             \
-        var sintL e = F_exponent_L(x);                                               \
-        if (e <= (sintL)(-d)>>1) # e <= -d/2 <==> e <= -ceiling(d/2)                 \
-          { return x; } # ja -> x als Ergebnis                                       \
-        pushSTACK(x);                                                                \
-        # Stackaufbau: x.                                                            \
-        {var object k = Fixnum_0; # Rekursionszähler k:=0                            \
-         var uintL sqrt_d = UL_sqrt_UW(d); # floor(sqrt(d))                          \
-         # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.         \
-         if (e >= (sintL)(-sqrt_d))                                                  \
-           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                          \
-           { var sintL e_limit = 1+sqrt_d; # 1+floor(sqrt(d))                        \
-             pushSTACK(x = F_durch_F(F_abs_F(x))); # 1/|x|                           \
-             # Stackaufbau: originales x, neues x.                                   \
-             loop                                                                    \
-               { # nächstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:       \
-                 x = F_sqrt_F(R_R_plus_R(F_square_F(x),Fixnum_plusminus1));          \
-                 STACK_0 = x = F_F_plus_F(STACK_0,x);                                \
-                 k = fixnum_inc(k,1); # k:=k+1                                       \
-                 if (F_exponent_L(x) > e_limit) break;                               \
-               }                                                                     \
-             # Schleifenende mit Exponent(x) > 1+floor(sqrt(d)), also                \
-             # x >= 2^(1+floor(sqrt(d))), also 1/x <= 2^(-1-floor(sqrt(d))).         \
-             # Nun kann die Potenzreihe auf 1/x angewandt werden.                    \
-            {var object x = F_durch_F(popSTACK());                                   \
-             if (R_minusp(STACK_0)) { x = F_minus_F(x); } # Vorzeichen wieder rein   \
-             STACK_0 = x; # neues x ersetzt altes x                                  \
-           }}                                                                        \
-         # Stackaufbau: neues x.                                                     \
-         # Potenzreihe anwenden:                                                     \
-         {var object i = Fixnum_1;                                                   \
-          pushSTACK(F_plusminus_F(F_square_F(STACK_0))); # a := -x^2 bzw. x^2        \
-          pushSTACK(I_F_float_F(Fixnum_1,STACK_1)); # b := (float 1 x)               \
-          pushSTACK(I_F_float_F(Fixnum_0,STACK_2)); # sum := (float 0 x)             \
-          # Stackaufbau: x, a, b, sum.                                               \
-          loop                                                                       \
-            { var object temp;                                                       \
-              temp = R_R_durch_R(STACK_1,i); # (/ b i)                               \
-              temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))                     \
-              if (eql(STACK_0,temp)) # = sum ?                                       \
-                break; # ja -> Potenzreihe abbrechen                                 \
-              STACK_0 = temp;                                                        \
-              STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a                       \
-              i = fixnum_inc(i,2); # i := i+2                                        \
-         }  }                                                                        \
-         {var object erg = F_F_mal_F(STACK_0,STACK_3); # sum*x als Ergebnis          \
-          skipSTACK(4);                                                              \
-          return F_I_scale_float_F(erg,k); # wegen Rekursion noch mal 2^k            \
+  #define GEN_F_atanx(name,Fixnum_plusminus1,F_plusminus_F)                         \
+    local object CONCAT3(F_,name,_F) (object x)                                     \
+      { if (R_zerop(x))                                                             \
+          return x;                                                                 \
+       {var uintL d = F_float_digits(x);                                            \
+        var sintL e = F_exponent_L(x);                                              \
+        if (e <= (sintL)(-d)>>1) # e <= -d/2 <==> e <= -ceiling(d/2)                \
+          return x; # ja -> x als Ergebnis                                          \
+        pushSTACK(x);                                                               \
+        # Stackaufbau: x.                                                           \
+        {var object k = Fixnum_0; # Rekursionszähler k:=0                           \
+         var uintL sqrt_d = UL_sqrt_UW(d); # floor(sqrt(d))                         \
+         # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.        \
+         if (e >= (sintL)(-sqrt_d)) {                                               \
+           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                         \
+           var sintL e_limit = 1+sqrt_d; # 1+floor(sqrt(d))                         \
+           pushSTACK(x = F_durch_F(F_abs_F(x))); # 1/|x|                            \
+           # Stackaufbau: originales x, neues x.                                    \
+           loop {                                                                   \
+             # nächstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:          \
+             x = F_sqrt_F(R_R_plus_R(F_square_F(x),Fixnum_plusminus1));             \
+             STACK_0 = x = F_F_plus_F(STACK_0,x);                                   \
+             k = fixnum_inc(k,1); # k:=k+1                                          \
+             if (F_exponent_L(x) > e_limit)                                         \
+               break;                                                               \
+           }                                                                        \
+           # Schleifenende mit Exponent(x) > 1+floor(sqrt(d)), also                 \
+           # x >= 2^(1+floor(sqrt(d))), also 1/x <= 2^(-1-floor(sqrt(d))).          \
+           # Nun kann die Potenzreihe auf 1/x angewandt werden.                     \
+           {var object x = F_durch_F(popSTACK());                                   \
+            if (R_minusp(STACK_0)) { x = F_minus_F(x); } # Vorzeichen wieder rein   \
+            STACK_0 = x; # neues x ersetzt altes x                                  \
+         } }                                                                        \
+         # Stackaufbau: neues x.                                                    \
+         # Potenzreihe anwenden:                                                    \
+         {var object i = Fixnum_1;                                                  \
+          pushSTACK(F_plusminus_F(F_square_F(STACK_0))); # a := -x^2 bzw. x^2       \
+          pushSTACK(I_F_float_F(Fixnum_1,STACK_1)); # b := (float 1 x)              \
+          pushSTACK(I_F_float_F(Fixnum_0,STACK_2)); # sum := (float 0 x)            \
+          # Stackaufbau: x, a, b, sum.                                              \
+          loop {                                                                    \
+            var object temp;                                                        \
+            temp = R_R_durch_R(STACK_1,i); # (/ b i)                                \
+            temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))                      \
+            if (eql(STACK_0,temp)) # = sum ?                                        \
+              break; # ja -> Potenzreihe abbrechen                                  \
+            STACK_0 = temp;                                                         \
+            STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a                        \
+            i = fixnum_inc(i,2); # i := i+2                                         \
+          }                                                                         \
+         }                                                                          \
+         {var object erg = F_F_mal_F(STACK_0,STACK_3); # sum*x als Ergebnis         \
+          skipSTACK(4);                                                             \
+          return F_I_scale_float_F(erg,k); # wegen Rekursion noch mal 2^k           \
       }}}}
 # F_atanx_F : mit x -> x+sqrt(x^2-1), a = -x^2
   GEN_F_atanx(atanx,Fixnum_1,F_minus_F)
@@ -211,59 +225,62 @@ local object pi (object x) {
 # 0 <= |x| <= y  ->  pi/2 - atan(x/y)
 # 0 <= |x| <= -y  ->  -pi/2 - atan(x/y)
 # 0 <= |y| <= -x  ->  für y>=0: pi + atan(y/x), für y<0: -pi + atan(y/x)
-  local object R_R_atan_R(x,y)
-    var object x;
-    var object y;
-    { if (eq(y,Fixnum_0))
-        # y=0 (exakt)
-        { if (R_zerop(x)) { divide_0(); } # x=0 -> Error
-          if (R_minusp(x)) { return pi(x); } # x<0 -> pi in default-float-format
-          else { return Fixnum_0; } # x>0 -> 0
-        }
-      elif (eq(x,Fixnum_0))
-        # x=0 (exakt)
-        { if (R_zerop(y)) { divide_0(); } # y=0 -> Error
-          if (R_minusp(y)) # y<0 -> -pi/2
-            { return F_minus_F(F_I_scale_float_F(pi(y),Fixnum_minus1)); }
-          else # y>0 -> pi/2
-            { return F_I_scale_float_F(pi(y),Fixnum_minus1); }
-        }
-      pushSTACK(x); pushSTACK(y);
-      # Stackaufbau: x, y.
-      if (R_rationalp(x) && R_rationalp(y))
-        # x,y in Floats umwandeln:
-        { STACK_1 = RA_float_F(x); STACK_0 = RA_float_F(STACK_0); }
-      # x,y nicht exakt =0, x/y und y/x werden Floats sein.
-      pushSTACK(R_abs_R(STACK_1)); y = R_abs_R(STACK_(0+1)); x = popSTACK();
-      if (R_R_comp(x,y) >= 0) # (abs x) und (abs y) vergleichen
-        # |x| >= |y|
-        { var object z = F_atanx_F(R_R_durch_R(STACK_0,STACK_1)); # atan(y/x)
-          # Division war erfolgreich, also x/=0.
-          if (R_minusp(STACK_1))
-            # x<0 -> pi bzw. -pi addieren:
-            { STACK_1 = z; # atan(y/x) retten
-              z = pi_F_float_F(z); # pi im selben Float-Format
-              if (!R_minusp(STACK_0))
-                { z = F_F_plus_F(STACK_1,z); } # y>=0 -> atan(y/x) + pi
-                else
-                { z = F_F_minus_F(STACK_1,z); } # y<0 -> atan(y/x) - pi
-            }
-          skipSTACK(2);
-          return z;
-        }
-        else
-        # |x| < |y|
-        { var object z = F_atanx_F(R_R_durch_R(STACK_1,STACK_0)); # atan(x/y)
-          # von pi/2 bzw. -pi/2 subtrahieren:
-          STACK_1 = z; # atan(x/y) retten
-          z = pi_F_float_F(z); # pi im selben Float-Format
-          z = F_I_scale_float_F(z,Fixnum_minus1); # pi/2
-          if (R_minusp(STACK_0)) { z = F_minus_F(z); } # y<0 -> -pi/2 statt pi/2
-          z = F_F_minus_F(z,STACK_1); # +-pi/2 - atan(x/y)
-          skipSTACK(2);
-          return z;
-        }
+  local object R_R_atan_R (object x, object y)
+  {
+    if (eq(y,Fixnum_0)) {
+      # y=0 (exakt)
+      if (R_zerop(x)) # x=0 -> Error
+        divide_0();
+      if (R_minusp(x)) # x<0 -> pi in default-float-format
+        return pi(x);
+      else # x>0 -> 0
+        return Fixnum_0;
+    } elif (eq(x,Fixnum_0)) {
+      # x=0 (exakt)
+      if (R_zerop(y)) # y=0 -> Error
+        divide_0();
+      if (R_minusp(y)) # y<0 -> -pi/2
+        return F_minus_F(F_I_scale_float_F(pi(y),Fixnum_minus1));
+      else # y>0 -> pi/2
+        return F_I_scale_float_F(pi(y),Fixnum_minus1);
     }
+    pushSTACK(x); pushSTACK(y);
+    # Stackaufbau: x, y.
+    if (R_rationalp(x) && R_rationalp(y)) {
+      # x,y in Floats umwandeln:
+      STACK_1 = RA_float_F(x); STACK_0 = RA_float_F(STACK_0);
+    }
+    # x,y nicht exakt =0, x/y und y/x werden Floats sein.
+    pushSTACK(R_abs_R(STACK_1)); y = R_abs_R(STACK_(0+1)); x = popSTACK();
+    if (R_R_comp(x,y) >= 0) { # (abs x) und (abs y) vergleichen
+      # |x| >= |y|
+      var object z = F_atanx_F(R_R_durch_R(STACK_0,STACK_1)); # atan(y/x)
+      # Division war erfolgreich, also x/=0.
+      if (R_minusp(STACK_1)) {
+        # x<0 -> pi bzw. -pi addieren:
+        STACK_1 = z; # atan(y/x) retten
+        z = pi_F_float_F(z); # pi im selben Float-Format
+        if (!R_minusp(STACK_0))
+          z = F_F_plus_F(STACK_1,z); # y>=0 -> atan(y/x) + pi
+        else
+          z = F_F_minus_F(STACK_1,z); # y<0 -> atan(y/x) - pi
+      }
+      skipSTACK(2);
+      return z;
+    } else {
+      # |x| < |y|
+      var object z = F_atanx_F(R_R_durch_R(STACK_1,STACK_0)); # atan(x/y)
+      # von pi/2 bzw. -pi/2 subtrahieren:
+      STACK_1 = z; # atan(x/y) retten
+      z = pi_F_float_F(z); # pi im selben Float-Format
+      z = F_I_scale_float_F(z,Fixnum_minus1); # pi/2
+      if (R_minusp(STACK_0)) # y<0 -> -pi/2 statt pi/2
+        z = F_minus_F(z);
+      z = F_F_minus_F(z,STACK_1); # +-pi/2 - atan(x/y)
+      skipSTACK(2);
+      return z;
+    }
+  }
 
 # R_atan_R(x) liefert den Arctan einer reellen Zahl x.
 # Ergebnis rational nur, wenn x=0.
@@ -272,9 +289,8 @@ local object pi (object x) {
 # Methode:
 # arctan(x) = arctan(X=1,Y=x).
 #if 0
-  local object R_atan_R(x)
-    var object x;
-    { return R_R_atan_R(Fixnum_1,x); }
+  local object R_atan_R (object x)
+  { return R_R_atan_R(Fixnum_1,x); }
 #else # Macro spart Code
   #define R_atan_R(x)  R_R_atan_R(Fixnum_1,x)
 #endif
@@ -330,55 +346,58 @@ local object pi (object x) {
 # Aufwand: asymptotisch d^2.5 .
 
 # Generiert eine Funktion wie F_sinx_F
-  #define GEN_F_sinx(name,f,flag,R_R_plusminus_R)                                   \
-    local object CONCAT3(F_,name,_F) (var object x)                                 \
-      { if (R_zerop(x)) { return I_F_float_F(Fixnum_1,x); }                         \
-       {var uintL d = F_float_digits(x);                                            \
-        var sintL e = F_exponent_L(x);                                              \
-        if (e <= (sintL)(f-d)>>1) # e <= (f-d)/2 <==> e <= -ceiling((d-f)/2) ?      \
-          { return I_F_float_F(Fixnum_1,x); } # ja -> 1.0 als Ergebnis              \
-        pushSTACK(x);                                                               \
-        {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.        \
-         var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))                  \
-         if (e > e_limit)                                                           \
-           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                         \
-           { x = I_I_minus_I(L_to_FN(e_limit),L_to_I(e));                           \
-             STACK_0 = F_I_scale_float_F(STACK_0,x); # x := x*2^(e_limit-e)         \
-           }                                                                        \
-         x = STACK_0; pushSTACK(F_square_F(x));                                     \
-         # Stackaufbau: x, x^2.                                                     \
-         # Potenzreihe anwenden:                                                    \
-         pushSTACK(STACK_0);                                                        \
-         if (flag) { STACK_0 = F_minus_F(STACK_0); } # a := -x^2 bzw. x^2           \
-         {var object i = Fixnum_1;                                                  \
-          pushSTACK(I_F_float_F(Fixnum_1,STACK_2)); # b := (float 1 x)              \
-          pushSTACK(I_F_float_F(Fixnum_0,STACK_3)); # sum := (float 0 x)            \
-          # Stackaufbau: x, x^2, a, b, sum.                                         \
-          loop                                                                      \
-            { var object temp;                                                      \
-              temp = F_F_plus_F(STACK_0,STACK_1); # (+ sum b)                       \
-              if (eql(STACK_0,temp)) # = sum ?                                      \
-                break; # ja -> Potenzreihe abbrechen                                \
-              STACK_0 = temp;                                                       \
-              STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a                      \
-              temp = I_I_mal_I(fixnum_inc(i,1),fixnum_inc(i,2)); # (i+1)*(i+2)      \
-              i = fixnum_inc(i,2); # i := i+2                                       \
-              STACK_1 = R_R_durch_R(STACK_1,temp); # b := b/((i+1)*(i+2))           \
-         }  }                                                                       \
-         {var object z = F_square_F(STACK_0); # sum^2 als Ergebnis                  \
-          # Stackaufbau: x, x^2, -, -, -.                                           \
-          # Wegen Rekursion noch max(e-e_limit,0) mal z verändern:                  \
-          if (e > e_limit)                                                          \
-            { STACK_4 = z; # z retten                                               \
-              do { z = R_R_plusminus_R(Fixnum_1,F_F_mal_F(STACK_3,z)); # 1 +- x^2*z \
-                   STACK_4 = F_F_mal_F(STACK_4,z); # mit z multiplizieren           \
-                   STACK_3 = F_I_scale_float_F(STACK_3,fixnum(2)); # x^2 := x^2*4   \
-                   z = STACK_4;                                                     \
-                   e_limit++;                                                       \
-                 } while (e > e_limit);                                             \
-            }                                                                       \
-          skipSTACK(5);                                                             \
-          return z;                                                                 \
+  #define GEN_F_sinx(name,f,flag,R_R_plusminus_R)                              \
+    local object CONCAT3(F_,name,_F) (object x)                                \
+      { if (R_zerop(x))                                                        \
+          return I_F_float_F(Fixnum_1,x);                                      \
+       {var uintL d = F_float_digits(x);                                       \
+        var sintL e = F_exponent_L(x);                                         \
+        if (e <= (sintL)(f-d)>>1) # e <= (f-d)/2 <==> e <= -ceiling((d-f)/2) ? \
+          return I_F_float_F(Fixnum_1,x); # ja -> 1.0 als Ergebnis             \
+        pushSTACK(x);                                                          \
+        {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.   \
+         var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))             \
+         if (e > e_limit) {                                                    \
+           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                    \
+           x = I_I_minus_I(L_to_FN(e_limit),L_to_I(e));                        \
+           STACK_0 = F_I_scale_float_F(STACK_0,x); # x := x*2^(e_limit-e)      \
+         }                                                                     \
+         x = STACK_0; pushSTACK(F_square_F(x));                                \
+         # Stackaufbau: x, x^2.                                                \
+         # Potenzreihe anwenden:                                               \
+         pushSTACK(STACK_0);                                                   \
+         if (flag) { STACK_0 = F_minus_F(STACK_0); } # a := -x^2 bzw. x^2      \
+         {var object i = Fixnum_1;                                             \
+          pushSTACK(I_F_float_F(Fixnum_1,STACK_2)); # b := (float 1 x)         \
+          pushSTACK(I_F_float_F(Fixnum_0,STACK_3)); # sum := (float 0 x)       \
+          # Stackaufbau: x, x^2, a, b, sum.                                    \
+          loop {                                                               \
+            var object temp;                                                   \
+            temp = F_F_plus_F(STACK_0,STACK_1); # (+ sum b)                    \
+            if (eql(STACK_0,temp)) # = sum ?                                   \
+              break; # ja -> Potenzreihe abbrechen                             \
+            STACK_0 = temp;                                                    \
+            STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a                   \
+            temp = I_I_mal_I(fixnum_inc(i,1),fixnum_inc(i,2)); # (i+1)*(i+2)   \
+            i = fixnum_inc(i,2); # i := i+2                                    \
+            STACK_1 = R_R_durch_R(STACK_1,temp); # b := b/((i+1)*(i+2))        \
+          }                                                                    \
+         }                                                                     \
+         {var object z = F_square_F(STACK_0); # sum^2 als Ergebnis             \
+          # Stackaufbau: x, x^2, -, -, -.                                      \
+          # Wegen Rekursion noch max(e-e_limit,0) mal z verändern:             \
+          if (e > e_limit) {                                                   \
+            STACK_4 = z; # z retten                                            \
+            do {                                                               \
+              z = R_R_plusminus_R(Fixnum_1,F_F_mal_F(STACK_3,z)); # 1 +- x^2*z \
+              STACK_4 = F_F_mal_F(STACK_4,z); # mit z multiplizieren           \
+              STACK_3 = F_I_scale_float_F(STACK_3,fixnum(2)); # x^2 := x^2*4   \
+              z = STACK_4;                                                     \
+              e_limit++;                                                       \
+            } while (e > e_limit);                                             \
+          }                                                                    \
+          skipSTACK(5);                                                        \
+          return z;                                                            \
       }}}}
 # F_sinx_F : mit z -> z*(1-y^2*z), a = -x^2, -d/2
   GEN_F_sinx(sinx,0,true,R_R_minus_R)
@@ -621,71 +640,81 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 # Sonst setze y := sqrt(x), berechne rekursiv z:=ln(y)
 #   und liefere 2*z = (scale-float z 1).
 # Aufwand: asymptotisch d^2.5 .
-  local object F_lnx_F(x)
-    var object x;
-    { pushSTACK(x);
-      x = R_R_minus_R(x,Fixnum_1); # y := (- x 1)
-      if (R_zerop(x)) { skipSTACK(1); return x; } # y=0.0 -> y als Ergebnis
-      pushSTACK(x);
-      # Stackaufbau: x, y.
-     {var uintL d = F_float_digits(x);
-      var sintL e = F_exponent_L(x);
-       if (e <= (sintL)(-d)) # e <= -d ?
-         { x = STACK_0; skipSTACK(2); return x; } # ja -> y als Ergebnis
-      { var object k = Fixnum_0; # Rekursionszähler k:=0
-       {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
-        var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
-        while (e > e_limit)
-          # e > -1-floor(sqrt(d)) -> muss |y| verkleinern.
-          { var object x = F_sqrt_F(STACK_1); STACK_1 = x; # x := (sqrt x)
-            x = R_R_minus_R(x,Fixnum_1); STACK_0 = x; # y := (- x 1) und
-            e = F_exponent_L(x); # e neu berechnen
-            k = fixnum_inc(k,1); # k:=k+1
-       }  }
-       # Stackaufbau: x, y.
-       # Potenzreihe anwenden:
-       {var object i = Fixnum_1;
-        pushSTACK(I_F_float_F(Fixnum_0,STACK_1)); # sum := (float 0 x)
-        STACK_2 = F_minus_F(STACK_1); # a := -y, b := y
-        # Stackaufbau: a, b, sum.
-        loop
-          { var object temp;
-            temp = R_R_durch_R(STACK_1,i); # (/ b i)
-            temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))
-            if (eql(STACK_0,temp)) # = sum ?
-              break; # ja -> Potenzreihe abbrechen
-            STACK_0 = temp;
-            STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a
-            i = fixnum_inc(i,1); # i := i+1
-       }  }
-       {var object erg = STACK_0; # sum als Ergebnis
-        skipSTACK(3);
-        return F_I_scale_float_F(erg,k); # wegen Rekursion noch mal 2^k
-    }}}}
+  local object F_lnx_F (object x)
+  {
+    pushSTACK(x);
+    x = R_R_minus_R(x,Fixnum_1); # y := (- x 1)
+    if (R_zerop(x)) { # y=0.0 -> y als Ergebnis
+      skipSTACK(1); return x;
+    }
+    pushSTACK(x);
+    # Stackaufbau: x, y.
+    var uintL d = F_float_digits(x);
+    var sintL e = F_exponent_L(x);
+    if (e <= (sintL)(-d)) { # e <= -d ?
+      x = STACK_0; skipSTACK(2); return x; # ja -> y als Ergebnis
+    }
+    var object k = Fixnum_0; # Rekursionszähler k:=0
+    { # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
+      var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
+      while (e > e_limit) {
+        # e > -1-floor(sqrt(d)) -> muss |y| verkleinern.
+        var object x = F_sqrt_F(STACK_1); STACK_1 = x; # x := (sqrt x)
+        x = R_R_minus_R(x,Fixnum_1); STACK_0 = x; # y := (- x 1) und
+        e = F_exponent_L(x); # e neu berechnen
+        k = fixnum_inc(k,1); # k:=k+1
+      }
+    }
+    # Stackaufbau: x, y.
+    # Potenzreihe anwenden:
+    {
+      var object i = Fixnum_1;
+      pushSTACK(I_F_float_F(Fixnum_0,STACK_1)); # sum := (float 0 x)
+      STACK_2 = F_minus_F(STACK_1); # a := -y, b := y
+      # Stackaufbau: a, b, sum.
+      loop {
+        var object temp;
+        temp = R_R_durch_R(STACK_1,i); # (/ b i)
+        temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))
+        if (eql(STACK_0,temp)) # = sum ?
+          break; # ja -> Potenzreihe abbrechen
+        STACK_0 = temp;
+        STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a
+        i = fixnum_inc(i,1); # i := i+1
+      }
+    }
+    var object erg = STACK_0; # sum als Ergebnis
+    skipSTACK(3);
+    return F_I_scale_float_F(erg,k); # wegen Rekursion noch mal 2^k
+  }
 
 # ln2_F_float_F(f) liefert die Zahl ln(2) im selben Float-Format wie f.
 # can trigger GC
-  local object ln2_F_float_F (object f);
-  local object ln2_F_float_F(f)
-    var object f;
-    { var object ln2 = O(LF_ln2);
-      floatcase(f,
-                { return LF_to_SF(ln2); },
-                { return LF_to_FF(ln2); },
-                { return LF_to_DF(ln2); },
-                ;
-               );
-     {var uintC f_len = Lfloat_length(f); # gewünschte Länge von ln(2)
-      {var uintC len = Lfloat_length(ln2); # vorhandene Länge
-       if (f_len < len) { return LF_shorten_LF(ln2,f_len); }
-       if (f_len == len) { return ln2; }
-      }
-      # gewünschte > vorhandene Länge -> muss nachberechnen:
-      {var uintC len = lf_len_extend(f_len); # einige Digits mehr verlangen
-       var object temp = F_lnx_F(I_to_LF(fixnum(2),len)); # (ln 2.0)
-       # temp = ln(2) ist fertig.
-       return O(LF_ln2) = LF_shorten_LF(temp,f_len); # wieder verkürzen, als LF_ln2 abspeichern
-    }}}
+  local object ln2_F_float_F (object f)
+  {
+    var object ln2 = O(LF_ln2);
+    floatcase(f,
+              { return LF_to_SF(ln2); },
+              { return LF_to_FF(ln2); },
+              { return LF_to_DF(ln2); },
+              ;
+             );
+    var uintC f_len = Lfloat_length(f); # gewünschte Länge von ln(2)
+    {
+      var uintC len = Lfloat_length(ln2); # vorhandene Länge
+      if (f_len < len)
+        return LF_shorten_LF(ln2,f_len);
+      if (f_len == len)
+        return ln2;
+    }
+    # gewünschte > vorhandene Länge -> muss nachberechnen:
+    {
+      var uintC len = lf_len_extend(f_len); # einige Digits mehr verlangen
+      var object temp = F_lnx_F(I_to_LF(fixnum(2),len)); # (ln 2.0)
+      # temp = ln(2) ist fertig.
+      return O(LF_ln2) = LF_shorten_LF(temp,f_len); # wieder verkürzen, als LF_ln2 abspeichern
+    }
+  }
 
 # Vergrößert eine Long-Float-Länge n, so dass aus d = intDsize*n
 # mindestens d+sqrt(d)+2+(LF_exp_len-1) wird.
@@ -694,24 +723,23 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 # <==>       sqrt(intDsize*n) < intDsize*inc - 33
 # <==>       intDsize*n < intDsize^2*inc^2 - 66*intDsize*inc + 1089
 # <==>       n <= intDsize*inc^2 - 66*inc + floor(1089/intDsize)
-  local uintC lf_len_extend2 (uintC n);
-  local uintC lf_len_extend2(n)
-    var uintC n;
-    { var uintC inc =
-        #define FITS(n,k)  \
-          ((intDsize*(k) > 33)                                              \
-           && ((n) <= (uintL)((intDsize*(k)-66)*(k)+floor(1089,intDsize))))
-        #define n_max  (uintL)(bitm(intWCsize)-1)
-        #define TEST(i)  FITS(n_max,1UL<<i) || FITS(n,1UL<<i) ? 1UL<<i :
-        TEST(0) TEST(1) TEST(2) TEST(3) TEST(4) TEST(5) TEST(6) TEST(7)
-        TEST(8) TEST(9) TEST(10) TEST(11) TEST(12) TEST(13)
-        (fehler_LF_toolong(),0);
-        #undef TEST
-        #undef n_max
-        #undef FITS
-      if ((uintWC)(n = n+inc) < (uintWC)inc) { fehler_LF_toolong(); }
-      return n;
-    }
+  local uintC lf_len_extend2 (uintC n)
+  {
+    var uintC inc =
+      #define FITS(n,k)  \
+        ((intDsize*(k) > 33)                                              \
+         && ((n) <= (uintL)((intDsize*(k)-66)*(k)+floor(1089,intDsize))))
+      #define n_max  (uintL)(bitm(intWCsize)-1)
+      #define TEST(i)  FITS(n_max,1UL<<i) || FITS(n,1UL<<i) ? 1UL<<i :
+      TEST(0) TEST(1) TEST(2) TEST(3) TEST(4) TEST(5) TEST(6) TEST(7)
+      TEST(8) TEST(9) TEST(10) TEST(11) TEST(12) TEST(13)
+      (fehler_LF_toolong(),0);
+      #undef TEST
+      #undef n_max
+      #undef FITS
+    if ((uintWC)(n = n+inc) < (uintWC)inc) fehler_LF_toolong();
+    return n;
+  }
 
 # F_extend2_F(x) erweitert die Genauigkeit eines Floats x um eine Stufe
 # SF -> FF -> DF -> LF(4) -> LF(5) -> LF(6) -> ...
@@ -721,16 +749,15 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 # FF -> DF wegen 24+sqrt(24)+2+7 = 37.9 < 53
 # DF -> LF(5) wegen 53+sqrt(53)+2+10 = 72.3 < 80
 # can trigger GC
-  local object F_extend2_F (object x);
-  local object F_extend2_F(x)
-    var object x;
-    { floatcase(x,
-                { return SF_to_DF(x); }, # 17+sqrt(17)+2+7 = 30.2 < 53
-                { return FF_to_DF(x); }, # 24+sqrt(24)+2+7 = 37.9 < 53
-                { return DF_to_LF(x,ceiling(73,intDsize)); }, # 53+sqrt(53)+2+10 = 72.3 < 73
-                { return LF_extend_LF(x,lf_len_extend2(Lfloat_length(x))); }
-               );
-    }
+  local object F_extend2_F (object x)
+  {
+    floatcase(x,
+              { return SF_to_DF(x); }, # 17+sqrt(17)+2+7 = 30.2 < 53
+              { return FF_to_DF(x); }, # 24+sqrt(24)+2+7 = 37.9 < 53
+              { return DF_to_LF(x,ceiling(73,intDsize)); }, # 53+sqrt(53)+2+10 = 72.3 < 73
+              { return LF_extend_LF(x,lf_len_extend2(Lfloat_length(x))); }
+             );
+  }
 
 # R_ln_R(x) liefert zu einer reellen Zahl x>0 die Zahl ln(x).
 # can trigger GC
@@ -806,36 +833,36 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 #             Sonst a:=a/b, und (für später c:=c+d) ud:=uc+ud, vd:=vc+vd.
 #     1<a<b -> vertausche a und b, uc und ud, vc und vd.
 #   Liefere (ud,vd), der Bruch ud/vd ist gekürzt.
-  local object I_I_log_RA(a,b)
-    var object a;
-    var object b;
-    { var uintL uc = 1;
-      var uintL ud = 0;
-      var uintL vc = 0;
-      var uintL vd = 1;
-      loop
-        { if (eq(a,Fixnum_1)) break; # a=1 -> Rekursion zu Ende
-          if (I_I_comp(a,b) >=0)
-            # a>=b
-            { pushSTACK(b);
-              I_I_divide_I_I(a,b); # a durch b dividieren
-              if (!eq(STACK_0,Fixnum_0)) # Rest /=0 ?
-                { skipSTACK(3); return nullobj; } # -> fertig
-              a = STACK_1; b = STACK_2; skipSTACK(3); # a:=a/b
-              ud = uc + ud; vd = vc + vd;
-            }
-            else
-            # 1<a<b -> a und b vertauschen
-            { swap(object, a, b);
-              swap(uintL, uc, ud); swap(uintL, vc, vd);
-            }
+  local object I_I_log_RA (object a, object b)
+  {
+    var uintL uc = 1;
+    var uintL ud = 0;
+    var uintL vc = 0;
+    var uintL vd = 1;
+    loop {
+      if (eq(a,Fixnum_1)) # a=1 -> Rekursion zu Ende
+        break;
+      if (I_I_comp(a,b) >=0) {
+        # a>=b
+        pushSTACK(b);
+        I_I_divide_I_I(a,b); # a durch b dividieren
+        if (!eq(STACK_0,Fixnum_0)) { # Rest /=0 ?
+          skipSTACK(3); return nullobj; # -> fertig
         }
-      # a=1 -> c=0,d=1 -> Ergebnis ud/vd
-      pushSTACK(UL_to_I(ud)); # ud als Integer
-     {var object y = UL_to_I(vd); # vd als Integer
-      var object x = popSTACK();
-      return I_I_to_RA(x,y);
-    }}
+        a = STACK_1; b = STACK_2; skipSTACK(3); # a:=a/b
+        ud = uc + ud; vd = vc + vd;
+      } else {
+        # 1<a<b -> a und b vertauschen
+        swap(object, a, b);
+        swap(uintL, uc, ud); swap(uintL, vc, vd);
+      }
+    }
+    # a=1 -> c=0,d=1 -> Ergebnis ud/vd
+    pushSTACK(UL_to_I(ud)); # ud als Integer
+    var object y = UL_to_I(vd); # vd als Integer
+    var object x = popSTACK();
+    return I_I_to_RA(x,y);
+  }
 
 # R_R_log_R(a,b) liefert zu reellen Zahlen a>0, b>0 die Zahl
 # log(a,b)=ln(a)/ln(b).
@@ -862,89 +889,106 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 # a Float, b rational -> bei b=1 Error, sonst b := (float b a)
 # a rational, b Float -> bei a=1 Ergebnis 0, sonst a := (float a b)
 # a,b Floats -> log(a,b) = ln(a)/ln(b)
-  local object R_R_log_R(a,b)
-    var object a;
-    var object b;
-    { pushSTACK(a); pushSTACK(b);
-      # Stackaufbau: a, b.
-      if (R_rationalp(b))
-        # b rational
-        { if (eq(b,Fixnum_1)) { divide_0(); } # b=1 -> Error
-          if (R_rationalp(a))
-            # a,b beide rational
-            { if (eq(a,Fixnum_1)) { skipSTACK(2); return Fixnum_0; } # a=1 -> Ergebnis 0
-              if (RA_integerp(b))
-                # b Integer
-                { if (RA_integerp(a))
-                    # a,b beide Integers
-                    { var object x = I_I_log_RA(a,b); # rationalen log(a,b) versuchen
-                      if (!eq(x,nullobj)) { skipSTACK(2); return x; }
-                    }
-                    else
-                    # a Ratio, b Integer
-                    { if (eq(TheRatio(a)->rt_num,Fixnum_1)) # a1=1
-                        { var object x = I_I_log_RA(TheRatio(a)->rt_den,b); # rationalen log(a2,b) versuchen
-                          if (!eq(x,nullobj)) { skipSTACK(2); return RA_minus_RA(x); }
-                }   }   }
-                else
-                # a rational, b Ratio
-                { if (RA_integerp(a))
-                    { pushSTACK(a); pushSTACK(a=Fixnum_1); }
-                    else
-                    { pushSTACK(TheRatio(a)->rt_num); pushSTACK(a=TheRatio(a)->rt_den); }
-                  pushSTACK(TheRatio(b)->rt_num); pushSTACK(b=TheRatio(b)->rt_den);
-                  # Stackaufbau: a, b, a1>0, a2>0, b1>0, b2>1.
-                  {var object x = I_I_log_RA(a,b); # rationalen log(a2,b2) versuchen
-                   if (!eq(x,nullobj))
-                     { if (eq(STACK_1,Fixnum_1)) # b1=1 ?
-                         { if (eq(STACK_3,Fixnum_1)) # a1=1 ?
-                             { skipSTACK(6); return x; } # ja -> x liefern
-                         }
-                         else
-                         { pushSTACK(x);
-                          {var object y = I_I_log_RA(STACK_(3+1),STACK_(1+1)); # rationalen log(a1,b1) versuchen
-                           if ((!eq(y,nullobj)) && eql(STACK_0,y)) # x=y ?
-                             { x = STACK_0; skipSTACK(6+1); return x; }
-                           skipSTACK(1);
-                  }  }   }}
-                  {var object x = I_I_log_RA(STACK_3,STACK_0); # rationalen log(a1,b2) versuchen
-                   if (!eq(x,nullobj))
-                     { if (eq(STACK_1,Fixnum_1)) # b1=1 ?
-                         { if (eq(STACK_2,Fixnum_1)) # a2=1 ?
-                             { skipSTACK(6); return RA_minus_RA(x); } # ja -> -x liefern
-                         }
-                         else
-                         { pushSTACK(x);
-                          {var object y = I_I_log_RA(STACK_(2+1),STACK_(1+1)); # rationalen log(a2,b1) versuchen
-                           if ((!eq(y,nullobj)) && eql(STACK_0,y)) # x=y ?
-                             { x = STACK_0; skipSTACK(6+1); return RA_minus_RA(x); }
-                           skipSTACK(1);
-                  }  }   }}
-                  skipSTACK(4);
-                }
-              # a,b beide in Floats umwandeln:
-              STACK_1 = RA_float_F(STACK_1); STACK_0 = RA_float_F(STACK_0);
-            }
-            else
-            # a Float
-            { STACK_0 = RA_F_float_F(b,a); } # b := (float b a)
+  local object R_R_log_R (object a, object b)
+  {
+    pushSTACK(a); pushSTACK(b);
+    # Stackaufbau: a, b.
+    if (R_rationalp(b)) {
+      # b rational
+      if (eq(b,Fixnum_1)) # b=1 -> Error
+        divide_0();
+      if (R_rationalp(a)) {
+        # a,b beide rational
+        if (eq(a,Fixnum_1)) { # a=1 -> Ergebnis 0
+          skipSTACK(2); return Fixnum_0;
         }
-        else
-        # b Float
-        { if (R_rationalp(a))
-            # a rational
-            { if (eq(a,Fixnum_1)) { skipSTACK(2); return Fixnum_0; } # a=1 -> Ergebnis 0
-              STACK_1 = RA_F_float_F(a,b); # a := (float a b)
-        }   }
-      # Nun a,b beide Floats.
-      pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln a) */
-      pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln b) */
-      STACK_0 = F_F_durch_F(STACK_1,STACK_0); /* (/ (ln a) (ln b)) */
-      STACK_1 = R_R_contagion_R(STACK_2,STACK_3);
-      { var object ret = F_R_float_F(STACK_0,STACK_1);
-        skipSTACK(4);
-        return ret;
-    }}
+        if (RA_integerp(b)) {
+          # b Integer
+          if (RA_integerp(a)) {
+            # a,b beide Integers
+            var object x = I_I_log_RA(a,b); # rationalen log(a,b) versuchen
+            if (!eq(x,nullobj)) {
+              skipSTACK(2); return x;
+            }
+          } else {
+            # a Ratio, b Integer
+            if (eq(TheRatio(a)->rt_num,Fixnum_1)) { # a1=1
+              var object x = I_I_log_RA(TheRatio(a)->rt_den,b); # rationalen log(a2,b) versuchen
+              if (!eq(x,nullobj)) {
+                skipSTACK(2); return RA_minus_RA(x);
+              }
+            }
+          }
+        } else {
+          # a rational, b Ratio
+          if (RA_integerp(a)) {
+            pushSTACK(a); pushSTACK(a=Fixnum_1);
+          } else {
+            pushSTACK(TheRatio(a)->rt_num); pushSTACK(a=TheRatio(a)->rt_den);
+          }
+          pushSTACK(TheRatio(b)->rt_num); pushSTACK(b=TheRatio(b)->rt_den);
+          # Stackaufbau: a, b, a1>0, a2>0, b1>0, b2>1.
+          {
+            var object x = I_I_log_RA(a,b); # rationalen log(a2,b2) versuchen
+            if (!eq(x,nullobj)) {
+              if (eq(STACK_1,Fixnum_1)) { # b1=1 ?
+                if (eq(STACK_3,Fixnum_1)) { # a1=1 ?
+                  skipSTACK(6); return x; # ja -> x liefern
+                }
+              } else {
+                pushSTACK(x);
+                var object y = I_I_log_RA(STACK_(3+1),STACK_(1+1)); # rationalen log(a1,b1) versuchen
+                if ((!eq(y,nullobj)) && eql(STACK_0,y)) { # x=y ?
+                  x = STACK_0; skipSTACK(6+1); return x;
+                }
+                skipSTACK(1);
+              }
+            }
+          }
+          {
+            var object x = I_I_log_RA(STACK_3,STACK_0); # rationalen log(a1,b2) versuchen
+            if (!eq(x,nullobj)) {
+              if (eq(STACK_1,Fixnum_1)) { # b1=1 ?
+                if (eq(STACK_2,Fixnum_1)) { # a2=1 ?
+                  skipSTACK(6); return RA_minus_RA(x); # ja -> -x liefern
+                }
+              } else {
+                pushSTACK(x);
+                var object y = I_I_log_RA(STACK_(2+1),STACK_(1+1)); # rationalen log(a2,b1) versuchen
+                if ((!eq(y,nullobj)) && eql(STACK_0,y)) { # x=y ?
+                  x = STACK_0; skipSTACK(6+1); return RA_minus_RA(x);
+                }
+                skipSTACK(1);
+              }
+            }
+          }
+          skipSTACK(4);
+        }
+        # a,b beide in Floats umwandeln:
+        STACK_1 = RA_float_F(STACK_1); STACK_0 = RA_float_F(STACK_0);
+      } else {
+        # a Float
+        STACK_0 = RA_F_float_F(b,a); # b := (float b a)
+      }
+    } else {
+      # b Float
+      if (R_rationalp(a)) {
+        # a rational
+        if (eq(a,Fixnum_1)) { # a=1 -> Ergebnis 0
+          skipSTACK(2); return Fixnum_0;
+        }
+        STACK_1 = RA_F_float_F(a,b); # a := (float a b)
+      }
+    }
+    # Nun a,b beide Floats.
+    pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln a) */
+    pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln b) */
+    STACK_0 = F_F_durch_F(STACK_1,STACK_0); /* (/ (ln a) (ln b)) */
+    STACK_1 = R_R_contagion_R(STACK_2,STACK_3);
+    var object ret = F_R_float_F(STACK_0,STACK_1);
+    skipSTACK(4);
+    return ret;
+  }
 
 # F_expx_F(x) liefert zu einem Float x (betragsmäßig <1) exp(x) als Float.
 # can trigger GC
@@ -962,46 +1006,50 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 # Sonst setze y := x/2 = (scale-float x -1),
 #   berechne rekursiv z:=exp(y) und liefere z^2.
 # Aufwand: asymptotisch d^2.5 .
-  local object F_expx_F (x)
-    var object x;
-    { if (R_zerop(x)) { return I_F_float_F(Fixnum_1,x); }
-     {var uintL d = F_float_digits(x);
-      var sintL e = F_exponent_L(x);
-      if (e < (sintL)(-d)) # e < -d ?
-        { return I_F_float_F(Fixnum_1,x); } # ja -> 1.0 als Ergebnis
-      pushSTACK(x);
-      # Stackaufbau: x.
-      {var uintL k = 0; # Rekursionszähler k:=0
-       {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
-        var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
-        if (e > e_limit)
-          # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.
-          { k = e - e_limit;
-           {var object temp = L_to_I((sintL)(-k));
-            STACK_0 = F_I_scale_float_F(STACK_0,temp); # x := x/2^k
-            # Neuer Exponent = e-k = e_limit.
-       }  }}
-       # Potenzreihe anwenden:
-       {var object i = Fixnum_0;
-        pushSTACK(I_F_float_F(Fixnum_1,STACK_0)); # b := (float 1 x)
-        pushSTACK(I_F_float_F(Fixnum_0,STACK_1)); # sum := (float 0 x)
-        # Stackaufbau: x, b, sum.
-        loop
-          { var object temp;
-            temp = F_F_plus_F(STACK_0,STACK_1); # (+ sum b)
-            if (eql(STACK_0,temp)) # = sum ?
-              break; # ja -> Potenzreihe abbrechen
-            STACK_0 = temp;
-            temp = F_F_mal_F(STACK_1,STACK_2); # b*x
-            i = fixnum_inc(i,1); # i := i+1
-            STACK_1 = R_R_durch_R(temp,i); # b := b*x/i
-       }  }
-       {var object z = STACK_0; # sum als Ergebnis
-        skipSTACK(3);
-        # Wegen Rekursion noch k mal quadrieren:
-        dotimesL(k,k, { z = F_square_F(z); } );
-        return z;
-    }}}}
+  local object F_expx_F (object x)
+  {
+    if (R_zerop(x))
+      return I_F_float_F(Fixnum_1,x);
+    var uintL d = F_float_digits(x);
+    var sintL e = F_exponent_L(x);
+    if (e < (sintL)(-d)) # e < -d ?
+      return I_F_float_F(Fixnum_1,x); # ja -> 1.0 als Ergebnis
+    pushSTACK(x);
+    # Stackaufbau: x.
+    var uintL k = 0; # Rekursionszähler k:=0
+    { # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
+      var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
+      if (e > e_limit) {
+        # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.
+        k = e - e_limit;
+        var object temp = L_to_I((sintL)(-k));
+        STACK_0 = F_I_scale_float_F(STACK_0,temp); # x := x/2^k
+        # Neuer Exponent = e-k = e_limit.
+      }
+    }
+    # Potenzreihe anwenden:
+    {
+      var object i = Fixnum_0;
+      pushSTACK(I_F_float_F(Fixnum_1,STACK_0)); # b := (float 1 x)
+      pushSTACK(I_F_float_F(Fixnum_0,STACK_1)); # sum := (float 0 x)
+      # Stackaufbau: x, b, sum.
+      loop {
+        var object temp;
+        temp = F_F_plus_F(STACK_0,STACK_1); # (+ sum b)
+        if (eql(STACK_0,temp)) # = sum ?
+          break; # ja -> Potenzreihe abbrechen
+        STACK_0 = temp;
+        temp = F_F_mal_F(STACK_1,STACK_2); # b*x
+        i = fixnum_inc(i,1); # i := i+1
+        STACK_1 = R_R_durch_R(temp,i); # b := b*x/i
+      }
+    }
+    var object z = STACK_0; # sum als Ergebnis
+    skipSTACK(3);
+    # Wegen Rekursion noch k mal quadrieren:
+    dotimesL(k,k, { z = F_square_F(z); } );
+    return z;
+  }
 
 # R_exp_R(x) liefert zu einer reellen Zahl x die Zahl exp(x).
 # can trigger GC
@@ -1051,35 +1099,36 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 #   e := Exponent aus (decode-float x)
 #   falls e<=0: (sinh(x)/x)^2 errechnen, Wurzel ziehen, mit x multiplizieren.
 #   falls e>0: y:=exp(x) errechnen, (scale-float (- y (/ y)) -1) bilden.
-  local object R_sinh_R(x)
-    var object x;
-    { if (R_rationalp(x))
-        # x rational
-        { if (eq(x,Fixnum_0)) { return x; } # x=0 -> 0 als Ergebnis
-          x = RA_float_F(x); # sonst in Float umwandeln
-        }
-      # x Float
-      if (F_exponent_L(x)<=0) # Exponent e abtesten
-        # e<=0
-        { var object temp;
-          pushSTACK(x);
-          pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
-          temp = F_sqrt_F(F_sinhx_F(temp)); # Wurzel aus (sinh(x)/x)^2
-          temp = F_F_mal_F(temp,STACK_0); # mit genauerem x multiplizieren
-          temp = F_F_float_F(temp,STACK_1); # und wieder runden
-          skipSTACK(2);
-          return temp;
-        }
-        else
-        # e>0 -> verwende exp(x)
-        { var object temp;
-          pushSTACK(x);
-          pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
-          temp = F_durch_F(temp); # (/ y)
-          temp = F_F_minus_F(popSTACK(),temp); # von y subtrahieren
-          temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
-          return F_F_float_F(temp,popSTACK());
-    }   }
+  local object R_sinh_R (object x)
+  {
+    if (R_rationalp(x)) {
+      # x rational
+      if (eq(x,Fixnum_0)) # x=0 -> 0 als Ergebnis
+        return x;
+      x = RA_float_F(x); # sonst in Float umwandeln
+    }
+    # x Float
+    if (F_exponent_L(x)<=0) { # Exponent e abtesten
+      # e<=0
+      var object temp;
+      pushSTACK(x);
+      pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
+      temp = F_sqrt_F(F_sinhx_F(temp)); # Wurzel aus (sinh(x)/x)^2
+      temp = F_F_mal_F(temp,STACK_0); # mit genauerem x multiplizieren
+      temp = F_F_float_F(temp,STACK_1); # und wieder runden
+      skipSTACK(2);
+      return temp;
+    } else {
+      # e>0 -> verwende exp(x)
+      var object temp;
+      pushSTACK(x);
+      pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
+      temp = F_durch_F(temp); # (/ y)
+      temp = F_F_minus_F(popSTACK(),temp); # von y subtrahieren
+      temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
+      return F_F_float_F(temp,popSTACK());
+    }
+  }
 
 # R_cosh_R(x) liefert zu einer reellen Zahl x die Zahl cosh(x).
 # can trigger GC
@@ -1095,45 +1144,49 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 #     y := x/2 = (scale-float x -1), (sinh(y)/y)^2 errechnen,
 #     cosh(x) = 1+x*y*(sinh(y)/y)^2 errechnen.
 #   falls e>0: y:=exp(x) errechnen, (scale-float (+ y (/ y)) -1) bilden.
-  local object R_cosh_R(x)
-    var object x;
-    { if (R_rationalp(x))
-        # x rational
-        { if (eq(x,Fixnum_0)) { return Fixnum_1; } # x=0 -> 1 als Ergebnis
-          x = RA_float_F(x); # sonst in Float umwandeln
-        }
-      # x Float
-      {var sintL e = F_exponent_L(x);
-       if (e > 0)
-         # e>0 -> verwende exp(x)
-         { var object temp;
-           pushSTACK(x);
-           pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
-           temp = F_durch_F(temp); # (/ y)
-           temp = F_F_plus_F(popSTACK(),temp); # zu y addieren
-           temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
-           return F_F_float_F(temp,popSTACK());
-         }
-         else
-         # e<=0
-         { if (R_zerop(x)) { return I_F_float_F(Fixnum_1,x); }
-          {var uintL d = F_float_digits(x);
-           if (e <= (sintL)(1-d)>>1) # e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ?
-             { return I_F_float_F(Fixnum_1,x); } # ja -> 1.0 als Ergebnis
-          }
-          {var object temp;
-           pushSTACK(x);
-           pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
-           pushSTACK(temp = F_I_scale_float_F(temp,Fixnum_minus1)); # y=(scale-float x -1)
-           temp = F_sinhx_F(temp); # (sinh(y)/y)^2
-           temp = F_F_mal_F(STACK_0,temp); # mit y multiplizieren
-           temp = F_F_mal_F(STACK_1,temp); # mit x multiplizieren
-           temp = R_R_plus_R(Fixnum_1,temp); # 1 addieren
-           temp = F_F_float_F(temp,STACK_2); # und wieder runden
-           skipSTACK(3);
-           return temp;
-         }}
-    } }
+  local object R_cosh_R (object x)
+  {
+    if (R_rationalp(x)) {
+      # x rational
+      if (eq(x,Fixnum_0)) # x=0 -> 1 als Ergebnis
+        return Fixnum_1;
+      x = RA_float_F(x); # sonst in Float umwandeln
+    }
+    # x Float
+    var sintL e = F_exponent_L(x);
+    if (e > 0) {
+      # e>0 -> verwende exp(x)
+      var object temp;
+      pushSTACK(x);
+      pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
+      temp = F_durch_F(temp); # (/ y)
+      temp = F_F_plus_F(popSTACK(),temp); # zu y addieren
+      temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
+      return F_F_float_F(temp,popSTACK());
+    } else {
+      # e<=0
+      if (R_zerop(x))
+        return I_F_float_F(Fixnum_1,x);
+      {
+        var uintL d = F_float_digits(x);
+        if (e <= (sintL)(1-d)>>1) # e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ?
+          return I_F_float_F(Fixnum_1,x); # ja -> 1.0 als Ergebnis
+      }
+      {
+        var object temp;
+        pushSTACK(x);
+        pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
+        pushSTACK(temp = F_I_scale_float_F(temp,Fixnum_minus1)); # y=(scale-float x -1)
+        temp = F_sinhx_F(temp); # (sinh(y)/y)^2
+        temp = F_F_mal_F(STACK_0,temp); # mit y multiplizieren
+        temp = F_F_mal_F(STACK_1,temp); # mit x multiplizieren
+        temp = R_R_plus_R(Fixnum_1,temp); # 1 addieren
+        temp = F_F_float_F(temp,STACK_2); # und wieder runden
+        skipSTACK(3);
+        return temp;
+      }
+    }
+  }
 
 # R_cosh_sinh_R_R(x) liefert ((cosh x),(sinh x)), beide Werte auf dem Stack.
 # can trigger GC

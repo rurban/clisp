@@ -1,5 +1,5 @@
 # Diverse Funktionen für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2003
 
 #include "lispbibl.c"
 
@@ -124,7 +124,7 @@ LISPFUNN(machinetype,0)
           begin_system_call();
           if ( uname(&utsname) <0) { OS_error(); }
           end_system_call();
-          pushSTACK(asciz_to_string(&!utsname.machine,O(misc_encoding)));
+          pushSTACK(asciz_to_string(utsname.machine,O(misc_encoding)));
           funcall(L(nstring_upcase),1); # in Großbuchstaben umwandeln
           erg = value1;
         #else
@@ -183,7 +183,7 @@ LISPFUNN(machine_version,0)
           begin_system_call();
           if ( uname(&utsname) <0) { OS_error(); }
           end_system_call();
-          pushSTACK(asciz_to_string(&!utsname.machine,O(misc_encoding)));
+          pushSTACK(asciz_to_string(utsname.machine,O(misc_encoding)));
           funcall(L(nstring_upcase),1); # in Großbuchstaben umwandeln
         #else
           # Betriebssystem-Kommando 'uname -m' bzw. 'arch -k' ausführen und

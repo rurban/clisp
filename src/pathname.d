@@ -9294,8 +9294,8 @@ local void directory_search_scandir (bool recursively, signean next_task,
                   fehler_file_not_exists();
 
             if (rresolved != shell_shortcut_notexists
-                || (dsp->if_none != DIR_IF_NONE_DISCARD &&
-                    dsp->if_none != DIR_IF_NONE_IGNORE)) {
+                || (dsp->if_none != DIR_IF_NONE_DISCARD
+                    && dsp->if_none != DIR_IF_NONE_IGNORE)) {
               if (READDIR_entry_ISDIR() || rresolved == shell_shortcut_directory) {
                 /* nonfound shortcuts are threated as shortcuts to files */
                 if (recursively) { /* all recursive subdirectories wanted? */

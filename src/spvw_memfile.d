@@ -176,7 +176,8 @@ typedef struct {
 #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
   #define page_alignment  map_pagesize
   #define WRITE_page_alignment(position)                                \
-    do { var uintL aligncount = (uintL)(-position) % page_alignment;    \
+    do {                                                                \
+      var uintL aligncount = (uintL)(-position) % page_alignment;       \
       if (aligncount > 0) { /* get a piece of zeroed memory: */         \
         var DYNAMIC_ARRAY(zeroes,uintB,aligncount);                     \
         var uintB* ptr = &zeroes[0];                                    \
@@ -185,14 +186,17 @@ typedef struct {
         /* and write: */                                                \
         WRITE(&zeroes[0],aligncount);                                   \
         FREE_DYNAMIC_ARRAY(zeroes);                                     \
-    }} while(0)
+      }                                                                 \
+    } while(0)
   #define READ_page_alignment(position)                                 \
-    do { var uintL aligncount = (uintL)(-position) % page_alignment;    \
+    do {                                                                \
+      var uintL aligncount = (uintL)(-position) % page_alignment;       \
       if (aligncount > 0) {                                             \
         var DYNAMIC_ARRAY(dummy,uintB,aligncount);                      \
         READ(&dummy[0],aligncount);                                     \
         FREE_DYNAMIC_ARRAY(dummy);                                      \
-    }} while(0)
+      }                                                                 \
+    } while(0)
 #else
   #define page_alignment  1
   #define WRITE_page_alignment(position)
@@ -226,8 +230,9 @@ global void savemem (object stream)
   /* execute one GC first: */
   gar_col();
 #define WRITE(buf,len)                                                  \
-  do { begin_system_call();                                             \
-    {var sintL ergebnis = full_write(handle,(void*)buf,len);            \
+  do {                                                                  \
+    begin_system_call();                                                \
+    { var sintL ergebnis = full_write(handle,(void*)buf,len);           \
       if (ergebnis != (sintL)(len)) {                                   \
         end_system_call();                                              \
         builtin_stream_close(&STACK_0);                                 \
@@ -237,8 +242,9 @@ global void savemem (object stream)
         pushSTACK(TheStream(STACK_0)->strm_file_truename);              \
         fehler(file_error,GETTEXT("disk full"));                        \
       }                                                                 \
-      end_system_call();                                                \
-    }} while(0)
+    }                                                                   \
+    end_system_call();                                                  \
+  } while(0)
   /* write basic information: */
   var memdump_header_t header;
   var uintL module_names_size;
@@ -490,17 +496,19 @@ global void savemem (object stream)
     var Hashtable* htbufptr = &htbuf[0];
     var Record* fpbufptr = &fpbuf[0];
     var Fsubr* fsbufptr = &fsbuf[0];
-    #define update(objptr)                                              \
-      do { switch (mtypecode(*(gcv_object_t*)objptr)) {                 \
-        case_system:                                                    \
-          if (wbit_test(as_oint(*(gcv_object_t*)objptr),0+oint_addr_shift)) \
-            break;                                                      \
-        case_subr:                                                      \
-        case_machine:                                                   \
-          *relocbufptr++ = (gcv_object_t*)objptr;                       \
-        default:                                                        \
-          break;                                                        \
-        }} while(0)
+    #define update(objptr)                                                \
+      do {                                                                \
+        switch (mtypecode(*(gcv_object_t*)objptr)) {                      \
+          case_system:                                                    \
+            if (wbit_test(as_oint(*(gcv_object_t*)objptr),0+oint_addr_shift)) \
+              break;                                                      \
+          case_subr:                                                      \
+          case_machine:                                                   \
+            *relocbufptr++ = (gcv_object_t*)objptr;                       \
+          default:                                                        \
+            break;                                                        \
+        }                                                                 \
+      } while(0)
     #define update_ht_invalid(obj)  *htbufptr++ = (obj);
     #define update_fp_invalid(obj)  *fpbufptr++ = (obj);
     #define update_fs_function(obj)  *fsbufptr++ = (obj);
@@ -817,13 +825,15 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #define inc_file_offset(x)
    #endif
     #define READ(buf,len)                                               \
-      do { begin_system_call();                                         \
-        {var sintL ergebnis = full_read(handle,(void*)buf,len);         \
+      do {                                                              \
+        begin_system_call();                                            \
+        { var sintL ergebnis = full_read(handle,(void*)buf,len);        \
           end_system_call();                                            \
           if (ergebnis<0) goto abort1;                                  \
           if (ergebnis != (sintL)(len)) goto abort2;                    \
           inc_file_offset(len);                                         \
-        }} while(0)
+        }                                                               \
+      } while(0)
    begin_read:
     set_file_offset(0);
     /* read basic information: */

@@ -2621,9 +2621,8 @@ local void map_symbols_aux (void* data, object sym) {
      symbol of the same name is located in the
      shadowing-list of pack. */
   var object shadowingsym;
-  if (!(shadowing_lookup(Symbol_name(sym),*(localptr STACKop 0),
-                         &shadowingsym) &&
-        !eq(shadowingsym,sym))) {
+  if (!(shadowing_lookup(Symbol_name(sym),*(localptr STACKop 0),&shadowingsym)
+        && !eq(shadowingsym,sym))) {
     pushSTACK(sym); funcall(*(localptr STACKop 1),1);
   } else {
     /* symbol is shadowed in pack -> do not call function */

@@ -913,8 +913,8 @@ LISPFUNN(set_readtable_case,2)
 local uintL get_base (object symbol) {
   var object value = Symbol_value(symbol);
   var uintL wert;
-  if (posfixnump(value) &&
-      (wert = posfixnum_to_L(value), ((wert >= 2) && (wert <= 36)))) {
+  if (posfixnump(value)
+      && (wert = posfixnum_to_L(value), ((wert >= 2) && (wert <= 36)))) {
     return wert;
   } else {
     Symbol_value(symbol) = fixnum(10);
@@ -3126,8 +3126,8 @@ LISPFUNN(radix_reader,3) { # reads #R
   }
   var uintL base;
   # n must be a Fixnum between 2 and 36 (inclusive):
-  if (posfixnump(STACK_0) &&
-      (base = posfixnum_to_L(STACK_0), (base >= 2) && (base <= 36))) {
+  if (posfixnump(STACK_0)
+      && (base = posfixnum_to_L(STACK_0), (base >= 2) && (base <= 36))) {
     return_Values radix_2(base); # interprete Token as rational number
   } else {
     pushSTACK(*stream_); # STREAM-ERROR slot STREAM
@@ -4761,8 +4761,8 @@ LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
     if (!boundp(arg)) {
       base = 10; # Default 10
     } else {
-      if (!(posfixnump(arg) &&
-            (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36))))) {
+      if (!(posfixnump(arg)
+            && (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36))))) {
         pushSTACK(arg);           # TYPE-ERROR slot DATUM
         pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg); # base
@@ -5426,9 +5426,9 @@ global object cons_ssstring (const gcv_object_t* stream_, object nl_type) {
   pushSTACK(new_cons); # = (nl . ident)
   new_cons = allocate_cons();
   Car(new_cons) = popSTACK(); # new_cons = ((nl . ident) . nil)
-  if ((stream_ != NULL) &&
-      stringp(Car(TheStream(*stream_)->strm_pphelp_strings)) &&
-      vector_length(Car(TheStream(*stream_)->strm_pphelp_strings)) == 0) {
+  if ((stream_ != NULL)
+      && stringp(Car(TheStream(*stream_)->strm_pphelp_strings))
+      && vector_length(Car(TheStream(*stream_)->strm_pphelp_strings)) == 0) {
     Cdr(new_cons) = Cdr(TheStream(*stream_)->strm_pphelp_strings);
     Cdr(TheStream(*stream_)->strm_pphelp_strings) = new_cons;
     new_cons = TheStream(*stream_)->strm_pphelp_strings;
@@ -6454,10 +6454,10 @@ local void pr_enter_1 (const gcv_object_t* stream_, object obj,
         # Newline, and the old line-position is >0 ,
         # print a Newline to the old stream first:
         { var object firststring = Car(Cdr(STACK_0)); # first line
-          if (stringp(firststring) &&
-              ((TheIarray(firststring)->dims[1] == 0) # empty?
-               || chareq(TheSstring(TheIarray(firststring)->data)->data[0],
-                         ascii(NL)))) # or Newline at the beginning?
+          if (stringp(firststring)
+              && ((TheIarray(firststring)->dims[1] == 0) # empty?
+                  || chareq(TheSstring(TheIarray(firststring)->data)->data[0],
+                            ascii(NL)))) # or Newline at the beginning?
             skip_first_nl = true;
         }
         if (eq(Symbol_value(S(prin_l1)),Fixnum_0)) # or at position 0 ?
@@ -6855,10 +6855,10 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
     # with escape-character and maybe package-name:
     var bool case_sensitive = false;
     var object curr_pack = get_current_package();
-    if (accessiblep(sym,curr_pack) &&
+    if (accessiblep(sym,curr_pack)
         # print PACK::SYMBOL even when the symbol is accessble
         # this is for writing compiled files
-        nullpSv(print_symbols_long)) {
+        && nullpSv(print_symbols_long)) {
       # if symbol is accessible and not shadowed,
       # print no package-name and no package-markers.
       case_sensitive = pack_casesensitivep(curr_pack);
@@ -6880,10 +6880,10 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
         pr_symbol_part(stream_,ThePackage(home)->pack_name,false); # print package-name
         home = popSTACK(); # move home-package back
         case_sensitive = pack_casesensitivep(home);
-        if (externalp(STACK_0,home) &&
+        if (externalp(STACK_0,home)
             # the "raison d'etre" of *PRINT-SYMBOLS-LONG* is FAS files,
             # so it forces even external symbols to be printed with "::"
-            nullpSv(print_symbols_long))
+            && nullpSv(print_symbols_long))
           goto one_marker; # yes -> 1 package-marker
         write_ascii_char(stream_,':'); # else 2 package-marker
       one_marker:
@@ -9427,8 +9427,9 @@ local void pr_stream (const gcv_object_t* stream_, object obj) {
      #endif
     case strmtype_file: { /* File-Stream */
       var bool fname_p = !nullp(TheStream(*obj_)->strm_file_name);
-      var bool lineno_p = eq(TheStream(*obj_)->strm_eltype,S(character)) &&
-        ((TheStream(*obj_)->strmflags & strmflags_rd_B) != 0);
+      var bool lineno_p =
+        (eq(TheStream(*obj_)->strm_eltype,S(character))
+         && ((TheStream(*obj_)->strmflags & strmflags_rd_B) != 0));
       JUSTIFY_SPACE;
       JUSTIFY_LAST(!fname_p && !lineno_p);
       prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type

@@ -792,8 +792,8 @@ LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
         && (posfixnum_to_L(arg) >= 613608)   /* arg >= 1.1.1970 */
         && (posfixnum_to_L(arg) <= time_max)) { /* arg < time_max */
       now = (posfixnum_to_L(arg) - 613608) * 3600;
-    } else if (R_minusp(arg) ||
-               (posfixnump(arg) && (posfixnum_to_L(arg) < 613608))) {
+    } else if (R_minusp(arg)
+               || (posfixnump(arg) && (posfixnum_to_L(arg) < 613608))) {
       now = 0;                /* < 1.1.1970 -> treat like 1.1.1970 */
     } else {
       now = (uintL)(time_max - 613608) * 3600; /* > max -> treat like max */

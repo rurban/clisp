@@ -167,7 +167,7 @@ local jmp_buf original_context;
   # returned with free() , before control is withdrawn from it.
   # For this short span the SP has to be set reasonably.)
 local int exitcode;
-#define quit_sofort(xcode)  exitcode = xcode; longjmp(&!original_context,1)
+#define quit_sofort(xcode)  exitcode = xcode; longjmp(original_context,1)
 
 # -----------------------------------------------------------------------------
 #                         memory management, common part
@@ -1746,7 +1746,7 @@ global int main (argc_t argc, char* argv[]) {
   {var DYNAMIC_ARRAY(argv_selection_array,char*,(uintL)argc); # max argc -x/-i
   var DYNAMIC_ARRAY(argv_compile_files_array,argv_compile_file_t,(uintL)argc); # maximal argc file-arguments
   argv_compile_files = argv_compile_files_array;
-  if (!(setjmp(&!original_context) == 0)) goto end_of_main;
+  if (!(setjmp(original_context) == 0)) goto end_of_main;
   # process arguments argv[0..argc-1] :
   #   -h              Help
   #   -m size         Memory size (size = xxxxxxxB oder xxxxKB oder xMB)
@@ -1961,8 +1961,8 @@ global int main (argc_t argc, char* argv[]) {
           case 'o': # target for files to be compiled
             if (arg[2] != '\0') usage (1);
             OPTION_ARG;
-            if (!((argv_compile_filecount > 0) &&
-                  (argv_compile_files[argv_compile_filecount-1].output_file==NULL)))
+            if (!((argv_compile_filecount > 0)
+                  && (argv_compile_files[argv_compile_filecount-1].output_file==NULL)))
               usage (1);
             argv_compile_files[argv_compile_filecount-1].output_file = arg;
             break;
@@ -2626,7 +2626,7 @@ global int main (argc_t argc, char* argv[]) {
     extern uintW v_cols(); # see STREAM.D
     var int scrsize[2];
     var uintL columns;
-    columns = (_scrsize(&!scrsize), scrsize[0]);
+    columns = (_scrsize(scrsize), scrsize[0]);
     if (columns > 0) { # change value of SYS::*PRIN-LINELENGTH* :
       Symbol_value(S(prin_linelength)) = fixnum(columns-1);
     }
