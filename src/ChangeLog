@@ -22,9 +22,9 @@
 	(bq-optimize-for-list): Remove function.
 	(bq-optimize-for-vector): Take the optimized list as arguments. Several
 	fixes.
-	(bq-optimize-append, bq-optimize-list*, bq-optimize-list, bq-eval,
-	bq-constant-p, eval-self-p, maybe-quote, maybe-unquote,
-	quoted-bq-operator-p, bq-reduce-nesting): Remove functions.
+	(bq-optimize-append, bq-optimize-list*, bq-optimize-list, bq-eval)
+	(bq-constant-p, eval-self-p, maybe-quote, maybe-unquote)
+	(quoted-bq-operator-p, bq-reduce-nesting): Remove functions.
 	(backquote-cons): Call bq-cons.
 	(backquote-append): Call bq-append.
 
@@ -33,10 +33,10 @@
 	* lispbibl.d (hash_lookup_builtin, hash_lookup_builtin_with_rehash):
 	Remove Nptr_ argument.
 	* hashtabl.d (lookup_Pseudofun): Remove Nptr_ argument.
-	(hash_lookup_builtin, hash_lookup_builtin_with_rehash,
-	hash_lookup_user, hash_lookup): Likewise.
-	(MAKE-HASH-TABLE, gethash, GETHASH, SYSTEM::PUTHASH, REMHASH,
-	CLOS::CLASS-GETHASH): Update.
+	(hash_lookup_builtin, hash_lookup_builtin_with_rehash)
+	(hash_lookup_user, hash_lookup): Likewise.
+	(MAKE-HASH-TABLE, gethash, GETHASH, SYSTEM::PUTHASH, REMHASH)
+	(CLOS::CLASS-GETHASH): Update.
 	* pseudofun.d: Update.
 
 2004-06-02  Sam Steingold  <sds@gnu.org>
