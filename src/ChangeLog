@@ -1,5 +1,10 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* array.d (elt_copy_T_Char, elt_copy_Char_Char): Avoid calling
+	sstring_store when the character already fits into dv2.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* control.d (form_constant_p): Inline the useful part of
 	funname_to_symbol. Handle the case of an undefined function (setf foo).
 	Call check_SP.

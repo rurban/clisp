@@ -1,6 +1,6 @@
 /*
  * Array functions
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-09-23
  */
@@ -2164,24 +2164,36 @@ local maygc void elt_copy_T_Char (object dv1, uintL index1,
     for (;;) {
       var object value = TheSvector(dv1)->data[index1++];
       if (!charp(value)) fehler_store(dv2,value);
-      dv2 = sstring_store(dv2,index2++,char_code(value));
-      if (--count == 0)
-        break;
-      if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
-        dv2 = TheSistring(dv2)->data;
-        goto restart_it;
+      if (char_code(value) < cint8_limit) {
+        TheS8string(dv2)->data[index2++] = char_code(value);
+        if (--count == 0)
+          break;
+      } else {
+        dv2 = sstring_store(dv2,index2++,char_code(value));
+        if (--count == 0)
+          break;
+        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+          dv2 = TheSistring(dv2)->data;
+          goto restart_it;
+        }
       }
     }
   },{
     for (;;) {
       var object value = TheSvector(dv1)->data[index1++];
       if (!charp(value)) fehler_store(dv2,value);
-      dv2 = sstring_store(dv2,index2++,char_code(value));
-      if (--count == 0)
-        break;
-      if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
-        dv2 = TheSistring(dv2)->data;
-        goto restart_it;
+      if (char_code(value) < cint16_limit) {
+        TheS16string(dv2)->data[index2++] = char_code(value);
+        if (--count == 0)
+          break;
+      } else {
+        dv2 = sstring_store(dv2,index2++,char_code(value));
+        if (--count == 0)
+          break;
+        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+          dv2 = TheSistring(dv2)->data;
+          goto restart_it;
+        }
       }
     }
   },{
@@ -2231,13 +2243,19 @@ local /*maygc*/ void elt_copy_Char_Char (object dv1, uintL index1,
       pushSTACK(dv1);
       for (;;) {
         var chart ch = as_chart(TheS16string(dv1)->data[index1++]);
-        dv2 = sstring_store(dv2,index2++,ch);
-        if (--count == 0)
-          break;
-        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
-          dv2 = TheSistring(dv2)->data;
-          dv1 = popSTACK();
-          goto restart16;
+        if (as_cint(ch) < cint8_limit) {
+          TheS8string(dv2)->data[index2++] = as_cint(ch);
+          if (--count == 0)
+            break;
+        } else {
+          dv2 = sstring_store(dv2,index2++,ch);
+          if (--count == 0)
+            break;
+          if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+            dv2 = TheSistring(dv2)->data;
+            dv1 = popSTACK();
+            goto restart16;
+          }
         }
       }
       skipSTACK(1);
@@ -2264,13 +2282,19 @@ local /*maygc*/ void elt_copy_Char_Char (object dv1, uintL index1,
       pushSTACK(dv1);
       for (;;) {
         var chart ch = as_chart(TheS32string(dv1)->data[index1++]);
-        dv2 = sstring_store(dv2,index2++,ch);
-        if (--count == 0)
-          break;
-        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
-          dv2 = TheSistring(dv2)->data;
-          dv1 = popSTACK();
-          goto restart32;
+        if (as_cint(ch) < cint8_limit) {
+          TheS8string(dv2)->data[index2++] = as_cint(ch);
+          if (--count == 0)
+            break;
+        } else {
+          dv2 = sstring_store(dv2,index2++,ch);
+          if (--count == 0)
+            break;
+          if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+            dv2 = TheSistring(dv2)->data;
+            dv1 = popSTACK();
+            goto restart32;
+          }
         }
       }
       skipSTACK(1);
@@ -2278,14 +2302,20 @@ local /*maygc*/ void elt_copy_Char_Char (object dv1, uintL index1,
       pushSTACK(dv1);
       for (;;) {
         var chart ch = as_chart(TheS32string(dv1)->data[index1++]);
-        dv2 = sstring_store(dv2,index2++,ch);
-        if (--count == 0)
-          break;
-        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
-          dv2 = TheSistring(dv2)->data;
-          dv1 = popSTACK();
-          goto restart32;
-                                }
+        if (as_cint(ch) < cint16_limit) {
+          TheS16string(dv2)->data[index2++] = as_cint(ch);
+          if (--count == 0)
+            break;
+        } else {
+          dv2 = sstring_store(dv2,index2++,ch);
+          if (--count == 0)
+            break;
+          if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+            dv2 = TheSistring(dv2)->data;
+            dv1 = popSTACK();
+            goto restart32;
+          }
+        }
       }
       skipSTACK(1);
     },{
