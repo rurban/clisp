@@ -1,3 +1,25 @@
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
+	Allow bignums as read-label values.
+	* lispbibl.d (Rectype_BigReadLabel): New enum item.
+	(BigReadLabel): New type.
+	(bigreadlabel_length): New macro.
+	(small_read_label_value): New macro.
+	(TheBigReadLabel): New macro.
+	(big_read_label_p, allocate_big_read_label): New macros.
+	* spvw_circ.d (subst, subst_circ_mark): Support BigReadLabel.
+	(subst_circ_unmark): Update.
+	* io.d (lookup_label): Support big integers as well. Can trigger GC
+	now.
+	(label_definition_reader): Update.
+	(pr_readlabel): Use small_read_label_value. Add support for
+	BigReadLabel.
+	(pr_orecord): Support BigReadLabel.
+	* predtype.d (TYPE-OF, CLASS-OF): Add support for BigReadLabel.
+	(enum_hs_big_read_label): New enum value.
+	(heap_statistics_mapper): Add support for BigReadLabel.
+	Found by Paul Dietz's ansi-tests test suite.
+
 2005-01-26  Bruno Haible  <bruno@clisp.org>
 
 	* places.lisp (setf): Handle (SETF (VALUES-LIST ...) ...) correctly,
