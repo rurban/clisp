@@ -749,8 +749,8 @@ typedef struct
 #define __av_longlong(LIST,TYPE,VAL)					\
   (((LIST).aptr = (__avword*)(((__avword)(LIST).aptr+sizeof(TYPE)+__AV_alignof(TYPE)-1) & -(long)__AV_alignof(TYPE))) > __av_eptr(LIST) \
    ? -1 :						\
-(((LIST).aptr - (LIST).args - (LIST).fargwords == 4 ? ++(LIST).aptr,0 : 0), \
- (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0)))
+   (((LIST).aptr - (LIST).args - (LIST).fargwords == 4 ? ++(LIST).aptr,0 : 0), \
+    (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0)))
 #endif
 #endif
 #endif
@@ -1153,16 +1153,14 @@ typedef struct
 	   0))
 #define __av_struct(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)		\
 ((TYPE_SIZE) != 1 && (TYPE_SIZE) != 2 && (TYPE_SIZE) != 4 && (TYPE_SIZE) != 8 \
-? \
-   (++(LIST).aptr							\
+ ? (++(LIST).aptr							\
     > ((LIST).eptr = (__avword*)((long)(LIST).eptr - (((TYPE_SIZE)+7)&-8)))\
     ? -1 :								\
     (ASSIGN(TYPE,TYPE_SIZE,TYPE_ALIGN,(void*)(LIST).eptr,VAL),		\
      (LIST).aptr[-1] = (__avword)(LIST).eptr,				\
      0))								\
-: \
-(((TYPE_SIZE) == 8 && (LIST).aptr - (LIST).args - (LIST).fargwords == 4 ? ++(LIST).aptr,0 : 0), \
- __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)))
+ : (((TYPE_SIZE) == 8 && (LIST).aptr - (LIST).args - (LIST).fargwords == 4 ? ++(LIST).aptr,0 : 0), \
+    __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)))
 #endif
 /* big endian -> small structures < 1 word are adjusted to the right */
 #if defined(__m88k__)
