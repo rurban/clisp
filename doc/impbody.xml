@@ -4388,8 +4388,9 @@ functions are provided:</para>
 <section><title>The Lisp Pretty Printer
    <ulink url="&clhs;/Body/sec_22-2.html">[CLHS-22.2]</ulink></title>
 
-<para>The List Pretty Printer implementation is
- <emphasis>not</emphasis> perfect.</para>
+<para>The Lisp Pretty Printer implementation is
+ <emphasis>not</emphasis> perfect yet.
+ &pprint-logical-block; does not respect &print-lines-var;.</para>
 
 <section><title>Pretty Print Dispatch Table
    <ulink url="&clhs;/Body/sec_22-2-1-4.html">[CLHS-22.2.1.4]</ulink></title>
@@ -4398,10 +4399,10 @@ functions are provided:</para>
  dispatch table</ulink> is a &cons; of a symbol
  &print-pprint-dispatch-var; an &alist; which maps types into priorities
  and print functions.
- Their use is strongly discouraged because of the speed issues: when
- &print-pprint-dispatch-var; is non-trivial and &print-pretty-var; is
- non-&nil;, printing of every object requires a lookup in the table,
- which entails many calles to &typep; (which cannot be make fast
+ Their use is strongly discouraged because of the performance issues:
+ when &print-pprint-dispatch-var; is non-trivial and &print-pretty-var;
+ is non-&nil;, printing of every object requires a lookup in the table,
+ which entails many calls to &typep; (which cannot be made fast
  enough).</para>
 
 </section>
