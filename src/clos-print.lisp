@@ -43,7 +43,7 @@
               (write-string " " stream)
               (write :uninitialized :stream stream)))))))
   (:method ((object method-combination) stream)
-    (print-method-combination object stream))
+    (print-object-<method-combination> object stream))
   (:method ((object standard-method) stream)
     (print-std-method object stream)))
 
