@@ -10129,6 +10129,25 @@ typedef struct {
   extern boolean elt_fill (object dv, uintL index, uintL count, object element);
 # used by SEQUENCE
 
+# Function: Reverses a slice of an array, copying it into another array
+# of the same element type.
+# elt_reverse(dv1,index1,dv2,index2,count);
+# > dv1: source storage-vector
+# > index1: start index in dv1
+# > dv2: destination storage-vector
+# > index2: start index in dv2
+# > count: number of elements to be copied, > 0
+  extern void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+# used by SEQUENCE
+
+# Function: Reverses a slice of an array destructively.
+# elt_nreverse(dv,index,count);
+# > dv: storage-vector
+# > index: start index in dv
+# > count: number of elements to be reversed, > 0
+  extern void elt_nreverse (object dv, uintL index, uintL count);
+# used by SEQUENCE
+
 # Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
 # > array: ein Array

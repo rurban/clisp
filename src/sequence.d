@@ -724,14 +724,24 @@ LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
         pushSTACK(STACK_0); funcall(seq_make(STACK_(1+1)),1); # (SEQ-MAKE len)
         pushSTACK(value1);
         # Stackaufbau: seq1, typdescr, count, seq2.
-        pushSTACK(STACK_3); funcall(seq_fe_init(STACK_(2+1)),1); # (SEQ-FE-INIT seq1)
-        pushSTACK(value1);
-        # Stackaufbau: seq1, typdescr, count, seq2, pointer1.
-        pushSTACK(STACK_1); funcall(seq_init(STACK_(3+1)),1); # (SEQ-INIT seq2)
-        pushSTACK(value1);
-        # Stackaufbau: seq1, typdescr, count, seq2, pointer1, pointer2.
-        until (eq(STACK_3,Fixnum_0)) # count (ein Integer) = 0 -> Ende
-          { # (SEQ-ACCESS seq1 pointer1) bilden:
+        if (vectorp(STACK_3) && posfixnump(STACK_1)) {
+          var uintL count = posfixnum_to_L(STACK_1);
+          if (count > 0) {
+            var uintL index1 = 0;
+            var object dv1 = array_displace_check(STACK_3,count,&index1);
+            var uintL index2 = 0;
+            var object dv2 = array_displace_check(STACK_0,count,&index1); # = STACK_0
+            elt_reverse(dv1,index1,dv2,index2,count);
+          }
+        } else {
+          pushSTACK(STACK_3); funcall(seq_fe_init(STACK_(2+1)),1); # (SEQ-FE-INIT seq1)
+          pushSTACK(value1);
+          # Stackaufbau: seq1, typdescr, count, seq2, pointer1.
+          pushSTACK(STACK_1); funcall(seq_init(STACK_(3+1)),1); # (SEQ-INIT seq2)
+          pushSTACK(value1);
+          # Stackaufbau: seq1, typdescr, count, seq2, pointer1, pointer2.
+          until (eq(STACK_3,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
+            # (SEQ-ACCESS seq1 pointer1) bilden:
             pushSTACK(STACK_5); pushSTACK(STACK_(1+1));
             funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS seq1 pointer1)
             # (SEQ-ACCESS-SET seq2 pointer2 ...) ausführen:
@@ -744,8 +754,10 @@ LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
             # count := (1- count) :
             decrement(STACK_3);
           }
-        value1 = STACK_2; mv_count=1; # seq2 als Wert
-        skipSTACK(6);
+          skipSTACK(2);
+        }
+        value1 = STACK_0; mv_count=1; # seq2 als Wert
+        skipSTACK(4);
   }   }
 
 LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
@@ -755,8 +767,16 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         value1 = nreverse(seq); mv_count=1;
         skipSTACK(1);
       }
-    elif (vectorp(seq))
-      { # seq ist ein Vektor
+    elif (vectorp(seq)) {
+      if (TRUE) {
+        var uintL count = vector_length(seq);
+        if (count > 0) {
+          var uintL index = 0;
+          var object dv = array_displace_check(seq,count,&index);
+          elt_nreverse(dv,index,count);
+        }
+      } else {
+        # seq ist ein Vektor
         var object typdescr = get_valid_seq_type(seq);
         pushSTACK(typdescr);
         # Stackaufbau: seq, typdescr.
@@ -795,9 +815,9 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
             decrement(STACK_2);
           }
         skipSTACK(4);
-        value1 = popSTACK(); mv_count=1; # modifizierte seq als Wert
       }
-    else
+      value1 = popSTACK(); mv_count=1; # modifizierte seq als Wert
+    } else
       { var object typdescr = get_valid_seq_type(seq);
         # seq ist eine allgemeine Sequence
         pushSTACK(typdescr);
