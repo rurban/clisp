@@ -176,7 +176,8 @@ local Token nexttoken (boolean within_prep_directive)
   { if (tokens.index == MAXTOKENS)
       # kein Platz mehr in der Token-Tabelle -> nicht mehr buffern
       { outbuffer_off(); tokens.index = 0;
-        fprintf(stderr,"Token-Tabelle übergelaufen in Zeile %lu.\nFehler irgendwo nach Zeile %lu.\n",input_line,last_good_input_line);
+        fprintf(stderr,"Token table overcrowded in line %lu.\n\
+Error somewhere after line %lu.\n",input_line,last_good_input_line);
         exit(1);
       }
     # Nun ist tokens.index < MAXTOKENS .
@@ -217,7 +218,7 @@ local Token nexttoken (boolean within_prep_directive)
               # Kommentar
               { next_char();
                 loop { c = next_char();
-                       if (c==EOF) { fprintf(stderr,"Unbeendeter Kommentar\n"); break; }
+                       if (c==EOF) { fprintf(stderr,"Unfinished comment\n"); break; }
                        if ((c=='*') && (peek_char()=='/')) { next_char(); break; }
                      }
                 goto restart;
@@ -227,7 +228,8 @@ local Token nexttoken (boolean within_prep_directive)
           case '*':
             if (peek_char() == '/')
               # illegales Kommentar-Ende
-              { fprintf(stderr,"Kommentar-Ende außerhalb Kommentar in Zeile %lu\n",input_line); }
+              { fprintf(stderr,"Comment end outside of comment in line %lu\n",
+                        input_line); }
             goto separator;
           case '#':
             if (within_prep_directive)
@@ -263,7 +265,7 @@ local Token nexttoken (boolean within_prep_directive)
             # Character-Konstante
             loop
               { c = next_char();
-                if (c==EOF) { fprintf(stderr,"Unbeendete Character-Konstante\n"); break; }
+                if (c==EOF) { fprintf(stderr,"unterminated character constant\n"); break; }
                 if (c=='\'') break;
                 if (c=='\\') { c = next_char(); }
               }
@@ -274,10 +276,10 @@ local Token nexttoken (boolean within_prep_directive)
               {
 #ifndef QUOTE_QUOTES
                 c = next_char();
-                if (c==EOF) { fprintf(stderr,"Unbeendete String-Konstante\n"); break; }
+                if (c==EOF) { fprintf(stderr,"unterminated string constant\n"); break; }
 #else # muss Single-Quotes in Strings quotieren:
                 c = in_char();
-                if (c==EOF) { fprintf(stderr,"Unbeendete String-Konstante\n"); break; }
+                if (c==EOF) { fprintf(stderr,"unterminated string constant\n"); break; }
                 if (c=='\'')
                   { # statt "'" ein "\047" ausgeben:
                     out_char('\\');
@@ -359,12 +361,12 @@ local Token next_balanced_token (Token start_token)
           { case eof:
               if (open_braces.count > open_braces_start)
                 { if (open_braces.count <= MAXBRACES)
-                    fprintf(stderr,"Nicht geschlossene '%c' in Zeile %lu\n",
+                    fprintf(stderr,"unclosed '%c' in line %lu\n",
                                    open_braces.opening[open_braces.count-1].brace_type,
                                    open_braces.opening[open_braces.count-1].input_line
                            );
                     else
-                    fprintf(stderr,"Nicht geschlossene '(' oder '{' oder '['\n");
+                    fprintf(stderr,"unclosed '(' or '{' or '['\n");
                 }
               return token; # EOF-Token als Ergebnis
             case sep:
@@ -382,16 +384,15 @@ local Token next_balanced_token (Token start_token)
                                   || ((opening_ch == '{') && (closing_ch == '}'))
                                   || ((opening_ch == '[') && (closing_ch == ']'))
                                ) )
-                              { fprintf(stderr,"Öffnende Klammer '%c' in Zeile %lu\n und schließende Klammer '%c'\n in Zeile %lu passen nicht zusammen.\n",
+                              { fprintf(stderr,"opening '%c' in line %lu\n and closing '%c'\n in line %lu do not match.\n",
                                         opening_ch,open_braces.opening[open_braces.count].input_line,
                                         closing_ch,input_line
                                        );
                           }   }
                       }
                       else
-                      { fprintf(stderr,"Nicht geöffnete '%c' in Zeile %lu\n",
-                                token->ch,input_line
-                               );
+                      { fprintf(stderr,"not opened '%c' in line %lu\n",
+                                token->ch,input_line);
                         goto fertig;
                       }
                     break;
