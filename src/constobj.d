@@ -435,7 +435,7 @@
   LISPOBJ(type_pprint_newline,"(MEMBER :LINEAR :FILL :MISER :MANDATORY)")
   LISPOBJ(type_pprint_indent,"(MEMBER :BLOCK :CURRENT)")
   LISPOBJ(type_random_arg,"(OR (INTEGER (0) *) (FLOAT (0.0) *))")
-  LISPOBJ(type_packname,"(OR PACKAGE STRING SYMBOL)")
+  LISPOBJ(type_packname,"(OR PACKAGE STRING SYMBOL CHARACTER)")
   LISPOBJ(type_posint16,"(INTEGER (0) (65536))")
   LISPOBJ(type_string_integer,"(OR STRING INTEGER)")
   LISPOBJ(type_uint8_vector,"(ARRAY (UNSIGNED-BYTE 8) (*))")
