@@ -130,10 +130,10 @@ extern int errno;
 #ifdef HAVE_IPV4
   #ifdef HAVE_INET_NTOP
     #define ipv4_ntop(buffer,addr)  \
-      inet_ntop(AF_INET,&addr,buffer,15+1);
+      inet_ntop(AF_INET,&addr,buffer,15+1)
   #else
     #define ipv4_ntop(buffer,addr)  \
-      strcpy(buffer,inet_ntoa(addr));
+      strcpy(buffer,inet_ntoa(addr))
   #endif
 #endif
 
@@ -580,7 +580,7 @@ typedef union {
 # return the IP name of the localhost for the given socket.
 
 # Fills only hd->hostname and hd->port, not hd->truename.
-local host_data * socket_getlocalname_aux (SOCKET socket_handle, host_data * hd);
+local host_data * socket_getlocalname_aux (SOCKET socket_handle, host_data * hd );
 local host_data * socket_getlocalname_aux(socket_handle,hd)
   var SOCKET socket_handle;
   var host_data * hd;
@@ -785,14 +785,14 @@ global SOCKET create_client_socket(hostname,port)
 #define ARR_TO_LIST(val,test,expr)                      \
   { int ii; for (ii = 0; test; ii ++) { pushSTACK(expr); } val = listof(ii); }
 
-#define SERVENT_TO_STACK(se)                                                \
-  { var object tmp;                                                         \
-    pushSTACK(asciz_to_string(se->s_name,Symbol_value(S(ascii))));          \
-    ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),                            \
-                asciz_to_string(se->s_aliases[ii],Symbol_value(S(ascii)))); \
-    pushSTACK(tmp);                                                         \
-    pushSTACK(L_to_I(ntohs(se->s_port)));                                   \
-    pushSTACK(asciz_to_string(se->s_proto,Symbol_value(S(ascii))));         \
+#define SERVENT_TO_STACK(se)                                          \
+  { var object tmp;                                                   \
+    pushSTACK(asciz_to_string(se->s_name,O(misc_encoding)));          \
+    ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),                      \
+                asciz_to_string(se->s_aliases[ii],O(misc_encoding))); \
+    pushSTACK(tmp);                                                   \
+    pushSTACK(L_to_I(ntohs(se->s_port)));                             \
+    pushSTACK(asciz_to_string(se->s_proto,O(misc_encoding)));         \
   }
 
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
@@ -872,26 +872,54 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 
 # This piece of code is under the responsibility of Sam Steingold.
 
-#define H_ERRMSG \
-	(h_errno == HOST_NOT_FOUND ? "host not found" : \
-	 (h_errno == TRY_AGAIN ? "try again later" : \
-	  (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" : \
+#define H_ERRMSG                                                           \
+	(h_errno == HOST_NOT_FOUND ? "host not found" :                    \
+	 (h_errno == TRY_AGAIN ? "try again later" :                       \
+	  (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" :   \
 	   (h_errno == NO_DATA ? "valid name, but no data for this host" : \
-	    ((h_errno == NO_ADDRESS) || (h_errno == NO_DATA) ? \
+	    ((h_errno == NO_ADDRESS) || (h_errno == NO_DATA) ?             \
 	     "no IP address for this host" : "unknown error")))))
 
-#define HOSTENT_TO_STACK(he)                                                  \
-  { var object tmp;                                                           \
-    pushSTACK(ascii_to_string(he->h_name));                                   \
-    ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),                              \
-                asciz_to_string(he->h_aliases[ii],O(misc_encoding)));         \
-    pushSTACK(tmp);                                                           \
-    ARR_TO_LIST(tmp,(ii < he->h_length/sizeof(uint32)),                       \
-                asciz_to_string(inet_ntop(he->h_addrtype,he->h_addr_list[ii], \
-                                          buffer,MAXHOSTNAMELEN),             \
-                                O(misc_encoding)));                           \
-    pushSTACK(tmp);                                                           \
-    pushSTACK(fixnum(he->h_addrtype));                                        \
+#ifdef HAVE_IPV6
+#define ADDR_TO_STRING(type,addr,buf)                              \
+  (type == AF_INET6 ?                                              \
+   asciz_to_string(ipv6_ntop(buf,*(const struct in6_addr*)(addr)), \
+                   O(misc_encoding)) :                             \
+   (type ==  AF_INET ?                                             \
+    asciz_to_string(ipv4_ntop(buf,*(const struct in_addr*)(addr)), \
+                    O(misc_encoding)) : NULL ))
+#else
+#define ADDR_TO_STRING(type,addr,buf)                            \
+  (type ==  AF_INET ?                                            \
+   asciz_to_string(ipv4_ntop(buf,*(const struct in_addr*)(addr)),\
+                   O(misc_encoding)) : NULL )
+#endif # HAVE_IPV6
+
+# void print_he (struct hostent he) {
+#  int ii;
+#  char **pp;
+#  struct in_addr in;
+#  printf("h_name: %s; h_length: %d; h_addrtype: %d\n [size in.s_addr: %d]\n",
+#         he.h_name,he.h_length,he.h_addrtype,sizeof(in.s_addr));
+#  for (pp = he.h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
+#  printf("\n IP:");
+#  for (pp = he.h_addr_list; *pp != 0; pp++) {
+#    (void) memcpy(&in.s_addr, *pp, sizeof (in.s_addr));
+#    (void) printf("\t%s", inet_ntoa(in));
+#  }
+#  printf("\n");
+# }
+
+#define HOSTENT_TO_STACK(he,buf)                                          \
+  { var object tmp;                                                       \
+    pushSTACK(ascii_to_string(he->h_name));                               \
+    ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),                          \
+                asciz_to_string(he->h_aliases[ii],O(misc_encoding)));     \
+    pushSTACK(tmp);                                                       \
+    ARR_TO_LIST(tmp,(he->h_addr_list[ii] != NULL),                        \
+                ADDR_TO_STRING(he->h_addrtype,he->h_addr_list[ii],buf));  \
+    pushSTACK(tmp);                                                       \
+    pushSTACK(fixnum(he->h_addrtype));                                    \
   }
 
 # Lisp interface to gethostbyname(3) and gethostbyaddr(3)
@@ -906,7 +934,7 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
     int count = 0;
     begin_system_call();
     for (; (he = gethostent()); count++) {
-      HOSTENT_TO_STACK(he);
+      HOSTENT_TO_STACK(he,buffer);
       funcall(L(vector),4);
       pushSTACK(value1);
     }
@@ -956,7 +984,7 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
           );
   }
 
-  HOSTENT_TO_STACK(he);
+  HOSTENT_TO_STACK(he,buffer);
   funcall(L(values),4);
 }
 
