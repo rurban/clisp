@@ -5466,7 +5466,7 @@ for-value   NIL or T
                         name (second fdef))
                     L2)
               (push (clos::make-generic-function-form 'clos:generic-flet
-                      name (second fdef) (cddr fdef) (env))
+                      name (second fdef) (cddr fdef))
                     L3))
             (err-syntax 'CLOS:GENERIC-FLET fdef))))
     ;; namelist = list of Names,
@@ -5546,7 +5546,7 @@ for-value   NIL or T
                           (car L2))
                         L3)
                   (push (clos::make-generic-function-form 'clos:generic-labels
-                          name (second fdef) (cddr fdef) (env))
+                          name (second fdef) (cddr fdef))
                         L4))
                 (err-syntax 'CLOS:GENERIC-LABELS fdef))))
         ;; namelist = liste of Names, varlist = list of Variables,
