@@ -778,6 +778,11 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
   asciz_out(GETTEXTL("Unknown signature of a SUBR" NLstring));
   quit_sofort(1);
 }
+# set the argtype of a subr_ *ptr
+#define SUBR_SET_ARGTYPE(ptr)                                           \
+  ptr->argtype = (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,         \
+                                     (subr_rest_t)(ptr->rest_flag),     \
+                                     (subr_key_t)(ptr->key_flag))
 
 # Verify that a code address has the C_CODE_ALIGNMENT.
 # This is important for calling make_machine_code, but it's easiest verified
@@ -834,12 +839,7 @@ local void init_subr_tab_1 (void) {
   { # now initialize the argtype-slot:
     var subr_* ptr = (subr_*)&subr_tab; # traverse subr_tab
     var uintC count;
-    dotimesC(count,subr_anz,{
-      ptr->argtype = (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,
-                                         (subr_rest_t)(ptr->rest_flag),
-                                         (subr_key_t)(ptr->key_flag));
-      ptr++;
-    });
+    dotimesC(count,subr_anz,{ SUBR_SET_ARGTYPE(ptr); ptr++; });
   }
  #else
   { # initialize all slots except keywords:
@@ -855,12 +855,7 @@ local void init_subr_tab_1 (void) {
       if (*module->stab_size > 0) {
         var subr_* ptr = module->stab; # traverse subr_tab
         var uintC count;
-        dotimespC(count,*module->stab_size,{
-          ptr->argtype = (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,
-                                             (subr_rest_t)(ptr->rest_flag),
-                                             (subr_key_t)(ptr->key_flag));
-          ptr++;
-        });
+        dotimespC(count,*module->stab_size,{ SUBR_SET_ARGTYPE(ptr); ptr++; });
       }
     });
   }
@@ -3076,12 +3071,8 @@ global void dynload_modules (const char * library, uintC modcount,
           if (*module->stab_size > 0) {
             var subr_* ptr = module->stab; # peruse subr_tab
             var uintC count;
-            dotimespC(count,*module->stab_size,{
-              ptr->argtype = (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,
-                                                 (subr_rest_t)(ptr->rest_flag),
-                                                 (subr_key_t)(ptr->key_flag));
-              ptr++;
-            });
+            dotimespC(count,*module->stab_size,
+            { SUBR_SET_ARGTYPE(ptr); ptr++; });
           }
          #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
           {
