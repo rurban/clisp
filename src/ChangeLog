@@ -1,5 +1,16 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (subr_argtype_t): New enumeration items subr_argtype_1_3,
+          subr_argtype_2_3.
+        * spvw.d (subr_argtype): Use them.
+        * eval.d (eval_subr, apply_subr, funcall_subr): Treat them.
+        * stream.d (SYSTEM::SET-STREAM-ELEMENT-TYPE): Stricter restrictions.
+          (check_multiple8_eltype, test_endianness_arg): New functions.
+          (READ-INTEGER, WRITE-INTEGER): New functions.
+        * compiler.lsp (subr-info): Add them.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Allow #0Y to occur on standard input.
         * stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Accept an optional
           direction argument. If it is given, recurse properly.
