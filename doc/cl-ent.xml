@@ -2,7 +2,7 @@
 
 <!-- *** Entities for docbook/xml, related to Common Lisp *** -->
 <!--
- Copyright (C) 2000-2001 by Sam Steingold
+ Copyright (C) 2000-2002 by Sam Steingold
  This is Free Software, covered by the GNU GPL (v2 or later)
  See http://www.gnu.org/copyleft/gpl.html
  -->
@@ -92,6 +92,7 @@
 <!-- *** platforms *** -->
 <!ENTITY acorn "<ulink url='http://www.acorn.com/'><emphasis role='strong'>Acorn</emphasis></ulink>">
 <!ENTITY amiga "<ulink url='http://www.amiga.org/'><emphasis role='strong'>Amiga</emphasis></ulink>">
+<!ENTITY cygwin "<ulink url='http://cygwin.com/'><emphasis role='strong'>Cygwin</emphasis></ulink>">
 <!ENTITY dos "<ulink url='http://www.freedos.org/'><emphasis role='strong'>DOS</emphasis></ulink>">
 <!ENTITY linux "<ulink url='http://www.linux.org/'><emphasis role='strong'>Linux</emphasis></ulink>">
 <!ENTITY nextstep "<ulink url='http://www.next.com/'><emphasis role='strong'>NeXTstep</emphasis></ulink>">
