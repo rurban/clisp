@@ -1,6 +1,6 @@
 # Support for GENERATIONAL_GC, part 1.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 #ifdef GENERATIONAL_GC
 
@@ -59,7 +59,7 @@ local uintC generation;
 # CHECK_GC_GENERATIONAL();
 # SAVE_GC_DATA();
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 #ifdef GENERATIONAL_GC
   #ifdef SPVW_PURE_BLOCKS
@@ -74,7 +74,7 @@ local uintC generation;
       #define in_old_generation_general(obj)  \
         (in_old_generation_0(obj) || in_old_generation_1(obj))
       #ifdef GNU
-        # meist ist heapnr konstant, das erlaubt Optimierung:
+        # heapnr is mostly constant, which makes optimization possible:
         #define in_old_generation(obj,type,heapnr)  \
           (__builtin_constant_p(heapnr)                                          \
            ? ((heapnr)==0 ? in_old_generation_0(obj) : in_old_generation_1(obj)) \
@@ -102,213 +102,200 @@ local uintC generation;
       (((ptr)==NULL) ? (void*)malloc(size) : (void*)realloc(ptr,size))
   # Just like free(), except that the pointer argument may be NULL.
   # local void xfree (void* ptr);
-    #define xfree(ptr)  \
-      if (!((ptr)==NULL)) free(ptr);
+    #define xfree(ptr)  if ((ptr)!=NULL) free(ptr);
 
   # For the following walking functions, it is essential that
   # varobject_alignment is a multiple of sizeof(object).
 
-  #define walk_area_cons(objptr,physpage_end,walkfun)  \
-    { var object* ptr = (object*)objptr;                    \
-      while ((aint)ptr < physpage_end)                      \
-        { walkfun(*ptr); ptr++; }                           \
-    }
-  #define walk_area_symbol(objptr,physpage_end,walkfun)  \
-    { var object* ptr = (object*)(objptr+symbol_objects_offset); \
-      var uintC count;                                      \
-      dotimespC(count,(sizeof(symbol_)-symbol_objects_offset)/sizeof(object), \
-        { if ((aint)ptr < physpage_end)                     \
-            { walkfun(*ptr); ptr++; }                       \
-            else break;                                     \
-        });                                                 \
-      objptr += size_symbol();                              \
-    }
-  #define walk_area_iarray(objptr,physpage_end,walkfun)  \
-    { var object* ptr = &((Iarray)objptr)->data;            \
-      if ((aint)ptr < physpage_end)                         \
-        { walkfun(*ptr); }                                  \
-      objptr += objsize_iarray((Iarray)objptr);             \
-    }
-  #define walk_area_svector(objptr,physpage_end,walkfun)  \
-    { var uintL count = svector_length((Svector)objptr);    \
-      var object* ptr = &((Svector)objptr)->data[0];        \
-      objptr += size_svector(count);                        \
-      dotimesL(count,count,                                 \
-        { if ((aint)ptr < physpage_end)                     \
-            { walkfun(*ptr); ptr++; }                       \
-            else break;                                     \
-        });                                                 \
-      }
+  #define walk_area_cons(objptr,physpage_end,walkfun)          \
+    do { var object* ptr = (object*)objptr;                    \
+         while ((aint)ptr < physpage_end)                      \
+           { walkfun(*ptr); ptr++; }                           \
+    } while(0)
+  #define walk_area_symbol(objptr,physpage_end,walkfun)                       \
+    do { var object* ptr = (object*)(objptr+symbol_objects_offset);           \
+      var uintC count;                                                        \
+      dotimespC(count,(sizeof(symbol_)-symbol_objects_offset)/sizeof(object),{\
+        if ((aint)ptr < physpage_end) { walkfun(*ptr); ptr++; }               \
+        else break;                                                           \
+      });                                                                     \
+      objptr += size_symbol();                                                \
+    } while(0)
+  #define walk_area_iarray(objptr,physpage_end,walkfun)         \
+    do { var object* ptr = &((Iarray)objptr)->data;             \
+         if ((aint)ptr < physpage_end) { walkfun(*ptr); }       \
+         objptr += objsize_iarray((Iarray)objptr);              \
+    } while(0)
+  #define walk_area_svector(objptr,physpage_end,walkfun)                \
+    do { var uintL count = svector_length((Svector)objptr);             \
+         var object* ptr = &((Svector)objptr)->data[0];                 \
+         objptr += size_svector(count);                                 \
+         dotimesL(count,count, {                                        \
+           if ((aint)ptr < physpage_end) { walkfun(*ptr); ptr++; }      \
+           else break;                                                  \
+         });                                                            \
+    } while(0)
   #define walk_area_record(objptr,physpage_end,walkfun)  \
-    { var uintC count;                                      \
-      var object* ptr = &((Record)objptr)->recdata[0];      \
-      objptr += (record_type((Record)objptr) < rectype_limit \
-                 ? (count = srecord_length((Srecord)objptr), size_srecord(count)) \
-                 : (count = xrecord_length((Xrecord)objptr), size_xrecord(count,xrecord_xlength((Xrecord)objptr))) \
-                );                                          \
-      dotimesC(count,count,                                 \
-        { if ((aint)ptr < physpage_end)                     \
-            { walkfun(*ptr); ptr++; }                       \
-            else break;                                     \
-        });                                                 \
-    }
+    do { var uintC count;                                                   \
+      var object* ptr = &((Record)objptr)->recdata[0];                      \
+      objptr += (record_type((Record)objptr) < rectype_limit                \
+                 ? (count = srecord_length((Srecord)objptr),                \
+                    size_srecord(count))                                    \
+                 : (count = xrecord_length((Xrecord)objptr),                \
+                    size_xrecord(count,xrecord_xlength((Xrecord)objptr)))); \
+      dotimesC(count,count,{                                                \
+        if ((aint)ptr < physpage_end) { walkfun(*ptr); ptr++; }             \
+        else break;                                                         \
+      });                                                                   \
+    } while(0)
 
   #ifdef SPVW_PURE
-    #define walk_area(heapnr,physpage_start,physpage_end,walkfun)  \
-      { var aint objptr = physpage_start;                            \
-        switch (heapnr)                                              \
-          { case_pair:                                               \
-              # Objekt mit genau 2 Pointern (Cons u.ä.)              \
-              walk_area_cons(objptr,physpage_end,walkfun);           \
-              break;                                                 \
-            case_symbol: # Symbol                                    \
-              while (objptr < physpage_end)                          \
-                walk_area_symbol(objptr,physpage_end,walkfun);       \
-              break;                                                 \
-            case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: \
-              # Arrays, die nicht simple sind:                       \
-              while (objptr < physpage_end)                          \
-                walk_area_iarray(objptr,physpage_end,walkfun);       \
-              break;                                                 \
-            case_weakkvt: # weak-key-value-table                     \
-            case_svector: # simple-vector                            \
-              while (objptr < physpage_end)                          \
-                walk_area_svector(objptr,physpage_end,walkfun);      \
-              break;                                                 \
-            case_record: # Record                                    \
-              while (objptr < physpage_end)                          \
-                walk_area_record(objptr,physpage_end,walkfun);       \
-              break;                                                 \
-            default:                                                 \
-              # Solche Objekte kommen nicht vor.                     \
-              /*NOTREACHED*/ abort();                                \
-      }   }
+    #define walk_area(heapnr,physpage_start,physpage_end,walkfun)         \
+      do { var aint objptr = physpage_start;                              \
+        switch (heapnr) {                                                 \
+          case_pair:                                                      \
+            # Object with exactly 2 pointers (cons and similar)           \
+            walk_area_cons(objptr,physpage_end,walkfun);                  \
+            break;                                                        \
+          case_symbol: # symbol                                           \
+            while (objptr < physpage_end)                                 \
+              walk_area_symbol(objptr,physpage_end,walkfun);              \
+            break;                                                        \
+          case_mdarray: case_obvector: case_ob2vector: case_ob4vector:    \
+          case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: \
+          case_ovector: # Arrays that are not simple:                     \
+            while (objptr < physpage_end)                                 \
+              walk_area_iarray(objptr,physpage_end,walkfun);              \
+            break;                                                        \
+          case_weakkvt: # weak-key-value-table                            \
+          case_svector: # simple-vector                                   \
+            while (objptr < physpage_end)                                 \
+              walk_area_svector(objptr,physpage_end,walkfun);             \
+            break;                                                        \
+          case_record: # Record                                           \
+            while (objptr < physpage_end)                                 \
+              walk_area_record(objptr,physpage_end,walkfun);              \
+            break;                                                        \
+          default: # Such objects do not occur.                           \
+            /*NOTREACHED*/ abort();                                       \
+      }} while(0)
   #endif
   #ifdef SPVW_MIXED
     #ifdef TYPECODES
-      #define walk_area(heapnr,physpage_start,physpage_end,walkfun)  \
-        { var aint objptr = physpage_start;                                        \
-          switch (heapnr)                                                          \
-            { case 0: # Objekte variabler Länge                                    \
-                while (objptr < physpage_end)                                      \
-                  { switch (typecode_at(objptr)) # Typ des nächsten Objekts        \
-                      { case_symbolwithflags: # Symbol                             \
-                          walk_area_symbol(objptr,physpage_end,walkfun);           \
-                          break;                                                   \
-                        case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: \
-                          # Arrays, die nicht simple sind:                         \
-                          walk_area_iarray(objptr,physpage_end,walkfun);           \
-                          break;                                                   \
-                        case_weakkvt: # weak-key-value-table                       \
-                        case_svector: # simple-vector                              \
-                          walk_area_svector(objptr,physpage_end,walkfun);          \
-                          break;                                                   \
-                        case_record: # Record                                      \
-                          walk_area_record(objptr,physpage_end,walkfun);           \
-                          break;                                                   \
-                        default: # simple-bit-vector, simple-string, bignum, float \
-                          objptr += objsize((Varobject)objptr);                    \
-                          break;                                                   \
-                  }   }                                                            \
-                break;                                                             \
-              case 1: # 2-Pointer-Objekte                                          \
-                walk_area_cons(objptr,physpage_end,walkfun);                       \
-                break;                                                             \
-              default: /*NOTREACHED*/ abort();                                     \
-        }   }
+      #define walk_area(heapnr,physpage_start,physpage_end,walkfun)          \
+        do { var aint objptr = physpage_start;                               \
+          switch (heapnr) {                                                  \
+            case 0: # objects of variable length                             \
+              while (objptr < physpage_end) {                                \
+                switch (typecode_at(objptr)) { # type of the next object     \
+                  case_symbolwithflags: # symbol                             \
+                    walk_area_symbol(objptr,physpage_end,walkfun);           \
+                    break;                                                   \
+                  case_mdarray: case_obvector: case_ob2vector:               \
+                  case_ob4vector: case_ob8vector: case_ob16vector:           \
+                  case_ob32vector: case_ostring: case_ovector:               \
+                    # arrays that are not simple:                            \
+                    walk_area_iarray(objptr,physpage_end,walkfun);           \
+                    break;                                                   \
+                  case_weakkvt: # weak-key-value-table                       \
+                  case_svector: # simple-vector                              \
+                    walk_area_svector(objptr,physpage_end,walkfun);          \
+                    break;                                                   \
+                  case_record: # record                                      \
+                    walk_area_record(objptr,physpage_end,walkfun);           \
+                    break;                                                   \
+                  default: # simple-bit-vector, simple-string, bignum, float \
+                    objptr += objsize((Varobject)objptr);                    \
+                    break;                                                   \
+              }}                                                             \
+              break;                                                         \
+            case 1: # Two-Pointer-Objects                                    \
+              walk_area_cons(objptr,physpage_end,walkfun);                   \
+              break;                                                         \
+            default: /*NOTREACHED*/ abort();                                 \
+        }} while(0)
     #else
-      #define walk_area(heapnr,physpage_start,physpage_end,walkfun)  \
-        { var aint objptr = physpage_start;                                         \
-          switch (heapnr)                                                           \
-            { case 0: # Objekte variabler Länge                                     \
-                while (objptr < physpage_end)                                       \
-                  { switch (record_type((Record)objptr)) # Typ des nächsten Objekts \
-                      { case Rectype_mdarray:                                       \
-                        case Rectype_bvector:                                       \
-                        case Rectype_b2vector:                                      \
-                        case Rectype_b4vector:                                      \
-                        case Rectype_b8vector:                                      \
-                        case Rectype_b16vector:                                     \
-                        case Rectype_b32vector:                                     \
-                        case Rectype_string:                                        \
-                        case Rectype_vector:                                        \
-                          # Arrays, die nicht simple sind:                          \
-                          walk_area_iarray(objptr,physpage_end,walkfun);            \
-                          break;                                                    \
-                        case Rectype_WeakKVT: # weak-key-value-table                \
-                        case Rectype_Svector: # simple-vector                       \
-                          walk_area_svector(objptr,physpage_end,walkfun);           \
-                          break;                                                    \
-                        case Rectype_Sbvector:                                      \
-                        case Rectype_Sb2vector:                                     \
-                        case Rectype_Sb4vector:                                     \
-                        case Rectype_Sb8vector:                                     \
-                        case Rectype_Sb16vector:                                    \
-                        case Rectype_Sb32vector:                                    \
-                        case Rectype_Sstring: case Rectype_Imm_Sstring:             \
-                        case Rectype_Imm_SmallSstring:                              \
-                        case Rectype_Bignum:                                        \
-                        case Rectype_Ffloat:                                        \
-                        case Rectype_Dfloat:                                        \
-                        case Rectype_Lfloat:                                        \
-                          # simple-byte-vector, simple-string, bignum, float        \
-                          objptr += objsize((Varobject)objptr);                     \
-                          break;                                                    \
-                        default: # Srecord/Xrecord                                  \
-                          walk_area_record(objptr,physpage_end,walkfun);            \
-                          break;                                                    \
-                  }   }                                                             \
-                break;                                                              \
-              case 1: # 2-Pointer-Objekte                                           \
-                walk_area_cons(objptr,physpage_end,walkfun);                        \
-                break;                                                              \
-              default: /*NOTREACHED*/ abort();                                      \
-        }   }
+      #define walk_area(heapnr,physpage_start,physpage_end,walkfun)       \
+        do { var aint objptr = physpage_start;                            \
+          switch (heapnr) {                                               \
+            case 0: # objects of variable length                          \
+              while (objptr < physpage_end) {                             \
+                switch (record_type((Record)objptr)) { # next object type \
+                  case Rectype_mdarray:                                   \
+                  case Rectype_bvector:                                   \
+                  case Rectype_b2vector:                                  \
+                  case Rectype_b4vector:                                  \
+                  case Rectype_b8vector:                                  \
+                  case Rectype_b16vector:                                 \
+                  case Rectype_b32vector:                                 \
+                  case Rectype_string:                                    \
+                  case Rectype_vector:                                    \
+                    # arrays that are not simple:                         \
+                    walk_area_iarray(objptr,physpage_end,walkfun);        \
+                    break;                                                \
+                  case Rectype_WeakKVT: # weak-key-value-table            \
+                  case Rectype_Svector: # simple-vector                   \
+                    walk_area_svector(objptr,physpage_end,walkfun);       \
+                    break;                                                \
+                  case Rectype_Sbvector:                                  \
+                  case Rectype_Sb2vector:                                 \
+                  case Rectype_Sb4vector:                                 \
+                  case Rectype_Sb8vector:                                 \
+                  case Rectype_Sb16vector:                                \
+                  case Rectype_Sb32vector:                                \
+                  case Rectype_Sstring: case Rectype_Imm_Sstring:         \
+                  case Rectype_Imm_SmallSstring:                          \
+                  case Rectype_Bignum:                                    \
+                  case Rectype_Ffloat:                                    \
+                  case Rectype_Dfloat:                                    \
+                  case Rectype_Lfloat:                                    \
+                    # simple-byte-vector, simple-string, bignum, float    \
+                    objptr += objsize((Varobject)objptr);                 \
+                    break;                                                \
+                  default: # Srecord/Xrecord                              \
+                    walk_area_record(objptr,physpage_end,walkfun);        \
+                    break;                                                \
+              }}                                                          \
+              break;                                                      \
+            case 1: # two-pointer-objects                                 \
+              walk_area_cons(objptr,physpage_end,walkfun);                \
+              break;                                                      \
+            default: /*NOTREACHED*/ abort();                              \
+        }} while(0)
     #endif
   #endif
 
-  #define walk_physpage(heapnr,physpage,pageend,heapend,walkfun)  \
-    { { var uintC count = physpage->continued_count;                  \
-        if (count > 0)                                                \
-          { var object* ptr = physpage->continued_addr;               \
-            dotimespC(count,count, { walkfun(*ptr); ptr++; } );       \
-      }   }                                                           \
-      { var aint physpage_end =                                       \
-          (pageend < heapend ? pageend : heapend);                    \
-        walk_area(heapnr,physpage->firstobject,physpage_end,walkfun); \
-    } }
+  #define walk_physpage(heapnr,physpage,pageend,heapend,walkfun)         \
+    do {{ var uintC count = physpage->continued_count;                   \
+        if (count > 0) {                                                 \
+          var object* ptr = physpage->continued_addr;                    \
+          dotimespC(count,count, { walkfun(*ptr); ptr++; } );            \
+        }}                                                               \
+      { var aint physpage_end = (pageend < heapend ? pageend : heapend); \
+        walk_area(heapnr,physpage->firstobject,physpage_end,walkfun);    \
+    }} while(0)
 
   # Same thing as functions.
 
-  local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end, walkstep_fun walkstep);
-  local void walk_area_(heapnr,physpage_start,physpage_end,walkstep)
-    var uintL heapnr;
-    var aint physpage_start;
-    var aint physpage_end;
-    var walkstep_fun walkstep;
-    {
-      #define walkstep1(obj)  walkstep(&(obj))
-      walk_area(heapnr,physpage_start,physpage_end,walkstep1);
-      #undef walkstep1
-    }
+  local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end,
+                         walkstep_fun walkstep) {
+    #define walkstep1(obj)  walkstep(&(obj))
+    walk_area(heapnr,physpage_start,physpage_end,walkstep1);
+    #undef walkstep1
+  }
 
-  local void walk_physpage_ (uintL heapnr, const physpage_state* physpage, aint pageend, aint heapend, walkstep_fun walkstep);
-  local void walk_physpage_(heapnr,physpage,pageend,heapend,walkstep)
-    var uintL heapnr;
-    var const physpage_state* physpage;
-    var aint pageend;
-    var aint heapend;
-    var walkstep_fun walkstep;
-    {
-      #define walkstep1(obj)  walkstep(&(obj))
-      walk_physpage(heapnr,physpage,pageend,heapend,walkstep1);
-      #undef walkstep1
-    }
+  local void walk_physpage_ (uintL heapnr, const physpage_state* physpage,
+                             aint pageend, aint heapend,
+                             walkstep_fun walkstep) {
+    #define walkstep1(obj)  walkstep(&(obj))
+    walk_physpage(heapnr,physpage,pageend,heapend,walkstep1);
+    #undef walkstep1
+  }
 
   local void build_old_generation_cache (uintL heapnr);
   local void build_old_generation_cache(heapnr)
     var uintL heapnr;
-    { if (is_heap_containing_objects(heapnr)) { # Objekte, die keine Pointer enthalten, brauchen keinen Cache.
+    { if (is_heap_containing_objects(heapnr)) { # objects that contain no pointers, need no cache.
         var Heap* heap = &mem.heaps[heapnr];
         var aint gen0_start = heap->heap_gen0_start;
         var aint gen0_end = heap->heap_gen0_end;
@@ -330,8 +317,8 @@ local uintC generation;
           heap->physpages = (physpage_state*) xrealloc(heap->physpages,(physpage_count+(gen0_end==gen0_end_pa))*sizeof(physpage_state));
           if (!(heap->physpages==NULL)) {
             #if defined(SELFMADE_MMAP) && !defined(SPVW_PURE_BLOCKS)
-            # Spätestens jetzt muss man den Speicherinhalt vom mem-File holen.
-            # (Die Conses könnte man noch weiter verzögern, aber bringt das viel?)
+            # now at the latest the memory content has to be fetched from the mem-file.
+            # (the conses could be delayed still further, but does that pay off?)
             {
               var uintL pageno;
               for (pageno = 0; pageno < heap->memfile_numpages; pageno++)
@@ -342,10 +329,10 @@ local uintC generation;
                   abort();
             }
             #endif
-            # Wenn wir fertig sind, wird sowohl Cache als auch Speicherinhalt
-            # gültig sein:
+            # When we are finished, both the cache and the memory content
+            # will be valid:
             xmmprotect(heap, gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
-            # heap->physpages[0..physpage_count-1] füllen:
+            # fill heap->physpages[0..physpage_count-1] :
             {
               var physpage_state* physpage = heap->physpages;
               var uintL count;
@@ -356,14 +343,14 @@ local uintC generation;
               });
             }
             if (is_cons_heap(heapnr)) {
-              # Conses u.ä.
-              # Von gen0_start bis gen0_end sind alles Pointer.
+              # conses and similar
+              # from gen0_start to gen0_end everything is a pointer.
               var physpage_state* physpage = heap->physpages;
               var uintL count;
               #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-              # Alle Seiten bis auf die letzte voll, die letzte teilweise voll.
+              # all pages except the last are full, the last page is partly full.
               dotimesL(count,physpage_count-1, {
-                # für i=0,1,...:
+                # for i=0,1,...:
                 #   gen0_start = heap->heap_gen0_start + i*physpagesize
                 #   physpage = &heap->physpages[i]
                 physpage->continued_addr = (object*)gen0_start;
@@ -376,13 +363,13 @@ local uintC generation;
               physpage->continued_count = (gen0_end-gen0_start)/sizeof(object);
               physpage->firstobject = gen0_end;
               #else
-              # Alle Seiten bis auf die erste voll, die erste teilweise voll.
+              # all pages except the first are full, the first page is partly full.
               physpage->continued_addr = (object*)gen0_start;
               physpage->continued_count = ((gen0_start_pa+physpagesize)-gen0_start)/sizeof(object);
               physpage->firstobject = gen0_start = gen0_start_pa+physpagesize;
               dotimesL(count,physpage_count-1, {
                 physpage++;
-                # für i=1,...:
+                # for i=1,...:
                 #   gen0_start = (heap->heap_gen0_start & -physpagesize) + i*physpagesize
                 #   physpage = &heap->physpages[i]
                 physpage->continued_addr = (object*)gen0_start;
@@ -392,29 +379,29 @@ local uintC generation;
               });
               #endif
             } else {
-              # is_varobject_heap(heapnr), Objekte variabler Länge
+              # is_varobject_heap(heapnr), objects of variable length
               var physpage_state* physpage = heap->physpages;
               var aint objptr = gen0_start;
-              # Für i=0,1,... ist
+              # for i=0,1,...:
               #   gen0_start = heap->heap_gen0_start + i*physpagesize
               #   physpage = &heap->physpages[i]
-              # Mit wachsendem i geht man von einer Seite zur nächsten.
-              # Gleichzeitig geht man von einem Objekt zum nächsten und markiert
-              # alle Pointer zwischen objptr (Pointer auf das aktuelle Objekt)
-              # und nextptr (Pointer auf das nächste Objekt). Glücklicherweise
-              # kommen in allen unseren Objekten die Pointer am Stück:
-              # ab ptr kommen count Pointer.
-              # Das Intervall ptr...ptr+count*sizeof(object) wird nun zerlegt.
+              # with increasing i we move from one page to the next.
+              # simultaneously, we move from one object to the next and mark
+              # all pointers between objptr (pointer to the current object)
+              # and nextptr (pointer to the next object). Fortunately,
+              # in all our objects the pointers are adjacent to each other:
+              # starting at ptr, there are count pointers.
+              # the interval ptr...ptr+count*sizeof(object) will now be dissected.
               #ifdef SPVW_PURE
               switch (heapnr) {
-                case_symbol: # Symbol
+                case_symbol: # symbol
                   physpage->continued_addr = (object*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
                   gen0_start += physpagesize; physpage++;
                   while (objptr < gen0_end) {
                     var aint nextptr = objptr + size_symbol();
-                    # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
+                    # here is gen0_start-physpagesize <= objptr < gen0_start.
                     if (nextptr >= gen0_start) {
                       var aint ptr = objptr+symbol_objects_offset;
                       var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(object);
@@ -426,21 +413,21 @@ local uintC generation;
                         physpage->continued_count = count;
                       }
                       physpage->firstobject = nextptr;
-                      # Man überquert höchstens eine Seitengrenze auf einmal.
+                      # At most one page boundary is crossed at a time.
                       gen0_start += physpagesize; physpage++;
                     }
                     objptr = nextptr;
                   }
                   if (!(objptr == gen0_end)) abort();
                   break;
-                case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # nicht-simple Arrays:
+                case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # non-simple arrays:
                   physpage->continued_addr = (object*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
                   gen0_start += physpagesize; physpage++;
                   while (objptr < gen0_end) {
                     var aint nextptr = objptr + objsize_iarray((Iarray)objptr);
-                    # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
+                    # here is gen0_start-physpagesize <= objptr < gen0_start.
                     if (nextptr >= gen0_start) {
                       var aint ptr = (aint)&((Iarray)objptr)->data;
                       # count = 1;
@@ -451,8 +438,8 @@ local uintC generation;
                         physpage->continued_addr = (object*)ptr;
                         physpage->continued_count = 1;
                       }
-                      # Man überquerte höchstens eine Seitengrenze.
-                      # Danach kommen (bis nextptr) keine Pointer mehr.
+                      # At most one page boundary has been crossed.
+                      # Then, there are no more pointers (until nextptr).
                       loop {
                         physpage->firstobject = nextptr;
                         gen0_start += physpagesize; physpage++;
@@ -474,12 +461,12 @@ local uintC generation;
                   while (objptr < gen0_end) {
                     var uintL count = svector_length((Svector)objptr);
                     var aint nextptr = objptr + size_svector(count);
-                    # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
+                    # here is gen0_start-physpagesize <= objptr < gen0_start.
                     if (nextptr >= gen0_start) {
                       var aint ptr = (aint)&((Svector)objptr)->data[0];
                       if (ptr < gen0_start) {
                         var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
-                        if ((varobject_alignment == sizeof(object)) # das erzwingt count >= count_thispage
+                        if ((varobject_alignment == sizeof(object)) # this enforces count >= count_thispage
                             || (count >= count_thispage)
                            )
                           count -= count_thispage;
@@ -506,7 +493,7 @@ local uintC generation;
                   }
                   if (!(objptr == gen0_end)) abort();
                   break;
-                case_record: # Record
+                case_record: # record
                   physpage->continued_addr = (object*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
@@ -551,7 +538,7 @@ local uintC generation;
                   if (!(objptr == gen0_end)) abort();
                   break;
                 default:
-                  # Solche Objekte kommen nicht vor.
+                  # such objects do not occur.
                   abort();
               }
               #else # SPVW_MIXED
@@ -561,17 +548,17 @@ local uintC generation;
               gen0_start += physpagesize; physpage++;
               while (objptr < gen0_end) {
                 #ifdef TYPECODES
-                switch (typecode_at(objptr)) # Typ des nächsten Objekts
+                switch (typecode_at(objptr)) # type of the next object
                 #else
                 goto case_record;
                 switch (0)
                 #endif
                 {
                   #ifdef TYPECODES
-                  case_symbolwithflags: # Symbol
+                  case_symbolwithflags: # symbol
                     {
                       var aint nextptr = objptr + size_symbol();
-                      # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
+                      # here is gen0_start-physpagesize <= objptr < gen0_start.
                       if (nextptr >= gen0_start) {
                         var aint ptr = objptr+symbol_objects_offset;
                         var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(object);
@@ -583,17 +570,17 @@ local uintC generation;
                           physpage->continued_count = count;
                         }
                         physpage->firstobject = nextptr;
-                        # Man überquert höchstens eine Seitengrenze auf einmal.
-                        gen0_start += physpagesize; physpage++;
+                        # At most one page boundary is crossed at a time.
+                          gen0_start += physpagesize; physpage++;
                       }
                       objptr = nextptr;
                     }
                     break;
                   #endif
-                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # nicht-simple Arrays:
+                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # non-simple arrays:
                     {
                       var aint nextptr = objptr + objsize((Iarray)objptr);
-                      # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
+                      # here is gen0_start-physpagesize <= objptr < gen0_start.
                       if (nextptr >= gen0_start) {
                         var aint ptr = (aint)&((Iarray)objptr)->data;
                         # count = 1;
@@ -604,8 +591,8 @@ local uintC generation;
                           physpage->continued_addr = (object*)ptr;
                           physpage->continued_count = 1;
                         }
-                        # Man überquerte höchstens eine Seitengrenze.
-                        # Danach kommen (bis nextptr) keine Pointer mehr.
+                        # At most one page boundary has been crossed.
+                        # Then, there are no more pointers (until nextptr).
                         loop {
                           physpage->firstobject = nextptr;
                           gen0_start += physpagesize; physpage++;
@@ -622,12 +609,12 @@ local uintC generation;
                     {
                       var uintL count = svector_length((Svector)objptr);
                       var aint nextptr = objptr + size_svector(count);
-                      # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
+                      # here is gen0_start-physpagesize <= objptr < gen0_start.
                       if (nextptr >= gen0_start) {
                         var aint ptr = (aint)&((Svector)objptr)->data[0];
                         if (ptr < gen0_start) {
                           var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
-                          if ((varobject_alignment == sizeof(object)) # das erzwingt count >= count_thispage
+                          if ((varobject_alignment == sizeof(object)) # that enforces count >= count_thispage
                               || (count >= count_thispage)
                              )
                             count -= count_thispage;
@@ -653,7 +640,7 @@ local uintC generation;
                       objptr = nextptr;
                     }
                     break;
-                  case_record: # Record
+                  case_record: # record
                     #ifndef TYPECODES
                     switch (record_type((Record)objptr)) {
                       case_Rectype_mdarray_above;
@@ -721,7 +708,7 @@ local uintC generation;
                     break;
                   case_nopointers:
                   default: # simple-bit-vector, simple-string, bignum, float
-                    # Keine Pointer.
+                    # no pointers.
                     objptr += objsize((Varobject)objptr);
                     while (objptr >= gen0_start) {
                       physpage->continued_addr = (object*)gen0_start; # irrelevant
@@ -744,7 +731,7 @@ local uintC generation;
   local void rebuild_old_generation_cache(heapnr)
     var uintL heapnr;
     {
-      if (is_heap_containing_objects(heapnr)) { # Objekte, die keine Pointer enthalten, brauchen keinen Cache.
+      if (is_heap_containing_objects(heapnr)) { # objects, that contain no pointers, need no cache.
         var Heap* heap = &mem.heaps[heapnr];
         var aint gen0_start = heap->heap_gen0_start;
         var aint gen0_end = heap->heap_gen0_end;
@@ -757,17 +744,17 @@ local uintC generation;
               var old_new_pointer* cache_ptr = &cache_buffer[0];
               #ifdef TYPECODES
                 #define cache_at(obj)  \
-                  { var tint type = mtypecode(obj);                                   \
-                    if (!gcinvariant_type_p(type)) # unverschieblich?                 \
-                      if (!in_old_generation(obj,type,mem.heapnr_from_type[type]))    \
-                        # obj ist ein Pointer in die neue Generation -> merken        \
+                  { var tint type = mtypecode(obj);                                \
+                    if (!gcinvariant_type_p(type)) # un-movable?                   \
+                      if (!in_old_generation(obj,type,mem.heapnr_from_type[type])) \
+                        # obj is a pointer into the new generation -> memorize     \
                         { cache_ptr->p = &(obj); cache_ptr->o = (obj); cache_ptr++; } \
                   }
               #else
                 #define cache_at(obj)  \
-                  { if (!gcinvariant_object_p(obj))                                   \
-                      if (!in_old_generation(obj,,(as_oint(obj)>>1)&1))               \
-                        # obj ist ein Pointer in die neue Generation -> merken        \
+                  { if (!gcinvariant_object_p(obj))                                \
+                      if (!in_old_generation(obj,,(as_oint(obj)>>1)&1))            \
+                        # obj is a pointer into the new generation -> memorize     \
                         { cache_ptr->p = &(obj); cache_ptr->o = (obj); cache_ptr++; } \
                   }
               #endif
@@ -775,9 +762,9 @@ local uintC generation;
               #undef cache_at
               var uintL cache_size = cache_ptr - &cache_buffer[0];
               if (cache_size <= (physpagesize/sizeof(object))/4) {
-                # Wir cachen eine Seite nur, falls maximal 25% mit Pointern auf
-                # die neue Generation belegt ist. Sonst ist das Anlegen eines Cache
-                # Platzverschwendung.
+                # we cache a page only, if at most 25% are occupied with pointers
+                # to the new generation. Else, creating a cache
+                # is a waste of space.
                 physpage->cache_size = cache_size;
                 if (cache_size == 0) {
                   xfree(physpage->cache); physpage->cache = NULL;
@@ -827,7 +814,7 @@ local uintC generation;
     }
 #endif
 
-  # Alte Generation mit Hilfe des Cache auf den aktuellen Stand bringen:
+  # update the old generation with the help of the cache:
   local void prepare_old_generation (void);
   local void prepare_old_generation()
     {
@@ -841,9 +828,9 @@ local uintC generation;
           gen0_end = (gen0_end + (physpagesize-1)) & -physpagesize;
           if (gen0_start < gen0_end) {
             if (!(heap->physpages==NULL)) {
-              # Erst read-write einblenden:
+              # first superimpose read-write:
               xmmprotect(heap, gen0_start, gen0_end-gen0_start, PROT_READ_WRITE);
-              # Dann den Cache entleeren:
+              # then empty the cache:
               var physpage_state* physpage = heap->physpages;
               var uintL physpagecount;
               dotimespL(physpagecount, (gen0_end-gen0_start) >> physpageshift, {
@@ -860,8 +847,8 @@ local uintC generation;
               });
               /* xfree(heap->physpages); heap->physpages = NULL; */
             }
-            # Dann die Lücke zwischen der alten und der neuen Generation so
-            # füllen, dass die Kompaktierungs-Algorithmen funktionieren:
+            # then, fill the gap between the old and the new generation,
+            # in order to have the compaction-algorithms functional:
             if (is_cons_heap(heapnr)) {
               var object* ptr;
               var uintL count;
@@ -891,7 +878,7 @@ local uintC generation;
 #endif
 
 #if defined(DEBUG_SPVW) && defined(GENERATIONAL_GC)
-  # Kontrolle des Cache der old_new_pointer:
+  # control of the cache of the old_new_pointer:
   #define CHECK_GC_CACHE()  gc_cache_check()
   local void gc_cache_check (void);
   local void gc_cache_check()
@@ -923,10 +910,11 @@ local uintC generation;
           }
         }
     }
-  # Kontrolle, ob alle Pointer im Cache aufgeführt sind und nicht in den Wald zeigen.
+  # control, if all pointers are listed in the cache
+  # and do not "point into the forest." (don't know which idiom is appropriate)
   #define CHECK_GC_GENERATIONAL()  gc_overall_check()
   local void gc_overall_check (void);
-    # Kontrolle eines einzelnen Pointers:
+    # control of a single pointer:
     local bool gc_check_at (object* objptr);
     local bool gc_check_at(objptr)
       var object* objptr;
@@ -952,12 +940,12 @@ local uintC generation;
         #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
         if (is_cons_heap(mem.heapnr_from_type[type])) {
           if ((addr >= heap->heap_start) && (addr < heap->heap_gen1_end))
-            return true; # Pointer in die neue Generation
+            return true; # pointer into the new generation
         } else
         #endif
         {
           if ((addr >= heap->heap_gen1_start) && (addr < heap->heap_end))
-            return true; # Pointer in die neue Generation
+            return true; # pointer into the new generation
         }
         if ((type == symbol_type)
             && (as_oint(obj) - as_oint(symbol_tab_ptr_as_object(&symbol_tab))
@@ -982,7 +970,7 @@ local uintC generation;
               gen0_start &= -physpagesize;
               do {
                 if (physpage->protection == PROT_READ) {
-                  # Stimmen die Pointer im Cache und in der Seite überein?
+                  # do the pointers in the Cache and in the page match?
                   var uintL count = physpage->cache_size;
                   if (count > 0) {
                     var old_new_pointer* ptr = physpage->cache;
@@ -999,14 +987,14 @@ local uintC generation;
                 }
                 gen0_start += physpagesize;
                 if (physpage->protection == PROT_NONE) {
-                  # Cache ausnutzen, gecachte Pointer durchlaufen:
+                  # take advantage of cache, traverse cached pointers:
                   var uintL count = physpage->cache_size;
                   if (count > 0) {
                     var old_new_pointer* ptr = physpage->cache;
                     dotimespL(count,count, { gc_check_at(&ptr->o); ptr++; } );
                   }
                 } else {
-                  # ganzen Page-Inhalt durchlaufen:
+                  # traverse the whole page-content:
                   walk_physpage_(heapnr,physpage,gen0_start,gen0_end,gc_check_at);
                 }
                 physpage++;
@@ -1014,7 +1002,7 @@ local uintC generation;
             }
         }
     }
-  # Zur Fehlersuche: Verwaltungsdaten vor und nach der GC retten.
+  # For error discovery: save administrational data before and after GC.
   #define SAVE_GC_DATA()  save_gc_data()
   local void save_gc_data (void);
   typedef struct gc_data { struct gc_data * next; Heap heaps[heapcount]; } *
@@ -1022,7 +1010,7 @@ local uintC generation;
   local var gc_data_list gc_history;
   local void save_gc_data()
     {
-      # Kopiere die aktuellen GC-Daten an den Kopf der Liste gc_history :
+      # copy the current GC-data to the head of the list gc_history :
       var gc_data_list new_data = (struct gc_data *) malloc(sizeof(struct gc_data));
       if (!(new_data==NULL)) {
         var uintL heapnr;

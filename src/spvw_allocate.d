@@ -1,6 +1,6 @@
 # General macro for object allocation.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 # Asks the OS for a piece of memory of need bytes, and verifies that it lies
 # in the address range usable for Lisp objects. Returns NULL if couldn't
@@ -20,58 +20,56 @@
 # Finally `ptr' is combined with the type info and returned from the current
 # function (via `return').
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
-# Fehlermeldung wegen vollen Speichers
-  nonreturning_function(local, fehler_speicher_voll, (void)) {
-    dynamic_bind(S(use_clcs),NIL); # SYS::*USE-CLCS* an NIL binden
-    if (posfixnump(Symbol_value(S(gc_statistics_stern)))) {
-      dynamic_bind(S(gc_statistics_stern),Fixnum_0); # SYS::*GC-STATISTICS* an 0 binden
-    }
-    fehler(storage_condition,
-           GETTEXT("No more room for LISP objects")
-          );
+# error-message because of full memory
+nonreturning_function(local, fehler_speicher_voll, (void)) {
+  dynamic_bind(S(use_clcs),NIL); # bind SYS::*USE-CLCS* to NIL
+  if (posfixnump(Symbol_value(S(gc_statistics_stern)))) {
+     # bind SYS::*GC-STATISTICS* to 0
+    dynamic_bind(S(gc_statistics_stern),Fixnum_0);
   }
+  fehler(storage_condition,GETTEXT("No more room for LISP objects"));
+}
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
 
-# Notmaßnahme, wenn Speicher voll: Anzapfen der Reserve und Fehlermeldung.
+# emergency measure, when memory is full: tap the reserve and error-message.
   nonreturning_function(local, error_speicher_voll, (void)) {
     # Abhilfe: Reservespeicher wird halbiert.
     var uintL reserve = mem.MEMTOP - mem.MEMRES; # noch freie Reserve
-    if (reserve>=8) { # Reservespeicher auch voll?
-      # nein -> Reservespeicher anzapfen und Fehlermeldung ausgeben
-      # halbe Reserve
+    if (reserve>=8) { # reserve memory also full?
+      # no -> tap reserve memory and issue error-message
+      # half reserve
       move_conses(round_down(floor(reserve,2),varobject_alignment));
-      # halbierte Reserve, aligned: um soviel die Conses nach oben schieben
+      # halved reserve, aligned: shift up the conses by that amount
       fehler_speicher_voll();
     } else {
-      # ja -> harte Fehlermeldung
+      # yes -> hard error-message
       asciz_out(GETTEXTL(NLstring "*** - " "No more room for LISP objects: RESET"));
-      reset(); # und zum letzten Driver-Frame zurück
+      reset(); # and return to the last driver-frame
     }
   }
 
-# Bei entspannter Situation: Reserve wieder auffüllen.
-# Invariante: (mem.conses.heap_start-mem.varobjects.heap_end >= need).
+# On relaxed situation: fill up reserve again.
+# Invariant: (mem.conses.heap_start-mem.varobjects.heap_end >= need).
   local void relax_reserve (uintL need);
   local void relax_reserve(need)
     var uintL need;
     {
-      # Jetzt ist genügend Platz da. Vielleicht sogar genug, den
-      # Reservespeicher auf normale Größe zu bringen?
+      # Now, enough space is available. Maybe even enough, to enlarge
+      # the reserve memory to normal size?
       var uintL free = (mem.conses.heap_start-mem.varobjects.heap_end) - need;
-                       # soviel Bytes noch frei
+                       # bytes still free
       var uintL free_reserve = mem.MEMTOP-mem.MEMRES;
-                       # soviel Bytes noch in der Reserve frei, <=RESERVE
+                       # bytes still free in reserve, <=RESERVE
       var uintL free_total = free + free_reserve;
-                       # freier Objektspeicher + freie Reserve
-      if (free_total >= RESERVE) { # mindestens Normalwert RESERVE ?
-        # ja -> Reservespeicher auf normale Größe bringen, indem
-        # die Conses um (RESERVE - free_reserve) nach unten geschoben
-        # werden:
+                       # free object memory + free reserve
+      if (free_total >= RESERVE) { # at least normal value RESERVE ?
+        # yes -> bring reserve memory to normal size, by shifting
+        # the conses down by (RESERVE - free_reserve) :
         move_conses(free_reserve-RESERVE);
-        # Dadurch bleibt genügend für need frei.
+        # thus, there will be enough free for 'need'.
       }
     }
 
@@ -82,15 +80,15 @@
 
 #endif
 
-# Stellt fest, ob eine Adresse im Intervall [0..2^oint_addr_len-1] liegt:
-  #if !defined(TYPECODES) || ((oint_addr_len==32) && !defined(WIDE_HARD)) # d.h. !defined(TYPECODES) || defined(WIDE_SOFT)
+# determines, if an address lies in the interval [0..2^oint_addr_len-1] :
+  #if !defined(TYPECODES) || ((oint_addr_len==32) && !defined(WIDE_HARD)) # i.e. !defined(TYPECODES) || defined(WIDE_SOFT)
     #define pointable_usable_test(a)  true
   #else
     #define pointable_usable_test(a)  \
       ((void*)pointable(type_pointer_object(0,a)) == (void*)(a))
   #endif
 
-# Holt Speicher vom Betriebssystem
+# fetches memory from the operating system
   local void* mymalloc (uintL need);
   local void* mymalloc(need)
     var uintL need;
@@ -101,37 +99,37 @@
       end_system_call();
       if (addr==NULL)
         return NULL;
-      # Intervall [addr,addr+need-1] muss in [0..2^oint_addr_len-1] liegen:
+      # Interval [addr,addr+need-1] must lie in [0..2^oint_addr_len-1] :
       {
-        var aint a = (aint)addr; # a = untere Intervallgrenze
+        var aint a = (aint)addr; # a = lower interval bound
         if (pointable_usable_test(a)) {
-          a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze
+          a = round_down(a + need-1,bit(addr_shift)); # a = upper interval bound
           if (pointable_usable_test(a))
             return addr;
         }
       }
-      # Mit diesem Stück Speicher können wir nichts anfangen, wieder zurückgeben:
+      # we cannot do anything with this piece of memory, return it again:
       begin_system_call();
       free(addr);
       end_system_call();
       #if defined(AMIGAOS) && !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
-      # Wir machen einen zweiten Versuch mit veränderten Flags.
+      # A second attempt with different flags.
       if (!(default_allocmemflag == retry_allocmemflag)) {
         begin_system_call();
         addr = allocmem(need,retry_allocmemflag);
         end_system_call();
         if (addr==NULL)
           return NULL;
-        # Intervall [addr,addr+need-1] muss in [0..2^oint_addr_len-1] liegen:
+        # Interval [addr,addr+need-1] must lie in [0..2^oint_addr_len-1] :
         {
-          var aint a = (aint)addr; # a = untere Intervallgrenze
+          var aint a = (aint)addr; # a = lower interval bound
           if (pointable_usable_test(a)) {
-            a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze
+            a = round_down(a + need-1,bit(addr_shift)); # a = upper interval bound
             if (pointable_usable_test(a))
               return addr;
           }
         }
-        # Auch mit diesem Stück Speicher können wir nichts anfangen, wieder zurückgeben:
+        # we cannot do anything with this piece of memory, too, return it again:
         begin_system_call();
         freemem(addr);
         end_system_call();
@@ -142,12 +140,12 @@
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
 
-# Schafft Platz für ein neues Objekt.
-# Falls keiner vorhanden -> Fehlermeldung.
+# make room for a new object.
+# if none is available -> error-message.
 # make_space_FLAG(need);
-# > flag: ob Objekt variabler Länge oder nicht
-# > uintL need: angeforderter Platz in Bytes (eine Variable oder Konstante)
-  # Der Test, ob Platz vorhanden ist, als Macro, der Rest als Funktion:
+# > flag: if object is of variable length or not
+# > uintL need: requested space in bytes (a variable or constant)
+  # the test, if room is available, as macro, the rest as function:
   #define make_space_true(need)  make_space(need)
   #define make_space_false(need)  make_space(need)
   #define make_space(need)  \
@@ -161,14 +159,14 @@
   local void make_space_gc(need)
     var uintL need;
     {
-      # (mem.conses.heap_start-mem.varobjects.heap_end < need)  bzw.
-      # (mem.total_room < need)  ist schon abgeprüft, also
-      # Nicht genügend Platz
+      # (mem.conses.heap_start-mem.varobjects.heap_end < need)  resp.
+      # (mem.total_room < need)  is already checked, so there
+      # is not enough room
      not_enough_room:
       {
-        gar_col_simple(); # Garbage Collector aufrufen
+        gar_col_simple(); # call garbage collector
        doing_gc:
-        # Teste auf Tastatur-Unterbrechung
+        # Test for keyboard interrupt
         interruptp({
           pushSTACK(S(gc)); tast_break();
           if (not_enough_room_p(need))
@@ -176,10 +174,10 @@
           else
             return;
         });
-        if (mem.conses.heap_start-mem.varobjects.heap_end < (uintP)(need)) { # und wieder testen
-          # Wirklich nicht genügend Platz da.
-          # [Unter UNIX mit 'realloc' arbeiten??]
-          # Abhilfe: man versucht eine volle GC.
+        if (mem.conses.heap_start-mem.varobjects.heap_end < (uintP)(need)) { # and test again
+          # There is really not enough room.
+          # [work with 'realloc' under UNIX??]
+          # remedy: try a full GC.
           #ifdef GENERATIONAL_GC
           if (!mem.last_gc_full) {
             gar_col(); goto doing_gc;
@@ -187,12 +185,12 @@
           #endif
             { error_speicher_voll(); }
         } else {
-          # Jetzt ist genügend Platz da. Vielleicht sogar genug, den
-          # Reservespeicher auf normale Größe zu bringen?
+          # Now, there is enough room. Maybe even enough, to enlarge
+          # the reserve memory to normal size?
           relax_reserve(need);
-          # Jetzt ist sicher (mem.conses.heap_start-mem.varobjects.heap_end >= need).
+          # now for sure (mem.conses.heap_start-mem.varobjects.heap_end >= need).
           #ifdef GENERATIONAL_GC
-          # Falls (mem.total_room < need), ignorieren wir das:
+          # if (mem.total_room < need), we ignore that:
           if (mem.total_room < need)
             mem.total_room = need;
           #endif
@@ -204,17 +202,17 @@
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(TRIVIALMAP_MEMORY)
 
-# Schafft Platz für ein neues Objekt.
-# Falls keiner vorhanden -> Fehlermeldung.
+# make room for a new object.
+# if none is available -> error-message.
 # make_space_FLAG(need);
-# > flag: ob Objekt variabler Länge oder nicht
-# > uintL need: angeforderter Platz in Bytes (eine Variable oder Konstante)
-  # Der Test, ob Platz vorhanden ist, als Macro, der Rest als Funktion:
+# > flag: if object is of variable length or not
+# > uintL need: requested space in bytes (a variable or constant)
+  # the test, if room is available, as macro, the rest as function:
   #define make_space_true(need)  \
-    { if ((mem.total_room < (uintL)(need))                                         \
+    { if ((mem.total_room < (uintL)(need))                                      \
           || (mem.varobjects.heap_limit - mem.varobjects.heap_end < (uintP)(need)) \
-         )                                                                         \
-        make_space_gc_true(need,&mem.varobjects);                                  \
+         )                                                                      \
+        make_space_gc_true(need,&mem.varobjects);                               \
     }
   #define make_space_false(need)  \
     { if ((mem.total_room < (uintL)(need))                                   \
@@ -227,15 +225,15 @@
     var uintL need;
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need)
-      # ist schon abgeprüft, also nicht genügend Platz.
+      # is already checked, so there is not enough room.
      not_enough_room:
       {
         var bool done_gc = false;
         if (mem.total_room < need) {
          do_gc:
-          gar_col_simple(); # Garbage Collector aufrufen
+          gar_col_simple(); # call garbage collector
          doing_gc:
-          # Teste auf Tastatur-Unterbrechung
+          # Test for keyboard interrupt
           interruptp({
             pushSTACK(S(gc)); tast_break();
             if ((mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need))
@@ -245,20 +243,20 @@
           });
           done_gc = true;
         }
-        # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
-        # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
-        # darauf, heapptr->heap_limit zu vergrößern.
+        # Either now is (mem.total_room >= need), or we have just performed
+        # a GC. In both cases we concentrate on
+        # enlarging heapptr->heap_limit .
         {
           var aint needed_limit = heapptr->heap_end + need;
-          if (needed_limit <= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
-            return; # ja -> fertig
-          # Aufrunden bis zur nächsten Seitengrenze:
+          if (needed_limit <= heapptr->heap_limit) # has the GC done its job?
+            return; # yes -> finished
+          # round up to the next page boundary:
           #ifndef GENERATIONAL_GC
-          needed_limit = round_up(needed_limit,map_pagesize); # sicher > heapptr->heap_limit
-          #else # map_pagesize bekanntermaßen eine Zweierpotenz
-          needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # sicher > heapptr->heap_limit
+          needed_limit = round_up(needed_limit,map_pagesize); # for sure > heapptr->heap_limit
+          #else # map_pagesize is commonly known a power of two
+          needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # for suer > heapptr->heap_limit
           #endif
-          # neuen Speicher allozieren:
+          # allocate new memory:
           if (needed_limit <= mem.conses.heap_limit) { # avoid crossover
             begin_system_call();
             var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
@@ -267,7 +265,7 @@
               goto sufficient;
             asciz_out(GETTEXTL("Trying to make room through a GC..." NLstring));
           }
-          # nicht erfolgreich
+          # not successful
           if (!done_gc)
             goto do_gc;
           #ifdef GENERATIONAL_GC
@@ -279,8 +277,8 @@
          sufficient:
           heapptr->heap_limit = needed_limit;
         }
-        # Jetzt ist sicher (heapptr->heap_limit - heapptr->heap_end >= need).
-        # Falls (mem.total_room < need), ignorieren wir das:
+        # now for sure (heapptr->heap_limit - heapptr->heap_end >= need).
+        # if (mem.total_room < need), we ignore that:
         if (mem.total_room < need)
           mem.total_room = need;
       }
@@ -290,15 +288,15 @@
     var uintL need;
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_start - heapptr->heap_limit < need)
-      # ist schon abgeprüft, also nicht genügend Platz.
+      # is already checked, so there is not enough room.
      not_enough_room:
       {
         var bool done_gc = false;
         if (mem.total_room < need) {
          do_gc:
-          gar_col_simple(); # Garbage Collector aufrufen
+          gar_col_simple(); # call garbage collector
          doing_gc:
-          # Teste auf Tastatur-Unterbrechung
+          # Test for keyboard interrupt
           interruptp({
             pushSTACK(S(gc)); tast_break();
             if ((mem.total_room < need) || (heapptr->heap_start - heapptr->heap_limit < need))
@@ -308,22 +306,22 @@
           });
           done_gc = true;
         }
-        # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
-        # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
-        # darauf, heapptr->heap_limit zu verkleinern.
+        # Either now is (mem.total_room >= need), or we have just performed
+        # a GC. In both cases we concentrate on
+        # reducing heapptr->heap_limit .
         {
           var aint needed_limit = heapptr->heap_start - need;
           if (needed_limit > heapptr->heap_start) # wraparound?
             goto failed;
-          if (needed_limit >= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
-            return; # ja -> fertig
-          # Abrunden bis zur nächsten Seitengrenze:
+          if (needed_limit >= heapptr->heap_limit) # has the GC done its job?
+            return; # yes -> finished
+          # round off to the next page boundary:
           #ifndef GENERATIONAL_GC
-          needed_limit = round_down(needed_limit,map_pagesize); # sicher < heapptr->heap_limit
-          #else # map_pagesize bekanntermaßen eine Zweierpotenz
-          needed_limit = needed_limit & -map_pagesize; # sicher < heapptr->heap_limit
+          needed_limit = round_down(needed_limit,map_pagesize); # for sure < heapptr->heap_limit
+          #else # map_pagesize is commonly known a power of two
+          needed_limit = needed_limit & -map_pagesize; # for sure < heapptr->heap_limit
           #endif
-          # neuen Speicher allozieren:
+          # allocate new memory:
           if (needed_limit >= mem.varobjects.heap_limit) { # avoid crossover
             begin_system_call();
             var int ergebnis = zeromap((void*)needed_limit,heapptr->heap_limit - needed_limit);
@@ -332,7 +330,7 @@
               goto sufficient;
             asciz_out(GETTEXTL("Trying to make room through a GC..." NLstring));
           }
-          # nicht erfolgreich
+          # not successful
          failed:
           if (!done_gc)
             goto do_gc;
@@ -345,8 +343,8 @@
          sufficient:
           heapptr->heap_limit = needed_limit;
         }
-        # Jetzt ist sicher (heapptr->heap_start - heapptr->heap_limit >= need).
-        # Falls (mem.total_room < need), ignorieren wir das:
+        # now for sure (heapptr->heap_start - heapptr->heap_limit >= need).
+        # if (mem.total_room < need), we ignore that:
         if (mem.total_room < need)
           mem.total_room = need;
       }
@@ -356,12 +354,12 @@
 
 #if defined(SPVW_PURE_BLOCKS) || defined(SPVW_MIXED_BLOCKS_STAGGERED) # <==> (SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY) && !SPVW_MIXED_BLOCKS_OPPOSITE
 
-# Schafft Platz für ein neues Objekt.
-# Falls keiner vorhanden -> Fehlermeldung.
+# make room for a new object.
+# if none is available -> error-message.
 # make_space(need,heapptr);
-# > uintL need: angeforderter Platz in Bytes (eine Variable oder Konstante)
-# > Heap* heapptr: Pointer auf den Heap, dem der Platz entnommen werden soll
-  # Der Test, ob Platz vorhanden ist, als Macro, der Rest als Funktion:
+# > uintL need: requested space in bytes (a variable or constant)
+# > Heap* heapptr: pointer to the heap, where the room has to be taken from
+  # the test, if room is available, as macro, the rest as function:
   #define make_space(need,heapptr)  \
     { if ((mem.total_room < (uintL)(need))                                 \
           || ((heapptr)->heap_limit - (heapptr)->heap_end < (uintP)(need)) \
@@ -373,15 +371,15 @@
     var uintL need;
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need)
-      # ist schon abgeprüft, also nicht genügend Platz.
+      # is already checked, so there is not enough room.
      not_enough_room:
       {
         var bool done_gc = false;
         if (mem.total_room < need) {
          do_gc:
-          gar_col_simple(); # Garbage Collector aufrufen
+          gar_col_simple(); # call garbage collector
          doing_gc:
-          # Teste auf Tastatur-Unterbrechung
+          # Test for keyboard interrupt
           interruptp({
             pushSTACK(S(gc)); tast_break();
             if ((mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need))
@@ -391,20 +389,20 @@
           });
           done_gc = true;
         }
-        # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
-        # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
-        # darauf, heapptr->heap_limit zu vergrößern.
+        # Either now is (mem.total_room >= need), or we have just performed
+        # a GC. In both cases we concentrate on
+        # enlarging heapptr->heap_limit .
         {
           var aint needed_limit = heapptr->heap_end + need;
-          if (needed_limit <= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
-            return; # ja -> fertig
-          # Aufrunden bis zur nächsten Seitengrenze:
+          if (needed_limit <= heapptr->heap_limit) # has the GC done its job?
+            return; # yes -> finished
+          # round up to the next page boundary:
           #ifndef GENERATIONAL_GC
-          needed_limit = round_up(needed_limit,map_pagesize); # sicher > heapptr->heap_limit
-          #else # map_pagesize bekanntermaßen eine Zweierpotenz
-          needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # sicher > heapptr->heap_limit
+          needed_limit = round_up(needed_limit,map_pagesize); # for sure > heapptr->heap_limit
+          #else # map_pagesize is commonly known a power of two
+          needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # for sure > heapptr->heap_limit
           #endif
-          # neuen Speicher allozieren:
+          # allocate new memory:
           if (needed_limit-1 <= heapptr->heap_hardlimit-1) {
             begin_system_call();
             var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
@@ -413,7 +411,7 @@
               goto sufficient;
             asciz_out(GETTEXTL("Trying to make room through a GC..." NLstring));
           }
-          # nicht erfolgreich
+          # not successful
           if (!done_gc)
             goto do_gc;
           #ifdef GENERATIONAL_GC
@@ -425,8 +423,8 @@
          sufficient:
           heapptr->heap_limit = needed_limit;
         }
-        # Jetzt ist sicher (heapptr->heap_limit - heapptr->heap_end >= need).
-        # Falls (mem.total_room < need), ignorieren wir das:
+        # now for sure (heapptr->heap_limit - heapptr->heap_end >= need).
+        # if (mem.total_room < need), we ignore that:
         if (mem.total_room < need)
           mem.total_room = need;
       }
@@ -436,15 +434,15 @@
 
 #ifdef SPVW_PAGES
 
-# Schafft Platz für ein neues Objekt.
-# Falls keiner vorhanden -> Fehlermeldung.
+# make room for a new object.
+# if none is available -> error-message.
 # make_space(need,heap_ptr,stack_ptr, page);
-# > uintL need: angeforderter Platz in Bytes (eine Variable oder Konstante)
-# > Heap* heap_ptr: Adresse des Heaps, aus dem der Platz genommen werden soll
-# > AVL(AVLID,stack) * stack_ptr: Adressen eines lokalen Stacks,
-#   für ein späteres AVL(AVLID,move)
-# < Pages page: gefundene Page, wo der Platz ist
-  # Der Test, ob Platz vorhanden ist, als Macro, der Rest als Funktion:
+# > uintL need: requested space in bytes (a variable or constant)
+# > Heap* heap_ptr: address of the heap, where the room has to be taken from
+# > AVL(AVLID,stack) * stack_ptr: Address of a local stack,
+#   for a later AVL(AVLID,move)
+# < Pages page: found page, where the room is located
+  # the test, if room is available, as macro, the rest as function:
   #define make_space(need,heap_ptr,stack_ptr,pagevar)  \
     { pagevar = AVL(AVLID,least)(need,&(heap_ptr)->inuse,stack_ptr);    \
       if (pagevar==EMPTY)                                               \
@@ -456,103 +454,98 @@
     var Pages* pages_ptr;
     var AVL(AVLID,stack) * stack_ptr;
     { # AVL(AVLID,least)(need,pages_ptr,stack_ptr) == EMPTY
-      # ist schon abgeprüft, also
-      # Nicht genügend Platz
+      # is already checked,
+      # so there is not enough room.
      not_enough_room:
-      #define handle_interrupt_after_gc()  \
-        { # Teste auf Tastatur-Unterbrechung                               \
-          interruptp(                                                      \
-            { pushSTACK(S(gc)); tast_break();                              \
-             {var Pages page = AVL(AVLID,least)(need,pages_ptr,stack_ptr); \
-              if (page==EMPTY) goto not_enough_room;                       \
-                else                                                       \
-                return page;                                               \
-            }});                                                           \
-        }
+      # Test for keyboard interrupt
+      #define handle_interrupt_after_gc()                               \
+        interruptp({                                                    \
+          pushSTACK(S(gc)); tast_break();                               \
+         {var Pages page = AVL(AVLID,least)(need,pages_ptr,stack_ptr);  \
+          if (page==EMPTY) goto not_enough_room;                        \
+          else return page;                                             \
+        }})
       #if !defined(AVL_SEPARATE)
-        #define make_space_using_malloc()  \
-          # versuche, beim Betriebssystem Platz zu bekommen:                        \
-          { var uintL size1 = round_up(need,sizeof(cons_));                         \
-            if (size1 < std_page_size) { size1 = std_page_size; }                   \
-           {var uintL size2 = size1 + sizeof(NODE) + (varobject_alignment-1);       \
-            var aint addr = (aint)mymalloc(size2);                                  \
-            if (!((void*)addr == NULL))                                             \
-              { # Page vom Betriebssystem bekommen.                                 \
-                var Pages page = (Pages)addr;                                       \
-                page->m_start = addr; page->m_length = size2;                       \
-                # Initialisieren:                                                   \
-                page->page_start = page->page_end = page_start0(page);              \
-                page->page_room = size1;                                            \
-                # Diesem Heap zuschlagen:                                           \
-                *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);                   \
-                if (!(AVL(AVLID,least)(need,pages_ptr,stack_ptr) == page)) abort(); \
-                mem.total_space += size1;                                           \
-                return page;                                                        \
-          }}  }
+        # try to get space from the operating system:
+        #define make_space_using_malloc()                                     \
+          do { var uintL size1 = round_up(need,sizeof(cons_));                \
+            if (size1 < std_page_size) { size1 = std_page_size; }             \
+           {var uintL size2 = size1 + sizeof(NODE) + (varobject_alignment-1); \
+            var aint addr = (aint)mymalloc(size2);                            \
+            if ((void*)addr != NULL) { # get page from the OS.                \
+              var Pages page = (Pages)addr;                                   \
+              page->m_start = addr; page->m_length = size2;                   \
+              # initialize:                                                   \
+              page->page_start = page->page_end = page_start0(page);          \
+              page->page_room = size1;                                        \
+              # add to this heap:                                             \
+              *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);               \
+              if (AVL(AVLID,least)(need,pages_ptr,stack_ptr) != page) abort();\
+              mem.total_space += size1;                                       \
+              return page;                                                    \
+          }}} while(0)
       #else # AVL_SEPARATE
-        #define make_space_using_malloc()  \
-          # versuche, beim Betriebssystem Platz zu bekommen:                            \
-          { var uintL size1 = round_up(need,sizeof(cons_));                             \
-            if (size1 < std_page_size) { size1 = std_page_size; }                       \
-            begin_system_call();                                                        \
-           {var Pages page = (NODE*)malloc(sizeof(NODE));                               \
-            end_system_call();                                                          \
-            if (!(page == NULL))                                                        \
-              { var uintL size2 = size1 + (varobject_alignment-1);                      \
-                var aint addr = (aint)mymalloc(size2);                                  \
-                if (!((void*)addr == NULL))                                             \
-                  { # Page vom Betriebssystem bekommen.                                 \
-                    page->m_start = addr; page->m_length = size2;                       \
-                    # Initialisieren:                                                   \
-                    page->page_start = page->page_end = page_start0(page);              \
-                    page->page_room = size1;                                            \
-                    # Diesem Heap zuschlagen:                                           \
-                    *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);                   \
-                    if (!(AVL(AVLID,least)(need,pages_ptr,stack_ptr) == page)) abort(); \
-                    mem.total_space += size1;                                           \
-                    return page;                                                        \
-                  }                                                                     \
-                  else                                                                  \
-                  { begin_system_call(); free(page); end_system_call(); }               \
-          }}  }
+        # try to get space from the operating system:
+        #define make_space_using_malloc()                                   \
+          do { var uintL size1 = round_up(need,sizeof(cons_));              \
+            if (size1 < std_page_size) { size1 = std_page_size; }           \
+            begin_system_call();                                            \
+           {var Pages page = (NODE*)malloc(sizeof(NODE));                   \
+            end_system_call();                                              \
+            if (page != NULL) {                                             \
+              var uintL size2 = size1 + (varobject_alignment-1);            \
+              var aint addr = (aint)mymalloc(size2);                        \
+              if ((void*)addr != NULL) { # get page from the OS.            \
+                page->m_start = addr; page->m_length = size2;               \
+                # Initialize:                                               \
+                page->page_start = page->page_end = page_start0(page);      \
+                page->page_room = size1;                                    \
+                # add to this heap:                                         \
+                *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);           \
+                if (AVL(AVLID,least)(need,pages_ptr,stack_ptr) != page)     \
+                  abort();                                                  \
+                mem.total_space += size1;                                   \
+                return page;                                                \
+             } else { begin_system_call(); free(page); end_system_call(); } \
+          }}} while(0)
       #endif
       if ((need <= std_page_size) && !(mem.free_pages == NULL)) {
-        # Eine normalgroße Page aus dem allgemeinen Pool entnehmen:
+        # take a normal sized page from the common pool:
         var Pages page = mem.free_pages;
         mem.free_pages = page->page_gcpriv.next;
-        # page ist bereits korrekt initialisiert:
+        # page is already correctly initialized:
         # page->page_start = page->page_end = page_start0(page);
         # page->page_room =
         #   round_down(page->m_start + page->m_length,varobject_alignment)
-        # und diesem Heap zuschlagen:
+        # and add to this heap:
         *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);
         if (!(AVL(AVLID,least)(need,pages_ptr,stack_ptr) == page)) abort();
         mem.total_space += page->page_room;
         return page;
       }
       if (used_space()+need < mem.gctrigger_space) {
-        # Benutzter Platz ist seit der letzten GC noch nicht einmal um 25%
-        # angewachsen -> versuche es erstmal beim Betriebssystem;
-        # die GC machen wir, wenn die 25%-Grenze erreicht ist.
+        # used space did not even grow by 25% since the last GC ->
+        # try it at the operating system;
+        # we do the GC, when the 25%-boundary is reached.
         make_space_using_malloc();
       }
-      gar_col_simple(); # Garbage Collector aufrufen
+      gar_col_simple(); # call garbage collector
       handle_interrupt_after_gc();
-      # und wieder testen:
+      # and test again:
       var Pages page = AVL(AVLID,least)(need,pages_ptr,stack_ptr);
       if (page==EMPTY) {
         if (!mem.last_gc_compacted) {
-          gar_col_compact(); # kompaktierenden Garbage Collector aufrufen
+          gar_col_compact(); # call compacting garbage collector
           handle_interrupt_after_gc();
           page = AVL(AVLID,least)(need,pages_ptr,stack_ptr);
         }
         if (page==EMPTY) {
-          # versuche es nun doch beim Betriebssystem:
+          # now try it at the operating system, after all:
           make_space_using_malloc();
           fehler_speicher_voll();
         }
       }
-      # .reserve behandeln??
+      # treat .reserve??
       return page;
       #undef make_space_using_malloc
       #undef handle_interrupt_after_gc
@@ -560,18 +553,18 @@
 
 #endif
 
-# Macro zur Speicher-Allozierung eines Lisp-Objekts:
+# Macro for the memory-allocation of a Lisp-object:
 # allocate(type,flag,size,ptrtype,ptr,statement)
-# > type: Expression, die den Typcode liefert
-# > flag: ob Objekt variabler Länge oder nicht
-# > size: Expression (constant oder var), die die Größe des benötigten
-#         Speicherstücks angibt
-# ptrtype: C-Typ von ptr
+# > type: Expression, that returns the typecode
+# > flag: if object is of variable length or not
+# > size: Expression (constant or var), that specifies the size of the
+#         needed piece of memory
+# ptrtype: C-type of ptr
 # ptr: C-Variable
-# Ein Speicherstück der Länge size, passend zu einem Lisp-Objekt vom Typ type,
-# wird geholt und ptr auf seine Anfangsadresse gesetzt. Dann wird statement
-# ausgeführt (Initialisierung des Speicherstücks) und schließlich ptr,
-# mit der korrekten Typinfo versehen, als Ergebnis geliefert.
+# A memory piece of length size, suitable for a Lisp-object of Type type,
+# is fetched and ptr is set to its start address. Then the 'statement' is
+# executed (initialization of the memory piece) and finally ptr is
+# returned as result, provided with the correct typeinfo.
   #ifdef SPVW_BLOCKS
    #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
     #define decrement_total_room(amount)  mem.total_room -= (amount);
@@ -581,84 +574,89 @@
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement)  \
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
-    # Objekt variabler Länge:
-    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { make_space_true(size_expr);                                                   \
-        set_break_sem_1(); # Break sperren                                            \
-       {var ptrtype ptrvar;                                                           \
-        var object obj;                                                               \
-        ptrvar = (ptrtype) mem.varobjects.heap_end; # Pointer auf Speicherstück       \
-        mem.varobjects.heap_end += (size_expr); # Speicheraufteilung berichtigen      \
-        decrement_total_room(size_expr);                                              \
-        ptrvar->GCself = obj = bias_type_pointer_object(varobject_bias,type_expr,ptrvar); # Selbstpointer \
-        statement; # Speicherstück initialisieren                                     \
-        clr_break_sem_1(); # Break ermöglichen                                        \
-        CHECK_GC_CONSISTENCY();                                                       \
-        return obj;                                                                   \
-      }}
-    # Cons o.ä.:
-    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { make_space_false(size_expr);                                                        \
-        set_break_sem_1(); # Break sperren                                                  \
-       {var ptrtype ptrvar;                                                                 \
-        ptrvar = (ptrtype)(mem.conses.heap_start -= size_expr); # Pointer auf Speicherstück \
-        decrement_total_room(size_expr);                                                    \
-        statement; # Speicherstück initialisieren                                           \
-        clr_break_sem_1(); # Break ermöglichen                                              \
-        CHECK_GC_CONSISTENCY();                                                             \
-        return bias_type_pointer_object(cons_bias,type_expr,ptrvar);                        \
-      }}
+    # object of variable length:
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)       \
+      do { make_space_true(size_expr);                                        \
+        set_break_sem_1(); # lock Break                                       \
+       {var ptrtype ptrvar;                                                   \
+        var object obj;                                                       \
+        ptrvar = (ptrtype) mem.varobjects.heap_end; # pointer to memory piece \
+        mem.varobjects.heap_end += (size_expr); # adjust memory partitioning  \
+        decrement_total_room(size_expr);                                      \
+        ptrvar->GCself = obj = # self pointer                                 \
+          bias_type_pointer_object(varobject_bias,type_expr,ptrvar);          \
+        statement; # initialize memory piece                                  \
+        clr_break_sem_1(); # allow Break                                      \
+        CHECK_GC_CONSISTENCY();                                               \
+        return obj;                                                           \
+      }} while(0)
+    # Cons or similar:
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement) \
+      do { make_space_false(size_expr);                                  \
+        set_break_sem_1(); # lock Break                                  \
+       {var ptrtype ptrvar;                                              \
+        # pointer to memory piece:                                       \
+        ptrvar = (ptrtype)(mem.conses.heap_start -= size_expr);          \
+        decrement_total_room(size_expr);                                 \
+        statement; # initialize memory piece                             \
+        clr_break_sem_1(); # allow Break                                 \
+        CHECK_GC_CONSISTENCY();                                          \
+        return bias_type_pointer_object(cons_bias,type_expr,ptrvar);     \
+      }} while(0)
    #endif
    #ifdef SPVW_MIXED_BLOCKS_STAGGERED
     #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement)  \
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
-    # Objekt variabler Länge:
-    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { make_space(size_expr,&mem.varobjects);                                        \
-        set_break_sem_1(); # Break sperren                                            \
-       {var ptrtype ptrvar;                                                           \
-        var object obj;                                                               \
-        ptrvar = (ptrtype) mem.varobjects.heap_end; # Pointer auf Speicherstück       \
-        mem.varobjects.heap_end += (size_expr); # Speicheraufteilung berichtigen      \
-        decrement_total_room(size_expr);                                              \
-        ptrvar->GCself = obj = bias_type_pointer_object(varobject_bias,type_expr,ptrvar); # Selbstpointer \
-        statement; # Speicherstück initialisieren                                     \
-        clr_break_sem_1(); # Break ermöglichen                                        \
-        CHECK_GC_CONSISTENCY();                                                       \
-        return obj;                                                                   \
-      }}
-    # Cons o.ä.:
-    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { make_space(size_expr,&mem.conses);                                              \
-        set_break_sem_1(); # Break sperren                                              \
-       {var ptrtype ptrvar = (ptrtype) mem.conses.heap_end; # Pointer auf Speicherstück \
-        mem.conses.heap_end += (size_expr); # Speicheraufteilung berichtigen            \
-        decrement_total_room(size_expr);                                                \
-        statement; # Speicherstück initialisieren                                       \
-        clr_break_sem_1(); # Break ermöglichen                                          \
-        CHECK_GC_CONSISTENCY();                                                         \
-        return bias_type_pointer_object(cons_bias,type_expr,ptrvar);                    \
-      }}
+    # Object of variable length:
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)       \
+      do { make_space(size_expr,&mem.varobjects);                             \
+        set_break_sem_1(); # lock Break                                       \
+       {var ptrtype ptrvar;                                                   \
+        var object obj;                                                       \
+        ptrvar = (ptrtype) mem.varobjects.heap_end; # pointer to memory piece \
+        mem.varobjects.heap_end += (size_expr); # adjust memory partitioning  \
+        decrement_total_room(size_expr);                                      \
+        ptrvar->GCself = obj = # self pointer                                 \
+          bias_type_pointer_object(varobject_bias,type_expr,ptrvar);          \
+        statement; # initialize memory piece                                  \
+        clr_break_sem_1(); # allow Break                                      \
+        CHECK_GC_CONSISTENCY();                                               \
+        return obj;                                                           \
+      }} while(0)
+    # Cons or similar:
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement) \
+      do { make_space(size_expr,&mem.conses);                            \
+        set_break_sem_1(); # lock Break                                  \
+        # pointer to memory piece:                                       \
+       {var ptrtype ptrvar = (ptrtype) mem.conses.heap_end;              \
+        mem.conses.heap_end += (size_expr); # adjust memory partitioning \
+        decrement_total_room(size_expr);                                 \
+        statement; # initialize memory piece                             \
+        clr_break_sem_1(); # allow Break                                 \
+        CHECK_GC_CONSISTENCY();                                          \
+        return bias_type_pointer_object(cons_bias,type_expr,ptrvar);     \
+      }} while(0)
    #endif
    #ifdef SPVW_PURE
-    #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement)  \
-      { var tint _type = (type_expr);                                      \
-        var Heap* heapptr = &mem.heaps[_type];                             \
-        make_space(size_expr,heapptr);                                     \
-        set_break_sem_1(); # Break sperren                                 \
-       {var ptrtype ptrvar = (ptrtype)(heapptr->heap_end); # Pointer auf Speicherstück \
-        heapptr->heap_end += (size_expr); # Speicheraufteilung berichtigen \
-        decrement_total_room(size_expr);                                   \
-        allocate_##flag (ptrvar);                                          \
-        statement; # Speicherstück initialisieren                          \
-        clr_break_sem_1(); # Break ermöglichen                             \
-        CHECK_GC_CONSISTENCY();                                            \
-        return as_object((oint)ptrvar);                                    \
-      }}
-    # Objekt variabler Länge:
+    #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement) \
+      do { var tint _type = (type_expr);                                \
+        var Heap* heapptr = &mem.heaps[_type];                          \
+        make_space(size_expr,heapptr);                                  \
+        set_break_sem_1(); # lock Break                                 \
+        # pointer to memory piece:                                      \
+       {var ptrtype ptrvar = (ptrtype)(heapptr->heap_end);              \
+        heapptr->heap_end += (size_expr); # adjust memory partitioning  \
+        decrement_total_room(size_expr);                                \
+        allocate_##flag (ptrvar);                                       \
+        statement; # initialize memory piece                            \
+        clr_break_sem_1(); # allow Break                                \
+        CHECK_GC_CONSISTENCY();                                         \
+        return as_object((oint)ptrvar);                                 \
+      }} while(0)
+    # Object of variable length:
     #define allocate_true(ptrvar)  \
-      ptrvar->GCself = as_object((oint)ptrvar); # Selbstpointer eintragen
-    # Cons o.ä.:
+      ptrvar->GCself = as_object((oint)ptrvar); # store self pointer
+    # Cons or similar:
     #define allocate_false(ptrvar)
    #endif
   #endif
@@ -666,103 +664,108 @@
     #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement)  \
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
    #ifdef SPVW_MIXED
-    # Objekt variabler Länge:
-    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { # Suche nach der Page mit dem kleinsten page_room >= size_expr:               \
-        var AVL(AVLID,stack) stack;                                                   \
-        var Pages page;                                                               \
-        make_space(size_expr,&mem.varobjects,&stack, page);                           \
-        set_break_sem_1(); # Break sperren                                            \
-       {var ptrtype ptrvar = (ptrtype)(page->page_end); # Pointer auf Speicherstück   \
-        var object obj;                                                               \
-        ptrvar->GCself = obj = bias_type_pointer_object(varobject_bias,type_expr,ptrvar); # Selbstpointer \
-        statement; # Speicherstück initialisieren                                     \
-        page->page_room -= (size_expr); # Speicheraufteilung berichtigen              \
-        page->page_end += (size_expr);                                                \
-        mem.used_space += (size_expr);                                                \
-        AVL(AVLID,move)(&stack); # Page wieder an die richtige Position hängen        \
-        clr_break_sem_1(); # Break ermöglichen                                        \
-        CHECK_AVL_CONSISTENCY();                                                      \
-        CHECK_GC_CONSISTENCY();                                                       \
-        return obj;                                                                   \
-      }}
-    # Cons o.ä.:
-    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { # Suche nach der Page mit dem kleinsten page_room >= size_expr = 8: \
-        var Pages page;                                                     \
-        # 1. Versuch: letzte benutzte Page                                  \
-        page = mem.conses.lastused;                                         \
-        if (page->page_room == 0) # Test auf page->page_room < size_expr = sizeof(cons_) \
-          { var AVL(AVLID,stack) stack;                                     \
-            # 2. Versuch:                                                   \
-            make_space(size_expr,&mem.conses,&stack, page);                 \
-            mem.conses.lastused = page;                                     \
-          }                                                                 \
-        set_break_sem_1(); # Break sperren                                  \
-       {var ptrtype ptrvar =                                                \
-          (ptrtype)(page->page_end); # Pointer auf Speicherstück            \
-        statement; # Speicherstück initialisieren                           \
-        page->page_room -= (size_expr); # Speicheraufteilung berichtigen    \
-        page->page_end += (size_expr);                                      \
-        mem.used_space += (size_expr);                                      \
-        # Da page_room nun =0 geworden oder >=sizeof(cons_) geblieben ist,  \
-        # ist die Sortierreihenfolge der Pages unverändert geblieben.       \
-        clr_break_sem_1(); # Break ermöglichen                              \
-        CHECK_AVL_CONSISTENCY();                                            \
-        CHECK_GC_CONSISTENCY();                                             \
-        return bias_type_pointer_object(cons_bias,type_expr,ptrvar);        \
-      }}
+    # Object of variable length:
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)    \
+      do { # search the page with the smallest page_room >= size_expr:     \
+        var AVL(AVLID,stack) stack;                                        \
+        var Pages page;                                                    \
+        make_space(size_expr,&mem.varobjects,&stack, page);                \
+        set_break_sem_1(); # lock Break                                    \
+        # pointer to memory piece:                                         \
+       {var ptrtype ptrvar = (ptrtype)(page->page_end);                    \
+        var object obj;                                                    \
+        ptrvar->GCself = obj = # self pointer                              \
+          bias_type_pointer_object(varobject_bias,type_expr,ptrvar);       \
+        statement; # initialize memory piece                               \
+        page->page_room -= (size_expr); # adjust memory partitioning       \
+        page->page_end += (size_expr);                                     \
+        mem.used_space += (size_expr);                                     \
+        AVL(AVLID,move)(&stack); # attach page again to the right position \
+        clr_break_sem_1(); # allow Break                                   \
+        CHECK_AVL_CONSISTENCY();                                           \
+        CHECK_GC_CONSISTENCY();                                            \
+        return obj;                                                        \
+      }} while(0)
+    # Cons or similar:
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement) \
+      do { # search a page with the smallest page_room >= size_expr = 8: \
+        var Pages page;                                                  \
+        # first attempt: last used page                                  \
+        page = mem.conses.lastused;                                      \
+         # test for page->page_room < size_expr = sizeof(cons_): \       \
+        if (page->page_room == 0) {                                      \
+          var AVL(AVLID,stack) stack;                                    \
+          # second attempt:                                              \
+          make_space(size_expr,&mem.conses,&stack, page);                \
+          mem.conses.lastused = page;                                    \
+        }                                                                \
+        set_break_sem_1(); # lock Break                                  \
+       {var ptrtype ptrvar =                                             \
+          (ptrtype)(page->page_end); # pointer to memory piece           \
+        statement; # initialize memory piece                             \
+        page->page_room -= (size_expr); # adjust memory partitioning     \
+        page->page_end += (size_expr);                                   \
+        mem.used_space += (size_expr);                                   \
+        # As page_room now became =0 or stayed >=sizeof(cons_) ,         \
+        # the sorting order of the pages remains unchanged.              \
+        clr_break_sem_1(); # allow Break                                 \
+        CHECK_AVL_CONSISTENCY();                                         \
+        CHECK_GC_CONSISTENCY();                                          \
+        return bias_type_pointer_object(cons_bias,type_expr,ptrvar);     \
+      }} while(0)
    #endif
    #ifdef SPVW_PURE
-    # Objekt variabler Länge:
-    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { # Suche nach der Page mit dem kleinsten page_room >= size_expr:           \
-        var AVL(AVLID,stack) stack;                                               \
-        var Pages page;                                                           \
-        var tint _type = (type_expr);                                             \
-        make_space(size_expr,&mem.heaps[_type],&stack, page);                     \
-        set_break_sem_1(); # Break sperren                                        \
-       {var ptrtype ptrvar =                                                      \
-          (ptrtype)(page->page_end); # Pointer auf Speicherstück                  \
-        var object obj;                                                           \
-        ptrvar->GCself = obj = type_pointer_object(_type,ptrvar); # Selbstpointer \
-        statement; # Speicherstück initialisieren                                 \
-        page->page_room -= (size_expr); # Speicheraufteilung berichtigen          \
-        page->page_end += (size_expr);                                            \
-        mem.used_space += (size_expr);                                            \
-        AVL(AVLID,move)(&stack); # Page wieder an die richtige Position hängen    \
-        clr_break_sem_1(); # Break ermöglichen                                    \
-        CHECK_AVL_CONSISTENCY();                                                  \
-        CHECK_GC_CONSISTENCY();                                                   \
-        return obj;                                                               \
-      }}
-    # Cons o.ä.:
-    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement)  \
-      { # Suche nach der Page mit dem kleinsten page_room >= size_expr = 8: \
-        var Pages page;                                                     \
-        var tint _type = (type_expr);                                       \
-        var Heap* heapptr = &mem.heaps[_type];                              \
-        # 1. Versuch: letzte benutzte Page                                  \
-        page = heapptr->lastused;                                           \
-        if (page->page_room == 0) # Test auf page->page_room < size_expr = sizeof(cons_) \
-          { var AVL(AVLID,stack) stack;                                     \
-            # 2. Versuch:                                                   \
-            make_space(size_expr,heapptr,&stack, page);                     \
-            heapptr->lastused = page;                                       \
-          }                                                                 \
-        set_break_sem_1(); # Break sperren                                  \
-       {var ptrtype ptrvar =                                                \
-          (ptrtype)(page->page_end); # Pointer auf Speicherstück            \
-        statement; # Speicherstück initialisieren                           \
-        page->page_room -= (size_expr); # Speicheraufteilung berichtigen    \
-        page->page_end += (size_expr);                                      \
-        mem.used_space += (size_expr);                                      \
-        # Da page_room nun =0 geworden oder >=sizeof(cons_) geblieben ist,  \
-        # ist die Sortierreihenfolge der Pages unverändert geblieben.       \
-        clr_break_sem_1(); # Break ermöglichen                              \
-        CHECK_AVL_CONSISTENCY();                                            \
-        CHECK_GC_CONSISTENCY();                                             \
-        return type_pointer_object(_type,ptrvar);                           \
-      }}
+    # Object of variable length:
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)    \
+      do { # search a page with the smallest page_room >= size_expr:       \
+        var AVL(AVLID,stack) stack;                                        \
+        var Pages page;                                                    \
+        var tint _type = (type_expr);                                      \
+        make_space(size_expr,&mem.heaps[_type],&stack, page);              \
+        set_break_sem_1(); # lock Break                                    \
+       {var ptrtype ptrvar =                                               \
+          (ptrtype)(page->page_end); # pointer to memory piece             \
+        var object obj;                                                    \
+        # self pointer:                                                    \
+        ptrvar->GCself = obj = type_pointer_object(_type,ptrvar);          \
+        statement; # initialize memory piece                               \
+        page->page_room -= (size_expr); # adjust memory partitioning       \
+        page->page_end += (size_expr);                                     \
+        mem.used_space += (size_expr);                                     \
+        AVL(AVLID,move)(&stack); # attach page again to the right position \
+        clr_break_sem_1(); # allow Break                                   \
+        CHECK_AVL_CONSISTENCY();                                           \
+        CHECK_GC_CONSISTENCY();                                            \
+        return obj;                                                        \
+      }} while(0)
+    # Cons or similar:
+    #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement) \
+      do { # search a page with the smallest page_room >= size_expr = 8: \
+        var Pages page;                                                  \
+        var tint _type = (type_expr);                                    \
+        var Heap* heapptr = &mem.heaps[_type];                           \
+        # first attempt: last used page                                  \
+        page = heapptr->lastused;                                        \
+        # test for page->page_room < size_expr = sizeof(cons_):          \
+        if (page->page_room == 0) {                                      \
+          var AVL(AVLID,stack) stack;                                    \
+          # second attempt:                                              \
+          make_space(size_expr,heapptr,&stack, page);                    \
+          heapptr->lastused = page;                                      \
+        }                                                                \
+        set_break_sem_1(); # lock Break                                  \
+       {var ptrtype ptrvar =                                             \
+          (ptrtype)(page->page_end); # pointer to memory piece           \
+        statement; # initialize memory piece                             \
+        page->page_room -= (size_expr); # adjust memory partitioning     \
+        page->page_end += (size_expr);                                   \
+        mem.used_space += (size_expr);                                   \
+        # As page_room now became =0 or stayed >=sizeof(cons_) ,         \
+        # the sorting order of the pages remains unchanged.              \
+        clr_break_sem_1(); # allow Break                                 \
+        CHECK_AVL_CONSISTENCY();                                         \
+        CHECK_GC_CONSISTENCY();                                          \
+        return type_pointer_object(_type,ptrvar);                        \
+      }} while(0)
    #endif
   #endif
