@@ -881,7 +881,7 @@ typedef struct
    : (++(LIST).aptr > __av_eptr(LIST)					\
       ? -1 : (((float*)(LIST).aptr)[-1] = (float)(VAL), 0)))
 
-#define __av_double(LIST,VAL)						\
+#define av_double(LIST,VAL)						\
   ((LIST).faptr < &(LIST).fargs[8]					\
    ? ((*(LIST).faptr++ = (double)(VAL)), 0)				\
    : (((LIST).aptr += 2) > __av_eptr(LIST)				\
