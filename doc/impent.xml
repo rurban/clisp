@@ -397,6 +397,7 @@
 <!ENTITY warn-on-hashtable-needing-rehash-after-gc "<link linkend='hashtable-gc-rehash-warn'><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>">
 
 <!-- *** netica *** -->
+<!ENTITY netica-link "<ulink url='http://norsys.com/netica_c_api.htm'>Netica C API</ulink>">
 <!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
 
 <!-- *** oracle *** -->
