@@ -5115,7 +5115,7 @@ typedef struct {
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
 #ifdef TYPECODES
-  #define cclosure_flags(ptr)  ((ptr)->flags)
+  #define cclosure_flags(ptr)  ((ptr)->recflags)
 #else
   #define cclosure_flags(ptr)  record_flags(ptr)
 #endif
