@@ -1442,14 +1442,14 @@ N. Gray to X3J13.</para>
  long as it can be retrieved by the user or program, through any kind of
  references, starting from global and local variables. (Objects that
  consume no heap storage, also known as <quote>"immediate
- objects"</quote>, such as characters, fixnums, and short-floats, are
- alive indefinitely.) An object is said to be &gc;ed when its storage is
- reclaimed, at some moment after it becomes
+ objects"</quote>, such as &character-t;s, &fixnum-t;s, and
+ &short-float-t;s, are alive indefinitely.) An object is said to be
+ &gc;ed when its storage is reclaimed, at some moment after it becomes
  <quote>"dead"</quote>.</para>
 
 <section id="weak-pointer"><title>Weak Pointers</title>
 
-<para>A weak pointer is an object holding a reference to a given object,
+<para>A &weak-pointer; is an object holding a reference to a given object,
  without keeping the latter from being &gc;ed.</para>
 
 <variablelist><title>Weak Pointer API</title>
@@ -2013,7 +2013,7 @@ In other words, each pair is:
  &ansi; to &t;, or they can be switched on individually.
  Setting &ansi; to &t; implies the following:</para>
 
-<itemizedlist>
+<orderedlist>
  <listitem><simpara>Setting &pathprint; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &spacecharprint; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &fixnum-char-ansi; to &t;.</simpara></listitem>
@@ -2023,7 +2023,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &floratcont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &t;.</simpara></listitem>
-</itemizedlist>
+</orderedlist>
 
 <para>Note that if you run &clisp; with the &ansi-opt; switch or set
  the &symbol-macro; &ansi; to &t; and then save &mem-image;,
@@ -2034,7 +2034,7 @@ In other words, each pair is:
  &clisp; with the &traditional-opt; switch, reversing the above
  settings, i.e.,</para>
 
-<itemizedlist>
+<orderedlist>
  <listitem><simpara>Setting &pathprint; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &spacecharprint; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &fixnum-char-ansi; to &nil;.</simpara></listitem>
@@ -2044,7 +2044,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &flocont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &floratcont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &nil;.</simpara></listitem>
-</itemizedlist>
+</orderedlist>
 
 </section>
 
@@ -4273,10 +4273,10 @@ They are &not-e; regular &cl; types or &clos; classes.
 allocated and filled from the address returned (unless &c-NULL;).
 Functions with &io-k; parameters are passed the address of the Lisp
 string or unsigned byte vector. These are not &c-NULL;-terminated!
-This is useful for functions like like &read-c; which
-do not need an array at a constant address longer than the dynamic
-extent of the call (it is dangerous to define callback functions with
-&io-k; (or &string-t;) type parameters).
+This is useful for functions like like &read-c; which do not need an
+array at a constant address longer than the dynamic extent of the call
+(it is dangerous to define callback functions with &io-k; - or
+&string-t; - type parameters).
 Arguments of type &integer-t; and &foreign-pointer-t; are always
 acceptable where a &string-t; or &io-k; type is specified.</para>
 
