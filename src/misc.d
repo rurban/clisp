@@ -256,9 +256,12 @@ local inline char* push_envar (char *env) {
   char *ep = env;
   while ((*ep != 0) && (*ep != '=')) ep++;
   pushSTACK(allocate_cons());
-  Car(STACK_0) = n_char_to_string(env,ep-env,O(misc_encoding));
-  if (*ep == '=')
-    Cdr(STACK_0) = asciz_to_string(ep+1,O(misc_encoding));
+  var object var_string = n_char_to_string(env,ep-env,O(misc_encoding));
+  Car(STACK_0) = var_string;
+  if (*ep == '=') {
+    var object val_string = asciz_to_string(ep+1,O(misc_encoding));
+    Cdr(STACK_0) = val_string;
+  }
   while (*ep != 0) ep++;
   return ep;
 }

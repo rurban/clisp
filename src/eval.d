@@ -536,8 +536,10 @@ global void progv (object symlist, object vallist) {
   /* check symlist */
   var uintL llen = 0;
   pushSTACK(symlist); pushSTACK(vallist);
-  for (pushSTACK(symlist); consp(STACK_0); STACK_0 = Cdr(STACK_0), llen++)
-    Car(STACK_0) = check_symbol_non_constant(Car(STACK_0),S(progv));
+  for (pushSTACK(symlist); consp(STACK_0); STACK_0 = Cdr(STACK_0), llen++) {
+    var object sym = check_symbol_non_constant(Car(STACK_0),S(progv));
+    Car(STACK_0) = sym;
+  }
   skipSTACK(1); vallist = popSTACK(); symlist = popSTACK();
   /* demand room on STACK: */
   get_space_on_STACK(llen * 2 * sizeof(gcv_object_t));
