@@ -1,3 +1,8 @@
+1999-04-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * places.lsp (push, pushnew): Evaluate the item form before the
+          place's subforms.
+
 1999-04-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * autoconf/aclocal.m4 (CL_GLOBAL_CONSTRUCTORS): Add check whether
