@@ -29,6 +29,12 @@ check : force
 	$(MAKE) -C trampoline -f Makefile.mingw32 check
 	$(MAKE) -C callback -f Makefile.mingw32 check
 
+extracheck : force
+	$(MAKE) -C avcall -f Makefile.mingw32 extracheck
+	$(MAKE) -C vacall -f Makefile.mingw32 extracheck
+	$(MAKE) -C trampoline -f Makefile.mingw32 extracheck
+	$(MAKE) -C callback -f Makefile.mingw32 extracheck
+
 mostlyclean : force
 	$(MAKE) -C avcall -f Makefile.mingw32 mostlyclean
 	$(MAKE) -C vacall -f Makefile.mingw32 mostlyclean
