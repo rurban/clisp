@@ -272,7 +272,7 @@ void* vp_vpdpcpsp _P((a,b,c,d), void* a _ double* b _ char* c _ Int* d)
 uchar uc_ucsil _P((a,b,c,d), uchar a _ ushort b _ uint c _ ulong d)
 {
   uchar r = -1;
-  fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%u)",a,b,c,d);
+  fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%lu)",a,b,c,d);
   fflush(out);
   return r;
 }
@@ -345,7 +345,7 @@ J J_JiJ _P((a,b,c), J a _ int b _ J c)
 {
   J r;
   r.l1 = a.l1+c.l1; r.l2 = a.l2+b+c.l2;
-  fprintf(out,"J f(J,int,J):({%d,%d},%d,{%d,%d})",a.l1,a.l2,b,c.l1,c.l2);
+  fprintf(out,"J f(J,int,J):({%ld,%ld},%d,{%ld,%ld})",a.l1,a.l2,b,c.l1,c.l2);
   fflush(out);
   return r;
 }
@@ -635,7 +635,7 @@ void simulator _P((alist), va_alist alist)
       uint c = va_arg_uint(alist);
       ulong d = va_arg_ulong(alist);
       uchar r=-1;
-      fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%u)",a,b,c,d);
+      fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%lu)",a,b,c,d);
       fflush(out);
       va_return_uchar(alist, r);
     }}
@@ -764,7 +764,7 @@ void simulator _P((alist), va_alist alist)
       b = va_arg_int(alist);
       c = va_arg_struct(alist, J);
       r.l1 = a.l1+c.l1; r.l2 = a.l2+b+c.l2;
-      fprintf(out,"J f(J,int,J):({%d,%d},%d,{%d,%d})",a.l1,a.l2,b,c.l1,c.l2);
+      fprintf(out,"J f(J,int,J):({%ld,%ld},%d,{%ld,%ld})",a.l1,a.l2,b,c.l1,c.l2);
       fflush(out);
       va_return_struct(alist, J, r);
     }
@@ -1103,11 +1103,11 @@ int main ()
 #endif
 
     Jr = J_JiJ(J1,i2,J2);
-    fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
+    fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
     fflush(out);
     Jr.l1 = Jr.l2 = 0; clear_traces();
     current_function = &J_JiJ; Jr = (FTYPE(J,(J,int,J)) vacall) (J1,i2,J2);
-    fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
+    fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
     fflush(out);
 
 #ifndef SKIP_EXTRA_STRUCTS
