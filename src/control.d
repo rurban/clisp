@@ -1291,10 +1291,10 @@ LISPSPECFORM(return_from, 1,1,nobody)
   unwind_upto(FRAME);
 }
 
-/* We build the functions MAPCAR, MAPLIST, MAPCAN, MAPCON in two versions:
+/* We build the functions MAPCAR & MAPLIST in two versions:
  The first one builds the list in reversed order, then has to reverse it.
- The second one works in forward direction, but needs one cons too many. */
-#define MAP_REVERSES
+ The second one works in the forward direction. */
+/* #define MAP_REVERSES */
 
 #ifdef MAP_REVERSES
 
@@ -1337,32 +1337,31 @@ LISPSPECFORM(return_from, 1,1,nobody)
     /* reserve space for the function call arguments: */                \
     get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
     /* start total list: */                                             \
-   {var object new_cons = allocate_cons(); /* (CONS NIL NIL) */         \
-    pushSTACK(new_cons); /* total list */                               \
-    pushSTACK(new_cons); /* (last totallist) */                         \
-   }                                                                    \
-  {var gcv_object_t* ergptr = &STACK_1; /* pointer to it */             \
-   /* traverse all lists in parallel: */                                \
-   loop { var gcv_object_t* argptr = args_pointer;                      \
-     var object fun = NEXT(argptr);                                     \
-     var uintC count;                                                   \
-     dotimespC(count,argcount,{                                         \
-       var gcv_object_t* next_list_ = &NEXT(argptr);                    \
-       var object next_list = *next_list_;                              \
-       if (endp(next_list)) goto fertig; /* a list ended -> done */     \
-       pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
-       *next_list_ = Cdr(next_list); /* shorten list */                 \
-     });                                                                \
-     funcall(fun,argcount); /* call function */                         \
-     pushSTACK(value1);                                                 \
-    {var object new_cons = allocate_cons(); /* new cons */              \
-     Car(new_cons) = popSTACK(); /* new_cons = (LIST (FUNCALL ...)) */  \
-     Cdr(STACK_0) = new_cons; STACK_0 = new_cons; /* lengthens total list */ \
+    pushSTACK(NIL); /* total list */                                    \
+    pushSTACK(NIL); /* (last totallist) */                              \
+   {var gcv_object_t *ret=&STACK_1; /* remember the total list*/        \
+    /* traverse all lists in parallel: */                               \
+    loop { var gcv_object_t* argptr = args_pointer;                     \
+      var object fun = NEXT(argptr);                                    \
+      var uintC count;                                                  \
+      dotimespC(count,argcount,{                                        \
+        var gcv_object_t* next_list_ = &NEXT(argptr);                   \
+        var object next_list = *next_list_;                             \
+        if (endp(next_list)) goto fertig; /* a list ended -> done */    \
+        pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
+        *next_list_ = Cdr(next_list); /* shorten list */                \
+      });                                                               \
+      funcall(fun,argcount); /* call function */                        \
+      pushSTACK(value1);                                                \
+     {var object new_cons = allocate_cons(); /* new cons */             \
+      Car(new_cons) = popSTACK(); /* new_cons = (LIST (FUNCALL ...)) */ \
+      if (nullp(STACK_1)) STACK_1 = STACK_0 = new_cons; /* init */      \
+      else { Cdr(STACK_0) = new_cons; STACK_0 = new_cons; } /* append */ \
     }}                                                                  \
    fertig:                                                              \
-   VALUES1(Cdr(*ergptr)); /* result list without header-cons */         \
-   set_args_end_pointer(args_pointer); /* clean up STACK */             \
-  }}
+    VALUES1(*ret); /* result list-cons */                               \
+    set_args_end_pointer(args_pointer); /* clean up STACK */            \
+   }}
 
 #endif
 
@@ -1392,49 +1391,20 @@ LISPSPECFORM(return_from, 1,1,nobody)
     set_args_end_pointer(args_pointer); /* clean up STACK */            \
    }}
 
-#ifdef MAP_REVERSES
-
-/* macro for MAPCAN and MAPCON */
-#define MAPCAN_MAPCON_BODY(listaccess)                                  \
-  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
-    argcount++; /* argcount := number of lists on the stack */          \
-    /* reserve space for the function call arguments: */                \
-    get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
-    pushSTACK(NIL); /* start of the result list */                      \
-   {var gcv_object_t* ergptr = &STACK_0; /* pointer to it */            \
-    /* traverse all lists in parallel: */                               \
-    loop { var gcv_object_t* argptr = args_pointer;                     \
-      var object fun = NEXT(argptr);                                    \
-      var uintC count;                                                  \
-      dotimespC(count,argcount,{                                        \
-        var gcv_object_t* next_list_ = &NEXT(argptr);                   \
-        var object next_list = *next_list_;                             \
-        if (endp(next_list)) goto fertig; /* a list ended -> done */    \
-        pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
-        *next_list_ = Cdr(next_list); /* shorten list */                \
-      });                                                               \
-      funcall(fun,argcount); /* call function */                        \
-      STACK_0 = nreconc(value1,STACK_0); /* append result */            \
-    }                                                                   \
-    fertig:                                                             \
-    VALUES1(nreconc(*ergptr,NIL)); /* reverse result list */            \
-    set_args_end_pointer(args_pointer); /* clean up STACK */            \
-   }}
-
-#else
-
-/* macro for MAPCAN and MAPCON */
+/* macro for MAPCAN and MAPCON
+ no MAP_REVERSES version is provided because NRECONC drops
+ the last atom in dotted lists, e.g., (mapcan #'identity '(1))
+ returns NIL when it should return 1:
+ (apply (function nconc) (mapcar (function identity) (quote (1)))) => 1 */
 #define MAPCAN_MAPCON_BODY(listaccess)                                  \
   { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
     get_space_on_STACK(sizeof(gcv_object_t)*(uintL)argcount);           \
     /* start total list: */                                             \
-   {var object new_cons = allocate_cons(); /* (CONS NIL NIL) */         \
-    pushSTACK(new_cons); /* total list */                               \
-    pushSTACK(new_cons); /* (last totallist) */                         \
-   }                                                                    \
-   {var gcv_object_t* ergptr = &STACK_1; /* pointer to it */            \
+    pushSTACK(NIL); /* total list */                                    \
+    pushSTACK(NIL); /* (last totallist) */                              \
+   {var gcv_object_t *ret=&STACK_1; /* remember the total list*/        \
     /* traverse all lists in parallel: */                               \
     loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
@@ -1448,17 +1418,17 @@ LISPSPECFORM(return_from, 1,1,nobody)
       });                                                               \
       funcall(fun,argcount); /* call function */                        \
      {var object list = value1; /* list to append */                    \
+      if (!consp(STACK_1)) STACK_1=list; /* init head */                 \
+      if (!consp(STACK_0)) STACK_0=list; /* init tail */                 \
+      else Cdr(STACK_0) = list; /* insert as (cdr (last totallist)) */  \
       if (consp(list)) {                                                \
-        Cdr(STACK_0) = list; /* insert as (cdr (last totallist)) */     \
         while (mconsp(Cdr(list))) { list = Cdr(list); }                 \
         STACK_0 = list; /* and (last totallist) := (last list) */       \
       }}}                                                               \
-    fertig:                                                             \
-    VALUES1(Cdr(*ergptr)); /* result list without header-cons */        \
+   fertig:                                                              \
+    VALUES1(*ret); /* result list */                                    \
     set_args_end_pointer(args_pointer); /* clean up STACK */            \
    }}
-
-#endif
 
 #define Identity
 
