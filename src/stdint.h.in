@@ -19,7 +19,10 @@
 #ifndef _STDINT_H
 #define _STDINT_H
 
-/* ISO C 99 <stdint.h> for platforms that lack it.  */
+/*
+ * ISO C 99 <stdint.h> for platforms that lack it.
+ * <http://www.opengroup.org/onlinepubs/007904975/basedefs/stdint.h.html>
+ */
 
 /* Get wchar_t, WCHAR_MIN, WCHAR_MAX.  */
 #include <stddef.h>
@@ -28,7 +31,7 @@
 
 /* Some platforms define some of the ISO C 99 types. */
 #if !(defined(UNIX_CYGWIN32) && defined(__BIT_TYPES_DEFINED__))
-  #define NEED_SIGNED_INT_TYPES
+#  define NEED_SIGNED_INT_TYPES
 #endif
 
 /* 7.18.1.1. Exact-width integer types */
