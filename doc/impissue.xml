@@ -102,7 +102,7 @@
  <varlistentry id="iss089"><term><ulink url="&clhs;/Issues/iss089.html">DATA-IO:ADD-SUPPORT</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss090"><term><ulink url="&clhs;/Issues/iss090.html">DATA-TYPES-HIERARCHY-UNDERSPECIFIED</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss091"><term><ulink url="&clhs;/Issues/iss091.html">DEBUGGER-HOOK-VS-BREAK:CLARIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss092"><term><ulink url="&clhs;/Issues/iss092.html">DECLARATION-SCOPE:NO-HOISTING</ulink></term>&no;</varlistentry>
+ <varlistentry id="iss092"><term><ulink url="&clhs;/Issues/iss092.html">DECLARATION-SCOPE:NO-HOISTING</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss093"><term><ulink url="&clhs;/Issues/iss093.html">DECLARE-ARRAY-TYPE-ELEMENT-REFERENCES:RESTRICTIVE</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss094"><term><ulink url="&clhs;/Issues/iss094.html">DECLARE-FUNCTION-AMBIGUITY:DELETE-FTYPE-ABBREVIATION</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss095"><term><ulink url="&clhs;/Issues/iss095.html">DECLARE-MACROS:FLUSH</ulink></term>&yes;</varlistentry>
