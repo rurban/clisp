@@ -86,7 +86,7 @@
 <h2 id="Description">Description</h2>
 
 <p>Invokes the Common Lisp interpreter and compiler.
-Invoked without arguments, executes a read-eval-print loop, in which
+Invoked without arguments, executes the read-eval-print loop, in which
 expressions are in turn read from standard input, evaluated by the lisp
 interpreter, and their results output to standard output.
 Invoked with <a href="#opt-compile"><code>-c</code></a>, compiles
@@ -263,8 +263,10 @@ which depends on the environment variables <code>LC_ALL</code>,
 <dd>Wait for a keypress after program termination.<p/></dd>
 
 <dt id="opt-ilisp"><strong><code>-I</code></strong></dt>
-<dd>Be ILISP friendly.
- ILISP is an alternative Emacs interface to Common Lisp systems.
+<dd>Be <a href="http://ilisp.cons.org/">ILISP</a> friendly.
+ ILISP is an alternative
+ <a href="http://www.gnu.org/software/emacs/">Emacs</a>
+ interface to Common Lisp systems.
  With this option, <code>clisp</code>
  interacts in a way that ILISP can deal with.
  Currently the only effect of this is that unnecessary prompts are not
@@ -412,9 +414,9 @@ Each line of <var>optionfile</var> is treated as a separate argument to
 </blockquote>
 
 <p>available online as the</p>
-<blockquote title="CLHS" cite="http://www.lisp.org/HyperSpec/">
+<blockquote title="CLHS" cite="http://www.lisp.org/HyperSpec/FontMatter/">
  <p>Common Lisp HyperSpec
-    (<a href="http://www.lisp.org/HyperSpec/">"CLHS"</a> for short)</p>
+ (<a href="http://www.lisp.org/HyperSpec/FontMatter/">"CLHS"</a> for short)</p>
 </blockquote>
 
 <p>which supersedes the earlier specifications</p>
@@ -600,9 +602,9 @@ EOF (Ctrl-\e)
 <h2 id="see-also">See also</h2>
 
 <p><a href="impnotes.html">impnotes.html</a>,
-<code>cmucl</code>(1),
-<code>emacs</code>(1),
-<code>xemacs</code>(1).</p>
+<a href="http://www.cons.org/cmucl/"><code>cmucl</code></a>(1),
+<a href="http://www.gnu.org/software/emacs/"><code>emacs</code></a>(1),
+<a href="http://www.xemacs.org"><code>xemacs</code></a>(1).</p>
 
 
 <h2 id="Bugs">Bugs</h2>
