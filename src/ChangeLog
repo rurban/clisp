@@ -1,3 +1,8 @@
+2003-07-09  Sam Steingold  <sds@gnu.org>
+
+	* errwin32.d (OS_error, OS_file_error, SOCK_error):
+	avoid a warning by calling NOTREACHED at the end
+
 2003-07-08  Sam Steingold  <sds@gnu.org>
 
 	* configure: pass --win32gcc to makemake instead of ${target}
