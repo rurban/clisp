@@ -1,6 +1,11 @@
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (version): updated (19071996 --> 20010726)
+	Minor code tweaks and simplifications:
+	(analyze-lambdalist): new MACROLET macro PUSH-OPT
+
+2001-12-20  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (version) [CROSS]: updated (19071996 --> 20010726)
 
 2001-12-20  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
