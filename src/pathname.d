@@ -1904,15 +1904,6 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         }
         #endif
       }
-      # if (nullp(host) && parse_logical) {
-      #   pushSTACK(STACK_2);
-      #   pushSTACK(STACK_4);
-      #   pushSTACK(STACK_6);
-      #   pushSTACK(S(parse_namestring));
-      #   fehler(parse_error,
-      #          GETTEXT("~(~ ~ ~): a logical pathname must contain host")
-      #          );
-      # }
       STACK_3 = host;
     }
     #else
@@ -3659,10 +3650,10 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       STACK_0 = STACK_1; STACK_1 = STACK_2; STACK_2 = v;
       DOUT("merge-pathnames:",v);
     }
-    # Stackaufbau: default-version, pathname, defaults.
+    # stack layout: default-version, pathname, defaults.
     #else
     test_optional_version(S(Knewest)); skipSTACK(1);
-    # Stackaufbau: pathname, defaults.
+    # stack layout: pathname, defaults.
     #endif
     # check pathname and defaults:
     # (coerce defaults 'pathname):
@@ -3682,6 +3673,8 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     STACK_2 = coerce_xpathname(STACK_2); # pathname
     #ifdef LOGICAL_PATHNAMES
     if (logpathnamep(STACK_2) && !logpathnamep(STACK_0)) {
+      if (pathnamep(STACK_1))
+        STACK_1 = whole_namestring(STACK_1);
       STACK_0 = parse_as_logical(STACK_1);
       DOUT("merge-pathnames:[log_default]",STACK_0);
     }

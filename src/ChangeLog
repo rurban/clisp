@@ -1,5 +1,11 @@
 2001-05-24  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (merge-pathnames): if PATHNAME is a logical
+	namestring, while DEFAULT is a physical pathname, coerse DEFAULT
+	to logical using whole_namestring().
+
+2001-05-24  Sam Steingold  <sds@gnu.org>
+
 	hostname resolution is now optional in
 	SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL.
 	* stream.d (host_data_fetcher): accept an additional boolean argument.
