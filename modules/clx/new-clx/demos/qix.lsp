@@ -50,15 +50,17 @@
   (setf (qix-lines qix) (cdr (qix-lines qix))) )
 
 (defun draw-qix (dpy win gc width height white-pixel black-pixel delay nqixs nlines)
-  (let ((qixs nil))
+  (let ((qixs nil) (n nlines))
     (dotimes (k nqixs) (push (gen-qix nlines width height) qixs))
     (loop
      (dolist (k qixs)
        (step-qix k win gc white-pixel black-pixel))
      (xlib:display-force-output dpy)
-     (sleep delay))))
+     (sleep delay)
+     (setq n (- n 1))
+     (if (<= n 0) (return)))))
 
-(defun qix (&key (host "") (dpy nil) (width 400) (height 400) (delay 0.05) (nqixs 3) (nlines 40))
+(defun qix (&key (host "") (dpy nil) (width 400) (height 400) (delay 0.05) (nqixs 3) (nlines 80))
   (unwind-protect
       (progn
         (setq dpy (or dpy (xlib:open-display host)))
@@ -73,12 +75,16 @@
                                             :background white-pixel)))
           (xlib:map-window win)
           (xlib:display-finish-output dpy)
+          (format T "~%QIX: USING :width ~D :height ~D :delay ~F :nqixs ~D :nlines ~D"
+           width height delay nqixs nlines)
           (draw-qix dpy win gcon width height white-pixel black-pixel delay nqixs nlines) ))
     ;;clean-up
     (when dpy (xlib:close-display dpy)) ) )
 
 ;; since we have no herald, simply dump it:
-(format T "~& CLX-DEMOS:QIX :host :width :height :delay~
-           ~%   The famous swirling vectors.~
-           ~% Call (clx-demos:qix) or (clx-demos:qix :delay 0).")
+(format T "~& The famous swirling vectors.~
+           ~%~
+           ~%   (CLX-DEMOS:QIX :host :width :height :delay :nqixs :nlines)~
+           ~%~
+           ~% Call (clx-demos:qix) or (clx-demos:qix :delay 0).~%")
 
