@@ -151,6 +151,8 @@
 <!ENTITY see-dep-maint "<formalpara><title>Remarks</title>
  <para>See <xref linkend='mop-dep-maint'/> for remarks about the
   use of this facility.</para></formalpara>">
+<!ENTITY class-mo-arg "<varlistentry><term>&class-r;</term>
+  <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>">
 <!ENTITY gf-mo-arg "<varlistentry><term>&gf-r;</term>
     <listitem><simpara>a generic function metaobject.
    </simpara></listitem></varlistentry>">
