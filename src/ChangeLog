@@ -1,10 +1,22 @@
+1999-12-22  Sam Steingold  <sds@gnu.org>
+
+	* unixaux.d (sysinfo): new function
+	* subr.d, constsym.d: added `sysinfo'
+	* eval.d: removed the posix functions
+	* init.lsp: load the new file posix.lsp
+	* posix.lsp: new file
+	* makemake.in (LPARTS): added posix
+	* pathname.d (user_data_): require argument
+	* posixmath.d (bogomips): new function
+	* socket.d (resolve_host_ipaddr_): require argument
+
 1999-12-21  Sam Steingold  <sds@gnu.org>
 
 	* posixmath.d: new file; erf(3m), bessel(3m) and gamma(3m)
 	are now accessible in the package POSIX with --export-syscalls.
 	* makemake.in, gettext/po/Makefile.devel: added `posixmath'.
 	* lisparit.d: include posixmath.c.
-	* subr.d, eval.d, constsymb.d: added the functions.
+	* subr.d, eval.d, constsym.d: added the functions.
 	* constobj.d, package.d (init_packages), spvw.d
 	(init_symbol_tab_2): added package POSIX.
 	* socket.d (resolve_host_ipaddr): moved to POSIX.
