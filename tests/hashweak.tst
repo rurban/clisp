@@ -103,3 +103,19 @@ nil
         (progn (setq li nil) (gc)
                (cons (hash-table-count htv) (hash-table-count htk)))))
 (1001 (1001 . 1001) (1001 . 1001) (0 . 0))
+
+; This was a bug that - strangely - led to crashes _only_ in the
+; SPVW_PAGES LINUX_NOEXEC_HEAPCODES NO_GENERATIONAL_GC configuration.
+(flet ((ht_kvtable (ht)
+         (if (integerp (sys::%record-ref ht 1)) ; GENERATIONAL_GC build?
+           (sys::%record-ref ht 2)
+           (sys::%record-ref ht 1)))
+       (whal_itable (kvt) (sys::%record-ref kvt 1)))
+  (let* ((ht (make-hash-table :test 'ext:stablehash-eq :weak :key))
+         (kvt (ht_kvtable ht)))
+    (assert (simple-vector-p (whal_itable kvt)))
+    (gc) ; first GC removed kvt from the all_weakpointers list
+    (gc) ; second GC dropped the itable
+    (and (eq (ht_kvtable ht) kvt)
+         (simple-vector-p (whal_itable kvt)))))
+T

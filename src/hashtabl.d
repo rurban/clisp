@@ -78,9 +78,10 @@
    Bit 7 set, when table must be reorganized after GC
  ht_size                uintL>0 = length of the ITABLE
  ht_maxcount            Fixnum>0 = length of the NTABLE
- ht_itable              index-vector of length SIZE, contains indices
- ht_kvtable             key-value-vector, vector of length 3*MAXCOUNT
- ht_freelist            start-index of the free-list in next-vector
+ ht_kvtable             key-value-vector, a HashedAlist or WeakHashedAlist
+                        with 3*MAXCOUNT data fields and
+                        hal_itable     index-vector of length SIZE
+                        hal_freelist   start-index of the free-list
  ht_count               number of entries in the table (for weak hash-tables,
                         more precisely: total length of all lists in the
                         next-vector), Fixnum >=0, <=MAXCOUNT
@@ -98,10 +99,7 @@
 #define HT_GOOD_P(ht)                                   \
   (posfixnump(TheHashtable(ht)->ht_maxcount) &&         \
    posfixnump(TheHashtable(ht)->ht_count) &&            \
-   posfixnump(TheHashtable(ht)->ht_mincount) &&         \
-   simple_vector_p(TheHashtable(ht)->ht_itable) &&      \
-   (vector_length(TheHashtable(ht)->ht_itable) ==       \
-    TheHashtable(ht)->ht_size))
+   posfixnump(TheHashtable(ht)->ht_mincount))
 
 /* Rotates a hashcode x by n bits to the left (0<n<32).
  rotate_left(n,x) */
@@ -915,7 +913,8 @@ local uintL hashcode (object ht, object obj) {
  can trigger GC - for user-defined ht_test */
 local object rehash (object ht) {
   /* fill index-vector with "nix" : */
-  var object Ivektor = TheHashtable(ht)->ht_itable; /* index-vector */
+  var object kvtable = TheHashtable(ht)->ht_kvtable;
+  var object Ivektor = TheHashedAlist(kvtable)->hal_itable; /* index-vector */
   {
     var gcv_object_t* ptr = &TheSvector(Ivektor)->data[0];
     var uintL count = TheHashtable(ht)->ht_size; /* SIZE, >0 */
@@ -924,14 +923,14 @@ local object rehash (object ht) {
   /* build up "list"-structure element-wise: */
   var object index = TheHashtable(ht)->ht_maxcount; /* MAXCOUNT */
   var uintL maxcount = posfixnum_to_L(index);
-  var gcv_object_t* KVptr = ht_kvt_data(ht) + 3*maxcount; /* end of kvtable */
+  var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*maxcount]; /* end of kvtable */
   var object freelist = nix;
   var object count = Fixnum_0;
   var bool user_defined_p = (ht_test_code(record_flags(TheHashtable(ht)))==0);
   while (!eq(index,Fixnum_0)) { /* index=0 -> loop finished */
     /* traverse the key-value-vector and the next-vector.
        index = MAXCOUNT,...,0 (Fixnum),
-       KVptr = &TheSvector(kvtable)->data[3*index],
+       KVptr = &TheHashedAlist(kvtable)->hal_data[3*index],
        freelist = freelist up to now,
        count = pair-counter as fixnum. */
     index = fixnum_inc(index,-1); /* decrement index */
@@ -946,8 +945,9 @@ local object rehash (object ht) {
            of the user-defined ones */
         var uintL maxcount1 = posfixnum_to_L(index)+1;
         ht = popSTACK();
-        Ivektor = TheHashtable(ht)->ht_itable;
-        KVptr = ht_kvt_data(ht) + 3*maxcount1;
+        kvtable = TheHashtable(ht)->ht_kvtable;
+        Ivektor = TheHashedAlist(kvtable)->hal_itable;
+        KVptr = &TheHashedAlist(kvtable)->hal_data[3*maxcount1];
       }
       /* "list", that starts at entry hashindex, in order to extend index:
        copy entry from index-vector to the next-vector
@@ -960,7 +960,7 @@ local object rehash (object ht) {
       KVptr[2] = freelist; freelist = index;
     }
   }
-  TheHashtable(ht)->ht_freelist = freelist; /* save freelist */
+  TheHashedAlist(kvtable)->hal_freelist = freelist; /* save freelist */
   TheHashtable(ht)->ht_count = count; /* save number of pairs for consistency */
   set_ht_valid(TheHashtable(ht)); /* hashtable is now completely organized */
   return ht;
@@ -986,9 +986,10 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
   ASSERT(ht_validp(TheHashtable(ht)));
   var uintB flags = record_flags(TheHashtable(ht));
   var uintL hashindex = hashcode(ht,obj); /* calculate hashcode */
+  var object kvtable = TheHashtable(ht)->ht_kvtable;
   var gcv_object_t* Nptr =      /* pointer to the current entry */
-    &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
-  var gcv_object_t* kvt_data = ht_kvt_data(ht);
+    &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
+  var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
     var int index = posfixnum_to_L(*Nptr); /* next index */
     var gcv_object_t* Iptr = Nptr;
@@ -999,9 +1000,9 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
     if (eq(key,unbound)) {
       /* weak HT - obsolete key and value */
       set_break_sem_2();        /* protect from breaks */
-      TheHashtable(ht)->ht_freelist = *Iptr;
+      TheHashedAlist(kvtable)->hal_freelist = *Iptr;
       *Iptr = *Nptr;                         /* shorten "list" */
-      *Nptr = TheHashtable(ht)->ht_freelist; /* lengthen free-list */
+      *Nptr = TheHashedAlist(kvtable)->hal_freelist; /* lengthen free-list */
       /* decrement COUNT : */
       TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,-1);
       clr_break_sem_2();        /* allow breaks again */
@@ -1045,10 +1046,11 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
   obj = STACK_0; /* rehash could trigger GC */
   var uintL hashindex = hashcode(ht,obj); /* calculate hashcode */
   obj = popSTACK(); ht = popSTACK();
+  var object kvtable = TheHashtable(ht)->ht_kvtable;
   var gcv_object_t* Nptr =      /* pointer to the current entry */
-    &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
-  var gcv_object_t* kvt_data = ht_kvt_data(ht);
-  var uintL i_n; /* Iptr-Nptr */
+    &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
+  var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
+  var uintL i_n; /* Iptr-Nptr FIXME: This is not GC-safe */
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
     var int index = posfixnum_to_L(*Nptr); /* next index */
     var gcv_object_t* Iptr = Nptr;
@@ -1059,9 +1061,9 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
     if (eq(key,unbound)) {
       /* weak HT - obsolete key and value */
       set_break_sem_2();        /* protect from breaks */
-      TheHashtable(ht)->ht_freelist = *Iptr;
+      TheHashedAlist(kvtable)->hal_freelist = *Iptr;
       *Iptr = *Nptr;                         /* shorten "list" */
-      *Nptr = TheHashtable(ht)->ht_freelist; /* lengthen free-list */
+      *Nptr = TheHashedAlist(kvtable)->hal_freelist; /* lengthen free-list */
       /* decrement COUNT : */
       TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,-1);
       clr_break_sem_2();        /* allow breaks again */
@@ -1070,7 +1072,9 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
     pushSTACK(ht); pushSTACK(obj);
     i_n = Iptr - Nptr;
     pushSTACK(key); pushSTACK(obj); funcall(TheHashtable(ht)->ht_test,2);
-    obj = popSTACK(); ht = popSTACK(); kvt_data = ht_kvt_data(ht);
+    obj = popSTACK(); ht = popSTACK();
+    kvtable = TheHashtable(ht)->ht_kvtable;
+    kvt_data = TheHashedAlist(kvtable)->hal_data;
     KVptr = kvt_data + 3*index; Nptr = &KVptr[2];
     Iptr = Nptr + i_n;
     if (!nullp(value1)) {
@@ -1109,7 +1113,7 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
     var uintL index = posfixnum_to_L(freelist);    /* free index */     \
     var object kvtable = TheHashtable(ht)->ht_kvtable;                  \
     /* address of the free entries in key-value-vector: */              \
-    var gcv_object_t* KVptr = kvtable_data(kvtable) + 3*index;          \
+    var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*index]; \
     set_break_sem_2();                       /* protect from breaks */  \
     /* increment COUNT: */                                              \
     TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,1); \
@@ -1119,7 +1123,7 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
     /* save key and value: */                                           \
     *KVptr++ = key; *KVptr++ = value;                                   \
     /* shorten free-list: */                                            \
-    TheHashtable(ht)->ht_freelist = *KVptr;                             \
+    TheHashedAlist(kvtable)->hal_freelist = *KVptr;                     \
     /* insert free list-element index into the "list"                   \
      (put it after resize to the list-start,                            \
        because Iptr points into the index-vector,                       \
@@ -1158,9 +1162,11 @@ global object hash_table_weak_type (object ht) {
  < result: a key-value-table
  can trigger GC */
 local inline object allocate_kvt (object weak, uintL maxcount) {
-  if (nullp(weak))
-    return allocate_vector(3*maxcount);
-  else {
+  if (nullp(weak)) {
+    var object kvt = allocate_vector(4+3*maxcount);
+    TheHashedAlist(kvt)->hal_freelist = nix; /* dummy as free-list */
+    return kvt;
+  } else {
     var sintB rectype;
     if (eq(weak,S(Kkey))) # :KEY
       rectype = Rectype_WeakHashedAlist_Key;
@@ -1176,7 +1182,7 @@ local inline object allocate_kvt (object weak, uintL maxcount) {
     TheWeakHashedAlist(kvt)->wp_cdr = unbound; /* a GC-invariant dummy */
     TheWeakHashedAlist(kvt)->whal_itable = unbound;
     TheWeakHashedAlist(kvt)->whal_count = Fixnum_0;
-    TheWeakHashedAlist(kvt)->whal_freelist = nix;
+    TheWeakHashedAlist(kvt)->whal_freelist = nix; /* dummy as free-list */
     var uintL i;
     for (i = 0; i < maxcount; i++) {
       TheWeakHashedAlist(kvt)->whal_data[3*i+0] = unbound;
@@ -1254,15 +1260,17 @@ local object resize (object ht, object maxcount) {
   var object size = popSTACK();     /* SIZE */
   maxcount = popSTACK();
   ht = popSTACK();
+  TheHashedAlist(KVvektor)->hal_itable = Ivektor; /* enter new index-vector */
   /* Fill new key-value-vector:
    Loop over the old key-value-vector and
    copy all key-value-pairs with key /= "leer" :
    For traversing the old key-value-vector: */
   var uintL oldcount = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
-  var gcv_object_t* oldKVptr = ht_kvt_data(ht);
+  var object oldKVvektor = TheHashtable(ht)->ht_kvtable;
+  var gcv_object_t* oldKVptr = &TheHashedAlist(oldKVvektor)->hal_data[0];
   /* For traversing the new key-value-vector: */
   var uintL count = maxcountL;
-  var gcv_object_t* KVptr = kvtable_data(KVvektor);
+  var gcv_object_t* KVptr = &TheHashedAlist(KVvektor)->hal_data[0];
   /* For counting: */
   var object counter = Fixnum_0;
   dotimesL(oldcount,oldcount, {
@@ -1289,9 +1297,7 @@ local object resize (object ht, object maxcount) {
   set_break_sem_2();                 /* protect from breaks */
   set_ht_invalid(TheHashtable(ht)); /* table must still be reorganized */
   TheHashtable(ht)->ht_size = posfixnum_to_L(size);  /* enter new SIZE */
-  TheHashtable(ht)->ht_itable = Ivektor;    /* enter new index-vector */
   TheHashtable(ht)->ht_maxcount = maxcount; /* enter new MAXCOUNT */
-  TheHashtable(ht)->ht_freelist = nix;      /* dummy as free-list */
   TheHashtable(ht)->ht_kvtable = KVvektor; /* enter new key-value-vector */
   TheHashtable(ht)->ht_count = counter; /* enter COUNT (for consistency) */
   if (!simple_vector_p(KVvektor))
@@ -1316,28 +1322,30 @@ local object resize (object ht, object maxcount) {
 #define hash_prepare_store(hash_pos,key_pos)                            \
   do {                                                                  \
     ht = STACK_(hash_pos);                                              \
-    freelist = TheHashtable(ht)->ht_freelist;                           \
+    freelist = TheHashedAlist(TheHashtable(ht)->ht_kvtable)->hal_freelist; \
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
       var uintL hc_raw = 0;                                             \
       var bool cacheable = !(flags & (bit(0)|bit(1))); /* not EQ|EQL */ \
       if (cacheable) hc_raw = hashcode_raw(ht,STACK_(key_pos));         \
-     retry: /* hash-table must still be enlarged: */                    \
-      /* calculate new maxcount: */                                     \
-      pushSTACK(TheHashtable(ht)->ht_maxcount);                         \
-      pushSTACK(TheHashtable(ht)->ht_rehash_size); /* REHASH-SIZE (>1) */ \
-      funcall(L(mal),2); /* (* maxcount rehash-size), is > maxcount */  \
-      pushSTACK(value1);                                                \
-      funcall(L(ceiling),1); /* (ceiling ...), integer > maxcount */    \
-      ht = resize(STACK_(hash_pos),value1); /* enlarge table */         \
-      ht = rehash(ht); /* and reorganize */                             \
-      /* newly calculate the address of the entry in the index-vector: */ \
-     {var uintL hashindex = cacheable                                   \
-         ? hashcode_cook(hc_raw,TheHashtable(ht)->ht_size)              \
-         : hashcode(ht,STACK_(key_pos));                                \
-      Iptr = &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];} \
-     freelist = TheHashtable(ht)->ht_freelist;                          \
-     if (eq(freelist,nix)) goto retry;                                  \
+      do { /* hash-table must still be enlarged: */                     \
+        /* calculate new maxcount: */                                   \
+        pushSTACK(TheHashtable(ht)->ht_maxcount);                       \
+        pushSTACK(TheHashtable(ht)->ht_rehash_size); /* REHASH-SIZE (>1) */ \
+        funcall(L(mal),2); /* (* maxcount rehash-size), is > maxcount */ \
+        pushSTACK(value1);                                              \
+        funcall(L(ceiling),1); /* (ceiling ...), integer > maxcount */  \
+        ht = resize(STACK_(hash_pos),value1); /* enlarge table */       \
+        ht = rehash(ht); /* and reorganize */                           \
+        /* newly calculate the address of the entry in the index-vector: */ \
+        { var uintL hashindex = cacheable                               \
+            ? hashcode_cook(hc_raw,TheHashtable(ht)->ht_size)           \
+            : hashcode(ht,STACK_(key_pos));                             \
+          var object kvtable = TheHashtable(ht)->ht_kvtable;            \
+          Iptr = &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex]; \
+          freelist = TheHashedAlist(kvtable)->hal_freelist;             \
+        }                                                               \
+      } while (eq(freelist,nix));                                       \
     }                                                                   \
   } while(0)
 
@@ -1349,7 +1357,7 @@ local void clrhash (object ht) {
   {
     var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
     if (count > 0) {
-      var gcv_object_t* KVptr = ht_kvt_data(ht);
+      var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht)->ht_kvtable)->hal_data;
       dotimespL(count,count, {            /* in each entry */
         *KVptr++ = leer; *KVptr++ = leer; /* deplete key and value */
         *KVptr++ = leer;                  /* and next-index */
@@ -1554,8 +1562,9 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   prepare_resize(STACK_2,STACK_0,STACK_5);
   var object ht = allocate_hash_table(); /* new hash-tabelle */
   /* fill: */
-  TheHashtable(ht)->ht_kvtable = popSTACK(); /* key-value-vector */
-  TheHashtable(ht)->ht_itable = popSTACK();  /* index-vector */
+  var object kvtable = popSTACK(); /* key-value-vector */
+  TheHashtable(ht)->ht_kvtable = kvtable;
+  TheHashedAlist(kvtable)->hal_itable = popSTACK();  /* index-vector */
   TheHashtable(ht)->ht_mincount = popSTACK(); /* MINCOUNT */
   TheHashtable(ht)->ht_size = posfixnum_to_L(popSTACK()); /* SIZE */
   TheHashtable(ht)->ht_maxcount = popSTACK(); /* MAXCOUNT */
@@ -1563,7 +1572,6 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
      weak, initial-contents, test, size, rehash-size, mincount-threshold. */
   TheHashtable(ht)->ht_mincount_threshold = popSTACK(); /*MINCOUNT-THRESHOLD*/
   TheHashtable(ht)->ht_rehash_size = popSTACK(); /* REHASH-SIZE */
-  TheHashtable(ht)->ht_freelist = nix; /* dummy as free-list */
   TheHashtable(ht)->ht_lookupfn = lookuppfn;
   TheHashtable(ht)->ht_hashcodefn = hashcodepfn;
   TheHashtable(ht)->ht_testfn = testpfn;
@@ -1593,7 +1601,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
              shadows all other associations of the same key. */
         } else { /* not found -> make a new entry: */
           var object freelist = /* start of the free-list in the next-vector */
-            TheHashtable(ht)->ht_freelist;
+            TheHashedAlist(TheHashtable(STACK_0)->ht_kvtable)->hal_freelist;
           if (eq(freelist,nix)) { /* empty "list" ? */
             pushSTACK(ht); /* hash-table */
             pushSTACK(S(make_hash_table));
@@ -1714,15 +1722,16 @@ LISPFUNN(remhash,2)
   /* search key in the hash-table: */
   if (hash_lookup(ht,key,&KVptr,&Iptr)) {
     /* found -> drop from the hash-table: */
-    var object index = *Iptr;   /* index in next-vector */
-    /* with KVptr = ht_kvt_data(ht) + 3*index */
     ht = STACK_0; skipSTACK(2);
+    var object kvtable = TheHashtable(ht)->ht_kvtable;
+    var object index = *Iptr;   /* index in next-vector */
+    /* with KVptr = &TheHashedAlist(kvtable)->hal_data[3*index] */
     set_break_sem_2();          /* protect from breaks */
     *KVptr++ = leer; *KVptr++ = leer; /* empty key and value */
     *Iptr = *KVptr;             /* shorten "list" */
     /* lengthen free-list: */
-    *KVptr = TheHashtable(ht)->ht_freelist;
-    TheHashtable(ht)->ht_freelist = index;
+    *KVptr = TheHashedAlist(kvtable)->hal_freelist;
+    TheHashedAlist(kvtable)->hal_freelist = index;
     /* decrement COUNT : */
     TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,-1);
     clr_break_sem_2();          /* allow breaks again */
@@ -1758,7 +1767,7 @@ LISPFUNN(maphash,2)
   /* stack-layout: function, key-value-vector. */
   while (index) {
     index -= 3;
-    var gcv_object_t* KVptr = kvtable_data(STACK_0) + index;
+    var gcv_object_t* KVptr = &TheHashedAlist(STACK_0)->hal_data[index];
     if (!eq(KVptr[0],leer)) {   /* key /= "leer" ? */
       pushSTACK(KVptr[0]);      /* key as the 1st argument */
       pushSTACK(KVptr[1]);      /* value as the 2nd argument */
@@ -1870,7 +1879,7 @@ LISPFUNN(hash_table_iterate,1) {
       if (index==0)             /* index=0 -> no more elements */
         break;
       Cdr(state) = fixnum_inc(Cdr(state),-1); /* decrement index */
-      var gcv_object_t* KVptr = kvtable_data(table) + 3*index-3;
+      var gcv_object_t* KVptr = &TheHashedAlist(table)->hal_data[3*index-3];
       if (!eq(KVptr[0],leer)) { /* Key /= "leer" ? */
         VALUES3(T,
                 KVptr[0], /* key as the 2nd value */
@@ -1907,7 +1916,11 @@ LISPFUNN(set_hash_table_weak_p,2)
     }
     ht = STACK_0;
     var object old_kvt = TheHashtable(ht)->ht_kvtable;
-    copy_mem_o(kvtable_data(new_kvt),kvtable_data(old_kvt),3*maxcount);
+    copy_mem_o(&TheHashedAlist(new_kvt)->hal_data[0],
+               &TheHashedAlist(old_kvt)->hal_data[0],
+               3*maxcount);
+    TheHashedAlist(new_kvt)->hal_itable = TheHashedAlist(old_kvt)->hal_itable;
+    TheHashedAlist(new_kvt)->hal_freelist = TheHashedAlist(old_kvt)->hal_freelist;
     if (!simple_vector_p(new_kvt))
       TheWeakHashedAlist(new_kvt)->whal_count =
         (simple_vector_p(old_kvt) ? TheHashtable(ht)->ht_count : TheWeakHashedAlist(old_kvt)->whal_count);
@@ -2043,12 +2056,13 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
       hashcode_tuple(argcount,rest_args_pointer,0);
     var uintL hashindex;
     divu_3232_3232(code,TheHashtable(ht)->ht_size, (void),hashindex = );
+    var object kvtable = TheHashtable(ht)->ht_kvtable;
     var gcv_object_t* Nptr =    /* pointer to the current entry */
-      &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
+      &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
     while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
       var uintL index = posfixnum_to_L(*Nptr); /* next index */
       var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
-        ht_kvt_data(ht)+3*index;
+        &TheHashedAlist(kvtable)->hal_data[3*index];
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { /* compare key */
         /* found */
         VALUES1(KVptr[1]); goto fertig; /* Value as value */
