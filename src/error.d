@@ -375,12 +375,14 @@ LISPFUNN(defclcs,1)
     var object type;
     { # Vektor O(error_types) wie eine Aliste durchlaufen:
       var object v = O(error_types);
-      var object* ptr = &TheSvector(v)->data[0];
-      var uintL count;
-      dotimesL(count,Svector_length(v),
-               { if (eq(type,Car(*ptr))) { return Cdr(*ptr); }
-                 ptr++;
-               });
+      var uintL count = Svector_length(v);
+      if (count > 0)
+        { var object* ptr = &TheSvector(v)->data[0];
+          dotimespL(count,count,
+            { if (eq(type,Car(*ptr))) { return Cdr(*ptr); }
+              ptr++;
+            });
+        }
       return type; # nicht gefunden -> Typ unverändert lassen
     }
 

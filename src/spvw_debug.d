@@ -270,18 +270,19 @@
   global void mem_hex_out(buf,count)
     var const void* buf;
     var uintL count;
-    { var DYNAMIC_ARRAY(cbuf,char,3*count+1);
-      var const uintB* ptr1 = (const uintB*) buf;
-      var char* ptr2 = &cbuf[0];
-      dotimesL(count,count,
-        { *ptr2++ = ' ';
-          *ptr2++ = hex_table[floor(*ptr1,16)]; *ptr2++ = hex_table[*ptr1 % 16];
-          ptr1++;
-        });
-      *ptr2 = '\0';
-      asciz_out(cbuf);
-      FREE_DYNAMIC_ARRAY(cbuf);
-    }
+    { if (count > 0)
+        { var DYNAMIC_ARRAY(cbuf,char,3*count+1);
+          var const uintB* ptr1 = (const uintB*) buf;
+          var char* ptr2 = &cbuf[0];
+          dotimespL(count,count,
+            { *ptr2++ = ' ';
+              *ptr2++ = hex_table[floor(*ptr1,16)]; *ptr2++ = hex_table[*ptr1 % 16];
+              ptr1++;
+            });
+          *ptr2 = '\0';
+          asciz_out(cbuf);
+          FREE_DYNAMIC_ARRAY(cbuf);
+    }   }
 
   global void object_out(obj)
     var object obj;

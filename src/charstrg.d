@@ -501,18 +501,17 @@ static const cint nop_page[256] = {
     var object string1;
     var object string2;
     { var uintL len1;
-      var const chart* ptr1;
-      var const chart* ptr2;
-      ptr1 = unpack_string_ro(string1,&len1);
+      var const chart* ptr1 = unpack_string_ro(string1,&len1);
       # Ab ptr1 kommen genau len1 Zeichen.
       # Längenvergleich:
       if (!(len1 == Sstring_length(string2))) goto no;
-      ptr2 = &TheSstring(string2)->data[0];
-      # Ab ptr2 kommen genau (ebenfalls) len1 Zeichen.
-      # Die len1 Zeichen vergleichen:
-      { var uintL count;
-        dotimesL(count,len1, { if (!chareq(*ptr1++,*ptr2++)) goto no; } );
-      }
+      if (len1 > 0)
+        { var const chart* ptr2 = &TheSstring(string2)->data[0];
+          # Ab ptr2 kommen genau (ebenfalls) len1 Zeichen.
+          # Die len1 Zeichen vergleichen:
+          var uintL count;
+          dotimespL(count,len1, { if (!chareq(*ptr1++,*ptr2++)) goto no; } );
+        }
       return TRUE;
       no: return FALSE;
     }
@@ -527,18 +526,17 @@ static const cint nop_page[256] = {
     var object string1;
     var object string2;
     { var uintL len1;
-      var const chart* ptr1;
-      var const chart* ptr2;
-      ptr1 = unpack_string_ro(string1,&len1);
+      var const chart* ptr1 = unpack_string_ro(string1,&len1);
       # Ab ptr1 kommen genau len1 Zeichen.
       # Längenvergleich:
       if (!(len1 == Sstring_length(string2))) goto no;
-      ptr2 = &TheSstring(string2)->data[0];
-      # Ab ptr2 kommen genau (ebenfalls) len1 Zeichen.
-      # Die len1 Zeichen vergleichen:
-      { var uintL count;
-        dotimesL(count,len1, { if (!chareq(up_case(*ptr1++),up_case(*ptr2++))) goto no; } );
-      }
+      if (len1 > 0)
+        { var const chart* ptr2 = &TheSstring(string2)->data[0];
+          # Ab ptr2 kommen genau (ebenfalls) len1 Zeichen.
+          # Die len1 Zeichen vergleichen:
+          var uintL count;
+          dotimespL(count,len1, { if (!chareq(up_case(*ptr1++),up_case(*ptr2++))) goto no; } );
+        }
       return TRUE;
       no: return FALSE;
     }
@@ -2511,11 +2509,12 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
    {var uintL count = end-start; # Anzahl der zu kopierenden Characters
     var object new_string = allocate_string(count); # neuer String
     string = popSTACK(); # alter String
-    {var uintL len; # nochmals die Länge des alten Strings
-     var const chart* charptr1 = unpack_string_ro(string,&len) + start;
-     var chart* charptr2 = &TheSstring(new_string)->data[0];
-     dotimesL(count,count, { *charptr2++ = *charptr1++; } );
-    }
+    if (count > 0)
+      { var uintL len; # nochmals die Länge des alten Strings
+        var const chart* charptr1 = unpack_string_ro(string,&len) + start;
+        var chart* charptr2 = &TheSstring(new_string)->data[0];
+        dotimespL(count,count, { *charptr2++ = *charptr1++; } );
+      }
     value1 = new_string; mv_count=1;
   }}
 

@@ -652,9 +652,10 @@ LISPFUNN(allocate_std_instance,2)
     if_classp(clas, ; , fehler_keine_klasse(clas); );
     TheInstance(instance)->inst_class = clas;
     # Slots der Instanz mit #<UNBOUND> füllen:
-    {var object* ptr = &TheInstance(instance)->other[0];
-     dotimesL(length,length-1, { *ptr++ = unbound; } );
-    }
+    if (--length > 0)
+      { var object* ptr = &TheInstance(instance)->other[0];
+        dotimespL(length,length, { *ptr++ = unbound; } );
+      }
     value1 = instance; mv_count=1; # instance als Wert
   }}
 
@@ -679,10 +680,11 @@ LISPFUNN(allocate_instance,1)
         C_make_structure();
         # Slots der Structure mit #<UNBOUND> füllen, damit nachher
         # INITIALIZE-INSTANCE die Default-Werte einträgt:
-        {var object* ptr = &TheStructure(value1)->recdata[1];
-         var uintL count;
-         dotimesL(count,Structure_length(value1)-1, { *ptr++ = unbound; } );
-      } }
+        {var uintL count = Structure_length(value1)-1;
+         if (count > 0)
+           { var object* ptr = &TheStructure(value1)->recdata[1];
+             dotimespL(count,count, { *ptr++ = unbound; } );
+      } }  }
   }
 
 # (CLOS:SLOT-VALUE instance slot-name)
@@ -1297,10 +1299,11 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
             C_make_structure();
             # Slots der Structure mit #<UNBOUND> füllen, damit nachher
             # INITIALIZE-INSTANCE die Default-Werte einträgt:
-            {var object* ptr = &TheStructure(value1)->recdata[1];
-             var uintL count;
-             dotimesL(count,Structure_length(value1)-1, { *ptr++ = unbound; } );
-          } }
+            {var uintL count = Structure_length(value1)-1;
+             if (count > 0)
+               { var object* ptr = &TheStructure(value1)->recdata[1];
+                 dotimespL(count,count, { *ptr++ = unbound; } );
+          } }  }
         info = popSTACK();
         # Effektive Methode von INITIALIZE-INSTANCE anwenden:
         Before(rest_args_pointer) = value1; # instance als 1. Argument statt class

@@ -3362,20 +3362,22 @@ void gr_text (sintL color, sintL* x, sintL* y, sintL dir, uintB* charptr, uintL 
         case 270: dx = 0; dy = 1; break;
         default: return;
       }
-    x1 = *x; y1 = *y;
-    dotimesL(count,count,
-      { var uintB c = *charptr++;
-        var const fontchar_8_16* f = &font[c];
-        var uintL i;
-        var uintL j;
-        var sintL x2;
-        var sintL y2;
-        for (i = 0; i < 8; i++, x1 += dx, y1 += dy)
-          for (j = 0, x2 = x1, y2 = y1; j < 16; j++, x2 -= dy, y2 += dx)
-            if ((*f)[j] & bit(7-i))
-              gr_dot(color,x2,y2);
-      });
-    *x = x1; *y = y1;
+    if (count > 0)
+      { x1 = *x; y1 = *y;
+        dotimespL(count,count,
+          { var uintB c = *charptr++;
+            var const fontchar_8_16* f = &font[c];
+            var uintL i;
+            var uintL j;
+            var sintL x2;
+            var sintL y2;
+            for (i = 0; i < 8; i++, x1 += dx, y1 += dy)
+              for (j = 0, x2 = x1, y2 = y1; j < 16; j++, x2 -= dy, y2 += dx)
+                if ((*f)[j] & bit(7-i))
+                  gr_dot(color,x2,y2);
+          });
+        *x = x1; *y = y1;
+      }
 }
 
 #endif # GRAPHICS_SWITCH

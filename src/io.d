@@ -1482,9 +1482,11 @@ LISPFUNN(set_readtable_case,2)
         attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; # ab hier kommen die Attributcodes
       }
       # 1. Suche, ob ein Punkt vorkommt:
-      { var uintB* attrptr = attrptr0;
-        var uintL count;
-        dotimesL(count,len, { if (*attrptr++ == a_dot) goto dot; } );
+      { if (len > 0)
+          { var uintB* attrptr = attrptr0;
+            var uintL count;
+            dotimespL(count,len, { if (*attrptr++ == a_dot) goto dot; } );
+          }
         # kein Punkt -> base unverändert lassen
         goto no_dot;
         # Punkt -> base := 10
@@ -1492,46 +1494,51 @@ LISPFUNN(set_readtable_case,2)
         no_dot: ;
       }
       # 2. Alles >=a_letter mit Wert <Basis in a_digit umwandeln:
-      { var uintB* attrptr = attrptr0;
-        var chart* charptr = charptr0;
-        var uintL count;
-        dotimesL(count,len,
-          { if (*attrptr >= a_letter)
-              # Attributcode >= a_letter
-              { var cint c = as_cint(*charptr); # Zeichen, muss 'A'-'Z','a'-'Z' sein
-                if (c >= 'a') { c -= 'a'-'A'; }
-                if ((c - 'A') + 10 < *base_) # Wert < Basis ?
-                  { *attrptr = a_digit; } # in a_digit umwandeln
-              }
-            attrptr++; charptr++;
-          });
-      }
+      if (len > 0)
+        { var uintB* attrptr = attrptr0;
+          var chart* charptr = charptr0;
+          var uintL count;
+          dotimespL(count,len,
+            { if (*attrptr >= a_letter)
+                # Attributcode >= a_letter
+                { var cint c = as_cint(*charptr); # Zeichen, muss 'A'-'Z','a'-'Z' sein
+                  if (c >= 'a') { c -= 'a'-'A'; }
+                  if ((c - 'A') + 10 < *base_) # Wert < Basis ?
+                    { *attrptr = a_digit; } # in a_digit umwandeln
+                }
+              attrptr++; charptr++;
+            });
+        }
       # 3. Teste, ob nur Attributcodes >=a_ratio vorkommen:
-      { var uintB* attrptr = attrptr0;
-        var uintL count;
-        dotimesL(count,len,
-          { if (!(*attrptr++ >= a_ratio))
-              { return FALSE; } # nein -> kein potential number
-          });
-      }
+      if (len > 0)
+        { var uintB* attrptr = attrptr0;
+          var uintL count;
+          dotimespL(count,len,
+            { if (!(*attrptr++ >= a_ratio))
+                { return FALSE; } # nein -> kein potential number
+            });
+        }
       # 4. Teste, ob ein a_digit vorkommt:
-      { var uintB* attrptr = attrptr0;
-        var uintL count;
-        dotimesL(count,len, { if (*attrptr++ == a_digit) goto digit_ok; } );
+      { if (len > 0)
+          { var uintB* attrptr = attrptr0;
+            var uintL count;
+            dotimespL(count,len, { if (*attrptr++ == a_digit) goto digit_ok; } );
+          }
         return FALSE; # kein potential number
         digit_ok: ;
       }
       # Länge len>0.
       # 5. Teste, ob hintereinander zwei Attributcodes >= a_letter kommen:
-      { var uintB* attrptr = attrptr0;
-        var uintL count;
-        dotimesL(count,len-1,
-          { if (*attrptr++ >= a_letter)
-              { if (*attrptr >= a_letter)
-                  { return FALSE; }
-              }
-          });
-      }
+      if (len > 1)
+        { var uintB* attrptr = attrptr0;
+          var uintL count;
+          dotimespL(count,len-1,
+            { if (*attrptr++ >= a_letter)
+                { if (*attrptr >= a_letter)
+                    { return FALSE; }
+                }
+            });
+        }
       # 6. Teste, ob erster Attributcode >=a_dot, <=a_digit ist:
       { var uintB attr = attrptr0[0];
         if (!((attr >= a_dot) && (attr <= a_digit)))
@@ -1708,22 +1715,23 @@ LISPFUNN(set_readtable_case,2)
        schritt4:
        # 4. base:=10, mit Eliminierung von 'A'-'Z','a'-'z'
        if (*base_ > 10)
-         { var chart* charptr = charptr0;
-           var uintB* attrptr = attrptr0;
-           var uintL count;
-           dotimesL(count,len-index0,
-             { var chart ch = *charptr++; # nächstes Character
-               var cint c = as_cint(ch);
-               if (((c>='A') && (c<='Z')) || ((c>='a') && (c<='z')))
-                 { var uintB attr = attribute_of(ch); # dessen wahrer Attributcode
-                   if (attr == a_letter) # Ist er = a_letter ?
-                     { return 0; } # ja -> keine Zahl
-                   # sonst (muss a_expo_m sein) eintragen:
-                   *attrptr = attr;
-                 }
-               attrptr++;
-             });
-         }
+         { var uintL count = len-index0;
+           if (count > 0)
+             { var chart* charptr = charptr0;
+               var uintB* attrptr = attrptr0;
+               dotimespL(count,count,
+                 { var chart ch = *charptr++; # nächstes Character
+                   var cint c = as_cint(ch);
+                   if (((c>='A') && (c<='Z')) || ((c>='a') && (c<='z')))
+                     { var uintB attr = attribute_of(ch); # dessen wahrer Attributcode
+                       if (attr == a_letter) # Ist er = a_letter ?
+                         { return 0; } # ja -> keine Zahl
+                       # sonst (muss a_expo_m sein) eintragen:
+                       *attrptr = attr;
+                     }
+                   attrptr++;
+                 });
+         }   }
        *base_ = 10;
        # 5. Floating-Point-Zahl oder Dezimal-Integer
        { var uintB* attrptr = attrptr0;
@@ -1808,12 +1816,14 @@ LISPFUNN(set_readtable_case,2)
     { # Suche nach Attributcode /= a_dot:
       var object bvec = O(token_buff_2); # Semi-Simple-Byte-Vektor
       var uintL len = TheIarray(bvec)->dims[1]/8; # Fill-Pointer
-      var uintB* attrptr = &TheSbvector(TheIarray(bvec)->data)->data[0];
-      var uintL count;
-      dotimesL(count,len,
-        { if (!(*attrptr++ == a_dot)) # Attributcode /= a_dot gefunden?
-            { return FALSE; } # ja -> fertig, FALSE
-        });
+      if (len > 0)
+        { var uintB* attrptr = &TheSbvector(TheIarray(bvec)->data)->data[0];
+          var uintL count;
+          dotimespL(count,len,
+            { if (!(*attrptr++ == a_dot)) # Attributcode /= a_dot gefunden?
+                { return FALSE; } # ja -> fertig, FALSE
+            });
+        }
       # alles Dots.
       return TRUE;
     }
@@ -1826,9 +1836,10 @@ LISPFUNN(set_readtable_case,2)
   local void upcase_token()
     { var object string = O(token_buff_1); # Semi-Simple-String
       var uintL len = TheIarray(string)->dims[1]; # Fill-Pointer
-      var chart* charptr = &TheSstring(TheIarray(string)->data)->data[0];
-      dotimesL(len,len, { *charptr = up_case(*charptr); charptr++; } );
-    }
+      if (len > 0)
+        { var chart* charptr = &TheSstring(TheIarray(string)->data)->data[0];
+          dotimespL(len,len, { *charptr = up_case(*charptr); charptr++; } );
+    }   }
 
 # UP: Wandelt ein Stück des gelesenen Tokens in Groß- oder Kleinbuchstaben um.
 # case_convert_token(start_index,end_index,direction);
@@ -3365,10 +3376,11 @@ LISPFUNN(uninterned_reader,3) # liest #:
      # Auf Package-Marker testen:
      {var object buff_2 = O(token_buff_2); # Attributcode-Buffer
       var uintL len = TheIarray(buff_2)->dims[1]/8; # Länge = Fill-Pointer
-      var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
-      # Teste, ob einer der len Attributcodes ab attrptr ein a_pack_m ist:
-      dotimesL(len,len, { if (*attrptr++ == a_pack_m) goto fehler_dopp; } );
-     }
+      if (len > 0)
+        { var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
+          # Teste, ob einer der len Attributcodes ab attrptr ein a_pack_m ist:
+          dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto fehler_dopp; } );
+     }  }
      # uninterniertes Symbol mit diesem Namen bauen:
      value1 = make_symbol(string); mv_count=1; skipSTACK(2); return;
      fehler_dopp:
@@ -3438,14 +3450,15 @@ LISPFUNN(bit_vector_reader,3) # liest #*
       }
    {var object buff_1 = O(token_buff_1); # Character-Buffer
     var uintL len = TheIarray(buff_1)->dims[1]; # Länge = Fill-Pointer
-    {var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
-     var uintL count;
-     dotimesL(count,len,
-       { var chart c = *charptr++; # nächstes Character
-         if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # nur '0' und '1' sind OK
-           goto fehler_nur01;
-       });
-    }
+    if (len > 0)
+      { var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
+        var uintL count;
+        dotimespL(count,len,
+          { var chart c = *charptr++; # nächstes Character
+            if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # nur '0' und '1' sind OK
+              goto fehler_nur01;
+          });
+      }
     # n überprüfen:
     {var uintL n; # Länge des Bitvektors
      if (nullp(STACK_0))
@@ -5409,15 +5422,16 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               { write_sstring(stream_,string); },
               # :DOWNCASE -> Großbuchstaben in Downcase ausgeben:
               do_downcase:
-              { var uintL index = 0;
-                var uintL count;
-                pushSTACK(string); # Simple-String retten
-                dotimesL(count,Sstring_length(string),
-                  { write_code_char(stream_,down_case(TheSstring(STACK_0)->data[index]));
-                    index++;
-                  });
-                skipSTACK(1);
-              },
+              { var uintL count = Sstring_length(string);
+                if (count > 0)
+                  { var uintL index = 0;
+                    pushSTACK(string); # Simple-String retten
+                    dotimespL(count,count,
+                      { write_code_char(stream_,down_case(TheSstring(STACK_0)->data[index]));
+                        index++;
+                      });
+                    skipSTACK(1);
+              }   },
               # :CAPITALIZE -> jeweils den ersten Großbuchstaben eines Wortes
               # als Großbuchstaben, alle anderen als Kleinbuchstaben ausgeben.
               # (Vgl. NSTRING_CAPITALIZE in CHARSTRG.D)
@@ -5466,22 +5480,23 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               #         )
               #         (write-char c) (incf i) (go 1)
               #   ) )
-              { var boolean flag = FALSE;
-                var uintL index = 0;
-                var uintL count;
-                pushSTACK(string); # Simple-String retten
-                dotimesL(count,Sstring_length(string),
-                  { # flag zeigt an, ob gerade innerhalb eines Wortes
-                    var boolean oldflag = flag;
-                    var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
-                    if ((flag = alphanumericp(c)) && oldflag)
-                      # alphanumerisches Zeichen im Wort:
-                      { c = down_case(c); } # Groß- in Kleinbuchstaben umwandeln
-                    write_code_char(stream_,c); # und ausgeben
-                    index++;
-                  });
-                skipSTACK(1);
-              }
+              { var uintL count = Sstring_length(string);
+                if (count > 0)
+                  { var boolean flag = FALSE;
+                    var uintL index = 0;
+                    pushSTACK(string); # Simple-String retten
+                    dotimespL(count,count,
+                      { # flag zeigt an, ob gerade innerhalb eines Wortes
+                        var boolean oldflag = flag;
+                        var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                        if ((flag = alphanumericp(c)) && oldflag)
+                          # alphanumerisches Zeichen im Wort:
+                          { c = down_case(c); } # Groß- in Kleinbuchstaben umwandeln
+                        write_code_char(stream_,c); # und ausgeben
+                        index++;
+                      });
+                    skipSTACK(1);
+              }   }
               );
             break;
           case case_downcase:
@@ -5490,15 +5505,16 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             switch_print_case(
               # :UPCASE -> Kleinbuchstaben in Upcase ausgeben:
               do_upcase:
-              { var uintL index = 0;
-                var uintL count;
-                pushSTACK(string); # Simple-String retten
-                dotimesL(count,Sstring_length(string),
-                  { write_code_char(stream_,up_case(TheSstring(STACK_0)->data[index]));
-                    index++;
-                  });
-                skipSTACK(1);
-              },
+              { var uintL count = Sstring_length(string);
+                if (count > 0)
+                  { var uintL index = 0;
+                    pushSTACK(string); # Simple-String retten
+                    dotimespL(count,count,
+                      { write_code_char(stream_,up_case(TheSstring(STACK_0)->data[index]));
+                        index++;
+                      });
+                    skipSTACK(1);
+              }   },
               # :DOWNCASE -> Kleinbuchstaben in Downcase ausgeben:
               { write_sstring(stream_,string); },
               # :CAPITALIZE -> jeweils den ersten Kleinbuchstaben eines Wortes
@@ -5534,22 +5550,23 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               #         )
               #         (write-char c) (incf i) (go 1)
               #   ) )
-              { var boolean flag = FALSE;
-                var uintL index = 0;
-                var uintL count;
-                pushSTACK(string); # Simple-String retten
-                dotimesL(count,Sstring_length(string),
-                  { # flag zeigt an, ob gerade innerhalb eines Wortes
-                    var boolean oldflag = flag;
-                    var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
-                    if ((flag = alphanumericp(c)) && !oldflag)
-                      # alphanumerisches Zeichen am Wortanfang:
-                      { c = up_case(c); } # Klein- in Großbuchstaben umwandeln
-                    write_code_char(stream_,c); # und ausgeben
-                    index++;
-                  });
-                skipSTACK(1);
-              }
+              { var uintL count = Sstring_length(string);
+                if (count > 0)
+                  { var boolean flag = FALSE;
+                    var uintL index = 0;
+                    pushSTACK(string); # Simple-String retten
+                    dotimespL(count,count,
+                      { # flag zeigt an, ob gerade innerhalb eines Wortes
+                        var boolean oldflag = flag;
+                        var chart c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
+                        if ((flag = alphanumericp(c)) && !oldflag)
+                          # alphanumerisches Zeichen am Wortanfang:
+                          { c = up_case(c); } # Klein- in Großbuchstaben umwandeln
+                        write_code_char(stream_,c); # und ausgeben
+                        index++;
+                      });
+                    skipSTACK(1);
+              }   }
               );
             break;
           case case_preserve:
@@ -5560,13 +5577,15 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             # *PRINT-CASE* ignorieren.
             { var boolean seen_uppercase = FALSE;
               var boolean seen_lowercase = FALSE;
-              var const chart* cptr = &TheSstring(string)->data[0];
-              var uintL count;
-              dotimesL(count,Sstring_length(string),
-                { var chart c = *cptr++;
-                  if (!chareq(c,up_case(c))) { seen_lowercase = TRUE; }
-                  if (!chareq(c,down_case(c))) { seen_uppercase = TRUE; }
-                });
+              var uintL count = Sstring_length(string);
+              if (count > 0)
+                { var const chart* cptr = &TheSstring(string)->data[0];
+                  dotimespL(count,count,
+                    { var chart c = *cptr++;
+                      if (!chareq(c,up_case(c))) { seen_lowercase = TRUE; }
+                      if (!chareq(c,down_case(c))) { seen_uppercase = TRUE; }
+                    });
+                }
               if (seen_uppercase)
                 { if (!seen_lowercase) goto do_downcase; }
                 else
@@ -5758,7 +5777,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
              { var chart* charptr = &TheSstring(lastline)->data[0];
                # Teste, ob need Spaces kommen:
                {var uintL count;
-                dotimesL(count,need,
+                dotimespL(count,need,
                   { if (!chareq(*charptr++,ascii(' '))) # Space ?
                       goto new_line; # nein -> neue Zeile anfangen
                   });
