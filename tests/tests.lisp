@@ -6,7 +6,8 @@
     `(BLOCK ,b
        (LET ((*ERROR-HANDLER*
               #'(LAMBDA (&REST ARGS)
-                  (TERPRI) (APPLY #'FORMAT T (CDR ARGS))
+                  (LET ((*PRINT-READABLY* NIL) (*PRINT-CIRCLE* NIL))
+                    (TERPRI) (APPLY #'FORMAT T (CDR ARGS)))
                   (RETURN-FROM ,b 'ERROR))))
          ,@forms))))
 
