@@ -3570,7 +3570,7 @@ der Docstring (oder NIL).
         (reqopt (+ req opt)))
     (unless (and (or applyargs (<= req n)) (or rest-p key-p (<= n reqopt)))
       (c-warn (ENGLISH "~S called with ~S~:[~; or more~] arguments, but it requires ~
-                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments.")
+                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p.")
               fun n applyargs
               (or rest-p key-p)  (eql req reqopt) req reqopt
       )
@@ -3592,13 +3592,12 @@ der Docstring (oder NIL).
          (wrong-key nil)
         )
         ((null keyargs)
-         (if wrong-key
-           (c-error (ENGLISH "keyword ~S is not allowed for function ~S.~
-                              ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~].")
-                    wrong-key fun (eql (length keylist) 1) keylist
-           )
-           'STATIC-KEYS
-        ))
+         (cond (wrong-key
+                (c-warn (ENGLISH "keyword ~S is not allowed for function ~S.~
+                                  ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~].")
+                        wrong-key fun (eql (length keylist) 1) keylist)
+                NIL)
+               (t 'STATIC-KEYS)))
       (let ((key (first keyargs)))
         (unless (c-constantp key)
           (return-from test-argument-syntax 'DYNAMIC-KEYS)
@@ -4274,7 +4273,7 @@ der Docstring (oder NIL).
                ; falsche Argumentezahl -> doch nicht INLINE:
                (progn
                  (c-warn (ENGLISH "~S called with ~S arguments, but it requires ~
-                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments.")
+                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p.")
                          fun n
                          rest-p  (eql opt 0) req (+ req opt)
                  )
@@ -4338,7 +4337,7 @@ der Docstring (oder NIL).
 ) ) )
 
 (defvar *deprecated-functions-list*
-  '(GENTEMP SET SPECIAL-FORM-P))
+  '(GENTEMP SET SPECIAL-FORM-P GET-SETF-METHOD-MULTIPLE-VALUE))
 
 ; Hilfsfunktion: Notiere, dass eine globale Funktionsdefinition benutzt wird.
 (defun note-function-used (name)
