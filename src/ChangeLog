@@ -64,6 +64,7 @@
 	* constobj.d (type_weak_ht): added
 	* constsym.d (Kboth, Keither, Kvalue): added
 	* io.d (pr_orecord): print ht_weak() for weak hash tables
+	(pr_weakkvt): print wkvt_type
 	* lispbibl.d (ht_weak): new macro
 	(weakkvt_t): added wkvt_type slot
 	* spvw_garcol.d (gar_col_normal): handle the new types of weak
