@@ -3765,23 +3765,22 @@ functions are provided:
 
 <para>When &print-readably-var; is true, other arrays are written as
  follows: if the &array-element-type; is &t-t;, the syntax
- <computeroutput>#<replaceable>rank</replaceable>A &cont-r;</computeroutput>
- is used.  Otherwise, the syntax <computeroutput>#A(&eltype-r;
- &dimensions-r; &cont-r;)</computeroutput> is used.</para>
+ <computeroutput>&sharp-A; &cont-r;</computeroutput> is used.
+ Otherwise, the syntax <computeroutput>#A(&eltype-r; &dimensions-r;
+ &cont-r;)</computeroutput> is used.</para>
 
 <para>As explicitly permitted by this section, specialized &bit-t; and
  &character-t; &array-t;s are printed with the innermost lists generated
- by the printing algorithm are instead printed using &bit-vector-t; and
+ by the printing algorithm being instead printed using &bit-vector-t; and
  &string-t; syntax, respectively.</para>
 
 <formalpara id="pr-empty-arr-ansi"><title>Variable &pr-empty-arr-ansi;</title>
 <para>Empty &array-t;s, i.e., arrays with no elements and zero
  &array-total-size; (because one of its dimensions is zero) are printed
- with the readable syntax <computeroutput>#A(&eltype-r;
- &dimensions-r; &cont-r;)</computeroutput>, unless the variable
- &pr-empty-arr-ansi; is non-&nil;, in which case the arrays are printed
- using the &ansi-cl;-prescribed syntax
- <computeroutput>#<replaceable>rank</replaceable>A &cont-r;</computeroutput>
+ with the readable syntax <computeroutput>#A(&eltype-r; &dimensions-r;
+ &cont-r;)</computeroutput>, unless the variable &pr-empty-arr-ansi; is
+ non-&nil;, in which case the arrays are printed using the
+ &ansi-cl;-prescribed syntax <computeroutput>&sharp-A; &cont-r;</computeroutput>
  which often loses the dimension information.</para></formalpara>
 
 </section>
