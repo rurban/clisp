@@ -1,5 +1,7 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (object) [WIDE_STRUCT]: Wrap the union in struct.
+	(as_object, typecode, mtypecode, untype, type_pointable): Update.
 	Avoid conditional expressions of the form
 	(bool ? object : gcv_object_t) or (bool ? gcv_object_t : object).
 	* aridecl.d (FF_0, FF_1, FF_minus1, DF_0, DF_1, DF_minus1): Cast to
@@ -10,16 +12,16 @@
 	* encoding.d (SYSTEM::CHARSET-RANGE, init_dependent_encodings):
 	Likewise.
 	* eval.d (interpret_bytecode_): Likewise.
-	* foreign.d (convert_from_foreign, foreign_with_pointers_p,
-	convert_to_foreign): Likewise.
+	* foreign.d (convert_from_foreign, foreign_with_pointers_p)
+	(convert_to_foreign): Likewise.
 	* i18n.d (SYS::TEXT): Likewise.
 	* io.d (klammer_auf, FORMAT-TABULATE): Likewise.
 	* lisparit.d (NUMERATOR, DENOMINATOR): Likewise.
 	* package.d (PACKAGE-ITERATE): Likewise.
-	* pathname.d (pathname_host_maybe, pathname_device_maybe,
-	pathname_version_maybe): Add cast to object.
-	(xpathname_host, xpathname_directory, xpathname_name, xpathname_type,
-	xpathname_version): Cast conditional expression branch to object.
+	* pathname.d (pathname_host_maybe, pathname_device_maybe)
+	(pathname_version_maybe): Add cast to object.
+	(xpathname_host, xpathname_directory, xpathname_name, xpathname_type)
+	(xpathname_version): Cast conditional expression branch to object.
 	(string2wild, wild2string): Likewise.
 	(NAMETYPE_MATCH): Likewise.
 	(MAKE-LOGICAL-PATHNAME): Likewise.
@@ -32,17 +34,6 @@
 	(Truename_or_Self): Likewise.
 	(handle_set, handle_isset): Likewise.
 	(init_standard_io): Likewise.
-
-2002-12-10  Sam Steingold  <sds@gnu.org>
-
-	* spvw.d:...
-	* spvw_debug.d:...
-	* spvw_garcol.d:...
-
-2002-12-04  Bruno Haible  <bruno@clisp.org>
-
-	* lispbibl.d [WIDE_STRUCT] (object): Wrap the union in struct.
-	(as_object, typecode, mtypecode, untype, type_pointable): Update.
 	* genclisph.d (main): Update.
 
 2002-12-09  Sam Steingold  <sds@gnu.org>
