@@ -45,13 +45,17 @@
   ;; "The methods specialized on standard-object, structure-object, and
   ;;  condition all signal an error of type error."
   (:method ((object standard-object) &optional environment)
+    (declare (ignore environment))
     (signal-missing-load-form object))
   (:method ((object structure-object) &optional environment)
+    (declare (ignore environment))
     (signal-missing-load-form object))
   (:method ((object condition) &optional environment)
+    (declare (ignore environment))
     (signal-missing-load-form object))
   (:method ((object class) &optional environment)
-    ; TODO: Implement as described in CLHS
+    (declare (ignore environment))
+    ;; TODO: Implement as described in CLHS
     `(find-class ',(class-name object))))
 
 (defun mlf-init-function (object)
