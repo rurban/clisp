@@ -126,30 +126,33 @@
                             (PROGN ,@(nreverse stores1) ,rest-expanded)
                             ,@(nreverse stores2)
                     ) ) ) )
-                  (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
+                  (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
                       (get-setf-method (pop subplacesr))
                     (setq bindlist
-                      (cons (list (first SM3) SM5)
-                            (nreconc (mapcar #'list SM1 SM2) bindlist)
+                      (cons (list (first SM-stores) SM-getterform)
+                            (nreconc (mapcar #'list SM-temps SM-subforms) bindlist)
                     ) )
                     (let ((storetemp (gensym)))
                       (setq storetemps (cons storetemp storetemps))
-                      (setq stores1 (cons (subst storetemp (first SM3) SM4) stores1))
+                      ; We can use subst here, because storetemp is just a variable reference.
+                      (setq stores1 (cons (subst storetemp (first SM-stores) SM-setterform) stores1))
                     )
-                    (setq stores2 (cons SM4 stores2))
+                    (setq stores2 (cons SM-setterform stores2))
                 ) )
                 t
             ) )
-            (multiple-value-bind (SM1 SM2 SM3 SM4 SM5) (get-setf-method place)
+            (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
+                (get-setf-method place)
               (let ((formvar (gensym)))
                 (values
-                  `(LET* (,.(mapcar #'list SM1 SM2)
-                          (,(first SM3) ,SM5)
+                  `(LET* (,.(mapcar #'list SM-temps SM-subforms)
+                          (,(first SM-stores) ,SM-getterform)
                           (,formvar ,form))
                      ,@declare
                      (UNWIND-PROTECT
-                       (PROGN ,(subst formvar (first SM3) SM4) ,rest-expanded)
-                       ,SM4
+                       ; We can use subst here, because formvar is just a variable reference.
+                       (PROGN ,(subst formvar (first SM-stores) SM-setterform) ,rest-expanded)
+                       ,SM-setterform
                    ) )
                   t
             ) ) )
@@ -301,25 +304,30 @@
                      (nreconc stores1 L3)
                      (nreconc stores2 L4)
                   ))
-                (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
+                (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
                     (get-setf-method (pop subplacesr))
                   (setq bindlist
-                    (cons (list (first SM3) SM5)
-                          (nreconc (mapcar #'list SM1 SM2) bindlist)
+                    (cons (list (first SM-stores) SM-getterform)
+                          (nreconc (mapcar #'list SM-temps SM-subforms) bindlist)
                   ) )
                   (let ((storetemp (gensym)))
                     (setq storetemps (cons storetemp storetemps))
-                    (setq stores1 (cons (subst storetemp (first SM3) SM4) stores1))
+                    ; We can use subst here, because storetemp is just a variable reference.
+                    (setq stores1 (cons (subst storetemp (first SM-stores) SM-setterform) stores1))
                   )
-                  (setq stores2 (cons SM4 stores2))
+                  (setq stores2 (cons SM-setterform stores2))
             ) ) )
-            (multiple-value-bind (SM1 SM2 SM3 SM4 SM5) (get-setf-method place)
+            (multiple-value-bind (SM-temps SM-subforms SM-stores SM-setterform SM-getterform)
+                (get-setf-method place)
               (let ((g (gensym)))
                 (values
-                  `(,.(mapcar #'list SM1 SM2) (,(first SM3) ,SM5) (,g ,form))
+                  `(,.(mapcar #'list SM-temps SM-subforms)
+                    (,(first SM-stores) ,SM-getterform)
+                    (,g ,form))
                   L2
-                  (cons (subst g (first SM3) SM4) L3)
-                  (cons SM4 L4)
+                  ; We can use subst here, because g is just a variable reference.
+                  (cons (subst g (first SM-stores) SM-setterform) L3)
+                  (cons SM-setterform L4)
             ) ) )
 ) ) ) ) ) )
 
