@@ -129,7 +129,6 @@ extern_C char* strerror (int errnum);
   #define MMAP_ADDR_T  vm_address_t
   #define MMAP_SIZE_T  vm_size_t
   #define RETMMAPTYPE  MMAP_ADDR_T
-  #define MPROTECT_CONST
   #define PROT_NONE  0
   #define PROT_READ  VM_PROT_READ
   #define PROT_WRITE VM_PROT_WRITE
@@ -142,7 +141,7 @@ extern_C char* strerror (int errnum);
   extern_C int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len); /* MUNMAP(2) */
 #endif
 #ifdef HAVE_WORKING_MPROTECT
-  extern_C int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot); /* MPROTECT(2) */
+  /* extern_C int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot); */ /* MPROTECT(2) */
 #endif
 /* Possible values of prot: PROT_NONE, PROT_READ, PROT_READ_WRITE. */
 #ifndef PROT_NONE
@@ -224,13 +223,9 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
 #define SIGNAL(sig,handler)  install_signal_handler(sig,handler)
 /* a signal block and release: */
 #if defined(SIGNALBLOCK_POSIX)
-  extern_C int sigprocmask (int how, SIGPROCMASK_CONST sigset_t* set, sigset_t* oset); /* SIGPROCMASK(2V) */
-  #ifndef sigemptyset /* UNIX_LINUX sometimes defines this as a macro */
-    extern_C int sigemptyset (sigset_t* set); /* SIGSETOPS(3V) */
-  #endif
-  #ifndef sigaddset /* UNIX_LINUX sometimes defines this as a macro */
-    extern_C int sigaddset (sigset_t* set, int signo); /* SIGSETOPS(3V) */
-  #endif
+  /* extern_C int sigprocmask (int how, const sigset_t* set, sigset_t* oset); */ /* SIGPROCMASK(2V) */
+  /* extern_C int sigemptyset (sigset_t* set); */ /* SIGSETOPS(3V) */
+  /* extern_C int sigaddset (sigset_t* set, int signo); */ /* SIGSETOPS(3V) */
   #define signalblock_on(sig)  \
       { var sigset_t sigblock_mask;                                 \
         sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig); \
@@ -356,7 +351,7 @@ extern_C char* getwd (char* pathname); /* GETWD(3) */
 
 /* resolve symbolic links in pathname: */
 #ifdef HAVE_READLINK
-extern_C RETREADLINKTYPE readlink (READLINK_CONST char* path, READLINK_BUF_T buf, READLINK_SIZE_T bufsiz); /* READLINK(2) */
+/* extern_C ssize_t readlink (const char* path, char* buf, size_t bufsiz); */ /* READLINK(2) */
 #endif
 /* used by PATHNAME */
 
@@ -367,26 +362,14 @@ extern_C RETREADLINKTYPE readlink (READLINK_CONST char* path, READLINK_BUF_T buf
   #undef S_ISLNK
   #undef S_ISREG
 #endif
-#ifdef STAT_INLINE
-extern int stat (STAT_CONST char* path, struct stat * buf); /* STAT(2V) */
-#else
-extern_C int stat (STAT_CONST char* path, struct stat * buf); /* STAT(2V) */
-#endif
+/* extern/extern_C int stat (const char* path, struct stat * buf); */ /* STAT(2V) */
 #ifdef HAVE_LSTAT
-  #ifdef LSTAT_INLINE
-extern int lstat (LSTAT_CONST char* path, struct stat * buf); /* STAT(2V) */
-  #else
-extern_C int lstat (LSTAT_CONST char* path, struct stat * buf); /* STAT(2V) */
-  #endif
+  /* extern/extern_C int lstat (const char* path, struct stat * buf); */ /* STAT(2V) */
 #else
   #define lstat stat
   #define S_ISLNK(m)  false
 #endif
-#ifdef FSTAT_INLINE
-extern int fstat (int fd, struct stat * buf); /* STAT(2V) */
-#else
-extern_C int fstat (int fd, struct stat * buf); /* STAT(2V) */
-#endif
+/* extern/extern_C int fstat (int fd, struct stat * buf); */ /* STAT(2V) */
 #ifndef S_ISDIR
   #define S_ISDIR(m)  (((m)&S_IFMT) == S_IFDIR)
 #endif
@@ -460,8 +443,8 @@ extern_C off_t lseek (int fd, off_t offset, int whence); /* LSEEK(2V) */
   #define SEEK_CUR  1
   #define SEEK_END  2
 #endif
-extern_C RETRWTYPE read (int fd, RW_BUF_T buf, RW_SIZE_T nbyte); /* READ(2V) */
-extern_C RETRWTYPE write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte); /* WRITE(2V) */
+/* extern_C ssize_t read (int fd, void* buf, size_t nbyte); */ /* READ(2V) */
+/* extern_C ssize_t write (int fd, const void* buf, size_t nbyte); */ /* WRITE(2V) */
 extern_C int close (int fd); /* CLOSE(2V) */
 #ifdef HAVE_FSYNC
 extern_C int fsync (int fd); /* FSYNC(2) */
@@ -522,10 +505,10 @@ extern int nonintr_close (int fd);
 #define CLOSE close
 #endif
 /* wrapper around the system call, get partial results and handle EINTR: */
-extern RETRWTYPE read_helper (int fd, RW_BUF_T buf, RW_SIZE_T nbyte, bool partial_p);
+extern ssize_t read_helper (int fd, void* buf, size_t nbyte, bool partial_p);
 #define safe_read(f,b,n)  read_helper(f,b,n,true)
 #define full_read(f,b,n)  read_helper(f,b,n,false)
-extern RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte);
+extern ssize_t full_write (int fd, const void* buf, size_t nbyte);
 /* used by STREAM, PATHNAME, SPVW, MISC, UNIXAUX */
 
 /* inquire the terminal, window size: */
@@ -533,18 +516,10 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
 #if defined(HAVE_TERMIOS_H) && defined(HAVE_TCGETATTR) && defined(HAVE_TCSAFLUSH)
   #define UNIX_TERM_TERMIOS
   #include <termios.h> /* TERMIOS(3V) */
-  #ifndef tcgetattr
-    extern_C int tcgetattr (int fd, struct termios * tp);
-  #endif
-  #ifndef tcsetattr
-    extern_C int tcsetattr (int fd, int optional_actions, TCSETATTR_CONST struct termios * tp);
-  #endif
-  #ifndef tcdrain
-    extern_C int tcdrain (int fd); /* TERMIOS(3V) */
-  #endif
-  #ifndef tcflush
-    extern_C int tcflush (int fd, int flag); /* TERMIOS(3V) */
-  #endif
+  /* extern_C int tcgetattr (int fd, struct termios * tp); */
+  /* extern_C int tcsetattr (int fd, int optional_actions, const struct termios * tp); */
+  /* extern_C int tcdrain (int fd); */ /* TERMIOS(3V) */
+  /* extern_C int tcflush (int fd, int flag); */ /* TERMIOS(3V) */
   #undef TCSETATTR  /* eg. HP-UX 10 */
   #define TCSETATTR tcsetattr
   #define TCDRAIN tcdrain
@@ -755,7 +730,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 
 /* determine MACHINE-INSTANCE: */
 #ifdef HAVE_GETHOSTNAME
-  extern_C int gethostname (char* name, GETHOSTNAME_SIZE_T namelen); /* GETHOSTNAME(2) */
+  /* extern_C int gethostname (char* name, size_t namelen); */ /* GETHOSTNAME(2) */
 #endif
 #ifdef HAVE_GETHOSTBYNAME
   #ifdef HAVE_NETDB_H

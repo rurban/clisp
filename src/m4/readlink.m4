@@ -12,39 +12,4 @@ AC_PREREQ(2.57)
 
 AC_DEFUN([CL_READLINK],
 [AC_CHECK_FUNCS(readlink)dnl
-if test $ac_cv_func_readlink = yes; then
-CL_PROTO([readlink], [
-for r in 'int' 'ssize_t'; do
-for z in 'int' 'size_t'; do
-for y in 'char*' 'void*'; do
-for x in '' 'const'; do
-if test -z "$have_readlink"; then
-AC_TRY_COMPILE([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-$r readlink ($x char* path, $y buf, $z bufsiz);
-#else
-$r readlink();
-#endif
-], [],
-cl_cv_proto_readlink_ret="$r"
-cl_cv_proto_readlink_arg1="$x"
-cl_cv_proto_readlink_arg2="$y"
-cl_cv_proto_readlink_arg3="$z"
-have_readlink=1)
-fi
-done
-done
-done
-done
-], [extern $cl_cv_proto_readlink_ret readlink ($cl_cv_proto_readlink_arg1 char*, $cl_cv_proto_readlink_arg2, $cl_cv_proto_readlink_arg3);])
-AC_DEFINE_UNQUOTED(RETREADLINKTYPE,$cl_cv_proto_readlink_ret,[return type of readlink()])
-AC_DEFINE_UNQUOTED(READLINK_CONST,$cl_cv_proto_readlink_arg1,[declaration of readlink() needs const])
-AC_DEFINE_UNQUOTED(READLINK_BUF_T,$cl_cv_proto_readlink_arg2,[type of `buf' in readlink() declaration])
-AC_DEFINE_UNQUOTED(READLINK_SIZE_T,$cl_cv_proto_readlink_arg3,[type of `bufsiz' in readlink() declaration])
-fi
 ])

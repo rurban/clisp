@@ -250,11 +250,11 @@ global int nonintr_open (const char* path, int flags, mode_t mode)
 #endif
 
 # a wrapper for read()
-global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
-                              bool partial_p) {
+global ssize_t read_helper (int fd, void* bufarea, size_t nbyte,
+                            bool partial_p) {
   var char* buf = (char*) bufarea;
-  var RETRWTYPE retval;
-  var RW_SIZE_T done = 0;
+  var ssize_t retval;
+  var size_t done = 0;
  #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
   # Must adjust the memory permissions before calling read().
   # - On SunOS4 a missing write permission causes the read() call to hang
@@ -277,7 +277,7 @@ global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
      #endif
         return retval;
     } else {
-      buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval;
+      buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
       if (partial_p)
         break;
     }
@@ -286,15 +286,15 @@ global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
 }
 
 # Ein Wrapper um die write-Funktion.
-  global RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T bufarea, RW_SIZE_T nbyte);
-  global RETRWTYPE full_write (fd,bufarea,nbyte)
+  global ssize_t full_write (int fd, const void* bufarea, size_t nbyte);
+  global ssize_t full_write (fd,bufarea,nbyte)
     var int fd;
-    var WRITE_CONST RW_BUF_T bufarea;
-    var RW_SIZE_T nbyte;
+    var const void* bufarea;
+    var size_t nbyte;
     {
-      var WRITE_CONST char* buf = (WRITE_CONST char*) bufarea;
-      var RETRWTYPE retval;
-      var RW_SIZE_T done = 0;
+      var const char* buf = (const char*) bufarea;
+      var ssize_t retval;
+      var size_t done = 0;
       #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
       # Must adjust the memory permissions before calling write().
       handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
@@ -309,7 +309,7 @@ global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
           #endif
             return retval;
         } else {
-          buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval;
+          buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
         }
       }
       return done;
@@ -357,7 +357,7 @@ global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
     var const void* bufarea;
     var size_t nbyte;
     {
-      var const char* buf = (WRITE_CONST char*) bufarea;
+      var const char* buf = (const char*) bufarea;
       var ssize_t retval;
       var size_t done = 0;
       #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
