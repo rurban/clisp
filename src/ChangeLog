@@ -1,3 +1,9 @@
+2004-03-01  Bruno Haible  <bruno@clisp.org>
+
+	* spvwtabs.d: Undefine open, truncate, ftruncate.
+	* lisparit.d: Undefine truncate, ftruncate.
+	Reported by Russell McManus <russell_mcmanus@yahoo.com>.
+
 2004-02-29  Sam Steingold  <sds@gnu.org>
             Bruno Haible  <bruno@clisp.org>
 
