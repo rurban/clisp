@@ -1,3 +1,8 @@
+2002-04-05  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
+
+	* modules.d (MODULE): silence the compiler warning about
+	module__*__init_function_*() prototype
+
 2002-04-04  Stefan Kain  <stefan.kain@freenet.de>
 
 	* spvw_ctype.diff, spvw_gcstat.diff, spvw_genera2.diff:
