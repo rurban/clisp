@@ -1,5 +1,10 @@
 2002-02-28  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-form): fixed a bug: EXPAND-COMPILER-MACRO
+	can return an atom
+
+2002-02-28  Sam Steingold  <sds@gnu.org>
+
 	* bindings/linuxlibc6/linux.lisp (substitution): map DEFCONSTANT
 
 2002-02-28  Sam Steingold  <sds@gnu.org>
