@@ -17,25 +17,22 @@
 .el .ne 3
 .IP "\\$1" \\$2
 ..
-.TH "CLISP" 1 "Last modified: 2004-03-17" "" "CLISP version 2.33"
+.TH "CLISP" 1 "Last modified: 2004-09-07" "" "CLISP version 2.33"
 .SH NAME
 clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 .SH "SYNOPSIS"
 .ad l
 .hy 0
 .HP 6
-\fBclisp\fR [\fB\-h\fR\ |\ \fB\-\-help\fR] [\fB\-\-version\fR] [\fB\-\-license\fR] [\fB\-B\ \fIlisp\-lib\-dir\fR\fR]
+\fBclisp\fR [\fB\fB\-h\fR\fR | \fB\fB\-\-help\fR\fR] [\fB\-\-version\fR] [\fB\-\-license\fR] [\fB\-B\ \fIlisp\-lib\-dir\fR\fR]
 #ifdef UNIX
 [\fB\-K\ \fIlinking\-set\fR\fR]
 #endif
 [\fB\-M\ \fImem\-file\fR\fR] [\fB\-m\ \fImem\-size\fR\fR]
-#ifndef NO_SP_MALLOC
-[\fB\-s\ \fIstack\-size\fR\fR]
-#endif
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 [\fB\-t\ \fItemp\-dir\fR\fR]
 #endif
-[\fB\-L\ \fIlanguage\fR\fR] [\fB\-N\ \fIlocale\-dir\fR\fR] [\fB\-E\fIdomain\fR\ \fIencoding\fR\fR] [[\fB\-q\fR\fB\-\-quiet\fR\fB\-\-silent\fR\fB\-v\fR\fB\-\-verbose\fR]] [\fB\-interactive\-debug\fR] [\fB\-repl\fR] [\fB\-w\fR] [\fB\-I\fR] [\fB\-ansi\fR\ |\ \fB\-traditional\fR] [\fB\-p\ \fIpackage\fR\fR] [\fB\-C\fR] [\fB\-norc\fR] [\fB\-i\ \fIinit\-file\fR\fR...] [\fB\-c\fR\ [\fB\-l\fR]\ \fIlisp\-file\fR\ [\fB\-o\ \fIoutput\-file\fR\fR]...] [\fB\-x\ \fIexpressions\fR\fR] [\fB\fIlisp\-file\fR\fR\ [\fB\fIargument\fR\fR...]]
+[\fB\-L\ \fIlanguage\fR\fR] [\fB\-N\ \fIlocale\-dir\fR\fR] [\fB\-E\fIdomain\fR\ \fIencoding\fR\fR] [\fB\fB\-q\fR\fR | \fB\fB\-\-quiet\fR\fR | \fB\fB\-\-silent\fR\fR | \fB\fB\-v\fR\fR | \fB\fB\-\-verbose\fR\fR] [\fB\-interactive\-debug\fR] [\fB\-repl\fR] [\fB\-w\fR] [\fB\-I\fR] [\fB\fB\-ansi\fR\fR | \fB\fB\-traditional\fR\fR] [\fB\-p\ \fIpackage\fR\fR] [\fB\-C\fR] [\fB\-norc\fR] [\fB\-i\ \fIinit\-file\fR\fR...] [\fB\-c\fR\ [\fB\-l\fR]\ \fIlisp\-file\fR\ [\fB\-o\ \fIoutput\-file\fR\fR]...] [\fB\-x\ \fIexpressions\fR\fR...] [\fB\fIlisp\-file\fR\fR\ [\fB\fIargument\fR\fR...]]
 .ad
 .hy
 
@@ -44,7 +41,7 @@ clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 
 
 .PP
-Invokes the Common Lisp interpreter and compiler\&. When called without arguments, executes the read\-eval\-print loop, in which expressions are in turn \fBREAD\fR from the standard input, \fBEVAL\fRuated by the lisp interpreter, and their results are \fBPRINT\fRed to the standard output\&. Invoked with \fB\-c\fR, compiles the specified lisp files to a platform\-independent bytecode that can be executed more efficiently\&.
+Invokes the \fBCommon Lisp\fR interpreter and compiler\&. When called without arguments, executes the read\-eval\-print loop, in which expressions are in turn \fBREAD\fR from the standard input, \fBEVAL\fRuated by the lisp interpreter, and their results are \fBPRINT\fRed to the standard output\&. Invoked with \fB\-c\fR, compiles the specified lisp files to a platform\-independent bytecode which can be executed more efficiently\&.
 
 
 
@@ -74,7 +71,21 @@ Directory \fIlisp\-lib\-dir\fR can be changed dynamically using the SYMBOL\-MACR
 #ifdef UNIX
 .TP
 \fB\-K\fR \fIlinking\-set\fR
-Specifies the linking set to be run\&. This is a directory (relative to the \fIlisp\-lib\-dir\fR) containing at least a main executable (runtime) and an initial memory image\&. Possible values are \fBbase\fR, \fBfull\fR\&. The default is \fBbase\fR\&.
+Specifies the linking set to be run\&. This is a directory (relative to the \fIlisp\-lib\-dir\fR) containing at least a main executable (runtime) and an initial memory image\&. Possible values are 
+
+.RS
+
+.TP
+\fBbase\fR
+the core \fBCLISP\fR
+
+.TP
+\fBfull\fR
+core plus all the modules with which this installation was built, see Section 31.2, &#8220;Extensions-2.2. External Modules&#8221;\&.
+
+.RE
+.IP
+ The default is \fBbase\fR\&.
 #endif
 .TP
 \fB\-M\fR \fImem\-file\fR
@@ -124,11 +135,6 @@ eventually uses the entire \fImem\-size\fR\&.
 #else
 allocates memory dynamically\&. \fImem\-size\fR is essentially ignored (except that it determines the Lisp STACK size)\&.
 #endif
-#ifndef NO_SP_MALLOC
-.TP
-\fB\-s\fR \fIstack\-size\fR
-Sets the size of the program stack (SP) \fBCLISP\fR allocates for itself\&. The syntax is the same as for \fB\-m\fR\&. Default is one eighth of \fImem\-size\fR\&. The argument is constrained between 40 KB and 8 MB\&.
-#endif
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 .TP
 \fB\-t\fR \fItemp\-dir\fR
@@ -140,13 +146,14 @@ Specifies the language \fBCLISP\fR uses to communicate with the user\&. This may
 #ifndef GNU_GETTEXT
 only \fBenglish\fR\&.
 #else
-one of \fBenglish\fR, \fBgerman\fR, \fBfrench\fR, \fBspanish\fR, \fBdutch\fR, \fBrussian\fR\&. Other languages may be specified through the environment variable \fBLANG\fR, provided the corresponding message catalog is installed\&.
+one of 
+\fBenglish\fR, \fBgerman\fR, \fBfrench\fR, \fBspanish\fR, \fBdutch\fR, \fBrussian\fR\&. Other languages may be specified through the environment variable \fBLANG\fR, provided the corresponding message catalog is installed\&.
 #endif
-The language may be changed dynamically using the symbol macro \fI*current\-language*\fR\&.
+The language may be changed dynamically using the symbol macro \fICUSTOM:*CURRENT\-LANGUAGE*\fR\&.
 
 .TP
 \fB\-N\fR \fIlocale\-dir\fR
-Specifies the base directory of locale files\&. \fBCLISP\fR will search its message catalogs in \fI\fIlocale\-dir\fR/\fIlanguage\fR/LC_MESSAGES/clisp\&.mo\fR\&. This directory may be changed dynamically using the symbol macro \fI*current\-language*\fR\&.
+Specifies the base directory of locale files\&. \fBCLISP\fR will search its message catalogs in \fI\fIlocale\-dir\fR/\fIlanguage\fR/LC_MESSAGES/clisp\&.mo\fR\&. This directory may be changed dynamically using the symbol macro \fICUSTOM:*CURRENT\-LANGUAGE*\fR\&.
 
 .TP
 \fB\-E\fR\fIdomain\fR \fIencoding\fR
@@ -156,23 +163,23 @@ Specifies the encoding used for the given domain, overriding the default which d
 
 .TP
 \fBfile\fR
-affecting \fI*default\-file\-encoding*\fR 
+affecting \fICUSTOM:*DEFAULT\-FILE\-ENCODING*\fR 
 
 .TP
 \fBpathname\fR
-affecting \fI*pathname\-encoding*\fR 
+affecting \fICUSTOM:*PATHNAME\-ENCODING*\fR 
 
 .TP
 \fBterminal\fR
-affecting \fI*terminal\-encoding*\fR 
+affecting \fICUSTOM:*TERMINAL\-ENCODING*\fR 
 
 .TP
 \fBforeign\fR
-affecting \fI*foreign\-encoding*\fR 
+affecting \fICUSTOM:*FOREIGN\-ENCODING*\fR 
 
 .TP
 \fBmisc\fR
-affecting \fI*misc\-encoding*\fR 
+affecting \fICUSTOM:*MISC\-ENCODING*\fR 
 
 .TP
 \fIblank\fR
@@ -184,7 +191,7 @@ affecting all of the above\&.
 
 .RS
 .Sh "Warning"
-Note that these values cannot be saved in a memory image\&. You have to use the init file or init\-function to set them on startup\&.
+Note that these values cannot be saved in a memory image\&. You have to use the RC file or init function to set them on startup\&.
 
 .RE
 
@@ -194,11 +201,11 @@ Change verbosity level: by default, \fBCLISP\fR displays a banner at startup and
 
 .TP
 \fB\-interactive\-debug\fR
-Override the batch mode imposed by \fB\-c\fR, \fB\-x\fR, and \fIlisp\-file\fR and allow interactive handling of \fBASSERT\fR and friends\&.
+Override the batch mode imposed by \fB\-c\fR, \fB\-x\fR, and \fIlisp\-file\fR: continuable  ERRORs are still turned into WARNINGs (and, in case of \fBASSERT\fR, you are immeditely asked for new values), but other ERRORs are handled interactively\&.
 
 .TP
 \fB\-repl\fR
-Start an interactive read\-eval\-print loop after processing the \fB\-c\fR, \fB\-x\fR, and \fIlisp\-file\fR options\&.
+Start an interactive read\-eval\-print loop after processing the \fB\-c\fR, \fB\-x\fR, and \fIlisp\-file\fR options and on any ERROR  \fBSIGNAL\fRed during that processing\&.
 
 .TP
 \fB\-w\fR
@@ -213,7 +220,7 @@ Furthermore, the GNU  readline library treats Tab as a normal self\-inserting ch
 
 .TP
 \fB\-ansi\fR
-Comply with the [ANSI CL standard] specification even where \fBCLISP\fR has been traditionally different\&. It sets the symbol macro \fI*ansi*\fR to \fBT\fR\&. See Section 29.9, &#8220;Extensions-1.9. Maximum ANSI CL compliance&#8221; for details\&.
+Comply with the [ANSI CL standard] specification even where \fBCLISP\fR has been traditionally different\&. It sets the symbol macro \fICUSTOM:*ANSI*\fR to \fBT\fR\&.
 
 .TP
 \fB\-traditional\fR
@@ -225,7 +232,7 @@ At startup the value of the variable \fI*PACKAGE*\fR will be set to the package 
 
 .TP
 \fB\-C\fR
-Compile when loading: at startup the value of the variable \fI*LOAD\-COMPILING*\fR will be set to \fBT\fR\&. Code being \fBLOAD\fRed will then be \fBCOMPILE\fRd on the fly\&. This results in slower loading, but faster execution\&.
+Compile when loading: at startup the value of the variable \fICUSTOM:*LOAD\-COMPILING*\fR will be set to \fBT\fR\&. Code being \fBLOAD\fRed will then be \fBCOMPILE\fRd on the fly\&. This results in slower loading, but faster execution\&.
 
 .TP
 \fB\-norc\fR
@@ -252,7 +259,7 @@ Specifies the output file or directory for the compilation of the last specified
 
 .TP
 \fB\-l\fR
-A bytecode \fBDISASSEMBLE\fR listing (\fI*\&.lis\fR) of the files being compiled will be produced\&. Useful only for debugging purposes\&. See the documentation of \fBCOMPILE\-FILE\fR for details\&.
+Produce a bytecode \fBDISASSEMBLE\fR listing (\fI*\&.lis\fR) of the files being compiled\&. Useful only for debugging\&. See Section 24.1.1, &#8220;Function COMPILE-FILE&#8221; for details\&.
 
 .TP
 \fB\-x\fR \fIexpressions\fR
@@ -260,11 +267,11 @@ Executes a series of arbitrary expressions instead of a read\-eval\-print loop\&
 
 .TP
 \fIlisp\-file\fR [ \fIargument\fR \&.\&.\&. ]
-Loads and executes a \fIlisp\-file\fR, as described in Script execution\&. There will be no read\-eval\-print loop\&. Before \fIlisp\-file\fR is loaded, the variable \fI*ARGS*\fR will be bound to a list of strings, representing the \fIargument\fRs\&.
+Loads and executes a \fIlisp\-file\fR, as described in Script execution\&. There will be no read\-eval\-print loop\&. Before \fIlisp\-file\fR is loaded, the variable \fIEXT:*ARGS*\fR will be bound to a list of strings, representing the \fIargument\fRs\&.
 #ifdef UNIX
 The first line of \fIlisp\-file\fR may start with \fB#!\fR, thus permitting \fBCLISP\fR to be used as a script interpreter\&.
 #endif
-If \fIlisp\-file\fR is \fB\-\fR, the \fI*STANDARD\-INPUT*\fR is used instead of a file\&. If \fIlisp\-file\fR is the empty string \fB""\fR or \fB"\-\-"\fR, the normal read\-eval\-print loop is entered, and the rest of the arguments is still available in \fI*ARGS*\fR, for parsing by the init\-function of the current image\&. This option must be the last one\&. No RC file will be executed\&.
+If \fIlisp\-file\fR is \fB\-\fR, the \fI*STANDARD\-INPUT*\fR is used instead of a file\&. If \fIlisp\-file\fR is the empty string \fB""\fR or \fB"\-\-"\fR, the normal read\-eval\-print loop is entered, and the rest of the arguments is still available in \fIEXT:*ARGS*\fR, for parsing by the init function of the current image\&. This option must be the last one\&. No RC file will be executed\&.
 
 
 
@@ -287,7 +294,7 @@ get context\-sensitive on\-line help, see Chapter 25, Environment [CLHS-25]\&.
 
 .TP
 (\fBAPROPOS\fR \fIname\fR)
-list the symbols related to \fIname\fR\&.
+list the symbols matching to \fIname\fR\&.
 
 .TP
 (exit), (quit), (bye)
@@ -338,14 +345,19 @@ Otherwise, the symbol you are currently typing is completed\&.
 
 #ifdef UNIX
 .TP
-\fBclisp\fR on UNIX
+\fBclisp\fR
 startup driver (a script or an executable)
 #endif
+#if defined(WIN32_NATIVE)
 .TP
-#if defined(UNIX)
+\fBclisp\&.bat\fR
+startup driver
+#endif
+.TP
+#if defined(UNIX) && !defined(UNIX_CYGWIN32)
 \fIlisp\&.run\fR,
 #endif
-#if defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 \fIlisp\&.exe\fR
 #endif
 main executable (runtime)
@@ -356,7 +368,7 @@ initial memory image
 
 .TP
 \fIconfig\&.lisp\fR
-site\-dependent configuration (should have been customized before \fBCLISP\fR was built); see Section 29.11, &#8220;Extensions-1.11. Customizing CLISP behavior.&#8221; 
+site\-dependent configuration (should have been customized before \fBCLISP\fR was built); see Section 30.11, &#8220;Extensions-1.11. Customizing CLISP behavior.&#8221; 
 
 .TP
 \fI*\&.lisp\fR
@@ -372,7 +384,7 @@ lisp source library information, generated by \fBCOMPILE\-FILE\fR, see Section 2
 
 .TP
 \fI*\&.c\fR
-C code, compiled from lisp source by \fBCLISP\fR (see Section 30.3, &#8220;Extensions-2.3. The Foreign Function Call Facility&#8221;)
+C code, compiled from lisp source by \fBCLISP\fR (see Section 31.3, &#8220;Extensions-2.3. The Foreign Function Call Facility&#8221;)
 
 #ifdef HAVE_ENVIRONMENT
 .SH "ENVIRONMENT"
@@ -411,7 +423,7 @@ are used for determining the value of the function \fBUSER\-HOMEDIR\-PATHNAME\fR
 #ifdef WIN32_NATIVE
 \fBCOMSPEC\fR
 #endif
-is used to find the interactive command interpreter called by \fBSHELL\fR\&.
+is used to find the interactive command interpreter called by \fBEXT:SHELL\fR\&.
 #ifdef UNIX
 .TP
 \fBTERM\fR
@@ -436,7 +448,7 @@ for \fBeditor\-name\fR in \fIconfig\&.lisp\fR\&.
 
 .TP
 \fBLOGICAL_HOST_\fIhost\fR_FROM\fR, \fBLOGICAL_HOST_\fIhost\fR_TO\fR, \fBLOGICAL_HOST_\fIhost\fR\fR
-for \fBLOAD\-LOGICAL\-PATHNAME\-TRANSLATIONS\fR
+for \fICUSTOM:*LOAD\-LOGICAL\-PATHNAME\-TRANSLATIONS\-DATABASE*\fR
 
 #endif
 .SH "SEE ALSO"
@@ -470,7 +482,7 @@ What is your platform (\fB\fBuname\fR \-a\fR on a UNIX system)? Compiler version
 Where did you get the sources? When? (Absolute dates are preferred over the relative ones)\&.
 .TP
 3.
-How did you build \fBCLISP\fR? (What command, options &c\&.) Please do a clean build (remove your build directory and build \fBCLISP\fR with \fB"\&./configure \-\-build build"\fR or at least do a \fB"make distclean"\fR before \fB"make"\fR)\&. If you are reporting a crash (segmentation fault, bus error, core dump etc), please do \fB"\&./configure \-\-with\-debug \-\-build build\-g"\fR and report the backtrace\&.
+How did you build \fBCLISP\fR? (What command, options &c\&.) Please do a clean build (remove your build directory and build \fBCLISP\fR with \fB"\&./configure \-\-build build"\fR or at least do a \fB"make distclean"\fR before \fB"make"\fR)\&. If you are reporting a ``hard crash'' (segmentation fault, bus error, core dump etc), please do \fB"\&./configure \-\-with\-debug \-\-build build\-g ; cd build\-g; gdb"\fR and report the backtrace\&. If the crash is in the \fBfull\fR image, issue the \fBfull\fR command at the \fBgdb\fR prompt before \fBrun\fRning \fBCLISP\fR\&.
 .TP
 4.
 If you are using pre\-built binaries, the problem is likely to be in the incompatibilities between the platform on which the binary was built and yours; please try compiling the sources\&.
@@ -500,7 +512,7 @@ No on\-line documentation beyond \fBAPROPOS\fR and \fBDESCRIBE\fR is available\&
 .TP
 #ifdef UNIX_COHERENT
 \(bu
-\fI*KEYBOARD\-INPUT*\fR does not recognize Control-S and Control-Q\&.
+\fIEXT:*KEYBOARD\-INPUT*\fR does not recognize Control-S and Control-Q\&.
 #endif
 .LP
 
