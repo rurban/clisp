@@ -2632,14 +2632,33 @@ LISPFUNN(class_gethash,2)
 {/* (CLOS::CLASS-GETHASH ht object) is like (GETHASH (CLASS-OF object) ht). */
   var object ht = check_hashtable(STACK_1); /* hashtable argument */
   C_class_of();                 /* value1 := (CLASS-OF object) */
-  var gcv_object_t* KVptr;
-  var gcv_object_t* Iptr;
-  /* search key value1 in the hash-table: */
-  if (hash_lookup(ht,value1,&KVptr,&Iptr)) { /* -> Value as value: */
-    VALUES2(KVptr[1], T); /* and T as the 2nd value */
-  } else {                      /* not found -> NIL as value */
+  var object clas = value1;
+  if (!ht_validp(TheHashtable(ht))) /* hash-table must still be reorganized */
+    ht = rehash(ht);
+  {
+    var uint32 code =           /* calculate hashcode of the class */
+      posfixnum_to_L(TheClass(clas)->hashcode);
+    var uintL hashindex;
+    divu_3232_3232(code,TheHashtable(ht)->ht_size, (void),hashindex = );
+    var object kvtable = TheHashtable(ht)->ht_kvtable;
+    var gcv_object_t* Nptr =      /* pointer to the current entry */
+      &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex];
+    var gcv_object_t* kvt_data = TheHashedAlist(kvtable)->hal_data;
+    while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
+      var uintL index = posfixnum_to_L(*Nptr); /* next index */
+      var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
+        kvt_data + 3*index;
+      /* compare key */
+      if (eq(KVptr[0],clas)) {
+        /* found */
+        VALUES2(KVptr[1], T); goto done;
+      }
+      Nptr = &KVptr[2];         /* pointer to index of next entry */
+    }
+    /* not found */
     VALUES2(NIL, NIL); /* NIL as the 2nd value */
   }
+ done:
   skipSTACK(1);
 }
 

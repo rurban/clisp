@@ -343,7 +343,7 @@
                     (setq ht-init
                           `(MAKE-HASH-TABLE
                              ; :KEY-TYPE '(CONS ... CLASS ...) :VALUE-TYPE 'FUNCTION
-                             :TEST (FUNCTION ,(if (eql n 1) 'EQ 'EQUAL)))
+                             :TEST (FUNCTION ,(if (eql n 1) 'EXT:STABLEHASH-EQ 'EQUAL)))
                           ht-key-binding
                           `((,tuple-var
                              ,(let ((tuple-fun (hash-tuple-function n)))
@@ -381,7 +381,7 @@
                         ht-init
                         `(MAKE-HASH-TABLE
                            ; :KEY-TYPE '(CONS ... CLASS ...) :VALUE-TYPE 'FUNCTION
-                           :TEST (FUNCTION ,(if (eql n 1) 'EQ 'EQUAL)))
+                           :TEST (FUNCTION ,(if (eql n 1) 'EXT:STABLEHASH-EQ 'EQUAL)))
                         em-expr
                         (if (eql n 1) ; whatever is faster
                           ;; `(GETHASH ,@class-of-exprs ,ht-var) ==
