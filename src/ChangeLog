@@ -1,3 +1,17 @@
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
+	Generalize the assert-restart-no-prompts hack.
+	* condition.lisp (restart): Add slot 'meaningfulp'.
+	(make-restart-form): Take an additional meaningfulp argument.
+	(restart-bind, expand-restart-case): Accept MEANINGFULP restart option.
+	(assert-restart-no-prompts): Remove function.
+	(simple-assert-failed): Mark continue restart as not meaningful.
+	(check-value, retry-function-call): Remove useless option from RETRY
+	restart - useless since 2004-06-03.
+	(maybe-continue): Test meaningfulp instead of comparing the interactive
+	function against assert-restart-no-prompts.
+	* reploop.lisp (break-loop): Likewise.
+
 2005-01-10  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* modules/syscalls/calls.c (CRYPT, ENCRYPT, SETKEY): 
