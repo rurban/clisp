@@ -4061,6 +4061,11 @@ functions are provided:</para>
 
 <para>&close; ignores its &abort-k; argument.</para>
 
+<para>&get-output-stream-string; returns the same value after
+ &close; as it would before it.</para>
+
+<para>&close; on already closed stream does nothing and returns &t;</para>
+
 </section>
 
 <section id="broadcast-stream"><title>Class &broadcast-stream-t;</title>
