@@ -138,31 +138,35 @@
                             &body body)
   "Write some HTML to an http client on socket stream RAW.
 Supplies some HTTP/1.0 headers and calls `with-html-output'."
-  (with-gensyms ("HTTP-" string stream sock header line dbg alive)
+  (with-gensyms ("HTTP-" string vector enc stream sock header line dbg alive)
     (remf opts :keep-alive) (remf opts :debug)
     (remf opts :return-code) (remf opts :return-name)
     `(let* ((,sock ,raw)
             (,dbg ,debug) (,alive ,keep-alive)
             (,string (with-output-to-string (,stream)
                        (with-html-output (,var ,stream ,@opts) ,@body)))
+            (,enc (stream-external-format ,sock))
+            (,vector (ext:convert-string-to-bytes ,string ,enc))
             (,header (list (format nil "HTTP/1.0 ~d ~a"
                                    ,return-code ,return-name)
                            "Content-type: text/html"
-                           (format nil "Content-length: ~d" (length ,string))
+                           (format nil "Content-length: ~d" (length ,vector))
                            (format nil "Connection: ~:[close~;keep-alive~]"
                                    ,alive))))
-      (dolist (,line ,header)
-        (write-line ,line ,sock)
-        (when (and ,dbg (> ,dbg 0))
-          (format t "<- ~a~%" ,line)))
-      (terpri ,sock)
-      (write-line ,string ,sock)
-      (when (and ,dbg (> ,dbg 3))
-        (format t "<- ~s~%" ,string))
-      (unless ,alive
-        (when (and ,dbg (> ,dbg 0))
-          (format t "~s: closing ~s~%" 'with-http-output ,sock))
-        (close ,sock)))))
+       (dolist (,line ,header)
+         (write-line ,line ,sock)
+         (when (and ,dbg (> ,dbg 0))
+           (format t "<- ~a~%" ,line)))
+       (terpri ,sock)
+       (setf (stream-element-type ,sock) 'unsigned-byte)
+       (write-byte-sequence ,vector ,sock)
+       (setf (stream-element-type ,sock) 'character)
+       (when (and ,dbg (> ,dbg 3))
+         (format t "<- ~s~%" ,string))
+       (unless ,alive
+         (when (and ,dbg (> ,dbg 0))
+           (format t "~s: closing ~s~%" 'with-http-output ,sock))
+         (close ,sock)))))
 
 (defun flush-http (sock)
   "Read everything from the HTTP socket SOCK, until a blank line."
@@ -555,7 +559,6 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
         (when (> debug 0)
           (format t "~s: connection: ~s (keep-alive: ~s)~%"
                   'http-command (subseq line 12) keep-alive))
-        #+discard-keep-alive
         (when keep-alive
           (setq keep-alive nil)
           (when (> debug 0)
