@@ -11,6 +11,7 @@ This file presents
     SINIX-N 5.43
     IRIX 6.2
     IRIX 6.2 and 6.3
+    IRIX 6.5
     NeXT running NeXTstep 3.3
     Apple PowerPC running MacOS X Server
     AIX
@@ -513,6 +514,18 @@ On IRIX 6.2 and 6.3:
 The configuration of ffcall hangs during "checking for working mprotect".
 The running `conftest' process is unkillable. No workaround is known.
 The problem seems to be gone in IRIX 6.4.
+
+
+On IRIX 6.5:
+
+The /bin/sh has problem with autoconf generated configure scripts. You
+have to first install GNU bash and point the CONFIG_SHELL environment
+variable to it:
+  $ CONFIG_SHELL=/bin/bash
+  $ export CONFIG_SHELL
+
+With the C compiler 7.2.1 we were not able to make CLISP work. So use
+GNU gcc instead.
 
 
 On NeXT running NeXTstep 3.3:
