@@ -1,6 +1,7 @@
 # Listenfunktionen von CLISP
 # Bruno Haible 1990-2001
 # Marcus Daniels 8.4.1994
+# Sam Steingold 1999-2001
 
 #include "lispbibl.c"
 
@@ -1133,16 +1134,17 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
     var object sublist = popSTACK();
     # Suche, wo sublist in list beginnt:
     var uintL new_len = 0;
+    var bool found_p = false;
     {
       var object listr = STACK_0;
       #ifndef X3J13_175
-      until (endp(listr) || eq(listr,sublist)) {
+      until ((found_p = eql(listr,sublist)) || endp(listr)) {
         listr = Cdr(listr); new_len++;
       }
       #else
       if (!listp(listr))
         fehler_list(listr);
-      until (atomp(listr) || eq(listr,sublist)) {
+      until ((found_p = eql(listr,sublist)) || atomp(listr)) {
         listr = Cdr(listr); new_len++;
       }
       #endif
@@ -1152,8 +1154,13 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
     # Listenelemente einzeln kopieren, bis new_list voll ist:
     var object new_lauf = new_list; # läuft durch die neue Liste
     var object old_lauf = popSTACK(); # läuft durch die alte Liste
-    until (atomp(new_lauf)) {
+    if (consp(new_lauf)) loop { # loop!
       Car(new_lauf) = Car(old_lauf);
+      if (atomp(Cdr(new_lauf))) {
+        if (!found_p)
+          Cdr(new_lauf) = Cdr(old_lauf);
+        break;
+      }
       old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
     }
     value1 = new_list; mv_count=1;

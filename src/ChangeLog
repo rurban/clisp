@@ -1,3 +1,7 @@
+2001-07-19  Sam Steingold  <sds@gnu.org>
+
+	* list.d (ldiff): handle dotted lists correctly [bug #442739]
+
 2001-07-16  Sam Steingold  <sds@gnu.org>
 
 	* version.h: 2.27 is released
