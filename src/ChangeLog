@@ -1,5 +1,11 @@
 2005-03-07  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (UL_to_I) [DEBUG_GCSAFETY]: Define as a function, not as
+	a macro.
+	* intelem.d (UL_to_I): Update.
+
+2005-03-07  Bruno Haible  <bruno@clisp.org>
+
 	* intelem.d (Q_to_I): Use minus_bit instead of -bit, to avoid a gcc
 	warning.
 

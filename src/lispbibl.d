@@ -14329,7 +14329,13 @@ extern maygc object L_to_I (sint32 wert);
 # < result: Integer with that value.
 # can trigger GC
 #if (intLsize<=oint_data_len)
-  #define UL_to_I(wert)  (GCTRIGGER(), fixnum((uintL)(wert)))
+  #ifdef DEBUG_GCSAFETY
+    static inline maygc object UL_to_I (uintL wert) {
+      return fixnum(wert);
+    }
+  #else
+    #define UL_to_I(wert)  fixnum((uintL)(wert))
+  #endif
 #else
   extern maygc object UL_to_I (uintL wert);
 #endif
