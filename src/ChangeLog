@@ -1,3 +1,8 @@
+2000-11-13  Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d (UNIX_MACOSX): Renamed from UNIX_RHAPSODY.
+          (UNIX_RHAPSODY, UNIX_DARWIN): New macros.
+
 2000-11-12  Bruno Haible  <haible@clisp.cons.org>
 
         * lispbibl.d: Undefine TIME_ABSOLUTE and TIME_RELATIVE first.
