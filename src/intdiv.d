@@ -453,31 +453,6 @@
     skipSTACK(5); return r;
   }
 
-/* (EXT:MOD-EXPT base exponent modulo) = (MOD (EXPT base exponent) modulus)
- see I_I_expt_I() in intmal.d for algorithm description */
-local object I_I_I_mod_expt_I (object base, object exponent, object modulus)
-{
-  pushSTACK(base); pushSTACK(exponent); pushSTACK(modulus);
-  while (!I_oddp(exponent)) {
-    STACK_2 = I_square_I(STACK_2); /* base := base * base */
-    STACK_2 = I_I_mod_I(STACK_2,STACK_0); /* base := base mod modulus */
-    STACK_1 = exponent = I_I_ash_I(STACK_1,Fixnum_minus1); /* exponent /= 2 */
-  }
-  pushSTACK(STACK_2);           /* result := base */
-  /* STACK layout: base exponent modulus result */
-  while (!eq(exponent=STACK_2,Fixnum_1)) {
-    STACK_2 = I_I_ash_I(exponent,Fixnum_minus1); /* exponent /= 2 */
-    var object a = STACK_3 = I_square_I(STACK_3); /* base := base * base */
-    a = STACK_3 = I_I_mod_I(a,STACK_1); /* base := base mod modulus */
-    if (I_oddp(STACK_2))
-      /* we do not take MOD here because this will not grow too much anyway */
-      STACK_0 = I_I_mal_I(a,STACK_0); /* result *= base */
-  }
-  var object result = I_I_mod_I(STACK_0,STACK_1);
-  skipSTACK(4);
-  return result;
-}
-
 # I_I_rem_I(x,y) = (rem x y), wo x,y Integers sind.
 # can trigger GC
   local object I_I_rem_I (object x, object y);
@@ -680,3 +655,34 @@ local object I_I_I_mod_expt_I (object base, object exponent, object modulus)
     STACK_4 = STACK_1; STACK_3 = STACK_0; skipSTACK(3); # Stack aufräumen
   }
 
+/* (EXT:MOD-EXPT base exponent modulo) = (MOD (EXPT base exponent) modulus)
+   where exponent >= 0. */
+local object I_I_I_mod_expt_I (object base, object exponent, object modulus)
+{
+  /* See I_I_expt_I() in intmal.d for algorithm description.
+     A much better algorithm is [Cohen, Algorithm 1.2.1.], implemented in
+     cln-1.1.5/src/modinteger/cl_MI_std.h. */
+  pushSTACK(base); pushSTACK(exponent); pushSTACK(modulus);
+  if (eq(exponent,Fixnum_0)) {
+    pushSTACK(Fixnum_1); /* result := 1 */
+  } else {
+    while (!I_oddp(exponent)) {
+      STACK_2 = I_square_I(STACK_2); /* base := base * base */
+      STACK_2 = I_I_mod_I(STACK_2,STACK_0); /* base := base mod modulus */
+      STACK_1 = exponent = I_I_ash_I(STACK_1,Fixnum_minus1); /* exponent /= 2 */
+    }
+    pushSTACK(STACK_2);           /* result := base */
+    /* STACK layout: base exponent modulus result */
+    while (!eq(exponent=STACK_2,Fixnum_1)) {
+      STACK_2 = I_I_ash_I(exponent,Fixnum_minus1); /* exponent /= 2 */
+      var object a = STACK_3 = I_square_I(STACK_3); /* base := base * base */
+      a = STACK_3 = I_I_mod_I(a,STACK_1); /* base := base mod modulus */
+      if (I_oddp(STACK_2))
+        /* we do not take MOD here because this will not grow too much anyway */
+        STACK_0 = I_I_mal_I(a,STACK_0); /* result *= base */
+    }
+  }
+  var object result = I_I_mod_I(STACK_0,STACK_1);
+  skipSTACK(4);
+  return result;
+}

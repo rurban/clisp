@@ -1,3 +1,8 @@
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
+	* intdiv.d (I_I_I_mod_expt_I): Avoid endless loop when the exponent is
+	= 0.
+
 2004-02-27  Bruno Haible  <bruno@clisp.org>
 
 	* error.d (check_pos_integer): Fix typo in error message.
