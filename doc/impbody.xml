@@ -388,7 +388,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   &logical-pathname-t;, &random-state-t;, &byte-t;</simpara></listitem>
  <listitem><simpara><classname>SPECIAL-OPERATOR</classname>,
   <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;, &encoding;,
-  &foreign-pointer;, <classname>FOREIGN-ADDRESS</classname>,
+  &foreign-pointer-t;, &foreign-address-t;,
   &foreign-variable;;, &foreign-function;</simpara></listitem>
  <listitem><simpara>&weak-pointer;,
           <link linkend="reader"><classname>READ-LABEL</classname></link>,
@@ -4473,9 +4473,9 @@ functions are provided:
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   <thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
  <row><entry><literal>#&lt;&type-r; ...&gt;</literal></entry>
-    <entry>all structures lacking a keyword constructor</entry></row>
+    <entry>all &structure-object-t;s lacking a keyword constructor</entry></row>
  <row><entry><literal>#&lt;ARRAY &type-r; &dimensions-r;&gt;</literal></entry>
-    <entry>all arrays except strings, if &print-array-var; is
+    <entry>all &array-t;s except &string-t;s, if &print-array-var; is
        &nil;</entry></row>
  <row><entry><literal>#&lt;SYSTEM-FUNCTION
        &name-r;&gt;</literal></entry>
@@ -4498,25 +4498,25 @@ functions are provided:
     <entry>frame pointer which has become invalid on exit from the
        corresponding &block; or &tagbody;</entry></row>
  <row><entry><literal>#&lt;...-STREAM ...&gt;</literal></entry>
-    <entry>stream</entry></row>
+    <entry>&stream-t;</entry></row>
  <row><entry><literal>#&lt;PACKAGE
        &name-r;&gt;</literal></entry>
-    <entry>package</entry></row>
+    <entry>&package-t;</entry></row>
  <row><entry><literal>#&lt;HASH-TABLE #x...&gt;</literal></entry>
-    <entry>hash table, if &print-array-var; is &nil;</entry></row>
+    <entry>&hash-table-t;, if &print-array-var; is &nil;</entry></row>
  <row><entry><literal>#&lt;READTABLE #x...&gt;</literal></entry>
-    <entry>readtable</entry></row>
+    <entry>&readtable-t;</entry></row>
  <row><entry><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></entry>
     <entry>&symbol-macro; handler</entry></row>
 <!-- #ifdef FOREIGN -->
- <row><entry><literal>#&lt;FOREIGN-POINTER #x...&gt;</literal></entry>
+ <row><entry><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></entry>
     <entry>foreign pointer
       <emphasis>(Platform dependent: &unix;, &win32;, &amiga;
          platforms only.)</emphasis>
      </entry></row>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
- <row><entry><literal>#&lt;FOREIGN-ADDRESS #x...&gt;</literal></entry>
+ <row><entry><literal>#&lt;&foreign-address-t; #x...&gt;</literal></entry>
     <entry>foreign address
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </entry></row>
@@ -4592,11 +4592,11 @@ functions are provided:
 
 <para>When the value of <literal role="sexp">(&readtable-case;
  <replaceable>readtable</replaceable>)</literal> is
- <constant>:invert</constant>, it applies to the package name and the
+ <constant>:INVERT</constant>, it applies to the package name and the
  symbol name of a symbol separately (not to the entire token at once).
  An alternative to the use of &readtable-case; is the use of the
- &case-sensitive-k; option to &make-package;,
- &in-package; and &defpackage;.</para>
+ &case-sensitive-k; option to &make-package;, &in-package; and
+ &defpackage;.</para>
 
 </section>
 
@@ -4618,32 +4618,30 @@ functions are provided:
 <section id="compilefile"><title>Function &compile-file;</title>
 
 <para><literal role="sexp">(&compile-file;
-          <replaceable>input-file</replaceable> &key-amp; :OUTPUT-FILE
-          :LISTING &warnings-k; &verbose-k; &print-k;)</literal>
+  <replaceable>input-file</replaceable> &key-amp; &outfile-k;
+  :LISTING &warnings-k; &verbose-k; &print-k;)</literal>
 compiles a file to platform-independent bytecode.</para>
 
 <variablelist id="compile-file-arguments">
 <varlistentry><term><replaceable>input-file</replaceable></term>
- <listitem><simpara>should be a pathname/string/symbol.
+ <listitem><simpara>should be a &path-des;.
  </simpara></listitem></varlistentry>
-<varlistentry><term><constant>:OUTPUT-FILE</constant></term>
- <listitem><simpara>should be &nil; or &t; or a pathname/string/symbol
- or an output-stream.  The default is &t;.
- </simpara></listitem></varlistentry>
+<varlistentry><term>&outfile-k;</term>
+ <listitem><simpara>should be &nil; or &t; or a &path-des; or an
+   &out-s;.  The default is &t;.</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:LISTING</constant></term>
- <listitem><simpara>should be &nil; or &t; or a pathname/string/symbol
- or an output-stream.  The default is &nil;.
- </simpara></listitem></varlistentry>
+ <listitem><simpara>should be &nil; or &t; or a &path-des; or an
+   &out-s;.  The default is &nil;.</simpara></listitem></varlistentry>
 <varlistentry><term>&warnings-k;</term>
  <listitem><simpara>specifies whether warnings should also appear on the
- screen.</simpara></listitem></varlistentry>
+   screen.</simpara></listitem></varlistentry>
 <varlistentry><term>&verbose-k;</term>
  <listitem><simpara>specifies whether error messages should also appear
- on the screen.</simpara></listitem></varlistentry>
+   on the screen.</simpara></listitem></varlistentry>
 <varlistentry><term>&print-k;</term>
  <listitem><simpara>specifies whether an indication which forms are
- being compiled should appear on the screen.
- </simpara></listitem></varlistentry>
+   being compiled should appear on the screen.
+</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>The variables <emphasis
@@ -4661,12 +4659,10 @@ compiles a file to platform-independent bytecode.</para>
   <thead><row><entry>File</entry><entry>When</entry>
   <entry>Default file type</entry><entry>Contents</entry></row></thead><tbody>
  <row><entry>output file</entry>
-   <entry>only if <constant>:OUTPUT-FILE</constant> is not &nil;</entry>
-   <entry>&fasl-file;</entry>
+   <entry>only if &outfile-k; is not &nil;</entry><entry>&fasl-file;</entry>
    <entry>can be loaded using the &load; function</entry></row>
  <row><entry>auxiliary output file</entry>
-   <entry>only if <constant>:OUTPUT-FILE</constant> is not &nil;</entry>
-   <entry>&lib-file;</entry>
+   <entry>only if &outfile-k; is not &nil;</entry><entry>&lib-file;</entry>
    <entry>used by &compile-file; when compiling a &require; form referring
     to the input file</entry></row>
  <row><entry>listing file</entry>
@@ -4674,7 +4670,7 @@ compiles a file to platform-independent bytecode.</para>
    <entry><filename>#P".lis"</filename></entry>
    <entry>disassembly of the output file</entry></row>
  <row><entry>&c-lang; output file</entry>
-   <entry>only if <constant>:OUTPUT-FILE</constant> is not &nil;</entry>
+   <entry>only if &outfile-k; is not &nil;</entry>
    <entry><filename>#P".c"</filename></entry>
    <entry>foreign function interface; this file is deleted if it is
     empty</entry></row>
@@ -4689,8 +4685,8 @@ the first one!</para></warning>
 </section>
 
 <section id="compile-file-path">
-   <title>Function &compile-file-pathname;</title>
-<para>The default for the <constant>:OUTPUT-FILE</constant> argument is
+ <title>Function &compile-file-pathname;</title>
+<para>The default for the &outfile-k; argument is
  &t;, which means &fasl-file;.</para></section>
 
 <section id="require"><title>Function &require;</title>
@@ -5419,8 +5415,7 @@ exhaust the available line length.</para></formalpara>
     writes a dribble initialization note to &path-r;,
     and return the &ds-t; (the second value is the &target-r; &stream-t;);
     otherwise &warn; that no appropriate action may be taken.
-    &path-r; may be an open &out-s; or a
-    <link linkend="path-des">pathname designator</link>.
+    &path-r; may be an open &out-s; or a &path-des;.
     See <link linkend="dribble-example">above</link> for the sample usage.
     See also <filename>#P"src/dribble.lisp"</filename> in the &clisp;
     source tree.
