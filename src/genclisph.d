@@ -7,9 +7,10 @@
 #include "lispbibl.c"
 
 /*
- * Print numbers as strings, like with printf().
- * Only numbers of type `unsigned long long' need work.
- * We avoid presuming <stdarg.h> or <varargs.h>.
+ * Printing of strings with embedded numbers, like with printf().
+ * The major difference is that the numbers can also be of type
+ * 'unsigned long long' (which printf() does not support in a portable way).
+ * We don't even need to assume the existence of <stdarg.h>.
  */
 
 typedef struct {
