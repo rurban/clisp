@@ -15985,6 +15985,25 @@ local object test_socket_stream(obj,check_open)
           );
   }
 
+#define HANDLE_SET(stream)                                      \
+  { object obj = stream;                                        \
+    test_socket_stream(obj,TRUE);                               \
+    { SOCKET handle = TheSocket(TheStream(obj)->strm_ichannel); \
+      FD_SET(handle,&exceptfds);                                \
+      if (input_stream_p(obj)) FD_SET(handle,&readfds);         \
+      if (output_stream_p(obj)) FD_SET(handle,&writefds); }}
+
+#define HANDLE_ISSET(stream,res)                                          \
+  { SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);          \
+    if (FD_ISSET(handle,&exceptfds)) res = S(Kerror);                     \
+    else {                                                                \
+      boolean wr=FD_ISSET(handle,&writefds),                              \
+        rd=FD_ISSET(handle,&readfds)&&ls_avail_p(stream_listen(stream));  \
+      if      ( rd && !wr) res = S(Kinput);                               \
+      else if (!rd &&  wr) res = S(Koutput);                              \
+      else if ( rd &&  wr) res = S(Kio);                                  \
+      else                 res = NIL; }}
+
 LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
 # (SOCKET-STATUS stream-list [seconds [microseconds]])
   {
@@ -15998,44 +16017,36 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
       var fd_set readfds, writefds, exceptfds;
       var object all = STACK_2;
       FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&exceptfds);
-      { object list = all;
+      if (listp(all)) {
+        object list = all;
         for(index = 0; !nullp(list); list = Cdr(list)) {
           if (!listp(list)) fehler_list(list);
-          var object obj = Car(list);
-          test_socket_stream(obj,TRUE);
-          var SOCKET handle = TheSocket(TheStream(obj)->strm_ichannel);
-          FD_SET(handle,&exceptfds);
-          if (input_stream_p(obj)) FD_SET(handle,&readfds);
-          if (output_stream_p(obj)) FD_SET(handle,&writefds);
+          HANDLE_SET(Car(list));
           if (++index > FD_SETSIZE) {
             pushSTACK(fixnum(FD_SETSIZE));
             pushSTACK(all);
             pushSTACK(S(socket_status));
             fehler(error,
-                   GETTEXT("~: list ~ too long (~ maximum)")
+                   GETTEXT("~: list ~ is too long (~ maximum)")
                    );
-        }}}
+          }}
+      } else { HANDLE_SET(all); }
       ret = select(FD_SETSIZE,&readfds,&writefds,&exceptfds,timeout_ptr);
       if (ret < 0) {
         if (sock_errno_is(EINTR)) {
           end_system_call(); goto restart_select;
         }
-        SOCK_error();
+        if (!sock_errno_is(EBADF)) { SOCK_error(); }
       }
-      { object list = all;
+      if (listp(all)) {
+        object list = all;
         for(; !nullp(list); list = Cdr(list)) {
-          var SOCKET handle = TheSocket(TheStream(Car(list))->strm_ichannel);
-          if (FD_ISSET(handle,&exceptfds)) pushSTACK(S(Kerror));
-          else {
-            boolean rd = FD_ISSET(handle,&readfds),
-              wr = FD_ISSET(handle,&writefds);
-            if (rd && !wr) pushSTACK(S(Kinput));
-            elif (!rd && wr) pushSTACK(S(Koutput));
-            elif (rd && wr) pushSTACK(S(Kio));
-            else pushSTACK(NIL);
-       }}}
+          HANDLE_ISSET(Car(list),value1);
+          pushSTACK(value1);
+        }
+        value1 = listof(index);
+      } else HANDLE_ISSET(all,value1);
       end_system_call();
-      value1 = listof(index);
     }
     #else
     value1 = NIL;
@@ -16043,6 +16054,9 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
     mv_count = 1;
     skipSTACK(3);
   }
+
+#undef HANDLE_SET
+#undef HANDLE_ISSET
 
 LISPFUNN(socket_stream_port,1)
 # (SOCKET-STREAM-PORT socket-stream)
