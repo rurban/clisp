@@ -349,7 +349,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
 
 ;;; Exportierungen:
 (export
- '(;; Namen von Funktionen und Macros:
+ '(;; names of functions and macros:
    slot-value slot-boundp slot-makunbound slot-exists-p with-slots
    with-accessors
    find-class class-of defclass defmethod call-next-method next-method-p
@@ -361,11 +361,12 @@ space safety compilation-speed debug declaration dynamic-extent compile
    print-object describe-object
    make-instance allocate-instance initialize-instance reinitialize-instance
    shared-initialize
-   ;; Namen von Klassen:
+   make-load-form make-load-form-saving-slots
+   ;; names of classes:
    class standard-class structure-class built-in-class
    standard-object structure-object
    generic-function standard-generic-function method standard-method
-   ;; andere Symbole:
+   ;; other symbols:
    standard)) ; Methoden-Kombination
 
 (use-package '("CLOS") "COMMON-LISP")
@@ -1948,6 +1949,20 @@ space safety compilation-speed debug declaration dynamic-extent compile
 (LOAD "disassem")               ; Disassembler
 
 (LOAD "condition") ;; Conditions
+
+;; this should be in clos.lisp, but it uses `handler-bind'
+;; so there is no good place for this function
+(defun clos::make-init-form (object)
+  (handler-bind ((error #'(lambda (err)
+                            (declare (ignore err))
+                            (return-from clos::make-init-form nil))))
+    (multiple-value-bind (cre-form ini-form) (make-load-form object)
+      (if ini-form
+          (let ((var (gensym "INIT-")))
+            `(let ((,var ,cre-form))
+              ,(nsubst var object ini-form)
+              ,var))
+          cre-form))))
 
 ;; At this point the core Common Lisp is complete.
 

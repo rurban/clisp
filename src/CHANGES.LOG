@@ -1,6 +1,9 @@
 User visible changes
 --------------------
 
+* ANSI CL functions MAKE-LOAD-FORM and MAKE-LOAD-FORM-SAVING-SLOTS
+  are implemented.
+
 * ANSI CL variable *PRINT-LINES* is implemented.
 
 * The functions WRITE and WRITE-TO-STRING take the :LINES keyword argument.

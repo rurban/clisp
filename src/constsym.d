@@ -1371,6 +1371,7 @@ LISPSYM(backquote_level,"*BACKQUOTE-LEVEL*",system) # als Variable in IO
 LISPSYM(backquote_reader,"`-READER",system) # als Funktion für IO
 LISPSYM(comma_reader,",-READER",system) # als Funktion für IO
 LISPSYM(compiling,"*COMPILING*",system) # als Variable in IO
+LISPSYM(make_init_form,"MAKE-INIT-FORM",clos) # a function for io.d
 LISPSYM(make_byte,"MAKE-BYTE",system) # als Funktion für IO
 LISPSYM(Kupcase,"UPCASE",keyword) # als *PRINT-CASE* - Wert in IO
 LISPSYM(Kdowncase,"DOWNCASE",keyword) # als *PRINT-CASE* - Wert in IO

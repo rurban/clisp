@@ -7783,10 +7783,22 @@ local void pr_array (const object* stream_,object obj) {
 # < stream: stream
 # can trigger GC
 local void pr_instance (const object* stream_,object obj) {
-  var object stream = *stream_;
-  var uintC count = pr_external_1(stream); # instantiate bindings
-  # execute (CLOS:PRINT-OBJECT obj stream) :
-  pushSTACK(obj); pushSTACK(stream); funcall(S(print_object),2);
+  var uintC count = pr_external_1(*stream_); # instantiate bindings
+  if (test_value(S(compiling))) { # compiling - use MAKE-LOAD-FORM (clos.lisp)
+    pushSTACK(obj); # save obj
+    pushSTACK(obj); funcall(S(make_init_form),1);
+    if (nullp(value1)) goto print_object; # obj is on the stack already!
+    STACK_0 = value1; # save form, discard obj
+    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
+    obj = popSTACK(); # recall form
+    INDENT_START(2); # indent by 2 characters, because of '#.'
+    prin_object(stream_,obj); # print form
+    INDENT_END;
+  } else { # execute (CLOS:PRINT-OBJECT obj stream) :
+    pushSTACK(obj);
+  print_object:
+    pushSTACK(*stream_); funcall(S(print_object),2);
+  }
   pr_external_2(count); # dissolve bindings
 }
 

@@ -2,6 +2,20 @@
 
 	* init.lisp (*terminal-encoding*): fixed the export statement spelling
 
+2001-07-23  Sam Steingold  <sds@gnu.org>
+
+	ANSI CL make-load-form implemented
+	* clos.lisp (make-load-form, make-load-form-saving-slots): added
+	(print-class): removed
+	(print-object): print class readably using #.;
+	 print standard-objects readably using make-load-form
+	(*dynamically-modifiable-generic-function-names*):
+	 added make-load-form
+	* constsym.d (make_init_form): added
+	* init.lisp (make-load-form, make-load-form-saving-slots): export
+	(make-init-form): added
+	* io.d (pr_instance): when SYS::*COMPILING*, use MAKE-INIT-FORM
+
 2001-07-22  Sam Steingold  <sds@gnu.org>
 
 	Implemented *PRINT-LINES*

@@ -61,26 +61,26 @@
 (eval-when (compile load eval) (use-package '("I18N") "CLOS"))
 
 ;;; Exportierungen: ** auch in init.lisp ** !
-(export '(
-  ;; Namen von Funktionen und Macros:
-  slot-value slot-boundp slot-makunbound slot-exists-p with-slots with-accessors
-  find-class class-of defclass defmethod call-next-method next-method-p
-  defgeneric generic-function generic-flet generic-labels
-  class-name
-  no-applicable-method no-primary-method no-next-method
-  find-method add-method remove-method
-  compute-applicable-methods method-qualifiers function-keywords
-  slot-missing slot-unbound
-  print-object describe-object
-  make-instance allocate-instance initialize-instance reinitialize-instance
-  shared-initialize
-  ;; Namen von Klassen:
-  standard-class structure-class built-in-class
-  standard-object
-  generic-function standard-generic-function method standard-method
-  ;; andere Symbole:
-  standard ; Methoden-Kombination
-))
+(export
+ '(;; Namen von Funktionen und Macros:
+   slot-value slot-boundp slot-makunbound slot-exists-p with-slots
+   with-accessors
+   find-class class-of defclass defmethod call-next-method next-method-p
+   defgeneric generic-function generic-flet generic-labels
+   class-name no-applicable-method no-next-method no-primary-method
+   find-method add-method remove-method
+   compute-applicable-methods method-qualifiers function-keywords
+   slot-missing slot-unbound
+   print-object describe-object
+   make-instance allocate-instance initialize-instance reinitialize-instance
+   shared-initialize
+   make-load-form make-load-form-saving-slots
+   ;; names of classes:
+   standard-class structure-class built-in-class
+   standard-object structure-object
+   generic-function standard-generic-function method standard-method
+   ;; other symbols:
+   standard)) ; method combination
 
 ;;; Vorbemerkungen:
 
@@ -475,7 +475,7 @@
 
 (defconstant empty-ht (make-hash-table :test #'eq :size 0))
 
-(defstruct (class (:predicate nil)) ; (:print-object print-class) s.u.
+(defstruct (class (:predicate nil))
   metaclass ; (class-of class) = (class-metaclass class), eine Klasse
   classname ; (class-name class) = (class-classname class), ein Symbol
   direct-superclasses ; Liste aller direkten Oberklassen
@@ -521,12 +521,6 @@
           'concatenated-stream 'two-way-stream 'echo-stream 'string-stream
           'string 'symbol 't 'vector
 ) )
-
-(defun print-class (class stream)
-  (print-unreadable-object (class stream :type t)
-    (write (class-classname class) :stream stream)
-) )
-
 
 ;;; DEFCLASS
 
@@ -2293,8 +2287,7 @@
       function-keywords initialize-instance make-instance method-qualifiers
       no-applicable-method no-next-method no-primary-method print-object
       reinitialize-instance remove-method shared-initialize slot-missing
-      slot-unbound
-  )  )
+      slot-unbound make-load-form))
   (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
     (when (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
@@ -3568,11 +3561,21 @@
 
 (defgeneric print-object (object stream)
   (:method ((object standard-object) stream)
-    (print-unreadable-object (object stream :type t :identity t)))
+    (if *print-readably*
+        (let ((form (make-init-form object)))
+          (if form
+              (write (sys::make-load-time-eval form) :stream stream)
+              (print-unreadable-object (object stream :type t :identity t))))
+        (print-unreadable-object (object stream :type t :identity t))))
   (:method ((object structure-object) stream)
     (system::print-structure object stream))
   (:method ((object class) stream)
-    (print-class object stream))
+    (if *print-readably*
+        (write (sys::make-load-time-eval
+                `(find-class ',(class-classname object)))
+               :stream stream)
+        (print-unreadable-object (object stream :type t)
+          (write (class-classname object) :stream stream))))
   (:method ((object standard-method) stream)
     (print-std-method object stream)))
 
@@ -4101,6 +4104,26 @@
   new-class-object
 )
 
+(defgeneric make-load-form (object &optional environment)
+  (:method ((object standard-object) &optional environment)
+    (make-load-form-saving-slots object :environment environment)))
+
+(defun make-load-form-saving-slots
+    (object &key environment
+     (slot-names (mapcan (lambda (slot)
+                           (when (eq :instance
+                                     (slotdef-allocation slot))
+                             (list (slotdef-name slot))))
+                         (class-slots (class-of object)))))
+  (declare (ignore environment))
+  (values `(allocate-instance (find-class ',(class-name (class-of object))))
+          `(progn
+            (setf ,@(mapcan (lambda (slot)
+                              (when (slot-boundp object slot)
+                                `((slot-value ,object ',slot)
+                                  ,(slot-value object slot))))
+                            slot-names))
+            (initialize-instance ,object))))
 
 ;;; Utility functions
 
