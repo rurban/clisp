@@ -812,8 +812,8 @@
         ((endp (cdr l)))
       (let ((method1 (first l))
             (method2 (second l)))
-        (if (specializers-agree-p (std-method-parameter-specializers method1)
-                                  (std-method-parameter-specializers method2))
+        (if (specializers-agree-p (std-method-specializers method1)
+                                  (std-method-specializers method2))
           ;; The specializers agree, so we know the qualifiers must differ.
           (progn
             (unless last-was-duplicate (push (cons method1 groupname) duplicates))
