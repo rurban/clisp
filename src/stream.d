@@ -2223,19 +2223,21 @@ LISPFUN(make_string_input_stream,seclass_read,1,2,norest,nokey,0,NIL)
   VALUES1(stream); # stream as value
 }
 
-# (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) returns the Index
-LISPFUNNR(string_input_stream_index,1) {
-  var object stream = popSTACK(); # Argument
-  # must be a String-Input-Stream:
+LISPFUNNR(string_input_stream_index,1)
+{ /* (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) ==> Index */
+  var object stream = popSTACK(); /* Argument */
+  /* must be a String-Input-Stream: */
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_str_in))) {
-    pushSTACK(stream);
+    pushSTACK(stream);           /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(string_stream)); pushSTACK(stream);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: ~ is not a string input stream"));
+    fehler(type_error,GETTEXT("~: ~ is not an input ~"));
   }
   var object index = TheStream(stream)->strm_str_in_index;
-  # if a Character was pushed back with UNREAD-CHAR,
-  # use (1- index), a Fixnum >=0, as value:
+  /* if a Character was pushed back with UNREAD-CHAR,
+   use (1- index), a Fixnum >=0, as value: */
   if (TheStream(stream)->strmflags & strmflags_unread_B)
     index = fixnum_inc(index,-1);
   VALUES1(index);
@@ -2324,17 +2326,19 @@ global object get_output_stream_string (const gcv_object_t* stream_) {
   return string;
 }
 
-# (GET-OUTPUT-STREAM-STRING string-output-stream), CLTL p. 330
-LISPFUNN(get_output_stream_string,1) {
-  var object stream = STACK_0; # Argument
-  # must be a String-Output-Stream:
+LISPFUNN(get_output_stream_string,1)
+{ /* (GET-OUTPUT-STREAM-STRING string-output-stream), CLTL p. 330 */
+  var object stream = STACK_0;  /* Argument */
+  /* must be a String-Output-Stream: */
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_str_out))) {
-    # stream in STACK_0
+    /* stream in STACK_0 -- TYPE-ERROR slot DATUM */
+    pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(string_stream)); pushSTACK(STACK_2);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: ~ is not a string output stream"));
+    fehler(type_error,GETTEXT("~: ~ is not an output ~"));
   }
-  # the collected stuff is the value
+  /* the collected stuff is the value */
   VALUES1(get_output_stream_string(&STACK_0));
   skipSTACK(1);
 }
