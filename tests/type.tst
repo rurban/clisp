@@ -465,3 +465,6 @@ otherwise
 (SIMPLE-ARRAY NIL (10 3))
 (type-of (make-array 10 :element-type nil))
 (SIMPLE-ARRAY NIL (10))
+
+(subtypep (type-of 123) 'unsigned-byte) t
+(subtypep (type-of 12345678901234567890) 'unsigned-byte) t
