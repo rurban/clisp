@@ -1,3 +1,9 @@
+1999-02-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Bug fix for NEXTAPP model.
+        * stream.d (lisp_completion): Call begin_error here.
+          (lisp_completion_matches): Not here.
+
 1999-02-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * socket.d (create_server_socket): Cast setsockopt argument.
