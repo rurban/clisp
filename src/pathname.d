@@ -4907,8 +4907,6 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
     /* step 4: merge in default pathname */
    #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
     if (absolute_p) {
-      /* FIXME: If PATHNAME_WIN32, you have to ensure that the pathname has a
-         device != :WILD. */
       STACK_0 = use_default_dir(STACK_0); /* insert default-directory */
       /* (because Unix does not know the default-directory of LISP
          and Win32 is multitasking) */
@@ -4946,7 +4944,6 @@ LISPFUNN(absolute_pathname,1)
 {
   var object thing = popSTACK();
   var object pathname = coerce_pathname(thing);
-  check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
   VALUES1(pathname);
 }
@@ -4956,7 +4953,6 @@ LISPFUNN(absolute_pathname,1)
  can trigger GC */
 global object physical_namestring (object thing) {
   var object pathname = coerce_pathname(thing);
-  check_no_wildcards(pathname); /* with wildcards -> error */
   pathname = use_default_dir(pathname); /* insert default-directory */
   return whole_namestring(pathname);
 }
@@ -5168,6 +5164,7 @@ local object use_default_dir (object pathname) {
      #endif
       { /* drive does not have to be present if we start on a network path */
         var object drive = ThePathname(pathname)->pathname_device;
+        if (eq(drive,S(Kwild))) check_no_wildcards(pathname); /* error */
         var uintB dr = nullp(drive) ? 0 : as_cint(TheSnstring(drive)->data[0]);
         var object default_dir = default_directory_of(dr,pathname);
        #if HAS_HOST /* PATHNAME_WIN32 */

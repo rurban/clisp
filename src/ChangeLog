@@ -1,5 +1,11 @@
 2004-10-05  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (ABSOLUTE-PATHNAME, physical_namestring):
+	do not call check_no_wildcards()
+	(use_default_dir) [PATHNAME_WIN32]: check that the :DEVICE is not :WILD
+
+2004-10-05  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (CONVERT-STRING-FROM-BYTES, CONVERT-STRING-TO-BYTES):
 	check_encoding() can trigger GC
 	Reported by Jörg Höhle
