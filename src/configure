@@ -11962,21 +11962,11 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#ifdef __cplusplus
-int putenv(char*);
-#else
-int putenv();
-#endif
 
 int
 main ()
 {
-putenv("");
+putenv("")
   ;
   return 0;
 }
@@ -12010,82 +12000,7 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_PUTENV 1
 _ACEOF
 
-echo "$as_me:$LINENO: checking for putenv declaration" >&5
-echo $ECHO_N "checking for putenv declaration... $ECHO_C" >&6
-if test "${cl_cv_proto_putenv+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-extern
-#ifdef __cplusplus
-"C"
-#endif
-
-#if defined(__STDC__) || defined(__cplusplus)
-int putenv (char* name);
-#else
-int putenv();
-#endif
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  cl_cv_proto_putenv_arg1=""
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-cl_cv_proto_putenv_arg1="const"
 fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-
-
-
-cl_cv_proto_putenv="extern int putenv ($cl_cv_proto_putenv_arg1 char*);"
-fi
-
-cl_cv_proto_putenv=`echo "$cl_cv_proto_putenv" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$as_me:$LINENO: result: ${ac_t:-
-         }$cl_cv_proto_putenv" >&5
-echo "${ECHO_T}${ac_t:-
-         }$cl_cv_proto_putenv" >&6
-
-
-cat >>confdefs.h <<_ACEOF
-#define PUTENV_CONST $cl_cv_proto_putenv_arg1
-_ACEOF
-
-else
 
 for ac_func in setenv
 do
@@ -12169,7 +12084,73 @@ _ACEOF
 
 fi
 done
+echo "$as_me:$LINENO: checking whether environ is declared" >&5
+echo $ECHO_N "checking whether environ is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_environ+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+int
+main ()
+{
+#ifndef environ
+  char *p = (char *) environ;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_environ=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_have_decl_environ=no
 fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_environ" >&5
+echo "${ECHO_T}$ac_cv_have_decl_environ" >&6
+if test $ac_cv_have_decl_environ = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_ENVIRON 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_ENVIRON 0
+_ACEOF
+
+
+fi
+
+
 
 
   echo "$as_me:$LINENO: checking for LC_MESSAGES" >&5
