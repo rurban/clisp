@@ -1,6 +1,7 @@
 2003-01-23  Sam Steingold  <sds@gnu.org>
 
 	* _clisp.c (main): -B specifies where -K is looked for
+	* spvw.d (main): --help prints *CURRENT-LANGUAGE* and *LIB-DIRECTORY*
 
 2003-01-21  Sam Steingold  <sds@gnu.org>
 

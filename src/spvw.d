@@ -1973,7 +1973,9 @@ global int main (argc_t argc, char* argv[]) {
               if (argv_expr != NULL) usage (1);
               argv_quiet = true;
               argv_norc = true;
-              argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI) (PRINC \"Features"
+              argv_expr = "(PROGN (PRINC \"GNU CLISP \")"
+                "(PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI)"
+                "(PRINC \"Features"
                #ifdef DEBUG_SPVW
                 " [SAFETY=" STRINGIFY(SAFETY)
                 #ifdef TYPECODES
@@ -1987,7 +1989,12 @@ global int main (argc_t argc, char* argv[]) {
                 #endif
                 "]"
                #endif
-                ": \") (PRINC *FEATURES*) (SYS::%EXIT))";
+                ": \") (PRINC *FEATURES*) (TERPRI)"
+                "(PRINC \"Installation directory: \")"
+                "(PRINC (SYS::LIB-DIRECTORY)) (TERPRI)"
+                "(PRINC \"User language: \")"
+                "(PRINC (SYS::CURRENT-LANGUAGE)) (TERPRI)"
+                "(SYS::%EXIT))";
               break;
             } else if (asciz_equal(&arg[2],"quiet")
                        || asciz_equal(&arg[2],"silent")) {
