@@ -1,3 +1,8 @@
+2002-07-19  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 583751 ]: (compile-file xx :verbose NIL)
+	* compiler.lisp (with-compilation-unit): bind *C-LISTING-OUTPUT*
+
 2002-07-15  Marco Baringer  <empb@bese.it>
 	    Sam Steingold  <sds@gnu.org>
 
@@ -61,7 +66,7 @@
 
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
-	fixed bug [ 581646 ]: REQUIRE uses STRING-EQUAL
+	fixed bug #[ 581646 ]: REQUIRE uses STRING-EQUAL
 	since CLISP in ANSI mode does not coerce symbols to pathnames,
 	this also fixes a bug introduced on 2002-07-09 which precluded
 	symbols as module names
@@ -83,7 +88,7 @@
 
 2002-07-13  Sam Steingold  <sds@gnu.org>
 
-	fixed bug [ 514741 ]: ldap bugs (describe, dir-key-info)
+	fixed bug #[ 514741 ]: ldap bugs (describe, dir-key-info)
 	* describe.lisp (describe-object): handle DIR-KEY
 
 2002-07-12  Sam Steingold  <sds@gnu.org>
