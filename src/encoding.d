@@ -2190,9 +2190,9 @@ global void init_encodings_2 (void) {
   {
     var object symbol = nls_first_sym;
     var const nls_table_t * const * ptr = &nls_tables[0];
-    var uintC count;
-    ASSERT(nls_num_encodings == sizeof(nls_tables)/sizeof(nls_tables[0]));
-    dotimesC(count,sizeof(nls_tables)/sizeof(nls_tables[0]), {
+    var uintC count = sizeof(nls_tables)/sizeof(nls_tables[0]);
+    ASSERT(nls_num_encodings == count);
+    while (count--) {
       var object encoding = allocate_encoding();
       TheEncoding(encoding)->enc_eol = S(Kunix);
       TheEncoding(encoding)->enc_towcs_error = S(Kerror);
@@ -2216,7 +2216,7 @@ global void init_encodings_2 (void) {
       define_constant(symbol,encoding);
       symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
       ptr++;
-    });
+    }
   }
   /* Now some aliases. */
   define_constant(S(unicode_16),Symbol_value(S(unicode_16_big_endian))); /* network byte order = big endian */
@@ -2234,8 +2234,8 @@ global void init_encodings_2 (void) {
  #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
   {
     var object symbol = iconv_first_sym;
-    var uintC count;
-    dotimesC(count,iconv_num_encodings, {
+    var uintC count = iconv_num_encodings;
+    while (count--) {
       pushSTACK(Symbol_name(symbol)); pushSTACK(unbound);
       pushSTACK(unbound); pushSTACK(unbound); pushSTACK(NIL);
       C_make_encoding(); /* cannot use funcall yet */
@@ -2243,7 +2243,7 @@ global void init_encodings_2 (void) {
         pushSTACK(symbol); pushSTACK(O(charset_package)); C_unintern();
       } else define_constant(symbol,value1);
       symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
-    });
+    }
   }
   /* Now some aliases, to be defined only if their targets still exit. */
   if (!boundp(Symbol_value(S(cp1255)))) {
