@@ -1,3 +1,27 @@
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
+	Use STABLEHASH-EQ as test for hash tables indexed by symbols.
+	* init.lisp (*documentation*): Use hash table test STABLEHASH-EQ.
+	* type.lisp (encoding-zeroes): Use hash table test STABLEHASH-EQUAL.
+	* subtypep.lisp (get-charset-range): Likewise.
+	* compiler.lisp (instruction-codes, function-codes, c-form-table): Use
+	hash table test STABLEHASH-EQ.
+	(c-CASE): More accurate determination of the hash table test depending
+	on the keys.
+	(EQL=EQ): Return true for short-floats also.
+	(one-value-ops, for-value-table): Use hash table test STABLEHASH-EQ.
+	* clos-class2.lisp (finalize-instance-standard-class): For the slot
+	location table, use test STABLEHASH-EQ.
+	(std-compute-slots): Use test STABLEHASH-EQL instead of EQL.
+	(initialize-instance-structure-class: For the slot location table,
+	use test STABLEHASH-EQ.
+	* clos-genfun2.lisp (prototype-table): Use hash table test
+	STABLEHASH-EQUAL.
+	* foreign1.lisp (*c-type-table*): Use hash table test STABLEHASH-EQ.
+	(*object-table*): Use hash table test STABLEHASH-EQUAL.
+	(*type-table*): Use hash table test STABLEHASH-EQ.
+	* affi1.lisp (*library-functions*): Use hash table test STABLEHASH-EQ.
+
 2004-06-04  Bruno Haible  <bruno@clisp.org>
 
 	Fix LOAD-TIME-VALUE.

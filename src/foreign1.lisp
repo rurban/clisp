@@ -113,7 +113,7 @@
 
 ;: The table of C types.
 (defvar *c-type-table*
-  (make-hash-table :key-type 'symbol :test #'eq))
+  (make-hash-table :key-type 'symbol :test 'stablehash-eq))
 
 ; simple C types
 (dolist (c-type
@@ -474,9 +474,9 @@
   name
   c-name
   (object-table (make-hash-table :key-type '(or string symbol) :value-type '(cons string fixnum)
-                                 :test #'equal))
+                                 :test 'stablehash-equal :warn-if-needs-rehash-after-gc t))
   (type-table (make-hash-table :key-type 'symbol :value-type '(or null string)
-                               :test #'eq))
+                               :test 'stablehash-eq :warn-if-needs-rehash-after-gc t))
   (variable-list '())
   (function-list '()))
 (define-symbol-macro *name*

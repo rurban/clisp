@@ -284,7 +284,7 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
   (setf (get (first (svref instruction-table i)) 'INSTRUCTION) i))
 (defconstant instruction-codes
   (let ((hashtable (make-hash-table :key-type 'symbol :value-type 'fixnum
-                                    :test #'eq)))
+                                    :test 'stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (dotimes (i (length instruction-table))
       (setf (gethash (first (svref instruction-table i)) hashtable) i))
     hashtable))
@@ -641,7 +641,7 @@ for-value   NIL or T
 
 (defconstant function-codes
   (let ((hashtable (make-hash-table :key-type 'symbol :value-type 'fixnum
-                                    :test #'eq)))
+                                    :test 'stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (dotimes (i (* 3 256))
       (let ((sym (%funtabref i))) ; Name of the Function FUNTAB[i]
         (when sym (setf (gethash sym hashtable) i))))
@@ -1911,7 +1911,7 @@ for-value   NIL or T
 ;; for all functions/specialforms/macros, that have to be treated specially.
 (defconstant c-form-table
   (let ((hashtable (make-hash-table :key-type 'symbol :value-type '(or symbol function)
-                                    :test #'eq)))
+                                    :test 'stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (mapc
      #'(lambda (acons) (setf (gethash (car acons) hashtable) (cdr acons)))
      `(;; Special forms:
@@ -5618,9 +5618,38 @@ for-value   NIL or T
                 (end-label (make-label *for-value*)))
             (when (and (eq test 'EQL) (every #'EQL=EQ allkeys))
               (setq test 'EQ))
-            (cond ((eq test 'EQ) (setq test 'FASTHASH-EQ))
-                  ((eq test 'EQL) (setq test 'FASTHASH-EQL))
-                  ((eq test 'EQUAL) (setq test 'FASTHASH-EQUAL)))
+            (cond ((eq test 'EQ)
+                   (if (every #'(lambda (x)
+                                  (or (symbolp x)
+                                      (and (integerp x) (<= (integer-length x) 24))
+                                      (sys::short-float-p x)
+                                      (characterp x)))
+                              allkeys)
+                     (setq test 'STABLEHASH-EQ)
+                     (setq test 'FASTHASH-EQ)))
+                  ((eq test 'EQL)
+                   (if (every #'(lambda (x)
+                                  (or (symbolp x)
+                                      (numberp x)
+                                      (characterp x)))
+                              allkeys)
+                     (setq test 'STABLEHASH-EQL)
+                     (setq test 'FASTHASH-EQL)))
+                  ((eq test 'EQUAL)
+                   (if (every #'(lambda (x)
+                                  (labels ((stablep (x depth)
+                                             (if (atom x)
+                                               (or (symbolp x)
+                                                   (numberp x)
+                                                   (characterp x))
+                                               (if (= depth 0)
+                                                 t
+                                                 (and (stablep (car x) (1- depth))
+                                                      (stablep (cdr x) (1- depth)))))))
+                                    (stablep x 4)))
+                              allkeys)
+                     (setq test 'STABLEHASH-EQUAL)
+                     (setq test 'FASTHASH-EQUAL))))
             (make-anode
               :type 'CASE
               :sub-anodes `(,keyform-anode ,@(mapcar #'third cases)
@@ -6390,6 +6419,7 @@ for-value   NIL or T
       (and (integerp x) (<= (integer-length x) 24))
       ;; Note: Using (fixnump x) here would not generate portable code.
       ;; The minimum fixnum length across architectures in CLISP is 24 bits.
+      (sys::short-float-p x)
       (characterp x)))
 
 (defun c-EQL ()
@@ -8178,7 +8208,7 @@ Simplification-Rules for Operations:
 ;; that create exactly one value.
 (defconstant one-value-ops
   (let ((ht (make-hash-table :key-type 'symbol :value-type '(eql t)
-                             :test #'eq)))
+                             :test 'stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (dolist (op '(NIL T CONST LOAD LOADI LOADC LOADV LOADIC STORE STOREI
                   STOREC STOREV STOREIC GETVALUE SETVALUE POP VENV
                   COPY-CLOSURE BOUNDP VALUES1 MV-TO-LIST TAGBODY-CLOSE-NIL
@@ -8197,7 +8227,7 @@ Simplification-Rules for Operations:
 ;; listed here.
 (defconstant for-value-table
   (let ((ht (make-hash-table :key-type 'symbol :value-type '(member NIL ONE ALL)
-                             :test #'eq)))
+                             :test 'stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (dolist (op '(NIL PUSH-NIL T CONST LOAD LOADI LOADC LOADV LOADIC
                   GETVALUE POP JSR JMPTAIL BARRIER VENV COPY-CLOSURE CALL
                   CALL0 CALLS1 CALLS2 CALLSR FUNCALL PUSH-UNBOUND JMPIFBOUNDP

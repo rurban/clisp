@@ -114,7 +114,8 @@ be a string, which must be the name of a known library."
 ;; pair: <function> -> ( <library> . <call information> )
 
 (defvar *library-functions*
-  (make-hash-table :key-type 'symbol :value-type 'cons :test 'eq))
+  (make-hash-table :key-type 'symbol :value-type 'cons
+                   :test 'stablehash-eq :warn-if-needs-rehash-after-gc t))
 
 (defun import-or-loose (symbol)
   (let ((new (find-symbol (symbol-name symbol))))
