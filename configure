@@ -33,7 +33,7 @@ options: The following options are recognized:
          --with-PACKAGE        use PACKAGE
          --without-PACKAGE     do not use PACKAGE
          --with-module=MODULE  build with add-on MODULE
-         --export-syscalls     export some UNIX syscalls to Lisp
+         --with-export-syscalls export some UNIX syscalls to Lisp
          --hyperspec=URL       the path to the CLHS (the default is
                            http://www.harlequin.com/education/books/HyperSpec).
 Example:
@@ -152,7 +152,7 @@ do
         prev=host
         passnext=yes ;;
 
-      --export-syscalls)
+      --with-export-syscalls)
         makemake_args="$makemake_args $arg" ;;
 
       --with-* | --without-*)
