@@ -997,8 +997,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
          object_tab : */
       var module_t* * old_module = &old_modules[0];
       var offset_subrs_t* offset_subrs_ptr = &offset_subrs[0];
-      var uintC count;
-      dotimespC(count,1+header._module_count, {
+      var uintC count = 1+header._module_count;
+      do {
         var subr_t* old_subr_addr;
         var uintC old_subr_anz;
         var uintC old_object_anz;
@@ -1015,8 +1015,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           READ(old_subr_tab,old_subr_anz*sizeof(subr_t));
           var subr_t* ptr1 = old_subr_tab;
           var subr_t* ptr2 = (*old_module)->stab;
-          var uintC count;
-          dotimespC(count,old_subr_anz, {
+          var uintC counter = old_subr_anz;
+          do {
             if (!(   (ptr1->req_anz == ptr2->req_anz)
                   && (ptr1->opt_anz == ptr2->opt_anz)
                   && (ptr1->rest_flag == ptr2->rest_flag)
@@ -1026,14 +1026,14 @@ local void loadmem_from_handle (Handle handle, const char* filename)
             ptr2->name = ptr1->name; ptr2->keywords = ptr1->keywords;
             ptr2->argtype = ptr1->argtype;
             ptr1++; ptr2++;
-          });
+          } while (--counter);
           FREE_DYNAMIC_ARRAY(old_subr_tab);
         }
         if (old_object_anz > 0) {
           READ((*old_module)->otab,old_object_anz*sizeof(gcv_object_t));
         }
         old_module++; offset_subrs_ptr++;
-      });
+      } while (--count);
     }
    #ifdef SPVW_PURE_BLOCKS
     #ifdef SINGLEMAP_MEMORY_RELOCATE
