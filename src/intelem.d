@@ -1062,7 +1062,7 @@ global object UQ_to_I (uint64 wert)
  #define UQ_maxlength  ceiling(64+1,intDsize)
  #if (bn_minlength <= 1) && (UQ_maxlength >= 1)
   if ((1*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(1*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(1*intDsize-1)-1))
       : true) { /* bignum with 1 digit */
     var object newnum = allocate_bignum(1,0);
     TheBignum(newnum)->data[0] = (uintD)wert;
@@ -1071,7 +1071,7 @@ global object UQ_to_I (uint64 wert)
  #endif
  #if (bn_minlength <= 2) && (UQ_maxlength >= 2)
   if ((2*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(2*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(2*intDsize-1)-1))
       : true) { /* bignum with 2 digits */
     var object newnum = allocate_bignum(2,0);
     var uintD* ptr = &TheBignum(newnum)->data[1];
@@ -1086,7 +1086,7 @@ global object UQ_to_I (uint64 wert)
  #endif
  #if (bn_minlength <= 3) && (UQ_maxlength >= 3)
   if ((3*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(3*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(3*intDsize-1)-1))
       : true) { /* bignum with 3 digits */
     var object newnum = allocate_bignum(3,0);
     var uintD* ptr = &TheBignum(newnum)->data[2];
@@ -1102,7 +1102,7 @@ global object UQ_to_I (uint64 wert)
  #endif
  #if (bn_minlength <= 4) && (UQ_maxlength >= 4)
   if ((4*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(4*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(4*intDsize-1)-1))
       : true) { /* bignum with 4 digits */
     var object newnum = allocate_bignum(4,0);
     var uintD* ptr = &TheBignum(newnum)->data[3];
@@ -1119,7 +1119,7 @@ global object UQ_to_I (uint64 wert)
  #endif
  #if (bn_minlength <= 5) && (UQ_maxlength >= 5)
   if ((5*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(5*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(5*intDsize-1)-1))
       : true) { /* bignum with 5 digits */
     var object newnum = allocate_bignum(5,0);
     var uintD* ptr = &TheBignum(newnum)->data[4];
@@ -1137,7 +1137,7 @@ global object UQ_to_I (uint64 wert)
  #endif
  #if (bn_minlength <= 6) && (UQ_maxlength >= 6)
   if ((6*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(6*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(6*intDsize-1)-1))
       : true) { /* bignum with 6 digits */
     var object newnum = allocate_bignum(6,0);
     var uintD* ptr = &TheBignum(newnum)->data[5];
@@ -1156,7 +1156,7 @@ global object UQ_to_I (uint64 wert)
  #endif
  #if (bn_minlength <= 7) && (UQ_maxlength >= 7)
   if ((7*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(7*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(7*intDsize-1)-1))
       : true) { /* bignum with 7 digits */
     var object newnum = allocate_bignum(7,0);
     var uintD* ptr = &TheBignum(newnum)->data[6];
@@ -1176,7 +1176,7 @@ global object UQ_to_I (uint64 wert)
  #endif
  #if (bn_minlength <= 8) && (UQ_maxlength >= 8)
   if ((8*intDsize-1 < 64)
-      ? (wert <= (uint64)(bitc(8*intDsize-1)-1))
+      ? (wert <= (uint64)(wbitc(8*intDsize-1)-1))
       : true) { /* bignum with 8 digits */
     var object newnum = allocate_bignum(8,0);
     var uintD* ptr = &TheBignum(newnum)->data[7];

@@ -257,7 +257,8 @@ User visible changes
   + Fixed a crash when using a hash-table as hash-table key.
   + Fixed a crash triggered by the READ-BYTE function on streams with
     element type ([UN]SIGNED-BYTE n), 24 < n < 32, on big-endian platforms.
-
+  + An invalid bignum could be returned by GET-INTERNAL-RUN-TIME on 64-bit
+    platforms.
 
 Modules
 -------
