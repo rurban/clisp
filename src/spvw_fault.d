@@ -62,6 +62,13 @@ local void xmmprotect (Heap* heap, aint addr, uintM len, int prot);
 # subroutine for protection: PROT_NONE -> PROT_READ
 local int handle_read_fault (aint address, physpage_state_t* physpage)
 {
+  # During GC the physpage cache contents may be abused by MORRIS_GC,
+  # so don't use it.
+  if (inside_gc) {
+    fprintf(stderr,"\n*** - " "handle_fault called at a point inside GC where it shouldn't!\n");
+    errno = 0;
+    return -1;
+  }
   # bring page up to date with the state of the cache:
   {
     var uintL count = physpage->cache_size;

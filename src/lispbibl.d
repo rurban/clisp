@@ -3632,6 +3632,15 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
+# Set during the core of GC.
+# When this is set, unexpected handle_fault() calls that can
+# - if defined(MORRIS_GC) && defined(GENERATIONAL_GC) - copy
+# Morris-chain backpointers from a cons cell to an old_new_pointer_t with set
+# garcol_bit(!) into the heap, where they are guaranteed to lead to a crash
+# later. So, uncontrolled memory accesses are forbidden while inside_gc.
+extern bool inside_gc;
+
+
 #ifdef DEBUG_GCSAFETY
 
   # Forward declarations.
@@ -3645,10 +3654,16 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   # Force a crash if a memory pointer points to nonexistent memory.
   #define nonimmprobe(obj_o)  \
     do {                                                                       \
-      if (((obj_o) & wbit(garcol_bit_o)) == 0) /* exclude frame words from the STACK */ \
-        if (!gcinvariant_oint_p(obj_o)) /* exclude immediate objects */        \
-          /* Access a single char, without needing to subtract the bias. */    \
-          *(volatile char *)(((aint)((obj_o) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift)) <<addr_shift); \
+      /* Don't do probes inside GC. It leads to unexpected handle_fault()      \
+         calls that can - if defined(MORRIS_GC) && defined(GENERATIONAL_GC) -  \
+         copy Morris-chain backpointers from a cons cell to an old_new_pointer_t \
+         with set garcol_bit(!) into the heap, where they are guaranteed to    \
+         lead to a crash later. */                                             \
+      if (!inside_gc)                                                          \
+        if (((obj_o) & wbit(garcol_bit_o)) == 0) /* exclude frame words from the STACK */ \
+          if (!gcinvariant_oint_p(obj_o)) /* exclude immediate objects */      \
+            /* Access a single char, without needing to subtract the bias. */  \
+            *(volatile char *)(((aint)((obj_o) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift)) <<addr_shift); \
     } while (0)
 
   # When a gcv_object_t is fetched from a GC visible location (in the heap or
@@ -6928,7 +6943,9 @@ typedef enum {
     #ifdef DEBUG_GCSAFETY
       # This is used by pgci_pointable, so it cannot use pgci_pointable itself.
       static inline bool nonimmsubrp (object obj) {
-        return (varobjectp(obj) && (varobject_type((Record)(cgci_pointable(obj)-varobject_bias)) == Rectype_Subr));
+        return (varobjectp(obj)
+                && (inside_gc /* Avoid doing memory accesses during GC. */
+                    || (varobject_type((Record)(cgci_pointable(obj)-varobject_bias)) == Rectype_Subr)));
       }
     #endif
   #endif
