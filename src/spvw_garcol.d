@@ -46,6 +46,7 @@ local void move_conses (sintL delta);
   - Character, Short-Float, Fixnum etc.: always.
 Use GC_MARK when the argument might be a reallocated string */
 #define GC_MARK(o) do {                         \
+  if (instancep(o)) instance_un_realloc(o);     \
   if (arrayp(o)) simple_array_to_storage(o); gc_mark(o); } while(0)
 #if DEBUG_GC_MARK
   #define IF_DEBUG_GC_MARK(statement)  statement
@@ -161,6 +162,7 @@ local void gc_mark (object obj)
     vorg = vorvorg; goto up; /* go further up */ \
   }
 #define down_record()                                                   \
+  instance_un_realloc(dies);                                            \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
   { var gcv_object_t* dies_ = (gcv_object_t*)TheRecord(dies);           \

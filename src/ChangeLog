@@ -1,3 +1,26 @@
+2003-01-09  Sam Steingold  <sds@gnu.org>
+
+	implemented CHANGE-CLASS and UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
+	* clos.lisp (change-class, update-instance-for-different-class):
+	implemented
+	* init.lisp (change-class, update-instance-for-different-class):
+	export
+	* constsym.d, subr.d (pchange_class): added
+	* lispbibl.d (Rectype_realloc_Instance): new record type
+	(instance_un_realloc): new macro
+	(instancep): handle Rectype_realloc_Instance
+	(instanceof): make into a function and call instance_un_realloc()
+	(case_Rectype_Instance_above): include Rectype_realloc_Instance
+	* hashtabl.d (sxhash_atom): un_realloc instances
+	* predtype.d (TYPE-OF, CLASS-OF): ditto
+	* spvw_circ.d (get_circ_mark, subst_circ_mark, subst)
+	(subst_circ_unmark): ditto
+	* spvw_garcol.d (GC_MARK, down_record): ditto
+	* io.d (pr_orecord): handle Rectype_realloc_Instance
+	* record.d (class_of, ptr_to_slot): make into a function and call
+	instance_un_realloc()
+	(%CHANGE-CLASS): implemented
+
 2003-01-08  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (GENERIC-STREAM-P, BUILT-IN-STREAM-OPEN-P)

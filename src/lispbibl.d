@@ -3970,10 +3970,11 @@ typedef xrecord_ *  Xrecord;
 
 # Possible rectype values for records.
   enum {
-           enum_rectype_first = -4,     # Try to keep rectype_limit = 0.
+           enum_rectype_first = -5,     # Try to keep rectype_limit = 0.
          Rectype_Closure,
          Rectype_Structure,             # only used #ifndef case_structure
          Rectype_Instance,
+         Rectype_realloc_Instance,
            rectype_limit, # Here is the limit between Srecord and Xrecord.
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
@@ -6091,9 +6092,14 @@ typedef struct {
 # Test for CLOS-Instance
 #ifdef TYPECODES
   #define instancep(obj)  (typecode(obj)==instance_type)
+  #define instance_un_realloc(obj)   (void)0/*nop*/
 #else
   #define instancep(obj)  \
-    (varobjectp(obj) && (Record_type(obj) == Rectype_Instance))
+    (varobjectp(obj) && ((Record_type(obj) == Rectype_Instance) || \
+                         (Record_type(obj) == Rectype_realloc_Instance)))
+  #define instance_un_realloc(obj) \
+    while (Record_type(obj) == Rectype_realloc_Instance)    \
+      (obj) = TheInstance(obj)->inst_class/*;*/
 #endif
 
 # Test for CLOS-class
@@ -6113,11 +6119,6 @@ typedef struct {
     } else {                                                     \
      obj##_classp_no: statement2;                                \
     }
-
-# Test for CLOS instance of a given class
-#define instanceof(obj,class)  \
-  (instancep(obj) &&           \
-   !eq(gethash(class,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj))
 
 # Test for Other-Record
 # This is not really a type test (because there is no well-defined type
@@ -6541,7 +6542,7 @@ typedef struct {
   #define case_Rectype_Closure_above  \
     case Rectype_Closure: goto case_closure;
   #define case_Rectype_Instance_above  \
-    case Rectype_Instance: goto case_instance;
+    case Rectype_realloc_Instance: case Rectype_Instance: goto case_instance;
   #define case_Rectype_Sbvector_above  \
     case Rectype_Sbvector: goto case_sbvector;
   #define case_Rectype_Sb2vector_above  \
@@ -11634,6 +11635,13 @@ extern void break_driver (bool continuable_p);
 # < result: corresponding value, if found, else nullobj
 extern object gethash (object obj, object ht);
 # is used by EVAL, RECORD, PATHNAME, FOREIGN
+
+/* Test for CLOS instance of a given class */
+static inline bool instanceof (object obj, object clas) {
+  if (!instancep(obj)) return false;
+  instance_un_realloc(obj);
+  return !eq(gethash(clas,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj);
+}
 
 # UP: Locates a key in a hash-table and gives the older value.
 # shifthash(ht,obj,value) == (SHIFTF (GETHASH obj ht) value)

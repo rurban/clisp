@@ -75,6 +75,7 @@
    make-instance allocate-instance initialize-instance reinitialize-instance
    shared-initialize
    make-load-form make-load-form-saving-slots
+   change-class update-instance-for-different-class
    ;; names of classes:
    standard-class structure-class built-in-class
    standard-object structure-object
@@ -1959,6 +1960,7 @@
       function-keywords initialize-instance make-instance method-qualifiers
       no-applicable-method no-next-method no-primary-method print-object
       reinitialize-instance remove-method shared-initialize slot-missing
+      change-class update-instance-for-different-class
       slot-unbound make-load-form))
   (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
@@ -3540,6 +3542,40 @@
   (apply #'initialize-instance-structure-class new-class-object args)
   (call-next-method)
   new-class-object)
+
+;;; change-class
+(defgeneric change-class (instance new-class &key &allow-other-keys)
+  (:method ((instance standard-object) (new-class standard-class)
+            &rest initargs)
+    (let* ((old-slots (class-slots (class-of instance)))
+           (new-slots (class-slots new-class))
+           (previous (%change-class instance new-class)))
+      ;; previous = a copy of instance
+      ;; instance: class is changed, slots unbound
+      ;; copy identically named slots
+      (dolist (slot old-slots)
+        (let ((name (slotdef-name slot)))
+          (when (slot-boundp previous name)
+            (let ((new-slot (find name new-slots :test #'eq
+                                  :key #'slotdef-name)))
+              (when new-slot
+                (setf (slot-value instance name)
+                      (slot-value previous name)))))))
+      (apply #'update-instance-for-different-class
+             previous instance initargs)))
+  (:method ((instance t) (new-class symbol) &rest initargs)
+    (apply #'change-class instance (find-class new-class) initargs)))
+
+(defgeneric update-instance-for-different-class
+    (previous current &key &allow-other-keys)
+  (:method ((previous standard-object) (current standard-object)
+            &rest initargs)
+    (apply #'shared-initialize current
+           (mapcar #'slotdef-name
+                   (set-difference (class-slots (class-of current))
+                                   (class-slots (class-of previous))
+                                   :test #'eq :key #'slotdef-name))
+           initargs)))
 
 ;;; Utility functions
 
