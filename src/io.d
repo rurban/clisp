@@ -7965,28 +7965,28 @@ local void pr_sharp_dot (const gcv_object_t* stream_,object obj) {
   INDENT_END;
 }
 
-# UP: prints CLOS-instance to stream.
-# pr_instance(&stream,obj);
-# > obj: CLOS-Instance
-# > stream: stream
-# < stream: stream
-# can trigger GC
+/* UP: prints CLOS-instance to stream.
+ pr_instance(&stream,obj);
+ > obj: CLOS-Instance
+ > stream: stream
+ < stream: stream
+ can trigger GC */
 local void pr_instance (const gcv_object_t* stream_, object obj) {
-  if (!nullpSv(compiling) && !nullpSv(print_readably)) {
-    # compiling - use MAKE-LOAD-FORM (clos.lisp)
-    pushSTACK(obj); # save obj
+  if (!nullpSv(compiling) && !nullpSv(print_readably)
+      && !nullpSv(load_forms)) { /* compiling - use MAKE-LOAD-FORM */
+    pushSTACK(obj);              /* save obj */
     pushSTACK(obj); funcall(S(make_init_form),1);
-    obj = popSTACK(); # recall obj
+    obj = popSTACK();           /* recall obj */
     if (!nullp(value1)) {
       pr_sharp_dot(stream_,value1);
       return;
     }
   }
   LEVEL_CHECK;
-  # execute (CLOS:PRINT-OBJECT obj stream) :
-  var uintC count = pr_external_1(*stream_); # instantiate bindings
+  /* execute (CLOS:PRINT-OBJECT obj stream) : */
+  var uintC count = pr_external_1(*stream_); /* instantiate bindings */
   pushSTACK(obj); pushSTACK(*stream_); funcall(S(print_object),2);
-  pr_external_2(count); # dissolve bindings
+  pr_external_2(count);         /* dissolve bindings */
   LEVEL_END;
 }
 

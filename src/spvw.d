@@ -1255,6 +1255,7 @@ local void init_symbol_values (void) {
   define_variable(S(prin_jbstrings),unbound);     # SYS::*PRIN-JBSTRINGS*
   define_variable(S(prin_jbmodus),unbound);       # SYS::*PRIN-JBMODUS*
   define_variable(S(prin_jblpos),unbound);        # SYS::*PRIN-JBLPOS*
+  define_variable(S(load_forms),NIL); /* SYS::*LOAD-FORMS* */
   define_variable(S(terminal_read_open_object),unbound); # SYS::*TERMINAL-READ-OPEN-OBJECT*
   define_variable(S(terminal_read_stream),unbound); # SYS::*TERMINAL-READ-STREAM*
   define_variable(S(pprint_first_newline),T);     # CUSTOM:*PPRINT-FIRST-NEWLINE*
