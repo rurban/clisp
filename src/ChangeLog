@@ -18,6 +18,7 @@
           (equalp): Rewrite the comparison code for arrays, to ignore the
           array element type.
         * realelem.d (hashcode4_uint32): New function.
+          (hashcode4_uint4): New array.
         * hashtabl.d (hashcode4_string): Remove function.
           (hashcode4_char, hashcode4_vector_T, hashcode4_vector_Char,
            hashcode4_vector_Bit, hashcode4_vector_2Bit, hashcode4_vector_4Bit,
