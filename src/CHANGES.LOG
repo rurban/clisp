@@ -9,6 +9,14 @@ User visible changes
   of the following :ELEMENT-TYPEs: CHARACTER and ([UN]SIGNED-BYTE n), where n
   is a multiple of 8.
 
+* The functions
+    MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM,
+    SOCKET-ACCEPT, SOCKET-CONNECT
+  accept a keyword argument :ELEMENT-TYPE. Possible values are types
+  equivalent to CHARACTER or (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is
+  a positive multiple of 8. Previously these functions returned streams whose
+  element-type was (OR CHARACTER (UNSIGNED-BYTE 8)).
+
 * Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
   an unbuffered file stream, now return NIL instead of signalling an error.
 

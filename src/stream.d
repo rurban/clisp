@@ -4647,6 +4647,24 @@ typedef struct strm_u_file_extrafields_struct {
 # Unbuffered File-Stream
 # ======================
 
+# UP: Überprüft ein Element-Type für einen Unbuffered-Stream
+# check_unbuffered_eltype(&eltype);
+# > eltype: Element-Type in decoded form
+  local void check_unbuffered_eltype (const decoded_eltype* eltype);
+  local void check_unbuffered_eltype(eltype)
+    var const decoded_eltype* eltype;
+    { if (!((eltype->kind == eltype_ch) || ((eltype->size % 8) == 0)))
+        { pushSTACK(canon_eltype(eltype));
+          pushSTACK(S(Kelement_type));
+          fehler(error,
+                 DEUTSCH ? "Ungebufferte Streams benötigen ein ~ mit durch 8 teilbarer Bitzahl, nicht ~" :
+                 ENGLISH ? "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~" :
+                 FRANCAIS ? "Les flots non bufferisés nécessitent un ~ avec un taille (en bits) divisible par 8, et non ~" :
+                 ""
+                );
+        }
+    }
+
 # UP: erzeugt ein File-Handle-Stream
 # make_unbuffered_stream(type,handle_tty,direction,&eltype)
 # > STACK_1: Element-Type
@@ -12228,19 +12246,14 @@ LISPFUNN(make_printer_stream,0)
 
 # Zusätzliche Komponenten:
   # define strm_pipe_pid       strm_field1   # Prozess-Id, ein Fixnum >=0
-  #define strm_pipe_in_handle  strm_ihandle  # Handle für Input
   #if defined(EMUNIX) && defined(PIPES2)
   #define strm_pipe_in_other   strm_ohandle  # Pipe-Stream in Gegenrichtung
   #define strm_pipe_out_other  strm_ihandle  # Pipe-Stream in Gegenrichtung
   #endif
 
-# READ-CHAR - Pseudofunktion für Pipe-Input-Streams:
-  #define rd_ch_pipe_in  rd_ch_handle
-  #define rd_ch_array_pipe_in  rd_ch_array_handle
+# Low-level.
 
-# READ-BYTE - Pseudofunktion für Pipe-Input-Streams:
-  #define rd_by_pipe_in  rd_by_iau8_handle
-  #define rd_by_array_pipe_in  rd_by_array_iau8_handle
+  #define PipeStream_input_init(stream)  HandleStream_input_init(stream)
 
 # Schließt einen Pipe-Input-Stream.
 # close_pipe_in(stream);
@@ -12249,7 +12262,7 @@ LISPFUNN(make_printer_stream,0)
     local void close_pipe_in (object stream);
     local void close_pipe_in(stream)
       var object stream;
-      { var Handle handle = TheHandle(TheStream(stream)->strm_pipe_in_handle);
+      { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
         #ifdef PIPES2
         if (streamp(TheStream(stream)->strm_pipe_in_other))
           # Der andere Pipe-Stream ist noch offen. Wir dürfen nicht pclose()
@@ -12273,25 +12286,22 @@ LISPFUNN(make_printer_stream,0)
     #define close_pipe_in  close_ihandle
   #endif
 
-# Stellt fest, ob ein Pipe-Input-Stream ein Zeichen verfügbar hat.
-# listen_pipe_in(stream)
-# > stream : Pipe-Input-Stream
-# < ergebnis: ls_avail if a character is available,
-#             ls_eof   if EOF is reached,
-#             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
-  #define listen_pipe_in  listen_handle
-
 LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 # (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # ruft eine Shell auf, die command ausführt, wobei deren Standard-Output
 # in unsere Pipe hinein geht.
-  { # command überprüfen:
-    var object command;
-    skipSTACK(3);
-    funcall(L(string),1); # (STRING command)
-    command = string_to_asciz(value1); # als ASCIZ-String
+  { var object command;
+    var decoded_eltype eltype;
+    # command überprüfen:
+    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
+    STACK_3 = value1;
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    check_unbuffered_eltype(&eltype);
+    # Now create the pipe.
+    command = string_to_asciz(STACK_3); # command als ASCIZ-String
    {var int child;
     #ifdef EMUNIX
     var int handles[2];
@@ -12392,28 +12402,14 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     }}
     end_system_call();
     #endif
-    pushSTACK(allocate_handle(handles[0]));
     pushSTACK(UL_to_I(child));
+    pushSTACK(STACK_(2+1));
+    pushSTACK(allocate_handle(handles[0]));
     # Stream allozieren:
-    { var object stream = # neuer Stream, nur READ-CHAR und READ-BYTE erlaubt
-        allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-      TheStream(stream)->strm_rd_by = P(rd_by_pipe_in);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_pipe_in);
-      TheStream(stream)->strm_wr_by = P(wr_by_error);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_pipe_in);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+    { var object stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
+      PipeStream_input_init(stream);
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
-      TheStream(stream)->strm_pipe_in_handle = popSTACK(); # Read-Handle
-      TheStream(stream)->strm_isatty = NIL;
-      HandleStream_buffered(stream) = FALSE;
-      HandleStream_input_init(stream);
+      skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -12423,21 +12419,34 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
 
 # Zusätzliche Komponenten:
   # define strm_pipe_pid          strm_field1   # Prozess-Id, ein Fixnum >=0
-  #define strm_pipe_out_handle    strm_ohandle  # Handle für Output
   #if defined(EMUNIX) && defined(PIPES2)
   # define strm_pipe_out_other    strm_ihandle  # Pipe-Stream in Gegenrichtung
   #endif
 
-# WRITE-CHAR - Pseudofunktion für Pipe-Output-Streams:
-  #define wr_ch_pipe_out  wr_ch_handle_x
-  #define wr_ch_array_pipe_out  wr_ch_array_handle_x
+# Low-level.
 
-# WRITE-SIMPLE-STRING - Pseudofunktion für Pipe-Output-Streams:
-  #define wr_ss_pipe_out  wr_ss_handle_x
+  local void pipe_low_finish_output (object stream);
+  local void pipe_low_finish_output(stream)
+    var object stream;
+    { } # cannot do anything
 
-# WRITE-BYTE - Pseudofunktion für Pipe-Output-Streams:
-  #define wr_by_pipe_out  wr_by_iau8_handle
-  #define wr_by_array_pipe_out  wr_by_array_iau8_handle
+  local void pipe_low_force_output (object stream);
+  local void pipe_low_force_output(stream)
+    var object stream;
+    { } # cannot do anything
+
+  local void pipe_low_clear_output (object stream);
+  local void pipe_low_clear_output(stream)
+    var object stream;
+    { } # impossible to clear past output
+
+  #define PipeStream_output_init(stream)  \
+    { FileStreamLow_write(stream) = &file_low_write;                 \
+      FileStreamLow_write_array(stream) = &file_low_write_array;     \
+      FileStreamLow_finish_output(stream) = &pipe_low_finish_output; \
+      FileStreamLow_force_output(stream) = &pipe_low_force_output;   \
+      FileStreamLow_clear_output(stream) = &pipe_low_clear_output;   \
+    }
 
 # Schließt einen Pipe-Output-Stream.
 # close_pipe_out(stream);
@@ -12446,7 +12455,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     local void close_pipe_out (object stream);
     local void close_pipe_out(stream)
       var object stream;
-      { var Handle handle = TheHandle(TheStream(stream)->strm_pipe_out_handle);
+      { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
         #ifdef PIPES2
         if (streamp(TheStream(stream)->strm_pipe_out_other))
           # Der andere Pipe-Stream ist noch offen. Wir dürfen nicht pclose()
@@ -12475,11 +12484,17 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
 # (MAKE-PIPE-OUTPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # ruft eine Shell auf, die command ausführt, wobei unsere Pipe in deren
 # Standard-Input hinein geht.
-  { # command überprüfen:
-    var object command;
-    skipSTACK(3);
-    funcall(L(string),1); # (STRING command)
-    command = string_to_asciz(value1); # als ASCIZ-String
+  { var object command;
+    var decoded_eltype eltype;
+    # command überprüfen:
+    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
+    STACK_3 = value1;
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    check_unbuffered_eltype(&eltype);
+    # Now create the pipe.
+    command = string_to_asciz(STACK_3); # command als ASCIZ-String
    {var int child;
     #ifdef EMUNIX
     var int handles[2];
@@ -12579,27 +12594,14 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     }}
     end_system_call();
     #endif
-    pushSTACK(allocate_handle(handles[1]));
     pushSTACK(UL_to_I(child));
+    pushSTACK(STACK_(2+1));
+    pushSTACK(allocate_handle(handles[1]));
     # Stream allozieren:
-    { var object stream = # neuer Stream, nur WRITE-CHAR und WRITE-BYTE erlaubt
-        allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-      TheStream(stream)->strm_rd_by = P(rd_by_error);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      TheStream(stream)->strm_wr_by = P(wr_by_pipe_out);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_pipe_out);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_pipe_out);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pipe_out);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_pipe_out);
+    { var object stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
+      PipeStream_output_init(stream);
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
-      TheStream(stream)->strm_pipe_out_handle = popSTACK(); # Write-Handle
-      HandleStream_buffered(stream) = FALSE;
-      HandleStream_output_init(stream);
+      skipSTACK(4);
       value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -12614,11 +12616,17 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 # ruft eine Shell auf, die command ausführt, wobei der Output unserer Pipe
 # in deren Standard-Input hinein und deren Standard-Output wiederum in
 # unsere Pipe hinein geht.
-  { # command überprüfen:
-    var object command;
-    skipSTACK(3);
-    funcall(L(string),1); # (STRING command)
-    command = string_to_asciz(value1); # als ASCIZ-String
+  { var object command;
+    var decoded_eltype eltype;
+    # command überprüfen:
+    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
+    STACK_3 = value1;
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    check_unbuffered_eltype(&eltype);
+    # Now create the pipe.
+    command = string_to_asciz(STACK_3); # command als ASCIZ-String
    {var int child;
     #ifdef EMUNIX
     var int in_handles[2];
@@ -12760,48 +12768,21 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     pushSTACK(allocate_handle(in_handles[0]));
     pushSTACK(allocate_handle(out_handles[1]));
     # Input-Stream allozieren:
-    { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-        allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-      TheStream(stream)->strm_rd_by = P(rd_by_error);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      TheStream(stream)->strm_wr_by = P(wr_by_error);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_pipe_in);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+    { pushSTACK(STACK_(2+3)); # eltype
+      pushSTACK(STACK_(1+1));
+     {var object stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
+      PipeStream_input_init(stream);
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
-      TheStream(stream)->strm_pipe_in_handle = STACK_1; # Read-Handle
-      TheStream(stream)->strm_isatty = NIL;
-      HandleStream_buffered(stream) = FALSE;
-      HandleStream_input_init(stream);
       STACK_1 = stream;
-    }
+    }}
     # Output-Stream allozieren:
-    { var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-      TheStream(stream)->strm_rd_by = P(rd_by_error);
-      TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-      TheStream(stream)->strm_wr_by = P(wr_by_error);
-      TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-      TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-      TheStream(stream)->strm_rd_ch_last = NIL;
-      TheStream(stream)->strm_wr_ch = P(wr_ch_pipe_out);
-      TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_pipe_out);
-      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-      TheStream(stream)->strm_wr_ss = P(wr_ss_pipe_out);
+    { pushSTACK(STACK_(2+3)); # eltype
+      pushSTACK(STACK_(0+1));
+     {var object stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
+      PipeStream_output_init(stream);
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
-      TheStream(stream)->strm_pipe_out_handle = STACK_0; # Write-Handle
-      HandleStream_buffered(stream) = FALSE;
-      HandleStream_output_init(stream);
       STACK_0 = stream;
-    }
+    }}
     #ifdef EMUNIX
     # Beide Pipes miteinander verknüpfen, zum reibungslosen close:
     TheStream(STACK_1)->strm_pipe_in_other = STACK_0;
@@ -12811,6 +12792,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     # (make-two-way-stream input-stream output-stream), input-stream, output-stream.
     STACK_2 = make_twoway_stream(STACK_1,STACK_0);
     funcall(L(values),3);
+    skipSTACK(4);
   }}
 
 #endif # PIPES2
@@ -12826,10 +12808,10 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 # Socket streams are just like handle streams (unbuffered file streams),
 # except that on WIN32_NATIVE, the low-level functions are different.
 
-#ifdef WIN32_NATIVE
-
 # Input side
 # ----------
+
+#ifdef WIN32_NATIVE
 
   local sintL socket_low_read (object stream);
   local sintL socket_low_read(stream)
@@ -12946,8 +12928,16 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       HandleStream_input_init_data(stream);                        \
     }
 
+#else
+
+  #define SocketStream_input_init(stream)  HandleStream_input_init(stream)
+
+#endif
+
 # Output side
 # -----------
+
+#ifdef WIN32_NATIVE
 
   local void socket_low_write (object stream, uintB b);
   local void socket_low_write(stream,b)
@@ -12986,6 +12976,8 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       return byteptr+result;
     }}
 
+#endif
+
   local void socket_low_finish_output (object stream);
   local void socket_low_finish_output(stream)
     var object stream;
@@ -13003,6 +12995,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 
 # Initializes the output side fields of a socket stream.
 # SocketStream_output_init(stream);
+#ifdef WIN32_NATIVE
   #define SocketStream_output_init(stream)  \
     { FileStreamLow_write(stream) = &socket_low_write;                 \
       FileStreamLow_write_array(stream) = &socket_low_write_array;     \
@@ -13010,12 +13003,14 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       FileStreamLow_force_output(stream) = &socket_low_force_output;   \
       FileStreamLow_clear_output(stream) = &socket_low_clear_output;   \
     }
-
 #else
-
-  #define SocketStream_input_init(stream)  HandleStream_input_init(stream)
-  #define SocketStream_output_init(stream)  HandleStream_output_init(stream)
-
+  #define SocketStream_output_init(stream)  \
+    { FileStreamLow_write(stream) = &file_low_write;                   \
+      FileStreamLow_write_array(stream) = &file_low_write_array;       \
+      FileStreamLow_finish_output(stream) = &socket_low_finish_output; \
+      FileStreamLow_force_output(stream) = &socket_low_force_output;   \
+      FileStreamLow_clear_output(stream) = &socket_low_clear_output;   \
+    }
 #endif
 
 # Stellt fest, ob ein Socket-Stream ein Zeichen verfügbar hat.
@@ -13091,29 +13086,14 @@ LISPFUNN(make_x11socket_stream,2)
     if (handle == INVALID_SOCKET) { SOCK_error(); }
     # Liste bilden:
     {var object list = listof(2); pushSTACK(list); }
+    pushSTACK(O(strmtype_ubyte8));
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
-    {var object stream = # neuer Stream, alles erlaubt
-       allocate_stream(strmflags_open_B,strmtype_x11socket,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-     TheStream(stream)->strm_rd_by = P(rd_by_iau8_handle);
-     TheStream(stream)->strm_rd_by_array = P(rd_by_array_iau8_handle);
-     TheStream(stream)->strm_wr_by = P(wr_by_iau8_handle);
-     TheStream(stream)->strm_wr_by_array = P(wr_by_array_iau8_handle);
-     TheStream(stream)->strm_rd_ch = P(rd_ch_handle);
-     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_handle);
-     TheStream(stream)->strm_rd_ch_last = NIL;
-     TheStream(stream)->strm_wr_ch = P(wr_ch_handle);
-     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_handle);
-     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-     TheStream(stream)->strm_wr_ss = P(wr_ss_handle);
-     TheStream(stream)->strm_ihandle =
-     TheStream(stream)->strm_ohandle = popSTACK(); # Handle eintragen
-     TheStream(stream)->strm_x11socket_connect = popSTACK(); # zweielementige Liste
-     TheStream(stream)->strm_isatty = NIL;
-     HandleStream_buffered(stream) = FALSE;
+    {var decoded_eltype eltype = { eltype_iu, 8 };
+     var object stream = make_unbuffered_stream(strmtype_x11socket,5,&eltype,FALSE);
      SocketStream_input_init(stream);
      SocketStream_output_init(stream);
+     TheStream(stream)->strm_x11socket_connect = popSTACK(); # zweielementige Liste
      value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -13253,36 +13233,22 @@ LISPFUNN(write_n_bytes,4)
   # define strm_socket_host strm_field2 # host, NIL or a string
 
 # Creates a socket stream.
-local object make_socket_stream (SOCKET handle, object host, object port);
-local object make_socket_stream(handle,host,port)
+# > STACK_2: element-type
+local object make_socket_stream (SOCKET handle, decoded_eltype* eltype, object host, object port);
+local object make_socket_stream(handle,eltype,host,port)
   var SOCKET handle;
+  var decoded_eltype* eltype;
   var object host; # string
   var object port; # fixnum >=0
   { pushSTACK(host);
+    pushSTACK(STACK_(2+1)); # eltype
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
-   {var object stream = # neuer Stream, alles erlaubt
-      allocate_stream(strmflags_open_B,strmtype_socket,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-    TheStream(stream)->strm_rd_by = P(rd_by_iau8_handle);
-    TheStream(stream)->strm_rd_by_array = P(rd_by_array_iau8_handle);
-    TheStream(stream)->strm_wr_by = P(wr_by_iau8_handle);
-    TheStream(stream)->strm_wr_by_array = P(wr_by_array_iau8_handle);
-    TheStream(stream)->strm_rd_ch = P(rd_ch_handle);
-    TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_handle);
-    TheStream(stream)->strm_rd_ch_last = NIL;
-    TheStream(stream)->strm_wr_ch = P(wr_ch_handle);
-    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_handle);
-    TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-    TheStream(stream)->strm_wr_ss = P(wr_ss_handle);
-    TheStream(stream)->strm_socket_port = port;
-    TheStream(stream)->strm_socket_host = popSTACK();
-    TheStream(stream)->strm_ihandle =
-    TheStream(stream)->strm_ohandle = popSTACK(); # Handle eintragen
-    TheStream(stream)->strm_isatty = NIL;
-    HandleStream_buffered(stream) = FALSE;
+   {var object stream = make_unbuffered_stream(strmtype_socket,5,eltype,FALSE);
     SocketStream_input_init(stream);
     SocketStream_output_init(stream);
+    TheStream(stream)->strm_socket_port = port;
+    TheStream(stream)->strm_socket_host = popSTACK();
     return stream;
   }}
 
@@ -13387,15 +13353,23 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
 # (SOCKET-ACCEPT socket-server [:element-type] [:external-format] [:buffered])
   {
     var SOCKET sock;
+    var decoded_eltype eltype;
     var SOCKET handle;
 
     test_socket_server(STACK_3);
+
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    check_unbuffered_eltype(&eltype);
+
     sock = TheSocket(TheSocketServer(STACK_3)->socket_handle);
     begin_system_call();
     handle = accept_connection (sock);
     end_system_call();
     if (handle == INVALID_SOCKET) { SOCK_error(); }
-    value1 = make_socket_stream(handle,TheSocketServer(STACK_3)->host,
+    value1 = make_socket_stream(handle,&eltype,
+                                TheSocketServer(STACK_3)->host,
                                 TheSocketServer(STACK_3)->port);
     mv_count = 1;
     skipSTACK(4);
@@ -13449,8 +13423,16 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 # (SOCKET-CONNECT port [host] [:element-type] [:external-format] [:buffered])
   {
-    var SOCKET handle;
     var char *hostname;
+    var decoded_eltype eltype;
+    var SOCKET handle;
+
+    if (!posfixnump(STACK_4)) { fehler_posfixnum(STACK_4); }
+
+    # Check and canonicalize the :ELEMENT-TYPE argument:
+    test_eltype_arg(&STACK_2,&eltype);
+    STACK_2 = canon_eltype(&eltype);
+    check_unbuffered_eltype(&eltype);
 
     if (eq(STACK_3,unbound))
       hostname = "localhost";
@@ -13459,13 +13441,12 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
     else
       fehler_string(STACK_3);
 
-    if (!posfixnump(STACK_4)) { fehler_posfixnum(STACK_4); }
-
     begin_system_call();
     handle = create_client_socket(hostname,posfixnum_to_L(STACK_4));
     if (handle == INVALID_SOCKET) { SOCK_error(); }
     end_system_call();
-    value1 = make_socket_stream(handle,asciz_to_string(hostname),STACK_4);
+    value1 = make_socket_stream(handle,&eltype,
+                                asciz_to_string(hostname),STACK_4);
     skipSTACK(5);
     mv_count = 1;
   }
@@ -13879,12 +13860,6 @@ LISPFUNN(stream_element_type,1)
               # CHARACTER
               eltype = S(character); break;
             case strmtype_file:
-              # CHARACTER or ([UN]SIGNED-BYTE n)
-              eltype = TheStream(stream)->strm_eltype; break;
-            # dann die allgemeinen Streams:
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:
-            #endif
             #ifdef PIPES
             case strmtype_pipe_in:
             case strmtype_pipe_out:
@@ -13894,6 +13869,12 @@ LISPFUNN(stream_element_type,1)
             #endif
             #ifdef SOCKET_STREAMS
             case strmtype_socket:
+            #endif
+              # CHARACTER or ([UN]SIGNED-BYTE n)
+              eltype = TheStream(stream)->strm_eltype; break;
+            # dann die allgemeinen Streams:
+            #ifdef GENERIC_STREAMS
+            case strmtype_generic:
             #endif
             default:
               { var uintB flags = TheStream(stream)->strmflags;
@@ -14193,6 +14174,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_generic:  return listen_generic(stream);
               #endif
               case strmtype_file:
+              #ifdef PIPES
+              case strmtype_pipe_in:
+              case strmtype_pipe_out:
+              #endif
+              #ifdef X11SOCKETS
+              case strmtype_x11socket:
+              #endif
+              #ifdef SOCKET_STREAMS
+              case strmtype_socket:
+              #endif
                 if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
                   { if (HandleStream_buffered(stream))
                       { return listen_ch_file(stream); }
@@ -14221,16 +14212,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #endif
               #ifdef PRINTER
               case strmtype_printer:  return ls_eof; # kein READ-CHAR
-              #endif
-              #ifdef PIPES
-              case strmtype_pipe_in:  return listen_pipe_in(stream);
-              case strmtype_pipe_out: return ls_eof; # kein READ-CHAR
-              #endif
-              #ifdef X11SOCKETS
-              case strmtype_x11socket:   return listen_socket(stream);
-              #endif
-              #ifdef SOCKET_STREAMS
-              case strmtype_socket:   return listen_socket(stream);
               #endif
               default: # Allgemein: nur EOF abfragen
                 if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
@@ -14275,6 +14256,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             ergebnis = clear_input_generic(stream); break;
           #endif
           case strmtype_file:
+          #ifdef PIPES
+          case strmtype_pipe_in:
+          case strmtype_pipe_out:
+          #endif
+          #ifdef X11SOCKETS
+          case strmtype_x11socket:
+          #endif
+          #ifdef SOCKET_STREAMS
+          case strmtype_socket:
+          #endif
             if (TheStream(stream)->strmflags & strmflags_rd_ch_B
                 && !HandleStream_buffered(stream)
                )
@@ -14298,15 +14289,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                         );
             #endif
             break;
-          #ifdef PIPES
-          case strmtype_pipe_in: # Pipe: nichts löschen??
-          #endif
-          #ifdef X11SOCKETS
-          case strmtype_x11socket: # Socket: nichts löschen??
-          #endif
-          #ifdef SOCKET_STREAMS
-          case strmtype_socket: # Socket: nichts löschen??
-          #endif
           default:
             ergebnis = FALSE; break;
         }
@@ -14345,6 +14327,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 finish_output_generic(stream); break;
               #endif
               case strmtype_file:
+              #ifdef PIPES
+              case strmtype_pipe_in:
+              case strmtype_pipe_out:
+              #endif
+              #ifdef X11SOCKETS
+              case strmtype_x11socket:
+              #endif
+              #ifdef SOCKET_STREAMS
+              case strmtype_socket:
+              #endif
                 if (HandleStream_buffered(stream))
                   { finish_output_file(stream); }
                   else
@@ -14357,15 +14349,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 # Schließen und neu aufmachen würde vermutlich einen
                 # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
                 break; # Daher nichts tun.
-              #endif
-              #ifdef PIPES
-              case strmtype_pipe_out: # Pipe: kann nichts tun
-              #endif
-              #ifdef X11SOCKETS
-              case strmtype_x11socket: # Socket: kann nichts tun
-              #endif
-              #ifdef SOCKET_STREAMS
-              case strmtype_socket: # Socket: kann nichts tun
               #endif
               default: # nichts tun
                 break;
@@ -14397,6 +14380,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 force_output_generic(stream); break;
               #endif
               case strmtype_file:
+              #ifdef PIPES
+              case strmtype_pipe_in:
+              case strmtype_pipe_out:
+              #endif
+              #ifdef X11SOCKETS
+              case strmtype_x11socket:
+              #endif
+              #ifdef SOCKET_STREAMS
+              case strmtype_socket:
+              #endif
                 if (HandleStream_buffered(stream))
                   { force_output_file(stream); }
                   else
@@ -14409,15 +14402,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 # Schließen und neu aufmachen würde vermutlich einen
                 # Seitenvorschub ausgeben, und das ist ja wohl nicht erwünscht.
                 break; # Daher nichts tun.
-              #endif
-              #ifdef PIPES
-              case strmtype_pipe_out: # Pipe: kann nichts tun
-              #endif
-              #ifdef X11SOCKETS
-              case strmtype_x11socket: # Socket: kann nichts tun
-              #endif
-              #ifdef SOCKET_STREAMS
-              case strmtype_socket: # Socket: kann nichts tun
               #endif
               default: # nichts tun
                 break;
@@ -14453,6 +14437,16 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 break;
               #endif
               case strmtype_file:
+              #ifdef PIPES
+              case strmtype_pipe_in:
+              case strmtype_pipe_out:
+              #endif
+              #ifdef X11SOCKETS
+              case strmtype_x11socket:
+              #endif
+              #ifdef SOCKET_STREAMS
+              case strmtype_socket:
+              #endif
                 if (HandleStream_buffered(stream))
                   {} # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
                   else
@@ -14469,18 +14463,6 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                 break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer: ungebuffert, also nichts zu tun
-                break;
-              #endif
-              #ifdef PIPES
-              case strmtype_pipe_out: # Pipe: geht nicht
-                break;
-              #endif
-              #ifdef X11SOCKETS
-              case strmtype_x11socket: # Socket: geht nicht
-                break;
-              #endif
-              #ifdef SOCKET_STREAMS
-              case strmtype_socket: # Socket: geht nicht
                 break;
               #endif
               default: # nichts tun

@@ -1,5 +1,41 @@
 1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Treat pipe and socket streams like unbuffered file streams.
+        * stream.d (check_unbuffered_eltype): New function.
+          (strm_pipe_in_handle): Replace with strm_ihandle.
+          (rd_ch_pipe_in, rd_ch_array_pipe_in, rd_by_pipe_in,
+           rd_by_array_pipe_in): Remove macros.
+          (PipeStream_input_init): New macro.
+          (close_pipe_in): Update.
+          (listen_pipe_in): Remove macro.
+          (MAKE-PIPE-INPUT-STREAM): Check the :ELEMENT-TYPE argument. Call
+          make_unbuffered_stream.
+          (strm_pipe_out_handle): Replace with strm_ohandle.
+          (wr_ch_pipe_out, wr_ch_array_pipe_out, wr_ss_pipe_out,
+           wr_by_pipe_out, wr_by_array_pipe_out): Remove macros.
+          (pipe_low_finish_output, pipe_low_force_output,
+           pipe_low_clear_output): New functions.
+          (PipeStream_output_init): New macro.
+          (close_pipe_out): Update.
+          (MAKE-PIPE-OUTPUT-STREAM): Check the :ELEMENT-TYPE argument. Call
+          make_unbuffered_stream.
+          (MAKE-PIPE-IO-STREAM): Likewise.
+          (socket_low_finish_output, socket_low_force_output,
+           socket_low_clear_output): Define always.
+          (SocketStream_output_init): Use them in all cases.
+          (SYS::MAKE-SOCKET-STREAM): Call make_unbuffered_stream.
+          (make_socket_stream): Change signature. Call make_unbuffered_stream.
+          (SOCKET-ACCEPT, SOCKET-CONNECT): Check the :ELEMENT-TYPE argument.
+          (STREAM-ELEMENT-TYPE): Treat pipe and socket streams like file
+          streams.
+          (stream_listen, clear_input, finish_output, force_output,
+           clear_output): Likewise.
+        * pseudofun.d: Update.
+        * io.d (pr_stream): For pipe and socket stream, print the element-type
+          as well.
+
+1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (make_buffered_stream): Renamed from make_unbuffered_stream.
           Change the calling convention. Don't call isatty. Don't store the
           strm_field1/strm_field2 values. Don't call HandleStream_input_init,
