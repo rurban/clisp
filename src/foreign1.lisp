@@ -172,21 +172,28 @@
                            ,ivar)))))))))))
 
 (defmacro with-name/options ((name options name+options) &body body)
-  (let ((no (gensym "NAME+OPTIONS-")))
-    `(let ((,no ,name+options))
-       (multiple-value-bind (,name ,options)
-           (if (consp ,no) (values (first ,no) (rest ,no)) (values ,no nil))
-         (declare (ignorable ,name ,options))
-         ,@body))))
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
+    (let ((no (gensym "NAME+OPTIONS-")))
+      `(LET ((,no ,name+options))
+         (MULTIPLE-VALUE-BIND (,name ,options)
+             (IF (CONSP ,no) (VALUES (FIRST ,no) (REST ,no)) (VALUES ,no NIL))
+           (DECLARE (IGNORABLE ,name ,options) ,@declarations)
+           ,@body-rest)))))
 
 (defmacro with-defining-c-type ((name c-type len) &body body)
-  `(let ((,c-type (make-array ,len)))
-    (unwind-protect
-         (progn (when ,name (setf (gethash ,name *c-type-table*) ,c-type))
-                ,@body)
-      (when ,name (setf (gethash ,name *c-type-table*) nil)))
-    (when ,name (setf (gethash ,name *c-type-table*) ,c-type))
-    ,c-type))
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
+    `(LET ((,c-type (MAKE-ARRAY ,len)))
+       ,@(if declarations `((DECLARE ,@declarations)))
+       (UNWIND-PROTECT
+           (PROGN
+             (WHEN ,name
+               (SETF (GETHASH ,name *C-TYPE-TABLE*) ,c-type))
+             ,@body-rest)
+         (WHEN ,name
+           (SETF (GETHASH ,name *C-TYPE-TABLE*) NIL)))
+       (WHEN ,name
+         (SETF (GETHASH ,name *C-TYPE-TABLE*) ,c-type))
+       ,c-type)))
 
 ;; Parse a C type specification.
 ;; If name is non-NIL, it will be assigned to name.
