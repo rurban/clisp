@@ -64,6 +64,7 @@
     var gcv_object_t* p;                        \
     p = &ptr->symvalue; update(p);              \
     p = &ptr->symfunction; update(p);           \
+    p = &ptr->hashcode; update(p);              \
     p = &ptr->proplist; update(p);              \
     p = &ptr->pname; update(p);                 \
     p = &ptr->homepackage; update(p);           \

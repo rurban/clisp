@@ -59,6 +59,7 @@ global object make_symbol (object string) {
   #define FILL  \
     do { ptr->symvalue = unbound; # empty value cell        \
          ptr->symfunction = unbound; # empty function cell  \
+         ptr->hashcode = unbound; # not yet computed        \
          ptr->proplist = NIL; # empty property list         \
          ptr->pname = popSTACK(); # store name              \
          ptr->homepackage = NIL; # no home-package          \
@@ -67,8 +68,8 @@ global object make_symbol (object string) {
   allocate(symbol_type,true,size_symbol(),Symbol,ptr,
     { FILL; });
  #else
-  allocate(symbol_type,true,size_xrecord(5,0),Symbol,ptr,
-  { ptr->tfl = xrecord_tfl(Rectype_Symbol,0,5,0); FILL; });
+  allocate(symbol_type,true,size_xrecord(6,0),Symbol,ptr,
+  { ptr->tfl = xrecord_tfl(Rectype_Symbol,0,6,0); FILL; });
  #endif
   #undef FILL
 }

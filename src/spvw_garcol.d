@@ -133,6 +133,7 @@ local void gc_markphase (void)
   for_all_constsyms({ /* peruse symbol_tab */
     gc_mark(ptr->symvalue);
     gc_mark(ptr->symfunction);
+    gc_mark(ptr->hashcode);
     gc_mark(ptr->proplist);
     gc_mark(ptr->pname);
     gc_mark(ptr->homepackage);
