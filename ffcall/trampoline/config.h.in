@@ -102,6 +102,8 @@
 #undef HAVE_GETPAGESIZE
 /* Define as the return type of getpagesize(). */
 #undef RETGETPAGESIZETYPE
+/* Define if you have <sys/param.h>. */
+#undef HAVE_SYS_PARAM_H
 
 /* CL_MACH_VM */
 /* Define if you have the vm_allocate() and task_self() functions. */
