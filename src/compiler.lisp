@@ -9570,7 +9570,7 @@ freshly rebuilt as list of bytes.
   ;; Further sub-steps.
   ;; Here we stretch the code by making the jump lengths longer, as needed.
   (loop
-    ;; When there were are more changes in this step, the jump lengths are
+    ;; When there are no more changes in this step, the jump lengths are
     ;; optimal.
     (unless
       (let ((modified nil) (oldPC 0) (PC 0))
