@@ -11108,10 +11108,6 @@ The function make-closure is required.
 ;; As Top-Level-Forms can be split at EVAL-WHEN, PROGN and LOCALLY,
 ;; one has to use LET (), in order to circumvent this.
 
-;; return the form name for *toplevel-name*
-(defun form-name (form)
-  (make-symbol (write-to-string form :level 2 :length 3)))
-
 ;; Compiles a Top-Level-Form for COMPILE-FILE. The *toplevel-name* is
 ;; mostly passed unchanged. *toplevel-for-value* indicates, if the value
 ;; is needed (for LOAD :PRINT T) or not.
@@ -11465,7 +11461,9 @@ The function make-closure is required.
                   (peek-char t istream nil eof-value)
                   (setq *compile-file-lineno1* (line-number istream))
                   (let* ((form (read istream nil eof-value))
-                         (form-name (form-name form)))
+                         (form-name (make-symbol
+                                     (write-to-string
+                                      form :level 2 :length 3 :pretty nil))))
                     (setq *compile-file-lineno2* (line-number istream))
                     (when (eql form eof-value) (return))
                     (when *compile-print* (format t "~%; ~A" form-name))
