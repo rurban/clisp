@@ -1,3 +1,7 @@
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
+	* condition.lisp (maybe-continue): Remove useless code.
+
 2005-01-10  Bruno Haible  <bruno@clisp.org>
 
 	* Makefile.devel (GCC_VERSION, GCC_SOURCE_FILE, GCC_SOURCE_URL): New
