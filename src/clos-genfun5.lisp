@@ -134,3 +134,9 @@
           ;; 2. Sort the applicable methods by precedence order:
           (sort-applicable-methods methods req-args (gf-argorder gf)))
         nil)))) ; rather no error
+
+;; MOP p. 54
+(fmakunbound 'find-method-combination)
+(defgeneric find-method-combination (generic-function name options)
+  (:method ((gf generic-function) (name symbol) options)
+    (find-method-combination-<generic-function>-<symbol> gf name options)))

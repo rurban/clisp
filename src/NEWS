@@ -11,6 +11,9 @@ User visible changes
 --------------------
 
 * Parts of the CLOS MetaObject Protocol are supported:
+  + Method-Combinations:
+    New generic function
+      FIND-METHOD-COMBINATION.
   + Slot-Definitions:
     New classes
       SLOT-DEFINITION,

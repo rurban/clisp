@@ -1,3 +1,12 @@
+2004-06-08  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export find-method-combination.
+	* clos-package.lisp: Likewise.
+	* clos-methcomb2.lisp (find-method-combination-<generic-function>-<symbol>):
+	New function.
+	(find-method-combination): New function.
+	* clos-genfun5.lisp (find-method-combination): New generic function.
+
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export add-direct-subclass, remove-direct-subclass.

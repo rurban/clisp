@@ -463,6 +463,7 @@
           ;; MOP for methods
           accessor-method-slot-definition
           ;; MOP for method combinations
+          find-method-combination
           ;; MOP for generic functions
           ;; CLISP specific symbols
           generic-flet generic-labels no-primary-method

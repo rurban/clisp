@@ -12,6 +12,8 @@
 ;; Mapping from name, a symbol, to method-combination instance.
 ;; If the caller is non-nil, an error is signalled if the method-combination
 ;; does not exist. Otherwise nil is returned.
+;; All method-combination objects used here have an empty options list;
+;; method-combination objects with options are stored in generic functions.
 (defun get-method-combination (name caller)
   (or (get name '%method-combination)
       (and caller

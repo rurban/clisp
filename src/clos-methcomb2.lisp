@@ -1016,6 +1016,19 @@ which performs the instantiation and registration and returns NAME."
 
 ;;; ---------------------------------- Misc ----------------------------------
 
+(defun find-method-combination-<generic-function>-<symbol> (gf name options)
+  (let ((combination (get-method-combination name 'defgeneric)))
+    (funcall (method-combination-check-options combination)
+             (sys::closure-name gf) combination options)
+    (when options
+      (setq combination (copy-method-combination combination))
+      (setf (method-combination-options combination) (copy-list options)))
+    combination))
+
+;; Preliminary.
+(defun find-method-combination (gf name options)
+  (find-method-combination-<generic-function>-<symbol> gf name options))
+
 ;; Converts a method-combination designator, e.g. a method combination name
 ;; or a list consisting of a method combination name and options, to a
 ;; method-combination instance.
