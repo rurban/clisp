@@ -1676,10 +1676,10 @@ echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
 echol "bindir  = \$(exec_prefix)${NEXT_}bin"
-echol "mandir  = \$(exec_prefix)${NEXT_}share${NEXT_}man"
-echol "htmldir = \$(exec_prefix)${NEXT_}share${NEXT_}html"
-echol "dvidir  = \$(exec_prefix)${NEXT_}share${NEXT_}dvi"
-echol "docdir  = \$(exec_prefix)${NEXT_}share${NEXT_}doc"
+echol "mandir  = \$(prefix)${NEXT_}share${NEXT_}man"
+echol "htmldir = \$(prefix)${NEXT_}share${NEXT_}html"
+echol "dvidir  = \$(prefix)${NEXT_}share${NEXT_}dvi"
+echol "docdir  = \$(prefix)${NEXT_}share${NEXT_}doc"
 case "$fsstnd" in
   suse)
     echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
