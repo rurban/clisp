@@ -9896,10 +9896,6 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
         # have to be scanned:
         {
           var object dir_namestring = assure_dir_exists(true,false); # resolve links, form directory-name
-          if (!file_exists(_EMA_)) {
-            skipSTACK(1);
-            goto next_pathname;
-          }
           pushSTACK(dir_namestring); # save
         }
         # stack layout: ..., pathname, dir_namestring.
