@@ -1157,6 +1157,9 @@ error
   (and (eq (nstring-upcase d :start 2 :end 4) d) d))
 "deFGh"
 
+(nstring-upcase (make-array 0 :element-type nil))
+""                      ; actually, #A(NIL (0)), but EQUAL will catch it
+
 #+CLISP
 (let* ((s (format nil "A~CB" (code-char 0)))
        (d (make-array 2 :displaced-to s :displaced-index-offset 1
