@@ -1543,7 +1543,7 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 </section>
 
 <section id="customize">
-  <title>Extensions-1.11. Customizing %clisp; behavior.</title>
+  <title>Extensions-1.11. Customizing &clisp; behavior.</title>
 
 <para>The user-customizable variables are located in the package
  &custom-pac; and thus can be listed using
