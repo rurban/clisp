@@ -2776,8 +2776,8 @@ global int main (argc_t argc, char* argv[]) {
   }
   # load RC file ~/.clisprc
   if (!argv_norc) {
-    # (LOAD (MERGE-PATHNAMES (MAKE-PATHNAME :NAME ".clisprc")
-    #                        (USER-HOMEDIR-PATHNAME))
+    # (LOAD (MAKE-PATHNAME :NAME ".clisprc"
+    #                      :DEFAULTS (USER-HOMEDIR-PATHNAME))
     #       :IF-DOES-NOT-EXIST NIL
     # )
     pushSTACK(S(Kname));
@@ -2787,11 +2787,10 @@ global int main (argc_t argc, char* argv[]) {
    #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
     pushSTACK(ascii_to_string("_clisprc"));
    #endif
-    funcall(L(make_pathname),2);
-    pushSTACK(value1);
+    pushSTACK(S(Kdefaults));
     funcall(S(user_homedir_pathname),0);
     pushSTACK(value1);
-    funcall(L(merge_pathnames),2);
+    funcall(L(make_pathname),4);
     pushSTACK(value1);
     pushSTACK(S(Kif_does_not_exist));
     pushSTACK(S(nil));
