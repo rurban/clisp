@@ -1,5 +1,5 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2004 Sam Steingold
+# (c) 2000-2005 Sam Steingold
 
 DTDVER=4.3
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml \
