@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host eraora as the output of the command:
+# This file was created on host mescaline.gnu.org as the output of the command:
 # ./makemake acorn ansi
 
 # -------------- Start of configurable section --------------------
@@ -96,14 +96,6 @@ ROFF_DVI =  # try "groff -Tdvi -mandoc"
 #               fas.foo : lsp.foo
 #                       $(CLISP) -c foo.lsp
 # 
-#        clisp-module-wide
-# 
-#           This target does the same as clisp-module, plus it builds the
-#           object files in wide mode as well.
-#           Typically, you will have rules like this in your Makefile:
-#               o.wfoo : c.foo
-#                       $(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c c.foo -o o.wfoo
-# 
 #        clisp-module-distrib
 # 
 #           This target copies the module into a temporary distribution
@@ -114,20 +106,9 @@ ROFF_DVI =  # try "groff -Tdvi -mandoc"
 #                              symbolic links)
 #           Typically, this target will look like this:
 #
-#               DISTRIBFILES = <the non-wide NEW_FILES mentioned in link.sh> \
-#                              <doc files>
+#               DISTRIBFILES = <the NEW_FILES mentioned in link.sh> <doc files>
 #               clisp-module-distrib : clisp-module force
 #                       $(LN) $(DISTRIBFILES) $(distribdir)
-# 
-#        clisp-module-distrib-wide
-# 
-#           This target does the same as clisp-module-distrib, but including
-#           the wide mode object files.
-#           Typically, this target will look like this:
-#
-#               WDISTRIBFILES = $(DISTRIBFILES) <the wide NEW_FILES in link.sh>
-#               clisp-module-distrib-wide : clisp-module-wide force
-#                       $(LN) $(WDISTRIBFILES) $(distribdir)
 # 
 # If these requirements are obeyed, this Makefile will automatically build
 # the add-on module and make it part of the "full" distribution -- all you
@@ -1133,7 +1114,7 @@ o.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.c
 o.ariarm : s.ariarm
 	objasm -Stamp -Quit -CloseExec -from s.ariarm -o o.ariarm
 
-lisp : $(OBJECTS) o.modules     
+lisp : $(OBJECTS) o.modules    
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) o.modules $(LIBS) $(X_LIBS) -o lisp
 
 

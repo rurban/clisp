@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host eraora as the output of the command:
+# This file was created on host mescaline.gnu.org as the output of the command:
 # ./makemake win32bc bcc32i
 
 # -------------- Start of configurable section --------------------
@@ -98,14 +98,6 @@ ROFF_DVI =  # try "groff -Tdvi -mandoc"
 #               foo.fas : foo.lsp
 #                       $(CLISP) -c foo.lsp
 # 
-#        clisp-module-wide
-# 
-#           This target does the same as clisp-module, plus it builds the
-#           object files in wide mode as well.
-#           Typically, you will have rules like this in your Makefile:
-#               wfoo.o : foo.c
-#                       $(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c foo.c -o wfoo.o
-# 
 #        clisp-module-distrib
 # 
 #           This target copies the module into a temporary distribution
@@ -116,20 +108,9 @@ ROFF_DVI =  # try "groff -Tdvi -mandoc"
 #                              symbolic links)
 #           Typically, this target will look like this:
 #
-#               DISTRIBFILES = <the non-wide NEW_FILES mentioned in link.sh> \
-#                              <doc files>
+#               DISTRIBFILES = <the NEW_FILES mentioned in link.sh> <doc files>
 #               clisp-module-distrib : clisp-module force
 #                       $(LN) $(DISTRIBFILES) $(distribdir)
-# 
-#        clisp-module-distrib-wide
-# 
-#           This target does the same as clisp-module-distrib, but including
-#           the wide mode object files.
-#           Typically, this target will look like this:
-#
-#               WDISTRIBFILES = $(DISTRIBFILES) <the wide NEW_FILES in link.sh>
-#               clisp-module-distrib-wide : clisp-module-wide force
-#                       $(LN) $(WDISTRIBFILES) $(distribdir)
 # 
 # If these requirements are obeyed, this Makefile will automatically build
 # the add-on module and make it part of the "full" distribution -- all you
@@ -1297,7 +1278,7 @@ noreadline.obj : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c c
 ole32.lib :
 	implib ole32.lib $(WIN32DIR)\ole32.dll
 
-lisp.exe : $(OBJECTS) modules.obj     ole32.lib 
+lisp.exe : $(OBJECTS) modules.obj     ole32.lib
 	$(CC) $(CFLAGS) $(CLFLAGS) -elisp.exe $(OBJECTS) modules.obj $(LIBS) $(X_LIBS)
 
 
