@@ -28,6 +28,8 @@ options:
        --with-termcap          termcap-1.3 library (needed only on cygwin32)
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
+       --with-module=wildcard
+       --with-module=regexp
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
        ./makemake --with-readline --with-dynamic-ffi > Makefile
@@ -46,6 +48,7 @@ EOP
 #        termcap          termcap-1.3 library (needed only on cygwin32)
 #        dynamic-ffi      a dynamic foreign language interface
 #        dynamic-modules  dynamic loading of foreign language modules
+#        module=MODULE    an add-on module
 #  where TARGET is one of
 #        sun3
 #        sun4
@@ -139,6 +142,7 @@ srcdir=''
 prefix=''
 exec_prefix=''
 fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse
+MODULES=''
 CP='cp -p'
 LN_S='ln -s'
 LN='ln'
@@ -157,6 +161,10 @@ fi
 # Handle --with-... arguments
 while test -z "$endofargs"; do
   case "$1" in
+    -with-module=* | --with-module=*)
+      MODULES="$MODULES "`echol "$1"|sed 's/-*with-module=//'`
+      shift
+      ;;
     -with-* | --with-*)
       package=`echol "$1"|sed 's/-*with-//'`
       # Delete all the valid chars; see if any are left.
@@ -1499,7 +1507,7 @@ if [ $TOS = unix ] ; then
   echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
 fi
 echol '# If you change this after doing "make", you have to "rm -r full; make".'
-echol "MODULES = "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
+echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
 echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
