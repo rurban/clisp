@@ -1,5 +1,9 @@
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
+	* condition.lisp (assert): Simplify macroexpansion by use of wrap-let*.
+
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
 	* condition.lisp (assert): Simplify.
 	(check-value): Comments.
 
