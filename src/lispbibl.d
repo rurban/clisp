@@ -2292,7 +2292,7 @@ Ratio and Complex (only if SPVW_MIXED).
     # For pointers, the address takes the full word (with type info in the
     # lowest two bits). For immediate objects, we use 24 bits for the data
     # (but exclude the highest available bit, which is the garcol_bit).
-    #if !((defined(I80386) && defined(UNIX_BEOS)) || (defined(SPARC) && defined(UNIX_LINUX)))
+    #if !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || (defined(SPARC) && defined(UNIX_LINUX)))
       #define oint_type_shift 0
       #define oint_type_len 8
       #define oint_type_mask 0x0000007FUL
@@ -2310,13 +2310,19 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 24
       #define oint_data_mask 0x3FFFFFC0UL
       #define garcol_bit_o 30
-    #elif defined(SPARC) && defined(UNIX_LINUX)
+    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || (defined(SPARC) && defined(UNIX_LINUX))
       # On Sparc-Linux, malloc()ed addresses are of the form 0x0....... or
       # 0xe........ Bits 31..29 are therefore part of an address and cannot
       # be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
       # Now, the 24 data bits of an immediate value must not intersect the
       # garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
       # as well).
+      # On m68k-Linux, malloc()ed addresses are of the form 0x80...... or
+      # 0xc0....... Bits 31..30 are therefore part of an address and cannot
+      # be used as garcol_bit. We therefore have three choices:
+      #   data bits: bits 26..3, garcol_bit_o = 28/27
+      #   data bits: bits 27..4, garcol_bit_o = 28/3
+      #   data bits: bits 28..5, garcol_bit_o = 4/3
       #define oint_type_shift 0
       #define oint_type_len 32
       #define oint_type_mask 0xE000000FUL
@@ -4880,6 +4886,11 @@ typedef struct {
     uintB rest_flag;        # Flag für beliebig viele Argumente
     uintB key_flag;         # Flag für Keywords
     uintW key_anz;          # Anzahl Keywordparameter
+    #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
+      # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
+      # __attribute__ ((aligned (4))) below is not sufficient with gcc-2.95.2.
+      uintW dummy;
+    #endif
   } subr_
     #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
       # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
@@ -5200,7 +5211,7 @@ typedef struct {
   #elif defined(HPPA)
     #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+2))
   #else
-    #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)>>(2-log2_C_CODE_ALIGNMENT)))
+    #define TheMachineCode(obj)  ((void*)(((uintP)TheMachine(obj)>>(2-log2_C_CODE_ALIGNMENT))|(CODE_ADDRESS_RANGE&~((~(uintP)0)>>(2-log2_C_CODE_ALIGNMENT)))))
   #endif
   #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE

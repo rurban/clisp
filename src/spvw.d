@@ -2432,7 +2432,7 @@ local void print_banner ()
            #ifdef TYPECODES
            var aint end = bitm(oint_addr_len+addr_shift);
            #else
-           var aint end = bitm(oint_addr_len-1); # keep garcol_bit zero
+           var aint end = (start | (bitm(garcol_bit_o)-1)) + 1; # keep garcol_bit zero
            #endif
            var aint part = floor(end - (start & (end-1)),5);
            mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
