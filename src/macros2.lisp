@@ -528,7 +528,8 @@
 (export 'without-floating-point-underflow)
 (in-package "SYSTEM")
 (defmacro without-floating-point-underflow (&body body)
-  `(LET ((SYS::*INHIBIT-FLOATING-POINT-UNDERFLOW* T))
-    ,@body))
+  `(let ((SYS::*INHIBIT-FLOATING-POINT-UNDERFLOW* T))
+    ;; need `progn' to signal an error when `body' starts with a declaration
+    (progn ,@body)))
 ;------------------------------------------------------------------------------
 
