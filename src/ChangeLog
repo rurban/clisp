@@ -1,5 +1,10 @@
 2003-04-04  Sam Steingold  <sds@gnu.org>
 
+	* macros1.lisp (fcase): DEFMACRO, not DEFMACRO-SPECIAL
+	so that it will also work in interpreted code
+
+2003-04-04  Sam Steingold  <sds@gnu.org>
+
 	implemented MAKE-INSTANCES-OBSOLETE and
 	UPDATE-INSTANCE-FOR-REDEFINED-CLASS
 	* clos.lisp (class): added slot ID - the number of class redefinitions
