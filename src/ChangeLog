@@ -22,6 +22,8 @@
 	declaration to ANSI C.
 	* width.c (uc_width): Likewise.
 
+	* utils/ccmp2c.c (token_type_t): Renamed from enum token_t.
+
 2002-12-01  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (check_wr_char): new macro (used in 18 places)
