@@ -300,6 +300,7 @@ local void gc_mark (object obj)
         case Rectype_Ffloat:
         case Rectype_Dfloat:
         case Rectype_Lfloat:
+        case Rectype_Snilvector: /* (VECTOR NIL) */
           down_nopointers(TheRecord);
         case Rectype_Svector:
           down_svector();
@@ -316,6 +317,7 @@ local void gc_mark (object obj)
         case Rectype_b16vector:
         case Rectype_b32vector:
         case Rectype_string:
+        case Rectype_nilvector: /* (VECTOR NIL) */
         case Rectype_vector:
           down_iarray();
         default: /* Srecord/Xrecord */

@@ -108,3 +108,21 @@
   '(1 2 4 8 16 32)
 )
 
+(%defseq ; (VECTOR NIL)
+  (vector
+    0
+    #'vector-init
+    #'vector-upd
+    #'vector-endtest
+    #'vector-fe-init
+    #'vector-fe-upd
+    #'vector-fe-endtest
+    #'aref
+    #'sys::store
+    #'identity
+    #'vector-length
+    #'(lambda (length) (make-array length :element-type nil))
+    #'aref
+    #'sys::store
+    #'vector-init-start
+    #'vector-fe-init-end))

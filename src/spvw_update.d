@@ -180,6 +180,7 @@
          case Rectype_reallocstring:                                    \
          case Rectype_string:                                           \
          case Rectype_vector:                                           \
+         case Rectype_nilvector:                                        \
           # non-simple array: update data vector                        \
           do_update_iarray();                                           \
           break;                                                        \
@@ -198,6 +199,7 @@
          case Rectype_S32string: case Rectype_Imm_S32string:            \
          case Rectype_Bignum: case Rectype_Ffloat:                      \
          case Rectype_Dfloat: case Rectype_Lfloat:                      \
+         case Rectype_Snilvector:                                       \
           # these contain no pointers that need update -> do nothing    \
           break;                                                        \
          default: # Record: update all pointers                         \

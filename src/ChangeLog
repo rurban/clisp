@@ -1,3 +1,42 @@
+2003-04-01  Sam Steingold  <sds@gnu.org>
+
+	implemented arrays with ARRAY-ELEMENT-TYPE NIL
+	* array.d (eltype_code): return Atype_NIL for NIL argument
+	(fehler_retrieve): new function
+	(storagevector_aref, storagevector_store, elt_fill)
+	(VECTOR-PUSH-EXTEND): barf on (VECTOR NIL)
+	(fehler_store): use less stack
+	(array_element_type): return NIL for Array_type_(s)nilvector
+	(elt_copy, elt_move, test_displaced, MAKE-ARRAY): handle (VECTOR NIL)
+	* defseq.lisp: added (VECTOR NIL), named "0"
+	* io.d (ARRAY-READER): read #A(NIL dims)
+	(pr_vector): print (ARRAY NIL) as #A(NIL dims)
+	(pr_orecord): print Rectype_(S)nilvector with pr_vector()
+	* lispbibl.d (Rectype_nilvector): new type, replaces rectype_unused1
+	(Rectype_Snilvector): new record type
+	(arrayflags_atype_mask): 15 now
+	(Atype_NIL): new type
+	(Array_type_nilvector, Array_type_snilvector): new array types
+	(vectorp, simplep, array_simplep, simple_string_p, stringp)
+	(arrayp): adjusted to use symbolic Rectype_*
+	(if_recordp): added Rectype_(S)nilvector
+	(case_Rectype_Snilvector_above, case_Rectype_nilvector_above): added
+	(case_Rectype_array_above): added Rectype_(S)nilvector
+	(allocate_nilvector): declare
+	* sequence.d (valid_type1, get_seq_type): handle (VECTOR NIL)
+	* spvw_circ.d (get_circ_mark, get_circ_unmark, subst_circ_mark)
+	(subst_circ_unmark): handle (VECTOR NIL) together with other
+	component-less objects
+	* spvw_garcol.d (gc_mark): handle Rectype_Snilvector with
+	down_nopointers() and Rectype_nilvector with down_iarray()
+	* spvw_genera1.d (walk_area, build_old_generation_cache): handle
+	Rectype_Snilvector with bitvectors and numbers and
+	Rectype_nilvector with iarrays
+	* spvw_objsize.d (objsize): handle Rectype_(S)nilvector
+	* spvw_typealloc.d (allocate_nilvector): implemented
+	* spvw_update.d (update_varobject): handle Rectype_(S)nilvector
+	* type.lisp (upgraded-array-element-type): return NIL for NIL arg
+
 2003-04-01  Kaz Kylheku  <kaz@ashi.footprints.net>
 	    Sam Steingold  <sds@gnu.org>
 
