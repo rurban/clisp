@@ -1701,8 +1701,8 @@ local void usage (int exit_code)
 }
 
 # print license and exit
-nonreturning_function (local, license, (int exit_code));
-local void license (int exit_code) 
+nonreturning_function (local, print_license, (int exit_code));
+local void print_license (int exit_code) 
 { local const char * const license [] = {
     "This program is free software; you can redistribute it and/or modify"
     NLstring,
