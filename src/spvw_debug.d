@@ -216,31 +216,51 @@ global object nobject_out (FILE* out, object obj) {
    so that this is useable from the p_backtrace_t C++ definition */
 local int back_trace_depth (const struct backtrace_t *bt) {
   var uintL index = 0;
-  for (bt = (bt ? bt : back_trace); bt; bt=bt->bt_next, index++)
-    if (bt == bt->bt_next) return -index;
+  var const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
+  var const struct backtrace_t *bt_slow = bt_fast;
+  while (bt_fast) {
+    bt_fast = bt_fast->bt_next; index++;
+    if (bt_fast == bt_slow) return -index;
+    if (bt_fast) { bt_fast = bt_fast->bt_next; index++; }
+    if (bt_fast == bt_slow) return -index;
+    bt_slow = bt_slow->bt_next;
+  }
   return index;
 }
 
+/* print a single struct backtrace_t object
+ the caller must do begin_system_call()/end_system_call() ! */
+local void bt_out (FILE* out, const struct backtrace_t *bt, uintL index) {
+  fprintf(out,"[%d/0x%X]%s ",index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
+  nobject_out(out,bt->bt_caller);
+  if (bt->bt_num_arg >= 0)
+    fprintf(out," %d args",bt->bt_num_arg);
+  if (bt->bt_next)
+    fprintf(out," delta: STACK=%d; SP=%d",
+            STACK_item_count(bt->bt_stack,bt->bt_next->bt_stack),
+            /* SP and STACK grow in the opposite directions: */
+            STACK_item_count(bt->bt_next,bt));
+  fputc('\n',out);
+}
+
+/* print the whole backtrace stack */
 local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
   var uintL index = 0;
-  begin_system_call();
+  var const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
+  var const struct backtrace_t *bt_slow = bt_fast;
   if (out == NULL) out = stdout;
-  if (!bt) bt = back_trace;
-  for (; bt; bt=bt->bt_next, index++) {
-    fprintf(out,"[%d/0x%X]%s ",index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
-    nobject_out(out,bt->bt_caller);
-    if (bt->bt_num_arg >= 0)
-      fprintf(out," %d args",bt->bt_num_arg);
-    if (bt->bt_next)
-      fprintf(out," delta: STACK=%d; SP=%d",
-              STACK_item_count(bt->bt_stack,bt->bt_next->bt_stack),
-              /* SP and STACK go in the opposite directions: */
-              STACK_item_count(bt->bt_next,bt));
-    fputc('\n',out);
-    if (bt == bt->bt_next) {
-      fprintf(out,"*** error: circularity detected!\n");
+  begin_system_call();
+  while (bt_fast) {
+    bt_out(out,bt_fast,index++); bt_fast = bt_fast->bt_next;
+    if (bt_fast == bt_slow) {
+     circular:
+      fprintf(out,"*** error: backtrace circularity detected!\n");
+      index = -index;
       break;
     }
+    if (bt_fast) { bt_out(out,bt_fast,index++); bt_fast = bt_fast->bt_next; }
+    if (bt_fast == bt_slow) goto circular;
+    bt_slow = bt_slow->bt_next;
   }
   end_system_call();
   return index;
