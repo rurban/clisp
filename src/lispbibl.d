@@ -55,6 +55,7 @@
 # NeXT         NeXT               NeXTstep 3.1 (UNIX)           cc            NeXT, m68k; NEXTAPP für NeXTstep-Applikation
 # PowerPC      Apple              Mach 3.0 + MkLinux            GNU           unix, __powerpc__, __PPC__, _ARCH_PPC, _CALL_SYSV, __ELF__, __linux__
 # PowerPC      Apple              Mach + Rhapsody               cc            __MACH__, __APPLE__, __ppc[__], __GNUC__, __APPLE_CC__
+# PowerPC      Apple              Mach + MacOS X                cc            __MACH__, __APPLE__, __ppc__, __GNUC__, __APPLE_CC__
 # Sequent      Sequent            PTX 3.2.0 V2.1.0 i386 (SYS V) GNU           unix, i386, _SEQUENT_, __GNUC__
 # Sequent      Sequent            PTX V4.1.3                    GNU           unix, i386, _SEQUENT_, __svr4__, __GNUC__
 # Convex C2    Convex             ConvexOS 10.1                 GNU           __convex__, __GNUC__
@@ -196,7 +197,7 @@
   #if defined(m88000) || defined(__m88k__)
     #define M88000
   #endif
-  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc)
+  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__)
     #define RS6000
   #endif
   #ifdef __convex__
@@ -1750,6 +1751,10 @@
   #undef CBLOCK
 # AIX 3.2.5 does "#define hz 100". Grr...
   #undef hz
+# MacOS X does "#define TIME_ABSOLUTE 0x00" and "#define TIME_RELATIVE 0x01".
+# Grr...
+  #undef TIME_ABSOLUTE
+  #undef TIME_RELATIVE
 
 #ifdef AMIGAOS
   # Behandlung von AMIGAOS-Fehlern
