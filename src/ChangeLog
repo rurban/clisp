@@ -1,3 +1,11 @@
+2003-03-12  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: win32msvc mean either msvc4 or msvc5 or msvc7 (.NET)
+	* Makefile.devel (makefiles): added win32msvc/makefile.msvc7
+	(win32msvc/makefile.msvc7): new target
+	* win32.d: undef `unused' around `#include <windows.h>' for MSVC
+	Suggested by Jay Kint <jkint@icosahedron.org>
+
 2003-01-31  Jörg Höhle  <Joerg-Cyril.Hoehle@...>
 
 	patch #[ 678216 ]: FFI:WITH-FOREIGN-STRING
