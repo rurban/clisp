@@ -4915,7 +4915,7 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   gcv_object_t fa_base;
-  uintP fa_offset;
+  sintP fa_offset;
 } * Faddress;
 #define faddress_length  1
 #define faddress_xlength  (sizeof(*(Faddress)0)-offsetofa(record_,recdata)-faddress_length*sizeof(gcv_object_t))
@@ -12171,7 +12171,7 @@ nonreturning_function(global, fehler_too_many_args,
 nonreturning_function(global, fehler_too_few_args,
                       (object caller, object func, uintL ngiven, uintL nmin));
 
-# used by EVAL, FOREIGN1
+# used by EVAL, FOREIGN
 
 # Checking of an argument
 # check_...(obj);

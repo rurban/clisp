@@ -2292,23 +2292,37 @@ containing:</para>
   <simpara>The function extracts the object of type &foreign-address-t;
    living within any &foreign-variable; or &foreign-function; object.
    If the &f-ent; already is a &foreign-address-t;, it returns it.
-   If it is a &foreign-pointer; (e.g. a base foreign library address),
+   If it is a &foreign-pointer-t; (e.g. a base foreign library address),
    it encapsulates it into a &foreign-address-t; object, as suitable
    for use with a &c-pointer; external type declaration.
    It does not construct addresses out of &number-t;s,
    &unsigned-foreign-address; must be used for that purpose.
 </simpara></listitem></varlistentry>
 
- <varlistentry id="faddr-u">
+<varlistentry id="faddr-u">
  <term><literal role="sexp">(&foreign-address-unsigned;
    &f-ent;)</literal></term>
  <term><literal role="sexp">(&unsigned-foreign-address;
    &number-r;)</literal></term>
  <listitem><simpara>&foreign-address-unsigned; returns the &integer-t;
    address embodied in the Lisp object of type &foreign-address-t;,
-   &foreign-pointer;, &foreign-variable; or &foreign-function;.</simpara>
+   &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
   <simpara>&unsigned-foreign-address; returns a &foreign-address-t;
    object pointing to the given &integer-t; address.
+</simpara></listitem></varlistentry>
+
+<varlistentry id="fptr">
+ <term><literal role="sexp">(&foreign-pointer; &f-ent;)</literal></term>
+ <term><literal role="sexp">(&setf; (&foreign-pointer; &f-ent;)
+   &f-ptr;)</literal></term>
+ <listitem><simpara>&foreign-pointer; returns the &foreign-pointer-t;
+   associated with the Lisp object of type &foreign-address-t;,
+   &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
+  <simpara><literal role="sexp">(&setf; &foreign-pointer;)</literal>
+   changes the &foreign-pointer-t; associated with the Lisp object of
+   type &foreign-address-t;, &foreign-variable; or &foreign-function;.
+   When &f-ptr; is &copy-k;, a fresh &foreign-pointer-t; is allocated.
+   &f-ent; still points to the same object.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-stack">
@@ -3210,7 +3224,7 @@ Lisp &string-t; or &unsigned-byte-vec; into memory.</para>
 
 <para><function>nzero-pointer-p</function> tests for
 non-&c-NULL; pointers in all recognized representations
-(&null-t;, &unsigned-byte-t; and &foreign-pointer;).</para>
+(&null-t;, &unsigned-byte-t; and &foreign-pointer-t;).</para>
 
 </section>
 
@@ -3287,7 +3301,7 @@ This is useful for functions like like &read-c; which
 do not need an array at a constant address longer than the dynamic
 extent of the call (it is dangerous to define callback functions with
 &io-k; (or &string-t;) type parameters).
-Arguments of type &integer-t; and &foreign-pointer; are always
+Arguments of type &integer-t; and &foreign-pointer-t; are always
 acceptable where a &string-t; or &io-k; type is specified.</para>
 
 <!-- #ifdef UNICODE -->
@@ -3296,7 +3310,7 @@ acceptable where a &string-t; or &io-k; type is specified.</para>
 
 <para>To meet the design goals, predefined types and objects were
 used. As such, pointers were represented as integers. Now that there is
-the &foreign-pointer; type, both representations may be used on input.
+the &foreign-pointer-t; type, both representations may be used on input.
 The pointer type should be therefore considered as opaque.
 Use <function>nzero-pointer-p</function> for &c-NULL; tests.</para>
 
@@ -3325,7 +3339,7 @@ stack-based calls (unimplemented).</para>
 function result type and yields either &t; or &nil;. The difference
 between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
-&foreign-pointer; as function result-type (except from &nil; for a
+&foreign-pointer-t; as function result-type (except from &nil; for a
 &c-NULL; pointer) and refuses objects of type &string-t; or
 &unsigned-byte-vec; as input.  Thus &external-k; provides some security
 on the input and the ability to use &finalize; for resource-tracking on
@@ -3441,7 +3455,7 @@ the usual symbol headaches when using foreign functions calls within
 macros.  Luckily, even if the high-level interface (or its
 implementation in <filename>affi1.lisp</filename>) were to change, the
 low-level part (<filename>affi.d</filename>) should remain untouched as
-all it knows are &integer-t;s and &foreign-pointer;s, no &symbol-t;s.
+all it knows are &integer-t;s and &foreign-pointer-t;s, no &symbol-t;s.
 The difficulty is just to get the library base value at run-time.
 Feel free to suggest enhancements to this facility!</para>
 
@@ -3928,7 +3942,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     &link; (when it is <constant>:HARDLINK</constant>), and &rename;
     (when it is <constant>:RENAME</constant>) system calls, as well as,
     you guessed it, a generic file copy utility
-    (when <replaceable>method</replaceable> is <constant>:COPY</constant>).
+    (when <replaceable>method</replaceable> is &copy-k;).
    </simpara><simpara>Both <replaceable>source-path</replaceable> and
     <replaceable>destination-path</replaceable> may be wild.
  </simpara></listitem></varlistentry>

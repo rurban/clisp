@@ -1091,6 +1091,7 @@ LISPSYM(rexx_reply,"%REXX-REPLY",system)
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
 LISPSYM(validp,"VALIDP",ffi)
+LISPSYM(set_foreign_pointer,"SET-FOREIGN-POINTER",ffi)
 LISPSYM(sizeof,"%SIZEOF",ffi)
 LISPSYM(bitsizeof,"%BITSIZEOF",ffi)
 LISPSYM(lookup_foreign_variable,"LOOKUP-FOREIGN-VARIABLE",ffi)
