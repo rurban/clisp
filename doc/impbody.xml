@@ -3605,18 +3605,19 @@ functions are provided:
 
 </section>
 
-<!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY!= 0)) -->
 <section id="file-pos"><title>Function &file-position;</title>
 
+<para>&file-position; works on any &buffered; &file-stream-t;.</para>
+
+<!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY!= 0)) -->
 <variablelist>
  <varlistentry><term>Platform dependent: &win32; platforms only.</term>
-<listitem><simpara>&file-position; works on any &buffered; &file-stream-t;.
-  When a &nl-s; is output to (respectively input from) a file stream,
-  its file position is increased by 2 since &nl-s; is encoded as
-  &cr-c;/&lf-c; in the file.
+<listitem><simpara>When a &nl-s; is output to (respectively input from)
+  a file stream, its file position is increased by 2 since &nl-s; is
+  encoded as &cr-c;/&lf-c; in the file.
 </simpara></listitem></varlistentry></variablelist>
-</section>
 <!-- #endif -->
+</section>
 
 <section id="open"><title>Function  &open;</title>
 
