@@ -11110,20 +11110,7 @@ The function make-closure is required.
 
 ;; return the form name for *toplevel-name*
 (defun form-name (form)
-  ;(let ((cmd (first form)) (arg (second form)))
-  ;  (case cmd
-  ;    ((DEFUN) (make-symbol
-  ;              (string-concat
-  ;               "DEFUN-" (symbol-name (if (symbolp arg)
-  ;                                         arg (setf-symbol (second arg)))))))
-  ;    ((DEFMACRO DEFVAR DEFPARAMETER DEFCONSTANT DEFSETF DEFPACKAGE)
-  ;     (make-symbol (string-concat (symbol-name cmd) "-" (symbol-name arg))))
-  ;    ((IN-PACKAGE)
-  ;     (make-symbol (string-concat "IN-PACKAGE-" (string arg))))
-  ;    (t (warn "~s: ~s" 'form-name form)
-  (make-symbol
-   (sys::write-to-short-string form
-     (- (or *print-right-margin* sys::*prin-linelength*) 10))));)))
+  (make-symbol (write-to-string form :level 2 :length 3)))
 
 ;; Compiles a Top-Level-Form for COMPILE-FILE. The *toplevel-name* is
 ;; mostly passed unchanged. *toplevel-for-value* indicates, if the value
