@@ -1306,7 +1306,7 @@ local void gc_markphase (void)
   local void gc_sweep1_sstring_target (aint p2, aint p1) {
     if (sstring_flags((Sstring)p2) & sstringflags_relocated_B)
       /*NOTREACHED*/ abort();
-    var gcv_object_t target = with_mark_bit(make_GCself(sstring_type,p1));
+    var gcv_object_t target; target = with_mark_bit(make_GCself(sstring_type,p1));
     var aint backchain = p2;
     for (;;) {
       var gcv_object_t backpointer = ((Varobject)backchain)->GCself;
@@ -1354,7 +1354,7 @@ local void gc_markphase (void)
   local void gc_sweep1_instance_target (aint p2, aint p1) {
     if (record_flags((Instance)p2) & instflags_relocated_B)
       /*NOTREACHED*/ abort();
-    var gcv_object_t target = with_mark_bit(make_GCself(instance_type,p1));
+    var gcv_object_t target; target = with_mark_bit(make_GCself(instance_type,p1));
     var aint backchain = p2;
     for (;;) {
       var gcv_object_t backpointer = ((Varobject)backchain)->GCself;
