@@ -97,8 +97,7 @@ User visible changes
 
 * CLISP now supports programming with case sensitive symbols. This is the
   default when CLISP is started with the new command line option "-modern".
-  See <http://clisp.cons.org/impnotes.html#case-sensitive-packages> for
-  details.
+  See <http://clisp.cons.org/impnotes.html#package-case> for details.
 
 * Several new datatypes that manage weak references:
     WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,
