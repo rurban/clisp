@@ -1,5 +1,9 @@
 2004-05-21  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (SOCKET-STREAM-SHUTDOWN): avoid a GCC warning
+
+2004-05-21  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (wr_ch_terminal3, wr_ch_array_terminal3): respect
 	the terminal stream encoding EOL slot
 
