@@ -457,7 +457,7 @@ User visible changes
 
 * New module berkeley-db interfaces to
   <http://www.sleepycat.com/docs/api_c/dbt_class.html>
-  and allows working the Berkeley DB databases.
+  and allows working with Berkeley DB databases.
   See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
 
 * New module pcre interfaces to <http://www.pcre.org/> and
