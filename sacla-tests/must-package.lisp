@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-package.lisp,v 1.11 2004/02/20 07:23:42 yuji Exp $
+;; $ Id: must-package.lisp,v 1.12 2004/08/09 02:49:54 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -1412,14 +1412,11 @@
     (in-package a)
     (eq *package* (find-package 'a))))
 (progn
-  #-clispxxx
-  (progn
-    (when (find-package "A") (delete-package "A"))
-    (HANDLER-CASE (PROGN (IN-PACKAGE "A"))
-      (PACKAGE-ERROR NIL T)
-      (ERROR NIL NIL)
-      (:NO-ERROR (&REST REST) (DECLARE (IGNORE REST)) NIL)))
-  #+clispxxx 'skipped)
+  (when (find-package "A") (delete-package "A"))
+  (HANDLER-CASE (PROGN (IN-PACKAGE "A"))
+    (PACKAGE-ERROR NIL T)
+    (ERROR NIL NIL)
+    (:NO-ERROR (&REST REST) (DECLARE (IGNORE REST)) NIL)))
 
 
 ;; defpackage
@@ -1459,7 +1456,8 @@
         '("TB-FOO" "TB-FOO-NICKNAME-1" "TB-FOO-NICKNAME-2" "TB-FOO-NICKNAME-3"))
   (and (packagep (defpackage "TB-FOO" (:nicknames tb-foo-nickname-1)))
        (equal (package-nicknames 'tb-foo) '("TB-FOO-NICKNAME-1"))))
-#-CLISP ; unfounded assumptions about the order of the package-nicknames list
+#-CLISP
+;; Bruno: unfounded assumptions about the order of the package-nicknames list
 (progn
   (mapc #'(lambda (name) (when (find-package name) (delete-package name)))
         '("TB-FOO" "TB-FOO-NICKNAME-1" "TB-FOO-NICKNAME-2" "TB-FOO-NICKNAME-3"))
