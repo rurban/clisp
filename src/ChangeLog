@@ -1,3 +1,9 @@
+2004-03-10  Bruno Haible  <bruno@clisp.org>
+
+	* configure: Use an if-then statement so that a "make check" failure
+	in avcall or callback doesn't stop the configure file. Needed when
+	using a *BSD /bin/sh.
+
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
 	* configure.in (AC_INIT): pre-release 2.32.92
