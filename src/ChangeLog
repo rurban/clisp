@@ -1,5 +1,10 @@
 2004-01-01  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c: include windows.h only on windows
+	Reported by Aurelio Bignoli <a.bignoli@computer.org>
+
+2004-01-01  Sam Steingold  <sds@gnu.org>
+
 	* install.bat: fixed bug #[ 868881 ]: replaced `|' with `I'
 	and `/' with `\' for the sake of Windows XP
 
