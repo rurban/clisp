@@ -1891,7 +1891,7 @@ LISPFUNN(charset_range,3)
       }
       #endif
       # Initialize O(internal_encoding):
-        pushSTACK(Symbol_value(S(iso8859_1)));
+        pushSTACK(Symbol_value(S(utf_8)));
         pushSTACK(S(Kunix));
         pushSTACK(unbound);
         pushSTACK(unbound);
