@@ -1083,26 +1083,29 @@
                                      (1 'REPORT-ONE-NEW-VALUE-STRING)
                                      (t 'REPORT-NEW-VALUES-STRING)))
                              ',place-list))))
-    `(TAGBODY
-       ,tag1
-       (WHEN ,test-form (GO ,tag2))
-       (RESTART-CASE
-           ;; no need for explicit association, see APPLICABLE-RESTART-P
-           (ERROR ; of-type ??
-            ,@(if datum
-                `(,datum ,@args) ; use coerce-to-condition??
-                `("~A" (ASSERT-ERROR-STRING ',test-form))))
-         ;; only one restart: CONTINUE
-         (CONTINUE
-             :REPORT ,reporter
-             :INTERACTIVE
-               ,(let ((prompts (mapcar #'(lambda (place)
-                                           `(PROMPT-FOR-NEW-VALUE ',place))
-                                       place-list)))
-                     (if prompts
-                         (compile 'assert-restart-prompt
-                                  `(LAMBDA () (APPEND ,@prompts)))
-                         'assert-restart-no-prompts))
+    `(flet ((assert-restart-prompt ()
+              (nconc
+               ,@(mapcar #'(lambda (place)
+                             `(PROMPT-FOR-NEW-VALUE ',place))
+                         place-list))))
+       ,(when place-list
+          `(setf (closure-name #'assert-restart-prompt)
+                 'assert-restart-prompt))
+       (TAGBODY
+         ,tag1
+         (WHEN ,test-form (GO ,tag2))
+         (RESTART-CASE
+             ;; no need for explicit association, see APPLICABLE-RESTART-P
+             (ERROR ; of-type ??
+              ,@(if datum
+                  `(,datum ,@args) ; use coerce-to-condition??
+                  `("~A" (ASSERT-ERROR-STRING ',test-form))))
+           ;; only one restart: CONTINUE
+           (CONTINUE
+               :REPORT ,reporter
+               :INTERACTIVE ,(if place-list
+                                 'assert-restart-prompt
+                                 'assert-restart-no-prompts)
                ,@(do ((pl place-list (cdr pl))
                       (all-setter-vars '())
                       (all-setter-forms '()))
@@ -1116,8 +1119,8 @@
                              (revappend sv all-setter-vars))
                        (push `(LET* ,(mapcar #'list vr vl) ,se)
                              all-setter-forms)))))
-       (GO ,tag1)
-       ,tag2)))
+         (GO ,tag1)
+         ,tag2))))
 
 (defun check-value (place condition)
   ;; 2 values: new-value, store-p (0 for check_fdefinition())
