@@ -1,3 +1,9 @@
+1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * conditio.lsp (retry-loop): New argument expected-type. Signal an
+          error of type TYPE-ERROR.
+          (ctypecase, ccase): Call case-expected-type.
+
 1998-06-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * user2.lsp (describe): Don't mention STRUCTURE-OBJECT as type of
