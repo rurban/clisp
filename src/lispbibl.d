@@ -14890,7 +14890,7 @@ extern maygc object decimal_string (object x);
 
 /* Returns a multiline string containing some info about the flags with which
    the executable was built. */
-extern const char * built_flags ();
+extern object built_flags (void);
 
 /*************************************************************************/
 
