@@ -375,12 +375,12 @@ interpreter compiler
     ) )
 ) )
 
-; THE-ENVIRONMENT wie in SCHEME
+; THE-ENVIRONMENT as in SCHEME
 (sys::%putd '%the-environment
   (function %the-environment
     (lambda (form env)
       (declare (ignore form))
-      (sys::svstore env 0 (svref (svref env 0) 2)) ; *evalhook*-Bindung streichen
+      (sys::svstore env 0 (svref (svref env 0) 2)) ; nuke *evalhook* binding
       env
     )
 ) )
@@ -402,6 +402,11 @@ interpreter compiler
            (let ((*evalhook* #'%the-environment)) 0)
          )
 ) ) ) )
+; The toplevel environment
+(proclaim '(special *toplevel-environment*))
+(setq *toplevel-environment* (eval '(the-environment)))
+(proclaim '(special *toplevel-denv*))
+(setq *toplevel-denv* (svref *toplevel-environment* 4))
 
 ; liefert den Namen des impliziten Blocks zu einem Funktionsnamen
 (defun function-block-name (funname)
