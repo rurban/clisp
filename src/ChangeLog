@@ -1,5 +1,9 @@
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
+	* defstruct.lisp: Simplify package prefixes.
+
+2004-10-16  Bruno Haible  <bruno@clisp.org>
+
 	* defstruct.lisp (ds-typep, ds-typep-expansion, ds-canonicalize-type):
 	Drop the case type = T.
 	* compiler.lisp (c-TYPEP): For structure classes, emit a call to
