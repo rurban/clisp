@@ -1,5 +1,13 @@
 2005-03-02  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (split-option): split only if #\= is unique
+	(split-command): search for the final #\) :FROM-END
+	(to-C-name, new-checker): cpp-name can be (:KEYWORD EXPRESSION)
+	(word-list): call SPLIT-OPTION
+	(print-tables-1): (:KEYWORD EXPRESSION) does not need #ifdef
+
+2005-03-02  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_priority_value): reverse=sint_to_I
 	(OS:PRIORITY): use check_priority_value_reverse() as the return value
 

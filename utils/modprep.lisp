@@ -229,7 +229,7 @@ The vector is freshly constructed, but the strings are shared"
 (defun split-option (argument)
   "foo=bar ==> (:foo bar)"
   (let ((= (position #\= argument)))
-    (if =
+    (if (and = (= 1 (count #\= argument)))
         (list (intern (nstring-upcase
                        (subseq argument 0 (prev-non-blank argument =)))
                       #.(find-package "KEYWORD"))
@@ -241,7 +241,7 @@ The vector is freshly constructed, but the strings are shared"
 FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
   (setq start (next-non-blank line start))
   (unless start (return-from split-command nil)) ; blank line
-  (setq end (position #\) line :start start :end end))
+  (setq end (position #\) line :start start :end end :from-end t))
   (let* ((last (or (prev-non-blank line end)         ;nothing before #\)
                    (return-from split-command nil))) ; => no command
          (paren (position #\( line :start start :end last)) args
@@ -347,7 +347,8 @@ and, if yes, return the string"
 
 (defconstant *seclass*
   #("seclass_foldable" "seclass_no_se" "seclass_read"
-    "seclass_write" "seclass_default"))
+    "seclass_write" "seclass_default")
+  "must be in sync with src/lispbibl.d:seclass_t")
 (defstruct signature
   (seclass (1- (length *seclass*)))
   req opt rest-p key-p keywords
@@ -387,7 +388,8 @@ and, if yes, return the string"
    (make-signature :req 4 :opt 0 :key-p t)
    (make-signature :req 0 :opt 1 :key-p t)
    (make-signature :req 1 :opt 1 :key-p t)
-   (make-signature :req 1 :opt 2 :key-p t)))
+   (make-signature :req 1 :opt 2 :key-p t))
+  "must be in sync with src/lispbibl.d:subr_argtype_t")
 
 (defvar *must-close-next-defun* nil
   "set to T when emulating the signature")
@@ -621,12 +623,18 @@ and turn it into DEFUN(funname,lambdalist,signature)."
   enum-p type prefix suffix reverse default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
 (defun to-C-name (name prefix suffix)
-  (setq name (substitute #\_ #\- name))
-  (when prefix (setq name (ext:string-concat prefix "_" name)))
-  (when suffix (setq name (ext:string-concat name "_" suffix)))
+  (etypecase name
+    (string
+     (setq name (substitute #\_ #\- name))
+     (when prefix (setq name (ext:string-concat prefix "_" name)))
+     (when suffix (setq name (ext:string-concat name "_" suffix))))
+    (cons (setq name (second name))))
   name)
 (defun new-checker (name cpp-names &key type prefix suffix reverse default enum
                     (condition (current-condition)))
+  "NAME is the name of the checker function
+CPP-NAMES is the list of possible values, either strings or
+ pairs (:KEYWORD VALUE), value is not #ifdef'ed"
   (setq default (unless (eq default T)
                   (and default
                        (or (parse-integer default :junk-allowed t) default))))
@@ -655,12 +663,20 @@ and turn it into DEFUN(funname,lambdalist,signature)."
           (t
            (setq type-odef (list type-odef))
            (dolist (name cpp-names)
-             (let ((co (ext:string-concat
-                        "defined(" (to-C-name name prefix suffix) ")")))
-               (push (init-to-objdef (ext:string-concat ":" name)
-                                     (concatenate 'vector condition (list co)))
-                     cpp-odefs)
-               (push (cons co (ext:string-concat " :" name)) type-odef)))
+             (etypecase name
+               (string
+                (let ((co (ext:string-concat
+                           "defined(" (to-C-name name prefix suffix) ")")))
+                  (push (init-to-objdef (ext:string-concat ":" name)
+                                        (concatenate 'vector condition
+                                                     (list co)))
+                        cpp-odefs)
+                  (push (cons co (ext:string-concat " :" name)) type-odef)))
+               (cons
+                (let ((nm (symbol-name (car name))))
+                  (push (init-to-objdef (ext:string-concat ":" nm) condition)
+                        cpp-odefs)
+                  (push (ext:string-concat " :" nm) type-odef)))))
            (setf (checker-type-odef ch)
                  (init-to-objdef (nreconc type-odef (list "))"))))))
     (setf (checker-cpp-odefs ch) (nreverse cpp-odefs))
@@ -671,7 +687,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
     :for pos1 = (and (< pos2 len) (next-non-blank line (1+ pos2)))
     :while (and pos1 (< pos1 len))
     :do (setq pos2 (min len (or (next-blank line pos1) len)))
-    :collect (subseq line pos1 pos2)))
+    :collect (split-option (subseq line pos1 pos2))))
 (defun def-something-p (line command-alist)
   "Parse a COMMAND(c_name,[type,]CPP_CONST...) line."
   (multiple-value-bind (name args last constructor) (split-command line)
@@ -1003,11 +1019,12 @@ commas and parentheses."
             (loop :for name :in (checker-cpp-names ch)
               :for C-name = (to-C-name name prefix suffix)
               :for odef :in (checker-cpp-odefs ch)
-              :do (unless enum-p (formatln out " #ifdef ~A" C-name))
+              :for need-ifdef = (and (not enum-p) (stringp name))
+              :do (when need-ifdef (formatln out " #ifdef ~A" C-name))
               (formatln out "  { ~A, &(O(~A)) }," C-name (objdef-tag odef))
               (when (and need-default (string= default C-name))
                 (setq need-default nil))
-              (unless enum-p (formatln out " #endif")))
+              (when need-ifdef (formatln out " #endif")))
             (formatln out "  { 0, NULL }")
             (formatln out "};")
             (formatln out "static const uintL ~A_table_size = (sizeof(~A_table)/sizeof(struct c_lisp_pair))-1;" c-name c-name)
