@@ -1,3 +1,8 @@
+2004-04-30  Bruno Haible  <bruno@clisp.org>
+
+	* lists153.tst: Skip memory intensive test on 32-bit SPVW_PURE_BLOCKS
+	platforms.
+
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Use new slot-definition-* accessors.
