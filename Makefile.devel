@@ -140,7 +140,8 @@ CONFIGURES = src/configure						 \
 	utils/hln/configure						 \
 	libcharset/configure
 CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in	\
-	modules/dirkey/config.h.in modules/syscalls/config.h.in
+	modules/dirkey/config.h.in modules/syscalls/config.h.in		\
+	src/unixconf.h.in
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 
@@ -154,6 +155,9 @@ AUTOHEADER = autoheader
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
 	cd src ; $(AUTOCONF) --include autoconf
+
+src/unixconf.h.in : src/configure.in $(AUTOCONF_FILES)
+	cd src ; $(AUTOHEADER) --include autoconf
 
 modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
 	cd modules/wildcard ; $(AUTOCONF) --include ../../src/autoconf

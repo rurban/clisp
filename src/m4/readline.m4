@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2002 Sam Steingold
+dnl Copyright (C) 2002-2003 Sam Steingold
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -27,15 +27,15 @@ if test $ac_cv_search_tgetent != no ; then
       ],[char* ${RL_FCF} (char *, int);], [char* ${RL_FCF}();],
       cl_cv_proto_readline_const) ],
       [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
-    AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF})
-    AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const)
+    AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
+    AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const,[declaration of filename_completion_function() needs const in the first argument])
     AC_MSG_CHECKING([for rl_already_prompted])
     AC_TRY_COMPILE([
 #include <stdio.h>
 #include <readline/readline.h>
     ],[rl_already_prompted = 1;],
     AC_MSG_RESULT([yes])
-    AC_DEFINE(HAVE_READLINE),
+    AC_DEFINE(HAVE_READLINE,,[have readline()]),
     AC_MSG_RESULT([no; readline is too old and will not be used]))
   fi
 fi
