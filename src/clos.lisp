@@ -1630,18 +1630,18 @@
                                ((CALL-NEXT-METHOD
                                   ((&REST NEW-ARGS)
                                    (IF NEW-ARGS
-                                     (IF ,cont
-                                       ;; Let's do argument checking in the interpreter only
-                                       (IF (EVAL-WHEN (EVAL) T)
-                                         (%CALL-NEXT-METHOD
-                                           ,self
-                                           ,cont
-                                           ,(if rest-dummy
-                                              `(LIST* ,@req-dummies ,rest-dummy)
-                                              `(LIST ,@req-dummies))
-                                           NEW-ARGS)
-                                         (APPLY ,cont NEW-ARGS))
-                                       (APPLY (FUNCTION %NO-NEXT-METHOD) ,self NEW-ARGS))
+                                     ;; Let's do argument checking in the interpreter only
+                                     (IF (EVAL-WHEN (EVAL) T)
+                                       (%CALL-NEXT-METHOD
+                                         ,self
+                                         ,cont
+                                         ,(if rest-dummy
+                                            `(LIST* ,@req-dummies ,rest-dummy)
+                                            `(LIST ,@req-dummies))
+                                         NEW-ARGS)
+                                       (IF ,cont
+                                         (APPLY ,cont NEW-ARGS)
+                                         (APPLY (FUNCTION %NO-NEXT-METHOD) ,self NEW-ARGS)))
                                      ,(if rest-dummy
                                         `(IF ,cont
                                            (APPLY ,cont ,@req-dummies ,rest-dummy)
@@ -1651,18 +1651,18 @@
                                            (%NO-NEXT-METHOD ,self ,@req-dummies)))))
                                   ((&REST NEW-ARG-EXPRS)
                                    (IF NEW-ARG-EXPRS
-                                     (LIST 'IF ',cont
-                                       ;; Let's do argument checking in the interpreter only
-                                       (LIST 'IF '(EVAL-WHEN (EVAL) T)
-                                         (LIST '%CALL-NEXT-METHOD
-                                           ',self
-                                           ',cont
-                                           (LIST ',(if rest-dummy 'LIST* 'LIST)
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                             ,@(if rest-dummy `(',rest-dummy) '()))
-                                           (CONS 'LIST NEW-ARG-EXPRS))
-                                         (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS))
-                                       (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS))
+                                     ;; Let's do argument checking in the interpreter only
+                                     (LIST 'IF '(EVAL-WHEN (EVAL) T)
+                                       (LIST '%CALL-NEXT-METHOD
+                                         ',self
+                                         ',cont
+                                         (LIST ',(if rest-dummy 'LIST* 'LIST)
+                                           ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                           ,@(if rest-dummy `(',rest-dummy) '()))
+                                         (CONS 'LIST NEW-ARG-EXPRS))
+                                       (LIST 'IF ',cont
+                                         (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
+                                         (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS)))
                                      ,(if rest-dummy
                                         `(LIST 'IF ',cont
                                            (LIST 'APPLY ',cont
@@ -2527,7 +2527,9 @@
          (original-em (apply emf original-args))
          (new-em (apply emf new-args)))
     (if (eq original-em new-em)
-      (apply next-methods new-args)
+      (if next-methods
+        (apply next-methods new-args)
+        (apply #'%no-next-method method new-args))
       (error-of-type 'error
         (TEXT "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
         'call-next-method gf new-args original-args))))
