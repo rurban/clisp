@@ -1530,7 +1530,7 @@ for-value   NIL or T
           (some 2 0 t nil nil)
           (sort 2 0 nil (:key :start :end) nil)
           (special-operator-p 1 0 nil nil nil)
-          (system::special-variable-p 1 0 nil nil nil)
+          (system::special-variable-p 1 1 nil nil nil)
           (sqrt 1 0 nil nil nil)
           (stable-sort 2 0 nil (:key :start :end) nil)
           (standard-char-p 1 0 nil nil nil)
