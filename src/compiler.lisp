@@ -587,9 +587,9 @@ intermediate language after the 1st pass:
 
    (EQ)                       = (CALL2 #'EQ)
 
-   (CAR)                      = (CALL1 #'CAR)
+   (CAR denv)                 = (CALL1 #'CAR)
 
-   (CDR)                      = (CALL1 #'CDR)
+   (CDR denv)                 = (CALL1 #'CDR)
 
    (CONS)                     = (CALL2 #'CONS)
 
@@ -599,7 +599,7 @@ intermediate language after the 1st pass:
 
    (SYMBOL-FUNCTION denv)     = (CALL1 #'SYMBOL-FUNCTION)
 
-   (SVREF)                    = (CALL2 #'SVREF)
+   (SVREF denv)               = (CALL2 #'SVREF)
 
    (SVSET)                    (setf (svref (STACK) A0) (STACK+4)),
                               A0 := (STACK+4), 1 value, STACK:=STACK+8
@@ -2351,7 +2351,7 @@ for-value   NIL or T
                   `((CONST ,(new-const b)) ; Vector
                     (PUSH)
                     (CONST ,(new-const c)) ; Index
-                    (SVREF))
+                    (SVREF NIL))
                   '())))
       ((T) ; lexically in Stack or Closure
         (let* ((var b)
@@ -3091,41 +3091,41 @@ for-value   NIL or T
                          (setq codelist
                            (nreconc codelist
                              (case fun
-                               ((CAR FIRST) '((CAR)))
-                               ((CDR REST) '((CDR)))
-                               (CAAR '((CAR) (CAR)))
-                               ((CADR SECOND) '((CDR) (CAR)))
-                               (CDAR '((CAR) (CDR)))
-                               (CDDR '((CDR) (CDR)))
-                               (CAAAR '((CAR) (CAR) (CAR)))
-                               (CAADR '((CDR) (CAR) (CAR)))
-                               (CADAR '((CAR) (CDR) (CAR)))
-                               ((CADDR THIRD) '((CDR) (CDR) (CAR)))
-                               (CDAAR '((CAR) (CAR) (CDR)))
-                               (CDADR '((CDR) (CAR) (CDR)))
-                               (CDDAR '((CAR) (CDR) (CDR)))
-                               (CDDDR '((CDR) (CDR) (CDR)))
-                               (CAAAAR '((CAR) (CAR) (CAR) (CAR)))
-                               (CAAADR '((CDR) (CAR) (CAR) (CAR)))
-                               (CAADAR '((CAR) (CDR) (CAR) (CAR)))
-                               (CAADDR '((CDR) (CDR) (CAR) (CAR)))
-                               (CADAAR '((CAR) (CAR) (CDR) (CAR)))
-                               (CADADR '((CDR) (CAR) (CDR) (CAR)))
-                               (CADDAR '((CAR) (CDR) (CDR) (CAR)))
-                               ((CADDDR FOURTH) '((CDR) (CDR) (CDR) (CAR)))
-                               (CDAAAR '((CAR) (CAR) (CAR) (CDR)))
-                               (CDAADR '((CDR) (CAR) (CAR) (CDR)))
-                               (CDADAR '((CAR) (CDR) (CAR) (CDR)))
-                               (CDADDR '((CDR) (CDR) (CAR) (CDR)))
-                               (CDDAAR '((CAR) (CAR) (CDR) (CDR)))
-                               (CDDADR '((CDR) (CAR) (CDR) (CDR)))
-                               (CDDDAR '((CAR) (CDR) (CDR) (CDR)))
-                               (CDDDDR '((CDR) (CDR) (CDR) (CDR)))
+                               ((CAR FIRST) `((CAR ,*denv*)))
+                               ((CDR REST) `((CDR ,*denv*)))
+                               (CAAR `((CAR ,*denv*) (CAR ,*denv*)))
+                               ((CADR SECOND) `((CDR ,*denv*) (CAR ,*denv*)))
+                               (CDAR `((CAR ,*denv*) (CDR ,*denv*)))
+                               (CDDR `((CDR ,*denv*) (CDR ,*denv*)))
+                               (CAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+                               (CAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+                               (CADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+                               ((CADDR THIRD) `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+                               (CDAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+                               (CDADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+                               (CDDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+                               (CDDDR `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+                               (CAAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+                               (CAAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+                               (CAADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+                               (CAADDR `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+                               (CADAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+                               (CADADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+                               (CADDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+                               ((CADDDR FOURTH) `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+                               (CDAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+                               (CDAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+                               (CDADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+                               (CDADDR `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+                               (CDDAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+                               (CDDADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+                               (CDDDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+                               (CDDDDR `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
                                (ATOM '((ATOM)))
                                (CONSP '((CONSP)))
                                ((NOT NULL) '((NOT)))
                                (CONS '((CONS)))
-                               (SVREF '((SVREF)))
+                               (SVREF `((SVREF ,*denv*)))
                                (SYS::%SVSTORE '((SVSET)))
                                (EQ '((EQ)))
                                (VALUES (case n
@@ -5133,7 +5133,7 @@ for-value   NIL or T
                :code `((CONST ,(new-const f2))
                        (PUSH)
                        (CONST ,(new-const f3))
-                       (SVREF)
+                       (SVREF NIL)
                        ,@(if f4
                            `((PUSH) ,(CALLS-code-fun FUNCTION-MACRO-FUNCTION))
                            '()))))
@@ -7819,13 +7819,13 @@ changed:
  (HANDLER-BEGIN)
  (NOT)
  (EQ)
- (CAR)
- (CDR)
+ (CAR denv)
+ (CDR denv)
  (CONS)
  (ATOM)
  (CONSP)
  (SYMBOL-FUNCTION denv)
- (SVREF)
+ (SVREF denv)
  (SVSET)
  (LIST n)
  (LIST* n)
@@ -8560,25 +8560,30 @@ Simplification-Rules for Operations:
                 ;; before an operation, that needs no values:
                 (case (first (car middle))
                   ((NIL T CONST LOAD LOADI LOADC LOADV LOADIC GETVALUE VENV
-                    BOUNDP VALUES0 VALUES1 MV-TO-LIST LIST-TO-MV NOT CAR CDR
-                    ATOM CONSP)
+                    BOUNDP VALUES0 VALUES1 MV-TO-LIST LIST-TO-MV NOT ATOM
+                    CONSP)
                     (discard1))
-                  ((SYMBOL-FUNCTION)
-                   ; SYMBOL-FUNCTION cannot always be discarded, because it may
-                   ; need to signal an error if SAFETY = 3.
+                  ((CAR CDR SYMBOL-FUNCTION)
+                   ; CAR, CDR, SYMBOL-FUNCTION cannot always be discarded,
+                   ; because it may need to signal an error if SAFETY = 3.
                    (when (< (declared-optimize 'SAFETY (second (car middle))) 3)
                      (discard1)))
                   ((LIST LIST* STACK-TO-MV) ; (LIST n) --> (SKIP n), n>0
                                             ; (LIST* n) --> (SKIP n), n>0
                                             ; (STACK-TO-MV n) --> (SKIP n), n>0
                     (replace1 `(SKIP ,(second (car middle)))))
-                  ((POP EQ CONS SVREF) (replace1 '(SKIP 1)))))
+                  ((POP EQ CONS) (replace1 '(SKIP 1)))
+                  ((SVREF)
+                   ; SVREF cannot always be discarded, because it may need to
+                   ; signal an error if SAFETY = 3.
+                   (when (< (declared-optimize 'SAFETY (second (car middle))) 3)
+                     (replace1 '(SKIP 1))))))
               (when (eq for-value 'ONE)
                 ;; before an operation, that needs only one value:
                 (case (first (car middle))
                   (VALUES1 (discard1))
                   (VALUES0 (replace1 '(NIL)))
-                  (LIST-TO-MV (replace1 '(CAR)))
+                  (LIST-TO-MV (replace1 `(CAR NIL)))
                   (STACK-TO-MV ; (STACK-TO-MV n) --> (SKIP n-1) (POP) for n>1
                     (let ((n (second (car middle))))
                       (extend2 '(POP) `(SKIP ,(- n 1)))))))
@@ -9755,15 +9760,15 @@ This step works on the code-list and changes is destructively.
    (LOAD k) (STOREC n m)                --> (LOAD&STOREC k n m)
    (LOAD n) (JMPIF label fv)            --> (LOAD&JMPIF n label)
    (LOAD n) (JMPIFNOT label fv)         --> (LOAD&JMPIFNOT n label)
-   (LOAD n) (CAR) (PUSH)                --> (LOAD&CAR&PUSH n)
-   (LOAD n) (CDR) (PUSH)                --> (LOAD&CDR&PUSH n)
-   (LOAD n) (CDR) (STORE n)             --> (LOAD&CDR&STORE n)
+   (LOAD n) (CAR denv) (PUSH)           --> (LOAD&CAR&PUSH n)
+   (LOAD n) (CDR denv) (PUSH)           --> (LOAD&CDR&PUSH n)
+   (LOAD n) (CDR denv) (STORE n)        --> (LOAD&CDR&STORE n)
    (LOAD n+1) (CONS) (STORE n)          --> (LOAD&CONS&STORE n)
    (LOAD n) (PUSH) (CALLS 1+) (STORE n) --> (LOAD&INC&STORE n)
    (LOAD n) (PUSH) (CALLS 1-) (STORE n) --> (LOAD&DEC&STORE n)
    (LOAD n) (PUSH) (CALLS 1+) (PUSH)    --> (LOAD&INC&PUSH n)
    (LOAD n) (PUSH) (CALLS 1-) (PUSH)    --> (LOAD&DEC&PUSH n)
-   (LOAD n) (CAR) (STORE m)             --> (LOAD&CAR&STORE n m)
+   (LOAD n) (CAR denv) (STORE m)        --> (LOAD&CAR&STORE n m)
 
 7. (JMPIFBOUNDP n l) (NIL) (STORE n) l  --> (UNBOUND->NIL n) l
 
@@ -9775,8 +9780,8 @@ This step works on the code-list and changes is destructively.
 
 10. (UNBIND1) ... (UNBIND1)             --> (UNBIND n)
 
-11. (CAR) (PUSH)                        --> (CAR&PUSH)
-    (CDR) (PUSH)                        --> (CDR&PUSH)
+11. (CAR denv) (PUSH)                   --> (CAR&PUSH)
+    (CDR denv) (PUSH)                   --> (CDR&PUSH)
     (CONS) (PUSH)                       --> (CONS&PUSH)
     (LIST n) (PUSH)                     --> (LIST&PUSH n)
     (LIST* n) (PUSH)                    --> (LIST*&PUSH n)
