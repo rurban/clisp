@@ -1,3 +1,8 @@
+2002-06-04  Peter Burwood  <clisp@peterb.org.uk>
+
+	* m4/address.m4 (CL_ADDRESS_RANGE): Remove cl_cv_prog_cc_ansi test
+	now that CL_CC_ANSI is not required.
+
 2002-06-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	Working with sockets on win32
