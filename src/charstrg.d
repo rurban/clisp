@@ -1298,6 +1298,8 @@ local const uintB charname_table_codes [charname_table_length]
  char_name(code)
  > chart code: character code
  < result: simple-string (the name of the character) or NIL
+ Note that the resulting string is ready to be output unmodified; no prior
+ STRING-CAPITALIZE or so is needed.
  can trigger GC */
 global object char_name (chart code) {
   var cint c = as_cint(code);

@@ -1218,7 +1218,7 @@
       (write-char arg stream)
       (let ((name (char-name arg)))
         (if name
-          (write-string (string-capitalize name) stream)
+          (write-string name stream)
           (write-char arg stream))))))
 
 ;; ~F, CLTL p.390-392, CLtL2 p. 588-590
