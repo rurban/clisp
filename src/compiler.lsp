@@ -6493,8 +6493,9 @@ der Docstring (oder NIL).
         ((null L) (values (nreverse taglist) (nreverse labellist)))
       (let ((item (car L)))
         (if (atom item)
-          (if (or (and (symbolp item) (not (null item))) (numberp item))
-            ; Symbol NIL wird ausgeschlossen, weil zweideutig (ist auch Liste!).
+          (if (or (symbolp item) (numberp item))
+            ; Symbol NIL wird zugelassen, weil es in ANSI CL nicht mehr
+            ; zweideutig ist.
             ; Andere Zahlen werden zugelassen, damit - ebenso wie 3.3.2 - auch
             ; 3.3 ein zul‰ssiges Sprungziel ist.
             (progn
@@ -6574,7 +6575,7 @@ der Docstring (oder NIL).
 (defun c-GO ()
   (test-list *form* 2 2)
   (let ((tag (second *form*)))
-    (unless (or (and (symbolp tag) (not (null tag))) (numberp tag))
+    (unless (or (symbolp tag) (numberp tag))
       (c-error (DEUTSCH "Sprungziel muﬂ ein Symbol oder eine Zahl sein, nicht ~S"
                 ENGLISH "Tag must be a symbol or a number, not ~S"
                 FRANCAIS "Le marqueur de saut doit Ítre un symbole ou un nombre et non ~S")
