@@ -93,8 +93,8 @@ local void markwatch_enqueue (markwatch_t* entry) {
    that are held in memory only through weak mappings. */
 #define gc_mark gc_mark_with_watchset
 #define MARK(obj)  \
-  { mark(obj);                                              \
-    markwatch_enqueue(markwatchset_lookup(canonaddr(obj))); \
+  { mark(obj);                                                  \
+    markwatch_enqueue(markwatchset_lookup(canon((aint)(obj)))); \
   }
 #include "spvw_gcmark.c"
 #undef MARK
