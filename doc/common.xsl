@@ -70,7 +70,13 @@ set       toc,title
 <xsl:param name="section.autolabel" select="1"/>
 <xsl:param name="section.label.includes.component.label" select="1"/>
 
-<xsl:template name="user.footer.navigation">
+<xsl:template name="user.footer.content">
+ <xsl:if test="refentryinfo"><div class="refentryinfo">
+   <hr width="100%"/><table width="100%">
+    <th><td align="left"><xsl:value-of select="refentryinfo/title"/></td>
+     <td align="center"><xsl:value-of select="refentryinfo/subtitle"/></td>
+     <td align="right"><xsl:value-of select="refentryinfo/date"/></td></th>
+ </table></div></xsl:if>
  <div class="custom-footer"><hr width="100%"/><table width="100%">
    <tr><td align="left"><a href="http://clisp.cons.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
