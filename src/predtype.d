@@ -980,6 +980,8 @@ global bool equalp (object obj1, object obj2)
           }
          #ifdef TYPECODES
           if (typecode(obj1) != typecode(obj2)) return false;
+         #else
+          if (!orecordp(obj2)) return false;
          #endif
           { /* obj1 and obj2 both records. */
             var uintC len;
