@@ -6,9 +6,18 @@
 /* Define to 1 if you have the `confstr' function. */
 #undef HAVE_CONFSTR
 
+/* Define to 1 if you have the `crypt' function. */
+#undef HAVE_CRYPT
+
+/* Define to 1 if you have the <crypt.h> header file. */
+#undef HAVE_CRYPT_H
+
 /* Define to 1 if you have the declaration of `signgam', and to 0 if you
    don't. */
 #undef HAVE_DECL_SIGNGAM
+
+/* Define to 1 if you have the `encrypt' function. */
+#undef HAVE_ENCRYPT
 
 /* Define to 1 if you have the `erf' function. */
 #undef HAVE_ERF
@@ -88,6 +97,9 @@
 /* Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.
    */
 #undef HAVE_SCALAR_FSID
+
+/* Define to 1 if you have the `setkey' function. */
+#undef HAVE_SETKEY
 
 /* Define to 1 if you have the <shlobj.h> header file. */
 #undef HAVE_SHLOBJ_H
