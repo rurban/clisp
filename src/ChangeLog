@@ -1,6 +1,7 @@
 2004-07-14  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (main): export mark_fp_invalid()
+	* modules/pcre/cpcre.c (PCRE:PCRE-FREE): use it
 
 2004-07-14  John Hinsdale <hin@alma.com>
 
