@@ -1826,85 +1826,69 @@ space safety compilation-speed debug declaration dynamic-extent compile
   (localized 'date-format)
 )
 
-; zeigt ein Directory an.
+;; list a directory
 (defun dir (&optional (pathnames #+(or AMIGA UNIX OS/2 WIN32) '("*/" "*")
-                                 #+ACORN-RISCOS '("*." "*" "*.*")
-           )          )
+                                 #+ACORN-RISCOS '("*." "*" "*.*")))
   (flet ((onedir (pathname)
            (let ((pathname-list (directory pathname :full t :circle t)))
              (if (every #'atom pathname-list)
-               (format t "~{~%~A~}"
-                 (sort pathname-list #'string< :key #'namestring)
-               )
-               (let ((date-format (date-format)))
-                 (dolist (l (sort pathname-list #'string< :key #'(lambda (l) (namestring (first l)))))
-                   (format t "~%~A~40T~7D~52T~21<~@?~>"
-                             (first l) (fourth l) date-format (third l)
-               ) ) )
-        )) ) )
-    (if (listp pathnames) (mapc #'onedir pathnames) (onedir pathnames))
-  )
-  (values)
-)
+                 (format t "~{~%~A~}"
+                         (sort pathname-list #'string< :key #'namestring))
+                 (let ((date-format (date-format)))
+                   (dolist (l (sort pathname-list #'string< :key
+                                    #'(lambda (l) (namestring (first l)))))
+                     (format t "~%~A~40T~7D~52T~21<~@?~>"
+                             (first l) (fourth l) date-format (third l))))))))
+    (if (listp pathnames) (mapc #'onedir pathnames) (onedir pathnames)))
+  (values))
 
-; A piece of "DO-WHAT-I-MEAN":
-; Searches a program file.
-; We search in the current directory and then in the directories
-; listed in *load-paths*.
-; If an extension is specified in the filename, we search only for
-; files with this extension. If no extension is specified, we search
-; only for files with an extension from the given list.
-; The return value is a list of all matching files from the first directory
-; containing any matching file, sorted according to decreasing FILE-WRITE-DATE
-; (i.e. from new to old), or NIL if no matching file was found.
+;; A piece of "DO-WHAT-I-MEAN":
+;; Searches for a program file.
+;; We search in the current directory and then in the directories
+;; listed in *load-paths*.
+;; If an extension is specified in the filename, we search only for
+;; files with this extension. If no extension is specified, we search
+;; only for files with an extension from the given list.
+;; The return value is a list of all matching files from the first directory
+;; containing any matching file, sorted according to decreasing FILE-WRITE-DATE
+;; (i.e. from new to old), or NIL if no matching file was found.
 (defun search-file (filename extensions
                     &aux (use-extensions (null (pathname-type filename))) )
   (when use-extensions
-    (setq extensions ; Case-Konversionen auf den Extensions durchführen
-      (mapcar #'pathname-type extensions)
-  ) )
-  ; Defaults einmergen:
+    (setq extensions ; convert case of the extensions
+          (mapcar #'pathname-type extensions)))
+  ;; merge in the defaults:
   (setq filename (merge-pathnames filename '#".*"))
-  ; Suchen:
+  ;; search:
   (let ((already-searched nil))
     (dolist (dir (cons '#""
-                       ; Wenn filename ".." enthält, zählt *load-paths* nicht
-                       ; (um Errors wegen ".../../foo" z.B. auf DOS zu vermeiden):
+                       ;; when filename has "..", ignore *load-paths*
+                       ;; (to avoid errors with ".../../foo"):
                        (if (member #+(or AMIGA ACORN-RISCOS) :PARENT
                                    #+(or UNIX OS/2 WIN32) ".."
                                    (pathname-directory filename)
-                                   :test #'equal
-                           )
-                         '()
-                         (mapcar #'pathname *load-paths*)
-            )    )     )
-      (let ((search-filename
-              (merge-pathnames (merge-pathnames filename dir))
-           ))
+                                   :test #'equal)
+                           '()
+                           (mapcar #'pathname *load-paths*))))
+      (let ((search-filename (merge-pathnames (merge-pathnames filename dir))))
         (unless (member search-filename already-searched :test #'equal)
           (let ((xpathnames (directory search-filename :full t :circle t)))
             (when use-extensions
-              ; nach passenden Extensions filtern:
+              ;; filter the extensions
               (setq xpathnames
-                (delete-if-not ; hat xpathname eine der gegebenen Extensions?
-                  #'(lambda (xpathname)
-                      (member (pathname-type (first xpathname)) extensions
-                              :test #-(or AMIGA OS/2 WIN32) #'string=
-                                    #+(or AMIGA OS/2 WIN32) #'string-equal
-                    ) )
-                  xpathnames
-            ) ) )
+                (delete-if-not ; does xpathname have the given extensions?
+                 #'(lambda (xpathname)
+                     (member (pathname-type (first xpathname)) extensions
+                             :test #-(or AMIGA OS/2 WIN32) #'string=
+                             #+(or AMIGA OS/2 WIN32) #'string-equal))
+                 xpathnames)))
             (when xpathnames
-              ; nach Datum sortiert, zurückgeben:
+              ;; reverse sort by date:
               (dolist (xpathname xpathnames)
                 (setf (rest xpathname)
-                      (apply #'encode-universal-time (third xpathname))
-              ) )
-              (return (mapcar #'first (sort xpathnames #'> :key #'rest)))
-          ) )
-          (push search-filename already-searched)
-    ) ) )
-) )
+                      (apply #'encode-universal-time (third xpathname))))
+              (return (mapcar #'first (sort xpathnames #'> :key #'rest)))))
+          (push search-filename already-searched))))))
 
 (LOAD "room")     ;; room, space
 
