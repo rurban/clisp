@@ -5,8 +5,8 @@
 (in-package "SYSTEM")
 
 ;;---------------------------------------------------------------------------
-;; Stores the current memory contents after omitting the unnecessarily
-;; objects as "LISPIMAG.MEM".
+;; Stores the current memory contents as "lispimag.mem", omitting garbage
+;; collectible objects.
 ;; This function does not take arguments and has no local variables, there
 ;; otherwise in the interpreted mode the values of variables were stored.
 (defun %saveinitmem ()
@@ -23,8 +23,8 @@
   (room nil)
 )
 
-;; Store the current memory contents.
-;; Use only in the compiled state!
+;; Saves the current memory contents.
+;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function)
   (let ((- nil) (+ nil) (++ nil) (+++ nil)
