@@ -868,8 +868,9 @@
         { pushSTACK(Fixnum_0); pushSTACK(Fixnum_1);
           pushSTACK(b); return;
         }
-     {var bool sA = R_minusp(a); # Vorzeichen von A
-      var bool sB = R_minusp(b); # Vorzeichen von B
+     {# sA and sB are booleans, but bit op ~ is faster than !, so use it
+      var int sA = (R_minusp(a) ? ~0 : 0); # signum A
+      var int sB = (R_minusp(b) ? ~0 : 0); # signum B
       SAVE_NUM_STACK # num_stack retten
       var uintD* a_MSDptr;
       var uintC a_len;
@@ -954,7 +955,7 @@
            a_greater_b_swap:
            swap(DS, uAa,uAb); # und uAa und uAb vertauschen
            swap(DS, uBa,uBb); # und uBa und uBb vertauschen
-           sA = !sA; sB = !sB; # und sA und sB umdrehen
+           sA = ~sA; sB = ~sB; # und sA und sB umdrehen
            a_greater_b:
            # Hier a>b>0, beides NUDS.
            # Entscheidung, ob Division oder Linearkombination:
