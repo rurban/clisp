@@ -1992,7 +1992,7 @@ global int main (argc_t argc, char* argv[]) {
             if (arg[2] != '\0') usage (1);
             break;
           case '-': # -- GNU-style long options
-            if (arg[2] == 0) /* "--" ==> and of options */
+            if (arg[2] == 0) /* "--" ==> end of options */
               goto done_with_argv;
             else if (asciz_equal(&arg[2],"help"))
               usage (0);
@@ -2001,7 +2001,10 @@ global int main (argc_t argc, char* argv[]) {
               argv_quiet = true;
               argv_norc = true;
               argv_repl = false;
-              arg = "(PROGN (PRINC \"GNU CLISP \")"
+              /* force processing this argument again,
+                 but this time as if it came after an '-x' */
+              argv_for = for_expr;
+              *--argptr = "(PROGN (PRINC \"GNU CLISP \")"
                 "(PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI)"
                 "(PRINC \"Features"
                #ifdef DEBUG_SPVW
