@@ -2540,8 +2540,8 @@ for f in libiconv; do
     echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}iconv.h"
     echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}iconv.h iconv.h"
     echol
-    echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}src${NEXT_M}iconv.lib"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}src${NEXT_}iconv.lib iconv.lib"
+    echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}lib${NEXT_M}iconv.lib"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}iconv.lib iconv.lib"
     echol
   fi
 done
