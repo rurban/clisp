@@ -47,14 +47,8 @@
      ) )
 ) )
 
-#-(or ALLEGRO CMU)
 (defun merge-extension (type filename)
-  (merge-pathnames type filename)
-)
-#+(or ALLEGRO CMU)
-(defun merge-extension (type filename)
-  (merge-pathnames (make-pathname :type (subseq (string type) 1)) filename)
-)
+  (make-pathname :type type :defaults filename))
 
 (defun do-test (stream log &optional (ignore-errors t))
   (let ((eof "EOF"))
@@ -111,9 +105,9 @@
 
 (defun run-test (testname
                  &optional (tester #'do-test) (ignore-errors t)
-                 &aux (logname (merge-extension ".erg" testname))
+                 &aux (logname (merge-extension "erg" testname))
                       log-empty-p)
-  (with-open-file (s (merge-extension ".tst" testname) :direction :input)
+  (with-open-file (s (merge-extension "tst" testname) :direction :input)
     (with-open-file (log logname :direction :output
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*)
