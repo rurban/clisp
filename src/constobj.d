@@ -327,8 +327,7 @@
   LISPOBJ(machine_version_string,"NIL")
   LISPOBJ(machine_instance_string,"NIL")
 #endif
-  #include "cflags.h"
-  LISPOBJ(software_type,CC" "CFLAGS" "CLFLAGS" "LIBS" "X_LIBS)
+  LISPOBJ(software_type,NIL)
  #if defined(GNU)
   LISPOBJ_S(c_compiler_version,__VERSION__)
  #endif
