@@ -1,3 +1,10 @@
+2002-10-16  Sam Steingold  <sds@gnu.org>
+
+	* realtran.d (F_pi_round_I_F): removed
+	(F_pi2_round_I_F): the second (integer) value is taken mod 4
+	(cos_stack, sin_stack): new functions
+	(R_sin_R, R_cos_R): rewrote to use them
+
 2002-10-16  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	Directory shortcuts on win32.
