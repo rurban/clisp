@@ -259,28 +259,7 @@
   global void get_real_time (internal_time_t*);
   global void get_real_time(internal_time_t* it)
     {
-      var struct timeb timebuf;
-      begin_system_call();
-      ftime(&timebuf);
-      end_system_call();
-      #ifdef HAVE_LONGLONG
-      var ULONGLONG ticks =
-        + (ULONGLONG)134774 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second
-        + (ULONGLONG)timebuf.time * (ULONGLONG)ticks_per_second
-        + (ULONGLONG)timebuf.millitm * (ULONGLONG)(ticks_per_second/1000);
-      it->dwLowDateTime = (uint32)ticks;
-      it->dwHighDateTime = (uint32)(ticks>>32);
-      #else
-      var internal_time_t t1 = { 0xD53E8000, 0x19DB1DE };
-      var internal_time_t t2;
-      var internal_time_t t3;
-      mulu32(timebuf.time,ticks_per_second,
-             t1.dwHighDateTime=,t1.dwLowDateTime=);
-      mulu32(timebuf.millitm,ticks_per_second/1000,
-             t2.dwHighDateTime=,t2.dwLowDateTime=);
-      add_internal_time(t1,t2, it);
-      add_internal_time(it,t3, it);
-      #endif
+      GetSystemTimeAsFileTime(it);
     }
 
 # Returns the run time counter.
