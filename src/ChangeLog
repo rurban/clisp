@@ -1,3 +1,8 @@
+2002-01-26  Sam Steingold  <sds@gnu.org>
+
+	* .clisp-full: new file
+	* makemake.in: treat .clisp-full just like .clisp
+
 2002-01-24  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #506105: check semi-simple vectors&strings for overflow
