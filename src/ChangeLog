@@ -28,9 +28,11 @@
 1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * stream.d (SOCKET-SERVER, publish_host_data): Remove call to
-          undeclared function `bzero'.
+          undeclared function `bzero'. Pass 3rd argument to
+          `create_server_socket'.
         * socket.d (create_server_socket, socket_getpeername,
           socket_getlocalname): Move to here.
+          (create_server_socket): Port is passed as argument, not in hd->port.
 
 1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
