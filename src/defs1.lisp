@@ -414,56 +414,104 @@
 )
 
 
-;;; Funktionen für Pathnames (Kapitel 23.1.5)
+;;; Functions for pathnames (Chapter 23.1.5)
 #+LOGICAL-PATHNAMES
 (progn
+  (export '(custom::*load-logical-pathname-translations-database*) "CUSTOM")
+  (ext:re-export "CUSTOM" "EXT"))
+#+LOGICAL-PATHNAMES
+(progn
+  (defvar *load-logical-pathname-translations-database*
+    '(#p"loghosts" #p"loghosts/"))
   (defun logical-pathname-translations (host)
     (setq host (string-upcase host))
-    (or (gethash host sys::*logical-pathname-translations*) ; :test #'equal !
+    (or (gethash host *logical-pathname-translations*) ; :test #'equal !
         (error (ENGLISH "~S: ~S does not name a logical host")
-               'logical-pathname-translations host
-  ) )   )
+               'logical-pathname-translations host)))
   (defun set-logical-pathname-translations (host translations)
     (setq host (string-upcase host))
-    (puthash host sys::*logical-pathname-translations* ; :test #'equal !
-             (let ;((host-pathname (logical-pathname (string-concat host ":;"))))
-                  ((host-pathname (sys::make-logical-pathname :host host)))
+    (puthash host *logical-pathname-translations* ; :test #'equal !
+             (let ((host-pathname (make-logical-pathname :host host)))
                (mapcar #'(lambda (rule)
-                           (cons (merge-pathnames (logical-pathname (first rule))
-                                                  host-pathname 'NIL
-                                 )
-                                 (rest rule)
-                         ) )
-                       translations
-  ) )        ) )
+                           (cons (merge-pathnames
+                                  (logical-pathname (first rule))
+                                  host-pathname 'NIL)
+                                 (rest rule)))
+                       translations))))
+  ;; load many hosts from a file, AllegroCL-style
+  (defun load-lpt-many (file host)
+    (with-open-file (fi file :if-does-not-exist nil)
+      (unless fi (return-from load-lpt-many nil))
+      (when *load-verbose*
+        (fresh-line) (write-string ";; ")
+        (write-string (ENGLISH "Loading logical hosts from file "))
+        (princ file)
+        (write-string " ...")
+        (terpri))
+      (do* ((eof (gensym)) (host (read fi nil eof) (read fi nil eof)))
+           ((eq host eof)
+            (write-string ";; ")
+            (write-string (ENGLISH "Loading of file "))
+            (princ file)
+            (write-string (ENGLISH " is finished."))
+            (terpri))
+        (setq host (string-upcase host))
+        (set-logical-pathname-translations host (read fi))
+        (when *load-verbose*
+          (fresh-line) (write-string ";; ")
+          (write-string (ENGLISH "Defined logical host "))
+          (write-string host)
+          (terpri))))
+    (gethash host *logical-pathname-translations*))
+  ;; load a single host from a file, CMUCL-style
+  (defun load-lpt-one (file host)
+    (with-open-file (fi file :if-does-not-exist nil)
+      (unless fi (return-from load-lpt-one nil))
+      (when *load-verbose*
+        (fresh-line) (write-string ";; ")
+        (write-string (ENGLISH "Loading logical host "))
+        (write-string host)
+        (write-string (ENGLISH " from file "))
+        (princ file)
+        (write-string " ..."))
+      (set-logical-pathname-translations host (read fi))
+      (when *load-verbose*
+        (write-string (ENGLISH " done"))
+        (terpri)))
+    (gethash host *logical-pathname-translations*))
   (defun load-logical-pathname-translations (host)
     (setq host (string-upcase host))
-    (unless (gethash host sys::*logical-pathname-translations*) ; :test #'equal !
-      (set-logical-pathname-translations host
-        ; Woher bekommt man die Liste der Umsetzungen??
-        #| ; Marcus versucht es so:
-           (read
-             (open
-               (merge-pathnames
-                 (merge-pathnames host
-                   (string-concat (sys::getenv "CLISP_LOGICAL_PATHNAME_TRANSLATIONS"))
-                 )
-                 (make-pathname :type '#".lisp")
-           ) ) )
-        |#
-        (if (and (fboundp 'sys::getenv)
-                 (sys::getenv (string-concat "LOGICAL_HOST_" host "_FROM"))
-                 (sys::getenv (string-concat "LOGICAL_HOST_" host "_TO"))
-            )
-          (list (list (sys::getenv (string-concat "LOGICAL_HOST_" host "_FROM"))
-                      (sys::getenv (string-concat "LOGICAL_HOST_" host "_TO"))
-          )     )
-          (error (ENGLISH "No translations for logical host ~S found")
-                 host
-  ) ) ) ) )
+    (unless (gethash host *logical-pathname-translations*) ; :test #'equal !
+      (let ((from (string-concat "LOGICAL_HOST_" host "_FROM"))
+            (to (string-concat "LOGICAL_HOST_" host "_TO"))
+            (ho (string-concat "LOGICAL_HOST_" host)))
+        (cond ((and (fboundp 'getenv) (getenv from) (getenv to))
+               (set-logical-pathname-translations host
+                 (list (list (getenv from) (getenv to)))))
+              ((and (fboundp 'getenv) (getenv ho))
+               (set-logical-pathname-translations host
+                 (read-from-string (getenv ho))))
+              ((dolist (file *load-logical-pathname-translations-database*)
+                 (if (pathname-name file)
+                   (progn       ; non-directory
+                     (when (load-lpt-many file host) ; successfully defined?
+                       (return-from load-logical-pathname-translations t))
+                     (dolist (ff (search-file file '("" ".host")))
+                       (when (load-lpt-many ff host) ; successfully defined?
+                         (return-from load-logical-pathname-translations t))))
+                   (progn       ; directory
+                     (when (load-lpt-one (merge-pathnames
+                                          (string-downcase host) file)
+                                         host) ; successfully defined?
+                       (return-from load-logical-pathname-translations t))
+                     (dolist (ff (search-file file nil))
+                       (and (string-equal host (pathname-name ff))
+                            (load-lpt-one ff host) ; successfully defined?
+                            (return-from load-logical-pathname-translations
+                              t)))))))))
+      (error (ENGLISH "No translations for logical host ~S found") host)))
   (set-logical-pathname-translations "SYS"
-    '((";*.LISP" "*.lisp") ("*.*" "*.*") ("*" "*"))
-  )
+    '((";*.LISP" "*.lisp") ("*.*" "*.*") ("*" "*")))
 )
 
 
