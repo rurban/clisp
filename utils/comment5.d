@@ -43,8 +43,12 @@ int main (int argc, char* argv[])
   FILE * outfile;
   if (argc==3)
     { # Aufruf der Form 'comment source destination'
-      { char* p1 = argv[1]; char* p2 = infilenamebuffer; while (*p2++ = *p1++); }
-      { char* p1 = argv[2]; char* p2 = outfilenamebuffer; while (*p2++ = *p1++); }
+      { char* p1 = argv[1]; char* p2 = infilenamebuffer;
+        while ((*p2++ = *p1++) != '\0');
+      }
+      { char* p1 = argv[2]; char* p2 = outfilenamebuffer;
+        while ((*p2++ = *p1++) != '\0');
+      }
     }
   else
     { char filenamebuffer[1000];
@@ -58,7 +62,9 @@ int main (int argc, char* argv[])
         }
       # infilename basteln: filename+".d"
       { char* p = infilenamebuffer;
-        { char* p2 = filename; char c; while (c = *p2++) { *p++ = c; } }
+        { char* p2 = filename;
+          char c; while ((c = *p2++) != '\0') { *p++ = c; }
+        }
         # Endet filename bereits mit ".d" ?
         if ((&p[-2] >= infilenamebuffer) && (p[-2]=='.') && (p[-1]=='d'))
           { *p++ = '\0'; goto to_stdout; } # ja -> Output nach stdout
@@ -67,7 +73,9 @@ int main (int argc, char* argv[])
       }
       # outfilename basteln: filename+".c"
       { char* p = outfilenamebuffer;
-        { char* p2 = filename; char c; while (c = *p2++) { *p++ = c; } }
+        { char* p2 = filename;
+          char c; while ((c = *p2++) != '\0') { *p++ = c; }
+        }
         *p++ = '.'; *p++ = 'c';
         *p++ = '\0';
       }
