@@ -849,6 +849,27 @@ T
         (typep #\a (array-element-type (get-output-stream-string s)))))
 (NIL NIL)
 
+;; composite streams operate on their constituent streams, not themselves
+(let ((cs (make-concatenated-stream (make-string-input-stream "a"))))
+  (unread-char (read-char cs) cs)
+  (eql (peek-char nil cs)
+       (peek-char nil (first (concatenated-stream-streams cs)) nil nil)))
+T
+
+(let ((cs (make-two-way-stream (make-string-input-stream "a")
+                               *standard-output*)))
+  (unread-char (read-char cs) cs)
+  (eql (peek-char nil cs)
+       (peek-char nil (two-way-stream-input-stream cs) nil nil)))
+T
+
+(let ((cs (make-echo-stream (make-string-input-stream "a")
+                            *standard-output*)))
+  (unread-char (read-char cs) cs)
+  (eql (peek-char nil cs)
+       (peek-char nil (echo-stream-input-stream cs) nil nil)))
+T
+
 (progn
 (makunbound 's)
 (makunbound 's1)
