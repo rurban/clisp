@@ -199,7 +199,7 @@ operating system and is determined at build time.</para>
 
 <para>In page based memory models, an object larger than a page is the
 only object carried by its pages.
-There are no small objects in pages belonging to a big object.</page>
+There are no small objects in pages belonging to a big object.</para>
 
 <para>The following combinations of memory model and mmap tricks are
 possible:</para>
