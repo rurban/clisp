@@ -837,3 +837,16 @@ NIL
 (absolute-pathname (make-pathname :device :wild))
 #+(and clisp win32)
 error
+
+(let ((home (user-homedir-pathname)))
+  (or (null home) (not (not (pathnamep home)))))
+T
+
+(let ((home (user-homedir-pathname nil)))
+  (or (null home) (not (not (pathnamep home)))))
+T
+
+(let ((home (user-homedir-pathname :unspecific)))
+  (or (null home) (not (not (pathnamep home)))))
+T
+
