@@ -1,3 +1,8 @@
+1998-10-06  Sam Steingold  <sds@goems.com>
+
+	* user1.lsp (package-short-name): respect `*print-case*'.
+	(break-loop): add a space after "Break".
+
 1998-10-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lndir: Add code to perform the equivalent of "mkdir -p".
