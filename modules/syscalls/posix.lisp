@@ -3,6 +3,7 @@
 
 (defpackage "POSIX"
   (:use "COMMON-LISP" "EXT")
+  (:nicknames "OS")
   (:export
    "RESOLVE-HOST-IPADDR" "BOGOMIPS"
    "STREAM-LOCK" "DUPLICATE-HANDLE" "COPY-FILE"
@@ -225,6 +226,50 @@ NIL - no such key; T - sysconf(3c) returned -1.")
   (description nil :read-only t)
   (hot-key nil :read-only t)
   (stat nil :read-only t))
+
+(export '(system-info system-info-processor-architecture system-info-page-size
+          system-info-minimum-application-address
+          system-info-maximum-application-address
+          system-info-active-processor-mask system-info-number-of-processors
+          system-info-allocation-granularity
+          system-info-processor-level system-info-processor-revision))
+
+(defstruct (system-info
+             (:constructor make-system-info
+                           (processor-architecture page-size
+                            minimum-application-address
+                            maximum-application-address
+                            active-processor-mask number-of-processors
+                            allocation-granularity
+                            processor-level processor-revision)))
+  (processor-architecture nil :read-only t)
+  (page-size nil :read-only t)
+  (minimum-application-address nil :read-only t)
+  (maximum-application-address nil :read-only t)
+  (active-processor-mask nil :read-only t)
+  (number-of-processors nil :read-only t)
+  (allocation-granularity nil :read-only t)
+  (processor-level nil :read-only t)
+  (processor-revision nil :read-only t))
+
+(export '(version version-major version-minor version-build version-platform
+          version-service-pack version-service-pack-major
+          version-service-pack-minor version-suites version-product-type))
+
+(defstruct (version
+             (:constructor make-version
+                           (major minor build platform service-pack
+                            service-pack-major service-pack-minor
+                            suites product-type)))
+  (major nil :read-only t)
+  (minor nil :read-only t)
+  (build nil :read-only t)
+  (platform nil :read-only t)
+  (service-pack nil :read-only t)
+  (service-pack-major nil :read-only t)
+  (service-pack-minor nil :read-only t)
+  (suites nil :read-only t)
+  (product-type nil :read-only t))
 
 )
 

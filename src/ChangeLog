@@ -6,6 +6,8 @@
 	(GetSystemDirectoryA, GetWindowsDirectoryA, GetCurrentDirectoryA)
 	(GetVersion, GetUserNameA, GetUserNameExA, GetComputerObjectNameA)
 	(GetComputerNameExA): new functions
+	* modules/syscalls/calls.c, modules/syscalls/posix.lisp
+	(VERSION, SYSTEM-INFO) [WIN32, CYGWIN]: new exports
 
 2003-12-05  Sam Steingold  <sds@gnu.org>
 

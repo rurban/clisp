@@ -1363,4 +1363,80 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
  fail_psl: psl->lpVtbl->Release(psl);
  fail_none: end_system_call(); OS_file_error(*file);
 }
+
+DEFUN(POSIX::SYSTEM-INFO,)
+{ /* interface to GetSystemInfo() */
+  SYSTEM_INFO si;
+  begin_system_call();
+  GetSystemInfo(&si);
+  end_system_call();
+  switch (si.wProcessorArchitecture) {
+    case PROCESSOR_ARCHITECTURE_UNKNOWN: pushSTACK(`:UNKNOWN`); break;
+    case PROCESSOR_ARCHITECTURE_INTEL:   pushSTACK(`:INTEL`); break;
+    case PROCESSOR_ARCHITECTURE_MIPS:    pushSTACK(`:MIPS`); break;
+    case PROCESSOR_ARCHITECTURE_ALPHA:   pushSTACK(`:ALPHA`); break;
+    case PROCESSOR_ARCHITECTURE_PPC:     pushSTACK(`:PPC`); break;
+    case PROCESSOR_ARCHITECTURE_IA64 :   pushSTACK(`:IA64`); break;
+    default: pushSTACK(UL_to_I(si.wProcessorArchitecture));
+  }
+  pushSTACK(UL_to_I(si.dwPageSize));
+  pushSTACK(UL_to_I(si.lpMinimumApplicationAddress));
+  pushSTACK(UL_to_I(si.lpMaximumApplicationAddress));
+  pushSTACK(UL_to_I(si.dwActiveProcessorMask));
+  pushSTACK(UL_to_I(si.dwNumberOfProcessors));
+  pushSTACK(UL_to_I(si.dwAllocationGranularity));
+  pushSTACK(fixnum(si.wProcessorLevel));
+  pushSTACK(fixnum(si.wProcessorRevision));
+  funcall(`POSIX::MAKE-SYSTEM-INFO`,9);
+}
+
+DEFUN(POSIX::VERSION,)
+{ /* interface to GetVersionEx() */
+  OSVERSIONINFOEX vi;
+  vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+  begin_system_call();
+  if (!GetVersionEx(&vi)) OS_error();
+  end_system_call();
+
+  pushSTACK(UL_to_I(vi.dwMajorVersion));
+  pushSTACK(UL_to_I(vi.dwMinorVersion));
+  pushSTACK(UL_to_I(vi.dwBuildNumber));
+  switch (vi.dwPlatformId) {
+    case VER_PLATFORM_WIN32s:        pushSTACK(`:S`); break;
+    case VER_PLATFORM_WIN32_WINDOWS: pushSTACK(`:WINDOWS`); break;
+    case VER_PLATFORM_WIN32_NT:      pushSTACK(`:NT`); break;
+    default: pushSTACK(UL_to_I(vi.dwPlatformId));
+  }
+  pushSTACK(asciz_to_string(vi.szCSDVersion,GLO(misc_encoding)));
+  pushSTACK(UL_to_I(vi.wServicePackMajor));
+  pushSTACK(UL_to_I(vi.wServicePackMinor));
+  { /* wSuiteMask */
+    object suites = NIL;
+    unsigned int count = 0;
+    if (vi.wSuiteMask & VER_SUITE_BACKOFFICE)
+      { pushSTACK(`:BACKOFFICE`); count++; }
+    if (vi.wSuiteMask & VER_SUITE_DATACENTER)
+      { pushSTACK(`:DATACENTER`); count++; }
+    if (vi.wSuiteMask & VER_SUITE_ENTERPRISE)
+      { pushSTACK(`:ENTERPRISE`); count++; }
+    if (vi.wSuiteMask & VER_SUITE_SMALLBUSINESS)
+      { pushSTACK(`:SMALLBUSINESS`); count++; }
+    if (vi.wSuiteMask & VER_SUITE_SMALLBUSINESS_RESTRICTED)
+      { pushSTACK(`:SMALLBUSINESS-RESTRICTED`); count++; }
+    if (vi.wSuiteMask & VER_SUITE_TERMINAL)
+      { pushSTACK(`:TERMINAL`); count++; }
+    if (vi.wSuiteMask & VER_SUITE_PERSONAL)
+      { pushSTACK(`:PERSONAL`); count++; }
+    if (count) suites = listof(count);
+    pushSTACK(suites);
+  }
+  switch (vi.wProductType) {
+    case VER_NT_WORKSTATION:       pushSTACK(`:WORKSTATION`); break;
+    case VER_NT_DOMAIN_CONTROLLER: pushSTACK(`:DOMAIN-CONTROLLER`); break;
+    case VER_NT_SERVER:            pushSTACK(`:SERVER`); break;
+    default: pushSTACK(UL_to_I(vi.wProductType));
+  }
+  funcall(`POSIX::MAKE-VERSION`,9);
+}
+
 #endif
