@@ -1772,7 +1772,7 @@
 
 2002-05-15  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in: Fix handline of with-xxx options, broken on 2002-03-07.
+	* makemake.in: Fix handling of with-xxx options, broken on 2002-03-07.
 
 	* configure.in: Move the AM_ICONV invocation before AM_GNU_GETTEXT.
 
