@@ -29,7 +29,7 @@
 
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
-    (ecase (sys::type-of obj)
+    (ecase (type-of obj)
       #+(or AMIGA FFI)
       (FOREIGN-POINTER
        (format stream (ENGLISH "a foreign pointer")))
