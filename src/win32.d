@@ -1,6 +1,8 @@
-# Include file for WIN32_NATIVE version of CLISP
-# Bruno Haible 1997-2002
-# Sam Steingold 1999-2002
+/*
+ * Include file for WIN32_NATIVE version of CLISP
+ * Bruno Haible 1997-2003
+ * Sam Steingold 1999-2003
+ */
 
 # Konstanten für Steuerzeichen:
 
@@ -351,14 +353,24 @@
   extern unsigned int sleep (unsigned int seconds);
 # used by time.d, socket.d
 
-# Calling programs
-  # extern BOOL CreateProcess (LPCTSTR ApplicationName, LPTSTR CommandLine, LPSECURITY_ATTRIBUTES ProcessAttributes, LPSECURITY_ATTRIBUTES ThreadAttributes, BOOL InheritHandles, DWORD CreationFlags, LPVOID Environment, LPCTSTR CurrentDirectory, LPSTARTUPINFO StartupInfo, LPPROCESS_INFORMATION ProcessInformation);
-  # extern BOOL GetExitCodeProcess (HANDLE Process, LPDWORD ExitCode);
-  # extern BOOL CreatePipe (PHANDLE ReadPipe, PHANDLE WritePipe, LPSECURITY_ATTRIBUTES PipeAttributes, DWORD Size);
-  # extern BOOL DuplicateHandle (HANDLE SourceProcessHandle, HANDLE SourceHandle, HANDLE TargetProcessHandle, LPHANDLE TargetHandle, DWORD DesiredAccess, BOOL InheritHandle, DWORD Options);
-# used by win32aux.d, pathname.d, stream.d
-  extern BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, HANDLE StdError, LPPROCESS_INFORMATION ProcessInformation);
-# used by pathname.d, stream.d
+/* Calling programs
+  extern BOOL CreateProcess (LPCTSTR ApplicationName, LPTSTR CommandLine,
+      LPSECURITY_ATTRIBUTES ProcessAttributes,
+      LPSECURITY_ATTRIBUTES ThreadAttributes,
+      BOOL InheritHandles, DWORD CreationFlags, LPVOID Environment,
+      LPCTSTR CurrentDirectory, LPSTARTUPINFO StartupInfo,
+      LPPROCESS_INFORMATION ProcessInformation);
+  extern BOOL GetExitCodeProcess (HANDLE Process, LPDWORD ExitCode);
+  extern BOOL CreatePipe (PHANDLE ReadPipe, PHANDLE WritePipe,
+      LPSECURITY_ATTRIBUTES PipeAttributes, DWORD Size);
+  extern BOOL DuplicateHandle (HANDLE SourceProcessHandle, HANDLE SourceHandle,
+      HANDLE TargetProcessHandle, LPHANDLE TargetHandle,
+      DWORD DesiredAccess, BOOL InheritHandle, DWORD Options);
+  used by win32aux.d, pathname.d, stream.d */
+extern BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput,
+                             HANDLE StdOutput, HANDLE StdError,
+                             LPPROCESS_INFORMATION ProcessInformation);
+/* used by pathname.d, stream.d */
 
 # Getting "random" numbers
   #if defined(__MINGW32__)
