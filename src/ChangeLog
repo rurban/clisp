@@ -1,5 +1,9 @@
 2004-12-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in (LIBS) [win32|cygwin]: added oleaut32
+
+2004-12-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_chmod_mode): new function
 	(POSIX::CONVERT-MODE): use it, permit symbol arguments
 
