@@ -1,10 +1,19 @@
 2002-10-02  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (test_symbol): moved here from symbol.d
 	* control.d (funname_to_symbol): new function
 	(FDEFINITION, FBOUNDP, FMAKUNBOUND): use it
 	(fehler_funsymbol): removed
 	(FUNCTION, FLET, LABELS): use fehler_funname_source() instead of
 	fehler_funsymbol()
+	(%SYMBOL-VALUE, SYMBOL-VALUE, SYMBOL-FUNCTION, BOUNDP)
+	(SPECIAL-OPERATOR-P, SET, MAKUNBOUND, BLOCK, RETURN-FROM)
+	(MACRO-FUNCTION, PROCLAIM): use test_symbol()
+	* eval.d (SPECIAL-VARIABLE-P): ditto
+	* i18n.d (SET-CURRENT-LANGUAGE): ditto
+	* record.d (SYMBOL-MACRO-EXPAND): ditto
+	* stream.d (SYMBOL-STREAM): ditto
+	* symbol.d (test_symbol): moved to lispbibl.d
 
 2002-10-02  Sam Steingold  <sds@gnu.org>
 

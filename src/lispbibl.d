@@ -12392,6 +12392,13 @@ extern object Symbol_function_checked (object symbol);
 extern object get (object symbol, object key);
 # is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
 
+/* UP: check whether the argument is a symbol and return it */
+static inline object test_symbol (object sy) {
+  if (!symbolp(sy)) fehler_symbol(sy);
+  return sy;
+}
+/* use by CONTROL */
+
 # ##################### ARITBIBL for LISTARIT.D ############################ #
 
 # UP: Initializes the arithmetics.

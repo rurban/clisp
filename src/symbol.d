@@ -69,12 +69,6 @@ nonreturning_function(local, fehler_plist_odd, (object symbol)) {
       return unbound;
     }
 
-/* UP: check whether the argument is a symbol and return it */
-local inline object test_symbol (object sy) {
-  if (!symbolp(sy)) fehler_symbol(sy);
-  return sy;
-}
-
 LISPFUNN(putd,2)
 # (SYS::%PUTD symbol function)
   {
