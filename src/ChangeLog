@@ -1,7 +1,8 @@
 2004-06-07  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp (open-for-load): Use uppercase ~S in format strings so that
-	the warnings can be shown during bootstrap.
+	the warnings can be shown during bootstrap. Use ~A, not ~S, to display
+	pathnames.
 
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
@@ -41,7 +42,7 @@
 
 2004-06-06  Arseny Slobodjuk  <ampy@ich.dvo.ru>
 
-	* lispbibl.d (offsetofa): Define without braces for MSVC
+	* lispbibl.d (offsetofa): Define without brackets for MSVC
 	to make subr_xlength a constant.
 
 2004-06-03  Sam Steingold  <sds@gnu.org>
@@ -49,7 +50,7 @@
 	fixed bug #[ 956755 ]: NAMESTRING's second arg is non-compliant
 	* pathname.d (TRANSLATE-PATHNAME): accept :ABSOLUTE argument to
 	merge in the OS default pathname
-	((NAMESTRING): do not accept a second optional argument, as per ANSI
+	(NAMESTRING): do not accept a second optional argument, as per ANSI
 	(DYNLOAD-MODULES): do not call NAMESTRING with 2 arguments
 	* cfgwin32.lisp, edit.lisp (edit-file): call TRANSLATE-PATHNAME
 	:ABSOLUTE T instead of NAMESTRING with 2 arguments
