@@ -1,9 +1,17 @@
+2003-10-18  Sam Steingold  <sds@gnu.org>
+
+	* complete.lisp (completion): when completing in a case-sensitive
+	package, do not fold case
+	* constsym.d, subr.d (package_case_sensitive_p): added
+	* init.lisp (package-case-sensitive-p): export
+	* package.d (package-case-sensitive-p): implemented
+
 2003-10-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp (MAX_PATH): new constant
 	(GetModuleFileNameA, GetModuleHandleA): new functions
 	(RIGHTS, PROCESS, EWX, GR_OBJECTS): new enum types
-	(handle, dword): new type
+	(handle, dword): new types
 	(GetCurrentProcess, GetCurrentThread, GetCurrentProcessId)
 	(CloseHandle, OpenProcess, ExitWindowsEx, GetGuiResources)
 	(GetConsoleTitleA, SetConsoleTitleA): new functions
