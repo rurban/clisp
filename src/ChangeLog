@@ -1,5 +1,9 @@
 2005-02-21  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (XCC_CREATESHARED): treat cygwin like linux and gnu
+
+2005-02-21  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/configure.in, modules/pari/Makefile.in:
 	AC_LIB_LINKFLAGS_BODY should work since 2005-02-16
 
