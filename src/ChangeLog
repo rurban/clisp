@@ -1,3 +1,18 @@
+1998-12-11  Sam Steingold  <sds@goems.com>
+
+	* socket.d (create_server_socket): take 2 arguments, pointer to
+	unsigned int (port) and SOCKET.
+	(ip_to_string): new function.
+	(socket_getmyname): new function.
+	* constsym.d: added `SOCKET-SERVER-HOST'.
+	* subr.d: ditto.
+	* io.d (pr_orecord): print host of `SOCKET-SERVER'.
+	* lispbibl.d (struct *Socket_server): new field: host.
+	(socket_stream_p): new predicate.
+	* stream.d (socket_server): accept socket-stream as the optional
+	argument.
+	(socket_server_host): new function.
+
 1998-12-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in (MODULES): New variables. Accept --with-module=MODULE

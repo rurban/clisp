@@ -12005,24 +12005,48 @@ LISPFUNN(socket_server_close,1)
     value1 = NIL; mv_count=0;
   }}
 
-extern SOCKET create_server_socket (int port);
+extern SOCKET create_server_socket (unsigned int *port, SOCKET sock);
+extern const char * socket_getmyname (SOCKET socket_handle);
 
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
-# (SOCKET-SERVER [port])
+# (SOCKET-SERVER [port-or-sock])
   {
-    var SOCKET s;
+    var SOCKET sk;
+    var unsigned int port = (posfixnump(STACK_0) ?
+                             posfixnum_to_L(STACK_0) : 0);
+    var SOCKET sock = (socket_stream_p(STACK_0) ?
+                       TheSocket(TheStream(STACK_0)->strm_ihandle) :
+                       INVALID_SOCKET);
+    var char *myname;
 
-    if (!posfixnump(STACK_0))
-      fehler_posfixnum(STACK_0);
+    if (posfixnump(STACK_0) || eq(STACK_0,unbound) ||
+        socket_stream_p(STACK_0)) {
     begin_system_call();
-    s = create_server_socket(posfixnum_to_L(STACK_0));
+      sk = create_server_socket(&port, sock);
     end_system_call();
-    if (s == INVALID_SOCKET) { SOCK_error(); }
+      if (sk == INVALID_SOCKET) { SOCK_error(); }
+    } else {
+      pushSTACK(STACK_0);
+      pushSTACK(S(stream));
+      pushSTACK(STACK_0);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Argument ~ ist kein SOCKET-STREAM oder positive FIXNUM" :
+             ENGLISH ? "~: argument ~ is neither a SOCKET-STREAM nor a positive FIXNUM" :
+             FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ou FIXNUM oisitif" :
+             ""
+             );
+    }
 
-    pushSTACK(allocate_socket(s));
+    begin_system_call();
+    myname = socket_getmyname(sk);
+    end_system_call();
+    pushSTACK(allocate_socket(sk));
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
-    TheSocketServer(STACK_0)->port = STACK_2;
+    TheSocketServer(STACK_0)->port = fixnum(port);
+    { var object host = asciz_to_string(myname); # for GC-safety
+      TheSocketServer(STACK_0)->host = host;}
     pushSTACK(STACK_0);
     pushSTACK(L(socket_server_close));
     funcall(L(finalize),2); # (FINALIZE socket-server #'socket-server-close)
@@ -12035,6 +12059,14 @@ LISPFUNN(socket_server_port,1)
 # (SOCKET-SERVER-PORT socket-server)
   { test_socket_server(STACK_0);
     value1 = TheSocketServer(STACK_0)->port;
+    mv_count = 1;
+    skipSTACK(1);
+  }
+
+LISPFUNN(socket_server_host,1)
+# (SOCKET-SERVER-HOST socket-server)
+  {test_socket_server(STACK_0);
+    value1 = TheSocketServer(STACK_0)->host;
     mv_count = 1;
     skipSTACK(1);
   }
@@ -12150,7 +12182,7 @@ local void test_socket_stream (object obj);
 local void test_socket_stream(obj)
   var object obj;
   {
-    if (!(streamp(obj) && (TheStream(obj)->strmtype==strmtype_socket)))
+    if (!socket_stream_p(obj))
       {
         pushSTACK(obj);
         pushSTACK(S(stream));
@@ -12159,7 +12191,7 @@ local void test_socket_stream(obj)
         fehler(type_error,
                DEUTSCH ? "~: Argument ~ ist kein SOCKET-STREAM" :
                ENGLISH ? "~: argument ~ is not a SOCKET-STREAM" :
-               FRANCAIS ? "~ : L'argument n'est pas un SOCKET-STREAM" :
+               FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM" :
                ""
               );
       }
@@ -12183,7 +12215,7 @@ LISPFUNN(socket_stream_host,1)
     mv_count=1;
   }
 
-extern const char * socket_getpeername (int socket_handle);
+extern const char * socket_getpeername (SOCKET socket_handle);
 
 LISPFUNN(socket_stream_peer_host,1)
 # (SOCKET-STREAM-PEERNAME socket-stream)

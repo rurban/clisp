@@ -373,47 +373,62 @@ global SOCKET connect_to_x_server(host,display)
 #endif
 
 # Creation of sockets on the server side:
-# SOCKET socket_handle = create_server_socket(port);
+# SOCKET socket_handle = create_server_socket (port, sock);
 #   creates a socket to which other processes can connect.
 # SOCKET fd = accept_connection(socket_handle);
 #   waits for a connection to another process.
 #   This can (and should) be done multiple times for the same
 #   socket_handle.
 
-global SOCKET create_server_socket (int port);
-global SOCKET create_server_socket(port)
-  var int port;
+global SOCKET create_server_socket (unsigned int *port, SOCKET sock);
+global SOCKET create_server_socket (port, sock)
+  var unsigned int *port;
+  var SOCKET sock;
   {
     var struct sockaddr_in sa;
-    var SOCKET s;
-    var int flag;
+    var SOCKET sk;
+    var unsigned int flag = 1;
+    var int addr_len = sizeof (struct sockaddr);
 
     # Get a socket.
-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+    if ((sk = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
       return INVALID_SOCKET;
 
     # Set an option for the next bind() call: Avoid an EADDRINUSE error
     # in case there are TIME_WAIT or CLOSE_WAIT sockets hanging around on
     # the port. (Sockets in LISTEN or ESTABLISHED state on the same port
     # will still yield an error.)
-    flag = 1;
-    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) < 0)
+    if (setsockopt(sk, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) < 0)
       return INVALID_SOCKET;
 
     # Bind it to the desired port.
-    bzero((char *) &sa, sizeof(sa));
-    sa.sin_family = AF_INET;
-    sa.sin_addr.s_addr = htonl(INADDR_ANY);
-    sa.sin_port = htons(port);
+    bzero((char *) &sa, addr_len);
+    if (INVALID_SOCKET == sock) {
+      var struct hostent *hp;
 
-    if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0)
+      if ((hp = gethostbyname("localhost")) == NULL)
+        return INVALID_SOCKET;
+      bcopy(hp->h_addr, (char *) &sa.sin_addr, hp->h_length);
+      sa.sin_family = hp->h_addrtype;
+      sa.sin_port = htons(*port);
+    } else {
+      if (-1 == getsockname(sock,(struct sockaddr*)&sa,&addr_len))
+        return INVALID_SOCKET;
+      sa.sin_port=0;
+    }
+
+    if (bind(sk, (struct sockaddr *) &sa, addr_len) < 0)
       return INVALID_SOCKET;
+
+    if (-1 == getsockname(sk,(struct sockaddr*)&sa,&addr_len))
+      return INVALID_SOCKET;
+    *port = ntohs(sa.sin_port);
 
     # Start listening for client connections.
-    if (listen(s, 1) < 0)
+    if (listen(sk, 1) < 0)
       return INVALID_SOCKET;
 
-    return s;
+    return sk;
   }
 
 global SOCKET accept_connection (SOCKET socket_handle);
@@ -421,9 +436,8 @@ global SOCKET accept_connection (socket_handle)
   var SOCKET socket_handle;
   {
     var struct sockaddr_in sa;
-    var int alen;
+    var int alen = sizeof (struct sockaddr);
 
-    alen = sizeof(sa);
     return accept(socket_handle,(struct sockaddr *)&sa,&alen);
   }
 
@@ -527,6 +541,19 @@ global int resolve_service (name_or_number,name)
 # returns the name of the host to which IP socket fd is connected.
 # Return value: A pointer to a statically allocated string!
 
+local const char * ip_to_string (unsigned long norder);
+local const char * ip_to_string (norder)
+  var unsigned long norder;
+  {
+    static char dotted[20];
+    sprintf(dotted, "%lu.%lu.%lu.%lu",
+            (norder >> 24) & 0xff,
+            (norder >> 16) & 0xff,
+            (norder >>  8) & 0xff,
+            norder & 0xff);
+    return dotted;
+  }
+
 global const char * socket_getpeername (SOCKET socket_handle);
 global const char * socket_getpeername(socket_handle)
   var SOCKET socket_handle;
@@ -543,17 +570,24 @@ global const char * socket_getpeername(socket_handle)
 
     # Convert it to an ASCII host name.
     hostent = gethostbyaddr((const char *)&norder,sizeof(norder),AF_INET);
-    if (hostent == NULL)
-      {
-        static char dotted[20];
-        sprintf(dotted, "%lu.%lu.%lu.%lu",
-                (norder >> 24) & 0xff,
-                (norder >> 16) & 0xff,
-                (norder >>  8) & 0xff,
-                norder & 0xff);
-        return dotted;
+    if (hostent == NULL) return ip_to_string (norder);
+    else return hostent->h_name;
       }
-    return hostent->h_name;
+
+# Auxiliary function:
+# socket_getmyname(socket_handle)
+# return the IP name of the localhost for the given socket.
+# Return value: A pointer to a statically allocated string!
+global const char * socket_getmyname (SOCKET socket_handle);
+global const char * socket_getmyname(socket_handle)
+  var SOCKET socket_handle;
+  {
+    var struct sockaddr_in addr_in;
+    var int addr_len = sizeof(addr_in);
+
+    if (-1 == getsockname (socket_handle,(struct sockaddr*)&addr_in,&addr_len))
+      return "invalid socket";
+    return ip_to_string (htonl (addr_in.sin_addr.s_addr));
   }
 
 #endif # SOCKET_STREAMS
