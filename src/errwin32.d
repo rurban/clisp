@@ -3914,6 +3914,8 @@
         end_system_call();
         clr_break_sem_4(); # keine Win32-Operation mehr aktiv
         begin_error(); # Fehlermeldung anfangen
+        if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
+          { STACK_3 = S(simple_os_error); }
         # Meldungbeginn ausgeben:
         write_errorstring(GETTEXT("Winsock error "));
         # Fehlernummer ausgeben:
