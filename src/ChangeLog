@@ -1,5 +1,12 @@
 2002-01-23  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (SEMI_SIMPLE_DEFAULT_SIZE): new constant
+	* io.d (get_buffers, FORMAT-TABULATE): use it
+	* stream.d (make_string_output_stream)
+	(MAKE-BUFFERED-OUTPUT-STREAM): ditto
+
+2002-01-23  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (OBJECT_OUT): new macro
 	* spvw_debug.d (object_out): return obj
 
