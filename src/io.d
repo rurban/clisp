@@ -8201,18 +8201,11 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure) 
 
 # This is the default-function, which is called by CLOS:PRINT-OBJECT:
 LISPFUNN(print_structure,2) {
-  # stack layout: structure, stream.
-  var object structure = STACK_1;
-  if (!structurep(structure)) {
-    pushSTACK(structure);           # TYPE-ERROR slot DATUM
-    pushSTACK(S(structure_object)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(structure); # structure
-    pushSTACK(TheSubr(subr_self)->name); # function name
-    fehler(type_error,GETTEXT("~: ~ is not a structure"));
-  }
+  /* stack layout: structure, stream. */
+  STACK_1 = check_structure(STACK_1);
   if (!streamp(STACK_0))
     fehler_stream(STACK_0);
-  pr_enter(&STACK_0,structure,&pr_structure_default);
+  pr_enter(&STACK_0,STACK_1,&pr_structure_default);
   skipSTACK(2);
   VALUES1(NIL);
 }

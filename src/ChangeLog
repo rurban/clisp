@@ -1,3 +1,21 @@
+2004-01-10  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (check_structure): added a prototype
+	(allocate_weakpointer): removed unused function
+	* record.d (allocate_weakpointer): ditto
+	(check_structure): new function
+	(COPY-STRUCTURE): use it
+	(check_generic_function): new function
+	(%COPY-GENERIC-FUNCTION, GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION):
+	use it
+	(MACRO-EXPANDER): recoverable type error
+	(check_function_macro): new function
+	(FUNCTION-MACRO-FUNCTION, FUNCTION-MACRO-EXPANDER): use it
+	* sequence.d (fehler_sequence): new function
+	(get_valid_seq_type, LENGTH): use it
+	* io.d (PRINT-STRUCTURE): use check_structure()
+	* stream.d (test_socket_server): error message unification
+
 2004-01-09  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-form-table): NTH & SYSTEM::%SETNTH
