@@ -1,3 +1,8 @@
+2002-07-02  Sam Steingold  <sds@gnu.org>
+
+	* _clisp.c [STDC_HEADERS]: #include <stdlib.h> (HAVE_STDLIB_H is
+	obsolete)
+
 2002-07-01  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): removed the obsolete -W option for the sake of

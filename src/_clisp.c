@@ -31,7 +31,7 @@
 # include <string.h>
 
 /* Declare malloc(). */
-#ifdef HAVE_STDLIB_H
+#ifdef STDC_HEADERS
 # include <stdlib.h>
 #endif
 #ifdef HAVE_UNISTD_H
