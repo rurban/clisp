@@ -68,7 +68,8 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_cp1257.c \
  $(DESTDIR)nls_cp1258.c \
  $(DESTDIR)nls_hp_roman8.c \
- $(DESTDIR)nls_nextstep.c
+ $(DESTDIR)nls_nextstep.c \
+ $(DESTDIR)nls_jisx0201.c
 
 JAVA = java
 JAVAC = javac -O
@@ -295,6 +296,9 @@ $(DESTDIR)nls_hp_roman8.c : nls_hp_roman8.in nls_table.class
 
 $(DESTDIR)nls_nextstep.c : nls_nextstep.in nls_table.class
 	$(JAVA) nls_table nls_nextstep.c $(DESTDIR) < nls_nextstep.in
+
+$(DESTDIR)nls_jisx0201.c : nls_jisx0201.in nls_table.class
+	$(JAVA) nls_table nls_jisx0201.c $(DESTDIR) < nls_jisx0201.in
 
 nls_table.class : nls_table.java
 	$(JAVAC) nls_table.java
@@ -560,6 +564,9 @@ nls_hp_roman8.in : nls_txt_to_in.class
 
 nls_nextstep.in : nls_txt_to_in.class
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/NEXTSTEP.TXT > nls_nextstep.in
+
+nls_jisx0201.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/JIS0201.TXT > nls_jisx0201.in
 
 nls_txt_to_in.class : nls_txt_to_in.java
 	$(JAVAC) nls_txt_to_in.java

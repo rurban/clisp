@@ -1,3 +1,14 @@
+1999-10-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * utils/unicode/Makefile: Add nls_jisx0201.c to the targets.
+          In the iso-8859-* tables, don't make 0x80..0x9F invalid.
+          Generate nls_koi8_r.c from the ftp.unicode.org table.
+        * encoding.d: Include nls_jisx0201.c.
+          (nls_tables): Add nls_jisx0201_table.
+          (nls_last_sym, nls_num_encodings): Update.
+        * pseudofun.d (nls_jisx0201_table): New entry.
+        * makemake.in (NLS_INCLUDES): Add nls_jisx0201.
+
 1999-10-15  Sam Steingold  <sds@ksp.com>
 
 	* modules/clx/new-clx/clx.f (get_font_info_and_display): fixed a
