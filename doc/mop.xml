@@ -4983,9 +4983,9 @@ use of this facility.</para></formalpara>
    <listitem><simpara>if the class of the &class-r; argument is the same
      as the class of the &superclass-r; argument, or
    </simpara></listitem>
-   <listitem><simpara>if the classes one of the arguments is
+   <listitem><simpara>if the class of one of the arguments is
      &standard-class; and the class of the other is
-     &funcallable-standard-class;.</simpara></listitem> <!-- sds: HUH?!!! -->
+     &funcallable-standard-class;.</simpara></listitem>
   </orderedlist>In all other cases, this method returns false.</para>
  &overridable;</listitem></varlistentry></variablelist>
 
