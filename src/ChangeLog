@@ -1,5 +1,59 @@
 1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Handle-streams and socket-streams now use a byte-oriented low-level
+        layer.
+        * stream.d (clear_tty_input) [AMIGAOS]: Define.
+          (strm_u_file_extrafields_struct): Add low-level function pointers.
+          (FileStreamLow_read, FileStreamLow_listen,
+           FileStreamLow_clear_input, FileStreamLow_read_array,
+           FileStreamLow_write, FileStreamLow_write_array,
+           FileStreamLow_finish_output, FileStreamLow_force_output,
+           FileStreamLow_clear_output): New macros.
+          (fehler_interrupt): New function.
+          (file_low_read, file_low_listen, file_low_clear_input,
+           file_low_read_array): New functions.
+          (rd_by_handle, rd_by_array_handle, rd_ch_handle, listen_handle,
+           clear_input_handle, rd_ch_array_handle): Rewritten from scratch.
+          Much nicer now that the ugly machine-dependent stuff is in the
+          low-level layer.
+          (HandleStream_input_init, HandleStream_input_init_data): New macros.
+          (file_low_write, file_low_write_array, file_low_finish_output,
+           file_low_force_output, file_low_clear_output): New functions.
+          (wr_by_handle, wr_by_array_handle, wr_ch_handle, wr_ch_array_handle,
+           finish_output_handle, force_output_handle, clear_output_handle):
+          Rewritten from scratch. Much nicer too.
+          (HandleStream_output_init): New macro.
+          (make_unbuffered_file_stream, make_keyboard_stream,
+           make_terminal_stream_, MAKE-PIPE-INPUT-STREAM,
+           MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM): Use the
+          HandleStream_*_init macros.
+          (socket_low_read, socket_low_listen, socket_low_clear_input,
+           socket_low_read_array) [WIN32_NATIVE]: New functions.
+          (SocketStream_input_init): New macro.
+          (socket_low_write, socket_low_write_array, socket_low_finish_output,
+           socket_low_force_output, socket_low_clear_output) [WIN32_NATIVE]:
+          New functions.
+          (SocketStream_output_init): New macro.
+          (rd_ch_socket, rd_ch_array_socket, wr_ch_socket, wr_ch_array_socket,
+           wr_ss_socket, rd_by_socket, rd_by_array_socket, wr_by_socket,
+           wr_by_array_socket): Remove functions.
+          (listen_socket): Define as a macro.
+          (rd_ch_x11socket, listen_x11socket, rd_ch_array_x11socket,
+           wr_ch_x11socket, wr_ch_array_x11socket, wr_ss_x11socket,
+           rd_by_x11socket, rd_by_array_x11socket, wr_by_x11socket,
+           wr_by_array_x11socket, close_x11socket): Remove macros.
+          (SYS::MAKE-SOCKET-STREAM): Update. Use the HandleStream_*_init
+          macros.
+          (test_n_bytes_args): Update.
+          (SYS::READ-N-BYTES): Simplify by calling read_byte_array. Upon EOF,
+          issue an error message instead of endless loop.
+          (SYS::WRITE-N-BYTES): Simplify by calling write_byte_array.
+          (make_socket_stream): Update. Use the HandleStream_*_init macros.
+          (stream_close, stream_listen): Update.
+        * pseudofun.d (*_x11socket, *_socket): Remove.
+
+1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Introduce symbolic codes for the `listen' return value.
         * lispbibl.d (ls_avail, ls_eof, ls_wait): New macros.
           (ls_avail_p, ls_eof_p, ls_wait_p): New macros.

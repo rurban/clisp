@@ -69,10 +69,4 @@ PSEUDOFUN(wr_ch_printer)
 PSEUDOFUN(rd_ch_pipe_in) PSEUDOFUN(rd_ch_array_pipe_in)
 PSEUDOFUN(wr_ch_pipe_out) PSEUDOFUN(wr_ch_array_pipe_out) PSEUDOFUN(wr_ss_pipe_out)
 #endif
-#ifdef X11SOCKETS
-PSEUDOFUN(rd_ch_x11socket) PSEUDOFUN(rd_ch_array_x11socket) PSEUDOFUN(wr_ch_x11socket) PSEUDOFUN(wr_ch_array_x11socket) PSEUDOFUN(wr_ss_x11socket) PSEUDOFUN(rd_by_x11socket) PSEUDOFUN(rd_by_array_x11socket) PSEUDOFUN(wr_by_x11socket) PSEUDOFUN(wr_by_array_x11socket)
-#endif
-#ifdef SOCKET_STREAMS
-PSEUDOFUN(rd_ch_socket) PSEUDOFUN(rd_ch_array_socket) PSEUDOFUN(wr_ch_socket) PSEUDOFUN(wr_ch_array_socket) PSEUDOFUN(wr_ss_socket) PSEUDOFUN(rd_by_socket) PSEUDOFUN(rd_by_array_socket) PSEUDOFUN(wr_by_socket) PSEUDOFUN(wr_by_array_socket)
-#endif
 
