@@ -1,3 +1,7 @@
+2004-04-27  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (expand-loop): fixed last patch: pattern may be NIL
+
 2004-04-27  Kaz Kylheku  <kaz@ashi.footprints.net>
 
 	* backquote.lisp (bq-optimize-list*): be careful to watch for
