@@ -987,7 +987,7 @@ for-value   NIL or T
   for-value         ; specifies, if the whole block-construction has to
                     ; return values.
 )
-(remprop 'block 'sys::defstruct-description)
+#-COMPILER-DEBUG (remprop 'block 'sys::defstruct-description)
 
 ;; Searches for a block with Name name and returns:
 ;; NIL                          if not found,
@@ -1031,7 +1031,7 @@ for-value   NIL or T
                     ; that are jumped at with GO from
                     ; within another function.
 )
-(remprop 'tagbody 'sys::defstruct-description)
+#-COMPILER-DEBUG (remprop 'tagbody 'sys::defstruct-description)
 
 ;; Searches for a tag with Namen name and returns:
 ;; NIL                                         if not found,
@@ -1132,7 +1132,7 @@ for-value   NIL or T
                            ;   Variable occurs.
   (fnode nil :read-only t) ; function containing this variable, an FNODE
 )
-(remprop 'var 'sys::defstruct-description)
+#-COMPILER-DEBUG (remprop 'var 'sys::defstruct-description)
 
 ;; (venv-search v) searches in *venv* for a Variable with the Symbol v.
 ;; result:
@@ -1227,7 +1227,7 @@ for-value   NIL or T
   ;;   For *compiling-from-file* /= nil:
   ;;     If (eq horizon ':value), value, else form.
 )
-(remprop 'const 'sys::defstruct-description)
+#-COMPILER-DEBUG (remprop 'const 'sys::defstruct-description)
 ;; In the 2nd Pass Variables with constantp=T are treated as Constants.
 
 
@@ -1414,7 +1414,7 @@ for-value   NIL or T
   far-used-tagbodys ; list of (tagbody . tag) defined in enclosing
                     ; functions but used by this function
 )
-(remprop 'fnode 'sys::defstruct-description)
+#-COMPILER-DEBUG (remprop 'fnode 'sys::defstruct-description)
 
 ;; the current function, an FNODE:
 (defvar *func*)
@@ -1501,11 +1501,11 @@ for-value   NIL or T
   code          ; generated LAP-Code, a List of LAP-statements and ANODEs
   #+COMPILER-DEBUG
   stackz)       ; state of the Stacks on entry into the belonging LAP-Code
-(remprop 'anode 'sys::defstruct-description)
+#-COMPILER-DEBUG (remprop 'anode 'sys::defstruct-description)
 ;; (make-anode ...) is the same as mk-anode, only that the arguments
 ;; are marked with keywords and unnecessary components
 ;; may stand there nevertheless because of #+COMPILER-DEBUG.
-(eval-when (compile eval)
+(eval-when (compile eval #+COMPILER-DEBUG load)
   (defmacro make-anode (&key
                         (source `*form*)
                         type
@@ -1678,7 +1678,7 @@ for-value   NIL or T
   (lineno1 *compile-file-lineno1*)
   (lineno2 *compile-file-lineno2*)
   (file *compile-file-truename*))
-(remprop 'c-source-point 'sys::defstruct-description)
+#-COMPILER-DEBUG (remprop 'c-source-point 'sys::defstruct-description)
 
 ;; (C-SOURCE-LOCATION)
 ;; returns a description of the location in the source.

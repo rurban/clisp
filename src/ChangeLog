@@ -1,4 +1,12 @@
+2002-10-04  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (init_object_tab) [DEBUG_SPVW]: add :COMPILER-DEBUG
+	to features
+	* compiler.lisp (make-anode) [COMPILER-DEBUG]: define when LOAD
+	[COMPILER-DEBUG]: do not remprop SYS::DEFSTRUCT-DESCRIPTION,
+
 2002-10-04  John Hinsdale <hin@alma.com>
+
 	* modules/oracle/oracle.lisp: More error checking throughout
 
 2002-10-03  Sam Steingold  <sds@gnu.org>
