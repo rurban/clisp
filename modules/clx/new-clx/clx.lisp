@@ -125,9 +125,9 @@
    screen-root-depth screen-root-visual screen-root-visual-info
    screen-save-unders-p screen-saver screen-white-pixel screen-width
    screen-width-in-millimeters seg-seq selection-owner send-event
-   sequence-error set-access-control set-close-down-mode set-input-focus
-   set-modifier-mapping set-pointer-mapping set-screen-saver
-   set-selection-owner set-standard-colormap set-standard-properties
+   sequence-error set-input-focus
+   set-modifier-mapping  set-screen-saver
+   set-standard-colormap set-standard-properties
    set-wm-class set-wm-properties set-wm-resources state-keysym-p
    state-mask-key store-color store-colors stringable text-extents
    text-width timestamp transient-for translate-coordinates
@@ -373,69 +373,67 @@
 ;;;; --------------------------------------------------------------------------
 ;;;;  Setf Methods
 ;;;; --------------------------------------------------------------------------
-(defsetf CLOSE-DOWN-MODE              CLOSE-DOWN-MODE-SETTER)
-(defsetf DISPLAY-AFTER-FUNCTION       DISPLAY-AFTER-FUNCTION-SETTER)
-(defsetf DISPLAY-ERROR-HANDLER        DISPLAY-ERROR-HANDLER-SETTER)
-(defsetf DISPLAY-PLIST                DISPLAY-PLIST-SETTER)
-(defsetf DRAWABLE-BORDER-WIDTH        DRAWABLE-BORDER-WIDTH-SETTER)
-(defsetf DRAWABLE-HEIGHT              DRAWABLE-HEIGHT-SETTER)
-(defsetf DRAWABLE-PLIST               DRAWABLE-PLIST-SETTER)
-(defsetf DRAWABLE-WIDTH               DRAWABLE-WIDTH-SETTER)
-(defsetf DRAWABLE-X                   DRAWABLE-X-SETTER)
-(defsetf DRAWABLE-Y                   DRAWABLE-Y-SETTER)
-(defsetf FONT-PATH                    FONT-PATH-SETTER)
-(defsetf FONT-PLIST                   FONT-PLIST-SETTER)
-(defsetf GCONTEXT-ARC-MODE            GCONTEXT-ARC-MODE-SETTER)
-(defsetf GCONTEXT-BACKGROUND          GCONTEXT-BACKGROUND-SETTER)
-(defsetf GCONTEXT-CACHE-P             GCONTEXT-CACHE-P-SETTER)
-(defsetf GCONTEXT-CAP-STYLE           GCONTEXT-CAP-STYLE-SETTER)
-(defsetf GCONTEXT-CLIP-MASK           GCONTEXT-CLIP-MASK-SETTER)
-(defsetf GCONTEXT-CLIP-X              GCONTEXT-CLIP-X-SETTER)
-(defsetf GCONTEXT-CLIP-Y              GCONTEXT-CLIP-Y-SETTER)
-(defsetf GCONTEXT-DASH-OFFSET         GCONTEXT-DASH-OFFSET-SETTER)
-(defsetf GCONTEXT-DASHES              GCONTEXT-DASHES-SETTER)
-(defsetf GCONTEXT-EXPOSURES           GCONTEXT-EXPOSURES-SETTER)
-(defsetf GCONTEXT-FILL-RULE           GCONTEXT-FILL-RULE-SETTER)
-(defsetf GCONTEXT-FILL-STYLE          GCONTEXT-FILL-STYLE-SETTER)
-(defsetf GCONTEXT-FONT                GCONTEXT-FONT-SETTER)
-(defsetf GCONTEXT-FOREGROUND          GCONTEXT-FOREGROUND-SETTER)
-(defsetf GCONTEXT-FUNCTION            GCONTEXT-FUNCTION-SETTER)
-(defsetf GCONTEXT-JOIN-STYLE          GCONTEXT-JOIN-STYLE-SETTER)
-(defsetf GCONTEXT-LINE-STYLE          GCONTEXT-LINE-STYLE-SETTER)
-(defsetf GCONTEXT-LINE-WIDTH          GCONTEXT-LINE-WIDTH-SETTER)
-(defsetf GCONTEXT-PLANE-MASK          GCONTEXT-PLANE-MASK-SETTER)
-(defsetf GCONTEXT-PLIST               GCONTEXT-PLIST-SETTER)
-(defsetf GCONTEXT-STIPPLE             GCONTEXT-STIPPLE-SETTER)
-(defsetf GCONTEXT-SUBWINDOW-MODE      GCONTEXT-SUBWINDOW-MODE-SETTER)
-(defsetf GCONTEXT-TILE                GCONTEXT-TILE-SETTER)
-(defsetf GCONTEXT-TS-X                GCONTEXT-TS-X-SETTER)
-(defsetf GCONTEXT-TS-Y                GCONTEXT-TS-Y-SETTER)
-(defsetf PIXMAP-PLIST                 PIXMAP-PLIST-SETTER)
-(defsetf POINTER-MAPPING              POINTER-MAPPING-SETTER)
-(defsetf SCREEN-PLIST                 SCREEN-PLIST-SETTER)
-(defsetf SELECTION-OWNER              SELECTION-OWNER-SETTER)
-(defsetf WINDOW-BACKGROUND            WINDOW-BACKGROUND-SETTER)
-(defsetf WINDOW-BACKING-PIXEL         WINDOW-BACKING-PIXEL-SETTER)
-(defsetf WINDOW-BACKING-PLANES        WINDOW-BACKING-PLANES-SETTER)
-(defsetf WINDOW-BACKING-STORE         WINDOW-BACKING-STORE-SETTER)
-(defsetf WINDOW-COLORMAP              WINDOW-COLORMAP-SETTER)
-(defsetf WINDOW-CURSOR                WINDOW-CURSOR-SETTER)
-(defsetf WINDOW-BIT-GRAVITY           WINDOW-BIT-GRAVITY-SETTER)
-(defsetf WINDOW-BORDER                WINDOW-BORDER-SETTER)
-(defsetf WINDOW-EVENT-MASK            WINDOW-EVENT-MASK-SETTER)
-(defsetf WINDOW-GRAVITY               WINDOW-GRAVITY-SETTER)
-(defsetf WINDOW-DO-NOT-PROPAGATE-MASK WINDOW-DO-NOT-PROPAGATE-MASK-SETTER)
-(defsetf WINDOW-OVERRIDE-REDIRECT     WINDOW-OVERRIDE-REDIRECT-SETTER)
-(defsetf WINDOW-PLIST                 WINDOW-PLIST-SETTER)
-(defsetf WINDOW-PRIORITY              WINDOW-PRIORITY-SETTER)
-(defsetf WINDOW-SAVE-UNDER            WINDOW-SAVE-UNDER-SETTER)
-
-(defun set-pointer-mapping (display mapping)
-  (setf (pointer-mapping display) mapping))
-(defun set-close-down-mode (display mode)
-  (setf (close-down-mode display) mode))
-(defun set-selection-owner (display selection owner &optional time)
-  (setf (selection-owner display selection time) owner))
+(defsetf CLOSE-DOWN-MODE (display) (mode)
+  `(SET-CLOSE-DOWN-MODE ,mode ,display))
+(defsetf DISPLAY-AFTER-FUNCTION       SET-DISPLAY-AFTER-FUNCTION)
+(defsetf DISPLAY-ERROR-HANDLER        SET-DISPLAY-ERROR-HANDLER)
+(defsetf DISPLAY-PLIST                SET-DISPLAY-PLIST)
+(defsetf DRAWABLE-BORDER-WIDTH        SET-DRAWABLE-BORDER-WIDTH)
+(defsetf DRAWABLE-HEIGHT              SET-DRAWABLE-HEIGHT)
+(defsetf DRAWABLE-PLIST               SET-DRAWABLE-PLIST)
+(defsetf DRAWABLE-WIDTH               SET-DRAWABLE-WIDTH)
+(defsetf DRAWABLE-X                   SET-DRAWABLE-X)
+(defsetf DRAWABLE-Y                   SET-DRAWABLE-Y)
+(defsetf FONT-PATH                    SET-FONT-PATH)
+(defsetf FONT-PLIST                   SET-FONT-PLIST)
+(defsetf GCONTEXT-ARC-MODE            SET-GCONTEXT-ARC-MODE)
+(defsetf GCONTEXT-BACKGROUND          SET-GCONTEXT-BACKGROUND)
+(defsetf GCONTEXT-CACHE-P             SET-GCONTEXT-CACHE-P)
+(defsetf GCONTEXT-CAP-STYLE           SET-GCONTEXT-CAP-STYLE)
+(defsetf GCONTEXT-CLIP-MASK (gcontext &optional ordering) (clip-mask)
+  `(SET-GCONTEXT-CLIP-MASK ,clip-mask ,gcontext ,ordering))
+(defsetf GCONTEXT-CLIP-X              SET-GCONTEXT-CLIP-X)
+(defsetf GCONTEXT-CLIP-Y              SET-GCONTEXT-CLIP-Y)
+(defsetf GCONTEXT-DASH-OFFSET         SET-GCONTEXT-DASH-OFFSET)
+(defsetf GCONTEXT-DASHES              SET-GCONTEXT-DASHES)
+(defsetf GCONTEXT-EXPOSURES           SET-GCONTEXT-EXPOSURES)
+(defsetf GCONTEXT-FILL-RULE           SET-GCONTEXT-FILL-RULE)
+(defsetf GCONTEXT-FILL-STYLE          SET-GCONTEXT-FILL-STYLE)
+(defsetf GCONTEXT-FONT (gcontext &optional pseudo-font-p) (font)
+  `(SET-GCONTEXT-FONT ,font ,gcontext ,pseudo-font-p))
+(defsetf GCONTEXT-FOREGROUND          SET-GCONTEXT-FOREGROUND)
+(defsetf GCONTEXT-FUNCTION            SET-GCONTEXT-FUNCTION)
+(defsetf GCONTEXT-JOIN-STYLE          SET-GCONTEXT-JOIN-STYLE)
+(defsetf GCONTEXT-LINE-STYLE          SET-GCONTEXT-LINE-STYLE)
+(defsetf GCONTEXT-LINE-WIDTH          SET-GCONTEXT-LINE-WIDTH)
+(defsetf GCONTEXT-PLANE-MASK          SET-GCONTEXT-PLANE-MASK)
+(defsetf GCONTEXT-PLIST               SET-GCONTEXT-PLIST)
+(defsetf GCONTEXT-STIPPLE             SET-GCONTEXT-STIPPLE)
+(defsetf GCONTEXT-SUBWINDOW-MODE      SET-GCONTEXT-SUBWINDOW-MODE)
+(defsetf GCONTEXT-TILE                SET-GCONTEXT-TILE)
+(defsetf GCONTEXT-TS-X                SET-GCONTEXT-TS-X)
+(defsetf GCONTEXT-TS-Y                SET-GCONTEXT-TS-Y)
+(defsetf PIXMAP-PLIST                 SET-PIXMAP-PLIST)
+(defsetf POINTER-MAPPING              SET-POINTER-MAPPING)
+(defsetf SCREEN-PLIST                 SET-SCREEN-PLIST)
+(defsetf SELECTION-OWNER (display selection &optional time) (owner)
+  `(SET-SELECTION-OWNER ,owner ,display ,selection ,time))
+(defsetf WINDOW-BACKGROUND            SET-WINDOW-BACKGROUND)
+(defsetf WINDOW-BACKING-PIXEL         SET-WINDOW-BACKING-PIXEL)
+(defsetf WINDOW-BACKING-PLANES        SET-WINDOW-BACKING-PLANES)
+(defsetf WINDOW-BACKING-STORE         SET-WINDOW-BACKING-STORE)
+(defsetf WINDOW-COLORMAP              SET-WINDOW-COLORMAP)
+(defsetf WINDOW-CURSOR                SET-WINDOW-CURSOR)
+(defsetf WINDOW-BIT-GRAVITY           SET-WINDOW-BIT-GRAVITY)
+(defsetf WINDOW-BORDER                SET-WINDOW-BORDER)
+(defsetf WINDOW-EVENT-MASK            SET-WINDOW-EVENT-MASK)
+(defsetf WINDOW-GRAVITY               SET-WINDOW-GRAVITY)
+(defsetf WINDOW-DO-NOT-PROPAGATE-MASK SET-WINDOW-DO-NOT-PROPAGATE-MASK)
+(defsetf WINDOW-OVERRIDE-REDIRECT     SET-WINDOW-OVERRIDE-REDIRECT)
+(defsetf WINDOW-PLIST                 SET-WINDOW-PLIST)
+(defsetf WINDOW-PRIORITY (window &optional sibling) (mode)
+  `(SET-WINDOW-PRIORITY ,mode ,window ,sibling))
+(defsetf WINDOW-SAVE-UNDER            SET-WINDOW-SAVE-UNDER)
 
 
 ;;;; --------------------------------------------------------------------------
@@ -605,10 +603,10 @@
 
 (defsetf wm-command set-wm-command)
 (defun set-wm-command (window command)
-  ;; Uses PRIN1 inside the ANSI common lisp form WITH-STANDARD-IO-SYNTAX (or
-  ;; equivalent), with elements of command separated by NULL characters.  This
-  ;; enables
-  ;;   (with-standard-io-syntax (mapcar #'read-from-string (wm-command window)))
+  ;; Uses PRIN1 inside the ANSI common lisp form WITH-STANDARD-IO-SYNTAX
+  ;; (or equivalent), with elements of command separated by NULL
+  ;; characters.  This enables
+  ;; (with-standard-io-syntax (mapcar #'read-from-string (wm-command window)))
   ;; to recover a lisp command.
   (set-string-property
     window :WM_COMMAND
