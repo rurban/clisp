@@ -1,5 +1,24 @@
 2004-07-12  Bruno Haible  <bruno@clisp.org>
 
+	* clos-specializer1.lisp (add-direct-generic-function-internal,
+	remove-direct-generic-function-internal,
+	list-direct-generic-functions): Remove functions.
+	(forget-direct-generic-functions, add-direct-generic-function):
+	Remove functions.
+	(compute-direct-generic-functions): Return just a plain list.
+	(update-list-direct-generic-functions): Remove function.
+	(specializer-direct-generic-functions): Use
+	compute-direct-generic-functions.
+	(add-direct-method-generic-function): Remove function.
+	(add-direct-method, remove-direct-method): Undo last change.
+	* clos-specializer3.lisp (specializer-direct-generic-functions): Use
+	compute-direct-generic-functions.
+	(add-direct-method, remove-direct-method): Undo last change.
+	* clos-method1.lisp (method-generic-function): Remove function.
+	* clos-method3.lisp (method-generic-function): Undo last change.
+
+2004-07-12  Bruno Haible  <bruno@clisp.org>
+
 	Implement specializer-direct-generic-functions.
 	* clos-specializer1.lisp (add-direct-generic-function-internal):
 	Renamed from add-direct-generic-function.
