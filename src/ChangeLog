@@ -1,5 +1,10 @@
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (listen_generic): Make an error message
+          internationalizable.
+
+1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * conditio.lsp (break): Use ANSI CL `:format-control' initarg.
 
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
