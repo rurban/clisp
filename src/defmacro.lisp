@@ -1,30 +1,31 @@
-;;;; File DEFMACRO.LISP
-;;; Macro DEFMACRO und einige Hilfsfunktionen für komplizierte Macros.
-;;; 1. 9. 1988
-;;; Adaptiert an DEFTYPE am 10.6.1989
+;;; File DEFMACRO.LISP
+;;; DEFMACRO macro and a few utility functions for complex macros.
+;;; 1988-01-09
+;;; Adapted from DEFTYPE on 1989-10-06
+;;; German comments translated by Mirian Lennox <mirian@cosmic.com> 2003-19-01
 
 (in-package "SYSTEM")
 
-;; Import aus CONTROL.Q:
+;; Import upon CONTROL.Q:
 
 #| (SYSTEM::PARSE-BODY body &optional docstring-allowed env)
-   expandiert die ersten Formen in der Formenliste body (im Macroexpansions-
-   Environment env), entdeckt dabei auftretende Deklarationen (und falls
-   docstring-allowed=T, auch einen Docstring) und liefert drei Werte:
-   1. body-rest, die restlichen Formen,
-   2. declspec-list, eine Liste der aufgetretenen Decl-Specs,
-   3. docstring, ein aufgetretener Docstring oder NIL.
+   expands the first form in the form list body (in the macro-expansion
+   environment env), resolves from them following declarations (and if
+   docstring-allowed=T, also a docstring) and supplies three values:
+   1. body-rest, the remaining forms
+   2. declspec-list, a subsequent list of declspecs
+   3. docstring, a subsequent docstring, or NIL
 |#
 #| (SYSTEM::KEYWORD-TEST arglist kwlist)
-   testet, ob arglist (eine paarige Keyword/Value-Liste) nur Keywords
-   enthält, die auch in der Liste kwlist vorkommen, oder aber ein
-   Keyword/Value-Paar :ALLOW-OTHER-KEYS mit Value /= NIL enthält.
-   Wenn nein, wird ein Error ausgelöst.
+   tests if arglist (a pair of keyword/value lists) contains only
+   keywords which come from the list kwlist, or else contains a
+   keyword/value pair :ALLOW-OTHER-KEYS with value other than NIL.
+   If not, an error is raised.
 |#
-#| (keyword-test arglist kwlist) überprüft, ob in arglist (eine Liste
-von Keyword/Value-Paaren) nur Keywords vorkommen, die in kwlist vorkommen,
-oder ein Keyword/Value-Paar mit Keyword = :ALLOW-OTHER-KEYS und Value /= NIL
-vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
+#| (keyword-test arglist kwlist) determines whether only keywords from
+kwlist (a list of keyword/value pairs), or else a keyword/value pair
+with keyword = :ALLOW-OTHER-KEYS and value other than NIL, appears
+in arglist.  If this is not the case, and error message is returned.
 
  (defun keyword-test (arglist kwlist)
   (let ((unallowed-arglistr nil)
@@ -43,7 +44,7 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
         (cerror (TEXT "Both will be ignored.")
                 (TEXT "Invalid keyword-value-pair: ~S ~S")
                 (first unallowed-arglistr) (second unallowed-arglistr))))))
-; Definition in Assembler siehe CONTROL.Q
+;; Definition in assembler (see CONTROL.Q)
 |#
 
 (defun macro-call-error (macro-form)
@@ -52,65 +53,65 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
     (car macro-form) (1- (length macro-form)) macro-form))
 
 (proclaim '(special
-        %restp ; gibt an, ob &REST/&BODY/&KEY angegeben wurde,
-               ; also ob die Argumentanzahl unbeschränkt ist.
+        %restp ;; indicates whether &REST/&BODY/&KEY was given,
+	       ;; and therefore the number of arguments is unbound.
 
-        %min-args ; gibt die Anzahl der notwendigen Argumente an
+        %min-args ;; indicates the mininum number of arguments
 
-        %arg-count ; gibt die Anzahl der Einzelargumente an
-                   ; (notwendige und optionale Argumente, zusammengezählt)
+        %arg-count ;; indicates the number of individual arguments
+	           ;; (required and optional arguments combined)
 
-        %let-list ; umgedrehte Liste der Bindungen, die mit LET* zu machen sind
+        %let-list ;; list of bindings made with LET*
 
-        %keyword-tests ; Liste der KEYWORD-TEST - Aufrufe, die einzubinden sind
+        %keyword-tests ;; list of keyword-tests - are bound to calls
 
-        %default-form ; Default-Form für optionale und Keyword-Argumente,
-                   ; bei denen keine Default-Form angegeben ist.
-                   ; =NIL normalerweise, = (QUOTE *) für DEFTYPE.
-)          )
+	%default-form ;; default form for optional and keyword arguments;
+	              ;;  if no default form is supplied, it defaults to
+	              ;;  NIL normally, or (QUOTE *) for DEFTYPE.
+))
 #|
  (ANALYZE1 lambdalist accessexp name wholevar)
-analysiert eine Macro-Lambdaliste (ohne &ENVIRONMENT). accessexp ist der
-Ausdruck, der die Argumente liefert, die mit dieser Lambdaliste zu matchen
-sind.
+analyses a macro lambda list (without &ENVIRONMENT).  accessexp is the
+expression which supplies the arguments to be matched with these
+lambda lists.
 
  (ANALYZE-REST lambdalistr restexp name)
-analysiert den Teil einer Macro-Lambdaliste, der nach &REST/&BODY kommt.
-restexp ist der Ausdruck, der die Argumente liefert, die mit diesem
-Listenrest zu matchen sind.
+analyses the part of a macro lambda list in which restexp is the
+&REST/&BODY expression to be matched with the extra arguments in the
+list.
 
  (ANALYZE-KEY lambdalistr restvar name)
-analysiert den Teil einer Macro-Lambdaliste, der nach &KEY kommt.
-restvar ist das Symbol, das die restlichen Argumente enthalten wird.
+analyses the part of a macro lambda list which comes after &KEY.
+restvar is the symbol that will contain the remaining arguments.
 
  (ANALYZE-AUX lambdalistr name)
-analysiert den Teil einer Macro-Lambdaliste, der nach &AUX kommt.
+analyses the part of a macro lambda list that comes after &AUX.
 
  (REMOVE-ENV-ARG lambdalist name)
-entfernt das Paar &ENVIRONMENT/Symbol aus einer Macro-Lambdaliste,
-liefert zwei Werte: die verkürzte Lambdaliste und das als Environment zu
-verwendende Symbol (oder die Lambdaliste selbst und NIL, falls &ENVIRONMENT
-nicht auftritt).
+removes the pair &ENVIRONMENT/Symbol from a macro lambda list; returns
+two values: the shorted lambda list and the symbol which can be used
+as environment (or the original lambda list and NIL, if &ENVIRONMENT
+is not found).
 
  (MAKE-LENGTH-TEST symbol)
-kreiert aus %restp, %min-args, %arg-count eine Testform, die bei Auswertung
-anzeigt, ob der Inhalt der Variablen symbol als Aufruferform zum Macro
-dienen kann.
+creates a testform from %restp, %min-args, %arg-count, which indicates
+during evaluation whether the variable value of the symbol can be a
+function call for the macro.
 
  (MAKE-MACRO-EXPANSION macrodef)
-liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
-1. den Macro-Expander als Programmtext (FUNCTION ... (LAMBDA ...)),
-2. name, ein Symbol,
-3. lambdalist,
-4. docstring (oder NIL, wenn keiner da).
+returns, for a macro definition macrodef = (name lambdalist . body),
+1. the macro-expander for the program text (FUNCTION ... (LAMBDA ..)),
+2. name, a symbol
+3. lambda list
+4. docstring (or NIL, if not there)
 
  (MAKE-MACRO-EXPANDER macrodef)
-liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
-das fürs FENV bestimmte Objekt #<MACRO expander>.
+returns, for a macro definition macrodef = (name lambdalist . body),
+the actual object #<MACRO expander> for the FENV.
 |#
 
 (%proclaim-constant 'macro-missing-value (list 'macro-missing-value))
-; einmaliges Objekt
+;; a unique object
 
 (%putd 'analyze-aux
   (function analyze-aux
@@ -127,9 +128,7 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                  (TEXT "in macro ~S: ~S may not be used as &AUX variable.")
                  name (car listr)))
               (t (setq %let-list
-                   (cons `(,(caar listr) ,(cadar listr)) %let-list)
-  ) ) ) )     )  )
-)
+                   (cons `(,(caar listr) ,(cadar listr)) %let-list))))))))
 
 (%putd 'analyze-key
   (function analyze-key
@@ -147,10 +146,10 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                      name)))
         (setq next (car listr))
         (cond ((eq next '&ALLOW-OTHER-KEYS) (setq otherkeysforbidden nil))
-              ((eq next '&AUX) (return-from nil (analyze-aux (cdr listr) name)))
-              ((or (eq next '&ENVIRONMENT) (eq next '&WHOLE) (eq next '&OPTIONAL)
-                   (eq next '&REST) (eq next '&BODY) (eq next '&KEY)
-               )
+              ((eq next '&AUX)
+               (return-from nil (analyze-aux (cdr listr) name)))
+              ((or (eq next '&ENVIRONMENT) (eq next '&WHOLE) (eq next '&REST)
+                   (eq next '&OPTIONAL) (eq next '&BODY) (eq next '&KEY))
                (cerror (TEXT "It will be ignored.")
                        (TEXT "The lambda list of macro ~S contains a badly placed ~S.")
                        name next))
@@ -158,15 +157,12 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                 (if %default-form
                   (cond ((symbolp next) (setq next (list next %default-form)))
                         ((and (consp next) (eql (length next) 1))
-                         (setq next (list (car next) %default-form))
-                ) )     )
+                         (setq next (list (car next) %default-form)))))
                 (cond ((symbolp next)
                        (setq kw (intern (symbol-name next) *keyword-package*))
                        (setq %let-list
-                         (cons `(,next (GETF ,restvar ,kw NIL)) %let-list)
-                       )
-                       (setq kwlist (cons kw kwlist))
-                      )
+                             (cons `(,next (GETF ,restvar ,kw NIL)) %let-list))
+                       (setq kwlist (cons kw kwlist)))
                       ((atom next)
                        (cerror (TEXT "It will be ignored.")
                                (TEXT "The lambda list of macro ~S contains the invalid element ~S")
@@ -176,29 +172,23 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                        (setq initv (gensym))
                        (setq %let-list (cons `(,initv ,(cadr next)) %let-list))
                        (setq %let-list
-                         (cons `(,(car next) (GETF ,restvar ,kw MACRO-MISSING-VALUE))
-                               %let-list
-                       ) )
+                             (cons `(,(car next) (GETF ,restvar ,kw
+                                                       MACRO-MISSING-VALUE))
+                                   %let-list))
                        (setq svar (if (and (cddr next) (symbolp (third next)))
                                     (third next)
-                                    nil
-                       )          )
+                                    nil))
                        (setq %let-list
                          (cons
                            (if svar
                              `(,svar (IF (EQ ,(car next) MACRO-MISSING-VALUE)
                                        (PROGN (SETQ ,(car next) ,initv) NIL)
-                                       T
-                              )      )
+                                       T))
                              `(,(car next) (IF (EQ ,(car next) MACRO-MISSING-VALUE)
                                              ,initv
-                                             ,(car next)
-                              )            )
-                           )
-                           %let-list
-                       ) )
-                       (setq kwlist (cons kw kwlist))
-                      )
+                                             ,(car next))))
+                           %let-list))
+                       (setq kwlist (cons kw kwlist)))
                       ((not (and (consp (car next)) (symbolp (caar next)) (consp (cdar next))))
                        (cerror (TEXT "~0*It will be ignored.")
                                (TEXT "The lambda list of macro ~S contains an invalid keyword specification ~S")
@@ -209,66 +199,48 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                        (setq %let-list (cons `(,initv ,(cadr next)) %let-list))
                        (setq %let-list
                          (cons `(,(cadar next) (GETF ,restvar ,kw MACRO-MISSING-VALUE))
-                           %let-list
-                       ) )
+                           %let-list))
                        (setq svar (if (and (cddr next) (symbolp (third next)))
                                     (third next)
-                                    nil
-                       )          )
+                                    nil))
                        (setq %let-list
                          (cons
                            (if svar
                              `(,svar (IF (EQ ,(cadar next) MACRO-MISSING-VALUE)
                                        (PROGN (SETQ ,(cadar next) ,initv) NIL)
-                                       T
-                              )      )
+                                       T))
                              `(,(cadar next) (IF (EQ ,(cadar next) MACRO-MISSING-VALUE)
                                              ,initv
-                                             ,(cadar next)
-                              )            )
-                           )
-                           %let-list
-                       ) )
-                       (setq kwlist (cons kw kwlist))
-                      )
+                                             ,(cadar next))))
+                           %let-list))
+                       (setq kwlist (cons kw kwlist)))
                       (t
                        (setq kw (caar next))
                        (setq g (gensym))
                        (setq initv (gensym))
                        (setq %let-list (cons `(,initv ,(cadr next)) %let-list))
                        (setq %let-list
-                         (cons `(,g (GETF ,restvar ,kw MACRO-MISSING-VALUE)) %let-list)
-                       )
+                         (cons `(,g (GETF ,restvar ,kw MACRO-MISSING-VALUE))
+                               %let-list))
                        (setq svar (if (and (cddr next) (symbolp (third next)))
                                     (third next)
-                                    nil
-                       )          )
+                                    nil))
                        (setq %let-list
                          (cons
                            (if svar
                              `(,svar (IF (EQ ,g MACRO-MISSING-VALUE)
                                        (PROGN (SETQ ,g ,initv) NIL)
-                                       T
-                              )      )
+                                       T))
                              `(,g (IF (EQ ,g MACRO-MISSING-VALUE)
                                     ,initv
-                                    ,(cadar next)
-                              )   )
-                           )
-                           %let-list
-                       ) )
+                                    ,(cadar next))))
+                           %let-list))
                        (setq kwlist (cons kw kwlist))
                        (let ((%min-args 0) (%arg-count 0) (%restp nil) (%default-form nil))
-                         (analyze1 (cadar next) g name g)
-                      ))
-              ) )
-      ) )
+                         (analyze1 (cadar next) g name g)))))))
       (if otherkeysforbidden
         (setq %keyword-tests
-          (cons `(KEYWORD-TEST ,restvar ',kwlist) %keyword-tests)
-      ) )
-  ) )
-)
+          (cons `(KEYWORD-TEST ,restvar ',kwlist) %keyword-tests))))))
 
 (%putd 'analyze-rest
   (function analyze-rest
@@ -281,16 +253,14 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
             (listr (cdr lambdalistr)))
         (setq %restp t)
         (cond ((symbolp restvar)
-               (setq %let-list (cons `(,restvar ,restexp) %let-list))
-              )
+               (setq %let-list (cons `(,restvar ,restexp) %let-list)))
               ((atom restvar)
                (error-of-type 'source-program-error
                  (TEXT "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
                  name restvar))
               (t
                (let ((%min-args 0) (%arg-count 0) (%restp nil))
-                 (analyze1 restvar restexp name restexp)
-        )     ))
+                 (analyze1 restvar restexp name restexp))))
         (cond ((null listr))
               ((atom listr)
                (cerror (TEXT "The rest of the lambda list will be ignored.")
@@ -312,14 +282,12 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
             (assoc (car exp)
               '((car . caar) (cdr . cadr)
                 (caar . caaar) (cadr . caadr) (cdar . cadar) (cddr . caddr)
-                (caaar . caaaar) (caadr . caaadr) (cadar . caadar) (caddr . caaddr)
-                (cdaar . cadaar) (cdadr . cadadr) (cddar . caddar) (cdddr . cadddr)
-                (cddddr . fifth)
-        ) ) )  )
+                (caaar . caaaar) (caadr . caaadr) (cadar . caadar)
+                (caddr . caaddr) (cdaar . cadaar) (cdadr . cadadr)
+                (cddar . caddar) (cdddr . cadddr)
+                (cddddr . fifth)))))
         (cons (cdr h) (cdr exp))
-        (list 'car exp)
-  ) ) )
-)
+        (list 'car exp)))))
 
 (%putd 'cons-cdr
   (function cons-cdr
@@ -331,13 +299,11 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
             (assoc (car exp)
               '((car . cdar) (cdr . cddr)
                 (caar . cdaar) (cadr . cdadr) (cdar . cddar) (cddr . cdddr)
-                (caaar . cdaaar) (caadr . cdaadr) (cadar . cdadar) (caddr . cdaddr)
-                (cdaar . cddaar) (cdadr . cddadr) (cddar . cdddar) (cdddr . cddddr)
-        ) ) )  )
+                (caaar . cdaaar) (caadr . cdaadr) (cadar . cdadar)
+                (caddr . cdaddr) (cdaar . cddaar) (cdadr . cddadr)
+                (cddar . cdddar) (cdddr . cddddr)))))
         (cons (cdr h) (cdr exp))
-        (list 'cdr exp)
-  ) ) )
-)
+        (list 'cdr exp)))))
 
 (%putd 'analyze1
   (function analyze1
@@ -353,8 +319,7 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                  (TEXT "The lambda list of macro ~S contains an illegal &REST variable: ~S")
                  name listr))
              (setq %let-list (cons `(,listr ,accessexp) %let-list))
-             (setq %restp t)
-          ))
+             (setq %restp t)))
         (setq item (car listr))
         (cond ((eq item '&WHOLE)
                (if (and wholevar (cdr listr) (symbolp (cadr listr)))
@@ -368,17 +333,14 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                  (cerror (TEXT "It will be ignored.")
                          (TEXT "The lambda list of macro ~S contains a superfluous ~S.")
                          name item))
-               (setq withinoptional t)
-              )
+               (setq withinoptional t))
               ((or (eq item '&REST) (eq item '&BODY))
-               (return-from nil (analyze-rest (cdr listr) accessexp name))
-              )
+               (return-from nil (analyze-rest (cdr listr) accessexp name)))
               ((eq item '&KEY)
                (setq g (gensym))
                (setq %restp t)
                (setq %let-list (cons `(,g ,accessexp) %let-list))
-               (return-from nil (analyze-key (cdr listr) g name))
-              )
+               (return-from nil (analyze-key (cdr listr) g name)))
               ((eq item '&ALLOW-OTHER-KEYS)
                (cerror (TEXT "It will be ignored.")
                        (TEXT "The lambda list of macro ~S contains ~S before &KEY.")
@@ -388,18 +350,16 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                        (TEXT "The lambda list of macro ~S contains ~S which is illegal here.")
                        name item))
               ((eq item '&AUX)
-               (return-from nil (analyze-aux (cdr listr) name))
-              )
+               (return-from nil (analyze-aux (cdr listr) name)))
               (withinoptional
                (setq %arg-count (1+ %arg-count))
                (if %default-form
                  (cond ((symbolp item) (setq item (list item %default-form)))
                        ((and (consp item) (eql (length item) 1))
-                        (setq item (list (car item) %default-form))
-               ) )     )
+                        (setq item (list (car item) %default-form)))))
                (cond ((symbolp item)
-                      (setq %let-list (cons `(,item ,(cons-car accessexp)) %let-list))
-                     )
+                      (setq %let-list (cons `(,item ,(cons-car accessexp))
+                                            %let-list)))
                      ((atom item)
                       #1=
                       (error-of-type 'source-program-error
@@ -409,55 +369,44 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                       (setq %let-list
                         (cons `(,(car item) (IF ,accessexp
                                               ,(cons-car accessexp)
-                                              ,(if (consp (cdr item)) (cadr item) 'NIL)
-                               )            )
-                          %let-list
-                      ) )
+                                              ,(if (consp (cdr item))
+                                                   (cadr item) 'NIL)))
+                          %let-list))
                       (when (and (consp (cdr item)) (consp (cddr item)))
                         (unless (symbolp (caddr item))
                           (error-of-type 'source-program-error
                             (TEXT "The lambda list of macro ~S contains an invalid supplied-variable ~S")
                             name (caddr item)))
                         (setq %let-list
-                          (cons `(,(caddr item) (NOT (NULL ,accessexp))) %let-list)
-                     )) )
+                          (cons `(,(caddr item) (NOT (NULL ,accessexp)))
+                                %let-list))))
                      (t
                       (setq g (gensym))
                       (setq %let-list
                         (cons `(,g ,(if (consp (cdr item))
                                       `(IF ,accessexp
                                          ,(cons-car accessexp)
-                                         ,(cadr item)
-                                       )
-                                      (cons-car accessexp)
-                               )    )
-                          %let-list
-                      ) )
+                                         ,(cadr item))
+                                      (cons-car accessexp)))
+                          %let-list))
                       (let ((%min-args 0) (%arg-count 0) (%restp nil))
-                        (analyze1 (car item) g name g)
-                      )
+                        (analyze1 (car item) g name g))
                       (if (consp (cddr item))
                         (setq %let-list
-                          (cons `(,(caddr item) (NOT (NULL ,accessexp))) %let-list)
-               )     )) )
-               (setq accessexp (cons-cdr accessexp))
-              )
-              (t ; notwendige Argumente
+                          (cons `(,(caddr item) (NOT (NULL ,accessexp))) %let-list)))))
+               (setq accessexp (cons-cdr accessexp)))
+              (t ; required arguments
                (setq %min-args (1+ %min-args))
                (setq %arg-count (1+ %arg-count))
                (cond ((symbolp item)
-                      (setq %let-list (cons `(,item ,(cons-car accessexp)) %let-list))
-                     )
+                      (setq %let-list (cons `(,item ,(cons-car accessexp)) %let-list)))
                      ((atom item)
-                      #1# ; (error-of-type ... name item), s.o.
-                     )
+                      #1#) ; (error-of-type ... name item), s.o.
                      (t
                       (let ((%min-args 0) (%arg-count 0) (%restp nil))
-                        (analyze1 item (cons-car accessexp) name (cons-car accessexp))
-               )     ))
-               (setq accessexp (cons-cdr accessexp))
-  ) ) ) )     )
-)
+                        (analyze1 item (cons-car accessexp) name
+                                  (cons-car accessexp)))))
+               (setq accessexp (cons-cdr accessexp))))))))
 
 (%putd 'remove-env-arg
   (function remove-env-arg
@@ -466,16 +415,14 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
           ((atom listr) (values lambdalist nil))
         (if (eq (car listr) '&ENVIRONMENT)
           (if (and (consp (cdr listr)) (symbolp (cadr listr)) (cadr listr))
-            ; &ENVIRONMENT gefunden
+            ;; found &ENVIRONMENT
             (return
               (values
-                (do ((l1 lambdalist (cdr l1)) ; lambdalist ohne &ENVIRONMENT/Symbol
+                (do ((l1 lambdalist (cdr l1)) ; lambda list without &ENVIRONMENT/symbol
                      (l2 nil (cons (car l1) l2)))
                     ((eq (car l1) '&ENVIRONMENT)
-                     (nreconc l2 (cddr l1))
-                )   )
-                (cadr listr)
-            ) )
+                     (nreconc l2 (cddr l1))))
+                (cadr listr)))
             (error-of-type 'source-program-error
               (TEXT "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S")
               name lambdalist)))))))
@@ -488,8 +435,8 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
               ((zerop %min-args) `(> ,len ,(+ header %arg-count)))
               (%restp `(< ,len ,(+ header %min-args)))
               ((= %min-args %arg-count) `(/= ,len ,(+ header %min-args)))
-              (t `(NOT (<= ,(+ header %min-args) ,len ,(+ header %arg-count))))
-        )))))
+              (t `(NOT (<= ,(+ header %min-args)
+                           ,len ,(+ header %arg-count)))))))))
 
 (%putd 'make-macro-expansion
   (function make-macro-expansion
@@ -508,11 +455,11 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
           (car macrodef)))
       (let ((name (car macrodef))
             (lambdalist (cadr macrodef))
-            (body (cddr macrodef))
-           )
+            (body (cddr macrodef)))
         (multiple-value-bind (body-rest declarations docstring)
-                             (parse-body body t) ; globales Environment!
-          (if declarations (setq declarations (list (cons 'DECLARE declarations))))
+                             (parse-body body t) ; global environment!
+          (if declarations (setq declarations
+                                 (list (cons 'DECLARE declarations))))
           (multiple-value-bind (newlambdalist envvar)
                                (remove-env-arg lambdalist name)
             (let ((%arg-count 0) (%min-args 0) (%restp nil)
@@ -522,36 +469,30 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                     (mainform `(LET* ,(nreverse %let-list)
                                  ,@declarations
                                  ,@(nreverse %keyword-tests)
-                                 (BLOCK ,name ,@body-rest)
-                   ))          )
+                                 (BLOCK ,name ,@body-rest))))
                 (if lengthtest
                   (setq mainform
                     `(IF ,lengthtest
                        (MACRO-CALL-ERROR <MACRO-FORM>)
-                       ,mainform
-                ) )  )
+                       ,mainform)))
                 (values
                   `(FUNCTION ,name
                      (LAMBDA (<MACRO-FORM> &OPTIONAL ,(or envvar '<ENV-ARG>))
                        (DECLARE (CONS <MACRO-FORM>))
                        ,@(if envvar
-                           declarations ; enthält evtl. ein (declare (ignore envvar))
-                           '((DECLARE (IGNORE <ENV-ARG>)))
-                         )
+                           declarations ;; eventually contains a
+			                ;; (declare (ignore envvar))
+                           '((DECLARE (IGNORE <ENV-ARG>))))
                        ,@(if docstring (list docstring))
                        ,@(if pre-process
                              `((setq <MACRO-FORM>
                                 (,pre-process <MACRO-FORM>))))
-                       ,mainform
-                   ) )
+                       ,mainform))
                   name
                   lambdalist
-                  docstring
-  ) ) ) ) ) ) ) )
-)
+                  docstring)))))))))
 
 (%putd 'make-macro-expander
   (function make-macro-expander
     (lambda (macrodef)
-      (make-macro (eval (make-macro-expansion macrodef)))
-) ) )
+      (make-macro (eval (make-macro-expansion macrodef))))))
