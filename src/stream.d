@@ -432,7 +432,7 @@ global object read_byte (object stream) {
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
         TheStream(stream)->strm_rd_ch_last = NIL;
       } else { # encode the rest
-        var uint8* cbuf = buf+1; # skip the first byte
+        var const uint8* cbuf = buf+1; # skip the first byte
         var chart* cptr = &ch;
         Encoding_mbstowcs(enc)(enc,stream,&cbuf,buf+char_len,&cptr,cptr+1);
         TheStream(stream)->strm_rd_ch_last = code_char(*cptr);
