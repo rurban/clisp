@@ -973,7 +973,7 @@ nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error,GETTEXT("~: element type has size 0: ~"));
 }
-global object convert_from_foreign (object fvd, const void*data)
+global object convert_from_foreign (object fvd, const void* data)
 {
   check_SP();
   check_STACK();
@@ -1666,7 +1666,6 @@ local void convert_to_foreign_needs (object fvd, object obj)
  can trigger GC */
 local void* (*converter_malloc) (void* old_data, uintL size, uintL alignment);
 local void convert_to_foreign (object fvd, object obj, void* data)
-
 {
   check_SP();
   check_STACK();
@@ -3120,7 +3119,8 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     }
     /* Call av_start_xxx: */
     begin_system_call();
-    do_av_start(flags,result_fvd,&alist,address,result_address,result_size,result_splittable);
+    do_av_start(flags,result_fvd,&alist,address,result_address,result_size,
+                result_splittable);
     end_system_call();
     { /* Now pass the arguments. */
       var uintL i;
@@ -3140,26 +3140,32 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         var uintL arg_size = data_size;
         var uintL arg_alignment = data_alignment;
         if (arg_flags & ff_alloca) {
-          allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer + arg_alignment-1) & -(long)arg_alignment);
+          allocaing_room_pointer =
+            (void*)(((uintP)allocaing_room_pointer + arg_alignment-1)
+                    & -(long)arg_alignment);
           var void* arg_address = allocaing_room_pointer;
-          allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + arg_size);
+          allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer
+                                           + arg_size);
           if (arg_flags & ff_out) {
             /* Pass top-level pointer only: */
             var object argo_fvd = TheSvector(arg_fvd)->data[1];
             foreign_layout(argo_fvd);
-            allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer + data_alignment-1) & -(long)data_alignment);
+            allocaing_room_pointer =
+              (void*)(((uintP)allocaing_room_pointer + data_alignment-1)
+                      & -(long)data_alignment);
             *(void**)arg_address = allocaing_room_pointer;
             pushSTACK(argo_fvd);
             results[result_count].address = allocaing_room_pointer;
             result_count++;
-            /* Durchnullen, um uninitialisiertes Ergebnis zu vermeiden: */
+            /* zero-fill to avoid uninitialized result: */
             blockzero(allocaing_room_pointer,data_size);
-            allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + data_size);
-          } else {
-            /* Convert argument: */
+            allocaing_room_pointer =
+              (void*)((uintP)allocaing_room_pointer + data_size);
+          } else { /* Convert argument: */
             convert_to_foreign_allocaing(arg_fvd,arg,arg_address);
             if (arg_flags & ff_inout) {
-              pushSTACK(TheSvector(arg_fvd)->data[1]); results[result_count].address = *(void**)arg_address;
+              pushSTACK(TheSvector(arg_fvd)->data[1]);
+              results[result_count].address = *(void**)arg_address;
               result_count++;
             }
           }
@@ -3173,7 +3179,8 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         } else {
           var uintL arg_totalsize = arg_size+arg_alignment; /* >= arg_size+arg_alignment-1, > 0 */
           var DYNAMIC_ARRAY(arg_room,char,arg_totalsize);
-          var void* arg_address = (void*)((uintP)(arg_room+arg_alignment-1) & -(long)arg_alignment);
+          var void* arg_address = (void*)((uintP)(arg_room+arg_alignment-1)
+                                          & -(long)arg_alignment);
           if (!(arg_flags & ff_out)) {
             /* Convert argument: */
             if (arg_flags & ff_malloc)
@@ -3188,9 +3195,9 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           }
           /* Call av_xxx: */
           begin_system_call();
-#ifdef AMIGAOS
+         #ifdef AMIGAOS
           AV_ARG_REGNUM = (int)(arg_flags >> 8) - 1;
-#endif
+         #endif
           do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
           end_system_call();
           FREE_DYNAMIC_ARRAY(arg_room);
@@ -3206,8 +3213,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     begin_call();
     av_call(alist);
     end_call();
-    /* Convert the result(s) back to Lisp. */
-    {
+    { /* Convert the result(s) back to Lisp. */
       var gcv_object_t* resptr = (&STACK_0 STACKop result_count) STACKop -1;
       var uintL i;
       for (i = 0; i < result_count; i++) {
