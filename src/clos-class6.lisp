@@ -182,6 +182,14 @@
   (setf (sys::%record-ref class *<slotted-class>-subclass-of-stablehash-p-location*) new-value))
 
 ;; Not in MOP.
+(defun class-direct-accessors (class)
+  (assert (typep class 'slotted-class))
+  (sys::%record-ref class *<slotted-class>-direct-accessors-location*))
+(defun (setf class-direct-accessors) (new-value class)
+  (assert (typep class 'slotted-class))
+  (setf (sys::%record-ref class *<slotted-class>-direct-accessors-location*) new-value))
+
+;; Not in MOP.
 (defun class-valid-initargs (class)
   (assert (typep class 'slotted-class))
   (sys::%record-ref class *<slotted-class>-valid-initargs-location*))
@@ -212,14 +220,6 @@
 (defun (setf class-current-version) (new-value class)
   (assert (typep class 'standard-class))
   (setf (sys::%record-ref class *<standard-class>-current-version-location*) new-value))
-
-;; Not in MOP.
-(defun class-direct-accessors (class)
-  (assert (typep class 'standard-class))
-  (sys::%record-ref class *<standard-class>-direct-accessors-location*))
-(defun (setf class-direct-accessors) (new-value class)
-  (assert (typep class 'standard-class))
-  (setf (sys::%record-ref class *<standard-class>-direct-accessors-location*) new-value))
 
 ;; Not in MOP.
 (defun class-fixed-slot-locations (class)

@@ -1439,7 +1439,6 @@
                               :serial 0))
     (unless *classes-finished*
       ; Bootstrapping: Simulate the effect of #'%shared-initialize.
-      (setf (class-direct-accessors class) '())
       (setf (class-instantiated class) nil)
       (setf (class-finalized-direct-subclasses-table class) '())))
   ; Initialize the remaining <class> slots:
