@@ -983,6 +983,9 @@
       #define nonreturning_function(storclass,funname,arguments)  \
         storclass void funname arguments
     #endif
+  #elif defined(MICROSOFT)
+      #define nonreturning_function(storclass,funname,arguments)  \
+        __declspec(noreturn) storclass void funname arguments
   #else
     #define nonreturning_function(storclass,funname,arguments)  \
       storclass void funname arguments
