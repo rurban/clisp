@@ -1,5 +1,10 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* hashtabl.d (check_weak): DON'T USE LOCAL VARIABLES OF TYPE
+	gcv_object_t.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (mv_to_list, implicit_progn): Cosmetics.
 	* io.d (LINES_INC): Likewise.
 
