@@ -76,13 +76,13 @@ func_tmpdir ()
   }
 }
 
-if test "@with_dynamic_modules@" != no; then
 # prepare the loading infrastructure for the current dynamic module.
 # this can be invoked only after "./link.sh" and relies on its variables.
 # also uses:
 #   ${absolute_currentdir} : the top level directory
 #   ${DYNMOD} : the name of the directory where to put the generated files
 prepare_dynamic_module() {
+ if test "@with_dynamic_modules@" != no; then
   dynmod=${DYNMOD-dynmod};
   dyndir=${absolute_currentdir}/${dynmod};
   mkdir -p ${dyndir};
@@ -96,6 +96,7 @@ prepare_dynamic_module() {
   done
   # create the REQUIRE file
   reqfile=${dyndir}/${firstmod}.lisp
+  rm -f ${reqfile};
   for f in ${TO_PRELOAD}; do
     echo "(cl:load (cl:merge-pathnames \"${moduledir}/${f}\" ext:*lib-directory*))" >> ${reqfile};
   done
@@ -107,10 +108,8 @@ prepare_dynamic_module() {
   done
   # create links to the REQUIRE file
   for m in ${othermods}; do ln ${dyndir}/$m.lisp ${reqfile}; done
+ fi
 }
-else
-prepare_dynamic_module() {}
-fi
 
 # Remove the comment to Set debugging output on
 #set -x
