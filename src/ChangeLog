@@ -1,3 +1,9 @@
+2004-05-11  Bruno Haible  <bruno@clisp.org>
+
+	* arilev0.d (divu_3216_1616) [SPARC64]: Add missing newline in asm
+	statement.
+	(divu_3216_3216, divu_3232_3232, divu_6432_3232) [SPARC64]: Likewise.
+
 2004-05-11  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-form-table): treat =,/=,>,>=,<,<= specially
