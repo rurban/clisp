@@ -686,18 +686,29 @@ LISPFUNN(subr_info,1)
                          });
                        # Handler deaktivieren:
                        inactive_handlers = &new_range;
-                       # Information für den Handler bereitlegen:
-                       handler_args.condition = STACK_(0+2);
-                       handler_args.stack = FRAME STACKop 4;
-                       handler_args.sp = (SPint*)(aint)as_oint(FRAME_(frame_SP));
-                       handler_args.spdepth = Cdr(FRAME_(frame_handlers));
-                       # Handler aufrufen:
-                       {var object closure = FRAME_(frame_closure);
-                        var object codevec = TheCclosure(closure)->clos_codevec;
-                        var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
-                                               + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
-                        interpret_bytecode(closure,codevec,index);
-                       }
+                       if (!nullp(Cdr(FRAME_(frame_handlers))))
+                         { # Information für den Handler bereitlegen:
+                           handler_args.condition = STACK_(0+2);
+                           handler_args.stack = FRAME STACKop 4;
+                           handler_args.sp = (SPint*)(aint)as_oint(FRAME_(frame_SP));
+                           handler_args.spdepth = Cdr(FRAME_(frame_handlers));
+                           # Handler aufrufen:
+                          {var object closure = FRAME_(frame_closure);
+                           var object codevec = TheCclosure(closure)->clos_codevec;
+                           var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
+                                             + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
+                           interpret_bytecode(closure,codevec,index);
+                         }}
+                         else
+                         { # C-Handler aufrufen:
+                           void* handler_fn = TheMachineCode(FRAME_(frame_closure));
+                           ((void (*) (void*, object*, object, object)) handler_fn)
+                             ((void*)(aint)as_oint(FRAME_(frame_SP)),
+                              FRAME,
+                              TheSvector(Car(FRAME_(frame_handlers)))->data[i+1],
+                              STACK_(0+2)
+                             );
+                         }
                        skipSTACK(2); # Unwind-Protect-Frame auflösen
                        # Handler reaktivieren:
                        inactive_handlers = saved_inactive_handlers;
@@ -7701,7 +7712,7 @@ LISPFUNN(subr_info,1)
               # baut SP neu auf, belegt 1 SP-Eintrag und
               # beginnt einen neuen STACK-Bereich.
               { var uintL count = posfixnum_to_L(Car(handler_args.spdepth))
-                                       + jmpbufsize * posfixnum_to_L(Cdr(handler_args.spdepth));
+                                  + jmpbufsize * posfixnum_to_L(Cdr(handler_args.spdepth));
                 if (count > 0)
                   { var SPint* oldsp = handler_args.sp; # war früher &SP_(0)
                     # oldsp[0..count-1] auf den jetzigen SP kopieren:
