@@ -1,6 +1,13 @@
+2003-05-14  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp: BLOCK-OPEN and TAGBODY-OPEN not only have
+	undefined values, but invalidate value1 due to consing!
+	(traverse-anode): clear the current known value (*current-value*
+	and *current-vars*) when encountering BLOCK-OPEN or TAGBODY-OPEN
+
 2003-05-13  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* foreign.d (FFI::FOREIGN-SIZE): remove unreferenced function
+	* foreign.d (FOREIGN-SIZE): remove unreferenced function
 
 2003-05-12  Sam Steingold  <sds@gnu.org>
 
