@@ -2785,8 +2785,7 @@ for-value   NIL or T
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
   (apply #'c-comment
-         (concatenate 'string (TEXT "~%WARNING~@[ in function ~S~]~A :~%")
-                      cstring)
+         (concatenate 'string (TEXT "~%WARNING~@[ in ~A~]~A :~%") cstring)
          (current-function) (c-source-location)
          args))
 
@@ -2806,8 +2805,7 @@ for-value   NIL or T
     (when in-function
       (when *compiling-from-file*
         (pushnew in-function *functions-with-errors*)))
-    (format *c-error-output*
-            (TEXT "~%ERROR~@[ in function ~S~]~A :~%~?")
+    (format *c-error-output* (TEXT "~%ERROR~@[ in ~S~]~A :~%~?")
             in-function (c-source-location) cstring args))
   (throw 'c-error
     (make-anode :source NIL
@@ -11067,6 +11065,23 @@ The function make-closure is required.
 ;; As Top-Level-Forms can be split at EVAL-WHEN, PROGN and LOCALLY,
 ;; one has to use LET (), in order to circumvent this.
 
+;; return the form name for *toplevel-name*
+(defun form-name (form)
+  ;(let ((cmd (first form)) (arg (second form)))
+  ;  (case cmd
+  ;    ((DEFUN) (make-symbol
+  ;              (string-concat
+  ;               "DEFUN-" (symbol-name (if (symbolp arg)
+  ;                                         arg (setf-symbol (second arg)))))))
+  ;    ((DEFMACRO DEFVAR DEFPARAMETER DEFCONSTANT DEFSETF DEFPACKAGE)
+  ;     (make-symbol (string-concat (symbol-name cmd) "-" (symbol-name arg))))
+  ;    ((IN-PACKAGE)
+  ;     (make-symbol (string-concat "IN-PACKAGE-" (string arg))))
+  ;    (t (warn "~s: ~s" 'form-name form)
+  (make-symbol
+   (sys::write-to-short-string form
+     (- (or *print-right-margin* sys::*prin-linelength*) 10))));)))
+
 ;; Compiles a Top-Level-Form for COMPILE-FILE. The *toplevel-name* is
 ;; mostly passed unchanged. *toplevel-for-value* indicates, if the value
 ;; is needed (for LOAD :PRINT T) or not.
@@ -11413,17 +11428,13 @@ The function make-closure is required.
                 (loop
                   (peek-char t istream nil eof-value)
                   (setq *compile-file-lineno1* (line-number istream))
-                  (let ((form (read istream nil eof-value)))
+                  (let* ((form (read istream nil eof-value))
+                         (form-name (form-name form)))
                     (setq *compile-file-lineno2* (line-number istream))
                     (when (eql form eof-value) (return))
-                    (when *compile-print*
-                      (format t "~%; ~A"
-                                (sys::write-to-short-string form
-                                  (- (or *print-right-margin*
-                                         sys::*prin-linelength*)
-                                     2))))
+                    (when *compile-print* (format t "~%; ~A" form-name))
                     (compile-toplevel-form form
-                      (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count)))))
+                      (symbol-suffix form-name (incf form-count)))))
                 (finalize-coutput-file)
                 (c-comment (TEXT "~&~%Compilation of file ~A is finished.")
                            file)
