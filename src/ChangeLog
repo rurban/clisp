@@ -1,5 +1,10 @@
 2001-09-10  Sam Steingold  <sds@gnu.org>
 
+	* pprint.lisp (pprint-logical-block): unroll stream-symbol (NIL ->
+	*STANDARD-OUTPUT*, T -> *TERMINAL-IO*)
+
+2001-09-10  Sam Steingold  <sds@gnu.org>
+
 	* io.d (pr_enter_1): a GC-safety issue
 
 2001-09-10  Sam Steingold  <sds@gnu.org>

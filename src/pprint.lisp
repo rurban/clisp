@@ -103,7 +103,12 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 (defmacro pprint-logical-block ((stream-symbol object
                                  &key prefix per-line-prefix suffix)
                                 &body body)
-  (with-gensyms ("PPLB-" pre suf)
+  (let ((out (case stream-symbol
+               ((t) '*terminal-io*)
+               ((nil) *standard-output*)
+               (otherwise stream-symbol)))
+        (pre (gensym "PPLB-PREF-"))
+        (suf (gensym "PPLB-SUFF-")))
     `(let ((,pre ,prefix)
            (,suf ,suffix)
            (*prin-line-prefix* ,per-line-prefix))
@@ -127,10 +132,10 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
           (ENGLISH "~S: ~S must be a ~S, not ~S")
           'pprint-logical-block :prefix 'string *prin-line-prefix*))
       (%pprint-logical-block
-       (lambda (out obj)
+       (lambda (,out obj)
          (let ((*prin-miserp*
                 (and *print-miser-width*
-                     (> (line-position out)
+                     (> (line-position ,out)
                         (- (or *print-right-margin* *prin-linelength*)
                            *print-miser-width*))))
                (*prin-level* (1+ *prin-level*))
@@ -142,12 +147,12 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                       (pprint-exit-if-list-exhausted ()
                         '(unless obj (go pprint-logical-block-end))))
              (when ,pre
-               (write-string ,pre out)
-               (pprint-indent :current 0 out))
+               (write-string ,pre ,out)
+               (pprint-indent :current 0 ,out))
              (tagbody ,@body
               pprint-logical-block-end
-                (when ,suf (write-string ,suf out))))))
-       ,object ,stream-symbol))))
+                (when ,suf (write-string ,suf ,out))))))
+       ,object ,out))))
 
 ;; ---------------------- utilities ----------------------
 
