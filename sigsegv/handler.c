@@ -35,7 +35,7 @@
 #define SIGSEGV_FAULT_ADDRESS  addr
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGBUS)
 #endif
-#if defined(linux) && defined(sparc) /* Linux */
+#if defined(linux) && defined(sparc) /* Linux, in case of SunOS4 signal frames */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
 #define SIGSEGV_FAULT_ADDRESS  addr
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)

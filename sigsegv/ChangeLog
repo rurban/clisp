@@ -1,0 +1,5 @@
+1999-01-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * sigsegv.h [linux && sparc]: Disable HAVE_SIGSEGV_RECOVERY. It does
+          not work any more.
+
