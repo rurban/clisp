@@ -1144,3 +1144,12 @@ error
      X)
 "abcdef"
 
+(setq x (make-array 10 :fill-pointer 5 :element-type 'character
+                    :initial-contents "abcdefghij"))
+"abcde"
+
+(char x 7)
+#\h
+
+(elt x 7)
+error
