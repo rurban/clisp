@@ -1,5 +1,11 @@
 2001-10-04  Sam Steingold  <sds@gnu.org>
 
+	expand compiler macros in C-FORM
+	* compiler.lisp (expand-compiler-macro): new function
+	(c-form, macroexpand-form): use it
+
+2001-10-04  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (clos-class): new function
 	(typep, canonicalize-type, type-expand): use it
 
