@@ -32,7 +32,7 @@
 	* makemake.in: Use the config.cache in the main build dir only if it
 	exists. Fixes bug introduced on 2005-02-11.
 
-2005-02-16  Bruno Haible  <bruno@clisp.org>
+2005-02-17  Bruno Haible  <bruno@clisp.org>
 
 	Simplify the version handling.
 	* version.sh: New file.
@@ -49,6 +49,7 @@
 	(TOPDIR): Define using the PACKAGE_VERSION, not the src/VERSION file.
 	(distrib): Use the VERSION variable from this Makefile.
 	(clean7): Don't remove VERSION.
+	* configure: Use version.sh, not VERSION. Don't symlink VERSION.
 	* Makefile.devel (all): Remove src/VERSION.
 	(src/VERSION): Remove rule.
 	(src/version.h): Generate from version.sh, not using src/configure.
