@@ -2671,7 +2671,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     fake_gcv_object (oint value) : fake_value (value) {}
   };
 #else
-  #define fake_gcv_object(value)  as_object(value)
+  #define fake_gcv_object(value)  as_object((oint)(value))
 #endif
 
 # Hack for use only in areas where no GC can be triggered.
