@@ -1,5 +1,4 @@
-(in-package "SYSTEM")
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 ;; Languages and Internationalization:
 ;; (sys::current-language)
 ;;   returns the current language, a symbol.
@@ -29,9 +28,11 @@
 ;; defgeneric with EQL methods for the language argument. (Well, language
 ;; inheritance doesn't work with EQL methods.)
 ;;
+
 (in-package "LISP")
 (export '(deflanguage definternational deflocalized localized))
 (in-package "SYSTEM")
+
 (defvar *all-languages* nil)
 (defun assert-language (lang)
   (let ((h (assoc lang *all-languages*)))
@@ -127,7 +128,7 @@
           (localized symbol default-language)
     ) ) )
 )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro typecase (keyform &rest typeclauselist)
   (let* ((tempvar (gensym))
          (condclauselist nil))
@@ -152,7 +153,7 @@
     ) )
     `(LET ((,tempvar ,keyform)) (COND ,@(nreverse condclauselist)))
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defun type-error-string ()
   (ENGLISH "~A~%The value is: ~S")
 )
@@ -184,7 +185,7 @@
        ,tag2
      )
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defun report-no-new-value-string ()
   (ENGLISH "Retry")
 )
@@ -226,7 +227,7 @@
        ,tag2
      )
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defun typecase-error-string (keyform typelist)
   (format nil
     (ENGLISH "The value of ~S must be of one of the types ~{~S~^, ~}")
@@ -331,7 +332,7 @@
                   (case-errorstring keyform keyclauselist)
     ) )
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro deftype (name lambdalist &body body &environment env)
   (unless (symbolp name)
     (error-of-type 'source-program-error
@@ -376,7 +377,7 @@
     (ENGLISH "The deftype expander for ~S may not be called with ~S arguments.")
     (car deftype-form) (1- (length deftype-form))
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 ;; cf. X3J13 vote <173>
 (defmacro define-symbol-macro (symbol expansion)
   (unless (symbolp symbol)
@@ -399,7 +400,7 @@
       (ENGLISH "~S: the symbol ~S names a global variable")
       'define-symbol-macro symbol
 ) ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro time (form)
   (let ((vars (list (gensym) (gensym) (gensym) (gensym) (gensym) (gensym)
                     (gensym) (gensym) (gensym)
@@ -408,7 +409,7 @@
        (UNWIND-PROTECT ,form (MULTIPLE-VALUE-CALL #'%TIME (%%TIME) ,@vars))
      ) ; Diese Konstruktion verbraucht zur Laufzeit nur Stackplatz!
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro space (form)
   (let ((var1 (gensym))
         (var2 (gensym))
@@ -440,7 +441,7 @@
        (VALUES-LIST ,var3)
      )
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro with-input-from-string
     ((var string &key (index nil sindex) (start '0 sstart) (end 'NIL send))
      &body body &environment env)
@@ -457,7 +458,7 @@
          (CLOSE ,var)
      ) )
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro with-open-file ((stream &rest options) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
     `(LET ((,stream (OPEN ,@options)))
@@ -469,7 +470,7 @@
          (WHEN ,stream (CLOSE ,stream :ABORT T))
      ) )
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro with-open-stream ((var stream) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
     `(LET ((,var ,stream))
@@ -479,7 +480,7 @@
          (CLOSE ,var :ABORT T)
      ) )
 ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (defmacro with-output-to-string
     ((var &optional (string nil) &key element-type) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
@@ -497,7 +498,7 @@
            (CLOSE ,var)
        ) )
 ) ) )
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (in-package "LISP")
 (export 'with-output-to-printer)
 (in-package "SYSTEM")
@@ -523,7 +524,7 @@
 (defun make-printer-stream (&key (external-format :default))
   (open "prn" :direction :output :external-format external-format)
 )
-;------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 (in-package "LISP")
 (export 'without-floating-point-underflow)
 (in-package "SYSTEM")
@@ -531,5 +532,5 @@
   `(let ((SYS::*INHIBIT-FLOATING-POINT-UNDERFLOW* T))
     ;; need `progn' to signal an error when `body' starts with a declaration
     (progn ,@body)))
-;------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
