@@ -1417,7 +1417,7 @@
         init_object_tab();
       }
   # Laden vom MEM-File:
-    local void loadmem (char* filename); # siehe unten
+    local void loadmem (const char* filename); # siehe unten
   # Initialiserung der anderen, noch nicht initialisierten Module:
     local void init_other_modules_2 (void);
     local void init_module_2 (module_* module);
