@@ -232,7 +232,17 @@
     (setf (std-gf-declspecs gf) (if declare-p declare declarations)))
   (when (eq situation 't)
     (setf (std-gf-methods gf) '()))
-  (when (or (eq situation 't) lambda-list-p method-combination-p)
+  (when (or (eq situation 't)
+            ; When reinitializing a generic-function, we need to clear the
+            ; caches (cf. MOP p. 40 compute-discriminating-function item (ii)).
+            ; But we don't need to do it if we know that all that has changed
+            ; are the name, method-class, documentation, declarations, declare
+            ; initargs. But other, possibly user-defined, initargs can have an
+            ; effect on the discriminating function.
+            (do ((l args (cddr l)))
+                ((endp l) nil)
+              (unless (memq (car l) '(:name :method-class :documentation :declarations :declare))
+                (return t))))
     (setf (std-gf-effective-method-cache gf) '()))
   ; Now allow the user to call the generic-function-xxx accessor functions.
   (setf (std-gf-initialized gf) t)
@@ -344,6 +354,7 @@
   (dolist (specializer (std-method-specializers method))
     (add-direct-method specializer method))
   ;; Step 3: Clear the effective method cache and the discriminating function.
+  ;; (Cf. MOP p. 41 compute-discriminating-function item (iii).)
   (setf (std-gf-effective-method-cache gf) '())
   (finalize-fast-gf gf)
   ;; Step 4: Update the dependents.
@@ -383,6 +394,7 @@
       (dolist (specializer (std-method-specializers method))
         (remove-direct-method specializer method))
       ;; Step 3: Clear the effective method cache and the discriminating function.
+      ;; (Cf. MOP p. 41 compute-discriminating-function item (iii).)
       (setf (std-gf-effective-method-cache gf) '())
       (finalize-fast-gf gf)
       ;; Step 4: Update the dependents.
@@ -750,12 +762,19 @@
 
 ;; Installs the final dispatch-code into a generic function.
 (defun install-dispatch (gf)
-  (set-funcallable-instance-function gf
-    (funcall (cond ((or (eq gf #'compute-discriminating-function) ; for bootstrapping
-                        (eq gf #'compute-applicable-methods-using-classes))
-                    #'compute-discriminating-function-<standard-generic-function>)
-                   (t #'compute-discriminating-function))
-             gf)))
+  (let ((dispatch
+          (funcall (cond ((or (eq gf #'compute-discriminating-function) ; for bootstrapping
+                              (eq gf #'compute-applicable-methods-using-classes))
+                          #'compute-discriminating-function-<standard-generic-function>)
+                         (t #'compute-discriminating-function))
+                   gf)))
+    ; Some checks, to guarantee that user-defined methods on
+    ; compute-discriminating-function don't break our CLOS.
+    (unless (functionp dispatch)
+      (error (TEXT "Wrong ~S result for generic-function ~S: not a function: ~S")
+             'compute-discriminating-function gf dispatch))
+    ; Now install it.
+    (set-funcallable-instance-function gf dispatch)))
 
 ;; Preliminary.
 (defun compute-discriminating-function (gf)
