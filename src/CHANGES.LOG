@@ -117,6 +117,9 @@ User visible changes
   MAKE-PIPE-IO-STREAM after the corresponding child process has exited
   now leads to an error message instead of terminating the CLISP process.
 
+* The generic function GENERIC-STREAM-LISTEN is renamed to
+  GENERIC-STREAM-READ-CHAR-STATUS.
+
 * The function XGCD now really always returns coefficients of smallest
   possible absolute value.
 
