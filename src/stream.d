@@ -826,6 +826,19 @@ nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
   fehler(stream_error,GETTEXT("integer ~ is out of range, cannot be output onto ~"));
 }
 
+# barf if the object is not a stream
+#define check_stream(obj) (streamp(obj) ? obj : (fehler_stream(obj),NIL))
+# barf if the object is not a stream of the specific type
+#define check_streamtype(obj,type)                                        \
+  if (!streamp(obj)) fehler_stream(obj); else fehler_streamtype(obj,type)
+# barf if the object is not a built-in stream
+#define check_builtin_stream(obj)                               \
+  (builtin_stream_p(obj) ? obj                                  \
+   : (fehler_streamtype(obj,O(type_builtin_stream)), NIL))
+# barf of the object is not an integer
+#define check_wr_int(str,obj)                                   \
+  (integerp(obj) ? obj : (fehler_wr_integer(str,obj),NIL))
+
 # UP: checks, if Arguments are Streams.
 # test_stream_args(args_pointer,argcount);
 # > args_pointer: Pointer to the Arguments
@@ -834,8 +847,7 @@ nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
 local void test_stream_args (object* args_pointer, uintC argcount) {
   dotimesC(argcount,argcount, {
     var object next_arg = NEXT(args_pointer);
-    if (!streamp(next_arg))
-      fehler_stream(next_arg);
+    check_stream(next_arg);
   });
 }
 
@@ -894,8 +906,7 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
       var uintC count;                                  \
       dotimespC(count,argcount, {                       \
         var object arg = NEXT(pointer);                 \
-        if (!streamp(arg))                              \
-          fehler_stream(arg);                           \
+        check_stream(arg);                              \
         test_input_stream(arg);                         \
       });                                               \
     }
@@ -911,8 +922,7 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
       var uintC count;                                  \
       dotimespC(count,argcount, {                       \
         var object arg = NEXT(pointer);                 \
-        if (!streamp(arg))                              \
-          fehler_stream(arg);                           \
+        check_stream(arg);                              \
         test_output_stream(arg);                        \
       });                                               \
     }
@@ -928,10 +938,15 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 # get_synonym_stream(sym)
 # > sym: Symbol, a variable
 # < result: its value, a Stream
-#define get_synonym_stream(sym)  \
-    (!streamp(Symbol_value(sym))           \
-     ? (fehler_value_stream(sym), unbound) \
+#define get_synonym_stream(sym)                 \
+    (!streamp(Symbol_value(sym))                \
+     ? (fehler_value_stream(sym), unbound)      \
      : Symbol_value(sym))
+
+# Macro: resolve the synonym stream
+#define resolve_as_synonym(stream)                              \
+  do { object symbol = TheStream(stream)->strm_synonym_symbol;  \
+       stream = get_synonym_stream(symbol); } while (0)
 
 # READ-BYTE - Pseudo-Function for Synonym-Streams:
 local object rd_by_synonym (object stream) {
@@ -1173,10 +1188,7 @@ LISPFUNN(synonym_stream_symbol,1) {
   var object stream = popSTACK();
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_synonym))) {
-    if (!streamp(stream))
-      fehler_stream(stream);
-    else
-      fehler_streamtype(stream,S(synonym_stream));
+    check_streamtype(stream,S(synonym_stream));
   }
   value1 = TheStream(stream)->strm_synonym_symbol; mv_count=1;
 }
@@ -1358,10 +1370,7 @@ LISPFUNN(broadcast_stream_streams,1) {
   var object stream = popSTACK();
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_broad))) {
-    if (!streamp(stream))
-      fehler_stream(stream);
-    else
-      fehler_streamtype(stream,S(broadcast_stream));
+    check_streamtype(stream,S(broadcast_stream));
   }
   # copy List of Streams as a precaution
   value1 = copy_list(TheStream(stream)->strm_broad_list); mv_count=1;
@@ -1605,10 +1614,7 @@ LISPFUNN(concatenated_stream_streams,1) {
   var object stream = popSTACK();
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_concat))) {
-    if (!streamp(stream))
-      fehler_stream(stream);
-    else
-      fehler_streamtype(stream,S(concatenated_stream));
+    check_streamtype(stream,S(concatenated_stream));
   }
   # copy List of Streams as a precaution
   value1 = copy_list(TheStream(stream)->strm_concat_list); mv_count=1;
@@ -1838,10 +1844,7 @@ LISPFUNN(two_way_stream_input_stream,1) {
   var object stream = popSTACK();
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_twoway))) {
-    if (!streamp(stream))
-      fehler_stream(stream);
-    else
-      fehler_streamtype(stream,S(two_way_stream));
+    check_streamtype(stream,S(two_way_stream));
   }
   value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
 }
@@ -1851,10 +1854,7 @@ LISPFUNN(two_way_stream_output_stream,1) {
   var object stream = popSTACK();
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_twoway))) {
-    if (!streamp(stream))
-      fehler_stream(stream);
-    else
-      fehler_streamtype(stream,S(two_way_stream));
+    check_streamtype(stream,S(two_way_stream));
   }
   value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
 }
@@ -1973,10 +1973,7 @@ LISPFUNN(echo_stream_input_stream,1) {
   var object stream = popSTACK();
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_echo))) {
-    if (!streamp(stream))
-      fehler_stream(stream);
-    else
-      fehler_streamtype(stream,S(echo_stream));
+    check_streamtype(stream,S(echo_stream));
   }
   value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
 }
@@ -1986,10 +1983,7 @@ LISPFUNN(echo_stream_output_stream,1) {
   var object stream = popSTACK();
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmtype == strmtype_echo))) {
-    if (!streamp(stream))
-      fehler_stream(stream);
-    else
-      fehler_streamtype(stream,S(echo_stream));
+    check_streamtype(stream,S(echo_stream));
   }
   value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
 }
@@ -2825,8 +2819,7 @@ LISPFUNN(make_generic_stream,1) {
 
 LISPFUNN(generic_stream_p,1) {
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
   if (builtin_stream_p(stream)
       && eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
       && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic)))
@@ -2900,7 +2893,7 @@ typedef struct {
   uintL       size; # the n in ([UN]SIGNED-BYTE n),
                     # >0, <intDsize*uintWC_max,
                     # but 0 for eltype_ch
-} decoded_eltype;
+} decoded_el_t;
 
 # UP: Check a :ELEMENT-TYPE argument.
 # test_eltype_arg(&eltype,&decoded);
@@ -2909,7 +2902,7 @@ typedef struct {
 # < subr_self: unchanged
 # < decoded: decoded eltype
 # can trigger GC
-local void test_eltype_arg (object* eltype_, decoded_eltype* decoded) {
+local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
   var object arg = *eltype_;
   if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char))
       || eq(arg,S(Kdefault))) { # CHARACTER, STRING-CHAR, :DEFAULT
@@ -3002,7 +2995,7 @@ local void test_eltype_arg (object* eltype_, decoded_eltype* decoded) {
 
 # UP: Check whether the stream is binary or not
 # local inline bool stream_char_p (object stream) {
-#   decoded_eltype det;
+#   decoded_el_t det;
 #   test_eltype_arg(&(TheStream(stream)->strm_eltype),&det);
 #   return det.kind == eltype_ch;
 # }
@@ -3024,7 +3017,7 @@ local void test_eltype_arg (object* eltype_, decoded_eltype* decoded) {
 # > decoded: decoded eltype
 # < result: either CHARACTER or ([UN]SIGNED-BYTE n)
 # can trigger GC
-local object canon_eltype (const decoded_eltype* decoded) {
+local object canon_eltype (const decoded_el_t* decoded) {
   ELTYPE_DISPATCH(decoded,{
     return S(character);
   },{
@@ -3425,7 +3418,7 @@ local bool regular_handle_p (Handle handle) {
 #define strm_channel_len  (strm_len+8)
 
 # Additional binary (not GCed) fields:
-typedef struct strm_channel_extrafields_struct {
+typedef struct strm_channel_extrafields_t {
   bool buffered;                       # false for unbuffered streams,
                                        # true for buffered streams
   uintL bitsize;                       # If the element-type is ([UN]SIGNED-BYTE n):
@@ -3439,25 +3432,25 @@ typedef struct strm_channel_extrafields_struct {
   iconv_t iconvdesc;                   # input conversion descriptor and state
   iconv_t oconvdesc;                   # output conversion descriptor and state
   #endif
-} strm_channel_extrafields_struct;
+} strm_channel_extrafields_t;
 
 # Accessors.
 #define ChannelStream_eltype(stream)  TheStream(stream)->strm_eltype
 #define ChannelStream_isatty(stream)  TheStream(stream)->strm_isatty
 #define ChannelStream_ichannel(stream)  TheStream(stream)->strm_ichannel
 #define ChannelStream_ochannel(stream)  TheStream(stream)->strm_ochannel
-#define ChannelStream_buffered(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->buffered
-#define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitsize
-#define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_close
-#define ChannelStream_lineno(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->lineno
+#define ChannelStream_buffered(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->buffered
+#define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bitsize
+#define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_close
+#define ChannelStream_lineno(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->lineno
 #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
-#define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
-#define ChannelStream_oconvdesc(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->oconvdesc
+#define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
+#define ChannelStream_oconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->oconvdesc
 #endif
 
 # Additional binary (not GCed) fields, used by unbuffered streams only:
-typedef struct strm_unbuffered_extrafields_struct {
-  strm_channel_extrafields_struct _parent;
+typedef struct strm_unbuffered_extrafields_t {
+  strm_channel_extrafields_t _parent;
   # The low_... operations operate on bytes only, and independently of the
   # stream's element type. They cannot cause GC.
   # Fields used for the input side only:
@@ -3486,24 +3479,24 @@ typedef struct strm_unbuffered_extrafields_struct {
   void         (* low_finish_output) (object stream);
   void         (* low_force_output)  (object stream);
   void         (* low_clear_output)  (object stream);
-} strm_unbuffered_extrafields_struct;
+} strm_unbuffered_extrafields_t;
 
 # Accessors.
-#define UnbufferedStreamLow_read(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_read
-#define UnbufferedStreamLow_listen(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_listen
-#define UnbufferedStreamLow_clear_input(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_clear_input
-#define UnbufferedStreamLow_read_array(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_read_array
-#define UnbufferedStream_status(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->status
-#define UnbufferedStream_bytebuf(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bytebuf
+#define UnbufferedStreamLow_read(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_read
+#define UnbufferedStreamLow_listen(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_listen
+#define UnbufferedStreamLow_clear_input(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_clear_input
+#define UnbufferedStreamLow_read_array(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_read_array
+#define UnbufferedStream_status(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->status
+#define UnbufferedStream_bytebuf(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bytebuf
 #ifdef AMIGAOS
-#define UnbufferedStream_rawp(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->rawp
+#define UnbufferedStream_rawp(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->rawp
 #endif
-#define UnbufferedStream_ignore_next_LF(stream)   ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->ignore_next_LF
-#define UnbufferedStreamLow_write(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_write
-#define UnbufferedStreamLow_write_array(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_write_array
-#define UnbufferedStreamLow_finish_output(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_finish_output
-#define UnbufferedStreamLow_force_output(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_force_output
-#define UnbufferedStreamLow_clear_output(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_clear_output
+#define UnbufferedStream_ignore_next_LF(stream)   ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->ignore_next_LF
+#define UnbufferedStreamLow_write(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_write
+#define UnbufferedStreamLow_write_array(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_write_array
+#define UnbufferedStreamLow_finish_output(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_finish_output
+#define UnbufferedStreamLow_force_output(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_force_output
+#define UnbufferedStreamLow_clear_output(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_clear_output
 
 # Error message after user interrupt.
 # fehler_interrupt();
@@ -3720,13 +3713,15 @@ global void iconv_mbstowcs (object encoding, object stream,
 global uintL iconv_wcslen (object encoding, const chart* src,
                            const chart* srcend) {
   var uintL count = 0;
-#define tmpbufsize 4096
+  #define tmpbufsize 4096
   var uintB tmpbuf[tmpbufsize];
-  with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz, {
+  with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
+                 charset_asciz, {
     begin_system_call();
     var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
     if (cd == (iconv_t)(-1)) {
-      if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+      if (errno == EINVAL)
+        { end_system_call(); fehler_iconv_invalid_charset(encoding); }
       OS_error();
     }
     {
@@ -3749,7 +3744,8 @@ global uintL iconv_wcslen (object encoding, const chart* src,
               var chart c = char_code(action);
               var const char* inptr1 = (const char*)&c;
               var size_t insize1 = sizeof(c);
-              if (!(iconv(cd,&inptr1,&insize1,&outptr,&outsize) == (size_t)(-1))) {
+              if (iconv(cd,&inptr1,&insize1,&outptr,&outsize)
+                  != (size_t)(-1)) {
                 inptr += sizeof(chart); insize -= sizeof(chart);
               } else {
                 if (errno != EILSEQ) {
@@ -3794,7 +3790,7 @@ global uintL iconv_wcslen (object encoding, const chart* src,
     if (iconv_close(cd) < 0) { OS_error(); }
     end_system_call();
   });
-#undef tmpbufsize
+  #undef tmpbufsize
   return count;
 }
 
@@ -3831,7 +3827,8 @@ global void iconv_wcstombs (object encoding, object stream,
               var chart c = char_code(action);
               var const char* inptr1 = (const char*)&c;
               var size_t insize1 = sizeof(c);
-              if (iconv(cd,&inptr1,&insize1,&outptr,&outsize) != (size_t)(-1)) {
+              if (iconv(cd,&inptr1,&insize1,&outptr,&outsize)
+                  != (size_t)(-1)) {
                 inptr += sizeof(chart); insize -= sizeof(chart);
               } else {
                 if (errno != EILSEQ) {
@@ -4134,8 +4131,8 @@ local object bitbuff_iu_I (object bitbuffer, uintL bitsize, uintL bytesize) {
   # digitcount <= ceiling((bitsize+1)/intDsize) <= uintWC_max .
   var object big = allocate_bignum(digitcount,0); # new Bignum >0
   TheBignum(big)->data[0] = 0; # set highest Digit to 0
-  # fill remaining Digits from right to left, thereby translate sequence
-  # of Bytes into sequence of uintD:
+  # fill remaining Digits from right to left,
+  # thereby translate sequence of Bytes into sequence of uintD:
   bitbuffer = popSTACK();
   bitbufferptr = &TheSbvector(bitbuffer)->data[0];
   #if BIG_ENDIAN_P
@@ -4228,8 +4225,8 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
   # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
   var object big = allocate_bignum(digitcount,(sintB)sign);
   TheBignum(big)->data[0] = sign; # set highest Word to sign
-  # fill the remaining Digits from right to left, thereby translate sequence of Bytes
-  # into sequence of uintD:
+  # fill the remaining Digits from right to left,
+  # thereby translate sequence of Bytes into sequence of uintD:
   bitbuffer = popSTACK();
   bitbufferptr = &TheSbvector(bitbuffer)->data[0];
   #if BIG_ENDIAN_P
@@ -4284,9 +4281,7 @@ typedef void wr_by_aux_ix (object stream, uintL bitsize, uintL bytesize);
 
 local void bitbuff_ixu_sub (object stream, object bitbuffer,
                             uintL bitsize, uintL bytesize, object obj) {
-  # check obj:
-  if (!integerp(obj))
-    fehler_wr_integer(stream,obj);
+  check_wr_int(stream,obj);
   if (!positivep(obj))
     fehler_bad_integer(stream,obj);
   # obj is an integer >=0
@@ -4294,8 +4289,7 @@ local void bitbuff_ixu_sub (object stream, object bitbuffer,
   {
     var uintB* bitbufferptr = TheSbvector(bitbuffer)->data;
     var uintL count = bytesize;
-    if (posfixnump(obj)) {
-      # obj is a Fixnum >=0
+    if (posfixnump(obj)) { # obj is a Fixnum >=0
       var uintL wert = posfixnum_to_L(obj);
       # check wert < 2^bitsize:
       if (!((bitsize>=oint_data_len) || (wert < bit(bitsize))))
@@ -4304,8 +4298,7 @@ local void bitbuff_ixu_sub (object stream, object bitbuffer,
       until (wert==0) {
         *bitbufferptr++ = (uint8)wert; wert = wert>>8; count--;
       }
-    } else {
-      # obj is a Bignum >0
+    } else { # obj is a Bignum >0
       var uintL len = (uintL)Bignum_length(obj);
       # check obj < 2^bitsize:
       if (!((floor(bitsize,intDsize) >= len)
@@ -4366,9 +4359,7 @@ local void wr_by_ixu_sub (object stream, object obj, wr_by_aux_ix* finisher) {
 
 local void bitbuff_ixs_sub (object stream, object bitbuffer,
                             uintL bitsize, uintL bytesize, object obj) {
-  # check obj:
-  if (!integerp(obj))
-    fehler_wr_integer(stream,obj);
+  check_wr_int(stream,obj);
   # obj is an integer
   # transfer obj into the bitbuffer:
   {
@@ -5390,9 +5381,7 @@ local void wr_by_ias_unbuffered (object stream, object obj) {
 
 # WRITE-BYTE - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 :
 local void wr_by_iau8_unbuffered (object stream, object obj) {
-  # check obj:
-  if (!integerp(obj))
-    fehler_wr_integer(stream,obj);
+  check_wr_int(stream,obj);
   if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
     fehler_bad_integer(stream,obj);
   UnbufferedStreamLow_write(stream)(stream,(uintB)posfixnum_to_L(obj));
@@ -5693,7 +5682,7 @@ local void close_ochannel (object stream) {
 # UP: Checks an Element-Type for an Unbuffered-Stream
 # check_unbuffered_eltype(&eltype);
 # > eltype: Element-Type in decoded form
-local void check_unbuffered_eltype (const decoded_eltype* eltype) {
+local void check_unbuffered_eltype (const decoded_el_t* eltype) {
   if (!((eltype->kind == eltype_ch) || ((eltype->size % 8) == 0))) {
     pushSTACK(canon_eltype(eltype));
     pushSTACK(S(Kelement_type));
@@ -5706,7 +5695,7 @@ local void check_unbuffered_eltype (const decoded_eltype* eltype) {
 # > stream: stream being built up, with correct strmflags and encoding
 # > eltype: Element-Type in decoded form
 local void fill_pseudofuns_unbuffered (object stream,
-                                       const decoded_eltype* eltype) {
+                                       const decoded_el_t* eltype) {
   var uintB flags = TheStream(stream)->strmflags;
   stream_dummy_fill(stream);
   if (flags & strmflags_rd_B) {
@@ -5778,7 +5767,7 @@ local void fill_pseudofuns_unbuffered (object stream,
 # < STACK: cleaned up
 # can trigger GC
 local object make_unbuffered_stream (uintB type, direction_t direction,
-                                     const decoded_eltype* eltype,
+                                     const decoded_el_t* eltype,
                                      bool handle_tty) {
   # Flags:
   var uintB flags = DIRECTION_FLAGS(direction);
@@ -5788,7 +5777,7 @@ local object make_unbuffered_stream (uintB type, direction_t direction,
     flags &= strmflags_by_B | strmflags_immut_B;
   # allocate Stream:
   var object stream = allocate_stream(flags,type,strm_channel_len,
-                                      sizeof(strm_unbuffered_extrafields_struct));
+                                      sizeof(strm_unbuffered_extrafields_t));
   # and fill:
   TheStream(stream)->strm_encoding = STACK_2;
   fill_pseudofuns_unbuffered(stream,eltype);
@@ -5841,8 +5830,8 @@ local object make_unbuffered_stream (uintB type, direction_t direction,
                                                # with strm_buffered_bufflen bytes
 
 # Additional binary (not GCed) fields:
-typedef struct strm_buffered_extrafields_struct {
-  strm_channel_extrafields_struct _parent;
+typedef struct strm_buffered_extrafields_t {
+  strm_channel_extrafields_t _parent;
   uintL (* low_fill)  (object stream);
   void  (* low_flush) (object stream, uintL bufflen);
   uintL buffstart;              # start position of buffer
@@ -5871,11 +5860,11 @@ typedef struct strm_buffered_extrafields_struct {
 # Up to now a file is considered built from bytes of 8 bits.
 # Logically, it is built up from other units:
   uintL position;               # position in logical units
-} strm_buffered_extrafields_struct;
+} strm_buffered_extrafields_t;
 
 # More fields in file streams with element type INTEGER, type ib or ic.
-typedef struct strm_i_buffered_extrafields_struct {
-  strm_buffered_extrafields_struct _parent;
+typedef struct strm_i_buffered_extrafields_t {
+  strm_buffered_extrafields_t _parent;
   # If bitsize is not a multiple of 8:
   uintL bitindex;               # index in the current byte, >=0, <=8
   # The buffer contains 8*index+bitindex bits. The bits are ordered in the
@@ -5883,7 +5872,7 @@ typedef struct strm_i_buffered_extrafields_struct {
   # bits) is stored in the first 4 bytes of the files [in little-endian order]
   # when the file is closed. The actual data then begins in the 5th byte.
   uintL eofposition;            # position of logical EOF
-} strm_i_buffered_extrafields_struct;
+} strm_i_buffered_extrafields_t;
 
 # In closed file streams only the fields `name' and `truename' are relevant.
 
@@ -5893,27 +5882,27 @@ typedef struct strm_i_buffered_extrafields_struct {
 #define BufferedStream_channel(stream)  TheStream(stream)->strm_buffered_channel
 #define BufferedStream_buffer(stream)  TheStream(stream)->strm_buffered_buffer
 #define BufferedStreamLow_fill(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_fill
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_fill
 #define BufferedStreamLow_flush(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_flush
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_flush
 #define BufferedStream_buffstart(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->buffstart
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->buffstart
 #define BufferedStream_eofindex(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->eofindex
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->eofindex
 #define BufferedStream_index(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->index
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->index
 #define BufferedStream_modified(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->modified
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->modified
 #define BufferedStream_regular(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->regular
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->regular
 #define BufferedStream_blockpositioning(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->blockpositioning
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->blockpositioning
 #define BufferedStream_position(stream)  \
-  ((strm_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->position
+  ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->position
 #define BufferedStream_bitindex(stream)  \
-  ((strm_i_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitindex
+  ((strm_i_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->bitindex
 #define BufferedStream_eofposition(stream)  \
-  ((strm_i_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->eofposition
+  ((strm_i_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->eofposition
 
 #define Truename_or_Self(stream)                                \
  (nullp(TheStream(stream)->strm_file_truename) ? stream :       \
@@ -7251,9 +7240,7 @@ local void wr_by_ics_buffered (object stream, object obj) {
 
 # WRITE-BYTE - Pseudo-Function for File-Streams of Integers, Type au, bitsize = 8 :
 local void wr_by_iau8_buffered (object stream, object obj) {
-  # check obj:
-  if (!integerp(obj))
-    fehler_wr_integer(stream,obj);
+  check_wr_int(stream,obj);
   if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
     fehler_bad_integer(stream,obj);
   write_byte_buffered(stream,(uintB)posfixnum_to_L(obj));
@@ -7395,7 +7382,7 @@ local void logical_position_file_end (object stream) {
 # > stream: stream being built up, with correct strmflags and encoding
 # > eltype: Element-Type in decoded form
 local void fill_pseudofuns_buffered (object stream,
-                                     const decoded_eltype* eltype) {
+                                     const decoded_el_t* eltype) {
   var uintB flags = TheStream(stream)->strmflags;
   stream_dummy_fill(stream);
   if (flags & strmflags_rd_by_B) {
@@ -7470,18 +7457,18 @@ local void fill_pseudofuns_buffered (object stream,
 # < STACK: cleaned up
 # can trigger GC
 local object make_buffered_stream (uintB type, direction_t direction,
-                                   const decoded_eltype* eltype,
+                                   const decoded_el_t* eltype,
                                    bool handle_regular,
                                    bool handle_blockpositioning) {
   var uintB flags = DIRECTION_FLAGS(direction);
-  var uintC xlen = sizeof(strm_buffered_extrafields_struct); # all File-Streams have that
+  var uintC xlen = sizeof(strm_buffered_extrafields_t); # all File-Streams have that
   if (eltype->kind == eltype_ch) {
     flags &= strmflags_ch_B | strmflags_immut_B;
   } else {
     flags &= strmflags_by_B | strmflags_immut_B;
     if ((eltype->size % 8) == 0) { # Type a
     } else {
-      xlen = sizeof(strm_i_buffered_extrafields_struct); # File-Streams have that for Integers at most
+      xlen = sizeof(strm_i_buffered_extrafields_t); # File-Streams have that for Integers at most
     }
   }
   # allocate Stream:
@@ -7561,7 +7548,7 @@ local object make_buffered_stream (uintB type, direction_t direction,
 # can trigger GC
 global object make_file_stream (direction_t direction, bool append_flag,
                                 bool handle_fresh) {
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   var signean buffered;
   # Check and canonicalize the :ELEMENT-TYPE argument:
   test_eltype_arg(&STACK_1,&eltype);
@@ -7941,13 +7928,13 @@ LISPFUNN(file_stream_p,1) {
   #define strm_keyboard_keytab  strm_field2   # List of all key bindings
                                               # always (char1 ... charn . result)
   #define strm_keyboard_len  strm_channel_len
-  #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_struct)
+  #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_t)
 #elif defined(WIN32_NATIVE)
   # Additional Components:
   #define strm_keyboard_isatty  strm_isatty   # Flag, if stdin is a Terminal
   #define strm_keyboard_handle  strm_ichannel # Handle for listen_char_unbuffered()
   #define strm_keyboard_len  strm_channel_len
-  #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_struct)
+  #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_t)
 #else
   # No Additional Components:
   #define strm_keyboard_len  strm_len
@@ -9974,7 +9961,7 @@ local object make_terminal_stream_ (void) {
     pushSTACK(allocate_handle(stdin_handle));
     var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
       allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
-                      sizeof(strm_unbuffered_extrafields_struct));
+                      sizeof(strm_unbuffered_extrafields_t));
     # and fill:
     stream_dummy_fill(stream);
     var Stream s = TheStream(stream);
@@ -10059,7 +10046,7 @@ local object make_terminal_stream_ (void) {
       # allocate new Stream:
       var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
         allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
-                        sizeof(strm_unbuffered_extrafields_struct));
+                        sizeof(strm_unbuffered_extrafields_t));
       # and fill:
       stream_dummy_fill(stream);
       var Stream s = TheStream(stream);
@@ -10095,7 +10082,7 @@ local object make_terminal_stream_ (void) {
       # allocate new Stream:
       var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
         allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
-                        sizeof(strm_unbuffered_extrafields_struct));
+                        sizeof(strm_unbuffered_extrafields_t));
       # and fill:
       stream_dummy_fill(stream);
       var Stream s = TheStream(stream);
@@ -10127,7 +10114,7 @@ local object make_terminal_stream_ (void) {
       # allocate new Stream:
       var object stream = # Flags: only READ-CHAR and WRITE-CHAR allowed
         allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal_len,
-                        sizeof(strm_unbuffered_extrafields_struct));
+                        sizeof(strm_unbuffered_extrafields_t));
       # and fill:
       stream_dummy_fill(stream);
       var Stream s = TheStream(stream);
@@ -10367,8 +10354,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
   var object errorp = popSTACK();
   var object flag = popSTACK();
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
   while (builtin_stream_p(stream)
          && TheStream(stream)->strmtype == strmtype_synonym) { # track Synonym-Stream
     var object sym = TheStream(stream)->strm_synonym_symbol;
@@ -10418,8 +10404,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
   var object errorp = popSTACK();
   var object flag = popSTACK();
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
   while (builtin_stream_p(stream)
          && TheStream(stream)->strmtype == strmtype_synonym) { # track Synonym-Stream
     var object sym = TheStream(stream)->strm_synonym_symbol;
@@ -10760,15 +10745,15 @@ LISPFUNN(window_cursor_off,1) {
 # accessor that can be used at the Right Side
 #define ConsoleHandleR(stream) TheHandle(TheStream(stream)->strm_ochannel)
 
-typedef struct win32_console_extrafields_struct {
-  strm_channel_extrafields_struct channel_fields;
+typedef struct win32_console_extrafields_t {
+  strm_channel_extrafields_t channel_fields;
   COORD cursor_position;
   COORD console_size;
   WORD  attribute;
   bool  handle_reused;
-} win32_console_extrafields_struct;
+} win32_console_extrafields_t;
 
-#define ConsoleData(stream) ((win32_console_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)
+#define ConsoleData(stream) ((win32_console_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)
 
 # The following attribute constants are defined in the <wincon.h> header file:
 # FOREGROUND_BLUE
@@ -11045,7 +11030,7 @@ local void low_close_console (object stream, object handle) {
 LISPFUNN(make_window,0) {
   var object stream =
     allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_channel_len,
-                    sizeof(win32_console_extrafields_struct));
+                    sizeof(win32_console_extrafields_t));
   # try to reuse handle on win 95/98
   # make new handle on NT
   var int nt_systemp = 0;
@@ -11055,8 +11040,8 @@ LISPFUNN(make_window,0) {
   if (GetVersionEx(&osvers) && osvers.dwPlatformId == VER_PLATFORM_WIN32_NT)
     nt_systemp = 1;
 
-  var HANDLE handle = nt_systemp ?
-    INVALID_HANDLE_VALUE:GetStdHandle(STD_OUTPUT_HANDLE);
+  var HANDLE handle = (nt_systemp ? INVALID_HANDLE_VALUE
+                       : GetStdHandle(STD_OUTPUT_HANDLE));
   if (handle==INVALID_HANDLE_VALUE) {
     handle = CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,
                                        0,
@@ -13625,9 +13610,9 @@ local inline void create_input_pipe (const char* command) {
 # (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # calls a shell, that executes command, whereby its Standard-Output
 # is directed into our pipe.
-LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
+LISPFUN(make_pipe_input_stream,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) ) {
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   var signean buffered;
   # check command:
   pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
@@ -13840,7 +13825,7 @@ local inline void create_output_pipe (const char* command) {
 # into the standard-input of the command.
 LISPFUN(make_pipe_output_stream,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) ) {
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   var signean buffered;
   # check command:
   pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
@@ -14027,7 +14012,7 @@ local inline void create_io_pipe (const char* command) {
 # is redirected into our pipe.
 LISPFUN(make_pipe_io_stream,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) ) {
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   var signean buffered;
   # check command:
   pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
@@ -14125,6 +14110,19 @@ local void low_close_socket (object stream, object handle) {
 
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 
+#ifdef WIN32_NATIVE
+  #define CHECK_INTERRUPT                                        \
+    if (WSAGetLastError()==WSAEINTR) /* Break by Ctrl-C ?*/      \
+      { end_system_call(); fehler_interrupt(); }
+#else
+  #define CHECK_INTERRUPT
+#endif
+
+#define SYSCALL(res,call)                               \
+  do { begin_system_call(); res = call;                 \
+       if (result<0) { CHECK_INTERRUPT; SOCK_error(); } \
+       end_system_call(); } while(0)
+
 local sintL low_read_unbuffered_socket (object stream) {
   if (UnbufferedStream_status(stream) < 0) # already EOF?
     return -1;
@@ -14133,17 +14131,7 @@ local sintL low_read_unbuffered_socket (object stream) {
   }
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
   var uintB b;
-  begin_system_call();
-  var int result = sock_read(handle,&b,1); # try to read a byte
-  if (result<0) {
-   #ifdef WIN32_NATIVE
-    if (WSAGetLastError()==WSAEINTR) { # Break by Ctrl-C ?
-      end_system_call(); fehler_interrupt();
-    }
-   #endif
-    SOCK_error();
-  }
-  end_system_call();
+  var int result; SYSCALL(result,sock_read(handle,&b,1)); # try to read a byte
   if (result==0) {
     # no byte available -> must be EOF
     UnbufferedStream_status(stream) = -1; return -1;
@@ -14169,11 +14157,8 @@ local signean low_listen_unbuffered_socket (object stream) {
   var int result;
   result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
   if (result<0) {
-   #ifdef WIN32_NATIVE
-    if (WSAGetLastError()==WSAEINTR) { # Break by Ctrl-C ?
-      end_system_call(); fehler_interrupt();
-    }
-   #else
+    CHECK_INTERRUPT;
+   #ifdef UNIX_BEOS
     if (errno==EINTR)
       goto restart_select;
    #endif
@@ -14190,11 +14175,7 @@ local signean low_listen_unbuffered_socket (object stream) {
     var uintB b;
     var int result = sock_read(handle,&b,1);
     if (result<0) {
-     #ifdef WIN32_NATIVE
-      if (WSAGetLastError()==WSAEINTR) { # Break by Ctrl-C ?
-        end_system_call(); fehler_interrupt();
-      }
-     #endif
+      CHECK_INTERRUPT;
       SOCK_error();
     }
     end_system_call();
@@ -14225,17 +14206,7 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
       return byteptr;
   }
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
-  begin_system_call();
-  var sintL result = sock_read(handle,byteptr,len);
-  if (result<0) {
-   #ifdef WIN32_NATIVE
-    if (WSAGetLastError()==WSAEINTR) { # Break (poss. by Ctrl-C) ?
-      end_system_call(); fehler_interrupt();
-    }
-   #endif
-    SOCK_error();
-  }
-  end_system_call();
+  var int result; SYSCALL(result,sock_read(handle,byteptr,len));
   byteptr += result;
   return byteptr;
 }
@@ -14257,7 +14228,7 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
   #define UnbufferedSocketStream_input_init(stream)  \
     UnbufferedHandleStream_input_init(stream)
 
-#endif
+#endif # UNIX_BEOS || WIN32_NATIVE
 
 # Output side
 # -----------
@@ -14266,41 +14237,21 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
 
 local void low_write_unbuffered_socket (object stream, uintB b) {
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
-  begin_system_call();
-  # Try to output the byte.
-  var int result = sock_write(handle,&b,1);
-  if (result<0) {
-   #ifdef WIN32_NATIVE
-    if (WSAGetLastError()==WSAEINTR) { # Break (poss. by Ctrl-C) ?
-      end_system_call(); fehler_interrupt();
-    }
-   #endif
-    SOCK_error();
-  }
-  end_system_call();
+  var int result;
+  SYSCALL(result,sock_write(handle,&b,1)); # Try to output the byte.
   if (result==0) # not successful?
     fehler_unwritable(TheSubr(subr_self)->name,stream);
 }
 
 local const uintB* low_write_array_unbuffered_socket (object stream, const uintB* byteptr, uintL len) {
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ochannel);
-  begin_system_call();
-  var sintL result = sock_write(handle,byteptr,len);
-  if (result<0) {
-   #ifdef WIN32_NATIVE
-    if (WSAGetLastError()==WSAEINTR) { # Break (poss. by Ctrl-C) ?
-      end_system_call(); fehler_interrupt();
-    }
-   #endif
-    SOCK_error();
-  }
-  end_system_call();
-  if (!(result==(sintL)len)) # not successful?
+  var int result; SYSCALL(result,sock_write(handle,byteptr,len));
+  if (result != (sintL)len) # not successful?
     fehler_unwritable(TheSubr(subr_self)->name,stream);
   return byteptr+result;
 }
 
-#endif
+#endif # UNIX_BEOS || WIN32_NATIVE
 
 # Initializes the output side fields of a socket stream.
 # UnbufferedSocketStream_output_init(stream);
@@ -14330,9 +14281,9 @@ local const uintB* low_write_array_unbuffered_socket (object stream, const uintB
       UnbufferedStreamLow_clear_output(stream) =                        \
         &low_clear_output_unbuffered_pipe;                              \
     }
-#endif
+#endif # UNIX_BEOS || WIN32_NATIVE
 
-#endif
+#endif # X11SOCKETS || SOCKET_STREAMS
 
 
 #ifdef X11SOCKETS
@@ -14375,7 +14326,7 @@ LISPFUNN(make_x11socket_stream,2) {
   pushSTACK(O(strmtype_ubyte8));
   pushSTACK(allocate_socket(handle));
   # allocate Stream:
-  var decoded_eltype eltype = { eltype_iu, 8 };
+  var decoded_el_t eltype = { eltype_iu, 8 };
   var object stream = make_unbuffered_stream(strmtype_x11socket,DIRECTION_IO,&eltype,false);
   UnbufferedSocketStream_input_init(stream);
   UnbufferedSocketStream_output_init(stream);
@@ -14496,20 +14447,10 @@ LISPFUNN(write_n_bytes,4) {
 # < result: number of bytes read
 local uintL low_fill_buffered_socket (object stream) {
   var sintL result;
-  begin_system_call();
-  result = # fill Buffer
+  SYSCALL(result,
     sock_read(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
               &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferaddress
-              strm_buffered_bufflen);
-  if (result<0) {
-   #ifdef WIN32_NATIVE
-    if (WSAGetLastError()==WSAEINTR) { # Break (poss. by Ctrl-C) ?
-      end_system_call(); fehler_interrupt();
-    }
-   #endif
-    SOCK_error();
-  }
-  end_system_call();
+              strm_buffered_bufflen));
   return result;
 }
 
@@ -14534,20 +14475,18 @@ local void low_flush_buffered_socket (object stream, uintL bufflen) {
   if (result==bufflen) {
     # everything written correctly
     end_system_call(); BufferedStream_modified(stream) = false;
-  } else {
-    # not everything written
+  } else { # not everything written
     if (result<0) {
-     #ifdef WIN32_NATIVE
-      if (WSAGetLastError()==WSAEINTR) { # Break (poss. by Ctrl-C) ?
-        end_system_call(); fehler_interrupt();
-      }
-     #endif
+      CHECK_INTERRUPT;
       SOCK_error();
     }
     end_system_call();
     fehler_unwritable(TheSubr(subr_self)->name,stream);
   }
 }
+
+#undef SYSCALL
+#undef CHECK_INTERRUPT
 
 #else
 
@@ -14575,7 +14514,7 @@ local void low_close_socket_nop (object stream, object handle) {}
 # Creates a socket stream.
 # > STACK_2: element-type
 # > STACK_1: encoding
-local object make_socket_stream (SOCKET handle, decoded_eltype* eltype,
+local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
                                  signean buffered, object host, object port) {
   pushSTACK(host);
   pushSTACK(STACK_(1+1)); # encoding
@@ -14745,7 +14684,7 @@ extern SOCKET accept_connection (SOCKET socket_handle);
 LISPFUN(socket_accept,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) ) {
   var SOCKET sock;
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   var signean buffered;
   var SOCKET handle;
 
@@ -14829,7 +14768,7 @@ extern SOCKET create_client_socket (const char* host, unsigned int port);
 LISPFUN(socket_connect,1,1,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) ) {
   var char *hostname;
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   var signean buffered;
   var SOCKET handle;
 
@@ -15210,7 +15149,7 @@ global void init_streamvars (bool unixyp) {
       pushSTACK(test_external_format_arg(S(Kunix)));
       pushSTACK(S(character));
       pushSTACK(allocate_handle(2));
-      var decoded_eltype eltype = { eltype_ch, 0 };
+      var decoded_el_t eltype = { eltype_ch, 0 };
       stream = make_unbuffered_stream(strmtype_file,DIRECTION_OUTPUT,&eltype,false);
       UnbufferedHandleStream_output_init(stream);
       ChannelStreamLow_close(stream) = &low_close_handle;
@@ -15320,8 +15259,7 @@ global char* xrealloc (void* ptr, int count) {
 # (SYS::BUILT-IN-STREAM-OPEN-P stream)
 LISPFUNN(built_in_stream_open_p,1) {
   var object stream = popSTACK();
-  if (!builtin_stream_p(stream))
-    fehler_streamtype(stream,O(type_builtin_stream));
+  check_builtin_stream(stream);
   if (TheStream(stream)->strmflags & strmflags_open_B) { # Stream open?
     value1 = T; mv_count=1; # value T
   } else {
@@ -15332,8 +15270,7 @@ LISPFUNN(built_in_stream_open_p,1) {
 # (INPUT-STREAM-P stream), CLTL p. 332, CLtL2 p. 505
 LISPFUNN(input_stream_p,1) {
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
   if (input_stream_p(stream)) {
     value1 = T; mv_count=1; # value T
   } else {
@@ -15344,8 +15281,7 @@ LISPFUNN(input_stream_p,1) {
 # (OUTPUT-STREAM-P stream), CLTL p. 332, CLtL2 p. 505
 LISPFUNN(output_stream_p,1) {
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
   if (output_stream_p(stream)) {
     value1 = T; mv_count=1; # value T
   } else {
@@ -15382,8 +15318,7 @@ LISPFUNN(stream_element_type_eq,2) {
 # or (more special) (UNSIGNED-BYTE n) or (SIGNED-BYTE n).
 LISPFUNN(built_in_stream_element_type,1) {
   var object stream = popSTACK();
-  if (!builtin_stream_p(stream))
-    fehler_streamtype(stream,O(type_builtin_stream));
+  check_builtin_stream(stream);
   var object eltype;
   if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) {
     # Stream closed
@@ -15519,27 +15454,21 @@ LISPFUNN(built_in_stream_element_type,1) {
 # (SYSTEM::BUILT-IN-STREAM-SET-ELEMENT-TYPE stream element-type)
 LISPFUNN(built_in_stream_set_element_type,2) {
   var object stream = STACK_1;
-  if (!builtin_stream_p(stream))
-    fehler_streamtype(stream,O(type_builtin_stream));
-  var decoded_eltype eltype;
+  check_builtin_stream(stream);
+  var decoded_el_t eltype;
   test_eltype_arg(&STACK_0,&eltype);
   pushSTACK(canon_eltype(&eltype));
   # Stack contents: stream, element-type, canon-element-type.
   stream = STACK_2;
  start:
   switch (TheStream(stream)->strmtype) {
-    case strmtype_synonym:
-      # Synonym-Stream: follow further
-      {
-        var object symbol = TheStream(stream)->strm_synonym_symbol;
-        stream = get_synonym_stream(symbol);
-        if (builtin_stream_p(stream))
-          goto start;
-        else {
-          # Call ((SETF STREAM-ELEMENT-TYPE) element-type stream):
-          pushSTACK(STACK_1); pushSTACK(stream);
-          funcall(O(setf_stream_element_type),2);
-        }
+    case strmtype_synonym: # Synonym-Stream: follow further
+      resolve_as_synonym(stream);
+      if (builtin_stream_p(stream))
+        goto start;
+      else { # Call ((SETF STREAM-ELEMENT-TYPE) element-type stream):
+        pushSTACK(STACK_1); pushSTACK(stream);
+        funcall(O(setf_stream_element_type),2);
       }
       break;
     case strmtype_file:
@@ -15657,16 +15586,13 @@ LISPFUNN(built_in_stream_set_element_type,2) {
 # (STREAM-EXTERNAL-FORMAT stream)
 LISPFUNN(stream_external_format,1) {
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
  start:
   if (builtin_stream_p(stream))
     switch (TheStream(stream)->strmtype) {
-      case strmtype_synonym: { # Synonym-Stream: follow further
-        var object symbol = TheStream(stream)->strm_synonym_symbol;
-        stream = get_synonym_stream(symbol);
+      case strmtype_synonym: # Synonym-Stream: follow further
+        resolve_as_synonym(stream);
         goto start;
-      }
       case strmtype_file:
      #ifdef PIPES
       case strmtype_pipe_in:
@@ -15691,19 +15617,15 @@ LISPFUNN(stream_external_format,1) {
 # direction can be :INPUT or :OUTPUT or NIL.
 # If no direction is given, the operation is nonrecursive.
 LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL) {
-  var object stream = STACK_2;
-  if (!streamp(stream))
-    fehler_stream(stream);
+  var object stream = check_stream(STACK_2);
   var object encoding = test_external_format_arg(STACK_1);
   var object direction = STACK_0;
  start:
   if (builtin_stream_p(stream))
     switch (TheStream(stream)->strmtype) {
-      case strmtype_synonym: { # Synonym-Stream: follow further
-        var object symbol = TheStream(stream)->strm_synonym_symbol;
-        stream = get_synonym_stream(symbol);
+      case strmtype_synonym: # Synonym-Stream: follow further
+        resolve_as_synonym(stream);
         goto start;
-      }
       case strmtype_broad:
         if (eq(direction,S(Kinput)))
           goto done;
@@ -15769,7 +15691,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL) {
       case strmtype_socket:
      #endif
         {
-          var decoded_eltype eltype;
+          var decoded_el_t eltype;
           test_eltype_arg(&TheStream(stream)->strm_eltype,&eltype); # no GC here!
           ChannelStream_fini(stream);
           value1 = TheStream(stream)->strm_encoding = encoding;
@@ -15883,11 +15805,9 @@ global bool interactive_stream_p (object stream) {
     return false;
   # Stream open
   switch (TheStream(stream)->strmtype) {
-    case strmtype_synonym: { # Synonym-Stream: follow further
-        var object symbol = TheStream(stream)->strm_synonym_symbol;
-        stream = get_synonym_stream(symbol);
-        goto start;
-      }
+    case strmtype_synonym: # Synonym-Stream: follow further
+      resolve_as_synonym(stream);
+      goto start;
     case strmtype_concat:
       # Here one could call listen_char(stream) in order to ignore Streams,
       # that arrived at EOF. But it is no good for
@@ -15950,8 +15870,7 @@ global bool interactive_stream_p (object stream) {
 # determines, if stream is interactive.
 LISPFUNN(interactive_stream_p,1) {
   var object arg = popSTACK();
-  if (!streamp(arg))
-    fehler_stream(arg);
+  check_stream(arg);
   value1 = (interactive_stream_p(arg) ? T : NIL); mv_count=1;
 }
 
@@ -16075,8 +15994,7 @@ global void closed_all_files (void) {
 LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) ) {
   skipSTACK(1); # ignore :ABORT-Argument
   var object stream = STACK_0; # Argument
-  if (!builtin_stream_p(stream)) # must be a Stream
-    fehler_streamtype(stream,O(type_builtin_stream));
+  check_builtin_stream(stream); # must be a Stream
   builtin_stream_close(&STACK_0); # close
   skipSTACK(1);
   value1 = T; mv_count=1; # T as result
@@ -16621,11 +16539,9 @@ global object get_line_position (object stream) {
  start:
   if (builtin_stream_p(stream))
     switch (TheStream(stream)->strmtype) {
-      case strmtype_synonym: { # Synonym-Stream: follow further
-        var object symbol = TheStream(stream)->strm_synonym_symbol;
-        stream = get_synonym_stream(symbol);
+      case strmtype_synonym: # Synonym-Stream: follow further
+        resolve_as_synonym(stream);
         goto start;
-      }
       case strmtype_broad: # Broadcast-Stream:
         # Maximum of Line-Positions of the single Streams
         {
@@ -16669,7 +16585,7 @@ global object get_line_position (object stream) {
 # UP: Check an element-type for READ-INTEGER/WRITE-INTEGER.
 # check_multiple8_eltype(&eltype);
 # > eltype: Element-Type in decoded form
-local void check_multiple8_eltype (const decoded_eltype* eltype) {
+local void check_multiple8_eltype (const decoded_el_t* eltype) {
   if (!((eltype->size > 0) && ((eltype->size % 8) == 0))) {
     pushSTACK(canon_eltype(eltype));
     pushSTACK(S(Kelement_type));
@@ -16732,10 +16648,7 @@ local bool test_endianness_arg (object arg) {
 
 # (READ-BYTE stream [eof-error-p [eof-value]]), CLTL p. 382
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL) {
-  # check Stream:
-  var object stream = STACK_2;
-  if (!streamp(stream))
-    fehler_stream(stream);
+  var object stream = check_stream(STACK_2);
   # read Integer:
   var object obj = read_byte(stream);
   if (eq(obj,eof_value)) { # EOF-treatment
@@ -16758,10 +16671,8 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL) {
 
 # (READ-BYTE-LOOKAHEAD stream)
 LISPFUNN(read_byte_lookahead,1) {
-  # Check the stream:
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
   # Query the status:
   var signean status = listen_byte(stream);
   if (ls_wait_p(status))
@@ -16775,10 +16686,8 @@ LISPFUNN(read_byte_lookahead,1) {
 
 # (READ-BYTE-WILL-HANG-P stream)
 LISPFUNN(read_byte_will_hang_p,1) {
-  # Check the stream:
   var object stream = popSTACK();
-  if (!streamp(stream))
-    fehler_stream(stream);
+  check_stream(stream);
   # Query the status:
   var signean status = listen_byte(stream);
   value1 = (ls_wait_p(status) ? T : NIL);
@@ -16787,10 +16696,7 @@ LISPFUNN(read_byte_will_hang_p,1) {
 
 # (READ-BYTE-NO-HANG stream [eof-error-p [eof-value]])
 LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL) {
-  # Check the stream:
-  var object stream = STACK_2;
-  if (!streamp(stream))
-    fehler_stream(stream);
+  var object stream = check_stream(STACK_2);
   # Query the status:
   var signean status = listen_byte(stream);
   if (ls_wait_p(status)) {
@@ -16825,12 +16731,9 @@ LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL) {
 # (READ-INTEGER stream element-type [endianness [eof-error-p [eof-value]]])
 # is a generalized READ-BYTE.
 LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
-  # check Stream:
-  var object stream = STACK_4;
-  if (!streamp(stream))
-    fehler_stream(stream);
+  var object stream = check_stream(STACK_4);
   # check Element-Type:
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   test_eltype_arg(&STACK_3,&eltype);
   check_multiple8_eltype(&eltype);
   # check Endianness:
@@ -16892,10 +16795,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
 # (READ-FLOAT stream element-type [endianness [eof-error-p [eof-value]]])
 # reads a float in IEEE binary representation.
 LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
-  # check Stream:
-  var object stream = STACK_4;
-  if (!streamp(stream))
-    fehler_stream(stream);
+  var object stream = check_stream(STACK_4);
   # check Element-Type:
   var uintL bytesize = check_float_eltype(&STACK_3);
   # check Endianness:
@@ -16968,14 +16868,8 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
 
 # (WRITE-BYTE integer stream), CLTL p. 385
 LISPFUNN(write_byte,2) {
-  # check Stream:
-  var object stream = STACK_0;
-  if (!streamp(stream))
-    fehler_stream(stream);
-  # check Integer:
-  var object obj = STACK_1;
-  if (!integerp(obj))
-    fehler_wr_integer(stream,obj);
+  var object stream = check_stream(STACK_0);
+  var object obj = check_wr_int(stream,STACK_1);
   # write Integer:
   write_byte(stream,obj);
   value1 = STACK_1; mv_count=1; skipSTACK(2); # obj as value
@@ -16984,20 +16878,15 @@ LISPFUNN(write_byte,2) {
 # (WRITE-INTEGER integer stream element-type [endianness])
 # is a generalized WRITE-BYTE.
 LISPFUN(write_integer,3,1,norest,nokey,0,NIL) {
-  # check Stream:
-  var object stream = STACK_2;
-  if (!streamp(stream))
-    fehler_stream(stream);
+  var object stream = check_stream(STACK_2);
   # check Element-Type:
-  var decoded_eltype eltype;
+  var decoded_el_t eltype;
   test_eltype_arg(&STACK_1,&eltype);
   check_multiple8_eltype(&eltype);
   # check Endianness:
   var bool endianness = test_endianness_arg(STACK_0);
   # check Integer:
-  var object obj = STACK_3;
-  if (!integerp(obj))
-    fehler_wr_integer(STACK_2,obj);
+  var object obj = check_wr_int(stream,STACK_3);
   var uintL bitsize = eltype.size;
   var uintL bytesize = bitsize/8;
   var DYNAMIC_BIT_VECTOR(bitbuffer,bitsize);
@@ -17038,10 +16927,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL) {
 # (WRITE-FLOAT float stream element-type [endianness])
 # writes a float in IEEE binary representation.
 LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
-  # check Stream:
-  var object stream = STACK_2;
-  if (!streamp(stream))
-    fehler_stream(stream);
+  var object stream = check_stream(STACK_2);
   # check Element-Type:
   var uintL bytesize = check_float_eltype(&STACK_1);
   # check Endianness:
@@ -17383,8 +17269,7 @@ global object stream_line_number (object stream) {
 # is a Character-File-Input-Stream, which was only used for reading).
 LISPFUNN(line_number,1) {
   var object stream = popSTACK();
-  if (!streamp(stream)) # check stream
-    fehler_stream(stream);
+  check_stream(stream);
   value1 = stream_line_number(stream); mv_count=1;
 }
 
@@ -17427,8 +17312,7 @@ global void stream_set_read_eval (object stream, bool value) {
 LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL) {
   var object flag = popSTACK();
   var object stream = popSTACK();
-  if (!streamp(stream)) # check stream
-    fehler_stream(stream);
+  check_stream(stream);
   if (eq(flag,unbound)) {
     value1 = (stream_get_read_eval(stream) ? T : NIL);
   } else {

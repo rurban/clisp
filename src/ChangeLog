@@ -1,3 +1,36 @@
+2001-11-02  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (check_stream, check_streamtype, check_builtin_stream):
+	(check_wr_int, resolve_as_synonym): new macros
+	(test_stream_args, test_input_stream_args, SYNONYM-STREAM-SYMBOL)
+	(BROADCAST-STREAM-STREAMS, CONCATENATED-STREAM-STREAMS)
+	(TWO-WAY-STREAM-INPUT-STREAM, TWO-WAY-STREAM-OUTPUT-STREAM)
+	(ECHO-STREAM-INPUT-STREAM, ECHO-STREAM-OUTPUT-STREAM)
+	(GENERIC-STREAM-P, bitbuff_ixu_sub, bitbuff_ixs_sub)
+	(wr_by_iau8_unbuffered, wr_by_iau8_buffered, TERMINAL-RAW)
+	(BUILT-IN-STREAM-OPEN-P, INPUT-STREAM-P, OUTPUT-STREAM-P)
+	(BUILT-IN-STREAM-ELEMENT-TYPE, BUILT-IN-STREAM-SET-ELEMENT-TYPE)
+	(STREAM-EXTERNAL-FORMAT, SET-STREAM-EXTERNAL-FORMAT)
+	(interactive_stream_p, INTERACTIVE-STREAM-P, BUILT-IN-STREAM-CLOSE)
+	(get_line_position, READ-BYTE, READ-BYTE-LOOKAHEAD)
+	(READ-BYTE-WILL-HANG-P, READ-BYTE-NO-HANG, READ-INTEGER)
+	(READ-FLOAT, WRITE-BYTE, WRITE-INTEGER, WRITE-FLOAT, LINE-NUMBER)
+	(ALLOW-READ-EVAL): use them
+	(decoded_el_t): renamed from decoded_eltype
+	(strm_channel_extrafields_t): renamed from
+	 strm_channel_extrafields_struct
+	(strm_unbuffered_extrafields_t): renamed from
+	 strm_unbuffered_extrafields_struct
+	(strm_buffered_extrafields_t): renamed from
+	 strm_buffered_extrafields_struct
+	(win32_console_extrafields_t): renamed from
+	 win32_console_extrafields_struct
+	(CHECK_INTERRUPT, SYSCALL) [UNIX_BEOS WIN32_NATIVE]: new macros
+	(low_read_unbuffered_socket, low_listen_unbuffered_socket)
+	(low_read_array_unbuffered_socket, low_write_unbuffered_socket)
+	(low_write_array_unbuffered_socket, low_fill_buffered_socket)
+	(low_flush_buffered_socket) :use them
+
 2001-11-02  Stefan Kain  <stefan.kain@freenet.de>
 
 	* stream.d: translated the comments
