@@ -5407,6 +5407,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         /* resolve symbolic links therein: */
         with_sstring_0(string,O(pathname_encoding),string_asciz, {
           begin_system_call();
+      printf("Parts: %d str='%s'",stringcount,string_asciz);
           if ( realpath(string_asciz,&path_buffer[0]) ==NULL) {
             if (errno!=ENOENT) { end_system_call(); OS_file_error(STACK_0); }
             end_system_call();
@@ -8435,7 +8436,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   prochandle = pinfo.hProcess;
   child_id = pinfo.dwProcessId;
   FREE_DYNAMIC_ARRAY(command_data);
-  var DWORD exitcode = 0;
+  var DWORD exit_code = 0;
   if (wait_p) {
     /* Wait until it terminates, get its exit status code. */
     switch (WaitForSingleObject(prochandle,INFINITE)) {

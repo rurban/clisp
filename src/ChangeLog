@@ -1,3 +1,9 @@
+2004-02-29  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Fixed cygwin build
+	* pathname.d (LAUNCH): declared exit_code.
+	* unix.d: fixed a typo.
+
 2004-02-27  Peter Seibel  <peter@javamonkey.com>
 
 	* pprint.lisp (copy-pprint-dispatch): accept NIL argument
