@@ -831,7 +831,7 @@
                                          (cddr form))))
                           (do ((L3 (second form) (cdr L3)))
                               ((atom L3))
-                            (if (member (caar L3) specials :test #'eq)
+                            (if (memq (caar L3) specials)
                               (error-of-type 'source-program-error
                                 (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                                 'symbol-macrolet (caar L3)))))
@@ -985,7 +985,7 @@
         (%expand-parspez (first ll))
         (progn
           (let ((v (first ll)))
-            (if (not (member v lambda-list-keywords :test #'eq))
+            (if (not (memq v lambda-list-keywords))
               (setq *venv* (vector (%expand-varspec-var v) nil *venv*))))
           (%expand-lambdalist (rest ll))))))
 
