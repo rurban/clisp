@@ -158,6 +158,7 @@ LISPFUNNR(foreign_address_unsigned,1) {
 LISPFUNNR(foreign_address,1)
 { VALUES1(foreign_address(popSTACK(),true)); }
 
+
 /* Registers a foreign variable.
  register_foreign_variable(address,name,flags,size);
  > address: address of a variable in memory
@@ -565,6 +566,47 @@ local object convert_function_from_foreign (void* address, object resulttype,
   TheFfunction(obj)->ff_argtypes = popSTACK();
   TheFfunction(obj)->ff_flags = flags;
   return obj;
+}
+
+/* (FFI:FOREIGN-FUNCTION address c-type &key name) constructor */
+LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
+{
+  var object fa = STACK_2;
+  if (ffunctionp(fa)) {
+    if (missingp(STACK_0))
+      STACK_0 = TheFfunction(fa)->ff_name;
+    fa = TheFfunction(fa)->ff_address;
+  }
+  /* If you believe objects of type foreign-variable should be accepted,
+     then you probably missed an indirection. */
+  if (!faddressp(fa)) {
+    pushSTACK(fa);              /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(or)); pushSTACK(S(foreign_function));
+    pushSTACK(S(foreign_address));
+    pushSTACK(listof(3));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(STACK_0); pushSTACK(fa);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~S: ~S is not of type ~S"));
+  }
+  var object fvd = STACK_1;
+  if (simple_vector_p(fvd)
+      && eq(TheSvector(fvd)->data[0],S(c_function))
+      && (4 == Svector_length(fvd))) {
+    var object ff =
+      convert_function_from_foreign(Faddress_value(fa),
+                                    TheSvector(fvd)->data[1],
+                                    TheSvector(fvd)->data[2],
+                                    TheSvector(fvd)->data[3]);
+    /* TODO need to visit callback interaction */
+    if (nullp(TheFfunction(ff)->ff_name) && !missingp(STACK_0)) {
+      pushSTACK(ff);
+      STACK_1 = coerce_ss(STACK_1);
+      ff = popSTACK();
+      TheFfunction(ff)->ff_name = STACK_0;
+    }
+    VALUES1(ff); skipSTACK(3);
+  }
+  else fehler_foreign_type(fvd);
 }
 
 
@@ -2166,6 +2208,56 @@ LISPFUNN(lookup_foreign_variable,2)
     fvar = new_fvar;
   }
   VALUES1(fvar);
+}
+
+/* (FFI:FOREIGN-VARIABLE address c-type &key name) constructor */
+LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
+{
+ check_restart:
+  var object fa = STACK_2;
+  if (fvariablep(fa))
+    { fa = TheFvariable(fa)->fv_address; }
+  /* If you believe objects of type foreign-function should be accepted,
+   * then you probably missed an indirection. */
+  if (!faddressp(fa)) {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(fa);              /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(or)); pushSTACK(S(foreign_variable));
+    pushSTACK(S(foreign_address));
+    pushSTACK(listof(3));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(STACK_0); pushSTACK(fa);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    STACK_2 = value1;
+    goto check_restart;
+  }
+  if (!missingp(STACK_0)) STACK_0 = coerce_ss(STACK_0);
+  var object fvar = allocate_fvariable();
+  var object fvd = STACK_1;
+  foreign_layout(fvd);
+  TheFvariable(fvar)->fv_size      = fixnum(data_size);
+  TheFvariable(fvar)->fv_type      = fvd;
+  TheFvariable(fvar)->fv_name      = boundp(STACK_0) ? STACK_0 : NIL;
+  if (fvariablep(STACK_2)) {
+    var object old_fvar = STACK_2;
+    TheFvariable(fvar)->fv_address = TheFvariable(old_fvar)->fv_address;
+    record_flags_replace(TheFvariable(fvar),
+                         record_flags(TheFvariable(old_fvar)));
+    
+    if (nullp(TheFvariable(fvar)->fv_name)) {
+      TheFvariable(fvar)->fv_name  = TheFvariable(old_fvar)->fv_name;
+    }
+  } else {
+    TheFvariable(fvar)->fv_address = STACK_2;
+    record_flags_replace(TheFvariable(fvar), 0);
+  }
+  if (((uintP)Faddress_value(TheFvariable(fvar)->fv_address)
+       & (data_alignment-1))) {
+    pushSTACK(fvar);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
+  }
+  VALUES1(fvar); skipSTACK(3);
 }
 
 /* (FFI::FOREIGN-VALUE foreign-variable)

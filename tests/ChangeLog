@@ -1,3 +1,7 @@
+2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: Test FOREIGN-VARIABLE and FOREIGN-FUNCTION constructors.
+
 2004-10-05  Sam Steingold  <sds@gnu.org>
 
 	* path.tst [win32]: check that ABSOLUTE-PATHNAME does not crash on
@@ -46,6 +50,10 @@
 
 	* path.tst (parse-namestring): check second return value for
 	displaced arguments
+
+2004-09-21  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: Test c-type '(c-pointer <c-type>)
 
 2004-08-05  Bruno Haible  <bruno@clisp.org>
 
