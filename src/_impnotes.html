@@ -12,13 +12,14 @@
   * Use only HTML 3.2 commands which work in a large range of browsers.
   * For references to the CL HyperSpec, use CLHSROOT. It is later replaced
     with an URL like "http://www.harlequin.com/education/books/HyperSpec"
-    or "file:/usr/doc/lisp/HyperSpec" by sed during installation. In order
-    to view this file without sed-processing it, it is sufficient to make
-    a symlink for CLHSROOT is the current directory.
+    or "file:/usr/doc/lisp/HyperSpec" by sed(1) during installation. In
+    order to view this file without sed-processing it, it is sufficient
+    to make a symlink for CLHSROOT is the current directory.
   * "Whatever is written by a human, is supposed to be read by a human".
     Keep your lines under 79 characters and remember that some people will
     be reading this document with "CLHSROOT" replaced with a long URL.
   * Literal symbols are written in <code>...</code> font, in lowercase.
+  * All tags are written in lowercase.
   * At the definition point of a symbol, this symbol is written as
     <code><strong>...</strong></code>.
   * Platform depencencies are emphasized like this:
@@ -172,7 +173,6 @@ details.
    <li><a href="#syscalls">System Calls</a>
    <li><a href="#options">Command Line Options</a>
   </ol>
- <li><a href="#debugger"><b>The Debugger and Stepper</b></a>
  <li><a href="#platform"><b>Platform specific Extensions</b></a>
   <ol>
    <li><a href="#edit">The Editor</a>
@@ -490,13 +490,14 @@ denotes the singleton set {<var>object</var>}.
 <var>type</var> <var>type</var>)</code>.
 
 <p>The ANSI type specifier
-<code>(<a href="CLHSROOT/Body/syscla_real.html">real</a> <var>low</var> <var>high</var>)</code>
+<code>(<a href="CLHSROOT/Body/syscla_real.html">real</a>
+       <var>low</var> <var>high</var>)</code>
 denotes the real numbers between <var>low</var> and <var>high</var>.
 
 <p><a href="CLHSROOT/Body/mac_deftype.html">
 <code>deftype</code></a> lambda lists are subject to destructuring
 (nested lambda lists are allowed, as in <code>defmacro</code>) and may
-contain a <code>&amp;whole</code> marker, but no
+contain a <code>&amp;whole</code> marker, but not an
 <code>&amp;environment</code> marker.
 
 <p><code>(<STRONG>lisp:type-expand-1</STRONG>
@@ -649,7 +650,7 @@ local macros, not local functions.  Use <code>#'(lambda ()
 you really need it as a function.
 
 <P>There is a generic function
-<code><STRONG>no-primary-method</STRONG></code> (analogous to
+<code><strong>no-primary-method</strong></code> (analogous to
 <a href="CLHSROOT/Body/stagenfun_no-_cable-method.html">
 <code>no-applicable-method</code></a>) which is called when a generic
 function of the class <a href="CLHSROOT/Body/syscla_standa_ric-function.html">
@@ -770,9 +771,9 @@ implemented.
 <code>prog1</code></a>,
 <a href="CLHSROOT/Body/mac_prog1cm_prog2.html">
 <code>prog2</code></a>,
-<a href="CLHSROOT/Body/typspe_and.html mac_and.html">
+<a href="CLHSROOT/Body/mac_and.html">
 <code>and</code></a>,
-<a href="CLHSROOT/Body/typspe_or.html mac_or.html">
+<a href="CLHSROOT/Body/mac_or.html">
 <code>or</code></a>,
 <a href="CLHSROOT/Body/mac_psetq.html">
 <code>psetq</code></a>,
@@ -1891,19 +1892,6 @@ from $00 to $1F:
 
 <H3>Attributes</H3>
 
-<DL>
- <DT><EM>Platform dependent: Only in clisp binaries built without
-     compile-time flag <code>UNICODE</code>.</EM>
- <DD>The code of a character is &gt;=0, &lt;256.
-     <a href="CLHSROOT/Body/convar_char-code-limit.html">
-     <code>char-code-limit</code></a> = 256.
- <DT><EM>Platform dependent: Only in clisp binaries built with
-     compile-time flag <code>UNICODE</code>.</EM>
- <DD>The code of a character is &gt;=0, &lt;65536.
-     <a href="CLHSROOT/Body/convar_char-code-limit.html">
-     <code>char-code-limit</code></a> = 65536.
-</DL>
-
 <p>Characters don't have the CLtL1 font and bits attributes. For
 backward compatibility, there is a class <code>sys::input-character</code>
 representing either a character with font and bits, or a keystroke.
@@ -2039,9 +2027,20 @@ See the description of <a href="#encoding">encodings</a>.
 <h3><a href="CLHSROOT/Body/sec_the_chara_s_dictionary.html">
     13.2. The Characters Dictionary</a></h3>
 
-<p><a href="CLHSROOT/Body/convar_char-code-limit.html">
-<code>char-code-limit</code></a> = 256 (without UNICODE) or 65536 (with
-UNICODE).
+<p><a href="CLHSROOT/Body/fun_char-code.html">
+<code>char-code</code></a> takes values from 0 (inclusive) to
+<a href="CLHSROOT/Body/convar_char-code-limit.html">
+<code>char-code-limit</code></a> (exclusive), i.e., the implementation
+supports <a href="CLHSROOT/Body/convar_char-code-limit.html">
+<code>char-code-limit</code></a> characters.
+<table border=1>
+ <tr> <th>binaries built ...
+      <th>without UNICODE support
+      <th>with UNICODE support
+ <tr> <th><a href="CLHSROOT/Body/convar_char-code-limit.html">
+          <code>char-code-limit</code></a>
+      <td align=center> 256 <td align=center> 65536
+</table>
 
 <p>The types <code>lisp:string-char</code> and
 <a href="CLHSROOT/Body/typ_base-char.html"><code>base-char</code></a>
@@ -3191,7 +3190,7 @@ relative pathnames, the behavior depends on <a
 href="#ansi"><code>lisp:*ansi*</code></a>: when it is <code>nil</code>,
 the CLISP retains its traditional behavior:
 <pre><code>(merge-pathnames #p"x/" #p"y/")
-            ==&gt; #P"x/"</code></pre>
+             ==&gt; #p"x/"</code></pre>
 
 <p>Rationale: <code>merge-pathnames</code> is used to specify default
 components for pathnames, so there is some analogy between
@@ -3207,7 +3206,7 @@ with defaults not yet applied".)
 
 <p>Now, <code>(merge-pathnames (merge-pathnames '#"x/" '#"y/")
 '#"y/")</code> and <code>(merge-pathnames '#"x/" '#"y/")</code> are
-equal in CLISP (with <a href="#ansi"><code>lisp:*ansi*</code></a> being
+equal in CLISP (when <a href="#ansi"><code>lisp:*ansi*</code></a> is
 <code>nil</code>), but not in implementations that strictly follow the
 Common Lisp spec. In fact, the above twice-default = once-default rule
 holds for all pathnames in CLISP.
@@ -3215,7 +3214,7 @@ holds for all pathnames in CLISP.
 <p>When <a href="#ansi"><code>lisp:*ansi*</code></a> is
 non-<code>nil</code>, the normal ANSI CL behavior is exhibited:
 <pre><code>(merge-pathnames #p"x/" #p"y/")
-            ==&gt; #P"y/x/"</code></pre>
+             ==&gt; #p"y/x/"</code></pre>
 
 <p>The rationale is that "merge" is "merge" and not "or", in addition to
 simply being ANSI CL compliant and therefore not surprising to the users.
@@ -3321,6 +3320,7 @@ to <code>(cd)</code>.  <code>(setf (lisp:default-directory)
 <p>Interactive streams are those whose next input might depend on a
 prompt one might output.
 
+<a name="terminal"></a>
 <H3>terminal interaction.</H3>
 
 <!-- #ifdef GNU_READLINE -->
@@ -3343,10 +3343,11 @@ prompt one might output.
 <P><DL>
 <DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
  platforms only.</EM>
-<DD><code>*terminal-io*</code> is not the only stream that communicates
+<DD><a href="CLHSROOT/Body/var_stterminal-iost.html">
+ <code>*terminal-io*</code></a> is not the only stream that communicates
  directly with the user: During execution of the body of a
- <code>(<STRONG>with-keyboard</STRONG> . <var>body</var>)</code> form,
- <code><strong>*keyboard-input*</strong></code> is the stream that reads
+ <code>(<strong>lisp:with-keyboard</strong> . <var>body</var>)</code> form,
+ <code><strong>lisp:*keyboard-input*</strong></code> is the stream that reads
  the keystrokes from the keyboard. It returns every keystroke in detail,
  as character or <code>sys::input-character</code> with the following bits:
 <DL>
@@ -3427,7 +3428,8 @@ This keyboard input is not echoed on the screen.  During execution of a
 
 <!-- #ifdef TERMINAL_USES_KEYBOARD -->
 <!-- The stream <code>*keyboard-input*</code> is used by
-     <code>*terminal-io*</code>. -->
+     <a href="CLHSROOT/Body/var_stterminal-iost.html">
+     <code>*terminal-io*</code></a>. -->
 <!-- #endif -->
 </DL>
 <!-- #endif -->
@@ -3446,28 +3448,30 @@ output to the printer.
 <!-- #ifdef PIPES -->
 
 <P><a name="pipe"></a><DL>
-<DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM>
-
-<DD><code>(<STRONG>make-pipe-input-stream</STRONG> <var>command</var>
+<DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM><DD>
+<dl><dt><code>(<STRONG>make-pipe-input-stream</STRONG>
+           &amp;key <var>command</var>
            [<a href="#eltype">:element-type</a>]
            [<a href="#extfmt">:external-format</a>]
            [<a href="#buffered">:buffered</a>])</code>
-returns an input stream that will supply the output from the execution
-of the given operating system command.
-
-<P><code>(<STRONG>make-pipe-output-stream</STRONG> <var>command</var>
-          [<a href="#eltype">:element-type</a>]
-          [<a href="#extfmt">:external-format</a>]
-          [<a href="#buffered">:buffered</a>])</code>
-returns an output stream that will pass its output as input to the
+<dd>returns an input stream that will supply the output from the
 execution of the given operating system command.
 
-<!-- #ifdef PIPES2 -->
-<P><code>(<STRONG>make-pipe-io-stream</STRONG> <var>command</var>
+<dt><code>(<STRONG>make-pipe-output-stream</STRONG>
+          &amp;key <var>command</var>
           [<a href="#eltype">:element-type</a>]
           [<a href="#extfmt">:external-format</a>]
           [<a href="#buffered">:buffered</a>])</code>
-returns three values. The first value is a bidirectional stream that
+<dd>returns an output stream that will pass its output as input to
+the execution of the given operating system command.
+
+<!-- #ifdef PIPES2 -->
+<dt><code>(<STRONG>make-pipe-io-stream</STRONG>
+          &amp;key <var>command</var>
+          [<a href="#eltype">:element-type</a>]
+          [<a href="#extfmt">:external-format</a>]
+          [<a href="#buffered">:buffered</a>])</code>
+<dd>returns three values. The first value is a bidirectional stream that
 will simultaneously pass its output as input to the execution of the
 given operating system command and supply the output from this command
 as input. The second and third value will be the input stream and the
@@ -3492,9 +3496,8 @@ buffering: Use <a href="CLHSROOT/Body/fun_read-char.html">
 by a <a href="CLHSROOT/Body/fun_finish-ou_clear-output.html">
 <code>finish-output</code></a>. The same cautions must apply to the
 called command as well.
-
 <!-- #endif -->
-</DL>
+</dl></DL>
 
 <p>For all functions that accept these keywords, the acceptable values are:
 <dl>
@@ -3508,7 +3511,8 @@ called command as well.
    <a href="#iconv">iconv()</a> based encodings), the symbol
    <code>:default</code>, and the line terminator keywords
    <code>:unix</code>, <code>:mac</code>, <code>:dos</code>.  The
-   default encoding is <code><strong>*default-file-encoding*</strong></code>.
+   default encoding is
+   <code><strong>lisp:*default-file-encoding*</strong></code>.
  <dt><a name="buffered"><code>:buffered</code></a>
   <dd><code>nil</code>, <code>t</code>, or <code>:default</code>.
   <ul>
@@ -3685,24 +3689,24 @@ set to <code>2</code>.
 <h3><a href="CLHSROOT/Body/sec_22-1-3-7.html">
     22.1.3.7 Printing Other Vectors</a></h3>
 
-When <a href="CLHSROOT/Body/var_stprint-readablyst.html"><code>*print-readably*</code></a>
-is true, other vectors are written as follows: If the element-type is
-<a href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>, the syntax
+When <a href="CLHSROOT/Body/var_stprint-readablyst.html">
+<code>*print-readably*</code></a> is true, other vectors are written as
+follows: If the element-type is <a
+href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>, the syntax
 <code>#(<var>x<sub>0</sub></var> ... <var>x<sub>n-1</sub></var>)</code>
-is used. Otherwise, the syntax
-<code>#A(<var>element-type</var> <var>dimensions</var> <var>contents</var>)</code>
-is used.
+is used. Otherwise, the syntax <code>#A(<var>element-type</var>
+<var>dimensions</var> <var>contents</var>)</code> is used.
 
 <h3><a href="CLHSROOT/Body/sec_22-1-3-8.html">
     22.1.3.8 Printing Other Arrays</a></h3>
 
-When <a href="CLHSROOT/Body/var_stprint-readablyst.html"><code>*print-readably*</code></a>
-is true, other arrays are written as follows: If the element-type is
-<a href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>, the syntax
-<code>#<var>rank</var>A <var>contents</var></code>
-is used. Otherwise, the syntax
-<code>#A(<var>element-type</var> <var>dimensions</var> <var>contents</var>)</code>
-is used.
+When <a href="CLHSROOT/Body/var_stprint-readablyst.html">
+<code>*print-readably*</code></a> is true, other arrays are written as
+follows: If the element-type is <a
+href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>, the syntax
+<code>#<var>rank</var>A <var>contents</var></code> is used. Otherwise,
+the syntax <code>#A(<var>element-type</var> <var>dimensions</var>
+<var>contents</var>)</code> is used.
 
 <h3><a href="CLHSROOT/Body/sec_22-2-1-3.html">
     22.2.1.3 Compiling Format Strings</a></h3>
@@ -3725,29 +3729,27 @@ functions are provided:
  performs multiple <code>write-byte</code> operations:
 
  <dd><code>(write-byte-sequence <var>sequence</var> <var>stream</var>
-[:start] [:end])</code> outputs the integers of the subsequence of
-<var>sequence</var> specified by <var><code>:start</code></var> and
+&amp;key [:start] [:end])</code> outputs the integers of the subsequence
+of <var>sequence</var> specified by <var><code>:start</code></var> and
 <var><code>:end</code></var> to <var>stream</var>. It returns
 <var>sequence</var>.
 
 <p>This function is especially efficient if <var>sequence</var> is a
 <code>(vector (unsigned-byte 8))</code> and <var>stream</var> is a file
-stream with element type <code>(unsigned-byte 8)</code> or a pipe
-stream.
+stream with element type <code>(unsigned-byte 8)</code> or a pipe stream.
 
  <p><dt><code><strong>lisp:write-char-sequence</strong></code>
  performs multiple <code>write-char</code> operations:
 
  <dd><code>(write-char-sequence <var>sequence</var> <var>stream</var>
-[:start] [:end])</code> outputs the characters of the subsequence of
-<var>sequence</var> specified by <var><code>:start</code></var> and
-<var><code>:end</code></var> to <var>stream</var>.  It returns
-<var>sequence</var>.
+&amp;key [:start] [:end])</code> outputs the characters of the
+subsequence of <var>sequence</var> specified by
+<var><code>:start</code></var> and <var><code>:end</code></var> to
+<var>stream</var>.  It returns <var>sequence</var>.
 
 <p>This function is especially efficient if <var>sequence</var> is a
 string and <var>stream</var> is a file stream with element type
-<code>character</code> or <code>string-char</code> or a pipe
-stream.
+<code>character</code> or <code>string-char</code> or a pipe stream.
 </dl>
 
 <H3><a href="CLHSROOT/Body/fun_format.html">
@@ -3757,8 +3759,7 @@ stream.
 <a href="CLHSROOT/Body/sec_22-3-4-3.html"><code>~W</code></a> is analogous to
 <a href="CLHSROOT/Body/sec_22-3-4-1.html"><code>~A</code></a> and
 <a href="CLHSROOT/Body/sec_22-3-4-2.html"><code>~S</code></a>,
-but avoids binding of
-<a href="CLHSROOT/Body/var_stprint-escapest.html">
+but avoids binding of <a href="CLHSROOT/Body/var_stprint-escapest.html">
 <code>*print-escape*</code></a>. <code>(format <var>stream</var>
 &#34;~W&#34; <var>object</var>)</code> is equivalent to <code>(write
 <var>object</var> :stream <var>stream</var>)</code>.
@@ -4041,33 +4042,33 @@ string input stream.
 <code>disassemble</code></a>, but also by the declaration
 <code>(compile)</code>.
 
+<a name="compilefile"></a>
 <h4><a href="CLHSROOT/Body/fun_compile-file.html">
     compile-file</a></h4>
 
-<P><code>(compile-file <var>input-file</var> [:output-file] [:listing]
-                         [:warnings] [:verbose] [:print])</code>
+<P><code>(compile-file <var>input-file</var> &amp;key [:output-file]
+          [:listing] [:warnings] [:verbose] [:print])</code>
+compiles a file to platform-independent bytecode.
 
-compiles a file to bytecode.
-
-<DL>
-<DT> <var>input-file</var>
- <DD>should be a pathname/string/symbol.
-<DT>The <code>:output-file</code> argument
- <DD>should be <code>nil</code> or <code>t</code> or a
- pathname/string/symbol or an output-stream. The default is
+<dl>
+<dt><var>input-file</var>
+ <dd>should be a pathname/string/symbol.
+<dt><code>:output-file</code>
+ <dd>should be <code>nil</code> or <code>t</code> or a
+ pathname/string/symbol or an output-stream. the default is
  <code>t</code>.
-<DT>The <code>:listing</code> argument
- <DD>should be <code>nil</code> or <code>t</code> or a
- pathname/string/symbol or an output-stream. The default is
+<dt><code>:listing</code>
+ <dd>should be <code>nil</code> or <code>t</code> or a
+ pathname/string/symbol or an output-stream. the default is
  <code>nil</code>.
-<DT>The <code>:warnings</code> argument
- <DD>specifies whether warnings should also appear on the screen.
-<DT>The <code>:verbose</code> argument
- <DD>specifies whether error messages should also appear on the screen.
-<DT>The <code>:print</code> argument
- <DD>specifies whether an indication which forms are being compiled
+<dt><code>:warnings</code>
+ <dd>specifies whether warnings should also appear on the screen.
+<dt><code>:verbose</code>
+ <dd>specifies whether error messages should also appear on the screen.
+<dt><code>:print</code>
+ <dd>specifies whether an indication which forms are being compiled
  should appear on the screen.
-</DL>
+</dl>
 
 <p>The variables <code><STRONG>lisp:*compile-warnings*</STRONG></code>,
 <a href="CLHSROOT/Body/var_stcompile_le-verbosest.html">
@@ -4203,6 +4204,146 @@ the specified or current directory - by <code>load</code>,
 <h2><a name="environment"></a><a href="CLHSROOT/Body/chap-25.html">
     Chapter 25: Environment</a></h2>
 
+<h3><a name="debugger"></a><a href="CLHSROOT/Body/sec_25-1-2.html">
+    25.1.2 Debugging Utilities</a></h3>
+
+<p>The debugger may be invoked through the functions
+<a href="CLHSROOT/Body/fun_invoke-debugger.html">
+<code>invoke-debugger</code></a>, <a href="CLHSROOT/Body/fun_break.html">
+<code>break</code></a>, <a href="CLHSROOT/Body/fun_signal.html">
+<code>signal</code></a>,
+<a href="CLHSROOT/Body/fun_error.html">
+<code>error</code></a>, <a href="CLHSROOT/Body/fun_cerror.html">
+<code>cerror</code></a>, <a href="CLHSROOT/Body/fun_warn.html">
+<code>warn</code></a>. The stepper is invoked through the macro
+<a href="CLHSROOT/Body/mac_step.html">
+<code>step</code></a>.  Debugger and stepper execute subordinate <a
+href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loops</a> (called
+&#34;break loops&#34;) which are analogous to the main <a
+href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loop</a> except for
+the prompt and the set of available commands. Commands must be typed
+literally, without surrounding quotes or white space.
+
+<P>Commands common to the main loop, the debugger and the stepper:
+<TABLE BORDER=1>
+ <TR>  <TD WIDTH=100><code>Help</code>
+  <TD>prints a list of available commands.
+</TABLE>
+
+<P>Commands common to the debugger and the stepper:
+<TABLE BORDER=1>
+ <TR>  <TD WIDTH=100><code>Abort</code>
+  <TD>abort to the next most recent
+  <a href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loop</a>.
+ <TR>  <TD WIDTH=100><code>Unwind</code>
+  <TD>abort to the next most recent
+   <a href="CLHSROOT/Body/sec_25-1-1.html">read-eval-print loop</a>.
+</TABLE>
+
+<P>The stack is organized into frames and other stack elements. Usually
+every invocation of an interpreted function and every evaluation of an
+interpreted form corresponds to one stack frame. Special forms such as
+<a href="CLHSROOT/Body/speope_letcm_letst.html">
+<code>let</code></a>, <a href="CLHSROOT/Body/speope_letcm_letst.html">
+<code>let*</code></a>, <a href="CLHSROOT/Body/speope_unwind-protect.html">
+<code>unwind-protect</code></a> and
+<a href="CLHSROOT/Body/speope_catch.html">
+<code>catch</code></a> produce special kinds of stack frames.
+
+<P>In a break loop there is a current stack frame, which is initially
+the most recent stack frame but can be moved using the debugger commands
+<code>Up</code> and <code>Down</code>.
+
+<P>Evaluation of forms in a break loop occurs in the lexical environment
+of the current stack frame but in the dynamic environment of the
+debugger's caller.  This means that to inspect or modify a lexical
+variable all you have to do is to move to the current stack frame just
+below the frame that corresponds to the form or the function call that
+binds that variable.
+
+<P>There is a current &#34;stack mode&#34; which defines in how much
+detail the stack is shown by the stack related debugger commands.
+
+<P>Commands common to the debugger and the stepper:
+<TABLE BORDER=1>
+<TR>  <TD WIDTH=100><code>Mode-1</code>      <TD>sets the current mode to 1: all the stack elements are
+              considered. This mode is fine for debugging compiled functions.
+<TR>  <TD WIDTH=100><code>Mode-2</code>      <TD>sets the current mode to 2: all the frames are considered.
+<TR>  <TD WIDTH=100><code>Mode-3</code>      <TD>sets the current mode to 3: only lexical frames (frames that
+              correspond to special forms that modify the lexical environment)
+              are considered.
+<TR>  <TD WIDTH=100><code>Mode-4</code>      <TD>sets the current mode to 4 (the default): only <code>eval</code> and <code>apply</code>
+              frames are considered. Every evaluation of a form in the
+              interpreter corresponds to an EVAL frame.
+<TR>  <TD WIDTH=100><code>Mode-5</code>      <TD>sets the current mode to 5: only <code>apply</code> frames are considered.
+              Every invocation of an interpreted function corresponds to one
+              <code>apply</code> frame.
+<TR>  <TD WIDTH=100><code>Where</code>       <TD>shows the current stack frame.
+<TR>  <TD WIDTH=100><code>Up</code>          <TD>goes up one frame, i.e. to the caller if in mode-5
+<TR>  <TD WIDTH=100><code>Down</code>        <TD>does down one frame, i.e. to the callee if in mode-5
+<TR>  <TD WIDTH=100><code>Top</code>         <TD>goes to top frame, i.e. to the top-level form if in mode-4
+<TR>  <TD WIDTH=100><code>Bottom</code>      <TD>goes to bottom (most recent) frame, i.e. most probably to the
+              form or function that caused the debugger to be entered.
+<TR>  <TD WIDTH=100><code>Backtrace</code>   <TD>lists the stack in current mode, bottom frame first, top frame
+              last.
+<TR>  <TD WIDTH=100><code>Backtrace-1</code> <TD>lists the stack in mode 1.
+<TR>  <TD WIDTH=100><code>Backtrace-2</code> <TD>lists the stack in mode 2.
+<TR>  <TD WIDTH=100><code>Backtrace-3</code> <TD>lists the stack in mode 3.
+<TR>  <TD WIDTH=100><code>Backtrace-4</code> <TD>lists the stack in mode 4.
+<TR>  <TD WIDTH=100><code>Backtrace-5</code> <TD>lists the stack in mode 5.
+</TABLE>
+
+<p>If the current stack frame is an <a href="CLHSROOT/Body/fun_eval.html">
+<code>eval</code></a> or <a href="CLHSROOT/Body/fun_apply.html">
+<code>apply</code></a> frame, the following commands are available as well:
+
+<TABLE BORDER=1>
+<TR><TD WIDTH=100><code>Break+</code>
+    <TD>sets a breakpoint in the current frame. When the corresponding
+     form or function will be left, the debugger will be entered again,
+     with the variable <code>*trace-values*</code> containing a list of
+     its values.
+<TR><TD WIDTH=100><code>Break-</code>
+    <TD>removes a breakpoint from the current frame.
+<TR><TD WIDTH=100><code>Redo</code>
+    <TD>re-evaluates the corresponding form or function call. This
+     command can be used to restart parts of a computation without
+     aborting it entirely.
+<TR><TD WIDTH=100><code>Return</code>
+    <TD>leaves the current frame. You will be prompted for the return
+     values.
+</TABLE>
+
+<P>Commands specific to the debugger:
+
+<TABLE BORDER=1>
+<TR><TD WIDTH=100><code>Continue</code>
+    <TD>continues evaluation of the program.
+</TABLE>
+
+<P>Commands specific to the stepper:
+
+<TABLE BORDER=1>
+<TR><TD WIDTH=100><code>Step</code>
+    <TD>step into a form: evaluate this form in single step mode
+<TR><TD WIDTH=100><code>Next</code>
+    <TD>step over a form: evaluate this form at once
+<TR><TD WIDTH=100><code>Over</code>
+    <TD>step over this level: evaluate at once up to the next return
+<TR><TD WIDTH=100><code>Continue</code>
+    <TD>switch off single step mode, continue evaluation
+</TABLE>
+
+<P>The stepper is usually used like this: If some form returns a strange
+value or results in an error, call <code>(<a
+href="CLHSROOT/Body/mac_step.html">step</a> <var>form</var>)</code> and
+navigate using the commands <code>Step</code> and <code>Next</code>
+until you reach the form you regard as responsible. If you are too fast
+(execute <code>Next</code> once and get the error), there is no way
+back; you have to restart the entire stepper session. If you are too
+slow (stepped into a function or a form which certainly is OK), a couple
+of <code>Next</code> commands or one <code>Over</code> command will help.
+
 <h3><a href="CLHSROOT/Body/sec_the_envir_t_dictionary.html">
     25.2 The Environment Dictionary</a></h3>
 
@@ -4300,50 +4441,58 @@ directory.)
 
 <h4>space</h4>
 
-<P>The macro <code><STRONG>space</STRONG></code> is like the macro
-<code>time</code>: <code>(space <var>form</var>)</code> evaluates the
-<var>form</var>, and, as a side effect, outputs information about the
-memory allocations caused by this evaluation.
+<P>The macro <code><strong>lisp:space</strong></code> is like the macro
+<a href="CLHSROOT/Body/mac_time.html">
+<code>time</code></a>: <code>(space <var>form</var>)</code> evaluates
+the <var>form</var>, and, as a side effect, outputs information about
+the memory allocations caused by this evaluation.
 
 <h4><a href="CLHSROOT/Body/fun_room.html">
     room</a></h4>
 
-<P>The function <code><STRONG>room</STRONG></code> returns two values:
+<P>The function <a href="CLHSROOT/Body/fun_room.html">
+<code>room</code></a> returns two values:
 the number of bytes currently occupied by Lisp objects, and the number
 of bytes that can be allocated before the next regular garbage
 collection occurs.
 
-<p>The function <code><STRONG>lisp:gc</STRONG></code> starts global
+<p>The function <code><strong>lisp:gc</strong></code> starts global
 garbage collection and its return value has the same meaning as the
-second value of <code>room</code>.
+second value of <a href="CLHSROOT/Body/fun_room.html">
+<code>room</code></a>.
 
 <h4><a href="CLHSROOT/Body/mac_time.html">
     time</a></h4>
 
-<p>The timing data printed by the macro <code>time</code> includes: The
-real time (elapsed time), the run time (processor time for this process),
-the number of bytes allocated (use the <code>space</code> macro for more
+<p>The timing data printed by the macro <a
+href="CLHSROOT/Body/mac_time.html"> <code>time</code></a> includes: The real
+time (elapsed time), the run time (processor time for this process), the
+number of bytes allocated (use the <code>space</code> macro for more
 detailed analysis), and the number of GCs performed, if any.
 
 <h4><a href="CLHSROOT/Body/fun_ed.html">
     ed</a></h4>
 
-<P>The function <code><STRONG>ed</STRONG></code> calls the external
-editor specified by the variable <code><STRONG>*editor*</STRONG></code>
-(see <code>config.lsp</code>). If the argument is a function name
-which was defined in the current session (not loaded from a file),
-the program text to be edited is a pretty-printed version (without comments)
-of the text which was used to define the function.
+<P>The function <a href="CLHSROOT/Body/fun_ed.html">
+<code>ed</code></a> calls the external
+editor specified by the variable
+<code><strong>lisp:*editor*</strong></code> (see
+<code>config.lsp</code>). If the argument is a function name which was
+defined in the current session (not loaded from a file), the program
+text to be edited is a pretty-printed version (without comments) of the
+text which was used to define the function.
 
 <h4>time</h4>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <DL>
 <DT><EM>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</EM>
-<DD>The variable <code><STRONG>lisp:*default-time-zone*</STRONG></code>
+<DD>The variable <code><strong>lisp:*default-time-zone*</strong></code>
 contains the default time zone used by
-<code>encode-universal-time</code> and
-<code>decode-universal-time</code>. It is initially set to -1 (which
+<a href="CLHSROOT/Body/fun_encode-universal-time.html">
+<code>encode-universal-time</code></a> and
+<a href="CLHSROOT/Body/fun_decode-universal-time.html">
+<code>decode-universal-time</code></a>. It is initially set to -1 (which
 means 1 hour east of Greenwich, i.e. Mid European Time).
 </DL>
 <!-- #endif -->
@@ -4352,43 +4501,40 @@ means 1 hour east of Greenwich, i.e. Mid European Time).
 but (as float or rational number) it should be a multiple of
 <code>1/4</code>.
 
-<P><DL>
-<!-- #if defined(TIME_MSDOS) || defined(TIME_RISCOS) -->
-<DT><EM>Platform dependent: DOS, OS/2, Acorn platforms only.</EM>
-<DD><code>internal-time-units-per-second</code> = 100.
-<!-- #endif -->
-<!-- #ifdef TIME_AMIGAOS -->
-<DT><EM>Platform dependent: Amiga platforms only.</EM>
-<DD><code>internal-time-units-per-second</code> = 50.
-<!-- #endif -->
-<!-- #ifdef TIME_UNIX -->
-<DT><EM>Platform dependent: most UNIX platforms only.</EM>
-<DD><code>internal-time-units-per-second</code> = 1000000.
-<!-- #endif -->
-<!-- #ifdef TIME_WIN32 -->
-<DT><EM>Platform dependent: Win32 platforms only.</EM>
-<DD><code>internal-time-units-per-second</code> = 10000000.
-<!-- #endif -->
-</DL>
+<p><table border=1>
+<tr><th><em>Platform dependent:</em>
+    <th>DOS, OS/2, Acorn <th>Amiga <th>UNIX <th>Win32
+<tr><th><a href="CLHSROOT/Body/convar_intern_s-per-second.html">
+    <code>internal-time-units-per-second</code></a>
+    <td>100 <td>50 <td>1,000,000 <td>10,000,000
+</table>
 
-<p><a href="CLHSROOT/Body/fun_get-internal-run-time.html"><code>get-internal-run-time</code></a>
-returns the amount of run time consumed by the current clisp process since
-its startup.
+<p><a href="CLHSROOT/Body/fun_get-internal-run-time.html">
+<code>get-internal-run-time</code></a> returns the amount of run time
+consumed by the current clisp process since its startup.
 
 <h4>machine</h4>
 <DL>
 <!-- #ifdef MACHINE_KNOWN -->
  <DT><EM>Platform dependent: UNIX, Win32 platforms only.</EM>
-  <DD>The functions <code>short-site-name</code>,
-  <code>long-site-name</code> should be defined in a site-specific
+  <DD>The functions <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
+  <code>short-site-name</code></a>,
+  <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
+  <code>long-site-name</code></a> should be defined in a site-specific
   <code>config.lsp</code> file.
 <!-- #else -->
  <DT><EM>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</EM>
-  <DD>The functions <code>machine-type</code>,
-  <code>machine-version</code>, <code>machine-instance</code> and
-  <code>short-site-name</code>, <code>long-site-name</code> should be
-  defined by every user in his site-specific <code>config.lsp</code>
-  file.
+  <DD>The functions <a href="CLHSROOT/Body/fun_machine-type.html">
+  <code>machine-type</code></a>,
+  <a href="CLHSROOT/Body/fun_machine-version.html">
+  <code>machine-version</code></a>,
+  <a href="CLHSROOT/Body/fun_machine-instance.html">
+  <code>machine-instance</code></a> and
+  <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
+  <code>short-site-name</code></a>,
+  <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
+  <code>long-site-name</code></a> should be defined by every user in his
+  site-specific <code>config.lsp</code> file.
 <!-- #endif -->
 </DL>
 
@@ -4396,10 +4542,10 @@ its startup.
     apropos, apropos-list</a></h4>
 
 The search performed by
-<a href="CLHSROOT/Body/fun_aproposcm_apropos-list.html"><code>apropos</code></a>
-and
-<a href="CLHSROOT/Body/fun_aproposcm_apropos-list.html"><code>apropos-list</code></a>
-is case-insensitive.
+<a href="CLHSROOT/Body/fun_aproposcm_apropos-list.html">
+<code>apropos</code></a> and
+<a href="CLHSROOT/Body/fun_aproposcm_apropos-list.html">
+<code>apropos-list</code></a> is case-insensitive.
 
 <h4><a href="CLHSROOT/Body/fun_dribble.html">
     dribble</a></h4>
@@ -4421,9 +4567,9 @@ and the new dribbling request is ignored.
 <h2><a name="issues"></a><a href="CLHSROOT/Issues/Issues-Categorized.html">
     X3J13 Issue Index</a></h2>
 
-<p>This is the list of ANSI CL issues and their current status in CLISP
-"Status" indicates whether CLISP supports code that makes use of this
-vote.
+<p>This is the list of ANSI CL issues and their current status in CLISP,
+i.e., whether CLISP supports code that makes use of the functionality
+specified by the vote.
 
 <dl>
  <dt><a href="CLHSROOT/Issues/iss001.html">
@@ -5558,24 +5704,27 @@ be used on encodings.
 href="#socket">socket</a> stream containing an encoding, the following
 symbol-macro places contain global encodings.
 
-<p><code><strong>*default-file-encoding*</strong></code> is the encoding
-used for new <a href="#open">file</a>/<a href="#pipe">pipe</a>/<a
-href="#socket">socket</a> streams, when no <code><a
-href="#extfmt">:external-format</a></code> argument was specified.
+<p><code><strong>lisp:*default-file-encoding*</strong></code> is the
+encoding used for new <a href="#open">file</a>/<a
+href="#pipe">pipe</a>/<a href="#socket">socket</a> streams, when no
+<code><a href="#extfmt">:external-format</a></code> argument was
+specified.
 
 <!-- #ifdef UNICODE -->
 <DL>
 <DT><EM>Platform dependent: Only in clisp binaries built with
         compile-time flag <code>UNICODE</code>.</EM>
 <DD>
-<p><code><strong>*pathname-encoding*</strong></code> is the encoding used
-for pathnames in the file system. Normally, this is a 1:1 encoding. Its
-line terminator mode is ignored.
-<p><code><strong>*terminal-encoding*</strong></code> is the encoding used
-for communication with the terminal, in particular by *terminal-io*.
-<p><code><strong>*misc-encoding*</strong></code> is the encoding used for
-access to environment variables, command line options, and the like. Its
-line terminator mode is ignored.
+<p><code><strong>lisp:*pathname-encoding*</strong></code> is the
+encoding used for pathnames in the file system. Normally, this is a 1:1
+encoding. Its line terminator mode is ignored.
+<p><code><strong>lisp:*terminal-encoding*</strong></code> is the
+encoding used for communication with the terminal, in particular by
+<a href="CLHSROOT/Body/var_stterminal-iost.html">
+<code>*terminal-io*</code></a>.
+<p><code><strong>lisp:*misc-encoding*</strong></code> is the encoding
+used for access to environment variables, command line options, and the
+like. Its line terminator mode is ignored.
 </DL>
 <!-- #endif -->
 
@@ -5624,26 +5773,30 @@ again.
 
 <a name="prompt"></a><H3>Extensions-1.7. The Prompt</H3>
 
-<p>The variable <code>sys::*prompt*</code> controls the appearance of
-the prompt.  When its value is a function, it is called and it's value
-is printed with <code>princ</code>.  Otherwise, the value itself is
-printed with <code>princ</code>.  The default value of
-<code>sys::*prompt*</code> prints
-&#34;<var>package[nn]</var>&gt;&nbsp;&#34; where <var>package</var> is
-the shortest (nick)name of the current package <code>*package*</code> if
-it is the same as it was in the beginning or if it doesn't contain
-symbol <code>t</code> (it is assumed that in the latter case you would
-want to keep in mind that your current package is something weird); and
+<p>The variable <code><strong>sys::*prompt*</strong></code> controls the
+appearance of the prompt.  When its value is a function, it is called
+and it's value is printed with <a
+href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
+<code>princ</code></a>.  Otherwise, the value itself is printed with <a
+href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
+<code>princ</code></a>.  The default value of <code>sys::*prompt*</code>
+prints &#34;<var>package[nn]</var>&gt;&nbsp;&#34; where
+<var>package</var> is the shortest (nick)name of the current package <a
+href="CLHSROOT/Body/var_stpackagest.html"><code>*package*</code></a> if it
+is the same as it was in the beginning or if it doesn't contain symbol
+<code>t</code> (it is assumed that in the latter case you would want to
+keep in mind that your current package is something weird); and
 <var>nn</var> is the ordinal number of the current prompt (hopefully, it
 will remain finite).  To help you in constructing your own fancy
-prompts, 2 functions are provided: <code>sys::prompt-new-package</code>,
-returning <code>*package*</code> or <code>nil</code> if the current
-package is the same as it was initially; and
-<code>sys::package-short-name</code> taking one argument, a package, and
-returning its shortest name or nickname.  Also, a variable
-<code>sys::*command-index*</code> contains the current prompt number, it
-is your responsibility to increment it (you might also want to reset
-it).
+prompts, 2 functions are provided:
+<code><strong>sys::prompt-new-package</strong></code>, returning <a
+href="CLHSROOT/Body/var_stpackagest.html"><code>*package*</code></a> or
+<code>nil</code> if the current package is the same as it was initially;
+and <code><strong>sys::package-short-name</strong></code> taking one
+argument, a package, and returning its shortest name or nickname.  Also,
+a variable <code><strong>sys::*command-index*</strong></code> contains
+the current prompt number, it is your responsibility to increment it
+(this variable is bound to 0 before saving the image).
 
 <a name="syscalls"></a><H3>Extensions-1.8. System Calls</H3>
 
@@ -5672,7 +5825,7 @@ lisp.
      number of hard links, owner's UID, owner's GID, device type, total
      size (bytes), blocksize for filesystem I/O, number of blocks
      allocated, atime, mtime, ctime.
-     [UNIX systems only at this time, patches are welcome.]
+     <br>[UNIX systems only at this time, patches are welcome.]
  <dt><code>(<strong>lisp:user-data</strong>
              &amp;optional <var>user</var>)</code>
  <dd>Return the passwd struct as multiple values (name, encoded
@@ -5681,7 +5834,7 @@ lisp.
      of vectors of length 7.  When <code>user</code> is
      <code>:default</code> or <code>nil</code>, return the information
      about the current user.
-     [UNIX systems only at this time, patches are welcome.]
+     <br>[UNIX systems only at this time, patches are welcome.]
 </dl>
 
 <a name="options"></a><H3>Extensions-1.9. Command Line Options</H3>
@@ -5720,15 +5873,16 @@ platform-independent command line options:
               (make-pathname :name #+(unix amiga) ".clisprc"
                                    #+win32 "_clisprc" #+dos "_CLISPRC")
               (user-homedir-pathname)))</code></pre>
-  before entering the Read/Eval/Print loop.
+  before entering the <a href="CLHSROOT/Body/sec_25-1-1.html">
+  read-eval-print loop</a>.
  <dt><strong>-i file</strong>
-  <dd>Load initfile, then enter the Read/Eval/Print loop.  This option
-  can be repeated several times.
+  <dd>Load initfile, then enter the <a href="CLHSROOT/Body/sec_25-1-1.html">
+  read-eval-print loop</a>.  This option can be repeated several times.
  <dt><strong>-c [-l] lispfile [-o outputfile]</strong>
   <dd>Compile the <em>lispfile</em>, writing the compiled code
-  (<em>*.fas</em>) into <em>outputfile</em>.  With <strong>-l</strong>,
-  generate a listing (<em>*.lis</em>) with various debugging
-  information.
+  (<em>*.fas</em>) into <em>outputfile</em>.  With the <strong>-l</strong>,
+  switch generate a listing (<em>*.lis</em>) with various debugging
+  information.  See <a href="#compilefile">compile-file</a> for details.
  <dt><strong>-p package</strong>
   <dd>Start in the package <em>package</em>.
  <dt><a name="ansi"><strong>-a</strong></a>
@@ -5748,165 +5902,43 @@ platform-independent command line options:
     </ul>
    <li>Set <code><strong>lisp:*floating-point-contagion-ansi*</strong></code>
    to <code>T</code>.
-   <li>Start in package <code><strong>:common-lisp-user</strong></code>.
+   <li>Start in package <code><strong>COMMON-LISP-USER</strong></code>.
    <li>Add <code><strong>:ansi-cl</strong></code> to
    <a href="#features"><code>*features*</code></a>.
   </ul>
+  Please note that if you run CLISP with the <strong>-a</strong> switch
+  and <a href="#image">save image</a>, then all subsequent invocations
+  of CLISP with this image will be as if with <strong>-a</strong>
+  (regardless whether you actually supply the <strong>-a</strong> switch).
  <dt><strong>-x sexp</strong>
   <dd>Execute the <em>SEXP</em> and exit.
 </dl>
 
-<a name="debugger"></a>
-<H2>Extensions-2: The Debugger and Stepper</H2>
-
-<p>The debugger may be invoked through the functions
-<code>invoke-debugger</code>, <code>break</code>, <code>signal</code>,
-<code>error</code>, <code>cerror</code>, <code>warn</code>. The stepper
-is invoked through the macro <code>step</code>.  Debugger and stepper
-execute subordinate <code>read</code> - <code>eval</code> -
-<code>print</code> loops (called &#34;break loops&#34;) which are
-analogous to the main <code>read</code> - <code>eval</code> -
-<code>print</code> loop except for the prompt and the set of available
-commands. Commands must be typed literally, without surrounding quotes
-or white space.
-
-<P>Commands common to the main loop, the debugger and the stepper:
-<TABLE BORDER=1>
- <TR>  <TD WIDTH=100><code>Help</code>
-  <TD>prints a list of available commands.
-</TABLE>
-
-<P>Commands common to the debugger and the stepper:
-<TABLE BORDER=1>
- <TR>  <TD WIDTH=100><code>Abort</code>
-  <TD>abort to the next most recent <code>read</code> -
-   <code>eval</code> - <code>print</code> loop.
- <TR>  <TD WIDTH=100><code>Unwind</code>
-  <TD>abort to the next most recent <code>read</code> -
-   <code>eval</code> - <code>print</code> loop.
-</TABLE>
-
-<P>The stack is organized into frames and other stack elements. Usually
-every invocation of an interpreted function and every evaluation of an
-interpreted form corresponds to one stack frame. Special forms such as
-<code>let</code>, <code>let*</code>, <code>unwind-protect</code> and
-<code>catch</code> produce special kinds of stack frames.
-
-<P>In a break loop there is a current stack frame, which is initially
-the most recent stack frame but can be moved using the debugger commands
-<code>Up</code> and <code>Down</code>.
-
-<P>Evaluation of forms in a break loop occurs in the lexical environment
-of the current stack frame but in the dynamic environment of the
-debugger's caller.  This means that to inspect or modify a lexical
-variable all you have to do is to move to the current stack frame just
-below the frame that corresponds to the form or the function call that
-binds that variable.
-
-<P>There is a current &#34;stack mode&#34; which defines in how much
-detail the stack is shown by the stack related debugger commands.
-
-<P>Commands common to the debugger and the stepper:
-<TABLE BORDER=1>
-<TR>  <TD WIDTH=100><code>Mode-1</code>      <TD>sets the current mode to 1: all the stack elements are
-              considered. This mode is fine for debugging compiled functions.
-<TR>  <TD WIDTH=100><code>Mode-2</code>      <TD>sets the current mode to 2: all the frames are considered.
-<TR>  <TD WIDTH=100><code>Mode-3</code>      <TD>sets the current mode to 3: only lexical frames (frames that
-              correspond to special forms that modify the lexical environment)
-              are considered.
-<TR>  <TD WIDTH=100><code>Mode-4</code>      <TD>sets the current mode to 4 (the default): only <code>eval</code> and <code>apply</code>
-              frames are considered. Every evaluation of a form in the
-              interpreter corresponds to an EVAL frame.
-<TR>  <TD WIDTH=100><code>Mode-5</code>      <TD>sets the current mode to 5: only <code>apply</code> frames are considered.
-              Every invocation of an interpreted function corresponds to one
-              <code>apply</code> frame.
-<TR>  <TD WIDTH=100><code>Where</code>       <TD>shows the current stack frame.
-<TR>  <TD WIDTH=100><code>Up</code>          <TD>goes up one frame, i.e. to the caller if in mode-5
-<TR>  <TD WIDTH=100><code>Down</code>        <TD>does down one frame, i.e. to the callee if in mode-5
-<TR>  <TD WIDTH=100><code>Top</code>         <TD>goes to top frame, i.e. to the top-level form if in mode-4
-<TR>  <TD WIDTH=100><code>Bottom</code>      <TD>goes to bottom (most recent) frame, i.e. most probably to the
-              form or function that caused the debugger to be entered.
-<TR>  <TD WIDTH=100><code>Backtrace</code>   <TD>lists the stack in current mode, bottom frame first, top frame
-              last.
-<TR>  <TD WIDTH=100><code>Backtrace-1</code> <TD>lists the stack in mode 1.
-<TR>  <TD WIDTH=100><code>Backtrace-2</code> <TD>lists the stack in mode 2.
-<TR>  <TD WIDTH=100><code>Backtrace-3</code> <TD>lists the stack in mode 3.
-<TR>  <TD WIDTH=100><code>Backtrace-4</code> <TD>lists the stack in mode 4.
-<TR>  <TD WIDTH=100><code>Backtrace-5</code> <TD>lists the stack in mode 5.
-</TABLE>
-
-<p>If the current stack frame is an <code>eval</code> or
-<code>apply</code> frame, the following commands are available as well:
-
-<TABLE BORDER=1>
-<TR><TD WIDTH=100><code>Break+</code>
-    <TD>sets a breakpoint in the current frame. When the corresponding
-     form or function will be left, the debugger will be entered again,
-     with the variable <code>*trace-values*</code> containing a list of
-     its values.
-<TR><TD WIDTH=100><code>Break-</code>
-    <TD>removes a breakpoint from the current frame.
-<TR><TD WIDTH=100><code>Redo</code>
-    <TD>re-evaluates the corresponding form or function call. This
-     command can be used to restart parts of a computation without
-     aborting it entirely.
-<TR><TD WIDTH=100><code>Return</code>
-    <TD>leaves the current frame. You will be prompted for the return
-     values.
-</TABLE>
-
-<P>Commands specific to the debugger:
-
-<TABLE BORDER=1>
-<TR><TD WIDTH=100><code>Continue</code>
-    <TD>continues evaluation of the program.
-</TABLE>
-
-<P>Commands specific to the stepper:
-
-<TABLE BORDER=1>
-<TR><TD WIDTH=100><code>Step</code>
-    <TD>step into a form: evaluate this form in single step mode
-<TR><TD WIDTH=100><code>Next</code>
-    <TD>step over a form: evaluate this form at once
-<TR><TD WIDTH=100><code>Over</code>
-    <TD>step over this level: evaluate at once up to the next return
-<TR><TD WIDTH=100><code>Continue</code>
-    <TD>switch off single step mode, continue evaluation
-</TABLE>
-
-<P>The stepper is usually used like this: If some form returns a strange
-value or results in an error, call <code>(step <var>form</var>)</code>
-and navigate using the commands <code>Step</code> and <code>Next</code>
-until you reach the form you regard as responsible. If you are too fast
-(execute <code>Next</code> once and get the error), there is no way
-back; you have to restart the entire stepper session. If you are too
-slow (stepped into a function or a form which certainly is OK), a couple
-of <code>Next</code> commands or one <code>Over</code> command will
-help.
-
 <!-- #if defined(SCREEN) || defined(AMIGAOS) || defined(GRAPHICS) || defined(UNIX) || defined(DYNAMIC_FFI) || defined(SOCKET_STREAMS) -->
 
-<a name="platform"></a><H2>Extensions-3: Platform specific Extensions</H2>
+<a name="platform"></a><H2>Extensions-2: Platform specific Extensions</H2>
 
 <!-- #if defined(SCREEN) || defined(AMIGAOS) -->
-<a name="screen"></a><H3>Extensions-3.1. Random Screen Access</H3>
+<a name="screen"></a><H3>Extensions-2.1. Random Screen Access</H3>
 
 <EM>Platform dependent: UNIX, DOS, OS/2, Amiga platforms only.</EM>
 
 <DL>
  <DT><code>(<STRONG>screen:make-window</STRONG>)</code>
-  <DD>returns a &#34;window stream&#34;. As long as this stream is
-  open, the terminal is in cbreak/noecho
-  mode. <code>*terminal-io*</code> shouldn't be used for input or output
-  during this time. (Use <code>with-keyboard</code> and
-  <code>*keyboard-input*</code> instead.)
+ <DD>returns a &#34;window stream&#34;. As long as this stream is open,
+  the terminal is in cbreak/noecho mode.  <a
+  href="CLHSROOT/Body/var_stterminal-iost.html">
+  <code>*terminal-io*</code></a> shouldn't be used for input or output
+  during this time. (Use <a
+  href="#terminal"><code>lisp:with-keyboard</code></a> and
+  <a href="#terminal"><code>lisp:*keyboard-input*</code></a> instead.)
 
  <DT><code>(<STRONG>screen:with-window</STRONG> . <var>body</var>)</code>
   <DD>binds <code><STRONG>screen:*window*</STRONG></code> to a window
   stream and executes <var>body</var>. The stream is
   guaranteed to be closed when the body is left. During its execution,
-  <code>*terminal-io*</code> shouldn't be used, as above.
+  <a href="CLHSROOT/Body/var_stterminal-iost.html">
+  <code>*terminal-io*</code></a> shouldn't be used, as above.
 
  <DT><code>(<STRONG>screen:window-size</STRONG>
             <var>window-stream</var>)</code>
@@ -5914,7 +5946,7 @@ help.
   height (= y<SUB>max</SUB>+1) and width (= x<SUB>max</SUB>+1).
 
  <DT><code>(<STRONG>screen:window-cursor-position</STRONG>
-           <var>window-stream</var>)</code>
+            <var>window-stream</var>)</code>
   <DD> returns the position of the cursor in the window, as two values:
   line (&gt;=0, &lt;=y<SUB>max</SUB>, 0 means top), column (&gt;=0,
   &lt;=x<SUB>max</SUB>, 0 means left margin).
@@ -5968,7 +6000,7 @@ help.
 <!-- #endif -->
 
 <!-- #ifdef UNIX -->
-<a name="modules"></a><H3>Extensions-3.2. External Modules</H3>
+<a name="modules"></a><H3>Extensions-2.2. External Modules</H3>
 
 <EM>Platform dependent: UNIX platforms only.</EM>
 
@@ -6113,7 +6145,7 @@ this order.)
 <!-- #endif -->
 
 <!-- #ifdef DYNAMIC_FFI -->
-<a name="dffi"></a><H3>Extensions-3.3. The Foreign Function Call Facility</H3>
+<a name="dffi"></a><H3>Extensions-2.3. The Foreign Function Call Facility</H3>
 
 <EM>Platform dependent: many UNIX, Win32 platforms only.</EM>
 
@@ -6122,8 +6154,9 @@ compiled it produces a <code>.c</code> file which is then compiled by
 the C compiler and may be linked together with <code>lisp.a</code>.
 
 <P>All symbols relating to the foreign function interface are exported
-from the package FFI. To use them, <code>(use-package
-&#34;FFI&#34;)</code>.
+from the package FFI. To use them,
+<code>(<a href="CLHSROOT/Body/fun_use-package.html">use-package</a>
+       &#34;FFI&#34;)</code>.
 
 <P>Special FFI forms may appear anywhere in the Lisp file.
 
@@ -6384,9 +6417,11 @@ comes from a previous Lisp session. It returns <code>t</code> if
 
 <p>Foreign variables are variables whose storage is allocated in the
 foreign language module. They can nevertheless be evaluated and modified
-through <code>setq</code>, just as normal variables can, except that the
+through <a href="CLHSROOT/Body/spefor_setq.html">
+<code>setq</code></a>, just as normal variables can, except that the
 range of allowed values is limited according to the variable's foreign
-type. Note that for a foreign variable <var>x</var> the form <code>(eql
+type. Note that for a foreign variable <var>x</var> the form
+<code>(<a href="CLHSROOT/Body/fun_eql.html"> eql</a>
 <var>x</var> <var>x</var>)</code> is not necessarily true, since every
 time <var>x</var> is evaluated its foreign value is converted to a
 freshly created Lisp value.
@@ -6431,7 +6466,8 @@ a <code>NULL</code> pointer...) and deprecated.
 
 <p>A foreign variable <var>name</var> defined by <code>def-c-var</code>
 defines a &#34;place&#34;, i.e.  a form which can also be used as
-argument to <code>setf</code>. (An &#34;lvalue&#34; in C terminology.)
+argument to <a href="CLHSROOT/Body/mac_setfcm_psetf.html">
+<code>setf</code></a>. (An &#34;lvalue&#34; in C terminology.)
 The following operations are available on foreign places:
 
 <P><code>(<STRONG>element</STRONG> <var>place</var>
@@ -6655,7 +6691,7 @@ hppa) have problems with this.
 <DT><EM>Platform dependent: Only in clisp binaries built with
         compile-time flag <code>UNICODE</code>.</EM>
 <DD>
-A symbol-macro place <code><strong>*foreign-encoding*</strong></code>
+A symbol-macro place <code><strong>lisp:*foreign-encoding*</strong></code>
 contains the encoding for characters and strings passed through the
 FFI. Its value must be a 1:1 encoding, i.e. an encoding in which every
 character is represented by one byte.
@@ -6903,7 +6939,7 @@ Now try
 
 <!-- #ifdef HAVE_AFFI -->
 <a name="affi"></a>
-<H3>Extensions-3.4. The Amiga Foreign Function Call Facility</H3>
+<H3>Extensions-2.4. The Amiga Foreign Function Call Facility</H3>
 
 <EM>Platform dependent: Amiga platforms only.</EM>
 
@@ -7074,7 +7110,7 @@ specified.
 <DT><EM>Platform dependent: Only in clisp binaries built with
         compile-time flag <code>UNICODE</code>.</EM>
 <DD>
-A symbol-macro place <code><strong>*foreign-encoding*</strong></code>
+A symbol-macro place <code><strong>lisp:*foreign-encoding*</strong></code>
 contains the encoding for characters and strings passed through the
 FFI. Its value must be a 1:1 encoding, i.e. an encoding in which every
 character is represented by one byte.
@@ -7297,7 +7333,7 @@ have inlined the library function calls.
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-<a name="rexx"></a><H3>Extensions-3.5. ARexx</H3>
+<a name="rexx"></a><H3>Extensions-2.5. ARexx</H3>
 
 <EM>Platform dependent: Amiga platforms only.</EM>
 
@@ -7344,85 +7380,82 @@ several sources, e.g. both a console and ARexx, at the same time.
 <!-- #endif -->
 
 <!-- #ifdef SOCKET_STREAMS -->
-<a name="socket"></a><H3>Extensions-3.6. Socket Streams</H3>
+<a name="socket"></a><H3>Extensions-2.6. Socket Streams</H3>
 
 <EM>Platform dependent: UNIX, Win32 platforms only.</EM>
 
-<DL>
-<DT>
-<code>(<STRONG>socket-server</STRONG> [<var>port-or-socket</var>])</code>
-<DD>
-This function creates a socket, and binds a port the socket, and then
-listens for connect attempts.  The server exists to watch for client
-connect attempts.  The optional argument is either a port (positive
-fixnum) or a socket-stream (from whose peer the connections will be
-made).
-<DT>
-<code>(<STRONG>socket-server-close</STRONG> <var>socket-server</var>)</code>
-<DD>
-Closes down the server socket.
-<DT>
-<code>(<STRONG>socket-server-port</STRONG> <var>socket-server</var>)</code>
-<DD>
-Returns the port which was bound using <code>socket-server</code>.
-<DT>
-<code>(<STRONG>socket-wait</STRONG> <var>socket-server</var>
-       [<var>seconds</var> [<var>microseconds</var>]])</code>
-<DD>
-Given time argument(s), waits for (possibly zero) fixed duration for a
-connect on the socket-server.  Without an argument,
+<dl><dt>
+<code>(<strong>lisp:socket-server</strong>
+       &amp;optional [<var>port-or-socket</var>])</code>
+<dd>This function creates a socket, and binds a port the socket, and
+then listens for connect attempts.  The server exists to watch for
+client connect attempts.  The optional argument is either a port
+(positive fixnum) or a socket-stream (from whose peer the connections
+will be made).
+<dt>
+<code>(<strong>lisp:socket-server-close</strong>
+       <var>socket-server</var>)</code>
+<dd>Closes down the server socket.
+<dt>
+<code>(<strong>lisp:socket-server-port</strong>
+       <var>socket-server</var>)</code>
+<dd>Returns the port which was bound using <code>lisp:socket-server</code>.
+<dt>
+<code>(<strong>lisp:socket-wait</strong> <var>socket-server</var>
+       &amp;optional [<var>seconds</var> [<var>microseconds</var>]])</code>
+<dd>Given time argument(s), waits for (possibly zero) fixed duration for
+a connect on the socket-server.  Without an argument,
 <code>socket-wait</code> blocks indefinitely.
-<DT>
-<code>(<STRONG>socket-accept</STRONG> <var>socket-server</var>
+<dt>
+<code>(<strong>lisp:socket-accept</strong> <var>socket-server</var> &amp;key
        [<a href="#eltype">:element-type</a>]
        [<a href="#extfmt">:external-format</a>]
        [<a href="#buffered">:buffered</a>])</code>
-<DD>
-Creates the server-side two-way stream for the connection.
-<DT>
-<code>(<STRONG>socket-connect</STRONG> <var>port</var> [<var>host</var>]
+<dd>Creates the server-side two-way stream for the connection.
+<dt>
+<code>(<strong>lisp:socket-connect</strong> <var>port</var>
+       &amp;optional [<var>host</var>] &amp;key
        [<a href="#eltype">:element-type</a>]
        [<a href="#extfmt">:external-format</a>]
        [<a href="#buffered">:buffered</a>])</code>
-<DD>
-Attempts to create a client-side two-way stream.  Blocks until
+<dd>Attempts to create a client-side two-way stream.  Blocks until
 the server accepts the connections.
-<DT>
-<code>(<STRONG>socket-stream-host</STRONG> <var>socket-stream</var>)</code>
-<DT>
-<code>(<STRONG>socket-stream-port</STRONG> <var>socket-stream</var>)</code>
-<DD>
-These two functions return information about the
+<dt>
+<code>(<strong>lisp:socket-stream-host</strong>
+       <var>socket-stream</var>)</code>
+<dt>
+<code>(<strong>lisp:socket-stream-port</strong>
+       <var>socket-stream</var>)</code>
+<dd>These two functions return information about the
 socket stream.  For a server, <code>socket-stream-host</code>
 returns <code>nil</code>.
-<DT>
-<code>(<STRONG>socket-service-port</STRONG>
+<dt>
+<code>(<strong>lisp:socket-service-port</strong>
        &amp;optional &#34;<var>service-name</var>&#34;
        (<var>protocol</var> "tcp"))</code>
-<DD>
-A convenience function for looking up a port given the service name.
+<dd>A convenience function for looking up a port given the service name.
 It returns the servent struct as multiple values (name, list of aliases,
 port, protocol) for the given <code>service-name</code> and
 <code>protocol</code>, or all services as the list of vectors of length
 4, if <code>service-name</code> is not given or is <code>:default</code>
 or <code>nil</code>.
-<DT>
-<code>(<STRONG>socket-stream-peer</STRONG> <var>socket-stream</var>)</code>
-<DD>
-Given a stream, this function returns the name of the host on the
+<dt>
+<code>(<strong>lisp:socket-stream-peer</strong>
+       <var>socket-stream</var>)</code>
+<dd>Given a stream, this function returns the name of the host on the
 opposite side of the connection and its port number; the server-side can
 use this to see who connected.
-<DT>
-<code>(<STRONG>socket-stream-local</STRONG> <var>socket-stream</var>)</code>
-<DD>
-The dual to <code>socket-stream-peer</code> - same information, host
+<dt>
+<code>(<strong>lisp:socket-stream-local</strong>
+       <var>socket-stream</var>)</code>
+<dd>The dual to <code>socket-stream-peer</code> - same information, host
 name and port number, but for the local host.
-</DL>
+</dl>
 
 <!-- #endif -->
 
 <!-- #ifdef UNIX -->
-<a name="script"></a><H3>Extensions-3.7. CLISP as a script interpreter</H3>
+<a name="script"></a><H3>Extensions-2.7. CLISP as a script interpreter</H3>
 
 <EM>Platform dependent: UNIX platforms only.</EM>
 <p>On Unix, a script can be made executable by adding a first line of
@@ -7503,7 +7536,7 @@ imput will be available.
 
 <!-- #endif -->
 
-<a name="shell"></a><H3>Extensions-3.8. Shell</H3>
+<a name="shell"></a><H3>Extensions-2.8. Shell</H3>
 
 <DL>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
@@ -7588,7 +7621,7 @@ function <code>make-pipe-io-stream</code>. This use of
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-<a name="other"></a><H3>Extensions-3.9. Other</H3>
+<a name="other"></a><H3>Extensions-2.9. Other</H3>
 
 <p>
 <DL>
