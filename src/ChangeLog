@@ -2,8 +2,10 @@
 
 	* modules/syscalls/calls.c (POSIX::USAGE):
 	return all 16 slots of struct rusage
+	(POSIX::LIMITS): return 11 slots
 	* modules/syscalls/posix.lisp (POSIX::USAGE): slots SHARED-MEMORY,
 	DATA-MEMORY, and STACK-MEMORY replace slot INT-RSS
+	(POSIX::LIMITS): fixed slots to comply with SUS
 
 2004-07-29  Bruno Haible  <bruno@clisp.org>
 
