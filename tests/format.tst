@@ -654,13 +654,13 @@ foo
 
 (FORMAT NIL
 "format-<nl>:~
-                         gl. zeile gl. angeschlossen trotz 2*<tab> und sp-*")
-"format-<nl>:gl. zeile gl. angeschlossen trotz 2*<tab> und sp-*"
+	 	        same line no space despite 2*<tab> and sp-*")
+"format-<nl>:same line no space despite 2*<tab> and sp-*"
 
 (FORMAT NIL "format-<nl>:~@
-                         neue Zeile Anfang trotz <tab> + sp-*")
+	                 new beginning of line despite <tab> + sp-*")
 "format-<nl>:
-neue Zeile Anfang trotz <tab> + sp-*"
+new beginning of line despite <tab> + sp-*"
 
 (FORMAT NIL "format-<nl>:~:
 	gleiche Zeile aber ein tab vor Anfang-*")
@@ -803,7 +803,7 @@ freshline:
                 <same line I hope>~@
                 new line but at beginning~:
    same line, but spaced out~@
-        new line and over two tabs-*" 4 4 4)
+		new line and over two tabs-*" 4 4 4)
 "cardinal:four, roman new:IV, roman-old:IIII<same line I hope>
 new line but at beginning   same line, but spaced out
 new line and over two tabs-*"
@@ -864,19 +864,19 @@ new line and over two tabs-*"
 
 (DEFUN TYPE-CLASH-ERROR (FN NARGS ARGNUM RIGHT-TYPE WRONG-TYPE) (FORMAT
 NIL
-"~&~S requires itts ~:[~:R~;~*~] ~
+"~&~S requires its ~:[~:R~;~*~] ~
            argument to be of type ~S,~%but it was called ~
-           with an argument of type ~S.-*" FN (EQL NARGS 1) ARGNUM
+    	       with an argument of type ~S.-*" FN (EQL NARGS 1) ARGNUM
 RIGHT-TYPE
 WRONG-TYPE))
 TYPE-CLASH-ERROR
 
 (TYPE-CLASH-ERROR (QUOTE AREF) NIL 2 (QUOTE INTEGER) (QUOTE VECTOR))
-"AREF requires itts second argument to be of type INTEGER,
+"AREF requires its second argument to be of type INTEGER,
 but it was called with an argument of type VECTOR.-*"
 
 (TYPE-CLASH-ERROR (QUOTE CAR) 1 1 (QUOTE LIST) (QUOTE SHORT-FLOAT))
-"CAR requires itts  argument to be of type LIST,
+"CAR requires its  argument to be of type LIST,
 but it was called with an argument of type SHORT-FLOAT.-*"
 
 (FORMAT NIL "~? ~D" "<~A ~D>" (QUOTE ("Foo" 5)) 7)
