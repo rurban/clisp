@@ -132,9 +132,6 @@
 /* CL_CADDR_T */
 #undef CADDR_T
 
-/* CL_CLOCK_T */
-#undef CLOCK_T
-
 
 /* structures and structure members */
 

@@ -1,5 +1,12 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Assume clock_t is defined.
+        * aclocal.m4 (CL_CLOCK_T): Remove.
+        * configure.in: Don't call CL_CLOCK_T.
+        * unixconf.h.in: Don't define CLOCK_T.
+        * acorn.d: Likewise.
+        * time.d (get_run_time): Use clock_t instead of CLOCK_T.
+
         Assume mode_t is defined.
         * aclocal.m4 (CL_MKDIR): Don't determine MODE_T, use mode_t instead.
           (CL_OPEN): Use mode_t instead of MODE_T. Don't depend on CL_MKDIR.

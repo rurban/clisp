@@ -246,8 +246,7 @@
 # Datum/Uhrzeit abfragen:
   #include <time.h> # für CLK_TCK nötig
   #include <sys/times.h>
-  #define CLOCK_T  clock_t
-  extern_C CLOCK_T times (struct tms * buffer); # siehe TIMES(3V)
+  extern_C clock_t times (struct tms * buffer); # siehe TIMES(3V)
   extern_C time_t time (time_t* tloc); # siehe TIME(3V)
 # wird verwendet von SPVW, MISC
 
