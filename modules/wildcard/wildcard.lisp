@@ -6,12 +6,13 @@
   (:export "MATCH"))
 (in-package "WILDCARD")
 
-(def-c-call-out fnmatch (:arguments (pattern c-string)
-                                    (string c-string)
-                                    (flags int)
-                        )
-                        (:return-type int)
-)
+(default-foreign-language :stdc)
+
+(def-call-out fnmatch
+    (:arguments (pattern c-string)
+                (string c-string)
+                (flags int))
+  (:return-type int))
 
 ; flags values
 (defconstant FNM_PATHNAME     1)

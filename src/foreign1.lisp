@@ -13,7 +13,7 @@
 
 (export '(def-c-type def-c-var
           def-c-call-out def-call-out #+AMIGA def-lib-call-out
-          def-c-call-in def-call-in
+          def-c-call-in def-call-in default-foreign-language
           c-lines
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
@@ -31,6 +31,7 @@
   (import (intern "*FFI-MODULE*" "COMPILER"))
   (import (intern "FINALIZE-COUTPUT-FILE" "COMPILER"))
   (import (intern "TEXT" "SYSTEM")) ; messages
+  (import (intern "CHECK-SYMBOL" "SYSTEM")) ; error checking
   (import (intern "DEPARSE-C-TYPE" "SYSTEM")) ; called by DESCRIBE
   (import (intern "FOREIGN-FUNCTION-IN-ARG-COUNT" "SYSTEM")) ; called by SYS::FUNCTION-SIGNATURE
 )
@@ -275,6 +276,13 @@
     (:STDC ff-language-ansi-c)
     (:STDC-STDCALL (+ ff-language-ansi-c ff-language-stdcall))))
 
+;; the default foreign language
+(defvar *foreign-language* nil)
+
+(defmacro default-foreign-language (lang)
+  (language-to-flag lang)       ; error checking
+  `(eval-when (load compile eval) (setq *foreign-language* ',lang)))
+
 ;; get the even (start=0) or odd (start=1) elements of the simple vector
 (defun split-c-fun-arglist (args start)
   (do ((ii start (+ ii 2)) (res '()))
@@ -324,7 +332,12 @@
        (let ((languages (assoc ':language alist)))
          (if languages
            (reduce #'+ (rest languages) :key #'language-to-flag)
-           ff-language-c)))))   ; Default is K&R C
+           (language-to-flag
+            (or *foreign-language*
+                (progn
+                  (warn (TEXT "~s: No ~s argument and no ~s form in this compilation unit; ~s assumed now and for the rest of this unit")
+                        whole :language 'default-foreign-language :stdc)
+                  (setq *foreign-language* :STDC))))))))) ; Default is ANSI C
 
 (defun parse-foreign-name (name)
   (unless (stringp name)
@@ -711,6 +724,8 @@
 ;; ============================ named C functions ============================
 
 (defmacro DEF-C-CALL-OUT (name &rest options)
+  (warn (TEXT "~s is deprecated, use ~s instead")
+        'def-c-call-out 'def-call-out)
   `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
@@ -755,6 +770,8 @@
        ',name)))
 
 (defmacro DEF-C-CALL-IN (name &rest options)
+  (warn (TEXT "~s is deprecated, use ~s instead")
+        'def-c-call-in 'def-call-in)
   `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-IN (&whole whole name &rest options)

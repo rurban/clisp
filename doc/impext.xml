@@ -2101,12 +2101,14 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="def-c-call-out"><term><literal role="sexp">(&def-c-call-out;
         &name-r; {&option-r;}*)</literal></term>
 <listitem><simpara>This is equivalent to &def-call-out; with
-   &lang-k; &stdc-k;.</simpara></listitem></varlistentry>
+   &lang-k; &stdc-k;.  <emphasis>deprecated</emphasis>.
+   </simpara></listitem></varlistentry>
 
 <varlistentry id="def-c-call-in"><term><literal role="sexp">(&def-c-call-in;
         &name-r; {&option-r;}*)</literal></term>
 <listitem><simpara>This is equivalent to &def-call-in; with
-   &lang-k; &stdc-k;.</simpara></listitem></varlistentry>
+   &lang-k; &stdc-k;.  <emphasis>deprecated</emphasis>.
+   </simpara></listitem></varlistentry>
 
 <varlistentry id="def-c-struct"><term><literal role="sexp">(&def-c-struct;
    &name-r; (<replaceable>ident</replaceable> &ctype-r;)*)</literal></term>
@@ -2403,7 +2405,14 @@ The &lang-r; is either &c-k; (denotes K&amp;R &c-lang;) or &stdc-k;
 with <emphasis>stdcall</emphasis> calling convention).
 It specifies whether the &c-lang; function (caller or callee) has been
 compiled by a K&amp;R &c-lang; compiler or by an ANSI &c-lang; compiler,
-and possibly the calling convention.</para></section>
+and possibly the calling convention.</para>
+
+<para>The default language is set using the macro
+ <function>FFI:DEFAULT-FOREIGN-LANGUAGE</function>.
+If this macro has not been called in the current
+ <ulink url="&clhs;/Body/glo_c.html#compilation_unit">compilation
+unit</ulink> (usually a file), a warning is issued and
+&stdc-k; is used for the rest of the unit.</para></section>
 
 <section id="dffi-variables"><title>Foreign variables</title>
 
@@ -3585,13 +3594,13 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>This is an interface to the
    <function>flock(2)</function> system call.
    It sets or removes a discretionary file lock for the file associated
-   with &stream-r;, depending on <replaceable>lock-p</replaceable>. 
+   with &stream-r;, depending on <replaceable>lock-p</replaceable>.
    When <replaceable>block</replaceable> is &nil;, the call is non-blocking,
    and when the file is already locked, it signals an error.
    When <replaceable>shared</replaceable> is non-&nil;,
    then lock can be shared between several callers.
    Several processes can set a <replaceable>shared</replaceable> lock,
-   but only one can set an <emphasis>exclusive</emphasis> (i.e., 
+   but only one can set an <emphasis>exclusive</emphasis> (i.e.,
    non-<replaceable>shared</replaceable>) lock.
   </simpara><simpara>[UNIX systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
