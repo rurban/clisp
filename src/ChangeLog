@@ -1,3 +1,8 @@
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (install-class-direct-accessors): Optimize the
+	accessors also in the case of structure-class.
+
 2004-11-04  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d [WIN32_NATIVE]: #include <windows.h> before the

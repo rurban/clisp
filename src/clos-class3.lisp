@@ -1470,7 +1470,16 @@
                     (progn
                       (assert (typep (slot-definition-location effective-slot) 'integer))
                       `(STANDARD-INSTANCE-ACCESS OBJECT ,(slot-definition-location effective-slot)))
-                    `(SLOT-VALUE OBJECT ',slot-name)))))
+                    (if (and (structure-class-p class)
+                             (setq effective-slot
+                                   (find slot-name (class-slots class)
+                                         :key #'slot-definition-name))
+                             (eq (slot-definition-allocation effective-slot)
+                                 ':instance))
+                      (progn
+                        (assert (typep (slot-definition-location effective-slot) 'integer))
+                        `(SYSTEM::%STRUCTURE-REF ',(class-name class) OBJECT ,(slot-definition-location effective-slot)))
+                      `(SLOT-VALUE OBJECT ',slot-name))))))
           ; Generic accessors are defined as methods and listed in the
           ; direct-accessors list, so they can be removed upon class redefinition.
           ; Non-generic accessors are defined as plain functions.
