@@ -12,7 +12,12 @@ prefix = /usr/local
 exec_prefix = $(prefix)
 # Directory where executables are installed.
 bindir = $(exec_prefix)/bin
+# Directory where manual pages are installed.
 mandir = $(exec_prefix)/man
+# Directory where manual pages in HTML format are installed.
+htmldir = $(exec_prefix)/share/html
+# Directory where manual pages in DVI format are installed.
+dvidir = $(exec_prefix)/share/dvi
 # Directory where documentation is installed.
 docdir = $(exec_prefix)/doc
 lispdocdir = $(docdir)/clisp
@@ -87,20 +92,25 @@ install-bin : all force
 #endif
 
 #ifdef GNU_READLINE
-install-man : doc/clisp.1 doc/clreadline.3 force
+install-man : doc/clisp.1 doc/clisp.html doc/clreadline.3 doc/clreadline.html doc/clreadline.dvi force
 #else
-install-man : doc/clisp.1 force
+install-man : doc/clisp.1 doc/clisp.html force
 #endif
 	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
 	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 	if [ ! -d $(mandir)/man1 ] ; then mkdir $(mandir)/man1 ; fi
-	sed -e 's,/usr/local/bin/,$(bindir)/,g' < doc/clisp.1 > /tmp/clisp.1.inst \
-	  && $(INSTALL_DATA) /tmp/clisp.1.inst $(mandir)/man1/clisp.1 \
-	  && rm -f /tmp/clisp.1.inst
+	if [ ! -d $(exec_prefix)/share ] ; then mkdir $(exec_prefix)/share ; fi
+	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+	if [ ! -d $(dvidir) ] ; then mkdir $(dvidir) ; fi
+	$(INSTALL_DATA) doc/clisp.1 $(mandir)/man1/clisp.1
+	$(INSTALL_DATA) doc/clisp.html $(htmldir)/clisp.html
+	test ! -f doc/clisp.dvi || $(INSTALL_DATA) doc/clisp.dvi $(dvidir)/clisp.dvi
 #ifdef GNU_READLINE
 	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
 	$(INSTALL_DATA) doc/clreadline.3 $(mandir)/man3/clreadline.3
+	$(INSTALL_DATA) doc/clreadline.html $(htmldir)/clreadline.html
+	$(INSTALL_DATA) doc/clreadline.dvi $(dvidir)/clreadline.dvi
 #endif
 
 install-doc : force
