@@ -1,5 +1,12 @@
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * sequence.d (valid_type): Return the desired length on the stack.
+          (fehler_seqtype_length): New function.
+          (MAKE-SEQUENCE, coerce_sequence, CONCATENATE, MAP, MERGE): Update.
+          Compare desired and actual length.
+
+1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * defs2.lsp (stream-input-element-type, stream-output-element-type,
           read-sequence, write-sequence): New functions.
           Export read-sequence, write-sequence.
