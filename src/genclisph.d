@@ -1710,6 +1710,9 @@ global int main()
   printf("#include <time.h>\n");
   printf("extern object convert_time_to_universal (const time_t* time);\n");
 #endif
+#if defined(UNIX_CYGWIN32)
+  printf("extern long to_time_t_ (FILETIME * ptr);\n");
+#endif
 #if defined(WIN32_NATIVE)
   printf("#include <windows.h>\n");
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
