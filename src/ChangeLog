@@ -1,5 +1,13 @@
 2001-06-16  Bruno Haible  <haible@clisp.cons.org>
 
+	Back out unneeded 2001-04-06 patch.
+	* makemake.in (NLS_INCLUDES): Set to empty if not using unicode.
+	* encoding.d: When not UNICODE, don't include "nls_ascii.c" and don't
+	define nls_ascii_table and nls_tables.
+	* pseudofun.d: When not UNICODE, don't relocate nls_ascii_table.
+
+2001-06-16  Bruno Haible  <haible@clisp.cons.org>
+
 	Tweak 2001-03-27 patch.
 	* eval.d (coerce_function): Mark unreachable code with NOTREACHED.
 	(apply): Likewise.

@@ -838,8 +838,6 @@ global void java_wcstombs(encoding,stream,srcp,srcend,destp,destend)
     *destp = dest;
   }
 
-#endif # UNICODE
-
 # -----------------------------------------------------------------------------
 #                            8-bit NLS characters sets
 
@@ -895,9 +893,6 @@ static const unsigned char nopage[256] = {
 };
 
 #include "nls_ascii.c"
-
-#ifdef UNICODE
-
 #include "nls_iso8859_1.c"
 #include "nls_iso8859_2.c"
 #include "nls_iso8859_3.c"
@@ -971,11 +966,8 @@ static const unsigned char nopage[256] = {
 #define nls_last_sym  S(jisx0201)
 #define nls_num_encodings  (&symbol_tab_data.S_jisx0201 - &symbol_tab_data.S_ascii + 1)
 
-#endif # UNICODE
-
 static const nls_table * const nls_tables[] = {
   &nls_ascii_table,
-#ifdef UNICODE
   &nls_iso8859_1_table,
   &nls_iso8859_2_table,
   &nls_iso8859_3_table,
@@ -1044,10 +1036,7 @@ static const nls_table * const nls_tables[] = {
   &nls_hp_roman8_table,
   &nls_nextstep_table,
   &nls_jisx0201_table,
-#endif # UNICODE
 };
-
-#ifdef UNICODE
 
 global uintL nls_mblen (object encoding, const uintB* src, const uintB* srcend);
 global void nls_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
