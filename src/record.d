@@ -1427,8 +1427,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
       var object arglist = listof(argcount);
       pushSTACK(arglist);
       fehler(program_error,
-             GETTEXT("MAKE-INSTANCE: keyword argument list ~ has an odd length")
-            );
+             GETTEXT("MAKE-INSTANCE: keyword argument list ~ has an odd length"));
     }
     argcount = argcount/2; # Anzahl der Initarg/Wert-Paare
     # Stackaufbau: class, argcount Initarg/Wert-Paare.
@@ -1475,9 +1474,10 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
         # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lisp.
         return_Values funcall(S(initial_make_instance),2*argcount+1);
       } else {
-        # Keywords überprüfen:
-        keyword_test(S(make_instance),rest_args_pointer,argcount,TheSvector(info)->data[0]);
-        # Effektive Methode von ALLOCATE-INSTANCE anwenden:
+        # check keywords:
+        keyword_test(S(make_instance),rest_args_pointer,
+                     argcount,TheSvector(info)->data[0]);
+        # call the effective method of ALLOCATE-INSTANCE:
         pushSTACK(info);
         {
           var object fun = TheSvector(info)->data[1];
@@ -1492,9 +1492,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
               # instance already in STACK_0
               pushSTACK(Before(rest_args_pointer));
               pushSTACK(S(allocate_instance));
-              fehler(error,
-                     GETTEXT("~ method for ~ returned ~")
-                    );
+              fehler(error,GETTEXT("~ method for ~ returned ~"));
             }
             value1 = popSTACK(); # restore instance
           } else {
@@ -1502,17 +1500,29 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
           }
         }
         info = popSTACK();
-        # Effektive Methode von INITIALIZE-INSTANCE anwenden:
-        Before(rest_args_pointer) = value1; # instance als 1. Argument statt class
+        # call the effective method of INITIALIZE-INSTANCE:
+        # instance as the 1st argument instead of class:
+        Before(rest_args_pointer) = value1;
         var object fun = TheSvector(info)->data[2];
-        if (!eq(fun,L(initialize_instance))) {
-          return_Values funcall(fun,2*argcount+1);
-        } else {
-          # CLOS::%INITIALIZE-INSTANCE lässt sich vereinfachen (man braucht
-          # nicht nochmal in *make-instance-table* nachzusehen):
-          return_Values do_initialize_instance(info,rest_args_pointer,argcount);
+        # save the instance in case INITIALIZE-INSTANCE returns junk
+        # see 7.1.7 "Definitions of Make-Instance and Initialize-Instance"
+        # http://www.lisp.org/HyperSpec/Body/sec_7-1-7.html
+        pushSTACK(value1);
+        if (argcount>0) { # (rotatef STACK_0 ... STACK_(2*argcount))
+          var uintC count;
+          var object* ptr = &(STACK_0);
+          dotimespC(count,2*argcount,
+            { *ptr = *(ptr STACKop 1); ptr skipSTACKop 1; });
+          *ptr = value1;
         }
-        # Deren Wert ist die Instanz.
+        rest_args_pointer skipSTACKop -1;
+        if (eq(fun,L(initialize_instance)))
+          # CLOS::%INITIALIZE-INSTANCE can be simplified
+          # (do not have to look into *make-instance-table* again):
+          do_initialize_instance(info,rest_args_pointer,argcount);
+        else
+          funcall(fun,2*argcount+1);
+        value1 = popSTACK(); mv_count = 1;
       }
     }
   }
@@ -1520,5 +1530,5 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
   #pragma -z1
 #endif
 
-# ==============================================================================
+# =============================================================================
 
