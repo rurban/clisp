@@ -25,9 +25,10 @@ GROFF = nroff -man
 # set this if you are using GNU tar
 EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
-        --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html  \
-	--exclude $(AUTOCONF_CACHE) --exclude tmp                          \
-	--exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
+        --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
+        --exclude $(AUTOCONF_CACHE) --exclude tmp                          \
+        `sed "s/^/--exclude /" doc/.cvsignore`                             \
+        --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 # GNU tar together with GNU gzip. Good performance.
 #PACK = tar
@@ -183,8 +184,9 @@ check-configures : $(CONFIGURES) $(CONFIG_H_IN)
 	rm -rf `find . -name $(AUTOCONF_CACHE)`;
 
 
+CLISP=$(CURDIR)/build/clisp
 potfiles :
-	cd src/po && CLISP=clisp $(MAKE) -f Makefile.devel && $(MAKE) -f Makefile.devel clean
+	cd src/po && $(MAKE) -f Makefile.devel && $(MAKE) -f Makefile.devel clean
 
 
 view-man :
@@ -207,7 +209,7 @@ src/version.h: src/configure
 	egrep '^PACKAGE_' src/configure | sed -e 's/^/#define /' -e "s/='/ \"/" -e "s/'$$/\"/" >> src/version.h
 
 src/uninames.h : utils/unicode/UnicodeDataFull.txt utils/gen-uninames
-	$${CLISP} utils/gen-uninames utils/unicode/UnicodeDataFull.txt src/uninames.h
+	$(CLISP) utils/gen-uninames utils/unicode/UnicodeDataFull.txt src/uninames.h
 
 src/asmi386.h : src/asmi386.hh
 	sed -e 's,//.*$$,,' < src/asmi386.hh > src/asmi386.h
@@ -254,6 +256,8 @@ ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config
 
 distrib : linux-distrib src-distrib
 
+## Pre-release TODO:
+# echo URL-tar.bz2| mail -s "clisp-`cat VERSION`" translation@IRO.UMontreal.CA
 ## RELEASE TODO:
 # Before doing a "make src-distrib":
 # * update src/configure.in (version number), src/NEWS, src/HISTORY
