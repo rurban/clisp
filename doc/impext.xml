@@ -2408,14 +2408,23 @@ only.</subtitle>
  defined in the &def-c-enum; &name-r;).</simpara></listitem></varlistentry>
 
 <varlistentry id="c-lines"><term><literal role="sexp">(&c-lines;
-  <replaceable>format-string</replaceable> {&arg-r;}*)</literal></term>
- <listitem><simpara>This form outputs the string <literal
-  role="sexp">(&format; &nil; <replaceable>format-string</replaceable>
-    {&arg-r;}*)</literal> to the &c-lang; output file.
+  &fmt-r; {&arg-r;}*)</literal></term>
+ <listitem><simpara>This form outputs the string
+   <literal role="sexp">(&format; &nil; &fmt-r; {&arg-r;}*)</literal>
+   to the &c-lang; output file.
    This is usually used to include the relevant header files,
    see <xref linkend="def-c-struct-external"/>
    and <xref linkend="ffi-extern-output"/>.
  </simpara></listitem></varlistentry>
+
+<varlistentry id="c-init"><term><literal role="sexp">(&c-init-once;
+   &fmt-r; {&arg-r;}*)</literal></term>
+ <term><literal role="sexp">(&c-init-always; &fmt-r;
+   {&arg-r;}*)</literal></term>
+ <listitem><simpara>These forms add &c-lang; code
+   <literal role="sexp">(&format; &nil; &fmt-r; {&arg-r;}*)</literal>
+   to the appropriate <link linkend="modinit">initialization function</link>.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="element"><term><literal role="sexp">(&element;
      &cplace-r; <replaceable>index&sub-1;</replaceable> ...
