@@ -1,5 +1,14 @@
 2003-07-31  Sam Steingold  <sds@gnu.org>
 
+	these days *.h files contain good prototypes - do not duplicate them
+	* foreign1.lisp (*output-c-functions*, *output-c-variables*):
+	new variables, default to NIL
+	(finalize-coutput-file): do not write *FUNCTION-LIST* (resp.
+	*VARIABLE-LIST*) to *COUTPUT-STREAM* when
+	*OUTPUT-C-FUNCTIONS* (resp. *OUTPUT-C-VARIABLES*) is NIL
+
+2003-07-31  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (GETENV, clisp_setenv): use `environ', not win32-specific
 	API, but declare `environ' outside the function scope for mingw/g++
 

@@ -173,6 +173,11 @@ User visible changes
     <http://clisp.cons.org/impnotes.html#with-c-place>.
   Thanks to Jorg Hohle <hoehle@users.sourceforge.net>
 
+* FFI does not output extern variable and function declarations unless
+  you set FFI:*OUTPUT-C-VARIABLES* and/or FFI:*OUTPUT-C-FUNCTIONS* to T.
+  Please use FFI:C-LINES to include the appropriate headers instead.
+  See <http://clisp.cons.org/impnotes.html#ffi-extern-output> for details.
+
 * Regexp module functions now support more options, e.g., :EXTENDED to
   use extended regular expressions.
   In particular, REGEXP:REGEXP-COMPILE now accepts keyword and not
