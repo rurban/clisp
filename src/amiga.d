@@ -401,7 +401,7 @@
 
 
 # Sofortiger Programmabbruch, Sprung in den Debugger
-  nonreturning_function(extern, abort, (void));  # siehe spvw.d
+  nonreturning_function(extern, abort, (void));
 # wird verwendet von SPVW, EVAL, IO
 
 
