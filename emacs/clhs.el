@@ -2,17 +2,17 @@
 
 ;;; this works with both
 ;;; * the "long file name" version released by Harlequin and available
-;;; at the ALU (Association of Lisp Users) web site as
-;;; <http://www.lisp.org/HyperSpec/> and
-;;; * the "8.3 file name" version released later by Xanalys available at
-;;; <http://www.xanalys.com/software_tools/reference/HyperSpec/Front/>
-;;; and downloadable as
-;;; <http://www.xanalys.com/software_tools/reference/HyperSpec/HyperSpec-6-0.tar.gz>
+;;;   at the ALU (Association of Lisp Users) web site as
+;;;   <http://www.lisp.org/HyperSpec/FrontMatter/> and
+;;; * the "8.3 file name" version released later by Xanalys and available at
+;;;   <http://www.xanalys.com/software_tools/reference/HyperSpec/>
+;;;   and downloadable as
+;;;   <http://www.xanalys.com/software_tools/reference/HyperSpec/HyperSpec-6-0.tar.gz>
 ;;; This is accomplished by not hard-wiring the symbol->file table
 ;;; but reading the Data/<map> file instead
 
 ;;; Copyright (C) 2002 Sam Steingold <sds@gnu.org>
-;;; Keywords: lisp, common lisp, emacs
+;;; Keywords: lisp, common lisp, emacs, ANSI CL, hyperspec
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of GNU CLISP <http://clisp.cons.org>, <http://www.clisp.org>
 
@@ -107,9 +107,13 @@ but it does not - go ahead and report this as a bug."
                           (string= st (substring key 0 len)))
                  (push key res)))
              table)
-    (if how res                 ; `all-completions'
-      (if (cdr res) (try-completion st (mapcar #'list res))
-        (if (string= st (car res)) t (car res))))))
+    (if how
+        res                       ; `all-completions'
+        (if (cdr res)
+            (try-completion st (mapcar #'list res))
+            (if (string= st (car res))
+                t
+                (car res))))))
 
 ;;;###autoload
 (defun common-lisp-hyperspec (symbol-name)
