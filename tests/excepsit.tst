@@ -769,9 +769,9 @@ type-error
 (oddp 3.5)
 type-error
 
-#+UNIX
+#+(and UNIX (not BeOS))
 (progn (open "/etc/passwd" :direction :input :if-exists :error) (/ 0))
-#+UNIX
+#+(and UNIX (not BeOS))
 division-by-zero
 
 #+UNIX
