@@ -13467,9 +13467,11 @@ local inline void create_input_pipe (const char* command) {
     var DYNAMIC_ARRAY(command_data,char,command_length);
     begin_system_call();
     memcpy(command_data,command,command_length);
+    begin_want_sigcld();
     # build pipe:
     if (!( pipe(handles) ==0)) {
-      FREE_DYNAMIC_ARRAY(command_data); OS_error();
+      FREE_DYNAMIC_ARRAY(command_data);
+      end_want_sigcld(); OS_error();
     }
     # Everything, that is stuffed in handles[1], resurfaces at handles[0]
     # again. We will utilize this as follows:
@@ -13495,6 +13497,7 @@ local inline void create_input_pipe (const char* command) {
       _exit(-1); # if this fails, finish child-process
     }
     # This piece of code is again executed by the caller:
+    end_want_sigcld();
     if (child==-1)
       # Something failed, either on vfork or on execl.
       # In both cases errno was set.
@@ -13678,8 +13681,10 @@ local inline void create_output_pipe (const char* command) {
     var DYNAMIC_ARRAY(command_data,char,command_length);
     begin_system_call();
     memcpy(command_data,command,command_length);
+    begin_want_sigcld();
     if (!( pipe(handles) ==0)) {
-      FREE_DYNAMIC_ARRAY(command_data); OS_error();
+      FREE_DYNAMIC_ARRAY(command_data);
+      end_want_sigcld(); OS_error();
     }
     # Everything, that is stuffed in handles[1], resurfaces at handles[0]
     # again. We will utilize this as follows:
@@ -13705,6 +13710,7 @@ local inline void create_output_pipe (const char* command) {
       _exit(-1); # if this fails, finish child-process
     }
     # This piece of code is again executed by the caller:
+    end_want_sigcld();
     if (child==-1)
       # Something failed, either on vfork or on execl.
       # In both cases errno was set.
@@ -13830,11 +13836,14 @@ local inline void create_io_pipe (const char* command) {
     var DYNAMIC_ARRAY(command_data,char,command_length);
     begin_system_call();
     memcpy(command_data,command,command_length);
+    begin_want_sigcld();
     # build Pipes:
     if (!( pipe(in_handles) ==0)) {
-      FREE_DYNAMIC_ARRAY(command_data); OS_error();
+      FREE_DYNAMIC_ARRAY(command_data);
+      end_want_sigcld(); OS_error();
     }
     if (!( pipe(out_handles) ==0))
+      end_want_sigcld();
       OS_error_saving_errno({
         CLOSE(in_handles[1]); CLOSE(in_handles[0]);
         FREE_DYNAMIC_ARRAY(command_data);
@@ -13873,6 +13882,7 @@ local inline void create_io_pipe (const char* command) {
       _exit(-1); # if this fails, finish child-process
     }
     # This piece of code is again executed by the caller:
+    end_want_sigcld();
     if (child==-1)
       # Something failed, either on vfork or on execl.
       # In both cases errno was set.

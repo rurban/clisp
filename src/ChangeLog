@@ -1,5 +1,13 @@
 2003-02-13  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (create_input_pipe, create_output_pipe, create_io_pipe):
+	wrap child creation in begin_want_sigcld()/end_want_sigcld(),
+	just like it is done in EXECUTE
+	Reported by Kaz Kylheku <kaz@ashi.footprints.net>
+	(MAKE-STRING-PUSH-STREAM): fixed error message arguments
+
+2003-02-13  Sam Steingold  <sds@gnu.org>
+
 	* io.d (PARSE-INTEGER): signal a PARSE-ERROR on bad syntax and
 	report only the substring being parsed, not the whole string
 	Reported by Joerg Hoehle
