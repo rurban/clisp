@@ -1,5 +1,19 @@
 1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Support for Apple's MacOS X Server.
+        * aclocal.m4 (CL_RLIMIT): Include <sys/time.h> before
+          <sys/resource.h>.
+        * lispbibl.d (unix): Define if __MACH__ is defined.
+          (RS6000): Define if __ppc is defined.
+          (UNIX_RHAPSODY): New macro.
+          (__const): Define as const, not empty.
+        * unix.d: Include <sys/time.h> before <sys/resource.h>. Treat
+          UNIX_RHAPSODY like UNIX_NEXTSTEP.
+        * intlog.d (integerlength32): Don't use the cntlz instruction on
+          UNIX_RHAPSODY.
+
+1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * clos.lsp (same-specializers-p): New function.
           (specializers-agree-p): Use it.
           (dispatching-arg-p, single-dispatching-arg, dispatching-arg-type):
