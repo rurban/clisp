@@ -1,3 +1,9 @@
+1998-10-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (rd_ch_terminal3): Don't need to put newlines into the
+          prompt string when using newnewreadline.
+          (xmalloc, xrealloc): Change declaration when using newnewreadline.
+
 1998-10-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * configure, makemake.in: Add support for newnewreadline directory.

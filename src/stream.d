@@ -3425,6 +3425,7 @@ LISPFUNN(make_keyboard_stream,0)
         prompt = (char*) malloc(Sstring_length(lastline)+1);
         if (!(prompt==NULL))
           { strcpy(prompt,TheAsciz(lastline));
+            #ifndef NO_MATCH  # not needed any more in readline-2.2-clisp or newer
             # Die readline()-Library arbeitet mit einer anderen Bildschirmbreite,
             # als sie bei der Ausgabe des Prompts benutzt wurde. Bei Prompts
             # länger als eine Bildschirmzeile gibt das Probleme. Wir behelfen
@@ -3437,7 +3438,9 @@ LISPFUNN(make_keyboard_stream,0)
                   for (i = prompt_length; i >= insertpos; i--)
                     { prompt[i+1] = prompt[i]; }
                   prompt[insertpos] = '\n';
-       }  } }   }
+            }   }
+            #endif
+       }  }
        end_system_call();
        # Lexem-trennende Characters: die mit Syntaxcode whsp,tmac,nmac
        # (siehe IO.D, eigentlich von der Readtable abhängig):
@@ -12646,13 +12649,23 @@ global char* xmalloc(count)
     if (tmp) return tmp; else rl_memory_abort();
   }
 
-global char* xrealloc (char* ptr, int count);
-global char* xrealloc(ptr,count)
-  var char* ptr;
-  var int count;
-  { var char* tmp = (ptr==NULL ? (char*)malloc(count) : (char*)realloc(ptr,count));
-    if (tmp) return tmp; else rl_memory_abort();
-  }
+#ifdef NO_MATCH  # readline-2.2-clisp or newer
+  global char* xrealloc (void* ptr, int count);
+  global char* xrealloc(ptr,count)
+    var void* ptr;
+    var int count;
+    { var char* tmp = (ptr==NULL ? (char*)malloc(count) : (char*)realloc((char*)ptr,count));
+      if (tmp) return tmp; else rl_memory_abort();
+    }
+#else
+  global char* xrealloc (char* ptr, int count);
+  global char* xrealloc(ptr,count)
+    var char* ptr;
+    var int count;
+    { var char* tmp = (ptr==NULL ? (char*)malloc(count) : (char*)realloc(ptr,count));
+      if (tmp) return tmp; else rl_memory_abort();
+    }
+#endif
 
 #endif
 
