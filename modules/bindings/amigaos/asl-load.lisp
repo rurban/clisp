@@ -3,8 +3,8 @@
 ;;; Show how library functions can be defined at compile-time only
 ;;; when using mlibcall and proper eval-when, all references are compiled in
 
+(defpackage "AFFI-DEMOS" (:use "AFFI"))
 (in-package "AFFI-DEMOS")
-(use-package "AFFI")
 
 (eval-when (compile eval load)
   (declare-library-base :AslBase "asl.library"))

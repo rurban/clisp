@@ -1,5 +1,5 @@
 ;; Foreign functions provided by PostgreSQL
-;; File: <postgresql.lisp - 1999-03-20 Sat 21:02:41 EST sds@eho.eaglets.com>
+;; File: <postgresql.lisp - 2001-04-20 Fri 13:08:00 EDT sds@xchange.com>
 
 (defpackage "SQL"
   (:case-sensitive t)
@@ -8,7 +8,7 @@
 
 ;; This requires linking with NEW_LIBS='postgresql.o -lpq'.
 
-(lisp:in-package "LISP")
+(in-package "LISP")
 
 (eval-when (compile eval)
   ;; A temporary package, case-insensitive, so that we don't need to prefix

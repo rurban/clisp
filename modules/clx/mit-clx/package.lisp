@@ -2,7 +2,7 @@
 
 ;;; Copyright 1990 Massachusetts Institute of Technology, Cambridge,
 ;;; Massachusetts.  All Rights Reserved.
-;;; 
+;;;
 ;;; Permission to use, copy, modify, and distribute this software and its
 ;;; documentation for any purpose and without fee is hereby granted, provided
 ;;; that the above copyright notice appear in all copies and that both that
@@ -13,11 +13,10 @@
 
 ;;; The CLtL way
 
-#-clx-ansi-common-lisp 
-(lisp:in-package :xlib :use '(:lisp #+(and kcl clos-conditions) :conditions))
+(defpackage :xlib (:use :lisp #+(and kcl clos-conditions) :conditions))
 
 #+(and (or kcl ibcl) (not clx-ansi-common-lisp))
-(shadow 
+(shadow
   '(
     rational
     ))
@@ -52,7 +51,7 @@
     lucid::type-error-expected-type
     ))
 
-#+(and excl (not clx-ansi-common-lisp)) 
+#+(and excl (not clx-ansi-common-lisp))
 (import
   '(
     excl::arglist
@@ -124,7 +123,7 @@
     font-name font-p font-path font-plist font-properties
     font-property fontable force-gcontext-changes free-colormap
     free-colors free-cursor free-gcontext free-pixmap gcontext
-    gcontext-arc-mode gcontext-background 
+    gcontext-arc-mode gcontext-background
     gcontext-cache-p gcontext-cap-style
     gcontext-clip-mask gcontext-clip-ordering gcontext-clip-x
     gcontext-clip-y gcontext-dash-offset gcontext-dashes gcontext-display
