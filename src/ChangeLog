@@ -1,3 +1,10 @@
+2003-09-25  Sam Steingold  <sds@gnu.org>
+
+	* unix.d (NO_BLOCK_DECL): new macro
+	(START_NO_BLOCK, END_NO_BLOCK): do not open/close block {}
+	* stream.d (listen_handle): updated
+	Suggested by Don Cohen <don-sourceforge@isis.cs3-inc.com>
+
 2003-09-24  John Hinsdale  <hin@alma.com>
 	* modules/oracle/oracle.lisp: connection retry logic
 	* src/makemake.in: syntax error in variable definition
