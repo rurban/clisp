@@ -2423,7 +2423,7 @@ for-value   NIL or T
                   (sys::%record-ref obj 18)))) ; allow_flag
     (cond #+FFI
           ((eq (type-of obj) 'FFI::FOREIGN-FUNCTION)
-           (values (nth-value 2 (function-lambda-expression obj))
+           (values (function-name obj)
                    (foreign-function-in-arg-count obj) 0 nil nil nil nil))
           (t
            (multiple-value-bind (name req-num opt-num rest-p keywords allow-p)
