@@ -14,8 +14,8 @@
  <listitem><simpara>The source files for unpreprocessed &c-lang;
    code.</simpara></listitem></varlistentry>
 <varlistentry><term>&c-file;</term>
- <listitem><simpara>The &c-lang; code after preprocessing
-   by <command>comment5</command> and <command>varbrace</command>.
+ <listitem><simpara>The &c-lang; code after
+   <link linkend="src-preprocessing">preprocessing</link>.
 </simpara></listitem></varlistentry>
 <varlistentry><term>&lisp-file;</term>
  <listitem><simpara>The source files for Lisp
@@ -28,6 +28,43 @@
  &compile-file; and used by &require;</simpara></listitem></varlistentry>
 </variablelist>
 </section>
+
+<section id="src-preprocessing"><title>Source Pre-Processing</title>
+<para>&c-lang; sources are pre-procecessed with the following tools
+   before being passed to the &c-lang; compiler:</para>
+<variablelist>
+<varlistentry><term><filename>utils/comment5</filename></term>
+<listitem><simpara>Convert &sh;-style comments (lines starting
+  with <literal>"# "</literal>) to &c-lang;-style comments
+  (<literal>/**/</literal>).</simpara>
+ <warning><para>The use of &sh;-style comments is deprecated.</para></warning>
+</listitem></varlistentry>
+<varlistentry><term><filename>utils/varbrace</filename></term>
+<listitem><simpara>Add braces to &c-lang; source code, so that variable
+  declarations (introduced with the pseudo-keyword <literal>var</literal>)
+  can be used within blocks, like in <command>C++</command>
+  and <command>C99</command>.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>utils/ccpaux</filename></term>
+<listitem><simpara>When <command>cpp</command> cannot handle indented
+  directives, remove the indentation.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>utils/gctrigger</filename></term>
+<listitem><simpara>Add <function>GCTRIGGER</function> statements at the
+  head of function bodies (for functions marked with
+  the <literal>maygc</literal> pseudo-keyword).
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>utils/deema</filename></term>
+<listitem><simpara>When <command>cpp</command> cannot handle empty macro
+  arguments, insert <literal>_EMA_</literal> instead.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename>utils/ccmp2c</filename></term>
+<listitem><simpara>For the <literal>new-clx</literal> module only.
+  Allows <command>cpp</command>-style
+  preprocessing <emphasis>before</emphasis> &modprep; processing.
+  Should be merged into &modprep;.</simpara></listitem></varlistentry>
+<varlistentry><term><filename>utils/modprep</filename></term>
+<listitem><simpara>For some modules only, see <xref linkend="modprep"/>.
+</simpara></listitem></varlistentry>
+</variablelist></section>
 
 <section id="src-files"><title>Files</title>
 
