@@ -1,5 +1,9 @@
 2004-05-17  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp: add package prefix in the WITHOUT-PACKAGE-LOCK form
+
+2004-05-17  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): do not print memory model information here
 	* misc.d (SOFTWARE-TYPE): return O(software_type)
 	instead of "ANSI C program"

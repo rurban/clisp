@@ -72,7 +72,7 @@
     (print-condition object stream)))
 
 ;; Avoid warnings caused by DEFCONDITION adding methods to PRINT-CONDITION.
-(without-package-lock ("CLOS")
+(ext:without-package-lock ("CLOS")
   (pushnew 'print-condition
            clos::*dynamically-modifiable-generic-function-names*))
 
