@@ -3405,7 +3405,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     <varlistentry><term>&socket-stream; or &socket-server;</term>
      <listitem><simpara>Returns &t; if a connection on the
       &socket-server; is available; or &input-k;, &output-k; or &io-k;
-      is some input/output is possible on the &socket-stream;
+      if some input/output is possible on the &socket-stream;
      </simpara></listitem></varlistentry>
     <varlistentry><term><literal role="sexp">(&socket-stream;
        . <replaceable>direction</replaceable>)</literal></term>
