@@ -3,6 +3,7 @@
 *.i
 *.opt
 *.pdb
+*.sbr
 avcall
 avcall.h
 callback
