@@ -1896,9 +1896,10 @@ int main(int argc, char* argv[])
             " obj = check_posfixnum_replacement(obj);"
           " return obj;"
         " }\n");
-  printf("static inline uintL posfixnum_default (object obj) {"
-         " return missingp(obj) ? 0 : posfixnum_to_L(check_posfixnum(obj)); "
+  printf("static inline uintL posfixnum_default2 (object obj, uintL d) {"
+         " return missingp(obj) ? d : posfixnum_to_L(check_posfixnum(obj)); "
          "}\n");
+  printf("#define posfixnum_default(obj) posfixnum_default2(obj,0)\n");
 #if notused
   printf("extern object check_char_replacement (object obj);\n");
   printf("static inline object check_char (object obj) {"
