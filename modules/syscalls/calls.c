@@ -844,8 +844,8 @@ DEFCHECKER(mknod_type_check, S_IFIFO S_IFSOCK S_IFCHR S_IFDIR S_IFBLK S_IFREG)
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
-  mode_t mode = (posfixnum_to_L(check_posfixnum(popSTACK()))
-                 | mknod_type_check(popSTACK()));
+  mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
+  mode |= mknod_type_check(popSTACK());
   funcall(L(namestring),1);     /* drop path from STACK */
   with_string_0(value1,GLO(pathname_encoding),path, {
       begin_system_call();
@@ -1340,7 +1340,8 @@ static void copy_one_file (object source, object src_path,
       dest = physical_namestring(STACK_1);
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
-      source = stringp(STACK_5) ? (object)STACK_5:physical_namestring(STACK_4);
+      source = (stringp(STACK_5) ? (object)STACK_5
+                : physical_namestring(STACK_4));
       with_string_0(source, GLO(pathname_encoding), source_asciz, {
         with_string_0(dest, GLO(pathname_encoding), dest_asciz,
                       { symlink_file(source_asciz,dest_asciz); });
