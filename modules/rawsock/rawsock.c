@@ -72,7 +72,14 @@ static object check_buffer_arg (object arg) {
 }
 /* DANGER: the return value is invalidated by GC!
  can trigger GC */
-void* check_struct_data (object type, object arg, size_t *size) {
+static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size) {
+  *arg_ = check_buffer_arg(*arg_);
+  *size = Sbvector_length(*arg_);
+  return (void*)TheSbvector(*arg_)->data;
+}
+/* DANGER: the return value is invalidated by GC!
+ can trigger GC */
+static void* check_struct_data (object type, object arg, size_t *size) {
   object vec = TheStructure(check_classname(arg,type))->recdata[1];
   *size = Sbvector_length(vec);
   return (void*)TheSbvector(vec)->data;
@@ -123,7 +130,7 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   skipSTACK(2);
 }
 
-/* invoke system call C, place return value in R, report error on socket C */
+/* invoke system call C, place return value in R, report error on socket S */
 #define SYSCALL(r,s,c)                                  \
   do { begin_system_call(); r = c; end_system_call();   \
     if (r<0) {                                          \
@@ -256,11 +263,8 @@ DEFFLAGSET(recv_flags,MSG_PEEK MSG_OOB MSG_WAITALL)
 DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   int flags = recv_flags();
   int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
-  void *buffer;
   size_t buffer_len;
-  STACK_0 = check_buffer_arg(STACK_0);
-  buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = Sbvector_length(STACK_1);
+  void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,recv(sock,buffer,buffer_len,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
@@ -294,11 +298,8 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key MSG_PEEK MSG_OOB MSG_WAITALL) {
 
 DEFUN(RAWSOCK:SOCK-READ,socket buffer) {
   int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
-  void *buffer;
   size_t buffer_len;
-  STACK_0 = check_buffer_arg(STACK_0);
-  buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = Sbvector_length(STACK_1);
+  void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,read(sock,buffer,buffer_len));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
@@ -311,11 +312,8 @@ DEFFLAGSET(send_flags, MSG_OOB MSG_EOR)
 DEFUN(RAWSOCK:SEND,socket buffer &key MSG_OOB MSG_EOR) {
   int flags = send_flags();
   int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
-  void *buffer;
   size_t buffer_len;
-  STACK_0 = check_buffer_arg(STACK_0);
-  buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = Sbvector_length(STACK_1);
+  void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,send(sock,buffer,buffer_len,flags));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
@@ -348,11 +346,8 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
 
 DEFUN(RAWSOCK:SOCK-WRITE,socket buffer) {
   int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
-  void *buffer;
   size_t buffer_len;
-  STACK_0 = check_buffer_arg(STACK_0);
-  buffer = (void*)TheSbvector(STACK_1)->data;
-  buffer_len = Sbvector_length(STACK_1);
+  void *buffer = parse_buffer_arg(&STACK_0,&buffer_len);
   SYSCALL(retval,sock,write(sock,buffer,buffer_len));
   VALUES1(fixnum(retval)); skipSTACK(2);
 }

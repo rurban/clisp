@@ -1,5 +1,11 @@
 2004-08-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (parse_buffer_arg): new function
+	(RECV, SOCK-READ, SEND, SOCK-WRITE): use it to correct STACK handling
+	* modules/rawsock/test.tst: new file
+
+2004-08-04  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (print-tables-1): fixed <checker>_table_size
 
 2004-08-04  Bruno Haible  <bruno@clisp.org>
