@@ -2106,13 +2106,15 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   <listitem><simpara>Compute the number of solutions to the n-queens
     problem on a n*n checkboard (a toy example for the users to
     explore).</simpara></listitem></varlistentry>
- <varlistentry><term>dirkey</term>
-  <listitem><simpara>Access
- </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="dirkey">dirkey</link></term>
+  <listitem><simpara>Directory Access</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="regexp">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
    Expressions</ulink> matching, compiling, executing.
-  </simpara></listitem></varlistentry>
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="syscalls">syscalls</link></term>
+  <listitem><simpara>Use some system calls in a platform-independent way.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
   <listitem><simpara>Shell (&sh;) globbing</simpara></listitem></varlistentry>
 </variablelist>
@@ -2120,6 +2122,8 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 &dirkey;
 
 &regexp;
+
+&syscalls;
 
 </section>
 
@@ -3990,138 +3994,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <!-- #endif -->
 </section>
 
-<section id="syscalls"><title>Extensions-2.7. System Calls</title>
-
-<para>When &clisp; is configured with an option
- <option>--with-export-syscalls</option>, some system calls are
- available from lisp, in package &posix-pac;.</para>
-
-<variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>POSIX:RESOLVE-HOST-IPADDR</function>
-    &optional-amp; &host-r;)</literal></term>
- <listitem><simpara>Returns the <type>hostent</type> struct (name,
-   list of aliases, list of IP addresses as dotted quads (for IPv4) or
-   coloned octets (for IPv6), address type - IPv4 or IPv6).
-   When &host-r; is omitted or &default-k;, return the data for the
-   current host. When &host-r; is given and is &nil;, all the
-   host database is returned as a list (this would be the contents of the
-   <filename>/etc/hosts</filename> file on a &unix; system or
-   <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
-   This is an interface to &gethostbyname;/&gethostbyaddr;.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-      role="sexp">(<function>POSIX:FILE-STAT</function> &path-r;
-      &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
- <listitem><simpara>Return the stat struct.  &path-r; can be a
-   &stream-t;, a &pathname-t;, a &string-t; or a &number-t;
-   (on a &unix; system, meaning &file-des;).
-   The first slot of the struct returned is the string or the number on
-   which &stat;/&fstat;/&lstat; was called.  The other 13 slots are
-   numbers, members of the stat struct: device, inode, protection,
-   number of hard links, owner's UID, owner's GID, device type, total
-   size (bytes), blocksize for filesystem I/O, number of blocks
-   allocated, atime, mtime, ctime (as the number of seconds since
-   1900-01-01).  If the system does not support a particular field
-   (e.g., Win32 does not have hard links), &nil; (or the default, like 1
-   for the number of hard links for Win32 or DOS) is returned.
-   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>POSIX:USER-DATA</function>
-    &optional-amp; <replaceable>user</replaceable>)</literal></term>
- <listitem><simpara>Return the <type>passwd</type> struct (name, encoded
-   password, UID, GID, full name, home directory, shell).
-   When <replaceable>user</replaceable> is &nil;, return all users.
-   When <replaceable>user</replaceable> is &default-k; or
-   not supplied, return the information about the current user.
-   If the system does not support a particular field (e.g., Win32 does
-   not have a concept of a shell), &nil; (or the default, like
-   <filename>c:\command.com</filename> for DOS) is returned.
-   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>POSIX:SYSINFO</function>)</literal></term>
- <listitem><simpara>Return a struct describing the OS, derived from
-   &uname; and &sysconf;.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>POSIX:RESOURCE-USAGE-LIMITS</function>)</literal>
-   </term>
-  <listitem><simpara>Return 3 structs describing the resources usage and
-    limits, derived from &getrlimit; and &getrusage;.
-  </simpara></listitem></varlistentry>
- <varlistentry>
-   <term><literal role="sexp">(<function>POSIX:ERF</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:ERFC</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:J0</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:J1</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:JN</function>
-       &int-r; &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:Y0</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:Y1</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:YN</function>
-       &int-r; &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:GAMMA</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:LGAMMA</function>
-       &real-r;)</literal></term>
- <listitem><simpara>Compute the error functions, Bessel functions and
-   Gamma.  These functions are required by the POSIX standard and should
-   be available in libm.so.  Please note that these functions do not
-   provide lisp-style error handling and precision, and do all the
-   computations at the double float level.
-  </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
- </simpara></listitem></varlistentry>
- <varlistentry><term>
-   <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
-            <replaceable>lock-p</replaceable>
-            &key-amp; (:BLOCK &t;) (:SHARED &nil;))</literal></term>
-  <listitem><simpara>This is an interface to the &flock; system call.
-   It sets or removes a discretionary file lock for the file associated
-   with &stream-r;, depending on <replaceable>lock-p</replaceable>.
-   When <replaceable>block</replaceable> is &nil;, the call is non-blocking,
-   and when the file is already locked, it &signal;s an &error-t;.
-   When <replaceable>shared</replaceable> is non-&nil;,
-   then lock can be shared between several callers.
-   Several processes can set a <replaceable>shared</replaceable> lock,
-   but only one can set an <emphasis>exclusive</emphasis> (i.e.,
-   non-<replaceable>shared</replaceable>) lock.
-  </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
- </simpara></listitem></varlistentry>
- <varlistentry><term>
-   <literal role="sexp">(<function>POSIX:COPY-FILE</function>
-    <replaceable>source-path</replaceable>
-    <replaceable>destination-path</replaceable>
-    &key-amp; :METHOD :PRESERVE :IF-EXISTS :IF-DOES-NOT-EXIST)</literal></term>
-  <listitem><simpara>This is an interface to the &symlink;
-    (when <replaceable>method</replaceable> is <constant>:SYMLINK</constant>),
-    &link; (when it is <constant>:HARDLINK</constant>), and &rename;
-    (when it is <constant>:RENAME</constant>) system calls, as well as,
-    you guessed it, a generic file copy utility
-    (when <replaceable>method</replaceable> is &copy-k;).
-   </simpara><simpara>Both <replaceable>source-path</replaceable> and
-    <replaceable>destination-path</replaceable> may be wild.
- </simpara></listitem></varlistentry>
- <varlistentry><term>
-   <literal role="sexp">(<function>POSIX:DUPLICATE-HANDLE</function>
-    <replaceable>fd1</replaceable>
-    &optional-amp; <replaceable>fd2</replaceable>)</literal></term>
-  <listitem><simpara>This is an interface to the &dup; system calls on
-   &unix; systems and to <function>DuplicateHandle</function> system
-   call on &win32;.</simpara></listitem></varlistentry>
-</variablelist>
-
-</section>
-
-
 <section id="quickstart">
-   <title>Extensions-2.8. Quickstarting delivery with &clisp;</title>
+   <title>Extensions-2.7. Quickstarting delivery with &clisp;</title>
 
 <para>This section describes four ways to turn &clisp; programs into
  executable programs, which can be started as quickly as executables
@@ -4359,7 +4233,7 @@ bash$
 </section>
 
 <section id="app-dev">
-  <title>Extensions-2.9. Application delivery with &clisp;</title>
+  <title>Extensions-2.8. Application delivery with &clisp;</title>
 
 <para>Some ways of packaging &clisp; programs are discussed in the
  section <link linkend="quickstart">Quickstarting delivery with
@@ -4407,7 +4281,7 @@ bash$
 
 </section>
 
-<section id="shell"><title>Extensions-2.10. Shell, Pipes and Printing</title>
+<section id="shell"><title>Extensions-2.9. Shell, Pipes and Printing</title>
 
 <section id="exec"><title>Shell</title>
 
@@ -4591,7 +4465,7 @@ bash$
 </section>
 </section>
 
-<section id="getenv"><title>Extensions-2.11. Operating System
+<section id="getenv"><title>Extensions-2.10. Operating System
   Environment.</title>
 
 <para>Most modern operating systems support &env-var;s that associate
@@ -4611,7 +4485,7 @@ are returned in an &alist;.</para>
  &string-r;) <replaceable>new-value</replaceable>)</literal>.</para>
 </section>
 
-<section id="separate-io"><title>Extensions-2.12. Other</title>
+<section id="separate-io"><title>Extensions-2.11. Other</title>
 
 <variablelist>
 <!-- #ifdef AMIGAOS -->

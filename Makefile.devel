@@ -130,8 +130,9 @@ makemake : src/makemake.in
 
 CONFIGURES = src/configure						 \
 	modules/wildcard/configure modules/regexp/configure		 \
-	modules/clx/new-clx/configure modules/dirkey/configure           \
-        modules/oracle/configure modules/fastcgi/configure               \
+	modules/clx/new-clx/configure modules/dirkey/configure		 \
+	modules/syscalls/configure					 \
+	modules/oracle/configure modules/fastcgi/configure		 \
 	ffcall/configure ffcall/avcall/configure ffcall/vacall/configure \
 	ffcall/trampoline/configure ffcall/callback/configure		 \
 	ffcall/callback/vacall_r/configure				 \
@@ -161,13 +162,16 @@ modules/clx/new-clx/configure : modules/clx/new-clx/configure.in $(AUTOCONF_FILE
 	cd modules/clx/new-clx ; $(AUTOCONF) --include ../../../src/autoconf
 
 modules/oracle/configure : modules/oracle/configure.ac $(AUTOCONF_FILES)
-	cd modules/oracle ; $(AUTOCONF) --include ../../../src/autoconf
+	cd modules/oracle ; $(AUTOCONF) --include ../../src/autoconf
 
 modules/fastcgi/configure : modules/fastcgi/configure.ac $(AUTOCONF_FILES)
-	cd modules/fastcgi ; $(AUTOCONF) --include ../../../src/autoconf
+	cd modules/fastcgi ; $(AUTOCONF) --include ../../src/autoconf
 
 modules/dirkey/configure : modules/dirkey/configure.in $(AUTOCONF_FILES)
-	cd modules/dirkey ; $(AUTOCONF) --include ../../../src/autoconf
+	cd modules/dirkey ; $(AUTOCONF) --include ../../src/autoconf
+
+modules/syscalls/configure : modules/syscalls/configure.in $(AUTOCONF_FILES)
+	cd modules/syscalls ; $(AUTOCONF) --include ../../src/autoconf
 
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4

@@ -1,0 +1,25 @@
+dnl AUTOCONF configuration for syscalls
+dnl Copyright (C) 2003  Sam Steingold <sds@gnu.org>
+dnl GNU GPL2
+
+AC_PREREQ(2.57)
+AC_INIT(posix.lisp)
+
+{ echo; echo " * System Calls (Tools):"; } >& AS_MESSAGE_FD
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_GCC_TRADITIONAL
+
+{ echo; echo " * System Calls (Headers):"; } >& AS_MESSAGE_FD
+AC_HEADER_STDC
+AC_CHECK_HEADERS(sys/file.h)
+AC_CHECK_HEADERS(sys/utsname.h)
+AC_CHECK_HEADERS(sys/resource.h)
+AC_CHECK_FUNCS(flock getrusage getrlimit gethostent sysconf uname)
+CL_GETHOSTBYNAME
+
+{ echo; echo " * System Calls (Output):"; } >& AS_MESSAGE_FD
+AC_OUTPUT(Makefile)
+AC_CONFIG_HEADER(config.h)
+
+{ echo; echo " * System Calls (Done)"; echo; } >& AS_MESSAGE_FD

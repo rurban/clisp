@@ -168,6 +168,12 @@ global void print_file (const char* fname) {
 global int main()
 {
   printf("#define SAFETY %d\n",SAFETY);
+ #ifdef WIN32_NATIVE
+  printf("#define WIN32_NATIVE\n");
+ #endif
+ #ifdef UNIX
+  printf("#define UNIX\n");
+ #endif
   # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
   # schon includet wurden. (intparam.h z.Zt. nicht nötig, aber was soll's.)
 # #ifdef LANGUAGE_STATIC
@@ -388,76 +394,8 @@ global int main()
   printf("typedef uint%d uintWL;\n",intWLsize);
 # printf("typedef sint%d sintBWL;\n",intBWLsize);
   printf("typedef uint%d uintBWL;\n",intBWLsize);
-# #ifdef fast_dotimesW
-#   #if (__GNUC__<2)
-#     printf("#define dotimesW(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \\\n");
-#     printf("  { countvar_from_dotimesW = (count_from_dotimesW);     \\\n");
-#     printf("    if (!(countvar_from_dotimesW==0))                   \\\n");
-#     printf("      { countvar_from_dotimesW--;                       \\\n");
-#     printf("        do {statement_from_dotimesW}                    \\\n");
-#     printf("           until ((sintW)--countvar_from_dotimesW==-1); \\\n");
-#     printf("  }   }\n");
-#     printf("#define dotimespW(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \\\n");
-#     printf("  { countvar_from_dotimespW = (count_from_dotimespW)-1;                         \\\n");
-#     printf("    do {statement_from_dotimespW} until ((sintW)--countvar_from_dotimespW==-1); \\\n");
-#     printf("  }\n");
-#   #else
-#     printf("#define dotimesW(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \\\n");
-#     printf("  { countvar_from_dotimesW = (count_from_dotimesW);        \\\n");
-#     printf("    if (!(countvar_from_dotimesW==0))                      \\\n");
-#     printf("      { countvar_from_dotimesW--;                          \\\n");
-#     printf("        do {statement_from_dotimesW}                       \\\n");
-#     printf("           until ((sintW)(--countvar_from_dotimesW)+1==0); \\\n");
-#     printf("  }   }\n");
-#     printf("#define dotimespW(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \\\n");
-#     printf("  { countvar_from_dotimespW = (count_from_dotimespW)-1;                            \\\n");
-#     printf("    do {statement_from_dotimespW} until ((sintW)(--countvar_from_dotimespW)+1==0); \\\n");
-#     printf("  }\n");
-#   #endif
-# #else
-#   printf("#define dotimesW(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \\\n");
-#   printf("  { countvar_from_dotimesW = (count_from_dotimesW);         \\\n");
-#   printf("    until (countvar_from_dotimesW==0)                       \\\n");
-#   printf("      {statement_from_dotimesW; countvar_from_dotimesW--; } \\\n");
-#   printf("  }\n");
-#   printf("#define dotimespW(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \\\n");
-#   printf("  { countvar_from_dotimespW = (count_from_dotimespW);                   \\\n");
-#   printf("    do {statement_from_dotimespW} until (--countvar_from_dotimespW==0); \\\n");
-#   printf("  }\n");
-# #endif
-# #ifdef fast_dotimesL
-#   printf("#define dotimesL(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \\\n");
-#   printf("  { countvar_from_dotimesL = (count_from_dotimesL);           \\\n");
-#   printf("    if (!(countvar_from_dotimesL==0))                         \\\n");
-#   printf("      { countvar_from_dotimesL--;                             \\\n");
-#   printf("        do {statement_from_dotimesL}                          \\\n");
-#   printf("           until ((sintL)(--countvar_from_dotimesL) == -1);   \\\n");
-#   printf("  }   }\n");
-#   printf("#define dotimespL(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \\\n");
-#   printf("  { countvar_from_dotimespL = (count_from_dotimespL)-1;                             \\\n");
-#   printf("    do {statement_from_dotimespL} until ((sintL)(--countvar_from_dotimespL) == -1); \\\n");
-#   printf("  }\n");
-# #else
-#   printf("#define dotimesL(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \\\n");
-#   printf("  { countvar_from_dotimesL = (count_from_dotimesL);         \\\n");
-#   printf("    until (countvar_from_dotimesL==0)                       \\\n");
-#   printf("      {statement_from_dotimesL; countvar_from_dotimesL--; } \\\n");
-#   printf("  }\n");
-#   printf("#define dotimespL(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \\\n");
-#   printf("  { countvar_from_dotimespL = (count_from_dotimespL);                   \\\n");
-#   printf("    do {statement_from_dotimespL} until (--countvar_from_dotimespL==0); \\\n");
-#   printf("  }\n");
-# #endif
   printf("#define uintC uintWL\n");
 # printf("#define sintC sintWL\n");
-# #if (intCsize==intWsize)
-#   printf("#define dotimesC dotimesW\n");
-#   printf("#define dotimespC dotimespW\n");
-# #endif
-# #if (intCsize==intLsize)
-#   printf("#define dotimesC dotimesL\n");
-#   printf("#define dotimespC dotimespL\n");
-# #endif
 # printf("typedef sint%d sintD;\n",intDsize);
   printf("typedef uint%d uintD;\n",intDsize);
   printf("#include <stdlib.h>\n");
@@ -991,7 +929,7 @@ global int main()
 # printf("#define Symbol_value(obj)  (TheSymbol(obj)->symvalue)\n");
 # printf("#define Symbol_function(obj)  (TheSymbol(obj)->symfunction)\n");
 # printf("#define Symbol_plist(obj)  (TheSymbol(obj)->proplist)\n");
-# printf("#define Symbol_name(obj)  (TheSymbol(obj)->pname)\n");
+  printf("#define Symbol_name(obj)  (TheSymbol(obj)->pname)\n");
 # printf("#define Symbol_package(obj)  (TheSymbol(obj)->homepackage)\n");
   #if defined(DEBUG_GCSAFETY)
     printf("#define eq(obj1,obj2)  (pgci_pointable(obj1) == pgci_pointable(obj2))\n");
@@ -1003,7 +941,8 @@ global int main()
     printf("#define eq(obj1,obj2)  ((obj1) == (obj2))\n");
   #endif
   printf("#define nullp(obj)  (eq(obj,NIL))\n");
-  printf("#define boundp(obj) (! eq(obj, unbound))\n");
+  printf("#define boundp(obj) (!eq(obj,unbound))\n");
+  printf("#define missingp(obj) (!boundp(obj) || nullp(obj))\n");
  #ifdef TYPECODES
    #if defined(cons_bit_o)
      #ifdef fast_mtypecode
@@ -1699,15 +1638,18 @@ global int main()
   printf("extern object listof (uintC len);\n");
   printf("extern object nreverse (object list);\n");
   printf("global object memq (const object obj, const object lis);\n");
-  printf("typedef enum { condition=%d, serious_condition=%d, error=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d, } condition_t;\n",condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning);
+  printf("typedef enum { condition=%d, serious_condition=%d, error=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, os_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d, } condition_t;\n",condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, os_error, storage_condition, interrupt_condition, warning);
   printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
   printf("nonreturning_function(extern, OS_error, (void));\n");
+  printf("nonreturning_function(extern, OS_file_error, (object pathname));\n");
 # printf("nonreturning_function(extern, fehler_list, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
 # printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
 # printf("extern object check_char (object obj);\n");
 # printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_string_integer, (object obj));\n");
   printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
+  printf("extern object check_posfixnum (object obj);\n");
   printf("extern object check_string (object obj);\n");
   printf("extern object check_uint8 (object obj);\n");
   printf("extern object check_sint8 (object obj);\n");
@@ -1723,6 +1665,8 @@ global int main()
   printf("extern object check_slong (object obj);\n");
   printf("extern object check_sfloat (object obj);\n");
   printf("extern object check_dfloat (object obj);\n");
+  printf("extern double to_double (object obj);\n");
+  printf("extern int to_int (object obj);\n");
 # printf("extern object find_package (object string);\n");
 # printf("extern uintBWL intern (object string, object pack, object* sym_);\n");
 # printf("extern object intern_keyword (object string);\n");
@@ -1737,6 +1681,10 @@ global int main()
   printf("extern direction_t check_direction (object dir);\n");
   printf("typedef enum { IF_DOES_NOT_EXIST_UNBOUND, IF_DOES_NOT_EXIST_ERROR, IF_DOES_NOT_EXIST_NIL, IF_DOES_NOT_EXIST_CREATE } if_does_not_exist_t;\n");
   printf("extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);\n");
+  printf("extern object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist);\n");
+  printf("typedef enum { IF_EXISTS_UNBOUND, IF_EXISTS_ERROR, IF_EXISTS_NIL, IF_EXISTS_RENAME, IF_EXISTS_RENAME_AND_DELETE, IF_EXISTS_SUPERSEDE, IF_EXISTS_APPEND, IF_EXISTS_OVERWRITE } if_exists_t;\n");
+  printf("extern if_exists_t check_if_exists (object if_exists);\n");
+  printf("extern object if_exists_symbol (if_exists_t if_exists);\n");
 #ifdef AMIGAOS
   printf("extern object convert_time_to_universal (const struct DateStamp * datestamp);\n");
 #endif
@@ -1748,7 +1696,26 @@ global int main()
   printf("#include <windows.h>\n");
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
 #endif
-
+  printf("#define UNIX_LISP_TIME_DIFF 2208988800UL\n");
+#ifdef WIN32_NATIVE
+  printf("#define Handle HANDLE\n");
+#elif UNIX
+  printf("#define Handle uintW\n");
+#else
+  printf("#error \"what is Handle on your platform?!\"\n");
+#endif
+  printf("extern Handle handle_dup (Handle old_handle, Handle new_handle);\n");
+  printf("extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);\n");
+  printf("extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);\n");
+  printf("extern void write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);\n");
+  printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
+  printf("extern object file_stream_truename (object s);\n");
+  printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
+  printf("extern int full_write (HANDLE fd, const void* buf, int nbyte);\n");
+  printf("extern int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p);\n");
+  printf("extern object addr_to_string (short type, char *addr);\n");
+  printf("extern struct hostent* resolve_host (object arg);\n");
+  printf("#define strm_buffered_bufflen %d\n",strm_buffered_bufflen);
 # printf("extern bool eql (object obj1, object obj2);\n");
 # printf("extern bool equal (object obj1, object obj2);\n");
 # printf("extern bool equalp (object obj1, object obj2);\n");
@@ -1858,6 +1825,11 @@ global int main()
 /* Additional stuff for modules. */
   printf("#define DEFMODULE(module_name,package_name)\n");
   printf("#define DEFUN(funname,lambdalist,signature) LISPFUN signature\n");
+  printf("#define DEFUNF DEFUN\n");
+  printf("#define DEFUNN DEFUN\n");
+  printf("#define DEFUNR DEFUN\n");
+  printf("#define DEFUNW DEFUN\n");
+  printf("#define DEFUND DEFUN\n");
   printf("#define DEFVAR(varname)\n");
   if (ferror(stdout)) { exit(1); }
   exit(0);

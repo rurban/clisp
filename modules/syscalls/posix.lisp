@@ -1,13 +1,20 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999
+;;; Sam Steingold 1999-2003
 
+(defpackage "POSIX"
+  (:use "COMMON-LISP" "EXT")
+  (:export
+   "RESOLVE-HOST-IPADDR" "BOGOMIPS"
+   "STREAM-LOCK" "DUPLICATE-HANDLE" "COPY-FILE"
+   "HOSTENT" "HOSTENT-NAME" "HOSTENT-ALIASES" "HOSTENT-ADDR-LIST"
+   "HOSTENT-ADDRTYPE"
+   "ERF" "ERFC" "J0" "J1" "JN" "Y0" "Y1" "YN" "GAMMA" "LGAMMA"))
+
+(setf (package-lock "EXT") nil)
+(use-package '("POSIX") "EXT")
+(ext:re-export "POSIX" "EXT")
+(pushnew :syscalls *features*)
 (in-package "POSIX")
-
-(export
- '(resolve-host-ipaddr bogomips
-   stream-lock duplicate-handle copy-file
-   hostent hostent-name hostent-aliases hostent-addr-list hostent-addrtype
-   erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
 
 ;;; ============================================================
 (defstruct hostent
@@ -232,5 +239,6 @@ see getrusage(3) and getrlimit(2) for details"
                     :memlock (mk lim91 lim92))))))
 )
 
-(use-package '("POSIX") "EXT")
-(ext:re-export "POSIX" "EXT")
+;;; restore locks
+(push "POSIX" *system-package-list*)
+(setf (package-lock *system-package-list*) t)

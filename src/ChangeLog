@@ -1,5 +1,19 @@
 2003-07-25  Sam Steingold  <sds@gnu.org>
 
+	Converted syscall to a module
+	* Makefile.devel (CONFIGURES): added syscalls
+	* configure, makemake.in (--with-dir-key): removed option
+	* modules/syscalls: new directory
+	* genclisph.d: added some stuff to support syscalls
+	* constobj.d, constpack.d, constsym.d, pathname.d, socket.d:
+	* spvw.d, stream.d, subr.d, subrkw.d: removed syscall-specific stuff
+	* pathname.d (if_does_not_exist_symbol, if_exists_symbol): added
+	* socket.d (addr_to_string, resolve_host1, resolve_host): added
+	* stream.d (file_stream_truename, open_file_stream_handle): added
+	* posix.lisp, posixmath.d, posixmisc.d: removed
+
+2003-07-25  Sam Steingold  <sds@gnu.org>
+
 	* modprep.c: DEFUN can specify side-effect-class
 
 2003-07-25  Sam Steingold  <sds@gnu.org>
@@ -38,8 +52,9 @@
 	* configure, makemake.in (--with-dir-key): removed option
 	* encoding.d (cslen_f, cstombs_f): new functions that enable
 	with_string_0() in modules
-	* genclisph.d: enables a LOT of stuff to support dirkey
+	* genclisph.d: enabled a LOT of stuff to support dirkey
 	* modules/dirkey: new directory
+	* dirkey.d, dirkey1.lisp: removed
 
 2003-07-23  Sam Steingold  <sds@gnu.org>
 

@@ -606,9 +606,6 @@ LISPFUNN(machine_instance,0)
 #ifndef UNIX_BEOS
 LISPFUN(socket_service_port,seclass_read,0,2,norest,nokey,0,NIL)
 #endif
-#ifdef EXPORT_SYSCALLS
-LISPFUNN(resolve_host_ipaddr_,1)
-#endif
 #endif
 /* ---------- TIME ---------- */
 LISPFUNNR(get_internal_real_time,0)
@@ -741,20 +738,6 @@ LISPFUNN(program_name,0)
 #endif
 LISPFUNN(lib_directory,0)
 LISPFUNN(set_lib_directory,1)
-#if defined(EXPORT_SYSCALLS)
-#if defined(UNIX)
-LISPFUNN(user_data_,1)
-LISPFUN(file_stat_,seclass_default,1,1,norest,nokey,0,NIL)
-#endif
-LISPFUN(duplicate_handle,seclass_default,1,1,norest,nokey,0,NIL)
-LISPFUN(copy_file, seclass_default, 2, 0, norest, key, 4,
-        (kw(method),kw(preserve),kw(if_exists),kw(if_does_not_exist)))
-#endif
-/* ---------- POSIXMISC ---------- */
-#if defined(EXPORT_SYSCALLS) && defined(UNIX)
-LISPFUNN(sysinfo_,0)
-LISPFUNN(resource_usage_limits_,0)
-#endif
 /* ---------- PREDTYPE ---------- */
 LISPFUNNF(eq,2)
 LISPFUNNF(eql,2)
@@ -1075,9 +1058,6 @@ LISPFUNN(file_string_length,2)
 LISPFUNN(line_number,1)
 LISPFUN(allow_read_eval,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNN(defgray,1)
-#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
-LISPFUN(stream_lock,seclass_default,2,0,norest,key,2, (kw(shared),kw(block)) )
-#endif
 /* ---------- SYMBOL ---------- */
 LISPFUNN(putd,2)
 LISPFUNN(find_subr,1)
@@ -1199,23 +1179,6 @@ LISPFUNN(long_float_digits,0)
 LISPFUNN(set_long_float_digits,1)
 LISPFUNNR(log2,1)
 LISPFUNNR(log10,1)
-#ifdef EXPORT_SYSCALLS
-#ifndef WIN32_NATIVE
-LISPFUNNF(erf,1)
-LISPFUNNF(erfc,1)
-#endif
-LISPFUNNF(j0,1)
-LISPFUNNF(j1,1)
-LISPFUNNF(jn,2)
-LISPFUNNF(y0,1)
-LISPFUNNF(y1,1)
-LISPFUNNF(yn,2)
-#ifndef WIN32_NATIVE
-LISPFUNNF(gamma,1)
-LISPFUNNF(lgamma,1)
-#endif
-LISPFUNN(bogomips,0)
-#endif /* EXPORT_SYSCALLS */
 /* ---------- REXX ---------- */
 #ifdef REXX
 LISPFUN(rexx_put,seclass_default,1,0,norest,key,5,
