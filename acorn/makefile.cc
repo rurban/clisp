@@ -611,6 +611,9 @@ modprep : ^.utils.d.modprep comment5 ansidecl
 	$(RM) c.modprep
 
 
+h.stdbool : stdbool.in.h
+	-$(LN_S) stdbool.in.h h.stdbool
+
 allc : init $(CFILES)
 	$(TOUCH) allc
 
@@ -1360,274 +1363,274 @@ alls : allc s.spvw s.spvwtabf s.spvwtabs s.spvwtabo s.eval s.control s.encoding 
 alli : allc i.spvw i.spvwtabf i.spvwtabs i.spvwtabo i.eval i.control i.encoding i.pathname i.stream i.io i.array i.hashtabl i.list i.package i.record i.sequence i.charstrg i.debug i.error i.misc i.time i.predtype i.symbol i.lisparit i.unixaux i.acornaux i.acornsig
 	$(TOUCH) alli
 
-i.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigpipe c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_ctype c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.version
+i.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigpipe c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_ctype c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.stdbool h.version
 	$(CPP) $(CFLAGS) c.spvw > i.spvw
 
-s.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigpipe c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_ctype c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.version
+s.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigpipe c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_ctype c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.stdbool h.version
 	$(CC) $(CFLAGS) -S c.spvw
 
-o.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigpipe c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_ctype c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.version
+o.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigpipe c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_ctype c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.stdbool h.version
 	$(CC) $(CFLAGS) -c c.spvw
 
-i.spvwtabf : c.spvwtabf c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.spvwtabf : c.spvwtabf c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.spvwtabf > i.spvwtabf
 
-s.spvwtabf : c.spvwtabf c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.spvwtabf : c.spvwtabf c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.spvwtabf
 
-o.spvwtabf : c.spvwtabf c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.spvwtabf : c.spvwtabf c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.spvwtabf
 
-i.spvwtabs : c.spvwtabs c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.spvwtabs : c.spvwtabs c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.spvwtabs > i.spvwtabs
 
-s.spvwtabs : c.spvwtabs c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.spvwtabs : c.spvwtabs c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.spvwtabs
 
-o.spvwtabs : c.spvwtabs c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.spvwtabs : c.spvwtabs c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.spvwtabs
 
-i.spvwtabo : c.spvwtabo c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.spvwtabo : c.spvwtabo c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.spvwtabo > i.spvwtabo
 
-s.spvwtabo : c.spvwtabo c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.spvwtabo : c.spvwtabo c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.spvwtabo
 
-o.spvwtabo : c.spvwtabo c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.spvwtabo : c.spvwtabo c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.spvwtabo
 
-i.eval : c.eval c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.bytecode
+i.eval : c.eval c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.bytecode h.stdbool
 	$(CPP) $(CFLAGS) c.eval > i.eval
 
-s.eval : c.eval c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.bytecode
+s.eval : c.eval c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.bytecode h.stdbool
 	$(CC) $(CFLAGS) -S c.eval
 
-o.eval : c.eval c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.bytecode
+o.eval : c.eval c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.bytecode h.stdbool
 	$(CC) $(CFLAGS) -c c.eval
 
-i.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.control > i.control
 
-s.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.control
 
-o.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.control
 
-i.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201
+i.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201 h.stdbool h.libcharset
 	$(CPP) $(CFLAGS) c.encoding > i.encoding
 
-s.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201
+s.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201 h.stdbool h.libcharset
 	$(CC) $(CFLAGS) -S c.encoding
 
-o.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201
+o.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201 h.stdbool h.libcharset
 	$(CC) $(CFLAGS) -c c.encoding
 
-i.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.pathname > i.pathname
 
-s.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.pathname
 
-o.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.pathname
 
-i.stream : c.stream c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+i.stream : c.stream c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CPP) $(CFLAGS) c.stream > i.stream
 
-s.stream : c.stream c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+s.stream : c.stream c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -S c.stream
 
-o.stream : c.stream c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+o.stream : c.stream c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -c c.stream
 
-i.io : c.io c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+i.io : c.io c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CPP) $(CFLAGS) c.io > i.io
 
-s.io : c.io c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+s.io : c.io c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -S c.io
 
-o.io : c.io c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+o.io : c.io c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -c c.io
 
-i.array : c.array c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+i.array : c.array c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CPP) $(CFLAGS) c.array > i.array
 
-s.array : c.array c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+s.array : c.array c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -S c.array
 
-o.array : c.array c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+o.array : c.array c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -c c.array
 
-i.hashtabl : c.hashtabl c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 c.aridecl
+i.hashtabl : c.hashtabl c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 c.aridecl h.stdbool
 	$(CPP) $(CFLAGS) c.hashtabl > i.hashtabl
 
-s.hashtabl : c.hashtabl c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 c.aridecl
+s.hashtabl : c.hashtabl c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 c.aridecl h.stdbool
 	$(CC) $(CFLAGS) -S c.hashtabl
 
-o.hashtabl : c.hashtabl c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 c.aridecl
+o.hashtabl : c.hashtabl c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 c.aridecl h.stdbool
 	$(CC) $(CFLAGS) -c c.hashtabl
 
-i.list : c.list c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.list : c.list c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.list > i.list
 
-s.list : c.list c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.list : c.list c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.list
 
-o.list : c.list c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.list : c.list c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.list
 
-i.package : c.package c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.arilev0
+i.package : c.package c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.arilev0 h.stdbool
 	$(CPP) $(CFLAGS) c.package > i.package
 
-s.package : c.package c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.arilev0
+s.package : c.package c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -S c.package
 
-o.package : c.package c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.arilev0
+o.package : c.package c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -c c.package
 
-i.record : c.record c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.record : c.record c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.record > i.record
 
-s.record : c.record c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.record : c.record c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.record
 
-o.record : c.record c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.record : c.record c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.record
 
-i.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.sequence > i.sequence
 
-s.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.sequence
 
-o.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.sequence : c.sequence c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.sequence
 
-i.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute
+i.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uninames h.stdbool
 	$(CPP) $(CFLAGS) c.charstrg > i.charstrg
 
-s.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute
+s.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uninames h.stdbool
 	$(CC) $(CFLAGS) -S c.charstrg
 
-o.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute
+o.charstrg : c.charstrg c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.uni_upcase c.uni_downcase c.uni_attribute c.uninames h.stdbool
 	$(CC) $(CFLAGS) -c c.charstrg
 
-i.debug : c.debug c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.debug : c.debug c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.debug > i.debug
 
-s.debug : c.debug c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.debug : c.debug c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.debug
 
-o.debug : c.debug c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.debug : c.debug c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.debug
 
-i.error : c.error c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.errunix
+i.error : c.error c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.errunix h.stdbool
 	$(CPP) $(CFLAGS) c.error > i.error
 
-s.error : c.error c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.errunix
+s.error : c.error c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.errunix h.stdbool
 	$(CC) $(CFLAGS) -S c.error
 
-o.error : c.error c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.errunix
+o.error : c.error c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.errunix h.stdbool
 	$(CC) $(CFLAGS) -c c.error
 
-i.misc : c.misc c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.misc : c.misc c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.misc > i.misc
 
-s.misc : c.misc c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.misc : c.misc c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.misc
 
-o.misc : c.misc c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.misc : c.misc c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.misc
 
-i.time : c.time c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+i.time : c.time c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CPP) $(CFLAGS) c.time > i.time
 
-s.time : c.time c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+s.time : c.time c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -S c.time
 
-o.time : c.time c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0
+o.time : c.time c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.arilev0 h.stdbool
 	$(CC) $(CFLAGS) -c c.time
 
-i.predtype : c.predtype c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.avl
+i.predtype : c.predtype c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.avl h.stdbool
 	$(CPP) $(CFLAGS) c.predtype > i.predtype
 
-s.predtype : c.predtype c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.avl
+s.predtype : c.predtype c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.avl h.stdbool
 	$(CC) $(CFLAGS) -S c.predtype
 
-o.predtype : c.predtype c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.avl
+o.predtype : c.predtype c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.avl h.stdbool
 	$(CC) $(CFLAGS) -c c.predtype
 
-i.symbol : c.symbol c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.symbol : c.symbol c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.symbol > i.symbol
 
-s.symbol : c.symbol c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.symbol : c.symbol c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.symbol
 
-o.symbol : c.symbol c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.symbol : c.symbol c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.symbol
 
-i.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.aridecl c.arilev0 c.arilev1 c.intelem c.intlog c.intplus c.intcomp c.intbyte c.intmal c.intdiv c.intgcd c.int2adic c.intsqrt c.intprint c.intread c.rational c.sfloat c.ffloat c.dfloat c.lfloat c.flo_konv c.flo_rest c.realelem c.realrand c.realtran c.compelem c.comptran c.arilev1c c.arilev1e c.arilev1i c.ariarm
+i.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.aridecl c.arilev0 c.arilev1 c.intelem c.intlog c.intplus c.intcomp c.intbyte c.intmal c.intdiv c.intgcd c.int2adic c.intsqrt c.intprint c.intread c.rational c.sfloat c.ffloat c.dfloat c.lfloat c.flo_konv c.flo_rest c.realelem c.realrand c.realtran c.compelem c.comptran c.arilev1c c.arilev1e c.arilev1i c.ariarm h.stdbool
 	$(CPP) $(CFLAGS) c.lisparit > i.lisparit
 
-s.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.aridecl c.arilev0 c.arilev1 c.intelem c.intlog c.intplus c.intcomp c.intbyte c.intmal c.intdiv c.intgcd c.int2adic c.intsqrt c.intprint c.intread c.rational c.sfloat c.ffloat c.dfloat c.lfloat c.flo_konv c.flo_rest c.realelem c.realrand c.realtran c.compelem c.comptran c.arilev1c c.arilev1e c.arilev1i c.ariarm
+s.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.aridecl c.arilev0 c.arilev1 c.intelem c.intlog c.intplus c.intcomp c.intbyte c.intmal c.intdiv c.intgcd c.int2adic c.intsqrt c.intprint c.intread c.rational c.sfloat c.ffloat c.dfloat c.lfloat c.flo_konv c.flo_rest c.realelem c.realrand c.realtran c.compelem c.comptran c.arilev1c c.arilev1e c.arilev1i c.ariarm h.stdbool
 	$(CC) $(CFLAGS) -S c.lisparit
 
-o.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.aridecl c.arilev0 c.arilev1 c.intelem c.intlog c.intplus c.intcomp c.intbyte c.intmal c.intdiv c.intgcd c.int2adic c.intsqrt c.intprint c.intread c.rational c.sfloat c.ffloat c.dfloat c.lfloat c.flo_konv c.flo_rest c.realelem c.realrand c.realtran c.compelem c.comptran c.arilev1c c.arilev1e c.arilev1i c.ariarm
+o.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.aridecl c.arilev0 c.arilev1 c.intelem c.intlog c.intplus c.intcomp c.intbyte c.intmal c.intdiv c.intgcd c.int2adic c.intsqrt c.intprint c.intread c.rational c.sfloat c.ffloat c.dfloat c.lfloat c.flo_konv c.flo_rest c.realelem c.realrand c.realtran c.compelem c.comptran c.arilev1c c.arilev1e c.arilev1i c.ariarm h.stdbool
 	$(CC) $(CFLAGS) -c c.lisparit
 
-i.unixaux : c.unixaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.unixaux : c.unixaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.unixaux > i.unixaux
 
-s.unixaux : c.unixaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.unixaux : c.unixaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.unixaux
 
-o.unixaux : c.unixaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.unixaux : c.unixaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.unixaux
 
-i.acornaux : c.acornaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.acornaux : c.acornaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.acornaux > i.acornaux
 
-s.acornaux : c.acornaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.acornaux : c.acornaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.acornaux
 
-o.acornaux : c.acornaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.acornaux : c.acornaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.acornaux
 
-i.acornsig : c.acornsig c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.acornsig : c.acornsig c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.acornsig > i.acornsig
 
-s.acornsig : c.acornsig c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.acornsig : c.acornsig c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.acornsig
 
-o.acornsig : c.acornsig c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.acornsig : c.acornsig c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.acornsig
 
-i.genclisph : c.genclisph c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.genclisph : c.genclisph c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.genclisph > i.genclisph
 
-s.genclisph : c.genclisph c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.genclisph : c.genclisph c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.genclisph
 
-o.genclisph : c.genclisph c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.genclisph : c.genclisph c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.genclisph
 
-i.modules : c.modules c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.modules
+i.modules : c.modules c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.modules
 	$(CPP) $(CFLAGS) -DNO_CLISP_H c.modules > i.modules
 
-s.modules : c.modules c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.modules
+s.modules : c.modules c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.modules
 	$(CC) $(CFLAGS) -DNO_CLISP_H -S c.modules
 
-o.modules : c.modules c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.modules
+o.modules : c.modules c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool h.modules
 	$(CC) $(CFLAGS) -DNO_CLISP_H -c c.modules
 
-i.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+i.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.noreadline > i.noreadline
 
-s.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+s.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -S c.noreadline
 
-o.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
+o.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CC) $(CFLAGS) -c c.noreadline
 
 o.ariarm : s.ariarm
@@ -2111,28 +2114,28 @@ GNU-GPL : ^.GNU-GPL
 SUMMARY : ^.SUMMARY
 	-$(LN_S) ^.SUMMARY SUMMARY
 
-README : _README c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn _README_de _README_en txt2c
+README : _README c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool _README_de _README_en txt2c
 	$(TXT2C) < _README > text.c
 	$(CC) $(CFLAGS) $(CLFLAGS) c.text -o text
 	/@.text > README
 	$(RM) c.text
 	$(RM) text
 
-README_de : _README_de c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn txt2c
+README_de : _README_de c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool txt2c
 	$(TXT2C) < _README_de > text.c
 	$(CC) $(CFLAGS) $(CLFLAGS) c.text -o text
 	/@.text > README_de
 	$(RM) c.text
 	$(RM) text
 
-README_es : _README_es c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn txt2c
+README_es : _README_es c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool txt2c
 	$(TXT2C) < _README_es > text.c
 	$(CC) $(CFLAGS) $(CLFLAGS) c.text -o text
 	/@.text > README_es
 	$(RM) c.text
 	$(RM) text
 
-1.clisp : 1._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn txt2c
+1.clisp : 1._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool txt2c
 	$(TXT2C) < 1._clisp > text.c
 	$(CC) $(CFLAGS) $(CLFLAGS) c.text -o text
 	/@.text > TMPPIPE1
@@ -2141,7 +2144,7 @@ README_es : _README_es c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.consto
 	$(RM) c.text
 	$(RM) text
 
-html.clisp : html._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn txt2c
+html.clisp : html._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool txt2c
 	$(TXT2C) < html._clisp > text.c
 	$(CC) $(CFLAGS) $(CLFLAGS) c.text -o text
 	/@.text > TMPPIPE1
@@ -2229,6 +2232,7 @@ clean3 : clean2
 # It leaves everything generated by "make init".
 clean4 : clean3
 	-$(RM) $(CFILES)
+	-$(RM) h.stdbool
 
 # clean5 even undoes "make init".
 clean5 : clean4
