@@ -747,10 +747,10 @@ English, German, French, Spanish, Dutch and Russian.
    <indexterm id="foreign-enc" significance="preferred">
     <primary id="foreign-enc-i"><varname>*FOREIGN-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
- <listitem><simpara>is the encoding for characters and strings passed
- through the &ffi-pac; (some plaforms only).
- Its value must be a 1:1 encoding, i.e., an encoding in which every
- character is represented by one byte.
+ <listitem><simpara>is the encoding for strings passed through the
+ &ffi-pac; (some plaforms only). If it is a 1:1 encoding,
+ i.e. an encoding in which every character is represented by one byte,
+ it is also used for passing characters through the &ffi-pac;.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist></listitem></varlistentry>
@@ -2721,8 +2721,8 @@ bash$ ./build-dir/clisp &opt-K; full
    the &encoding-r;, allocating space on the &c-lang; execution stack.
    &encoding-r; can be any &encoding;, e.g.
    <link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>
-   or &utf-8;, circumventing the usual 1:1 limit imposed on
-   &foreign-enc;.</simpara>
+   or &utf-8;, whereas &foreign-enc; must be an &ascii;-compatible encoding.
+   </simpara>
   <simpara>&body-r; is then executed with the three variables &f-addr;,
    <replaceable>char-count</replaceable> and
    <replaceable>byte-count</replaceable> respectively bound to an
@@ -3018,8 +3018,19 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 </variablelist>
 
 <!-- #ifdef UNICODE -->
-<para>&foreign-enc; governs conversion for any &ctype-r; involving
- &c-string; or &character-t; (but not <type>char</type>).</para>
+<para>The conversion of &c-string;,
+ <literal role="type">(&c-array; &character-t; <replaceable>dim&sub-1;</replaceable>)</literal>,
+ <literal role="type">(&c-array-max; &character-t; &maxdim-r;)</literal>,
+ <literal role="type">(&c-array-ptr; &character-t;)</literal>
+ are governed by &foreign-enc;.
+ The conversion of &character-t;,
+ not 1-dimensional arrays <literal role="type">(&c-array; &character-t; (<replaceable>dim&sub-1;</replaceable> ... <replaceable>dim&sub-n;</replaceable>))</literal>,
+ <literal role="type">(&c-ptr; &character-t;)</literal>,
+ <literal role="type">(&c-ptr-null; &character-t;)</literal>
+ are governed by &foreign-enc; if the latter is a 1:1 encoding, or by the
+ &ascii; encoding otherwise.
+ The type <type>char</type>, on the other hand, is a numeric type and does
+ not use character encodings.</para>
 <!-- #endif -->
 
 </section>

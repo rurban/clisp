@@ -2386,11 +2386,10 @@ global void init_dependent_encodings(void) {
   O(foreign_encoding) =
     (argv_encoding_foreign == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_foreign,"*FOREIGN-ENCODING*"));
-  if (TheEncoding(O(foreign_encoding))->max_bytes_per_char != 1) {
-    fprintf(stderr,GETTEXT("WARNING: *FOREIGN-ENCODING*: reset to ASCII"));
-    fputs("\n",stderr);
-    O(foreign_encoding) = Symbol_value(S(ascii));
-  }
+  O(foreign_8bit_encoding) =
+    (TheEncoding(O(foreign_encoding))->max_bytes_per_char == 1
+     ? O(foreign_encoding)
+     : Symbol_value(S(ascii)));
  #endif
   O(misc_encoding) =
     (argv_encoding_misc == NULL ? (object)STACK_0
@@ -2454,11 +2453,12 @@ LISPFUNNR(foreign_encoding,0) {
 /* (SYSTEM::SET-FOREIGN-ENCODING encoding) */
 LISPFUNN(set_foreign_encoding,1) {
   var object encoding = check_encoding(popSTACK(),&O(foreign_encoding),false);
-  if (TheEncoding(encoding)->max_bytes_per_char != 1) {
-    pushSTACK(encoding); pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: ~S is not a 1:1 encoding"));
-  }
-  VALUES1(O(foreign_encoding) = encoding);
+  O(foreign_encoding) = encoding;
+  O(foreign_8bit_encoding) =
+    (TheEncoding(O(foreign_encoding))->max_bytes_per_char == 1
+     ? O(foreign_encoding)
+     : Symbol_value(S(ascii)));
+  VALUES1(encoding);
 }
 
 #endif /* HAVE_FFI || HAVE_AFFI */

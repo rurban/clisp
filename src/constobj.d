@@ -51,9 +51,11 @@
     # The encoding of pathnames on the file system.
     LISPOBJ(pathname_encoding,".")
     #if defined(HAVE_FFI) || defined(HAVE_AFFI)
-      # The encoding of characters and strings passed through the FFI.
-      # Must be 1:1, i.e. one of the nls_* encodings.
+      # The encoding of strings passed through the FFI.
       LISPOBJ(foreign_encoding,".")
+      # The encoding of characters passed through the FFI.
+      # Must be 1:1, i.e. one of the nls_* encodings.
+      LISPOBJ(foreign_8bit_encoding,".")
     #endif
     # The encoding for everything else (environment variables, command-line
     # options etc.)
