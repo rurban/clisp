@@ -1,5 +1,18 @@
 2004-10-30  Bruno Haible  <bruno@clisp.org>
 
+	Prefer poll() over select() when both exist and poll() is not worse.
+	* m4/select.m4 (CL_SELECT): Test whether select() works on regular
+	files. Don't test for poll here conditionally.
+	* m4/poll.m4: New file.
+	* configure.in: Invoke CL_POLL.
+	* unixconf.h.in: Regenerated.
+	* unix.d (poll): Comment out declaration.
+	* stream.d (listen_handle): Use poll() when available and is not worse
+	on files than select().
+	(rd_ch_keyboard): Use poll() when available.
+
+2004-10-30  Bruno Haible  <bruno@clisp.org>
+
 	* unixaux.d (select): Fix wrong argument order passed to poll().
 
 2004-10-30  Bruno Haible  <bruno@clisp.org>

@@ -452,10 +452,12 @@ extern_C int close (int fd); /* CLOSE(2V) */
 #ifdef HAVE_FSYNC
 extern_C int fsync (int fd); /* FSYNC(2) */
 #endif
+#if defined(HAVE_POLL)
+  #include <poll.h>
+  /* extern_C int poll (struct pollfd * fds, unsigned {int|long} nfds, int timeout); */
+#endif
 #if !defined(HAVE_SELECT) && defined(HAVE_POLL)
   #define NEED_OWN_SELECT /* select() can be implemented with poll()  */
-  #include <poll.h>
-  extern_C int poll (struct pollfd * fds, unsigned long nfds, int timeout);
   #ifndef _EMUL_SYS_TIME_H
     #define _EMUL_SYS_TIME_H
     struct timeval { long tv_sec; long tv_usec; };
