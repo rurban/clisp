@@ -1,3 +1,8 @@
+2000-11-12  Bruno Haible  <haible@clisp.cons.org>
+
+        * autoconf/config.guess, autoconf/config.sub: Upgrade to newest
+          version from GNU CVS.
+
 2000-11-08  Bruno Haible  <haible@clisp.cons.org>
 
         * aclocal.m4 (CL_SIGNAL_UNBLOCK): Enable 'volatile' for gotsig,
