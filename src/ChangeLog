@@ -1,3 +1,16 @@
+2001-09-24  Stefan Kain  <stefan.kain@freenet.de>
+
+	* lispbibl.d: translated the rest of the comments
+
+2001-09-23  Sam Steingold  <sds@gnu.org>
+
+	optional filling of PPHELP streams
+	* stream.d (wr_ch_pphelp): when filling, handle spaces specially
+	(wr_ch_array_pphelp): split on NL and (when filling) on spaces
+	(wr_ch_array_pphel_): renamed from wr_ch_array_pphelp
+	* constsym.d (*PRINT-PRETTY-FILL*): added
+	* spvw.d (init_symbol_values): defvar *PRINT-PRETTY-FILL*
+
 2001-08-12  Bruno Haible  <haible@clisp.cons.org>
 
 	* io.d (a_letterdigit, a_expodigit): New macros.
