@@ -31,6 +31,8 @@ User visible changes
     New generic functions
       METHOD-FUNCTION, METHOD-GENERIC-FUNCTION, METHOD-LAMBDA-LIST,
       METHOD-SPECIALIZERS, ACCESOR-METHOD-SLOT-DEFINITION.
+    New functions
+      EXTRACT-LAMBDA-LIST, EXTRACT-SPECIALIZER-NAMES.
   + Method-Combinations:
     New generic function
       FIND-METHOD-COMBINATION.
