@@ -1,5 +1,9 @@
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
+	added a bindings/win32 module with a couple of rudimentary functions
+
+2003-08-06  Sam Steingold  <sds@gnu.org>
+
 	* configure: link all modules/* files, not just directories
 	* modules/exporting.lisp: new files, abstracted from linux.lisp
 	* makemake.in: compile exporting.lisp
