@@ -58,6 +58,10 @@ impnotes.html: impnotes.xml $(IMPNOTES)
 #		-xsl "file://$(XMLHOME)/docbook.xsl/html/docbook.xsl"
 	tidy -wrap 75 -m impnotes.html || true
 
+regexp.html: ../modules/regexp/regexp.texinfo ../src/readline/doc/texi2html
+	perl ../src/readline/doc/texi2html -monolithic -verbose \
+		../modules/regexp/regexp.texinfo
+
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html
 
