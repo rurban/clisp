@@ -15,7 +15,10 @@ dnl Some systems have tgetent(), tgetnum(), tgetstr(), tgetflag(), tputs(),
 dnl tgoto() in libc, some have it in libtermcap, some have it in libncurses.
 dnl When both libtermcap and libncurses exist, we prefer the latter,
 dnl because libtermcap is being phased out.
+dnl libcurses is useless: all platforms which have libcurses also have
+dnl libtermcap, also they were all different on the various Unix systems,
+dnl and often buggy
 LIBTERMCAP="broken"
-AC_SEARCH_LIBS(tgetent, ncurses curses termcap, LIBTERMCAP="")
+AC_SEARCH_LIBS(tgetent, ncurses termcap, LIBTERMCAP="")
 AC_SUBST(LIBTERMCAP)
 ])
