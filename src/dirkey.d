@@ -263,7 +263,7 @@ local HKEY parse_registry_path (const char* path, const char** base_ret) {
   host = NULL;
   begin_system_call();
   base = strstr(path,"\\\\");
-  if (base == NULL) base = strstr(path,"//")
+  if (base == NULL) base = strstr(path,"//");
   if (base != NULL) {
     len = base-path;
     host = (char*)alloca(len+1);
