@@ -3,6 +3,25 @@
 # Marcus Daniels 11.11.1994
 
 
+# Flags intended to be set through CFLAGS:
+#   Readline library:
+#     NO_READLINE
+#   Internationalization:
+#     NO_GETTEXT
+#   Foreign function interface:
+#     DYNAMIC_FFI
+#   Dynamic loading of modules:
+#     DYNAMIC_MODULES
+#   Safety level:
+#     SAFETY={0,1,2,3}
+# Flags that may be set through CFLAGS, in order to override the defaults:
+#   Object representation (on 32-bit platforms only):
+#     TYPECODES, NO_TYPECODES, WIDE
+#   Advanced memory management:
+#     NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_FILE, NO_MULTIMAP_SHM,
+#     NO_MORRIS_GC, NO_GENERATIONAL_GC
+
+
 # Implementation ist auf folgende Rechner, Betriebssysteme und C-Compiler
 # vorbereitet. (Nur ungefähre Liste, Genaues siehe PLATFORMS.)
 # Maschine     Hersteller         Betriebssystem                C-Compiler    erkennbar an
