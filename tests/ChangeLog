@@ -1,5 +1,10 @@
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
+	* number2.tst: check that transcendental functions keep the type
+	of the float argument (based on GCL ansi-tests)
+
+2004-04-16  Sam Steingold  <sds@gnu.org>
+
 	* streams.tst: test ext:fill-stream
 
 2004-04-10  Bruno Haible  <bruno@clisp.org>
