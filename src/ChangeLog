@@ -1,5 +1,10 @@
 2001-04-24  Sam Steingold  <sds@gnu.org>
 
+	* intgcd.d (I_I_xgcd_I_I_I): do not use bit operations for logical
+	variables sA and sB (this caused incorrect results on alpha-tru64)
+
+2001-04-24  Sam Steingold  <sds@gnu.org>
+
 	* bindings/linuxlibc5/linux.lisp, bindings/linuxlibc6/linux.lisp:
 	added package prefix to IN-PACKAGE and DELETE-PACKAGE
 
