@@ -1,5 +1,11 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (LN_HARD): New variable.
+	(locale): Use it.
+	Needed for BeOS 5.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* unix.d (sock_write): Declare with 4 arguments, not 3.
 	* unixaux.d (read_helper, write_helper): Coding style.
 	(sock_write): Test for EWOULDBLOCK only if no_hang is true.
