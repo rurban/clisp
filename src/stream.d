@@ -17413,6 +17413,22 @@ LISPFUNN(defgray,1)
 
 # =============================================================================
 
+#ifdef EXPORT_SYSCALLS
+#ifdef UNIX
+
+global object stream_fd (object stream);
+global object stream_fd (stream)
+  var object stream;
+{
+  stream = check_open_file_stream(stream);
+  return UL_to_I(TheHandle(TheStream(stream)->strm_ochannel));
+}
+
+#endif # UNIX
+#endif # EXPORT_SYSCALLS
+
+# =============================================================================
+
 # Binärkompatibilität zwischen .mem-Files mit und ohne NEXTAPP erreichen:
   #ifdef MAYBE_NEXTAPP
     #ifndef NEXTAPP
@@ -17469,17 +17485,3 @@ LISPFUNN(defgray,1)
 # do not access strm_file_truename on pipe and socket streams
 # implement FILE-POSITION for unbuffered file-streams (regular handle, direction != 5)
 # LISTEN on unbuffered (non-regular) file and socket streams can cause the process to block
-
-#ifdef EXPORT_SYSCALLS
-#ifdef UNIX
-
-global object stream_fd (object stream);
-global object stream_fd (stream)
-  var object stream;
-{
-  stream = check_open_file_stream(stream);
-  return UL_to_I(TheHandle(TheStream(stream)->strm_ochannel));
-}
-
-#endif # UNIX
-#endif # EXPORT_SYSCALLS
