@@ -46,6 +46,9 @@
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 [ <A HREF="#Option -t"><CODE>-t</CODE> <EM>tempdir</EM></A> ]
 #endif
+#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+[ <A HREF="#Option -K"><CODE>-K</CODE> <EM>linking-set</EM></A> ]
+#endif
 [ <A HREF="#Option -M"><CODE>-M</CODE> <EM>memfile</EM></A> ]
 [ <A HREF="#Option -norc"><CODE>-norc</CODE></A> ]
 [ <A HREF="#Option -L"><CODE>-L</CODE> <EM>language</EM></A> ]
@@ -130,6 +133,14 @@ The argument is constrained between 40 KB and 8 MB.
 <DD> Specifies the directory where the temporary core file is to be held.
 This option takes precedence over the environment variable
 <CODE>TMPDIR</CODE>.
+<P>
+#endif
+
+#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+<DT> <A NAME="Option -K"> <CODE>-K</CODE> <EM>linking-set</EM> </A>
+<DD> Specifies the linking set to be run. This is a directory containing
+at least a main executable and an initial memory image. Possible values are
+<CODE>base</CODE>, <CODE>full</CODE>. The default is <CODE>base</CODE>.
 <P>
 #endif
 
