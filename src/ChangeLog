@@ -1,5 +1,12 @@
 2005-03-01  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in: check for getpriority and setpriority
+	* modules/syscalls/posix.lisp (priority, process-id): export
+	(priority): defsetf
+	* modules/syscalls/calls.c (priority, set-priority): implemented
+
+2005-03-01  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (find_executable) [UNIX_CYGWIN32]: try to use
 	/proc/<pid>/exe like on Linux
 
