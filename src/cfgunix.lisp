@@ -5,14 +5,21 @@
 (in-package "EXT")
 (mapcar #'fmakunbound '(short-site-name long-site-name))
 
+(let ((cache nil))
 (defun short-site-name ()
-  (or (getenv "ORGANIZATION")
-      (with-open-stream (s (make-pipe-input-stream "uname -n"))
-        (read-line s))))
+  (if cache cache
+      (setq cache
+            (or (getenv "ORGANIZATION")
+                (with-open-stream (s (make-pipe-input-stream "uname -n"))
+                  (read-line s)))))))
+
+(let ((cache nil))
 (defun long-site-name ()
-  (or (getenv "ORGANIZATION")
-      (with-open-stream (s (make-pipe-input-stream "uname -a"))
-        (read-line s))))
+  (if cache cache
+      (setq cache
+            (or (getenv "ORGANIZATION")
+                (with-open-stream (s (make-pipe-input-stream "uname -a"))
+                  (read-line s)))))))
 
 (defparameter *editor* "vi" "The name of the editor.")
 (defun editor-name () (or (getenv "EDITOR") *editor*))
