@@ -2755,9 +2755,9 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
     <ulink url="http://www.PostgreSQL.org/">PostgreSQL</ulink> from &clisp;.
   </simpara></listitem></varlistentry>
  <varlistentry><term>queens</term>
-  <listitem><simpara>Compute the number of solutions to the n-queens
-    problem on a n*n checkboard (a toy example for the users to
-    explore).</simpara></listitem></varlistentry>
+  <listitem><simpara>Compute the number of solutions to the &n-r;-queens
+    problem on a <replaceable>n*n</replaceable> checkboard (a toy
+    example for the users to explore).</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="dir-key">dirkey</link></term>
   <listitem><simpara>Directory Access</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="berkeley-db">berkeley-db</link></term>
@@ -2780,6 +2780,13 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
   <listitem><simpara>Raw socket access.
  </simpara></listitem></varlistentry>
 </variablelist>
+
+<para>To use them, read <filename>unix/INSTALL</filename> and build
+ &clisp; in directory <filename>build-dir</filename> with, e.g.,<screen>
+bash$ ./configure --with-module=syscalls --with-module=clx/new-clx --build build-dir
+</screen>then run it with<screen>
+bash$ ./build-dir/clisp &opt-K; full
+</screen></para>
 
 &matlab;
 
