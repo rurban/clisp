@@ -843,7 +843,7 @@
                                        step-start-form
                                        step-end-form
                                        step-by-form)
-                                   ; erste optionale Klausel:
+                                   ;; 1st optional clause:
                                    (block nil
                                      (case preposition
                                        (FROM (setq step-start-p 't))
@@ -854,7 +854,10 @@
                                      (pop body-rest)
                                      (setq step-start-form (parse-form preposition))
                                    )
-                                   ; zweite optionale Klausel:
+                                   ;; 2nd optional clause:
+                                   (when (parse-kw-p 'by)
+                                     (setq step-by-p t)
+                                     (setq step-by-form (parse-form 'by)))
                                    (block nil
                                      (setq preposition (next-kw))
                                      (case preposition
@@ -866,12 +869,11 @@
                                      (pop body-rest)
                                      (setq step-end-form (parse-form preposition))
                                    )
-                                   ; dritte optionale Klausel:
-                                   (when (parse-kw-p 'by)
+                                   ;; 3rd optional clause:
+                                   (when (and (not step-by-p) (parse-kw-p 'by))
                                      (setq step-by-p t)
-                                     (setq step-by-form (parse-form 'by))
-                                   )
-                                   ; Iterationsrichtung bestimmen:
+                                     (setq step-by-form (parse-form 'by)))
+                                   ;; determine the direction of iteration:
                                    (let ((step-direction
                                            (if (or (eq step-start-p 'down) (eq step-end-p 'down))
                                              (if (or (eq step-start-p 'up) (eq step-end-p 'up))
@@ -884,7 +886,7 @@
                                              )
                                              'up
                                         )) )
-                                     ; Startwert bestimmen:
+                                     ;; determine start:
                                      (unless step-start-p
                                        (if (eq step-direction 'down)
                                          ; Abwärtsiteration ohne Startwert ist nicht erlaubt.
