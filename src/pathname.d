@@ -3236,17 +3236,8 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       stringcount = host_namestring_parts(pathname); # Strings für den Host
       stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
       stringcount += file_namestring_parts(pathname); # Strings für den Filename
-      subr_self = L(namestring); # ("aktuelles" SUBR für Fehlermeldung)
       return string_concat(stringcount); # zusammenhängen
     }
-
-LISPFUNN(file_namestring,1)
-# (FILE-NAMESTRING pathname), CLTL S. 417
-  {
-    var object pathname = coerce_pathname(popSTACK());
-    var uintC stringcount = file_namestring_parts(pathname); # Strings für den Filename
-    value1 = string_concat(stringcount); mv_count=1; # zusammenhängen
-  }
 
 # UP: Liefert den String zum Directory eines Pathname.
 # directory_namestring(pathname)
@@ -3269,6 +3260,27 @@ LISPFUNN(file_namestring,1)
       stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
       return string_concat(stringcount); # zusammenhängen
     }
+
+# UP: Returns the string identifying a file in its directory.
+# file_namestring(pathname)
+# > pathname: non-logical pathname
+# > subr_self: caller (a SUBR)
+# < result: normal-simple-string
+# can trigger GC
+  local inline object file_namestring (object pathname);
+  local inline object file_namestring(pathname)
+    var object pathname;
+    {
+      var uintC stringcount = file_namestring_parts(pathname); # Strings für den Filename
+      return string_concat(stringcount); # zusammenhängen
+    }
+
+LISPFUNN(file_namestring,1)
+# (FILE-NAMESTRING pathname), CLTL S. 417
+  {
+    var object pathname = coerce_pathname(popSTACK());
+    value1 = file_namestring(pathname); mv_count=1; # zusammenhängen
+  }
 
 LISPFUNN(directory_namestring,1)
 # (DIRECTORY-NAMESTRING pathname), CLTL S. 417
@@ -4001,6 +4013,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     }
     skipSTACK(3);
     # (namestring new) bilden:
+    subr_self = L(namestring); # ("aktuelles" SUBR für Fehlermeldung)
     value1 = whole_namestring(newp); mv_count=1;
   }
 
@@ -6430,10 +6443,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var bool links_resolved;
     var bool tolerantp;
     {
-      var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = directory_namestring(STACK_0);
       if (!links_resolved) {
         # Existenztest:
         #ifdef MSDOS
@@ -6687,13 +6697,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if (!links_resolved) {
         # Zur Auflösung von :PARENTs, die über Root hinaussteigen,
         # müssen wir das Betriebssystem bemühen. Daher:
-        var object dir_namestring;
-        {
-          var object pathname = STACK_0;
-          var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
-          stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-          dir_namestring = string_concat(stringcount);
-        }
+        var object dir_namestring = directory_namestring(STACK_0);
         pushSTACK(dir_namestring);
         dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
@@ -6771,10 +6775,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # Information zum angesprochenen File holen:
       if (namenullp(pathname)) # kein File angesprochen?
         return directory_namestring(pathname); # ja -> fertig
-      var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      stringcount += file_namestring_parts(pathname); # Strings für den Filename
-      var object namestring = string_concat(stringcount); # zusammenhängen
+      var object namestring = whole_namestring(pathname);
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
         # Lock für dieses File holen:
         set_break_sem_4(); # Unterbrechungen währenddessen verhindern
@@ -6983,11 +6984,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         # Information zum angesprochenen File holen:
         if (namenullp(STACK_0)) # kein File angesprochen?
           return directory_namestring(STACK_0); # ja -> fertig
-        var object pathname = STACK_0;
-        var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
-        stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-        stringcount += file_namestring_parts(pathname); # Strings für den Filename
-        var object namestring = string_concat(stringcount); # zusammenhängen
+        var object namestring = whole_namestring(STACK_0); # zusammenhängen
         # Information holen:
         var local struct stat status;
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -7326,10 +7323,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var bool tolerantp;
     var bool allowdir;
     {
-      var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = directory_namestring(STACK_0);
       if (!links_resolved) {
         # Existenztest:
         var struct stat statbuf;
@@ -7496,9 +7490,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                              # (das gehört nicht uns, nicht freigeben!)
   local void change_default()
     {
-      var uintC stringcount =
-        directory_namestring_parts(STACK_0); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount);
+      var object dir_namestring = directory_namestring(STACK_0);
       dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
       with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
         # Default-Directory ändern:
@@ -7526,10 +7518,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default (void);
   local void change_default()
     {
-      var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object string = string_concat(stringcount); # zusammenhängen
+      var object string = directory_namestring(STACK_0);
       with_sstring_0(string,O(pathname_encoding),asciz, {
         # Default-Directory ändern:
         begin_system_call();
@@ -7546,10 +7535,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default (void);
   local void change_default()
     {
-      var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = directory_namestring(STACK_0);
       with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len, {
         ASSERT((len > 0) && (dir_namestring_asciz[len-1]=='.'));
         dir_namestring_asciz[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
@@ -7574,11 +7560,10 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
       pathname = use_default_dir(pathname); # Default-Directory einfügen
       # (da Unix/AMIGAOS das Default-Directory von LISP nicht kennt
       # und Win32 multitasking ist)
-      value1 = whole_namestring(pathname);
-    } else
+    }
     #endif
-      # normal
-      value1 = whole_namestring(pathname);
+    subr_self = L(namestring); # ("aktuelles" SUBR für Fehlermeldung)
+    value1 = whole_namestring(pathname);
     mv_count=1;
   }
 
@@ -7769,9 +7754,7 @@ LISPFUNN(probe_file,1)
     var object pathname;
     {
       pushSTACK(pathname); # Pathname retten
-      var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = directory_namestring(pathname);
       # Existenztest, siehe auch assure_dir_exists():
       var bool exists = true;
       #ifdef MSDOS
@@ -9600,8 +9583,7 @@ LISPFUN(open,1,0,norest,key,6,\
       if (nullp(ThePathname(pathname)->pathname_name)) {
         pushSTACK(NIL); # name=NIL -> auch type=NIL -> keine Files suchen
       } else {
-        var uintC stringcount = file_namestring_parts(pathname);
-        var object nametype_string = string_concat(stringcount);
+        var object nametype_string = file_namestring(pathname);
         pathname = STACK_0;
         pushSTACK(nametype_string);
       }
