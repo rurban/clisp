@@ -1,3 +1,11 @@
+2004-07-28  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (unread_char): composite streams operate on their
+	constituent streams, not themselves
+	This fixes the REPL bug whereby "1 ," signals an error
+	while "1," does not.
+	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
+
 2004-07-28  Bruno Haible  <bruno@clisp.org>
 
 	* clos-method1.lisp (standard-method): Rename slot 'function' to
@@ -6475,7 +6483,7 @@
 
 	* modules/clx/new-clx/clx.f (get_font_info_and_display):
 	canonicalize encoding by inserting "-" after "ISO" when necessary
-	Requested by Pascal J.Bourguignon <pjb@informatimago.com>
+	Suggested by Pascal J.Bourguignon <pjb@informatimago.com>
 
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
