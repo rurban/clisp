@@ -699,7 +699,13 @@
     (write (sys::make-load-time-eval `(FIND-CLASS ',(class-classname object)))
            :stream stream)
     (print-unreadable-object (object stream :type t)
-      (write (class-classname object) :stream stream)
+      (let ((name (class-classname object)))
+        ;; The class <string> has two names: cl:string and cs-cl:string.
+        ;; Which one we show, depends on *package*.
+        (when (and (eq name 'string)
+                   (eq (find-symbol "STRING" *package*) 'cs-cl:string))
+          (setq name 'cs-cl:string))
+        (write name :stream stream))
       (when (semi-standard-class-p object)
         (if (and (slot-boundp object '$current-version)
                  (class-version-p (class-current-version object))
