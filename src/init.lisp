@@ -481,10 +481,12 @@
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation (lambda (symbol doctype value)
     #| ;; cannot use due to bootstrapping
-      (if value (setf (getf (gethash symbol *documentation*) doctype) value)
+      (if value
+        (setf (getf (gethash symbol *documentation*) doctype) value)
         (multiple-value-bind (rec found-p) (gethash symbol *documentation*)
           (when (and found-p (remf rec doctype) (null rec))
-            (remhash symbol *documentation*)))))|#
+            (remhash symbol *documentation*))))
+    |#
     (if value
       (let ((rec (sys::%putf (gethash symbol *documentation*)
                              doctype value)))
