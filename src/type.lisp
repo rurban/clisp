@@ -128,21 +128,23 @@
     ((CHARACTER) 'CHARACTER)
     ((T) 'T)
     ((NIL) 'NIL)
-    (t (multiple-value-bind (low high) (sys::subtype-integer type)
-         ; Es gilt (or (null low) (subtypep type `(INTEGER ,low ,high)))
-         (if (and (integerp low) (not (minusp low)) (integerp high))
-           (let ((l (integer-length high)))
-             ; Es gilt (subtypep type `(UNSIGNED-BYTE ,l))
-             (cond ((<= l 1) 'BIT)
-                   ((<= l 2) '(UNSIGNED-BYTE 2))
-                   ((<= l 4) '(UNSIGNED-BYTE 4))
-                   ((<= l 8) '(UNSIGNED-BYTE 8))
-                   ((<= l 16) '(UNSIGNED-BYTE 16))
-                   ((<= l 32) '(UNSIGNED-BYTE 32))
-                   (t 'T)))
-           (if (subtypep type 'CHARACTER)
-             'CHARACTER
-             'T))))))
+    (t (if (subtypep type 'NIL)
+         'NIL
+         (multiple-value-bind (low high) (sys::subtype-integer type)
+           ; Es gilt (or (null low) (subtypep type `(INTEGER ,low ,high)))
+           (if (and (integerp low) (not (minusp low)) (integerp high))
+             (let ((l (integer-length high)))
+               ; Es gilt (subtypep type `(UNSIGNED-BYTE ,l))
+               (cond ((<= l 1) 'BIT)
+                     ((<= l 2) '(UNSIGNED-BYTE 2))
+                     ((<= l 4) '(UNSIGNED-BYTE 4))
+                     ((<= l 8) '(UNSIGNED-BYTE 8))
+                     ((<= l 16) '(UNSIGNED-BYTE 16))
+                     ((<= l 32) '(UNSIGNED-BYTE 32))
+                     (t 'T)))
+             (if (subtypep type 'CHARACTER)
+               'CHARACTER
+               'T)))))))
 
 ;; ----------------------------------------------------------------------------
 

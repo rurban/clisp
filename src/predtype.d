@@ -1,6 +1,6 @@
 /*
  * Predicates for equality and type tests, types, classes in CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2002
  * German comments translated into English: Stefan Kain 2002-09-15
  */
@@ -693,6 +693,8 @@ local bool elt_compare (object dv1, uintL index1,
           return elt_compare_T_32Bit(dv1,index1,dv2,index2,count);
         case Array_type_sstring: /* Simple-String */
           return elt_compare_T_Char(dv1,index1,dv2,index2,count);
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
         default: NOTREACHED;
       }
     case Array_type_sbvector: /* Simple-Bit-Vector */
@@ -713,6 +715,8 @@ local bool elt_compare (object dv1, uintL index1,
           return elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count);
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
         default: NOTREACHED;
       }
     case Array_type_sb2vector:
@@ -733,6 +737,8 @@ local bool elt_compare (object dv1, uintL index1,
           return elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count);
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
         default: NOTREACHED;
       }
     case Array_type_sb4vector:
@@ -753,6 +759,8 @@ local bool elt_compare (object dv1, uintL index1,
           return elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count);
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
         default: NOTREACHED;
       }
     case Array_type_sb8vector:
@@ -773,6 +781,8 @@ local bool elt_compare (object dv1, uintL index1,
           return elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count);
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
         default: NOTREACHED;
       }
     case Array_type_sb16vector:
@@ -793,6 +803,8 @@ local bool elt_compare (object dv1, uintL index1,
           return elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count);
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
         default: NOTREACHED;
       }
     case Array_type_sb32vector:
@@ -813,6 +825,8 @@ local bool elt_compare (object dv1, uintL index1,
           return elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count);
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
         default: NOTREACHED;
       }
     case Array_type_sstring: /* Simple-String */
@@ -828,6 +842,26 @@ local bool elt_compare (object dv1, uintL index1,
           return false; /* because count > 0 */
         case Array_type_sstring: /* Simple-String */
           return elt_compare_Char_Char(dv1,index1,dv2,index2,count);
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          fehler_retrieve(dv2);
+        default: NOTREACHED;
+      }
+    case Array_type_snilvector: /* (VECTOR NIL) */
+      switch (Array_type(dv2)) {
+        case Array_type_svector: /* Simple-Vector */
+        case Array_type_sbvector: /* Simple-Bit-Vector */
+        case Array_type_sb2vector:
+        case Array_type_sb4vector:
+        case Array_type_sb8vector:
+        case Array_type_sb16vector:
+        case Array_type_sb32vector:
+        case Array_type_sstring: /* Simple-String */
+          fehler_retrieve(dv1);
+        case Array_type_snilvector: /* (VECTOR NIL) */
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not true. But OTOH, we want (equalp (copy-seq x) x)
+             to return true without signalling an error. */
+          return true;
         default: NOTREACHED;
       }
     default: NOTREACHED;
@@ -1355,17 +1389,25 @@ LISPFUNNR(type_of,1)
         value1 = new_cons;
       }
       break;
-    case_ovector: /* other general-vector -> (VECTOR T dim0) */
-      pushSTACK(array_dimensions(arg)); /* list of dimensions */
+    case_ovector: /* other general-vector -> (VECTOR eltype dim0) */
       {
-        var object new_cons = allocate_cons();
-        Cdr(new_cons) = popSTACK(); Car(new_cons) = T;
-        pushSTACK(new_cons);
-      }
-      {
-        var object new_cons = allocate_cons();
-        Cdr(new_cons) = popSTACK(); Car(new_cons) = S(vector);
-        value1 = new_cons;
+        var object eltype;
+        switch (Iarray_flags(arg) & arrayflags_atype_mask) {
+          case Atype_NIL: eltype = NIL; break;
+          case Atype_T: eltype = T; break;
+          default: NOTREACHED;
+        }
+        pushSTACK(array_dimensions(arg)); /* list of dimensions */
+        {
+          var object new_cons = allocate_cons();
+          Cdr(new_cons) = popSTACK(); Car(new_cons) = eltype;
+          pushSTACK(new_cons);
+        }
+        {
+          var object new_cons = allocate_cons();
+          Cdr(new_cons) = popSTACK(); Car(new_cons) = S(vector);
+          value1 = new_cons;
+        }
       }
       break;
     case_snilvector: /* (SIMPLE-ARRAY NIL (DIMS)) */
@@ -1657,7 +1699,6 @@ LISPFUNNR(class_of,1)
     case_sb8vector: case_ob8vector:
     case_sb16vector: case_ob16vector:
     case_sb32vector: case_ob32vector:
-    case_snilvector: case_nilvector: /* NIL vector -> <vector> */
     case_svector: case_ovector: case_weakkvt: /* General-Vector -> <vector> */
       value1 = O(class_vector); break;
     case_mdarray: /* other Array -> <array> */
@@ -1702,8 +1743,6 @@ LISPFUNNR(class_of,1)
         case_Rectype_Sb32vector_above;
         case_Rectype_ob32vector_above;
         case_Rectype_Svector_above;
-        case_Rectype_Snilvector_above;
-        case_Rectype_nilvector_above;
         case_Rectype_WeakKVT_above;
         case_Rectype_ovector_above;
         case_Rectype_mdarray_above;
@@ -2430,9 +2469,6 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     case_sstring: /* Simple-String */
       pighole = &locals->builtins[(int)enum_hs_simple_string];
       break;
-    case_snilvector: /* (SIMPLE-VECTOR NIL) */
-      pighole = &locals->builtins[(int)enum_hs_simple_nilvector];
-      break;
     case_svector: /* Simple-Vector */
       pighole = &locals->builtins[(int)enum_hs_simple_vector];
       break;
@@ -2460,11 +2496,19 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     case_ostring: /* other String */
       pighole = &locals->builtins[(int)enum_hs_string];
       break;
-    case_nilvector: /* (VECTOR NIL) */
-      pighole = &locals->builtins[(int)enum_hs_nilvector];
-      break;
     case_ovector: /* other general-vector */
-      pighole = &locals->builtins[(int)enum_hs_vector];
+      if ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_NIL) {
+        if ((Iarray_flags(obj)
+             & (  bit(arrayflags_adjustable_bit)
+                | bit(arrayflags_fillp_bit)
+                | bit(arrayflags_displaced_bit)
+                | bit(arrayflags_dispoffset_bit)))
+            == 0)
+          pighole = &locals->builtins[(int)enum_hs_simple_nilvector];
+        else
+          pighole = &locals->builtins[(int)enum_hs_nilvector];
+      } else
+        pighole = &locals->builtins[(int)enum_hs_vector];
       break;
     case_mdarray: /* other Array */
       if ((Iarray_flags(obj)
@@ -2517,7 +2561,6 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case_Rectype_Sb16vector_above;
         case_Rectype_Sb32vector_above;
         case_Rectype_Sstring_above;
-        case_Rectype_Snilvector_above;
         case_Rectype_Svector_above;
         case_Rectype_WeakKVT_above;
         case_Rectype_obvector_above;
@@ -2527,7 +2570,6 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case_Rectype_ob16vector_above;
         case_Rectype_ob32vector_above;
         case_Rectype_ostring_above;
-        case_Rectype_nilvector_above;
         case_Rectype_ovector_above;
         case_Rectype_mdarray_above;
         case_Rectype_Closure_above;

@@ -138,7 +138,6 @@ local uintL objsize (void* addr) {
     case_Rectype_Sb16vector_above;
     case_Rectype_Sb32vector_above;
     case_Rectype_Svector_above;
-    case_Rectype_Snilvector_above;
     case_Rectype_WeakKVT_above;
     case_Rectype_mdarray_above;
     case_Rectype_obvector_above;
@@ -149,7 +148,6 @@ local uintL objsize (void* addr) {
     case_Rectype_ob32vector_above;
     case_Rectype_ostring_above;
     case_Rectype_ovector_above;
-    case_Rectype_nilvector_above;
     case_Rectype_Bignum_above;
     case_Rectype_Lfloat_above;
    #ifdef UNICODE
@@ -210,11 +208,9 @@ local uintL objsize (void* addr) {
     case_weakkvt: # weak-key-value-table
     case_svector: # simple-vector
       return size_svector(svector_length((Svector)addr));
-    case_snilvector: /* (VECTOR NIL) */
-      return size_svector(0);
     case_mdarray: case_obvector: case_ob2vector: case_ob4vector:
     case_ob8vector: case_ob16vector: case_ob32vector: case_ostring:
-    case_ovector: case_nilvector: { # non-simple array:
+    case_ovector: { # non-simple array:
         var uintL size;
         size = (uintL)iarray_rank((Iarray)addr);
         if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))

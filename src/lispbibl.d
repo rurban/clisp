@@ -1,5 +1,5 @@
 # Main include-file for CLISP
-# Bruno Haible 1990-2003
+# Bruno Haible 1990-2004
 # Marcus Daniels 11.11.1994
 # Sam Steingold 1998-2003
 # German comments translated into English: Stefan Kain 2001-09-24
@@ -3817,8 +3817,8 @@ typedef xrecord_ *  Xrecord;
          Rectype_b8vector,          /* 5 */ # Iarray, not Srecord/Xrecord
          Rectype_b16vector,         /* 6 */ # Iarray, not Srecord/Xrecord
          Rectype_b32vector,         /* 7 */ # Iarray, not Srecord/Xrecord
-         Rectype_nilvector,         /* 8 */ # Iarray, not Srecord/Xrecord
-           /* Rectype_Svector is the bottom SIMPLE-VECTOR */
+         Rectype_unused1,           /* 8 */
+           /* Rectype_Svector is the bottom SIMPLE VECTOR */
          Rectype_Svector,           /* 9 */ # Svector, not Srecord/Xrecord
          Rectype_Sbvector,         /* 10 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb2vector,        /* 11 */ # Sbvector, not Srecord/Xrecord
@@ -3826,7 +3826,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_Sb8vector,        /* 13 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb16vector,       /* 14 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sb32vector,       /* 15 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Snilvector,       /* 16 */ # Lrecord, not Srecord/Xrecord
+         Rectype_unused2,          /* 16 */
            /* Rectype_S8string is the bottom STRING */
          Rectype_S8string,         /* 17 */ # S8string, not Srecord/Xrecord
          Rectype_Imm_S8string,     /* 18 */ # immutable S8string, not Srecord/Xrecord
@@ -4418,18 +4418,15 @@ typedef iarray_ *  Iarray;
 #define arrayflags_atype_mask  0x0F  # mask for the element-type
 # Element-types of arrays in Bits 3..0 of its flags:
 # The first ones are chosen, so that 2^Atype_nBit = n.
-#define Atype_Bit    0
-#define Atype_2Bit   1
-#define Atype_4Bit   2
-#define Atype_8Bit   3
-#define Atype_16Bit  4
-#define Atype_32Bit  5
-#define Atype_T      6
-#define Atype_Char   7
-#ifndef TYPECODES
-/* (ARRAY NIL) has an Array_type_snilvector data vector */
-#define Atype_NIL    8
-#endif
+#define Atype_Bit    0  # storage vector is of type sbvector_type
+#define Atype_2Bit   1  # storage vector is of type sb2vector_type
+#define Atype_4Bit   2  # storage vector is of type sb4vector_type
+#define Atype_8Bit   3  # storage vector is of type sb8vector_type
+#define Atype_16Bit  4  # storage vector is of type sb16vector_type
+#define Atype_32Bit  5  # storage vector is of type sb32vector_type
+#define Atype_T      6  # storage vector is of type svector_type
+#define Atype_Char   7  # storage vector is of type sstring_type
+#define Atype_NIL    8  # storage vector is NIL
 
 # array-types
 #ifdef TYPECODES
@@ -4451,6 +4448,7 @@ typedef iarray_ *  Iarray;
   #define Array_type_sb32vector  sb32vector_type   # Sbvector
   #define Array_type_sstring     sstring_type      # Sstring
   #define Array_type_svector     svector_type      # Svector
+  #define Array_type_snilvector  symbol_type       # Symbol NIL
   # Array_type_simple_bit_vector(atype)
   # maps Atype_[n]Bit to Array_type_sb[n]vector. Depends on TB0, TB1, TB2.
   # The formula works because there are only 4 possible cases:
@@ -4480,8 +4478,7 @@ typedef iarray_ *  Iarray;
   #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
   #define Array_type_sstring     Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring   # S[8|16|32]string, reallocated string
   #define Array_type_svector     Rectype_Svector     # Svector
-  #define Array_type_nilvector   Rectype_nilvector   # Iarray
-  #define Array_type_snilvector  Rectype_Snilvector  # Lrecord
+  #define Array_type_snilvector  Rectype_Symbol      # Symbol NIL
 #endif
 # Determining the atype of a [simple-]bit-array:
 #define sbNvector_atype(obj)  \
@@ -5778,7 +5775,6 @@ typedef enum {
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string
-  #        Rectype_S?nilvector
   #define vectorp(obj)  \
     (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_vector) \
                          <= Rectype_string - Rectype_vector))
@@ -5790,7 +5786,7 @@ typedef enum {
     ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
-  #        Rectype_reallocstring, Rectype_Snilvector
+  #        Rectype_reallocstring
   #define simplep(obj)  \
     (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_Svector) \
                          <= Rectype_reallocstring - Rectype_Svector))
@@ -5802,7 +5798,7 @@ typedef enum {
     ((typecode(obj) & bit(notsimple_bit_t)) == 0)
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
-  #        Rectype_reallocstring, Rectype_Snilvector
+  #        Rectype_reallocstring
   #define array_simplep(obj)  \
     ((uintB)(Record_type(obj) - Rectype_Svector) \
      <= Rectype_reallocstring - Rectype_Svector)
@@ -5821,13 +5817,18 @@ typedef enum {
 # Test for general-vector=(vector t)
 #ifdef TYPECODES
   #define general_vector_p(obj)  \
-    ((typecode(obj) & ~bit(notsimple_bit_t)) == svector_type)
+    ((typecode(obj) == svector_type) \
+     || (typecode(obj) == vector_type \
+         && (Iarray_flags(obj) & arrayflags_atype_mask) == Atype_T \
+    )   )
 #else
   # cases: Rectype_Svector, Rectype_vector
   #define general_vector_p(obj)  \
     (varobjectp(obj) \
-     && ((Record_type(obj) & ~(Rectype_Svector ^ Rectype_vector)) == (Rectype_Svector & Rectype_vector)) \
-    )
+     && ((Record_type(obj) == Rectype_Svector) \
+         || (Record_type(obj) == Rectype_vector \
+             && (Iarray_flags(obj) & arrayflags_atype_mask) == Atype_T \
+    )   )   )
 #endif
 
 # Test for simple-string
@@ -5888,7 +5889,7 @@ typedef enum {
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_]S[8|16|32]string,
   #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string,
-  #        Rectype_S?nilvector, Rectype_mdarray
+  #        Rectype_mdarray
   #define arrayp(obj)  \
     (varobjectp(obj) && ((uintB)(Record_type(obj) - Rectype_vector) \
                          <= Rectype_mdarray - Rectype_vector))
@@ -5925,7 +5926,6 @@ typedef enum {
           case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
           case Rectype_reallocstring:                                        \
           case Rectype_Bignum: case Rectype_Lfloat:                          \
-          case Rectype_nilvector: case Rectype_Snilvector:                   \
             goto not_record;                                                 \
           default: { statement1 } break;                                     \
         }                                                                    \
@@ -6419,10 +6419,6 @@ typedef enum {
     case Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
-  #define case_Rectype_Snilvector_above  \
-    case Rectype_Snilvector: goto case_snilvector;
-  #define case_Rectype_nilvector_above  \
-    case Rectype_nilvector: goto case_nilvector;
   #define case_Rectype_WeakKVT_above  \
     case Rectype_WeakKVT: goto case_weakkvt;
   #define case_Rectype_mdarray_above  \
@@ -6487,7 +6483,6 @@ typedef enum {
     case Rectype_Sb32vector: case Rectype_b32vector:          \
     case Rectype_Svector: case Rectype_vector:                \
     case Rectype_WeakKVT: case Rectype_mdarray:               \
-    case Rectype_Snilvector: case Rectype_nilvector:          \
       goto case_array;
   #define case_Rectype_number_above  /* don't forget immediate_number_p */ \
     case Rectype_Complex: case Rectype_Ratio:                      \
@@ -7713,21 +7708,13 @@ extern object allocate_cons (void);
 extern object make_symbol (object string);
 # is used by PACKAGE, IO, SYMBOL
 
-# UP: allocates a  vector
+# UP: allocates a general vector
 # allocate_vector(len)
 # > len: length of the vector
-# < result: new vector (elements are initialized with NIL)
+# < result: fresh simple general vector (elements are initialized with NIL)
 # can trigger GC
 extern object allocate_vector (uintL len);
 # is used by ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
-
-# UP: allocates a (VECTOR NIL)
-# allocate_nilvector(len)
-# > len: length of the vector
-# < result: new vector
-# can trigger GC
-extern object allocate_nilvector (uintL len);
-# is used by ARRAY
 
 # Function: Allocates a bit/byte vector.
 # allocate_bit_vector(atype,len)
@@ -10742,6 +10729,10 @@ extern object array_displace_check (object array, uintL size, uintL* index);
 # > STACK_0: (erroneous) Index
 nonreturning_function(extern, fehler_index_range, (uintL bound));
 # used by SEQUENCE
+
+# error message: attempt to retrieve a value from (ARRAY NIL)
+nonreturning_function(extern, fehler_retrieve, (object array));
+# used by PREDTYPE
 
 # Function: Performs an AREF access.
 # storagevector_aref(storagevector,index)
