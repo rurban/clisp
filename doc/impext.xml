@@ -5061,12 +5061,14 @@ bash$
    general interface to &shell; and the above:</simpara>
 
   <simpara><literal role="sexp">(&run-cmd; &command-r; &key-amp;
+    <constant>:MAY-EXEC</constant> <constant>:INDIRECTP</constant>
     &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
    runs a shell command (including shell built-in commands,
    like <command>DIR</command> on &win32;
    and <command>for/do/done</command> on &unix;).</simpara>
 
   <simpara><literal role="sexp">(&run-prog; &program-r; &key-amp;
+    <constant>:MAY-EXEC</constant> <constant>:INDIRECTP</constant>
     &arguments-k; &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
    runs an external program.</simpara>
 
@@ -5123,6 +5125,7 @@ bash$
     <listitem><simpara>use a shell to run the command, e.g.,
     <literal role="sexp">(&run-prog; "dir" :indirectp &t;)</literal>
     will run the shell built-in command <command>DIR</command>.
+    This argument defaults to &t; for &run-cmd; and to &nil; for &run-prog;.
     (&win32; only).</simpara></listitem></varlistentry>
 <!-- #endif -->
   </variablelist>

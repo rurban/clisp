@@ -134,7 +134,7 @@
                                          (if-output-exists ':overwrite)
                                          (wait t)
                                          #+UNIX (may-exec nil)
-                                         #+WIN32 (indirectp nil)
+                                         #+WIN32 (indirectp t)
                            )
     (case input
       ((:TERMINAL :STREAM) )
