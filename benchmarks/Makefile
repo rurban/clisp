@@ -22,12 +22,12 @@ all:
 	$(CMUCL) -eval '(progn (compile-file "$<") (quit 0))'
 
 clisp: run-all.fas $(addsuffix .lisp ,$(SOURCES))
-	$(CLISP) -i $< -x '(comp-benchmarks "$(LOG)")'
-	if [ "$(EVAL)" = "yes" ]; then $(CLISP) -i $< -x '(eval-benchmarks "$(LOG)")'; fi
+	$(CLISP) -i $< -x '(benchmarks :compiled "$(LOG)")'
+	@if [ "$(EVAL)" = "yes" ]; then $(CLISP) -i $< -x '(benchmarks :interpreted "$(LOG)")'; fi
 
 cmucl: run-all.x86f $(addsuffix .lisp ,$(SOURCES))
-	$(CMUCL) -load $< -eval '(progn (comp-benchmarks "$(LOG)") (quit 0))'
-	if [ "$(EVAL)" = "yes" ]; then $(CMUCL) -load $< -eval '(progn (eval-benchmarks "$(LOG)") (quit 0))'; fi
+	$(CMUCL) -load $< -eval '(progn (benchmarks :compiled "$(LOG)") (quit 0))'
+	@if [ "$(EVAL)" = "yes" ]; then $(CMUCL) -load $< -eval '(progn (benchmarks :interpreted "$(LOG)") (quit 0))'; fi
 
 clean: force
 	rm -f *.fas *.lib *.tst *.x86f

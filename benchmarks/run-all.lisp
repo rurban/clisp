@@ -35,6 +35,7 @@
     "tak" "takl" "takr" "tprint" "traverse" "triang"))
 
 (defparameter *cur-stat* nil)
+(defparameter *old-stat* nil)
 
 ;; put here your CPU speed in GHz
 (defparameter *scale*
@@ -53,8 +54,8 @@
 (defun file (filename)
   (declare (string filename))
   (case *benchmark-type*
-    (compiled (concatenate 'string filename "." *compiled-type*))
-    (interpreted (concatenate 'string filename "." *source-type*))
+    (:compiled (concatenate 'string filename "." *compiled-type*))
+    (:interpreted (concatenate 'string filename "." *source-type*))
     (t filename)))
 
 (defmacro with-file (filename &body body)
@@ -85,97 +86,124 @@
     (format t "elapsed: ~f sec [scaled: ~f]~%"
             elapsed elapsed-s)))
 
-(defun benchmarks (log)
-  (setq *cur-stat* nil)
-  ;; repeat counts are selected so that each test takes
-  ;; approximately the same time
-  (with-file "fac"
-    (timer-thing 100 'none "fac" #'fac 1000))
-  (with-file "acker"
-    (timer-thing 17 253 "acker" #'acker 3 5)
-    (timer-thing 9 509 "acker" #'acker 3 6)
-    (timer-thing 3 1021 "acker" #'acker 3 7))
-  (with-file "bfib"
-    (timer-thing 20 6765 "bfib-test" #'bfib-test))
-  (with-file "ctak"
-    (timer-thing 60 7 "ctak" #'ctak 18 12 6))
-  (with-file "stak"
-    (timer-thing 60 7 "stak" #'stak 18 12 6))
-  (with-file "tak"
-    (timer-thing 90 7 "tak" #'tak 18 12 6))
-  (with-file "takl"
-    (timer-thing 15 '(7 6 5 4 3 2 1) "mas-bench" #'mas-bench))
-  (with-file "takr"
-    (timer-thing 80 7 "tak0" #'tak0 18 12 6))
-  (with-file "boyer"
-    (boyer-setup)
-    (timer-thing 5 nil "boyer-test" #'boyer-test))
-  (with-file "browse"
-    (timer-thing 5 nil "browse" #'browse))
-  (with-file "dderiv"
-    (timer-thing 25 nil "dderiv-run" #'dderiv-run))
-  (with-file "deriv"
-    (timer-thing 6 nil "deriv-run" #'deriv-run))
-  (with-file "destru"
-    (timer-thing 30 nil "destructive" #'destructive 600 50))
-  (with-file "div2"
-    (timer-thing 20 nil "test-div2-iterative" #'test-div2-iterative)
-    (timer-thing 20 nil "test-div2-recursive" #'test-div2-recursive))
-  (with-file "fft"
-    (timer-thing 6 nil "fft-bench" #'fft-bench))
-  (with-file "fprint"
-    (timer-thing 80 t "fprint" #'fprint))
-  (with-file "fread"
-    (timer-thing 250 t "fread" #'fread))
-  (with-file "frpoly" ; 4 sets of three tests
-    (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r 2)
-    (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r2 2)
-    (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r3 2)
-    (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r 5)
-    (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r2 5)
-    (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r3 5)
-    (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r 10)
-    (timer-thing 6 nil "pexptsq" #'pexptsq frpoly-r2 10)
-    (timer-thing 6 nil "pexptsq" #'pexptsq frpoly-r3 10)
-    (timer-thing 6 nil "pexptsq" #'pexptsq frpoly-r 15)
-    (timer-thing 2 nil "pexptsq" #'pexptsq frpoly-r2 15)
-    (timer-thing 2 nil "pexptsq" #'pexptsq frpoly-r3 15))
-  (with-file "puzzle"
-    (timer-thing 4 nil "puzzle-start" #'puzzle-start))
-  (with-file "stream"
-    (timer-thing 2 229 "nth-prime" #'nth-prime 50)
+(defun stamp (out)
+  (multiple-value-bind (se mi ho da mo ye) (get-decoded-time)
+    (format out
+            " * ~s: ~4,'0d:~2,'0d:~2,'0d ~2,'0d:~2,'0d:~2,'0d~% * ~a [~a]~%"
+            *benchmark-type* ye mo da ho mi se
+            (lisp-implementation-type) (lisp-implementation-version))))
+
+(defun percent (cur old) (/ (- cur old) old 1d-2))
+
+(defun benchmarks (*benchmark-type* &optional (log "benchmarks.log") base save)
+  (setq *cur-stat* (list (stamp nil)))
+  (when base
+    (with-open-file (s base :direction :input)
+      (setq *old-stat* (read s))))
+  (time                         ; the actual run
+   (progn
+     (case *benchmark-type*
+       ((:compiled)
+        (push (list "compilation" 0 0) *cur-stat*)
+        (timer-thing 1 'none "compile all files"
+                     #'mapc #'compile-file *file-list*)))
+     ;; repeat counts are selected so that each test takes
+     ;; approximately the same time
+     (with-file "fac"
+       (timer-thing 100 'none "fac" #'fac 1000))
+     (with-file "acker"
+       (timer-thing 17 253 "acker" #'acker 3 5)
+       (timer-thing 9 509 "acker" #'acker 3 6)
+       (timer-thing 3 1021 "acker" #'acker 3 7))
+     (with-file "bfib"
+       (timer-thing 20 6765 "bfib-test" #'bfib-test))
+     (with-file "ctak"
+       (timer-thing 60 7 "ctak" #'ctak 18 12 6))
+     (with-file "stak"
+       (timer-thing 60 7 "stak" #'stak 18 12 6))
+     (with-file "tak"
+       (timer-thing 90 7 "tak" #'tak 18 12 6))
+     (with-file "takl"
+       (timer-thing 15 '(7 6 5 4 3 2 1) "mas-bench" #'mas-bench))
+     (with-file "takr"
+       (timer-thing 80 7 "tak0" #'tak0 18 12 6))
+     (with-file "boyer"
+       (boyer-setup)
+       (timer-thing 5 nil "boyer-test" #'boyer-test))
+     (with-file "browse"
+       (timer-thing 5 nil "browse" #'browse))
+     (with-file "dderiv"
+       (timer-thing 25 nil "dderiv-run" #'dderiv-run))
+     (with-file "deriv"
+       (timer-thing 6 nil "deriv-run" #'deriv-run))
+     (with-file "destru"
+       (timer-thing 30 nil "destructive" #'destructive 600 50))
+     (with-file "div2"
+       (timer-thing 20 nil "test-div2-iterative" #'test-div2-iterative)
+       (timer-thing 20 nil "test-div2-recursive" #'test-div2-recursive))
+     (with-file "fft"
+       (timer-thing 6 nil "fft-bench" #'fft-bench))
+     (with-file "fprint"
+       (timer-thing 80 t "fprint" #'fprint))
+     (with-file "fread"
+       (timer-thing 250 t "fread" #'fread))
+     (with-file "frpoly" ; 4 sets of three tests
+       (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r 2)
+       (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r2 2)
+       (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r3 2)
+       (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r 5)
+       (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r2 5)
+       (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r3 5)
+       (timer-thing 8 nil "pexptsq" #'pexptsq frpoly-r 10)
+       (timer-thing 6 nil "pexptsq" #'pexptsq frpoly-r2 10)
+       (timer-thing 6 nil "pexptsq" #'pexptsq frpoly-r3 10)
+       (timer-thing 6 nil "pexptsq" #'pexptsq frpoly-r 15)
+       (timer-thing 2 nil "pexptsq" #'pexptsq frpoly-r2 15)
+       (timer-thing 2 nil "pexptsq" #'pexptsq frpoly-r3 15))
+     (with-file "puzzle"
+       (timer-thing 4 nil "puzzle-start" #'puzzle-start))
+     (with-file "stream"
+       (timer-thing 2 229 "nth-prime" #'nth-prime 50)
     (timer-thing 2 541 "nth-prime" #'nth-prime 100)
     (timer-thing 1 863 "nth-prime" #'nth-prime 150))
-  (with-file "tprint"
-    ;; increasing repeat here will fllod the screen
-    (timer-thing 1 t "tprint-test" #'tprint-test))
-  (with-file "traverse"
-    (timer-thing 1 nil "init-traverse" #'init-traverse)
-    (timer-thing 1 nil "run-traverse" #'run-traverse))
-  (with-file "triang"
-    (timer-thing 1 nil "gogogo" #'gogogo 22))
+     (with-file "tprint"
+       (timer-thing 1 t "tprint-test" #'tprint-test 100))
+     (with-file "traverse"
+       (timer-thing 1 nil "init-traverse" #'init-traverse)
+       (timer-thing 1 nil "run-traverse" #'run-traverse))
+     (with-file "triang"
+       (timer-thing 1 nil "gogogo" #'gogogo 22))))
   (setq *cur-stat* (nreverse *cur-stat*))
-  (dribble log)
-  (multiple-value-bind (se mi ho da mo ye) (get-decoded-time)
-    (format t " * ~s: ~4,'0d:~2,'0d:~2,'0d ~2,'0d:~2,'0d:~2,'0d~% * ~a [~a]~%"
-            *benchmark-type* ye mo da ho mi se
-            (lisp-implementation-type) (lisp-implementation-version)))
-  (format t "~:{~15a ~10,5f sec  ~10,5f scaled~%~}~@
-                ~15a ~10,5f sec  ~10,5f scaled~2%"
-          *cur-stat* "total"
-          (reduce #'+ *cur-stat* :key #'second)
-          (reduce #'+ *cur-stat* :key #'third))
-  (dribble))
-
-(defun comp-benchmarks (&optional (log "benchmark.log"))
-  (timer-thing 1 'none "compile all files" #'mapc #'compile-file *file-list*)
-  (let ((*benchmark-type* 'compiled))
-    (time (benchmarks log))))
-
-(defun eval-benchmarks (&optional (log "benchmark.log"))
-  (let ((*benchmark-type* 'interpreted))
-    (time (benchmarks log))))
+  (when log (dribble log))
+  (if *old-stat*
+      (loop :initially
+        (format t "reference:~%~acurrent:~%~a~%"
+                (car *old-stat*) (car *cur-stat*))
+        :for cur :in (cdr *cur-stat*) :and old :in (cdr *old-stat*)
+        :with c-tot = 0 :and c-tot-s = 0 :and o-tot = 0 :and o-tot-s = 0
+        :and fmt =
+        (formatter "~15a ~8,3f sec (~6,2@f%) ~40t ~10,5f scaled (~6,2@f%)~%")
+        :unless (string= (first cur) (first old))
+        :do (error "old/cur mismatch: ~s != ~s" (first cur) (first old)) :end
+        :do (format t fmt (first cur)
+                    (second cur) (percent (second cur) (second old))
+                    (third cur) (percent (third cur) (third old)))
+        (incf c-tot (second cur)) (incf c-tot-s (third cur))
+        (incf o-tot (second old)) (incf o-tot-s (third old))
+        :finally (format t fmt "total" c-tot (percent c-tot o-tot)
+                         c-tot-s (percent c-tot-s o-tot-s)))
+      (format t "~a~:{~15a ~10,5f sec  ~10,5f scaled~%~}~@
+                      ~15a ~10,5f sec  ~10,5f scaled~2%"
+              (car *cur-stat*) (cdr *cur-stat*) "total"
+              (reduce #'+ (cdr *cur-stat*) :key #'second)
+              (reduce #'+ (cdr *cur-stat*) :key #'third)))
+  (when log (dribble))
+  (when save
+    (with-open-file (s save :direction :output)
+      (with-standard-io-syntax
+        (write *cur-stat* :stream s)
+        (terpri s)))))
 
 (format t "~& Running the benchmarks:~@
-For running the compiled benchmarks, use (comp-benchmarks)~@
-For running the interpreted benchmarks, use (eval-benchmarks)~%")
+For running the compiled benchmarks, use (benchmarks :compiled)~@
+For running the interpreted benchmarks, use (benchmarks :interpreted)~%")
