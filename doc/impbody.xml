@@ -58,14 +58,14 @@
 <section id="tokens"><title>Symbols as Tokens
   <ulink url="&clhs;/Body/sec_2-3-4.html">[CLHS-2.3.4]</ulink></title>
 
-<para>A "reserved token", i.e., a
+<para>A <firstterm>reserved token</firstterm>, i.e., a
  <ulink url="&clhs;/Body/glo_t.html#token">token</ulink> that has
  <ulink url="&clhs;/Body/glo_p.html#potential_number">potential number</ulink>
  syntax but cannot be interpreted as a &number-t;, is interpreted as
  &symbol-t; when being read.</para>
 
-<para>When creating a symbol from a token, no character attributes are
- removed.</para>
+<para>When creating a &symbol-t; from a token, no character attributes
+ are removed.</para>
 
 </section>
 
@@ -1408,9 +1408,11 @@ performance considerations.
 
 <para>Complex numbers can have a real part and an imaginary part of
  different types. For example, <literal role="sexp">(&sqrt;
- -9.0)</literal> evaluates to the number <literal>#C(0 3.0)</literal>,
- which has a real part of exactly &zero;, not only
- <literal>0.0</literal> (which would mean "approximately 0").</para>
+ -9.0)</literal> evaluates to the number
+ <literal role="data">#C(0 3.0)</literal>,
+ which has a real part of exactly &zero;,
+ not only <literal role="data">0.0</literal>
+ (which would mean <quote>approximately 0</quote>).</para>
 
 <para>The type specifier for this is <literal
  role="type">(&complex-t; &integer-t;
@@ -1433,11 +1435,12 @@ performance considerations.
  the number is automatically converted to a real number.</para>
 
 <para>This has the advantage that
-   <literal role="sexp">(let ((x (sqrt -9.0))) (* x x))</literal>
- - instead of evaluating to <literal>#C(-9.0 0.0)</literal>,
- with &x-r; = <literal>#C(0.0 3.0)</literal> - evaluates to
- <literal>#C(-9.0 0)</literal> = <literal>-9.0</literal>,
- with &x-r; = <literal>#C(0 3.0)</literal>.</para>
+   <literal role="sexp">(let ((x (&sqrt; -9.0))) (* x x))</literal>
+ - instead of evaluating to <literal role="data">#C(-9.0 0.0)</literal>,
+ with &x-r; = <literal role="data">#C(0.0 3.0)</literal> - evaluates to
+ <literal role="data">#C(-9.0 0)</literal> =
+ <literal role="data">-9.0</literal>,
+ with &x-r; = <literal role="data">#C(0 3.0)</literal>.</para>
 
 </section>
 </section>
@@ -1522,7 +1525,7 @@ performance considerations.
 <section id="float-decode"><title>Float Decoding
   <ulink url="&clhs;/Body/fun_decode-fl_decode-float.html">[CLHS]</ulink></title>
 
- <para>&float-radix; always returns <literal>2</literal>.</para>
+ <para>&float-radix; always returns <literal role="data">2</literal>.</para>
 
  <para><literal role="sexp">(&float-digits; &number-r;
    &digits-r;)</literal> coerces &number-r; (a &real-t; number) to a
@@ -4862,7 +4865,7 @@ exhaust the available line length.</para></formalpara>
 <para>The <ulink url="&clhs;/Body/glo_t.html#time_zone">time
  zone</ulink> in a decoded time must not necessarily be an
  &integer-t;, but (as &float-t; or &rational-t; number)
- it should be a multiple of <literal>1/3600</literal>.</para>
+ it should be a multiple of <literal role="data">1/3600</literal>.</para>
 
 <table id="internal-time-units-table" frame="all">
  <title>Time granularity</title>
