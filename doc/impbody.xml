@@ -140,13 +140,14 @@
 
 <para>Reader macros are also defined for the following:
 
-<segmentedlist><title>Additional reader macros</title>
- <segtitle>Macro</segtitle><segtitle>Meaning</segtitle>
- <seglistitem><seg>#,</seg><seg>load-time evaluation</seg></seglistitem>
- <seglistitem><seg>#Y</seg><seg>function objects and file
-  encodings</seg></seglistitem>
- <seglistitem><seg>#&quot;</seg><seg>pathname</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>Additional reader macros</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>Macro</entry><entry>Meaning</entry></row></thead><tbody>
+ <row><entry>#,</entry><entry>load-time evaluation</entry></row>
+ <row><entry>#Y</entry><entry>function objects and file
+  encodings</entry></row>
+ <row><entry>#&quot;</entry><entry>pathname</entry></row>
+</tbody></tgroup></table>
 </para>
 
 </section>
@@ -1350,41 +1351,26 @@ executes a compiled version of form.</para>
 <section><title>Boolean Operations
    <ulink url="&clhs;/Body/convar_boole-_cm_boole-xor.html">[CLHS]</ulink></title>
 
-<segmentedlist><title>Boolean Operations</title>
-<segtitle>constant name</segtitle><segtitle>value</segtitle>
- <seglistitem><seg><function>boole-clr</function></seg>
-              <seg>0</seg></seglistitem>
- <seglistitem><seg><function>boole-set</function></seg>
-              <seg>15</seg></seglistitem>
- <seglistitem><seg><function>boole-1</function></seg>
-              <seg>10</seg></seglistitem>
- <seglistitem><seg><function>boole-2</function></seg>
-              <seg>12</seg></seglistitem>
- <seglistitem><seg><function>boole-c1</function></seg>
-              <seg>5</seg></seglistitem>
- <seglistitem><seg><function>boole-c2</function></seg>
-              <seg>3</seg></seglistitem>
- <seglistitem><seg><function>boole-and</function></seg>
-              <seg>8</seg></seglistitem>
- <seglistitem><seg><function>boole-ior</function></seg>
-              <seg>14</seg></seglistitem>
- <seglistitem><seg><function>boole-xor</function></seg>
-              <seg>6</seg></seglistitem>
- <seglistitem><seg><function>boole-eqv</function></seg>
-              <seg>9</seg></seglistitem>
- <seglistitem><seg><function>boole-nand</function></seg>
-              <seg>7</seg></seglistitem>
- <seglistitem><seg><function>boole-nor</function></seg>
-              <seg>1</seg></seglistitem>
- <seglistitem><seg><function>boole-andc1</function></seg>
-              <seg>4</seg></seglistitem>
- <seglistitem><seg><function>boole-andc2</function></seg>
-              <seg>2</seg></seglistitem>
- <seglistitem><seg><function>boole-orc1</function></seg>
-              <seg>13</seg></seglistitem>
- <seglistitem><seg><function>boole-orc2</function></seg>
-              <seg>11</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>Boolean Operations</title>
+<tgroup cols="2" colsep="1" rowsep="1" align="left">
+<thead><row><entry>constant name</entry><entry>value</entry></row></thead><tbody>
+ <row><entry><function>boole-clr</function></entry><entry>0</entry></row>
+ <row><entry><function>boole-set</function></entry><entry>15</entry></row>
+ <row><entry><function>boole-1</function></entry><entry>10</entry></row>
+ <row><entry><function>boole-2</function></entry><entry>12</entry></row>
+ <row><entry><function>boole-c1</function></entry><entry>5</entry></row>
+ <row><entry><function>boole-c2</function></entry><entry>3</entry></row>
+ <row><entry><function>boole-and</function></entry><entry>8</entry></row>
+ <row><entry><function>boole-ior</function></entry><entry>14</entry></row>
+ <row><entry><function>boole-xor</function></entry><entry>6</entry></row>
+ <row><entry><function>boole-eqv</function></entry><entry>9</entry></row>
+ <row><entry><function>boole-nand</function></entry><entry>7</entry></row>
+ <row><entry><function>boole-nor</function></entry><entry>1</entry></row>
+ <row><entry><function>boole-andc1</function></entry><entry>4</entry></row>
+ <row><entry><function>boole-andc2</function></entry><entry>2</entry></row>
+ <row><entry><function>boole-orc1</function></entry><entry>13</entry></row>
+ <row><entry><function>boole-orc2</function></entry><entry>11</entry></row>
+</tbody></tgroup></table>
 
 </section>
 
@@ -1458,12 +1444,7 @@ encoding.</para>
  (code page 437):
 <table frame="all"><title>the IBM PC character set (code page 437)</title>
  <tgroup cols="17" colsep="1" rowsep="1" align="center">
- <thead><row><entry/><entry>#x0</entry><entry>#x1</entry>
-      <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
-      <entry>#x6</entry><entry>#x7</entry><entry>#x8</entry><entry>#x9</entry>
-      <entry>#xA</entry><entry>#xB</entry><entry>#xC</entry><entry>#xD</entry>
-      <entry>#xE</entry><entry>#xF</entry></row></thead>
- <tbody>
+  &char-table-header;<tbody>
   <row><entry>#x00</entry><entry>**</entry><entry/><entry/>
    <entry/><entry/><entry/><entry/>
    <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
@@ -1565,13 +1546,8 @@ encoding.</para>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
 <table frame="all"><title>the ISO Latin-1 (ISO 8859-1) character set</title>
- <tgroup cols="17" colsep="1" rowsep="1" align="center">
-  <thead><row><entry/><entry>#x0</entry><entry>#x1</entry>
-   <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
-   <entry>#x6</entry><entry>#x7</entry><entry>#x8</entry><entry>#x9</entry>
-   <entry>#xA</entry><entry>#xB</entry><entry>#xC</entry><entry>#xD</entry>
-   <entry>#xE</entry><entry>#xF</entry></row></thead>
- <tbody>
+  <tgroup cols="17" colsep="1" rowsep="1" align="center">
+  &char-table-header;<tbody>
   <row><entry>#x00</entry><entry>**</entry><entry>**</entry><entry>**</entry>
    <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
    <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
@@ -1668,13 +1644,8 @@ blank here cannot be represented in this character set).
  only in &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the &nextstep; character set:
 <table frame="all"><title>the &nextstep; character set</title>
- <tgroup cols="17" colsep="1" rowsep="1" align="center">
-  <thead><row><entry/><entry>#x0</entry><entry>#x1</entry>
-   <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
-   <entry>#x6</entry><entry>#x7</entry><entry>#x8</entry><entry>#x9</entry>
-   <entry>#xA</entry><entry>#xB</entry><entry>#xC</entry><entry>#xD</entry>
-   <entry>#xE</entry><entry>#xF</entry></row></thead>
- <tbody>
+  <tgroup cols="17" colsep="1" rowsep="1" align="center">
+  &char-table-header;<tbody>
   <row><entry>#x00</entry><entry>**</entry><entry>**</entry><entry>**</entry>
    <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
    <entry>**</entry><entry>**</entry><entry>**</entry><entry>**</entry>
@@ -1769,79 +1740,85 @@ blank here cannot be represented in this character set).
 </para></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<segmentedlist><title>The following are standard characters:</title>
- <segtitle>character</segtitle><segtitle>code</segtitle>
- <seglistitem><seg><keysym>#\Space</keysym></seg>
-              <seg><keycode>#x20</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\Newline</keysym></seg>
-              <seg><keycode>#x0A</keycode></seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>The following are standard characters:</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &char-code-header;<tbody>
+ <row><entry><keysym>#\Space</keysym></entry>
+              <entry><keycode>#x20</keycode></entry></row>
+ <row><entry><keysym>#\Newline</keysym></entry>
+              <entry><keycode>#x0A</keycode></entry></row>
+</tbody></tgroup></table>
 
-<segmentedlist><title>The following are semi-standard characters:</title>
- <segtitle>character</segtitle><segtitle>code</segtitle>
- <seglistitem><seg><keysym>#\Backspace</keysym></seg>
-              <seg><keycode>#x08</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\Tab</keysym></seg>
-              <seg><keycode>#x09</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\Linefeed</keysym></seg>
-              <seg><keycode>#x0A</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\Page</keysym></seg>
-              <seg><keycode>#x0C</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\Return</keysym></seg>
-              <seg><keycode>#x0D</keycode></seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>The following are semi-standard characters:</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &char-code-header;<tbody>
+ <row><entry><keysym>#\Backspace</keysym></entry>
+              <entry><keycode>#x08</keycode></entry></row>
+ <row><entry><keysym>#\Tab</keysym></entry>
+              <entry><keycode>#x09</keycode></entry></row>
+ <row><entry><keysym>#\Linefeed</keysym></entry>
+              <entry><keycode>#x0A</keycode></entry></row>
+ <row><entry><keysym>#\Page</keysym></entry>
+              <entry><keycode>#x0C</keycode></entry></row>
+ <row><entry><keysym>#\Return</keysym></entry>
+              <entry><keycode>#x0D</keycode></entry></row>
+</tbody></tgroup></table>
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
-<segmentedlist><title>Platform dependent: &dos;, &os2;, &win32;
+<table frame="all"><title>Platform dependent: &dos;, &os2;, &win32;
   platforms only.</title>
- <segtitle>character</segtitle><segtitle>code</segtitle>
- <seglistitem><seg><keysym>#\Rubout</keysym></seg>
-              <seg><keycode>#x08</keycode></seg></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &char-code-header;<tbody>
+ <row><entry><keysym>#\Rubout</keysym></entry>
+              <entry><keycode>#x08</keycode></entry></row>
+</tbody></tgroup></table>
 <!-- #endif -->
 
 <!-- #if defined(UNIX_CHARNAMES) || defined(AMIGA_CHARNAMES) -->
-<segmentedlist><title>Platform dependent: &unix;, &amiga;, &acorn;
+<table frame="all"><title>Platform dependent: &unix;, &amiga;, &acorn;
    platforms only.</title>
- <segtitle>character</segtitle><segtitle>code</segtitle>
- <seglistitem><seg><keysym>#\Rubout</keysym></seg>
-              <seg><keycode>#x7F</keycode></seg></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &char-code-header;<tbody>
+ <row><entry><keysym>#\Rubout</keysym></entry>
+              <entry><keycode>#x7F</keycode></entry></row>
+</tbody></tgroup></table>
 <!-- #endif -->
 
 <para><keysym>#\Newline</keysym> is the <link
  linkend="newline">delimiter between lines</link>.</para>
 
 
-<segmentedlist><title>Additional Named Characters</title>
- <segtitle>character</segtitle><segtitle>code</segtitle>
- <seglistitem><seg><keysym>#\Null</keysym></seg>
-              <seg><keycode>#x00</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\Bell</keysym></seg>
-              <seg><keycode>#x07</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\Escape</keysym></seg>
-              <seg><keycode>#x1B</keycode></seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>Additional Named Characters</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &char-code-header;<tbody>
+ <row><entry><keysym>#\Null</keysym></entry>
+              <entry><keycode>#x00</keycode></entry></row>
+ <row><entry><keysym>#\Bell</keysym></entry>
+              <entry><keycode>#x07</keycode></entry></row>
+ <row><entry><keysym>#\Escape</keysym></entry>
+              <entry><keycode>#x1B</keycode></entry></row>
+</tbody></tgroup></table>
 
-<segmentedlist><title>Additional syntax for characters with code from
+<table frame="all"><title>Additional syntax for characters with code from
  <keycode>#x00</keycode> to <keycode>#x1F</keycode>:</title>
- <segtitle>character</segtitle><segtitle>code</segtitle>
- <seglistitem><seg><keysym>#\^@</keysym></seg>
-              <seg><keycode>#x00</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\^A</keysym> &hellip; <keysym>#\^Z</keysym></seg>
-              <seg><keycode>#x01</keycode> &hellip;
-                   <keycode>#x1A</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\^[</keysym></seg>
-              <seg><keycode>#x1B</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\^\</keysym></seg>
-              <seg><keycode>#x1C</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\^]</keysym></seg>
-              <seg><keycode>#x1D</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\^^</keysym></seg>
-              <seg><keycode>#x1E</keycode></seg></seglistitem>
- <seglistitem><seg><keysym>#\^_</keysym></seg>
-              <seg><keycode>#x1F</keycode></seg></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &char-code-header;<tbody>
+ <row><entry><keysym>#\^@</keysym></entry>
+              <entry><keycode>#x00</keycode></entry></row>
+ <row><entry><keysym>#\^A</keysym> &hellip; <keysym>#\^Z</keysym></entry>
+              <entry><keycode>#x01</keycode> &hellip;
+                   <keycode>#x1A</keycode></entry></row>
+ <row><entry><keysym>#\^[</keysym></entry>
+              <entry><keycode>#x1B</keycode></entry></row>
+ <row><entry><keysym>#\^\</keysym></entry>
+              <entry><keycode>#x1C</keycode></entry></row>
+ <row><entry><keysym>#\^]</keysym></entry>
+              <entry><keycode>#x1D</keycode></entry></row>
+ <row><entry><keysym>#\^^</keysym></entry>
+              <entry><keycode>#x1E</keycode></entry></row>
+ <row><entry><keysym>#\^_</keysym></entry>
+              <entry><keycode>#x1F</keycode></entry></row>
+</tbody></tgroup></table>
 
 <para>See also the section <link linkend="chario">Character
  I/O</link>.</para>
@@ -1863,17 +1840,18 @@ blank here cannot be represented in this character set).
   <listitem><simpara>The system uses only font 0.
   </simpara></listitem></varlistentry>
  <varlistentry><term><constant>ext:char-bits-limit</constant> = 16</term>
-  <listitem><segmentedlist><title>The following bits are defined:</title>
-   <segtitle>key</segtitle><segtitle>value</segtitle>
-   <seglistitem><seg>&control-k;</seg>
-             <seg><varname>ext:char-control-bit</varname></seg></seglistitem>
-   <seglistitem><seg>&meta-k;</seg>
-             <seg><varname>ext:char-meta-bit</varname></seg></seglistitem>
-   <seglistitem><seg>&super-k;</seg>
-             <seg><varname>ext:char-super-bit</varname></seg></seglistitem>
-   <seglistitem><seg>&hyper-k;</seg>
-             <seg><varname>ext:char-hyper-bit</varname></seg></seglistitem>
-  </segmentedlist></listitem></varlistentry>
+  <listitem><table frame="all"><title>The following bits are defined:</title>
+   <tgroup cols="2" colsep="1" rowsep="1" align="center">
+    &key-value-header;<tbody>
+   <row><entry>&control-k;</entry>
+             <entry><varname>ext:char-control-bit</varname></entry></row>
+   <row><entry>&meta-k;</entry>
+             <entry><varname>ext:char-meta-bit</varname></entry></row>
+   <row><entry>&super-k;</entry>
+             <entry><varname>ext:char-super-bit</varname></entry></row>
+   <row><entry>&hyper-k;</entry>
+             <entry><varname>ext:char-hyper-bit</varname></entry></row>
+  </tbody></tgroup></table></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
   &object-r;)</literal> </term>
  <listitem><simpara>returns the font of a character or
@@ -2104,222 +2082,226 @@ and the international alphabetic characters from the character set:
  have names:</para>
 
 <!-- #ifdef AMIGA_CHARNAMES -->
-<segmentedlist><title>Platform dependent: &amiga; platforms only.</title>
- <segtitle>code</segtitle><segtitle>char</segtitle>
- <seglistitem><seg><literal role="sexp">(&code-char; #x00)</literal></seg>
-          <seg><keysym>#\Null</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x01)</literal></seg>
-          <seg><keysym>#\Code1</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x02)</literal></seg>
-          <seg><keysym>#\Code2</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x03)</literal></seg>
-          <seg><keysym>#\Code3</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x04)</literal></seg>
-          <seg><keysym>#\Code4</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x05)</literal></seg>
-          <seg><keysym>#\Code5</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x06)</literal></seg>
-          <seg><keysym>#\Code6</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x07)</literal></seg>
-          <seg><keysym>#\Bell</keysym></seg>
-          <seg><keysym>#\Bel</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x08)</literal></seg>
-          <seg><keysym>#\Backspace</keysym></seg>
-          <seg><keysym>#\Bs</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x09)</literal></seg>
-          <seg><keysym>#\Tab</keysym></seg>
-          <seg><keysym>#\Ht</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0A)</literal></seg>
-          <seg><keysym>#\Newline</keysym></seg>
-          <seg><keysym>#\Linefeed</keysym></seg>
-          <seg><keysym>#\Lf</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0B)</literal></seg>
-          <seg><keysym>#\Vt</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0C)</literal></seg>
-          <seg><keysym>#\Page</keysym></seg>
-          <seg><keysym>#\Ff</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0D)</literal></seg>
-          <seg><keysym>#\Return</keysym></seg>
-          <seg><keysym>#\Cr</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0E)</literal></seg>
-          <seg><keysym>#\So</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0F)</literal></seg>
-          <seg><keysym>#\Si</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x10)</literal></seg>
-          <seg><keysym>#\Code16</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x11)</literal></seg>
-          <seg><keysym>#\Code17</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x12)</literal></seg>
-          <seg><keysym>#\Code18</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x13)</literal></seg>
-          <seg><keysym>#\Code19</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x14)</literal></seg>
-          <seg><keysym>#\Code20</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x15)</literal></seg>
-          <seg><keysym>#\Code21</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x16)</literal></seg>
-          <seg><keysym>#\Code22</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x17)</literal></seg>
-          <seg><keysym>#\Code23</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x18)</literal></seg>
-          <seg><keysym>#\Code24</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x19)</literal></seg>
-          <seg><keysym>#\Code25</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1A)</literal></seg>
-          <seg><keysym>#\Code26</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1B)</literal></seg>
-          <seg><keysym>#\Escape</keysym></seg>
-          <seg><keysym>#\Esc</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1C)</literal></seg>
-          <seg><keysym>#\Code28</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1D)</literal></seg>
-          <seg><keysym>#\Code29</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1E)</literal></seg>
-          <seg><keysym>#\Code30</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1F)</literal></seg>
-          <seg><keysym>#\Code31</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x20)</literal></seg>
-          <seg><keysym>#\Space</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x7F)</literal></seg>
-          <seg><keysym>#\Rubout</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x9B)</literal></seg>
-          <seg><keysym>#\Csi</keysym></seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>Platform dependent: &amiga; platforms only.</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &code-char-header;<tbody>
+ <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
+          <entry><keysym>#\Null</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x01)</literal></entry>
+          <entry><keysym>#\Code1</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x02)</literal></entry>
+          <entry><keysym>#\Code2</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x03)</literal></entry>
+          <entry><keysym>#\Code3</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x04)</literal></entry>
+          <entry><keysym>#\Code4</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x05)</literal></entry>
+          <entry><keysym>#\Code5</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x06)</literal></entry>
+          <entry><keysym>#\Code6</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x07)</literal></entry>
+          <entry><keysym>#\Bell</keysym></entry>
+          <entry><keysym>#\Bel</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x08)</literal></entry>
+          <entry><keysym>#\Backspace</keysym></entry>
+          <entry><keysym>#\Bs</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x09)</literal></entry>
+          <entry><keysym>#\Tab</keysym></entry>
+          <entry><keysym>#\Ht</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
+          <entry><keysym>#\Newline</keysym></entry>
+          <entry><keysym>#\Linefeed</keysym></entry>
+          <entry><keysym>#\Lf</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
+          <entry><keysym>#\Vt</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0C)</literal></entry>
+          <entry><keysym>#\Page</keysym></entry>
+          <entry><keysym>#\Ff</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
+          <entry><keysym>#\Return</keysym></entry>
+          <entry><keysym>#\Cr</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0E)</literal></entry>
+          <entry><keysym>#\So</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0F)</literal></entry>
+          <entry><keysym>#\Si</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x10)</literal></entry>
+          <entry><keysym>#\Code16</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x11)</literal></entry>
+          <entry><keysym>#\Code17</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x12)</literal></entry>
+          <entry><keysym>#\Code18</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x13)</literal></entry>
+          <entry><keysym>#\Code19</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x14)</literal></entry>
+          <entry><keysym>#\Code20</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x15)</literal></entry>
+          <entry><keysym>#\Code21</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x16)</literal></entry>
+          <entry><keysym>#\Code22</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x17)</literal></entry>
+          <entry><keysym>#\Code23</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x18)</literal></entry>
+          <entry><keysym>#\Code24</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x19)</literal></entry>
+          <entry><keysym>#\Code25</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1A)</literal></entry>
+          <entry><keysym>#\Code26</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1B)</literal></entry>
+          <entry><keysym>#\Escape</keysym></entry>
+          <entry><keysym>#\Esc</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1C)</literal></entry>
+          <entry><keysym>#\Code28</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1D)</literal></entry>
+          <entry><keysym>#\Code29</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1E)</literal></entry>
+          <entry><keysym>#\Code30</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1F)</literal></entry>
+          <entry><keysym>#\Code31</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x20)</literal></entry>
+          <entry><keysym>#\Space</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x7F)</literal></entry>
+          <entry><keysym>#\Rubout</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x9B)</literal></entry>
+          <entry><keysym>#\Csi</keysym></entry></row>
+</tbody></tgroup></table>
 <!-- #endif -->
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
-<segmentedlist><title>Platform dependent: &dos;, &os2;, &win32;
+<table frame="all"><title>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</title>
- <segtitle>code</segtitle><segtitle>char</segtitle>
- <seglistitem><seg><literal role="sexp">(&code-char; #x00)</literal></seg>
-          <seg><keysym>#\Null</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x07)</literal></seg>
-          <seg><keysym>#\Bell</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x08)</literal></seg>
-          <seg><keysym>#\Backspace</keysym></seg>
-          <seg><keysym>#\Rubout</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x09)</literal></seg>
-          <seg><keysym>#\Tab</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0A)</literal></seg>
-          <seg><keysym>#\Newline</keysym></seg>
-          <seg><keysym>#\Linefeed</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0B)</literal></seg>
-          <seg><keysym>#\Code11</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0C)</literal></seg>
-          <seg><keysym>#\Page</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0D)</literal></seg>
-          <seg><keysym>#\Return</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1A)</literal></seg>
-          <seg><keysym>#\Code26</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1B)</literal></seg>
-          <seg><keysym>#\Escape</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x20)</literal></seg>
-          <seg><keysym>#\Space</keysym></seg></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &code-char-header;<tbody>
+ <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
+          <entry><keysym>#\Null</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x07)</literal></entry>
+          <entry><keysym>#\Bell</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x08)</literal></entry>
+          <entry><keysym>#\Backspace</keysym></entry>
+          <entry><keysym>#\Rubout</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x09)</literal></entry>
+          <entry><keysym>#\Tab</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
+          <entry><keysym>#\Newline</keysym></entry>
+          <entry><keysym>#\Linefeed</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
+          <entry><keysym>#\Code11</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0C)</literal></entry>
+          <entry><keysym>#\Page</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
+          <entry><keysym>#\Return</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1A)</literal></entry>
+          <entry><keysym>#\Code26</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1B)</literal></entry>
+          <entry><keysym>#\Escape</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x20)</literal></entry>
+          <entry><keysym>#\Space</keysym></entry></row>
+</tbody></tgroup></table>
 <!-- #endif -->
 
 <!-- #ifdef UNIX_CHARNAMES -->
-<segmentedlist><title>Platform dependent: &unix;, &acorn;,
+<table frame="all"><title>Platform dependent: &unix;, &acorn;,
     platforms only.</title>
- <segtitle>code</segtitle><segtitle>char</segtitle>
- <seglistitem><seg><literal role="sexp">(&code-char; #x00)</literal></seg>
-          <seg><keysym>#\Null</keysym></seg>
-          <seg><keysym>#\Nul</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x01)</literal></seg>
-          <seg><keysym>#\Soh</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x02)</literal></seg>
-          <seg><keysym>#\Stx</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x03)</literal></seg>
-          <seg><keysym>#\Etx</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x04)</literal></seg>
-          <seg><keysym>#\Eot</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x05)</literal></seg>
-          <seg><keysym>#\Enq</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x06)</literal></seg>
-          <seg><keysym>#\Ack</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x07)</literal></seg>
-          <seg><keysym>#\Bell</keysym></seg>
-          <seg><keysym>#\Bel</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x08)</literal></seg>
-          <seg><keysym>#\Backspace</keysym></seg>
-          <seg><keysym>#\Bs</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x09)</literal></seg>
-          <seg><keysym>#\Tab</keysym></seg>
-          <seg><keysym>#\Ht</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0A)</literal></seg>
-          <seg><keysym>#\Newline</keysym></seg>
-          <seg><keysym>#\Nl</keysym></seg>
-          <seg><keysym>#\Linefeed</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0B)</literal></seg>
-          <seg><keysym>#\Vt</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0C)</literal></seg>
-          <seg><keysym>#\Page</keysym></seg>
-          <seg><keysym>#\Np</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0D)</literal></seg>
-          <seg><keysym>#\Return</keysym></seg>
-          <seg><keysym>#\Cr</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0E)</literal></seg>
-          <seg><keysym>#\So</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x0F)</literal></seg>
-          <seg><keysym>#\Si</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x10)</literal></seg>
-          <seg><keysym>#\Dle</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x11)</literal></seg>
-          <seg><keysym>#\Dc1</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x12)</literal></seg>
-          <seg><keysym>#\Dc2</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x13)</literal></seg>
-          <seg><keysym>#\Dc3</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x14)</literal></seg>
-          <seg><keysym>#\Dc4</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x15)</literal></seg>
-          <seg><keysym>#\Nak</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x16)</literal></seg>
-          <seg><keysym>#\Syn</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x17)</literal></seg>
-          <seg><keysym>#\Etb</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x18)</literal></seg>
-          <seg><keysym>#\Can</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x19)</literal></seg>
-          <seg><keysym>#\Em</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1A)</literal></seg>
-          <seg><keysym>#\Sub</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1B)</literal></seg>
-          <seg><keysym>#\Escape</keysym></seg>
-          <seg><keysym>#\Esc</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1C)</literal></seg>
-          <seg><keysym>#\Fs</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1D)</literal></seg>
-          <seg><keysym>#\Gs</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1E)</literal></seg>
-          <seg><keysym>#\Rs</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x1F)</literal></seg>
-          <seg><keysym>#\Us</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x20)</literal></seg>
-          <seg><keysym>#\Space</keysym></seg>
-          <seg><keysym>#\Sp</keysym></seg></seglistitem>
- <seglistitem><seg><literal role="sexp">(&code-char; #x7F)</literal></seg>
-          <seg><keysym>#\Rubout</keysym></seg>
-          <seg><keysym>#\Delete</keysym></seg>
-          <seg><keysym>#\Del</keysym></seg></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &code-char-header;<tbody>
+ <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
+          <entry><keysym>#\Null</keysym></entry>
+          <entry><keysym>#\Nul</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x01)</literal></entry>
+          <entry><keysym>#\Soh</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x02)</literal></entry>
+          <entry><keysym>#\Stx</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x03)</literal></entry>
+          <entry><keysym>#\Etx</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x04)</literal></entry>
+          <entry><keysym>#\Eot</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x05)</literal></entry>
+          <entry><keysym>#\Enq</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x06)</literal></entry>
+          <entry><keysym>#\Ack</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x07)</literal></entry>
+          <entry><keysym>#\Bell</keysym></entry>
+          <entry><keysym>#\Bel</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x08)</literal></entry>
+          <entry><keysym>#\Backspace</keysym></entry>
+          <entry><keysym>#\Bs</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x09)</literal></entry>
+          <entry><keysym>#\Tab</keysym></entry>
+          <entry><keysym>#\Ht</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
+          <entry><keysym>#\Newline</keysym></entry>
+          <entry><keysym>#\Nl</keysym></entry>
+          <entry><keysym>#\Linefeed</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
+          <entry><keysym>#\Vt</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0C)</literal></entry>
+          <entry><keysym>#\Page</keysym></entry>
+          <entry><keysym>#\Np</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
+          <entry><keysym>#\Return</keysym></entry>
+          <entry><keysym>#\Cr</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0E)</literal></entry>
+          <entry><keysym>#\So</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x0F)</literal></entry>
+          <entry><keysym>#\Si</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x10)</literal></entry>
+          <entry><keysym>#\Dle</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x11)</literal></entry>
+          <entry><keysym>#\Dc1</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x12)</literal></entry>
+          <entry><keysym>#\Dc2</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x13)</literal></entry>
+          <entry><keysym>#\Dc3</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x14)</literal></entry>
+          <entry><keysym>#\Dc4</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x15)</literal></entry>
+          <entry><keysym>#\Nak</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x16)</literal></entry>
+          <entry><keysym>#\Syn</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x17)</literal></entry>
+          <entry><keysym>#\Etb</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x18)</literal></entry>
+          <entry><keysym>#\Can</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x19)</literal></entry>
+          <entry><keysym>#\Em</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1A)</literal></entry>
+          <entry><keysym>#\Sub</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1B)</literal></entry>
+          <entry><keysym>#\Escape</keysym></entry>
+          <entry><keysym>#\Esc</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1C)</literal></entry>
+          <entry><keysym>#\Fs</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1D)</literal></entry>
+          <entry><keysym>#\Gs</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1E)</literal></entry>
+          <entry><keysym>#\Rs</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x1F)</literal></entry>
+          <entry><keysym>#\Us</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x20)</literal></entry>
+          <entry><keysym>#\Space</keysym></entry>
+          <entry><keysym>#\Sp</keysym></entry></row>
+ <row><entry><literal role="sexp">(&code-char; #x7F)</literal></entry>
+          <entry><keysym>#\Rubout</keysym></entry>
+          <entry><keysym>#\Delete</keysym></entry>
+          <entry><keysym>#\Del</keysym></entry></row>
+</tbody></tgroup></table>
 <!-- #endif -->
 
 </section>
 
 <section><title>Obsolete Constants</title>
 
-<segmentedlist><title>obsolete constants</title>
- <segtitle>constant</segtitle><segtitle>value</segtitle>
- <seglistitem><seg><constant>ext:char-control-bit</constant></seg>
-          <seg>1</seg></seglistitem>
- <seglistitem><seg><constant>ext:char-meta-bit</constant></seg>
-          <seg>2</seg></seglistitem>
- <seglistitem><seg><constant>ext:char-super-bit</constant></seg>
-          <seg>4</seg></seglistitem>
- <seglistitem><seg><constant>ext:char-hyper-bit</constant></seg>
-          <seg>8</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>obsolete constants</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
+ <row><entry><constant>ext:char-control-bit</constant></entry>
+          <entry>1</entry></row>
+ <row><entry><constant>ext:char-meta-bit</constant></entry>
+          <entry>2</entry></row>
+ <row><entry><constant>ext:char-super-bit</constant></entry>
+          <entry>4</entry></row>
+ <row><entry><constant>ext:char-hyper-bit</constant></entry>
+          <entry>8</entry></row>
+</tbody></tgroup></table>
 </section>
 
 
@@ -2612,18 +2594,19 @@ and &end-k;:</para>
  <function>ext:make-dir</function>,
  <function>ext:delete-dir</function></link>.</para>
 
-<segmentedlist><title>The minimum filename syntax that may be used
+<table frame="all"><title>The minimum filename syntax that may be used
  portably</title>
- <segtitle>pathname</segtitle><segtitle>meaning</segtitle>
- <seglistitem><seg><filename>xxx</filename></seg>
-   <seg>for a file with name <replaceable>xxx</replaceable></seg></seglistitem>
- <seglistitem><seg><filename>xxx.yy</filename></seg>
-   <seg>for a file with name <replaceable>xxx</replaceable> and type
-   <replaceable>yy</replaceable></seg></seglistitem>
- <seglistitem><seg><filename>.yy</filename></seg>
-   <seg>for a pathname with type <replaceable>yy</replaceable> and no
-   name specified</seg></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>pathname</entry><entry>meaning</entry></row></thead><tbody>
+ <row><entry><filename>xxx</filename></entry>
+   <entry>for a file with name <replaceable>xxx</replaceable></entry></row>
+ <row><entry><filename>xxx.yy</filename></entry>
+   <entry>for a file with name <replaceable>xxx</replaceable> and type
+   <replaceable>yy</replaceable></entry></row>
+ <row><entry><filename>.yy</filename></entry>
+   <entry>for a pathname with type <replaceable>yy</replaceable> and no
+   name specified</entry></row>
+</tbody></tgroup></table>
 
 <para>Hereby <replaceable>xxx</replaceable> denotes 1 to 8 characters,
  and <replaceable>yy</replaceable> denotes 1 to 3 characters, each of
@@ -2651,29 +2634,29 @@ and &end-k;:</para>
  <listitem><simpara>&nil; or a &simple-string-type;
   </simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>directory</replaceable></term>
-  <listitem><segmentedlist><title><literal
+  <listitem><table frame="all"><title><literal
    role="sexp">(<replaceable>startpoint</replaceable>
    . <replaceable>subdirs</replaceable>)</literal></title>
-  <segtitle>element</segtitle><segtitle>values</segtitle>
-  <segtitle>meaning</segtitle>
-  <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-    <seg>&relative-k; | &absolute-k;</seg></seglistitem>
-  <seglistitem><seg><replaceable>subdirs</replaceable></seg>
-    <seg><literal role="sexp">()</literal> | <literal
+  <tgroup cols="2" colsep="1" rowsep="1" align="center">
+    &elt-val-meaning-header;<tbody>
+  <row><entry><replaceable>startpoint</replaceable></entry>
+    <entry>&relative-k; | &absolute-k;</entry></row>
+  <row><entry><replaceable>subdirs</replaceable></entry>
+    <entry><literal role="sexp">()</literal> | <literal
      role="sexp">(<replaceable>subdir</replaceable>
-    . <replaceable>subdirs</replaceable>)</literal></seg></seglistitem>
-  <seglistitem><seg><replaceable>subdir</replaceable></seg>
-    <seg>&wild-inferiors-k;</seg>
-    <seg><filename>**</filename> or <filename>...</filename>,
-    all subdirectories</seg></seglistitem>
-  <seglistitem><seg><replaceable>subdir</replaceable></seg>
-    <seg>&parent-k;</seg><seg><filename>/</filename> instead of
-   <filename>subdir/</filename></seg></seglistitem>
-  <seglistitem><seg><replaceable>subdir</replaceable></seg>
-    <seg>&simple-string-type;, may contain wildcard
+    . <replaceable>subdirs</replaceable>)</literal></entry></row>
+  <row><entry><replaceable>subdir</replaceable></entry>
+    <entry>&wild-inferiors-k;</entry>
+    <entry><filename>**</filename> or <filename>...</filename>,
+    all subdirectories</entry></row>
+  <row><entry><replaceable>subdir</replaceable></entry>
+    <entry>&parent-k;</entry><entry><filename>/</filename> instead of
+   <filename>subdir/</filename></entry></row>
+  <row><entry><replaceable>subdir</replaceable></entry>
+    <entry>&simple-string-type;, may contain wildcard
     characters <filename>?</filename> and
-    <filename>*</filename></seg></seglistitem>
-  </segmentedlist></listitem></varlistentry>
+    <filename>*</filename></entry></row>
+  </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain
   wildcard characters <filename>?</filename> and <filename>*</filename>
@@ -2707,19 +2690,19 @@ and &end-k;:</para>
 <para>Case is ignored in the strings on comparison.  No case conversions
  are performed.</para>
 
-<segmentedlist id="pathnames-externally-amiga">
+<table frame="all" id="pathnames-externally-amiga">
  <title>filename notations</title>
- <segtitle/><segtitle/>
- <seglistitem><seg>External notation:</seg>
-  <seg><filename>dev:sub1.typ/sub2.typ/name.typ</filename></seg></seglistitem>
- <seglistitem><seg>using defaults:</seg>
-  <seg><filename>    sub1.typ/sub2.typ/name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>                      name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>    sub1.typ/**/sub3.typ/x*.lisp</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg/></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+ <row><entry>External notation:</entry>
+  <entry><filename>dev:sub1.typ/sub2.typ/name.typ</filename></entry></row>
+ <row><entry>using defaults:</entry>
+  <entry><filename>    sub1.typ/sub2.typ/name.typ</filename></entry></row>
+ <row><entry>or</entry>
+  <entry><filename>                      name.typ</filename></entry></row>
+ <row><entry>or</entry>
+  <entry><filename>    sub1.typ/**/sub3.typ/x*.lisp</filename></entry></row>
+ <row><entry>or similar.</entry><entry/></row>
+</tbody></tgroup></table>
 
 <variablelist><title>Formal specification of the external notation</title>
   <varlistentry><term>ch ::==</term>
@@ -2729,67 +2712,68 @@ and &end-k;:</para>
    <listitem><simpara>{ch}+</simpara></listitem></varlistentry>
   <varlistentry><term>device ::==</term>
    <listitem><para>[ &lt;empty&gt; | ':' | name ':' ]
-    <segmentedlist>
-     <segtitle/><segtitle/>
-    <seglistitem><seg>empty</seg><seg>current device, relative to
-     current directory</seg></seglistitem>
-    <seglistitem><seg>':'</seg><seg>current device, absolute (relative
-     to root for disks)</seg></seglistitem>
-    <seglistitem><seg>name ':'</seg><seg>specified device, absolute
-     (relative to root for disks)</seg></seglistitem>
-   </segmentedlist></para></listitem></varlistentry>
+    <table frame="all"><title/>
+    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+    <row><entry>empty</entry><entry>current device, relative to
+     current directory</entry></row>
+    <row><entry>':'</entry><entry>current device, absolute (relative
+     to root for disks)</entry></row>
+    <row><entry>name ':'</entry><entry>specified device, absolute
+     (relative to root for disks)</entry></row>
+   </tbody></tgroup></table></para></listitem></varlistentry>
   <varlistentry><term>subdir ::==</term>
    <listitem><para>[ &lt;empty&gt; | name ]
-    <segmentedlist>
-     <segtitle/><segtitle/>
-    <seglistitem><seg>empty</seg><seg>parent directory</seg></seglistitem>
-   </segmentedlist></para></listitem></varlistentry>
+    <table frame="all"><title/>
+    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+    <row><entry>empty</entry><entry>parent directory</entry></row>
+   </tbody></tgroup></table></para></listitem></varlistentry>
   <varlistentry><term>pathname ::==</term>
    <listitem><simpara>device { subdir '/' }* name
    </simpara></listitem></varlistentry>
 </variablelist>
 
-<segmentedlist><title>Examples</title>
-  <segtitle>String</segtitle><segtitle>Device</segtitle>
-  <segtitle>Directory</segtitle><segtitle>our pathname</segtitle>
- <seglistitem><seg><filename>'c:foo'</filename></seg><seg>'C'</seg>
-   <seg><filename>device-&gt;foo</filename></seg>
-   <seg><filename>"c"</filename>
-        (&absolute-k; <filename>"foo"</filename>)</seg></seglistitem>
- <seglistitem><seg><filename>'c:foo/'</filename></seg><seg>'C'</seg>
-   <seg><filename>device-&gt;foo</filename></seg>
-   <seg><filename>"c"</filename>
-        (&absolute-k; <filename>"foo"</filename>)</seg></seglistitem>
- <seglistitem><seg><filename>'c:foo/bar'</filename></seg><seg>'C'</seg>
-   <seg><filename>device-&gt;foo-&gt;bar</filename></seg>
-   <seg><filename>"c"</filename>
-        (&absolute-k; <filename>"foo" "bar"</filename>)</seg></seglistitem>
- <seglistitem><seg><filename>'c:/foo'</filename></seg><seg>'C'</seg>
-   <seg><filename>device-&gt;up-&gt;foo</filename></seg>
-   <seg><filename>"c"</filename>
+<table frame="all"><title>Examples</title>
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">
+  <thead><row><entry>String</entry><entry>Device</entry>
+  <entry>Directory</entry><entry>our pathname</entry></row></thead><tbody>
+ <row><entry><filename>'c:foo'</filename></entry><entry>'C'</entry>
+   <entry><filename>device-&gt;foo</filename></entry>
+   <entry><filename>"c"</filename>
+        (&absolute-k; <filename>"foo"</filename>)</entry></row>
+ <row><entry><filename>'c:foo/'</filename></entry><entry>'C'</entry>
+   <entry><filename>device-&gt;foo</filename></entry>
+   <entry><filename>"c"</filename>
+        (&absolute-k; <filename>"foo"</filename>)</entry></row>
+ <row><entry><filename>'c:foo/bar'</filename></entry><entry>'C'</entry>
+   <entry><filename>device-&gt;foo-&gt;bar</filename></entry>
+   <entry><filename>"c"</filename>
+        (&absolute-k; <filename>"foo" "bar"</filename>)</entry></row>
+ <row><entry><filename>'c:/foo'</filename></entry><entry>'C'</entry>
+   <entry><filename>device-&gt;up-&gt;foo</filename></entry>
+   <entry><filename>"c"</filename>
         (&absolute-k; &parent-k; <filename>"foo"</filename>)
-        </seg></seglistitem>
- <seglistitem><seg><filename>'c:'</filename></seg><seg>'C'</seg>
-   <seg><filename>device</filename></seg>
-   <seg><filename>"c"</filename> (&absolute-k;)</seg></seglistitem>
- <seglistitem><seg><filename>:foo</filename></seg><seg>current</seg>
-   <seg><filename>device-&gt;root-&gt;foo</filename></seg>
-   <seg>&nil; (&absolute-k; <filename>"foo"</filename>)</seg></seglistitem>
- <seglistitem><seg><filename>foo</filename></seg><seg>current</seg>
-   <seg><filename>device-&gt;foo</filename></seg>
-   <seg>&nil; (&relative-k; <filename>"foo"</filename>)</seg></seglistitem>
- <seglistitem><seg><filename>'/foo'</filename></seg><seg>current</seg>
-   <seg><filename>device-&gt;up-&gt;foo</filename></seg>
-   <seg>&nil; (&relative-k; &parent-k; <filename>"foo"</filename>)
-   </seg></seglistitem>
- <seglistitem><seg><filename>'//foo/bar'</filename></seg><seg>current</seg>
-   <seg><filename>device-&gt;up-&gt;up-&gt;foo-&gt;bar</filename></seg>
-   <seg>&nil; (&relative-k; &parent-k; &parent-k; <filename>"foo"
-               "bar"</filename>)</seg></seglistitem>
- <seglistitem><seg><filename>''</filename></seg><seg>current</seg>
-   <seg><filename>device</filename></seg>
-   <seg>&nil; (&relative-k;)</seg></seglistitem>
-</segmentedlist>
+        </entry></row>
+ <row><entry><filename>'c:'</filename></entry><entry>'C'</entry>
+   <entry><filename>device</filename></entry>
+   <entry><filename>"c"</filename> (&absolute-k;)</entry></row>
+ <row><entry><filename>:foo</filename></entry><entry>current</entry>
+   <entry><filename>device-&gt;root-&gt;foo</filename></entry>
+   <entry>&nil; (&absolute-k; <filename>"foo"</filename>)</entry></row>
+ <row><entry><filename>foo</filename></entry><entry>current</entry>
+   <entry><filename>device-&gt;foo</filename></entry>
+   <entry>&nil; (&relative-k; <filename>"foo"</filename>)</entry></row>
+ <row><entry><filename>'/foo'</filename></entry><entry>current</entry>
+   <entry><filename>device-&gt;up-&gt;foo</filename></entry>
+   <entry>&nil; (&relative-k; &parent-k; <filename>"foo"</filename>)
+   </entry></row>
+ <row><entry><filename>'//foo/bar'</filename></entry><entry>current</entry>
+   <entry><filename>device-&gt;up-&gt;up-&gt;foo-&gt;bar</filename></entry>
+   <entry>&nil; (&relative-k; &parent-k; &parent-k; <filename>"foo"
+               "bar"</filename>)</entry></row>
+ <row><entry><filename>''</filename></entry><entry>current</entry>
+   <entry><filename>device</filename></entry>
+   <entry>&nil; (&relative-k;)</entry></row>
+</tbody></tgroup></table>
 
 <para>Appending a <filename>'/'</filename> to a path string that is
  non-empty and does not end with <filename>':'</filename> or
@@ -2815,25 +2799,25 @@ and &end-k;:</para>
 <varlistentry><term><replaceable>device</replaceable></term>
  <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><segmentedlist><title><literal
+ <listitem><table frame="all"><title><literal
    role="sexp">(<replaceable>startpoint</replaceable>
    . <replaceable>subdirs</replaceable>)</literal></title>
-   <segtitle>element</segtitle><segtitle>values</segtitle>
-   <segtitle>meaning</segtitle>
- <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-   <seg>&relative-k; | &absolute-k;</seg><seg/></seglistitem>
- <seglistitem><seg><replaceable>subdirs</replaceable></seg>
-   <seg><literal role="sexp">()</literal> | <literal
+   <tgroup cols="2" colsep="1" rowsep="1" align="center">
+    &elt-val-meaning-header;<tbody>
+ <row><entry><replaceable>startpoint</replaceable></entry>
+   <entry>&relative-k; | &absolute-k;</entry><entry/></row>
+ <row><entry><replaceable>subdirs</replaceable></entry>
+   <entry><literal role="sexp">()</literal> | <literal
    role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></seg><seg/></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-  <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
-   <filename>...</filename>, all subdirectories</seg></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-  <seg>&simple-string-type;, may contain wildcard characters
-  <filename>?</filename> and <filename>*</filename></seg>
-  <seg/></seglistitem>
-  </segmentedlist></listitem></varlistentry>
+   <replaceable>subdirs</replaceable>)</literal></entry><entry/></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
+   <filename>...</filename>, all subdirectories</entry></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+  <entry>&simple-string-type;, may contain wildcard characters
+  <filename>?</filename> and <filename>*</filename></entry>
+  <entry/></row>
+  </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
@@ -2860,18 +2844,18 @@ and &end-k;:</para>
   dot.</simpara></listitem>
 </itemizedlist>
 
-<segmentedlist><title>filename notations</title>
- <segtitle/><segtitle/>
- <seglistitem><seg>External notation:</seg><seg>
-  <filename>server:sub1.typ/sub2.typ/name.typ</filename></seg></seglistitem>
- <seglistitem><seg>using defaults:</seg><seg>
-  <filename>       sub1.typ/sub2.typ/name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg><seg>
-  <filename>                         name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg><seg>
-  <filename>       sub1.typ/**/sub3.typ/x*.lisp</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg/></seglistitem>
-</segmentedlist>
+<table frame="all"><title>filename notations</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+ <row><entry>External notation:</entry><entry>
+  <filename>server:sub1.typ/sub2.typ/name.typ</filename></entry></row>
+ <row><entry>using defaults:</entry><entry>
+  <filename>       sub1.typ/sub2.typ/name.typ</filename></entry></row>
+ <row><entry>or</entry><entry>
+  <filename>                         name.typ</filename></entry></row>
+ <row><entry>or</entry><entry>
+  <filename>       sub1.typ/**/sub3.typ/x*.lisp</filename></entry></row>
+ <row><entry>or similar.</entry><entry/></row>
+</tbody></tgroup></table>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
@@ -2886,25 +2870,25 @@ and &end-k;:</para>
  <filename>A</filename>|...|<filename>Z</filename>
  </simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><segmentedlist><title><literal
+ <listitem><table frame="all"><title><literal
    role="sexp">(<replaceable>startpoint</replaceable>
    . <replaceable>subdirs</replaceable>)</literal></title>
-   <segtitle>element</segtitle><segtitle>values</segtitle>
-   <segtitle>meaning</segtitle>
- <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-  <seg>&relative-k; | &absolute-k;</seg><seg/></seglistitem>
- <seglistitem><seg><replaceable>subdirs</replaceable></seg><seg><literal
+   <tgroup cols="2" colsep="1" rowsep="1" align="center">
+    &elt-val-meaning-header;<tbody>
+ <row><entry><replaceable>startpoint</replaceable></entry>
+  <entry>&relative-k; | &absolute-k;</entry><entry/></row>
+ <row><entry><replaceable>subdirs</replaceable></entry><entry><literal
     role="sexp">()</literal> | <literal
     role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></seg><seg/></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-  <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
-  <filename>...</filename>, all subdirectories </seg></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-   <seg>&simple-string-type;, may contain wildcard characters
-   <filename>?</filename> and <filename>*</filename></seg>
-   <seg/></seglistitem>
- </segmentedlist></listitem></varlistentry>
+   <replaceable>subdirs</replaceable>)</literal></entry><entry/></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
+  <filename>...</filename>, all subdirectories </entry></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+   <entry>&simple-string-type;, may contain wildcard characters
+   <filename>?</filename> and <filename>*</filename></entry>
+   <entry/></row>
+ </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
@@ -2930,18 +2914,18 @@ and &end-k;:</para>
   </simpara></listitem>
 </itemizedlist></para>
 
-<segmentedlist><title>filename notations</title>
- <segtitle/><segtitle/>
- <seglistitem><seg>External notation:</seg>
-  <seg><filename>A:\sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
- <seglistitem><seg>using defaults:</seg>
-  <seg><filename>  \sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>                     name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg/></seglistitem>
-</segmentedlist>
+<table frame="all"><title>filename notations</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+ <row><entry>External notation:</entry>
+  <entry><filename>A:\sub1.typ\sub2.typ\name.typ</filename></entry></row>
+ <row><entry>using defaults:</entry>
+  <entry><filename>  \sub1.typ\sub2.typ\name.typ</filename></entry></row>
+ <row><entry>or</entry>
+  <entry><filename>                     name.typ</filename></entry></row>
+ <row><entry>or</entry>
+  <entry><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></entry></row>
+ <row><entry>or similar.</entry><entry/></row>
+</tbody></tgroup></table>
 
 <para>Instead of <filename>'\'</filename> one may use
  <filename>'/'</filename>, as usual for DOS calls.</para>
@@ -2960,25 +2944,25 @@ and &end-k;:</para>
  <filename>A</filename>|...|<filename>Z</filename>
  </simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><segmentedlist><title><literal
+ <listitem><table frame="all"><title><literal
    role="sexp">(<replaceable>startpoint</replaceable>
    . <replaceable>subdirs</replaceable>)</literal></title>
-   <segtitle>element</segtitle><segtitle>values</segtitle>
-   <segtitle>meaning</segtitle>
- <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-  <seg>&relative-k; | &absolute-k;</seg><seg/></seglistitem>
- <seglistitem><seg><replaceable>subdirs</replaceable></seg><seg><literal
+   <tgroup cols="2" colsep="1" rowsep="1" align="center">
+    &elt-val-meaning-header;<tbody>
+ <row><entry><replaceable>startpoint</replaceable></entry>
+  <entry>&relative-k; | &absolute-k;</entry><entry/></row>
+ <row><entry><replaceable>subdirs</replaceable></entry><entry><literal
     role="sexp">()</literal> | <literal
     role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></seg><seg/></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-  <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
-  <filename>...</filename>, all subdirectories </seg></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-   <seg>&simple-string-type;, may contain wildcard characters
-   <filename>?</filename> and <filename>*</filename></seg>
-   <seg/></seglistitem>
- </segmentedlist></listitem></varlistentry>
+   <replaceable>subdirs</replaceable>)</literal></entry><entry/></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
+  <filename>...</filename>, all subdirectories </entry></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+   <entry>&simple-string-type;, may contain wildcard characters
+   <filename>?</filename> and <filename>*</filename></entry>
+   <entry/></row>
+ </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
   characters <filename>?</filename> and <filename>*</filename> (may also
@@ -3007,18 +2991,18 @@ and &end-k;:</para>
   </simpara></listitem>
 </itemizedlist></para>
 
-<segmentedlist><title>filename notations</title>
- <segtitle/><segtitle/>
- <seglistitem><seg>External notation:</seg>
-  <seg><filename>A:\sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
- <seglistitem><seg>using defaults:</seg>
-  <seg><filename>  \sub1.typ\sub2.typ\name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>                     name.typ</filename></seg></seglistitem>
- <seglistitem><seg>or</seg>
-  <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></seg></seglistitem>
- <seglistitem><seg>or similar.</seg><seg/></seglistitem>
-</segmentedlist>
+<table frame="all"><title>filename notations</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+ <row><entry>External notation:</entry>
+  <entry><filename>A:\sub1.typ\sub2.typ\name.typ</filename></entry></row>
+ <row><entry>using defaults:</entry>
+  <entry><filename>  \sub1.typ\sub2.typ\name.typ</filename></entry></row>
+ <row><entry>or</entry>
+  <entry><filename>                     name.typ</filename></entry></row>
+ <row><entry>or</entry>
+  <entry><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></entry></row>
+ <row><entry>or similar.</entry><entry/></row>
+</tbody></tgroup></table>
 
 <para>Instead of <filename>'\'</filename> one may use
  <filename>'/'</filename>, as usual for DOS calls.</para>
@@ -3196,13 +3180,14 @@ and &end-k;:</para>
   file will be looked for, according to the operation being performed on
   it.</simpara>
 
-<segmentedlist>
- <segtitle>name</segtitle><segtitle>purpose</segtitle>
- <seglistitem><seg>File$Path</seg>
-    <seg>for read operations</seg></seglistitem>
- <seglistitem><seg>Run$Path</seg>
-    <seg>for execute operations</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title/>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>name</entry><entry>purpose</entry></row></thead><tbody>
+ <row><entry>File$Path</entry>
+    <entry>for read operations</entry></row>
+ <row><entry>Run$Path</entry>
+    <entry>for execute operations</entry></row>
+</tbody></tgroup></table>
 
  <simpara>The contents of each variable should expand to a list or
   prefixes, separated by commas.  When a read operation is performed
@@ -3258,26 +3243,26 @@ and &end-k;:</para>
   <varlistentry><term>directory ::==</term>
     <listitem><para> { '$' | '&amp;' | '@' | '%' | '\' } '.'
     { subdirectory }* | { subdirectory }+ | empty
-    <segmentedlist>
-     <segtitle/><segtitle/>
-     <seglistitem><seg>'$' -&gt;</seg>
-         <seg>&absolute-k; &root-k;</seg></seglistitem>
-     <seglistitem><seg>'&amp;' -&gt;</seg>
-         <seg>&absolute-k; &home-k;</seg></seglistitem>
-     <seglistitem><seg>'@' -&gt;</seg>
-         <seg>&absolute-k; &current-k;</seg></seglistitem>
-     <seglistitem><seg>'%' -&gt;</seg>
-         <seg>&absolute-k; &library-k;</seg></seglistitem>
-     <seglistitem><seg>'\' -&gt;</seg>
-         <seg>&absolute-k; &previous-k;</seg></seglistitem>
-     <seglistitem><seg>else</seg><seg>&relative-k;</seg></seglistitem>
-    </segmentedlist></para></listitem></varlistentry>
+    <table frame="all"><title/>
+    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+     <row><entry>'$' -&gt;</entry>
+         <entry>&absolute-k; &root-k;</entry></row>
+     <row><entry>'&amp;' -&gt;</entry>
+         <entry>&absolute-k; &home-k;</entry></row>
+     <row><entry>'@' -&gt;</entry>
+         <entry>&absolute-k; &current-k;</entry></row>
+     <row><entry>'%' -&gt;</entry>
+         <entry>&absolute-k; &library-k;</entry></row>
+     <row><entry>'\' -&gt;</entry>
+         <entry>&absolute-k; &previous-k;</entry></row>
+     <row><entry>else</entry><entry>&relative-k;</entry></row>
+    </tbody></tgroup></table></para></listitem></varlistentry>
   <varlistentry><term>subdirectory ::==</term>
    <listitem><para>{ '^' | { legal-wild char }+ } '.'
-   <segmentedlist>
-    <segtitle/><segtitle/>
-    <seglistitem><seg>'^' -&gt;</seg><seg>&parent-k;</seg></seglistitem>
-   </segmentedlist></para></listitem></varlistentry>
+   <table frame="all"><title/>
+    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+    <row><entry>'^' -&gt;</entry><entry>&parent-k;</entry></row>
+   </tbody></tgroup></table></para></listitem></varlistentry>
   <varlistentry><term>filename ::==</term>
    <listitem><simpara>{ { legal-wild char }+ | empty }
    </simpara></listitem></varlistentry>
@@ -3289,198 +3274,200 @@ and &end-k;:</para>
    </simpara></listitem></varlistentry>
  </variablelist>
 
-<segmentedlist><title>Examples</title>
-   <segtitle>String</segtitle><segtitle>Hostname</segtitle>
-   <segtitle>Device</segtitle><segtitle>Directory</segtitle>
-   <segtitle>Name</segtitle><segtitle>Type</segtitle>
- <seglistitem><seg><filename>-net-$.SystemMesg</filename></seg>
-   <seg><filename>net</filename></seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k;)</literal></seg>
-   <seg><filename>SystemMesg</filename></seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>net#MJHardy::disc1.mike</filename></seg>
-   <seg><filename>net#MJHardy</filename></seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k;)</literal></seg>
-   <seg><filename>mike</filename></seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>#MJHardy::disc1.mike</filename></seg>
-   <seg><filename>#MJHardy</filename></seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k;)</literal></seg>
-   <seg><filename>mike</filename></seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>-net#MJHardy-:disc1.mike</filename></seg>
-   <seg><filename>net#MJHardy</filename></seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k;)</literal></seg>
-   <seg><filename>mike</filename></seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>-#MJHardy-:disc1.mike</filename></seg>
-   <seg><filename>#MJHardy</filename></seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k;)</literal></seg>
-   <seg><filename>mike</filename></seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>@.foo</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&absolute-k; &current-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>foo</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>^.</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k; &parent-k;)</literal></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>@.^.</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&absolute-k; &current-k;
-        &parent-k;)</literal></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>foo.bar</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg><filename>bar</filename></seg></seglistitem>
- <seglistitem><seg><filename>foo.bar.baz</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k; "foo")</literal></seg>
-   <seg><filename>bar</filename></seg>
-   <seg><filename>baz</filename></seg></seglistitem>
- <seglistitem><seg><filename>foo.bar.</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k; "foo" "bar")</literal></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg></seglistitem>
- <seglistitem><seg><filename>foo.@.</filename></seg>
-   <seg>illegal</seg>
-   <seg/>
-   <seg/>
-   <seg/>
-   <seg/></seglistitem>
-</segmentedlist></listitem></varlistentry>
+<table frame="all"><title>Examples</title>
+ <tgroup cols="6" colsep="1" rowsep="1" align="center">
+   <thead><row><entry>String</entry><entry>Hostname</entry>
+   <entry>Device</entry><entry>Directory</entry>
+   <entry>Name</entry><entry>Type</entry></row></thead><tbody>
+ <row><entry><filename>-net-$.SystemMesg</filename></entry>
+   <entry><filename>net</filename></entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
+   <entry><filename>SystemMesg</filename></entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>net#MJHardy::disc1.mike</filename></entry>
+   <entry><filename>net#MJHardy</filename></entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
+   <entry><filename>mike</filename></entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>#MJHardy::disc1.mike</filename></entry>
+   <entry><filename>#MJHardy</filename></entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
+   <entry><filename>mike</filename></entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>-net#MJHardy-:disc1.mike</filename></entry>
+   <entry><filename>net#MJHardy</filename></entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
+   <entry><filename>mike</filename></entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>-#MJHardy-:disc1.mike</filename></entry>
+   <entry><filename>#MJHardy</filename></entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
+   <entry><filename>mike</filename></entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>@.foo</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>foo</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>^.</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; &parent-k;)</literal></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>@.^.</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &current-k;
+        &parent-k;)</literal></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>foo.bar</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry><filename>bar</filename></entry></row>
+ <row><entry><filename>foo.bar.baz</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
+   <entry><filename>bar</filename></entry>
+   <entry><filename>baz</filename></entry></row>
+ <row><entry><filename>foo.bar.</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; "foo" "bar")</literal></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry></row>
+ <row><entry><filename>foo.@.</filename></entry>
+   <entry>illegal</entry>
+   <entry/>
+   <entry/>
+   <entry/>
+   <entry/></row>
+</tbody></tgroup></table></listitem></varlistentry>
 
 <varlistentry><term>From internal representation to RISCOS string</term>
 
  <listitem><simpara>with swapping <emphasis>only</emphasis> of name/type
   components.</simpara>
 
-<segmentedlist>
-  <segtitle>Hostname</segtitle><segtitle>Device</segtitle>
-  <segtitle>Directory</segtitle><segtitle>Name</segtitle>
-  <segtitle>Type</segtitle><segtitle>RISCOS String</segtitle>
- <seglistitem><seg><filename>net</filename></seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg>&nil;</seg>
-   <seg><filename>net::disc1.$.foo</filename></seg></seglistitem>
- <seglistitem><seg><filename>net#MJ</filename></seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k; "foo")</literal></seg>
-   <seg><filename>bar</filename></seg>
-   <seg><filename>baz</filename></seg>
-   <seg><filename>net#MJ::disc1.$.foo.baz.bar</filename></seg></seglistitem>
- <seglistitem><seg><filename>adfs</filename></seg>
-   <seg><filename>4</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k; "foo"
-        "bar")</literal></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><filename>adfs::4.$.foo.bar</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k; "foo")</literal></seg>
-   <seg><filename>bar</filename></seg>
-   <seg>&nil;</seg>
-   <seg><filename>:disc1.$.foo.bar</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&absolute-k; &current-k;)</literal></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg>illegal here</seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg><filename>disc1</filename></seg>
-   <seg><literal role="sexp">(&relative-k;)</literal></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><filename>:disc1.</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg><filename>disc1</filename></seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><filename>:disc1.</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&absolute-k; &root-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg>&nil;</seg>
-   <seg><filename>$.foo</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&absolute-k; &current-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg>&nil;</seg>
-   <seg><filename>@.foo</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg><filename>bar</filename></seg>
-   <seg><filename>bar.foo</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k; "foo")</literal></seg>
-   <seg><filename>bar</filename></seg>
-   <seg><filename>baz</filename></seg>
-   <seg><filename>foo.baz.bar</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&absolute-k; &library-k;)</literal></seg>
-   <seg><filename>bar</filename></seg>
-   <seg>&nil;</seg>
-   <seg><filename>%.bar</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&absolute-k; &library-k; "foo")</literal></seg>
-   <seg><filename>bar</filename></seg>
-   <seg>&nil;</seg>
-   <seg><filename>%.foo.bar</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k;)</literal></seg>
-   <seg><filename>foo</filename></seg>
-   <seg><filename>bar</filename></seg>
-   <seg><filename>bar.foo</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k; "foo")</literal></seg>
-   <seg><filename>bar</filename></seg>
-   <seg>&nil;</seg>
-   <seg><filename>foo.bar</filename></seg></seglistitem>
- <seglistitem><seg>&nil;</seg>
-   <seg>&nil;</seg>
-   <seg><literal role="sexp">(&relative-k; "foo")</literal></seg>
-   <seg>&nil;</seg>
-   <seg><filename>bar</filename></seg>
-   <seg>illegal here</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title/>
+ <tgroup cols="6" colsep="1" rowsep="1" align="center">
+  <thead><row><entry>Hostname</entry><entry>Device</entry>
+  <entry>Directory</entry><entry>Name</entry>
+  <entry>Type</entry><entry>RISCOS String</entry></row></thead><tbody>
+ <row><entry><filename>net</filename></entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry>&nil;</entry>
+   <entry><filename>net::disc1.$.foo</filename></entry></row>
+ <row><entry><filename>net#MJ</filename></entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k; "foo")</literal></entry>
+   <entry><filename>bar</filename></entry>
+   <entry><filename>baz</filename></entry>
+   <entry><filename>net#MJ::disc1.$.foo.baz.bar</filename></entry></row>
+ <row><entry><filename>adfs</filename></entry>
+   <entry><filename>4</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k; "foo"
+        "bar")</literal></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><filename>adfs::4.$.foo.bar</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k; "foo")</literal></entry>
+   <entry><filename>bar</filename></entry>
+   <entry>&nil;</entry>
+   <entry><filename>:disc1.$.foo.bar</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry>illegal here</entry></row>
+ <row><entry>&nil;</entry>
+   <entry><filename>disc1</filename></entry>
+   <entry><literal role="sexp">(&relative-k;)</literal></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><filename>:disc1.</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry><filename>disc1</filename></entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><filename>:disc1.</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry>&nil;</entry>
+   <entry><filename>$.foo</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry>&nil;</entry>
+   <entry><filename>@.foo</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry><filename>bar</filename></entry>
+   <entry><filename>bar.foo</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
+   <entry><filename>bar</filename></entry>
+   <entry><filename>baz</filename></entry>
+   <entry><filename>foo.baz.bar</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &library-k;)</literal></entry>
+   <entry><filename>bar</filename></entry>
+   <entry>&nil;</entry>
+   <entry><filename>%.bar</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &library-k; "foo")</literal></entry>
+   <entry><filename>bar</filename></entry>
+   <entry>&nil;</entry>
+   <entry><filename>%.foo.bar</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k;)</literal></entry>
+   <entry><filename>foo</filename></entry>
+   <entry><filename>bar</filename></entry>
+   <entry><filename>bar.foo</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
+   <entry><filename>bar</filename></entry>
+   <entry>&nil;</entry>
+   <entry><filename>foo.bar</filename></entry></row>
+ <row><entry>&nil;</entry>
+   <entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
+   <entry>&nil;</entry>
+   <entry><filename>bar</filename></entry>
+   <entry>illegal here</entry></row>
+</tbody></tgroup></table>
 
 <simpara>That is, the RISCOS string is the flattening-concatenation
  of</simpara>
@@ -3515,27 +3502,28 @@ and &end-k;:</para>
  <listitem><simpara>&simple-string-type; or &nil;
  </simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><segmentedlist><title><literal
+ <listitem><table frame="all"><title><literal
     role="sexp">(<replaceable>Startpoint</replaceable>
     . <replaceable>Subdirs</replaceable>)</literal></title>
-   <segtitle>element</segtitle><segtitle>values</segtitle>
- <seglistitem><seg><replaceable>startpoint</replaceable></seg>
-   <seg>&relative-k; | &absolute-k;
-   <replaceable>anchor</replaceable></seg></seglistitem>
- <seglistitem><seg><replaceable>anchor</replaceable></seg>
-   <seg>&root-k; | &home-k; | &current-k; | &library-k; |
-   &previous-k;</seg></seglistitem>
- <seglistitem><seg><replaceable>Subdirs</replaceable></seg>
-   <seg><literal role="sexp">()</literal> | <literal
+  <tgroup cols="2" colsep="1" rowsep="1" align="center">
+   <thead><row><entry>element</entry><entry>values</entry></row></thead><tbody>
+ <row><entry><replaceable>startpoint</replaceable></entry>
+   <entry>&relative-k; | &absolute-k;
+   <replaceable>anchor</replaceable></entry></row>
+ <row><entry><replaceable>anchor</replaceable></entry>
+   <entry>&root-k; | &home-k; | &current-k; | &library-k; |
+   &previous-k;</entry></row>
+ <row><entry><replaceable>Subdirs</replaceable></entry>
+   <entry><literal role="sexp">()</literal> | <literal
    role="sexp">(<replaceable>subdir</replaceable>
-   . <replaceable>Subdirs</replaceable>)</literal></seg></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-   <seg>&parent-k;</seg></seglistitem>
- <seglistitem><seg><replaceable>subdir</replaceable></seg>
-   <seg>&simple-string-type;, may contain wildcard characters
+   . <replaceable>Subdirs</replaceable>)</literal></entry></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+   <entry>&parent-k;</entry></row>
+ <row><entry><replaceable>subdir</replaceable></entry>
+   <entry>&simple-string-type;, may contain wildcard characters
    <filename>?</filename>,<filename>#</filename> and
-   <filename>*</filename></seg></seglistitem>
- </segmentedlist></listitem></varlistentry>
+   <filename>*</filename></entry></row>
+ </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
  characters <filename>?</filename>,<filename>#</filename> and
@@ -3579,18 +3567,18 @@ and &end-k;:</para>
 <variablelist>
 <!-- #ifdef PATHNAME_MSDOS -->
 <varlistentry><term>Platform dependent: &dos; platforms only.</term>
-<listitem><segmentedlist>
-   <segtitle/><segtitle/>
-  <seglistitem><seg>[ [drivespec] : ]</seg>
-   <seg>a letter <filename>*</filename> |
+<listitem><table frame="all"><title/>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+  <row><entry>[ [drivespec] : ]</entry>
+   <entry>a letter <filename>*</filename> |
     <filename>A</filename>|...|<filename>Z</filename>|
-    <filename>a</filename>|...|<filename>z</filename></seg></seglistitem>
-  <seglistitem><seg>{ name [. type] \ }</seg>
-   <seg>each one a subdirectory, <filename>\</filename> may be
-    replaced by <filename>/</filename></seg></seglistitem>
-  <seglistitem><seg>[ name [. type] ]</seg>
-   <seg>filename with type (extension)</seg></seglistitem>
-</segmentedlist>
+    <filename>a</filename>|...|<filename>z</filename></entry></row>
+  <row><entry>{ name [. type] \ }</entry>
+   <entry>each one a subdirectory, <filename>\</filename> may be
+    replaced by <filename>/</filename></entry></row>
+  <row><entry>[ name [. type] ]</entry>
+   <entry>filename with type (extension)</entry></row>
+</tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
  (consisting of alphanumeric characters and <filename>-</filename>,
@@ -3608,18 +3596,18 @@ and &end-k;:</para>
 
 <!-- #ifdef PATHNAME_UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
-<listitem><segmentedlist>
-   <segtitle/><segtitle/>
-  <seglistitem><seg>[ <filename>/</filename> ]</seg>
-   <seg><filename>/</filename> denotes absolute
-     pathnames</seg></seglistitem>
-  <seglistitem><seg>{ &name-r;
-      <filename>/</filename> }</seg>
-   <seg>each one a subdirectory</seg></seglistitem>
-  <seglistitem><seg>[ &name-r;
-      [<filename>.</filename> &type-r;] ]</seg>
-   <seg>filename with type (extension)</seg></seglistitem>
-</segmentedlist>
+<listitem><table frame="all"><title/>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+  <row><entry>[ <filename>/</filename> ]</entry>
+   <entry><filename>/</filename> denotes absolute
+     pathnames</entry></row>
+  <row><entry>{ &name-r;
+      <filename>/</filename> }</entry>
+   <entry>each one a subdirectory</entry></row>
+  <row><entry>[ &name-r;
+      [<filename>.</filename> &type-r;] ]</entry>
+   <entry>filename with type (extension)</entry></row>
+</tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
  (consisting of printing ASCII characters, except
@@ -3629,20 +3617,20 @@ and &end-k;:</para>
 
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
-<listitem><segmentedlist>
-   <segtitle/><segtitle/>
-  <seglistitem><seg>[ [<replaceable>drivespec</replaceable>] : ]</seg>
-   <seg>a letter <filename>*</filename>|
+<listitem><table frame="all"><title/>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+  <row><entry>[ [<replaceable>drivespec</replaceable>] : ]</entry>
+   <entry>a letter <filename>*</filename>|
      <filename>a</filename>|...|<filename>z</filename>|
-     <filename>A</filename>|...|<filename>Z</filename></seg></seglistitem>
-  <seglistitem><seg>{ &name-r;
-      [. &type-r;] \ }</seg>
-   <seg>each one a subdirectory, <filename>\</filename> may be
-     replaced by <filename>/</filename></seg></seglistitem>
-  <seglistitem><seg>[ &name-r;
-      [. &type-r;] ]</seg>
-   <seg>filename with type (extension)</seg></seglistitem>
-</segmentedlist>
+     <filename>A</filename>|...|<filename>Z</filename></entry></row>
+  <row><entry>{ &name-r;
+      [. &type-r;] \ }</entry>
+   <entry>each one a subdirectory, <filename>\</filename> may be
+     replaced by <filename>/</filename></entry></row>
+  <row><entry>[ &name-r;
+      [. &type-r;] ]</entry>
+   <entry>filename with type (extension)</entry></row>
+</tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
  (consisting of printing ASCII characters, except
@@ -3969,70 +3957,73 @@ non-&nil;.</para>
 <!-- #ifdef MSDOS -->
        <varlistentry><term>Platform dependent: &dos;, &os2;
           platforms only.</term>
-      <listitem><segmentedlist>
-       <segtitle>key</segtitle><segtitle>value</segtitle>
-       <seglistitem><seg><keycode>F1</keycode>..<keycode>F12</keycode></seg>
-         <seg><constant>:F1</constant>..<constant>:F12</constant>
-         </seg></seglistitem>
-       <seglistitem><seg><keycode>Insert</keycode></seg>
-         <seg><constant>:Insert</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>Delete</keycode></seg>
-         <seg><constant>:Delete</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>Home</keycode></seg>
-         <seg><constant>:Home</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>End</keycode></seg>
-         <seg><constant>:End</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>PgUp</keycode></seg>
-         <seg><constant>:PgUp</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>PgDn</keycode></seg>
-         <seg><constant>:PgDn</constant></seg></seglistitem>
-       <seglistitem><seg>Arrow keys</seg>
-         <seg><constant>:Left</constant><constant>:Right</constant>
-         <constant>:Up</constant><constant>:Down</constant></seg></seglistitem>
-      </segmentedlist></listitem></varlistentry>
+      <listitem><table frame="all"><title/>
+      <tgroup cols="2" colsep="1" rowsep="1" align="center">
+       &key-value-header;<tbody>
+       <row><entry><keycode>F1</keycode>..<keycode>F12</keycode></entry>
+         <entry><constant>:F1</constant>..<constant>:F12</constant>
+         </entry></row>
+       <row><entry><keycode>Insert</keycode></entry>
+         <entry><constant>:Insert</constant></entry></row>
+       <row><entry><keycode>Delete</keycode></entry>
+         <entry><constant>:Delete</constant></entry></row>
+       <row><entry><keycode>Home</keycode></entry>
+         <entry><constant>:Home</constant></entry></row>
+       <row><entry><keycode>End</keycode></entry>
+         <entry><constant>:End</constant></entry></row>
+       <row><entry><keycode>PgUp</keycode></entry>
+         <entry><constant>:PgUp</constant></entry></row>
+       <row><entry><keycode>PgDn</keycode></entry>
+         <entry><constant>:PgDn</constant></entry></row>
+       <row><entry>Arrow keys</entry>
+         <entry><constant>:Left</constant><constant>:Right</constant>
+         <constant>:Up</constant><constant>:Down</constant></entry></row>
+      </tbody></tgroup></table></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #if defined(UNIX) || defined(WIN32) -->
       <varlistentry><term>Platform dependent: &unix;, &win32;
          platforms only.</term>
-      <listitem><segmentedlist>
-       <segtitle>key</segtitle><segtitle>value</segtitle>
-       <seglistitem><seg><keycode>F1</keycode>..<keycode>F12</keycode></seg>
-         <seg><constant>:F1</constant>..<constant>:F12</constant>
-         </seg></seglistitem>
-       <seglistitem><seg><keycode>Insert</keycode></seg>
-         <seg><constant>:Insert</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>Delete</keycode></seg>
-         <seg><constant>:Delete</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>Home</keycode></seg>
-         <seg><constant>:Home</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>End</keycode></seg>
-         <seg><constant>:End</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>Center</keycode></seg>
-         <seg><constant>:Center</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>PgUp</keycode></seg>
-         <seg><constant>:PgUp</constant></seg></seglistitem>
-       <seglistitem><seg><keycode>PgDn</keycode></seg>
-         <seg><constant>:PgDn</constant></seg></seglistitem>
-       <seglistitem><seg>Arrow keys</seg>
-         <seg><constant>:Left</constant><constant>:Right</constant>
-         <constant>:Up</constant><constant>:Down</constant></seg></seglistitem>
-      </segmentedlist></listitem></varlistentry>
+      <listitem><table frame="all"><title/>
+       <tgroup cols="2" colsep="1" rowsep="1" align="center">
+       &key-value-header;<tbody>
+       <row><entry><keycode>F1</keycode>..<keycode>F12</keycode></entry>
+         <entry><constant>:F1</constant>..<constant>:F12</constant>
+         </entry></row>
+       <row><entry><keycode>Insert</keycode></entry>
+         <entry><constant>:Insert</constant></entry></row>
+       <row><entry><keycode>Delete</keycode></entry>
+         <entry><constant>:Delete</constant></entry></row>
+       <row><entry><keycode>Home</keycode></entry>
+         <entry><constant>:Home</constant></entry></row>
+       <row><entry><keycode>End</keycode></entry>
+         <entry><constant>:End</constant></entry></row>
+       <row><entry><keycode>Center</keycode></entry>
+         <entry><constant>:Center</constant></entry></row>
+       <row><entry><keycode>PgUp</keycode></entry>
+         <entry><constant>:PgUp</constant></entry></row>
+       <row><entry><keycode>PgDn</keycode></entry>
+         <entry><constant>:PgDn</constant></entry></row>
+       <row><entry>Arrow keys</entry>
+         <entry><constant>:Left</constant><constant>:Right</constant>
+         <constant>:Up</constant><constant>:Down</constant></entry></row>
+      </tbody></tgroup></table></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
     <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-    <listitem><segmentedlist>
-       <segtitle>key</segtitle><segtitle>value</segtitle>
-       <seglistitem><seg><keycode>F1</keycode>..<keycode>F10</keycode></seg>
-         <seg><constant>:F1</constant>..<constant>:F10</constant>
-         </seg></seglistitem>
-       <seglistitem><seg><keycode>Help</keycode></seg>
-         <seg><constant>:Help</constant></seg></seglistitem>
-       <seglistitem><seg>Arrow keys</seg>
-         <seg><constant>:Left</constant><constant>:Right</constant>
-         <constant>:Up</constant><constant>:Down</constant></seg></seglistitem>
-      </segmentedlist></listitem></varlistentry>
+    <listitem><table frame="all"><title/>
+     <tgroup cols="2" colsep="1" rowsep="1" align="center">
+      &key-value-header;<tbody>
+       <row><entry><keycode>F1</keycode>..<keycode>F10</keycode></entry>
+         <entry><constant>:F1</constant>..<constant>:F10</constant>
+         </entry></row>
+       <row><entry><keycode>Help</keycode></entry>
+         <entry><constant>:Help</constant></entry></row>
+       <row><entry>Arrow keys</entry>
+         <entry><constant>:Left</constant><constant>:Right</constant>
+         <constant>:Up</constant><constant>:Down</constant></entry></row>
+      </tbody></tgroup></table></listitem></varlistentry>
 <!-- #endif -->
       </variablelist></para></listitem></varlistentry>
 
@@ -4516,87 +4507,88 @@ functions are provided:</para>
 
 <para>This is the list of objects whose external representation cannot
   be meaningfully read in:
-<segmentedlist><title>unreadable objects</title>
-  <segtitle>format</segtitle><segtitle>meaning</segtitle>
- <seglistitem><seg><literal>#&lt;&type-r; ...&gt;</literal></seg>
-    <seg>all structures lacking a keyword constructor</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;ARRAY &type-r;
-       <replaceable>dimensions</replaceable>&gt;</literal></seg>
-    <seg>all arrays except strings, if &print-array-var; is
-       &nil;</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;SYSTEM-FUNCTION
-       &name-r;&gt;</literal></seg>
-    <seg>built-in function written in &c-lang;</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
-       &name-r;&gt;</literal></seg>
-    <seg>other function written in &c-lang;</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;SPECIAL-OPERATOR
-       &name-r;&gt;</literal></seg>
-    <seg>special operator handler</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;COMPILED-CLOSURE
-       &name-r;&gt;</literal></seg>
-    <seg>compiled function, if &pr-closure; is &nil;</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;CLOSURE &name-r;
-       ...&gt;</literal></seg>
-    <seg>interpreted function</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;FRAME-POINTER #x...&gt;</literal></seg>
-    <seg>pointer to a stack frame</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;DISABLED POINTER&gt;</literal></seg>
-    <seg>frame pointer which has become invalid on exit from the
-       corresponding &block; or &tagbody;</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;...-STREAM ...&gt;</literal></seg>
-    <seg>stream</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;PACKAGE
-       &name-r;&gt;</literal></seg>
-    <seg>package</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;HASH-TABLE #x...&gt;</literal></seg>
-    <seg>hash table, if &print-array-var; is &nil;</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;READTABLE #x...&gt;</literal></seg>
-    <seg>readtable</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></seg>
-    <seg>&symbol-macro; handler</seg></seglistitem>
+<table frame="all"><title>unreadable objects</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  <thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
+ <row><entry><literal>#&lt;&type-r; ...&gt;</literal></entry>
+    <entry>all structures lacking a keyword constructor</entry></row>
+ <row><entry><literal>#&lt;ARRAY &type-r;
+       <replaceable>dimensions</replaceable>&gt;</literal></entry>
+    <entry>all arrays except strings, if &print-array-var; is
+       &nil;</entry></row>
+ <row><entry><literal>#&lt;SYSTEM-FUNCTION
+       &name-r;&gt;</literal></entry>
+    <entry>built-in function written in &c-lang;</entry></row>
+ <row><entry><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
+       &name-r;&gt;</literal></entry>
+    <entry>other function written in &c-lang;</entry></row>
+ <row><entry><literal>#&lt;SPECIAL-OPERATOR
+       &name-r;&gt;</literal></entry>
+    <entry>special operator handler</entry></row>
+ <row><entry><literal>#&lt;COMPILED-CLOSURE
+       &name-r;&gt;</literal></entry>
+    <entry>compiled function, if &pr-closure; is &nil;</entry></row>
+ <row><entry><literal>#&lt;CLOSURE &name-r;
+       ...&gt;</literal></entry>
+    <entry>interpreted function</entry></row>
+ <row><entry><literal>#&lt;FRAME-POINTER #x...&gt;</literal></entry>
+    <entry>pointer to a stack frame</entry></row>
+ <row><entry><literal>#&lt;DISABLED POINTER&gt;</literal></entry>
+    <entry>frame pointer which has become invalid on exit from the
+       corresponding &block; or &tagbody;</entry></row>
+ <row><entry><literal>#&lt;...-STREAM ...&gt;</literal></entry>
+    <entry>stream</entry></row>
+ <row><entry><literal>#&lt;PACKAGE
+       &name-r;&gt;</literal></entry>
+    <entry>package</entry></row>
+ <row><entry><literal>#&lt;HASH-TABLE #x...&gt;</literal></entry>
+    <entry>hash table, if &print-array-var; is &nil;</entry></row>
+ <row><entry><literal>#&lt;READTABLE #x...&gt;</literal></entry>
+    <entry>readtable</entry></row>
+ <row><entry><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></entry>
+    <entry>&symbol-macro; handler</entry></row>
 <!-- #ifdef FOREIGN -->
- <seglistitem><seg><literal>#&lt;FOREIGN-POINTER #x...&gt;</literal></seg>
-    <seg>foreign pointer
+ <row><entry><literal>#&lt;FOREIGN-POINTER #x...&gt;</literal></entry>
+    <entry>foreign pointer
       <emphasis>(Platform dependent: &unix;, &win32;, &amiga;
          platforms only.)</emphasis>
-     </seg></seglistitem>
+     </entry></row>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
- <seglistitem><seg><literal>#&lt;FOREIGN-ADDRESS #x...&gt;</literal></seg>
-    <seg>foreign address
+ <row><entry><literal>#&lt;FOREIGN-ADDRESS #x...&gt;</literal></entry>
+    <entry>foreign address
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
-    </seg></seglistitem>
- <seglistitem><seg><literal>#&lt;FOREIGN-VARIABLE
-       &name-r; #x...&gt;</literal></seg>
-    <seg>foreign variable
+    </entry></row>
+ <row><entry><literal>#&lt;FOREIGN-VARIABLE
+       &name-r; #x...&gt;</literal></entry>
+    <entry>foreign variable
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
-    </seg></seglistitem>
- <seglistitem><seg><literal>#&lt;FOREIGN-FUNCTION
-       &name-r; #x...&gt;</literal></seg>
-    <seg>foreign function
+    </entry></row>
+ <row><entry><literal>#&lt;FOREIGN-FUNCTION
+       &name-r; #x...&gt;</literal></entry>
+    <entry>foreign function
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
-    </seg></seglistitem>
+    </entry></row>
 <!-- #endif -->
- <seglistitem><seg><literal>#&lt;UNBOUND&gt;</literal></seg>
-    <seg>"value" of a symbol without value, "value" of an unsupplied
-      optional or keyword argument</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;SPECIAL REFERENCE&gt;</literal></seg>
-    <seg>environment marker for variables declared &special-dec;
-      </seg></seglistitem>
- <seglistitem><seg><literal>#&lt;DOT&gt;</literal></seg>
-    <seg>internal &read; result for "."</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;END OF FILE&gt;</literal></seg>
-    <seg>internal &read; result, when the end of file is reached
-      </seg></seglistitem>
- <seglistitem><seg><literal>#&lt;READ-LABEL ...&gt;</literal></seg>
-    <seg>intermediate &read; result for <literal>#n#</literal>
-      </seg></seglistitem>
- <seglistitem><seg><literal>#&lt;ADDRESS #x...&gt;</literal></seg>
-    <seg>machine address, should not occur</seg></seglistitem>
- <seglistitem><seg><literal>#&lt;SYSTEM-POINTER #x...&gt;</literal></seg>
-    <seg>should not occur</seg></seglistitem>
-</segmentedlist></para>
+ <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
+    <entry>"value" of a symbol without value, "value" of an unsupplied
+      optional or keyword argument</entry></row>
+ <row><entry><literal>#&lt;SPECIAL REFERENCE&gt;</literal></entry>
+    <entry>environment marker for variables declared &special-dec;
+      </entry></row>
+ <row><entry><literal>#&lt;DOT&gt;</literal></entry>
+    <entry>internal &read; result for "."</entry></row>
+ <row><entry><literal>#&lt;END OF FILE&gt;</literal></entry>
+    <entry>internal &read; result, when the end of file is reached
+      </entry></row>
+ <row><entry><literal>#&lt;READ-LABEL ...&gt;</literal></entry>
+    <entry>intermediate &read; result for <literal>#n#</literal>
+      </entry></row>
+ <row><entry><literal>#&lt;ADDRESS #x...&gt;</literal></entry>
+    <entry>machine address, should not occur</entry></row>
+ <row><entry><literal>#&lt;SYSTEM-POINTER #x...&gt;</literal></entry>
+    <entry>should not occur</entry></row>
+</tbody></tgroup></table></para>
 
 <section id="chario"><title>characters</title>
 
@@ -4762,28 +4754,29 @@ compiles a file to platform-independent bytecode.</para>
  For each input file (default file type: <filename>#p".lisp"</filename>)
  the following files are generated:</para>
 
-<segmentedlist>
-  <segtitle>File</segtitle><segtitle>When</segtitle>
-  <segtitle>Default file type</segtitle><segtitle>Contents</segtitle>
- <seglistitem><seg>output file</seg>
-   <seg>only if <constant>:output-file</constant> is not &nil;</seg>
-   <seg><function>#p".fas"</function></seg>
-   <seg>can be loaded using the &load; function</seg></seglistitem>
- <seglistitem><seg>auxiliary output file</seg>
-   <seg>only if <constant>:output-file</constant> is not &nil;</seg>
-   <seg><function>#p".lib"</function></seg>
-   <seg>used by &compile-file; when compiling a &require; form referring
-    to the input file</seg></seglistitem>
- <seglistitem><seg>listing file</seg>
-   <seg>only if <constant>:listing</constant> is not &nil;</seg>
-   <seg><function>#p".lis"</function></seg>
-   <seg>disassembly of the output file</seg></seglistitem>
- <seglistitem><seg>&c-lang; output file</seg>
-   <seg>only if <constant>:output-file</constant> is not &nil;</seg>
-   <seg><function>#p".c"</function></seg>
-   <seg>foreign function interface; this file is deleted if it is
-    empty</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title/>
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">
+  <thead><row><entry>File</entry><entry>When</entry>
+  <entry>Default file type</entry><entry>Contents</entry></row></thead><tbody>
+ <row><entry>output file</entry>
+   <entry>only if <constant>:output-file</constant> is not &nil;</entry>
+   <entry><function>#p".fas"</function></entry>
+   <entry>can be loaded using the &load; function</entry></row>
+ <row><entry>auxiliary output file</entry>
+   <entry>only if <constant>:output-file</constant> is not &nil;</entry>
+   <entry><function>#p".lib"</function></entry>
+   <entry>used by &compile-file; when compiling a &require; form referring
+    to the input file</entry></row>
+ <row><entry>listing file</entry>
+   <entry>only if <constant>:listing</constant> is not &nil;</entry>
+   <entry><function>#p".lis"</function></entry>
+   <entry>disassembly of the output file</entry></row>
+ <row><entry>&c-lang; output file</entry>
+   <entry>only if <constant>:output-file</constant> is not &nil;</entry>
+   <entry><function>#p".c"</function></entry>
+   <entry>foreign function interface; this file is deleted if it is
+    empty</entry></row>
+</tbody></tgroup></table>
 
 </section>
 
@@ -4841,76 +4834,77 @@ compiles a file to platform-independent bytecode.</para>
 <section id="features"><title>Variable &features-var;</title>
 
 <para>The variable &features-var; initially contains the symbols
-<segmentedlist>
- <segtitle>keyword</segtitle><segtitle>meaning</segtitle>
-<seglistitem><seg><constant>:CLISP</constant></seg>
-   <seg>the name of this implementation</seg></seglistitem>
-<seglistitem><seg><constant>:ANSI-CL</constant></seg><seg/></seglistitem>
-<seglistitem><seg><constant>:COMMON-LISP</constant></seg><seg/></seglistitem>
-<seglistitem><seg><constant>:INTERPRETER</constant></seg><seg/></seglistitem>
-<seglistitem><seg><constant>:COMPILER</constant></seg><seg/></seglistitem>
+<table frame="all"><title/>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>keyword</entry><entry>meaning</entry></row></thead><tbody>
+<row><entry><constant>:CLISP</constant></entry>
+   <entry>the name of this implementation</entry></row>
+<row><entry><constant>:ANSI-CL</constant></entry><entry/></row>
+<row><entry><constant>:COMMON-LISP</constant></entry><entry/></row>
+<row><entry><constant>:INTERPRETER</constant></entry><entry/></row>
+<row><entry><constant>:COMPILER</constant></entry><entry/></row>
 <!-- #ifdef SOCKET_STREAMS -->
-<seglistitem><seg><constant>:SOCKETS</constant></seg>
-   <seg>see <link linkend="socket">Socket Streams</link></seg></seglistitem>
+<row><entry><constant>:SOCKETS</constant></entry>
+   <entry>see <link linkend="socket">Socket Streams</link></entry></row>
 <!-- #endif -->
 <!-- #ifdef GENERIC_STREAMS -->
-<seglistitem><seg><constant>:GENERIC-STREAMS</constant></seg>
-   <seg>see <link linkend="clos-stream">Defining new kinds of
-    Streams</link></seg></seglistitem>
+<row><entry><constant>:GENERIC-STREAMS</constant></entry>
+   <entry>see <link linkend="clos-stream">Defining new kinds of
+    Streams</link></entry></row>
 <!-- #endif -->
 <!-- #ifdef EXPORT_SYSCALLS -->
-<seglistitem><seg><constant>:SYSCALLS</constant></seg>
-   <seg>see <link linkend="syscalls">System Calls</link></seg></seglistitem>
+<row><entry><constant>:SYSCALLS</constant></entry>
+   <entry>see <link linkend="syscalls">System Calls</link></entry></row>
 <!-- #endif -->
 <!-- #ifdef DIR_KEY -->
-<seglistitem><seg><constant>:DIR-KEY</constant></seg>
-   <seg>see <link linkend="dir-key">Directory Access</link></seg></seglistitem>
+<row><entry><constant>:DIR-KEY</constant></entry>
+   <entry>see <link linkend="dir-key">Directory Access</link></entry></row>
 <!-- #endif -->
 <!-- #ifdef LOGICAL_PATHNAMES -->
-<seglistitem><seg><constant>:LOGICAL-PATHNAMES</constant></seg>
-  <seg/></seglistitem>
+<row><entry><constant>:LOGICAL-PATHNAMES</constant></entry>
+  <entry/></row>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
-<seglistitem><seg><constant>:FFI</constant></seg>
-   <seg>if a foreign function interface is supported <emphasis>(Platform
+<row><entry><constant>:FFI</constant></entry>
+   <entry>if a foreign function interface is supported <emphasis>(Platform
      dependent: many &unix;, &win32; platforms only)</emphasis>
-    </seg></seglistitem>
+    </entry></row>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
-<seglistitem><seg><constant>:GETTEXT</constant></seg>
-   <seg>if internationalization using the &gnu; gettext package is
+<row><entry><constant>:GETTEXT</constant></entry>
+   <entry>if internationalization using the &gnu; gettext package is
      supported <emphasis>(Platform dependent: most &unix; platforms
-     only)</emphasis></seg></seglistitem>
+     only)</emphasis></entry></row>
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
-<seglistitem><seg><constant>:UNICODE</constant></seg>
-   <seg>if Unicode (ISO 10646) characters are supported</seg></seglistitem>
+<row><entry><constant>:UNICODE</constant></entry>
+   <entry>if Unicode (ISO 10646) characters are supported</entry></row>
 <!-- #endif -->
-<seglistitem><seg><constant>:LOOP</constant></seg><seg/></seglistitem>
-<seglistitem><seg><constant>:CLOS</constant></seg><seg/></seglistitem>
-<seglistitem><seg><constant>:AMIGA</constant></seg>
-   <seg>if <replaceable>hardware</replaceable> = Amiga and
+<row><entry><constant>:LOOP</constant></entry><entry/></row>
+<row><entry><constant>:CLOS</constant></entry><entry/></row>
+<row><entry><constant>:AMIGA</constant></entry>
+   <entry>if <replaceable>hardware</replaceable> = Amiga and
      <replaceable>operating system</replaceable> =
-     Exec/AmigaDOS</seg></seglistitem>
-<seglistitem><seg><constant>:DOS</constant></seg>
-   <seg>if <replaceable>hardware</replaceable> = PC (clone) and
+     Exec/AmigaDOS</entry></row>
+<row><entry><constant>:DOS</constant></entry>
+   <entry>if <replaceable>hardware</replaceable> = PC (clone) and
      <replaceable>operating system</replaceable> =
-     DOS</seg></seglistitem>
-<seglistitem><seg><constant>:OS/2</constant></seg>
-   <seg>if <replaceable>hardware</replaceable> = PC (clone) and
+     DOS</entry></row>
+<row><entry><constant>:OS/2</constant></entry>
+   <entry>if <replaceable>hardware</replaceable> = PC (clone) and
      <replaceable>operating system</replaceable> =
-     OS/2</seg></seglistitem>
-<seglistitem><seg><constant>:WIN32</constant></seg>
-   <seg>if <replaceable>hardware</replaceable> = PC (clone) and
+     OS/2</entry></row>
+<row><entry><constant>:WIN32</constant></entry>
+   <entry>if <replaceable>hardware</replaceable> = PC (clone) and
      <replaceable>operating system</replaceable> = Win32 (Windows
-     95/98/NT)</seg></seglistitem>
-<seglistitem><seg><constant>:PC386</constant></seg>
-   <seg>if <replaceable>hardware</replaceable> = PC (clone) with a
-   386/486/586/686 CPU</seg></seglistitem>
-<seglistitem><seg><constant>:UNIX</constant></seg>
-   <seg>if <replaceable>operating system</replaceable> = Unix
-     (yes, in this case the hardware is irrelevant!)</seg></seglistitem>
-</segmentedlist></para>
+     95/98/NT)</entry></row>
+<row><entry><constant>:PC386</constant></entry>
+   <entry>if <replaceable>hardware</replaceable> = PC (clone) with a
+   386/486/586/686 CPU</entry></row>
+<row><entry><constant>:UNIX</constant></entry>
+   <entry>if <replaceable>operating system</replaceable> = Unix
+     (yes, in this case the hardware is irrelevant!)</entry></row>
+</tbody></tgroup></table></para>
 
 </section>
 </section>
@@ -4932,26 +4926,26 @@ compiles a file to platform-independent bytecode.</para>
  or white space.  Each command has a keyword abbreviation, indicated in
  the second column.</para>
 
-<segmentedlist><title>Commands common to the main loop, the debugger and
+<table frame="all"><title>Commands common to the main loop, the debugger and
  the stepper</title>
-  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
-  <segtitle>operation</segtitle>
- <seglistitem><seg><command>Help</command></seg>
-   <seg><command>:h</command></seg>
-   <seg>prints a list of available commands</seg></seglistitem>
-</segmentedlist>
+  <tgroup cols="3" colsep="1" rowsep="1" align="center">
+  &cmd-abbrev-oper-header;<tbody>
+ <row><entry><command>Help</command></entry>
+   <entry><command>:h</command></entry>
+   <entry>prints a list of available commands</entry></row>
+</tbody></tgroup></table>
 
-<segmentedlist><title>Commands common to the debugger and the
+<table frame="all"><title>Commands common to the debugger and the
  stepper</title>
-  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
-  <segtitle>operation</segtitle>
- <seglistitem><seg><command>Abort</command></seg>
-   <seg><command>:a</command></seg>
-   <seg>abort to the next most recent &repl;</seg></seglistitem>
- <seglistitem><seg><command>Unwind</command></seg>
-   <seg><command>:uw</command></seg>
-   <seg>abort to the next most recent &repl;</seg></seglistitem>
-</segmentedlist>
+  <tgroup cols="3" colsep="1" rowsep="1" align="center">
+  &cmd-abbrev-oper-header;<tbody>
+ <row><entry><command>Abort</command></entry>
+   <entry><command>:a</command></entry>
+   <entry>abort to the next most recent &repl;</entry></row>
+ <row><entry><command>Unwind</command></entry>
+   <entry><command>:uw</command></entry>
+   <entry>abort to the next most recent &repl;</entry></row>
+</tbody></tgroup></table>
 
 <para>The stack is organized into frames and other stack elements.
  Usually every invocation of an interpreted function and every
@@ -4973,141 +4967,141 @@ compiles a file to platform-independent bytecode.</para>
 <para>There is a current "stack mode" which defines in how much
  detail the stack is shown by the stack related debugger commands.</para>
 
-<segmentedlist><title>Commands common to the debugger and the
+<table frame="all"><title>Commands common to the debugger and the
  stepper</title>
-  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
-  <segtitle>operation</segtitle>
- <seglistitem><seg><command>Error</command></seg>
-   <seg><command>:e</command></seg>
-   <seg>print the last error message.</seg></seglistitem>
- <seglistitem><seg><command>Mode-1</command></seg>
-   <seg><command>:m1</command></seg>
-   <seg>sets the current mode to 1: all the stack elements are
+  <tgroup cols="3" colsep="1" rowsep="1" align="center">
+  &cmd-abbrev-oper-header;<tbody>
+ <row><entry><command>Error</command></entry>
+   <entry><command>:e</command></entry>
+   <entry>print the last error message.</entry></row>
+ <row><entry><command>Mode-1</command></entry>
+   <entry><command>:m1</command></entry>
+   <entry>sets the current mode to 1: all the stack elements are
          considered.  This mode is fine for debugging compiled
-         functions.</seg></seglistitem>
- <seglistitem><seg><command>Mode-2</command></seg>
-   <seg><command>:m2</command></seg>
-   <seg>sets the current mode to 2: all the frames are considered.
-     </seg></seglistitem>
- <seglistitem><seg><command>Mode-3</command></seg>
-   <seg><command>:m3</command></seg>
-   <seg>sets the current mode to 3: only lexical frames (frames that
+         functions.</entry></row>
+ <row><entry><command>Mode-2</command></entry>
+   <entry><command>:m2</command></entry>
+   <entry>sets the current mode to 2: all the frames are considered.
+     </entry></row>
+ <row><entry><command>Mode-3</command></entry>
+   <entry><command>:m3</command></entry>
+   <entry>sets the current mode to 3: only lexical frames (frames that
          correspond to special forms that modify the lexical environment)
-         are considered.</seg></seglistitem>
- <seglistitem><seg><command>Mode-4</command></seg>
-   <seg><command>:m4</command></seg>
-   <seg>sets the current mode to 4 (the default): only &eval;
+         are considered.</entry></row>
+ <row><entry><command>Mode-4</command></entry>
+   <entry><command>:m4</command></entry>
+   <entry>sets the current mode to 4 (the default): only &eval;
          and &apply; frames are considered. Every evaluation
          of a form in the interpreter corresponds to an EVAL frame.
-     </seg></seglistitem>
- <seglistitem><seg><command>Mode-5</command></seg>
-   <seg><command>:m5</command></seg>
-   <seg>sets the current mode to 5: only &apply; frames are
+     </entry></row>
+ <row><entry><command>Mode-5</command></entry>
+   <entry><command>:m5</command></entry>
+   <entry>sets the current mode to 5: only &apply; frames are
          considered. Every invocation of an interpreted function
-         corresponds to one &apply; frame.</seg></seglistitem>
- <seglistitem><seg><command>Where</command></seg>
-   <seg><command>:w</command></seg>
-   <seg>shows the current stack frame.</seg></seglistitem>
- <seglistitem><seg><command>Up</command></seg>
-   <seg><command>:u</command></seg>
-   <seg>goes up one frame, i.e., to the caller if in mode-5
-    </seg></seglistitem>
- <seglistitem><seg><command>Down</command></seg>
-   <seg><command>:d</command></seg>
-   <seg>does down one frame, i.e., to the callee if in mode-5
-    </seg></seglistitem>
- <seglistitem><seg><command>Top</command></seg>
-   <seg><command>:t</command></seg>
-   <seg>goes to top frame, i.e., to the top-level form if in mode-4
-    </seg></seglistitem>
- <seglistitem><seg><command>Bottom</command></seg>
-   <seg><command>:b</command></seg>
-   <seg>goes to bottom (most recent) frame, i.e., most probably to the
+         corresponds to one &apply; frame.</entry></row>
+ <row><entry><command>Where</command></entry>
+   <entry><command>:w</command></entry>
+   <entry>shows the current stack frame.</entry></row>
+ <row><entry><command>Up</command></entry>
+   <entry><command>:u</command></entry>
+   <entry>goes up one frame, i.e., to the caller if in mode-5
+    </entry></row>
+ <row><entry><command>Down</command></entry>
+   <entry><command>:d</command></entry>
+   <entry>does down one frame, i.e., to the callee if in mode-5
+    </entry></row>
+ <row><entry><command>Top</command></entry>
+   <entry><command>:t</command></entry>
+   <entry>goes to top frame, i.e., to the top-level form if in mode-4
+    </entry></row>
+ <row><entry><command>Bottom</command></entry>
+   <entry><command>:b</command></entry>
+   <entry>goes to bottom (most recent) frame, i.e., most probably to the
          form or function that caused the debugger to be entered.
-    </seg></seglistitem>
- <seglistitem><seg><command>Backtrace</command></seg>
-   <seg><command>:bt</command></seg>
-   <seg>lists the stack in current mode, bottom frame first, top frame
-     last.</seg></seglistitem>
- <seglistitem><seg><command>Backtrace-1</command></seg>
-   <seg><command>:bt1</command></seg>
-   <seg>lists the stack in mode 1.</seg></seglistitem>
- <seglistitem><seg><command>Backtrace-2</command></seg>
-   <seg><command>:bt2</command></seg>
-   <seg>lists the stack in mode 2.</seg></seglistitem>
- <seglistitem><seg><command>Backtrace-3</command></seg>
-   <seg><command>:bt3</command></seg>
-   <seg>lists the stack in mode 3.</seg></seglistitem>
- <seglistitem><seg><command>Backtrace-4</command></seg>
-   <seg><command>:bt4</command></seg>
-   <seg>lists the stack in mode 4.</seg></seglistitem>
- <seglistitem><seg><command>Backtrace-5</command></seg>
-   <seg><command>:bt5</command></seg>
-   <seg>lists the stack in mode 5.</seg></seglistitem>
- <seglistitem><seg><command>Frame-limit</command></seg>
-   <seg><command>:fl</command></seg>
-   <seg>set the frame-limit: this many frames will be printed in a
-     backtrace at most.</seg></seglistitem>
- <seglistitem><seg><command>Backtrace-l</command></seg>
-   <seg><command>:bl</command></seg>
-   <seg>limit of frames to print will be prompted for.</seg></seglistitem>
-</segmentedlist>
+    </entry></row>
+ <row><entry><command>Backtrace</command></entry>
+   <entry><command>:bt</command></entry>
+   <entry>lists the stack in current mode, bottom frame first, top frame
+     last.</entry></row>
+ <row><entry><command>Backtrace-1</command></entry>
+   <entry><command>:bt1</command></entry>
+   <entry>lists the stack in mode 1.</entry></row>
+ <row><entry><command>Backtrace-2</command></entry>
+   <entry><command>:bt2</command></entry>
+   <entry>lists the stack in mode 2.</entry></row>
+ <row><entry><command>Backtrace-3</command></entry>
+   <entry><command>:bt3</command></entry>
+   <entry>lists the stack in mode 3.</entry></row>
+ <row><entry><command>Backtrace-4</command></entry>
+   <entry><command>:bt4</command></entry>
+   <entry>lists the stack in mode 4.</entry></row>
+ <row><entry><command>Backtrace-5</command></entry>
+   <entry><command>:bt5</command></entry>
+   <entry>lists the stack in mode 5.</entry></row>
+ <row><entry><command>Frame-limit</command></entry>
+   <entry><command>:fl</command></entry>
+   <entry>set the frame-limit: this many frames will be printed in a
+     backtrace at most.</entry></row>
+ <row><entry><command>Backtrace-l</command></entry>
+   <entry><command>:bl</command></entry>
+   <entry>limit of frames to print will be prompted for.</entry></row>
+</tbody></tgroup></table>
 
 <para>If the current stack frame is an &eval; or &apply; frame, the
   following commands are available as well:</para>
 
-<segmentedlist>
-  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
-  <segtitle>operation</segtitle>
-<seglistitem><seg><command>Break+</command></seg>
-   <seg><command>:br+</command></seg>
-   <seg>sets a breakpoint in the current frame.  When the corresponding
+<table frame="all"><title>&eval;/&apply;-specific commands</title>
+  <tgroup cols="3" colsep="1" rowsep="1" align="center">
+  &cmd-abbrev-oper-header;<tbody>
+<row><entry><command>Break+</command></entry>
+   <entry><command>:br+</command></entry>
+   <entry>sets a breakpoint in the current frame.  When the corresponding
      form or function will be left, the debugger will be entered again,
      with the variable <link
      linkend="trace-val"><varname>*trace-values*</varname></link>
-     containing a list of its values.</seg></seglistitem>
-<seglistitem><seg><command>Break-</command></seg>
-   <seg><command>:br-</command></seg>
-   <seg>removes a breakpoint from the current frame.</seg></seglistitem>
-<seglistitem><seg><command>Redo</command></seg>
-   <seg><command>:rd</command></seg>
-   <seg>re-evaluates the corresponding form or function call. This
+     containing a list of its values.</entry></row>
+<row><entry><command>Break-</command></entry>
+   <entry><command>:br-</command></entry>
+   <entry>removes a breakpoint from the current frame.</entry></row>
+<row><entry><command>Redo</command></entry>
+   <entry><command>:rd</command></entry>
+   <entry>re-evaluates the corresponding form or function call. This
      command can be used to restart parts of a computation without
-     aborting it entirely.</seg></seglistitem>
-<seglistitem><seg><command>Return</command></seg>
-   <seg><command>:rt</command></seg>
-   <seg>leaves the current frame.  You will be prompted for the return
-     values.</seg></seglistitem>
-</segmentedlist>
+     aborting it entirely.</entry></row>
+<row><entry><command>Return</command></entry>
+   <entry><command>:rt</command></entry>
+   <entry>leaves the current frame.  You will be prompted for the return
+     values.</entry></row>
+</tbody></tgroup></table>
 
-<segmentedlist><title>Commands specific to the debugger</title>
-  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
-  <segtitle>operation</segtitle>
-<seglistitem><seg><command>Continue</command></seg>
-   <seg><command>:c</command></seg>
-   <seg>continues evaluation of the program.</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>Commands specific to the debugger</title>
+  <tgroup cols="3" colsep="1" rowsep="1" align="center">
+  &cmd-abbrev-oper-header;<tbody>
+<row><entry><command>Continue</command></entry>
+   <entry><command>:c</command></entry>
+   <entry>continues evaluation of the program.</entry></row>
+</tbody></tgroup></table>
 
-<segmentedlist><title>Commands specific to the stepper</title>
-  <segtitle>command</segtitle><segtitle>abbreviation</segtitle>
-  <segtitle>operation</segtitle>
-<seglistitem><seg><command>Step</command></seg>
-   <seg><command>:s</command></seg>
-   <seg>step into a form: evaluate this form in single step mode
-   </seg></seglistitem>
-<seglistitem><seg><command>Next</command></seg>
-   <seg><command>:n</command></seg>
-   <seg>step over a form: evaluate this form at once
-   </seg></seglistitem>
-<seglistitem><seg><command>Over</command></seg>
-   <seg><command>:o</command></seg>
-   <seg>step over this level: evaluate at once up to the next return
-   </seg></seglistitem>
-<seglistitem><seg><command>Continue</command></seg>
-   <seg><command>:c</command></seg>
-   <seg>switch off single step mode, continue evaluation
-   </seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>Commands specific to the stepper</title>
+  <tgroup cols="3" colsep="1" rowsep="1" align="center">
+  &cmd-abbrev-oper-header;<tbody>
+<row><entry><command>Step</command></entry>
+   <entry><command>:s</command></entry>
+   <entry>step into a form: evaluate this form in single step mode
+   </entry></row>
+<row><entry><command>Next</command></entry>
+   <entry><command>:n</command></entry>
+   <entry>step over a form: evaluate this form at once
+   </entry></row>
+<row><entry><command>Over</command></entry>
+   <entry><command>:o</command></entry>
+   <entry>step over this level: evaluate at once up to the next return
+   </entry></row>
+<row><entry><command>Continue</command></entry>
+   <entry><command>:c</command></entry>
+   <entry>switch off single step mode, continue evaluation
+   </entry></row>
+</tbody></tgroup></table>
 
 <para>The stepper is usually used like this: If some form returns a
  strange value or results in an error, call <literal role="sexp">(&step;
@@ -5331,13 +5325,14 @@ and you can leave the function call with specified values by using
  but (as float or rational number) it should be a multiple of
  <literal>1/3600</literal>.</para>
 
-<segmentedlist><title>Platform dependent</title>
- <segtitle>platform</segtitle><segtitle>&acorn;, &dos;, &os2;</segtitle>
- <segtitle>&amiga;</segtitle><segtitle>&unix;</segtitle>
- <segtitle>&win32;</segtitle>
- <seglistitem><seg>&internal-time-units-per-second;</seg><seg>100</seg>
-  <seg>50</seg><seg>1,000,000</seg><seg>10,000,000</seg></seglistitem>
-</segmentedlist>
+<table frame="all"><title>Platform dependent</title>
+ <tgroup cols="5" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>platform</entry><entry>&acorn;, &dos;, &os2;</entry>
+        <entry>&amiga;</entry><entry>&unix;</entry>
+        <entry>&win32;</entry></row></thead><tbody>
+ <row><entry>&internal-time-units-per-second;</entry><entry>100</entry>
+  <entry>50</entry><entry>1,000,000</entry><entry>10,000,000</entry></row>
+</tbody></tgroup></table>
 
 <para>&get-internal-run-time; returns the amount of run time
  consumed by the current &clisp; process since its startup.</para>

@@ -201,3 +201,22 @@
 <!ENTITY x1-r "<replaceable>x<subscript>1</subscript></replaceable>">
 <!ENTITY xn-r "<replaceable>x<subscript>n</subscript></replaceable>">
 <!ENTITY y-r "<replaceable>y</replaceable>">
+<!ENTITY cmd-abbrev-oper-header
+ " <thead><row><entry>command</entry><entry>abbreviation</entry>
+         <entry>operation</entry></row></thead>">
+<!ENTITY char-code-header
+ " <thead><row><entry>character</entry><entry>code</entry></row></thead>">
+<!ENTITY code-char-header
+ " <thead><row><entry>code</entry><entry>char</entry></row></thead>">
+<!ENTITY char-table-header
+ " <thead><row><entry/><entry>#x0</entry><entry>#x1</entry>
+   <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
+   <entry>#x6</entry><entry>#x7</entry><entry>#x8</entry><entry>#x9</entry>
+   <entry>#xA</entry><entry>#xB</entry><entry>#xC</entry><entry>#xD</entry>
+   <entry>#xE</entry><entry>#xF</entry></row></thead>">
+<!ENTITY key-value-header
+ " <thead><row><entry>key</entry><entry>value</entry></row></thead>">
+<!ENTITY elt-val-meaning-header
+ " <thead><row><entry>element</entry><entry>values</entry>
+         <entry>meaning</entry></row></thead>">
+
