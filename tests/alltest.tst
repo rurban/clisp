@@ -1434,7 +1434,7 @@ NIL
 ;CHAR-INT, INT-CHAR, CHAR-NAME, NAME-CHAR,
 
 CHAR-CODE-LIMIT
-#+XCL 128 #+(or CLISP AKCL) 256 #+ALLEGRO 65536 #-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+XCL 128 #+(or (and CLISP (not UNICODE)) AKCL) 256 #+(or (and CLISP UNICODE) ALLEGRO) 65536 #-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
 
 ;Kap 14 SEQUENZEN
 ;-------------------------------------------------------------------------------
