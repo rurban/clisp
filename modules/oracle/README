@@ -117,7 +117,7 @@ same source base.  The command I use is:
        --with-readline                          \
        --with-dynamic-ffi                       \
        --with-dynamic-modules                   \
-       --with-export-syscalls                   \
+       --with-module=syscalls                   \
        --with-module=wildcard                   \
        --with-module=regexp                     \
        --with-module=bindings/glibc             \
