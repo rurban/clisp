@@ -7,14 +7,31 @@ development environment, using native system calls
    - GNU libsigsegv (highly recommended for C stack overflow detection),
    - GNU libiconv (for more character set conversions).
 
-1. Unpack the source, start a console with a shell.
+2. Unpack the source, start a console with a shell.
    Make sure that the MSVC4.0 or MSVC5.0 or MSVC6.0 utilities ("cl" etc.)
    are found in PATH. For example, I use the following settings:
 
         set MSDEVDIR=C:\Program Files\Microsoft Visual Studio
+        set MSVCDIR=%MSDEVDIR%\VC98
         set Include=%MSDEVDIR%\VC98\include
         set Lib=%MSDEVDIR%\VC98\lib
         set PATH=%MSDEVDIR%\VC98\bin;%MSDEVDIR%\Common\MSDev98\Bin;%PATH%
+
+   Alternatively you can use a file vcvars32.bat supplied with MSVC. Copy
+   it to some location in the PATH and add the following line to its end:
+
+        %1 %2 %3 %4 %5 %6 %7 %8 %9
+
+   Now you can call VC command line utilities in the proper enviroinment
+   prepending it with vcvars32. For example
+       
+        vcvars32 nmake
+
+3. Ensure unix-like command-line utilities used in the build: sed, grep,
+   touch, rm (more the better) are in the PATH. There are a few such packages
+   available, for example UnxUtils (http://unxutils.sourceforge.net/) or
+   cygwin (overkill for this particular case).
+
 
    Then build a few tools and libraries:
 
@@ -42,13 +59,18 @@ development environment, using native system calls
 
         copy win32msvc\makefile.msvc5 src\makefile
 
-   Modify the value of MSVCDIR in src\makefile to match your site. Then
+     same, debug version:
+
+        copy win32msvc\makefile.msvc5d src\makefile
+
+   Check that enviroinment variable MSVCDIR points to VC98 directory
+   or uncomment and modify the value of MSVCDIR in src\makefile to
+   match your site.
 
         cd src
         nmake
 
-3. (optional) Using cygwin:
+4. (optional) Using cygwin:
 
         cd src
         make distrib
-
