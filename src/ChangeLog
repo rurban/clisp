@@ -1,3 +1,9 @@
+1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in (sigsegv.h, libsigsegv.a): Do "make install-lib" instead
+          of "make install".
+          (clean1): On Win32, remove sigsegv.lib, not libsigsegv.*.
+
 1999-05-30  Sam Steingold  <sds@goems.com>
             Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
