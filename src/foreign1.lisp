@@ -944,8 +944,7 @@
         (setq item (first item)))
       (push `(DEFCONSTANT ,item ,next-value) forms)
       (setq next-value `(1+ ,item)))
-    (setf (gethash name *c-type-table*) 'int)
-    `(PROGN ,@(nreverse forms) ',name)))
+    `(PROGN ,@(nreverse forms) (def-c-type ,name int))))
 
 (defmacro def-c-struct (name &rest slots)
   `(PROGN
