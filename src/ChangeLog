@@ -1,5 +1,9 @@
 2001-09-09  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (offsetof): [MSVC] defined in <stddef.h>
+
+2001-09-09  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (host_namestring_parts): handle logical pathnames on win32
 
 2001-09-07  Sam Steingold  <sds@gnu.org>
