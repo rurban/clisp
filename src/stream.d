@@ -220,7 +220,8 @@
 # fehler_illegal_streamop(caller,stream);
 # > caller: Caller (a Symbol)
 # > stream: Stream
-nonreturning_function(global, fehler_illegal_streamop, (object caller, object stream)) {
+nonreturning_function(global, fehler_illegal_streamop,
+                      (object caller, object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream);
   pushSTACK(caller);
@@ -232,12 +233,14 @@ local object rd_by_error (object stream) {
   fehler_illegal_streamop(S(read_byte),stream);
 }
 
-local uintL rd_by_array_error (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+local uintL rd_by_array_error (const gcv_object_t* stream_,
+                               const gcv_object_t* bytearray_,
                                uintL start, uintL len) {
   fehler_illegal_streamop(S(read_byte),*stream_);
 }
 
-local uintL rd_by_array_dummy (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+local uintL rd_by_array_dummy (const gcv_object_t* stream_,
+                               const gcv_object_t* bytearray_,
                                uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -259,12 +262,14 @@ local void wr_by_error (object stream, object obj) {
   fehler_illegal_streamop(S(write_byte),stream);
 }
 
-local void wr_by_array_error (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+local void wr_by_array_error (const gcv_object_t* stream_,
+                              const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   fehler_illegal_streamop(S(write_byte),*stream_);
 }
 
-local void wr_by_array_dummy (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+local void wr_by_array_dummy (const gcv_object_t* stream_,
+                              const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -287,12 +292,14 @@ local object pk_ch_dummy (const gcv_object_t* stream_) {
   return newch;
 }
 
-local uintL rd_ch_array_error (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local uintL rd_ch_array_error (const gcv_object_t* stream_,
+                               const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   fehler_illegal_streamop(S(read_char),*stream_);
 }
 
-local uintL rd_ch_array_dummy (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local uintL rd_ch_array_dummy (const gcv_object_t* stream_,
+                               const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -312,12 +319,14 @@ local void wr_ch_error (const gcv_object_t* stream_, object obj) {
   fehler_illegal_streamop(S(write_char),*stream_);
 }
 
-local void wr_ch_array_error (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local void wr_ch_array_error (const gcv_object_t* stream_,
+                              const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   fehler_illegal_streamop(S(write_char),*stream_);
 }
 
-local void wr_ch_array_dummy (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local void wr_ch_array_dummy (const gcv_object_t* stream_,
+                              const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -463,7 +472,8 @@ global object read_byte (object stream) {
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
 # can trigger GC
-global uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+global uintL read_byte_array (const gcv_object_t* stream_,
+                              const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   if (len==0)
     return 0;
@@ -510,7 +520,8 @@ global void write_byte (object stream, object byte) {
 # > object bytearray: simple-bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-global void write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+global void write_byte_array (const gcv_object_t* stream_,
+                              const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   if (len==0)
     return;
@@ -625,7 +636,8 @@ global object peek_char (const gcv_object_t* stream_) {
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
 # can trigger GC
-global uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+global uintL read_char_array (const gcv_object_t* stream_,
+                              const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   if (len==0)
     return 0;
@@ -728,7 +740,8 @@ global void write_char (const gcv_object_t* stream_, object ch) {
 # > object chararray: simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
-global void write_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+global void write_char_array (const gcv_object_t* stream_,
+                              const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   if (len==0)
     return;
@@ -1664,7 +1677,8 @@ local void wr_by_twoway (object stream, object obj) {
 }
 
 # WRITE-BYTE-ARRAY - Pseudo-Function for Two-Way- and Echo-Streams:
-local void wr_by_array_twoway (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+local void wr_by_array_twoway (const gcv_object_t* stream_,
+                               const gcv_object_t* bytearray_,
                                uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_output);
@@ -1681,7 +1695,8 @@ local void wr_ch_twoway (const gcv_object_t* stream_, object obj) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Two-Way- and Echo-Streams:
-local void wr_ch_array_twoway (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local void wr_ch_array_twoway (const gcv_object_t* stream_,
+                               const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_output);
@@ -1903,7 +1918,8 @@ local object rd_by_echo (object stream) {
 }
 
 # READ-BYTE-ARRAY - Pseudo-Function for Echo-Streams:
-local uintL rd_by_array_echo (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+local uintL rd_by_array_echo (const gcv_object_t* stream_,
+                              const gcv_object_t* bytearray_,
                               uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
@@ -1930,7 +1946,8 @@ local object rd_ch_echo (const gcv_object_t* stream_) {
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for Echo-Streams:
-local uintL rd_ch_array_echo (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local uintL rd_ch_array_echo (const gcv_object_t* stream_,
+                              const gcv_object_t* chararray_,
                               uintL start, uintL len) {
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_input);
@@ -2327,7 +2344,8 @@ local void wr_ch_pphelp (const gcv_object_t* stream_, object ch) {
 }
 
 # WRITE-CHAR-ARRAY - Pseudo-Function for Pretty-Printer-Auxiliary-Streams:
-local void wr_ch_array_pphelp (const gcv_object_t* stream_, const gcv_object_t* chararray_,
+local void wr_ch_array_pphelp (const gcv_object_t* stream_,
+                               const gcv_object_t* chararray_,
                                uintL start, uintL len) {
   var bool filling = !nullpSv(print_pretty_fill);
   var uintL beg = start;
@@ -7917,14 +7935,14 @@ typedef struct {
   const char * key;
   chart code;
   uintB bits;
-} key_event;
+} key_event_t;
 
-# Initializers for the two most common kinds of keyboard events.
-  #define key_ascii(asc)  { NULL, ascii(asc), 0 }
-  #define key_special(name)  { name, ascii(0), char_hyper_c }
+/* Initializers for the two most common kinds of keyboard events. */
+#define key_ascii(asc)     (key_event_t){ NULL, ascii(asc), 0 }
+#define key_special(name)  (key_event_t){ name, ascii(0), char_hyper_c }
 
 # Creates a keyboard event.
-local object make_key_event (const key_event* event) {
+local object make_key_event (const key_event_t* event) {
   if ((event->key == NULL) && (event->bits == 0)) {
     pushSTACK(S(Kchar)); pushSTACK(code_char(event->code));
     funcall(S(make_input_character),2);
@@ -8042,7 +8060,7 @@ local object make_key_event (const key_event* event) {
 
   # Table of Characters, that correspond to the Scan-Codes 0..166
   #  (as special keys):
-  local const key_event scancode_table [167] = {
+  local const key_event_t scancode_table [167] = {
     { NULL, 0, 0, },
     { NULL, ESC, char_meta_c }, # 1 -> Alt-Escape
     { NULL, '1', char_control_c }, # [2 = Ctrl-1 -> #\CONTROL-1]
@@ -8245,7 +8263,7 @@ local signean listen_char_keyboard (object stream) {
       c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
     } else if ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
       # from Ctrl-A to Ctrl-Z -> make a letter with CONTROL-Bit out of it:
-      var key_event event;
+      var key_event_t event;
       event.key = NULL;
       event.code = ascii(ch==LF ? CR : (ch | bit(6)));
       event.bits = char_control_c;
@@ -8357,7 +8375,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
     } else if ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
       # from Ctrl-A to Ctrl-Z -> make a letter with CONTROL-Bit out of it:
-      var key_event event;
+      var key_event_t event;
       event.key = NULL;
       event.code = ascii(ch==LF ? CR : (ch | bit(6)));
       event.bits = char_control_c;
@@ -8389,14 +8407,14 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
           if (scancode < 167) {
             c = make_key_event(&scancode_table[scancode]);
           } else {
-            var key_event event = { NULL, 0, 0 };
+            var key_event_t event = { NULL, 0, 0 };
             c = make_key_event(&event);
           }
         } else {
           if (((scancode >= 71) && (scancode < 84)) || (scancode == 55)
               || ((scancode == 0xE0) && (code >= 32))) {
             # key on the numerical pad except Enter (also excluding F1 to F12!)
-            var key_event event;
+            var key_event_t event;
             event.key = NULL;
             event.code = as_chart(code);
             event.bits = char_hyper_c;
@@ -8405,7 +8423,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
                      || ((scancode == 0xE0) && (code < 32))) {
             # Backspace-Key, Return-Key, Enter-Key
             var uintB defaultcode = (scancode==14 ? BS : CR);
-            var key_event event;
+            var key_event_t event;
             event.key = NULL;
             event.code = as_chart(defaultcode);
             event.bits = (scancode == 0xE0 ? char_hyper_c : 0)
@@ -8414,7 +8432,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
           } else {
             if ((code < 32) && ((scancode >= 16) && (scancode <= 53))) {
               # from Ctrl-A to Ctrl-Z -> make letter with CONTROL-Bit out of it
-              var key_event event;
+              var key_event_t event;
               event.key = NULL;
               event.code = ascii(code | bit(6));
               event.bits = char_control_c;
@@ -8458,7 +8476,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
     }
     ASSERT(nevents_read==1);
     if (event.EventType == KEY_EVENT && event.Event.KeyEvent.bKeyDown) {
-      var key_event ev;
+      var key_event_t ev;
       if (event.Event.KeyEvent.wRepeatCount > 1) {
         var DWORD nevents_written;
         event.Event.KeyEvent.wRepeatCount--;
@@ -8468,7 +8486,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       }
       if ((uintB)event.Event.KeyEvent.uAsciiChar <= ' ') {
         # Translate Virtual Keycode.
-        local struct { WORD vkcode; key_event myevent; } vktable[] = {
+        local struct { WORD vkcode; key_event_t myevent; } vktable[] = {
           VK_BACK,    { NULL,  BS, 0 },               # #\Backspace
           VK_TAB,     { NULL, TAB, 0 },               # #\Tab
           VK_RETURN,  { NULL,  CR, 0 },               # #\Return
@@ -8813,7 +8831,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       return value1;
     } else {
       # key presumably pressed with Ctrl
-      var key_event event;
+      var key_event_t event;
       event.key = NULL;
       event.code = ascii(c == 0 ? ' ' : (c | bit(6)));
       event.bits = char_control_c;
@@ -8824,7 +8842,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
 
 # UP: extends the List STACK_0 by one key-assignment.
 # can trigger GC
-local void add_keybinding (const char* cap, const key_event* event) {
+local void keybinding (const char* cap, const key_event_t event) {
   var const uintB* ptr = (const uintB*)cap;
   if (*ptr=='\0') # avoid empty key-sequence
     return;
@@ -8836,7 +8854,7 @@ local void add_keybinding (const char* cap, const key_event* event) {
     do {
       pushSTACK(code_char(as_chart(*ptr))); ptr++; count++;
     } until (*ptr=='\0');
-    pushSTACK(make_key_event(event)); count++;
+    pushSTACK(make_key_event(&event)); count++;
     funcall(L(liststern),count);
   }
   # and push on STACK_0:
@@ -8845,8 +8863,6 @@ local void add_keybinding (const char* cap, const key_event* event) {
     Car(l) = value1; Cdr(l) = STACK_0; STACK_0 = l;
   }
 }
-#define keybinding(cap,initializer)  \
-  do { key_event event = initializer; add_keybinding(cap,&event); } while(0)
 #endif
 
 #ifdef NEXTAPP
@@ -8868,110 +8884,69 @@ local object make_keyboard_stream (void) {
       end_system_call();
     } else {
       var char tbuf[4096]; # internal Buffer for the Termcap-Routines
-      if (!(tgetent(tbuf,s)==1)) {
+      if (tgetent(tbuf,s) !=1) {
         end_system_call();
       } else {
         var char tentry[4096]; # Buffer for the Capabilities that I need
         var char* tp = &tentry[0];
         var const char* cap;
         end_system_call();
-        # Backspace:
-        begin_system_call(); cap = tgetstr("kb",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_ascii(BS)); # #\Backspace
-        # Insert, Delete:
-        begin_system_call(); cap = tgetstr("kI",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("INSERT")); # #\Insert
-        begin_system_call(); cap = tgetstr("kD",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("DELETE")); # #\Delete
-        # arrow keys:
-        begin_system_call(); cap = tgetstr("ku",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("UP")); # #\Up
-        if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'A') && (cap[3] == '\0'))
-          keybinding(ESCstring"[A", key_special("UP")); # #\Up
-        begin_system_call(); cap = tgetstr("kd",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("DOWN")); # #\Down
-        if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'B') && (cap[3] == '\0'))
-          keybinding(ESCstring"[B", key_special("DOWN")); # #\Down
-        begin_system_call(); cap = tgetstr("kr",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("RIGHT")); # #\Right
-        if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'C') && (cap[3] == '\0'))
-          keybinding(ESCstring"[C", key_special("RIGHT")); # #\Right
-        begin_system_call(); cap = tgetstr("kl",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("LEFT")); # #\Left
-        if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'D') && (cap[3] == '\0'))
-          keybinding(ESCstring"[D", key_special("LEFT")); # #\Left
-        # other cursorblock-keys:
-        begin_system_call(); cap = tgetstr("kh",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("HOME")); # #\Home
-        begin_system_call(); cap = tgetstr("K1",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("HOME")); # #\Home
-        begin_system_call(); cap = tgetstr("KH",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("END")); # #\End
-        begin_system_call(); cap = tgetstr("K4",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("END")); # #\End
-        begin_system_call(); cap = tgetstr("kP",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("PGUP")); # #\PgUp
-        begin_system_call(); cap = tgetstr("K3",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("PGUP")); # #\PgUp
-        begin_system_call(); cap = tgetstr("kN",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("PGDN")); # #\PgDn
-        begin_system_call(); cap = tgetstr("K5",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("PGDN")); # #\PgDn
-        begin_system_call(); cap = tgetstr("K2",&tp); end_system_call();
-        if (cap)
-          keybinding(cap, key_special("CENTER")); # #\Center
-        # Function Keys:
-        {
-          typedef struct { const char* capname; key_event key; } funkey;
-          local var const funkey funkey_tab[] = {
-            { "k1", key_special("F1") }, # #\F1
-            { "k2", key_special("F2") }, # #\F2
-            { "k3", key_special("F3") }, # #\F3
-            { "k4", key_special("F4") }, # #\F4
-            { "k5", key_special("F5") }, # #\F5
-            { "k6", key_special("F6") }, # #\F6
-            { "k7", key_special("F7") }, # #\F7
-            { "k8", key_special("F8") }, # #\F8
-            { "k9", key_special("F9") }, # #\F9
-            { "k0", key_special("F10") }, # #\F10
-            { "k;", key_special("F10") }, # #\F10
-            { "F1", key_special("F11") }, # #\F11
-            { "F2", key_special("F12") }, # #\F12
-          };
-          var uintL i;
-          for (i=0; i < sizeof(funkey_tab)/sizeof(funkey); i++) {
-            begin_system_call();
-            cap = tgetstr(funkey_tab[i].capname,&tp);
-            end_system_call();
-            if (cap)
-              add_keybinding(cap,&funkey_tab[i].key);
-          }
-        }
+#define BIND_KEY(key,binding) do {                                \
+  begin_system_call(); cap = tgetstr(key,&tp); end_system_call(); \
+  if (cap) keybinding(cap,binding); } while(0)
+        BIND_KEY("kb",key_ascii(BS)); /* #\Backspace */
+        BIND_KEY("kI",key_special("INSERT")); /* #\Insert */
+        BIND_KEY("kD",key_special("DELETE")); /* #\Delete */
+        /* arrow keys: */
+#define CHECK_CAP(a,b,c)                                                \
+  (cap && (cap[0] == ESC) && (cap[1] == a) && (cap[2] == b) && (cap[3] == c))
+        BIND_KEY("ku",key_special("UP")); /* #\Up */
+        if (CHECK_CAP('O','A','\0'))
+          keybinding(ESCstring"[A", key_special("UP")); /* #\Up */
+        BIND_KEY("kd",key_special("DOWN")); /* #\Down */
+        if (CHECK_CAP('O','B','\0'))
+          keybinding(ESCstring"[B", key_special("DOWN")); /* #\Down */
+        BIND_KEY("kr",key_special("RIGHT")); /* #\Right */
+        if (CHECK_CAP('O','C','\0'))
+          keybinding(ESCstring"[C", key_special("RIGHT")); /* #\Right */
+        BIND_KEY("kl",key_special("LEFT")); /* #\Left */
+        if (CHECK_CAP('O','D','\0'))
+          keybinding(ESCstring"[D", key_special("LEFT")); /* #\Left */
+        /* other cursorblock-keys: */
+        BIND_KEY("kh",key_special("HOME")); /* #\Home */
+        BIND_KEY("K1",key_special("HOME")); /* #\Home */
+        BIND_KEY("KH",key_special("END")); /* #\End */
+        BIND_KEY("K4",key_special("END")); /* #\End */
+        BIND_KEY("kP",key_special("PGUP")); /* #\PgUp */
+        BIND_KEY("K3",key_special("PGUP")); /* #\PgUp */
+        BIND_KEY("kN",key_special("PGDN")); /* #\PgDn */
+        BIND_KEY("K5",key_special("PGDN")); /* #\PgDn */
+        BIND_KEY("K2",key_special("CENTER")); /* #\Center */
+        /* Function Keys: */
+        BIND_KEY("k1",key_special("F1")); /* #\F1 */
+        BIND_KEY("k2",key_special("F2")); /* #\F2 */
+        BIND_KEY("k3",key_special("F3")); /* #\F3 */
+        BIND_KEY("k4",key_special("F4")); /* #\F4 */
+        BIND_KEY("k5",key_special("F5")); /* #\F5 */
+        BIND_KEY("k6",key_special("F6")); /* #\F6 */
+        BIND_KEY("k7",key_special("F7")); /* #\F7 */
+        BIND_KEY("k8",key_special("F8")); /* #\F8 */
+        BIND_KEY("k9",key_special("F9")); /* #\F9 */
+        BIND_KEY("k0",key_special("F10")); /* #\F10 */
+        BIND_KEY("k;",key_special("F10")); /* #\F10 */
+        BIND_KEY("F1",key_special("F11")); /* #\F11 */
+        BIND_KEY("F2",key_special("F12")); /* #\F12 */
+#undef BIND_KEY
         # Special Linux console handling:
         begin_system_call();
         cap = tgetstr("kh",&tp); # Home
-        if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '1') && (cap[3] == '~') && (cap[4] == '\0')))
+        if (!(CHECK_CAP('[','1','~') && (cap[4] == '\0')))
           goto not_linux;
         cap = tgetstr("kI",&tp); # Insert
-        if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '2') && (cap[3] == '~') && (cap[4] == '\0')))
+        if (!(CHECK_CAP('[','2','~') && (cap[4] == '\0')))
           goto not_linux;
         cap = tgetstr("kD",&tp); # Delete
-        if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '3') && (cap[3] == '~') && (cap[4] == '\0')))
+        if (!(CHECK_CAP('[','3','~') && (cap[4] == '\0')))
           goto not_linux;
         end_system_call();
         keybinding(ESCstring"[4~", key_special("END")); # #\End
@@ -8982,16 +8957,16 @@ local object make_keyboard_stream (void) {
         # Special xterm handling:
         begin_system_call();
         cap = tgetstr("ku",&tp);
-        if (!(cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'A') && (cap[3] == '\0')))
+        if (!(CHECK_CAP('O','A','\0')))
           goto not_xterm;
         cap = tgetstr("kd",&tp);
-        if (!(cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'B') && (cap[3] == '\0')))
+        if (!(CHECK_CAP('O','B','\0')))
           goto not_xterm;
         cap = tgetstr("kr",&tp);
-        if (!(cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'C') && (cap[3] == '\0')))
+        if (!(CHECK_CAP('O','C','\0')))
           goto not_xterm;
         cap = tgetstr("kl",&tp);
-        if (!(cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'D') && (cap[3] == '\0')))
+        if (!(CHECK_CAP('O','D','\0')))
           goto not_xterm;
         end_system_call();
         # Insert, Delete:
@@ -9046,7 +9021,7 @@ local object make_keyboard_stream (void) {
         keybinding(ESCstring"[23~", key_special("F11")); # #\F11
         keybinding(ESCstring"[24~", key_special("F12")); # #\F12
         if (false) {
-        not_xterm:
+         not_xterm:
           end_system_call();
         }
       }
