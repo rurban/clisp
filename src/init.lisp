@@ -1,11 +1,11 @@
-;;;;   INITIALISIERUNGS-FILE
+;;;;   INITIALIZATION-FILE
 
 (eval-when (compile load eval)
   (setq *package* (sys::%find-package "COMMON-LISP")))
 
 (shadow 'system::debug (find-package "SYSTEM"))
 
-;;; Exportierungen:
+;;; Exports:
 (export
  '(;; types:
    array atom base-char base-string bignum bit bit-vector boolean character
@@ -155,7 +155,7 @@
    file-position file-length file-string-length load directory
    ensure-directories-exist error cerror warn break compile
    compile-file disassemble with-compilation-unit
-   documentation variable structure type ; drei Dokumentations-Typen
+   documentation variable structure type ; three documentation-types
    describe inspect room ed dribble apropos apropos-list get-decoded-time
    get-universal-time decode-universal-time encode-universal-time
    get-internal-run-time get-internal-real-time sleep lisp-implementation-type
@@ -170,7 +170,7 @@
    deftype defun defvar defparameter defconstant and or psetq setf psetf shiftf
    rotatef define-modify-macro defsetf define-setf-expander
    prog1 prog2 when unless cond
-   case typecase  otherwise ; otherwise als Marker für die catchall-clause
+   case typecase otherwise ; otherwise is the marker for the catchall-clause
    return loop do do* dolist dotimes prog prog* multiple-value-list
    multiple-value-bind multiple-value-setq defmacro remf do-symbols
    do-external-symbols do-all-symbols with-package-iterator incf decf
@@ -180,19 +180,19 @@
    check-type assert etypecase ctypecase ecase ccase trace untrace step time
    formatter
    compiler-macro compiler-macro-function define-compiler-macro
-   ;; sonstige Markierer:
-   ;; EVAL-WHEN-Situationen:
+   ;; other markers:
+   ;; EVAL-WHEN situations:
    eval load compile
-   ;; DECLARE-Specifier:
+   ;; DECLARE specifiers:
    special type ftype function inline notinline ignore ignorable optimize speed
    space safety compilation-speed debug declaration dynamic-extent compile
-   ;; Exportierungen von condition.lisp
-   handler-bind                  ; vorgezogen für compiler.lisp
-   find-restart compute-restarts ; vorgezogen für user1.lisp
+   ;; exports from condition.lisp
+   handler-bind                  ; pre-drawn for compiler.lisp
+   find-restart compute-restarts ; pre-drawn for user1.lisp
    invoke-restart-interactively  ; dito
-   restart                       ; vermeide Konflikt mit user1.lisp
-   continue                      ; vermeide Konflikt mit user1.lisp
-   end-of-file                   ; vermeide Konflikt mit init.lisp, user2.lisp
+   restart                       ; avoid conflict with user1.lisp
+   continue                      ; avoid conflict with user1.lisp
+   end-of-file                   ; avoid conflict with init.lisp, user2.lisp
    ;; types for error-of-type:
    condition warning serious-condition error storage-condition type-error
    program-error control-error package-error print-not-readable parse-error
@@ -215,18 +215,17 @@
 (common-lisp:eval-when (common-lisp:compile common-lisp:load common-lisp:eval)
   (common-lisp:setq common-lisp:*package* (sys::%find-package "SYSTEM")))
 
-#-COMPILER ; nur beim Bootstrappen
+#-COMPILER ; only for bootstrapping
 (progn
 
-; vorläufig soll bei GET_CLOSURE nicht expandiert werden:
+;; preliminarily, no expansion at GET_CLOSURE:
 (sys::%putd '%expand-lambdabody-main
   (function %expand-lambdabody-main
     (lambda (lambdabody venv fenv)
       (declare (source nil) (ignore venv fenv))
-      lambdabody
-) ) )
+      lambdabody)))
 
-; vorläufig soll defun ganz trivial expandiert werden:
+;; preliminarily, defun is to be expanded trivially:
 (sys::%putd 'defun
   (sys::make-macro
     (function defun
@@ -241,10 +240,7 @@
         |#
         (let ((name (cadr form)))
           (list 'sys::%putd (list 'quote name)
-            (list 'function name (cons 'lambda (cddr form)))
-        ) )
-    ) )
-) )
+                (list 'function name (cons 'lambda (cddr form)))))))))
 
 )
 
@@ -353,13 +349,12 @@
     double-float-epsilon double-float-negative-epsilon
     char-code-limit
     array-total-size-limit array-dimension-limit array-rank-limit
-    internal-time-units-per-second
-)  )
+    internal-time-units-per-second))
 
 (use-package '("COMMON-LISP") "CLOS")
 (in-package "CLOS")
 
-;;; Exportierungen:
+;;; Exports:
 (export
  '(;; names of functions and macros:
    slot-value slot-boundp slot-makunbound slot-exists-p with-slots
@@ -379,7 +374,7 @@
    standard-object structure-object
    generic-function standard-generic-function method standard-method
    ;; other symbols:
-   standard)) ; Methoden-Kombination
+   standard)) ; method combination
 
 (use-package '("CLOS") "COMMON-LISP")
 (ext:re-export "CLOS" "COMMON-LISP")
@@ -409,8 +404,7 @@
                (list 'SYS::LANGUAGE
                      (getf form 'ENGLISH)
                      (getf form 'DEUTSCH)
-                     (getf form 'FRANCAIS)
-      )) ) ) ) )
+                     (getf form 'FRANCAIS)))))))
   (sys::%putd 'ENGLISH h)
   (sys::%putd 'DEUTSCH h)
   (sys::%putd 'FRANCAIS h)
@@ -436,56 +430,45 @@
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions
-    (lambda (symbol) ; entfernt die alten Funktionsdefinitionen eines Symbols
+    (lambda (symbol) ; removes the old function-definitions of a symbol
       (if (special-operator-p symbol)
         (error-of-type 'error
           (ENGLISH "~S is a special operator and may not be redefined.")
-          symbol
-      ) )
+          symbol))
       (if (and (or (fboundp symbol) (macro-function symbol))
                (sys::exported-lisp-symbol-p symbol))
         (cerror (ENGLISH "The old definition will be lost")
                 (ENGLISH "Redefining the COMMON LISP ~A ~S")
-                (fbound-string symbol) ; "Funktion" bzw. "Macro"
+                (fbound-string symbol) ; "Function" resp. "Macro"
                 symbol
-                (macro-function symbol)
-      ) )
-      (fmakunbound symbol) ; Funktions-/Macro-Definition streichen
-      ; Property sys::definition wird nicht entfernt, da sie sowieso
-      ; bald neu gesetzt wird.
-      (remprop symbol 'sys::macro) ; Macro-Definition streichen
-      (remprop symbol 'sys::defstruct-reader) ; DEFSTRUCT-Information streichen
-      (when (get symbol 'sys::documentation-strings) ; Dokumentation streichen
-        (sys::%set-documentation symbol 'FUNCTION nil)
-      )
+                (macro-function symbol)))
+      (fmakunbound symbol) ; discard function & macro definition
+      ;; Property sys::definition is not discarded, because it is
+      ;; soon reset, anyway.
+      (remprop symbol 'sys::macro) ; discard macro definition
+      (remprop symbol 'sys::defstruct-reader) ; discard DEFSTRUCT information
+      (when (get symbol 'sys::documentation-strings) ; discard documentation
+        (sys::%set-documentation symbol 'FUNCTION nil))
       (when (get symbol 'sys::inline-expansion)
-        (sys::%put symbol 'sys::inline-expansion t)
-      )
-      (when (get symbol 'sys::traced-definition) ; Trace streichen
+        (sys::%put symbol 'sys::inline-expansion t))
+      (when (get symbol 'sys::traced-definition) ; discard Trace
         (warn (ENGLISH "DEFUN/DEFMACRO: redefining ~S; it was traced!")
-              symbol
-        )
-        (untrace2 symbol)
-    ) )
-) )
+              symbol)
+        (untrace2 symbol)))))
 
-; THE-ENVIRONMENT as in SCHEME
+;; THE-ENVIRONMENT as in SCHEME
 (sys::%putd '%the-environment
   (function %the-environment
     (lambda (form env)
       (declare (ignore form))
       (sys::svstore env 0 (svref (svref env 0) 2)) ; nuke *evalhook* binding
-      env
-    )
-) )
+      env)))
 (sys::%putd '%the-environment-error
   (function %the-environment-error
     (lambda ()
       (error-of-type 'source-program-error
         (ENGLISH "~S is impossible in compiled code")
-        'the-environment
-    ) )
-) )
+        'the-environment))))
 (sys::%putd 'the-environment
   (sys::make-macro
     (function the-environment
@@ -493,44 +476,41 @@
         (declare (ignore form env))
         '(progn
            (eval-when ((not eval)) (%the-environment-error))
-           (let ((*evalhook* #'%the-environment)) 0)
-         )
-) ) ) )
-; The toplevel environment
+           (let ((*evalhook* #'%the-environment)) 0))))))
+;; The toplevel environment
 (proclaim '(special *toplevel-environment*))
 (setq *toplevel-environment* (eval '(the-environment)))
 (proclaim '(special *toplevel-denv*))
 (setq *toplevel-denv* (svref *toplevel-environment* 4))
 
-; liefert den Namen des impliziten Blocks zu einem Funktionsnamen
+;; returns the name of the implicit block for a function-name
 (defun function-block-name (funname)
-  (if (atom funname) funname (second funname))
-)
+  (if (atom funname) funname (second funname)))
 
-; schiebt einen impliziten Block in einen Body ein.
-; benutzt *venv* und *fenv*.
+;; inserts an implicit BLOCK in the BODY.
+;; uses *VENV* and *FENV*.
 (defun add-implicit-block (name body)
   (multiple-value-bind (body-rest declarations docstring)
       (sys::parse-body body t (vector *venv* *fenv*))
     (append (if declarations (list (cons 'DECLARE declarations)))
             (if docstring (list docstring))
-            (list (list* 'BLOCK (function-block-name name) body-rest))
-) ) )
+            (list (list* 'BLOCK (function-block-name name) body-rest)))))
 
-;;; Funktionen zum Expandieren von Macros innerhalb eines Codestückes
+;;; functions for expansion of macros within a piece of code
 ;;;
-;;; Insgesamt wird der gesamte Code (einer Funktion) durchgegangen und
-;;; globale und lokale Macros expandiert.
-;;; Aus       #'(lambda lambdalist . body)
-;;; wird so   #'(lambda expanded-lambdalist
+;;; Altogether, the whole Code (of a function) is walked through and
+;;; global and local Macros are expanded.
+;;;           #'(lambda lambdalist . body)
+;;; becomes   #'(lambda expanded-lambdalist
 ;;;               (declare (source (lambdalist . body))) . expanded-body
 ;;;             )
-;;; Durch diese Deklaration ist gewährleistet, dass eine bereits einmal
-;;; durchlaufene Funktion als solche erkannt und nicht unnötigerweise ein
-;;; zweites Mal durchlaufen wird.
+;;; This declaration guarantees, that a formerly processed
+;;; function is recognized as such and not unnecessarily processed
+;;; a second time.
 
-; Vorsicht! Fürs Bootstrappen (erkennbar an #-COMPILER) müssen manche der
-; Funktionen in primitiverem Lisp (ohne do, do*, case) geschrieben werden.
+;; Caution! For bootstrapping purposes (recognizable with #-COMPILER) some
+;; of the functions have to be written in a more primitive Lisp
+;; (without do, do*, case).
 
 (PROGN
 
@@ -538,13 +518,16 @@
 (setq *keyword-package* (find-package "KEYWORD"))
 
 (proclaim '(special *fenv*))
-; *fenv* = Das aktuelle Function-Environment während der Expansion
-; einer Form. Struktur: NIL oder ein 2n+1-elementiger Vektor
-; (n1 f1 ... nn fn next), wo die ni Funktionsnamen sind, die fi ihre funktionale
-; Bedeutung sind (Closure oder Macro oder FunctionMacro oder noch NIL); bei next
-; geht's ebenso weiter.
+;; *FENV* = the current function environment during expansion of a form.
+;; structure: NIL or a 2n+1-element vector
+;;   (n1 f1 ... nn fn next),
+;; where the ni are function-names,
+;;       the fi are their functional meanings
+;;           (closure or macro or function-macro or still NIL)
+;; continued similarly at 'next'.
 
-; (fenv-assoc s fenv) sucht Symbol s in Function-Environment fenv.
+;; (fenv-assoc s fenv) searches symbol S in function-environment FENV.
+;; the search routine uses EQUAL
 (defun fenv-assoc (s fenv)
   (if fenv
     (if (simple-vector-p fenv)
@@ -553,8 +536,7 @@
            (i 0 (+ i 2)))
           ((= i l) (fenv-assoc s (svref fenv i)))
         (if (equal s (svref fenv i))
-          (return (svref fenv (1+ i)))
-      ) )
+          (return (svref fenv (1+ i)))))
       #-COMPILER
       (let ((l (1- (length fenv)))
             (i 0))
@@ -562,36 +544,32 @@
           (tagbody
             1 (if (= i l) (return-from nil (fenv-assoc s (svref fenv i))))
               (if (equal s (svref fenv i))
-                (return-from nil (svref fenv (1+ i)))
-              )
+                (return-from nil (svref fenv (1+ i))))
               (setq i (+ i 2))
-              (go 1)
-      ) ) )
+              (go 1))))
       (error-of-type 'type-error
         :datum fenv :expected-type '(or null simple-vector)
         (ENGLISH "~S is an invalid function environment")
-        fenv
-    ) )
-    'T ; nicht gefunden
-) )
-; Stellt fest, ob ein Funktionsname im Function-Environment fenv nicht
-; definiert ist und daher auf die globale Funktion verweist.
-(defun global-in-fenv-p (s fenv) ; vorläufig
-  (eq (fenv-assoc s fenv) 'T)
-)
+        fenv))
+    'T)) ; not found
+;; Determines, if a function-name S in function-environment FENV is not
+;; defined and thus refers to the global function.
+(defun global-in-fenv-p (s fenv) ; preliminarily
+  (eq (fenv-assoc s fenv) 'T))
 
 (proclaim '(special *venv*))
-; *venv* = Das aktuelle Variablen-Environment während der Expansion
-; einer Form. Struktur: NIL oder ein 2n+1-elementiger Vektor
-; (n1 v1 ... nn vn next), wo die ni Symbole sind, die vi ihre
-; syntaktische Bedeutung (Symbol-Macro-Objekt oder sonstiges); bei next
-; geht's ebenso weiter.
+;; *VENV* = the current variable-environment during the expansion of a form.
+;; Structure: NIL or a 2n+1-element Vector
+;;   (n1 v1 ... nn vn next),
+;; where the ni are Symbols,
+;;      the vi are their syntactic meanings (symbol-macro-object or sth. else)
+;; continued similarly at 'next'.
 
-; (venv-assoc s venv) sucht Symbol s in Variablen-Environment venv.
-; Liefert den Wert (oder NIL falls kein Wert).
-; Vorsicht: Der Wert kann #<SPECDECL> oder #<SYMBOL-MACRO ...> sein, darf
-; daher in interpretiertem Code nicht in einer Variablen zwischengespeichert
-; werden.
+;; (venv-assoc s venv) searches symbol S in variable-environment VENV.
+;; Returns the value (or NIL if there's no value).
+;; Caution: The value can be #<SPECDECL> or #<SYMBOL-MACRO ...> , thus
+;; may not be temporarily saved in a variable in interpreted Code.
+;; the search routine uses EQ
 (defun venv-assoc (s venv)
   (if venv
     (if (simple-vector-p venv)
@@ -600,8 +578,7 @@
            (i 0 (+ i 2)))
           ((= i l) (venv-assoc s (svref venv i)))
         (if (eq s (svref venv i))
-          (return (svref venv (1+ i)))
-      ) )
+          (return (svref venv (1+ i)))))
       #-COMPILER
       (let ((l (1- (length venv)))
             (i 0))
@@ -609,442 +586,391 @@
           (tagbody
             1 (if (= i l) (return-from nil (venv-assoc s (svref venv i))))
               (if (eq s (svref venv i))
-                (return-from nil (svref venv (1+ i)))
-              )
+                (return-from nil (svref venv (1+ i))))
               (setq i (+ i 2))
-              (go 1)
-      ) ) )
+              (go 1))))
       (error-of-type 'type-error
         :datum venv :expected-type '(or null simple-vector)
         (ENGLISH "~S is an invalid variable environment")
-        venv
-    ) )
-    (and (boundp s) (%symbol-value s)) ; nicht gefunden
-) )
+        venv))
+    (and (boundp s) (%symbol-value s)))) ; not found
 
-; Die meisten Expansionsfunktionen liefern zwei Werte: Das Expansions-
-; ergebnis, der zweite Wert (NIL oder T) zeigt an, ob darin etwas verändert
-; wurde.
+;; Most of the Expansion-functions return two values:
+;;  (1) the expansion result,
+;;  (2) (NIL or T) indicates, if something was changed within it.
 
-; (%expand-cons ...) setzt ein cons zusammen. 2 Werte.
-; form=alte Form,
-; expf,flagf = Expansion des First-Teils,
-; expr,flagr = Expansion des Rest-Teils.
+;; (%expand-cons ...) composes a cons. returns 2 values.
+;; form=old Form,
+;; expf,flagf = expansion of the first-part,
+;; expr,flagr = expansion of the rest-part.
 (defun %expand-cons (form expf flagf expr flagr)
   (if (or flagf flagr)
     (values (cons expf expr) t)
-    (values form nil)
-) )
+    (values form nil)))
 
-; (%expand-form form) expandiert eine ganze Form. 2 Werte.
+;; (%expand-form form) expands a whole Form. returns 2 values.
 (defun %expand-form (form)
   (if (atom form)
     #+COMPILER
     (let (h)
-      (if (and (symbolp form) (symbol-macro-p (setq h (venv-assoc form *venv*))))
+      (if (and (symbolp form)
+               (symbol-macro-p (setq h (venv-assoc form *venv*))))
         (values (sys::%record-ref h 0) t)
-        (values form nil)
-    ) )
+        (values form nil)))
     #-COMPILER
     (if (and (symbolp form) (symbol-macro-p (venv-assoc form *venv*)))
       (values (sys::%record-ref (venv-assoc form *venv*) 0) t)
-      (values form nil)
-    )
-    ; form ist CONS
+      (values form nil))
+    ;; form is a CONS
     (let ((f (first form)))
       (if (function-name-p f)
         (let ((h (fenv-assoc f *fenv*)))
-          ; f ist in *fenv* assoziiert zu h
+          ;; f is in *fenv* associated to h
           (if (eq h 'T)
-            ; f hat keine lokale Definition
-            ; Nun die einzelnen Expander für die Special-forms:
+            ;; f has no local definition
+            ;; Now the separate expanders for the special-forms:
             (case f
-              ((RETURN-FROM THE)
-                ; 1. Argument lassen, alle weiteren expandieren
-                (multiple-value-call #'%expand-cons form
+              ((RETURN-FROM THE) ; skip the 1st argument, expand the rest
+               (multiple-value-call #'%expand-cons form
                   (first form) nil
                   (multiple-value-call #'%expand-cons (rest form)
                     (second form) nil
-                    (%expand-list (cddr form))
-              ) ) )
-              ((QUOTE GO DECLARE LOAD-TIME-VALUE) ; nichts expandieren
-                (values form nil)
-              )
-              (FUNCTION
-                ; Falls erstes bzw. zweites Argument Liste,
-                ; als Lambda-Ausdruck expandieren.
-                (multiple-value-call #'%expand-cons form
-                  'FUNCTION nil
-                  (if (atom (cddr form))
-                    (if (function-name-p (second form))
-                      (let ((h (fenv-assoc (second form) *fenv*)))
-                        (cond ((or (eq h 'T) (closurep h) (function-macro-p h) (null h))
-                               (values (rest form) nil)
-                              )
-                              ((macrop h)
-                               (error-of-type 'source-program-error
-                                 (ENGLISH "~S: ~S is illegal since ~S is a local macro")
-                                 '%expand form (second form)
-                              ))
-                              (t (error-of-type 'error
-                                   (ENGLISH "~S: invalid function environment ~S")
-                                   '%expand *fenv*
-                              )  )
-                      ) )
-                      (if (atom (second form))
-                        (error-of-type 'source-program-error
-                          (ENGLISH "~S: ~S is invalid since ~S is not a symbol")
-                          '%expand form (second form)
-                        )
-                        (multiple-value-call #'%expand-cons (rest form)
-                          (%expand-lambda (second form))
-                          (cddr form) nil
-                    ) ) )
-                    (multiple-value-call #'%expand-cons (rest form)
-                      (second form) nil
-                      (multiple-value-call #'%expand-cons (cddr form)
-                        (%expand-lambda (third form))
-                        (cdddr form) nil
-              ) ) ) ) )
-              (EVAL-WHEN
-                ; Falls die Situation COMPILE angegeben ist, führe den Body
-                ; als PROGN aus, gib eine Form zurück, die ohne Seiteneffekte
-                ; dieselben Werte liefert.
-                ; Sonst expandiere alle Argumente ab dem zweiten als Formen.
-                (if (or (member 'COMPILE (second form))
-                        (member :COMPILE-TOPLEVEL (second form)))
-                  (values
-                    (list 'values-list
-                      (list 'quote
-                        (multiple-value-list (eval (cons 'PROGN (cddr form))))
-                    ) )
-                    t
-                  )
-                  (multiple-value-call #'%expand-cons form
-                    (first form) nil
-                    (multiple-value-call #'%expand-cons (rest form)
-                      (second form) nil
-                      (%expand-list (cddr form))
-              ) ) ) )
-              (LET ; Variablenliste und Body expandieren
-                (let ((*venv* *venv*))
-                  (%expand-special-declarations (cddr form))
-                  (multiple-value-call #'%expand-cons form
-                    (first form) nil
-                    (multiple-value-call #'%expand-cons (rest form)
-                      (%expand-varspez (second form))
-                      (%expand-list (cddr form))
-              ) ) ) )
-              (LET* ; Variablenliste und Body expandieren
-                (let ((*venv* *venv*))
-                  (%expand-special-declarations (cddr form))
-                  (multiple-value-call #'%expand-cons form
-                    (first form) nil
-                    (multiple-value-call #'%expand-cons (rest form)
-                      (%expand-varspez* (second form))
-                      (%expand-list (cddr form))
-              ) ) ) )
-              (LOCALLY ; Body expandieren
-                (let ((*venv* *venv*))
-                  (%expand-special-declarations (cdr form))
-                  (multiple-value-call #'%expand-cons form
-                    (first form) nil
-                    (%expand-list (cdr form))
-              ) ) )
-              (MULTIPLE-VALUE-BIND ; Form und Body getrennt expandieren
-                (let ((*venv* *venv*))
-                  (%expand-special-declarations (cdddr form))
-                  (multiple-value-call #'%expand-cons form
-                    'MULTIPLE-VALUE-BIND nil
-                    (multiple-value-call #'%expand-cons (rest form)
-                      (second form) nil
-                      (multiple-value-call #'%expand-cons (cddr form)
-                        (%expand-form (third form))
-                        (progn
-                          (%expand-lexical-variables (second form))
-                          (%expand-list (cdddr form))
-              ) ) ) ) ) )
-              (COMPILER-LET
-                ; Variablenliste im leeren Environment und Body expandieren
-                (progv
-                  (mapcar #'%expand-varspec-var (second form))
-                  (mapcar #'%expand-varspec-val (second form))
-                  (values (%expand-form (cons 'PROGN (cddr form))) t)
-              ) )
-              (COND ; Alle Teilformen der Klauseln expandieren:
-                (multiple-value-call #'%expand-cons form
-                  (first form) nil
-                  (%expand-cond (rest form))
-              ) )
-              (CASE ; 1. Argument und alle Teilformen der Klauseln expandieren:
-                (multiple-value-call #'%expand-cons form
-                  (first form) nil
-                  (multiple-value-call #'%expand-cons (rest form)
-                    (%expand-form (second form))
-                    (%expand-case (cddr form))
-              ) ) )
-              (BLOCK
-                ; Body expandieren. Falls darin ein RETURN-FROM auf diesen
-                ; Block vorkommt, behalte BLOCK. Sonst mache ein PROGN daraus.
-                (multiple-value-bind (body flagb) (%expand-list (cddr form))
-                  (if (%return-p (second form) body)
-                    (multiple-value-call #'%expand-cons form
-                      (first form) nil
-                      (multiple-value-call #'%expand-cons (rest form)
-                        (second form) nil
-                        body flagb
-                    ) )
+                    (%expand-list (cddr form)))))
+              ((QUOTE GO DECLARE LOAD-TIME-VALUE) ; expand nothing
+               (values form nil))
+              ((FUNCTION)
+               ;; if 1st or 2nd argument is a list,
+               ;; expand as lambda expression.
+               (multiple-value-call #'%expand-cons form
+                 'FUNCTION nil
+                 (if (atom (cddr form))
+                   (if (function-name-p (second form))
+                     (let ((h (fenv-assoc (second form) *fenv*)))
+                       (cond ((or (eq h 'T) (closurep h)
+                                  (function-macro-p h) (null h))
+                              (values (rest form) nil))
+                             ((macrop h)
+                              (error-of-type 'source-program-error
+                                (ENGLISH "~S: ~S is illegal since ~S is a local macro")
+                                '%expand form (second form)))
+                             (t (error-of-type 'error
+                                  (ENGLISH "~S: invalid function environment ~S")
+                                  '%expand *fenv*))))
+                     (if (atom (second form))
+                       (error-of-type 'source-program-error
+                         (ENGLISH "~S: ~S is invalid since ~S is not a symbol")
+                         '%expand form (second form))
+                       (multiple-value-call #'%expand-cons (rest form)
+                         (%expand-lambda (second form))
+                         (cddr form) nil)))
+                   (multiple-value-call #'%expand-cons (rest form)
+                     (second form) nil
+                     (multiple-value-call #'%expand-cons (cddr form)
+                       (%expand-lambda (third form))
+                       (cdddr form) nil)))))
+              ((EVAL-WHEN)
+               ;; if situation COMPILE is given, execute the body
+               ;; as PROGN, return a form, that returns without side-effects
+               ;; the same values.
+               ;; Else expand all arguments from the second one as forms.
+               (if (or (member 'COMPILE (second form))
+                       (member :COMPILE-TOPLEVEL (second form)))
+                 (values
+                  (list 'values-list
+                        (list 'quote
+                              (multiple-value-list
+                               (eval (cons 'PROGN (cddr form))))))
+                  t)
+                 (multiple-value-call #'%expand-cons form
+                   (first form) nil
+                   (multiple-value-call #'%expand-cons (rest form)
+                     (second form) nil
+                     (%expand-list (cddr form))))))
+              ((LET)            ; expand variable-list and body
+               (let ((*venv* *venv*))
+                 (%expand-special-declarations (cddr form))
+                 (multiple-value-call #'%expand-cons form
+                   (first form) nil
+                   (multiple-value-call #'%expand-cons (rest form)
+                     (%expand-varspez (second form))
+                     (%expand-list (cddr form))))))
+              ((LET*)           ; expand variable-list and body
+               (let ((*venv* *venv*))
+                 (%expand-special-declarations (cddr form))
+                 (multiple-value-call #'%expand-cons form
+                   (first form) nil
+                   (multiple-value-call #'%expand-cons (rest form)
+                     (%expand-varspez* (second form))
+                     (%expand-list (cddr form))))))
+              ((LOCALLY)        ; expand body
+               (let ((*venv* *venv*))
+                 (%expand-special-declarations (cdr form))
+                 (multiple-value-call #'%expand-cons form
+                   (first form) nil
+                   (%expand-list (cdr form)))))
+              ((MULTIPLE-VALUE-BIND) ; expand form and body, separately
+               (let ((*venv* *venv*))
+                 (%expand-special-declarations (cdddr form))
+                 (multiple-value-call #'%expand-cons form
+                   'MULTIPLE-VALUE-BIND nil
+                   (multiple-value-call #'%expand-cons (rest form)
+                     (second form) nil
+                     (multiple-value-call #'%expand-cons (cddr form)
+                       (%expand-form (third form))
+                       (progn
+                         (%expand-lexical-variables (second form))
+                         (%expand-list (cdddr form))))))))
+              ((COMPILER-LET) ; expand var-list in empty environment and body
+               (progv
+                   (mapcar #'%expand-varspec-var (second form))
+                   (mapcar #'%expand-varspec-val (second form))
+                 (values (%expand-form (cons 'PROGN (cddr form))) t)))
+              ((COND) ; expand all Sub-Forms of the clauses:
+               (multiple-value-call #'%expand-cons form
+                 (first form) nil
+                 (%expand-cond (rest form))))
+              ((CASE) ; expand 1st argument and all sub-forms of the clauses
+               (multiple-value-call #'%expand-cons form
+                 (first form) nil
+                 (multiple-value-call #'%expand-cons (rest form)
+                   (%expand-form (second form))
+                   (%expand-case (cddr form)))))
+              ((BLOCK)
+               ;; expand body. If there is a RETURN-FROM in this
+               ;; block, keep BLOCK, else turn it into a PROGN.
+               (multiple-value-bind (body flagb) (%expand-list (cddr form))
+                 (if (%return-p (second form) body)
+                   (multiple-value-call #'%expand-cons form
+                     (first form) nil
+                     (multiple-value-call #'%expand-cons (rest form)
+                       (second form) nil
+                       body flagb))
                     (values
                       (cond ((atom body) body)
                             ((null (cdr body)) (car body))
-                            (t (cons 'progn body))
-                      )
-                      t
-              ) ) ) )
-              ((SETQ PSETQ) ; jedes zweite Argument expandieren
-                (if (%expand-setqlist-macrop (rest form))
-                  (let ((new (if (eq (first form) 'SETQ) 'SETF 'PSETF)))
-                    (values
-                      (%expand-form
-                        (funcall (macro-function new) (cons new (rest form)) (vector *venv* *fenv*))
-                      )
-                      t
-                  ) )
-                  (multiple-value-call #'%expand-cons form
-                    (first form) nil
-                    (%expand-setqlist (rest form))
-              ) ) )
-              (MULTIPLE-VALUE-SETQ ; 1. Argument lassen, alle weiteren expandieren
-                (if (%expand-varlist-macrop (second form))
-                  (values (%expand-form (cons 'MULTIPLE-VALUE-SETF (rest form))) t)
-                  (multiple-value-call #'%expand-cons form
-                    'MULTIPLE-VALUE-SETQ nil
-                    (multiple-value-call #'%expand-cons (rest form)
-                      (second form) nil
-                      (%expand-list (cddr form))
-              ) ) ) )
-              (TAGBODY
-                ; alle Argumente expandieren, dabei entstehende Atome weglassen
-                (multiple-value-call #'%expand-cons form
-                  (first form) nil
-                  (%expand-tagbody (rest form))
-              ) )
-              (PROGN ; alle Argumente expandieren, evtl. vereinfachen.
-                (if (null (rest form))
-                  (values nil t)
-                  (if (null (cddr form))
-                    (values (%expand-form (second form)) t)
-                    (multiple-value-call #'%expand-cons form
-                      (first form) nil
-                      (%expand-list (rest form))
-              ) ) ) )
-              (FLET ; expand function definitions
-                (if (null (second form))
-                  (values (%expand-form (cons 'PROGN (cddr form))) t)
-                  (let ((newfenv (%expand-fundefs-1 (second form))))
-                    (multiple-value-call #'%expand-cons form
-                      (first form) nil
-                      (multiple-value-call #'%expand-cons (rest form)
-                        (%expand-fundefs-2 (second form))
-                        (let ((*fenv* (apply #'vector newfenv)))
-                          (%expand-list (cddr form))
-              ) ) ) ) ) )
-              (LABELS ; expand function definitions and body in the extended environment
-                (if (null (second form))
-                  (values (%expand-form (cons 'PROGN (cddr form))) t)
-                  (let ((newfenv (%expand-fundefs-1 (second form))))
-                    (let ((*fenv* (apply #'vector newfenv)))
-                      (multiple-value-call #'%expand-cons form
-                        (first form) nil
-                        (multiple-value-call #'%expand-cons (rest form)
-                          (%expand-fundefs-2 (second form))
-                          (%expand-list (cddr form))
-              ) ) ) ) ) )
-              (MACROLET ; expand the body in the extended environment
-                (do ((L1 (second form) (cdr L1))
-                     (L2 nil))
-                    ((atom L1)
-                     (if L1
-                       (error-of-type 'source-program-error
-                         (ENGLISH "code after MACROLET contains a dotted list, ending with ~S")
-                         L1
-                       )
-                       (let ((*fenv* (apply #'vector (nreverse (cons *fenv* L2)))))
-                         (values (%expand-form (cons 'PROGN (cddr form))) t)
-                    )) )
-                  (let ((macrodef (car L1)))
-                    (if (and (consp macrodef)
-                             (symbolp (car macrodef))
-                             (consp (cdr macrodef))
-                        )
-                      (setq L2
-                        (cons (make-macro-expander macrodef)
-                              (cons (car macrodef) L2)
-                      ) )
+                            (t (cons 'progn body)))
+                      t))))
+              ((SETQ PSETQ) ; expand each second Argument
+               (if (%expand-setqlist-macrop (rest form))
+                 (let ((new (if (eq (first form) 'SETQ) 'SETF 'PSETF)))
+                   (values
+                    (%expand-form
+                     (funcall (macro-function new) (cons new (rest form))
+                              (vector *venv* *fenv*)))
+                    t))
+                 (multiple-value-call #'%expand-cons form
+                   (first form) nil
+                   (%expand-setqlist (rest form)))))
+              ((MULTIPLE-VALUE-SETQ) ; skip 1st argument, expand the rest
+               (if (%expand-varlist-macrop (second form))
+                 (values (%expand-form (cons 'MULTIPLE-VALUE-SETF (rest form)))
+                         t)
+                 (multiple-value-call #'%expand-cons form
+                   'MULTIPLE-VALUE-SETQ nil
+                   (multiple-value-call #'%expand-cons (rest form)
+                     (second form) nil
+                     (%expand-list (cddr form))))))
+              ((TAGBODY)
+               ;; expand all arguments,
+               ;; skip atoms that are created during expansion
+               (multiple-value-call #'%expand-cons form
+                 (first form) nil
+                 (%expand-tagbody (rest form))))
+              ((PROGN) ; expand all arguments, possibly simplify them.
+               (if (null (rest form))
+                 (values nil t)
+                 (if (null (cddr form))
+                   (values (%expand-form (second form)) t)
+                   (multiple-value-call #'%expand-cons form
+                     (first form) nil
+                     (%expand-list (rest form))))))
+              ((FLET) ; expand function definitions
+               (if (null (second form))
+                 (values (%expand-form (cons 'PROGN (cddr form))) t)
+                 (let ((newfenv (%expand-fundefs-1 (second form))))
+                   (multiple-value-call #'%expand-cons form
+                     (first form) nil
+                     (multiple-value-call #'%expand-cons (rest form)
+                       (%expand-fundefs-2 (second form))
+                       (let ((*fenv* (apply #'vector newfenv)))
+                         (%expand-list (cddr form))))))))
+              ((LABELS)
+               ;; expand function definitions and body
+               ;; in the extended environment
+               (if (null (second form))
+                 (values (%expand-form (cons 'PROGN (cddr form))) t)
+                 (let ((newfenv (%expand-fundefs-1 (second form))))
+                   (let ((*fenv* (apply #'vector newfenv)))
+                     (multiple-value-call #'%expand-cons form
+                       (first form) nil
+                       (multiple-value-call #'%expand-cons (rest form)
+                         (%expand-fundefs-2 (second form))
+                         (%expand-list (cddr form))))))))
+              ((MACROLET) ; expand the body in the extended environment
+               (do ((L1 (second form) (cdr L1))
+                    (L2 nil))
+                   ((atom L1)
+                    (if L1
                       (error-of-type 'source-program-error
-                        (ENGLISH "illegal syntax in MACROLET: ~S")
-                        macrodef
-              ) ) ) ) )
-              (FUNCTION-MACRO-LET ; Funktionsdefinitionen expandieren,
-                                  ; Body im erweiterten Environment expandieren
-                (if (null (second form))
-                  (values (%expand-form (cons 'PROGN (cddr form))) t)
-                  (let ((newfenv (%expand-funmacdefs-1 (second form))))
-                    (multiple-value-call #'%expand-cons form
-                      (first form) nil
-                      (multiple-value-call #'%expand-cons (rest form)
-                        (%expand-funmacdefs-2 (second form))
-                        (let ((*fenv* (apply #'vector newfenv)))
-                          (%expand-list (cddr form))
-              ) ) ) ) ) )
-              (SYMBOL-MACROLET ; Body im erweiterten Environment expandieren
-                (do ((L1 (second form) (cdr L1))
-                     (L2 nil))
-                    ((atom L1)
-                     (if L1
-                       (error-of-type 'source-program-error
-                         (ENGLISH "code after SYMBOL-MACROLET contains a dotted list, ending with ~S")
-                         L1
-                       )
-                       (let ((*venv* (apply #'vector (nreverse (cons *venv* L2)))))
-                         (let ((specials (%expand-special-declarations (cddr form))))
-                           (do ((L3 (second form) (cdr L3)))
-                               ((atom L3))
-                             (if (member (caar L3) specials :test #'eq)
-                               (error-of-type 'source-program-error
-                                 (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
-                                 'symbol-macrolet (caar L3)
-                         ) ) ) )
-                         (values (%expand-form (cons 'LOCALLY (cddr form))) t)
-                    )) )
-                  (let ((symdef (car L1)))
-                    (if (and (consp symdef)
-                             (symbolp (car symdef))
-                             (consp (cdr symdef))
-                             (null (cddr symdef))
-                        )
-                      (let ((symbol (car symdef))
-                            (expansion (cadr symdef)))
-                        (if (special-variable-p symbol)
-                          (error-of-type 'program-error
-                            (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro")
-                            'symbol-macrolet symbol
-                          )
-                          (setq L2
-                            (cons (make-symbol-macro expansion) (cons symbol L2))
-                      ) ) )
+                        (ENGLISH "code after MACROLET contains a dotted list, ending with ~S")
+                        L1)
+                      (let ((*fenv* (apply #'vector
+                                           (nreverse (cons *fenv* L2)))))
+                        (values (%expand-form (cons 'PROGN (cddr form))) t))))
+                 (let ((macrodef (car L1)))
+                   (if (and (consp macrodef)
+                            (symbolp (car macrodef))
+                            (consp (cdr macrodef)))
+                     (setq L2 (cons (make-macro-expander macrodef)
+                                    (cons (car macrodef) L2)))
+                     (error-of-type 'source-program-error
+                       (ENGLISH "illegal syntax in MACROLET: ~S")
+                       macrodef)))))
+              ((FUNCTION-MACRO-LET)
+               ;; expand function-definitions,
+               ;; expand body in extended environment
+               (if (null (second form))
+                 (values (%expand-form (cons 'PROGN (cddr form))) t)
+                 (let ((newfenv (%expand-funmacdefs-1 (second form))))
+                   (multiple-value-call #'%expand-cons form
+                     (first form) nil
+                     (multiple-value-call #'%expand-cons (rest form)
+                       (%expand-funmacdefs-2 (second form))
+                       (let ((*fenv* (apply #'vector newfenv)))
+                         (%expand-list (cddr form))))))))
+              ((SYMBOL-MACROLET) ; expand body in extended environment
+               (do ((L1 (second form) (cdr L1))
+                    (L2 nil))
+                   ((atom L1)
+                    (if L1
                       (error-of-type 'source-program-error
-                        (ENGLISH "illegal syntax in SYMBOL-MACROLET: ~S")
-                        symdef
-              ) ) ) ) )
-              (%HANDLER-BIND ; Handlerliste und Body expandieren
-                (multiple-value-call #'%expand-cons form
-                  (first form) nil
-                  (multiple-value-call #'%expand-cons (rest form)
-                    (%expand-handlers (second form))
-                    (%expand-list (cddr form))
-              ) ) )
-              (t
-                (cond ((and (symbolp f) (special-operator-p f))
-                       ; sonstige Special-forms,
-                       ; z.B. IF, CATCH, THROW, PROGV, UNWIND-PROTECT, PROGN,
-                       ; PROG1, PROG2, WHEN, UNLESS, MULTIPLE-VALUE-LIST,
-                       ; MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1, AND, OR:
-                       (multiple-value-call #'%expand-cons form
-                         f nil
-                         (%expand-list (rest form))
-                      ))
-                      ((and (symbolp f) (setq h (macro-function f))) ; globale Macro-Definition
-                       (values (%expand-form (funcall h form (vector *venv* *fenv*))) t)
-                      )
-                      (t ; normaler Funktionsaufruf
-                       (multiple-value-call #'%expand-cons form
-                         f nil
-                         (%expand-list (rest form))
-            ) ) )     ))
-            ; f hat eine lokale Definition
+                        (ENGLISH "code after SYMBOL-MACROLET contains a dotted list, ending with ~S")
+                        L1)
+                      (let ((*venv* (apply #'vector
+                                           (nreverse (cons *venv* L2)))))
+                        (let ((specials (%expand-special-declarations
+                                         (cddr form))))
+                          (do ((L3 (second form) (cdr L3)))
+                              ((atom L3))
+                            (if (member (caar L3) specials :test #'eq)
+                              (error-of-type 'source-program-error
+                                (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
+                                'symbol-macrolet (caar L3)))))
+                        (values (%expand-form (cons 'LOCALLY (cddr form)))
+                                t))))
+                 (let ((symdef (car L1)))
+                   (if (and (consp symdef)
+                            (symbolp (car symdef))
+                            (consp (cdr symdef))
+                            (null (cddr symdef)))
+                     (let ((symbol (car symdef))
+                           (expansion (cadr symdef)))
+                       (if (special-variable-p symbol)
+                         (error-of-type 'program-error
+                           (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro")
+                           'symbol-macrolet symbol)
+                         (setq L2 (cons (make-symbol-macro expansion)
+                                        (cons symbol L2)))))
+                     (error-of-type 'source-program-error
+                       (ENGLISH "illegal syntax in SYMBOL-MACROLET: ~S")
+                       symdef)))))
+              ((%HANDLER-BIND)  ; expand handler-list and body
+               (multiple-value-call #'%expand-cons form
+                 (first form) nil
+                 (multiple-value-call #'%expand-cons (rest form)
+                   (%expand-handlers (second form))
+                   (%expand-list (cddr form)))))
+              (t (cond ((and (symbolp f) (special-operator-p f))
+                        ;; other Special-forms,
+                        ;; e.g. IF, CATCH, THROW, PROGV, UNWIND-PROTECT, PROGN,
+                        ;; PROG1, PROG2, WHEN, UNLESS, MULTIPLE-VALUE-LIST,
+                        ;; MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1, AND, OR:
+                        (multiple-value-call #'%expand-cons form
+                          f nil
+                          (%expand-list (rest form))))
+                       ((and (symbolp f) (setq h (macro-function f)))
+                        ;; global Macro-Definition
+                        (values (%expand-form
+                                 (funcall h form (vector *venv* *fenv*)))
+                                t))
+                       (t ; normal function-call
+                        (multiple-value-call #'%expand-cons form
+                          f nil
+                          (%expand-list (rest form)))))))
+            ;; f has a local definition
             (cond ((or (closurep h) (function-macro-p h) (null h))
-                   ; aufzurufende Funktion
+                   ;; function to be called
                    (multiple-value-call #'%expand-cons form
                      f nil
-                     (%expand-list (rest form))
-                  ))
-                  ((macrop h) ; zu expandierender Macro
-                   (values (%expand-form (funcall (macro-expander h) form (vector *venv* *fenv*))) t)
-                  ) ; Expander aufrufen
+                     (%expand-list (rest form))))
+                  ((macrop h) ; macro to be expanded
+                   (values (%expand-form (funcall (macro-expander h) form
+                                                  (vector *venv* *fenv*)))
+                           t)) ; call expander
                   (t (error-of-type 'error
                        (ENGLISH "bad function environment occurred in ~S: ~S")
-                       '%expand-form *fenv*
-        ) ) )     )  )
+                       '%expand-form *fenv*)))))
         (if (consp f)
           (multiple-value-call #'%expand-cons form
             (%expand-lambda f)
-            (%expand-list (rest form))
-          )
+            (%expand-list (rest form)))
           (error-of-type 'source-program-error
             (ENGLISH "~S: invalid form ~S")
-            '%expand-form form
-) ) ) ) ) )
+            '%expand-form form))))))
 
-; Hilfsfunktionen für die Expansion:
+;; Auxiliary functions for the the expansion:
 
-; expandiert eine Liste von Formen. 2 Werte.
+;; expands a list of forms. returns 2 values.
 (defun %expand-list (l)
   (if (atom l)
     (if l
       (error-of-type 'source-program-error
         (ENGLISH "code contains a dotted list, ending with ~S")
-        l
-      )
-      (values nil nil)
-    )
+        l)
+      (values nil nil))
     (multiple-value-call #'%expand-cons l
                          (%expand-form (first l))
-                         (%expand-list (rest l))
-) ) )
+                         (%expand-list (rest l)))))
 
-; Fügt lexikalische Variablen zu *venv* hinzu.
-; (Wird nur dazu benutzt, um Symbol-Macros zu überdecken.)
+;; Adds lexical variables to *venv* .
+;; (only used for shadowing symbol-macros.)
 (defun %expand-lexical-variables (vars)
   (if vars
     (setq *venv*
       (apply #'vector
-        (nconc (mapcan #'(lambda (v) (list v nil)) vars) (list *venv*))
-) ) ) )
+        (nconc (mapcan #'(lambda (v) (list v nil)) vars) (list *venv*))))))
 
-; Fügt SPECIAL-Deklarationen am Anfang eines Body zu *venv* hinzu.
+;; Adds SPECIAL-Declarations at the beginning of a Body to *venv* .
 (defun %expand-special-declarations (body)
   (multiple-value-bind (body-rest declarations)
       (sys::parse-body body nil (vector *venv* *fenv*))
-    (declare (ignore body-rest)) ; Deklarationen nicht wegwerfen!
+    (declare (ignore body-rest)) ; do not throw away declarations!
     (let ((specials nil))
       (mapc #'(lambda (declspec)
                 (if (and (consp declspec) (null (cdr (last declspec))))
                   (if (eq (car declspec) 'SPECIAL)
-                    (mapc #'(lambda (x) (if (symbolp x) (setq specials (cons x specials))))
-                          (cdr declspec)
-              ) ) ) )
-            (nreverse declarations)
-      )
+                    (mapc #'(lambda (x)
+                              (if (symbolp x)
+                                  (setq specials (cons x specials))))
+                          (cdr declspec)))))
+            (nreverse declarations))
       (setq specials (nreverse specials))
-      (%expand-lexical-variables specials) ; auf specdecl kommt es hier nicht an
-      specials
-) ) )
+      (%expand-lexical-variables specials) ; specdecl doesn't matter here
+      specials)))
 
-; expandiert einen Funktionsnamen, der ein Cons ist (das muss ein
-; Lambda-Ausdruck sein). 2 Werte.
+;; expands a function-name, that is a Cons (that must be a
+;; Lambda-Expression). returns 2 values.
 (defun %expand-lambda (l)
   (unless (eq (first l) 'lambda)
     (error-of-type 'source-program-error
       (ENGLISH "~S: ~S should be a lambda expression")
-      '%expand-form l
-  ) )
+      '%expand-form l))
   (multiple-value-call #'%expand-cons l
       'lambda nil ; LAMBDA
-      (%expand-lambdabody (rest l))
-) )
+      (%expand-lambdabody (rest l))))
 
-; expandiert den CDR eines Lambda-Ausdrucks, ein (lambdalist . body). 2 Werte.
+;; expands the CDR of a Lambda-Expression, a (lambdalist . body).
+;; returns 2 values.
 (defun %expand-lambdabody (lambdabody &optional name blockp)
   (let ((body (rest lambdabody)))
     (if (and (consp body)
@@ -1055,45 +981,37 @@
                       (and (consp declspecs)
                            (let ((declspec (car declspecs)))
                              (and (consp declspec)
-                                  (eq (car declspec) 'SOURCE)
-        )    ) )    ) )    ) )
-      (values lambdabody nil) ; bereits expandiert -> unberührt lassen
+                                  (eq (car declspec) 'SOURCE))))))))
+      (values lambdabody nil) ; already expanded -> leave untouched
       (let ((*venv* *venv*))
         (if blockp
           (setq lambdabody
                 (cons (first lambdabody)
-                      (add-implicit-block name (rest lambdabody))
-        ) )     )
+                      (add-implicit-block name (rest lambdabody)))))
         (values (list*
-                  (%expand-lambdalist (first lambdabody))
-                  (list 'DECLARE (list 'SOURCE lambdabody))
-                  (%expand-list (rest lambdabody))
-                )
-                t
-) ) ) ) )
+                 (%expand-lambdalist (first lambdabody))
+                 (list 'DECLARE (list 'SOURCE lambdabody))
+                 (%expand-list (rest lambdabody)))
+                t)))))
 
-; expandiert eine Lambdaliste. 2 Werte.
+;; expands a Lambda-list. returns 2 values.
 (defun %expand-lambdalist (ll)
   (if (atom ll)
     (if ll
       (error-of-type 'source-program-error
         (ENGLISH "lambda list must not end with the atom ~S")
-        ll
-      )
-      (values nil nil)
-    )
+        ll)
+      (values nil nil))
     (multiple-value-call #'%expand-cons ll
         (%expand-parspez (first ll))
         (progn
           (let ((v (first ll)))
             (if (not (member v lambda-list-keywords :test #'eq))
-              (setq *venv* (vector (%expand-varspec-var v) nil *venv*))
-          ) )
-          (%expand-lambdalist (rest ll))
-) ) )   )
+              (setq *venv* (vector (%expand-varspec-var v) nil *venv*))))
+          (%expand-lambdalist (rest ll))))))
 
-; expandiert ein Element einer Lambdaliste. 2 Werte.
-; (Expandiert dabei nur bei Listen, und dann auch nur das zweite Element.)
+;; expands an element of a lambda-list. returns 2 values.
+;; (expands only on lists, and then only the second element.)
 (defun %expand-parspez (ps)
   (if (or (atom ps) (atom (rest ps)))
     (values ps nil)
@@ -1101,111 +1019,91 @@
         (first ps) nil
         (multiple-value-call #'%expand-cons (rest ps)
             (%expand-form (second ps))
-            (cddr ps) nil
-) ) )   )
+            (cddr ps) nil))))
 
-; expandiert eine Variablenliste für LET. 2 Werte.
+;; expand a Variable-list for LET. returns 2 values.
 (defun %expand-varspez (vs &optional (nvenv nil))
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
         (ENGLISH "~S: variable list ends with the atom ~S")
-        'let vs
-      )
+        'let vs)
       (progn
         (setq *venv* (apply #'vector (nreverse (cons *venv* nvenv))))
-        (values nil nil)
-    ) )
+        (values nil nil)))
     (multiple-value-call #'%expand-cons vs
-        (%expand-parspez (first vs)) ; Bei Liste 2. Element expandieren
-        (%expand-varspez (rest vs) (list* nil (%expand-varspec-var (first vs)) nvenv))
-) ) )
+        (%expand-parspez (first vs)) ; For List: Expand 2nd Element
+        (%expand-varspez (rest vs) (list* nil (%expand-varspec-var (first vs))
+                                          nvenv)))))
 
-; expandiert eine Variablenliste für LET*. 2 Werte.
+;; expands a Variable-list for LET*. returns 2 values.
 (defun %expand-varspez* (vs)
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
         (ENGLISH "~S: variable list ends with the atom ~S")
-        'let* vs
-      )
-      (values nil nil)
-    )
+        'let* vs)
+      (values nil nil))
     (multiple-value-call #'%expand-cons vs
-        (%expand-parspez (first vs)) ; Bei Liste 2. Element expandieren
+        (%expand-parspez (first vs)) ; for list: expand 2nd Element
         (progn
           (setq *venv* (vector (%expand-varspec-var (first vs)) nil *venv*))
-          (%expand-varspez* (rest vs))
-) ) )   )
+          (%expand-varspez* (rest vs))))))
 
 (defun %expand-varspec-var (varspec)
-  (if (atom varspec) varspec (first varspec))
-)
+  (if (atom varspec) varspec (first varspec)))
 
 (defun %expand-varspec-val (varspec)
-  (if (atom varspec) nil (eval (second varspec)))
-)
+  (if (atom varspec) nil (eval (second varspec))))
 
-; Expandiert eine Cond-Klausel-Liste. 2 Werte.
+;; expands a cond-clause-list. returns 2 values.
 (defun %expand-cond (clauses)
   (if (atom clauses)
     (values clauses nil)
     (multiple-value-call #'%expand-cons clauses
         (%expand-list (first clauses))
-        (%expand-cond (rest clauses))
-) ) )
+        (%expand-cond (rest clauses)))))
 
-; Expandiert eine Case-Klausel-Liste. 2 Werte.
+;; expands a case-clause-list. returns 2 values.
 (defun %expand-case (clauses)
   (if (atom clauses)
     (values clauses nil)
     (multiple-value-call #'%expand-cons clauses
       (multiple-value-call #'%expand-cons (first clauses)
         (caar clauses) nil
-        (%expand-list (cdar clauses))
-      )
-      (%expand-case (rest clauses))
-) ) )
+        (%expand-list (cdar clauses)))
+      (%expand-case (rest clauses)))))
 
-; Auf den bereits expandierten Body wird folgendes angewandt:
-; (%return-p name list) stellt fest, ob die Formenliste list irgendwo ein
-; (RETURN-FROM name ...) enthält.
+;; Apply the following to the already expanded body:
+;; (%return-p name list) determines, if the form-list list contains
+;; a (RETURN-FROM name ...) somewhere.
 (defun %return-p (name body)
   (block return-p
     (tagbody 1
       (if (atom body) (return-from return-p nil))
       (let ((form (car body)))
-        (if
-          ; stelle fest, ob form ein (RETURN-FROM name ...) enthält:
-          (and (consp form)
-               (or (and (eq (first form) 'return-from) ; (RETURN-FROM name ...)
-                        (eq (second form) name)
-                   )
-                   (and (consp (first form))           ; Lambdaliste
-                        (%return-p name (first form))
-                   )
-                   (and (not ; keine neue Definition desselben Blocks ?
-                          (and (eq (first form) 'block) (eq (second form) name))
-                        )
-                        (%return-p name (rest form)) ; Funktionsaufruf
-          )    )   )
-          (return-from return-p t)
-      ) )
-      (setq body (cdr body))
-      (go 1)
-) ) )
+        (if ; determine, if form contains a (RETURN-FROM name ...) :
+         (and (consp form)
+              (or (and (eq (first form) 'return-from) ; (RETURN-FROM name ...)
+                       (eq (second form) name))
+                  (and (consp (first form))           ; lambda-list
+                       (%return-p name (first form)))
+                  (and (not ; no new definition of the same block ?
+                        (and (eq (first form) 'block) (eq (second form) name)))
+                       (%return-p name (rest form))))) ; function call
+         (return-from return-p t)))
+       (setq body (cdr body))
+       (go 1))))
 
 (defun %expand-varlist-macrop (l)
   (and (consp l)
        (or (and (symbolp (car l)) (symbol-macro-p (venv-assoc (car l) *venv*)))
-           (%expand-varlist-macrop (cdr l))
-) )    )
+           (%expand-varlist-macrop (cdr l)))))
 
 (defun %expand-setqlist-macrop (l)
   (and (consp l) (consp (cdr l))
        (or (and (symbolp (car l)) (symbol-macro-p (venv-assoc (car l) *venv*)))
-           (%expand-setqlist-macrop (cddr l))
-) )    )
+           (%expand-setqlist-macrop (cddr l)))))
 
 (defun %expand-setqlist (l)
   (if (or (atom l) (atom (cdr l)))
@@ -1214,45 +1112,41 @@
         (first l) nil
         (multiple-value-call #'%expand-cons (rest l)
             (%expand-form (second l))
-            (%expand-setqlist (cddr l))
-) ) )   )
+            (%expand-setqlist (cddr l))))))
 
-; (%expand-tagbody list) expandiert die Elemente einer Liste und lässt dabei
-; entstehende Atome fest (damit keine neuen Tags entstehen, die andere Tags
-; verdecken könnten). 2 Werte.
+;; (%expand-tagbody list) expands the elements of a list
+;; and leaves atoms, that are created meanwhile, untouched.
+;; (thus no new tags are created that could hide other tags).
+;; returns 2 values.
 (defun %expand-tagbody (body)
   (cond ((atom body) (values body nil))
         ((atom (first body))
          (multiple-value-call #'%expand-cons body
              (first body) nil
-             (%expand-tagbody (rest body))
-        ))
+             (%expand-tagbody (rest body))))
         (t (multiple-value-bind (exp flag) (%expand-form (first body))
              (if (atom exp)
-               (values (%expand-tagbody (rest body)) t) ; weglassen
+               (values (%expand-tagbody (rest body)) t) ; omit
                (multiple-value-call #'%expand-cons body
                    exp flag
-                   (%expand-tagbody (rest body))
-) )     )  ) ) )
-; (%expand-fundefs-1 fundefs) liefert eine Liste (name1 nil ... namek nil *fenv*)
+                   (%expand-tagbody (rest body))))))))
+;; returns a list (name1 nil ... namek nil *fenv*)
 (defun %expand-fundefs-1 (fundefs)
   (if (atom fundefs)
     (if fundefs
       (error-of-type 'source-program-error
         (ENGLISH "FLET/LABELS: code contains a dotted list, ending with ~S")
-        fundefs
-      )
-      (list *fenv*)
-    )
+        fundefs)
+      (list *fenv*))
     (let ((fundef (car fundefs)))
-      (if (and (consp fundef) (function-name-p (car fundef)) (consp (cdr fundef)))
+      (if (and (consp fundef) (function-name-p (car fundef))
+               (consp (cdr fundef)))
         (list* (car fundef) nil (%expand-fundefs-1 (cdr fundefs)))
         (error-of-type 'source-program-error
           (ENGLISH "illegal syntax in FLET/LABELS: ~S")
-          fundef
-) ) ) ) )
-; (%expand-fundefs-2 fundefs) expandiert eine Funktionsdefinitionenliste,
-; wie in FLET, LABELS. 2 Werte.
+          fundef)))))
+;; (%expand-fundefs-2 fundefs) expands a function-definition-list,
+;; like in FLET, LABELS. returns 2 values.
 (defun %expand-fundefs-2 (fundefs)
   (if (atom fundefs)
     (values fundefs nil)
@@ -1260,34 +1154,28 @@
       (multiple-value-call #'%expand-cons fundefs
              (multiple-value-call #'%expand-cons fundef
                      (car fundef) nil
-                     (%expand-lambdabody (cdr fundef) (car fundef) t)
-             )
-             (%expand-fundefs-2 (rest fundefs))
-) ) ) )
-; (%expand-funmacdefs-1 funmacdefs) liefert eine Liste (name1 nil ... namek nil *fenv*)
+                     (%expand-lambdabody (cdr fundef) (car fundef) t))
+             (%expand-fundefs-2 (rest fundefs))))))
+;; returns a list (name1 nil ... namek nil *fenv*)
 (defun %expand-funmacdefs-1 (funmacdefs)
   (if (atom funmacdefs)
     (if funmacdefs
       (error-of-type 'source-program-error
         (ENGLISH "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S")
-        funmacdefs
-      )
-      (list *fenv*)
-    )
+        funmacdefs)
+      (list *fenv*))
     (let ((funmacdef (car funmacdefs)))
       (if (and (consp funmacdef)
                (symbolp (car funmacdef))
                (consp (cdr funmacdef)) (consp (second funmacdef))
                (consp (cddr funmacdef)) (consp (third funmacdef))
-               (null (cdddr funmacdef))
-          )
+               (null (cdddr funmacdef)))
         (list* (car funmacdef) nil (%expand-funmacdefs-1 (cdr funmacdefs)))
         (error-of-type 'source-program-error
           (ENGLISH "illegal syntax in FUNCTION-MACRO-LET: ~S")
-          funmacdef
-) ) ) ) )
-; (%expand-funmacdefs-2 funmacdefs) expandiert eine FunctionMacros-
-; Definitionenliste, wie in FUNCTION-MACRO-LET. 2 Werte.
+          funmacdef)))))
+;; (%expand-funmacdefs-2 funmacdefs) expands a function-macro-
+;; definition-list, like in FUNCTION-MACRO-LET. returns 2 values.
 (defun %expand-funmacdefs-2 (funmacdefs)
   (if (atom funmacdefs)
     (values funmacdefs nil)
@@ -1299,12 +1187,10 @@
             (%expand-lambdabody (cadr funmacdef))
             (multiple-value-call #'%expand-cons (cddr funmacdef)
               (%expand-lambdabody (caddr funmacdef))
-              (cdddr funmacdef) nil
-        ) ) )
-        (%expand-funmacdefs-2 (rest funmacdefs))
-) ) ) )
-; (%expand-handlers handlers) expandiert eine Typ/Handler-Liste
-; wie in %HANDLER-BIND. 2 Werte.
+              (cdddr funmacdef) nil)))
+        (%expand-funmacdefs-2 (rest funmacdefs))))))
+;; (%expand-handlers handlers) expands a Typ/Handler-List
+;; like in %HANDLER-BIND. returns 2 values.
 (defun %expand-handlers (handlers)
   (if (atom handlers)
     (values handlers nil)
@@ -1312,29 +1198,25 @@
       (multiple-value-call #'%expand-cons handlers
         (multiple-value-call #'%expand-cons handler
           (car handler) nil
-          (%expand-list (cdr handler))
-        )
-        (%expand-handlers (cdr handlers))
-) ) ) )
+          (%expand-list (cdr handler)))
+        (%expand-handlers (cdr handlers))))))
 
 #|
-; expandiert eine Form in einem gegebenen Function-Environment
-; Kann bei Bedarf von EVAL aufgerufen werden.
+;; expands a Form in a given Function-Environment
+;; can be called by EVAL on demand.
 (defun %expand-form-main (form *fenv*)
-  (%expand-form form)
-)
+  (%expand-form form))
 |#
 
-; expandiert (lambdalist . body) in einem gegebenen Function-Environment.
-; Wird von GET_CLOSURE aufgerufen.
+;; expands (lambdalist . body) in a given function-environment.
+;; Is called by GET_CLOSURE.
 (defun %expand-lambdabody-main (lambdabody *venv* *fenv*)
-  (%expand-lambdabody lambdabody)
-)
+  (%expand-lambdabody lambdabody))
 
 (VALUES) )
 
-;; ab hier ist FUNCTION funktionsfähig, soweit kein MACROLET darin vorkommt.
-
+;; from now on, FUNCTION is operational,
+;; as long as no MACROLET occurs within it.
 
 (PROGN
 
@@ -1345,7 +1227,7 @@
 (proclaim '(special *compiled-file-types*))
 (setq *compiled-file-types* '(#".fas"))
 
-; vorläufig brauchen die Files nicht gesucht zu werden:
+;; for the time being the files don't have to be searched:
 (defun search-file (filename extensions)
   (mapcan #'(lambda (extension)
               (let ((filename (merge-pathnames filename extension)))
@@ -1369,178 +1251,152 @@
 (proclaim '(special *load-level*))
 (setq *load-level* 0)
 
-; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
-;                [:echo] [:compiling] [:extra-file-types]),
-; CLTL S. 426
+;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
+;;                [:echo] [:compiling] [:extra-file-types]),
+;; CLTL p. 426
 (defun load (filename
              &key (verbose *load-verbose*) (print *load-print*)
                   (if-does-not-exist t) (external-format ':default)
                   (echo *load-echo*) (compiling *load-compiling*)
                   (extra-file-types '()))
   (let ((stream
-          (if (streamp filename)
-            filename
-            (or (open (setq filename (pathname filename))
-                  :direction :input-immutable
-                  :element-type 'character
-                  #+UNICODE :external-format
-                  #+UNICODE (if (member (make-pathname
-                                          :type (pathname-type filename))
-                                        *compiled-file-types*
-                                        :test #'equal
-                                )
-                              charset:utf-8
-                              external-format
-                            )
-                  :if-does-not-exist nil
-                )
-                ; Datei mit genau diesem Namen nicht vorhanden.
-                ; Suche unter den Dateien mit demselben Namen und den
-                ; Extensions "LISP", "FAS" die neueste:
-                (let ((present-files
-                        (search-file filename
-                          (append extra-file-types *compiled-file-types* *source-file-types*))))
-                  (if (endp present-files)
-                    nil
-                    (open (setq filename (first present-files))
-                      :direction :input-immutable
-                      :element-type 'character
-                      #+UNICODE :external-format
-                      #+UNICODE (if (member (make-pathname
-                                              :type (pathname-type filename))
-                                            *compiled-file-types*
-                                            :test #'equal
-                                    )
-                                  charset:utf-8
-                                  external-format
-                                )
-       )) ) )   ) ) )
+         (if (streamp filename)
+           filename
+           (or (open (setq filename (pathname filename))
+                     :direction :input-immutable
+                     :element-type 'character
+                     #+UNICODE :external-format
+                     #+UNICODE (if (member (make-pathname
+                                            :type (pathname-type filename))
+                                           *compiled-file-types*
+                                           :test #'equal)
+                                   charset:utf-8
+                                   external-format)
+                     :if-does-not-exist nil)
+               ;; File with precisely this name not present.
+               ;; Search among the files the most recent one
+               ;; with the same name and the Extensions "LISP", "FAS":
+               (let ((present-files
+                      (search-file filename
+                                   (append extra-file-types
+                                           *compiled-file-types*
+                                           *source-file-types*))))
+                 (if (endp present-files) nil
+                   (open (setq filename (first present-files))
+                         :direction :input-immutable
+                         :element-type 'character
+                         #+UNICODE :external-format
+                         #+UNICODE (if (member (make-pathname
+                                                :type (pathname-type filename))
+                                               *compiled-file-types*
+                                               :test #'equal)
+                                       charset:utf-8
+                                       external-format))))))))
     (if stream
       (let* ((input-stream
-               (if echo
-                 (make-echo-stream stream *standard-output*)
-                 stream
-             ) )
+              (if echo
+                  (make-echo-stream stream *standard-output*)
+                  stream))
              (*load-level* (1+ *load-level*))
              (indent (if (null verbose) ""
                          (make-string *load-level* :initial-element #\Space)))
              (*load-input-stream* input-stream)
-             ; :verbose, :print, :echo und :compiling wirken nicht rekursiv -
-             ; dazu hat man ja gerade die Special-Variablen *load-verbose* etc.
-             ;(*load-verbose* verbose)
-             ;(*load-print* print)
-             ;(*load-echo* echo)
-             ;(*load-compiling* compiling)
+             ;; :verbose, :print, :echo and :compiling do not act recursively -
+             ;; for that you have the special variables *LOAD-VERBOSE* etc.
+             ;; (*load-verbose* verbose)
+             ;; (*load-print* print)
+             ;; (*load-echo* echo)
+             ;; (*load-compiling* compiling)
              (*load-pathname* (if (pathnamep filename) filename nil))
-             (*load-truename* (if (pathnamep filename) (truename filename) nil))
-             (*package* *package*) ; *PACKAGE* binden
-             (*readtable* *readtable*) ; *READTABLE* binden
-             (end-of-file "EOF")) ; einmaliges Objekt
+             (*load-truename*
+              (if (pathnamep filename) (truename filename) nil))
+             (*package* *package*) ; bind *PACKAGE*
+             (*readtable* *readtable*) ; bind *READTABLE*
+             (end-of-file "EOF")) ; one-time Object
         (when verbose
           (fresh-line)
           (write-string ";;")
           (write-string indent)
           (write-string (ENGLISH "Loading file "))
           (princ filename)
-          (write-string (ENGLISH " ..."))
-        )
+          (write-string (ENGLISH " ...")))
         (sys::allow-read-eval input-stream t)
         (block nil
           (unwind-protect
-            (tagbody weiter
-              (when echo (fresh-line))
-              (let ((obj (read input-stream nil end-of-file)))
-                (when (eql obj end-of-file) (return-from nil))
-                (setq obj
-                  (multiple-value-list
-                    (cond ((compiled-function-p obj) (funcall obj))
-                          (compiling (funcall (compile-form-in-toplevel-environment obj)))
-                          (t (eval obj))
-                ) ) )
-                (when print (when obj (print (first obj))))
-              )
-              (go weiter)
-            )
-            (or (eq input-stream stream) (sys::built-in-stream-close input-stream))
-            (or (eq stream filename) (sys::built-in-stream-close stream))
-        ) )
+               (tagbody weiter
+                  (when echo (fresh-line))
+                  (let ((obj (read input-stream nil end-of-file)))
+                    (when (eql obj end-of-file) (return-from nil))
+                    (setq obj (multiple-value-list
+                               (cond ((compiled-function-p obj) (funcall obj))
+                                     (compiling (funcall (compile-form-in-toplevel-environment obj)))
+                                     (t (eval obj)))))
+                    (when print (when obj (print (first obj)))))
+                  (go weiter))
+            (or (eq input-stream stream)
+                (sys::built-in-stream-close input-stream))
+            (or (eq stream filename)
+                (sys::built-in-stream-close stream))))
         (when verbose
           (fresh-line)
           (write-string ";;")
           (write-string indent)
           (write-string (ENGLISH "Loading of file "))
           (princ filename)
-          (write-string (ENGLISH " is finished."))
-        )
-        t
-      )
+          (write-string (ENGLISH " is finished.")))
+        t)
       (if if-does-not-exist
         (error-of-type 'file-error
           :pathname filename
           (ENGLISH "A file with name ~A does not exist")
-          filename
-        )
-        nil
-      )
-) ) )
+          filename)
+        nil))))
 
-; vorläufig:
-(sys::%putd 'defun
+(sys::%putd 'defun              ; preliminarily:
   (sys::make-macro
     (function defun
       (lambda (form env)
         (unless (and (consp (cdr form)) (consp (cddr form)))
           (error-of-type 'source-program-error
             (ENGLISH "~S: missing function name and/or parameter list")
-            'defun
-        ) )
+            'defun))
         (let ((name (cadr form))
               (lambdalist (caddr form))
               (body (cdddr form)))
           (unless (symbolp name)
             (error-of-type 'source-program-error
               (ENGLISH "~S: ~S is not a symbol.")
-              'defun name
-          ) )
+              'defun name))
           (when (special-operator-p name)
             (error-of-type 'source-program-error
               (ENGLISH "~S: special operator ~S cannot be redefined.")
-              'defun name
-          ) )
+              'defun name))
           (multiple-value-bind (body-rest declarations docstring)
                                (sys::parse-body body t env)
             (declare (ignore docstring))
             #|
             `(PROGN
                (SYS::%PUT ',name 'SYS::DEFINITION
-                 (CONS ',form (THE-ENVIRONMENT))
-               )
+                 (CONS ',form (THE-ENVIRONMENT)))
                (SYS::%PUTD ',name
                  (FUNCTION ,name
                    (LAMBDA ,lambdalist
                      (DECLARE (SYS::IN-DEFUN ,name) ,@declarations)
-                     (BLOCK ,name ,@body-rest)
-               ) ) )
-               ',name
-             )
+                     (BLOCK ,name ,@body-rest))))
+               ',name)
             |#
             (list 'progn
               (list 'sys::%put (list 'quote name) ''sys::definition
-                    (list 'cons (list 'quote form) '(the-environment))
-              )
+                    (list 'cons (list 'quote form) '(the-environment)))
               (list 'sys::%putd (list 'quote name)
                 (list 'FUNCTION name
                   (list 'LAMBDA lambdalist
-                        (list* 'DECLARE (list 'SYS::IN-DEFUN name) declarations)
-                        (list* 'BLOCK name body-rest)
-              ) ) )
-              (list 'quote name)
-            )
-    ) ) ) )
-) )
+                        (list* 'DECLARE (list 'SYS::IN-DEFUN name)
+                               declarations)
+                        (list* 'BLOCK name body-rest))))
+              (list 'quote name))))))))
 
-; vorläufige Definition des Macros DO :
-(sys::%putd 'do
+(sys::%putd 'do               ; preliminary definition of the macro DO
   (sys::make-macro
     (function do
       (lambda (form env)
@@ -1550,8 +1406,7 @@
           (when (atom exitclause)
             (error-of-type 'source-program-error
               (ENGLISH "exit clause in ~S must be a list")
-              'do
-          ) )
+              'do))
           (let ((bindlist nil)
                 (reinitlist nil)
                 (bodytag (gensym))
@@ -1588,34 +1443,29 @@
                                 exittag
                                 (list 'or (first exitclause) (list 'go bodytag))
                                 (list 'return-from 'nil
-                                  (cons 'progn (rest exitclause))
-                      ) ) ) ) ) )
-                  ) )
-                  (let ( (varclause (first varclauselist)) )
+                                  (cons 'progn (rest exitclause))))))))))
+                  (let ((varclause (first varclauselist)))
                        (setq varclauselist (rest varclauselist))
-                       (cond ( (atom varclause)
-                                  (setq bindlist
-                                        (cons varclause bindlist)) )
-                             ( (atom (cdr varclause))
-                                  (setq bindlist
-                                        (cons (first varclause) bindlist)) )
-                             ( (atom (cddr varclause))
-                                  (setq bindlist
-                                        (cons varclause bindlist)) )
-                             ( t (setq bindlist
-                                       (cons (list (first varclause)
-                                                   (second varclause))
-                                             bindlist))
-                                 (setq reinitlist
-                                       (list* (third varclause)
-                                              (first varclause)
-                                              reinitlist)) )))
-                  (go 1)
-    ) ) ) ) ) ) )
-) )
+                       (cond ((atom varclause)
+                              (setq bindlist
+                                    (cons varclause bindlist)))
+                             ((atom (cdr varclause))
+                              (setq bindlist
+                                    (cons (first varclause) bindlist)))
+                             ((atom (cddr varclause))
+                              (setq bindlist
+                                    (cons varclause bindlist)))
+                             (t (setq bindlist
+                                      (cons (list (first varclause)
+                                                  (second varclause))
+                                            bindlist))
+                                (setq reinitlist
+                                      (list* (third varclause)
+                                             (first varclause)
+                                             reinitlist)))))
+                   (go 1))))))))))
 
-; vorläufige Definition des Macros DOTIMES :
-(sys::%putd 'dotimes
+(sys::%putd 'dotimes       ; preliminary Definition of the Macro DOTIMES
   (sys::make-macro
     (function dotimes
       (lambda (form env)
@@ -1631,40 +1481,35 @@
                     (,g ,countform))
                    ((>= ,var ,g) ,resultform)
                  (declare ,@declarations)
-                 ,@body-rest
-               )
+                 ,@body-rest)
               |#
               (list* 'do (list (list var '0 (list '1+ var)) (list g countform))
                          (list (list '>= var g) resultform)
                      (cons 'declare declarations)
-                     body-rest
-              )
-    ) ) ) ) )
-) )
+                     body-rest))))))))
 
 (VALUES) )
 
-;; ab hier sind LOAD, DEFUN, DO, DOTIMES (eingeschränkt) funktionsfähig.
+;; from now on LOAD, DEFUN, DO, DOTIMES are operational (with limitations) .
 
-(LOAD "defseq")   ;; Definitionen von Standard-Sequences
+(LOAD "defseq")                 ; Definitions of Standard-Sequences
 
-(LOAD "backquote") ;; Backquote-Readmacro
+(LOAD "backquote")              ; backquote readmacro
 
 (PROGN
 
 (sys::%putd 'sys::backquote
   (sys::make-macro
     (function sys::backquote
-      (lambda (form &optional env) (declare (ignore env)) (third form))
-) ) )
+      (lambda (form &optional env) (declare (ignore env)) (third form)))))
 
 (VALUES) )
 
-;; ab hier ist Backquote funktionsfähig
+;; from now on Backquote is operational
 
 (LOAD "defmacro")
 
-;; ab hier ist FUNCTION (uneingeschränkt) funktionsfähig.
+;; from now on FUNCTION is operational (without limitations).
 
 (PROGN
 
@@ -1681,18 +1526,12 @@
                (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
                ,@(if docstring
                    `((SYSTEM::%SET-DOCUMENTATION ',name 'FUNCTION ',docstring))
-                   '()
-                 )
-               (SYSTEM::%PUTD ',name (SYSTEM::MAKE-MACRO ,expansion))
-             )
+                   '())
+               (SYSTEM::%PUTD ',name (SYSTEM::MAKE-MACRO ,expansion)))
              (EVAL-WHEN (EVAL)
                (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
-                 (CONS ',form (THE-ENVIRONMENT))
-             ) )
-             ',name
-           )
-    ) ) )
-) )
+                 (CONS ',form (THE-ENVIRONMENT))))
+             ',name))))))
 
 (sys::%putd 'defun
   (sys::make-macro
@@ -1701,144 +1540,128 @@
         (if (atom (cdr form))
           (error-of-type 'source-program-error
             (ENGLISH "~S: cannot define a function from that: ~S")
-            'defun (cdr form)
-        ) )
+            'defun (cdr form)))
         (unless (function-name-p (cadr form))
           (error-of-type 'source-program-error
             (ENGLISH "~S: the name of a function must be a symbol, not ~S")
-            'defun (cadr form)
-        ) )
+            'defun (cadr form)))
         (if (atom (cddr form))
           (error-of-type 'source-program-error
             (ENGLISH "~S: function ~S is missing a lambda list")
-            'defun (cadr form)
-        ) )
+            'defun (cadr form)))
         (let ((name (cadr form))
               (lambdalist (caddr form))
               (body (cdddr form)))
           (multiple-value-bind (body-rest declarations docstring)
                                (sys::parse-body body t env)
             (let ((symbolform
-                    (if (atom name)
-                      `',name
-                      `(LOAD-TIME-VALUE (GET-SETF-SYMBOL ',(second name)))
-                  ) )
+                   (if (atom name)
+                       `',name
+                       `(LOAD-TIME-VALUE (GET-SETF-SYMBOL ',(second name)))))
                   (lambdabody
-                    `(,lambdalist (DECLARE (SYS::IN-DEFUN ,name) ,@declarations)
-                       (BLOCK ,(function-block-name name) ,@body-rest)
-                     )
-                 ))
+                   `(,lambdalist (DECLARE (SYS::IN-DEFUN ,name)
+                                  ,@declarations)
+                     (BLOCK ,(function-block-name name) ,@body-rest))))
               `(LET ()
                  (SYSTEM::REMOVE-OLD-DEFINITIONS ,symbolform)
                  ,@(if ; Is name declared inline?
-                       (if (and compiler::*compiling* compiler::*compiling-from-file*)
-                         (member name compiler::*inline-functions* :test #'equal)
-                         (eq (get (if (atom name) name (get-setf-symbol (second name))) 'inlinable) 'inline)
-                       )
-                     ; Is the lexical environment the top-level environment?
-                     ; If yes, save the lambdabody for inline compilation.
-                     (if compiler::*compiling*
-                       (if (and (null compiler::*venv*)
-                                (null compiler::*fenv*)
-                                (null compiler::*benv*)
-                                (null compiler::*genv*)
-                                (eql compiler::*denv* *toplevel-denv*)
-                           )
-                         `((EVAL-WHEN (COMPILE)
-                             (COMPILER::C-DEFUN
-                              ',name (lambda-list-to-signature ',lambdalist)
-                              ',lambdabody))
-                           (EVAL-WHEN (LOAD)
-                             (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION ',lambdabody)
-                          ))
-                         `((EVAL-WHEN (COMPILE)
-                             (COMPILER::C-DEFUN
-                              ',name (lambda-list-to-signature ',lambdalist))))
-                       )
-                       (if (and (null (svref env 0)) ; venv
-                                (null (svref env 1)) ; fenv
-                           )
-                         `((EVAL-WHEN (EVAL)
-                             (LET ((%ENV (THE-ENVIRONMENT)))
-                               (IF (AND (NULL (SVREF %ENV 0)) ; venv
-                                        (NULL (SVREF %ENV 1)) ; fenv
-                                        (NULL (SVREF %ENV 2)) ; benv
-                                        (NULL (SVREF %ENV 3)) ; genv
-                                        (EQL (SVREF %ENV 4) *TOPLEVEL-DENV*) ; denv
-                                   )
-                                 (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION ',lambdabody)
-                          )) ) )
-                         '()
-                     ) )
-                     `((EVAL-WHEN (COMPILE)
-                         (COMPILER::C-DEFUN
-                          ',name (lambda-list-to-signature ',lambdalist))))
-                   )
-                 ,@(if docstring
-                     `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION ',docstring))
-                     '()
-                   )
+                    (if (and compiler::*compiling*
+                             compiler::*compiling-from-file*)
+                      (member name compiler::*inline-functions* :test #'equal)
+                      (eq (get (if (atom name) name
+                                   (get-setf-symbol (second name))) 'inlinable)
+                          'inline))
+                    ;; Is the lexical environment the top-level environment?
+                    ;; If yes, save the lambdabody for inline compilation.
+                    (if compiler::*compiling*
+                      (if (and (null compiler::*venv*)
+                               (null compiler::*fenv*)
+                               (null compiler::*benv*)
+                               (null compiler::*genv*)
+                               (eql compiler::*denv* *toplevel-denv*))
+                        `((EVAL-WHEN (COMPILE)
+                            (COMPILER::C-DEFUN
+                             ',name (lambda-list-to-signature ',lambdalist)
+                             ',lambdabody))
+                          (EVAL-WHEN (LOAD)
+                            (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION
+                                          ',lambdabody)))
+                        `((EVAL-WHEN (COMPILE)
+                            (COMPILER::C-DEFUN
+                             ',name (lambda-list-to-signature ',lambdalist)))))
+                      (if (and (null (svref env 0))  ; venv
+                               (null (svref env 1))) ; fenv
+                        `((EVAL-WHEN (EVAL)
+                            (LET ((%ENV (THE-ENVIRONMENT)))
+                              (IF (AND (NULL (SVREF %ENV 0)) ; venv
+                                       (NULL (SVREF %ENV 1)) ; fenv
+                                       (NULL (SVREF %ENV 2)) ; benv
+                                       (NULL (SVREF %ENV 3)) ; genv
+                                       (EQL (SVREF %ENV 4) *TOPLEVEL-DENV*)) ; denv
+                                (SYSTEM::%PUT ,symbolform
+                                              'SYSTEM::INLINE-EXPANSION
+                                              ',lambdabody)))))
+                        '()))
+                    `((EVAL-WHEN (COMPILE)
+                        (COMPILER::C-DEFUN
+                         ',name (lambda-list-to-signature ',lambdalist)))))
+                ,@(if docstring
+                    `((SYSTEM::%SET-DOCUMENTATION ,symbolform
+                       'FUNCTION ',docstring))
+                     '())
                  (SYSTEM::%PUTD ,symbolform
-                   (FUNCTION ,name (LAMBDA ,@lambdabody))
-                 )
+                   (FUNCTION ,name (LAMBDA ,@lambdabody)))
                  (EVAL-WHEN (EVAL)
                    (SYSTEM::%PUT ,symbolform 'SYSTEM::DEFINITION
-                     (CONS ',form (THE-ENVIRONMENT))
-                 ) )
-                 ',name
-               )
-    ) ) ) ) )
-) )
+                     (CONS ',form (THE-ENVIRONMENT))))
+                 ',name))))))))
 
 (VALUES) )
 
-;; ab hier sind DEFMACRO und DEFUN funktionsfähig.
+;; from now on DEFMACRO and DEFUN are operational.
 (in-package "SYSTEM")
 
-(LOAD "macros1")  ;; Kontrollstrukturen - Macros
-(LOAD "macros2")  ;; weitere Macros
+(LOAD "macros1")                ; control-structure - macros
+(LOAD "macros2")                ; further macros
 
-(LOAD "defs1")    ;; Definitionen zu Symbolen, Zahlen, Characters, Zeit
+(LOAD "defs1")      ; definitions for symbols, numbers, characters, time
 #-(or UNIX WIN32)
-(LOAD "timezone") ;; Definition der Zeitzone
+(LOAD "timezone")               ; Definition of the time zone
 
-(LOAD "places")   ;; SETF-Places: Definitionen und Macros
+(LOAD "places")                 ; SETF-places: definitions and macros
 
-;; From here on SETF etc. are working.
+;; from now on SETF etc. are working.
 
-(LOAD "floatprint") ;; Ausgabe von Floating-Points
+(LOAD "floatprint")             ; output of floating-points
 
-(LOAD "type")     ;; TYPEP
+(LOAD "type")                   ; TYPEP
 
-(LOAD "defstruct") ;; DEFSTRUCT-Macro
+(LOAD "defstruct")              ; DEFSTRUCT-macro
 
-(LOAD "format")   ;; FORMAT
+(LOAD "format")                 ; FORMAT
 
-;; From here on FORMATTER is working.
-(LOAD "international") ;; Internationalization
+;; from now on FORMATTER is working.
+(LOAD "international")          ; internationalization
 
 (in-package "SYSTEM")
 
-; (default-directory) ist ein Synonym für (cd).
+;; (default-directory) is a Synonym for (cd).
 (defun default-directory () (cd))
 
-; (setf (default-directory) dir) ist ein Synonym für (cd dir).
+;; (setf (default-directory) dir) is a Synonym for (cd dir).
 (defsetf default-directory () (value)
-  `(PROGN (CD ,value) ,value)
-)
+  `(PROGN (CD ,value) ,value))
 
-; FORMAT-Control-String zur Datumsausgabe,
-; anwendbar auf eine Liste (sec min hour day month year ...),
-; belegt 17-19 Zeichen
+;; FORMAT-Control-String for output of dates,
+;; applicable to a List (sec min hour day month year ...),
+;; occupies 17-19 characters
 (definternational date-format
-  (t ENGLISH)
-)
+  (t ENGLISH))
 (deflocalized date-format ENGLISH
-  (formatter "~1{~5@*~D-~4@*~2,'0D-~3@*~2,'0D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")
-)
+  (formatter
+   "~1{~5@*~D-~4@*~2,'0D-~3@*~2,'0D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}"))
 (defun date-format ()
-  (localized 'date-format)
-)
+  (localized 'date-format))
 
 ;; list a directory
 (defun dir (&optional (pathnames #+(or AMIGA UNIX OS/2 WIN32) '("*/" "*")
@@ -1904,9 +1727,9 @@
               (return (mapcar #'first (sort xpathnames #'> :key #'rest)))))
           (push search-filename already-searched))))))
 
-(LOAD "room")     ;; room, space
+(LOAD "room")                   ; room, space
 
-(LOAD "savemem")  ;; saveinitmem
+(LOAD "savemem")                ; saveinitmem
 
 ;; At this point saveinitmem works.
 
@@ -1914,8 +1737,7 @@
 (defun cerror (continue-format-string error-format-string &rest args)
   (if *error-handler*
     (apply *error-handler*
-           (or continue-format-string t) error-format-string args
-    )
+           (or continue-format-string t) error-format-string args)
     (progn
       (terpri *error-output*)
       (write-string "** - Continuable Error" *error-output*)
@@ -1925,14 +1747,10 @@
       (if (and (interactive-stream-p *debug-io*) *break-driver*)
         (progn
           (write-string (ENGLISH "If you continue (by typing 'continue'): ")
-                        *debug-io*
-          )
+                        *debug-io*)
           (apply #'format *debug-io* continue-format-string args)
-          (funcall *break-driver* t)
-        )
-        (apply #'format *debug-io* continue-format-string args)
-    ) )
-) )
+          (funcall *break-driver* t))
+        (apply #'format *debug-io* continue-format-string args)))))
 
 ;; this should come before `compiler'
 #+syscalls
@@ -1947,21 +1765,21 @@
 #+syscalls
 (in-package "SYSTEM")
 
-(LOAD "trace")     ;; TRACE
+(LOAD "trace")                  ; TRACE
 
 (load "cmacros")                ; compiler macros
 
-(LOAD "compiler")  ;; Compiler
+(LOAD "compiler")               ; compiler
 
-(LOAD "defs2")     ;; CLtL2-definitions, optional
+(LOAD "defs2")                  ; CLtL2-definitions, optional
 
-(LOAD "loop")      ;; CLtL2/ANSI-CL-LOOP, optional
+(LOAD "loop")                   ; CLtL2/ANSI-CL-LOOP, optional
 
-(LOAD "clos")      ;; CLOS
+(LOAD "clos")                   ; CLOS
 
 (LOAD "disassem")               ; Disassembler
 
-(LOAD "condition") ;; Conditions
+(LOAD "condition")              ; Conditions
 
 (load "loadform")               ; `make-load-form'
 
@@ -1973,20 +1791,18 @@
 
 (load "gray")
 #+generic-streams
-(LOAD "gstream")   ;; generic streams, optional
+(LOAD "gstream")                ; generic streams, optional
 
-(LOAD "xcharin")   ;; extended character input, optional
+(LOAD "xcharin")                ; extended character input, optional
 
-(LOAD "keyboard")  ;; keyboard stream, optional
+(LOAD "keyboard")               ; keyboard stream, optional
 
 (when (or #+AMIGA t (find-package "SCREEN"))
-  (LOAD "screen")  ;; Screen-Paket, optional
+  (LOAD "screen")               ; screen-package, optional
 )
 
 
 ;; Environmental facilities:
-;#+sockets
-;(use-package '("COMMON-LISP") "SOCKET")
 #+sockets
 (use-package '("SOCKET") "EXT")
 #+sockets
@@ -2005,59 +1821,58 @@
 (common-lisp:in-package "SYSTEM")
 
 #+AMIGA
-(LOAD "amigasock") ;; sockets, optional
+(LOAD "amigasock")              ; sockets, optional
 #+BEOS
-(LOAD "beossock")  ;; sockets, optional
+(LOAD "beossock")               ; sockets, optional
 
-(LOAD "runprog")   ;; run-program and friends, optional
+(LOAD "runprog")                ; run-program and friends, optional
 
 ;; User interface:
 
-(LOAD "query")     ;; querying the user
+(LOAD "query")                  ; querying the user
 
-(LOAD "reploop")   ;; prompt, debugger, stepper
+(LOAD "reploop")                ; prompt, debugger, stepper
 
-(LOAD "dribble")   ;; dribble
+(LOAD "dribble")                ; dribble
 
-(LOAD "complete")  ;; completion
+(LOAD "complete")               ; completion
 
 (load "pprint")                 ; pretty printer
 
-(LOAD "describe")  ;; apropos, describe
+(LOAD "describe")               ; apropos, describe
 
-(LOAD "edit")      ;; edit-file, ed, uncompile
+(LOAD "edit")                   ; edit-file, ed, uncompile
 
-(LOAD "clhs")      ;; HyperSpec access
+(LOAD "clhs")                   ; HyperSpec access
 
 (load "inspect")                ; inspector
 
 ;; Random extensions:
 
-(LOAD "macros3")  ;; more macros, optional
+(LOAD "macros3")                ; more macros, optional
 
 #+FFI ; when (find-package "FFI")
-(LOAD "foreign1")  ;; foreign function interface, optional
+(LOAD "foreign1")               ; foreign function interface, optional
 
 #+AMIGA
 (when (find-symbol "%LIBCALL" "SYSTEM")
-  (LOAD "affi1")   ;; simple FFI, optional
-)
+  (LOAD "affi1"))               ; simple FFI, optional
 
-#+AMIGA (LOAD "rexx1") ;; Rexx-Schnittstelle, optional
+#+AMIGA (LOAD "rexx1")          ; REXX-interface, optional
 
 ;; POSIX/SUSV2 system calls and library functions, optional
 ;; http://www.UNIX-systems.org/online.html
 #+syscalls (load "posix")
 
-#+GETTEXT (LOAD "german") ;; Deutsche Meldungen
-#+GETTEXT (LOAD "french") ;; Französische Meldungen
-#+(and GETTEXT UNICODE) (LOAD "spanish") ;; Spanische Meldungen
-#+GETTEXT (LOAD "dutch")  ;; Holländische Meldungen
+#+GETTEXT (LOAD "german")       ; German messages
+#+GETTEXT (LOAD "french")       ; French messages
+#+(and GETTEXT UNICODE) (LOAD "spanish") ; Spanish messages
+#+GETTEXT (LOAD "dutch")        ; Dutch messages
 
 #+dir-key
-(load "dirkey")    ;; win32 registry, LDAP, Gnome-config
+(load "dirkey")                 ; win32 registry, LDAP, Gnome-config
 
-(LOAD "config")    ;; configuration parameters to be adjusted by the user
+(LOAD "config")    ; configuration parameters to be adjusted by the user
 
-(in-package "CL-USER") ;; make the default package the current one
+(in-package "CL-USER")        ; make the default package the current one
 (setq sys::*home-package* nil)
