@@ -7718,13 +7718,21 @@ der Docstring (oder NIL).
                               FRANCAIS "Mauvaise syntaxe pour SYMBOL-MACROLET : ~S")
                              symdef
             ) ) ) ) )
-          (dolist (s (intersection *specials* symbols))
-            (catch 'c-error
-              (c-error (DEUTSCH "~S: Symbol ~S darf nicht gleichzeitig SPECIAL und Makro deklariert werden."
-                        ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
-                        FRANCAIS "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps.")
-                       'symbol-macrolet s
-          ) ) )
+          (dolist (symbol symbols)
+            (if (or (constantp symbol) (proclaimed-special-p symbol))
+              (catch 'c-error
+                (c-error (DEUTSCH "~S: Symbol ~S ist SPECIAL deklariert und darf nicht Makro deklariert werden."
+                          ENGLISH "~S: symbol ~S is declared special and must not be declared a macro"
+                          FRANCAIS "~S : Le symbole ~S est déclaré SPECIAL et ne peut être déclaré macro.")
+                         'symbol-macrolet symbol
+              ) )
+              (if (member symbol *specials* :test #'eq)
+                (catch 'c-error
+                  (c-error (DEUTSCH "~S: Symbol ~S darf nicht gleichzeitig SPECIAL und Makro deklariert werden."
+                            ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
+                            FRANCAIS "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps.")
+                           'symbol-macrolet symbol
+          ) ) ) ) )
           (setq *venv* ; *venv* erweitern
             (apply #'vector
               (nconc (mapcan #'(lambda (sym expansion) (list sym (make-symbol-macro expansion)))

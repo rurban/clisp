@@ -1,3 +1,13 @@
+1998-06-06  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * control.d (make_variable_frame): For LET, LET*, MULTIPLE-VALUE-BIND,
+          check that the variable is not a constant. For SYMBOL-MACROLET,
+          check that the variable is not proclaimed special.
+        * init.lsp (%expand-form): For SYMBOL-MACROLET, check that the
+          variable is not proclaimed special and is not declared special
+          in the same binding.
+        * compiler.lsp (c-SYMBOL-MACROLET): Likewise.
+
 1998-06-04  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * lispbibl.d (Stream): New field strm_pk_ch.
