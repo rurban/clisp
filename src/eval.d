@@ -3015,8 +3015,7 @@ LISPFUNN(subr_info,1)
             }
           elif (   numberp(form) # Zahl ?
                 || charp(form) # Character ?
-                || stringp(form) # String ?
-                || bit_vector_p(form) # Bitvektor ?
+                || arrayp(form) # Array ?
                 || other_self_evaluating_p() # X3J13 vote <72> erwünscht?
                )
             # self-evaluating form
