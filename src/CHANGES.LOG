@@ -23,7 +23,8 @@ User visible changes
   keyword argument.
   See <http://clisp.cons.org/impnotes.html#timeout-k> for details.
 
-* SAVEINITMEM now accepts a :START-PACKAGE keyword argument.
+* SAVEINITMEM now accepts :START-PACKAGE, :VERBOSE, and :LOCKED-PACKAGES
+  keyword arguments.
   See <http://clisp.cons.org/impnotes.html#image> for details.
 
 * You can now shutdown a socket for input or output separately
@@ -50,7 +51,7 @@ User visible changes
 * Russian translations of the user interface messages have been added.
   Thanks to Arseny Slobodjuck <ampy@ich.dvo.ru>.
 
-* When built with readline, CLISP will describe the current function
+* When built with readline, CLISP will DESCRIBE the current function
   when you hit TAB after a #\Space.
 
 * MAKE-ENCODING now checks whether the iconv charset is valid, and
@@ -74,6 +75,11 @@ User visible changes
 
 * Wide-mode -W backward compatibility option is now gone
   (defunct since 1998-09-09).
+
+Portability
+-----------
+
+* CLISP now works on SPARC/Linux with glibc 2.2 when built with SAFETY=3.
 
 2.28 (2002-03-03)
 =================
