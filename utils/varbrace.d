@@ -1173,12 +1173,12 @@ local Token next_token (void)
                   p = (uintB*) strstr((char*)p,"var ");
                   if (p == NULL)
                     break;
-                  if ((strncmp(p,"var object ",strlen("var object "))==0
-                       || strncmp(p,"var chart ",strlen("var chart "))==0)
+                  if ((strncmp((char*)p,"var object ",strlen("var object "))==0
+                       || strncmp((char*)p,"var chart ",strlen("var chart "))==0)
                       && (p[-1] == ' ' || p[-1] == '{')) {
-                    if (strncmp(p,"var object ",strlen("var object "))==0)
+                    if (strncmp((char*)p,"var object ",strlen("var object "))==0)
                       p += strlen("var object ");
-                    else if (strncmp(p,"var chart ",strlen("var chart "))==0)
+                    else if (strncmp((char*)p,"var chart ",strlen("var chart "))==0)
                       p += strlen("var chart ");
                     var uintB* q = p;
                     if ((*q >= 'A' && *q <= 'Z') || (*q >= 'a' && *q <= 'z') || *q == '_') {
