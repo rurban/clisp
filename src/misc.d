@@ -625,4 +625,6 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
 }
 
 LISPFUN(argv,seclass_no_se,0,0,norest,nokey,0,NIL)
-{ VALUES1(copy_svector(O(argv))); }
+{
+  VALUES1(copy_svector(O(argv)));
+}
