@@ -666,3 +666,21 @@ nil
    x)
  12)
 (T 13 13)
+
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=866282&group_id=1355&atid=101355>
+(test-compiler (lambda ()
+                 (let ((*s4* :right))
+                   (declare (special *s4*))
+                   (progv '(*s4*) (list :wrong1) (setq *s4* :wrong2))
+                   *s4*)))
+(T :RIGHT :RIGHT)
+
+(unwind-protect
+     (test-compiler (lambda ()
+                      (setq *print-level* 20)
+                      (nconc
+                       (let ((*print-level* 30) (foo (setq *print-level* 40)))
+                         (list *print-level* foo))
+                       (list *print-level*))))
+  (setq *print-level* nil))     ; restore the value
+(T (30 40 40) (30 40 40))

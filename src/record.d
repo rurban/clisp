@@ -349,14 +349,15 @@ LISPFUNNR(make_code_vector,1) {
 local seclass_t parse_seclass (object sec, object closure)
 {
   if (nullp(sec)) return seclass_foldable;
-  if (!consp(sec)) {
+  if (!consp(sec) || !consp(Cdr(sec)) || !consp(Cdr(Cdr(sec)))) {
     pushSTACK(closure); pushSTACK(sec);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: invalid side-effect class ~ for function ~"));
   }
+  var object modifies = Car(Cdr(sec));
   return (nullp(Car(sec))
-          ? (nullp(Cdr(sec)) ? seclass_no_se : seclass_write)
-          : (nullp(Cdr(sec)) ? seclass_read : seclass_default));
+          ? (nullp(modifies) ? seclass_no_se : seclass_write)
+          : (nullp(modifies) ? seclass_read : seclass_default));
 }
 
 /* (SYS::%MAKE-CLOSURE name codevec consts seclass) returns a closure
