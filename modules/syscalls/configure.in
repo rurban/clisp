@@ -31,7 +31,8 @@ if test "$ac_cv_struct_fsid_scalar" = yes; then
 fi
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
-AC_CHECK_FUNCS(clock confstr fcntl gethostent getrusage getrlimit sysconf uname)
+AC_CHECK_FUNCS(clock confstr fcntl gethostent getrusage sysconf uname)
+AC_CHECK_FUNCS(getrlimit setrlimit)
 AC_CHECK_FUNCS(getlogin getpwent getpwnam getpwuid getuid)
 AC_CHECK_FUNCS(fchmod fchown fstat link lstat stat symlink utimes)
 AC_CHECK_FUNCS(mknod chmod chown umask)
@@ -41,6 +42,7 @@ AC_CHECK_FUNCS(fstatvfs statvfs)
 AC_CHECK_DECLS(signgam, , , [#include <math.h>] )
 AC_SEARCH_LIBS(crypt, crypt)
 AC_CHECK_FUNCS(crypt encrypt setkey)
+AC_CHECK_FUNCS(GlobalMemoryStatusEx)
 
 AC_MSG_NOTICE([ * System Calls (output)])
 AC_CONFIG_FILES(Makefile link.sh)

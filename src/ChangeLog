@@ -1,5 +1,16 @@
 2004-07-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX:SYSCONF, POSIX:CONFSTR)
+	(POSIX:LIMITS): accept an optional `what' argument
+	(POSIX:MEMORY-STATUS) [win32]: new function
+	* modules/syscalls/posix.lisp (physical-memory): new function
+	(sysconf, confstr, limits) [unix]: removed structures
+	(memory-status) [win32]: new structure
+	* modules/syscalls/configure.in: check for GlobalMemoryStatusEx()
+	and setrlimit()
+
+2004-07-30  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (print-tables-1): print the definition
 	of "struct c_lisp_pair" outside of WITH-CONDITIONAL
 

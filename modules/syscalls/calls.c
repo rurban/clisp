@@ -348,162 +348,112 @@ DEFUN(POSIX::UNAME,)
 #endif /* HAVE_UNAME */
 
 #if defined(HAVE_SYSCONF)
-DEFUN(POSIX::SYSCONF,)
+DEFCHECKER(sysconf_arg, _SC_AIO_LISTIO_MAX _SC_AIO_MAX _SC_AIO_PRIO_DELTA_MAX \
+           _SC_ARG_MAX _SC_ATEXIT_MAX _SC_BC_BASE_MAX _SC_BC_DIM_MAX    \
+           _SC_BC_SCALE_MAX _SC_BC_STRING_MAX _SC_CHILD_MAX _SC_CLK_TCK \
+           _SC_COLL_WEIGHTS_MAX _SC_DELAYTIMER_MAX _SC_EXPR_NEST_MAX    \
+           _SC_HOST_NAME_MAX _SC_IOV_MAX _SC_LINE_MAX _SC_LOGIN_NAME_MAX \
+           _SC_NGROUPS_MAX _SC_GETGR_R_SIZE_MAX _SC_GETPW_R_SIZE_MAX    \
+           _SC_MQ_OPEN_MAX _SC_MQ_PRIO_MAX _SC_OPEN_MAX _SC_ADVISORY_INFO \
+           _SC_BARRIERS _SC_ASYNCHRONOUS_IO _SC_CLOCK_SELECTION _SC_CPUTIME \
+           _SC_FSYNC _SC_IPV6 _SC_JOB_CONTROL _SC_MAPPED_FILES _SC_MEMLOCK \
+           _SC_MEMLOCK_RANGE _SC_MEMORY_PROTECTION _SC_MESSAGE_PASSING  \
+           _SC_MONOTONIC_CLOCK _SC_PRIORITIZED_IO _SC_PRIORITY_SCHEDULING \
+           _SC_RAW_SOCKETS _SC_READER_WRITER_LOCKS _SC_REALTIME_SIGNALS \
+           _SC_REGEXP _SC_SAVED_IDS _SC_SEMAPHORES _SC_SHARED_MEMORY_OBJECTS \
+           _SC_SHELL _SC_SPAWN _SC_SPIN_LOCKS _SC_SPORADIC_SERVER       \
+           _SC_SS_REPL_MAX _SC_SYNCHRONIZED_IO _SC_THREAD_ATTR_STACKADDR \
+           _SC_THREAD_ATTR_STACKSIZE _SC_THREAD_CPUTIME                 \
+           _SC_THREAD_PRIO_INHERIT _SC_THREAD_PRIO_PROTECT              \
+           _SC_THREAD_PRIORITY_SCHEDULING _SC_THREAD_PROCESS_SHARED     \
+           _SC_THREAD_SAFE_FUNCTIONS _SC_THREAD_SPORADIC_SERVER         \
+           _SC_THREADS _SC_TIMEOUTS _SC_TIMERS _SC_TRACE                \
+           _SC_TRACE_EVENT_FILTER _SC_TRACE_EVENT_NAME_MAX _SC_TRACE_INHERIT \
+           _SC_TRACE_LOG _SC_TRACE_NAME_MAX _SC_TRACE_SYS_MAX           \
+           _SC_TRACE_USER_EVENT_MAX _SC_TYPED_MEMORY_OBJECTS _SC_VERSION \
+           _SC_V6_ILP32_OFF32 _SC_V6_ILP32_OFFBIG _SC_V6_LP64_OFF64     \
+           _SC_V6_LPBIG_OFFBIG _SC_2_C_BIND _SC_2_C_DEV _SC_2_CHAR_TERM \
+           _SC_2_FORT_DEV _SC_2_FORT_RUN _SC_2_LOCALEDEF _SC_2_PBS      \
+           _SC_2_PBS_ACCOUNTING _SC_2_PBS_CHECKPOINT _SC_2_PBS_LOCATE   \
+           _SC_2_PBS_MESSAGE _SC_2_PBS_TRACK _SC_2_SW_DEV _SC_2_UPE     \
+           _SC_2_VERSION _SC_PAGESIZE _SC_PHYS_PAGES _SC_AVPHYS_PAGES   \
+           _SC_THREAD_DESTRUCTOR_ITERATIONS _SC_THREAD_KEYS_MAX         \
+           _SC_THREAD_STACK_MIN _SC_THREAD_THREADS_MAX _SC_RE_DUP_MAX   \
+           _SC_RTSIG_MAX _SC_SEM_NSEMS_MAX _SC_SEM_VALUE_MAX _SC_SIGQUEUE_MAX \
+           _SC_STREAM_MAX _SC_SYMLOOP_MAX _SC_TIMER_MAX _SC_TTY_NAME_MAX \
+           _SC_TZNAME_MAX _SC_XBS5_ILP32_OFF32 _SC_XBS5_ILP32_OFFBIG    \
+           _SC_XBS5_LP64_OFF64 _SC_XBS5_LPBIG_OFFBIG _SC_XOPEN_CRYPT    \
+           _SC_XOPEN_ENH_I18N _SC_XOPEN_LEGACY _SC_XOPEN_REALTIME       \
+           _SC_XOPEN_REALTIME_THREADS _SC_XOPEN_SHM _SC_XOPEN_STREAMS   \
+           _SC_XOPEN_UNIX _SC_XOPEN_VERSION                             \
+           _SC_NPROCESSORS_CONF _SC_NPROCESSORS_ONLN)
+DEFUN(POSIX::SYSCONF, &optional what)
 { /* Lisp interface to sysconf(3c) */
-  long res;
-
-#define SC_S(cmd) \
-  begin_system_call(); res = sysconf(cmd); end_system_call(); \
-  pushSTACK(res == -1 ? T : L_to_I(res));
-
-#if defined(_SC_PAGESIZE)
-  SC_S(_SC_PAGESIZE);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_SC_PHYS_PAGES)
-  SC_S(_SC_PHYS_PAGES);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_SC_AVPHYS_PAGES)
-  SC_S(_SC_AVPHYS_PAGES);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_SC_NPROCESSORS_CONF)
-  SC_S(_SC_NPROCESSORS_CONF);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_SC_NPROCESSORS_ONLN)
-  SC_S(_SC_NPROCESSORS_ONLN);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_SC_THREAD_THREADS_MAX)
-  SC_S(_SC_THREAD_THREADS_MAX);
-#else
-  pushSTACK(NIL);
-#endif
-#undef SC_S
-  funcall(`POSIX::MAKE-SYSCONF`,6);
+  object what = popSTACK();
+  if (!missingp(what)) {
+    int cmd = sysconf_arg(what), res;
+    begin_system_call(); res = sysconf(cmd); end_system_call();
+    VALUES1(L_to_I(res));
+  } else { /* all possible values */
+    int pos = 0;
+    for (; pos < sysconf_arg_table_size; pos++) {
+      int res;
+      begin_system_call();
+      res = sysconf(sysconf_arg_table[pos].c_const);
+      end_system_call();
+      pushSTACK(*sysconf_arg_table[pos].l_const);
+      pushSTACK(L_to_I(res));
+    }
+    VALUES1(listof(2*sysconf_arg_table_size));
+  }
 }
 #endif /* HAVE_SYSCONF */
 
 #if defined(HAVE_CONFSTR)
-DEFUN(POSIX::CONFSTR,)
+DEFCHECKER(confstr_arg,_CS_PATH _CS_POSIX_V6_ILP32_OFF32_CFLAGS         \
+           _CS_POSIX_V6_ILP32_OFF32_LDFLAGS _CS_POSIX_V6_ILP32_OFF32_LIBS \
+           _CS_POSIX_V6_ILP32_OFFBIG_CFLAGS _CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS \
+           _CS_POSIX_V6_ILP32_OFFBIG_LIBS _CS_POSIX_V6_LP64_OFF64_CFLAGS \
+           _CS_POSIX_V6_LP64_OFF64_LDFLAGS _CS_POSIX_V6_LP64_OFF64_LIBS \
+           _CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS _CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS \
+           _CS_POSIX_V6_LPBIG_OFFBIG_LIBS _CS_POSIX_V6_WIDTH_RESTRICTED_ENVS \
+           _CS_XBS5_ILP32_OFF32_CFLAGS _CS_XBS5_ILP32_OFF32_LDFLAGS     \
+           _CS_XBS5_ILP32_OFF32_LIBS _CS_XBS5_ILP32_OFF32_LINTFLAGS     \
+           _CS_XBS5_ILP32_OFFBIG_CFLAGS _CS_XBS5_ILP32_OFFBIG_LDFLAGS   \
+           _CS_XBS5_ILP32_OFFBIG_LIBS _CS_XBS5_ILP32_OFFBIG_LINTFLAGS   \
+           _CS_XBS5_LP64_OFF64_CFLAGS _CS_XBS5_LP64_OFF64_LDFLAGS       \
+           _CS_XBS5_LP64_OFF64_LIBS _CS_XBS5_LP64_OFF64_LINTFLAGS       \
+           _CS_XBS5_LPBIG_OFFBIG_CFLAGS _CS_XBS5_LPBIG_OFFBIG_LDFLAGS   \
+           _CS_XBS5_LPBIG_OFFBIG_LIBS _CS_XBS5_LPBIG_OFFBIG_LINTFLAGS)
+DEFUN(POSIX::CONFSTR, &optional what)
 { /* Lisp interface to confstr(3c) */
-  size_t res;
-  char buf[BUFSIZ];
-
 #define CS_S(cmd) \
   begin_system_call(); res = confstr(cmd,buf,BUFSIZ); end_system_call(); \
   if (res == 0) pushSTACK(T);                                           \
-  else if (res <= BUFSIZ) pushSTACK(asciz_to_string(buf,GLO(misc_encoding))); \
+  else if (res <= BUFSIZ) value1 = asciz_to_string(buf,GLO(misc_encoding)); \
   else {                                                                \
+    char *tmp = alloca(res);                                            \
     begin_system_call();                                                \
-    { char *tmp = alloca(res);                                          \
-      confstr(cmd,tmp,res);                                             \
-      end_system_call();                                                \
-      pushSTACK(asciz_to_string(tmp,GLO(misc_encoding)));               \
-    }}
+    confstr(cmd,tmp,res);                                               \
+    end_system_call();                                                  \
+    value1 = asciz_to_string(tmp,GLO(misc_encoding));                   \
+  }
 
-#if defined(_CS_PATH)
-  CS_S(_CS_PATH);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_ILP32_OFF32_CFLAGS)
-  CS_S(_CS_POSIX_V6_ILP32_OFF32_CFLAGS);
-#elif defined(_CS_XBS5_ILP32_OFF32_CFLAGS)
-  CS_S(_CS_XBS5_ILP32_OFF32_CFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_ILP32_OFF32_LDFLAGS)
-  CS_S(_CS_POSIX_V6_ILP32_OFF32_LDFLAGS);
-#elif defined(_CS_XBS5_ILP32_OFF32_LDFLAGS)
-  CS_S(_CS_XBS5_ILP32_OFF32_LDFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_ILP32_OFF32_LIBS)
-  CS_S(_CS_POSIX_V6_ILP32_OFF32_LIBS);
-#elif defined(_CS_XBS5_ILP32_OFF32_LIBS)
-  CS_S(_CS_XBS5_ILP32_OFF32_LIBS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_ILP32_OFFBIG_CFLAGS)
-  CS_S(_CS_POSIX_V6_ILP32_OFFBIG_CFLAGS);
-#elif defined(_CS_XBS5_ILP32_OFFBIG_CFLAGS)
-  CS_S(_CS_XBS5_ILP32_OFFBIG_CFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS)
-  CS_S(_CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS);
-#elif defined(_CS_XBS5_ILP32_OFFBIG_LDFLAGS)
-  CS_S(_CS_XBS5_ILP32_OFFBIG_LDFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_ILP32_OFFBIG_LIBS)
-  CS_S(_CS_POSIX_V6_ILP32_OFFBIG_LIBS);
-#elif defined(_CS_XBS5_ILP32_OFFBIG_LIBS)
-  CS_S(_CS_XBS5_ILP32_OFFBIG_LIBS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_LP64_OFF64_CFLAGS)
-  CS_S(_CS_POSIX_V6_LP64_OFF64_CFLAGS);
-#elif defined(_CS_XBS5_LP64_OFF64_CFLAGS)
-  CS_S(_CS_XBS5_LP64_OFF64_CFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_LP64_OFF64_LDFLAGS)
-  CS_S(_CS_POSIX_V6_LP64_OFF64_LDFLAGS);
-#elif defined(_CS_XBS5_LP64_OFF64_LDFLAGS)
-  CS_S(_CS_XBS5_LP64_OFF64_LDFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_LP64_OFF64_LIBS)
-  CS_S(_CS_POSIX_V6_LP64_OFF64_LIBS);
-#elif defined(_CS_XBS5_LP64_OFF64_LIBS)
-  CS_S(_CS_XBS5_LP64_OFF64_LIBS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS)
-  CS_S(_CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS);
-#elif defined(_CS_XBS5_LPBIG_OFFBIG_CFLAGS)
-  CS_S(_CS_XBS5_LPBIG_OFFBIG_CFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS)
-  CS_S(_CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS);
-#elif defined(_CS_XBS5_LPBIG_OFFBIG_LDFLAGS)
-  CS_S(_CS_XBS5_LPBIG_OFFBIG_LDFLAGS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_LPBIG_OFFBIG_LIBS)
-  CS_S(_CS_POSIX_V6_LPBIG_OFFBIG_LIBS);
-#elif defined(_CS_XBS5_LPBIG_OFFBIG_LIBS)
-  CS_S(_CS_XBS5_LPBIG_OFFBIG_LIBS);
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(_CS_POSIX_V6_WIDTH_RESTRICTED_ENVS)
-  CS_S(_CS_POSIX_V6_WIDTH_RESTRICTED_ENVS);
-#else
-  pushSTACK(NIL);
-#endif
-  funcall(`POSIX::MAKE-CONFSTR`,14);
+  size_t res;
+  char buf[BUFSIZ];
+  object what = popSTACK();
+  if (!missingp(what)) {
+    int cmd = confstr_arg(what);
+    CS_S(cmd); mv_count = 1;
+  } else { /* all possible values */
+    int pos = 0;
+    for (pos; pos < confstr_arg_table_size; pos++) {
+      CS_S(confstr_arg_table[pos].c_const);
+      pushSTACK(*confstr_arg_table[pos].l_const);
+      pushSTACK(value1);
+    }
+    VALUES1(listof(2*confstr_arg_table_size));
+  }
 }
 #endif /* HAVE_CONFSTR */
 
@@ -550,79 +500,42 @@ DEFUN(POSIX::USAGE,)
 }
 #endif /* HAVE_GETRUSAGE */
 
+DEFCHECKER(getrlimit_arg, RLIMIT_CPU RLIMIT_FSIZE RLIMIT_DATA RLIMIT_STACK \
+           RLIMIT_CORE RLIMIT_RSS RLIMIT_NOFILE RLIMIT_AS RLIMIT_NPROC  \
+           RLIMIT_MEMLOCK RLIMIT_LOCKS)
 #if defined(HAVE_GETRLIMIT)
-DEFUN(POSIX::LIMITS,)
+DEFUN(POSIX::LIMITS, &optional what)
 { /* getrlimit(3) */
-
 #define RLIM(what)                                                      \
-  begin_system_call(); getrlimit(what,&rl); end_system_call();          \
+  begin_system_call();                                                  \
+  if (getrlimit(what,&rl)) OS_error();                                  \
+  end_system_call();                                                    \
   pushSTACK(rl.rlim_cur == RLIM_INFINITY ? NIL : L_to_I(rl.rlim_cur));  \
-  pushSTACK(rl.rlim_max == RLIM_INFINITY ? NIL : L_to_I(rl.rlim_max));  \
-  funcall(`POSIX::MAKE-RLIMIT`,2); pushSTACK(value1)
+  pushSTACK(rl.rlim_max == RLIM_INFINITY ? NIL : L_to_I(rl.rlim_max))
 
   struct rlimit rl;
-
-# if defined(RLIMIT_CPU)
-  RLIM(RLIMIT_CPU);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_FSIZE)
-  RLIM(RLIMIT_FSIZE);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_DATA)
-  RLIM(RLIMIT_DATA);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_STACK)
-  RLIM(RLIMIT_STACK);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_CORE)
-  RLIM(RLIMIT_CORE);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_RSS)
-  RLIM(RLIMIT_RSS);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_NOFILE)
-  RLIM(RLIMIT_NOFILE);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_AS)
-  RLIM(RLIMIT_AS);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_NPROC)
-  RLIM(RLIMIT_NPROC);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_MEMLOCK)
-  RLIM(RLIMIT_MEMLOCK);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_LOCKS)
-  RLIM(RLIMIT_LOCKS);
-# else
-  pushSTACK(NIL);
-# endif
-
-# undef RLIM
-
-  funcall(`POSIX::MAKE-LIMITS`,11);
+  object what = popSTACK();
+  if (!missingp(what)) {
+    int cmd = getrlimit_arg(what);
+    RLIM(cmd);
+    funcall(L(values),2);
+  } else {
+    int pos = 0;
+    for (; pos < getrlimit_arg_table_size; pos++) {
+      pushSTACK(*getrlimit_arg_table[pos].l_const);
+      RLIM(getrlimit_arg_table[pos].c_const);
+      funcall(`POSIX::MAKE-RLIMIT`,2); pushSTACK(value1);
+    }
+    VALUES1(listof(2*getrlimit_arg_table_size));
+  }
 }
 #endif /* HAVE_GETRLIMIT */
+#if defined(HAVE_SETRLIMIT)
+DEFUN(POSIX::SET-LIMITS, what cur max)
+{ /* setrlimit(3) */
+  NOTREACHED;
+}
+#endif /* HAVE_SETRLIMIT */
 
 /* ==== SOCKETS ===== */
 #if defined(HAVE_NETDB_H)
@@ -1032,12 +945,15 @@ DEFUN(POSIX::STAT-VFS, file)
 
 /* Pointers to functions unavailable on windows 95, 98, ME */
 
-typedef BOOL (WINAPI * CreateHardLinkFuncType) ( LPCTSTR lpFileName, LPCTSTR lpExistingFileName,
+typedef BOOL (WINAPI * CreateHardLinkFuncType)
+  (LPCTSTR lpFileName, LPCTSTR lpExistingFileName,
    LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 static CreateHardLinkFuncType CreateHardLinkFunc = NULL;
 
-typedef BOOL (WINAPI * BackupWriteFuncType) (HANDLE hFile, LPBYTE lpBuffer, DWORD nNumberOfBytesToWrite,
-   LPDWORD lpNumberOfBytesWritten, BOOL bAbort, BOOL bProcessSecurity, LPVOID *lpContext);
+typedef BOOL (WINAPI * BackupWriteFuncType)
+  (HANDLE hFile, LPBYTE lpBuffer, DWORD nNumberOfBytesToWrite,
+   LPDWORD lpNumberOfBytesWritten, BOOL bAbort, BOOL bProcessSecurity,
+   LPVOID *lpContext);
 static BackupWriteFuncType BackupWriteFunc = NULL;
 
 static HMODULE kernel32 = NULL;
@@ -1910,6 +1826,34 @@ DEFUN(POSIX::VERSION,)
     default: pushSTACK(UL_to_I(vi.wProductType));
   }
   funcall(`POSIX::MAKE-VERSION`,9);
+}
+
+DEFUN(POSIX::MEMORY-STATUS,)
+{ /* interface to GlobalMemoryStatus() */
+#ifdef HAVE_GLOBALMEMORYSTATUSEX
+  MEMORYSTATUSEX ms;
+  ms.dwLength = sizeof(MEMORYSTATUSEX);
+  begin_system_call();
+  if (!GlobalMemoryStatusEx(&ms)) OS_error();
+  end_system_call();
+  pushSTACK(UQ_to_I(ms.ullTotalPhys));
+  pushSTACK(UQ_to_I(ms.ullAvailPhys));
+  pushSTACK(UQ_to_I(ms.ullTotalPageFile));
+  pushSTACK(UQ_to_I(ms.ullAvailPageFile));
+  pushSTACK(UQ_to_I(ms.ullTotalVirtual));
+  pushSTACK(UQ_to_I(ms.ullAvailVirtual));
+#else
+  MEMORYSTATUS ms;
+  ms.dwLength = sizeof(MEMORYSTATUS);
+  begin_system_call(); GlobalMemoryStatus(&ms); end_system_call();
+  pushSTACK(UL_to_I(ms.dwTotalPhys));
+  pushSTACK(UL_to_I(ms.dwAvailPhys));
+  pushSTACK(UL_to_I(ms.dwTotalPageFile));
+  pushSTACK(UL_to_I(ms.dwAvailPageFile));
+  pushSTACK(UL_to_I(ms.dwTotalVirtual));
+  pushSTACK(UL_to_I(ms.dwAvailVirtual));
+#endif
+  funcall(`POSIX::MKMEMSTAT`,6);
 }
 
 #endif
