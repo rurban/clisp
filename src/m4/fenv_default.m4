@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2002 Free Software Foundation, Inc.
+dnl Copyright (C) 2002, 2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -79,8 +79,8 @@ int main ()
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_DIV0],
-[AC_REQUIRE([CL_LONGDOUBLE])
-if test "$cl_cv_c_longdouble" = yes; then
+[AC_REQUIRE([gt_TYPE_LONGDOUBLE])
+if test "$gt_cv_c_long_double" = yes; then
   AC_MSG_CHECKING([whether long-float divbyzero raises an exception])
   AC_CACHE_VAL(cl_cv_cc_longdouble_divbyzero, [
     AC_TRY_RUN([
@@ -172,8 +172,8 @@ int main ()
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_OVERFLOW],
-[AC_REQUIRE([CL_LONGDOUBLE])
-if test "$cl_cv_c_longdouble" = yes; then
+[AC_REQUIRE([gt_TYPE_LONGDOUBLE])
+if test "$gt_cv_c_long_double" = yes; then
   AC_MSG_CHECKING([whether long-float overflow raises an exception])
   AC_CACHE_VAL(cl_cv_cc_longdouble_overflow, [
     AC_TRY_RUN([
@@ -267,8 +267,8 @@ int main ()
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_UNDERFLOW],
-[AC_REQUIRE([CL_LONGDOUBLE])
-if test "$cl_cv_c_longdouble" = yes; then
+[AC_REQUIRE([gt_TYPE_LONGDOUBLE])
+if test "$gt_cv_c_long_double" = yes; then
   AC_MSG_CHECKING([whether long-float underflow raises an exception])
   AC_CACHE_VAL(cl_cv_cc_longdouble_underflow, [
     AC_TRY_RUN([
@@ -360,8 +360,8 @@ int main ()
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_INEXACT],
-[AC_REQUIRE([CL_LONGDOUBLE])
-if test "$cl_cv_c_longdouble" = yes; then
+[AC_REQUIRE([gt_TYPE_LONGDOUBLE])
+if test "$gt_cv_c_long_double" = yes; then
   AC_MSG_CHECKING([whether long-float inexact raises an exception])
   AC_CACHE_VAL(cl_cv_cc_longdouble_inexact, [
     AC_TRY_RUN([
