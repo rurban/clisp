@@ -7684,6 +7684,10 @@ for-value   NIL or T
                                  (cons itemvar itemvars)))
          (RETURN-FROM ,blockname)))))
 
+;; make shift forms for variables: (a b c) --> (a (cdr a) b (cdr b) c (cdr c))
+(defun shift-vars (restvars)
+  (mapcap #'(lambda (restvar) `(,restvar (CDR ,restvar))) restvars))
+
 ;; Forms a MAPCAR/MAPCAN/MAPCAP-Expansion
 (defun c-MAP-on-CARs (adjoin-fun funform forms)
   (let ((erg (gensym))
@@ -7700,8 +7704,7 @@ for-value   NIL or T
                                               ,funform ,@itemvars) ,erg)))
                 blockname
                 restvars)
-             (SETQ ,@(mapcap #'(lambda (restvar) `(,restvar (CDR ,restvar)))
-                             restvars))
+             (SETQ ,@(shift-vars restvars))
              (GO ,tag))))
        (SYS::LIST-NREVERSE ,erg))))
 
@@ -7718,9 +7721,7 @@ for-value   NIL or T
              (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar)) restvars))
                (RETURN-FROM ,blockname))
              (SETQ ,erg (,adjoin-fun (SYS::%FUNCALL ,funform ,@restvars) ,erg))
-             (SETQ ,@(mapcap #'(lambda (restvar)
-                                 `(,restvar (CDR ,restvar)))
-                             restvars))
+             (SETQ ,@(shift-vars restvars))
              (GO ,tag))))
        (SYS::LIST-NREVERSE ,erg))))
 
@@ -7742,9 +7743,7 @@ for-value   NIL or T
                      #'(lambda (itemvars) `(SYS::%FUNCALL ,funform ,@itemvars))
                      blockname
                      restvars)
-                   (SETQ ,@(mapcap #'(lambda (restvar)
-                                       `(,restvar (CDR ,restvar)))
-                                   restvars))
+                   (SETQ ,@(shift-vars restvars))
                    (GO ,tag))))
              ,tempvar)))
       (c-GLOBAL-FUNCTION-CALL-form `(MAPC ,funform ,@(cddr *form*))))))
@@ -7767,9 +7766,7 @@ for-value   NIL or T
                                      restvars))
                      (RETURN-FROM ,blockname))
                    (SYS::%FUNCALL ,funform ,@restvars)
-                   (SETQ ,@(mapcap #'(lambda (restvar)
-                                       `(,restvar (CDR ,restvar)))
-                                   restvars))
+                   (SETQ ,@(shift-vars restvars))
                    (GO ,tag))))
              ,tempvar)))
       (c-GLOBAL-FUNCTION-CALL-form `(MAPL ,funform ,@(cddr *form*))))))
