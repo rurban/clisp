@@ -8149,7 +8149,8 @@ der Docstring (oder NIL).
     (dolist (form forms)
       (multiple-value-bind (val const-p) (c-constant-number form)
         (if const-p (push val consts) (push val others))))
-    (values consts (nreverse others))))
+    (values (nreverse consts)   ; not really necessary to nreverse consts
+            (nreverse others))))
 
 (defun c-PLUS ()
   (test-list *form* 1)
@@ -8191,7 +8192,7 @@ der Docstring (oder NIL).
 (defun c-MINUS ()
   (test-list *form* 2)
   (let ((unary-p (= (length *form*) 2))
-        (const-sum 0)           ; the constant sum the tail
+        (const-sum 0)           ; the constant sum in the tail
         (first-part 0) (other-parts '()))
     (unless unary-p
       (multiple-value-bind (val const-p) (c-constant-number (second *form*))
@@ -8235,16 +8236,15 @@ der Docstring (oder NIL).
           ;; (c-form `(progn ,@(mapcar (lambda (form) `(the number ,form))
           ;;                           other-parts)
           ;;                 0)))
-          (t
-           (c-GLOBAL-FUNCTION-CALL-form
-            `(/ ,@(if (eql first-part 1)
-                    (if (and (eql const-prod 1) (null (cdr other-parts)))
-                      '()
-                      `(,const-prod))
-                    (if (eql const-prod 1)
-                      `(,first-part)
-                      `(,first-part ,(/ const-prod))))
-                ,@other-parts))))))
+          (t (c-GLOBAL-FUNCTION-CALL-form
+              `(/ ,@(if (eql first-part 1)
+                      (if (and (eql const-prod 1) (null (cdr other-parts)))
+                        '()
+                        `(,const-prod))
+                      (if (eql const-prod 1)
+                        `(,first-part)
+                        `(,first-part ,(/ const-prod))))
+                  ,@other-parts))))))
 
 (defun c-SVSTORE ()
   (test-list *form* 4 4)
@@ -8272,14 +8272,13 @@ der Docstring (oder NIL).
           (c-GLOBAL-FUNCTION-CALL-form `(EQ ,arg1 ,arg2))
 ) ) ) ) )
 
-; bei Symbolen, Fixnums und Characters ist EQL mit EQ gleichbedeutend
+;; EQL is the same as EQ for symbols, fixnums and characters
 (defun EQL=EQ (x)
   (or (symbolp x)
       (and (integerp x) (<= (integer-length x) 24))
-      ; Note: Using (fixnump x) here would not generate portable code.
-      ; The minimum fixnum length across architectures in clisp is 24 bits.
-      (characterp x)
-) )
+      ;; Note: Using (fixnump x) here would not generate portable code.
+      ;; The minimum fixnum length across architectures in clisp is 24 bits.
+      (characterp x)))
 
 (defun c-EQL ()
   (test-list *form* 3 3)
@@ -8296,7 +8295,7 @@ der Docstring (oder NIL).
           (t (c-GLOBAL-FUNCTION-CALL-form `(EQL ,arg1 ,arg2)))
 ) ) )
 
-; bei Symbolen, Zahlen und Characters ist EQUAL mit EQL gleichbedeutend
+;; EQUAL is the same as EQL for symbols, numbers and characters
 (defun EQUAL=EQL (x) (or (symbolp x) (numberp x) (characterp x)))
 
 (defun c-EQUAL ()
