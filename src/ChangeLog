@@ -2,6 +2,7 @@
 
 	* spvw.d (main): warp all signal handler installations in
 	begin/end_system_call()
+	* spvw_debug.d [DEBUG_SPVW]: added some debugging functions
 
 2002-07-26  Sam Steingold  <sds@gnu.org>
 
