@@ -1,5 +1,10 @@
 2004-12-18  Bruno Haible  <bruno@clisp.org>
 
+	* modules/clx/mit-clx/dependent.lisp (current-process): Return nil.
+	(get-host-name): Don't always signal an error.
+
+2004-12-18  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (stream_handles): Support also the X11-socket streams.
 
 2004-12-17  Sam Steingold  <sds@gnu.org>
