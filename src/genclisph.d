@@ -1842,6 +1842,12 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
   printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
 #endif
+  printf("extern object check_array_replacement (object obj);\n");
+  printf("static inline object check_array (object obj) {"
+          " if (!arrayp(obj))"
+            " obj = check_array_replacement(obj);"
+          " return obj;"
+        " }\n");
   printf("extern object check_posfixnum_replacement (object obj);\n");
   printf("static inline object check_posfixnum (object obj) {"
           " if (!posfixnump(obj))"

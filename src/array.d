@@ -327,23 +327,6 @@ global object array_displace_check (object array, uintL size, uintL* index) {
 /* ======================================================================== */
 /* Accessing and storing a single element */
 
-/* error: not an array
- > obj: non-array */
-nonreturning_function(local, fehler_array, (object obj)) {
-  pushSTACK(obj); /* slot DATUM of TYPE-ERROR */
-  pushSTACK(S(array)); /* slot EXPECTED-TYPE of TYPE-ERROR */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S is not an array"));
-}
-
-/* Checks an array argument.
- > array: argument
- test_array(object) */
-local inline object test_array (object array) {
-  if (!arrayp(array)) fehler_array(array);
-  return array;
-}
-
 /* Returns the rank of an array.
  arrayrank(array)
  > array: an array
@@ -492,7 +475,6 @@ local uintL test_index (void) {
  < result : the data vector */
 local object subscripts_to_index (object array, gcv_object_t* argptr,
                                   uintC argcount, uintL* index_) {
-  test_array(array); /* check array */
   if (array_simplep(array)) { /* simple vector, will be treated separately: */
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
@@ -717,7 +699,7 @@ local object storagevector_store (object datenvektor, uintL index,
 
 LISPFUN(aref,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (AREF array {subscript}), CLTL p. 290 */
-  var object array = Before(rest_args_pointer); /* fetch array */
+  var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   /* process subscripts and fetch data vector and index: */
   var uintL index;
   var object datenvektor =
@@ -731,8 +713,8 @@ LISPFUN(store,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (SYS::STORE array {subscript} object)
    = (SETF (AREF array {subscript}) object), CLTL p. 291 */
   rest_args_pointer skipSTACKop 1; /* pointer to first Subscript */
+  var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   var object element = popSTACK();
-  var object array = Before(rest_args_pointer); /* fetch array */
   /* process subscripts and fetch data vector and index: */
   var uintL index;
   var object datenvektor =
@@ -785,7 +767,7 @@ LISPFUNN(psvstore,3)
 
 LISPFUNNR(row_major_aref,2)
 { /* (ROW-MAJOR-AREF array index), CLtL2 p. 450 */
-  var object array = test_array(STACK_1);
+  var object array = check_array(STACK_1);
   /* check index: */
   if (!posfixnump(STACK_0))
     fehler_index_type();
@@ -804,8 +786,8 @@ LISPFUNNR(row_major_aref,2)
 LISPFUNN(row_major_store,3)
 { /* (SYS::ROW-MAJOR-STORE array index element)
    = (SETF (ROW-MAJOR-AREF array index) element), CLtL2 p. 450 */
+  var object array = check_array(STACK_2);
   var object element = popSTACK();
-  var object array = test_array(STACK_1);
   /* check index: */
   if (!posfixnump(STACK_0))
     fehler_index_type();
@@ -886,20 +868,20 @@ global object array_element_type (object array) {
 
 LISPFUNNF(array_element_type,1)
 { /* (ARRAY-ELEMENT-TYPE array), CLTL p. 291 */
-  var object array = test_array(popSTACK());
+  var object array = check_array(popSTACK());
   VALUES1(array_element_type(array));
 }
 
 LISPFUNNF(array_rank,1)
 { /* (ARRAY-RANK array), CLTL p. 292 */
-  var object array = test_array(popSTACK());
+  var object array = check_array(popSTACK());
   VALUES1(arrayrank(array));
 }
 
 LISPFUNNR(array_dimension,2)
 { /* (ARRAY-DIMENSION array axis-number), CLTL p. 292 */
-  var object axis_number = popSTACK();
-  var object array = test_array(popSTACK());
+  var object array = check_array(STACK_1);
+  var object axis_number = STACK_0; skipSTACK(2);
   if (array_simplep(array)) {
     /* simple vector: axis-number must be =0, value is then the length. */
     if (eq(axis_number,Fixnum_0)) {
@@ -977,7 +959,7 @@ global object array_dimensions (object array) {
 
 LISPFUNNR(array_dimensions,1)
 { /* (ARRAY-DIMENSIONS array), CLTL p. 292 */
-  var object array = test_array(popSTACK());
+  var object array = check_array(popSTACK());
   VALUES1(array_dimensions(array));
 }
 
@@ -1011,14 +993,14 @@ global void iarray_dims_sizes (object array, array_dim_size_t* dims_sizes) {
 
 LISPFUNNR(array_total_size,1)
 { /* (ARRAY-TOTAL-SIZE array), CLTL p. 292 */
-  var object array = test_array(popSTACK());
+  var object array = check_array(popSTACK());
   VALUES1(fixnum(array_total_size(array)));
 }
 
 LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (ARRAY-IN-BOUNDS-P array {subscript}), CLTL p. 292 */
   var gcv_object_t* argptr = rest_args_pointer;
-  var object array = test_array(BEFORE(rest_args_pointer)); /* fetch array */
+  var object array = check_array(BEFORE(rest_args_pointer)); /* fetch array */
   if (array_simplep(array)) { /* simple vector is treated separately: */
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
@@ -1068,7 +1050,7 @@ LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
 
 LISPFUN(array_row_major_index,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (ARRAY-ROW-MAJOR-INDEX array {subscript}), CLTL p. 293 */
-  var object array = test_array(Before(rest_args_pointer)); /* fetch array */
+  var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   var uintL index;
   if (array_simplep(array)) { /* simple vector is treated separately: */
     /* check number of subscripts: */
@@ -1090,14 +1072,14 @@ LISPFUN(array_row_major_index,seclass_read,1,0,rest,nokey,0,NIL)
 
 LISPFUNNF(adjustable_array_p,1)
 { /* (ADJUSTABLE-ARRAY-P array), CLTL p. 293 */
-  var object array = test_array(popSTACK()); /* fetch argument */
+  var object array = check_array(popSTACK()); /* fetch argument */
   VALUES_IF(!array_simplep(array)
             && (Iarray_flags(array) & bit(arrayflags_adjustable_bit)));
 }
 
 LISPFUNN(array_displacement,1)
 { /* (ARRAY-DISPLACEMENT array), CLHS */
-  var object array = test_array(popSTACK()); /* fetch argument */
+  var object array = check_array(popSTACK()); /* fetch argument */
   if (!array_simplep(array)
       && (Iarray_flags(array) & bit(arrayflags_displaced_bit))) {
     VALUES2(TheIarray(array)->data, /* next array */
@@ -1123,7 +1105,7 @@ nonreturning_function(local, fehler_bit_array, (void)) {
 
 LISPFUN(bit,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (BIT bit-array {subscript}), CLTL p. 293 */
-  var object array = Before(rest_args_pointer); /* fetch array */
+  var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   /* process subscripts and fetch data vector and index: */
   var uintL index;
   var object datenvektor =
@@ -1137,7 +1119,7 @@ LISPFUN(bit,seclass_read,1,0,rest,nokey,0,NIL)
 
 LISPFUN(sbit,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (SBIT bit-array {subscript}), CLTL p. 293 */
-  var object array = Before(rest_args_pointer); /* fetch array */
+  var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   /* process subscripts and fetch data vector and index: */
   var uintL index;
   var object datenvektor =
@@ -3652,7 +3634,7 @@ global bool array_has_fill_pointer_p (object array) {
 
 LISPFUNNR(array_has_fill_pointer_p,1)
 { /* (ARRAY-HAS-FILL-POINTER-P array), CLTL p. 296 */
-  var object array = test_array(popSTACK());
+  var object array = check_array(popSTACK());
   VALUES_IF(array_has_fill_pointer_p(array));
 }
 
@@ -4738,7 +4720,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
 {
   var uintL totalsize, rank;
   { /* check the array : */
-    var object array = test_array(STACK_7);
+    var object array = check_array(STACK_7);
     STACK_7 = STACK_6; STACK_6 = array; /* for test_dims() */
     /* check dimensions and rank and compute total-size: */
     rank = test_dims(&totalsize);
