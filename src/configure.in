@@ -1,6 +1,6 @@
 dnl  -*- Autoconf -*- configuration for CLISP
 dnl  Bruno Haible 2001-02-04
-dnl  Sam Steingold 2002
+dnl  Sam Steingold 2002-2003
 dnl
 dnl  configure.in ---<autoconf>--->> configure
 dnl
@@ -16,7 +16,7 @@ dnl  Makefile     ---<make>--->> lisp.run, lispinit.mem
 dnl
 dnl
 AC_PREREQ(2.57)
-AC_INIT(clisp,2.30, clisp-list)
+AC_INIT(GNU CLISP,2.31 (2003-09-01),http://clisp.cons.org/)
 AC_CONFIG_SRCDIR(lispbibl.d)
 AC_CONFIG_HEADERS(unixconf.h)
 dnl
