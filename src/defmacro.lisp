@@ -483,13 +483,13 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
 (%putd 'make-length-test
   (function make-length-test
     (lambda (var &optional (header 1))
-      (cond ((and (zerop %min-args) %restp) NIL)
-            ((zerop %min-args) `(> (LENGTH ,var) ,(+ header %arg-count)))
-            (%restp `(< (LENGTH ,var) ,(+ header %min-args)))
-            ((= %min-args %arg-count) `(/= (LENGTH ,var) ,(+ header %min-args)))
-            (t `(NOT (<= ,(+ header %min-args) (LENGTH ,var) ,(+ header %arg-count))))
-  ) ) )
-)
+      (let ((len `(LIST-LENGTH-DOTTED ,var)))
+        (cond ((and (zerop %min-args) %restp) NIL)
+              ((zerop %min-args) `(> ,len ,(+ header %arg-count)))
+              (%restp `(< ,len ,(+ header %min-args)))
+              ((= %min-args %arg-count) `(/= ,len ,(+ header %min-args)))
+              (t `(NOT (<= ,(+ header %min-args) ,len ,(+ header %arg-count))))
+        )))))
 
 (%putd 'make-macro-expansion
   (function make-macro-expansion
