@@ -234,7 +234,7 @@ NIL
 (test-function 'acos 1 -1)                NIL
 (test-function 'acosh 20 1)               NIL
 (test-function 'log 10 -10 :except '(0))  NIL
-(test-function 'atanh 10 -10 :except '(-1 1))
+(test-function 'atanh 10 -10 :except '(-1 1)) NIL
 (test-function
  'tan 10 -10
  :except (nconc (loop :for x :from (/ pi 2) :by pi :to 10 :collect x)
