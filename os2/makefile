@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host david as the output of the command:
+# This file was created on host honolulu as the output of the command:
 # ./makemake os2 gcc
 
 # -------------- Start of configurable section --------------------
@@ -20,7 +20,7 @@ datadir = $(prefix)/share
 localedir = $(datadir)/locale
 # The value of following variable is prepended to all the paths for
 # installation. This is useful when preparing a binary distribution.
-install_root =
+DESTDIR =
 
 # List of add-on modules:
 # queens               the queens function as a separate module
@@ -29,7 +29,7 @@ MODULES =
 
 # Programs used by "make":
 CC = gcc
-CFLAGS = -fomit-frame-pointer -O2 -fexpensive-optimizations -DOS2 -DUNICODE
+CFLAGS = -fomit-frame-pointer -O2 -fexpensive-optimizations -DUNICODE
 CPP = gcc -E
 CLFLAGS =  -x none
 LIBS = gettext/intl/libintl.a readline/libreadline.a  -ltermcap
@@ -40,7 +40,7 @@ EMX = c:\emx\bin\emxl.exe
 MAKE = make
 RM = del
 CP = copy
-LN = copy
+LN_S = copy
 MV = ren
 CAT = type
 TOUCH = touch
@@ -103,8 +103,8 @@ ROFF_DVI = groff -Tdvi -mandoc # try "groff -Tdvi -mandoc"
 #           Typically, you will have rules like this in your Makefile:
 #               foo.o : foo.c
 #                       $(CC) $(CFLAGS) -I$(INCLUDES) -c foo.c
-#               foo.fas : foo.lsp
-#                       $(CLISP) -c foo.lsp
+#               foo.fas : foo.lisp
+#                       $(CLISP) -c foo.lisp
 #
 #        clisp-module-distrib
 #
@@ -368,64 +368,66 @@ lisparit.o \
 unixaux.o \
 ari80386.o
 
-LSPFILES = \
-init.lsp \
-defseq.lsp \
-backquot.lsp \
-defmacro.lsp \
-macros1.lsp \
-macros2.lsp \
-defs1.lsp \
-timezone.lsp \
-places.lsp \
-floatpri.lsp \
-type.lsp \
-defstruc.lsp \
-format.lsp \
-savemem.lsp \
-trace.lsp \
-compiler.lsp \
-disassem.lsp \
-defs2.lsp \
-loop.lsp \
-clos.lsp \
-conditio.lsp \
-gstream.lsp \
-xcharin.lsp \
-keyboard.lsp \
-screen.lsp \
-runprog.lsp \
-query.lsp \
-reploop.lsp \
-dribble.lsp \
-complete.lsp \
-describe.lsp \
-room.lsp \
-edit.lsp \
-macros3.lsp \
-posix.lsp \
-foreign1.lsp \
-defs3.lsp \
-clhs.lsp \
-german.lsp \
-french.lsp \
-spanish.lsp \
-dutch.lsp \
-config.lsp
+LISPFILES = \
+init.lisp \
+defseq.lisp \
+backquote.lisp \
+defmacro.lisp \
+macros1.lisp \
+macros2.lisp \
+defs1.lisp \
+timezone.lisp \
+places.lisp \
+floatprint.lisp \
+type.lisp \
+defstruct.lisp \
+format.lisp \
+savemem.lisp \
+trace.lisp \
+compiler.lisp \
+disassem.lisp \
+defs2.lisp \
+loop.lisp \
+clos.lisp \
+condition.lisp \
+gstream.lisp \
+xcharin.lisp \
+keyboard.lisp \
+screen.lisp \
+beossock.lisp \
+runprog.lisp \
+query.lisp \
+reploop.lisp \
+dribble.lisp \
+complete.lisp \
+describe.lisp \
+room.lisp \
+edit.lisp \
+macros3.lisp \
+posix.lisp \
+foreign1.lisp \
+defs3.lisp \
+clhs.lisp \
+inspect.lisp \
+german.lisp \
+french.lisp \
+spanish.lisp \
+dutch.lisp \
+config.lisp
 
 FASFILES = \
 init.fas \
 defseq.fas \
-backquot.fas \
+backquote.fas \
 defmacro.fas \
 macros1.fas \
 macros2.fas \
 defs1.fas \
 timezone.fas \
 places.fas \
-floatpri.fas \
+floatprint.fas \
 type.fas \
-defstruc.fas \
+defstruct.fas \
 format.fas \
 savemem.fas \
 trace.fas \
@@ -434,11 +436,12 @@ disassem.fas \
 defs2.fas \
 loop.fas \
 clos.fas \
-conditio.fas \
+condition.fas \
 gstream.fas \
 xcharin.fas \
 keyboard.fas \
 screen.fas \
+beossock.fas \
 runprog.fas \
 query.fas \
 reploop.fas \
@@ -452,6 +455,7 @@ posix.fas \
 foreign1.fas \
 defs3.fas \
 clhs.fas \
+inspect.fas \
 german.fas \
 french.fas \
 spanish.fas \
@@ -463,64 +467,66 @@ LISP-tutorial.txt \
 CLOS-guide.txt \
 editors.txt
 
-TESTLSPFILES = \
-stage\init.lsp \
-stage\defseq.lsp \
-stage\backquot.lsp \
-stage\defmacro.lsp \
-stage\macros1.lsp \
-stage\macros2.lsp \
-stage\defs1.lsp \
-stage\timezone.lsp \
-stage\places.lsp \
-stage\floatpri.lsp \
-stage\type.lsp \
-stage\defstruc.lsp \
-stage\format.lsp \
-stage\savemem.lsp \
-stage\trace.lsp \
-stage\compiler.lsp \
-stage\disassem.lsp \
-stage\defs2.lsp \
-stage\loop.lsp \
-stage\clos.lsp \
-stage\conditio.lsp \
-stage\gstream.lsp \
-stage\xcharin.lsp \
-stage\keyboard.lsp \
-stage\screen.lsp \
-stage\runprog.lsp \
-stage\query.lsp \
-stage\reploop.lsp \
-stage\dribble.lsp \
-stage\complete.lsp \
-stage\describe.lsp \
-stage\room.lsp \
-stage\edit.lsp \
-stage\macros3.lsp \
-stage\posix.lsp \
-stage\foreign1.lsp \
-stage\defs3.lsp \
-stage\clhs.lsp \
-stage\german.lsp \
-stage\french.lsp \
-stage\spanish.lsp \
-stage\dutch.lsp \
-stage\config.lsp
+TESTLISPFILES = \
+stage\init.lisp \
+stage\defseq.lisp \
+stage\backquote.lisp \
+stage\defmacro.lisp \
+stage\macros1.lisp \
+stage\macros2.lisp \
+stage\defs1.lisp \
+stage\timezone.lisp \
+stage\places.lisp \
+stage\floatprint.lisp \
+stage\type.lisp \
+stage\defstruct.lisp \
+stage\format.lisp \
+stage\savemem.lisp \
+stage\trace.lisp \
+stage\compiler.lisp \
+stage\disassem.lisp \
+stage\defs2.lisp \
+stage\loop.lisp \
+stage\clos.lisp \
+stage\condition.lisp \
+stage\gstream.lisp \
+stage\xcharin.lisp \
+stage\keyboard.lisp \
+stage\screen.lisp \
+stage\beossock.lisp \
+stage\runprog.lisp \
+stage\query.lisp \
+stage\reploop.lisp \
+stage\dribble.lisp \
+stage\complete.lisp \
+stage\describe.lisp \
+stage\room.lisp \
+stage\edit.lisp \
+stage\macros3.lisp \
+stage\posix.lisp \
+stage\foreign1.lisp \
+stage\defs3.lisp \
+stage\clhs.lisp \
+stage\inspect.lisp \
+stage\german.lisp \
+stage\french.lisp \
+stage\spanish.lisp \
+stage\dutch.lisp \
+stage\config.lisp
 
 TESTFASFILES = \
 stage\init.fas \
 stage\defseq.fas \
-stage\backquot.fas \
+stage\backquote.fas \
 stage\defmacro.fas \
 stage\macros1.fas \
 stage\macros2.fas \
 stage\defs1.fas \
 stage\timezone.fas \
 stage\places.fas \
-stage\floatpri.fas \
+stage\floatprint.fas \
 stage\type.fas \
-stage\defstruc.fas \
+stage\defstruct.fas \
 stage\format.fas \
 stage\savemem.fas \
 stage\trace.fas \
@@ -529,11 +535,12 @@ stage\disassem.fas \
 stage\defs2.fas \
 stage\loop.fas \
 stage\clos.fas \
-stage\conditio.fas \
+stage\condition.fas \
 stage\gstream.fas \
 stage\xcharin.fas \
 stage\keyboard.fas \
 stage\screen.fas \
+stage\beossock.fas \
 stage\runprog.fas \
 stage\query.fas \
 stage\reploop.fas \
@@ -547,6 +554,7 @@ stage\posix.fas \
 stage\foreign1.fas \
 stage\defs3.fas \
 stage\clhs.fas \
+stage\inspect.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
@@ -563,7 +571,7 @@ comment5.exe : ..\utils\comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) ../utils/comment5.c -o comment5.exe
 
 ansidecl.exe : ..\utils\ansidecl.d comment5.exe
-	$(LN) ..\utils\ansidecl.d ansidecl.d
+	$(LN_S) ..\utils\ansidecl.d ansidecl.d
 	$(COMMENT5) ansidecl.d ansidecl.c
 	$(RM) ansidecl.d
 	$(CC) $(CFLAGS) $(CLFLAGS) ansidecl.c -o ansidecl.exe
@@ -1167,33 +1175,31 @@ ari80386.o : ari80386.s
 	$(CC) $(CFLAGS) -x assembler -c ari80386.s
 
 libintl.h :
-	-$(LN) gettext\intl\intlh.inst libintl.h
+	-$(LN_S) gettext\intl\intlh.inst libintl.h
 
 locale :
 	mkdir locale
 	mkdir locale\en
 	mkdir locale\en\LC_MESSAGES
-	$(LN) gettext\po\en.gmo locale\en\LC_MESSAGES\clisp.mo
+	$(LN_S) gettext\po\en.gmo locale\en\LC_MESSAGES\clisp.mo
 	mkdir locale\de
 	mkdir locale\de\LC_MESSAGES
-	$(LN) gettext\po\de.gmo locale\de\LC_MESSAGES\clisp.mo
+	$(LN_S) gettext\po\de.gmo locale\de\LC_MESSAGES\clisp.mo
 	mkdir locale\fr
 	mkdir locale\fr\LC_MESSAGES
-	$(LN) gettext\po\fr.gmo locale\fr\LC_MESSAGES\clisp.mo
+	$(LN_S) gettext\po\fr.gmo locale\fr\LC_MESSAGES\clisp.mo
 	mkdir locale\es
 	mkdir locale\es\LC_MESSAGES
-	$(LN) gettext\po\es.gmo locale\es\LC_MESSAGES\clisp.mo
+	$(LN_S) gettext\po\es.gmo locale\es\LC_MESSAGES\clisp.mo
 	mkdir locale\nl
 	mkdir locale\nl\LC_MESSAGES
-	$(LN) gettext\po\nl.gmo locale\nl\LC_MESSAGES\clisp.mo
+	$(LN_S) gettext\po\nl.gmo locale\nl\LC_MESSAGES\clisp.mo
 
 
 UnicodeData.txt :
-	$(LN) ..\utils\unicode\ftp.unicode.org\UnicodeData.txt UnicodeData.txt
+	$(LN_S) ..\utils\unicode\ftp.unicode.org\UnicodeData.txt UnicodeData.txt
 
-clhs.txt :
-	$(LN) ..\src\clhs.txt clhs.txt
-lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a gettext/intl/libintl.a locale   UnicodeData.txt clhs.txt
+lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a gettext/intl/libintl.a locale    UnicodeData.txt
 	$(RM) lisp
 	$(RM) lisp.exe
 	$(CC) $(CFLAGS) -o lisp @gcclink.in $(CLFLAGS) $(LIBS)
@@ -1201,148 +1207,154 @@ lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a gettext/intl/libintl.a l
 	emxbind -s lisp.exe
 
 
-alllsp : $(LSPFILES)
+alllisp : $(LISPFILES)
 
-config.lsp : cfgdos.lsp
-	$(CP) cfgdos.lsp config.lsp
+config.lisp : cfgdos.lisp
+	$(CP) cfgdos.lisp config.lisp
 
-interpreted.mem : lisp.exe $(LSPFILES)
+interpreted.mem : lisp.exe $(LISPFILES)
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW -B . -N locale -Efile ISO-8859-1 -norc < interpreted.in
+	lisp.exe -m 750KW -B . -N locale -Efile UTF-8 -norc < interpreted.in
 	$(MV) lispimag.mem interpreted.mem
 
-init.fas : init.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c init.lsp
+init.fas : init.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c init.lisp
 
-defseq.fas : defseq.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defseq.lsp
+defseq.fas : defseq.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c defseq.lisp
 
-backquot.fas : backquot.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c backquot.lsp
+backquote.fas : backquote.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c backquote.lisp
 
-defmacro.fas : defmacro.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defmacro.lsp
+defmacro.fas : defmacro.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c defmacro.lisp
 
-macros1.fas : macros1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c macros1.lsp
+macros1.fas : macros1.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c macros1.lisp
 
-macros2.fas : macros2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c macros2.lsp
+macros2.fas : macros2.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c macros2.lisp
 
-defs1.fas : defs1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defs1.lsp
+defs1.fas : defs1.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c defs1.lisp
 
-timezone.fas : timezone.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c timezone.lsp
+timezone.fas : timezone.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c timezone.lisp
 
-places.fas : places.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c places.lsp
+places.fas : places.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c places.lisp
 
-floatpri.fas : floatpri.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c floatpri.lsp
+floatprint.fas : floatprint.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c floatprint.lisp
 
-type.fas : type.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c type.lsp
+type.fas : type.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c type.lisp
 
-defstruc.fas : defstruc.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defstruc.lsp
+defstruct.fas : defstruct.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c defstruct.lisp
 
-format.fas : format.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c format.lsp
+format.fas : format.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c format.lisp
 
-savemem.fas : savemem.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c savemem.lsp
+savemem.fas : savemem.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c savemem.lisp
 
-trace.fas : trace.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c trace.lsp
+trace.fas : trace.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c trace.lisp
 
-compiler.fas : compiler.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c compiler.lsp
+compiler.fas : compiler.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c compiler.lisp
 
-disassem.fas : disassem.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c disassem.lsp
+disassem.fas : disassem.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c disassem.lisp
 
-defs2.fas : defs2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defs2.lsp
+defs2.fas : defs2.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c defs2.lisp
 
-loop.fas : loop.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c loop.lsp
+loop.fas : loop.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c loop.lisp
 
-clos.fas : clos.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c clos.lsp
+clos.fas : clos.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c clos.lisp
 
-conditio.fas : conditio.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c conditio.lsp
+condition.fas : condition.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c condition.lisp
 
-gstream.fas : gstream.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c gstream.lsp
+gstream.fas : gstream.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c gstream.lisp
 
-xcharin.fas : xcharin.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c xcharin.lsp
+xcharin.fas : xcharin.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c xcharin.lisp
 
-keyboard.fas : keyboard.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c keyboard.lsp
+keyboard.fas : keyboard.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c keyboard.lisp
 
-screen.fas : screen.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c screen.lsp
+screen.fas : screen.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c screen.lisp
 
-runprog.fas : runprog.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c runprog.lsp
+beossock.fas : beossock.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c beossock.lisp
 
-query.fas : query.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c query.lsp
+runprog.fas : runprog.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c runprog.lisp
 
-reploop.fas : reploop.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c reploop.lsp
+query.fas : query.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c query.lisp
 
-dribble.fas : dribble.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c dribble.lsp
+reploop.fas : reploop.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c reploop.lisp
 
-complete.fas : complete.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c complete.lsp
+dribble.fas : dribble.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c dribble.lisp
 
-describe.fas : describe.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c describe.lsp
+complete.fas : complete.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c complete.lisp
 
-room.fas : room.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c room.lsp
+describe.fas : describe.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c describe.lisp
 
-edit.fas : edit.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c edit.lsp
+room.fas : room.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c room.lisp
 
-macros3.fas : macros3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c macros3.lsp
+edit.fas : edit.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c edit.lisp
 
-posix.fas : posix.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c posix.lsp
+macros3.fas : macros3.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c macros3.lisp
 
-foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c foreign1.lsp
+posix.fas : posix.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c posix.lisp
 
-defs3.fas : defs3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c defs3.lsp
+foreign1.fas : foreign1.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c foreign1.lisp
 
-clhs.fas : clhs.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c clhs.lsp
+defs3.fas : defs3.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c defs3.lisp
 
-german.fas : german.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c german.lsp
+clhs.fas : clhs.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c clhs.lisp
 
-french.fas : french.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c french.lsp
+inspect.fas : inspect.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c inspect.lisp
 
-spanish.fas : spanish.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c spanish.lsp
+german.fas : german.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c german.lisp
 
-dutch.fas : dutch.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c dutch.lsp
+french.fas : french.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c french.lisp
 
-config.fas : config.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c config.lsp
+spanish.fas : spanish.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c spanish.lisp
 
-halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
+dutch.fas : dutch.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c dutch.lisp
+
+config.fas : config.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c config.lisp
+
+halfcompiled.mem : lisp.exe $(LISPFILES) compiler.fas
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW -B . -N locale -Efile ISO-8859-1 -norc < interpreted.in
+	lisp.exe -m 750KW -B . -N locale -Efile UTF-8 -norc < interpreted.in
 	$(MV) lispimag.mem interpreted.mem
 	$(TOUCH) interpreted.mem
 	$(TOUCH) compiler.fas
@@ -1350,281 +1362,293 @@ halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
 
 lispinit.mem : lisp.exe $(FASFILES)
 	-$(RM) lispinit.mem
-	lisp.exe -B . -N locale -Efile ISO-8859-1 -norc < lispinit.in
+	lisp.exe -B . -N locale -Efile UTF-8 -norc < lispinit.in
 	$(MV) lispimag.mem lispinit.mem
 
 
 # Perform self-tests.
 check : test
 
-# Test: recompile $(LSPFILES) and compare their contents.
-test : lispinit.mem stage $(TESTLSPFILES) $(TESTFASFILES)
+# Test: recompile $(LISPFILES) and compare their contents.
+test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
 	comp *.fas stage
 	REM The test passed if no differences were found.
 
 stage :
 	-mkdir stage
 
-stage\init.lsp : init.lsp
-	$(LN) init.lsp stage
+stage\init.lisp : init.lisp
+	$(LN_S) init.lisp stage
 
-stage\defseq.lsp : defseq.lsp
-	$(LN) defseq.lsp stage
+stage\defseq.lisp : defseq.lisp
+	$(LN_S) defseq.lisp stage
 
-stage\backquot.lsp : backquot.lsp
-	$(LN) backquot.lsp stage
+stage\backquote.lisp : backquote.lisp
+	$(LN_S) backquote.lisp stage
 
-stage\defmacro.lsp : defmacro.lsp
-	$(LN) defmacro.lsp stage
+stage\defmacro.lisp : defmacro.lisp
+	$(LN_S) defmacro.lisp stage
 
-stage\macros1.lsp : macros1.lsp
-	$(LN) macros1.lsp stage
+stage\macros1.lisp : macros1.lisp
+	$(LN_S) macros1.lisp stage
 
-stage\macros2.lsp : macros2.lsp
-	$(LN) macros2.lsp stage
+stage\macros2.lisp : macros2.lisp
+	$(LN_S) macros2.lisp stage
 
-stage\defs1.lsp : defs1.lsp
-	$(LN) defs1.lsp stage
+stage\defs1.lisp : defs1.lisp
+	$(LN_S) defs1.lisp stage
 
-stage\timezone.lsp : timezone.lsp
-	$(LN) timezone.lsp stage
+stage\timezone.lisp : timezone.lisp
+	$(LN_S) timezone.lisp stage
 
-stage\places.lsp : places.lsp
-	$(LN) places.lsp stage
+stage\places.lisp : places.lisp
+	$(LN_S) places.lisp stage
 
-stage\floatpri.lsp : floatpri.lsp
-	$(LN) floatpri.lsp stage
+stage\floatprint.lisp : floatprint.lisp
+	$(LN_S) floatprint.lisp stage
 
-stage\type.lsp : type.lsp
-	$(LN) type.lsp stage
+stage\type.lisp : type.lisp
+	$(LN_S) type.lisp stage
 
-stage\defstruc.lsp : defstruc.lsp
-	$(LN) defstruc.lsp stage
+stage\defstruct.lisp : defstruct.lisp
+	$(LN_S) defstruct.lisp stage
 
-stage\format.lsp : format.lsp
-	$(LN) format.lsp stage
+stage\format.lisp : format.lisp
+	$(LN_S) format.lisp stage
 
-stage\savemem.lsp : savemem.lsp
-	$(LN) savemem.lsp stage
+stage\savemem.lisp : savemem.lisp
+	$(LN_S) savemem.lisp stage
 
-stage\trace.lsp : trace.lsp
-	$(LN) trace.lsp stage
+stage\trace.lisp : trace.lisp
+	$(LN_S) trace.lisp stage
 
-stage\compiler.lsp : compiler.lsp
-	$(LN) compiler.lsp stage
+stage\compiler.lisp : compiler.lisp
+	$(LN_S) compiler.lisp stage
 
-stage\disassem.lsp : disassem.lsp
-	$(LN) disassem.lsp stage
+stage\disassem.lisp : disassem.lisp
+	$(LN_S) disassem.lisp stage
 
-stage\defs2.lsp : defs2.lsp
-	$(LN) defs2.lsp stage
+stage\defs2.lisp : defs2.lisp
+	$(LN_S) defs2.lisp stage
 
-stage\loop.lsp : loop.lsp
-	$(LN) loop.lsp stage
+stage\loop.lisp : loop.lisp
+	$(LN_S) loop.lisp stage
 
-stage\clos.lsp : clos.lsp
-	$(LN) clos.lsp stage
+stage\clos.lisp : clos.lisp
+	$(LN_S) clos.lisp stage
 
-stage\conditio.lsp : conditio.lsp
-	$(LN) conditio.lsp stage
+stage\condition.lisp : condition.lisp
+	$(LN_S) condition.lisp stage
 
-stage\gstream.lsp : gstream.lsp
-	$(LN) gstream.lsp stage
+stage\gstream.lisp : gstream.lisp
+	$(LN_S) gstream.lisp stage
 
-stage\xcharin.lsp : xcharin.lsp
-	$(LN) xcharin.lsp stage
+stage\xcharin.lisp : xcharin.lisp
+	$(LN_S) xcharin.lisp stage
 
-stage\keyboard.lsp : keyboard.lsp
-	$(LN) keyboard.lsp stage
+stage\keyboard.lisp : keyboard.lisp
+	$(LN_S) keyboard.lisp stage
 
-stage\screen.lsp : screen.lsp
-	$(LN) screen.lsp stage
+stage\screen.lisp : screen.lisp
+	$(LN_S) screen.lisp stage
 
-stage\runprog.lsp : runprog.lsp
-	$(LN) runprog.lsp stage
+stage\beossock.lisp : beossock.lisp
+	$(LN_S) beossock.lisp stage
 
-stage\query.lsp : query.lsp
-	$(LN) query.lsp stage
+stage\runprog.lisp : runprog.lisp
+	$(LN_S) runprog.lisp stage
 
-stage\reploop.lsp : reploop.lsp
-	$(LN) reploop.lsp stage
+stage\query.lisp : query.lisp
+	$(LN_S) query.lisp stage
 
-stage\dribble.lsp : dribble.lsp
-	$(LN) dribble.lsp stage
+stage\reploop.lisp : reploop.lisp
+	$(LN_S) reploop.lisp stage
 
-stage\complete.lsp : complete.lsp
-	$(LN) complete.lsp stage
+stage\dribble.lisp : dribble.lisp
+	$(LN_S) dribble.lisp stage
 
-stage\describe.lsp : describe.lsp
-	$(LN) describe.lsp stage
+stage\complete.lisp : complete.lisp
+	$(LN_S) complete.lisp stage
 
-stage\room.lsp : room.lsp
-	$(LN) room.lsp stage
+stage\describe.lisp : describe.lisp
+	$(LN_S) describe.lisp stage
 
-stage\edit.lsp : edit.lsp
-	$(LN) edit.lsp stage
+stage\room.lisp : room.lisp
+	$(LN_S) room.lisp stage
 
-stage\macros3.lsp : macros3.lsp
-	$(LN) macros3.lsp stage
+stage\edit.lisp : edit.lisp
+	$(LN_S) edit.lisp stage
 
-stage\posix.lsp : posix.lsp
-	$(LN) posix.lsp stage
+stage\macros3.lisp : macros3.lisp
+	$(LN_S) macros3.lisp stage
 
-stage\foreign1.lsp : foreign1.lsp
-	$(LN) foreign1.lsp stage
+stage\posix.lisp : posix.lisp
+	$(LN_S) posix.lisp stage
 
-stage\defs3.lsp : defs3.lsp
-	$(LN) defs3.lsp stage
+stage\foreign1.lisp : foreign1.lisp
+	$(LN_S) foreign1.lisp stage
 
-stage\clhs.lsp : clhs.lsp
-	$(LN) clhs.lsp stage
+stage\defs3.lisp : defs3.lisp
+	$(LN_S) defs3.lisp stage
 
-stage\german.lsp : german.lsp
-	$(LN) german.lsp stage
+stage\clhs.lisp : clhs.lisp
+	$(LN_S) clhs.lisp stage
 
-stage\french.lsp : french.lsp
-	$(LN) french.lsp stage
+stage\inspect.lisp : inspect.lisp
+	$(LN_S) inspect.lisp stage
 
-stage\spanish.lsp : spanish.lsp
-	$(LN) spanish.lsp stage
+stage\german.lisp : german.lisp
+	$(LN_S) german.lisp stage
 
-stage\dutch.lsp : dutch.lsp
-	$(LN) dutch.lsp stage
+stage\french.lisp : french.lisp
+	$(LN_S) french.lisp stage
 
-stage\config.lsp : config.lsp
-	$(LN) config.lsp stage
+stage\spanish.lisp : spanish.lisp
+	$(LN_S) spanish.lisp stage
 
-stage\init.fas : stage\init.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/init.lsp
+stage\dutch.lisp : dutch.lisp
+	$(LN_S) dutch.lisp stage
 
-stage\defseq.fas : stage\defseq.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defseq.lsp
+stage\config.lisp : config.lisp
+	$(LN_S) config.lisp stage
 
-stage\backquot.fas : stage\backquot.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/backquot.lsp
+stage\init.fas : stage\init.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/init.lisp
 
-stage\defmacro.fas : stage\defmacro.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defmacro.lsp
+stage\defseq.fas : stage\defseq.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/defseq.lisp
 
-stage\macros1.fas : stage\macros1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/macros1.lsp
+stage\backquote.fas : stage\backquote.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/backquote.lisp
 
-stage\macros2.fas : stage\macros2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/macros2.lsp
+stage\defmacro.fas : stage\defmacro.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/defmacro.lisp
 
-stage\defs1.fas : stage\defs1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defs1.lsp
+stage\macros1.fas : stage\macros1.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/macros1.lisp
 
-stage\timezone.fas : stage\timezone.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/timezone.lsp
+stage\macros2.fas : stage\macros2.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/macros2.lisp
 
-stage\places.fas : stage\places.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/places.lsp
+stage\defs1.fas : stage\defs1.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/defs1.lisp
 
-stage\floatpri.fas : stage\floatpri.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/floatpri.lsp
+stage\timezone.fas : stage\timezone.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/timezone.lisp
 
-stage\type.fas : stage\type.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/type.lsp
+stage\places.fas : stage\places.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/places.lisp
 
-stage\defstruc.fas : stage\defstruc.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defstruc.lsp
+stage\floatprint.fas : stage\floatprint.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/floatprint.lisp
 
-stage\format.fas : stage\format.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/format.lsp
+stage\type.fas : stage\type.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/type.lisp
 
-stage\savemem.fas : stage\savemem.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/savemem.lsp
+stage\defstruct.fas : stage\defstruct.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/defstruct.lisp
 
-stage\trace.fas : stage\trace.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/trace.lsp
+stage\format.fas : stage\format.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/format.lisp
 
-stage\compiler.fas : stage\compiler.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/compiler.lsp
+stage\savemem.fas : stage\savemem.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/savemem.lisp
 
-stage\disassem.fas : stage\disassem.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/disassem.lsp
+stage\trace.fas : stage\trace.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/trace.lisp
 
-stage\defs2.fas : stage\defs2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defs2.lsp
+stage\compiler.fas : stage\compiler.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/compiler.lisp
 
-stage\loop.fas : stage\loop.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/loop.lsp
+stage\disassem.fas : stage\disassem.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/disassem.lisp
 
-stage\clos.fas : stage\clos.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/clos.lsp
+stage\defs2.fas : stage\defs2.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/defs2.lisp
 
-stage\conditio.fas : stage\conditio.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/conditio.lsp
+stage\loop.fas : stage\loop.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/loop.lisp
 
-stage\gstream.fas : stage\gstream.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/gstream.lsp
+stage\clos.fas : stage\clos.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/clos.lisp
 
-stage\xcharin.fas : stage\xcharin.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/xcharin.lsp
+stage\condition.fas : stage\condition.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/condition.lisp
 
-stage\keyboard.fas : stage\keyboard.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/keyboard.lsp
+stage\gstream.fas : stage\gstream.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/gstream.lisp
 
-stage\screen.fas : stage\screen.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/screen.lsp
+stage\xcharin.fas : stage\xcharin.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/xcharin.lisp
 
-stage\runprog.fas : stage\runprog.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/runprog.lsp
+stage\keyboard.fas : stage\keyboard.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/keyboard.lisp
 
-stage\query.fas : stage\query.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/query.lsp
+stage\screen.fas : stage\screen.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/screen.lisp
 
-stage\reploop.fas : stage\reploop.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/reploop.lsp
+stage\beossock.fas : stage\beossock.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/beossock.lisp
 
-stage\dribble.fas : stage\dribble.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/dribble.lsp
+stage\runprog.fas : stage\runprog.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/runprog.lisp
 
-stage\complete.fas : stage\complete.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/complete.lsp
+stage\query.fas : stage\query.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/query.lisp
 
-stage\describe.fas : stage\describe.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/describe.lsp
+stage\reploop.fas : stage\reploop.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/reploop.lisp
 
-stage\room.fas : stage\room.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/room.lsp
+stage\dribble.fas : stage\dribble.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/dribble.lisp
 
-stage\edit.fas : stage\edit.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/edit.lsp
+stage\complete.fas : stage\complete.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/complete.lisp
 
-stage\macros3.fas : stage\macros3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/macros3.lsp
+stage\describe.fas : stage\describe.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/describe.lisp
 
-stage\posix.fas : stage\posix.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/posix.lsp
+stage\room.fas : stage\room.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/room.lisp
 
-stage\foreign1.fas : stage\foreign1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/foreign1.lsp
+stage\edit.fas : stage\edit.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/edit.lisp
 
-stage\defs3.fas : stage\defs3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/defs3.lsp
+stage\macros3.fas : stage\macros3.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/macros3.lisp
 
-stage\clhs.fas : stage\clhs.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/clhs.lsp
+stage\posix.fas : stage\posix.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/posix.lisp
 
-stage\german.fas : stage\german.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/german.lsp
+stage\foreign1.fas : stage\foreign1.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/foreign1.lisp
 
-stage\french.fas : stage\french.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/french.lsp
+stage\defs3.fas : stage\defs3.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/defs3.lisp
 
-stage\spanish.fas : stage\spanish.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/spanish.lsp
+stage\clhs.fas : stage\clhs.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/clhs.lisp
 
-stage\dutch.fas : stage\dutch.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/dutch.lsp
+stage\inspect.fas : stage\inspect.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/inspect.lisp
 
-stage\config.fas : stage\config.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/config.lsp
+stage\german.fas : stage\german.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/german.lisp
+
+stage\french.fas : stage\french.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/french.lisp
+
+stage\spanish.fas : stage\spanish.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/spanish.lisp
+
+stage\dutch.fas : stage\dutch.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/dutch.lisp
+
+stage\config.fas : stage\config.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/config.lisp
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
-	lisp.exe -B . -N locale -Efile ISO-8859-1 -norc -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
+	lisp.exe -B . -N locale -Efile UTF-8 -norc -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
 	-$(RM) lispinit2.mem
 	$(MV) lispimag.mem lispinit2.mem
 
@@ -1633,23 +1657,23 @@ READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif clreadline.3 clreadline.html clreadline.dvi readline.dvi
 
 impnotes.html : _impnotes.html
-	sed -e 's,href="CLHSROOT/,href="http://www.xanalys.com/software_tools/reference/HyperSpec/,' _impnotes.html > impnotes.html
+	sed -e 's,href="CLHSROOT/,href="http://www.lisp.org/HyperSpec/,' _impnotes.html > impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
 manualx : manual clisp.man clisp.dvi clreadline.man
 
 ANNOUNCE : ..\ANNOUNCE
-	-$(LN) ..\ANNOUNCE ANNOUNCE
+	-$(LN_S) ..\ANNOUNCE ANNOUNCE
 
 COPYRIGHT : ..\COPYRIGHT
-	-$(LN) ..\COPYRIGHT COPYRIGHT
+	-$(LN_S) ..\COPYRIGHT COPYRIGHT
 
 GNU-GPL : ..\GNU-GPL
-	-$(LN) ..\GNU-GPL GNU-GPL
+	-$(LN_S) ..\GNU-GPL GNU-GPL
 
 SUMMARY : ..\SUMMARY
-	-$(LN) ..\SUMMARY SUMMARY
+	-$(LN_S) ..\SUMMARY SUMMARY
 
 README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c libintl.h _README.de _README.en txt2c.exe
 	$(TXT2C) < _README > txt.c
@@ -1682,7 +1706,7 @@ clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c m
 clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c libintl.h txt2c.exe
 	$(TXT2C) < _clisp.html > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
-	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.xanalys.com/software_tools/reference/HyperSpec/,' > clisp.html
+	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
@@ -1690,13 +1714,13 @@ clisp.dvi : clisp.1
 	$(ROFF_DVI) clisp.1 > clisp.dvi
 
 clreadline.3 : readline\doc\clreadline.3
-	-$(LN) readline\doc\clreadline.3 clreadline.3
+	-$(LN_S) readline\doc\clreadline.3 clreadline.3
 
 clreadline.html : readline\doc\clreadline.html
-	-$(LN) readline\doc\clreadline.html clreadline.html
+	-$(LN_S) readline\doc\clreadline.html clreadline.html
 
 clreadline.dvi : readline\doc\clreadline.dvi
-	-$(LN) readline\doc\clreadline.dvi clreadline.dvi
+	-$(LN_S) readline\doc\clreadline.dvi clreadline.dvi
 
 clisp.man : clisp.1
 	$(ROFF_MAN) clisp.1 > clisp.man
@@ -1705,46 +1729,46 @@ clreadline.man : clreadline.3
 	$(ROFF_MAN) clreadline.3 > clreadline.man
 
 LISP-tutorial.txt : ..\doc\LISP-tutorial.txt
-	-$(LN) ..\doc\LISP-tutorial.txt LISP-tutorial.txt
+	-$(LN_S) ..\doc\LISP-tutorial.txt LISP-tutorial.txt
 
 CLOS-guide.txt : ..\doc\CLOS-guide.txt
-	-$(LN) ..\doc\CLOS-guide.txt CLOS-guide.txt
+	-$(LN_S) ..\doc\CLOS-guide.txt CLOS-guide.txt
 
 editors.txt : ..\doc\editors.txt
-	-$(LN) ..\doc\editors.txt editors.txt
+	-$(LN_S) ..\doc\editors.txt editors.txt
 
 readline\doc\rluserman.dvi :
 	cd readline\doc && $(MAKE) rluserman.dvi
 
 readline.dvi : readline\doc\rluserman.dvi
-	-$(LN) readline\doc\rluserman.dvi readline.dvi
+	-$(LN_S) readline\doc\rluserman.dvi readline.dvi
 
 
 install : install-bin
 
 installdirs : force
-	-mkdir $(install_root)$(libdir)
-	-mkdir $(install_root)$(lisplibdir)
-	-mkdir $(install_root)$(bindir)
+	-mkdir $(DESTDIR)$(libdir)
+	-mkdir $(DESTDIR)$(lisplibdir)
+	-mkdir $(DESTDIR)$(bindir)
 
 install-bin : lisp.exe lispinit.mem force
-	-mkdir $(install_root)$(libdir)
-	-mkdir $(install_root)$(lisplibdir)
-	$(INSTALL_DATA) UnicodeData.txt $(install_root)$(lisplibdir)\UnicodeData.txt
-	$(INSTALL_DATA) clhs.txt $(install_root)$(lisplibdir)\clhs.txt
-	$(INSTALL_PROGRAM) lisp.exe $(install_root)$(lisplibdir)\lisp.exe
-	$(INSTALL_DATA) lispinit.mem $(install_root)$(lisplibdir)\lispinit.mem
-	-mkdir $(install_root)$(bindir)
-	echo $(lisplibdir)\lisp.exe -M $(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > $(install_root)$(bindir)\clisp.cmd
+	-mkdir $(DESTDIR)$(libdir)
+	-mkdir $(DESTDIR)$(lisplibdir)
+	$(INSTALL_DATA) UnicodeData.txt $(DESTDIR)$(lisplibdir)\UnicodeData.txt
+	$(INSTALL_DATA) clhs.txt $(DESTDIR)$(lisplibdir)\clhs.txt
+	$(INSTALL_PROGRAM) lisp.exe $(DESTDIR)$(lisplibdir)\lisp.exe
+	$(INSTALL_DATA) lispinit.mem $(DESTDIR)$(lisplibdir)\lispinit.mem
+	-mkdir $(DESTDIR)$(bindir)
+	echo $(lisplibdir)\lisp.exe -M $(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > $(DESTDIR)$(bindir)\clisp.cmd
 
 uninstall : uninstall-bin
 
 uninstall-bin : force
-	$(RM) $(install_root)$(lisplibdir)/UnicodeData.txt
-	$(RM) $(install_root)$(lisplibdir)/clhs.txt
-	$(RM) $(install_root)$(lisplibdir)/lisp.exe
-	$(RM) $(install_root)$(lisplibdir)/lispinit.mem
-	$(RM) $(install_root)$(bindir)/clisp.cmd
+	$(RM) $(DESTDIR)$(lisplibdir)/UnicodeData.txt
+	$(RM) $(DESTDIR)$(lisplibdir)/clhs.txt
+	$(RM) $(DESTDIR)$(lisplibdir)/lisp.exe
+	$(RM) $(DESTDIR)$(lisplibdir)/lispinit.mem
+	$(RM) $(DESTDIR)$(bindir)/clisp.cmd
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
@@ -1784,7 +1808,7 @@ clean4 : clean3
 # clean5 even undoes "make init".
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
-	-$(RM) config.lsp
+	-$(RM) config.lisp
 	-$(RM) comment5.exe ansidecl.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
 
 # clean6 lets us go back to "makemake > Makefile".
