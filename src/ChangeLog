@@ -1,3 +1,12 @@
+2002-01-12  Sam Steingold  <sds@gnu.org>
+
+	* trace.lisp (trace1): made macros traceable again (broken since
+	the 2000-06-11 patch introducing MACRO type)
+	(fdefinition-local): removed (replaced with LOCAL)
+	(local): new macro (SETF-able)
+	(local-function-name-p): new function
+	* init.lisp (local): export from EXT
+
 2002-01-11  Sam Steingold  <sds@gnu.org>
 
 	close all inaccessible PIPE and SOCKET streams on GC, like file streams

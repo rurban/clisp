@@ -255,11 +255,10 @@
           (cond ((stringp package-name))
                 ((symbolp package-name)
                  (setq package-name (symbol-name package-name)))
-                (t (error-of-type
-                    'source-program-error
-                    (i18n::ENGLISH
-                     "~S: argument ~S should be a string or a symbol")
-                    'common-lisp:in-package package-name)))
+                (t (error-of-type 'source-program-error
+                     (i18n::ENGLISH
+                      "~S: argument ~S should be a string or a symbol")
+                     'common-lisp:in-package package-name)))
           (list 'EVAL-WHEN '(COMPILE LOAD EVAL)
                 (list 'SETQ 'COMMON-LISP::*PACKAGE*
                       (list 'SYS::%FIND-PACKAGE package-name))))))))
@@ -313,7 +312,7 @@
    #+(or UNIX OS/2 WIN32) make-pipe-input-stream
    #+(or UNIX OS/2 WIN32) make-pipe-io-stream
    make-buffered-input-stream make-buffered-output-stream
-   get-setf-method
+   get-setf-method local
    compiler-let load-time-eval)
  "EXT")
 
