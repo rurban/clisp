@@ -189,6 +189,7 @@ User visible changes
     unjustified error.
   + Fixed ATANH on complex numbers.
   + Fixed a crash of (COPY-READTABLE NIL some-readtable).
+  + Fixed a crash when using a hash-table as hash-table key.
 
 
 Modules

@@ -1093,8 +1093,8 @@ local uint32 hashcode4_atom (object obj) {
     if (complexp(obj)) {
       var uint32 code1 = hashcode4_real(TheComplex(obj)->c_real);
       var uint32 code2 = hashcode4_real(TheComplex(obj)->c_imag);
-      /* impornt for combining, because of "complex canonicalization":
-       if imagpart=0.0, then hashcode = hashcode4_real(realpart). */
+      /* important for combining, because of "complex canonicalization":
+         if imagpart=0.0, then hashcode = hashcode4_real(realpart). */
       return code1 ^ rotate_left(5,code2);
     } else {
       return hashcode4_real(obj);
@@ -1159,38 +1159,39 @@ local uint32 hashcode4_atom (object obj) {
     _case_stream
    #endif
     case_orecord:
-     switch (Record_type(obj)) {
-       case_Rectype_bvector_above;
-       case_Rectype_b2vector_above;
-       case_Rectype_b4vector_above;
-       case_Rectype_b8vector_above;
-       case_Rectype_b16vector_above;
-       case_Rectype_b32vector_above;
-       case_Rectype_string_above;
-       case_Rectype_vector_above;
-       case_Rectype_mdarray_above;
-       case_Rectype_Closure_above;
-       case_Rectype_Instance_above;
-      #ifndef TYPECODES
-       case_Rectype_Symbol_above;
-       case Rectype_Ratio:
-       case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
-       case Rectype_Bignum:
-         goto case_real;
-       case Rectype_Complex: {
-         var uint32 code1 = hashcode4_real(TheComplex(obj)->c_real);
-         var uint32 code2 = hashcode4_real(TheComplex(obj)->c_imag);
-         /* important for combining, because of "complex canonicalization":
-          if imagpart=0.0, then hashcode = hashcode4_real(realpart). */
-         return code1 ^ rotate_left(5,code2);
-       }
-      #endif
-       default: ;
-     }
+      switch (Record_type(obj)) {
+        case_Rectype_bvector_above;
+        case_Rectype_b2vector_above;
+        case_Rectype_b4vector_above;
+        case_Rectype_b8vector_above;
+        case_Rectype_b16vector_above;
+        case_Rectype_b32vector_above;
+        case_Rectype_string_above;
+        case_Rectype_vector_above;
+        case_Rectype_mdarray_above;
+        case_Rectype_Closure_above;
+        case_Rectype_Instance_above;
+       #ifndef TYPECODES
+        case_Rectype_Symbol_above;
+        case Rectype_Ratio:
+        case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
+        case Rectype_Bignum:
+          goto case_real;
+        case Rectype_Complex: {
+          var uint32 code1 = hashcode4_real(TheComplex(obj)->c_real);
+          var uint32 code2 = hashcode4_real(TheComplex(obj)->c_imag);
+          /* important for combining, because of "complex canonicalization":
+             if imagpart=0.0, then hashcode = hashcode4_real(realpart). */
+          return code1 ^ rotate_left(5,code2);
+        }
+       #endif
+        default: ;
+      }
+    /* FIXME: The case that obj is a hash-table should be handled specially. */
     {                           /* look at flags, type, components: */
       var uintC len = SXrecord_nonweak_length(obj);
-      var uint32 bish_code = 0x03168B8D + (Record_flags(obj) << 24)
-        + (Record_type(obj) << 16) + len;
+      var uint32 bish_code =
+        0x03168B8D + (Record_flags(obj) << 24) + (Record_type(obj) << 16) + len;
       if (len > 0) {
         check_SP();
         var const gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
@@ -1214,7 +1215,11 @@ local uint32 hashcode4_atom (object obj) {
     }
     case_char:                  /* character */
       return hashcode4_char(char_code(obj));
-   #ifndef TYPECODES
+   #ifdef TYPECODES
+    case_machine:               /* machine */
+    case_subr:                  /* subr */
+    case_system:                /* frame-pointer, read-label, system */
+   #else
     case_symbol:                /* symbol */
    #endif
     case_closure:               /* closure */
@@ -1222,7 +1227,7 @@ local uint32 hashcode4_atom (object obj) {
     case_lrecord:
       /* take EQ-hashcode */
       return hashcode1(obj);
-      default: NOTREACHED;
+    default: NOTREACHED;
   }
 }
 /* cons -> look at content up to depth 4:
