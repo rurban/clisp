@@ -99,8 +99,6 @@ dnl DEFS HAVE_STDBOOL_H, sets variables STDBOOL_H, HAVE__BOOL
 gt_STDBOOL_H
 dnl DEFS HAVE_STDINT_H, sets variables STDINT_H, HAVE_LONG_64BIT, HAVE_LONGLONG_64BIT
 gt_STDINT_H
-dnl DEFS HAVE_LOCALE_H if exist locale.h
-CL_LOCALE_H
 dnl DEFS HAVE_UNISTD_H if exist unistd.h
 CL_UNISTD_H
 dnl DEFS ACCESS_NEEDS_SYS_FILE_H if sys/file.h is needed for the access() flags

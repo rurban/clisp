@@ -7,7 +7,6 @@ local void init_ctype (void);
 # ------------------------------ Implementation -------------------------------
 
 local void init_ctype() {
- #ifdef HAVE_LOCALE_H
   # When you call setlocale(LC_CTYPE,""), it examines the environment
   # variables:
   # 1. environment variable LC_ALL - an override for all LC_* variables,
@@ -36,6 +35,5 @@ local void init_ctype() {
   setlocale(LC_TIME,"");
   setlocale(LC_COLLATE,"");
   setlocale(LC_MONETARY,"");
- #endif # HAVE_LOCALE_H
 }
 

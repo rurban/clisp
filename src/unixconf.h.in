@@ -52,10 +52,6 @@
 /* Define if you have the ISO C 99 header file <stdbool.h>. */
 #undef HAVE_STDBOOL_H
 
-/* CL_LOCALE_H */
-/* Define if you have <locale.h>. */
-#undef HAVE_LOCALE_H
-
 /* CL_UNISTD_H */
 /* Define if you have <unistd.h>. */
 #undef HAVE_UNISTD_H
