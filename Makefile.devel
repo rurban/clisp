@@ -71,7 +71,8 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles check-configures update-ansi-tests potfiles                 \
+all : makefiles check-configures update-ansi-tests update-docbook-utils     \
+	potfiles                                                            \
 	src/FILES src/VERSION src/version.h                                 \
 	src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c \
 	ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc             \
@@ -215,6 +216,16 @@ update-ansi-tests:
 	  rm -rf `echo $(ANSITESTS_CVS_REPOSITORY) | sed -e 's,/.*,,'`; \
 	fi
 
+
+DOCBOOK_XML_DOWNLOAD = http://www.docbook.org/xml/4.3/docbook-xml-4.3.zip
+update-docbook-utils:
+	if test ! -d utils/docbook; then \
+	  mkdir utils/docbook && \
+	  cd utils/docbook && \
+	  wget -O docbook-xml.zip $(DOCBOOK_XML_DOWNLOAD) && \
+	  unzip -x docbook-xml.zip && \
+	  rm -f docbook-xml.zip; \
+	fi
 
 CLISP=$(CURDIR)/build/clisp
 potfiles :
