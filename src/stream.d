@@ -18124,6 +18124,9 @@ global object stream_fd (object stream) {
       #define PSEUDO  PSEUDO_E
       #include "pseudofun.c"
       #undef PSEUDO
+      #if defined(MICROSOFT) && !defined(UNICODE)
+      (Pseudofun) NULL
+      #endif
     };
 
 # =============================================================================

@@ -54,7 +54,11 @@
 # Tabellen aller relozierbarer Pointer: ausgelagert nach STREAM
 # Größe dieser Tabellen:
   #define pseudocode_anz  (sizeof(pseudocode_tab)/sizeof(Pseudofun))
+#if defined(MICROSOFT) && !defined(UNICODE)
+  #define pseudodata_anz 0
+#else
   #define pseudodata_anz  (sizeof(pseudodata_tab)/sizeof(Pseudofun))
+#endif
 # Gesamt-Tabelle:
   #define pseudofun_anz  (pseudocode_anz+pseudodata_anz)
   local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
