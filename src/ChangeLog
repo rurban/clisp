@@ -1,3 +1,10 @@
+2002-01-27  Sam Steingold  <sds@gnu.org>
+
+	added FFI:FOREIGN-ADDRESS-NULL to check for NULL pointers
+	* foreign.d (FOREIGN-ADDRESS-VALUE): new function
+	* subr.d, constsym.d (foreign_address_value): added
+	* function1.lisp (foreign-address-null): new exported function
+
 2002-01-26  Sam Steingold  <sds@gnu.org>
 
 	* .clisp-full: new file
