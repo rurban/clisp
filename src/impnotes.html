@@ -147,8 +147,8 @@ blank here cannot be represented in this character set).
 <DL>
 <DT><EM>Platform dependent: UNIX (except NeXTstep), Win32, Amiga, Acorn platforms only.</EM></DT>
 <DD>
-<TABLE BORDER>
 More precisely, CLISP uses the ISO Latin-1 (ISO 8859-1) character set:
+<TABLE BORDER>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
   <TR>       <TH>$10 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
@@ -177,8 +177,8 @@ blank here cannot be represented in this character set).
 <DL>
 <DT><EM>Platform dependent: NeXTstep platforms only.</EM></DT>
 <DD>
-<TABLE BORDER>
 More precisely, CLISP uses the NextStep character set:
+<TABLE BORDER>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
   <TR>       <TH>$10 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
@@ -266,13 +266,13 @@ There are the following additional characters with names:
 <P> Additionally, the following syntax is defined for characters with code
 from $00 to $1F: 
 <TABLE>
-  <TR> <TD><CODE>#\^@</CODE>                     <TD> $00
-  <TR> <TD><CODE>#\^A</CODE> .. <CODE>#\^Z<CODE> <TD> $01 .. $1A
-  <TR> <TD><CODE>#\^[</CODE>                     <TD> $1B
-  <TR> <TD><CODE>#\^\</CODE>                     <TD> $1C
-  <TR> <TD><CODE>#\^]</CODE>                     <TD> $1D
-  <TR> <TD><CODE>#\^^</CODE>                     <TD> $1E
-  <TR> <TD><CODE>#\^_</CODE>                     <TD> $1F
+  <TR> <TD><CODE>#\^@</CODE>                      <TD> $00
+  <TR> <TD><CODE>#\^A</CODE> .. <CODE>#\^Z</CODE> <TD> $01 .. $1A
+  <TR> <TD><CODE>#\^[</CODE>                      <TD> $1B
+  <TR> <TD><CODE>#\^\</CODE>                      <TD> $1C
+  <TR> <TD><CODE>#\^]</CODE>                      <TD> $1D
+  <TR> <TD><CODE>#\^^</CODE>                      <TD> $1E
+  <TR> <TD><CODE>#\^_</CODE>                      <TD> $1F
 </TABLE>
 
 <P> See also sec. <A HREF="#22.1.4.">22.1.4</A>.
@@ -760,7 +760,7 @@ Additional declarations:
   prior to execution.
   Examples:
   <P>
-  <CODE>(locally (declare (compile)) <VAR>form</VAR>)</CODE></DT>
+  <CODE>(locally (declare (compile)) <VAR>form</VAR>)</CODE>
   executes a compiled version of form.
   <P>
   <PRE><CODE>(let ((x 0))
@@ -1399,7 +1399,7 @@ The stream <CODE>*keyboard-input*</CODE> is used by <CODE>*terminal-io*</CODE>.
 <H3>21.2.</H3>
 
 The macro <STRONG><CODE>with-output-to-printer</CODE></STRONG>:<BR>
-       <CODE>(with-output-to-printer (</VAR>var</VAR>) {<VAR>declaration</VAR>}* {<VAR>form</VAR>}*)</CODE>
+       <CODE>(with-output-to-printer (<VAR>var</VAR>) {<VAR>declaration</VAR>}* {<VAR>form</VAR>}*)</CODE>
 binds the variable <VAR>var</VAR> to an output stream that sends its output to the
 printer.
 <!-- #ifdef PIPES -->
@@ -2331,6 +2331,7 @@ printing ASCII characters, except <CODE>'/'</CODE>).
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <DT><EM>Platform dependent: OS/2, Win32 platforms only.</EM></DT>
 <DD>
+<TABLE>
  <TR><TD>[ [drivespec] : ]     <TD>a letter '*'|'A'|...|'Z'|'a'|...|'z'
  <TR><TD>{ name [. type] \ }   <TD>each one a subdirectory, '\' may be replaced by '/'
  <TR><TD>[ name [. type] ]     <TD>filename with type (extension)
@@ -2472,7 +2473,7 @@ are searched - additionally to the specified or current directory - by <CODE>loa
 
 <H3>23.5.</H3>
 
-<CODE>(<STRONG>probe-directory</STRONG> <VAR>pathname</VAR>) tests whether
+<CODE>(<STRONG>probe-directory</STRONG> <VAR>pathname</VAR>)</CODE> tests whether
 <VAR>pathname</VAR> exists and is a directory. It will, unlike
 <CODE>probe-file</CODE> or <CODE>truename</CODE>, not signal an error if
 the parent directory of <VAR>pathname</VAR> doesn't exist.
@@ -2529,7 +2530,7 @@ is <VAR>programfile</VAR>. It is given the strings <VAR>arg<SUB>1</SUB></VAR>, <
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
 <DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
-<DD><CODE>(<STRONG>execute</STRONG> <VAR>command</VAR>)</CODE>  executes a given </VAR>command</VAR> using the operating system's shell.
+<DD><CODE>(<STRONG>execute</STRONG> <VAR>command</VAR>)</CODE>  executes a given <VAR>command</VAR> using the operating system's shell.
 <!-- #endif -->
 </DL>
 <A NAME="shell">
@@ -3250,7 +3251,7 @@ A <STRONG>linking set</STRONG> is a directory containing:
 <DT>    <CODE>lispinit.mem</CODE>      <DD>the memory image
 </DL>
 To run a clisp contained in some linking set <VAR>dir</VAR>, call
-&quot;<CODE><VAR>dir</VAR>/lisp.run -M <VAR>dir</VAR>/lispinit.mem</VAR>&quot;.
+&quot;<CODE><VAR>dir</VAR>/lisp.run -M <VAR>dir</VAR>/lispinit.mem</CODE>&quot;.
 <P>
 A <STRONG>module set</STRONG> is a directory containing:
 <DL>
@@ -3471,7 +3472,7 @@ The predefined C types are:
 <BR>        <VAR>dimensions</VAR> ::= <VAR>number</VAR> | <CODE>({<VAR>number</VAR>}*)</CODE>
 <TR><TD ALIGN=RIGHT VALIGN=TOP>    | <TD><CODE>(c-array-max <VAR>c-type</VAR> <VAR>maxdimension</VAR>)</CODE>
 <BR>        <VAR>maxdimension</VAR> ::= <VAR>number</VAR>
-<TR><TD ALIGN=RIGHT VALIGN=TOP>    | <TD><CODE>(c-function {<VAR>option</VAR>}*)</VAR>
+<TR><TD ALIGN=RIGHT VALIGN=TOP>    | <TD><CODE>(c-function {<VAR>option</VAR>}*)</CODE>
 <BR>        <VAR>option</VAR> ::=
 <BR>          &nbsp; <CODE>(:arguments {(<VAR>arg-name</VAR> <VAR>c-type</VAR> [<VAR>param-mode</VAR> [<VAR>allocation</VAR>]])}*)</CODE>
 <BR>          | <CODE>(:return-type <VAR>c-type</VAR> [<VAR>allocation</VAR>])</CODE>
@@ -3562,7 +3563,7 @@ evaluated its foreign value is converted to a freshly created Lisp value.
 <P>
 <CODE>(<STRONG>def-c-var</STRONG> <VAR>name</VAR> {<VAR>option</VAR>}*)</CODE>
 <TABLE>
-<TR>  <VAR>option</VAR> ::=
+<TR><TD>  <VAR>option</VAR> ::=
 <TR><TD ALIGN=RIGHT>      <TD><CODE>(:name <VAR>c-name</VAR>)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:type <VAR>c-type</VAR>)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:read-only <VAR>boolean</VAR>)</CODE>
@@ -3640,7 +3641,7 @@ control flow temporary enters Lisp.
 <P>
 <CODE>(<STRONG>def-call-out</STRONG> <VAR>name</VAR> {<VAR>option</VAR>}*)</CODE>
 <TABLE>
-<TR>  <VAR>option</VAR> ::=
+<TR><TD>  <VAR>option</VAR> ::=
 <TR><TD ALIGN=RIGHT>      <TD><CODE>(:name <VAR>c-name</VAR>)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:arguments {(<VAR>arg-name</VAR> <VAR>c-type</VAR> [<VAR>param-mode</VAR> [<VAR>allocation</VAR>]])}*)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:return-type <VAR>c-type</VAR> [<VAR>allocation</VAR>])</CODE>
@@ -3653,7 +3654,7 @@ redirected to call the C function <VAR>c-name</VAR>.
 <P>
 <CODE>(<STRONG>def-call-in</STRONG> <VAR>name</VAR> {<VAR>option</VAR>}*)</CODE>
 <TABLE>
-<TR>  <VAR>option</VAR> ::=
+<TR><TD>  <VAR>option</VAR> ::=
 <TR><TD ALIGN=RIGHT>      <TD><CODE>(:name <VAR>c-name</VAR>)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:arguments {(<VAR>arg-name</VAR> <VAR>c-type</VAR> [<VAR>param-mode</VAR> [<VAR>allocation</VAR>]])}*)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:return-type <VAR>c-type</VAR> [<VAR>allocation</VAR>])</CODE>
@@ -4171,7 +4172,7 @@ the ability to use <CODE>finalize</CODE> for resource-tracking on the output sid
 <CODE>(declare-library-function <VAR>name</VAR> <VAR>library-name</VAR> {<VAR>option</VAR>}*)</CODE>
 <P>
 <TABLE>
-<TR>  <VAR>option</VAR> ::=
+<TR><TD>  <VAR>option</VAR> ::=
 <TR><TD ALIGN=RIGHT>      <TD><CODE>(:offset <VAR>library-offset</VAR>)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:arguments {(<VAR>arg-name</VAR> <VAR>AFFI-type</VAR> <VAR>register</VAR>)}*)</CODE>
 <TR><TD ALIGN=RIGHT>    | <TD><CODE>(:return-type <VAR>AFFI-type</VAR>)</CODE>
@@ -4324,8 +4325,6 @@ have inlined the library function calls.
     (mlibcall SetVar name value -1 GVF_LOCAL_ONLY)))
 </PRE></CODE>
 
-</DD>
-</DL>
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
 <H3>99.5. ARexx</H3>
@@ -4547,7 +4546,7 @@ interpreter under the following circumstances:
    between <VAR>interpreter</VAR> and <VAR>interpreter-args</VAR> must still be a normal
    space!) CLISP will split the <VAR>interpreter-args</VAR> at hard spaces and at
    normal spaces.
-</UL>
+</OL>
 <P>
 The script should contain Lisp forms, except in the #! line. The file
 is normally loaded, through the function <CODE>load</CODE>. Before it is loaded,
