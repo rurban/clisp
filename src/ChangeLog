@@ -1,3 +1,10 @@
+1999-12-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * autoconf/aclocal.m4 (CL_ICONV): Check for the iconv function twice,
+          once in libc and once in libiconv, for OSF/1 and FreeBSD. Define
+          LIBICONV.
+        * makemake.in: Use @LIBICONV@ like @LIBTERMCAP@ and @LIBDL@.
+
 1999-12-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * utils/unicode/ftp.unicode.org/UnicodeData.txt: Upgrade to Unicode
