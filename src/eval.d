@@ -748,13 +748,13 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
 {
   /* Does the binding at bindptr bind the symbol sym? */
 #ifdef NO_symbolflags
- #define binds_sym_p(bindptr)                                           \
-  (eq(*(bindptr STACKop 1),sym) && /* the right symbol? */              \
-   eq(*(bindingsptr STACKop 0),fixnum(bit(active_bit)))) /* active & static? */
+  #define binds_sym_p(bindingptr)  \
+    (eq(*(bindingptr STACKop 1),sym) /* the right symbol? */ \
+     && eq(*(bindingptr STACKop 0),fixnum(bit(active_bit)))) /* active & static? */
 #else
   var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); /* for comparison: binding must be active */
-  #define binds_sym_p(bindptr)                                          \
-   (eq(*(bindingsptr STACKop 0),cmp)) /* right symbol & active & static? */
+  #define binds_sym_p(bindingptr)  \
+    (eq(*(bindingptr STACKop 0),cmp)) /* right symbol & active & static? */
 #endif
  next_env:
   if (framepointerp(venv)) {
