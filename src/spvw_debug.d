@@ -122,7 +122,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       string_out(out, (genericfunctionp(obj)
                        ? O(printstring_generic_function)
                        : O(printstring_compiled_closure)));
-      obj = TheClosure(obj)->clos_name;
+      obj = Closure_name(obj);
     }
     #ifdef DYNAMIC_FFI
       else if (ffunctionp(obj)) {

@@ -47,7 +47,7 @@
     (if (or (pathnamep arg) (stringp arg))
       (edit-file arg)
       (if (and (cond ((function-name-p arg) (setq funname arg) t)
-                     ((functionp arg) (function-name-p (setq funname (sys::%record-ref arg 0))))
+                     ((functionp arg) (function-name-p (setq funname (sys::closure-name arg))))
                      (t nil)
                )
                (fboundp (setq sym (get-funname-symbol funname)))
@@ -85,7 +85,7 @@
 
 (defun uncompile (arg &aux funname sym fun def)
   (if (and (cond ((function-name-p arg) (setq funname arg) t)
-                 ((functionp arg) (function-name-p (setq funname (sys::%record-ref arg 0))))
+                 ((functionp arg) (function-name-p (setq funname (sys::closure-name arg))))
                  (t nil)
            )
            (fboundp (setq sym (get-funname-symbol funname)))

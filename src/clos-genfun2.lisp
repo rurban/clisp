@@ -219,7 +219,7 @@
   (defvar *warn-if-gf-already-called* t)
   (defun need-gf-already-called-warning-p (gf)
     (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
-         (not (memq (sys::%record-ref gf 0)
+         (not (memq (sys::closure-name gf)
                     *dynamically-modifiable-generic-function-names*))))
   (defun warn-if-gf-already-called (gf)
     (when (need-gf-already-called-warning-p gf)

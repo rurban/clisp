@@ -5609,9 +5609,9 @@ typedef struct {
 # Closures
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t clos_name    _attribute_aligned_object_;
-  gcv_object_t clos_codevec _attribute_aligned_object_;
-  gcv_object_t other[unspecified] _attribute_aligned_object_;
+  gcv_object_t clos_name_or_class_version _attribute_aligned_object_;
+  gcv_object_t clos_codevec               _attribute_aligned_object_;
+  gcv_object_t other[unspecified]         _attribute_aligned_object_;
 } *  Closure;
 # interpreted Closure:
 typedef struct {
@@ -5643,9 +5643,9 @@ typedef struct {
 # compiled Closure:
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t clos_name    _attribute_aligned_object_;
-  gcv_object_t clos_codevec _attribute_aligned_object_;
-  gcv_object_t clos_consts[unspecified] _attribute_aligned_object_; # Closure-constants
+  gcv_object_t clos_name_or_class_version _attribute_aligned_object_;
+  gcv_object_t clos_codevec               _attribute_aligned_object_;
+  gcv_object_t clos_consts[unspecified]   _attribute_aligned_object_; # Closure-constants
 } *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
@@ -5657,7 +5657,10 @@ typedef struct {
 #define Cclosure_flags(obj)  cclosure_flags(TheCclosure(obj))
 #define Cclosure_seclass(obj)  Cclosure_flags(obj)
 #define Cclosure_set_seclass(cc,se)  record_flags_replace(TheCclosure(cc),se)
+# Closed-over environment, as a set of nested simple-vectors.
 #define clos_venv  clos_consts[0]
+# The function's name.
+#define Closure_name(obj)  TheClosure(obj)->clos_name_or_class_version
 typedef struct {
   VRECORD_HEADER # self-pointer for GC, length in bits
   # Here: Content of the Bitvector.

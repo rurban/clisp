@@ -480,7 +480,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         if (env->pr_closure) # track components?
           goto m_record_components; # all components are printed (see below)
         else { # only mark the name (tail-end-recursive)
-          obj = TheClosure(obj)->clos_name; goto entry;
+          obj = Closure_name(obj); goto entry;
         }
       case_structure: # Structure
         if (mlb_add(&env->bitmap,obj)) # marked?
@@ -837,7 +837,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         if (env->pr_closure) # track components?
           goto m_record_components; # all components are printed (see below)
         else { # only mark the name (tail-end-recursive)
-          obj = TheClosure(obj)->clos_name; goto entry;
+          obj = Closure_name(obj); goto entry;
         }
       case_structure: # Structure
         if (marked(TheStructure(obj))) # marked?
@@ -1080,7 +1080,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         if (env->pr_closure) # were components tracked?
           goto u_record_components; # all components are printed (see below)
         else { # only unmark the name (tail-end-recursive)
-          obj = TheClosure(obj)->clos_name; goto entry;
+          obj = Closure_name(obj); goto entry;
         }
       case_structure: # unmark structure:
         if (!marked(TheStructure(obj))) # already unmarked?
