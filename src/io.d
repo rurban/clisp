@@ -5652,7 +5652,6 @@ local uintL format_tab (object stream, object colon_p, object atsig_p,
  #if IO_DEBUG > 1
   printf("%d\n",ret);
  #endif
-  ASSERT(ret>=0);
   return ret;
 }
 
@@ -9841,8 +9840,8 @@ LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
   mv_count=1;
 }
 
-pr_routine_t pprin_object;
-pr_routine_t pprin_object_dispatch;
+local pr_routine_t pprin_object;
+local pr_routine_t pprin_object_dispatch;
 local void pprin_object (const object* stream_,object obj) {
  restart_it:
   # test for keyboard-interrupt:
