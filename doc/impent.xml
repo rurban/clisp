@@ -585,7 +585,7 @@
 <!ENTITY sose-r "<replaceable>socket-server</replaceable>">
 <!ENTITY sost-r "<replaceable>socket-stream</replaceable>">
 <!ENTITY source-r "<replaceable>source</replaceable>">
-<!ENTITY spec-lalist-r "<replaceable>spec-lambda-list</replaceable>">
+<!ENTITY spec-lalist-r "<replaceable>specialized-lambda-list</replaceable>">
 <!ENTITY specializer-r "<replaceable>specializer</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
