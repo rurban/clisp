@@ -1,4 +1,4 @@
-.TH CLISP 1 "31 March 2000"
+.TH CLISP 1 "31 May 2001"
 
 
 .SH NAME
@@ -74,7 +74,10 @@ clisp \- Common Lisp language interpreter and compiler
 .B \-I
 ]
 [
-.B \-a
+.B \-ansi
+]
+[
+.B \-traditional
 ]
 [
 .B \-p
@@ -128,7 +131,7 @@ executed more efficiently.
 .SH OPTIONS
 
 .TP
-.BR \-h ", " \-\-help 
+.BR \-h ", " \-\-help
 Displays a help message on how to use
 .BR clisp .
 
@@ -315,18 +318,21 @@ character.
 #endif
 
 .TP
-.B \-a
+.B \-ansi
 ANSI CL compliant: Comply with the ANSI CL specification even on those issues
 where ANSI CL is broken. This option is provided for maximum portability of
-Lisp programs, and is not useful for actual everyday work. It sets the variable
-.I *package*
-to
-.BR COMMON-LISP-USER ,
-and the symbol macro
+Lisp programs, and is not useful for actual everyday work.
+It sets the symbol macro
 .I *ansi*
 to
 .BR t .
 See impnotes.html, section "Maximum ANSI CL compliance", for details.
+
+.TP
+.B \-traditional
+Traditional: reverses the residual effects of
+.B \-ansi
+in the saved image.
 
 .TP
 .BI "\-p " packagename
@@ -693,7 +699,6 @@ is used to find the command interpreter called by the function
 .TP
 .B TERM
 determines the screen size recognized by the pretty printer.
-This environment variable is also mandatory for the built-in screen editor.
 #endif
 
 #ifdef EMUNIX_PORTABEL
