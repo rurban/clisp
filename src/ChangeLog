@@ -1,3 +1,7 @@
+2002-01-03  Stefan Kain  <stefan.kain@freenet.de>
+
+	* pathname.d: translated all comments
+
 2002-01-03  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (OGETTEXT): new macro
