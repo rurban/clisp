@@ -1,3 +1,8 @@
+1998-10-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * _distmakefile (CC): Set to "cc -Aa" on HP-UX, because "cc" is not
+          ANSI C compliant and doesn't grok `main' in clisp.c.
+
 1998-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * loop.lsp (expand-loop): Rework a little bit to improve the syntax
