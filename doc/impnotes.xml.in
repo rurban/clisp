@@ -93,7 +93,7 @@
 <preface id="preface"><title>Overview</title>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
-<blockquote id="bruno-addr"><title>Bruno's address</title><address>
+<blockquote><address>
  <honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
  <street>Louisenstra&szlig;e 103</street>
  <city>Bad Homburg</city>
@@ -101,7 +101,7 @@
  <otheraddr><ulink url="http://www.haible.de/bruno/">http://www.haible.de/bruno/</ulink></otheraddr>
 </address></blockquote>
  and
-<blockquote id="stoll-addr"><title>Michael's address</title><address>
+<blockquote><address>
  <honorific>Dr</honorific> <firstname>Michael</firstname> <surname>Stoll</surname>
  <street>Westerwaldweg 22</street>
  <city>Remagen-Oberwinter</city>
@@ -109,11 +109,11 @@
  <otheraddr><ulink url="http://www.math.uni-duesseldorf.de/~stoll/">http://www.math.uni-duesseldorf.de/~stoll/</ulink></otheraddr>
 </address></blockquote>
 The current maintainers are
-<blockquote id="bruno-addr1"><title>Bruno's title</title><address>
+<blockquote><address>
   <honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
 </address></blockquote>
 and
-<blockquote id="sds-addr"><title>Sam's address</title><address>
+<blockquote><address>
   <honorific>Dr</honorific> <firstname>Sam</firstname> <surname>Steingold</surname>
   <otheraddr><ulink url="http://www.podval.org/~sds/">http://www.podval.org/~sds/</ulink></otheraddr>
 </address></blockquote>
