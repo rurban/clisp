@@ -945,7 +945,8 @@ which performs the instantiation and registration and returns NAME."
             (options (rest method-combo)))
         (funcall (method-combination-check-options combination)
                  gf-name combination options)
-        (let ((clone (copy-method-combination combination)))
-          (setf (method-combination-options clone) (copy-list options))
-          clone))
+        (when options
+          (setq combination (copy-method-combination combination))
+          (setf (method-combination-options combination) (copy-list options)))
+        combination)
       (mc method-combo))))
