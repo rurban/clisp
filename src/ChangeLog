@@ -1,3 +1,14 @@
+2004-04-04  Bruno Haible  <bruno@clisp.org>
+
+	Make DEFSTRUCT :INITIAL-OFFSET option work correctly even in structure
+	types with no slots.
+	* defstruct.lisp (ds-make-constructor-body): Don't use the optimized
+	simple case if there are trailing NILs, due to :initial-offset.
+	(ds-make-pred): Replace name-offset argument with slotlist and size
+	arguments. Check the names of the :INCLUDEd structures as well. Use
+	SYS::CONSES-P, so that the test can cope with dotted lists and
+	circular lists.
+
 2004-04-03  Bruno Haible  <bruno@clisp.org>
 
 	* sequence.d (valid_type1): Call eltype_code only if the element-type

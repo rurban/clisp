@@ -85,7 +85,7 @@
   (if (and (or (eq type 'VECTOR) (eq type 'LIST))
            (do ((slotlistr slotlist (cdr slotlistr))
                 (index 0 (1+ index)))
-               ((null slotlistr) t)
+               ((null slotlistr) (eql index size))
              (unless (eq (ds-slot-offset (car slotlistr)) index)
                (return nil))))
     ;; optimize the simple case
@@ -230,30 +230,48 @@
             slotlist varlist))
        ,(ds-make-constructor-body type name names size slotlist varlist))))
 
-#| (ds-make-pred predname type name name-offset)
+#| (ds-make-pred predname type name slotlist size)
    returns the form, that creates the type-test-predicate for
    the structure name.
 
    type         the type of the structure,
    name         the name of the structure,
    predname     the name of the type-test-predicate,
-   name-offset  (only possible with type /= T )
-                the position, where the name is stored.
+   slotlist     (only used when type /= T) list of slots
+   size         instance size
 |#
-(defun ds-make-pred (predname type name name-offset)
+(defun ds-make-pred (predname type name slotlist size)
   `(,@(if (eq type 'T) `((PROCLAIM '(INLINE ,predname))) '())
     (DEFUN ,predname (OBJECT)
       ,(if (eq type 'T)
          `(%STRUCTURE-TYPE-P ',name OBJECT)
-         (if (eq type 'LIST)
-           `(AND (CONSP OBJECT)
-                 ,@(if (eql name-offset 0)
-                     `((EQ (CAR OBJECT) ',name))
-                     `((> (LENGTH OBJECT) ,name-offset)
-                       (EQ (NTH ,name-offset OBJECT) ',name))))
-           `(AND (SIMPLE-VECTOR-P OBJECT)
-                 (> (LENGTH OBJECT) ,name-offset)
-                 (EQ (SVREF OBJECT ,name-offset) ',name)))))))
+         (let ((max-offset -1)
+               (max-name-offset -1))
+           (dolist (slot slotlist)
+             (setq max-offset (max max-offset (ds-slot-offset slot)))
+             (unless (ds-slot-var slot)
+               (setq max-name-offset (max max-name-offset (ds-slot-offset slot)))))
+           ; This code is only used when there is at least one named slot.
+           (assert (<= 0 max-name-offset max-offset))
+           (assert (< max-offset size))
+           (if (eq type 'LIST)
+             `(AND (CONSP OBJECT)
+                   ,@(if (> size 1) `((CONSES-P ,size OBJECT)))
+                   ,@(mapcan #'(lambda (slot)
+                                 (unless (ds-slot-var slot)
+                                   `((EQ (NTH ,(ds-slot-offset slot) OBJECT)
+                                         ',(ds-slot-default slot)))))
+                             slotlist))
+             ; This code is only used when there is at least one named slot.
+             ; Therefore the vector's upgraded element type must contain
+             ; SYMBOL, i.e. it must be a general vector.
+             `(AND (SIMPLE-VECTOR-P OBJECT)
+                   (>= (LENGTH OBJECT) ,size)
+                   ,@(mapcan #'(lambda (slot)
+                                 (unless (ds-slot-var slot)
+                                   `((EQ (SVREF OBJECT ,(ds-slot-offset slot))
+                                         ',(ds-slot-default slot)))))
+                             slotlist))))))))
 
 (defun ds-make-copier (copiername name type)
   (declare (ignore name))
@@ -542,9 +560,10 @@
                                       'NIL)))
                         slot)
                     (svref incl-desc 4))))
-        ;; slotlist is the reversed list of the inherited slots
+        ;; slotlist is the reversed list of the inherited slots.
+        (setq include-skip (svref incl-desc 2))
         (when slotlist
-          (setq include-skip (1+ (ds-slot-offset (first slotlist)))))
+          (assert (> include-skip (ds-slot-offset (first slotlist)))))
         ;; include-skip >=0 is the number of slots that are already consumend
         ;;    by the substructure, the "size" of the substructure.
         ;; process further arguments of the :INCLUDE-option:
@@ -630,7 +649,7 @@
           ; the type recognition pseudo-slot
           (make-ds-slot nil
                         '()
-                        (setq initial-offset-option initial-offset)
+                        initial-offset
                         (cons 'NIL name) name ; "default value" = name
                         'SYMBOL ; type = symbol
                         T)      ; read-only
@@ -638,7 +657,7 @@
         (incf initial-offset)))
     ;; the slots are situated behind initial-offset.
     ;; If type/=T (i.e vector or list) and named-option, the name is situated
-    ;;   in Slot number  initial-offset-option = (1- initial-offset).
+    ;;   in Slot number  (1- initial-offset).
     ;; processing the slots:
     (let ((offset initial-offset))
       (dolist (slotarg slotargs)
@@ -733,8 +752,7 @@
             `(CLOS::DEFINE-STRUCTURE-CLASS ',name)
             `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name))
          ,@(if (and named-option predicate-option)
-             (ds-make-pred predicate-option type-option name
-                           initial-offset-option))
+             (ds-make-pred predicate-option type-option name slotlist size))
          ,@(if copier-option (ds-make-copier copier-option name type-option))
          ,@(let ((directslotlist (nthcdr inherited-slot-count slotlist)))
              `(,@(ds-make-accessors name names type-option conc-name-option

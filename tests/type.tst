@@ -536,3 +536,41 @@ foo
   (setf (foo-nil z) 321)
   (list y z))
 ((FOO 123 NIL NIL) (FOO 123 321 NIL))
+
+(defstruct (foo71 (:type list) (:initial-offset 5)))
+foo71
+(defstruct (foo72 (:type list) (:initial-offset 2) (:include foo71)))
+foo72
+(list (length (make-foo71)) (length (make-foo72)))
+(5 7)
+(typep (make-list 6) 'foo71)
+t
+(typep (make-list 6) 'foo72)
+nil
+(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons t null)))))) 'foo71))
+(t t)
+(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons t null)))))) 'foo72))
+(nil t)
+
+(defstruct (foo73 (:type list) (:initial-offset 5) (:named t)))
+foo73
+(defstruct (foo74 (:type list) (:initial-offset 2) (:named t) (:include foo73)))
+foo74
+(list (length (make-foo73)) (length (make-foo74)))
+(6 9)
+(typep (list nil nil nil nil nil 'foo73 nil) 'foo73)
+t
+(foo73-p (list nil nil nil nil nil 'foo73 nil))
+t
+(typep (list nil nil nil nil nil 'foo73 nil nil 'foo74) 'foo73)
+t
+(foo74-p (list nil nil nil nil nil 'foo73 nil nil 'foo74))
+t
+(typep (list* nil nil nil nil nil 'foo73 nil 'tail) 'foo74)
+nil
+(foo74-p (list* nil nil nil nil nil 'foo73 nil 'tail))
+nil
+(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo73))
+(t t)
+(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo74))
+(nil t)

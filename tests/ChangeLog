@@ -1,3 +1,7 @@
+2004-04-04  Bruno Haible  <bruno@clisp.org>
+
+	* type.tst: Test DEFSTRUCT :INITIAL-OFFSET option.
+
 2004-03-21  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Verify that SUBTYPEP works on not-yet-finalized classes.
