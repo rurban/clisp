@@ -50,7 +50,7 @@ English, German, French, Spanish and Dutch.
 &clisp; also supports internationalized Lisp programs, through
 &ggettext;.</para>
 
-<section><title>The &ggettext;</title>
+<section id="ggettext"><title>The &ggettext;</title>
 
 <para>&ggettext; is a set of functions, included in &clisp; or the
 &c-lang; library, which permit looking up translations of strings
@@ -128,7 +128,7 @@ location depends on the &category;: it will be expected at
 <filename>TEXTDOMAINDIR/ll/category/domain.mo</filename>.</para>
 </section>
 
-<section><title>Example</title>
+<section id="i18n-example"><title>Example</title>
 
 <para>A non-internationalized program simulating a restaurant dialogue
 might look as follows.</para>
@@ -250,7 +250,7 @@ she will get the output
 
 </section>
 
-<section><title>The Language</title>
+<section id="language"><title>The Language</title>
 
 <para>Warning: The facilities described in this section will work
 only for the languages for which &clisp; itself is already
@@ -308,7 +308,7 @@ localized.</para>
 
 <section id="encoding"><title>Extensions-1.4. Encodings</title>
 
-<section><title>Introduction</title>
+<section id="encodings-intro"><title>Introduction</title>
 
 <para>An <emphasis>encoding</emphasis> describes the correspondence
  between &character-class;s and raw bytes during input/output via
@@ -748,8 +748,8 @@ localized.</para>
     library function <emphasis role="strong">iconv()</emphasis>).</term>
 <listitem><simpara>The character sets provided by the library function
  iconv() can also be used as encodings.  To create such an encoding,
- call <function>make-encoding</function> with the character set name (a
- string) as <constant>:charset</constant> argument.</simpara>
+ call &make-encoding; with the character set name (a string) as
+ <constant>:charset</constant> argument.</simpara>
 
  <simpara>These encodings are not assigned to global variables, since
  there is no portable way to get the list of all character sets
@@ -852,12 +852,11 @@ localized.</para>
 
 </section>
 
-<section><title>ext:make-encoding</title>
+<section id="make-encoding"><title>EXT:MAKE-ENCODING</title>
 
 <para>The function
-  <literal role="sexp">(<function>ext:make-encoding</function>
-     &key-amp; :charset :line-terminator :input-error-action
-     :output-error-action)</literal>
+  <literal role="sexp">(&make-encoding; &key-amp; :charset
+     :line-terminator :input-error-action :output-error-action)</literal>
  returns an &encoding;. The <constant>:charset</constant> argument may be
  an encoding, a string, or &default-k;.  The possible
  values for the <constant>:line-terminator</constant> argument are the
@@ -4232,7 +4231,7 @@ bash$
 <!-- #endif -->
 </section>
 
-<section><title>Printing</title>
+<section id="hardcopy"><title>Printing</title>
 
 <para>The macro <emphasis
  role="strong"><function>ext:with-output-to-printer</function></emphasis>:
