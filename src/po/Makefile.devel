@@ -49,7 +49,7 @@ LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               disassem condition threads gstream xcharin keyboard \
               screen beossock runprog query reploop dribble complete \
               describe room edit macros3 clhs inspect gray \
-              threads foreign1 german french spanish dutch \
+              foreign1 german french spanish dutch russian \
               deprecated affi1
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))

@@ -1,5 +1,10 @@
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
+	* po/Makefile.devel (LISPSOURCES): removed `threads' (mentioned
+	twice), added `russian'
+
+2004-03-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c: include "clisp.h" before system
 	includes because on BSDs the system includes may define (inline)
 	functions and then we get an error "global register variable
