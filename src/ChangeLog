@@ -2,10 +2,11 @@
 
 	* modules/bindings/win32/win32.lisp (MAX_PATH): new constant
 	(GetModuleFileNameA, GetModuleHandleA): new functions
-	(RIGHTS, PROCESS): new enum types
-	(handle): new type
+	(RIGHTS, PROCESS, EWX, GR_OBJECTS): new enum types
+	(handle, dword): new type
 	(GetCurrentProcess, GetCurrentThread, GetCurrentProcessId)
-	(CloseHandle, OpenProcess): new functions
+	(CloseHandle, OpenProcess, ExitWindowsEx, GetGuiResources)
+	(GetConsoleTitleA, SetConsoleTitleA): new functions
 
 2003-10-14  Sam Steingold  <sds@gnu.org>
 
@@ -19,7 +20,7 @@
 	BufferedStream_have_eof_p to true when result is 0
 	(buffered_nextbyte): use BufferedStream_have_eof_p instead of
 	errno to determine whether the i/o is blocked
-	[this is better than what was before - at list it builds on both
+	[this is better than what was before - at least it builds on both
 	unix and win32 - but I am still not sure that it DTRT]
 
 2003-10-11  Sam Steingold  <sds@gnu.org>
