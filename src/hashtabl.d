@@ -103,7 +103,7 @@
 # > obj: an object
 # < result: hashcode, a 32-Bit-number
 local uint32 hashcode1 (object obj);
-#ifdef WIDE
+#if (defined(WIDE_HARD) || defined(WIDE_SOFT)) && defined(TYPECODES)
  #define hashcode1(obj)  ((uint32)untype(obj))
 #else
  #define hashcode1(obj)  ((uint32)as_oint(obj)) # address (Bits 23..0) and typeinfo

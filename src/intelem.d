@@ -1557,7 +1557,7 @@ nonreturning_function(local, BN_ueberlauf, (void)) {
 #endif
 # FN_MSD: insgesamt muss um (FN_maxlength-1)*intDsize+oint_data_shift Bits
 # nach rechts geshiftet werden.
-#if defined(WIDE)
+#if defined(WIDE) && defined(TYPECODES) && ((oint_data_len%intDsize)==0)
   #define FN_MSD(obj)  \
     ((uintD)( (sintD)(typecode(obj) << (intDsize-1-sign_bit_t)) >> (intDsize-1)))
 #elif (sign_bit_o == oint_data_len+oint_data_shift) || ((oint_data_len==(FN_maxlength-1)*intDsize) && (sign_bit_o >= intDsize-1))

@@ -156,7 +156,7 @@
   # Typinfo-Byte für FF <0, mit gesetztem Vorzeichen-Bit:
     #define FF_vz_type  (ffloat_type|bit(vorz_bit_t))
 #endif
-#ifdef WIDE
+#ifdef IMMEDIATE_FFLOAT
 # Baut ein Float aus Vorzeichen (0 oder -1), Exponent und Mantisse zusammen:
   #define make_FF(sign,exp,mant)  \
     type_data_object(FF_type | (bit(vorz_bit_t) & (sign)), \

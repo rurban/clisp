@@ -367,7 +367,7 @@
             case_sb16vector:
             case_sb32vector:
             case_bignum:
-            #ifndef WIDE
+            #ifndef IMMEDIATE_FFLOAT
             case_ffloat:
             #endif
             case_dfloat:

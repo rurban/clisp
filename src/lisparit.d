@@ -2135,7 +2135,7 @@ LISPFUNN(log10,1)
   global void init_arith (void);
   global void init_arith()
     { # verschiedene konstante Zahlen:
-      #ifndef WIDE
+      #ifndef IMMEDIATE_FFLOAT
       O(FF_zero) = allocate_ffloat(0); # 0.0F0
       # encode_FF(0,1,bit(FF_mant_len), O(FF_one)=); # 1.0F0
       # encode_FF(-1,1,bit(FF_mant_len), O(FF_minusone)=); # -1.0F0

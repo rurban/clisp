@@ -508,7 +508,7 @@ global object allocate_bignum (uintC len, sintB sign) {
 # < result: new single-float (LISP-object)
 # can trigger GC
 global object allocate_ffloat (ffloat value) {
- #ifndef WIDE
+ #if !defined(IMMEDIATE_FFLOAT)
   #ifdef TYPECODES
    #define SETTFL
   #else

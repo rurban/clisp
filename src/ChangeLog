@@ -1,3 +1,63 @@
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	New memory model WIDE_AUXI.
+	* lispbibl.d (WIDE): Define if WIDE_AUXI.
+	(value1_register, back_trace_register): Update.
+	(TYPECODES): Update.
+	(NO_ASYNC_INTERRUPTS): Update.
+	(object, oint, soint): Define differently if WIDE_AUXI.
+	(as_oint, as_object): Likewise.
+	(as_object_with_auxi): New macro.
+	(_attribute_aligned_object_): Update.
+	(objectplus, wbit, wbitm, wbit_test, type_untype_object): Update.
+	(IMMEDIATE_FFLOAT): New macro.
+	(gcinvariant_type_p): Depend on IMMEDIATE_FFLOAT. Make it work also if
+	tint_avoid is nonzero.
+	(ffloat_): Depend on IMMEDIATE_FFLOAT.
+	(Stream): Add more fillers if WIDE && !TYPECODES.
+	(make_machine): Update.
+	(TheFfloat): Depend on IMMEDIATE_FFLOAT.
+	(cgci_pointable, pgci_pointable, ngci_pointable): New macros.
+	(TheCons, TheRatio, TheComplex, TheSymbol, TheBignum, TheFfloat,
+	TheDfloat, TheLfloat, TheSarray, TheSbvector, TheS8string,
+	TheS16string, TheS32string, TheSstring, TheSvector, TheWeakKVT,
+	TheSiarray, TheIarray, TheRecord, TheSrecord, TheXrecord, ThePackage,
+	TheHashtable, TheReadtable, ThePathname, TheLogpathname,
+	The_Random_state, TheByte, TheFsubr, TheLoadtimeeval, TheSymbolmacro,
+	TheMacro, TheFunctionMacro, TheEncoding, TheFpointer, TheFaddress,
+	TheFvariable, TheFfunction, TheWeakpointer, TheFinalizer,
+	TheSocketServer, TheDirKey, TheYetanother, TheStream, TheStructure,
+	TheClass, TheClosure, TheIclosure, TheCclosure, TheInstance, TheSubr,
+	TheFramepointer, TheMachine, TheVarobject, ThePointer): Use them.
+	(eq): Update.
+	(bias_type_pointer_object): Update.
+	(subr_tab_ptr_as_object, S_help_): Update.
+	(topofframe): Add one more cast, to avoid warnings.
+	* spvw.d (symbol_tab_ptr_as_object): Update.
+	* spvw_allocate.d (pointable_usable_test): Update.
+	* spvw_circ.d (get_circ_mark, get_circ_unmark): Depend on
+	IMMEDIATE_FFLOAT.
+	* spvw_garcol.d (gc_mark, alive): Depend on IMMEDIATE_FFLOAT.
+	(pointer_as_object, pointer_was_object): Update.
+	* spvw_global.d (init_mem_heaptypes): Depend on IMMEDIATE_FFLOAT.
+	* spvw_mark.d (mark, unmark, marked): Update.
+	* spvw_memfile.d (loadmem_update): Depend on IMMEDIATE_FFLOAT.
+	* spvw_objsize.d (size_ffloat, objsize, objsize_ffloat,
+	init_objsize_table): Depend on IMMEDIATE_FFLOAT.
+	* spvw_typealloc.d (allocate_ffloat): Depend on IMMEDIATE_FFLOAT.
+	* constobj.d (hs_single_float, FF_zero, FF_one, FF_minusone): Depend
+	on IMMEDIATE_FFLOAT.
+	* aridecl.d (make_FF, FF_0, FF_1, FF_minus1): Depend on
+	IMMEDIATE_FFLOAT.
+	* ffloat.d (FF_to_float): Depend on IMMEDIATE_FFLOAT.
+	* hashtabl.d (hashcode1): Use untype() only if WIDE && TYPECODES.
+	* intelem.d (FN_MSD): Use typecode() only if WIDE && TYPECODES.
+	* lisparit.d (init_arith): Depend on IMMEDIATE_FFLOAT.
+	* predtype.d (eql): Depend on IMMEDIATE_FFLOAT.
+	(enum_hs_single_float, heap_statistics_mapper): Likewise.
+	* eval.d (closure_register): Don't undefine if WIDE_AUXI.
+	* genclisph.d (main): Update.
+
 2002-12-16  Sam Steingold  <sds@gnu.org>
 
 	* predtype.d (COERCE): accept CLOS class object as a type-spec
