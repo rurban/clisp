@@ -2209,7 +2209,7 @@ LISPFUN(make_string_input_stream,seclass_read,1,2,norest,nokey,0,NIL)
   # fetch String and check range:
   var stringarg arg;
   var object string = test_string_limits_ro(&arg);
-  var object start_arg = fixnum(arg.offset+arg.index); /* start-Argument (Fixnum >=0) */
+  var object start_arg = fixnum(arg.index); /* start-Argument (Fixnum >=0) */
   var object end_arg = fixnum_inc(start_arg,arg.len); # end-Argument (Fixnum >=0)
   pushSTACK(string); # save String
   var object stream = # new Stream, only READ-CHAR allowed
@@ -16491,8 +16491,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
             pushSTACK(TheStream(stream)->strm_str_in_begindex);
             pushSTACK(fixnum_inc(STACK_0,pos_off));
             test_string_limits_ro(&arg);
-            TheStream(stream)->strm_str_in_index =
-              fixnum(arg.offset+arg.index+arg.len);
+            TheStream(stream)->strm_str_in_index = fixnum(arg.index+arg.len);
             value1 = fixnum(arg.len); /* == pos */
             break;
           case POS_QUERY:       /* ask for position */

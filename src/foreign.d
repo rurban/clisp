@@ -2560,8 +2560,9 @@ LISPFUNN(call_with_foreign_string,6)
   /* Stack layout: ... string start end. - as needed for test_limits
      the following code inspired by with_string() and substring(): */
   var stringarg arg;
-  var object data_array = test_string_limits_ro(&arg);
-  /* Stack: ... thunk encoding. - string start and end were popped off */
+  test_string_limits_ro(&arg);
+  var object data_array = arg.string;
+  /* Stack: ... thunk encoding. - string, start and end were popped off */
   var const chart* srcptr;
   unpack_sstring_alloca(data_array,arg.len, arg.offset+arg.index, srcptr=);
   var object encoding = STACK_0;
