@@ -779,7 +779,7 @@ fi
 # Main compiler dependencies:
 
 if [ $XCC_GCC = true ] ; then
-  XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
+  XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | tail -n 1 | sed -e 's/.*version //g' -e 's/gcc //'`
   XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type '
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
