@@ -1026,7 +1026,7 @@ executes a compiled version of form.</para>
  <literal role="sexp">(&readtable-case; &readtable-var;)</literal>,
  though.</para>
 
-<section id="re-export"><title><function>ext:re-export</function></title>
+<section id="re-export"><title><function>EXT:RE-EXPORT</function></title>
 
 <para>The function <literal role="sexp"
  >(&re-export; <replaceable>FROM-PACK</replaceable>
@@ -5164,7 +5164,7 @@ compiles a file to platform-independent bytecode.</para>
 
 </section>
 
-<section><title>Macro &trace;</title>
+<section id="trace"><title>Macro &trace;</title>
 
 <para><literal role="sexp">(&trace; &func-r; ...)</literal> makes the
  functions &func-r;, ... traced.  &func-r; should be either a symbol or
@@ -5231,7 +5231,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>Function &inspect;</title>
+<section id="inspect"><title>Function &inspect;</title>
 
 <para>The function &inspect; takes a keyword argument
  <constant>:frontend</constant>, which specifies the way &clisp; will
@@ -5294,7 +5294,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>Function &ed;</title>
+<section id="ed"><title>Function &ed;</title>
 
 <para>The function &ed; calls the external editor specified by the
  variable <emphasis
@@ -5306,7 +5306,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>Clock Time</title>
+<section id="clock"><title>Clock Time</title>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <variablelist>
@@ -5339,7 +5339,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>Machine</title>
+<section id="machine"><title>Machine</title>
 <variablelist>
 <!-- #ifdef MACHINE_KNOWN -->
 <varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
@@ -5373,7 +5373,7 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>Function &lisp-implementation-version;</title>
+<section id="version"><title>Function &lisp-implementation-version;</title>
 
 <para>&lisp-implementation-version; returns
  the numeric version (like <literal>3.14</literal>), and
