@@ -957,15 +957,15 @@
 ;;                    CPL(a) does not contain CPL(b) !
 
 #||
-(defclass z () ())
-(defclass x (z) ())
-(defclass y (z) ())
-(defclass d (x z) ())
-(defclass e (x z) ())
-(defclass b (d y) ())
-(defclass c (y e) ())
-(defclass a (b c) ())
-(mapcar #'find-class '(z x y d e b c a))
+ (defclass z () ())
+ (defclass x (z) ())
+ (defclass y (z) ())
+ (defclass d (x z) ())
+ (defclass e (x z) ())
+ (defclass b (d y) ())
+ (defclass c (y e) ())
+ (defclass a (b c) ())
+ (mapcar #'find-class '(z x y d e b c a))
 ||#
 
 (defun std-compute-cpl (class direct-superclasses)
@@ -1787,7 +1787,7 @@
                         (list nil signature argorder methods))))
 
 #||
-(defun make-gf (name lambdabody signature argorder methods)
+ (defun make-gf (name lambdabody signature argorder methods)
   (let ((preliminary
          (eval `(LET ()
                   (DECLARE (COMPILE))
@@ -1805,7 +1805,7 @@
 
 #|| ;; Generic functions with primitive dispatch:
 
-(defun make-slow-gf (name signature argorder methods)
+ (defun make-slow-gf (name signature argorder methods)
   (let* ((final (%make-gf name signature argorder methods))
          (preliminary
            (eval `(LET ((GF ',final))
@@ -2839,10 +2839,9 @@
 
 
 #||  ;; For GENERIC-FLET, GENERIC-LABELS
-
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
-(defun make-generic-function-now (funname signature argorder &rest methods)
+ (defun make-generic-function-now (funname signature argorder &rest methods)
   (let ((gf (make-fast-gf funname signature argorder)))
     (dolist (method methods) (std-add-method gf method))
     (install-dispatch gf)
@@ -3217,7 +3216,7 @@
 (defgeneric shared-initialize (instance slot-names &rest initargs))
 (setq |#'shared-initialize| #'shared-initialize)
 #||
-(defmethod shared-initialize ((instance standard-object)
+ (defmethod shared-initialize ((instance standard-object)
                               slot-names &rest initargs)
   (dolist (slot (class-slots (class-of instance)))
     (let ((slotname (slotdef-name slot)))
@@ -3258,11 +3257,11 @@
 (defgeneric reinitialize-instance (instance &rest initargs))
 (setq |#'reinitialize-instance| #'reinitialize-instance)
 #||
-(defmethod reinitialize-instance ((instance standard-object) &rest initargs)
+ (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
   (apply #'shared-initialize instance 'NIL initargs))
 ||#
 #|| ; optimized:
-(defmethod reinitialize-instance ((instance standard-object) &rest initargs)
+ (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
   (let ((h (gethash (class-of instance) *reinitialize-instance-table*)))
     (if h
       (progn
@@ -3332,11 +3331,11 @@
                                  &key &allow-other-keys))
 (setq |#'initialize-instance| #'initialize-instance)
 #||
-(defmethod initialize-instance ((instance standard-object) &rest initargs)
+ (defmethod initialize-instance ((instance standard-object) &rest initargs)
   (apply #'shared-initialize instance 'T initargs))
 ||#
 #|| ; optimized:
-(defmethod initialize-instance ((instance standard-object) &rest initargs)
+ (defmethod initialize-instance ((instance standard-object) &rest initargs)
   (let ((h (gethash class *make-instance-table*)))
     (if h
       (if (not (eq (svref h 3) #'clos::%shared-initialize))
@@ -3391,7 +3390,7 @@
 (defgeneric allocate-instance (instance &rest initargs))
 (setq |#'allocate-instance| #'allocate-instance)
 #||
-(defgeneric allocate-instance (class)
+ (defgeneric allocate-instance (class)
   (:method ((class standard-class))
     (allocate-std-instance class (class-instance-size class)))
   (:method ((class structure-class))
@@ -3399,7 +3398,7 @@
                           :initial-element unbound)))
 ||#
 #||
-(defun %allocate-instance (class &rest initargs)
+ (defun %allocate-instance (class &rest initargs)
   (declare (ignore initargs))
   ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
   ;; (class-shared-slots class) is a simple-vector, (class-names class) a cons.
@@ -3431,7 +3430,7 @@
   (:method ((class symbol) &rest initargs)
     (apply #'make-instance (find-class class) initargs)))
 #||
-(defmethod make-instance ((class standard-class) &rest initargs)
+ (defmethod make-instance ((class standard-class) &rest initargs)
   ;; 28.1.9.3., 28.1.9.4. take note of default-initargs:
   (dolist (default-initarg (class-default-initargs class))
     (let ((nothing default-initarg))
