@@ -756,6 +756,34 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :MODE :UID :GID)
 }
 #endif  /* chmod chown */
 
+static uintL check_chmod_mode (object type) {
+ check_chmod_mode_restart:
+       if (eq(type,`:SUID`)) return S_ISUID;
+  else if (eq(type,`:SGID`)) return S_ISGID;
+  else if (eq(type,`:SVTX`)) return S_ISVTX;
+  else if (eq(type,`:RWXU`)) return S_IRWXU; /* owner: Read Write eXec */
+  else if (eq(type,`:RUSR`)) return S_IRUSR;
+  else if (eq(type,`:WUSR`)) return S_IWUSR;
+  else if (eq(type,`:XUSR`)) return S_IXUSR;
+  else if (eq(type,`:RWXG`)) return S_IRWXG; /* group: Read Write eXec */
+  else if (eq(type,`:RGRP`)) return S_IRGRP;
+  else if (eq(type,`:WGRP`)) return S_IWGRP;
+  else if (eq(type,`:XGRP`)) return S_IXGRP;
+  else if (eq(type,`:RWXO`)) return S_IRWXO; /* others: Read Write eXec */
+  else if (eq(type,`:ROTH`)) return S_IROTH;
+  else if (eq(type,`:WOTH`)) return S_IWOTH;
+  else if (eq(type,`:XOTH`)) return S_IXOTH;
+  else {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(type);            /* TYPE-ERROR slot DATUM */
+    pushSTACK(`(MEMBER :SUID :SGID :RWXU :RUSR :WUSR :XUSR :RWXG :RGRP :WGRP :XGRP :RWXO :ROTH :WOTH :XOTH :SVTX)`); /* EXPECTED-TYPE */
+    pushSTACK(STACK_0); pushSTACK(type);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
+    type = value1;
+    goto check_chmod_mode_restart;
+  }
+}
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
  convert_mode_restart:
@@ -790,42 +818,13 @@ DEFUN(POSIX::CONVERT-MODE, mode)
     VALUES1(listof(count));
   } else if (listp(STACK_0)) {
     mode_t mode = 0;
-    pushSTACK(STACK_0);
     while (consp(STACK_0)) {
-      object type = Car(STACK_0); STACK_0 = Cdr(STACK_0);
-           if (eq(type,`:SUID`)) mode |= S_ISUID;
-      else if (eq(type,`:SGID`)) mode |= S_ISGID;
-      else if (eq(type,`:SVTX`)) mode |= S_ISVTX;
-      else if (eq(type,`:RWXU`)) mode |= S_IRWXU; /* owner: Read Write eXec */
-      else if (eq(type,`:RUSR`)) mode |= S_IRUSR;
-      else if (eq(type,`:WUSR`)) mode |= S_IWUSR;
-      else if (eq(type,`:XUSR`)) mode |= S_IXUSR;
-      else if (eq(type,`:RWXG`)) mode |= S_IRWXG; /* group: Read Write eXec */
-      else if (eq(type,`:RGRP`)) mode |= S_IRGRP;
-      else if (eq(type,`:WGRP`)) mode |= S_IWGRP;
-      else if (eq(type,`:XGRP`)) mode |= S_IXGRP;
-      else if (eq(type,`:RWXO`)) mode |= S_IRWXO; /* others: Read Write eXec */
-      else if (eq(type,`:ROTH`)) mode |= S_IROTH;
-      else if (eq(type,`:WOTH`)) mode |= S_IWOTH;
-      else if (eq(type,`:XOTH`)) mode |= S_IXOTH;
-      else {
-        skipSTACK(1);
-        goto convert_mode_error;
-      }
+      mode |= check_chmod_mode(Car(STACK_0));
+      STACK_0 = Cdr(STACK_0);
     }
-    skipSTACK(2);               /* drop the tail and the argument */
+    skipSTACK(1);               /* drop the argument */
     VALUES1(fixnum(mode));
-  } else {
-   convert_mode_error:
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(STACK_1);         /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(MEMBER :SUID :SGID :RWXU :RUSR :WUSR :XUSR :RWXG :RGRP :WGRP :XGRP :RWXO :ROTH :WOTH :XOTH :SVTX)`); /* EXPECTED-TYPE */
-    pushSTACK(STACK_0); pushSTACK(STACK_2);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-    STACK_0 = value1;
-    goto convert_mode_restart;
-  }
+  } else VALUES1(fixnum(check_chmod_mode(popSTACK())));
 }
 
 #if defined(HAVE_UMASK)
@@ -1889,7 +1888,7 @@ DEFUN(POSIX::MEMORY-STATUS,)
 #define PRSPEC_LPWSTR	( 0 )
 #define PRSPEC_PROPID	( 1 )
 #define STG_E_PROPSETMISMATCHED   0x800300F0L
-#endif 
+#endif
 
 /* Pushes corresponding value to STACK */
 static int PropVariantToLisp (PROPVARIANT *pvar) {
@@ -1911,7 +1910,7 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
       pushSTACK(sfixnum(pvar->cVal));  break;
     case VT_UI1:
       pushSTACK(fixnum(pvar->bVal));  break;
-    case VT_I2: 
+    case VT_I2:
       pushSTACK(sfixnum(pvar->iVal));  break;
     case VT_UI2:
       pushSTACK(fixnum(pvar->uiVal));  break;
@@ -1933,7 +1932,7 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
     case VT_R4:
       pushSTACK(c_float_to_FF((ffloatjanus *)&pvar->fltVal));
       break;
-    case VT_R8: 
+    case VT_R8:
       pushSTACK(c_double_to_DF((dfloatjanus *)&pvar->dblVal));
       break;
     case VT_DATE:
@@ -1944,10 +1943,10 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
         *((DWORD *)(((const char *)pvar->bstrVal)-4)),
         Symbol_value(S(unicode_16_little_endian))));
       break;
-    case VT_LPSTR: 
+    case VT_LPSTR:
       pushSTACK(asciz_to_string(pvar->pszVal,GLO(misc_encoding)));
       break;
-    case VT_LPWSTR: 
+    case VT_LPWSTR:
       pushSTACK(n_char_to_string((const char *)pvar->pwszVal,
         wcslen(pvar->pwszVal)*2,
         Symbol_value(S(unicode_16_little_endian))));
@@ -1970,7 +1969,7 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
     case VT_CF:
       pushSTACK(`:CLIPBOARD-FORMAT`);
       break;
-    default: 
+    default:
       pushSTACK(`:NOTIMPL`);
       break;
   }
@@ -2044,7 +2043,7 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
         pvar->pwszVal = str;
         pvar->vt = typehint;
       } else {
-/* Win XP explorer seems to create ANSI strings. So do we. */
+        /* Win XP explorer seems to create ANSI strings. So do we. */
         uintL str_bytelen =
           cslen_f(GLO(misc_encoding),ptr1,str_len);
         char * str = (char *) SysAllocStringByteLen(NULL, str_bytelen+2);
@@ -2175,7 +2174,7 @@ static PROPID kwtopropid () {
   if (eq(STACK_0,`:CHARCOUNT`)) rv = PIDSI_CHARCOUNT; else
   if (eq(STACK_0,`:THUMBNAIL`)) rv = PIDSI_THUMBNAIL; else
   if (eq(STACK_0,`:APPNAME`)) rv = PIDSI_APPNAME; else
-  if (eq(STACK_0,`:DOC-SECURITY`)) rv = PIDSI_DOC_SECURITY; 
+  if (eq(STACK_0,`:DOC-SECURITY`)) rv = PIDSI_DOC_SECURITY;
   skipSTACK(1);
   return rv;
 }
@@ -2308,7 +2307,7 @@ static const char * DecodeHRESULT (HRESULT hres) {
 /* there's no PropVariantInit in my cygwin headers */
 #define MyPropVariantInit(ppv) ZeroMemory(ppv,sizeof(PROPVARIANT))
 
-/* (POSIX::FILE-PROPERTIES filename set [specifier value|:INITID init-id]*)
+/* (OS::FILE-PROPERTIES filename set [specifier value|:INITID init-id]*)
      Wrapper for Win32 IPropertyStorage functionality
      filename - a compound file name or (on NTFS) name of any file
      set      - :BUILT-IN or :USER-DEFINED property set
@@ -2323,21 +2322,18 @@ static const char * DecodeHRESULT (HRESULT hres) {
        String: string property specifier. If no match is found, first
          ID >= init-id (which defaults to 2) is associated with the
          string and it's value is replaced with new value.
-       (int|keyword string) - first element is used as specifier, 
+       (int|keyword string) - first element is used as specifier,
          string is associated with this ID.
      value - new value of the property, suitable lisp object, nil or list of
-       keyword and value itself. If value is NIL, no assignment is done. 
+       keyword and value itself. If value is NIL, no assignment is done.
        :EMPTY and :NULL correspond VT_EMPTY and VT_NULL datatypes.
        Keyword in the list specifies the desired type of property being set.
        Supported types are :I1, :UI1, :I2, :UI2, :I4, :UI4, :UINT, :I8,
-         :UI8, :R4, :R8, :DATE, :BSTR, :BOOL, :ERROR, :FILETIME, 
+         :UI8, :R4, :R8, :DATE, :BSTR, :BOOL, :ERROR, :FILETIME,
          :LPSTR, :LPWSTR. FILETIMEs are converted to/from universal time format,
          while DATEs are not.
 
-     returns multiple values - property contents before assignment.
- */
-
-
+     returns multiple values - property contents before assignment. */
 DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
 {
   /* TODO: close interfaces even on errors;
@@ -2537,5 +2533,4 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   ppropstg->lpVtbl->Release(ppropstg);
   ppropsetstg->lpVtbl->Release(ppropsetstg);
 }
-
-#endif
+#endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
