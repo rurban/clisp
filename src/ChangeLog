@@ -1,3 +1,7 @@
+2005-03-21  Sam Steingold  <sds@gnu.org>
+
+	* calls.c (POSIX::DUPLICATE-HANDLE): fixed STACK handling
+
 2005-03-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX:FILE-INFO):
