@@ -1,5 +1,10 @@
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
+	* package.d (%SET-PACKAGE-LOCK): do not barf
+	when the package list is empty
+
+2002-03-02  Sam Steingold  <sds@gnu.org>
+
 	* linux.lisp (WEXITSTATUS, WTERMSIG, WSTOPSIG, WIFEXITED)
 	(WIFSIGNALED, WIFSTOPPED, WCOREFLAG, WCOREDUMP, W_EXITCODE)
 	(W_STOPCODE): added #define's from <bits/waitstatus.h>

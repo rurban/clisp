@@ -2078,6 +2078,7 @@ LISPFUNN(set_package_lock,2) {
       if (eq(lock_p,NIL)) mark_pack_unlocked(pa);
       else                mark_pack_locked(pa);
     }
+  } else if (nullp(pack)) { # do nothing - package list was empty
   } else {
     pack = test_package_arg(pack);
     if (eq(lock_p,NIL)) mark_pack_unlocked(pack);
