@@ -354,10 +354,8 @@
 # wird verwendet von SPVW
 
 # Anpassung an lokale Präferenzen:
-  #ifdef HAVE_LOCALE_H
-    #include <locale.h>
-    extern_C char* setlocale (int category, SETLOCALE_CONST char* locale);
-  #endif
+  #include <locale.h>
+  extern_C char* setlocale (int category, SETLOCALE_CONST char* locale);
 # wird verwendet von SPVW
 
 # Home-Directory eines Benutzers holen:

@@ -16,9 +16,7 @@ CL_PROTO_CONST([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_LOCALE_H
 #include <locale.h>
-#endif
 ], [char* setlocale (int category, char* locale);], [char* setlocale();],
 cl_cv_proto_setlocale_arg1)
 ], [extern char* setlocale (int, $cl_cv_proto_setlocale_arg1 char*);])
