@@ -374,3 +374,57 @@ t
 s
 "axyfg"
 
+;; property lists
+(setf pl (list 'a 10 'b 11 'c 12 'd 13 'a 14 'b 15 'c 16 'd 17))
+(a 10 b 11 c 12 d 13 a 14 b 15 c 16 d 17)
+
+(getf pl 'a)
+10
+
+(getf pl 'z 1)
+1
+
+(getf pl 'u)
+nil
+
+(setf (getf pl 'z) 125)
+125
+
+(remf pl 'z)
+t
+
+(remf pl 'z)
+nil
+
+(remf pl 'c)
+t
+
+(getf pl 'c)
+16
+
+(remf pl 'c)
+t
+
+(remf pl 'c)
+nil
+
+(getf pl 'd)
+13
+
+(setf (getf pl 'd) 100)
+100
+
+(getf pl 'd)
+100
+
+(remf pl 'd)
+t
+
+(remf pl 'd)
+t
+
+(getf pl 'b)
+11
+
+pl
+(a 10 b 11 a 14 b 15)
