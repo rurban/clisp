@@ -21,6 +21,14 @@ if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -luuid';
 fi
 AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/types.h)
+AC_MSG_CHECKING([whether f_fsid is scalar])
+AC_TRY_COMPILE([#include <sys/statvfs.h>], [struct statvfs x; x.f_fsid = 0;],
+  ac_cv_struct_fsid_scalar=yes, ac_cv_struct_fsid_scalar=no)
+AC_MSG_RESULT([$]ac_cv_struct_fsid_scalar)
+if test "$ac_cv_struct_fsid_scalar" = yes; then
+  AC_DEFINE([HAVE_SCALAR_FSID], 1,
+    [Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.])
+fi
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
 AC_CHECK_FUNCS(clock confstr fcntl gethostent getrusage getrlimit sysconf uname)
