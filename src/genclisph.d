@@ -767,8 +767,10 @@ int main(int argc, char* argv[])
   printf("#define Record_type(obj)  record_type(TheRecord(obj))\n");
 #ifdef TYPECODES
   printf("#define record_flags(ptr)  ((ptr)->recflags)\n");
+  printf("#define record_flags_set(ptr,bits)  ((ptr)->recflags |= (bits))\n");
 #else
   printf("#define record_flags(ptr)  (((ptr)->tfl >> 8) & 0xFF)\n");
+  printf("#define record_flags_set(ptr,bits)  ((ptr)->tfl |= ((uintL)(bits) << 8))\n");
 #endif
   printf("#define Record_flags(obj)  record_flags(TheRecord(obj))\n");
 #ifdef TYPECODES
