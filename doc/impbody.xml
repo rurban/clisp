@@ -1151,13 +1151,14 @@ and allow enforcing modularity.
  This is why &features-var; does not contain the
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
-<para id="lfd">Long floats have variable mantissa length, which is a
+<formalpara id="lfd"><title>Arbitrary Precision Floats</title>
+<para>Long floats have variable mantissa length, which is a
  multiple of 16 (or 32, depending on the word size of the processor).
  The default length used when long floats are read is given by the place
  &lfd-l;.  It can be set by <literal role="sexp">(&setf; (&lfd;)
  &n-r;)</literal>, where &n-r; is a positive integer.  E.g., <literal
  role="sexp">(&setf; (&lfd;) 3322)</literal> sets the default precision
- of long floats to 1000 decimal digits.</para>
+ of long floats to about 1000 decimal digits.</para></formalpara>
 
 
 <section id="flocont"><title>Rule of Float Precision Contagion
@@ -2474,11 +2475,8 @@ printed readably.</para>
 
 </variablelist>
 
-<para>This is especially important for the functions <link
- linkend="dir"><function>directory</function>,
- <function>ext:dir</function>, <function>ext:cd</function>,
- <function>ext:make-dir</function>,
- <function>ext:delete-dir</function></link>.</para>
+<para>This is especially important for the
+ <link linkend="dir">directory-handling functions</link>.</para>
 
 <table id="min-filename-syntax-table" frame="all">
   <title>The minimum filename syntax that may be used portably</title>
@@ -2696,8 +2694,8 @@ printed readably.</para>
  <row><entry>or similar.</entry><entry/></row>
 </tbody></tgroup></table>
 
-<para>Instead of &file-bsla; one may use &file-slash;, as usual for DOS
- calls.</para></listitem></varlistentry></variablelist>
+<para>Instead of &file-bsla; one may use &file-slash;, as usual for
+ &dos; calls.</para></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_WIN32) -->
@@ -2706,7 +2704,7 @@ printed readably.</para>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>
  <listitem><simpara>&nil; or &simple-string-t;, wildcard characters may
-   occur but don't act as wildcards</simpara></listitem></varlistentry>
+   occur but do not act as wildcards</simpara></listitem></varlistentry>
 <varlistentry><term>&device-r;</term>
  <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
  </simpara></listitem></varlistentry>
@@ -2759,7 +2757,8 @@ printed readably.</para>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_NOEXT -->
-<variablelist id="name-type-split"><title>Name/type namestring split.</title>
+<formalpara id="name-type-split"><title>Name/type namestring split.</title>
+<para><variablelist>
 <varlistentry><term>Platform dependent:  &unix;, &amiga;, &os2;, &win32;
    platforms only.</term>
 <listitem><para>A filename is split into name and type according to the
@@ -2787,7 +2786,7 @@ printed readably.</para>
  dot and whose type is &nil;, &make-pathname; must be used.  Example:
  <literal role="sexp">(&make-pathname; &name-k; "foo.bar")</literal>.
  </simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></para></formalpara>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_RISCOS -->
@@ -3542,10 +3541,15 @@ is not a defined logical host yet, we proceed as follows:
  &key-amp; :full :circle)</literal> can run in two modes:
 <itemizedlist>
  <listitem><simpara>If &path-r; contains no name or type component, a
-  list of all matching directories is produced.</simpara></listitem>
- <listitem><simpara>Otherwise a list of all matching files is
-  returned. If the <constant>:full</constant> argument is non-&nil;,
-  this contains additional information: for each matching file you get a
+  list of all matching directories is produced.
+  E.g., <literal role="sexp">(&directory; "/etc/*/")</literal> lists
+  all subdirectories in the directory
+  <filename>#P"/etc/"</filename>.</simpara></listitem>
+ <listitem><simpara>Otherwise a list of all matching files is returned.
+  E.g., <literal role="sexp">(&directory; "/etc/*")</literal> lists all
+  regular files in the directory <filename>#P"/etc/"</filename>.
+  If the <constant>:full</constant> argument is non-&nil;,
+  additional information is returned: for each matching file you get a
   list of at least four elements <literal
   role="sexp">(<replaceable>file-pathname</replaceable>
   <replaceable>file-truename</replaceable>
@@ -3562,13 +3566,17 @@ is not a defined logical host yet, we proceed as follows:
 </variablelist>
 <!-- #endif --></para>
 
-<formalpara><title><function>ext:dir</function></title>
-<para><literal role="sexp">(<function>ext:dir</function> &optional-amp;
+<formalpara><title><function>EXT:DIR</function></title>
+<para><literal role="sexp">(<function>EXT:DIR</function> &optional-amp;
  &path-r;)</literal> is like &directory;, but displays the pathnames
- instead of returning them. <literal role="sexp">(ext:dir)</literal>
+ instead of returning them. <literal role="sexp">(EXT:DIR)</literal>
  shows the contents of the current directory.</para></formalpara>
 
-<variablelist id="cd"><title>&cd;</title>
+<formalpara id="cd"><title>&cd;</title>
+
+<para><literal role="sexp">(&cd; &path-r;)</literal> sets it,
+ <literal role="sexp">(&cd;)</literal> returns it.
+<variablelist>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
 <varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
@@ -3585,27 +3593,23 @@ is not a defined logical host yet, we proceed as follows:
    manages the current device and the current directory.
    </simpara></listitem></varlistentry>
 <!-- #endif -->
-</variablelist>
+</variablelist></para></formalpara>
 
-<formalpara><title>&cd;</title>
-<para><literal role="sexp">(&cd; &path-r;)</literal> sets it, <literal
- role="sexp">(&cd;)</literal> returns it.</para></formalpara>
-
-<formalpara><title><function>ext:default-directory</function></title>
+<formalpara><title><function>EXT:DEFAULT-DIRECTORY</function></title>
 <para><literal
- role="sexp">(<function>ext:default-directory</function>)</literal> is
+ role="sexp">(<function>EXT:DEFAULT-DIRECTORY</function>)</literal> is
  equivalent to <literal role="sexp">(&cd;)</literal>.  <literal
- role="sexp">(&setf; (<function>ext:default-directory</function>)
+ role="sexp">(&setf; (<function>EXT:DEFAULT-DIRECTORY</function>)
  &path-r;)</literal> is equivalent to <literal role="sexp">(&cd;
  &path-r;)</literal>, except for the return value.</para></formalpara>
 
-<formalpara><title><function>ext:make-dir</function></title>
-<para><literal role="sexp">(<function>ext:make-dir</function>
+<formalpara><title><function>EXT:MAKE-DIR</function></title>
+<para><literal role="sexp">(<function>EXT:MAKE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</literal> creates a new
  subdirectory.</para></formalpara>
 
-<formalpara><title><function>ext:delete-dir</function></title>
-<para><literal role="sexp">(<function>ext:delete-dir</function>
+<formalpara><title><function>EXT:DELETE-DIR</function></title>
+<para><literal role="sexp">(<function>EXT:DELETE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</literal> removes an
  (empty) subdirectory.</para></formalpara>
 
@@ -3808,7 +3812,7 @@ value of &terminal-io-var;).</para>
  reads a multi-byte &integer-t; from &stream-r;.
  &stream-r; should be a stream with &stream-element-type;
  &unsigned-byte-8;.
- &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
+ &eltype-r; should be &type-eq; to &unsigned-byte-n;, where
  &n-r; is a multiple of 8.</para>
 
 <para><literal role="sexp">(&rd-integer; &stream-r;
@@ -3817,11 +3821,6 @@ value of &terminal-io-var;).</para>
  &eltype-r;, except that &stream-r;'s &file-position; will increase by
  <superscript>&n-r;</superscript>/<subscript>8</subscript>
  instead of 1.</para>
-
-<para id="endianness">&endianness; can be <constant>:little</constant>
- or <constant>:big</constant>.  The default is
- <constant>:little</constant>, which corresponds to the &read-byte;
- behavior in &clisp;.</para>
 
 <para>Together with <literal role="sexp">(&setf;
  &stream-element-type;)</literal>, this function permits mixed
@@ -3832,8 +3831,14 @@ value of &terminal-io-var;).</para>
  reads a floating-point number in IEEE binary representation from &stream-r;.
  &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
- &eltype-r; should be a type equivalent to
+ &eltype-r; should be &type-eq; to
  &single-float-t; or &double-float-t;.</para>
+
+<formalpara id="endianness"><title>Endianness</title>
+<para>&endianness; can be <constant>:LITTLE</constant>
+ or <constant>:BIG</constant>.  The default is
+ <constant>:LITTLE</constant>, which corresponds to the &read-byte;
+ behavior in &clisp;.</para></formalpara>
 
 </section>
 
@@ -3845,7 +3850,7 @@ value of &terminal-io-var;).</para>
  writes a multi-byte integer to &stream-r;.
  &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
- &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
+ &eltype-r; should be &type-eq; to &unsigned-byte-n;, where
  &n-r; is a multiple of 8.</para>
 
 <para><literal role="sexp">(&wr-integer; &int-r; &stream-r;
@@ -3865,7 +3870,7 @@ value of &terminal-io-var;).</para>
  writes a floating-point number in IEEE binary representation to &stream-r;.
  &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
- &eltype-r; should be a type equivalent to
+ &eltype-r; should be &type-eq; to
  &single-float-t; or &double-float-t;.</para>
 
 </section>
