@@ -15,6 +15,9 @@ sed -e '# ----------- Remove #APP/#NO_APP lines, add a blank line at the end' \
 | \
 (cat - ; echo) \
 | \
+sed -e '# ----------- Global symbols depends on ASM_UNDERSCORE' \
+    -e 's/_\([A-Za-z0-9_:]*\)/C(\1)/' \
+| \
 sed -e '# ----------- Introduce macro syntax for operands' \
     -e 's/\([-+0-9A-Z_]\+\)[(]%\(e..\)[)]/MEM_DISP(\2,\1)/g' \
     -e 's/[(]%\(e..\)[)]/MEM(\1)/g' \
@@ -25,7 +28,7 @@ sed -e '# ----------- Introduce macro syntax for operands' \
 | \
 sed -e '# ----------- Introduce macro syntax for instructions' \
     -e 's/\(push\|pop\|mul\|div\|not\|neg\|inc\|dec\|fld\|fstp\)\(.\)\( \+\)\(.*\)$/INSN1(\1,\2	,\4)/' \
-    -e 's/\(call\|jmp\|jc\|jnc\|je\|jne\|jz\|jnz\|ja\|jae\|jb\|jl\|jge\)\( \+\)\(.*\)$/INSN1(\1,_	,\3)/' \
+    -e 's/\(call\|jmp\|jc\|jnc\|je\|jne\|jz\|jnz\|ja\|jae\|jb\|jbe\|jl\|jge\|js\|jns\)\( \+\)\(.*\)$/INSN1(\1,_	,\3)/' \
     -e 's/\(movs\|movz\)\(.\)l\( \+\)\(.*\)$/INSN2MOVX(\1,\2	,\4)/' \
     -e 's/\(mov\|add\|sub\|adc\|sbb\|xor\|test\|cmp\|rcl\|rcr\|and\|or\|sar\|shr\|shl\|lea\)\(.\)\( \+\)\(.*\)$/INSN2(\1,\2	,\4)/' \
     -e 's/\(shld\|shrd\)\(.\)\( \+\)shcl\( \+\)\(.*\)$/INSN2SHCL(\1,\2	,\5)/' \
@@ -77,6 +80,9 @@ sed -e '# ----------- Introduce macro syntax for assembler pseudo-ops' \
     -e 'n' \
     -e '/^$/s/^$/FUNEND()\' \
     -e '/' \
-    -e '}'
-
+    -e '}' \
+| \
+sed -e '# ----------- Declare global symbols as functions (we have no variables)' \
+    -e 's/GLOBL(C(\([A-Za-z0-9_]*\)))$/GLOBL(C(\1))\' \
+    -e '	DECLARE_FUNCTION(\1)/'
 
