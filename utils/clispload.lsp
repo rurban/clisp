@@ -110,10 +110,6 @@
   ;; subclasses.
   USER-CLASS-DISJOINTNESS-2 TAC-3.16
 
-  ;; Paul Dietz assumes that PROBE-FILE on a directory is allowed.
-  ;; In CLISP, it always gives an error.
-  ENSURE-DIRECTORIES-EXIST.8
-
   ;; Paul Dietz assumes that gensyms, when printed with *PRINT-READABLY* = T,
   ;; look like #:ABC.
   ;; In CLISP, they look like #:|ABC|.
