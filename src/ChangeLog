@@ -1,6 +1,8 @@
 2003-08-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/wildcard/wildcard.lisp: #include <fnmatch.h>
+	* modules/regexp/regexp.lisp (*output-c-functions*)
+	(*output-c-variables*): set to T
 
 2003-08-02  Sam Steingold  <sds@gnu.org>
 
