@@ -1979,7 +1979,8 @@ LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
 /* UP: expand all DEFTYPE definitions in the type spec
  (recursively, unless once_p is true)
  > type_spec: Lisp object
- < result: the expansion (when not a deftyped type, returns the argument) */
+ < result: the expansion (when not a deftyped type, returns the argument)
+ can trigger GC */
 global object expand_deftype (object type_spec, bool once_p) {
   var uintL max_depth = posfixnump(Symbol_value(S(deftype_depth_limit))) ?
     posfixnum_to_L(Symbol_value(S(deftype_depth_limit))) :
