@@ -181,6 +181,12 @@ User visible changes
   recompile the obsolete *.fas file.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
+* The :LIBRARY option argument to DEF-CALL-OUT and DEF-C-VAR is now
+  evaluated (i.e., it can now be a variable) and may take a value of
+  :DEFAULT and :NEXT in addition to being a string as before.
+  See <http://clisp.cons.org/impnotes.html#def-c-var> and
+  <http://clisp.cons.org/impnotes.html#def-call-out> for details.
+
 * Bug fixes:
   + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
     forms.
