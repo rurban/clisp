@@ -4,6 +4,15 @@
 
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
+	Compilation on Alpha/Linux
+	* dfloat.d: SAVE_NUM_STACK/RESTORE_NUM_STACK want {} around them
+	* lispbible.d (weakkvt_type): removed extra '|'
+	* spvw_typealloc.d: one cannot use `obj' in allocate() portably
+	(allocate_weakkvt_low): renamed from allocate_weakkvt()
+	(allocate_weakkvt): call allocate_weakkvt_low()
+
+2002-03-03  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (data, clean1, ${TESTDIR}): use the appropriate slashes
 	(RM) [win32]: set to 'del /q' (~ rm -f)
 	* Makefile.devel (htmldoc): make split docs
