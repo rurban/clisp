@@ -7,10 +7,12 @@
   (:nicknames "BERKELEY-DB" "BERKDB")
   (:export "DB-VERSION"
            "ENV-CREATE" "ENV-CLOSE" "ENV-DBREMOVE" "ENV-DBRENAME" "ENV-OPEN"
-           "ENV-REMOVE" "ENV-SET-OPTIONS"
+           "ENV-REMOVE" "ENV-SET-OPTIONS" "ENV-GET-OPTIONS"
            "DB-CREATE" "DB-CLOSE" "DB-DEL" "DB-FD" "DB-GET" "DB-STAT"
            "DB-OPEN" "DB-SYNC" "DB-TRUNCATE" "DB-UPGRADE" "DB-REMOVE"
            "DB-RENAME" "DB-PUT"
+           "MAKE-CURSOR" "CURSOR-CLOSE" "CURSOR-COUNT" "CURSOR-DEL"
+           "CURSOR-DUP" "CURSOR-GET" "CURSOR-PUT"
            "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD"
            "WITH-OPEN-DB"))
 
@@ -24,6 +26,8 @@
 (defstruct (env (:constructor mkenv (handle)))
   (handle nil :read-only t))
 (defstruct (db (:constructor mkdb (handle)))
+  (handle nil :read-only t))
+(defstruct (cursor (:constructor mkcursor (handle)))
   (handle nil :read-only t))
 (defstruct (txn (:constructor mktxn (handle)))
   (handle nil :read-only t))

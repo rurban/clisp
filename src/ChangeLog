@@ -1,5 +1,13 @@
 2004-06-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (BDB:MAKE-CURSOR, BDB:CURSOR-CLOSE)
+	(BDB:CURSOR-COUNT, BDB:CURSOR-DEL, BDB:CURSOR-DUP)
+	(BDB:CURSOR-GET, BDB:CURSOR-PUT): implemented
+	the "Database Cursor" subsystem
+	* modules/berkeley-db/dbi.lisp: export the above
+
+2004-06-21  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (BDB:ENV-GET-OPTIONS): new Lisp DEFUN
 	(env_verbose, env_tmp_dir, env_data_dirs): new functions
 	(BDB:DB-CREATE): permit NIL environment, call MKDB correctly
