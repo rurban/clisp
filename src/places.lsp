@@ -207,8 +207,8 @@
                          )
                          se
             ))   )
-        `(LET* ,bindlist
-           (MULTIPLE-VALUE-BIND ,sv ,item
+        `(MULTIPLE-VALUE-BIND ,sv ,item
+           (LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,tempvars ,ge
                ,ns
          ) ) )
@@ -480,8 +480,8 @@
                          )
                          se
             ))   )
-        `(LET* ,bindlist
-           (MULTIPLE-VALUE-BIND ,sv ,item
+        `(MULTIPLE-VALUE-BIND ,sv ,item
+           (LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,tempvars ,ge
                ,ns
          ) ) )
