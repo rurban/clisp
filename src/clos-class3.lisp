@@ -1153,7 +1153,7 @@
                              (let ((inh-descriptor
                                      (gethash name (class-slot-location-table origin))))
                                (if (effective-slot-definition-p inh-descriptor)
-                                 (slot-definition-location inh-descriptor 0)
+                                 (slot-definition-location inh-descriptor)
                                  inh-descriptor)))))
                         (t ;; Don't signal an error for user-defined allocation
                            ;; types. They can be handled by user-defined around
@@ -1231,7 +1231,7 @@
                            (gethash (slot-definition-name slot) old-slot-location-table))
                          (old-slot-location
                            (if (effective-slot-definition-p old-slot-descriptor)
-                             (slot-definition-location old-slot-descriptor 0)
+                             (slot-definition-location old-slot-descriptor)
                              old-slot-descriptor)))
                     (if (and (consp old-slot-location)
                              (eq (cv-newest-class (car old-slot-location)) class))
