@@ -4474,8 +4474,8 @@ LISPFUNN(closure_reader,3) # liest #Y
         dynamic_unbind();
         dynamic_unbind();
         expr = make_references(expr); # Verweise entflechten
-        pushSTACK(*stream_); pushSTACK(expr);
-        funcall(L(set_stream_external_format),2); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr)
+        pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
+        funcall(L(set_stream_external_format),3); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input)
         value1 = NIL; mv_count=0; skipSTACK(3); return; # keine Werte
       }}
     # bei *READ-SUPPRESS* /= NIL nur ein Objekt lesen:
