@@ -157,9 +157,9 @@
 (defvar *modules* nil)
 
 (defun module-name (name)
-  (etypecase name
-    (symbol (string-downcase (symbol-name name)))
-    (string name)))
+  (if (symbolp name)
+      (string-downcase (symbol-name name))
+      (string name)))
 
 (defun provide (name)
   (setq *modules* (adjoin (module-name name) *modules* :test #'string=)))
