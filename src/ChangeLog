@@ -1,5 +1,10 @@
 2001-09-22  Sam Steingold  <sds@gnu.org>
 
+	* error.d (end_error): use exit() instead of NOTREACHED to avoid
+	an infinite loop reporting fatal errors
+
+2001-09-22  Sam Steingold  <sds@gnu.org>
+
 	new built-ins: SYS::WHITESPACEP & SYS::WRITE-SPACES
 	* constsym.d, subr.d (whitespacep, write_spaces): added
 	* io.d (write_spaces, whitespacep): implemented
