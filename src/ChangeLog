@@ -1,5 +1,10 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (make_file_stream): Fix the STACK offsets used to fill in
+          truename and pathname of unbuffered streams.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (SYS::MAKE-SOCKET-STREAM, init_streamvars): Pass a proper
           encoding to make_unbuffered_stream, not the symbol :UNIX.
 
