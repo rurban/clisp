@@ -5,7 +5,7 @@
 (in-package "LISP")
 (export
  '(dir-key-single-value with-dir-key-open dir-key-copy
-   with-dir-key-search dir-key-dump-tree
+   with-dir-key-search dir-key-children dir-key-values dir-key-dump-tree
    dir-key-info))
 
 ;;; utilities
@@ -31,6 +31,9 @@
   (unless (symbolp key-iter)
     (error (ENGLISH "~S: macro name should be a symbol, not ~S")
            'with-dir-key-search key-iter))
+  (unless (symbolp att-iter)
+    (error (ENGLISH "~S: macro name should be a symbol, not ~S")
+           'with-dir-key-search att-iter))
   (let ((k-it (gensym "WDKS-")))
     `(let ((,k-it (sys::dkey-search-iterator ,dkey ,path ,scope)))
       (macrolet ((,key-iter () '(sys::dkey-search-next-key ,k-it)) .
@@ -61,7 +64,7 @@ If collect is non-nil, collect all the keys into an a-list."
   (with-dir-key-search (k-iter v-iter dkey path :scope :tree)
     (do ((kk (k-iter) (k-iter)) keys (vals nil nil))
         ((null kk) (nreverse keys))
-      (when out (format out "~%[~s]~2%" kk))
+      (when out (format out "~%[~s ~s]~2%" (dir-key-path dkey) kk))
       (loop (multiple-value-bind (att val) (v-iter)
               (unless att (return))
               (when collect (push (cons att val) vals))

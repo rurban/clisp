@@ -1,3 +1,22 @@
+2000-12-13  Sam Steingold  <sds@gnu.org>
+
+	Remote registry access:
+	* dirkey.d (test_dir_key): Return obj.
+	(roots): Check whether the constants are defined.
+	(parse_registry_path): new function to extract the host name and
+	the top-level handle-key.
+	(dir_key_open): Use it.
+	(open_reg_key): Use the IDNE_* constants.
+	(dir_key_subkeys): Return the list of the local top-level keys
+	when the argument is :win32.
+	(itst_current): Ignore zero-length names.
+	(scope_error): New nonreturning_function.
+	(dkey_search_iterator): Use it.
+	(state_next_key): Pop the iteration stack when closing the hangle.
+	(dkey_search_next_key): Rely on this change; use `scope_error'.
+	* dirkey.lisp: Export `dir-key-values' and `dir-key-children'
+	(with-dir-key-search): Make sure `att-iter' is a symbol.
+
 2000-12-12  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (init_symbol_values): Set *PRINT-RPARS* to NIL and
