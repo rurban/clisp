@@ -1,3 +1,17 @@
+2003-06-19  Sam Steingold  <sds@gnu.org>
+
+	added (SETF WEAK-POINTER-VALUE)
+	* spvw_garcol.d (gar_col_normal): when the value of the weak
+	pointer is GC-invariant, remove it from O(all_weakpointers)
+	* lispbibl.d (weakpointer_broken_p): depend on wp_value (not wp_cdr)
+	* record.d (mk_weakpointer): wp_cdr for GC-invariant values is unbound
+	(MAKE-WEAK-POINTER, WEAK-POINTER-P, WEAK-POINTER-VALUE): fixed seclass
+	(check_weak_pointer): new function
+	(WEAK-POINTER-VALUE): use it
+	(%SET-WEAK-POINTER-VALUE): implemented
+	* constsym.d, subr.d (set_weak_pointer_value): added
+	* places.lisp (WEAK-POINTER-VALUE): added defsetf
+
 2003-06-15  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main) [WIN32_NATIVE]: permit `-K'

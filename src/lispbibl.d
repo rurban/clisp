@@ -4967,11 +4967,13 @@ typedef struct {
   gcv_object_t wp_cdr;   # active weak-pointers form a chained list
   gcv_object_t wp_value; # the referenced object
 } * Weakpointer;
-# Both wp_cdr and wp_value are invisible to gc_mark routines.
-# When the weak-pointer becomes inactive, both fields are turned to unbound.
+/* Both wp_cdr and wp_value are invisible to gc_mark routines.
+ When the weak-pointer becomes inactive, both fields are turned to unbound.
+ When wp_value is GC-invariant, WP does not have to be on the
+ O(all_weakpointers) list!  WP is on the list <==> ( wp_cdr != unbound ) */
 #define weakpointer_length  0
 #define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(gcv_object_t))
-#define weakpointer_broken_p(wp) (!boundp(TheWeakpointer(wp)->wp_cdr))
+#define weakpointer_broken_p(wp) (!boundp(TheWeakpointer(wp)->wp_value))
 
 # weak key-value table for weak hashtables
 typedef struct {
