@@ -77,10 +77,11 @@
     (std-method-signature method)))
 
 ;; MOP p. 82
-(fmakunbound 'method-specializers)
-(defgeneric method-specializers (method)
-  (:method ((method standard-method))
-    (std-method-specializers method)))
+(let ((*allow-making-generic* t))
+  (defgeneric method-specializers (method)
+    (:method ((method standard-method))
+      (std-method-specializers method))))
+(setq |#'method-specializers| #'method-specializers)
 (initialize-extended-method-check #'method-specializers)
 
 ;; MOP p. 82
