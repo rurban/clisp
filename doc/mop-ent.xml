@@ -148,3 +148,11 @@
 <!ENTITY see-dep-maint "<formalpara><title>Remarks</title>
  <para>See <xref linkend='mop-dep-maint'/> for remarks about the
   use of this facility.</para></formalpara>">
+<!ENTITY gf-mo-arg "<varlistentry><term>&gf-r;</term>
+    <listitem><simpara>a generic function metaobject.
+   </simpara></listitem></varlistentry>">
+<!ENTITY method-mo-arg "<varlistentry><term>&method-r;</term>
+ <listitem><simpara>a method metaobject.</simpara></listitem></varlistentry>">
+<!ENTITY specializer-mo-arg "<varlistentry><term>&specializer-r;</term>
+    <listitem><simpara>a specializer metaobject.
+   </simpara></listitem></varlistentry>">

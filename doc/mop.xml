@@ -2807,10 +2807,7 @@ restrictions.</para>
  <listitem><simpara><literal role="sexp">(&setf-gf-name; &nname-r; &gf-r;)
 </literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&nname-r;</term>
     <listitem><simpara>a &funname; or &nil;.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
@@ -2955,13 +2952,7 @@ restrictions.</para>
 <listitem><simpara><literal role="sexp">(&add-method; &gf-r; &method-r;)
  </literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
-   <varlistentry><term>&method-r;</term>
-    <listitem><simpara>is a method metaobject.
-   </simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The &gf-r; argument is returned.
@@ -3014,13 +3005,8 @@ restrictions.</para>
  <listitem><simpara><literal role="sexp">(&remove-method; &gf-r; &method-r;)
 </literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
-   <varlistentry><term>&method-r;</term>
-    <listitem><simpara>a method metaobject.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg; &method-mo-arg;
+</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The &gf-r; argument is returned.
 </simpara></listitem></varlistentry>
@@ -3069,10 +3055,7 @@ restrictions.</para>
   <listitem><simpara><literal role="sexp">(&compute-applicable-methods-mop;
      &gf-r; &args-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&args-r;</term>
     <listitem><simpara>a list of objects.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
@@ -3130,10 +3113,7 @@ restrictions.</para>
   <listitem><simpara><literal role="sexp">(&compute-applicable-methods-UC;
     &gf-r; &classes-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&classes-r;</term>
     <listitem><simpara>a list of class metaobjects.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
@@ -3218,10 +3198,7 @@ their own memoization scheme.</para></simplesect>
  <listitem><simpara><literal role="sexp">(&compute-effective-method;
     &gf-r; &mc-r; &methods-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&mc-r;</term>
     <listitem><simpara>a method combination metaobject.
    </simpara></listitem></varlistentry>
@@ -3270,10 +3247,7 @@ their own memoization scheme.</para></simplesect>
     &gf-r; &method-r; <replaceable>lambda-expression</replaceable> &env-r;)
  </literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&method-r;</term>
     <listitem><simpara>a (possibly uninitialized) method metaobject.
       <!-- change to uninitialized????? -->
@@ -3392,10 +3366,7 @@ override the system's definitions.</para>
  <listitem><simpara><literal role="sexp">(&compute-discriminating-function;
     &gf-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The value returned by this generic function is a
    function.</simpara></listitem></varlistentry>
@@ -4178,10 +4149,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
  <listitem><simpara><literal role="sexp">(&specializer-direct-methods;
     &specializer-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&specializer-r;</term>
-    <listitem><simpara> a specializer metaobject.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+ <listitem><variablelist>&specializer-mo-arg;
+</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The result of this generic function is a possibly
    empty list of method metaobjects.
@@ -4218,10 +4187,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
  <listitem><simpara><literal role="sexp">(&specializer-direct-gfs;
     &specializer-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&specializer-r;</term>
-    <listitem><simpara> a specializer metaobject.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+ <listitem><variablelist>&specializer-mo-arg;
+</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The result of this generic function is a possibly
    empty list of generic function metaobjects.
@@ -4258,13 +4225,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
   <listitem><simpara><literal role="sexp">(&add-direct-method;
      &specializer-r; &method-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&specializer-r;</term>
-    <listitem><simpara>a specializer metaobject
-   </simpara></listitem></varlistentry>
-   <varlistentry><term>&method-r;</term>
-    <listitem><simpara>a method metaobject</simpara></listitem>
-</varlistentry></variablelist></listitem></varlistentry>
+ <listitem><variablelist>&specializer-mo-arg; &method-mo-arg;
+</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem>&values-unspecified;</listitem></varlistentry>
 <varlistentry><term>Purpose</term>
@@ -4314,13 +4276,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
     &specializer-r; &method-r;)
 </literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&specializer-r;</term>
-    <listitem><simpara>a specializer metaobject.
-   </simpara></listitem></varlistentry>
-   <varlistentry><term>&method-r;</term>
-    <listitem><simpara>a method metaobject.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+ <listitem><variablelist>&specializer-mo-arg; &method-mo-arg;
+</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem>&values-unspecified;</listitem></varlistentry>
 <varlistentry><term>Purpose</term>
@@ -4386,10 +4343,7 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
     <replaceable>method-combination-options</replaceable>)
 </literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a generic function metaobject.
-   </simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term><replaceable>method-combination-type-name</replaceable></term>
     <listitem><simpara>a symbol which names a type of method combination.
    </simpara></listitem></varlistentry>
