@@ -565,7 +565,7 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 local inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
   begin_system_call();
-  if (link(old_pathstring,new_pathstring) < 0) { /* link file */
+  if (link(old_pathstring,new_pathstring) < 0) { /* hardlink file */
     if (errno==ENOENT) OS_file_error(STACK_3);
     else OS_file_error(STACK_1);
   }
@@ -573,7 +573,7 @@ local inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
 }
 local inline void symlink_file (char* old_pathstring, char* new_pathstring) {
   begin_system_call();
-  if (symlink(old_pathstring,new_pathstring) < 0) { /* link file */
+  if (symlink(old_pathstring,new_pathstring) < 0) { /* symlink file */
     if (errno==ENOENT) OS_file_error(STACK_3);
     else OS_file_error(STACK_1);
   }
@@ -10789,12 +10789,12 @@ local void copy_attributes_and_close () {
 
 
 /* copy_file_low()
-   on success, increase num_files&byte_count
+   on success, push (source dest byte-count) on retval (an address in STACK)
    can trigger GC */
 local void copy_file_low (object source, object dest,
                           bool preserve_p, if_exists_t if_exists,
                           if_does_not_exist_t if_not_exists,
-                          uintL *num_files, object *byte_count) {
+                          object *retval) {
 /* (let ((buffer (make-array buffer-size :element-type 'unsigned-byte)))
     (with-open-file (source-stream source :direction :input
                                    :element-type 'unsigned-byte)
@@ -10853,9 +10853,13 @@ local void copy_file_low (object source, object dest,
   } else
     copy_attributes_and_close();
   /* clean up the stack */
-  skipSTACK(3);
-  ++*num_files;
-  *byte_count = I_I_plus_I(*byte_count,UL_to_I(total_count));
+  STACK_0 = allocate_cons();
+  Cdr(STACK_0) = *retval;
+  *retval = STACK_0;
+  STACK_2 = TheStream(STACK_2)->strm_file_truename; /* source */
+  STACK_1 = TheStream(STACK_1)->strm_file_truename; /* dest */
+  STACK_0 = UL_to_I(total_count);
+  Car(*retval) = listof(3);
 }
 
 typedef enum {
@@ -10899,7 +10903,7 @@ local void copy_one_file (object source, object src_path,
                           copy_method_t method, bool preserve_p,
                           if_exists_t if_exists,
                           if_does_not_exist_t if_not_exists,
-                          uintL *num_files, object *byte_count) {
+                          object *retval) {
   pushSTACK(source); pushSTACK(src_path);
   pushSTACK(dest); pushSTACK(dest_path);
   /* merge source into dest: "cp foo bar/" --> "cp foo bar/foo" */
@@ -10908,8 +10912,7 @@ local void copy_one_file (object source, object src_path,
   subr_self = L(copy_file); /* restore */
 
   if (method == COPY_METHOD_COPY) {
-    copy_file_low(STACK_2,STACK_0,preserve_p,
-                  if_exists,if_not_exists,num_files,byte_count);
+    copy_file_low(STACK_2,STACK_0,preserve_p,if_exists,if_not_exists,retval);
     skipSTACK(4);
     return;
   }
@@ -10964,36 +10967,45 @@ local void copy_one_file (object source, object src_path,
           rename_existing_file(source_asciz,dest_asciz);
         });
       });
-      ++*num_files;
       break;
     case COPY_METHOD_SYMLINK:
      #ifdef UNIX
-      /* use the original argument, not the truename here
+      /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
-      with_sstring_0(stringp(STACK_5) ? STACK_5 : whole_namestring(STACK_4),
-                     O(pathname_encoding), source_asciz, {
-        with_sstring_0(dest, O(pathname_encoding), dest_asciz,
-                       { symlink_file(source_asciz,dest_asciz); });
+      source = stringp(STACK_5) ? STACK_5 : whole_namestring(STACK_4);
+      with_sstring_0(source, O(pathname_encoding), source_asciz, {
+        with_sstring_0(dest, O(pathname_encoding), dest_asciz, {
+          delete_file_if_exists(dest_asciz);
+          symlink_file(source_asciz,dest_asciz);
+        });
       });
-      ++*num_files;
       break;
      #endif
       /* FALLTHROUGH if no symlinks */
     case COPY_METHOD_HARDLINK:
      #ifdef UNIX
       with_sstring_0(source, O(pathname_encoding), source_asciz, {
-        with_sstring_0(dest, O(pathname_encoding), dest_asciz,
-                       { hardlink_file(source_asciz,dest_asciz); });
+        with_sstring_0(dest, O(pathname_encoding), dest_asciz, {
+          delete_file_if_exists(dest_asciz);
+          hardlink_file(source_asciz,dest_asciz);
+        });
       });
-      ++*num_files;
       break;
      #endif
       /* FALLTHROUGH if no hardlinks */
     default:
-      copy_file_low(STACK_0,STACK_1,preserve_p,
-                    if_exists,if_not_exists,num_files,byte_count);
+      copy_file_low(STACK_0,STACK_1,preserve_p,if_exists,if_not_exists,retval);
+      skipSTACK(6);
+      return;
   }
-  skipSTACK(6);
+  /* update retval */
+  STACK_0 = dest;
+  STACK_1 = source;
+  STACK_2 = allocate_cons();
+  Cdr(STACK_2) = *retval;
+  *retval = STACK_2;
+  Car(*retval) = listof(2);
+  skipSTACK(4);
 }
 
 
@@ -11034,8 +11046,7 @@ LISPFUN(copy_file,2,0,norest,key,4,
   var if_exists_t if_exists = check_if_exists(STACK_1);
   var bool preserve_p = (!nullp(STACK_2) && !eq(unbound,STACK_2));
   var copy_method_t method = check_copy_method(STACK_3);
-  var uintL num_files = 0;
-  STACK_1 = Fixnum_0; /* byte_count */
+  STACK_1 = NIL; /* return value */
   /* stack: 5 - source; 4 - dest */
   STACK_3 = coerce_pathname(STACK_5); /* source */
   STACK_2 = coerce_pathname(STACK_4); /* dest */
@@ -11048,7 +11059,7 @@ LISPFUN(copy_file,2,0,norest,key,4,
         pushSTACK(STACK_(2+2)); /* dest */
         funcall(L(translate_pathname),3);
         copy_one_file(NIL,Car(Car(STACK_0)),NIL,value1,method,preserve_p,
-                      if_exists,if_not_exists,&num_files,&STACK_1);
+                      if_exists,if_not_exists,&STACK_1);
         STACK_0 = Cdr(STACK_0);
       }
     } else { /* non-wild dest, must be a directory */
@@ -11057,7 +11068,7 @@ LISPFUN(copy_file,2,0,norest,key,4,
       var object byte_count = Fixnum_0;
       while (!nullp(STACK_0)) {
         copy_one_file(NIL,Car(Car(STACK_0)),STACK_4,STACK_2,method,preserve_p,
-                      if_exists,if_not_exists,&num_files,&STACK_1);
+                      if_exists,if_not_exists,&STACK_1);
         STACK_0 = Cdr(STACK_0);
       }
       value1 = fixnum(num_files);
@@ -11065,10 +11076,9 @@ LISPFUN(copy_file,2,0,norest,key,4,
     }
   } else /* non-wild source */
     copy_one_file(STACK_5,STACK_3,STACK_4,STACK_2,method,preserve_p,
-                  if_exists,if_not_exists,&num_files,&STACK_1);
-  value1 = fixnum(num_files);
-  value2 = STACK_1;
-  mv_count = 2;
+                  if_exists,if_not_exists,&STACK_1);
+  value1 = STACK_1;
+  mv_count = 1;
   skipSTACK(6);
 }
 
