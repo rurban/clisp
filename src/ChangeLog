@@ -1,3 +1,10 @@
+2001-08-12  Bruno Haible  <haible@clisp.cons.org>
+
+	* io.d (a_letterdigit, a_expodigit): New macros.
+	(test_potential_number_syntax): Swap step2 and step3. Translate into
+	a_letterdigit and a_expodigit. Update step4 and step6 accordingly.
+	(test_number_syntax): Drop most of step4. Update step5 accordingly.
+
 2001-08-25  Bruno Haible  <haible@clisp.cons.org>
 
 	Make it compile in C++ mode.
