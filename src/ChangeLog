@@ -1,3 +1,7 @@
+2002-12-20  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [CC=g++]: add DEBUG_GCSAFETY
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	GC-safety checker.
