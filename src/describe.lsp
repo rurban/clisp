@@ -36,7 +36,7 @@
 (defgeneric describe-object (obj stream)
   (:method
    ((obj t) (stream stream))
-   (case (sys::type-of obj)
+   (ecase (sys::type-of obj)
      #+(or AMIGA FFI)
      (foreign-pointer
       (format stream (DEUTSCH "ein Foreign-Pointer."
@@ -72,10 +72,12 @@
      (weak-pointer
       (multiple-value-bind (value validp) (weak-pointer-value obj)
         (if validp
-            (format stream (DEUTSCH "ein für die GC unsichtbarer Pointer auf ~S."
-                            ENGLISH "a GC-invisible pointer to ~S."
-                            FRANCAIS "un pointeur, invisible pour le GC, sur ~S.")
-                    value)
+            (progn
+              (format stream (DEUTSCH "ein für die GC unsichtbarer Pointer auf ~S."
+                              ENGLISH "a GC-invisible pointer to ~S."
+                              FRANCAIS "un pointeur, invisible pour le GC, sur ~S.")
+                      value)
+              (describe value))
             (format stream (DEUTSCH "ein für die GC unsichtbarer Pointer auf ein nicht mehr existierendes Objekt."
                             ENGLISH "a GC-invisible pointer to a now defunct object."
                             FRANCAIS "un pointeur, invisible pour le GC, sur un objet qui n'existe plus.")))))
@@ -97,13 +99,14 @@
      (address
       (format stream (DEUTSCH "eine Maschinen-Adresse."
                       ENGLISH "a machine address."
-                      FRANCAIS "une addresse au niveau de la machine.")))
-     (t
+                      FRANCAIS "une addresse au niveau de la machine.")))))
+  (:method
+   ((obj standard-object) (stream stream))
       (format stream (DEUTSCH "eine Instanz der CLOS-Klasse ~S."
                       ENGLISH "an instance of the CLOS class ~S."
                       FRANCAIS "un objet appartenant à la classe ~S de CLOS.")
               (clos:class-of obj))
-      (describe-slotted-object obj stream))))
+   (describe-slotted-object obj stream))
   (:method ((obj structure-object) (stream stream)) ; CLISP specific
            (format stream (DEUTSCH "eine Structure vom Typ ~S."
                            ENGLISH "a structure of type ~S."
