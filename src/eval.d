@@ -1095,7 +1095,7 @@ global Values eval_noenv (object form) {
             *ptr++ = popSTACK(); # put nested NEXT_ENV in the vector
           }
           FRAME_(frame_next_env) = env; # vector as NEXT_ENV in the Frame
-          FRAME_(frame_anz) = as_object(count); # new number of not yet nested bindings
+          FRAME_(frame_anz) = as_object((oint)count); # new number of not yet nested bindings
         }
       }
     }
