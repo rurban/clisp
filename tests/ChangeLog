@@ -1,3 +1,8 @@
+2004-10-24  Bruno Haible  <bruno@clisp.org>
+
+	* mop.tst: Update for changed compute-effective-method-as-function
+	calling conventions.
+
 2004-10-23  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Add virtual-dispatch generic functions example.
