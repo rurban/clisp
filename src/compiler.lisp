@@ -3254,6 +3254,21 @@ der Docstring (oder NIL).
     (compiler-error 'c-form-table)
 ) )
 
+;; expand (recursively) the compiler macro form
+(defun expand-compiler-macro (form)
+  (let ((expanded-p nil))
+    (tagbody
+     reexpand
+       (when (consp form)
+         (let* ((env (env)) (cmf (compiler-macro-function (car form) env)))
+           (when cmf
+             (let ((exp (mac-exp cmf form env)))
+               (unless (eq form exp)
+                 (setq form exp
+                       expanded-p t)
+                 (go reexpand)))))))
+    (values form expanded-p)))
+
 ; compiliert eine Form.
 ; Dabei ergibt sich kein Code, falls keine Werte gebraucht werden und die Form
 ; keine Seiteneffekte produziert.
@@ -3274,29 +3289,34 @@ der Docstring (oder NIL).
             (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
               (declare (ignore f2 f4))
               (if (null a)
-                ; nicht lokal definiert
+                ;; no local definition
                 (let ((handler (gethash fun c-form-table)))
-                  (if handler ; Behandlungsfunktion gefunden?
-                    ; also (symbolp fun)
+                  (if handler ; found handler function?
+                    ;; ==> (symbolp fun) = T
                     (if (or (and (special-operator-p fun)
                                  (not (macro-function fun)))
                             (not (declared-notinline fun)))
-                      (funcall handler) ; ja -> aufrufen
+                      (funcall handler) ; yes -> call
                       (if (macro-function fun)
                         (c-form (mac-exp (macro-function fun) *form*))
-                        ; normaler Aufruf globaler Funktion
+                        ;; normal global function call
                         (c-GLOBAL-FUNCTION-CALL fun)))
-                    ; nein -> jedenfalls keine Special-Form (die sind ja
-                    ; alle in der Tabelle).
-                    (if (and (symbolp fun) (macro-function fun)) ; globaler Macro ?
-                      (c-form (mac-exp (macro-function fun) *form*))
-                      ;; global function
-                      (if (and (in-defun-p fun)
-                               (not (declared-notinline fun)))
-                        ;; recursive call of the current global function
-                        (c-LOCAL-FUNCTION-CALL fun (cons *func* nil) (cdr *form*))
-                        ;; normal call of the global function
-                        (c-GLOBAL-FUNCTION-CALL fun)))))
+                    ;; no -> not a special-form anyway
+                    ;; (all those are in the `c-form-table')
+                    (progn
+                      (setq *form* (expand-compiler-macro *form*)
+                            fun (first *form*))
+                      (if (and (symbolp fun) (macro-function fun))
+                        ;; global macro
+                        (c-form (mac-exp (macro-function fun) *form*))
+                        ;; global function
+                        (if (and (in-defun-p fun)
+                                 (not (declared-notinline fun)))
+                          ;; recursive call of the current global function
+                          (c-LOCAL-FUNCTION-CALL fun (cons *func* nil)
+                                                 (cdr *form*))
+                          ;; normal call of the global function
+                          (c-GLOBAL-FUNCTION-CALL fun))))))
                 (if (and m (not (and f1 (declared-notinline fun))))
                   (c-form (mac-exp m *form*))
                   (case f1
@@ -3327,14 +3347,8 @@ der Docstring (oder NIL).
   ;; The difference from (values (macroexpand form (env)))
   ;; is that here the macros mentioned in `c-form-table' are not expanded.
   (tagbody
-    reexpand
-    (when (consp form)
-      (let* ((env (env))
-             (cm (compiler-macro-function (car form) env))
-             (exp (and cm (mac-exp cm form env))))
-        (when (and cm (not (eq form exp)))
-          (setq form exp)
-          (go reexpand))))
+   reexpand
+    (setq form (expand-compiler-macro form))
     (if (atom form)
       (if (symbolp form)
         (multiple-value-bind (macrop expansion) (venv-search-macro form *venv*)
