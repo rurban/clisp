@@ -9485,6 +9485,44 @@ LISPFUNN(print_structure,2)
           LEVEL_END;
           break;
         #endif
+        #ifdef DIR_KEY
+        case Rectype_Dir_Key:
+          # #<DIR-KEY type path>
+          if (test_value(S(print_readably)))
+            fehler_print_readably(obj);
+          LEVEL_CHECK;
+          {
+            pushSTACK(obj);
+            var object* obj_ = &STACK_0;
+            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
+            INDENT_START(2); JUSTIFY_START;
+            if (TheDirKey(*obj_)->closed_p)
+              write_sstring_case(stream_,O(printstring_closed));
+            write_sstring_case(stream_,O(printstring_dir_key));
+            {
+              var uintL length_limit = get_print_length();
+              var uintL length = 0;
+              if (length >= length_limit) goto dir_key_end;
+              JUSTIFY_SPACE;
+              pr_symbol(stream_,TheDirKey(*obj_)->type);
+              if (++length >= length_limit) goto dir_key_end;
+              JUSTIFY_SPACE;
+              pr_string(stream_,TheDirKey(*obj_)->path);
+              if (!TheDirKey(*obj_)->closed_p) {
+                if (++length >= length_limit) goto dir_key_end;
+                JUSTIFY_SPACE;
+                pr_symbol(stream_,TheDirKey(*obj_)->direction);
+              }
+            }
+          dir_key_end:
+            JUSTIFY_END_ENG;
+            INDENT_END;
+            write_ascii_char(stream_,'>');
+            skipSTACK(1);
+          }
+          LEVEL_END;
+          break;
+        #endif
         #ifdef YET_ANOTHER_RECORD
         case Rectype_Yetanother:
           # #<YET-ANOTHER address>

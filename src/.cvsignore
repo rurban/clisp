@@ -2,6 +2,7 @@
 *.lib
 *.mem
 *.run
+*.exe
 avcall
 avcall.h
 callback
@@ -16,6 +17,16 @@ comment5
 intparam.h
 clisp.h
 config.lsp
+ANNOUNCE
+CLOS-guide.txt
+config.lisp
+COPYRIGHT
+dirkey.c
+editors.txt
+GNU-GPL
+impnotes.html
+LISP-tutorial.txt
+SUMMARY
 README
 README.de
 README.en
@@ -56,6 +67,7 @@ constsym.c
 control.c
 debug.c
 dfloat.c
+dirkey.c
 encoding.c
 error.c
 errunix.c

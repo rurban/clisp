@@ -1050,3 +1050,9 @@ Invoking CLISP with `-a' sets this to T.")
   (define-symbol-macro *misc-encoding* (system::misc-encoding))
   (defsetf system::misc-encoding system::set-misc-encoding)
 )
+#+dir-key ;; just like gethash
+(defsetf dir-key-value (key name &optional default) (value)
+  (let ((storeform `(sys::set-dkey-value ,key ,name ,value)))
+    (if default
+        `(progn ,default ,storeform)
+        `,storeform)))

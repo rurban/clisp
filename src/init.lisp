@@ -1943,6 +1943,9 @@ interpreter compiler
 #+GETTEXT (LOAD "spanish") ;; Spanische Meldungen
 #+GETTEXT (LOAD "dutch")  ;; Holländische Meldungen
 
+#+dir-key
+(load "dirkey")    ;; win32 registry, LDAP, Gnome-config
+
 (LOAD "config")    ;; configuration parameters to be adjusted by the user
 
 
