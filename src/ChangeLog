@@ -1,3 +1,13 @@
+2003-03-14  Sam Steingold  <sds@gnu.org>
+
+	extract and modify the FOREIGN-POINTER anchor
+	* foreign.d (foreign_pointer_strict): new function
+	(FOREIGN-POINTER, SET-FOREIGN-POINTER): implemented
+	(foreign_address): barf on non-foreign and possibly on FOREIGN-POINTER
+	* foreign1.lisp (foreign-pointer): added a defsetf
+	* lispbibl.d (Faddress): fa_offset is signed
+	* subr.d, constsym.d (foreign_pointer, set_foreign_pointer): added
+
 2003-03-12  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: win32msvc mean either msvc4 or msvc5 or msvc7 (.NET)

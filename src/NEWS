@@ -114,6 +114,8 @@ User visible changes
     see <http://clisp.cons.org/impnotes.html#faddr-u> for details;
   + function FFI:FOREIGN-ADDRESS,
     see <http://clisp.cons.org/impnotes.html#faddr> for details;
+  + functions FFI:FOREIGN-POINTER and (SETF FFI:FOREIGN-POINTER),
+    see <http://clisp.cons.org/impnotes.html#fptr> for details;
   + macros FFI:C-VAR-ADDRESS and FFI:OFFSET,
     see <http://clisp.cons.org/impnotes.html#offset> and
     <http://clisp.cons.org/impnotes.html#c-var-addr>;
