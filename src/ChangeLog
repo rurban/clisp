@@ -1,5 +1,10 @@
 2003-02-14  Sam Steingold  <sds@gnu.org>
 
+	* macros2.lisp (typecase): OTHERWISE must be the last clause to
+	be considered a an "otherwise clause"
+
+2003-02-14  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 678194 ]: symbol-macrolet not always expanded
 	* eval.d (parse_dd): do not macroexpand the potential
 	declarations and docstrings (as per ANSI CL)
