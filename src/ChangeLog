@@ -1,5 +1,10 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	* .gdbinit: Don't always execute the "base" command. It made it
+	impossible to attach to an already running lisp.run process.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Fix GC crash after a GC was triggered while a break loop was active.
 	* lispbibl.d (bt_beyond_stack_p, with_saved_back_trace): Correctly
 	parenthesize argument expressions.
