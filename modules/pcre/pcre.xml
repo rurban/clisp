@@ -21,8 +21,8 @@
  <varlistentry id="pcre-compile">
   <term><literal role="sexp">(PCRE:PCRE-COMPILE &string-r;
     &key-amp; :STUDY :IGNORE-CASE :MULTILINE :DOTALL :EXTENDED :ANCHORED
-    :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY :NOTEMPTY :UTF8
-    :NO-AUTO-CAPTURE :NO-UTF8-CHECK)</literal></term>
+    :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY :NOTEMPTY
+    :NO-AUTO-CAPTURE)</literal></term>
   <listitem><simpara>Compile a pattern, optionally study it.
  </simpara></listitem></varlistentry>
  <varlistentry id="pattern-info"><term>
@@ -42,8 +42,8 @@
     the return vector.</simpara></listitem></varlistentry>
  <varlistentry id="pcre-exec">
   <term><literal role="sexp">(PCRE:PCRE-EXEC &pattern-r; &string-r;
-    &key-amp; :BOOLEAN :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY
-    :NO-UTF8-CHECK)</literal></term>
+    &key-amp; :BOOLEAN :OFFSET :ANCHORED :NOTBOL :NOTEOL
+    :NOTEMPTY)</literal></term>
   <listitem><simpara>Execute the compiled &pattern-r; against the
     &string-r; at the given &offset-r; with the given options.
     Returns &nil; if no matches or a &vector-t; of &length;
