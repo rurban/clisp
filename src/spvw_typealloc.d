@@ -121,7 +121,7 @@
       #else
         #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sbvector+atype,len);
       #endif
-      allocate(sbvector_type+atype,TRUE,need,Sbvector,ptr,
+      allocate(Array_type_simple_bit_vector(atype),TRUE,need,Sbvector,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
