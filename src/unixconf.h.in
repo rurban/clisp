@@ -281,6 +281,8 @@
 #undef HAVE_LC_MESSAGES
 
 /* CL_RLIMIT */
+/* Define if you have the getrlimit() function. */
+#undef HAVE_GETRLIMIT
 /* Define if you have the setrlimit() function. */
 #undef HAVE_SETRLIMIT
 /* Define as the type of `resource' in setrlimit() declaration. */
