@@ -392,3 +392,24 @@ NIL
 
 (let ((x 1)) (ctypecase x (t 'a)))  a
 (let ((x 1)) (etypecase x (t 'a)))  a
+
+;; from GCL ansi-test
+(progn
+  (setq *DISJOINT-TYPES-LIST*
+        '(CONS SYMBOL ARRAY NUMBER CHARACTER HASH-TABLE FUNCTION READTABLE
+          PACKAGE PATHNAME STREAM RANDOM-STATE CONDITION RESTART))
+  (defclass bar () ())
+  (defstruct foo))
+foo
+
+(loop for type in *disjoint-types-list*
+  unless (and (equal (multiple-value-list (subtypep type 'bar)) '(nil t))
+              (equal (multiple-value-list (subtypep 'bar type)) '(nil t)))
+  collect type)
+nil
+
+(loop for type in *disjoint-types-list*
+  unless (and (equal (multiple-value-list (subtypep type 'foo)) '(nil t))
+              (equal (multiple-value-list (subtypep 'foo type)) '(nil t)))
+  collect type)
+nil
