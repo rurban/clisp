@@ -939,7 +939,8 @@ for-value   NIL oder T
        system::string-input-stream-index make-string-output-stream
        get-output-stream-string system::make-string-push-stream
        system::string-stream-p input-stream-p output-stream-p
-       stream-element-type close read-byte write-byte file-position file-length
+       stream-element-type stream-external-format close read-byte write-byte
+       file-position file-length
        system::%putd system::%proclaim-constant get getf get-properties
        system::%putplist system::%put remprop symbol-package symbol-plist
        symbol-name keywordp gensym system::special-variable-p gensym
@@ -1430,7 +1431,7 @@ for-value   NIL oder T
           (numerator 1 0 nil nil nil)
           (system::octal-reader 3 0 nil nil nil)
           (oddp 1 0 nil nil nil)
-          (open 1 0 nil (:direction :element-type :if-exists :if-does-not-exist) nil)
+          (open 1 0 nil (:direction :element-type :if-exists :if-does-not-exist :external-format) nil)
           (output-stream-p 1 0 nil nil nil)
           (package-name 1 0 nil nil nil)
           (package-nicknames 1 0 nil nil nil)
@@ -1564,6 +1565,7 @@ for-value   NIL oder T
           (system::store-char 3 0 nil nil nil)
           (system::store-schar 3 0 nil nil nil)
           (stream-element-type 1 0 nil nil nil)
+          (stream-external-format 1 0 nil nil nil)
           (streamp 1 0 nil nil nil)
           (string 1 0 nil nil nil)
           (system::string-both-trim 3 0 nil nil nil)
