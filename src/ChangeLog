@@ -1,5 +1,10 @@
 1999-06-10  Sam Steingold  <sds@goems.com>
 
+	* describe.lsp (describe-object): dump `ENGLISH' before ".".
+
+	* socket.d (resolve_host_ipaddr): correct the order of arguments
+	in the `fehler' call.
+
 	* init.lsp (*load-level*): new variable.
 	(load): use it to indent the verbose printout nicely.
 
