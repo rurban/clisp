@@ -7,6 +7,10 @@ Important notes
   Set CUSTOM:*LOAD-OBSOLETE-ACTION* to :COMPILE to automate this.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
+* The name of the Run-Control file has changed from '_clisprc' to
+  '.clisprc' on all platforms.
+  If you are using woe32, please rename your Run-Control file.
+
 User visible changes
 --------------------
 
@@ -320,10 +324,6 @@ Portability
 * Weak pointers now also work on platforms without mmap().
 
 * Weak hash tables now also work on platforms without mmap().
-
-* The name of the Run-Control file has changed from '_clisprc' to
-  '.clisprc' on all platforms.
-  If you are using woe32, please rename your Run-Control file.
 
 
 
