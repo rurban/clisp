@@ -1,5 +1,18 @@
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
+	Make very early CLOS available before DEFSTRUCT.
+	* clos-class0.lisp: New file.
+	* init.lisp: Load it.
+	* clos-class2.lisp (class-version): Move away to clos-class0.lisp.
+	* clos-class4.lisp (print-object): Undefine first. Don't use TYPEP
+	on class-version.
+	* clos.lisp: After clos-class5.lisp, set *classes-finished* and then
+	only load clos-class4.lisp.
+	* makemake.in (LPARTS): Add clos-class0.
+	* po/Makefile.devel (LISPSOURCES): Add clos-class0.
+
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
 	* clos-package.lisp: Tweak.
 
 2004-04-24  Bruno Haible  <bruno@clisp.org>
