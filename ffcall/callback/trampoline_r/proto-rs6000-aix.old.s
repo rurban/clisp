@@ -20,15 +20,14 @@ tramp:
 	mflr 0
 	st 0,8(1)
 	stu 1,-56(1)
-	liu 0,0xbabe
 	liu 11,0x7355
-	oril 0,0,48832
+	liu 9,0xbabe
 	oril 11,11,18193
-	mr 9,0
+	oril 9,9,48832
 	st 2,20(1)
-	l 10,0(9)
+	l 0,0(9)
 	l 2,4(9)
-	mtlr 10
+	mtlr 0
 	l 11,8(9)
 	brl
 	l 2,20(1)
@@ -61,5 +60,5 @@ LT..jump:
 	.short 4
 	.byte "jump"
 _section_.text:
-.csect .data[RW]
+.csect .data[RW],3
 	.long _section_.text
