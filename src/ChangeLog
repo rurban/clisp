@@ -1,3 +1,12 @@
+2001-06-16  Bruno Haible  <haible@clisp.cons.org>
+
+	* list.d (up2_test): Don't go through funcall() if the test function
+	is #'eq, #'eql or #'equal.
+	(up_test): Likewise.
+	(funcall_key): New macro.
+	(subst, nsubst, sublis, nsublis, member, ADJOIN, assoc, rassoc): Use
+	it.
+
 2001-06-23  Bruno Haible  <haible@clisp.cons.org>
 
 	* aclocal.m4 (CL_GETPAGESIZE): Add check for sys/param.h. For mingw32.

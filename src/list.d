@@ -1,5 +1,5 @@
 # Listenfunktionen von CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2001
 # Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"
@@ -73,7 +73,7 @@
         }
         list = STACK_1; # list := (xr+1 ... xm)
       }
-      list = popSTACK(); skipSTACK(1); return(list);
+      list = popSTACK(); skipSTACK(1); return list;
     }
 #if 0
 # andere Möglichkeit:
@@ -89,7 +89,7 @@
         Cdr(new_cons) = STACK_0;
         STACK_0 = new_cons;
       }
-      list = popSTACK(); skipSTACK(1); return(list);
+      list = popSTACK(); skipSTACK(1); return list;
     }
 #endif
 
@@ -450,7 +450,15 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
     var object arg1;
     var object arg2;
     {
-      pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 1),2);
+      var object fun = *(stackptr STACKop 1);
+      # Special case the most frequent cases,
+      if (eq(fun,L(eq)))
+        return eq(arg1,arg2);
+      if (eq(fun,L(eql)))
+        return eql(arg1,arg2);
+      if (eq(fun,L(equal)))
+        return equal(arg1,arg2);
+      pushSTACK(arg1); pushSTACK(arg2); funcall(fun,2);
       if (nullp(value1))
         return false;
       else
@@ -505,11 +513,11 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
         # :TEST-NOT wurde nicht angegeben
         if (nullp(test_arg))
           *(stackptr STACKop 1) = L(eql); # #'EQL als Default für :TEST
-        return(&up2_test);
+        return &up2_test;
       } else {
         # :TEST-NOT wurde angegeben
         if (nullp(test_arg))
-          return(&up2_test_not);
+          return &up2_test_not;
         else
           fehler_both_tests();
       }
@@ -535,7 +543,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
       if (atomp(arg1))
         if (atomp(arg2))
           # arg1 und arg2 sind beide Atome
-          return(up2_fun(stackptr,arg1,arg2));
+          return up2_fun(stackptr,arg1,arg2);
         else
           return false;
       else
@@ -1230,9 +1238,18 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
     var object x;
     {
       # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
-      pushSTACK(*(stackptr STACKop 3)); # item
+      var object item = *(stackptr STACKop 3);
+      var object fun = *(stackptr STACKop 1);
+      # Special case the most frequent cases,
+      if (eq(fun,L(eq)))
+        return eq(item,x);
+      if (eq(fun,L(eql)))
+        return eql(item,x);
+      if (eq(fun,L(equal)))
+        return equal(item,x);
+      pushSTACK(item);
       pushSTACK(x); # x
-      funcall(*(stackptr STACKop 1),2);
+      funcall(fun,2);
       if (nullp(value1))
         return false;
       else
@@ -1311,6 +1328,23 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
         STACK_0 = L(identity); # #'IDENTITY als Default für :KEY
     }
 
+# Applies a :KEY argument.
+# funcall_key(key,item);
+# > key: value of the :KEY argument
+# > item: object being considered
+# < value1: (FUNCALL key item)
+  #define funcall_key(key,item)  \
+    {                                               \
+      var object _key = (key);                      \
+      var object _item = (item);                    \
+      # shortcut for :KEY #'IDENTITY, very frequent \
+      if (!eq(_key,L(identity))) {                  \
+        pushSTACK(_item); funcall(_key,1);          \
+      } else {                                      \
+        value1 = _item;                             \
+      }                                             \
+    }
+
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
 # test_test_args()
 # > stackptr:=&STACK_1 : Pointer in den STACK
@@ -1341,11 +1375,11 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
         # :TEST-NOT wurde nicht angegeben
         if (nullp(test_arg))
           STACK_2 = L(eql); # #'EQL als Default für :TEST
-        return(&up_test);
+        return &up_test;
       } else {
         # :TEST-NOT wurde angegeben
         if (nullp(test_arg))
-          return(&up_test_not);
+          return &up_test_not;
         else
           fehler_both_tests();
       }
@@ -1369,7 +1403,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
     {
       # erst (KEY tree) berechnen und TESTFUN aufrufen:
       pushSTACK(tree); # tree retten
-      pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
+      funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
       if (up_fun(stackptr,value1)) { # TESTFUN aufrufen
         # Test erfüllt
         skipSTACK(1); return *(stackptr STACKop -2); # NEW als Wert
@@ -1451,7 +1485,7 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
     {
       # erst (KEY tree) berechnen und TESTFUN aufrufen:
       pushSTACK(tree); # tree retten
-      pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
+      funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
       if (up_fun(stackptr,value1)) { # TESTFUN aufrufen
         # Test erfüllt
         skipSTACK(1); return *(stackptr STACKop -2); # NEW als Wert
@@ -1574,7 +1608,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
     {
       # erst (KEY tree) berechnen und ASSOC aufrufen:
       pushSTACK(tree); # tree retten
-      pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
+      funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
       *(stackptr STACKop -2) = value1; # retten für sublis_assoc
       var object assoc_erg = sublis_assoc(stackptr);
       if (consp(assoc_erg)) {
@@ -1643,7 +1677,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     {
       # erst (KEY tree) berechnen und ASSOC aufrufen:
       pushSTACK(tree); # tree retten
-      pushSTACK(tree); funcall(*(stackptr STACKop -1),1); # (KEY tree)
+      funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
       *(stackptr STACKop -2) = value1; # retten für sublis_assoc
       var object assoc_erg = sublis_assoc(stackptr);
       if (consp(assoc_erg)) {
@@ -1712,7 +1746,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
               endp(list) # Listenende erreicht?
             )) {
         pushSTACK(list); # Listenrest retten
-        pushSTACK(Car(list)); funcall(*(stackptr STACKop -1),1); # (KEY x)
+        funcall_key(*(stackptr STACKop -1),Car(list)); # (KEY x)
         {
           var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           list = popSTACK();
@@ -1807,7 +1841,7 @@ LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     {
       var object item = STACK_4;
       pushSTACK(item); # item retten
-      pushSTACK(item); funcall(STACK_2,1); STACK_5 = value1; # item := (funcall key item)
+      funcall_key(STACK_1,item); STACK_5 = value1; # item := (funcall key item)
     }
     pushSTACK(L(adjoin)); # Aufrufer
     # Stackaufbau: (key item), list, test, test-not, key, item, #'adjoin.
@@ -1913,7 +1947,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
       else {
         if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
           pushSTACK(alist); # Listenrest ((u . v) ...) retten
-          pushSTACK(Car(Car(alist))); funcall(*(stackptr STACKop -1),1); # (KEY u)
+          funcall_key(*(stackptr STACKop -1),Car(Car(alist))); # (KEY u)
           var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           alist = popSTACK();
           if (erg)
@@ -1976,7 +2010,7 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
       else {
         if (mconsp(Car(alist))) { # atomare Listenelemente überspringen
           pushSTACK(alist); # Listenrest ((u . v) ...) retten
-          pushSTACK(Cdr(Car(alist))); funcall(*(stackptr STACKop -1),1); # (KEY v)
+          funcall_key(*(stackptr STACKop -1),Cdr(Car(alist))); # (KEY v)
           var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
           alist = popSTACK();
           if (erg)
