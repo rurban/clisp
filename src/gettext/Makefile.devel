@@ -13,10 +13,10 @@ configures : $(CONFIGURES)
 AUTOCONF_FILES = aclocal.m4
 
 configure : configure.in $(AUTOCONF_FILES) ../VERSION
-	autoconf/autoconf -m autoconf -l .
+	autoconf/autoconf -A autoconf -l .
 
 config.h.in : configure.in $(AUTOCONF_FILES) acconfig.h
-	autoconf/autoheader -m autoconf -l . && touch $@
+	autoconf/autoheader -A autoconf -l . && touch $@
 
 check-configures : $(CONFIGURES)
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done

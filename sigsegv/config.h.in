@@ -39,8 +39,6 @@
 /* functions and declarations */
 
 /* CL_MEMSET */
-/* Define if you have the memset() function. */
-#undef HAVE_MEMSET
 /* Define as the return type of memset(). */
 #undef RETMEMSETTYPE
 
@@ -140,7 +138,7 @@
 /* Define if you have a working mprotect() function. */
 #undef HAVE_WORKING_MPROTECT
 /* Define as const if the declaration of mprotect() needs const. */
-#define MPROTECT_CONST
+#undef MPROTECT_CONST
 
 /* CL_RLIMIT */
 /* Define if you have the setrlimit() function. */
@@ -148,5 +146,5 @@
 /* Define as the type of `resource' in setrlimit() declaration. */
 #undef RLIMIT_RESOURCE_T
 /* Define as const if the declaration of setrlimit() needs const. */
-#define SETRLIMIT_CONST
+#undef SETRLIMIT_CONST
 

@@ -59,7 +59,7 @@ dnl
 dnl           checks for functions and declarations
 dnl
 CL_MEMSET
-                      dnl DEFS HAVE_MEMSET, RETMEMSETTYPE
+                      dnl DEFS RETMEMSETTYPE
 CL_MALLOC
                       dnl DEFS RETMALLOCTYPE, MALLOC_SIZE_T
 CL_TYPE_SIGNAL
