@@ -1282,7 +1282,7 @@ TARGET="_top"
 CLASS="command"
 >CLISP</B
 ></A
->:</A
+></A
 ></DT
 ><DT
 ><A
@@ -1513,62 +1513,62 @@ HREF="#gfdl"
 ><DL
 ><DT
 >0. <A
-HREF="#AEN21585"
+HREF="#AEN21610"
 >PREAMBLE</A
 ></DT
 ><DT
 >1. <A
-HREF="#AEN21590"
+HREF="#AEN21615"
 >APPLICABILITY AND DEFINITIONS</A
 ></DT
 ><DT
 >2. <A
-HREF="#AEN21600"
+HREF="#AEN21625"
 >VERBATIM COPYING</A
 ></DT
 ><DT
 >3. <A
-HREF="#AEN21604"
+HREF="#AEN21629"
 >COPYING IN QUANTITY</A
 ></DT
 ><DT
 >4. <A
-HREF="#AEN21610"
+HREF="#AEN21635"
 >MODIFICATIONS</A
 ></DT
 ><DT
 >5. <A
-HREF="#AEN21646"
+HREF="#AEN21671"
 >COMBINING DOCUMENTS</A
 ></DT
 ><DT
 >6. <A
-HREF="#AEN21651"
+HREF="#AEN21676"
 >COLLECTIONS OF DOCUMENTS</A
 ></DT
 ><DT
 >7. <A
-HREF="#AEN21655"
+HREF="#AEN21680"
 >AGGREGATION WITH INDEPENDENT WORKS</A
 ></DT
 ><DT
 >8. <A
-HREF="#AEN21659"
+HREF="#AEN21684"
 >TRANSLATION</A
 ></DT
 ><DT
 >9. <A
-HREF="#AEN21662"
+HREF="#AEN21687"
 >TERMINATION</A
 ></DT
 ><DT
 >10. <A
-HREF="#AEN21665"
+HREF="#AEN21690"
 >FUTURE REVISIONS OF THIS LICENSE</A
 ></DT
 ><DT
 ><A
-HREF="#AEN21670"
+HREF="#AEN21695"
 >How to use this License for your documents</A
 ></DT
 ></DL
@@ -20346,10 +20346,14 @@ TARGET="_top"
 CLASS="function"
 >MAKE-HASH-TABLE</TT
 ></A
-> has an additional keyword
+> supports additional keywords
  <TT
 CLASS="constant"
 >:initial-contents</TT
+>
+ and <TT
+CLASS="constant"
+>:weak</TT
 >:</P
 ><TABLE
 BORDER="0"
@@ -20374,7 +20378,7 @@ CLASS="literal"
 >&#38;KEY</TT
 ></A
 > :test :initial-contents :size
-                 :rehash-size :rehash-threshold)
+                 :rehash-size :rehash-threshold :weak)
 </PRE
 ></TD
 ></TR
@@ -20393,6 +20397,88 @@ TARGET="_top"
 CLASS="constant"
 >:rehash-threshold</TT
 > argument is ignored.</P
+><P
+>The boolean <TT
+CLASS="constant"
+>:weak</TT
+> argument defaults to <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+>
+and specifies whether the <A
+HREF="http://www.lisp.org/HyperSpec/Body/syscla_hash-table.html"
+TARGET="_top"
+><TT
+CLASS="classname"
+>HASH-TABLE</TT
+></A
+> is <I
+CLASS="emphasis"
+>weak</I
+>:
+the key is not considered accessible for the <A
+HREF="#gc"
+>garbage-collect</A
+>ion purposes, i.e., if
+is is only accessible in the weak <A
+HREF="http://www.lisp.org/HyperSpec/Body/syscla_hash-table.html"
+TARGET="_top"
+><TT
+CLASS="classname"
+>HASH-TABLE</TT
+></A
+>, it is <A
+HREF="#gc"
+>garbage-collect</A
+>ed and
+removed from the weak <A
+HREF="http://www.lisp.org/HyperSpec/Body/syscla_hash-table.html"
+TARGET="_top"
+><TT
+CLASS="classname"
+>HASH-TABLE</TT
+></A
+>.</P
+><P
+>The <A
+HREF="http://www.lisp.org/HyperSpec/Body/mac_setfcm_psetf.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>SETF</TT
+></A
+>able predicate <TT
+CLASS="function"
+>EXT:HASH-TABLE-WEAK-P</TT
+>
+checks whether the <A
+HREF="http://www.lisp.org/HyperSpec/Body/syscla_hash-table.html"
+TARGET="_top"
+><TT
+CLASS="classname"
+>HASH-TABLE</TT
+></A
+> is weak.</P
+><P
+>Just like <A
+HREF="#weak"
+><TT
+CLASS="classname"
+>EXT:WEAK-POINTER</TT
+></A
+>s, weak <A
+HREF="http://www.lisp.org/HyperSpec/Body/syscla_hash-table.html"
+TARGET="_top"
+><TT
+CLASS="classname"
+>HASH-TABLE</TT
+></A
+>s cannot be
+printed readably.</P
 ></DIV
 ><DIV
 CLASS="section"
@@ -21364,7 +21450,7 @@ CLASS="variablelist"
     <DIV
 CLASS="table"
 ><A
-NAME="AEN5484"
+NAME="AEN5509"
 ></A
 ><P
 ><B
@@ -21423,7 +21509,7 @@ VALIGN="MIDDLE"
     <DIV
 CLASS="table"
 ><A
-NAME="AEN5501"
+NAME="AEN5526"
 ></A
 ><P
 ><B
@@ -23866,7 +23952,7 @@ CLASS="filename"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN6248"
+NAME="AEN6273"
 ></A
 ><P
 ><B
@@ -24054,7 +24140,7 @@ CLASS="variablelist"
     <DIV
 CLASS="table"
 ><A
-NAME="AEN6312"
+NAME="AEN6337"
 ></A
 ><P
 ><B
@@ -24173,7 +24259,7 @@ CLASS="constant"
    <DIV
 CLASS="table"
 ><A
-NAME="AEN6349"
+NAME="AEN6374"
 ></A
 ><P
 ><B
@@ -25020,7 +25106,7 @@ CLASS="emphasis"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN6599"
+NAME="AEN6624"
 ></A
 ><P
 ><B
@@ -28857,7 +28943,7 @@ CLASS="emphasis"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN7676"
+NAME="AEN7701"
 ></A
 ><P
 ><B
@@ -29049,7 +29135,7 @@ CLASS="emphasis"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN7735"
+NAME="AEN7760"
 ></A
 ><P
 ><B
@@ -29249,7 +29335,7 @@ CLASS="emphasis"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN7797"
+NAME="AEN7822"
 ></A
 ><P
 ><B
@@ -43725,7 +43811,7 @@ possible:</P
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN12354"
+NAME="AEN12379"
 ></A
 ><P
 ><B
@@ -43903,7 +43989,7 @@ VALIGN="MIDDLE"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN12401"
+NAME="AEN12426"
 ></A
 ><P
 ><B
@@ -44010,7 +44096,7 @@ TARGET="_top"
 CLASS="command"
 >CLISP</B
 ></A
->:</A
+></A
 ></H1
 ><P
 >Every subroutine marked with <I
@@ -45588,7 +45674,7 @@ NAME="instr-const"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN12922"
+NAME="AEN12947"
 ></A
 ><P
 ><B
@@ -45842,7 +45928,7 @@ NAME="instr-lex-var"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN12993"
+NAME="AEN13018"
 ></A
 ><P
 ><B
@@ -46687,7 +46773,7 @@ NAME="instr-dyn-var"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN13217"
+NAME="AEN13242"
 ></A
 ><P
 ><B
@@ -47018,7 +47104,7 @@ NAME="instr-stack"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN13306"
+NAME="AEN13331"
 ></A
 ><P
 ><B
@@ -47386,7 +47472,7 @@ NAME="instr-jump"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN13411"
+NAME="AEN13436"
 ></A
 ><P
 ><B
@@ -48570,7 +48656,7 @@ NAME="instr-env"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN13725"
+NAME="AEN13750"
 ></A
 ><P
 ><B
@@ -48833,7 +48919,7 @@ NAME="instr-funcall"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN13793"
+NAME="AEN13818"
 ></A
 ><P
 ><B
@@ -49538,7 +49624,7 @@ NAME="instr-optkey"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN13981"
+NAME="AEN14006"
 ></A
 ><P
 ><B
@@ -50120,7 +50206,7 @@ NAME="instr-mulval"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14137"
+NAME="AEN14162"
 ></A
 ><P
 ><B
@@ -50592,7 +50678,7 @@ CLASS="function"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14273"
+NAME="AEN14298"
 ></A
 ><P
 ><B
@@ -51028,7 +51114,7 @@ CLASS="function"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14388"
+NAME="AEN14413"
 ></A
 ><P
 ><B
@@ -51591,7 +51677,7 @@ CLASS="function"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14534"
+NAME="AEN14559"
 ></A
 ><P
 ><B
@@ -51843,7 +51929,7 @@ CLASS="function"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14604"
+NAME="AEN14629"
 ></A
 ><P
 ><B
@@ -52239,7 +52325,7 @@ CLASS="function"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14717"
+NAME="AEN14742"
 ></A
 ><P
 ><B
@@ -52395,7 +52481,7 @@ NAME="instr-inline"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14760"
+NAME="AEN14785"
 ></A
 ><P
 ><B
@@ -53032,7 +53118,7 @@ generic functions.</P
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN14945"
+NAME="AEN14970"
 ></A
 ><P
 ><B
@@ -54851,7 +54937,7 @@ operands) for the following frequent instructions:</P
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN15418"
+NAME="AEN15443"
 ></A
 ><P
 ><B
@@ -55844,7 +55930,7 @@ might look as follows.</P
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN15664"
+NAME="AEN15689"
 ></A
 ><P
 ><B
@@ -55896,7 +55982,7 @@ the current directory.</P
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN15674"
+NAME="AEN15699"
 ></A
 ><P
 ><B
@@ -55938,7 +56024,7 @@ CLASS="function"
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN15680"
+NAME="AEN15705"
 ></A
 ><P
 ><B
@@ -55993,7 +56079,7 @@ Note: xgettext version 0.11 or higher is required here.</P
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN15686"
+NAME="AEN15711"
 ></A
 ><P
 ><B
@@ -56024,7 +56110,7 @@ msgstr[1] ""
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN15690"
+NAME="AEN15715"
 ></A
 ><P
 ><B
@@ -64658,7 +64744,7 @@ CLASS="replaceable"
   <DIV
 CLASS="example"
 ><A
-NAME="AEN18129"
+NAME="AEN18154"
 ></A
 ><P
 ><B
@@ -64934,7 +65020,7 @@ CLASS="replaceable"
   <DIV
 CLASS="example"
 ><A
-NAME="AEN18204"
+NAME="AEN18229"
 ></A
 ><P
 ><B
@@ -65560,7 +65646,7 @@ CLASS="replaceable"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN18358"
+NAME="AEN18383"
 ></A
 ><P
 ><B
@@ -65854,7 +65940,7 @@ CLASS="replaceable"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN18439"
+NAME="AEN18464"
 ></A
 ><P
 ><B
@@ -66075,7 +66161,7 @@ CLASS="replaceable"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN18496"
+NAME="AEN18521"
 ></A
 ><P
 ><B
@@ -67354,7 +67440,7 @@ CLASS="replaceable"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN18834"
+NAME="AEN18859"
 ></A
 ><P
 ><B
@@ -69302,7 +69388,7 @@ CLASS="replaceable"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN19366"
+NAME="AEN19391"
 ></A
 ><P
 ><B
@@ -70021,7 +70107,7 @@ NAME="dffi-examples"
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN19598"
+NAME="AEN19623"
 ></A
 ><P
 ><B
@@ -70113,7 +70199,7 @@ CLASS="programlisting"
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN19608"
+NAME="AEN19633"
 ></A
 ><P
 ><B
@@ -70188,7 +70274,7 @@ or (setq my_struct (deref (slot my_struct 'n)))
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN19615"
+NAME="AEN19640"
 ></A
 ><P
 ><B
@@ -70269,7 +70355,7 @@ CLASS="programlisting"
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN19624"
+NAME="AEN19649"
 ></A
 ><P
 ><B
@@ -70458,7 +70544,7 @@ pointer to static data.</P
 ><DIV
 CLASS="example"
 ><A
-NAME="AEN19648"
+NAME="AEN19673"
 ></A
 ><P
 ><B
@@ -71308,7 +71394,7 @@ classes.</P
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN19846"
+NAME="AEN19871"
 ></A
 ><P
 ><B
@@ -72067,7 +72153,7 @@ CLASS="replaceable"
 ><DIV
 CLASS="table"
 ><A
-NAME="AEN20055"
+NAME="AEN20080"
 ></A
 ><P
 ><B
@@ -77490,7 +77576,7 @@ NAME="gfdl"
 ><P
 >Version 1.1, March 2000</P
 ><A
-NAME="AEN21583"
+NAME="AEN21608"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -77505,7 +77591,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21585"
+NAME="AEN21610"
 >0. PREAMBLE</A
 ></H1
 ><P
@@ -77537,7 +77623,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21590"
+NAME="AEN21615"
 >1. APPLICABILITY AND DEFINITIONS</A
 ></H1
 ><P
@@ -77610,7 +77696,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21600"
+NAME="AEN21625"
 >2. VERBATIM COPYING</A
 ></H1
 ><P
@@ -77633,7 +77719,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21604"
+NAME="AEN21629"
 >3. COPYING IN QUANTITY</A
 ></H1
 ><P
@@ -77680,7 +77766,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21610"
+NAME="AEN21635"
 >4. MODIFICATIONS</A
 ></H1
 ><P
@@ -77833,7 +77919,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21646"
+NAME="AEN21671"
 >5. COMBINING DOCUMENTS</A
 ></H1
 ><P
@@ -77865,7 +77951,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21651"
+NAME="AEN21676"
 >6. COLLECTIONS OF DOCUMENTS</A
 ></H1
 ><P
@@ -77887,7 +77973,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21655"
+NAME="AEN21680"
 >7. AGGREGATION WITH INDEPENDENT WORKS</A
 ></H1
 ><P
@@ -77913,7 +77999,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21659"
+NAME="AEN21684"
 >8. TRANSLATION</A
 ></H1
 ><P
@@ -77934,7 +78020,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21662"
+NAME="AEN21687"
 >9. TERMINATION</A
 ></H1
 ><P
@@ -77952,7 +78038,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21665"
+NAME="AEN21690"
 >10. FUTURE REVISIONS OF THIS LICENSE</A
 ></H1
 ><P
@@ -77981,7 +78067,7 @@ CLASS="sect1"
 ><HR><H1
 CLASS="sect1"
 ><A
-NAME="AEN21670"
+NAME="AEN21695"
 >How to use this License for your documents</A
 ></H1
 ><P
@@ -77989,7 +78075,7 @@ NAME="AEN21670"
     a copy of the License in the document and put the following
     copyright and license notices just after the title page:</P
 ><A
-NAME="AEN21673"
+NAME="AEN21698"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -78028,7 +78114,7 @@ NAME="references"
 ><H1
 CLASS="bibliodiv"
 ><A
-NAME="AEN21679"
+NAME="AEN21704"
 >Books</A
 ></H1
 ><DIV
@@ -78074,7 +78160,7 @@ STYLE="margin-left=0.5in"
 ><HR><H1
 CLASS="bibliodiv"
 ><A
-NAME="AEN21708"
+NAME="AEN21733"
 >ANSI standard documents</A
 ></H1
 ><DIV

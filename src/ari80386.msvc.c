@@ -122,7 +122,7 @@
             GLOBL(C(divu_loop_up))
             GLOBL(C(divucopy_loop_up))
 
-#ifndef __GNUC__ /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
+#if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
 
 
 
@@ -137,7 +137,7 @@ FUNEND()
 
 #endif
 
-#ifndef __GNUC__ /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
+#if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
 
 
 
