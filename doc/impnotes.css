@@ -11,3 +11,6 @@ dd p { margin: 0pt; }
 
 /* mark sexps with color */
 .sexp { background-color: lightgray; color: darkblue; }
+
+/* no border for images */
+img { border-width: 0; }
