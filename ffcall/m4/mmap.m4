@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -77,37 +77,40 @@ mmap_prog_2="#define bits_to_avoid $avoid"'
   exit(0);
 }}
 '
-AC_TRY_RUN([$mmap_prog_1
+AC_TRY_RUN(GL_NOCRASH[$mmap_prog_1
   int flags = MAP_ANON | MAP_PRIVATE;
   int fd = -1;
+  nocrash_init();
 $mmap_prog_2
 ], have_mmap_anon=1
-cl_cv_func_mmap_anon=yes, rm -f core,
+cl_cv_func_mmap_anon=yes, ,
 : # When cross-compiling, don't assume anything.
 )
-AC_TRY_RUN([$mmap_prog_1
+AC_TRY_RUN(GL_NOCRASH[$mmap_prog_1
   int flags = MAP_ANONYMOUS | MAP_PRIVATE;
   int fd = -1;
+  nocrash_init();
 $mmap_prog_2
 ], have_mmap_anon=1
-cl_cv_func_mmap_anonymous=yes, rm -f core,
+cl_cv_func_mmap_anonymous=yes, ,
 : # When cross-compiling, don't assume anything.
 )
-AC_TRY_RUN([$mmap_prog_1
+AC_TRY_RUN(GL_NOCRASH[$mmap_prog_1
 #ifndef MAP_FILE
 #define MAP_FILE 0
 #endif
   int flags = MAP_FILE | MAP_PRIVATE;
   int fd = open("/dev/zero",O_RDONLY,0666);
   if (fd<0) exit(1);
+  nocrash_init();
 $mmap_prog_2
 ], have_mmap_devzero=1
-cl_cv_func_mmap_devzero=yes, rm -f core
+cl_cv_func_mmap_devzero=yes, 
 retry_mmap=1,
 : # When cross-compiling, don't assume anything.
 )
 if test -n "$retry_mmap"; then
-AC_TRY_RUN([#define FOR_SUN4_29
+AC_TRY_RUN(GL_NOCRASH[#define FOR_SUN4_29
 $mmap_prog_1
 #ifndef MAP_FILE
 #define MAP_FILE 0
@@ -115,9 +118,10 @@ $mmap_prog_1
   int flags = MAP_FILE | MAP_PRIVATE;
   int fd = open("/dev/zero",O_RDONLY,0666);
   if (fd<0) exit(1);
+  nocrash_init();
 $mmap_prog_2
 ], have_mmap_devzero=1
-cl_cv_func_mmap_devzero_sun4_29=yes, rm -f core,
+cl_cv_func_mmap_devzero_sun4_29=yes, ,
 : # When cross-compiling, don't assume anything.
 )
 fi

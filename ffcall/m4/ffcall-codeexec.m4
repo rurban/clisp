@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -18,23 +18,23 @@ dnl function pointers are actually pointers to a three-pointer struct.
 case "$host_os" in
   hpux*) cl_cv_codeexec="guessing yes" ;;
   *)
-case "$host_cpu" in
+case "$host_cpu"-"$host_os" in
   # On host=rs6000-*-aix3.2.5 malloc'ed memory is indeed not executable.
-  rs6000) cl_cv_codeexec="guessing no" ;;
+  rs6000-aix*) cl_cv_codeexec="guessing no" ;;
   *)
-AC_TRY_RUN([
+AC_TRY_RUN(GL_NOCRASH[
 #include <sys/types.h>
 /* declare malloc() */
 #include <stdlib.h>
 int fun () { return 31415926; }
 int main ()
-{ long size = (char*)&main - (char*)&fun;
+{ nocrash_init();
+ {long size = (char*)&main - (char*)&fun;
   char* funcopy = (char*) malloc(size);
   int i;
   for (i = 0; i < size; i++) { funcopy[i] = ((char*)&fun)[i]; }
   exit(!((*(int(*)())funcopy)() == 31415926));
-}], cl_cv_codeexec=yes, rm -f core
-cl_cv_codeexec=no, cl_cv_codeexec="guessing yes")
+}}], cl_cv_codeexec=yes, cl_cv_codeexec=no, cl_cv_codeexec="guessing yes")
   ;;
 esac
   ;;
