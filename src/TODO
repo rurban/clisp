@@ -7,9 +7,16 @@ MUST-FIX BEFORE NEXT RELEASE
 Readline interface problem:
 [2]> (macroexü
 *** - AREF: Index 9 für "(macroexü" ist zu groß.
+this appears to be a readline bug:
+Breakpoint 15, lisp_completion_matches (text=0x822c1d8 "macroexü", start=1,
+    end=10) at stream.d:9309
+(gdb) p strlen(text)
+$1 = 9
 
 Restore interpretation of command-line options.
-        [sds: what does this mean?]
+[sds: what does this mean? bad command line should result in an error message
+ and a note about "--help", and not the full - potentially multi-page! -
+ help message ]
 
 
 MUST-FIX BEFORE RELEASE 2.35
