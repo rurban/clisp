@@ -1,3 +1,7 @@
+2003-05-03  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (EXEC-ON-STACK): use UNWIND-PROTECT to always clean up
+
 2003-05-02  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 729524 ]: ffi:c-struct corrupt
