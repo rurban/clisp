@@ -4557,17 +4557,17 @@ functions are provided:
 <!-- #ifdef DYNAMIC_FFI -->
  <row><entry><literal>#&lt;&foreign-address-t; #x...&gt;</literal></entry>
     <entry>foreign address
-     <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
+     <emphasis>(Platform dependent: &unix;, &win32;, &amiga; platforms only.)</emphasis>
     </entry></row>
  <row><entry><literal>#&lt;&foreign-variable;
        &name-r; #x...&gt;</literal></entry>
     <entry>foreign variable
-     <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
+     <emphasis>(Platform dependent: &unix;, &win32;, &amiga; platforms only.)</emphasis>
     </entry></row>
  <row><entry><literal>#&lt;&foreign-function;
        &name-r; #x...&gt;</literal></entry>
     <entry>foreign function
-     <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
+     <emphasis>(Platform dependent: &unix;, &win32;, &amiga; platforms only.)</emphasis>
     </entry></row>
 <!-- #endif -->
  <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
