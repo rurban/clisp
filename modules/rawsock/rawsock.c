@@ -635,7 +635,7 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer) {
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
-DEFUN(RAWSOCK:CLOSESOCK, socket) {
+DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
   int sock = posfixnum_to_L(check_posfixnum(popSTACK())), retval;
   SYSCALL(retval,sock,close(sock));
   VALUES1(fixnum(retval));

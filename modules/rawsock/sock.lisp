@@ -7,13 +7,13 @@
 (defpackage "RAWSOCK"
   (:documentation "Raw Socket access")
   (:use "LISP")
-  (:export "CLOSESOCK" "BUFFER" "OPEN-UNIX-SOCKET"
+  (:export "BUFFER" "OPEN-UNIX-SOCKET"
            "ACCEPT" "BIND" "CONNECT"
            "GETPEERNAME" "GETSOCKNAME"
            "LISTEN" "RECV" "RECVFROM" "RECVMSG"
            "SEND" "SENDMSG" "SENDTO"
            "SHUTDOWN" "SOCKET" "SOCKETPAIR"
-           "SOCK-READ" "SOCK-WRITE" "POLL"
+           "SOCK-READ" "SOCK-WRITE" "SOCK-CLOSE" "POLL"
            "SOCKADDR" "MAKE-SOCKADDR" "SOCKADDR-FAMILY" "MSGHDR" "MAKE-MSGHDR"
            "CONFIGDEV" "IPCSUM" "ICMPCSUM" "TCPCSUM" "UDPCSUM"))
 
@@ -21,8 +21,7 @@
 (PUSHNEW :RAWSOCK *FEATURES*)
 (PUSH "RAWSOCK" EXT:*SYSTEM-PACKAGE-LIST*)
 
-(macrolet ((missing (type)
-             `(error "~S: missing ~S slot" ',type 'data)))
+(macrolet ((missing (type) `(error "~S: missing ~S slot" ',type 'data)))
 (defstruct (sockaddr (:constructor make-sa (data)))
   (data (missing sockaddr) :read-only t :type (vector (unsigned-byte 8))))
 (defstruct (msghdr (:constructor make-msghdr (data)))
