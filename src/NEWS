@@ -231,12 +231,9 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#dffi-make-var>
   and <http://clisp.cons.org/impnotes.html#dffi-make-func> for details.
 
-* New FFI macros C-INIT-ONCE and C-INIT-ALWAYS
-  allow more initialization control.
-  See <http://clisp.cons.org/impnotes.html#c-init> for details.
-
-* New FFI macro C-FINALIZE allow finalization control.
-  See <http://clisp.cons.org/impnotes.html#c-exit> for details.
+* FFI macro C-LINES can now be used to fine-tune
+  initialization and finalization.
+  See <http://clisp.cons.org/impnotes.html#c-lines> for details.
 
 * Function READ-BYTE-SEQUENCE takes a new keyword argument :INTERACTIVE.
   See <http://clisp.cons.org/impnotes.html#rd-by-seq> for details.
