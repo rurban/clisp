@@ -16,6 +16,11 @@ User visible changes
 
 * ANSI CL compliance: more conformant pathname handling.
 
+* Speed up MEMBER &co when :TEST is EQ, EQL or EQUAL.
+
+* Optimize away local functions that are not used
+  (much less consing in CLOS).
+
 * Fixed handling of circular structs and pointers to functions in the FFI.
 
 * Fixed binary I/O for streams with element type longer than one byte,
