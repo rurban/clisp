@@ -1,3 +1,8 @@
+2004-09-12  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2.lisp (compute-applicable-methods-effective-method-for-set,
+	compute-applicable-methods-for-set): New functions.
+
 2004-09-14  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (object_handle): check that the new name is a string
