@@ -846,7 +846,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :MODE :UID :GID)
 
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
- convert_mode_retsart:
+ convert_mode_restart:
   if (posfixnump(STACK_0)) {
     mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
     int count = 0;
@@ -904,7 +904,7 @@ DEFUN(POSIX::CONVERT-MODE, mode)
         pushSTACK(TheSubr(subr_self)->name);
         check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
         STACK_0 = value1;
-        goto convert_mode_retsart;
+        goto convert_mode_restart;
       }
     }
     skipSTACK(2);               /* drop the tail and the argument */
