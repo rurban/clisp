@@ -1,0 +1,5 @@
+config.h
+tests.out
+tests.output.*
+vacall.h
+vacall.lib
