@@ -18,7 +18,7 @@
            "TXN-CHECKPOINT" "TXN-PREPARE" "TXN-RECOVER" "TXN-SET-TIMEOUT"
            "TXN-STAT"
            "BDB-ERROR" "BDB-ERROR-NUMBER"
-           "WITH-OPEN-DB"))
+           "WITH-OPEN-DB" "WITH-CURSOR"))
 
 (setf (package-lock "EXT") nil)
 (use-package '("BDB") "EXT")
@@ -154,12 +154,21 @@
   (txnarray nil :type vector :read-only t))
 
 ;;; macros (see macros2.lisp for `with-open-file')
-(defmacro with-open-db ((var &rest options) &body forms)
+(defmacro with-open-db ((var dbe file &rest options &key xa &allow-other-keys)
+                        &body forms)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY forms)
-    `(LET ((,var (BDB:DB-OPEN ,@options)))
+    (remf options :xa)
+    `(LET ((,var (BDB:DB-CREATE ,dbe :xa ,xa)))
        (DECLARE (READ-ONLY ,var) ,@declarations)
+       (BDB:DB-OPEN ,var ,file ,@options)
        (UNWIND-PROTECT (PROGN ,@body-rest)
          (WHEN ,var (BDB:DB-CLOSE ,var))))))
+(defmacro with-cursor ((var &rest options) &body forms)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY forms)
+    `(LET ((,var (BDB:MAKE-CURSOR ,@options)))
+       (DECLARE (READ-ONLY ,var) ,@declarations)
+       (UNWIND-PROTECT (PROGN ,@body-rest)
+         (WHEN ,var (BDB:CURSOR-CLOSE ,var))))))
 
 (ext:without-package-lock ("CL")
 (defmethod close ((dbe env) &key abort)
@@ -171,6 +180,8 @@
 (defmethod close ((cu cursor) &key abort)
   (declare (ignore abort))
   (cursor-close cu))
+(defmethod close ((tx txn) &key abort)
+  (if abort (txn-abort tx) (txn-discard tx)))
 )
 
 (define-condition bdb-error (simple-error)

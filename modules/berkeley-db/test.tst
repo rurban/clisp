@@ -24,9 +24,16 @@ rmrf
       (ext:make-dir name))
   NIL)
 prepare-dir
+(defun show-db (db)
+  (let ((*print-pretty* t))
+    (print (list db (bdb:db-fd db) (bdb:db-stat db)
+                 (bdb:db-get-options db))))
+  nil)
+show-db
 
 (prepare-dir "bdb-home/") NIL
 (prepare-dir "bdb-data/") NIL
+(null (delete-file "bdb-errors")) NIL
 
 ;;; creation
 
@@ -36,30 +43,49 @@ prepare-dir
                      :data_dir "bdb-data/")
 NIL
 
-(progn (print (multiple-value-list (bdb:env-get-options *dbe*))) nil) NIL
+(progn (print (bdb:env-get-options *dbe*)) nil) NIL
 
 (bdb:env-open *dbe* :home "bdb-home/" :create t :init_mpool t) NIL
 
-(progn (print (multiple-value-list (bdb:env-get-options *dbe*))) nil) NIL
+(progn (print (bdb:env-get-options *dbe*)) nil) NIL
 
 (defvar *db* (print (bdb:db-create *dbe*))) *db*
 
-(bdb:db-open *db* "bdb-data/bazonk.db" :type :BTREE :create t) NIL
+;; the actual file goes to ./bdb-data/bazonk.db !
+(bdb:db-open *db* "bazonk.db" :type :BTREE :create t) NIL
 
-(bdb:db-put *db* (ext:convert-string-to-bytes "foo" charset:utf-8)
-            (ext:convert-string-to-bytes "bar" charset:utf-8))
+(null (probe-file "./bdb-data/bazonk.db")) NIL
+
+(bdb:db-put *db* "foo" "bar")
 NIL
-(bdb:db-put *db* (ext:convert-string-to-bytes "fep" charset:utf-8)
-            (ext:convert-string-to-bytes "blicket" charset:utf-8))
+(bdb:db-put *db* "fep" "blicket")
 NIL
 
 (bdb:db-sync *db*) NIL
-
-(integerp (print (bdb:db-fd *db*))) T
-(progn (print (multiple-value-list (bdb:db-get-options *db*))) nil) NIL
-(progn (print (bdb:db-stat *db*)) nil) nil
-
+(show-db *db*) NIL
 (bdb:db-close *db*)   T
+
+(dolist (type '(:btree :hash))
+  (print type)
+  (bdb:with-open-db (db *dbe* (format nil "test-~A.db" type)
+                        :type type :create t)
+    (show-db db)
+    (dotimes (i 25) (bdb:db-put db i (! i)))))
+NIL
+
+(dolist (type '(:queue :recno))
+  (print type)
+  (let ((db (bdb:db-create *dbe*)))
+    ;; :RE_LEN must be set before DB-OPEN
+    (bdb:db-set-options db :RE_LEN (print (integer-length (! 25))))
+    (bdb:db-open db (format nil "test-~A.db" type) :type type :create t)
+    (show-db db)
+    (unwind-protect
+         (dotimes (i 25) (bdb:db-put db i (! i) :flag :DB_APPEND))
+      (bdb:db-close db))
+    (print db)))
+NIL
+
 (bdb:env-close *dbe*) T
 
 (ext:dir "bdb-home/*") NIL
@@ -80,39 +106,46 @@ NIL
 
 (bdb:env-open *dbe* :home "bdb-home/" :create t :init_mpool t)  NIL
 
-(progn (print (multiple-value-list (bdb:env-get-options *dbe*))) nil) NIL
+(progn (print (bdb:env-get-options *dbe*)) nil) NIL
 
 (progn (setq *db* (print (bdb:db-create *dbe*))) nil) NIL
 
-(bdb:db-open *db* "bdb-data/bazonk.db" :rdonly t) NIL
+(bdb:db-open *db* "bazonk.db" :rdonly t) NIL
 
-(integerp (print (bdb:db-fd *db*))) T
-(progn (print (multiple-value-list (bdb:db-get-options *db*))) nil) NIL
-(progn (print (bdb:db-stat *db*)) nil) nil
+(show-db *db*) NIL
 
 (defvar *cursor* (print (bdb:make-cursor *db*))) *cursor*
 
 (let ((li ()))
   (loop (multiple-value-bind (key val)
-            (bdb:cursor-get *cursor* nil nil :DB_NEXT :error nil)
+            (bdb:cursor-get *cursor* :STRING :STRING :DB_NEXT :error nil)
           (when (eq key :notfound) (return li))
-          (setq key (ext:convert-string-from-bytes key charset:utf-8)
-                val (ext:convert-string-from-bytes val charset:utf-8))
           (format t "~&=[count=~D]=> ~S -> ~S~%"
                   (bdb:cursor-count *cursor*) key val)
           (push (list key val) li))))
 (("foo" "bar") ("fep" "blicket"))
 
-(bdb:db-get *db* (ext:convert-string-to-bytes "bar" charset:utf-8) :error nil)
+(bdb:db-get *db* "bar" :error nil :type :raw)
 :NOTFOUND
 
-(ext:convert-string-from-bytes
- (bdb:db-get *db* (ext:convert-string-to-bytes "foo" charset:utf-8))
- charset:utf-8)
-"bar"
+(bdb:db-get *db* "foo")
+#(98 97 114)                    ; "bar"
 
 (bdb:cursor-close *cursor*) T
 (bdb:db-close *db*)         T
+
+(dolist (type '(:btree :hash :queue :recno))
+  (print type)
+  (bdb:with-open-db (db *dbe* (format nil "test-~A.db" type))
+    (show-db db)
+    (bdb:with-cursor (cu db)
+      (loop (multiple-value-bind (key val)
+                (bdb:cursor-get cu :INTEGER :INTEGER :DB_NEXT :error nil)
+              (when (eq key :notfound) (return))
+              (format t "~&=[count=~D]=> ~S -> ~S~%"
+                      (bdb:cursor-count cu) key val))))))
+NIL
+
 (bdb:env-close *dbe*)       T
 
 (with-open-file (e "bdb-errors" :direction :input)
