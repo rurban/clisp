@@ -10375,17 +10375,36 @@ LISPFUNN(string_input_stream_index,1)
       return stream;
     }}
 
-LISPFUN(make_string_output_stream,0,1,norest,nokey,0,NIL)
-# (MAKE-STRING-OUTPUT-STREAM [line-position]), CLTL S. 330
+LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_position)))
+# (MAKE-STRING-OUTPUT-STREAM [:element-type] [:line-position])
   { # line-position überprüfen:
     if (eq(STACK_0,unbound))
       { STACK_0 = Fixnum_0; } # Defaultwert 0
       else
       # line-position angegeben, sollte ein Fixnum >=0 sein:
       { if (!posfixnump(STACK_0)) { fehler_posfixnum(STACK_0); } }
+    # element-type überprüfen:
+    if (!eq(STACK_1,unbound))
+      { var object eltype = STACK_1;
+        if (!(eq(eltype,S(character)) || eq(eltype,S(string_char))))
+          { # Verify (SUBTYPEP eltype 'CHARACTER):
+            pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
+            if (nullp(value1))
+              { pushSTACK(STACK_1); # eltype
+                pushSTACK(S(character)); # CHARACTER
+                pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
+                pushSTACK(S(make_string_output_stream));
+                fehler(error,
+                       DEUTSCH ? "~: ~-Argument muss ein Untertyp von ~ sein, nicht ~" :
+                       ENGLISH ? "~: ~ argument must be a subtype of ~, not ~" :
+                       FRANCAIS ? "~ : L'argument ~ doit être un sous-type de ~, et non ~" :
+                       ""
+                      );
+      }   }   }
    {var object stream = make_string_output_stream(); # String-Output-Stream
     TheStream(stream)->strm_wr_ch_lpos = popSTACK(); # Line Position eintragen
     value1 = stream; mv_count=1; # stream als Wert
+    skipSTACK(1);
   }}
 
 # UP: Liefert das von einem String-Output-Stream Angesammelte.

@@ -1701,7 +1701,7 @@
 (defun format-case-conversion (stream colon-modifier atsign-modifier)
   (setq *FORMAT-CSDL* (cdr *FORMAT-CSDL*))
   (let ((tempstr
-          (let ((tempstream (make-string-output-stream (sys::line-position stream))))
+          (let ((tempstream (make-string-output-stream :line-position (sys::line-position stream))))
             (format-interpret tempstream 'FORMAT-CASE-CONVERSION-END)
             ; Was bewirkt UP-AND-OUT in ~{...~(...~^...~)...~} ??
             (get-output-stream-string tempstream)
@@ -1881,7 +1881,7 @@
        &optional (mincol 0) (colinc 1) (minpad 0) (padchar #\Space))
   (let* ((saved-csdl *FORMAT-CSDL*)
          (pos (sys::line-position stream))
-         (tempstream (make-string-output-stream pos))
+         (tempstream (make-string-output-stream :line-position pos))
          (check-on-line-overflow nil)
          supplementary-need
          line-length
@@ -2497,7 +2497,7 @@
                            (setq forms (revappend inner-forms forms))
                          )
                          (push `(LET ((ORIG-STREAM STREAM)
-                                      (STREAM (MAKE-STRING-OUTPUT-STREAM (SYS::LINE-POSITION STREAM))))
+                                      (STREAM (MAKE-STRING-OUTPUT-STREAM :LINE-POSITION (SYS::LINE-POSITION STREAM))))
                                   ,@(let* ((*format-uwps* (cons 'NIL *format-uwps*))
                                            (inner-forms
                                              (let ((*format-case* t))
@@ -2694,7 +2694,7 @@
                               (bindings
                                 `((POS (SYS::LINE-POSITION STREAM))
                                   (ORIG-STREAM STREAM)
-                                  (STREAM (MAKE-STRING-OUTPUT-STREAM POS))
+                                  (STREAM (MAKE-STRING-OUTPUT-STREAM :LINE-POSITION POS))
                                  )
                               )
                               (justify-args
