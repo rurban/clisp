@@ -1,3 +1,7 @@
+2000-04-25  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (print_license): Add paragraph pointing to copyright.html.
+
 2000-04-18  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d: On BeOS, define UTF8_CHS, not ISOLATIN_CHS.
