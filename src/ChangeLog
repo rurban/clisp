@@ -1,5 +1,10 @@
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
+        * pathname.d (PARSE-NAMESTRING): Make treatment of :HOST argument CLHS
+          compliant.
+
+2001-02-04  Bruno Haible  <haible@clisp.cons.org>
+
         * spvw.d (init_symbol_values): Initialize
           SYS::*LOGICAL-PATHNAME-TRANSLATIONS* to an EQUALP hash table.
 
