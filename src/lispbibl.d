@@ -11427,11 +11427,17 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: Stellt fest, ob im Stream stream ein Zeichen sofort verfügbar ist.
 # stream_listen(stream)
 # > stream: Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
 # kann GC auslösen
   extern signean stream_listen (object stream);
+  #define ls_avail  0
+  #define ls_eof   -1
+  #define ls_wait   1
+  #define ls_avail_p(x)  ((x) == 0)
+  #define ls_eof_p(x)  ((x) < 0)
+  #define ls_wait_p(x)  ((x) > 0)
 # wird verwendet von IO, DEBUG
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Stream stream.
