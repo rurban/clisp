@@ -3609,6 +3609,7 @@ local inline void *libopen (char *libname, uintL version)
  #if defined(WIN32_NATIVE)
   return (void*)LoadLibrary(libname);
  #else
+  /* FIXME: On UNIX_DARWIN, need to search for the library in /usr/lib */
   return dlopen(libname,RTLD_NOW);
  #endif
 }
