@@ -1,3 +1,8 @@
+2004-08-27  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (main): Change the SIZE_ARG macro such that too high values
+	generate a warning, not an error.
+
 2004-08-26  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d: Support TYPECODES_1 on Darwin/PowerPC.

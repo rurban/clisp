@@ -1896,10 +1896,15 @@ global int main (argc_t argc, char* argv[]) {
                   fputs("\n",stderr);                                      \
                   usage (1);                                               \
                 }                                                          \
-                if (!((val >= limit_low) && (val <= limit_high))) {        \
+                if (val < limit_low) {                                     \
                   fprintf(stderr,GETTEXTL("%s out of range"), docstring);  \
                   fputs("\n",stderr);                                      \
                   usage (1);                                               \
+                }                                                          \
+                if (val > limit_high) {                                    \
+                  fprintf(stderr,GETTEXTL("warning: %s out of range, using %u instead"), docstring, limit_high); \
+                  fputs("\n",stderr);                                      \
+                  val = limit_high;                                        \
                 }                                                          \
                 # For multiple -m resp. -s arguments, only the last counts.\
                 sizevar = val;                                             \
