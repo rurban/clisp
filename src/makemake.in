@@ -3442,7 +3442,7 @@ if [ $CROSS = false ] ; then
       ;;
   esac
   echol "clisp : clisp.c${DRIVER_DEP}"
-  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR=NULL -DLOCALEDIR=NULL clisp.c${DRIVER_RES} ${LIBS} -o clisp"
+  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} -o clisp"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"

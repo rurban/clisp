@@ -51,6 +51,7 @@ extern void perror (const char *);
 #endif
 
 #if defined(UNIX_BINARY_DISTRIB)
+# if !ENABLE_RELOCATABLE
 
 char room_for_lisplibdir[10240] = "%MAGIC%LISPLIBDIR=" LISPLIBDIR;
 # undef LISPLIBDIR
@@ -60,12 +61,13 @@ char room_for_localedir[10240] = "%MAGIC%LOCALEDIR=" LOCALEDIR;
 # undef LOCALEDIR
 # define LOCALEDIR  &room_for_localedir[7 + strlen("LOCALEDIR") + 1]
 
+# endif
 #endif
 
 int main (int argc, char* argv[])
 {
-  char* lisplibdir = LISPLIBDIR;
-  char* localedir = LOCALEDIR;
+  char* lisplibdir;
+  char* localedir;
   char* argv_lisplibdir = NULL;
 #if defined(WIN32_NATIVE) && !defined(__MINGW32__)
   char* argv_linkingset = "";
@@ -93,30 +95,44 @@ int main (int argc, char* argv[])
    * It follows that we cannot tell whether we have been called as
    * script interpreter or directly.
    */
-  if (NULL == lisplibdir) {
-    /* put my absolute path into executable_name */
-    if (-1 == find_executable(program_name)) {
-      fprintf(stderr,"%s: cannot figure out the absolute executable path",
-              program_name);
-      return -1;
-    }
-    { /* figure out lisplibdir and localedir */
-      int exec_len = strlen(executable_name), lib_len;
-      char *p = executable_name + exec_len;
-      while (*p != '/' && *p != '\\') p--;
-      lib_len = p-executable_name;
-      lisplibdir = (char*)malloc(lib_len+1);
-      if (NULL == lisplibdir) goto oom;
-      strncpy(lisplibdir,executable_name,lib_len);
-      lisplibdir[lib_len] = 0;
-      if (NULL == localedir) {
-        localedir = (char*)malloc(lib_len + 10);
-        if (NULL == localedir) goto oom;
-        strcpy(localedir,lisplibdir);
-        strcat(localedir,"/locale/");
-      }
-    }
+# if ENABLE_RELOCATABLE
+  /* Put this executable's absolute path into executable_name. */
+  if (find_executable(program_name) < 0) {
+    fprintf(stderr,"%s: cannot figure out the absolute executable path",
+            program_name);
+    return 1;
   }
+  /* Figure out lisplibdir and localedir. */
+  {
+    unsigned int libdir_len;
+    const char *p;
+    char *mem;
+    /* The libdir is determined as `dirname $executable_name`. */
+    for (p = executable_name + strlen(executable_name);; p--) {
+      if (p == executable_name) abort();
+      if (*p == '/') break;
+#ifdef WIN32_NATIVE
+      if (*p == '\\') break;
+#endif
+    }
+    libdir_len = p - executable_name;
+    mem = (char*)malloc((libdir_len+1)+(libdir_len+7+1));
+    if (mem == NULL) goto oom;
+    lisplibdir = mem;
+    localedir = mem + (libdir_len+1);
+    /* Compute lisplibdir from it. */
+    memcpy(lisplibdir,executable_name,libdir_len);
+    lisplibdir[libdir_len] = '\0';
+    /* Compute localedir from it. */
+    memcpy(localedir,executable_name,libdir_len);
+    localedir[libdir_len] = *p; /* directory separator */
+    memcpy(localedir+libdir_len+1,"locale",6);
+    localedir[libdir_len+7] = '\0';
+  }
+# else
+  lisplibdir = LISPLIBDIR;
+  localedir = LOCALEDIR;
+# endif
   /*
    * Script execution on Unix is implemented like this:
    * - The basename/fullname of the interpreter is put into argv[0].

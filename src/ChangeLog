@@ -1,5 +1,17 @@
 2005-03-25  Bruno Haible  <bruno@clisp.org>
 
+	Fix clisp.c on Unix.
+	* makemake.in (clisp): Set ENABLE_RELOCATABLE.
+	* _clisp.c: Use ENABLE_RELOCATABLE to determine whether to call
+	find_executable.
+	(room_from_lisplibdir, room_for_localedir): Don't define when
+	ENABLE_RELOCATABLE is given.
+	(main): If find_executable fails, exit with code 1, not -1. Don't
+	pollute Unix code with backslash handling. Perform a single memory
+	allocation instead of two.
+
+2005-03-25  Bruno Haible  <bruno@clisp.org>
+
 	* m4/general.m4 (CL_CANONICAL_HOST_CPU): Set host_cpu_instructionset
 	instead of modifying host_cpu.
 	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): Set host_cpu_abi instead of
