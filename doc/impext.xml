@@ -2,7 +2,7 @@
 
 <chapter id="ext-p-indep"><title>Platform Independent Extensions</title>
 
-<section id="craddle-grave"><title>Craddle to Grave</title>
+<section id="cradle-grave"><title>Cradle to Grave</title>
 <subtitle>What is done when.</subtitle>
 <orderedlist numeration="upperalpha">
 <listitem><orderedlist numeration="arabic" inheritnum="inherit">
@@ -10,7 +10,8 @@
 <listitem><simpara>Load the &mem-image;.</simpara></listitem>
 <listitem><simpara>Install internal signal handlers.</simpara></listitem>
 <listitem><simpara>Initialize time variables.</simpara></listitem>
-<listitem><simpara>Initialize locale-dependent encodings.</simpara></listitem>
+<listitem><simpara>Initialize <link linkend="enc-dflt">locale-dependent
+   encodings</link>.</simpara></listitem>
 <listitem><simpara>Initialize stream variables.</simpara></listitem>
 <listitem><simpara>Initialize pathname variables.</simpara></listitem>
 <listitem><simpara>Initialize &ffi-pac;.</simpara></listitem>
@@ -19,7 +20,8 @@
 <listitem id="init-hooks"><simpara>Run all functions in &init-hooks;
   like this: <literal role="sexp">(&mapc; #'&funcall;
    &init-hooks;)</literal>.</simpara></listitem>
-</orderedlist></listitem>
+<listitem><simpara>Say <quote>hi</quote> unless suppressed by &opt-v;.
+</simpara></listitem></orderedlist></listitem>
 <listitem><para>Handle command line options: file
   <olink targetdoc="man" targetptr="opt-init">loading</olink> and/or
   <olink targetdoc="man" targetptr="opt-compile">compilation</olink>,
@@ -33,8 +35,8 @@
    &fini-hooks;)</literal>.</simpara></listitem>
 <listitem><simpara>Call &fresh-line; on the standard
   streams.</simpara></listitem>
-<listitem><simpara>Say <quote>bye</quote> if not suppressed by
-  &opt-v;.</simpara></listitem>
+<listitem><simpara>Say <quote>bye</quote> unless suppressed by &opt-v;.
+</simpara></listitem>
 <listitem><simpara>Wait for a keypress if requested by
   <option><olink targetdoc="man" targetptr="opt-wait">-w</olink></option>.
 </simpara></listitem>
