@@ -78,6 +78,8 @@ dnl
 dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
 AM_ICONV
 dnl USE_NLS CPPFLAGS LIBINTL
+dnl Set of all available languages [this is also a /bin/sh/ command!]
+ALL_LINGUAS="en de fr es nl"
 AM_GNU_GETTEXT([external], [need-ngettext])
 dnl
 dnl           checks for compiler characteristics
@@ -326,6 +328,12 @@ CL_CHAR_UNSIGNED
 dnl builds intparam.h
 CL_MACHINE([integer types and behaviour],
 ${srcdir}/intparam.c,intparam.h,cl_cv_file_intparam_h)
+dnl
+dnl gettext po files
+dnl
+AC_SUBST(PACKAGE)dnl
+PACKAGE="clisp"
+AC_OUTPUT([po/Makefile.in])
 dnl
 dnl           other checks for UNIX variants
 dnl

@@ -2592,14 +2592,14 @@ if [ -n "$USE_GETTEXT" ] ; then
   if [ $HOS = unix ] ; then
     echotab "if test -d locale; then rm -rf locale; fi"
     echotab "mkdir locale"
-    echotab "(cd gettext/po && \$(MAKE) && \$(MAKE) install datadir=../.. localedir='\$\$(datadir)/locale' INSTALL_DATA=ln) || (rm -rf locale ; exit 1)"
+    echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA=ln) || (rm -rf locale ; exit 1)"
   else
     echotab "mkdir locale"
-    eval `grep ALL_LINGUAS= src/gettext/configure.in`
+    eval `grep ALL_LINGUAS= src/configure.in`
     for lang in ${ALL_LINGUAS:-"en de fr"}; do
       echotab "mkdir locale${NEXT_}${lang}"
       echotab "mkdir locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
-      echotab "\$(LN_S) gettext${NEXT_}po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
+      echotab "\$(LN_S) po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
     done
   fi
   echol
@@ -3202,7 +3202,7 @@ if [ $CROSS = false ] ; then
     echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/full"
     echotab_mkdir_maybe "\$(DESTDIR)\$(bindir)"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd gettext/po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
+      echotab "cd po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
@@ -3251,7 +3251,7 @@ if [ $CROSS = false ] ; then
     # Don't strip the executables, otherwise (disassemble #'cons) won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd gettext/po && \$(MAKE) install prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
+      echotab "cd po && \$(MAKE) install prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
       localeflags=" -B \$(lisplibdir) -N \$(localedir)"
     else
       localeflags=" -B \$(lisplibdir)"
@@ -3329,7 +3329,7 @@ if [ $CROSS = false ] ; then
     echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/full/lispinit.mem"
     echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd gettext/po && \$(MAKE) uninstall prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
+      echotab "cd po && \$(MAKE) uninstall prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
     echol
     echol "uninstall-man : force"
@@ -3665,7 +3665,7 @@ cat <<!!
 fi
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
-	cd gettext/po && \$(MAKE) clean
+	cd po && \$(MAKE) clean
 	-\$(RMRF) locale
 !!
 fi
@@ -3720,7 +3720,7 @@ cat <<!!
 fi
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
-	cd gettext/po && \$(MAKE) distclean
+	cd po && \$(MAKE) distclean
 	-\$(RMRF) locale
 !!
 fi
