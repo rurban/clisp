@@ -156,6 +156,9 @@
 <!ENTITY spelalist "<ulink url='&clhs;/Body/sec_3-4-3.html'>specialized lambda list</ulink>">
 <!ENTITY laexpr "<ulink url='&clhs;/Body/sec_3-1-3.html'>lambda expression</ulink>">
 <!ENTITY comp-unit "<ulink url='&clhs;/Body/glo_c.html#compilation_unit'>compilation unit</ulink>">
+<!ENTITY declaration-specifier-glo "<ulink url='&clhs;/Body/glo_d.html#declaration_specifier'>declaration specifier</ulink>">
+<!ENTITY proper-list-glo "<ulink url='&clhs;/Body/glo_p.html#proper_list'>proper list</ulink>">
+<!ENTITY proper-name-glo "<ulink url='&clhs;/Body/glo_p.html#proper_name'>proper name</ulink>">
 
 <!-- *** variables, bindings etc *** -->
 <!ENTITY environment "<ulink url='&clhs;/Body/sec_3-1-1.html'>environment</ulink>">
