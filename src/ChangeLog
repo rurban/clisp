@@ -1,5 +1,11 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (gcinvariant_object_p) [TYPECODES]: New macro.
+        * record.d (FINALIZE): No need to allocate a finalizer for an
+          eternally alive object.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_garcol.d (alive) [NO_TYPECODES]: Treat immediate values
           correctly, instead of crashing.
 

@@ -3936,6 +3936,11 @@ Ratio and Complex (only if SPVW_MIXED).
   #error "gcinvariant_type_p() fehlerhaft implementiert!"
 #endif
 
+# Test for gc-invariant object. (This includes immediate, machine, subr.)
+# gcinvariant_object_p(obj)
+  #define gcinvariant_object_p(obj)  \
+    gcinvariant_type_p(typecode(obj))
+
 #else # no TYPECODES
 
 # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
