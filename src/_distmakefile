@@ -23,6 +23,7 @@ docdir = $(exec_prefix)/doc
 lispdocdir = $(docdir)/clisp
 libdir = $(exec_prefix)/lib
 lisplibdir = $(libdir)/clisp
+lexe=@@LEXE@@
 #ifdef GNU_GETTEXT
 # If you have $(exec_prefix) different from $(prefix), and indend to use
 # different versions of CLISP on different architectures, replace the
@@ -58,14 +59,14 @@ INSTALL_DATA = $(INSTALL)
 
 SHELL = /bin/sh
 
-all : base/lisp.run full/lisp.run
+all : base/lisp$(lexe) full/lisp$(lexe)
 
 #ifndef UNIX_BINARY_DISTRIB
-base/lisp.run : @@BASE_FILES@@
-	$(CC) $(CFLAGS) @@BASE_LIBS@@ -o base/lisp.run
+base/lisp$(lexe) : @@BASE_FILES@@
+	$(CC) $(CFLAGS) @@BASE_LIBS@@ -o base/lisp$(lexe)
 
-full/lisp.run : @@FULL_FILES@@
-	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp.run
+full/lisp$(lexe) : @@FULL_FILES@@
+	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp$(lexe)
 
 #endif
 clisp: src/clisp.c

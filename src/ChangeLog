@@ -1,5 +1,11 @@
 2002-10-01  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 617221 ]: distmakefile on cygwin uses `run', not `exe'
+	* _distmakefile (lexe): new variable, init to @@LEXE@@
+	* makemake.in (distmakefile): substitute ${LEXE} for @@LEXE@@
+
+2002-10-01  Sam Steingold  <sds@gnu.org>
+
 	* m4/readline.m4: check for `rl_already_prompted' after
 	AC_SEARCH_LIBS and define HAVE_READLINE on success
 	* lispbibl.d, unixconf.h.in: use HAVE_READLINE instead of
