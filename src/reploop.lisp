@@ -589,7 +589,7 @@ Continue       :c       switch off single step mode, continue evaluation
 
 (defun step-values (values)
   (let ((*standard-output* *debug-io*))
-    (terpri #|*debug-io*|#)
+    (fresh-line #|*debug-io*|#)
     (write-string (TEXT "step ") #|*debug-io*|#)
     (write *step-level* #|:stream *debug-io*|#)
     (write-string " ==> " #|*debug-io*|#)
@@ -602,7 +602,8 @@ Continue       :c       switch off single step mode, continue evaluation
          (do ((L values))
              ((endp L))
            (write (pop L) #|:stream *debug-io*|#)
-           (unless (endp L) (write-string ", " #|*debug-io*|#))))))
+           (unless (endp L) (write-string ", " #|*debug-io*|#)))))
+    (elastic-newline #|*debug-io*|#))
   (values-list values))
 
 (defun step-level () *step-level*)
