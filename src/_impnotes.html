@@ -1759,15 +1759,16 @@ element types <code>(unsigned-byte 2)</code>, <code>(unsigned-byte
 <code>bit</code> and <code>character</code>.
 
 <p><table>
+<tr><td><td>on 32-bit machines<td>on 64-bit machines
 <tr><td><a href="CLHSROOT/Body/convar_array-rank-limit.html">
     <code>array-rank-limit</code></a>
-    <td>=<td>2<SUP>16</SUP><td>=<td>65536 (4294967296 ??)
+    <td>2<SUP>16</SUP>=65536<td>2<SUP>32</SUP>=4294967296
 <tr><td><a href="CLHSROOT/Body/convar_array-_ension-limit.html">
     <code>array-dimension-limit</code></a>
-    <td>=<td>2<SUP>24</SUP><td>=<td>16777216
+    <td>2<SUP>24</SUP>=16777216<td>2<SUP>32</SUP>=4294967296
 <tr><td><a href="CLHSROOT/Body/convar_array-_l-size-limit.html">
     <code>array-total-size-limit</code></a>
-    <td>=<td>2<SUP>24</SUP><td>=<td>16777216
+    <td>2<SUP>24</SUP>=16777216<td>2<SUP>32</SUP>=4294967296
 </table>
 
 <p>Note that these constants are not fixnums, contrary to the ANSI CL
@@ -4296,7 +4297,7 @@ vote.
  <tr><td><a href="CLHSROOT/Issues/iss215.html">
      LOAD-OBJECTS:MAKE-LOAD-FORM</a>               <td>no
  <tr><td><a href="CLHSROOT/Issues/iss216.html">
-     LOAD-TIME-EVAL:R**2-NEW-SPECIAL-FORM</a>      <td>??
+     LOAD-TIME-EVAL:R**2-NEW-SPECIAL-FORM</a>      <td>obsolete
  <tr><td><a href="CLHSROOT/Issues/iss217.html">
      LOAD-TIME-EVAL:R**3-NEW-SPECIAL-FORM</a>
      <td>yes, except for macro expansion at compile time
@@ -4325,7 +4326,7 @@ vote.
  <tr><td><a href="CLHSROOT/Issues/iss229.html">
      MACRO-ENVIRONMENT-EXTENT:DYNAMIC</a>          <td>yes
  <tr><td><a href="CLHSROOT/Issues/iss230.html">
-     MACRO-FUNCTION-ENVIRONMENT</a>                <td>??
+     MACRO-FUNCTION-ENVIRONMENT</a>                <td>obsolete
  <tr><td><a href="CLHSROOT/Issues/iss231.html">
      MACRO-FUNCTION-ENVIRONMENT:YES</a>            <td>no
  <tr><td><a href="CLHSROOT/Issues/iss232.html">
