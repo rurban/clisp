@@ -1,5 +1,13 @@
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
+	optimize away COMPLEMENT in :TEST (COMPLEMENT ...)
+	* compiler.lisp (c-TEST/TEST-NOT): new function
+	(c-form-table): map the functions with :TEST/:TEST-NOT keys
+	listed in <http://www.lisp.org/HyperSpec/Body/sec_1-8-2.html>
+	to c-TEST/TEST-NOT
+
+2001-12-20  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-seqop): do not need to check whether the user
 	rebound NOT (this optimization does not depend on it)
 
