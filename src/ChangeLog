@@ -1,3 +1,7 @@
+2001-09-19  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (DEBUGGING): handle on win32msvc
+
 2001-09-17  Sam Steingold  <sds@gnu.org>
 
 	finished the Pretty-Printer
