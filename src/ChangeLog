@@ -1,3 +1,8 @@
+2004-09-16  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (compute-slot-location-table-entry): Make it work
+	for STRUCTURE-CLASS classes.
+
 2004-09-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp (SE_ERROR, SHOW_COMMAND): new enums
