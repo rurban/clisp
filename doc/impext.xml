@@ -1750,6 +1750,8 @@ returns two values:
 <section id="modules"><title>Extensions-2.2. External Modules</title>
 <subtitle>Platform dependent: &unix; platforms only.</subtitle>
 
+<section id="mod-overview"><title>Overview</title>
+
 <para>&clisp; has a facility for adding external modules (written in
  &c-lang;, for example).  It is invoked through
  <command>clisp-link</command>.</para>
@@ -1898,6 +1900,23 @@ containing:</para>
  <option>--with-dynamic-modules</option> precludes some efficiency
  optimizations which are on by default.</para>
 
+</section>
+
+<section id="modinfo"><title>Function &modinfo;</title>
+
+<para>Function <literal role="sexp">(&modinfo; &optional-amp; &name-r;
+  <replaceable>verbose</replaceable>)</literal> allows one to inquire
+ about what modules are available in the currently running image.
+ When called without arguments, it returns the list of module names,
+ starting with <quote>clisp</quote>.  When &name-r; is supplied and
+ names a module, 3 values are returned - &name-r;,
+ <replaceable>subr-count</replaceable>,
+ <replaceable>object-count</replaceable>.
+ When <replaceable>verbose</replaceable> is non-&nil;, the full list of
+ module lisp function names written in &c-lang; (<type>Subr</type>s) and
+ the full list of internal lisp objects available in &c-lang; code
+ are additionally returned for the total of 5 values.</para></section>
+
 <section id="mod-set-example"><title>Example</title>
 
 <para>To link in the &ffi-pac; bindings for the &gnu;/&linux; operating
@@ -2021,16 +2040,15 @@ containing:</para>
 <variablelist><title>special &ffi-pac; forms; &name-r; is any Lisp
    &symbol-t;; &cname-r; is a &string-t;.</title>
 <varlistentry id="def-c-type">
-  <term><literal role="sexp">(<function>def-c-type</function>
-        &name-r; &ctype-r;)</literal></term>
+ <term><literal role="sexp">(&def-c-type; &name-r; &ctype-r;)</literal></term>
  <listitem><simpara>This form makes &name-r; a shortcut for &ctype-r;.
-  Note that &ctype-r; may already refer to name.
-  Forward declarations of types are not possible, however.
- </simpara></listitem></varlistentry>
+   Note that &ctype-r; may already refer to name.
+   Forward declarations of types are not possible, however.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="def-c-var">
-  <term><literal role="sexp">(<function>def-c-var</function>
-        &name-r; {&option-r;}*)</literal></term>
+ <term><literal role="sexp">(&def-c-var; &name-r;
+   {&option-r;}*)</literal></term>
 <listitem><table id="def-c-var-bnf" frame="all" role="bnf"><title/>
  <tgroup cols="3" colsep="1" rowsep="1" align="left"><thead><row>
  <entry>&option-r; ::==</entry><entry/><entry/></row></thead><tbody>
@@ -2038,9 +2056,9 @@ containing:</para>
    &cname-r;)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(&type-k;
   &ctype-r;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:read-only
+<row><entry/><entry>|</entry><entry><literal role="sexp">(&ro-k;
   <replaceable>boolean</replaceable>)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:alloc
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:ALLOC
   &allocation;)</literal></entry></row>
 </tbody></tgroup></table>
 
@@ -2053,11 +2071,11 @@ containing:</para>
 
 <simpara>The &type-k; option specifies the variable's foreign type.</simpara>
 
-<simpara>If the <constant>:read-only</constant> option is specified and
-non-&nil;, it will be impossible to change the variable's value from
-within Lisp (using &setq; or similar).</simpara>
+<simpara>If the &ro-k; option is specified and non-&nil;,
+ it will be impossible to change the variable's value from within Lisp
+ (using &setq; or similar).</simpara>
 
-<simpara>The <constant>:alloc</constant> option can be either &none-k;
+<simpara>The <constant>:ALLOC</constant> option can be either &none-k;
  or &malloc-free-k; and defaults to &none-k;.  If it is &malloc-free-k;,
  any values of type &c-string;, &c-ptr;, &c-ptr-null;, &c-array-ptr;
  within the foreign value are assumed to be pointers to
@@ -2220,7 +2238,7 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="c-var-addr"><term><literal role="sexp">(&c-var-addr;
            &cplace-r;)</literal></term>
 <listitem><simpara>Return the address of &cplace-r; as a Lisp object of
-  type <type>FFI:FOREIGN-ADDRESS</type>.  This is useful as an argument
+  type &foreign-address-t;.  This is useful as an argument
   to foreign functions expecting a parameter of &c-lang; type &c-pointer;.
  </simpara></listitem></varlistentry>
 
@@ -2263,6 +2281,36 @@ within Lisp (using &setq; or similar).</simpara>
   probably not be passed to most foreign functions).
  </simpara></listitem></varlistentry>
 
+<varlistentry id="faddr">
+ <term><literal role="sexp">(&foreign-address; &f-ent;)</literal></term>
+ <listitem><simpara>&foreign-address; is both a type name and a
+   selector/constructor function. It is the Lisp object type
+   corresponding to a &c-pointer; external type declaration, i.e. a
+   call-out function with <literal role="sexp">(:RETURN-TYPE
+    &c-pointer;)</literal> yields a Lisp object of type
+   &foreign-address-t;.</simpara>
+  <simpara>The function extracts the object of type &foreign-address-t;
+   living within any &foreign-variable; or &foreign-function; object.
+   If the &f-ent; already is a &foreign-address-t;, it returns it.
+   If it is a &foreign-pointer; (e.g. a base foreign library address),
+   it encapsulates it into a &foreign-address-t; object, as suitable
+   for use with a &c-pointer; external type declaration.
+   It does not construct addresses out of &number-t;s,
+   &unsigned-foreign-address; must be used for that purpose.
+</simpara></listitem></varlistentry>
+
+ <varlistentry id="faddr-u">
+ <term><literal role="sexp">(&foreign-address-unsigned;
+   &f-ent;)</literal></term>
+ <term><literal role="sexp">(&unsigned-foreign-address;
+   &number-r;)</literal></term>
+ <listitem><simpara>&foreign-address-unsigned; returns the &integer-t;
+   address embodied in the Lisp object of type &foreign-address-t;,
+   &foreign-pointer;, &foreign-variable; or &foreign-function;.</simpara>
+  <simpara>&unsigned-foreign-address; returns a &foreign-address-t;
+   object pointing to the given &integer-t; address.
+</simpara></listitem></varlistentry>
+
 <varlistentry id="foreign-stack">
   <term><literal role="sexp">(&with-foreign-object; (&var-r; &ctype-r;
       [<replaceable>initarg</replaceable>]) &body-r;)</literal></term>
@@ -2289,7 +2337,102 @@ within Lisp (using &setq; or similar).</simpara>
   (print fv))</programlisting>
  </para></listitem></varlistentry>
 
+<varlistentry id="foreign-stack-string">
+ <term><literal role="sexp">(&with-foreign-string;
+   (&f-addr; <replaceable>char-count</replaceable>
+    <replaceable>byte-count</replaceable> &string-r;
+    &key-amp; &encoding-r; <replaceable>null-terminated-p</replaceable>
+    &start-r; &end-r;) &body-amp; &body-r;)</literal></term>
+ <listitem><simpara>This forms converts a Lisp &string-r; according to
+   the &encoding-r;, allocating space on the &c-lang; execution stack.
+   &encoding-r; can be any &encoding;, e.g.
+   <link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>
+   or &utf-8;, circumventing the usual 1:1 limit imposed on
+   &foreign-enc;.</simpara>
+  <simpara>&body-r; is then executing with the three variables &f-addr;,
+   <replaceable>char-count</replaceable> and
+   <replaceable>byte-count</replaceable> respectively bound to an
+   untyped &foreign-address-t; (as known from the &c-pointer; foreign
+   type specification) pointing to the stack location, the number of
+   &character-t;s of the Lisp &string-r; that were considered and the
+   number of &unsigned-byte-8; bytes that were allocated for it on the
+   &c-lang; stack.</simpara>
+  <simpara>When <replaceable>null-terminated-p</replaceable> is true,
+   which is the default, a variable number of zero bytes is appended,
+   depending on the encoding, e.g. 2 for &utf-8;,
+   and accounted for in <replaceable>byte-count</replaceable>,
+   and <replaceable>char-count</replaceable> is incremented by one.</simpara>
+  <simpara>The &foreign-address-t; object bound to &f-addr; is
+   invalidated upon the exit from the form. </simpara>
+  <para>A stupid example (a quite costly interface to &mblen;):
+<programlisting>(with-foreign-string (fv elems bytes string
+                      :encoding charset:jis... :null-terminated-p nil
+                      :end 5)
+ (declare (ignore fv elems))
+ (format t "This string would take ~D bytes." bytes))</programlisting>
+</para></listitem></varlistentry>
 
+<varlistentry id="c-type-parse">
+ <term><literal role="sexp">(&parse-c-type; &ctype-r;
+   &optional-amp; &name-r;)</literal></term>
+ <term><literal role="sexp">(&deparse-c-type; &ctypei-r;)</literal></term>
+ <listitem><simpara>Convert between the external (&list-t;) and internal
+   (&vector-t;) &c-lang; type representations (used by &describe;).
+</simpara></listitem></varlistentry>
+
+<varlistentry id="foreign-heap">
+ <term><literal role="sexp">(&allocate-shallow; &ctype-r;
+   &key-amp; &count-k; &ro-k;)</literal></term>
+ <term><literal role="sexp">(&allocate-deep; &ctype-r; &cont-r;
+   &key-amp; &count-k; &ro-k;)</literal></term>
+ <term><literal role="sexp">(&foreign-free; &f-ent;
+   &key-amp; :FULL)</literal></term>
+ <term><literal role="sexp">(&foreign-allocate; &ctypei-r;
+   &key-amp; :INITIAL-CONTENTS &count-k; &ro-k;)</literal></term>
+ <listitem><simpara>Macro &allocate-shallow; allocates
+   <literal role="sexp">(&sizeof; &ctype-r;)</literal>
+   bytes on the &c-lang; heap and zeroes them out (like &calloc;).
+   When &count-k; is supplied, &ctype-r; is substituted with
+   <literal role="type">(&c-array; &ctype-r; &count-r;)</literal>,
+   except when &ctype-r; is &character-t;, in which case
+   <literal role="type">(&c-array-max; &character-t; &count-r;)</literal>
+   is used instead.
+   When &ro-k; is supplied, the Lisp side is prevented from modifying the
+   memory contents.  This can be used as an indication that some foreign
+   side is going to fill this memory (e.g. via &read-c;).</simpara>
+  <simpara>Returns a &foreign-variable; object of the actual &ctype-r;,
+   whose address part points to the newly allocated memory.</simpara>
+  <simpara>&allocate-deep; will call &c-lang; &malloc; as many times
+   as necessary to build a structure on the &c-lang; heap of the given
+   &ctype-r;, initialized from the given &cont-r;.</simpara>
+  <simpara>E.g., <literal role="sexp">(&allocate-deep; '&c-string;
+    "ABCDE")</literal> performs 2 allocations: one for a &c-lang;
+   pointer to a string, another for the contents of that string.
+   This would be useful in conjunction with a <type>char**</type>
+   &c-lang; type declaration.  <literal role="sexp">(&allocate-shallow;
+    '&c-string;)</literal> allocates room for a single pointer
+   (probably 4 bytes).</simpara>
+  <simpara><literal role="sexp">(&allocate-deep; '&character-t;
+    "ABCDEF" :count 10)</literal> allocates and initializes room for the
+   type <literal role="type">(&c-array-max; &character-t; 10)</literal>,
+   corresponding to <type>char*</type> or, more specifically,
+   <type>char[10]</type> in &c-lang;.</simpara>
+  <simpara>Function &foreign-free; deallocates memory at the address
+   held by the given &f-ent;. If <constant>:FULL</constant> is supplied
+   and the argument is of type &foreign-variable;, recursively frees
+   the whole complex stucture pointed to by this variable.</simpara>
+  <simpara>If given a &foreign-function; object that corresponds to a
+   &clisp; callback, deallocates it.  Callbacks are automatically
+   created each time you pass a Lisp function via the &ffi-pac;.</simpara>
+  <simpara>Use <literal role="sexp">(MARK-INVALID-FOREIGN  <!-- FIXME!!! -->
+   &f-ent;)</literal> to disable further references to this address from
+   Lisp. This is currently not done automatically.
+   If the given pointer is already invalid, &foreign-free; (currently)
+   signals an error. This may change to make it easier to integrate with
+   &finalize;.</simpara>
+   <simpara>Function &foreign-allocate; is a lower-level interface as it
+   requires an internal &c-lang; type descriptor as returned by
+   &parse-c-type;.</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
@@ -3140,7 +3283,7 @@ classes.</para>
 allocated and filled from the address returned (unless &c-NULL;).
 Functions with &io-k; parameters are passed the address of the Lisp
 string or unsigned byte vector. These are not &c-NULL;-terminated!
-This is useful for functions like like &read; which
+This is useful for functions like like &read-c; which
 do not need an array at a constant address longer than the dynamic
 extent of the call (it is dangerous to define callback functions with
 &io-k; (or &string-t;) type parameters).
