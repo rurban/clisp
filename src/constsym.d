@@ -1049,6 +1049,9 @@ LISPSYM(array_dimension_limit,"ARRAY-DIMENSION-LIMIT",lisp) # als Konstante in A
 LISPSYM(array_total_size_limit,"ARRAY-TOTAL-SIZE-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(subtype_integer,"SUBTYPE-INTEGER",system) # als Funktion für ARRAY
 LISPSYM(designator,"DESIGNATOR",lisp) # als Typ für CHARSTRG
+LISPSYM(class_slots,"CLASS-SLOTS",clos) # als Funktion für RECORD
+LISPSYM(slotdef_location,"SLOTDEF-LOCATION",clos) # als Funktion für RECORD
+LISPSYM(slotdef_name,"SLOTDEF-NAME",clos) # als Funktion für RECORD
 LISPSYM(structure_object,"STRUCTURE-OBJECT",lisp) # als Typ für RECORD
 LISPSYM(class,"CLASS",clos) # als Typ für RECORD
 LISPSYM(slot_missing,"SLOT-MISSING",clos) # als Funktion für RECORD
@@ -1090,15 +1093,18 @@ LISPSYM(simple_floating_point_underflow,"SIMPLE-FLOATING-POINT-UNDERFLOW",system
 LISPSYM(simple_cell_error,"SIMPLE-CELL-ERROR",system) # als Typ für ERROR                               | LISPBIBL.D,
 LISPSYM(simple_unbound_variable,"SIMPLE-UNBOUND-VARIABLE",system) # als Typ für ERROR                   | CONDITION.LSP
 LISPSYM(simple_undefined_function,"SIMPLE-UNDEFINED-FUNCTION",system) # als Typ für ERROR               | abgestimmt!
+LISPSYM(simple_unbound_slot,"SIMPLE-UNBOUND-SLOT",system) # als Typ für ERROR                           |
 LISPSYM(simple_type_error,"SIMPLE-TYPE-ERROR",lisp) # als Typ für ERROR                                 |
 LISPSYM(simple_keyword_error,"SIMPLE-KEYWORD-ERROR",system) # als Typ für ERROR                         |
 LISPSYM(simple_package_error,"SIMPLE-PACKAGE-ERROR",system) # als Typ für ERROR                         |
 LISPSYM(simple_print_not_readable,"SIMPLE-PRINT-NOT-READABLE",system) # als Typ für ERROR               |
+LISPSYM(simple_parse_error,"SIMPLE-PARSE-ERROR",system) # als Typ für ERROR                             |
 LISPSYM(simple_stream_error,"SIMPLE-STREAM-ERROR",system) # als Typ für ERROR                           |
 LISPSYM(simple_end_of_file,"SIMPLE-END-OF-FILE",system) # als Typ für ERROR                             |
 LISPSYM(simple_file_error,"SIMPLE-FILE-ERROR",system) # als Typ für ERROR                               |
 LISPSYM(simple_storage_condition,"SIMPLE-STORAGE-CONDITION",system) # als Typ für ERROR                 |
 LISPSYM(simple_warning,"SIMPLE-WARNING",lisp) # als Typ für ERROR                                     --+
+LISPSYM(Kinstance,"INSTANCE",keyword) # als make-condition-Argument für ERROR
 LISPSYM(Kdatum,"DATUM",keyword) # als make-condition-Argument für ERROR
 LISPSYM(Kexpected_type,"EXPECTED-TYPE",keyword) # als make-condition-Argument für ERROR
 LISPSYM(Kpackage,"PACKAGE",keyword) # als make-condition-Argument für ERROR

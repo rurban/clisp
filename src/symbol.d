@@ -26,9 +26,10 @@
                 );
         }
       if (consp(fun))
-        { pushSTACK(symbol);
+        { pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+          pushSTACK(symbol);
           pushSTACK(S(function));
-          fehler(error,
+          fehler(undefined_function,
                  DEUTSCH ? "~: ~ ist ein Macro und keine Funktion." :
                  ENGLISH ? "~: ~ is a macro, not a function" :
                  FRANCAIS ? "~ : ~ est une macro et non une fonction." :
@@ -97,8 +98,10 @@ LISPFUNN(putd,2)
           { fehler_lambda_expression(fun); }
       }
     elif (ffunctionp(fun)) goto ok; # Foreign-Function ist auch ok.
+    pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(fun);
-    fehler(error,
+    fehler(type_error,
            DEUTSCH ? "SETF SYMBOL-FUNCTION: ~ ist keine Funktion." :
            ENGLISH ? "SETF SYMBOL-FUNCTION: ~ is not a function" :
            FRANCAIS ? "SETF SYMBOL-FUNCTION : ~ n'est pas une fonction." :

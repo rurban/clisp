@@ -704,5 +704,9 @@
 ;       (eq (clos:class-name f) sym)
 ;) )
 
+(defun recognizable-sequence-type-p (typespec)
+  (or (subtypep typespec 'LIST) (subtypep typespec 'VECTOR))
+)
+
 ;-------------------------------------------------------------------------------
 

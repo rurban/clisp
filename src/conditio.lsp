@@ -10,7 +10,7 @@ restart condition serious-condition error program-error control-error
 arithmetic-error division-by-zero floating-point-overflow
 floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
-cell-error unbound-variable undefined-function
+cell-error unbound-variable undefined-function unbound-slot
 type-error package-error print-not-readable parse-error stream-error
 end-of-file reader-error file-error storage-condition warning
 simple-condition simple-error simple-type-error simple-warning
@@ -20,9 +20,9 @@ with-condition-restarts restart-bind restart-case with-restarts
 with-simple-restart check-type assert etypecase ctypecase ecase ccase
 ;; functions:
 make-condition arithmetic-error-operation arithmetic-error-operands
-cell-error-name type-error-datum type-error-expected-type
-package-error-package print-not-readable-object stream-error-stream
-file-error-pathname simple-condition-format-string
+cell-error-name unbound-slot-instance type-error-datum
+type-error-expected-type package-error-package print-not-readable-object
+stream-error-stream file-error-pathname simple-condition-format-string
 simple-condition-format-arguments
 signal restart-name compute-restarts find-restart invoke-restart
 invoke-restart-interactively invoke-debugger break error cerror warn
@@ -224,6 +224,8 @@ muffle-cerrors appease-cerrors exit-on-error
 ;   |   |   |   |-- unbound-variable
 ;   |   |   |   |
 ;   |   |   |   |-- undefined-function
+;   |   |   |   |
+;   |   |   |   |-- unbound-slot
 ;   |   |   |
 ;   |   |   |-- control-error
 ;   |   |   |
@@ -306,9 +308,10 @@ muffle-cerrors appease-cerrors exit-on-error
       ; trying to get the global function definition of an undefined function
       (define-condition undefined-function (cell-error) ())
 
-      #+ANSI-CL (define-condition unbound-slot (cell-error)
-                  (($instance :initarg :instance :reader unbound-slot-instance))
-                )
+      ; trying to get the value of an unbound slot
+      (define-condition unbound-slot (cell-error)
+        (($instance :initarg :instance :reader unbound-slot-instance))
+      )
 
     ; when some datum does not belong to the expected type
     (define-condition type-error (error)
@@ -330,6 +333,7 @@ muffle-cerrors appease-cerrors exit-on-error
       (($object :initarg :object :reader print-not-readable-object))
     )
 
+    ; errors related to parsing
     (define-condition parse-error (error) ())
 
     ; errors while doing stream I/O
@@ -410,9 +414,11 @@ muffle-cerrors appease-cerrors exit-on-error
 (define-condition simple-cell-error (simple-error cell-error) ())
 (define-condition simple-unbound-variable (simple-error unbound-variable) ())
 (define-condition simple-undefined-function (simple-error undefined-function) ())
+(define-condition simple-unbound-slot (simple-error unbound-slot) ())
 (define-condition simple-keyword-error (simple-error keyword-error) ())
 (define-condition simple-package-error (simple-error package-error) ())
 (define-condition simple-print-not-readable (simple-error print-not-readable) ())
+(define-condition simple-parse-error (simple-error parse-error) ())
 (define-condition simple-stream-error (simple-error stream-error) ())
 (define-condition simple-end-of-file (simple-error end-of-file) ())
 (define-condition simple-file-error (simple-error file-error) ())
@@ -434,10 +440,12 @@ muffle-cerrors appease-cerrors exit-on-error
      (cell-error               . simple-cell-error)
      (unbound-variable         . simple-unbound-variable)
      (undefined-function       . simple-undefined-function)
+     (unbound-slot             . simple-unbound-slot)
      (type-error               . simple-type-error)
      (keyword-error            . simple-keyword-error)
      (package-error            . simple-package-error)
      (print-not-readable       . simple-print-not-readable)
+     (parse-error              . simple-parse-error)
      (stream-error             . simple-stream-error)
      (end-of-file              . simple-end-of-file)
      (file-error               . simple-file-error)

@@ -602,9 +602,10 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   local void fehler_bad_integer(stream,obj)
     var object stream;
     var object obj;
-    { pushSTACK(stream);
+    { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(stream);
       pushSTACK(obj);
-      fehler(error,
+      fehler(stream_error,
              DEUTSCH ? "Integer ~ ist zu groß oder zu klein und kann daher nicht auf ~ ausgegeben werden." :
              ENGLISH ? "integer ~ is out of range, cannot be output onto ~" :
              FRANCAIS ? "L'entier ~, n'étant pas dans l'intervalle souhaité, ne peut pas être écrit dans ~." :
@@ -3109,9 +3110,10 @@ LISPFUNN(make_keyboard_stream,0)
     var object ch;
     { # ch sollte ein Character mit höchstens Font, aber ohne Bits sein:
       if (!((as_oint(ch) & ~(((oint)char_code_mask_c|(oint)char_font_mask_c)<<oint_data_shift)) == as_oint(type_data_object(char_type,0))))
-        { pushSTACK(*stream_);
+        { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
+          pushSTACK(*stream_);
           pushSTACK(ch);
-          fehler(error,
+          fehler(stream_error,
                  DEUTSCH ? "Character ~ enthält Bits und kann daher nicht auf ~ ausgegeben werden." :
                  ENGLISH ? "character ~ contains bits, cannot be output onto ~" :
                  FRANCAIS ? "Le caractère ~ contient des «bits» et ne peut pas être écrit dans ~." :
@@ -10063,9 +10065,10 @@ LISPFUNN(echo_stream_output_stream,1)
   nonreturning_function(local, fehler_str_in_adjusted, (object stream));
   local void fehler_str_in_adjusted(stream)
     var object stream;
-    { pushSTACK(TheStream(stream)->strm_str_in_string);
+    { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(TheStream(stream)->strm_str_in_string);
       pushSTACK(stream);
-      fehler(error,
+      fehler(stream_error,
              DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
              ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
              FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
@@ -10314,9 +10317,10 @@ LISPFUNN(make_string_push_stream,1)
   { {var object arg = STACK_0; # Argument
      # muß ein String mit Fill-Pointer sein:
      if (!(stringp(arg) && array_has_fill_pointer_p(arg)))
-       { # arg in STACK_0
+       { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+         pushSTACK(O(type_string_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
          pushSTACK(S(with_output_to_string));
-         fehler(error,
+         fehler(type_error,
                 DEUTSCH ? "~: Argument muß ein String mit Fill-Pointer sein, nicht ~" :
                 ENGLISH ? "~: argument ~ should be a string with fill pointer" :
                 FRANCAIS ? "~ : L'argument doit être une chaîne munie d'un pointeur de remplissage et non ~." :
@@ -10509,9 +10513,10 @@ LISPFUNN(string_stream_p,1)
         var uintB* charptr = unpack_string(TheStream(stream)->strm_buff_in_string,&len);
         # Ab charptr kommen len Zeichen.
         if (index >= len) # Index zu groß ?
-          { pushSTACK(TheStream(stream)->strm_buff_in_string);
+          { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(TheStream(stream)->strm_buff_in_string);
             pushSTACK(stream);
-            fehler(error,
+            fehler(stream_error,
                    DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
                    ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
                    FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
@@ -13662,18 +13667,29 @@ LISPFUNN(write_byte,2)
 # check_open_file_stream(obj);
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
-  local void check_open_file_stream (object obj);
-  local void check_open_file_stream(obj)
+# < ergebnis: offener File-Stream
+  local object check_open_file_stream (object obj);
+  local object check_open_file_stream(obj)
     var object obj;
-    { if (!streamp(obj)) goto fehler_bad_obj; # Stream ?
+    { loop
+        { if (!streamp(obj)) goto fehler_bad_obj; # Stream ?
+          if (TheStream(obj)->strmtype == strmtype_synonym) # Synonym-Stream verfolgen
+            { var object sym = TheStream(obj)->strm_synonym_symbol;
+              obj = Symbol_value(sym);
+            }
+          else
+            break;
+        }
       if_strm_bfile_p(obj, ; , goto fehler_bad_obj; ); # Streamtyp File-Stream ?
       if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) goto fehler_bad_obj; # Stream offen ?
       if (nullp(TheStream(obj)->strm_file_handle)) goto fehler_bad_obj; # und Handle /= NIL ?
-      return; # ja -> OK
+      return obj; # ja -> OK
       fehler_bad_obj:
+        pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_open_file_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(obj);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
+        fehler(type_error,
                DEUTSCH ? "~: Argument muß ein offener File-Stream sein, nicht ~" :
                ENGLISH ? "~: argument ~ is not an open file stream" :
                FRANCAIS ? "~ : L'argument ~ doit être un «stream» ouvert sur un fichier." :
@@ -13685,7 +13701,7 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
 # (FILE-POSITION file-stream [position]), CLTL S. 425
   { var object position = popSTACK();
     var object stream = popSTACK();
-    check_open_file_stream(stream); # stream überprüfen
+    stream = check_open_file_stream(stream); # stream überprüfen
     if (eq(position,unbound))
       # position nicht angegeben -> Position als Wert:
       { value1 = TheStream(stream)->strm_file_position; mv_count=1; }
@@ -13719,7 +13735,7 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
 LISPFUNN(file_length,1)
 # (FILE-LENGTH file-stream), CLTL S. 425
   { var object stream = popSTACK();
-    check_open_file_stream(stream); # stream überprüfen
+    stream = check_open_file_stream(stream); # stream überprüfen
     # Position merken:
    {var object position = TheStream(stream)->strm_file_position;
     # ans Ende positionieren:

@@ -795,7 +795,7 @@ local boolean legal_logical_word_char(ch)
       badhost:
         { pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
+          fehler(parse_error,
                  DEUTSCH ? "~: syntaktisch illegaler Hostname ~" :
                  ENGLISH ? "~: illegal hostname ~" :
                  FRANCAIS ? "~ : Syntaxe incorrecte pour un nom de machine hôte: ~" :
@@ -844,7 +844,7 @@ local boolean legal_logical_word_char(ch)
       badhost:
         { pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
+          fehler(parse_error,
                  DEUTSCH ? "~: syntaktisch illegaler Hostname ~" :
                  ENGLISH ? "~: illegal hostname ~" :
                  FRANCAIS ? "~ : Syntaxe incorrecte pour un nom de machine hôte: ~" :
@@ -978,9 +978,11 @@ local boolean legal_logical_word_char(ch)
   nonreturning_function(local, fehler_thing, (object thing));
   local void fehler_thing(thing)
     var object thing;
-    { pushSTACK(thing);
+    { pushSTACK(thing); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_designator_pathname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(thing);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error, # type_error ??
+      fehler(type_error,
              DEUTSCH ? "~: Argument muß ein String, Symbol, File-Stream oder Pathname sein, nicht ~" :
              ENGLISH ? "~: argument should be a string, symbol, file stream or pathname, not ~" :
              FRANCAIS ? "~ : L'argument doit être une chaîne, un symbole, un «stream» de fichier ou un «pathname» et non ~" :
@@ -1539,7 +1541,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                    if (envval==NULL)
                      { pushSTACK(envvar);
                        pushSTACK(S(parse_namestring));
-                       fehler(error,
+                       fehler(parse_error,
                               DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
                               ENGLISH ? "~: there is no environment variable ~" :
                               FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
@@ -1829,7 +1831,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                           # sonst: Fehler
                           pushSTACK(username);
                           pushSTACK(S(parse_namestring));
-                          fehler(error,
+                          fehler(parse_error,
                                  DEUTSCH ? "~: Es gibt keinen Benutzer mit Namen ~." :
                                  ENGLISH ? "~: there is no user named ~" :
                                  FRANCAIS ? "~ : Il n'y a pas d'utilisateur de nom ~." :
@@ -1889,7 +1891,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                     if (envval==NULL)
                       { pushSTACK(envvar);
                         pushSTACK(S(parse_namestring));
-                        fehler(error,
+                        fehler(parse_error,
                                DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
                                ENGLISH ? "~: there is no environment variable ~" :
                                FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
@@ -2218,7 +2220,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             { pushSTACK(z.FNindex); # letzter Index
               pushSTACK(STACK_(4+2+1)); # thing
               pushSTACK(S(parse_namestring));
-              fehler(error,
+              fehler(parse_error,
                      DEUTSCH ? "~: Syntax Error im Dateinamen ~ an Position ~." :
                      ENGLISH ? "~: syntax error in filename ~ at position ~" :
                      FRANCAIS ? "~ : Erreur de syntaxe dans le nom de fichier ~, à la position ~." :
@@ -8075,7 +8077,7 @@ LISPFUN(open,1,0,norest,key,4,\
         }
      bad_eltype:
       pushSTACK(STACK_2); pushSTACK(S(open));
-      fehler(error, # type_error ??
+      fehler(error,
              DEUTSCH ? "~: Als :ELEMENT-TYPE-Argument ist ~ unzulässig." :
              ENGLISH ? "~: illegal :ELEMENT-TYPE argument ~" :
              FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE." :

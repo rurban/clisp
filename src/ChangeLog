@@ -1,5 +1,93 @@
 1998-05-31  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * conditio.lsp (unbound-slot): New condition type. Export it.
+          (unbound-slot-instance): New function. Export it.
+          (simple-unbound-slot, simple-parse-error): New condition types.
+          (%defclcs): Pass them.
+        * init.lsp (unbound-slot): Export it.
+        * defs3.lsp (unbound-slot, unbound-slot-instance): Export them.
+        * lispbibl.d (conditiontype): Add unbound_slot and parse_error.
+        * genclisph.d: Likewise.
+        * constsym.d: Add them here too.
+        * error.d (end_error): Treat unbound_slot.
+        * array.d (ARRAY-DIMENSION): For out-of-range argument, signal
+          TYPE-ERROR instead of ERROR.
+          (get_fill_pointer): For array without fill-pointer signal TYPE-ERROR
+          instead of ERROR.
+          (ADJUST-ARRAY): Likewise.
+          (SYS::VECTOR-INIT-START): For out-of-range argument, signal
+          TYPE-ERROR instead of ERROR.
+          (SYS::VECTOR-FE-INIT-END): Likewise.
+        * list.d (SYS::LIST-INIT-START): For out-of-range argument, signal
+          TYPE-ERROR instead of ERROR.
+          (SYS::LIST-FE-INIT-END): Likewise.
+        * sequence.d (valid_type): For an invalid sequence type, signal
+          TYPE-ERROR instead of ERROR.
+        * defs2.lsp (recognizable-sequence-type-p): New function.
+        * record.d (fehler_index): Add argument `limit'. For an invalid
+          index, signal TYPE-ERROR instead of ERROR.
+          (test_index): Remove function.
+          (record_up): Merge both checks of index into a single one.
+          (structure_up): Likewise.
+          (SYS::%STRUCTURE-REF): For an unbound slot, signal UNBOUND-SLOT
+          instead of error, and mention the slot's name in the error message.
+          (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION): For an invalid
+          argument, signal TYPE-ERROR instead of ERROR.
+          (keyword_test): For an invalid keyword, signal KEYWORD-ERROR
+          instead of ERROR.
+          (CLOS::%SHARED-INITIALIZE): For an invalid arg count, signal
+          PROGRAM-ERROR instead of ERROR.
+          (CLOS::%REINITIALIZE-INSTANCE): Likewise.
+          (CLOS::%INITIALIZE-INSTANCE): Likewise.
+          (CLOS::%MAKE-INSTANCE): Likewise.
+        * eval.d (progv): For a constant, signal PROGRAM-ERROR instead of
+          ERROR.
+          (get_closure): For a constant used as variable, signal PROGRAM-ERROR
+          instead of ERROR.
+          (coerce_function): Allow all function names, not only symbols.
+          (fehler_key_badkw): Fix GC safety bug in previous patch.
+          (eval1): For an invalid operator, signal SOURCE-PROGRAM-ERROR
+          instead of ERROR. Tweak error message.
+          (apply): Correct treatment of (SETF symbol) bound to an FFI
+          function. For an invalid function, signal TYPE-ERROR instead of
+          ERROR. Tweak error message.
+          (fehler_apply_dotted): Signal PROGRAM-ERROR instead of ERROR.
+          (funcall): Correct treatment of (SETF symbol) bound to an FFI
+          function. For an invalid function, signal TYPE-ERROR instead of
+          ERROR. Tweak error message.
+          (interpret_bytecode_.svref_kein_index): Signal TYPE-ERROR instead
+          of ERROR.
+        * control.d (FUNCTION): Tweak error message.
+          (COMPILER-LET): For a constant, signal PROGRAM-ERROR instead of
+          ERROR.
+          (SYSTEM::KEYWORD-TEST): For an invalid arg count, signal
+          PROGRAM-ERROR instead of ERROR. For an invalid keyword, signal
+          KEYWORD-ERROR instead of ERROR.
+        * symbol.d (Symbol_function_checked): For a macro, signal
+          UNDEFINED-FUNCTION instead of ERROR.
+          (SYS::%PUTD): For an invalid argument, signal TYPE-ERROR instead
+          of ERROR.
+        * stream.d (fehler_bad_integer): Signal STREAM-ERROR instead of ERROR.
+          (wr_ch_terminal1): Likewise.
+          (fehler_str_in_adjusted): Likewise.
+          (SYSTEM::MAKE-STRING-PUSH-STREAM): For invalid argument, signal
+          TYPE-ERROR instead of ERROR.
+          (rd_ch_buff_in): Signal STREAM-ERROR instead of ERROR.
+          (check_open_file_stream): Follow synonym streams, and return the
+          resulting stream. Signal TYPE-ERROR instead of ERROR.
+          (FILE-POSITION, FILE-LENGTH): Adjust appropriately.
+        * pathname.d (test_optional_host): Signal PARSE-ERROR instead of
+          ERROR.
+          (fehler_thing): Signal TYPE-ERROR instead of ERROR.
+          (PARSE-NAMESTRING): Signal PARSE-ERROR instead of ERROR.
+        * intelem.d (BN_ueberlauf): Signal ARITHMETIC-ERROR instead of ERROR.
+        * intlog.d (ASH): Likewise.
+        * intmal.d (mal_ueberlauf): Likewise.
+        * intdiv.d (fehler_exquo): Likewise.
+        * lfloat.d (fehler_LF_toolong): Likewise.
+
+1998-05-31  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * acspecific.m4 (AC_PROG_CXX): Don't add "-O" to $CXX if it is
           already present.
 
