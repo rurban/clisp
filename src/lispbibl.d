@@ -10762,9 +10762,10 @@ extern object ascii_to_string (const char * asciz);
 # ####################### ARRBIBL for ARRAY.D ############################## #
 
 # ARRAY-TOTAL-SIZE-LIMIT is chosen as large as possible, respecting the
-# constraint that the total-size of any array is a fixnum
+# constraint that the total-size of any array is a fixnum and (from ANSI CL)
+# that ARRAY-TOTAL-SIZE-LIMIT itself is also a fixnum.
 # (>=0, <2^oint_data_len):
-#define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-1))
+#define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-2))
 
 /* ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint
  that the rank of any array is an uintWC:
