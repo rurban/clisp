@@ -9669,7 +9669,7 @@ LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
     PPH_TAB_ATSIG(tab_spec) = STACK_2;
     PPH_TAB_COL_N(tab_spec) = STACK_1;
     PPH_TAB_COL_I(tab_spec) = STACK_0;
-    var object list = TheStream(STACK_0)->strm_pphelp_strings;
+    var object list = TheStream(STACK_4)->strm_pphelp_strings;
     pushSTACK(tab_spec);
     if (stringp(Car(list)) && (0==vector_length(Car(list)))) {
       # last string is empty -- keep it!
@@ -9685,7 +9685,7 @@ LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
       TheStream(STACK_0)->strm_pphelp_strings = new_cons;
     }
   } else
-    spaces(&STACK_0,
+    spaces(&STACK_4,
            fixnum(format_tab(STACK_4,STACK_3,STACK_2,STACK_1,STACK_0)));
   VALUES1(NIL); skipSTACK(5);
 }
