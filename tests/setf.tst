@@ -229,6 +229,9 @@ schiff
 (progn (setf s1 (make-schiff)) nil)
 nil
 
+(documentation s1 'type)
+nil
+
 (setf (schiff-masse s1) 500)
 500
 
