@@ -1,3 +1,8 @@
+1999-05-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in (sigsegv.h, libsigsegv.a): Generate by calling
+          "make install" in the subdirectory, not through symlinks.
+
 1999-05-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * configure.in: Add check for groff.
