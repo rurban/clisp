@@ -1201,6 +1201,7 @@ AC_TRY_COMPILE([
 #include <unistd.h>
 #endif
 #include <string.h>
+#undef memset
 ]AC_LANG_EXTERN[
 #if defined(__STDC__) || defined(__cplusplus)
 $x memset ($x s, int c, $y n);
