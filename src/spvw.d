@@ -1391,6 +1391,37 @@ local void init_object_tab (void) {
      #ifdef WIN32
       " :WIN32"
      #endif
+      ":SAFETY=" STRINGIFY(SAFETY)
+     #ifdef TYPECODES
+      " :TYPECODES"
+     #endif
+     #ifdef WIDE
+      " :WIDE"
+     #endif
+     #ifdef GENERATIONAL_GC
+      " :GENERATIONAL-GC"
+     #endif
+     #ifdef SPVW_BLOCKS
+      " :SPVW-BLOCKS"
+     #endif
+     #ifdef SPVW_PAGES
+      " :SPVW-PAGES"
+     #endif
+     #ifdef SPVW_MIXED
+      " :SPVW-MIXED"
+     #endif
+     #ifdef SPVW_PURE
+      " :SPVW-PURE"
+     #endif
+     #ifdef MULTIMAP_MEMORY
+      " :MULTIMAP"
+     #endif
+     #ifdef SINGLEMAP_MEMORY
+      " :SINGLEMAP"
+     #endif
+     #ifdef TRIVIALMAP_MEMORY
+      " :TRIVIALMAP"
+     #endif
       ")";
     pushSTACK(ascii_to_string(features_initstring));
     var object list = (funcall(L(read_from_string),1), value1);
