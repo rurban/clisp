@@ -445,6 +445,7 @@ LISPFUNN(get_internal_run_time,0)
       timepoint->Jahr = fixnum( date+1980);
     }
 #endif
+
 #ifdef AMIGAOS
 # UP: Wandelt das Amiga-Zeitformat in Decoded-Time um.
 # convert_time(&datestamp,&timepoint);
@@ -580,6 +581,81 @@ LISPFUNN(get_internal_run_time,0)
       return value1;
     }
 
+#ifdef AMIGAOS
+# UP: Wandelt das Amiga-Zeitformat in Universal-Time um.
+# convert_time_to_universal(&datestamp)
+# > struct DateStamp datestamp: Uhrzeit
+#          datestamp.ds_Days   : Anzahl Tage seit 1.1.1978
+#          datestamp.ds_Minute : Anzahl Minuten seit 00:00 des Tages
+#          datestamp.ds_Tick   : Anzahl Ticks seit Beginn der Minute
+# < result: integer denoting the seconds since 1900-01-01 00:00 GMT
+# can trigger GC
+  global object convert_time_to_universal (const struct DateStamp * datestamp);
+  global object convert_time_to_universal(datestamp)
+    var const struct DateStamp * datestamp;
+    {
+      var decoded_time timepoint;
+      convert_time(datestamp,&timepoint);
+      # Have to go through ENCODE-UNIVERSAL-TIME because a DateStamp is an
+      # encoded time format, and because we must take the timezone into account.
+      return encode_universal_time(&timepoint);
+    }
+#endif
+#if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+# UP: Wandelt das System-Zeitformat in Universal-Time um.
+# convert_time_to_universal(&time)
+# > time_t time: Zeit im System-Zeitformat
+# < result: integer denoting the seconds since 1900-01-01 00:00 GMT
+# can trigger GC
+  global object convert_time_to_universal (const time_t* time);
+  global object convert_time_to_universal(time)
+    var const time_t* time;
+    {
+      #if defined(MSDOS) || defined(RISCOS)
+        var decoded_time timepoint;
+        convert_time(time,&timepoint);
+        # Have to go through ENCODE-UNIVERSAL-TIME because we must take the
+        # timezone into account.
+        return encode_universal_time(&timepoint);
+      #endif
+      #if defined(UNIX)
+        # Since we get the timezone from the OS (sys::defaul-time-zone),
+        # we can assume that the OS's timezone and CLISP's timezone agree.
+        return UL_to_I(UNIX_LISP_TIME_DIFF + (uintL)(*time));
+      #endif
+    }
+#endif
+#ifdef WIN32_NATIVE
+# UP: Wandelt das System-Zeitformat in Universal-Time um.
+# convert_time_to_universal(&time)
+# > FILETIME time: Zeit im System-Zeitformat
+# < result: integer denoting the seconds since 1900-01-01 00:00 GMT
+# can trigger GC
+  global object convert_time_to_universal (const FILETIME* time);
+  global object convert_time_to_universal(time)
+    var const FILETIME* time;
+    {
+      # Since we get the timezone from the OS (sys::defaul-time-zone),
+      # we can assume that the OS's timezone and CLISP's timezone agree.
+      var internal_time offset = # difference between 1.1.1601 and 1.1.1900
+      #ifdef HAVE_LONGLONG
+        { (ULONG)((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second),
+          (ULONG)(((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second) >> 32)
+        };
+      #else
+        { 0xFDE04000, 0x14F373B };
+      #endif
+      var internal_time internal_real_time;
+      var uintL real_time;
+      sub_internal_time(*time,offset,internal_real_time);
+      divu_6432_3232(internal_real_time.dwHighDateTime,
+                     internal_real_time.dwLowDateTime,
+                     ticks_per_second,
+                     real_time=,);
+      return UL_to_I(real_time);
+    }
+#endif
+
 # -----------------------------------------------------------------------------
 #                        Measuring wall clock time
 
@@ -676,6 +752,7 @@ LISPFUNN(get_internal_run_time,0)
 #endif
 
 # Returns the wall clock time in seconds (since 1900-01-01).
+# can trigger GC
   local uintL universal_time_sec (void);
   #ifdef TIME_RELATIVE
   local uintL universal_time_sec()

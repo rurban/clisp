@@ -6575,7 +6575,7 @@ typedef struct {
 
 #if defined(MSDOS)
 # UP: Wandelt das DOS-Zeitformat in Decoded-Time um.
-# convert_time(time,date,&timepoint);
+# convert_timedate(time,date,&timepoint);
 # > uintW time: Uhrzeit
 #         Als Word: Bits 15..11: Stunde in {0,...,23},
 #                   Bits 10..5:  Minute in {0,...,59},
@@ -6589,6 +6589,7 @@ typedef struct {
   extern void convert_timedate (uintW time, uintW date, decoded_time* timepoint);
 # wird verwendet von PATHNAME
 #endif
+
 #ifdef AMIGAOS
 # UP: Wandelt das Amiga-Zeitformat in Decoded-Time um.
 # convert_time(&datestamp,&timepoint);
@@ -6617,6 +6618,38 @@ typedef struct {
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
   extern void convert_time (const FILETIME* time, decoded_time* timepoint);
+# wird verwendet von PATHNAME
+#endif
+
+#ifdef AMIGAOS
+# UP: Wandelt das Amiga-Zeitformat in Universal-Time um.
+# convert_time_to_universal(&datestamp)
+# > struct DateStamp datestamp: Uhrzeit
+#          datestamp.ds_Days   : Anzahl Tage seit 1.1.1978
+#          datestamp.ds_Minute : Anzahl Minuten seit 00:00 des Tages
+#          datestamp.ds_Tick   : Anzahl Ticks seit Beginn der Minute
+# < result: integer denoting the seconds since 1900-01-01 00:00 GMT
+# can trigger GC
+  extern object convert_time_to_universal (const struct DateStamp * datestamp);
+# wird verwendet von PATHNAME
+#endif
+#if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+# UP: Wandelt das System-Zeitformat in Universal-Time um.
+# convert_time_to_universal(&time)
+# > time_t time: Zeit im System-Zeitformat
+# < result: integer denoting the seconds since 1900-01-01 00:00 GMT
+# can trigger GC
+  extern object convert_time_to_universal (const time_t* time);
+# wird verwendet von PATHNAME
+#endif
+#ifdef WIN32_NATIVE
+# UP: Wandelt das System-Zeitformat in Universal-Time um.
+# convert_time_to_universal(&time)
+# > FILETIME time: Zeit im System-Zeitformat
+# < result: integer denoting the seconds since 1900-01-01 00:00 GMT
+# can trigger GC
+  extern object convert_time_to_universal (const FILETIME* time);
+# wird verwendet von PATHNAME
 #endif
 
 # UP: Initialisiert die Zeitvariablen beim LISP-System-Start.
