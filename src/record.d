@@ -1237,7 +1237,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
             var object value = NEXT(ptr);
             # Slot mit value initialisieren:
             var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
-            *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo) = value;
+            *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value;
           }
         }
        slot_done: ;
