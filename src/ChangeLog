@@ -1,5 +1,10 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* defs2.lisp (nth-value): Move macro from here...
+	* macros2.lisp (nth-value): ... to here.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* disassem.lisp (disassemble@symbol): Use ext: package prefix.
 	* macros3.lisp (expand-LETF*, expand-LETF): Add env argument. Handle
 	locally defined symbol-macros correctly.

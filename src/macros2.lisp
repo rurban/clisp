@@ -233,6 +233,32 @@
       (TEXT "~S: the symbol ~S names a global variable")
       'define-symbol-macro symbol)))
 ;; ----------------------------------------------------------------------------
+;; X3J13 vote <123>
+;; Macro (nth-value n form) == (nth n (multiple-value-list form)), CLtL2 S. 184
+(defmacro nth-value (n form)
+  (if (and (integerp n) (>= n 0))
+    (if (< n (1- multiple-values-limit))
+      (if (= n 0)
+        `(PROG1 ,form)
+        (let* ((resultvar (gensym))
+               (vars (list resultvar))
+               (ignores '()))
+          (do ((i n (1- i)))
+              ((zerop i))
+            (let ((g (gensym)))
+              (setq vars (cons g vars))
+              (setq ignores (cons g ignores))
+          ) )
+          `(MULTIPLE-VALUE-BIND ,vars ,form
+             (DECLARE (IGNORE ,@ignores))
+             ,resultvar
+           )
+      ) )
+      `(PROGN ,form NIL)
+    )
+    `(NTH ,n (MULTIPLE-VALUE-LIST ,form))
+) )
+;; ----------------------------------------------------------------------------
 (defun gensym-list (how-many)
   (map-into (make-list (if (numberp how-many) how-many (length how-many)))
             #'gensym))
