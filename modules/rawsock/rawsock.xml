@@ -25,7 +25,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <simplelist columns="4">
   <member>&accept;</member><member>&bind;</member><member>&connect;</member>
   <member>&getpeername;</member><member>&getsockname;</member>
-  <member>&listen-c;</member>
+  <member>&listen-c;</member><member>&htonl;</member><member>&htons;</member>
+  <member>&ntohl;</member><member>&ntohs;</member>
   <member>&recv;</member><member>&recvfrom;</member><member>&recvmsg;</member>
   <member>&send;</member><member>&sendmsg;</member><member>&sendto;</member>
   <member>&socket;</member><member>&socketpair;</member>

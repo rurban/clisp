@@ -49,7 +49,7 @@ fi
 if test "$ac_cv_search_socket" = "no"; then
   AC_MSG_FAILURE([cannot find SOCKET library])
 fi
-AC_CHECK_FUNCS(socketpair recvmsg sendmsg)
+AC_CHECK_FUNCS(socketpair recvmsg sendmsg htonl htons ntohl ntohs)
 CL_POLL
 CL_SELECT
 
