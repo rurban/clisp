@@ -543,11 +543,6 @@
 # wird geholt und ptr auf seine Anfangsadresse gesetzt. Dann wird statement
 # ausgeführt (Initialisierung des Speicherstücks) und schließlich ptr,
 # mit der korrekten Typinfo versehen, als Ergebnis geliefert.
-  #ifdef TYPECODES
-    #define bias_type_pointer_object(bias,type,ptr)  type_pointer_object(type,ptr)
-  #else
-    #define bias_type_pointer_object(bias,type,ptr)  as_object((oint)(ptr)+(bias))
-  #endif
   #ifdef SPVW_BLOCKS
    #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
     #define decrement_total_room(amount)  mem.total_room -= (amount);

@@ -378,6 +378,7 @@
   #define CODE_ADDRESS_RANGE 0
   #define MALLOC_ADDRESS_RANGE 0
   #define SHLIB_ADDRESS_RANGE 0
+  #define STACK_ADDRESS_RANGE ~0UL
 #endif
 
 
@@ -7772,6 +7773,14 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern void object_out (object obj);
 # wird zum Debuggen verwendet
 
+# After allocating memory for an object, add the type infos.
+  #ifdef TYPECODES
+    #define bias_type_pointer_object(bias,type,ptr)  type_pointer_object(type,ptr)
+  #else
+    #define bias_type_pointer_object(bias,type,ptr)  as_object((oint)(ptr)+(bias))
+  #endif
+# used by SPVW, macros SP_allocate_bit_vector, SP_allocate_string
+
 # UP, führt eine Garbage Collection aus
 # gar_col();
 # can trigger GC
@@ -7816,6 +7825,44 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern object allocate_bit_vector (uintL len);
 # wird verwendet von ARRAY, IO, RECORD, LISPARIT, STREAM
 
+# Macro: Allocates a bit-vector on the stack, with dynamic extent.
+#   { var DYNAMIC_BIT_VECTOR(obj,len);
+#     ...
+#     FREE_DYNAMIC_BIT_VECTOR(obj);
+#   }
+# > uintL len: length (number of bits)
+# < object obj: simple-bit-vector with dynamic extent
+#   (may or may not be heap-allocated, therefore not GC-invariant)
+# can trigger GC
+  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+    # No way to allocate a Lisp object on the stack.
+    #define DYNAMIC_BIT_VECTOR(objvar,len)  \
+      uintL objvar##_len = (len);                   \
+      var object objvar = O(dynamic_bit_vector);    \
+      O(dynamic_bit_vector) = NIL;                  \
+      if (!(simple_bit_vector_p(objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
+        objvar = allocate_bit_vector(objvar##_len);
+    #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
+      O(dynamic_bit_vector) = objvar;
+  #else
+    # Careful: Fill GCself with pointers to itself, so that GC will leave
+    # pointers to this object untouched.
+    #ifdef TYPECODES
+      #define DYNAMIC_BIT_VECTOR(objvar,len)  \
+        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
+        var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
+        ((Sbvector)objvar##_storage)->length = (len);
+    #else
+      #define DYNAMIC_BIT_VECTOR(objvar,len)  \
+        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
+        var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
+        ((Sbvector)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sbvector,len);
+    #endif
+    #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
+      FREE_DYNAMIC_ARRAY(objvar##_storage)
+  #endif
+# used by STREAM
+
 # UP, beschafft String
 # allocate_string(len)
 # > len: Länge des Strings (in Characters)
@@ -7823,6 +7870,44 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # can trigger GC
   extern object allocate_string (uintL len);
 # wird verwendet von ARRAY, CHARSTRG, STREAM, PATHNAME
+
+# Macro: Allocates a normal string on the stack, with dynamic extent.
+#   { var DYNAMIC_STRING(obj,len);
+#     ...
+#     FREE_DYNAMIC_STRING(obj);
+#   }
+# > uintL len: length (number of characters)
+# < object obj: normal-simple-string with dynamic extent
+#   (may or may not be heap-allocated, therefore not GC-invariant)
+# can trigger GC
+  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+    # No way to allocate a Lisp object on the stack.
+    #define DYNAMIC_STRING(objvar,len)  \
+      uintL objvar##_len = (len);               \
+      var object objvar = O(dynamic_string);    \
+      O(dynamic_string) = NIL;                  \
+      if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) \
+        objvar = allocate_string(objvar##_len);
+    #define FREE_DYNAMIC_STRING(objvar)  \
+      O(dynamic_string) = objvar;
+  #else
+    # Careful: Fill GCself with pointers to itself, so that GC will leave
+    # pointers to this object untouched.
+    #ifdef TYPECODES
+      #define DYNAMIC_STRING(objvar,len)  \
+        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
+        var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
+        ((Sstring)objvar##_storage)->length = (len);
+    #else
+      #define DYNAMIC_STRING(objvar,len)  \
+        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
+        var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
+        ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sstring,len);
+    #endif
+    #define FREE_DYNAMIC_STRING(objvar)  \
+      FREE_DYNAMIC_ARRAY(objvar##_storage)
+  #endif
+# used by STREAM
 
 #ifndef TYPECODES
 # UP, beschafft immutablen String

@@ -3307,7 +3307,6 @@ if test $cl_cv_prog_cc_ansi = yes; then
 else
   ul=''
 fi
-
 AC_CACHE_CHECK(for the code address range, cl_cv_address_code, [
 if test $cross_compiling = no; then
 cat > conftest.c <<EOF
@@ -3400,6 +3399,22 @@ fi
 ])
 x=`echo $cl_cv_address_shlib | sed -e 's,^guessing ,,'`"$ul"
 AC_DEFINE_UNQUOTED(SHLIB_ADDRESS_RANGE,$x)
+AC_CACHE_CHECK(for the stack address range, cl_cv_address_stack, [
+if test $cross_compiling = no; then
+cat > conftest.c <<EOF
+#include "confdefs.h"
+$address_range_prog
+int main() { int dummy; printf_address(chop_address(&dummy)); exit(0); }
+EOF
+AC_TRY_EVAL(ac_link)
+cl_cv_address_stack=`./conftest`
+rm -f conftest*
+else
+cl_cv_address_stack='guessing ~0'
+fi
+])
+x=`echo "$cl_cv_address_stack" | sed -e 's,^guessing ,,'`"$ul"
+AC_DEFINE_UNQUOTED(STACK_ADDRESS_RANGE,$x)
 ])dnl
 dnl
 AC_DEFUN(CL_GETPAGESIZE,

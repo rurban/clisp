@@ -1,3 +1,15 @@
+1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * aclocal.m4 (CL_ADDRESS_RANGE): Also determine the stack address
+          range.
+        * unixconf.h.in (STACK_ADDRESS_RANGE): New macro.
+        * lispbibl.d (STACK_ADDRESS_RANGE): Provide a default value.
+          (bias_type_pointer_object): New macro, moved here from
+          spvw_allocate.d.
+          (DYNAMIC_BIT_VECTOR, FREE_DYNAMIC_BIT_VECTOR, DYNAMIC_STRING,
+           FREE_DYNAMIC_STRING): New macros.
+        * spvw_allocate.d (bias_type_pointer_object): Remove macro.
+
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * compiler.lsp (c-form-table): Tread LDB, LDB-TEST, MASK-FIELD, DPB,
