@@ -1,3 +1,12 @@
+2004-08-30  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (open_library): accept :DEFAULT and :NEXT when
+	RTLD_DEFAULT and RTLD_NEXT are defined
+	(FOREIGN-LIBRARY): do not check that the library name is a string:
+	this is done in open_library() anyway
+	(exit_ffi): do not try to close RTLD_DEFAULT and RTLD_NEXT
+	* constsym.d (:NEXT): added
+
 2004-08-30  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in: Tweak for portability: make it work with Solaris sed.
