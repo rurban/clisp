@@ -205,6 +205,129 @@
         allow-other-keys
         (nreverse auxvar) (nreverse auxinit))))
 
+;;; Analyzes a lambda-list of a generic function (ANSI CL 3.4.2.).
+;;; Reports errors through errfunc (a function taking an error format string
+;;; and format string arguments).
+;; Returns 7 values:
+;; 1. list of required parameters
+;; 2. list of optional parameters
+;; 3. &rest parameter or 0
+;; 4. flag, if keywords are allowed
+;; 5. list of keywords
+;; 6. list of keyword parameters
+;; 7. flag, if other keywords are allowed
+(defun analyze-generic-function-lambdalist (lambdalist errfunc)
+    (let ((L lambdalist) ; rest of the lambda-list
+          (reqvar nil)
+          (optvar nil)
+          (rest 0)
+          (keyflag nil)
+          (keyword nil)
+          (keyvar nil)
+          (allow-other-keys nil))
+      ;; The lists are all accumulated in reversed order.
+      ;; Required parameters:
+      (loop
+        (if (atom L) (return))
+        (let ((item (car L)))
+          (if (symbolp item)
+            (if (memq item lambda-list-keywords)
+              (check-item item '(&optional &rest &key))
+              ;; Need to check for duplicates here because otherwise the
+              ;; :arguments-precedence-order makes no sense.
+              (if (memq item reqvar)
+                (funcall errfunc (TEXT "Duplicate variable name ~S") item)
+                (push item reqvar)))
+            (err-invalid item)))
+        (setq L (cdr L)))
+      ;; Now (or (atom L) (member (car L) '(&optional &rest &key))).
+      ;; Optional parameters:
+      (when (and (consp L) (eq (car L) '&optional))
+        (setq L (cdr L))
+        (loop
+          (if (atom L) (return))
+          (let ((item (car L)))
+            (if (symbolp item)
+              (if (memq item lambda-list-keywords)
+                (check-item item '(&rest &key))
+                (push item optvar))
+              (if (and (consp item) (symbolp (car item)))
+                (if (null (cdr item))
+                  (push (car item) optvar)
+                  (funcall errfunc (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
+                                   item))
+                (err-invalid item))))
+          (setq L (cdr L))))
+      ;; Now (or (atom L) (member (car L) '(&rest &key))).
+      ;; &rest parameters:
+      (when (and (consp L) (eq (car L) '&rest))
+        (setq L (cdr L))
+        (macrolet ((err-norest ()
+                     `(funcall errfunc (TEXT "Missing &REST parameter in lambda list ~S")
+                                       lambdalist)))
+          (if (atom L)
+            (err-norest)
+            (prog ((item (car L)))
+              (if (symbolp item)
+                (if (memq item lambda-list-keywords)
+                  (progn (err-norest) (return))
+                  (setq rest item))
+                (err-invalid item))
+              (setq L (cdr L)))))
+        ;; Move forward to the next &KEY:
+        (skip-L &rest '(&key)))
+      ;; Now (or (atom L) (member (car L) '(&key))).
+      ;; Keyword parameters:
+      (when (and (consp L) (eq (car L) '&key))
+        (setq L (cdr L))
+        (setq keyflag t)
+        (loop
+          (if (atom L) (return))
+          (let ((item (car L)))
+            (if (symbolp item)
+              (if (memq item lambda-list-keywords)
+                (check-item item '(&allow-other-keys))
+                (progn
+                  (push (intern (symbol-name item) *keyword-package*) keyword)
+                  (push item keyvar)))
+              (if (and (consp item)
+                       (or (symbolp (car item))
+                           (and (consp (car item))
+                                (symbolp (caar item))
+                                (consp (cdar item))
+                                (symbolp (cadar item))
+                                (null (cddar item)))))
+                (if (null (cdr item))
+                  (if (consp (car item))
+                    (progn
+                      (push (caar item) keyword)
+                      (push (cadar item) keyvar))
+                    (progn
+                      (push (intern (symbol-name (car item)) *keyword-package*)
+                            keyword)
+                      (push (car item) keyvar)))
+                  (funcall errfunc (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
+                                   item))
+                (err-invalid item))))
+          (setq L (cdr L)))
+        ;; Now (or (atom L) (member (car L) '(&allow-other-keys))).
+        (when (and (consp L) (eq (car L) '&allow-other-keys))
+          (setq allow-other-keys t)
+          (setq L (cdr L))
+          ;; Move forward to the end:
+          (skip-L &allow-other-keys '())))
+      ;; Now (atom L).
+      (if L
+        (funcall errfunc (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+                         lambdalist))
+      (values
+        (nreverse reqvar)
+        (nreverse optvar)
+        rest
+        keyflag
+        (nreverse keyword) (nreverse keyvar)
+        allow-other-keys)))
+
 ;;; Analyzes a defsetf lambda-list (ANSI CL 3.4.7.).
 ;;; Reports errors through errfunc (a function taking an error format string
 ;;; and format string arguments).

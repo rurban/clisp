@@ -1,3 +1,8 @@
+2004-06-13  Bruno Haible  <bruno@clisp.org>
+
+	* lambdalist.lisp (analyze-generic-function-lambdalist): New function.
+	* clos-genfun3.lisp (analyze-defgeneric-lambdalist): Use it.
+
 2004-05-30  Bruno Haible  <bruno@clisp.org>
 
 	Use SHARED-INITIALIZE instead of INITIALIZE-INSTANCE for the class
