@@ -1,11 +1,11 @@
-# Werte der Bytecodes (256 Stück):
+# Values of the bytecodes (256 Stack):
 
-# (1) Konstanten
+# (1) constants
 BYTECODE(cod_nil)
 BYTECODE(cod_push_nil)
 BYTECODE(cod_t)
 BYTECODE(cod_const)
-# (2) statische Variablen
+# (2) static variables
 BYTECODE(cod_load)
 BYTECODE(cod_loadi)
 BYTECODE(cod_loadc)
@@ -16,20 +16,20 @@ BYTECODE(cod_storei)
 BYTECODE(cod_storec)
 BYTECODE(cod_storev)
 BYTECODE(cod_storeic)
-# (3) dynamische Variablen
+# (3) dynamic variables
 BYTECODE(cod_getvalue)
 BYTECODE(cod_setvalue)
 BYTECODE(cod_bind)
 BYTECODE(cod_unbind1)
 BYTECODE(cod_unbind)
 BYTECODE(cod_progv)
-# (4) Stackoperationen
+# (4) stack operations
 BYTECODE(cod_push)
 BYTECODE(cod_pop)
 BYTECODE(cod_skip)
 BYTECODE(cod_skipi)
 BYTECODE(cod_skipsp)
-# (5) Programmfluss und Sprünge
+# (5) execution flow und jump
 BYTECODE(cod_skip_ret)
 BYTECODE(cod_skip_retgf)
 BYTECODE(cod_jmp)
@@ -47,11 +47,11 @@ BYTECODE(cod_jmphash)
 BYTECODE(cod_jmphashv)
 BYTECODE(cod_jsr)
 BYTECODE(cod_jmptail)
-# (6) Environments und Closures
+# (6) environments and closures
 BYTECODE(cod_venv)
 BYTECODE(cod_make_vector1_push)
 BYTECODE(cod_copy_closure)
-# (7) Funktionsaufrufe
+# (7) funktion calls
 BYTECODE(cod_call)
 BYTECODE(cod_call0)
 BYTECODE(cod_call1)
@@ -63,14 +63,14 @@ BYTECODE(cod_callc)
 BYTECODE(cod_callckey)
 BYTECODE(cod_funcall)
 BYTECODE(cod_apply)
-# (8) optionale und Keyword-Argumente
+# (8) optional and keyword arguments
 BYTECODE(cod_push_unbound)
 BYTECODE(cod_unlist)
 BYTECODE(cod_unliststern)
 BYTECODE(cod_jmpifboundp)
 BYTECODE(cod_boundp)
 BYTECODE(cod_unbound_nil)
-# (9) Behandlung mehrerer Werte
+# (9) multiple values handling
 BYTECODE(cod_values0)
 BYTECODE(cod_values1)
 BYTECODE(cod_stack_to_mv)
@@ -103,7 +103,7 @@ BYTECODE(cod_uwp_cleanup)
 # (14) HANDLER-BIND
 BYTECODE(cod_handler_open)
 BYTECODE(cod_handler_begin_push)
-# (15) einige Funktionen
+# (15) some individual functions
 BYTECODE(cod_not)
 BYTECODE(cod_eq)
 BYTECODE(cod_car)
@@ -114,7 +114,7 @@ BYTECODE(cod_svref)
 BYTECODE(cod_svset)
 BYTECODE(cod_list)
 BYTECODE(cod_liststern)
-# (16) kombinierte Operationen
+# (16) combined operations
 BYTECODE(cod_nil_push)
 BYTECODE(cod_t_push)
 BYTECODE(cod_const_push)
@@ -173,7 +173,7 @@ BYTECODE(cod_const_symbol_function_push)
 BYTECODE(cod_const_symbol_function_store)
 BYTECODE(cod_apply_skip_ret)
 BYTECODE(cod_funcall_skip_retgf)
-# (17) Kurzcodes
+# (17) shortcut codes
 BYTECODE(cod_load0)
 BYTECODE(cod_load1)
 BYTECODE(cod_load2)
