@@ -13,6 +13,7 @@
 // - Add missing begin_callback() in `xlib_io_error_handler'.
 // - Save subr_self during some calls in xlib:change-property.
 // - Fix some obvious typos in `font_char_info'.
+// - Call XFree() when done with the result of XGetAtomName().
 //
 // Revision 1.20  1999-04-04  bruno
 // - Modifications for UNICODE.
@@ -1719,6 +1720,11 @@ local object make_xatom (Display *dpy, Atom atom)
   pushSTACK (subr_self);
   pushSTACK (asciz_to_string (atom_name, misc_encoding ()));
   pushSTACK (`KEYWORD`);
+
+  begin_call ();
+  XFree (atom_name);
+  end_call ();
+
   funcall (L(intern), 2);
   subr_self = popSTACK ();
   return value1;
@@ -5382,6 +5388,10 @@ defun XLIB:FONT-PROPERTIES (1)
       funcall (L(intern), 2);
       pushSTACK (value1);
       pushSTACK (make_uint32 (font_struct->properties[i].card32));
+
+      begin_call ();
+      XFree (atom_name);
+      end_call ();
     }
 
   funcall (L(list), 2 * font_struct->n_properties);
@@ -6328,6 +6338,11 @@ defun XLIB:ATOM-NAME (2) /* OK */
   
   pushSTACK (asciz_to_string (name, misc_encoding ()));
   pushSTACK (`KEYWORD`);
+
+  begin_call ();
+  XFree (name);
+  end_call ();
+
   funcall (L (intern), 2);
   mv_count = 1;
 }
@@ -6564,14 +6579,25 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
 	  pushSTACK (value1);
 	}
       
-      if (prop_return) XFree (prop_return);
+      if (prop_return)
+        {
+          begin_call ();
+          XFree (prop_return);
+          end_call ();
+        }
       
 	{
-	  char *name = XGetAtomName (display, actual_type_return);
+	  char *name;
+          begin_call ();
+          name = XGetAtomName (display, actual_type_return);
+          end_call ();
 	  pushSTACK (asciz_to_string (name, misc_encoding ()));
 	  pushSTACK (`KEYWORD`);
 	  funcall (L(intern), 2);
 	  pushSTACK (value1);
+          begin_call ();
+          XFree (name);
+          end_call ();
 	}
       pushSTACK (make_uint8 (actual_format_return));
       pushSTACK (make_uint32 (bytes_after_return));
@@ -6604,12 +6630,15 @@ defun XLIB:LIST-PROPERTIES (1, 0, norest, key, 1, (:RESULT-TYPE)) //OK
     {
       char *name;
       begin_call ();
-        name = XGetAtomName (dpy, props[i]);
+      name = XGetAtomName (dpy, props[i]);
       end_call ();
       pushSTACK (asciz_to_string (name, misc_encoding ()));
       pushSTACK (`KEYWORD`);
       funcall (L(intern), 2);
       pushSTACK (value1);
+      begin_call ();
+      XFree (name);
+      end_call ();
     }
 
   begin_call ();
