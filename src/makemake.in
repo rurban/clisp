@@ -309,6 +309,7 @@ case $# in
      INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
      INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
      INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
+     GROFF='@GROFF@'                     # either 'groff' or ''
      GMALLOC='@GMALLOC@'                 # either 'gmalloc' or ''
      LIBS='@LIBS@'                       # list of system libraries
      LIBTERMCAP='@LIBTERMCAP@'           # either '-ltermcap' or '-lncurses'
@@ -433,6 +434,7 @@ case $# in
        fi
        CC_NEED_DEEMA=false
      fi
+     GROFF='groff'
      GMALLOC=''
      LIBS=''
      LIBTERMCAP='-ltermcap'
@@ -1569,6 +1571,8 @@ echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
 echol "bindir = \$(exec_prefix)${NEXT_}bin"
 echol "mandir = \$(exec_prefix)${NEXT_}man"
+echol "htmldir = \$(exec_prefix)${NEXT_}share${NEXT_}html"
+echol "dvidir = \$(exec_prefix)${NEXT_}share${NEXT_}dvi"
 case "$fsstnd" in
   gnu_ext)
     echol "docdir = \$(exec_prefix)${NEXT_}doc"
@@ -1767,9 +1771,9 @@ fi
 if test -n "$LIBGCC"; then
   echol "LIBGCC = ${LIBGCC}"
 fi
-if [ "$HSYSOS" = linux -o "$HSYSOS" = 386bsd -o "$HSYSOS" = netbsd ] ; then
-  ROFF_MAN="groff -Tascii -mandoc"
-  ROFF_DVI="groff -Tdvi -mandoc"
+if test -n "$GROFF"; then
+  ROFF_MAN="$GROFF -Tascii -mandoc"
+  ROFF_DVI="$GROFF -Tdvi -mandoc"
 else
   if [ $HSYS = acorn ] ; then
     ROFF_MAN="xfmt -m"
@@ -1787,7 +1791,9 @@ else
 fi
 echol '# formatter for manual page'
 echol "ROFF_MAN = ${ROFF_MAN}"' # try "groff -Tascii -mandoc" or "nroff -man"'
-echol "ROFF_DVI = ${ROFF_DVI}"' # try "groff -Tdvi -mandoc"'
+if test -n "$GROFF"; then
+  echol "ROFF_DVI = ${ROFF_DVI}"' # try "groff -Tdvi -mandoc"'
+fi
 echol
 echol '# -------------- End of configurable section --------------------'
 echol
@@ -2880,6 +2886,11 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
 fi
 OBSOLETE=$OBSOLETE" genclisph${HEXE} wgenclisph${HEXE} linkkit"
 
+if test -n "$GROFF"; then
+  manual_dvi=' clisp.dvi'
+else
+  manual_dvi=''
+fi
 if [ $TERMINAL = readline ] ; then
   manual_readline=' clreadline.3 clreadline.html clreadline.dvi readline.dvi'
   manualx_readline=' clreadline.man'
@@ -2888,9 +2899,9 @@ else
   manualx_readline=''
 fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
-echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
+echol "MANUALS = clisp.1${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
 echol
-echol "impnotes.html: ${SRCDIR}_impnotes.html"
+echol "impnotes.html : ${SRCDIR}_impnotes.html"
 echotab "sed -e 's,href=\"CLHSROOT/,href=\"${hyperspec}/,' ${SRCDIR}_impnotes.html > impnotes.html"
 echol
 echol "manual : \$(READMES) \$(MANUALS)"
@@ -2973,6 +2984,12 @@ if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
   OBSOLETE=$OBSOLETE" $txt.i.c"
 fi
 
+if test -n "$GROFF"; then
+  echol "clisp.dvi : clisp.1"
+  echotab "\$(ROFF_DVI) clisp.1 > clisp.dvi"
+  echol
+fi
+
 if [ $TERMINAL = readline ] ; then
   echol "clreadline.3 : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.3"
   echotab "-\$(LN) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.3 clreadline.3"
@@ -2987,9 +3004,6 @@ fi
 
 echol "clisp.man : clisp.1"
 echotab "\$(ROFF_MAN) clisp.1 > clisp.man"
-echol
-echol "clisp.dvi : clisp.1"
-echotab "\$(ROFF_DVI) clisp.1 > clisp.dvi"
 echol
 
 if [ $TERMINAL = readline ] ; then
@@ -3040,7 +3054,9 @@ if [ $CROSS = false ] ; then
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "if [ ! -d \$(mandir)/html ] ; then mkdir \$(mandir)/html ; fi"
+        echotab "if [ ! -d \$(exec_prefix)/share ] ; then mkdir \$(exec_prefix)/share ; fi"
+        echotab "if [ ! -d \$(htmldir) ] ; then mkdir \$(htmldir) ; fi"
+        echotab "if [ ! -d \$(dvidir) ] ; then mkdir \$(dvidir) ; fi"
         ;;
     esac
     echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
@@ -3070,14 +3086,10 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
     echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(bindir)/clisp"
     echol
-    if [ "$fsstnd" = gnu_ext -o "$fsstnd" = suse -o "$fsstnd" = redhat -o "$fsstnd" = debian ] ; then
-      echol "install-man : \$(READMES) \$(MANUALS) force"
+    if [ $TERMINAL = readline ] ; then
+      echol "install-man : clisp.1${manual_dvi} clisp.html clreadline.3 clreadline.html clreadline.dvi force"
     else
-      if [ $TERMINAL = readline ] ; then
-        echol "install-man : clisp.1 clisp.html clreadline.3 clreadline.html force"
-      else
-        echol "install-man : clisp.1 clisp.html force"
-      fi
+      echol "install-man : clisp.1${manual_dvi} clisp.html force"
     fi
     echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
     echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
@@ -3090,10 +3102,18 @@ if [ $CROSS = false ] ; then
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "if [ ! -d \$(mandir)/html ] ; then mkdir \$(mandir)/html ; fi"
-        echotab "\$(INSTALL_DATA) clisp.html \$(mandir)/html/clisp.html"
+        echotab "if [ ! -d \$(exec_prefix)/share ] ; then mkdir \$(exec_prefix)/share ; fi"
+        echotab "if [ ! -d \$(htmldir) ] ; then mkdir \$(htmldir) ; fi"
+        echotab "\$(INSTALL_DATA) clisp.html \$(htmldir)/clisp.html"
         if [ $TERMINAL = readline ] ; then
-          echotab "\$(INSTALL_DATA) clreadline.html \$(mandir)/html/clreadline.html"
+          echotab "\$(INSTALL_DATA) clreadline.html \$(htmldir)/clreadline.html"
+        fi
+        echotab "if [ ! -d \$(dvidir) ] ; then mkdir \$(dvidir) ; fi"
+        if test -n "$GROFF"; then
+          echotab "\$(INSTALL_DATA) clisp.dvi \$(dvidir)/clisp.dvi"
+        fi
+        if [ $TERMINAL = readline ] ; then
+          echotab "\$(INSTALL_DATA) clreadline.dvi \$(dvidir)/clreadline.dvi"
         fi
         ;;
     esac
@@ -3132,9 +3152,13 @@ if [ $CROSS = false ] ; then
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "\$(RM) \$(mandir)/html/clisp.html"
+        echotab "\$(RM) \$(htmldir)/clisp.html"
         if [ $TERMINAL = readline ] ; then
-          echotab "\$(RM) \$(mandir)/html/clreadline.html"
+          echotab "\$(RM) \$(htmldir)/clreadline.html"
+        fi
+        echotab "\$(RM) \$(dvidir)/clisp.dvi"
+        if [ $TERMINAL = readline ] ; then
+          echotab "\$(RM) \$(dvidir)/clreadline.dvi"
         fi
         ;;
     esac
@@ -3281,7 +3305,7 @@ fi
 echotab "mkdir \$(TOPDIR)/data"
 echotab "${LN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
-echotab "${LN} clisp.1 clisp.man clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+echotab "${LN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/emacs"
 echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
 echotab "mkdir \$(TOPDIR)/src"
@@ -3386,7 +3410,7 @@ clean1 : clean0
 	-rmdir ${TESTSDIR}
 	-rmdir w${TESTDIR}
 	-rmdir w${TESTSDIR}
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.html impnotes.html clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE} is recompiled
 # without changing the bytecode format.
