@@ -982,6 +982,14 @@ LISPSPECFORM(progv, 2,0,body)
             );
     }
 
+# skip all declarations from the body:
+# descructively modifies BODY to remove (DECLARE ...)
+# statements from its beginning
+local void skip_declarations (object* body) {
+  while (consp(*body) && consp(Car(*body)) && eq(S(declare),Car(Car(*body))))
+    *body = Cdr(*body);
+}
+
 # UP: Beendet ein FLET/MACROLET.
 # finish_flet(top_of_frame,body);
 # > Stackaufbau: [top_of_frame] def1 name1 ... defn namen [STACK]
@@ -1012,14 +1020,16 @@ LISPSPECFORM(progv, 2,0,body)
         # top_of_frame = Pointer auf den Funktionsbindungsframe
         aktenv.fun_env = make_framepointer(top_of_frame);
       }
+      # allow declarations, as per ANSI CL
+      skip_declarations(&body);
       # Formen ausführen:
       implicit_progn(body,NIL);
       unwind(); # FENV-Bindungsframe auflösen
       unwind(); # Funktionsbindungsframe auflösen
     }
 
-LISPSPECFORM(pflet, 1,0,body)
-# (SYS::%FLET ({funspec}) {form}), CLTL S. 113
+LISPSPECFORM(flet, 1,0,body)
+# (FLET ({funspec}) {form}), CLTL S. 113
   {
     var object body = popSTACK(); # ({form})
     var object funspecs = popSTACK(); # ({funspec})
@@ -1053,8 +1063,8 @@ LISPSPECFORM(pflet, 1,0,body)
     return_Values finish_flet(top_of_frame,body);
   }
 
-LISPSPECFORM(plabels, 1,0,body)
-# (SYS::%LABELS ({funspec}) {form}), CLTL S. 113
+LISPSPECFORM(labels, 1,0,body)
+# (LABELS ({funspec}) {form}), CLTL S. 113
   {
     # Auf den Aufbau eines Funktionsbindungs-Frames kann hier verzichtet werden,
     # weil bei der Bildung der ersten Closure sowieso das Environment genestet
@@ -1121,13 +1131,15 @@ LISPSPECFORM(plabels, 1,0,body)
     }
     skipSTACK(1); # Vektor vergessen
     body = popSTACK();
+    # allow declarations, as per ANSI CL
+    skip_declarations(&body);
     # Formen ausführen:
     implicit_progn(body,NIL);
     unwind(); # FENV-Bindungsframe auflösen
   }
 
-LISPSPECFORM(pmacrolet, 1,0,body)
-# (SYS::%MACROLET ({macrodef}) {form}), CLTL S. 113
+LISPSPECFORM(macrolet, 1,0,body)
+# (MACROLET ({macrodef}) {form}), CLTL S. 113
   {
     var object body = popSTACK(); # ({form})
     var object macrodefs = popSTACK(); # ({macrodef})
