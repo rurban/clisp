@@ -1949,61 +1949,42 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
     case VT_EMPTY: pushSTACK(`:EMPTY`); break;
     case VT_NULL:  pushSTACK(`:NULL`);  break;
     case VT_BLOB:  pushSTACK(`:BLOB`);  break;
-    case VT_BOOL:  pushSTACK(pvar->boolVal ? T : NIL);
-      break;
-    case VT_I1:
-      pushSTACK(sfixnum(pvar->cVal));  break;
-    case VT_UI1:
-      pushSTACK(fixnum(pvar->bVal));  break;
-    case VT_I2:
-      pushSTACK(sfixnum(pvar->iVal));  break;
-    case VT_UI2:
-      pushSTACK(fixnum(pvar->uiVal));  break;
+    case VT_BOOL:  pushSTACK(pvar->boolVal ? T : NIL); break;
+    case VT_I1:    pushSTACK(sfixnum(pvar->cVal)); break;
+    case VT_UI1:   pushSTACK(fixnum(pvar->bVal)); break;
+    case VT_I2:    pushSTACK(sfixnum(pvar->iVal)); break;
+    case VT_UI2:   pushSTACK(fixnum(pvar->uiVal)); break;
     case VT_I4:
-    case VT_INT:
-      pushSTACK(L_to_I(pvar->lVal));  break;
+    case VT_INT:   pushSTACK(L_to_I(pvar->lVal)); break;
     case VT_UI4:
-    case VT_UINT:
-      pushSTACK(UL_to_I(pvar->ulVal));  break;
-    case VT_ERROR:
-      pushSTACK(UL_to_I(pvar->scode));  break;
-    case VT_I8:
-      pushSTACK(sint64_to_I(*((sint64 *)&pvar->hVal)));  break;
+    case VT_UINT:  pushSTACK(UL_to_I(pvar->ulVal)); break;
+    case VT_ERROR: pushSTACK(UL_to_I(pvar->scode)); break;
+    case VT_I8:    pushSTACK(sint64_to_I(*((sint64 *)&pvar->hVal))); break;
     case VT_CY: {
       double dbl = (*((sint64 *)&pvar->cyVal))/10000.0;
-      pushSTACK(c_double_to_DF((dfloatjanus *)&dbl));  break; }
-    case VT_UI8:
-      pushSTACK(uint64_to_I(*((uint64 *)&pvar->uhVal)));  break;
-    case VT_R4:
-      pushSTACK(c_float_to_FF((ffloatjanus *)&pvar->fltVal));
-      break;
-    case VT_R8:
-      pushSTACK(c_double_to_DF((dfloatjanus *)&pvar->dblVal));
-      break;
-    case VT_DATE:
-      pushSTACK(c_double_to_DF((dfloatjanus *)&pvar->date));
-      break;
+      pushSTACK(c_double_to_DF((dfloatjanus *)&dbl));
+    } break;
+    case VT_UI8: pushSTACK(uint64_to_I(*((uint64 *)&pvar->uhVal)));  break;
+    case VT_R4:  pushSTACK(c_float_to_FF((ffloatjanus *)&pvar->fltVal)); break;
+    case VT_R8:  pushSTACK(c_double_to_DF((dfloatjanus *)&pvar->dblVal));break;
+    case VT_DATE:pushSTACK(c_double_to_DF((dfloatjanus *)&pvar->date)); break;
     case VT_BSTR:
       pushSTACK(n_char_to_string((const char *)pvar->bstrVal,
-        *((DWORD *)(((const char *)pvar->bstrVal)-4)),
-        Symbol_value(S(unicode_16_little_endian))));
+                                 *((DWORD *)(((const char *)pvar->bstrVal)-4)),
+                                 Symbol_value(S(unicode_16_little_endian))));
       break;
     case VT_LPSTR:
       pushSTACK(asciz_to_string(pvar->pszVal,GLO(misc_encoding)));
       break;
     case VT_LPWSTR:
       pushSTACK(n_char_to_string((const char *)pvar->pwszVal,
-        wcslen(pvar->pwszVal)*2,
-        Symbol_value(S(unicode_16_little_endian))));
+                                 wcslen(pvar->pwszVal)*2,
+                                 Symbol_value(S(unicode_16_little_endian))));
       break;
     case VT_FILETIME:
       pushSTACK(convert_time_to_universal(&(pvar->filetime))); break;
-    case VT_CF:
-      pushSTACK(`:CLIPBOARD-FORMAT`);
-      break;
-    default:
-      pushSTACK(`:NOTIMPL`);
-      break;
+    case VT_CF: pushSTACK(`:CLIPBOARD-FORMAT`); break;
+    default:    pushSTACK(`:NOTIMPLEMENTED`); break;
   }
   return 1;
 }
@@ -2015,44 +1996,42 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
     /* (KW VALUE) OR (KW NIL) ? */
     if (!nullp(Cdr(STACK_0)) && !nullp(Car(STACK_0))
         && consp(Cdr(STACK_0)) && nullp(Cdr(Cdr(STACK_0)))
-        && symbolp(Car(STACK_0)))
-    {
-      if (eq(Car(STACK_0),`:I1`)) typehint = VT_I1; else
-      if (eq(Car(STACK_0),`:UI1`)) typehint = VT_UI1; else
-      if (eq(Car(STACK_0),`:I2`)) typehint = VT_I2; else
-      if (eq(Car(STACK_0),`:UI2`)) typehint = VT_UI2; else
-      if (eq(Car(STACK_0),`:I4`)) typehint = VT_I4; else
-      if (eq(Car(STACK_0),`:INT`)) typehint = VT_INT; else
-      if (eq(Car(STACK_0),`:UI4`)) typehint = VT_UI4; else
-      if (eq(Car(STACK_0),`:UINT`)) typehint = VT_UINT; else
-      if (eq(Car(STACK_0),`:I8`)) typehint = VT_I8; else
-      if (eq(Car(STACK_0),`:UI8`)) typehint = VT_UI8; else
-      if (eq(Car(STACK_0),`:R4`)) typehint = VT_R4; else
-      if (eq(Car(STACK_0),`:R8`)) typehint = VT_R8; else
-      if (eq(Car(STACK_0),`:CY`)) typehint = VT_CY; else
-      if (eq(Car(STACK_0),`:DATE`)) typehint = VT_DATE; else
-      if (eq(Car(STACK_0),`:BSTR`)) typehint = VT_BSTR; else
-      if (eq(Car(STACK_0),`:BOOL`)) typehint = VT_BOOL; else
-      if (eq(Car(STACK_0),`:ERROR`)) typehint = VT_ERROR; else
-      if (eq(Car(STACK_0),`:FILETIME`)) typehint = VT_FILETIME; else
-      if (eq(Car(STACK_0),`:LPSTR`)) typehint = VT_LPSTR; else
-      if (eq(Car(STACK_0),`:LPWSTR`)) typehint = VT_LPWSTR; else {
-        skipSTACK(1); return 0;
-      }
+        && symbolp(Car(STACK_0))) {
+           if (eq(Car(STACK_0),`:I1`)) typehint = VT_I1;
+      else if (eq(Car(STACK_0),`:UI1`)) typehint = VT_UI1;
+      else if (eq(Car(STACK_0),`:I2`)) typehint = VT_I2;
+      else if (eq(Car(STACK_0),`:UI2`)) typehint = VT_UI2;
+      else if (eq(Car(STACK_0),`:I4`)) typehint = VT_I4;
+      else if (eq(Car(STACK_0),`:INT`)) typehint = VT_INT;
+      else if (eq(Car(STACK_0),`:UI4`)) typehint = VT_UI4;
+      else if (eq(Car(STACK_0),`:UINT`)) typehint = VT_UINT;
+      else if (eq(Car(STACK_0),`:I8`)) typehint = VT_I8;
+      else if (eq(Car(STACK_0),`:UI8`)) typehint = VT_UI8;
+      else if (eq(Car(STACK_0),`:R4`)) typehint = VT_R4;
+      else if (eq(Car(STACK_0),`:R8`)) typehint = VT_R8;
+      else if (eq(Car(STACK_0),`:CY`)) typehint = VT_CY;
+      else if (eq(Car(STACK_0),`:DATE`)) typehint = VT_DATE;
+      else if (eq(Car(STACK_0),`:BSTR`)) typehint = VT_BSTR;
+      else if (eq(Car(STACK_0),`:BOOL`)) typehint = VT_BOOL;
+      else if (eq(Car(STACK_0),`:ERROR`)) typehint = VT_ERROR;
+      else if (eq(Car(STACK_0),`:FILETIME`)) typehint = VT_FILETIME;
+      else if (eq(Car(STACK_0),`:LPSTR`)) typehint = VT_LPSTR;
+      else if (eq(Car(STACK_0),`:LPWSTR`)) typehint = VT_LPWSTR;
+      else { skipSTACK(1); return 0; }
       STACK_0 = Car(Cdr(STACK_0)); /* VALUE */
     } else { skipSTACK(1); return 0; }
   }
-  if (stringp(STACK_0) && (typehint == VT_EMPTY
-    || typehint == VT_BSTR || typehint == VT_LPSTR
-    || typehint == VT_LPWSTR))
-  {
-    if (typehint == VT_EMPTY)
-#define STG_STRINGS_NONUNICODE
-#ifdef STG_STRINGS_UNICODE
+  if (stringp(STACK_0)
+      && (typehint == VT_EMPTY || typehint == VT_BSTR
+          || typehint == VT_LPSTR || typehint == VT_LPWSTR)) {
+    if (typehint == VT_EMPTY) {
+#    define STG_STRINGS_NONUNICODE
+#    ifdef STG_STRINGS_UNICODE
       typehint = VT_LPWSTR;
-#else
+#    else
       typehint = VT_LPSTR;
-#endif
+#    endif
+    }
     do {
       uintL str_len;
       uintL str_offset;
@@ -2068,18 +2047,15 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
           *(((DWORD *)str)-1) = (DWORD)str_bytelen;
         }
         cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,
-            str_len,(uintB *)str,str_bytelen);
+                  str_len,(uintB *)str,str_bytelen);
         ((uintB *)str)[str_bytelen] = '\0';
         ((uintB *)str)[str_bytelen+1] = '\0';
         pvar->pwszVal = str;
         pvar->vt = typehint;
-      } else {
-        /* Win XP explorer seems to create ANSI strings. So do we. */
-        uintL str_bytelen =
-          cslen_f(GLO(misc_encoding),ptr1,str_len);
+      } else { /* Win XP explorer seems to create ANSI strings. So do we. */
+        uintL str_bytelen = cslen_f(GLO(misc_encoding),ptr1,str_len);
         char * str = (char *) SysAllocStringByteLen(NULL, str_bytelen+2);
-        cstombs_f(GLO(misc_encoding),ptr1,
-            str_len,(uintB *)str,str_bytelen);
+        cstombs_f(GLO(misc_encoding),ptr1,str_len,(uintB *)str,str_bytelen);
         str[str_bytelen] = '\0';
         pvar->pszVal = str;
         pvar->vt = VT_LPSTR;
@@ -2087,8 +2063,7 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
       rv = 1;
     } while(0);
   } else if (integerp(STACK_0)) {
-    /* ASSUME FILETIME */
-    if (typehint == VT_EMPTY) typehint = VT_FILETIME;
+    if (typehint == VT_EMPTY) typehint = VT_FILETIME; /* assume FILETIME */
     if (typehint == VT_FILETIME) {
       pvar->vt = VT_FILETIME; rv = 1;
       convert_time_from_universal(STACK_0,&(pvar->filetime));
@@ -2100,8 +2075,7 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
       pvar->vt = typehint; pvar->iVal = I_to_sint16(STACK_0); rv = 1;
     } else if (typehint == VT_UI2) {
       pvar->vt = typehint; pvar->uiVal = I_to_uint16(STACK_0); rv = 1;
-    } else if (typehint == VT_I4 || typehint == VT_INT) {
-      /* VT_I4 != VT_INT */
+    } else if (typehint == VT_I4 || typehint == VT_INT) { /* VT_I4 != VT_INT */
       pvar->vt = typehint; pvar->lVal = I_to_sint32(STACK_0); rv = 1;
     } else if (typehint == VT_UI4 || typehint == VT_UINT) {
       pvar->vt = typehint; pvar->ulVal = I_to_uint32(STACK_0); rv = 1;
@@ -2139,10 +2113,10 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
       }
       rv = 1;
     } else if (typehint == VT_DATE && double_float_p(STACK_0)) {
-    /* A 64-bit floating point number representing the number of days
-       (not seconds) since December 31, 1899. For example, January 1, 1900,
-       is 2.0, January 2, 1900, is 3.0, and so on). This is stored in the
-       same representation as VT_R8. */
+      /* A 64-bit floating point number representing the number of days
+         (not seconds) since December 31, 1899. For example, January 1, 1900,
+         is 2.0, January 2, 1900, is 3.0, and so on). This is stored in the
+         same representation as VT_R8. */
       pvar->vt = VT_DATE;
       pvar->date = 0;
       DF_to_c_double(STACK_0,(dfloatjanus *)&pvar->date);
@@ -2172,119 +2146,104 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
   return rv;
 }
 
-WINOLEAPI PropVariantClear(
-  PROPVARIANT* pvar
-);
+WINOLEAPI PropVariantClear(PROPVARIANT* pvar);
 
-static PROPID kwtopropid () {
-  PROPID rv = (PROPID)-1;
-  if (eq(STACK_0,`:CODEPAGE`)) rv = PID_CODEPAGE; else
-  if (eq(STACK_0,`:LOCALE`)) rv = PID_LOCALE; else
-  if (eq(STACK_0,`:TITLE`)) rv = PIDSI_TITLE; else
-  if (eq(STACK_0,`:SUBJECT`)) rv = PIDSI_SUBJECT; else
-  if (eq(STACK_0,`:AUTHOR`)) rv = PIDSI_AUTHOR; else
-  if (eq(STACK_0,`:KEYWORDS`)) rv = PIDSI_KEYWORDS; else
-  if (eq(STACK_0,`:COMMENTS`)) rv = PIDSI_COMMENTS; else
-  if (eq(STACK_0,`:TEMPLATE`)) rv = PIDSI_TEMPLATE; else
-  if (eq(STACK_0,`:LASTAUTHOR`)) rv = PIDSI_LASTAUTHOR; else
-  if (eq(STACK_0,`:REVNUMBER`)) rv = PIDSI_REVNUMBER; else
-  if (eq(STACK_0,`:EDITTIME`)) rv = PIDSI_EDITTIME; else
-  if (eq(STACK_0,`:LASTPRINTED`)) rv = PIDSI_LASTPRINTED; else
-  if (eq(STACK_0,`:CREATE-DTM`)) rv = PIDSI_CREATE_DTM; else
-  if (eq(STACK_0,`:LASTSAVE-DTM`)) rv = PIDSI_LASTSAVE_DTM; else
-  if (eq(STACK_0,`:PAGECOUNT`)) rv = PIDSI_PAGECOUNT; else
-  if (eq(STACK_0,`:WORDCOUNT`)) rv = PIDSI_WORDCOUNT; else
-  if (eq(STACK_0,`:CHARCOUNT`)) rv = PIDSI_CHARCOUNT; else
-  if (eq(STACK_0,`:THUMBNAIL`)) rv = PIDSI_THUMBNAIL; else
-  if (eq(STACK_0,`:APPNAME`)) rv = PIDSI_APPNAME; else
-  if (eq(STACK_0,`:DOC-SECURITY`)) rv = PIDSI_DOC_SECURITY;
-  skipSTACK(1);
-  return rv;
+static PROPID kwtopropid (object kw) {
+  if (eq(kw,`:CODEPAGE`)) return PID_CODEPAGE;
+  if (eq(kw,`:LOCALE`)) return PID_LOCALE;
+  if (eq(kw,`:TITLE`)) return PIDSI_TITLE;
+  if (eq(kw,`:SUBJECT`)) return PIDSI_SUBJECT;
+  if (eq(kw,`:AUTHOR`)) return PIDSI_AUTHOR;
+  if (eq(kw,`:KEYWORDS`)) return PIDSI_KEYWORDS;
+  if (eq(kw,`:COMMENTS`)) return PIDSI_COMMENTS;
+  if (eq(kw,`:TEMPLATE`)) return PIDSI_TEMPLATE;
+  if (eq(kw,`:LASTAUTHOR`)) return PIDSI_LASTAUTHOR;
+  if (eq(kw,`:REVNUMBER`)) return PIDSI_REVNUMBER;
+  if (eq(kw,`:EDITTIME`)) return PIDSI_EDITTIME;
+  if (eq(kw,`:LASTPRINTED`)) return PIDSI_LASTPRINTED;
+  if (eq(kw,`:CREATE-DTM`)) return PIDSI_CREATE_DTM;
+  if (eq(kw,`:LASTSAVE-DTM`)) return PIDSI_LASTSAVE_DTM;
+  if (eq(kw,`:PAGECOUNT`)) return PIDSI_PAGECOUNT;
+  if (eq(kw,`:WORDCOUNT`)) return PIDSI_WORDCOUNT;
+  if (eq(kw,`:CHARCOUNT`)) return PIDSI_CHARCOUNT;
+  if (eq(kw,`:THUMBNAIL`)) return PIDSI_THUMBNAIL;
+  if (eq(kw,`:APPNAME`)) return PIDSI_APPNAME;
+  if (eq(kw,`:DOC-SECURITY`)) return PIDSI_DOC_SECURITY;
+  return (PROPID)-1;
 }
 
-/* popSTACK string -> PROPSPEC */
-static void PropSpecSetStr (PROPSPEC * pspec) {
+/* string -> PROPSPEC */
+static void PropSpecSetStr (object str, PROPSPEC * pspec) {
   pspec->ulKind = PRSPEC_LPWSTR;
-  do {
-    uintL str_len;
+  { uintL str_len;
     uintL str_offset;
-    object str_string = unpack_string_ro(STACK_0,&str_len,&str_offset);
+    object str_string = unpack_string_ro(str,&str_len,&str_offset);
     const chart* ptr1;
     unpack_sstring_alloca(str_string,str_len,str_offset, ptr1=);
     { uintL str_bytelen =
         cslen_f(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
       pspec->lpwstr = (LPOLESTR) malloc(str_bytelen+2);
       cstombs_f(Symbol_value(S(unicode_16_little_endian)),ptr1,
-        str_len,(uintB *)pspec->lpwstr,str_bytelen);
-    ((uintB *)pspec->lpwstr)[str_bytelen] = '\0';
-    ((uintB *)pspec->lpwstr)[str_bytelen+1] = '\0';
-  }} while(0);
-  skipSTACK(1);
+                str_len,(uintB *)pspec->lpwstr,str_bytelen);
+      ((uintB *)pspec->lpwstr)[str_bytelen] = '\0';
+      ((uintB *)pspec->lpwstr)[str_bytelen+1] = '\0';
+    }
+  }
 }
 
-/* popSTACK list (ID STRING) -> PROPSPEC(ID), PROPSPEC(STR)
+/* list (ID STRING) -> PROPSPEC(ID), PROPSPEC(STR)
    STACK may don't match the pattern (then function returns false)
    any of pspec1, pspec2 can be NULL */
-static int propspeclistp (PROPSPEC * pspec1,PROPSPEC * pspec2) {
+static int propspeclistp (object arg, PROPSPEC * pspec1,PROPSPEC * pspec2) {
   /* check if it is (INT STRING) */
-  if (consp(STACK_0) && !nullp(Cdr(STACK_0)) && !nullp(Car(STACK_0))
-    && consp(Cdr(STACK_0)) && nullp(Cdr(Cdr(STACK_0)))
-    && !nullp(Car(Cdr(STACK_0)))
-    && (integerp(Car(STACK_0)) || symbolp(Car(STACK_0)))
-    && stringp(Car(Cdr(STACK_0))))
-  {
+  if (consp(arg) && !nullp(Cdr(arg)) && !nullp(Car(arg))
+      && consp(Cdr(arg)) && nullp(Cdr(Cdr(arg)))
+      && !nullp(Car(Cdr(arg)))
+      && (integerp(Car(arg)) || symbolp(Car(arg)))
+      && stringp(Car(Cdr(arg)))) {
     /* set pspec1 to ID and pspec2 to STRING */
     if (pspec1) {
-      pspec1->ulKind =  PRSPEC_PROPID;
-      if (integerp(Car(STACK_0)))
-        pspec1->propid = I_to_UL(Car(STACK_0));
+      pspec1->ulKind = PRSPEC_PROPID;
+      if (integerp(Car(arg)))
+        pspec1->propid = I_to_UL(Car(arg));
       else {
-        pushSTACK(Car(STACK_0));
-        pspec1->propid = kwtopropid();
-        if (pspec1->propid == (PROPID) -1) {
-          skipSTACK(1);
+        pspec1->propid = kwtopropid(Car(arg));
+        if (pspec1->propid == (PROPID) -1)
           return 0;
-        }
       }
     }
-    if (pspec2) {
-      pushSTACK(Car(Cdr(STACK_0)));
-      PropSpecSetStr(pspec2);
-    }
-    skipSTACK(1);
+    if (pspec2)
+      PropSpecSetStr(Car(Cdr(arg)),pspec2);
     return 1;
   }
-  skipSTACK(1);
   return 0;
 }
 
-/* popSTACK (keyword, int, list (ID STRING) or string) -> PROPSPEC
+/* (keyword, int, list (ID STRING) or string) -> PROPSPEC
    uses malloc to allocate memory for string specifiers
      (when ulKind == PRSPEC_LPWSTR)
    pspec2 can be NULL */
-static int PropSpecSet (PROPSPEC * pspec1, PROPSPEC * pspec2) {
+static int PropSpecSet (object arg, PROPSPEC * pspec1, PROPSPEC * pspec2) {
   ZeroMemory(pspec1, sizeof(PROPSPEC));
   if (pspec2) ZeroMemory(pspec2, sizeof(PROPSPEC));
-  if (symbolp(STACK_0)) {
+  if (symbolp(arg)) {
     pspec1->ulKind = PRSPEC_PROPID;
-    pspec1->propid = kwtopropid();
+    pspec1->propid = kwtopropid(arg);
     if (pspec1->propid == (PROPID) -1) return 0;
     return 1;
-  } else if (stringp(STACK_0)) {
-    PropSpecSetStr(pspec1);
+  } else if (stringp(arg)) {
+    PropSpecSetStr(arg,pspec1);
     return 1;
-  } else if (integerp(STACK_0)) {
+  } else if (integerp(arg)) {
     pspec1->ulKind = PRSPEC_PROPID;
-    pspec1->propid = I_to_UL(popSTACK());
+    pspec1->propid = I_to_UL(arg);
     return 1;
-  } else if (propspeclistp(pspec1,pspec2)) return 2;
-  skipSTACK(1);
+  } else if (propspeclistp(arg,pspec1,pspec2)) return 2;
   return 0;
 }
 
 static const char * DecodeHRESULT (HRESULT hres) {
   static char buf[128];
-  char * msg = NULL;
 #define msgcase(x) case x: return #x; break;
   switch (hres) {
   msgcase(E_UNEXPECTED)
@@ -2394,8 +2353,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     if (i % 2) { /* specifier */
       if (!symbolp(STACK_(i)) && !stringp(STACK_(i))
           && !posfixnump(STACK_(i))) {
-        pushSTACK(STACK_(i));
-        if (!propspeclistp(NULL,NULL)) {
+        if (!propspeclistp(STACK_(i),NULL,NULL)) {
           pushSTACK(TheSubr(subr_self)->name);
           fehler(program_error,
             GETTEXT("~S: bad property specifier - it must be string, "
@@ -2447,8 +2405,8 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     fehler(file_error,GETTEXT("~S: invalid property set specifier ~S"));
   }
   hres = ppropsetstg->lpVtbl->Open(ppropsetstg, fmtid,
-         ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ)
-         | STGM_SHARE_EXCLUSIVE, &ppropstg);
+                                   ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ)
+                                   | STGM_SHARE_EXCLUSIVE, &ppropstg);
   if (FAILED(hres)) {
     pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
     pushSTACK(STACK_(ifile+1));
@@ -2466,8 +2424,8 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     lpwstrwpnvec = (LPWSTR *)malloc(sizeof(LPWSTR)*use_wpn);
   }
   if (pspecrd == NULL || pvarrd == NULL
-    || pspecwr == NULL || pvarwr == NULL
-    || use_wpn && (propidwpnvec == NULL || lpwstrwpnvec == NULL)) {
+      || pspecwr == NULL || pvarwr == NULL
+      || use_wpn && (propidwpnvec == NULL || lpwstrwpnvec == NULL)) {
     free(pspecrd); free(pvarrd);
     free(pspecwr); free(pvarwr);
     free(propidwpnvec);free(lpwstrwpnvec);
@@ -2479,18 +2437,16 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     PROPSPEC second;
     int pssresult;
     if (symbolp(STACK_(i+1)) && eq(STACK_(i+1),`:INITID`)) continue;
-    pushSTACK(STACK_(i+1));
-    pssresult = PropSpecSet(pspecrd+nproprd-cproprd-1,&second);
+    pssresult = PropSpecSet(STACK_(i+1),pspecrd+nproprd-cproprd-1,&second);
     MyPropVariantInit(pvarrd+nproprd-cproprd-1);
     if (!nullp(STACK_(i))) {
-      pushSTACK(STACK_(i+1));
-      PropSpecSet(pspecwr+npropwr-cpropwr-1,NULL);
+      PropSpecSet(STACK_(i+1),pspecwr+npropwr-cpropwr-1,NULL);
       MyPropVariantInit(pvarwr+npropwr-cpropwr-1);
       pushSTACK(STACK_(i));
       if (!LispToPropVariant(pvarwr+npropwr-cpropwr-1)) {
         pushSTACK(STACK_(i));
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(program_error,GETTEXT("~S: cannot convert ~S to PROPVARIANT"));
+        fehler(error,GETTEXT("~S: cannot convert ~S to PROPVARIANT"));
       }
       cpropwr++;
     }
@@ -2505,28 +2461,28 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   if(FAILED(hres)) {
     pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(program_error,GETTEXT("~S: ReadMultiple error: ~S"));
+    fehler(error,GETTEXT("~S: ReadMultiple error: ~S"));
   }
   if (npropwr > 0) {
     hres = ppropstg->lpVtbl->WriteMultiple(ppropstg,npropwr,pspecwr,pvarwr,initid);
     if(FAILED(hres)) {
       pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(program_error,GETTEXT("~S: WriteMultiple error: ~S"));
+      fehler(error,GETTEXT("~S: WriteMultiple error: ~S"));
     }
   }
   for (i=0;i<nproprd;i++)
     if (!PropVariantToLisp(pvarrd+i)) {
       pushSTACK(fixnum(i));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(program_error,GETTEXT("~S: cannot convert value ~S to Lisp datatype"));
+      fehler(error,GETTEXT("~S: cannot convert value ~S to Lisp datatype"));
     }
   if (use_wpn) {
     hres = ppropstg->lpVtbl->WritePropertyNames(ppropstg,use_wpn,propidwpnvec,lpwstrwpnvec);
-    if(FAILED(hres)) {
+    if (FAILED(hres)) {
       pushSTACK(asciz_to_string(DecodeHRESULT(hres),GLO(misc_encoding)));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(program_error,GETTEXT("~S: WritePropertyNames: ~S"));
+      fehler(error,GETTEXT("~S: WritePropertyNames: ~S"));
     }
   }
   if (sizeof(mv_space)/sizeof(mv_space[0]) < nproprd) {
@@ -2538,13 +2494,15 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   skipSTACK(argcount+2); /* two first args */
   for (i=0;i<nproprd;i++) {
     PropVariantClear(pvarrd+i);
-    if (pspecrd[i].ulKind == PRSPEC_LPWSTR) free(pspecrd[i].lpwstr); }
+    if (pspecrd[i].ulKind == PRSPEC_LPWSTR) free(pspecrd[i].lpwstr);
+  }
   for (i=0;i<npropwr;i++) {
     if (pvarwr[i].vt == VT_LPWSTR || pvarwr[i].vt == VT_BSTR)
       SysFreeString(pvarwr[i].pwszVal);
     if (pvarwr[i].vt == VT_LPSTR)
       SysFreeString((BSTR)pvarwr[i].pszVal);
-    if (pspecwr[i].ulKind == PRSPEC_LPWSTR) free(pspecwr[i].lpwstr); }
+    if (pspecwr[i].ulKind == PRSPEC_LPWSTR) free(pspecwr[i].lpwstr);
+  }
   for (i=0;i<use_wpn;i++) free(lpwstrwpnvec[i]);
   free(pspecrd); free(pvarrd); free(pspecwr); free(pvarwr);
   free(propidwpnvec); free(lpwstrwpnvec);
