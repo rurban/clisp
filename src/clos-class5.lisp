@@ -660,9 +660,10 @@
         (dolist (slot old-slots)
           (let ((name (slot-definition-name slot)))
             (when (slot-boundp previous name)
+              ;; Retain the slot's value if it is a local slot in new-class.
               (let ((new-slot (find name new-slots :test #'eq
                                     :key #'slot-definition-name)))
-                (when new-slot
+                (when (and new-slot (atom (slot-definition-location new-slot)))
                   (setf (slot-value instance name)
                         (slot-value previous name))))))))
       ;; ANSI CL 7.2.2. Initializing Newly Added Local Slots.

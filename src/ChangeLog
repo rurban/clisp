@@ -1,5 +1,10 @@
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class5.lisp (change-class): Don't copy the values of slots that
+	are shared in the new class.
+
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
 	* record.d (check_initialization_argument_list): Change error type
 	to PROGRAM-ERROR.
 	* clos-class5.lisp (check-initialization-argument-list): Likewise.
