@@ -25,9 +25,6 @@ AC_COPYRIGHT([GNU CLISP Copyright 1989-2005 by Bruno Haible and others
 GNU CLISP is distributed under the GNU GPL, see file COPYRIGHT])dnl
 AC_REVISION([$Id$])dnl
 AC_CONFIG_HEADERS(unixconf.h)
-AC_ARG_WITH([readline],
-AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
-[ac_cv_use_readline=$withval], [ac_cv_use_readline=yes])
 dnl
 AC_MSG_NOTICE([* checks for programs])
 dnl
