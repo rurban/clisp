@@ -4193,7 +4193,6 @@ global uintL iconv_wcslen(encoding,src,srcend)
         if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
         OS_error();
       }
-      # I don't think we need a call iconv(cd,NULL,....) here.
       {
         var const char* inptr = (const char*)src;
         var size_t insize = (char*)srcend-(char*)src;
@@ -4242,6 +4241,22 @@ global uintL iconv_wcslen(encoding,src,srcend)
           count += (outptr-(char*)tmpbuf);
         }
       }
+      {
+        var char* outptr = (char*)tmpbuf;
+        var size_t outsize = tmpbufsize;
+        var size_t res = iconv(cd,NULL,NULL,&outptr,&outsize);
+        if (res == (size_t)(-1)) {
+          if (errno == E2BIG) { # output buffer too small?
+            NOTREACHED
+          } else {
+            var int saved_errno = errno;
+            iconv_close(cd);
+            errno = saved_errno;
+            OS_error();
+          }
+        }
+        count += (outptr-(char*)tmpbuf);
+      }
       if (iconv_close(cd) < 0) { OS_error(); }
       end_system_call();
     });
@@ -4270,7 +4285,6 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
           if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
           OS_error();
         }
-        # I don't think we need a call iconv(cd,NULL,....) here.
         while (insize > 0) {
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
           if (res == (size_t)(-1)) {
@@ -4303,6 +4317,19 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
             } elif (errno == EINVAL) { # incomplete input?
               NOTREACHED
             } elif (errno == E2BIG) { # output buffer too small?
+              NOTREACHED
+            } else {
+              var int saved_errno = errno;
+              iconv_close(cd);
+              errno = saved_errno;
+              OS_error();
+            }
+          }
+        }
+        {
+          var size_t res = iconv(cd,NULL,NULL,&outptr,&outsize);
+          if (res == (size_t)(-1)) {
+            if (errno == E2BIG) { # output buffer too small?
               NOTREACHED
             } else {
               var int saved_errno = errno;
@@ -6167,6 +6194,43 @@ global object iconv_range(encoding,start,end)
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
     }
 
+# Macro: Emits a shift sequence to let the output conversion descriptor of an
+# Unbuffered-Channel-Stream return to the initial state.
+# oconv_unshift_output_unbuffered(stream);
+# > stream: Unbuffered-Channel-Stream
+  #if defined(UNICODE) && defined(HAVE_ICONV)
+    #define oconv_unshift_output_unbuffered(stream)  \
+      if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
+        oconv_unshift_output_unbuffered_(stream);          \
+      }
+    local void oconv_unshift_output_unbuffered_ (object stream);
+    local void oconv_unshift_output_unbuffered_(stream)
+      var object stream;
+      {
+        #define tmpbufsize 4096
+        var uintB tmpbuf[tmpbufsize];
+        var char* outptr = (char*)tmpbuf;
+        var size_t outsize = tmpbufsize;
+        begin_system_call();
+        var size_t res = iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
+        if (res == (size_t)(-1)) {
+          if (errno == E2BIG) { # output buffer too small?
+            NOTREACHED
+          } else {
+            OS_error();
+          }
+        }
+        end_system_call();
+        var uintL outcount = outptr-(char*)tmpbuf;
+        if (outcount > 0) {
+          UnbufferedStreamLow_write_array(stream)(stream,&tmpbuf[0],outcount);
+        }
+        #undef tmpbufsize;
+      }
+  #else
+    #define oconv_unshift_output_unbuffered(stream)
+  #endif
+
 # UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
 # finish_output_unbuffered(stream);
 # > stream: Handle-Stream
@@ -6175,6 +6239,7 @@ global object iconv_range(encoding,start,end)
   local void finish_output_unbuffered(stream)
     var object stream;
     {
+      oconv_unshift_output_unbuffered(stream);
       UnbufferedStreamLow_finish_output(stream)(stream);
     }
 
@@ -6186,6 +6251,7 @@ global object iconv_range(encoding,start,end)
   local void force_output_unbuffered(stream)
     var object stream;
     {
+      oconv_unshift_output_unbuffered(stream);
       UnbufferedStreamLow_force_output(stream)(stream);
     }
 
@@ -6217,6 +6283,7 @@ global object iconv_range(encoding,start,end)
   local void close_ochannel(stream)
     var object stream;
     {
+      oconv_unshift_output_unbuffered(stream);
       ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel);
       ChannelStream_fini(stream);
       if (ChannelStream_bitsize(stream) > 0) {
@@ -7518,6 +7585,45 @@ typedef struct strm_i_buffered_extrafields_struct {
       wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
     }
 
+# Macro: Emits a shift sequence to let the output conversion descriptor of an
+# Buffered-Channel-Stream return to the initial state.
+# oconv_unshift_output_buffered(stream);
+# > stream: Buffered-Channel-Stream
+  #if defined(UNICODE) && defined(HAVE_ICONV)
+    #define oconv_unshift_output_buffered(stream)  \
+      if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
+        oconv_unshift_output_buffered_(stream);            \
+      }
+    local void oconv_unshift_output_buffered_ (object stream);
+    local void oconv_unshift_output_buffered_(stream)
+      var object stream;
+      {
+        #define tmpbufsize 4096
+        var uintB tmpbuf[tmpbufsize];
+        var char* outptr = (char*)tmpbuf;
+        var size_t outsize = tmpbufsize;
+        begin_system_call();
+        var size_t res = iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
+        if (res == (size_t)(-1)) {
+          if (errno == E2BIG) { # output buffer too small?
+            NOTREACHED
+          } else {
+            OS_error();
+          }
+        }
+        end_system_call();
+        var uintL outcount = outptr-(char*)tmpbuf;
+        if (outcount > 0) {
+          write_byte_array_buffered(stream,&tmpbuf[0],outcount);
+          # position incrementieren:
+          BufferedStream_position(stream) += outcount;
+        }
+        #undef tmpbufsize;
+      }
+  #else
+    #define oconv_unshift_output_buffered(stream)
+  #endif
+
 # File-Stream, Bit-basiert
 # ========================
 
@@ -8567,6 +8673,8 @@ typedef struct strm_i_buffered_extrafields_struct {
       # kein File mit Schreibzugriff -> gar nichts zu tun:
       if (!(TheStream(stream)->strmflags & strmflags_wr_B))
         return;
+      # Wartenden Output im iconv-Deskriptor hinausschreiben:
+      oconv_unshift_output_buffered(stream);
       # evtl. Buffer und evtl. eofposition hinausschreiben:
       buffered_flush_everything(stream);
       # Nun ist das modified_flag gelöscht.
@@ -8720,6 +8828,8 @@ typedef struct strm_i_buffered_extrafields_struct {
       # Handle=NIL (Stream bereits geschlossen) -> fertig:
       if (nullp(TheStream(stream)->strm_buffered_channel))
         return;
+      # Wartenden Output im iconv-Deskriptor hinausschreiben:
+      oconv_unshift_output_buffered(stream);
       # evtl. Buffer und evtl. eofposition hinausschreiben:
       buffered_flush_everything(stream);
       # Nun ist das modified_flag gelöscht.
