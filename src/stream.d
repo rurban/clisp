@@ -10260,6 +10260,16 @@ LISPFUNN(make_keyboard_stream,0)
       if (nullp(mlist)) {
         end_callback();
         return NULL;
+      } else if (!mconsp(mlist)) {
+        end_callback();
+        pushSTACK(mlist);       # slot DATUM of TYPE-ERROR
+        pushSTACK(S(list));     # slot EXPECTED-TYPE of TYPE-ERROR
+        pushSTACK(S(list));
+        pushSTACK(S(completion));
+        pushSTACK(mlist);
+        fehler(type_error,
+               GETTEXT("Return value ~ of call to ~ is not a ~.")
+               );
       }
       begin_system_call();
       var char** array = (char**) malloc((llength(mlist)+1)*sizeof(char*));
@@ -10272,6 +10282,18 @@ LISPFUNN(make_keyboard_stream,0)
         var char** ptr = array;
         pushSTACK(mlist);
         while (mconsp(STACK_0)) {
+          if (!simple_string_p(Car(STACK_0))) {
+            end_callback();
+            pushSTACK(Car(STACK_0));     # slot DATUM of TYPE-ERROR
+            pushSTACK(S(simple_string)); # slot EXPECTED-TYPE of TYPE-ERROR
+            pushSTACK(S(simple_string));
+            pushSTACK(Car(STACK_0));
+            pushSTACK(S(completion));
+            pushSTACK(mlist);
+            fehler(type_error,
+                   GETTEXT("Return value ~ of call to ~ contains ~ which is not a ~.")
+                  );
+          }
           var uintL charcount = Sstring_length(Car(STACK_0));
           var const chart* ptr1;
           unpack_sstring_alloca(Car(STACK_0),charcount,0, ptr1=);
@@ -12007,15 +12029,15 @@ local uintW screenattr; # screen attribute index
   #define FG(x)  (x)         # foreground color
   #define BG(x)  ((x) << 4)  # background color
 
-# The following attribute constants are defined in the <wincon.h> header file: 
-# FOREGROUND_BLUE 
-# FOREGROUND_GREEN 
-# FOREGROUND_RED 
-# FOREGROUND_INTENSITY 
-# BACKGROUND_BLUE 
-# BACKGROUND_GREEN 
-# BACKGROUND_RED 
-# BACKGROUND_INTENSITY 
+# The following attribute constants are defined in the <wincon.h> header file:
+# FOREGROUND_BLUE
+# FOREGROUND_GREEN
+# FOREGROUND_RED
+# FOREGROUND_INTENSITY
+# BACKGROUND_BLUE
+# BACKGROUND_GREEN
+# BACKGROUND_RED
+# BACKGROUND_INTENSITY
 
 local WORD attr_table[5] = {
   /* no standout   */
@@ -17762,10 +17784,11 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
         if (!stringp(value1)) {
           pushSTACK(value1); # Wert für Slot DATUM von TYPE-ERROR
           pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(S(string));
           pushSTACK(S(stream_read_line));
           pushSTACK(value1);
           fehler(type_error,
-                 GETTEXT("Return value ~ of call to ~ is not a string.")
+                 GETTEXT("Return value ~ of call to ~ is not a ~.")
                 );
         }
         var bool eofp = (mv_count >= 2 && !nullp(value2));

@@ -1,6 +1,11 @@
+2001-03-06  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (lisp_completion): [Bug #221956] check the return value
+	of `sys::completion'.
+
 2001-03-06  Bruno Haible  <haible@clisp.cons.org>
 
-        * unix.d (EDQUOT): Undefine if it is negative.
+	* unix.d (EDQUOT): Undefine if it is negative.
 
 2001-03-02  Sam Steingold  <sds@gnu.org>
 
