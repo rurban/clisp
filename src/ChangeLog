@@ -1,5 +1,13 @@
 2004-08-09  Sam Steingold  <sds@gnu.org>
 
+	* constsym.d (*loop-ansi*): new variable
+	* spvw.d (init_symbol_values): initialize *LOOP-ANSI* to NIL
+	* misc.d (ansi): reset *LOOP-ANSI*
+	* loop.lisp (expand-loop): given CLtL2 syntax removed by ANSI,
+	either warn or signal an error, depending on *LOOP-ANSI*
+
+2004-08-09  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (*suppress-check-redefinition*): initialize to T
 
 2004-08-09  Sam Steingold  <sds@gnu.org>
