@@ -1769,6 +1769,22 @@ EXTRA
 1
 
 
+;;; Check that finalize-inheritance is called when it should be.
+(let ((finalize-inheritance-history '()))
+  (defmethod clos:finalize-inheritance :after ((class class))
+    (push (class-name class) finalize-inheritance-history))
+  (defclass testclass52a () ())
+  (defclass testclass52c (testclass52a testclass52b) ())
+  (defclass testclass52d (testclass52c) ())
+  (defclass testclass52b () ())
+  (make-instance 'testclass52d)
+  (prog1
+    finalize-inheritance-history
+    (remove-method #'clos:finalize-inheritance
+      (find-method #'clos:finalize-inheritance '(:after) (list (find-class 'class))))))
+(TESTCLASS52D TESTCLASS52C TESTCLASS52B TESTCLASS52A)
+
+
 ;;; Check that extending many MOP generic functions is possible, however
 ;;; overriding methods of these MOP generic functions is forbidden.
 

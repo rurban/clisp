@@ -119,3 +119,10 @@
   (if new-value
     (setf (get symbol 'CLOSCLASS) new-value)
     (progn (remprop symbol 'CLOSCLASS) nil)))
+
+;; Converts a class to a pretty printing type.
+(defun class-pretty (class)
+  (if (or (forward-reference-to-class-p class)
+          (eq (find-class (class-name class) nil) class))
+    (class-name class)
+    class))
