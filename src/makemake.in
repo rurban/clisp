@@ -3301,24 +3301,20 @@ echotab "mkdir \$(TOPDIR)"
 echotab "${LN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
 # The linking sets: base and full.
 echotab "mkdir \$(TOPDIR)/base"
-if test -z "$BINARY_DISTRIB"; then
-  echotab "${LN} ${FILES} modules.h modules.o makevars lispinit.mem \$(TOPDIR)/base"
-else
+echotab "${LN} ${FILES} modules.h modules.o makevars lispinit.mem \$(TOPDIR)/base"
+if test -n "$BINARY_DISTRIB"; then
   echotab "cp lisp.run \$(TOPDIR)/base/lisp.run"
   # Don't strip the executable, otherwise (disassemble #'cons) won't work.
   # echotab "strip \$(TOPDIR)/base/lisp.run"
   echotab "chmod a+x \$(TOPDIR)/base/lisp.run"
-  echotab "${LN} lispinit.mem \$(TOPDIR)/base"
 fi
 echotab "mkdir \$(TOPDIR)/full"
-if test -z "$BINARY_DISTRIB"; then
-  echotab "${LN} "'`'". full/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
-else
+echotab "${LN} "'`'". full/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
+if test -n "$BINARY_DISTRIB"; then
   echotab "cp full/lisp.run \$(TOPDIR)/full/lisp.run"
   # Don't strip the executable, otherwise (disassemble #'cons) won't work.
   # echotab "strip \$(TOPDIR)/full/lisp.run"
   echotab "chmod a+x \$(TOPDIR)/full/lisp.run"
-  echotab "${LN} full/lispinit.mem \$(TOPDIR)/full"
 fi
 # The Makefile, generated from distmakefile.
 if test -z "$BINARY_DISTRIB"; then
@@ -3339,14 +3335,12 @@ echotab "mkdir \$(TOPDIR)/emacs"
 echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
 echotab "mkdir \$(TOPDIR)/src"
 echotab "${LN} \$(LSPFILES) \$(FASFILES) \$(TOPDIR)/src"
-if test -z "$BINARY_DISTRIB"; then
-  echotab "${LN} clisp-link \$(TOPDIR)"
-  echotab "mkdir \$(TOPDIR)/linkkit"
-  echotab "${LN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
-  echotab "for module in '' \$(MODULES); do if test -n \"\$\$module\"; then \\"
-  echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$LN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
-  echotab "fi; done"
-fi
+echotab "${LN} clisp-link \$(TOPDIR)"
+echotab "mkdir \$(TOPDIR)/linkkit"
+echotab "${LN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
+echotab "for module in '' \$(MODULES); do if test -n \"\$\$module\"; then \\"
+echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$LN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+echotab "fi; done"
 # For building the `clisp' executable.
 if test -z "$BINARY_DISTRIB"; then
   echotab "${LN} clisp.c \$(TOPDIR)/src"
