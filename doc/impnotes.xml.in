@@ -62,7 +62,7 @@
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2001-04-16</subtitle>
+<subtitle>Last modified: 2001-05-18</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
@@ -93,8 +93,9 @@
 
 <para>These notes document the differences between the &clisp;
  implementation of &cl; and the &ansi-cl;, and some implementation
- details.  This document is indexed in parallel to the <citation>Common
- Lisp HyperSpec</citation>.</para>
+ details.
+ This document is indexed in parallel to the &hyperspec;.
+ </para>
 
 </preface>
 
