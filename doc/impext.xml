@@ -4333,8 +4333,27 @@ future).</para>
 </section>
 <!-- #endif -->
 
+<section id="getenv"><title>Extensions-2.12. Operating System
+  Environment.</title>
+
+<para>Most modern operating systems support &env-var;s that associate
+ strings (<quote>variables</quote>) with other strings
+ (<quote>values</quote>).  These variables are somewhat similar to the
+ &special-dec; variables in &cl;: their values are inherited by the
+ processes from their parent process.</para>
+
+<para>You can access your OS &env-var;s using the function
+<literal role="sexp">(&getenv; &string-r;)</literal>, where &string-r;
+is the name of the &env-var;.  When &string-r; is &nil;, all the
+&env-var;s and their values are returned in an &alist;.</para>
+
+<para>You can change the value of existing &env-var;s or create new
+ ones using <literal role="sexp">(&setf; (&getenv;
+ &string-r;) <replaceable>new-value</replaceable>)</literal>.</para>
+</section>
+
 <!-- #ifdef AMIGAOS -->
-<section id="other"><title>Extensions-2.12. Other</title>
+<section id="other"><title>Extensions-2.13. Other</title>
 
 <variablelist>
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>

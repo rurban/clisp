@@ -34,6 +34,9 @@ User visible changes
   now contain strings, not pathnames.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
+* EXT:GETENV now returns all of the environment as an alist when its
+  argument is NIL.
+
 * When configured with --with-export-syscalls, a new function
   POSIX:STREAM-LOCK provides an interface to flock(2).
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
