@@ -13,8 +13,12 @@
 
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
+	build process portability
 	* makemake.in (data, clean1, ${TESTDIR}): use the appropriate slashes
 	(RM) [win32]: set to 'del /q' (~ rm -f)
+	(UTILDIR*, DOCDIR): define using SRCTOPDIR*+NEXT*, not sed(1)
+	(PARENT_SRCTOPDIR_, PARENT_SRCTOPDIR_M): new vars
+	(data, suite): use them so that `./configure /tmp/...' works
 	* Makefile.devel (htmldoc): make split docs
 	but do not copy impnotes.html to src/
 	(SOURCES1): added clisp.lsm

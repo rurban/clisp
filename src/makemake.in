@@ -570,27 +570,28 @@ else
   NEXT_M="$NEXT_"
 fi
 
-UTILDIR="${SRCTOPDIR}utils${NEXT}"
-DOCDIR="${SRCTOPDIR}doc${NEXT}"
 if [ $H_DOS = "true" ] ; then
   # Replace '/' with '\':
-  SRCTOPDIR_=`echol $SRCTOPDIR | sed -e 's,/,\\\\,g'`
-  UTILDIR_=`echol $UTILDIR | sed -e 's,/,\\\\,g'`
-  DOCDIR_=`echol $DOCDIR | sed -e 's,/,\\\\,g'`
+  SRCTOPDIR_=`echol ${SRCTOPDIR} | sed -e 's,/,\\\\,g'`
+  PARENT_SRCTOPDIR_=`echol ${PARENT_SRCTOPDIR} | sed -e 's,/,\\\\,g'`
 else
   SRCTOPDIR_=$SRCTOPDIR
-  UTILDIR_=$UTILDIR
-  DOCDIR_=$DOCDIR
+  PARENT_SRCTOPDIR_=${PARENT_SRCTOPDIR}
 fi
 if [ $HSYS = win32gcc ] ; then
   SRCTOPDIR_M="$SRCTOPDIR"
-  UTILDIR_M="$UTILDIR"
-  DOCDIR_M="$DOCDIR"
+  PARENT_SRCTOPDIR_M="${PARENT_SRCTOPDIR}"
 else
   SRCTOPDIR_M="$SRCTOPDIR_"
-  UTILDIR_M="$UTILDIR_"
-  DOCDIR_M="$DOCDIR_"
+  PARENT_SRCTOPDIR_M="${PARENT_SRCTOPDIR_}"
 fi
+UTILDIR="${SRCTOPDIR}utils${NEXT}"
+UTILDIR_="${SRCTOPDIR_}utils${NEXT_}"
+UTILDIR_M="${SRCTOPDIR_M}utils${NEXT_M}"
+DOCDIR="${SRCTOPDIR}doc${NEXT}"
+DOCDIR_="${SRCTOPDIR_}doc${NEXT_}"
+DOCDIR_M="${SRCTOPDIR_M}doc${NEXT_M}"
+
 if [ $CROSS = false ] && [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
   NEXT_CC="$NEXT_"
   UTILDIR_CC="$UTILDIR_"
@@ -2676,12 +2677,16 @@ if [ $TOS = win32 ] ; then
 fi
 
 DATA_FILES="UnicodeData.txt clhs.txt"
-DATA_FILES_FULL_PATH="${SRCTOPDIR_}utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt ${SRCTOPDIR_}src${NEXT_}clhs.txt"
-echol "data : ${DATA_FILES_FULL_PATH}"
+DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt src${NEXT_}clhs.txt"
+data_target="data :"
+for f in ${DATA_FILES_TOP_PATH}; do
+  data_target="${data_target} ${SRCTOPDIR_}${f}"
+done
+echol "${data_target}"
 echotab "-\$(RM) data${NEXT_}*"
 echotab "-mkdir data"
-for f in ${DATA_FILES_FULL_PATH}; do
-  echotab "cd data && \$(LN_S) ${PARENT_}${f} ."
+for f in ${DATA_FILES_TOP_PATH}; do
+  echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR_}${f} ."
 done
 echol
 
@@ -2958,7 +2963,7 @@ if [ $CROSS = false ] ; then
   echotab "-mkdir ${TESTSDIR}"
   # on win32, LN_S=copy and it accepts exactly 2 arguments
   for f in Makefile '*.lisp' '*.tst'; do
-    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_}${SRCTOPDIR_}tests${NEXT_}${f} ."
+    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}tests${NEXT_}${f} ."
   done
   echol
   echol
