@@ -1,7 +1,7 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
 # This file was created on host winsteingoldlap as the output of the command:
-# ./makemake --with-dynamic-ffi win32msvc msvc5 debug
+# ./makemake --with-dynamic-ffi win32msvc msvc6 debug
 
 # -------------- Start of configurable section --------------------
 
@@ -55,7 +55,7 @@ MODULES =
 CC = cl $(MFLAGS) -Zi -Od -GZ
 CPPFLAGS = 
 CFLAGS =  -DDEBUG_OS_ERROR -DDEBUG_SPVW -DDEBUG_BYTECODE -DSAFETY=3 -DUNICODE -DDYNAMIC_FFI -DNO_GETTEXT -DNO_SIGSEGV -I.
-CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -D_MSC_VER=1100 -D_INTEGRAL_MAX_BITS=64
+CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -D_MSC_VER=1200 -D_INTEGRAL_MAX_BITS=64
 CLFLAGS = 
 LIBS = charset.lib avcall.lib callback.lib  user32.lib ws2_32.lib advapi32.lib ole32.lib shell32.lib
 X_LIBS = 
