@@ -4533,7 +4533,7 @@ msgstr "~&~%Compilation von Datei ~A beendet."
 
 #: compiler.lsp:12262
 msgid "~%~D error~:P, ~D warning~:P"
-msgstr "~%~D Error~:P, ~D Warnung~:[en~;~]"
+msgstr "~%~D Error~:P, ~D Warnung~:*~[en~;~:;en~]"
 
 #: compiler.lsp:12267
 msgid "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
