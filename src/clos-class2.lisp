@@ -73,34 +73,6 @@
           'concatenated-stream 'two-way-stream 'echo-stream 'string-stream
           'string 'symbol 't 'vector))
 
-;; A new class-version is created each time a class is redefined.
-;; Used to keep the instances in sync through lazy updates.
-;; Note: Why are the shared-slots an element of the class-version, not of the
-;;   class? Answer: When a class is redefined in such a way that a shared slot
-;;   becomes local, the update of the instances of its subclasses needs to
-;;   access the value of the shared slot before the redefinition. This is
-;;   prepared by class-version-compute-slotlists for each subclass; but when
-;;   this is run, the pair (class . index) is not sufficient any more to
-;;   retrieve the value. Hence we use a pair (class-version . index) instead.
-;;   Then, storing the shared-slots vector in the class-version avoids an
-;;   indirection:    class-version -> shared-slots
-;;   instead of      class-version -> class -> shared-slots.
-(defstruct (class-version (:type vector) (:predicate nil) (:copier nil) (:conc-name "CV-"))
-  newest-class             ; the CLASS object describing the newest available version
-  class                    ; the CLASS object describing the slots
-  shared-slots             ; simple-vector with the values of all shared slots, or nil
-  serial                   ; serial number of this class version
-  (next nil)               ; next class-version, or nil
-  (slotlists-valid-p nil)  ; true if the following fields are already computed
-  kept-slot-locations      ; plist of old and new slot locations of those slots
-                           ; that remain local or were shared and become local
-  added-slots              ; list of local slots that are added in the next version
-  discarded-slots          ; list of local slots that are removed or become
-                           ; shared in the next version
-  discarded-slot-locations ; plist of local slots and their old slot locations
-                           ; that are removed or become shared in the next version
-)
-
 ;;; -------------------------------- DEFCLASS --------------------------------
 
 (defmacro defclass (name superclass-specs slot-specs &rest options)

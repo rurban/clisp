@@ -1739,6 +1739,7 @@
 (LOAD "type")                   ; TYPEP
 
 (LOAD "clos-package")           ; Early CLOS
+(LOAD "clos-class0")
 
 (LOAD "defstruct")              ; DEFSTRUCT-macro
 
