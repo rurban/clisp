@@ -1,6 +1,10 @@
 User visible changes
 --------------------
 
+* CLISP does not come with GNU libiconv and GNU gettext anymore.
+  The most important encodings are built-in anyway, and CLISP can use the
+  GNU libc 2.2 iconv and a GNU libiconv when it is independently installed.
+
 * New user variable CUSTOM:*PARSE-NAMESTRING-DOT-FILE* controls
   how the file names starting with a dot are parsed.
   By default, it is set to :NAME, so #P".clisprc" is now
