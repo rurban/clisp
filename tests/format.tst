@@ -13,7 +13,7 @@
 "foo  bar  "
 
 (format nil "~10:@<foo~;bar~>")
-#+(or XCL CLISP ALLEGRO) "  foo bar " #+AKCL " foo bar  " #-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or XCL CLISP ALLEGRO) "  foo bar " #+(or AKCL CMU) " foo bar  " #-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (format nil "~10<foobar~>")
 "    foobar"
@@ -45,6 +45,11 @@
 
 (format nil "~15<~S~;~^~S~;~^~S~>" 'foo 'bar 'baz)
 "foo   bar   baz"
+
+(format nil "~12<~S~;~^~S~;~^~S~>" 'foo 'bar 'baz)
+#+(or CLISP ALLEGRO) "foo  bar baz"
+#+CMU "foo bar  baz"
+#-(or CLISP ALLEGRO CMU) UNKNOWN
 
 (progn
 (setq liste '(aaaaaaa bbbbbb cccccccccccc dddddddddddddd eeee fffffffff
@@ -110,7 +115,7 @@ T
       (when start-p (format stream prefix))
       (loop
         ; Hier ist parts /= NIL
-        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos stream))
+        (let ((pos (#+CLISP sys::line-position #+ALLEGRO excl::charpos #+CMU cl::charpos stream))
               (parts-now '()))
           (let ((pos-now pos))
             (loop
@@ -162,11 +167,19 @@ FORMAT-BLOCKSATZ
   "~%;; "
   nil t nil
 )
+#+(or CLISP ALLEGRO)
 "
 ;;  AAAAAAA  BBBBBB  CCCCCCCCCCCC DDDDDDDDDDDDDD EEEE FFFFFFFFF GGGGGGGG
 ;;  HHHHH  IIII  J KK LLL MMMM NNNNNN OOOOOOOOOO PPPPPPPPPPPPPPP QQQQQQQ
 ;;  RRRRRRRRRRRR   S  TTT  UUUUUUUUU  VVVVVVV  WWWWWWWWWW  XXXXX  YYYYYY
 ;;  ZZZZZZZZ"
+#+CMU
+"
+;;  AAAAAAA BBBBBB CCCCCCCCCCCC DDDDDDDDDDDDDD EEEE  FFFFFFFFF  GGGGGGGG
+;;  HHHHH IIII J KK LLL MMMM NNNNNN OOOOOOOOOO  PPPPPPPPPPPPPPP  QQQQQQQ
+;;  RRRRRRRRRRRR  S  TTT  UUUUUUUUU  VVVVVVV  WWWWWWWWWW  XXXXX   YYYYYY
+;;  ZZZZZZZZ"
+#-(or CLISP ALLEGRO CMU) UNKNOWN
 ;123456789;123456789;123456789;123456789;123456789;123456789;123456789;12
 
 (format-blocksatz nil
@@ -179,12 +192,21 @@ FORMAT-BLOCKSATZ
   "~%;; "
   50 t t
 )
+#+(or CLISP ALLEGRO)
 "
 ;;  AAAAAAA   BBBBBB  CCCCCCCCCCCC  DDDDDDDDDDDDDD
 ;;  EEEE  FFFFFFFFF  GGGGGGGG  HHHHH IIII J KK LLL
 ;;  MMMM NNNNNN OOOOOOOOOO PPPPPPPPPPPPPPP QQQQQQQ
 ;;  RRRRRRRRRRRR    S    TTT   UUUUUUUUU   VVVVVVV
 ;;  WWWWWWWWWW      XXXXX      YYYYYY     ZZZZZZZZ"
+#+CMU
+"
+;;  AAAAAAA  BBBBBB  CCCCCCCCCCCC   DDDDDDDDDDDDDD
+;;  EEEE FFFFFFFFF GGGGGGGG HHHHH IIII  J  KK  LLL
+;;  MMMM NNNNNN OOOOOOOOOO PPPPPPPPPPPPPPP QQQQQQQ
+;;  RRRRRRRRRRRR   S   TTT    UUUUUUUUU    VVVVVVV
+;;  WWWWWWWWWW     XXXXX      YYYYYY      ZZZZZZZZ"
+#-(or CLISP ALLEGRO CMU) UNKNOWN
 ;123456789;123456789;123456789;123456789;123456789;
 
 ;;; unklare Bedeutung (Fehler in Sprachbeschreibung?)
@@ -236,6 +258,11 @@ FOO
 (format nil "~9,0,6f" 3.14159)
 " 3141590."
 
+; ANSI CL is not clear here whether the width is ignored or not.
+(FORMAT NIL "~5D" (QUOTE A))
+"A"
+
+; ANSI CL is not clear here whether the width is ignored or not.
 (FORMAT NIL "~5,3F" (QUOTE A))
 "A"
 
@@ -266,8 +293,8 @@ FOO
 (foo 1100.0L0)
 #+XCL "  1.10D+3| 11.00$+02|+.001D+06|  1.10D+3"
 #+(or CLISP AKCL) "  1.10L+3| 11.00$+02|+.001L+06|  1.10L+3"
-#+ALLEGRO "  1.10d+3| 11.00$+02|+.001d+06|  1.10d+3"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or ALLEGRO CMU) "  1.10d+3| 11.00$+02|+.001d+06|  1.10d+3"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (foo 1.1E13)
 "*********| 11.00$+12|+.001E+16| 1.10E+13"
@@ -329,8 +356,8 @@ foo
 (foo 3141.59L0)
 #+XCL "  3.14D+3|314.2$+01|0.314D+04|  3.14D+3"
 #+(or CLISP AKCL) "  3.14L+3|314.2$+01|0.314L+04|  3.14L+3"
-#+ALLEGRO "  3.14d+3|314.2$+01|0.314d+04|  3.14d+3"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or ALLEGRO CMU) "  3.14d+3|314.2$+01|0.314d+04|  3.14d+3"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (foo 3.14E12)
 "*********|314.0$+10|0.314E+13| 3.14E+12"
@@ -393,58 +420,58 @@ foo
 
 (FORMAT NIL "format-s:--~s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c --ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c  --ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c   --ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|   --ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|   --ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3,'*s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c***--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|***--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|***--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:-- AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--  AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--   AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--   |ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--   |ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~5,2,3,'*@s--ende-*" (QUOTE AB\c))
 #+XCL "format-s:--***AB\\c--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--***|ABc|--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--***|ABc|--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT NIL "format-s:--~:s--ende-*" (QUOTE (AB\c NIL XYZ)))
 #+XCL "format-s:--(AB\\c NIL XYZ)--ende-*"
-#+(or CLISP AKCL ALLEGRO) "format-s:--(|ABc| NIL XYZ)--ende-*"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "format-s:--(|ABc| NIL XYZ)--ende-*"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (SETQ X 5)
 5

@@ -468,13 +468,17 @@ February 17
 )
 ((4.0 2 1) (8.3 6 5) (10.4 9 8))
 
+;; According to the BNF syntax, "and" must not be followed by "for". But
+;; ANSI CL section 6.1.1.5.1 contains ambiguous wording, and this example
+;; appears in CLtL2 p. 743, we keep it.
 (loop for numlist in '((1 2 4.0) (5 6 8.3) (8 9 10.4))
       for a integer = (first numlist)
       and for b integer = (second numlist)
       and for c float = (third numlist)
       collect (list c b a)
 )
-((4.0 2 1) (8.3 6 5) (10.4 9 8))
+#-CMU ((4.0 2 1) (8.3 6 5) (10.4 9 8))
+#+CMU ERROR
 
 (loop for numlist in '((1 2 4.0) (5 6 8.3) (8 9 10.4))
       for a integer = (first numlist)
