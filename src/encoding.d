@@ -5,6 +5,10 @@
 
 #include <string.h> # declares memcpy()
 
+#ifdef UNICODE
+#include "libcharset.h"
+#endif
+
 # =============================================================================
 #                             Individual encodings
 
@@ -1904,84 +1908,153 @@ LISPFUNN(charset_range,3)
 
 # Returns an encoding specified by a name. The line-termination is OS dependent.
 # encoding_from_name(name)
-# > char* name: Any of the canonical names used for the locale_charset variable.
+# > char* name: Any of the canonical names returned by the locale_charset()
+#               function.
 # can trigger GC
   local object encoding_from_name (const char* name);
   local object encoding_from_name(name)
     var const char* name;
     {
       #ifdef UNICODE
-      if (name) {
-        # Use the character set implicitly specified by the locale.
-        if (asciz_equal(name,"ISO-8859-1"))
-          pushSTACK(Symbol_value(S(iso8859_1)));
-        elif (asciz_equal(name,"ISO-8859-2"))
-          pushSTACK(Symbol_value(S(iso8859_2)));
-        elif (asciz_equal(name,"ISO-8859-3"))
-          pushSTACK(Symbol_value(S(iso8859_3)));
-        elif (asciz_equal(name,"ISO-8859-5"))
-          pushSTACK(Symbol_value(S(iso8859_5)));
-        elif (asciz_equal(name,"ISO-8859-6"))
-          pushSTACK(Symbol_value(S(iso8859_6)));
-        elif (asciz_equal(name,"ISO-8859-7"))
-          pushSTACK(Symbol_value(S(iso8859_7)));
-        elif (asciz_equal(name,"ISO-8859-8"))
-          pushSTACK(Symbol_value(S(iso8859_8)));
-        elif (asciz_equal(name,"ISO-8859-9"))
-          pushSTACK(Symbol_value(S(iso8859_9)));
-        elif (asciz_equal(name,"ISO-8859-10"))
-          pushSTACK(Symbol_value(S(iso8859_10)));
-        elif (asciz_equal(name,"ISO-8859-13"))
-          pushSTACK(Symbol_value(S(iso8859_13)));
-        elif (asciz_equal(name,"ISO-8859-14"))
-          pushSTACK(Symbol_value(S(iso8859_14)));
-        elif (asciz_equal(name,"ISO-8859-15"))
-          pushSTACK(Symbol_value(S(iso8859_15))); 
-        elif (asciz_equal(name,"ISO-8859-16"))
-          pushSTACK(Symbol_value(S(iso8859_16))); 
-        elif (asciz_equal(name,"KOI8-R"))
-          pushSTACK(Symbol_value(S(koi8_r)));
-        elif (asciz_equal(name,"KOI8-U"))
-          pushSTACK(Symbol_value(S(koi8_u)));
-        #if defined(GNU_LIBICONV)
-        elif (asciz_equal(name,"eucJP"))
-          pushSTACK(Symbol_value(S(euc_jp)));
-        elif (asciz_equal(name,"JIS7"))
-          pushSTACK(Symbol_value(S(iso_2022_jp)));
-        elif (asciz_equal(name,"SJIS"))
-          pushSTACK(Symbol_value(S(shift_jis)));
-        elif (asciz_equal(name,"eucKR"))
-          pushSTACK(Symbol_value(S(euc_kr)));
-        elif (asciz_equal(name,"eucCN"))
-          pushSTACK(Symbol_value(S(euc_cn)));
-        elif (asciz_equal(name,"eucTW"))
-          pushSTACK(Symbol_value(S(euc_tw)));
-        elif (asciz_equal(name,"TACTIS"))
-          pushSTACK(Symbol_value(S(tis_620)));
-        #elif (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
-        elif (asciz_equal(name,"eucJP"))
-          pushSTACK(ascii_to_string("EUC-JP"));
-        elif (asciz_equal(name,"JIS7"))
-          pushSTACK(ascii_to_string("ISO-2022-JP"));
-        elif (asciz_equal(name,"SJIS"))
-          pushSTACK(ascii_to_string("SJIS"));
-        elif (asciz_equal(name,"eucKR"))
-          pushSTACK(ascii_to_string("EUC-KR"));
-        elif (asciz_equal(name,"eucCN"))
-          pushSTACK(ascii_to_string("EUC-CN"));
-        elif (asciz_equal(name,"eucTW"))
-          pushSTACK(ascii_to_string("EUC-TW"));
-        #if 0
-        elif (asciz_equal(name,"TACTIS"))
-          pushSTACK(??);
-        #endif
-        #endif
-        elif (asciz_equal(name,"UTF-8"))
-          pushSTACK(Symbol_value(S(utf_8)));
-        else
-          goto invalid;
-      } else {
-       invalid:
+      # Attempt to use the character set implicitly specified by the locale.
+      if (name && (asciz_equal(name,"ASCII") || asciz_equal(name,"ANSI_X3.4-1968")))
+        pushSTACK(Symbol_value(S(ascii)));
+      elif (name && asciz_equal(name,"ISO-8859-1"))
+        pushSTACK(Symbol_value(S(iso8859_1)));
+      elif (name && asciz_equal(name,"ISO-8859-2"))
+        pushSTACK(Symbol_value(S(iso8859_2)));
+      elif (name && asciz_equal(name,"ISO-8859-3"))
+        pushSTACK(Symbol_value(S(iso8859_3)));
+      elif (name && asciz_equal(name,"ISO-8859-4"))
+        pushSTACK(Symbol_value(S(iso8859_4)));
+      elif (name && asciz_equal(name,"ISO-8859-5"))
+        pushSTACK(Symbol_value(S(iso8859_5)));
+      elif (name && asciz_equal(name,"ISO-8859-6"))
+        pushSTACK(Symbol_value(S(iso8859_6)));
+      elif (name && asciz_equal(name,"ISO-8859-7"))
+        pushSTACK(Symbol_value(S(iso8859_7)));
+      elif (name && asciz_equal(name,"ISO-8859-8"))
+        pushSTACK(Symbol_value(S(iso8859_8)));
+      elif (name && asciz_equal(name,"ISO-8859-9"))
+        pushSTACK(Symbol_value(S(iso8859_9)));
+      elif (name && asciz_equal(name,"ISO-8859-10"))
+        pushSTACK(Symbol_value(S(iso8859_10)));
+      elif (name && asciz_equal(name,"ISO-8859-13"))
+        pushSTACK(Symbol_value(S(iso8859_13)));
+      elif (name && asciz_equal(name,"ISO-8859-14"))
+        pushSTACK(Symbol_value(S(iso8859_14)));
+      elif (name && asciz_equal(name,"ISO-8859-15"))
+        pushSTACK(Symbol_value(S(iso8859_15))); 
+      elif (name && asciz_equal(name,"ISO-8859-16"))
+        pushSTACK(Symbol_value(S(iso8859_16))); 
+      elif (name && asciz_equal(name,"KOI8-R"))
+        pushSTACK(Symbol_value(S(koi8_r)));
+      elif (name && asciz_equal(name,"KOI8-U"))
+        pushSTACK(Symbol_value(S(koi8_u)));
+      elif (name && asciz_equal(name,"CP850"))
+        pushSTACK(Symbol_value(S(cp850)));
+      elif (name && asciz_equal(name,"CP866"))
+        pushSTACK(Symbol_value(S(cp866)));
+      elif (name && asciz_equal(name,"CP874"))
+        pushSTACK(Symbol_value(S(cp874_ms)));
+      elif (name && asciz_equal(name,"CP1250"))
+        pushSTACK(Symbol_value(S(windows_1250)));
+      elif (name && asciz_equal(name,"CP1251"))
+        pushSTACK(Symbol_value(S(windows_1251)));
+      elif (name && asciz_equal(name,"CP1252"))
+        pushSTACK(Symbol_value(S(windows_1252)));
+      elif (name && asciz_equal(name,"CP1253"))
+        pushSTACK(Symbol_value(S(windows_1253)));
+      elif (name && asciz_equal(name,"CP1254"))
+        pushSTACK(Symbol_value(S(windows_1254)));
+      elif (name && asciz_equal(name,"CP1255"))
+        pushSTACK(Symbol_value(S(windows_1255)));
+      elif (name && asciz_equal(name,"CP1256"))
+        pushSTACK(Symbol_value(S(windows_1256)));
+      elif (name && asciz_equal(name,"CP1257"))
+        pushSTACK(Symbol_value(S(windows_1257)));
+      elif (name && asciz_equal(name,"HP-ROMAN8"))
+        pushSTACK(Symbol_value(S(hp_roman8)));
+      #if defined(GNU_LIBICONV)
+      elif (name && asciz_equal(name,"CP932"))
+        pushSTACK(Symbol_value(S(cp932)));
+      elif (name && asciz_equal(name,"CP949"))
+        pushSTACK(Symbol_value(S(cp949)));
+      elif (name && asciz_equal(name,"CP950"))
+        pushSTACK(Symbol_value(S(cp950)));
+      elif (name && asciz_equal(name,"GB2312"))
+        pushSTACK(Symbol_value(S(euc_cn)));
+      elif (name && asciz_equal(name,"EUC-JP"))
+        pushSTACK(Symbol_value(S(euc_jp)));
+      elif (name && asciz_equal(name,"EUC-KR"))
+        pushSTACK(Symbol_value(S(euc_kr)));
+      elif (name && asciz_equal(name,"EUC-TW"))
+        pushSTACK(Symbol_value(S(euc_tw)));
+      elif (name && asciz_equal(name,"BIG5"))
+        pushSTACK(Symbol_value(S(big5)));
+      elif (name && asciz_equal(name,"BIG5HKSCS"))
+        pushSTACK(Symbol_value(S(big5hkscs)));
+      elif (name && asciz_equal(name,"GBK"))
+        pushSTACK(Symbol_value(S(gbk)));
+      elif (name && asciz_equal(name,"GB18030"))
+        pushSTACK(Symbol_value(S(gb18030)));
+      elif (name && asciz_equal(name,"SJIS"))
+        pushSTACK(Symbol_value(S(shift_jis)));
+      elif (name && asciz_equal(name,"JOHAB"))
+        pushSTACK(Symbol_value(S(johab)));
+      elif (name && asciz_equal(name,"TIS-620"))
+        pushSTACK(Symbol_value(S(tis_620)));
+      elif (name && asciz_equal(name,"VISCII"))
+        pushSTACK(Symbol_value(S(viscii)));
+      #ifdef UNIX_AIX
+      elif (name && asciz_equal(name,"CP856"))
+        pushSTACK(Symbol_value(S(cp856)));
+      elif (name && asciz_equal(name,"CP922"))
+        pushSTACK(Symbol_value(S(cp922)));
+      elif (name && asciz_equal(name,"CP943"))
+        pushSTACK(Symbol_value(S(cp943)));
+      elif (name && asciz_equal(name,"CP1046"))
+        pushSTACK(Symbol_value(S(cp1046)));
+      elif (name && asciz_equal(name,"CP1124"))
+        pushSTACK(Symbol_value(S(cp1124)));
+      elif (name && asciz_equal(name,"CP1129"))
+        pushSTACK(Symbol_value(S(cp1129)));
+      #endif
+      #elif (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
+      elif (name && asciz_equal(name,"CP932"))
+        pushSTACK(ascii_to_string("CP932"));
+      elif (name && asciz_equal(name,"CP949"))
+        pushSTACK(ascii_to_string("CP949"));
+      elif (name && asciz_equal(name,"CP950"))
+        pushSTACK(ascii_to_string("CP950"));
+      elif (name && asciz_equal(name,"GB2312"))
+        pushSTACK(ascii_to_string("EUC-CN"));
+      elif (name && asciz_equal(name,"EUC-JP"))
+        pushSTACK(ascii_to_string("EUC-JP"));
+      elif (name && asciz_equal(name,"EUC-KR"))
+        pushSTACK(ascii_to_string("EUC-KR"));
+      elif (name && asciz_equal(name,"EUC-TW"))
+        pushSTACK(ascii_to_string("EUC-TW"));
+      elif (name && asciz_equal(name,"BIG5"))
+        pushSTACK(ascii_to_string("BIG5"));
+      elif (name && asciz_equal(name,"BIG5HKSCS"))
+        pushSTACK(ascii_to_string("BIG5HKSCS"));
+      elif (name && asciz_equal(name,"GBK"))
+        pushSTACK(ascii_to_string("GBK"));
+      elif (name && asciz_equal(name,"GB18030"))
+        pushSTACK(ascii_to_string("GB18030"));
+      elif (name && asciz_equal(name,"SJIS"))
+        pushSTACK(ascii_to_string("SJIS"));
+      elif (name && asciz_equal(name,"JOHAB"))
+        pushSTACK(ascii_to_string("JOHAB"));
+      elif (name && asciz_equal(name,"TIS-620"))
+        pushSTACK(ascii_to_string("TIS-620"));
+      elif (name && asciz_equal(name,"VISCII"))
+        pushSTACK(ascii_to_string("VISCII"));
+      #endif
+      elif (name && asciz_equal(name,"UTF-8"))
+        pushSTACK(Symbol_value(S(utf_8)));
+      else {
         # Use a reasonable default.
         #if defined(ISOLATIN_CHS)
         pushSTACK(Symbol_value(S(iso8859_1)));
@@ -2018,15 +2091,17 @@ LISPFUNN(charset_range,3)
   global void init_dependent_encodings()
     {
       #ifdef UNICODE
-        extern const char* locale_charset; # depends on environment variables
         extern const char* argv_encoding_file; # override for *default-file-encoding*
         extern const char* argv_encoding_pathname; # override for *pathname-encoding*
         extern const char* argv_encoding_terminal; # override for *terminal-encoding*
         extern const char* argv_encoding_foreign; # override for *foreign-encoding*
         extern const char* argv_encoding_misc; # override for *misc-encoding*
-        pushSTACK(encoding_from_name(locale_charset));
+        begin_system_call();
+        var const char* locale_encoding = locale_charset(); # depends on environment variables
+        end_system_call();
+        pushSTACK(encoding_from_name(locale_encoding));
         # Initialize each encoding as follows: If the corresponding -E....
-        # option was not given, use the locale dependent locale_charset.
+        # option was not given, use the locale dependent locale_charset().
         # If it was given, use that, and if the specified encoding was invalid,
         # use a default encoding that does not depend on the locale.
         O(default_file_encoding) =
