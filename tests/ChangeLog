@@ -1,3 +1,24 @@
+1999-04-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Add support for CMUCL 18a x86-linux 1.4.0.
+        * Makefile.cmucl: New file.
+        * tests.lsp (with-ignored-errors): Ignore-declaration.
+          (merge-extension): Support CMUCL.
+          (do-test, do-errcheck): English messages. Support CMUCL.
+          (run-test) [CMU]: Call `finish-output' to work around CMUCL bug.
+          (run-all-tests): Support CMUCL.
+        * alltest.tst, array.tst, characters.tst, conditions.tst, format.tst,
+          iofkts.tst, lists152.tst, lists155.tst, lists156.tst, loop.tst,
+          map.tst, setf.tst, steele7.tst, streams.tst, streamslong.tst,
+          strings.tst, clos.tst, hashlong.tst, type.tst, symbols.tst,
+          symbol10.tst: Support CMUCL.
+        * alltest.tst, characters.tst, iofkts.tst: Conditionally use
+          CHARACTERP instead of STRING-CHAR-P.
+        * format.tst: Add test "~5D", related to "~5,3F".
+        * hashlong.tst (symbole): Fix typo.
+        * type.lsp: Change type specifiers like (FLOAT 0 2) to (FLOAT 0.0 2.0),
+          for ANSI CL compliance. Wrap `remprop' results in `not null'.
+
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * hash.tst: Move hash-table-iterator test to alltest.tst.

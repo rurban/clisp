@@ -129,7 +129,8 @@
       #+CLISP (equal s "4294967296") #+CLISP (equal s "65536")
       #+AKCL (equal s "64") #+GCL (equal s "63")
       #+ALLEGRO (equal s "65536")
-      #-(or XCL CLISP AKCL ALLEGRO) "UNKNOWN"
+      #+CMU (equal s "65529")
+      #-(or XCL CLISP AKCL ALLEGRO CMU) "UNKNOWN"
 ) )
 T
 
@@ -138,7 +139,8 @@ T
       #+AKCL (equal s "16777216") #+GCL (equal s "2147483647")
       #+CLISP (equal s (prin1-to-string (1+ most-positive-fixnum)))
       #+ALLEGRO (equal s "16777216")
-      #-(or XCL CLISP AKCL ALLEGRO) "UNKNOWN"
+      #+CMU (equal s "536870911")
+      #-(or XCL CLISP AKCL ALLEGRO CMU) "UNKNOWN"
 ) )
 T
 
@@ -147,7 +149,8 @@ T
       #+AKCL (equal s "16777216")
       #+CLISP (equal s (prin1-to-string (1+ most-positive-fixnum)))
       #+ALLEGRO (equal s "16777216")
-      #-(or XCL CLISP AKCL ALLEGRO) "UNKNOWN"
+      #+CMU (equal s "536870911")
+      #-(or XCL CLISP AKCL ALLEGRO CMU) "UNKNOWN"
 ) )
 T
 
@@ -178,8 +181,8 @@ T
 (ARRAY-ELEMENT-TYPE SV)   T
 
 (ARRAY-ELEMENT-TYPE DA1)
-#+(or XCL ALLEGRO) DOUBLE-FLOAT #+CLISP T #+AKCL LONG-FLOAT
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or XCL ALLEGRO CMU) DOUBLE-FLOAT #+CLISP T #+AKCL LONG-FLOAT
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT T "~%Test Rang~%")   NIL
 
@@ -207,7 +210,7 @@ T
 
 (SETF (AREF ZERO) 4)   4
 
-(SETF (AREF ZERO) 1.0)   #+(or XCL CLISP AKCL ALLEGRO) ERROR #-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+(SETF (AREF ZERO) 1.0)   #+(or XCL CLISP AKCL ALLEGRO CMU) ERROR #-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 
 (FORMAT T "~%Erzeuge ein 3-dim gen. Feld~%")   NIL
 
@@ -494,7 +497,7 @@ SUBS
 (MAKE-ARRAY (QUOTE (3 4 5)) :FILL-POINTER T)   ERROR
 
 (equalp (MAKE-ARRAY 5 :FILL-POINTER 5)
-        #+XCL '#(0 0 0 0 0) #-XCL '#(nil nil nil nil nil))
+        #+(or XCL CMU) '#(0 0 0 0 0) #-(or XCL CMU) '#(nil nil nil nil nil))
 T
 
 (MAKE-ARRAY 5 :FILL-POINTER -5)   ERROR
@@ -634,6 +637,6 @@ T)   T
 (VECTOR-POP VMFAD)   0.0D0
 
 (VECTOR-PUSH-EXTEND 5.0S0 VMFAD)
-#+(or XCL GCL ALLEGRO) ERROR #+(or CLISP (and AKCL (not GCL))) 0
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or XCL GCL ALLEGRO CMU) ERROR #+(or CLISP (and AKCL (not GCL))) 0
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 

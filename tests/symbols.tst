@@ -9,6 +9,6 @@
 
 (PRIN1-TO-STRING (GENSYM "garbage-"))
 #+XCL "#:|garbage|-34"
-#+(or CLISP AKCL ALLEGRO) "#:|garbage-34|"
-#-(or XCL CLISP AKCL ALLEGRO) UNKNOWN
+#+(or CLISP AKCL ALLEGRO CMU) "#:|garbage-34|"
+#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
 

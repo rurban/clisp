@@ -7,6 +7,9 @@
 #+ALLEGRO (progn (setf (symbol-function 'setf-gethash)
                        (symbol-function 'excl::%puthash)) t)
 #+ALLEGRO t
+#+CMU (progn (setf (symbol-function 'setf-gethash)
+                   (symbol-function 'cl::%puthash)) t)
+#+CMU t
 
 (DEFUN SYMBOLE ()
   (LET ((B 0.)
@@ -27,7 +30,7 @@
                  (PRINT (HASH-TABLE-COUNT HASH-TABLE))
                  (PRINT "hval:") (PRINT HVAL)
                  (PRINT "lval:") (PRINT LVAL)
-                 (return-from symbols 'error))
+                 (RETURN-FROM SYMBOLE 'ERROR))
                (REMHASH (CAR LISTE) HASH-TABLE)
                #+XCL (WHEN (< (ROOM) 30000.) (SYSTEM::%GARBAGE-COLLECTION))
                (SETF-GETHASH X HASH-TABLE (SETQ B (+ 1. B)))

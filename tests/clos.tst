@@ -1,4 +1,6 @@
+#-CMU
 (use-package "CLOS")
+#-CMU
 T
 
 (unintern '<C1>)
@@ -243,19 +245,19 @@ T
 (eq (class-of t)                (find-class 'symbol))
 T
 
-(eq (class-of 10)               (find-class #+ALLEGRO 'fixnum #-ALLEGRO 'integer))
+(eq (class-of 10)               (find-class #+(or ALLEGRO CMU) 'fixnum #-(or ALLEGRO CMU) 'integer))
 T
 
-(eq (class-of 10.0)             (find-class #+ALLEGRO 'single-float #-ALLEGRO 'float))
+(eq (class-of 10.0)             (find-class #+(or ALLEGRO CMU) 'single-float #-(or ALLEGRO CMU) 'float))
 T
 
 (eq (class-of '(a b))           (find-class 'cons))
 T
 
-(eq (class-of "abc")            (find-class 'string))
+(eq (class-of "abc")            (find-class #+CMU 'simple-string #-CMU 'string))
 T
 
-(eq (class-of '#(1 2))          (find-class 'vector))
+(eq (class-of '#(1 2))          (find-class #+CMU 'simple-vector #-CMU 'vector))
 T
 
 (eq (class-of #'car)            (find-class 'function))
@@ -264,7 +266,7 @@ T
 (eq (class-of #'make-instance)  (find-class 'standard-generic-function))
 T
 
-(eq (class-of '#2a((a) (b)))    (find-class 'array))
+(eq (class-of '#2a((a) (b)))    (find-class #+CMU 'simple-array #-CMU 'array))
 T
 
 (eq (class-of *standard-input*) (find-class 'stream))
@@ -318,7 +320,12 @@ T
   (finalize-inheritance class1)
   (not (null (member class2 (class-precedence-list class1))))
 )
-#+(or CLISP ALLEGRO) SUBCLASSP
+#+CMU
+(defun subclassp (class1 class2)
+  (not (null (member (car (pcl:class-precedence-list class2))
+                     (pcl:class-precedence-list class1)
+) )    )     )
+#+(or CLISP ALLEGRO CMU) SUBCLASSP
 
 (subclassp (find-class 'number)           (find-class 't))
 T
