@@ -1,9 +1,8 @@
 # Makefile for CLISP module set pari
 
 CC = @CC@
-CPPFLAGS = @CPPFLAGS@
+PARICPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCPARI = @INCPARI@
 
 CLISP = clisp -q -norc
 
@@ -22,10 +21,10 @@ pari.fas pari.c : pari.lisp
 	$(CLISP) -c pari.lisp
 
 pari.o : pari.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(INCPARI) -c pari.c
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c pari.c
 
 cpari.o : cpari.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(INCPARI) -c cpari.c
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpari.c
 
 # Make a module
 clisp-module : all

@@ -11,23 +11,28 @@ AC_MSG_NOTICE([* PostgreSQL (Tools)])
 AC_PROG_CC
 AC_PROG_CPP
 
+dnl Search for libpq and define LIBPQ, LTLIBPQ and INCPQ.
+AC_CONFIG_AUX_DIR(../../src/autoconf)
+AC_LIB_LINKFLAGS([pq])
+
 AC_MSG_NOTICE([* PostgreSQL (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_CHECK_HEADERS(crypt.h postgres_ext.h)
-if test "$ac_cv_header_postgres_ext_h" != "yes"; then
+if test "$ac_cv_header_postgres_ext_h" = "no"; then
   AC_MSG_ERROR([cannot find PostgreSQL headers])
 fi
 
 AC_MSG_NOTICE([* PostgreSQL (Functions)])
+AC_LIB_APPENDTOVAR([LIBS], [$LTLIBPQ])
 AC_SEARCH_LIBS(encrypt, crypt)
-AC_SEARCH_LIBS(PQconnectdb, pq)
+AC_SEARCH_LIBS(PQconnectdb)
 if test "$ac_cv_search_PQconnectdb" = "no"; then
   AC_MSG_ERROR([cannot find PostgreSQL library])
 fi
 
-AC_MSG_NOTICE([* PostgreSQL (output)])
+AC_MSG_NOTICE([* PostgreSQL (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT
 
-AC_MSG_NOTICE([* PostgreSQL (done)])
+AC_MSG_NOTICE([* PostgreSQL (Done)])
