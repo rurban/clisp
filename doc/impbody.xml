@@ -823,7 +823,7 @@ is the same as
 <para>The standard is unambiguous in that the iteration variables do
  still exist in the &finally; clause, but &not-e; as to what values
  these variables might have.
- Therefore the code which relies on the values of such variables, e.g
+ Therefore the code which relies on the values of such variables, e.g.,
  <programlisting>(loop for x on y finally (return x))</programlisting>
  is inherently non-portable across &cl; implementations,
  and should be avoided.</para>
