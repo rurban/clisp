@@ -491,8 +491,8 @@ intermediate language after the 1st pass:
 
    (BLOCK-OPEN const label)   Stores a Block-Cons (with CAR=const and CDR=
                               Framepointer) to -(STACK), constructs a
-                              Block-Frame. On RETURN to this
-                              Frame --> jump to label.
+                              Block-Frame. Undefined values.
+                              On RETURN to this Frame --> jump to label.
    (BLOCK-CLOSE)              Leave the Block and thereby dismantle a Block-
                               Frame (including the Block-Cons-Variables)
    (RETURN-FROM const)        Leave the Block, whose Block-Cons is specified,
@@ -508,8 +508,8 @@ intermediate language after the 1st pass:
    (TAGBODY-OPEN const label1 ... labelm)
                               Stores a Tagbody-Cons (with CAR=const
                               and CDR=Framepointer) on -(STACK), constructs a
-                              Tagbody-Frame. On GO with number l
-                              ---> jump to labell.
+                              Tagbody-Frame. Undefined values.
+                              On GO with number l ---> jump to labell.
    (TAGBODY-CLOSE-NIL)        Leave the Tagbody and thereby dismantle a
                               Tagbody-Frame (including the Tagbody-Cons-
                               Variables). A0 := NIL, 1 value
@@ -7506,7 +7506,9 @@ New Operations:
            (let ((label (third item)))
              (push `(BLOCK-OPEN ,(const-index (second item)) ,label)
                    *code-part*)
-             (push (first *code-part*) (symbol-value label))))
+             (push (first *code-part*) (symbol-value label))
+             ;; undefined values
+             (setq *current-value* nil *current-vars* '())))
           (RETURN-FROM
            (push
             (if (cddr item)
@@ -7522,7 +7524,9 @@ New Operations:
           (TAGBODY-OPEN
            (push `(TAGBODY-OPEN ,(const-index (second item)) ,@(cddr item))
                  *code-part*)
-           (dolist (label (cddr item)) (push item (symbol-value label))))
+           (dolist (label (cddr item)) (push item (symbol-value label)))
+           ;; undefined values
+           (setq *current-value* nil *current-vars* '()))
           (GO
            (push
             (if (cdddr item)
