@@ -386,7 +386,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  to &make-package; is &cl-pac;, the standard &clos; symbols are normally
  visible in all user-defined packages.
  If you do not want them (for example, if you want to use the
- <ulink url="ftp://cvs2.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
+ <ulink url="ftp://ftp.gnu.org/pub/gnu/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
  implementation of &clos; instead of the native one), do the following:
 <programlisting language="lisp">
 (&defpackage; "CL-NO-CLOS" (:use "CL"))
@@ -2971,7 +2971,7 @@ is not a defined logical host yet, we proceed as follows:
   &logical-pathname-translations;.
   When the element is a directory, a file, named <filename>&host-r;</filename>
   or <filename>&host-r;.host</filename>, in that directory, is &read;
-  from once, <ulink url="http://cvs2.cons.org/ftp-area/cmucl/doc/cmu-user/extensions.html#logical-pathnames">CMUCL-style</ulink>,
+from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensions.html#logical-pathnames">CMUCL-style</ulink>,
   the object read being the &logical-pathname-translations; of the
   &host-r;.</simpara></listitem></orderedlist></para>
 </section>
