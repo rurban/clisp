@@ -1,5 +1,11 @@
 2004-06-23  Bruno Haible  <bruno@clisp.org>
 
+	* hashtabl.d ((SETF HASH-TABLE-WEAK-P)): Fix GC-safety bug introduced
+	in last patch. Check the hash table argument before the new-value
+	argument.
+
+2004-06-23  Bruno Haible  <bruno@clisp.org>
+
 	* places.lisp (def-setf-alias): New macro.
 
 2004-06-23  Bruno Haible  <bruno@clisp.org>
