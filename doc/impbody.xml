@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+ <?xml version="1.0" encoding="UTF-8"?>
 
 <chapter id="intro"><title>Introduction
   <ulink url="&clhs;/Body/chap-1.html">[CLHS-1]</ulink></title>
@@ -2426,32 +2426,29 @@ printed readably.</para>
 <variablelist>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
 <varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
-<listitem><simpara>For example, <filename>#p"FOO/BAR"</filename> denotes
- the file <filename>BAR</filename> in the directory
- <filename>FOO</filename>, while <filename>#p"FOO/BAR/"</filename>
- denotes the subdirectory <filename>BAR</filename> of the directory
- <filename>FOO</filename>.
+<listitem><simpara>For example, <filename>#P"foo/bar"</filename> denotes
+ the file &bar-f; in the directory &foo-f;,
+ while <filename>#P"foo/bar/"</filename> denotes the subdirectory
+ &bar-f; of the directory &foo-f;.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</term>
-<listitem><simpara>For example, <filename>#p"FOO\\BAR"</filename>
- denotes the file <filename>BAR</filename> in the directory
- <filename>FOO</filename>, while <filename>#p"FOO\\BAR\\"</filename>
- denotes the subdirectory <filename>BAR</filename> of the directory
- <filename>FOO</filename>.
+<listitem><simpara>For example, <filename>#P"foo\\bar"</filename>
+ denotes the file &bar-f; in the directory &foo-f;,
+ while <filename>#P"foo\\bar\\"</filename> denotes the subdirectory
+ &bar-f; of the directory &foo-f;.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_RISCOS -->
 <varlistentry><term>Platform dependent: &acorn; platforms only.</term>
-<listitem><simpara>For example, <filename>#p"FOO.BAR"</filename> denotes
- the file <filename>FOO</filename> in the directory
- <filename>BAR</filename>, while <filename>#p"FOO.BAR."</filename>
- denotes the subdirectory <filename>BAR</filename> of the directory
- <filename>FOO</filename>.
+<listitem><simpara>For example, <filename>#P"foo.bar"</filename> denotes
+ the file &foo-f; in the directory &bar-f;,
+ while <filename>#P"foo.bar."</filename> denotes the subdirectory
+ &bar-f; of the directory &foo-f;.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
@@ -2467,12 +2464,12 @@ printed readably.</para>
   <title>The minimum filename syntax that may be used portably</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>pathname</entry><entry>meaning</entry></row></thead><tbody>
- <row><entry><filename>xxx</filename></entry>
+ <row><entry><filename>"xxx"</filename></entry>
    <entry>for a file with name <replaceable>xxx</replaceable></entry></row>
- <row><entry><filename>xxx.yy</filename></entry>
+ <row><entry><filename>"xxx.yy"</filename></entry>
    <entry>for a file with name <replaceable>xxx</replaceable> and type
    <replaceable>yy</replaceable></entry></row>
- <row><entry><filename>.yy</filename></entry>
+ <row><entry><filename>".yy"</filename></entry>
    <entry>for a pathname with type <replaceable>yy</replaceable> and no
    name specified</entry></row>
 </tbody></tgroup></table>
@@ -2503,7 +2500,7 @@ printed readably.</para>
    &elt-val-meaning-header;<tbody>
  &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
  <row><entry>&subdir-r;</entry><entry>&parent-k;</entry>
-  <entry>&file-slash; instead of <filename>subdir/</filename></entry></row>
+  <entry>&file-slash; instead of <filename>"subdir/"</filename></entry></row>
  </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
 <varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
@@ -2522,13 +2519,13 @@ printed readably.</para>
  <title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry>
-  <entry><filename>dev:sub1.typ/sub2.typ/name.typ</filename></entry></row>
+  <entry><filename>"dev:sub1.typ/sub2.typ/name.typ"</filename></entry></row>
  <row><entry>using defaults:</entry>
-  <entry><filename>    sub1.typ/sub2.typ/name.typ</filename></entry></row>
+  <entry><filename>    "sub1.typ/sub2.typ/name.typ"</filename></entry></row>
  <row><entry>or</entry>
-  <entry><filename>                      name.typ</filename></entry></row>
+  <entry><filename>                      "name.typ"</filename></entry></row>
  <row><entry>or</entry>
-  <entry><filename>    sub1.typ/**/sub3.typ/x*.lisp</filename></entry></row>
+  <entry><filename>    "sub1.typ/**/sub3.typ/x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
 </tbody></tgroup></table>
 
@@ -2564,42 +2561,37 @@ printed readably.</para>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
   <thead><row><entry>String</entry><entry>Device</entry>
   <entry>Directory</entry><entry>our pathname</entry></row></thead><tbody>
- <row><entry><filename>'c:foo'</filename></entry><entry>'C'</entry>
-   <entry><filename>device-&gt;foo</filename></entry>
+ <row><entry><filename>"c:foo"</filename></entry><entry>'C'</entry>
+   <entry><filename>"device-&gt;foo"</filename></entry>
+   <entry><filename>"c"</filename> (&absolute-k; &foo-f;)</entry></row>
+ <row><entry><filename>"c:foo/"</filename></entry><entry>'C'</entry>
+   <entry><filename>"device-&gt;foo"</filename></entry>
+   <entry><filename>"c"</filename> (&absolute-k; &foo-f;)</entry></row>
+ <row><entry><filename>"c:foo/bar"</filename></entry><entry>'C'</entry>
+   <entry><filename>"device-&gt;foo-&gt;bar"</filename></entry>
+   <entry><filename>"c"</filename> (&absolute-k; &foo-f; &bar-f;)</entry></row>
+ <row><entry><filename>"c:/foo"</filename></entry><entry>'C'</entry>
+   <entry><filename>"device-&gt;up-&gt;foo"</filename></entry>
    <entry><filename>"c"</filename>
-        (&absolute-k; <filename>"foo"</filename>)</entry></row>
- <row><entry><filename>'c:foo/'</filename></entry><entry>'C'</entry>
-   <entry><filename>device-&gt;foo</filename></entry>
-   <entry><filename>"c"</filename>
-        (&absolute-k; <filename>"foo"</filename>)</entry></row>
- <row><entry><filename>'c:foo/bar'</filename></entry><entry>'C'</entry>
-   <entry><filename>device-&gt;foo-&gt;bar</filename></entry>
-   <entry><filename>"c"</filename>
-        (&absolute-k; <filename>"foo" "bar"</filename>)</entry></row>
- <row><entry><filename>'c:/foo'</filename></entry><entry>'C'</entry>
-   <entry><filename>device-&gt;up-&gt;foo</filename></entry>
-   <entry><filename>"c"</filename>
-        (&absolute-k; &parent-k; <filename>"foo"</filename>)
-        </entry></row>
- <row><entry><filename>'c:'</filename></entry><entry>'C'</entry>
-   <entry><filename>device</filename></entry>
+          (&absolute-k; &parent-k; &foo-f;)</entry></row>
+ <row><entry><filename>"c:"</filename></entry><entry>'C'</entry>
+   <entry><filename>"device"</filename></entry>
    <entry><filename>"c"</filename> (&absolute-k;)</entry></row>
- <row><entry><filename>:foo</filename></entry><entry>current</entry>
-   <entry><filename>device-&gt;root-&gt;foo</filename></entry>
-   <entry>&nil; (&absolute-k; <filename>"foo"</filename>)</entry></row>
- <row><entry><filename>foo</filename></entry><entry>current</entry>
-   <entry><filename>device-&gt;foo</filename></entry>
-   <entry>&nil; (&relative-k; <filename>"foo"</filename>)</entry></row>
- <row><entry><filename>'/foo'</filename></entry><entry>current</entry>
-   <entry><filename>device-&gt;up-&gt;foo</filename></entry>
-   <entry>&nil; (&relative-k; &parent-k; <filename>"foo"</filename>)
-   </entry></row>
- <row><entry><filename>'//foo/bar'</filename></entry><entry>current</entry>
-   <entry><filename>device-&gt;up-&gt;up-&gt;foo-&gt;bar</filename></entry>
-   <entry>&nil; (&relative-k; &parent-k; &parent-k; <filename>"foo"
-               "bar"</filename>)</entry></row>
+ <row><entry><filename>":foo"</filename></entry><entry>current</entry>
+   <entry><filename>"device-&gt;root-&gt;foo"</filename></entry>
+   <entry>&nil; (&absolute-k; &foo-f;)</entry></row>
+ <row><entry>&foo-f;</entry><entry>current</entry>
+   <entry><filename>"device-&gt;foo"</filename></entry>
+   <entry>&nil; (&relative-k; &foo-f;)</entry></row>
+ <row><entry><filename>"/foo"</filename></entry><entry>current</entry>
+   <entry><filename>"device-&gt;up-&gt;foo"</filename></entry>
+   <entry>&nil; (&relative-k; &parent-k; &foo-f;)</entry></row>
+ <row><entry><filename>"//foo/bar"</filename></entry><entry>current</entry>
+   <entry><filename>"device-&gt;up-&gt;up-&gt;foo-&gt;bar"</filename></entry>
+   <entry>&nil; (&relative-k; &parent-k; &parent-k; &foo-f;
+                 &bar-f;)</entry></row>
  <row><entry>&file-bsla;</entry><entry>current</entry>
-   <entry><filename>device</filename></entry>
+   <entry><filename>"device"</filename></entry>
    <entry>&nil; (&relative-k;)</entry></row>
 </tbody></tgroup></table>
 
@@ -2638,13 +2630,13 @@ printed readably.</para>
 <table id="unix-filename-table" frame="all"><title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry><entry>
-  <filename>server:sub1.typ/sub2.typ/name.typ</filename></entry></row>
+  <filename>"server:sub1.typ/sub2.typ/name.typ"</filename></entry></row>
  <row><entry>using defaults:</entry><entry>
-  <filename>       sub1.typ/sub2.typ/name.typ</filename></entry></row>
+  <filename>       "sub1.typ/sub2.typ/name.typ"</filename></entry></row>
  <row><entry>or</entry><entry>
-  <filename>                         name.typ</filename></entry></row>
+  <filename>                         "name.typ"</filename></entry></row>
  <row><entry>or</entry><entry>
-  <filename>       sub1.typ/**/sub3.typ/x*.lisp</filename></entry></row>
+  <filename>       "sub1.typ/**/sub3.typ/x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
 </tbody></tgroup></table>
 </listitem></varlistentry></variablelist>
@@ -2674,13 +2666,13 @@ printed readably.</para>
 <table id="os2-filename-table" frame="all"><title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry>
-  <entry><filename>A:\sub1.typ\sub2.typ\name.typ</filename></entry></row>
+  <entry><filename>"A:\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
  <row><entry>using defaults:</entry>
-  <entry><filename>  \sub1.typ\sub2.typ\name.typ</filename></entry></row>
+  <entry><filename>  "\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
  <row><entry>or</entry>
-  <entry><filename>                     name.typ</filename></entry></row>
+  <entry><filename>                     "name.typ"</filename></entry></row>
  <row><entry>or</entry>
-  <entry><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></entry></row>
+  <entry><filename>"*:\sub1.typ\**\sub3.typ\x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
 </tbody></tgroup></table>
 
@@ -2716,13 +2708,13 @@ printed readably.</para>
 <table id="win32-filename-table" frame="all"><title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry>
-  <entry><filename>A:\sub1.typ\sub2.typ\name.typ</filename></entry></row>
+  <entry><filename>"A:\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
  <row><entry>using defaults:</entry>
-  <entry><filename>  \sub1.typ\sub2.typ\name.typ</filename></entry></row>
+  <entry><filename>  "\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
  <row><entry>or</entry>
-  <entry><filename>                     name.typ</filename></entry></row>
+  <entry><filename>                     "name.typ"</filename></entry></row>
  <row><entry>or</entry>
-  <entry><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></entry></row>
+  <entry><filename>"*:\sub1.typ\**\sub3.typ\x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
 </tbody></tgroup></table>
 
@@ -2815,31 +2807,31 @@ printed readably.</para>
  <variablelist>
   <varlistentry><term>&file-dot;</term>
    <listitem><simpara>Separates directory specifications, e.g.,
-   <filename>$.fred</filename></simpara></listitem></varlistentry>
+   <filename>"$.fred"</filename></simpara></listitem></varlistentry>
   <varlistentry><term>&file-colon;</term>
    <listitem><simpara>Introduces a drive or disc specification, e.g.,
-   <filename>:0</filename>, <filename>:bigdisc</filename>.  It also
+   <filename>":0"</filename>, <filename>":bigdisc"</filename>.  It also
    marks the end of a file system name, e.g.,
-   <filename>adfs:</filename></simpara></listitem></varlistentry>
+   <filename>"adfs:"</filename></simpara></listitem></varlistentry>
   <varlistentry><term>&file-star;</term>
    <listitem><simpara>Acts as a `wildcard' to match zero or more
    characters.</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>#</filename></term>
+  <varlistentry><term>&file-hash;</term>
    <listitem><simpara>Acts as a `wildcard' to match any single
    character.</simpara></listitem></varlistentry>
-  <varlistentry><term><filename>$</filename></term>
+  <varlistentry><term>&file-doll;</term>
    <listitem><simpara>is the name of the root directory of the disc.
    </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>&amp;</filename></term>
+  <varlistentry><term><filename>"&amp;"</filename></term>
    <listitem><simpara>is the user root directory (URD)
    </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>@</filename></term>
+  <varlistentry><term><filename>"@"</filename></term>
    <listitem><simpara>is the currently selected directory (CSD)
    </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>^</filename></term>
+  <varlistentry><term><filename>"^"</filename></term>
    <listitem><simpara>is the `parent' directory
    </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>%</filename></term>
+  <varlistentry><term><filename>"%"</filename></term>
    <listitem><simpara>is the currently selected library (CSL)
    </simpara></listitem></varlistentry>
   <varlistentry><term>&file-bsla;</term>
@@ -2848,32 +2840,30 @@ printed readably.</para>
   </variablelist></listitem></varlistentry>
 
 <varlistentry><term>Directories</term>
- <listitem><simpara>The root directory, <filename>$</filename>, forms
-  the top of the directory hierarchy of the media which contains the
-  CSD.  <filename>$</filename> does not have a parent directory, trying
-  to access its parent will just access <filename>$</filename>.  Each
-  directory name is separated by a &file-dot; character.
-  For example:</simpara>
+ <listitem><simpara>The root directory, &file-doll;, forms the top of
+  the directory hierarchy of the media which contains the CSD.
+  &file-doll; does not have a parent directory, trying to access its
+  parent will just access &file-doll;.  Each directory name is separated
+  by a &file-dot; character.  For example:</simpara>
  <itemizedlist>
-  <listitem><simpara><filename>$.Documents.Memos</filename>
+  <listitem><simpara><filename>"$.Documents.Memos"</filename>
    </simpara></listitem>
-  <listitem><simpara><filename>%.cc</filename></simpara></listitem>
+  <listitem><simpara><filename>"%.cc"</filename></simpara></listitem>
  </itemizedlist></listitem></varlistentry>
 
 <varlistentry><term>File Systems</term>
 
  <listitem><simpara>Files may also be accessed on file systems other
   than the current one by prefixing the filename with a file system
-  specification.  A file system name may appear between
-  <filename>-</filename> characters, or suffixed by a
-  &file-colon;, though the latter is advised since
-  <filename>-</filename> can also be used to introduce a parameter on a
-  command line, or as part of a file name.  For example:</simpara>
+  specification.  A file system name may appear between &file-dash;
+  characters, or suffixed by a &file-colon;, though the latter is
+  advised since &file-dash; can also be used to introduce a parameter on
+  a command line, or as part of a file name.  For example:</simpara>
 
  <itemizedlist>
-  <listitem><simpara><filename>-net-$.SystemMesg</filename>
+  <listitem><simpara><filename>"-net-$.SystemMesg"</filename>
    </simpara></listitem>
-  <listitem><simpara><filename>adfs:%.aasm</filename></simpara></listitem>
+  <listitem><simpara><filename>"adfs:%.aasm"</filename></simpara></listitem>
  </itemizedlist></listitem></varlistentry>
 
 <varlistentry><term>Special Fields</term>
@@ -2881,17 +2871,17 @@ printed readably.</para>
  <listitem><simpara>Special fields are used to supply more information
   to the file system than you can using standard path names; for example
   NetFS and NetPrint use them to specify server addresses or names. They
-  are introduced by a <filename>#</filename> character; a variety of
-  syntaxes are possible:</simpara>
+  are introduced by a &file-hash; character; a variety of syntaxes are
+  possible:</simpara>
 
 <itemizedlist>
-  <listitem><simpara><filename>  net#MJHardy::disc1.mike</filename>
+  <listitem><simpara><filename>  "net#MJHardy::disc1.mike"</filename>
    </simpara></listitem>
-  <listitem><simpara><filename>     #MJHardy::disc1.mike</filename>
+  <listitem><simpara><filename>     "#MJHardy::disc1.mike"</filename>
    </simpara></listitem>
-  <listitem><simpara><filename> -net#MJHardy-:disc1.mike</filename>
+  <listitem><simpara><filename> "-net#MJHardy-:disc1.mike"</filename>
    </simpara></listitem>
-  <listitem><simpara><filename>    -#MJHardy-:disc1.mike</filename>
+  <listitem><simpara><filename>    "-#MJHardy-:disc1.mike"</filename>
    </simpara></listitem>
 </itemizedlist>
 
@@ -2901,8 +2891,8 @@ printed readably.</para>
   a special field contains a hyphen you may only use the first two
   syntaxes given above.</simpara></listitem></varlistentry>
 
-<varlistentry><term><filename>File$Path</filename> and
-  <filename>Run$Path</filename></term>
+<varlistentry><term><filename>"File$Path"</filename> and
+  <filename>"Run$Path"</filename></term>
 
  <listitem><simpara>These two special variables control exactly where a
   file will be looked for, according to the operation being performed on
@@ -2919,23 +2909,23 @@ printed readably.</para>
 
  <simpara>The contents of each variable should expand to a list or
   prefixes, separated by commas.  When a read operation is performed
-  then the prefixes in <filename>File$Path</filename> are used in the
+  then the prefixes in <filename>"File$Path"</filename> are used in the
   order in which they are listed. The first object that matches is used,
   whether it be a file or directory.  Similarly any execute operation
   uses the prefixes in Run$Path.  These search paths are only used when
   the pathname does not contain an explicit file system reference, e.g.,
-  executing <filename>adfs:file</filename> will not use
-  <filename>Run$Path</filename>.</simpara></listitem></varlistentry>
+  executing <filename>"adfs:file"</filename> will not use
+  <filename>"Run$Path"</filename>.</simpara></listitem></varlistentry>
 
 <varlistentry><term>Other path variables</term>
  <listitem><para>You can set up other path variables and use them as
   pseudo file systems.  For example if you typed:
   <literallayout><userinput>*Set Source$Path adfs:$.src.,adfs:$.public.src.</userinput></literallayout>,
   you could then refer to the pseudo file system as
-  <filename>Source:</filename> or (less preferable) as
-  <filename>-Source-</filename>.  These path variables work in the same
-  was as <filename>File$Path</filename> and
-  <filename>Run$Path</filename>.</para>
+  <filename>"Source:"</filename> or (less preferable) as
+  <filename>"-Source-"</filename>.  These path variables work in the same
+  was as <filename>"File$Path"</filename> and
+  <filename>"Run$Path"</filename>.</para>
 
  <simpara>NOTE: Path variables are not implemented in this version of
  &clisp;.  A workaround for this is to use "&lt;Foo$Path&gt;"
@@ -2946,8 +2936,7 @@ printed readably.</para>
   notation to internal representation</term>
 
  <listitem><simpara><emphasis>No</emphasis> swapping.
-   <filename>foo.lisp</filename> means file type
-   &lisp-file; and file name <filename>foo</filename>.
+   &foolisp-f; means file type &lisp-file; and file name &foo-f;.
    This is pseudo-BNF:</simpara>
  <variablelist>
   <varlistentry><term>legal character ::==</term>
@@ -3007,85 +2996,70 @@ printed readably.</para>
    <thead><row><entry>String</entry><entry>Hostname</entry>
    <entry>Device</entry><entry>Directory</entry>
    <entry>Name</entry><entry>Type</entry></row></thead><tbody>
- <row><entry><filename>-net-$.SystemMesg</filename></entry>
-   <entry><filename>net</filename></entry>
+ <row><entry><filename>"-net-$.SystemMesg"</filename></entry>
+   <entry><filename>"net"</filename></entry>
    <entry>&nil;</entry>
    <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>SystemMesg</filename></entry>
+   <entry><filename>"SystemMesg"</filename></entry>
    <entry>&nil;</entry></row>
- <row><entry><filename>net#MJHardy::disc1.mike</filename></entry>
-   <entry><filename>net#MJHardy</filename></entry>
-   <entry><filename>disc1</filename></entry>
+ <row><entry><filename>"net#MJHardy::disc1.mike"</filename></entry>
+   <entry><filename>"net#MJHardy"</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
    <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>mike</filename></entry>
+   <entry><filename>"mike"</filename></entry>
    <entry>&nil;</entry></row>
- <row><entry><filename>#MJHardy::disc1.mike</filename></entry>
-   <entry><filename>#MJHardy</filename></entry>
-   <entry><filename>disc1</filename></entry>
+ <row><entry><filename>"#MJHardy::disc1.mike"</filename></entry>
+   <entry><filename>"#MJHardy"</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
    <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>mike</filename></entry>
+   <entry><filename>"mike"</filename></entry>
    <entry>&nil;</entry></row>
- <row><entry><filename>-net#MJHardy-:disc1.mike</filename></entry>
-   <entry><filename>net#MJHardy</filename></entry>
-   <entry><filename>disc1</filename></entry>
+ <row><entry><filename>"-net#MJHardy-:disc1.mike"</filename></entry>
+   <entry><filename>"net#MJHardy"</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
    <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>mike</filename></entry>
+   <entry><filename>"mike"</filename></entry>
    <entry>&nil;</entry></row>
- <row><entry><filename>-#MJHardy-:disc1.mike</filename></entry>
-   <entry><filename>#MJHardy</filename></entry>
-   <entry><filename>disc1</filename></entry>
+ <row><entry><filename>"-#MJHardy-:disc1.mike"</filename></entry>
+   <entry><filename>"#MJHardy"</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
    <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>mike</filename></entry>
+   <entry><filename>"mike"</filename></entry>
    <entry>&nil;</entry></row>
- <row><entry><filename>@.foo</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
+ <row><entry><filename>"@.foo"</filename></entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>foo</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&foo-f;</entry><entry>&nil;</entry></row>
+ <row><entry>&foo-f;</entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>^.</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&foo-f;</entry><entry>&nil;</entry></row>
+ <row><entry><filename>"^."</filename></entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&relative-k; &parent-k;)</literal></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>@.^.</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&nil;</entry><entry>&nil;</entry></row>
+ <row><entry><filename>"@.^."</filename></entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&absolute-k; &current-k;
         &parent-k;)</literal></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>foo.bar</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&nil;</entry><entry>&nil;</entry></row>
+ <row><entry><filename>"foo.bar"</filename></entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry><filename>bar</filename></entry></row>
- <row><entry><filename>foo.bar.baz</filename></entry>
+   <entry>&foo-f;</entry><entry>&bar-f;</entry></row>
+ <row><entry><filename>"foo.bar.baz"</filename></entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
+   <entry>&bar-f;</entry><entry><filename>"baz"</filename></entry></row>
+ <row><entry><filename>"foo.bar."</filename></entry>
    <entry>&nil;</entry>
    <entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
-   <entry><filename>bar</filename></entry>
-   <entry><filename>baz</filename></entry></row>
- <row><entry><filename>foo.bar.</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; "foo" "bar")</literal></entry>
+   <entry><literal role="sexp">(&relative-k; &foo-f; &bar-f;)</literal></entry>
    <entry>&nil;</entry>
    <entry>&nil;</entry></row>
- <row><entry><filename>foo.@.</filename></entry>
+ <row><entry><filename>"foo.@."</filename></entry>
    <entry>illegal</entry>
-   <entry/>
-   <entry/>
-   <entry/>
-   <entry/></row>
+   <entry/><entry/><entry/><entry/></row>
 </tbody></tgroup></table></listitem></varlistentry>
 
 <varlistentry><term>From internal representation to RISCOS string</term>
@@ -3098,102 +3072,80 @@ printed readably.</para>
   <thead><row><entry>Hostname</entry><entry>Device</entry>
   <entry>Directory</entry><entry>Name</entry>
   <entry>Type</entry><entry>RISCOS String</entry></row></thead><tbody>
- <row><entry><filename>net</filename></entry>
-   <entry><filename>disc1</filename></entry>
+ <row><entry><filename>"net"</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
    <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry>&nil;</entry>
-   <entry><filename>net::disc1.$.foo</filename></entry></row>
- <row><entry><filename>net#MJ</filename></entry>
-   <entry><filename>disc1</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k; "foo")</literal></entry>
-   <entry><filename>bar</filename></entry>
-   <entry><filename>baz</filename></entry>
-   <entry><filename>net#MJ::disc1.$.foo.baz.bar</filename></entry></row>
- <row><entry><filename>adfs</filename></entry>
-   <entry><filename>4</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k; "foo"
-        "bar")</literal></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><filename>adfs::4.$.foo.bar</filename></entry></row>
+   <entry>&foo-f;</entry><entry>&nil;</entry>
+   <entry><filename>"net::disc1.$.foo"</filename></entry></row>
+ <row><entry><filename>"net#MJ"</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;
+          &foo-f;)</literal></entry>
+   <entry>&bar-f;</entry><entry><filename>"baz"</filename></entry>
+   <entry><filename>"net#MJ::disc1.$.foo.baz.bar"</filename></entry></row>
+ <row><entry><filename>"adfs"</filename></entry>
+   <entry><filename>"4"</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k; &foo-f;
+          &bar-f;)</literal></entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
+   <entry><filename>"adfs::4.$.foo.bar"</filename></entry></row>
  <row><entry>&nil;</entry>
-   <entry><filename>disc1</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k; "foo")</literal></entry>
-   <entry><filename>bar</filename></entry>
-   <entry>&nil;</entry>
-   <entry><filename>:disc1.$.foo.bar</filename></entry></row>
+   <entry><filename>"disc1"</filename></entry>
+   <entry><literal role="sexp">(&absolute-k; &root-k;
+          &foo-f;)</literal></entry>
+   <entry>&bar-f;</entry><entry>&nil;</entry>
+   <entry><filename>":disc1.$.foo.bar"</filename></entry></row>
  <row><entry>&nil;</entry>
-   <entry><filename>disc1</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
    <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&nil;</entry><entry>&nil;</entry>
    <entry>illegal here</entry></row>
  <row><entry>&nil;</entry>
-   <entry><filename>disc1</filename></entry>
+   <entry><filename>"disc1"</filename></entry>
    <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><filename>:disc1.</filename></entry></row>
+   <entry>&nil;</entry><entry>&nil;</entry>
+   <entry><filename>":disc1."</filename></entry></row>
  <row><entry>&nil;</entry>
-   <entry><filename>disc1</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><filename>:disc1.</filename></entry></row>
+   <entry><filename>"disc1"</filename></entry>
+   <entry>&nil;</entry><entry>&nil;</entry><entry>&nil;</entry>
+   <entry><filename>":disc1."</filename></entry></row>
  <row><entry>&nil;</entry>
    <entry>&nil;</entry>
    <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry>&nil;</entry>
-   <entry><filename>$.foo</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&foo-f;</entry><entry>&nil;</entry>
+   <entry><filename>"$.foo"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry>&nil;</entry>
-   <entry><filename>@.foo</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&foo-f;</entry><entry>&nil;</entry>
+   <entry><filename>"@.foo"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry><filename>bar</filename></entry>
-   <entry><filename>bar.foo</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
-   <entry><filename>bar</filename></entry>
-   <entry><filename>baz</filename></entry>
-   <entry><filename>foo.baz.bar</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&foo-f;</entry><entry>&bar-f;</entry>
+   <entry><filename>"bar.foo"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
+   <entry>&bar-f;</entry><entry><filename>"baz"</filename></entry>
+   <entry><filename>"foo.baz.bar"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&absolute-k; &library-k;)</literal></entry>
-   <entry><filename>bar</filename></entry>
-   <entry>&nil;</entry>
-   <entry><filename>%.bar</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &library-k; "foo")</literal></entry>
-   <entry><filename>bar</filename></entry>
-   <entry>&nil;</entry>
-   <entry><filename>%.foo.bar</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
+   <entry>&bar-f;</entry><entry>&nil;</entry>
+   <entry><filename>"%.bar"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
+   <entry><literal role="sexp">(&absolute-k; &library-k;
+          &foo-f;)</literal></entry>
+   <entry>&bar-f;</entry><entry>&nil;</entry>
+   <entry><filename>"%.foo.bar"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
    <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry><filename>foo</filename></entry>
-   <entry><filename>bar</filename></entry>
-   <entry><filename>bar.foo</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
-   <entry><filename>bar</filename></entry>
-   <entry>&nil;</entry>
-   <entry><filename>foo.bar</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; "foo")</literal></entry>
-   <entry>&nil;</entry>
-   <entry><filename>bar</filename></entry>
+   <entry>&foo-f;</entry><entry>&bar-f;</entry>
+   <entry><filename>"bar.foo"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
+   <entry>&bar-f;</entry><entry>&nil;</entry>
+   <entry><filename>"foo.bar"</filename></entry></row>
+ <row><entry>&nil;</entry><entry>&nil;</entry>
+   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
+   <entry>&nil;</entry><entry>&bar-f;</entry>
    <entry>illegal here</entry></row>
 </tbody></tgroup></table>
 
@@ -3239,18 +3191,16 @@ printed readably.</para>
  <row><entry>&subdir-r;</entry><entry>&parent-k;</entry></row>
  <row><entry>&subdir-r;</entry>
    <entry>&simple-string-type;, may contain wildcard characters
-   &file-ques;,<filename>#</filename> and &file-star;</entry></row>
+   &file-ques;, &file-hash; and &file-star;</entry></row>
  </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
  <listitem><simpara>&simple-string-type; or &nil;, may contain wildcard
- characters &file-ques;,<filename>#</filename> and
- &file-star; (may also be specified as &wild-k;)
- </simpara></listitem></varlistentry>
+ characters &file-ques;,&file-hash; and &file-star; (may also be
+ specified as &wild-k;)</simpara></listitem></varlistentry>
 <varlistentry><term>&type-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
- characters &file-ques;,<filename>#</filename> and
- &file-star; (may also be specified as &wild-k;)
- </simpara></listitem></varlistentry>
+ characters &file-ques;,&file-hash; and &file-star; (may also be
+ specified as &wild-k;)</simpara></listitem></varlistentry>
 &version-nil;
 </variablelist>
 
@@ -3258,9 +3208,8 @@ printed readably.</para>
  is &nil;. If the device is specified, the pathname must be &absolute-k;
  &root-k;.</para>
 
-<para>The wildcard characters: &file-star; matches any
- sequence of characters, <filename>'#'</filename> or
- &file-ques; matches any one character.</para>
+<para>The wildcard characters: &file-star; matches any sequence of
+ characters, &file-hash; or &file-ques; matches any one character.</para>
 
 <para>Due to the name/type swapping rule, there are pathnames that
  cannot result from &parse-namestring;.  To get a pathname whose type is
@@ -3294,8 +3243,8 @@ printed readably.</para>
 </tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
- (consisting of alphanumeric characters and <filename>-</filename>,
- <filename>_</filename>).  They are shortened to 8 (respectively 3)
+ (consisting of alphanumeric characters and &file-dash;,
+ <filename>"_"</filename>).  They are shortened to 8 (respectively 3)
  characters and converted to upper case.  A single &file-star; is
  allowed for &wild-k;.</para>
 </listitem></varlistentry>
@@ -4175,7 +4124,7 @@ functions are provided:</para>
 <para>In the absence of <emphasis
  role="strong"><function>sys::write-float-decimal</function></emphasis>,
  floating point numbers are output in radix 2.  This function is defined
- in <filename>floatpri.lisp</filename> and is not available if you run
+ in <filename>"floatpri.lisp"</filename> and is not available if you run
  &clisp; without a &mem-image; (which you should never do anyway!)</para>
 
 <para>If &print-readably-var; is true,
@@ -4470,6 +4419,12 @@ compiles a file to platform-independent bytecode.</para>
     empty</entry></row>
 </tbody></tgroup></table>
 
+<warning><para>If you have two files in the same directory
+- &foolisp-f; and <filename>"foo.c"</filename>,
+and you compile the first file with &clisp;, the second file will be
+<emphasis>clobbered</emphasis> even if you have no &ffi-pac; forms in
+the first one!</para></warning>
+
 </section>
 
 <section id="compile-file-path">
@@ -4483,10 +4438,9 @@ compiles a file to platform-independent bytecode.</para>
  pathname or a list of pathnames: files to be loaded if the required
  module is not already loaded.</para>
 
-<para>At compile time, <literal role="sexp">(&require; "foo")</literal>
-forms are treated specially:  &load-paths; is searched
-for <filename>"foo.lisp"</filename> <emphasis>and</emphasis>
-<filename>"foo.lib"</filename>.
+<para>At compile time, <literal role="sexp">(&require; &foo-f;)</literal>
+forms are treated specially:  &load-paths; is searched for
+&foolisp-f; <emphasis>and</emphasis> <filename>"foo.lib"</filename>.
 If the latest such file is a &lisp-file;, it is compiled;
 otherwise the &lib-file; is loaded.
 The &lib-file; is a <quote>header</quote> file which contains the
@@ -4495,7 +4449,7 @@ compilation of the files that &require; this file, but not the function
 definitions and calls that are not necessary for that.
 Thus it is <emphasis>not</emphasis> necessary to either enclose
 &require; forms in &eval-when; or to load the required files in the
-makefiles: if you have two files, <filename>"foo.lisp"</filename>
+makefiles: if you have two files, &foolisp-f;
 and <filename>"bar.lisp"</filename>, and the latter requires the
 former, you can write in your &make-file;:
 <programlisting>
@@ -4513,12 +4467,12 @@ usually smaller and load faster that &fasl-file;s):
 bar.fas: bar.lisp foo.fas
         clisp -i foo -c bar
 </programlisting>
-Thus, you do not need to &load; <filename>"foo"</filename>
+Thus, you do not need to &load; &foo-f;
 in order to &compile-file; <filename>"bar.lisp"</filename>.
-If memory is tight, and if <filename>"foo.lisp"</filename> contains
+If memory is tight, and if &foolisp-f; contains
 only a few inline functions, macros, constants or variables,
 this is a space and time saver.
-If <filename>"foo.lisp"</filename> does a lot of initializations or side
+If &foolisp-f; does a lot of initializations or side
 effects when being loaded, this is important as well.
 </para></section>
 
