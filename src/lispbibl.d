@@ -2605,7 +2605,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #   defined(VAX)
 #   (defined(CONVEX) && !defined(UNIX_CONVEX))
 #   defined(RISCOS)
-#elif (defined(I80386) && (defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0))) || defined(TRY_TYPECODES_1)
+#elif (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || defined(TRY_TYPECODES_1)
   # You can add more platforms here provided that
   # 1. you need it,
   # 2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
