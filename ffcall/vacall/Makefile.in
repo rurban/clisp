@@ -65,6 +65,9 @@ vacall-m68k.o : $(srcdir)/vacall-m68k.s
 vacall-mips.o : $(srcdir)/vacall-mips.s
 	$(CC) -c $(srcdir)/vacall-mips.s
 
+vacall-mipsn32.o : $(srcdir)/vacall-mipsn32.s
+	$(CC) -c $(srcdir)/vacall-mipsn32.s
+
 vacall-mips64.o : $(srcdir)/vacall-mips64.s
 	$(CC) -c $(srcdir)/vacall-mips64.s
 

@@ -12,6 +12,9 @@
 #ifndef __mips__
 #undef __mips__
 #endif
+#ifndef __mipsn32__
+#undef __mipsn32__
+#endif
 #ifndef __mips64__
 #undef __mips64__
 #endif

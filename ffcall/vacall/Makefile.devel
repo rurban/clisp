@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.s vacall-mips.s vacall-mips64.s vacall-sparc.S vacall-alpha.s vacall-hppa.s vacall-arm.s vacall-rs6000.s vacall-m88k.s vacall-convex.s vacall.man \
+all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-sparc.S vacall-alpha.s vacall-hppa.s vacall-arm.s vacall-rs6000.s vacall-m88k.s vacall-convex.s vacall.man \
       vacall.h.msvc config.h.msvc
 
 vacall-i386.S : vacall-i386.c vacall.h.in
@@ -23,6 +23,11 @@ vacall-m68k.s : vacall-m68k.c vacall.h.in
 
 vacall-mips.s : vacall-mips.c vacall.h.in
 	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S vacall-mips.c -o vacall-mips.s
+
+vacall-mipsn32.s : vacall-mipsn32.c vacall.h.in
+	$(GCC) -V egcs-2.91.57 -b mips-sgi-irix6 $(GCCFLAGS) -D__mipsn32__ -S vacall-mipsn32.c -o vacall-mipsn32-temp.s
+	$(SED) -e 's/\$$sp,\$$sp,208/$$sp,$$sp,272/' -e 's/\$$sp,208,/$$sp,272,/' < vacall-mipsn32-temp.s > vacall-mipsn32.s
+	$(RM) vacall-mipsn32-temp.s
 
 vacall-mips64.s : vacall-mips64.c vacall.h.in
 	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -S vacall-mips64.c -o vacall-mips64-temp.s
