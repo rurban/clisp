@@ -11,7 +11,7 @@
      if the string is not an ASCII string, the first character must be a space
      (thus no symbol name can start with a space -- see init_symbol_tab_*())
  > package: home-package of the symbol, either lisp or system or keyword.
- >          it is exported automatiaclly from package lisp. */
+ >          it is exported automatically from package lisp. */
 
 /* expander for the declaration of the symbol table: */
 #define LISPSYM_A(name,printname,package)       \
@@ -1541,7 +1541,7 @@ LISPSYM(prin_jbmodus,"*PRIN-JBMODUS*",system) /* IO variable */
 LISPSYM(prin_jblpos,"*PRIN-JBLPOS*",system) /* IO variable */
 LISPSYM(format_tabulate,"FORMAT-TABULATE",system) /* see io.d and format.lisp */
 LISPSYM(terminal_read_open_object,"*TERMINAL-READ-OPEN-OBJECT*",system) /* IO */
-LISPSYM(terminal_read_stream,"*TERMINAL-READ-STERAM*",system) /* IO */
+LISPSYM(terminal_read_stream,"*TERMINAL-READ-STREAM*",system) /* IO */
 LISPSYM(backquote,"BACKQUOTE",system) /* marker in IO */
 LISPSYM(splice,"SPLICE",system) /* marker in IO */
 LISPSYM(nsplice,"NSPLICE",system) /* marker in IO */
