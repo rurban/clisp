@@ -4,8 +4,6 @@
 ;;; (autoload 'd-mode "/usr/local/src/clisp/emacs/d-mode")
 
 (require 'cc-mode)
-(require 'cc-langs)             ; `c-C-specifier-kwds'
-(require 'compile)              ; `compile-command'
 (require 'cl)                   ; `subst'
 
 (defvar d-font-lock-extra-types
