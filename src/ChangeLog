@@ -1,5 +1,10 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* sequence.d (MAKE-SEQUENCE): Avoid potential GC-safety bug: since now
+	elt_fill can trigger GC.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* comptran.d (N_N_expt_N): Fix GC-safety bug introduced on 2002-09-11.
 
 2004-12-08  Bruno Haible  <bruno@clisp.org>
