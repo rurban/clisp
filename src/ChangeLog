@@ -1,5 +1,9 @@
 2002-08-07  Sam Steingold  <sds@gnu.org>
 
+	* m4/ln.m4 (CL_PROG_HLN): this time, fixed the link test for real
+
+2002-08-07  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (COPY-FILE): instead of returning file count and
 	byte count, return a list of (source dest byte-count) for each
 	copy operation performed
