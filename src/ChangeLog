@@ -1,15 +1,28 @@
 2001-10-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
 
+	Work with terminal/console encoding more directly in win32.
+	Initialize terminal-encoding to OEM encoding.
+	* stream.d (wr_ch_array_window, wr_ch_window) [WIN32_NATIVE]:
+	not converting to OEM when UNICODE (encodings do)
+	* encoding.d (init_dependent_encodings) [WIN32_NATIVE]:
+	init terminal encoding to OEM code page
+	* win32aux.d (OEM2ANSI_table, ANSI2OEM_table) [UNICODE]: drop
+	(init_win32): ditto
+	(lowlevel_full_read, full_write) [UNICODE]: don't translate
+
+2001-10-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
+	    Sam Steingold  <sds@gnu.org>
+
 	move win32 console attributes to non-GC-ed area to ensure
 	absence of conflicts.
 	* stream.d (strm_console_attrib, strm_console_size)
 	(strm_console_cursor_pos, UnwrapCoord, WrapCoord, ConsolePosR)
 	(ConsoleSizeR, ConsoleAttribR, ConsolePosS, ConsoleSizeS)
-	(ConsoleAttribS, ConsoleHandleS): [WIN32_NATIVE] removed macros
+	(ConsoleAttribS, ConsoleHandleS) [WIN32_NATIVE]: removed macros
 	(unwrap_coord): removed function
 	(v_put): no need to move cursor
-	(ConsoleData): [WIN32_NATIVE] new console attrib accessor
+	(ConsoleData) [WIN32_NATIVE]: new console attrib accessor
 	(win32_console_extrafields_struct): new structure, contains
 	strm_channel_extrafields_struct and console state.
 	(make_window, window_size, window_cursor_position)
@@ -382,7 +395,7 @@
 
 2001-08-30  Sam Steingold  <sds@gnu.org>
 
-	* lispbibl.d (nonreturning_function): [MICROSOFT] __declspec(noreturn)
+	* lispbibl.d (nonreturning_function) [MICROSOFT]: __declspec(noreturn)
 
 2001-08-30  Sam Steingold  <sds@gnu.org>
 
@@ -391,7 +404,7 @@
 
 2001-08-29  Sam Steingold  <sds@gnu.org>
 
-	* pathname.d (assure_dir_exists): [WIN32_NATIVE] signal an error
+	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: signal an error
 	when the path is invalid
 
 2001-08-29  Sam Steingold  <sds@gnu.org>

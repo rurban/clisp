@@ -10,11 +10,19 @@
 # Auxiliary event for full_read and full_write.
   local HANDLE aux_event;
 
+#ifndef UNICODE
+# when UNICODE is defined, console i/o is translated through
+# the encoding mechanism.
+# The encodings for *TERMINAL-IO* and *KEYBOARD-INPUT* should be
+# set to the OEM codepage (see GetConsole[Output]CP() in Windows API)
+
 # Character conversion table for OEM->ANSI.
   local char OEM2ANSI_table[256+1];
 
 # Character conversion table for ANSI->OEM.
   local char ANSI2OEM_table[256+1];
+
+#endif
 
 # Auxiliary event for interrupt handling.
   local HANDLE sigint_event;
@@ -32,6 +40,7 @@
       aux_event = CreateEvent(NULL, true, false, NULL);
       sigint_event = CreateEvent(NULL, true, false, NULL);
       sigbreak_event = CreateEvent(NULL, true, false, NULL);
+      #ifndef UNICODE
       # Translation table for console input.
       {
         var int i;
@@ -48,6 +57,7 @@
         ANSI2OEM_table[i] = '\0';
         CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
       }
+      #endif
       # Winsock.
       {
         var WSADATA data;
@@ -391,6 +401,7 @@
           break;
         buf += nchars; done += nchars; nbyte -= nchars;
       }
+      #ifndef UNICODE
       # Possibly translate characters.
       if (done > 0) {
         var int i;
@@ -411,6 +422,7 @@
           }
         }
       }
+      #endif
       return done;
     }
   # Then we make it interruptible.
@@ -460,6 +472,7 @@
       handle_fault_range(PROT_READ,(aint)bufarea,(aint)bufarea+nbyte);
       #endif
       var const char* buf = (const char*) bufarea;
+      #ifndef UNICODE
       # Possibly translate characters.
       if (nbyte > 0) {
         var int i;
@@ -482,6 +495,7 @@
           }
         }
       }
+      #endif
       var int done = 0;
       until (nbyte==0) {
         # Possibly check for Ctrl-C here ??
