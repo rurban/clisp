@@ -83,6 +83,21 @@
     (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
     order-form order-value))
 
+(defun invalid-sort-order-error (order-form order-value)
+  (error-of-type 'sys::source-program-error
+    (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
+    order-form order-value))
+
+(defun any-method-combination-check-options (gf-name combination options checker)
+  (locally (declare (compile))
+    (sys::%handler-bind
+        ((program-error
+           #'(lambda (err)
+               (error-of-type 'sys::source-program-error
+                 (TEXT "~S ~S: Invalid method-combination options ~S for ~S: ~A")
+                 'defgeneric gf-name options combination err))))
+      (apply checker options))))
+
 (defun compute-effective-method-function (generic-function combination methods
                                           effective-method-form)
   "Given the generic function, its combination, and the effective method form,
@@ -223,6 +238,13 @@ has already transpired."
 
 ;;; ----------------------- Standard Method Combination -----------------------
 
+(defun standard-method-combination-check-options (gf-name combination options)
+  (declare (ignore combination))
+  (unless (null options)
+    (error-of-type 'sys::source-program-error
+      (TEXT "~S ~S: The ~S method combination permits no options: ~S")
+      'defgeneric gf-name 'standard options)))
+
 ;; partition the methods according to qualifiers
 (defun partition-method-list (methods)
   (let ((primary-methods '())
@@ -243,10 +265,7 @@ has already transpired."
 
 (defun standard-method-combination-expander (gf combination options args)
   (declare (ignore combination))
-  (unless (null options)
-    (error-of-type 'sys::source-program-error
-      (TEXT "~S ~S: The ~S method combination permits no options: ~S")
-      'compute-effective-method (sys::closure-name gf) 'standard options))
+  (declare (ignore options)) ; already checked in check-options
   (let* ((signature (gf-signature gf))
          (req-anz (sig-req-num signature))
          (req-vars (gensym-list req-anz))
@@ -381,11 +400,19 @@ has already transpired."
         :name 'standard
         :documentation "the STANDARD METHOD-COMBINATION object"
         :qualifiers '(:before :after :around)
+        :check-options #'standard-method-combination-check-options
         :expander #'standard-method-combination-expander
         :check-method-qualifiers #'standard-method-combination-check-method-qualifiers
         :call-next-method-allowed #'standard-method-combination-call-next-method-allowed))
 
 ;;; ---------------------- Short-Form Method Combination ----------------------
+
+(defun short-form-method-combination-check-options (gf-name combination options)
+  (any-method-combination-check-options gf-name combination options
+    (function method-combination-option-checker
+      (lambda (&optional (order ':most-specific-first))
+        (unless (memq order '(:most-specific-first :most-specific-last))
+          (invalid-sort-order-error 'order order))))))
 
 (defun compute-short-form-effective-method-form (combination options methods)
   (flet ((partition-short-form-method-list (combination methods order)
@@ -470,6 +497,7 @@ has already transpired."
           :identity-with-one-argument (not (eq name 'list))
           :documentation (format nil "the ~A ~A object"
                                  name 'method-combination)
+          :check-options #'short-form-method-combination-check-options
           :expander #'short-form-method-combination-expander
           :check-method-qualifiers #'short-form-method-combination-check-method-qualifiers
           :call-next-method-allowed #'short-form-method-combination-call-next-method-allowed)))
@@ -584,9 +612,10 @@ has already transpired."
 
 (defun compute-method-partition-lambdas (method-groups body)
   "Given the normalized method group specifiers, computes
-1. a function to be applied to a list of methods to produce the effective
+1. a function without arguments, that checks the options,
+2. a function to be applied to a list of methods to produce the effective
 method function's body. The group variables are bound in the body.
-2. a function to be applied to a single method to produce a qualifiers check."
+3. a function to be applied to a single method to produce a qualifiers check."
   (let ((order-bindings nil))
     (labels (;; Returns a form that tests whether a list of qualifiers, assumed
              ;; to be present in the variable QUALIFIERS, matches the given pattern.
@@ -644,19 +673,19 @@ method function's body. The group variables are bound in the body.
                ;; If the order is :most-positive-first, we have to reverse,
                ;; to undo the reversal done by the previous PUSH operations.
                (let ((variable (svref ngroup 0))
-                     (orderform (svref ngroup 2)))
-                 (if (or (equal orderform '':MOST-SPECIFIC-FIRST)
-                         (equal orderform ':MOST-SPECIFIC-FIRST))
+                     (order-form (svref ngroup 2)))
+                 (if (or (equal order-form '':MOST-SPECIFIC-FIRST)
+                         (equal order-form ':MOST-SPECIFIC-FIRST))
                    `(SETQ ,variable (NREVERSE ,variable))
                    (let ((order-variable
-                           (first (find orderform order-bindings :key #'second))))
+                           (first (find order-form order-bindings :key #'second))))
                      (unless order-variable
                        (setq order-variable (gensym "ORDER-"))
-                       (push `(,order-variable ,orderform) order-bindings))
+                       (push `(,order-variable ,order-form) order-bindings))
                      `(COND ((EQ ,order-variable ':MOST-SPECIFIC-FIRST)
                              (SETQ ,variable (NREVERSE ,variable)))
                             ((EQ ,order-variable ':MOST-SPECIFIC-LAST))
-                            (T (INVALID-METHOD-SORT-ORDER-ERROR ',orderform ,order-variable))))))))
+                            (T (INVALID-METHOD-SORT-ORDER-ERROR ',order-form ,order-variable))))))))
       (let ((match-clauses '())
             (check-forms '()))
         (dolist (ngroup method-groups)
@@ -670,6 +699,14 @@ method function's body. The group variables are bound in the body.
         (let ((order-forms
                 (delete nil (mapcar #'compute-reorder-form method-groups))))
           (values
+            `(LAMBDA ()
+               (LET (,@order-bindings)
+                 ,@(mapcar #'(lambda (order-binding)
+                               (let ((order-variable (first order-binding))
+                                     (order-form (second order-binding)))
+                                 `(UNLESS (MEMQ ,order-variable '(:MOST-SPECIFIC-FIRST :MOST-SPECIFIC-LAST))
+                                    (INVALID-SORT-ORDER-ERROR ',order-form ,order-variable))))
+                           order-bindings)))
             `(LAMBDA (METHODS)
                (LET (,@(mapcar #'compute-variable-binding method-groups)
                      ,@order-bindings)
@@ -765,6 +802,7 @@ Long-form options are a list of method-group specifiers,
                   `(:IDENTITY-WITH-ONE-ARGUMENT ',(first identities)))
               :OPERATOR ',(if operators (first operators) name)
               :QUALIFIERS ',(list name ':around)
+              :CHECK-OPTIONS #'SHORT-FORM-METHOD-COMBINATION-CHECK-OPTIONS
               :EXPANDER #'SHORT-FORM-METHOD-COMBINATION-EXPANDER
               :CHECK-METHOD-QUALIFIERS #'SHORT-FORM-METHOD-COMBINATION-CHECK-METHOD-QUALIFIERS
               :CALL-NEXT-METHOD-ALLOWED #'SHORT-FORM-METHOD-COMBINATION-CALL-NEXT-METHOD-ALLOWED)))
@@ -791,6 +829,7 @@ Long-form options are a list of method-group specifiers,
                    (parse-method-groups name method-group-specifiers))
                  (arguments-lambda-list nil)
                  (user-gf-variable nil)
+                 (gf-name-variable (gensym "GF-NAME-"))
                  (gf-variable (gensym "GF-"))
                  (combination-variable (gensym "COMBINATION-"))
                  (options-variable (gensym "OPTIONS-"))
@@ -839,8 +878,8 @@ Long-form options are a list of method-group specifiers,
                                                  (first parameter))))
                                        (list `(,parameter ',parameter))))
                                  arguments-lambda-list)
-                           ,@body))))
-               (multiple-value-bind (partition-lambda check-lambda)
+                           ,@body-rest))))
+               (multiple-value-bind (check-options-lambda partition-lambda check-lambda)
                    (compute-method-partition-lambdas method-groups body-rest)
                  `(DO-DEFINE-METHOD-COMBINATION
                     ',name
@@ -851,6 +890,15 @@ Long-form options are a list of method-group specifiers,
                     ,@(when arguments-lambda-list
                         `(:ARGUMENTS-LAMBDA-LIST ',arguments-lambda-list))
                     :IDENTITY-WITH-ONE-ARGUMENT T ; really??
+                    :CHECK-OPTIONS
+                      #'(LAMBDA (,gf-name-variable ,combination-variable
+                                 ,options-variable)
+                          (ANY-METHOD-COMBINATION-CHECK-OPTIONS
+                            ,gf-name-variable ,combination-variable
+                            ,options-variable
+                            (FUNCTION METHOD-COMBINATION-OPTION-CHECKER
+                              (LAMBDA (,@lambda-list)
+                                (,check-options-lambda)))))
                     :EXPANDER
                       #'(LAMBDA (,gf-variable ,combination-variable
                                  ,options-variable ,args-variable)
@@ -884,7 +932,7 @@ which performs the instantiation and registration and returns NAME."
 ;; Converts a method-combination designator, e.g. a method combination name
 ;; or a list consisting of a method combination name and options, to a
 ;; method-combination instance.
-(defun coerce-to-method-combination (method-combo)
+(defun coerce-to-method-combination (gf-name method-combo)
   (flet ((mc (designator)
            (typecase designator
              (symbol (find-method-combination designator))
@@ -893,8 +941,11 @@ which performs the instantiation and registration and returns NAME."
                   (TEXT "~S is not a valid a ~S designator")
                   designator 'method-combination)))))
     (if (consp method-combo)
-      (let ((clone (copy-method-combination (mc (first method-combo)))))
-        (setf (method-combination-options clone)
-              (copy-list (rest method-combo)))
-        clone)
+      (let ((combination (mc (first method-combo)))
+            (options (rest method-combo)))
+        (funcall (method-combination-check-options combination)
+                 gf-name combination options)
+        (let ((clone (copy-method-combination combination)))
+          (setf (method-combination-options clone) (copy-list options))
+          clone))
       (mc method-combo))))

@@ -1,3 +1,21 @@
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
+	Check the method-combination options at defgeneric execution time.
+	* clos-methcomb1.lisp (method-combination): New slot check-options.
+	* clos-methcomb2.lisp (invalid-sort-order-error,
+	any-method-combination-check-options): New functions.
+	(standard-method-combination-check-options): New function.
+	(standard-method-combination-expander): Remove options check from here.
+	(standard): Update.
+	(short-form-method-combination-check-options): New function.
+	(+, and, append, list, max, min, nconc, or, progn): Update.
+	(compute-method-partition-lambdas): Return also a lambda for
+	check-options.
+	(define-method-combination): Emit :check-options initargs.
+	(coerce-to-method-combination): Add gf-name argument. Call the
+	check-options function.
+	* clos-genfun4.lisp (make-generic-function, do-defgeneric): Update.
+
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (Class): Renamed field direct_subclasses to
