@@ -1,3 +1,8 @@
+2001-03-28  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst: `:no-error' clause must be last in `handler-case'
+	`simple-type-error' does not inherit from `simple-error'
+
 2001-03-27  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-all-tests): modified the `run-test' "conditions"
