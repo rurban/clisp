@@ -389,3 +389,6 @@ NIL
 (multiple-value-list (subtypep 'ffi:foreign-function 'function))
 #+(and CLISP FFI)
 (T T)
+
+(let ((x 1)) (ctypecase x (t 'a)))  a
+(let ((x 1)) (etypecase x (t 'a)))  a
