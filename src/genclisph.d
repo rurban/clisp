@@ -1067,11 +1067,11 @@ global int main()
     printf("#define structurep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Structure);
  #endif
 # printf("#define packagep(obj)  (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Package);
-# #ifdef TYPECODES
-#   printf1("#define charp(obj)  (typecode(obj)==%d)\n",(tint)char_type);
-# #else
-#   printf2("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,char_type);
-# #endif
+ #ifdef TYPECODES
+   printf("#define charp(obj)  (typecode(obj)==%d)\n",(tint)char_type);
+ #else
+   printf("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,char_type);
+ #endif
  #ifdef TYPECODES
    printf2("#define integerp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)),(tint)(fixnum_type&bignum_type));
  #else
@@ -1711,6 +1711,7 @@ global int main()
   printf("extern object convert_time_to_universal (const time_t* time);\n");
 #endif
 #if defined(UNIX_CYGWIN32)
+  printf("#include <windows.h>\n");
   printf("extern long to_time_t_ (FILETIME * ptr);\n");
 #endif
 #if defined(WIN32_NATIVE)
