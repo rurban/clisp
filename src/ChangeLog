@@ -1,5 +1,18 @@
 2002-01-07  Sam Steingold  <sds@gnu.org>
 
+	made problem reporting work with WITH-COMPILATION-UNIT
+	* compiler.lisp (c-source-point): new structure (instead of a cons)
+	(c-source-location): accept a 3rd optional argument - file,
+	defaults to *compile-file-truename*
+	(c-source-point): removed the function
+	(c-source-point-location): pass all slots of a C-SOURCE-POINT
+	to C-SOURCE-LOCATION
+	(note-function-used, c-DEFUN): use MAKE-C-SOURCE-POINT
+	instead of C-SOURCE-POINT
+	(match-known-unknown-functions): bind *COMPILE-FILE-TRUENAME* too
+
+2002-01-07  Sam Steingold  <sds@gnu.org>
+
 	* trace.lisp (fdefinition-local): new function for extracting
 	local (LABELS & FLET) functions
 
