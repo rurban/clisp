@@ -239,10 +239,10 @@ local const uintB orig_syntax_table [small_char_code_limit] = {
     #define whsp  syntax_whitespace
     #define tmac  syntax_t_macro
     #define nmac  syntax_nt_macro
-      illg,illg,illg,illg,illg,illg,illg,illg,   # chr(0) bis chr(7)
-      cnst,whsp,whsp,illg,whsp,whsp,illg,illg,   # chr(8) bis chr(15)
-      illg,illg,illg,illg,illg,illg,illg,illg,   # chr(16) bis chr(23)
-      illg,illg,illg,illg,illg,illg,illg,illg,   # chr(24) bis chr(31)
+      illg,illg,illg,illg,illg,illg,illg,illg,   # chr(0) upto chr(7)
+      cnst,whsp,whsp,illg,whsp,whsp,illg,illg,   # chr(8) upto chr(15)
+      illg,illg,illg,illg,illg,illg,illg,illg,   # chr(16) upto chr(23)
+      illg,illg,illg,illg,illg,illg,illg,illg,   # chr(24) upto chr(31)
       whsp,cnst,tmac,nmac,cnst,cnst,cnst,tmac,   # ' !"#$%&''
       tmac,tmac,cnst,cnst,tmac,cnst,cnst,cnst,   # '()*+,-./'
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,   # '01234567'
@@ -1154,10 +1154,10 @@ local object wpeek_char_eof (const object* stream_) {
 # then (if no integer can be deduced out of token), a_digit
 # is interpreted as a_alpha (alphabetic) above of *READ-BASE*.
   local const uintB attribute_table[small_char_code_limit] = {
-    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(0) bis chr(7)
-    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(8) bis chr(15)
-    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(16) bis chr(23)
-    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(24) bis chr(31)
+    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(0) upto chr(7)
+    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(8) upto chr(15)
+    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(16) upto chr(23)
+    a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(24) upto chr(31)
     a_illg,  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,  # ' !"#$%&''
     a_alpha, a_alpha, a_alpha, a_plus,  a_alpha, a_minus, a_dot,   a_ratio,  # '()*+,-./'
     a_digit, a_digit, a_digit, a_digit, a_digit, a_digit, a_digit, a_digit,  # '01234567'
@@ -1293,13 +1293,13 @@ local void get_buffers (void) {
   }
 }
 
-# UP: Liest ein Extended Token.
+# UP: Reads an Extended Token.
 # read_token(&stream);
 # > stream: Stream
 # < stream: Stream
-# < O(token_buff_1): gelesene Characters
-# < O(token_buff_2): ihre Attributcodes
-# < token_escape_flag: Escape-Zeichen-Flag
+# < O(token_buff_1): read Characters
+# < O(token_buff_2): their Attributcodes
+# < token_escape_flag: Escape-Character-Flag
 # can trigger GC
 local void read_token (const object* stream_);
 
@@ -1398,7 +1398,7 @@ local void read_token_1 (const object* stream_, object ch, uintWL scode) {
             || test_value(S(read_preserve_whitespace)))
           unread_char(stream_,ch);
         goto ende;
-      case syntax_eof: # EOF erreicht.
+      case syntax_eof: # EOF reached.
         if (multiple_escape_flag) { # between multiple-escape-character?
           pushSTACK(*stream_); # STREAM-ERROR slot STREAM
           pushSTACK(*stream_);
@@ -1587,7 +1587,7 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
 #         < index1: Index of the start of mantissa (excl. sign)
 #         < index4: Index after the end of mantissa
 #         < index2: Index at the  end of the characters
-#         < index3: Index after the dezimal dot (=index4 if there is no dot)
+#         < index3: Index after the decimal dot (=index4 if there is no dot)
 #         (implies: mantissa with index4-index1 characters: digits and at
 #          most one '.')
 #         (implies: index4-index3 digits after the dot)
@@ -2335,7 +2335,7 @@ local object make_references (object obj) {
   } else { # check, if SYS::*READ-REFERENCE-TABLE* is an Aliste:
     {
       var object alistr = alist; # run through list
-      while (consp(alistr)) { # each Listenelement must be a Cons:
+      while (consp(alistr)) { # each List-Element must be a Cons:
         if (!mconsp(Car(alistr)))
           goto fehler_badtable;
         alistr = Cdr(alistr);
@@ -2826,7 +2826,7 @@ LISPFUNN(function_reader,3) # reads #'
   }
 
 # (set-dispatch-macro-character #\# #\|
-#   #'(lambda (stream sub-char n) ; mit (not (eql sub-char #\#))
+#   #'(lambda (stream sub-char n) ; with (not (eql sub-char #\#))
 #       (when n (error ...))
 #       (prog ((depth 0) ch)
 #         1
@@ -2899,11 +2899,11 @@ LISPFUNN(comment_reader,3) # reads #|
 # (set-dispatch-macro-character #\# #\\
 #   #'(lambda (stream sub-char n)
 #       (let ((token (read-token-1 stream #\\ 'single-escape)))
-#         ; token ist ein String der Länge >=1
+#         ; token is a String of Length >=1
 #         (unless *read-suppress*
 #           (if n
-#             (unless (< n char-font-limit) ; sowieso n>=0
-#               (error "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muss <~ sein)."
+#             (unless (< n char-font-limit) ;  n>=0, anyway
+#               (error "~ of ~: Font-Number ~ for Character is too big (must be <~ )."
 #                       'read stream        n                 char-font-limit
 #             ) )
 #             (setq n 0)
@@ -2926,7 +2926,7 @@ LISPFUNN(comment_reader,3) # reads #|
 #                              (setq bits (logior bits char-super-bit)))
 #                             ((equalx "HYPER")
 #                              (setq bits (logior bits char-hyper-bit)))
-#                             (t (error "~ von ~: Ein Character-Bit mit Namen ~ gibt es nicht."
+#                             (t (error "~ of ~: A Character-Bit with Name ~ does not exist."
 #                                        'read stream (subseq token pos hyphen)
 #                       )     )  )
 #                       (setq pos (1+ hyphen))
@@ -2936,7 +2936,7 @@ LISPFUNN(comment_reader,3) # reads #|
 #                         (cond ((and (< (+ pos 4) (length token))
 #                                     (string-equal token "CODE" :start1 pos :end1 (+ pos 4))
 #                                )
-#                                (code-char (parse-integer token :start (+ pos 4) :junk-allowed nil)) ; ohne Vorzeichen!
+#                                (code-char (parse-integer token :start (+ pos 4) :junk-allowed nil)) ; without Sign!
 #                               )
 #                               ((and (= (+ pos 2) (length token))
 #                                     (eql (char token pos) #\^)
@@ -2945,7 +2945,7 @@ LISPFUNN(comment_reader,3) # reads #|
 #                                (code-char (- (char-code (char token (+ pos 1))) 64))
 #                               )
 #                               ((name-char (subseq token pos)))
-#                               (t (error "~ von ~: Ein Character mit Namen ~ gibt es nicht."
+#                               (t (error "~ of ~: A Character with Name ~ does not exist."
 #                                          'read stream (subseq token pos)
 #                         )     )  )
 #                         bits n
@@ -2990,9 +2990,9 @@ LISPFUNN(char_reader,3) # reads #\
     }
     TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
     /* TheIarray(hstring)->totalsize =          */
-    /*   TheIarray(hstring)->dims[1] = sub_len; */ # Länge := len-pos
-    # hstring = (subseq token pos hyphen) = restlicher Charactername
-    # Test auf Characternamen "CODExxxx" (xxxx Dezimalzahl <256):
+    /*   TheIarray(hstring)->dims[1] = sub_len; */ # Length := len-pos
+    # hstring = (subseq token pos hyphen) = remaining Charactername
+    # Test for Character-Came "CODExxxx" (xxxx Decimalnumber <256):
     if (sub_len > 4) {
       TheIarray(hstring)->totalsize =
         TheIarray(hstring)->dims[1] = 4;
@@ -3054,7 +3054,7 @@ LISPFUNN(char_reader,3) # reads #\
 #             (integer t) (decimal-integer nil) (rational t) (float nil)
 #           )
 #         (read-number token base)
-#         (error "~ von ~: Das Token ~ nach # ~ lässt sich nicht als rationale Zahl in Basis ~ interpretieren."
+#         (error "~ of ~: The Token ~ after # ~ cannot be interpreted as rational number in Base ~."
 #                 'read stream token sub-char base
 # ) ) ) ) )
   # UP: for #B #O #X #R
@@ -3153,7 +3153,7 @@ LISPFUNN(hexadecimal_reader,3) # reads #X
 #       (if *read-suppress*
 #         (if (and n (<= 2 n 36))
 #           (radix-1 stream sub-char nil n)
-#           (error "~ von ~: Zwischen # und R muss eine Zahlsystembasis zwischen 2 und 36 angegeben werden."
+#           (error "~ of ~: Between # and R a base between 2 and 36 must be stated."
 #                   'read stream
 #         ) )
 #         (progn (read-token stream) nil)
@@ -3203,7 +3203,7 @@ LISPFUNN(radix_reader,3) # reads #R
 #                      (numberp (second h)) (not (complexp (second h)))
 #                 )
 #               (apply #'complex h)
-#               (error "~: Falsche Syntax für komplexe Zahl: #C~" 'read h)
+#               (error "~: Wrong Syntax for complex Number: #C~" 'read h)
 # )   ) ) ) ) )
 LISPFUNN(complex_reader,3) # reads #C
   {
@@ -3243,7 +3243,7 @@ LISPFUNN(complex_reader,3) # reads #C
 #         (progn (read stream t nil t) nil)
 #         (let ((name (read-token stream))) ; eine Form, die nur ein Token ist
 #           (when n (error ...))
-#           [Überprüfe, ob auch keine Package-Marker im Token vorkommen.]
+#           [verify, if also no Package-Marker occurs in the Token.]
 #           (make-symbol token)
 # )   ) ) )
 LISPFUNN(uninterned_reader,3) # reads #:
@@ -3304,17 +3304,17 @@ LISPFUNN(uninterned_reader,3) # reads #:
 #         (unless *read-suppress*
 #           (unless (or [Escape-Zeichen im Token verwendet]
 #                       (every #'(lambda (ch) (member ch '(#\0 #\1))) token))
-#             (error "~ von ~: Nach #* dürfen nur Nullen und Einsen kommen."
+#             (error "~ of ~: After #* only Zeros and Ones may occur."
 #                     'read stream
 #           ) )
 #           (let ((l (length token)))
 #             (if n
 #               (cond ((< n l)
-#                      (error "~ von ~: Bit-Vektor länger als angegebene Länge ~."
+#                      (error "~ of ~: Bit-Vector longer than specified length ~."
 #                              'read stream n
 #                     ))
 #                     ((and (plusp n) (zerop l))
-#                      (error "~ von ~: Element für Bit-Vektor der Länge ~ muss spezifiziert werden."
+#                      (error "~ of ~: Element for Bit-Vector of Length ~ must be specified."
 #                              'read stream n
 #               )     ))
 #               (setq n l)
@@ -3330,7 +3330,7 @@ LISPFUNN(uninterned_reader,3) # reads #:
 #               )
 #               bv
 # )   ) ) ) ) )
-LISPFUNN(bit_vector_reader,3) # liest #*
+LISPFUNN(bit_vector_reader,3) # reads #*
   {
     var object* stream_ = test_stream_arg(STACK_2);
     read_token(stream_); # read Token
@@ -3355,12 +3355,12 @@ LISPFUNN(bit_vector_reader,3) # liest #*
       var uintL count;
       dotimespL(count,len, {
         var chart c = *charptr++; # next Character
-        if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # only '0' und '1' are OK
+        if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # only '0' and '1' are OK
           goto fehler_nur01;
       });
     }
     # check n:
-    var uintL n; # Length of Bitvektors
+    var uintL n; # Length of Bitvectors
     if (nullp(STACK_0)) {
       n = len; # Defaultvalue is the Tokenlength
     } else {
@@ -3414,11 +3414,11 @@ LISPFUNN(bit_vector_reader,3) # liest #*
 #           (let ((l (length elements)))
 #             (if n
 #               (cond ((< n l)
-#                      (error "~ von ~: Vektor länger als angegebene Länge ~."
+#                      (error "~ of ~: Vector longer than specified length ~."
 #                              'read stream n
 #                     ))
 #                     ((and (plusp n) (zerop l))
-#                      (error "~ von ~: Element für Vektor der Länge ~ muss spezifiziert werden."
+#                      (error "~ of ~: Element for Vector of Length ~ must be specified."
 #                              'read stream n
 #               )     ))
 #               (setq n l)
@@ -3499,7 +3499,7 @@ LISPFUNN(vector_reader,3) # reads #(
 #           (let ((h (read stream t nil t)))
 #             (if (and (consp h) (consp (cdr h)) (consp (cddr h)) (null (cdddr h)))
 #               (make-array (second h) :element-type (first h) :initial-contents (third h))
-#               (error "~: Falsche Syntax für Array: #A~" 'read h)
+#               (error "~: Wrong Syntax for Array: #A~" 'read h)
 #           ) )
 #           (let* ((rank n)
 #                  (cont (let ((*backquote-level* nil)) (read stream t nil t)))
@@ -3578,7 +3578,7 @@ LISPFUNN(array_reader,3) # reads #A
         }
         # increase depth:
         i = fixnum_inc(i,1); if (eql(i,STACK_2)) break;
-        # first Element of subcontents for the following Dimensionen:
+        # first Element of subcontents for the following Dimensions:
         if (!eq(STACK_3,Fixnum_0)) { # (only if (length subcontents) >0)
           pushSTACK(STACK_1); pushSTACK(Fixnum_0); funcall(L(elt),2);
           STACK_1 = value1; # subcontents := (ELT subcontents 0)
@@ -3619,7 +3619,7 @@ nonreturning_function(local, fehler_read_eval_forbidden, (object* stream_, objec
 #       (let ((h (read stream t nil t)))
 #         (unless *read-suppress*
 #           (if n
-#             (error "~ von ~: Zwischen # und . ist keine Zahl erlaubt."
+#             (error "~ of ~: Between # and . no Number is allowed."
 #                     'read stream
 #             )
 #             (eval h)
@@ -3649,7 +3649,7 @@ LISPFUNN(read_eval_reader,3) # reads #.
 #       (let ((h (read stream t nil t)))
 #         (unless *read-suppress*
 #           (if n
-#             (error "~ von ~: Zwischen # und , ist keine Zahl erlaubt."
+#             (error "~ of ~: Between # and , no number is allowed."
 #                     'read stream
 #             )
 #             (if sys::*compiling* (make-load-time-eval h) (eval h))
@@ -3690,19 +3690,19 @@ LISPFUNN(load_eval_reader,3) # reads #,
 #             (let* ((label (make-internal-label n))
 #                    (h (assoc label sys::*read-reference-table* :test #'eq)))
 #               (if (consp h)
-#                 (error "~ von ~: Label #~= darf nicht zweimal definiert werden." 'read stream n)
+#                 (error "~ of ~: Label #~= must not be defined twice." 'read stream n)
 #                 (progn
 #                   (push (setq h (cons label label)) sys::*read-reference-table*)
 #                   (let ((obj (read stream t nil t)))
 #                     (if (eq obj label)
-#                       (error "~ von ~: #~= #~# ist nicht erlaubt." 'read stream n n)
+#                       (error "~ of ~: #~= #~# is not allowed." 'read stream n n)
 #                       (setf (cdr h) obj)
 #             ) ) ) ) )
-#             (error "~ von ~: Label #~= zu groß" 'read stream n)
+#             (error "~ of ~: Label #~= too big" 'read stream n)
 #           )
-#           (error "~ von ~: Zwischen # und = muss eine Zahl angegeben werden." 'read stream)
+#           (error "~ of ~: Between # and = a number must be specified." 'read stream)
 #         )
-#         (values) ; keine Werte (Kommentar)
+#         (values) ; no values (comment)
 # )   ) )
 
 # (set-dispatch-macro-character #\# #\#
@@ -3713,13 +3713,13 @@ LISPFUNN(load_eval_reader,3) # reads #,
 #             (let* ((label (make-internal-label n))
 #                    (h (assoc label sys::*read-reference-table* :test #'eq)))
 #               (if (consp h)
-#                 label ; wird später entflochten
-#                 ; (man könnte auch (cdr h) zurückliefern)
-#                 (error "~ von ~: Label #~= ist nicht definiert." 'read stream n)
+#                 label ; will be disentangled later
+#                 ; (you could also return (cdr h) )
+#                 (error "~ of ~: Label #~= is not defined." 'read stream n)
 #               )
-#             (error "~ von ~: Label #~# zu groß" 'read stream n)
+#             (error "~ of ~: Label #~# too big" 'read stream n)
 #           )
-#           (error "~ von ~: Zwischen # und # muss eine Zahl angegeben werden." 'read stream)
+#           (error "~ of ~: Between # and # a number must be specified." 'read stream)
 # )   ) ) )
 
 # UP: creates an internal Label and looks it up in *READ-REFERENCE-TABLE*.
@@ -3840,7 +3840,7 @@ LISPFUNN(label_reference_reader,3) # reads ##
 
 # (set-dispatch-macro-character #\# #\<
 #   #'(lambda (stream sub-char n)
-#       (error "~ von ~: Als #<...> ausgegebene Objekte sind nicht mehr einlesbar."
+#       (error "~ of ~: Objects printed as #<...> cannot be reread again."
 #               'read stream
 # )   ) )
 LISPFUNN(not_readable_reader,3) # reads #<
@@ -3856,7 +3856,7 @@ LISPFUNN(not_readable_reader,3) # reads #<
 # (dolist (ch '(#\) #\Space #\Newline #\Linefeed #\Backspace #\Rubout #\Tab #\Return #\Page))
 #   (set-dispatch-macro-character #\# ch
 #     #'(lambda (stream sub-char n)
-#         (error "~ von ~: Wegen ~ als # ausgegebene Objekte sind nicht mehr einlesbar."
+#         (error "~ of ~: Because of ~ as # printed Objects cannot be reread."
 #                 'read stream '*print-level*
 # ) )   ) )
 LISPFUNN(syntax_error_reader,3) # reads #) and #whitespace
@@ -3870,14 +3870,14 @@ LISPFUNN(syntax_error_reader,3) # reads #) and #whitespace
            GETTEXT("~ from ~: objects printed as #"" in view of ~ cannot be read back in"));
   }
 
-# Hilfsfunktion für #+ und #- :
+# Auxiliary function for #+ and #- :
 # (defun interpret-feature (feature)
 #   (flet ((eqs (x y) (and (symbolp x) (symbolp y)
 #                          (string= (symbol-name x) (symbol-name y))
 #         ))          )
 #     (cond ((symbolp feature) (member feature *features* :test #'eq))
 #           ((atom feature)
-#            (error "~: Als Feature ist ~ nicht erlaubt." 'read feature)
+#            (error "~: As Feature ~ is not allowed." 'read feature)
 #           )
 #           ((eqs (car feature) 'and)
 #            (every #'interpret-feature (cdr feature))
@@ -3888,7 +3888,7 @@ LISPFUNN(syntax_error_reader,3) # reads #) and #whitespace
 #           ((eqs (car feature) 'not)
 #            (not (interpret-feature (second feature)))
 #           )
-#           (t (error "~: Als Feature ist ~ nicht erlaubt." 'read feature))
+#           (t (error "~: As Feature ~ is not allowed." 'read feature))
 # ) ) )
 
 # UP: checks, if Feature-Expression is satisfied.
@@ -3914,7 +3914,7 @@ local uintWL interpret_feature (object expr) {
     } else if (string_gleich(opname,Symbol_name(S(or)))) { # expr = (OR ...)
       and_or_flag = ~0;
     and_or:
-      # interpret the list-elements of expr, until there is a
+      # interprete the list-elements of expr, until there is a
       # result /=and_or_flag. Default is and_or_flag.
       var object list = Cdr(expr);
       while (consp(list)) { # interprete on List-element:
@@ -3966,7 +3966,7 @@ local Values feature (uintWL sollwert) {
     # read next Objekt and set for value:
     value1 = read_recursive_no_dot(stream_); mv_count=1;
   } else { # truth value "false"
-    # bind *READ-SUPPRESS* to T, read Objekt, comment
+    # bind *READ-SUPPRESS* to T, read Object, comment
     dynamic_bind(S(read_suppress),T);
     read_recursive_no_dot(stream_);
     dynamic_unbind();
@@ -3979,7 +3979,7 @@ local Values feature (uintWL sollwert) {
 #   #'(lambda (stream sub-char n)
 #       (declare (ignore sub-char))
 #       (if n
-#         (error "~ von ~: Zwischen # und + darf keine Zahl kommen" 'read stream)
+#         (error "~ of ~: Between # and + no number is allowed." 'read stream)
 #         (let ((feature (let ((*read-suppress* nil)) (read stream t nil t))))
 #           (if (interpret-feature feature)
 #             (read stream t nil t)
@@ -3996,7 +3996,7 @@ LISPFUNN(feature_reader,3) # reads #+
 #   #'(lambda (stream sub-char n)
 #       (declare (ignore sub-char))
 #       (if n
-#         (error "~ von ~: Zwischen # und - darf keine Zahl kommen" 'read stream)
+#         (error "~ of ~: Between # and - no number is allowed." 'read stream)
 #         (let ((feature (let ((*read-suppress* nil)) (read stream t nil t))))
 #           (if (interpret-feature feature)
 #             (let ((*read-suppress* t))
@@ -4016,7 +4016,7 @@ LISPFUNN(not_feature_reader,3) # reads #-
 #       (if *read-suppress*
 #         (progn (read stream t nil t) nil)
 #         (if n
-#           (error "~: Zwischen # und S ist keine Zahl erlaubt." 'read)
+#           (error "~: Between # and S no number is allowed." 'read)
 #           (let ((args (let ((*backquote-level* nil)) (read stream t nil t))))
 #             (if (consp args)
 #               (let ((name (first args)))
@@ -4028,26 +4028,26 @@ LISPFUNN(not_feature_reader,3) # reads #-
 #                           (apply (svref desc 2) ; der Konstruktor
 #                                  (structure-arglist-expand name (cdr args))
 #                         ) )
-#                         (error "~: Structures des Typs ~ können nicht eingelesen werden (Konstruktorfunktion unbekannt)"
+#                         (error "~: Structures of Type ~ cannot be read (Constructor-Function unknown)"
 #                                'read name
 #                       ) )
-#                       (error "~: Es ist noch keine Structure des Typs ~ definiert worden"
+#                       (error "~: No Structure of Type ~ has been defined"
 #                              'read name
 #                   ) ) )
-#                   (error "~: Der Typ einer Structure muss ein Symbol sein, nicht ~"
+#                   (error "~: The Type of a Structure must be a Symbol, nicht ~"
 #                          'read name
 #               ) ) )
-#               (error "~: Nach #S muss, in Klammern, der Typ und der Inhalt der Structure kommen, nicht ~"
+#               (error "~: Behind #S the Type and the contents of the Structure must follow in parenthesis, not ~"
 #                      'read args
 # )   ) ) ) ) ) )
 # (defun structure-arglist-expand (name args)
 #   (cond ((null args) nil)
-#         ((atom args) (error "~: Eine Structure ~ darf keine Komponente . enthalten" 'read name))
+#         ((atom args) (error "~: A Structure ~ must not contain a Component . " 'read name))
 #         ((not (symbolp (car args)))
-#          (error "~: ~ ist kein Symbol und daher kein Slot der Structure ~" 'read (car args) name)
+#          (error "~: ~ is no Symbol and thus no Slot of the Structure ~" 'read (car args) name)
 #         )
-#         ((null (cdr args)) (error "~: Wert der Komponente ~ in der Structure ~ fehlt" 'read (car args) name))
-#         ((atom (cdr args)) (error "~: Eine Structure ~ darf keine Komponente . enthalten" 'read name))
+#         ((null (cdr args)) (error "~: Value of the Component ~ in Structure ~ is missing" 'read (car args) name))
+#         ((atom (cdr args)) (error "~: A Structure ~ must not contain a Component . " 'read name))
 #         (t (let ((kw (intern (symbol-name (car args)) (find-package "KEYWORD"))))
 #              (list* kw (cadr args) (structure-arglist-expand name (cddr args)))
 # ) )     )  )
@@ -4256,11 +4256,11 @@ LISPFUNN(structure_reader,3) # reads #S
 #           (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
 #             (unless *read-suppress*
 #               (unless (= (length obj) arg)
-#                 (error "Falsche Länge eines Closure-Vektors: ~S" arg)
+#                 (error "Wrong Length of a Closure-Vector: ~S" arg)
 #               )
-#               (make-code-vector obj) ; Simple-Bit-Vektor, Inhalt: arg Bytes
+#               (make-code-vector obj) ; Simple-Bit-Vector, Content: arg Bytes
 #         ) ) )
-#         ; Closure lesen
+#         ; read Closure
 #         (let ((obj (read stream t nil t)))
 #           (unless *read-suppress*
 #             (%make-closure (first obj) (second obj) (cddr obj))
@@ -4412,11 +4412,11 @@ LISPFUNN(closure_reader,3) # liest #Y
 #   #'(lambda (stream sub-char n)
 #       (unless *read-suppress*
 #         (if n
-#           (error "~ von ~: Zwischen # und " ist keine Zahl erlaubt."
+#           (error "~ of ~: Between # and " no number is allowed."
 #                  'read stream
 #       ) ) )
 #       (unread-char sub-char stream)
-#       (let ((obj (read stream t nil t))) ; String lesen
+#       (let ((obj (read stream t nil t))) ; String read
 #         (unless *read-suppress* (pathname obj))
 # )   ) )
 LISPFUNN(clisp_pathname_reader,3) # reads #"
@@ -4440,13 +4440,13 @@ LISPFUNN(clisp_pathname_reader,3) # reads #"
 #       (if *read-suppress*
 #         (progn (read stream t nil t) nil)
 #         (if n
-#           (error "~ von ~: Zwischen # und P ist keine Zahl erlaubt."
+#           (error "~ of ~: Between # and P no number is allowed."
 #                  'read stream
 #           )
 #           (let ((obj (read stream t nil t)))
 #             (if (stringp obj)
 #               (values (parse-namestring obj))
-#               (error "~ von ~: Falsche Syntax für Pathname: #P~"
+#               (error "~ of ~: Wrong Syntax for Pathname: #P~"
 #                      'read stream obj
 # )   ) ) ) ) ) )
 LISPFUNN(ansi_pathname_reader,3) # reads #P
@@ -5921,7 +5921,7 @@ local void justify_empty_2 (const object* stream_) {
     new_cons = allocate_cons(); # new Cons
     Car(new_cons) = TheStream(*stream_)->strm_pphelp_strings;
   } else { # single-liner.
-    # (push (first strings) SYS::*PRIN-JBLOCKS*), oder kürzer:
+    # (push (first strings) SYS::*PRIN-JBLOCKS*), or shorter:
     # (setq SYS::*PRIN-JBLOCKS* (rplacd strings SYS::*PRIN-JBLOCKS*))
     new_cons = TheStream(stream)->strm_pphelp_strings;
   }
@@ -7835,7 +7835,7 @@ local void pr_vector (const object* stream_, object v) {
 #         (eltype (array-element-type array)))
 #     (write-char #\# stream)
 #     (if (zerop (array-total-size array))
-#       ; wiedereinlesbare Ausgabe von leeren mehrdimensionalen Arrays
+#       ; rereadable Output of empty multi-dimensional Arrays
 #       (progn
 #         (write-char #\A stream)
 #         (prin1 dims stream)
@@ -7847,7 +7847,7 @@ local void pr_vector (const object* stream_, object v) {
 #                  (or (eq eltype 'bit) (eq eltype 'character))
 #                  (or (null *print-length*) (>= *print-length* (array-dimension array (1- rank))))
 #             )
-#           ; kürzere Ausgabe von mehrdimensionalen Bit- und Character-Arrays
+#           ; shorter Output of multidimensional Bit- and Character-Arrays
 #           (let* ((lastdim (array-dimension array (1- rank)))
 #                  (offset 0)
 #                  (sub-array (make-array 0 :element-type eltype :adjustable t)))
@@ -7872,8 +7872,8 @@ local void pr_vector (const object* stream_, object v) {
 #                     )) ) )
 #               (help (nbutlast dims))
 #           ) )
-#           ; normale Ausgabe von mehrdimensionalen Arrays
-#           (let ((indices (make-list rank))) ; Liste von rank Indizes
+#           ; normal Output of multidimensional Arrays
+#           (let ((indices (make-list rank))) ; List of rank Indices
 #             (labels ((help (dimsr indicesr)
 #                        (if (null dimsr)
 #                          (prin1 (apply #'aref array indices) stream)
@@ -9363,7 +9363,7 @@ local void pr_cclosure (const object* stream_, object obj) {
   }
 }
 
-# compilierte Closure in wiedereinlesbarer Form ausgeben:
+# print compiled Closure in rereadable Form:
 # (defun %print-cclosure (closure)
 #   (princ "#Y(")
 #   (prin1 (closure-name closure))
