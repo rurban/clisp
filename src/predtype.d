@@ -2010,7 +2010,7 @@ local Values statistics_statistics(svector_instances,svector_bytes,cons_instance
       Cdr(Cdr(hsr)) = fixnum(cons_instances*sizeof(cons_));
       pushSTACK(hsr);
     }
-    funcall(L(vector),2);
+    value1 = vectorof(2); mv_count=1;
   }
 
 LISPFUNN(list_statistics,1)

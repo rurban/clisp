@@ -1413,6 +1413,7 @@ global int main()
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
   printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, },\n");
   printf("#define LISPFUN  LISPFUN_B\n");
+# printf("extern object vectorof (uintC len);\n");
 # printf("extern object allocate_bit_vector_0 (uintL len);\n");
 # printf("extern uintB up_case (uintB ch);\n");
 # printf("extern uintB down_case (uintB ch);\n");
