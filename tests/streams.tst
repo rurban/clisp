@@ -756,6 +756,18 @@ T
     (delete-file f)))
 T
 
+(stringp (with-output-to-string (s)
+           (describe (make-array nil) s)))
+T
+
+(stringp (with-output-to-string (s)
+           (describe (make-array 1 :element-type nil) s)))
+T
+
+(stringp (with-output-to-string (s)
+           (describe (make-array nil :element-type nil) s)))
+T
+
 (progn
 (makunbound 's)
 (makunbound 's1)

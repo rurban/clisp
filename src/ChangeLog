@@ -4,6 +4,7 @@
 	* predtype.d (CLASS-OF): handle (ARRAY NIL) correctly
 	* describe.lisp (describe-object): report (ARRAY NIL)
 	as having no storage
+	* io.d (pr_array): print (ARRAY NIL NIL) properly
 
 2003-06-19  Sam Steingold  <sds@gnu.org>
 
