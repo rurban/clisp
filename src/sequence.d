@@ -278,8 +278,11 @@ local object get_seq_type (object seq) {
         NOTREACHED;
     }
   } else if (structurep(seq)) {
-    name = TheStructure(seq)->structure_types; # Structure-Typen-List*e
-    while (consp(name)) { name = Cdr(name); } # davon den letzten Typ nehmen
+    name = TheStructure(seq)->structure_types; # Structure-Typen-Liste
+    # Take the last type (excluding the final STRUCTURE-OBJECT):
+    while (consp(name) && consp(Cdr(name)) && consp(Cdr(Cdr(name))))
+      name = Cdr(name);
+    name = Car(name);
   } else return NIL;
   # SEQ-TYPES-Liste durchgehen:
   return find_seq_type(name);

@@ -1,3 +1,9 @@
+2004-08-19  Bruno Haible  <bruno@clisp.org>
+
+	* sequence.d (get_seq_type): Update the code for user-defined sequence
+	types.
+	Reported by Jörg Höhle.
+
 2004-06-19  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export compute-applicable-methods-using-classes.
