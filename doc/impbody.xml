@@ -1069,12 +1069,12 @@ A package (or a list thereof) can be locked using <literal role="sexp"
    <primary id="without-pack-lock-i"><function>WITHOUT-PACKAGE-LOCK</function>
  </primary></indexterm></firstterm>:
 <programlisting language="lisp">
-(&without-package-lock; ("LISP" "EXT" "CLOS")
+(&without-package-lock; (&cl-pac; &ext-pac; &clos-pac;)
   (defun restart () ...))
 </programlisting>
 or
 <programlisting language="lisp">
-(&without-package-lock; ("LISP") (trace read-line))
+(&without-package-lock; (&cl-pac;) (trace read-line))
 </programlisting>
 <literal role="sexp" >(&without-package-lock; () ...)</literal>
 temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>

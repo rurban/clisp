@@ -2851,7 +2851,7 @@ only.</subtitle>
 
 <para>All symbols relating to the foreign function interface are
  exported from the package &ffi-pac;.  To use them,
- <literal role="sexp">(&use-package; "FFI")</literal>.</para>
+ <literal role="sexp">(&use-package; &ffi-pac;)</literal>.</para>
 
 <para>Special &ffi-pac; forms may appear anywhere in the Lisp file.</para>
 
@@ -3835,7 +3835,7 @@ It is possible to call this function from Lisp using the file
 <filename>cfun.c</filename>) whose contents is:
 
 <programlisting language="lisp">
-(&defpackage; "TEST-C-CALL" (:use "LISP" "FFI"))
+(&defpackage; "TEST-C-CALL" (:use &cl-pac; &ffi-pac;))
 (&in-package; "TEST-C-CALL")
 (eval-when (compile) (setq &ffi-out-fun; t))
 (def-c-struct cfunr (x int) (s c-string))
@@ -3916,7 +3916,7 @@ void lispsort_double (int n, double * array) {
 This is accompanied by <filename>sort2.lisp</filename>:
 
 <programlisting language="lisp">
-(&defpackage; "FFI-TEST" (:use "LISP" "FFI"))
+(&defpackage; "FFI-TEST" (:use &cl-pac; &ffi-pac;))
 (&in-package; "FFI-TEST")
 (eval-when (compile) (setq &ffi-out-fun; t))
 (def-call-in lispsort_begin (:arguments (n int))
@@ -3958,8 +3958,8 @@ $ ln -s ../sort1.o sort1.o
 Add <filename>sort1.o</filename> to <envar>NEW_LIBS</envar>
 and <envar>NEW_FILES</envar> in <filename>link.sh</filename>.
 Create a file <filename>package.lisp</filename> containing the
-form <literal role="sexp">(&defpackage; "FFI-TEST" (:use "LISP"
-"FFI"))</literal> and add <filename>package.lisp</filename>
+form <literal role="sexp">(&defpackage; "FFI-TEST" (:use &cl-pac;
+&ffi-pac;))</literal> and add <filename>package.lisp</filename>
 to <envar>TO_PRELOAD</envar> in <filename>link.sh</filename>.
 Proceed:
 
@@ -4071,7 +4071,7 @@ double test_dll(struct bar *ptr)
 
 <para>Use the following lisp code:
 <programlisting language="lisp">
-(&use-package; "FFI")
+(&use-package; &ffi-pac;)
 
 (&def-c-struct; bar
   (x double-float)
@@ -4485,7 +4485,7 @@ Feel free to suggest enhancements to this facility!</para>
    <title>Using a predefined library function file</title>
 
 <para><programlisting language="lisp">
-(&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
+(&defpackage; "AFFI-TEST" (:use &cl-pac; "AFFI"))
 (&in-package; "AFFI-TEST")
 
 ;; SysBase is the conventional name for exec.library
@@ -4508,7 +4508,7 @@ Compiled, it will have inlined the library function calls.
 
 <example id="affi-ex-2-flibcall"><title>Using flibcall</title>
 <programlisting language="lisp">
-(&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
+(&defpackage; "AFFI-TEST" (:use &cl-pac; "AFFI"))
 (&in-package; "AFFI-TEST")
 
 (eval-when (compile eval load)
@@ -4527,7 +4527,7 @@ Compiled, it will have inlined the library function calls.
 <example id="affi-ex-3-dynamic">
    <title>Be fully dynamic, defining library bases ourselves</title>
 <programlisting language="lisp">
-(&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
+(&defpackage; "AFFI-TEST" (:use &cl-pac; "AFFI"))
 (&in-package; "AFFI-TEST")
 
 (eval-when (compile eval load)
