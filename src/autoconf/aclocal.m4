@@ -6604,11 +6604,6 @@ printf_address (addr)
 }
 #define chop_address(addr) ((unsigned long)(char*)(addr) & ~0x00FFFFFFL)
 '
-if test $cl_cv_prog_cc_ansi = yes; then
-  ul='UL'
-else
-  ul=''
-fi
 AC_CACHE_CHECK(for the code address range, cl_cv_address_code, [
 if test $cross_compiling = no; then
 cat > conftest.c <<EOF
@@ -6624,7 +6619,7 @@ else
 cl_cv_address_code='guessing 0'
 fi
 ])
-x=`echo $cl_cv_address_code | sed -e 's,^guessing ,,'`"$ul"
+x=`echo $cl_cv_address_code | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(CODE_ADDRESS_RANGE,$x)
 AC_CACHE_CHECK(for the malloc address range, cl_cv_address_malloc, [
 if test $cross_compiling = no; then
@@ -6654,7 +6649,7 @@ else
 cl_cv_address_malloc='guessing 0'
 fi
 ])
-x=`echo $cl_cv_address_malloc | sed -e 's,^guessing ,,'`"$ul"
+x=`echo $cl_cv_address_malloc | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(MALLOC_ADDRESS_RANGE,$x)
 AC_CACHE_CHECK(for the shared library address range, cl_cv_address_shlib, [
 if test $cross_compiling = no; then
@@ -6697,7 +6692,7 @@ else
 cl_cv_address_shlib='guessing 0'
 fi
 ])
-x=`echo $cl_cv_address_shlib | sed -e 's,^guessing ,,'`"$ul"
+x=`echo $cl_cv_address_shlib | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(SHLIB_ADDRESS_RANGE,$x)
 AC_CACHE_CHECK(for the stack address range, cl_cv_address_stack, [
 if test $cross_compiling = no; then
@@ -6713,7 +6708,7 @@ else
 cl_cv_address_stack='guessing ~0'
 fi
 ])
-x=`echo "$cl_cv_address_stack" | sed -e 's,^guessing ,,'`"$ul"
+x=`echo "$cl_cv_address_stack" | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(STACK_ADDRESS_RANGE,$x)
 ])
 
