@@ -774,7 +774,7 @@ OBJECT-OUT
 
 (let ((*print-readably* t))
   (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))
-"(COMMON-LISP-USER::A COMMON-LISP-USER::B COMMON-LISP-USER::C)"
+"(|COMMON-LISP-USER|::|A| |COMMON-LISP-USER|::|B| |COMMON-LISP-USER|::|C|)"
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
