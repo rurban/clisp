@@ -5797,7 +5797,7 @@ for-value   NIL or T
       (c-form `(EQL ,@form23)))))
 
 ;; compile (without-package-lock (packages) ...)
-(defun c-WITHOUT-PACKAGE-LOCK  (&optional (c #'c-form))
+(defun c-WITHOUT-PACKAGE-LOCK (&optional (c #'c-form))
   (test-list *form* 1)
   (let* ((pack-list (second *form*))
          (*compiler-unlocked-packages*

@@ -116,7 +116,7 @@
 
 ;; The list of packages that will be locked by SAVEINITMEM.
 ;; Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.
-(defvar *system-package-list* ; ABI
+(defvar *system-package-list*
   '("SYSTEM" "LISP" "EXT" "CUSTOM" "I18N" "GRAY" "CHARSET" "CLOS"
     #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
     #+ffi "FFI" #+(or) "AFFI" #+screen "SCREEN"))
@@ -124,14 +124,18 @@
 ;; Unlock the specified packages, execute the BODY, then lock them again.
 (defmacro with-no-package-lock-internal (packages &body body)
   (let ((locked-packages (gensym "WOPL-")))
-    `(let ((,locked-packages
-            (remove-if-not #'package-lock
-                           (or ,packages *system-package-list*))))
-       (unwind-protect (progn (setf (package-lock ,locked-packages) nil)
-                              ,@body)
-         (setf (package-lock ,locked-packages) t)))))
+    `(LET ((,locked-packages (REMOVE-IF-NOT #'PACKAGE-LOCK ,packages)))
+       (UNWIND-PROTECT
+         (PROGN
+           (SETF (PACKAGE-LOCK ,locked-packages) NIL)
+           ,@body)
+         (SETF (PACKAGE-LOCK ,locked-packages) T)))))
 (defmacro without-package-lock (packages &body body)
-  `(with-no-package-lock-internal ',packages ,@body))
+  ;; NB: This is augmented by similar compiler processing,
+  ;; see c-WITHOUT-PACKAGE-LOCK.
+  `(WITH-NO-PACKAGE-LOCK-INTERNAL
+     ,(if packages `',packages '*SYSTEM-PACKAGE-LIST*)
+     ,@body))
 
 ;;; module administration (Chapter 11.8), CLTL p. 188
 
