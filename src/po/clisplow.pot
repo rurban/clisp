@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.33\n"
-"POT-Creation-Date: 2004-03-17 15:20:59 EST\n"
-"PO-Revision-Date: 2004-03-17 15:20:59 EST\n"
+"Project-Id-Version: clisp 2.33.1\n"
+"POT-Creation-Date: 2004-05-24 15:26:26 EDT\n"
+"PO-Revision-Date: 2004-05-24 15:26:26 EDT\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"

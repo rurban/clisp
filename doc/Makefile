@@ -5,7 +5,7 @@ DTDVER=4.2
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml			\
 	impext.xml impissue.xml impbyte.xml unix-ent.xml		\
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
-	../modules/regexp/regexp.xml ../modules/netica/netica.xml \
+	../modules/regexp/regexp.xml ../modules/netica/netica.xml       \
 	../modules/berkeley-db/berkeley-db.xml ../modules/pcre/pcre.xml \
 	../modules/oracle/oracle.xml ../modules/fastcgi/fastcgi.xml
 OLINK=tdb-man.xml tdb-pile.xml tdb-chunk.xml olink-pile.xml olink-chunk.xml
@@ -40,6 +40,7 @@ CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxo
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
 #DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
+DIST=podval:~/public_html/data
 
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
@@ -59,6 +60,7 @@ DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
 FILLIN=sed -e 's,@DTD@,$(DTD),' \
 	    -e 's,@DTDVER@,$(DTDVER),' \
 	    -e 's,@VERSION@,'`cat ../src/VERSION`',' \
+	    -e 's,@PLATFORM@,'`uname`',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
 
 SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
@@ -70,19 +72,14 @@ all: check impnotes.html regexp.html wildcard.html _clisp.html _clisp.1
 MAKE_TDB=xsltproc --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
-# the tail+2 hack removes DOCTYPE from the database
-# it should be removed as soon as the XHTML stylesheets are fixed
 tdb-man.xml: clisp.xml
 	$(MAKE_TDB) "$@" pile.xsl $<
-	tail +2 $@ > tmp; mv -f tmp $@
 
 tdb-pile.xml: impnotes.xml $(IMPNOTES)
 	$(MAKE_TDB) "$@" pile.xsl $<
-	tail +2 $@ > tmp; mv -f tmp $@
 
 tdb-chunk.xml: impnotes.xml $(IMPNOTES)
 	$(MAKE_TDB) "$@" chunk.xsl $<
-	tail +2 $@ > tmp; mv -f tmp $@
 
 clisp.xml: clisp.xml.in ../src/VERSION Makefile
 	$(RM) $@
@@ -123,7 +120,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) common.xsl pile.xsl $(OLINK)
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 #	egrep -Hn 'NAME="[A-Z0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p impnotes.html $(DIST)/impnotes/ && \
+	(test -n "$(DIST)" && scp -p impnotes.html impnotes.css $(DIST)/ && \
 	 test -d "../build/" && cd ../build && make clisp.html && \
 	 make clisp.1 && scp -p clisp.1 clisp.html $(DIST)) || true
 
@@ -145,7 +142,8 @@ html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 #	time xmlto xhtml -o $@/ -m chunk.xsl $<
 #	time docbook2html --dsl impnotes.dsl -o $@ $<
 #	egrep -Hnr 'NAME="[A-Z0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p html/*.html $(DIST)/impnotes/;) || true
+	(test -n "$(DIST)" && scp -p html/*.html impnotes.css \
+	 $(DIST)/impnotes/;) || true
 
 up: impnotes.html html
 	scp impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
@@ -159,7 +157,7 @@ wildcard.html: ../modules/wildcard/wildcard.texinfo
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-		clisp.html clisp.1
+		clisp.html clisp.1 tdb-*.xml
 
 count: $(IMPNOTES)
 	wc $^

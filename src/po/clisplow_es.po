@@ -45,6 +45,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.5  2004/03/17 20:47:07  sds
+# regenerated for 2.33
+#
 # Revision 1.4  2004/03/14 17:27:54  sds
 # regenerated for 2.32.94
 #
@@ -109,7 +112,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2004-03-17 15:20:59 EST\n"
+"POT-Creation-Date: 2004-05-24 15:26:26 EDT\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
