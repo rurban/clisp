@@ -9,40 +9,26 @@
 #endif
 
 #include <stddef.h> /* needed for NULL on SunOS4 */
+#include <stdio.h> /* for printf */
 
 #include <setjmp.h>
 jmp_buf mainloop;
 
 #include <signal.h>
 
+#ifdef HAVE_SETRLIMIT
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 int pass = 0;
 
-void stackoverflow_handler (int emergency)
+void stackoverflow_handler (int emergency, stackoverflow_context_t scp)
 {
   pass++;
   printf("Stack overflow %d caught.\n",pass);
-#if (defined(HAVE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK))
-#if defined(SIGNALBLOCK_POSIX)
-  {
-    sigset_t sigblock_mask;
-    sigemptyset(&sigblock_mask);
-    sigaddset(&sigblock_mask,SIGSEGV);
-#ifdef SIGBUS
-    sigaddset(&sigblock_mask,SIGBUS);
-#endif
-    sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
-  }
-#elif defined(SIGNALBLOCK_BSD)
-  {
-    long sigblock_mask = sigblock(0);
-    sigblock_mask &= ~sigmask(SIGSEGV);
-#ifdef SIGBUS
-    sigblock_mask &= ~sigmask(SIGBUS);
-#endif
-    sigsetmask(sigblock_mask);
-  }
-#endif
-#endif
+  sigsegv_leave_handler();
   longjmp(mainloop, emergency ? -1 : pass);
 }
 
@@ -57,7 +43,20 @@ int recurse (int n)
 int main ()
 {
   char mystack[16384];
-  stackoverflow_install_handler(&stackoverflow_handler,mystack,sizeof(mystack));
+
+#if defined(HAVE_SETRLIMIT) && defined(RLIMIT_STACK)
+  /* Before starting the endless recursion, try to be friendly to the user's
+     machine. If you install a Linux 2.2.x kernel on a SuSE 5.3 Linux system,
+     you end up with no stack limit for user processes at all. We don't want
+     to kill such systems. */
+  struct rlimit rl;
+  rl.rlim_cur = rl.rlim_max = 0x100000; /* 1 MB */
+  setrlimit(RLIMIT_STACK,&rl);
+#endif
+
+  if (stackoverflow_install_handler(&stackoverflow_handler,mystack,sizeof(mystack)) < 0)
+    exit(0);
+
   switch (setjmp(mainloop)) {
     case -1: printf("emergency exit\n"); exit(1);
     case 0: case 1: recurse(0); printf("no endless recursion?!\n"); exit(1);

@@ -1,3 +1,16 @@
+1999-05-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * aclocal.m4 (CL_SIGALTSTACK): New macro.
+        * lispbibl.d (NOCOST_SP_CHECK): Define whenever sigsegv.h defines
+          HAVE_STACK_OVERFLOW_RECOVERY, not only on WIN32_NATIVE.
+          (near_SP_overflow) [UNIX]: New declaration.
+        * spvw.d (near_SP_overflow): New function.
+        * spvw_fault.d (handle_fault): Add `verbose' argument. If it is 1,
+          don't print error messages.
+        * spvw_sigsegv.d (sigsegv_handler): Add `serious' argument.
+          (stackoverflow_handler): Add `scp' argument. Bring back STACK to
+          a sane value.
+
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Make SYS::%GENERIC-FUNCTION-LAMBDA self-contained.

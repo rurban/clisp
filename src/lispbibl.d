@@ -7641,13 +7641,13 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define NO_SP_MALLOC
 #endif
 
-#if defined(NO_SP_MALLOC) && !defined(AMIGAOS) && !defined(WIN32_NATIVE)
+#if defined(HAVE_STACK_OVERFLOW_RECOVERY)
+  # Erkennung von SP-Überlauf durch eine Guard-Page oder andere Mechanismen.
+  #define NOCOST_SP_CHECK
+#elif defined(NO_SP_MALLOC) && !defined(AMIGAOS)
   # Für den SP ist das Betriebssystem verantwortlich.
   # Woher sollen wir einen vernünftigen Wert für SP_bound bekommen?
   #define NO_SP_CHECK
-#elif defined(HAVE_STACK_OVERFLOW_RECOVERY)
-  # Erkennung von SP-Überlauf durch eine Guard-Page.
-  #define NOCOST_SP_CHECK
 #endif
 
 # Testet auf SP-Überlauf.
@@ -7664,11 +7664,15 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #else # NO_SP_CHECK || NOCOST_SP_CHECK
     #define SP_overflow()  FALSE
     #ifdef NOCOST_SP_CHECK
-      #ifdef SP_DOWN
-        #define near_SP_overflow()  ( (aint)SP() < (aint)SP_bound+0x1000 )
-      #endif
-      #ifdef SP_UP
-        #define near_SP_overflow()  ( (aint)SP() > (aint)SP_bound-0x1000 )
+      #ifdef WIN32_NATIVE
+        #ifdef SP_DOWN
+          #define near_SP_overflow()  ( (aint)SP() < (aint)SP_bound+0x1000 )
+        #endif
+        #ifdef SP_UP
+          #define near_SP_overflow()  ( (aint)SP() > (aint)SP_bound-0x1000 )
+        #endif
+      #else
+        extern boolean near_SP_overflow (void);
       #endif
     #endif
   #endif
