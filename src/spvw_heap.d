@@ -45,7 +45,7 @@ typedef Page Pages;
 # without accessing the page before it or after it.
 typedef struct {
   gcv_object_t* p; # address of the pointer, within an old object
-  object o;  # o = *p, pointer to a new object
+  gcv_object_t o;  # o = *p, pointer to a new object
 } old_new_pointer_t;
 typedef struct {
   # traversal of the pointers in the page requires the following:
