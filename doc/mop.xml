@@ -54,7 +54,7 @@ of the specified methods for that generic function.  In the description
 of these methods, a <firstterm>method signature</firstterm> is used to
 describe the parameters and parameter specializers of each method. The
 following is an example of the format for a method signature:
-<programlisting>
+<programlisting language="lisp">
 <literal role="method">(<function>gf1</function> (&x-r; &class;) &y-r; &optional-amp; &v-r; &key-amp; &k-r;)</literal>
 </programlisting></para>
 
@@ -788,7 +788,7 @@ arguments received by the &ensure-class; function.  Examples of typical
 <informalexample><simpara>A &defclass; form with standard slot and class
   options and an expansion of it that would result in the proper call
   to &ensure-class;.</simpara>
-<programlisting>
+<programlisting language="lisp">
 (defclass plane (moving-object graphics-object)
      ((altitude :initform 0 :accessor plane-altitude)
       (speed))
@@ -812,7 +812,7 @@ arguments received by the &ensure-class; function.  Examples of typical
   affected the order of the properties in the &canonicalized-slot-spec;,
   but has affected the order of the elements in the lists
   which are the values of those properties.</simpara>
-<programlisting>
+<programlisting language="lisp">
 (defclass sst (plane)
      ((mach mag-step 2
             locator sst-mach
@@ -1134,7 +1134,7 @@ portable program modifies the binding of any slot of a prototype instance.
 </para>
 
 <informalexample><para>This allows non-&consing; access to slots with
-  allocation &class-k;:<programlisting>
+  allocation &class-k;:<programlisting language="lisp">
   (defclass counter ()
     ((count :allocation :class :initform 0 :reader how-many)))
   (defmethod initialize-instance :after ((obj counter) &amp;rest args)
@@ -1144,7 +1144,7 @@ portable program modifies the binding of any slot of a prototype instance.
  Now one can find out how many <classname>COUNTED-OBJECT</classname>s
  have been created by using
   <code>(HOW-MANY (&class-prototype; (&find-class; 'COUNTER)))</code>:
-  <programlisting>
+  <programlisting language="lisp">
   (&make-instance; 'counted-object :name 'foo)
     <returnvalue>#&lt;COUNTED-OBJECT #x203028C9&gt;</returnvalue>
   (HOW-MANY (&class-prototype; (&find-class; 'counter)))
@@ -1381,7 +1381,7 @@ previously stored value is left unchanged.</para>
    metaobject class.  Second, &make-instance; is applied to the direct
    slot definition metaobject class and the &canonicalized-slot-spec;.
    This conversion could be implemented as shown in the
-   following code:<programlisting>
+   following code:<programlisting language="lisp">
 (&defun; convert-to-direct-slot-definition (class canonicalized-slot)
   (&apply; #'&make-instance;
          (&apply; #'&dsd-class;
@@ -1509,7 +1509,7 @@ arguments accepted by the &ensure-class; function.</para>
  <link linkend="mop-cl-reinit-mo">next section</link>.</para>
 
 <para>An example of creating an anonymous class directly using
-&make-instance; follows:<programlisting>
+&make-instance; follows:<programlisting language="lisp">
 (flet ((zero () 0)
        (propellor () *propellor*))
   (make-instance 'standard-class
@@ -2051,8 +2051,7 @@ any dependents of the class metaobject will be updated by calling
 <section id="compute-esd"><title>Generic Function &compute-esd;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><code>(&compute-esd; &class-r; &name-r;
-    <replaceable>direct-slot-definitions</replaceable>)
+ <listitem><simpara><code>(&compute-esd; &class-r; &name-r; &dsds-r;)
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
@@ -2060,7 +2059,7 @@ any dependents of the class metaobject will be updated by calling
     <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
    <varlistentry><term>&name-r;</term>
     <listitem><simpara>a slot name.</simpara></listitem></varlistentry>
-   <varlistentry><term><replaceable>direct-slot-definitions</replaceable></term>
+   <varlistentry><term>&dsds-r;</term>
     <listitem><simpara>an ordered list of direct slot definition
       metaobjects.  The most specific direct slot definition metaobject
       appears first in the list.</simpara></listitem></varlistentry>
@@ -2087,12 +2086,10 @@ any dependents of the class metaobject will be updated by calling
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="method">(&compute-esd;
-   (&class-r; &standard-class;) &name-r;
-   <replaceable>direct-slot-definitions</replaceable>)</literal></term>
- <term><literal role="method">(&compute-esd;
-   (&class-r; &funcallable-standard-class;) &name-r;
-   <replaceable>direct-slot-definitions</replaceable>)</literal></term>
+<varlistentry><term><literal role="method">(&compute-esd; (&class-r;
+   &standard-class;) &name-r; &dsds-r;)</literal></term>
+ <term><literal role="method">(&compute-esd; (&class-r;
+   &funcallable-standard-class;) &name-r; &dsds-r;)</literal></term>
  <listitem>&implements-inheritance;
   <simpara>This method can be extended, but the value returned by the
    extending method must be the value returned by this method.
@@ -2109,14 +2106,13 @@ any dependents of the class metaobject will be updated by calling
  <subtitle>Implementation dependent: only in &clisp;.</subtitle>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><code>(&compute-esd-initargs; &class-r;
-    <replaceable>direct-slot-definitions</replaceable>)
+ <listitem><simpara><code>(&compute-esd-initargs; &class-r; &dsds-r;)
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
     <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
-   <varlistentry><term><replaceable>direct-slot-definitions</replaceable></term>
+   <varlistentry><term>&dsds-r;</term>
     <listitem><simpara>an ordered list of direct slot definition
       metaobjects.  The most specific direct slot definition metaobject
       appears first in the list.</simpara></listitem></varlistentry>
@@ -2139,11 +2135,9 @@ any dependents of the class metaobject will be updated by calling
 
 <variablelist><title>Methods</title>
 <varlistentry><term><literal role="method">(&compute-esd-initargs;
-   (&class-r; &standard-class;)
-   <replaceable>direct-slot-definitions</replaceable>)</literal></term>
- <term><literal role="method">(&compute-esd-initargs;
-   (&class-r; &funcallable-standard-class;)
-   <replaceable>direct-slot-definitions</replaceable>)</literal></term>
+   (&class-r; &standard-class;) &dsds-r;)</literal></term>
+ <term><literal role="method">(&compute-esd-initargs; (&class-r;
+   &funcallable-standard-class;) &dsds-r;)</literal></term>
  <listitem>&implements-inheritance;
   <simpara>This method can be extended.</simpara></listitem>
 </varlistentry></variablelist>
@@ -2842,11 +2836,10 @@ the generic function.  It must lookup and execute the appropriate
 methods, and return the appropriate values.</para>
 
 <para>The discriminating function is computed by the highest layer of
-the generic function invocation protocol,
-&compute-discriminating-function;.  Whenever a generic function
-metaobject is initialized, reinitialized, or a method is added or
-removed, the discriminating function is recomputed.  The new
-discriminating function is then stored with
+the generic function invocation protocol, &compute-discriminating-function;.
+Whenever a generic function metaobject is initialized, reinitialized, or
+a method is added or removed, the discriminating function is recomputed.
+The new discriminating function is then stored with
 &set-funcallable-instance-function;.</para>
 
 <para>Discriminating functions call &compute-applicable-methods-mop;
@@ -2859,7 +2852,7 @@ computations.  (See the description of &compute-discriminating-function;
 for details.)</para>
 
 <para>The body of method definitions are processed by
-&make-method-lambda;.  The result of this generic function is a &laexpr;
+&make-method-lambda;.  The result of this generic function is a &lambda-expr;
 which is processed by either &compile; or &compile-file; to produce
 a <firstterm>method function</firstterm>.  The arguments received by the
 method function are controlled by the &call-method; forms appearing in
@@ -2870,8 +2863,9 @@ argument to &call-method;.  If &call-method; appears with additional
 arguments, these will be passed to the method functions as well; in
 these cases, &make-method-lambda; must have created the method lambdas
 to expect additional arguments.</para>
-<note>&clisp-only;<simpara>&make-method-lambda; is not supported.
-  &call-method; does not accept more than two arguments.</simpara></note>
+<note>&clisp-only;
+ <simpara>See <xref linkend="no-make-method-lambda"/>.</simpara>
+ <simpara>See <xref linkend="method-functions-args"/>.</simpara></note>
 
 </section><!-- mop-gf-invocation -->
 
@@ -3520,24 +3514,24 @@ their own memoization scheme.</para></simplesect>
       <!-- change to uninitialized????? -->
    </simpara></listitem></varlistentry>
    <varlistentry><term><replaceable>lambda-expression</replaceable></term>
-    <listitem><simpara>a &laexpr;.</simpara></listitem></varlistentry>
+    <listitem><simpara>a &lambda-expr;.</simpara></listitem></varlistentry>
    <varlistentry><term>&env-r;</term>
     <listitem><simpara>the same as the &environment-amp; argument to
      macro expansion functions.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>This generic function returns two values.  The first
-   is a &laexpr;, the second is a list of initialization
+   is a &lambda-expr;, the second is a list of initialization
    arguments and values.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to produce a
-   &laexpr; which can itself be used to produce a method function for
+   &lambda-expr; which can itself be used to produce a method function for
    a method and generic function with the specified classes.  The
    generic function and method the method function will be used with are
    not required to be the given ones.  Moreover, the method metaobject
    may be uninitialized.</simpara>
   <simpara>Either the function &compile;, the special form &function; or
-   the function &coerce; must be used to convert the &laexpr; a
+   the function &coerce; must be used to convert the &lambda-expr; a
    method function.  The method function itself can be applied to
    arguments with &apply; or &funcall;.</simpara>
   <simpara>When a method is actually called by an effective method, its
@@ -3591,7 +3585,7 @@ the body before &call-next-method; is called.  In this way, the user's
 definition of &call-next-method; and &next-method-p; are sure to
 override the system's definitions.</para>
 
-<programlisting>
+<programlisting language="lisp">
 (defclass my-generic-function (standard-generic-function)
      ()
   (:default-initargs :method-class (find-class 'my-method)))
@@ -3625,12 +3619,15 @@ override the system's definitions.</para>
 </programlisting>
 </informalexample>
 
-<note>&clisp-only;<simpara>The generic function &make-method-lambda; is not
-   implemented. Its specification is misdesigned: it mixes compile-time and
-   run-time behaviour.</simpara>
-  <simpara>&call-method; and method functions always expect exactly two
-   arguments: the list of arguments passed to the generic function, and the
-   list of next methods.</simpara></note>
+<note>&clisp-only;<formalpara id="no-make-method-lambda">
+  <title>The generic function &make-method-lambda; is not implemented</title>
+  <para>Its specification is misdesigned: it mixes &compile-time; and
+   &exec-time; behaviour.</para></formalpara>
+ <formalpara id="method-functions-args">
+  <title>Method function arguments.</title>
+  <para>&call-method; and method functions always expect exactly two
+   arguments: the list of arguments passed to the generic function, and
+   the list of next methods.</para></formalpara></note>
 </section><!-- make-method-lambda -->
 
 <section id="compute-discriminating-function">
@@ -3894,7 +3891,7 @@ expansion is shown in the following example:
   <xref linkend="mop-meth-init-defmethod-body"/>.
   The initargs appearing after &function-k; are assumed to be additional
   initargs returned from the call to &make-method-lambda;.</simpara>
-<programlisting>
+<programlisting language="lisp">
 (defmethod move :before ((p position) (l (eql 0))
                          &optional-amp; (visiblyp t)
                          &key-amp; color)
@@ -3935,7 +3932,7 @@ not considered by any of the protocols specified in this document.
   similar to this would be run to produce the method lambda and
   additional initargs.  In this example, &env-r; is the macroexpansion
   environment of the &defmethod; macro form.</simpara>
-<programlisting>
+<programlisting language="lisp">
 (let ((gf (ensure-generic-function 'move)))
   (make-method-lambda
     gf
@@ -3948,7 +3945,7 @@ not considered by any of the protocols specified in this document.
 
 <para>The first step occurs during macro-expansion of the macro form.
 In this step, the method &lalist;, declarations and body are
-converted to a &laexpr; called a <firstterm>method
+converted to a &lambda-expr; called a <firstterm>method
 lambda</firstterm>.  This conversion is based on information associated
 with the generic function definition in effect at the time the macro
 form is expanded.</para>
@@ -3963,7 +3960,7 @@ proceeds by calling &make-method-lambda;.  The first argument in this
 call is the generic function obtained as described above.  The second
 argument is the result of calling &class-prototype; on the result of
 calling &gf-method-class; on the generic function.  The
-third argument is a &laexpr; formed from the method &lalist;,
+third argument is a &lambda-expr; formed from the method &lalist;,
 declarations and body.  The fourth argument is the macro-expansion
 environment of the macro form; this is the value of the
 &environment-amp; argument to the &defmethod; macro.</para>
@@ -3980,9 +3977,8 @@ argument of the &function; special form.  During the subsequent
 evaluation of the macro-expansion, the result of the &function; special
 form is the method function.</para>
 
-<note>&clisp-only;<simpara>The generic function &make-method-lambda; is not
-  implemented. Its specification is misdesigned: it mixes compile-time and
-  run-time behaviour.</simpara></note>
+<note>&clisp-only;<simpara>See <xref linkend="no-make-method-lambda"/>.
+</simpara></note>
 </section><!-- mop-meth-init-defmethod-body -->
 
 <section id="mop-meth-init-defmethod-mo">
@@ -3992,7 +3988,7 @@ form is the method function.</para>
 and then adding the method to the generic function is shown below.  This
 example is comparable to the method definition shown
  <link linkend="defmethod-ex-1">above</link>:
-<programlisting>
+<programlisting language="lisp">
 (let* ((gf (make-instance 'standard-generic-function
                           :lambda-list '(p l &optional-amp; visiblyp &key-amp;)))
        (method-class (generic-function-method-class gf)))
@@ -4182,7 +4178,7 @@ restrictions.</para>
 </simpara></listitem></varlistentry></variablelist>
 
 <formalpara><title>Examples</title>
-<para><informalexample><programlisting>
+<para><informalexample><programlisting language="lisp">
 (&extract-lambda-list; '((p position)))
  <literal role="data">(P)</literal>
 
@@ -4223,7 +4219,7 @@ restrictions.</para>
 </simpara></listitem></varlistentry></variablelist>
 
 <formalpara><title>Examples</title>
-<para><informalexample><programlisting>
+<para><informalexample><programlisting language="lisp">
 (&extract-specializer-names; '((p position)))
  <literal role="data">(POSITION)</literal>
 
@@ -4744,7 +4740,7 @@ over the allocation of slot locations.  In this simple example
 implementation, the <constant>:SLOT-ORDER-K</constant> option is not
 inherited by subclasses; it controls only instances of the class
 itself.
-<programlisting>
+<programlisting language="lisp">
 (defclass ordered-class (standard-class)
      ((slot-order :initform ()
                   :initarg :slot-order
@@ -4765,7 +4761,7 @@ the <constant>:SLOT-ORDER-K</constant> option, the function
 subclasses of <classname>point</classname>; it can only be called on
 instances of <classname>point</classname> itself.
 
-<programlisting>
+<programlisting language="lisp">
 (defclass point ()
      ((x :initform 0)
       (y :initform 0))
@@ -4780,8 +4776,8 @@ instances of <classname>point</classname> itself.
 
 <note>&clisp-only;<simpara>You cannot assume that the slot-location
   values start at 0.  In class <classname>point</classname>, for
-  example, <replaceable>x</replaceable> and <replaceable>y</replaceable>
-  will be at slot locations 1 and 2, not 0 and 1.</simpara></note>
+  example, &x-r; and &y-r; will be at slot locations 1 and 2, not 0 and
+  1.</simpara></note>
 
 In more realistic uses of this mechanism, the calls to the low-level
 instance structure accessors would not actually appear textually in the
@@ -4815,7 +4811,7 @@ set of functions and information about those functions.  They make it
 possible to maintain both as the same object rather than two separate
 objects linked, for example, by hash tables.)
 
-<programlisting>
+<programlisting language="lisp">
 (defclass constructor ()
      ((name :initarg :name :accessor constructor-name)
       (fields :initarg :fields :accessor constructor-fields))
@@ -5185,7 +5181,7 @@ updater and add it to the dependents of the class or generic function.
 Methods on the generic function &update-dependent;, specialized to the
 specific class of updater do the appropriate update work.</para>
 
-<programlisting>
+<programlisting language="lisp">
 (defclass updater ()
      ((dependent :initarg :dependent :reader dependent)))
 
@@ -5199,7 +5195,7 @@ specific class of updater do the appropriate update work.</para>
 <para>A <function>flush-cache-updater</function> simply flushes the
 cache of the dependent when it is updated.</para>
 
-<programlisting>
+<programlisting language="lisp">
 (defclass flush-cache-updater (updater) ())
 
 (defmethod update-dependent (dependee (updater flush-cache-updater)
@@ -5250,7 +5246,7 @@ cache of the dependent when it is updated.</para>
   <para>In each case, &map-dependents; is used to call
    &update-dependent; on each of the dependents.  So, for example, the
    update of a generic function's dependents when a method is added
-   could be performed by the following code:<programlisting>
+   could be performed by the following code:<programlisting language="lisp">
   (&map-dependents; &gf-r;
                   #'(lambda (dep)
                       (&update-dependent; &gf-r;
