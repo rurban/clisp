@@ -1,3 +1,10 @@
+2004-07-13  Bruno Haible  <bruno@clisp.org>
+
+	* intelem.d (UDS_to_I, DS_to_I): Make global.
+	* lispbibl.d (UDS_to_I, DS_to_I): New declarations,
+	* genclisph.d (main): Declare UDS_to_I, DS_to_I. Don't declare
+	allocate_bignum.
+
 2004-07-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (wrap_finalize): third argument is an
