@@ -23,9 +23,10 @@
    "CLISP Oracle interface from Alma Mater Software, Inc.  Inquiries to: John Hinsdale <hin@alma.com>")
   (:use "LISP" "FFI")
   (:export "CONNECT" "DISCONNECT" "RUN-SQL"
-           "DO-ROWS" "FETCH" "PEEK" "COLUMNS" "EOF"
+           "DO-ROWS" "FETCH" "FETCH-ALL" "PEEK" "COLUMNS" "EOF"
            "INSERT-ROW" "UPDATE-ROW" "ROW-COUNT"
-           "WITH-TRANSACTION" "COMMIT" "ROLLBACK" "AUTO-COMMIT"))
+           "WITH-TRANSACTION" "COMMIT" "ROLLBACK" "AUTO-COMMIT"
+	   "SQLCOL-NAME" "SQLCOL-TYPE" "SQLCOL-SIZE" "SQLCOL-SCALE" "SQLCOL-PRECISION" "SQLCOL-NULL_OK" ))
 
 (in-package "ORACLE")
 
@@ -167,7 +168,7 @@ Arguments: none.
 Returns: NIL
 "
   (when *oracle-in-transaction* (error "DISCONNECT not allowed inside WITH-TRANSACTION"))
-  (when (not (null (curconn)))
+  (when (curconn)
         (oracle_disconnect (curconn))
         (check-success)
         ; Remove connection from the hash table
@@ -369,6 +370,30 @@ Arguments: none
 
 ;----------------------------------------------
 
+; FETCH-ALL
+(defun fetch-all (&optional max-rows (result-type 'ARRAY) (item-type 'ARRAY))
+"(ORACLE:FETCH-ALL(&optional max-rows (result-type 'ARRAY) (item-type 'ARRAY))
+
+Fetch all rows from a query and return result as a sequence of
+sequences.  Arguments (all optional) are:
+
+   max-rows      Maximum number of rows to fetch
+   result-type   Sequence type of row set 'ARRAY (default) or 'LIST
+   item-type     Sequence type of columns per row,'ARRAY (default) or 'LIST
+"
+  (check-connection "fetch all rows of data")
+  
+  (do ((result (make-array 100 :element-type item-type
+			   :fill-pointer 0 :adjustable t))
+       (count 0 (1+ count))
+       (row (oracle:fetch) (oracle:fetch)))
+      ((or (null row) (when max-rows (>= count max-rows)))
+       (coerce result result-type))
+      (vector-push-extend (coerce row item-type)
+				      result)))
+
+;----------------------------------------------
+
 ; PEEK
 (defun peek (&optional (result-type 'ARRAY))
 "(ORACLE:PEEK (&optional (result-type 'ARRAY)))
@@ -524,7 +549,7 @@ Arguments: none
   (let ((rowcount (oracle_rows_affected (curconn))))
     (check-success)
     ; Maybe adjust downward to account for lookahead row
-    (if (not (null (db-pending-row *oracle-connection*)))
+    (if (db-pending-row *oracle-connection*)
         (- rowcount 1)
       rowcount)))
 
@@ -941,7 +966,7 @@ Argument: none
     (dolist (elt l)
             (when (null elt)
                   (error "Null element in column/variable list"))
-            (when (not (null (gethash (to-string elt) h)))
+            (when (gethash (to-string elt) h)
                   (error (cat "DO-ROWS: Parameter/column '" elt "' occurs more than once in bound columns/variables:~%"
                               (join "~%" l))))
             (setf (gethash (to-string elt) h) t))
