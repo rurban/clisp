@@ -144,11 +144,15 @@ some platforms can be found in file unix/PLATFORMS.
 
          make check-tests
 
+   Check whether CLISP passes the Minejima/SACLA test suite:
+
+         make check-sacla-tests
+
    Check whether CLISP passes the Dietz/GCL test suite:
 
          make check-ansi-tests
 
-   Or run all three tests with one shot:
+   Or run all four tests with one shot:
 
          make check
 
