@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2004-11-30 09:31:04-0500\n"
+"POT-Creation-Date: 2005-02-16 23:22:37+0100\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -25,37 +25,39 @@ msgstr ""
 msgid "*** - Program stack overflow. RESET"
 msgstr "*** - Переполнение программного стека. СБРОС"
 
-#: spvw.d:494
+#: spvw.d:497
 msgid "*** - Lisp stack overflow. RESET"
 msgstr "*** - Переполнение стека Лиспа. СБРОС"
 
-#: spvw.d:691
+#: spvw.d:711
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Неизвестная сигнатура FSUBR: %d %d %d\n"
 
-#: spvw.d:799
+#: spvw.d:819
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Неизвестная сигнатура SUBR: %d %d %d %d"
 
-#: spvw.d:1517
-msgid "module `%s' requires package %s.\n"
+#: spvw.d:1541
+#, fuzzy
+msgid "module '%s' requires package %s.\n"
 msgstr "модуль `%s' требует пакета %s.\n"
 
-#: spvw.d:1556
+#: spvw.d:1580
 #, fuzzy
 msgid "is an ANSI Common Lisp."
 msgstr ""
 " - реализация ANSI Common Lisp.\n"
 "Использование:  "
 
-#: spvw.d:1558
+#: spvw.d:1582
 msgid "Usage:  "
 msgstr ""
 
-#: spvw.d:1560
+#: spvw.d:1584
+#, fuzzy
 msgid ""
 " [options] [lispfile [argument ...]]\n"
-" When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+" When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
 " to the list of argument strings. Otherwise, an interactive\n"
 " read-eval-print loop is entered.\n"
 msgstr ""
@@ -64,59 +66,59 @@ msgstr ""
 " принимает значения списка аргументов. Если файл не задан, происходит\n"
 " вход в интерактивный режим `чтение-выполнение-печать'.\n"
 
-#: spvw.d:1564
+#: spvw.d:1588
 msgid "Informative output:\n"
 msgstr "Информативный вывод:\n"
 
-#: spvw.d:1565
+#: spvw.d:1589
 msgid " -h, --help    - print this help and exit\n"
 msgstr " -h, --help    - вывод этой справки и выход\n"
 
-#: spvw.d:1566
+#: spvw.d:1590
 msgid " --version     - print the version information\n"
 msgstr " --version     - вывод информации о версии программы\n"
 
-#: spvw.d:1567
+#: spvw.d:1591
 msgid " --license     - print the licensing information\n"
 msgstr " --license     - вывод информации о лицензии\n"
 
-#: spvw.d:1568
+#: spvw.d:1592
 msgid "Memory image selection:\n"
 msgstr "Выбор файла с образом памяти:\n"
 
-#: spvw.d:1569
+#: spvw.d:1593
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr " -B библ-дир   - задать директорию установки\n"
 
-#: spvw.d:1571
+#: spvw.d:1595
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr " -K линк-набор - задать исполнимый файл и образ памяти\n"
 
-#: spvw.d:1573
+#: spvw.d:1597
 msgid " -M memfile    - use this memory image\n"
 msgstr " -M образ      - использовать файл образа памяти\n"
 
-#: spvw.d:1574
+#: spvw.d:1598
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -m размер     - размер памяти (xxxxxxxB или xxxxKB или xMB)\n"
 
-#: spvw.d:1576
+#: spvw.d:1600
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr " -t врем-дир   - временная директория для memmap\n"
 
-#: spvw.d:1578
+#: spvw.d:1602
 msgid "Internationalization:\n"
 msgstr "Интернационализация:\n"
 
-#: spvw.d:1579
+#: spvw.d:1603
 msgid " -L language   - set user language\n"
 msgstr " -L язык       - задать язык\n"
 
-#: spvw.d:1580
+#: spvw.d:1604
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr " -N nlsdir     - задать каталог с NLS\n"
 
-#: spvw.d:1581
+#: spvw.d:1605
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 " -Eтиппотока кодировка - задавать кодировки для различных типов потоков.\n"
@@ -124,11 +126,11 @@ msgstr ""
 "           Осн. кодировки: koi8-r, koi8-ru, koi8-u, CP866, CP1251,\n"
 "           ISO-8859-5. См. impnotes.\n"
 
-#: spvw.d:1582
+#: spvw.d:1606
 msgid "Interoperability:\n"
 msgstr "Взаимодействие:\n"
 
-#: spvw.d:1583
+#: spvw.d:1607
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
@@ -138,108 +140,143 @@ msgstr ""
 "     приветствие, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     и *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
-#: spvw.d:1586
+#: spvw.d:1610
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr " -w            - ожидать нажатия клавиши после работы\n"
 
-#: spvw.d:1587
+#: spvw.d:1611
 msgid " -I            - be ILISP-friendly\n"
 msgstr " -I            - дружить с ILISP\n"
 
-#: spvw.d:1588
+#: spvw.d:1612
 msgid "Startup actions:\n"
 msgstr "Загрузка:\n"
 
-#: spvw.d:1589
+#: spvw.d:1613
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr " -ansi         - большее соответствие стандарту ANSI CL\n"
 
-#: spvw.d:1590
+#: spvw.d:1614
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr " -traditional  - традиционные установки clisp (отменяет -ansi)\n"
 
-#: spvw.d:1591
+#: spvw.d:1615
+msgid " -modern       - start in a case-sensitive lowercase-preferring package\n"
+msgstr ""
+
+#: spvw.d:1616
 msgid " -p package    - start in the package\n"
 msgstr " -p пакет      - запускаться в пакете\n"
 
-#: spvw.d:1592
+#: spvw.d:1617
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr " -C            - установить *LOAD_COMPILING* в T\n"
 
-#: spvw.d:1593
+#: spvw.d:1618
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr " -norc         - не грузить ~/.clisprc\n"
 
-#: spvw.d:1594
+#: spvw.d:1619
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr " -i файл       - загрузить файл инициализации (можно повторять)\n"
 
-#: spvw.d:1595
+#: spvw.d:1620
 msgid "Actions:\n"
 msgstr "Действия:\n"
 
-#: spvw.d:1596
+#: spvw.d:1621
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr " -c [-l] лисп-файл [-o вых-файл] - компилировать лисп-файл\n"
 
-#: spvw.d:1597
+#: spvw.d:1622
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr " -x выражения  - выполнить выражения и завершить работу\n"
 
-#: spvw.d:1598
+#: spvw.d:1623
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и завершить работу\n"
 
-#: spvw.d:1599
+#: spvw.d:1624
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr "Эти действия поместят CLISP в пакетный режим, если не задан\n"
 
-#: spvw.d:1600
+#: spvw.d:1625
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr " -interactive-debug - интерактивное взаимодействие в случае ошибок\n"
 
-#: spvw.d:1601
+#: spvw.d:1626
 msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr " -repl             - по окончании войти в интерактивный цикл чтение-выполнение-печать.\n"
 
-#: spvw.d:1602
+#: spvw.d:1627
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "По умолчанию - интерактивный цикл чтение-выполнение-печать.\n"
 
-#: spvw.d:1969
+#: spvw.d:1636
+msgid "%s: use '-h' for help"
+msgstr ""
+
+#: spvw.d:1639
+#, fuzzy
+msgid "invalid argument"
+msgstr "Неправильный аргумент"
+
+#: spvw.d:2015
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Синтаксис для %s: nnnnnnn, или nnnnKB, или nMB"
 
-#: spvw.d:1975
+#: spvw.d:2020
 msgid "%s out of range"
 msgstr "%s вне диапазона"
 
-#: spvw.d:1981
+#: spvw.d:2025
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:1994
+#: spvw.d:2041
 msgid "memory size"
 msgstr "размер памяти"
 
-#: spvw.d:2179
-msgid "CLISP: -a is deprecated, use -ansi"
-msgstr "CLISP: опция -a устарела, используйте -ansi"
+#: spvw.d:2057
+msgid "multiple -t"
+msgstr ""
 
-#: spvw.d:2441
+#: spvw.d:2077
+msgid "multiple -B"
+msgstr ""
+
+#: spvw.d:2112
+#, fuzzy
+msgid "-E requires an argument"
+msgstr "~S обязательных аргументов"
+
+#: spvw.d:2352
+msgid "-l without -c is invalid"
+msgstr ""
+
+#: spvw.d:2358
+#, fuzzy
+msgid "-x with -c is invalid"
+msgstr "~S в ~S не допускается"
+
+#: spvw.d:2363
+msgid "-x with lisp-file is invalid"
+msgstr ""
+
+#: spvw.d:2484
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Значение функции malloc() = %x не совместимо с typecode."
 
-#: spvw.d:2448
+#: spvw.d:2491
 msgid "Only %d bytes available."
 msgstr "Только %d байтов доступно."
 
-#: spvw.d:2688
+#: spvw.d:2731
 msgid "Could not determine the end of the SP stack!"
 msgstr "Невозможно определить конец стека SP !"
 
-#: spvw.d:3222
+#: spvw.d:3290
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Не достаточно памяти для Лиспa."
 
@@ -340,21 +377,33 @@ msgstr "%s: Невозможно заполнить общую память."
 msgid "Cannot remove shared memory segment."
 msgstr "Невозможно удалить сегмент общей памяти."
 
-#: spvw_fault.d:267
+#: spvw_fault.d:277
 #, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
 msgstr "mprotect(0x%x,%d,%d): ошибка."
 
+#: spvw_sigsegv.d:23
+msgid "Permanently allocated: %lu bytes."
+msgstr ""
+
 #: spvw_sigsegv.d:26
+msgid "Currently in use: %lu bytes."
+msgstr ""
+
+#: spvw_sigsegv.d:29
+msgid "Free space: %lu bytes."
+msgstr ""
+
+#: spvw_sigsegv.d:40
 #, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
 msgstr "SIGSEGV не удается исправить. Ошибочный адрес = 0x%x."
 
-#: spvw_sigsegv.d:61
+#: spvw_sigsegv.d:76
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
 msgstr "Сценарий Аполло-13: Обработка переполнения стека закончилась неудачей. Следующее переполнение стека приведет к разрушению!!!"
 
-#: spvw_garcol.d:1944
+#: spvw_garcol.d:1975
 msgid "munmap() failed."
 msgstr "munmap(): ошибка."
 
@@ -362,7 +411,7 @@ msgstr "munmap(): ошибка."
 msgid "*** - No more room for LISP objects: RESET"
 msgstr "*** - Нет места для объектов Лиспа: СБРОС"
 
-#: spvw_allocate.d:249 spvw_allocate.d:309 spvw_allocate.d:394
+#: spvw_allocate.d:251 spvw_allocate.d:311 spvw_allocate.d:396
 msgid "Trying to make room through a GC..."
 msgstr "Освобождаем память - вызываем GC..."
 
@@ -375,7 +424,8 @@ msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
 #: spvw_memfile.d:1567
-msgid "%s: initialization file `%s' was not created by this version of CLISP"
+#, fuzzy
+msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP"
 
 #: spvw_memfile.d:1571
