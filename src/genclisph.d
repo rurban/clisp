@@ -1071,25 +1071,25 @@ int main(int argc, char* argv[])
  #if defined(cons_bit_o)
   #ifdef fast_mtypecode
    #ifdef WIDE_STRUCT
-  printf("#define consp(obj)  (typecode(obj) & bit(%d))\n",cons_bit_t);
-  printf("#define atomp(obj)  ((typecode(obj) & bit(%d))==0)\n",cons_bit_t);
+  printf1("#define consp(obj)  (typecode(obj) & bit(%d))\n",cons_bit_t);
+  printf1("#define atomp(obj)  ((typecode(obj) & bit(%d))==0)\n",cons_bit_t);
    #else
-  printf("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-  printf("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+  printf1("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+  printf1("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
    #endif
-  printf("#define mconsp(obj)  (mtypecode(obj) & bit(%d))\n",cons_bit_t);
-  printf("#define matomp(obj)  ((mtypecode(obj) & bit(%d))==0)\n",cons_bit_t);
+  printf1("#define mconsp(obj)  (mtypecode(obj) & bit(%d))\n",cons_bit_t);
+  printf1("#define matomp(obj)  ((mtypecode(obj) & bit(%d))==0)\n",cons_bit_t);
   #else
-  printf("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
-  printf("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+  printf1("#define consp(obj)  (wbit_test(as_oint(obj),%d))\n",cons_bit_o);
+  printf1("#define atomp(obj)  (!wbit_test(as_oint(obj),%d))\n",cons_bit_o);
   printf("#define mconsp(obj)  consp(obj)\n");
   printf("#define matomp(obj)  atomp(obj)\n");
   #endif
  #else
-  printf2("#define consp(obj)  (typecode(obj) == %d)\n",(tint)cons_type);
-  printf2("#define atomp(obj)  (!(typecode(obj) == %d))\n",(tint)cons_type);
-  printf2("#define mconsp(obj)  (mtypecode(obj) == %d)\n",(tint)cons_type);
-  printf2("#define matomp(obj)  (!(mtypecode(obj) == %d))\n",(tint)cons_type);
+  printf1("#define consp(obj)  (typecode(obj) == %d)\n",(tint)cons_type);
+  printf1("#define atomp(obj)  (!(typecode(obj) == %d))\n",(tint)cons_type);
+  printf1("#define mconsp(obj)  (mtypecode(obj) == %d)\n",(tint)cons_type);
+  printf1("#define matomp(obj)  (!(mtypecode(obj) == %d))\n",(tint)cons_type);
  #endif
 #else
   printf2("#define consp(obj)  ((as_oint(obj) & %d) == %d)\n",7,cons_bias);
