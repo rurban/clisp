@@ -19,8 +19,6 @@
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (object) [WIDE_STRUCT]: Wrap the union in struct.
-	(as_object, typecode, mtypecode, untype, type_pointable): Update.
 	Avoid conditional expressions of the form
 	(bool ? object : gcv_object_t) or (bool ? gcv_object_t : object).
 	* aridecl.d (FF_0, FF_1, FF_minus1, DF_0, DF_1, DF_minus1): Cast to
@@ -53,6 +51,11 @@
 	(Truename_or_Self): Likewise.
 	(handle_set, handle_isset): Likewise.
 	(init_standard_io): Likewise.
+
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (object) [WIDE_STRUCT]: Wrap the union in struct.
+	(as_object, typecode, mtypecode, untype, type_pointable): Update.
 	* genclisph.d (main): Update.
 
 2002-12-09  Sam Steingold  <sds@gnu.org>
