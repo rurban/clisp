@@ -10,7 +10,7 @@
 # > list: Liste
 # < ergebnis: Kopie der Liste
 # can trigger GC
-global object copy_list (object list) {
+global object copy_list (object old_list) {
   # Methode: (copy-list l) = (mapcar #'identity l), mapcar vorwärts
   if (atomp(old_list))
     return old_list;
@@ -91,7 +91,7 @@ global object reverse (object list) {
 # > obj: Objekt
 # < uintL ergebnis: Länge von obj, als Liste aufgefasst
 # Testet nicht auf zyklische Listen.
-global uintL llength (object obj) {
+global uintL llength (object list) {
   var uintL count = 0;
   while (consp(list)) {
     count++; list=Cdr(list);
