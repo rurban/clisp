@@ -782,22 +782,22 @@ localized.</para>
 <section id="make-encoding"><title>Function &make-encoding;.</title>
 
 <para>The function
-  <literal role="sexp">(&make-encoding; &key-amp; :charset
-     :line-terminator :input-error-action :output-error-action)</literal>
- returns an &encoding;. The <constant>:charset</constant> argument may be
+  <literal role="sexp">(&make-encoding; &key-amp; :CHARSET
+     :LINE-TERMINATOR :INPUT-ERROR-ACTION :OUTPUT-ERROR-ACTION)</literal>
+ returns an &encoding;. The <constant>:CHARSET</constant> argument may be
  an encoding, a string, or &default-k;.
  The possible values for the &line-term; argument are the
  keywords &unix-k;, &mac-k;, &dos-k;.</para>
 
-<para>The <constant>:input-error-action</constant> specifies what
- happens when an invalid byte sequence is encountered while converting
- bytes to characters.  Its value can be &error-k;, &ignore-k; or a
- character to be used instead.  The &unicode; character
+<para>The <constant>:INPUT-ERROR-ACTION</constant> argument specifies
+ what happens when an invalid byte sequence is encountered while
+ converting bytes to characters.  Its value can be &error-k;, &ignore-k;
+ or a character to be used instead.  The &unicode; character
  <keysym>#\uFFFD</keysym> is typically used to indicate an error in the
  input sequence.</para>
 
-<para>The <constant>:output-error-action</constant> specifies what
- happens when an invalid character is encountered while converting
+<para>The <constant>:OUTPUT-ERROR-ACTION</constant> argument specifies
+ what happens when an invalid character is encountered while converting
  characters to bytes.  Its value can be &error-k;, &ignore-k;, a byte to
  be used instead, or a character to be used instead.  The &unicode;
  character <keysym>#\uFFFD</keysym> can be used here only if it is
