@@ -244,11 +244,11 @@
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void print_integer (object z, uintWL base, object* stream_);
+  global void print_integer (object z, uintWL base, const object* stream_);
   global void print_integer(z,base,stream_)
     var object z;
     var uintWL base;
-    var object* stream_;
+    var const object* stream_;
     { if (R_minusp(z))
         # z<0 -> Vorzeichen ausgeben:
         { pushSTACK(z);
@@ -279,10 +279,10 @@
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  global void print_float (object z, object* stream_);
+  global void print_float (object z, const object* stream_);
   global void print_float(z,stream_)
     var object z;
-    var object* stream_;
+    var const object* stream_;
     { # Falls SYS::WRITE-FLOAT definiert ist, (SYS::WRITE-FLOAT stream z) aufrufen:
       var object fun = Symbol_function(S(write_float));
       if (!eq(fun,unbound))

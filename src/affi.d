@@ -25,10 +25,10 @@
   #endif
 
   #if defined(GNU) && !defined(NO_ASM)
-  local ULONG reg_call (aint address, struct reg_map *);
+  local ULONG reg_call (aint address, const struct reg_map *);
   local ULONG reg_call(address, regs)
     var aint address;
-    var struct reg_map *regs;
+    var const struct reg_map* regs;
     { var ULONG result  __asm__("d0");
   #if 1 # DEBUG
       begin_system_call();
@@ -265,7 +265,7 @@ local void affi_callit(address, ffinfo, args)
                   default: value1 = NIL;
             }   }
           elif (eq(rtype,S(string)))    # string
-            { value1 = (thing == 0 ? NIL : asciz_to_string((char*)thing)); }
+            { value1 = (thing == 0 ? NIL : asciz_to_string((const char*)thing)); }
           elif (eq(rtype,S(mal)))       # *
             { value1 = UL_to_I(thing); }
           elif (eq(rtype,S(Kexternal))) # :external
@@ -281,11 +281,11 @@ local void affi_callit(address, ffinfo, args)
 # (asciz) Umwandlung
 # Darf bis zum Aufruf keine GC auslösen.
 # < value1, mv_count
-local void affi_call_argsa (aint address, object ffinfo, object* args, uintC count);
+local void affi_call_argsa (aint address, object ffinfo, const object* args, uintC count);
 local void affi_call_argsa(address, ffinfo, args, count)
   var aint address;
   var object ffinfo;
-  var object* args;
+  var const object* args;
   var uintC count;
   { # if (!simple_vector_p(ffinfo)) goto bad_proto; # oder fehler_kein_svector();
     # Zahl der Argumente überprüfen

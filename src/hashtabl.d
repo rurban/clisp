@@ -1516,10 +1516,10 @@ LISPFUNN(class_gethash,2)
     local const uintC tuple_half_2 [17] = {0,0,1,2,2,3,4,4,4,5,6,7,8,8,8,8,8};
   # Hilfsfunktion: Hashcode einer Reihe von Atomen berechnen, so als wären
   # sie per (hash-tuple-function n) zusammengeconst:
-    local uint32 hashcode_tuple (uintC n, object* args_pointer, uintC depth);
+    local uint32 hashcode_tuple (uintC n, const object* args_pointer, uintC depth);
     local uint32 hashcode_tuple(n,args_pointer,depth)
       var uintC n; # n > 0
-      var object* args_pointer;
+      var const object* args_pointer;
       var uintC depth;
       { if (n==1)
           { return hashcode1(Next(args_pointer)); } # hashcode3_atom für Klassen
@@ -1551,11 +1551,11 @@ LISPFUNN(class_gethash,2)
       }   }
   # Hilfsfunktion: Vergleich eines Objekts mit einer Reihe von Atomen, so als
   # wären sie per (hash-tuple-function n) zusammengeconst:
-    local boolean equal_tuple (object obj, uintC n, object* args_pointer);
+    local boolean equal_tuple (object obj, uintC n, const object* args_pointer);
     local boolean equal_tuple(obj,n,args_pointer)
       var object obj;
       var uintC n; # n > 0
-      var object* args_pointer;
+      var const object* args_pointer;
       { if (n==1)
           { if (eq(obj,Next(args_pointer)))
               { return TRUE; }

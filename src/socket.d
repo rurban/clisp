@@ -175,11 +175,11 @@ extern_C unsigned int sleep (unsigned int seconds);
 # a server on the same machine (usually a UNIX domain socket).
 # hostname="unix" is interpreted as a UNIX domain connection.
 
-global SOCKET connect_to_x_server (char* host, int display);
+global SOCKET connect_to_x_server (const char* host, int display);
 global SOCKET connect_to_x_server(host,display)
-  var char* host;  # host of display
-  var int display; # display number (screen number always zero)
-{ var SOCKET fd;   # file descriptor to return
+  var const char* host;  # host of display
+  var int display;       # display number (screen number always zero)
+{ var SOCKET fd;         # file descriptor to return
   var int retries = 3; # number of retries on ECONNREFUSED
 
   var int conntype; # type of desired connection
@@ -432,9 +432,9 @@ global SOCKET accept_connection (socket_handle)
 #   creates a connection to a server (which must be waiting
 #   on the specified host and port).
 
-global SOCKET create_client_socket (char *hostname, int port);
+global SOCKET create_client_socket (const char* hostname, int port);
 global SOCKET create_client_socket(hostname,port)
-  var char *hostname;
+  var const char* hostname;
   var int port;
   {
     var struct sockaddr_in sa;
@@ -492,10 +492,10 @@ local int is_number(s)
     return 1;
   }
 
-global int resolve_service (const char * name_or_number, char* *name);
+global int resolve_service (const char* name_or_number, const char* *name);
 global int resolve_service (name_or_number,name)
-  const char * name_or_number;
-  char* *name;
+  const char* name_or_number;
+  const char* *name;
   {
     struct servent *servent;
     int port;

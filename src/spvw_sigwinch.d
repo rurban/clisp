@@ -42,7 +42,7 @@
           #endif
           #ifndef WATCOM
           # Nun probieren wir's über termcap:
-          { var char* term_name = getenv("TERM");
+          { var const char* term_name = getenv("TERM");
             if (term_name==NULL) { term_name = "unknown"; }
            {var char termcap_entry_buf[10000];
             if ( tgetent(&!termcap_entry_buf,term_name) ==1)

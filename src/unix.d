@@ -425,11 +425,11 @@
   #ifdef HAVE_RENAME
     extern_C int rename (RENAME_CONST char* oldpath, RENAME_CONST char* newpath); # siehe RENAME(2V)
   #else
-    extern_C int link (char* oldpath, char* newpath);
-    extern_C int access (char* path, int mode);
+    extern_C int link (const char* oldpath, const char* newpath);
+    extern_C int access (const char* path, int mode);
     # Emuliere rename() in unixaux.d:
     #define NEED_OWN_RENAME
-    extern int rename (char* oldpath, char* newpath); # siehe unixaux.d
+    extern int rename (const char* oldpath, const char* newpath); # siehe unixaux.d
   #endif
 # wird verwendet von PATHNAME, UNIXAUX
 
@@ -635,10 +635,10 @@
     #define TCIFLUSH 0
     #define TCOFLUSH 1
   #endif
-  extern_C int tgetent (char* bp, char* name); # siehe TERMCAP(3X)
-  extern_C int tgetnum (char* id); # siehe TERMCAP(3X)
-  extern_C int tgetflag (char* id); # siehe TERMCAP(3X)
-  extern_C char* tgetstr (char* id, char** area); # siehe TERMCAP(3X)
+  extern_C int tgetent (const char* bp, const char* name); # siehe TERMCAP(3X)
+  extern_C int tgetnum (const char* id); # siehe TERMCAP(3X)
+  extern_C int tgetflag (const char* id); # siehe TERMCAP(3X)
+  extern_C const char* tgetstr (const char* id, char** area); # siehe TERMCAP(3X)
   #ifdef EINTR
     # Wrapper um die System-Aufrufe, die EINTR abfangen und behandeln:
     extern int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, CADDR_T arg);

@@ -7032,7 +7032,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 #          datestamp.ds_Tick   : Anzahl Ticks seit Beginn der Minute
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  extern void convert_time (struct DateStamp * datestamp, decoded_time* timepoint);
+  extern void convert_time (const struct DateStamp * datestamp, decoded_time* timepoint);
 # wird verwendet von PATHNAME
 #endif
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
@@ -7041,7 +7041,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # > time_t time: Zeit im System-Zeitformat
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  extern void convert_time (time_t* time, decoded_time* timepoint);
+  extern void convert_time (const time_t* time, decoded_time* timepoint);
 # wird verwendet von PATHNAME
 #endif
 #ifdef WIN32_NATIVE
@@ -7050,7 +7050,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # > FILETIME time: Zeit im System-Zeitformat
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
-  extern void convert_time (FILETIME* time, decoded_time* timepoint);
+  extern void convert_time (const FILETIME* time, decoded_time* timepoint);
 #endif
 
 #ifdef TIME_RELATIVE
@@ -7066,7 +7066,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # >   timepoint.Jahr in {1980,...,2999},
 # >   jeweils als Fixnums.
 # kann GC auslösen
-  extern void set_start_time (decoded_time* timepoint);
+  extern void set_start_time (const decoded_time* timepoint);
 # wird verwendet von SPVW
 
 #endif
@@ -8512,24 +8512,24 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern uintC module_count;
 
 # Daten für die Initialisierung der subr_tab eines Moduls:
-  typedef struct { char* packname; # Name der Home-Package des Symbols oder NULL
-                   char* symname; # Name des Symbols
+  typedef struct { const char* packname; # Name der Home-Package des Symbols oder NULL
+                   const char* symname; # Name des Symbols
                  }
           subr_initdata;
 
 # Daten für die Initialisierung der object_tab eines Moduls:
-  typedef struct { char* initstring; } # Initialisierungs-String
+  typedef struct { const char* initstring; } # Initialisierungs-String
           object_initdata;
 
 # Tabelle bzw. Liste der Module:
   typedef struct module_
-                 { char* name; # Name
-                   subr_* stab; uintC* stab_size; # eine eigene subr_tab
-                   object* otab; uintC* otab_size; # eine eigene object_tab
+                 { const char* name; # Name
+                   subr_* stab; const uintC* stab_size; # eine eigene subr_tab
+                   object* otab; const uintC* otab_size; # eine eigene object_tab
                    boolean initialized;
                    # Daten zur Initialisierung:
-                   subr_initdata* stab_initdata;
-                   object_initdata* otab_initdata;
+                   const subr_initdata* stab_initdata;
+                   const object_initdata* otab_initdata;
                    # Funktionen zur Initialisierung
                    void (*initfunction1) (struct module_ *); # nur einmal
                    void (*initfunction2) (struct module_ *); # immer bei Programmstart
@@ -10680,7 +10680,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < stream: Stream
 # < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
 # kann GC auslösen
-  extern object stream_read (object* stream_, object recursive_p, object whitespace_p);
+  extern object stream_read (const object* stream_, object recursive_p, object whitespace_p);
 # wird verwendet von SPVW, DEBUG
 
 # UP: Gibt einen Simple-String elementweise auf einen Stream aus.
@@ -10689,7 +10689,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  extern void write_sstring (object* stream_, object string);
+  extern void write_sstring (const object* stream_, object string);
 # wird verwendet von EVAL, DEBUG, ERROR, PACKAGE, SPVW
 
 # UP: Gibt einen String elementweise auf einen Stream aus.
@@ -10698,7 +10698,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  extern void write_string (object* stream_, object string);
+  extern void write_string (const object* stream_, object string);
 # wird verwendet von PACKAGE, DEBUG
 
 # UP: Gibt ein Objekt auf einen Stream aus.
@@ -10707,7 +10707,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  extern void prin1 (object* stream_, object obj);
+  extern void prin1 (const object* stream_, object obj);
 # wird verwendet von EVAL, DEBUG, PACKAGE, ERROR, SPVW
 
 # UP: Gibt ein Newline auf einen Stream aus.
@@ -10715,7 +10715,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  # extern void terpri (object* stream_);
+  # extern void terpri (const object* stream_);
   #define terpri(stream_)  write_schar(stream_,NL)
 # wird verwendet von IO, DEBUG, PACKAGE, ERROR, SPVW
 
@@ -11124,7 +11124,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  extern void import (object* sym_, object* pack_);
+  extern void import (const object* sym_, const object* pack_);
 # wird verwendet von SPVW
 
 # UP: Exportiert ein Symbol aus einer Package
@@ -11134,7 +11134,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < sym: Symbol, EQ zum alten
 # < pack: Package, EQ zur alten
 # kann GC auslösen
-  extern void export (object* sym_, object* pack_);
+  extern void export (const object* sym_, const object* pack_);
 # wird verwendet von SPVW
 
 # UP: liefert die aktuelle Package
@@ -11271,7 +11271,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
 # kann GC auslösen
-  extern object read_char (object* stream_);
+  extern object read_char (const object* stream_);
 # wird verwendet von IO, DEBUG, SEQUENCE
 
 # Schiebt das letzte gelesene Character auf einen Stream zurück.
@@ -11279,7 +11279,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > ch: letztes gelesenes Character
 # > stream: Stream
 # < stream: Stream
-  extern void unread_char (object* stream_, object ch);
+  extern void unread_char (const object* stream_, object ch);
 # wird verwendet von IO, DEBUG
 
 # Liest ein Character von einem Stream, ohne es zu verbrauchen.
@@ -11288,7 +11288,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < stream: Stream
 # < ergebnis: gelesenes Character (eof_value bei EOF)
 # kann GC auslösen
-  extern object peek_char (object* stream_);
+  extern object peek_char (const object* stream_);
 # wird verwendet von IO
 
 # Schreibt ein Character auf einen Stream.
@@ -11297,7 +11297,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  extern void write_char (object* stream_, object ch);
+  extern void write_char (const object* stream_, object ch);
 # wird verwendet von LISPARIT, IO, ERROR, SEQUENCE
 
 # Schreibt ein festes Standard-Char auf einen Stream.
@@ -11305,7 +11305,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  # extern void write_schar (object* stream_, uintB ch);
+  # extern void write_schar (const object* stream_, uintB ch);
   #define write_schar(stream_,ch)  write_char(stream_,code_char(ch))
 # wird verwendet von LISPARIT, IO, DEBUG, Macro TERPRI
 
@@ -11321,7 +11321,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  extern void stream_close (object* stream_);
+  extern void stream_close (const object* stream_);
 # wird verwendet von PATHNAME, SPVW, DEBUG, MISC
 
 # UP: Schließt eine Liste offener Files.
@@ -11403,7 +11403,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > uintB* byteptr: Adresse der zu schreibenden Bytefolge
 # > uintL len: Länge der zu schreibenden Bytefolge
 # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  extern uintB* write_byte_array (object stream, uintB* byteptr, uintL len);
+  extern const uintB* write_byte_array (object stream, const uintB* byteptr, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Liest mehrere String-Characters von einem Stream.
@@ -11421,7 +11421,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > uintB* charptr: Adresse der zu schreibenden Zeichenfolge
 # > uintL len: Länge der zu schreibenden Zeichenfolge
 # < uintB* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  extern uintB* write_schar_array (object stream, uintB* charptr, uintL len);
+  extern const uintB* write_schar_array (object stream, const uintB* charptr, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Liefert den Stream, der der Wert einer Variablen ist.
@@ -11478,7 +11478,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < stream: geleerter Stream
 # < ergebnis: Angesammeltes, ein Simple-String
 # kann GC auslösen
-  extern object get_output_stream_string (object* stream_);
+  extern object get_output_stream_string (const object* stream_);
 # wird verwendet von IO, EVAL, DEBUG, ERROR
 
 # UP: Liefert einen Pretty-Printer-Hilfs-Stream.
@@ -11725,7 +11725,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
 # kann GC auslösen
-  extern object c_float_to_FF (ffloatjanus* val_);
+  extern object c_float_to_FF (const ffloatjanus* val_);
 
 # FF_to_c_float(obj,&val);
 # wandelt ein Single-Float obj in ein IEEE-Single-Float val um.
@@ -11733,7 +11733,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # c_double_to_DF(&val) wandelt ein IEEE-Double-Float val in ein Double-Float um.
 # kann GC auslösen
-  extern object c_double_to_DF (dfloatjanus* val_);
+  extern object c_double_to_DF (const dfloatjanus* val_);
 
 # DF_to_c_double(obj,&val);
 # wandelt ein Double-Float obj in ein IEEE-Double-Float val um.
@@ -11798,7 +11798,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  extern void print_integer (object z, uintWL base, object* stream_);
+  extern void print_integer (object z, uintWL base, const object* stream_);
 # wird verwendet von IO
 
 # UP: Gibt ein Float aus.
@@ -11807,7 +11807,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  extern void print_float (object z, object* stream_);
+  extern void print_float (object z, const object* stream_);
 # wird verwendet von IO
 
 # UP: Multipliziert ein Integer mit 10 und addiert eine weitere Ziffer.
@@ -11895,7 +11895,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # Convert foreign data to Lisp data.
 # kann GC auslösen
-  extern object convert_from_foreign (object fvd, void* data);
+  extern object convert_from_foreign (object fvd, const void* data);
 
 # Convert Lisp data to foreign data.
 # The foreign data is allocated through malloc() and has more than dynamic

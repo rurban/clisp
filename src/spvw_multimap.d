@@ -79,13 +79,13 @@
   # Zugriff auf /dev/zero: /dev/zero hat manchmal Permissions 0644. Daher
   # OPEN() mit nur O_RDONLY statt O_RDWR. Daher MAP_PRIVATE statt MAP_SHARED.
 
-  local int initmap (char* tmpdir);
+  local int initmap (const char* tmpdir);
   local int initmap(tmpdir)
-    var char* tmpdir;
+    var const char* tmpdir;
     # Virtual Memory Mapping aufbauen:
     { # Wir brauchen ein temporäres File.
       # tempfilename := (string-concat tmpdir "/" "lisptemp.mem")
-      {var char* ptr1 = tmpdir;
+      {var const char* ptr1 = tmpdir;
        var char* ptr2 = &tempfilename[0];
        while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
        if (!((ptr2 > &tempfilename[0]) && (ptr2[-1] == '/')))

@@ -793,11 +793,11 @@
     }   }
   # Bildet (u,v) := (x1*u+y1*v,x2*u+y2*v), wobei für u,v genügend Platz sei:
   # (Dabei sei u>0 oder v>0, nachher u>0 und v>0.)
-  local void NUDS_likobi2_NUDS (DS* u, DS* v, partial_gcd_result* q, uintD* c_LSDptr, uintD* d_LSDptr);
+  local void NUDS_likobi2_NUDS (DS* u, DS* v, const partial_gcd_result* q, uintD* c_LSDptr, uintD* d_LSDptr);
   local void NUDS_likobi2_NUDS(u,v,q,c_LSDptr,d_LSDptr)
     var DS* u;
     var DS* v;
-    var partial_gcd_result* q;
+    var const partial_gcd_result* q;
     var uintD* c_LSDptr;
     var uintD* d_LSDptr;
     { var uintC u_len = u->len;

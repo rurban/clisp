@@ -12,7 +12,7 @@
 # Restores a memory image from diskette.
 # loadmem(filename);
 # This overwrites all Lisp data.
-  local void loadmem (char* filename);
+  local void loadmem (const char* filename);
 
 # ------------------------------ Implementation --------------------------------
 
@@ -268,7 +268,7 @@
         var module_* module;
         var uintC count;
         for_modules(all_modules,
-          { var char* ptr1 = module->name;
+          { var const char* ptr1 = module->name;
             until ((*ptr2++ = *ptr1++) == '\0') ;
           });
         dotimesC(count,&module_names_buffer[module_names_size] - ptr2,
@@ -679,7 +679,7 @@
               break;
     }   }   }
   local void loadmem(filename)
-    char* filename;
+    var const char* filename;
     { # File zum Lesen öffnen:
       begin_system_call();
      {
@@ -873,7 +873,7 @@
          {var DYNAMIC_ARRAY(module_names_buffer,char,header._module_names_size);
           READ(module_names_buffer,header._module_names_size);
           { var module_* * old_module = &old_modules[0];
-            var char* old_name = &module_names_buffer[0];
+            var const char* old_name = &module_names_buffer[0];
             var uintC count;
             dotimespC(count,1+header._module_count,
               { var module_* module;
