@@ -1,3 +1,8 @@
+2003-01-14  Sam Steingold  <sds@gnu.org>
+
+	* defstruct.lisp (ds-make-constructor-body): optimize LIST
+	structures just like the VECTOR ones
+
 2003-01-12  Sam Steingold  <sds@gnu.org>
 
 	* spvw_typealloc.d (reallocate_small_string): do not create the
