@@ -1500,6 +1500,17 @@ LISPSYM(cp1257,"CP1257",charset)
 LISPSYM(cp1258,"CP1258",charset) #                          |
 LISPSYM(hp_roman8,"HP-ROMAN8",charset) #                    |
 LISPSYM(nextstep,"NEXTSTEP",charset) # ---------------------+
+LISPSYM(ucs_2,"UCS-2",charset)
+LISPSYM(ucs_4,"UCS-4",charset)
+LISPSYM(windows_1250,"WINDOWS-1250",charset)
+LISPSYM(windows_1251,"WINDOWS-1251",charset)
+LISPSYM(windows_1252,"WINDOWS-1252",charset)
+LISPSYM(windows_1253,"WINDOWS-1253",charset)
+LISPSYM(windows_1254,"WINDOWS-1254",charset)
+LISPSYM(windows_1255,"WINDOWS-1255",charset)
+LISPSYM(windows_1256,"WINDOWS-1256",charset)
+LISPSYM(windows_1257,"WINDOWS-1257",charset)
+LISPSYM(windows_1258,"WINDOWS-1258",charset)
 #endif
 LISPSYM(english,"ENGLISH",lisp) # als Language für MISC
 LISPSYM(deutsch,"DEUTSCH",lisp) # als Language für MISC
