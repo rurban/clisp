@@ -1639,8 +1639,8 @@
 
 ;; CLtL2 p. 762-763
 (defun format-logical-block (stream colon-modifier atsign-modifier)
-  (format-error *FORMAT-CS* nil (TEXT "~~<...~~:> not implemented yet"))
-  nil)
+  ;; (format-error *FORMAT-CS* nil (TEXT "~~<...~~:> not implemented yet"))
+  (format-justification stream colon-modifier atsign-modifier))
 
 ;; parse the CSDL and return the following values
 ;; prefix string (or nil)
@@ -2425,12 +2425,13 @@
                     (FORMAT-LOGICAL-BLOCK          ; #\< ending with ~:>
                      (simple-arglist 0)
                      (multiple-value-bind
-                        (prefix suffix per-line-p body-csdl add-fill
-                                last-csdl)
-                        (format-logical-block-parse *FORMAT-CSDL*)
-                      (when add-fill
-                        (format-error *FORMAT-CS* (csd-cs-index (car *FORMAT-CSDL*))
-                                      (TEXT "Error: ~~:@> not implemented")))
+                           (prefix suffix per-line-p body-csdl add-fill
+                                   last-csdl)
+                         (format-logical-block-parse *FORMAT-CSDL*)
+                      ;(when add-fill
+                      ;  (format-error *FORMAT-CS*
+                      ;      (csd-cs-index (car *FORMAT-CSDL*))
+                      ;    (TEXT "Error: ~~:@> not implemented")))
                       (setq *FORMAT-CSDL* body-csdl)
                       (labels ((compute-inner ()
                                 `((PPRINT-LOGICAL-BLOCK
