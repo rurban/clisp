@@ -1105,6 +1105,8 @@ LISPSYM(slot,"%SLOT",ffi)
 LISPSYM(cast,"%CAST",ffi)
 LISPSYM(offset,"%OFFSET",ffi)
 LISPSYM(exec_on_stack,"EXEC-ON-STACK",ffi)
+LISPSYM(foreign_allocate,"FOREIGN-ALLOCATE",ffi)
+LISPSYM(foreign_free,"FOREIGN-FREE",ffi)
 LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi)
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
 #ifdef AMIGAOS
@@ -1290,6 +1292,7 @@ LISPSYM(Ktree,"TREE",keyword)
 #if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
 LISPSYM(Kshared,"SHARED",keyword)
 #endif
+LISPSYM(Kread_only,"READ-ONLY",keyword)
 
 /* other symbols: */
 LISPSYM(string_char,"STRING-CHAR",ext) /* type in PREDTYPE */

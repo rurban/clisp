@@ -1231,6 +1231,9 @@ LISPFUNN(slot,2)
 LISPFUNN(cast,2)
 LISPFUNN(offset,3)
 LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL)
+LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
+        (kw(initial_contents),kw(count),kw(read_only)))
+LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 LISPFUNN(lookup_foreign_function,2)
 LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL)
 #ifdef AMIGAOS
@@ -1238,6 +1241,7 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNN(foreign_library_variable,4)
 LISPFUNN(foreign_library_function,4)
 #endif
+
 #endif
 #ifdef HAVE_AFFI
 LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
