@@ -149,6 +149,7 @@
 <!ENTITY fin-inher "<link linkend='fin-inher'><function>CLOS:FINALIZE-INHERITANCE</function></link>">
 <!ENTITY symbol-mex "<link linkend='symbol-mex'><function>EXT:SYMBOL-MACRO-EXPAND</function></link>">
 
+<!ENTITY compile-decl "<link linkend='compile-decl'><literal role='sexp'>(compile)</literal></link>">
 <!ENTITY compile-warn "<link linkend='compilefile'><varname>CUSTOM:*COMPILE-WARNINGS*</varname></link>">
 <!ENTITY compiled-types "<link linkend='loadfile'><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></link>">
 <!ENTITY count-ansi "<link linkend='count-ansi'><varname>CUSTOM:*SEQUENCE-COUNT-ANSI*</varname></link>">
