@@ -64,43 +64,25 @@
     #'vector-fe-init-end
 ) )
 
-(%defseq
-  (vector
-    'BIT-VECTOR
-    #'vector-init
-    #'vector-upd
-    #'vector-endtest
-    #'vector-fe-init
-    #'vector-fe-upd
-    #'vector-fe-endtest
-    #'bit
-    #'sys::store
-    #'identity
-    #'vector-length
-    #'make-bit-vector
-    #'bit
-    #'sys::store
-    #'vector-init-start
-    #'vector-fe-init-end
-) )
-
 (mapc
   #'(lambda (n &aux (eltype (list 'UNSIGNED-BYTE n)))
       (%defseq
         (vector
-          n ; n steht für `(VECTOR (UNSIGNED-BYTE ,n))
+          n ; n stands for `(VECTOR (UNSIGNED-BYTE ,n))
           #'vector-init
           #'vector-upd
           #'vector-endtest
           #'vector-fe-init
           #'vector-fe-upd
           #'vector-fe-endtest
-          #'aref
+          (if (= n 1) #'bit #'aref)
           #'sys::store
           #'identity
           #'vector-length
-          #'(lambda (length) (make-array length :element-type eltype))
-          #'aref
+          (if (= n 1)
+            #'make-bit-vector
+            #'(lambda (length) (make-array length :element-type eltype)))
+          (if (= n 1) #'bit #'aref)
           #'sys::store
           #'vector-init-start
           #'vector-fe-init-end
