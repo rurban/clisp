@@ -594,8 +594,8 @@ global host_data * socket_getpeername (socket_handle, hd)
 # socket_getlocalname(socket_handle, hd)
 # return the IP name of the localhost for the given socket.
 
-global const char * socket_getlocalname (SOCKET socket_handle, host_data * hd);
-global const char * socket_getlocalname(socket_handle, hd)
+global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd);
+global host_data * socket_getlocalname(socket_handle, hd)
   var SOCKET socket_handle;
   var host_data * hd;
   {
