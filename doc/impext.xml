@@ -2190,6 +2190,24 @@ within Lisp (using &setq; or similar).</simpara>
   locations as the original &cplace-r;, but of type &ctype-r;.
  </simpara></listitem></varlistentry>
 
+<varlistentry id="offset"><term><literal role="sexp">(&offset;
+           &cplace-r; &offset-r; &ctype-r;)</literal></term>
+<listitem><simpara>Type change and displacement: return a place denoting
+  a memory locations displaced from the original &cplace-r; by an
+  &offset-r; counted in bytes, with type &ctype-r;.
+  This can be used to resize an array, e.g. of &ctype-r;
+  <literal role="sexp">(&c-array; <type>uint16</type> &n-r;)</literal>
+  via <literal role="sexp">(&offset; &cplace-r; 0
+  '(&c-array; <type>uint16</type> &k-r;))</literal>.
+ </simpara></listitem></varlistentry>
+
+<varlistentry id="c-var-addr"><term><literal role="sexp">(&c-var-addr;
+           &cplace-r;)</literal></term>
+<listitem><simpara>Return the address of &cplace-r; as a Lisp object of
+  type <type>FFI:FOREIGN-ADDRESS</type>.  This is useful as an argument
+  to foreign functions expecting a parameter of &c-lang; type &c-pointer;.
+ </simpara></listitem></varlistentry>
+
 <varlistentry id="typeof"><term><literal role="sexp">(&typeof;
     &cplace-r;)</literal></term>
 <listitem><simpara>returns the &ctype-r; corresponding to the &cplace-r;.
