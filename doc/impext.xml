@@ -4166,7 +4166,7 @@ Compiled, it will have inlined the library function calls.
      <listitem><simpara>Return a list of values, one for each element of the
        argument list (a la &mapcar;)</simpara></listitem></varlistentry>
    </variablelist>
-   <simpara>If you want to avoid &cons;ing up a &fresh; list, you can
+   <simpara>If you want to avoid &consing; up a &fresh; list, you can
     make the elements of <replaceable>socket-stream-or-list</replaceable>
     to be <literal role="data">(&sost-r; &direction-r; .
      &x-r;)</literal> or <literal role="data">(&sose-r; . &x-r;)</literal>.
