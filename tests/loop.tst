@@ -501,6 +501,12 @@ February 17
         finally (return (values number-count number-list))))
 (5 (6 7 8 9 10))
 
+(LET (Z)
+  (list (LOOP FOR X FROM 1 TO 10 COUNT (< X 5) INTO FOO FLOAT
+          FINALLY (SETQ Z FOO))
+        Z))
+(NIL 4.0)
+
 (let (result)
   (list
     (with-output-to-string (*standard-output*)
