@@ -2038,6 +2038,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &floratcont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &t;.</simpara></listitem>
+ <listitem><simpara>Setting &defun-accept-spelalist; to &nil;</simpara></listitem>
 </orderedlist>
 
 <para>Note that if you run &clisp; with the &ansi-opt; switch or set
@@ -2060,6 +2061,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &floratcont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &nil;.</simpara></listitem>
+ <listitem><simpara>Setting &defun-accept-spelalist; to &t;</simpara></listitem>
 </orderedlist>
 
 </section>
@@ -2193,6 +2195,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&default-float-format;</member>
   <member>&default-tz;</member>
   <member><varname>CUSTOM:*DEFTYPE-DEPTH-LIMIT*</varname></member>
+  <member>&defun-accept-spelalist;</member>
   <member>&dev-prefix;</member>
   <member>&editor;</member>
   <member><varname>CUSTOM:*ERROR-HANDLER*</varname></member>

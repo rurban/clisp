@@ -191,6 +191,7 @@
 <!ENTITY def-file-enc "<olink targetdoc='impnotes' targetptr='def-file-enc'><varname>CUSTOM:*DEFAULT-FILE-ENCODING*</varname></olink>">
 <!ENTITY default-float-format "<link linkend='default-float-format'><varname>CUSTOM:*DEFAULT-FLOAT-FORMAT*</varname></link>">
 <!ENTITY default-tz "<link linkend='default-tz'><varname>CUSTOM:*DEFAULT-TIME-ZONE*</varname></link>">
+<!ENTITY defun-accept-spelalist "<link linkend='defun-accept-spelalist'><varname>CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*</varname></link>">
 <!ENTITY dev-prefix "<link linkend='device-prefix'><varname>CUSTOM:*DEVICE-PREFIX*</varname></link>">
 <!ENTITY dk-t "<link linkend='dir-key-type'>directory key type</link>">
 <!ENTITY dkey-close "<link linkend='dir-key-close'><function>LDAP:DIR-KEY-CLOSE</function></link>">
