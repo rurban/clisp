@@ -228,6 +228,12 @@ BAR
         (foo 'bar)))))
 BAR
 
+(let ((x :good))
+  (declare (special x))
+  (let ((x :bad))
+    (symbol-macrolet () (declare (special x)) x)))
+:GOOD
+
 ;; Local macros may reference SPECIAL declarations.
 (locally
   (declare (special symbol-type))
@@ -300,3 +306,29 @@ ERROR
 ERROR
 (fmakunbound 'symbol-type-fn)
 SYMBOL-TYPE-FN
+
+(block done
+  (let ((x :good))
+    (declare (special x))
+    (let ((x :bad))
+      (do* ((i 0 (return-from done x)))
+           (nil nil)
+        (declare (special x))))))
+:GOOD
+
+(let ((x :good))
+  (declare (special x))
+  (let ((x :bad))
+    (multiple-value-bind (a b) (floor 13 4)
+      (declare (special x))
+      (list a b x))))
+(3 1 :GOOD)
+
+(let ((x 1))
+  (declare (special x))
+  (let ((x 2))
+    (defun bind-test-function-1 (&optional (y x))
+      (declare (special x))
+      (list y x))
+    (bind-test-function-1)))
+(2 1)
