@@ -1,3 +1,7 @@
+2003-08-07  John Hinsdale <hin@alma.com>
+	* oracle.lisp, fastcgi.lisp, fastcgi.h, linux.lisp
+	Take "C" prototypes from standard headers, not FFI
+
 2003-08-07  Sam Steingold  <sds@gnu.org>
 
 	LOAD :COMPILING T: handle errors just like with COMPILE-FILE
