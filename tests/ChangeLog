@@ -1,3 +1,9 @@
+2003-05-15  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (with-accumulating-errors): new macro
+	(run-all-tests, do-test, do-errcheck): count the total number of
+	tests in addition to the number of errors
+
 2003-05-14  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* format.tst: one of the few files that wants TAB characters
