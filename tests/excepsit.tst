@@ -389,8 +389,8 @@ type-error
 type-error
 
 (progn
-  #+(and CLISP UNIX) (shell "cp /etc/mtab /etc/mtab~ 2> /dev/null")
-  (delete-file "/etc/mtab"))
+  (with-open-file (s "/tmp/foo35.tmp" :direction :output))
+  (delete-file "/tmp/foo35.tmp/bar"))
 file-error
 
 (destructuring-bind (a) '(1 2) a)
