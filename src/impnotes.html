@@ -3067,13 +3067,13 @@ symbol <CODE>t</CODE> (it is assumed that in the latter case you would
 want to keep in mind that your current package is something weird); and
 <VAR>nn</VAR> is the ordinal number of the current prompt (hopefully, it
 will remain finite).  To help you in constructing your own fancy
-prompts, 3 functions are provided: <CODE>sys::prompt-index</CODE>,
-returning (and incrementing!)  the current prompt number;
-<CODE>sys::prompt-new-package</CODE>, returning <CODE>*package*</CODE>
-or <CODE>nil</CODE> if the current package is the same as it was initially; and
+prompts, 2 functions are provided: <CODE>sys::prompt-new-package</CODE>,
+returning <CODE>*package*</CODE> or <CODE>nil</CODE> if the current
+package is the same as it was initially; and
 <CODE>sys::package-short-name</CODE> taking one argument, a package, and
-returning its shortest name or nickname.
-
+returning its shortest name or nickname.  Also, a variable
+<CODE>sys::*command-index*</CODE> contains the current prompt number, it
+is your responsibility to increment it (you might also want to reset it).
 
 <H2>Chapter 91: The Debugger and Stepper</H2>
 
