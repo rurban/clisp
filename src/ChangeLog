@@ -1,3 +1,9 @@
+2003-01-08  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (GENERIC-STREAM-P, BUILT-IN-STREAM-OPEN-P)
+	(INPUT-STREAM-P, OUTPUT-STREAM-P, STREAM-ELEMENT-TYPE-EQ):
+	use VALUES_IF
+
 2003-01-06  Sam Steingold  <sds@gnu.org>
 
 	some more work on MT: added stubs for functions,
