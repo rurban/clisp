@@ -118,6 +118,9 @@ The point should be on the prototype and the definition should follow."
        (cdr (assq 'c-mode font-lock-defaults-alist))))
   "The `font-lock-defaults' for `d-mode'.")
 
+(defvar d-mode-build-dir "../build/"
+  "*The build directory to look at when there is not makefile in src.")
+
 (define-derived-mode d-mode c-mode "D"
   "Major mode for editing CLISP source code.
 Special commands:
@@ -129,6 +132,7 @@ use fontifications, you have to (require 'font-lock) first.  Sorry.
 Beware - this will modify the original C-mode too!"
   (set (make-local-variable 'compile-command)
        (let* ((target (if (eq window-system 'w32) "lisp.exe" "lisp.run"))
+              (prefix "")
               (make (if (eq window-system 'w32) "nmake" "make"))
               (makefile
                (cond ((file-readable-p "Makefile") "Makefile")
@@ -140,8 +144,11 @@ Beware - this will modify the original C-mode too!"
                      ((file-readable-p "makefile-msvs") "makefile-msvs")
                      ((file-readable-p "makefile-gcc")
                       (setq make "make") "makefile-gcc")
+                     ((file-directory-p d-mode-build-dir)
+                      (setq prefix (concat "cd '" d-mode-build-dir "'; "))
+                      "Makefile")
                      (t "<makefile>"))))
-         (concat make " -f " makefile " " target)))
+         (concat prefix make " -f " makefile " " target)))
   (set (make-local-variable 'add-log-current-defun-function)
        'd-mode-current-defun-function)
   (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-sharp)
