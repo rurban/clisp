@@ -1,5 +1,10 @@
 2005-03-10  Sam Steingold  <sds@gnu.org>
 
+	* m4/readline.m4 (CL_READLINE): added AC_ARG_WITH([readline])
+	* configure.in: removed AC_ARG_WITH([readline])
+
+2005-03-10  Sam Steingold  <sds@gnu.org>
+
 	* configure.in (AC_INIT): moved PACKAGE_NAME, PACKAGE_TARNAME and
 	PACKAGE_BUGREPORT here
 
