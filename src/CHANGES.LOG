@@ -38,6 +38,8 @@ User visible changes
 * ANSI CL compliance: When LISP:*PARSE-NAMESTRING-ANSI* is non-NIL,
   PARSE-NAMESTRING parses strings with colons as logical pathnames.
 
+* New supported character sets in package CHARSET: GB18030, BIG5HKSCS.
+
 * Arguments passed to MAKE-PATHNAME with value NIL are not overridden by
   pathname slots in the :DEFAULTS argument any more.
 

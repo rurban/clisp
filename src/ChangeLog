@@ -1,3 +1,7 @@
+2000-10-23  Bruno Haible  <haible@clisp.cons.org>
+
+        * constsym.d (CHARSET:GB18030, CHARSET:BIG5HKSCS): New symbols.
+
 2000-10-22  Bruno Haible  <haible@clisp.cons.org>
 
         * encoding.d (init_encodings): Set O(internal_encoding) to UTF-8.
