@@ -132,14 +132,20 @@
        (incf ,total-count ,tot))))
 
 (defun run-files (files)
-  (let ((error-count 0) (total-count 0))
-    (dolist (file files)
-      (with-accumulating-errors (error-count total-count)
-        (run-test file)))
-    (format
-     t "~&~s: finished ~:d file~:p (~:d error~:p out of ~:d test~:p)~%~S~%"
-     'run-files (length files) error-count total-count files)
-    (values error-count total-count)))
+  (let* ((error-count 0) (total-count 0)
+         (here (truename "./"))
+         (res (mapcar (lambda (file)
+                        (multiple-value-bind (tot err) (run-test file)
+                          (incf error-count err)
+                          (incf total-count tot)
+                          (list file err tot)))
+                      files)))
+    (format t "~&~s: finished ~3d file~:p: ~3:d error~:p out of ~5:d test~:p~%"
+            'run-files (length files) error-count total-count)
+    (loop :for rec :in res :for count :upfrom 1 :do
+      (format t "[~d] ~25@a: ~3:d error~:p out of ~5:d test~:p~%" count
+              (enough-namestring (first rec) here) (second rec) (third rec)))
+    (values error-count total-count res)))
 
 (defun run-some-tests (&optional (dirlist '("./")))
   (let ((files (mapcan (lambda (dir)
