@@ -384,17 +384,18 @@ local void fill_hostname (hd)
   }
 
 # Creation of sockets on the server side:
-# SOCKET socket_handle = create_server_socket (port, sock);
+# SOCKET socket_handle = create_server_socket (&host_data, sock, port);
 #   creates a socket to which other processes can connect.
 # SOCKET fd = accept_connection(socket_handle);
 #   waits for a connection to another process.
 #   This can (and should) be done multiple times for the same
 #   socket_handle.
 
-global SOCKET create_server_socket (host_data *hd, SOCKET sock);
-global SOCKET create_server_socket (hd, sock)
+global SOCKET create_server_socket (host_data *hd, SOCKET sock, unsigned int port);
+global SOCKET create_server_socket (hd, sock, port)
   var host_data *hd;
   var SOCKET sock;
+  var unsigned int port;
   {
     var struct sockaddr_in sa;
     var SOCKET sk;
@@ -424,7 +425,7 @@ global SOCKET create_server_socket (hd, sock)
         return INVALID_SOCKET;
       bcopy(hp->h_addr, (char *) &sa.sin_addr, hp->h_length);
       sa.sin_family = hp->h_addrtype;
-      sa.sin_port = htons(hd->port);
+      sa.sin_port = htons(port);
     } else {
       if (-1 == getsockname(sock,(struct sockaddr*)&sa,&addr_len))
         return INVALID_SOCKET;
