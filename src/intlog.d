@@ -885,12 +885,22 @@
       __asm__("bsch/1 %1,%0" : "=g" (zero_counter) : "g" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                       \
     }
-#elif defined(GNU) && defined(RS6000) && !defined(UNIX_LINUX) && !defined(UNIX_RHAPSODY) && !defined(NO_ASM)
+#elif defined(GNU) && defined(RS6000) && !defined(NO_ASM)
+ #ifdef _AIX
+  # old assembler syntax
   #define integerlength32(digit,size_zuweisung)  \
     { var uintL zero_counter; # zählt die führenden Nullbits in digit        \
       __asm__("cntlz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                      \
     }
+ #else
+  # new assembler syntax
+  #define integerlength32(digit,size_zuweisung)  \
+    { var uintL zero_counter; # zählt die führenden Nullbits in digit         \
+      __asm__("cntlzw %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
+      size_zuweisung (32-zero_counter);                                       \
+    }
+ #endif
 #elif defined(GNU) && defined(M88000) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
     { var uintL one_position; # Position der führenden 1                   \

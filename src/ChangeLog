@@ -1,5 +1,10 @@
 1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * intlog.d (integerlength32) [RS6000]: Use new or old mnemonics
+          depending on OS.
+
+1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Libtoolify sigsegv.
         * autoconf/libtool.m4: New file, from libtool-1.2.
 
