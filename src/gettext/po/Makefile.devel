@@ -40,7 +40,7 @@ tmp :
 	test -d tmp || mkdir tmp
 
 $(SOURCES_POT) : tmp/%.pot : ../../% clisp-xgettext
-	(cd ../.. ; gettext/po/clisp-xgettext $* gettext/po/tmp)
+	(cd ../.. ; $${CLISP} gettext/po/clisp-xgettext $* gettext/po/tmp)
 
 # When a .pot file is built, it automatically builds also the .de,.en,.fr files.
 $(SOURCES_DE) : tmp/%.de : tmp/%.pot
@@ -52,22 +52,22 @@ pot : clisp.pot $(patsubst %,%.po,$(LINGUAS))
 # We build the .pot file by simple concatenation. No sorting!!
 clisp.pot : $(SOURCES_POT) ../../VERSION po_header clisp-msguniq
 	(./po_header t ; cat $(SOURCES_POT)) > clisp.pox
-	./clisp-msguniq clisp.pox $@
+	$${CLISP} ./clisp-msguniq clisp.pox $@
 	$(RM) clisp.pox
 
 de.po : $(SOURCES_DE) ../../VERSION po_header clisp-msguniq
 	(./po_header de ; cat $(SOURCES_DE)) > de.pox
-	./clisp-msguniq de.pox $@
+	$${CLISP} ./clisp-msguniq de.pox $@
 	$(RM) de.pox
 
 en.po : $(SOURCES_EN) ../../VERSION po_header clisp-msguniq
 	(./po_header en ; cat $(SOURCES_EN)) > en.pox
-	./clisp-msguniq en.pox $@
+	$${CLISP} ./clisp-msguniq en.pox $@
 	$(RM) en.pox
 
 fr.po : $(SOURCES_FR) ../../VERSION po_header clisp-msguniq
 	(./po_header fr ; cat $(SOURCES_FR)) > fr.pox
-	./clisp-msguniq fr.pox $@
+	$${CLISP} ./clisp-msguniq fr.pox $@
 	$(RM) fr.pox
 
 
