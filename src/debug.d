@@ -1437,6 +1437,12 @@ LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
   VALUES1(UL_to_I(show_stack(frame_up_x,frame_limit,start_frame)));
 }
 
+/* For debugging: From within gdb, type: call ext_show_stack().
+   Equivalent to (ext:show-stack) from the Lisp prompt. */
+global void ext_show_stack () {
+  pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound); C_show_stack();
+}
+
 LISPFUNN(debug,0)
 # (SYSTEM::DEBUG) springt in einen im Hintergrund sitzenden Debugger.
   {
