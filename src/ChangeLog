@@ -1,5 +1,15 @@
 2004-08-22  Bruno Haible  <bruno@clisp.org>
 
+	* constobj.d: Make O(terminal_encoding) also available if !UNICODE.
+	* encoding.d (init_dependent_encodings): Initialize it.
+	* stream.d (make_keyboard_stream, make_terminal_stream_,
+	SCREEN:MAKE-WINDOW): Install O(terminal_encoding) as the stream's
+	encoding also if !UNICODE.
+	Fixes a bug introduced on 2004-05-21.
+	Reported by Michael Livshin <clisp@cmm.kakpryg.net>.
+
+2004-08-22  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in: Change the handling of --with and --without options to
 	be like in GNU autoconf. Put the default of each with_* flag in one
 	place, not at each use of the variable.

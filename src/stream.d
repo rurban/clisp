@@ -8617,9 +8617,7 @@ local object make_keyboard_stream (void) {
   # and fill:
   stream_dummy_fill(stream);
   var Stream s = TheStream(stream);
- #ifdef UNICODE
   s->strm_encoding = O(terminal_encoding);
- #endif
   s->strm_rd_ch = P(rd_ch_keyboard); # READ-CHAR-Pseudofunction
   s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
  #if defined(UNIX) && !defined(NEXTAPP)
@@ -9490,9 +9488,7 @@ local object make_terminal_stream_ (void) {
     # and fill:
     stream_dummy_fill(stream);
     var Stream s = TheStream(stream);
-   #ifdef UNICODE
     s->strm_encoding = O(terminal_encoding);
-   #endif
     s->strm_rd_ch = P(rd_ch_terminal3); # READ-CHAR-Pseudofunction
     s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
     s->strm_wr_ch = P(wr_ch_terminal3); # WRITE-CHAR-Pseudofunction
@@ -9526,9 +9522,7 @@ local object make_terminal_stream_ (void) {
     # and fill:
     stream_dummy_fill(stream);
     var Stream s = TheStream(stream);
-   #ifdef UNICODE
     s->strm_encoding = O(terminal_encoding);
-   #endif
     s->strm_rd_ch = P(rd_ch_terminal2); # READ-CHAR-Pseudofunction
     s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
     s->strm_wr_ch = P(wr_ch_terminal2); # WRITE-CHAR-Pseudofunction
@@ -9558,9 +9552,7 @@ local object make_terminal_stream_ (void) {
     # and fill:
     stream_dummy_fill(stream);
     var Stream s = TheStream(stream);
-   #ifdef UNICODE
     s->strm_encoding = O(terminal_encoding);
-   #endif
     s->strm_rd_ch = P(rd_ch_terminal1); # READ-CHAR-Pseudofunction
     s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
     s->strm_wr_ch = P(wr_ch_terminal1); # WRITE-CHAR-Pseudofunction
@@ -10215,11 +10207,7 @@ LISPFUNN(make_window,0) {
   var Stream s = TheStream(stream);
   s->strm_wr_ch       = P(wr_ch_window);       # WRITE-CHAR Pseudofunction
   s->strm_wr_ch_array = P(wr_ch_array_window); # WRITE-CHAR-SEQUENCE Pseudofunction
- #ifdef UNICODE
   s->strm_encoding    = O(terminal_encoding);
- #else
-  s->strm_encoding    = NIL;
- #endif
   s->strm_isatty      = NIL;
   s->strm_ichannel    = NIL;
   TheStream(stream)->strm_ochannel = allocate_handle(handle);
