@@ -8080,8 +8080,14 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
         local const struct { WORD vkcode; key_event_t myevent; } vktable[] = {
           VK_BACK,    { NULL,  BS, 0 },               # #\Backspace
           VK_TAB,     { NULL, TAB, 0 },               # #\Tab
+          VK_CLEAR,   { NULL, PG, 0 },                # #\Page
           VK_RETURN,  { NULL,  CR, 0 },               # #\Return
           VK_ESCAPE,  { NULL, ESC, 0 },               # #\Escape
+          VK_SHIFT,   { "SHIFT", 0, 0 },
+          VK_CONTROL, { "CONTROL", 0, 0 },
+          VK_MENU,    { "MENU", 0, 0 },
+          VK_PAUSE,   { "PAUSE", 0, 0 },
+          VK_CAPITAL, { "CAPITAL", 0, 0 },
           VK_LEFT,    { "LEFT", 0, char_hyper_c },    # #\Left
           VK_RIGHT,   { "RIGHT", 0, char_hyper_c },   # #\Right
           VK_UP,      { "UP", 0, char_hyper_c },      # #\Up
@@ -8107,6 +8113,44 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
           VK_F12,     { "F12", 0, char_hyper_c },     # #\F12
           VK_LWIN,    { "WIN", 0, char_hyper_c },     # Win key
           VK_RWIN,    { "WIN", 0, char_hyper_c },     # Same
+          VK_APPS,    { "APPS", 0, char_hyper_c },    /* App key */
+          VK_SELECT,  { "SELECT", 0, char_hyper_c },
+          VK_PRINT,   { "PRINT", 0, char_hyper_c },
+          VK_EXECUTE, { "EXECUTE", 0, char_hyper_c },
+          VK_SNAPSHOT,{ "SNAPSHOT", 0, char_hyper_c },
+          VK_ADD,     { "ADD", 0, char_hyper_c },
+          VK_SEPARATOR,{ "SEPARATOR", 0, char_hyper_c },
+          VK_SUBTRACT,{ "SUBTRACT", 0, char_hyper_c },
+          VK_DECIMAL, { "DECIMAL", 0, char_hyper_c },
+          VK_DIVIDE,  { "DIVIDE", 0, char_hyper_c },
+          VK_NUMLOCK, { "NUMLOCK", 0, char_hyper_c },
+          VK_SCROLL,  { "SCROLL", 0, char_hyper_c },
+          VK_LSHIFT,  { "LSHIFT", 0, char_hyper_c },
+          VK_RSHIFT,  { "RSHIFT", 0, char_hyper_c },
+          VK_LCONTROL,{ "LCONTROL", 0, char_hyper_c },
+          VK_RCONTROL,{ "RCONTROL", 0, char_hyper_c },
+          VK_LMENU,   { "LMENU", 0, char_hyper_c },
+          VK_RMENU,   { "RMENU", 0, char_hyper_c },
+         #if (_WIN32_WINNT >= 0x0500)
+          VK_BROWSER_BACK, { "BROWSER_BACK", 0, char_hyper_c },
+          VK_BROWSER_FORWARD, { "BROWSER_FORWARD", 0, char_hyper_c },
+          VK_BROWSER_REFRESH, { "BROWSER_REFRESH", 0, char_hyper_c },
+          VK_BROWSER_STOP, { "BROWSER_STOP", 0, char_hyper_c },
+          VK_BROWSER_SEARCH, { "BROWSER_SEARCH", 0, char_hyper_c },
+          VK_BROWSER_FAVORITES, { "BROWSER_FAVORITES", 0, char_hyper_c },
+          VK_BROWSER_HOME, { "BROWSER_HOME", 0, char_hyper_c },
+          VK_VOLUME_MUTE, { "VOLUME_MUTE", 0, char_hyper_c },
+          VK_VOLUME_DOWN, { "VOLUME_DOWN", 0, char_hyper_c },
+          VK_VOLUME_UP, { "VOLUME_UP", 0, char_hyper_c },
+          VK_MEDIA_NEXT_TRACK, { "MEDIA_NEXT_TRACK", 0, char_hyper_c },
+          VK_MEDIA_PREV_TRACK, { "MEDIA_PREV_TRACK", 0, char_hyper_c },
+          VK_MEDIA_STOP, { "MEDIA_STOP", 0, char_hyper_c },
+          VK_MEDIA_PLAY_PAUSE, { "MEDIA_PLAY_PAUSE", 0, char_hyper_c },
+          VK_LAUNCH_MAIL, { "LAUNCH_MAIL", 0, char_hyper_c },
+          VK_LAUNCH_MEDIA_SELECT, { "LAUNCH_MEDIA_SELECT", 0, char_hyper_c },
+          VK_LAUNCH_APP1, { "LAUNCH_APP1", 0, char_hyper_c },
+          VK_LAUNCH_APP2, { "LAUNCH_APP2", 0, char_hyper_c },
+         #endif
           ' ',        { NULL, ' ', 0 },               # #\Space
           '0',        { NULL, '0', 0 },               # #\0
           '1',        { NULL, '1', 0 },               # #\1
@@ -8172,7 +8216,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
           case 18: case 20:
             break;
           default:
-            fprintf(stderr,"Unknown keyboard event, VKeyCode = %d, VScanCode = %d, AsciiChar = %d\n",event.Event.KeyEvent.wVirtualKeyCode,event.Event.KeyEvent.wVirtualScanCode,event.Event.KeyEvent.uAsciiChar);
+            fprintf(stderr,"["STRINGIFY(_WIN32_WINNT)"] Unknown keyboard event, VKeyCode = %d, VScanCode = %d, AsciiChar = %d\n",event.Event.KeyEvent.wVirtualKeyCode,event.Event.KeyEvent.wVirtualScanCode,event.Event.KeyEvent.uAsciiChar);
         }
         continue;
       found_keycode:
