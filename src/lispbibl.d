@@ -12609,16 +12609,17 @@ extern void clear_output (object stream);
 extern object get_line_position (object stream);
 # is used by IO, DEBUG
 
-# Function: Reads several bytes from a stream.
-# read_byte_array(&stream,&bytearray,start,len)
-# > stream: stream (on the STACK)
-# > object bytearray: simple-8bit-vector (on the STACK)
-# > uintL start: start index of byte sequence to be filled
-# > uintL len: length of byte sequence to be filled
-# < uintL result: number of bytes that have been filled
-# can trigger GC
-extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);
-# is used by SEQUENCE
+/* Function: Reads several bytes from a stream.
+ read_byte_array(&stream,&bytearray,start,len,no_hang)
+ > stream: stream (on the STACK)
+ > object bytearray: simple-8bit-vector (on the STACK)
+ > uintL start: start index of byte sequence to be filled
+ > uintL len: length of byte sequence to be filled
+ > bool no_hang: do not block
+ < uintL result: number of bytes that have been filled
+ can trigger GC */
+extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
+/* used by SEQUENCE, PATHNAME */
 
 # Function: Writes several bytes to a stream.
 # write_byte_array(&stream,&bytearray,start,len)
