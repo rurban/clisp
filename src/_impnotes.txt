@@ -1266,8 +1266,16 @@ GENERIC-STREAM-XYZ corresponds to the Common Lisp function XYZ. They all
 take a controller and some number of arguments.
 
   (GENERIC-STREAM-READ-CHAR    controller)
+         Returns and consumes the next character, NIL at end of file.
+         Takes one argument, the controller object.
+  (GENERIC-STREAM-PEEK-CHAR    controller)
+         Returns the next character, NIL at end of file. A second value
+         indicates whether the side effects associated with consuming the
+         character were executed: T means that a full READ-CHAR was done,
+         NIL means that no side effects were done.
+         Takes one argument, the controller object.
   (GENERIC-STREAM-READ-BYTE    controller)
-         These generic functions should return NIL at end of file.
+         Returns and consumes the next integer, NIL at end of file.
          Takes one argument, the controller object.
   (GENERIC-STREAM-LISTEN       controller)
          Returns -1 for EOF, 0 for character pending, and 1 for none.

@@ -5328,6 +5328,7 @@ typedef struct {
                  object strm_rd_by;
                  object strm_wr_by;
                  object strm_rd_ch;
+                 object strm_pk_ch;
                  object strm_rd_ch_last;
                  object strm_wr_ch;
                  object strm_wr_ch_lpos;
