@@ -1,5 +1,16 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	New generic function (setf method-generic-function).
+	* clos-method1.lisp ((setf method-generic-function)): New preliminary
+	function.
+	* clos-genfun2.lisp (std-add-method, std-remove-method,
+	reinitialize-instance-<generic-function>): Use it instead of
+	(setf std-method-generic-function).
+	* clos-method3.lisp ((setf method-generic-function)): New generic
+	function.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Move the from-defgeneric slot from <standard-method> up to <method>.
 	* clos-method1.lisp (method): Add from-defgeneric slot.
 	(initialize-instance-<method>): New function.
