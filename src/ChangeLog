@@ -1,3 +1,7 @@
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
+	* debug.d (GC): Use UL_to_I for representing the result.
+
 2004-08-08  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (*expected-failures*): Many new failures to be

@@ -1470,7 +1470,7 @@ LISPFUNN(gc,0)
 # und liefert den für LISP-Objekte freien Platz (in Bytes)
   {
     gar_col(); # GC ausführen
-    VALUES1(fixnum(free_space()));
+    VALUES1(UL_to_I(free_space()));
   }
 
 # read-form neu schreiben, in Zusammenarbeit mit dem Terminal-Stream??
