@@ -439,8 +439,8 @@
            (eval `(LET ,bindings
                     (DECLARE (COMPILE))
                      (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
-      (setf (sys::%record-ref gf 1) (sys::%record-ref preliminary 1))
-      (setf (sys::%record-ref gf 2) (sys::%record-ref preliminary 2)))))
+      (assert (<= (sys::%record-length preliminary) 3))
+      (set-funcallable-instance-function gf preliminary))))
 
 ;; Calculates the dispatch-code of a generic function.
 ;; It looks as follows:

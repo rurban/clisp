@@ -1,3 +1,8 @@
+2004-06-20  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2.lisp (install-dispatch): Use
+	set-funcallable-instance-function.
+
 2004-08-24  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (*expected-failures*): Many new failures to be
