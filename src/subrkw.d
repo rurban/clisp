@@ -177,10 +177,6 @@ s(make_stream)
 #endif
 v(1, (kw(abort)) )
 s(built_in_stream_close)
-#ifdef REXX
-v(5, (kw(result),kw(string),kw(token),kw(host),kw(io)) )
-s(rexx_put)
-#endif
 v(1, (kw(verbose)))
 s(ensure_directories_exist)
 #ifdef DYNAMIC_FFI

@@ -2693,12 +2693,6 @@ global int main (argc_t argc, char* argv[]) {
   clr_break_sem_1();
   # initialize pathnames:
   init_pathnames();
- #ifdef REXX
-  # initialize Rexx-interface:
-  init_rexx();
-  # do without an error-message in case of failure.
-  # we do not want to make CLISP unusable because of that!
- #endif
  #ifdef DYNAMIC_FFI
   # initialize FFI:
   init_ffi();
@@ -3043,9 +3037,6 @@ nonreturning_function(global, quit, (void)) {
  #endif
  #ifdef WIN32_NATIVE
   done_win32();
- #endif
- #ifdef REXX
-  close_rexx(); # close Rexx-communication
  #endif
  #ifdef NEXTAPP
   nxterminal_exit(); # cloase terminal-stream-communication

@@ -8161,7 +8161,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # < result: LISP-object, contains the foreign pointer
 # can trigger GC
   extern object allocate_fpointer (FOREIGN foreign);
-# is used by REXX
+/* used by FFI & modules */
 #endif
 
 # UP: allocates foreign adddress
@@ -11707,7 +11707,7 @@ extern bool endp (object obj);
 # Increases STACK
 # modifies STACK, can trigger GC
 extern object listof (uintC len);
-# is used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, REXX, ERROR, SPVW
+/* used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, ERROR, SPVW */
 
 # UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ)
 global object memq (const object obj, const object lis);
@@ -12739,7 +12739,7 @@ extern void init_arith (void);
 # < result: Integer with that value.
 # can trigger GC
 extern object L_to_I (sint32 wert);
-# is used by TIME, REXX
+/* used by TIME */
 
 # Converts an unsigned longword into an Integer >=0.
 # UL_to_I(wert)
@@ -13131,23 +13131,6 @@ extern object decimal_string (object x);
 
 # De-Initialize the FFI.
   extern void exit_ffi (void);
-# used by SPVW
-
-#endif
-
-# ####################### REXXBIBL for REXX.D ############################## #
-
-#ifdef REXX
-
-# Initializes the Rexx-interface.
-# init_rexx();
-# < result: flag, whether initialization was successful
-  extern bool init_rexx (void);
-# used by SPVW
-
-# Closes the Rexx-interface.
-# close_rexx();
-  extern void close_rexx (void);
 # used by SPVW
 
 #endif

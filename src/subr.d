@@ -1172,14 +1172,6 @@ LISPFUNN(long_float_digits,0)
 LISPFUNN(set_long_float_digits,1)
 LISPFUNNR(log2,1)
 LISPFUNNR(log10,1)
-/* ---------- REXX ---------- */
-#ifdef REXX
-LISPFUN(rexx_put,seclass_default,1,0,norest,key,5,
-        (kw(result),kw(string),kw(token),kw(host),kw(io)) )
-LISPFUNN(rexx_wait_input,0)
-LISPFUNN(rexx_get,0)
-LISPFUNN(rexx_reply,3)
-#endif
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
 LISPFUNNR(validp,1)
