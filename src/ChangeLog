@@ -1,3 +1,16 @@
+2002-09-02  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	Implemented shorcut symlink ersatz on win32 (read-only,
+	for CYGWIN compatibility).
+	* win32aux.d (com_initialized): new global variable.
+	(init_win32): initialize COM library.
+	(done_win32): deinitialize COM library.
+	* win32.d: include shell object headers.
+	* pathname.d [WIN32_NATIVE] (FullName): new function,
+	translates short name to long one.
+	(resolve_shell_shortcut): new function handles shortcuts.
+	(assure_dir_exists): now trying to resolve ersatzsymlinkshortcuts.
+
 2002-08-28  Sam Steingold  <sds@gnu.org>
 
 	* comptran.d (N_N_expt_N): when y is a float, round it and check
