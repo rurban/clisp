@@ -4392,6 +4392,15 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       } else {
         # (MERGE-PATHNAMES pathname defaults [nil] :wild #'make-pathname)
         pushSTACK(pathname); pushSTACK(defaults);
+        # From: Kent M Pitman <pitman@world.std.com>
+        # CC: clisp-list@lists.sourceforge.net
+        # Date: Mon, 12 Nov 2001 19:23:21 -0500
+        # :case does not apply to any pathname. :case is about a translation
+        # mode when storing or retrieving individual components as strings.
+        # http://www.geocrawler.com/lists/3/SourceForge/1124/0/7064923/
+
+        # if we agree with him, we should define KMP_IS_RIGHT, otherwise...
+       #ifndef KMP_IS_RIGHT
         if (convert && pathnamep(defaults)
             #ifdef LOGICAL_PATHNAMES
             && !logpathnamep(defaults)
@@ -4415,6 +4424,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           # defaults = STACK_0;
           # pathname = STACK_1;
         }
+       #endif
         pushSTACK(unbound); pushSTACK(S(Kwild)); pushSTACK(L(make_pathname));
         funcall(L(merge_pathnames),5);
       }
