@@ -33,8 +33,10 @@
 <section id="error-terms"><title>Error Terminology
   <ulink url="&clhs;/Body/sec_1-4-2.html">[CLHS-1.4.2]</ulink></title>
 
-<para>Safety settings are ignored; therefore where the standard uses the
- phrase <quote>should signal an error</quote>, an &err-sig;.</para>
+<para>Safety settings are ignored by the interpreted code;
+ therefore where the standard uses the phrase <quote>should signal an
+ error</quote>, an &err-sig;.
+ See <xref linkend="safety-decl"/> for the safety of compiled code.</para>
 
 </section>
 
@@ -198,11 +200,16 @@ ignored by the interpreter.</para>
 
 <para>The declarations <code>(&type-dec; &type-r; &var-r; ...)</code>,
  <code>(&ftype-dec; &type-r; &func-r; ...)</code>,
- <code>(&optimize-dec; (<replaceable>quality</replaceable>
-        &value-r;) ...)</code>
    are ignored by both the interpreter and the compiler.</para>
 
-<section id="compile-decl"><title>Additional declarations</title>
+<section id="safety-decl"><title>Declaration &safety-dec;.</title>
+<para>Declaration <code>(&optimize-dec; (&safety-dec; 3))</code>
+ results in <quote>safe</quote> compiled code:
+ funtion calls are never eliminated to preserve the semantics described in
+ <ulink url="&clhs;/Body/sec_3-5.html">Section 3.5</ulink>.
+</para></section>
+
+<section id="compile-decl"><title>Declaration &compile-decl;</title>
 
 <para>The declaration &compile-decl; has the effect that the current
  form is compiled prior to execution.  Examples:
