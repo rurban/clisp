@@ -1,5 +1,10 @@
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
+	* encoding.d (MAKE-ENCODING): Fix a GC safety bug. Use the original
+	arg for the error message, not the upcased one.
+
+2002-06-12  Bruno Haible  <bruno@clisp.org>
+
 	* socket.d (CLOSESOCKET): Make macro more robust.
 
 2002-06-12  Bruno Haible  <bruno@clisp.org>

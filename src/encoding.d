@@ -1684,7 +1684,6 @@ LISPFUN(make_encoding,0,0,norest,key,4,
         (kw(charset),kw(line_terminator),
          kw(input_error_action),kw(output_error_action))) {
   var object arg;
-  var object sym;
   # Check the :CHARSET argument.
   arg = STACK_3;
   # string -> symbol in CHARSET
@@ -1696,35 +1695,40 @@ LISPFUN(make_encoding,0,0,norest,key,4,
   else if (symbolp(arg) && constantp(TheSymbol(arg))
            && encodingp(Symbol_value(arg))) {
     arg = Symbol_value(arg);
-  } else if (stringp(arg)
-             && (find_external_symbol(arg,O(charset_package),&sym)
-                 || find_external_symbol(arg=string_upcase(arg),
-                                         O(charset_package),&sym))
-             && constantp(TheSymbol(sym)) && encodingp(Symbol_value(sym))) {
-    arg = Symbol_value(sym);
+  } else if (stringp(arg)) {
+    var object arg_upcase = string_upcase(arg);
+    var object sym;
+    arg = STACK_3; # refetch
+    if (find_external_symbol(arg_upcase,O(charset_package),&sym)
+        && constantp(TheSymbol(sym)) && encodingp(Symbol_value(sym)))
+      arg = Symbol_value(sym);
+    #ifdef HAVE_GOOD_ICONV
+    else {
+      with_string_0(arg,Symbol_value(S(ascii)),charset_ascii,
+                    { check_charset(charset_ascii,arg); });
+      pushSTACK(coerce_ss(arg));
+      var object encoding = allocate_encoding();
+      TheEncoding(encoding)->enc_eol = S(Kunix);
+      TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+      TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+      TheEncoding(encoding)->enc_charset = popSTACK();
+      TheEncoding(encoding)->enc_mblen    = P(iconv_mblen);
+      TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
+      TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
+      TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
+      TheEncoding(encoding)->enc_range    = P(iconv_range);
+      TheEncoding(encoding)->min_bytes_per_char = 1;
+      TheEncoding(encoding)->max_bytes_per_char = max_bytes_per_chart; # wild assumption
+      arg = encoding;
+    }
+    #else
+    else
+      goto bad_arg;
+    #endif
   }
-  #ifdef HAVE_GOOD_ICONV
-  else if (stringp(arg)) {
-    with_string_0(arg,Symbol_value(S(ascii)),charset_ascii,
-                  { check_charset(charset_ascii,arg); });
-    pushSTACK(coerce_ss(arg));
-    var object encoding = allocate_encoding();
-    TheEncoding(encoding)->enc_eol = S(Kunix);
-    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-    TheEncoding(encoding)->enc_charset = popSTACK();
-    TheEncoding(encoding)->enc_mblen    = P(iconv_mblen);
-    TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
-    TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
-    TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(iconv_range);
-    TheEncoding(encoding)->min_bytes_per_char = 1;
-    TheEncoding(encoding)->max_bytes_per_char = max_bytes_per_chart; # wild assumption
-    arg = encoding;
-  }
-  #endif
  #endif
   else {
+   bad_arg:
     pushSTACK(arg); # TYPE-ERROR slot DATUM
     pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(arg); pushSTACK(S(Kcharset)); pushSTACK(S(make_encoding));
