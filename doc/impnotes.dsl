@@ -48,6 +48,13 @@
             (process-children))
       ($mono-seq$)))
 
+(element (varlistentry term)
+  (make sequence
+    (process-children-trim)
+    (if (not (last-sibling?))
+	(make empty-element gi: "BR")
+	(literal ""))))
+
 <![%print;[ ;; customize the print stylesheet here
 
 (define %paper-type% "USletter")
