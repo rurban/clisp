@@ -1,6 +1,16 @@
+2000-05-29  Bruno Haible  <haible@clisp.cons.org>
+
+        * autoconf/aclocal.m4 (CL_PROG_INSTALL): Fix typo.
+        Reported by Thomas Klausner <wiz@danbala.ifoer.tuwien.ac.at>.
+
 2000-05-25  Bruno Haible  <haible@clisp.cons.org>
 
         * Makefile.msvc: Use 'copy' and 'ren' instead of 'cp' and 'mv'.
+
+2000-05-23  Bruno Haible  <haible@clisp.cons.org>
+
+        * autoconf/aclocal.m4 (CL_CANONICAL_HOST): Determine host_cpu,
+          host_vendor, host_os correctly if $host has more than two hyphens.
 
 2000-04-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
