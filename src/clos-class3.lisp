@@ -1618,7 +1618,6 @@
   class)
 
 ;; DEFSTRUCT-Hook
-(eval-when (compile load eval) (fmakunbound 'define-structure-class))
 (defun define-structure-class (name)
   (let ((descr (get name 'sys::defstruct-description)))
     (when descr
