@@ -709,6 +709,19 @@ nonreturning_function(global, fehler_list, (object obj)) {
   pushSTACK(S(list)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
+/* ditto - recoverable
+ can trigger GC */
+global object check_list (object obj) {
+  while (!listp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(list)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
 
 /* error-message, if an object is not a true list.
  fehler_proper_list(caller,obj);
