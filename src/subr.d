@@ -653,6 +653,12 @@ LISPFUNN(dynload_modules,2)
 #ifdef HAVE_DISASSEMBLER
 LISPFUNN(program_name,0)
 #endif
+#ifdef EXPORT_SYSCALLS
+#ifdef UNIX
+LISPFUN(user_data,0,1,norest,nokey,0,NIL)
+LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
+#endif
+#endif
 # ---------- PREDTYPE ----------
 LISPFUNN(eq,2)
 LISPFUNN(eql,2)
@@ -924,10 +930,6 @@ LISPFUNN(socket_stream_handle,1)
 #ifdef HAVE_GETHOSTBYNAME
 LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
 #endif # HAVE_GETHOSTBYNAME
-#ifdef UNIX
-LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
-LISPFUN(user_data,0,1,norest,nokey,0,NIL)
-#endif # UNIX
 #endif # EXPORT_SYSCALLS
 LISPFUNN(open_stream_p,1)
 LISPFUNN(input_stream_p,1)
