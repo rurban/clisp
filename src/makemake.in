@@ -874,9 +874,7 @@ if [ $XCC_GCC = true ] ; then
     XCFLAGS=$XCFLAGS'-O2'
   fi
   if [ $TSYS = win32gcc ] ; then
-    # Avoid a declaration of sleep() in stdlib.h which clashes with ours.
-    XCFLAGS=$XCFLAGS' -mno-cygwin -D_NO_OLDNAMES -D_WIN32';
-
+    XCFLAGS=$XCFLAGS' -mno-cygwin -D_WIN32';
   fi
   if [ $TSYS = sun4 -o $TSYS = acorn ] ; then
     XCLFLAGS='-static'
