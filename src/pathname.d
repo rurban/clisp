@@ -8119,7 +8119,8 @@ LISPFUNN(rename_file,2)
     }}
 
 # UP: erzeugt ein File-Stream
-# open_file(filename,direction,if_exists,if_not_exists,type,eltype_size)
+# open_file(filename,direction,if_exists,if_not_exists)
+# > STACK_0: :ELEMENT-TYPE argument
 # > filename: Filename, ein Pathname
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
 # > if_exists: :IF-EXISTS-Argument
@@ -8128,22 +8129,15 @@ LISPFUNN(rename_file,2)
 #          6 = :APPEND, 7 = :OVERWRITE)
 # > if_not_exists: :IF-DOES-NOT-EXIST-Argument
 #         (0 = nichts, 1 = :ERROR, 2 = NIL, 3 = :CREATE)
-# > type: nähere Typinfo
-#         (STRMTYPE_SCH_FILE oder STRMTYPE_CH_FILE oder
-#          STRMTYPE_IU_FILE oder STRMTYPE_IS_FILE)
-# > eltype_size: (bei Integer-Streams) Größe der Elemente in Bits,
-#         ein Fixnum >0 und <intDsize*uintWC_max
 # < ergebnis: Stream oder NIL
+# < STACK: aufgeräumt
 # kann GC auslösen
-  local object open_file (object filename, uintB direction, uintB if_exists, uintB if_not_exists,
-                          uintB type, object eltype_size);
-  local object open_file(filename,direction,if_exists,if_not_exists,type,eltype_size)
+  local object open_file (object filename, uintB direction, uintB if_exists, uintB if_not_exists);
+  local object open_file(filename,direction,if_exists,if_not_exists)
     var object filename;
     var uintB direction;
     var uintB if_exists;
     var uintB if_not_exists;
-    var uintB type;
-    var object eltype_size;
     { pushSTACK(filename); # Filename retten
       check_no_wildcards(filename); # mit Wildcards -> Fehler
       filename = use_default_dir(filename); # Default-Directory einfügen
@@ -8313,7 +8307,7 @@ LISPFUNN(rename_file,2)
                 break;
               }
             ergebnis_NIL: # Ergebnis NIL
-              skipSTACK(2); # beide Pathnames vergessen
+              skipSTACK(3); # beide Pathnames und eltype vergessen
               return NIL;
             fehler_notfound: # Fehler, da Datei nicht gefunden
               # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
@@ -8337,7 +8331,8 @@ LISPFUNN(rename_file,2)
         handle_ok:
         # handle und append_flag sind jetzt fertig.
         # Stream erzeugen:
-        return make_file_stream(handle,direction,type,eltype_size,append_flag);
+        pushSTACK(handle);
+        return make_file_stream(direction,append_flag);
     } }
 
 LISPFUN(open,1,0,norest,key,5,\
@@ -8357,8 +8352,6 @@ LISPFUN(open,1,0,norest,key,5,\
    {var uintB direction;
     var uintB if_exists;
     var uintB if_not_exists;
-    var uintB type;
-    var object eltype_size = NIL;
     # :direction überprüfen und in direction übersetzen:
     { var object arg = STACK_4;
       if (eq(arg,unbound) || eq(arg,S(Kinput))) { direction = 1; }
@@ -8377,95 +8370,7 @@ LISPFUN(open,1,0,norest,key,5,\
                ""
               );
     } }
-    # :element-type überprüfen und in type und eltype_size übersetzen:
-    { var object arg = STACK_3;
-      if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # CHARACTER, STRING-CHAR, :DEFAULT
-        { type = strmtype_ch_file; goto eltype_ok; }
-      if (eq(arg,S(bit))) # BIT
-        { type = strmtype_iu_file; eltype_size = Fixnum_1; goto eltype_ok; }
-      if (eq(arg,S(unsigned_byte))) # UNSIGNED-BYTE
-        { type = strmtype_iu_file; eltype_size = fixnum(8); goto eltype_ok; }
-      if (eq(arg,S(signed_byte))) # SIGNED-BYTE
-        { type = strmtype_is_file; eltype_size = fixnum(8); goto eltype_ok; }
-      if (consp(arg) && mconsp(Cdr(arg)) && nullp(Cdr(Cdr(arg)))) # zweielementige Liste
-        { var object h = Car(arg);
-          if (eq(h,S(mod))) # (MOD n)
-            { type = strmtype_iu_file;
-              h = Car(Cdr(arg)); # n
-              # muss ein Integer >0 sein:
-              if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
-                goto bad_eltype;
-              # eltype_size := (integer-length (1- n)) bilden:
-              pushSTACK(filename); # filename retten
-              pushSTACK(h); funcall(L(einsminus),1); # (1- n)
-              pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
-              eltype_size = value1;
-              filename = popSTACK(); # filename zurück
-              goto eltype_integer;
-            }
-          if (eq(h,S(unsigned_byte))) # (UNSIGNED-BYTE n)
-            { type = strmtype_iu_file;
-              eltype_size = Car(Cdr(arg));
-              goto eltype_integer;
-            }
-          if (eq(h,S(signed_byte))) # (SIGNED-BYTE n)
-            { type = strmtype_is_file;
-              eltype_size = Car(Cdr(arg));
-              goto eltype_integer;
-            }
-        }
-      pushSTACK(filename); # filename retten
-      pushSTACK(subr_self); # subr_self retten
-      # Erstmal ein wenig kanonischer machen (damit die verschiedenen
-      # SUBTYPEP dann nicht dreimal dasselbe machen müssen):
-      pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
-      pushSTACK(value1); # canon-arg retten
-      pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
-      if (!nullp(value1))
-        { skipSTACK(1);
-          subr_self = popSTACK();
-          filename = popSTACK();
-          type = strmtype_ch_file;
-          goto eltype_ok;
-        }
-      funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
-      subr_self = popSTACK(); # subr_self zurück
-      filename = popSTACK(); # filename zurück
-      if ((mv_count>1) && integerp(value1) && integerp(value2))
-        { # arg is a subtype of `(INTEGER ,low ,high) and
-          # value1 = low, value2 = high.
-          var uintL l;
-          if (positivep(value1))
-            { l = I_integer_length(value2); # (INTEGER-LENGTH high)
-              type = strmtype_iu_file;
-            }
-          else
-            { var uintL l1 = I_integer_length(value1); # (INTEGER-LENGTH low)
-              var uintL l2 = I_integer_length(value2); # (INTEGER-LENGTH high)
-              l = (l1>l2 ? l1 : l2) + 1;
-              type = strmtype_is_file;
-            }
-          eltype_size = fixnum(l);
-          goto eltype_integer;
-        }
-     bad_eltype:
-      pushSTACK(STACK_3); pushSTACK(S(open));
-      fehler(error,
-             DEUTSCH ? "~: Als :ELEMENT-TYPE-Argument ist ~ unzulässig." :
-             ENGLISH ? "~: illegal :ELEMENT-TYPE argument ~" :
-             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE." :
-             ""
-            );
-     eltype_integer:
-      # eltype_size überprüfen:
-      if (!(posfixnump(eltype_size) && !eq(eltype_size,Fixnum_0)
-            && ((oint_data_len < log2_intDsize+intWCsize) # (Bei oint_data_len <= log2(intDsize)+intWCsize-1
-                # ist stets eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1).)
-                || (as_oint(eltype_size) < as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1))))
-         ) )   )
-        goto bad_eltype;
-     eltype_ok: ;
-    }
+    # :element-type wird später überprüft.
     # :if-exists überprüfen und in if_exists übersetzen:
     { var object arg = STACK_2;
       if (eq(arg,unbound)) { if_exists = 0; }
@@ -8518,8 +8423,8 @@ LISPFUN(open,1,0,norest,key,5,\
                 );
     }   }
     # File öffnen:
-    skipSTACK(6);
-    value1 = open_file(filename,direction,if_exists,if_not_exists,type,eltype_size);
+    STACK_5 = STACK_3; skipSTACK(5);
+    value1 = open_file(filename,direction,if_exists,if_not_exists);
     mv_count=1;
   }}
 

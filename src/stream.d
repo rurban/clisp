@@ -3959,9 +3959,9 @@ LISPFUNN(generic_stream_p,1)
 # UP: erzeugt ein File-Handle-Stream
 # make_handle_stream(handle,direction)
 # > handle: Handle des geöffneten Files
-# > STACK_2: Filename, ein Pathname
-# > STACK_1: Truename, ein Pathname
-# > STACK_0: Element-Type
+# > STACK_2: Element-Type
+# > STACK_1: Filename, ein Pathname
+# > STACK_0: Truename, ein Pathname
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
 # < ergebnis: File-Handle-Stream
 # < STACK: aufgeräumt
@@ -4018,12 +4018,12 @@ LISPFUNN(generic_stream_p,1)
       begin_system_call();
       TheStream(stream)->strm_isatty = (isatty(TheHandle(handle)) ? T : NIL);
       end_system_call();
-      TheStream(stream)->strm_eltype = popSTACK();
       # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
       # Daher ist (vgl. file_write_date) strm_file_handle == strm_ohandle,
       # und wir tragen nun die Pathnames ein:
       TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
       TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
+      TheStream(stream)->strm_eltype = popSTACK();
       #ifdef AMIGAOS
       TheStream(stream)->strm_handle_rawp = NIL;
       #endif
@@ -11193,28 +11193,133 @@ typedef struct strm_i_file_extrafields_struct {
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }}}
 
+# UP: Check a :ELEMENT-TYPE argument.
+# test_eltype_arg(&eltype,&type,&eltype_size);
+# > object eltype: argument (in the STACK)
+# > subr_self: calling function
+# < subr_self: unchanged
+# < uintB type: one of (strmtype_ch_file, strmtype_iu_file, strmtype_is_file)
+# < object eltype_size: (in case of strmtype_iu_file, strmtype_is_file)
+#     the size of an element in bits, a fixnum >0, <intDsize*uintWC_max
+# kann GC auslösen
+  local void test_eltype_arg (object* eltype_, uintB* type_, object* eltype_size_);
+  #define strmtype_ch_file  0
+  #define strmtype_iu_file  1
+  #define strmtype_is_file  2
+  local void test_eltype_arg(eltype_,type_,eltype_size_)
+    var object* eltype_;
+    var uintB* type_;
+    var object* eltype_size_;
+    { var object arg = *eltype_;
+      if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # CHARACTER, STRING-CHAR, :DEFAULT
+        { *type_ = strmtype_ch_file; return; }
+      if (eq(arg,S(bit))) # BIT
+        { *type_ = strmtype_iu_file; *eltype_size_ = Fixnum_1; return; }
+      if (eq(arg,S(unsigned_byte))) # UNSIGNED-BYTE
+        { *type_ = strmtype_iu_file; *eltype_size_ = fixnum(8); return; }
+      if (eq(arg,S(signed_byte))) # SIGNED-BYTE
+        { *type_ = strmtype_is_file; *eltype_size_ = fixnum(8); return; }
+     {var object eltype_size;
+      if (consp(arg) && mconsp(Cdr(arg)) && nullp(Cdr(Cdr(arg)))) # zweielementige Liste
+        { var object h = Car(arg);
+          if (eq(h,S(mod))) # (MOD n)
+            { *type_ = strmtype_iu_file;
+              h = Car(Cdr(arg)); # n
+              # muss ein Integer >0 sein:
+              if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
+                goto bad_eltype;
+              # eltype_size := (integer-length (1- n)) bilden:
+              pushSTACK(subr_self); # subr_self retten
+              pushSTACK(h); funcall(L(einsminus),1); # (1- n)
+              pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
+              eltype_size = value1;
+              subr_self = popSTACK(); # subr_self zurück
+              goto eltype_integer;
+            }
+          if (eq(h,S(unsigned_byte))) # (UNSIGNED-BYTE n)
+            { *type_ = strmtype_iu_file;
+              eltype_size = Car(Cdr(arg));
+              goto eltype_integer;
+            }
+          if (eq(h,S(signed_byte))) # (SIGNED-BYTE n)
+            { *type_ = strmtype_is_file;
+              eltype_size = Car(Cdr(arg));
+              goto eltype_integer;
+            }
+        }
+      pushSTACK(subr_self); # subr_self retten
+      # Erstmal ein wenig kanonischer machen (damit die verschiedenen
+      # SUBTYPEP dann nicht dreimal dasselbe machen müssen):
+      pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
+      pushSTACK(value1); # canon-arg retten
+      pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
+      if (!nullp(value1))
+        { skipSTACK(1);
+          subr_self = popSTACK();
+          *type_ = strmtype_ch_file;
+          return;
+        }
+      funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
+      subr_self = popSTACK(); # subr_self zurück
+      if (!((mv_count>1) && integerp(value1) && integerp(value2)))
+         goto bad_eltype;
+      { # arg is a subtype of `(INTEGER ,low ,high) and
+        # value1 = low, value2 = high.
+        var uintL l;
+        if (positivep(value1))
+          { l = I_integer_length(value2); # (INTEGER-LENGTH high)
+            *type_ = strmtype_iu_file;
+          }
+        else
+          { var uintL l1 = I_integer_length(value1); # (INTEGER-LENGTH low)
+            var uintL l2 = I_integer_length(value2); # (INTEGER-LENGTH high)
+            l = (l1>l2 ? l1 : l2) + 1;
+            *type_ = strmtype_is_file;
+          }
+        eltype_size = fixnum(l);
+      }
+     eltype_integer:
+      # eltype_size überprüfen:
+      if (!(posfixnump(eltype_size) && !eq(eltype_size,Fixnum_0)
+            && ((oint_data_len < log2_intDsize+intWCsize) # (Bei oint_data_len <= log2(intDsize)+intWCsize-1
+                # ist stets eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1).)
+                || (as_oint(eltype_size) < as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1))))
+         ) )   )
+        goto bad_eltype;
+      *eltype_size_ = eltype_size;
+      return;
+     bad_eltype:
+      pushSTACK(*eltype_); pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             DEUTSCH ? "~: Als :ELEMENT-TYPE-Argument ist ~ unzulässig." :
+             ENGLISH ? "~: illegal :ELEMENT-TYPE argument ~" :
+             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE." :
+             ""
+            );
+    }}
+
 # UP: erzeugt ein File-Stream
-# make_file_stream(handle,direction,type,eltype_size,append_flag)
-# > handle: Handle des geöffneten Files
-# > STACK_1: Filename, ein Pathname oder NIL
-# > STACK_0: Truename, ein Pathname oder NIL
+# make_file_stream(direction,append_flag)
+# > STACK_3: :ELEMENT-TYPE argument
+# > STACK_2: Filename, ein Pathname oder NIL
+# > STACK_1: Truename, ein Pathname oder NIL
+# > STACK_0: Handle des geöffneten Files
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > type: nähere Typinfo (strmtype_ch_file, strmtype_iu_file, strmtype_is_file)
-# > eltype_size: (bei Integer-Streams) Größe der Elemente in Bits,
-#         ein Fixnum >0 und <intDsize*uintWC_max
 # > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
 #         soll, FALSE sonst
+# > subr_self: calling function
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # kann GC auslösen
-  global object make_file_stream (object handle, uintB direction, uintB type, object eltype_size, boolean append_flag);
-  global object make_file_stream(handle,direction,type,eltype_size,append_flag)
-    var object handle;
+  global object make_file_stream (uintB direction, boolean append_flag);
+  global object make_file_stream(direction,append_flag)
     var uintB direction;
-    var uintB type;
-    var object eltype_size;
     var boolean append_flag;
-    { # Construct Element-Type as an object:
+    { var uintB type;
+      var object eltype_size = NIL;
+      # Check the :ELEMENT-TYPE argument:
+      test_eltype_arg(&STACK_3,&type,&eltype_size);
+      # Construct Element-Type as an object:
       { var object eltype;
         switch (type)
           { case strmtype_ch_file:
@@ -11234,9 +11339,10 @@ typedef struct strm_i_file_extrafields_struct {
               break;
             default: NOTREACHED;
           }
-        pushSTACK(eltype);
+        STACK_3 = eltype;
       }
-      # Stackaufbau: filename, truename, eltype.
+      # Stackaufbau: eltype, filename, truename, handle.
+     {var object handle = popSTACK();
       # Nur reguläre Files zu gebufferten File-Streams machen.
       # Alles andere gibt File-Handle-Streams, weil vermutlich lseek() nicht geht.
       if (!nullp(handle))
@@ -11248,9 +11354,9 @@ typedef struct strm_i_file_extrafields_struct {
                  )
                 { return make_handle_stream(handle,direction); }
                 else
-                { pushSTACK(STACK_1); # Truename, Wert für Slot PATHNAME von FILE-ERROR
+                { pushSTACK(STACK_0); # Truename, Wert für Slot PATHNAME von FILE-ERROR
                   pushSTACK(STACK_0);
-                  pushSTACK(S(open));
+                  pushSTACK(TheSubr(subr_self)->name);
                   fehler(file_error,
                          DEUTSCH ? "~: ~ ist kein reguläres File." :
                          ENGLISH ? "~: ~ is not a regular file." :
@@ -11258,202 +11364,202 @@ typedef struct strm_i_file_extrafields_struct {
                          ""
                         );
         }   }   }
-     { # Flags:
-       var uintB flags =
-         (direction==0 ? 0 : # bei Modus :PROBE sind alle Flags =0
-           # sonst:
-           (direction<4 ? strmflags_rd_B : # Modus :INPUT[-IMMUTABLE] -> nur Read
-            direction==4 && nullp(STACK_1) ? strmflags_wr_B : # Modus :OUTPUT ohne Filename -> nur Write
-            strmflags_open_B # sonst Read/Write
-           )
-           &
-           (type>=strmtype_iu_file ? strmflags_by_B : strmflags_ch_B) # auf Integers oder Characters
-         );
-       # Art von Integer-Streams:
-       var uintB art;
-       # Länge:
-       var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
-       if (type==strmtype_ch_file)
-         { xlen = sizeof(strm_ch_file_extrafields_struct); } # Das haben die File-Streams für Characters
-       elif (type>=strmtype_iu_file)
-         { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
-           {var uintL bitsize = posfixnum_to_L(eltype_size);
-            if ((bitsize%8)==0)
-              { art = strmflags_ia_B; } # Art a
-              else
-              { if (bitsize<8)
-                  { art = strmflags_ib_B; } # Art b
-                  else
-                  { art = strmflags_ic_B; } # Art c
-           }  }
-           flags |= art; # Art in die Flags mit aufnehmen
-         }
-       #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
-       pushSTACK(handle); # Handle retten
-       #endif
-      {# Stream allozieren:
-       var object stream = allocate_stream(flags,strmtype_file,strm_file_length,xlen);
-       # und füllen:
-       # Komponenten aller Streams:
-       switch (type)
-         { case strmtype_ch_file:
-             TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
-             TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-             TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_ch_file);
-             TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
-             TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_ch_file);
-             TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
-             break;
-           case strmtype_iu_file:
-             TheStream(stream)->strm_rd_by =
-               (art==strmflags_ia_B ? P(rd_by_iau_file) :
-                art==strmflags_ib_B ? P(rd_by_ibu_file) :
-                                      P(rd_by_icu_file)
-               );
-             TheStream(stream)->strm_rd_by_array =
-               (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
-                ? P(read_byte_array_iau8_file)
-                : P(rd_by_array_dummy)
-               );
-             TheStream(stream)->strm_wr_by =
-               (art==strmflags_ia_B ? P(wr_by_iau_file) :
-                art==strmflags_ib_B ? P(wr_by_ibu_file) :
-                                      P(wr_by_icu_file)
-               );
-             TheStream(stream)->strm_wr_by_array =
-               (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
-                ? P(write_byte_array_iau8_file)
-                : P(wr_by_array_dummy)
-               );
-             break;
-           case strmtype_is_file:
-             TheStream(stream)->strm_rd_by =
-               (art==strmflags_ia_B ? P(rd_by_ias_file) :
-                art==strmflags_ib_B ? P(rd_by_ibs_file) :
-                                      P(rd_by_ics_file)
-               );
-             TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
-             TheStream(stream)->strm_wr_by =
-               (art==strmflags_ia_B ? P(wr_by_ias_file) :
-                art==strmflags_ib_B ? P(wr_by_ibs_file) :
-                                      P(wr_by_ics_file)
-               );
-             TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
-             break;
-           default: NOTREACHED
-         }
-       # Default für READ-BYTE-Pseudofunktion:
-       if ((flags & strmflags_rd_by_B)==0)
-         { TheStream(stream)->strm_rd_by = P(rd_by_error);
-           TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-         }
-       # Default für WRITE-BYTE-Pseudofunktion:
-       if ((flags & strmflags_wr_by_B)==0)
-         { TheStream(stream)->strm_wr_by = P(wr_by_error);
-           TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-         }
-       # Default für READ-CHAR-Pseudofunktion:
-       if ((flags & strmflags_rd_ch_B)==0)
-         { TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-           TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-           TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-         }
-       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-       # Default für WRITE-CHAR-Pseudofunktion:
-       if ((flags & strmflags_wr_ch_B)==0)
-         { TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-           TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-           TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-         }
-       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-       # Komponenten von File-Streams:
-       #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
-       handle = popSTACK(); # Handle zurück
-       #endif
-       TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
-       TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
-       TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
-       if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
-         { TheStream(stream)->strm_file_handle = handle; # Handle eintragen
-           FileStream_buffstart(stream) = 0; # buffstart := 0
-           # Buffer allozieren:
-           pushSTACK(stream);
-          {var object buffer = allocate_bit_vector(strm_file_bufflen*8);
-           stream = popSTACK();
-           TheStream(stream)->strm_file_buffer = buffer;
+      { # Flags:
+        var uintB flags =
+          (direction==0 ? 0 : # bei Modus :PROBE sind alle Flags =0
+            # sonst:
+            (direction<4 ? strmflags_rd_B : # Modus :INPUT[-IMMUTABLE] -> nur Read
+             direction==4 && nullp(STACK_0) ? strmflags_wr_B : # Modus :OUTPUT ohne Filename -> nur Write
+             strmflags_open_B # sonst Read/Write
+            )
+            &
+            (type>=strmtype_iu_file ? strmflags_by_B : strmflags_ch_B) # auf Integers oder Characters
+          );
+        # Art von Integer-Streams:
+        var uintB art;
+        # Länge:
+        var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
+        if (type==strmtype_ch_file)
+          { xlen = sizeof(strm_ch_file_extrafields_struct); } # Das haben die File-Streams für Characters
+        elif (type>=strmtype_iu_file)
+          { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
+            {var uintL bitsize = posfixnum_to_L(eltype_size);
+             if ((bitsize%8)==0)
+               { art = strmflags_ia_B; } # Art a
+               else
+               { if (bitsize<8)
+                   { art = strmflags_ib_B; } # Art b
+                   else
+                   { art = strmflags_ic_B; } # Art c
+            }  }
+            flags |= art; # Art in die Flags mit aufnehmen
           }
-           FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
-           FileStream_index(stream) = 0; # index := 0
-           FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
-           FileStream_position(stream) = 0; # position := 0
-           if (type==strmtype_ch_file)
-             # File-Stream für Characters
-             { FileStream_lineno(stream) = 1; }
-           elif (type>=strmtype_iu_file)
-             # File-Stream für Integers
-             { FileStream_bitsize(stream) = posfixnum_to_L(eltype_size);
-               # Bitbuffer allozieren:
-               pushSTACK(stream);
-              {var object bitbuffer = allocate_bit_vector(ceiling(posfixnum_to_L(eltype_size),8)*8);
-               stream = popSTACK();
-               TheStream(stream)->strm_file_bitbuffer = bitbuffer;
-              }
-               if (!(art==strmflags_ia_B))
-                 # Arten b,c
-                 { FileStream_bitindex(stream) = 0; # bitindex := 0
-                   if (art==strmflags_ib_B)
-                     # Art b
-                     { # eofposition lesen:
-                       var uintL eofposition = 0;
-                       var uintC count;
-                       for (count=0; count < 8*sizeof(uintL); count += 8 )
-                         { var uintB* ptr = b_file_nextbyte(stream);
-                           if (ptr == (uintB*)NULL) goto too_short;
-                           eofposition |= ((*ptr) << count);
-                           # index incrementieren, da gerade *ptr verarbeitet:
-                           FileStream_index(stream) += 1;
-                         }
-                       if (FALSE)
-                         { too_short:
-                           # File zu kurz (< sizeof(uintL) Bytes)
-                           if ((TheStream(stream)->strmflags & strmflags_wr_by_B) == 0) # Read-Only-Stream?
-                             goto bad_eofposition;
-                           # File Read/Write -> setze eofposition := 0
-                           eofposition = 0;
-                           position_b_file(stream,0); # an Position 0 positionieren
-                          {var uintC count; # und eofposition = 0 herausschreiben
-                           dotimespC(count,sizeof(uintL), { b_file_writebyte(stream,0); } );
-                         }}
-                       elif (eofposition > (uintL)(bitm(oint_data_len)-1))
-                         { bad_eofposition:
-                           # Keine gültige EOF-Position.
-                           # File schließen und Error melden:
-                           TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
-                           pushSTACK(stream);
-                           stream_close(&STACK_0);
-                           # STACK_0 = Wert für Slot STREAM von STREAM-ERROR
-                           pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0);
-                           fehler(stream_error,
-                                  DEUTSCH ? "File ~ hat nicht das Format eines Integer-Files." :
-                                  ENGLISH ? "file ~ is not an integer file" :
-                                  FRANCAIS ? "Le fichier ~ n'a pas le format d'un fichier d'entiers." :
-                                  ""
-                                 );
-                         }
-                       # Auf die gelesene EOF-Position verlassen wir uns jetzt!
-                       FileStream_eofposition(stream) = eofposition;
-             }   }   }
-           # Liste der offenen File-Streams um stream erweitern:
-           pushSTACK(stream);
-          {var object new_cons = allocate_cons();
-           Car(new_cons) = stream = popSTACK();
-           Cdr(new_cons) = O(open_files);
-           O(open_files) = new_cons;
-          }# Modus :APPEND behandeln:
-           if (append_flag) { position_file_end(stream); }
-         }
-       return stream;
-    }}}
+        #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
+        pushSTACK(handle); # Handle retten
+        #endif
+       {# Stream allozieren:
+        var object stream = allocate_stream(flags,strmtype_file,strm_file_length,xlen);
+        # und füllen:
+        # Komponenten aller Streams:
+        switch (type)
+          { case strmtype_ch_file:
+              TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
+              TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+              TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_ch_file);
+              TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
+              TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_ch_file);
+              TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
+              break;
+            case strmtype_iu_file:
+              TheStream(stream)->strm_rd_by =
+                (art==strmflags_ia_B ? P(rd_by_iau_file) :
+                 art==strmflags_ib_B ? P(rd_by_ibu_file) :
+                                       P(rd_by_icu_file)
+                );
+              TheStream(stream)->strm_rd_by_array =
+                (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
+                 ? P(read_byte_array_iau8_file)
+                 : P(rd_by_array_dummy)
+                );
+              TheStream(stream)->strm_wr_by =
+                (art==strmflags_ia_B ? P(wr_by_iau_file) :
+                 art==strmflags_ib_B ? P(wr_by_ibu_file) :
+                                       P(wr_by_icu_file)
+                );
+              TheStream(stream)->strm_wr_by_array =
+                (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
+                 ? P(write_byte_array_iau8_file)
+                 : P(wr_by_array_dummy)
+                );
+              break;
+            case strmtype_is_file:
+              TheStream(stream)->strm_rd_by =
+                (art==strmflags_ia_B ? P(rd_by_ias_file) :
+                 art==strmflags_ib_B ? P(rd_by_ibs_file) :
+                                       P(rd_by_ics_file)
+                );
+              TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
+              TheStream(stream)->strm_wr_by =
+                (art==strmflags_ia_B ? P(wr_by_ias_file) :
+                 art==strmflags_ib_B ? P(wr_by_ibs_file) :
+                                       P(wr_by_ics_file)
+                );
+              TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
+              break;
+            default: NOTREACHED
+          }
+        # Default für READ-BYTE-Pseudofunktion:
+        if ((flags & strmflags_rd_by_B)==0)
+          { TheStream(stream)->strm_rd_by = P(rd_by_error);
+            TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+          }
+        # Default für WRITE-BYTE-Pseudofunktion:
+        if ((flags & strmflags_wr_by_B)==0)
+          { TheStream(stream)->strm_wr_by = P(wr_by_error);
+            TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+          }
+        # Default für READ-CHAR-Pseudofunktion:
+        if ((flags & strmflags_rd_ch_B)==0)
+          { TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+            TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+            TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+          }
+        TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
+        # Default für WRITE-CHAR-Pseudofunktion:
+        if ((flags & strmflags_wr_ch_B)==0)
+          { TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+            TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+          }
+        TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
+        # Komponenten von File-Streams:
+        #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
+        handle = popSTACK(); # Handle zurück
+        #endif
+        TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
+        TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
+        TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
+        if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
+          { TheStream(stream)->strm_file_handle = handle; # Handle eintragen
+            FileStream_buffstart(stream) = 0; # buffstart := 0
+            # Buffer allozieren:
+            pushSTACK(stream);
+           {var object buffer = allocate_bit_vector(strm_file_bufflen*8);
+            stream = popSTACK();
+            TheStream(stream)->strm_file_buffer = buffer;
+           }
+            FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+            FileStream_index(stream) = 0; # index := 0
+            FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
+            FileStream_position(stream) = 0; # position := 0
+            if (type==strmtype_ch_file)
+              # File-Stream für Characters
+              { FileStream_lineno(stream) = 1; }
+            elif (type>=strmtype_iu_file)
+              # File-Stream für Integers
+              { FileStream_bitsize(stream) = posfixnum_to_L(eltype_size);
+                # Bitbuffer allozieren:
+                pushSTACK(stream);
+               {var object bitbuffer = allocate_bit_vector(ceiling(posfixnum_to_L(eltype_size),8)*8);
+                stream = popSTACK();
+                TheStream(stream)->strm_file_bitbuffer = bitbuffer;
+               }
+                if (!(art==strmflags_ia_B))
+                  # Arten b,c
+                  { FileStream_bitindex(stream) = 0; # bitindex := 0
+                    if (art==strmflags_ib_B)
+                      # Art b
+                      { # eofposition lesen:
+                        var uintL eofposition = 0;
+                        var uintC count;
+                        for (count=0; count < 8*sizeof(uintL); count += 8 )
+                          { var uintB* ptr = b_file_nextbyte(stream);
+                            if (ptr == (uintB*)NULL) goto too_short;
+                            eofposition |= ((*ptr) << count);
+                            # index incrementieren, da gerade *ptr verarbeitet:
+                            FileStream_index(stream) += 1;
+                          }
+                        if (FALSE)
+                          { too_short:
+                            # File zu kurz (< sizeof(uintL) Bytes)
+                            if ((TheStream(stream)->strmflags & strmflags_wr_by_B) == 0) # Read-Only-Stream?
+                              goto bad_eofposition;
+                            # File Read/Write -> setze eofposition := 0
+                            eofposition = 0;
+                            position_b_file(stream,0); # an Position 0 positionieren
+                           {var uintC count; # und eofposition = 0 herausschreiben
+                            dotimespC(count,sizeof(uintL), { b_file_writebyte(stream,0); } );
+                          }}
+                        elif (eofposition > (uintL)(bitm(oint_data_len)-1))
+                          { bad_eofposition:
+                            # Keine gültige EOF-Position.
+                            # File schließen und Error melden:
+                            TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
+                            pushSTACK(stream);
+                            stream_close(&STACK_0);
+                            # STACK_0 = Wert für Slot STREAM von STREAM-ERROR
+                            pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0);
+                            fehler(stream_error,
+                                   DEUTSCH ? "File ~ hat nicht das Format eines Integer-Files." :
+                                   ENGLISH ? "file ~ is not an integer file" :
+                                   FRANCAIS ? "Le fichier ~ n'a pas le format d'un fichier d'entiers." :
+                                   ""
+                                  );
+                          }
+                        # Auf die gelesene EOF-Position verlassen wir uns jetzt!
+                        FileStream_eofposition(stream) = eofposition;
+              }   }   }
+            # Liste der offenen File-Streams um stream erweitern:
+            pushSTACK(stream);
+           {var object new_cons = allocate_cons();
+            Car(new_cons) = stream = popSTACK();
+            Cdr(new_cons) = O(open_files);
+            O(open_files) = new_cons;
+           }# Modus :APPEND behandeln:
+            if (append_flag) { position_file_end(stream); }
+          }
+        return stream;
+    }}}}
 
 # UP: Bereitet das Schließen eines File-Streams vor.
 # Dabei wird der Buffer und evtl. eofposition hinausgeschrieben.
@@ -13208,7 +13314,7 @@ LISPFUNN(socket_stream_handle,1)
           var uintL position;
           # Allocate stream for stdin:
           if (stdin_file)
-            {
+            { pushSTACK(S(character));
               #ifdef UNIX
               pushSTACK(asciz_to_string("/dev/fd/0")); funcall(L(pathname),1);
               pushSTACK(value1);
@@ -13216,7 +13322,8 @@ LISPFUNN(socket_stream_handle,1)
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
-              stream = make_file_stream(allocate_handle(stdin_handle),1,strmtype_ch_file,NIL,FALSE);
+              pushSTACK(allocate_handle(stdin_handle));
+              stream = make_file_stream(1,FALSE);
               file_lseek(stream,0,SEEK_CUR,position=);
               position_b_file(stream,position);
             }
@@ -13225,7 +13332,7 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(stream);
           # Allocate stream for stdout:
           if (stdout_file)
-            {
+            { pushSTACK(S(character));
               #ifdef UNIX
               pushSTACK(asciz_to_string("/dev/fd/1")); funcall(L(pathname),1);
               pushSTACK(value1);
@@ -13233,7 +13340,8 @@ LISPFUNN(socket_stream_handle,1)
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
-              stream = make_file_stream(allocate_handle(stdout_handle),4,strmtype_ch_file,NIL,FALSE);
+              pushSTACK(allocate_handle(stdout_handle));
+              stream = make_file_stream(4,FALSE);
               file_lseek(stream,0,SEEK_CUR,position=);
               position_b_file(stream,position);
             }
@@ -13290,7 +13398,7 @@ LISPFUNN(socket_stream_handle,1)
         { # Für *ERROR-OUTPUT* einen anderen Stream verwenden. Auf den
           # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
           pushSTACK(asciz_to_string("/dev/fd/2")); funcall(L(pathname),1);
-          pushSTACK(value1); pushSTACK(value1); pushSTACK(S(character));
+          pushSTACK(S(character)); pushSTACK(value1); pushSTACK(value1);
           stream = make_handle_stream(allocate_handle(2),4);
         }
       #endif

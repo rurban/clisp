@@ -11529,23 +11529,19 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von IO, PACKAGE, ERROR, DEBUG, SPVW
 
 # UP: erzeugt ein File-Stream
-# make_file_stream(handle,direction,type,eltype_size,append_flag)
-# > handle: Handle des geöffneten Files
-# > STACK_1: Filename, ein Pathname
-# > STACK_0: Truename, ein Pathname
+# make_file_stream(direction,append_flag)
+# > STACK_3: :ELEMENT-TYPE argument
+# > STACK_2: Filename, ein Pathname oder NIL
+# > STACK_1: Truename, ein Pathname oder NIL
+# > STACK_0: Handle des geöffneten Files
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > type: nähere Typinfo (strmtype_ch_file, strmtype_iu_file, strmtype_is_file)
-# > eltype_size: (bei Integer-Streams) Größe der Elemente in Bits,
-#         ein Fixnum >0 und <intDsize*uintWC_max
 # > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
 #         soll, FALSE sonst
+# > subr_self: calling function
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # kann GC auslösen
-  extern object make_file_stream (object handle, uintB direction, uintB type, object eltype_size, boolean append_flag);
-  #define strmtype_ch_file  0
-  #define strmtype_iu_file  1
-  #define strmtype_is_file  2
+  extern object make_file_stream (uintB direction, boolean append_flag);
 # wird verwendet von PATHNAME
 
 # Liefert einen Broadcast-Stream zum Stream stream.
