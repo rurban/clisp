@@ -4448,17 +4448,17 @@ compiles a file to platform-independent bytecode.</para>
     to the input file</entry></row>
  <row><entry>listing file</entry>
    <entry>only if <constant>:listing</constant> is not &nil;</entry>
-   <entry><filename>#p".lis"</filename></entry>
+   <entry><filename>#P".lis"</filename></entry>
    <entry>disassembly of the output file</entry></row>
  <row><entry>&c-lang; output file</entry>
    <entry>only if <constant>:output-file</constant> is not &nil;</entry>
-   <entry><filename>#p".c"</filename></entry>
+   <entry><filename>#P".c"</filename></entry>
    <entry>foreign function interface; this file is deleted if it is
     empty</entry></row>
 </tbody></tgroup></table>
 
 <warning><para>If you have two files in the same directory
-- &foolisp-f; and <filename>"foo.c"</filename>,
+- &foolisp-f; and <filename>#P"foo.c"</filename>,
 and you compile the first file with &clisp;, the second file will be
 <emphasis>clobbered</emphasis> even if you have no &ffi-pac; forms in
 the first one!</para></warning>
@@ -4516,10 +4516,12 @@ effects when being loaded, this is important as well.
 
 <section id="loadfile"><title>Function &load;</title>
 
-<para>&load; has two additional keywords &echo-k; and &compiling-k;.</para>
+<para>&load; has three additional keywords &echo-k;, &compiling-k;, and
+ &extra-file-types-k;.</para>
 
 <para><literal role="sexp">(&load; &filename-r; &key-amp; &verbose-k;
- &print-k; &echo-k; &if-does-not-exist; &compiling-k;)</literal></para>
+ &print-k; &echo-k; &if-does-not-exist; &compiling-k;
+ &extra-file-types-k;)</literal></para>
 
 <variablelist>
  <varlistentry><term>&verbose-k; &t;</term>
@@ -4535,16 +4537,25 @@ effects when being loaded, this is important as well.
   &standard-output-var; (normally to the screen).  Should
   there be an error in the file, you can see at one glance where it is.
   The default is <emphasis
-  role="strong"><varname>custom:*load-echo*</varname></emphasis>, which is
+  role="strong"><varname>CUSTOM:*LOAD-ECHO*</varname></emphasis>, which is
   initially &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&compiling-k; &t;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
   The compiled code is executed at once and - in contrast to <link
   linkend="compilefile"><function>compile-file</function></link> - not
   written to a file.  The default is <emphasis
-  role="strong"><varname>custom:*load-compiling*</varname></emphasis>,
-  which is initially &nil;.
-</simpara></listitem></varlistentry></variablelist>
+  role="strong"><varname>CUSTOM:*LOAD-COMPILING*</varname></emphasis>,
+  which is initially &nil;.</simpara></listitem></varlistentry>
+ <varlistentry><term>&extra-file-types-k; &list-t;</term>
+  <listitem><simpara>Specifies the additional file types considered for
+  loading, in addition to <emphasis
+  role="strong"><varname>CUSTOM:*SOURCE-FILE-TYPES*</varname></emphasis>
+  (which is initially <literal role="sexp">("lisp" "lsp" "cl")</literal>)
+  and <emphasis
+  role="strong"><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></emphasis>
+  (which is initially <literal role="sexp">("fas")</literal>).
+ </simpara></listitem></varlistentry>
+</variablelist>
 
 <formalpara id="load-paths"><title>&load-paths;</title>
 <para>The variable &load-paths; contains a list of directories where the
