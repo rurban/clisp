@@ -157,6 +157,18 @@
 </para></formalpara>
 
 </section>
+
+<section><title>Dynamic Variables
+  <ulink url="&clhs;/Body/sec_3-1-2-1-1-2.html">[CLHS-3.1.2.1.1.2]</ulink></title>
+
+<para>Undefined variables, i.e. variables which are referenced outside
+ any lexical binding for a variable of the same name and which are not
+ declared &special-dec;, are treated like
+ <ulink url="&clhs;/Body/sec_3-1-2-1-1-2.html">dynamic variables</ulink> in the
+ <ulink url="&clhs;/Body/sec_3-1-1-1.html">global environment</ulink>.
+ The compiler signals a warning when it encounters an undefined variable.
+</para>
+</section>
 </section>
 
 <section id="compilation"><title>Compilation
