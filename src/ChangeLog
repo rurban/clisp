@@ -1,3 +1,14 @@
+2004-04-13  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Class): Move the direct_subclasses slot.
+	* clos-class2.lisp (class): Remove the direct-subclasses slot.
+	(standard-class): Add it here instead.
+	(finalize-instance-standard-class): Access class-direct-subclasses only
+	if the superclass is a standard-class.
+	(initialize-instance-built-in-class): Don't add this class to the
+	class-direct-subclasses of the superclaass.
+	(initialize-instance-structure-class): Likewise.
+
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
 	* rawsock/sock.lisp (open-unix-socket): new function
