@@ -1711,7 +1711,6 @@ here <function>WITH-FOO</function> does not receive the
   <member>&pathprint;</member>
   <member><varname>CUSTOM:*PRINT-PRETTY-FILL*</varname></member>
   <member>&pr-rpars;</member>
-  <member><varname>CUSTOM:*PRINT-SYMBOLS-LONG*</varname></member>
   <member>&prompt-body;</member>
   <member>&prompt-break;</member>
   <member>&prompt-finish;</member>

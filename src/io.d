@@ -6819,9 +6819,10 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
     var bool case_sensitive = false;
     var object curr_pack = get_current_package();
     if (accessiblep(sym,curr_pack)
-        # print PACK::SYMBOL even when the symbol is accessble
-        # this is for writing compiled files
-        && (nullpSv(print_symbols_long) && nullpSv(print_readably))) {
+        # When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
+        # accessible. This is to satisfy the contract of *PRINT-READABLY*,
+        # but is also useful when writing .fas files.
+        && nullpSv(print_readably)) {
       # if symbol is accessible and not shadowed,
       # print no package-name and no package-markers.
       case_sensitive = pack_casesensitivep(curr_pack);
@@ -6844,9 +6845,9 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
         home = popSTACK(); # move home-package back
         case_sensitive = pack_casesensitivep(home);
         if (externalp(STACK_0,home)
-            # the "raison d'etre" of *PRINT-SYMBOLS-LONG* is FAS files,
-            # so it forces even external symbols to be printed with "::"
-            && (nullpSv(print_symbols_long) && nullpSv(print_readably)))
+            # When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
+            # external. It may not be external when the output is read later.
+            && nullpSv(print_readably))
           goto one_marker; # yes -> 1 package-marker
         write_ascii_char(stream_,':'); # else 2 package-marker
       one_marker:
