@@ -120,6 +120,7 @@
 <!ENTITY in-s "<ulink url='&clhs;/Body/glo_i.html#input'>input</ulink> &stream-t;">
 <!ENTITY out-s "<ulink url='&clhs;/Body/glo_o.html#output'>output</ulink> &stream-t;">
 <!ENTITY bidi-s "<ulink url='&clhs;/Body/glo_b.html#bidirectional'>bidirectional</ulink> &stream-t;">
+<!ENTITY fresh "<ulink url='&clhs;/Body/glo_f.html#fresh'>fresh</ulink>">
 
 <!-- *** packages *** -->
 <!ENTITY cl-pac "<ulink url='&clhs;/Body/sec_11-1-2-1.html'><quote>COMMON-LISP</quote></ulink>">

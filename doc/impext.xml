@@ -1377,7 +1377,7 @@ N. Gray to X3J13.</para>
 <varlistentry><term><literal
    role="sexp">(<function>EXT:MAKE-WEAK-POINTER</function>
    &value-r;)</literal></term>
- <listitem><simpara>returns a fresh weak pointer referring to
+ <listitem><simpara>returns a &fresh; weak pointer referring to
   &value-r;.</simpara></listitem></varlistentry>
 <varlistentry><term><literal
    role="sexp">(<function>EXT:WEAK-POINTER-P</function>
@@ -1406,12 +1406,14 @@ N. Gray to X3J13.</para>
 <para>Calling
  <literal role="sexp">(&finalize; &object-r; &func-r;
                        <replaceable>guardian</replaceable>)</literal>
- has a similar effect, but only as long as the "guardian" has not been
- &gc;ed: when &object-r; is being &gc;ed,
+ has a similar effect, but only as long as the
+ <replaceable>guardian</replaceable> has not been &gc;ed:
+ when &object-r; is being &gc;ed,
  <literal role="sexp">(&funcall; &func-r; &object-r;
                        <replaceable>guardian</replaceable>)</literal>
  will be executed.
- If the guardian is &gc;ed before &object-r; is, nothing happens.</para>
+ If the <replaceable>guardian</replaceable> is &gc;ed before &object-r;
+ is, nothing happens.</para>
 
 <para>Note: The time when <quote>the &object-r; is being &gc;ed</quote>
  is not defined deterministically.
@@ -1437,10 +1439,10 @@ N. Gray to X3J13.</para>
  <varname>CUSTOM:*PROMPT*</varname> prints
  <prompt>"package[n]&gt;&nbsp;"</prompt> where
  <replaceable>package</replaceable> is the shortest (nick)name of the
- current package &package-var; if it is the same as it was in the
- beginning or if it does not contain symbol &t; (it is assumed that in
- the latter case you would want to keep in mind that your current
- package is something weird);
+ current package &package-var; if it is <emphasis>not</emphasis> the
+ same as it was in the beginning or if it does not contain symbol &t;
+ (it is assumed that in the latter case you would want to keep in mind
+ that your current package is something weird);
  and &n-r; is the ordinal number of the current prompt
  (hopefully, it will remain finite).
  To help you in constructing your own fancy prompts, two
@@ -2486,7 +2488,7 @@ unit</ulink> (usually a file), a warning is issued and
  type.  Note that for a foreign variable &x-r; the form <literal
  role="sexp">(&eql; &x-r; &x-r;)</literal> is not necessarily true,
  since every time &x-r; is evaluated its foreign value is converted to a
- freshly created Lisp value.  Foreign variables are defined using
+ &fresh; Lisp value.  Foreign variables are defined using
  &def-c-var;.</para>
 
 </section>
@@ -2955,10 +2957,11 @@ without external &c-lang; or linker support.
 &mem-image;s can be created, provided that the function libraries are
 opened at run-time.</para>
 
-<para>Therefore, &affi-pac; supports only primitive &c-lang; types (integers
-8, 16 and 32 bits wide, signed or unsigned, pointers) and defines no new
-types or classes.  Foreign functions are not first-class objects (you
-can define a lambda yourself), name spaces are separate.</para>
+<para>Therefore, &affi-pac; supports only primitive &c-lang; types
+(integers 8, 16 and 32 bits wide, signed or unsigned, pointers) and
+defines no new types or classes.  Foreign functions are not first-class
+objects (you can define a &lambda; yourself), name spaces are
+separate.</para>
 
 <para>The &affi-pac; does no tracking of resources.  Use &finalize;.</para>
 
@@ -3527,38 +3530,45 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <para>Additionally, for a &socket-stream;, we define
     <quote>status</quote> in the given direction (one of &input-k;,
     &output-k;, and &io-k;) to be
-    <variablelist><title>&input-k; status:</title>
-     <varlistentry><term>&nil;</term>
-      <listitem><simpara>reading will block
-     </simpara></listitem></varlistentry>
-     <varlistentry><term>&input-k;</term>
-      <listitem><simpara>some input is available
-     </simpara></listitem></varlistentry>
-     <varlistentry><term>&eof-k;</term>
-      <listitem><simpara>the stream has reached its end
-    </simpara></listitem></varlistentry></variablelist>
-    <variablelist><title>&output-k; status:</title>
-     <varlistentry><term>&nil;</term>
-      <listitem><simpara>writing will block
-     </simpara></listitem></varlistentry>
-     <varlistentry><term>&output-k;</term>
-      <listitem><simpara>output to the stream will not block
-     </simpara></listitem></varlistentry></variablelist>
-    <table id="so-status-i-o" frame="all"><title>&io-k; status</title>
-     <tgroup cols="4" colsep="1" rowsep="1" align="center">
-      <colspec colname="out"/><colspec colname="nil"/>
-      <colspec colname="inp"/><colspec colname="eof"/>
-      <thead><row><entry morerows="1" valign="bottom">output status</entry>
-        <entry namest="nil" nameend="eof">input status</entry></row>
-       <row><entry>&nil;</entry><entry>&input-k;</entry>
-        <entry>&eof-k;</entry></row></thead>
-      <tbody><row><entry>&nil;</entry><entry>&nil;</entry>
-        <entry>&input-k;</entry><entry>&eof-k;</entry></row>
-       <row><entry>&output-k;</entry><entry>&output-k;</entry>
-        <entry>&io-k;</entry><entry>&append-k;</entry></row></tbody>
-    </tgroup></table></para>
+    <variablelist id="so-status-values">
+     <title>Possible status values for various directions:</title>
+     <varlistentry><term>&input-k; status:</term>
+      <listitem><variablelist>
+        <varlistentry><term>&nil;</term>
+         <listitem><simpara>reading will block
+        </simpara></listitem></varlistentry>
+        <varlistentry><term>&input-k;</term>
+         <listitem><simpara>some input is available
+        </simpara></listitem></varlistentry>
+        <varlistentry><term>&eof-k;</term>
+         <listitem><simpara>the stream has reached its end
+       </simpara></listitem></varlistentry></variablelist>
+     </listitem></varlistentry>
+     <varlistentry><term>&output-k; status:</term>
+      <listitem><variablelist>
+        <varlistentry><term>&nil;</term>
+         <listitem><simpara>writing will block
+        </simpara></listitem></varlistentry>
+        <varlistentry><term>&output-k;</term>
+         <listitem><simpara>output to the stream will not block
+       </simpara></listitem></varlistentry></variablelist>
+       </listitem></varlistentry>
+     <varlistentry><term>&io-k; status:</term>
+      <listitem><informaltable id="so-status-i-o" frame="all">
+        <tgroup cols="4" colsep="1" rowsep="1" align="center">
+         <colspec colname="out"/><colspec colname="nil"/>
+         <colspec colname="inp"/><colspec colname="eof"/>
+         <thead><row><entry morerows="1" valign="bottom">output status</entry>
+           <entry namest="nil" nameend="eof">input status</entry></row>
+          <row><entry>&nil;</entry><entry>&input-k;</entry>
+           <entry>&eof-k;</entry></row></thead>
+         <tbody><row><entry>&nil;</entry><entry>&nil;</entry>
+           <entry>&input-k;</entry><entry>&eof-k;</entry></row>
+          <row><entry>&output-k;</entry><entry>&output-k;</entry>
+           <entry>&io-k;</entry><entry>&append-k;</entry></row></tbody>
+      </tgroup></informaltable></listitem></varlistentry></variablelist></para>
    <variablelist><title>Possible values of
-     <replaceable>socket-stream-or-list</replaceable></title>
+     <replaceable>socket-stream-or-list</replaceable>:</title>
     <varlistentry><term>&socket-stream; or &socket-server;</term>
      <listitem><simpara>Returns the appropriate status, as defined
        above (&io-k; status for &socket-stream;)
@@ -3571,21 +3581,24 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
      <listitem><simpara>Return a list of values, one for each element of the
        argument list (a la &mapcar;)</simpara></listitem></varlistentry>
    </variablelist>
-   <simpara>If you want to avoid &cons;ing up a fresh list, you can
+   <simpara>If you want to avoid &cons;ing up a &fresh; list, you can
     make the elements of <replaceable>socket-stream-or-list</replaceable>
     to be <literal role="sexp">(&sost-r; &direction-r; .
-     &x-r;)</literal> or <literal role="sexp">(&sost-r;)</literal> or
-    <literal role="sexp">(&sose-r;)</literal>.  Then &so-status; will
-    destructively modify its argument and replace &x-r; or &nil; with
-    the status and return the modified list.</simpara>
-   <simpara>The second value returned is the number of objects with
-    non-&nil; status, i.e., <quote>actionable</quote> objects.</simpara>
+     &x-r;)</literal> or <literal role="sexp">(&sose-r; . &x-r;)</literal>.
+    Then &so-status; will destructively modify its argument and replace
+    &x-r; or &nil; with the status and return the modified list.
+    You can pass this modified list to &so-status; again.</simpara>
    <simpara>The optional arguments specify the timeout. &nil; means
     wait forever, <literal>0</literal> means poll.  Note that this
     function never waits for input or output to arrive, only for
     information on input or output presence (so that &read-char; or
     &write-char; will not block) to become available (or a connection to
     become possible).</simpara>
+   <simpara>The second value returned is the number of objects with
+    non-&nil; status, i.e., <quote>actionable</quote> objects.
+    &so-status; returns either due to a timeout or when this number is
+    positive, i.e., if the timeout was &nil; and &so-status; did
+    return, then the second value is positive.</simpara>
  </listitem></varlistentry>
  <varlistentry id="sost-hopo">
   <term><literal role="sexp">(&sost-host; &sost-r;)</literal></term>
