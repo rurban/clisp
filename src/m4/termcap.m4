@@ -14,8 +14,6 @@ AC_DEFUN([CL_TERMCAP],
 dnl tgoto() in libc, some have it in libtermcap, some have it in libncurses.
 dnl When both libtermcap and libncurses exist, we prefer the latter, because
 dnl libtermcap is being phased out.
-dnl Cygwin32 has tgetent() in libc and is lacking the others. The top-level
-dnl configure will use the included GNU termcap in that case.
 LIBTERMCAP=
 AC_CHECK_FUNCS(tgetent)
 if test $ac_cv_func_tgetent = yes; then
