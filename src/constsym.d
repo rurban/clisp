@@ -1346,6 +1346,7 @@ LISPSYM(gc_statistics_stern,"*GC-STATISTICS*",system) # als Variable für PREDTYP
 LISPSYM(recurse_count_gc_statistics,"*RECURSE-COUNT-GC-STATISTICS*",system) # als Variable in PREDTYPE
 LISPSYM(traced_definition,"TRACED-DEFINITION",system) # als Property in SYMBOL
 LISPSYM(gensym_counter,"*GENSYM-COUNTER*",lisp) # als Variable in SYMBOL
+LISPSYM(pprint_first_newline,"*PPRINT-FIRST-NEWLINE*",lisp) # io.d:pr_enter_1()
 LISPSYM(inhibit_floating_point_underflow,"*INHIBIT-FLOATING-POINT-UNDERFLOW*",system) # als Variable in LISPARIT
 LISPSYM(warn_on_floating_point_contagion,"*WARN-ON-FLOATING-POINT-CONTAGION*",lisp)
 LISPSYM(floating_point_contagion_ansi,"*FLOATING-POINT-CONTAGION-ANSI*",lisp)

@@ -6277,7 +6277,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                # Falls es ein Mehrzeiler wurde, der nicht mit einem Newline
                # anfängt, und die alte Line-Position >0 ist,
                # zuerst noch ein Newline auf den alten Stream ausgeben:
-               if (eq(TheStream(ppstream)->strm_pphelp_modus,einzeiler)) # Einzeiler ?
+               if (eq(TheStream(ppstream)->strm_pphelp_modus,einzeiler) # Einzeiler ?
+                   || nullp(Symbol_value(S(pprint_first_newline))))
                  goto skip_first_NL; # in die Schleife
                {var object firststring = Car(STACK_0); # erste Zeile, ein Semi-Simple-String
                 if ((TheIarray(firststring)->dims[1] == 0) # leer?

@@ -1,3 +1,10 @@
+1998-10-09  Sam Steingold  <sds@goems.com>
+
+	* spvw.d (init_symbol_values): define LISP:*PPRINT-FIRST-NEWLINE*.
+	* io.d (pr_enter_1): use `pprint_first_newline' to determine
+	whether to output a newline before the object.
+	* constsym.d: new symbol LISP:*PPRINT-FIRST-NEWLINE*.
+
 1998-10-06  Sam Steingold  <sds@goems.com>
 
 	* user1.lsp (package-short-name): respect `*print-case*'.
