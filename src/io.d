@@ -5669,13 +5669,13 @@ local void double_dots (const gcv_object_t* stream_);
 # each time, JUSTIFY_START once,
 # then arbitrary output, separated by JUSTIFY_SPACE,
 # then once either
-#  JUSTIFY_END_ENG (collects short blocks even in multi-liners into one line)
+#  JUSTIFY_END_FILL (collects short blocks even in multi-liners into one line)
 #     or
-#  JUSTIFY_END_WEIT (in multi-liners each block occupies its own line).
-#define JUSTIFY_START(n)  justify_start(stream_,n);
-#define JUSTIFY_SPACE     justify_space(stream_);
-#define JUSTIFY_END_ENG   justify_end_eng(stream_);
-#define JUSTIFY_END_WEIT  justify_end_weit(stream_);
+#  JUSTIFY_END_LINEAR (in multi-liners each block occupies its own line).
+#define JUSTIFY_START(n)    justify_start(stream_,n);
+#define JUSTIFY_SPACE       justify_space(stream_);
+#define JUSTIFY_END_FILL    justify_end_fill(stream_);
+#define JUSTIFY_END_LINEAR  justify_end_linear(stream_);
 
 # SYS::*PRIN-TRAILLENGTH* = number of columns that need to be reserved for
 #                           closing parentheses on the current line; bound
@@ -5781,11 +5781,11 @@ local void multi_line_sub_block_out (object block, const gcv_object_t* stream_)
 
 # UP: Finalizes a Justify-Block, determines the shape of the Block and
 # prints its content to the old Stream.
-# justify_end_eng(&stream);
+# justify_end_fill(&stream);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void justify_end_eng (const gcv_object_t* stream_) {
+local void justify_end_fill (const gcv_object_t* stream_) {
   if (!PPHELP_STREAM_P(*stream_)) { # normal Stream -> nothing to do
   } else { # Pretty-Print-Help-Stream
     justify_empty_2(stream_); # save stream-content
@@ -5867,11 +5867,11 @@ local void justify_end_eng (const gcv_object_t* stream_) {
 
 # UP: finalizes a justify-block, determines the shape of the block and
 # prints its content to the old stream.
-# justify_end_weit(&stream);
+# justify_end_linear(&stream);
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void justify_end_weit (const gcv_object_t* stream_) {
+local void justify_end_linear (const gcv_object_t* stream_) {
   if (!PPHELP_STREAM_P(*stream_)) { # normal stream -> nothing to do
   } else { # Pretty-Print-Help-Stream
     justify_empty_2(stream_); # save stream content
@@ -7231,7 +7231,7 @@ local void pr_cons (const gcv_object_t* stream_, object list) {
     prin_object(stream_,*list_);
     goto end_of_list;
   end_of_list: # print list content.
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     INDENT_END;
     KLAMMER_ZU;
     skipSTACK(1);
@@ -7394,7 +7394,7 @@ local void pr_number (const gcv_object_t* stream_, object number) {
     JUSTIFY_SPACE;
     JUSTIFY_LAST(true);
     pr_real_number(stream_,TheComplex(*number_)->c_imag); # print imaginary part
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     INDENT_END;
     KLAMMER_ZU;
     skipSTACK(1);
@@ -7434,7 +7434,7 @@ local void pr_array_nil (const gcv_object_t* stream_, object obj) {
   }
   JUSTIFY_SPACE; JUSTIFY_LAST(true);
   pr_hex6(stream_,*obj_);
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   UNREADABLE_END;
   skipSTACK(1);
 }
@@ -7549,12 +7549,12 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
           length++; # increment length
           index++; # then go to vector-element
         }
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         INDENT_END;
         KLAMMER_ZU;
       }
       if (readable) {
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         INDENT_END;
         KLAMMER_ZU;
       }
@@ -7625,7 +7625,7 @@ local void pr_weakkvt (const gcv_object_t* stream_, object wkvt) {
     JUSTIFY_SPACE; JUSTIFY_LAST(true);
     pr_hex6(stream_,wkvt);
   }
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   UNREADABLE_END;
   LEVEL_END;
   skipSTACK(1);
@@ -7803,9 +7803,9 @@ local void pr_array_recursion (pr_array_locals_t* locals, uintL depth, uintL rde
     # Attempt to put a 1-dimensional group of objects into as few lines as
     # possible, but don't do so for >=2-dimensional groups of objects.
     if (rdepth==0) {
-      JUSTIFY_END_ENG;
+      JUSTIFY_END_FILL;
     } else {
-      JUSTIFY_END_WEIT;
+      JUSTIFY_END_LINEAR;
     }
     INDENT_END;
     KLAMMER_ZU; # print ')'
@@ -7888,7 +7888,7 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
           JUSTIFY_SPACE; JUSTIFY_LAST(true);
           pr_array_recursion(&locals,depth,r); # print array-elements
         }
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         INDENT_END;
         KLAMMER_ZU; # print ')'
       } else {
@@ -8117,13 +8117,13 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure) 
           pushSTACK(TheSvector(*slot_)->data[2]); # (ds-slot-offset slot) as 3. Argument
           funcall(L(pstructure_ref),3);
           prin_object(stream_,value1); # print component
-          JUSTIFY_END_ENG;
+          JUSTIFY_END_FILL;
           skipSTACK(1); # forget slot
         }
       }
     }
     skipSTACK(1);
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     if (readable) { # completion of fall differentiation from above
       INDENT_END;
       KLAMMER_ZU;
@@ -8150,7 +8150,7 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure) 
       # print component:
       prin_object(stream_,TheStructure(*structure_)->recdata[length]);
     }
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     INDENT_END;
     write_ascii_char(stream_,'>');
     skipSTACK(2);
@@ -8188,7 +8188,7 @@ local void pr_hex6_obj (const gcv_object_t* stream_, object obj, object string) 
   JUSTIFY_SPACE;
   JUSTIFY_LAST(true);
   pr_hex6(stream_,*obj_); # print obj as an address
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   UNREADABLE_END;
   skipSTACK(2);
 }
@@ -8248,7 +8248,7 @@ local void pr_readlabel (const gcv_object_t* stream_, object obj) {
 #else
   pr_uint(stream_,(as_oint(obj) >> oint_addr_shift) & (bit(oint_data_len)-1)); # print bits decimally
 #endif
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   UNREADABLE_END;
 }
 
@@ -8384,12 +8384,12 @@ local void pr_record_descr (const gcv_object_t* stream_, object obj,
         pushSTACK(*(obj_ STACKop 0)); # obj as argument
         funcall(Cdr(*slot_),1); # call accessor
         prin_object(stream_,value1); # print component
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         skipSTACK(1); # forget slot
       }
     }
     skipSTACK(1);
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     if (readable) { # completion of fall differentiation from above
       INDENT_END;
       KLAMMER_ZU;
@@ -8484,7 +8484,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           kvtable_end: # output of Key-Value-Pairs finished
             skipSTACK(1);
           }
-          JUSTIFY_END_ENG;
+          JUSTIFY_END_FILL;
           if (ht_weak_p(*obj_)) {
             UNREADABLE_END;
           } else {
@@ -8510,7 +8510,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         pr_uint(stream_,count); # print HASH-TABLE-COUNT
         JUSTIFY_SPACE; JUSTIFY_LAST(true);
         pr_hex6(stream_,*obj_);
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8530,7 +8530,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           JUSTIFY_SPACE;
           JUSTIFY_LAST(true);
           pr_like_symbol(stream_,ThePackage(*obj_)->pack_name); # print Name
-          JUSTIFY_END_ENG;
+          JUSTIFY_END_FILL;
           UNREADABLE_END;
         } else {
           if (nullpSv(read_eval) && !stream_get_read_eval(*stream_))
@@ -8546,7 +8546,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           JUSTIFY_SPACE;
           JUSTIFY_LAST(true);
           pr_string(stream_,ThePackage(*obj_)->pack_name); # print Name
-          JUSTIFY_END_ENG;
+          JUSTIFY_END_FILL;
           INDENT_END;
           KLAMMER_ZU;
         }
@@ -8580,7 +8580,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
             JUSTIFY_LAST(true);
             write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
             pr_string(stream_,*obj_);
-            JUSTIFY_END_ENG;
+            JUSTIFY_END_FILL;
           JUSTIFY_SPACE;
           JUSTIFY_LAST(true);
             JUSTIFY_START(0);
@@ -8592,7 +8592,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         }
         pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),true,
                         O(pathname_slotlist));
-        if (not_compiling) { JUSTIFY_END_ENG; JUSTIFY_END_ENG; }
+        if (not_compiling) { JUSTIFY_END_FILL; JUSTIFY_END_FILL; }
         skipSTACK(1);
       } else {
         STACK_0 = obj; # String
@@ -8636,7 +8636,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_LAST(false);
         prin_object(stream_,S(random_state)); # print Symbol RANDOM-STATE
         pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         INDENT_END;
         KLAMMER_ZU;
         skipSTACK(1);
@@ -8663,7 +8663,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_LAST(false);
         write_sstring_case(stream_,O(printstring_byte)); # "BYTE"
         pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8692,7 +8692,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_LAST(false);
         write_sstring_case(stream_,O(printstring_symbolmacro)); # SYMBOL-MACRO
         pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8708,7 +8708,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_LAST(false);
         write_sstring_case(stream_,O(printstring_macro)); # "MACRO"
         pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8724,7 +8724,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_LAST(false);
         write_sstring_case(stream_,O(printstring_functionmacro)); # FUNCTION-MACRO
         pr_record_ab(stream_,obj_,0,0); # print component
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8764,7 +8764,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           length++; # increase previous length
         }
       encoding_end:
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8794,7 +8794,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           length++; # increase previous length
         }
       fpointer_end:
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
       }
       LEVEL_END;
@@ -8827,7 +8827,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           length++; # increase previous length
         }
       faddress_end:
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8865,7 +8865,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           length++; # increase previous length
         }
       fvariable_end:
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8903,7 +8903,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           length++; # increase previous length
         }
       ffunction_end:
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -8932,7 +8932,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
             length++; # increase previous length
           }
         weakpointer_end:
-          JUSTIFY_END_ENG;
+          JUSTIFY_END_FILL;
           UNREADABLE_END;
           skipSTACK(1);
         }
@@ -8971,7 +8971,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           length++; # increase previous length
         }
       socket_server_end:
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -9000,7 +9000,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           length++; # increase previous length
         }
       yetanother_end:
-        JUSTIFY_END_ENG;
+        JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);
       }
@@ -9033,7 +9033,7 @@ local void pr_other_obj (const gcv_object_t* stream_, object other, object strin
   JUSTIFY_SPACE;
   JUSTIFY_LAST(true);
   prin_object(stream_,*(string_ STACKop 1)); # print other
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   UNREADABLE_END;
   skipSTACK(2);
 }
@@ -9062,7 +9062,7 @@ local void pr_subr (const gcv_object_t* stream_, object obj) {
     JUSTIFY_LAST(true);
     write_ascii_char(stream_,'\'');
     pr_symbol(stream_,TheSubr(*obj_)->name); # print Name
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     INDENT_END;
     KLAMMER_ZU;
     skipSTACK(1);
@@ -9122,7 +9122,7 @@ local void pr_closure (const gcv_object_t* stream_, object obj) {
         # print form-list elementwise:
         pr_record_rest(stream_,TheIclosure(*obj_)->clos_form,1);
       }
-      JUSTIFY_END_ENG;
+      JUSTIFY_END_FILL;
       UNREADABLE_END;
       skipSTACK(1);
     }
@@ -9200,7 +9200,7 @@ local void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     JUSTIFY_SPACE;
     prin_object(stream_,seclass_object((seclass_t)Cclosure_seclass(*obj_)));
     pr_record_ab(stream_,obj_,2,2); # print remaining components
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     INDENT_END;
     KLAMMER_ZU;
     skipSTACK(1);
@@ -9275,7 +9275,7 @@ local void pr_cclosure_codevector (const gcv_object_t* stream_, object codevec) 
         length++; # increase index
       }
     }
-    JUSTIFY_END_ENG;
+    JUSTIFY_END_FILL;
     INDENT_END;
     KLAMMER_ZU;
     INDENT_END;
@@ -9437,7 +9437,7 @@ local void pr_stream (const gcv_object_t* stream_, object obj) {
     default: # else no supplementary information
       break;
   }
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   UNREADABLE_END;
   skipSTACK(1);
 }
@@ -10050,7 +10050,7 @@ LISPFUN(write_unreadable,seclass_default,3,0,norest,key,2,
     JUSTIFY_LAST(true);
     pr_hex6(stream_,*(stream_ STACKop 1));
   }
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   UNREADABLE_END;
   skipSTACK(3);
   VALUES1(NIL);
