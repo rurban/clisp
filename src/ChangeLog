@@ -1,5 +1,10 @@
 2005-02-07  Bruno Haible  <bruno@clisp.org>
 
+	* spvw.d (INVALID_ARG): Renamed from ILLEGAL_ARG.
+	(parse_options): Use term "invalid" instead of "illegal".
+
+2005-02-07  Bruno Haible  <bruno@clisp.org>
+
 	* spvw.d (init_module_2, usage, arg_error): Use symmetric quotes,
 	instead of `...'.
 
