@@ -234,6 +234,7 @@ LISPSYM(constantp,"CONSTANTP",lisp)
 LISPSYM(function_name_p,"FUNCTION-NAME-P",system)
 LISPSYM(parse_body,"PARSE-BODY",system)
 LISPSYM(keyword_test,"KEYWORD-TEST",system)
+LISPSYM(xor,"XOR",ext)
 /* ---------- DEBUG ---------- */
 LISPSYM(read_form,"READ-FORM",system)
 LISPSYM(read_eval_print,"READ-EVAL-PRINT",system)
