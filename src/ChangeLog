@@ -1,5 +1,11 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        allocate_handle can call GC!
+        * stream.d (make_keyboard_stream, make_terminal_stream_,
+           finish_output_file): Call allocate_handle() at GC-safe moments.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * constsym.d (char-code-limit, base-char-code-limit): New symbols.
         * spvw.d (init_symbol_values): Initialize them.
         * init.lsp: export char-code-limit.
