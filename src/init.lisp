@@ -474,6 +474,11 @@
           ;; MOP for generic functions
           funcallable-standard-class funcallable-standard-object
           set-funcallable-instance-function
+          generic-function-name generic-function-methods
+          generic-function-method-class generic-function-lambda-list
+          generic-function-method-combination
+          generic-function-argument-precedence-order
+          generic-function-declarations
           ;; CLISP specific symbols
           generic-flet generic-labels no-primary-method
           method-call-error method-call-type-error
