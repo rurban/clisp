@@ -3,7 +3,7 @@ CLISP is a Common Lisp implementation by Bruno Haible of Karlsruhe
 University and Michael Stoll of Munich University, both in Germany.
 It mostly supports the Lisp described in "Common LISP: The Language
 (2nd edition)" and the ANSI Common Lisp standard.
-It runs on microcomputers (OS/2, Windows NT, Windows 95/98/2000, Amiga
+It runs on microcomputers (OS/2, Windows NT/2000, Windows 95/98, Amiga
 500-4000, Acorn RISC PC) as well as on Unix workstations (Linux, SVR4,
 Sun4, DEC Alpha OSF, HP-UX, BeOS, NeXTstep, SGI, AIX, Sun3 and others)
 and needs only 2 MB of RAM.
