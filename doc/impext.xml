@@ -609,7 +609,7 @@
  terminators.</para>
 
 <para>The line terminator mode is relevant only for output (writing to a
- file, pipe or socket).  During input, all three kinds of line
+ &file-pipe-socket;).  During input, all three kinds of line
  terminators are recognized.  If you do not want this, i.e., if you
  really want to distinguish <keycode>LF</keycode>, <keycode>CR</keycode>
  and <keycode>CR</keycode>/<keycode>LF</keycode>, you have to resort to
@@ -3338,10 +3338,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 </section>
 <!-- #endif -->
 
-
-<!-- #ifdef SOCKET_STREAMS -->
 <section id="socket"><title>Extensions-2.6. Socket Streams</title>
 <subtitle>Platform dependent: &unix;, &win32; platforms only.</subtitle>
+<!-- #ifdef SOCKET_STREAMS -->
 
 <variablelist>
  <varlistentry><term><literal
@@ -3350,7 +3349,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>This function creates a socket, binds a port to the
    socket, and then listens for connect attempts.  The server exists to
    watch for client connect attempts.  The optional argument is either a
-   port (positive fixnum) or a socket-stream (from whose peer the
+   port (positive &fixnum-type;) or a &socket-stream; (from whose peer the
    connections will be made).
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -3384,36 +3383,38 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
                  <replaceable>port</replaceable>
                  &optional-amp; [<replaceable>host</replaceable>]
                  &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
-  <listitem><simpara>Attempts to create a client-side two-way stream.
+  <listitem><simpara>Attempts to create a client-side two-way &socket-stream;.
    Blocks until the server accepts the connections.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>lisp:socket-status</function>
-                 <replaceable>socket-or-list</replaceable>
+                 <replaceable>socket-stream-or-list</replaceable>
                  &optional-amp; [<replaceable>seconds</replaceable>
                  [<replaceable>microseconds</replaceable>]])</literal></term>
   <listitem><simpara>Checks whether it is possible to read from or write
-   to a socket stream.</simpara>
-   <simpara><replaceable>socket-or-list</replaceable> is an open socket
-   stream (one symbol is returned) or a list of streams (a list of
-   symbols, one for each stream, is returned).</simpara>
-   <simpara>For each stream returns</simpara>
-   <variablelist>
+   to a &socket-stream; without blocking.  This is similar to &listen;,
+   which checks only one stream and only for input.</simpara>
+   <simpara><replaceable>socket-stream-or-list</replaceable> is an open
+   &socket-stream; (one symbol is returned) or a list of streams (a list
+   of symbols, one for each stream, is returned).</simpara>
+   <simpara>For each &socket-stream; this function returns</simpara>
+   <variablelist><title>Return values of
+      <function>lisp:socket-status</function></title>
     <varlistentry><term>&nil;</term>
      <listitem><simpara>when no information is available or no operation
       is possible</simpara></listitem></varlistentry>
     <varlistentry><term>&error-k;</term>
-     <listitem><simpara>when an i/o operation will cause an
-      error</simpara></listitem></varlistentry>
+     <listitem><simpara>when an i/o operation will cause an error
+     </simpara></listitem></varlistentry>
     <varlistentry><term>&input-k;</term>
-     <listitem><simpara>when you can only read from the
-      stream</simpara></listitem></varlistentry>
+     <listitem><simpara>when you can only read from the stream
+     </simpara></listitem></varlistentry>
     <varlistentry><term>&output-k;</term>
-     <listitem><simpara>when you can only write to the
-      stream</simpara></listitem></varlistentry>
+     <listitem><simpara>when you can only write to the stream
+     </simpara></listitem></varlistentry>
     <varlistentry><term>&io-k;</term>
-     <listitem><simpara>when you can both read from and write to the
-      stream</simpara></listitem></varlistentry>
+     <listitem><simpara>when you can both read from and write to the stream
+     </simpara></listitem></varlistentry>
   </variablelist></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>lisp:socket-stream-host</function>
@@ -3421,8 +3422,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <literal role="sexp">(<function>lisp:socket-stream-port</function>
                  <replaceable>socket-stream</replaceable>)</literal></term>
   <listitem><simpara>These two functions return information about the
-   socket stream.  For a server, <function>lisp:socket-stream-host</function>
-   returns &nil;.
+   &socket-stream;.  For a server,
+   <function>lisp:socket-stream-host</function> returns &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>lisp:socket-service-port</function>
@@ -3448,11 +3449,17 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
                  <replaceable>socket-stream</replaceable>)</literal></term>
   <listitem><simpara>The dual to
    <function>lisp:socket-stream-peer</function> - same information,
-   host name and port number, but for the local host.
+   host name and port number, but for the local host.  The difference
+   from <function>lisp:socket-stream-host</function> and
+   <function>lisp:socket-stream-port</function> is that this function
+   asks the OS (and thus returns the correct trusted values) while the
+   other two are just accessors to the internal data structure, and
+   basically return the arguments given to the function which created
+   the &socket-stream;.
   </simpara></listitem></varlistentry>
 </variablelist>
-</section>
 <!-- #endif -->
+</section>
 
 <section id="syscalls"><title>Extensions-2.7. System Calls</title>
 
@@ -3825,15 +3832,17 @@ bash$
   </simpara></listitem>
  <listitem><simpara>If you need to distribute a modified &clisp;
   executable (for example, incorporating additional modules written in
-  &c-lang;), you must distribute its full source under &gnu; &gpl;.  If
-  you are not satisfied with this, you can instead put the additional
+  &c-lang;), you must distribute its full source under &gnu; &gpl;.
+  If you are not satisfied with this, you can instead put the additional
   modules into a separate (non-&clisp;) program, with which your Lisp
-  program will communicate via sockets.</simpara></listitem>
+  program will communicate via &socket-stream;s.</simpara></listitem>
 </itemizedlist></para>
 
 </section>
 
-<section id="shell"><title>Extensions-2.10. Shell Access</title>
+<section id="shell"><title>Extensions-2.10. Shell, Pipes and Printing</title>
+
+<section><title>Shell</title>
 
 <variablelist>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
@@ -3946,7 +3955,72 @@ bash$
 </listitem></varlistentry>
 <!-- #endif -->
  </variablelist>
+</section>
 
+<section id="pipe"><title>Pipes</title>
+
+<!-- #ifdef PIPES -->
+<variablelist>
+<varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
+    platforms only.</term>
+<listitem><variablelist>
+ <varlistentry><term><literal
+    role="sexp">(<function>lisp:make-pipe-input-stream</function>
+    <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
+    &buffered;)</literal></term>
+<listitem><simpara>returns an input stream that will supply the output
+  from the execution of the given operating system command.
+  </simpara></listitem></varlistentry>
+
+<varlistentry><term><literal
+   role="sexp">(<function>lisp:make-pipe-output-stream</function>
+   <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
+   &buffered;)</literal></term>
+<listitem><simpara>returns an output stream that will pass its output as
+   input to the execution of the given operating system command.
+  </simpara></listitem></varlistentry>
+
+<!-- #ifdef PIPES2 -->
+<varlistentry><term><literal
+   role="sexp">(<function>lisp:make-pipe-io-stream</function>
+   <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
+   &buffered;)</literal></term>
+<listitem><simpara>returns three values.  The first value is a
+  bidirectional stream that will simultaneously pass its output as input
+  to the execution of the given operating system command and supply the
+  output from this command as input. The second and third value will be
+  the input stream and the output stream that make up the I/O stream,
+  respectively.  Note that they must be closed individually.</simpara>
+
+  <simpara>Warning: Improper use of this function can lead to
+  deadlocks.  Use it at your own risk!</simpara>
+
+  <simpara>A deadlock occurs if the command and your program either both
+  try to read from each other at the same time or both try to write to
+  each other at the same time. To avoid deadlocks, it is recommended
+  that you fix a protocol between the command and your program and avoid
+  any hidden buffering: use &read-char;, &read-char-no-hang;, &listen;
+  instead of &read-line; and &read; on the input side, and complete
+  every output operation by a &finish-output;. The same cautions must
+  apply to the called command as well.</simpara></listitem></varlistentry>
+<!-- #endif -->
+</variablelist></listitem></varlistentry>
+</variablelist>
+<!-- #endif -->
+</section>
+
+<section><title>Printing</title>
+
+<para>The macro <emphasis
+ role="strong"><function>lisp:with-output-to-printer</function></emphasis>:
+<programlisting>
+(lisp:with-output-to-printer (<replaceable>var</replaceable> [&extfmt;])
+  {<replaceable>declaration</replaceable>}*
+  {<replaceable>form</replaceable>}*)
+</programlisting>
+ binds the variable <replaceable>var</replaceable> to an output stream
+ that sends its output to the printer.</para>
+</section>
 </section>
 
 <!-- #ifdef AMIGAOS -->
