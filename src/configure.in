@@ -1,4 +1,4 @@
-dnl  AUTOCONF configuration for CLISP
+dnl  -*- Autoconf -*- configuration for CLISP
 dnl  Bruno Haible 2001-02-04
 dnl  Sam Steingold 2002
 dnl
