@@ -1,5 +1,12 @@
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * defs2.lsp (stream-input-element-type, stream-output-element-type,
+          read-sequence, write-sequence): New functions.
+          Export read-sequence, write-sequence.
+        * defs3.lsp: Export read-sequence, write-sequence.
+
+1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * compiler.lsp (var): New slot `assignedp'.
           (*declaration-types*): New declaration `sys::read-only'.
           (process-declarations): Treat the `sys::read-only' declaration.
