@@ -1,3 +1,14 @@
+2002-08-05  Marco Baringer <empb@bese.it>
+	    Sam Steingold  <sds@gnu.org>
+
+	POSIX:COPY-FILE - copying/renaming/linking files
+	* pathname.d (COPY-FILE, copy_file_low, copy_attributes): new functions
+	* constobj.d (type_link_arg): new object
+	* constsym.d, subr.d, subrkw.d (copy_file): added
+	* posix.lisp (copy-file): exported
+	* lispbibl.d (strm_buffered_bufflen): moved here from stream.d
+	* stream.d (strm_buffered_bufflen): commented out
+
 2002-08-05  Sam Steingold  <sds@gnu.org>
 
 	* install.lisp: add a URL shortcut to CLISP home to the desktop

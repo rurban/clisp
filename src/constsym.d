@@ -649,6 +649,7 @@ LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
 LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
 #endif
 LISPSYM(duplicate_handle,"DUPLICATE-HANDLE",posix)
+LISPSYM(copy_file,"COPY-FILE",posix)
 #endif
 # ---------- POSIXMISC ----------
 #if defined(EXPORT_SYSCALLS) && defined(UNIX)
@@ -1427,6 +1428,12 @@ LISPSYM(Koverwrite,"OVERWRITE",keyword) # als Argument in PATHNAME
 LISPSYM(Kappend,"APPEND",keyword) # als Argument in PATHNAME
 LISPSYM(Ksupersede,"SUPERSEDE",keyword) # als Argument in PATHNAME
 LISPSYM(Kcreate,"CREATE",keyword) # als Argument in PATHNAME
+#ifdef EXPORT_SYSCALLS
+LISPSYM(Khard,"HARD",keyword) /* Argument to COPY-FILE in PATHNAME */
+LISPSYM(Ksymbolic,"SYMBOLIC",keyword) /* Argument to COPY-FILE in PATHNAME */
+LISPSYM(Klink,"LINK",keyword) /* Argument to COPY-FILE in PATHNAME */
+LISPSYM(Kpreserve,"PRESERVE",keyword) /* Argument to COPY-FILE in PATHNAME */
+#endif
 LISPSYM(warn,"WARN",lisp) # als Funktion in STREAM, PATHNAME
 LISPSYM(Kignore,"IGNORE",keyword) # als Argument in ENCODING
 LISPSYM(with_output_to_string,"WITH-OUTPUT-TO-STRING",lisp) # als Fehlermelder in STREAM

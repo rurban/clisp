@@ -704,6 +704,8 @@ LISPFUNN(user_data_,1)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 #endif
 LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL)
+LISPFUN(copy_file, 2, 0, norest, key, 4,
+        (kw(link),kw(preserve),kw(if_exists),kw(if_does_not_exist)))
 #endif
 # ---------- POSIXMISC ----------
 #if defined(EXPORT_SYSCALLS) && defined(UNIX)
