@@ -25,16 +25,22 @@ some platforms can be found in file unix/PLATFORMS.
 
 2. (Recommended)
    Install a few libraries on which CLISP relies:
-   - GNU libsigsegv (highly recommended for C stack overflow detection)
+   * GNU libsigsegv
+      + Highly recommended: needed for generational garbage collection
+        and for stack overflow detection in interpreted Lisp code.
       <ftp://ftp.gnu.org/pub/gnu/libsigsegv/>
       <http://sourceforge.net/projects/libsigsegv/>
-   - GNU libiconv (not needed on systems with glibc 2.2 or newer)
+   * GNU libiconv
+      + Not needed on systems with glibc 2.2 or newer, but recommended
+        on all other systems.
       <ftp://ftp.gnu.org:/pub/gnu/libiconv/>
       <http://sourceforge.net/projects/libiconv/>
-   - GNU readline (if you want terminal command line editing)
+   * GNU readline
+      + Recommended: needed if you want terminal command line editing.
       <ftp://ftp.gnu.org:/pub/gnu/readline/>
       <http://cnswww.cns.cwru.edu/~chet/readline/rltop.html>
-   - GNU gettext (if you want to use i18n)
+   * GNU gettext
+      + Recommended: needed if you want clisp with native language support.
       <ftp://ftp.gnu.org:/pub/gnu/gettext/>
       <http://www.gnu.org/software/gettext/>
 
