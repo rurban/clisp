@@ -1,5 +1,11 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * debug.d (read_form): After EOF, call clear_input on istream, not on
+          the concatenated-stream. This fixes a strange REP loop behaviour on
+          Win32.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw.d (main): If no memfile is specified, option "-norc" is
           implied.
 
