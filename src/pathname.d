@@ -1,4 +1,4 @@
-# Pathnames für CLISP
+# Pathnames for CLISP
 # Bruno Haible 1990-2001
 # Logical Pathnames: Marcus Daniels 16.9.1994
 # ANSI compliance, bugs: Sam Steingold 1999-2001
@@ -21,7 +21,7 @@
 # WARNING: PRIN1 can trigger GC! BEWARE!
 /* #define DEBUG_TRANSLATE_PATHNAME 1 */
 #if DEBUG_TRANSLATE_PATHNAME
-#define DOUT(label,object) printf("%s %s: ",#label,#object); \
+#define DOUT(label,object) printf("%s %s: ",label,#object); \
         pushSTACK(object);funcall(L(prin1),1);printf("\n")
 #else
 #define DOUT(l,o)
@@ -86,7 +86,7 @@ local void show_stack (const char* title,int nn) {
 #endif
 
 #ifdef UNIX
-  # Library-Funktion realpath implementieren:
+  # library-function realpath implementation:
   # [Copyright: SUN Microsystems, B. Haible]
   # TITLE
   #   REALPATH(3)
@@ -104,24 +104,23 @@ local void show_stack (const char* title,int nn) {
   #   cess.   On  failure, it returns NULL, sets errno to indicate
   #   the error, and places in resolved_path the absolute pathname
   #   of the path component which could not be resolved.
-  #define realpath  my_realpath  # Consensys deklariert realpath() bereits...
   local char* realpath (const char* path, char* resolved_path);
-  # Methode: benutze getwd und readlink.
+  # method: use getwd and readlink.
   local char* realpath(path,resolved_path)
     var const char* path;
     var char* resolved_path;
     {
       var char mypath[MAXPATHLEN];
-      var int symlinkcount = 0; # Anzahl bisher aufgetretener symbolischer Links
+      var int symlinkcount = 0; # the number of symbolic links so far
       var char* resolved_limit = &resolved_path[MAXPATHLEN-1];
-      # Gültige Pointer sind die mit resolved_path <= ptr <= resolved_limit.
-      # In *resolved_limit darf höchstens noch ein Nullbyte stehen.
-      # (Analog mit mypath.)
+      # valid pointers with resolved_path <= ptr <= resolved_limit.
+      # in *resolved_limit at most one null byte.
+      # (similarly with mypath.)
       var char* resolve_start;
       {
-        var char* resolved_ptr = resolved_path; # (bleibt stets <= resolved_limit)
+        var char* resolved_ptr = resolved_path; # always <= resolved_limit
         # evtl. Working-Directory benutzen:
-        if (!(path[0]=='/')) { # kein absoluter Pathname ?
+        if (!(path[0]=='/')) { # not an absolute pathname?
           if (getwd(resolved_path) == NULL)
             return NULL;
           resolved_ptr = resolved_path;
@@ -135,12 +134,12 @@ local void show_stack (const char* title,int nn) {
         } else {
           resolve_start = resolved_ptr = &resolved_path[0];
         }
-        # Dann path selber einkopieren:
+        # copy the path:
         var const char* path_ptr = path;
         while ((resolved_ptr < resolved_limit) && *path_ptr) {
           *resolved_ptr++ = *path_ptr++;
         }
-        # Mit '/' und einem Nullbyte abschließen:
+        # finish with '/' and a null:
         if (resolved_ptr < resolved_limit) {
           *resolved_ptr++ = '/';
         }
@@ -1948,8 +1947,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             );
           var zustand tmp = z;
           var object host = parse_logical_host_prefix(&tmp,string);
-          DOUT("parse-namestring: ",string);
-          DOUT("parse-namestring: ",host);
+          DOUT("parse-namestring:",string);
+          DOUT("parse-namestring:",host);
           if (!nullp(host)
               # Test whether the given hostname is valid. This is not
               # strictly what ANSI specifies, but is better than giving
@@ -2960,6 +2959,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       #   pathname
       # )
       pushSTACK(pathname);
+      DOUT("translate-logical-pathname: <",pathname);
       pushSTACK(S(Ktest)); pushSTACK(L(equal)); funcall(L(make_hash_table),2);
       pushSTACK(value1);
       # Stackaufbau: pathname, ht.
@@ -2984,6 +2984,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
           STACK_1 = newp;
         }
         var object host = TheLogpathname(STACK_1)->pathname_host;
+        DOUT("translate-logical-pathname:",host);
         var object translations = gethash(host,Symbol_value(S(logpathname_translations)));
         if (eq(translations,nullobj)) {
           # STACK_1 = pathname; # FILE-ERROR slot PATHNAME
@@ -2996,6 +2997,8 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         }
         # (ASSOC pathname translations :test #'pathname-match-p):
         pushSTACK(STACK_1); pushSTACK(translations);
+        DOUT("translate-logical-pathname:",STACK_1);
+        DOUT("translate-logical-pathname:",translations);
         pushSTACK(S(Ktest)); pushSTACK(L(pathname_match_p));
         funcall(L(assoc),4);
         if (atomp(value1) || matomp(Cdr(value1))) {
@@ -3011,18 +3014,20 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         pushSTACK(S(Kmerge)); pushSTACK(NIL);
         funcall(L(translate_pathname),5);
         STACK_1 = pathname = value1;
+        DOUT("translate-logical-pathname:",pathname);
         if (!logpathnamep(pathname))
           break;
       }
+      DOUT("translate-logical-pathname: >",pathname);
       skipSTACK(2);
     }
     value1 = pathname; mv_count=1;
   }
 
-# UP: Wandelt ein Objekt in einen nicht-Logical Pathname um.
+# UP: Change an objekt into a non-logical pathname.
 # coerce_pathname(object)
 # > object: Objekt
-# < ergebnis: (TRANSLATE-LOGICAL-PATHNAME (PATHNAME Objekt))
+# < return: (TRANSLATE-LOGICAL-PATHNAME (PATHNAME Objekt))
 # can trigger GC
   local object coerce_pathname (object obj);
   local object coerce_pathname(obj)
@@ -3030,11 +3035,10 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
     {
       obj = coerce_xpathname(obj);
       if (pathnamep(obj)) {
-        # Bei Pathnames ist nichts zu tun.
         return obj;
       } elif (logpathnamep(obj)) {
-        # TRANSLATE-LOGICAL-PATHNAME aufrufen:
-        pushSTACK(subr_self); # subr_self retten (für spätere Fehlermeldungen)
+        # call TRANSLATE-LOGICAL-PATHNAME:
+        pushSTACK(subr_self); # save subr_self (for the error message)
         pushSTACK(obj); funcall(L(translate_logical_pathname),1);
         subr_self = popSTACK();
         return value1;
@@ -3631,6 +3635,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     # pathname und defaults überprüfen:
     # defaults zu einem Pathname machen:
     STACK_0 = test_default_pathname(STACK_0);
+    DOUT("merge-pathnames:",STACK_0);
     # pathname zu einem Pathname machen:
     #ifdef LOGICAL_PATHNAMES
     if (logpathnamep(STACK_0)) {
@@ -3646,6 +3651,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     } else
     #endif
       STACK_1 = coerce_xpathname(STACK_1);
+    DOUT("merge-pathnames:",STACK_1);
     #ifdef LOGICAL_PATHNAMES
     if (logpathnamep(STACK_1) && logpathnamep(STACK_0)) {
       # MERGE-PATHNAMES für Logical Pathnames
@@ -3755,7 +3761,9 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     }
     # nicht beides logische Pathnames -> erst in normale Pathnames umwandeln:
     STACK_1 = coerce_pathname(STACK_1);
+    DOUT("merge-pathnames:",STACK_1);
     STACK_0 = coerce_pathname(STACK_0);
+    DOUT("merge-pathnames:",STACK_0);
     #endif
     var object newp = allocate_pathname(); # neuen Pathname holen
     var object d = popSTACK(); # defaults
@@ -4286,6 +4294,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     # 3. directory überprüfen:
     {
       var object directory = STACK_3;
+      DOUT("make-pathname:",directory);
       if (eq(directory,unbound) && !eq(STACK_7,unbound)) { # nicht angegeben
         # aber Defaults
         goto directory_ok;
@@ -4382,6 +4391,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     # 4. name überprüfen:
     {
       var object name = STACK_2;
+      DOUT("make-pathname:",name);
       if (stringp(name))
         STACK_2 = name = subst_coerce_normal_ss(name);
       if (convert)
@@ -4422,6 +4432,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     # 5. type überprüfen:
     {
       var object type = STACK_1;
+      DOUT("make-pathname:",type);
       if (stringp(type))
         STACK_1 = type = subst_coerce_normal_ss(type);
       if (convert)
@@ -4498,6 +4509,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         skipSTACK(1);
         #endif
       }
+      DOUT("make-pathname:",pathname);
       skipSTACK(1); # case vergessen
       # 8. evtl. Defaults hineinmergen:
       var object defaults = popSTACK();
@@ -5181,6 +5193,8 @@ LISPFUNN(pathname_match_p,2)
       STACK_0 = coerce_pathname(STACK_0);
     }
     #endif
+    DOUT("pathname-match-p:",STACK_0);
+    DOUT("pathname-match-p:",STACK_1);
     var object wildname = popSTACK();
     var object pathname = popSTACK();
     if (!host_match(xpathname_host(logical,wildname),
@@ -5352,7 +5366,7 @@ LISPFUNN(pathname_match_p,2)
 # all arguments to *_diff are on stack - this should be safe
 #define DEBUG_DIFF(f)                                         \
   printf("\n* " #f " [logical: %d]\n",logical);               \
-  DOUT(,muster); DOUT(,beispiel); DOUT(,*previous); DOUT(,*solutions)
+  DOUT("",muster); DOUT("",beispiel); DOUT("",*previous); DOUT("",*solutions)
 #else
 #define DEBUG_DIFF(f)
 #endif
@@ -5586,6 +5600,8 @@ LISPFUNN(pathname_match_p,2)
         skipSTACK(1);
       }
     }
+#define BEISPIEL_UNBOUND_CHECK \
+  if (eq(unbound,beispiel)) { push_solution_with(muster); return; }
   local void directory_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
@@ -5670,6 +5686,7 @@ LISPFUNN(pathname_match_p,2)
   #undef push_solution_with
   #undef push_solution
 #undef DEBUG_DIFF
+#undef BEISPIEL_UNBOUND_CHECK
 
 # Jede Substitution ist eine Liste von Normal-Simple-Strings oder Listen.
 # (Die Listen entstehen bei :WILD-INFERIORS in directory_diff().)
@@ -5781,6 +5798,10 @@ LISPFUNN(pathname_match_p,2)
 # Pop the CAR of *subst and return it.
 #define RET_POP(subst)  \
   { var object ret = Car(*subst); *subst = Cdr(*subst); return ret; }
+# is the value trivial enough to ensure a trivial action?
+#define TRIVIAL_P(val) (simple_string_p(val)||nullp(val))
+# is the value simple enough to ensure a simple action?
+#define SIMPLE_P(val) (TRIVIAL_P(val)||eq(val,S(Kwild)))
 # translate_host(&subst,muster,logical) etc. liefert den host etc. mit Ersetzungen
 # und verkürzen subst passend. Falls nicht passend, liefert es nullobj.
   local object translate_host (object* subst, object muster, bool logical);
@@ -5794,15 +5815,15 @@ LISPFUNN(pathname_match_p,2)
     var object muster;
     var bool logical;
     {
-#define TRAN_HOST(subst,muster)                                         \
-        if (nullp(muster) && mconsp(*subst)) {                          \
-          if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {     \
-            RET_POP(subst);                                             \
-          } else if (eq(Car(*subst),S(Khost))) {                        \
-            *subst = Cdr(*subst);                                       \
-            return muster;                                              \
-          } else                                                        \
-            return nullobj;                                             \
+#define TRAN_HOST(subst,muster)                         \
+        if (nullp(muster) && mconsp(*subst)) {          \
+          if (TRIVIAL_P(Car(*subst))) {                 \
+            RET_POP(subst);                             \
+          } else if (eq(Car(*subst),S(Khost))) {        \
+            *subst = Cdr(*subst);                       \
+            return muster;                              \
+          } else                                        \
+            return nullobj;                             \
         }
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
@@ -5840,7 +5861,7 @@ LISPFUNN(pathname_match_p,2)
       if ((nullp(muster) || eq(muster,S(Kwild))) && mconsp(*subst))
       #endif
         {
-          if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+          if (TRIVIAL_P(Car(*subst))) {
             RET_POP(subst);
           } else if (eq(Car(*subst),S(Kdevice))) {
             *subst = Cdr(*subst);
@@ -5860,7 +5881,7 @@ LISPFUNN(pathname_match_p,2)
     var bool logical;
     {
       if (eq(muster,S(Kwild)) && mconsp(*subst)) {
-        if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+        if (TRIVIAL_P(Car(*subst))) {
           var object erg = Car(*subst); *subst = Cdr(*subst);
           return (nullp(erg) ? O(leer_string) : erg);
         } else
@@ -5896,7 +5917,7 @@ LISPFUNN(pathname_match_p,2)
           if (index == len)
             break;
           # Wildcard ersetzen:
-          if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+          if (TRIVIAL_P(Car(*subst))) {
             var object s = Car(*subst);
             pushSTACK(nullp(s) ? O(leer_string) : s);
             *subst = Cdr(*subst); stringcount++;
@@ -5905,8 +5926,8 @@ LISPFUNN(pathname_match_p,2)
           }
           index++;
         }
-        funcall(L(string_concat),stringcount); # (STRING-CONCAT alle Strings)
-        skipSTACK(1);
+        value1 = string_concat(stringcount);
+        skipSTACK(1); # skip muster
         return value1;
       }
       return muster;
@@ -5929,7 +5950,7 @@ LISPFUNN(pathname_match_p,2)
     var object muster;
     var bool logical;
     {
-      # muster mit O(directory_default) vergleichen:
+      # compare muster with O(directory_default):
       if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster))
           && mconsp(*subst) && mconsp(Car(*subst))) {
         var object list = Car(*subst); *subst = Cdr(*subst);
@@ -5938,7 +5959,7 @@ LISPFUNN(pathname_match_p,2)
         else
           return nullobj;
       }
-      var uintL itemcount = 0; # Anzahl der Elemente auf dem Stack
+      var uintL itemcount = 0; # number of items on the stack
       # Startpoint:
       pushSTACK(Car(muster)); muster = Cdr(muster); itemcount++;
       # subdirs:
@@ -5959,7 +5980,7 @@ LISPFUNN(pathname_match_p,2)
             pushSTACK(item); itemcount++;
           }
         } else {
-          pushSTACK(muster); # muster retten
+          pushSTACK(muster); # save muster
           item = translate_subdir(subst,item,logical);
           if (eq(item,nullobj)) { skipSTACK(itemcount+1); return nullobj; }
           muster = STACK_0; STACK_0 = item; itemcount++;
@@ -5973,7 +5994,7 @@ LISPFUNN(pathname_match_p,2)
     var bool logical;
     {
       if (nullp(muster) && mconsp(*subst)) {
-        if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+        if (TRIVIAL_P(Car(*subst))) {
           RET_POP(subst);
         } else
           return nullobj;
@@ -5988,7 +6009,7 @@ LISPFUNN(pathname_match_p,2)
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
         if ((nullp(muster) || eq(muster,S(Kwild))) && mconsp(*subst)) {
-          if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+          if (TRIVIAL_P(Car(*subst))) {
             var object erg = Car(*subst); *subst = Cdr(*subst);
             if (nullp(erg))
               return erg;
@@ -6002,7 +6023,7 @@ LISPFUNN(pathname_match_p,2)
       #endif
       #if HAS_VERSION
       if ((nullp(muster) || eq(muster,S(Kwild))) && mconsp(*subst)) {
-        if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+        if (TRIVIAL_P(Car(*subst))) {
           var object erg = Car(*subst); *subst = Cdr(*subst);
           if (nullp(erg))
             return erg;
@@ -6014,7 +6035,7 @@ LISPFUNN(pathname_match_p,2)
       return muster;
       #else
       if (mconsp(*subst)) {
-        if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+        if (TRIVIAL_P(Car(*subst))) {
           *subst = Cdr(*subst); return NIL;
         } else
           return nullobj;
@@ -6022,6 +6043,8 @@ LISPFUNN(pathname_match_p,2)
       return NIL;
       #endif
     }
+#undef SIMPLE_P
+#undef TRIVIAL_P
 #undef RET_POP
   local object translate_pathname(subst,muster)
     var object* subst;
@@ -6029,7 +6052,7 @@ LISPFUNN(pathname_match_p,2)
     {
       var bool logical = false;
       var object item;
-      pushSTACK(*subst); # subst retten für Fehlermeldung
+      pushSTACK(*subst); # save subst for the error message
       pushSTACK(muster);
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(muster))
@@ -6042,10 +6065,10 @@ LISPFUNN(pathname_match_p,2)
  { object xobj = xpathname_##xwhat(logical,where);                      \
    pushSTACK(xobj); /* DOUT can trigger GC! */                          \
    printf("\n *** " #xwhat " [logical: %d]\n",logical);                 \
-   DOUT(,*subst); DOUT(,where); DOUT(,xobj);                            \
+   DOUT("",*subst); DOUT("",where); DOUT("[muster]",xobj);              \
    item = translate_##what(subst,xobj,logical);                         \
    if (eq(item,nullobj)) { skipSTACK(skip+1); goto subst_error; }       \
-   DOUT(,item); popSTACK();                                             \
+   DOUT("",item); popSTACK(); /* pop xobj */                            \
    pushSTACK(S(K##xwhat)); pushSTACK(item); }
 #else
 #define GET_ITEM(what,xwhat,where,skip)                                     \
