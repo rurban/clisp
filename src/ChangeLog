@@ -1,3 +1,11 @@
+2004-06-20  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method1.lisp (make-method-instance): New function.
+	* clos-method4.lisp (make-method-instance): Replace with make-instance.
+	* clos-methcomb2.lisp (effective-method-code-bricks): Use
+	make-method-instance instead of make-instance-<standard-method>.
+	* clos-genfun3.lisp (do-defmethod, analyze-defgeneric): Likewise.
+
 2004-08-22  Bruno Haible  <bruno@clisp.org>
 
 	* constobj.d: Make O(terminal_encoding) also available if !UNICODE.

@@ -204,6 +204,12 @@
                :stream stream))
       (write :uninitialized :stream stream))))
 
+;; Preliminary.
+(defun make-method-instance (class &rest args
+                             &key &allow-other-keys)
+  ;; During bootstrapping, only <standard-method> instances are used.
+  (apply #'make-instance-<standard-method> class args))
+
 ;;; ---------------------------------------------------------------------------
 
 (defparameter <standard-accessor-method>

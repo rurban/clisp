@@ -13,3 +13,6 @@
 ;; instances customizable.
 (setf (fdefinition 'make-instance-<standard-reader-method>) #'make-instance)
 (setf (fdefinition 'make-instance-<standard-writer-method>) #'make-instance)
+
+;; Make creation of method instances customizable.
+(setf (fdefinition 'make-method-instance) #'make-instance)
