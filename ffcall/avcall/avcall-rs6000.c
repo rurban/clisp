@@ -46,6 +46,12 @@
   ----------------------------------------------------------------------*/
 #include "avcall.h.in"
 
+#ifdef __linux__
+#define STACK_OFFSET 2
+#else
+#define STACK_OFFSET 14
+#endif
+
 #define RETURN(TYPE,VAL)	(*(TYPE*)l->raddr = (TYPE)(VAL))
 
 register double farg1	__asm__("fr1");
@@ -72,12 +78,17 @@ __builtin_avcall(av_alist* l)
   register double	dret	__asm__("fr1");
 
   __avword space[__AV_ALIST_WORDS];	/* space for callee's stack frame */
-  __avword* argframe = sp + 14;		/* stack offset for argument list */
+  __avword* argframe = sp + STACK_OFFSET;/* stack offset for argument list */
   int arglen = l->aptr - l->args;
+#ifdef _AIX
+  int farglen = 0;
+#else
+  int farglen = l->faptr - l->fargs;
+#endif
   __avword i;
 
-  for (i = 8; i < arglen; i++)		/* push function args onto stack */
-    argframe[i-8] = l->args[i];
+  for (i = (8-farglen); i < arglen; i++) /* push function args onto stack */
+    argframe[i-8+farglen] = l->args[i];
 
   /* pass first 13 floating-point args in registers */
   arglen = l->faptr - l->fargs;

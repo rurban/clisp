@@ -2,6 +2,7 @@
 
 /*
  * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 2000 Adam Fedor, <fedor@gnu.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -44,6 +45,7 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
         __vaword firstword)
 {
   __va_alist list;
+#if defined(_AIX)
   /* gcc-2.6.3 source says: When a parameter is passed in a register,
    * stack space is still allocated for it.
    */
@@ -56,6 +58,18 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   (&firstword)[-3] = word6;
   (&firstword)[-2] = word7;
   (&firstword)[-1] = word8;
+#else
+  /* Move the arguments passed in registers to temp storage, since 
+     moving them to the stack would mess up the stack */
+  list.regarg[0] = word1;
+  list.regarg[1] = word2;
+  list.regarg[2] = word3;
+  list.regarg[3] = word4;
+  list.regarg[4] = word5;
+  list.regarg[5] = word6;
+  list.regarg[6] = word7;
+  list.regarg[7] = word8;
+#endif
   list.farg[0] = farg1;
   list.farg[1] = farg2;
   list.farg[2] = farg3;
@@ -71,7 +85,13 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   list.farg[12] = farg13;
   /* Prepare the va_alist. */
   list.flags = 0;
+#if defined(_AIX)
   list.aptr = (long)(&firstword - 8);
+#else
+  list.aptr = (long)(&list.regarg[0]);
+  list.saptr = (long)(&firstword);
+  list.onstack = 0;
+#endif
   list.raddr = (void*)0;
   list.rtype = __VAvoid;
   list.memfargptr = &list.farg[0];
