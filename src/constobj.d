@@ -671,10 +671,10 @@
   LISPOBJ(load_extra_file_types,"(\".BAT\")")
  #endif
 /* for control & io, function seclass_object(): */
-LISPOBJ(seclass_no_se,"(NIL NIL NIL)")
-LISPOBJ(seclass_read,"(T NIL NIL)")
-LISPOBJ(seclass_write,"(NIL T T)")
-LISPOBJ(seclass_default,"(T T T)")
+  LISPOBJ(seclass_no_se,"(NIL NIL NIL)")
+  LISPOBJ(seclass_read,"(T NIL NIL)")
+  LISPOBJ(seclass_write,"(NIL T T)")
+  LISPOBJ(seclass_default,"(T T T)")
 # for FOREIGN.D:
  #ifdef DYNAMIC_FFI
   LISPOBJ(fp_zero,"NIL")
