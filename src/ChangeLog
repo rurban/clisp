@@ -1,3 +1,10 @@
+2004-10-11  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (MODULE-INFO): return the DLL information for :FFI
+	argument (instead of 0); all info when VERBOSE, names only otherwise
+	* constsym (:FII) [DYNAMIC_FFI & (WIN32_NATIVE | HAVE_DLOPEN)]: added
+	Suggested by Jörg Höhle
+
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
 	* control.d (parse_doc_decl): Fix GC-safety bug introduced on
