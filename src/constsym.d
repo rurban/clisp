@@ -1069,7 +1069,7 @@ LISPSYM(simple_bit_vector,"SIMPLE-BIT-VECTOR",lisp) # als Typ in SEQUENCE, PREDT
 LISPSYM(array,"ARRAY",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(simple_array,"SIMPLE-ARRAY",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(sequence,"SEQUENCE",lisp) # als Typ für SEQUENCE
-LISPSYM(cerror,"CERROR",lisp) # als Funktion für PACKAGE
+LISPSYM(package_error,"PACKAGE-ERROR",lisp) # als Typ für PACKAGE
 LISPSYM(Kinternal,"INTERNAL",keyword) # als INTERN-Ergebnis in PACKAGE
 LISPSYM(Kexternal,"EXTERNAL",keyword) # als INTERN-Ergebnis in PACKAGE
 LISPSYM(Kinherited,"INHERITED",keyword) # als INTERN-Ergebnis in PACKAGE
@@ -1114,6 +1114,7 @@ LISPSYM(Kpathname,"PATHNAME",keyword) # als make-condition-Argument für ERROR
 LISPSYM(format,"FORMAT",lisp) # als Funktion in ERROR
 LISPSYM(debugger_hook,"*DEBUGGER-HOOK*",lisp) # als Variable in ERROR
 LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) # als Funktion für ERROR
+LISPSYM(cerror,"CERROR",lisp) # als Funktion für ERROR
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) # als Variable für ERROR
 LISPSYM(safe_typep,"SAFE-TYPEP",system) # als Funktion für ERROR
 LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, daß GNU_READLINE benutzt wird
