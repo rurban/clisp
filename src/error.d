@@ -1031,9 +1031,11 @@ global object check_function (object obj) {
     check_value(type_error,GETTEXT("~: ~ is not a ~"));
     if (symbolp(value1))
       obj = Symbol_function(value1);
-    else if (funnamep(value1))
-      obj = Symbol_function(get(Car(Cdr(value1)),S(setf_function)));
-    else if (consp(value1) && eq(Car(value1),S(lambda))) {
+    else if (funnamep(value1)) {
+      var object name = get(Car(Cdr(value1)),S(setf_function));
+      if (symbolp(name)) obj = Symbol_function(name);
+      else obj = value1;
+    } else if (consp(value1) && eq(Car(value1),S(lambda))) {
       pushSTACK(value1); pushSTACK(S(function));
       funcall(L(coerce),2);
       obj = value1;
@@ -1051,19 +1053,19 @@ global object check_fdefinition (object funname, object caller)
 {
   var object name = (symbolp(funname) ? funname
                      : get(Car(Cdr(funname)),S(setf_function)));
-  var object def = (symbolp(name) ? Symbol_function(name) : unbound);
+  var object def = (symbolp(name) ? (object)Symbol_function(name) : unbound);
   if (!functionp(def)) {
-    pushSTACK(funname); /* save */
+    pushSTACK(caller); pushSTACK(funname); /* save */
     pushSTACK(S(quote)); pushSTACK(funname); def = listof(2);
     pushSTACK(S(fdefinition)); pushSTACK(def); def = listof(2);
     pushSTACK(def); /* PLACE */
-    pushSTACK(STACK_2); /* CELL-ERROR Slot NAME */
+    pushSTACK(STACK_1/*funname*/); /* CELL-ERROR Slot NAME */
     pushSTACK(STACK_0); /* funname */
-    pushSTACK(STACK_3); /* caller */
+    pushSTACK(STACK_4); /* caller */
     check_value(undefined_function,GETTEXT("~: undefined function ~"));
     var bool store_p = !nullp(value2);
     with_saved_back_trace(L(fdefinition),-1,value1 = check_function(value1));
-    funname = popSTACK(); /* restore */
+    funname = popSTACK(); caller = popSTACK(); /* restore */
     def = value1;
     if (store_p) {
       name = (symbolp(funname) ? funname

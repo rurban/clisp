@@ -1,5 +1,10 @@
 2003-05-21  Sam Steingold  <sds@gnu.org>
 
+	* error.d (check_fdefinition): fixed stack handling
+	(check_function): get(sym,ind) may not be a symbol
+
+2003-05-21  Sam Steingold  <sds@gnu.org>
+
 	* disassem.lisp (disassemble, disassemble-machine-code): return
 	NIL, as per ANSI CL spec
 
