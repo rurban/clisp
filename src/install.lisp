@@ -67,9 +67,9 @@
   (add-fas-file c2)
   (add-mem-file c2))
 
-(let ((bat-file (merge-pathnames
-                 "Profiles/All Users/Desktop/clisp.bat"
-                 (concatenate 'string (getenv "windir") "/"))))
+(let ((bat-file (concatenate 'string
+                             (dir-key-single-value :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" "Common Desktop")
+                             "\\clisp.bat")))
   (with-open-file (bat bat-file :direction :output)
     (format t "~&writing <~a>..." bat-file) (force-output)
     (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)
