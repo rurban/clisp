@@ -2,6 +2,8 @@ New in 1.6:
 
 * The avcall and callback packages are compiled as position-independent code,
   if CC="gcc -fPIC".
+* The avcall and callback packages are be built as shared libraries, if
+  the option "--enable-shared" is passed to configure.
 * The package can now be built with CC="gcc -x c++".
 * Improved RS6000/PowerPC support.
 * Improved support for gcc on Irix6 (-n32 ABI).

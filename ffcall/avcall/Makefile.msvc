@@ -65,8 +65,8 @@ tests.obj : $(srcdir)/tests.c avcall.h
 tests.s : $(srcdir)/tests.c avcall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c /FAs /Fatests.s
 
-tests.exe : tests.obj $(OBJECTS)
-	$(CC) $(CFLAGS) tests.obj $(OBJECTS) /Fetests.exe
+tests.exe : tests.obj avcall.lib
+	$(CC) $(CFLAGS) tests.obj avcall.lib /Fetests.exe
 
 check : all tests.exe
 	tests.exe > tests.out
