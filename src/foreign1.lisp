@@ -709,20 +709,20 @@
     `(PROGN
        (EVAL-WHEN (COMPILE) (NOTE-C-VAR ',c-name ',type ',flags))
        #|
-       (LET ((FVAR (FFI::LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
-         (DEFUN ,getter-function-name () (FFI::FOREIGN-VALUE FVAR))
+       (LET ((FVAR (LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
+         (DEFUN ,getter-function-name () (FOREIGN-VALUE FVAR))
          ; Install a setter even if the variable is read-only.
          ; When called, it will print a comprehensible error message.
-         (DEFUN ,setter-function-name (VALUE) (FFI::SET-FOREIGN-VALUE FVAR VALUE))
+         (DEFUN ,setter-function-name (VALUE) (SET-FOREIGN-VALUE FVAR VALUE))
        )
        (DEFSETF ,getter-function-name ,setter-function-name)
        (DEFINE-SYMBOL-MACRO ,name (,getter-function-name))
        |#
        (SYSTEM::%PUT ',name 'FOREIGN-VARIABLE
          (LOAD-TIME-VALUE
-           (FFI::LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
+           (LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
        (DEFINE-SYMBOL-MACRO ,name
-         (FFI::FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE))))
+         (FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE))))
        ',name)))
 
 (defun note-c-var (c-name type flags)
@@ -730,7 +730,7 @@
     (prepare-module)
     (push (list c-name (parse-c-type type) flags) *variable-list*)))
 
-(defsetf ffi::foreign-value ffi::set-foreign-value)
+(defsetf foreign-value set-foreign-value)
 
 (defun foreign-address-null (fadr)
   (zerop (foreign-address-unsigned fadr)))
@@ -759,7 +759,7 @@
 (defmacro with-c-var ((var c-type &optional (init nil init-p)) &body body)
   (let ((fv (gensym (symbol-name var))))
     `(EXEC-ON-STACK
-      (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FFI::FOREIGN-VALUE ,fv))) ,@body))
+      (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))
       (PARSE-C-TYPE ,c-type)
       . ,(if init-p (list init)))))
 
@@ -795,8 +795,8 @@
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
          (SYSTEM::%PUTD ',name
-           (FFI::LOOKUP-FOREIGN-FUNCTION ',c-name
-                                         (PARSE-C-FUNCTION ',alist ',whole))))
+           (LOOKUP-FOREIGN-FUNCTION ',c-name
+                                    (PARSE-C-FUNCTION ',alist ',whole))))
        ',name)))
 
 (defun note-c-fun (c-name alist whole)
@@ -817,8 +817,8 @@
        (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
        (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
        (SYSTEM::%PUTD ',name
-         (FFI::FOREIGN-LIBRARY-FUNCTION ',c-name
-           (FFI::FOREIGN-LIBRARY ',library)
+         (FOREIGN-LIBRARY-FUNCTION ',c-name
+           (FOREIGN-LIBRARY ',library)
            ',offset
            (PARSE-C-FUNCTION ',(remove (assoc ':name alist) alist) ',whole)))
        ',name)))
