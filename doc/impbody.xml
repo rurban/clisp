@@ -642,9 +642,8 @@ is the same as
 
  <varlistentry><term>&lfd;:</term>
   <listitem><simpara>
-   <literal role="sexp">(&setf; (&lfd;)
-   <replaceable>digits</replaceable>)</literal> sets the default mantissa
-    length of long floats to <replaceable>digits</replaceable> bits.
+   <literal role="sexp">(&setf; (&lfd;) &digits-r;)</literal> sets the
+    default mantissa length of long floats to &digits-r; bits.
    </simpara></listitem></varlistentry>
 
  <varlistentry><term>&values-list;</term>
@@ -662,17 +661,17 @@ is the same as
 
 <para><literal role="sexp">(&get-setf-expansion; &form-r; &optional-amp;
  &env-r;)</literal>, <literal
- role="sexp">(ext:get-setf-method &form-r; &optional-amp;
+ role="sexp">(EXT:GET-SETF-METHOD &form-r; &optional-amp;
  &env-r;)</literal>, and <literal
- role="sexp">(ext:get-setf-method-multiple-value &form-r; &optional-amp;
+ role="sexp">(EXT:GET-SETF-METHOD-MULTIPLE-VALUE &form-r; &optional-amp;
  &env-r;)</literal> receive as optional argument &env-r;
  the environment necessary for macro expansions.  In
- &define-setf-expander; and <function>ext:define-setf-method</function>
+ &define-setf-expander; and <function>EXT:DEFINE-SETF-METHOD</function>
  &lalist;s, one can specify &environment-amp; and a variable, which will
  be bound to the environment.  This environment should be passed to all
  calls of &get-setf-expansion;,
- <function>ext:get-setf-method</function> and
- <function>ext:get-setf-method-multiple-value</function>.  If this is
+ <function>EXT:GET-SETF-METHOD</function> and
+ <function>EXT:GET-SETF-METHOD-MULTIPLE-VALUE</function>.  If this is
  done, even local macros will be interpreted as places correctly.</para>
 
 <para>Attempts to modify read-only data will signal an error.  Program
@@ -708,9 +707,9 @@ is the same as
  <replaceable>expansion</replaceable>)</literal>.</para>
 
 <para>The function <emphasis
- role="strong"><function>ext:symbol-macro-expand</function></emphasis>
+ role="strong"><function>EXT:SYMBOL-MACRO-EXPAND</function></emphasis>
  tests for a &symbol-macro;: If &symbol-r; is defined as
- a &symbol-macro;, <literal role="sexp">(ext:symbol-macro-expand
+ a &symbol-macro;, <literal role="sexp">(EXT:SYMBOL-MACRO-EXPAND
  &symbol-r;)</literal> returns two values, &t; and the
  expansion, otherwise it returns &nil;.</para>
 
@@ -879,34 +878,34 @@ is the same as
  there is one) lists the available <link linkend="debugger">debugging
  commands</link>.</para>
 
-<formalpara><title><function>ext:muffle-cerrors</function></title>
+<formalpara><title><function>EXT:MUFFLE-CERRORS</function></title>
 <para>The macro <literal
- role="sexp">(<function>ext:muffle-cerrors</function>
+ role="sexp">(<function>EXT:MUFFLE-CERRORS</function>
  {&form-r;}*)</literal> executes the &form-r;s.  When a continuable
  error occurs, no message is printed.  Instead, the &continue; restart
  is invoked.</para></formalpara>
 
-<formalpara><title><function>ext:appease-cerrors</function></title>
+<formalpara><title><function>EXT:APPEASE-CERRORS</function></title>
 <para>The macro <literal
- role="sexp">(<function>ext:appease-cerrors</function>
+ role="sexp">(<function>EXT:APPEASE-CERRORS</function>
  {&form-r;}*)</literal> executes the &form-r;s.  When a continuable
  error occurs, the error is printed as a warning and the &continue;
  restart is invoked.</para></formalpara>
 
-<formalpara><title><function>ext:exit-on-error</function></title>
+<formalpara><title><function>EXT:EXIT-ON-ERROR</function></title>
 <para>The macro <literal
- role="sexp">(<function>ext:exit-on-error</function>
+ role="sexp">(<function>EXT:EXIT-ON-ERROR</function>
  {&form-r;}*)</literal> executes the &form-r;s.  When a non-continuable
  error or a <keycombo><keycap>Ctrl</keycap><keysym>C</keysym></keycombo>
  interrupt occurs, the error is printed and &clisp; terminates with an
  error status.</para></formalpara>
 
-<formalpara><title><function>ext:with-restarts</function></title>
-<para>The macro <function>ext:with-restarts</function> is like
+<formalpara><title><function>EXT:WITH-RESTARTS</function></title>
+<para>The macro <function>EXT:WITH-RESTARTS</function> is like
  &restart-case;, except that the forms are specified after the restart
  clauses instead of before them, and the restarts created are not
  implicitly associated to any condition.
- <literal role="sexp">(<function>ext:with-restarts</function>
+ <literal role="sexp">(<function>EXT:WITH-RESTARTS</function>
  ({<varname>restart-clause</varname>}*) {&form-r;}*)</literal> is
  therefore equivalent to <literal role="sexp">(&restart-case; (&progn;
  {&form-r;}*) {<varname>restart-clause</varname>}*)</literal>.
@@ -935,8 +934,8 @@ is the same as
  <varlistentry><term><varname>restart-clause</varname> ::==</term><listitem>
   <programlisting>
    (<varname>restart-name</varname> <replaceable>arglist</replaceable>
-    {<varname>keyword value</varname>}* {&form-r;}*) |
-   (<varname>restart-name</varname> {<varname>keyword value</varname>}*
+    {<varname>keyword-value</varname>}* {&form-r;}*) |
+   (<varname>restart-name</varname> {<varname>keyword-value</varname>}*
     <replaceable>arglist</replaceable> {&form-r;}*)
 </programlisting></listitem></varlistentry></variablelist>
 </para></formalpara>
@@ -1244,18 +1243,6 @@ is the same as
  every coercion involving different floating-point types.
 </para></formalpara>
 
-<formalpara id="default-float-format"><title>&default-float-format;</title>
-<para>When rational numbers are to be converted to floats (due to
- &float;, &coerce;, &sqrt; or a transcendental function), the result
- type is given by the variable &default-float-format;.</para></formalpara>
-
-<formalpara id="no-underflow"><title>&no-underflow;</title>
-<para>The macro <literal role="sexp">(&no-underflow;
- {&form-r;}*)</literal> executes the &form-r;s, with errors of type
- &floating-point-underflow-type; inhibited.  Floating point operations
- will silently return zero instead of signalling an error of type
- &floating-point-underflow-type;.</para></formalpara>
-
 </section>
 </section>
 
@@ -1308,6 +1295,18 @@ is the same as
  &imagpart; of any type.</para>
 </formalpara>
 
+<formalpara id="default-float-format"><title>&default-float-format;</title>
+<para>When rational numbers are to be converted to floats (due to
+ &float;, &coerce;, &sqrt; or a transcendental function), the result
+ type is given by the variable &default-float-format;.</para></formalpara>
+
+<formalpara id="no-underflow"><title>&no-underflow;</title>
+<para>The macro <literal role="sexp">(&no-underflow;
+ {&form-r;}*)</literal> executes the &form-r;s, with errors of type
+ &floating-point-underflow-type; inhibited.  Floating point operations
+ will silently return zero instead of signalling an error of type
+ &floating-point-underflow-type;.</para></formalpara>
+
 <section id="int-func-ext"><title>Additional Integer Functions</title>
 
 <formalpara><title><function>ext:!</function></title>
@@ -1344,7 +1343,7 @@ is the same as
  exponent has large absolute value.</para></formalpara>
 
 <formalpara><title>&log;</title>
-<para><literal role="sexp">(&log; <replaceable>number</replaceable>
+<para><literal role="sexp">(&log; &number-r;
  <replaceable>base</replaceable>)</literal> signals an error if
  <function><replaceable>base</replaceable> = 1</function>.
 </para></formalpara>
@@ -1362,14 +1361,12 @@ is the same as
 
 <para>&float-radix; always returns <literal>2</literal>.</para>
 
-<para><literal role="sexp">(&float-digits;
- <replaceable>number</replaceable>
- <replaceable>digits</replaceable>)</literal> coerces
- <replaceable>number</replaceable> (a real number) to a floating point
- number with at least <replaceable>digits</replaceable> mantissa digits.
+<para><literal role="sexp">(&float-digits; &number-r;
+ &digits-r;)</literal> coerces &number-r; (a real number) to a floating
+ point number with at least &digits-r; mantissa digits.
  The following holds:
 <programlisting>
- (&gt;= (&float-digits; (&float-digits; number digits)) digits)
+ (&gt;= (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
 </programlisting></para>
 
 </section>

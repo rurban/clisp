@@ -209,6 +209,7 @@
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
 <!ENTITY ch-r "<replaceable>char</replaceable>">
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
+<!ENTITY digits-r "<replaceable>digits</replaceable>">
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
 <!ENTITY end-r "<replaceable>end</replaceable>">
 <!ENTITY env-r "<replaceable>env</replaceable>">
@@ -228,6 +229,7 @@
 <!ENTITY m-r "<replaceable>m</replaceable>">
 <!ENTITY match-r "<replaceable>match</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
+<!ENTITY number-r "<replaceable>number</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
 <!ENTITY object-r "<replaceable>object</replaceable>">
 <!ENTITY option-r "<replaceable>option</replaceable>">
