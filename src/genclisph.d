@@ -1900,11 +1900,13 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, fehler_list, (object obj));\n");
 #endif
   printf("extern object check_list_replacement (object obj);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline object check_list (object obj) {"
           " if (!listp(obj))"
             " obj = check_list_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#endif\n");
   printf("nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));\n");
 #if notused
   printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
@@ -1922,9 +1924,11 @@ int main(int argc, char* argv[])
             " obj = check_posfixnum_replacement(obj);"
           " return obj;"
         " }\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
   printf("static inline uintL posfixnum_default2 (object obj, uintL d) {"
          " return missingp(obj) ? d : posfixnum_to_L(check_posfixnum(obj)); "
          "}\n");
+  printf("#endif\n");
   printf("#define posfixnum_default(obj) posfixnum_default2(obj,0)\n");
 #if notused
   printf("extern object check_char_replacement (object obj);\n");
