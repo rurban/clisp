@@ -1170,6 +1170,7 @@ nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
   STACK_(argcount) = caller;
   var object arglist = listof(argcount);
   STACK_1 = arglist;
+  /* ANSI CL 3.5.1.6. wants a PROGRAM-ERROR here. */
   fehler(program_error,
          GETTEXT("~S: keyword arguments in ~S should occur pairwise"));
 }
@@ -1342,6 +1343,7 @@ nonreturning_function(global, fehler_too_many_args,
   pushSTACK(func);
   pushSTACK(fixnum(nmax));
   pushSTACK(fixnum(ngiven));
+  /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   if (!boundp(caller))
     fehler(program_error,GETTEXT("EVAL/APPLY: Too many arguments (~S instead of at most ~S) given to ~S"));
   else {
@@ -1360,6 +1362,7 @@ nonreturning_function(global, fehler_too_few_args,
   pushSTACK(func);
   pushSTACK(fixnum(nmin));
   pushSTACK(fixnum(ngiven));
+  /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
   if (!boundp(caller))
     fehler(program_error,GETTEXT("EVAL/APPLY: Too few arguments (~S instead of at least ~S) given to ~S"));
   else {
