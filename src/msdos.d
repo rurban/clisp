@@ -174,7 +174,9 @@
   extern int select (int width, fd_set* readfds, fd_set* writefds, fd_set* exceptfds,
                      struct timeval * timeout); # siehe SELECT(2)
   # Wrapper um die System-Aufrufe, die Teilergebnisse und evtl. EINTR behandeln:
-  extern int full_read (int fd, RW_BUF_T buf, size_t nbyte);
+  extern int read_helper (int fd, RW_BUF_T buf, size_t nbyte, bool partial_p);
+  #define safe_read(f,b,n)  read_helper(f,b,n,true)
+  #define full_read(f,b,n)  read_helper(f,b,n,false)
   extern int full_write (int fd, const RW_BUF_T buf, size_t nbyte);
   #define RETRWTYPE int      # für unixaux.d
   #define RW_SIZE_T size_t   # für unixaux.d

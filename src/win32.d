@@ -1,6 +1,6 @@
 # Include file for WIN32_NATIVE version of CLISP
-# Bruno Haible 1997-1999
-
+# Bruno Haible 1997-2002
+# Sam Steingold 1999-2002
 
 # Konstanten für Steuerzeichen:
 
@@ -177,7 +177,9 @@
   # Like ReadConsoleInput with Length==1, but is interruptible by Ctrl-C.
   extern BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer, LPDWORD NumberOfEventsRead);
   # The following functions deal with all kinds of file/pipe/console handles.
-  extern int full_read (HANDLE fd, void* buf, int nbyte);
+  extern int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p);
+  #define safe_read(f,b,n)  read_helper(f,b,n,true)
+  #define full_read(f,b,n)  read_helper(f,b,n,false)
   extern int full_write (HANDLE fd, const void* buf, int nbyte);
   #define RW_BUF_T  void*
   #define read  full_read

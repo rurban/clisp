@@ -6008,7 +6008,7 @@ typedef struct strm_i_buffered_extrafields_t {
 local uintL low_fill_buffered_handle (object stream) {
   begin_system_call();
   var sintL result = # fill Buffer
-    full_read(TheHandle(BufferedStream_channel(stream)),
+    safe_read(TheHandle(BufferedStream_channel(stream)),
               BufferedStream_buffer_address(stream,0),
               strm_buffered_bufflen);
   end_system_call();

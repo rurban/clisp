@@ -391,7 +391,9 @@
   #define read Read
   # Wrapper um die System-Aufrufe, die Teilergebnisse behandeln:
   #define RW_BUF_T  void*
-  extern long full_read (Handle handle, RW_BUF_T buf, long nbyte);
+  extern long read_helper (Handle handle, RW_BUF_T buf, long nbyte, bool partial_p);
+  #define safe_read(h,b,n)  read_helper(h,b,n,true)
+  #define full_read(h,b,n)  read_helper(h,b,n,false)
   extern long full_write (Handle handle, const RW_BUF_T buf, long nbyte);
 # wird verwendet von SPVW, STREAM, AMIGAAUX
 
