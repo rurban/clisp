@@ -7349,9 +7349,9 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
 }
 #endif /* PATHNAME_NOEXT */
 
-/* (DIRECTORY [pathname [:circle] [:full] [:if-does-not-exist]]),
+/* (DIRECTORY pathname [:circle] [:full] [:if-does-not-exist]),
    CLTL p. 427 */
-LISPFUN(directory,seclass_read,0,1,norest,key,3,
+LISPFUN(directory,seclass_read,1,0,norest,key,3,
         ( kw(if_does_not_exist),kw(circle),kw(full) ))
 { /* stack layout: pathname, if-does-not-exist, circle, full. */
   var dir_search_param_t dsp;
@@ -7375,13 +7375,7 @@ LISPFUN(directory,seclass_read,0,1,norest,key,3,
   dsp.full_p = !missingp(STACK_0); /* :FULL argument defaults to NIL */
   skipSTACK(3);
   /* check pathname-argument: */
-  var object pathname = STACK_0;
-  if (!boundp(pathname)) {
-   #ifdef PATHNAME_NOEXT
-    pathname = O(wild_string); /* Default is "*" */
-   #endif
-  }
-  pathname = coerce_pathname(pathname); /* turn into a pathname */
+  var object pathname = coerce_pathname(STACK_0); /* turn into a pathname */
   /* let's go: */
  #ifdef PATHNAME_WIN32
   if (eq(ThePathname(pathname)->pathname_device,S(Kwild))) {
