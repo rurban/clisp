@@ -211,14 +211,12 @@ English, German, French, Spanish, Dutch and Russian.
 
 <variablelist>
 <!-- #ifndef UNICODE -->
-<varlistentry><term>Platform dependent: Only in &clisp; built
-  &without; compile-time flag &unicode;.</term>
+<varlistentry><term>&non-unicode-only;</term>
 <listitem><simpara>Only one character set is understood: the platform's
  native (8-bit) character set.  See <xref linkend="characters"/>.
 </simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry id="charset-symbols"><term>Platform dependent:
-  Only in &clisp; built &with; compile-time flag &unicode;.</term>
+<varlistentry id="charset-symbols"><term>&unicode-only;</term>
 <listitem><para>The following character sets are supported, as values
  of the corresponding (constant) symbol in the &charset-pac; package:
 <orderedlist id="charset-symbol-list">
@@ -668,8 +666,7 @@ English, German, French, Spanish, Dutch and Russian.
 </section>
 
 <section id="enc-charset"><title>Function &enc-charset;.</title>
-<subtitle>Platform dependent: Only in &clisp; built
- &with; compile-time flag &unicode;.</subtitle>
+<subtitle>&unicode-only;</subtitle>
 
 <para>The function <code>(&enc-charset; &encoding-r;)</code> returns the
  charset of the &encoding-r;, as a &symbol-t; or a &string-t;.</para>
@@ -691,8 +688,7 @@ English, German, French, Spanish, Dutch and Russian.
 
 <!-- #ifdef UNICODE -->
 <variablelist>
-<varlistentry><term>Platform dependent: Only in &clisp; built
-  &with; compile-time flag &unicode;.</term>
+<varlistentry><term>&unicode-only;</term>
 <listitem><simpara>The following are &symbol-macro; places.</simpara>
 <variablelist>
 <varlistentry><term><firstterm>&path-enc;
@@ -1689,7 +1685,7 @@ returns two values: <code>(locally (print 3))</code> (the expansion) and
 <!-- #if defined(SCREEN) -->
 
 <section id="screen"><title>Random Screen Access</title>
-<subtitle>Platform dependent: &unix;, &win32; platforms only.</subtitle>
+<subtitle>&unix-w32-only;</subtitle>
 
 <variablelist>
  <varlistentry><term><code>(<function>SCREEN:MAKE-WINDOW</function>)</code></term>
@@ -1767,7 +1763,7 @@ returns two values: <code>(locally (print 3))</code> (the expansion) and
 
 <!-- #if defined(UNIX) || defined(WIN32_NATIVE) -->
 <section id="modules"><title>External Modules</title>
-<subtitle>Platform dependent: &unix; and &win32; platforms only.</subtitle>
+<subtitle>&unix-w32-only;</subtitle>
 
 <note id="mod-win32"><title>Modules on &win32;.</title>
  <para>Everything described in the section will work verbatim on &win32;
@@ -4069,7 +4065,7 @@ Compiled, it will have inlined the library function calls.
 <!-- #endif -->
 
 <section id="socket"><title>Socket Streams</title>
-<subtitle>Platform dependent: &unix;, &win32; platforms only.</subtitle>
+<subtitle>&unix-w32-only;</subtitle>
 <!-- #ifdef SOCKET_STREAMS -->
 
 <variablelist>
@@ -4307,8 +4303,7 @@ Compiled, it will have inlined the library function calls.
 
 <!-- #ifdef UNIX -->
 <section id="quickstart-unix"><title>Scripting with &clisp;</title>
- <subtitle>Platform dependent: &unix; platforms only, including
-  &cygwin;.</subtitle>
+ <subtitle>&unix-only;</subtitle>
 
 <para>On &unix;, a text file (&fasl-file; or &lisp-file;) can
  be made executable by adding a first line of the form
@@ -4530,7 +4525,7 @@ bash$
 
 <variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
  <listitem><simpara><code>(&exec; &program-r;
        <replaceable>arg&sub-1;</replaceable>
        <replaceable>arg&sub-2;</replaceable> ...)</code>
@@ -4542,7 +4537,7 @@ bash$
 <!-- #endif -->
 
 <!-- #ifdef HAVE_SHELL -->
-<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
+<varlistentry><term>&unix-w32-only;</term>
  <listitem><simpara><code>(&shell; [&command-r;])</code>
    calls the operating system's shell, the value of the &env-var;
    <envar>SHELL</envar> on &unix; and <envar>COMSPEC</envar> on &win32;.
@@ -4553,8 +4548,7 @@ bash$
 <!-- #endif -->
 
 <!-- #ifdef PIPES2 -->
-<varlistentry id="run-prog"><term>Platform dependent: &unix;, &win32;
-   platforms only.</term>
+<varlistentry id="run-prog"><term>&unix-w32-only;</term>
  <listitem><simpara>The functions &run-cmd; and &run-prog; are the
    general interface to &shell; and the above:</simpara>
 
@@ -4575,7 +4569,7 @@ bash$
     <listitem><simpara>the shell command.</simpara>
 <!-- #ifdef UNIX -->
      <variablelist>
-      <varlistentry><term>Platform dependent: &unix; platforms only.</term>
+      <varlistentry><term>&unix-only;</term>
       <listitem><simpara>The shell the command is passed to is the value
        of the &env-var; <envar>SHELL</envar>, which normally is &sh;.
        The command should be a <quote>simple command</quote>;
@@ -4643,7 +4637,7 @@ bash$
 
 <!-- #ifdef PIPES -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
+<varlistentry><term>&unix-w32-only;</term>
 <listitem><variablelist>
  <varlistentry><term><code>(&mk-pipe-in; &command-r; &key-amp; &eltype;
     &extfmt; &buffered;)</code></term>
@@ -4725,7 +4719,7 @@ are returned in an &alist;.</para>
 
 <variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
 <listitem><para>When running under the &X;, you can create
   a &bidi-s;, which uses a new dedicated xterm, using the function
   <firstterm>&mk-xterm-io;<indexterm id="mk-xterm" significance="preferred">
