@@ -4086,7 +4086,7 @@ local void update_library (object acons, uintL version) {
   while (consp(lib_list)) {
     var object fo = Car(lib_list); /* foreign object */
     var object fa = foreign_address(fo,false); /* its foreign address */
-    var gcv_object_t *fn;                       /* its name */
+    var gcv_object_t *fn;                      /* its name */
     switch (Record_type(fo)) {
       case Rectype_Fvariable: fn = &(TheFvariable(fo)->fv_name); break;
       case Rectype_Ffunction: fn = &(TheFfunction(fo)->ff_name); break;
@@ -4099,6 +4099,20 @@ local void update_library (object acons, uintL version) {
   }
 }
 
+/* find the library in O(foreign_libraries):
+   (ASSOC name O(foreign_libraries))
+ > name: the name of the library
+ < list (library fpointer object1 object2 ...) or NIL */
+local object find_library (object name) {
+  var object alist = O(foreign_libraries);
+  while (consp(alist)) {
+    if (equal(name,Car(Car(alist))))
+      return Car(alist);
+    alist = Cdr(alist);
+  }
+  return NIL;
+}
+
 /* (FFI::FOREIGN-LIBRARY name [required-version])
  returns a foreign library specifier. */
 LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
@@ -4106,20 +4120,19 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   var uintL v = 0;
   if (boundp(STACK_0))
     v = I_to_uint32(check_uint32(STACK_0));
-  {/* Check whether the library is on the alist or has already been opened. */
-    var object name = STACK_1;
-    var object alist = O(foreign_libraries);
-    while (consp(alist)) {
-      if (equal(name,Car(Car(alist)))) {
-        var object lib = Car(Cdr(Car(alist)));
-        if (!fp_validp(TheFpointer(lib)))
-          /* Library already existed in a previous Lisp session.
-             Update the address, and make it valid. */
-          update_library(Car(alist),v);
-        value1 = lib;
-        goto done;
+  { /* Check whether the library is on the alist or has already been opened. */
+    var object lib_cons = find_library(STACK_1);
+    if (consp(lib_cons)) {
+      var object lib = Car(Cdr(lib_cons));
+      if (!fp_validp(TheFpointer(lib))) {
+        /* Library already existed in a previous Lisp session.
+           Update the address, and make it valid. */
+        STACK_0 = lib;          /* save */
+        update_library(lib_cons,v);
+        lib = STACK_0;          /* restore */
       }
-      alist = Cdr(alist);
+      value1 = lib;
+      goto done;
     }
   }
   /* Pre-allocate room: */
@@ -4143,6 +4156,7 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 }
 
 /* Try to make a Foreign-Pointer valid again.
+   FIXME: update_library() is GC-unsafe, so this should be too?!
  validate_fpointer(obj); */
 global void validate_fpointer (object obj)
 { /* If the foreign pointer belongs to a foreign library from a previous
@@ -4184,7 +4198,8 @@ local maygc object check_library (object obj)
 /* FIXME: BETTER COMMENT! */
 /* return the foreign address of the foreign object named 'name'
  can trigger GC */
-local maygc object object_address (object library, gcv_object_t *name, object offset)
+local maygc object object_address (object library, gcv_object_t *name,
+                                   object offset)
 { /* return the foreign address of the foreign object named `name' */
   var object lib_addr = Car(Cdr(library));
   var sintP result_offset;
