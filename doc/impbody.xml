@@ -1737,19 +1737,28 @@ can give problems:
     <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
 </tbody></tgroup></table></section>
 
-<para>Bignum Limits: Bignums are limited in size. Their maximum size is
-2097088 bits. The largest representable bignum is
-2<superscript>2097088</superscript>-1.</para>
+<section id="bignum-lim"><title>Bignum Limits
+  <ulink url="&clhs;/Body/typ_bignum.html">[CLHS]</ulink></title>
+<para>&bignum-t;s are limited in size.  Their maximum size is
+ <literal>32*(2<superscript>16</superscript>-2)=2097088</literal> bits.
+ The largest representable &bignum-t; is therefore
+ <literal>2<superscript>2097088</superscript>-1</literal>.</para></section>
 
 <section id="float-lim"><title>Float Limits
   <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
 
  <para>Together with &pi-v;, the other &long-float-t; constants
-  &least-negative-long-float; &least-negative-normalized-long-float;
-  &least-positive-long-float; &least-positive-normalized-long-float;
-  &long-float-epsilon; &long-float-negative-epsilon;
-  &most-negative-long-float; &most-positive-long-float; are recomputed
-  whenever &lfd-l; is &setf;ed.  They are &not-e; &constant;s.</para>
+  <simplelist columns="2">
+   <member>&least-negative-long-float</member>
+   <member>&least-negative-normalized-long-float</member>
+   <member>&least-positive-long-float</member>
+   <member>&least-positive-normalized-long-float</member>
+   <member>&long-float-epsilon</member>
+   <member>&long-float-negative-epsilon</member>
+   <member>&most-negative-long-float</member>
+   <member>&most-positive-long-float</member></simplelist>
+  are recomputed whenever &lfd-l; is &setf;ed.
+  They are &not-e; &constant;s.</para>
 
 </section>
 
