@@ -244,6 +244,9 @@ User visible changes
   + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
     forms.
   + Fixes to internationalized error messages.
+  + When an interpreted INITIALIZE-INSTANCE method uses CALL-NEXT-METHOD with
+    a modified argument list, MAKE-INSTANCE could in some cases initialize
+    the new object three times instead of just once.
   + Passing a package as second argument of RENAME-PACKAGE led to an
     unjustified error.
   + Passing a displaced vector as argument to REVERSE could lead to an
