@@ -8704,6 +8704,9 @@ global char** lisp_completion (char* text, int start, int end) {
       }
       unwind_HANDLER_frame();
     catch_return:
+      /* Here we need the values of array and ptr. Avoid gcc warnings. */
+      unused &array; /* avoid "'array' might be clobbered by 'longjmp'" */
+      unused &ptr;   /* avoid "'ptr' might be clobbered by 'longjmp'" */
       skipSTACK(3); # unwind CATCH frame
       STACK_0 = Cdr(STACK_0);
     }

@@ -1,5 +1,10 @@
 2004-04-11  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (lisp_completion): Ensure that local variables are not
+	clobbered through longjmp.
+
+2004-04-11  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d: Disable the use of global register variables for
 	gcc >= 3.0.
 
