@@ -925,6 +925,7 @@ Long-form options are a list of method-group specifiers,
            (let ((method-groups
                    (parse-method-groups name method-group-specifiers))
                  (arguments-lambda-list nil)
+                 (arguments-variables '())
                  (user-gf-variable nil)
                  (gf-name-variable (gensym "GF-NAME-"))
                  (gf-variable (gensym "GF-"))
@@ -941,12 +942,22 @@ Long-form options are a list of method-group specifiers,
                                 (consp (cdr arguments-lambda-list)))
                          (cddr arguments-lambda-list)
                          arguments-lambda-list)))
-                 (analyze-lambdalist arguments-lambda-list-without-whole
-                   #'(lambda (errorstring &rest arguments)
-                       (error-of-type 'sys::source-program-error
-                         (TEXT "~S ~S: invalid ~S lambda-list: ~A")
-                         'define-method-combination name ':arguments
-                         (apply #'format nil errorstring arguments)))))
+                 (multiple-value-bind (reqvars optvars optinits optsvars rest
+                                       keyp keywords keyvars keyinits keysvars
+                                       allowp auxvars auxinits)
+                     (analyze-lambdalist arguments-lambda-list-without-whole
+                       #'(lambda (errorstring &rest arguments)
+                           (error-of-type 'sys::source-program-error
+                             (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                             'define-method-combination name ':arguments
+                             (apply #'format nil errorstring arguments))))
+                   (declare (ignore optinits keyp keywords keyinits allowp auxinits))
+                   (setq arguments-variables
+                         (remove 0 (append (if (eq (first arguments-lambda-list) '&WHOLE)
+                                             (list (second arguments-lambda-list))
+                                             '())
+                                           reqvars optvars optsvars (list rest)
+                                           keyvars keysvars auxvars)))))
                (setq body (cdr body)))
              (when (and (consp body) (consp (car body))
                         (eq (caar body) ':GENERIC-FUNCTION))
@@ -960,20 +971,14 @@ Long-form options are a list of method-group specifiers,
                  (setq body (cdr body))))
              (multiple-value-bind (body-rest declarations documentation)
                  (sys::parse-body body t)
-               (when arguments-lambda-list
+               (when arguments-variables
                  ;; Add bindings so that the effective method function can
                  ;; access the arguments that were passed to generic function.
                  (setq body-rest
                        `((LET ,(mapcan
-                                 #'(lambda (parameter)
-                                     (unless (memq parameter lambda-list-keywords)
-                                       (when (consp parameter)
-                                         (setq parameter
-                                               (if (consp (first parameter))
-                                                 (second (first parameter))
-                                                 (first parameter))))
-                                       (list `(,parameter ',parameter))))
-                                 arguments-lambda-list)
+                                 #'(lambda (variable)
+                                     (list `(,variable ',variable)))
+                                 arguments-variables)
                            ,@body-rest))))
                (multiple-value-bind (check-options-lambda partition-lambda check-lambda)
                    (compute-method-partition-lambdas method-groups body-rest)
