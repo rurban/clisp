@@ -423,12 +423,11 @@ generic function's dispatch code is installed, the &codevec; and
   <listitem><simpara>At most one object, representing the closed-up
    variables, representing the variables of the lexical environment in
    which this function was defined.  It is a &simple-vector-type;, which
-   looks like this: <literal
-   role="sexp">#(<replaceable>next</replaceable>
-   <replaceable>value<subscript>1</subscript></replaceable> ...
-   <replaceable>value<subscript>n</subscript></replaceable>)</literal>
-   where <replaceable>value<subscript>1</subscript></replaceable>, ...,
-   <replaceable>value<subscript>n</subscript></replaceable>
+   looks like this: <literal role="sexp">#(<replaceable>next</replaceable>
+   <replaceable>value&sub-1;</replaceable> ...
+   <replaceable>value&sub-n;</replaceable>)</literal>
+   where <replaceable>value&sub-1;</replaceable>, ...,
+   <replaceable>value&sub-n;</replaceable>
    are the values of the closed-up variables, and
    <replaceable>next</replaceable> is either &nil; or a
    &simple-vector-type; having the same structure.
@@ -1121,8 +1120,8 @@ letters:
              <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
-             <replaceable>label<subscript>1</subscript></replaceable> ...
-             <replaceable>label<subscript>m</subscript></replaceable>)</literal></entry>
+             <replaceable>label&sub-1;</replaceable> ...
+             <replaceable>label&sub-n;</replaceable>)</literal></entry>
       <entry>Create a tagbody frame.</entry>
       <entry>Fetch &consts;[&n-r;], this is a &simple-vector-type; with
              &m-r; elements, then decode &m-r; label operands.
