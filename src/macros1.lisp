@@ -294,35 +294,37 @@
   `(LET () ,@body)
 )
 
-(defmacro-special case (keyform &body body)
-  (let ((var (gensym)))
-    `(LET ((,var ,keyform))
-       (COND
-         ,@(maplist
-             #'(lambda (remaining-clauses)
-                 (let ((clause (first remaining-clauses))
-                       (remaining-clauses (rest remaining-clauses)))
-                   (unless (consp clause)
-                     (error-of-type 'source-program-error
-                       (ENGLISH "~S: missing key list")
-                       'case
-                   ) )
-                   (let ((keys (first clause)))
-                     `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
-                               (if remaining-clauses
+(defun case-expand (form-name test keyform clauses)
+  (let ((var (gensym (format nil "~a-KEY-" form-name))))
+    `(let ((,var ,keyform))
+      (cond
+        ,@(maplist
+           #'(lambda (remaining-clauses)
+               (let ((clause (first remaining-clauses))
+                     (remaining-clauses (rest remaining-clauses)))
+                 (unless (consp clause)
+                   (error-of-type 'source-program-error
+                                  (ENGLISH "~S: missing key list")
+                                  form-name))
+                 (let ((keys (first clause)))
+                   `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
+                             (if remaining-clauses
                                  (error-of-type 'source-program-error
-                                   (ENGLISH "~S: the ~S clause must be the last one")
-                                   'case keys
-                                 )
-                                 'T
-                              ))
-                              ((listp keys) `(MEMBER ,var ',keys))
-                              (t `(EQL ,var ',keys))
-                        )
-                       ,@(rest clause)
-               ) ) )  )
-             body
-) )  ) )   )
+                                                (ENGLISH "~S: the ~S clause must be the last one")
+                                                form-name keys)
+                                 't))
+                            ((listp keys)
+                             `(and ,@(mapcar #'(lambda (key)
+                                                 `(,test ,var ',key))
+                                             keys)))
+                            (t `(,test ,var ',keys)))
+                     ,@(rest clause)))))
+           clauses)))))
+
+(defmacro fcase (test keyform &body clauses)
+  (case-expand 'fcase test keyform clauses))
+(defmacro-special case (keyform &body clauses)
+  (case-expand 'case 'eql keyform clauses))
 
 (defmacro prog (varlist &body body &environment env)
   (multiple-value-bind (body-rest declarations)
