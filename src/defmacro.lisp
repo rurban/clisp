@@ -136,7 +136,7 @@ the actual object #<MACRO expander> for the FENV.
            ,arg))))
 
 (defun analyze-key (lambdalistr restvar name
-                    &aux (otherkeysforbidden t) (kwlist nil))
+                    &aux (other-keys-forbidden t) (kwlist nil))
   (do ((listr lambdalistr (cdr listr))
        (next)
        (kw)
@@ -148,7 +148,7 @@ the actual object #<MACRO expander> for the FENV.
                  (TEXT "The lambda list of macro ~S contains a dot after &KEY.")
                  name)))
     (setq next (car listr))
-    (cond ((eq next '&ALLOW-OTHER-KEYS) (setq otherkeysforbidden nil))
+    (cond ((eq next '&ALLOW-OTHER-KEYS) (setq other-keys-forbidden nil))
           ((eq next '&AUX)
            (return-from nil (analyze-aux (cdr listr) name)))
           ((or (eq next '&ENVIRONMENT) (eq next '&WHOLE) (eq next '&REST)
@@ -206,7 +206,7 @@ the actual object #<MACRO expander> for the FENV.
                   (let ((%min-args 0) (%arg-count 0) (%restp nil)
                         (%default-form nil))
                     (analyze1 (cadar next) g name g)))))))
-  (if otherkeysforbidden
+  (if other-keys-forbidden
       (setq %keyword-tests
             (cons `(KEYWORD-TEST ,restvar ',kwlist) %keyword-tests))))
 
