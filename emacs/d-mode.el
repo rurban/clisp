@@ -66,8 +66,9 @@ The point should be on the prototype and the definition should follow."
   (search-forward "LISPFUN")
   (beginning-of-line)
   (let ((beg (point)))
-    (forward-sexp 2) (insert " {")
-    (search-forward "{") (delete-region (line-beginning-position) (1+ (point)))
+    (forward-sexp 2) (insert "\n{ ") (delete-char 1)
+    (re-search-forward "^ *{")
+    (delete-region (line-beginning-position) (1+ (point)))
     (goto-char beg)
     (c-indent-region beg (progn (forward-sexp 3) (point)))))
 
