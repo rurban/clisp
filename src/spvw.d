@@ -3378,7 +3378,11 @@ nonreturning_function(global, quit, (void)) {
 #include "spvw_memfile.c"
 
 /* ------------------------ dll loading ----------------------------------- */
-#if defined(DYNAMIC_MODULES) || defined(DYNAMIC_FFI)
+#if defined(DYNAMIC_MODULES) || (defined(DYNAMIC_FFI) && (defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)))
+
+#if defined(HAVE_DLFCN_H)
+#include <dlfcn.h>
+#endif
 
 /* open the dynamic library
  libname is the name of the library
