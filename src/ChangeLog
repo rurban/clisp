@@ -1,5 +1,10 @@
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
+        * spvw.d (init_symbol_values): Initialize
+          SYS::*LOGICAL-PATHNAME-TRANSLATIONS* to an EQUALP hash table.
+
+2001-02-04  Bruno Haible  <haible@clisp.cons.org>
+
         * pathname.d: Back out Sam's 2001-01-03 and 2001-01-04 patches.
           (host_namestring_parts): Use "\\\\" instead of twice "\\".
           (directory_namestring): Include the host namestring parts.
