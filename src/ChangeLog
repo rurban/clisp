@@ -1,3 +1,9 @@
+2004-11-13  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (defclass): Put the default key/argument pairs
+	for :direct-default-initargs, :documentation, :generic-accessors
+	after the default initargs from the metaclass, not before.
+
 2004-11-08  Bruno Haible  <bruno@clisp.org>
 
 	Don't call initialize-instance for dummy generic-function instances.

@@ -370,6 +370,27 @@ AS-STRING
 (1 NIL T)
 
 
+;; Check that in defclass, the default-initargs of the metaclass have
+;; precedence over the usual defaults.
+(progn
+  (defclass testclass51 (standard-class)
+    ()
+    (:default-initargs
+      :documentation "some doc"))
+  #-CLISP
+  (defmethod clos:validate-superclass ((c1 testclass51) (c2 standard-class))
+    t)
+  (mapcar #'(lambda (x) (documentation x 'type))
+    (list
+      (defclass testclass51a () ())
+      (defclass testclass51b () ()
+        (:metaclass testclass51))
+      (defclass testclass51c () ()
+        (:documentation "some other doc")
+        (:metaclass testclass51)))))
+(NIL "some doc" "some other doc")
+
+
 ;; Check that defgeneric supports user-defined options.
 (progn
   (defclass option-generic-function (standard-generic-function)
