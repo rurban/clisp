@@ -1,3 +1,10 @@
+2002-12-16  Sam Steingold  <sds@gnu.org>
+
+	* type.lisp (*canonicalize-type-prefer-clos*): new variable
+	(canonicalize-type): depending on *canonicalize-type-prefer-clos*,
+	return a CLOS class (e.g., NUMBER) or a list (e.g., (OR REAL COMPLEX))
+	(subtypep): try CLOS becore playing with lists
+
 2002-12-16  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (DYNAMIC_8BIT_VECTOR): Renamed from DYNAMIC_BIT_VECTOR.
