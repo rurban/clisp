@@ -1,5 +1,12 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Allow #0Y to occur on standard input.
+        * stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Accept an optional
+          direction argument. If it is given, recurse properly.
+        * io.d (closure_reader): Call it with direction :INPUT.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * io.d (syntax_table_get_notinline): Swap arguments to gethash().
 
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
