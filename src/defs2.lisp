@@ -605,6 +605,10 @@
 (defmacro define-hash-table-test (name test hash)
   (loop (when (symbolp name) (return))
     ;; check-value will be defined in condition.lisp
-    (setq name (check-value nil (make-condition 'type-error :datum name
-                                                :expected-type 'symbol))))
+    (setq name (check-value
+                nil (make-condition 'simple-type-error
+                      :format-control (TEXT "~S: ~S should be a ~S")
+                      :format-arguments
+                      (list 'define-hash-table-test name 'symbol)
+                      :datum name :expected-type 'symbol))))
   `(progn (setf (get ',name 'hash-table-test) (cons #',test #',hash)) ',name))
