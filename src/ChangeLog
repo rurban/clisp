@@ -2,6 +2,8 @@
 
 	* places.lisp (get-setf-method): fixed the error message: the
 	number of store variables may be 0, e.g., (PROGN (VALUES))
+	(defsetf): permit missing store variables as specified by ANSI
+	CL: (defsetf access-fn lambda-list (store-variable*) ...)
 	Reported by Kalle Olavi Niemitalo <kon@iki.fi>
 
 2004-11-20  Sam Steingold  <sds@gnu.org>
