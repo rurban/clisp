@@ -6863,16 +6863,16 @@ for-value   NIL or T
                                   nil
                                   lambdabody
                                   nil))))))))
-              ((and (clos::class-p type)
-                    (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
-                (return-from c-TYPEP
-                  (c-form `(CLOS::TYPEP-CLASS ,objform
-                             (LOAD-TIME-VALUE (CLOS:FIND-CLASS
-                                               ',(clos:class-name type)))))))
+              ((clos::class-p type)
+               (return-from c-TYPEP
+                 (c-form `(CLOS::TYPEP-CLASS ,objform
+                            ,(if (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type)
+                               `(LOAD-TIME-VALUE (CLOS:FIND-CLASS ',(clos:class-name type)))
+                               typeform)))))
               ;; ((sys::encodingp type) ...) ; not worth optimizing
               )))
-    (c-GLOBAL-FUNCTION-CALL-form `(TYPEP ,objform ,typeform
-                                         ,(cadddr *form*)))))
+    (c-GLOBAL-FUNCTION-CALL-form
+      `(TYPEP ,objform ,typeform ,@(cdddr *form*)))))
 
 ;; c-FORMAT cf. FORMAT in format.lisp
 (defun c-FORMAT ()
