@@ -1,5 +1,9 @@
 2002-07-21  Bruno Haible  <bruno@clisp.org>
 
+	* stdint.h.in: Add support for FreeBSD.
+
+2002-07-21  Bruno Haible  <bruno@clisp.org>
+
 	Avoid using floating-point hardware where it leads to exceptions or
 	wrong computations.
 	* floatparam.c: New file.
