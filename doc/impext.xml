@@ -1739,7 +1739,7 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 <!-- #if defined(SCREEN) || defined(AMIGAOS) -->
 
 <section id="screen"><title>Extensions-2.1. Random Screen Access</title>
-<subtitle>Platform dependent: &unix;, &amiga;, &dos;, &os2;
+<subtitle>Platform dependent: &unix;, &amiga;, &dos;, &os2;, &win32;
    platforms only.</subtitle>
 
 <variablelist>
