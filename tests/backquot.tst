@@ -133,3 +133,18 @@ X
         env))
 #+:enable-risky-tests
 (1234 5678 12 2468 64)
+
+#+:enable-risky-tests
+(progn
+  (defmacro define-setf (var &rest values)
+  "define a setf function name (setf <var>) that will
+  set the variable `var' to the sum of the given values
+  plus the one given when setf'ed."
+  `(defsetf ,(intern (symbol-name var)) () (value)
+     `(setf ,',var (+ ,value ,@',values))))
+  (defvar *avar* nil)
+  (define-setf *avar* 1 2 3)
+  (list (setf (*avar*) 4)
+        *avar*))
+#+:enable-risky-tests
+(10 10)
