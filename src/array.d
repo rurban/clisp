@@ -78,7 +78,7 @@ LISPFUNN(copy_simple_vector,1)
 # > element_type: Type-Specifier
 # < ergebnis: Elementtyp-Code Atype_xxx
 # Standard-Typen sind die möglichen Ergebnisse von ARRAY-ELEMENT-TYPE
-# (Symbole T, BIT, CHARACTER/STRING-CHAR und Listen (UNSIGNED-BYTE n)).
+# (Symbole T, BIT, CHARACTER und Listen (UNSIGNED-BYTE n)).
 # Das Ergebnis ist ein Obertyp von element-type.
 # kann GC auslösen
   global uintB eltype_code (object element_type);
@@ -87,7 +87,7 @@ LISPFUNN(copy_simple_vector,1)
     # Bei jeder Modifikation auch upgraded-array-element-type in type.lsp anpassen!
     {
       # (cond ((eq obj 'BIT) Atype_Bit)
-      #       ((member obj '(CHARACTER STRING-CHAR)) Atype_String_Char)
+      #       ((eq obj 'CHARACTER) Atype_Char)
       #       ((eq obj 'T) Atype_T)
       #       (t (multiple-value-bind (low high) (sys::subtype-integer obj))
       #            ; Es gilt (or (null low) (subtypep obj `(INTEGER ,low ,high)))
@@ -102,13 +102,12 @@ LISPFUNN(copy_simple_vector,1)
       #                      ((<= l 32) Atype_32Bit)
       #                      (t Atype_T)
       #              ) )
-      #              (if (subtypep type 'STRING-CHAR)
-      #                Atype_String_Char
+      #              (if (subtypep type 'CHARACTER)
+      #                Atype_Char
       #                Atype_T
       # )     )  ) ) )
       if (eq(obj,S(bit))) { return Atype_Bit; } # Symbol BIT ?
-      elif (eq(obj,S(character)) || eq(obj,S(string_char))) # Symbol CHARACTER/STRING-CHAR ?
-        { return Atype_String_Char; }
+      elif (eq(obj,S(character))) { return Atype_Char; } # Symbol CHARACTER ?
       elif (eq(obj,S(t))) { return Atype_T; } # Symbol T ?
       pushSTACK(obj); pushSTACK(subr_self); # obj und subr_self retten
       pushSTACK(obj); funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER obj)
@@ -122,8 +121,8 @@ LISPFUNN(copy_simple_vector,1)
           if (l<=16) return Atype_16Bit;
           if (l<=32) return Atype_32Bit;
         }
-      pushSTACK(obj); pushSTACK(S(string_char)); funcall(S(subtypep),2);
-      if (!nullp(value1)) { return Atype_String_Char; }
+      pushSTACK(obj); pushSTACK(S(character)); funcall(S(subtypep),2);
+      if (!nullp(value1)) { return Atype_Char; }
       return Atype_T;
     }
 
@@ -177,7 +176,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # nicht-simplen Arrays  TheIarray(array)->data.
 # Vom Standpunkt der Arrayfunktionen her bekommt man "den Datenvektor" eines
 # Arrays, indem man so lange  TheIarray(array)->data  nimmt, bis
-# (bei Elementtypen T, BIT, STRING-CHAR) array ein simpler Vektor oder
+# (bei Elementtypen T, BIT, CHARACTER) array ein simpler Vektor oder
 # (bei Byte-Arrays) array ein nicht-simpler Vektor ohne arrayflags_..._bits,
 # aber TheIarray(array)->data ein Simple-Bit-Vektor ist.
 
@@ -617,7 +616,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
               else break;
             }
           case Array_type_sstring: # Simple-String
-            if (string_char_p(element))
+            if (charp(element))
               { TheSstring(datenvektor)->data[index] = char_code(element);
                 return;
               }
@@ -773,15 +772,15 @@ LISPFUNN(row_major_store,3)
 # UP, liefert den Element-Typ eines Arrays
 # array_element_type(array)
 # > array : ein Array (simple oder nicht)
-# < ergebnis : Element-Typ, eines der Symbole T, BIT, STRING-CHAR, oder eine Liste
+# < ergebnis : Element-Typ, eines der Symbole T, BIT, CHARACTER, oder eine Liste
 # kann GC auslösen
   global object array_element_type (object array);
   global object array_element_type(array)
     var object array;
     { switch (Array_type(array))
         { case Array_type_sstring:
-          case Array_type_string: # String -> STRING-CHAR
-            return S(string_char);
+          case Array_type_string: # String -> CHARACTER
+            return S(character);
           case Array_type_sbvector: # Simple-Bit-Vector -> BIT
             return S(bit);
           case Array_type_svector:
@@ -791,9 +790,9 @@ LISPFUNN(row_major_store,3)
           case Array_type_mdarray: # allgemeiner Array
             { var uintBWL atype = Iarray_flags(array) & arrayflags_atype_mask;
               switch (atype)
-                { case Atype_T:           return S(t);           # T
-                  case Atype_Bit:         return S(bit);         # BIT
-                  case Atype_String_Char: return S(string_char); # STRING-CHAR
+                { case Atype_T:           return S(t);         # T
+                  case Atype_Bit:         return S(bit);       # BIT
+                  case Atype_Char:        return S(character); # CHARACTER
                   case Atype_2Bit:        # (UNSIGNED-BYTE 2)
                   case Atype_4Bit:        # (UNSIGNED-BYTE 4)
                   case Atype_8Bit:        # (UNSIGNED-BYTE 8)
@@ -1823,12 +1822,12 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
             else
             { # Default-Verlängerung:
               switch (atype)
-                { case Atype_T:           inc =  16; break; # bei general-Vektoren: 16 Objekte
-                  case Atype_String_Char: inc =  64; break; # bei Strings: 64 Zeichen
-                  case Atype_Bit:         inc = 128; break; # bei Bit-Vektoren: 128 Bits
+                { case Atype_T:    inc =  16; break; # bei general-Vektoren: 16 Objekte
+                  case Atype_Char: inc =  64; break; # bei Strings: 64 Zeichen
+                  case Atype_Bit:  inc = 128; break; # bei Bit-Vektoren: 128 Bits
                   case Atype_2Bit: case Atype_4Bit: case Atype_8Bit:
                   case Atype_16Bit: case Atype_32Bit: # bei Byte-Vektoren: entsprechend
-                                          inc = bit(floor(14-atype,2)); break;
+                                   inc = bit(floor(14-atype,2)); break;
                   default: NOTREACHED
                 }
               # mindestens jedoch die bisherige Länge:
@@ -1866,7 +1865,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                       *ptr2 = STACK_1;
                     }
                     break;
-                  case Atype_String_Char: # array ist ein String
+                  case Atype_Char: # array ist ein String
                     neuer_datenvektor = allocate_string(newlen);
                     array = STACK_0; # array wieder holen
                     { var uintB* ptr2 = &TheSstring(neuer_datenvektor)->data[0];
@@ -1879,7 +1878,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                           dotimespL(count,len, { *ptr2++ = *ptr1++; } );
                         }
                       # dann new_element anfügen:
-                      if (!(string_char_p(STACK_1))) goto fehler_type;
+                      if (!charp(STACK_1)) goto fehler_type;
                       *ptr2 = char_code(STACK_1);
                     }
                     break;
@@ -2000,7 +1999,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 #endif
 
 # Folgende beide Funktionen arbeiten auf "Semi-Simple String"s.
-# Das sind STRING-CHAR-Arrays mit FILL-POINTER, die aber nicht adjustierbar
+# Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
 # und nicht displaced sind und deren Datenvektor ein Simple-String ist.
 # Beim Überschreiten der Länge wird ihre Länge verdoppelt
 # (so daß der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
@@ -2018,8 +2017,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
        pushSTACK(new_string); # retten
       }
       {var object new_array =
-         allocate_iarray(bit(arrayflags_fillp_bit)|bit(arrayflags_notbytep_bit)|Atype_String_Char,1,Array_type_string);
-         # Flags: nur FILL_POINTER_BIT, Elementtyp STRING-CHAR, Rang=1
+         allocate_iarray(bit(arrayflags_fillp_bit)|bit(arrayflags_notbytep_bit)|Atype_Char,1,Array_type_string);
+         # Flags: nur FILL_POINTER_BIT, Elementtyp CHARACTER, Rang=1
        TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
        TheIarray(new_array)->totalsize =
          TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
@@ -2027,7 +2026,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
        return new_array;
     } }
 
-# UP: Schiebt ein String-Char in einen Semi-Simple String und erweitert ihn
+# UP: Schiebt ein Character in einen Semi-Simple String und erweitert ihn
 # dabei eventuell.
 # ssstring_push_extend(ssstring,ch)
 # > ssstring: Semi-Simple String
@@ -2270,11 +2269,11 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                 }   }
               return vektor;
             }
-          case Atype_String_Char: # Simple-String erzeugen
+          case Atype_Char: # Simple-String erzeugen
             { var object vektor = allocate_string(len);
               if (!(eq(STACK_4,unbound))) # initial-element angegeben?
-                { # ja -> überprüfen, muß String-Char sein:
-                  if (!(string_char_p(STACK_4))) goto fehler_init;
+                { # ja -> überprüfen, muß Character sein:
+                  if (!charp(STACK_4)) goto fehler_init;
                  {var uintB initial_char = char_code(STACK_4);
                   if (!(len==0)) # und Länge > 0 ?
                     { # ja -> Vektor mit initial-element füllen:
@@ -2475,7 +2474,7 @@ local void initial_contents_aux(arg,obj)
            # Zuordnung  Vektor-Typinfo -> ATYPE-Byte :
            case Array_type_sbvector: displaced_eltype = Atype_Bit; break;
            case Array_type_string:
-           case Array_type_sstring: displaced_eltype = Atype_String_Char; break;
+           case Array_type_sstring: displaced_eltype = Atype_Char; break;
            case Array_type_vector:
            case Array_type_svector: displaced_eltype = Atype_T; break;
            default: NOTREACHED
@@ -2667,14 +2666,14 @@ LISPFUN(make_array,1,0,norest,key,7,\
         { # Vektor: Typinfo aus Tabelle bestimmen
           local const tint type_table[8] =
             { # Tabelle für Zuordnung  ATYPE-Byte -> Vektor-Typinfo
-              Array_type_bvector,  # Atype_Bit         -> Array_type_bvector
-              Array_type_bvector,  # Atype_2Bit        -> Array_type_bvector
-              Array_type_bvector,  # Atype_4Bit        -> Array_type_bvector
-              Array_type_bvector,  # Atype_8Bit        -> Array_type_bvector
-              Array_type_bvector,  # Atype_16Bit       -> Array_type_bvector
-              Array_type_bvector,  # Atype_32Bit       -> Array_type_bvector
-              Array_type_vector,   # Atype_T           -> Array_type_vector
-              Array_type_string,   # Atype_String_Char -> Array_type_string
+              Array_type_bvector,  # Atype_Bit   -> Array_type_bvector
+              Array_type_bvector,  # Atype_2Bit  -> Array_type_bvector
+              Array_type_bvector,  # Atype_4Bit  -> Array_type_bvector
+              Array_type_bvector,  # Atype_8Bit  -> Array_type_bvector
+              Array_type_bvector,  # Atype_16Bit -> Array_type_bvector
+              Array_type_bvector,  # Atype_32Bit -> Array_type_bvector
+              Array_type_vector,   # Atype_T     -> Array_type_vector
+              Array_type_string,   # Atype_Char  -> Array_type_string
                                    # restliche ATYPEs unbenutzt
             };
           type = type_table[eltype];

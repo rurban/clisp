@@ -182,7 +182,7 @@ extern void mregfree (regex_t *preg);
   ; Prepare the string.
   (unless (and (eql start 0) (null end))
     (unless end (setq end (length string)))
-    (setq string (make-array (- end start) :element-type 'string-char
+    (setq string (make-array (- end start) :element-type 'character
                                            :displaced-to string
                                            :displaced-index-offset start
   ) )            )
@@ -254,7 +254,7 @@ extern void mregfree (regex_t *preg);
     ; Prepare the string.
     (unless (and (eql start 0) (null end))
       (unless end (setq end (length string)))
-      (setq string (make-array (- end start) :element-type 'string-char
+      (setq string (make-array (- end start) :element-type 'character
                                              :displaced-to string
                                              :displaced-index-offset start
     ) )            )
@@ -291,14 +291,14 @@ extern void mregfree (regex_t *preg);
 (defun match-string (string match)
   (let ((start (regmatch_t-rm_so match))
         (end (regmatch_t-rm_eo match)))
-    (make-array (- end start) :element-type 'string-char
+    (make-array (- end start) :element-type 'character
                               :displaced-to string
                               :displaced-index-offset start
 ) ) )
 
 ; Utility function
 (defun regexp-quote (string)
-  (let ((qstring (make-array 10 :element-type 'string-char
+  (let ((qstring (make-array 10 :element-type 'character
                                 :adjustable t :fill-pointer 0)))
     (map nil #'(lambda (c)
                  (case c

@@ -1404,7 +1404,7 @@
          #+UNIX
          (shell-quote (string) ; surround a string by single quotes
            (let ((qchar nil) ; last quote character: nil or #\' or #\"
-                 (qstring (make-array 10 :element-type 'string-char
+                 (qstring (make-array 10 :element-type 'character
                                          :adjustable t :fill-pointer 0)))
              (map nil #'(lambda (c)
                           (let ((q (if (eql c #\') #\" #\')))
@@ -1434,7 +1434,7 @@
            ;    programs, write "". You shouldn't pass a string terminated by \
            ;    or containing \" to EMX programs.
            ; Quick and dirty: assume none of these cases occur.
-           (let ((qstring (make-array 10 :element-type 'string-char
+           (let ((qstring (make-array 10 :element-type 'character
                                          :adjustable t :fill-pointer 0)))
              (vector-push-extend #\" qstring)
              (map nil #'(lambda (c)
@@ -1470,7 +1470,7 @@
          ) )
          #+WIN32
          (shell-quote (string) ; full protection
-           (let ((qstring (make-array 10 :element-type 'string-char
+           (let ((qstring (make-array 10 :element-type 'character
                                          :adjustable t :fill-pointer 0))
                  (backslashes 0))
              (map nil #'(lambda (c)

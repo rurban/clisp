@@ -264,7 +264,7 @@
        var DIGITS erg; erg.LSBptr = &ziffern[need];
        UDS_to_DIGITS(MSDptr,len,(uintD)base,&erg); # Umwandlung in Ziffern
        # Ziffern ausgeben:
-       if (write_schar_array(*stream_,erg.MSBptr,erg.len) == NULL)
+       if (write_char_array(*stream_,erg.MSBptr,erg.len) == NULL)
          { var uintB* ptr = erg.MSBptr;
            var uintL count;
            dotimespL(count,erg.len, { write_schar(stream_,*ptr++); } );

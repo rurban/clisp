@@ -856,7 +856,7 @@
 ; und höchstens die Länge width (width=nil -> keine Einschränkung).
 ; Trotzdem wird nicht auf weniger als dmin Stellen gerundet.
 (let ((digit-string
-        (make-array 20 :element-type 'string-char :adjustable t :fill-pointer t)
+        (make-array 20 :element-type 'character :adjustable t :fill-pointer t)
      ))
 (defun format-float-to-string (arg width d k dmin)
   (if (zerop arg)

@@ -1,5 +1,103 @@
 1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Replace STRING-CHAR with CHARACTER.
+        * array.d (eltype_code): No need to test for STRING-CHAR, the SUBTYPEP
+          test catches it. Test for subtype of CHARACTER, not STRING-CHAR.
+          (datenvektor_store): Test for CHARACTER, not STRING-CHAR.
+          (array_element_type): Return CHARACTER, not STRING-CHAR.
+          (VECTOR-PUSH-EXTEND): Test for CHARACTER, not STRING-CHAR.
+          (make_datenvektor): Likewise.
+        * charstrg.d (coerce_char): Use code_char instead of int_char.
+          (STANDARD-CHAR-P, GRAPHIC-CHAR-P): Use char_code instead of char_int.
+          (STRING-CHAR-P): Always return T.
+          (ALPHA-CHAR-P, UPPER-CASE-P, LOWER-CASE-P, BOTH-CASE-P, DIGIT-CHAR-P,
+           ALPHANUMERICP, CHAR-UPCASE, CHAR-DOWNCASE, CHAR-INT): Use char_code
+          instead of char_int.
+          (INT-CHAR): Use code_char instead of int_char.
+          (CHAR-NAME): Use char_code instead of char_int.
+          (test_newchar_arg, test_stringsymchar_arg): Test for CHARACTER, not
+          STRING-CHAR.
+          (MAKE-STRING): No need to test for STRING-CHAR, the SUBTYPEP test
+          catches it. Test for CHARACTER, not STRING-CHAR.
+        * error.d (fehler_string_char): Remove, replaced by fehler_char.
+        * foreign.d (convert_from_foreign_array_alloc): Make an array of
+          element type CHARACTER, not STRING-CHAR.
+          (convert_to_foreign): Test for CHARACTER, not STRING-CHAR.
+        * genclisph.d (main): Simplify code_char and char_code. Remove
+          string_char_p. Replace char_string_char by check_char.
+        * io.d (SET-SYNTAX-FROM-CHAR, SET-MACRO-CHARACTER, GET-MACRO-CHARACTER,
+          MAKE-DISPATCH-MACRO-CHARACTER, test_disp_sub_char, read_char_syntax,
+          wpeek_char_syntax, wpeek_char_eof, read_macro): Test for CHARACTER,
+          not STRING-CHAR.
+          (char_reader): Use code_char instead of int_char. Simplify.
+          (array_reader): Use CHARACTER, not STRING-CHAR.
+          (READ-DELIMITED-LIST, READ-LINE): Test for CHARACTER, not
+          STRING-CHAR.
+          (pr_character): Use char_code instead of char_int.
+        * lispbibl.d (char_int_len): Set to 8, not 16.
+          (char_code_shift_c, char_code_len_c, char_code_mask_c): Remove.
+          (char_code_limit, code_char, char_code): Simplify.
+          (Atype_Char): Renamed from Atype_String_Char.
+          (strmtype_ch_file): Remove.
+          (strmtype_ch_file): Renamed from strmtype_sch_file.
+          (string_char_p): Remove.
+          (fehler_string_char): Remove declaration.
+          (check_char): Replaces check_string_char.
+          (read_char_array): Renamed from read_schar_array.
+          (write_char_array): Renamed from write_schar_array.
+        * pathname.d (OPEN): Accept element type CHARACTER, synonymous to
+          STRING-CHAR. No need to test for subtype of STRING-CHAR, subtype of
+          CHARACTER catches it.
+        * predtype.d (COERCE): No need to check for STRING-CHAR after coercion
+          to CHARACTER.
+        * stream.d (write_char): Use char_code instead of char_int.
+          (fehler_wr_string_char): Remove.
+          (wr_ch_handle): Test for CHARACTER, not STRING-CHAR.
+          (write_char_array_handle): Renamed from write_schar_array_handle.
+          (wr_ch_terminal, wr_ch_terminal3, wr_ch_window): Test for CHARACTER,
+          not STRING-CHAR.
+          (char_size, rd_ch_ch_file, listen_ch_file, wr_ch_ch_file): Remove.
+          (rd_ch_ch_file): Renamed from rd_ch_sch_file.
+          (listen_ch_file): Renamed from listen_sch_file.
+          (wr_ch_ch_file): Renamed from wr_ch_sch_file.
+          (write_char_array_ch_file): Renamed from write_schar_array_sch_file.
+          (wr_ss_ch_file): Renamed from wr_ss_sch_file.
+          (position_file, position_file_end, make_file_stream): Simplify.
+          (wr_ch_str_out): Test for CHARACTER, not STRING-CHAR.
+          (MAKE-STRING-OUTPUT-STREAM): No need to test for STRING-CHAR, the
+          SUBTYPEP test catches it.
+          (wr_ch_str_push, wr_ch_pphelp, wr_ch_buff_out, wr_ch_printer,
+          wr_ch_socket): Test for CHARACTER, not STRING-CHAR.
+          (write_char_array_socket): Renamed from write_schar_array_socket.
+          (STREAM-ELEMENT-TYPE): Return CHARACTER instead of STRING-CHAR.
+          For the keyboard stream, return T.
+          (read_char_array): Renamed from read_schar_array. Test for
+          CHARACTER, not STRING-CHAR.
+          (write_char_array): Renamed from write_schar_array.
+          (FILE-STRING-LENGTH): Test for CHARACTER, not STRING-CHAR. Simplify.
+        * compiler.lsp (c-typep-alist1): Add STRING-CHAR.
+          (c-typep-alist2): Remove STRING-CHAR.
+        * defs2.lsp (dispatch-reader): Test for CHARACTER, not STRING-CHAR.
+          (read-sequence, write-sequence): Don't test for STRING-CHAR, that's
+          not a used stream element type any more.
+          (designator): Use char-code-limit instead of char-int-limit.
+          Remove definition of type (DESIGNATOR STRING-CHAR).
+          Use CHARACTER instead of STRING-CHAR.
+        * format.lsp (digit-string): Create with element type CHARACTER, not
+          STRING-CHAR.
+        * init.lsp (load): Call open with element type CHARACTER, not
+          STRING-CHAR.
+        * type.lsp (STRING-CHAR): Make synonymous to CHARACTER.
+          (upgraded-array-element-type): No need to test for STRING-CHAR, the
+          SUBTYPEP test catches it. Return CHARACTER, not STRING-CHAR.
+          (canonicalize-type): Simplify STANDARD-CHAR and STRING-CHAR.
+          Element type of SIMPLE-STRING and STRING is CHARACTER, not
+          STRING-CHAR.
+        * user2.lsp (shell-quote): Create with element type CHARACTER, not
+          STRING-CHAR.
+
+1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Remove font and bits attributes of characters.
         * lispbibl.d (char_bits_*, char_font_*, char_*_c): Remove definitions.
         * io.d (char_reader): Font must be 0, bitnames are not supported any

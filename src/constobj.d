@@ -255,7 +255,6 @@
   LISPOBJ(class_t,"T")                     #    |
   LISPOBJ(class_vector,"VECTOR")           # ---+
   LISPOBJ(type_designator_character,"(DESIGNATOR CHARACTER)")
-  LISPOBJ(type_designator_string_char,"(DESIGNATOR STRING-CHAR)")
   LISPOBJ(type_designator_function,"(OR FUNCTION SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)) (CONS (EQL LAMBDA)))")
   # Upper bound for the number of structure classes present in the system:
   LISPOBJ(structure_class_count_max,"0")
@@ -627,7 +626,7 @@
   LISPOBJ(type_radix,"(INTEGER 2 36)")
   LISPOBJ(type_end_index,"(OR NULL INTEGER)")
   LISPOBJ(type_posinteger,"(INTEGER 0 *)")
-  LISPOBJ(type_stringsymchar,"(OR STRING SYMBOL STRING-CHAR)")
+  LISPOBJ(type_stringsymchar,"(OR STRING SYMBOL CHARACTER)")
   LISPOBJ(type_svector2,"(SIMPLE-VECTOR 2)")
   LISPOBJ(type_svector5,"(SIMPLE-VECTOR 5)")
   LISPOBJ(type_climb_mode,"(INTEGER 1 5)")
@@ -836,8 +835,7 @@
   LISPOBJ_S(printstring_fsubr,"SPECIAL-FORM")
   LISPOBJ_S(printstring_closed,"CLOSED ")
     # Namensstring zu jedem Streamtyp, adressiert durch Streamtyp:
-    LISPOBJ_S(printstring_strmtype_sch_file,"STRING-CHAR-FILE")
-    LISPOBJ_S(printstring_strmtype_ch_file,"CHAR-FILE")
+    LISPOBJ_S(printstring_strmtype_ch_file,"CHARACTER-FILE")
     LISPOBJ_S(printstring_strmtype_iu_file,"UNSIGNED-BYTE-FILE")
     LISPOBJ_S(printstring_strmtype_is_file,"SIGNED-BYTE-FILE")
     #ifdef HANDLES

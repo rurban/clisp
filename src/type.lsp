@@ -159,10 +159,7 @@
 (%put 'ECHO-STREAM 'TYPE-SYMBOL #'echo-stream-p)
 (%put 'STRING-STREAM 'TYPE-SYMBOL #'string-stream-p)
 (%put 'STRING 'TYPE-SYMBOL #'stringp)
-(%put 'STRING-CHAR 'TYPE-SYMBOL
-  (function type-symbol-string-char
-    (lambda (x) (and (characterp x) (string-char-p x)))
-) )
+(%put 'STRING-CHAR 'TYPE-SYMBOL #'characterp)
 (%put 'CLOS:STRUCTURE-OBJECT 'TYPE-SYMBOL #'clos::structure-object-p)
 (%put 'SYMBOL 'TYPE-SYMBOL #'symbolp)
 (%put 'T 'TYPE-SYMBOL
@@ -176,7 +173,7 @@
   ; siehe array.d
   (case type
     ((BIT) 'BIT)
-    ((CHARACTER STRING-CHAR) 'STRING-CHAR)
+    ((CHARACTER) 'CHARACTER)
     ((T) 'T)
     (t (multiple-value-bind (low high) (sys::subtype-integer type)
          ; Es gilt (or (null low) (subtypep type `(INTEGER ,low ,high)))
@@ -192,7 +189,7 @@
                    (t 'T)
            ) )
            (if (subtypep type 'CHARACTER)
-             'STRING-CHAR
+             'CHARACTER
              'T
   ) )  ) ) )
 )
@@ -578,8 +575,8 @@
                (NUMBER '(OR REAL COMPLEX))
                (RATIO '(AND RATIONAL (NOT INTEGER)))
                (SEQUENCE '(OR LIST VECTOR)) ; user-defined sequences??
-               (STANDARD-CHAR '(AND CHARACTER (SATISFIES STRING-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
-               (STRING-CHAR '(AND CHARACTER (SATISFIES STRING-CHAR-P)))
+               (STANDARD-CHAR '(AND CHARACTER (SATISFIES STANDARD-CHAR-P)))
+               (STRING-CHAR 'CHARACTER)
                ((T) '(AND))
                ((ARRAY SIMPLE-ARRAY BIT-VECTOR SIMPLE-BIT-VECTOR
                  STRING SIMPLE-STRING VECTOR SIMPLE-VECTOR
@@ -640,7 +637,7 @@
                ) )
                (SIMPLE-STRING ; (SIMPLE-STRING &optional size)
                  (let ((size (or (second type) '*)))
-                   `(SIMPLE-ARRAY STRING-CHAR (,size))
+                   `(SIMPLE-ARRAY CHARACTER (,size))
                ) )
                (SIMPLE-VECTOR ; (SIMPLE-VECTOR &optional size)
                  (let ((size (or (second type) '*)))
@@ -652,7 +649,7 @@
                ) )
                (STRING ; (STRING &optional size)
                  (let ((size (or (second type) '*)))
-                   `(ARRAY STRING-CHAR (,size))
+                   `(ARRAY CHARACTER (,size))
                ) )
                (VECTOR ; (VECTOR &optional el-type size)
                  (let ((el-type (or (second type) '*))
