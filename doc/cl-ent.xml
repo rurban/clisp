@@ -225,7 +225,7 @@
 <!ENTITY sharp-sharp "<ulink url='&clhs;/Body/sec_2-4-8-16'><literal role='data'>#n#</literal></ulink>">
 <!ENTITY sharp-plus "<ulink url='&clhs;/Body/sec_2-4-8-17'><literal role='data'>#+</literal></ulink>">
 <!ENTITY sharp-minus "<ulink url='&clhs;/Body/sec_2-4-8-18'><literal role='data'>#-</literal></ulink>">
-<!ENTITY sharp-less "<ulink url='&clhs;/Body/sec_2-4-8-20'><literal role='data'>#&lt;</literal></ulink>">
+<!ENTITY sharp-lt "<ulink url='&clhs;/Body/sec_2-4-8-20'><literal role='data'>#&lt;</literal></ulink>">
 
 <!-- *** format instructions *** -->
 <!ENTITY format-a "<ulink url='&clhs;/Body/sec_22-3-4-1.html'><literal>~A</literal></ulink>">
