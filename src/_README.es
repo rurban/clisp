@@ -305,7 +305,7 @@ de la zona horaria al final del fichero TIMEZONE.LSP.
 #endif
 Luego ejecute
 
-#ifdef MSDOS
+#if defined(MSDOS) || defined(WIN32_NATIVE)
          lisp.exe -M lispinit.mem
 #endif
 #ifdef AMIGAOS
@@ -377,7 +377,7 @@ Le recomiendo /usr/local/lib/lisp :
    mv base/lisp.run /usr/local/lib/lisp
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
-#ifdef MSDOS
+#if defined(MSDOS) || defined(WIN32_NATIVE)
 Suponiendo D:\LIB\LISP :
 
    mkdir d:\lib\lisp
@@ -385,7 +385,7 @@ Suponiendo D:\LIB\LISP :
    copy lispinit.mem d:\lib\lisp
 #endif
 
-#ifdef MSDOS
+#if defined(MSDOS) || defined(WIN32_NATIVE)
 Y cree un fichero de ejecución por lotes que ejecute lisp:
 
 #ifndef OS2
