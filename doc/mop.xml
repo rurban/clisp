@@ -3477,7 +3477,7 @@ if the method metaobject has not been initialized.</para>
    &method-r;)</literal></subtitle>
 
 <para>Returns a list of the specializers of &method-r;.  This value is a
-list of specializer metaobjects.  This is the defaulted value of the
+list of specializer metaobjects.  This is the value of the
 &specializers-k; initialization argument that was associated with the
 method during initialization.</para></simplesect>
 
@@ -3497,7 +3497,7 @@ method during initialization.</para></simplesect>
    &method-r;)</literal></subtitle>
 
 <para>Returns the (unspecialized) &lalist; of &method-r;.  This value
-is a &cl; &lalist;.  This is the defaulted value of the &lambda-list-k;
+is a &cl; &lalist;.  This is the value of the &lambda-list-k;
 initialization argument that was associated with the method during
 initialization.</para></simplesect>
 
@@ -3521,7 +3521,7 @@ function.  This connection is maintained by the generic functions
  <subtitle><literal role="sexp">(&method-function;
    &method-r;)</literal></subtitle>
 
-<para>Returns the method function of &method-r;.  This is the defaulted
+<para>Returns the method function of &method-r;.  This is the
 value of the &function-k; initialization argument that was associated
 with the method during initialization.</para></simplesect>
 
