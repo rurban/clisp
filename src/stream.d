@@ -17260,7 +17260,11 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL) {
   } else {
     if (!boundp(position)) {
       # position not specified -> Position as value:
-      VALUES1(UL_to_I(BufferedStream_position(stream)));
+      VALUES1(UL_to_I(BufferedStream_position(stream) -
+                      /* if a character has been unread, decrement position
+                         so that PEEK-CHAR does not modify FILE-POSITION */
+                      (TheStream(stream)->strmflags & strmflags_unread_B
+                       ? 1 : 0)));
     } else {
       if (eq(position,S(Kstart))) {
         # :START -> set position to start:
