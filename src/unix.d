@@ -785,13 +785,13 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
     /* BeOS 5 sockets cannot be used like file descriptors.
        Reading and writing from a socket */
     extern ssize_t sock_read (int socket, void* buf, size_t size);
-    extern ssize_t sock_write (int socket, const void* buf, size_t size);
+    extern ssize_t sock_write (int socket, const void* buf, size_t size, bool no_hang);
     /* Closing a socket */
     /* extern int closesocket (int socket); */
   #else
     /* Reading and writing from a socket */
-    #define sock_read(s,b,l)   read_helper(s,b,l,true)
-    #define sock_write  full_write
+    #define sock_read(s,b,n)   read_helper(s,b,n,true)
+    #define sock_write(s,b,n,no_hang)  write_helper(s,b,n,no_hang)
     /* Closing a socket */
     #define closesocket  close
   #endif
