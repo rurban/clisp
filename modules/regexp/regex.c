@@ -272,7 +272,7 @@ init_syntax_once (void)
 # else /* not REGEX_MALLOC  */
 
 /* Emacs already defines alloca, sometimes.  */
-#  ifndef alloca
+#  if !defined(alloca) && defined(HAVE_ALLOCA_H)
 
 /* Make alloca work the best possible way.  */
 #   include <alloca.h>
