@@ -372,12 +372,12 @@ program-error
 (defpackage "FOO31" (:export "IF") (:intern "IF"))
 program-error
 
-(defstruct foo32 a system::a)
+(defstruct foo32 a foo20::a)
 program-error
 
 (progn
   (defstruct foo33 a)
-  (defstruct (foo34 (:include foo33)) system::a))
+  (defstruct (foo34 (:include foo33)) foo20::a))
 program-error
 
 (delete #\x 'x)
