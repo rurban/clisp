@@ -1,5 +1,12 @@
 1998-06-02  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * format.lsp (FORMAT-CALL-USER-FUNCTION): Renamed from FORMAT-SLASH.
+          (format-parse-cs): Integrate format-get-symbol. Tweak error
+          messages. Use *common-lisp-user-package*. Don't push a symbol
+          directly on csd-parm-list.
+
+1998-06-02  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * compiler.lsp (c-EVAL-WHEN): Treat (NOT :COMPILE-TOPLEVEL),
           consistently with control.d.
 

@@ -218,7 +218,7 @@
                            (#\T . FORMAT-TABULATE)
                            (#\* . FORMAT-GOTO)
                            (#\? . FORMAT-INDIRECTION)
-                           (#\/ . FORMAT-SLASH)
+                           (#\/ . FORMAT-CALL-USER-FUNCTION)
                            (#\( . FORMAT-CASE-CONVERSION) (#\) . FORMAT-CASE-CONVERSION-END)
                            (#\[ . FORMAT-CONDITIONAL)     (#\] . FORMAT-CONDITIONAL-END)
                            (#\{ . FORMAT-ITERATION)       (#\} . FORMAT-ITERATION-END)
@@ -236,17 +236,39 @@
           ) ) )
           (incf index)
           (case ch
+            (#\/
+             (let* ((start index)
+                    (end (or (position #\/ control-string :start start)
+                             (format-error control-string index
+                               (DEUTSCH "Abschlieﬂendes '/' fehlt"
+                                ENGLISH "Closing '/' is missing"
+                                FRANCAIS "'/' fermant manque")
+                    )    )   )
+                    (pos (position #\: control-string :start start :end end))
+                    (name (string-upcase
+                            (subseq control-string
+                                    (if pos
+                                      (if (char= #\: (char control-string (1+ pos))) (+ 2 pos) (1+ pos))
+                                      start )
+                                    end )))
+                    (pack (if pos
+                            (let ((packname (string-upcase (subseq control-string start pos))))
+                              (or (find-package packname)
+                                  (format-error control-string index
+                                    (DEUTSCH "Eine Package mit Namen ~S gibt es nicht."
+                                     ENGLISH "There is no package with name ~S"
+                                     FRANCAIS "Il n'y a pas de paquetage de nom ~S.")
+                                    packname )))
+                            *common-lisp-user-package* )))
+               (push (list (intern name pack)) (csd-parm-list newcsd))
+               (setq index (1+ end))
+            ))
             (( #\( #\[ #\{ #\< )
              (multiple-value-setq (index csdl)
                (format-parse-cs control-string index csdl
                  (case ch (#\( #\)) (#\[ #\]) (#\{ #\}) (#\< #\>) )
              ) )
             )
-            (#\/
-             (multiple-value-bind (symb idx)
-                 (format-get-symbol control-string index)
-               (setq index idx)
-               (push symb (csd-parm-list newcsd))))
             (( #\) #\] #\} #\> )
              (unless stop-at
                (format-error control-string index
@@ -1672,32 +1694,8 @@
 ) )
 
 ;;; ~// ANSI CL 22.3.5.4 Tilde Slash: Call Function
-(defun FORMAT-SLASH (stream colon-p atsign-p symbol &rest more-args)
-  (apply symbol stream (next-arg) colon-p atsign-p more-args))
-
-(defun format-get-symbol (string start)
-  (let* ((end (or (position #\/ string :start start)
-                  (format-error
-                   string start
-                   (DEUTSCH "***"
-                    ENGLISH "No closing `/' in the format string `~a'"
-                    FRANCAIS "***")
-                   string)))
-         (pos (position #\: string :start start :end end))
-         (name (string-upcase
-                (subseq string (if pos (if (char= #\: (char string (1+ pos)))
-                                           (+ 2 pos) (1+ pos))
-                                   start) end)))
-         (pack (if pos (or (find-package
-                            (string-upcase (subseq string start pos)))
-                           (format-error
-                            string start
-                            (DEUTSCH "***"
-                             ENGLISH "No package named `~a' found"
-                             FRANCAIS "***")
-                            (subseq string start pos)))
-                   (find-package "COMMON-LISP-USER"))))
-    (values (intern name pack) (1+ end))))
+(defun FORMAT-CALL-USER-FUNCTION (stream colon-p atsign-p symbol-list &rest more-args)
+  (apply (car symbol-list) stream (next-arg) colon-p atsign-p more-args))
 
 ; ~(, CLTL S.401, CLtL2 S. 600-601
 (defun format-case-conversion (stream colon-modifier atsign-modifier)
@@ -2469,20 +2467,21 @@
                          (push `(DO-FORMAT-INDIRECTION STREAM ,(formatter-next-arg) ,(formatter-next-arg))
                                forms
                      ) ) )
-                     (FORMAT-SLASH ; #\/
-                      (let* ((func (pop arglist))
-                             (argsvars
-                              (mapcar (lambda (arg)
-                                        (declare (ignore arg)) (gensym))
-                                      arglist))
-                             (inner-form
-                              `(,func STREAM ,(formatter-next-arg)
-                                ,colon-p ,atsign-p ,@argsvars)))
-                        (push (if argsvars
-                                  `(LET ,(mapcar #'list argsvars arglist)
-                                    ,inner-form)
-                                  inner-form)
-                              forms)))
+                     (FORMAT-CALL-USER-FUNCTION     ; #\/
+                       (let* ((func (car (pop arglist)))
+                              (argsvars
+                               (mapcar #'(lambda (arg) (declare (ignore arg)) (gensym))
+                                       arglist))
+                              (inner-form
+                               `(,func STREAM ,(formatter-next-arg) ,colon-p ,atsign-p
+                                       ,@argsvars
+                                )
+                             ))
+                         (push (if argsvars
+                                 `(LET ,(mapcar #'list argsvars arglist) ,inner-form)
+                                 inner-form)
+                               forms
+                     ) ) )
                      (FORMAT-CASE-CONVERSION        ; #\(
                        (simple-arglist 0)
                        (setq *format-csdl* (cdr *format-csdl*))
