@@ -4769,6 +4769,19 @@ LISPFUN(listen,0,1,norest,nokey,0,NIL)
       { value1 = NIL; mv_count=1; } # Wert NIL
   }
 
+LISPFUNN(real_listen,1)
+# real listen as needed by generic streams -- GB
+  { test_istream(&STACK_0); # input-stream überprüfen
+    switch (stream_listen(popSTACK()))
+    {
+      case -1: value1 = S(Keof); break;
+      case  0: value1 = S(Kinput_available); break;
+      case  1: value1 = S(Kwait); break;
+      default: NOTREACHED;
+    }
+    mv_count=1;
+  }
+
 LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 # (READ-CHAR-NO-HANG [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL S. 380

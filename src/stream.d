@@ -12060,7 +12060,26 @@ LISPFUNN(socket_stream_handle,1)
     var object stream;
     { pushSTACK(stream); funcall(L(generic_stream_controller),1);
       pushSTACK(value1); funcall(S(generic_stream_listen),1);
-      return I_to_L(value1);
+      if (eq (value1, S(Keof))) return -1;
+      if (eq (value1, S(Kinput_available))) return 0;
+      if (eq (value1, S(Kwait))) return 1;
+      # For compatibility with old code -1,0,+1 are still accepted -- depreciated!
+      if (eq (value1, Fixnum_minus1) ||
+          eq (value1, fixnum (0)) ||
+          eq (value1, fixnum (1)))
+        return I_to_L(value1);
+      # Otherwise raise error:
+      pushSTACK (value1);               # DATUM
+        pushSTACK (S(member));
+        pushSTACK (S(Keof));
+        pushSTACK (S(Kinput_available));
+        pushSTACK (S(Kwait));
+        funcall (L(list),4);
+      pushSTACK (value1);               # EXPECTED-TYPE
+      pushSTACK (value1);               # once again for the error message.
+      pushSTACK (S(generic_stream_listen));
+      pushSTACK (STACK_3);              # DATUM
+      fehler (type_error, "Return value, ~, of call to ~ is not of type ~.");
     }
 
   # (CLEAR-INPUT s) ==
