@@ -3369,7 +3369,7 @@ PACKEXT = .tar.gz
 #PACKEXT = .zoo
 
 # Temporary directory for packing
-PACKDIR = /tmp
+PACKDIR = .
 
 !!
 echol "# The distribution's top directory"
@@ -3383,6 +3383,9 @@ else
   fi
 fi
 echol
+echol "# Distribution file"
+echol "DISTFILE=$(PACKDIR)/$(TOPDIR)-"`uname -m`-`uname -p`-`uname -s`-`uname -r`"$(PACKEXT)"
+echol
 needs='all'
 if test "$HLN" != ln; then
   needs=$needs' hln'
@@ -3393,7 +3396,7 @@ if test "$HLN" != ln; then
   echol
 fi
 echol "distrib : force $needs modular manualx clisp.c distmakefile"
-echotab "\$(RM) \$(PACKDIR)/clisp\$(PACKEXT)"
+echotab "\$(RM) \$(DISTFILE)"
 echotab "mkdir \$(TOPDIR)"
 # General documentation files.
 echotab "${HLN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
@@ -3447,7 +3450,8 @@ fi
 # Final packing.
 echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
 echotab "chmod a+x \$(TOPDIR)/. \$(TOPDIR)/*/."
-echotab "\$(PACK) \$(PACKOPT) \$(PACKDIR)/clisp\$(PACKEXT) \$(TOPDIR)"
+echotab "\$(PACK) \$(PACKOPT) \$(DISTFILE) \$(TOPDIR)"
+echotab "${HLN} \$(DISTFILE) clisp\$(PACKEXT)"
 echotab "\$(RM) -r \$(TOPDIR)"
 echol
 echol
@@ -3497,7 +3501,7 @@ if [ $HOS = win32 ] ; then
   fi
   echotab "version=\`cat VERSION\` ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
-  echotab "distfile=/tmp/clisp-win32.zip ; \\"
+  echotab "distfile=clisp-\$\$version-win32.zip ; \\"
   echotab "mkdir \$\$distdir ; \\"
   echotab "for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/\$\$f ; fi ; \\"
