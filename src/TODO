@@ -9,9 +9,6 @@ Defstruct accessors are defined twice, which leads to warnings. (Bruno)
 
 Contagion warnings emitted by many floating-point operations. (Bruno)
 
-FILL-STREAM cannot print structured multiline objects reasonably: it
-flattens all whitespace -- use pretty-printer instead. (Sam)
-
 Review this TODO list and remove obsolete items (Bruno).
 
 
