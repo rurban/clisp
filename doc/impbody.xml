@@ -4920,6 +4920,13 @@ and you can leave the function call with specified values by using
  role="sexp">(&setf; &symbol-r;)</literal> and to macros, but not to
  locally defined functions and macros.</para>
 
+<formalpara><title><varname>CUSTOM:*TRACE-INDENT*</varname></title>
+<para>If you want the &trace; level to be indicated by the indentation
+in addition to the printed numbers,
+set <varname>CUSTOM:*TRACE-INDENT*</varname> to non-&nil;.
+Initially it is &nil; since many nested traced calls will easily
+exhaust the available line length.</para></formalpara>
+
 </section>
 
 <section id="inspect"><title>Function &inspect;</title>

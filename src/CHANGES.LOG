@@ -1,13 +1,16 @@
 User visible changes
 --------------------
 
-* New user variables CUSTOM:*PARSE-NAMESTRING-DOT-FILE* while controls
+* New user variable CUSTOM:*PARSE-NAMESTRING-DOT-FILE* controls
   how the file names starting with a dot are parsed.
   By default, it is set to :NAME, so #P".clisprc" is now
   #S(PATHNAME :NAME ".clisprc"); to get the old result of
   #S(PATHNAME :TYPE "clisprc"), set the variable to :TYPE.
   This is an incompatible change.
   See <http://clisp.cons.org/impnotes.html#name-type-split> for details.
+
+* New user variable CUSTOM:*TRACE-INDENT* controls TRACE ouput indentation.
+  See <http://clisp.cons.org/impnotes.html#trace> for details.
 
 * CUSTOM:*SOURCE-FILE-TYPES* and CUSTOM:*COMPILED-FILE-TYPES*
   now contain strings, not pathnames.
