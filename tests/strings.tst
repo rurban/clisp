@@ -1211,3 +1211,6 @@ error
           (multiple-value-list (sys::string-info s)))))
 #+(and clisp unicode enable-risky-tests)
 ((8 NIL NIL) (16 NIL T) (16 NIL NIL) (32 NIL T) (32 NIL NIL))
+
+(symbolp (make-symbol (make-array 0 :element-type nil))) T
+(string= "" (make-array 0 :element-type nil))            T
