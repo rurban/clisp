@@ -971,7 +971,7 @@ static object make_font_with_info (object dpy, Font fn, object name,
 
 static Font get_font (object obj);
 
-XFontStruct *get_font_info_and_display (object obj, gcv_object_t* fontf,
+XFontStruct *get_font_info_and_display (object obj, object* fontf,
                                         Display **dpyf)
 { /* Fetches the font information from a font, if it isn't there
       already, query the server for it.
@@ -996,7 +996,7 @@ XFontStruct *get_font_info_and_display (object obj, gcv_object_t* fontf,
 
   pushSTACK(obj);               /* save */
 
-  pushSTACK(STACK_1); pushSTACK(`XLIB::FONT-INFO`);
+  pushSTACK(obj); pushSTACK(`XLIB::FONT-INFO`);
   funcall(L(slot_value),2); /* (slot-value obj 'font-info) */
   value1 = check_fpointer(value1,false);
   info = TheFpointer(value1)->fp_pointer;
@@ -1583,10 +1583,10 @@ static void general_plist_reader (object type)
 static void general_plist_writer (object type)
 { /* the XLIB object and the new value are already on the stack */
   if (isa_instance_of_p (type, STACK_1)) {
+    object new_value = popSTACK();
     pushSTACK(`XLIB::PLIST`);                   /* the slot */
-    pushSTACK(STACK_1);                         /* new value */
+    pushSTACK(new_value);                       /* new value */
     funcall (L(set_slot_value), 3);
-    skipSTACK(1);
   } else my_type_error(type,STACK_0);
 }
 
@@ -3064,7 +3064,7 @@ DEFUN(XLIB:GCONTEXT-DASHES, context)
   skipSTACK(1);
 }
 
-DEFUN(XLIB:SET-GCONTEXT-DASHES, dashes gcontext) /* FIXME: reversed args?! */
+DEFUN(XLIB::SET-GCONTEXT-DASHES, gcontext dashes)
 { /* (setf (xlib:gcontext-dashes gcontext) dashes) */
   XGCValues values;
   Display *dpy;
@@ -3094,12 +3094,7 @@ DEFUN(XLIB:SET-GCONTEXT-DASHES, dashes gcontext) /* FIXME: reversed args?! */
 
       /* Copy the values from the dash-list argument into the
        newly created byte-vector representation */
-      for (i = 0; i < n; i++) {
-        pushSTACK(STACK_1);            /* the dashes-list argument */
-        pushSTACK(fixnum(i));          /* index */
-        funcall (L(elt), 2);           /* (elt dashes index) */
-        ((uint8*)TheSbvector (STACK_0)->data)[i] = get_uint8 (value1);
-      }
+      pushSTACK(STACK_0); pushSTACK(STACK_2); funcall(L(replace),2);
 
       /* The XSetDashes routine requires also the dash_offset,
        so retrieve it first. */
@@ -3110,7 +3105,7 @@ DEFUN(XLIB:SET-GCONTEXT-DASHES, dashes gcontext) /* FIXME: reversed args?! */
       end_x_call();
 
       /* Now install the byte-vector into the %dashes slot: */
-      pushSTACK(STACK_0);      /* The instance, hence the gcontext */
+      pushSTACK(STACK_2);      /* The instance, hence the gcontext */
       pushSTACK(`XLIB::%DASHES`); /* slot */
       pushSTACK(STACK_2);      /* value, the byte-vector */
       funcall (L(set_slot_value), 3);
@@ -3120,7 +3115,6 @@ DEFUN(XLIB:SET-GCONTEXT-DASHES, dashes gcontext) /* FIXME: reversed args?! */
 
   VALUES1(STACK_0);
   skipSTACK(2);
-  /* all done */
 }
 
 DEFUN(XLIB:GCONTEXT-CLIP-MASK, context)
@@ -6810,11 +6804,10 @@ DEFUN(XLIB:SET-POINTER-MAPPING, arg1 arg2)
 }
 
 /* 14.3  Keyboard Control */
-DEFUN(XLIB:BELL, display percent)
+DEFUN(XLIB:BELL, display &optional percent)
 {
-  int percent;
+  int percent = (!missingp(STACK_0) ? get_sint16(STACK_0) : 0);
   Display *dpy;
-  percent = (boundp(STACK_0) ? get_sint16(STACK_0) : 0);
   popSTACK();
   dpy = pop_display ();
 
