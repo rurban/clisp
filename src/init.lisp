@@ -1519,66 +1519,67 @@
              &aux stream)
   (multiple-value-setq (stream filename)
     (open-for-load filename extra-file-types external-format))
-  (unless stream
+  (if (null stream)
     (if if-does-not-exist
-        (error-of-type 'file-error
-          :pathname filename
-          (TEXT "~S: A file with name ~A does not exist")
-          'load filename)
-        (return-from load nil)))
-  (let* ((input-stream
-          (if *load-echo*
-              (make-echo-stream stream *standard-output*)
-              stream))
-         (*load-level* (1+ *load-level*))
-         (indent (if (null *load-verbose*) ""
+      (error-of-type 'file-error
+        :pathname filename
+        (TEXT "~S: A file with name ~A does not exist")
+        'load filename)
+      nil)
+    (let* ((input-stream
+             (if *load-echo*
+               (make-echo-stream stream *standard-output*)
+               stream))
+           (*load-level* (1+ *load-level*))
+           (indent (if (null *load-verbose*)
+                     ""
                      (make-string *load-level* :initial-element #\Space)))
-         (*load-input-stream* input-stream)
-         (*load-pathname* (if (pathnamep filename) filename nil))
-         (*load-truename*
-          (if (pathnamep filename) (truename filename) nil))
-         (*current-source-file* *load-truename*)
-         #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
-         (*package* *package*) ; bind *PACKAGE*
-         (*readtable* *readtable*) ; bind *READTABLE*
-         (compiler::*c-error-output* *error-output*) ; for compiling
-         (eof-indicator input-stream))
-    (when *load-verbose*
-      (fresh-line)
-      (write-string ";;")
-      (write-string indent)
-      (format t (TEXT "Loading file ~A ...") filename))
-    (when *load-compiling* (compiler::c-reset-globals))
-    (sys::allow-read-eval input-stream t)
-    ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
-    ;; the user might set `*load-compiling*' to T either directly
-    ;; or using the -C option, so we have to check that
-    ;; `*error-output*' et al are already bound
-    (progv (when (and *load-compiling*
-                      (or c-top (not (boundp '*error-count*))))
-             '(*error-count* *warning-count* *style-warning-count*))
-        '(0 0 0)
-      (unwind-protect
-           (tagbody weiter
-             (when *load-echo* (fresh-line))
-             (let ((obj (read input-stream nil eof-indicator)))
-               (when (eql obj eof-indicator) (go done))
-               (case (setq obj (eval-loaded-form obj))
-                 (skip (go weiter))
-                 (stop (go done)))
-               (when *load-print* (when obj (print (first obj)))))
-             (go weiter) done)
-        (or (eq input-stream stream)
-            (sys::built-in-stream-close input-stream))
-        (or (eq stream filename)
-            (sys::built-in-stream-close stream))
-        (when *load-compiling* (compiler::c-report-problems))))
-    (when *load-verbose*
-      (fresh-line)
-      (write-string ";;")
-      (write-string indent)
-      (format t (TEXT "Loaded file ~A") filename))
-    t))
+           (*load-input-stream* input-stream)
+           (*load-pathname* (if (pathnamep filename) filename nil))
+           (*load-truename*
+             (if (pathnamep filename) (truename filename) nil))
+           (*current-source-file* *load-truename*)
+           #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
+           (*package* *package*) ; bind *PACKAGE*
+           (*readtable* *readtable*) ; bind *READTABLE*
+           (compiler::*c-error-output* *error-output*) ; for compiling
+           (eof-indicator input-stream))
+      (when *load-verbose*
+        (fresh-line)
+        (write-string ";;")
+        (write-string indent)
+        (format t (TEXT "Loading file ~A ...") filename))
+      (when *load-compiling* (compiler::c-reset-globals))
+      (sys::allow-read-eval input-stream t)
+      ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
+      ;; the user might set `*load-compiling*' to T either directly
+      ;; or using the -C option, so we have to check that
+      ;; `*error-output*' et al are already bound
+      (progv (when (and *load-compiling*
+                        (or c-top (not (boundp '*error-count*))))
+               '(*error-count* *warning-count* *style-warning-count*))
+             '(0 0 0)
+        (unwind-protect
+            (tagbody weiter
+              (when *load-echo* (fresh-line))
+              (let ((obj (read input-stream nil eof-indicator)))
+                (when (eql obj eof-indicator) (go done))
+                (case (setq obj (eval-loaded-form obj))
+                  (skip (go weiter))
+                  (stop (go done)))
+                (when *load-print* (when obj (print (first obj)))))
+              (go weiter) done)
+          (or (eq input-stream stream)
+              (sys::built-in-stream-close input-stream))
+          (or (eq stream filename)
+              (sys::built-in-stream-close stream))
+          (when *load-compiling* (compiler::c-report-problems))))
+      (when *load-verbose*
+        (fresh-line)
+        (write-string ";;")
+        (write-string indent)
+        (format t (TEXT "Loaded file ~A") filename))
+      t)))
 
 (sys::%putd 'defun              ; preliminary:
   (sys::make-macro
