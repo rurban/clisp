@@ -9,6 +9,8 @@
 	* Makefile.devel (htmldoc): make split docs
 	but do not copy impnotes.html to src/
 	(SOURCES1): added clisp.lsm
+	(acorn/pathname.txt): updated the regexp because of the
+	src/pathname.d translation
 
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
