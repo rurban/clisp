@@ -1870,7 +1870,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: extend stream.d, keyboard.lisp
 
 # Whether to use the GNU readline library for *TERMINAL-IO*:
-#if defined(HAVE_READLINE_READLINE_H) && !defined(NO_READLINE)
+#if defined(HAVE_READLINE) && !defined(NO_READLINE)
   #define GNU_READLINE
 #endif
 
