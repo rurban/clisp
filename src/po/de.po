@@ -559,7 +559,7 @@ msgstr "EVAL: Argumentliste für ~ ist dotted: ~"
 
 #: eval.d:3985
 msgid "~: argument list given to ~ is dotted (terminated by ~)"
-msgstr "EVAL: Argumentliste für ~ ist dotted (mit ~ am Ende)."
+msgstr "~: Argumentliste für ~ ist dotted (mit ~ am Ende)."
 
 #: eval.d:3992
 msgid "APPLY: too many arguments given to ~"
@@ -803,7 +803,7 @@ msgstr "~: Host muss NIL sein, nicht ~"
 
 #: pathname.d:866
 msgid "~: argument ~ should be a pathname designator ~"
-msgstr "~: Argument muss einen Pathname bezeichnen, nicht ~"
+msgstr "~: Argument ~ muss einen Pathname bezeichnen, d.h. ~"
 
 #: pathname.d:900
 msgid "~: filename for ~ is unknown"
@@ -1719,7 +1719,7 @@ msgstr "~: Argument ~ sollte ~, ~, ~, ~ oder ~ sein."
 
 #: hashtabl.d:1288
 msgid "~: ~ argument should be a fixnum >=0, not ~"
-msgstr "~: Argument muss ein Fixnum >=0 sein, nicht ~"
+msgstr "~: ~-Argument muss ein Fixnum >=0 sein, nicht ~"
 
 #: hashtabl.d:1310
 msgid "~: ~ argument should be an integer or a float > 1, not ~"

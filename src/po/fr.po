@@ -2160,7 +2160,7 @@ msgstr "~: L'index :START ~ ne doit pas être supérieur à l'index :END ~."
 
 #: charstrg.d:2203
 msgid "~: argument ~ should be a string, a symbol or a character"
-msgstr "~: L'argument ~ doit être de type STRING, SYMBOL ou CHARACTER et non ~."
+msgstr "~: L'argument ~ doit être de type STRING, SYMBOL ou CHARACTER."
 
 #: charstrg.d:2241 charstrg.d:3258
 msgid "~: :start-index ~ must not be greater than :end-index ~"
