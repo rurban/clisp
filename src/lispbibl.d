@@ -5180,10 +5180,11 @@ typedef struct { XRECORD_HEADER
 typedef struct { XRECORD_HEADER
                  object name;
                  object argtype;
-                 object function;
+                 void* function; # actually a fsubr_function*
                }
         *  Fsubr;
-#define fsubr_length  ((sizeof(*(Fsubr)0)-offsetofa(record_,recdata))/sizeof(object))
+#define fsubr_length  2
+#define fsubr_xlength  (sizeof(*(Fsubr)0)-offsetofa(record_,recdata)-fsubr_length*sizeof(object))
 
 # Load-time-evals
 typedef struct { XRECORD_HEADER
@@ -7969,7 +7970,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # < ergebnis: LISP-Objekt Fsubr
 # kann GC auslösen
   #define allocate_fsubr()  \
-    allocate_xrecord(0,Rectype_Fsubr,fsubr_length,0,orecord_type)
+    allocate_xrecord(0,Rectype_Fsubr,fsubr_length,fsubr_xlength,orecord_type)
 # wird verwendet von SPVW
 
 # UP, beschafft Load-time-Eval
