@@ -745,20 +745,15 @@ is the same as
 </literal></para></formalpara>
 
 <table id="values-limits-table" frame="all">
-  <title>Function call limits (platform dependent)</title>
- <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
+ <title>Function call limits</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <tbody>
   <row><entry>&call-arguments-limit;</entry>
-       <entry>2<superscript>16</superscript>=65536</entry>
-       <entry namest="b32" nameend="b64" align="center"
-             >2<superscript>32</superscript>=4294967296</entry></row>
+   <entry>2<superscript>12</superscript>=4096</entry></row>
   <row><entry>&multiple-values-limit;</entry>
-       <entry namest="b16" nameend="b64" align="center"
-             >2<superscript>7</superscript>=128</entry></row>
+   <entry>2<superscript>7</superscript>=128</entry></row>
   <row><entry>&lambda-parameters-limit;</entry>
-       <entry>2<superscript>16</superscript>=65536</entry>
-       <entry namest="b32" nameend="b64" align="center"
-             >2<superscript>32</superscript>=4294967296</entry></row>
+   <entry>2<superscript>12</superscript>=4096</entry></row>
 </tbody></tgroup></table>
 
 </section>
@@ -2286,9 +2281,8 @@ and the international alphabetic characters from the character set:
  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
  <row><entry>&array-rank-limit;</entry>
-      <entry namest="b16" nameend="b32" align="center"
-            >2<superscript>16</superscript> = 65536</entry>
-      <entry>2<superscript>32</superscript> = 4294967296</entry></row>
+      <entry namest="b16" nameend="b64" align="center"
+            >2<superscript>12</superscript> = 4096</entry></row>
  <row><entry>&array-dimension-limit;</entry>
       <entry namest="b16" nameend="b32" align="center"
             >2<superscript>24</superscript> = 16777216</entry>
@@ -2299,8 +2293,10 @@ and the international alphabetic characters from the character set:
       <entry>2<superscript>32</superscript> = 4294967296</entry></row>
 </tbody></tgroup></table>
 
-<para>Note that these constants are not fixnums, contrary to the &ansi-cl;
- Issue <ulink url="&clhs;/Issues/iss014.html"
+<para>Note that &array-dimension-limit; and &array-total-size-limit; are
+ not fixnums (they are equal to
+ <literal role="sexp">(&pl1; &most-positive-fixnum;)</literal>),
+ contrary to the &ansi-cl; Issue <ulink url="&clhs;/Issues/iss014.html"
  >ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para>
 
 </section>
@@ -2447,9 +2443,9 @@ and &end-k;:</para>
  <simplelist columns="1">
  <member>&nil; (default)</member>
  <member>&key-k;</member>
- <member><constant>VALUE</constant></member>
- <member><constant>EITHER</constant></member>
- <member><constant>BOTH</constant></member>
+ <member><constant>:VALUE</constant></member>
+ <member><constant>:EITHER</constant></member>
+ <member><constant>:BOTH</constant></member>
 </simplelist>
 and specifies whether the &hash-table-t; is <emphasis>weak</emphasis>:
 if the key, value, either or both are not accessible for the &gc;ion
