@@ -84,7 +84,7 @@
           Car(obj) = popSTACK();
           Cdr(obj) = STACK_2; STACK_2 = obj;
           # und "~S" in den Format-String schreiben:
-          write_schar(&STACK_0,'~'); write_schar(&STACK_0,'S');
+          write_ascii_char(&STACK_0,'~'); write_ascii_char(&STACK_0,'S');
     }   }
 
 # UP: Gibt ein Error-Character aus.
@@ -100,7 +100,7 @@
           Car(obj) = popSTACK();
           Cdr(obj) = STACK_2; STACK_2 = obj;
           # und "~A" in den Format-String schreiben:
-          write_schar(&STACK_0,'~'); write_schar(&STACK_0,'A');
+          write_ascii_char(&STACK_0,'~'); write_ascii_char(&STACK_0,'A');
     }   }
 
 # UP: Gibt einen Errorstring aus. Bei jeder Tilde '~' wird ein Objekt aus dem

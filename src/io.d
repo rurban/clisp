@@ -4971,7 +4971,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
          until (x==0);
       # Ziffern in umgekehrter Reihenfolge ausgeben:
       dotimespC(ziffcount,ziffcount,
-        { write_schar(stream_,'0' + *--ziffptr); }
+        { write_ascii_char(stream_,'0' + *--ziffptr); }
         );
     }
 
@@ -4985,7 +4985,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void pr_hex1(stream_,x)
     var const object* stream_;
     var uint4 x;
-    { write_schar(stream_, ( x<10 ? '0'+(uintB)x : 'A'+(uintB)x-10 ) ); }
+    { write_ascii_char(stream_, ( x<10 ? '0'+(uintB)x : 'A'+(uintB)x-10 ) ); }
 
 # UP: Gibt ein Byte hexadezimal (mit 2 Hex-Ziffern) auf einen Stream aus.
 # pr_hex2(&stream,x);
@@ -5013,7 +5013,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object obj;
     { var oint x = (as_oint(obj) >> oint_addr_shift) << addr_shift;
-      write_schar(stream_,'#'); write_schar(stream_,'x'); # Präfix für "Hexadezimal"
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # Präfix für "Hexadezimal"
       #define pr_hexpart(k)  # Bits k+7..k ausgeben:  \
         if (((oint_addr_mask>>oint_addr_shift)<<addr_shift) & minus_wbit(k)) \
           { pr_hex2(stream_,(uint8)(x >> k) & (((oint_addr_mask>>oint_addr_shift)<<addr_shift) >> k) & 0xFF); }
@@ -5042,7 +5042,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
   local void pr_hex8(stream_,x)
     var const object* stream_;
     var uintP x;
-    { write_schar(stream_,'#'); write_schar(stream_,'x'); # Präfix für "Hexadezimal"
+    { write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); # Präfix für "Hexadezimal"
      {var sintC k = (sizeof(uintP)-1)*8;
       do { pr_hex2(stream_,(uint8)(x >> k)); } while ((k -= 8) >= 0);
     }}
@@ -5195,7 +5195,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 var uintL count;
                 pushSTACK(string); # Simple-String retten
                 dotimesL(count,Sstring_length(string),
-                  { write_schar(stream_,down_case(TheSstring(STACK_0)->data[index]));
+                  { write_code_char(stream_,down_case(TheSstring(STACK_0)->data[index]));
                     index++;
                   });
                 skipSTACK(1);
@@ -5259,7 +5259,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                     if ((flag = alphanumericp(c)) && oldflag)
                       # alphanumerisches Zeichen im Wort:
                       { c = down_case(c); } # Groß- in Kleinbuchstaben umwandeln
-                    write_schar(stream_,c); # und ausgeben
+                    write_code_char(stream_,c); # und ausgeben
                     index++;
                   });
                 skipSTACK(1);
@@ -5276,7 +5276,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 var uintL count;
                 pushSTACK(string); # Simple-String retten
                 dotimesL(count,Sstring_length(string),
-                  { write_schar(stream_,up_case(TheSstring(STACK_0)->data[index]));
+                  { write_code_char(stream_,up_case(TheSstring(STACK_0)->data[index]));
                     index++;
                   });
                 skipSTACK(1);
@@ -5327,7 +5327,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                     if ((flag = alphanumericp(c)) && !oldflag)
                       # alphanumerisches Zeichen am Wortanfang:
                       { c = up_case(c); } # Klein- in Großbuchstaben umwandeln
-                    write_schar(stream_,c); # und ausgeben
+                    write_code_char(stream_,c); # und ausgeben
                     index++;
                   });
                 skipSTACK(1);
@@ -5370,7 +5370,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object anzahl;
     { var uintL count;
-      dotimesL(count,posfixnum_to_L(anzahl), { write_schar(stream_,' '); } );
+      dotimesL(count,posfixnum_to_L(anzahl), { write_ascii_char(stream_,' '); } );
     }
 
 # ------------------- Unterprogramme für Pretty-Print -------------------------
@@ -5486,7 +5486,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     { var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_pphelp))
         # normaler Stream
-        { write_schar(stream_,'('); }
+        { write_ascii_char(stream_,'('); }
         else
         # Pretty-Print-Hilfs-Stream
         { var object pos = # Position für die Klammer zu
@@ -5495,7 +5495,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               : NIL                                 # nein -> NIL
             );
           dynamic_bind(S(prin_rpar),pos); # SYS::*PRIN-RPAR* daran binden
-          write_schar(stream_,'(');
+          write_ascii_char(stream_,'(');
         }
     }
 
@@ -5512,7 +5512,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     { var object stream = *stream_;
       if (!(TheStream(stream)->strmtype == strmtype_pphelp))
         # normaler Stream
-        { write_schar(stream_,')'); }
+        { write_ascii_char(stream_,')'); }
         else
         # Pretty-Print-Hilfs-Stream
         { # gewünschte Position der Klammer zu holen:
@@ -5569,7 +5569,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   pphelp_newline(stream_); spaces(stream_,pos);
                 }
               hinten: # Klammer hinten ausgeben
-              write_schar(stream_,')');
+              write_ascii_char(stream_,')');
             }
           # Bindung von SYS::*PRIN-RPAR* auflösen:
           dynamic_unbind();
@@ -5670,7 +5670,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     { if (!(TheStream(*stream_)->strmtype == strmtype_pphelp))
         # normaler Stream -> nur ein Space
-        { write_schar(stream_,' '); }
+        { write_ascii_char(stream_,' '); }
         else
         # Pretty-Print-Hilfs-Stream
         { justify_empty_2(stream_); # Streaminhalt retten
@@ -5754,7 +5754,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                          )   )
                         # Passt noch.
                         { # Space statt Newline ausgeben:
-                          write_schar(stream_,' ');
+                          write_ascii_char(stream_,' ');
                         }
                         else
                         # Passt nicht mehr.
@@ -5839,7 +5839,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 STACK_0 = Cdr(STACK_0); # Blockliste verkürzen
                 write_string(stream_,block); # Block auf den Stream ausgeben
                 if (matomp(STACK_0)) break; # Restliste leer -> fertig
-                write_schar(stream_,' '); # #\Space ausgeben
+                write_ascii_char(stream_,' '); # #\Space ausgeben
               }
             goto fertig;
           }
@@ -6001,7 +6001,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 # > stream: Stream
 # < stream: Stream
 # kann GC auslösen
-  #define pr_level(stream_)     write_schar(stream_,'#')
+  #define pr_level(stream_)     write_ascii_char(stream_,'#')
 
 # UP: Testet, ob SYS::*PRIN-LEVEL* den Wert von *PRINT-LEVEL* erreicht hat.
 # Wenn ja, nur '#' ausgeben und Rücksprung aus dem aufrufenden UP (!).
@@ -6160,9 +6160,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               pushSTACK(obj); # obj retten
               # Präfix ausgeben und Einrückungstiefe berechnen:
               INDENTPREP_START;
-              write_schar(stream_,'#');
+              write_ascii_char(stream_,'#');
               pr_uint(stream_,n);
-              write_schar(stream_,'=');
+              write_ascii_char(stream_,'=');
             }
             { var uintL indent = INDENTPREP_END;
               obj = popSTACK(); # obj zurück
@@ -6174,9 +6174,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           else
           # obj als #n# ausgeben:
           { var uintL n = info->n;
-            write_schar(stream_,'#');
+            write_ascii_char(stream_,'#');
             pr_uint(stream_,n);
-            write_schar(stream_,'#');
+            write_ascii_char(stream_,'#');
           }
     }
 
@@ -6230,7 +6230,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                if (eq(Symbol_value(S(prin_l1)),Fixnum_0)) # oder ab Position 0 ?
                  goto skip_first_NL; # in die Schleife
               }
-              do { write_schar(stream_,NL); # #\Newline als Trennzeichen zwischen den Zeilen
+              do { write_ascii_char(stream_,NL); # #\Newline als Trennzeichen zwischen den Zeilen
                    skip_first_NL:
                    # nichtleere Stringliste STACK_0 auf den Stream ausgeben:
                   {var object list = STACK_0;
@@ -6585,7 +6585,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 { # *PRINT-GENSYM* abfragen:
                   if (test_value(S(print_gensym)) || test_value(S(print_readably)))
                     # Syntax #:name verwenden
-                    { write_schar(stream_,'#'); goto one_marker; }
+                    { write_ascii_char(stream_,'#'); goto one_marker; }
                     # sonst ohne Präfix ausgeben
                 }
                 else
@@ -6596,9 +6596,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                   case_sensitive = pack_casesensitivep(home);
                   if (externalp(STACK_0,home)) # Symbol extern in seiner Home-Package?
                     goto one_marker; # ja -> 1 Packagemarker
-                  write_schar(stream_,':'); # sonst 2 Packagemarker
+                  write_ascii_char(stream_,':'); # sonst 2 Packagemarker
                   one_marker:
-                  write_schar(stream_,':');
+                  write_ascii_char(stream_,':');
                 }
               sym = popSTACK(); # sym zurück
             }
@@ -6716,7 +6716,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
         pushSTACK(string);
         # Stackaufbau: syntax_table, string.
-        write_schar(stream_,'|');
+        write_ascii_char(stream_,'|');
         { var uintL index = 0;
           until (index == len)
             { var uintB c = TheSstring(STACK_0)->data[index]; # nächstes Character
@@ -6724,13 +6724,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 { case syntax_single_esc:
                   case syntax_multi_esc:
                     # Dem Escape-Character c wird ein '\' vorangestellt:
-                    write_schar(stream_,'\\');
+                    write_ascii_char(stream_,'\\');
                   default: ;
                 }
-              write_schar(stream_,c); # Character ausgeben
+              write_code_char(stream_,c); # Character ausgeben
               index++;
         }   }
-        write_schar(stream_,'|');
+        write_ascii_char(stream_,'|');
         skipSTACK(2);
       }
     }
@@ -6767,13 +6767,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Character mit Escape-Zeichen ausgeben.
         # Syntax:  # \ char
         # bzw.     # \ charname
-        { write_schar(stream_,'#');
-          write_schar(stream_,'\\');
+        { write_ascii_char(stream_,'#');
+          write_ascii_char(stream_,'\\');
          {var uintB code = char_code(ch); # Code
           var object charname = char_name(code); # Name des Characters
           if (nullp(charname))
             # kein Name vorhanden
-            { write_schar(stream_,code); }
+            { write_code_char(stream_,code); }
             else
             # Namen (Simple-String) ausgeben
             { write_sstring_case(stream_,charname); }
@@ -6804,13 +6804,13 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # mit Escape-Zeichen:
         { var uintL index = start;
           pushSTACK(string); # Simple-String retten
-          write_schar(stream_,'"'); # vorher ein Anführungszeichen
+          write_ascii_char(stream_,'"'); # vorher ein Anführungszeichen
           #if 0
           dotimesL(len,len,
             { var uintB c = TheSstring(STACK_0)->data[index]; # nächstes Zeichen
               # bei c = #\" oder c = #\\ erst noch ein '\' ausgeben:
-              if ((c=='"') || (c=='\\')) { write_schar(stream_,'\\'); }
-              write_schar(stream_,c);
+              if ((c=='"') || (c=='\\')) { write_ascii_char(stream_,'\\'); }
+              write_code_char(stream_,c);
               index++;
             });
           #else # dasselbe, etwas optimiert
@@ -6826,11 +6826,11 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 if (!(index==index0))
                   { write_sstring_ab(stream_,string,index0,index-index0); }
                 if (len==0) break;
-                write_schar(stream_,'\\');
+                write_ascii_char(stream_,'\\');
                 index0 = index; index++; len--;
           }   }
           #endif
-          write_schar(stream_,'"'); # nachher ein Anführungszeichen
+          write_ascii_char(stream_,'"'); # nachher ein Anführungszeichen
           skipSTACK(1);
         }
         else
@@ -6933,7 +6933,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var object list;
     { if (nullp(list))
         # NIL als () ausgeben:
-        { write_schar(stream_,'('); write_schar(stream_,')'); }
+        { write_ascii_char(stream_,'('); write_ascii_char(stream_,')'); }
         else
         # ein Cons
         { pr_cons(stream_,list); }
@@ -6983,14 +6983,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               goto dotted_list;
           }
         dotted_list: # Listenrest in Dotted-List-Schreibweise ausgeben:
-          write_schar(stream_,'.');
+          write_ascii_char(stream_,'.');
           JUSTIFY_SPACE;
           prin_object(stream_,*list_);
           goto end_of_list;
         dots: # Listenrest durch '...' abkürzen:
-          write_schar(stream_,'.');
-          write_schar(stream_,'.');
-          write_schar(stream_,'.');
+          write_ascii_char(stream_,'.');
+          write_ascii_char(stream_,'.');
+          write_ascii_char(stream_,'.');
           goto end_of_list;
         end_of_list: # Listeninhalt ausgegeben.
         JUSTIFY_END_ENG;
@@ -7015,7 +7015,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
-      write_schar(stream_,'\''); # "'" ausgeben
+      write_ascii_char(stream_,'\''); # "'" ausgeben
       list = popSTACK();
       INDENT_START(1); # um 1 Zeichen einrücken wegen "'"
       prin_object(stream_,list); # object ausgeben
@@ -7026,8 +7026,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
-      write_schar(stream_,'#'); # "#" ausgeben
-      write_schar(stream_,'\''); # "'" ausgeben
+      write_ascii_char(stream_,'#'); # "#" ausgeben
+      write_ascii_char(stream_,'\''); # "'" ausgeben
       list = popSTACK();
       INDENT_START(2); # um 2 Zeichen einrücken wegen "#'"
       prin_object(stream_,list); # object ausgeben
@@ -7038,7 +7038,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
-      write_schar(stream_,'`'); # '`' ausgeben
+      write_ascii_char(stream_,'`'); # '`' ausgeben
       list = popSTACK();
       # SYS::*PRIN-BQLEVEL* um 1 erhöhen:
       {var object bqlevel = Symbol_value(S(prin_bqlevel));
@@ -7059,7 +7059,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     # list = (SPLICE object), ch = '@' oder
     # list = (NSPLICE object), ch = '.'
     { pushSTACK(Car(Cdr(list))); # (second list) retten
-      write_schar(stream_,','); # Komma ausgeben
+      write_ascii_char(stream_,','); # Komma ausgeben
       write_char(stream_,ch); # '@' bzw. '.' ausgeben
       list = popSTACK();
       # SYS::*PRIN-BQLEVEL* um 1 verringern:
@@ -7077,7 +7077,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         else
         # nein -> noch ein Quote und object ausgeben:
         { pushSTACK(list); # object retten
-          write_schar(stream_,'\''); # "'" ausgeben
+          write_ascii_char(stream_,'\''); # "'" ausgeben
           list = popSTACK();
           INDENT_START(3); # um 3 Zeichen einrücken wegen ",@'" bzw. ",.'"
           prin_object(stream_,list); # object ausgeben
@@ -7100,7 +7100,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var const object* stream_;
     var object list;
     { pushSTACK(Car(Cdr(list))); # (second list) retten
-      write_schar(stream_,','); # ',' ausgeben
+      write_ascii_char(stream_,','); # ',' ausgeben
       list = popSTACK();
       # SYS::*PRIN-BQLEVEL* um 1 verringern:
       dynamic_bind(S(prin_bqlevel),fixnum_inc(Symbol_value(S(prin_bqlevel)),-1));
@@ -7130,24 +7130,24 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             { pushSTACK(number); # number retten
               switch (base)
                 { case 2: # Basis 2
-                    write_schar(stream_,'#'); write_schar(stream_,'b'); break;
+                    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'b'); break;
                   case 8: # Basis 8
-                    write_schar(stream_,'#'); write_schar(stream_,'o'); break;
+                    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'o'); break;
                   case 16: # Basis 16
-                    write_schar(stream_,'#'); write_schar(stream_,'x'); break;
+                    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); break;
                   case 10: # Basis 10
                     if (RA_integerp(number))
                       { # Basis 10 bei Integers durch nachgestellten Punkt
                         # kennzeichnen:
                         skipSTACK(1);
                         print_integer(number,base,stream_);
-                        write_schar(stream_,'.');
+                        write_ascii_char(stream_,'.');
                         return;
                       }
                   default: # Basis in #nR-Schreibweise ausgeben:
-                    write_schar(stream_,'#');
+                    write_ascii_char(stream_,'#');
                     pr_uint(stream_,base);
-                    write_schar(stream_,'r');
+                    write_ascii_char(stream_,'r');
                     break;
                 }
               number = popSTACK();
@@ -7159,7 +7159,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             # Ratio in Basis base ausgeben:
             { pushSTACK(TheRatio(number)->rt_den); # Nenner retten
               print_integer(TheRatio(number)->rt_num,base,stream_); # Zähler ausgeben
-              write_schar(stream_,'/'); # Bruchstrich
+              write_ascii_char(stream_,'/'); # Bruchstrich
               print_integer(popSTACK(),base,stream_); # Nenner ausgeben
             }
         }
@@ -7184,7 +7184,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # komplexe Zahl
         { pushSTACK(number); # Zahl retten
          {var object* number_ = &STACK_0; # und merken, wo sie sitzt
-          write_schar(stream_,'#'); write_schar(stream_,'C');
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'C');
           KLAMMER_AUF;
           INDENT_START(3); # um 3 Zeichen einrücken, wegen '#C('
           JUSTIFY_START;
@@ -7211,7 +7211,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var object obj;
     { pushSTACK(obj); # Array retten
      {var object* obj_ = &STACK_0; # und merken, wo er sitzt
-      write_schar(stream_,'#'); write_schar(stream_,'<');
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,O(printstring_array)); # "ARRAY" ausgeben
@@ -7227,7 +7227,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         }
       JUSTIFY_END_ENG;
       INDENT_END;
-      write_schar(stream_,'>');
+      write_ascii_char(stream_,'>');
       skipSTACK(1);
     }}
 
@@ -7249,7 +7249,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     var uintL len;
     { var uintL index = start;
       pushSTACK(bv); # Simple-Bit-Vektor retten
-      write_schar(stream_,'#'); write_schar(stream_,'*');
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'*');
       dotimesL(len,len,
         { write_char(stream_,
                      (sbvector_btst(STACK_0,index) ? code_char('1') : code_char('0'))
@@ -7309,7 +7309,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
            {var object* sv_ = &STACK_0; # und merken, wo er sitzt
             var uintL index = 0 + offset; # Startindex = 0 im Vektor
             if (readable)
-              { write_schar(stream_,'#'); write_schar(stream_,'A');
+              { write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
                 KLAMMER_AUF; # '(' ausgeben
                 INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
                 JUSTIFY_START;
@@ -7322,7 +7322,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 INDENT_START(1); # um 1 Zeichen einrücken, wegen '('
               }
               else
-              { write_schar(stream_,'#');
+              { write_ascii_char(stream_,'#');
                 KLAMMER_AUF; # '('
                 INDENT_START(2); # um 2 Zeichen einrücken, wegen '#('
               }
@@ -7333,9 +7333,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                 # auf Erreichen von *PRINT-LENGTH* prüfen:
                 if (length >= length_limit)
                   { # Rest durch '...' abkürzen:
-                    write_schar(stream_,'.');
-                    write_schar(stream_,'.');
-                    write_schar(stream_,'.');
+                    write_ascii_char(stream_,'.');
+                    write_ascii_char(stream_,'.');
+                    write_ascii_char(stream_,'.');
                     break;
                   }
                 # Vektorelement ausgeben:
@@ -7523,9 +7523,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= locals->length_limit)
                 { # Rest durch '...' abkürzen:
-                  write_schar(stream_,'.');
-                  write_schar(stream_,'.');
-                  write_schar(stream_,'.');
+                  write_ascii_char(stream_,'.');
+                  write_ascii_char(stream_,'.');
+                  write_ascii_char(stream_,'.');
                   break;
                 }
               # Teil-Array ausgeben:
@@ -7607,7 +7607,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             pushSTACK(obj); locals.obj_ = &STACK_0; # obj im Stack unterbringen
             # Los geht's.
             if (readable)
-              { write_schar(stream_,'#'); write_schar(stream_,'A');
+              { write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
                 KLAMMER_AUF; # '(' ausgeben
                 INDENT_START(3); # um 3 Zeichen einrücken, wegen '#A('
                 JUSTIFY_START;
@@ -7623,9 +7623,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               else
               { # Erst Präfix #nA ausgeben:
                 INDENTPREP_START;
-                write_schar(stream_,'#');
+                write_ascii_char(stream_,'#');
                 pr_uint(stream_,r); # Rang dezimal ausgeben
-                write_schar(stream_,'A');
+                write_ascii_char(stream_,'A');
                 {var uintL indent = INDENTPREP_END;
                 # Dann die Array-Elemente ausgeben:
                  INDENT_START(indent);
@@ -7787,14 +7787,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             !nullp(TheSvector(description)->data[2]);
           if (readable)
             # Structure wiedereinlesbar ausgeben:
-            { write_schar(stream_,'#'); write_schar(stream_,'S');
+            { write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
               KLAMMER_AUF;
               INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
             }
             else
             # Structure nicht wiedereinlesbar ausgeben:
             { if (test_value(S(print_readably))) { fehler_print_readably(*structure_); }
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
             }
           JUSTIFY_START;
@@ -7817,15 +7817,15 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                     # auf Erreichen von *PRINT-LENGTH* prüfen:
                     if (length >= length_limit)
                       { # Rest durch '...' abkürzen:
-                        write_schar(stream_,'.');
-                        write_schar(stream_,'.');
-                        write_schar(stream_,'.');
+                        write_ascii_char(stream_,'.');
+                        write_ascii_char(stream_,'.');
+                        write_ascii_char(stream_,'.');
                         skipSTACK(1); # slot vergessen
                         break;
                       }
                    {var object* slot_ = &STACK_0; # da sitzt der Slot
                     JUSTIFY_START;
-                    write_schar(stream_,':'); # Keyword-Kennzeichen
+                    write_ascii_char(stream_,':'); # Keyword-Kennzeichen
                     {var object obj = TheSvector(*slot_)->data[0]; # (ds-slot-name slot)
                      if (!symbolp(obj)) goto bad_description; # sollte ein Symbol sein
                      pr_like_symbol(stream_,Symbol_name(obj)); # Symbolnamen der Komponente ausgeben
@@ -7849,14 +7849,14 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             }
             else
             { INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
             }
           skipSTACK(3);
         }}
         else
         # Structure elementweise, ohne Komponenten-Namen ausgeben.
         { if (test_value(S(print_readably))) { fehler_print_readably(*structure_); }
-          write_schar(stream_,'#'); write_schar(stream_,'<');
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
           INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
           JUSTIFY_START;
           prin_object(stream_,*(structure_ STACKop -1)); # name ausgeben
@@ -7868,9 +7868,9 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               # auf Erreichen von *PRINT-LENGTH* prüfen:
               if (length >= length_limit)
                 { # Rest durch '...' abkürzen:
-                  write_schar(stream_,'.');
-                  write_schar(stream_,'.');
-                  write_schar(stream_,'.');
+                  write_ascii_char(stream_,'.');
+                  write_ascii_char(stream_,'.');
+                  write_ascii_char(stream_,'.');
                   break;
                 }
               length++; # Index erhöhen
@@ -7879,7 +7879,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             });
           JUSTIFY_END_ENG;
           INDENT_END;
-          write_schar(stream_,'>');
+          write_ascii_char(stream_,'>');
           skipSTACK(2);
         }}
     }}
@@ -7922,7 +7922,7 @@ LISPFUNN(print_structure,2)
     var object string;
     { pushSTACK(string); # String retten
      {var object* string_ = &STACK_0; # und merken, wo er sitzt
-      write_schar(stream_,'#'); write_schar(stream_,'<');
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,*string_); # String ausgeben
@@ -7930,7 +7930,7 @@ LISPFUNN(print_structure,2)
       pr_hex6(stream_,obj); # obj als Adresse ausgeben
       JUSTIFY_END_ENG;
       INDENT_END;
-      write_schar(stream_,'>');
+      write_ascii_char(stream_,'>');
       skipSTACK(1);
     }}
 
@@ -7985,7 +7985,7 @@ LISPFUNN(print_structure,2)
     var object obj;
     { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
       # #<READ-LABEL ...>
-      write_schar(stream_,'#'); write_schar(stream_,'<');
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,O(printstring_read_label)); # "READ-LABEL"
@@ -7997,7 +7997,7 @@ LISPFUNN(print_structure,2)
       #endif
       JUSTIFY_END_ENG;
       INDENT_END;
-      write_schar(stream_,'>');
+      write_ascii_char(stream_,'>');
     }
 
 # UP: Gibt einen Framepointer auf einen Stream aus.
@@ -8039,9 +8039,9 @@ LISPFUNN(print_structure,2)
           # auf Erreichen von *PRINT-LENGTH* prüfen:
           if (length >= length_limit)
             { # Rest durch '...' abkürzen:
-              write_schar(stream_,'.');
-              write_schar(stream_,'.');
-              write_schar(stream_,'.');
+              write_ascii_char(stream_,'.');
+              write_ascii_char(stream_,'.');
+              write_ascii_char(stream_,'.');
               break;
             }
           # Komponente ausgeben:
@@ -8072,9 +8072,9 @@ LISPFUNN(print_structure,2)
           # auf Erreichen von *PRINT-LENGTH* prüfen:
           if (length >= length_limit)
             { # Rest durch '...' abkürzen:
-              write_schar(stream_,'.');
-              write_schar(stream_,'.');
-              write_schar(stream_,'.');
+              write_ascii_char(stream_,'.');
+              write_ascii_char(stream_,'.');
+              write_ascii_char(stream_,'.');
               break;
             }
           {var object list = STACK_0;
@@ -8113,14 +8113,14 @@ LISPFUNN(print_structure,2)
       # und    *(obj_ STACKop -2) = slotlist .
       if (readable)
         # obj wiedereinlesbar ausgeben:
-        { write_schar(stream_,'#'); write_schar(stream_,'S');
+        { write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
           KLAMMER_AUF;
           INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
         }
         else
         # obj nicht wiedereinlesbar ausgeben:
         { if (test_value(S(print_readably))) { fehler_print_readably(STACK_2); }
-          write_schar(stream_,'#'); write_schar(stream_,'<');
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
           INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
         }
       JUSTIFY_START;
@@ -8138,15 +8138,15 @@ LISPFUNN(print_structure,2)
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit)
               { # Rest durch '...' abkürzen:
-                write_schar(stream_,'.');
-                write_schar(stream_,'.');
-                write_schar(stream_,'.');
+                write_ascii_char(stream_,'.');
+                write_ascii_char(stream_,'.');
+                write_ascii_char(stream_,'.');
                 skipSTACK(1); # slot vergessen
                 break;
               }
            {var object* slot_ = &STACK_0; # da sitzt der Slot
             JUSTIFY_START;
-            write_schar(stream_,':'); # Keyword-Kennzeichen
+            write_ascii_char(stream_,':'); # Keyword-Kennzeichen
             # (first slot) sollte ein Symbol sein
             pr_like_symbol(stream_,Symbol_name(Car(*slot_))); # Symbolnamen der Komponente ausgeben
             JUSTIFY_SPACE;
@@ -8164,7 +8164,7 @@ LISPFUNN(print_structure,2)
         }
         else
         { INDENT_END;
-          write_schar(stream_,'>');
+          write_ascii_char(stream_,'>');
         }
       skipSTACK(3);
       LEVEL_END;
@@ -8212,7 +8212,7 @@ LISPFUNN(print_structure,2)
               { LEVEL_CHECK;
                 pushSTACK(obj); # Hash-Tabelle retten
                {var object* obj_ = &STACK_0; # und merken, wo sie sitzt
-                write_schar(stream_,'#'); write_schar(stream_,'S');
+                write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
                 KLAMMER_AUF;
                 INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
                 JUSTIFY_START;
@@ -8250,9 +8250,9 @@ LISPFUNN(print_structure,2)
                       if (length >= length_limit)
                         { dots:
                           # Rest durch '...' abkürzen:
-                          write_schar(stream_,'.');
-                          write_schar(stream_,'.');
-                          write_schar(stream_,'.');
+                          write_ascii_char(stream_,'.');
+                          write_ascii_char(stream_,'.');
+                          write_ascii_char(stream_,'.');
                           break;
                         }
                       # Cons (Key . Value) bilden und ausgeben:
@@ -8281,7 +8281,7 @@ LISPFUNN(print_structure,2)
             { pushSTACK(obj); # Package retten
              {var object* obj_ = &STACK_0; # und merken, wo sie sitzt
               if (!test_value(S(print_readably)))
-                { write_schar(stream_,'#'); write_schar(stream_,'<');
+                { write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
                   INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
                   JUSTIFY_START;
                   if (pack_deletedp(*obj_))
@@ -8291,7 +8291,7 @@ LISPFUNN(print_structure,2)
                   pr_like_symbol(stream_,ThePackage(*obj_)->pack_name); # Name ausgeben
                   JUSTIFY_END_ENG;
                   INDENT_END;
-                  write_schar(stream_,'>');
+                  write_ascii_char(stream_,'>');
                 }
                 else
                 { if (!(((TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)) != 0)
@@ -8299,7 +8299,7 @@ LISPFUNN(print_structure,2)
                      ) )
                     { fehler_print_readably(*obj_); }
                   if (pack_deletedp(*obj_)) { fehler_print_readably(*obj_); }
-                  write_schar(stream_,'#'); write_schar(stream_,'.');
+                  write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
                   KLAMMER_AUF; # '('
                   INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
                   JUSTIFY_START;
@@ -8328,13 +8328,13 @@ LISPFUNN(print_structure,2)
                 pushSTACK(obj); # string
                 obj_ = &STACK_0;
                 JUSTIFY_START; JUSTIFY_START;
-                write_schar(stream_,'#'); write_schar(stream_,'-');
+                write_ascii_char(stream_,'#'); write_ascii_char(stream_,'-');
                 write_sstring(stream_,O(lisp_implementation_type_string));
                 JUSTIFY_SPACE;
-                write_schar(stream_,'#'); write_schar(stream_,'P');
+                write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
                 pr_string(stream_,*obj_);
                 JUSTIFY_END_ENG; JUSTIFY_SPACE; JUSTIFY_START;
-                write_schar(stream_,'#'); write_schar(stream_,'+');
+                write_ascii_char(stream_,'#'); write_ascii_char(stream_,'+');
                 write_sstring(stream_,O(lisp_implementation_type_string));
                 JUSTIFY_SPACE;
                 pr_record_descr(stream_,*(obj_ STACKop 1),S(pathname),TRUE,
@@ -8344,7 +8344,7 @@ LISPFUNN(print_structure,2)
               } else {
                 STACK_0 = obj; # String
                 if (test_value(S(print_escape))) { # print "#P"
-                  write_schar(stream_,'#'); write_schar(stream_,'P');
+                  write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
                 }
                 pr_string(stream_,STACK_0); # print the string
               }
@@ -8362,7 +8362,7 @@ LISPFUNN(print_structure,2)
             { LEVEL_CHECK;
               pushSTACK(obj); # Random-State retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'S');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
               KLAMMER_AUF;
               INDENT_START(3); # um 3 Zeichen einrücken, wegen '#S('
               JUSTIFY_START;
@@ -8389,14 +8389,14 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
               pushSTACK(obj); # Byte retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               write_sstring_case(stream_,O(printstring_byte)); # "BYTE"
               pr_record_ab(stream_,obj_,0,0); # Komponenten ausgeben
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               skipSTACK(1);
               LEVEL_END;
             }}
@@ -8416,7 +8416,7 @@ LISPFUNN(print_structure,2)
                    ) )
                   { fehler_print_readably(obj); }
               pushSTACK(TheLoadtimeeval(obj)->loadtimeeval_form); # form retten
-              write_schar(stream_,'#'); write_schar(stream_,'.');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
               obj = popSTACK();
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#.'
               prin_object(stream_,obj); # form ausgeben
@@ -8428,14 +8428,14 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
               pushSTACK(obj); # Symbol-Macro retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               write_sstring_case(stream_,O(printstring_symbolmacro)); # "SYMBOL-MACRO"
               pr_record_ab(stream_,obj_,0,0); # Komponente ausgeben
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               skipSTACK(1);
               LEVEL_END;
             }}
@@ -8447,7 +8447,7 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
              {var boolean validp = fp_validp(TheFpointer(obj));
               var uintP val = (uintP)(TheFpointer(obj)->fp_pointer); # Wert holen
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               if (!validp)
@@ -8465,7 +8465,7 @@ LISPFUNN(print_structure,2)
               fpointer_end:
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               LEVEL_END;
             }}break;
           #endif
@@ -8476,7 +8476,7 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
               pushSTACK(obj); # retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               if (!fp_validp(TheFpointer(TheFaddress(*obj_)->fa_base)))
@@ -8496,7 +8496,7 @@ LISPFUNN(print_structure,2)
               faddress_end:
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               skipSTACK(1);
               LEVEL_END;
             }}break;
@@ -8506,7 +8506,7 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
               pushSTACK(obj); # retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               write_sstring_case(stream_,O(printstring_fvariable)); # "FOREIGN-VARIABLE"
@@ -8529,7 +8529,7 @@ LISPFUNN(print_structure,2)
               fvariable_end:
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               skipSTACK(1);
               LEVEL_END;
             }}break;
@@ -8539,7 +8539,7 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
               pushSTACK(obj); # retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               write_sstring_case(stream_,O(printstring_ffunction)); # "FOREIGN-FUNCTION"
@@ -8562,7 +8562,7 @@ LISPFUNN(print_structure,2)
               ffunction_end:
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               skipSTACK(1);
               LEVEL_END;
             }}break;
@@ -8579,7 +8579,7 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
               pushSTACK(obj); # retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               write_sstring_case(stream_,O(printstring_socket_server)); # "SOCKET-SERVER"
@@ -8590,14 +8590,14 @@ LISPFUNN(print_structure,2)
                JUSTIFY_SPACE; # Space ausgeben
                # output host
                write_string(stream_,TheSocketServer(*obj_)->host);
-               write_schar(stream_,':'); # Port ausgeben:
+               write_ascii_char(stream_,':'); # Port ausgeben:
                pr_number(stream_,TheSocketServer(*obj_)->port);
                length++; # bisherige Länge erhöhen
               }
               socket_server_end:
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               skipSTACK(1);
               LEVEL_END;
             }}break;
@@ -8609,7 +8609,7 @@ LISPFUNN(print_structure,2)
               LEVEL_CHECK;
               pushSTACK(obj); # Yetanother retten
              {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-              write_schar(stream_,'#'); write_schar(stream_,'<');
+              write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
               write_sstring_case(stream_,O(printstring_yetanother)); # "YET-ANOTHER"
@@ -8625,7 +8625,7 @@ LISPFUNN(print_structure,2)
               yetanother_end:
               JUSTIFY_END_ENG;
               INDENT_END;
-              write_schar(stream_,'>');
+              write_ascii_char(stream_,'>');
               skipSTACK(1);
               LEVEL_END;
             }}break;
@@ -8657,7 +8657,7 @@ LISPFUNN(print_structure,2)
     { pushSTACK(other); # other retten
       pushSTACK(string); # String retten
      {var object* string_ = &STACK_0; # und merken, wo beides sitzt
-      write_schar(stream_,'#'); write_schar(stream_,'<');
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START;
       write_sstring_case(stream_,*string_); # String ausgeben
@@ -8665,7 +8665,7 @@ LISPFUNN(print_structure,2)
       prin_object(stream_,*(string_ STACKop 1)); # other ausgeben
       JUSTIFY_END_ENG;
       INDENT_END;
-      write_schar(stream_,'>');
+      write_ascii_char(stream_,'>');
       skipSTACK(2);
     }}
 
@@ -8687,13 +8687,13 @@ LISPFUNN(print_structure,2)
             { fehler_print_readably(obj); }
           pushSTACK(obj); # obj retten
          {var object* obj_ = &STACK_0; # und merken, wo es sitzt
-          write_schar(stream_,'#'); write_schar(stream_,'.');
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
           KLAMMER_AUF; # '('
           INDENT_START(3); # um 3 Zeichen einrücken, wegen '#.('
           JUSTIFY_START;
           pr_symbol(stream_,S(find_subr)); # SYSTEM::%FIND-SUBR
           JUSTIFY_SPACE;
-          write_schar(stream_,'\'');
+          write_ascii_char(stream_,'\'');
           pr_symbol(stream_,TheSubr(*obj_)->name); # Name ausgeben
           JUSTIFY_END_ENG;
           INDENT_END;
@@ -8744,7 +8744,7 @@ LISPFUNN(print_structure,2)
           LEVEL_CHECK;
           pushSTACK(obj); # Closure retten
          {var object* obj_ = &STACK_0; # und merken, wo sie sitzt
-          write_schar(stream_,'#'); write_schar(stream_,'<');
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
           INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
           JUSTIFY_START;
           write_sstring_case(stream_,O(printstring_closure));
@@ -8760,7 +8760,7 @@ LISPFUNN(print_structure,2)
             }
           JUSTIFY_END_ENG;
           INDENT_END;
-          write_schar(stream_,'>');
+          write_ascii_char(stream_,'>');
           skipSTACK(1);
           LEVEL_END;
         }}
@@ -8828,7 +8828,7 @@ LISPFUNN(print_structure,2)
     { LEVEL_CHECK;
       pushSTACK(obj); # Closure retten
      {var object* obj_ = &STACK_0; # und merken, wo sie sitzt
-      write_schar(stream_,'#'); write_schar(stream_,'Y');
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'Y');
       KLAMMER_AUF;
       INDENT_START(3); # um 3 Zeichen einrücken, wegen '#Y('
       JUSTIFY_START;
@@ -8864,9 +8864,9 @@ LISPFUNN(print_structure,2)
       #endif
       # Präfix ausgeben:
       INDENTPREP_START;
-      write_schar(stream_,'#');
+      write_ascii_char(stream_,'#');
       pr_uint(stream_,len); # Länge dezimal ausgeben
-      write_schar(stream_,'Y');
+      write_ascii_char(stream_,'Y');
       {var uintL indent = INDENTPREP_END;
       # Hauptteil ausgeben:
        INDENT_START(indent); # einrücken
@@ -8882,9 +8882,9 @@ LISPFUNN(print_structure,2)
             # auf Erreichen von *PRINT-LENGTH* prüfen:
             if (length >= length_limit)
               { # Rest durch '...' abkürzen:
-                write_schar(stream_,'.');
-                write_schar(stream_,'.');
-                write_schar(stream_,'.');
+                write_ascii_char(stream_,'.');
+                write_ascii_char(stream_,'.');
+                write_ascii_char(stream_,'.');
                 break;
               }
             codevec = *codevec_;
@@ -8932,7 +8932,7 @@ LISPFUNN(print_structure,2)
     { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
       pushSTACK(obj); # Stream retten
      {var object* obj_ = &STACK_0; # und merken, wo er sitzt
-      write_schar(stream_,'#'); write_schar(stream_,'<');
+      write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
       INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
       JUSTIFY_START;
       # falls Stream geschlossen, "CLOSED " ausgeben:
@@ -9005,7 +9005,7 @@ LISPFUNN(print_structure,2)
                 if (!nullp(host))
                   write_string(stream_,host);
               }
-              write_schar(stream_,':');
+              write_ascii_char(stream_,':');
               pr_number(stream_,TheStream(*obj_)->strm_socket_port);
               break;
             #endif
@@ -9023,13 +9023,13 @@ LISPFUNN(print_structure,2)
         if (type==strmtype_ch_file)
           { JUSTIFY_SPACE;
             # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
-            write_schar(stream_,'@');
+            write_ascii_char(stream_,'@');
             pr_number(stream_,stream_line_number(*obj_));
           }
       }
       JUSTIFY_END_ENG;
       INDENT_END;
-      write_schar(stream_,'>');
+      write_ascii_char(stream_,'>');
       skipSTACK(1);
     }}
 
@@ -9059,7 +9059,7 @@ LISPFUNN(print_structure,2)
     var const object* stream_;
     var object obj;
     { pushSTACK(obj); # Objekt retten
-      write_schar(stream_,NL); # #\Newline ausgeben
+      write_ascii_char(stream_,NL); # #\Newline ausgeben
       obj = popSTACK();
       prin1(stream_,obj); # Objekt ausgeben
     }
@@ -9189,7 +9189,7 @@ LISPFUN(print,1,1,norest,nokey,0,NIL)
   { test_ostream(); # Output-Stream überprüfen
     terpri(&STACK_0); # neue Zeile
     prin1_up(); # PRIN1 durchführen
-    write_schar(&STACK_0,' '); # Space danach
+    write_ascii_char(&STACK_0,' '); # Space danach
     skipSTACK(1);
     value1 = popSTACK(); mv_count=1; # object als Wert
   }
@@ -9408,7 +9408,7 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
     test_ostream(); # Output-Stream überprüfen
     if (test_value(S(print_readably))) { fehler_print_readably(STACK_1); }
    {var object* stream_ = &STACK_0;
-    write_schar(stream_,'#'); write_schar(stream_,'<');
+    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
     INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
     JUSTIFY_START;
     if (flag_type)
@@ -9425,7 +9425,7 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
       }
     JUSTIFY_END_ENG;
     INDENT_END;
-    write_schar(stream_,'>');
+    write_ascii_char(stream_,'>');
     skipSTACK(3);
     value1 = NIL; mv_count=1;
   }}
