@@ -1411,7 +1411,7 @@ static unsigned long get_event_mask (object obj)
       else goto raise_type_error;
     }
     if (!eq(obj, NIL))
-      fehler_proper_list(TheSubr(subr_self)->name,obj);
+      fehler_proper_list_dotted(TheSubr(subr_self)->name,obj);
     return mask;
   }
  raise_type_error:

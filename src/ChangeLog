@@ -1,3 +1,8 @@
+2004-08-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (get_event_mask): use
+	fehler_proper_list_dotted() instead of fehler_proper_list()
+
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (list_length): New declarations.
