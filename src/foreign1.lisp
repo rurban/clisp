@@ -744,7 +744,8 @@
          |#
         )
     `(PROGN
-       (EVAL-WHEN (COMPILE) (NOTE-C-VAR ',c-name ',type ',flags))
+       ,(unless library
+          `(EVAL-WHEN (COMPILE) (NOTE-C-VAR ',c-name ',type ',flags)))
        #|
        (LET ((FVAR (LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
          (DEFUN ,getter-function-name () (FOREIGN-VALUE FVAR))
@@ -863,7 +864,8 @@
     (setq alist (remove-if (lambda (el) (sys::memq (car el) '(:name :library)))
                            alist))
     `(PROGN
-       (EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole))
+       ,(unless library
+          `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole)))
        (LET ()
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
