@@ -1,3 +1,8 @@
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (SYS::MAKE-SOCKET-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT):
+	Don't declare variables earlier than needed. (Deprecated BSD style.)
+
 2004-12-04  Bruno Haible  <bruno@clisp.org>
 
 	Prepare for using DEBUG_GCSAFETY with modules.

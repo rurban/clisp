@@ -13422,9 +13422,8 @@ LISPFUNN(make_x11socket_stream,2) {
            GETTEXT("display should be a nonnegative fixnum, not ~S"));
   }
   var const char* host = TheAsciz(string_to_asciz(STACK_1,O(misc_encoding)));
-  var SOCKET handle;
   begin_system_call();
-  handle = connect_to_x_server(host,posfixnum_to_L(STACK_0));
+  var SOCKET handle = connect_to_x_server(host,posfixnum_to_L(STACK_0));
   end_system_call();
   if (handle == INVALID_SOCKET) { SOCK_error(); }
   # build list:
@@ -13864,19 +13863,16 @@ extern SOCKET accept_connection (SOCKET socket_handle);
 #                [:timeout])
 LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
         (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) ) {
-  var SOCKET sock;
-  var decoded_el_t eltype;
-  var signean buffered;
-  var SOCKET handle;
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
 
   test_socket_server(STACK_3,true);
 
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0);
+  var signean buffered = test_buffered_arg(STACK_0);
 
   # Check and canonicalize the :ELEMENT-TYPE argument:
+  var decoded_el_t eltype;
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
   if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
@@ -13890,9 +13886,9 @@ LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
   }
  #endif
 
-  sock = TheSocket(TheSocketServer(STACK_3)->socket_handle);
+  var SOCKET sock = TheSocket(TheSocketServer(STACK_3)->socket_handle);
   begin_system_call();
-  handle = accept_connection (sock);
+  var SOCKET handle = accept_connection (sock);
   end_system_call();
   if (handle == INVALID_SOCKET) { SOCK_error(); }
   value1 = make_socket_stream(handle,&eltype,buffered,
@@ -13922,10 +13918,6 @@ extern SOCKET create_client_socket (const char* host, unsigned int port,
 #                 [:timeout])
 LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
         (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) ) {
-  var char *hostname;
-  var decoded_el_t eltype;
-  var signean buffered;
-  var SOCKET handle;
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
 
@@ -13933,9 +13925,10 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
     fehler_posfixnum(STACK_4);
 
   # Check and canonicalize the :BUFFERED argument:
-  buffered = test_buffered_arg(STACK_0);
+  var signean buffered = test_buffered_arg(STACK_0);
 
   # Check and canonicalize the :ELEMENT-TYPE argument:
+  var decoded_el_t eltype;
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
   if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
@@ -13943,6 +13936,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
   # Check and canonicalize the :EXTERNAL-FORMAT argument:
   STACK_1 = test_external_format_arg(STACK_1);
 
+  var char *hostname;
   if (missingp(STACK_3))
     hostname = "localhost";
   else
@@ -13950,7 +13944,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
                                         O(misc_encoding)));
 
   begin_system_call();
-  handle = create_client_socket(hostname,posfixnum_to_L(STACK_4),tvp);
+  var SOCKET handle = create_client_socket(hostname,posfixnum_to_L(STACK_4),tvp);
   if (handle == INVALID_SOCKET) { SOCK_error(); }
   end_system_call();
   value1 = make_socket_stream(handle,&eltype,buffered,
