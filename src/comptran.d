@@ -769,7 +769,7 @@ local void R_R_atanh_R_R (object x, object y)
       temp = F_I_scale_float_F(STACK_6,Fixnum_1); /* 2x */
       temp = F_F_durch_F(temp,STACK_0); /* 2x/(1+x^2+y^2) */
       temp = F_atanhx_F(temp); /* atanh */
-      temp = F_I_scale_float_F(temp,Fixnum_minus1); /* .../2 =: u */
+      STACK_6 = F_I_scale_float_F(temp,Fixnum_minus1); /* .../2 =: u */
     } else {
       temp = R_square_R(STACK_3); /* (1+x)^2 */
       STACK_0 = R_R_plus_R(temp,STACK_1); /* (1+x)^2+y^2, a float >=0 */
