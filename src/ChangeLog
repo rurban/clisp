@@ -1,3 +1,9 @@
+2003-01-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Fix MSVC compilation without libsigsegv
+	* spvw.d (main) [WIN32_NATIVE]: don't init SP_bound when
+	NO_SP_CHECK - SP_bount isn't declared.
+
 2003-01-02  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d [WIDE_HARD]: treat UNIX_NETBSD on DECALPHA just like
