@@ -123,11 +123,23 @@ to print the corresponding values, or T for all of them.")
     (clear-output target-stream)
 ) )
 
+(defun list-length-dotted (obj)
+  ;; return the length of the list or nil if circular
+  ;; the second value is the last atom (i.e., `dotted-p')
+  ;; cf. function list-length in CLtL p. 265
+  (do ((nn 0 (+ nn 2))
+       (fast obj (cddr fast))
+       (slow obj (cdr slow)))
+      (nil)
+    (when (atom fast) (return (values nn fast)))
+    (when (atom (cdr fast)) (return (values (1+ nn) (cdr fast))))
+    (when (eq (cdr fast) slow) (return nil))))
+
 ; List of objects which have been described during the current top-level call.
 (defvar *describe-done*)
 
 (defun describe-slotted-object (object stream)
-  (let ((slotnames (mapcar #'clos::slotdef-name (clos::class-slots (clos:class-of object)))))
+  (let ((slotnames (clos::slot-names object)))
     (if slotnames
       (let* ((slotstrings (mapcar #'write-to-string slotnames)) more
              (tabpos (+ *print-indent-lists* 4 (reduce #'max (mapcar #'length slotstrings)))))
@@ -204,24 +216,17 @@ to print the corresponding values, or T for all of them.")
                 types)))
     (describe-slotted-object obj stream))
   (:method ((obj cons) (stream stream))
-    (let ((len ; cf. function list-length in CLtL p. 265
-           (do ((n 0 (+ n 2))
-                (fast obj (cddr fast))
-                (slow obj (cdr slow)))
-               (nil)
-             (when (atom fast) (return n))
-             (when (atom (cdr fast)) (return (1+ n)))
-             (when (eq (cdr fast) slow) (return nil)))))
+    (multiple-value-bind (len dotted-p) (list-length-dotted obj)
       (if len
-        (if (null (nthcdr len obj))
-          (format stream (ENGLISH "a list of length ~S.")
-                  len)
+        (if dotted-p
           (if (> len 1)
             (format stream (ENGLISH "a dotted list of length ~S.")
                     len)
             (progn (format stream (ENGLISH "a cons."))
                    (describe (car obj) stream)
-                   (describe (cdr obj) stream))))
+                   (describe (cdr obj) stream)))
+          (format stream (ENGLISH "a list of length ~S.")
+                  len))
         (format stream (ENGLISH "a cyclic list.")))))
   (:method ((obj null) (stream stream))
     (format stream (ENGLISH "the empty list, "))
