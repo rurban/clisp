@@ -1,5 +1,9 @@
 2004-12-18  Sam Steingold  <sds@gnu.org>
 
+	* conditions.tst: test (setf readtable-case)
+
+2004-12-18  Sam Steingold  <sds@gnu.org>
+
 	* pack11.tst: tests for setfable package case properties
 
 2004-12-12  Bruno Haible  <bruno@clisp.org>

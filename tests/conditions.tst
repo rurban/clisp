@@ -591,6 +591,18 @@ T
                 (cell-error (cell-error-name c))))))
 use-value-read
 
+(let ((table (copy-readtable nil)))
+  (and (eq :upcase (readtable-case table))
+       (setf (readtable-case table) :invert)
+       (let ((copy (copy-readtable table)))
+         (and (not (eq table copy))
+              (eq (readtable-case copy) :invert)))))
+T
+
+(handler-bind ((type-error #'use-value-read))
+  (setf (readtable-case (copy-readtable nil)) ":UPCASE"))
+:UPCASE
+
 (handler-bind ((error (lambda (c) (princ-error c) (use-value '+))))
   (eval '(function "+")))
 #.#'+
