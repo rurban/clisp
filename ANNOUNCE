@@ -9,15 +9,15 @@ FTP resources
 CLISP is available via anonymous ftp from ftp2.cons.org, directory
 /pub/lisp/clisp/.
 
-This directory is mirrored by the following FTP sites:
+This directory is mirrored by the following FTP site:
   Europe:
      rs104.hrz.th-darmstadt.de [130.83.47.112]
        /pub/programming/languages/lisp/clisp
+
+Other ftp sites, carrying old versions of CLISP, are
   USA:
      gatekeeper.dec.com [16.1.0.2]
        pub/plan/lisp/clisp/
-
-Other ftp sites, carrying old versions of CLISP, are
   New Zealand, Australia:
      ftp.math.waikato.ac.nz [130.217.237.9]
        /pub/clisp-mirror
@@ -60,7 +60,7 @@ WWW resources
 * Documentation about Common Lisp:
 
   CLtL2 manual in HTML
-  ftp.cs.cmu.edu:/user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
+  ftp://ftp.cs.cmu.edu/user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
   http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cltl2.html
   [Mark Kantrowitz]
 
@@ -91,7 +91,6 @@ WWW resources
 
   Garnet 3.0
   http://www.cs.cmu.edu/afs/cs.cmu.edu/project/garnet/www/garnet-home.html
-  ftp://a.gp.cs.cmu.edu/usr/garnet/garnet/
   [Brad A. Myers, Andrew Mickish and others]
 
   Hybrid graphic expert system shell
@@ -99,7 +98,7 @@ WWW resources
   [Hans Groschwitz]
 
   Punimax, a rather antiquated computer algebra system
-  ftp://ma2s2.mathematik.uni-karlsruhe.de/pub/math/punimax/
+  ftp://tsx-11.mit.edu/pub/linux/packages/lisp/
   http://www.can.nl/SystemsOverview/General/PUNIMAX.html
 
   New Millenium Space Flight Mission
@@ -110,11 +109,12 @@ WWW resources
 
 * To access URLs...
 
-  If you don't have Netscape Navigator [commercial!], you can use the following
-  WWW browsers:
+  Netscape Navigator is recommended. It is free of charge. Alternative WWW
+  browsers are:
 
   Lynx (terminal):              ftp2.cc.ukans.edu:/pub/lynx
   Mosaic (X Window/Motif):      ftp.ncsa.uiuc.edu:/Web/Mosaic/Unix
+  Amaya (X Window):             ftp.w3.org:/pub/amaya
   Arena (X Window):             ftp-eu.w3.org:/pub/Arena and
                                 ftp.yggdrasil.com:/pub/dist/web/arena
   Chimera (X Window/non-Motif): ftp.cs.unlv.edu:/pub/chimera
