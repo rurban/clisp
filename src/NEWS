@@ -197,6 +197,7 @@ User visible changes
   <http://clisp.cons.org/impnotes.html#translate-logpath> for details.
 
 * New function ABSOLUTE-PATHNAME.
+  See <http://clisp.cons.org/impnotes.html#absolute-pathname> for details.
 
 * TRACE has a new option :MAX-DEPTH, that is useful to avoid infinite
   recursions in the tracer.
