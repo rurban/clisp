@@ -81,6 +81,8 @@ User visible changes
     bind slot names in the arglist of keyword constructors;
   + MAPCAN and MAPCON now correctly handle functions returning ATOMs;
   + removed macro definition from GENERIC-FUNCTION;
+  + APPEND, COPY-ALIST, REVAPPEND, NRECONC, PAIRLIS, GET, GETF,
+    REMPROP, GET-PROPERTIES no longer accept dotted lists;
   + a character is now accepted as a package designator.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite.
 

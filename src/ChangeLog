@@ -1,3 +1,19 @@
+2003-03-08  Sam Steingold  <sds@gnu.org>
+
+	* list.d (cons_from_stack): new function
+	(CONS, copy_tree, subst, sublis, ACONS): use it
+	(LIST): use listof
+	(APPEND, reverse, nreverse, nreconc, COPY-ALIST, REVAPPEND)
+	(NRECONC, sublis_assoc, memq, PAIRLIS, assoc, rassoc):
+	barf on dotted lists, as per ANSI
+	(memq1): removed
+	* list.d, subr.d (MEMQ): seclass_read
+	* constsym.d (PLIST): added
+	* type.lisp (PLIST): new type
+	* symbol.d (fehler_sym_plist_odd, fehler_plist_odd): type_error
+	(get, GETF, %PUTF, %REMF, GET-PROPERTIES, PUT, REMPROP):
+	barf on dotted plists, as per ANSI
+
 2003-03-07  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* spvw.d (main) [WIN32_NATIVE]: init SYS::*PRIN-LINELENGTH* to
@@ -5,7 +21,7 @@
 
 2003-03-07  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: bug fixed: 
+	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: bug fixed:
 	should raise an error when part of directory is an existing
 	file.
 
