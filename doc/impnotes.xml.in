@@ -31,9 +31,11 @@
 <titleabbrev>&clisp; impnotes</titleabbrev>
 
 <bookinfo>
+ <title>Implementation Notes for &gnu; &clisp;.</title>
+ <subtitle>These notes document &clisp; version 2.30.</subtitle>
  <graphic srccredit="[CLISP icon]" align="center"
           fileref="clisp.png" width="48" depth="48"/>
- <date>Last modified: 2002-09-03</date>
+ <date>Last modified: 2002-09-04</date>
  <author id="bruno"><honorific>Dr</honorific> <firstname>Bruno</firstname>
    <surname>Haible</surname></author>
  <author id="sds"><honorific>Dr</honorific> <firstname>Sam</firstname>
