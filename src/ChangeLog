@@ -1,3 +1,18 @@
+2004-04-04  Bruno Haible  <bruno@clisp.org>
+
+	Reduce the amount of consing of SUBTYPEP.
+	* subtypep.lisp (intervals-mapto): Make the local functions autonomous.
+	(intervals-intersection, intervals-union, intervals-subtypep): Use
+	macrolet instead of flet.
+	(intervals-remove-one): Use a combination of an autonomous local
+	function and macrolet.
+	(canonicalize-type): Make the local function autonomous.
+	(*subtypep-type1parts*, *subtypep-type2parts*, *subtypep-type2eqlparts*):
+	New variables.
+	(subtypep-flatten-AND, subtypep-flatten-OR): New functions.
+	(subtypep-logic): Use them. Use declarations to convince the compiler
+	to expand EVERY, REMOVE-IF, REMOVE-IF-NOT calls inline.
+
 2004-03-28  Bruno Haible  <bruno@clisp.org>
 
 	Integrate the ansi-tests from Paul Dietz.
