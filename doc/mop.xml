@@ -460,40 +460,6 @@ restrictions:<itemizedlist>
 </simpara></listitem></orderedlist></para></listitem>
 </itemizedlist></para>
 
-<section id="mop-impl-restrictions">
- <title>Restrictions on Implementations</title>
-
-<para>Implementations are allowed latitude to modify the structure of
-specified classes and methods.  This includes: the interposition of
-implementation-specific classes; the promotion of specified methods; and
-the consolidation of two or more specified methods into a single method
-specialized to interposed classes.</para>
-
-<para>Any such modifications are permitted only so long as for any
-portable class &k-r; that is a subclass of one or more specified classes
-&k1-r; ... &kn-r;, the following conditions are met:<itemizedlist>
-<listitem><simpara>In the actual class precedence list of &k-r;, the
-  classes &k1-r; ... &kn-r; must appear in the same order as they would
-  have if no implementation-specific modifications had been made.
-</simpara></listitem>
-<listitem><simpara>The method applicability of any specified generic
-  function must be the same in terms of behavior as it would have been
-  had no implementation-specific changes been made.  This includes
-  specified generic functions that have had portable methods added.  In
-  this context, the expression <quote>the same in terms of
-  behavior</quote> means that methods with the same behavior as those
-  specified are applicable, and in the same order.</simpara></listitem>
-<listitem><simpara>No portable class &k-r; may inherit, by virtue of
-  being a direct or indirect subclass of a specified class, any slot for
-  which the name is a symbol accessible in the &clu-pac; package or
-  exported by any package defined in the &ansi-cl;.</simpara></listitem>
-<listitem><simpara>Implementations are free to define
-  implementation-specific before- and after-methods on specified generic
-  functions.  Implementations are also free to define
-  implementation-specific around-methods with extending behavior.
-</simpara></listitem></itemizedlist></para>
-</section><!-- mop-impl-restrictions -->
-
 <section id="mop-portable-restrictions">
  <title>Restrictions on Portable Programs</title>
 
@@ -546,6 +512,40 @@ cannot write.  Object-oriented protocol specification is inherently
 about specifying leeway, and this seems difficult using current
 technology.</simpara></note>
 </section><!-- mop-portable-restrictions -->
+
+<section id="mop-impl-restrictions">
+ <title>Restrictions on Implementations</title>
+
+<para>Implementations are allowed latitude to modify the structure of
+specified classes and methods.  This includes: the interposition of
+implementation-specific classes; the promotion of specified methods; and
+the consolidation of two or more specified methods into a single method
+specialized to interposed classes.</para>
+
+<para>Any such modifications are permitted only so long as for any
+portable class &k-r; that is a subclass of one or more specified classes
+&k1-r; ... &kn-r;, the following conditions are met:<itemizedlist>
+<listitem><simpara>In the actual class precedence list of &k-r;, the
+  classes &k1-r; ... &kn-r; must appear in the same order as they would
+  have if no implementation-specific modifications had been made.
+</simpara></listitem>
+<listitem><simpara>The method applicability of any specified generic
+  function must be the same in terms of behavior as it would have been
+  had no implementation-specific changes been made.  This includes
+  specified generic functions that have had portable methods added.  In
+  this context, the expression <quote>the same in terms of
+  behavior</quote> means that methods with the same behavior as those
+  specified are applicable, and in the same order.</simpara></listitem>
+<listitem><simpara>No portable class &k-r; may inherit, by virtue of
+  being a direct or indirect subclass of a specified class, any slot for
+  which the name is a symbol accessible in the &clu-pac; package or
+  exported by any package defined in the &ansi-cl;.</simpara></listitem>
+<listitem><simpara>Implementations are free to define
+  implementation-specific before- and after-methods on specified generic
+  functions.  Implementations are also free to define
+  implementation-specific around-methods with extending behavior.
+</simpara></listitem></itemizedlist></para>
+</section><!-- mop-impl-restrictions -->
 </section><!-- mop-ov-impl-and-user-spec -->
 </section><!-- mop-mo-cl-inheritance -->
 
@@ -861,6 +861,98 @@ implementation.</para>
 
 &result-immutable-all;
 
+<!-- begin class basic introspection -->
+
+<simplesect id="class-name">
+ <title>Generic Function &class-name;</title>
+ <subtitle><literal role="sexp">(&class-name; &class-r;)</literal></subtitle>
+
+<para>Returns the name of &class-r;.  This value can be any Lisp object,
+but is usually a symbol, or &nil; if the class has no name.  This is the
+defaulted value of the &name-k; initialization argument that was
+associated with the class during initialization or reinitialization.
+(Also see &setf-class-name;.)
+</para></simplesect>
+
+<simplesect id="class-direct-superclasses">
+ <title>Generic Function &class-direct-superclasses;</title>
+ <subtitle><literal role="sexp">(&class-direct-superclasses;
+   &class-r;)</literal></subtitle>
+
+<para>Returns a list of the direct superclasses of &class-r;.  The
+elements of this list are class metaobjects.  The empty list is returned
+if &class-r; has no direct superclasses.  This is the defaulted value of
+the &direct-superclasses-k; initialization argument that was associated
+with the class during initialization or reinitialization.
+</para></simplesect>
+
+<simplesect id="class-direct-slots">
+ <title>Generic Function &class-direct-slots;</title>
+ <subtitle><literal role="sexp">(&class-direct-slots;
+   &class-r;)</literal></subtitle>
+
+<para>Returns a set of the direct slots of &class-r;.  The elements of
+this set are direct slot definition metaobjects.  If the class has no
+direct slots, the empty set is returned.  This is the defaulted value of
+the &direct-slots-k; initialization argument that was associated with
+the class during initialization and reinitialization.
+</para></simplesect>
+
+<simplesect id="class-direct-default-initargs">
+ <title>Generic Function &class-direct-default-initargs;</title>
+ <subtitle><literal role="sexp">(&class-direct-default-initargs;
+   &class-r;)</literal></subtitle>
+
+<para>Returns a list of the direct default initialization arguments for
+&class-r;.  Each element of this list is a canonicalized default
+initialization argument.  The empty list is returned if &class-r; has no
+direct default initialization arguments.  This is the defaulted value of
+the &direct-default-initargs-k; initialization argument that was
+associated with the class during initialization or reinitialization.
+</para></simplesect>
+
+<simplesect id="cpl"><title>Generic Function &cpl;</title>
+ <subtitle><literal role="sexp">(&cpl; &class-r;)</literal></subtitle>
+
+<para>Returns the class precedence list of &class-r;.  The elements of
+this list are class metaobjects.</para>
+
+<para>During class finalization &finalize-inheritance; calls
+&compute-cpl; to compute the class precedence list of the class.  That
+value is associated with the class metaobject and is returned by &cpl;.
+</para>
+
+<para>This generic function &sig-err; if &class-r; has not been finalized.
+</para></simplesect>
+
+<simplesect id="class-direct-subclasses">
+ <title>Generic Function &class-direct-subclasses;</title>
+ <subtitle><literal role="sexp">(&class-direct-subclasses;
+   &class-r;)</literal></subtitle>
+
+<para>Returns a set of the direct subclasses of &class-r;. The elements
+of this set are class metaobjects that all mention this class among
+their direct superclasses.  The empty set is returned if &class-r; has
+no direct subclasses.  This value is maintained by the generic functions
+&add-direct-subclass; and &remove-direct-subclass;.
+</para></simplesect>
+
+<simplesect id="class-slots">
+ <title>Generic Function &class-slots;</title>
+ <subtitle><literal role="sexp">(&class-slots; &class-r;)</literal></subtitle>
+
+<para>Returns a possibly empty set of the slots accessible in instances
+of &class-r;.  The elements of this set are effective slot definition
+metaobjects.</para>
+
+<para>During class finalization &finalize-inheritance; calls
+&compute-slots; to compute the slots of the class.  That value is
+associated with the class metaobject and is returned by &class-slots;.
+</para>
+
+<para>This generic function &sig-err; if &class-r; has not been finalized.
+</para></simplesect>
+
 <simplesect id="class-default-initargs">
  <title>Generic Function &class-default-initargs;</title>
  <subtitle><literal role="sexp">(&class-default-initargs;
@@ -880,54 +972,9 @@ metaobject and is returned by &class-default-initargs;.</para>
 finalized.</para>
 </simplesect>
 
-<simplesect id="class-direct-default-initargs">
- <title>Generic Function &class-direct-default-initargs;</title>
- <subtitle><literal role="sexp">(&class-direct-default-initargs;
-   &class-r;)</literal></subtitle>
+<!-- end class basic introspection -->
 
-<para>Returns a list of the direct default initialization arguments for
-&class-r;.  Each element of this list is a canonicalized default
-initialization argument.  The empty list is returned if &class-r; has no
-direct default initialization arguments.  This is the defaulted value of
-the &direct-default-initargs-k; initialization argument that was
-associated with the class during initialization or reinitialization.
-</para></simplesect>
-
-<simplesect id="class-direct-slots">
- <title>Generic Function &class-direct-slots;</title>
- <subtitle><literal role="sexp">(&class-direct-slots;
-   &class-r;)</literal></subtitle>
-
-<para>Returns a set of the direct slots of &class-r;.  The elements of
-this set are direct slot definition metaobjects.  If the class has no
-direct slots, the empty set is returned.  This is the defaulted value of
-the &direct-slots-k; initialization argument that was associated with
-the class during initialization and reinitialization.
-</para></simplesect>
-
-<simplesect id="class-direct-subclasses">
- <title>Generic Function &class-direct-subclasses;</title>
- <subtitle><literal role="sexp">(&class-direct-subclasses;
-   &class-r;)</literal></subtitle>
-
-<para>Returns a set of the direct subclasses of &class-r;. The elements
-of this set are class metaobjects that all mention this class among
-their direct superclasses.  The empty set is returned if &class-r; has
-no direct subclasses.  This value is maintained by the generic functions
-&add-direct-subclass; and &remove-direct-subclass;.
-</para></simplesect>
-
-<simplesect id="class-direct-superclasses">
- <title>Generic Function &class-direct-superclasses;</title>
- <subtitle><literal role="sexp">(&class-direct-superclasses;
-   &class-r;)</literal></subtitle>
-
-<para>Returns a list of the direct superclasses of &class-r;.  The
-elements of this list are class metaobjects.  The empty list is returned
-if &class-r; has no direct superclasses.  This is the defaulted value of
-the &direct-superclasses-k; initialization argument that was associated
-with the class during initialization or reinitialization.
-</para></simplesect>
+<!-- begin class advanced introspection -->
 
 <simplesect id="class-finalized-p">
  <title>Generic Function &class-finalized-p;</title>
@@ -936,31 +983,6 @@ with the class during initialization or reinitialization.
 
 <para>Returns true if &class-r; has been finalized.  Returns false
 otherwise.  Also returns false if the class has not been initialized.
-</para></simplesect>
-
-<simplesect id="class-name">
- <title>Generic Function &class-name;</title>
- <subtitle><literal role="sexp">(&class-name; &class-r;)</literal></subtitle>
-
-<para>Returns the name of &class-r;.  This value can be any Lisp object,
-but is usually a symbol, or &nil; if the class has no name.  This is the
-defaulted value of the &name-k; initialization argument that was
-associated with the class during initialization or reinitialization.
-(Also see &setf-class-name;.)
-</para></simplesect>
-
-<simplesect id="cpl"><title>Generic Function &cpl;</title>
- <subtitle><literal role="sexp">(&cpl; &class-r;)</literal></subtitle>
-
-<para>Returns the class precedence list of &class-r;.  The elements of
-this list are class metaobjects.</para>
-
-<para>During class finalization &finalize-inheritance; calls
-&compute-cpl; to compute the class precedence list of the class.  That
-value is associated with the class metaobject and is returned by &cpl;.
-</para>
-
-<para>This generic function &sig-err; if &class-r; has not been finalized.
 </para></simplesect>
 
 <simplesect id="class-prototype">
@@ -999,21 +1021,7 @@ portable program modifies the binding of any slot of a prototype instance.
 </programlisting></para>
 </informalexample></simplesect>
 
-<simplesect id="class-slots">
- <title>Generic Function &class-slots;</title>
- <subtitle><literal role="sexp">(&class-slots; &class-r;)</literal></subtitle>
-
-<para>Returns a possibly empty set of the slots accessible in instances
-of &class-r;.  The elements of this set are effective slot definition
-metaobjects.</para>
-
-<para>During class finalization &finalize-inheritance; calls
-&compute-slots; to compute the slots of the class.  That value is
-associated with the class metaobject and is returned by &class-slots;.
-</para>
-
-<para>This generic function &sig-err; if &class-r; has not been finalized.
-</para></simplesect>
+<!-- end class advanced introspection -->
 
 <simplesect id="mop-cl-readers-methods"><title>Methods</title>
 
@@ -1404,6 +1412,8 @@ any dependents of the class metaobject will be updated by calling
 
 <section id="mop-cl-customize"><title>Customization</title>
 
+<!-- begin class basic customization -->
+
 <section id="setf-class-name"><title>Generic Function &setf-class-name;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
@@ -1691,6 +1701,10 @@ any dependents of the class metaobject will be updated by calling
 </simpara></listitem></varlistentry></variablelist>
 </section><!-- alloc-instance -->
 
+<!-- end class basic customization -->
+
+<!-- begin class advanced customization -->
+
 <section id="validate-superclass">
  <title>Generic Function &validate-superclass;</title>
 
@@ -1741,6 +1755,40 @@ any dependents of the class metaobject will be updated by calling
  true for two different class metaobject classes declares that they are
  compatible.</para></formalpara>
 </section><!-- validate-superclass -->
+
+<section id="dsd-class"><title>Generic Function &dsd-class;</title>
+
+<variablelist><varlistentry><term>Syntax</term>
+ <listitem><simpara><literal role="sexp">(&dsd-class;
+    &class-r; &rest-amp; &initargs-r;)
+ </literal></simpara></listitem></varlistentry>
+<varlistentry><term>Arguments</term>
+ <listitem><variablelist>
+   <varlistentry><term>&class-r;</term>
+    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+   <varlistentry><term>&initargs-r;</term>
+    <listitem><simpara>a set of initialization arguments and values.
+</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+<varlistentry><term>Values</term>
+ <listitem><simpara>The value returned is a subclass of the class &dsd-t;.
+</simpara></listitem></varlistentry>
+<varlistentry><term>Purpose</term>
+ <listitem><simpara>When a class is initialized, each of the
+   canonicalized slot specifications must be converted to a direct slot
+   definition metaobject.  This generic function is called to determine
+   the class of that direct slot definition metaobject.</simpara>
+  <simpara>The &initargs-r; argument is simply the canonicalized slot
+   specification for the slot.
+</simpara></listitem></varlistentry></variablelist>
+
+<variablelist><title>Methods</title>
+ <varlistentry><term><literal role="method">(&dsd-class;
+    (&class-r; &standard-class;) &rest-amp; &initargs-r;)</literal></term>
+  <term><literal role="method">(&dsd-class; (&class-r;
+    &funcallable-standard-class;) &rest-amp; &initargs-r;)</literal></term>
+ <listitem><simpara>These methods return the class &standard-dsd-t;.
+  </simpara>&overridables;</listitem></varlistentry></variablelist>
+</section><!-- dsd-class -->
 
 <section id="compute-cpl"><title>Generic Function &compute-cpl;</title>
 
@@ -1838,40 +1886,6 @@ any dependents of the class metaobject will be updated by calling
    These methods cannot be overridden.
 </simpara></listitem></varlistentry></variablelist>
 </section><!-- compute-slots -->
-
-<section id="dsd-class"><title>Generic Function &dsd-class;</title>
-
-<variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&dsd-class;
-    &class-r; &rest-amp; &initargs-r;)
- </literal></simpara></listitem></varlistentry>
-<varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
-   <varlistentry><term>&initargs-r;</term>
-    <listitem><simpara>a set of initialization arguments and values.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The value returned is a subclass of the class &dsd-t;.
-</simpara></listitem></varlistentry>
-<varlistentry><term>Purpose</term>
- <listitem><simpara>When a class is initialized, each of the
-   canonicalized slot specifications must be converted to a direct slot
-   definition metaobject.  This generic function is called to determine
-   the class of that direct slot definition metaobject.</simpara>
-  <simpara>The &initargs-r; argument is simply the canonicalized slot
-   specification for the slot.
-</simpara></listitem></varlistentry></variablelist>
-
-<variablelist><title>Methods</title>
- <varlistentry><term><literal role="method">(&dsd-class;
-    (&class-r; &standard-class;) &rest-amp; &initargs-r;)</literal></term>
-  <term><literal role="method">(&dsd-class; (&class-r;
-    &funcallable-standard-class;) &rest-amp; &initargs-r;)</literal></term>
- <listitem><simpara>These methods return the class &standard-dsd-t;.
-  </simpara>&overridables;</listitem></varlistentry></variablelist>
-</section><!-- dsd-class -->
 
 <section id="compute-esd"><title>Generic Function &compute-esd;</title>
 
@@ -2009,6 +2023,8 @@ any dependents of the class metaobject will be updated by calling
   &overridables;</listitem></varlistentry></variablelist>
 </section><!-- compute-default-initargs -->
 
+<!-- end class advanced customization -->
+
 </section><!-- mop-cl-customize -->
 
 <section id="mop-cl-dep"><title>Updating Dependencies</title>
@@ -2114,7 +2130,18 @@ implementation.</para>
 
 &result-immutable-all;
 
+<!-- begin slot-definition basic introspection -->
+
 <section id="mop-sd-readers-GFs"><title>Generic Functions</title>
+
+<simplesect id="slotdef-name">
+ <title>Generic Function &slotdef-name;</title>
+ <subtitle><literal role="sexp">(&slotdef-name; &slot-r;)</literal></subtitle>
+
+<para>Returns the name of &slot-r;.  This value is a symbol that can be
+used as a variable name.  This is the value of the &name-k;
+initialization argument that was associated with the slot definition
+metaobject during initialization.</para></simplesect>
 
 <simplesect id="slotdef-allocation">
  <title>Generic Function &slotdef-allocation;</title>
@@ -2124,16 +2151,6 @@ implementation.</para>
 <para>Returns the allocation of &slot-r;.  This is a symbol.  This is
 the defaulted value of the &allocation-k; initialization argument that
 was associated with the slot definition metaobject during
-initialization.</para></simplesect>
-
-<simplesect id="slotdef-initargs">
- <title>Generic Function &slotdef-initargs;</title>
- <subtitle><literal role="sexp">(&slotdef-initargs;
-   &slot-r;)</literal></subtitle>
-
-<para>Returns the set of initialization argument keywords for &slot-r;.
-This is the defaulted value of the &initargs-k; initialization argument
-that was associated with the slot definition metaobject during
 initialization.</para></simplesect>
 
 <simplesect id="slotdef-initform">
@@ -2159,15 +2176,6 @@ has no initialization function.  This is the defaulted value of the
 &initfunction-k; initialization argument that was associated with the
 slot definition metaobject during initialization.</para></simplesect>
 
-<simplesect id="slotdef-name">
- <title>Generic Function &slotdef-name;</title>
- <subtitle><literal role="sexp">(&slotdef-name; &slot-r;)</literal></subtitle>
-
-<para>Returns the name of &slot-r;.  This value is a symbol that can be
-used as a variable name.  This is the value of the &name-k;
-initialization argument that was associated with the slot definition
-metaobject during initialization.</para></simplesect>
-
 <simplesect id="slotdef-type">
  <title>Generic Function &slotdef-type;</title>
  <subtitle><literal role="sexp">(&slotdef-type; &slot-r;)</literal></subtitle>
@@ -2175,6 +2183,16 @@ metaobject during initialization.</para></simplesect>
 <para>Returns the allocation of &slot-r;.  This is a type specifier
 name.  This is the defaulted value of the &name-k; initialization
 argument that was associated with the slot definition metaobject during
+initialization.</para></simplesect>
+
+<simplesect id="slotdef-initargs">
+ <title>Generic Function &slotdef-initargs;</title>
+ <subtitle><literal role="sexp">(&slotdef-initargs;
+   &slot-r;)</literal></subtitle>
+
+<para>Returns the set of initialization argument keywords for &slot-r;.
+This is the defaulted value of the &initargs-k; initialization argument
+that was associated with the slot definition metaobject during
 initialization.</para></simplesect>
 </section><!-- mop-sd-readers-GFs -->
 
@@ -2232,6 +2250,10 @@ slot definition metaobject during initialization.
 
 </section><!-- slotd-mo-readers-dsd -->
 
+<!-- end slot-definition basic introspection -->
+
+<!-- begin slot-definition advanced introspection -->
+
 <section id="slotd-mo-readers-esd">
  <title>Effective Slot Definition Metaobjects</title>
 
@@ -2257,6 +2279,9 @@ slot definition metaobject during initialization.
 </simpara></listitem></varlistentry></variablelist></simplesect>
 
 </section><!-- slotd-mo-readers-esd -->
+
+<!-- end slot-definition advanced introspection -->
+
 </section><!-- mop-sd-readers -->
 
 <section id="mop-sd-init">
@@ -2412,6 +2437,37 @@ implementation.</para>
 
 &result-immutable-all;
 
+<!-- begin generic-function basic introspection -->
+
+<simplesect id="gf-name">
+ <title>Generic Function &gf-name;</title>
+ <subtitle><literal role="sexp">(&gf-name; &gf-r;)</literal></subtitle>
+
+<para>Returns the name of the generic function, or &nil; if the generic
+function has no name.  This is the defaulted value of the &name-k;
+initialization argument that was associated with the generic function
+metaobject during initialization or reinitialization.  (See also
+&setf-gf-name;.)</para></simplesect>
+
+<simplesect id="gf-methods">
+ <title>Generic Function &gf-methods;</title>
+ <subtitle><literal role="sexp">(&gf-methods; &gf-r;)</literal></subtitle>
+
+<para>Returns the set of methods currently connected to the generic
+function.  This is a set of method metaobjects.  This value is
+maintained by the generic functions &add-method; and &remove-method;.
+</para></simplesect>
+
+<simplesect id="gf-lambda-list">
+ <title>Generic Function &gf-lambda-list;</title>
+ <subtitle><literal role="sexp">(&gf-lambda-list; &gf-r;)</literal></subtitle>
+
+<para>Returns the &lalist; of the generic function.  This is the
+defaulted value of the &lambda-list-k; initialization argument that was
+associated with the generic function metaobject during initialization or
+reinitialization.  An &err-sig; if the &lalist; has yet to be
+supplied.</para></simplesect>
+
 <simplesect id="gf-argument-precedence-order">
  <title>Generic Function &gf-argument-precedence-order;</title>
  <subtitle><literal role="sexp">(&gf-argument-precedence-order;
@@ -2425,6 +2481,10 @@ argument that was associated with the generic function metaobject during
 initialization or reinitialization.
 </para></simplesect>
 
+<!-- end generic-function basic introspection -->
+
+<!-- begin generic-function advanced introspection -->
+
 <simplesect id="gf-declarations">
  <title>Generic Function &gf-declarations;</title>
  <subtitle><literal role="sexp">(&gf-declarations;
@@ -2435,16 +2495,6 @@ function.  The elements of this list are declarations.  This list is the
 defaulted value of the &declarations-k; initialization argument that was
 associated with the generic function metaobject during initialization or
 reinitialization.</para></simplesect>
-
-<simplesect id="gf-lambda-list">
- <title>Generic Function &gf-lambda-list;</title>
- <subtitle><literal role="sexp">(&gf-lambda-list; &gf-r;)</literal></subtitle>
-
-<para>Returns the &lalist; of the generic function.  This is the
-defaulted value of the &lambda-list-k; initialization argument that was
-associated with the generic function metaobject during initialization or
-reinitialization.  An &err-sig; if the &lalist; has yet to be
-supplied.</para></simplesect>
 
 <simplesect id="gf-method-class">
  <title>Generic Function &gf-method-class;</title>
@@ -2467,24 +2517,7 @@ method combination metaobject.  This is the defaulted value of the
 the generic function metaobject during initialization or reinitialization.
 </para></simplesect>
 
-<simplesect id="gf-methods">
- <title>Generic Function &gf-methods;</title>
- <subtitle><literal role="sexp">(&gf-methods; &gf-r;)</literal></subtitle>
-
-<para>Returns the set of methods currently connected to the generic
-function.  This is a set of method metaobjects.  This value is
-maintained by the generic functions &add-method; and &remove-method;.
-</para></simplesect>
-
-<simplesect id="gf-name">
- <title>Generic Function &gf-name;</title>
- <subtitle><literal role="sexp">(&gf-name; &gf-r;)</literal></subtitle>
-
-<para>Returns the name of the generic function, or &nil; if the generic
-function has no name.  This is the defaulted value of the &name-k;
-initialization argument that was associated with the generic function
-metaobject during initialization or reinitialization.  (See also
-&setf-gf-name;.)</para></simplesect>
+<!-- end generic-function advanced introspection -->
 
 <simplesect id="gf-name-methods"><title>Methods</title>
 
@@ -2743,6 +2776,8 @@ restrictions.</para>
 
 <section id="mop-gf-customize"><title>Customization</title>
 
+<!-- begin generic-function basic customization -->
+
 <section id="setf-gf-name"><title>Generic Function &setf-gf-name;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
@@ -2987,6 +3022,10 @@ restrictions.</para>
    (&method-r; &standard-method-t;))</literal></term>
  <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
 </section><!-- mop-remove-method -->
+
+<!-- end generic-function basic customization -->
+
+<!-- begin generic-function advanced customization -->
 
 <section id="compute-applicable-methods">
  <title>Generic Function &compute-applicable-methods-mop;</title>
@@ -3379,6 +3418,9 @@ override the system's definitions.</para>
   <listitem>&no-extra-spec;
    &overridable;</listitem></varlistentry></variablelist>
 </section><!-- compute-discriminating-function -->
+
+<!-- end generic-function advanced customization -->
+
 </section><!-- mop-gf-customize -->
 </section><!-- mop-gf -->
 
@@ -3401,35 +3443,7 @@ if the method metaobject has not been initialized.</para>
 
 &result-immutable-all;
 
-<simplesect id="method-function">
- <title>Generic Function &method-function;</title>
- <subtitle><literal role="sexp">(&method-function;
-   &method-r;)</literal></subtitle>
-
-<para>Returns the method function of &method-r;.  This is the defaulted
-value of the &function-k; initialization argument that was associated
-with the method during initialization.</para></simplesect>
-
-<simplesect id="method-gf">
- <title>Generic Function &method-gf;</title>
- <subtitle><literal role="sexp">(&method-gf; &method-r;)</literal></subtitle>
-
-<para>Returns the generic function that &method-r; is currently
-connected to, or &nil; if it is not currently connected to any generic
-function.  This value is either a generic function metaobject or &nil;.
-When a method is first created it is not connected to any generic
-function.  This connection is maintained by the generic functions
-&add-method; and &remove-method;.</para></simplesect>
-
-<simplesect id="method-lambda-list">
- <title>Generic Function &method-lambda-list;</title>
- <subtitle><literal role="sexp">(&method-lambda-list;
-   &method-r;)</literal></subtitle>
-
-<para>Returns the (unspecialized) &lalist; of &method-r;.  This value
-is a &cl; &lalist;.  This is the defaulted value of the &lambda-list-k;
-initialization argument that was associated with the method during
-initialization.</para></simplesect>
+<!-- begin method basic introspection -->
 
 <simplesect id="method-specializers">
  <title>Generic Function &method-specializers;</title>
@@ -3451,7 +3465,41 @@ This value is a list of non-&nil; atoms.  This is the defaulted value of
 the &qualifiers-k; initialization argument that was associated with the
 method during initialization.</para></simplesect>
 
+<simplesect id="method-lambda-list">
+ <title>Generic Function &method-lambda-list;</title>
+ <subtitle><literal role="sexp">(&method-lambda-list;
+   &method-r;)</literal></subtitle>
 
+<para>Returns the (unspecialized) &lalist; of &method-r;.  This value
+is a &cl; &lalist;.  This is the defaulted value of the &lambda-list-k;
+initialization argument that was associated with the method during
+initialization.</para></simplesect>
+
+<!-- end method basic introspection -->
+
+<!-- begin method advanced introspection -->
+
+<simplesect id="method-gf">
+ <title>Generic Function &method-gf;</title>
+ <subtitle><literal role="sexp">(&method-gf; &method-r;)</literal></subtitle>
+
+<para>Returns the generic function that &method-r; is currently
+connected to, or &nil; if it is not currently connected to any generic
+function.  This value is either a generic function metaobject or &nil;.
+When a method is first created it is not connected to any generic
+function.  This connection is maintained by the generic functions
+&add-method; and &remove-method;.</para></simplesect>
+
+<simplesect id="method-function">
+ <title>Generic Function &method-function;</title>
+ <subtitle><literal role="sexp">(&method-function;
+   &method-r;)</literal></subtitle>
+
+<para>Returns the method function of &method-r;.  This is the defaulted
+value of the &function-k; initialization argument that was associated
+with the method during initialization.</para></simplesect>
+
+<!-- end method advanced introspection -->
 
 <simplesect id="mop-meth-mo-readers-methods"><title>Methods</title>
 
@@ -3800,8 +3848,11 @@ restrictions.</para>
 &else-undefined;
 </simplesect>
 </section><!-- mop-meth-init-mo -->
+</section><!-- mop-meth-init -->
 
 <section id="mop-meth-customize"><title>Customization</title>
+
+<!-- begin method advanced customization -->
 
 <section id="extract-lambda-list"><title>Function &extract-lambda-list;</title>
 
@@ -3880,13 +3931,17 @@ restrictions.</para>
  <literal role="data">(T (EQL X) T)</literal>
 </programlisting></informalexample></para></formalpara>
 </section><!-- extract-specializer-names -->
+
+<!-- end method advanced customization -->
+
 </section><!-- mop-meth-customize -->
-</section><!-- mop-meth-init -->
 </section><!-- mop-meth -->
 
 <section id="mop-accessors"><title>Accessor Methods</title>
 
 <section id="mop-acc-readers"><title>Introspection</title>
+
+<!-- begin accessor-method basic introspection -->
 
 <simplesect id="accessor-method-slotdef">
  <title>Generic Function &accessor-method-slotdef;</title>
@@ -3897,9 +3952,14 @@ restrictions.</para>
 the direct slot definition metaobject that defined this method.  This is
 the value of the &slotdef-k; initialization argument associated with the
 method during initialization.</para></simplesect>
+
+<!-- end accessor-method basic introspection -->
+
 </section><!-- mop-acc-readers -->
 
 <section id="mop-acc-customize"><title>Customization</title>
+
+<!-- begin accessor-method advanced customization -->
 
 <section id="reader-method-class">
  <title>Generic Function &reader-method-class;</title>
@@ -3987,12 +4047,16 @@ method during initialization.</para></simplesect>
  &overridables;</listitem></varlistentry></variablelist>
 </section><!-- writer-method-class -->
 
+<!-- end accessor-method advanced customization -->
+
 </section><!-- mop-acc-customize -->
 </section><!-- mop-accessors -->
 
 <section id="mop-specializers"><title>Specializers</title>
 
 <section id="mop-spec-readers"><title>Introspection</title>
+
+<!-- begin specializer basic introspection -->
 
 <section id="eql-specializer-object">
  <title>Function &eql-specializer-object;</title>
@@ -4019,6 +4083,9 @@ method during initialization.</para></simplesect>
    <replaceable>eql-specializer</replaceable> is not an &eql-t;
    specializer.</simpara></listitem></varlistentry></variablelist>
 </section><!-- eql-specializer-object -->
+
+<!-- end specializer basic introspection -->
+
 </section><!-- mop-spec-readers -->
 
 <section id="mop-spec-init"><title>Initialization</title>
@@ -4051,46 +4118,6 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 </section><!-- mop-spec-init -->
 
 <section id="mop-spec-dep"><title>Updating Dependencies</title>
-
-<section id="specializer-direct-gfs">
- <title>Generic Function &specializer-direct-gfs;</title>
-
-<variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&specializer-direct-gfs;
-    &specializer-r;)</literal></simpara></listitem></varlistentry>
-<varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&specializer-r;</term>
-    <listitem><simpara> a specializer metaobject.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem><simpara>The result of this generic function is a possibly
-   empty list of generic function metaobjects.
-</simpara></listitem></varlistentry>
-<varlistentry><term>Purpose</term>
- <listitem><simpara>This generic function returns the possibly empty set
-   of those generic functions which have a method with &specializer-r;
-   as a specializer.  The elements of this set are generic function
-   metaobjects.  This value is maintained by the generic functions
-   &add-direct-method; and &remove-direct-method;.
-</simpara></listitem></varlistentry></variablelist>
-
-<variablelist><title>Methods</title>
-<varlistentry><term><literal role="method">(&specializer-direct-gfs;
-   (&specializer-r; &class;))</literal></term>
-<listitem>&no-extra-spec;
- <para>&also-must-override;<itemizedlist>
-   <listitem><simpara><literal role="method">&add-direct-method;
-      (&class; &method-t;)</literal></simpara></listitem>
-   <listitem><simpara><literal role="method">&remove-direct-method;
-      (&class; &method-t;)</literal></simpara></listitem>
-   <listitem><simpara><literal role="method">&specializer-direct-methods;
-      (&class;)</literal></simpara></listitem>
-</itemizedlist></para></listitem></varlistentry>
-<varlistentry><term><literal role="method">(&specializer-direct-gfs;
-   (&specializer-r; &eql-specializer-t;))</literal></term>
-<listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
-</section><!-- specializer-direct-gfs -->
 
 <section id="specializer-direct-methods">
  <title>Generic Function &specializer-direct-methods;</title>
@@ -4131,6 +4158,46 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
    (&specializer-r; &eql-specializer-t;))</literal></term>
 <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
 </section><!-- specializer-direct-methods -->
+
+<section id="specializer-direct-gfs">
+ <title>Generic Function &specializer-direct-gfs;</title>
+
+<variablelist><varlistentry><term>Syntax</term>
+ <listitem><simpara><literal role="sexp">(&specializer-direct-gfs;
+    &specializer-r;)</literal></simpara></listitem></varlistentry>
+<varlistentry><term>Arguments</term>
+ <listitem><variablelist>
+   <varlistentry><term>&specializer-r;</term>
+    <listitem><simpara> a specializer metaobject.
+</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+<varlistentry><term>Values</term>
+ <listitem><simpara>The result of this generic function is a possibly
+   empty list of generic function metaobjects.
+</simpara></listitem></varlistentry>
+<varlistentry><term>Purpose</term>
+ <listitem><simpara>This generic function returns the possibly empty set
+   of those generic functions which have a method with &specializer-r;
+   as a specializer.  The elements of this set are generic function
+   metaobjects.  This value is maintained by the generic functions
+   &add-direct-method; and &remove-direct-method;.
+</simpara></listitem></varlistentry></variablelist>
+
+<variablelist><title>Methods</title>
+<varlistentry><term><literal role="method">(&specializer-direct-gfs;
+   (&specializer-r; &class;))</literal></term>
+<listitem>&no-extra-spec;
+ <para>&also-must-override;<itemizedlist>
+   <listitem><simpara><literal role="method">&add-direct-method;
+      (&class; &method-t;)</literal></simpara></listitem>
+   <listitem><simpara><literal role="method">&remove-direct-method;
+      (&class; &method-t;)</literal></simpara></listitem>
+   <listitem><simpara><literal role="method">&specializer-direct-methods;
+      (&class;)</literal></simpara></listitem>
+</itemizedlist></para></listitem></varlistentry>
+<varlistentry><term><literal role="method">(&specializer-direct-gfs;
+   (&specializer-r; &eql-specializer-t;))</literal></term>
+<listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
+</section><!-- specializer-direct-gfs -->
 
 <section id="add-direct-method">
  <title>Generic Function &add-direct-method;</title>
@@ -4248,6 +4315,9 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 
 <section id="mop-meth-comb"><title>Method Combinations</title>
 <section id="mop-meth-comb-customize"><title>Customization</title>
+
+<!-- begin method-combination advanced customization -->
+
 <section id="find-method-combination">
  <title>Generic Function &find-method-combination;</title>
 
@@ -4279,6 +4349,9 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 <para>Further details of method combination metaobjects are not specified.
 </para></formalpara>
 </section><!-- find-method-combination -->
+
+<!-- end method-combination advanced customization -->
+
 </section><!-- mop-meth-comb-customize -->
 </section><!-- mop-meth-comb -->
 
@@ -4460,6 +4533,8 @@ objects linked, for example, by hash tables.)
 
 <section id="mop-sa-customize"><title>Customization</title>
 
+<!-- begin slot access basic customization -->
+
 <section id="standard-instance-access">
  <title>Function &standard-instance-access;</title>
 
@@ -4559,6 +4634,10 @@ objects linked, for example, by hash tables.)
    to <replaceable>funcallable-instance</replaceable> will run the new
    function.</simpara></listitem></varlistentry></variablelist>
 </section><!-- set-fif -->
+
+<!-- end slot access basic customization -->
+
+<!-- begin slot access advanced customization -->
 
 <section id="slot-value-UC"><title>Generic Function &slot-value-UC;</title>
 
@@ -4743,6 +4822,9 @@ unbound slots, true should be returned.</para></formalpara>
  <listitem><simpara>This method &sig-err;.
 </simpara></listitem></varlistentry></variablelist>
 </section><!-- slot-makunbound-UC -->
+
+<!-- end slot access advanced customization -->
+
 </section><!-- mop-sa-customize -->
 </section><!-- mop-slot-access -->
 
@@ -4813,6 +4895,57 @@ cache of the dependent when it is updated.</para>
 </programlisting></informalexample>
 
 <section id="mop-dep-maint-protocol"><title>Protocol</title>
+
+<section id="update-dependent">
+ <title>Generic Function &update-dependent;</title>
+
+<variablelist><varlistentry><term>Syntax</term>
+ <listitem><simpara><literal role="sexp">(&update-dependent;
+    &metaobject-r; &dependent-r; &rest-amp; &initargs-r;)
+</literal></simpara></listitem></varlistentry>
+<varlistentry><term>Arguments</term>
+ <listitem><variablelist>
+   <varlistentry><term>&metaobject-r;</term>
+    <listitem><simpara>a class or generic function metaobject -
+      the metaobject being reinitialized or otherwise modified.
+   </simpara></listitem></varlistentry>
+   <varlistentry><term>&dependent-r;</term>
+    <listitem><simpara>an object - the dependent being updated.
+   </simpara></listitem></varlistentry>
+   <varlistentry><term>&initargs-r;</term>
+    <listitem><simpara>a list of the initialization arguments for
+      the metaobject redefinition.</simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
+<varlistentry><term>Values</term>
+ <listitem>&values-unspecified;</listitem></varlistentry>
+<varlistentry><term>Purpose</term>
+ <listitem><simpara>This generic function is called to update a
+   dependent of &metaobject-r;.</simpara>
+  <simpara>When a class or a generic function is reinitialized each of
+   its dependents is updated.  The &initargs-r; argument to
+   &update-dependent; is the set of initialization arguments received by
+   &reinitialize-instance;.</simpara>
+  <simpara>When a method is added to a generic function, each of the
+   generic function's dependents is updated.  The &initargs-r; argument
+   is a list of two elements: the symbol &add-method;, and the method
+   that was added.</simpara>
+  <simpara>When a method is removed from a generic function, each of the
+   generic function's dependents is updated.  The &initargs-r; argument
+   is a list of two elements: the symbol &remove-method;, and the method
+   that was removed.</simpara>
+  <para>In each case, &map-dependents; is used to call
+   &update-dependent; on each of the dependents.  So, for example, the
+   update of a generic function's dependents when a method is added
+   could be performed by the following code:<programlisting>
+  (&map-dependents; &gf-r;
+                  #'(lambda (dep)
+                      (&update-dependent; &gf-r;
+                                        dep
+                                        'add-method
+                                        new-method)))
+</programlisting></para></listitem></varlistentry></variablelist>
+&see-dep-maint;
+</section><!-- update-dependent -->
 
 <section id="add-dependent"><title>Generic Function &add-dependent;</title>
 
@@ -4991,57 +5124,6 @@ cache of the dependent when it is updated.</para>
 </itemizedlist></para></listitem></varlistentry></variablelist>
 &see-dep-maint;
 </section><!-- map-dependents -->
-
-<section id="update-dependent">
- <title>Generic Function &update-dependent;</title>
-
-<variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&update-dependent;
-    &metaobject-r; &dependent-r; &rest-amp; &initargs-r;)
-</literal></simpara></listitem></varlistentry>
-<varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&metaobject-r;</term>
-    <listitem><simpara>a class or generic function metaobject -
-      the metaobject being reinitialized or otherwise modified.
-   </simpara></listitem></varlistentry>
-   <varlistentry><term>&dependent-r;</term>
-    <listitem><simpara>an object - the dependent being updated.
-   </simpara></listitem></varlistentry>
-   <varlistentry><term>&initargs-r;</term>
-    <listitem><simpara>a list of the initialization arguments for
-      the metaobject redefinition.</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
-<varlistentry><term>Values</term>
- <listitem>&values-unspecified;</listitem></varlistentry>
-<varlistentry><term>Purpose</term>
- <listitem><simpara>This generic function is called to update a
-   dependent of &metaobject-r;.</simpara>
-  <simpara>When a class or a generic function is reinitialized each of
-   its dependents is updated.  The &initargs-r; argument to
-   &update-dependent; is the set of initialization arguments received by
-   &reinitialize-instance;.</simpara>
-  <simpara>When a method is added to a generic function, each of the
-   generic function's dependents is updated.  The &initargs-r; argument
-   is a list of two elements: the symbol &add-method;, and the method
-   that was added.</simpara>
-  <simpara>When a method is removed from a generic function, each of the
-   generic function's dependents is updated.  The &initargs-r; argument
-   is a list of two elements: the symbol &remove-method;, and the method
-   that was removed.</simpara>
-  <para>In each case, &map-dependents; is used to call
-   &update-dependent; on each of the dependents.  So, for example, the
-   update of a generic function's dependents when a method is added
-   could be performed by the following code:<programlisting>
-  (&map-dependents; &gf-r;
-                  #'(lambda (dep)
-                      (&update-dependent; &gf-r;
-                                        dep
-                                        'add-method
-                                        new-method)))
-</programlisting></para></listitem></varlistentry></variablelist>
-&see-dep-maint;
-</section><!-- update-dependent -->
 </section><!-- mop-dep-maint-protocol -->
 </section><!-- mop-dep-maint -->
 
