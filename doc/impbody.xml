@@ -1759,8 +1759,7 @@ performance considerations.
   &char-code-header;<tbody>
  <row><entry><keysym>#\Space</keysym></entry>
               <entry><keycode>#x20</keycode></entry></row>
- <row><entry>&nl-c;</entry>
-              <entry><keycode>#x0A</keycode></entry></row>
+ <row><entry>&nl-s;</entry><entry><keycode>#x0A</keycode></entry></row>
 </tbody></tgroup></table>
 
 <table id="semi-standard-char-table" frame="all">
@@ -1771,15 +1770,13 @@ performance considerations.
               <entry><keycode>#x08</keycode></entry></row>
  <row><entry><keysym>#\Tab</keysym></entry>
               <entry><keycode>#x09</keycode></entry></row>
- <row><entry><keysym>#\Linefeed</keysym></entry>
-              <entry><keycode>#x0A</keycode></entry></row>
+ <row><entry>&lf-s;</entry><entry><keycode>#x0A</keycode></entry></row>
  <row><entry><keysym>#\Page</keysym></entry>
               <entry><keycode>#x0C</keycode></entry></row>
- <row><entry>&ret-c;</entry>
-              <entry><keycode>#x0D</keycode></entry></row>
+ <row><entry>&cr-s;</entry><entry><keycode>#x0D</keycode></entry></row>
 </tbody></tgroup></table>
 
-<para>&nl-c; is the &line-term;.</para>
+<para>&nl-s; is the &line-term;.</para>
 
 
 <table id="extra-named-chars-table" frame="all">
@@ -1816,8 +1813,7 @@ performance considerations.
               <entry><keycode>#x1F</keycode></entry></row>
 </tbody></tgroup></table>
 
-<para>See also the section <link linkend="chario">Character
- I/O</link>.</para>
+<para>See also <xref linkend="chario"/>.</para>
 
 
 <section id="input-char"><title>Attributes</title>
@@ -1963,16 +1959,46 @@ are simple characters.</para>
 <variablelist>
 <varlistentry><term>Platform dependent: &win32;
    platforms only.</term>
-<listitem><simpara>When writing to a file, &nl-c; is converted to
+<listitem><simpara>When writing to a file, &nl-s; is converted to
  &cr-c;/&lf-c;. (This is the usual convention on &dos;.)
- For example, &ret-c;+&nl-c; is written as &cr-c;/&cr-c;/&lf-c;.
+ For example, &cr-s;+&nl-s; is written as &cr-c;/&cr-c;/&lf-c;.
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<para>When reading from a file, &cr-c;/&lf-c; is converted to &nl-c;
+<para>When reading from a file, &cr-c;/&lf-c; is converted to &nl-s;
  (the usual convention on &dos;), and &cr-c; not followed by &lf-c; is
- converted to &nl-c; as well (the usual conversion on MacOS, also used
- by some programs on &win32;).</para>
+ converted to &nl-s; as well (the usual conversion on MacOS, also used
+ by some programs on &win32;).
+ If you do not want this, i.e., if you really want to distinguish
+ &lf-c;, &cr-c; and &cr-c;/&lf-c;, you have to resort to
+ binary input (function &read-byte;).</para>
+
+<formalpara><title>Rationale</title>
+<para>In &clisp;, &nl-s; is identical to &lf-s;
+ (which is specifically permitted by &ansi-cl; in section
+ <ulink url="http://www.lisp.org/HyperSpec/Body/sec_13-1-7.html">Character
+  Names</ulink>).
+ Consider a file containing exactly this string:
+ <literal role="sexp">(&concatenate; 'string "foo" (string &lf-s;)
+  "bar" (string &cr-s;) (string &lf-s;))</literal>
+ Suppose we open it with
+ <literal role="sexp">(&open; "foo" &extfmt; &dos-k;)</literal>.
+ What should &read-line; return?
+ Right now, it returns <literal>"foo"</literal> (the second &read-line;
+ returns <literal>"bar"</literal> and reaches &eos;).
+ If our i/o were "faithful", &read-line; would have returned the string
+ <literal role="sexp">(&concatenate; 'string "foo" (string &lf-s;)
+  "bar")</literal>, i.e., a string with an embedded &nl-s;
+ between <literal>"foo"</literal> and <literal>"bar"</literal> (because
+ a single &lf-s; is not a &nl-s; in the specified &extfmt;, it will not
+ make &read-line; return, but it <emphasis>is</emphasis> a CLISP &nl-s;!)
+ Even though the specification for &read-line; does not explicitly
+ forbids newlines inside the returned string, such behavior would be
+ quite surprising, to say the least.
+ Moreover, this line (with an embedded &nl-s;) would be written as two
+ lines (when writing to a &stream-t; with &extfmt; of &dos-k;), because
+ the embedded &nl-s; would be written as &cr-c;+&lf-c;.
+</para></formalpara>
 
 </section>
 
@@ -1988,7 +2014,7 @@ are simple characters.</para>
    of Implementation-Defined Scripts
    <ulink url="&clhs;/Body/sec_13-1-10.html">[CLHS-13.1.10]</ulink></title>
 
-<para>See the description of &encoding;s.</para>
+<para>See <xref linkend="encoding"/>.</para>
 
 </section>
 
@@ -2015,7 +2041,7 @@ are simple characters.</para>
 
 <para>The graphic characters have been described above.</para>
 
-<para>The standard characters are &nl-c; and the graphic characters with
+<para>The standard characters are &nl-s; and the graphic characters with
  a code between 32 and 126 (inclusive).</para>
 
 <para>The alphabetic characters are these characters:
@@ -2068,14 +2094,13 @@ and the international alphabetic characters from the character set:
  <row><entry><literal role="sexp">(&code-char; #x09)</literal></entry>
           <entry><keysym>#\Tab</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
-          <entry>&nl-c;</entry>
-          <entry><keysym>#\Linefeed</keysym></entry></row>
+          <entry>&nl-s;</entry><entry>&lf-s;</entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
           <entry><keysym>#\Code11</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0C)</literal></entry>
           <entry><keysym>#\Page</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
-          <entry>&ret-c;</entry></row>
+          <entry>&cr-s;</entry></row>
  <row><entry><literal role="sexp">(&code-char; #x1A)</literal></entry>
           <entry><keysym>#\Code26</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x1B)</literal></entry>
@@ -2115,16 +2140,15 @@ and the international alphabetic characters from the character set:
           <entry><keysym>#\Tab</keysym></entry>
           <entry><keysym>#\Ht</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0A)</literal></entry>
-          <entry>&nl-c;</entry>
-          <entry><keysym>#\Nl</keysym></entry>
-          <entry><keysym>#\Linefeed</keysym></entry></row>
+          <entry>&nl-s;</entry>
+          <entry><keysym>#\Nl</keysym></entry><entry>&lf-s;</entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0B)</literal></entry>
           <entry><keysym>#\Vt</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0C)</literal></entry>
           <entry><keysym>#\Page</keysym></entry>
           <entry><keysym>#\Np</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0D)</literal></entry>
-          <entry>&ret-c;</entry>
+          <entry>&cr-s;</entry>
           <entry><keysym>#\Cr</keysym></entry></row>
  <row><entry><literal role="sexp">(&code-char; #x0E)</literal></entry>
           <entry><keysym>#\So</keysym></entry></row>
@@ -3088,7 +3112,7 @@ pointing to non-existent files and can take the following values:
 <section id="terminal"><title>Terminal interaction.</title>
 
 <!-- #ifdef GNU_READLINE -->
-<variablelist><title>&readline;</title>
+<variablelist id="readline"><title>&readline;</title>
  <varlistentry><term>Platform dependent: &unix; platforms
     only, and only in &clisp; built &without; compile-time flag &noreadline;
     (and when &readline; is installed on your machine already).</term>
@@ -3098,9 +3122,13 @@ pointing to non-existent files and can take the following values:
   &pathname-t; that is being typed.
   See <ulink url="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html"
   >readline user manual</ulink> for general details and
-  <olink targetdoc="man" targetptr="clisp"/> for &clisp;-specific extensions.
-  The &readline; library is not used if standard input and standard
-  output do not both refer to the same terminal.</simpara></listitem>
+  <olink targetdoc="man" targetptr="clisp"/> for &clisp;-specific
+  extensions.</simpara>
+  <warning><simpara>The &readline; library is &not-e; used if standard
+    input and standard output do not both refer to the same terminal.
+    In some exotic cases, e.g., when running under &gdb; in
+    an <command>rxvt</command> window under &cygwin;, this may be
+    determined incorrectly.</simpara></warning></listitem>
  </varlistentry></variablelist>
 <!-- #endif -->
 
@@ -3188,7 +3216,7 @@ pointing to non-existent files and can take the following values:
 </variablelist>
 <!-- #endif -->
 
-<para>See also <link linkend="screen">Random Screen Access</link>.</para>
+<para>See also <xref linkend="screen"/>.</para>
 
 </section>
 
@@ -3210,7 +3238,7 @@ pointing to non-existent files and can take the following values:
 
 <para>Functions &stream-element-type; and <literal role="sexp">(&setf;
  &stream-element-type;)</literal> are &generic-function-t;s, see
- section <link linkend="gray">"Gray streams"</link>.</para>
+ <xref linkend="gray"/>.</para>
 
 <section id="bin-stdio"><title>Binary input from &standard-input-var;</title>
 
@@ -3474,8 +3502,8 @@ functions are provided:
  <varlistentry><term>Platform dependent: &win32;
     platforms only.</term>
 <listitem><simpara>&file-position; works on any &buffered; &file-stream-t;.
-  When a &nl-c; is output to (respectively input from) a file stream,
-  its file position is increased by 2 since &nl-c; is encoded as
+  When a &nl-s; is output to (respectively input from) a file stream,
+  its file position is increased by 2 since &nl-s; is encoded as
   &cr-c;/&lf-c; in the file.
 </simpara></listitem></varlistentry></variablelist>
 </section>
@@ -3541,8 +3569,8 @@ functions are provided:
 
 <section id="close"><title>Function &close;</title>
 
-<para>Function &close; is a &generic-function-t;, see section
- <link linkend="gray">"Gray streams"</link>.</para>
+<para>Function &close; is a &generic-function-t;, see
+ <xref linkend="gray"/>.</para>
 
 <para>&close; ignores its &abort-k; argument.</para>
 
@@ -3560,8 +3588,8 @@ functions are provided:
 </section>
 
 <section id="open-stream-p"><title>Function &open-stream-p;</title>
-<para>Function &open-stream-p; is a &generic-function-t;, see section
- <link linkend="gray">"Gray streams"</link>.</para>
+<para>Function &open-stream-p; is a &generic-function-t;, see
+ <xref linkend="gray"/>.</para>
 </section>
 
 <section id="broadcast-stream"><title>Class &broadcast-stream-t;</title>
@@ -3653,8 +3681,8 @@ functions are provided:
  When &ppr-first-newline; is non-&nil;,
  and the current line already has some characters on it,
  and the next object will be printed on several lines,
- and it does not start with a &nl-c;,
- then a &nl-c; is printed before the object.
+ and it does not start with a &nl-s;,
+ then a &nl-s; is printed before the object.
  &ppr-first-newline; has no effect if &print-pretty-var; is &nil;.
  &ppr-first-newline; is initially set to &t;.</para></formalpara>
 

@@ -380,8 +380,8 @@ she will get the output
 <varlistentry><term>Platform dependent: Only in &clisp; built
   &without; compile-time flag &unicode;.</term>
 <listitem><simpara>Only one character set is understood: the platform's
- native (8-bit) character set.  See <link linkend="characters">Chapter
- 13</link>.</simpara></listitem></varlistentry>
+ native (8-bit) character set.  See <xref linkend="characters"/>.
+</simpara></listitem></varlistentry>
 <!-- #else -->
 <varlistentry id="charset-symbols"><term>Platform dependent:
   Only in &clisp; built &with; compile-time flag &unicode;.</term>
@@ -785,12 +785,7 @@ she will get the output
 
 <para>The line terminator mode is relevant only for output (writing to a
  &file-pipe-socket;).  During input, all three kinds of line terminators
- are recognized.  If you do not want this, i.e., if you really want to
- distinguish &lf-c;, &cr-c; and &cr-c;/&lf-c;, you have to resort to
- binary input (function &read-byte;).</para>
-
-<para>See also <link linkend="clhs-newline">13.1.8 Treatment of Newline
- during Input and Output</link>.</para>
+ are recognized.  See also <xref linkend="clhs-newline"/>.</para>
 
 </section>
 
@@ -1000,8 +995,8 @@ N. Gray to X3J13.</para>
     <replaceable>new-element-type</replaceable> &stream-r;)</literal></term>
   <listitem><simpara>Changes the stream's element type.</simpara>
    <simpara>The default method &signal;s an &error-t;.</simpara>
-   <simpara>This function is a &clisp; extension (see <link
-    linkend="stream-eltype">setting &stream-element-type;</link>).</simpara>
+   <simpara>This function is a &clisp; extension (see <xref
+    linkend="stream-eltype"/>).</simpara>
    </listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(&close;
     &stream-r; &key-amp; &abort-k;)</literal></term>
@@ -1081,9 +1076,9 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal role="sexp"
    >(<function>GRAY:STREAM-READ-LINE</function> &stream-r;)</literal></term>
   <listitem><simpara>Reads a line of characters, and return two values:
-   the line (a &string-t;, without the terminating &nl-c; character),
+   the line (a &string-t;, without the terminating &nl-s; character),
    and a &boolean-t; value which is true if the line was terminated by
-   &eos; instead of &nl-c;.</simpara>
+   &eos; instead of &nl-s;.</simpara>
   <simpara>The default method repeatedly calls &st-rc;; this
    is always sufficient.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -1144,15 +1139,15 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-TERPRI</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>Outputs a &nl-c; character.</simpara>
+  <listitem><simpara>Outputs a &nl-s; character.</simpara>
   <simpara>The default method calls &st-wc;; this is always
    sufficient.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-FRESH-LINE</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>Possibly outputs a &nl-c; character, so as to ensure
+  <listitem><simpara>Possibly outputs a &nl-s; character, so as to ensure
    that the next character would be written at the start of a new line.
-   Returns true if it did output a &nl-c; character.</simpara>
+   Returns true if it did output a &nl-s; character.</simpara>
   <simpara>The default method calls
    <function>GRAY:STREAM-START-LINE-P</function> and then
    <function>GRAY:STREAM-TERPRI</function> if necessary; this is always
@@ -1984,8 +1979,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   This variable is usually used for defining Lisp packages which must be
   present when the new &c-file; files are initialized.  E.g., the
   &def-call-in; functions must reside in already defined packages;
-  see <link linkend="ex-call-in">the call-in example</link>.
- </simpara></listitem></varlistentry>
+  see <xref linkend="ex-call-in"/>.</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>The command <command>clisp-link create-module-set
@@ -3776,13 +3770,13 @@ file of name derived from thelibrary name and with type
 current package or only a given subset identified by string names, using
 the <constant>:import</constant> keyword (recommended use).
 Some definition files for standard Amiga libraries are provided.
-See <link linkend="affi-ex-1-predefined">example 1</link> below.</para>
+See <xref linkend="affi-ex-1-predefined"/> below.</para>
 
 <para>As <function>affi:require-library-functions</function> loads a
 global file which you, the programmer, may have not defined, you may
 consider declaring every function yourself to be certain what the return
 and argument types are.
-See <link linkend="affi-ex-4-sample">example 4</link> below.</para>
+See <xref linkend="affi-ex-4-sample"/> below.</para>
 
 <para>The file <filename>read-fd.lisp</filename> defines the function
 <function>make-partial-fd-file</function> with which the provided
@@ -3805,7 +3799,7 @@ the width of integer arguments (<literal>-4</literal>,
 <function>affi:require-library-functions</function> and not using
 <function>affi:flibcall</function>, it is possible to write code that
 only loads library function definition files at compile-time.
-See <link linkend="affi-ex-1-predefined">example 1</link> below.</para>
+See <xref linkend="affi-ex-1-predefined"/> below.</para>
 
 <para>Do not rely on &finalize; to free resources for you, as &clisp;
 does not call finalizers when it exits, use &unwind-protect;.</para>
