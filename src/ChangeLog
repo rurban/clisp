@@ -1,6 +1,7 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* io.d (%PPRINT-LOGICAL-BLOCK): Make GC-safe.
+	* lispbibl.d (gcunsafe_object_t): New type.
 	* package.d (shadow, use_package): Prepare for DEBUG_GCSAFETY.
 	* sequence.d (delete_help): Likewise.
 
