@@ -1,5 +1,11 @@
 2001-09-17  Sam Steingold  <sds@gnu.org>
 
+	* io.d (syntax_readtable_get, syntax_readtable_put): new macros
+	(SET-SYNTAX-FROM-CHAR, GET-MACRO-CHARACTER, read_char_syntax,
+	wpeek_char_syntax, wpeek_char_eof): use them
+
+2001-09-17  Sam Steingold  <sds@gnu.org>
+
 	bind *PRINT-READABLY* to NIL before reporting errors
 	* error.d (write_errorobject): bind *PRINT-READABLY* to NIL
 	(signal_and_debug): new function; extracted from end_error(),
