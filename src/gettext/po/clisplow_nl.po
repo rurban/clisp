@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2001-07-16 18:42:48 EDT\n"
+"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -166,16 +166,6 @@ msgstr "Nog maar %d bytes beschikbaar.\n"
 
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Kan het einde van de SP stack niet bepalen!\n"
-
-msgid ""
-"\n"
-"WARNING: No initialization file specified.\n"
-msgstr ""
-"\n"
-"LET OP: Geen opstartbestand opgegeven.\n"
-
-msgid "Please try: "
-msgstr "Probeer a.u.b.: "
 
 msgid "Not enough memory for Lisp.\n"
 msgstr "Niet genoeg geheugen voor Lisp.\n"
@@ -598,12 +588,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
-
 
-
-
-#, fuzzy
 
 #, fuzzy
 
@@ -630,11 +615,8 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
 #, fuzzy
 
-#, fuzzy
 
 
 
@@ -672,9 +654,10 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
+
 
 
+#, fuzzy
 
 
 
@@ -686,7 +669,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -695,7 +680,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -709,7 +693,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -735,21 +718,19 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -788,7 +769,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -811,7 +794,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -821,6 +806,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -847,7 +833,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 #, fuzzy
 
@@ -872,8 +857,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
-
 
 
 
@@ -908,10 +891,14 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 #, fuzzy
+
 
+#, fuzzy
 
 
 
@@ -941,7 +928,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -968,19 +954,22 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1007,14 +996,17 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
 
@@ -1023,9 +1015,13 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1038,9 +1034,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1052,13 +1046,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1083,8 +1073,11 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1108,6 +1101,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1149,6 +1143,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1173,7 +1168,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -1207,6 +1201,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1231,11 +1226,16 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+
+#, fuzzy
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1257,7 +1257,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1266,6 +1268,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1274,18 +1277,15 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 #, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
+
 
 
 
@@ -1303,19 +1303,24 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
+
 
 
 
 
 #, fuzzy
 
+
 #, fuzzy
 
 
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 #, fuzzy
@@ -1340,8 +1345,11 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1351,15 +1359,14 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
 
 
@@ -1367,11 +1374,10 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
+
 #, fuzzy
 
 
@@ -1389,24 +1395,35 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
+
+
+
+
+
+
 
 
 
 
 
 
+#, fuzzy
 
 
 #, fuzzy
+
 
+#, fuzzy
 
+#, fuzzy
 
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -1425,14 +1442,17 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 #, fuzzy
 
 
 
+#, fuzzy
 
 
 
+#, fuzzy
 
 
 
@@ -1442,6 +1462,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1451,7 +1472,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1466,12 +1489,11 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 
+#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -1492,17 +1514,18 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 #, fuzzy
 
 
 
-#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
 
@@ -1510,27 +1533,25 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+
+#, fuzzy
 
 
 
 
 
+#, fuzzy
 
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -1547,6 +1568,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1564,7 +1586,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -1578,7 +1599,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -1611,14 +1631,20 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
 
+#, fuzzy
 
 
 
@@ -1653,8 +1679,10 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -1665,34 +1693,34 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 #, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
+#, fuzzy
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -1719,9 +1747,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
 
-#, fuzzy
 
 
 
@@ -1739,7 +1765,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -1750,11 +1775,8 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 #, fuzzy
@@ -1772,6 +1794,8 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
+
 
 
 
@@ -1789,6 +1813,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1828,7 +1853,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
 
 
 
@@ -1889,6 +1913,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -1901,10 +1926,21 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 #, fuzzy
+
+
+
+
 
+
+
+
+
+
+#, fuzzy
 
 
 

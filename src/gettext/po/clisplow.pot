@@ -1,50 +1,49 @@
 # Template messages for CLISP
-# Copyright (C) 1992-2001 Bruno Haible, Michael Stoll,
-#                         Marcus Daniels, Sam Steingold
+# Copyright (C) 1992-2001 Bruno Haible, Michael Stoll, Marcus Daniels
 # Bruno Haible <haible@clisp.cons.org>, 2001.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.27\n"
-"POT-Creation-Date: 2001-07-16 18:42:48 EDT\n"
-"PO-Revision-Date: 2001-07-16 18:42:48 EDT\n"
-"Last-Translator: Automatically generated <sds@fencepost>\n"
+"Project-Id-Version: clisp 2.27.2\n"
+"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
+"PO-Revision-Date: 2002-02-25 09:53:14 EST\n"
+"Last-Translator: Automatically generated <sds@brighton.podval.org>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: spvw.d:477
+#: spvw.d:482
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
 msgstr ""
 
-#: spvw.d:482
+#: spvw.d:486
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
 msgstr ""
 
-#: spvw.d:681
+#: spvw.d:682
 msgid "Unknown signature of an FSUBR\n"
 msgstr ""
 
-#: spvw.d:790
+#: spvw.d:792
 msgid "Unknown signature of a SUBR\n"
 msgstr ""
 
-#: spvw.d:1446
+#: spvw.d:1467
 msgid "module `%s' requires package %s.\n"
 msgstr ""
 
-#: spvw.d:1487
+#: spvw.d:1506
 msgid ""
 "GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
 "Usage:  "
 msgstr ""
 
-#: spvw.d:1490
+#: spvw.d:1509
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
@@ -52,173 +51,163 @@ msgid ""
 " read-eval-print loop is entered.\n"
 msgstr ""
 
-#: spvw.d:1494
+#: spvw.d:1513
 msgid "Informative output:\n"
 msgstr ""
 
-#: spvw.d:1495
+#: spvw.d:1514
 msgid " -h, --help    - print this help and exit\n"
 msgstr ""
 
-#: spvw.d:1496
+#: spvw.d:1515
 msgid " --version     - print the version information\n"
 msgstr ""
 
-#: spvw.d:1497
+#: spvw.d:1516
 msgid " --license     - print the licensing information\n"
 msgstr ""
 
-#: spvw.d:1498
+#: spvw.d:1517
 msgid "Memory image selection:\n"
 msgstr ""
 
-#: spvw.d:1499
+#: spvw.d:1518
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr ""
 
-#: spvw.d:1501
+#: spvw.d:1520
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-#: spvw.d:1503
+#: spvw.d:1522
 msgid " -M memfile    - use this memory image\n"
 msgstr ""
 
-#: spvw.d:1504
+#: spvw.d:1523
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-#: spvw.d:1506
+#: spvw.d:1525
 msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-#: spvw.d:1509
+#: spvw.d:1528
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr ""
 
-#: spvw.d:1511
+#: spvw.d:1530
 msgid "Internationalization:\n"
 msgstr ""
 
-#: spvw.d:1512
+#: spvw.d:1531
 msgid " -L language   - set user language\n"
 msgstr ""
 
-#: spvw.d:1513
+#: spvw.d:1532
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr ""
 
-#: spvw.d:1514
+#: spvw.d:1533
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 
-#: spvw.d:1515
+#: spvw.d:1534
 msgid "Interoperability:\n"
 msgstr ""
 
-#: spvw.d:1516
+#: spvw.d:1535
 msgid " -q, --quiet, --silent - do not print the banner\n"
 msgstr ""
 
-#: spvw.d:1517
+#: spvw.d:1536
 msgid " -w            - wait for keypress after program termination\n"
 msgstr ""
 
-#: spvw.d:1518
+#: spvw.d:1537
 msgid " -I            - be ILISP-friendly\n"
 msgstr ""
 
-#: spvw.d:1519
+#: spvw.d:1538
 msgid "Startup actions:\n"
 msgstr ""
 
-#: spvw.d:1520
+#: spvw.d:1539
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr ""
 
-#: spvw.d:1521
+#: spvw.d:1540
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr ""
 
-#: spvw.d:1522
+#: spvw.d:1541
 msgid " -p package    - start in the package\n"
 msgstr ""
 
-#: spvw.d:1523
+#: spvw.d:1542
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-#: spvw.d:1524
+#: spvw.d:1543
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr ""
 
-#: spvw.d:1525
+#: spvw.d:1544
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr ""
 
-#: spvw.d:1526
+#: spvw.d:1545
 msgid "Actions:\n"
 msgstr ""
 
-#: spvw.d:1527
+#: spvw.d:1546
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr ""
 
-#: spvw.d:1528
+#: spvw.d:1547
 msgid " -x expression - execute the expression, then exit\n"
 msgstr ""
 
-#: spvw.d:1529
+#: spvw.d:1548
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr ""
 
-#: spvw.d:1530
+#: spvw.d:1549
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr ""
 
-#: spvw.d:1804
+#: spvw.d:1822
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr ""
 
-#: spvw.d:1808
+#: spvw.d:1826
 msgid "%s out of range\n"
 msgstr ""
 
-#: spvw.d:1820
+#: spvw.d:1839
 msgid "memory size"
 msgstr ""
 
-#: spvw.d:1830
+#: spvw.d:1849
 msgid "stack size"
 msgstr ""
 
-#: spvw.d:1939
+#: spvw.d:1960
 msgid "CLISP: -a is deprecated, use -ansi\n"
 msgstr ""
 
-#: spvw.d:2162
+#: spvw.d:2196
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr ""
 
-#: spvw.d:2169
+#: spvw.d:2203
 msgid "Only %d bytes available.\n"
 msgstr ""
 
-#: spvw.d:2403
+#: spvw.d:2437
 msgid "Could not determine the end of the SP stack!\n"
 msgstr ""
 
-#: spvw.d:2624
-msgid ""
-"\n"
-"WARNING: No initialization file specified.\n"
-msgstr ""
-
-#: spvw.d:2628
-msgid "Please try: "
-msgstr ""
-
-#: spvw.d:2860
+#: spvw.d:2898
 msgid "Not enough memory for Lisp.\n"
 msgstr ""
 
@@ -344,37 +333,37 @@ msgstr ""
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr ""
 
-#: spvw_garcol.d:2020
+#: spvw_garcol.d:2018
 msgid "munmap() fails."
 msgstr ""
 
-#: spvw_allocate.d:54
+#: spvw_allocate.d:50
 msgid ""
 "\n"
 "*** - No more room for LISP objects: RESET"
 msgstr ""
 
-#: spvw_allocate.d:272 spvw_allocate.d:337 spvw_allocate.d:418
+#: spvw_allocate.d:268 spvw_allocate.d:333 spvw_allocate.d:414
 msgid "Trying to make room through a GC...\n"
 msgstr ""
 
-#: spvw_memfile.d:763
+#: spvw_memfile.d:783
 msgid "operating system error during load of initialization file `%s'\n"
 msgstr ""
 
-#: spvw_memfile.d:1235
+#: spvw_memfile.d:1255
 msgid "Cannot map the initialization file into memory."
 msgstr ""
 
-#: spvw_memfile.d:1514
+#: spvw_memfile.d:1527
 msgid "operating system error during load of initialization file\n"
 msgstr ""
 
-#: spvw_memfile.d:1520
+#: spvw_memfile.d:1533
 msgid "initialization file was not created by this version of LISP\n"
 msgstr ""
 
-#: spvw_memfile.d:1524
+#: spvw_memfile.d:1537
 msgid "not enough memory for initialization\n"
 msgstr ""
 
@@ -753,4 +742,3 @@ msgstr ""
 #: amigaaux.d:212
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr ""
-
