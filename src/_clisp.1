@@ -581,11 +581,19 @@ to leave the current read-eval-print loop.
 #ifdef GNU_READLINE
 .TP
 arrow keys
-for editing and viewing the input history.
+for editing and viewing the input history using GNU readline(1).
 
 .TP
 Tab key
-to complete the symbol's name you are just typing.
+Context sensitive:
+If you are in the "function position" (in the first symbol after an
+opening paren or in the first symbol after a #'), the completion is
+limited to the symbols that name functions.
+If you are in the "filename position" (inside a string after #P), the
+completion is done across file names, bash(1)-style.
+If you have not started typing the next symbol (i.e., you are at a
+whitespace), the current function or macro is DESCRIBEd.
+Otherwise, the symbol you are currently typing is completed.
 #endif
 
 

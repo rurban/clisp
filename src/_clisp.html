@@ -445,11 +445,12 @@ Each line of <var>optionfile</var> is treated as a separate argument to
 <dt><code>help</code></dt>
 <dd>to get some on-line help.<p/></dd>
 
-<dt><code>(apropos </code><var>name</var><code>)</code></dt>
-<dd>lists the symbols relating to <var>name</var>.<p/></dd>
+<dt><code>(apropos <var>name</var>)</code></dt>
+<dd><a href="impnotes.html#apropos">lists the symbols</a> related
+ to <var>name</var>.<p/></dd>
 
 <dt><code>(exit)</code> or <code>(quit)</code> or <code>(bye)</code></dt>
-<dd>to quit <code>clisp</code>.<p/></dd>
+<dd>to <a href="quit">quit</a> <code>clisp</code>.<p/></dd>
 
 #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
 <dt>
@@ -467,10 +468,25 @@ EOF (Ctrl-\e)
 
 #ifdef GNU_READLINE
 <dt>arrow keys</dt>
-<dd>for editing and viewing the input history.<p/></dd>
+<dd>for editing and viewing the input history, using
+ <a href="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html">GNU
+ readline</a>.<p/></dd>
 
-<dt>Tab key</dt>
-<dd>to complete the symbol's name you are just typing.<p/></dd>
+<dt id="completion">Tab key</dt>
+<dd>Context sensitive:
+ <ul><li>If you are in the "function position" (in the first symbol
+   after an opening paren or in the first symbol after
+   a <code>#'</code>), the completion is limited to the symbols that
+   name functions.</li>
+  <li>If you are in the "filename position" (inside a string
+   after <code>#P</code>), the completion is done across file names,
+   <a href="http://www.gnu.org/software/bash/">bash</a>-style.
+  <li>If you have not started typing the next symbol (i.e., you are at
+   a whitespace), the current function or macro is
+   <a href="http://www.lisp.org/HyperSpec/Body/fun_describe.html"
+      >DESCRIBE</a>d.</li>
+  <li>Otherwise, the symbol you are currently typing is completed.</li></ul>
+ <p/></dd>
 #endif
 </dl>
 
