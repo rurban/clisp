@@ -260,12 +260,56 @@ DEFUN(BDB:ENV-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
  DB_ENV->set_alloc	Set local space allocation functions
  DB_ENV->set_encrypt	Set the environment cryptographic key [See ENV-CREATE]
  DB_ENV->set_errcall	Set error message callback
- DB_ENV->set_errfile	Set error message FILE
  DB_ENV->set_errpfx	Set error message prefix
  DB_ENV->set_feedback	Set feedback callback
  DB_ENV->set_paniccall	Set panic callback
  DB_ENV->set_rpc_server	Establish an RPC server connection [See ENV-CREATE]
 */
+
+/* open the C file and return it
+ can trigger GC */
+static FILE* my_fopen (object path) {
+  FILE *ret;
+  with_string_0(physical_namestring(path),GLO(pathname_encoding),pathz,{
+      begin_system_call();
+      ret = fopen(pathz,"w");
+      end_system_call();
+    });
+  return ret;
+}
+/* removes ERRFILE from STACK */
+#define RESET_ERRFILE(o)     do {                                       \
+    if (boundp(STACK_0)) {                                              \
+      FILE *errfile;                                                    \
+      begin_system_call(); o->get_errfile(o,&errfile); end_system_call(); \
+      if (errfile) fclose(errfile);                                     \
+      if (nullp(STACK_0)) {                                             \
+        begin_system_call(); o->set_errfile(o,NULL); end_system_call(); \
+      } else {                                                          \
+        errfile = my_fopen(STACK_0);                                    \
+        begin_system_call(); o->set_errfile(o,errfile); end_system_call(); \
+      }                                                                 \
+    }                                                                   \
+    skipSTACK(1);                                                       \
+  } while(0)
+/* define an errfle FD extractor */
+#define ERRFILE_FD_EXTRACTOR(name,type)         \
+  static object name (type z) {                 \
+    FILE* errfile;                              \
+    int fd = -1;                                \
+    begin_system_call();                        \
+    z->get_errfile(z,&errfile);                 \
+    if (errfile) fd = fileno(errfile);          \
+    end_system_call();                          \
+    return fd >= 0 ? fixnum(fd) : NIL;          \
+  }
+/* define a flag checker */
+#define FLAG_EXTRACTOR(name,type)                       \
+  static int name (type z) {                            \
+    u_int32_t flags;                                    \
+    SYSCALL(z->get_flags,(z,&flags));                   \
+    return flags;                                       \
+  }
 
 static void set_flags (object arg, u_int32_t *flag_on, u_int32_t *flag_off,
                        u_int32_t values) {
@@ -276,8 +320,8 @@ static void set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
   if (boundp(arg)) SYSCALL(dbe->set_verbose,(dbe,flag,!nullp(arg)));
 }
 
-DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :PASSWORD :ENCRYPT                  \
-      :LOCK_TIMEOUT :TXN_TIMEOUT                                        \
+DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
+      :ERRFILE :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT            \
       :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
       :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
@@ -359,6 +403,7 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :PASSWORD :ENCRYPT                  \
   if (!missingp(STACK_1))       /* PASSWORD */
     env_set_encryption(dbe,&STACK_0,&STACK_1);
   skipSTACK(2);
+  RESET_ERRFILE(dbe);           /* ERRFILE */
   VALUES0; skipSTACK(1);        /* skip dbe */
 }
 
@@ -450,7 +495,7 @@ static object env_get_open_flags (DB_ENV *dbe) {
 }
 /* get the flags
  can trigger GC */
-static object env_get_flags (DB_ENV *dbe) {
+static object env_get_flags_list (DB_ENV *dbe) {
   u_int32_t count = 0, flags;
   SYSCALL(dbe->get_flags,(dbe,&flags));
   if (flags & DB_YIELDCPU) { pushSTACK(`:YIELDCPU`); count++; }
@@ -483,7 +528,7 @@ static object env_get_tas_spins (DB_ENV *dbe) {
 static object env_get_shm_key (DB_ENV *dbe) {
   long shm_key;
   SYSCALL(dbe->get_shm_key,(dbe,&shm_key));
-  return fixnum(shm_key);
+  return shm_key >= 0 ? fixnum(shm_key) : NIL;
 }
 /* get timeout values for locks or transactions in the database environment */
 static object env_get_timeout (DB_ENV *dbe, u_int32_t which) {
@@ -498,28 +543,32 @@ static object env_get_timeouts (DB_ENV *dbe) {
   pushSTACK(env_get_timeout(dbe,DB_SET_TXN_TIMEOUT));
   return listof(2);
 }
+ERRFILE_FD_EXTRACTOR(env_get_errfile,DB_ENV*)
+FLAG_EXTRACTOR(env_get_flags_num,DB_ENV*)
 DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
-  object what = popSTACK();
+  object what = STACK_0;
   /* dbe may be NULL only for DB_XIDDATASIZE */
-  DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,eq(what,`:DB_XIDDATASIZE`));
+  DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,eq(what,`:DB_XIDDATASIZE`));
+  what = STACK_0; skipSTACK(2);
  restart_ENV_GET_OPTIONS:
   if (missingp(what)) {         /* get everything */
     value1 = env_get_verbose(dbe); pushSTACK(value1);
-    value1 = env_get_flags(dbe); pushSTACK(value1);
+    value1 = env_get_flags_list(dbe); pushSTACK(value1);
     pushSTACK(env_get_tx_timestamp(dbe));
     pushSTACK(env_get_tx_max(dbe));
     pushSTACK(env_get_tmp_dir(dbe));
     value1 = env_get_data_dirs(dbe); pushSTACK(value1);
     pushSTACK(env_get_tas_spins(dbe));
     pushSTACK(env_get_shm_key(dbe));
+    pushSTACK(env_get_errfile(dbe));
     value1 = env_get_timeouts(dbe); pushSTACK(value1);
     pushSTACK(env_get_home_dir(dbe));
     value1 = env_get_open_flags(dbe); pushSTACK(value1);
-    funcall(L(values),11);
+    funcall(L(values),12);
   } else if (eq(what,S(Kverbose))) {
     VALUES1(env_get_verbose(dbe));
   } else if (eq(what,`:FLAGS`)) {
-    VALUES1(env_get_flags(dbe));
+    VALUES1(env_get_flags_list(dbe));
   } else if (eq(what,`:VERB_WAITSFOR`)) {
     int onoffp;
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_WAITSFOR,&onoffp));
@@ -541,53 +590,29 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
     SYSCALL(dbe->get_verbose,(dbe,DB_VERB_CHKPOINT,&onoffp));
     VALUES_IF(onoffp);
   } else if (eq(what,`:YIELDCPU`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_YIELDCPU);
+    VALUES_IF(env_get_flags_num(dbe) & DB_YIELDCPU);
   } else if (eq(what,`:TXN_WRITE_NOSYNC`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_TXN_WRITE_NOSYNC);
+    VALUES_IF(env_get_flags_num(dbe) & DB_TXN_WRITE_NOSYNC);
   } else if (eq(what,`:TXN_NOSYNC`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_TXN_NOSYNC);
+    VALUES_IF(env_get_flags_num(dbe) & DB_TXN_NOSYNC);
   } else if (eq(what,`:REGION_INIT`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_REGION_INIT);
+    VALUES_IF(env_get_flags_num(dbe) & DB_REGION_INIT);
   } else if (eq(what,`:PANIC_ENVIRONMENT`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_PANIC_ENVIRONMENT);
+    VALUES_IF(env_get_flags_num(dbe) & DB_PANIC_ENVIRONMENT);
   } else if (eq(what,`:OVERWRITE`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_OVERWRITE);
+    VALUES_IF(env_get_flags_num(dbe) & DB_OVERWRITE);
   } else if (eq(what,`:NOPANIC`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_NOPANIC);
+    VALUES_IF(env_get_flags_num(dbe) & DB_NOPANIC);
   } else if (eq(what,`:NOMMAP`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_NOMMAP);
+    VALUES_IF(env_get_flags_num(dbe) & DB_NOMMAP);
   } else if (eq(what,`:NOLOCKING`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_NOLOCKING);
+    VALUES_IF(env_get_flags_num(dbe) & DB_NOLOCKING);
   } else if (eq(what,`:DIRECT_LOG`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_DIRECT_LOG);
+    VALUES_IF(env_get_flags_num(dbe) & DB_DIRECT_LOG);
   } else if (eq(what,`:CDB_ALLDB`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_CDB_ALLDB);
+    VALUES_IF(env_get_flags_num(dbe) & DB_CDB_ALLDB);
   } else if (eq(what,`:AUTO_COMMIT`)) {
-    u_int32_t flags;
-    SYSCALL(dbe->get_flags,(dbe,&flags));
-    VALUES_IF(flags & DB_AUTO_COMMIT);
+    VALUES_IF(env_get_flags_num(dbe) & DB_AUTO_COMMIT);
   } else if (eq(what,`:TX_TIMESTAMP`)) {
     VALUES1(env_get_tx_timestamp(dbe));
   } else if (eq(what,`:TX_MAX`)) {
@@ -614,6 +639,8 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
       case 0: VALUES1(NIL);
       default: NOTREACHED;
     }
+  } else if (eq(what,`:ERRFILE`)) {
+    VALUES1(env_get_errfile(dbe));
   } else if (eq(what,`:DB_XIDDATASIZE`)) {
     VALUES1(fixnum(DB_XIDDATASIZE));
   } else if (eq(what,`:HOME`)) {
@@ -1002,11 +1029,7 @@ DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
   FILE *outfile = NULL;
   int status;
   if (!missingp(STACK_0)) {     /* SALVAGE */
-    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),salvage,{
-        begin_system_call();
-        outfile = fopen(salvage,"w");
-        end_system_call();
-      });
+    outfile = my_fopen(STACK_0);
     flags |= DB_SALVAGE;
   }
   STACK_2 = physical_namestring(STACK_2); /* FILE */
@@ -1036,14 +1059,10 @@ DEFUN(BDB:DB-VERIFY, db file &key :DATABASE :SALVAGE :AGGRESSIVE :PRINTABLE \
 /* ===== Database Configuration ===== */
 /* not exported:
  DB->set_alloc	Set local space allocation functions
- DB->set_cachesize	Set the database cache size
  DB->set_dup_compare	Set a duplicate comparison function
- DB->set_encrypt	Set the database cryptographic key
  DB->set_errcall	Set error message callback
- DB->set_errfile	Set error message FILE
  DB->set_errpfx	Set error message prefix
  DB->set_feedback	Set feedback callback
- DB->set_flags	General database configuration
  DB->set_lorder	Set the database byte order
  DB->set_pagesize	Set the underlying database page size
  DB->set_paniccall	Set panic callback
@@ -1064,7 +1083,166 @@ Queue Configuration
  DB->set_q_extentsize	Set Queue database extent size
 */
 
+DEFVAR(gb_size,`#.(ASH 1 30)`)
 
+/* set the password to perform encryption and decryption.
+ can trigger GC */
+static void db_set_encryption (DB *db, gcv_object_t *o_flags_,
+                               gcv_object_t *o_password_) {
+  u_int32_t flags = env_encryption_check(*o_flags_);
+  *o_password_ = check_string(*o_password_);
+  with_string_0(*o_password_,GLO(misc_encoding),password,
+                { SYSCALL(db->set_encrypt,(db,password,flags)); });
+}
+/* get all flags as a list
+ can trigger GC */
+static object db_get_flags_list (DB *db) {
+  u_int32_t flags;
+  int count = 0;
+  SYSCALL(db->get_flags,(db,&flags));
+  if (flags & DB_CHKSUM) { pushSTACK(`:CHKSUM`); count++; }
+  if (flags & DB_ENCRYPT) { pushSTACK(`:ENCRYPT`); count++; }
+  if (flags & DB_TXN_NOT_DURABLE) { pushSTACK(`:TXN_NOT_DURABLE`); count++; }
+  if (flags & DB_DUP) { pushSTACK(`:DUP`); count++; }
+  if (flags & DB_DUPSORT) { pushSTACK(`:DUPSORT`); count++; }
+  if (flags & DB_RECNUM) { pushSTACK(`:RECNUM`); count++; }
+  if (flags & DB_REVSPLITOFF) { pushSTACK(`:REVSPLITOFF`); count++; }
+  if (flags & DB_RENUMBER) { pushSTACK(`:RENUMBER`); count++; }
+  if (flags & DB_SNAPSHOT) { pushSTACK(`:SNAPSHOT`); count++; }
+  return listof(count);
+}
+
+DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
+      :NCACHE :CACHESIZE :LORDER :PAGESIZE                            \
+      :CHKSUM :ENCRYPT :TXN_NOT_DURABLE :DUP :DUPSORT :RECNUM         \
+      :REVSPLITOFF :RENUMBER :SNAPSHOT)
+{ /* set database options */
+  DB *db = object_handle(STACK_(14),`BDB::DB`,false);
+  { /* flags */
+    u_int32_t flags_on = 0, flags_off = 0;
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_SNAPSHOT);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_RENUMBER);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_REVSPLITOFF);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_RECNUM);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_DUPSORT);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_DUP);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_TXN_NOT_DURABLE);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_ENCRYPT);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_CHKSUM);
+    if (flags_off || flags_on) {
+      u_int32_t flags;
+      SYSCALL(db->get_flags,(db,&flags));
+      flags |= flags_on;
+      flags &= ~flags_off;
+      SYSCALL(db->set_flags,(db,flags));
+    }
+  }
+  if (!missingp(STACK_0)) {     /* PAGESIZE */
+    u_int32_t pagesize = I_to_uint32(check_uint32(STACK_0));
+    SYSCALL(db->set_pagesize,(db,pagesize));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* LORDER */
+    int lorder = posfixnum_to_L(check_posfixnum(STACK_0));
+    SYSCALL(db->set_lorder,(db,lorder));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* CACHESIZE */
+    int ncache = posfixnum_default(STACK_1);
+    u_int32_t gbytes, bytes;
+    pushSTACK(STACK_0); pushSTACK(O(gb_size)); funcall(L(floor),2);
+    gbytes = I_to_UL(value1);
+    bytes  = I_to_UL(value2);
+    SYSCALL(db->set_cachesize,(db,gbytes,bytes,ncache));
+  }
+  skipSTACK(2);
+  if (!missingp(STACK_1))       /* PASSWORD */
+    db_set_encryption(db,&STACK_0,&STACK_1);
+  skipSTACK(2);
+  RESET_ERRFILE(db);            /* ERRFILE */
+  VALUES0; skipSTACK(1);        /* skip db */
+}
+
+/* get cache size and number of cashes
+   value1 == cashesize, value2 = ncache
+ can trigger GC */
+static void db_get_cache (DB* db) {
+  u_int32_t gbytes, bytes;
+  int ncache;
+  SYSCALL(db->get_cachesize,(db,&gbytes,&bytes,&ncache));
+  pushSTACK(UL_to_I(gbytes)); pushSTACK(fixnum(30)); funcall(L(ash),2);
+  pushSTACK(value1); pushSTACK(UL_to_I(bytes)); funcall(L(plus),2);
+  value2 = fixnum(ncache);
+}
+static object db_get_lorder (DB* db) {
+  int lorder;
+  SYSCALL(db->get_lorder,(db,&lorder));
+  return fixnum(lorder);
+}
+static object db_get_pagesize (DB* db) {
+  u_int32_t pagesize;
+  SYSCALL(db->get_pagesize,(db,&pagesize));
+  return UL_to_I(pagesize);
+}
+ERRFILE_FD_EXTRACTOR(db_get_errfile,DB*)
+FLAG_EXTRACTOR(db_get_flags_num,DB*)
+DEFUN(BDB:DB-GET-OPTIONS, db &optional what)
+{ /* retrieve database options */
+  DB *db = object_handle(STACK_1,`BDB::DB`,false);
+  object what = STACK_0; skipSTACK(2);
+ restart_DB_GET_OPTIONS:
+  if (missingp(what)) {         /* get everything */
+    db_get_cache(db); pushSTACK(value1); pushSTACK(value2);
+    value1 = listof(2); pushSTACK(value1);
+    pushSTACK(db_get_errfile(db));
+    value1 = db_get_flags_list(db); pushSTACK(value1);
+    pushSTACK(db_get_lorder(db));
+    pushSTACK(db_get_pagesize(db));
+    funcall(L(values),5);
+  } else if (eq(what,`:CACHE`)) {
+    db_get_cache(db); mv_count = 2;
+  } else if (eq(what,`:ENCRYPTION`)) {
+    u_int32_t flags;
+    SYSCALL(db->get_encrypt_flags,(db,&flags));
+    switch (flags) {
+      case DB_ENCRYPT_AES: VALUES1(`:ENCRYPT_AES`);
+      case 0: VALUES1(NIL);
+      default: NOTREACHED;
+    }
+  } else if (eq(what,`:ERRFILE`)) {
+    VALUES1(db_get_errfile(db));
+  } else if (eq(what,`:PAGESIZE`)) {
+    VALUES1(db_get_pagesize(db));
+  } else if (eq(what,`:LORDER`)) {
+    VALUES1(db_get_lorder(db));
+  } else if (eq(what,`:FLAGS`)) {
+    VALUES1(db_get_flags_list(db));
+  } else if (eq(what,`:CHKSUM`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_CHKSUM);
+  } else if (eq(what,`:ENCRYPT`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_ENCRYPT);
+  } else if (eq(what,`:TXN_NOT_DURABLE`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_TXN_NOT_DURABLE);
+  } else if (eq(what,`:DUP`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_DUP);
+  } else if (eq(what,`:DUPSORT`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_DUPSORT);
+  } else if (eq(what,`:RECNUM`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_RECNUM);
+  } else if (eq(what,`:REVSPLITOFF`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_REVSPLITOFF);
+  } else if (eq(what,`:RENUMBER`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_RENUMBER);
+  } else if (eq(what,`:SNAPSHOT`)) {
+    VALUES_IF(db_get_flags_num(db) & DB_SNAPSHOT);
+  } else {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(what); pushSTACK(TheSubr(subr_self)->name);
+    check_value(error,GETTEXT("~S: invalid argument ~S"));
+    what = value1;
+    goto restart_DB_GET_OPTIONS;
+  }
+}
 
 /* ===== cursors ===== */
 DEFFLAGSET(make_cursor_flags, DB_DIRTY_READ DB_WRITECURSOR)
@@ -1286,7 +1464,7 @@ DEFUN(BDB:TXN-SET-TIMEOUT, txn timeout which)
 { /* set timeout values for locks or transactions for the specified
      transaction */
   u_int32_t which = txn_timeout_check(popSTACK());
-  db_timeout_t timeout = I_to_UL(check_uint32(popSTACK()));
+  db_timeout_t timeout = I_to_uint32(check_uint32(popSTACK()));
   DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,false);
   SYSCALL(txn->set_timeout,(txn,timeout,which));
   VALUES0;

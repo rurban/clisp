@@ -46,15 +46,16 @@
 
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:ENV-SET-OPTIONS dbe
-   &key-amp; LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY TAS_SPINS TX_TIMESTAMP
-   TX_MAX DATA_DIR TMP_DIR AUTO_COMMIT CDB_ALLDB DIRECT_DB DIRECT_LOG
-   NOLOCKING NOMMAP NOPANIC OVERWRITE PANIC_ENVIRONMENT REGION_INIT
-   TXN_NOSYNC TXN_WRITE_NOSYNC YIELDCPU VERB_CHKPOINT VERB_DEADLOCK
-   VERB_RECOVERY VERB_REPLICATION VERB_WAITSFOR VERBOSE)</literal></term>
+   &key-amp; ERRFILE PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
+   TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR AUTO_COMMIT CDB_ALLDB
+   DIRECT_DB DIRECT_LOG NOLOCKING NOMMAP NOPANIC OVERWRITE
+   PANIC_ENVIRONMENT REGION_INIT TXN_NOSYNC TXN_WRITE_NOSYNC YIELDCPU
+   VERB_CHKPOINT VERB_DEADLOCK VERB_RECOVERY VERB_REPLICATION
+   VERB_WAITSFOR VERBOSE)</literal></term>
  <listitem><simpara>Set some environment options using &DBE_set_flags;,
    &DBE_set_verbose;, &DBE_set_tmp_dir;, &DBE_set_data_dir;,
    &DBE_set_tx_max;, &DBE_set_tx_timestamp;, &DBE_set_tas_spins;,
-   &DBE_set_shm_key;, &DBE_set_timeout;.
+   &DBE_set_shm_key;, &DBE_set_timeout;, &DBE_set_encrypt; &DBE_set_errfile;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
    &optional-amp; what)</literal></term>
@@ -114,6 +115,9 @@
     <varlistentry><term><constant>:ENCRYPT</constant></term>
      <listitem><simpara>encryption flags (&DBE_get_encrypt_flags;).
     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:ERRFILE</constant></term>
+     <listitem><simpara>&file-des; or &nil; (&DBE_get_errfile;).
+    </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:DB_XIDDATASIZE</constant></term>
      <listitem><simpara>the &length; of the globally unique
        &unsigned-byte-vec; which must be passed to &TXN_prepare;.
@@ -125,8 +129,7 @@
      <listitem><simpara>the &list-t; of open flags (when open) or &t;.
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
-</variablelist>
-</section>
+</variablelist></section>
 
 <section id="bdb-operations"><title>Database Operations</title>
 <!--
@@ -234,10 +237,40 @@
  DB->set_paniccall	Set panic callback
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist></section>
-
+<varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db &key-amp;
+      ERRFILE PASSWORD ENCRYPT NCACHE CACHESIZE)</literal></term>
+ <listitem><simpara>Call &DB_set_errfile;, &DB_set_encrypt;,
+   &DB_set_cashesize;.</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
+   &optional-amp; what)</literal></term>
+ <listitem><para>Retrieve some environment options.
+   <variablelist><title>Values of <replaceable>what</replaceable></title>
+    <varlistentry><term>missing</term><term>&nil;</term>
+     <listitem><simpara>all options as multiple values
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:FLAGS</constant></term>
+     <listitem><simpara>all flags (&DBE_get_flags;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:CHKSUM</constant></term>
+     <term><constant>:ENCRYPT</constant></term>
+     <term><constant>:TXN_NOT_DURABLE</constant></term>
+     <term><constant>:DUP</constant></term>
+     <term><constant>:DUPSORT</constant></term>
+     <term><constant>:RECNUM</constant></term>
+     <term><constant>:REVSPLITOFF</constant></term>
+     <term><constant>:RENUMBER</constant></term>
+     <term><constant>:SNAPSHOT</constant></term>
+     <listitem><simpara>a &boolean-t; indicator of whether this
+       option is set or not (&DBE_get_verbose; and &DBE_get_flags;).
+    </simpara></listitem></varlistentry>
+   <varlistentry><term><constant>:ENCRYPTION</constant></term>
+     <listitem><simpara>encryption flags (&DBE_get_encrypt_flags;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:ERRFILE</constant></term>
+     <listitem><simpara>&file-des; or &nil; (&DBE_get_errfile;).
+    </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
+</variablelist>
 
 <section id="bdb-bt-rn-config"><title>Btree/Recno Configuration</title>
 
@@ -271,7 +304,7 @@
  <listitem><simpara></simpara></listitem></varlistentry>
 </variablelist>
 </section>
-
+</section>
 
 <section id="bdb-cursor"><title>Database Cursor Operations</title>
 <!--
