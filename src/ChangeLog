@@ -1,5 +1,14 @@
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (HAVE_GOOD_ICONV): Define if good iconv available.
+	(HAVE_ICONV): Don't undefine this.
+	* encoding.d: Test HAVE_GOOD_ICONV instead of GNU_LIBICONV ||
+	HAVE_ICONV.
+	* pseudofun.d: Likewise.
+	* stream.d: Likewise. Assume ICONV_CONST is defined.
+
+2002-05-26  Bruno Haible  <bruno@clisp.org>
+
 	Fix "make distclean".
 	* makemake.in (OBSOLETE): Don't add linkkit.
 	(install-bin): Use RMRF variable.

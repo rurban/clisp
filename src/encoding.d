@@ -1633,7 +1633,7 @@ global object nls_range (object encoding, uintL start, uintL end) {
 # They are defined in stream.d because they need to access internals of
 # the ChannelStream.
 
-#if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
+#ifdef HAVE_GOOD_ICONV
 
 extern uintL iconv_mblen (object encoding, const uintB* src,
                           const uintB* srcend);
@@ -1647,7 +1647,7 @@ extern void iconv_wcstombs (object encoding, object stream, const chart* *srcp,
                             uintB* destend);
 extern object iconv_range (object encoding, uintL start, uintL end);
 
-#endif # GNU_LIBICONV || HAVE_ICONV
+#endif # HAVE_GOOD_ICONV
 
 #ifdef GNU_LIBICONV
 
@@ -1690,7 +1690,7 @@ LISPFUN(make_encoding,0,0,norest,key,4,
              && constantp(TheSymbol(sym)) && encodingp(Symbol_value(sym))) {
     arg = Symbol_value(sym);
   }
-  #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
+  #ifdef HAVE_GOOD_ICONV
   else if (stringp(arg)) {
     with_string_0(arg,Symbol_value(S(ascii)),charset_ascii,
                   { check_charset(charset_ascii,arg); });
@@ -2262,7 +2262,7 @@ local object encoding_from_name (const char* name) {
   else if (name && asciz_equal(name,"CP1129"))
     pushSTACK(Symbol_value(S(cp1129)));
   #endif
-  #elif (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
+  #elif (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_GOOD_ICONV)
   else if (name && asciz_equal(name,"CP932"))
     pushSTACK(ascii_to_string("CP932"));
   else if (name && asciz_equal(name,"CP949"))
