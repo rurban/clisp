@@ -1,4 +1,4 @@
-.TH "CLISP SOURCE" 1 "2004-01-13"
+.TH "CLISP SOURCE" 1 "2004-11-29"
 
 
 .SH ABOUT
@@ -442,7 +442,118 @@ miscellaneous CLtL2 compatible definitions
 implements a CLtL2/dpANS compatible LOOP macro
 .TP
 .B clos.lisp
-implements a subset of the Common Lisp Object System
+loads the various parts of the Common Lisp Object System
+.TP
+.B clos-package.lisp
+declares the imports and exports of the CLOS package
+.TP
+.B clos-macros.lisp
+defines some internal macros used by the CLOS implementation
+.TP
+.B clos-class0.lisp
+defines the class-version structure
+.TP
+.B clos-metaobject1.lisp
+defines the <metaobject> class
+.TP
+.B clos-slotdef1.lisp
+defines the <slot-definition> class and its subclasses
+.TP
+.B clos-slotdef2.lisp
+defines initialize-instance methods for <slot-definition> and its subclasses
+.TP
+.B clos-slotdef3.lisp
+defines the generic functions that can be used on <slot-definition> objects
+.TP
+.B clos-stablehash1.lisp
+defines the <standard-stablehash> class
+.TP
+.B clos-stablehash2.lisp
+defines initialize-instance methods for <standard-stablehash>
+.TP
+.B clos-specializer1.lisp
+defines the <specializer> class and its subclasses
+.TP
+.B clos-specializer2.lisp
+defines initialize-instance methods for <specializer> and its subclasses
+.TP
+.B clos-specializer3.lisp
+defines the generic functions that can be used on <specializer> objects
+.TP
+.B clos-class1.lisp
+defines the <potential-class> class and its subclasses
+.TP
+.B clos-class2.lisp
+implements the mapping from class names to classes
+.TP
+.B clos-class3.lisp
+implements the DEFCLASS macro, class definition and class redefinition
+.TP
+.B clos-class4.lisp
+defines initialize-instance methods for <potential-class> and its subclasses
+.TP
+.B clos-class5.lisp
+implements the special logic of make-instance, initialize-instance etc.
+.TP
+.B clos-class6.lisp
+defines the generic functions that can be used on <potential-class> objects
+.TP
+.B clos-method1.lisp
+defines the <method> class and its subclasses
+.TP
+.B clos-method2.lisp
+implements the bulk of DEFMETHOD
+.TP
+.B clos-method3.lisp
+defines the generic functions that can be used on <method> objects
+.TP
+.B clos-method4.lisp
+makes generic functions on <standard-method> objects extensible
+.TP
+.B clos-methcomb1.lisp
+defines the <method-combination> class
+.TP
+.B clos-methcomb2.lisp
+implements method combination and the DEFINE-METHOD-COMBINATION macro
+.TP
+.B clos-methcomb3.lisp
+defines initialize-instance methods for <method-combination>
+.TP
+.B clos-methcomb4.lisp
+makes generic functions on <method-combination> objects extensible
+.TP
+.B clos-genfun1.lisp
+defines the <generic-function> class and its metaclass, superclass and subclasses
+.TP
+.B clos-genfun2a.lisp
+implements part 1 of generic function dispatch and execution
+.TP
+.B clos-genfun2b.lisp
+implements part 3 of generic function dispatch and execution
+.TP
+.B clos-genfun3.lisp
+implements creation of generic function objects, DEFMETHOD, DEFGENERIC
+.TP
+.B clos-genfun4.lisp
+defines initialize-instance methods for <generic-function> and its subclasses
+.TP
+.B clos-genfun5.lisp
+makes generic functions on <generic-function> objects extensible
+.TP
+.B clos-slots1.lisp
+implements low-level slot access, WITH-SLOTS, WITH-ACCESSORS
+.TP
+.B clos-slots2.lisp
+defines the generic functions that deal with slot access
+.TP
+.B clos-dependent.lisp
+implements notification from metaobjects to dependent objects
+.TP
+.B clos-print.lisp
+implements print-object
+.TP
+.B clos-custom.lisp
+provides user customization of the CLOS
 .TP
 .B condition.lisp
 implements the Common Lisp Condition System
