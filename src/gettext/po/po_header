@@ -26,7 +26,7 @@ date_now=`date +'%Y-%m-%d %T %Z'`
 if test $lang = xx; then
   date_pot="$date_now"
 else
-  date_pot=`ls -l --full-time clisp.pot | head -1 | awk '{ print $6" "$7" "$8" "$9" "$10 }'`
+  date_pot=`LC_ALL=C ls -l --full-time clisp.pot | head -1 | awk '{ print $6" "$7" "$8" "$9" "$10 }'`
   date_pot=`date +'%Y-%m-%d %T %Z' -d "$date_pot"`
 fi
 
