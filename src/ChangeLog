@@ -1,65 +1,69 @@
-2000-09-02  Bruno Haible  <haible@clisp.cons.org>
+2000-09-06  Sam Steingold  <sds@gnu.org>
 
-        * savemem.lisp (saveinitmem): Bind *home-package* to nil while saving
-          the image. Needed because the new image may be started with -a,
-          thus with a different value of *package*.
-          Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
+	* compiler.lisp (c-form): Handle simple vectors as a constant.
 
 2000-09-02  Bruno Haible  <haible@clisp.cons.org>
 
-        * modules/clx/new-clx/configure.in: When checking for Xpm and XShape,
-          temporarily add $X_CFLAGS to the CFLAGS. Needed on FreeBSD, which
-          has X_CFLAGS=-I/usr/X11R6/include.
-          Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
+	* savemem.lisp (saveinitmem): Bind *home-package* to nil while saving
+	  the image. Needed because the new image may be started with -a,
+	  thus with a different value of *package*.
+	  Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
+
+2000-09-02  Bruno Haible  <haible@clisp.cons.org>
+
+	* modules/clx/new-clx/configure.in: When checking for Xpm and XShape,
+	  temporarily add $X_CFLAGS to the CFLAGS. Needed on FreeBSD, which
+	  has X_CFLAGS=-I/usr/X11R6/include.
+	  Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
 
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
-        Fix line numbers in generated C code.
-        * utils/varbrace.d (out_line): New function.
-          (ifdef_line_repeat): New variable.
-          (line_emit, line_repeat_else, line_repeat_endif): New functions.
-          (next_token): Call them.
-          (convert): Initialize ifdef_line_repeat. Call line_emit to emit a
-          #line directive.
+	Fix line numbers in generated C code.
+	* utils/varbrace.d (out_line): New function.
+	  (ifdef_line_repeat): New variable.
+	  (line_emit, line_repeat_else, line_repeat_endif): New functions.
+	  (next_token): Call them.
+	  (convert): Initialize ifdef_line_repeat. Call line_emit to emit a
+	  #line directive.
 
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
-        * stream.d (lisp_completion): Put end_callback() at the right place,
-          and protect malloc() and free() with begin/end_system_call().
-          Fixes a crash in cstombs on i386 platforms, reported by
-          Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
+	* stream.d (lisp_completion): Put end_callback() at the right place,
+	  and protect malloc() and free() with begin/end_system_call().
+	  Fixes a crash in cstombs on i386 platforms.
+	  Reported by Valeriy E. Ushakov <uwe@ptc.spbu.ru>.
 
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
-        * eval.d (interpret_bytecode_): Don't produce "testb %edx,%edx" or
-          "testb %eax,%eax" any more.
+	* eval.d (interpret_bytecode_): Don't produce "testb %edx,%edx" or
+	  "testb %eax,%eax" any more.
 
 2000-08-19  Bruno Haible  <haible@clisp.cons.org>
 
-        * utils/ccpaux.c: main() returns int. Call fflush(stdout) before
-          testing ferror(stdout).
-        * utils/deema.c: Likewise.
-        * utils/txt2c.c: Call fflush(stdout) before testing ferror(stdout).
-        * utils/comment5.d: Call fflush(outfile) before testing
-          ferror(outfile).
+	* utils/ccpaux.c: main() returns int. Call fflush(stdout) before
+	  testing ferror(stdout).
+	* utils/deema.c: Likewise.
+	* utils/txt2c.c: Call fflush(stdout) before testing ferror(stdout).
+	* utils/comment5.d: Call fflush(outfile) before testing
+	  ferror(outfile).
 
 2000-08-26  Bruno Haible  <haible@clisp.cons.org>
 
-        * autoconf/acgeneral.m4 (AC_OUTPUT): Use braces in exec_prefix default
-          value, not parens.
+	* autoconf/acgeneral.m4 (AC_OUTPUT): Use braces in exec_prefix default
+	  value, not parens.
 
 2000-08-18  Bruno Haible  <haible@clisp.cons.org>
 
-        * pathname.d (parse_logical_host_prefix): Renamed from logical_host.
-          (string_logical_path_p): Remove function.
-          (parse_namestring): Integrate it here. When recognizing a logical
-          host, don't overwrite the :host argument.
+	* pathname.d (parse_logical_host_prefix): Renamed from logical_host.
+	  (string_logical_path_p): Remove function.
+	  (parse_namestring): Integrate it here. When recognizing a logical
+	  host, don't overwrite the :host argument.
 
-        ANSI CL wants (PATHNAME (OPEN filename ...)) to return filename if
-        filename is a logical pathname.
-        * pathname.d (open_file): Expect the original filename on the stack.
-          (OPEN): When the filename argument is a logical pathname, pass it
-          to open_file.
+	ANSI CL wants (PATHNAME (OPEN filename ...)) to return filename if
+	filename is a logical pathname.
+	* pathname.d (open_file): Expect the original filename on the stack.
+	  (OPEN): When the filename argument is a logical pathname, pass it
+	  to open_file.
 
 2000-08-17  Sam Steingold  <sds@gnu.org>
 
