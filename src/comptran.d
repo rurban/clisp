@@ -495,7 +495,7 @@ local maygc object N_sin_N (object x)
       if (R_rationalp(STACK_0)) /* b */
         STACK_0 = RA_float_F(STACK_0);
       var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
-      R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b) sinh(b) */
+      R_cosh_sinh_R_R(STACK_0,NULL); /* cosh(b) sinh(b) */
       /* stack layout: a, b, cosh(b), sinh(b).
          b != Fixnum_0 ==> sinh(b) != Fixnum_0. */
       R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a)!=0, sin(a) */
@@ -540,7 +540,7 @@ local maygc object N_cos_N (object x)
       if (R_rationalp(STACK_0)) /* b */
         STACK_0 = RA_float_F(STACK_0);
       var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
-      R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b), sinh(b) */
+      R_cosh_sinh_R_R(STACK_0,NULL); /* cosh(b), sinh(b) */
       /* stack layout: a, b, cosh(b), sinh(b). */
       R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a), sin(a) */
       /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
@@ -586,7 +586,7 @@ local maygc object N_tan_N (object x)
       if (R_rationalp(STACK_0)) /* b */
         STACK_0 = RA_float_F(STACK_0);
       var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
-      R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b), sinh(b) */
+      R_cosh_sinh_R_R(STACK_0,NULL); /* cosh(b), sinh(b) */
       /* stack layout: a, b, cosh(b), sinh(b). */
       R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a), sin(a) */
       /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
@@ -686,7 +686,7 @@ local maygc object N_sinh_N (object x)
       R_cos_sin_R_R(STACK_0,true,NULL); /* cos(b), sin(b) */
       /* stack layout: a, b, cos(b), sin(b).
          b != Fixnum_0 ==> sin(b) != Fixnum_0. */
-      R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a); cosh(a) != Fixnum 0 */
+      R_cosh_sinh_R_R(STACK_3,NULL); /* cosh(a), sinh(a); cosh(a) != Fixnum 0 */
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
@@ -730,7 +730,7 @@ local maygc object N_cosh_N (object x)
       var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
       R_cos_sin_R_R(STACK_0,true,NULL); /* cos(b), sin(b) */
       /* stack layout: a, b, cos(b), sin(b). */
-      R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a) */
+      R_cosh_sinh_R_R(STACK_3,NULL); /* cosh(a), sinh(a) */
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
@@ -776,7 +776,7 @@ local maygc object N_tanh_N (object x)
       var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
       R_cos_sin_R_R(STACK_0,true,NULL); /* cos(b), sin(b) */
       /* stack layout: a, b, cos(b), sin(b). */
-      R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a) */
+      R_cosh_sinh_R_R(STACK_3,NULL); /* cosh(a), sinh(a) */
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
       pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
       /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */

@@ -1229,7 +1229,7 @@ local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 #   falls e>0: y:=exp(x) errechnen,
 #     (scale-float (+ y (/ y)) -1) und (scale-float (- y (/ y)) -1) bilden.
 #   Genauigkeit wieder verringern.
-local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
+local maygc void R_cosh_sinh_R_R (object x, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) { /* x rational */
     if (eq(x,Fixnum_0)) /* x=0 -> return (1,0) */
@@ -1241,7 +1241,7 @@ local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
     if (e > 0) { /* e>0 -> use exp(x) */
       var object temp;
       pushSTACK(x);
-      pushSTACK(temp = R_exp_R(x,start_p,NULL)); /* y:=exp(x) */
+      pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
       pushSTACK(temp = F_durch_F(temp)); /* (/ y) */
       /* stack layout: x, exp(x), exp(-x). */
       temp = F_F_plus_F(STACK_1,temp); /* + y */
@@ -1255,8 +1255,7 @@ local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
     } else { /* e<=0 */
       if (R_zerop(x) /* e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ? */
           || (e <= (sintL)(1-F_float_digits(x))>>1)) {
-        if (start_p) /* increase computational precision */
-          x = F_extend_F(x);
+        x = F_extend_F(x); /* increase computational precision */
         pushSTACK(x); pushSTACK(x);
         if (end_p != NULL) {
           STACK_1 = RA_R_float_F(Fixnum_1,*end_p); /* cosh=1 */
@@ -1266,7 +1265,7 @@ local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
         return;
       }
       pushSTACK(x);
-      { var object temp = (start_p ? F_extend_F(x) : x);
+      { var object temp = F_extend_F(x);
         pushSTACK(temp);
         pushSTACK(F_square_F(temp)); /* x*x */
         pushSTACK(temp = F_sinhx_F(STACK_1)); /* y:=(sinh(x)/x)^2 */
@@ -1290,7 +1289,7 @@ local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
 local maygc object R_tanh_R (object x)
 {
   pushSTACK(x);
-  R_cosh_sinh_R_R(x,true,NULL);
+  R_cosh_sinh_R_R(x,NULL);
   /* stack layout: x, cosh(x), sinh(x). */
   var object result = R_R_durch_R(STACK_0,STACK_1);
   if (floatp(STACK_0) || floatp(STACK_1))
