@@ -1657,6 +1657,8 @@
                   (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
            (canonicalize-type (clos:class-name type))
            type))
+        ((clos::eql-specializer-p type)
+         `(MEMBER ,(clos::eql-specializer-singleton type)))
         ((encodingp type)
          #+UNICODE type
          #-UNICODE 'CHARACTER)

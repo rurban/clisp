@@ -83,6 +83,7 @@
          (t (typespec-error 'typep y))
     )  )
     ((clos::class-p y) (clos::typep-class x y))
+    ((clos::eql-specializer-p y) (eql x (clos::eql-specializer-singleton y)))
     ((encodingp y) (charset-typep x y))
     (t (typespec-error 'typep y))
 ) )
@@ -965,6 +966,11 @@
              (return-from subtype-integer
                (subtype-integer (clos:class-name type)))
              (no)))
+          ((clos::eql-specializer-p type)
+           (let ((x (clos::eql-specializer-singleton type)))
+             (if (typep x 'INTEGER)
+               (let ((low (min 0 x)) (high (max 0 x))) (yes))
+               (no))))
           ((encodingp type) (no))
           (t (typespec-error 'subtypep type)))))
 
