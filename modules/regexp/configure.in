@@ -1,30 +1,21 @@
 dnl AUTOCONF configuration for regex
 dnl Bruno Haible 18.4.1995
-dnl Sam Steingold 2003-2004
+dnl Sam Steingold 2003-2005
 
 AC_PREREQ(2.57)
 AC_INIT(regexp, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(regexp.lisp)
 AC_CONFIG_HEADERS(config.h)
-AC_ARG_WITH([sysre],
-AC_HELP_STRING([--with-sysre],
-[use the system-wide regexp library (default is YES, if present)]),
-[ac_cv_use_sysre=$withval], [ac_cv_use_sysre=yes])
 
 AC_MSG_NOTICE([* Regexp (Checks)])
 AC_PROG_CC
 AC_PROG_CPP
 AC_AIX
 AC_HEADER_STDC
-AC_FUNC_ALLOCA
 AC_CHECK_HEADERS(string.h sys/types.h)
-if test "$ac_cv_use_sysre" = no; then
-AC_MSG_NOTICE([not checking for system-wide regexp])
-else
 CL_REGEXP
-fi
 # can we use the system-wide regex implementation?
-if test "$ac_cv_use_sysre" = yes -a "$cl_cv_regexp" = yes; then
+if test "$ac_cv_use_included_regexp" = no -a "$cl_cv_regexp" = yes; then
   REGEX_H=""
   REGEX_O=""
 else
