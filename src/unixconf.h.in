@@ -1,7 +1,8 @@
 /* -*- C -*-
  * CLISP configuration for UNIX systems
+ * Bruno Haible 1992-2002
+ * Sam Steingold 1998-2002
  */
-/* Bruno Haible 1992-2001 */
 
 #define UNIXCONF
 
@@ -48,9 +49,13 @@
 /* Define if <stddef.h> defines the offsetof macro. */
 #undef HAVE_OFFSETOF
 
-/* CL_STDBOOL_H */
+/* gt_STDBOOL_H */
 /* Define if you have the ISO C 99 header file <stdbool.h>. */
 #undef HAVE_STDBOOL_H
+
+/* gt_STDINT_H */
+/* Define if you have the ISO C 99 header file <stdint.h>. */
+#undef HAVE_STDINT_H
 
 /* CL_UNISTD_H */
 /* Define if you have <unistd.h>. */

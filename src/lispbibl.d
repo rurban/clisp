@@ -1145,7 +1145,11 @@
 #endif
 
 # boolean values:
-#include "stdbool.h"
+#ifdef HAVE_STDBOOL_H
+  #include <stdbool.h>
+#else
+  #include "stdbool.h"
+#endif
 
 # Type for signed values, results of comparisons, tertiary enums
 # with values +1, 0, -1
