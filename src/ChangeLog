@@ -3,7 +3,7 @@
 	Make clisp compiling on cygwin with g++
 	* avl.d (AVL(AVLID,delete1)): legalize goto for CC=g++
 	* spvw_garcol.d (free_some_unused_pages): explicit typecast
-	* spvw_allocate.d (make_space_gc): explicit typecast
+	* spvw_allocate.d (make_space_gc): modern definition, explicit typecast
 	* lispbibl.d: don't define setjmp, longjmp as  _setjmp, _longjmp
 	* spvw_memfile (offset_pages_t): new type
 	(loadmem_from handle): use it in explicit typecast
