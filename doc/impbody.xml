@@ -644,10 +644,10 @@ is the same as
  <varlistentry><term>&values-list;</term>
   <listitem><simpara><code>(&setf; (&values-list; &list-r;) &form-r;)</code>
     is equivalent to <code>(&values-list; (&setf; &list-r;
-     (&multiple-value-list; &form-r;)))</code>. Note that this &place; is
-    restricted: it can only be used in &setf;, &letf;, &letf-star;, not
-    in other positions.
- </simpara></listitem></varlistentry>
+     (&multiple-value-list; &form-r;)))</code>.</simpara>
+   <note><simpara>Note that this &place; is restricted: it can only be
+     used in &setf;, &letf;, &letf-star;, not in other positions.
+ </simpara></note></listitem></varlistentry>
 </variablelist></para>
 
 <para>&key-amp; markers in &defsetf; &lalist;s are supported, but the
