@@ -1,3 +1,8 @@
+2004-05-30  Sam Steingold  <sds@gnu.org>
+
+	* _distmakefile (clisp) [UNIX_BINARY_DISTRIB]: do not depend on
+	src/clisp.c, use '"' for quoting
+
 2004-05-28  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (symbol_): Check the size only if LINUX_NOEXEC_HEAPCODES.

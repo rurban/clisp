@@ -71,10 +71,11 @@ full/lisp$(lexe) : @@FULL_FILES@@
 	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp$(lexe)
 
 #endif
-clisp: src/clisp.c
 #ifdef UNIX_BINARY_DISTRIB
-	./hardcode -DLISPLIBDIR='`pwd`' -DLOCALEDIR='`pwd`/locale' clisp clisp
+clisp: force
+	./hardcode -DLISPLIBDIR="`pwd`" -DLOCALEDIR="`pwd`/locale" clisp clisp
 #else /* new executable */
+clisp: src/clisp.c
 	$(CC) $(CFLAGS) -DLISPLIBDIR='"'`pwd`'"' -DLOCALEDIR='"'`pwd`/locale'"' src/clisp.c -o clisp
 #endif
 
