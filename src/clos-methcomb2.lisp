@@ -391,6 +391,11 @@ and with the next-method support."
                       ,wrapped-ef-form)))))
       ef-fun)))
 
+(defun compute-effective-method-as-function-form (gf combination methods)
+  ;; Apply method combination:
+  (funcall (method-combination-expander combination)
+           gf combination methods (method-combination-options combination)))
+
 ;;; ----------------------- Standard Method Combination -----------------------
 
 (defun standard-method-combination-check-options (gf-name combination options)

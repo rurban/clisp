@@ -1,3 +1,9 @@
+2004-06-09  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb2.lisp (compute-effective-method-as-function-form): New
+	function.
+	* clos-genfun2.lisp (compute-effective-method-as-function): Use it.
+
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export find-method-combination.
