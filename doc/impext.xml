@@ -160,7 +160,7 @@ location depends on the &category;: it will be expected at
 might look as follows.</para>
 
 <formalpara id="i18n-non-i"><title>prog.lisp</title>
-<programlisting language="lisp">
+<para><programlisting language="lisp">
 (setq n (parse-integer (first &args;)))
 
 (format t "~A~%" "'Your command, please?', asked the waiter.")
@@ -168,7 +168,7 @@ might look as follows.</para>
 (format t "~@?~%"
           (if (= n 1) "a piece of cake" "~D pieces of cake")
           n)
-</programlisting></formalpara>
+</programlisting></para></formalpara>
 
 <para>After being internationalized, all strings are wrapped in
 &gettext; calls, and &ngettext; is used for plurals.
@@ -176,7 +176,7 @@ Also, &textdomaindir; is assigned a value; in our case, for simplicity,
 the current directory.</para>
 
 <formalpara id="i18n-i"><title>prog.lisp</title>
-<programlisting language="lisp">
+<para><programlisting language="lisp">
 (setf (textdomain) "prog")
 (setf (textdomaindir "prog") "./")
 
@@ -188,13 +188,13 @@ the current directory.</para>
 (format t "~@?~%"
           (ngettext "a piece of cake" "~D pieces of cake" n)
           n)
-</programlisting></formalpara>
+</programlisting></para></formalpara>
 
 <para>For ease of reading, it is customary to define an abbreviation
 for the &gettext; function.  An underscore is customary.</para>
 
 <formalpara id="i18n-i-abbrev"><title>prog.lisp</title>
-<programlisting language="lisp">
+<para><programlisting language="lisp">
 (setf (textdomaindir "prog") "./")
 (defun _ (msgid) (gettext msgid "prog"))
 
@@ -206,7 +206,7 @@ for the &gettext; function.  An underscore is customary.</para>
 (format t "~@?~%"
           (ngettext "a piece of cake" "~D pieces of cake" n "prog")
           n)
-</programlisting></formalpara>
+</programlisting></para></formalpara>
 
 <para>Now the program's maintainer creates a message catalog template
 through the command
@@ -221,7 +221,7 @@ bash$ xgettext -o prog.pot prog.lisp
 <para>The message catalog template looks roughly like this.</para>
 
 <formalpara id="i18n-pot"><title>prog.pot</title>
-<programlisting language="pot">
+<para><programlisting language="pot">
 msgid "'Your command, please?', asked the waiter."
 msgstr ""
 
@@ -229,12 +229,12 @@ msgid "a piece of cake"
 msgid_plural "%d pieces of cake"
 msgstr[0] ""
 msgstr[1] ""
-</programlisting></formalpara>
+</programlisting></para></formalpara>
 
 <para>Then a French translator creates a French message catalog</para>
 
 <formalpara id="i18n-fr-po"><title>prog.fr.po</title>
-<programlisting language="po">
+<para><programlisting language="po">
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
@@ -248,7 +248,7 @@ msgid "a piece of cake"
 msgid_plural "%d pieces of cake"
 msgstr[0] "un morceau de gateau"
 msgstr[1] "%d morceaux de gateau"
-</programlisting></formalpara>
+</programlisting></para></formalpara>
 
 <para>and sends it to the program's maintainer.</para>
 
