@@ -9230,19 +9230,6 @@ extern uintM free_space (void);
 extern void savemem (object stream);
 # is used by PATHNAME
 
-# UP: calls a foreign program.
-# execute(memneed)
-# > -(STACK): filename of the foreign program, a Simple-ASCIZ-String
-# > -(STACK): arguments (Command Tail), a Simple-String
-# > uintL memneed: number of bytes to be reserved
-#                    for the foreign program (even)
-# < sintL result : if negative, error number.
-#                    else return-cde of the called program.
-# STACK will be cleared
-# can trigger GC
-extern sintL execute (uintL memneed);
-# is used by PATHNAME
-
 #ifdef HAVE_SIGNALS
 # Temporarily do not ignore the status of subprocesses.
   extern void begin_want_sigcld (void);
