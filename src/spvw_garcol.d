@@ -146,7 +146,7 @@ local void gc_markphase (void)
      called and therefore cannot possibly be garbage-collected.
      But a few remain unmarked, so make sure all are really marked: */
   for_all_back_traces({
-    for (; bt; bt = bt->bt_next)
+    for (; bt != NULL; bt = bt->bt_next)
       gc_mark(bt->bt_caller);
   });
 }

@@ -8019,14 +8019,11 @@ typedef const struct backtrace_t* p_backtrace_t;
 #define bt_beyond_stack_p(bt,st) \
   ((bt) != NULL && !((aint)(st) cmpSTACKop (aint)((bt)->bt_stack)))
 /* unwind backtrace to the stack location */
-#ifdef DEBUG_BACKTRACE
 #define unwind_back_trace(bt,st)                                        \
   do { BT_CHECK(bt,"unwind_back_trace");                                \
-    while (bt_beyond_stack_p(bt,st)) bt=bt->bt_next;                    \
+    while (bt_beyond_stack_p(bt,st))                                    \
+      bt = bt->bt_next;                                                 \
   } while(0)
-#else
-#define unwind_back_trace(bt,st) while(bt_beyond_stack_p(bt,st))bt=bt->bt_next
-#endif
 
 /* evaluate statement augmenting back_trace */
 #if defined(STACKCHECKS) || defined(STACKCHECKC)
