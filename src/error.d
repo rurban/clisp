@@ -217,7 +217,7 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
       dynamic_unbind(); # Bindungsframe für sys::*recursive-error-count* auflösen,
                         # da keine Fehlermeldungs-Ausgabe mehr aktiv
       set_args_end_pointer(stackptr);
-      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zurück)
+      break_driver(false); /* call break-driver (does not return) */
     } else {
       STACK_0 = get_output_stream_string(&STACK_0);
       var object arguments = nreverse(STACK_2);
@@ -235,7 +235,7 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
         dynamic_unbind(); # Bindungsframe für sys::*recursive-error-count* auflösen,
                           # da keine Fehlermeldungs-Ausgabe mehr aktiv
         set_args_end_pointer(stackptr);
-        break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zurück)
+        break_driver(false); /* call break-driver (does not return) */
       } else {
         # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* /= NIL
         # Stackaufbau: type, args, --, errorstring.
@@ -405,7 +405,7 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
       # Fehlermeldung beenden, vgl. end_error():
       dynamic_unbind(); # Keine Fehlermeldungs-Ausgabe mehr aktiv
       set_args_end_pointer(rest_args_pointer); # STACK aufräumen
-      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zurück)
+      break_driver(false); /* call break-driver (does not return) */
     } else {
       {
         var object arguments = listof(argcount);
@@ -580,7 +580,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
       # Fehlermeldung beenden, vgl. end_error():
       dynamic_unbind(); # Keine Fehlermeldungs-Ausgabe mehr aktiv
       set_args_end_pointer(rest_args_pointer); # STACK aufräumen
-      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zurück)
+      break_driver(false); /* call break-driver (does not return) */
     } else {
       var object arguments = listof(argcount);
       # Stackaufbau: type, {keyword, value}*, errorstring.
@@ -660,7 +660,7 @@ LISPFUNN(invoke_debugger,1)
         write_sstring(&STACK_0,O(error_string1)); # "*** - " ausgeben
         # String ausgeben, Aufrufernamen verbrauchen, STACK aufräumen:
         set_args_end_pointer(write_errorstring(GETTEXT("~: User break")));
-        break_driver(T); # Break-Driver aufrufen
+        break_driver(true); /* call break-driver */
       } else {
         pushSTACK(CLSTEXT("Continue execution"));
         pushSTACK(S(simple_interrupt_condition)); # SYSTEM::[SIMPLE-]INTERRUPT-CONDITION
