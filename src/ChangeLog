@@ -1,5 +1,10 @@
 1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * describe.lsp (describe-object): Treat FOREIGN-FUNCTION, SYMBOL-MACRO,
+          ENCODING.
+
+1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make DESCRIBE more robust against interruptions.
         * describe.lsp (describe-stream): New stream class.
           (stream-*): New methods on describe-stream.
