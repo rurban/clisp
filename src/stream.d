@@ -3429,6 +3429,87 @@ local bool regular_handle_p (Handle handle) {
  #endif
 }
 
+# UP: Determines if two Handle refer to the same file or device.
+# same_handle_p(handle1,handle2)
+# > handle1: Handle of the first open device
+# > handle2: Handle of the second open device
+# < result: true if handle1 and handle2 are exchangeable
+local bool same_handle_p (Handle handle1, Handle handle2) {
+ #if defined(UNIX)
+  var struct stat statbuf1;
+  var struct stat statbuf2;
+  begin_system_call();
+  if (!( fstat(handle1,&statbuf1) ==0)) { OS_error(); }
+  if (!( fstat(handle2,&statbuf2) ==0)) { OS_error(); }
+  if (statbuf1.st_dev == statbuf2.st_dev
+      && statbuf1.st_ino == statbuf2.st_ino) {
+    /* handle1 and handle2 point to the same inode. */
+    if ((S_ISREG(statbuf1.st_mode) || S_ISBLK(statbuf1.st_mode))
+        && (S_ISREG(statbuf2.st_mode) || S_ISBLK(statbuf2.st_mode))) {
+      /* handle1 and handle2 are exchangeable only if they are positioned
+         at the same file position. */
+      var off_t pos1 = lseek(handle1,0,SEEK_CUR);
+      if (pos1 >= 0) {
+        var off_t pos2 = lseek(handle2,0,SEEK_CUR);
+        if (pos2 >= 0) {
+          end_system_call();
+          return (pos1 == pos2);
+        }
+      }
+    }
+    end_system_call();
+    return true;
+  } else {
+    end_system_call();
+    return false;
+  }
+ #endif
+ #ifdef WIN32_NATIVE
+  /* Same handle? */
+  if (handle1 == handle2)
+    return true;
+  /* Same handle type? */
+  begin_system_call();
+  var DWORD filetype1;
+  var DWORD filetype2;
+  filetype1 = GetFileType(handle1);
+  filetype2 = GetFileType(handle2);
+  if (filetype1 == filetype2) {
+    if (filetype1 == FILE_TYPE_DISK) {
+      /* handle1 and handle2 are both files. */
+      var BY_HANDLE_FILE_INFORMATION fileinfo1;
+      var BY_HANDLE_FILE_INFORMATION fileinfo2;
+      if (!GetFileInformationByHandle(handle1,&fileinfo1)) { OS_error(); }
+      if (!GetFileInformationByHandle(handle2,&fileinfo2)) { OS_error(); }
+      end_system_call();
+      return (fileinfo1.dwVolumeSerialNumber == fileinfo2.dwVolumeSerialNumber
+              && fileinfo1.nFileIndexLow == fileinfo2.nFileIndexLow
+              && fileinfo1.nFileIndexHigh == fileinfo2.nFileIndexHigh
+              /* Comparing the other members of the BY_HANDLE_FILE_INFORMATION
+                 structure shouldn't be necessary, but doesn't hurt either. */
+              && fileinfo1.dwFileAttributes == fileinfo2.dwFileAttributes
+              && fileinfo1.ftCreationTime == fileinfo2.ftCreationTime
+              && fileinfo1.ftLastAccessTime == fileinfo2.ftLastAccessTime
+              && fileinfo1.ftLastWriteTime == fileinfo2.ftLastWriteTime
+              && fileinfo1.nFileSizeLow == fileinfo2.nFileSizeLow
+              && fileinfo1.nFileSizeHigh == fileinfo2.nFileSizeHigh
+              && fileinfo1.nNumberOfLinks == fileinfo2.nNumberOfLinks);
+    } else (filetype1 == FILE_TYPE_CHAR) {
+      /* Same console? */
+      var DWORD console_mode;
+      if (GetConsoleMode(handle1,&console_mode)
+          && GetConsoleMode(handle2,&console_mode)) {
+        end_system_call();
+        return true;
+      }
+    }
+    /* Cannot determine equality. Assume they are different. */
+  }
+  end_system_call();
+  return false;
+ #endif
+}
+
 
 # Channel-Streams
 # ===============
@@ -9526,16 +9607,16 @@ local bool stdio_same_tty_p (void)
  #if defined(UNIX_CYGWIN32)
   /* st_ino does not make sense on Cygwin: they are based on
      filenames, and stdin is CONIN$ while stdout is CONOUT$ */
-  char* res = ttyname(stdin_handle);
+  var char* res = ttyname(stdin_handle);
   if (strcmp(res,"/dev/conin")) { /* not a windows console, maybe X? */
-    char tmp[MAXPATHLEN];
+    var char tmp[MAXPATHLEN];
     strcpy(tmp,res);
     return !strcmp(tmp,ttyname(stdout_handle));
   } else
     return !strcmp("/dev/conout",ttyname(stdout_handle));
  #else  /* ttyname() is rather slow, fstat() is faster. */
-  struct stat stdin_stat;
-  struct stat stdout_stat;
+  var struct stat stdin_stat;
+  var struct stat stdout_stat;
   return (fstat(stdin_handle,&stdin_stat) >= 0)
     && (fstat(stdout_handle,&stdout_stat) >= 0)
     && (stdin_stat.st_dev == stdout_stat.st_dev)
@@ -9543,7 +9624,7 @@ local bool stdio_same_tty_p (void)
  #endif
 #endif
 #ifdef WIN32_NATIVE
-  DWORD console_mode;
+  var DWORD console_mode;
   return GetConsoleMode(stdin_handle,&console_mode)
     && GetConsoleMode(stdout_handle,&console_mode);
 #endif
@@ -9552,11 +9633,10 @@ local bool stdio_same_tty_p (void)
 # Returns an interactive Terminal-Stream.
 # can trigger GC
 local object make_terminal_stream_ (void) {
-  bool stdin_tty, stdout_tty, same_tty;
   begin_system_call();
-  stdin_tty = isatty(stdin_handle); # stdin a Terminal?
-  stdout_tty = isatty(stdout_handle); # stdout a Terminal?
-  same_tty = stdin_tty && stdout_tty && stdio_same_tty_p();
+  var bool stdin_tty = isatty(stdin_handle); # stdin a Terminal?
+  var bool stdout_tty = isatty(stdout_handle); # stdout a Terminal?
+  var bool same_tty = stdin_tty && stdout_tty && stdio_same_tty_p();
   end_system_call();
  #ifdef HAVE_TERMINAL3
   if (rl_gnu_readline_p && same_tty) { # Build a TERMINAL3-Stream:
@@ -14584,15 +14664,68 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
 #undef READ_P
 #undef WRITE_P
 
-/* file ==> :external-format :default, not O(terminal-encoding) */
-#define make_standard_input()                           \
-  handle_to_stream(stdin_handle,S(Kinput),S(Kdefault),  \
-                   S(Kdefault),S(character))
-#define make_standard_output()                           \
-  handle_to_stream(stdout_handle,S(Koutput),S(Kdefault), \
-                   S(Kdefault),S(character))
+/* Allocates the equivalent of the C stream stdin.
+ can trigger GC */
+local inline object make_standard_input_file_stream (void) {
+  /* This uses the external-format :default, not O(terminal_encoding),
+     because this stream is used when *terminal-io* is not interactive. */
+  return handle_to_stream(stdin_handle,S(Kinput),S(Kdefault),S(Kdefault),
+                          S(character));
+}
 
-# UP: Return the default value for *terminal-io*.
+/* Allocates the equivalent of the C stream stdout.
+ can trigger GC */
+local inline object make_standard_output_file_stream (void) {
+  /* This uses the external-format :default, not O(terminal_encoding),
+     because this stream is used when *terminal-io* is not interactive. */
+  return handle_to_stream(stdout_handle,S(Koutput),S(Kdefault),S(Kdefault),
+                          S(character));
+}
+
+/* Allocates the equivalent of the C stream stderr.
+ can trigger GC */
+local inline object make_standard_error_file_stream (void) {
+  /* This uses the external-format :default, not O(terminal_encoding),
+     because this stream is used when *terminal-io* is not interactive. */
+  return handle_to_stream(stderr_handle,S(Koutput),S(Kdefault),S(Kdefault),
+                          S(character));
+}
+
+/* It is important to allocate each of the standard_output_file_stream,
+   standard_error_file_stream only _once_, because otherwise FRESH-LINE on one
+   of these streams would not see that some output has been sent to another
+   of these streams and would therefore not print a newline when it should.
+   (FRESH-LINE is only allowed to err in the other direction: It may output
+   a newline although it is not needed.) */
+
+/* Returns the equivalent of the C stream stdin.
+ can trigger GC */
+local object get_standard_input_file_stream (void) {
+  if (nullp(O(standard_input_file_stream)))
+    O(standard_input_file_stream) = make_standard_input_file_stream();
+  return O(standard_input_file_stream);
+}
+
+/* Returns the equivalent of the C stream stdout.
+ can trigger GC */
+local object get_standard_output_file_stream (void) {
+  if (nullp(O(standard_output_file_stream)))
+    O(standard_output_file_stream) = make_standard_output_file_stream();
+  return O(standard_output_file_stream);
+}
+
+/* Returns the equivalent of the C stream stderr.
+ can trigger GC */
+local object get_standard_error_file_stream (void) {
+  if (nullp(O(standard_error_file_stream)))
+    O(standard_error_file_stream) =
+      (same_handle_p(stderr_handle,stdout_handle)
+       ? get_standard_output_file_stream()
+       : make_standard_error_file_stream());
+  return O(standard_error_file_stream);
+}
+
+# UP: Returns the default value for *terminal-io*.
 # can trigger GC
 local object make_terminal_io (void) {
   # If stdin or stdout is a file, use a buffered stream instead of an
@@ -14601,15 +14734,47 @@ local object make_terminal_io (void) {
   var bool stdin_file = regular_handle_p(stdin_handle);
   var bool stdout_file = regular_handle_p(stdout_handle);
   if (stdin_file || stdout_file) {
-    var object stream = stdin_file /* input */
-      ? make_standard_input() : make_terminal_stream();
-    pushSTACK(stream);
-    stream = stdout_file        /* output */
-      ? make_standard_output() : make_terminal_stream();
+    /* Input side: */
+    var object istream =
+      (stdin_file ? get_standard_input_file_stream() : make_terminal_stream());
+    pushSTACK(istream);
+    /* Output side: */
+    var object ostream =
+      (stdout_file ? get_standard_output_file_stream() : make_terminal_stream());
     /* Build a two-way-stream: */
-    return make_twoway_stream(popSTACK(),stream);
+    return make_twoway_stream(popSTACK(),ostream);
   }
   return make_terminal_stream();
+}
+
+# UP: Returns the input side of *TERMINAL-IO*.
+# Defaults to a (make-synonym-stream '*terminal-io*).
+# > preallocated_default: (make-synonym-stream '*terminal-io*) or unbound
+# < result: a stream that can be used for *STANDARD-INPUT*
+# can trigger GC
+local object terminal_io_input_stream (object preallocated_default) {
+  var object terminal_io = Symbol_value(S(terminal_io));
+  /* Optimization: Extract the input side if possible. */
+  if (stream_twoway_p(terminal_io))
+    return TheStream(terminal_io)->strm_twoway_input;
+  /* General case: Use a synonym stream. */
+  return (!eq(preallocated_default,unbound) ? preallocated_default :
+          make_synonym_stream(S(terminal_io)));
+}
+
+# UP: Returns the output side of *TERMINAL-IO*.
+# Defaults to a (make-synonym-stream '*terminal-io*).
+# > preallocated_default: (make-synonym-stream '*terminal-io*) or unbound
+# < result: a stream that can be used for *STANDARD-OUTPUT*
+# can trigger GC
+local object terminal_io_output_stream (object preallocated_default) {
+  var object terminal_io = Symbol_value(S(terminal_io));
+  /* Optimization: Extract the output side if possible. */
+  if (stream_twoway_p(terminal_io))
+    return TheStream(terminal_io)->strm_twoway_output;
+  /* General case: Use a synonym stream. */
+  return (!eq(preallocated_default,unbound) ? preallocated_default :
+          make_synonym_stream(S(terminal_io)));
 }
 
 #ifdef GNU_READLINE
@@ -14650,24 +14815,6 @@ local int previous_line_virtual (int count, int key) {
 }
 #endif
 
-/* init *STANDARD-INPUT* & *STANDARD-OUTPUT* from *TERMINAL-IO*
- can trigger GC */
-#define init_standard_io(direction)                                     \
-  local object init_standard_##direction (object syn_str, bool batch_p) { \
-    var object tio_s = Symbol_value(S(terminal_io));                    \
-    return                                                              \
-      ((stream_twoway_p(tio_s)                                          \
-        && !terminal_stream_p(TheStream(tio_s)->strm_twoway_##direction)) \
-       ? ((object)TheStream(tio_s)->strm_twoway_##direction)            \
-       : (batch_p ? make_standard_##direction()                         \
-          : (!nullp(syn_str) ? syn_str                                  \
-             : make_synonym_stream(S(terminal_io)))));                  \
-  }
-
-init_standard_io(input)
-init_standard_io(output)
-#undef init_standard_io
-
 /* UP: Initializes the stream-variables.
  init_streamvars(batch_p);
  > batch_p: Flag, whether *standard-input*, *standard-output*, *error-output*
@@ -14701,14 +14848,12 @@ global void init_streamvars (bool batch_p) {
     define_variable(S(query_io),stream);         # *QUERY-IO*
     define_variable(S(debug_io),stream);         # *DEBUG-IO*
     define_variable(S(trace_output),stream);     # *TRACE-OUTPUT*
-    /* *STANDARD-INPUT* and *STANDARD-OUTPUT* */
-    define_variable(S(standard_input),init_standard_input(stream,batch_p));
-    define_variable(S(standard_output),init_standard_output(stream,batch_p));
-    stream = batch_p
-      ? handle_to_stream(stderr_handle,S(Koutput),NIL,
-                         S(Kdefault),S(character))
-      : (object)Symbol_value(S(standard_output));
-    define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
+    define_variable(S(standard_input),           # *STANDARD-INPUT*
+      batch_p ? get_standard_input_file_stream() : terminal_io_input_stream(stream));
+    define_variable(S(standard_output),          # *STANDARD-OUTPUT*
+      batch_p ? get_standard_output_file_stream() : terminal_io_output_stream(stream));
+    define_variable(S(error_output),             # *ERROR-OUTPUT*
+      batch_p ? get_standard_error_file_stream() : (object)Symbol_value(S(standard_output)));
   }
   #ifdef KEYBOARD
   # Initialize the *KEYBOARD-INPUT* stream. This can fail in some cases,
@@ -14749,11 +14894,9 @@ local void fehler_value_stream (object sym) {
     # Synonym-Stream to *TERMINAL-IO* as Default
     stream = make_synonym_stream(S(terminal_io));
   } else if (eq(sym,S(standard_input))) {
-    stream = init_standard_input(NIL,false);
+    stream = terminal_io_input_stream(unbound);
   } else if (eq(sym,S(standard_output))) {
-    stream = init_standard_output(NIL,false);
-  # } else if (eq(sym,S(error_output))) {
-  #   stream = init_error_output(NIL,false);
+    stream = terminal_io_output_stream(unbound);
   } else {
     # other Symbol, not fixable -> instant error-message:
     pushSTACK(Symbol_value(sym)); # TYPE-ERROR slot DATUM
