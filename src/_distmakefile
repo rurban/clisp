@@ -66,6 +66,8 @@ full/lisp.run : @@FULL_FILES@@
 install : install-bin install-man
 
 install-bin : $(fromdir)/lisp.run $(fromdir)/lispinit.mem force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(lisplibdir) ] ; then mkdir $(lisplibdir) ; fi
 	if [ ! -d $(lisplibdir)/full ] ; then mkdir $(lisplibdir)/full ; fi
@@ -115,6 +117,8 @@ install-man : doc/clisp.1 doc/clreadline.3 force
 #else
 install-man : doc/clisp.1 force
 #endif
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 	if [ ! -d $(mandir)/man1 ] ; then mkdir $(mandir)/man1 ; fi
 	sed -e 's,/usr/local/bin/,$(bindir)/,g' < doc/clisp.1 > /tmp/clisp.1.inst \
