@@ -183,8 +183,14 @@
 <varlistentry><term><literal role="sexp">(BDB:DB-OPEN db file &key-amp;
    DATABASE TYPE MODE CREATE DIRTY_READ EXCL NOMMAP RDONLY
    THREAD TRUNCATE AUTO_COMMIT TRANSACTION)</literal></term>
- <listitem><simpara>Open a database (&DB_open;).
-</simpara></listitem></varlistentry>
+ <listitem><para>Open a database (&DB_open;).
+   <constant>:TYPE</constant> should be one of
+   <simplelist><member><constant>:BTREE</constant></member>
+    <member><constant>:HASH</constant></member>
+    <member><constant>:QUEUE</constant></member>
+    <member><constant>:RECNO</constant></member>
+    <member><constant>:UNKNOWN</constant> (default)</member></simplelist>.
+</para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-SYNC db)</literal></term>
  <listitem><simpara>Flush a database to stable storage (&DB_sync;).
 </simpara></listitem></varlistentry>
@@ -242,11 +248,11 @@
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db &key-amp;
       ERRFILE PASSWORD ENCRYPT NCACHE CACHESIZE PAGESIZE RE_DELIM RE_LEN
-      RE_PAD LORDER)
+      RE_PAD RE_SOURCE LORDER)
  </literal></term>
  <listitem><simpara>Call &DB_set_errfile;, &DB_set_encrypt;,
-   &DB_set_cachesize;, &DB_set_re_delim;, &DB_set_re_len;,
-   &DB_set_re_pad;, &DB_set_pagesize;, &DB_set_lorder;.
+   &DB_set_cachesize;, &DB_set_re_delim;, &DB_set_re_len;, &DB_set_re_pad;,
+   &DB_set_re_source;, &DB_set_pagesize;, &DB_set_lorder;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-GET-OPTIONS db
    &optional-amp; what)</literal></term>
@@ -282,19 +288,34 @@
     <varlistentry><term><constant>:PAGESIZE</constant></term>
      <listitem><simpara>database page size (&DB_get_pagesize;).
     </simpara></listitem></varlistentry>
-     <varlistentry><term><constant>:RE_DELIM</constant></term>
-     <listitem><simpara>database record delimiter (&DB_get_re_delim;).
+    <varlistentry><term><constant>:RE_DELIM</constant></term>
+     <listitem><simpara>the record delimiter
+       for <constant>:RECNO</constant> databases (&DB_get_re_delim;).
     </simpara></listitem></varlistentry>
-     <varlistentry><term><constant>:RE_LEN</constant></term>
+    <varlistentry><term><constant>:RE_LEN</constant></term>
      <listitem><simpara>database record length (&DB_get_re_len;).
     </simpara></listitem></varlistentry>
-     <varlistentry><term><constant>:RE_PAD</constant></term>
+    <varlistentry><term><constant>:RE_PAD</constant></term>
      <listitem><simpara>database record pad byte (&DB_get_re_pad;).
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:RE_SOURCE</constant></term>
+     <listitem><simpara>the underlying source file
+       for <constant>:RECNO</constant> databases (&DB_get_re_source;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:LORDER</constant></term>
      <listitem><simpara>database byte orderb (&DB_get_lorder;).
     </simpara></listitem></varlistentry>
-</variablelist></para></listitem></varlistentry>
+  </variablelist></para>
+  <warning><para>Once you call a method for one type of access method,
+    the handle can only be used for that type.
+    The methods &DB_get_re_delim; and &DB_get_re_source are for
+    a <constant>:RECNO</constant> database so
+    you <emphasis>cannot</emphasis> call them
+    (by passing <constant>:RE_DELIM</constant>
+    or <constant>:RE_SOURCE</constant> to this function)
+    and then use the database handle to open a database of different type
+    (e.g., <constant>:QUEUE</constant>).</para></warning>
+</listitem></varlistentry>
 </variablelist>
 
 <section id="bdb-bt-rn-config"><title>Btree/Recno Configuration</title>
