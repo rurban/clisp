@@ -12150,7 +12150,7 @@ local uintW v_put(ch)
         p1.X = 1; p1.Y = 1;
         WriteConsoleOutput(console_handle,&c,p1,p0,&rto);
         if (console_cursor_pos.X == console_size.X-1) {
-          console_cursor_pos.X = 0; console_cursor_pos.Y++:
+          console_cursor_pos.X = 0; console_cursor_pos.Y++;
         } else {
           console_cursor_pos.X++;
         }
