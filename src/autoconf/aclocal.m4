@@ -3007,7 +3007,7 @@ done
 done
 ], [extern int ioctl ($cl_cv_proto_ioctl_args);])
 AC_DEFINE_UNQUOTED(IOCTL_REQUEST_T,$cl_cv_proto_ioctl_arg2,[type of `request' in ioctl() declaration])
-if test $cl_cv_proto_ioctl_dots = yes; then
+if test "$cl_cv_proto_ioctl_dots" = yes; then
 AC_DEFINE(IOCTL_DOTS,,[declaration of ioctl() needs dots])
 else
 AC_DEFINE_UNQUOTED(IOCTL_ARGUMENT_T,$cl_cv_proto_ioctl_arg3,[type of `argument' in ioctl() declaration, if not superseded by dots])

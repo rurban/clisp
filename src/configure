@@ -17141,7 +17141,7 @@ cat >>confdefs.h <<_ACEOF
 #define IOCTL_REQUEST_T $cl_cv_proto_ioctl_arg2
 _ACEOF
 
-if test $cl_cv_proto_ioctl_dots = yes; then
+if test "$cl_cv_proto_ioctl_dots" = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define IOCTL_DOTS
