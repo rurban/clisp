@@ -20,7 +20,7 @@
   local void init_modules_0 (void);
 
 # The main module, called "clisp".
-  local module_ * main_module;
+  extern module_ main_module;
 
 # Iterate through the modules.
 # for_modules(which,statement);
