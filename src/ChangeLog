@@ -1,5 +1,9 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (object_address): Fix GC-safety bug introduced on 2003-08-07.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* foreign.d (convert_function_to_foreign): Fix long-standing GC-safety
 	bug.
 
