@@ -518,7 +518,7 @@ The problem seems to be gone in IRIX 6.4.
 
 On IRIX 6.5:
 
-The /bin/sh has problem with autoconf generated configure scripts. You
+The /bin/sh has a problem with autoconf generated configure scripts. You
 have to first install GNU bash and point the CONFIG_SHELL environment
 variable to it:
   $ CONFIG_SHELL=/bin/bash
