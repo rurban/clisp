@@ -1,3 +1,36 @@
+2004-10-24  Bruno Haible  <bruno@clisp.org>
+
+	Merge method allocation and initialization into a single step again.
+	* clos-class3.lisp (install-class-direct-accessors): Pass the
+	method-class, not the method, to method-function-initargs. Call
+	make-instance instead of allocate-instance and initialize-instance.
+	* clos-method1.lisp (initialize-instance-<method>): Add backpointer
+	argument.
+	(initialize-instance-<standard-method>): Likewise.
+	(allocate-method-instance, initialize-method-instance): Remove
+	functions.
+	(make-method-instance): New function.
+	* clos-methcomb2.lisp (method-function-initargs): Take the method's
+	class as argument, not the method.
+	(add-next-method-local-functions): Rename argument self to backpointer.
+	(effective-method-code-bricks): Emit code to use make-method-instance
+	instead of allocate-method-instance, initialize-method-instance, and
+	pass the method-class, not the method, to method-function-initargs.
+	* clos-method2.lisp (analyze-method-description): Rename self to
+	backpointer.
+	* clos-genfun3.lisp (%call-next-method): Take the backpointer, not the
+	method, as first argument.
+	(do-defmethod, analyze-defgeneric): Use make-method-instance instead of
+	allocate-method-instance, initialize-method-instance. Pass the
+	method-class, not the method, to method-function-initargs.
+	* clos-genfun4.lisp (%no-next-method): Take the backpointer, not the
+	method, as first argument.
+	* clos-method3.lisp (initialize-instance@method,
+	initialize-instance@standard-method): Add backpointer argument.
+	* clos-method4.lisp (allocate-method-instance,
+	initialize-method-instance): Remove functions.
+	(make-method-instance): New function.
+
 2004-11-03  Bruno Haible  <bruno@clisp.org>
 
 	Provide explanations in deprecation warnings.

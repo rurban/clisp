@@ -9,8 +9,9 @@
 ;; ============================= Runtime support =============================
 
 ;; Runtime support for CALL-NEXT-METHOD.
-(defun %call-next-method (method next-methods original-args new-args) ; ABI
-  (let ((gf (method-generic-function method)))
+(defun %call-next-method (backpointer next-methods original-args new-args) ; ABI
+  (let* ((method (car backpointer))
+         (gf (method-generic-function method)))
     (when (gf-never-called-p gf)
       ;; Oops, gf still contains a prototype dispatch which only calls
       ;; initial-funcall-gf. This can really happen, because make-instance
@@ -36,7 +37,7 @@
       (if (eq original-em new-em)
         (if next-methods
           (apply next-methods new-args)
-          (apply #'%no-next-method method new-args))
+          (apply #'%no-next-method backpointer new-args))
         (error-of-type 'error
           (TEXT "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
           'call-next-method gf new-args original-args)))))
@@ -242,13 +243,13 @@
                          :method-class <standard-method>))))))
          (method
            (if must-build-method
-             ;; Here we cannot pass the full initargs to allocate-instance since
-             ;; the final initargs contain a pointer to the method instance.
-             (let* ((initargs arg2)
-                    (method (apply #'allocate-method-instance (safe-gf-default-method-class gf) initargs)))
-               (apply #'initialize-method-instance method
-                      (nconc (method-function-initargs method (funcall arg1 method)) initargs))
-               method)
+             (let ((method-class (safe-gf-default-method-class gf))
+                   (backpointer (list nil)))
+               (apply #'make-method-instance method-class
+                      'backpointer backpointer
+                      (nconc (method-function-initargs method-class
+                                                       (funcall arg1 backpointer))
+                             arg2)))
              arg1)))
     (std-add-method gf method)
     method))
@@ -479,14 +480,13 @@
                 (mapcar #'(lambda (method-cons)
                             (let ((fast-function-factory-lambda (car method-cons))
                                   (method-initargs-forms (cdr method-cons)))
-                              ;; Here we cannot pass the full initargs to allocate-instance since
-                              ;; the final initargs contain a pointer to the method instance.
-                              `(LET* ((INITARGS (LIST ,@method-initargs-forms))
-                                      (METH (APPLY #'ALLOCATE-METHOD-INSTANCE ,method-class-form INITARGS)))
-                                 (APPLY #'INITIALIZE-METHOD-INSTANCE METH
-                                        (NCONC (METHOD-FUNCTION-INITARGS METH (,fast-function-factory-lambda METH))
-                                               INITARGS))
-                                 METH)))
+                              `(LET ((METHOD-CLASS ,method-class-form)
+                                     (BACKPOINTER (LIST NIL)))
+                                 (APPLY #'MAKE-METHOD-INSTANCE METHOD-CLASS
+                                   ,@method-initargs-forms
+                                   'BACKPOINTER BACKPOINTER
+                                   (METHOD-FUNCTION-INITARGS METHOD-CLASS
+                                                             (,fast-function-factory-lambda BACKPOINTER))))))
                   (nreverse method-forms)))))))
 
 ;; Parse a DEFGENERIC lambdalist:

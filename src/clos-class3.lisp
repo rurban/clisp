@@ -1532,17 +1532,15 @@
                                             (subclassp method-class <standard-reader-method>))
                                  (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                         'reader-method-class (class-name class) 'standard-reader-method method-class))
-                               (let ((method (apply #'allocate-instance method-class args)))
-                                 (apply #'initialize-instance method
-                                        (nconc (method-function-initargs method
-                                                 (eval
-                                                   `(LOCALLY
+                               (apply #'make-instance method-class
+                                      (nconc (method-function-initargs method-class
+                                               (eval
+                                                 `(LOCALLY
+                                                    (DECLARE (COMPILE))
+                                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
                                                       (DECLARE (COMPILE))
-                                                      (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
-                                                        (DECLARE (COMPILE))
-                                                        ,access-place))))
-                                               args))
-                                 method)))
+                                                      ,access-place))))
+                                             args))))
                            (class-direct-accessors class)))
               (setf (fdefinition funname)
                     (eval `(FUNCTION ,funname
@@ -1569,17 +1567,15 @@
                                             (subclassp method-class <standard-writer-method>))
                                  (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
                                         'writer-method-class (class-name class) 'standard-writer-method method-class))
-                               (let ((method (apply #'allocate-instance method-class args)))
-                                 (apply #'initialize-instance method
-                                        (nconc (method-function-initargs method
-                                                 (eval
-                                                   `(LOCALLY
+                               (apply #'make-instance method-class
+                                      (nconc (method-function-initargs method-class
+                                               (eval
+                                                 `(LOCALLY
+                                                    (DECLARE (COMPILE))
+                                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
                                                       (DECLARE (COMPILE))
-                                                      (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
-                                                        (DECLARE (COMPILE))
-                                                        (SETF ,access-place NEW-VALUE)))))
-                                               args))
-                                 method)))
+                                                      (SETF ,access-place NEW-VALUE)))))
+                                             args))))
                            (class-direct-accessors class)))
               (setf (fdefinition funname)
                     (eval `(FUNCTION ,funname

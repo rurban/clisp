@@ -151,8 +151,9 @@
             :format-arguments (list 'no-primary-method gf args)))
         gf args))))
 
-(defun %no-next-method (method &rest args) ; ABI
-  (apply #'no-next-method (method-generic-function method) method args))
+(defun %no-next-method (backpointer &rest args) ; ABI
+  (let ((method (car backpointer)))
+    (apply #'no-next-method (method-generic-function method) method args)))
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method method) &rest args
             &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))
