@@ -1,5 +1,12 @@
 2001-03-18  Bruno Haible  <haible@clisp.cons.org>
 
+	* spvw_memfile.d (DUMPHOST_LEN): New macro.
+	(memdump_header): Make _dumphost size OS independent.
+	(savemem): Simplify filling of hostname and _dumphost. Use UTF-8
+	encoding.
+	(loadmem): Move extraction of _dumptime and _dumphost to the end.
+	Use UTF-8 encoding.
+
 	* socket.d (MACHINE-INSTANCE): Return hostname as returned by
 	gethostbyname, i.e. including the domainname.
 
