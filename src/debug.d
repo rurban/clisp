@@ -10,7 +10,8 @@
 /* ----------------------------------------------------------------------- */
 /* Top-Level-Loop */
 
-/* (SYS::READ-FORM ostream istream prompt [commandlist])
+local Values read_form(void)
+{ /* (SYS::READ-FORM ostream istream prompt [commandlist])
  read one form (interactively) from the input stream.
  instead of the form, we also recognize special commands from commandlist
  (a fresh alist) or SYS::*KEY-BINDINGS*
@@ -36,10 +37,7 @@
          (if (eql form eof-value)
            (progn (clear-input istream) (setq istream *debug-io*))
            (progn (clear-input-upto-newline istream)
-                  (return (values form nil))))))))
-*/
-local Values read_form(void)
-{
+                  (return (values form nil))))))))   */
  #if STACKCHECKR
   var gcv_object_t* STACKbefore = STACK; /* retain STACK for later */
  #endif
@@ -1046,10 +1044,9 @@ LISPFUNN(return_from_eval_frame,2)
 local void print_back_trace (const gcv_object_t* stream_,
                              const struct backtrace_t *bt, int index) {
   terpri(stream_);
-  write_ascii_char(stream_,'[');
+  write_ascii_char(stream_,'<');
   if (index >= 0) prin1(stream_,fixnum(index));
   else write_ascii_char(stream_,'#');
-  write_ascii_char(stream_,']');
   write_ascii_char(stream_,'>');
   write_ascii_char(stream_,' ');
   prin1(stream_,bt->bt_caller);
