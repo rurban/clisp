@@ -68,9 +68,9 @@ else
   fail "$0: source does not exist: $SRC"
 fi
 
-#if test -r "$DST"; then
-#  fail "$0: destination already exists: $DST"
-#fi
+if test -r "$DST"; then
+  fail "$0: destination already exists: $DST"
+fi
 
 mkdirparent "$DST"
 
