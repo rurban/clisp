@@ -362,7 +362,7 @@
   })
 
 /* Update C stacks: */
-#define update_back_traces()    \
-  for_all_back_traces(          \
-    for (;bt; bt = bt->bt_next) \
+#define update_back_traces()             \
+  for_all_back_traces(                   \
+    for (; bt != NULL; bt = bt->bt_next) \
       update(&bt->bt_caller))
