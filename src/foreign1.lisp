@@ -567,8 +567,9 @@
     ((c-pointer c-string) (format nil "char* ~A" name))
     (t (if (gethash c-type *type-table*)
          (format nil "~A ~A" (gethash c-type *type-table*) name)
-         (macrolet ((with-to-c ((typename) &body body)
-                      `(let ((,typename (symbol-name (gensym "t"))))
+         (macrolet ((with-to-c ((class typename) &body body)
+                      `(let ((,typename
+                              (format nil "~A ~A" ,class (gensym "t"))))
                         (unwind-protect
                              (progn (setf (gethash c-type *type-table*)
                                           ,typename)
@@ -577,15 +578,15 @@
            (case (and (simple-vector-p c-type) (plusp (length c-type))
                       (svref c-type 0))
              (c-struct
-              (with-to-c (type)
-                (format nil "struct ~a { ~{~A; ~}} ~A"
+              (with-to-c ("struct" type)
+                (format nil "~a { ~{~A; ~}} ~A"
                         type (map 'list #'to-c-typedecl
                                   (cdddr (coerce c-type 'list))
                                   (svref c-type 1))
                         name)))
              (c-union
-              (with-to-c (type)
-                (format nil "union ~A { ~{~A; ~}} ~A"
+              (with-to-c ("union" type)
+                (format nil "~A { ~{~A; ~}} ~A"
                         type (map 'list #'to-c-typedecl
                                   (cddr (coerce c-type 'list))
                                   (svref c-type 1))
