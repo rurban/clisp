@@ -4647,6 +4647,7 @@ typedef struct {
 # When the weak-pointer becomes inactive, both fields are turned to unbound.
 #define weakpointer_length  0
 #define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
+#define weakpointer_broken_p(wp) eq(TheWeakpointer(wp)->wp_cdr,unbound)
 
 # Finalizer
 typedef struct {
@@ -5278,29 +5279,35 @@ typedef struct {
   #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
   #endif
   # variable length object:
-  #define TheVarobject(obj)  \
-    ((Varobject)                                                                                 \
-     (types_pointable                                                                            \
-      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type\
-       |sstring_type|svector_type                                                                \
-       |mdarray_type                                                                             \
-       |bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type     \
-       |string_type|vector_type \
-       |closure_type|structure_type|stream_type|orecord_type|symbol_type                         \
-       |bignum_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t),                         \
-       obj                                                                                       \
+  #define TheVarobject(obj)                                              \
+    ((Varobject)                                                         \
+     (types_pointable                                                    \
+      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
+         |sb16vector_type|sb32vector_type                                \
+       |sstring_type|svector_type                                        \
+       |mdarray_type                                                     \
+       |bvector_type|b2vector_type|b4vector_type|b8vector_type           \
+         |b16vector_type|b32vector_type                                  \
+       |string_type|vector_type                                          \
+       |closure_type|structure_type|stream_type|orecord_type|symbol_type \
+       |bignum_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t), \
+       obj                                                               \
     )))
   # Object that represents a pointer into the memory:
-  #define ThePointer(obj)  \
-    (types_pointable                                                                            \
-     (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type\
-      |sstring_type|svector_type                                                                \
-      |mdarray_type                                                                             \
-      |bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type     \
-      |string_type|vector_type \
-      |closure_type|structure_type|stream_type|orecord_type|symbol_type|cons_type               \
-      |bignum_type|ffloat_type|dfloat_type|lfloat_type|ratio_type|complex_type|bit(sign_bit_t), \
-      obj                                                                                       \
+  #define ThePointer(obj)                                               \
+    (types_pointable                                                    \
+     (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
+        |sb16vector_type|sb32vector_type                                \
+      |sstring_type|svector_type                                        \
+      |mdarray_type                                                     \
+      |bvector_type|b2vector_type|b4vector_type|b8vector_type           \
+        |b16vector_type|b32vector_type                                  \
+      |string_type|vector_type                                          \
+      |closure_type|structure_type|stream_type|orecord_type|symbol_type \
+      |cons_type                                                        \
+      |bignum_type|ffloat_type|dfloat_type|lfloat_type                  \
+      |ratio_type|complex_type|bit(sign_bit_t),                         \
+      obj                                                               \
     ))
 #else # no TYPECODES
   #define TheCons(obj)  ((Cons)(as_oint(obj)-cons_bias))
@@ -7792,12 +7799,12 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
   allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
 # is used by FOREIGN
 
-# UP: allocates a Weakpointer
-# allocate_weakpointer()
+# UP: allocates a Weakpointer to the given object
+# allocate_weakpointer(obj)
+# > obj: a Lisp object to which the result should point
 # < result: a fresh weak-pointer
 # can trigger GC
-#define allocate_weakpointer()  \
-  allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,weakpointer_xlength,orecord_type)
+extern object allocate_weakpointer (object obj);
 # is used by RECORD
 
 # UP: allocates finalizer
