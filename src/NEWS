@@ -1,3 +1,32 @@
+2.33.1 (2004-05-22)
+===================
+
+User visible changes
+--------------------
+
+* Bug fixes:
+  + The return value of ASINH was always rounded to a SINGLE-FLOAT.
+  + The return value of NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE,
+    WRITE-STRING, WRITE-LINE, when called with a displaced string as argument,
+    was wrong.
+  + Some cases of ,@ inside doubly-nested backquote led to an unjustified
+    error.
+
+Portability
+-----------
+
+* Improved portability for Solaris/SPARC64 in 64-bit mode.
+
+* Buildable with GCC-3.4.
+
+* Fixed a bug in (ASH x MOST-NEGATIVE-FIXNUM) on some platforms.
+
+* Fixed a bug in (SIGNUM negative-single-float) on 64-bit platforms.
+
+* Fixed a bug in (LOGAND fixnum bignum), (LOGNAND fixnum bignum),
+  (LOGANDC2 fixnum bignum), (LOGANDC1 bignum fixnum) on some rare platforms.
+
+
 2.33 (2004-03-17)
 =================
 
