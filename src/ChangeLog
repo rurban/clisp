@@ -5,10 +5,12 @@
 	* genclisph.d (main): export array_atype()
 	* array.d (array_atype): global, not local
 
+	* genclisph.d (main): Exported array_rank() and get_array_dimensions().
+
 2004-07-26  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (array_rank, get_array_dimensions): New declarations.
 	* array.d (array_rank, get_array_dimensions): New functions.
-	* genclisph.d (main): Exported array_rank() and get_array_dimensions().
 
 2004-06-02  Bruno Haible  <bruno@clisp.org>
 
