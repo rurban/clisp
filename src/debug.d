@@ -110,7 +110,7 @@
       }
       #else
       {
-        var object list = (!boundp(STACK_2) ? NIL : STACK_2);
+        var object list = (!boundp(STACK_2) ? NIL : (object)STACK_2);
         dynamic_bind(S(key_bindings),list); /* bind SYS::*KEY-BINDINGS* */
       }
       #endif

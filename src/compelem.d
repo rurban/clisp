@@ -27,7 +27,7 @@
       return (N_realp(x) ? x : TheComplex(x)->c_real);
     }
 #else # Macro spart Code
-  #define N_realpart_R(x)  (N_realp(x) ? x : TheComplex(x)->c_real)
+  #define N_realpart_R(x)  (N_realp(x) ? x : (object)TheComplex(x)->c_real)
 #endif
 
 # N_imagpart_R(x) liefert den Imaginärteil der Zahl x.
@@ -39,7 +39,7 @@
       return (N_realp(x) ? Fixnum_0 : TheComplex(x)->c_imag);
     }
 #else # Macro spart Code
-  #define N_imagpart_R(x)  (N_realp(x) ? Fixnum_0 : TheComplex(x)->c_imag)
+  #define N_imagpart_R(x)  (N_realp(x) ? Fixnum_0 : (object)TheComplex(x)->c_imag)
 #endif
 
 # N_conjugate_N(x) liefert die konjugiert komplexe Zahl zur Zahl x.
