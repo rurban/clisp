@@ -65,7 +65,7 @@ Use GC_MARK when the argument might be a reallocated object */
   if (instancep(o)) instance_un_realloc(o);             \
   else if (arrayp(o)) simple_array_to_storage(o);
 #endif
-#define GC_MARK(o) do { UNREALLOC(o) gc_mark(o); } while(0)
+#define GC_MARK(o) do { /*UNREALLOC(o)*/ gc_mark(o); } while(0)
 #if DEBUG_GC_MARK
   #define IF_DEBUG_GC_MARK(statement)  statement
 #else
@@ -180,7 +180,7 @@ local void gc_mark (object obj)
     vorg = vorvorg; goto up; /* go further up */ \
   }
 #define down_record()                                                   \
-  instance_un_realloc(dies);                                            \
+  /*instance_un_realloc(dies);*/                                        \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
   { var gcv_object_t* dies_ = (gcv_object_t*)TheRecord(dies);           \
@@ -306,7 +306,7 @@ local void gc_mark (object obj)
         case Rectype_WeakKVT:
           down_weakkvt();
         case Rectype_reallocstring:
-          simple_array_to_storage(dies);
+          /*simple_array_to_storage(dies);*/
           /*FALLTHROUGH*/
         case Rectype_mdarray:
         case Rectype_bvector:
