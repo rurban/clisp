@@ -65,7 +65,7 @@ SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.sp
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
 SOURCES3 = $T/src/po/*[^p]
 SOURCES4 = $T/ffcall $T/sigsegv $T/libcharset $T/utils
-SOURCES5 = $T/unix $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
+SOURCES5 = $T/unix $T/os2 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/modules
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
 
