@@ -824,8 +824,8 @@
                    (if (and (consp macrodef)
                             (symbolp (car macrodef))
                             (consp (cdr macrodef)))
-                     (setq L2 (cons (make-macro-expander macrodef)
-                                    (cons (car macrodef) L2)))
+                     (setq L2 (list* (make-macro-expander macrodef)
+                                     (car macrodef) L2))
                      (error-of-type 'source-program-error
                        (TEXT "illegal syntax in MACROLET: ~S")
                        macrodef)))))
@@ -872,8 +872,8 @@
                          (error-of-type 'program-error
                            (TEXT "~S: symbol ~S is declared special and must not be declared a macro")
                            'symbol-macrolet symbol)
-                         (setq L2 (cons (make-symbol-macro expansion)
-                                        (cons symbol L2)))))
+                         (setq L2 (list* (make-symbol-macro expansion)
+                                         symbol L2))))
                      (error-of-type 'source-program-error
                        (TEXT "illegal syntax in SYMBOL-MACROLET: ~S")
                        symdef)))))
@@ -1582,6 +1582,8 @@
 #-compiler
 (defmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
   `(eval-when (compile) ,@body))
+#-compiler
+(defun LAMBDA-LIST-TO-SIGNATURE (&rest ignore) ignore) ; preliminary
 
 ;; Mapping funname -> symbol
 (sys::%putd 'get-funname-symbol
@@ -1634,14 +1636,14 @@
                              (eql compiler::*denv* *toplevel-denv*))
                       `((COMPILER::EVAL-WHEN-COMPILE
                          (COMPILER::C-DEFUN
-                          ',name (lambda-list-to-signature ',lambdalist)
+                          ',name ,(lambda-list-to-signature lambdalist)
                           ',lambdabody))
                         (EVAL-WHEN (LOAD)
                           (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION
                                         ',lambdabody)))
                       `((COMPILER::EVAL-WHEN-COMPILE
                          (COMPILER::C-DEFUN
-                          ',name (lambda-list-to-signature ',lambdalist)))))
+                          ',name ,(lambda-list-to-signature lambdalist)))))
                     (if (and (null (svref env 0))  ; venv
                              (null (svref env 1))) ; fenv
                        `((EVAL-WHEN (EVAL)
@@ -1657,7 +1659,7 @@
                        '()))
                   `((COMPILER::EVAL-WHEN-COMPILE
                      (COMPILER::C-DEFUN
-                      ',name (lambda-list-to-signature ',lambdalist)))))
+                      ',name ,(lambda-list-to-signature lambdalist)))))
                ,@(if docstring
                    `((SYSTEM::%SET-DOCUMENTATION ,symbolform
                                                  'FUNCTION ',docstring))
