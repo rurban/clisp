@@ -1,3 +1,10 @@
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
+	Implement notification from change-class to generic functions.
+	* clos-specializer1.lisp (existing-eql-specializer): New function.
+	* clos-class5.lisp (do-change-class): Notify all generic functions
+	which use an EQL specializer on the given object.
+
 2004-11-12  Sam Steingold  <sds@gnu.org>
 
 	* m4/connect.m4 (CL_CONNECT): check whether connect() exists
