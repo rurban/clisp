@@ -3251,7 +3251,7 @@ EVERY_INCLUDES_DOTS_C=''
 for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
   EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'/$f
 done
-echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 echol "base : modular boot \$(BASE_MODULES)"
 echotab "\$(RMRF) base"
