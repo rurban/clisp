@@ -916,7 +916,8 @@ localized.</para>
 
 </section>
 
-<section><title>Converting between strings and byte vectors</title>
+<section id="string-byte">
+   <title>Converting between strings and byte vectors</title>
 
 <para>Encodings can also be used to convert directly between strings and
 their corresponding byte vector representation according to that encoding.
@@ -1990,7 +1991,7 @@ containing:</para>
  <option>--with-dynamic-modules</option> precludes some efficiency
  optimizations which are on by default.</para>
 
-<section><title>Example</title>
+<section id="mod-set-example"><title>Example</title>
 
 <para>To link in the &ffi-pac; bindings for the GNU/Linux operating
  system, the following steps are needed.  (Step 1 and step 2 need not be
@@ -2031,7 +2032,8 @@ containing:</para>
 
 </section>
 
-<section><title>Modules included in the distribution.</title>
+<section id="included-modules">
+   <title>Modules included in the distribution.</title>
 
 <para>The following modules come with the distribution of
 &clisp;:</para>
@@ -2094,7 +2096,7 @@ containing:</para>
 
 <para>Special &ffi-pac; forms may appear anywhere in the Lisp file.</para>
 
-<section><title>Overview</title>
+<section id="dffi-overview"><title>Overview</title>
 
 <para>These are the special &ffi-pac; forms.  We have taken a pragmatic
  approach: the only foreign languages we support for now are &c-lang;
@@ -2352,7 +2354,7 @@ within Lisp (using &setq; or similar).</simpara>
 
 </section>
 
-<section><title>(Foreign) &c-lang; types</title>
+<section id="dffi-types"><title>(Foreign) &c-lang; types</title>
 
 <para>Foreign &c-lang; types are used in the &ffi-pac;.
  They are <emphasis>not</emphasis> regular &cl; types or &clos;
@@ -2546,7 +2548,7 @@ within Lisp (using &setq; or similar).</simpara>
 </variablelist>
 </section>
 
-<section><title>Foreign variables</title>
+<section id="dffi-variables"><title>Foreign variables</title>
 
 <para>Foreign variables are variables whose storage is allocated in the
  foreign language module.  They can nevertheless be evaluated and
@@ -2560,7 +2562,7 @@ within Lisp (using &setq; or similar).</simpara>
 
 </section>
 
-<section><title>Operations on foreign places</title>
+<section id="dffi-places"><title>Operations on foreign places</title>
 
 <para>A foreign variable &name-r; defined by &def-c-var; defines a
  "place", i.e., a form which can also be used as argument to &setf;.
@@ -2570,7 +2572,7 @@ within Lisp (using &setq; or similar).</simpara>
 
 </section>
 
-<section><title>Foreign functions</title>
+<section id="dffi-functions"><title>Foreign functions</title>
 
 <para>Foreign functions are functions which are defined in the foreign
  language.  There are <emphasis>named foreign functions</emphasis>
@@ -2731,7 +2733,7 @@ within Lisp (using &setq; or similar).</simpara>
 
 </section>
 
-<section><title>Examples</title>
+<section id="dffi-examples"><title>Examples</title>
 
 <example><title>Simple declarations and access</title>
 
@@ -3008,7 +3010,7 @@ $ rm -r base+sort
  <literal role="sexp">(&use-package; "AFFI")</literal>.</para>
 </formalpara>
 
-<section><title>Design issues</title>
+<section id="affi-design"><title>Design issues</title>
 
 <para>&affi-pac; was designed to be small in size but powerful enough to
 use most library functions.  Lisp files may be compiled to &fasl-file;
@@ -3026,7 +3028,7 @@ can define a lambda yourself), name spaces are separate.</para>
 
 </section>
 
-<section><title>Overview</title>
+<section id="affi-overview"><title>Overview</title>
 
 <para>These are the &affi-pac; forms:</para>
 
@@ -3132,7 +3134,7 @@ non-&c-NULL; pointers in all recognized representations
 
 </section>
 
-<section><title>Foreign Libraries</title>
+<section id="affi-libs"><title>Foreign Libraries</title>
 
 <para><function>declare-library-base</function> ought to be wrapped in an
 <literal role="sexp">(&eval-when; (compile eval load) ...)</literal>
@@ -3156,7 +3158,7 @@ module exit functions.]  Programmers, watch
 
 </section>
 
-<section><title>(Foreign) &c-lang; types</title>
+<section id="affi-types"><title>(Foreign) &c-lang; types</title>
 
 <para>The following foreign &c-lang; types are used in &affi-pac;.
 They are <emphasis>not</emphasis> regular &cl; types or &clos;
@@ -3234,7 +3236,7 @@ Use <function>nzero-pointer-p</function> for &c-NULL; tests.</para>
 
 </section>
 
-<section><title>Foreign functions</title>
+<section id="affi-functions"><title>Foreign functions</title>
 
 <para>Foreign Functions are declared either through
 <function>defflibfun</function> or
@@ -3294,7 +3296,7 @@ inlined.</para>
 
 </section>
 
-<section><title>Memory access</title>
+<section id="affi-memory-access"><title>Memory access</title>
 
 <para><literal role="sexp">(affi:mem-read <replaceable>address</replaceable>
 &type-r;
@@ -3322,7 +3324,7 @@ given vector (of type &string-class; or &unsigned-byte-type;
 
 </section>
 
-<section><title>Function Definition Files</title>
+<section id="affi-func-def"><title>Function Definition Files</title>
 
 <para><function>affi:require-library-functions</function> will &require; a
 file of name derived from thelibrary name and with type
@@ -3352,7 +3354,7 @@ the width of integer arguments (<function>-4</function>,
 
 </section>
 
-<section><title>Hints</title>
+<section id="affi-hints"><title>Hints</title>
 
 <para>By using appropriate &eval-when; forms for
 <function>affi:declare-library-base</function> and
@@ -3366,7 +3368,7 @@ does not call finalizers when it exits, use &unwind-protect;.</para>
 
 </section>
 
-<section><title>Caveats</title>
+<section id="affi-caveats"><title>Caveats</title>
 
 <para>You can consider the library bases being symbols in need of being
 imported from the package &affi-pac; originating from a brain-damage, causing
@@ -3380,7 +3382,7 @@ Feel free to suggest enhancements to this facility!</para>
 
 </section>
 
-<section><title>Examples</title>
+<section id="affi-examples"><title>Examples</title>
 <subtitle>NB: These examples are somewhat specific to the Amiga.</subtitle>
 
 <example><title>Using a predefined library function file</title>
@@ -4064,7 +4066,7 @@ bash$
 
 <section id="shell"><title>Extensions-2.10. Shell, Pipes and Printing</title>
 
-<section><title>Shell</title>
+<section id="exec"><title>Shell</title>
 
 <variablelist>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
