@@ -9827,15 +9827,15 @@ The function make-closure is required.
                     `(() ,form)
                     %venv% %fenv% %benv% %genv% %denv% nil))
   ;; compiles a form in the Toplevel-Environment - only for LOAD :COMPILING T
-(defun compile-form-in-toplevel-environment
-    (form &aux (env *toplevel-environment*))
+  (defun compile-form-in-toplevel-environment
+      (form &aux (env *toplevel-environment*))
     (let ((*compiling-from-file* t))
       (compile-lambda-helper (symbol-suffix '#:COMPILED-FORM (incf form-count))
                              `(() ,form)
-                (svref env 0)    ; %venv%
-                (svref env 1)    ; %fenv%
-                (svref env 2)    ; %benv%
-                (svref env 3)    ; %genv%
+                             (svref env 0)    ; %venv%
+                             (svref env 1)    ; %fenv%
+                             (svref env 2)    ; %benv%
+                             (svref env 3)    ; %genv%
                              (svref env 4)    ; %denv%
                              nil))))
 
