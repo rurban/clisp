@@ -128,6 +128,8 @@ cd clisp
 %files
 %defattr(644,root,root)
 %dir /usr/lib/clisp/
+%dir /usr/lib/clisp/data/
+%dir /usr/lib/clisp/base/
 %dir /usr/lib/clisp/full/
 %docdir /usr/doc/%{name}-%{version}
 %doc build/ANNOUNCE
@@ -148,6 +150,7 @@ cd clisp
 %attr(755,root,root) /usr/lib/clisp/full/lisp.run
 /usr/lib/clisp/base/lispinit.mem
 /usr/lib/clisp/full/lispinit.mem
+/usr/lib/clisp/data/UnicodeData.txt
 /usr/share/locale/de/LC_MESSAGES/clisp.mo
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
