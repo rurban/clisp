@@ -41,6 +41,7 @@
 
 ;;;; SCREEN-Package for Amiga
 ;;;; Jörg Höhle, 23.7.1996
+;;;; TODO: Use Gray streams instead of old generic-streams.
 
 #+AMIGA (use-package "CLOS")
 #+AMIGA
@@ -420,7 +421,7 @@ Will flush pending characters!"
     (raw-mode stream orig-mode)
 ) )
 
-; Redefine WITH-KEYBOARD expansion from USER1.LSP
+; Redefine WITH-KEYBOARD expansion from KEYBOARD.LSP
 (defun system::exec-with-keyboard (fun)
   (let ((*keyboard-input*
           (make-generic-stream (make-instance 'keyboard-controller)) ))
