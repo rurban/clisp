@@ -163,7 +163,7 @@ might look as follows.</para>
 
 <example id="i18n-non-i"><title>prog.lisp</title>
 <programlisting>
-(setq n (parse-integer (first *args*)))
+(setq n (parse-integer (first &args;)))
 
 (format t "~A~%" "'Your command, please?', asked the waiter.")
 
@@ -182,7 +182,7 @@ the current directory.</para>
 (setf (textdomain) "prog")
 (setf (textdomaindir "prog") "./")
 
-(setq n (parse-integer (first *args*)))
+(setq n (parse-integer (first &args;)))
 
 (format t "~A~%"
           (gettext "'Your command, please?', asked the waiter."))
@@ -200,7 +200,7 @@ for the &gettext; function.  An underscore is customary.</para>
 (setf (textdomaindir "prog") "./")
 (defun _ (msgid) (gettext msgid "prog"))
 
-(setq n (parse-integer (first *args*)))
+(setq n (parse-integer (first &args;)))
 
 (format t "~A~%"
           (_"'Your command, please?', asked the waiter."))
@@ -722,8 +722,8 @@ localized.</para>
  there is no portable way to get the list of all character sets
  supported by &iconv;.</simpara>
 
-<simpara>On &gnu; systems (such as GNU/Linux and GNU/Hurd) and on
- systems with &libiconv; you get this list by calling the
+<simpara>On &gnu; systems (such as &gnu;/&linux; and &gnu;/&hurd;)
+ and on systems with &libiconv; you get this list by calling the
  <emphasis>program</emphasis> &iconv-u;: <command>iconv -l</command>.
  </simpara>
 
@@ -1900,7 +1900,7 @@ containing:</para>
 
 <section id="mod-set-example"><title>Example</title>
 
-<para>To link in the &ffi-pac; bindings for the GNU/Linux operating
+<para>To link in the &ffi-pac; bindings for the &gnu;/&linux; operating
  system, the following steps are needed.  (Step 1 and step 2 need not be
  executed in this order.)</para>
 
@@ -1950,9 +1950,9 @@ containing:</para>
   <listitem><para>Call the operating system functions from &clisp;.  The
    following platforms are supported:
    <itemizedlist>
-    <listitem><simpara>AmigaOS</simpara></listitem>
-    <listitem><simpara>Linux/libc5</simpara></listitem>
-    <listitem><simpara>Linux/libc6</simpara></listitem>
+    <listitem><simpara>&amiga;</simpara></listitem>
+    <listitem><simpara>&linux;/libc5</simpara></listitem>
+    <listitem><simpara>&linux;/libc6 (&glibc;)</simpara></listitem>
    </itemizedlist></para></listitem></varlistentry>
  <varlistentry><term>CLX</term>
   <listitem><para>Call Xlib functions from &clisp;.  Two
@@ -3781,7 +3781,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>Files created with &clisp; can be associated with
    the &clisp; executables so that clicking on them would make &clisp;
    execute the appropriate code.</simpara></listitem></varlistentry>
- <varlistentry><term>Linux kernel with
+ <varlistentry><term>&linux; kernel with
                <option>CONFIG_BINFMT_MISC=y</option></term>
   <listitem><simpara>Associate the extensions &fasl-file;
    and &lisp-file; with &clisp;; then you can make the
@@ -3802,7 +3802,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 
 <variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry id="quickstart-unix">
+ <term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>On Unix, a text file (&fasl-file; or &lisp-file;) can be
  made executable by adding a first line of the form
  <programlisting>#!&interp-r; [&interp-args;]</programlisting>
@@ -3828,7 +3829,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <itemizedlist>
      <listitem><simpara>max. 32 characters on SunOS 4,</simpara></listitem>
      <listitem><simpara>max. 80 characters on HP-UX,</simpara></listitem>
-     <listitem><simpara>max. 127 characters on Linux.</simpara></listitem>
+     <listitem><simpara>max. 127 characters on &linux;.</simpara></listitem>
    </itemizedlist>
    Characters exceeding this limit are simply cut off by the system.
    At least 128 characters are accepted on Solaris, IRIX, AIX, OSF/1.
@@ -3836,34 +3837,41 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    and arguments short.</para></listitem>
 <listitem><simpara>On Solaris and HP-UX, only the first
  <replaceable>interpreter-arg</replaceable> is passed to the
- &interp-r;.  In order to pass more than one
- option (for example, <option>-Msomewhere.mem</option> and
- <option>-C</option>) to &clisp;, separate them by hard spaces (ISO
- Latin-1 character 160) instead of normal spaces.  (But the separator
- between &interp-r; and &interp-args; must still be a normal space!)
- &clisp; will split the &interp-args; at hard spaces and at normal
- spaces.</simpara></listitem>
+ &interp-r;.  In order to pass more than one option (for example,
+ <option>-Msomewhere.mem</option> and <option>-C</option>) to &clisp;,
+ separate them by hard spaces (ISO Latin-1 character 160) instead of
+ normal spaces.  (But the separator between &interp-r; and &interp-args;
+ must still be a normal space!) &clisp; will split the &interp-args; at
+ hard spaces and at normal spaces.</simpara></listitem>
 </itemizedlist>
 
-<para>The script should contain Lisp forms, except in the
- <literal>#!</literal> line.
- The file is loaded normally, through the function &load;.
- Before it is loaded, the variable <emphasis
- role="strong"><varname>ext:*args*</varname></emphasis> is bound to a
- list of strings, representing the arguments given to the Lisp script.
- &standard-input-var; and &standard-output-var; are bound, as usual, to
- the Unix standard input and output.  &error-output-var; is bound to the
- Unix error output.  Continuable errors will be turned to warnings.
- Non-continuable errors and
- <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupts
- will terminate the execution of the Lisp script with an error status.
- If you wish the script's contents to be compiled during loading, add
-   <ulink url="clisp.html#opt-load-comp"><option>-C</option></ulink>
- to the &interp-args;.</para>
+<formalpara id="script-exec"><title>Script execution</title>
+<para><itemizedlist><listitem><simpara>The script should contain Lisp
+   forms, except in the <literal>#!</literal> line.</simpara></listitem>
+  <listitem><simpara>The file is loaded normally, through the function
+   &load;.</simpara></listitem>
+  <listitem><simpara>Before it is loaded, the variable &args; is bound
+   to a list of strings, representing the arguments given to the Lisp
+   script.</simpara></listitem>
+  <listitem><simpara>&standard-input-var; and &standard-output-var; are
+   bound, as usual, to the Unix standard input and output.
+   &error-output-var; is bound to the Unix error output.</simpara></listitem>
+  <listitem><simpara>Continuable errors will be turned to warnings
+   (using &appease-cerrors;).</simpara></listitem>
+  <listitem><simpara>Non-continuable errors and
+   <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupts will
+   terminate the execution of the Lisp script with an error status
+   (using &exit-on-error;).</simpara></listitem>
+ <listitem><simpara>If you wish the script's contents to be compiled
+  during loading, add
+  <ulink url="clisp.html#opt-load-comp"><option>-C</option></ulink>
+  to the &interp-args;.</simpara></listitem></itemizedlist>
+ See also <ulink url="clisp.html#opt-exec-file">the manual</ulink>.
+</para></formalpara>
 
+<formalpara id="script-bad"><title>If nothing works</title>
 <para>Another, quite inferior, alternative is to put the following into
- a file:</para>
-
+ a file:
 <programlisting>
 #!/bin/sh
 exec clisp &lt;&lt;EOF
@@ -3872,16 +3880,15 @@ exec clisp &lt;&lt;EOF
 (yet-another-lisp-form)
 EOF
 </programlisting>
-
-<para>The problem with this approach is that the return values of each form
+The problem with this approach is that the return values of each form
 will be printed to the standard output.  Another problem is that no user
-input will be available.</para>
+input will be available.</para></formalpara>
 </listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef WIN32 -->
-<varlistentry><term>Platform dependent: &win32; platforms only.</term>
-
+<varlistentry id="quickstart-win32">
+ <term>Platform dependent: &win32; platforms only.</term>
 <listitem><simpara>There are two different ways to make &clisp;
  "executables" for Windows platforms.</simpara>
 
@@ -3912,7 +3919,8 @@ input will be available.</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
-<varlistentry><term>Platform dependent: &linux; platforms only.</term>
+<varlistentry id="quickstart-linux">
+ <term>Platform dependent: &linux; platforms only.</term>
 
 <listitem><para>You have to build your kernel with
  <option>CONFIG_BINFMT_MISC=y</option> and
@@ -3950,7 +3958,8 @@ bash$
 </listitem></varlistentry>
 
 <!-- #ifdef AMIGAOS -->
-<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
+<varlistentry id="quickstart-amiga">
+ <term>Platform dependent: &amiga; platforms only.</term>
 
 <listitem><para>Using a Workbench project file, the &mem-image;s,
  source and binary files can be made "executable".
