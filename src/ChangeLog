@@ -1,3 +1,8 @@
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (*toplevel-name*): New variable.
+	(compile-toplevel-form): Drop (declare (special *toplevel-name*)).
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* exporting.lisp (export-accessories): Also export the copier's name.
