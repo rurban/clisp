@@ -1,3 +1,17 @@
+2002-05-10  Bruno Haible  <bruno@clisp.org>
+
+	Use gettext-0.11.2.
+	* m4/codeset.m4, m4/gettext.m4, m4/glibc21.m4, m4/iconv.m4,
+	m4/isc-posix.m4, m4/lcmessage.m4, m4/lib-ld.m4, m4/lib-link.m4,
+	m4/lib-prefix.m4, m4/progtest.m4: New files, brought in by gettextize.
+	* m4/install.m4, m4/ranlib.m4: New files, copied from src/m4/.
+	* autoconf/config.rpath: New file, brought in by gettextize.
+	* po/Makefile.in.in: Renamed from po/Makefile.in.
+	* intl/*: Removed.
+	* configure.in (AM_GNU_GETTEXT): Call with 'external'.
+	(AC_OUTPUT): Remove intl/Makefile.
+	(AC_INIT): Use a different file.
+
 2001-08-25  Bruno Haible  <haible@clisp.cons.org>
 
 	Upgrade to autoconf-2.52.

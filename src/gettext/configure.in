@@ -13,7 +13,7 @@ dnl  intl/Makefile ---<make>--->> intl/libintl.a
 
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.13)
-AC_INIT(intl/gettext.c)
+AC_INIT(po/clisp.pot)
 AC_CONFIG_AUX_DIR(autoconf)
 AM_INIT_AUTOMAKE(clisp,[`cat ${srcdir}/../VERSION`])
 AM_CONFIG_HEADER(config.h)
@@ -37,7 +37,7 @@ dnl Checks for library functions.
 
 dnl These are the only lines required to internationalize the package.
 dnl (OK, not quite, the AC_OUTPUT has also some parts.)
-AM_GNU_GETTEXT
+AM_GNU_GETTEXT([external], [need-ngettext])
 
-AC_OUTPUT([intl/Makefile po/Makefile])
+AC_OUTPUT([po/Makefile.in])
 
