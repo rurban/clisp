@@ -658,19 +658,19 @@
       var uintD* xMSDptr;
       var uintC xlen;
       var uintD* xLSDptr;
-      var uintD* yMSDptr;
-      var uintC ylen;
-      var uintD* yLSDptr;
-      var uintD* ergMSDptr;
-      var uintC erglen;
       I_to_NDS_nocopy(x, xMSDptr = , xlen = , xLSDptr = );
-      I_to_NDS_nocopy(y, yMSDptr = , ylen = , yLSDptr = );
-      begin_arith_call();
-      DS_DS_mal_DS(xMSDptr,xlen,xLSDptr,yMSDptr,ylen,yLSDptr, ergMSDptr=,erglen=,);
-      end_arith_call();
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      return DS_to_I(ergMSDptr,erglen);
-    }}
+      {var uintD* yMSDptr;
+       var uintC ylen;
+       var uintD* yLSDptr;
+       I_to_NDS_nocopy(y, yMSDptr = , ylen = , yLSDptr = );
+       {var uintD* ergMSDptr;
+        var uintC erglen;
+        begin_arith_call();
+        DS_DS_mal_DS(xMSDptr,xlen,xLSDptr,yMSDptr,ylen,yLSDptr, ergMSDptr=,erglen=,);
+        end_arith_call();
+        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
+        return DS_to_I(ergMSDptr,erglen);
+    }}}}
 
 # (EXPT x y), wo x Integer, y Integer >0 ist.
 # can trigger GC

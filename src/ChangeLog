@@ -4,6 +4,7 @@
           efficient code.
           (FN_to_NDS_nocopy_): New macro.
           (BN_to_NDS_nocopy): Add `unused' to avoid gcc warnings.
+        * intmal.d (I_I_mal_I): Put brace around I_to_NDS_nocopy.
         * intdiv.d (I_I_divide_I_I): Put brace around I_to_NDS_nocopy.
         * intsqrt.d (I_rootp): Put brace around I_to_NDS_nocopy.
 
