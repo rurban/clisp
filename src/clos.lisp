@@ -64,7 +64,7 @@
 (export
  '(;; names of functions and macros:
    slot-value slot-boundp slot-makunbound slot-exists-p with-slots
-   with-accessors
+   with-accessors documentation
    find-class class-of defclass defmethod call-next-method next-method-p
    defgeneric generic-function generic-flet generic-labels
    class-name no-applicable-method no-next-method no-primary-method
@@ -773,8 +773,8 @@
               (let ((c (get sym 'CLOSCLASS)))
                 (setf (class-name c) (gensym "OBSOLETE-CLASS-"))
                 (remprop sym 'CLOSCLASS)
-                (setf (documentation sym 'TYPE) '())))))))
-    (when documentation (setf (documentation name 'TYPE) documentation))
+                (sys::%set-documentation sym 'TYPE '())))))))
+    (when documentation (sys::%set-documentation name 'TYPE documentation))
     (setf (find-class name)
           (apply (cond ((eq metaclass <standard-class>)
                         #'make-instance-standard-class)
@@ -1497,8 +1497,12 @@
                       `(LIST 'EQL ,(second specializer-name))
                       `(FIND-CLASS ',specializer-name)))
                   req-specializer-forms )))
-        (sys::check-redefinition (cons funname (nreverse spec-list))
-                                 caller "method")
+        (setq spec-list (nreverse spec-list))
+        (sys::check-redefinition
+         (or (and (fboundp 'find-method) (fboundp funname)
+                  (find-method (fdefinition funname) qualifiers spec-list nil))
+             (list* funname spec-list qualifiers))
+         caller "method")
         (let* ((reqanz (length req-vars))
                (lambda-list (nreconc req-vars specialized-lambda-list))
                (optanz
@@ -2583,8 +2587,8 @@
         (if (clos::generic-function-p gf)
           gf
           (error-of-type 'error
-            (TEXT "~S does not name a generic function")
-            funname)))
+            (TEXT "~S: ~S does not name a generic function")
+            'defmethod funname)))
       (setf (fdefinition funname)
             (let ((signature (std-method-signature method)))
               (make-fast-gf funname
@@ -2832,8 +2836,8 @@
           (finalize-fast-gf gf)
           gf)
         (error-of-type 'program-error
-          (TEXT "~S does not name a generic function")
-          funname)))
+          (TEXT "~S: ~S does not name a generic function")
+          'defgeneric funname)))
     (setf (fdefinition funname)
           (apply #'make-generic-function funname signature argorder methods))))
 
@@ -3543,3 +3547,98 @@
 ;; (i.e. of a structure-object or standard-object).
 (defun slot-names (object)
   (mapcar #'slotdef-name (class-slots (class-of object))))
+
+;;; documentation
+(defgeneric documentation (x doc-type)
+  (:method ((x function) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (documentation (nth-value 2 (function-lambda-expression x)) 'function))
+  (:method ((x function) (doc-type (eql 'function)))
+    (declare (ignore doc-type))
+    (documentation (nth-value 2 (function-lambda-expression x)) 'function))
+  (:method ((x list) (doc-type (eql 'function)))
+    (declare (ignore doc-type))
+    (unless (function-name-p x) (error-function-name x))
+    (documentation (second x) 'setf))
+  (:method ((x list) (doc-type (eql 'compiler-macro)))
+    (declare (ignore doc-type))
+    (unless (function-name-p x) (error-function-name x))
+    (documentation (second x) 'setf-compiler-macro))
+  (:method ((x symbol) (doc-type symbol))
+    ;; doc-type = `function', `compiler-macro', `setf', `variable', `type',
+    ;; `setf-compiler-macro', `structure'
+    (getf (gethash x sys::*documentation*) doc-type))
+  (:method ((x symbol) (doc-type (eql 'structure))) ; structure --> type
+    (declare (ignore doc-type))
+    (documentation x 'type))
+  (:method ((x symbol) (doc-type (eql 'class))) ; class --> type
+    (declare (ignore doc-type))
+    (documentation x 'type))
+  ;;(:method ((x method-combination) (doc-type (eql 't))))
+  ;;(:method ((x method-combination) (doc-type (eql 'method-combination))))
+  (:method ((x standard-method) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (getf (gethash x sys::*documentation*) 'standard-method))
+  (:method ((x package) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (getf (gethash x sys::*documentation*) 'package))
+  (:method ((x standard-class) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (documentation (class-name x) 'type))
+  (:method ((x standard-class) (doc-type (eql 'type)))
+    (declare (ignore doc-type))
+    (documentation (class-name x) 'type))
+  (:method ((x structure-class) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (documentation (class-name x) 'type))
+  (:method ((x structure-class) (doc-type (eql 'type)))
+    (declare (ignore doc-type))
+    (documentation (class-name x) 'type)))
+
+(defgeneric (setf documentation) (new-value x doc-type)
+  (:method (new-value (x function) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation (nth-value 2 (function-lambda-expression x))
+                             'function new-value))
+  (:method (new-value (x function) (doc-type (eql 'function)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation (nth-value 2 (function-lambda-expression x))
+                             'function new-value))
+  (:method (new-value (x list) (doc-type (eql 'function)))
+    (declare (ignore doc-type))
+    (unless (function-name-p x) (error-function-name x))
+    (sys::%set-documentation (second x) 'setf new-value))
+  (:method (new-value (x list) (doc-type (eql 'compiler-macro)))
+    (declare (ignore doc-type))
+    (unless (function-name-p x) (error-function-name x))
+    (sys::%set-documentation (second x) 'setf-compiler-macro new-value))
+  (:method (new-value (x symbol) (doc-type symbol))
+    ;; doc-type = `function', `compiler-macro', `setf', `variable', `type',
+    ;; `setf-compiler-macro', `structure'
+    (sys::%set-documentation x doc-type new-value))
+  (:method (new-value (x symbol) (doc-type (eql 'structure)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation x 'type new-value))
+  (:method (new-value (x symbol) (doc-type (eql 'class)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation x 'type new-value))
+  ;;(:method (new-value (x method-combination) (doc-type (eql 't))))
+  ;;(:method (new-value (x method-combination) (doc-type (eql 'method-combination))))
+  (:method (new-value (x standard-method) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation x 'standard-method new-value))
+  (:method (new-value (x package) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation x 'package new-value))
+  (:method (new-value (x standard-class) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation (class-name x) 'type new-value))
+  (:method (new-value (x standard-class) (doc-type (eql 'type)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation (class-name x) 'type new-value))
+  (:method (new-value (x structure-class) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation (class-name x) 'type new-value))
+  (:method (new-value (x structure-class) (doc-type (eql 'type)))
+    (declare (ignore doc-type))
+    (sys::%set-documentation (class-name x) 'type new-value)))

@@ -819,7 +819,7 @@
                ,@(ds-make-defsetfs name names type-option conc-name-option directslotlist)
               )
            )
-         (SETF (DOCUMENTATION ',name 'STRUCTURE) ,docstring)
+         (sys::%set-documentation ',name 'STRUCTURE ,docstring)
          ,@(when (eq type-option 'T)
              (list
                (if print-object-option
