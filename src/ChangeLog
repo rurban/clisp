@@ -1,5 +1,13 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	Make calls to EXT:SPECIAL-VARIABLE-P compilable and usable in macro-
+	expanders.
+	* eval.d (EXT:SPECIAL-VARIABLE-P): Don't accept T and venv vectors as
+	environment. Instead, accept macroexpansion environments.
+	* compiler.lisp (ext:special-variable-p): Remove compiler macro.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* defs2.lisp (nth-value): Move macro from here...
 	* macros2.lisp (nth-value): ... to here.
 

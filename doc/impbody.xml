@@ -249,17 +249,11 @@ executes a compiled version of form.</para>
 <formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
 <para>You can use the function <code>(&spe-var-p; &symbol-r;
   &optional-amp; &env-r;)</code> to check whether the symbol is a
- special variable.  &env-r; of &nil; or omitted means use the
- &glo-env;, &t; means use current &lex-env;.
+ special variable.  &env-r; of &nil; or omitted means use the &glo-env;.
  You can also obtain the current &lex-env; using the macro
  &the-env; (interpreted code only).
  This function will always return &t; for global special
- variables and &constant;s.
- <warning><simpara>This function will not work in compiled code as you
- might expect: when called with &nil; &env-r;, it will be called at
- &exec-time; and check for globally special variables, but when &env-r;
- is &t;, it will be called at &compile-time; and the value will be used
- as a constant in the code.</simpara></warning></para></formalpara>
+ variables and &constant;s.</para></formalpara>
 
 </section>
 
