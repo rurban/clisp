@@ -306,8 +306,8 @@
   ;; `(c-array-max prob_bn ,(GetNodeNumberStates_bn node))
   (:return-type c-pointer))
 (def-call-out GetNodeExpectedValue_bn
-  (:arguments (node node_bn_) (stddev (c-ptr double-float))
-              (x3 (c-ptr double-float)) (x4 (c-ptr double-float)))
+  (:arguments (node node_bn_) (stddev (c-ptr double-float) :out)
+              (x3 (c-ptr double-float) :out) (x4 (c-ptr double-float) :out))
   (:return-type double-float))
 (def-call-out GetNodeExpectedUtils_bn
   (:arguments (node node_bn_))
@@ -655,7 +655,7 @@
   (:return-type c-string))
 (def-call-out GetNodeVisPosition_bn
   (:arguments (node node_bn_) (vis c-pointer)
-              (x (c-ptr double-float)) (y (c-ptr double-float)))
+              (x (c-ptr double-float) :out) (y (c-ptr double-float) :out))
   (:return-type nil))
 (def-call-out GetNodeUserField_bn
   (:arguments (node node_bn_) (name c-string) (length (c-ptr int) :out)
