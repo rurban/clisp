@@ -476,8 +476,8 @@ int main(int argc, char* argv[])
   emit_typedef("uint64","oint");
   emit_typedef("sint64","soint");
  #else
-  emit_typedef("uintL","oint");
-  emit_typedef("sintL","soint");
+  emit_typedef("uintP","oint");
+  emit_typedef("sintP","soint");
  #endif
 #else
   emit_typedef("uint64","oint");
