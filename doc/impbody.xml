@@ -2709,6 +2709,11 @@ printed readably.</para>
 <para>The symbol <constant>:UNSPECIFIC</constant> is not permitted as a
  pathname component for any slot of any pathname.
  It is also illegal to pass it as an argument to &make-pathname;.</para>
+
+<para>The only use for <constant>:UNSPECIFIC</constant> is that it is
+ returned by &pathname-device; for &logical-pathname-t;s, as required by
+ <ulink url="&clhs;/Body/sec_19-3-2-1.html">[CLHS-19.3.2.1] Unspecific
+  Components of a Logical Pathname</ulink>.</para>
 </section>
 
 <section id="path-external-notation"><title>External notation.</title>
