@@ -282,7 +282,7 @@ global sint32 I_to_L (object obj)
   }
 }
 
-#if (defined(HAVE_FFI) || defined(HAVE_AFFI)) && defined(HAVE_LONGLONG)
+#if (defined(HAVE_FFI) || defined(HAVE_AFFI) || (SIZEOF_OFF_T > 4)) && defined(HAVE_LONGLONG)
 
 /* converts integer >=0 into unsigned quadword.
  I_to_UQ(obj)
@@ -1046,7 +1046,7 @@ global object Q_to_I (sint64 wert)
 }
 #endif
 
-#if defined(intQsize) || defined(WIDE_HARD)
+#if defined(intQsize) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4)
 /* converts unsigned quadword into integer >=0 .
  UQ_to_I(wert)
  > wert: value of the integer, an unsigned 64-bit-integer.
