@@ -3,14 +3,22 @@
 
 ;; load this file in the directory where your CLISP distribution is located
 ;;  - to set the Registry appropriately
-;;  - to create CLISP.BAT & CLISP.URL on your desktop
+;;  - to create CLISP.LNK & CLISP.URL on your desktop
 
 (defvar *clisp-home* (namestring (default-directory)))
-(defvar *clisp-base-cmd*
-  (concatenate 'string "\"" *clisp-home* "lisp.exe\" -B \""
-               (substitute #\/ #\\ *clisp-home*) "\" -M "))
+(defvar *clisp-runtime*
+  (if (position #\Space *clisp-home*)
+      (concatenate 'string "\"" *clisp-home* "\\base\\lisp.exe\"")
+      (concatenate 'string *clisp-home* "lisp.exe")))
+(defvar *clisp-some-args*
+  (concatenate 'string " -B \"" (substitute #\/ #\\ *clisp-home*) "\" -M "))
+(defvar *clisp-some-cmd*
+  (concatenate 'string *clisp-runtime* *clisp-some-args*))
+(defvar *clisp-args*
+  (concatenate 'string *clisp-some-args* "\""
+               *clisp-home* "/base/lispinit.mem\""))
 (defvar *clisp-cmd*
-  (concatenate 'string *clisp-base-cmd* "\"" *clisp-home* "lispinit.mem\""))
+  (concatenate 'string *clisp-runtime* *clisp-args*))
 
 (defvar *eflags*
   (make-array 4 :element-type '(unsigned-byte 8) :initial-contents '(0 0 0 0)))
@@ -69,7 +77,7 @@
         (setf (dir-key-value ex "") "Run with CLISP")
         (with-dir-key-open (cmd ex "command" :direction :output)
           (setf (dir-key-value cmd "")
-                (concatenate 'string *clisp-base-cmd* " \"%1\"")))))))
+                (concatenate 'string *clisp-some-cmd* " \"%1\"")))))))
 
 (when (y-or-n-p "Associate types~:{ <~a>,~} with CLISP?" *lisp-type-map*)
   (with-dir-key-open (c1 :win32 "HKEY_CLASSES_ROOT")
@@ -81,16 +89,23 @@
     (add-mem-file c1)))
 
 (let* ((desktop (dir-key-single-value :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" "Common Desktop"))
-       (bat-file (concatenate 'string desktop "\\clisp.bat"))
-       (url-file (concatenate 'string desktop "\\clisp home.url")))
-  (when (y-or-n-p "Create CLISP bat file on your desktop <~s>?" bat-file)
-    (with-open-file (bat bat-file :direction :output)
-      (format t "~&writing <~a>..." bat-file) (force-output)
-      (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)
-      (format t "done~%")))
-  (when (y-or-n-p "Create CLISP URL file on your desktop <~s>?" url-file)
+       (bat-file (concatenate 'string *clisp-home* "clisp.bat"))
+       (lnk-file (concatenate 'string desktop "\\CLISP.lnk"))
+       (url-file (concatenate 'string desktop "\\CLISP home.url")))
+  (when (y-or-n-p "Create a shorcut to CLISP on your desktop <~a>?" lnk-file)
+    (format t "~&writing <~a>..." lnk-file) (force-output)
+    (posix:make-shortcut
+     lnk-file :path *clisp-runtime* :arguments *clisp-args*
+     :working-directory (namestring (user-homedir-pathname))
+     :description "CLISP - ANSI Common Lisp implementation"
+     :icon (concatenate 'string *clisp-home* "doc\\clisp.ico"))
+    (format t "done~%"))
+  (when (y-or-n-p "Create CLISP URL file on your desktop <~a>?" url-file)
     (with-open-file (url (substitute #\/ #\\ url-file) :direction :output)
       (format t "~&writing <~a>..." url-file) (force-output)
       (format url "[Internetshortcut]~%URL=http://clisp.cons.org
 IconFile=~adoc\\clisp.ico~%" *clisp-home*)
-      (format t "done~%"))))
+      (format t "done~%")))
+  (with-open-file (bat bat-file :direction :output)
+    (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*))
+  (format t "Please copy~%  <~a>~%to a directory in your PATH~%" bat-file))
