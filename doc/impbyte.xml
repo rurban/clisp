@@ -259,6 +259,17 @@ or to the elements of a &simple-vector-t;) become
 <para>The workaround is usually to allocate all the needed &clisp; data
 first and do the rest of the computation with &c-lang; variables,
 without calling unsafe routines, and without worrying about &gc;.</para>
+
+<para>Run-time GC-safety checking is available when you build &clisp;
+ with a C++ compiler, e.g.:
+<screen>
+bash$ CC=g++ ./configure --with-debug build-g-gxx
+</screen>
+When built like this, &clisp; will abort when you reference GC-unsafe
+data after an allocation (which could have triggered a &gc;ion),
+and <command>gdb</command> will pinpoint the trouble spot.
+</para>
+
 </section>
 
 <section id="foreign-pointers"><title>Foreign Pointers</title>
