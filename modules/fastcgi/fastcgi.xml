@@ -14,7 +14,7 @@ overhead and allowing for caching of data structures and other resources.  This
 is the same approach used is in other languages (e.g., <ulink
 url="http://perl.apache.org">mod_perl</ulink> for Perl).  </simpara>
 
-<section><title>Overview of &fastcgi-link;</title>
+<section id="fcgi-overview"><title>Overview of &fastcgi-link;</title>
 
 <para>
 Traditional CGI programs work by doing input/output with the Web
@@ -59,7 +59,7 @@ or large in-memory data structures.
 </section>
 
 
-<section><title>Functions in Package <quote role="package">FASTCGI</quote></title>
+<section id="fcgi-functionality"><title>Functions in Package <quote role="package">FASTCGI</quote></title>
 <para>Access to
 &fastcgi-link; is via these functions in package <quote role="package">FASTCGI</quote>.
 
@@ -175,7 +175,7 @@ is useful when building strings in memory for display.
 
 </section>
 
-<section><title>&fastcgi-link; Example</title>
+<section id="fcgi-example"><title>&fastcgi-link; Example</title>
 
 <para>
 
@@ -199,7 +199,8 @@ Below is a simple example CGI script using &fastcgi-link;.
 </para>
 </section>
 
-<section><title>Building and configuring the &fastcgi-link; Interface</title>
+<section id="fcgi-build"><title>Building and configuring the
+  &fastcgi-link; Interface</title>
 <para>
 It is necessary to download the &fastcgi-link; developers' kit, build it,
 and install it, before building &clisp; with &fastcgi-link; support.
