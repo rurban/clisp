@@ -1,3 +1,11 @@
+1998-05-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * stream.d (fehler_input_stream, fehler_output_stream): New functions.
+          (test_input_stream, test_output_stream, test_input_stream_args,
+          test_output_stream_args): New macros.
+          (MAKE-BROADCAST-STREAM, MAKE-CONCATENATED-STREAM,
+          MAKE-TWO-WAY-STREAM, MAKE-ECHO-STREAM): Use them.
+
 1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * array.d (fehler_subscript_range): Signal TYPE-ERROR instead of
