@@ -1,6 +1,6 @@
 /*
  * Hash-Tables in CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2003
  * German comments translated into English: Stefan Kain 2002-01-29
  */
@@ -640,6 +640,8 @@ local uint32 hashcode4_vector (object dv, uintL index,
       return hashcode4_vector_32Bit(dv,index,count,bish_code);
     case Array_type_sstring:    /* simple-string */
       return hashcode4_vector_Char(dv,index,count,bish_code);
+    case Array_type_snilvector: /* (VECTOR NIL) */
+      return 0x2116ECD0 + bish_code;
     default: NOTREACHED;
   }
 }
@@ -680,7 +682,7 @@ local uint32 hashcode4_atom (object obj) {
     case_b16vector:             /* 16bit-vector */
     case_b32vector:             /* 32bit-vector */
     case_string:                /* string */
-    case_vector: {              /* (VECTOR T) */
+    case_vector: {              /* (VECTOR T), (VECTOR NIL) */
       /* look at it component-wise: */
       var uintL len = vector_length(obj); /* length */
       var uintL index = 0;

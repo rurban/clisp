@@ -1048,9 +1048,9 @@ int main(int argc, char* argv[])
   printf1("#define simple_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Svector);
 #endif
 #ifdef TYPECODES
-  printf2("#define general_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)svector_type);
+  printf4("#define general_vector_p(obj)  ((typecode(obj) == %d) || (typecode(obj) == %d && (Iarray_flags(obj) & %d) == %d))\n",(tint)svector_type,(tint)vector_type,arrayflags_atype_mask,Atype_T);
 #else
-  printf2("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Svector^Rectype_vector,Rectype_Svector&Rectype_vector);
+  printf4("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) == %d) || (Record_type(obj) == %d && (Iarray_flags(obj) & %d) == %d)))\n",Rectype_Svector,Rectype_vector,arrayflags_atype_mask,Atype_T);
 #endif
 #ifdef TYPECODES
   printf1("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
