@@ -716,7 +716,7 @@
     register long back_trace_reg __asm__(back_trace_register);
   #endif
   # Saving "save" registers.
-  #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA) || defined(S390)
+  #if (defined(I80386) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA) || defined(S390)) && (defined(STACK_register) || defined(mv_count_register) || defined(value1_register) || defined(back_trace_register))
     #define HAVE_SAVED_REGISTERS
     struct registers {
       #ifdef STACK_register
