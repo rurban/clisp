@@ -5,6 +5,7 @@
 	* stream.d (stream_handles): work on many streams and return 2
 	handles (renamed from socket_handle)
 	(handle_set, handle_isset, SOCKET-STATUS): modified accordingly
+	(ChannelStream_ihandle, ChannelStream_ohandle): new macros
 
 2002-01-18  Sam Steingold  <sds@gnu.org>
 
