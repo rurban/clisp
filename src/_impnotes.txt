@@ -1832,8 +1832,8 @@ the function LOGICAL-PATHNAME can be used.
 
 OPEN cannot handle files of size >= 4 GB.
 
-The file streams returned by OPEN are buffered for regular files and
-unbuffered for special files.
+The file streams returned by OPEN are buffered for regular files and (on Unix)
+block-devices, and unbuffered for special files.
 
 23.3.
 -----

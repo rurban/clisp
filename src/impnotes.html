@@ -2440,8 +2440,8 @@ the function <CODE>logical-pathname</CODE> can be used.
 
 <CODE>open</CODE> cannot handle files of size &gt;= 4 GB.
 <P>
-The file streams returned by <CODE>open</CODE> are buffered for regular files and
-unbuffered for special files.
+The file streams returned by <CODE>open</CODE> are buffered for regular files and (on Unix)
+block-devices, and unbuffered for special files.
 
 <H3>23.3.</H3>
 
