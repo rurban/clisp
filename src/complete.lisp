@@ -22,7 +22,7 @@
          (functionalp2 (and (>= start1 2)
                             (equal (subseq string (- start1 2) start1) "#'")))
          ;; completion of a function
-         (functionalp (or functionalp1 functionalp2))
+         (functionalp (or (= start end) functionalp1 functionalp2))
          (gatherer
           (if functionalp
               (lambda (sym)
