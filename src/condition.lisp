@@ -1213,27 +1213,25 @@
        (GO ,tag1)
        ,tag2)))
 (defun assert-failed (place-list place-numvalues-list places-setter error-string &rest condition-datum+args) ; ABI
-  (flet ((assert-restart-prompt ()
-           (mapcan #'(lambda (place place-numvalues)
-                       (prompt-for-new-value place place-numvalues))
-                   place-list place-numvalues-list)))
-    (setf (closure-name #'assert-restart-prompt) 'assert-restart-prompt)
-    (restart-case
-      ;; No need for explicit association, see APPLICABLE-RESTART-P.
-      (if error-string
-        (error ; of-type ??
-          "~A" error-string)
-        (apply #'error condition-datum+args)) ; use coerce-to-condition??
-      ;; Only one restart: CONTINUE.
-      (CONTINUE
-        :REPORT (lambda (stream)
-                  (apply #'format stream
-                         (if (= (length place-list) 1)
-                           (report-one-new-value-string)
-                           (report-new-values-string))
-                         place-list))
-        :INTERACTIVE assert-restart-prompt
-        (&rest new-values) (apply places-setter new-values)))))
+  (restart-case
+    ;; No need for explicit association, see APPLICABLE-RESTART-P.
+    (if error-string
+      (error ; of-type ??
+        "~A" error-string)
+      (apply #'error condition-datum+args)) ; use coerce-to-condition??
+    ;; Only one restart: CONTINUE.
+    (CONTINUE
+      :REPORT (lambda (stream)
+                (apply #'format stream
+                       (if (= (length place-list) 1)
+                         (report-one-new-value-string)
+                         (report-new-values-string))
+                       place-list))
+      :INTERACTIVE (lambda ()
+                     (mapcan #'(lambda (place place-numvalues)
+                                 (prompt-for-new-value place place-numvalues))
+                             place-list place-numvalues-list))
+      (&rest new-values) (apply places-setter new-values))))
 (defun simple-assert-failed (error-string &rest condition-datum+args) ; ABI
   (restart-case
     ;; No need for explicit association, see APPLICABLE-RESTART-P.
@@ -1600,27 +1598,25 @@ Todo:
   (let ((restart (find-restart 'CONTINUE condition)))
     (when restart
       (if (restart-meaningfulp restart)
-        (let ((res-int (restart-interactive restart)))
-          (case (closure-name res-int)
-            ((assert-restart-prompt) ; prompt for new values
-             (when (interactive-stream-p *debug-io*)
-               ;; Show the condition in the same way as the break-loop would.
-               (fresh-line *error-output*)
-               (write-string "** - " *error-output*)
-               (write-string (TEXT "Continuable Error") *error-output*)
-               (terpri *error-output*)
-               (pretty-print-condition condition *error-output* :text-indent 5)
-               (elastic-newline *error-output*)
-               (invoke-restart-interactively restart)))
-            (otherwise            ; general automatic error handling
-             (when report-p
-               (warn "~A" (with-output-to-string (stream)
-                            (print-condition condition stream)
-                            (let ((report-function (restart-report restart)))
-                              (when report-function
-                                (terpri stream)
-                                (funcall report-function stream))))))
-             (invoke-restart-interactively restart))))
+        (if (eq (restart-interactive restart) #'default-restart-interactive)
+          (progn
+            (when report-p
+              (warn "~A" (with-output-to-string (stream)
+                           (print-condition condition stream)
+                           (let ((report-function (restart-report restart)))
+                             (when report-function
+                               (terpri stream)
+                               (funcall report-function stream))))))
+            (invoke-restart restart))
+          (when (interactive-stream-p *debug-io*)
+            ;; Show the condition in the same way as the break-loop would.
+            (fresh-line *error-output*)
+            (write-string "** - " *error-output*)
+            (write-string (TEXT "Continuable Error") *error-output*)
+            (terpri *error-output*)
+            (pretty-print-condition condition *error-output* :text-indent 5)
+            (elastic-newline *error-output*)
+            (invoke-restart-interactively restart)))
         (when (interactive-stream-p *debug-io*)
           (invoke-debugger condition))))))
 
