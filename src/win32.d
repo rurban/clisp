@@ -61,9 +61,9 @@
   #define FOREIGN_HANDLE  # box them
 
 # File handles of standard input, standard output, standard error
-  extern Handle stdin_handle;   
+  extern Handle stdin_handle;
   extern Handle stdout_handle; # see win32aux.d
-  extern Handle stderr_handle; 
+  extern Handle stderr_handle;
   extern void init_win32 (void);
   extern void done_win32 (void);
 # used by spvw.d, stream.d
@@ -195,16 +195,6 @@
   #define SEEK_SET  FILE_BEGIN
   #define SEEK_CUR  FILE_CURRENT
   #define SEEK_END  FILE_END
-  # Winsock constants -> Berkeley sockets constants
-  #ifndef EINPROGRESS
-  #define EINPROGRESS WSAEINPROGRESS
-  #endif
-  #ifndef ETIMEDOUT
-  #define ETIMEDOUT WSAETIMEDOUT
-  #endif
-  # Early/late error print function. The problem of early/late errors is complex
-  # this is simple kind of temporary solution
-  extern void earlylate_asciz_error (const char * description, bool fatal_p);
 # used by spvw.d, stream.d
 
 # Socket connections
