@@ -159,6 +159,15 @@
   ;; an argument"; so only one argument is consumed (by the V, not by ~[).
   FORMATTER.COND.14 |FORMATTER.COND:.7|
 
+  ;; Paul Dietz assumes that the reader constructs an array of element type T
+  ;; for #1a"abcd" and #1a#*000110. This could be what ANSI CL 2.4.8.12 is
+  ;; saying.
+  ;; CLISP constructs arrays whose element type reflect the syntax; this is
+  ;; consistent with the printer's behaviour (cf. ANSI CL 22.1.3.8) and
+  ;; achieves a better PRINT-READ consistency.
+  SYNTAX.SHARP-A.4 SYNTAX.SHARP-A.6 SYNTAX.SHARP-A.7 SYNTAX.SHARP-A.22
+  SYNTAX.SHARP-A.23
+
   ;; Paul Dietz assumes that (ROOM NIL) prints non-empty information.
   ;; In CLISP, it prints an empty information and returns some values.
   ROOM.2
