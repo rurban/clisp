@@ -1484,10 +1484,12 @@ LISPSYM(Ksupersede,"SUPERSEDE",keyword) /* argument in PATHNAME */
 LISPSYM(Kcreate,"CREATE",keyword) /* argument in PATHNAME */
 #ifdef EXPORT_SYSCALLS
 LISPSYM(Ksymlink,"SYMLINK",keyword) /* Argument to COPY-FILE in PATHNAME */
-LISPSYM(Kcopy,"COPY",keyword) /* Argument to COPY-FILE in PATHNAME */
 LISPSYM(Khardlink,"HARDLINK",keyword) /* Argument to COPY-FILE in PATHNAME */
 LISPSYM(Kpreserve,"PRESERVE",keyword) /* Argument to COPY-FILE in PATHNAME */
 LISPSYM(Kmethod,"METHOD",keyword) /* Argument to COPY-FILE in PATHNAME */
+#endif
+#if defined(EXPORT_SYSCALLS) || defined(DYNAMIC_FFI)
+LISPSYM(Kcopy,"COPY",keyword) /* COPY-FILE (PATHNAME) & SET-FOREIGN-POINTER */
 #endif
 LISPSYM(warn,"WARN",lisp) /* function in STREAM, PATHNAME */
 LISPSYM(Kignore,"IGNORE",keyword) /* argument in ENCODING, PATHNAME */
