@@ -126,6 +126,7 @@
 <!ENTITY dohash "<link linkend='dohash'><function>EXT:DOHASH</function></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:ELEMENT-TYPE</constant></link>">
 <!ENTITY encoding "<link linkend='encoding'><classname>EXT:ENCODING</classname></link>">
+<!ENTITY enc-built-in "<link linkend='charset-symbols'>built-in</link>"> <!-- encoding -->
 <!ENTITY ethe "<link linkend='ethe'><function>EXT:ETHE</function></link>">
 <!ENTITY make-encoding "<link linkend='make-encoding'><function>EXT:MAKE-ENCODING</function></link>">
 <!ENTITY def-file-enc "<link linkend='def-file-enc'><varname>CUSTOM:*DEFAULT-FILE-ENCODING*</varname></link>">
@@ -180,8 +181,21 @@
 <!ENTITY mk-pipe-io "<link linkend='pipe'><function>EXT:MAKE-PIPE-IO-STREAM</function></link>">
 <!ENTITY mk-pipe-in "<link linkend='pipe'><function>EXT:MAKE-PIPE-INPUT-STREAM</function></link>">
 <!ENTITY mk-pipe-out "<link linkend='pipe'><function>EXT:MAKE-PIPE-OUTPUT-STREAM</function></link>">
-<!ENTITY socket-accept "<link linkend='socket'><function>SOCKET:SOCKET-ACCEPT</function></link>">
-<!ENTITY socket-connect "<link linkend='socket'><function>SOCKET:SOCKET-CONNECT</function></link>">
+<!ENTITY sose "<link linkend='sose'><function>SOCKET:SOCKET-SERVER</function></link>">
+<!ENTITY sose-close "<link linkend='sose-close'><function>SOCKET:SOCKET-SERVER-CLOSE</function></link>">
+<!ENTITY sose-port "<link linkend='sose-port'><function>SOCKET:SOCKET-SERVER-PORT</function></link>">
+<!ENTITY so-wait "<link linkend='so-wait'><function>SOCKET:SOCKET-WAIT</function></link>">
+<!ENTITY timeout-arg "&optional-amp; [<replaceable>seconds</replaceable> [<replaceable>microseconds</replaceable>]]">
+<!ENTITY so-status "<link linkend='so-status'><function>SOCKET:SOCKET-STATUS</function></link>">
+<!ENTITY sost-host "<link linkend='sost-hopo'><function>SOCKET:SOCKET-STREAM-HOST</function></link>">
+<!ENTITY sost-port "<link linkend='sost-hopo'><function>SOCKET:SOCKET-STREAM-PORT</function></link>">
+<!ENTITY service-port "<link linkend='service-port'><function>SOCKET:SOCKET-SERVICE-PORT</function></link>">
+<!ENTITY sost-peer "<link linkend='sost-peer'><function>SOCKET:SOCKET-STREAM-PEER</function></link>">
+<!ENTITY sost-local "<link linkend='sost-local'><function>SOCKET:SOCKET-STREAM-LOCAL</function></link>">
+<!ENTITY so "<link linkend='so'><function>SOCKET:SOCKET-</function></link>">
+<!ENTITY so "<link linkend='so'><function>SOCKET:SOCKET-</function></link>">
+<!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
+<!ENTITY so-connect "<link linkend='so-connect'><function>SOCKET:SOCKET-CONNECT</function></link>">
 <!ENTITY socket-server "<link linkend='socket'><classname>SOCKET:SOCKET-SERVER</classname></link>">
 <!ENTITY socket-stream "<link linkend='socket'><classname>SOCKET:SOCKET-STREAM</classname></link>">
 <!ENTITY space "<link linkend='space'><function>EXT:SPACE</function></link>">
@@ -194,6 +208,25 @@
 <!ENTITY wr-float "<link linkend='bin-output'><function>EXT:WRITE-FLOAT</function></link>">
 <!ENTITY rd-integer "<link linkend='bin-input'><function>EXT:READ-INTEGER</function></link>">
 <!ENTITY rd-float "<link linkend='bin-input'><function>EXT:READ-FLOAT</function></link>">
+<!ENTITY wr-by-seq "<link linkend='wr-by-seq'><function>EXT:WRITE-BYTE-SEQUENCE</function></link>">
+<!ENTITY rd-by-seq "<link linkend='rd-by-seq'><function>EXT:READ-BYTE-SEQUENCE</function></link>">
+<!ENTITY wr-ch-seq "<link linkend='wr-ch-seq'><function>EXT:WRITE-CHAR-SEQUENCE</function></link>">
+<!ENTITY rd-ch-seq "<link linkend='rd-ch-seq'><function>EXT:READ-CHAR-SEQUENCE</function></link>">
+<!ENTITY fu-st "<link linkend='fu-st'><classname>GRAY:FUNDAMENTAL-STREAM</classname></link>">
+<!ENTITY fu-st-bin "<link linkend='fu-st-bin'><classname>GRAY:FUNDAMENTAL-BINARY-STREAM</classname></link>">
+<!ENTITY fu-st-char "<link linkend='fu-st-char'><classname>GRAY:FUNDAMENTAL-CHARACTER-STREAM</classname></link>">
+<!ENTITY fu-st-in "<link linkend='fu-st-in'><classname>GRAY:FUNDAMENTAL-INPUT-STREAM</classname></link>">
+<!ENTITY fu-st-out "<link linkend='fu-st-out'><classname>GRAY:FUNDAMENTAL-OUTPUT-STREAM</classname></link>">
+<!ENTITY st-rc "<link linkend='st-rc'><function>GRAY:STREAM-READ-CHAR</function></link>">
+<!ENTITY st-wc "<link linkend='st-wc'><function>GRAY:STREAM-WRITE-CHAR</function></link>">
+<!ENTITY st-lc "<link linkend='st-lc'><function>GRAY:STREAM-LINE-COLUMN</function></link>">
+<!ENTITY st-rb "<link linkend='st-rb'><function>GRAY:STREAM-READ-BYTE</function></link>">
+<!ENTITY st-rbla "<link linkend='st-rbla'><function>GRAY:STREAM-READ-BYTE-LOOKAHEAD</function></link>">
+<!ENTITY rbla "<link linkend='rbla'><function>EXT:READ-BYTE-LOOKAHEAD</function></link>">
+<!ENTITY st-rcnh "<link linkend='st-rcnh'><function>GRAY:STREAM-READ-CHAR-NO-HANG</function></link>">
+<!ENTITY st-uc "<link linkend='st-uc'><function>GRAY:STREAM-UNREAD-CHAR</function></link>">
+<!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
+<!ENTITY weak-pointer "<link linkend='weak'><classname>EXT:WEAK-POINTER</classname></link>">
 
 <!-- *** gettext *** -->
 <!ENTITY ggettext "&gnu; <ulink url='http://www.gnu.org/software/gettext/gettext.html'>gettext</ulink>">
@@ -318,6 +351,8 @@
 <!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY size-r "<replaceable>size</replaceable>">
+<!ENTITY sose-r "<replaceable>socket-server</replaceable>">
+<!ENTITY sost-r "<replaceable>socket-stream</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
 <!ENTITY string-r "<replaceable>string</replaceable>">

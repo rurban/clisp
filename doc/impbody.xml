@@ -315,9 +315,7 @@ executes a compiled version of form.</para>
  <replaceable>typespec</replaceable> was a user-defined type.
 </para></formalpara>
 
-<para>The possible results of &type-of; are:
-
-<itemizedlist>
+<itemizedlist><title>The possible results of &type-of;</title>
  <listitem><simpara>&cons-class;</simpara></listitem>
  <listitem><simpara>&symbol-class;, &null-class;,
   &boolean-type;</simpara></listitem>
@@ -350,14 +348,11 @@ executes a compiled version of form.</para>
   &pathname-class;, &logical-pathname-class;, &random-state-class;,
   &byte-t;</simpara></listitem>
  <listitem><simpara><classname>special-operator</classname>,
-  <classname>load-time-eval</classname>, &symbol-macro;,
-  <link linkend="encoding"><classname>encoding</classname></link>,
-  &foreign-pointer;,
-  <classname>foreign-address</classname>,
+  <classname>load-time-eval</classname>, &symbol-macro;, &encoding;,
+  &foreign-pointer;, <classname>foreign-address</classname>,
   <classname>foreign-variable</classname>,
   <classname>foreign-function</classname></simpara></listitem>
- <listitem><simpara><link
- linkend="weak"><classname>weak-pointer</classname></link>,
+ <listitem><simpara>&weak-pointer;,
           <link linkend="reader"><classname>read-label</classname></link>,
           <link linkend="reader"><classname>frame-pointer</classname></link>,
       <classname>system-internal</classname></simpara></listitem>
@@ -367,7 +362,7 @@ executes a compiled version of form.</para>
   classes)</simpara></listitem>
  <listitem><simpara>a class (&clos; classes without proper
   name)</simpara></listitem>
-</itemizedlist></para>
+</itemizedlist>
 
 </section>
 </section>
@@ -3758,7 +3753,7 @@ is not a defined logical host yet, we proceed as follows:
 
 <para>&stream-element-type; is &setf;able. The &stream-element-type; of
   &stream-class;s created by the functions &open;, &mk-pipe-in;
-  &mk-pipe-out;, &mk-pipe-io;, &socket-accept;, &socket-connect;
+  &mk-pipe-out;, &mk-pipe-io;, &so-accept;, &so-connect;
   can be modified, if the old and the new &stream-element-type;s are either
 <itemizedlist>
   <listitem><simpara>both equivalent to &character-class; or
@@ -3849,35 +3844,26 @@ value of &terminal-io-var;).</para>
  functions are provided:</para>
 
 <variablelist>
- <varlistentry><term><emphasis
-   role="strong"><function>ext:read-byte-sequence</function></emphasis>
+ <varlistentry id="rd-by-seq"><term>&rd-by-seq;
    performs multiple &read-byte; operations:</term>
-
- <listitem><simpara><literal
-   role="sexp">(<function>ext:read-byte-sequence</function> &sequence-r;
+ <listitem><simpara><literal role="sexp">(&rd-by-seq; &sequence-r;
    &stream-r; &key-amp; &start-k; &end-k;)</literal> fills the
    subsequence of &sequence-r; specified by &start-k; and &end-k; with
    &integer-class;s consecutively read from &stream-r;.  It returns the
    index of the first element of &sequence-r; that was not updated (=
    &end-r; or &lt; &end-r; if the &stream-r; reached its end).</simpara>
-
  <simpara>This function is especially efficient if &sequence-r; is a
-  &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
-  &stream-class; with &stream-element-type; &unsigned-byte-8;.
+   &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
+   &stream-class; with &stream-element-type; &unsigned-byte-8;.
  </simpara></listitem></varlistentry>
-
- <varlistentry><term><emphasis
-   role="strong"><function>ext:read-char-sequence</function></emphasis>
+ <varlistentry id="rd-ch-seq"><term>&rd-ch-seq;
    performs multiple &read-char; operations:</term>
-
- <listitem><simpara><literal
-  role="sexp">(<function>read-char-sequence</function> &sequence-r;
+ <listitem><simpara><literal role="sexp">(&rd-ch-seq; &sequence-r;
   &stream-r; &key-amp; &start-k; &end-k;)</literal> fills the
   subsequence of &sequence-r; specified by &start-k; and &end-k; with
   characters consecutively read from &stream-r;.  It returns the index
   of the first element of &sequence-r; that was not updated (= &end-r;
   or &lt; &end-r; if the &stream-r; reached its end).</simpara>
-
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-class; and &stream-k; is a &file-pipe-socket; stream with
   &stream-element-type; &character-class; or an <ulink
@@ -3894,33 +3880,22 @@ value of &terminal-io-var;).</para>
 functions are provided:</para>
 
 <variablelist>
- <varlistentry><term><emphasis
-   role="strong"><function>ext:write-byte-sequence</function></emphasis>
+ <varlistentry id="wr-by-seq"><term>&wr-by-seq;
    performs multiple &write-byte; operations:</term>
-
- <listitem><simpara><literal
-  role="sexp">(<function>ext:write-byte-sequence</function> &sequence-r;
+ <listitem><simpara><literal role="sexp">(&wr-by-seq; &sequence-r;
   &stream-k; &key-amp; &start-k; &end-k;)</literal> outputs the
   &integer-class;s of the subsequence of &sequence-r; specified by
-  &start-k; and &end-k; to &stream-k;. It returns
-  &sequence-r;.</simpara>
-
+  &start-k; and &end-k; to &stream-k;. It returns &sequence-r;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
   &stream-class; with &stream-element-type; &unsigned-byte-8;.
  </simpara></listitem></varlistentry>
-
-<varlistentry><term><emphasis
-  role="strong"><function>ext:write-char-sequence</function></emphasis>
+<varlistentry id="wr-ch-seq"><term>&wr-ch-seq;
   performs multiple &write-char; operations:</term>
-
- <listitem><simpara><literal
-   role="sexp">(<function>ext:write-char-sequence</function>
-   &sequence-r; &stream-k; &key-amp; &start-k; &end-k;)</literal>
-   outputs the characters of the subsequence of &sequence-r; specified
-   by &start-k; and &end-k; to &stream-k;.  It returns
-   &sequence-r;.</simpara>
-
+ <listitem><simpara><literal role="sexp">(&wr-ch-seq; &sequence-r;
+  &stream-k; &key-amp; &start-k; &end-k;)</literal> outputs the
+  characters of the subsequence of &sequence-r; specified by &start-k;
+  and &end-k; to &stream-k;.  It returns &sequence-r;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-class; and &stream-k; is a &file-pipe-socket; &stream-class;
   with &stream-element-type; &character-class;.
@@ -4351,9 +4326,8 @@ functions are provided:</para>
 <section id="read-byte"><title>Function &read-byte;</title>
 
 <variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>ext:read-byte-lookahead</function>
-                 &stream-r;)</literal></term>
+ <varlistentry id="rbla"><term><literal
+    role="sexp">(&rbla; &stream-r;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &t; if &read-byte; would return immediately with an
@@ -4362,14 +4336,14 @@ functions are provided:</para>
    If &read-byte;'s value is not available immediately, returns &nil;
    instead of waiting.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
-  role="sexp">(<function>ext:read-byte-will-hang-p</function>
+  role="sexp">(<function>EXT:READ-BYTE-WILL-HANG-P</function>
               &stream-r;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &nil; if &read-byte; will return immediately.
    Otherwise it returns true.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>ext:read-byte-no-hang</function>
+    role="sexp">(<function>EXT:READ-BYTE-NO-HANG</function>
                  &stream-r; &optional-amp; &eof-ep; &eof-v;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
