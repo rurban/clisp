@@ -1997,12 +1997,11 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   in the executable (&lisp-run;) which was not present at the time the
   image was saved.  It can be used to create Lisp objects,
   e.g. functions or keywords, and is indeed used for that purpose by
-  <link linkend="modprep">modprep</link>.</simpara>
+  &modprep;.</simpara>
  <warning><simpara>The &package-t;s must already exist and be unlocked,
    cf. &mod-preload;.</simpara></warning>
- <warning><simpara>If you are using <link linkend="modprep">modprep</link>
-   <emphasis>and</emphasis> defining your own <quote>init-once</quote>
-   function, it must call the
+ <warning><simpara>If you are using &modprep; <emphasis>and</emphasis>
+   defining your own <quote>init-once</quote> function, it must call the
    <function>module__&name-r;__init_function_1__modprep</function>
    function!</simpara></warning></listitem></varlistentry>
 <varlistentry>
@@ -2114,9 +2113,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <section id="modprep"><title>Modprep</title>
 <para>If your module is written in &c-lang;, you can pre-process your
- sources with <filename>modprep.lisp</filename> in the &clisp;
- distribution and define lisp functions with the
- <function>DEFUN</function> macro:<programlisting language="C">
+ sources with &modprep; in the &clisp; distribution and define lisp
+ functions with the <function>DEFUN</function> macro:
+ <programlisting language="C">
 DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
   if (!boundp(STACK_0)) STACK_0 = fixnum(0); /* BAR */
   if (!boundp(STACK_1)) STACK_1 = fixnum(1); /* FOO */
@@ -2148,8 +2147,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 </variablelist></para>
 
 <para>See <filename>modules/syscalls</filename> and other included
- modules for more examples and file <filename>modprep.lisp</filename>
- for full documentation.</para>
+ modules for more examples and file &modprep; for full documentation.</para>
 <warning><para>If you manipulate Lisp objects, you need to watch for
   <link linkend="gc-safety">GC-safety</link>.</para></warning>
 </section>
