@@ -1,5 +1,10 @@
 2004-04-20  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_symbol): Print keywords that are accessible in the current
+	package with a colon. Required by CLHS 22.1.3.3.1.
+
+2004-04-20  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pr_string): When *print-readably* = NIL, print nil-vectors
 	of length 0 like strings. Required by CLHS 22.1.3.4.
 
