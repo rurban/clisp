@@ -3633,7 +3633,7 @@ functions are provided:
  &clear-output; dicards the characters collected so far.</para>
 
 <para><literal role="sexp">(EXT:MAKE-BUFFERED-INPUT-STREAM &func-r;
-  <replaceable>mode</replaceable>)</literal> returns a buffered &in-s;.
+  &mode-r;)</literal> returns a buffered &in-s;.
  &func-r; is a &function-t; of 0 arguments that returns
  either &nil; (stands for &eos;) or up to three values
  &string-r;, &start-r;, &end-r;.
@@ -3644,7 +3644,7 @@ functions are provided:
  The &string-r; returned by &func-r; should not be changed,
  otherwise &func-r; should copy the &string-r; with &copy-seq;
  or &subseq; beforehand.
- <replaceable>mode</replaceable> determines the behavior of &listen;
+ &mode-r; determines the behavior of &listen;
  when the current &string-r; buffer is empty:
  <variablelist>
   <varlistentry><term>&nil;</term>
