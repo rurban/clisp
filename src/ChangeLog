@@ -1,5 +1,7 @@
 2004-07-26  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (BDB:DBE-SET-OPTIONS): finish the
+	set_lk_conflicts() interface
 	* genclisph.d (main): export array_atype()
 	* array.d (array_atype): global, not local
 
