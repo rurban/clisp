@@ -1557,7 +1557,7 @@
                      (*FORMAT-CSDL* inner-csdl)
                      (*FORMAT-UP-AND-OUT* nil))
                 (format-interpret stream 'FORMAT-ITERATION-END)
-                (when (eq *FORMAT-UP-AND-OUT* ':TERMINATE-ALL) (return)))
+                (when *FORMAT-UP-AND-OUT* (return)))
               (let* ((*FORMAT-ARG-LIST* arg-list-rest)
                      (*FORMAT-NEXT-ARG* *FORMAT-ARG-LIST*)
                      (*FORMAT-CS* inner-cs)
@@ -1565,7 +1565,7 @@
                      (*FORMAT-UP-AND-OUT* nil))
                 (format-interpret stream 'FORMAT-ITERATION-END)
                 (setq arg-list-rest *FORMAT-NEXT-ARG*)
-                (when (eq *FORMAT-UP-AND-OUT* ':TERMINATE-ALL) (return)))))
+                (when *FORMAT-UP-AND-OUT* (return)))))
           ;; inner-cs may be a function in the ~{~} case
           (if (functionp inner-cs)
             (if colon-modifier
