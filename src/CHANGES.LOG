@@ -75,6 +75,8 @@ User visible changes
   file being compiled does not contain any FFI forms.
   See <http://clisp.cons.org/impnotes.html#compilefile> for details.
 
+* Type COMPLEX now correctly uses UPGRADED-COMPLEX-PART-TYPE.
+
 * Fixed a bug: Conversion from bytes to string did not work for the encoding
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).

@@ -133,12 +133,16 @@ T
 NIL
 
 (TYPEP #C(2 3) (QUOTE (COMPLEX SYMBOL)))
-#+CMU ERROR #-CMU NIL
+ERROR
 
 (TYPEP '#(A B C D) (QUOTE VECTOR))
 T
 
 (TYPEP '#(A B C D) (QUOTE (VECTOR * 4)))
+T
+
+;; depends on (UPGRADED-COMPLEX-PART-TYPE '(EQL 0)) ?
+(TYPEP #C(0 1) '(COMPLEX (EQL 0)))
 T
 
 #| ; depends on (upgraded-array-element-type 'SYMBOL) !
