@@ -486,6 +486,39 @@ ERROR
 (progn (foreign-free fm) 0)
 0
 
+(type-of (setq fa (foreign-address fm)))
+FOREIGN-ADDRESS
+
+(eq (foreign-pointer fa) (foreign-pointer fm))
+T
+
+(type-of (setq fv (unsigned-foreign-address (foreign-address-unsigned fm))))
+FOREIGN-ADDRESS
+
+(eq (foreign-pointer fv) (foreign-pointer fm))
+NIL
+
+(progn (set-foreign-pointer fv fm) 1)
+1
+
+(eq (foreign-pointer fm) (foreign-pointer fv))
+T
+
+(eq (foreign-pointer fm) (foreign-pointer fa))
+T
+
+(type-of (setq fp (foreign-pointer fa)))
+FOREIGN-POINTER
+
+(eq (foreign-pointer fa) fp)
+T
+
+(eq (set-foreign-pointer fa :copy) fp)
+NIL
+
+(eq (foreign-pointer fm) (foreign-pointer fp))
+NIL
+
 (progn (setf (validp fm) nil) 1)
 1
 
