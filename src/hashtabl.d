@@ -837,7 +837,7 @@ global uint32 hashcode4 (object obj) {
 }
 
 /* hashcode for user-defined ht_test */
-local uint32 hashcode5 (object fun, object obj) {
+local uint32 hashcode_raw_user (object fun, object obj) {
   pushSTACK(obj); funcall(fun,1);
   value1 = check_uint32(value1);
   return I_to_UL(value1);
@@ -890,7 +890,7 @@ local inline uintL hashcode_raw (object ht, object obj) {
   var uintB flags = record_flags(TheHashtable(ht));
   return (flags & bit(0) ? hashcode1(obj) : /* EQ-hashcode */
           flags & (bit(0)|bit(1)|bit(2)|bit(3)) ? hashcodefn(ht)(obj) :
-          hashcode5(TheHashtable(ht)->ht_hash,obj));
+          hashcode_raw_user(TheHashtable(ht)->ht_hash,obj));
 }
 local inline uintL hashcode_cook (uint32 code, uintL size) {
   /* divide raw hashcode CODE by SIZE: */
@@ -924,7 +924,7 @@ local inline uintL hashcode_builtin (object ht, object obj) {
  can trigger GC */
 local uintL hashcode_user (object ht, object obj) {
   var uintL size = TheHashtable(ht)->ht_size;
-  var uint32 coderaw = hashcode5(TheHashtable(ht)->ht_hash,obj);
+  var uint32 coderaw = hashcode_raw_user(TheHashtable(ht)->ht_hash,obj);
   return hashcode_cook(coderaw,size);
 }
 
