@@ -858,7 +858,7 @@ DEFUN(BDB:DB-CREATE, dbe &key :XA)
   DB_ENV *dbe = bdb_handle(STACK_1,`BDB::DBE`,BH_NIL_IS_NULL);
   DB *db;
   SYSCALL(db_create,(&db,dbe,flags));
-  if (!dbe){                    /* set error callback */
+  if (!dbe) {                   /* set error callback */
     begin_system_call();
     db->set_errcall(db,&error_callback);
     end_system_call();
@@ -872,8 +872,9 @@ DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_NOSYNC;
   DB *db = bdb_handle(STACK_1,`BDB::DB`,BH_INVALIDATE);
   if (db) {
+    bool orphan_p = nullp(Parents(STACK_1));
     pushSTACK(STACK_1); funcall(`BDB::KILL-HANDLE`,1);
-    CLOSE_ERRFILE(db);
+    if (orphan_p) CLOSE_ERRFILE(db);
     SYSCALL(db->close,(db,flags));
     VALUES1(T);
   } else VALUES1(NIL);
