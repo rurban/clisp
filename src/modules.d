@@ -12,7 +12,7 @@
 #endif
 
 /* the number of modules linked in */
-global var uintC module_count =
+uintC module_count =
  #define MODULE(module_name)  1+
   #include "modules.h"
  #undef MODULE
@@ -37,7 +37,7 @@ extern uintC object_tab_size;
 #else
  #define _NEXT_NULL
 #endif
-global module_t modules[] = {
+module_t modules[] = {
   { "clisp",
     (subr_t*)&subr_tab_data, &subr_tab_data_size,
     (gcv_object_t*)&object_tab, &object_tab_size,
