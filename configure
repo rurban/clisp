@@ -34,7 +34,6 @@ options: The following options are recognized:
          --without-PACKAGE     do not use PACKAGE
            PACKAGEs available (the default is the opposite of the following):
           --with-export-syscalls  export some UNIX syscalls to Lisp
-          --with-dir-key          dir-key access (win32 registry, LDAP, Gnome)
           --without-dynamic-ffi   do not support Foreign Function Interface
           --without-unicode       no UNICODE support: character=8bit
           --with-threads=FLAVOR   support multiple threads in one CLISP image
@@ -182,9 +181,6 @@ do
         passnext=yes ;;
 
       --with-export-syscalls)
-        makemake_args="$makemake_args $arg" ;;
-
-      --with-dir-key)
         makemake_args="$makemake_args $arg" ;;
 
       --with-debug)

@@ -1923,9 +1923,6 @@
 #+GETTEXT (LOAD "dutch")        ; Dutch messages
 #+(and GETTEXT UNICODE) (LOAD "russian") ; Russian messages
 
-#+dir-key
-(load "dirkey1")                ; win32 registry, LDAP, Gnome-config
-
 (load "deprecated")             ; the deprecated functionality -- optional
 
 (LOAD "config")    ; configuration parameters to be adjusted by the user

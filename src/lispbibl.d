@@ -2131,7 +2131,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: extend pathname.d
 
 # Whether there is a type FOREIGN (a wrap for several pointers):
-#if defined(UNIX) || defined(DYNAMIC_FFI) || defined(AMIGAOS) || defined(DIR_KEY)
+#if defined(UNIX) || defined(DYNAMIC_FFI) || defined(AMIGAOS) || defined(WIN32_NATIVE)
   # (Used by FFI and by CLX.)
   #define FOREIGN  void*
 #endif
@@ -4060,9 +4060,6 @@ typedef xrecord_ *  Xrecord;
          #ifdef SOCKET_STREAMS
          Rectype_Socket_Server,
          #endif
-         #ifdef DIR_KEY
-         Rectype_Dir_Key,
-         #endif
          #ifdef YET_ANOTHER_RECORD
          Rectype_Yetanother,
          #endif
@@ -5019,27 +5016,6 @@ typedef struct host_data_t {
 } host_data_t;
 #endif
 
-#ifdef DIR_KEY
-# directory services interface, such as
-#   LDAP (via the OpenLDAP libraries),
-#   Gnome-config
-#   Win32 registry
-typedef struct {
-  XRECORD_HEADER
-  gcv_object_t type;
-  gcv_object_t path;
-  gcv_object_t direction;
-  unsigned int closed_p;
-  # LDAP:           LDAP*
-  # win32 registry: HKEY
-  # gnome-conf:     NULL
-  void* handle;
-} * Dir_Key;
-# this is the number if OBJECTS inside Dir_Key that the GC must track
-#define dir_key_length 3
-#define dir_key_xlength (sizeof(*(Dir_Key)0)-offsetofa(record_,recdata)-dir_key_length*sizeof(gcv_object_t))
-#endif
-
 #ifdef YET_ANOTHER_RECORD
 
 # Yet another record
@@ -5656,9 +5632,6 @@ typedef enum {
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(type_pointable(orecord_type,obj)))
   #endif
-  #ifdef DIR_KEY
-  #define TheDirKey(obj) ((Dir_Key)(type_pointable(orecord_type,obj)))
-  #endif
   #ifdef YET_ANOTHER_RECORD
   #define TheYetanother(obj)  ((Yetanother)(type_pointable(orecord_type,obj)))
   #endif
@@ -5800,9 +5773,6 @@ typedef enum {
   #define TheFinalizer(obj)  ((Finalizer)(ngci_pointable(obj)-varobject_bias))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(ngci_pointable(obj)-varobject_bias))
-  #endif
-  #ifdef DIR_KEY
-  #define TheDirKey(obj) ((Dir_Key)(ngci_pointable(obj)-varobject_bias))
   #endif
   #ifdef YET_ANOTHER_RECORD
   #define TheYetanother(obj)  ((Yetanother)(ngci_pointable(obj)-varobject_bias))
@@ -6320,11 +6290,6 @@ typedef enum {
     (orecordp(obj) && (Record_type(obj) == Rectype_Socket_Server))
   #define socket_stream_p(obj)  \
     (builtin_stream_p(obj) && (TheStream(obj)->strmtype==strmtype_socket))
-#endif
-
-#ifdef DIR_KEY
-  #define dir_key_p(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Dir_Key))
 #endif
 
 #ifdef YET_ANOTHER_RECORD
@@ -8479,11 +8444,6 @@ extern object allocate_weakkvt (uintL len, object type);
 #ifdef SOCKET_STREAMS
   #define allocate_socket_server() \
     allocate_xrecord(0,Rectype_Socket_Server,socket_server_length,0,orecord_type)
-#endif
-
-#ifdef DIR_KEY
-  #define allocate_dir_key() \
-    allocate_xrecord(0,Rectype_Dir_Key,dir_key_length,dir_key_xlength,orecord_type)
 #endif
 
 #ifdef YET_ANOTHER_RECORD

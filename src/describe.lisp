@@ -149,10 +149,7 @@ to print the corresponding values, or T for all of them.")
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
     (ecase (type-of obj)
-      #+DIR-KEY
-      (LDAP::DIR-KEY
-       (format stream (TEXT "a directory access key")))
-      #+(or UNIX AMIGA FFI DIR-KEY)
+      #+(or UNIX AMIGA FFI WIN32)
       (EXT::FOREIGN-POINTER
        (format stream (TEXT "a foreign pointer")))
       #+FFI

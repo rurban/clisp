@@ -11,6 +11,7 @@
   <!ENTITY imp-issues SYSTEM "impissue.xml">
   <!ENTITY imp-ext SYSTEM "impext.xml">
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
+  <!ENTITY dirkey SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.xml">
 ]>
