@@ -1,7 +1,7 @@
 /* vacall function for hppa CPU */
 
 /*
- * Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -99,109 +99,127 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   (*env->vacall_function) (env->arg,&list);
 #endif
   /* Put return value into proper register. */
-  switch (list.rtype)
-    {
-      case __VAvoid:	break;
-      case __VAchar:	iret = list.tmp._char; break;
-      case __VAschar:	iret = list.tmp._schar; break;
-      case __VAuchar:	iret = list.tmp._uchar; break;
-      case __VAshort:	iret = list.tmp._short; break;
-      case __VAushort:	iret = list.tmp._ushort; break;
-      case __VAint:	iret = list.tmp._int; break;
-      case __VAuint:	iret = list.tmp._uint; break;
-      case __VAlong:	iret = list.tmp._long; break;
-      case __VAulong:	iret = list.tmp._ulong; break;
-      case __VAlonglong:
-      case __VAulonglong:
-        iret1 = ((__vaword *) &list.tmp._longlong)[0];
-        iret2 = ((__vaword *) &list.tmp._longlong)[1];
-        break;
-      case __VAfloat:
-        fret = list.tmp._float;
-        iret1 = list.tmp._words[0]; /* HP cc generates a RTNVAL=GR call */
-        break;
-      case __VAdouble:
-        dret = list.tmp._double;
-        iret1 = list.tmp._words[0]; /* HP cc generates a RTNVAL=GR call */
-        iret2 = list.tmp._words[1]; /* i.e. result is expected in r28,r29 */
-        break;
-      case __VAvoidp:	iret = (long)list.tmp._ptr; break;
-      case __VAstruct:
-        if (list.flags & __VA_PCC_STRUCT_RETURN)
-          { /* pcc struct return convention */
-            iret = (long) list.raddr;
+  if (list.rtype == __VAvoid) {
+  } else
+  if (list.rtype == __VAchar) {
+    iret = list.tmp._char;
+  } else
+  if (list.rtype == __VAschar) {
+    iret = list.tmp._schar;
+  } else
+  if (list.rtype == __VAuchar) {
+    iret = list.tmp._uchar;
+  } else
+  if (list.rtype == __VAshort) {
+    iret = list.tmp._short;
+  } else
+  if (list.rtype == __VAushort) {
+    iret = list.tmp._ushort;
+  } else
+  if (list.rtype == __VAint) {
+    iret = list.tmp._int;
+  } else
+  if (list.rtype == __VAuint) {
+    iret = list.tmp._uint;
+  } else
+  if (list.rtype == __VAlong) {
+    iret = list.tmp._long;
+  } else
+  if (list.rtype == __VAulong) {
+    iret = list.tmp._ulong;
+  } else
+  if (list.rtype == __VAlonglong || list.rtype == __VAulonglong) {
+    iret1 = ((__vaword *) &list.tmp._longlong)[0];
+    iret2 = ((__vaword *) &list.tmp._longlong)[1];
+  } else
+  if (list.rtype == __VAfloat) {
+    fret = list.tmp._float;
+    iret1 = list.tmp._words[0]; /* HP cc generates a RTNVAL=GR call */
+  } else
+  if (list.rtype == __VAdouble) {
+    dret = list.tmp._double;
+    iret1 = list.tmp._words[0]; /* HP cc generates a RTNVAL=GR call */
+    iret2 = list.tmp._words[1]; /* i.e. result is expected in r28,r29 */
+  } else
+  if (list.rtype == __VAvoidp) {
+    iret = (long)list.tmp._ptr;
+  } else
+  if (list.rtype == __VAstruct) {
+    if (list.flags & __VA_PCC_STRUCT_RETURN) {
+      /* pcc struct return convention */
+      iret = (long) list.raddr;
+    } else {
+      /* normal struct return convention */
+      if (list.flags & __VA_SMALL_STRUCT_RETURN) {
+        if (list.flags & __VA_OLDGCC_STRUCT_RETURN) {
+          /* gcc <= 2.6.3 returns structs of size 1,2,4 in registers. */
+          if (list.rsize == sizeof(char)) {
+            iret = *(unsigned char *) list.raddr;
+          } else
+          if (list.rsize == sizeof(short)) {
+            iret = *(unsigned short *) list.raddr;
+          } else
+          if (list.rsize == sizeof(int)) {
+            iret = *(unsigned int *) list.raddr;
           }
-        else
-          { /* normal struct return convention */
-            if (list.flags & __VA_SMALL_STRUCT_RETURN)
-              if (list.flags & __VA_OLDGCC_STRUCT_RETURN)
-                /* gcc <= 2.6.3 returns structs of size 1,2,4 in registers. */
-                switch (list.rsize)
-                  {
-                    case sizeof(char):  iret = *(unsigned char *) list.raddr; break;
-                    case sizeof(short): iret = *(unsigned short *) list.raddr; break;
-                    case sizeof(int):   iret = *(unsigned int *) list.raddr; break;
-                    default:            break;
-                  }
-              else
-                /* cc, c89 and gcc >= 2.7 return structs of size <= 8 in registers. */
-                switch (list.rsize)
-                  {
-                    case 1:
-                      iret =   ((unsigned char *) list.raddr)[0];
-                      break;
-                    case 2:
-                      iret =  (((unsigned char *) list.raddr)[0] << 8)
-                            |  ((unsigned char *) list.raddr)[1];
-                      break;
-                    case 3:
-                      iret =  (((unsigned char *) list.raddr)[0] << 16)
-                            | (((unsigned char *) list.raddr)[1] << 8)
-                            |  ((unsigned char *) list.raddr)[2];
-                      break;
-                    case 4:
-                      iret =  (((unsigned char *) list.raddr)[0] << 24)
-                            | (((unsigned char *) list.raddr)[1] << 16)
-                            | (((unsigned char *) list.raddr)[2] << 8)
-                            |  ((unsigned char *) list.raddr)[3];
-                      break;
-                    case 5:
-                      iret1 =  (((unsigned char *) list.raddr)[0] << 24)
-                             | (((unsigned char *) list.raddr)[1] << 16)
-                             | (((unsigned char *) list.raddr)[2] << 8)
-                             |  ((unsigned char *) list.raddr)[3];
-                      iret2 =   ((unsigned char *) list.raddr)[4];
-                      break;
-                    case 6:
-                      iret1 =  (((unsigned char *) list.raddr)[0] << 24)
-                             | (((unsigned char *) list.raddr)[1] << 16)
-                             | (((unsigned char *) list.raddr)[2] << 8)
-                             |  ((unsigned char *) list.raddr)[3];
-                      iret2 =  (((unsigned char *) list.raddr)[4] << 8)
-                             |  ((unsigned char *) list.raddr)[5];
-                      break;
-                    case 7:
-                      iret1 =  (((unsigned char *) list.raddr)[0] << 24)
-                             | (((unsigned char *) list.raddr)[1] << 16)
-                             | (((unsigned char *) list.raddr)[2] << 8)
-                             |  ((unsigned char *) list.raddr)[3];
-                      iret2 =  (((unsigned char *) list.raddr)[4] << 16)
-                             | (((unsigned char *) list.raddr)[5] << 8)
-                             |  ((unsigned char *) list.raddr)[6];
-                      break;
-                    case 8:
-                      iret1 =  (((unsigned char *) list.raddr)[0] << 24)
-                             | (((unsigned char *) list.raddr)[1] << 16)
-                             | (((unsigned char *) list.raddr)[2] << 8)
-                             |  ((unsigned char *) list.raddr)[3];
-                      iret2 =  (((unsigned char *) list.raddr)[4] << 24)
-                             | (((unsigned char *) list.raddr)[5] << 16)
-                             | (((unsigned char *) list.raddr)[6] << 8)
-                             |  ((unsigned char *) list.raddr)[7];
-                      break;
-                    default:            break;
-                  }
+        } else {
+          /* cc, c89 and gcc >= 2.7 return structs of size <= 8 in registers. */
+          if (list.rsize > 0 && list.rsize <= 8) {
+            if (list.rsize == 1) {
+              iret =   ((unsigned char *) list.raddr)[0];
+            } else
+            if (list.rsize == 2) {
+              iret =  (((unsigned char *) list.raddr)[0] << 8)
+                    |  ((unsigned char *) list.raddr)[1];
+            } else
+            if (list.rsize == 3) {
+              iret =  (((unsigned char *) list.raddr)[0] << 16)
+                    | (((unsigned char *) list.raddr)[1] << 8)
+                    |  ((unsigned char *) list.raddr)[2];
+            } else
+            if (list.rsize == 4) {
+              iret =  (((unsigned char *) list.raddr)[0] << 24)
+                    | (((unsigned char *) list.raddr)[1] << 16)
+                    | (((unsigned char *) list.raddr)[2] << 8)
+                    |  ((unsigned char *) list.raddr)[3];
+            } else
+            if (list.rsize == 5) {
+              iret1 =  (((unsigned char *) list.raddr)[0] << 24)
+                     | (((unsigned char *) list.raddr)[1] << 16)
+                     | (((unsigned char *) list.raddr)[2] << 8)
+                     |  ((unsigned char *) list.raddr)[3];
+              iret2 =   ((unsigned char *) list.raddr)[4];
+            } else
+            if (list.rsize == 6) {
+              iret1 =  (((unsigned char *) list.raddr)[0] << 24)
+                     | (((unsigned char *) list.raddr)[1] << 16)
+                     | (((unsigned char *) list.raddr)[2] << 8)
+                     |  ((unsigned char *) list.raddr)[3];
+              iret2 =  (((unsigned char *) list.raddr)[4] << 8)
+                     |  ((unsigned char *) list.raddr)[5];
+            } else
+            if (list.rsize == 7) {
+              iret1 =  (((unsigned char *) list.raddr)[0] << 24)
+                     | (((unsigned char *) list.raddr)[1] << 16)
+                     | (((unsigned char *) list.raddr)[2] << 8)
+                     |  ((unsigned char *) list.raddr)[3];
+              iret2 =  (((unsigned char *) list.raddr)[4] << 16)
+                     | (((unsigned char *) list.raddr)[5] << 8)
+                     |  ((unsigned char *) list.raddr)[6];
+            } else
+            if (list.rsize == 8) {
+              iret1 =  (((unsigned char *) list.raddr)[0] << 24)
+                     | (((unsigned char *) list.raddr)[1] << 16)
+                     | (((unsigned char *) list.raddr)[2] << 8)
+                     |  ((unsigned char *) list.raddr)[3];
+              iret2 =  (((unsigned char *) list.raddr)[4] << 24)
+                     | (((unsigned char *) list.raddr)[5] << 16)
+                     | (((unsigned char *) list.raddr)[6] << 8)
+                     |  ((unsigned char *) list.raddr)[7];
+            }
           }
-        break;
+        }
+      }
     }
+  }
 }

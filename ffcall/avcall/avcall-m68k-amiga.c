@@ -2,9 +2,7 @@
 #define _avcall_m68k_amiga_c
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
-
-  Copyright 1995 Bruno Haible, <haible@clisp.cons.org>
-
+  Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
   Copyright 1997 Jörg Höhle, <Joerg.Hoehle@gmd.de>
 
   This is free software distributed under the GNU General Public
@@ -90,72 +88,101 @@ __builtin_avcall(av_alist* l)
 
   sp += __AV_ALIST_WORDS + __NUM_SAVED_REGS;	/* restore stack pointer */
 
-  switch (l->rtype)			/* save return value */
-  {
-  case __AVvoid:					break;
-  case __AVword:	RETURN(__avword,	iret);	break;
-  case __AVchar:	RETURN(char,		iret);	break;
-  case __AVschar:	RETURN(signed char,	iret);	break;
-  case __AVuchar:	RETURN(unsigned char,	iret);	break;
-  case __AVshort:	RETURN(short,		iret);	break;
-  case __AVushort:	RETURN(unsigned short,	iret);	break;
-  case __AVint:		RETURN(int,		iret);	break;
-  case __AVuint:	RETURN(unsigned int,	iret);	break;
-  case __AVlong:	RETURN(long,		iret);	break;
-  case __AVulong:	RETURN(unsigned long,	iret);	break;
-  case __AVlonglong:
-  case __AVulonglong:
+  /* save return value */
+  if (l->rtype == __AVvoid) {
+  } else
+  if (l->rtype == __AVword) {
+    RETURN(__avword, iret);
+  } else
+  if (l->rtype == __AVchar) {
+    RETURN(char, iret);
+  } else
+  if (l->rtype == __AVschar) {
+    RETURN(signed char, iret);
+  } else
+  if (l->rtype == __AVuchar) {
+    RETURN(unsigned char, iret);
+  } else
+  if (l->rtype == __AVshort) {
+    RETURN(short, iret);
+  } else
+  if (l->rtype == __AVushort) {
+    RETURN(unsigned short, iret);
+  } else
+  if (l->rtype == __AVint) {
+    RETURN(int, iret);
+  } else
+  if (l->rtype == __AVuint) {
+    RETURN(unsigned int, iret);
+  } else
+  if (l->rtype == __AVlong) {
+    RETURN(long, iret);
+  } else
+  if (l->rtype == __AVulong) {
+    RETURN(unsigned long, iret);
+  } else
+  if (l->rtype == __AVlonglong || l->rtype == __AVulonglong) {
     ((__avword*)l->raddr)[0] = iret;
     ((__avword*)l->raddr)[1] = iret2;
-    break;
-  case __AVfloat:
-    if (l->flags & __AV_SUNCC_FLOAT_RETURN)
+  } else
+  if (l->rtype == __AVfloat) {
+    if (l->flags & __AV_SUNCC_FLOAT_RETURN) {
       RETURN(float, (float)dret);
-    else
+    } else {
       RETURN(float, fret);
-    break;
-  case __AVdouble:	RETURN(double,		dret);	break;
-  case __AVvoidp:	RETURN(void*,		iret);	break;
-  case __AVstruct:
+    }
+  } else
+  if (l->rtype == __AVdouble) {
+    RETURN(double, dret);
+  } else
+  if (l->rtype == __AVvoidp) {
+    RETURN(void*, iret);
+  } else
+  if (l->rtype == __AVstruct) {
     /* NB: On m68k, all structure sizes are divisible by 2. */
-    if (l->flags & __AV_REGISTER_STRUCT_RETURN)
-      switch (l->rsize)
-      {
-	case sizeof(char):  RETURN(char,  iret); goto done; /* can't occur */
-	case sizeof(short): RETURN(short, iret); goto done;
-	case sizeof(int):   RETURN(int,   iret); goto done;
-	case 2*sizeof(__avword):
-	  ((__avword*)l->raddr)[0] = iret;
-	  ((__avword*)l->raddr)[1] = iret2;
-	  goto done;
-	default:				break;
-      }
-    if (l->flags & __AV_PCC_STRUCT_RETURN)
-    { /* pcc struct return convention: need a  *(TYPE*)l->raddr = *(TYPE*)i;  */
-      switch (l->rsize)
-      {
-      case sizeof(char):  RETURN(char,	*(char*)iret);	break; /* can't occur */
-      case sizeof(short): RETURN(short,	*(short*)iret);	break;
-      case sizeof(int):	  RETURN(int,	*(int*)iret);	break;
-      case sizeof(double):
-	((int*)l->raddr)[0] = ((int*)iret)[0];
-	((int*)l->raddr)[1] = ((int*)iret)[1];
-	break;
-      default:
-	{
-	  int n = (l->rsize + sizeof(__avword)-1)/sizeof(__avword);
-	  while (--n >= 0)
-	    ((__avword*)l->raddr)[n] = ((__avword*)iret)[n];
-	}
-	break;
+    if (l->flags & __AV_REGISTER_STRUCT_RETURN) {
+      if (l->rsize == sizeof(char)) { /* can't occur */
+        RETURN(char, iret);
+        goto done;
+      } else
+      if (l->rsize == sizeof(short)) {
+        RETURN(short, iret);
+        goto done;
+      } else
+      if (l->rsize == sizeof(int)) {
+        RETURN(int, iret);
+        goto done;
+      } else
+      if (l->rsize == 2*sizeof(__avword)) {
+        ((__avword*)l->raddr)[0] = iret;
+        ((__avword*)l->raddr)[1] = iret2;
+        goto done;
       }
     }
-    else
-    { /* normal struct return convention */ }
-    break;
-  default:						break;
+    if (l->flags & __AV_PCC_STRUCT_RETURN) {
+      /* pcc struct return convention: need a  *(TYPE*)l->raddr = *(TYPE*)iret;  */
+      if (l->rsize == sizeof(char)) { /* can't occur */
+        RETURN(char, *(char*)iret);
+      } else
+      if (l->rsize == sizeof(short)) {
+        RETURN(short, *(short*)iret);
+      } else
+      if (l->rsize == sizeof(int)) {
+        RETURN(int, *(int*)iret);
+      } else
+      if (l->rsize == sizeof(double)) {
+        ((int*)l->raddr)[0] = ((int*)iret)[0];
+        ((int*)l->raddr)[1] = ((int*)iret)[1];
+      } else {
+        int n = (l->rsize + sizeof(__avword)-1)/sizeof(__avword);
+        while (--n >= 0)
+          ((__avword*)l->raddr)[n] = ((__avword*)iret)[n];
+      }
+    } else {
+      /* normal struct return convention */
+    }
+    done: ;
   }
- done:
   return 0;
 }
 
