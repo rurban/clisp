@@ -78,6 +78,9 @@ nil
               (character (char-code ret))
               (t (coerce ret 'integer))))
           :eof)))
+  (defun list->integer (list type endianness)
+    (read-integer (make-instance 'list-input-stream :list list)
+                  type endianness))
   (defun list->float (list type endianness)
     (read-float (make-instance 'list-input-stream :list list)
                 type endianness)))
@@ -89,6 +92,18 @@ list->float
 (list->float '(0 0 0 0 0 0 #xf0 #x3f) 'double-float :little)
 1d0
 
+(list->integer '(0 1) '(unsigned-byte 16) :big)
+1
+
+(list->integer '(1 0) '(unsigned-byte 16) :big)
+256
+
+(list->integer '(1 0) '(unsigned-byte 16) :little)
+1
+
+(list->integer '(0 1) '(unsigned-byte 16) :little)
+256
+
 (progn
   (defclass list-output-stream (fundamental-output-stream)
     ((list :initform nil)))
@@ -99,11 +114,16 @@ list->float
   (defmethod stream-write-byte ((stream list-output-stream) (byte integer))
     (with-slots (list) stream
       (push byte list)))
+  (defun integer->list (integer type endianness)
+    (let ((out (make-instance 'list-output-stream)))
+      (write-integer integer out type endianness)
+      (with-slots (list) out
+        (reverse list))))
   (defun float->list (float type endianness)
     (let ((out (make-instance 'list-output-stream)))
       (write-float float out type endianness)
       (with-slots (list) out
-        (nreverse list)))))
+        (reverse list)))))
 float->list
 
 (float->list 1d0 'double-float :big)
@@ -111,3 +131,9 @@ float->list
 
 (float->list 1d0 'double-float :little)
 (0 0 0 0 0 0 #xf0 #x3f)
+
+(integer->list 1 '(unsigned-byte 16) :big)
+(0 1)
+
+(integer->list 1 '(unsigned-byte 16) :little)
+(1 0)
