@@ -3658,7 +3658,7 @@ method body must be converted to a method function.  This conversion is
 a two step process.</para>
 
 <note><simpara>The body of methods can also appear in the
-&initial-methods-k; option of &defgeneric; forms.  Initial methods are
+&method-k; option of &defgeneric; forms.  Initial methods are
 not considered by any of the protocols specified in this document.
 </simpara></note>
 
