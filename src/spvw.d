@@ -1734,7 +1734,7 @@ local void print_license (void)
 
 # print the banner
 local void print_banner ()
-{ const char * const banner[] = { # einige Zeilen à 66 Zeichen
+{ const char * const banner0[] = { # einige Zeilen à 66 Zeichen
  #  |Column 0           |Column 20                                    |Col 66
  # "012345678901234567890123456789012345678901234567890123456789012345678901"
    "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo " NLstring,
@@ -1743,14 +1743,13 @@ local void print_banner ()
   "   \\  `-+-'  /       8         8           8      ooooo   8oooo" NLstring,
    "    `-__|__-'        8         8           8           8  8" NLstring,
    "        |            8     o   8           8     o     8  8" NLstring,
-   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring,
-   NLstring,
-   "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
+   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring, };
+  const char * const banner1[] = {
+   NLstring, "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998"
    NLstring,
-   "Copyright (c) Bruno Haible, Sam Steingold 1999" NLstring,
-   };
+   "Copyright (c) Bruno Haible, Sam Steingold 1999" NLstring, };
   #ifdef AMIGA
   var const char * banner2 =
     DEUTSCH ? "                    Amiga-Version: Jörg Höhle" NLstring :
@@ -1782,14 +1781,16 @@ local void print_banner ()
     "";
   #endif
   var const char * banner3 = NLstring ;
-  var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 73 ?
+  var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ?
                       0 : 20);
-  var const char * const * ptr = &banner[0];
+  var const char * const * ptr = banner0;
   var uintC count;
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
-  dotimesC(count,sizeof(banner)/sizeof(banner[0]),
-           { write_sstring(&STACK_0,asciz_to_string(&(*ptr++)[offset])); }
-           );
+  dotimesC(count,sizeof(banner0)/sizeof(banner0[0]),
+           { write_sstring(&STACK_0,asciz_to_string(&(*ptr++)[offset])); });
+  ptr = banner1;
+  dotimesC(count,sizeof(banner1)/sizeof(banner1[0]),
+           { write_sstring(&STACK_0,asciz_to_string(*ptr++)); });
   #if defined(AMIGA) || defined(RISCOS) || defined(DJUNIX)
   write_sstring(&STACK_0,asciz_to_string(&banner2[offset]));
   #endif
