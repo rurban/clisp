@@ -1,6 +1,7 @@
 2005-03-01  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: handle gettext identically on unix and windows
+	(LIB) [win32gcc]: add $LIBICONV
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 
 2005-03-01  Sam Steingold  <sds@gnu.org>
