@@ -1,3 +1,7 @@
+2004-03-18  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile (LISP): Add a -N option.
+
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
 	* excepsit.tst: Disable the /etc/passwd test on BeOS.
