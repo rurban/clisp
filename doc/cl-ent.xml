@@ -192,6 +192,10 @@
 <!ENTITY exec-time "<ulink url='&clhs;/Body/glo_e.html#execution_time'>execution time</ulink>">
 <!ENTITY compile-time "<ulink url='&clhs;/Body/glo_c.html#compile_time'>compile time</ulink>">
 <!ENTITY top-level-form "<ulink url='&clhs;/Body/sec_3-2-3-1.html'>top-level form</ulink>">
+<!ENTITY dec-time "<ulink url='&clhs;/Body/sec_25-1-4-1.html'>decoded time</ulink>">
+<!ENTITY uni-time "<ulink url='&clhs;/Body/sec_25-1-4-2.html'>universal time</ulink>">
+<!ENTITY int-time "<ulink url='&clhs;/Body/sec_25-1-4-3.html'>internal time</ulink>">
+<!ENTITY seconds "<ulink url='&clhs;/Body/sec_25-1-4-4.html'>seconds</ulink>">
 
 <!-- *** variables, bindings etc *** -->
 <!ENTITY environment "<ulink url='&clhs;/Body/sec_3-1-1.html'>environment</ulink>">
