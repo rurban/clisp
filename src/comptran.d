@@ -461,7 +461,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
       encode_LF0(ceiling(prec,intDsize),tempfloat=);
     pushSTACK(tempfloat);
     /* stack layout: y, x, resfloat, tempfloat. */
-    var uintL x_prec = R_float_digits(x);
+    var uintL x_prec = R_float_digits(STACK_2/*x*/);
     if (x_prec < F_float_digits(STACK_0))
       STACK_2 = N_N_float_N(STACK_2,STACK_0); /* extend precision of x */
     STACK_2 = N_log_N(STACK_2,NULL); /* (log x) */

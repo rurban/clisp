@@ -1,5 +1,9 @@
 2005-02-28  Sam Steingold  <sds@gnu.org>
 
+	* comptran.d (N_N_expt_N): fixed a GC-safety bug
+
+2005-02-28  Sam Steingold  <sds@gnu.org>
+
 	fixed c++ compilation
 	* comptran.d (maybe_rebind): new macro, used throughout
 
