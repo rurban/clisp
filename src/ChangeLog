@@ -1,3 +1,14 @@
+2001-05-24  Sam Steingold  <sds@gnu.org>
+
+	hostname resolution is now optional in
+	SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL.
+	* stream.d (host_data_fetcher): accept an additional boolean argument.
+	(publish_host_data): pass `resolve_p' to func
+	(SOCKET-STREAM-PEER, SOCKET-STREAM-LOCAL): 1 optional argument
+	* subr.d: ditto
+	* socket.d (socket_getlocalname, socket_getpeername): accept an
+	additional `resolve_p' argument.
+
 2001-05-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib): pack in the build directory.

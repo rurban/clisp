@@ -16611,20 +16611,18 @@ LISPFUNN(socket_stream_host,1)
     mv_count=1;
   }
 
-extern host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
-extern host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd);
+typedef host_data * host_data_fetcher (SOCKET, host_data *, bool);
+extern host_data_fetcher socket_getpeername, socket_getlocalname;
 
-typedef host_data * host_data_fetcher (SOCKET, host_data *);
-local void publish_host_data (host_data_fetcher* func);
-local void publish_host_data (func)
-  var host_data_fetcher* func;
-  {
-    var object stream = test_socket_stream(popSTACK(),true);
-    var SOCKET sk = TheSocket(TheStream(stream)->strm_ichannel);
-    var host_data hd;
+local void publish_host_data (host_data_fetcher* func) {
+  var bool resolve_p = (eq(NIL,STACK_0) || eq(unbound,STACK_0));
+  skipSTACK(1);
+  var object stream = test_socket_stream(popSTACK(),true);
+  var SOCKET sk = TheSocket(TheStream(stream)->strm_ichannel);
+  var host_data hd;
 
     begin_system_call();
-    if ((*func)(sk, &hd) == NULL) { SOCK_error(); }
+    if ((*func)(sk,&hd,resolve_p) == NULL) { SOCK_error(); }
     end_system_call();
     if (hd.truename[0] == '\0') {
       value1 = asciz_to_string(hd.hostname,O(misc_encoding));
@@ -16641,14 +16639,14 @@ local void publish_host_data (func)
     mv_count=2;
   }
 
-LISPFUNN(socket_stream_peer,1)
-# (SOCKET-STREAM-PEER socket-stream)
+LISPFUN(socket_stream_peer,1,1,norest,nokey,0,NIL)
+# (SOCKET-STREAM-PEER socket-stream [do-not-resolve-p])
   {
     publish_host_data (&socket_getpeername);
   }
 
-LISPFUNN(socket_stream_local,1)
-# (SOCKET-STREAM-LOCAL socket-stream)
+LISPFUN(socket_stream_local,1,1,norest,nokey,0,NIL)
+# (SOCKET-STREAM-LOCAL socket-stream [do-not-resolve-p])
   {
     publish_host_data (&socket_getlocalname);
   }

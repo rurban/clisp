@@ -625,64 +625,61 @@ local host_data * socket_getlocalname_aux(socket_handle,hd)
   }
 
 # Fills all of *hd.
-global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd);
-global host_data * socket_getlocalname(socket_handle,hd)
-  var SOCKET socket_handle;
-  var host_data * hd;
-  {
-    if (socket_getlocalname_aux(socket_handle,hd) == NULL)
-      return NULL;
-    # Fill in hd->truename.
-    {
-      var const char* host;
-      get_hostname(host =); # was: host = "localhost";
-      ASSERT(strlen(host) <= MAXHOSTNAMELEN);
-      strcpy(hd->truename,host);
-    }
-    return hd;
+global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd,
+                                        bool resolve_p) {
+  if (socket_getlocalname_aux(socket_handle,hd) == NULL)
+    return NULL;
+  if (resolve_p) { # Fill in hd->truename.
+    var const char* host;
+    get_hostname(host =); # was: host = "localhost";
+    ASSERT(strlen(host) <= MAXHOSTNAMELEN);
+    strcpy(hd->truename,host);
   }
+  return hd;
+}
 
 # Auxiliary function:
 # socket_getpeername (socket_handle, hd)
 # returns the name of the host to which IP socket fd is connected.
 
 # Fills all of *hd.
-global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
-global host_data * socket_getpeername(socket_handle,hd)
-  var SOCKET socket_handle;
-  var host_data * hd;
-  {
-    var sockaddr_max addr;
-    var SOCKLEN_T addrlen = sizeof(sockaddr_max);
-    var struct hostent* hp;
-    # Get host's IP address.
-    if (getpeername(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
-      return NULL;
-    # Fill in hd->port and hd->hostname, and retrieve hp.
-    switch (((struct sockaddr *)&addr)->sa_family) {
-      #ifdef HAVE_IPV6
-      case AF_INET6:
-        ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
-        hd->port = ntohs(addr.inaddr6.sin6_port);
-        hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,sizeof(struct in6_addr),AF_INET6);
-        break;
-      #endif
-      case AF_INET:
-        ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
-        hd->port = ntohs(addr.inaddr.sin_port);
-        hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,sizeof(struct in_addr),AF_INET);
-        break;
-      default: NOTREACHED
-    }
-    # Fill in hd->truename.
-    if (hp) {
-      ASSERT(strlen(hp->h_name) <= MAXHOSTNAMELEN);
-      strcpy(hd->truename,hp->h_name);
-    } else {
-      hd->truename[0] = '\0';
-    }
-    return hd;
+global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
+                                       bool resolve_p) {
+  var sockaddr_max addr;
+  var SOCKLEN_T addrlen = sizeof(sockaddr_max);
+  var struct hostent* hp = NULL;
+  # Get host's IP address.
+  if (getpeername(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
+    return NULL;
+  # Fill in hd->port and hd->hostname, and retrieve hp.
+  switch (((struct sockaddr *)&addr)->sa_family) {
+    #ifdef HAVE_IPV6
+    case AF_INET6:
+      ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+      hd->port = ntohs(addr.inaddr6.sin6_port);
+      if (resolve_p)
+        hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,
+                           sizeof(struct in6_addr),AF_INET6);
+      break;
+    #endif
+    case AF_INET:
+      ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
+      hd->port = ntohs(addr.inaddr.sin_port);
+      if (resolve_p)
+        hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,
+                           sizeof(struct in_addr),AF_INET);
+      break;
+    default: NOTREACHED
   }
+  # Fill in hd->truename.
+  if (hp) {
+    ASSERT(strlen(hp->h_name) <= MAXHOSTNAMELEN);
+    strcpy(hd->truename,hp->h_name);
+  } else {
+    hd->truename[0] = '\0';
+  }
+  return hd;
+}
 
 # Creation of sockets on the server side:
 # SOCKET socket_handle = create_server_socket (&host_data, sock, port);
@@ -813,7 +810,7 @@ global SOCKET create_client_socket(hostname,port)
 # can trigger GC
 local void servent_to_stack (struct servent * se) {
   var object tmp;
-  pushSTACK(asciz_to_string(se->s_name,O(misc_encoding))); 
+  pushSTACK(asciz_to_string(se->s_name,O(misc_encoding)));
   ARR_TO_LIST(tmp,(se->s_aliases[ii] != NULL),
               asciz_to_string(se->s_aliases[ii],O(misc_encoding)));
   pushSTACK(tmp);
@@ -966,11 +963,11 @@ local void hostent_to_stack (struct hostent *he,char *buf) {
 }
 
 # Lisp interface to gethostbyname(3) and gethostbyaddr(3)
-LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
+LISPFUNN(resolve_host_ipaddr_,1)
 # (POSIX::RESOLVE-HOST-IPADDR-INTERNAL host)
 # if you modify this function wrt its return values,
 # you should modify POSIX:RESOLVE-HOST-IPADDR in posix.lisp accordingly
-# can trigger GC 
+# can trigger GC
 {
   var object arg = popSTACK();
   var struct hostent *he = NULL;
