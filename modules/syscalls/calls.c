@@ -35,6 +35,8 @@
 # include <sys/statvfs.h>
 #endif
 
+#include <stdio.h>             /* for BUFSIZ */
+
 #if defined(_WIN32)
 /* need this for CreateHardLink to work */
 # define WINVER 0x0500
@@ -50,7 +52,6 @@
 
 /* #define DEBUG */
 #if defined(DEBUG)
-# include <stdio.h>
 extern object nobject_out (FILE* stream, object obj);
 # define XOUT(obj,label)                                                \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
