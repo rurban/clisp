@@ -213,8 +213,8 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
             list = Cdr(list);
       }   }
     bad_name:
-      pushSTACK(name); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_recognizable_sequence_type)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(name); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_recognizable_sequence_type)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(name);
       fehler(type_error,
              GETTEXT("There are no sequences of type ~")
@@ -279,8 +279,8 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
     { var object typdescr = get_seq_type(seq); # Typdescriptor bestimmen
       if (!(nullp(typdescr))) { return typdescr; } # gefunden -> OK
       # sonst Fehler melden:
-      pushSTACK(seq); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(sequence)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(seq);         # TYPE-ERROR slot DATUM
+      pushSTACK(S(sequence)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(seq);
       fehler(type_error,
              GETTEXT("~ is not a sequence")
@@ -293,12 +293,12 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
   local void fehler_seqtype_length(seqtype_length,computed_length)
     var object seqtype_length;
     var object computed_length;
-    { pushSTACK(computed_length); # Wert für Slot DATUM von TYPE-ERROR
+    { pushSTACK(computed_length); # TYPE-ERROR slot DATUM
       pushSTACK(NIL);
       pushSTACK(computed_length);
       pushSTACK(seqtype_length);
       pushSTACK(S(eql)); pushSTACK(seqtype_length);
-      { var object type = listof(2); STACK_2 = type; } # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      { var object type = listof(2); STACK_2 = type; } # TYPE-ERROR slot EXPECTED-TYPE
       fehler(type_error,
              GETTEXT("sequence type forces length ~, but result has length ~")
             );
@@ -310,8 +310,8 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
     var object fun;
     var object kw;
     var object obj;
-    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj);                # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(kw);
       pushSTACK(fun);
@@ -539,36 +539,38 @@ LISPFUNN(defseq,1)
     value1 = seq_type(popSTACK()); mv_count=1;
   }
 
+local void seq_check_index (object seq,object typdescr,object index) {
+  if (!(posfixnump(index))) {
+    pushSTACK(STACK_0);           # Slot DATUM von TYPE-ERROR
+    pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(STACK_(0+2)); pushSTACK(S(elt));
+    fehler(type_error,GETTEXT("~: the index should be a fixnum >=0, not ~"));
+  }
+  if (vectorp(seq) && # vector ==> check length
+      (posfixnum_to_L(index) >= vector_length(seq))) {
+    pushSTACK(seq);
+    pushSTACK(index);
+    fehler_index_range(posfixnum_to_L(index));
+  }
+}
+
+
 LISPFUNN(elt,2) # (ELT sequence index), CLTL S. 248
-  { # sequence überprüfen:
+  { # check sequence:
     var object typdescr = get_valid_seq_type(STACK_1);
-    # index überprüfen:
-    if (!(posfixnump(STACK_0)))
-      { pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-        pushSTACK(STACK_(0+2)); pushSTACK(S(elt));
-        fehler(type_error,
-               GETTEXT("~: the index should be a fixnum >=0, not ~")
-              );
-      }
-    # SEQ-ELT aufrufen:
+    # check index:
+    seq_check_index(STACK_1,typdescr,STACK_0);
+    # call SEQ-ELT:
     funcall(seq_elt(typdescr),2); # (SEQ-ELT sequence index)
     # value1 als Wert
   }
 
 LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
-  { # sequence überprüfen:
+  { # check sequence:
     var object typdescr = get_valid_seq_type(STACK_2);
-    # index überprüfen:
-    if (!(posfixnump(STACK_1)))
-      { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-        pushSTACK(STACK_(1+2)); pushSTACK(S(elt)); pushSTACK(S(setf));
-        fehler(type_error,
-               GETTEXT("~ ~: the index should be a fixnum >=0, not ~")
-              );
-      }
-    # SEQ-SET-ELT aufrufen:
+    # check index:
+    seq_check_index(STACK_2,typdescr,STACK_1);
+    # call SEQ-SET-ELT:
     pushSTACK(STACK_(2+0)); # sequence
     pushSTACK(STACK_(1+1)); # index
     pushSTACK(STACK_(0+2)); # value
@@ -699,9 +701,9 @@ LISPFUNN(length,1) # (LENGTH sequence), CLTL S. 248
         pushSTACK(arg); funcall(seq_length(typdescr),1); # (SEQ-LENGTH arg) aufrufen
         return;
       }
-    # arg ist keine Sequence
-    pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(S(sequence)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    # arg is not a sequence
+    pushSTACK(arg);         # TYPE-ERROR slot DATUM
+    pushSTACK(S(sequence)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(arg); pushSTACK(S(length));
     fehler(type_error,
            GETTEXT("~: ~ is not a sequence")
@@ -924,8 +926,8 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
     # size überprüfen, muss Integer >=0 sein:
    {var object size = STACK_3;
     if (!(integerp(size) && positivep(size)))
-      { pushSTACK(size); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      { pushSTACK(size);               # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(size); pushSTACK(S(make_sequence));
         fehler(type_error,
                GETTEXT("~: size should be an integer >=0, not ~")
@@ -1237,8 +1239,8 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
         if (!(symbolp(predicate)
               || subrp(predicate) || closurep(predicate) || ffunctionp(predicate)
            ) )
-          { pushSTACK(predicate); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          { pushSTACK(predicate);   # TYPE-ERROR slot DATUM
+            pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(predicate);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,

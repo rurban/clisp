@@ -19,12 +19,14 @@ User visible changes
   For the benefit of package developers, *FEATURES* now contains :LISP=CL.
 
 * The *FEATURES* list now contains :ANSI-CL instead of :CLTL2 even when
-  running without '-a' ANSI compatibility mode.
+  running without '-ansi' ANSI compatibility mode.
 
 * ANSI CL compliance: function UPGRADED-COMPLEX-PART-TYPE implemented.
 
 * ANSI CL compliance: macro HANDLER-BIND invokes all handlers
   for the condition, not just the first one.
+
+* ANSI CL compliance: CHAR does not check for FILL-POINTER, while ELT does.
 
 * RUN-SHELL-COMMAND and RUN-PROGRAM now accept a :WAIT argument.
 
