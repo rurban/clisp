@@ -1,5 +1,20 @@
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (Class): Rename field valid_initargs to
+	valid_initargs_from_slots.
+	* clos-class1.lisp (class): Rename slot valid-initargs to
+	valid-initargs-from-slots.
+	(*<slotted-class>-valid-initargs-from-slots-location*): Renamed from
+	*<slotted-class>-valid-initargs-location*.
+	(class-valid-initargs-from-slots): Renamed from class-valid-initargs.
+	* clos-class3.lisp (shared-initialize-<structure-class>,
+	finalize-instance-semi-standard-class): Update.
+	* clos-class5.lisp (valid-initarg-keywords): Update.
+	* clos-class6.lisp (class-valid-initargs-from-slots): Renamed from
+	class-valid-initargs.
+
+2004-09-18  Bruno Haible  <bruno@clisp.org>
+
 	* format.lisp (format-character): Don't string-capitalize the
 	character name.
 

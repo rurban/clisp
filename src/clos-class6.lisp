@@ -209,12 +209,12 @@
   (setf (sys::%record-ref class *<slotted-class>-direct-accessors-location*) new-value))
 
 ;; Not in MOP.
-(defun class-valid-initargs (class)
-  (accessor-typecheck class 'slotted-class 'class-valid-initargs)
-  (sys::%record-ref class *<slotted-class>-valid-initargs-location*))
-(defun (setf class-valid-initargs) (new-value class)
-  (accessor-typecheck class 'slotted-class '(setf class-valid-initargs))
-  (setf (sys::%record-ref class *<slotted-class>-valid-initargs-location*) new-value))
+(defun class-valid-initargs-from-slots (class)
+  (accessor-typecheck class 'slotted-class 'class-valid-initargs-from-slots)
+  (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*))
+(defun (setf class-valid-initargs-from-slots) (new-value class)
+  (accessor-typecheck class 'slotted-class '(setf class-valid-initargs-from-slots))
+  (setf (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*) new-value))
 
 ;; Not in MOP.
 (defun class-instance-size (class)

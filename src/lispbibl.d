@@ -5602,7 +5602,7 @@ typedef struct {
   gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
   gcv_object_t generic_accessors        _attribute_aligned_object_;
   gcv_object_t direct_accessors         _attribute_aligned_object_;
-  gcv_object_t valid_initargs           _attribute_aligned_object_;
+  gcv_object_t valid_initargs_from_slots _attribute_aligned_object_;
   gcv_object_t instance_size            _attribute_aligned_object_;
   # from here on only for metaclass ⊆ <standard-class> or metaclass ⊆ <funcallable-standard-class>
   gcv_object_t current_version          _attribute_aligned_object_; /* most recent class-version, points back to this class */
