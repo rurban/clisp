@@ -411,6 +411,10 @@
 <!ENTITY fastcgi-link "<ulink url='http://www.fastcgi.com'>FastCGI</ulink>">
 <!ENTITY mod-fastcgi "<ulink url='http://www.fastcgi.com/mod_fastcgi/docs/mod_fastcgi.html'>mod_fastcgi</ulink>">
 
+<!-- *** postgresql *** -->
+<!ENTITY postgresql-link "<ulink url='http://www.PostgreSQL.org/'>PostgreSQL</ulink>">
+<!ENTITY postgresql-doc "http://www.postgresql.org/docs/8.0/interactive">
+
 <!-- *** gettext *** -->
 <!ENTITY category "<link linkend='category'><replaceable>CATEGORY</replaceable></link>">
 <!ENTITY domain "<link linkend='domain'><replaceable>DOMAIN</replaceable></link>">

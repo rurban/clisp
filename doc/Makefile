@@ -7,7 +7,8 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml \
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
 	../modules/regexp/regexp.xml ../modules/netica/netica.xml       \
 	../modules/berkeley-db/berkeley-db.xml ../modules/pcre/pcre.xml \
-        ../modules/rawsock/rawsock.xml ../modules/matlab/matlab.xml     \
+	../modules/rawsock/rawsock.xml ../modules/matlab/matlab.xml     \
+	../modules/postgresql/postgresql.xml				\
 	../modules/oracle/oracle.xml ../modules/fastcgi/fastcgi.xml
 OLINK=tdb-man.xml tdb-pile.xml tdb-chunk.xml olink-pile.xml olink-chunk.xml
 RM=/bin/rm -f

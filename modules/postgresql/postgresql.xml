@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<section id="postgresql"><title>PostgreSQL Database Access.</title>
+
+<para>This package offers an &ffi-pac;-based interface to
+ &postgresql-link;.  The package <quote role="package">SQL</quote>
+ (nicknamed <quote role="package">POSTGRES</quote>
+ and <quote role="package">POSTGRESQL</quote>)
+ is <link linkend="package-case">case-sensitive</link>,
+ so you would write <code>(sql:PQconnectdb ...)</code>
+ when you need to call
+ <ulink url="&postgresql-doc;/libpq.html#LIBPQ-CONNECT"
+        ><function>PQconnectdb()</function></ulink>.</para>
+
+<simpara>When this module is present, &features-var;
+ contains the symbol <constant>:POSTGRESQL</constant>.</simpara>
+
+<para>See <filename>modules/postgresql/sql.lisp</filename> for a sample
+ usage.</para>
+
+</section>
