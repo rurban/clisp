@@ -86,7 +86,8 @@
                 ))
 ) ) ) ) ) )
 
-(defun do-errcheck (stream log)
+(defun do-errcheck (stream log &optional ignore-errors)
+  (declare (ignore ignore-errors))
   (let ((eof "EOF"))
     (loop
       (let ((form (read stream nil eof))
