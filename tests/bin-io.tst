@@ -8,13 +8,21 @@
 ;; <http://clisp.cons.org/impnotes.html#bin-output>
 
 (defun clisp-test-bin-i/o (&key (num 10) (file-name "./foocl")
-                           (size 16) (endianness :little)
-                           (int-list (loop :repeat num :collect
-                                           (random (ash 1 size))))
+                           (type 'unsigned-byte) (size 40) (endianness :little)
+                           (int-list (ecase type
+                                       (unsigned-byte
+                                        (loop :with max = (ash 1 size)
+                                          :repeat num :collect (random max)))
+                                       (signed-byte
+                                        (loop :with max = (ash 1 size)
+                                          :and top = (ash 1 (1- size))
+                                          :repeat num
+                                          :collect (- (random max) top)))))
                            (float-list (loop :repeat num :collect
                                              (random 1d0))))
-  (let ((eltype (list 'unsigned-byte size)))
-    (with-open-file (foo file-name :direction :output #+SBCL :if-exists #+SBCL :supersede
+  (let ((eltype (list type size)))
+    (with-open-file (foo file-name :direction :output
+                         #+SBCL :if-exists #+SBCL :supersede
                          :element-type 'unsigned-byte)
       (dolist (num int-list)
         (write-integer num foo eltype endianness))
@@ -27,24 +35,26 @@
                  (loop :for num :in int-list
                        :for nn = (read-integer foo eltype endianness)
                        :collect nn :unless (= nn num) :do
-                       (error "~& ~s: wrote: ~s  read: ~s"
-                              endianness num nn))
+                       (error "~s/~s: wrote: ~s  read: ~s"
+                              endianness eltype num nn))
                  (loop :for num :in float-list
                        :for nn = (read-float foo 'double-float
                                              endianness)
                        :collect nn :unless (= nn num) :do
-                       (error "~& ~s: wrote: ~s  read: ~s"
+                       (error "~s: wrote: ~s  read: ~s"
                               endianness num nn))))
       (delete-file file-name))))
 clisp-test-bin-i/o
 
 (dolist (e '(:little :big))
-  (clisp-test-bin-i/o :endianness e))
+  (dolist (s '(unsigned-byte signed-byte))
+    (clisp-test-bin-i/o :endianness e :type s)))
 nil
 
 (let ((vec (make-array 8 :element-type '(unsigned-byte 8)
                        :initial-contents '(#x3f #xf0 0 0 0 0 0 0))))
-  (with-open-file (foo "./foocl" :direction :output #+SBCL :if-exists #+SBCL :supersede
+  (with-open-file (foo "./foocl" :direction
+                       :output #+SBCL :if-exists #+SBCL :supersede
                        :element-type '(unsigned-byte 8))
     (write-sequence vec foo))
   (unwind-protect
