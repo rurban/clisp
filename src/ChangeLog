@@ -1,17 +1,22 @@
+2000-08-03  Sam Steingold  <sds@gnu.org>
+
+	* macros2.lisp (without-floating-point-underflow): don't need
+	`progn' inside `let'.
+
 2000-07-27  Bruno Haible  <haible@clisp.cons.org>
 
-        * foreign.d (walk_foreign_pointers): C-FUNCTION values can be NULL.
-          (convert_to_foreign): When converting C-FUNCTION, convert NIL to
-          NULL.
+	* foreign.d (walk_foreign_pointers): C-FUNCTION values can be NULL.
+	(convert_to_foreign): When converting C-FUNCTION, convert NIL to
+	NULL.
 
 2000-07-27  Bruno Haible  <haible@clisp.cons.org>
 
-        * predtype.d (eql): When comparing long-floats, also compare the sign.
-          Reported by Bernard Urban <Bernard.Urban@meteo.fr>.
+	* predtype.d (eql): When comparing long-floats, also compare the sign.
+	Reported by Bernard Urban <Bernard.Urban@meteo.fr>.
 
 2000-07-26  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in (DESTDIR): Renamed from 'install_root'.
+	* makemake.in (DESTDIR): Renamed from 'install_root'.
 
 2000-07-20  Sam Steingold  <sds@gnu.org>
 
