@@ -1023,7 +1023,14 @@
                 (directslotdefs (cdr slotbag)))
             ;; Create the effective slot definition in a way that depends
             ;; only on the class, name, and direct-slot-definitions.
-            (compute-effective-slot-definition class name directslotdefs)))
+            (let ((eff-slot
+                    (compute-effective-slot-definition class name directslotdefs)))
+              ; Some checks, to guarantee that user-defined methods on
+              ; compute-effective-slot-definition don't break our CLOS.
+              (unless (effective-slot-definition-p eff-slot)
+                (error (TEXT "Wrong ~S result for class ~S, slot ~S: not an ~S instance: ~S")
+                       'compute-effective-slot-definition class name 'effective-slot-definition eff-slot))
+              eff-slot)))
       all-slots)))
 
 ;; Allocation of local and shared slots.
@@ -2018,8 +2025,9 @@
     (form))
 
   ;; Define the class <effective-slot-definition>.
-  (macrolet ((form () *<effective-slot-definition>-defclass*))
-    (form))
+  (setq <effective-slot-definition>
+        (macrolet ((form () *<effective-slot-definition>-defclass*))
+          (form)))
 
   ;; Define the class <standard-slot-definition>.
   (macrolet ((form () *<standard-slot-definition>-defclass*))
