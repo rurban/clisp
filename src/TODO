@@ -136,6 +136,13 @@ and you cannot even probe it! (with either probe-file or probe-directory)
 (note BTW a naming inconsistency between probe-directory and delete-dir).
 
 
+--with-dynamic-modules ==> link errors:
+gettext.o(.text+0x7f):i18n/gettext.c:2296: undefined reference to `_I_to_L'
+gettext.o(.text+0xcb):i18n/gettext.c:2301: undefined reference to `_STACK'
+gettext.o(.text+0xd2):i18n/gettext.c:2301: undefined reference to `_symbol_tab_data'
+
+
+
 CLISP_LANGUAGE=german LC_ALL=C clisp -q
 > (/ 0)
 => endless loop
@@ -168,6 +175,7 @@ Better error checking in get-setf-expansion for long defsetf
 
 
 for Emacs: GC root macro, YETANOTHER macro
+           [sds: what does this mean?]
 
 
 (directory "/proc/self/*" :full t )
