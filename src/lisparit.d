@@ -1868,7 +1868,8 @@ local const uintD ln10_mantisse [64/intDsize] = {
  init_arith();
  can trigger GC */
 global void init_arith (void)
-{ /* different constants: */
+{
+  /* different constants: */
  #ifndef IMMEDIATE_FFLOAT
   O(FF_zero) = allocate_ffloat(0); /* 0.0F0 */
   /* encode_FF(0,1,bit(FF_mant_len), O(FF_one)=);  // 1.0F0 */
