@@ -2254,6 +2254,14 @@ int main(int argc, char* argv[])
   printf("#define DEFUNW DEFUN\n");
   printf("#define DEFUND DEFUN\n");
   printf("#define DEFVAR(varname)\n");
+  /* check some constants */
+#define TESTOUT(o)     do { if (test_f) {                               \
+  test_count++; fprintf(test_f,"  printf(\"" #o "=%s\\n\");\n",STRINGIFY(o)); \
+ }} while(0)
+  TESTOUT(T);
+  TESTOUT(NIL);
+  TESTOUT(unbound);
+  TESTOUT(nullobj);
   /* done - check for errors, close test files &c */
   if (ferror(stdout)) exit(1);
   if (ferror(header_f)) exit(1);
