@@ -1,5 +1,13 @@
 2002-01-05  Sam Steingold  <sds@gnu.org>
 
+	SOCKET-STREAM-PEER et al now work for buffered sockets too
+	* stream.d (SocketChannel): new macro
+	(SOCKET-SERVER, socket_handle, publish_host_data)
+	(SOCKET-STREAM-HANDLE): use it
+	Reported by Todd Sabin <tas@webspan.net>
+
+2002-01-05  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (BufferedStream_buffer_address): new macro, use it
 	along with BufferedStream_channel() and BufferedStream_buffer()
 
