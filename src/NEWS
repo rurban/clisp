@@ -27,6 +27,10 @@ User visible changes
         WRITER-METHOD-CLASS.
       For notification about subclasses:
         CLASS-DIRECT-SUBCLASSES, ADD-DIRECT-SUBCLASS, REMOVE-DIRECT-SUBCLASS.
+  + Methods:
+    New generic functions
+      METHOD-FUNCTION, METHOD-GENERIC-FUNCTION, METHOD-LAMBDA-LIST,
+      METHOD-SPECIALIZERS, ACCESOR-METHOD-SLOT-DEFINITION.
   + Method-Combinations:
     New generic function
       FIND-METHOD-COMBINATION.
