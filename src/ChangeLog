@@ -1,3 +1,22 @@
+2004-10-19  Sam Steingold  <sds@gnu.org>
+
+	FILL-STREAM now indents S-expressions too
+	* fill-out.lisp (*fill-indent-sexp*): new user variable
+	(fill-stream): new slot SEXP-INDENT,
+	changed INDENT-VAR :INITARG to :TEXT-INDENT
+	(fill-stream-sexp-indent): new function
+	(fill-stream-flush-buffer): respect SEXP-INDENT
+	(stream-write-char-sequence): enlarge buffer once
+	(stream-start-s-expression): return the new binding
+	for *PRINT-RIGHT-MARGIN*
+	(with-fill-stream): updated for the FILL-STREAM slot change
+	* describe.lisp (describe): ditto
+	* reploop.lisp (print-error, break-loop): ditto
+	* condition.lisp (pretty-print-condition): renamed INDENT to TEXT-INDENT
+	(warn, maybe-continue): updated the call to PRETTY-PRINT-CONDITION
+	* format.lisp (format-s-expression, formatter-main-1): bind
+	*PRINT-RIGHT-MARGIN* to the return value of STREAM-START-S-EXPRESSION
+
 2004-10-15  Bruno Haible  <bruno@clisp.org>
 
 	* defstruct.lisp: Remove names and directslotlist from the defstruct-

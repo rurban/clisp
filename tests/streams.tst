@@ -752,12 +752,12 @@ T
   (let ((*print-right-margin* 20)
         (*print-pretty* t)
         (*my-indent-level* 2))
-    (with-fill-stream (fill out :indent '*my-indent-level*)
+    (with-fill-stream (fill out :text-indent '*my-indent-level*)
       (format fill "~%this is some long sentence which will      be broken at spaces")
       (force-output fill)
       (let ((*my-indent-level* 5))
-        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!" :INDENT 'symbol 'integer))
-      (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S" 'force-output 'with-fill-stream '(defun foo (x y z) (if x (+ y z) (* y z)))))))
+        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!" :TEXT-INDENT 'symbol 'integer))
+      (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S" 'force-output 'with-fill-stream '(defun qu (x y z) (if x (+ y z) (* y z)))))))
 )#+clisp "
   this is some long
   sentence which
@@ -767,25 +767,186 @@ T
      indented to
      the level
      specified by
-     the :INDENT
+     the
+      :TEXT-INDENT
      argument which
      can be a
-SYMBOL
+      SYMBOL
      or an INTEGER
      - cool!
   Don't forget to
   call FORCE-OUTPUT
   on it, and/or use
-WITH-FILL-STREAM
+   WITH-FILL-STREAM
   Pretty formatting
   of the
   S-expressions
   printed with ~S
   is preserved:
-\(DEFUN FOO (X Y Z)
- (IF X (+ Y Z)
-  (* Y Z)))
+   (DEFUN QU (X Y Z)
+    (IF X (+ Y Z)
+     (* Y Z)))
 "
+
+
+#+clisp
+(with-output-to-string (*error-output*)
+  (loop :with *print-pretty* = t :with *print-right-margin* = 60
+    :for *fill-indent-sexp*
+    :in (list 3 20 nil t #'1+ #'1- (lambda (x) (* x 2)))
+    :do (format *error-output* "~3%~S~%" *fill-indent-sexp*)
+    (loop :for i :from 1 :to 12 :by 5 :do (warn "This form contains an error, a mistake, a bug, a blunder, a bungle, a blooper: ~S and can therefore not be correctly interpreted, neither today nor tomorrow nor next week nor next month nor next year" (make-list i)))))
+#+clisp "
+
+
+3
+
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper: (NIL) and can
+         therefore not be correctly interpreted, neither
+         today nor tomorrow nor next week nor next month
+         nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+   (NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+   (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+
+
+20
+
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper: (NIL) and can
+         therefore not be correctly interpreted, neither
+         today nor tomorrow nor next week nor next month
+         nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+                    (NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+                    (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+                     NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+
+
+NIL
+
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper: (NIL) and can
+         therefore not be correctly interpreted, neither
+         today nor tomorrow nor next week nor next month
+         nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+\(NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+\(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+
+
+T
+
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper: (NIL) and can
+         therefore not be correctly interpreted, neither
+         today nor tomorrow nor next week nor next month
+         nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+         (NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+         (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+
+
+#<SYSTEM-FUNCTION 1+>
+
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper: (NIL) and can
+         therefore not be correctly interpreted, neither
+         today nor tomorrow nor next week nor next month
+         nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+          (NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+          (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+
+
+#<SYSTEM-FUNCTION 1->
+
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper: (NIL) and can
+         therefore not be correctly interpreted, neither
+         today nor tomorrow nor next week nor next month
+         nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+        (NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+        (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+
+
+#<FUNCTION :LAMBDA (X) (* X 2)>
+
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper: (NIL) and can
+         therefore not be correctly interpreted, neither
+         today nor tomorrow nor next week nor next month
+         nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+                  (NIL NIL NIL NIL NIL NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year
+WARNING: This form contains an error, a mistake, a bug, a
+         blunder, a bungle, a blooper:
+                  (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+                   NIL)
+         and can therefore not be correctly interpreted,
+         neither today nor tomorrow nor next week nor next
+         month nor next year"
+
 
 (let ((f "foo.bar") fwd1)
   (unwind-protect

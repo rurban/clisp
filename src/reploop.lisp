@@ -239,7 +239,7 @@
 (defun print-error (condition)
   (terpri *debug-io*)
   (write-string (TEXT "The last error:") *debug-io*)
-  (pretty-print-condition condition *debug-io* :indent 3))
+  (pretty-print-condition condition *debug-io* :text-indent 3))
 
 (defvar *user-commands* nil
   "The list of functions, each of which should return a list of bindings.
@@ -471,7 +471,7 @@ Continue       :c       switch off single step mode, continue evaluation
           (write-string (TEXT "Unprintable error message.")
                         *error-output*))
         (pretty-print-condition condition *error-output*
-                                :indent (if may-continue 5 6))))
+                                :text-indent (if may-continue 5 6))))
 
     ;; Now the error message is on the screen; give the user some information
     ;; how to continue from continuable errors.
