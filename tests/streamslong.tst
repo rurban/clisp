@@ -1,3 +1,5 @@
+;; -*- lisp -*-
+
 (READ-FROM-STRING "123") 123
 
 (PRIN1-TO-STRING 123) "123"
@@ -41,4 +43,43 @@ bin-stream-test
 nil
 
 (loop for size from 2 to 40 do (bin-stream-test :size size :type 'signed-byte))
+nil
+
+#+clisp
+(defun clisp-test-bin-i/o (&key (num 10) (file-name "/tmp/foocl")
+                           (size 16) (endianness :little)
+                           (int-list (loop :repeat num :collect
+                                           (random (ash 1 size))))
+                           (float-list (loop :repeat num :collect
+                                             (random 1d0))))
+  (let ((eltype (list 'unsigned-byte size)))
+    (with-open-file (foo file-name :direction :output
+                         :element-type 'unsigned-byte)
+      (dolist (num int-list)
+        (write-integer num foo eltype endianness))
+      (dolist (num float-list)
+        (write-float num foo 'double-float endianness)))
+    (unwind-protect
+         (with-open-file (foo file-name :direction :input
+                              :element-type 'unsigned-byte)
+           (list (file-length foo) int-list float-list
+                 (loop :for num :in int-list
+                       :for nn = (read-integer foo eltype endianness)
+                       :collect nn :unless (= nn num) :do
+                       (error "~& ~s: wrote: ~s  read: ~s"
+                              endianness num nn))
+                 (loop :for num :in float-list
+                       :for nn = (read-float foo 'double-float
+                                             endianness)
+                       :collect nn :unless (= nn num) :do
+                       (error "~& ~s: wrote: ~s  read: ~s"
+                              endianness num nn))))
+      (delete-file file-name))))
+#+clisp
+clisp-test-bin-i/o
+
+#+clisp
+(dolist (e '(:little :big))
+  (clisp-test-bin-i/o :endianness e))
+#+clisp
 nil
