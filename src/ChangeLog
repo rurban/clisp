@@ -1,5 +1,10 @@
 1999-06-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * intparam.d (printf_underscored): Change argument type to
+          `const char*'.
+
+1999-06-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * init.lsp (defun): Don't use get-funname-symbol, to avoid
           bootstrapping problems.
 

@@ -76,7 +76,7 @@ int next_random_bit(void)
   }
 
 #if defined(__STDC__) || defined(__cplusplus)
-void printf_underscored (char* string)
+void printf_underscored (const char* string)
 #else
 void printf_underscored(string)
   char* string;
