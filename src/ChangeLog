@@ -1,3 +1,9 @@
+2004-05-03  Sam Steingold  <sds@gnu.org>
+
+	* package.d (in_make_package): fixed a GC-safety bug which
+	DEBUG_GCSAFETY cannot detect: object slots addresses, even though
+	they are declared gcv_object_t, are _NOT_ valid gcv_object_t*!!
+
 2004-04-28  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (SstringCase) [!UNICODE]: Add 5th argument.
