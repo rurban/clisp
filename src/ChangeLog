@@ -1,5 +1,11 @@
 2001-09-21  Sam Steingold  <sds@gnu.org>
 
+	binary i/o on True64
+	* stream.d (bitbuff_is_I): do not add wbitm(intLsize) to wert
+	before calling negfixnum (why was it there in the first place?)
+
+2001-09-21  Sam Steingold  <sds@gnu.org>
+
 	some bugfixes to the Pretty-Printer
 	* io.d (FORMAT-TABULATE): check the optional arguments
 	* format.lisp (formatter-main-1): added FORMAT-PPRINT-NEWLINE and
