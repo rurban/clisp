@@ -2927,7 +2927,7 @@ checks whether the &hash-table-t; is weak.</para>
  external programs.  So, to pass a pathname to an external program, you
  do <literal role="sexp">(&namestring; (&translate-pathname; &path-r;
  #p"" #p"" &absolute-k; &t;))</literal> or <literal role="sexp">(&namestring;
- (&absolute-pathname; &path-r))</literal>.</para>
+ (&absolute-pathname; &path-r;))</literal>.</para>
 
 </section>
 
@@ -3040,7 +3040,7 @@ is not a defined logical host yet, we proceed as follows:
 </section>
 
 <section id="absolute-pathname"><title>Function &absolute-pathname;</title>
-<para><term><literal role="sexp">(&absolute-pathname; &path-r;)</literal></term>
+<para><literal role="sexp">(&absolute-pathname; &path-r;)</literal>
  converts the &path-r; to a physical pathname, verifies that is has no
  wildcards, and then - if its directory component is not absolute -
  converts it to an absolute pathname, by merging in the current process'
