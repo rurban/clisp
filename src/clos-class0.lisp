@@ -5,6 +5,32 @@
 
 (in-package "CLOS")
 
+;; A vector that looks like a class. Needed to make instance_of_stablehash_p
+;; work already during bootstrapping.
+(defvar *dummy-class*
+        (vector nil ; inst_class_version
+                nil ; $hashcode
+                nil ; $direct-generic-functions
+                nil ; $direct-methods
+                nil ; $classname
+                nil ; $direct-superclasses
+                nil ; $all-superclasses
+                nil ; $precedence-list
+                nil ; $direct-subclasses
+                nil ; $direct-slots
+                nil ; $slots
+                nil ; $slot-location-table
+                nil ; $direct-default-initargs
+                nil ; $default-initargs
+                nil ; $documentation
+                nil ; $initialized
+                t   ; $subclass-of-stablehash-p
+                nil ; $generic-accessors
+                nil ; $direct-accessors
+                nil ; $valid-initargs
+                nil ; $instance-size
+)       )
+
 ;; A new class-version is created each time a class is redefined.
 ;; Used to keep the instances in sync through lazy updates.
 ;; Note: Why are the shared-slots an element of the class-version, not of the
@@ -34,7 +60,9 @@
                            ; that are removed or become shared in the next version
 )
 |#
-(defun make-class-version (&key newest-class class shared-slots serial next
+(defun make-class-version (&key (newest-class *dummy-class*)
+                                (class *dummy-class*)
+                                shared-slots serial next
                                 slotlists-valid-p kept-slot-locations
                                 added-slots discarded-slots discarded-slot-locations)
   (vector newest-class class shared-slots serial next
