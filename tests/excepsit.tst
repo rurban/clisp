@@ -834,7 +834,7 @@ end-of-file
 
 #| ; It's not clear why peek-char should signal an error, where read-char and
    ; read-line don't. Kent Pitman says: "Sounds like a mess."
-(peek-char nil (make-string-input-stream "") nil nil t)
+ (peek-char nil (make-string-input-stream "") nil nil t)
 end-of-file
 |#
 
@@ -871,6 +871,22 @@ error
 error
 
 (let ((*print-readably* t)) (print-unreadable-object (nil *standard-output*)))
+print-not-readable
+
+(let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :name))
+  (write-to-string (make-pathname :name "foo.bar") :readably t))
+print-not-readable
+
+(let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :type))
+  (write-to-string (make-pathname :name "foo.bar") :readably t))
+print-not-readable
+
+(let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :name))
+  (write-to-string (make-pathname :type "bar") :readably t))
+print-not-readable
+
+(let ((ext:*print-pathnames-ansi* t) (ext:*parse-namestring-dot-file* :type))
+  (write-to-string (make-pathname :name "foo.bar") :readably t))
 print-not-readable
 
 (print 1 2)

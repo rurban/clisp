@@ -3760,6 +3760,11 @@ functions are provided:
  url="&clhs;/Body/sec_1-5-1-4-1.html">1.5.1.4.1 Resolution of Apparent
  Conflicts in Exceptional Situations</ulink>.</para>
 
+<warning><simpara>When both &print-readably-var; and &pathprint; are
+  non-&nil; and the namestring will be parsed to a dissimilar object
+  (with the current value of &parsedot;), an &error-t; of type
+  &print-not-readable-t; is &signal;ed.</simpara></warning>
+
 </section>
 
 <section id="print-misc"><title>Miscellaneous Issues</title>
