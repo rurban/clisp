@@ -57,3 +57,7 @@ h6 { font-size: 146%; }
 h7 { font-size: 133%; }
 h8 { font-size: 121%; }
 h9 { font-size: 110%; }
+
+/* necessary when <programlisting> is in a centered table cell */
+.programlisting
+{ text-align: left; }
