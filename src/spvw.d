@@ -343,14 +343,14 @@ local int exitcode;
   # Set of threads.
   #define MAXNTHREADS  128
   local uintC nthreads = 0;
-  local thread_t* allthreads[MAXNTHREADS];
+  local clisp_thread_t* allthreads[MAXNTHREADS];
 
   # Number of symbol values currently in use in every thread.
   local uintL num_symvalues = 0;
   # Maximum number of symbol values in every thread before new thread-local
   # storage must be added.
   # = floor(round_up(thread_size(num_symvalues),mmap_pagesize)
-  #         -offsetofa(thread_t,_symvalues),sizeof(gcv_object_t))
+  #         -offsetofa(clisp_thread_t,_symvalues),sizeof(gcv_object_t))
   local uintL maxnum_symvalues;
 
   # Initialization.
@@ -358,12 +358,13 @@ local void init_multithread (void) {
   xthread_init();
   xmutex_init(&allthreads_lock);
   maxnum_symvalues = floor(((thread_size(0)+mmap_pagesize-1)&-mmap_pagesize)
-                           -offsetofa(thread_t,_symvalues),sizeof(gcv_object_t));
+                           -offsetofa(clisp_thread_t,_symvalues),
+                           sizeof(gcv_object_t));
 }
 
   # Create a new thread.
-local thread_t* create_thread (void* sp) {
-  var thread_t* thread;
+local clisp_thread_t* create_thread (void* sp) {
+  var clisp_thread_t* thread;
   xmutex_lock(&allthreads_lock);
   if (nthreads >= MAXNTHREADS) { thread = NULL; goto done; }
   thread = sp_to_thread(sp);
@@ -385,7 +386,7 @@ local thread_t* create_thread (void* sp) {
 }
 
   # Delete a thread.
-local void delete_thread (thread_t* thread) {
+local void delete_thread (clisp_thread_t* thread) {
   xmutex_lock(&allthreads_lock);
   ASSERT(thread->_index < nthreads);
   ASSERT(allthreads[thread->_index] == thread);
@@ -394,10 +395,10 @@ local void delete_thread (thread_t* thread) {
   xmutex_unlock(&allthreads_lock);
 }
 
-  #define for_all_threads(statement)                            \
-    do { var thread_t** _pthread = &allthreads[nthreads];        \
-         while (_pthread != &allthreads[0])                     \
-           { var thread_t* thread = *--_pthread; statement; }    \
+  #define for_all_threads(statement)                             \
+    do { var clisp_thread_t** _pthread = &allthreads[nthreads];  \
+      while (_pthread != &allthreads[0])                         \
+        { var clisp_thread_t* thread = *--_pthread; statement; } \
     } while(0)
 
   # Add a new symbol value.
