@@ -599,13 +599,13 @@ LISPFUN(set_syntax_from_char,seclass_default,2,2,norest,nokey,0,NIL)
   var chart to_char = char_code(check_char(STACK_3));
   var chart from_char = char_code(check_char(STACK_2));
   var object to_readtable = STACK_1;
-  var object from_readtable = STACK_0;
   /* check to-readtable: */
   if (!boundp(to_readtable)) { /* default is the current readtable */
     get_readtable(to_readtable=STACK_1=);
   } else
     to_readtable = STACK_1 = check_readtable(to_readtable);
   /* check from-readtable: */
+  var object from_readtable = STACK_0;
   if (missingp(from_readtable)) { /* default is the standard-readtable */
     STACK_0 = from_readtable = O(standard_readtable);
   } else {

@@ -1,10 +1,14 @@
 2004-12-18  Sam Steingold  <sds@gnu.org>
 
+	* io.d (SET-SYNTAX-FROM-CHAR): fix a GC-safety bug (from sacla-tests)
+
+2004-12-18  Sam Steingold  <sds@gnu.org>
+
 	* package.d (%IN-PACKAGE): fix yet another GC-safety bug
 
 2004-12-18  Sam Steingold  <sds@gnu.org>
 
-	* io.d (SET-READTABLE-CASE): fix a gc-safety bug (from sacla-tests)
+	* io.d (SET-READTABLE-CASE): fix a GC-safety bug (from sacla-tests)
 
 2004-12-18  Sam Steingold  <sds@gnu.org>
 
