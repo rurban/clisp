@@ -309,7 +309,7 @@ global int main()
       printf("#define bit_test(x,n)  ((((n)<12) && ((x) & bit(n))) || (((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0)))\n");
     #endif
   #endif
-# printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
+  printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
 # printf("#define minus_bitm(n)  (-2%s<<((n)-1))\n",Lsuffix);
 # printf("#define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
 # printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
@@ -367,7 +367,7 @@ global int main()
 #   printf("typedef struct { uintL hi; uintL lo; } uintL2;\n");
 # #endif
   printf("typedef sint%d sintP;\n",pointer_bitsize);
-# printf("typedef uint%d uintP;\n",pointer_bitsize);
+  printf("typedef uint%d uintP;\n",pointer_bitsize);
 # printf("typedef sint%d sintBW;\n",intBWsize);
 # printf("typedef uint%d uintBW;\n",intBWsize);
 # printf("typedef sint%d sintWL;\n",intWLsize);
@@ -517,12 +517,12 @@ global int main()
 #   printf("#define wbit  bit\n");
 #   printf("#define wbitm  bitm\n");
     printf("#define wbit_test  bit_test\n");
-#   printf("#define minus_wbit  minus_bit\n");
+    printf("#define minus_wbit  minus_bit\n");
   #else
     printf("#define wbit(n)  (1LL<<(n))\n");
 #   printf("#define wbitm(n)  (2LL<<((n)-1))\n");
     printf("#define wbit_test(x,n)  ((x) & wbit(n))\n");
-#   printf("#define minus_wbit(n)  (-1LL<<(n))\n");
+    printf("#define minus_wbit(n)  (-1LL<<(n))\n");
   #endif
   #ifdef TYPECODES
     #if !(exact_uint_size_p(oint_type_len) && (tint_type_mask == bit(oint_type_len)-1))
@@ -1179,7 +1179,7 @@ global int main()
            printf(" saved_subr_self = subr_self;");
          #endif
          #ifdef HAVE_SAVED_REGISTERS
-           printf(" { struct registers * registers = callback_saved_registers; if (!(mtypecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
+           printf(" { struct registers * registers = callback_saved_registers; if (!(framecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
            #ifdef HAVE_SAVED_STACK
              printf(" saved_STACK = STACK;");
            #endif
@@ -1379,6 +1379,11 @@ global int main()
 # printf("#define Before(pointer)  (*(STACKpointable(pointer) STACKop 0))\n");
   #ifdef HAVE_SAVED_REGISTERS
     printf1("#define CALLBACK_frame_info  %d\n",CALLBACK_frame_info);
+  #endif
+  #ifdef TYPECODES
+    printf("#define framecode(bottomword)  mtypecode(bottomword)\n");
+  #else
+    printf1("#define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(%d))\n",FB1);
   #endif
   #ifdef TYPECODES
     #if !defined(SINGLEMAP_MEMORY_STACK)
