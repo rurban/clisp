@@ -4024,7 +4024,7 @@ example is comparable to the method definition shown
 </section><!-- mop-meth-init-defmethod-mo -->
 
 <section id="mop-meth-efficiency"><title>Efficiency</title>
- <subtitle>Implementation dependent:: only in &clisp; and some other
+ <subtitle>Implementation dependent: only in &clisp; and some other
   implementations.</subtitle>
  <simpara>Methods created through &defmethod; have a faster calling
   convention than methods created through a portable &make-instance;
