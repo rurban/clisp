@@ -1,3 +1,9 @@
+2002-07-31  Sam Steingold  <sds@gnu.org>
+
+	* m4/general.m4 (CL_CANONICAL_HOST_CPU_FOR_FFCALL)
+	(CL_CANONICAL_HOST_CPU): canonicalize alphaev[4-8] to alpha
+	Suggested by Will Newton <will@misconception.org.uk>
+
 2002-07-30  Sam Steingold  <sds@gnu.org>
 
 	* utils/comment5.c (main): meaningful error messages
