@@ -1,5 +1,9 @@
 1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * constobj.d (O(version)): Bump version number.
+
+1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * editor.lsp: Remove file.
         * makemake.in (LPARTS): Adjust.
 
