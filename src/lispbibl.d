@@ -11044,7 +11044,7 @@ typedef enum {
     warning, # conditions for which user notification is appropriate
   # junk
   condition_for_broken_compilers_that_dont_like_trailing_commas
-} conditiontype;
+} condition_t;
 
 # Error with error-string. Does not return.
 # fehler(errortype,errorstring);
@@ -11053,7 +11053,7 @@ typedef enum {
 #   At every tilde, a LISP-object ist taken from the STACK and printed
 #   instead of the tilde.
 # > on the STACK: initial values for the Condition, depending on error-type
-nonreturning_function(extern, fehler, (conditiontype errortype, const char * errorstring));
+nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));
 # used by all modules
 
 # Just like OS_error, but signal a FILE-ERROR.
