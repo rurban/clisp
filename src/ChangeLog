@@ -1,3 +1,52 @@
+2001-07-31  Arseny Slobodjuck <ampy@crosswinds.net>
+	    Sam Steingold  <sds@gnu.org>
+
+	* stream.d [WIN32_NATIVE]
+	(rd_ch_keyboard): cast uAsciiChar in (*.uAsciiChar <= ' ') to
+	uintB since uAsciiChar is signed in MSVC (!).
+	(vktable): added 'WIN' key just to avoid 'unknown
+	keyboard event' messages.
+	Added keyboard OEM to local charset translation and then local
+	to internal (for UNICODE). May be it will be nicer to automatically
+	init *terminal-io* to OEM charset and decode input/output through
+	internal encoding facility, but that should be done with care
+	about other code.
+	(check_window_stream): return its argument on success
+	WIN32 console output:
+	(console_handle, console_size, console_cursor_pos, console_needtoclose,
+	 screenattr, attr) deleted global variables. 'encapsulated' them
+	into window-stream. The latter changed to be channel-stream since
+	iconv-based translations require channel-stream extra fields.
+	(UnwrapCoord, WrapCoord, ConsolePosR, ConsoleSizeR, ConsoleAttribR,
+	 ConsoleHandleR, ConsolePosS, ConsoleSizeS, ConsoleAttribS,
+	 ConsoleHandleS)  new macros to access new fields.
+	(InitConsole) removed since two function calls left in it.
+	(DoneConsole) removed since Channel stream finalization does all right.
+	(unwrap_coord) new function. convert uintL to COORD.
+	(move_ccp_by): new function, moves cursor position
+	(v_emit_spaces): new helper function
+	(v_move, v_put, v_cb, v_cs, v_ce, v_cl, v_cd, v_scroll, v_al, v_dl,
+	 v_su, v_put) changed argument lists in view of absence of global
+	variables.
+	(v_put): processing Y overflow, subsequent output continues on
+	the top of screen. It differs from DOS behavior where subsequent
+	chars being written to bottom right of the screen (as far as I can
+	see from code).
+	(v_puts): new function, buffered console output.
+	(wr_ch_array_window): new function instead of dummy which slowly
+	works through v_put(). Handles newlines and bottom of screen like
+	v_put does. Handles UNICODE internal format in two stages, like
+	rd_ch_keyboard.
+	(wr_ch_window): changed to handle UNICODE internal format
+	(make_window): allocates a stream (channel stream) and sets
+	strm_encoding as terminal_encoding.
+	(close_window, window_size, window_cursor_position,
+	 set_window_cursor_position, clear_window, clear_window_to_eot,
+	 clear_window_to_eol, delete_window_line, insert_window_line,
+	 highlight_on, highlight_off, window_cursor_on,
+	 window_cursor_off) changed to take parameters from stream
+	fields.
+
 2001-08-16  Sam Steingold  <sds@gnu.org>
 	    Bruno Haible  <haible@clisp.cons.org>
 
