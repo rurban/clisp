@@ -399,6 +399,8 @@
 <!ENTITY structure-stablehash "<link linkend='make-hash'><classname>EXT:STRUCTURE-STABLEHASH</classname></link>">
 <!ENTITY warn-on-hashtable-needing-rehash-after-gc "<link linkend='hashtable-gc-rehash-warn'><varname>CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname></link>">
 <!ENTITY err-pr-bt "<olink targetdoc='impnotes' targetptr='err-pr-bt'><varname>CUSTOM:*REPORT-ERROR-PRINT-BACKTRACE*</varname></olink>">
+<!-- *** pre-processors *** -->
+<!ENTITY modprep "<link linkend='modprep'><command>modprep.lisp</command></link>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-link "<ulink url='http://norsys.com/netica_c_api.htm'>Netica C API</ulink>">
