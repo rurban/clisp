@@ -813,11 +813,42 @@ is the same as
 
 <para>Only the &standard; method combination is implemented.</para>
 
-<para><ulink url="&clhs;/Body/sec_7-6-6-3.html">User-defined method
- combination</ulink> is not supported.  The macros
- &define-method-combination;, &call-method; and the functions
- &invalid-method-error;, &method-combination-error; are not
- implemented.</para>
+<section id="meth-combo"><title>Declarative Method Combination
+  <ulink url="&clhs;/Body/sec_7-6-6-3.html">[CLHS-7.6.6.3]</ulink></title>
+<para>User-defined method combination is not supported.
+ The macros &define-method-combination;, &call-method; and the
+ functions &invalid-method-error;, &method-combination-error; are
+ not implemented.</para></section>
+
+<section id="obj-dict"><title>The Objects Dictionary
+  <ulink url="&clhs;/Body/sec_7-7.html">[CLHS-7.7]</ulink></title>
+
+<section id="class-proto"><title>Generic function &class-proto;.</title>
+<para>The &amop; generic function &class-proto; is implemented.
+ This allows non-consing access to slots with
+ allocation <constant>:CLASS</constant>:
+ <programlisting>
+  (defclass counter ()
+    ((count :allocation :class :initform 0 :reader how-many)))
+  (defmethod initialize-instance :after ((obj counter) &amp;rest args)
+    (incf (slot-value obj 'count)))
+  (defclass counted-object (counter) ((name :initarg :name)))
+ </programlisting>
+ Now you can find out how many <classname>COUNTED-OBJECT</classname>s
+ have been created by using
+ <literal role="sexp">(HOW-MANY (&class-proto; 'COUNTER))</literal>:
+ <programlisting>
+  (make-instance 'counted-object :name 'foo)
+    <returnvalue>#&lt;COUNTED-OBJECT #x203028C9&gt;</returnvalue>
+  (how-many (clos:class-prototype 'counter))
+    <returnvalue>1</returnvalue>
+  (make-instance 'counted-object :name 'bar)
+    <returnvalue>#&lt;COUNTED-OBJECT #x20306CB1&gt;</returnvalue>
+  (how-many (clos:class-prototype 'counter))
+    <returnvalue>2</returnvalue>
+</programlisting></para></section>
+
+</section>
 
 </chapter>
 
