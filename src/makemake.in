@@ -337,6 +337,7 @@ case $# in
      CC="@CC@"                           # either 'gcc -O' or 'cc'
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
      CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
+     CLFLAGS='@LDFLAGS@'                 # additional options for linking
      CC_GCC='@CC_GCC@'                   # either true or false
      CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
      CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
@@ -376,15 +377,11 @@ case $# in
      COMPILER=$2
      # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|amiga|acorn|os2|win32(msvc|bc)).
      # COMPILER should be gcc or cc
-     if [ $TSYS = amiga -o $TSYS = acorn -o $TSYS = os2 ] ; then
-       TOS=$TSYS
-     else
-       if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
-         TOS='win32'
-       else
-         TOS='unix'
-       fi
-     fi
+     case ${TSYS} in
+       amiga | acorn | os2 ) TOS=$TSYS ;;
+       win32msvc | win32bc ) TOS='win32' ;;
+       *)         TOS='unix' ;;
+     esac
      TSYSOS=$TSYS
      if [ $CROSS = true ] ; then
        HOS='unix'
@@ -395,29 +392,25 @@ case $# in
        HSYS="$TSYS"
        HSYSOS="$TSYSOS"
      fi
-     if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
-       if [ $TSYS = win32msvc ] ; then
-         CC='cl'
-         CC_GCC=false
-         CFLAGS='$(MFLAGS)'
-         CLFLAGS=''
-         CC_NEED_CCPAUX=false
-         AS_UNDERSCORE=false
-         CC_NEED_DEEMA=false
-       fi
-       if [ $TSYS = win32bc ] ; then
-         CC=$COMPILER # should be bcc32 or bcc32i
-         CC_GCC=false
-         # "-Od -v -R" means to compile for debugging.
-         # "-O2" means to optimize.
-         # "-g0" means not to treat 100 warnings as an error.
-         CFLAGS='-O2 -g0 -w-rch'
-         CLFLAGS=''
-         CPP='cpp32 -P-' # buggy!
-         CC_NEED_CCPAUX=false
-         AS_UNDERSCORE=true
-         CC_NEED_DEEMA=false
-       fi
+     CLFLAGS=''
+     if [ $TSYS = win32msvc ] ; then
+       CC='cl'
+       CC_GCC=false
+       CFLAGS='$(MFLAGS)'
+       CC_NEED_CCPAUX=false
+       AS_UNDERSCORE=false
+       CC_NEED_DEEMA=false
+     elif [ $TSYS = win32bc ] ; then
+       CC=$COMPILER # should be bcc32 or bcc32i
+       CC_GCC=false
+       # "-Od -v -R" means to compile for debugging.
+       # "-O2" means to optimize.
+       # "-g0" means not to treat 100 warnings as an error.
+       CFLAGS='-O2 -g0 -w-rch'
+       CPP='cpp32 -P-' # buggy!
+       CC_NEED_CCPAUX=false
+       AS_UNDERSCORE=true
+       CC_NEED_DEEMA=false
      else
        if [ $COMPILER = gcc ] ; then
          CC=gcc
@@ -427,7 +420,6 @@ case $# in
          CC_GCC=false
        fi
        CFLAGS='-O'
-       CLFLAGS=''
        CPP="${CC} -E"
        CPPFLAGS=''
        CC_NEED_CCPAUX=false
@@ -455,6 +447,7 @@ if [ $CROSS = true ] ; then
   XCC="gcc-${TSYS}"
   XCPP="${XCC} -E"
   XCPPFLAGS=''
+  XLDFLAGS=''
   XCC_GCC=true
   XCC_NEED_CCPAUX=false
   XCC_NEED_DEEMA=false
@@ -464,6 +457,7 @@ else
   XCC="${CC}"
   XCPP="${CPP}"
   XCPPFLAGS="${CPPFLAGS}"
+  XLDFLAGS="${LDFLAGS}"
   XCC_GCC="${CC_GCC}"
   XCC_NEED_CCPAUX="${CC_NEED_CCPAUX}"
   XCC_NEED_DEEMA="${CC_NEED_DEEMA}"
@@ -846,6 +840,7 @@ if [ "${verbose}" = true -o "${verbose}" = yes ]; then
       HOS = "${HOS}"
  host_cpu = "${host_cpu}"
       cpu = "${cpu}"
+  host_os = "${host_os}"
 # target system:
      TSYS = "${TSYS}"
    TSYSOS = "${TSYSOS}"
@@ -964,7 +959,7 @@ if [ $XCC_GCC = true ] ; then
     XCLFLAGS=''
   fi
   # Override any "-x c++" options which may be present in $XCC or $XCFLAGS.
-  XCLFLAGS=$XCLFLAGS' -x none'
+  XCLFLAGS="$XLDFLAGS $XCLFLAGS -x none"
   XCC_NOOPTFLAGS=' -O0'
 
   if [ "${with_threads}" = "POSIX_THREADS" ]; then
