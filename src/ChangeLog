@@ -18,13 +18,13 @@
 	* m4/fenv_default.m4: New file.
 	* configure.in: Create floatparam.h.
 	Call CL_{FLOAT,DOUBLE}_{DIV0,OVERFLOW,UNDERFLOW,INEXACT}.
-	* unixconf.h.in (FLOAT_DIV0_EXCEPTION, FLOAT_OVERFLOW_EXCEPTION,
-	FLOAT_UNDERFLOW_EXCEPTION, FLOAT_INEXACT_EXCEPTION,
-	DOUBLE_DIV0_EXCEPTION, DOUBLE_OVERFLOW_EXCEPTION,
-	DOUBLE_UNDERFLOW_EXCEPTION, DOUBLE_INEXACT_EXCEPTION): New macros.
+	* unixconf.h.in (FLOAT_DIV0_EXCEPTION, FLOAT_OVERFLOW_EXCEPTION)
+	(FLOAT_UNDERFLOW_EXCEPTION, FLOAT_INEXACT_EXCEPTION)
+	(DOUBLE_DIV0_EXCEPTION, DOUBLE_OVERFLOW_EXCEPTION)
+	(DOUBLE_UNDERFLOW_EXCEPTION, DOUBLE_INEXACT_EXCEPTION): New macros.
 	* lispbibl.d: Include floatparam.h.
-	(FAST_FLOAT, FAST_DOUBLE): Define according to autoconf determined
-	parameters.
+	(FAST_FLOAT, FAST_DOUBLE): Define according to the
+	autoconf-determined parameters.
 	* ffloat.d (FF_FF_durch_FF): Choose slow path if FLOAT_DIV0_EXCEPTION.
 	* dfloat.d (DF_DF_durch_DF): Choose slow path if DOUBLE_DIV0_EXCEPTION.
 	* lisparit.d (init_arith): Remove wrong value of DOUBLE-FLOAT-EPSILON
