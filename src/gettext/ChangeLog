@@ -7,6 +7,7 @@
 	* m4/install.m4, m4/ranlib.m4: New files, copied from src/m4/.
 	* autoconf/config.rpath: New file, brought in by gettextize.
 	* po/Makefile.in.in: Renamed from po/Makefile.in.
+	* po/POTFILES.in: New dummy file.
 	* intl/*: Removed.
 	* configure.in (AM_GNU_GETTEXT): Call with 'external'.
 	(AC_OUTPUT): Remove intl/Makefile.
