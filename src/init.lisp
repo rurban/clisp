@@ -494,7 +494,7 @@
 ;; uses *VENV* and *FENV*.
 (defun add-implicit-block (name body)
   (multiple-value-bind (body-rest declarations docstring)
-      (sys::parse-body body t (vector *venv* *fenv*))
+      (sys::parse-body body t)
     (append (if declarations (list (cons 'DECLARE declarations)))
             (if docstring (list docstring))
             (list (list* 'BLOCK (function-block-name name) body-rest)))))
@@ -946,8 +946,7 @@
 
 ;; Adds SPECIAL-Declarations at the beginning of a Body to *venv* .
 (defun %expand-special-declarations (body)
-  (multiple-value-bind (body-rest declarations)
-      (sys::parse-body body nil (vector *venv* *fenv*))
+  (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (declare (ignore body-rest)) ; do not throw away declarations!
     (let ((specials nil))
       (mapc #'(lambda (declspec)
@@ -1407,6 +1406,7 @@
 (sys::%putd 'defun              ; preliminary:
   (sys::make-macro
     (function defun (lambda (form env)
+      (declare (ignore env))
       (unless (and (consp (cdr form)) (consp (cddr form)))
         (error-of-type 'source-program-error
           (TEXT "~S: missing function name and/or parameter list")
@@ -1419,9 +1419,7 @@
           (error-of-type 'source-program-error
             (TEXT "~S: special operator ~S cannot be redefined.")
             'defun name))
-        (multiple-value-bind (body-rest declarations docstring)
-            (sys::parse-body body t env)
-          (declare (ignore docstring))
+        (multiple-value-bind (body-rest declarations) (sys::parse-body body t)
           #| `(PROGN
                (SYS::%PUT ',name 'SYS::DEFINITION
                  (CONS ',form (THE-ENVIRONMENT)))
@@ -1445,6 +1443,7 @@
 (sys::%putd 'do               ; preliminary definition of the macro DO
   (sys::make-macro
     (function do (lambda (form env)
+      (declare (ignore env))
       (let ((varclauselist (second form))
             (exitclause (third form))
             (body (cdddr form)))
@@ -1456,8 +1455,7 @@
               (reinitlist nil)
               (bodytag (gensym))
               (exittag (gensym)))
-          (multiple-value-bind (body-rest declarations)
-              (sys::parse-body body nil env)
+          (multiple-value-bind (body-rest declarations) (sys::parse-body body)
             (block do
               (tagbody 1
                 (when (atom varclauselist)
@@ -1511,12 +1509,12 @@
 (sys::%putd 'dotimes       ; preliminary Definition of the Macro DOTIMES
   (sys::make-macro
     (function dotimes (lambda (form env)
+      (declare (ignore env))
       (let ((var (first (second form)))
             (countform (second (second form)))
             (resultform (third (second form)))
             (body (cddr form)))
-        (multiple-value-bind (body-rest declarations)
-            (sys::parse-body body nil env)
+        (multiple-value-bind (body-rest declarations) (sys::parse-body body)
           (let ((g (gensym)))
             #| `(DO ((,var 0 (1+ ,var))
                      (,g ,countform))
@@ -1616,7 +1614,7 @@
             (lambdalist (caddr form))
             (body (cdddr form)))
         (multiple-value-bind (body-rest declarations docstring)
-            (sys::parse-body body t env)
+            (sys::parse-body body t)
           (let ((symbolform
                  (if (atom name)
                    `',name

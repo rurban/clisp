@@ -120,7 +120,7 @@
   (let ((tag (gensym)))
     `(BLOCK NIL (TAGBODY ,tag ,@body (GO ,tag)))))
 
-(defun do/do*-expand (varclauselist exitclause body env do let psetq)
+(defun do/do*-expand (varclauselist exitclause body do let psetq)
   (when (atom exitclause)
     (error-of-type 'source-program-error
       (TEXT "exit clause in ~S must be a list")
@@ -134,8 +134,7 @@
           (reinitlist nil)
           (testtag (gensym))
           (exittag (gensym)) )
-      (multiple-value-bind (body-rest declarations doc)
-          (sys::parse-body body nil env)
+      (multiple-value-bind (body-rest declarations doc) (sys::parse-body body)
         (declare (ignore doc))
         (when declarations
           (setq declarations (list (cons 'DECLARE declarations))))
@@ -177,16 +176,14 @@
               (RETURN-FROM NIL (PROGN ,@(rest exitclause))))))))))
 
 (fmakunbound 'do)
-(defmacro do (varclauselist exitclause &body body &environment env)
-  (do/do*-expand varclauselist exitclause body env 'DO 'LET 'PSETQ))
+(defmacro do (varclauselist exitclause &body body)
+  (do/do*-expand varclauselist exitclause body 'DO 'LET 'PSETQ))
 
-(defmacro do* (varclauselist exitclause &body body &environment env)
-  (do/do*-expand varclauselist exitclause body env 'DO* 'LET* 'SETQ))
+(defmacro do* (varclauselist exitclause &body body)
+  (do/do*-expand varclauselist exitclause body 'DO* 'LET* 'SETQ))
 
-(defmacro dolist ((var listform &optional resultform)
-                  &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-                       (sys::parse-body body nil env)
+(defmacro dolist ((var listform &optional resultform) &body body)
+  (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (let ((g (gensym)))
       `(DO* ((,g ,listform (CDR ,g))
              (,var NIL))
@@ -203,10 +200,8 @@
          ,@body-rest))))
 
 (fmakunbound 'dotimes)
-(defmacro dotimes ((var countform &optional resultform)
-                   &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-                       (sys::parse-body body nil env)
+(defmacro dotimes ((var countform &optional resultform) &body body)
+  (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (if declarations
       (setq declarations (list (cons 'DECLARE declarations))))
     (if (constantp countform)
@@ -288,9 +283,8 @@
 (defmacro-special case (keyform &body clauses)
   (case-expand 'case 'eql keyform clauses))
 
-(defmacro prog (varlist &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-                       (sys::parse-body body nil env)
+(defmacro prog (varlist &body body)
+  (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (if declarations
       (setq declarations (list (cons 'DECLARE declarations))))
     `(BLOCK NIL
@@ -298,9 +292,8 @@
          ,@declarations
          (TAGBODY ,@body-rest)))))
 
-(defmacro prog* (varlist &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-                       (sys::parse-body body nil env)
+(defmacro prog* (varlist &body body)
+  (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (if declarations
       (setq declarations (list (cons 'DECLARE declarations))))
     `(BLOCK NIL

@@ -176,11 +176,10 @@
       (error-of-type 'source-program-error
         (TEXT "The name of the accessor must be a symbol, not ~S")
         accessfn))))
-(defmacro define-setf-expander (accessfn lambdalist &body body
-                                &environment env)
+(defmacro define-setf-expander (accessfn lambdalist &body body)
   (check-accessor-name accessfn)
   (multiple-value-bind (body-rest declarations docstring)
-      (system::parse-body body t env)
+      (system::parse-body body t)
     (if (null body-rest) (setq body-rest '(NIL)))
     (let ((name (make-symbol (string-concat "SETF-" (symbol-name accessfn)))))
       (multiple-value-bind (newlambdalist envvar)
@@ -235,7 +234,7 @@
              ) )
 ) ) ) ) ) )
 ;;;----------------------------------------------------------------------------
-(defmacro defsetf (accessfn &rest args &environment env)
+(defmacro defsetf (accessfn &rest args)
   (check-accessor-name accessfn)
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
          `(EVAL-WHEN (LOAD COMPILE EVAL)
@@ -266,7 +265,7 @@
            (error-of-type 'source-program-error
              (TEXT "~S: Missing store variable.") 'defsetf))
          (multiple-value-bind (body-rest declarations docstring)
-             (system::parse-body (cddr args) t env)
+             (system::parse-body (cddr args) t)
            (let* ((storevars (second args))
                   arg-count
                   (setter
@@ -898,7 +897,7 @@
 ) ) ) ) ) )
 ;;;----------------------------------------------------------------------------
 (define-setf-expander LOCALLY (&rest body &environment env)
-  (multiple-value-bind (body-rest declspecs) (system::parse-body body nil env)
+  (multiple-value-bind (body-rest declspecs) (system::parse-body body)
     (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
         (get-setf-expansion `(PROGN ,@body-rest) env)
       (if declspecs

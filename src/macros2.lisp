@@ -165,7 +165,7 @@
       (retry-loop 'CASE keyform keyclauselist
                   (case-errorstring keyform keyclauselist)))))
 ;; ----------------------------------------------------------------------------
-(defmacro deftype (name lambdalist &body body &environment env)
+(defmacro deftype (name lambdalist &body body)
   (unless (symbolp name)
     (error-of-type 'source-program-error
       (TEXT "type name should be a symbol, not ~S")
@@ -175,7 +175,7 @@
       (TEXT "~S is a built-in type and may not be redefined.")
       name))
   (multiple-value-bind (body-rest declarations docstring)
-      (SYSTEM::PARSE-BODY body t env)
+      (SYSTEM::PARSE-BODY body t)
     (if declarations (setq declarations (list (cons 'DECLARE declarations))))
     (let ((%arg-count 0) (%min-args 0) (%restp nil)
           (%let-list nil) (%keyword-tests nil) (%default-form '(QUOTE *)))
@@ -258,9 +258,8 @@
 ;; ----------------------------------------------------------------------------
 (defmacro with-input-from-string
     ((var string &key (index nil sindex) (start '0 sstart) (end 'NIL send))
-     &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
+     &body body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     `(LET ((,var (MAKE-STRING-INPUT-STREAM ,string
                    ,@(if (or sstart send)
                        `(,start ,@(if send `(,end) '()))
@@ -272,8 +271,8 @@
                `((SETF ,index (SYSTEM::STRING-INPUT-STREAM-INDEX ,var))) '())
          (CLOSE ,var)))))
 ;; ----------------------------------------------------------------------------
-(defmacro with-open-file ((stream &rest options) &body body &environment env)
-  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
+(defmacro with-open-file ((stream &rest options) &body body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     `(LET ((,stream (OPEN ,@options)))
        (DECLARE (READ-ONLY ,stream) ,@declarations)
        (UNWIND-PROTECT
@@ -281,9 +280,8 @@
            (WHEN ,stream (CLOSE ,stream)))
          (WHEN ,stream (CLOSE ,stream :ABORT T))))))
 ;; ----------------------------------------------------------------------------
-(defmacro with-open-stream ((var stream) &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
+(defmacro with-open-stream ((var stream) &body body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     `(LET ((,var ,stream))
        (DECLARE (READ-ONLY ,var) ,@declarations)
        (UNWIND-PROTECT
@@ -291,9 +289,8 @@
          (CLOSE ,var :ABORT T)))))
 ;; ----------------------------------------------------------------------------
 (defmacro with-output-to-string ((var &optional (string nil) &key element-type)
-                                 &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
+                                 &body body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (if string
       `(LET ((,var (SYS::MAKE-STRING-PUSH-STREAM ,string)))
          (DECLARE (READ-ONLY ,var) ,@declarations)
@@ -310,10 +307,9 @@
 (export '(space with-output-to-printer))
 (in-package "SYSTEM")
 (defmacro with-output-to-printer ((var &rest options &key external-format)
-                                  &body body &environment env)
+                                  &body body)
   (declare (ignore external-format))
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (if declarations
       (setq declarations (list (cons 'DECLARE declarations))))
     `(LET ((,var (SYS::MAKE-PRINTER-STREAM ,@options)))

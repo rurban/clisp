@@ -247,8 +247,8 @@
 
 ;; X3J13 vote <64>
 
-(defmacro destructuring-bind (lambdalist form &body body &environment env)
-  (multiple-value-bind (body-rest declarations) (system::parse-body body nil env)
+(defmacro destructuring-bind (lambdalist form &body body)
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (if declarations (setq declarations `((DECLARE ,@declarations))))
     (let ((%arg-count 0) (%min-args 0) (%restp nil)
           (%let-list nil) (%keyword-tests nil) (%default-form nil))
@@ -298,9 +298,8 @@
 
 (defconstant *common-lisp-user-package* (find-package "COMMON-LISP-USER"))
 
-(defmacro with-standard-io-syntax (&body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
+(defmacro with-standard-io-syntax (&body body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     ;; It would be possible to put all these bindings into a single function,
     ;; but this would force variables into closures.
     `(LET (;; printer/reader variables:
