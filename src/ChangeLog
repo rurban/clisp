@@ -38,6 +38,12 @@
 
 1998-05-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * dbxtypes.d: Remove file.
+        * makemake.in: Update.
+        * gettext/po/Makefile.devel (DSOURCES): Update.
+
+1998-05-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * windows.d, wintext.d, winstat.d, winmain.d, winaux.d: Remove files.
         * lispbibl.d, genclisph.d, msdos.d, makemake.in, spvw.d, pathname.d,
           stream.d, pseudofun.d, time.d: Remove support for Windows 3.1.

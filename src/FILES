@@ -205,9 +205,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                nnoorreeaaddlliinnee..dd   Replacement   for   GNU    readline
                               library.
 
-               ddbbxxttyyppeess..dd     Declaration  of  types for use with
-                              SUN's dbx (Sun version only).
-
 
            Number system (arithmetic):
 
@@ -220,13 +217,13 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                aarriilleevv11..dd      digit sequences
 
-               aarriilleevv11cc..dd     operations   on   digit  sequences,
+               aarriilleevv11cc..dd     operations  on   digit   sequences,
                               written in C
 
-               aarriilleevv11ii..dd     operations on digit  sequences,  as
+               aarriilleevv11ii..dd     operations  on  digit sequences, as
                               inline functions
 
-               aarriilleevv11ee..dd     operations   on   digit  sequences,
+               aarriilleevv11ee..dd     operations  on   digit   sequences,
                               bindings to external routines
 
                iinntteelleemm..dd      integers: elementary operations
@@ -237,7 +234,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                iinnttccoommpp..dd      integers: comparison
 
-               iinnttbbyyttee..dd      integers:  byte   operations   _l_d_b,
+               iinnttbbyyttee..dd      integers:   byte   operations  _l_d_b,
                               _l_o_a_d_-_b_y_t_e, ...
 
                iinnttmmaall..dd       integers: multiplication
@@ -246,7 +243,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                iinnttggccdd..dd       integers: gcd and lcm
 
-               iinntt22aaddiicc..dd     integers:   operations   on  2-adic
+               iinntt22aaddiicc..dd     integers:  operations   on   2-adic
                               integers
 
                iinnttssqqrrtt..dd      integers: square root, n-th root
@@ -256,6 +253,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                iinnttrreeaadd..dd      subroutines for integer input
 
                rraattiioonnaall..dd     rational numbers
+
+               ssffllooaatt..dd       elementary   operations  for  short
+                              floats
 
 
 
@@ -268,39 +268,36 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
-               ssffllooaatt..dd       elementary  operations  for   short
-                              floats
-
                ffffllooaatt..dd       elementary  operations  for  single
                               floats
 
                ddffllooaatt..dd       elementary  operations  for  double
                               floats
 
-               llffllooaatt..dd       elementary   operations   for  long
+               llffllooaatt..dd       elementary  operations   for   long
                               floats
 
                fflloo__kkoonnvv..dd     conversions between floats
 
                fflloo__rreesstt..dd     general float operations
 
-               rreeaalleelleemm..dd     elementary functions for real  num-
+               rreeaalleelleemm..dd     elementary  functions for real num-
                               bers
 
                rreeaallrraanndd..dd     random numbers
 
-               rreeaallttrraann..dd     transcendental  functions  for real
+               rreeaallttrraann..dd     transcendental functions  for  real
                               numbers
 
                ccoommppeelleemm..dd     elementary  functions  for  complex
                               numbers
 
-               ccoommppttrraann..dd     transcendental  functions  for com-
+               ccoommppttrraann..dd     transcendental functions  for  com-
                               plex numbers
 
 
-           External routines for the arithmetic system, written
-               in  assembly language:
+           External  routines for the arithmetic system, written
+               in assembly language:
 
                aarrii6688000000..dd          written  in  68000  assembler,
                                    MIT syntax
@@ -322,6 +319,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                aarriiaarrmm..dd            written in ARM assembler
 
 
+           External  routines  for  accessing the stack, written
+               in assembly language:
+
 
 
 
@@ -333,9 +333,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
-
-           External routines for accessing the stack,  written
-               in  assembly language:
 
                sspp6688000000..dd           written  in  68000  assembler,
                                    MIT syntax
@@ -351,11 +348,11 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
        Other assembly language stuff:
 
            cccc__ssppaarrcc..iill
-                  lisp stack access in SPARC assembler,  for  use
+                  lisp  stack  access in SPARC assembler, for use
                   with Sun's cc
 
            aassmmii338866..sshh
-                  converts  i386  assembler  from MIT syntax to a
+                  converts i386 assembler from MIT  syntax  to  a
                   macro syntax
 
            aassmmii338866..hhhh
@@ -370,7 +367,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                   first file to be loaded, loads everything else
 
            ddeeffsseeqq..llsspp
-                  defines   the  usual  sequence  types  for  the
+                  defines  the  usual  sequence  types  for   the
                   generic sequence functions
 
            bbaacckkqquuoott..llsspp
@@ -388,6 +385,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ddeeffss11..llsspp
                   miscellaneous definitions
 
+           ttiimmeezzoonnee..llsspp
+                  site-dependent  definition of time zone, except
+                  for Unix
 
 
 
@@ -400,10 +400,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
-           ttiimmeezzoonnee..llsspp
-                  site-dependent definition of time zone,  except
-                  for Unix
-
            ppllaacceess..llsspp
                   macros using places, definitions of most places
 
@@ -411,7 +407,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                   printing floating point numbers in base 10
 
            ttyyppee..llsspp
-                  functions working with type specifiers:  _t_y_p_e_p,
+                  functions  working with type specifiers: _t_y_p_e_p,
                   _s_u_b_t_y_p_e_p
 
            ddeeffssttrruucc..llsspp
@@ -454,6 +450,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ddiissaasssseemm..llsspp
                   disassembles machine code
 
+           ddeeffss22..llsspp
+                  miscellaneous CLtL2 compatible definitions
+
+
 
 
 
@@ -466,14 +466,11 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
-           ddeeffss22..llsspp
-                  miscellaneous CLtL2 compatible definitions
-
            lloooopp..llsspp
                   implements a CLtL2/dpANS compatible LOOP macro
 
            ccllooss..llsspp
-                  implements  a  subset of the Common Lisp Object
+                  implements a subset of the Common  Lisp  Object
                   System
 
            ccoonnddiittiioo..llsspp
@@ -520,6 +517,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            __RREEAADDMMEE..eenn, __RREEAADDMMEE..ddee, __RREEAADDMMEE..eess
                   translations of ___R_E_A_D_M_E
 
+           __cclliisspp..11
+                  master for the distribution's manual page
+
 
 
 
@@ -532,15 +532,12 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
-           __cclliisspp..11
-                  master for the distribution's manual page
-
            __cclliisspp..hhttmmll
-                  master for the distribution's  manual  page  in
+                  master  for  the  distribution's manual page in
                   HTML format
 
            __iimmppnnootteess..ttxxtt
-                  master  for  the  distribution's implementation
+                  master for  the  distribution's  implementation
                   notes
 
            ....//ddoocc//ccllttll22..ttxxtt
@@ -561,7 +558,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
            ggeetttteexxtt//iinnttll//**
-                  internationalization library,  taken  from  GNU
+                  internationalization  library,  taken  from GNU
                   gettext-0.10.32
 
            ggeetttteexxtt//ppoo//**..ppoott
@@ -572,7 +569,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                   translated messages ("portable objects")
 
            ggeetttteexxtt//ppoo//**..ggmmoo
-                  translated  messages   ("GNU   format   message
+                  translated   messages   ("GNU   format  message
                   objects")
 
 
@@ -585,6 +582,9 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            aauuttooccoonnff//aauuttooccoonnff
                   the main program of GNU autoconf-2.12
 
+           aauuttooccoonnff//aauuttooccoonnff..mm44
+                  _a_u_t_o_c_o_n_f's driver macros.  Part  of  GNU  auto-
+                  conf-2.12
 
 
 
@@ -598,20 +598,16 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
-           aauuttooccoonnff//aauuttooccoonnff..mm44
-                  _a_u_t_o_c_o_n_f's  driver  macros.   Part of GNU auto-
-                  conf-2.12
-
            aauuttooccoonnff//aaccggeenneerraall..mm44
-                  _a_u_t_o_c_o_n_f's  general  feature  testing   macros.
+                  _a_u_t_o_c_o_n_f's   general  feature  testing  macros.
                   Part of GNU autoconf-2.12
 
            aauuttooccoonnff//aaccssppeecciiffiicc..mm44
-                  macros  that  test  for some standard features.
+                  macros that test for  some  standard  features.
                   Part of GNU autoconf-2.12
 
            aauuttooccoonnff//aaccllooccaall..mm44
-                  a repertoire of features.  Use with  GNU  auto-
+                  a  repertoire  of features.  Use with GNU auto-
                   conf-2.12
 
            ccoonnffiigguurree
@@ -626,8 +622,8 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                   preprocessed version of _i_n_t_p_a_r_a_m_._d
 
            uunniixxccoonnff..hh..iinn
-                  header  file  master.  unixconf.h  contains the
-                  values of the features found out by  configure.
+                  header file  master.  unixconf.h  contains  the
+                  values  of the features found out by configure.
 
            mmaakkeemmaakkee..iinn
                   makefile construction script master
@@ -637,6 +633,10 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
            __ddiissttmmaakkeeffiillee
                   master for the distribution's Makefile
+
+
+
+
 
 
 
