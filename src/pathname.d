@@ -11095,8 +11095,8 @@ LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL) {
 
   begin_system_call();
  #if defined(UNIX)
-  new_handle = (posfixnump(new_fd) ? dup(old_handle)
-                : dup2(old_handle,(Handle)posfixnum_to_L(new_fd)));
+  new_handle = (new_handle == (Handle)-1 ? dup(old_handle)
+                : dup2(old_handle,new_handle));
  #elif defined(WIN32_NATIVE)
   if (!DuplicateHandle(GetCurrentProcess(),old_handle,
                        GetCurrentProcess(),&new_handle,
