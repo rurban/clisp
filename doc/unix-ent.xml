@@ -12,23 +12,35 @@
                role='strong'>UNIX</emphasis></ulink>">
 
 <!-- The Open Group Base Specifications Issue 6 -->
-<!ENTITY unix1 "http://www.opengroup.org/onlinepubs/007904975/functions">
+<!ENTITY unix-top "http://www.opengroup.org/onlinepubs/007904975">
 
 <!-- functions (system calls) -->
-<!ENTITY flock "<ulink url='&unix1;/flockfile.html'><function>flock</function></ulink>">
-<!ENTITY free "<ulink url='&unix1;/free.html'><function>free</function></ulink>">
-<!ENTITY fstat "<ulink url='&unix1;/fstat.html'><function>fstat</function></ulink>">
-<!ENTITY getrlimit "<ulink url='&unix1;/getrlimit.html'><function>getrlimit</function></ulink>">
-<!ENTITY getrusage "<ulink url='&unix1;/getrusage.html'><function>getrusage</function></ulink>">
-<!ENTITY iconv "<ulink url='&unix1;/iconv.html'><function>iconv</function></ulink>">
-<!ENTITY lstat "<ulink url='&unix1;/lstat.html'><function>lstat</function></ulink>">
-<!ENTITY malloc "<ulink url='&unix1;/malloc.html'><function>malloc</function></ulink>">
-<!ENTITY qsort "<ulink url='&unix1;/qsort.html'><function>qsort</function></ulink>">
-<!ENTITY read "<ulink url='&unix1;/read.html'><function>read</function></ulink>">
-<!ENTITY select "<ulink url='&unix1;/select.html'><function>select</function></ulink>">
-<!ENTITY shutdown "<ulink url='&unix1;/shutdown.html'><function>shutdown</function></ulink>">
-<!ENTITY stat "<ulink url='&unix1;/stat.html'><function>stat</function></ulink>">
+<!ENTITY unix-f "&unix-top;/functions">
+<!ENTITY flock "<ulink url='&unix-f;/flockfile.html'><function>flock</function></ulink>">
+<!ENTITY free "<ulink url='&unix-f;/free.html'><function>free</function></ulink>">
+<!ENTITY fstat "<ulink url='&unix-f;/fstat.html'><function>fstat</function></ulink>">
+<!ENTITY gethostbyaddr "<ulink url='&unix-f;/gethostbyaddr.html'><function>gethostbyaddr</function></ulink>">
+<!ENTITY gethostbyname "<ulink url='&unix-f;/gethostbyname.html'><function>gethostbyname</function></ulink>">
+<!ENTITY getrlimit "<ulink url='&unix-f;/getrlimit.html'><function>getrlimit</function></ulink>">
+<!ENTITY getrusage "<ulink url='&unix-f;/getrusage.html'><function>getrusage</function></ulink>">
+<!ENTITY iconv "<ulink url='&unix-f;/iconv.html'><function>iconv</function></ulink>">
+<!ENTITY lstat "<ulink url='&unix-f;/lstat.html'><function>lstat</function></ulink>">
+<!ENTITY malloc "<ulink url='&unix-f;/malloc.html'><function>malloc</function></ulink>">
+<!ENTITY qsort "<ulink url='&unix-f;/qsort.html'><function>qsort</function></ulink>">
+<!ENTITY read "<ulink url='&unix-f;/read.html'><function>read</function></ulink>">
+<!ENTITY select "<ulink url='&unix-f;/select.html'><function>select</function></ulink>">
+<!ENTITY shutdown "<ulink url='&unix-f;/shutdown.html'><function>shutdown</function></ulink>">
+<!ENTITY stat "<ulink url='&unix-f;/stat.html'><function>stat</function></ulink>">
+<!ENTITY sysconf "<ulink url='&unix-f;/sysconf.html'><function>sysconf</function></ulink>">
+<!ENTITY uname "<ulink url='&unix-f;/uname.html'><function>uname</function></ulink>">
 
 <!-- header files -->
-<!ENTITY regex-h "<ulink url='&unix1;/basedefs/regex.h.html'><filename>regex.h</filename></ulink>">
-<!ENTITY stdlib-h "<ulink url='&unix1;/basedefs/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
+<!ENTITY unix-f "&unix-top;/basedefs">
+<!ENTITY regex-h "<ulink url='&unix-f;/regex.h.html'><filename>regex.h</filename></ulink>">
+<!ENTITY stdlib-h "<ulink url='&unix-f;/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
+
+<!-- utilities -->
+<!ENTITY unix-u "&unix-top;/utilities">
+<!ENTITY cat "<ulink url='&unix-u/cat.html'><command>cat</command></ulink>">
+<!ENTITY chmod "<ulink url='&unix-u/chmod.html'><command>chmod</command></ulink>">
+<!ENTITY ls "<ulink url='&unix-u/ls.html'><command>ls</command></ulink>">

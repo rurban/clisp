@@ -3652,7 +3652,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 
 <variablelist>
  <varlistentry><term><literal
-    role="sexp">(<function>posix:resolve-host-ipaddr</function>
+    role="sexp">(<function>POSIX:RESOLVE-HOST-IPADDR</function>
     &optional-amp; &host-r;)</literal></term>
  <listitem><simpara>Returns the <type>hostent</type> struct (name,
    list of aliases, list of IP addresses as dotted quads (for IPv4) or
@@ -3662,45 +3662,44 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    host database is returned as a list (this would be the contents of the
    <filename>/etc/hosts</filename> file on a &unix; system or
    <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
+   This is an interface to &gethostbyname;/&gethostbyaddr;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-      role="sexp">(<function>posix:file-stat</function> &path-r;
+      role="sexp">(<function>POSIX:FILE-STAT</function> &path-r;
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
- <listitem><simpara>Return the stat struct.  &path-r; can
-   be a &stream-t;, a &pathname-t;, a &string-t; or a
-   &number-t; (on a &unix; system, meaning file descriptor).  The
-   first slot of the struct returned is the string or the number on which
-   &stat;/&fstat;/&lstat;
-   was called.  The other 13 slots are numbers, members of the stat
-   struct: device, inode, protection, number of hard links, owner's UID,
-   owner's GID, device type, total size (bytes), blocksize for
-   filesystem I/O, number of blocks allocated, atime, mtime, ctime (as
-   the number of seconds since 1900-01-01).  If the system does not
-   support a particular field (e.g., Win32 does not have hard links),
-   &nil; (or the default, like 1 for the number of hard links for Win32
-   or DOS) is returned.
+ <listitem><simpara>Return the stat struct.  &path-r; can be a
+   &stream-t;, a &pathname-t;, a &string-t; or a &number-t;
+   (on a &unix; system, meaning file descriptor).
+   The first slot of the struct returned is the string or the number on
+   which &stat;/&fstat;/&lstat; was called.  The other 13 slots are
+   numbers, members of the stat struct: device, inode, protection,
+   number of hard links, owner's UID, owner's GID, device type, total
+   size (bytes), blocksize for filesystem I/O, number of blocks
+   allocated, atime, mtime, ctime (as the number of seconds since
+   1900-01-01).  If the system does not support a particular field
+   (e.g., Win32 does not have hard links), &nil; (or the default, like 1
+   for the number of hard links for Win32 or DOS) is returned.
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>posix:user-data</function>
+    role="sexp">(<function>POSIX:USER-DATA</function>
     &optional-amp; <replaceable>user</replaceable>)</literal></term>
- <listitem><simpara>Return the passwd struct (name, encoded password,
-   UID, GID, full name, home directory, shell).  When
-   <replaceable>user</replaceable> is &nil;, return all users.  When
-   <replaceable>user</replaceable> is &default-k; or
-   not supplied, return the information about the current user.  If the
-   system does not support a particular field (e.g., Win32 does not have
-   a concept of a shell), &nil; (or the default, like
+ <listitem><simpara>Return the <type>passwd</type> struct (name, encoded
+   password, UID, GID, full name, home directory, shell).
+   When <replaceable>user</replaceable> is &nil;, return all users.
+   When <replaceable>user</replaceable> is &default-k; or
+   not supplied, return the information about the current user.
+   If the system does not support a particular field (e.g., Win32 does
+   not have a concept of a shell), &nil; (or the default, like
    <filename>c:\command.com</filename> for DOS) is returned.
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>posix:sysinfo</function>)</literal></term>
  <listitem><simpara>Return a struct describing the OS, derived from
-   <function>uname(2)</function> and <function>sysconf(3)</function>.
-  </simpara></listitem></varlistentry>
+   &uname; and &sysconf;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>posix:resource-usage-limits</function>)</literal>
+   role="sexp">(<function>POSIX:RESOURCE-USAGE-LIMITS</function>)</literal>
    </term>
   <listitem><simpara>Return 3 structs describing the resources usage and
     limits, derived from &getrlimit; and &getrusage;.
@@ -3787,8 +3786,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 
 <para>These four techniques apply to a single &lisp-file; or &fasl-file; file.
  If your application is made up of several &lisp-file; or &fasl-file; files,
- you can simply concatenate them (using <command>cat</command>(1))
- into one file; the techniques then apply to that concatenated file.</para>
+ you can simply concatenate them (using &cat;) into one file;
+ the techniques then apply to that concatenated file.</para>
 
 <variablelist>
 <!-- #ifdef UNIX -->
@@ -3796,7 +3795,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <listitem><para>On Unix, a text file (&fasl-file; or &lisp-file;) can be
  made executable by adding a first line of the form
  <programlisting>#!&interp-r; [&interp-args;]</programlisting>
- and using <command>chmod</command>(1) to make the script executable.
+ and using &chmod; to make the script executable.
  &clisp; can be used as a script interpreter under the following
  circumstances:</para>
 
