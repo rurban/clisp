@@ -1,3 +1,12 @@
+2004-04-09  Bruno Haible  <bruno@clisp.org>
+
+	Make REMOVE-DUPLICATES, DELETE-DUPLICATES cons less.
+	* sequence.d (remove_duplicates_list_from_start,
+	delete_duplicates_list_from_start, delete_duplicates_list_from_end):
+	New functions.
+	(seq_duplicates): Use these functions instead of the bit-vector
+	approach when not using a hash-table and the sequence is a list.
+
 2004-04-04  Bruno Haible  <bruno@clisp.org>
 
 	Reduce the amount of consing of SUBTYPEP.
