@@ -10788,17 +10788,77 @@ inline Handle MyDupHandle (Handle h0) {
   return h1;
 }
 
+# shell_quote - surrounds dangerous strings with double quotes. quotes quotes.
+# dest should be twice as large as source + 2 (for quotes)
+local int shell_quote (char * dest, const char * source, const char * source_end) {
+  var const char * characters = " &<>|^\t";
+  # Chars other than command separators are actual only when command interpreter is used
+  var int quote = !(*source) || source >= source_end; # quote empty arguments
+  var int escaped = 0;
+  var char * dcp = dest;
+  *dcp++ = ' ';
+  var int ech;
+  while (*source && source_end && source < source_end) {
+    quote = quote || strchr(characters,*source);
+    ech = *source == '\\';
+    if (!escaped && *source == '"') *dcp++ = '\\';
+    *dcp++ = *source++;
+    escaped = !escaped && ech;
+  }
+  if (quote) {
+    if (escaped) *dcp++ = '\\'; # double ending slash
+    *dcp++ = '"'; *dest = '"'; }
+  *dcp = 0;
+  # shift string left if no quote was inserted
+  if (!quote) for (dcp = dest;;dcp++) if (!(*dcp = dcp[1])) break;
+  return dcp - dest;
+}
+
 Handle stream_lend_handle (object stream, bool inputp, int * handletype);
 
-LISPFUN(launch,seclass_default,1,0,norest,key,4,
-        (kw(wait),kw(input),kw(output),kw(error))) {
-  var object error_arg = STACK_0;
-  var object output_arg = STACK_1;
-  var object input_arg = STACK_(2);
-  var object wait_arg = STACK_(3);
-  var object command_arg = STACK_(4);
-  var int handletype;
+local inline object allocate_cons_v (object carobj, object cdrobj) {
+  var object consobj = allocate_cons();
+  Car(consobj) = carobj;
+  Cdr(consobj) = cdrobj;
+  return consobj;
+}
+
+# (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
+# Launches a program.
+# :arguments : a list of strings
+# :wait - nullp/not nullp - whether to wait for process to finish
+# :input, :output, :error - i/o/e streams for process. basically file-streams
+#   or terminal-streams. see stream_lend_handle() in stream.d for full list
+#   of supported streams
+# returns: exit code (zero when (nullp wait))
+LISPFUN(launch,seclass_default,1,0,norest,key,6,
+        (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
+  var object priority_arg = STACK_0;
+  var object error_arg = STACK_1;
+  var object output_arg = STACK_2;
+  var object input_arg = STACK_(3);
+  var object wait_arg = STACK_(4);
+  var object arg_arg = STACK_(5);
+  var object command_arg = STACK_(6);
+  var int handletype; # todo: check it
+  var DWORD pry = NORMAL_PRIORITY_CLASS;
+  if (boundp(priority_arg))
+    if (eq(priority_arg,S(Khigh))) pry = HIGH_PRIORITY_CLASS;
+    else if (eq(priority_arg,S(Klow))) pry = IDLE_PRIORITY_CLASS;
+    else if (!eq(priority_arg,S(Knormal))) {
+      pushSTACK(priority_arg);                    # TYPE-ERROR slot DATUM
+      pushSTACK(allocate_cons_v(S(member),
+                allocate_cons_v(S(Khigh),
+                allocate_cons_v(S(Knormal),
+                allocate_cons_v(S(Klow),NIL))))); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(priority_arg);
+      pushSTACK(S(Kpriority));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+    }
   if (!boundp(wait_arg)) wait_arg = S(t);
+  if (!boundp(arg_arg)) arg_arg = S(nil);
+    else if (!consp(arg_arg)) fehler_list(arg_arg);
   if (!stringp(command_arg)) fehler_string(command_arg);
   var Handle hinput = MyDupHandle((boundp(input_arg) && !eq(input_arg,S(Kterminal)))?
     stream_lend_handle(input_arg,true,&handletype):stdin_handle);
@@ -10807,16 +10867,39 @@ LISPFUN(launch,seclass_default,1,0,norest,key,4,
   var Handle herror = MyDupHandle((boundp(error_arg) && !eq(error_arg,S(Kterminal)))?
     stream_lend_handle(error_arg,false,&handletype):stderr_handle);
   var HANDLE prochandle;
-  with_string_0(command_arg,O(misc_encoding),command_asciz, {
-    /* Start new process. */
-    var PROCESS_INFORMATION pinfo;
-    begin_system_call();
-    if (!MyCreateProcess(command_asciz,hinput,houtput,herror,&pinfo))
-      { end_system_call(); OS_error(); }
-    if (pinfo.hThread /* zero for 16 bit programs in NT */
-         && !CloseHandle(pinfo.hThread)) { end_system_call(); OS_error(); }
-    prochandle = pinfo.hProcess;
-  });
+
+  var int command_len = 0,command_pos = 0,i;
+  var object cmdlist_cons = allocate_cons();
+  var object curcons;
+  Car(cmdlist_cons) = command_arg; Cdr(cmdlist_cons) = arg_arg;
+  for (i=0;i<2;i++) {
+    var DYNAMIC_ARRAY(command_data,char,command_len+1);
+    for (curcons = cmdlist_cons;!nullp(curcons);curcons = Cdr(curcons)) {
+      if (!stringp(Car(curcons))) fehler_string(Car(curcons));
+      with_string(Car(curcons),O(misc_encoding),pcommand,pcomlen, {
+        if (!i) # sum max estimates of lenghts
+          command_len += pcomlen*2 + 1 + 2; # 1 for space 2 for quotes *2 for quoting of quotes
+        else {  # collect parts
+          if (command_pos > 0)
+            *(command_data+command_pos++) = ' ';
+          command_pos += shell_quote(command_data+command_pos,pcommand,pcommand+pcomlen);
+          ASSERT(command_pos < command_len + 1);
+        }
+      });
+    }
+    if (i) { # string is ready
+      /* Start new process. */
+      var PROCESS_INFORMATION pinfo;
+      begin_system_call();
+      if (!MyCreateProcess(command_data,hinput,houtput,herror,&pinfo))
+        { end_system_call(); OS_error(); }
+      if (pinfo.hThread /* zero for 16 bit programs in NT */
+           && !CloseHandle(pinfo.hThread)) { end_system_call(); OS_error(); }
+      prochandle = pinfo.hProcess;
+    }
+    FREE_DYNAMIC_ARRAY(command_data);
+  }
+      
   var DWORD exitcode = 0;
   if (!nullp(wait_arg)) {
     /* Wait until it terminates, get its exit status code. */
@@ -10839,9 +10922,8 @@ LISPFUN(launch,seclass_default,1,0,norest,key,4,
   if (houtput!=stderr_handle && !CloseHandle(herror)) { end_system_call(); OS_error(); }
 
   end_system_call();
-  /* utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL : */
-  VALUES_IF(exitcode == 0);
-  skipSTACK(5);
+  VALUES1(fixnum(exitcode));
+  skipSTACK(7);
 }
 
 #else # UNIX || MSDOS || ...

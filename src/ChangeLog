@@ -1,6 +1,19 @@
 2003-05-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* stream.d (create_output_pipe): Fixed an cut-and-paste type typo.
+	improved LAUNCH for win32
+	* pathname.d (LAUNCH) [WIN32_NATIVE]: added new arguments:
+	arguments, priority (not supported yet), changed return value.
+	(shell_quote, allocate_cons_v) [WIN32_NATIVE && HAVE_SHELL]: new
+	functions.
+	* constsym.d (:ARGUMENTS, :PRIORITY, :HIGH, :NORMAL, :LOW) 
+	[HAVE_SHELL]: added new keywords.
+	(:WAIT, :TERMINAL): define only when HAVE_SHELL.
+	* subr.d (LAUNCH): changed declaration.
+	* subrkw.d (LAUNCH): ditto.
+
+2003-05-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* stream.d (create_output_pipe): Fixed a cut-and-paste type typo.
 
 2003-04-30  Sam Steingold  <sds@gnu.org>
 
