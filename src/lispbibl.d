@@ -399,6 +399,14 @@
   # displays IBMPC_CHS, but we convert from ISOLATIN_CHS to IBMPC_CHS in the
   # low-level output routine full_write().
 #endif
+#ifdef UNIX_BEOS
+  # The default encoding on BeOS is UTF-8, not ISO 8859-1.
+  # If compiling with Unicode support, we use it. Else fall back to ASCII.
+  #undef ISOLATIN_CHS
+  #ifdef UNICODE
+    #define UTF8_CHS  # UTF-8
+  #endif
+#endif
 #ifdef HP8XX
   #undef ISOLATIN_CHS
   #define HPROMAN8_CHS  # HP-Roman8, siehe hproman8.chs
