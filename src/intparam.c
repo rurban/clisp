@@ -19,8 +19,6 @@
 #undef ushort
 #undef uchar
 
-#include <stdlib.h>             /* for exit(3) */
-
 #if !(defined(__STDC__) || defined(__cplusplus))
 /* Only for use in function parameter lists and as function return type. */
 #define void
@@ -593,11 +591,6 @@ int main()
   main8();
   main9();
   main10();
-#if defined(__cplusplus)
   if (ferror(stdout) || fclose(stdout)) return 1;
   return 0;
-#else
-  if (ferror(stdout) || fclose(stdout)) { exit(1); }
-  exit(0);
-#endif
 }
