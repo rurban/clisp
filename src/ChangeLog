@@ -1,3 +1,10 @@
+2002-06-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/input.lisp (:configure-request): use
+	`member8' instead of `member' for `data'
+	From <http://ww.telent.net/cliki/eclipse>
+	and <http://dept-info.labri.u-bordeaux.fr/~strandh/patch-xlib.lisp>
+
 2002-06-15  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	more fixes for bug #[ 542902 ]: not only socket-wait is
