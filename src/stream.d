@@ -10,9 +10,9 @@
   #include "readline.h"
   #include "history.h"
   #undef READLINE_LIBRARY
-  #ifdef STDC_HEADERS
-    #include <string.h>  # deklariert strcpy()
-  #endif
+#endif
+#ifdef STDC_HEADERS
+  #include <string.h>  # declares strcpy(), strcat()
 #endif
 
 
