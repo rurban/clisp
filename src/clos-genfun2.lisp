@@ -682,20 +682,42 @@
   (defvar *dynamically-modifiable-generic-function-names*
     ;; A list of names of functions, which ANSI CL explicitly denotes as
     ;; "Standard Generic Function"s, meaning that the user may add methods.
-    '(add-method allocate-instance class-name describe-object find-method
-      function-keywords initialize-instance make-instance method-qualifiers
-      no-applicable-method no-next-method no-primary-method print-object
-      reinitialize-instance remove-method shared-initialize slot-missing
-      change-class update-instance-for-different-class
-      update-instance-for-redefined-class
-      slot-unbound make-load-form
+    '(add-method allocate-instance change-class class-name (setf class-name)
+      compute-applicable-methods describe-object documentation
+      (setf documentation) find-method function-keywords initialize-instance
+      make-instance make-instances-obsolete make-load-form method-qualifiers
+      no-applicable-method no-next-method print-object reinitialize-instance
+      remove-method shared-initialize slot-missing slot-unbound
+      update-instance-for-different-class update-instance-for-redefined-class
       ;; Similar functions from the MOP.
-      validate-superclass))
+      add-dependent remove-dependent map-dependents
+      add-direct-method remove-direct-method
+      specializer-direct-generic-functions specializer-direct-methods
+      add-direct-subclass remove-direct-subclass class-direct-subclasses
+      compute-applicable-methods-using-classes
+      compute-class-precedence-list
+      compute-default-initargs
+      compute-discriminating-function
+      compute-effective-method
+      compute-effective-slot-definition
+      compute-slots
+      direct-slot-definition-class
+      effective-slot-definition-class
+      ensure-class-using-class
+      ensure-generic-function-using-class
+      reader-method-class
+      slot-value-using-class (setf slot-value-using-class)
+      slot-boundp-using-class slot-makunbound-using-class
+      validate-superclass
+      writer-method-class
+      ;; Similar functions that are CLISP extensions.
+      (setf method-generic-function) no-primary-method))
   (defvar *warn-if-gf-already-called* t)
   (defun need-gf-already-called-warning-p (gf)
     (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
-         (not (memq (sys::closure-name gf)
-                    *dynamically-modifiable-generic-function-names*))))
+         (not (member (sys::closure-name gf)
+                      *dynamically-modifiable-generic-function-names*
+                      :test #'equal))))
   (defun warn-if-gf-already-called (gf)
     (when (need-gf-already-called-warning-p gf)
       (warn (TEXT "The generic function ~S is being modified, but has already been called.")
