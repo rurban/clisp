@@ -927,24 +927,18 @@
   #define extern_C  extern
 #endif
 
-# Declaration of a function that will never return (nonreturning function)
-# nonreturning_function(extern,abort,(void)); == extern void abort (void);
-#if defined(__APPLE_CC__)
-  /* this does not prevent the warning, at least not in 2.95.2,
-     but they do use __dead for abort(), so maybe it will work in the future
-     (or maybe in the future they will support the GCC way?) */
-  #define nonreturning_function(storclass,funname,arguments)  \
-      __dead storclass void funname arguments
-#elif defined(GNU)
+/* Declaration of a function that will never return (nonreturning function)
+ nonreturning_function(extern,abort,(void)); == extern void abort (void); */
+#if defined(GNU) && !defined(__APPLE_CC__)
   #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
-    # Note:
-    #   storclass __attribute__((__noreturn__)) void funname arguments
-    #     works in gcc 2.95 or newer, and in g++ 2.7.2 or newer.
-    #   storclass void __attribute__((__noreturn__)) funname arguments
-    #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer.
-    #   storclass void funname arguments __attribute__((__noreturn__))
-    #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer, but
-    #     only when followed by a semicolon, not in a function definition.
+    /* Note:
+       storclass __attribute__((__noreturn__)) void funname arguments
+         works in gcc 2.95 or newer, and in g++ 2.7.2 or newer.
+       storclass void __attribute__((__noreturn__)) funname arguments
+         works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer.
+       storclass void funname arguments __attribute__((__noreturn__))
+         works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer, but
+         only when followed by a semicolon, not in a function definition. */
     #define nonreturning_function(storclass,funname,arguments)  \
       storclass void __attribute__((__noreturn__)) funname arguments
   #else
