@@ -22,33 +22,30 @@
 #define STDC_HEADERS
 #define HAVE_PERROR_DECL
 
-# Declaration of operating system functions
-  #define WIN32_LEAN_AND_MEAN  # avoid including junk
-  #ifdef __MINGW32__
-    /* need this for isatty(), write() &c in <mingw/io.h> */
-    #define _UWIN
-    # `unused' is used in function declarations.
-    #undef unused
-    #define ULONGLONG OS_ULONGLONG
-    #define ULONG OS_ULONG
-    #include <windows.h>
-    #undef ULONG
-    #undef ULONGLONG
-    #define unused (void)
-  #else
-    #undef unused
-    #include <windows.h>
-    #define unused
-  #endif
+/* Declaration of operating system functions */
+#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
+#undef unused /* `unused' is used in function declarations. */
+#ifdef __MINGW32__
+/* need this for isatty(), write() &c in <mingw/io.h> */
+ #define _UWIN
+ #define ULONGLONG OS_ULONGLONG
+ #define ULONG OS_ULONG
+ #include <windows.h>
+ #undef ULONG
+ #undef ULONGLONG
+ #define unused_void (void)
+#else
+ #include <windows.h>
+ #define unused_void
+#endif
 
-# Shell object handling for shell link resolution
-  #include <objbase.h>
-  #include <shlobj.h>
+/* Shell object handling for shell link resolution */
+#include <objbase.h>
+#include <shlobj.h>
 
-# ShellExecute declaration
-  #undef unused
-  #include <shellapi.h>
-  #define unused
+/* ShellExecute declaration */
+#include <shellapi.h>
+#define unused unused_void      /* restore the unused declaration */
 
 # Table of system error messages
   #include <winerror.h>
