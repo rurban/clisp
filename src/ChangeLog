@@ -1,5 +1,16 @@
 2001-10-03  Sam Steingold  <sds@gnu.org>
 
+	EXPAND-DEFTYPE & TYPE-EXPAND accept an optional argument
+	* predtype.d (expand_deftype): take the second arg once_p
+	(EXPAND-DEFTYPE): take the second optional arg once-p
+	* subr.d (expand-deftype): ditto
+	* lispbibl.d (expand_deftype): ditto
+	* sequence.d (valid_type): changed the expand_deftype() call
+	* type.lisp (type-expand): take the second optional arg once-p
+	* describe.lisp (describe-object): use type-expand
+
+2001-10-03  Sam Steingold  <sds@gnu.org>
+
 	* io.d (pr_enter_1): do not print the initial newline with
 	definite single-liners
 
