@@ -34,6 +34,7 @@ __builtin_avcall:
 	move.l (%a2),%a0
 	jbsr (%a0)
 	move.l %d0,%a1
+	move.l %d1,%a3
 	move.l 12(%a2),%d2
 	moveq.l #1,%d1
 	cmp.l %d2,%d1
@@ -48,7 +49,14 @@ __builtin_avcall:
 	jbeq .L70
 	moveq.l #4,%d3
 	cmp.l %d2,%d3
-	jbeq .L70
+	jbne .L17
+.L70:
+	move.l 8(%a2),%a0
+	move.w %a1,%d0
+	move.b %d0,(%a0)
+	jbra .L10
+	.align 	2
+.L17:
 	moveq.l #5,%d3
 	cmp.l %d2,%d3
 	jbeq .L71
@@ -124,19 +132,18 @@ __builtin_avcall:
 	move.l 4(%a2),%d0
 	btst #9,%d0
 	jbeq .L46
-	move.l 16(%a2),%d2
-	moveq.l #1,%d3
-	cmp.l %d2,%d3
+	move.l 16(%a2),%d1
+	moveq.l #1,%d2
+	cmp.l %d1,%d2
 	jbne .L47
-.L70:
 	move.l 8(%a2),%a0
-	move.w %a1,%d0
-	move.b %d0,(%a0)
+	move.w %a1,%d3
+	move.b %d3,(%a0)
 	jbra .L10
 	.align 	2
 .L47:
-	moveq.l #2,%d3
-	cmp.l %d2,%d3
+	moveq.l #2,%d2
+	cmp.l %d1,%d2
 	jbne .L50
 .L71:
 	move.l 8(%a2),%a0
@@ -145,7 +152,7 @@ __builtin_avcall:
 	.align 	2
 .L50:
 	moveq.l #4,%d3
-	cmp.l %d2,%d3
+	cmp.l %d1,%d3
 	jbne .L52
 .L69:
 	move.l 8(%a2),%a0
@@ -153,46 +160,46 @@ __builtin_avcall:
 	jbra .L10
 	.align 	2
 .L52:
-	moveq.l #8,%d3
-	cmp.l %d2,%d3
+	moveq.l #8,%d2
+	cmp.l %d1,%d2
 	jbne .L46
 .L72:
 	move.l 8(%a2),%a0
 	move.l %a1,(%a0)
 	move.l 8(%a2),%a0
-	move.l %d1,4(%a0)
+	move.l %a3,4(%a0)
 	jbra .L10
 	.align 	2
 .L46:
 	btst #0,%d0
 	jbeq .L10
 	move.l 16(%a2),%d0
-	moveq.l #1,%d1
-	cmp.l %d0,%d1
+	moveq.l #1,%d3
+	cmp.l %d0,%d3
 	jbne .L56
 	move.l 8(%a2),%a0
 	move.b (%a1),(%a0)
 	jbra .L10
 	.align 	2
 .L56:
-	moveq.l #2,%d2
-	cmp.l %d0,%d2
+	moveq.l #2,%d1
+	cmp.l %d0,%d1
 	jbne .L58
 	move.l 8(%a2),%a0
 	move.w (%a1),(%a0)
 	jbra .L10
 	.align 	2
 .L58:
-	moveq.l #4,%d3
-	cmp.l %d0,%d3
+	moveq.l #4,%d2
+	cmp.l %d0,%d2
 	jbne .L60
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0)
 	jbra .L10
 	.align 	2
 .L60:
-	moveq.l #8,%d1
-	cmp.l %d0,%d1
+	moveq.l #8,%d3
+	cmp.l %d0,%d3
 	jbne .L62
 	move.l 8(%a2),%a0
 	move.l (%a1),(%a0)
