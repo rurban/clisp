@@ -5,7 +5,7 @@
 <para>The &regexp-pac; module implements the
  <ulink url="regexp.html">POSIX regular expressions</ulink>
 by calling the standard &c-lang; system facilities.
-The syntax of these regular expressions is described in many places,
+The syntax of these &reg-exp;s is described in many places,
 such as your local &regex-h; manual and &emacs; info pages.</para>
 
 <para>The &regexp-pac; package exports the following 9 symbols:</para>
@@ -28,8 +28,7 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
    (&start-k; 0) &end-k; &re-cflags-opts; &re-eflags-opts;)</literal></term>
  <listitem><para>This macro returns as first value a &match-t; structure
   containing the indices of the start and end of the first match for the
-  regular expression &pattern-r; in &string-r;;
-  or &nil; if there is no match.
+  &reg-exp; &pattern-r; in &string-r;; or &nil; if there is no match.
   Additionally, a &match-t; structure is returned for every matched
   <literal>"\(...\)"</literal> group in &pattern-r;, in the
   order that the open parentheses appear in &pattern-r;.
@@ -70,17 +69,17 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
 <varlistentry id="re-regexp-quote"><term><literal
     role="sexp">(&re-regexp-quote; &string-r; &optional-amp;
    <replaceable>extended</replaceable>)</literal></term>
- <listitem><para>This function returns a regular expression string
+ <listitem><para>This function returns a &reg-exp; &string-t;
   that matches exactly &string-r; and nothing else.
   This allows you to request an exact string match when calling a
-  function that wants a regular expression.
+  function that wants a &reg-exp;.
   <example id="ex-re-quote"><title>&re-regexp-quote;</title>
    <programlisting>
     (regexp-quote "^The cat$")
      <returnvalue>"\\^The cat\\$"</returnvalue>
    </programlisting></example>
   One use of &re-regexp-quote; is to combine an exact string match with
-  context described as a regular expression.
+  context described as a &reg-exp;.
   When <replaceable>extended</replaceable> is non-&nil;, also
   quote <keysym>#\+</keysym> and <keysym>#\?</keysym>.
 </para></listitem></varlistentry>
@@ -88,14 +87,14 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
 <varlistentry id="re-regexp-compile"><term><literal
     role="sexp">(&re-regexp-compile; &string-r; &key-amp;
    &re-cflags-opts;)</literal></term>
- <listitem><simpara>Compile the regular expression &string-r; into an
+ <listitem><simpara>Compile the &reg-exp; &string-r; into an
   object suitable for &re-regexp-exec;.</simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-exec"><term><literal
     role="sexp">(&re-regexp-exec; &pattern-r; &string-r; &key-amp;
      (&start-k; 0) &end-k; &re-eflags-opts;)</literal></term>
  <listitem><simpara>Execute the &pattern-r;, which must be a compiled
-   regular expression returned by &re-regexp-compile;, against the
+   &reg-exp; returned by &re-regexp-compile;, against the
    appropriate portion of the &string-r;.</simpara>
   <simpara>Negative &end-r; means <literal role="sexp">(&plus; (&length;
     &string-r;) &end-r;)</literal></simpara>
@@ -110,7 +109,7 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
      (&start-k; 0) &end-k; &re-cflags-opts; &re-eflags-opts;)</literal></term>
  <listitem><simpara>Return a list of substrings of &string-r; (all
   sharing the structure with &string-r;) separated by &pattern-r; (a
-  regular expression string or a return value of &re-regexp-compile;)
+  &reg-exp; &string-t; or a return value of &re-regexp-compile;)
  </simpara></listitem></varlistentry>
 
 <varlistentry id="re-with-loop-split"><term><literal
