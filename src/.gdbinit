@@ -1,5 +1,6 @@
 # -*- sh -*-
 # CLISP .gdbinit
+set language c
 
 define base
        file lisp.run
