@@ -1,5 +1,21 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	* error.d (begin_error): Use fresh-line, not terpri.
+	(write_errorstring): Output an elastic newline at the end.
+	(ERROR, SYS::ERROR-OF-TYPE): Output an elastic newline after the error
+	message.
+	(tast_break): Use fresh-line, not terpri.
+	* init.lisp (cerror, warn): Use fresh-line before and elastic-newline
+	after the output.
+	* macros2.lisp (prompt-for-new-value-string): Start with ~& instead of
+	~%.
+	* condition.lisp (prompt-for-new-value): Start with fresh-line instead
+	of terpri.
+	(break, cerror, warn, maybe-continue, exitunconditionally): Use
+	fresh-line before and elastic-newline after the output.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	* defs1.lisp (%time): Avoid printing a blank line before the statistics
 	in some cases. Print an elastic newline afterwards.
 
