@@ -4324,12 +4324,15 @@ der Docstring (oder NIL).
       (c-NORMAL-FUNCTION-CALL fun)
 ) ) )
 
+(defvar *deprecated-functions-list*
+  '(GENTEMP SET SPECIAL-FORM-P RESOLVE-HOST-IPADDR FILE-STAT USER-DATA))
+
 ; Hilfsfunktion: Notiere, dass eine globale Funktionsdefinition benutzt wird.
 (defun note-function-used (name)
   (unless (or (fboundp name) (member name *known-functions* :test #'equal))
     (pushnew name *unknown-functions* :test #'equal)
   )
-  (when (memq name '(GENTEMP SET SPECIAL-FORM-P))
+  (when (memq name *deprecated-functions-list*)
     (pushnew name *deprecated-functions* :test #'eq)
 ) )
 

@@ -9183,7 +9183,7 @@ LISPFUNN(print_structure,2)
   local void pr_fsubr(stream_,obj)
     var const object* stream_;
     var object obj;
-    { # #<SPECIAL-FORM name>
+    { # #<SPECIAL-OPERATOR name>
       if (test_value(S(print_readably))) { fehler_print_readably(obj); }
       pr_other_obj(stream_,TheFsubr(obj)->name,O(printstring_fsubr));
     }
