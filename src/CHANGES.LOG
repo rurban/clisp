@@ -1,10 +1,25 @@
-User visible changes
+2.25.1 (2001-04-06)
+===================
+
+User visible changes [this is a bug-fix only release]
 --------------------
+
+* ANSI CL compliance: INITIALIZE-INSTANCE accepts &KEY &ALLOW-OTHER-KEYS
+  arguments.
 
 * Fixed a bug: a single value was sometimes returned by READ-LINE.
 
 * Fixed a bug: re-exporting inherited symbols resulted in them being
   reported as both external and inherited by WITH-PACKAGE-ITERATOR.
+
+* Fixed a bug: the full image and other images created with clisp-link
+  exited on error instead of entering the debugger.
+
+* Fixed a bug: COMPILE-FILE-PATHNAME could returned bad results when given a
+  non-existent INPUT-FILE argument and an OUTPUT-FILE argument with
+  non-NIL directory part.
+
+* Fixed --without-unicode build.
 
 2.25 (2001-03-15)
 =================
