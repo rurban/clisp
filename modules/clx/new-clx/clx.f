@@ -797,17 +797,15 @@ local void ensure_living_display (object *objf)
   my_standard_type_error (TheSubr(subr_self)->name);
 }
 
-//
 // display_hash_table -- return the hashtable of a display object
-//
 // > STACK_0 the display object
-//
+// < STACK_0 its hash table
 // This function is somewhat silly, since it introduces double type checking!
 //
-local object display_hash_table (void)
+local void display_hash_table (void)
 {
-  ensure_living_display (&(STACK_0));
-  return TheStructure (popSTACK ())->recdata[slot_DISPLAY_HASH_TABLE];
+  ensure_living_display(&(STACK_0));
+  STACK_0 = TheStructure (STACK_0)->recdata[slot_DISPLAY_HASH_TABLE];
 }
 
 //
@@ -971,7 +969,7 @@ local object make_xid_obj_2 (object type, object dpy, XID xid, object prealloc)
       // Now go with that cons into the hash-table ...
       pushSTACK (xlib_a_cons);					// the key
       pushSTACK (STACK_1);					// the display object
-      pushSTACK (display_hash_table ());			// the table [By this call it is ensured that dpy is a display]
+      display_hash_table(); // the table [this call ensures that dpy is a display]
       funcall (L(gethash), 2);					// look it up.
 
       if (!eq(value2, NIL))					// something found?
@@ -989,7 +987,7 @@ local object make_xid_obj_2 (object type, object dpy, XID xid, object prealloc)
 	  funcall (L(cons), 2);					// cons `em
 	  pushSTACK (value1);					// key for puthash
 	  pushSTACK (STACK_2);					//
-	  pushSTACK (display_hash_table ());			// table " "
+	  display_hash_table();			// table " "
 	  pushSTACK (STACK_2);					// value " "
 	  funcall (L(puthash), 3);				// put it into the hashtable
 
