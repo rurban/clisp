@@ -1,3 +1,8 @@
+1999-02-17  Sam Steingold  <sds@goems.com>
+
+        * spvw.d: user ascii* instead of asciz* for constant string
+	when initializing *features*.
+
 1999-02-12  Sam Steingold  <sds@goems.com>
 
 	* socket.d (create_client_socket): port is unsigned int.
