@@ -1,5 +1,10 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (make_pipe_output_stream, make_pipe_input_stream,
+           make_pipe_stream): Revert 1999-03-26 patch.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * socket.d (atoi): Remove declaration.
           (SERVENT_TO_STACK): Add `tmp' local variable.
           (SOCKET-SERVICE-PORT): Don't accept symbols, only strings and
