@@ -1,3 +1,17 @@
+2005-01-09  Bruno Haible  <bruno@clisp.org>
+
+	Put the i18n module into the 'base' linking set. Needed for all kinds
+	of internationalized programs and the GNU gettext test suite.
+	* makemake.in (BASE_MODULES): New variable.
+	(all): Depend on both 'boot' and 'base'.
+	(boot): New target, like old 'base'.
+	(base): New target, similar to 'full'.
+	(distmakefile): Don't replace BASE_LIBS and BASE_FILES.
+	(distrib): Treat 'base' like 'full'. Replace BASE_LIBS and BASE_FILES
+	in distmakefile here.
+	(clean1): Remove boot.
+	(clean3): Clean BASE_MODULES as well.
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	* condition.lisp (maybe-continue): Don't call exitunconditionally.

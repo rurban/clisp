@@ -1863,6 +1863,9 @@ if [ $TOS = unix ] ; then
 fi
 echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
 echol
+echol "# List of add-on modules that are already hardwired in the base linking set"
+echol "BASE_MODULES = i18n"
+echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
   echol "CC = ${CC}"
@@ -2188,7 +2191,7 @@ echol
 
 needs="init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
-  needs=".gdbinit "$needs' modular $(MODULES) base clisp full'
+  needs=".gdbinit "$needs' modular $(BASE_MODULES) $(MODULES) clisp boot base full'
 fi
 if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
   needs=$needs" lisp.bsc"
@@ -3165,11 +3168,11 @@ for f in clisp-link ; do
   echotab "chmod a+x ${f}"
   echol
 done
-echol "base : modular lispinit.mem"
-echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f \$\$f; done) || (\$(RMRF) base ; exit 1)"
+echol "boot : modular lispinit.mem"
+echotab "test -d boot || (mkdir boot && cd boot && for f in ${FILES} modules.h modules.o makevars lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f \$\$f; done) || (\$(RMRF) boot ; exit 1)"
 echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
-echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
+echol "anymodule \$(BASE_MODULES) \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
 echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
 echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; CC=\"\$(CC)\" ./configure --cache-file="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache ; fi"
 EVERY_INCLUDES_DOTS_C=''
@@ -3177,6 +3180,10 @@ for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
   EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
 done
 echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echol
+echol "base : modular boot \$(BASE_MODULES)"
+echotab "\$(RMRF) base"
+echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
 echol
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
@@ -3289,7 +3296,7 @@ for f in $TXT_FILES ; do
     fi
   fi
   if [ $f = distmakefile ] ; then
-    line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed_escape_commas='s/,/\\\\,/g' ; libs=\`echo \"\$\$libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
+    line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""
   fi
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
@@ -3615,25 +3622,24 @@ echotab "mkdir \$(TOPDIR)"
 # General documentation files.
 echotab "${HLN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
 # The linking sets: base and full.
-echotab "mkdir \$(TOPDIR)/base"
-echotab "${HLN} ${FILES} modules.h modules.o makevars lispinit.mem \$(TOPDIR)/base"
-if test -n "$BINARY_DISTRIB"; then
-  echotab "cp lisp${LEXE} \$(TOPDIR)/base/lisp${LEXE}"
-  # Don't strip the executable, otherwise (disassemble #'cons) won't work.
-  # echotab "strip \$(TOPDIR)/base/lisp${LEXE}"
-  echotab "chmod a+x \$(TOPDIR)/base/lisp${LEXE}"
-fi
-echotab "mkdir \$(TOPDIR)/full"
-echotab "${HLN} "'`'". full/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
-if test -n "$BINARY_DISTRIB"; then
-  echotab "cp full/lisp${LEXE} \$(TOPDIR)/full/lisp${LEXE}"
-  # Don't strip the executable, otherwise (disassemble #'cons) won't work.
-  # echotab "strip \$(TOPDIR)/full/lisp${LEXE}"
-  echotab "chmod a+x \$(TOPDIR)/full/lisp${LEXE}"
-fi
+for dir in base full; do
+  echotab "mkdir \$(TOPDIR)/${dir}"
+  echotab "${HLN} "'`'". ${dir}/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo ${dir}/\$\$f ; done"'`'" \$(TOPDIR)/${dir}"
+  if test -n "$BINARY_DISTRIB"; then
+    echotab "cp ${dir}/lisp${LEXE} \$(TOPDIR)/${dir}/lisp${LEXE}"
+    # Don't strip the executable, otherwise (disassemble #'cons) won't work.
+    # echotab "strip \$(TOPDIR)/${dir}/lisp${LEXE}"
+    echotab "chmod a+x \$(TOPDIR)/${dir}/lisp${LEXE}"
+  fi
+done
 # The Makefile, generated from distmakefile.
 if test -z "$BINARY_DISTRIB"; then
-  echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; sed_escape_commas='s/,/\\\\,/g' ; full_libs=\`echo \"\$\$full_libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" < distmakefile > \$(TOPDIR)/Makefile"
+  line="cat distmakefile"
+  for dir in base full; do
+    DIR=`echo "${dir}" | tr a-z A-Z`
+    line="$line | { . ${dir}/makevars ; ${dir}_files='' ; for f in modules.o \$\$FILES ; do ${dir}_files=\"\$\$${dir}_files\"' ${dir}/'\"\$\$f\" ; done ; ${dir}_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) ${dir}_libs=\"\$\$${dir}_libs \$\$f\";; *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\$\$f\";; esac ; done ; sed_escape_commas='s/,/\\\\,/g' ; ${dir}_libs=\`echo \"\$\$${dir}_libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@${DIR}_FILES@@,\$\$${dir}_files,\" -e \"s,@@${DIR}_LIBS@@,\$\$${dir}_libs,\"; }"
+  done
+  echotab "$line > \$(TOPDIR)/Makefile"
 else
   echotab "${HLN} distmakefile \$(TOPDIR)/Makefile"
 fi
@@ -3655,7 +3661,7 @@ echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
 echotab "${HLN} clisp-link \$(TOPDIR)"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit"
-echotab "for module in '' \$(MODULES); do if test -n \"\$\$module\"; then \\"
+echotab "for module in '' \$(BASE_MODULES) \$(MODULES); do if test -n \"\$\$module\"; then \\"
 echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$HLN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
 echotab "fi; done"
 # For building the `clisp' executable.
@@ -3734,7 +3740,7 @@ clean0 : force
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${RECOMPILEDIR}${NEXT_}* ${TESTSDIR}${NEXT_}* ${SACLATESTSDIR}${NEXT_}* ${ANSITESTSDIR}${NEXT_}* ansi-tests-log
-	-\$(RMRF) base full
+	-\$(RMRF) boot base full
 !!
 if [ ${LIB_TYPE} = "win32" ] ; then
 cat <<!!
@@ -3764,7 +3770,7 @@ clean3 : clean2
 line="-\$(RM)"
 for f in ${LUTILS}; do line=$line" ${f}.fas"; done
 echotab "$line"
-echotab 'for m in $(MODULES); do $(RM) $$m/*.fas $$m/*.lib; done'
+echotab 'for m in $(BASE_MODULES) $(MODULES); do $(RM) $$m/*.fas $$m/*.lib; done'
 cat <<!!
 
 # clean4 removes everything that becomes obsolete
