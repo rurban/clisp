@@ -1,5 +1,15 @@
 2004-02-05  Sam Steingold  <sds@gnu.org>
 
+	allow current directory to be on a remote host
+	* pathname.d (default_drive): return 0 when GetCurrentDirectory()
+	returns a network (UNC) path
+	(default_directory_of): allow drive=0 (return GetCurrentDirectory())
+	(use_default_dir): allow UNC default path
+	(CD): allow network argument
+	(init_pathnames): set O(default_drive) to NIL when running drive=0
+
+2004-02-05  Sam Steingold  <sds@gnu.org>
+
 	* charstrg.d (string_concat): do not modify argptr when arg is
 	not a string
 

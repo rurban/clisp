@@ -2420,10 +2420,6 @@ local uintC file_namestring_parts (object pathname) {
  can trigger GC */
 local object whole_namestring (object pathname) {
   var uintC stringcount = 0;
-#if !defined(PATHNAME_WIN32) && !defined(PATHNAME_UNIX)
-/* though it seems to make sense only on RISCOS */
-  stringcount += host_namestring_parts(pathname);
-#endif
   stringcount += directory_namestring_parts(pathname);
   stringcount += file_namestring_parts(pathname);
   return string_concat(stringcount);
@@ -4979,9 +4975,13 @@ local char default_drive (void) {
     if (!result) { OS_error(); }
   }
   end_system_call();
-  ASSERT(path_buffer[1]==':');
-  ASSERT(path_buffer[2]=='\\');
-  return as_cint(up_case(as_chart(path_buffer[0])));
+  if (path_buffer[1]==':') { /* local device */
+    ASSERT(path_buffer[2]=='\\');
+    return as_cint(up_case(as_chart(path_buffer[0])));
+  } else if (path_buffer[0]=='\\') { /* network host */
+    ASSERT(path_buffer[1]=='\\');
+    return 0;
+  } else NOTREACHED;
 #endif
 }
 
@@ -4998,19 +4998,31 @@ local object default_directory_of (uintB drive, object pathname) {
   var char* path_buffer = (char*)alloca(path_buflen+1);
   var char* dummy;
   var DWORD result;
-  currpath[0] = drive;
-  currpath[1] = ':';
-  currpath[2] = '.'; /* this dot is actually not needed */
-  currpath[3] = '\0';
-  begin_system_call();
-  result = GetFullPathName(currpath,path_buflen,path_buffer,&dummy);
-  if (!result) { end_system_call(); OS_file_error(pathname); }
-  if (result >= path_buflen) {
-    path_buflen = result; path_buffer = (char*)alloca(path_buflen+1);
+  if (drive) {                  /* local disk */
+    currpath[0] = drive;
+    currpath[1] = ':';
+    currpath[2] = '.'; /* this dot is actually not needed */
+    currpath[3] = '\0';
+    begin_system_call();
     result = GetFullPathName(currpath,path_buflen,path_buffer,&dummy);
     if (!result) { end_system_call(); OS_file_error(pathname); }
+    if (result >= path_buflen) {
+      path_buflen = result; path_buffer = (char*)alloca(path_buflen+1);
+      result = GetFullPathName(currpath,path_buflen,path_buffer,&dummy);
+      if (!result) { end_system_call(); OS_file_error(pathname); }
+    }
+    end_system_call();
+  } else {                      /* network path */
+    begin_system_call();
+    result = GetCurrentDirectory(path_buflen,path_buffer);
+    if (!result) { end_system_call(); OS_file_error(pathname); }
+    if (result >= path_buflen) {
+      path_buflen = result; path_buffer = (char*)alloca(path_buflen);
+      result = GetCurrentDirectory(path_buflen,path_buffer);
+      if (!result) { OS_file_error(pathname); }
+    }
+    end_system_call();
   }
-  end_system_call();
   { /* poss. add a '\' at the end: */
     var char* path_end = &path_buffer[asciz_length(path_buffer)];
     if (!(path_end[-1]=='\\')) { path_end[0] = '\\'; path_end[1] = '\0'; }
@@ -5064,16 +5076,21 @@ local object use_default_dir (object pathname) {
         Cdr(subdirs) = popSTACK();
       } else
      #endif
-      {
-        var uintB drive = as_cint(TheSstring(ThePathname(pathname)->pathname_device)->data[0]);
-        var object default_dir = default_directory_of(drive,pathname);
-        /* default_dir (ein Pathname) is finished.
+      { /* drive does not have to be present if we start on a network path */
+        var object drive = ThePathname(pathname)->pathname_device;
+        var uintB dr = nullp(drive) ? 0 : as_cint(TheSstring(drive)->data[0]);
+        var object default_dir = default_directory_of(dr,pathname);
+        /* default_dir (a Pathname) is finished.
          Replace :RELATIVE with default-subdirs, i.e.
          form  (append default-subdirs (cdr subdirs))
               = (nreconc (reverse default-subdirs) (cdr subdirs)) */
         var object temp = ThePathname(default_dir)->pathname_directory;
         temp = reverse(temp);
         subdirs = nreconc(temp,popSTACK());
+       #if HAS_HOST /* PATHNAME_WIN32 */
+        ThePathname(pathname)->pathname_host = /* replace NIL with default */
+          ThePathname(default_dir)->pathname_host;
+       #endif
       }
     }
     /* traverse list and freshly cons up, thereby process '.\' and '..\'
@@ -5512,8 +5529,7 @@ local object OSdirnamestring (object namestring) {
 local void change_default (void) {
   { /* change default-directory for this drive: */
     var object pathname = STACK_0;
-    var uintC stringcount =
-      directory_namestring_parts(pathname); /* strings for the directory */
+    var uintC stringcount = directory_namestring_parts(pathname);
     /* no redundant '\' at the end */
     if (mconsp(Cdr(ThePathname(pathname)->pathname_directory))) {
       skipSTACK(1); stringcount--;
@@ -7396,15 +7412,6 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
   ThePathname(pathname)->pathname_name = NIL;
   ThePathname(pathname)->pathname_type = NIL;
   true_namestring(pathname,false,false); /* the directory must exist */
- #if HAS_HOST /* necessary at least for PATHNAME_WIN32 */
-  if (!nullp(ThePathname(STACK_0)->pathname_host)) {
-    pushSTACK(STACK_0); /* value for slot PATHNAME of FILE-ERROR */
-    pushSTACK(STACK_(0+1));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(file_error,
-           GETTEXT("~: cannot change default directory on remote host: ~"));
-  }
- #endif
   change_default(); /* set default drive and default directory */
   VALUES1(popSTACK()); /* new pathname as the value */
 }
@@ -7588,7 +7595,8 @@ global void init_pathnames (void) {
  #ifdef PATHNAME_WIN32
   { /* initialize default-drive: */
     var char drive = default_drive();
-    O(default_drive) = n_char_to_string(&drive,1,O(pathname_encoding));
+    O(default_drive) = drive == 0 ? NIL                  /* network */
+      : n_char_to_string(&drive,1,O(pathname_encoding)); /* local device */
   }
  #endif
   /* initialize *DEFAULT-PATHNAME-DEFAULTS* : */
