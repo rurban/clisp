@@ -29,13 +29,13 @@
 # ------------------------------ Implementation --------------------------------
 
   #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-    #define mark(addr)  (((object*)(addr))->one |= wbit(garcol_bit_o))
+    #define mark(addr)  (((object*)(addr))->one_o |= wbit(garcol_bit_o))
   #else
     #define mark(addr)  (*(object*)(addr) = as_object(as_oint(*(object*)(addr)) | wbit(garcol_bit_o)))
   #endif
 
   #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-    #define unmark(addr)  (((object*)(addr))->one &= ~wbit(garcol_bit_o))
+    #define unmark(addr)  (((object*)(addr))->one_o &= ~wbit(garcol_bit_o))
   #else
     #define unmark(addr)  (*(object*)(addr) = as_object(as_oint(*(object*)(addr)) & ~wbit(garcol_bit_o)))
   #endif
