@@ -1190,3 +1190,6 @@ program-error
 (loop with foo = '(a b) for x in '(c d) collecting x into foo
   finally (return foo))
 program-error
+
+(fdefinition (list 'setf (gensym)))
+undefined-function
