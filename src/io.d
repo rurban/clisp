@@ -7879,9 +7879,6 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
         var uintB atype = Iarray_flags(obj) & arrayflags_atype_mask;
         if ((r>0) && (locals.length_limit >= dims_sizes[0].dim)) {
           switch (atype) {
-            case Atype_NIL: # do not print contents at all
-              locals.pr_one_elt = NULL;
-              goto routine_ok;
             case Atype_Bit: # print whole bitvectors instead of single bits
               locals.pr_one_elt = &pr_array_elt_bvector;
               goto not_single;
@@ -7897,10 +7894,13 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
             default: ;
           }
         }
-        locals.pr_one_elt = &pr_array_elt_simple;
-        locals.info.count = 1; # 1 as "Elementary length"
-        if (atype==Atype_T)
-          readable = false; # automatically rereadable
+        locals.info.count = 1; /* 1 as "Elementary length" */
+        switch (atype) {
+          case Atype_NIL: locals.pr_one_elt = NULL; break;
+          case Atype_T: readable = false; /* automatically rereadable */
+            /*FALLTHROUGH*/
+          default: locals.pr_one_elt = &pr_array_elt_simple;
+        }
       routine_ok:
         locals.info.index = 0; # start-index is 0
       }
