@@ -5,37 +5,10 @@
 ;; ============================================================================
 
 (in-package "COMMON-LISP")
-(export '(nth-value
-          declaim destructuring-bind complement
+(export '(declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
           read-sequence write-sequence))
 (in-package "SYSTEM")
-
-;; ----------------------------------------------------------------------------
-
-;; X3J13 vote <123>
-
-;; Macro (nth-value n form) == (nth n (multiple-value-list form)), CLtL2 S. 184
-(defmacro nth-value (n form)
-  (if (and (integerp n) (>= n 0))
-    (if (< n (1- multiple-values-limit))
-      (if (= n 0)
-        `(PROG1 ,form)
-        (let ((resultvar (gensym)))
-          (do ((vars (list resultvar))
-               (ignores nil)
-               (i n (1- i)))
-              ((zerop i)
-               `(MULTIPLE-VALUE-BIND ,vars ,form
-                  (DECLARE (IGNORE ,@ignores))
-                  ,resultvar
-              ) )
-            (let ((g (gensym))) (push g vars) (push g ignores))
-      ) ) )
-      `(PROGN ,form NIL)
-    )
-    `(NTH ,n (MULTIPLE-VALUE-LIST ,form))
-) )
 
 ;; ----------------------------------------------------------------------------
 
