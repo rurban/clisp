@@ -171,7 +171,7 @@ The point should be on the prototype and the definition should follow."
 (defvar d-extra-keywords
   (eval-when-compile
    (regexp-opt '("var" "local" "global" "true" "false" "NIL" "T" "loop"
-                 "inline" "NULL" "nullobj"
+                 "inline" "NULL" "nullobj" "maygc"
                  "popSTACK" "pushSTACK" "skipSTACK" "skipSTACKop" "STACKop"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
                  "dotimesW" "nonreturning_function" "return_Values"
