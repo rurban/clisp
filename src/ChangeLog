@@ -1,3 +1,7 @@
+2002-07-21  Bruno Haible  <bruno@clisp.org>
+
+	* configure: Test ulimit result against 'unlimited'.
+
 2002-07-21  Sam Steingold  <sds@gnu.org>
 
 	* m4/readline.m4 (CL_READLINE): fixed whitespace
