@@ -1086,8 +1086,6 @@ local bool query_intern_conflict (object pack, object sym, object other,
  < pack: package, EQ to the old
  can trigger GC */
 global void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
-  #define CONFLICT1
-  #define CONFLICT2
   var object sym = *sym_;
   var object pack = *pack_;
   var object string = Symbol_name(sym);
@@ -1394,8 +1392,7 @@ local void map_symtab (object fun, object symtab) {
   var uintC count;
   dotimespC(count,size, {
     var object entry = /* entry with number index in table */
-      *(gcv_object_t*)(pointerplus(&TheSvector(STACK_0)->data[0],
-                                   (aint)offset));
+      *(gcv_object_t*)(pointerplus(&TheSvector(STACK_0)->data[0],(aint)offset));
     if (atomp(entry)) {
       if (!nullp(entry)) {
         /* entry is a symbol /= NIL */
