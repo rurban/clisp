@@ -1,3 +1,7 @@
+2001-08-16  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (expand-loop): WITH vars should always be bound on top
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* makemake.in (Makefile): Back up Makefile before erasing it.

@@ -2,7 +2,7 @@
 ;; (LOOP {loop-clause}*), CLTL2 S. 163,709-747
 ;; Bruno Haible 19.10.1991-20.10.1991, 22.10.1991, 6.6.1993, 28.6.1994,
 ;;   16.6.1996
-;; Sam Steingold 1999-03-11, 2000-02-24
+;; Sam Steingold 1999-03-11, 2000-02-24, 2001-08-16
 
 (in-package "COMMON-LISP")
 (export '(loop loop-finish))
@@ -542,7 +542,8 @@
                           :bindings (nreverse bindings)
                           :declspecs (nreverse declspecs)
                           :everytime nil
-                          :requires-stepbefore seen-endtest
+                          ;; WITH vars should always be bound on top
+                          :requires-stepbefore nil ; seen-endtest
                           :depends-preceding t))))
                    ((FOR AS)
                     ; for-as ::= {for | as} for-as-clause {and [{for | as}] for-as-clause}*
