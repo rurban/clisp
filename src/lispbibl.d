@@ -13220,7 +13220,8 @@ extern void export (const gcv_object_t* sym_, const gcv_object_t* pack_);
 extern object get_current_package (void);
 # is used by IO, EVAL
 
-/* check whether package lock prevents assignment to symbol */
+/* check whether package lock prevents assignment to symbol
+ can trigger GC */
 extern void symbol_value_check_lock (object caller, object symbol);
 /* used by EVAL */
 
