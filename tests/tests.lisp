@@ -112,6 +112,7 @@
            #+(or CLISP ALLEGRO CMU) "clos"
           #+(and CLISP UNICODE)     "encoding"
                                     "eval20"
+          #+(and CLISP FFI)         "ffi"
                                     "floeps"
                                     "format"
            #+CLISP                  "genstream"
