@@ -1,3 +1,11 @@
+2002-04-22  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (UNSIGNED-FOREIGN-ADDRESS): new function
+	(FOREIGN-ADDRESS-VALUE): renamed to FOREIGN-ADDRESS-UNSIGNED
+	* subr.d, constsym.d: ditto
+	* foreign1.lisp (foreign-address-null): use FOREIGN-ADDRESS-UNSIGNED
+
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
 	do not go into an edless loop on `clisp -x '(assert nil)'`

@@ -724,7 +724,7 @@
 (defsetf ffi::foreign-value ffi::set-foreign-value)
 
 (defun foreign-address-null (fadr)
-  (zerop (foreign-address-value fadr)))
+  (zerop (foreign-address-unsigned fadr)))
 
 ;; ============================ named C functions ============================
 
