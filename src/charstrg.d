@@ -3476,39 +3476,36 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
 # > uintL offset: index of first affected character
 # > uintL len: number of affected characters
 # can trigger GC
-  global void nstring_upcase (object dv, uintL offset, uintL len);
-  global void nstring_upcase(dv,offset,len)
-    var object dv;
-    var uintL offset;
-    var uintL len;
-    {
-    restart_it:
-      if (len > 0)
-        SstringCase(dv,
-          {
-            do {
-              dv = sstring_store(dv,offset,up_case(as_chart(TheS8string(dv)->data[offset])));
-              offset++;
-              len--;
-              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
-                dv = TheSiarray(dv)->data;
-                goto restart_it;
-              }
-            } while (len > 0);
-          },
-          {
-            do {
-              dv = sstring_store(dv,offset,up_case(as_chart(TheS16string(dv)->data[offset])));
-              offset++;
-              len--;
-              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
-                dv = TheSiarray(dv)->data;
-                goto restart_it;
-              }
-            } while (len > 0);
-          }
-          );
-    }
+global void nstring_upcase (object dv, uintL offset, uintL len) {
+ restart_it:
+  if (len > 0)
+    SstringCase(dv,{
+      do {
+        dv = sstring_store(dv,offset,up_case(as_chart(TheS8string(dv)->data[offset])));
+        offset++;
+        len--;
+        if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+          dv = TheSiarray(dv)->data;
+          goto restart_it;
+        }
+      } while (len > 0);
+    },{
+      do {
+        dv = sstring_store(dv,offset,up_case(as_chart(TheS16string(dv)->data[offset])));
+        offset++;
+        len--;
+        if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+          dv = TheSiarray(dv)->data;
+          goto restart_it;
+        }
+      } while (len > 0);
+    },{
+      var cint32* charptr = &TheS32string(dv)->data[offset];
+      dotimespL(len,len, {
+        *charptr = as_cint(up_case(as_chart(*charptr))); charptr++;
+      });
+    });
+}
 
 # UP: wandelt einen String in Großbuchstaben
 # string_upcase(string)
@@ -3557,51 +3554,36 @@ LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 # > uintL offset: index of first affected character
 # > uintL len: number of affected characters
 # can trigger GC
-  global void nstring_downcase (object dv, uintL offset, uintL len);
-  global void nstring_downcase(dv,offset,len)
-    var object dv;
-    var uintL offset;
-    var uintL len;
-    {
-    restart_it:
-      if (len > 0)
-        SstringCase(dv,
-          {
-            do {
-              dv = sstring_store(dv,offset,down_case(as_chart(TheS8string(dv)->data[offset])));
-              offset++;
-              len--;
-              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
-                dv = TheSiarray(dv)->data;
-                goto restart_it;
-              }
-            } while (len > 0);
-          },
-          {
-            do {
-              dv = sstring_store(dv,offset,down_case(as_chart(TheS16string(dv)->data[offset])));
-              offset++;
-              len--;
-              if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
-                dv = TheSiarray(dv)->data;
-                goto restart_it;
-              }
-            } while (len > 0);
-          },
-          {
-            var cint32* charptr = &TheS32string(dv)->data[offset];
-            dotimespL(len,len, {
-              *charptr = as_cint(up_case(as_chart(*charptr))); charptr++;
-            });
-          },
-          {
-            var cint32* charptr = &TheS32string(dv)->data[offset];
-            dotimespL(len,len, {
+global void nstring_downcase (object dv, uintL offset, uintL len) {
+ restart_it:
+  if (len > 0)
+    SstringCase(dv,{
+      do {
+        dv = sstring_store(dv,offset,down_case(as_chart(TheS8string(dv)->data[offset])));
+        offset++;
+        len--;
+        if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+          dv = TheSiarray(dv)->data;
+          goto restart_it;
+        }
+      } while (len > 0);
+    },{
+      do {
+        dv = sstring_store(dv,offset,down_case(as_chart(TheS16string(dv)->data[offset])));
+        offset++;
+        len--;
+        if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
+          dv = TheSiarray(dv)->data;
+          goto restart_it;
+        }
+      } while (len > 0);
+    },{
+      var cint32* charptr = &TheS32string(dv)->data[offset];
+      dotimespL(len,len, {
               *charptr = as_cint(down_case(as_chart(*charptr))); charptr++;
-            });
-          }
-          );
-    }
+      });
+    });
+}
 
 # UP: wandelt einen String in Kleinbuchstaben
 # string_downcase(string)

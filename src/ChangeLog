@@ -1,6 +1,9 @@
 2002-05-27  Sam Steingold  <sds@gnu.org>
 
+	fixed last patch
 	* makemake.in (NLS_INCLUDES): removed nls_cp1255 and nls_cp1258
+	* charstrg.d (nstring_downcase): added cint32 case
+	(nstring_upcase): removed the spurious extra case
 
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
