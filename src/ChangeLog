@@ -1,5 +1,24 @@
 2004-05-14  Sam Steingold  <sds@gnu.org>
 
+	new macro DEFCHECKER for modules
+	* utils/modprep.lisp: objdef-init can now be a list
+	(write-string-c-style): new function
+	(init-to-tag): use it
+	(string-upcase-verbose): new function
+	(new-objdef): use it
+	(cpp-helper): new defstruct
+	(flag-set): include it
+	(checker): new defstruct for DEFCHECKER
+	(*checkers*, new-checker): added
+	(def-something-p): replaces DEF-FLAG-SET-P
+	(parse): call it for both DEFFLAGSET and DEFCHECKER
+	(print-tables-1): print OBJDEF-INIT with possible conditions,
+	print *CHECKERS*
+	* modules/rawsock/rawsock.c (check_socket_domain, check_socket_type)
+	(check_socket_protocol): use DEFCHECKER
+
+2004-05-14  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (*documentation*): weak hash table now
 
 2004-05-13  Sam Steingold  <sds@gnu.org>

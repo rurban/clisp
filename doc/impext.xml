@@ -2196,6 +2196,11 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
    <listitem><simpara>define a &c-lang; function which will remove
      several flag arguments from the &STACK; and return the combined flag
      value</simpara></listitem></varlistentry>
+  <varlistentry><term><function>DEFCHECKER</function></term>
+   <listitem><simpara>define a &c-lang; function which will check that
+     its argument is one of the specified keywords and return the value
+     of the appropriate <command>cpp</command> macro
+  </simpara></listitem></varlistentry>
 </variablelist></para>
 
 <para>See <filename>modules/syscalls</filename> and other included
