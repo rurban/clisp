@@ -23,7 +23,7 @@ files <filename>#P"spvw*.d"</filename>.</para>
  <listitem><simpara>&clisp; data (the "heap"), i.e. storage which contains
   Lisp objects and is managed by the garbage collector.</simpara></listitem>
  <listitem><simpara>&clisp; stack (called &STACK;), contains &clisp;
-  objects</simpara></listitem>
+  &object-t;s</simpara></listitem>
  <listitem><simpara>&c-lang; data (including program text, data,
   &malloc;ed memory)</simpara></listitem>
 </itemizedlist>
@@ -69,7 +69,7 @@ address decreases).</para>
 <section id="typecodes"><title>Object Pointer Representations</title>
 
 <para>&clisp; implements two ways of representing object pointers.
-(An object pointer, &c-lang; type <type>object</type>, contains a
+(An object pointer, &c-lang; type &object-t;, contains a
 pointer to the memory location of the object, or - for &immediate-o;
  - all bits of the object itself.)
 Both of them have some things in common:
@@ -314,9 +314,9 @@ may invoke &gc;ion.
 But the &gc; looks only on the &STACK; and not in the &c-lang;
 variables. (Anything else would not be portable.)
 Therefore at every "unsafe" point, i.e. every call to such a subroutine,
-all the &c-lang; variables of type <type>object</type>
+all the &c-lang; variables of type &object-t;
 <emphasis>MUST BE ASSUMED TO BECOME GARBAGE</emphasis>.
-(Except for <type>object</type>s that are known to be unmovable,
+(Except for &object-t;s that are known to be unmovable,
  e.g. immediate data or <type>Subr</type>s.)
 Pointers inside &clisp; data (e.g. to the characters of a &string-t;
 or to the elements of a &simple-vector-t;) become
@@ -328,12 +328,22 @@ without calling unsafe routines, and without worrying about &gc;.</para>
 
 <para>Run-time GC-safety checking is available when you build &clisp;
  with a C++ compiler, e.g.:
-<screen>
+<screen id="clisp-config-gxx">
 bash$ CC=g++ ./configure --with-debug build-g-gxx
 </screen>
-When built like this, &clisp; will abort when you reference GC-unsafe
-data after an allocation (which could have triggered a &gc;ion),
-and &gdb; will pinpoint the trouble spot.</para>
+When built like this, &clisp; will &abort-c; when you reference
+GC-unsafe data after an allocation (which could have triggered a
+&gc;ion), and &gdb; will pinpoint the trouble spot.</para>
+
+<para>Specifically, when &clisp; is configured
+ as <link linkend="clisp-config-gxx">above</link>, there is a
+global integer variable <varname>alloccount</varname> and the &object-t;
+structure contains an integer <structfield>allocstamp</structfield>
+slot. If these two integers are not the same, the &object-t; is invalid.
+By playing with &gdb;, you should be able to figure out the precise spot
+where an allocation increments <varname>alloccount</varname>
+<emphasis>after</emphasis> the object has been retrieved from a
+GC-visible location.</para>
 
 </section>
 
@@ -361,8 +371,8 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 
 <para>&clisp; can be easily extended the same way any other &cl;
  implementation can: create a lisp file with your variables, functions,
- macros, etc.; &load; it into a running &clisp;, and save the
- &mem-image;.</para>
+ macros, etc.; (optionally) compile it with &compile-file;; &load; it
+ into a running &clisp;, and save the &mem-image;.</para>
 
 <para>This method does not work when you need to use some functionality
  not available in &clisp;, e.g., you want to call a &c-lang; function.
@@ -405,14 +415,13 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   >GC-safety</link>!</para></warning>
 
 <para>These instructions are intentionally terse - you are encouraged to
- use &module;s and/or &ffi-pac; instead of adding built-ins
- directly.</para>
-</section>
+ use &module;s and/or &ffi-pac; instead of adding built-ins directly.
+</para></section>
 
 <section id="add-var"><title>Adding a built-in variable.</title>
 
-<para>If you must be able to access the variable in the &c-lang; code,
- follow these steps:
+<para>If you must be able to access the Lisp variable in the &c-lang;
+ code, follow these steps:
  <itemizedlist><listitem><simpara>declare the variable name
     in <filename>#P"constsym.d"</filename> in the appropriate package
     (probably &custom-pac;, if there is no specific package);
@@ -427,10 +436,11 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 
 <section id="recompile"><title>Recompilation.</title>
 
-<para><emphasis>Any</emphasis> change that forces <command>make</command>
- to remake &lisp-run;, will force recompilation of all &lisp-file; files
- and re-dumping of &lispinit;, which may be time-consuming.  This is not
- always necessary, depending on what kind of change you introduced.</para>
+<para><emphasis>Any</emphasis> change that forces &make; to remake
+ &lisp-run;, will force recompilation of all &lisp-file; files and
+ re-dumping of &lispinit;, which may be time-consuming.  This is not
+ always necessary, depending on what kind of change you introduced.
+</para>
 
 <para>On the other hand, if you change any of the following files:
  <simplelist>
