@@ -12,7 +12,7 @@
 	seclass_read
 	* describe.lisp (describe-object): DEPARSE-C-TYPE is in FFI
 
-2003-03-10  Joerg Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
+2003-03-10  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
 	FFI heap allocation interface
@@ -352,7 +352,7 @@
 	never triggered before because, as the 2003-01-31 indicates, this
 	code has never been used since it was written!]
 
-2003-02-04  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+2003-02-04  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 679661 ]: FFI segfault passing struct arrays
@@ -4283,7 +4283,7 @@
 	(init_streamvars): do not use readline internals
 	* noreadline.d: upgraded to the readline-4.2a API
 
-2002-04-24  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-24  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
 	patch #[ 548089 ]: FOREIGN-FUNCTION+VARIABLE for everybody
@@ -4293,7 +4293,7 @@
 	(init_ffi): register them
 	* foreign.lisp (ffi_identity, ffi_user_pointer) [commented]: define
 
-2002-04-23  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-23  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
 	patch #[ 547541 ]: WITH-FOREIGN-OBJECT FFI stack allocation
@@ -4301,7 +4301,7 @@
 	* constsym.d, subr.d: ditto
 	* foreign1.lisp (with-foreign-object): new public macro
 
-2002-04-23  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-23  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
 	patch #[ 547491 ]: C-VAR-ADDRESS and OFFSET foreign-places
@@ -4314,7 +4314,7 @@
 	overrides batch-mode for -c, -x and exec-file
 	* constsym.d (APPEASE-CERRORS): define here for the above
 
-2002-04-22  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+2002-04-22  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (UNSIGNED-FOREIGN-ADDRESS): new function
