@@ -553,6 +553,15 @@ nil
 (translate-pathname "uufoobarbazquuxfff" "u?foo*baz*f?" "**baq*zot*")
 #P"ubarbaqquuxfzotf"
 
+(translate-pathname "test.txt" "*.txt" "*.text")
+#P"test.text"
+
+(translate-pathname "foo/bar" "*/bar" "*/baz")
+#P"foo/baz"
+
+(translate-pathname "bar/foo" "bar/*" "baz/*")
+#P"baz/foo"
+
 (make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
 #+CLISP
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
