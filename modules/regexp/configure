@@ -3433,6 +3433,73 @@ fi
 done
 
 if test "$ac_cv_header_regex_h" = yes; then
+echo "$as_me:$LINENO: checking for regoff_t" >&5
+echo $ECHO_N "checking for regoff_t... $ECHO_C" >&6
+if test "${ac_cv_type_regoff_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <regex.h>
+
+int
+main ()
+{
+if ((regoff_t *) 0)
+  return 0;
+if (sizeof (regoff_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_regoff_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_regoff_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_regoff_t" >&5
+echo "${ECHO_T}$ac_cv_type_regoff_t" >&6
+if test $ac_cv_type_regoff_t = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_REGOFF_T 1
+_ACEOF
+
+
+fi
+
+if test "$ac_cv_type_regoff_t" = yes; then
 
 
 
@@ -3556,7 +3623,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 #include <regex.h>
 #include <stdio.h>
-int check_re (char* pat, char* str, int count, int* beg, int* end) {
+int check_re (char* pat, char* str, int count, regoff_t* beg, regoff_t* end) {
   regex_t re;
   regmatch_t *matches;
   int num, ii, status = regcomp(&re,pat,0);
@@ -3578,8 +3645,10 @@ int check_re (char* pat, char* str, int count, int* beg, int* end) {
   }
   for (ii=0; ii < num; ii++)
     if ((beg[ii] != matches[ii].rm_so) || (end[ii] != matches[ii].rm_eo)) {
+      /* regoff_t may be 64-bit! */
       fprintf(stderr,"matches(%d): [%d/%d] != [%d/%d]\n",ii,
-              matches[ii].rm_so,matches[ii].rm_eo,beg[ii],end[ii]);
+              (int)matches[ii].rm_so,(int)matches[ii].rm_eo,
+              (int)beg[ii],(int)end[ii]);
       free(matches); return 1;
     }
   free(matches);
@@ -3590,8 +3659,8 @@ int
 main ()
 {
 
-  int beg[3] = { 4, -1, -1 };
-  int end[3] = { 9, -1, -1 };
+  regoff_t beg[3] = { 4, 0, 0 };
+  regoff_t end[3] = { 9, 0, 0 };
   if (check_re("quick","The quick brown fox jumped quickly.",1,beg,end))
     return 1;
 
@@ -3630,6 +3699,7 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_WORKING_REGEXP 1
 _ACEOF
 
+fi
 fi
 fi
 fi

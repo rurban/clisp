@@ -10737,13 +10737,15 @@ AC_PREREQ(2.57)
 AC_DEFUN([CL_REGEXP],[
 AC_CHECK_HEADERS(regex.h)
 if test "$ac_cv_header_regex_h" = yes; then
+AC_CHECK_TYPES(regoff_t,,,[#include <regex.h>])
+if test "$ac_cv_type_regoff_t" = yes; then
 AC_CHECK_FUNCS(regcomp regexec regfree regerror)
 if test "$ac_cv_func_regcomp" = yes -a "$ac_cv_func_regexec"   = yes -a \
         "$ac_cv_func_regfree" = yes -a "$ac_cv_func_regerror"  = yes ; then
 AC_CACHE_CHECK([for a working regexp implementation],[cl_cv_regexp],
 AC_RUN_IFELSE([[AC_LANG_PROGRAM([[#include <regex.h>
 #include <stdio.h>
-int check_re (char* pat, char* str, int count, int* beg, int* end) {
+int check_re (char* pat, char* str, int count, regoff_t* beg, regoff_t* end) {
   regex_t re;
   regmatch_t *matches;
   int num, ii, status = regcomp(&re,pat,0);
@@ -10765,21 +10767,24 @@ int check_re (char* pat, char* str, int count, int* beg, int* end) {
   }
   for (ii=0; ii < num; ii++)
     if ((beg[ii] != matches[ii].rm_so) || (end[ii] != matches[ii].rm_eo)) {
+      /* regoff_t may be 64-bit! */
       fprintf(stderr,"matches(%d): [%d/%d] != [%d/%d]\n",ii,
-              matches[ii].rm_so,matches[ii].rm_eo,beg[ii],end[ii]);
+              (int)matches[ii].rm_so,(int)matches[ii].rm_eo,
+              (int)beg[ii],(int)end[ii]);
       free(matches); return 1;
     }
   free(matches);
   return 0;
 }
 ]],[[
-  int beg[3] = { 4, -1, -1 };
-  int end[3] = { 9, -1, -1 };
+  regoff_t beg[3] = { 4, 0, 0 };
+  regoff_t end[3] = { 9, 0, 0 };
   if (check_re("quick","The quick brown fox jumped quickly.",1,beg,end))
     return 1;
 ]])]],cl_cv_regexp=yes,cl_cv_regexp=no,cl_cv_regexp="guessing no"))
 if test "$cl_cv_regexp" = yes; then
 AC_DEFINE([HAVE_WORKING_REGEXP],1,[Define if the OS regexp works properly.])
+fi
 fi
 fi
 fi])
