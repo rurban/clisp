@@ -15,6 +15,7 @@
   sys::error-of-type                                 ; in error.d definiert
   sys::function-name-p                               ; in control.d definiert
   sys::function-block-name                           ; in init.lisp definiert
+  sys::gensym-list              ; defined in macros2.lisp
 ; clos::generic-function-p                           ; in predtype.d definiert
 ; clos::class-p clos:class-of clos:find-class        ; in predtype.d definiert
 ; clos::structure-object-p                           ; in record.d definiert
@@ -1681,13 +1682,6 @@
     (write (std-method-parameter-specializers method) :stream stream)
 ) )
 
-; Hilfsfunktion: Liefert eine Liste von n Gensyms.
-(defun n-gensyms (n)
-  (do ((l '() (cons (gensym) l))
-       (i n (1- i)))
-      ((eql i 0) l)
-) )
-
 ; Hilfsfunktion: Testet auf Lambda-Listen-Marker.
 (defun lambda-list-keyword-p (x)
   (memq x lambda-list-keywords)
@@ -1803,10 +1797,9 @@
                                `((BLOCK ,(function-block-name funname) ,@body-rest))
                           )) )
                        (if wants-next-method-p
-                         (let ((cont (gensym)) ; Variable für die Continuation
-                               (req-dummies ; Liste von reqanz Dummies
-                                 (n-gensyms reqanz)
-                               )
+                         (let ((cont (gensym)) ; variable for the continuation
+                               (req-dummies ; list of reqanz dummies
+                                (gensym-list reqanz))
                                (rest-dummy (if (or restp (> optanz 0)) (gensym)))
                                (lambda-expr `(LAMBDA ,@lambdabody-part1 ,@lambdabody-part2)))
                            `(; neue Lambda-Liste:
@@ -2256,7 +2249,7 @@
            (prototype
              (or (gethash hash-key prototype-table)
                  (setf (gethash hash-key prototype-table)
-                       (let* ((reqvars (n-gensyms reqanz))
+                       (let* ((reqvars (gensym-list reqanz))
                               (proto-gf
                                 (eval `(LET ((GF 'MAGIC))
                                          (DECLARE (COMPILE))
@@ -2342,7 +2335,7 @@
 (defun compute-dispatch (gf)
   (let* ((signature (gf-signature gf))
          (req-anz (sig-req-num signature))
-         (req-vars (n-gensyms req-anz))
+         (req-vars (gensym-list req-anz))
          (restp (gf-sig-restp signature))
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
@@ -2687,7 +2680,7 @@
     (return-from compute-effective-method
       (let* ((signature (gf-signature gf))
              (req-anz (sig-req-num signature))
-             (req-vars (n-gensyms req-anz))
+             (req-vars (gensym-list req-anz))
              (req-args (subseq args 0 req-anz))
              (restp (gf-sig-restp signature))
              (rest-var (if restp (gensym)))
@@ -2735,8 +2728,8 @@
                           (append (sig-keywords signature)
                                   (mapcap #'sig-keywords signatures))
                             :from-end t)))
-                    (setq opt-vars (n-gensyms (sig-opt-num signature)))
-                    (setq key-vars (n-gensyms (length keywords)))
+                    (setq opt-vars (gensym-list (sig-opt-num signature)))
+                    (setq key-vars (gensym-list keywords))
                     (setq lambdalist-keypart
                           `(&KEY
                             ,@(mapcar #'(lambda (kw var) `((,kw ,var)))
@@ -3364,36 +3357,26 @@
 (defmacro generic-flet (fundefs &body body &environment env)
   (multiple-value-bind (funnames funforms)
       (analyze-generic-fundefs 'generic-flet fundefs env)
-    (let ((varnames (n-gensyms (length funnames))))
+    (let ((varnames (gensym-list funnames)))
       `(LET ,(mapcar #'list varnames funforms)
          (FLET ,(mapcar #'(lambda (varname funname)
-                            `(,funname (&rest args) (apply ,varname args))
-                          )
-                        varnames funnames
-                )
-           ,@body
-       ) )
-) ) )
-
+                            `(,funname (&rest args) (apply ,varname args)))
+                        varnames funnames)
+           ,@body)))))
 
 ;;; GENERIC-LABELS
 
 (defmacro generic-labels (fundefs &body body &environment env)
   (multiple-value-bind (funnames funforms)
       (analyze-generic-fundefs 'generic-labels fundefs env)
-    (let ((varnames (n-gensyms (length funnames))))
+    (let ((varnames (gensym-list funnames)))
       `(LET ,varnames
          (FLET ,(mapcar #'(lambda (varname funname)
-                            `(,funname (&rest args) (apply ,varname args))
-                          )
-                        varnames funnames
-                )
+                            `(,funname (&rest args) (apply ,varname args)))
+                        varnames funnames)
            ,@(mapcar #'(lambda (varname funform) `(SETQ ,varname ,funform))
-                     varnames funforms
-             )
-           ,@body
-       ) )
-) ) )
+                     varnames funforms)
+           ,@body)))))
 
 
 ;;; WITH-ADDED-METHODS

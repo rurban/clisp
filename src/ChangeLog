@@ -1,5 +1,19 @@
 2001-09-10  Sam Steingold  <sds@gnu.org>
 
+	* macros2.lisp (Exhaustive-Case-Analysis): added CASE-LIST flet
+	(gensym-list): new function
+	(time, space): use it
+	* compiler.lisp (c-MAP-on-CARs, c-MAP-on-LISTs, c-MAPC, c-MAPL): ditto
+	* condition.lisp (handler-bind): ditto
+	* format.lisp (formatter-main-1): ditto
+	* places.lisp (get-setf-expansion, push, pushnew): ditto
+	* clos.lisp (analyze-method-description, prototype-table,
+	compute-dispatch, compute-effective-method, generic-flet,
+	generic-labels): ditto
+	(n-gensyms): removed
+
+2001-09-10  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #458746
 	* format.lisp (format-float-to-string): make sure width is at
 	least 2 (when given): for a digit and for the decimal point
