@@ -63,7 +63,7 @@ internationalized program to work in a particular language and with
 particular cultural conventions.</para>
 
 <para>&clisp; is internationalized, and is localized for the languages
-English, German, French, Spanish and Dutch.
+English, German, French, Spanish, Dutch and Russian.
 &clisp; also supports internationalized Lisp programs, through
 &ggettext;.</para>
 
@@ -279,7 +279,9 @@ localized.</para>
  <member><constant>DEUTSCH</constant> (i.e., German)</member>
  <member><constant>FRAN&Ccedil;AIS</constant> (i.e., French)</member>
  <member><constant>ESPA&Ntilde;OL</constant> (i.e., Spanish)</member>
- <member><constant>NEDERLANDS</constant> (i.e. Dutch)</member>
+ <member><constant>NEDERLANDS</constant> (i.e., Dutch)</member>
+ <member><constant>&Rcy;&Ucy;&Scy;&Scy;&Kcy;&Icy;&Jcy;</constant>
+  (i.e. Russian)</member>
 </simplelist></para>
 
 <para>This is controlled by the &symbol-macro; <emphasis
