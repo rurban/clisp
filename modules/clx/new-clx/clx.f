@@ -3128,7 +3128,7 @@ DEFUN(XLIB:SET-GCONTEXT-DASHES, dashes gcontext) /* FIXME: reversed args?! */
       begin_x_call();
       XGetGCValues (dpy, gcon, GCDashOffset, &values);
       XSetDashes (dpy, gcon, values.dash_offset,
-                  ((char*)(&TheSbvector (STACK_1)->data[0])), n);
+                  (char*)(TheSbvector(STACK_1)->data), n);
       end_x_call();
 
       /* Now install the byte-vector into the %dashes slot: */
@@ -3813,7 +3813,7 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src,
 
   if (font_info->min_byte1 == 0 && font_info->max_byte1 == 0) {
     /* Linear addressing */
-    if (!nullp(encoding)/*&&TheEncoding(encoding)->max_bytes_per_char==1*/) {
+    if (!nullp(encoding)/*&& TheEncoding(encoding)->max_bytes_per_char==1*/) {
       /* Special hack: use the font's encoding */
       if (count > 0) {
         cstombs_f(encoding,src,count,(uintB*)dst,count);
@@ -3941,7 +3941,7 @@ void general_draw_text (int image_p)
     }
   }
 #else
-  { char* str = (char*) &TheSstring(STACK_5)->data[0];
+  { char* str = (char*)(TheSstring(STACK_5)->data);
     X_CALL((image_p ? XDrawImageString : XDrawString)
            (dpy, da, gcon, x, y, str, len));
   }
@@ -4276,12 +4276,12 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
     /* Now fetch data - it *must* be a vector of card8 */
     pushSTACK(STACK_7); funcall (`XLIB::IMAGE-X-DATA`, 1);
     if (simple_bit_vector_p (Atype_8Bit, value1)) {
-      im.data = (char*) &TheSbvector (value1)->data[0];
+      im.data = (char*)(TheSbvector(value1)->data);
     } else {
       pushSTACK(`(ARRAY XLIB::CARD8 (*))`);
       pushSTACK(STACK_8);
       pushSTACK(TheSubr (subr_self)->name);
-      fehler (error, "~: Slot :DATA of x-image ~ is not of type ~.");
+      fehler (error, "~: Slot :DATA of IMAGE-X ~ is not of type ~.");
     }
 
     dprintf(("\n;; put-image: IMAGE-X -> %dx%d+%d+%d",w,h,x,y));
@@ -4771,7 +4771,7 @@ DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
       FREE_DYNAMIC_ARRAY(str);
     }
 #  else
-    { char* string = (char*) &TheSstring(STACK_3)->data[0];
+    { char* string = (char*)(TheSstring(STACK_3)->data);
       X_CALL(XTextExtents (font_info, string + start, end - start, &dir,
                            &font_ascent, &font_descent, &overall));
     }
@@ -4828,7 +4828,7 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
       FREE_DYNAMIC_ARRAY(str);
     }
 #  else
-    { char* string = (char*) &TheSstring(STACK_3)->data[0];
+    { char* string = (char*) (TheSstring(STACK_3)->data);
       X_CALL(w = XTextWidth (font_info, string+start, end-start));
     }
 #  endif
