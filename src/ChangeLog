@@ -1,5 +1,9 @@
 1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in: Undo hack for missing rluserman.dvi.
+
+1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * clisp.spec: Remove the "--with-unicode=no" hint. It is a bad idea.
 
 1999-03-30  Jörg Höhle  <hoehle@tzd.telekom.de>
