@@ -5937,6 +5937,13 @@ typedef struct strm_i_buffered_extrafields_t {
  (nullp(TheStream(stream)->strm_file_truename) ? stream :       \
   TheStream(stream)->strm_file_truename)
 
+#define ChannelStream_ihandle(obj)                                      \
+  TheHandle(ChannelStream_buffered(obj) ? BufferedStream_channel(obj)   \
+            : ChannelStream_ichannel(obj))
+#define ChannelStream_ohandle(obj)                                      \
+  TheHandle(ChannelStream_buffered(obj) ? BufferedStream_channel(obj)   \
+            : ChannelStream_ochannel(obj))
+
 # File-Stream in general
 # ======================
 
@@ -14888,19 +14895,15 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
       return;
    #ifdef PIPES
     case strmtype_pipe_in:
-      if (in_sock)
-        *in_sock  = (SOCKET)TheHandle(TheStream(obj)->strm_ichannel);
+      if (in_sock) *in_sock  = (SOCKET)ChannelStream_ihandle(obj);
       if (char_p) *char_p = eq(TheStream(obj)->strm_eltype,S(character));
       return;
     case strmtype_pipe_out:
-      if (out_sock)
-        *out_sock = (SOCKET)TheHandle(TheStream(obj)->strm_ochannel);
+      if (out_sock) *out_sock = (SOCKET)ChannelStream_ohandle(obj);
       return;
    #endif
     case strmtype_file: {
-      var Handle handle =
-        TheHandle(ChannelStream_buffered(obj) ? BufferedStream_channel(obj)
-                  : ChannelStream_ichannel(obj));
+      var Handle handle = ChannelStream_ihandle(obj);
       if (in_sock  && input_stream_p(obj))  *in_sock  = (SOCKET)handle;
       if (out_sock && output_stream_p(obj)) *out_sock = (SOCKET)handle;
       if (char_p) *char_p = eq(TheStream(obj)->strm_eltype,S(character));
