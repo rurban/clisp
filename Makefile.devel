@@ -251,12 +251,15 @@ acorn/pathname.txt : src/pathname.d
 
 distrib : linux-distrib src-distrib
 
-# Before doing a "make src-distrib", don't forget
-# * update src/version.h,
-# * update src/NEWS,
-# * "make",
-# * "make check-configures",
+## RELEASE TODO:
+# Before doing a "make src-distrib":
+# * update src/version.h, src/NEWS, src/HISTORY
+# * update clisp.lsm, clisp.spec
+# * "make -f Makefile.devel",
+# * "make -f Makefile.devel check-configures",
 # * check that src/genclisph.d is up to date.
+# web pages to be updated:
+# www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
 
 # CLISP release announcements go to:
 # clisp-announce@sourceforge.net
@@ -266,9 +269,6 @@ distrib : linux-distrib src-distrib
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
 # https://www.opensourcedirectory.org/projects/clisp/
-
-# web pages to be updated:
-# www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
 
 # careful here: this src/VERSION is changed by this file!
 VER=`cat src/VERSION`
