@@ -378,12 +378,12 @@ February 17
     when (numberp i)
      when (floatp i)
       collect i into float-numbers
-     else                                  ; Not (floatp i)
+     else                       ; Not (floatp i)
       collect i into other-numbers
-    else                                    ; Not (numberp i)
+    else                        ; Not (numberp i)
      when (symbolp i)
       collect i into symbol-list
-     else                                  ; Not (symbolp i)
+     else                       ; Not (symbolp i)
       do (error "found a funny value in list ~S, value ~S~%" list i)
     finally (return (list float-numbers other-numbers symbol-list))))
 ((3.0 9.8) (0 4 5) (APPLE ORANGE BANANA))
@@ -851,6 +851,12 @@ nil
   and y = nil then x
   collect (list x y))
 ((1 NIL) (2 1) (3 2) (4 3) (5 4) (6 5) (7 6) (8 7) (9 8) (10 9))
+
+;; not really required, but many people want to access
+;; iteration variables in the finally clauses
+(loop for x in '(1 2 3) for y in '(4 5 6) sum (* x y) into z
+  finally (return (+ x y z)))
+41
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)

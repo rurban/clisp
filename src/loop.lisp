@@ -942,16 +942,7 @@
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,@results) finally-code))
       ; Initialisierungen abarbeiten und optimieren:
-      (let ((initializations1 nil)
-            (initializations2 nil))
-        (unless seen-for-as-=
-          (loop
-            (when (null initializations) (return))
-            (let ((initialization (first initializations)))
-              (unless (li-everytime initialization) (return))
-              ; letzte Initialiserungsklausel nach initializations2 verschieben:
-              (pop initializations)
-              (push initialization initializations2))))
+      (let ((initializations1 nil))
         ; `depends-preceding' backpropagation:
         (let ((later-depend nil))
           (dolist (initialization initializations)
@@ -1056,8 +1047,7 @@
                      ,@(if initially-code (nreverse initially-code))
                      BEGIN-LOOP
                      ,@(if stepbefore-code (nreverse stepbefore-code))
-                     ,(wrap-initializations (nreverse initializations2)
-                        (cons 'PROGN (nreverse main-code)))
+                     ,(cons 'PROGN (nreverse main-code))
                      ,@(if stepafter-code (nreverse stepafter-code))
                      (GO BEGIN-LOOP)
                      END-LOOP
