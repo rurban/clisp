@@ -1,5 +1,10 @@
 2004-04-03  Bruno Haible  <bruno@clisp.org>
 
+	* sequence.d (valid_type1): Call eltype_code only if the element-type
+	is not *.
+
+2004-04-03  Bruno Haible  <bruno@clisp.org>
+
 	* defstruct.lisp (defstruct): When defining a structure with :TYPE
 	option, remove any previously defined class of the same name.
 	* clos-class2.lisp (undefine-structure-class): New function.
