@@ -199,16 +199,25 @@ LISPFUNNR(make_structure,2) {
   VALUES1(structure); /* structure as value */
 }
 
+/* ensure that OBJ is a structure object and return it
+ can trigger GC */
+global object check_structure (object obj) {
+  while (!structurep(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(structure_object)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(structure_object)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name); /* function name */
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
+
 /* (COPY-STRUCTURE structure) returns a copy of the Structure structure
    of the same type. */
 LISPFUNNR(copy_structure,1) {
-  if (!structurep(STACK_0)) {
-    /* STACK_0 = TYPE-ERROR slot DATUM */
-    pushSTACK(S(structure_object)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(STACK_1); /* structure */
-    pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(type_error,GETTEXT("~: ~ is not a structure"));
-  }
+  STACK_0 = check_structure(STACK_0);
   var uintC length = Structure_length(STACK_0);
   var object new_structure = allocate_structure(length);
   copy_mem_o(&TheStructure(new_structure)->structure_types,
@@ -406,20 +415,28 @@ LISPFUNN(closure_set_seclass,2)
   skipSTACK(2);
 }
 
+/* ensure that OBJ is a generic function and return it
+ can trigger GC */
+local object check_generic_function (object obj) {
+  while (!genericfunctionp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(standard_generic_function)); /* slot EXPECTED-TYPE */
+    pushSTACK(S(standard_generic_function)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name); /* function name */
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
+
 /* (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
    a generic function with venv slot, copying in the given venv. */
 LISPFUNN(copy_generic_function,2) {
   /* Note: closure's clos_consts[0] is a simple-vector #(NIL c1 ... cn) where
      c1,...,cn are constant objects, and NIL is the placeholder to be replaced
      with the passed venv. */
-  var object oldclos = STACK_0;
-  if (!genericfunctionp(oldclos)) {
-    pushSTACK(oldclos); /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(standard_generic_function)); /* slot EXPECTED-TYPE */
-    pushSTACK(oldclos);
-    pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(type_error,GETTEXT("~: This is not a generic function: ~"));
-  }
+  var object oldclos = check_generic_function(STACK_0);
   var object vector = TheCclosure(oldclos)->clos_consts[0];
   if (!(simple_vector_p(vector)
         && (Svector_length(vector) > 0)
@@ -450,17 +467,9 @@ LISPFUNN(copy_generic_function,2) {
    generic-function has already been called, i.e. that the dispatch has
    already been installed. */
 LISPFUNN(generic_function_effective_method_function,1) {
-  var object oldclos = STACK_0;
-  var object newclos;
-  if (!genericfunctionp(oldclos)) {
-    pushSTACK(oldclos); /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(standard_generic_function)); /* slot EXPECTED-TYPE */
-    pushSTACK(oldclos);
-    pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(type_error,GETTEXT("~: This is not a generic function: ~"));
-  }
+  var object oldclos = STACK_0 = check_generic_function(STACK_0);
   /* allocate closure of equal length: */
-  newclos = allocate_cclosure_copy(oldclos);
+  var object newclos = allocate_cclosure_copy(oldclos);
   oldclos = STACK_0;
   do_cclosure_copy(newclos,oldclos);
   STACK_0 = newclos;
@@ -554,11 +563,14 @@ LISPFUNN(macrop,1) {
 /* (SYS::MACRO-EXPANDER macro) returns the macro's expander function. */
 LISPFUNN(macro_expander,1) {
   var object obj = popSTACK();
-  if (!macrop(obj)) {
-    pushSTACK(obj);
+  while (!macrop(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(macro)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(macro)); pushSTACK(obj);
     pushSTACK(S(macro_expander)); /* function name */
-    fehler(error, /* type_error ?? */
-           GETTEXT("~: ~ is not a Macro"));
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
   }
   VALUES1(TheMacro(obj)->macro_expander);
 }
@@ -589,29 +601,32 @@ LISPFUNN(function_macro_p,1) {
   VALUES_IF(functionmacrop(obj));
 }
 
+/* ensure that the OBJ is a FUNCTION-MACRO and return it
+ can trigger GC */
+local object check_function_macro (object obj) {
+  while (!functionmacrop(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(function_macro)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(function_macro)); pushSTACK(obj);
+    pushSTACK(S(function_macro_expander)); /* function name */
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
+}
+
 /* (SYS::FUNCTION-MACRO-FUNCTION macro)
    returns the FunctionMacro's function. */
 LISPFUNN(function_macro_function,1) {
-  var object obj = popSTACK();
-  if (!functionmacrop(obj)) {
-    pushSTACK(obj);
-    pushSTACK(S(function_macro_function)); /* function name */
-    fehler(error, /* type_error ?? */
-           GETTEXT("~: ~ is not a FunctionMacro"));
-  }
+  var object obj = check_function_macro(popSTACK());
   VALUES1(TheFunctionMacro(obj)->functionmacro_function);
 }
 
 /* (SYS::FUNCTION-MACRO-EXPANDER macro)
    returns the FunctionMacro's expander. */
 LISPFUNN(function_macro_expander,1) {
-  var object obj = popSTACK();
-  if (!functionmacrop(obj)) {
-    pushSTACK(obj);
-    pushSTACK(S(function_macro_expander)); /* function name */
-    fehler(error, /* type_error ?? */
-           GETTEXT("~: ~ is not a FunctionMacro"));
-  }
+  var object obj = check_function_macro(popSTACK());
   VALUES1(TheFunctionMacro(obj)->functionmacro_macro_expander);
 }
 
@@ -643,16 +658,6 @@ local object mk_weakpointer () {
     O(all_weakpointers) = wp;
   }
   return wp;
-}
-
-/* UP: allocates a Weakpointer to the given object
- allocate_weakpointer(obj)
- > obj: a Lisp object to which the result should point
- < result: a fresh weak-pointer
- can trigger GC */
-global object allocate_weakpointer (object obj) {
-  pushSTACK(obj);
-  return mk_weakpointer();
 }
 
 /* (MAKE-WEAK-POINTER value)
@@ -742,7 +747,7 @@ LISPFUNNF(std_instance_p,1)
   VALUES_IF(instancep(obj));
 }
 
-/* returns (CLOS:CLASS-OF object). Is especially efficient for CLOS-objects. */
+/* returns (CLOS:CLASS-OF object). Especially efficient for CLOS objects. */
 local inline object class_of (object obj) {
   if (instancep(obj)) {
     instance_un_realloc(obj);
@@ -759,9 +764,9 @@ local inline object class_of (object obj) {
 nonreturning_function(local, fehler_keine_klasse, (object obj)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
+  pushSTACK(S(class)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~: ~ is not a class"));
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
 }
 
 /* (CLOS::ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance of length n,

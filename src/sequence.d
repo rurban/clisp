@@ -274,19 +274,22 @@ local object get_seq_type (object seq) {
   return find_seq_type(name);
 }
 
+/* signal a "not a SEQUENCE" type-error */
+nonreturning_function(local, fehler_sequence, (object obj)) {
+  pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(S(sequence)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ is not a ~"));
+}
 /* UP: return the type descriptor for the sequence, or report an error
  get_valid_seq_type(seq)
- > seq: eine Sequence
+ > seq: a Sequence
  < ergebnis: Typdescriptor */
 local object get_valid_seq_type (object seq)
 {
   var object typdescr = get_seq_type(seq); /* find type descriptor */
   if (!(nullp(typdescr))) { return typdescr; } /* found -> OK */
-  /* error: */
-  pushSTACK(seq);         /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(seq); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a sequence"));
+  fehler_sequence(seq);
 }
 
 # Fehler, wenn der Sequence-Typ eine andere Länge vorgibt als die, die
@@ -694,10 +697,7 @@ LISPFUNNR(length,1)
     return;
   }
   /* arg is not a sequence */
-  pushSTACK(arg);         /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(arg); pushSTACK(S(length));
-  fehler(type_error,GETTEXT("~: ~ is not a sequence"));
+  fehler_sequence(arg);
 }
 
 LISPFUNNR(reverse,1) # (REVERSE sequence), CLTL S. 248

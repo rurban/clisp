@@ -5201,6 +5201,10 @@ typedef Srecord  Structure;
   #define structure_types   recdata[0]
 #define structure_length(ptr)  srecord_length(ptr)
 #define Structure_length(obj)  structure_length(TheStructure(obj))
+/* ensure that OBJ is a structure object and return it
+ can trigger GC */
+extern object check_structure (object obj);
+/* used by RECORD, IO */
 
 # CLOS-Classes (= instances of <class>), see clos.lisp
 typedef struct {
@@ -8418,14 +8422,6 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #define allocate_ffunction()  \
   allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
 # is used by FOREIGN
-
-# UP: allocates a Weakpointer to the given object
-# allocate_weakpointer(obj)
-# > obj: a Lisp object to which the result should point
-# < result: a fresh weak-pointer
-# can trigger GC
-extern object allocate_weakpointer (object obj);
-# is used by RECORD
 
 # UP: allocates a WeakKVT of the given length
 # allocate_weakkvt(len,type)
