@@ -1,5 +1,5 @@
-19 June 1998 (Snapshot Release)
-===============================
+30 July 1998 (Almost There Release)
+===================================
 
 Important note
 --------------
@@ -21,7 +21,7 @@ User visible changes
 * New function PROBE-DIRECTORY which tests for the existence of a directory.
   Suggested by many people.
 
-* New format directives ~! and ~/.
+* New FORMAT directives ~/ (ANSI standard) and ~! (a better alternative).
 
 * ANSI CL variable *PRINT-RIGHT-MARGIN* is implemented.
 
@@ -93,21 +93,16 @@ User visible changes
   DEFSTRUCT accepts an option :PRINT-OBJECT, similar to :PRINT-FUNCTION,
   and each of these options causes a method on PRINT-OBJECT to be installed.
 
-* X3J13 writeup <JUN90-TRIVIAL-ISSUES:9> is implemented:
-  New classes GENERIC-FUNCTION, STRUCTURE-OBJECT, CLASS, METHOD. Removed
-  the type STRUCTURE.
-
-* X3J13 writeup <JUN90-TRIVIAL-ISSUES:9> is implemented:
-  New classes GENERIC-FUNCTION, STRUCTURE-OBJECT, CLASS, METHOD. Removed
-  the type STRUCTURE.
-
-* X3J13 writeup <JUN90-TRIVIAL-ISSUES:9> is implemented:
-  New classes GENERIC-FUNCTION, STRUCTURE-OBJECT, CLASS, METHOD. Removed
-  the type STRUCTURE.
-
 * X3J13 writeup <SPECIAL-FORM-P-MISNOMER:RENAME> is implemented: New function
   SPECIAL-OPERATOR-P. The function SPECIAL-FORM-P still exists, but its use
   generates a compiler warning.
+
+* X3J13 writeup <FLOATING-POINT-CONDITION-NAMES:X3J13-NOV-89> is implemented:
+  New condition types FLOATING-POINT-INEXACT, FLOATING-POINT-INVALID-OPERATION.
+
+* Fixed a bug: Reading objects in #n# syntax into typed structure slots gave
+  an error if the structure's constructor was not compiled.
+  Reported by Sam Steingold <sds@usa.net>.
 
 * BUTLAST and NBUTLAST are now ANSI CL compliant: They signal an error if the
   argument is a dotted list of length 0. (Stupid.)
@@ -160,10 +155,12 @@ User visible changes
 * Fixed a bug: The SPACE macro returned a list of the form's values, instead
   of the values themselves.
 
-* Fixed a bug: When *PRINT-READABLY* = T, (PRINC string) caused the string
-  to be output in double-quotes instead of literally.
+* Fixed a bug, implement X3J13 writeup <PRINC-READABLY:X3J13-DEC-91>:
+  When *PRINT-READABLY* = T, (PRINC string) caused the string to be output
+  in double-quotes instead of literally.
 
-* A "variable is used despite of IGNORE declaration" warning is not emitted
+* X3J13 writeup <IGNORE-USE-TERMINOLOGY:VALUE-ONLY> is implemented:
+  A "variable is used despite of IGNORE declaration" warning is not emitted
   any more for a variable that is only assigned to and not used for value.
   Suggested by Pierpaolo Bernardi.
 
@@ -177,6 +174,10 @@ User visible changes
 
 Portability
 -----------
+
+* Added AmigaOS support for the socket functions. It's not perfect, but
+  sufficient for writing socket clients.
+  Thanks to Jörg Höhle.
 
 * Port to Win32 using msvc5. (Previously only msvc4 was supported.)
 
@@ -192,6 +193,12 @@ Portability
 
 Other modifications
 -------------------
+
+* `clisp-link' has a new command `run', to run a linking set with some
+  modules loaded. If CLISP has been configured with option
+  --with-dynamic-modules, this is much faster than constructing a
+  temporary linking set.
+  Suggested by Gilbert Baumann <unk6@rz.uni-karlsruhe.de>.
 
 * Compiling IFs with no else part now produce better code (Jörg Höhle).
 
