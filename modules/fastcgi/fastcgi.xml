@@ -21,7 +21,7 @@ Traditional CGI programs work by doing input/output with the Web
 server via the following channels:
 <orderedlist>
 <listitem><simpara>
-Examining environment variables; e.g., "HTTP_USER_AGENT" is the
+Examining environment variables; e.g., <envar>HTTP_USER_AGENT</envar> is the
 variable set by the Web server to name the browser used
 </simpara></listitem>
 <listitem><simpara>
@@ -111,8 +111,8 @@ Use in place of &getenv; to get the value of the environment variable
 named <replaceable>varname</replaceable>, which should be a string.
 Unlike &getenv;, which accesses the actual host operating system environment,
 <function>FASTCGI:GETENV</function> obtains its environment via
-the Web server, over its FastCGI communications channel.  For more information,
-see the &fastcgi-link; Web site.
+the Web server, over its FastCGI communications channel.
+For more information, see the &fastcgi-link; Web site.
 Returns &nil; if <replaceable>varname</replaceable> is not defined in
 the operating system environment.  See <ulink
 url="http://www.cgi101.com/class/ch3/text.html">here</ulink> for a
@@ -122,7 +122,7 @@ list of useful variables.  You must first have called
 
 	<!-- WRITE-STDOUT -->
 <varlistentry><term><literal role="sexp">(FASTCGI:WRITE-STDOUT
-<replaceable>string</replaceable>)</literal></term>
+&string-r;)</literal></term>
 <listitem>
 <simpara>
 Use in place of standard Lisp calls which print to standard output
@@ -133,7 +133,7 @@ called <function>FINISH</function>.
 
 	<!-- WRITE-STDERR -->
 <varlistentry><term><literal role="sexp">(FASTCGI:WRITE-STDERR
-<replaceable>string</replaceable>)</literal></term>
+&string-r;)</literal></term>
 <listitem>
 <simpara>
 Use in place of standard Lisp calls which print to
@@ -151,7 +151,7 @@ Reads in the entirety of standard input and returns it as a string.
 This is usually done for &http; requests with
 <literal>METHOD="post"</literal>, when the data are passed to the CGI
 script via standard input rather than via the environment variable
-<literal>$QUERY_STRING</literal>.  There is no way to read standard input
+<envar>QUERY_STRING</envar>.  There is no way to read standard input
 in pieces, which could be a problem, say, for &http; uploads of very large files.
 </simpara></listitem></varlistentry>
 
@@ -186,13 +186,13 @@ Below is a simple example CGI script using &fastcgi-link;.
 (defun newline () (format nil "~%"))
 (do ((count 1 (1+ count)))
 	((not (fastcgi:accept)) nil)
-	
+
     (fastcgi:out "Content-type: text/plain" (newline) (newline))
     (fastcgi:out
      "I am running in mode: " (if (fastcgi:is-cgi) "CGI" "FastCGI") (newline)
      "This is execution no.: " count (newline)
      "The browser string is '" (fastcgi:getenv "HTTP_USER_AGENT") "'" (newline))
-	
+
     (fastcgi:finish))
 </programlisting>
 
