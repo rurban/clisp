@@ -19,37 +19,14 @@ fi
 ])
 
 AC_DEFUN([CL_SHM],
-[AC_BEFORE([$0], [CL_SHM_RMID])dnl
+[AC_REQUIRE([CL_SHMAT])dnl
+AC_BEFORE([$0], [CL_SHM_RMID])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 # This test is from Marcus Daniels
 AC_CACHE_CHECK(for working shared memory, cl_cv_sys_shm_works, [
 AC_TRY_RUN([#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int shmget (key_t key, $cl_cv_proto_shmget_arg2 size, int shmflg);
-#else
-int shmget();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-$cl_cv_proto_shmat_ret shmat (int shmid, $cl_cv_proto_shmat_arg2 $cl_cv_proto_shmat_ret shmaddr, int shmflg);
-#else
-$cl_cv_proto_shmat_ret shmat();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int shmdt ($cl_cv_proto_shmdt_arg1 shmaddr);
-#else
-int shmdt();
-#endif
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int shmctl ($cl_cv_proto_shmctl_args);
-#else
-int shmctl();
-#endif
 /* try attaching a single segment to multiple addresses */
 #define segsize 0x10000
 #define attaches 128

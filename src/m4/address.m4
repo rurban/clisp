@@ -57,14 +57,6 @@ cat > conftest.c <<EOF
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifndef malloc
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-RETMALLOCTYPE malloc();
-#endif
-#endif
 $address_range_prog
 int main() { printf_address(chop_address(malloc(10000))); exit(0); }
 EOF

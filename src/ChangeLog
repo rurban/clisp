@@ -1,3 +1,10 @@
+2003-09-05  Wolfgang Jenkner  <wjenkner@inode.at>
+	    Sam Steingold  <sds@gnu.org>
+
+	* m4/address.m4, m4/closedir.m4, m4/filecharset.m4, m4/ioctl.m4:
+	* m4/mprotect.m4, m4/shm-rmid.m4, m4/shm.m4, m4/shmat.m4:
+	eliminated prototypes for better portability
+
 2003-09-04  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d: do not include version.h
