@@ -544,12 +544,25 @@ to print the corresponding values, or T for all of them.")
                      (c3 (read-char f nil nil))
                      (c4 (read-char f nil nil)))
                  (if (and c1 c2 c3 c4)
-                   (parse-integer (coerce (list c1 c2 c3 c4) 'string)
-                                  :radix 16
-                   )
-                   #x10000
+                   (let ((c5 (read-char f nil nil)))
+                     (if (and c5 (digit-char-p c5 16))
+                       (let ((c6 (read-char f nil nil)))
+                         (if (and c6 (digit-char-p c6 16))
+                           (parse-integer
+                             (coerce (list c1 c2 c3 c4 c5 c6) 'string)
+                             :radix 16
+                           )
+                           (parse-integer
+                             (coerce (list c1 c2 c3 c4 c5) 'string)
+                             :radix 16
+                       ) ) )
+                       (parse-integer
+                         (coerce (list c1 c2 c3 c4) 'string)
+                         :radix 16
+                   ) ) )
+                   #x1000000
                ) )
-               #x10000
+               #x1000000
           )) )
       (let* ((blocksize 1024)
              (f-size (progn (file-position f :end) (file-position f)))
@@ -573,12 +586,14 @@ to print the corresponding values, or T for all of them.")
         (loop
           (let ((line (read-line f nil nil)))
             (unless line (return nil))
-            (let ((c (parse-integer line :end (position #\; line) :radix 16)))
+            (let* ((four (position #\; line)) ; 4 or 5 or 6
+                   (c (parse-integer line :end four :radix 16)))
               ; Treat the range start/end lines specially.
-              (when (eql (char line 4) #\;)
-                (when (eql (char line 5) #\<)
-                  (let* ((piece1 (subseq line 5
-                                              (or (position #\; line :start 5)
+              (when (eql (char line four) #\;)
+                (when (eql (char line (+ four 1)) #\<)
+                  (let* ((piece1 (subseq line (+ four 1)
+                                              (or (position #\; line
+                                                            :start (+ four 1))
                                                   (length line))))
                          (n (length piece1)))
                     (cond ((and (= c code)
@@ -588,8 +603,8 @@ to print the corresponding values, or T for all of them.")
                            (return
                              (concatenate 'string
                                (format nil "~4,'0X" code)
-                               (subseq line 4 (+ 5 n -8))
-                               (subseq line (+ 5 n -1))
+                               (subseq line four (+ four n -8 1))
+                               (subseq line (+ four n))
                           )) )
                           ((and (>= c code)
                                 (>= n 7)
@@ -598,8 +613,8 @@ to print the corresponding values, or T for all of them.")
                            (return
                              (concatenate 'string
                                (format nil "~4,'0X" code)
-                               (subseq line 4 (+ 5 n -7))
-                               (subseq line (+ 5 n -1))
+                               (subseq line four (+ four n -7 1))
+                               (subseq line (+ four n))
                           )) )
               ) ) ) )
               (if (= c code) (return line))
