@@ -590,6 +590,33 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
 #ifndef HAVE_SELECT
 /* fcntl() will be used, declared in <fcntl.h> */
 #endif
+/* START_NO_BLOCK() & END_NO_BLOCK() should appear in pairs */
+#ifdef FIONBIO                  /* non-blocking I/O a la BSD 4.2 */
+ #define START_NO_BLOCK(handle)                                   \
+  { int non_blocking_io = 1;                                      \
+    if (ioctl(handle,FIONBIO,&non_blocking_io)) { OS_error(); }
+ #define END_NO_BLOCK(handle)                                     \
+    non_blocking_io = 0;                                          \
+    if (ioctl(handle,FIONBIO,&non_blocking_io)) { OS_error(); }   \
+  }
+#else  /* non-blocking I/O a la SYSV */
+ #define BLOCK_IO_START(handle) /*internal*/                            \
+  { var int fcntl_flags;                                                \
+    if ((fcntl_flags = fcntl(handle,F_GETFL,0))<0) { OS_error(); }
+ #ifdef O_NONBLOCK
+  #define START_NO_BLOCK(handle)       \
+    BLOCK_IO_START(handle);            \
+    if ( fcntl(handle,F_SETFL,fcntl_flags|O_NONBLOCK) <0) { OS_error(); }
+ #else  /* older Unices called it O_NDELAY */
+  #define START_NO_BLOCK(handle)       \
+    BLOCK_IO_START(handle);            \
+    if ( fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY) <0) { OS_error(); }
+ #endif
+ #define END_NO_BLOCK(handle)                    \
+   if ( fcntl(handle,F_SETFL,fcntl_flags) <0) { OS_error(); }
+  }
+#endif  /* FIONBIO */
+
 #if (defined(UNIX_TERM_TERMIOS) || defined(UNIX_TERM_TERMIO)) && !(defined(TCIFLUSH) && defined(TCOFLUSH))
   #define TCIFLUSH 0
   #define TCOFLUSH 1

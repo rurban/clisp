@@ -4665,40 +4665,9 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     var uintB b;
     var int result;
   restart_read_tty:
-    #ifdef FIONBIO # non-blocking I/O a la BSD 4.2
-    {
-      var int non_blocking_io;
-      non_blocking_io = 1;
-      if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0)) {
-        OS_error();
-      }
-      result = read(handle,&b,1);
-      non_blocking_io = 0;
-      if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0)) {
-        OS_error();
-      }
-    }
-    #else # non-blocking I/O a la SYSV
-    {
-      var int fcntl_flags;
-      if (( fcntl_flags = fcntl(handle,F_GETFL,0) )<0) {
-        OS_error();
-      }
-      #ifdef O_NONBLOCK
-      if ( fcntl(handle,F_SETFL,fcntl_flags|O_NONBLOCK) <0) {
-        OS_error();
-      }
-      #else # older Unices called it O_NDELAY
-      if ( fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY) <0) {
-        OS_error();
-      }
-      #endif
-      result = read(handle,&b,1);
-      if ( fcntl(handle,F_SETFL,fcntl_flags) <0) {
-        OS_error();
-      }
-    }
-    #endif
+    START_NO_BLOCK(handle);
+    result = read(handle,&b,1);
+    END_NO_BLOCK(handle);
     if (result < 0) {
       if (errno==EINTR)
         goto restart_read_tty;
