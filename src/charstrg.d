@@ -425,12 +425,44 @@ static const cint nop_page[256] = {
     }
 
 # UP: verfolgt einen String.
-# unpack_string(string,&len)
+# unpack_string_ro(string,&len)  [for read-only access]
+# unpack_string_rw(string,&len)  [for read-write access]
 # > object string: ein String.
 # < uintL len: Anzahl der Zeichen des Strings.
 # < chart* ergebnis: Anfangsadresse der Characters
-  global chart* unpack_string (object string, uintL* len);
-  global chart* unpack_string(string,len)
+  global chart* unpack_string_rw (object string, uintL* len);
+  global chart* unpack_string_rw(string,len)
+    var object string;
+    var uintL* len;
+    { if (simple_string_p(string))
+        { *len = Sstring_length(string);
+          check_sstring_mutable(string);
+          return &TheSstring(string)->data[0];
+        }
+        else
+        # String, aber kein Simple-String => Displacement verfolgen
+        { # Länge bestimmen (wie in vector_length in ARRAY.D):
+          var uintL size;
+          { var Iarray addr = TheIarray(string);
+            var uintL offset = offsetofa(iarray_,dims);
+            if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
+              offset += sizeof(uintL);
+            # Bei addr+offset fangen die Dimensionen an.
+            if (iarray_flags(addr) & bit(arrayflags_fillp_bit)) # evtl. Fillpointer
+              offset += sizeof(uintL);
+            size = *(uintL*)pointerplus(addr,offset);
+          }
+          *len = size;
+          # Displacement verfolgen:
+          { var uintL index = 0;
+            var object datenvektor = iarray_displace_check(string,size,&index);
+            check_sstring_mutable(datenvektor);
+            return &TheSstring(datenvektor)->data[index];
+        } }
+    }
+  #ifndef TYPECODES
+  global const chart* unpack_string_ro (object string, uintL* len);
+  global const chart* unpack_string_ro(string,len)
     var object string;
     var uintL* len;
     { if (simple_string_p(string))
@@ -457,6 +489,7 @@ static const cint nop_page[256] = {
             return &TheSstring(datenvektor)->data[index];
         } }
     }
+  #endif
 
 # UP: vergleicht zwei Strings auf Gleichheit
 # string_gleich(string1,string2)
@@ -470,7 +503,7 @@ static const cint nop_page[256] = {
     { var uintL len1;
       var const chart* ptr1;
       var const chart* ptr2;
-      ptr1 = unpack_string(string1,&len1);
+      ptr1 = unpack_string_ro(string1,&len1);
       # Ab ptr1 kommen genau len1 Zeichen.
       # Längenvergleich:
       if (!(len1 == Sstring_length(string2))) goto no;
@@ -496,7 +529,7 @@ static const cint nop_page[256] = {
     { var uintL len1;
       var const chart* ptr1;
       var const chart* ptr2;
-      ptr1 = unpack_string(string1,&len1);
+      ptr1 = unpack_string_ro(string1,&len1);
       # Ab ptr1 kommen genau len1 Zeichen.
       # Längenvergleich:
       if (!(len1 == Sstring_length(string2))) goto no;
@@ -525,7 +558,7 @@ static const cint nop_page[256] = {
       string = popSTACK(); # String zurück
       if (!(len==0))
         { var uintL len_; # nochmals die Länge, unbenutzt
-          var const chart* ptr1 = unpack_string(string,&len_);
+          var const chart* ptr1 = unpack_string_ro(string,&len_);
           var chart* ptr2 = &TheSstring(new_string)->data[0];
           # Kopierschleife: Kopiere len Bytes von ptr1[] nach ptr2[]:
           dotimespL(len,len, { *ptr2++ = *ptr1++; } );
@@ -571,6 +604,51 @@ static const cint nop_page[256] = {
                   );
     }   }
 
+#ifndef TYPECODES
+# UP: wandelt einen String in einen immutablen Simple-String um.
+# coerce_imm_ss(obj)
+# > obj: Lisp-Objekt, sollte ein String sein.
+# < ergebnis: immutabler Simple-String mit denselben Zeichen
+# kann GC auslösen
+  global object coerce_imm_ss (object obj);
+  global object coerce_imm_ss(obj)
+    var object obj;
+    { if (orecordp(obj))
+        switch (Record_type(obj))
+          { case Rectype_Imm_Sstring:
+              # immutabler Simple-String, unverändert zurück
+              return obj;
+            case Rectype_Sstring:
+            case Rectype_string:
+              # sonstiger String, kopieren
+              { pushSTACK(obj); # String retten
+               {var uintL len = vector_length(obj); # Länge berechnen
+                var object new_string = allocate_imm_string(len);
+                # new_string = neuer immutabler Simple-String mit vorgegebener Länge len
+                var object string = popSTACK(); # String zurück
+                if (!(len==0))
+                  { var uintL len_; # nochmals die Länge, unbenutzt
+                    var const chart* ptr1 = unpack_string_ro(string,&len_);
+                    var chart* ptr2 = &TheSstring(new_string)->data[0];
+                    # Kopierschleife: Kopiere len Bytes von ptr1[] nach ptr2[]:
+                    dotimespL(len,len, { *ptr2++ = *ptr1++; } );
+                  }
+                return new_string;
+              }}
+            default: break;
+          }
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      fehler(type_error,
+             DEUTSCH ? "Das ist kein String: ~" :
+             ENGLISH ? "This is not a string: ~" :
+             FRANCAIS ? "Ceci n'est pas une chaîne : ~" :
+             ""
+            );
+    }
+#endif
+
 # UP: Konversion eines Objekts zu einem Character
 # coerce_char(obj)
 # > obj: Lisp-Objekt
@@ -589,7 +667,7 @@ static const cint nop_page[256] = {
           if (stringp(obj))
             { string: # obj ist ein String
               { var uintL len;
-                var const chart* ptr = unpack_string(obj,&len);
+                var const chart* ptr = unpack_string_ro(obj,&len);
                 # ab ptr kommen len Characters
                 if (len==1) return code_char(ptr[0]);
             } }
@@ -1440,26 +1518,24 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
 
 # UP: Überprüft ein Index-Argument für Stringfunktionen
 # > STACK_0: Argument
-# > charptr: Ab hier kommen die Characters des Strings
 # > len: Länge des Strings (< array-total-size-limit)
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Pointer auf das angesprochene Character
-  local chart* test_index_arg (chart* charptr, uintL len);
-  local chart* test_index_arg(charptr,len)
-    var chart* charptr;
+# < ergebnis: Index in den String
+  local uintL test_index_arg (uintL len);
+  local uintL test_index_arg(len)
     var uintL len;
     { var uintL i;
       # i := Index STACK_0, kein Defaultwert nötig, muss <len sein:
       test_index(STACK_0,i=,0,0,<,len,nullobj);
-      return &charptr[i];
+      return i;
     }
 
 LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
   { var object string = STACK_1; # string-Argument
     if (!(stringp(string))) fehler_string(string); # muss ein String sein
    {var uintL len;
-    var chart* charptr = unpack_string(string,&len); # zu den Characters vorrücken
-    charptr = test_index_arg(charptr,len); # zum vom Index angesprochenen Element gehen
+    var const chart* charptr = unpack_string_ro(string,&len); # zu den Characters vorrücken
+    charptr += test_index_arg(len); # zum vom Index angesprochenen Element gehen
     value1 = code_char(*charptr); mv_count=1; # Character herausgreifen
     skipSTACK(2);
   }}
@@ -1468,7 +1544,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
   { var object string = STACK_1; # string-Argument
     if (!(simple_string_p(string))) fehler_sstring(string); # muss ein Simple-String sein
     # zum vom Index angesprochenen Element gehen
-   {var chart* charptr = test_index_arg(&TheSstring(string)->data[0],Sstring_length(string));
+   {var const chart* charptr = &TheSstring(string)->data[0] + test_index_arg(Sstring_length(string));
     value1 = code_char(*charptr); mv_count=1; # Character herausgreifen
     skipSTACK(2);
   }}
@@ -1503,8 +1579,8 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
     var object string = STACK_1; # string-Argument
     if (!(stringp(string))) fehler_string(string); # muss ein String sein
    {var uintL len;
-    var chart* charptr = unpack_string(string,&len); # zu den Characters vorrücken
-    charptr = test_index_arg(charptr,len); # zum vom Index angesprochenen Element gehen
+    var chart* charptr = unpack_string_rw(string,&len); # zu den Characters vorrücken
+    charptr += test_index_arg(len); # zum vom Index angesprochenen Element gehen
     *charptr = char_code(newchar); # Character eintragen
     value1 = newchar; mv_count=1;
     skipSTACK(2);
@@ -1515,15 +1591,17 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
   { var object newchar = test_newchar_arg(); # newchar-Argument
     var object string = STACK_1; # string-Argument
     if (!(simple_string_p(string))) fehler_sstring(string); # muss ein Simple-String sein
+    check_sstring_mutable(string);
     # zum vom Index angesprochenen Element gehen
-   {var chart* charptr = test_index_arg(&TheSstring(string)->data[0],Sstring_length(string));
+   {var chart* charptr = &TheSstring(string)->data[0] + test_index_arg(Sstring_length(string));
     *charptr = char_code(newchar); # Character eintragen
     value1 = newchar; mv_count=1;
     skipSTACK(2);
   }}
 
 # UP: Überprüft die Grenzen für ein String-Argument
-# test_string_limits(&string,&start,&len)
+# test_string_limits_ro(&string,&start,&len)  [for read-only access]
+# test_string_limits_rw(&string,&start,&len)  [for read-write access]
 # > STACK_2: String-Argument
 # > STACK_1: optionales :start-Argument
 # > STACK_0: optionales :end-Argument
@@ -1533,8 +1611,8 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # < uintL len: Anzahl der angesprochenen Characters
 # < chart* ergebnis: Ab hier kommen die angesprochenen Characters
 # erhöht STACK um 3
-  global chart* test_string_limits (object* string_, uintL* start_, uintL* len_);
-  global chart* test_string_limits(string_,start_,len_)
+  global const chart* test_string_limits_ro (object* string_, uintL* start_, uintL* len_);
+  global const chart* test_string_limits_ro(string_,start_,len_)
     var object* string_;
     var uintL* start_;
     var uintL* len_;
@@ -1545,7 +1623,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       # String-Argument überprüfen:
       { var object string = STACK_2;
         if (!(stringp(string))) fehler_string(string);
-        charptr = unpack_string(string,&len);
+        charptr = (chart*)unpack_string_ro(string,&len);
         *string_ = string; # String herausgeben
       }
       # Nun ist len die Länge (<2^oint_data_len), und ab charptr kommen die Zeichen.
@@ -1573,6 +1651,21 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       # Ergebnisse herausgeben:
       *start_ = start; *len_ = end-start; return &charptr[start];
     }
+  #ifndef TYPECODES
+  global chart* test_string_limits_rw (object* string_, uintL* start_, uintL* len_);
+  global chart* test_string_limits_rw(string_,start_,len_)
+    var object* string_;
+    var uintL* start_;
+    var uintL* len_;
+    { var const chart* charptr = test_string_limits_ro(string_,start_,len_);
+      if (*len_ > 0)
+        { var uintL dummy;
+          var object datenvektor = array_displace_check(*string_,*len_,&dummy);
+          check_sstring_mutable(datenvektor);
+        }
+      return (chart*)charptr;
+    }
+  #endif
 
 # UP: Überprüft ein String/Symbol/Character-Argument
 # > obj: Argument
@@ -1678,10 +1771,10 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
         pushSTACK(string1); # string1 retten
         # String/Symbol-Argument2 überprüfen:
        {var object string2 = test_stringsymchar_arg(STACK_(4+1));
-        *charptr2_ = unpack_string(string2,&len2);
+        *charptr2_ = unpack_string_ro(string2,&len2);
         # Nun ist len2 die Länge (<2^oint_data_len) von string2, und ab charptr2 kommen die Zeichen.
         string1 = popSTACK(); # string1 zurück
-        charptr1_[1] = *charptr1_ = unpack_string(string1,&len1);
+        charptr1_[1] = *charptr1_ = unpack_string_ro(string1,&len1);
         # Nun ist len1 die Länge (<2^oint_data_len) von string1, und ab charptr1 kommen die Zeichen.
       }}
       # :START1 und :END1 überprüfen:
@@ -2241,7 +2334,7 @@ LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
   { var object string;
     var uintL start; # unbenutzt
     var uintL len;
-    var chart* charptr = test_string_limits(&string,&start,&len);
+    var chart* charptr = test_string_limits_rw(&string,&start,&len);
     nstring_upcase(charptr,len);
     value1 = string; mv_count=1;
   }
@@ -2283,7 +2376,7 @@ LISPFUN(nstring_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
   { var object string;
     var uintL start; # unbenutzt
     var uintL len;
-    var chart* charptr = test_string_limits(&string,&start,&len);
+    var chart* charptr = test_string_limits_rw(&string,&start,&len);
     nstring_downcase(charptr,len);
     value1 = string; mv_count=1;
   }
@@ -2335,7 +2428,7 @@ LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
   { var object string;
     var uintL start; # unbenutzt
     var uintL len;
-    var chart* charptr = test_string_limits(&string,&start,&len);
+    var chart* charptr = test_string_limits_rw(&string,&start,&len);
     nstring_capitalize(charptr,len);
     value1 = string; mv_count=1;
   }
@@ -2419,7 +2512,7 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
     var object new_string = allocate_string(count); # neuer String
     string = popSTACK(); # alter String
     {var uintL len; # nochmals die Länge des alten Strings
-     var const chart* charptr1 = unpack_string(string,&len) + start;
+     var const chart* charptr1 = unpack_string_ro(string,&len) + start;
      var chart* charptr2 = &TheSstring(new_string)->data[0];
      dotimesL(count,count, { *charptr2++ = *charptr1++; } );
     }
@@ -2456,7 +2549,7 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
         dotimesC(argcount,argcount,
           { var object arg = NEXT(argptr); # nächster Argument-String
             var uintL len; # dessen Länge
-            var const chart* charptr1 = unpack_string(arg,&len);
+            var const chart* charptr1 = unpack_string_ro(arg,&len);
             var uintL count;
             # Kopiere len Characters von charptr1 nach charptr2:
             dotimesL(count,len, { *charptr2++ = *charptr1++; } );

@@ -4302,7 +4302,8 @@ typedef varobject_ *  Varobject;
 #   Extended-Records have room for up to 255 elements and 255 extra (non-Lisp)
 #   elements.
 # Long-Records are recognized by their type field:
-#   rectype == Rectype_Sbvector, Rectype_Sstring, Rectype_Svector.
+#   rectype == Rectype_Sbvector, Rectype_Sstring, Rectype_Imm_Sstring,
+#              Rectype_Svector.
 # The others are partitioned into:
 #   - Simple-Records, if rectype < rectype_limit.
 #   - Extended-Records, if rectype >= rectype_limit.
@@ -4417,13 +4418,14 @@ typedef xrecord_ *  Xrecord;
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
                           # Here the arrays start.
-         Rectype_Sbvector,      /* 1 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sstring,       /* 2 */ # Sstring, not Srecord/Xrecord
-         Rectype_Svector,       /* 3 */ # Svector, not Srecord/Xrecord
-         Rectype_mdarray,       /* 4 */ # Iarray, not Srecord/Xrecord
-         Rectype_bvector,       /* 5 */ # Iarray, not Srecord/Xrecord
-         Rectype_string,        /* 6 */ # Iarray, not Srecord/Xrecord
-         Rectype_vector,        /* 7 */ # Iarray, not Srecord/Xrecord
+         Rectype_mdarray,       /* 1 */ # Iarray, not Srecord/Xrecord
+         Rectype_Sbvector,      /* 2 */ # Sbvector, not Srecord/Xrecord
+         Rectype_bvector,       /* 3 */ # Iarray, not Srecord/Xrecord
+         Rectype_Svector,       /* 4 */ # Svector, not Srecord/Xrecord
+         Rectype_vector,        /* 5 */ # Iarray, not Srecord/Xrecord
+         Rectype_Sstring,       /* 6 */ # Sstring, not Srecord/Xrecord
+         Rectype_string,        /* 7 */ # Iarray, not Srecord/Xrecord
+         Rectype_Imm_Sstring,   /* 8 */ # immutable Sstring, not Srecord/Xrecord
                           # Here the arrays end.
                           # Here the numbers start.
          Rectype_Bignum,                # Bignum, not Srecord/Xrecord
@@ -4968,7 +4970,7 @@ typedef iarray_ *  Iarray;
     #define Array_type_vector    Rectype_vector    # Iarray
     #define Array_type_mdarray   Rectype_mdarray   # Iarray
     #define Array_type_sbvector  Rectype_Sbvector  # Sbvector
-    #define Array_type_sstring   Rectype_Sstring   # Sstring
+    #define Array_type_sstring   Rectype_Sstring: case Rectype_Imm_Sstring   # Sstring
     #define Array_type_svector   Rectype_Svector   # Svector
   #endif
 
@@ -5297,6 +5299,7 @@ typedef struct {
 #define Stream_xlength(obj)  stream_xlength(TheStream(obj))
 # Bitmaske in den Flags:
   #define strmflags_open_B   0xF0  # gibt an, ob der Stream offen ist
+  #define strmflags_immut_bit_B  1  # set if read literals are immutable
   #define strmflags_reval_bit_B  2  # gesetzt, falls Read-Eval erlaubt ist
   #define strmflags_rd_ch_bit_B  6  # gesetzt, falls READ-CHAR möglich ist
   #define strmflags_wr_ch_bit_B  7  # gesetzt, falls WRITE-CHAR möglich ist
@@ -6015,7 +6018,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       ((tint)((typecode(obj) & ~bit(notsimple_bit_t))-1) <= (tint)(svector_type-1))
   #else
     #define vectorp(obj)  \
-      (varobjectp(obj) && ((uintB)((Record_type(obj) & ~4) - 1) <= 2))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 2) <= 6))
   #endif
 
 # Test auf simple-vector oder simple-bit-vector oder simple-string
@@ -6024,7 +6027,12 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       ((tint)(typecode(obj) - 1) <= (tint)(svector_type-1))
   #else
     #define simplep(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 2))
+      (varobjectp(obj)                                \
+       && (Record_type(obj) == Rectype_Svector        \
+           || Record_type(obj) == Rectype_Sbvector    \
+           || Record_type(obj) == Rectype_Sstring     \
+           || Record_type(obj) == Rectype_Imm_Sstring \
+      )   )
   #endif
 
 # Test eines Array auf simple-vector oder simple-bit-vector oder simple-string
@@ -6033,7 +6041,11 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       (typecode(obj) <= svector_type)
   #else
     #define array_simplep(obj)  \
-      ((uintB)Record_type(obj) < 4)
+      (Record_type(obj) == Rectype_Svector        \
+       || Record_type(obj) == Rectype_Sbvector    \
+       || Record_type(obj) == Rectype_Sstring     \
+       || Record_type(obj) == Rectype_Imm_Sstring \
+      )
   #endif
 
 # Test auf simple-vector
@@ -6051,7 +6063,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       ((typecode(obj) & ~bit(notsimple_bit_t)) == svector_type)
   #else
     #define general_vector_p(obj)  \
-      (varobjectp(obj) && ((Record_type(obj) & ~4) == Rectype_Svector))
+      (varobjectp(obj) && ((Record_type(obj) & ~1) == Rectype_Svector))
   #endif
 
 # Test auf simple-string
@@ -6060,7 +6072,10 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       (typecode(obj) == sstring_type)
   #else
     #define simple_string_p(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Sstring))
+      (varobjectp(obj)                                \
+       && (Record_type(obj) == Rectype_Sstring        \
+           || Record_type(obj) == Rectype_Imm_Sstring \
+      )   )
   #endif
 
 # Test auf string
@@ -6069,7 +6084,9 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       ((typecode(obj) & ~bit(notsimple_bit_t)) == sstring_type)
   #else
     #define stringp(obj)  \
-      (varobjectp(obj) && ((Record_type(obj) & ~4) == Rectype_Sstring))
+      (varobjectp(obj) \
+       && ((uintB)(Record_type(obj) - Rectype_Sstring) <= Rectype_Imm_Sstring-Rectype_Sstring) \
+      )
   #endif
 
 # Test auf simple-bit-vector
@@ -6103,7 +6120,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       ((typecode(obj) & ~bit(notsimple_bit_t)) == sbvector_type)
   #else
     #define byte_vector_p(obj)  \
-      (varobjectp(obj) && ((Record_type(obj) & ~4) == Rectype_Sbvector))
+      (varobjectp(obj) && ((Record_type(obj) & ~1) == Rectype_Sbvector))
   #endif
 
 # Test auf byte-vector, ausgenommen simple-bit-vector
@@ -6121,7 +6138,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       ((tint)(typecode(obj) - 1) <= (tint)(vector_type-1))
   #else
     #define arrayp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 7-1))
+      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 7))
   #endif
 
 # Test auf Array, der kein Vector ist (Typbyte %100)
@@ -6145,7 +6162,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define if_recordp(obj,statement1,statement2)  \
       if (orecordp(obj))                                                       \
         switch (Record_type(obj))                                              \
-          { case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Svector: \
+          { case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Svector: \
             case Rectype_mdarray:                                              \
             case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
             case Rectype_Bignum: case Rectype_Lfloat:                          \
@@ -6589,7 +6606,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define case_Rectype_Sbvector_above  \
     case Rectype_Sbvector: goto case_sbvector;
   #define case_Rectype_Sstring_above  \
-    case Rectype_Sstring: goto case_sstring;
+    case Rectype_Sstring: case Rectype_Imm_Sstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
   #define case_Rectype_mdarray_above  \
@@ -6616,13 +6633,13 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     case Rectype_Symbol: goto case_symbol;
   # Composite cases:
   #define case_Rectype_string_above  \
-    case Rectype_Sstring: case Rectype_string: goto case_string;
+    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_string: goto case_string;
   #define case_Rectype_bvector_above  \
     case Rectype_Sbvector: case Rectype_bvector: goto case_bvector;
   #define case_Rectype_vector_above  \
     case Rectype_Svector: case Rectype_vector: goto case_vector;
   #define case_Rectype_array_above  \
-    case Rectype_Sstring: case Rectype_string:   \
+    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_string: \
     case Rectype_Sbvector: case Rectype_bvector: \
     case Rectype_Svector: case Rectype_vector:   \
     case Rectype_mdarray:                        \
@@ -7802,6 +7819,16 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # kann GC auslösen
   extern object allocate_string (uintL len);
 # wird verwendet von ARRAY, CHARSTRG, STREAM, PATHNAME
+
+#ifndef TYPECODES
+# UP, beschafft immutablen String
+# allocate_imm_string(len)
+# > len: Länge des Strings (in Bytes)
+# < ergebnis: neuer immutabler Simple-String (LISP-Objekt)
+# kann GC auslösen
+  extern object allocate_imm_string (uintL len);
+# wird verwendet von CHARSTRG
+#endif
 
 # UP, beschafft indirekten Array
 # allocate_iarray(flags,rank,type)
@@ -10330,7 +10357,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #define with_string_0(string,encoding,ascizvar,statement)  \
     { var object ascizvar##_string = (string);                            \
       var uintL ascizvar##_len;                                           \
-      var const chart* ptr1 = unpack_string(ascizvar##_string,&ascizvar##_len); \
+      var const chart* ptr1 = unpack_string_ro(ascizvar##_string,&ascizvar##_len); \
       var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
      {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
       cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen); \
@@ -10372,7 +10399,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #define with_string(string,encoding,charptrvar,lenvar,statement)  \
     { var object charptrvar##_string = (string);                            \
       var uintL charptrvar##_len;                                           \
-      var const chart* ptr1 = unpack_string(charptrvar##_string,&charptrvar##_len); \
+      var const chart* ptr1 = unpack_string_ro(charptrvar##_string,&charptrvar##_len); \
       var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
      {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
       cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
@@ -10682,11 +10709,17 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von STREAM, PATHNAME
 
 # UP: verfolgt einen String.
-# unpack_string(string,&len)
+# unpack_string_ro(string,&len)  [for read-only access]
+# unpack_string_rw(string,&len)  [for read-write access]
 # > object string: ein String.
 # < uintL len: Anzahl der Zeichen des Strings.
 # < chart* ergebnis: Anfangsadresse der Characters
-  extern chart* unpack_string (object string, uintL* len);
+  extern chart* unpack_string_rw (object string, uintL* len);
+  #ifdef TYPECODES
+    #define unpack_string_ro  (const chart *) unpack_string_rw
+  #else
+    extern const chart* unpack_string_ro (object string, uintL* len);
+  #endif
 # wird verwendet von STREAM, HASHTABL, PACKAGE, SPVW, GRAPH
 
 # UP: vergleicht zwei Strings auf Gleichheit
@@ -10719,7 +10752,19 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < ergebnis: Simple-String mit denselben Zeichen
 # kann GC auslösen
   extern object coerce_ss (object obj);
-# wird verwendet von STREAM, PATHNAME, PACKAGE
+# wird verwendet von STREAM, PATHNAME
+
+# UP: wandelt einen String in einen immutablen Simple-String um.
+# coerce_imm_ss(obj)
+# > obj: Lisp-Objekt, sollte ein String sein.
+# < ergebnis: immutabler Simple-String mit denselben Zeichen
+# kann GC auslösen
+  #ifdef TYPECODES
+    #define coerce_imm_ss coerce_ss
+  #else
+    extern object coerce_imm_ss (object obj);
+  #endif
+# wird verwendet von PACKAGE
 
 # UP: Konversion eines Objekts zu einem Character
 # coerce_char(obj)
@@ -10743,7 +10788,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von IO
 
 # UP: Überprüft die Grenzen für ein String-Argument
-# test_string_limits(&string,&start,&len)
+# test_string_limits_ro(&string,&start,&len)  [for read-only access]
+# test_string_limits_rw(&string,&start,&len)  [for read-write access]
 # > STACK_2: String-Argument
 # > STACK_1: optionales :start-Argument
 # > STACK_0: optionales :end-Argument
@@ -10753,7 +10799,13 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < uintL len: Anzahl der angesprochenen Characters
 # < chart* ergebnis: Ab hier kommen die angesprochenen Characters
 # erhöht STACK um 3
-  extern chart* test_string_limits (object* string_, uintL* start_, uintL* len_);
+  extern const chart* test_string_limits_ro (object* string_, uintL* start_, uintL* len_);
+  #ifdef TYPECODES
+    #define test_string_limits_rw(string_,start_,len_)  \
+      (chart*)test_string_limits_ro(string_,start_,len_)
+  #else
+    extern chart* test_string_limits_rw (object* string_, uintL* start_, uintL* len_);
+  #endif
 # wird verwendet von STREAM, PATHNAME, IO
 
 # UP: wandelt die Characters eines Stringstücks in Großbuchstaben
@@ -11207,6 +11259,20 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(extern, fehler_sstring, (object obj));
 # wird verwendet von CHARSTRG
+
+# Checks a simple-string for being mutable.
+# check_sstring_mutable(string);
+#ifdef TYPECODES
+  #define check_sstring_mutable(obj)
+#else
+  #define check_sstring_mutable(obj)  \
+     if (!(Record_type(obj) == Rectype_Sstring)) fehler_sstring_immutable(obj);
+# Fehlermeldung, falls ein Simple-String immutable ist:
+# fehler_sstring_immutable(obj);
+# > obj: der Simple-String
+  nonreturning_function(extern, fehler_sstring_immutable, (object obj));
+# wird verwendet von Macro check_sstring_mutable
+#endif
 
 # Fehlermeldung, wenn ein Argument kein Stream ist:
 # fehler_stream(obj);

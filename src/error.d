@@ -805,6 +805,23 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
             );
     }
 
+#ifndef TYPECODES
+# Fehlermeldung, falls ein Simple-String immutable ist:
+# fehler_sstring_immutable(obj);
+# > obj: der Simple-String
+  nonreturning_function(global, fehler_sstring_immutable, (object obj));
+  global void fehler_sstring_immutable(obj)
+    var object obj;
+    { pushSTACK(obj);
+      fehler(error,
+             DEUTSCH ? "Versuch der Modifikation eines unveränderlichen String: ~" :
+             ENGLISH ? "Attempt to modify a read-only string: ~" :
+             FRANCAIS ? "Tentative de modification d'une chaîne non modifiable: ~" :
+             ""
+            );
+    }
+#endif
+
 # Fehlermeldung, wenn ein Argument kein Stream ist:
 # fehler_stream(obj);
 # > obj: Das fehlerhafte Argument

@@ -140,6 +140,24 @@
       #undef SETTFL
     }
 
+#ifndef TYPECODES
+# UP, beschafft immutablen String
+# allocate_imm_string(len)
+# > len: Länge des Strings (in Bytes)
+# < ergebnis: neuer immutabler Simple-String (LISP-Objekt)
+# kann GC auslösen
+  global object allocate_imm_string (uintL len);
+  global object allocate_imm_string (len)
+    var uintL len;
+    { var uintL need = size_sstring(len); # benötigter Speicherplatz in Bytes
+      #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_Sstring,len);
+      allocate(sstring_type,TRUE,need,Sstring,ptr,
+               { SETTFL } # Keine weitere Initialisierung
+              )
+      #undef SETTFL
+    }
+#endif
+
 # UP, beschafft indirekten Array
 # allocate_iarray(flags,rank,type)
 # > uintB flags: Flags
