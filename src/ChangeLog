@@ -1,3 +1,9 @@
+2002-12-18  Bruno Haible  <bruno@clisp.org>
+
+	* utils/unicode/UnicodeDataFull.txt: Upgrade to Unicode 3.2.
+	* describe.lisp (unicode-attributes-line): Lines in
+	UnicodeDataFull.txt may start with up to 6 hex digits now.
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* io.d (%PPRINT-LOGICAL-BLOCK): Make GC-safe.
