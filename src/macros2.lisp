@@ -33,7 +33,7 @@
 (defun report-one-new-value-string-instead ()
   (TEXT "You may input a value to be used instead~@[ of ~S~]."))
 (defun prompt-for-new-value-string () ; ABI
-  (concatenate 'string "~%" (TEXT "New ~S: ")))
+  (concatenate 'string "~&" (TEXT "New ~S: ")))
 (predefmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
         (tag2 (gensym)))

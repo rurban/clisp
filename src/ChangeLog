@@ -1,3 +1,10 @@
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
+	Remove redundant blank lines in stepper output when a program uses
+	newline convention A.
+	* reploop.lisp (step-values): Use fresh-line before and elastic-newline
+	after the output.
+
 2004-11-05  Bruno Haible  <bruno@clisp.org>
 
 	* query.lisp (y-or-n-p, yes-or-no-p): Remove extra blank line between
