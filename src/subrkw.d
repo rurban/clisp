@@ -47,7 +47,8 @@ s(read_byte_sequence)
 s(write_byte_sequence)
 s(convert_string_from_bytes)
 s(convert_string_to_bytes)
-v(4, (kw(charset),kw(line_terminator),kw(input_error_action),kw(output_error_action)) )
+v(5, (kw(charset),kw(line_terminator),kw(input_error_action),
+      kw(output_error_action),kw(if_does_not_exist)) )
 s(make_encoding)
 v(6, (kw(weak),kw(initial_contents),
       kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )

@@ -1,5 +1,19 @@
 2002-06-19  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d (MAKE-ENCODING): new keyword argument
+	:IF-DOES-NOT-EXIST to return nil for non-existing charsets
+	(init_encodings_2): when the charset does not exist,
+	just unintern the symbol
+	(encoding_from_name): pushSTACK() the extra keyword argument for
+	C_make_encoding()
+	* subr.d, subrkw.d (make_encoding): new keyword argument
+	* lispbibl.d (check_charset): return bool
+	* stream.d (open_iconv): do not barf when charset is nullobj
+	(check_charset): return false when code is invalid and charset is
+	nullobj
+
+2002-06-19  Sam Steingold  <sds@gnu.org>
+
 	new built-in MEMQ == MEMBER :TEST #'EQ
 	* list.d (MEMQ): new function (uses memq)
 	* constsym.d, subr.d (memq): define

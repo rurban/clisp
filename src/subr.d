@@ -289,8 +289,9 @@ LISPFUNN(debug,0)
 LISPFUNN(proom,0)
 LISPFUNN(gc,0)
 # ---------- ENCODING ----------
-LISPFUN(make_encoding,0,0,norest,key,4,
-        (kw(charset),kw(line_terminator),kw(input_error_action),kw(output_error_action)) )
+LISPFUN(make_encoding,0,0,norest,key,5,
+        (kw(charset),kw(line_terminator),kw(input_error_action),
+         kw(output_error_action),kw(if_does_not_exist)) )
 LISPFUNN(encodingp,1)
 LISPFUNN(charset_typep,2)
 LISPFUNN(encoding_charset,1)
