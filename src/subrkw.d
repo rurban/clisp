@@ -107,7 +107,7 @@ s(pathnamedirectory)
 s(pathnamename)
 s(pathnametype)
 #ifdef LOGICAL_PATHNAMES
-v(0,_EMA_)
+v(1, (kw(absolute)))
 s(translate_logical_pathname)
 #endif
 v(1, (kw(wild)) )

@@ -732,7 +732,8 @@ LISPFUN(pathnametype,seclass_read,1,0,norest,key,1, (kw(case)))
 LISPFUNNR(pathnameversion,1)
 #ifdef LOGICAL_PATHNAMES
 LISPFUNNR(logical_pathname,1)
-LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,0,_EMA_)
+LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
+        (kw(absolute)))
 #endif
 LISPFUNNR(file_namestring,1)
 LISPFUNNR(directory_namestring,1)
