@@ -2010,12 +2010,13 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <listitem><simpara>called <emphasis>every time</emphasis> &clisp; starts.
   It can be used to bind names to foreign addresses, since the address
   will be different in each invocation of &clisp;, and is indeed used
-  for that purpose by &ffi-pac; (e.g., &def-call-out;).
+  for that purpose by &ffi-pac; (e.g., by &def-call-out;).
   It can also be used to set parameters of the libraries to which the
   module interfaces, e.g., the <link linkend="pcre">pcre</link> module
   sets <varname>pcre_malloc</varname> and <varname>pcre_free</varname>.
 </simpara></listitem></varlistentry></variablelist>
 &name-r; is the <link linkend="mod-overview">module name</link>.</para>
+<para>See also <xref linkend="custom-init-fini"/>.</para>
 </section>
 
 <section id="modfini"><title>Module finalization.</title>
@@ -2026,6 +2027,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <listitem><simpara>called before exiting &clisp;.
 </simpara></listitem></varlistentry></variablelist>
 &name-r; is the <link linkend="mod-overview">module name</link>.</para>
+<para>See also <xref linkend="custom-init-fini"/>.</para>
 </section>
 
 <section id="modinfo"><title>Function &modinfo;</title>
@@ -2050,13 +2052,13 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 </section>
 
 <section id="mod-dynload"><title>Function &mod-dynload;</title>
-<subtitle><emphasis role="plat-dep">Some &unix; platforms only, compiled &with;
- configure flag <option>--with-dynamic-modules</option>.</emphasis></subtitle>
+<subtitle><emphasis role="plat-dep">Only when compiled &with; configure
+  flag <option>--with-dynamic-modules</option>.</emphasis></subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
-(&dlopen; is required)</para></note>
+  (&dlopen; or equivalent is required).</para></note>
 <note><para><option>--with-dynamic-modules</option> precludes some
-efficiency optimizations which are on by default.</para></note>
+  efficiency optimizations which are on by default.</para></note>
 
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
  loads a shared object file or library containing a number of named
@@ -2187,9 +2189,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 <para>If your module uses &ffi-pac; to interface to a &c-lang; library,
  you might want to make your module package
  <link linkend="make-pack">case-sensitive</link> and use
- <filename>exporting.lisp</filename> in the &clisp; distribution to
- make all &ffi-pac; forms export the symbols they define.
- See <filename>modules/netica</filename>
+ &exporting-lisp; in the &clisp; distribution to make &ffi-pac; forms
+ and &defun;, &defmacro; at al export the symbols they define.
+ See <filename>modules/netica</filename>, <filename>modules/matlab</filename>
  and <filename>modules/bindings/*</filename> for examples.</para>
 </section>
 
@@ -2367,7 +2369,7 @@ bash$ ./build-dir/clisp &opt-K; full
    or, depending on the underlying &dlsym; implementation, &default-k;
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
- <listitem><simpara>Specifies the (optional) variable documentation.
+ <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
 </simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
@@ -2401,7 +2403,7 @@ bash$ ./build-dir/clisp &opt-K; full
    or, depending on the underlying &dlsym; implementation, &default-k;
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
- <listitem><simpara>Specifies the (optional) function documentation.
+ <listitem><simpara>Specifies the (optional) &function-doc; documentation.
 </simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
@@ -2466,7 +2468,7 @@ bash$ ./build-dir/clisp &opt-K; full
     <term><constant>:EXTERNAL</constant></term>
     <listitem><simpara>means that this structure is defined in a
       &c-file; file that you include with, e.g.,
-      <code>(&c-lines; "#include &lt;filename.h&gt;")</code>.
+      <code>(&c-lines; "#include &lt;filename.h&gt;~%")</code>.
   </simpara></listitem></varlistentry></variablelist>
   These options determine how the struct is written to the &c-file;.
 </para></listitem></varlistentry>
