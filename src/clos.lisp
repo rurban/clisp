@@ -3542,21 +3542,20 @@
 
 (defgeneric method-qualifiers (method)
   (:method ((method standard-method))
-    (std-method-qualifiers method)
-) )
+    (std-method-qualifiers method)))
 
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
-    (values-list (sig-keywords (std-method-signature method)))
-) )
+    (let ((sig (std-method-signature method)))
+      (values (sig-keywords sig) (sig-allow-p sig)))))
 
-(defgeneric slot-missing (class instance slot-name operation &optional new-value)
+(defgeneric slot-missing (class instance slot-name operation
+                          &optional new-value)
   (:method ((class t) instance slot-name operation &optional new-value)
     (declare (ignore instance new-value))
     (error-of-type 'error
       (ENGLISH "~S: The class ~S has no slot named ~S")
-      operation class slot-name
-) ) )
+      operation class slot-name)))
 
 (defgeneric slot-unbound (class instance slot-name)
   (:method ((class t) instance slot-name)
@@ -3565,28 +3564,23 @@
       :name slot-name
       :instance instance
       (ENGLISH "~S: The slot ~S of ~S has no value")
-      'slot-value slot-name instance
-) ) )
+      'slot-value slot-name instance)))
 
 (defgeneric print-object (object stream)
   (:method ((object standard-object) stream)
-    (print-unreadable-object (object stream :type t :identity t))
-  )
+    (print-unreadable-object (object stream :type t :identity t)))
   (:method ((object structure-object) stream)
-    (system::print-structure object stream)
-  )
+    (system::print-structure object stream))
   (:method ((object class) stream)
-    (print-class object stream)
-  )
+    (print-class object stream))
   (:method ((object standard-method) stream)
-    (print-std-method object stream)
-) )
+    (print-std-method object stream)))
 
 ; Noch ein DEFSTRUCT-Hook
 (defun defstruct-remove-print-object-method (name)
-  (let ((method (find-method #'print-object nil (list (find-class name) <t>) nil)))
-    (when method (remove-method #'print-object method))
-) )
+  (let ((method (find-method #'print-object nil
+                             (list (find-class name) <t>) nil)))
+    (when method (remove-method #'print-object method))))
 
 ;; 28.1.9. Object creation and initialization
 
