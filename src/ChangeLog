@@ -1,5 +1,13 @@
 2005-03-29  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/posix.lisp (getpgid, setpgrp, getsid, setsid, kill):
+	export
+	* modules/syscalls/calls.c (getpgid, setpgrp, getsid, setsid, kill):
+	implemented
+	* modules/syscalls/configure.in: check for the above
+
+2005-03-29  Sam Steingold  <sds@gnu.org>
+
 	* src/m4/alloca.m4: removed
 	* configure.in: use AC_FUNC_ALLOCA instead of CL_ALLOCA
 
