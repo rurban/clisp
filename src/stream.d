@@ -16524,6 +16524,32 @@ local maygc bool elastic_newline_pending_p (object stream) {
 # < result: true if did output a newline
 # can trigger GC
 global maygc bool fresh_line (const gcv_object_t* stream_) {
+  { # Special hack that acknowledges the fact that sometimes *standard-output*
+    # and *error-output* go to the same device, although they are different.
+    # For example, in batch mode
+    #   $ ./clisp -x '(progn (format *standard-output* "~&line1~.") (format *error-output* "~&line2~."))' | cat
+    # or on Cygwin in Windows2000, when clisp is launched from the "cmd" shell,
+    # the same_handle_p function fails to recognize the two outputs as
+    # identical.
+    # (unless (eq *standard-output* *error-output*)
+    #   (cond ((eq stream *standard-output*) (finish-output *error-output*))
+    #         ((eq stream *error-output*) (finish-output *standard-output*))))
+    var object stream1 = Symbol_value(S(standard_output));
+    var object stream2 = Symbol_value(S(error_output));
+    if (!eq(stream1,stream2)) {
+      if (eq(*stream_,stream1)) {
+        if (output_stream_p(stream2)
+            && (!builtin_stream_p(stream2)
+                || (TheStream(stream2)->strmflags & strmflags_open_B) != 0))
+          finish_output(stream2);
+      } else if (eq(*stream_,stream2)) {
+        if (output_stream_p(stream1)
+            && (!builtin_stream_p(stream1)
+                || (TheStream(stream1)->strmflags & strmflags_open_B) != 0))
+          finish_output(stream1);
+      }
+    }
+  }
   # Test whether an elastic newline is pending, so that
   # (ELASTIC-NEWLINE stream) followed by (FRESH-LINE stream) always leads
   # to exactly one newline being output.
