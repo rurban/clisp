@@ -1929,12 +1929,11 @@ LISPFUNN(subr_info,1)
                   # item = (key var)
                   { keyword = Car(item); # key
                     # sollte ein Keyword sein:
-                    if (!(symbolp(keyword) && keywordp(keyword)))
+                    if (!(symbolp(keyword)))
                       { pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
                         pushSTACK(keyword);
                         fehler(source_program_error,
-                               GETTEXT("FUNCTION: ~ in ~ is not a keyword")
-                              );
+                               GETTEXT("FUNCTION: ~ in ~ is not a symbol"));
                       }
                     item = Cdr(item); # (var)
                     if (!(consp(item) && matomp(Cdr(item))))
@@ -2311,9 +2310,7 @@ LISPFUNN(subr_info,1)
     { pushSTACK(kw); # Wert für Slot DATUM von KEYWORD-ERROR
       pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
       pushSTACK(kw);
-      fehler(keyword_error,
-             GETTEXT("EVAL/APPLY: ~ is not a keyword")
-            );
+      fehler(keyword_error,GETTEXT("EVAL/APPLY: ~ is not a symbol"));
     }
 
 # Fehlermeldung bei fehlerhaftem Keyword
@@ -2379,7 +2376,7 @@ LISPFUNN(subr_info,1)
       if (!allow_flag)                                                      \
         if (!eq(bad_keyword,nullobj))                                       \
           # falsches Keyword aufgetreten                                    \
-          { if (!keywordp(bad_keyword))                                     \
+          { if (!symbolp(bad_keyword))                                      \
               { fehler_key_notkw(bad_keyword); }                            \
               else                                                          \
               { fehler_statement }                                          \
