@@ -8069,6 +8069,7 @@ Optimizations that might apply after this one are retried.
 (defun optimize-label (label &optional (index (get label 'code-part))
                                        (code (aref *code-parts* index))
                                        (lastc (last code)))
+  (unless (or code (symbol-value label)) (return-from optimize-label))
   (unless (eq label (cdr lastc)) (compiler-error 'optimize-label label))
   (when label
     ;; label is a Label, it starts the Code
@@ -8122,6 +8123,8 @@ Optimizations that might apply after this one are retried.
         (case (first item)
           (JMP ; (JMP ...) immediately behind the Label
            (let ((to-label (second item)))
+             (unless (symbol-value to-label)
+               (compiler-error 'optimize-short (cons label to-label)))
              (unless (eq label to-label)
                (label-subst label to-label) ; adjust References
                (setf (aref *code-parts* index) nil) ; remove code-piece
@@ -8199,7 +8202,7 @@ Optimizations that might apply after this one are retried.
                                      ,label1
                                      ,label2))))
                          (JMPHASH ; JMPHASH has undefined values
-                          (compiler-error 'optimize-short label))))
+                          (compiler-error 'optimize-short ref))))
                      ;; later:
                      ;; (setf (symbol-value label)
                      ;;       (delete refindex (symbol-value label)))
@@ -8381,9 +8384,10 @@ Optimizations that might apply after this one are retried.
          ;; and simplify if possible:
          (case (get-boolean-value (cdr code))
            (TRUE                ; jump always aims at true-label
-            ;; discard reference to false-label:
-            (setf (symbol-value false-label)
-                  (delete index (symbol-value false-label)))
+            (unless (eq true-label false-label)
+              ;; discard reference to false-label:
+              (setf (symbol-value false-label)
+                    (delete index (symbol-value false-label))))
             (setf (car code) `(JMP ,true-label TRUE))
             (when (eq (first item) 'JMPCASE1-TRUE)
               (push '(VALUES1) (cdr code))
@@ -8393,9 +8397,10 @@ Optimizations that might apply after this one are retried.
             (optimize-label false-label) ; because of reduced references
             (optimize-short index)) ; because of optimize-part above
            (FALSE
-            ;; discard reference to true-label
-            (setf (symbol-value true-label)
-                  (delete index (symbol-value true-label)))
+            (unless (eq true-label false-label)
+              ;; discard reference to true-label
+              (setf (symbol-value true-label)
+                    (delete index (symbol-value true-label))))
             (setf (car code) `(JMP ,false-label FALSE))
             (when (eq (first item) 'JMPCASE1-FALSE)
               (push '(VALUES1) (cdr code))
