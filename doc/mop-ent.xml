@@ -6,9 +6,8 @@
 <!ENTITY add-dependent "<link linkend='add-dependent'><function>CLOS:ADD-DEPENDENT</function></link>">
 <!ENTITY add-direct-method "<link linkend='add-direct-method'><function>CLOS:ADD-DIRECT-METHOD</function></link>">
 <!ENTITY add-direct-subclass "<link linkend='add-direct-subclass'><function>CLOS:ADD-DIRECT-SUBCLASS</function></link>">
-<!ENTITY canonicalized-default-initarg-glo "<link linkend='mop-canonicalized-default-initarg'>canonicalized default initarg</link>">
-<!ENTITY canonicalized-default-initialization-argument-glo "<link linkend='mop-canonicalized-default-initarg'>canonicalized default initialization argument</link>">
-<!ENTITY canonicalized-slot-specification-glo "<link linkend='mop-canonicalized-slot-spec'>canonicalized slot specification</link>">
+<!ENTITY canonicalized-default-initarg "<link linkend='mop-canonicalized-default-initarg'>canonicalized default initialization argument</link>">
+<!ENTITY canonicalized-slot-spec "<link linkend='mop-canonicalized-slot-spec'>canonicalized slot specification</link>">
 <!ENTITY class-default-initargs "<link linkend='class-default-initargs'><function>CLOS:CLASS-DEFAULT-INITARGS</function></link>">
 <!ENTITY class-direct-default-initargs "<link linkend='class-direct-default-initargs'><function>CLOS:CLASS-DIRECT-DEFAULT-INITARGS</function></link>">
 <!ENTITY class-direct-slots "<link linkend='class-direct-slots'><function>CLOS:CLASS-DIRECT-SLOTS</function></link>">

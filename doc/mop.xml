@@ -701,7 +701,7 @@ arguments received by the &ensure-class; function.  Examples of typical
 <informalexample><simpara>A &defclass; form with non-standard class and
   slot options, and an expansion of it which results in the proper call
   to &ensure-class;.  Note that the order of the slot options has not
-  affected the order of the properties in the &canonicalized-slot-specification-glo;,
+  affected the order of the properties in the &canonicalized-slot-spec;,
   but has affected the order of the elements in the lists
   which are the values of those properties.</simpara>
 <programlisting>
@@ -738,20 +738,20 @@ arguments received by the &ensure-class; function.  Examples of typical
   capture the lexical scope of the initialization forms.  This is done
   by converting each slot specification to a property list called a
   <firstterm>canonicalized slot specification</firstterm>.
-  The resulting list of &canonicalized-slot-specification-glo;s is the value
+  The resulting list of &canonicalized-slot-spec;s is the value
   of the &direct-slots-k; keyword argument.</simpara>
- <para id="mop-canonicalized-slot-spec">Canonicalized slot specifications are later used as the
-  keyword arguments to a generic function which will, in turn, pass them
-  to &make-instance; for use as a set of initialization arguments. Each
-  &canonicalized-slot-specification-glo; is formed from the corresponding slot
-  specification as follows:
+ <para id="mop-canonicalized-slot-spec">Canonicalized slot
+  specifications are later used as the keyword arguments to a generic
+  function which will, in turn, pass them to &make-instance; for use as
+  a set of initialization arguments.  Each &canonicalized-slot-spec; is
+  formed from the corresponding slot specification as follows:
   <itemizedlist>
    <listitem><simpara>The name of the slot is the value of the &name-k;
      property.  This property appears in every
-     &canonicalized-slot-specification-glo;.</simpara></listitem>
+     &canonicalized-slot-spec;.</simpara></listitem>
    <listitem><simpara>When the &initform-k; slot option is present in
      the slot specification, then both the &initform-k; and
-     &initfunction-k; properties are present in the &canonicalized-slot-specification-glo;.
+     &initfunction-k; properties are present in the &canonicalized-slot-spec;.
      The value of the &initform-k; property is the
      initialization form.  The value of the &initfunction-k; property is
      a function of zero arguments which, when called, returns the result
@@ -794,7 +794,7 @@ arguments received by the &ensure-class; function.  Examples of typical
      options appears more than once, the value of the property will be a
      list of the specified values.</simpara></listitem>
    <listitem><simpara>An implementation is free to add additional
-     properties to the &canonicalized-slot-specification-glo; provided these
+     properties to the &canonicalized-slot-spec; provided these
      are not symbols accessible in the &clu-pac; package, or exported by
      any package defined in the &ansi-cl;.</simpara></listitem>
   </itemizedlist></para></listitem>
@@ -804,9 +804,9 @@ arguments received by the &ensure-class; function.  Examples of typical
   Special processing of this value is done to properly capture the
   lexical scope of the default value forms.  This is done by converting
   each default initarg in the class option into a
-  <firstterm>canonicalized default initarg</firstterm>.  The resulting
-  list of &canonicalized-default-initarg-glo;s is the value of the
-  &direct-default-initargs-k; keyword argument to &ensure-class;.
+  <firstterm>canonicalized default initialization argument</firstterm>.
+  The resulting list of &canonicalized-default-initarg;s is the value of
+  the &direct-default-initargs-k; keyword argument to &ensure-class;.
  </simpara>
  <simpara id="mop-canonicalized-default-initarg">A canonicalized default
   initarg is a list of three elements.  The first element is the name;
@@ -829,8 +829,8 @@ arguments received by the &ensure-class; function.  Examples of typical
 <para>In the call to &ensure-class;, every element of its arguments
 appears in the same left-to-right order as the corresponding element of
 the &defclass; form, except that the order of the properties of
-&canonicalized-slot-specification-glo;s is unspecified.  The values of
-properties in &canonicalized-slot-specification-glo;s do follow this ordering
+&canonicalized-slot-spec;s is unspecified.  The values of
+properties in &canonicalized-slot-spec;s do follow this ordering
 requirement.  Other ordering relationships in the keyword arguments to
 &ensure-class; are unspecified.</para>
 
@@ -911,7 +911,7 @@ the class during initialization and reinitialization.
    &class-r;)</literal></subtitle>
 
 <para>Returns a list of the direct default initialization arguments for
-&class-r;.  Each element of this list is a &canonicalized-default-initialization-argument-glo;.
+&class-r;.  Each element of this list is a &canonicalized-default-initarg;.
 The empty list is returned if &class-r; has no
 direct default initialization arguments.  This is the defaulted value of
 the &direct-default-initargs-k; initialization argument that was
@@ -966,7 +966,7 @@ associated with the class metaobject and is returned by &class-slots;.
    &class-r;)</literal></subtitle>
 
 <para>Returns a list of the default initialization arguments for
-&class-r;.  Each element of this list is a &canonicalized-default-initialization-argument-glo;.
+&class-r;.  Each element of this list is a &canonicalized-default-initarg;.
 The empty list is returned if &class-r; has no
 default initialization arguments.</para>
 
@@ -1234,26 +1234,26 @@ previously stored value is left unchanged.</para>
 
 <itemizedlist>
  <listitem><simpara>The &direct-default-initargs-k; argument is a list
-   of &canonicalized-default-initialization-argument-glo;s.</simpara>
+   of &canonicalized-default-initarg;s.</simpara>
   <simpara>An &err-sig; if this value is not a &proper-list-glo;, or if any
-   element of the list is not a &canonicalized-default-initialization-argument-glo;.</simpara>
+   element of the list is not a &canonicalized-default-initarg;.</simpara>
   <simpara>If the class metaobject is being initialized, this argument
    defaults to the empty list.</simpara></listitem>
  <listitem><simpara> The &direct-slots-k; argument is a list of
-   &canonicalized-slot-specification-glo;s.</simpara>
+   &canonicalized-slot-spec;s.</simpara>
   <simpara>An &err-sig; if this value is not a &proper-list-glo; or if any
-   element of the list is not a &canonicalized-slot-specification-glo;.
+   element of the list is not a &canonicalized-slot-spec;.
   </simpara><para>After error checking, this value is converted to a
    list of direct slot definition metaobjects before it is associated
-   with the class metaobject.  Conversion of each &canonicalized-slot-specification-glo;
+   with the class metaobject.  Conversion of each &canonicalized-slot-spec;
    to a direct slot definition metaobject is a two-step
    process.  First, the generic function &dsd-class; is called with the
-   class metaobject and the &canonicalized-slot-specification-glo; to
+   class metaobject and the &canonicalized-slot-spec; to
    determine the class of the new direct slot definition metaobject;
-   this permits both the class metaobject and the &canonicalized-slot-specification-glo;
+   this permits both the class metaobject and the &canonicalized-slot-spec;
    to control the resulting direct slot definition
    metaobject class.  Second, &make-instance; is applied to the direct
-   slot definition metaobject class and the &canonicalized-slot-specification-glo;.
+   slot definition metaobject class and the &canonicalized-slot-spec;.
    This conversion could be implemented as shown in the
    following code:<programlisting>
 (&defun; convert-to-direct-slot-definition (class canonicalized-slot)
@@ -1782,11 +1782,11 @@ any dependents of the class metaobject will be updated by calling
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>When a class is initialized, each of the
-   &canonicalized-slot-specification-glo;s must be converted to a direct slot
+   &canonicalized-slot-spec;s must be converted to a direct slot
    definition metaobject.  This generic function is called to determine
    the class of that direct slot definition metaobject.</simpara>
-  <simpara>The &initargs-r; argument is simply the &canonicalized-slot-specification-glo;
-   for the slot.
+  <simpara>The &initargs-r; argument is simply the
+   &canonicalized-slot-spec; for the slot.
 </simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
@@ -1995,12 +1995,12 @@ any dependents of the class metaobject will be updated by calling
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The value returned by this generic function is a
-   list of &canonicalized-default-initialization-argument-glo;s.
+   list of &canonicalized-default-initarg;s.
 </simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic-function is called to determine the
    default initialization arguments for a class.</simpara>
- <simpara>The result is a list of &canonicalized-default-initialization-argument-glo;s,
+ <simpara>The result is a list of &canonicalized-default-initarg;s,
   with no duplication among initialization argument names.</simpara>
  <para>All methods on this generic function must compute the default
   initialization arguments as a function of only:
