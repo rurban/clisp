@@ -2,6 +2,7 @@
 
         * asmi386.hh (DECLARE_FUNCTION): New macro.
           (INSN2MOVX): Fix bug with ANSI C preprocessors.
+          (ALIGN): Don't put parentheses. For Solaris/x86.
         * asmi386.sh: Introduce C(...) macro calls. Recognize more jumps.
           Introduce DECLARE_FUNCTION(...) macro calls.
 
