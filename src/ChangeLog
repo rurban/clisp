@@ -1,5 +1,10 @@
 2005-03-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/queens/queens.c, modules/queens/callqueens.c:
+	use "modern" tools and formatting
+
+2005-03-21  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (init_module_2): do not allow redefinition of symbols in
 	locked packages
 	this should prevent bugs like the LISTEN bug also fixed today

@@ -1,7 +1,7 @@
 /* Compute the number of solutions to the n-queens problem on a nxn
    checkboard. */
 
-/* dynamic data structures not needed for such a simple problem */
+/* dynamic data structures are not needed for such a simple problem */
 #define nmax 100
 
 int queens (int n)                /* function definition in ISO/ANSI C style */
@@ -23,22 +23,24 @@ int queens (int n)                /* function definition in ISO/ANSI C style */
   int i = 0; /* recursion depth */
   int* Dptr = &dtab[0]; /* points to next free D(i) */
   entry: /* enter recursion */
-    i++;
-    if (i > n)
-      { counter++; }
-      else
-      { int j;
-        for (j = 1; j <= n; j++)
-          { if (freetab1[j]==0 && freetab2[j+i]==0 && freetab3[j-i]==0)
-              { freetab1[j]=1; freetab2[j+i]=1; freetab3[j-i]=1;
-                *Dptr++ = j;
-                goto entry;
-                comeback:
-                j = *--Dptr;
-                freetab1[j]=0; freetab2[j+i]=0; freetab3[j-i]=0;
-      }   }   }
-    i--;
-    if (i>0) goto comeback;
+  i++;
+  if (i > n) {
+    counter++;
+  } else {
+    int j;
+    for (j = 1; j <= n; j++) {
+      if (freetab1[j]==0 && freetab2[j+i]==0 && freetab3[j-i]==0) {
+        freetab1[j]=1; freetab2[j+i]=1; freetab3[j-i]=1;
+        *Dptr++ = j;
+        goto entry;
+       comeback:
+        j = *--Dptr;
+        freetab1[j]=0; freetab2[j+i]=0; freetab3[j-i]=0;
+      }
+    }
+  }
+  i--;
+  if (i>0) goto comeback;
   return counter;
 }}
 
