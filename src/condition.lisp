@@ -1596,29 +1596,26 @@ Todo:
 
 (defun maybe-continue (condition report-p)
   (let ((restart (find-restart 'CONTINUE condition)))
-    (when restart
-      (if (restart-meaningfulp restart)
-        (if (eq (restart-interactive restart) #'default-restart-interactive)
-          (progn
-            (when report-p
-              (warn "~A" (with-output-to-string (stream)
-                           (print-condition condition stream)
-                           (let ((report-function (restart-report restart)))
-                             (when report-function
-                               (terpri stream)
-                               (funcall report-function stream))))))
-            (invoke-restart restart))
-          (when (interactive-stream-p *debug-io*)
-            ;; Show the condition in the same way as the break-loop would.
-            (fresh-line *error-output*)
-            (write-string "** - " *error-output*)
-            (write-string (TEXT "Continuable Error") *error-output*)
-            (terpri *error-output*)
-            (pretty-print-condition condition *error-output* :text-indent 5)
-            (elastic-newline *error-output*)
-            (invoke-restart-interactively restart)))
+    (when (and restart (restart-meaningfulp restart))
+      (if (eq (restart-interactive restart) #'default-restart-interactive)
+        (progn
+          (when report-p
+            (warn "~A" (with-output-to-string (stream)
+                         (print-condition condition stream)
+                         (let ((report-function (restart-report restart)))
+                           (when report-function
+                             (terpri stream)
+                             (funcall report-function stream))))))
+          (invoke-restart restart))
         (when (interactive-stream-p *debug-io*)
-          (invoke-debugger condition))))))
+          ;; Show the condition in the same way as the break-loop would.
+          (fresh-line *error-output*)
+          (write-string "** - " *error-output*)
+          (write-string (TEXT "Continuable Error") *error-output*)
+          (terpri *error-output*)
+          (pretty-print-condition condition *error-output* :text-indent 5)
+          (elastic-newline *error-output*)
+          (invoke-restart-interactively restart))))))
 
 (defun muffle-cerror (condition) (maybe-continue condition nil)) ; ABI
 (defmacro muffle-cerrors (&body body)
