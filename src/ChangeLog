@@ -1,3 +1,7 @@
+1999-01-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (main): Option --version implies -norc.
+
 1999-01-10  Michael Somos  <somos@grail.cba.csuohio.edu>
 
         * spvw_garcol.d: Move the "#undef update_stackobj".
