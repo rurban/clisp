@@ -1,5 +1,41 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	Support for custom method classes not inheriting from STANDARD-METHOD.
+	* clos-class3.lisp (install-class-direct-accessors): Create method
+	in two steps. Pass fast-function instead of initfunction initarg,
+	using method-function-initargs.
+	* clos-method1.lisp (initialize-instance-<standard-method>): Drop
+	initfunction argument.
+	* clos-methcomb2.lisp (method-function-substitute,
+	method-function-initargs): New functions.
+	(effective-method-code-bricks): Emit code to create method in two
+	steps, and pass fast-function instead of initfunction initarg, using
+	method-function-initargs.
+	* clos-method2.lisp (analyze-method-description): Return the
+	function lambda as a separate value. Don't produce an initfunction
+	initarg.
+	* clos-genfun3.lisp (defmethod): Pass three arguments to do-defmethod.
+	(do-defmethod): Accept three arguments. Create method in two steps.
+	Pass fast-function instead of initfunction initarg, using
+	method-function-initargs.
+	(declaim-method): Update.
+	(analyze-defgeneric): Emit code to create method in two steps, and
+	pass fast-function instead of initfunction initarg, using
+	method-function-initargs.
+	* clos-genfun4.lisp (no-next-method, add-method, remove-method):
+	Generalize method from <standard-method> to <method>.
+	* clos-method3.lisp (initialize-instance@standard-method): Drop
+	initfunction argument.
+	* clos-slots2.lisp (slot-value-using-class,
+	(setf slot-value-using-class), slot-boundp-using-class,
+	slot-makunbound-using-class): Pass fast-function instead of
+	initfunction initarg.
+	* clos-class5.lisp (shared-initialize, reinitialize-instance,
+	initialize-instance, allocate-instance, make-instance): Pass
+	fast-function instead of initfunction initarg.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Split method creation into separate allocation and initialization.
 	* clos-method1.lisp (make-method-instance): Remove function.
 	(allocate-method-instance, initialize-method-instance): New functions.

@@ -154,7 +154,7 @@
 (defun %no-next-method (method &rest args)
   (apply #'no-next-method (method-generic-function method) method args))
 (defgeneric no-next-method (gf method &rest args)
-  (:method ((gf standard-generic-function) (method standard-method) &rest args
+  (:method ((gf standard-generic-function) (method method) &rest args
             &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))
     (if (let ((method-combo (std-gf-method-combination gf)))
           (funcall (method-combination-call-next-method-allowed method-combo)
@@ -181,14 +181,14 @@
 
 ;; MOP p. 33
 (defgeneric add-method (gf method)
-  (:method ((gf standard-generic-function) (method standard-method))
+  (:method ((gf standard-generic-function) (method method))
     (std-add-method gf method)))
 ; No extended method check because this GF is specified in ANSI CL.
 ;(initialize-extended-method-check #'add-method)
 
 ;; MOP p. 91
 (defgeneric remove-method (gf method)
-  (:method ((gf standard-generic-function) (method standard-method))
+  (:method ((gf standard-generic-function) (method method))
     (std-remove-method gf method)))
 ; No extended method check because this GF is specified in ANSI CL.
 ;(initialize-extended-method-check #'remove-method)
