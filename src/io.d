@@ -3593,9 +3593,7 @@ LISPFUNN(read_eval_reader,3) # liest #.
     if (!nullp(popSTACK())) { fehler_dispatch_zahl(); } # n/=NIL -> Error
     obj = make_references(obj); # Verweise entflechten
     # Entweder *READ-EVAL* oder der Stream muss die Evaluierung erlauben.
-    if (!(((TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)) != 0)
-          || test_value(S(read_eval))
-       ) )
+    if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
       { fehler_read_eval_forbidden(stream_,obj); }
     eval_noenv(obj); # Form auswerten
     mv_count=1; skipSTACK(2); # nur 1 Wert zurück
@@ -3630,9 +3628,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
       else
       # Im Interpreter:
       { # Entweder *READ-EVAL* oder der Stream muss die Evaluierung erlauben.
-        if (!(((TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)) != 0)
-              || test_value(S(read_eval))
-           ) )
+        if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
           { fehler_read_eval_forbidden(stream_,obj); }
         eval_noenv(obj); # Form auswerten
       }
@@ -4713,7 +4709,10 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
     var object* stream_ = &STACK_3;
     test_istream(stream_);
    {var object stream = *stream_;
-    if (!(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B)))
+    if (builtin_stream_p(stream)
+        ? !(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B))
+        : !instanceof(stream,O(class_fundamental_input_stream))
+       )
       { fehler_illegal_streamop(S(read_char_no_hang),stream); }
     { var signean status = stream_listen(stream);
       if (ls_eof_p(status)) # EOF ?
@@ -6279,7 +6278,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                Symbol_value(S(prin_l1)) = linepos;
               }
               pushSTACK(make_pphelp_stream()); # neuer PPHELP-Stream, Line-Position = 0
-              TheStream(STACK_0)->strmflags |= (TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)); # READ-EVAL-Bit übernehmen
+              if (stream_get_read_eval(*stream_))
+                { TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B); } # READ-EVAL-Bit übernehmen
               # Objekt auf den neuen Stream ausgeben:
               (*pr_xxx)(&STACK_0,STACK_1);
               # Inhalt des neuen Streams auf den alten Stream ausgeben:
@@ -8452,9 +8452,7 @@ LISPFUNN(print_structure,2)
                   write_ascii_char(stream_,'>');
                 }
                 else
-                { if (!(((TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)) != 0)
-                        || test_value(S(read_eval))
-                     ) )
+                { if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
                     { fehler_print_readably(*obj_); }
                   if (pack_deletedp(*obj_)) { fehler_print_readably(*obj_); }
                   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
@@ -8571,9 +8569,7 @@ LISPFUNN(print_structure,2)
           case Rectype_Loadtimeeval:
             # #.form
             { if (test_value(S(print_readably)))
-                if (!(((TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)) != 0)
-                      || test_value(S(read_eval))
-                   ) )
+                if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
                   { fehler_print_readably(obj); }
               pushSTACK(TheLoadtimeeval(obj)->loadtimeeval_form); # form retten
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
@@ -8905,9 +8901,7 @@ LISPFUNN(print_structure,2)
     { # #<SYSTEM-FUNCTION name> bzw. #<ADD-ON-SYSTEM-FUNCTION name>
       # bzw. #.(SYSTEM::%FIND-SUBR 'name)
       if (test_value(S(print_readably)))
-        { if (!(((TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)) != 0)
-                || test_value(S(read_eval))
-             ) )
+        { if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
             { fehler_print_readably(obj); }
           pushSTACK(obj); # obj retten
          {var object* obj_ = &STACK_0; # und merken, wo es sitzt

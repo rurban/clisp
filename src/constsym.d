@@ -1174,6 +1174,23 @@ LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) # als Funktion für ERR
 LISPSYM(cerror,"CERROR",lisp) # als Funktion für ERROR
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) # als Variable für ERROR
 LISPSYM(safe_typep,"SAFE-TYPEP",system) # als Funktion für ERROR
+LISPSYM(stream_read_byte,"STREAM-READ-BYTE",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_byte_sequence,"STREAM-READ-BYTE-SEQUENCE",lisp) # als Funktion für STREAM
+LISPSYM(stream_write_byte,"STREAM-WRITE-BYTE",lisp) # als Funktion für STREAM
+LISPSYM(stream_write_byte_sequence,"STREAM-WRITE-BYTE-SEQUENCE",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_char,"STREAM-READ-CHAR",lisp) # als Funktion für STREAM
+LISPSYM(stream_unread_char,"STREAM-UNREAD-CHAR",lisp) # als Funktion für STREAM
+LISPSYM(stream_peek_char,"STREAM-PEEK-CHAR",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_char_sequence,"STREAM-READ-CHAR-SEQUENCE",lisp) # als Funktion für STREAM
+LISPSYM(stream_write_char,"STREAM-WRITE-CHAR",lisp) # als Funktion für STREAM
+LISPSYM(stream_write_char_sequence,"STREAM-WRITE-CHAR-SEQUENCE",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_line,"STREAM-READ-LINE",lisp) # als Funktion für STREAM
+LISPSYM(stream_read_char_status,"STREAM-READ-CHAR-STATUS",lisp) # als Funktion für STREAM
+LISPSYM(stream_clear_input,"STREAM-CLEAR-INPUT",lisp) # als Funktion für STREAM
+LISPSYM(stream_finish_output,"STREAM-FINISH-OUTPUT",lisp) # als Funktion für STREAM
+LISPSYM(stream_force_output,"STREAM-FORCE-OUTPUT",lisp) # als Funktion für STREAM
+LISPSYM(stream_clear_output,"STREAM-CLEAR-OUTPUT",lisp) # als Funktion für STREAM
+LISPSYM(stream_line_column,"STREAM-LINE-COLUMN",lisp) # als Funktion für STREAM
 #ifdef GENERIC_STREAMS
 LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",lisp) # als Funktion für STREAM
@@ -1204,6 +1221,7 @@ LISPSYM(standard_input,"*STANDARD-INPUT*",lisp) # als Variable in STREAM
 LISPSYM(standard_output,"*STANDARD-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
+LISPSYM(reval,"$REVAL",system) # als Slotname in STREAM
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Variable in PATHNAME
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
 #ifdef LOGICAL_PATHNAMES
