@@ -468,6 +468,9 @@ error
   (file-position s (+ (file-length s) 1000)))
 error
 
+(delete-file "/tmp/foo35.tmp")
+null
+
 (file-write-date "*")
 file-error
 
@@ -894,6 +897,8 @@ error
                               :element-type '(unsigned-byte 8))
     (read-byte s t)))
 end-of-file
+(delete-file "/tmp/foo51.bin")
+null
 
 (let ((filename "/tmp/foo52.txt"))
   (with-open-file (s filename :direction :output
@@ -902,6 +907,8 @@ end-of-file
   (with-open-file (s filename :direction :input)
     (read-char s t)))
 end-of-file
+(delete-file "/tmp/foo52.txt")
+null
 
 (let ((filename "/tmp/foo53.txt"))
   (with-open-file (s filename :direction :output
@@ -910,6 +917,8 @@ end-of-file
   (with-open-file (s filename :direction :input)
     (read-char-no-hang s t)))
 end-of-file
+(delete-file "/tmp/foo53.txt")
+null
 
 (read-from-string "((a b))" nil nil :end 6)
 end-of-file
