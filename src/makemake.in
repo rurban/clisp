@@ -1857,6 +1857,7 @@ echol     "# syscalls             export some POSIX (and other) system calls"
 echol     "# rawsock              raw socket access"
 echol     "# regexp               POSIX regular expressions"
 echol     "# pcre                 Perl-compatible regular expressions"
+echol     "# i18n                 Lisp program internationalization"
 if [ "${with_dynamic_ffi}" != no ]; then
   echol   "# wildcard             wildcard matching"
   echol   "# postgresql           interface to PostgreSQL ODBMS"
