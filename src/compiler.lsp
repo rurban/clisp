@@ -1217,6 +1217,7 @@ for-value   NIL oder T
           (file-namestring 1 0 nil nil nil)
           (file-position 1 1 nil nil nil)
           (system::file-stream-p 1 0 nil nil nil)
+          (file-string-length 2 0 nil nil nil)
           (file-write-date 1 0 nil nil nil)
           (fill 2 0 nil (:start :end) nil)
           (fill-pointer 1 0 nil nil nil)

@@ -1,5 +1,12 @@
 1998-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (FILE-STRING-LENGTH): New function.
+        * init.lsp: Export it from package LISP.
+        * defs3.lsp: Export it from package COMMON-LISP.
+        * compiler.lsp (subr-info): Add FILE-STRING-LENGTH.
+
+1998-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Encode the "last read character has been pushed back" state of a
         stream in the strmflags, instead of in strm_rd_ch_last.
         * stream.d (strmflags_unread_bit_B, strmflags_unread_B): New defines.

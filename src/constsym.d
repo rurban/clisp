@@ -807,6 +807,7 @@ LISPSYM(read_byte,"READ-BYTE",lisp)
 LISPSYM(write_byte,"WRITE-BYTE",lisp)
 LISPSYM(file_position,"FILE-POSITION",lisp)
 LISPSYM(file_length,"FILE-LENGTH",lisp)
+LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
 LISPSYM(line_number,"LINE-NUMBER",system)
 LISPSYM(allow_read_eval,"ALLOW-READ-EVAL",system)
 # ---------- SYMBOL ----------

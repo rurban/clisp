@@ -153,7 +153,8 @@ make-pathname pathnamep pathname-host pathname-device pathname-directory
 pathname-name pathname-type pathname-version namestring file-namestring
 directory-namestring host-namestring enough-namestring user-homedir-pathname
 open rename-file delete-file probe-file file-write-date file-author
-file-position file-length load directory ensure-directories-exist
+file-position file-length file-string-length load directory
+ensure-directories-exist
 error cerror warn break compile compile-file disassemble
 function-lambda-expression
 documentation  variable structure type ; drei Dokumentations-Typen
