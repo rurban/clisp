@@ -1,3 +1,4 @@
+;; -*- Lisp -*-
 
 (ENDP 'NIL)
 T
@@ -24,39 +25,33 @@ NIL
 0
 
 (LIST-LENGTH '(A . B))
-#+XCL 1 #+(or CLISP AKCL ECL ALLEGRO CMU) ERROR #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#+XCL 1 #+(or CLISP AKCL ECL ALLEGRO CMU) ERROR
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (LIST-LENGTH '(A B C D))
 4
 
-(LIST-LENGTH '(A (B C)
-                 D))
+(LIST-LENGTH '(A (B C) D))
 3
 
 (LET ((X (LIST 'A 'B 'C)))
-     (RPLACD (LAST X)
-            X)
-     (LIST-LENGTH X))
+  (RPLACD (LAST X) X)
+  (LIST-LENGTH X))
 NIL
 
-(NTH 0
-     '(A B C D))
+(NTH 0 '(A B C D))
 A
 
-(NTH 1
-     '(A B C D))
+(NTH 1 '(A B C D))
 B
 
-(NTH 3
-     '(A B C D))
+(NTH 3 '(A B C D))
 D
 
-(NTH 5
-     '(A B C D))
+(NTH 5 '(A B C D))
 NIL
 
-(NTH -2
-     '(A B C D))
+(NTH -2 '(A B C D))
 ERROR
 
 (NTH 0 'NIL)
@@ -167,24 +162,19 @@ B
 (REST '(1 2 3 . 4))
 (2 3 . 4)
 
-(NTHCDR 0
-       '(A B C D))
+(NTHCDR 0 '(A B C D))
 (A B C D)
 
-(NTHCDR 1
-       '(A B C D))
+(NTHCDR 1 '(A B C D))
 (B C D)
 
-(NTHCDR 3
-       '(A B C D))
+(NTHCDR 3 '(A B C D))
 (D)
 
-(NTHCDR 5
-       '(A B C D))
+(NTHCDR 5 '(A B C D))
 NIL
 
-(NTHCDR -2
-       '(A B C D))
+(NTHCDR -2 '(A B C D))
 ERROR
 
 (NTHCDR 0 'NIL)
@@ -211,10 +201,8 @@ NIL
 (LIST 'A)
 (A)
 
-(LIST '(A B)
-      '(C D))
-((A B)
- (C D))
+(LIST '(A B) '(C D))
+((A B) (C D))
 
 (LIST 'A 'NIL)
 (A NIL)
@@ -293,9 +281,9 @@ NIL
 ERROR
 
 (APPEND '(A B C)
-       '(D E F)
-       'NIL
-       '(G))
+        '(D E F)
+        'NIL
+        '(G))
 (A B C D E F G)
 
 (APPEND '(A B C)
@@ -319,16 +307,13 @@ NIL
        '(A B C))
 (A B C)
 
-(SETQ X
-      '(A B C))
+(SETQ X '(A B C))
 (A B C)
 
-(SETQ Y
-      '(D E F))
+(SETQ Y '(D E F))
 (D E F)
 
-(SETQ R
-      (APPEND X Y))
+(SETQ R (APPEND X Y))
 (A B C D E F)
 
 X
@@ -337,8 +322,7 @@ X
 Y
 (D E F)
 
-(EQ (CDDDR R)
-    Y)
+(EQ (CDDDR R) Y)
 T
 
 (COPY-LIST '(1 2 3 4 5))
@@ -353,37 +337,35 @@ NIL
 (COPY-LIST '(1 2 3 . 4))
 (1 2 3 . 4)
 
-(SETQ L
-      '(1 2 3 4 5))
+(SETQ L '(1 2 3 4 5))
 (1 2 3 4 5)
 
-(EQ L
-    (COPY-LIST L))
+(EQ L (COPY-LIST L))
 NIL
 
-(EQL L
-     (COPY-LIST L))
+(EQL L (COPY-LIST L))
 NIL
 
-(EQUAL L
-       (COPY-LIST L))
+(EQUAL L (COPY-LIST L))
 T
 
-(EQUALP L
-       (COPY-LIST L))
+(EQUALP L (COPY-LIST L))
 T
 
 (COPY-ALIST 'A)
-#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP A #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP A
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (COPY-ALIST 'NIL)
 NIL
 
 (COPY-ALIST 5)
-#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP 5 #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP 5
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (COPY-ALIST '(A B))
-#+(or XCL CLISP ECL ALLEGRO CMU) (A B) #+GCL ERROR #-(or XCL CLISP ECL GCL ALLEGRO CMU) UNKNOWN
+#+(or XCL CLISP ECL ALLEGRO CMU) (A B) #+GCL ERROR
+#-(or XCL CLISP ECL GCL ALLEGRO CMU) UNKNOWN
 
 (COPY-ALIST '((1 . A)
               (2 . B)
@@ -392,24 +374,20 @@ NIL
  (2 . B)
  (3 . C))
 
-(SETQ X
-      '((1 . A)
-        (2 . B)
-        (3 . C)))
+(SETQ X '((1 . A)
+          (2 . B)
+          (3 . C)))
 ((1 . A)
  (2 . B)
  (3 . C))
 
-(EQ X
-    (COPY-ALIST X))
+(EQ X (COPY-ALIST X))
 NIL
 
-(EQL X
-     (COPY-ALIST X))
+(EQL X (COPY-ALIST X))
 NIL
 
-(EQUAL X
-       (COPY-ALIST X))
+(EQUAL X (COPY-ALIST X))
 T
 
 (EQ (CADR X)
@@ -425,13 +403,14 @@ NIL
 T
 
 (COPY-ALIST '((1 . 2))
-       '((A . B)))
+            '((A . B)))
 ERROR
 
 (COPY-ALIST '((A B)
               C
               (D E)))
-#+(or XCL CLISP ECL ALLEGRO CMU) ((A B) C (D E)) #+GCL ERROR #-(or XCL CLISP ECL GCL ALLEGRO CMU) UNKNOWN
+#+(or XCL CLISP ECL ALLEGRO CMU) ((A B) C (D E)) #+GCL ERROR
+#-(or XCL CLISP ECL GCL ALLEGRO CMU) UNKNOWN
 
 (COPY-TREE 'X)
 X
@@ -502,10 +481,12 @@ ERROR
 (C B A . D)
 
 (REVAPPEND 'A 'B)
-#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP B #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP B
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (REVAPPEND 'A 'NIL)
-#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP NIL #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#+(or XCL AKCL ECL ALLEGRO CMU) ERROR #+CLISP NIL
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (REVAPPEND 'NIL 'NIL)
 NIL
@@ -514,15 +495,15 @@ NIL
 A
 
 (REVAPPEND 'NIL
-       '(A B C))
+           '(A B C))
 (A B C)
 
 (REVAPPEND '(A B C)
-       '(D E F))
+           '(D E F))
 (C B A D E F)
 
 (REVAPPEND '(D E F)
-       '(A B C))
+           '(A B C))
 (F E D A B C)
 
 (EQL (REVAPPEND '(A B C)
@@ -532,21 +513,18 @@ A
 NIL
 
 (EQUAL (REVAPPEND '(A B C)
-              '(D E F))
+                  '(D E F))
        (APPEND (REVERSE '(A B C))
-              '(D E F)))
+               '(D E F)))
 T
 
-(SETQ X
-      '(A B C))
+(SETQ X '(A B C))
 (A B C)
 
-(SETQ Y
-      '(D E F))
+(SETQ Y '(D E F))
 (D E F)
 
-(SETQ R
-      (REVAPPEND X Y))
+(SETQ R (REVAPPEND X Y))
 (C B A D E F)
 
 X
@@ -624,12 +602,13 @@ T
     Z)
 T
 
-(NCONC '(1 2)
-       'A)
-#+XCL ERROR #+(or CLISP AKCL ECL ALLEGRO CMU) (1 2 . A) #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+(NCONC '(1 2) 'A)
+#+XCL ERROR #+(or CLISP AKCL ECL ALLEGRO CMU) (1 2 . A)
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (NCONC 'A)
-#+XCL ERROR #+(or CLISP AKCL ECL ALLEGRO CMU) A #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#+XCL ERROR #+(or CLISP AKCL ECL ALLEGRO CMU) A
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (SETQ X
       '(A B C)
@@ -729,38 +708,32 @@ XXX
 (PUSHNEW 'U (CAR XX))
 (U)
 
-(PUSHNEW 'U
-       (CAR XX))
+(PUSHNEW 'U (CAR XX))
 (U)
 
-(PUSHNEW 'V
-       (CAR XX))
+(PUSHNEW 'V (CAR XX))
 (V U)
 
 XX
 ((V U) KKK)
 
-(PUSHNEW '(W)
-       (CAR XX))
+(PUSHNEW '(W) (CAR XX))
 ((W)
  V U)
 
-(PUSHNEW '(W)
-       (CAR XX))
+(PUSHNEW '(W) (CAR XX))
 ((W)
  (W)
  V U)
 
-(PUSHNEW '(W)
-       (CAR XX)
-       :TEST 'EQUAL)
+(PUSHNEW '(W) (CAR XX)
+         :TEST 'EQUAL)
 ((W)
  (W)
  V U)
 
-(PUSHNEW '(W)
-       (CAR XX)
-       :TEST-NOT 'EQUAL)
+(PUSHNEW '(W) (CAR XX)
+         :TEST-NOT 'EQUAL)
 ((W)
  (W)
  V U)
