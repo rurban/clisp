@@ -2457,9 +2457,8 @@ global int main (argc_t argc, char* argv[]) {
         heapptr->heap_start = heapptr->heap_limit;
        #if varobjects_misaligned
         if (is_varobject_heap(heapnr)) {
-          if (zeromap((void*)heapptr->heap_start,map_pagesize) < 0) goto no_mem;
-          heapptr->heap_limit = heapptr->heap_start + map_pagesize;
           heapptr->heap_start += varobjects_misaligned;
+          heapptr->heap_limit = heapptr->heap_start;
         }
        #endif
         heapptr->heap_end = heapptr->heap_start;
