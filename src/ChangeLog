@@ -1,5 +1,15 @@
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
+	do not go into an edless loop on `clisp -x '(assert nil)'`
+	* condition.lisp (assert): name the interactive CONTINUE restart
+	functions for the benefit of APPEASE-CERRORS and MUFFLE-CERRORS
+	(assert-restart-no-prompts, maybe-continue, muffle-cerror):
+	new functions
+	(muffle-cerrors): use MUFFLE-CERROR
+	(appease-cerror): use MAYBE-CONTINUE
+
+2002-04-22  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 547046 ]: compiler-macro -> no special-operator
 	* compiler.lisp (c-form): call EXPAND-COMPILER-MACRO before
 	checking C-FORM-TABLE to accomodate expanding to a special form
