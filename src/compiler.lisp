@@ -304,6 +304,8 @@
 ;; The names of modules already compiled
 ;; (treated as if they were already loaded)
 (defvar *compiled-modules* nil)
+(defvar *package-tasks-treat-specially* t
+  "Treat package-related operations the same way at compile and load time.")
 ;; The list of the pending package tasks
 (defvar *package-tasks* nil)
 ;; The data accumulated by the FFI.
@@ -3739,7 +3741,7 @@ der Docstring (oder NIL).
                  DIRECTORY-NAMESTRING HOST-NAMESTRING MERGE-PATHNAMES ENOUGH-NAMESTRING
                  MAKE-PATHNAME NAMESTRING TRUENAME PROBE-FILE DIRECTORY FILE-WRITE-DATE
                  FILE-AUTHOR
-                 EQUAL EQUALP COMPILED-FUNCTION-P CLOS::GENERIC-FUNCTION-P 
+                 EQUAL EQUALP COMPILED-FUNCTION-P CLOS::GENERIC-FUNCTION-P
                  TYPE-OF CLOS::CLASS-P CLOS:CLASS-OF COERCE
                  SYSTEM::%RECORD-REF SYSTEM::%RECORD-LENGTH SYSTEM::%STRUCTURE-REF SYSTEM::%MAKE-STRUCTURE
                  COPY-STRUCTURE SYSTEM::%STRUCTURE-TYPE-P SYSTEM::CLOSURE-NAME
@@ -4124,7 +4126,8 @@ der Docstring (oder NIL).
          ) )  )
     ) )
     ; Package-Anforderungen zur Kenntnis nehmen:
-    (when (and (memq fun '(MAKE-PACKAGE SYSTEM::%IN-PACKAGE IN-PACKAGE
+    (when (and *package-tasks-treat-specially*
+               (memq fun '(MAKE-PACKAGE SYSTEM::%IN-PACKAGE IN-PACKAGE
                            SHADOW SHADOWING-IMPORT EXPORT UNEXPORT
                            USE-PACKAGE UNUSE-PACKAGE IMPORT
                )          )
@@ -12226,16 +12229,15 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (disassemble-closures form *c-listing-output*)
       )
       (when *fasoutput-stream*
-        (write form :stream *fasoutput-stream* :pretty t
-                    :readably t :right-margin 79
+        (let ((*print-symbols-long* t))
+          (write form :stream *fasoutput-stream* :pretty t
+                      :readably t :right-margin 79
                     ; :closure t :circle t :array t :gensym t
                     ; :escape t :level nil :length nil :radix t
-        )
-        (terpri *fasoutput-stream*)
-      )
-      (when *package-tasks*
-        (c-eval-when-compile `(PROGN ,@(nreverse *package-tasks*)))
-      )
+          )
+          (terpri *fasoutput-stream*)))
+      (when (and *package-tasks-treat-specially* *package-tasks*)
+        (c-eval-when-compile `(PROGN ,@(nreverse *package-tasks*))))
 ) ) )
 
 ; C-Output-File öffnen, falls noch nicht offen:
