@@ -3,6 +3,7 @@
 	* constobj.d (type_priority) [WIN32_NATIVE]: added
 	* pathname.d (LAUNCH) [WIN32_NATIVE]: use it (GC-safety bug fix!)
 	(allocate_cons_v): removed
+	* error.d (fehler_key_odd): fixed a GC-safety bug
 
 2003-05-14  Bruno Haible  <bruno@clisp.org>
 
