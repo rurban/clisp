@@ -800,7 +800,7 @@ global void abort() {
 #include <windows.h>
 #define FACTOR (0x19db1ded53ea710LL)
 #define NSPERSEC 10000000LL
-global long to_time_t_ (FILETIME * ptr) {
+global long time_t_from_filetime (const FILETIME * ptr) {
   /* A file time is the number of 100ns since jan 1 1601
      stuffed into two long words.
      A time_t is the number of seconds since jan 1 1970.  */
@@ -815,6 +815,12 @@ global long to_time_t_ (FILETIME * ptr) {
   x /= (long long) NSPERSEC;    /* number of 100ns in a second */
   x += (long long) (rem/NSPERSEC);
   return x;
+}
+global void time_t_to_filetime (time_t time_in, FILETIME *out)
+{
+  long long x = time_in * NSPERSEC + FACTOR;
+  out->dwHighDateTime = x >> 32;
+  out->dwLowDateTime = x;
 }
 #undef FACTOR
 #undef NSPERSEC

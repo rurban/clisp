@@ -1,5 +1,21 @@
 2005-01-11  Sam Steingold  <sds@gnu.org>
 
+	unified cygwin/woe32 time conversion
+	* unixaux.d (time_t_to_filetime) [UNIX_CYGWIN32]: new function
+	(time_t_from_filetime) [UNIX_CYGWIN32]: renamed from to_time_t_()
+	* genclisph.d (time_t_to_filetime) [UNIX_CYGWIN32]: export
+	(time_t_from_filetime) [UNIX_CYGWIN32]: renamed from to_time_t_()
+	(convert_time_to_universal_w32, convert_time_from_universal_w32)
+	[UNIX_CYGWIN32]: new inline functions
+	[WIN32_NATIVE]: new aliases
+	* modules/dirkey/dirkey.c (LDAP::DKEY-INFO):
+	use convert_time_to_universal_w32()
+	* modules/syscalls/calls.c (wfd_to_stack, PropVariantToLisp):
+	use convert_time_to_universal_w32()
+	(LispToPropVariant): use convert_time_from_universal_w32()
+
+2005-01-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/matlab/matlab.lisp (mxIsLogicalScalar): removed
 	* modules/matlab/wrap.lisp (matfile-content): removed unnecessary
 	package prefixes
