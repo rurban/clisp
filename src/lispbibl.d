@@ -4081,9 +4081,8 @@ typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
 # > obj: a fixnum
 # > delta: a constant
 # < result: incremented fixnum
-#define fixnum_inc(obj,delta)  \
+#define fixnum_inc(obj,delta)                                           \
     objectplus(obj, (soint)(delta) << oint_data_shift)
-
 # posfixnum(x) is a fixnum with value x>=0.
 #define posfixnum(x)  fixnum_inc(Fixnum_0,x)
 
@@ -11481,6 +11480,12 @@ extern bool equal (object obj1, object obj2);
 # < result: true, if objects are equal
 extern bool equalp (object obj1, object obj2);
 # is used by PATHNAME, HASHTABL
+
+# UP: expand all DEFTYPE definitions in the type spec (recursively)
+# > type_spec: Lisp object
+# < result: the expansion (when not a deftyped type, returns the argument)
+extern object expand_deftype (object type_spec);
+# used by predtype.d, sequence.d
 
 # UP: Makes a statistic about the action of a GC.
 # with_gc_statistics(fun);

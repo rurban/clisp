@@ -107,6 +107,17 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 #define seq_init_start(seqdesc)   (TheSvector(seqdesc)->data[14])
 #define seq_fe_init_end(seqdesc)  (TheSvector(seqdesc)->data[15])
 
+# find sequence type NAME in O(seq_types)
+# return a typedescr or NIL if no such sequence
+local object find_seq_type (object name) {
+  var object list = O(seq_types);
+  while (consp(list)) {
+    var object typdescr = Car(list); list = Cdr(list); # (pop list)
+    if (eq(name,seq_type(typdescr))) return typdescr;
+  }
+  return NIL;
+}
+
 # UP: überprüft, ob name ein gültiger Sequence-Typ-Bezeichner ist
 # (sonst Error) und liefert den dazugehörigen Typdescriptor.
 # valid_type(name)
@@ -114,160 +125,147 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # < ergebnis: dazugehöriger Typdescriptor
 # < -(STACK): durch den Typ erzwungene Länge, oder unbound.
 # can trigger GC
-  local object valid_type (object name);
-  local object valid_type(name)
-    var object name;
-    { # Unsere elementaren Sequence-Typen sind LIST, VECTOR, STRING, BIT-VECTOR.
-      # Wir erkennen aber auch gewisse Alias-Namen:
-      # - DEFTYPE-defininierte Typen werden expandiert.
-      # - ([SIMPLE-]ARRAY [eltype [1 | (dim)]]), (VECTOR [eltype [size]]) ergeben
-      #   STRING falls eltype = CHARACTER,
-      #   BIT-VECTOR falls eltype = BIT,
-      #   n [steht für (VECTOR (UNSIGNED-BYTE n))] falls eltype = n BIT,
-      #   VECTOR sonst.
-      # - (SIMPLE-VECTOR [size]), VECTOR, SIMPLE-VECTOR ergeben VECTOR.
-      # - ([SIMPLE-]STRING [size]), [SIMPLE-]STRING ergeben STRING.
-      # - ([SIMPLE-]BASE-STRING [size]), [SIMPLE-]BASE-STRING ergeben STRING.
-      # - ([SIMPLE-]BIT-VECTOR [size]), [SIMPLE-]BIT-VECTOR ergeben BIT-VECTOR.
-      # - Zusätzlich (nicht sehr schön): [SIMPLE-]ARRAY ergibt VECTOR.
-      reexpand:
-      if (symbolp(name))
-        { if (eq(name,S(list))) { goto expanded_unconstrained; }
-          if (eq(name,S(null)) || eq(name,S(cons))) { name = S(list); goto expanded_unconstrained; }
-          if (eq(name,S(vector))) { goto expanded_unconstrained; }
-          if (eq(name,S(simple_vector))) { name = S(vector); goto expanded_unconstrained; }
-          if (eq(name,S(string))) { goto expanded_unconstrained; }
-          if (eq(name,S(simple_string)) || eq(name,S(base_string)) || eq(name,S(simple_base_string))) { name = S(string); goto expanded_unconstrained; }
-          if (eq(name,S(bit_vector))) { goto expanded_unconstrained; }
-          if (eq(name,S(simple_bit_vector))) { name = S(bit_vector); goto expanded_unconstrained; }
-          if (eq(name,S(array)) || eq(name,S(simple_array))) { name = S(vector); goto expanded_unconstrained; }
-          # evtl. (get name 'DEFTYPE-EXPANDER) mit Argument (list name) aufrufen:
-          {var object expander = get(name,S(deftype_expander));
-           if (!eq(expander,unbound))
-             { pushSTACK(expander);
-               pushSTACK(name); name = allocate_cons(); Car(name) = popSTACK(); # (list name)
-               expander = STACK_0; STACK_0 = name;
-               funcall(expander,1); # Expander aufrufen
-               name = value1; goto reexpand; # Ergebnis weiterverwenden
-          } }
-          goto expanded_unconstrained; # sonstige Symbole können DEFSTRUCT-Typen sein
+local object valid_type1 (object name) {
+  # Unsere elementaren Sequence-Typen sind LIST, VECTOR, STRING, BIT-VECTOR.
+  # Wir erkennen aber auch gewisse Alias-Namen:
+  # - DEFTYPE-defininierte Typen werden expandiert.
+  # - ([SIMPLE-]ARRAY [eltype [1 | (dim)]]), (VECTOR [eltype [size]]) ergeben
+  #   STRING falls eltype = CHARACTER,
+  #   BIT-VECTOR falls eltype = BIT,
+  #   n [steht für (VECTOR (UNSIGNED-BYTE n))] falls eltype = n BIT,
+  #   VECTOR sonst.
+  # - (SIMPLE-VECTOR [size]), VECTOR, SIMPLE-VECTOR ergeben VECTOR.
+  # - ([SIMPLE-]STRING [size]), [SIMPLE-]STRING ergeben STRING.
+  # - ([SIMPLE-]BASE-STRING [size]), [SIMPLE-]BASE-STRING ergeben STRING.
+  # - ([SIMPLE-]BIT-VECTOR [size]), [SIMPLE-]BIT-VECTOR ergeben BIT-VECTOR.
+  # - Zusätzlich (nicht sehr schön): [SIMPLE-]ARRAY ergibt VECTOR.
+  name = expand_deftype(name);
+  if (symbolp(name)) {
+    if (eq(name,S(list))) { goto expanded_unconstrained; }
+    if (eq(name,S(null)) || eq(name,S(cons)))
+      { name = S(list); goto expanded_unconstrained; }
+    if (eq(name,S(vector))) { goto expanded_unconstrained; }
+    if (eq(name,S(simple_vector)))
+      { name = S(vector); goto expanded_unconstrained; }
+    if (eq(name,S(string))) { goto expanded_unconstrained; }
+    if (eq(name,S(simple_string)) || eq(name,S(base_string))
+        || eq(name,S(simple_base_string)))
+      { name = S(string); goto expanded_unconstrained; }
+    if (eq(name,S(bit_vector))) { goto expanded_unconstrained; }
+    if (eq(name,S(simple_bit_vector)))
+      { name = S(bit_vector); goto expanded_unconstrained; }
+    if (eq(name,S(array)) || eq(name,S(simple_array)))
+      { name = S(vector); goto expanded_unconstrained; }
+    goto expanded_unconstrained; # sonstige Symbole können DEFSTRUCT-Typen sein
+  } else if (consp(name)) {
+    var object name1 = Car(name);
+    if (symbolp(name1)) {
+      var object name2 = Cdr(name);
+      if (nullp(name2) || (consp(name2) && nullp(Cdr(name2)))) {
+        if (eq(name1,S(simple_vector)))
+          { name = S(vector); goto expanded_maybe_constrained; }
+        if (eq(name1,S(string)) || eq(name1,S(simple_string))
+            || eq(name1,S(base_string)) || eq(name1,S(simple_base_string)))
+          { name = S(string); goto expanded_maybe_constrained; }
+        if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
+          { name = S(bit_vector); goto expanded_maybe_constrained; }
+        if (false) {
+        expanded_maybe_constrained:
+          if (consp(name2) && integerp(Car(name2)))
+            { pushSTACK(Car(name2)); goto expanded; }
+          else goto expanded_unconstrained;
         }
-      elif (consp(name))
-        { var object name1 = Car(name);
-          if (symbolp(name1))
-            { var object name2 = Cdr(name);
-              if (nullp(name2) || (consp(name2) && nullp(Cdr(name2))))
-                { if (eq(name1,S(simple_vector)))
-                    { name = S(vector); goto expanded_maybe_constrained; }
-                  if (eq(name1,S(string)) || eq(name1,S(simple_string)) || eq(name1,S(base_string)) || eq(name1,S(simple_base_string)))
-                    { name = S(string); goto expanded_maybe_constrained; }
-                  if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
-                    { name = S(bit_vector); goto expanded_maybe_constrained; }
-                  if (false)
-                    { expanded_maybe_constrained:
-                      if (consp(name2) && integerp(Car(name2)))
-                        { pushSTACK(Car(name2)); goto expanded; }
-                        else
-                        { goto expanded_unconstrained; }
-                    }
-                }
-             {var object name3;
-              if (nullp(name2)) { name2 = S(mal); name3 = S(mal); goto try_vector; }
-              if (consp(name2))
-                { name3=Cdr(name2); name2 = Car(name2);
-                  if (nullp(name3)) { name3 = S(mal); goto try_vector; }
-                  if (consp(name3) && nullp(Cdr(name3)))
-                    { name3 = Car(name3); goto try_vector; }
-                }
-              if (false)
-                { try_vector: # Hier ist name2 = (second name), name3 = (third name), Defaults: *
-                  if (eq(name1,S(vector))
-                      || (   (eq(name1,S(array)) || eq(name1,S(simple_array)))
-                          && (eq(name3,S(mal)) || eq(name3,Fixnum_1) || (consp(name3) && nullp(Cdr(name3))))
-                     )   )
-                    { if (eq(name1,S(vector)))
-                        { if (integerp(name3)) { pushSTACK(name3); } else { pushSTACK(unbound); } }
-                      else
-                        { if (consp(name3) && integerp(Car(name3))) { pushSTACK(Car(name3)); } else { pushSTACK(unbound); } }
-                     {var uintB atype = eltype_code(name2);
-                      if (atype==Atype_T) { name = S(vector); goto expanded; } # (VECTOR T)
-                      elif (atype==Atype_Char) { name = S(string); goto expanded; } # (VECTOR CHARACTER)
-                      elif (atype==Atype_Bit) { name = S(bit_vector); goto expanded; } # (VECTOR BIT)
-                      else { name = fixnum(bit(atype)); goto expanded; } # (VECTOR (UNSIGNED-BYTE n))
-             }  }   }}
-              # evtl. (get name1 'DEFTYPE-EXPANDER) mit Argument name aufrufen:
-             {var object expander = get(name1,S(deftype_expander));
-              if (!eq(expander,unbound))
-                { pushSTACK(name); funcall(expander,1); # Expander aufrufen
-                  name = value1; goto reexpand; # Ergebnis weiterverwenden
-        }   }} }
-      goto bad_name;
-    expanded_unconstrained:
-      pushSTACK(unbound); # no length constraint
-    expanded:
-      # SEQ-TYPES-Liste durchgehen:
-      { var object list = O(seq_types);
-        while (consp(list))
-          { var object typdescr = Car(list);
-            if (eq(name,seq_type(typdescr))) { return typdescr; }
-            list = Cdr(list);
-      }   }
-    bad_name:
-      pushSTACK(name); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_recognizable_sequence_type)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(name);
-      fehler(type_error,
-             GETTEXT("There are no sequences of type ~")
-            );
+      }
+      {
+        var object name3;
+        if (nullp(name2)) { name2 = S(mal); name3 = S(mal); goto try_vector; }
+        if (consp(name2))
+          { name3=Cdr(name2); name2 = Car(name2);
+          if (nullp(name3)) { name3 = S(mal); goto try_vector; }
+          if (consp(name3) && nullp(Cdr(name3)))
+            { name3 = Car(name3); goto try_vector; }
+          }
+        if (false) {
+        try_vector: # Hier ist name2 = (second name), name3 = (third name), Defaults: *
+          if (eq(name1,S(vector))
+              || (   (eq(name1,S(array)) || eq(name1,S(simple_array)))
+                  && (eq(name3,S(mal)) || eq(name3,Fixnum_1)
+                      || (consp(name3) && nullp(Cdr(name3)))))) {
+            if (eq(name1,S(vector))) {
+              if (integerp(name3)) pushSTACK(name3); else pushSTACK(unbound);
+            } else {
+              if (consp(name3) && integerp(Car(name3))) pushSTACK(Car(name3));
+              else pushSTACK(unbound);
+            }
+            var uintB atype = eltype_code(name2);
+            if (atype==Atype_T) { # (VECTOR T)
+              name = S(vector); goto expanded;
+            } else if (atype==Atype_Char) { # (VECTOR CHARACTER)
+              name = S(string); goto expanded;
+            } else if (atype==Atype_Bit) { # (VECTOR BIT)
+              name = S(bit_vector); goto expanded;
+            } else { # (VECTOR (UNSIGNED-BYTE n))
+              name = fixnum(bit(atype)); goto expanded; }
+          }
+        }
+      }
     }
+  }
+  return NIL;
+ expanded_unconstrained:
+  pushSTACK(unbound); # no length constraint
+ expanded:
+  # SEQ-TYPES-Liste durchgehen:
+  return find_seq_type(name);
+}
+
+# same as valid_type1, but signal an error instead of returning NIL
+# when name does not name a sequence
+local object valid_type (object name) {
+  var object typedescr = valid_type1(name);
+  if (!nullp(typedescr))
+    return typedescr;
+  # otherwise -- signal an error
+  pushSTACK(name); # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_recognizable_sequence_type));# TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(name);
+  fehler(type_error,GETTEXT("There are no sequences of type ~"));
+}
 
 # UP: liefert den Typdescriptor einer Sequence
 # get_seq_type(seq)
 # > seq: eine Sequence
 # < ergebnis: Typdescriptor oder NIL
-  local object get_seq_type (object seq);
-  local object get_seq_type(seq)
-    var object seq;
-    { var object name;
-      if (listp(seq)) { name = S(list); } # Typ LIST
-      elif (vectorp(seq)) {
-        switch (Array_type(seq)) {
-          case Array_type_sstring: case Array_type_string:
-            name = S(string); break; # Typ STRING
-          case Array_type_sbvector: case Array_type_bvector:
-            name = S(bit_vector); break; # Typ BIT-VECTOR
-          case Array_type_sb2vector:
-          case Array_type_sb4vector:
-          case Array_type_sb8vector:
-          case Array_type_sb16vector:
-          case Array_type_sb32vector:
-            # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-            name = fixnum(bit(sbNvector_atype(seq))); break;
-          case Array_type_b2vector:
-          case Array_type_b4vector:
-          case Array_type_b8vector:
-          case Array_type_b16vector:
-          case Array_type_b32vector:
-            # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-            name = fixnum(bit(bNvector_atype(seq))); break;
-          default:
-            name = S(vector); break; # Typ [GENERAL-]VECTOR
-        }
-      }
-      elif (structurep(seq))
-        { name = TheStructure(seq)->structure_types; # Structure-Typen-List*e
-          while (consp(name)) { name = Cdr(name); } # davon den letzten Typ nehmen
-        }
-      else return NIL;
-      # SEQ-TYPES-Liste durchgehen:
-      { var object list = O(seq_types);
-        while (consp(list))
-          { var object typdescr = Car(list);
-            if (eq(name,seq_type(typdescr))) { return typdescr; }
-            list = Cdr(list);
-          }
-        return NIL;
-    } }
+local object get_seq_type (object seq) { var object name;
+ if (listp(seq)) name = S(list); # Typ LIST
+ else if (vectorp(seq)) {
+   switch (Array_type(seq)) {
+     case Array_type_sstring: case Array_type_string:
+       name = S(string); break; # Typ STRING
+     case Array_type_sbvector: case Array_type_bvector:
+       name = S(bit_vector); break; # Typ BIT-VECTOR
+     case Array_type_sb2vector:
+     case Array_type_sb4vector:
+     case Array_type_sb8vector:
+     case Array_type_sb16vector:
+     case Array_type_sb32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
+       name = fixnum(bit(sbNvector_atype(seq))); break;
+     case Array_type_b2vector:
+     case Array_type_b4vector:
+     case Array_type_b8vector:
+     case Array_type_b16vector:
+     case Array_type_b32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
+       name = fixnum(bit(bNvector_atype(seq))); break;
+     default:
+       name = S(vector); break; # Typ [GENERAL-]VECTOR
+   }
+ } else if (structurep(seq)) {
+   name = TheStructure(seq)->structure_types; # Structure-Typen-List*e
+   while (consp(name)) { name = Cdr(name); } # davon den letzten Typ nehmen
+ } else return NIL;
+ # SEQ-TYPES-Liste durchgehen:
+ return find_seq_type(name);
+}
 
 # UP: liefert den Typdescriptor einer Sequence, evtl. Fehlermeldung
 # get_valid_seq_type(seq)
@@ -986,40 +984,38 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
 # > result_type: Bezeichner (Symbol) des Sequence-Typs
 # < Wert: Sequence vom Typ result_type
 # can trigger GC
-  global Values coerce_sequence (object sequence, object result_type);
-  global Values coerce_sequence(sequence,result_type)
-    var object sequence;
-    var object result_type;
-    { pushSTACK(sequence);
-      pushSTACK(result_type);
-      { # result-type überprüfen:
-        var object typdescr2 = valid_type(result_type);
-        pushSTACK(typdescr2);
-        # Stackaufbau: seq1, result-type, typdescr2-len, typdescr2.
-       {var object typdescr1 = get_valid_seq_type(STACK_3); # Typ von seq1
-        if (eq(seq_type(typdescr1),seq_type(typdescr2)))
-          { # beide Typen dieselben -> nichts zu tun
-            if (!eq(STACK_1,unbound))
-              { pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
-                if (!eql(value1,STACK_1))
-                  { fehler_seqtype_length(STACK_1,value1); }
-              }
-            skipSTACK(3); value1 = popSTACK(); mv_count=1; # seq1 als Wert
-          }
-          else
-          { STACK_2 = typdescr1;
-            # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2.
-            pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
-            if (!(eq(STACK_1,unbound) || eql(value1,STACK_1)))
-              { fehler_seqtype_length(STACK_1,value1); }
-            pushSTACK(value1);
-            # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2, len.
-            pushSTACK(STACK_0); funcall(seq_make(STACK_(1+1)),1); # (SEQ2-MAKE len)
-            STACK_2 = value1;
-            # Stackaufbau: seq1, typdescr1, seq2, typdescr2, len.
-            return_Values copy_seq_onto();
-          }
-    } }}
+global Values coerce_sequence (object sequence, object result_type) {
+  pushSTACK(sequence);
+  pushSTACK(result_type);
+  { # check result-type:
+    var object typdescr2 = valid_type(result_type);
+    pushSTACK(typdescr2);
+    # Stackaufbau: seq1, result-type, typdescr2-len, typdescr2.
+    { var object typdescr1 = get_valid_seq_type(STACK_3); # Typ von seq1
+      if (eq(seq_type(typdescr1),seq_type(typdescr2))) {
+        # beide Typen dieselben -> nichts zu tun
+        if (!eq(STACK_1,unbound)) {
+          pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
+          if (!eql(value1,STACK_1))
+            fehler_seqtype_length(STACK_1,value1);
+        }
+        skipSTACK(3); value1 = popSTACK(); mv_count=1; # seq1 als Wert
+      } else {
+        STACK_2 = typdescr1;
+        # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2.
+        pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
+        if (!(eq(STACK_1,unbound) || eql(value1,STACK_1)))
+          fehler_seqtype_length(STACK_1,value1);
+        pushSTACK(value1);
+        # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2, len.
+        pushSTACK(STACK_0); funcall(seq_make(STACK_(1+1)),1); # (SEQ2-MAKE len)
+        STACK_2 = value1;
+        # Stackaufbau: seq1, typdescr1, seq2, typdescr2, len.
+        return_Values copy_seq_onto();
+      }
+    }
+  }
+}
 
 LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
 # (SYSTEM::COERCED-SUBSEQ sequence result-type [:start] [:end])
