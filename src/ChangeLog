@@ -1,3 +1,13 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* unixaux.d (read_helper, write_helper, sock_read, sock_write): Prefer
+	poll or select over O_NONBLOCK. Don't call fcntl F_GETFL if
+	persev != persev_immediate && persev != persev_bonus. Do nothing if
+	nbyte==0.
+	* win32aux.d (read_helper_low, write_helper): Do nothing if nbyte==0.
+	(lowlevel_sock_read, lowlevel_sock_write): Implement persev_immediate
+	and persev_bonus behaviour. Do nothing if nbyte==0.
+
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
 	Remove initff slot from structure-direct-slot-definition.
