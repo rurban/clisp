@@ -220,7 +220,7 @@ global int siginterrupt (int sig, int flag) {
 #endif
 
 /* a wrapper for read(). */
-global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, perseverance_t persev)
+global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t persev)
 {
   var char* buf = (char*) bufarea;
   if (nbyte == 0)
@@ -324,7 +324,7 @@ global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, perseverance_t 
 }
 
 /* a wrapper for write(). */
-global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte, perseverance_t persev)
+global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance_t persev)
 {
   var const char* buf = (const char*) bufarea;
   if (nbyte == 0)
