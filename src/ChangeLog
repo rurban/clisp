@@ -96,6 +96,10 @@
 	  (SYS::PRINT-STRUCTURE): Call it through pr_enter.
 	  (prin1a, prin1b): Remove functions.
 	  (prin1): Use pr_enter.
+
+1998-07-08  Sam Steingold  <sds@goems.com>
+ 
+        * array.d: fixed the grammar of some English messages.
 	
 1998-05-31  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
 	
