@@ -1,3 +1,9 @@
+2004-05-16  Bruno Haible  <bruno@clisp.org>
+
+	Fix (SIGNUM negative-single-float) on 64-bit machines.
+	* aridecl.d (make_FF) [IMMEDIATE_FFLOAT]: Cast the data to 32 bits,
+	otherwise a negative sign overflows into the type bits.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class5.lisp (change-class): Don't copy the values of slots that
