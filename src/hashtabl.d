@@ -75,7 +75,7 @@
    When all bits 0-3 are not set, user-defined ht_test
    Bit 4-6 =0
    Bit 7 set, when table must be reorganized after GC
- ht_size                Fixnum>0 = length of the ITABLE
+ ht_size                uintL>0 = length of the ITABLE
  ht_maxcount            Fixnum>0 = length of the NTABLE
  ht_itable              index-vector of length SIZE, contains indices
  ht_ntable              next-vector of length MAXCOUNT, contains indices
@@ -96,13 +96,12 @@
 #define nix   unbound
 
 #define HT_GOOD_P(ht)                                   \
-  (posfixnump(TheHashtable(ht)->ht_size) &&             \
-   posfixnump(TheHashtable(ht)->ht_maxcount) &&         \
+  (posfixnump(TheHashtable(ht)->ht_maxcount) &&         \
    posfixnump(TheHashtable(ht)->ht_count) &&            \
    posfixnump(TheHashtable(ht)->ht_mincount) &&         \
    simple_vector_p(TheHashtable(ht)->ht_itable) &&      \
    (vector_length(TheHashtable(ht)->ht_itable) ==       \
-    posfixnum_to_L(TheHashtable(ht)->ht_size)) &&       \
+    TheHashtable(ht)->ht_size)                 &&       \
    simple_vector_p(TheHashtable(ht)->ht_ntable) &&      \
    (vector_length(TheHashtable(ht)->ht_ntable) ==       \
     posfixnum_to_L(TheHashtable(ht)->ht_maxcount)))
@@ -867,14 +866,14 @@ local inline uintL hashcode_raw (object ht, object obj) {
      flags & bit(3) ? hashcode4(obj) : /* EQUALP-hashcode */
      hashcode5(TheHashtable(ht)->ht_hash,obj));
 }
-local inline uintL hashcode_cook (uint32 code, object size) {
+local inline uintL hashcode_cook (uint32 code, uintL size) {
   /* divide raw hashcode CODE by SIZE: */
   var uint32 rest;
-  divu_3232_3232(code,posfixnum_to_L(size),(void),rest=);
+  divu_3232_3232(code,size,(void),rest=);
   return rest;
 }
 local uintL hashcode (object ht, object obj) {
-  var object size = TheHashtable(ht)->ht_size;
+  var uintL size = TheHashtable(ht)->ht_size;
   return hashcode_cook(hashcode_raw(ht,obj),size);
 }
 
@@ -888,7 +887,7 @@ local object rehash (object ht) {
   var object Ivektor = TheHashtable(ht)->ht_itable; /* index-vector */
   {
     var gcv_object_t* ptr = &TheSvector(Ivektor)->data[0];
-    var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_size); /* SIZE, >0 */
+    var uintL count = TheHashtable(ht)->ht_size; /* SIZE, >0 */
     dotimespL(count,count, { *ptr++ = nix; } );
   }
   /* build up "list"-structure element-wise: */
@@ -974,7 +973,7 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
   var gcv_object_t* kvt_data = ht_kvt_data(ht);
   var uintL i_n; /* Iptr-Nptr */
-  var uintL size = posfixnum_to_L(TheHashtable(ht)->ht_size);
+  var uintL size = TheHashtable(ht)->ht_size;
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
     var int index = posfixnum_to_L(*Nptr); /* next index */
     var gcv_object_t* Iptr = Nptr;
@@ -1204,7 +1203,7 @@ local object resize (object ht, object maxcount) {
   /* modify hash-table: */
   set_break_sem_2();                 /* protect from breaks */
   mark_ht_invalid(TheHashtable(ht)); /* table must still be reorganized */
-  TheHashtable(ht)->ht_size = size;  /* enter new SIZE */
+  TheHashtable(ht)->ht_size = posfixnum_to_L(size);  /* enter new SIZE */
   TheHashtable(ht)->ht_itable = Ivektor;    /* enter new index-vector */
   TheHashtable(ht)->ht_maxcount = maxcount; /* enter new MAXCOUNT */
   TheHashtable(ht)->ht_freelist = nix;      /* dummy as free-list */
@@ -1460,7 +1459,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   TheHashtable(ht)->ht_ntable = popSTACK();  /* next-vector */
   TheHashtable(ht)->ht_itable = popSTACK();  /* index-vector */
   TheHashtable(ht)->ht_mincount = popSTACK(); /* MINCOUNT */
-  TheHashtable(ht)->ht_size = popSTACK();     /* SIZE */
+  TheHashtable(ht)->ht_size = posfixnum_to_L(popSTACK()); /* SIZE */
   TheHashtable(ht)->ht_maxcount = popSTACK(); /* MAXCOUNT */
   /* stack-layout:
      weak, initial-contents, test, size, rehash-size, mincount-threshold. */
@@ -1950,8 +1949,7 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
     var uint32 code =          /* calculate hashcode of the cons-tree */
       hashcode_tuple(argcount,rest_args_pointer,0);
     var uintL hashindex;
-    divu_3232_3232(code,posfixnum_to_L(TheHashtable(ht)->ht_size),
-                   (void),hashindex = );
+    divu_3232_3232(code,TheHashtable(ht)->ht_size, (void),hashindex = );
     var gcv_object_t* Nptr =    /* pointer to the current entry */
       &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
     while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */

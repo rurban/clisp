@@ -167,8 +167,8 @@ local void nobject_out1 (FILE* out, object obj, int level) {
    #endif
   } else if (hash_table_p(obj)) {
     fputs("#(",out); XOUT(S(hash_table));
-    fprintf(out," size=%d maxcount=%d count=%d mincount=%d free=",
-            posfixnum_to_L(TheHashtable(obj)->ht_size),
+    fprintf(out," size=%u maxcount=%d count=%d mincount=%d free=",
+            TheHashtable(obj)->ht_size,
             posfixnum_to_L(TheHashtable(obj)->ht_maxcount),
             posfixnum_to_L(TheHashtable(obj)->ht_count),
             posfixnum_to_L(TheHashtable(obj)->ht_mincount));
