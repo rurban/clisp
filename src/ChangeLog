@@ -1,3 +1,7 @@
+2001-01-17  Bruno Haible  <haible@clisp.cons.org>
+
+        * spvw.d (main): Restore functionality broken by last patch.
+
 2001-01-17  Sam Steingold  <sds@gnu.org>
 
 	* posix.lisp (sysinfo, rlimit, limits, usage): unix-specific,
