@@ -1,5 +1,10 @@
 2004-11-20  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun4.lisp (add-extended-method-check): Ignore the values of
+	:after/:before methods.
+
+2004-11-20  Bruno Haible  <bruno@clisp.org>
+
 	Don't bypass the finalize-inheritance generic function.
 	* clos-class2.lisp (class-pretty): New function.
 	* clos-class3.lisp (shared-initialize-<semi-standard-class>): Call

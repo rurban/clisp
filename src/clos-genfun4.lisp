@@ -301,14 +301,20 @@
                                  (CALL-METHOD ,(first method-list) ,(rest method-list))))))
                          ; Now the case of at most one method.
                          (if (and (typep (second efm) 'method)
-                                  (mop-standardized-p (second efm)))
-                           ; Wrap the method call. Don't need to recurse into efm
-                           ; because we are only interested in the outermost call
-                           ; to a MOP-standardized method.
-                           (add-method-call-wrapper efm)
-                           ; Normal recursive processing.
-                           (cons (convert-effective-method (car efm))
-                                 (convert-effective-method (cdr efm))))))
+                                  (member (method-qualifiers (second efm)) '((:before) (:after))
+                                          :test #'equal))
+                           ; Don't recurse into :before/:after methods since they
+                           ; cannot call CALL-NEXT-METHOD and their values are ignored.
+                           efm
+                           (if (and (typep (second efm) 'method)
+                                    (mop-standardized-p (second efm)))
+                             ; Wrap the method call. Don't need to recurse into efm
+                             ; because we are only interested in the outermost call
+                             ; to a MOP-standardized method.
+                             (add-method-call-wrapper efm)
+                             ; Normal recursive processing.
+                             (cons (convert-effective-method (car efm))
+                                   (convert-effective-method (cdr efm)))))))
                      (cons (convert-effective-method (car efm))
                            (convert-effective-method (cdr efm))))
                    efm)))
