@@ -1,5 +1,11 @@
 2005-03-14  Bruno Haible  <bruno@clisp.org>
 
+	* debug.d (read_form): Don't delete input until EOL if the last char
+	read from the stream was a newline. This fixes a multiline paste
+	problem on MacOS X.
+
+2005-03-14  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (stream_get_lastchar): New declaration.
 	* stream.d (stream_get_lastchar, stream_set_lastchar): New functions.
 	(read_char): Update $lastchar after calling STREAM-READ-CHAR.
