@@ -1,3 +1,11 @@
+2004-02-03  Bruno Haible  <bruno@clisp.org>
+
+	* io.d (JUSTIFY_END_FILL): Renamed from JUSTIFY_END_ENG.
+	(JUSTIFY_END_LINEAR): Renamed from JUSTIFY_END_WEIT.
+	(justify_end_fill): Renamed from justify_end_eng.
+	(justify_end_linear): Renamed from justify_end_weit.
+	All callers changed.
+
 2004-02-03  James Anderson  <james.anderson@setf.de>
 
 	* clos.lisp: some fixes for DEFINE-METHOD-COMBINATION
