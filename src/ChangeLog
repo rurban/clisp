@@ -1,5 +1,9 @@
 2002-02-28  Sam Steingold  <sds@gnu.org>
 
+	* bindings/linuxlibc6/linux.lisp (substitution): map DEFCONSTANT
+
+2002-02-28  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-write-lib): bind *PRINT-SYMBOLS-LONG* when
 	writing *.lib files, just like with *.fas files
 
