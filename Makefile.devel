@@ -99,23 +99,23 @@ os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
 
 win32msvc/makefile.msvc4 : makemake
-	./makemake --with-dir-key --with-dynamic-ffi \
+	./makemake --with-dynamic-ffi
 		win32msvc msvc4 > win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc5 : makemake
-	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
+	./makemake --with-dynamic-ffi \
 		win32msvc msvc5 > win32msvc/makefile.msvc5
 
 win32msvc/makefile.msvc5d : makemake
-	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
+	./makemake --with-dynamic-ffi \
 		win32msvc msvc5 debug > win32msvc/makefile.msvc5d
 
 win32msvc/makefile.msvc7 : makemake
-	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
+	./makemake --with-dynamic-ffi \
 		win32msvc msvc7 > win32msvc/makefile.msvc7
 
 win32bc/makefile : makemake
-	./makemake --with-dir-key win32bc bcc32i > win32bc/makefile
+	./makemake win32bc bcc32i > win32bc/makefile
 
 acorn/makefile.cc : makemake src/VERSION
 	./makemake acorn cc | $(PERL) acorn/swap-ext.pl > acorn/makefile.cc
@@ -129,9 +129,11 @@ makemake : src/makemake.in
 
 
 CONFIGURES = src/configure						 \
-	modules/wildcard/configure modules/regexp/configure		 \
-	modules/clx/new-clx/configure modules/dirkey/configure		 \
-	modules/syscalls/configure					 \
+	modules/wildcard/configure modules/wildcard/config.h.in		 \
+	modules/regexp/configure modules/regexp/config.h.in		 \
+	modules/clx/new-clx/configure					 \
+	modules/dirkey/configure modules/dirkey/config.h.in		 \
+	modules/syscalls/configure modules/syscalls/config.h.in		 \
 	modules/oracle/configure modules/fastcgi/configure		 \
 	ffcall/configure ffcall/avcall/configure ffcall/vacall/configure \
 	ffcall/trampoline/configure ffcall/callback/configure		 \
@@ -148,6 +150,7 @@ src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
 AUTOCONF_FILES = src/autoconf/aclocal.m4
 AUTOCONF = autoconf
 AUTOCONF_CACHE = autom4te.cache
+AUTOHEADER = autoheader
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
 	cd src ; $(AUTOCONF) --include autoconf
@@ -155,8 +158,14 @@ src/configure : src/configure.in $(AUTOCONF_FILES)
 modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
 	cd modules/wildcard ; $(AUTOCONF) --include ../../src/autoconf
 
+modules/wildcard/config.h.in : modules/wildcard/configure.in $(AUTOCONF_FILES)
+	cd modules/wildcard ; $(AUTOHEADER) --include ../../src/autoconf
+
 modules/regexp/configure : modules/regexp/configure.in $(AUTOCONF_FILES)
 	cd modules/regexp ; $(AUTOCONF) --include ../../src/autoconf
+
+modules/regexp/config.h.in : modules/regexp/configure.in $(AUTOCONF_FILES)
+	cd modules/regexp ; $(AUTOHEADER) --include ../../src/autoconf
 
 modules/clx/new-clx/configure : modules/clx/new-clx/configure.in $(AUTOCONF_FILES)
 	cd modules/clx/new-clx ; $(AUTOCONF) --include ../../../src/autoconf
@@ -170,8 +179,14 @@ modules/fastcgi/configure : modules/fastcgi/configure.ac $(AUTOCONF_FILES)
 modules/dirkey/configure : modules/dirkey/configure.in $(AUTOCONF_FILES)
 	cd modules/dirkey ; $(AUTOCONF) --include ../../src/autoconf
 
+modules/dirkey/config.h.in : modules/dirkey/configure.in $(AUTOCONF_FILES)
+	cd modules/dirkey ; $(AUTOHEADER) --include ../../src/autoconf
+
 modules/syscalls/configure : modules/syscalls/configure.in $(AUTOCONF_FILES)
 	cd modules/syscalls ; $(AUTOCONF) --include ../../src/autoconf
+
+modules/syscalls/config.h.in : modules/syscalls/configure.in $(AUTOCONF_FILES)
+	cd modules/syscalls ; $(AUTOHEADER) --include ../../src/autoconf
 
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
