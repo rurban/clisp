@@ -251,6 +251,13 @@ fi
 }
 maybe_link () { if [ -f "$1" ]; then link "$1" "$2"; fi; }
 
+conf_dir () {
+  cd $1; shift;
+  echo "executing `pwd`/configure $*"
+  ${CONFIG_SHELL-/bin/sh} configure $*;
+  cd ..;
+}
+
 # Note that we would need to call `/bin/pwd` if we wanted to compare two
 # directories for equality. But here we only need to get _some_ absolute
 # pathnames, hence `pwd` is enough.
@@ -401,34 +408,26 @@ if test -n "$do_config"; then
     fi
   done
   # Start the configurations.
-  echo "executing $DIRNAME/configure ..."
-  cd $ABS_DIRNAME
   if test -n "$INPLACE"; then
     subdir_srcdir_args=''
   else
     subdir_srcdir_args="--srcdir=$REL_SRCDIR/src"
   fi
-  ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
-      $subdir_configure_args --cache-file=config.cache
+  conf_dir $ABS_DIRNAME $subdir_srcdir_args \
+    $subdir_configure_args --cache-file=config.cache
+  cd $ABS_DIRNAME;
   if [ "$do_ffi" = "yes" ]; then
     for subdir in ${FFI_DIRS}; do
       if test -d $subdir; then
-        echo "executing $DIRNAME/$subdir/configure ..."
-        cd $subdir
-        ${CONFIG_SHELL-/bin/sh} configure \
-          --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
+        conf_dir $subdir --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
           $subdir_configure_args --cache-file=../config.cache
-        cd ..
       fi
     done
   fi # do_ffi
   for subdir in libcharset sigsegv; do
     if test -d $subdir; then
-      echo "executing $DIRNAME/$subdir/configure ..."
-      cd $subdir
-      ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/$subdir" \
-          $subdir_configure_args --cache-file=../config.cache
-    cd ..
+      conf_dir $subdir --srcdir="$RREL_SRCDIR/$subdir" \
+        $subdir_configure_args --cache-file=../config.cache
     fi
   done
   cd ..
