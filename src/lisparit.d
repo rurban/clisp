@@ -1001,7 +1001,6 @@ LISPFUN(log,1,1,norest,nokey,0,NIL)
     check_number(arg);
     if (!boundp(base)) {
       # LOG mit einem Argument
-      value1 = N_log_N(arg,true,&STACK_1);
       VALUES1(N_log_N(arg,true,&STACK_1));
     } else {
       # LOG mit zwei Argumenten
