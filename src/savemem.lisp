@@ -27,21 +27,39 @@
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function)
-  (let ((- nil) (+ nil) (++ nil) (+++ nil)
-        (* nil) (** nil) (*** nil)
-        (/ nil) (// nil) (/// nil)
-        (*command-index* 0)
-        (*home-package* nil))
-    (declare (special *command-index* *home-package*))
-    (if init-function
-      (let* ((old-driver *driver*)
-             (*driver* #'(lambda ()
-                           (setq *driver* old-driver)
-                           (funcall init-function)
-                           (funcall *driver*))))
-        (savemem filename)
-      )
-      (savemem filename)
-    )
-    (room nil)
-) )
+  (let* ((old-driver *driver*)
+         (*driver*
+           #'(lambda ()
+               (declare (special *command-index* *home-package*
+                                 *active-restarts* *condition-restarts*
+               )        )
+               ;; Reset a few special variables. This must happen in the
+               ;; fresh session, not in the old session, because that would
+               ;; temporarily disable error handling in the old session.
+               ;; Note: For GC purposes, neither is better: during savemem's
+               ;; GC the old values are accessible anyway and thus not garbage
+               ;; collected.
+               (setq - nil
+                     + nil
+                     ++ nil
+                     +++ nil
+                     * nil
+                     ** nil
+                     *** nil
+                     / nil
+                     // nil
+                     /// nil
+                     *active-restarts* nil
+                     *condition-restarts* nil
+                     *command-index* 0
+                     *home-package* nil
+               )
+               (setq *driver* old-driver)
+               (when init-function (funcall init-function))
+               (funcall *driver*)
+             )
+        ))
+    (savemem filename)
+  )
+  (room nil)
+)

@@ -240,6 +240,8 @@ muffle-cerrors appease-cerrors exit-on-error
 ;   |   |       |-- simple-type-error
 ;   |   |
 ;   |   |-- storage-condition
+;   |   |
+;   |   |-- interrupt-condition
 ;   |
 ;   |-- warning
 ;       |
@@ -353,6 +355,10 @@ muffle-cerrors appease-cerrors exit-on-error
   ; "Virtual memory exhausted"
   (define-condition storage-condition (serious-condition) ())
 
+  ; "User break"
+  (define-condition interrupt-condition (serious-condition) ())
+  ; CLISP specific
+
 ; conditions for which user notification is appropriate
 (define-condition warning () ())
 
@@ -423,6 +429,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (define-condition simple-file-error (simple-error file-error) ())
 (define-condition simple-os-error (simple-error os-error) ())
 (define-condition simple-storage-condition (simple-condition storage-condition) ())
+(define-condition simple-interrupt-condition (simple-condition interrupt-condition) ())
 
 ; Bootstrapping
 (%defclcs
@@ -453,6 +460,7 @@ muffle-cerrors appease-cerrors exit-on-error
      (file-error               . simple-file-error)
      (os-error                 . simple-os-error)
      (storage-condition        . simple-storage-condition)
+     (interrupt-condition      . simple-interrupt-condition)
      (warning                  . simple-warning)
     )
 )
@@ -1601,24 +1609,21 @@ Todo:
 
 ; (EXIT-ON-ERROR {form}*) executes the forms, but exits Lisp if a
 ; non-continuable error or a Ctrl-C interrupt occurs.
-(defmacro exit-on-error (&body body)
-  `(LET ((*BREAK-DRIVER* #'BATCHMODE-BREAK-DRIVER))
-     (HANDLER-BIND ((ERROR #'(LAMBDA (CONDITION) (EXITONERROR CONDITION))))
-       ,@body
-   ) )
+(defun exitunconditionally (condition)
+  (terpri *error-output*)
+  (write-string "*** - " *error-output*)
+  (print-condition condition *error-output*)
+  (exit t) ; exit Lisp with error
 )
 (defun exitonerror (condition)
   (unless (find-restart 'CONTINUE condition)
-    (terpri *error-output*)
-    (write-string "*** - " *error-output*)
-    (print-condition condition *error-output*)
-    (exit t) ; exit Lisp with error
+    (exitunconditionally condition)
 ) )
-; Need to bind *break-driver* as well, because Ctrl-C interrupts are
-; most often signalled directly, without passing through ERROR or SIGNAL.
-(defun batchmode-break-driver (continuable &optional (condition nil) (print-it nil))
-  (declare (ignore continuable condition print-it))
-  (exit t)
+(defmacro exit-on-error (&body body)
+  `(HANDLER-BIND ((INTERRUPT-CONDITION #'EXITUNCONDITIONALLY)
+                  (SERIOUS-CONDITION #'EXITONERROR))
+     ,@body
+   )
 )
 
 ; (SYSTEM::BATCHMODE-ERRORS {form}*) executes the forms, but handles errors
