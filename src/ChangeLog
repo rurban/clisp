@@ -1,3 +1,7 @@
+2005-03-13  Bruno Haible  <bruno@clisp.org>
+
+	* genclisph.d (main): Reorder, to match the order of lispbibl.d.
+
 2005-03-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XPM:READ-FILE-TO-PIXMAP): use
