@@ -270,7 +270,7 @@ executes a compiled version of form.</para>
  the &defconstant; is executed, but &defconstant; does not check
  this.</para>
 
-<para>Constants may not be bound dynamically or lexically.</para>
+<para>&constant;s may not be bound dynamically or lexically.</para>
 
 <formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
 <para>You can use the function <literal role="sexp">(&spe-var-p;
@@ -448,7 +448,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <para><emphasis
   role="strong"><function>CLOS:GENERIC-FLET</function></emphasis> and
- <emphasis role="strong" ><function>CLOS:GENERIC-LABELS</function></emphasis>
+ <emphasis role="strong"><function>CLOS:GENERIC-LABELS</function></emphasis>
  are implemented as macros, not as special operators (as permitted by
  <ulink url="&clhs;/Body/sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>).
  They are not imported into the packages &clu-pac; and &cl-pac; because
@@ -1438,95 +1438,93 @@ performance considerations.
 
 <section id="float-notes"><title>Floating Point</title>
 
-<formalpara><title>Function &expt;</title>
+<formalpara id="expt"><title>Function &expt;</title>
 <para><literal role="sexp">(&expt; &base-r;
  <replaceable>exponent</replaceable>)</literal> is not very precise if
- <replaceable>exponent</replaceable> has a large absolute
- value.</para></formalpara>
+ <replaceable>exponent</replaceable> has a large absolute value.
+</para></formalpara>
 
-<formalpara><title>Function &log;</title>
+<formalpara id="log"><title>Function &log;</title>
 <para><literal role="sexp">(&log; &number-r; &base-r;)</literal> &signal;s
  an &error-t; if <literal>&base-r; = 1</literal>.</para></formalpara>
 
-<formalpara><title>Constant &pi-v;</title>
-<para>The value of &pi-v; is a &long-float-t; with the precision given
- by &lfd-l;.  When this precision is changed, the value of &pi-v; is
- automatically recomputed.  Therefore &pi-v; is
- a <emphasis>variable</emphasis>, <emphasis role="strong">not</emphasis>
- a <emphasis>constant</emphasis>.</para></formalpara>
+<formalpara id="pi"><title>Constant &pi-v;</title>
+ <para>The value of &pi-v; is a &long-float-t; with the precision given
+  by &lfd-l;.  When this precision is changed, the value of &pi-v; is
+  automatically recomputed.  Therefore &pi-v; is &not-e; a &constant;.
+</para></formalpara>
 
 </section>
 
 <section id="float-decode"><title>Float Decoding
-   <ulink url="&clhs;/Body/fun_decode-fl_decode-float.html">[CLHS]</ulink></title>
+  <ulink url="&clhs;/Body/fun_decode-fl_decode-float.html">[CLHS]</ulink></title>
 
-<para>&float-radix; always returns <literal>2</literal>.</para>
+ <para>&float-radix; always returns <literal>2</literal>.</para>
 
-<para><literal role="sexp">(&float-digits; &number-r;
- &digits-r;)</literal> coerces &number-r; (a &real-t; number) to a
- floating point number with at least &digits-r; mantissa digits.
- The following always evaluates to &t;:
-<programlisting>
- (&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
-</programlisting></para>
+ <para><literal role="sexp">(&float-digits; &number-r;
+   &digits-r;)</literal> coerces &number-r; (a &real-t; number) to a
+  floating point number with at least &digits-r; mantissa digits.
+  The following always evaluates to &t;:
+  <programlisting>
+   (&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
+ </programlisting></para>
 
 </section>
 
 <section id="bool-ops"><title>Boolean Operations
-   <ulink url="&clhs;/Body/convar_boole-_cm_boole-xor.html">[CLHS]</ulink></title>
+  <ulink url="&clhs;/Body/convar_boole-_cm_boole-xor.html">[CLHS]</ulink></title>
 
-<table id="bool-op-table" frame="all">
- <title>Boolean Operations</title>
-<tgroup cols="2" colsep="1" rowsep="1" align="left">
-<thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
- <row><entry>&boole-clr;</entry><entry>0</entry></row>
- <row><entry>&boole-set;</entry><entry>15</entry></row>
- <row><entry>&boole-1;</entry><entry>10</entry></row>
- <row><entry>&boole-2;</entry><entry>12</entry></row>
- <row><entry>&boole-c1;</entry><entry>5</entry></row>
- <row><entry>&boole-c2;</entry><entry>3</entry></row>
- <row><entry>&boole-and;</entry><entry>8</entry></row>
- <row><entry>&boole-ior;</entry><entry>14</entry></row>
- <row><entry>&boole-xor;</entry><entry>6</entry></row>
- <row><entry>&boole-eqv;</entry><entry>9</entry></row>
- <row><entry>&boole-nand;</entry><entry>7</entry></row>
- <row><entry>&boole-nor;</entry><entry>1</entry></row>
- <row><entry>&boole-andc1;</entry><entry>4</entry></row>
- <row><entry>&boole-andc2;</entry><entry>2</entry></row>
- <row><entry>&boole-orc1;</entry><entry>13</entry></row>
- <row><entry>&boole-orc2;</entry><entry>11</entry></row>
-</tbody></tgroup></table>
+ <table id="bool-op-table" frame="all">
+  <title>Boolean Operations</title>
+  <tgroup cols="2" colsep="1" rowsep="1" align="left">
+   <thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
+    <row><entry>&boole-clr;</entry><entry>0</entry></row>
+    <row><entry>&boole-set;</entry><entry>15</entry></row>
+    <row><entry>&boole-1;</entry><entry>10</entry></row>
+    <row><entry>&boole-2;</entry><entry>12</entry></row>
+    <row><entry>&boole-c1;</entry><entry>5</entry></row>
+    <row><entry>&boole-c2;</entry><entry>3</entry></row>
+    <row><entry>&boole-and;</entry><entry>8</entry></row>
+    <row><entry>&boole-ior;</entry><entry>14</entry></row>
+    <row><entry>&boole-xor;</entry><entry>6</entry></row>
+    <row><entry>&boole-eqv;</entry><entry>9</entry></row>
+    <row><entry>&boole-nand;</entry><entry>7</entry></row>
+    <row><entry>&boole-nor;</entry><entry>1</entry></row>
+    <row><entry>&boole-andc1;</entry><entry>4</entry></row>
+    <row><entry>&boole-andc2;</entry><entry>2</entry></row>
+    <row><entry>&boole-orc1;</entry><entry>13</entry></row>
+    <row><entry>&boole-orc2;</entry><entry>11</entry></row>
+ </tbody></tgroup></table>
 
 </section>
 
 <section id="fixnum-lim"><title>Fixnum Limits
-<ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
+  <ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
 
-<table id="fixnum-lim-table" frame="all"><title>Fixnum limits</title>
- <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
- <tbody>
- <row><entry>&most-positive-fixnum;</entry>
-      <entry namest="b16" nameend="b32" align="center"
+ <table id="fixnum-lim-table" frame="all"><title>Fixnum limits</title>
+  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
+   <tbody>
+    <row><entry>&most-positive-fixnum;</entry>
+     <entry namest="b16" nameend="b32" align="center"
             >2<superscript>24</superscript>-1 = 16777215</entry>
-      <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
- <row><entry>&most-negative-fixnum;</entry>
-      <entry namest="b16" nameend="b32" align="center"
+     <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
+    <row><entry>&most-negative-fixnum;</entry>
+     <entry namest="b16" nameend="b32" align="center"
             >-2<superscript>24</superscript> = -16777216</entry>
-      <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
-</tbody></tgroup></table>
+     <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
+ </tbody></tgroup></table>
 
 </section>
 
 <section id="float-lim"><title>Float Limits
-<ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
+  <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
 
-<para>Together with &pi-v;, the other long float constants
- &least-negative-long-float; &least-negative-normalized-long-float;
- &least-positive-long-float; &least-positive-normalized-long-float;
- &long-float-epsilon; &long-float-negative-epsilon;
- &most-negative-long-float; &most-positive-long-float; are recomputed
- whenever &lfd-l; is &setf;ed.  They are <emphasis>variables</emphasis>,
- <emphasis role="strong">not</emphasis> <emphasis>constants</emphasis>.</para>
+ <para>Together with &pi-v;, the other long float constants
+  &least-negative-long-float; &least-negative-normalized-long-float;
+  &least-positive-long-float; &least-positive-normalized-long-float;
+  &long-float-epsilon; &long-float-negative-epsilon;
+  &most-negative-long-float; &most-positive-long-float; are recomputed
+  whenever &lfd-l; is &setf;ed.  They are &not-e; &constant;s.</para>
 
 </section>
 
@@ -2328,7 +2326,8 @@ and the international alphabetic characters from the character set:
  <literal role="type">(&unsigned-byte-t; 2)</literal>,
  <literal role="type">(&unsigned-byte-t; 4)</literal>,
  &unsigned-byte-8;, &unsigned-byte-16;, &unsigned-byte-32;,
- and, of course, &bit-t; and &character-t;.</para></formalpara>
+ and, of course, the required specializations &nil-t;, &bit-t; and
+ &character-t;.</para></formalpara>
 
 <section id="array-elts"><title>Array Elements
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
@@ -2573,9 +2572,9 @@ printed readably.</para>
 <!-- #if defined(PATHNAME_WIN32) || defined(UNIX_CYGWIN32) -->
 <varlistentry id="device-prefix"><term>Platform dependent: &win32; and
   &cygwin; platforms only.</term>
- <listitem><simpara>User variable <emphasis role="strong"><varname
-  >CUSTOM:*DEVICE-PREFIX*</varname></emphasis> controls translation
-  between &cygwin; pathnames
+ <listitem><simpara>User variable
+   <emphasis role="strong">&dev-prefix;</emphasis>
+  controls translation between &cygwin; pathnames
   (e.g., <filename>#P"/cygdrive/c/gnu/clisp/"</filename>) and native
   &win32; pathnames (e.g., <filename>#P"C:\\gnu\\clisp\\"</filename>)
   When it is set to &nil;, no translations occur and the &cygwin; port
@@ -4716,8 +4715,7 @@ compiles a file to platform-independent bytecode.</para>
 </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>The variables <emphasis
- role="strong"><varname>CUSTOM:*COMPILE-WARNINGS*</varname></emphasis>,
+<para>The variables <emphasis role="strong">&compile-warn;</emphasis>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
  &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively,
  and are bound by &compile-file; to the values of the arguments, i.e.,
@@ -4827,23 +4825,20 @@ effects when being loaded, this is important as well.
   <listitem><simpara>causes the input from the file to be echoed to
   &standard-output-var; (normally to the screen).  Should
   there be an error in the file, you can see at one glance where it is.
-  The default is <emphasis
-  role="strong"><varname>CUSTOM:*LOAD-ECHO*</varname></emphasis>, which is
+  The default is <emphasis role="strong">&load-echo;</emphasis>, which is
   initially &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&compiling-k; &t;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
   The compiled code is executed at once and - in contrast to <link
   linkend="compilefile"><function>COMPILE-FILE</function></link> - not
-  written to a file.  The default is <emphasis
-  role="strong"><varname>CUSTOM:*LOAD-COMPILING*</varname></emphasis>,
+  written to a file.
+  The default is <emphasis role="strong">&load-comp;</emphasis>,
   which is initially &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&extra-file-types-k; &list-t;</term>
   <listitem><simpara>Specifies the additional file types considered for
-  loading, in addition to <emphasis
-  role="strong"><varname>CUSTOM:*SOURCE-FILE-TYPES*</varname></emphasis>
+  loading, in addition to <emphasis role="strong">&source-types;</emphasis>
   (which is initially <literal role="sexp">("lisp" "lsp" "cl")</literal>)
-  and <emphasis
-  role="strong"><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></emphasis>
+  and <emphasis role="strong">&compiled-types;</emphasis>
   (which is initially <literal role="sexp">("fas")</literal>).
   </simpara><simpara>When &filename-r; does not spefify a unique file
   (e.g., &filename-r; is &foo-f; and both &foolisp-f;
@@ -4860,15 +4855,12 @@ effects when being loaded, this is important as well.
    for another matching file</link>.
    If no file can be loaded and &if-does-not-exist; is non-&nil;,
    an &error-t; is &signal;ed.
-   The default is <emphasis
-   role="strong"><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></emphasis>,
+   The default is <emphasis role="strong">&load-obs;</emphasis>,
    which is initially &nil;.</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>The variables &load-verbose-var;, &load-print-var;,
-<varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname>,
-<varname>CUSTOM:*LOAD-COMPILING*</varname>, and
-<varname>CUSTOM:*LOAD-ECHO*</varname> are bound by &load; when it
+&load-obs;, &load-comp;, and &load-echo; are bound by &load; when it
 receives a corresponding keyword argument (&verbose-k;, &print-k;,
 &obsolete-action-k;, &compiling-k;, and &echo-k;), i.e., these arguments
 are recursive, just like the arguments &warnings-k;, &verbose-k;, and
@@ -5208,10 +5200,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <formalpara id="browser"><title>Function <function>EXT:CLHS</function></title>
 <para>&hyperspec; access is provided via <literal
   role="sexp">(<function>EXT:CLHS</function> &symbol-r; &key-amp;
-  &browser;)</literal>
-  function, which uses your web browser.
-  <replaceable>browser</replaceable> should be a valid
-  keyword in the <varname>CUSTOM:*BROWSERS*</varname> &alist;.
+  &browser-k;)</literal> function, which uses your web browser.
+  <replaceable>browser</replaceable> (defaults to &browser;) should be a
+  valid keyword in the &browsers; &alist;.
 </para></formalpara>
 
 </section>
@@ -5279,10 +5270,9 @@ and you can leave the function call with specified values by using
  role="sexp">(&setf; &symbol-r;)</literal> and to macros, but not to
  locally defined functions and macros.</para>
 
-<formalpara><title>Variable <varname>CUSTOM:*TRACE-INDENT*</varname></title>
+<formalpara id="trace-indent"><title>Variable &trace-indent;</title>
 <para>If you want the &trace; level to be indicated by the indentation
-in addition to the printed numbers,
-set <varname>CUSTOM:*TRACE-INDENT*</varname> to non-&nil;.
+in addition to the printed numbers, set &trace-indent; to non-&nil;.
 Initially it is &nil; since many nested traced calls will easily
 exhaust the available line length.</para></formalpara>
 
@@ -5302,7 +5292,7 @@ exhaust the available line length.</para></formalpara>
    list of all available commands.</simpara></listitem></varlistentry>
  <varlistentry><term><constant>:http</constant></term>
   <listitem><simpara>A window in your Web browser (specified by the
-   &browser; keyword argument) is opened and it is controlled by
+   &browser-k; keyword argument) is opened and it is controlled by
    &clisp; via a &socket-stream;, using the &http; protocol.
    You should be able to use all the standard browser features.</simpara>
    <simpara>Since &clisp; is not multitasking at this time, you will not
@@ -5349,8 +5339,7 @@ exhaust the available line length.</para></formalpara>
 <section id="ed"><title>Function &ed;</title>
 
 <para>The function &ed; calls the external editor specified by the
- variable <emphasis
- role="strong"><varname>CUSTOM:*EDITOR*</varname></emphasis> (see
+ variable <emphasis role="strong">&editor;</emphasis> (see
  &config-file;).  If the argument is a function name which was defined
  in the current session (not loaded from a file), the program text to be
  edited is a pretty-printed version (without comments) of the text which
@@ -5361,16 +5350,15 @@ exhaust the available line length.</para></formalpara>
 <section id="clock"><title>Clock Time</title>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
-<variablelist>
+<variablelist id="default-tz">
 <varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
-   platforms only.</term>
- <listitem><simpara>The variable <emphasis
-   role="strong"><varname>CUSTOM:*DEFAULT-TIME-ZONE*</varname></emphasis>
-   contains the default time zone used by &encode-universal-time; and
-   &decode-universal-time;.  It is initially set to -1 (which
-   means 1 hour east of Greenwich, i.e., Mid European Time).
-   </simpara></listitem></varlistentry>
-</variablelist>
+  platforms only.</term>
+ <listitem><simpara>The variable
+   <emphasis role="strong">&default-tz;</emphasis> contains the default
+   time zone used by &encode-universal-time; and &decode-universal-time;.
+   It is initially set to -1
+   (which means 1 hour east of Greenwich, i.e., Mid European Time).
+</simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <para>The <ulink url="&clhs;/Body/glo_t.html#time_zone">time
