@@ -315,6 +315,10 @@ static int fetch_row(struct db_conn * db)
       truncated = 1;
       null = 1;
     }
+	/* Ignored warnings */
+	else if (    errcode == 24347    /* NULL column in aggregate function */
+			  || errcode == 24348 )  /* DELETE or UPDATE without WHERE */
+	  ; /* Ignore */
     else {
       sprintf(db->errmsg, "Unknown Oracle warning %d\n", errcode);
       append_oci_error(db->errmsg, db->err);
