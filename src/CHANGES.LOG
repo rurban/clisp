@@ -94,6 +94,10 @@ User visible changes
 * The *FEATURES* list now contains the symbol CLTL2 instead of the symbol
   CLTL1.
 
+* The limit for file size of files that can be accessed by CLISP is increased:
+  4 GB for character streams, 512 MB for integer streams. The previous limits
+  were 16 MB for character streams, 2 MB for integer streams.
+
 * Fixed a bug: Calling the function INTERACTIVE-STREAM-P with a non-stream
   argument could cause a crash.
 

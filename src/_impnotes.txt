@@ -1832,7 +1832,7 @@ the function LOGICAL-PATHNAME can be used.
 23.2.
 -----
 
-OPEN cannot handle files of size >= 16 MB.
+OPEN cannot handle files of size >= 4 GB.
 
 #ifdef HANDLES
 The file streams returned by OPEN are buffered for regular files and

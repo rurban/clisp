@@ -9043,7 +9043,7 @@ LISPFUNN(print_structure,2)
           { JUSTIFY_SPACE;
             # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
             write_schar(stream_,'@');
-            pr_number(stream_,TheStream(*obj_)->strm_ch_file_lineno);
+            pushSTACK(*obj_); C_line_number(); pr_number(stream_,value1);
           }
       }
       JUSTIFY_END_ENG;
