@@ -2048,7 +2048,9 @@ clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c consto
 	$(CPP) $(CFLAGS) txt.c > txt.i.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -etxt.exe txt.i.c
 	$(RM) txt.i.c
-	txt > clisp.html
+	txt > TMPPIPE1
+	sed -e 's,HREF="CLHSROOT/,HREF="http://www.harlequin.com/education/books/HyperSpec/,' < TMPPIPE1 > clisp.html
+	$(RM) TMPPIPE1
 	$(RM) txt.c
 	$(RM) txt.exe
 
