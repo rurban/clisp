@@ -186,7 +186,6 @@
 	* predtype.d (enum_hs_realloc_instance): New enum value.
 	(heap_statistics_mapper): Map forwarded instances to
 	EXT::FORWARD-POINTER-INSTANCE.
-	* tests/clos.tst: Add a test for it.
 
 2004-03-18  Sam Steingold  <sds@gnu.org>
 
