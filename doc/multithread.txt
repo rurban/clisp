@@ -1,0 +1,48 @@
+                              Multithreading
+                              ==============
+
+is currently being developed and does not work yet.
+
+Installation
+------------
+
+In the Makefile, define in the CFLAGS the symbol MULTITHREAD and one of
+the symbols POSIX_THREADS, POSIXOLD_THREADS, SOLARIS_THREADS, C_THREADS,
+WIN32_THREADS. (See xthread.d about their meaning.)
+
+Symbol values
+-------------
+
+Any symbol can be in one of five states:
+
+  - Global Variable. This means that SYMBOL-VALUE of the symbol accesses
+    the same value cell for all threads.
+
+  - Global Constant. This is the same as Global Variable, except that the
+    value cell cannot be modified. And the compiler can optimize this kind
+    of symbols.
+
+  - Per-Thread Variable. This means that every thread has its private value
+    cell which is accessed by SYMBOL-VALUE. LET/LET*/MULTIPLE-VALUE-BIND
+    bindings of the variable will affect the lexical environment only, not
+    the value cell, unless the variable is locally declared SPECIAL.
+
+  - Per-Thread Special Variable. This means that every thread has its private
+    value cell which is accessed by SYMBOL-VALUE. LET/LET*/MULTIPLE-VALUE-BIND
+    bindings of the variable will affect this value cell.
+
+  - Lazy. This is the initial state of the symbol. It lasts until
+      - a DEFGLOBAL or DEFCONSTANT declaration for the symbol is evaluated,
+        in which case the symbol becomes a Global Variable or a Global Constant,
+    or
+      - a SPECIAL proclamation for the symbol is evaluated,
+        in which case the symbol becomes a Per-Thread Special Variable,
+    or
+      - a SYMBOL-VALUE reference for the symbol is evaluated,
+        in which case the symbol becomes a Per-Thread Variable.
+
+Once a symbol is Global or Per-Thread, this cannot change any more.
+However, a Global Variable can become a Global Constant (by means of a
+DEFCONSTANT declaration), and a Per-Thread Variable can become a
+Per-Thread Special Variable (by means of a SPECIAL proclamation).
+
