@@ -1,5 +1,10 @@
 2004-11-21  Bruno Haible  <bruno@clisp.org>
 
+	* mop.tst: Add support for OpenMCL 0.14.2.
+	* mop-aux.lisp: Likewise.
+
+2004-11-21  Bruno Haible  <bruno@clisp.org>
+
 	* clos.tst: Add a method-combination test that fails in SBCL 0.8.16.
 
 2004-11-20  Bruno Haible  <bruno@clisp.org>
