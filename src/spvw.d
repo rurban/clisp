@@ -1509,6 +1509,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #ifdef UNIX
               " :UNIX"
             #endif
+            #ifdef UNIX_BEOS
+              " :BEOS"
+            #endif
             #ifdef WIN32
               " :WIN32"
             #endif

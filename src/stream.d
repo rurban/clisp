@@ -3616,10 +3616,13 @@ LISPFUNN(generic_stream_p,1)
       begin_system_call();
       #if !(defined(UNIX) && !defined(HAVE_FSYNC))
       if (!( fsync(handle) ==0)) {
-        #if defined(UNIX_IRIX) || defined(EMUNIX)
-        if (!(errno==ENOSYS))
+        #ifndef UNIX_BEOS # BeOS 5 apparently does not set errno
+          #if defined(UNIX_IRIX) || defined(EMUNIX)
+          if (!(errno==ENOSYS))
+          #endif
+          if (!(errno==EINVAL))
+            { OS_error(); }
         #endif
-        if (!(errno==EINVAL)) { OS_error(); }
       }
       #endif
       #ifdef UNIX_TERM_TERMIOS
@@ -3677,13 +3680,16 @@ LISPFUNN(generic_stream_p,1)
       # Methode: fsync, siehe FSYNC(2)
       begin_system_call();
       if (!( fsync(handle) ==0)) {
-        #if defined(UNIX_IRIX) || defined(EMUNIX)
-        if (!(errno==ENOSYS))
+        #ifndef UNIX_BEOS # BeOS 5 apparently does not set errno
+          #if defined(UNIX_IRIX) || defined(EMUNIX)
+          if (!(errno==ENOSYS))
+          #endif
+          #ifdef UNIX_CYGWIN32 # needed for Win95 only
+          if (!(errno==EBADF))
+          #endif
+          if (!(errno==EINVAL))
+            { OS_error(); }
         #endif
-        #ifdef UNIX_CYGWIN32 # needed for Win95 only
-        if (!(errno==EBADF))
-        #endif
-        if (!(errno==EINVAL)) { OS_error(); }
       }
       end_system_call();
     }

@@ -549,7 +549,9 @@ LISPFUNN(set_ansi,1)
 LISPFUNN(machine_instance,0)
 #endif
 #ifdef HAVE_GETHOSTBYNAME
+#ifndef UNIX_BEOS
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
+#endif
 #ifdef EXPORT_SYSCALLS
 LISPFUNN(resolve_host_ipaddr_,1)
 #endif

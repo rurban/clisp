@@ -779,10 +779,12 @@ global SOCKET create_client_socket(hostname,port)
 
 # ==================== miscellaneous network related stuff ====================
 
-# Lisp interface to getservbyport(3) and getservbyname(3)
-
 #define ARR_TO_LIST(val,test,expr)                      \
   { int ii; for (ii = 0; test; ii ++) { pushSTACK(expr); } val = listof(ii); }
+
+# Lisp interface to getservbyport(3) and getservbyname(3)
+
+#if !defined(UNIX_BEOS)
 
 #define SERVENT_TO_STACK(se)                                          \
   { var object tmp;                                                   \
@@ -864,6 +866,8 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
   } else
     fehler_string_integer(serv);
 }
+
+#endif # !UNIX_BEOS
 
 #endif # SOCKET_STREAMS
 
