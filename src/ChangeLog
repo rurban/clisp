@@ -1,5 +1,10 @@
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (Fpointer_value): Cast the conditional expression to void.
+	Avoids a warning with g++-3.4.3.
+
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (p_backtrace_t): Define as a struct only if
 	DEBUG_BACKTRACE. Remove operator bool, because it leads to warnings
 	when comparing a p_backtrace_t with NULL. Tweak operator=.

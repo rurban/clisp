@@ -14290,8 +14290,8 @@ extern object decimal_string (object x);
 
 # Return the pointer encoded by a Foreign-Pointer. obj a variable
   #define Fpointer_value(obj)  \
-    (fp_validp(TheFpointer(obj)) ? 0 : (validate_fpointer(obj), 0), \
-     TheFpointer(obj)->fp_pointer                                   \
+    ((void)(fp_validp(TheFpointer(obj)) ? 0 : (validate_fpointer(obj), 0)), \
+     TheFpointer(obj)->fp_pointer                                           \
     )
   extern void validate_fpointer (object obj);
 
