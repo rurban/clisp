@@ -3530,8 +3530,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>socket:socket-connect</function>
-                 <replaceable>port</replaceable>
-                 &optional-amp; [<replaceable>host</replaceable>]
+                 <replaceable>port</replaceable> &optional-amp; [&host-r;]
                  &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
   <listitem><simpara>Attempts to create a client-side two-way &socket-stream;.
    Blocks until the server accepts the connections.
@@ -3648,13 +3647,12 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <variablelist>
  <varlistentry><term><literal
     role="sexp">(<function>posix:resolve-host-ipaddr</function>
-    &optional-amp; <replaceable>host</replaceable>)</literal></term>
+    &optional-amp; &host-r;)</literal></term>
  <listitem><simpara>Returns the <type>hostent</type> struct (name,
    list of aliases, list of IP addresses as dotted quads (for IPv4) or
-   coloned octets (for IPv6), address type - IPv4 or IPv6).  When
-   <replaceable>host</replaceable> is omitted or
-   &default-k;, return the data for the current host.
-   When <replaceable>host</replaceable> is given and is &nil;, all the
+   coloned octets (for IPv6), address type - IPv4 or IPv6).
+   When &host-r; is omitted or &default-k;, return the data for the
+   current host. When &host-r; is given and is &nil;, all the
    host database is returned as a list (this would be the contents of the
    <filename>/etc/hosts</filename> file on a UNIX system or
    <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
