@@ -1,3 +1,8 @@
+2001-10-03  Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_enter_1): do not print the initial newline with
+	definite single-liners
+
 2001-10-02  Sam Steingold  <sds@gnu.org>
 
 	* format.lisp (formatter-main-1): fixed quoting (colon-p and
