@@ -157,7 +157,7 @@
   ;; Paul Dietz assumes that FORMAT ~V[ consumes two arguments.
   ;; However, ANSI CL 22.3.7.2. says that "the parameter is used instead of
   ;; an argument"; so only one argument is consumed (by the V, not by ~[).
-  FORMATTER.COND.13 FORMATTER.COND.14 |FORMATTER.COND:.6| |FORMATTER.COND:.7|
+  FORMATTER.COND.14 |FORMATTER.COND:.7|
 
   ; To be fixed:
   PATHNAME-MATCH-P.4
