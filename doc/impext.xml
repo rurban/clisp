@@ -1896,7 +1896,8 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  <listitem><simpara>the space-separated list of Lisp files to load
   into an intermediate &lispinit; file, before building the &lispinit;
   belonging to a new &linkset;.
-  This variable is usually used for defining Lisp &package-t;s which
+  This variable is usually used to <link linkend="make-pack">create</link>
+  (or <link linkend="pack-lock">unlock</link>) the Lisp &package-t;s which
   must be present when the new &c-file; files are initialized.
   E.g., the &def-call-in; functions must reside in already defined packages;
   see <xref linkend="ex-call-in"/>.</simpara></listitem></varlistentry>
