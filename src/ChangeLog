@@ -1,3 +1,9 @@
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d [WIDE_STRUCT] (object): Wrap the union in struct.
+	(as_object, typecode, mtypecode, untype, type_pointable): Update.
+	* genclisph.d (main): Update.
+
 2002-12-09  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (p_backtrace_t): new type, mostly useful for

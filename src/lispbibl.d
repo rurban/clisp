@@ -2304,19 +2304,25 @@ Ratio and Complex (only if SPVW_MIXED).
   typedef  uint64  oint;
   typedef  sint64  soint;
   #ifdef WIDE_STRUCT
+    # The struct around the union is needed to work around a gcc-2.95 bug.
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-      #define TYPEDEF_OBJECT                                             \
-        typedef  union {                                                 \
-          struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
-          oint one_o _attribute_aligned_object_;                         \
+      #define TYPEDEF_OBJECT                                               \
+        typedef  struct {                                                  \
+          union {                                                          \
+            struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
+            oint one_u _attribute_aligned_object_;                         \
+          } u;                                                             \
         } object;
     #else
-      #define TYPEDEF_OBJECT                                             \
-        typedef  union {                                                 \
-          struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
-          oint one_o _attribute_aligned_object_;                         \
+      #define TYPEDEF_OBJECT                                               \
+        typedef  struct {                                                  \
+          union {                                                          \
+            struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
+            oint one_u _attribute_aligned_object_;                         \
+          } u;                                                             \
         } object;
     #endif
+    #define one_o  u.one_u
   #else
     typedef  oint  object;
   #endif
@@ -2331,7 +2337,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define as_oint(expr)  ((expr).one_o)
   #if 1
-    #define as_object(o)  ((object){one_o:(o)})
+    #define as_object(o)  ((object){u:{one_u:(o)}})
   #else
     extern __inline__ object as_object (register oint o)
       { register object obj; obj.one_o = o; return obj; }
@@ -2688,7 +2694,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
         ((as_oint(expr) << (32-oint_type_len-oint_type_shift)) >> (32-oint_type_len))
     #elif defined(WIDE) && defined(WIDE_STRUCT)
       #undef typecode
-      #define typecode(expr)  ((expr).both.type)
+      #define typecode(expr)  ((expr).u.both.type)
     #endif
     # Furthermre you can do accesses in memory without shift:
     #if !defined(WIDE) && (((oint_type_shift==24) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P))
@@ -2699,7 +2705,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #define fast_mtypecode
     #elif defined(WIDE)
       #ifdef WIDE_STRUCT
-        #define mtypecode(expr)  ((expr).both.type)
+        #define mtypecode(expr)  ((expr).u.both.type)
       #elif (oint_type_len==16)
         #if (oint_type_shift==0) == BIG_ENDIAN_P
           #define mtypecode(expr)  (*((tint*)&(expr)+3))
@@ -2722,7 +2728,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   # Extraction of the address field without type info.
   # untype(obj)
   #if defined(WIDE) && defined(WIDE_STRUCT)
-    #define untype(expr)  ((expr).both.addr)
+    #define untype(expr)  ((expr).u.both.addr)
   #elif !(defined(SPARC) && (oint_addr_len+oint_addr_shift<32))
     #define untype(expr)    \
       ((aint)(as_oint(expr) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift))
@@ -5277,7 +5283,7 @@ typedef struct {
 # set typebits are being swallowed by the address bus (the
 # typebits, that are =0 don't matter), you can do without 'untype':
   #if defined(WIDE_STRUCT)
-    #define type_pointable(type,obj)  ((void*)((obj).both.addr))
+    #define type_pointable(type,obj)  ((void*)((obj).u.both.addr))
   #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
     #if (addr_shift==0)
       #define type_pointable(type,obj)  \
