@@ -1,5 +1,14 @@
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (PARSE-NAMESTRING): Don't create an ASCIZ string in the
+          heap. Use macro with_sstring_0 instead of TheAsciz.
+          (OSdirnamestring): Renamed from OSnamestring.
+          (assure_dir_exists, change_default, directory_exists)
+          [PATHNAME_AMIGAOS]: Use macro with_sstring_0 instead of TheAsciz.
+          (stat_for_search): New function.
+          (subdirs): Change argument from ASCIZ string to char*.
+          (allsubdirs, directory_search): Use with_sstring_0.
+
         * lispbibl.d (with_sstring_0, with_sstring): New macros.
 
         * pathname.d (check_stat_directory): New macro.
