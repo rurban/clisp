@@ -1,5 +1,10 @@
 2001-05-01  Sam Steingold  <sds@gnu.org>
 
+	* conditions.tst (handler-case): :NO-ERROR does not have to be the
+	last clause
+
+2001-05-01  Sam Steingold  <sds@gnu.org>
+
 	* format.tst (format "~5d" 'a): ANSI CL is not clear here whether
 	the width is ignored or not, but it makes more sense to print
 	non-numeric arguments properly alighned

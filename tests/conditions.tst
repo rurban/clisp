@@ -361,12 +361,12 @@ NIL
   (:no-error (&rest args) (declare (ignore args)) 42))
 23
 
-;;; Or if it is not the last clause.
+;;; It does not have to be the last clause.
 (handler-case
     23
   (:no-error (v) (1+ v))
   (error () 42))
-23
+24
 
 ;;; Multiple handlers should be OK.
 (handler-case
