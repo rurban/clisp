@@ -4281,6 +4281,7 @@ local object bitbuff_is_I (object bitbuffer, uintL bitsize, uintL bytesize) {
   # Da bitsize < intDsize*uintWC_max, ist
   # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
   var object big = allocate_bignum(digitcount,(sintB)sign);
+  TheBignum(big)->data[0] = sign; # höchstens Word auf sign setzen
   # restliche Digits von rechts füllen, dabei Folge von Bytes in
   # Folge von uintD übersetzen:
   bitbuffer = popSTACK();
