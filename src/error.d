@@ -657,16 +657,25 @@ LISPFUNN(invoke_debugger,1)
       #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
         writing_to_subprocess = false;
       #endif
-      # Simuliere begin_error(), 7 Elemente auf den STACK:
-      pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
-      pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
-      pushSTACK(var_stream(S(debug_io),strmflags_wr_ch_B)); # Stream *DEBUG-IO*
-      terpri(&STACK_0); # neue Zeile
-      write_sstring(&STACK_0,O(error_string1)); # "*** - " ausgeben
-      # String ausgeben, Aufrufernamen verbrauchen, STACK aufräumen:
-      set_args_end_pointer(
-        write_errorstring(GETTEXT("~: User break")));
-      break_driver(T); # Break-Driver aufrufen
+      if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
+        # Simuliere begin_error(), 7 Elemente auf den STACK:
+        pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
+        pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
+        pushSTACK(var_stream(S(debug_io),strmflags_wr_ch_B)); # Stream *DEBUG-IO*
+        terpri(&STACK_0); # neue Zeile
+        write_sstring(&STACK_0,O(error_string1)); # "*** - " ausgeben
+        # String ausgeben, Aufrufernamen verbrauchen, STACK aufräumen:
+        set_args_end_pointer(
+          write_errorstring(GETTEXT("~: User break")));
+        break_driver(T); # Break-Driver aufrufen
+      } else {
+        pushSTACK(OLS(continue_interrupt)); # "Continue execution"
+        pushSTACK(S(simple_interrupt_condition)); # SYSTEM::[SIMPLE-]INTERRUPT-CONDITION
+        pushSTACK(OLS(user_break)); # "~S: User break"
+        pushSTACK(STACK_(0+3)); # caller
+        funcall(L(cerror_of_type),4); # (SYS::CERROR-OF-TYPE "..." 'SYSTEM::[SIMPLE-]INTERRUPT-CONDITION "..." caller)
+        skipSTACK(1);
+      }
     }
 
 LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)

@@ -1,3 +1,26 @@
+2001-03-18  Bruno Haible  <haible@clisp.cons.org>
+
+	* condition.lisp (interrupt-condition, simple-interrupt-condition):
+	New condition classes.
+	(%defclcs): Add interrupt-condition -> simple-interrupt-condition
+	mapping.
+	(exitunconditionally): New function.
+	(exitonerror): Use it.
+	(exit-on-error): Don't bind *BREAK-DRIVER*, as that impacts saved
+	memory images. Instead, establish a handler for INTERRUPT-CONDITION.
+	Generalize the normal handler from ERROR to SERIOUS-CONDITION.
+	(batchmode-break-driver): Remove function.
+	* lispbibl.d (conditiontype): Add interrupt_condition.
+	* error.d (tast_break): When (and (null *error-handler*) *use-clcs*),
+	signal a condition of type INTERRUPT-CONDITION.
+	* spvw_sigint.d (react_on_sigint, interrupt_handler): Signal an
+	INTERRUPT-CONDITION, more specific than a SERIOUS-CONDITION.
+	* stream.d (fehler_interrupt): Likewise.
+
+	* savemem.lisp (saveinitmem): Also reset SYSTEM::*ACTIVE-RESTARTS* and
+	SYSTEM::*CONDITION-RESTARTS*. Reset the dynamic variables in the new
+	image, not in the old.
+
 2001-03-19  Bruno Haible  <haible@clisp.cons.org>
 
 	* pathname.d (PARSE-NAMESTRING): Coerce string to normal-simple-string

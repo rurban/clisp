@@ -72,7 +72,7 @@
       if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
       #endif
       # Über 'fehler' in eine Break-Schleife springen:
-      fehler(serious_condition,
+      fehler(interrupt_condition,
              GETTEXT("Ctrl-C: User break")
             );
      #endif
@@ -153,7 +153,7 @@
       if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
       #endif
       # Über 'fehler' in eine Break-Schleife springen:
-      fehler(serious_condition,
+      fehler(interrupt_condition,
              GETTEXT("Ctrl-C: User break")
             );
     }
