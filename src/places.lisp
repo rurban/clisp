@@ -146,6 +146,50 @@
 ;;;----------------------------------------------------------------------------
 ;; Auxiliary functions for simplifying bindings and setterforms.
 
+; Like (subst newitem olditem form), except that it works on forms and
+; doesn't look inside quoted literals.
+; FIXME: This is still not correct: The form can contain macros or THE.
+(defun subst-in-form (newitem olditem form)
+  ; Don't use subst here, since a form can contain circular lists hidden behind
+  ; QUOTE.
+  (if (atom form)
+    (if (eql form olditem) newitem form)
+    (if (eq (car form) 'QUOTE)
+      form
+      (let ((modified nil)
+            (new-form-reversed '()))
+        (do ((formr form (cdr formr)))
+            ((atom formr)
+             (unless (eql formr (setq formr (subst-in-form newitem olditem formr)))
+               (setq modified t))
+             (if modified (nreconc new-form-reversed formr) form))
+          (let ((new-subform (subst-in-form newitem olditem (car formr))))
+            (unless (eql (car formr) new-subform)
+              (setq modified t))
+            (setq new-form-reversed (cons new-subform new-form-reversed))))))))
+
+; Like (sublis alist form), except that it works on forms and
+; doesn't look inside quoted literals.
+; FIXME: This is still not correct: The form can contain macros or THE.
+(defun sublis-in-form (alist form)
+  ; Don't use sublis here, since a form can contain circular lists hidden behind
+  ; QUOTE.
+  (if (atom form)
+    (let ((h (assoc form alist))) (if h (cdr h) form))
+    (if (eq (car form) 'QUOTE)
+      form
+      (let ((modified nil)
+            (new-form-reversed '()))
+        (do ((formr form (cdr formr)))
+            ((atom formr)
+             (unless (eql formr (setq formr (sublis-in-form alist formr)))
+               (setq modified t))
+             (if modified (nreconc new-form-reversed formr) form))
+          (let ((new-subform (sublis-in-form alist (car formr))))
+            (unless (eql (car formr) new-subform)
+              (setq modified t))
+            (setq new-form-reversed (cons new-subform new-form-reversed))))))))
+
 ; In simple assignments like (SETQ foo #:G0) the #:G0 can be replaced directly.
 (defun simple-assignment-p (store-form stores)
   (and (= (length stores) 1)
@@ -165,14 +209,14 @@
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
     (if (simple-assignment-p setterform stores)
-      (subst `(CONS ,item ,getterform) (car stores) setterform)
+      (subst-in-form `(CONS ,item ,getterform) (car stores) setterform)
       (let* ((bindlist (mapcar #'list temps subforms))
              (tempvars (gensym-list (length stores)))
-             (ns (sublis (mapcar #'(lambda (storevar tempvar)
-                                     (cons storevar
-                                           `(CONS ,storevar ,tempvar)))
-                                 stores tempvars)
-                         setterform)))
+             (ns (sublis-in-form (mapcar #'(lambda (storevar tempvar)
+                                             (cons storevar
+                                                   `(CONS ,storevar ,tempvar)))
+                                         stores tempvars)
+                                 setterform)))
         `(MULTIPLE-VALUE-BIND ,stores ,item
            (LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,tempvars ,getterform
@@ -428,7 +472,7 @@
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
     (if (and (symbolp getterform) (simple-assignment-p setterform stores))
-      `(PROG1 (CAR ,getterform) ,(subst `(CDR ,getterform) (car stores) setterform))
+      `(PROG1 (CAR ,getterform) ,(subst-in-form `(CDR ,getterform) (car stores) setterform))
       ;; Be sure to call the CARs before the CDRs - it matters in case
       ;; not all of the places evaluate to lists.
       (let ((bindlist (mapcar #'list temps subforms)))
@@ -436,17 +480,17 @@
           `(LET* ,(append bindlist (list (list (car stores) getterform)))
              (PROG1
                (CAR ,(car stores))
-               ,@(devalue-form (subst `(CDR ,(car stores)) (car stores) setterform))
+               ,@(devalue-form (subst-in-form `(CDR ,(car stores)) (car stores) setterform))
            ) )
           `(LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,stores ,getterform
                (MULTIPLE-VALUE-PROG1
                  (VALUES ,@(mapcar #'(lambda (storevar) `(CAR ,storevar)) stores))
                  ,@(devalue-form
-                     (sublis (mapcar #'(lambda (storevar)
-                                         (cons storevar `(CDR ,storevar)))
-                                     stores)
-                             setterform))))))))))
+                     (sublis-in-form (mapcar #'(lambda (storevar)
+                                                 (cons storevar `(CDR ,storevar)))
+                                             stores)
+                                     setterform))))))))))
 ;----------------------------------------------------------------------------
 (defmacro psetf (&whole whole-form
                  &rest args &environment env)
@@ -470,13 +514,13 @@
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
     (if (simple-assignment-p setterform stores)
-      (subst `(ADJOIN ,item ,getterform ,@keylist) (car stores) setterform)
+      (subst-in-form `(ADJOIN ,item ,getterform ,@keylist) (car stores) setterform)
       (let* ((bindlist (mapcar #'list temps subforms))
              (tempvars (gensym-list (length stores)))
-             (ns (sublis (mapcar #'(lambda (storevar tempvar)
-                                     (cons storevar `(ADJOIN ,storevar ,tempvar
-                                                      ,@keylist)))
-                                 stores tempvars)
+             (ns (sublis-in-form (mapcar #'(lambda (storevar tempvar)
+                                             (cons storevar `(ADJOIN ,storevar ,tempvar
+                                                              ,@keylist)))
+                                         stores tempvars)
                          setterform)))
         `(MULTIPLE-VALUE-BIND ,stores ,item
            (LET* ,bindlist
@@ -500,7 +544,7 @@
              (SYSTEM::%REMF ,(first stores) ,indicatorvar)
            (WHEN (AND ,removed-p (ATOM ,new-plist))
              ,(if (simple-assignment-p setterform stores)
-                (subst new-plist (first stores) setterform)
+                (subst-in-form new-plist (first stores) setterform)
                 `(PROGN (SETQ ,(first stores) ,new-plist) ,setterform)))
            ,removed-p)))))
 ;;;----------------------------------------------------------------------------
@@ -574,10 +618,10 @@
                        (LIST* ',function GETTERFORM ,@varlist ,restvar)))
                  (IF (SIMPLE-ASSIGNMENT-P SETTERFORM STORES)
                    (IF (NULL LET-LIST)
-                     (SUBST FUNCTION-APPLICATION (CAR STORES) SETTERFORM)
+                     (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM)
                      (LIST 'LET*
                        LET-LIST
-                       (SUBST FUNCTION-APPLICATION (CAR STORES) SETTERFORM)))
+                       (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM)))
                    (LIST 'LET*
                      (NCONC LET-LIST
                             (LIST (LIST (CAR STORES) FUNCTION-APPLICATION)))
@@ -592,7 +636,7 @@
                    (LIST 'LET*
                      (NCONC LET-LIST
                             (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar)))
-                     (SUBST FUNCTION-APPLICATION (CAR STORES) SETTERFORM))
+                     (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM))
                    (LIST 'LET*
                      (NCONC LET-LIST
                             (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar))
@@ -681,7 +725,7 @@
                       ; setterform hat die Gestalt `((SETF ,(first place)) ,@stores ,@temps).
                       ; stores ist überflüssig.
                       `(LET* ,(mapcar #'list temps subforms)
-                         ,(subst value (first stores) setterform)
+                         ,(subst-in-form value (first stores) setterform)
                        )
                    ))
                    (t (error-of-type 'source-program-error
@@ -856,16 +900,16 @@
 (define-setf-expander THE (type place &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform) (get-setf-expansion place env)
     (values temps subforms stores
-            (sublis (mapcar #'(lambda (storevar simpletype)
-                                (cons storevar `(THE ,simpletype ,storevar))
-                              )
-                            stores
-                            (if (and (consp type) (eq (car type) 'VALUES))
-                              (cdr type)
-                              (list type)
+            (sublis-in-form (mapcar #'(lambda (storevar simpletype)
+                                        (cons storevar `(THE ,simpletype ,storevar))
+                                      )
+                                    stores
+                                    (if (and (consp type) (eq (car type) 'VALUES))
+                                      (cdr type)
+                                      (list type)
+                                    )
                             )
-                    )
-                    setterform
+                            setterform
             )
             `(THE ,type ,getterform)
 ) ) )
@@ -1010,7 +1054,7 @@
             ,@(mapcar #'(lambda (x) `(IF (NOT ,conditionvar) ,x)) F-subforms)
            )
           T-stores
-          `(IF ,conditionvar ,T-setterform ,(sublis (mapcar #'cons F-stores T-stores) F-setterform))
+          `(IF ,conditionvar ,T-setterform ,(sublis-in-form (mapcar #'cons F-stores T-stores) F-setterform))
           `(IF ,conditionvar ,T-getterform ,F-getterform)
 ) ) ) ) )
 ;;;----------------------------------------------------------------------------
