@@ -20,11 +20,14 @@
 
 #if defined(GENERATIONAL_GC) || defined(NOCOST_SP_CHECK)
 local void print_mem_stats (void) {
-  fprintf(stderr,GETTEXTL("Permanently allocated %ld bytes."),static_space());
+  fprintf(stderr,GETTEXTL("Permanently allocated: %lu bytes."),
+          (unsigned long) static_space());
   fputs("\n",stderr);
-  fprintf(stderr,GETTEXTL("Currently in use %ld bytes."),used_space());
+  fprintf(stderr,GETTEXTL("Currently in use: %lu bytes."),
+          (unsigned long) used_space());
   fputs("\n",stderr);
-  fprintf(stderr,GETTEXTL("Free space %ld bytes."),free_space());
+  fprintf(stderr,GETTEXTL("Free space: %lu bytes."),
+          (unsigned long) free_space());
   fputs("\n",stderr);
 }
 #endif
