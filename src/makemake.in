@@ -189,9 +189,14 @@ while test -z "$endofargs"; do
     -without-* | --without-* | -with-no* | --with-no*)
     ## we are different from autoconf-generated configure scripts:
     ## if you pass --without-foo or --with-foo=no to a configure script,
-    ## $with_foo is set to "no", but if you pass it to makemake,
+    ## ${with_foo} is set to "no", but if you pass it to makemake,
     ## it is set to an empty string.  to fix this, one has to change
     ## this file and clisp-link.in -- sds 2003-11-04
+    ## sds 2004-08-10: how do we check options?
+    ##  -n "${with_foo}"     === yes (but defaults to no)
+    ##  -n "${with_foo-yes}" === yes (and defaults to yes)
+    ##  -z "${with_foo}"     === no  (and defaults to no)
+    ##  -z "${with_foo-yes}" === no  (but defaults to yes)
       package=`echol "$1"|sed 's/-*with\(out-\|-no-*\)//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
@@ -982,7 +987,7 @@ else
 
 fi
 
-if test -n "$with_dynamic_modules"; then
+if [ -n "${with_dynamic_modules-yes}" ]; then
   # Support for dynamic loading. Taken from libtool's ltconfig.in.
   if [ $XCC_GCC = true ] ; then
     XCC_LINKER_FLAG_PREFIX='-Wl,'
@@ -1171,14 +1176,14 @@ fi
 
 FILES=''
 
-if [ "${with_unicode}" != "0" ]; then
+if [ -n "${with_unicode-yes}" ]; then
   XCFLAGS="$XCFLAGS -DUNICODE"
 fi
-if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
+if [ -n "${with_threads}" ]; then
   XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"
 fi
 
-if [ "${with_termcap_ncurses}" = "0" -o "${LIBTERMCAP}" = "broken" ] ; then
+if [ -z "${with_termcap_ncurses-yes}" -o "${LIBTERMCAP}" = "broken" ] ; then
   XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
   LIBTERMCAP=""
 fi
@@ -1190,7 +1195,7 @@ else
   LIB_TYPE="unix";              # libfoo.a
 fi
 
-if test -n "$with_dynamic_ffi"; then
+if [ -n "${with_dynamic_ffi-yes}" ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
   if [ ${LIB_TYPE} = "win32" ] ; then
     XCL_FFILIBS='avcall.lib callback.lib'
@@ -1203,7 +1208,7 @@ else
   XCL_FFILIBS=''
 fi
 
-if test -n "$with_dynamic_modules"; then
+if [ -n "${with_dynamic_modules-yes}" ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 fi
 
@@ -1222,11 +1227,12 @@ if [ $HOS = unix -o $HOS = win32 ] ; then
 fi
 
 if [ $TOS = unix ] ; then
-  if [ "${with_readline}" = "0" ]; then
+  if [ -z "${with_readline-yes}" ]; then
+    # --without-readline was supplied
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
     FILES='libnoreadline.a '$FILES
-    if [ "${with_readline}" != "" ]; then
+    if [ -n "${with_readline}" ]; then
       # --with-readline was supplied ==> barf when readline is missing
       if grep "#undef HAVE_READLINE" unixconf.h 2>&1 >/dev/null; then
         echol "makemake: configure failed to detect readline" >&2
@@ -1239,7 +1245,7 @@ fi
 USE_GETTEXT=''
 XCL_GETTEXTLIB=''
 if [ $TOS = unix ] ; then
-  if [ "${with_gettext}" = "0" ]; then
+  if [ -z "${with_gettext-yes}" ]; then
     XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
   else
     if [ @USE_NLS@ = yes ] ; then
@@ -1270,7 +1276,7 @@ fi
 CPARTS=$CPARTS' io'
 CPARTS=$CPARTS' array hashtabl list package record weak sequence'
 CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit i18n'
-if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
+if [ $TSYS = master -o -n "${with_dynamic_ffi-yes}" ] ; then
   CPARTS=$CPARTS' foreign'
 fi
 if [ $TSYS = master -o $TOS = unix ] ; then
@@ -1279,7 +1285,7 @@ fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
   CPARTS=$CPARTS' win32aux'
 fi
-if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
+if [ -n "${with_threads}" ]; then
   CPARTS=$CPARTS' zthread'
 fi
 CPARTS=$CPARTS' built'
@@ -1311,13 +1317,13 @@ SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_
 
 UNICODE_INCLUDES=''
 UNICODE_EXTRA=''
-if [ "${with_unicode}" != "0" ] ; then
+if [ -n "${with_unicode-yes}" ] ; then
   UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uniname'
   UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h'
 fi
 
 NLS_INCLUDES=''
-if [ "${with_unicode}" != "0" ] ; then
+if [ -n "${with_unicode-yes}" ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_ascii'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_1 nls_iso8859_2 nls_iso8859_3'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_4 nls_iso8859_5 nls_iso8859_6'
@@ -1443,14 +1449,14 @@ LPARTS=$LPARTS' clos-print documentation'
 LPARTS=$LPARTS' fill-out disassem condition loadform gstream xcharin keyboard'
 LPARTS=$LPARTS' screen beossock runprog query reploop dribble complete'
 LPARTS=$LPARTS' pprint describe room edit macros3 clhs inspect gray'
-if [ -n "${with_threads}" -a "${with_threads}" != "0" ]; then
+if [ -n "${with_threads-yes}" ]; then
   LPARTS=$LPARTS' threads'
 fi
-if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
+if [ $TSYS = master -o -n "${with_dynamic_ffi-yes}" ] ; then
   LPARTS=$LPARTS' foreign1'
 fi
 LPARTS=$LPARTS' german'
-if [ "$with_unicode" != "0" ] ; then
+if [ -n "${with_unicode-yes}" ] ; then
   LPARTS=$LPARTS' french spanish russian'
 fi
 LPARTS=$LPARTS' dutch deprecated config'
@@ -1599,7 +1605,7 @@ echol     "# syscalls             export some POSIX (and other) system calls"
 echol     "# rawsock              raw socket access"
 echol     "# regexp               POSIX regular expressions"
 echol     "# pcre                 Perl-compatible regular expressions"
-if test -n "$with_dynamic_ffi"; then
+if [ -n "${with_dynamic_ffi-yes}" ]; then
   echol   "# wildcard             wildcard matching"
   echol   "# postgresql           interface to PostgreSQL ODBMS"
   echol   "# fastcgi              FastCGI (http://www.fastcgi.com/) interface"
@@ -1651,7 +1657,7 @@ else
 fi
 echol "X_LIBS = ${X_LIBS}"
 X_LIBS="\$(X_LIBS)"
-if test -n "$with_dynamic_modules"; then
+if [ -n "${with_dynamic_modules-yes}" ]; then
   echol 'MODULE_CPPFLAGS = $(CPPFLAGS) '
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${XCC_DLOPENABLE_EXE_FLAG}"
@@ -2207,7 +2213,7 @@ if [ $TSYS != win32msvc ] ; then
   done
 fi
 
-if [ -n "$with_dynamic_ffi" -a $HOS = unix ] ; then
+if [ -n "${with_dynamic_ffi-yes}" -a $HOS = unix ] ; then
   echol "trampoline${NEXT}trampoline.h :"
   echotab "cd trampoline && \$(MAKE) && \$(MAKE) check"
   echol
@@ -2259,7 +2265,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = spvw -o $f = hashtabl ] ; then
     depends=$depends' aridecl'
   fi
-  if [ $f = charstrg -a "${with_unicode}" != "0" ] ; then
+  if [ $f = charstrg -a -n "${with_unicode-yes}" ] ; then
     depends=$depends${UNICODE_INCLUDES}
     dependsc=${dependsc}${UNICODE_EXTRA}
   fi
@@ -2434,7 +2440,7 @@ if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   echol
 fi
 
-if [ -n "$with_dynamic_ffi" ] ; then
+if [ -n "${with_dynamic_ffi-yes}" ] ; then
   for f in avcall callback; do
     if [ ${LIB_TYPE} = "unix" ] ; then
       echol "$f.h lib$f.a :"
@@ -2608,7 +2614,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 else
   localeflags='-B .'
 fi
-if [ "${with_unicode}" != "0" ] ; then
+if [ -n "${with_unicode-yes}" ] ; then
   encflags=' -Efile UTF-8 -Eterminal UTF-8'
 else
   encflags=''
@@ -2907,7 +2913,7 @@ echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
   XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-  echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's%@LEXE@%${LEXE}%' < ${SRCDIR}${f}.in > ${f}"
+  echotab "sed -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's%@LEXE@%${LEXE}%' < ${SRCDIR}${f}.in > ${f}"
   echotab "chmod a+x ${f}"
   echol
 done
@@ -3510,7 +3516,7 @@ cat <<!!
 clean4 : clean3
 	-\$(RM) \$(CFILES)
 !!
-if [ -n "$with_dynamic_ffi" ] ; then
+if [ -n "${with_dynamic_ffi-yes}" ] ; then
 cat <<!!
 	-\$(RM) avcall.h
 	-\$(RM) callback.h vacall_r.h trampoline_r.h
