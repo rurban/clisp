@@ -3597,7 +3597,7 @@ is not a defined logical host yet, we proceed as follows:
 
 </section>
 
-<section id="terminal"><title>terminal interaction.</title>
+<section id="terminal"><title>Terminal interaction.</title>
 
 <!-- #ifdef GNU_READLINE -->
 <variablelist><title>&readline;</title>
@@ -3747,6 +3747,8 @@ is not a defined logical host yet, we proceed as follows:
 </variablelist>
 <!-- #endif -->
 
+<para>See also <link linkend="screen">Random Screen Access</link>.</para>
+
 </section>
 
 <section id="stream-dict"><title>The Streams Dictionary
@@ -3764,6 +3766,10 @@ is not a defined logical host yet, we proceed as follows:
   <listitem><simpara>both equivalent to &unsigned-byte-n; or
       &signed-byte-n;, with the same &n-r;.</simpara></listitem>
 </itemizedlist></para>
+
+<para>Note that you cannot change &stream-element-type; for some
+built-in streams, such as terminal streams (which is normally the
+value of &terminal-io-var;).</para>
 
 </section>
 
