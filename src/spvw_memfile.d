@@ -1,6 +1,6 @@
 # Saving and loading of memory images.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification -------------------------------
 
 # Saves a memory image on diskette.
 # savemem(stream);
@@ -14,7 +14,7 @@
 # This overwrites all Lisp data.
   local void loadmem (char* filename);
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation ------------------------------
 
 # Flags, von denen das Format eines MEM-Files abhängt:
   local uint32 memflags =
