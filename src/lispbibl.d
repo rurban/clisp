@@ -7907,7 +7907,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #define FREE_DYNAMIC_STRING(objvar)  \
       FREE_DYNAMIC_ARRAY(objvar##_storage)
   #endif
-# used by STREAM
+# used by LISPARIT
 
 #ifndef TYPECODES
 # UP, beschafft immutablen String
@@ -12011,13 +12011,13 @@ extern object stream_fd (object stream);
   extern uintL read_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
 # wird verwendet von SEQUENCE
 
-# UP: Schreibt mehrere Characters auf einen Stream.
-# write_char_array(stream,charptr,len)
-# > stream: Stream
-# > chart* charptr: Adresse der zu schreibenden Zeichenfolge
-# > uintL len: Länge der zu schreibenden Zeichenfolge
-# < chart* ergebnis: Pointer ans Ende des geschriebenen Bereiches oder NULL
-  extern const chart* write_char_array (object stream, const chart* charptr, uintL len);
+# Function: Writes several characters to a stream.
+# write_char_array(&stream,&chararray,start,len)
+# > stream: stream (on the STACK)
+# > object chararray: simple-string (on the STACK)
+# > uintL start: start index of character sequence to be written
+# > uintL len: length of character sequence to be written
+  extern void write_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
 # wird verwendet von SEQUENCE
 
 # UP: Liefert den Stream, der der Wert einer Variablen ist.

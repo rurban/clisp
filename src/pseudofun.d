@@ -42,15 +42,15 @@ LPSEUDOCODE(wr_ch_error) LPSEUDOCODE(wr_ch_array_error) LPSEUDOCODE(wr_ch_array_
 LPSEUDOCODE(wr_ss_dummy) LPSEUDOCODE(wr_ss_dummy_nogc)
 
 LPSEUDOCODE(rd_by_synonym) LPSEUDOCODE(rd_by_array_synonym) LPSEUDOCODE(wr_by_synonym) LPSEUDOCODE(wr_by_array_synonym) LPSEUDOCODE(rd_ch_synonym) LPSEUDOCODE(pk_ch_synonym) LPSEUDOCODE(rd_ch_array_synonym) LPSEUDOCODE(wr_ch_synonym) LPSEUDOCODE(wr_ch_array_synonym) LPSEUDOCODE(wr_ss_synonym)
-LPSEUDOCODE(wr_by_broad) LPSEUDOCODE(wr_by_array_broad) LPSEUDOCODE(wr_ch_broad) LPSEUDOCODE(wr_ch_array_broad0) LPSEUDOCODE(wr_ch_array_broad1) LPSEUDOCODE(wr_ss_broad)
+LPSEUDOCODE(wr_by_broad) LPSEUDOCODE(wr_by_array_broad) LPSEUDOCODE(wr_ch_broad) LPSEUDOCODE(wr_ch_array_broad) LPSEUDOCODE(wr_ss_broad)
 LPSEUDOCODE(rd_by_concat) LPSEUDOCODE(rd_by_array_concat) LPSEUDOCODE(rd_ch_concat) LPSEUDOCODE(pk_ch_concat) LPSEUDOCODE(rd_ch_array_concat)
 LPSEUDOCODE(wr_by_twoway) LPSEUDOCODE(wr_by_array_twoway) LPSEUDOCODE(wr_ch_twoway) LPSEUDOCODE(wr_ch_array_twoway) LPSEUDOCODE(wr_ss_twoway)
 LPSEUDOCODE(rd_by_twoway) LPSEUDOCODE(rd_by_array_twoway) LPSEUDOCODE(rd_ch_twoway) LPSEUDOCODE(pk_ch_twoway) LPSEUDOCODE(rd_ch_array_twoway)
 LPSEUDOCODE(rd_by_echo) LPSEUDOCODE(rd_by_array_echo) LPSEUDOCODE(rd_ch_echo) LPSEUDOCODE(rd_ch_array_echo)
 LPSEUDOCODE(rd_ch_str_in) LPSEUDOCODE(rd_ch_array_str_in)
-LPSEUDOCODE(wr_ch_str_out) LPSEUDOCODE(wr_ss_str_out)
+LPSEUDOCODE(wr_ch_str_out) LPSEUDOCODE(wr_ch_array_str_out) LPSEUDOCODE(wr_ss_str_out)
 LPSEUDOCODE(wr_ch_str_push)
-LPSEUDOCODE(wr_ch_pphelp) LPSEUDOCODE(wr_ss_pphelp)
+LPSEUDOCODE(wr_ch_pphelp) LPSEUDOCODE(wr_ch_array_pphelp) LPSEUDOCODE(wr_ss_pphelp)
 LPSEUDOCODE(rd_ch_buff_in)
 LPSEUDOCODE(wr_ch_buff_out)
 #ifdef GENERIC_STREAMS

@@ -1,5 +1,38 @@
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make write_char_array recurse through any kind of stream.
+        * lispbibl.d (write_char_array): Change calling convention.
+        * stream.d (wr_ch_array_Pseudofun): Change type definition.
+          (wr_ch_array_error): Change calling convention.
+          (wr_ch_array_dummy): Likewise. Loop, calling write_char.
+          (write_char_array): Change calling convention.
+          (wr_ch_array_synonym): Likewise.
+          (wr_ch_array_broad0, wr_ch_array_broad1): Remove functions.
+          (wr_ch_array_broad): New function.
+          (make_broadcast_stream): Use it.
+          (wr_ch_array_twoway): Change calling convention.
+          (rd_ch_array_echo): Update.
+          (wr_ch_array_str_out): New function.
+          (make_string_output_stream): Use it.
+          (wr_ch_array_pphelp): New function.
+          (make_pphelp_stream): Use it.
+          (wr_ch_array_unbuffered_unix): Change calling convention.
+          (wr_ss_unbuffered_unix): Update.
+          (wr_ch_array_unbuffered_mac): Change calling convention.
+          (wr_ss_unbuffered_mac): Update.
+          (wr_ch_array_unbuffered_dos): Change calling convention.
+          (wr_ss_unbuffered_dos): Update.
+          (wr_ch_array_buffered_unix): Change calling convention.
+          (wr_ss_buffered_unix): Update.
+          (wr_ch_array_buffered_mac): Change calling convention.
+          (wr_ss_buffered_mac): Update.
+          (wr_ch_array_buffered_dos): Change calling convention.
+          (wr_ss_buffered_dos): Update.
+          (wr_ss_terminal3): Update.
+        * sequence.d (WRITE-CHAR-SEQUENCE): Update.
+        * lisparit.d (print_integer): Update. Use DYNAMIC_STRING macro.
+        * pseudofun.d: Update.
+
         Make read_char_array recurse through any kind of stream.
         * lispbibl.d (read_char_array): Change calling convention.
         * stream.d (rd_ch_array_Pseudofun): Change type definition.
