@@ -961,7 +961,7 @@ is the same as
    <simpara>&export;s all &clos; specific symbols, including some
    <link linkend="clos-diff">additional symbols</link>.
    </simpara></listitem></varlistentry>
-  <varlistentry><term><quote>SYSTEM</quote></term><listitem>
+  <varlistentry id="sys-pac"><term>&sys-pac;</term><listitem>
    <simpara>has the nicknames <emphasis
    role="strong"><quote>SYS</quote></emphasis> and <emphasis
    role="strong"><quote>COMPILER</quote></emphasis>, and has no
@@ -974,8 +974,7 @@ is the same as
    make all the extensions available in the current package.
    This package uses packages (in addition to &cl-pac;):
    &ldap-pac; &posix-pac; &socket-pac; &gstream-pac; &gray-pac;
-   &i18n-pac; &custom-pac;.
-   </simpara></listitem></varlistentry>
+   &i18n-pac; &custom-pac;.</simpara></listitem></varlistentry>
   <varlistentry><term>&charset-pac;</term><listitem>
    <simpara>defines and &export;s some character sets, for use with
    &make-encoding; and as &extfmt; argument.
