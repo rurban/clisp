@@ -1334,7 +1334,7 @@ In other words, each pair is:
   <listitem><simpara>a &weak-or-relation; of the &key-r; and the &value-r;.
 </simpara></listitem></varlistentry></variablelist></para>
 
-<para>See also <olink targetdoc="impnotes" targetptr="make-hash"/>.</para>
+<para>See also <xref linkend="make-hash"/>.</para>
 
 <para>Weak &hash-table-t;s are useful to supplement objects with
  additional information that is stored outside of the object. This data
