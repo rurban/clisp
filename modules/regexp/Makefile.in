@@ -13,7 +13,6 @@ MAKE = make
 SHELL = /bin/sh
 
 DISTRIBFILES = regexp.o regexi.o regex.o link.sh Makefile README regexp.lsp regexp.texinfo regexp.dvi
-WDISTRIBFILES = $(DISTRIBFILES) wregexp.o
 distribdir =
 
 all : regexp.o regexi.o regex.o
@@ -24,9 +23,6 @@ regexp.c : regexp.lsp
 regexp.o : regexp.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c regexp.c
 
-wregexp.o : regexp.c
-	$(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c regexp.c -o wregexp.o
-
 regexi.o : regexi.c regex.h
 	$(CC) $(CFLAGS) -c regexi.c
 
@@ -36,14 +32,9 @@ regex.o : regex.c regex.h
 # Make a module
 clisp-module : all
 
-clisp-module-wide : all wregexp.o
-
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
-
-clisp-module-distrib-wide : clisp-module-wide force
-	$(LN) $(WDISTRIBFILES) $(distribdir)
 
 clean : force
 	rm -f core *.o *.a

@@ -1,4 +1,4 @@
-.TH CLISP 1 "11 January 1998"
+.TH CLISP 1 "25 June 1998"
 
 
 .SH NAME
@@ -26,9 +26,6 @@ clisp \- Common Lisp language interpreter and compiler
 .I tempdir
 ]
 #endif
-[
-.B -W
-]
 [
 .B -M
 .I memfile
@@ -147,12 +144,6 @@ allocates memory dynamically.
 .I memsize
 is essentially ignored.
 #endif
-#ifndef WIDE
-Nevertheless, the memory size is limited to 16 MB per Lisp type (cons, string,
-structure, etc.), unless the
-.B -W
-option is given.
-#endif
 
 #ifndef NO_SP_MALLOC
 .TP
@@ -175,18 +166,6 @@ This option takes precedence over the environment variable
 #endif
 
 .TP
-.B "-W"
-Specifies to call the wide-mode version of
-.BR clisp .
-It uses a 64-bit object representation instead of the usual 32-bit
-representation. This version of
-.B clisp
-is slower, but has no memory size limitations.
-#ifdef WIDE_HARD
--- This flag is not needed on this architecture.
-#endif
-
-.TP
 .BI "-M " memfile
 Specifies the initial memory image.
 This must be a memory dump produced by the
@@ -194,15 +173,6 @@ This must be a memory dump produced by the
 function.
 #ifdef UNIX
 It may have been compressed using GNU gzip.
-.I memfile
-may have the syntax
-.IB memfile32 : memfile64
-thus denoting two separate memory images,
-one for use without and one for use with the
-.B -W
-option.
-This option is normally already set by the driver program
-.BR /usr/local/bin/clisp .
 #endif
 
 .TP

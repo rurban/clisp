@@ -46,7 +46,6 @@
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 [ <A HREF="#Option -t"><CODE>-t</CODE> <EM>tempdir</EM></A> ]
 #endif
-[ <A HREF="#Option -W"><CODE>-W</CODE></A> ]
 [ <A HREF="#Option -M"><CODE>-M</CODE> <EM>memfile</EM></A> ]
 [ <A HREF="#Option -L"><CODE>-L</CODE> <EM>language</EM></A> ]
 [ <A HREF="#Option -N"><CODE>-N</CODE> <EM>localedir</EM></A> ]
@@ -113,11 +112,6 @@ eventually uses the entire <EM>memsize</EM>.
 allocates memory dynamically.
 <EM>memsize</EM> is essentially ignored.
 #endif
-#ifndef WIDE
-Nevertheless, the memory size is limited to 16 MB per Lisp type (cons, string,
-structure, etc.), unless the <A HREF="#Option -W"><CODE>-W</CODE></A> option
-is given.
-#endif
 <P>
 
 #ifndef NO_SP_MALLOC
@@ -137,28 +131,11 @@ This option takes precedence over the environment variable
 <P>
 #endif
 
-<DT> <A NAME="Option -W"> <CODE>-W</CODE> </A>
-<DD> Specifies to call the wide-mode version of <CODE>clisp</CODE>.
-It uses a 64-bit object representation instead of the usual 32-bit
-representation. This version of <CODE>clisp</CODE> is slower, but has no
-memory size limitations.
-#ifdef WIDE_HARD
--- This flag is not needed on this architecture.
-#endif
-<P>
-
 <DT> <A NAME="Option -M"> <CODE>-M</CODE> <EM>memfile</EM> </A>
 <DD> Specifies the initial memory image.
 This must be a memory dump produced by the <EM>saveinitmem</EM> function.
 #ifdef UNIX
 It may have been compressed using GNU gzip.
-<EM>memfile</EM> may have the syntax
-<EM>memfile32</EM><CODE>:</CODE><EM>memfile64</EM>
-thus denoting two separate memory images,
-one for use without and one for use with the
-<A HREF="#Option -W"><CODE>-W</CODE></A> option.
-This option is normally already set by the driver program
-<CODE>/usr/local/bin/clisp</CODE>.
 #endif
 <P>
 
@@ -562,7 +539,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 11 January 1998.
+Last modified: 25 June 1998.
 
 </BODY>
 

@@ -44,7 +44,6 @@ PACKEXT = .tar.Z
 SHELL = /bin/sh
 
 DISTRIBFILES = link.sh Makefile README.CLISP $(ALLLSP) $(ALLFAS)
-WDISTRIBFILES = $(DISTRIBFILES)
 distribdir =
 
 all: defsystem.fas stamp.fas $(ALLFAS) clx.mem
@@ -81,15 +80,10 @@ clisp-distrib : force clx.mem
 # Make a module
 clisp-module : defsystem.fas stamp.fas $(ALLFAS)
 
-clisp-module-wide : defsystem.fas stamp.fas $(ALLFAS)
-
 # Make a module distribution into $(distribdir)
 
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
-
-clisp-module-distrib-wide : clisp-module-wide force
-	$(LN) $(WDISTRIBFILES) $(distribdir)
 
 
 clean: force
