@@ -548,42 +548,34 @@ nil
 (translate-pathname "uufoobarbazquuxfff" "u?foo*baz*f?" "**baq*zot*")
 #P"ubarbaqquuxfzotf"
 
-(make-pathname :defaults "**;*.FASL" :host "CL-LIBRARY")
-#+clisp
+(make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
+   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
+   :NAME :WILD :TYPE "FASL" :VERSION NIL)
+#-CLISP
+FIXME
+
+(make-pathname :defaults "/**/*.FASL" :host "CL-LIBRARY")
+#+CLISP
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
    :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION NIL)
-#-clisp
-FIXME
-
-(make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
-#+clisp
-#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
-   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
-   :NAME :WILD :TYPE "FASL" :VERSION NIL)
-#-clisp
-FIXME
-
-(make-pathname :defaults ";**;*.FASL.*" :host "CL-LIBRARY")
-#+clisp
-#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
-   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
-   :NAME :WILD :TYPE "FASL" :VERSION :WILD)
-#-clisp
+#-CLISP
 FIXME
 
 (merge-pathnames (logical-pathname "cl-systems:") "metering.system")
-#+clisp
+#+CLISP
 #S(lOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
                     :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
-#-clisp
+#-CLISP
 FIXME
 
 (merge-pathnames (logical-pathname "cl-systems:") #P"metering.system")
-#+clisp
+#+CLISP
 #S(lOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
                     :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
-#-clisp
+#-CLISP
 FIXME
 
 (merge-pathnames (logical-pathname "clocc:clocc.lisp"))
@@ -593,10 +585,46 @@ FIXME
 #-CLISP
 FIXME
 
+(merge-pathnames ".fas" (logical-pathname "clocc:src;cllib;xml.lisp"))
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL :DIRECTORY
+   (:ABSOLUTE "SRC" "CLLIB") :NAME "XML" :TYPE "FAS" :VERSION :NEWEST)
+#-CLISP
+FIXME
+
+(merge-pathnames (logical-pathname "clocc:;foo;bar;")
+                 (logical-pathname "clocc:baz;quux.lisp.3"))
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL :DIRECTORY
+   (:ABSOLUTE "BAZ" "FOO" "BAR") :NAME "QUUX" :TYPE "LISP" :VERSION 3)
+#-CLISP
+FIXME
+
 (compile-file-pathname (logical-pathname "clocc:clocc.lisp"))
 #+CLISP
 #S(logical-pathname :host "CLOCC" :device nil :directory (:absolute)
                     :name "CLOCC" :type "FAS" :version :newest)
+#-CLISP
+FIXME
+
+(compile-file-pathname (logical-pathname "clocc:src;cllib;xml.lisp"))
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL :DIRECTORY
+   (:ABSOLUTE "SRC" "CLLIB") :NAME "XML" :TYPE "FAS" :VERSION :NEWEST)
+#-CLISP
+FIXME
+
+(parse-namestring "foo;bar;baz.fas.3" "clocc")
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL
+   :DIRECTORY (:ABSOLUTE "FOO" "BAR") :NAME "BAZ" :TYPE "FAS" :VERSION 3)
+#-CLISP
+FIXME
+
+(parse-namestring "foo;bar;baz.fas.3" nil (logical-pathname "clocc:"))
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL
+   :DIRECTORY (:ABSOLUTE "FOO" "BAR") :NAME "BAZ" :TYPE "FAS" :VERSION 3)
 #-CLISP
 FIXME
 
@@ -614,6 +642,14 @@ FIXME
 
 (make-pathname :defaults "a.b" :name "c" :type nil)
 #p"c"
+
+#+CLISP
+(make-pathname :defaults #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
+                            :DIRECTORY (:ABSOLUTE "FOO")
+                            :NAME "BAR" :TYPE "BAZ" :VERSION 3))
+#+CLISP
+#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL :DIRECTORY (:ABSOLUTE "FOO")
+   :NAME "BAR" :TYPE "BAZ" :VERSION 3)
 
 (defun foo (x)
   (let ((path (make-pathname
