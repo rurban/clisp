@@ -32,6 +32,24 @@ The input file is normal C code, modified like this:
   using the backquote syntax.) The variable can be referred to as
     O(variable_name)
   These variables are private to the module.
+- DEFFLAGSET(c_name, C_CONST1 C_CONST2 C_CONST3)
+  is converted to
+  static uint32 c_name (void) {
+   {uint32 ret = 0
+    #if defined(C_CONST3)
+      | (missingp(STACK_0) ? 0 : C_CONST3)
+    #endif
+    #if defined(C_CONST2)
+      | (missingp(STACK_1) ? 0 : C_CONST2)
+    #endif
+    #if defined(C_CONST1)
+      | (missingp(STACK_2) ? 0 : C_CONST1)
+    #endif
+      ;
+    skipSTACK(3);
+    return ret;
+  }}
+  it is convenient for parsing flag arguments to DEFUNs
 
 Restrictions and caveats:
 - A module should consist of a single file.
@@ -101,7 +119,7 @@ return the line number, else NIL."
   (and (>= (length v0) (length v1))
        (every #'string= v0 v1)))
 
-;; Push elt, and optimize: elt can be removed if is starts with an
+;; Push elt, and optimize: elt can be removed if it starts with an
 ;; already present string sequence. If another element starts with elt,
 ;; that one can be removed
 (defun stack-push-optimize (stack elt)
@@ -397,7 +415,7 @@ The vector is freshly constructed, but the strings are shared"
     fd))
 
 (defun find-fundef (funname &optional (condition (current-condition)))
-  "find the FDEF pbject corresponding to the given FUNNAME or create a new one"
+  "find the FDEF object corresponding to the given FUNNAME or create a new one"
   (let ((pack *module-package*) (name funname) (pos (position #\: funname)))
     (when pos
       (setq pack (subseq funname 0 pos)) (incf pos)
@@ -437,9 +455,27 @@ The vector is freshly constructed, but the strings are shared"
           (length (signature-keywords sig))))
 
 (defvar *brace-depth* 0)
+(defun parse-name (line end form &aux pos comma)
+  "parse the LINE DEF...(name,...), END is the end of DEF...
+Return the position of the first comma, position of the closing paren,
+ and the name of the form."
+  (unless (zerop *brace-depth*)
+    (error "~S:~D: ~A must be at the top level (depth ~D): ~S"
+           *input-file* *lineno* form *brace-depth* line))
+  (setq pos (next-non-blank line end))
+  (unless (and pos (char= #\( (aref line pos)))
+    (error "~S:~D:~D: invalid ~A syntax in ~S"
+           *input-file* *lineno* pos form line))
+  (unless (setq comma (position #\, line :start pos))
+    (error "~S:~D: too few arguments to ~A in ~S"
+           *input-file* *lineno* form line))
+  (values comma (position #\) line :start comma)
+          (subseq line (next-non-blank line (1+ pos))
+                  (prev-non-blank line comma))))
+
 (defun defun-p (line)
   "Parse a DEFUN(funname,lambdalist) line,
-and turn it into  DEFUN(funname,lambdalist,signature)."
+and turn it into DEFUN(funname,lambdalist,signature)."
   (let* ((pos (next-non-blank line 0)) (sec "seclass_default") cc sig fname
          (len (length line)) (end (and pos (+ pos #.(length "DEFUN")))) comma)
     (when (and pos (< end len) (string= "DEFUN" line :start2 pos :end2 end)
@@ -451,19 +487,7 @@ and turn it into  DEFUN(funname,lambdalist,signature)."
                  (#\D (setq sec "seclass_default") (incf end))
                  (#\( t)
                  (t (sys::whitespacep cc))))
-      (unless (zerop *brace-depth*)
-        (error "~S:~D: DEFUN must be at the top level (depth ~D): ~S"
-               *input-file* *lineno* *brace-depth* line))
-      (setq pos (next-non-blank line end))
-      (unless (and pos (char= #\( (aref line pos)))
-        (error "~S:~D: invalid DEFUN syntax in ~S"
-               *input-file* *lineno* line))
-      (unless (setq comma (position #\, line :start pos))
-        (error "~S:~D: too few arguments to DEFUN in ~S"
-               *input-file* *lineno* line))
-      (setq end (position #\) line :start comma)
-            fname (subseq line (next-non-blank line (1+ pos))
-                          (prev-non-blank line comma)))
+      (multiple-value-setq (comma end fname) (parse-name line end "DEFUN"))
       (multiple-value-setq (sig cc)
         (parse-signature fname line :start (1+ comma) :end end))
       (let* ((rest (subseq line end))
@@ -472,6 +496,33 @@ and turn it into  DEFUN(funname,lambdalist,signature)."
                    (fundef-lispfun (funname-to-fundef fname sig) sig)
                    (or cc "") rest)))
         (values all (- (length all) (length rest)))))))
+
+(defstruct flag-set
+  name cpp-names
+  (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
+(defvar *flag-sets* (make-array 5 :adjustable t :fill-pointer 0))
+(defun new-flag-set (name cpp-names &optional (condition (current-condition)))
+  (let ((fs (make-flag-set :name name :cpp-names cpp-names)))
+    (vector-push-extend fs *flag-sets*)
+    (stack-push-optimize (flag-set-cond-stack fs) condition)
+    fs))
+(defun def-flag-set-p (line)
+  "Parse a DEFFLAGSET(c_name,CPP_CONST...) line."
+  (let* ((pos (next-non-blank line 0)) (len (length line)) cc comma fname
+         (end (and pos (+ pos #.(length "DEFFLAGSET")))))
+    (when (and pos (< end len)
+               (string= "DEFFLAGSET" line :start2 pos :end2 end)
+               (case (setq cc (aref line end))
+                 (#\( t)
+                 (t (sys::whitespacep cc))))
+      (multiple-value-setq (comma end fname) (parse-name line end "DEFFLAGSET"))
+      (new-flag-set fname
+                    (loop :with l :and pos2 = comma
+                      :for pos1 = (next-non-blank line (1+ pos2))
+                      :while (and pos1 (< pos1 end))
+                      :do (setq pos2 (min end (or (next-blank line pos1) end)))
+                      (push (subseq line pos1 pos2) l) :finally (return l)))
+      (ext:string-concat (subseq line 0 pos) (subseq line (1+ end))))))
 
 (defstruct vardef
   tag (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
@@ -636,7 +687,7 @@ commas and parentheses."
       (when (else-p line) (sharp-else))
       (when (setq condition (elif-p line)) (sharp-elif condition))
       (when (endif-p line) (sharp-endif))
-      (setq line (or (defvar-p line) line))
+      (setq line (or (defvar-p line) (def-flag-set-p line) line))
       (multiple-value-bind (l p) (defun-p line)
         (when l (setq line l end (1- p)))))
     (loop (multiple-value-setq (line end status)
@@ -741,7 +792,22 @@ commas and parentheses."
       :do (with-conditional (out (fundef-cond-stack fd))
             (format out "  subr_t _~A;" (fundef-tag fd))))
     (write-string "  int _dummy_to_avoid_trailing_comma_in_initializer;" out)
-    (newline out) (format out "} ~A;" subr-tab) (newline out) (newline out)))
+    (newline out) (format out "} ~A;" subr-tab) (newline out) (newline out)
+    (loop :for fs :across *flag-sets*
+      :do (with-conditional (out (flag-set-cond-stack fs))
+            (format out "static uintL ~A (void) {" (flag-set-name fs))
+            (newline out)
+            (format out " {uintL flags = 0") (newline out)
+            (loop :for cpp-name :in (flag-set-cpp-names fs) :for nn :upfrom 0
+              :do (format out "   #ifdef ~A" cpp-name) (newline out)
+                  (format out "    | (missingp(STACK_(~D)) ? 0 : ~A)"
+                          nn cpp-name) (newline out)
+                  (format out "   #endif") (newline out)
+              :finally (progn (format out "   ;") (newline out)
+                              (format out "  skipSTACK(~D);" nn)))
+            (newline out) (format out "  return flags;") (newline out)
+            (format out "}}") (newline out)))
+    (newline out) (newline out)))
 
 (defun print-tables-2 (out)
   "Output the tables at the end of the file"

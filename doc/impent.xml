@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- *** Entities for impnotes.xml *** -->
-<!ENTITY clisp-list "<email>clisp-list@sf.net</email>">
-<!ENTITY clisp-devel "<email>clisp-devel@sf.net</email>">
+<!ENTITY clisp-list "<email><ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-list'>clisp-list/at/sf.net</ulink></email>">
+<!ENTITY clisp-devel "<email><ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-devel'>clisp-devel/at/sf.net</ulink></email>">
 
 <!-- *** general *** -->
 <!ENTITY c-lang "<ulink url='http://www.eskimo.com/~scs/C-faq/top.html'><command>C</command></ulink>">
@@ -601,6 +601,7 @@
 <!ENTITY config-file "<link linkend='customize'><filename>#P&quot;config.lisp&quot;</filename></link>">
 <!ENTITY make-file "<filename>#P&quot;Makefile&quot;</filename>">
 <!ENTITY lispinit "<link linkend='image'><filename>#P&quot;lispinit.mem&quot;</filename></link>">
+<!ENTITY clisp-h "<link linkend='clisp-h'><filename>#P&quot;clisp.h&quot;</filename></link>">
 
 <!-- *** pathnames *** -->
 <!ENTITY file-star  "<filename>&quot;*&quot;</filename>">

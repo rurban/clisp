@@ -1,5 +1,16 @@
 2004-05-13  Sam Steingold  <sds@gnu.org>
 
+	new macro DEFFLAGSET for modules
+	* utils/modprep.lisp (parse-name): new function
+	(defun-p): use it
+	(flag-set, *flag-sets*, new-flag-set, def-flag-set-p): added
+	(parse): call DEF-FLAG-SET-P
+	(print-tables-1): output flag sets
+	* modules/berkeley-db/bdb.c, modules/pcre/cpcre.c:
+	* modules/rawsock/rawsock.c, modules/regexp/regexi.c: use DEFFLAGSET
+
+2004-05-13  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (my_check_argument):
 	pushSTACK(NIL) for PLACE
 

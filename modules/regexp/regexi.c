@@ -19,13 +19,11 @@
 
 DEFMODULE(regexp,"REGEXP")
 
+DEFFLAGSET(regexp_compile_flags, REG_EXTENDED REG_ICASE REG_NEWLINE REG_NOSUB)
 DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
 { /* compile the pattern into a regular expression */
-  object pattern = check_string(STACK_4);
-  int cflags = (missingp(STACK_0) ? 0 : REG_NOSUB) |
-    (missingp(STACK_1) ? 0 : REG_NEWLINE) |
-    (missingp(STACK_2) ? 0 : REG_ICASE) |
-    (missingp(STACK_3) ? 0 : REG_EXTENDED);
+  int cflags = regexp_compile_flags();
+  object pattern = check_string(popSTACK());
   int status;
   regex_t* re;
  restart_regcomp:
@@ -48,10 +46,9 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
     pattern = value1;
     goto restart_regcomp;
   }
-  STACK_2 = STACK_1 = allocate_fpointer((FOREIGN)re);
-  STACK_0 = ``REGEXP::REGEXP-FREE``; funcall(L(finalize),2);
-  VALUES1(STACK_0);
-  skipSTACK(3);
+  pushSTACK(allocate_fpointer((FOREIGN)re));
+  pushSTACK(STACK_0);pushSTACK(``REGEXP::REGEXP-FREE``);funcall(L(finalize),2);
+  VALUES1(popSTACK());          /* foreign pointer */
 }
 
 DEFUN(REGEXP::REGEXP-FREE, compiled)

@@ -191,49 +191,36 @@ DEFUN(BDB:ENV-DBRENAME, dbe file database newname       \
   VALUES0; skipSTACK(6);
 }
 
+DEFFLAGSET(env_open_flags, DB_JOINENV DB_INIT_CDB DB_INIT_LOCK DB_INIT_LOG \
+           DB_INIT_MPOOL DB_INIT_TXN DB_RECOVER DB_RECOVER_FATAL        \
+           DB_USE_ENVIRON DB_USE_ENVIRON_ROOT DB_CREATE DB_LOCKDOWN     \
+           DB_PRIVATE DB_SYSTEM_MEM DB_THREAD)
 DEFUN(BDB:ENV-OPEN, dbe &key :HOME :JOIN :INIT-CDB :INIT-LOCK :INIT-LOG \
       :INIT-MPOOL :INIT-TXN :RECOVER :RECOVER-FATAL :USE-ENVIRON        \
       :USE-ENVIRON-ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM-MEM :THREAD :MODE)
 { /* open DB environment */
-  int mode = missingp(STACK_0) ? 0 : posfixnum_to_L(check_posfixnum(STACK_0));
-  u_int32_t flags =
-    (missingp(STACK_1) ? 0 : DB_THREAD) |
-    (missingp(STACK_2) ? 0 : DB_SYSTEM_MEM) |
-    (missingp(STACK_3) ? 0 : DB_PRIVATE) |
-    (missingp(STACK_4) ? 0 : DB_LOCKDOWN) |
-    (missingp(STACK_5) ? 0 : DB_CREATE) |
-    (missingp(STACK_6) ? 0 : DB_USE_ENVIRON_ROOT) |
-    (missingp(STACK_7) ? 0 : DB_USE_ENVIRON) |
-    (missingp(STACK_8) ? 0 : DB_RECOVER_FATAL) |
-    (missingp(STACK_9) ? 0 : DB_RECOVER) |
-    (missingp(STACK_10) ? 0 : DB_INIT_TXN) |
-    (missingp(STACK_(11)) ? 0 : DB_INIT_MPOOL) |
-    (missingp(STACK_(12)) ? 0 : DB_INIT_LOG) |
-    (missingp(STACK_(13)) ? 0 : DB_INIT_LOCK) |
-    (missingp(STACK_(14)) ? 0 : DB_INIT_CDB) |
-    (missingp(STACK_(15)) ? 0 : DB_JOINENV);
-  DB_ENV *dbe = object_handle(STACK_(17),`BDB::ENV`,false);
-  if (!missingp(STACK_(16))) STACK_(16) = check_string(STACK_(16));
-  if (stringp(STACK_(16))) {
-    with_string_0(STACK_(16),GLO(misc_encoding),home,
+  int mode = posfixnum_default(popSTACK());
+  u_int32_t flags = env_open_flags();
+  DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,false);
+  if (!missingp(STACK_0)) STACK_0 = check_string(STACK_0);
+  if (stringp(STACK_0)) {
+    with_string_0(STACK_0,GLO(misc_encoding),home,
                   { SYSCALL(dbe->open,(dbe,home,flags,mode)); });
   } else SYSCALL(dbe->open,(dbe,NULL,flags,mode));
-  VALUES0; skipSTACK(18);
+  VALUES0; skipSTACK(2);
 }
 
+DEFFLAGSET(env_remove_flags, DB_FORCE DB_USE_ENVIRON DB_USE_ENVIRON_ROOT)
 DEFUN(BDB:ENV-REMOVE, dbe &key :HOME :FORCE :USE-ENVIRON :USE-ENVIRON-ROOT)
 { /* destroy an environment */
-  u_int32_t flags =
-    (missingp(STACK_0) ? 0 : DB_USE_ENVIRON_ROOT) |
-    (missingp(STACK_1) ? 0 : DB_USE_ENVIRON) |
-    (missingp(STACK_2) ? 0 : DB_FORCE);
-  DB_ENV *dbe = object_handle(STACK_4,`BDB::ENV`,false);
-  if (!missingp(STACK_3)) STACK_3 = check_string(STACK_3);
-  if (stringp(STACK_3)) {
-    with_string_0(STACK_3,GLO(misc_encoding),home,
+  u_int32_t flags = env_remove_flags();
+  DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,false);
+  if (!missingp(STACK_0)) STACK_0 = check_string(STACK_0);
+  if (stringp(STACK_0)) {
+    with_string_0(STACK_0,GLO(misc_encoding),home,
                   { SYSCALL(dbe->remove,(dbe,home,flags)); });
   } else SYSCALL(dbe->remove,(dbe,NULL,flags));
-  VALUES0; skipSTACK(5);
+  VALUES0; skipSTACK(2);
 }
 
 /* ===== Environment Configuration ===== */
@@ -401,21 +388,18 @@ DEFUN(BDB:DB-FD, db)
   VALUES1(fixnum(fd));
 }
 
+DEFFLAGSET(db_get_flags,  DB_CONSUME DB_CONSUME_WAIT DB_DIRTY_READ DB_RMW)
 DEFUN(BDB:DB-GET, db key &key :CONSUME :CONSUME-WAIT :DIRTY-READ :RMW \
       :TRANSACTION)
 { /* Get items from a database */
-  DB_TXN *txn = object_handle(STACK_0,`BDB::TXN`,true);
-  u_int32_t flags =
-    (missingp(STACK_1) ? 0 : DB_RMW) |
-    (missingp(STACK_2) ? 0 : DB_DIRTY_READ) |
-    (missingp(STACK_3) ? 0 : DB_CONSUME_WAIT) |
-    (missingp(STACK_4) ? 0 : DB_CONSUME);
-  DB *db = object_handle(STACK_6,`BDB::DB`,false);
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  u_int32_t flags = db_get_flags();
+  DB *db = object_handle(STACK_1,`BDB::DB`,false);
   DBT key, val;
-  fill_dbt(STACK_5,&key);
+  fill_dbt(STACK_0,&key);
   init_dbt(&val,DB_DBT_MALLOC);
   SYSCALL(db->get,(db,txn,&key,&val,flags));
-  VALUES1(dbt_to_vector(&val)); skipSTACK(7);
+  VALUES1(dbt_to_vector(&val)); skipSTACK(2);
 }
 
 DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
@@ -517,33 +501,27 @@ static DBTYPE check_dbtype (object type) {
   goto restart_check_dbtype;
 }
 
+DEFFLAGSET(db_open_flags, DB_CREATE DB_DIRTY_READ DB_EXCL DB_NOMMAP \
+           DB_RDONLY DB_THREAD DB_TRUNCATE DB_AUTO_COMMIT)
 DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY-READ \
       :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE :AUTO-COMMIT :TRANSACTION)
 { /* Open a database */
-  DB_TXN *txn = object_handle(STACK_0,`BDB::TXN`,true);
-  u_int32_t flags =
-    (missingp(STACK_1) ? 0 : DB_AUTO_COMMIT) |
-    (missingp(STACK_2) ? 0 : DB_TRUNCATE) |
-    (missingp(STACK_3) ? 0 : DB_THREAD) |
-    (missingp(STACK_4) ? 0 : DB_RDONLY) |
-    (missingp(STACK_5) ? 0 : DB_NOMMAP) |
-    (missingp(STACK_6) ? 0 : DB_EXCL) |
-    (missingp(STACK_7) ? 0 : DB_DIRTY_READ) |
-    (missingp(STACK_8) ? 0 : DB_CREATE);
-  int mode = missingp(STACK_9) ? 0 : posfixnum_to_L(check_posfixnum(STACK_9));
-  DBTYPE db_type = check_dbtype(STACK_(10));
-  DB *db = object_handle(STACK_(13),`BDB::DB`,false);
-  with_string_0(check_string(STACK_(12)),GLO(misc_encoding),file, {
-      if (missingp(STACK_(11))) {   /* no :DATABASE */
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  u_int32_t flags = db_open_flags();
+  int mode = posfixnum_default(popSTACK());
+  DBTYPE db_type = check_dbtype(popSTACK());
+  DB *db = object_handle(STACK_2,`BDB::DB`,false);
+  with_string_0(check_string(STACK_1),GLO(misc_encoding),file, {
+      if (missingp(STACK_0)) {   /* no :DATABASE */
         SYSCALL(db->open,(db,txn,file,NULL,db_type,flags,mode));
       } else {                  /* multiple databases in one file */
-        with_string_0(check_string(STACK_(11)),GLO(misc_encoding),databse, {
+        with_string_0(check_string(STACK_0),GLO(misc_encoding),databse, {
             SYSCALL(db->open,(db,txn,file,databse,db_type,flags,mode));
           });
       }
     });
   VALUES0;
-  skipSTACK(14);
+  skipSTACK(3);
 }
 
 DEFUN(BDB:DB-SYNC, db)
@@ -597,21 +575,19 @@ DEFUN(BDB:DB-REMOVE, db file database)
   VALUES0; skipSTACK(3);
 }
 
+DEFFLAGSET(db_put_flags, DB_APPEND DB_NODUPDATA DB_NOOVERWRITE DB_AUTO_COMMIT)
+
 DEFUN(BDB:DB-PUT, db key val &key :APPEND :NODUPDATA :NOOVERWRITE \
       :AUTO-COMMIT :TRANSACTION)
 { /* Store items into a database */
-  DB_TXN *txn = object_handle(STACK_0,`BDB::TXN`,true);
-  u_int32_t flags =
-    (missingp(STACK_1) ? 0 : DB_AUTO_COMMIT) |
-    (missingp(STACK_2) ? 0 : DB_NOOVERWRITE) |
-    (missingp(STACK_3) ? 0 : DB_NODUPDATA) |
-    (missingp(STACK_4) ? 0 : DB_APPEND);
-  DB *db = object_handle(STACK_7,`BDB::DB`,false);
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  u_int32_t flags = db_put_flags();
+  DB *db = object_handle(STACK_2,`BDB::DB`,false);
   DBT key, val;
-  fill_dbt(STACK_5,&val);
-  fill_dbt(STACK_6,&key);
+  fill_dbt(STACK_0,&val);
+  fill_dbt(STACK_1,&key);
   SYSCALL(db->put,(db,txn,&key,&val,flags));
-  VALUES0; skipSTACK(8);
+  VALUES0; skipSTACK(3);
 }
 
 /* ===== transactions ===== */
@@ -620,16 +596,13 @@ DEFUN(BDB:DB-PUT, db key val &key :APPEND :NODUPDATA :NOOVERWRITE \
  DB_TXN->prepare	Prepare a transaction for commit
  DB_TXN->set_timeout	Set transaction timeout
  */
+DEFFLAGSET(txn_begin_flags, DB_DIRTY_READ DB_TXN_NOSYNC \
+           DB_TXN_NOWAIT DB_TXN_SYNC)
 DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY-READ :NOSYNC :NOWAIT :SYNC)
 { /* create a transaction */
-  u_int32_t flags =
-    (missingp(STACK_0) ? 0 : DB_TXN_SYNC) |
-    (missingp(STACK_1) ? 0 : DB_TXN_NOWAIT) |
-    (missingp(STACK_2) ? 0 : DB_TXN_NOSYNC) |
-    (missingp(STACK_3) ? 0 : DB_DIRTY_READ);
-  DB_TXN *parent = object_handle(STACK_4,`BDB::TXN`,true), *ret;
-  DB_ENV *dbe = object_handle(STACK_5,`BDB::ENV`,false);
-  skipSTACK(6);
+  u_int32_t flags = txn_begin_flags();
+  DB_TXN *parent = object_handle(popSTACK(),`BDB::TXN`,true), *ret;
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,false);
   SYSCALL(dbe->txn_begin,(dbe,parent,&ret,flags));
   pushSTACK(allocate_fpointer(ret));
   funcall(`BDB::MKTXN`,1);
@@ -642,14 +615,13 @@ DEFUN(BDB:TXN-ABORT, txn)
   VALUES0;
 }
 
+DEFFLAGSET(txn_commit_flags, DB_TXN_NOSYNC DB_TXN_SYNC)
 DEFUN(BDB:TXN-COMMIT, txn &key :NOSYNC :SYNC)
 { /* Commit a transaction */
-  u_int32_t flags =
-    (missingp(STACK_0) ? 0 : DB_TXN_SYNC) |
-    (missingp(STACK_1) ? 0 : DB_TXN_NOSYNC);
-  DB_TXN *txn = object_handle(STACK_2,`BDB::TXN`,true);
+  u_int32_t flags = txn_commit_flags();
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
   SYSCALL(txn->commit,(txn,flags));
-  VALUES0; skipSTACK(3);
+  VALUES0;
 }
 
 DEFUN(BDB:TXN-DISCARD, txn)
