@@ -25,9 +25,6 @@
 /* Define to 1 if you have the `encrypt' function. */
 #undef HAVE_ENCRYPT
 
-/* Define to 1 if you have the `erf' function. */
-#undef HAVE_ERF
-
 /* Define to 1 if you have the `erfc' function. */
 #undef HAVE_ERFC
 
