@@ -460,8 +460,7 @@ distrib : linux-distrib src-distrib
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
 
-# careful here: this src/VERSION is changed by this file!
-VER=$(shell cat src/VERSION)
+VER=$(shell . version.sh ; echo $$VERSION_NUMBER)
 SRC_DIST=/tmp/clisp-$(VER)$(PACKEXT)
 SRC_DIST1=/tmp/clisp-$(VER).tar.gz
 SSHUP=podval:~/public_html/clisp/
@@ -478,11 +477,10 @@ upload : $(SRC_DIST1) force
 	  lftp $${h} -e "put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"; \
 	done
 
-src-distrib : src/VERSION potfiles force
+src-distrib : potfiles force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
 
 src--distrib : force
-	touch src/VERSION
 	ln -s . $(TOPDIR)
 	$(PACK) $(PACKOPT) $(SRC_DIST) $(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)

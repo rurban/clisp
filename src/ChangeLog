@@ -18,6 +18,12 @@
 	* Makefile.devel (all): Remove src/VERSION.
 	(src/VERSION): Remove rule.
 	(src/version.h): Generate from version.sh, not using src/configure.
+	(VER): Define using version.sh.
+	(src-distrib): Don't depend on src/VERSION.
+	(src--distrib): Don't touch src/VERSION.
+	* po/po_header: Use version.sh, not VERSION.
+	* po/Makefile.devel (clisp.pot, en.po): Depend on version.sh, not
+	VERSION.
 
 2005-02-16  Sam Steingold  <sds@gnu.org>
 
