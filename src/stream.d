@@ -978,12 +978,12 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
 # Macro: Liefert den Wert eines Symbols, ein Stream.
 # get_synonym_stream(sym)
-# > sym: Symbol
+# > sym: Symbol, a variable
 # < ergebnis: sein Wert, ein Stream
   #define get_synonym_stream(sym)  \
-    ((!streamp(Symbol_value(sym))) ?         \
-       (fehler_value_stream(sym), unbound) : \
-       Symbol_value(sym)                     \
+    (!streamp(Symbol_value(sym))           \
+     ? (fehler_value_stream(sym), unbound) \
+     : Symbol_value(sym)                   \
     )
 
 # READ-BYTE - Pseudofunktion für Synonym-Streams:
@@ -1002,12 +1002,13 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var const object* bytearray_;
     var uintL start;
     var uintL len;
-    { check_SP(); check_STACK();
-      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
-     {var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
-      skipSTACK(1);
-      return result;
-    }}
+    {  check_SP(); check_STACK();
+     { var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+       pushSTACK(get_synonym_stream(symbol));
+      {var uintL result = read_byte_array(&STACK_0,bytearray_,start,len);
+       skipSTACK(1);
+       return result;
+    }}}
 
 # WRITE-BYTE - Pseudofunktion für Synonym-Streams:
   local void wr_by_synonym (object stream, object obj);
@@ -1027,10 +1028,11 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var uintL start;
     var uintL len;
     { check_SP(); check_STACK();
-      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
+     {var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+      pushSTACK(get_synonym_stream(symbol));
       write_byte_array(&STACK_0,bytearray_,start,len);
       skipSTACK(1);
-    }
+    }}
 
 # READ-CHAR - Pseudofunktion für Synonym-Streams:
   local object rd_ch_synonym (const object* stream_);
@@ -1065,12 +1067,13 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var const object* chararray_;
     var uintL start;
     var uintL len;
-    { check_SP(); check_STACK();
-      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
-     {var uintL result = read_char_array(&STACK_0,chararray_,start,len);
-      skipSTACK(1);
-      return result;
-    }}
+    {  check_SP(); check_STACK();
+     { var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+       pushSTACK(get_synonym_stream(symbol));
+      {var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+       skipSTACK(1);
+       return result;
+    }}}
 
 # WRITE-CHAR - Pseudofunktion für Synonym-Streams:
   local void wr_ch_synonym (const object* stream_, object obj);
@@ -1093,11 +1096,12 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var uintL start;
     var uintL len;
     { check_SP(); check_STACK();
-      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
+     {var object symbol = TheStream(*stream_)->strm_synonym_symbol;
+      pushSTACK(get_synonym_stream(symbol));
       write_char_array(&STACK_0,chararray_,start,len);
       skipSTACK(1);
       # No need to update wr_ch_lpos here. (See get_line_position.)
-    }
+    }}
 
 # Schließt einen Synonym-Stream.
 # close_synonym(stream);
@@ -1109,9 +1113,10 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   local void close_synonym(stream)
     var object stream;
     { check_SP(); check_STACK();
-      pushSTACK(get_synonym_stream(TheStream(stream)->strm_synonym_symbol));
+     {var object symbol = TheStream(stream)->strm_synonym_symbol;
+      pushSTACK(get_synonym_stream(symbol));
       funcall(S(close),1);
-    }
+    }}
 #endif
 
 # Reads a line of characters from a synonym-stream.
@@ -1125,12 +1130,13 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   local boolean read_line_synonym(stream,buffer_)
     var object stream;
     var const object* buffer_;
-    { check_SP(); check_STACK();
-      pushSTACK(get_synonym_stream(TheStream(stream)->strm_synonym_symbol));
-     {var boolean eofp = read_line(&STACK_0,buffer_);
-      skipSTACK(1);
-      return eofp;
-    }}
+    {  check_SP(); check_STACK();
+     { var object symbol = TheStream(stream)->strm_synonym_symbol;
+       pushSTACK(get_synonym_stream(symbol));
+      {var boolean eofp = read_line(&STACK_0,buffer_);
+       skipSTACK(1);
+       return eofp;
+    }}}
 
 # Stellt fest, ob ein Synonym-Stream ein Zeichen verfügbar hat.
 # listen_synonym(stream)
