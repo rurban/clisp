@@ -1,5 +1,17 @@
 1999-12-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_ctype.d (init_ctype): Recognize more language codes:
+          "af" (afrikaans), "ca" (catalan), "eu" (basque), "fo" (faeroese),
+          "ga" (irish), "gd" (scottish), "gl" (galician), "sq" (albanian),
+          "eo" (esperanto), "mt" (maltese), "be" (byelorussian),
+          "et" (estonian), "lt" (lithuanian), "lv" (latvian), "uk" (ukrainian).
+          Recognize more aliases: "english", "slovenian", "macedonian",
+          "serbian", "arabic".
+          Change default: KOI8-R for "ru" (russian) instead of ISO-8859-5,
+          ISO-8859-5 for "sr" instead of ISO-8859-2.
+
+1999-12-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * utils/unicode/Makefile (ALL): Add nls_koi8_u.c.
           (nls_koi8_u.c): New rule.
         * nls_koi8_u.c: New file.

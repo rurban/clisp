@@ -560,15 +560,22 @@
             } else {
               lang = locale;
             }
-            if (   asciz_equal(lang,"da") || asciz_equal(lang,"danish") || asciz_equal(lang,"dansk")
+            if (   asciz_equal(lang,"af") || asciz_equal(lang,"afrikaans")
+                || asciz_equal(lang,"ca") || asciz_equal(lang,"catalan")
+                || asciz_equal(lang,"da") || asciz_equal(lang,"danish") || asciz_equal(lang,"dansk")
                 || asciz_equal(lang,"de") || asciz_equal(lang,"german") || asciz_equal(lang,"deutsch")
-                || asciz_equal(lang,"en")
+                || asciz_equal(lang,"en") || asciz_equal(lang,"english")
                 || asciz_equal(lang,"es") || asciz_equal(lang,"spanish")
+                || asciz_equal(lang,"eu") || asciz_equal(lang,"basque")
                 || asciz_equal(lang,"fi") || asciz_equal(lang,"finnish")
+                || asciz_equal(lang,"fo") || asciz_equal(lang,"faroese") || asciz_equal(lang,"faeroese")
                 || asciz_equal(lang,"fr") || asciz_equal(lang,"french")
                                           #ifndef ASCII_CHS
                                           || asciz_equal(lang,"français")
                                           #endif
+                || asciz_equal(lang,"ga") || asciz_equal(lang,"irish")
+                || asciz_equal(lang,"gd") || asciz_equal(lang,"scottish")
+                || asciz_equal(lang,"gl") || asciz_equal(lang,"galician")
                 || asciz_equal(lang,"is") || asciz_equal(lang,"icelandic")
                 || asciz_equal(lang,"it") || asciz_equal(lang,"italian")
                 || asciz_equal(lang,"nl") || asciz_equal(lang,"dutch")
@@ -586,19 +593,25 @@
                 || asciz_equal(lang,"ro") || asciz_equal(lang,"romanian") || asciz_equal(lang,"rumanian")
                 || asciz_equal(lang,"sh") /* || asciz_equal(lang,"serbocroatian") ?? */
                 || asciz_equal(lang,"sk") || asciz_equal(lang,"slovak")
-                || asciz_equal(lang,"sl") || asciz_equal(lang,"slovene")
-                || asciz_equal(lang,"sr")
+                || asciz_equal(lang,"sl") || asciz_equal(lang,"slovene") || asciz_equal(lang,"slovenian")
+                || asciz_equal(lang,"sq") || asciz_equal(lang,"albanian")
                )
               locale_charset = "ISO-8859-2";
             else
-            if (   asciz_equal(lang,"bg") || asciz_equal(lang,"bulgarian")
-                || asciz_equal(lang,"mk")
-                || asciz_equal(lang,"ru") || asciz_equal(lang,"russian")
+            if (   asciz_equal(lang,"eo") || asciz_equal(lang,"esperanto")
+                || asciz_equal(lang,"mt") || asciz_equal(lang,"maltese")
+               )
+              locale_charset = "ISO-8859-3";
+            else
+            if (   asciz_equal(lang,"be") || asciz_equal(lang,"byelorussian")
+                || asciz_equal(lang,"bg") || asciz_equal(lang,"bulgarian")
+                || asciz_equal(lang,"mk") || asciz_equal(lang,"macedonian")
                 || asciz_equal(lang,"sp")
+                || asciz_equal(lang,"sr") || asciz_equal(lang,"serbian")
                )
               locale_charset = "ISO-8859-5";
             else
-            if (asciz_equal(lang,"ar")
+            if (asciz_equal(lang,"ar") || asciz_equal(lang,"arabic")
                )
               locale_charset = "ISO-8859-6";
             else
@@ -614,10 +627,16 @@
                )
               locale_charset = "ISO-8859-9";
             else
-            if (0)
+            if (   asciz_equal(lang,"et") || asciz_equal(lang,"estonian")
+                || asciz_equal(lang,"lt") || asciz_equal(lang,"lithuanian")
+                || asciz_equal(lang,"lv") || asciz_equal(lang,"latvian")
+               )
+              locale_charset = "ISO-8859-10";
+            else
+            if (asciz_equal(lang,"ru") || asciz_equal(lang,"russian"))
               locale_charset = "KOI8-R";
             else
-            if (0)
+            if (asciz_equal(lang,"uk") || asciz_equal(lang,"ukrainian"))
               locale_charset = "KOI8-U";
             else
             if (   asciz_equal(lang,"ja")
