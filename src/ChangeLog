@@ -1,3 +1,8 @@
+2004-10-06  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign1.lisp (parse-c-type compiler-macro): leave
+	(parse-c-type `(c-array ,foo ,len)) unchanged
+
 2004-10-05  Sam Steingold  <sds@gnu.org>
 
 	The user commands can now be extended using CUSTOM:*USER-COMMANDS*
