@@ -92,7 +92,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 1998-08-09 16:06:00 EDT\n"
+"POT-Creation-Date: 1998-08-09 18:20:11 EDT\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
