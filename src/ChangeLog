@@ -2,6 +2,12 @@
 
 	* pathname.d (use_default_dir win32): do not use `default_drive'
 	or `default_directory_of' for UNC paths
+	(pathname_check_remote, namestring_host_dir): new local functions
+	(assure_dir_exists, directory_exists):
+	use `namestring_host_dir' instead of `directory_namestring' and
+	`whole_namestring' instead of
+	`directory_namestring_parts'+`file_namestring_parts'
+	(change_default): barf on remote arguments
 	* inspect.lisp (inspect-frontend): bind `keep-alive'
 
 2001-01-03  Bruno Haible  <haible@clisp.cons.org>

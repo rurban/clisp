@@ -3161,6 +3161,24 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
                                        ThePathname(pathname)->pathname_version);
     }
 
+# check the slots for consistency:
+# remote paths (UNC) must be absolute and not have device
+local void pathname_check_remote (object pathname) {
+#if HAS_HOST
+  if (!nullp(ThePathname(pathname)->pathname_host) &&
+      (!nullp(ThePathname(pathname)->pathname_device) ||
+       (consp(ThePathname(pathname)->pathname_directory) &&
+        !eq(Car(ThePathname(pathname)->pathname_directory),S(Kabsolute))))) {
+    pushSTACK(pathname); # flot PATHNAME of FILE-ERROR
+    pushSTACK(pathname);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(file_error,
+           GETTEXT("~: remote path ~ is invalid")
+           );
+  }
+#endif
+}
+
 # UP: Wandelt Pathname in String um.
 # whole_namestring(pathname)
 # > pathname: nicht-Logical Pathname
@@ -3171,6 +3189,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
     var object pathname;
     {
       var uintC stringcount;
+      # pathname_check_remote(pathname);
       stringcount = host_namestring_parts(pathname); # Strings für den Host
       stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
       stringcount += file_namestring_parts(pathname); # Strings für den Filename
@@ -3196,10 +3215,23 @@ LISPFUNN(file_namestring,1)
   local object directory_namestring(pathname)
     var object pathname;
     {
-      var uintC stringcount =
-        directory_namestring_parts(pathname); # Strings fürs Directory
-      return string_concat(stringcount); # zusammenhängen
+      var uintC stringcount = directory_namestring_parts(pathname);
+      return string_concat(stringcount);
     }
+
+# UP: host+directory
+# namestring_host_dir(pathname)
+# > pathname: non-logical pathname
+# > subr_self: the caller (a SUBR)
+# < returns: normal-simple-string
+# can trigger GC
+local object namestring_host_dir (object pathname)
+{
+  pathname_check_remote(pathname);
+  var uintC stringcount = host_namestring_parts(pathname);
+  stringcount += directory_namestring_parts(pathname);
+  return string_concat(stringcount);
+}
 
 LISPFUNN(directory_namestring,1)
 # (DIRECTORY-NAMESTRING pathname), CLTL S. 417
@@ -6325,7 +6357,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean links_resolved;
     var boolean tolerantp;
     {
-      var object dir_namestring = directory_namestring(STACK_0);
+      var object dir_namestring = namestring_host_dir(STACK_0);
       if (!links_resolved) {
         # Existenztest:
         #ifdef MSDOS
@@ -6579,7 +6611,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if (!links_resolved) {
         # Zur Auflösung von :PARENTs, die über Root hinaussteigen,
         # müssen wir das Betriebssystem bemühen. Daher:
-        var object dir_namestring = directory_namestring(STACK_0);
+        var object dir_namestring = namestring_host_dir(STACK_0);
         pushSTACK(dir_namestring);
         dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
@@ -6656,11 +6688,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       var object pathname = STACK_0;
       # Information zum angesprochenen File holen:
       if (namenullp(pathname)) # kein File angesprochen?
-        return directory_namestring(pathname); # ja -> fertig
-      var uintC stringcount = 0;
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      stringcount += file_namestring_parts(pathname); # Strings für den Filename
-      var object namestring = string_concat(stringcount); # zusammenhängen
+        return namestring_host_dir(pathname); # ja -> fertig
+      var object namestring = whole_namestring(pathname);
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
         # Lock für dieses File holen:
         set_break_sem_4(); # Unterbrechungen währenddessen verhindern
@@ -6866,12 +6895,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
        dir_exists:
         # Information zum angesprochenen File holen:
         if (namenullp(STACK_0)) # kein File angesprochen?
-          return directory_namestring(STACK_0); # ja -> fertig
+          return namestring_host_dir(STACK_0); # ja -> fertig
         var object pathname = STACK_0;
-        var uintC stringcount = 0;
-        stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-        stringcount += file_namestring_parts(pathname); # Strings für den Filename
-        var object namestring = string_concat(stringcount); # zusammenhängen
+        var object namestring = whole_namestring(pathname);
         # Information holen:
         var local struct stat status;
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -7211,9 +7237,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean allowdir;
     {
       var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = namestring_host_dir(pathname);
       if (!links_resolved) {
         # Existenztest:
         var struct stat statbuf;
@@ -7348,6 +7372,16 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default (void);
   local void change_default()
     {
+      #if HAS_HOST
+      if (!nullp(ThePathname(STACK_0)->pathname_host)) {
+        pushSTACK(STACK_0); # flot PATHNAME of FILE-ERROR
+        pushSTACK(STACK_0);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(file_error,
+               GETTEXT("~: path ~ cannot be remote")
+               );
+      }
+      #endif
       # Default-Directory zu diesem Drive neu setzen:
       {
         var object pathname = STACK_0;
@@ -7408,9 +7442,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default (void);
   local void change_default()
     {
-      var uintC stringcount = host_namestring_parts(STACK_0); # Strings für den Host
-      stringcount += directory_namestring_parts(STACK_0); # Strings fürs Directory
-      var object string = string_concat(stringcount); # zusammenhängen
+      var object string = namestring_host_dir(STACK_0);
       with_sstring_0(string,O(pathname_encoding),asciz, {
         # Default-Directory ändern:
         begin_system_call();
@@ -7428,9 +7460,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default()
     {
       var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = namestring_host_dir(pathname);
       with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len, {
         ASSERT((len > 0) && (dir_namestring_asciz[len-1]=='.'));
         dir_namestring_asciz[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
@@ -7650,7 +7680,7 @@ LISPFUNN(probe_file,1)
     var object pathname;
     {
       pushSTACK(pathname); # Pathname retten
-      var object dir_namestring = directory_namestring(pathname);
+      var object dir_namestring = namestring_host_dir(pathname);
       # Existenztest, siehe auch assure_dir_exists():
       var boolean exists = TRUE;
       #ifdef MSDOS
