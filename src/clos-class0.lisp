@@ -81,4 +81,5 @@
 ;; can be printed as long as 1. some class-versions are not yet filled (delayed
 ;; defclass) and 2. PRINT-OBJECT is not yet defined.
 (defun print-object (object stream)
+  (declare (ignore object))
   (write-string "#<UNKNOWN>" stream))
