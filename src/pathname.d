@@ -1705,13 +1705,18 @@ local uintL parse_logical_pathnamestring(z)
     # stack layout:
     #  Datenvektor, Pathname, (last (pathname-directory Pathname)).
     # parse subdirectories:
-    # If ";" is the first char, it is turned into :ABSOLUTE
-    # (otherwize :RELATIVE) as the first subdir:
+    # If ";" is the first char, it is turned into :RELATIVE
+    # (otherwize :ABSOLUTE) as the first subdir
+    # for a reason that escapes me, ANSI CL specifies that
+    # "foo:;bar;baz.zot" is a  :RELATIVE logical pathname while
+    # "foo:/bar/baz.zot" is an :ABSOLUTE physical pathname.
+    # see "19.3.1.1.3 The Directory part of a Logical Pathname Namestring"
+    # http://www.lisp.org/HyperSpec/Body/sec_19-3-1-1-3.html
     if (Z_AT_SLASH(z,lslashp,STACK_2)) {
       Z_SHIFT(z,1);
-      Car(STACK_0) = S(Kabsolute);
-    } else {
       Car(STACK_0) = S(Krelative);
+    } else {
+      Car(STACK_0) = S(Kabsolute);
     }
     loop {
       # try to parse the next subdir
