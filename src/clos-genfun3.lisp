@@ -353,70 +353,18 @@
                 (car docstrings))))))
 
 ;; parse the lambdalist:
-;; lambdalist --> reqanz, req-vars, optanz, restp, keyp, keywords, allowp
+;; lambdalist --> reqnum, req-vars, optnum, restp, keyp, keywords, allowp
 (defun analyze-defgeneric-lambdalist (caller funname lambdalist)
-  (let ((req-vars '())
-        (optanz 0)
-        (restp nil)
-        (keyp nil)
-        (keywords '())
-        (allowp nil))
-    (when (some #'(lambda (item) (and (consp item) (cdr item))) lambdalist)
-      (error-of-type 'sys::source-program-error
-        (TEXT "~S ~S: No initializations are allowed in a generic function lambda-list: ~S")
-        caller funname lambdalist))
-    (flet ((check-varname (var)
-             (unless (symbolp var)
-               (error-of-type 'sys::source-program-error
-                 (TEXT "~S ~S: variable name ~S should be a symbol")
-                 caller funname var))
-             (when (memq var req-vars)
-               (error-of-type 'sys::source-program-error
-                 (TEXT "~S ~S: duplicate variable name ~S")
-                 caller funname var))
-             var))
-      (loop
-        (when (or (atom lambdalist) (lambda-list-keyword-p (first lambdalist)))
-          (return))
-        (push (check-varname (pop lambdalist)) req-vars))
-      (when (and (consp lambdalist) (eq (first lambdalist) '&optional))
-        (pop lambdalist)
-        (loop
-          (when (or (atom lambdalist)
-                    (lambda-list-keyword-p (first lambdalist)))
-            (return))
-          (let ((item (pop lambdalist)))
-            (check-varname (if (consp item) (first item) item))
-            (incf optanz))))
-      (when (and (consp lambdalist) (eq (first lambdalist) '&rest)
-                 (consp (rest lambdalist)))
-        (pop lambdalist)
-        (check-varname (pop lambdalist))
-        (setq restp t))
-      (when (and (consp lambdalist) (eq (first lambdalist) '&key))
-        (pop lambdalist)
-        (setq restp t keyp t) ; &key implies &rest
-        (loop
-          (when (or (atom lambdalist)
-                    (lambda-list-keyword-p (first lambdalist)))
-            (return))
-          (let ((item (pop lambdalist)))
-            (when (consp item) (setq item (first item)))
-            (check-varname (if (consp item) (second item) item))
-            (push (if (consp item)
-                    (first item)
-                    (intern (symbol-name item) *keyword-package*))
-                  keywords)))
-        (when (and (consp lambdalist)
-                   (eq (first lambdalist) '&allow-other-keys))
-          (pop lambdalist)
-          (setq allowp t))))
-    (when lambdalist
-      (error-of-type 'sys::source-program-error
-        (TEXT "~S ~S: invalid lambda list portion: ~S")
-        caller funname lambdalist))
-    (values (length req-vars) (nreverse req-vars) optanz
-            restp keyp keywords allowp)))
+  (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
+      (sys::analyze-generic-function-lambdalist lambdalist
+        #'(lambda (errorstring &rest arguments)
+            (error-of-type 'sys::source-program-error
+              (TEXT "~S ~S: invalid generic function lambda-list: ~A")
+              caller funname (apply #'format nil errorstring arguments))))
+    (declare (ignore keyvars))
+    (values (length reqvars) reqvars (length optvars)
+            (or (not (eql rest 0)) keyp) ; &key implies &rest
+            keyp keywords allowp)))
 
 ;; transform lambdalist into calling convention:
 (defun defgeneric-lambdalist-callinfo (caller funname lambdalist)
