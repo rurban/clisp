@@ -116,11 +116,12 @@ avcall-arm.lo : avcall-arm.s
 avcall-arm.s : $(srcdir)/avcall-arm.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-arm.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//,@,g' -e 's,\$$,#,g' > avcall-arm.s
 
-avcall-rs6000.lo : $(srcdir)/avcall-rs6000-aix.old.s $(srcdir)/avcall-rs6000-aix.new.s $(srcdir)/avcall-rs6000-sysv4.s
+avcall-rs6000.lo : $(srcdir)/avcall-rs6000-aix.old.s $(srcdir)/avcall-rs6000-aix.new.s $(srcdir)/avcall-rs6000-sysv4.s $(srcdir)/avcall-rs6000-macos.s
 	case "$(OS)" in \
 	  aix3*) syntax=aix.old;; \
 	  aix*) syntax=aix.new;; \
 	  linux* | netbsd*) syntax=linux;; \
+	  macos* | darwin*) syntax=macos;; \
 	  *) syntax=sysv4;; \
 	esac; \
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000-$${syntax}.s ; \

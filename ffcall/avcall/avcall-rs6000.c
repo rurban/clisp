@@ -3,6 +3,8 @@
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
   Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+  Copyright 2000 Adam Fedor, <fedor@gnu.org>
+  Copyright 2004 Paul Guyot, <pguyot@kallisys.net>
 
   This is free software distributed under the GNU General Public
   Licence described in the file COPYING. Contact the author if
@@ -80,7 +82,7 @@ __builtin_avcall(av_alist* l)
   __avword space[__AV_ALIST_WORDS];	/* space for callee's stack frame */
   __avword* argframe = sp + STACK_OFFSET;/* stack offset for argument list */
   int arglen = l->aptr - l->args;
-#ifdef _AIX
+#if defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))
   int farglen = 0;
 #else
   int farglen = l->faptr - l->fargs;
