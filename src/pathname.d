@@ -5108,6 +5108,10 @@ local object use_default_dir (object pathname) {
         var object drive = ThePathname(pathname)->pathname_device;
         var uintB dr = nullp(drive) ? 0 : as_cint(TheSstring(drive)->data[0]);
         var object default_dir = default_directory_of(dr,pathname);
+       #if HAS_HOST /* PATHNAME_WIN32 */
+        ThePathname(STACK_1)->pathname_host = /* replace NIL in pathname ... */
+          ThePathname(default_dir)->pathname_host; /* ... with default */
+       #endif
         /* default_dir (a Pathname) is finished.
          Replace :RELATIVE with default-subdirs, i.e.
          form  (append default-subdirs (cdr subdirs))
@@ -5115,10 +5119,6 @@ local object use_default_dir (object pathname) {
         var object temp = ThePathname(default_dir)->pathname_directory;
         temp = reverse(temp);
         subdirs = nreconc(temp,popSTACK());
-       #if HAS_HOST /* PATHNAME_WIN32 */
-        ThePathname(pathname)->pathname_host = /* replace NIL with default */
-          ThePathname(default_dir)->pathname_host;
-       #endif
       }
     }
     /* traverse list and freshly cons up, thereby process '.\' and '..\'
