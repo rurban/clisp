@@ -7,9 +7,11 @@
 	short again: (C-STRUCT name+opt slots ....)
 
 2003-05-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+	    Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (LAUNCH): deobfuscated according to General Line.
 	Supported -1 as return value.
+	use check_string() instead of fehler_string()
 
 2003-05-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 

@@ -10874,16 +10874,18 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
 
   var int command_len = 0,command_pos = 0,i;
   var object cmdlist_cons = allocate_cons();
-  var object curcons;
   Car(cmdlist_cons) = command_arg; Cdr(cmdlist_cons) = arg_arg;
-  for (curcons = cmdlist_cons;!nullp(curcons);curcons = Cdr(curcons)) {
-    with_string(check_string(Car(curcons)),O(misc_encoding),pcommand,pcomlen, {
-      /* sum max estimates of quoted lenghts
-         1 for space 1 for poss. endslash 2 for quotes *2 for quoting of quotes */
-      command_len += pcomlen*2 + 1 + 1 + 2; 
-    });
+  pushSTACK(cmdlist_cons); pushSTACK(cmdlist_cons);
+  while (consp(STACK_0)) {
+    Car(STACK_0) = check_string(Car(STACK_0));
+    /* sum max estimates of quoted lenghts:
+       1/space + 1/poss. endslash + 2/quotes + length * 2/quoting of quotes */
+    command_len += vector_length(Car(STACK_0))*2 + 1 + 1 + 2;
+    STACK_0 = Cdr(STACK_0);
   }
+  cmdlist_cons = STACK_1; skipSTACK(2);
   var DYNAMIC_ARRAY(command_data,char,command_len+1);
+  var object curcons;
   for (curcons = cmdlist_cons;!nullp(curcons);curcons = Cdr(curcons)) {
     with_string(Car(curcons),O(misc_encoding),pcommand,pcomlen, {
       /* collect parts */
