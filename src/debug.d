@@ -315,8 +315,9 @@ local maygc Values read_form(void)
     if (!eq(obj,eof_value)) { /* EOF test (after whitespace) */
       pushSTACK(obj);
       pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
-      /* delete input till EOL */
-      if (interactive_stream_p(STACK_(4+1))) {
+      /* If not at the beginning of a line, delete input till EOL: */
+      if (interactive_stream_p(STACK_(4+1))
+          && !eq(stream_get_lastchar(STACK_(4+1)),ascii_char(NL))) {
         while (ls_avail_p(listen_char(STACK_(4+1)))) {
           var object ch = peek_char(&STACK_(4+1));
           if (eq(ch,eof_value))
