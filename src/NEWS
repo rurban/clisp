@@ -215,6 +215,12 @@ User visible changes
   recompile the obsolete *.fas file.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
+* The FFI recognizes the c-type declaration (C-POINTER <c-type>) to
+  handle references without conversion to/from Lisp structures.
+
+* New FFI constructor functions FOREIGN-VARIABLE and FOREIGN-FUNCTION,
+  more operators are now exported (FOREIGN-VALUE, PARSE-C-TYPE).
+
 * The :LIBRARY option argument to DEF-CALL-OUT and DEF-C-VAR is now
   evaluated (i.e., it can now be a variable) and may take a value of
   :DEFAULT and :NEXT in addition to being a string as before.
