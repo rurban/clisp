@@ -330,12 +330,12 @@ AS-STRING
             (defclass testclass03a ()
               ((x :my-option foo))
               (:metaclass option-slot-class)))
-          (sl-option (first (class-direct-slots (find-class 'testclass03a))))
+          (sl-option (first (clos:class-direct-slots (find-class 'testclass03a))))
           (eval-succeeds
             (defclass testclass03b ()
               ((x :my-option bar :my-option baz))
               (:metaclass option-slot-class)))
-          (sl-option (first (class-direct-slots (find-class 'testclass03b))))
+          (sl-option (first (clos:class-direct-slots (find-class 'testclass03b))))
           (eval-succeeds
             (defclass testclass03c ()
               ((x :other-option foo))
@@ -364,9 +364,9 @@ AS-STRING
   (defclass testclass03e () ((x :option1 bar)) (:metaclass extended-slot-class))
   (defclass testclass03e () ((x :option2 baz)) (:metaclass extended-slot-class))
   (let ((cl (find-class 'testclass03e)))
-    (list (length (class-direct-slots cl))
-          (slot-boundp (first (class-direct-slots cl)) 'option1)
-          (slot-boundp (first (class-direct-slots cl)) 'option2))))
+    (list (length (clos:class-direct-slots cl))
+          (slot-boundp (first (clos:class-direct-slots cl)) 'option1)
+          (slot-boundp (first (clos:class-direct-slots cl)) 'option2))))
 (1 NIL T)
 
 
