@@ -8086,13 +8086,15 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # wird verwendet von SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
 
 # UP: Wandelt einen String in einen ASCIZ-String um.
-# string_to_asciz(obj)
+# string_to_asciz(obj,encoding)
 # > object obj: String
-# < ergebnis: Simple-String mit denselben Zeichen und einem Nullbyte mehr am Schluss
-# < TheAsciz(ergebnis): Adresse der darin enthaltenen Zeichenfolge
+# > object encoding: Encoding
+# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
+#             Nullbyte mehr am Schluss
+# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
 # kann GC auslösen
   extern object string_to_asciz (object obj);
-  #define TheAsciz(obj)  ((char*)(&TheSstring(obj)->data[0]))
+  #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
 # wird verwendet von STREAM, PATHNAME
 
 # Wandelt einen String in einen ASCIZ-String im C-Stack um.

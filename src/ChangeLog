@@ -1,5 +1,17 @@
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (string_to_asciz, TheAsciz): ASCIZ strings are now
+          simple-bit-vectors, not strings.
+        * genclisph.d (TheAsciz): Update.
+        * spvw.d (string_to_asciz): Allocate a bit vector, not a string.
+        * pathname.d (EXECUTE): Update, don't call string_concat.
+        * stream.d (rd_ch_terminal3): Update.
+          (finish_output_file): Use with_sstring_0 instead of TheAsciz.
+          (MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+           MAKE-PIPE-IO-STREAM): Update.
+
+1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         with_sstring and with_sstring_0 must not be called in a loop which
         is executed a lot of times, otherwise SP overflow danger.
         * pathname.d (subdirs): Change argument from char* to simple-string.

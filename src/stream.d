@@ -3465,7 +3465,7 @@ LISPFUNN(make_keyboard_stream,0)
       { var char* prompt; # Prompt: letzte bisher ausgegebene Zeile
        {var object lastline = string_to_asciz(TheStream(*stream_)->strm_terminal_outbuff);
         begin_system_call();
-        prompt = (char*) malloc(Sstring_length(lastline)+1);
+        prompt = (char*) malloc(Sbvector_length(lastline)/8+1);
         if (!(prompt==NULL))
           { strcpy(prompt,TheAsciz(lastline));
             #ifndef NO_MATCH  # not needed any more in readline-2.2-clisp or newer
@@ -9007,14 +9007,18 @@ typedef struct strm_i_file_extrafields_struct {
              {# Directory existiert schon:
               var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
               var sintW handle;
-              begin_system_call();
-              handle = OPEN(TheAsciz(namestring),O_RDWR); # Datei neu öffnen
-              if (handle < 0) # Error melden
-                { end_system_call(); OS_filestream_error(STACK_1); }
+              with_sstring_0(namestring,namestring_asciz,
+                { begin_system_call();
+                  handle = OPEN(namestring_asciz,O_RDWR); # Datei neu öffnen
+                  if (handle < 0) # Error melden
+                    { end_system_call(); OS_filestream_error(STACK_1); }
+                  end_system_call();
+                });
               #ifdef MSDOS
+              begin_system_call();
               setmode(handle,O_BINARY);
-              #endif
               end_system_call();
+              #endif
               # Nun enthält handle das Handle des geöffneten Files.
               {var object handlobj = allocate_handle(handle);
                skipSTACK(1);
@@ -9032,20 +9036,27 @@ typedef struct strm_i_file_extrafields_struct {
                if (!IsInteractive(handle))
                  { # File schließen (OS schreibt physikalisch):
                    Close(handle);
+                   end_system_call();
                    # File neu öffnen:
                    pushSTACK(stream); # stream retten
                    pushSTACK(TheStream(stream)->strm_file_truename); # Filename
                   {# Directory existiert schon, Datei neu öffnen:
                    var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
-                   handle = Open(TheAsciz(namestring),MODE_OLDFILE);
+                   with_sstring_0(namestring,namestring_asciz,
+                     { begin_system_call();
+                       handle = Open(namestring_asciz,MODE_OLDFILE);
+                       end_system_call();
+                     });
                    if (handle==NULL) # Error melden
-                     { end_system_call(); OS_filestream_error(STACK_1); }
+                     { OS_filestream_error(STACK_1); }
                    skipSTACK(1);
                    stream = popSTACK(); # stream zurück
                    # neues Handle eintragen:
                    TheHandle(TheStream(stream)->strm_file_handle) = handle;
-              }  }}
-              end_system_call();
+                 }}
+                 else
+                 { end_system_call(); }
+              }
               #endif
             #endif
           }
@@ -10913,7 +10924,7 @@ LISPFUNN(make_pipe_input_stream,1)
     var int handles[2]; # zwei Handles für die Pipe
     { # Als Shell nehmen wir immer die Kommando-Shell.
       # command in den Stack kopieren:
-      var uintL command_length = Sstring_length(command);
+      var uintL command_length = Sbvector_length(command)/8;
       var DYNAMIC_ARRAY(command_data,char,command_length);
       { var const char* ptr1 = TheAsciz(command);
         var char* ptr2 = &command_data[0];
@@ -11091,7 +11102,7 @@ LISPFUNN(make_pipe_output_stream,1)
     var int handles[2]; # zwei Handles für die Pipe
     { # Als Shell nehmen wir immer die Kommando-Shell.
       # command in den Stack kopieren:
-      var uintL command_length = Sstring_length(command);
+      var uintL command_length = Sbvector_length(command)/8;
       var DYNAMIC_ARRAY(command_data,char,command_length);
       { var const char* ptr1 = TheAsciz(command);
         var char* ptr2 = &command_data[0];
@@ -11226,7 +11237,7 @@ LISPFUNN(make_pipe_io_stream,1)
     var int out_handles[2]; # zwei Handles für die Pipe zum Output-Stream
     { # Als Shell nehmen wir immer die Kommando-Shell.
       # command in den Stack kopieren:
-      var uintL command_length = Sstring_length(command);
+      var uintL command_length = Sbvector_length(command)/8;
       var DYNAMIC_ARRAY(command_data,char,command_length);
       { var const char* ptr1 = TheAsciz(command);
         var char* ptr2 = &command_data[0];
