@@ -416,10 +416,46 @@ local maygc object check_varspec (object varspec, object caller) {
 /* add a bit to the object */
 #define SET_BIT(o,b)  as_object(as_oint(o) | wbit(b));
 
+/* the variables declared special appear on the stack twice:
+   with binding SPECDECL (added when processing declarations)
+   and the actual value (added when processing bindings).
+ here we activate the SPECDECL bindings */
+#define specdecled_p(sym,ptr,nn) (nn>0 ? specdecled_(sym,ptr,nn) : NULL)
+/* Find the SPECDECL binding for the symbol
+ > spec_pointer & spec_anz are returned by make_variable_frame()
+ < return the pointer to the flags (or symbol+flags)
+ i.e., something suitable to SET_BIT,
+ or NULL if no such binding is found */
+local inline gcv_object_t* specdecled_
+(object symbol, gcv_object_t* spec_pointer, uintL spec_anz) {
+  do {
+    NEXT(spec_pointer);
+   #ifdef NO_symbolflags
+    if (eq(NEXT(spec_pointer),symbol)) {
+      if (eq(NEXT(spec_pointer),Fixnum_0))
+        return &Before(spec_pointer);
+    } else {
+      NEXT(spec_pointer);
+    }
+   #else
+    if (eq(NEXT(spec_pointer),symbol))
+      return &Before(spec_pointer);
+   #endif
+  } while (--spec_anz);
+  return NULL;
+}
+/* activate the SPECDECL binding if found */
+#define activate_specdecl(sym,ptr,nn) do {                      \
+  var gcv_object_t *spec = specdecled_p(sym,ptr,nn);            \
+  if (spec)                                                     \
+    *spec = SET_BIT(*spec,active_bit_o); /* activate binding */ \
+ } while(0)
+
+
 /* UP for LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
  Analyzes the variables and declarations, builds up a variable binding-
  frame and extends VENV and poss. also DENV by a frame.
- make_variable_frame(caller,varspecs,&bind_ptr,&bind_count)
+ make_variable_frame(caller,varspecs,&bind_ptr,&bind_count,&spec_ptr,&spec_count)
  > object caller: Caller, a symbol
  > object varspecs: list of variable-specifiers
  > object value2: list of declaration-specifiers
@@ -427,10 +463,13 @@ local maygc object check_varspec (object varspec, object caller) {
  < stack layout: variable binding frame, Env-binding-frame, ({form}).
  < gcv_object_t* bind_ptr: pointer to the first "genuine" binding.
  < uintC bind_count: number of "genuine" bindings.
+ < gcv_object_t* spec_ptr: pointer to the first SPECDECL binding.
+ < uintC spec_count: number of SPECDECL bindings.
  changes STACK
  can trigger GC */
 local /*maygc*/ void make_variable_frame
-(object caller, object varspecs, gcv_object_t** bind_ptr_, uintC* bind_count_)
+(object caller, object varspecs, gcv_object_t** bind_ptr_, uintC* bind_count_,
+ gcv_object_t** spec_ptr_, uintC* spec_count_)
 {
   GCTRIGGER4(caller,varspecs,value1,value2);
   var object declarations = value2;
@@ -467,6 +506,8 @@ local /*maygc*/ void make_variable_frame
         }
         declspecs = Cdr(declspecs);
       }
+      *spec_count_ = spec_anz;
+      *spec_ptr_ = spec_pointer;
     }
     *bind_ptr_ = args_end_pointer; /* pointer to first "genuine" binding */
     { /* Then store the "genuine" variable bindings (the variable
@@ -507,32 +548,8 @@ local /*maygc*/ void make_variable_frame
           pushSTACK_symbolwithflags(symbol,0); /* store variable */
           check_STACK();
           /* determine, if static or dynamic binding: */
-          var bool specdecled = false; /* variable is declared special? */
-          if (spec_anz > 0) {
-           #ifdef NO_symbolflags
-            var gcv_object_t* ptr = spec_pointer;
-            var uintL count = spec_anz;
-            do {
-              NEXT(ptr);
-              if (eq(NEXT(ptr),symbol)) {
-                if (eq(NEXT(ptr),Fixnum_0)) {
-                  specdecled = true; break;
-                }
-              } else {
-                NEXT(ptr);
-              }
-            } while (--count);
-           #else
-            var gcv_object_t* ptr = spec_pointer;
-            var uintL count = spec_anz;
-            do {
-              NEXT(ptr);
-              if (eq(NEXT(ptr),symbol)) {
-                specdecled = true; break;
-              }
-            } while (--count);
-           #endif
-          }
+          var bool specdecled = /* variable is declared special? */
+            (specdecled_p(symbol,spec_pointer,spec_anz) != NULL);
           if (eq(caller,S(symbol_macrolet))) {
             if (special_var_p(TheSymbol(symbol))) {
               pushSTACK(symbol);
@@ -640,6 +657,14 @@ local void activate_bindings (gcv_object_t* frame_pointer, uintC count) {
     *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */
   } while (--count);
 }
+/* activate all SPECDECL declarations */
+local void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count) {
+  do {
+    spec_ptr skipSTACKop -varframe_binding_size;
+    var gcv_object_t* markptr = &Before(spec_ptr);
+    *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */
+  } while (--spec_count);
+}
 
 LISPSPECFORM(let, 1,0,body)
 { /* (LET ({varspec}) {decl} {form}), CLTL p. 110 */
@@ -650,9 +675,10 @@ LISPSPECFORM(let, 1,0,body)
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
-    var gcv_object_t* bind_ptr;
-    var uintC bind_count;
-    make_variable_frame(S(let),popSTACK(),&bind_ptr,&bind_count);
+    var gcv_object_t *bind_ptr, *spec_ptr;
+    var uintC bind_count, spec_count;
+    make_variable_frame(S(let),popSTACK(),&bind_ptr,&bind_count,
+                        &spec_ptr,&spec_count);
     if (bind_count > 0) {
       { /* Then, evaluate the initialization forms: */
         var gcv_object_t* frame_pointer = bind_ptr;
@@ -666,6 +692,7 @@ LISPSPECFORM(let, 1,0,body)
       }
       activate_bindings(bind_ptr,bind_count);
     }
+    if (spec_count > 0) activate_specdecls(spec_ptr,spec_count);
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
     /* unwind frames: */
@@ -683,9 +710,10 @@ LISPSPECFORM(letstern, 1,0,body)
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
-    var gcv_object_t* bind_ptr;
-    var uintC bind_count;
-    make_variable_frame(S(letstern),popSTACK(),&bind_ptr,&bind_count);
+    var gcv_object_t *bind_ptr, *spec_ptr;
+    var uintC bind_count, spec_count;
+    make_variable_frame(S(letstern),popSTACK(),&bind_ptr,&bind_count,
+                        &spec_ptr,&spec_count);
     /* Then, evaluate the initialization forms and activate the bindings */
     if (bind_count > 0) {
       var gcv_object_t* frame_pointer = bind_ptr;
@@ -700,6 +728,7 @@ LISPSPECFORM(letstern, 1,0,body)
           var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
           *initptr = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
           TheSymbolflagged(symbol)->symvalue = newval; /* new value */
+          activate_specdecl(symbol,spec_ptr,spec_count);
         } else {
           *initptr = newval; /* new value into the frame */
         }
@@ -724,10 +753,12 @@ LISPSPECFORM(locally, 0,0,body)
     return_Values compile_eval_form();
   } else {
     /* build variable binding frame, extend VAR_ENV : */
-    var gcv_object_t* bind_ptr;
-    var uintC bind_count;
-    make_variable_frame(S(locally),NIL,&bind_ptr,&bind_count);
+    var gcv_object_t *bind_ptr, *spec_ptr;
+    var uintC bind_count, spec_count;
+    make_variable_frame(S(locally),NIL,&bind_ptr,&bind_count,
+                        &spec_ptr,&spec_count);
     if (bind_count) activate_bindings(bind_ptr,bind_count);
+    if (spec_count) activate_specdecls(spec_ptr,spec_count);
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
     /* unwind frames: */
@@ -1114,9 +1145,10 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
-    var gcv_object_t* bind_ptr;
-    var uintC bind_count;
-    make_variable_frame(S(symbol_macrolet),popSTACK(),&bind_ptr,&bind_count);
+    var gcv_object_t *bind_ptr, *spec_ptr;
+    var uintC bind_count, spec_count;
+    make_variable_frame(S(symbol_macrolet),popSTACK(),&bind_ptr,&bind_count,
+                        &spec_ptr,&spec_count);
     /* then form the symbol-macros and activate the bindings: */
     if (bind_count > 0) {
       var gcv_object_t* frame_pointer = bind_ptr;
@@ -1752,9 +1784,10 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
     skipSTACK(2);
     /* build variable binding frame, extend VAR_ENV : */
     var gcv_object_t* form_ = &STACK_0;
-    var gcv_object_t* bind_ptr;
-    var uintC bind_count;
-    make_variable_frame(S(multiple_value_bind),varlist,&bind_ptr,&bind_count);
+    var gcv_object_t *bind_ptr, *spec_ptr;
+    var uintC bind_count, spec_count;
+    make_variable_frame(S(multiple_value_bind),varlist,&bind_ptr,&bind_count,
+                        &spec_ptr,&spec_count);
     /* stack layout: values-form, variable binding frame,
                      env-binding-frame, ({form}).
        now evaluate values-form: */
@@ -1769,6 +1802,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
         var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
         *valptr = TheSymbolflagged(sym)->symvalue; /* old val into the frame */ \
         TheSymbolflagged(sym)->symvalue = (value); /* new value into the value cell */ \
+        activate_specdecl(sym,spec_ptr,spec_count);                     \
       } else /* static binding : */                                     \
         *valptr = (value); /* new value into the frame */               \
       *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */ \
