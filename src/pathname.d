@@ -104,6 +104,7 @@ local void show_stack (const char* title,int nn) {
   #   cess.   On  failure, it returns NULL, sets errno to indicate
   #   the error, and places in resolved_path the absolute pathname
   #   of the path component which could not be resolved.
+  #define realpath my_realpath # there is no consensus on realpath declaration
   local char* realpath (const char* path, char* resolved_path);
   # method: use getwd and readlink.
   local char* realpath(path,resolved_path)
