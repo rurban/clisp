@@ -9675,8 +9675,8 @@ typedef struct {
     pushSTACK(as_object(as_oint(symbol) | (oint)(flags)))
 #endif
 
-# Special value to mark BLOCK- und TAGBODY-references that
-# aren't 'live' anymore (replaces the Frame-Pointer in the CDR of the corresponding Cons)
+/* Special value to mark BLOCK- and TAGBODY-references that are not 'live'
+   anymore (replaces the Frame-Pointer in the CDR of the corresponding Cons) */
 #define disabled  make_system(0xDDDDDDUL)
 
 # Value to mark specially declared references

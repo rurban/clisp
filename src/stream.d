@@ -15744,7 +15744,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
                       && (BufferedStream_position(stream) > 0)
                       && (*BufferedStream_buffer_address
                           (stream,BufferedStream_index(stream)-1) == b)) {
-                    # decrement index und position:
+                    # decrement index and position:
                     BufferedStream_index(stream) -= 1;
                     BufferedStream_position(stream) -= 1;
                     TheStream(stream)->strm_rd_ch_last = NIL;
