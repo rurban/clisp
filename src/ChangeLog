@@ -1,5 +1,9 @@
 2002-12-12  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (expand-form): export the code walker
+
+2002-12-12  Sam Steingold  <sds@gnu.org>
+
 	* unixconf.h.in (ENABLE_NLS): added (this fixes
 	the 2002-07-19 lispbibl.d patch)
 
