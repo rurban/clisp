@@ -3420,6 +3420,11 @@ elif [ $HOS = win32 ] ; then
     echotab "    cp -p \$\$d/\$\$f \$\$distdir/\$\$d/\$\$f ; \\"
     echotab "  done ; \\"
     echotab "done ; \\"
+    echotab "mkdir \$\$distdir/linkkit; \\"
+    echotab "for f in ${LINKKIT}; do \\"
+    echotab "  cp -p linkkit/\$\$f \$\$distdir/linkkit/\$\$f; \\"
+    echotab "done ; \\"
+    echotab "cp clisp-link \$\$distdir/; \\"
   fi
   echotab "mkdir \$\$distdir/data ; \\"
   for f in ${DATA_FILES}; do
