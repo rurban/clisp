@@ -568,7 +568,6 @@
       I_abs_to_NUDS(b); # (abs b) als NUDS erzeugen
       # Jetzt ist a = a_MSDptr/a_len/a_LSDptr, b = b_MSDptr/b_len/b_LSDptr,
       # beides NUDS, und a_len>0, b_len>0.
-      begin_arith_call();
       # Platz für zwei Rechenregister besorgen, mit je max(a_len,b_len)+1 Digits:
       {var uintD* divroomptr; # Platz für Divisionsergebnis
        var uintD* c_LSDptr;
@@ -578,6 +577,7 @@
         num_stack_need(c_len,_EMA_,d_LSDptr=);
         # Jetzt ist ../c_len/c_LSDptr, ../c_len/d_LSDptr frei.
        }
+       begin_arith_call();
        loop
          { # Hier a,b>0, beides NUDS.
            # Vergleiche a und b:
@@ -710,8 +710,9 @@
                b_MSDptr = copy_loop_down(r.LSDptr,b_LSDptr,b_len); # b := r kopieren
                goto a_greater_b; # Nun ist a>b>0
              }}
-      }  }
-      end_arith_call();
+         }
+       end_arith_call();
+      }
       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
       return NUDS_to_I(a_MSDptr,a_len); # NUDS a als Ergebnis
       #undef I_abs_to_NUDS
@@ -926,13 +927,13 @@
        #           uAb = uAb.MSDptr/uAb.len/uAb.LSDptr,
        #           uBb = uBb.MSDptr/uBb.len/uBb.LSDptr,
        # alles NUDS.
-       begin_arith_call();
        # Platz für zwei Rechenregister besorgen, mit je max(a_len,b_len)+1 Digits:
        {var uintL c_len = (uintL)(a_len>=b_len ? a_len : b_len) + 1;
         num_stack_need(c_len,_EMA_,c_LSDptr=);
         num_stack_need(c_len,divroomptr=,d_LSDptr=);
         # Jetzt ist ../c_len/c_LSDptr, ../c_len/d_LSDptr frei.
        }
+       begin_arith_call();
        loop
          { # Hier a,b>0, beides NUDS.
            # Vergleiche a und b:

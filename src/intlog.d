@@ -627,7 +627,6 @@
             # Nun ist MSDptr/len/LSDptr die DS zu x.
             # Oberhalb von ihr liegen k Nulldigits, unterhalb ist 1 Digit Platz.
             # MSDptr/len+k/.. ist jetzt die Gesamt-DS.
-            begin_arith_call();
             # Noch um i Bits nach links schieben:
             if (!(i==0)) # Bei i>0
               { # noch ein weiteres Digit dazunehmen (Vorzeichen)
@@ -636,12 +635,13 @@
                  len++;
                 }
                 # Schiebeschleife: die unteren len Digits um i Bits schieben
+                begin_arith_call();
                 if (i==1)
                   { shift1left_loop_down(LSDptr,len); }
                   else
                   { shiftleft_loop_down(LSDptr,len,i,0); }
+                end_arith_call();
               }
-            end_arith_call();
             x = DS_to_I(MSDptr,len+(uintC)k);
           }}
         else
@@ -657,16 +657,16 @@
             I_to_NDS(x, MSDptr=,len=,); # DS zu x bilden.
             if (k>=len) goto sign; # -y >= intDsize*len -> Vorzeichen von x zurück
             len -= k; # rechte k Digits einfach streichen
-            begin_arith_call();
             # Noch ist len>0. Um i Bits nach rechts schieben:
             if (!(i==0)) # Bei i>0:
               { # Schiebe len Digits ab MSDptr um i Bits nach rechts:
+                begin_arith_call();
                 if (i==1)
                   { shift1right_loop_up(MSDptr,len,sign_of_sintD(MSDptr[0])); }
                   else
                   { shiftrightsigned_loop_up(MSDptr,len,i); }
+                end_arith_call();
               }
-            end_arith_call();
             x = DS_to_I(MSDptr,len);
           }
       if (FALSE)

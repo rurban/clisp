@@ -649,8 +649,8 @@
         var uintD* x2_MSDptr;
         var uintD* x2_LSDptr;
         var uintD rounding_bits;
-        begin_arith_call();
         num_stack_need(x2_len, x2_MSDptr=,x2_LSDptr=); # x2_len Digits Platz
+        begin_arith_call();
         if (j==0)
           { copy_loop_up(&TheLfloat(x2)->data[0],x2_MSDptr,x2_len); rounding_bits = 0; }
           else
@@ -835,7 +835,7 @@
              { # Übertrag durchs Aufrunden
                y_mantMSDptr[0] = bit(intDsize-1); # Mantisse := 10...0
                # Exponent erhöhen:
-               if (++(TheLfloat(y)->expo) == LF_exp_high+1) { fehler_overflow(); }
+               if (++(TheLfloat(y)->expo) == LF_exp_high+1) { end_arith_call(); fehler_overflow(); }
              }
          ab: # abrunden
            ;
@@ -1239,7 +1239,6 @@
       var uintL r_len = 2*(uintL)len+2; # Länge des Radikanden
       if ((intWCsize < 32) && (r_len > (uintL)(bitc(intWCsize)-1))) { fehler_LF_toolong(); }
       num_stack_need(r_len, r_MSDptr=,r_LSDptr=);
-      begin_arith_call();
       uexp = uexp - LF_exp_mid + 1;
       if (uexp & bit(0))
         # Exponent gerade
@@ -1249,13 +1248,14 @@
         }
         else
         # Exponent ungerade
-        {var uintD carry_rechts = # n Digits kopieren und um 1 Bit rechts shiften
-           shiftrightcopy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len,1,0);
-         var uintD* ptr = &r_MSDptr[(uintP)len];
-         *ptr++ = carry_rechts; # Übertrag und
-         clear_loop_up(ptr,len+1); # n+1 Nulldigits anhängen
-        }
-      end_arith_call();
+        { begin_arith_call();
+         {var uintD carry_rechts = # n Digits kopieren und um 1 Bit rechts shiften
+            shiftrightcopy_loop_up(&TheLfloat(x)->data[0],r_MSDptr,len,1,0);
+          var uintD* ptr = &r_MSDptr[(uintP)len];
+          *ptr++ = carry_rechts; # Übertrag und
+          clear_loop_up(ptr,len+1); # n+1 Nulldigits anhängen
+          end_arith_call();
+        }}
       uexp = (sintL)((sintL)uexp >> 1); # Exponent halbieren
       uexp = uexp + LF_exp_mid;
       {# Ergebnis allozieren:
