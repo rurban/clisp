@@ -2379,15 +2379,15 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
     var object vars = TheIclosure(closure)->clos_vars; /* Vector of variable-names */
     var uintL var_count = Svector_length(vars); /* number of variables */
-    get_space_on_STACK(var_count*2*sizeof(gcv_object_t)); /* reserve space */
+    get_space_on_STACK(var_count*varframe_binding_size*sizeof(gcv_object_t));
     {
       var gcv_object_t* varptr = &TheSvector(vars)->data[0]; /* Pointer to variables in vector */
       var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
       var uintC count;
       /* the special-references first: */
       dotimesC(count,spec_count, {
-        pushSTACK(specdecl); /* preliminary "binding value" */
-        pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); /* make a note of binding as being active */
+        pushSTACK(specdecl); /* SPECDECL as "value" */
+        pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); /* active */
       });
       frame_pointer = args_end_pointer;
       if (var_count-spec_count > 0) {
