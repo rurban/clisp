@@ -1,3 +1,9 @@
+2003-09-29  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (init_dependent_encodings): use ASCII for
+	*FOREIGN-ENCODING* when argv_encoding_foreign is not 1:1
+	Reported by Douglas Philips <dgou@mac.com>
+
 2003-09-26  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 813119 ]: "Occurred in SIMPLIFY at AT-END"
