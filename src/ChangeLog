@@ -1,3 +1,12 @@
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
+	* defstruct.lisp (ds-slot-name, ds-slot-initargs, ds-slot-offset,
+	ds-slot-initer, ds-slot-initfunctionform, ds-slot-type,
+	ds-slot-readonly): Remove macros. Use clos::slot-definition-* accessors
+	everywhere.
+	(copy-<structure-effective-slot-definition>): Renamed from copy-ds-slot.
+	* clos-class2.lisp: Update callers here as well.
+
 2004-05-10  Sam Steingold  <sds@gnu.org>
 
 	* subr.d, hashtabl.d (GETHASH): seclass_default because
