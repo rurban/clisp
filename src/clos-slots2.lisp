@@ -102,8 +102,7 @@
     :specializers (list (find-class 'semi-standard-class)
                         (find-class 't)
                         (find-class 'standard-effective-slot-definition))
-    'initfunction #'(lambda (gf) (declare (ignore gf))
-                      (cons #'clos::%slot-value-using-class '(T)))
+    'fast-function #'clos::%slot-value-using-class
     'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(class instance slot)
@@ -132,8 +131,7 @@
                         (find-class 'semi-standard-class)
                         (find-class 't)
                         (find-class 'standard-effective-slot-definition))
-    'initfunction #'(lambda (gf) (declare (ignore gf))
-                      (cons #'clos::%set-slot-value-using-class '(T)))
+    'fast-function #'clos::%set-slot-value-using-class
     'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(new-value class instance slot)
@@ -161,8 +159,7 @@
     :specializers (list (find-class 'semi-standard-class)
                         (find-class 't)
                         (find-class 'standard-effective-slot-definition))
-    'initfunction #'(lambda (gf) (declare (ignore gf))
-                      (cons #'clos::%slot-boundp-using-class '(T)))
+    'fast-function #'clos::%slot-boundp-using-class
     'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(class instance slot)
@@ -190,8 +187,7 @@
     :specializers (list (find-class 'semi-standard-class)
                         (find-class 't)
                         (find-class 'standard-effective-slot-definition))
-    'initfunction #'(lambda (gf) (declare (ignore gf))
-                      (cons #'clos::%slot-makunbound-using-class '(T)))
+    'fast-function #'clos::%slot-makunbound-using-class
     'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(class instance slot)

@@ -1732,6 +1732,67 @@ T
 #-CLISP T
 
 
+;; Check that it's possible to create custom method classes.
+(progn
+  (defclass custom-method (method)
+    ((qualifiers       :reader method-qualifiers
+                       :writer (setf custom-method-qualifiers))
+     (lambda-list      :reader method-lambda-list
+                       :writer (setf custom-method-lambda-list))
+     (specializers     :reader method-specializers
+                       :writer (setf custom-method-specializers))
+     (function         :reader method-function
+                       :writer (setf custom-method-function))
+     (documentation    :accessor custom-method-documentation)
+     (generic-function :reader method-generic-function
+                       :writer (setf custom-method-generic-function))))
+  (defmethod initialize-instance ((method custom-method) &rest args
+                                  &key qualifiers lambda-list specializers
+                                       function documentation
+                                  &allow-other-keys)
+    (call-next-method)
+    (setf (custom-method-qualifiers method) qualifiers)
+    (setf (custom-method-lambda-list method) lambda-list)
+    (setf (custom-method-specializers method) specializers)
+    (setf (custom-method-function method) function)
+    (setf (custom-method-documentation method) documentation)
+    (setf (custom-method-generic-function method) nil)
+    method)
+  (defmethod documentation ((x custom-method) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (custom-method-documentation x))
+  (defmethod (setf documentation) (new-value (x custom-method) (doc-type (eql 't)))
+    (declare (ignore doc-type))
+    (setf (custom-method-documentation x) new-value))
+  ;; (setf method-generic-function) is a CLISP extension.
+  (defmethod (setf method-generic-function) (new-gf (method custom-method))
+    (setf (custom-method-generic-function method) new-gf))
+  #| ; Instead of overriding add-method and remove-method:
+  (defmethod add-method ((gf standard-generic-function) (m custom-method))
+    (setf (custom-method-generic-function m) gf)
+    (call-next-method))
+  (defmethod remove-method ((gf standard-generic-function) (m custom-method))
+    (setf (custom-method-generic-function m) nil)
+    (call-next-method))
+  |#
+  (let ((result '()))
+    (defgeneric testgf30 (a b)
+      (:method ((a integer) (b integer)) (- (call-next-method) (floor a b)))
+      (:method ((a real) (b real)) (/ (float a) (float b)))
+      (:method-class custom-method))
+    (push (not (find-method #'testgf30 nil (list (find-class 'integer) (find-class 'integer)) nil))
+          result)
+    (push (testgf30 17 2) result)
+    (defgeneric testgf30 (a b)
+      (:method ((a real) (b real)) (/ (float a) (float b)))
+      (:method-class custom-method))
+    (push (not (find-method #'testgf30 nil (list (find-class 'integer) (find-class 'integer)) nil))
+          result)
+    (push (testgf30 17 2) result)
+    (nreverse result)))
+(NIL 0.5 T 8.5)
+
+
 ;;; Application example: Typechecked slots
 
 (progn

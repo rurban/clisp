@@ -116,6 +116,29 @@
                     (error (TEXT "The method function of ~S cannot be called before the method has been added to a generic function.")
                            method)))))))
 
+(defun method-function-substitute (h)
+  (let ((fast-func (car h))
+        (wants-next-method-p (null (cadr h))))
+    (if wants-next-method-p
+      #'(lambda (arguments next-methods-list)
+          (apply fast-func
+                 (method-list-to-continuation next-methods-list)
+                 arguments))
+      ; Some methods are known a-priori to not use the next-method list.
+      #'(lambda (arguments next-methods-list)
+          (declare (ignore next-methods-list))
+          (apply fast-func arguments)))))
+
+;; Computes the :function / fast-function initargs list for a freshly allocated
+;; (but yet uninitialized) method.
+;; h = (funcall fast-function-factory method)
+;; Returns a freshly allocated list.
+(defun method-function-initargs (method h)
+  (if (typep-class method <standard-method>)
+    (list 'fast-function (car h)
+          'wants-next-method-p (null (cadr h)))
+    (list ':function (method-function-substitute h))))
+
 ;;; ------------- Error Messages for Long Form Method Combination -------------
 
 ;; Context about the method combination call, set during the execution of a
@@ -424,22 +447,32 @@
                         (MAPCAR #'(LAMBDA (NEXT-METHOD)
                                     (IF (TYPEP-CLASS NEXT-METHOD <METHOD>)
                                       NEXT-METHOD ; no need to quote, since self-evaluating
-                                      (LIST 'LET
-                                        (LIST (LIST 'METH
-                                                    (LIST 'ALLOCATE-METHOD-INSTANCE '',(std-gf-default-method-class gf))))
-                                        (LIST 'INITIALIZE-METHOD-INSTANCE
-                                          'METH
-                                          ''FAST-FUNCTION
-                                            (LET ((CONT (GENSYM)))
-                                              (LIST 'FUNCTION
-                                                (LIST 'LAMBDA (CONS CONT ',lambdalist)
-                                                  (LIST 'DECLARE (LIST 'IGNORABLE CONT))
-                                                  (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
-                                                    (CDR NEXT-METHOD)))))
-                                          ''WANTS-NEXT-METHOD-P 'T
-                                          ':LAMBDA-LIST '',lambdalist
-                                          ''SIGNATURE ,signature
-                                          ':SPECIALIZERS '',(make-list req-num :initial-element <t>))
+                                      (LIST 'LET*
+                                        (LIST (LIST 'INITARGS
+                                                    (LIST 'LIST
+                                                          ':LAMBDA-LIST '',lambdalist
+                                                          ''SIGNATURE ,signature
+                                                          ':SPECIALIZERS '',(make-list req-num :initial-element <t>)))
+                                              (LIST 'METH
+                                                    (LIST 'APPLY
+                                                          '#'ALLOCATE-METHOD-INSTANCE
+                                                           '',(std-gf-default-method-class gf)
+                                                          'INITARGS)))
+                                        (LIST 'APPLY
+                                              '#'INITIALIZE-METHOD-INSTANCE
+                                              'METH
+                                              (LIST 'NCONC
+                                                    (LIST 'METHOD-FUNCTION-INITARGS
+                                                          'METH
+                                                          (LIST 'CONS
+                                                                (LET ((CONT (GENSYM)))
+                                                                  (LIST 'FUNCTION
+                                                                    (LIST 'LAMBDA (CONS CONT ',lambdalist)
+                                                                      (LIST 'DECLARE (LIST 'IGNORABLE CONT))
+                                                                      (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
+                                                                        (CDR NEXT-METHOD)))))
+                                                                (LIST 'QUOTE '(NIL))))
+                                                    'INITARGS))
                                         'METH)))
                                 NEXT-METHODS-LIST)))))
                 (LET ((CONT (GENSYM)))

@@ -105,7 +105,6 @@
                                                    (function nil function-p)
                                                    (documentation nil)
                                                    ((fast-function fast-function) nil fast-function-p)
-                                                   ((initfunction initfunction) nil initfunction-p)
                                                    ((wants-next-method-p wants-next-method-p) nil)
                                                    ((signature signature) nil signature-p)
                                                    ((gf gf) nil)
@@ -153,8 +152,8 @@
     (error (TEXT "(~S ~S): The lambda list ~S has ~S required arguments, but the specializers list ~S has length ~S.")
            'initialize-instance 'standard-method lambda-list (sig-req-num signature)
            specializers (length specializers)))
-  ; Check the function, fast-function, initfunction and wants-next-method-p.
-  (unless (or function-p fast-function-p initfunction-p)
+  ; Check the function, fast-function and wants-next-method-p.
+  (unless (or function-p fast-function-p)
     (error (TEXT "(~S ~S): Missing ~S argument.")
            'initialize-instance 'standard-method ':function))
   (when function-p
@@ -165,19 +164,9 @@
     (unless (functionp fast-function)
       (error (TEXT "(~S ~S): The ~S argument should be a function, not ~S")
              'initialize-instance 'standard-method 'fast-function fast-function)))
-  (when initfunction-p
-    (unless (functionp initfunction)
-      (error (TEXT "(~S ~S): The ~S argument should be a function, not ~S")
-             'initialize-instance 'standard-method 'initfunction initfunction)))
   (unless (typep wants-next-method-p 'boolean)
     (error (TEXT "(~S ~S): The ~S argument should be a NIL or T, not ~S")
            'initialize-instance 'standard-method 'wants-next-method-p  wants-next-method-p))
-  ; Determine function from initfunction:
-  (when (and (null function) (null fast-function))
-    (let ((h (funcall initfunction method)))
-      (setq fast-function (car h))
-      (when (car (cdr h)) ; could the variable ",cont" be optimized away?
-        (setq wants-next-method-p nil))))
   ; Check the documentation.
   (unless (or (null documentation) (stringp documentation))
     (error (TEXT "(~S ~S): The ~S argument should be a string or NIL, not ~S")
