@@ -1,3 +1,6 @@
+;; Hash table mapping Common Lisp symbol names to file names
+;; in the Body directory of CLHS, version May 1996.
+
 #S(hash-table eq
    (&allow-other-keys "sec_3-4-1.html")
    (&aux "sec_3-4-1.html")
