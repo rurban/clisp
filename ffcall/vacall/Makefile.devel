@@ -7,16 +7,16 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall.man \
+all : vacall-i386-macro.S vacall-i386-msvc.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall.man \
       vacall.h.msvc config.h.msvc
 
-vacall-i386.S : vacall-i386.c vacall.h.in asmi386.sh
+vacall-i386-macro.S : vacall-i386.c vacall.h.in asmi386.sh
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -S vacall-i386.c -o vacall-i386.s
-	(echo '#include "asmi386.h"' ; sed -e '/\.align.*,0x90$$/d' < vacall-i386.s | ./asmi386.sh) > vacall-i386.S
+	(echo '#include "asmi386.h"' ; sed -e '/\.align.*,0x90$$/d' < vacall-i386.s | ./asmi386.sh) > vacall-i386-macro.S
 	$(RM) vacall-i386.s
 
-vacall-i386-msvc.c : vacall-i386.S
-	(echo '#ifdef _MSC_VER' ; echo '#include "vacall.h"' ; echo '#endif' ; cat vacall-i386.S) > vacall-i386-msvc.c
+vacall-i386-msvc.c : vacall-i386-macro.S
+	(echo '#ifdef _MSC_VER' ; echo '#include "vacall.h"' ; echo '#endif' ; cat vacall-i386-macro.S) > vacall-i386-msvc.c
 
 vacall-m68k.mit.S : vacall-m68k.c vacall.h.in asmm68k.sh
 	$(GCC) -V 2.95.2 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mit.s

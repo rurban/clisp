@@ -48,7 +48,7 @@ check-configures : $(CONFIGURES)
 avcall/avcall.h.msvc : avcall/avcall.h.in
 	cd avcall ; $(MAKE) -f Makefile.devel avcall.h.msvc
 
-avcall/avcall-i386-msvc.c : avcall/avcall-i386.S avcall/asmi386.sh
+avcall/avcall-i386-msvc.c : avcall/avcall-i386-macro.S avcall/asmi386.sh
 	cd avcall ; $(MAKE) -f Makefile.devel avcall-i386-msvc.c
 
 vacall/config.h.msvc : vacall/config.h.in
@@ -57,7 +57,7 @@ vacall/config.h.msvc : vacall/config.h.in
 vacall/vacall.h.msvc : vacall/vacall.h.in
 	cd vacall ; $(MAKE) -f Makefile.devel vacall.h.msvc
 
-vacall/vacall-i386-msvc.c : vacall/vacall-i386.S vacall/asmi386.sh
+vacall/vacall-i386-msvc.c : vacall/vacall-i386-macro.S vacall/asmi386.sh
 	cd vacall ; $(MAKE) -f Makefile.devel vacall-i386-msvc.c
 
 trampoline/config.h.msvc : trampoline/config.h.in
@@ -69,7 +69,7 @@ callback/vacall_r/config.h.msvc : callback/vacall_r/config.h.in
 callback/vacall_r/vacall_r.h.msvc : callback/vacall_r/vacall_r.h.in
 	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall_r.h.msvc
 
-callback/vacall_r/vacall-i386-msvc.c : callback/vacall_r/vacall-i386.S callback/vacall_r/asmi386.sh
+callback/vacall_r/vacall-i386-msvc.c : callback/vacall_r/vacall-i386-macro.S callback/vacall_r/asmi386.sh
 	cd callback ; $(MAKE) -f Makefile.devel vacall_r/vacall-i386-msvc.c
 
 callback/trampoline_r/config.h.msvc : callback/trampoline_r/config.h.in
