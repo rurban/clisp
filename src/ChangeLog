@@ -1,5 +1,15 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	Optimize type checks.
+	* clos-class3.lisp (compute-slots-<slotted-class>-around): Use
+	typep-class instead of typep.
+	* clos-methcomb2.lisp (check-em-duplicates-option,
+	callable-method-form-p, effective-method-code-bricks,
+	build-effective-method-function-form): Likewise.
+	* clos-genfun3.lisp (analyze-defgeneric): Likewise.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Respect user-defined methods on method-generic-function.
 	* clos-genfun2.lisp (std-add-method): Call method-generic-function
 	instead of std-method-generic-function.
