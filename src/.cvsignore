@@ -4,6 +4,7 @@
 *.run
 *.exe
 *.i.c
+*.i
 avcall
 avcall.h
 callback
