@@ -26,17 +26,24 @@ typedef int (*function)(...);
 typedef int (*function)();
 #endif
 
+#if defined(__i386__)
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+int f (void* env, int x)
+#else
+int f (env, x)
+  void* env;
+  int x;
+#endif
+#else
 #if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 int f (int x)
 #else
 int f (x)
   int x;
 #endif
+#endif
 {
 #ifdef __GNUC__
-#ifdef __i386__
-register void* env __asm__("%ecx");
-#endif
 #ifdef __m68k__
 register void* env __asm__("a0");
 #endif
