@@ -296,7 +296,7 @@
       #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
         ({ var register uint64 _hi;                            \
            var register uint64 _lo;                            \
-           __asm__("umul %2,%3,%0\n\trd %y,%1"                 \
+           __asm__("umul %2,%3,%0\n\trd %%y,%1"                \
                    : "=&r" (_lo), "=r" (_hi)                   \
                    : "r" ((uint32)(x)), "r" ((uint32)(y))      \
                   );                                           \
