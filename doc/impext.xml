@@ -1839,8 +1839,8 @@ here <function>WITH-FOO</function> does not receive the
 
 <para><command>clisp-link</command> needs a directory containing:
 <itemizedlist>
-  <listitem><simpara><filename>#P"modules.d"</filename></simpara></listitem>
-  <listitem><simpara><filename>#P"modules.c"</filename></simpara></listitem>
+  <listitem><simpara><filename>"modules.d"</filename></simpara></listitem>
+  <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
   <listitem><simpara>&clisp-h;</simpara></listitem>
 </itemizedlist>
 <command>clisp-link</command> expects to find these files in a
