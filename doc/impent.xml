@@ -11,7 +11,6 @@
 
 <!-- *** literals *** -->
 <!ENTITY eos "<literal>end-of-stream</literal>">
-<!ENTITY config-file "<filename>config.lisp</filename>">
 
 <!ENTITY abort-k "<constant>:ABORT</constant>">
 <!ENTITY absolute-k "<constant>:ABSOLUTE</constant>">
@@ -98,6 +97,7 @@
 <!ENTITY browser "<link linkend='browser'><constant>:BROWSER</constant></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
 <!ENTITY string-width "<link linkend='string-width'><function>EXT:STRING-WIDTH</function></link>">
+<!ENTITY input-char "<link linkend='input-char'><classname>SYS::INPUT-CHARACTER</classname></link>">
 <!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
 <!ENTITY dohash "<link linkend='dohash'><function>EXT:DOHASH</function></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:ELEMENT-TYPE</constant></link>">
@@ -147,6 +147,8 @@
 <!ENTITY re-with-loop-split "<link linkend='re-with-loop-split'><function>REGEXP:WITH-LOOP-SPLIT</function></link>">
 <!ENTITY socket-server "<link linkend='socket'><classname>EXT:SOCKET-SERVER</classname></link>">
 <!ENTITY socket-stream "<link linkend='socket'><classname>EXT:SOCKET-STREAM</classname></link>">
+<!ENTITY space "<link linkend='space'><function>EXT:SPACE</function></link>">
+<!ENTITY trace-val "<link linkend='trace-val'><varname>EXT:*TRACE-VALUES*</varname></link>">
 <!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>CUSTOM:*WARN-ON-FLOATING-POINT-CONTAGION*</varname></link>">
 <!ENTITY with-kbd "<link linkend='terminal'><function>EXT:WITH-KEYBOARD</function></link>">
 
@@ -238,6 +240,7 @@
 <!ENTITY filename-r "<replaceable>filename</replaceable>">
 <!ENTITY func-r "<replaceable>function</replaceable>">
 <!ENTITY form-r "<replaceable>form</replaceable>">
+<!ENTITY host-r "<replaceable>host</replaceable>">
 <!ENTITY i-r "<replaceable>i</replaceable>">
 <!ENTITY int-r "<replaceable>integer</replaceable>">
 <!ENTITY k-r "<replaceable>k</replaceable>">
@@ -245,6 +248,7 @@
 <!ENTITY k2-r "<replaceable>k&sub-2;</replaceable>">
 <!ENTITY kn-r "<replaceable>k&sub-n;</replaceable>">
 <!ENTITY l-r "<replaceable>l</replaceable>">
+<!ENTITY lc-r "<replaceable>lc</replaceable>">
 <!ENTITY lab-r "<replaceable>label</replaceable>">
 <!ENTITY len-r "<replaceable>length</replaceable>">
 <!ENTITY m-r "<replaceable>m</replaceable>">
@@ -266,6 +270,7 @@
 <!ENTITY tag-r "<replaceable>tag</replaceable>">
 <!ENTITY tbc-r "<replaceable>tagbody-cons</replaceable>">
 <!ENTITY type-r "<replaceable>type</replaceable>">
+<!ENTITY uc-r "<replaceable>uc</replaceable>">
 <!ENTITY v-r "<replaceable>v</replaceable>">
 <!ENTITY var-r "<replaceable>variable</replaceable>">
 <!ENTITY value-r "<replaceable>value</replaceable>">
@@ -298,6 +303,48 @@
 <!ENTITY fasl-file "<filename>fas</filename>">
 <!ENTITY lisp-file "<filename>lisp</filename>">
 <!ENTITY mem-file "<filename>mem</filename>">
+<!ENTITY config-file "<filename>config.lisp</filename>">
+
+<!-- *** pathnames *** -->
+<!ENTITY file-star "<filename>*</filename>">
+<!ENTITY file-ques "<filename>?</filename>">
+<!ENTITY file-dot "<filename>.</filename>">
+<!ENTITY file-slash "<filename>/</filename>">
+<!ENTITY file-bsla "<filename>\</filename>">
+<!ENTITY file-colon "<filename>:</filename>">
+<!ENTITY file-letter-lc "<filename>a</filename>|...|<filename>z</filename>">
+<!ENTITY file-letter-uc "<filename>A</filename>|...|<filename>Z</filename>">
+<!ENTITY defaults-r "<replaceable>defaults</replaceable>">
+<!ENTITY device-r "<replaceable>device</replaceable>">
+<!ENTITY directory-r "<replaceable>directory</replaceable>">
+<!ENTITY startpoint-r "<replaceable>startpoint</replaceable>">
+<!ENTITY subdir-r "<replaceable>subdir</replaceable>">
+<!ENTITY always-nil "<listitem><simpara>always &nil;</simpara></listitem>">
+<!ENTITY string-or-nil "<listitem><simpara>&nil; or a
+  &simple-string-type;</simpara></listitem>">
+<!ENTITY wild-string-or-nil "<listitem><simpara>&nil; or &simple-string-type;,
+  &maybe-wild;</simpara></listitem>">
+<!ENTITY path-comps "<title>Pathname components</title>">
+<!ENTITY maybe-wild "may contain wildcard characters &file-ques; and
+  &file-star; (may also be specified as &wild-k;)">
+<!ENTITY version-nil
+ "<varlistentry><term><replaceable>version</replaceable></term>
+   <listitem><simpara>always &nil; (may also be specified as &wild-k; or
+   &newest-k;)</simpara></listitem></varlistentry>">
+<!ENTITY name-type-split "filename is <link
+   linkend='name-type-split'>split into name and type</link>.">
+<!ENTITY dir-title "<title><literal role='sexp'>(&startpoint-r;
+   . <replaceable>subdirs</replaceable>)</literal></title>">
+<!ENTITY startp-rel-abs "<row><entry>&startpoint-r;</entry>
+   <entry>&relative-k; | &absolute-k;</entry></row>">
+<!ENTITY subdirs-def "<row><entry><replaceable>subdirs</replaceable></entry>
+   <entry><literal role='sexp'>()</literal> | <literal role='sexp'>(&subdir-r;
+   . <replaceable>subdirs</replaceable>)</literal></entry></row>">
+<!ENTITY subdir-string-or-wild " <row><entry>&subdir-r;</entry>
+  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
+  <filename>...</filename>, all subdirectories </entry></row>
+ <row><entry>&subdir-r;</entry><entry>&simple-string-type;,
+   &maybe-wild;</entry><entry/></row>">
 
 <!-- *** shortcuts *** -->
 <!ENTITY signed-byte-8 "<literal role='type'>(&signed-byte-type; 8)</literal>">

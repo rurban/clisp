@@ -1071,7 +1071,7 @@ is the same as
 <section id="num-types"><title>Numeric Types</title>
 
 <para>The type &number-class; is the disjoint union of the types
- &real-class; and &complex-class;.  (<ulink
+ &real-class; and &complex-class; (<ulink
  url="&clhs;/Body/glo_e.html#exhaustive_partition"><quote>exhaustive
  partition</quote></ulink>)</para>
 
@@ -1096,7 +1096,7 @@ is the same as
 <section id="byte-ops"><title>Byte Operations on Integers
    <ulink url="&clhs;/Body/sec_12-1-1-3-2.html">[CLHS-12.1.1.3.2]</ulink></title>
 
-<para>Byte specifiers are objects of type <classname>byte</classname>,
+<para>Byte specifiers are objects of built-in type <type>BYTE</type>,
  not &integer-class;s.</para>
 
 </section>
@@ -1322,12 +1322,11 @@ is the same as
 <formalpara><title><function>ext:xgcd</function></title>
 <para><literal role="sexp">(<function>ext:xgcd</function>
  &x1-r; ... &xn-r;)</literal>
- returns the values <replaceable>g</replaceable>, &k1-r;, ..., &kn-r;,
- where <replaceable>g</replaceable> is the greatest common divisor of
- the integers &x1-r;, ..., &xn-r;, and &k1-r;, ..., &kn-r; are the
- integer coefficients such that
+ returns the values &l-r;, &k1-r;, ..., &kn-r;, where &l-r; is the
+ greatest common divisor of the integers &x1-r;, ..., &xn-r;, and
+ &k1-r;, ..., &kn-r; are the integer coefficients such that
 <programlisting>
- g = (&gcd; &x1-r; ... &xn-r;)
+ &l-r; = (&gcd; &x1-r; ... &xn-r;)
    = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
 </programlisting></para></formalpara>
 
@@ -1844,16 +1843,15 @@ blank here cannot be represented in this character set).
  I/O</link>.</para>
 
 
-<section id="attrib-char"><title>Attributes</title>
+<section id="input-char"><title>Attributes</title>
 
 <para>Characters do not have the &cltl1; font and bits attributes.
- For backward compatibility, there is a class
- <classname>sys::input-character</classname> representing either a
- character with font and bits, or a keystroke.
+ For backward compatibility, there is a class &input-char; representing
+ either a character with font and bits, or a keystroke.
  The following functions work with objects of types &character-class;
- and <classname>sys::input-character</classname>.
+ and &input-char;.
  Note that &eql; or &equal; cannot be used to compare objects of type
- <classname>sys::input-character</classname>.</para>
+ &input-char;.</para>
 
 <variablelist>
  <varlistentry><term><constant>ext:char-font-limit</constant> = 16</term>
@@ -1874,32 +1872,25 @@ blank here cannot be represented in this character set).
   </tbody></tgroup></table></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
   &object-r;)</literal> </term>
- <listitem><simpara>returns the font of a character or
-  <classname>sys::input-character</classname>.
+ <listitem><simpara>returns the font of a &character-class; or &input-char;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-bits</function>
   &object-r;)</literal> </term>
- <listitem><simpara>returns the bits of a character or
-  <classname>sys::input-character</classname>.
+ <listitem><simpara>returns the bits of a &character-class; or &input-char;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:make-char</function>
   &ch-r; [<replaceable>bits</replaceable>
             [<replaceable>font</replaceable>]])</literal></term>
- <listitem><simpara>returns a new <classname>sys::input-character</classname>,
-  or &nil; if such a character cannot be created.
-  </simpara></listitem></varlistentry>
+ <listitem><simpara>returns a new &input-char;, or &nil; if such a
+ character cannot be created.</simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-bit</function>
-  &object-r;
-  &name-r;)</literal></term>
- <listitem><simpara>returns &t; if the named bit is set in
-  &object-r;, else &nil;.
-  </simpara></listitem></varlistentry>
+  &object-r; &name-r;)</literal></term>
+ <listitem><simpara>returns &t; if the named bit is set in &object-r;,
+  else &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>ext:set-char-bit</function>
-  &object-r; &name-r;
-  <replaceable>newvalue</replaceable>)</literal></term>
- <listitem><simpara>returns a new
-  <classname>sys::input-character</classname> with the named bit set or
+  &object-r; &name-r; <replaceable>newvalue</replaceable>)</literal></term>
+ <listitem><simpara>returns a new &input-char; with the named bit set or
   unset, depending on the boolean <replaceable>newvalue</replaceable>.
   </simpara></listitem></varlistentry>
 </variablelist>
@@ -1908,9 +1899,8 @@ blank here cannot be represented in this character set).
 <variablelist>
 <varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;, &acorn;
    platforms only.</term>
-<listitem><simpara>The system itself uses this
- <classname>sys::input-character</classname> type only to mention special
- keys and
+<listitem><simpara>The system itself uses this &input-char; type only to
+ mention special keys and
  <keycap>Control</keycap>/<keycap>Alternate</keycap>/<keycap>Shift</keycap>
  key status on return from
  <literal role="sexp">(&read-char; &kbd-in;)</literal>.
@@ -1958,20 +1948,15 @@ are simple characters.</para>
    <ulink url="&clhs;/Body/sec_13-1-4-3-4.html">[CLHS-13.1.4.3.4]</ulink></title>
 
 <para>The characters with case are those Unicode characters &c-r;, for
- which the upper case mapping <replaceable>uc</replaceable> and the
- lower case mapping <replaceable>lc</replaceable> have the following
- properties:
+ which the upper case mapping &uc-r; and the lower case mapping &lc-r;
+ have the following properties:
 <itemizedlist>
-  <listitem><simpara><replaceable>uc</replaceable> and
-   <replaceable>lc</replaceable> are different</simpara></listitem>
-  <listitem><simpara>&c-r; is one of <replaceable>uc</replaceable> and
-   <replaceable>lc</replaceable></simpara></listitem>
-  <listitem><simpara>the upper case mapping of
-   <replaceable>uc</replaceable> and of <replaceable>lc</replaceable>
-   is <replaceable>uc</replaceable></simpara></listitem>
-  <listitem><simpara>the lower case mapping of
-   <replaceable>uc</replaceable> and of <replaceable>lc</replaceable>
-   is <replaceable>lc</replaceable></simpara></listitem>
+  <listitem><simpara>&uc-r; and &lc-r; are different</simpara></listitem>
+  <listitem><simpara>&c-r; is one of &uc-r; and &lc-r;</simpara></listitem>
+  <listitem><simpara>the upper case mapping of &uc-r; and of &lc-r;
+   is &uc-r;</simpara></listitem>
+  <listitem><simpara>the lower case mapping of &uc-r; and of &lc-r;
+   is &lc-r;</simpara></listitem>
 </itemizedlist></para>
 
 <para>The titlecase property of Unicode characters has no equivalent in
@@ -2641,66 +2626,26 @@ and &end-k;:</para>
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <variablelist>
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-<listitem>
-<variablelist><title>Pathname components</title>
-<varlistentry><term><replaceable>host</replaceable></term>
- <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>device</replaceable></term>
- <listitem><simpara>&nil; or a &simple-string-type;
-  </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>directory</replaceable></term>
-  <listitem><table frame="all"><title><literal
-   role="sexp">(<replaceable>startpoint</replaceable>
-   . <replaceable>subdirs</replaceable>)</literal></title>
-  <tgroup cols="2" colsep="1" rowsep="1" align="center">
-    &elt-val-meaning-header;<tbody>
-  <row><entry><replaceable>startpoint</replaceable></entry>
-    <entry>&relative-k; | &absolute-k;</entry></row>
-  <row><entry><replaceable>subdirs</replaceable></entry>
-    <entry><literal role="sexp">()</literal> | <literal
-     role="sexp">(<replaceable>subdir</replaceable>
-    . <replaceable>subdirs</replaceable>)</literal></entry></row>
-  <row><entry><replaceable>subdir</replaceable></entry>
-    <entry>&wild-inferiors-k;</entry>
-    <entry><filename>**</filename> or <filename>...</filename>,
-    all subdirectories</entry></row>
-  <row><entry><replaceable>subdir</replaceable></entry>
-    <entry>&parent-k;</entry><entry><filename>/</filename> instead of
-   <filename>subdir/</filename></entry></row>
-  <row><entry><replaceable>subdir</replaceable></entry>
-    <entry>&simple-string-type;, may contain wildcard
-    characters <filename>?</filename> and
-    <filename>*</filename></entry></row>
-  </tbody></tgroup></table></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain
-  wildcard characters <filename>?</filename> and <filename>*</filename>
-  (may also be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term>&type-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain
-  wildcard characters <filename>?</filename> and <filename>*</filename>
-  (may also be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>version</replaceable></term>
- <listitem><simpara>always &nil; (may also be specified as
-  &wild-k; or &newest-k;)</simpara></listitem></varlistentry>
+<listitem><variablelist>&path-comps;
+<varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
+<varlistentry><term>&device-r;</term>&string-or-nil;</varlistentry>
+<varlistentry><term>&directory-r;</term>
+ <listitem><table frame="all">&dir-title;
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+   &elt-val-meaning-header;<tbody>
+ &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
+ <row><entry>&subdir-r;</entry><entry>&parent-k;</entry>
+  <entry>&file-slash; instead of <filename>subdir/</filename></entry></row>
+ </tbody></tgroup></table></listitem></varlistentry>
+<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
+<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
+&version-nil;
 </variablelist>
 
-<para>Constraint: <replaceable>startpoint</replaceable> = &relative-k;
- only if <replaceable>device</replaceable> is &nil;.  If the device is
- specified, the pathname must be absolute!</para>
+<para>Constraint: &startpoint-r; = &relative-k; only if &device-r; is
+ &nil;.  If the device is specified, the pathname must be absolute!</para>
 
-<para>A filename from AMIGAOS is split into name and type according to
- the following rule:</para>
-
-<itemizedlist>
- <listitem><simpara>if there is no <filename>.</filename> in the
-  filename, then the &name-r; is everything,
-  &type-r; is &nil;;</simpara></listitem>
- <listitem><simpara>if there is a <filename>.</filename>, then
-  &name-r; is the part before and
-  &type-r; the part after the last dot.
-  </simpara></listitem>
-</itemizedlist>
+<para>An &amiga; &name-type-split;</para>
 
 <para>Case is ignored in the strings on comparison.  No case conversions
  are performed.</para>
@@ -2785,79 +2730,42 @@ and &end-k;:</para>
    <entry><filename>device-&gt;up-&gt;up-&gt;foo-&gt;bar</filename></entry>
    <entry>&nil; (&relative-k; &parent-k; &parent-k; <filename>"foo"
                "bar"</filename>)</entry></row>
- <row><entry><filename>''</filename></entry><entry>current</entry>
+ <row><entry>&file-bsla;</entry><entry>current</entry>
    <entry><filename>device</filename></entry>
    <entry>&nil; (&relative-k;)</entry></row>
 </tbody></tgroup></table>
 
-<para>Appending a <filename>'/'</filename> to a path string that is
- non-empty and does not end with <filename>':'</filename> or
- <filename>'/'</filename> does not change its meaning. This
- <filename>'/'</filename> must be appended before another non-empty
- component can be appended.  But appending a <filename>'/'</filename> to
- a path string that is empty or ends with <filename>':'</filename> or
- <filename>'/'</filename> means going up to the parent directory!</para>
+<para>Appending a &file-slash; to a path string that is non-empty and
+ does not end with &file-colon; or &file-slash; does not change its
+ meaning.  This &file-slash; must be appended before another non-empty
+ component can be appended.  But appending a &file-slash; to a path
+ string that is empty or ends with &file-colon; or &file-slash; means
+ going up to the parent directory!</para>
 
 <para>We interpret any path string that is empty or ends with
- <filename>':'</filename> or <filename>'/'</filename> as pathname of a
- directory (with both &name-r; and
- &type-r; being &nil;).</para>
+ &file-colon; or &file-slash; as pathname of a directory (with both
+ &name-r; and &type-r; being &nil;).</para>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_UNIX -->
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
-<listitem><variablelist><title>Pathname components</title>
-<varlistentry><term><replaceable>host</replaceable></term>
- <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>device</replaceable></term>
- <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><table frame="all"><title><literal
-   role="sexp">(<replaceable>startpoint</replaceable>
-   . <replaceable>subdirs</replaceable>)</literal></title>
-   <tgroup cols="2" colsep="1" rowsep="1" align="center">
-    &elt-val-meaning-header;<tbody>
- <row><entry><replaceable>startpoint</replaceable></entry>
-   <entry>&relative-k; | &absolute-k;</entry><entry/></row>
- <row><entry><replaceable>subdirs</replaceable></entry>
-   <entry><literal role="sexp">()</literal> | <literal
-   role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></entry><entry/></row>
- <row><entry><replaceable>subdir</replaceable></entry>
-  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
-   <filename>...</filename>, all subdirectories</entry></row>
- <row><entry><replaceable>subdir</replaceable></entry>
-  <entry>&simple-string-type;, may contain wildcard characters
-  <filename>?</filename> and <filename>*</filename></entry>
-  <entry/></row>
-  </tbody></tgroup></table></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
-  characters <filename>?</filename> and <filename>*</filename> (may also
-  be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term>&type-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
-  characters <filename>?</filename> and <filename>*</filename> (may also
-  be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>version</replaceable></term>
- <listitem><simpara>always &nil; (may also be specified as
-  &wild-k; or &newest-k;)</simpara></listitem></varlistentry>
+<listitem><variablelist>&path-comps;
+<varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
+<varlistentry><term>&device-r;</term>&always-nil;</varlistentry>
+<varlistentry><term>&directory-r;</term>
+ <listitem><table frame="all">&dir-title;
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+   &elt-val-meaning-header;<tbody>
+ &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
+ </tbody></tgroup></table></listitem></varlistentry>
+<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
+<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
+&version-nil;
 </variablelist>
 
-<para>A UNIX filename is split into name and type according to the
- following rule:</para>
-
-<itemizedlist>
- <listitem><simpara>if there is no <filename>'.'</filename> in the
-  filename, then the &name-r; is everything,
-  &type-r; is &nil;;</simpara></listitem>
- <listitem><simpara>if there is a <filename>'.'</filename>, then
-  &name-r; is the part before and
-  &type-r; the part after the last
-  dot.</simpara></listitem>
-</itemizedlist>
+<para>A &unix; &name-type-split;</para>
 
 <table frame="all"><title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
@@ -2877,57 +2785,23 @@ and &end-k;:</para>
 <!-- #if defined(PATHNAME_OS2) -->
 <variablelist>
 <varlistentry><term>Platform dependent: &os2; platforms only.</term>
-<listitem><variablelist><title>Pathname components</title>
-<varlistentry><term><replaceable>host</replaceable></term>
- <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>device</replaceable></term>
- <listitem><simpara>&nil; or &wild-k; or
- <filename>A</filename>|...|<filename>Z</filename>
+<listitem><variablelist>&path-comps;
+<varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
+<varlistentry><term>&device-r;</term>
+ <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
  </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><table frame="all"><title><literal
-   role="sexp">(<replaceable>startpoint</replaceable>
-   . <replaceable>subdirs</replaceable>)</literal></title>
-   <tgroup cols="2" colsep="1" rowsep="1" align="center">
-    &elt-val-meaning-header;<tbody>
- <row><entry><replaceable>startpoint</replaceable></entry>
-  <entry>&relative-k; | &absolute-k;</entry><entry/></row>
- <row><entry><replaceable>subdirs</replaceable></entry><entry><literal
-    role="sexp">()</literal> | <literal
-    role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></entry><entry/></row>
- <row><entry><replaceable>subdir</replaceable></entry>
-  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
-  <filename>...</filename>, all subdirectories </entry></row>
- <row><entry><replaceable>subdir</replaceable></entry>
-   <entry>&simple-string-type;, may contain wildcard characters
-   <filename>?</filename> and <filename>*</filename></entry>
-   <entry/></row>
+<varlistentry><term>&directory-r;</term>
+ <listitem><table frame="all">&dir-title;
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+  &elt-val-meaning-header;<tbody>
+ &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
  </tbody></tgroup></table></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
-  characters <filename>?</filename> and <filename>*</filename> (may also
-  be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term>&type-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
-  characters <filename>?</filename> and <filename>*</filename> (may also
-  be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>version</replaceable></term>
- <listitem><simpara>always &nil; (may also be specified as &wild-k; or
-  &newest-k;)</simpara></listitem></varlistentry>
+<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
+<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
+&version-nil;
 </variablelist>
 
-<para>An OS/2 filename is split into name and type according to the
- following rule:
-<itemizedlist>
- <listitem><simpara>if there is no <filename>'.'</filename> in the
-  filename, then the &name-r; is everything,
-  &type-r; is &nil;;</simpara></listitem>
- <listitem><simpara>if there is a <filename>'.'</filename>, then
-  &name-r; is the part before and
-  &type-r; the part after the last dot.
-  </simpara></listitem>
-</itemizedlist></para>
+<para>An &os2; &name-type-split;</para>
 
 <table frame="all"><title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
@@ -2943,68 +2817,34 @@ and &end-k;:</para>
 </tbody></tgroup></table>
 
 <para>Instead of <filename>'\'</filename> one may use
- <filename>'/'</filename>, as usual for DOS calls.</para>
+ &file-slash;, as usual for DOS calls.</para>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_WIN32) -->
 <variablelist>
 <varlistentry><term>Platform dependent: &win32; platforms only.</term>
-<listitem><variablelist><title>Pathname components</title>
-<varlistentry><term><replaceable>host</replaceable></term>
+<listitem><variablelist>&path-comps;
+<varlistentry><term>&host-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, wildcard characters may
    occur but don't act as wildcards</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>device</replaceable></term>
- <listitem><simpara>&nil; or &wild-k; or
- <filename>A</filename>|...|<filename>Z</filename>
+<varlistentry><term>&device-r;</term>
+ <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
  </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><table frame="all"><title><literal
-   role="sexp">(<replaceable>startpoint</replaceable>
-   . <replaceable>subdirs</replaceable>)</literal></title>
+<varlistentry><term>&directory-r;</term>
+ <listitem><table frame="all">&dir-title;
    <tgroup cols="2" colsep="1" rowsep="1" align="center">
     &elt-val-meaning-header;<tbody>
- <row><entry><replaceable>startpoint</replaceable></entry>
-  <entry>&relative-k; | &absolute-k;</entry><entry/></row>
- <row><entry><replaceable>subdirs</replaceable></entry><entry><literal
-    role="sexp">()</literal> | <literal
-    role="sexp">(<replaceable>subdir</replaceable> .
-   <replaceable>subdirs</replaceable>)</literal></entry><entry/></row>
- <row><entry><replaceable>subdir</replaceable></entry>
-  <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
-  <filename>...</filename>, all subdirectories </entry></row>
- <row><entry><replaceable>subdir</replaceable></entry>
-   <entry>&simple-string-type;, may contain wildcard characters
-   <filename>?</filename> and <filename>*</filename></entry>
-   <entry/></row>
+ &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
  </tbody></tgroup></table></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
-  characters <filename>?</filename> and <filename>*</filename> (may also
-  be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term>&type-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
-  characters <filename>?</filename> and <filename>*</filename> (may also
-  be specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>version</replaceable></term>
- <listitem><simpara>always &nil; (may also be specified as &wild-k; or
-  &newest-k;)</simpara></listitem></varlistentry>
+<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
+<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
+&version-nil;
 </variablelist>
 
-<para>If <replaceable>host</replaceable> is non-&nil;,
- <replaceable>device</replaceable> must be &nil;.</para>
+<para>If &host-r; is non-&nil;, &device-r; must be &nil;.</para>
 
-<para>A &win32; filename is split into name and type according to the
- following rule:
-<itemizedlist>
- <listitem><simpara>if there is no <filename>'.'</filename> in the
-  filename, then the &name-r; is everything,
-  &type-r; is &nil;;</simpara></listitem>
- <listitem><simpara>if there is a <filename>'.'</filename>, then
-  &name-r; is the part before and
-  &type-r; the part after the last dot.
-  </simpara></listitem>
-</itemizedlist></para>
+<para>A &win32; &name-type-split;</para>
 
 <table frame="all"><title>filename notations</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
@@ -3020,10 +2860,9 @@ and &end-k;:</para>
 </tbody></tgroup></table>
 
 <para>Instead of <filename>'\'</filename> one may use
- <filename>'/'</filename>, as usual for DOS calls.</para>
+ &file-slash;, as usual for DOS calls.</para>
 
-<para>If <replaceable>host</replaceable> is non-&nil; and the
- <replaceable>directory</replaceable>'s <replaceable>startpoint</replaceable>
+<para>If &host-r; is non-&nil; and the &directory-r;'s &startpoint-r;
  is not &absolute-k;, <literal role="sexp">(&parse-namestring; (&namestring;
  &path-r;))</literal> will not be the same as &path-r;.</para>
 
@@ -3034,21 +2873,28 @@ and &end-k;:</para>
 <variablelist>
 <varlistentry><term>Platform dependent: &unix;, &amiga;, &os2;, &win32;
     platforms only.</term>
-<listitem><simpara>The wildcard characters: <filename>*</filename>
- matches any sequence of characters, <filename>?</filename> matches
- any one character.</simpara></listitem></varlistentry>
+<listitem><simpara>The wildcard characters: &file-star; matches any
+ sequence of characters, &file-ques; matches any one character.
+ </simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_NOEXT -->
-<variablelist>
+<variablelist id="name-type-split">
 <varlistentry><term>Platform dependent:  &unix;, &amiga;, &os2;, &win32;
    platforms only.</term>
-<listitem><simpara>Due to the name/type splitting rule, there are
- pathnames that cannot result from &parse-namestring;.  To get a pathname
- whose type contains a dot or whose name contains a dot and whose type
- is &nil;, &make-pathname; must be used.  Example: <literal
- role="sexp">(&make-pathname; :name ".profile")</literal>.
+<listitem><para>A filename is split into name and type according to the
+ following rule: <itemizedlist>
+  <listitem><simpara>if there is no &file-dot; in the filename, then the
+   &name-r; is everything, &type-r; is &nil;;</simpara></listitem>
+  <listitem><simpara>if there is a &file-dot;, then &name-r; is the part
+   before and &type-r; the part after the last dot.</simpara></listitem>
+  </itemizedlist></para>
+<simpara>Due to this name/type splitting rule, there are pathnames that
+ cannot result from &parse-namestring;.
+ To get a pathname whose type contains a dot or whose name contains a
+ dot and whose type is &nil;, &make-pathname; must be used.  Example:
+ <literal role="sexp">(&make-pathname; :name ".profile")</literal>.
  </simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
@@ -3100,15 +2946,15 @@ and &end-k;:</para>
   significance.  Those that do are listed below:</simpara>
 
  <variablelist>
-  <varlistentry><term><filename>.</filename></term>
+  <varlistentry><term>&file-dot;</term>
    <listitem><simpara>Separates directory specifications, e.g.,
    <filename>$.fred</filename></simpara></listitem></varlistentry>
-  <varlistentry><term><filename>:</filename></term>
+  <varlistentry><term>&file-colon;</term>
    <listitem><simpara>Introduces a drive or disc specification, e.g.,
    <filename>:0</filename>, <filename>:bigdisc</filename>.  It also
    marks the end of a file system name, e.g.,
    <filename>adfs:</filename></simpara></listitem></varlistentry>
-  <varlistentry><term><filename>*</filename></term>
+  <varlistentry><term>&file-star;</term>
    <listitem><simpara>Acts as a `wildcard' to match zero or more
    characters.</simpara></listitem></varlistentry>
   <varlistentry><term><filename>#</filename></term>
@@ -3129,7 +2975,7 @@ and &end-k;:</para>
   <varlistentry><term><filename>%</filename></term>
    <listitem><simpara>is the currently selected library (CSL)
    </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>\</filename></term>
+  <varlistentry><term>&file-bsla;</term>
    <listitem><simpara>is the previously selected directory (PSD)
    </simpara></listitem></varlistentry>
   </variablelist></listitem></varlistentry>
@@ -3139,7 +2985,7 @@ and &end-k;:</para>
   the top of the directory hierarchy of the media which contains the
   CSD.  <filename>$</filename> does not have a parent directory, trying
   to access its parent will just access <filename>$</filename>.  Each
-  directory name is separated by a <filename>.</filename> character.
+  directory name is separated by a &file-dot; character.
   For example:</simpara>
  <itemizedlist>
   <listitem><simpara><filename>$.Documents.Memos</filename>
@@ -3153,7 +2999,7 @@ and &end-k;:</para>
   than the current one by prefixing the filename with a file system
   specification.  A file system name may appear between
   <filename>-</filename> characters, or suffixed by a
-  <filename>:</filename>, though the latter is advised since
+  &file-colon;, though the latter is advised since
   <filename>-</filename> can also be used to introduce a parameter on a
   command line, or as part of a file name.  For example:</simpara>
 
@@ -3509,58 +3355,45 @@ and &end-k;:</para>
 </listitem></varlistentry>
 
 <varlistentry><term>internal representation</term>
-<listitem><variablelist><title>Pathname components</title>
-<varlistentry><term><replaceable>host</replaceable></term>
- <listitem><simpara>&simple-string-type; or &nil;
- </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>device</replaceable></term>
- <listitem><simpara>&simple-string-type; or &nil;
- </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>directory</replaceable></term>
- <listitem><table frame="all"><title><literal
-    role="sexp">(<replaceable>Startpoint</replaceable>
-    . <replaceable>Subdirs</replaceable>)</literal></title>
+<listitem><variablelist>&path-comps;
+<varlistentry><term>&host-r;</term>&string-or-nil;</varlistentry>
+<varlistentry><term>&device-r;</term>&string-or-nil;</varlistentry>
+<varlistentry><term>&directory-r;</term>
+ <listitem><table frame="all">&dir-title;
   <tgroup cols="2" colsep="1" rowsep="1" align="center">
    <thead><row><entry>element</entry><entry>values</entry></row></thead><tbody>
- <row><entry><replaceable>startpoint</replaceable></entry>
+ <row><entry>&startpoint-r;</entry>
    <entry>&relative-k; | &absolute-k;
    <replaceable>anchor</replaceable></entry></row>
  <row><entry><replaceable>anchor</replaceable></entry>
    <entry>&root-k; | &home-k; | &current-k; | &library-k; |
    &previous-k;</entry></row>
- <row><entry><replaceable>Subdirs</replaceable></entry>
-   <entry><literal role="sexp">()</literal> | <literal
-   role="sexp">(<replaceable>subdir</replaceable>
-   . <replaceable>Subdirs</replaceable>)</literal></entry></row>
- <row><entry><replaceable>subdir</replaceable></entry>
-   <entry>&parent-k;</entry></row>
- <row><entry><replaceable>subdir</replaceable></entry>
+ &subdirs-def;
+ <row><entry>&subdir-r;</entry><entry>&parent-k;</entry></row>
+ <row><entry>&subdir-r;</entry>
    <entry>&simple-string-type;, may contain wildcard characters
-   <filename>?</filename>,<filename>#</filename> and
-   <filename>*</filename></entry></row>
+   &file-ques;,<filename>#</filename> and &file-star;</entry></row>
  </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
- characters <filename>?</filename>,<filename>#</filename> and
- <filename>*</filename> (may also be specified as &wild-k;)
+ <listitem><simpara>&simple-string-type; or &nil;, may contain wildcard
+ characters &file-ques;,<filename>#</filename> and
+ &file-star; (may also be specified as &wild-k;)
  </simpara></listitem></varlistentry>
 <varlistentry><term>&type-r;</term>
  <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
- characters <filename>?</filename>,<filename>#</filename> and
- <filename>*</filename> (may also be specified as &wild-k;)
+ characters &file-ques;,<filename>#</filename> and
+ &file-star; (may also be specified as &wild-k;)
  </simpara></listitem></varlistentry>
-<varlistentry><term><replaceable>version</replaceable></term>
- <listitem><simpara>always &nil; (may also be specified as &wild-k; or
- &newest-k;)</simpara></listitem></varlistentry>
+&version-nil;
 </variablelist>
 
-<para>Constraint: startpoint is not &absolute-k; &root-k; only if device
+<para>Constraint: &startpoint-r; is not &absolute-k; &root-k; only if device
  is &nil;. If the device is specified, the pathname must be &absolute-k;
  &root-k;.</para>
 
-<para>The wildcard characters: <filename>'*'</filename> matches any
+<para>The wildcard characters: &file-star; matches any
  sequence of characters, <filename>'#'</filename> or
- <filename>'?'</filename> matches any one character.</para>
+ &file-ques; matches any one character.</para>
 
 <para>Due to the name/type swapping rule, there are pathnames that
  cannot result from &parse-namestring;.  To get a pathname whose type is
@@ -3585,12 +3418,10 @@ and &end-k;:</para>
 <listitem><table frame="all"><title/>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ [drivespec] : ]</entry>
-   <entry>a letter <filename>*</filename> |
-    <filename>A</filename>|...|<filename>Z</filename>|
-    <filename>a</filename>|...|<filename>z</filename></entry></row>
+   <entry>a letter &file-star;|&file-letter-lc;|&file-letter-uc;</entry></row>
   <row><entry>{ name [. type] \ }</entry>
-   <entry>each one a subdirectory, <filename>\</filename> may be
-    replaced by <filename>/</filename></entry></row>
+   <entry>each one a subdirectory, &file-bsla; may be
+    replaced by &file-slash;</entry></row>
   <row><entry>[ name [. type] ]</entry>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></table>
@@ -3598,8 +3429,8 @@ and &end-k;:</para>
 <para>Name and type may be character sequences of any &length;
  (consisting of alphanumeric characters and <filename>-</filename>,
  <filename>_</filename>).  They are shortened to 8 (respectively 3)
- characters and converted to upper case.  A single
- <filename>*</filename> is allowed for &wild-k;.</para>
+ characters and converted to upper case.  A single &file-star; is
+ allowed for &wild-k;.</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
@@ -3613,20 +3444,18 @@ and &end-k;:</para>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><table frame="all"><title/>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
-  <row><entry>[ <filename>/</filename> ]</entry>
-   <entry><filename>/</filename> denotes absolute
+  <row><entry>[ &file-slash; ]</entry>
+   <entry>&file-slash; denotes absolute
      pathnames</entry></row>
-  <row><entry>{ &name-r;
-      <filename>/</filename> }</entry>
+  <row><entry>{ &name-r; &file-slash; }</entry>
    <entry>each one a subdirectory</entry></row>
-  <row><entry>[ &name-r;
-      [<filename>.</filename> &type-r;] ]</entry>
+  <row><entry>[ &name-r; [&file-dot; &type-r;] ]</entry>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
  (consisting of printing ASCII characters, except
- <filename>/</filename>).</para>
+ &file-slash;).</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
@@ -3635,22 +3464,17 @@ and &end-k;:</para>
 <listitem><table frame="all"><title/>
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ [<replaceable>drivespec</replaceable>] : ]</entry>
-   <entry>a letter <filename>*</filename>|
-     <filename>a</filename>|...|<filename>z</filename>|
-     <filename>A</filename>|...|<filename>Z</filename></entry></row>
-  <row><entry>{ &name-r;
-      [. &type-r;] \ }</entry>
-   <entry>each one a subdirectory, <filename>\</filename> may be
-     replaced by <filename>/</filename></entry></row>
-  <row><entry>[ &name-r;
-      [. &type-r;] ]</entry>
+   <entry>a letter &file-star;|&file-letter-lc;|&file-letter-uc;</entry></row>
+  <row><entry>{ &name-r; [. &type-r;] \ }</entry>
+   <entry>each one a subdirectory, &file-bsla; may be
+     replaced by &file-slash;</entry></row>
+  <row><entry>[ &name-r; [. &type-r;] ]</entry>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></table>
 
 <para>Name and type may be character sequences of any &length;
  (consisting of printing ASCII characters, except
- <filename>/</filename>, <filename>\</filename>,
- <filename>:</filename>).</para>
+ &file-slash;, &file-bsla;, &file-colon;).</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
@@ -3726,13 +3550,11 @@ and &end-k;:</para>
 <section id="parsename"><title>Function &parse-namestring;</title>
 
 <para><literal role="sexp">(&parse-namestring; &string-r; &optional-amp;
-   <replaceable>host</replaceable> <replaceable>defaults</replaceable>
-   &key-amp; &start-r; &end-r;
+   &host-r; &defaults-r; &key-amp; &start-r; &end-r;
    <replaceable>junk-allowed</replaceable>)</literal>
- returns a logical pathname only if <replaceable>host</replaceable> is a
+ returns a logical pathname only if &host-r; is a
  <ulink url="&clhs;/Body/glo_l.html#logical_host">logical host</ulink>
- or <replaceable>host</replaceable> is &nil; and
- <replaceable>defaults</replaceable> is a &logical-pathname-class;.
+ or &host-r; is &nil; and &defaults-r; is a &logical-pathname-class;.
  To construct a logical pathname from a string, the function
  &logical-pathname; can be used.</para>
 
@@ -3949,8 +3771,8 @@ non-&nil;.</para>
  <literal role="sexp">(&with-kbd; . &body-r;)</literal> form, <emphasis
  role="strong">&kbd-in;</emphasis> is the stream that reads the
  keystrokes from the keyboard.
- It returns every keystroke in detail, as character or
- <classname>sys::input-character</classname> with the following bits:
+ It returns every keystroke in detail, as &character-class; or
+ &input-char; with the following bits:
 <variablelist>
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
  <varlistentry><term><constant>:hyper</constant></term>
@@ -5079,10 +4901,8 @@ compiles a file to platform-independent bytecode.</para>
 <row><entry><command>Break+</command></entry>
    <entry><command>:br+</command></entry>
    <entry>sets a breakpoint in the current frame.  When the corresponding
-     form or function will be left, the debugger will be entered again,
-     with the variable <link
-     linkend="trace-val"><varname>*trace-values*</varname></link>
-     containing a list of its values.</entry></row>
+     form or function will be left, the debugger will be entered again, with
+     the variable &trace-val; containing a list of its values.</entry></row>
 <row><entry><command>Break-</command></entry>
    <entry><command>:br-</command></entry>
    <entry>removes a breakpoint from the current frame.</entry></row>
@@ -5231,20 +5051,18 @@ compiles a file to platform-independent bytecode.</para>
 
 <para>In all these forms you can access the following variables:
 <variablelist>
- <varlistentry><term><varname>ext:*trace-function*</varname></term>
+ <varlistentry><term><varname>EXT:*TRACE-FUNCTION*</varname></term>
   <listitem><simpara>the function itself
   </simpara></listitem></varlistentry>
- <varlistentry><term><varname>ext:*trace-args*</varname></term>
+ <varlistentry><term><varname>EXT:*TRACE-ARGS*</varname></term>
   <listitem><simpara>the arguments to the function
   </simpara></listitem></varlistentry>
- <varlistentry><term><varname>ext:*trace-form*</varname></term>
+ <varlistentry><term><varname>EXT:*TRACE-FORM*</varname></term>
   <listitem><simpara>the function/macro call as form
   </simpara></listitem></varlistentry>
- <varlistentry id="trace-val">
-    <term><varname>ext:*trace-values*</varname></term>
+ <varlistentry id="trace-val"><term>&trace-val;</term>
   <listitem><simpara>after return from the function: the list of return
-  values from the function call
-  </simpara></listitem></varlistentry>
+  values from the function call</simpara></listitem></varlistentry>
 </variablelist>
 and you can leave the function call with specified values by using
 &return;.</para>
@@ -5282,16 +5100,14 @@ and you can leave the function call with specified values by using
 </variablelist>
 </section>
 
-<section id="space"><title>EXT:SPACE</title>
+<section id="space"><title>Macro &space;</title>
 
-<para>The macro <emphasis
- role="strong"><function>ext:space</function></emphasis> is like the
- macro &time;: <literal role="sexp">(<function>ext:space</function>
- &form-r;)</literal> evaluates the &form-r;, and, as a side effect,
- outputs information about the memory allocations caused by this
- evaluation.
- It also prints everything printed by <link
- linkend="time"><function>time</function></link>.</para>
+<para>The macro &space; is like the macro &time;: <literal
+ role="sexp">(&space; &form-r;)</literal>
+ evaluates the &form-r;, and, as a side effect, outputs information
+ about the memory allocations caused by this evaluation.  It also prints
+ everything printed by <link
+ linkend="time"><function>TIME</function></link>.</para>
 
 </section>
 
@@ -5301,8 +5117,8 @@ and you can leave the function call with specified values by using
  currently occupied by Lisp objects, and the number of bytes that can be
  allocated before the next regular &gc;ion occurs.</para>
 
- <para>The function <emphasis
- role="strong"><function>ext:gc</function></emphasis> starts a
+<para>The function <emphasis
+ role="strong"><function>EXT:GC</function></emphasis> starts a
  global &gc;ion and its return value has the same meaning as the
  second value of &room;.</para>
 
@@ -5312,9 +5128,8 @@ and you can leave the function call with specified values by using
 
 <para>The timing data printed by the macro &time; includes: The real
  time (elapsed time), the run time (processor time for this process),
- the number of bytes allocated (use the <link
- linkend="space"><function>ext:space</function></link> macro for more
- detailed analysis), and the number of GCs performed, if any.</para>
+ the number of bytes allocated (use the &space; macro for more
+ detailed analysis), and the number of &gc;ions performed, if any.</para>
 
 </section>
 
