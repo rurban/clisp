@@ -316,25 +316,15 @@ executes a compiled version of form.</para>
  but not an &environment-amp; marker.</para>
 
 <formalpara><title><literal
- role="sexp">(<function>ext:type-expand-1</function>
-  <replaceable>typespec</replaceable>)</literal></title>
-<para>If <replaceable>typespec</replaceable> is a user-defined type,
- <function>ext:type-expand-1</function> will expand it once and return
- two values: the expansion and &t;. If
- <replaceable>typespec</replaceable> is not a user-defined type, then
- the two values <replaceable>typespec</replaceable> and &nil; are returned.
-</para></formalpara>
-
-<formalpara><title><literal
  role="sexp">(<function>ext:type-expand</function>
- <replaceable>typespec</replaceable>)</literal></title>
-<para>This is similar to <literal
- role="sexp">(<function>ext:type-expand-1</function>
- <replaceable>typespec</replaceable>)</literal>, but repeatedly expands
- <replaceable>typespec</replaceable> until it is no longer a
- user-defined type.  A second value of &t; or &nil; is returned as for
- <function>ext:type-expand-1</function>, indicating whether the
- original <replaceable>typespec</replaceable> was a user-definedtype.
+ <replaceable>typespec</replaceable> &optional-amp;
+ <replaceable>once-p</replaceable>)</literal></title>
+<para>If <replaceable>typespec</replaceable> is a user-defined type,
+ this will expand it recursively until it is no longer a user-defined
+ type (unless <replaceable>once-p</replaceable> is supplied and
+ non-&nil;).  Two values are returned - the expansion and an indicator
+ (&t; or &nil;) of whether the original
+ <replaceable>typespec</replaceable> was a user-defined type.
 </para></formalpara>
 
 <para>The possible results of &type-of; are:
