@@ -500,7 +500,7 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:LOCK-GET dbe object locker
    mode &key-amp; NOWAIT)</literal></term>
- <listitem><simpara>Acquire a lock (&DBE_lock_get).
+ <listitem><simpara>Acquire a lock (&DBE_lock_get;).
    The <type>BDB:DBLOCK</type> object returned by this function will
    &not-e; be released when the environment is closed.
    This permits long-lived locks.</simpara></listitem></varlistentry>
