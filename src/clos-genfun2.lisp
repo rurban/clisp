@@ -422,7 +422,7 @@
                                         (typep object
                                           (nth arg-index
                                             (std-method-parameter-specializers m))))
-                                    remaining-methods)
+                                    (the list remaining-methods))
                                   class-of-exprs)))
                          eql-cases)))
                 ;; until further notice we do not need to consider the
@@ -433,7 +433,7 @@
                             (consp
                               (nth arg-index
                                 (std-method-parameter-specializers m))))
-                        remaining-methods))
+                        (the list remaining-methods)))
                 ((lambda (other-cases)
                    (if eql-caselist
                      `(CASE ,arg-var ,@eql-caselist (T ,other-cases))
@@ -473,7 +473,7 @@
                                      (bc-and class
                                        (nth arg-index
                                          (std-method-parameter-specializers m))))
-                                 remaining-methods)
+                                 (the list remaining-methods))
                                class-of-exprs)
                              ;; case differentiation via TYPEP
                              (let ((test-class (first remaining-classes)))
@@ -484,7 +484,7 @@
                                            #'(lambda (x)
                                                (and (subclassp test-class x)
                                                     (not (eq test-class x))))
-                                           remaining-classes)))
+                                           (the list remaining-classes))))
                                    (unless other-class (return))
                                    (setq test-class other-class)))
                                `(IF (TYPEP ,arg-var ',(class-classname test-class))
@@ -500,7 +500,7 @@
                                              (nth arg-index
                                                (std-method-parameter-specializers m))
                                              test-class))
-                                       remaining-methods))
+                                       (the list remaining-methods)))
                                   ,(built-in-subtree
                                      (bc-and-not class test-class) ; /= nil !
                                      (remove 'nil
@@ -513,7 +513,7 @@
                                              (nth arg-index
                                                (std-method-parameter-specializers m))
                                              test-class))
-                                       remaining-methods)))))))
+                                       (the list remaining-methods))))))))
                        (built-in-subtree <t> classes remaining-methods))
                      (recursion
                        (cdr remaining-args)
