@@ -242,6 +242,8 @@ LISPFUNN(machine_version,0)
 #endif # MACHINE_KNOWN
 
 #if defined(HAVE_ENVIRONMENT)
+/* environ declaration must be outside of the function scope for g++/mingw */
+extern char** environ;
 
 /* push the (VAR . VALUE) on the STACK
  can trigger GC */
@@ -256,24 +258,25 @@ local inline char* push_envar (char *env) {
   return ep;
 }
 
-# (EXT:GETENV string) return the string associated with the given string
-# in the OS Environment or NIL if no value
-# if STRING is NIL, return all the environment as an alist
+/* (EXT:GETENV string) return the string associated with the given string
+ in the OS Environment or NIL if no value
+ if STRING is NIL, return all the environment as an alist */
 LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
   var object arg = popSTACK();
   if (missingp(arg)) { /* return all the environment at once */
     var uintL count = 0;
-   #if defined(WIN32_NATIVE)
-    var char* eblock = GetEnvironmentStrings();
+   #if 0 && defined(WIN32_NATIVE)
+    /* see below, clisp_setenv(), for references */
+    var char* eblock_orig = GetEnvironmentStrings();
+    var char* eblock = eblock_orig;
     for (; *eblock; eblock++, count++) eblock = push_envar(eblock);
    #else
-    extern char** environ;
     var char** epp;
     for (epp = environ; *epp; epp++, count++) push_envar(*epp);
    #endif
     VALUES1(listof(count));
-   #if defined(WIN32_NATIVE)
-    FreeEnvironmentStrings(eblock);
+   #if 0 && defined(WIN32_NATIVE)
+    FreeEnvironmentStrings(eblock_orig);
    #endif
     return;
   }
@@ -290,8 +293,8 @@ LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
     VALUES1(NIL);
 }
 
-# Creates a string concatenating an environment variable and its value.
-# Like sprintf(buffer, "%s=%s", name, value);
+/* Creates a string concatenating an environment variable and its value.
+ Like sprintf(buffer, "%s=%s", name, value); */
 local char * cat_env_var (char * buffer, const char * name, uintL namelen,
                           const char * value, uintL valuelen) {
   memcpy(buffer,name,namelen);
@@ -304,33 +307,34 @@ local char * cat_env_var (char * buffer, const char * name, uintL namelen,
   return buffer;
 }
 
-# Modify the environment variables. putenv() is POSIX, but some BSD systems
-# only have setenv(). Therefore (and because it's simpler to use) we
-# implement this interface, but without the third argument.
-# clisp_setenv(name,value) sets the value of the environment variable `name'
-# to `value' and returns 0. Returns -1 if not enough memory.
+/* Modify the environment variables. putenv() is POSIX, but some BSD systems
+ only have setenv(). Therefore (and because it's simpler to use) we
+ implement this interface, but without the third argument.
+ clisp_setenv(name,value) sets the value of the environment variable `name'
+ to `value' and returns 0. Returns -1 if not enough memory. */
 global int clisp_setenv (const char * name, const char * value) {
   var uintL namelen = asciz_length(name);
   var uintL valuelen = (value==NULL ? 0 : asciz_length(value));
 #if defined(HAVE_PUTENV)
   var char* buffer = (char*)malloc(namelen+1+valuelen+1);
   if (!buffer)
-    return -1; # no need to set errno = ENOMEM
+    return -1; /* no need to set errno = ENOMEM */
   return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
 #elif defined(HAVE_SETENV)
   return setenv(name,value,1);
-#elif defined(WIN32_NATIVE)
-  return SetEnvironmentVariable(name,value);
+#elif 0 && defined(WIN32_NATIVE)
+  /* <http://article.gmane.org/gmane.comp.gnu.mingw.user/8272>
+     <http://article.gmane.org/gmane.comp.gnu.mingw.user/8273> */
+  return !SetEnvironmentVariableA(name,value);
 #else
-  # Uh oh, neither putenv() nor setenv(), have to frob the environment
-  # ourselves. Routine taken from glibc and fixed in several aspects.
-  extern char** environ;
+  /* Uh oh, neither putenv() nor setenv(), have to frob the environment
+   ourselves. Routine taken from glibc and fixed in several aspects. */
   var char** epp;
   var char* ep;
   var uintL envvar_count = 0;
   for (epp = environ; (ep = *epp) != NULL; epp++) {
     var const char * np = name;
-    # Compare *epp and name:
+    /* Compare *epp and name: */
     while (*np != '\0' && *np == *ep) { np++; ep++; }
     if (*np == '\0' && *ep == '=')
       break;
@@ -339,15 +343,15 @@ global int clisp_setenv (const char * name, const char * value) {
   ep = *epp;
   if (ep == NULL) {
     if (value != NULL) {
-      # name not found in environ, add it.
-      # if value is NULL - nothing is to be done!
-      # Remember the environ, so that we can free it if we need
-      # to reallocate it again next time.
+      /* name not found in environ, add it.
+         if value is NULL - nothing is to be done!
+         Remember the environ, so that we can free it if
+         we need to reallocate it again next time. */
       var static char** last_environ = NULL;
       var char** new_environ = (char**) malloc((envvar_count+2)*sizeof(char*));
       if (!new_environ)
-        return -1; # no need to set errno = ENOMEM
-      { # copy environ
+        return -1; /* no need to set errno = ENOMEM */
+      { /* copy environ */
         var uintL count;
         epp = environ;
         for (count = 0; count < envvar_count; count++)
@@ -355,7 +359,7 @@ global int clisp_setenv (const char * name, const char * value) {
       }
       ep = (char*) malloc(namelen+1+valuelen+1);
       if (!ep) {
-        free(new_environ); return -1; # no need to set errno = ENOMEM
+        free(new_environ); return -1; /* no need to set errno = ENOMEM */
       }
       new_environ[envvar_count] = cat_env_var(ep,name,namelen,value,valuelen);
       new_environ[envvar_count+1] = NULL;
@@ -365,15 +369,15 @@ global int clisp_setenv (const char * name, const char * value) {
       last_environ = new_environ;
     }
   } else {
-    # name found, replace its value.
-    # We could be tempted to overwrite name's value directly if
-    # the new value is not longer than the old value. But that's
-    # not a good idea - maybe someone still has a pointer to
-    # this area around.
-    # should we free() the old value?!
+    /* name found, replace its value.
+       We could be tempted to overwrite name's value directly if
+       the new value is not longer than the old value.
+       But that's not a good idea - maybe someone still has a pointer to
+       this area around.
+       should we free() the old value?! */
     ep = (char*) malloc(namelen+1+valuelen+1);
     if (!ep)
-      return -1; # no need to set errno = ENOMEM
+      return -1; /* no need to set errno = ENOMEM */
     *epp = cat_env_var(ep,name,namelen,value,valuelen);
   }
   return 0;
@@ -406,8 +410,7 @@ LISPFUNN(set_env,2)
     pushSTACK(value);
     pushSTACK(name);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~ (~ ~): out of memory"));
+    fehler(error,GETTEXT("~ (~ ~): out of memory"));
   }
   VALUES1(value);
 }
@@ -466,7 +469,8 @@ LISPFUNN(registry,2)
         }
       }
     });
-                 none:;});
+     none:;
+  });
   skipSTACK(2);
 }
 
@@ -502,17 +506,16 @@ LISPFUNNF(identity,1)
 }
 
 LISPFUNN(address_of,1)
-# (SYS::ADDRESS-OF object) liefert die Adresse von object
-  {
-    var object arg = popSTACK();
-    #if defined(WIDE_HARD)
-      VALUES1(UQ_to_I(untype(arg)));
-    #elif defined(WIDE_SOFT)
-      VALUES1(UL_to_I(untype(arg)));
-    #else
-      VALUES1(UL_to_I(as_oint(arg)));
-    #endif
-  }
+{ /* (SYS::ADDRESS-OF object) return the address of the object */
+  var object arg = popSTACK();
+ #if defined(WIDE_HARD)
+  VALUES1(UQ_to_I(untype(arg)));
+ #elif defined(WIDE_SOFT)
+  VALUES1(UL_to_I(untype(arg)));
+ #else
+  VALUES1(UL_to_I(as_oint(arg)));
+ #endif
+}
 
 #ifdef HAVE_DISASSEMBLER
 

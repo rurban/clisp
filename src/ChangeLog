@@ -1,3 +1,8 @@
+2003-07-31  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (GETENV, clisp_setenv): use `environ', not win32-specific
+	API, but declare `environ' outside the function scope for mingw/g++
+
 2003-07-30  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c: all *-INTERNAL functions
