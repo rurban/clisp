@@ -1,5 +1,14 @@
 2002-02-23  Sam Steingold  <sds@gnu.org>
 
+	minor code cleanups
+	* record.d (obj_in_list): new function
+	(structure_up, %STRUCTURE-TYPE-P, keyword_test): use it
+	(slot_in_arglist): new function
+	(%SHARED-INITIALIZE, %REINITIALIZE-INSTANCE)
+	(do_initialize_instance): use it
+
+2002-02-23  Sam Steingold  <sds@gnu.org>
+
 	* record.d (%REINITIALIZE-INSTANCE): fixed a crash in repeated
 	REINITIALIZE-INSTANCE calls
 
