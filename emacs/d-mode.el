@@ -302,7 +302,7 @@ Beware - this will modify the original C-mode too!"
 (defun clisp-update-dates (&optional user)
   "Update the dates in file header for the user.
 Look at the files that are mentioned in `clisp-home-dir'/src/ChangeLog
-as changed bye the `user' and check that this date is in that file's header."
+as changed by the `user' and check that this date is in that file's header."
   (interactive (list (read-from-minibuffer "User: " clisp-update-dates-user)))
   (setq clisp-update-dates-user user)
   (message "clisp-update-dates: %s" user)
