@@ -2453,6 +2453,11 @@ if [ -n "$with_dynamic_ffi" ] ; then
     if [ $HOS = win32 ] ; then
       echol "$f.h : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.h"
       echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h $f.h"
+      if [ $f = callback ] ; then
+        for g in vacall_r trampoline_r; do
+          echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$g.h $g.h"
+        done
+      fi
       echol
       echol "$f.lib : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.lib"
       echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.lib $f.lib"
