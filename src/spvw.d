@@ -2640,7 +2640,7 @@ global int main (argc_t argc, char* argv[]) {
   # Initialize locale dependent encodings:
   init_dependent_encodings();
   # initialize stream-variables:
-  init_streamvars(!(argv_execute_file == NULL));
+  init_streamvars(argv_execute_file && !argv_repl);
  #ifdef NEXTAPP
   # make nxterminal-stream functional:
   if (nxterminal_init()) { final_exitcode = 17; quit(); }
@@ -2834,10 +2834,12 @@ global int main (argc_t argc, char* argv[]) {
           });
         }
         var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
-        if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
-        else pushSTACK(S(batchmode_errors));
-        pushSTACK(form);
-        form = listof(2); # `(SYS::BATCHMODE-ERRORS (COMPILE-FILE ',...))
+        if (!argv_repl) {
+          if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
+          else pushSTACK(S(batchmode_errors));
+          pushSTACK(form);
+          form = listof(2); # `(SYS::BATCHMODE-ERRORS (COMPILE-FILE ',...))
+        }
         eval_noenv(form); # execute
         fileptr++;
       });
@@ -2891,10 +2893,12 @@ global int main (argc_t argc, char* argv[]) {
     pushSTACK(NIL);
    #endif
     form = listof(4);
-    if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
-    else pushSTACK(S(batchmode_errors));
-    pushSTACK(form);
-    form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
+    if (!argv_repl) {
+      if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
+      else pushSTACK(S(batchmode_errors));
+      pushSTACK(form);
+      form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
+    }
     eval_noenv(form); # execute
     if (!argv_repl) quit();
   }
@@ -2904,7 +2908,8 @@ global int main (argc_t argc, char* argv[]) {
     var char** exprs = &argv_selection_array[argc-1];
     do { pushSTACK(asciz_to_string(*exprs--,O(misc_encoding))); }
     while (--count);
-    var object total = string_concat(argv_expr_count);
+    pushSTACK(O(newline_string)); /* separate -x from REPL */
+    var object total = string_concat(argv_expr_count+1);
     pushSTACK(total);
     funcall(L(make_string_input_stream),1);
     if (argv_repl) {
@@ -2914,7 +2919,7 @@ global int main (argc_t argc, char* argv[]) {
     Symbol_value(S(standard_input)) = value1;
     # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
     # is undefined. Do not set an error handler in that case.
-    if (!nullpSv(driverstern)) {
+    if (!nullpSv(driverstern) && !argv_repl) {
       # (PROGN
       #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
       #   ; Normally this will exit by itself once the string has reached EOF,
