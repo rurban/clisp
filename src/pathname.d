@@ -2123,7 +2123,7 @@ local object parse_as_logical (object obj) {
 
 LISPFUNNR(logical_pathname,1)
 { /* (LOGICAL-PATHNAME thing), CLtL2 p. 631 */
-  var object thing = popSTACK();
+  var object thing = STACK_0;
   if (logpathnamep(thing)) {
     /* nothing to do for logical pathnames. */
     VALUES1(thing);
@@ -2135,8 +2135,18 @@ LISPFUNNR(logical_pathname,1)
     pushSTACK(S(logical_pathname));
     fehler(type_error,GETTEXT("~S: argument ~S is not a logical pathname, string, stream or symbol"));
   } else {
+    var object pathname = parse_as_logical(thing);
+    /* Check that a host was given. This makes it hard to create relative
+       logical pathnames, but it is what ANSI CL specifies. */
+    if (nullp(TheLogpathname(pathname)->pathname_host)) {
+      pushSTACK(TheLogpathname(pathname)->pathname_host); /* TYPE-ERROR slot DATUM */
+      pushSTACK(S(string));                 /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_(0+2)); pushSTACK(S(logical_pathname));
+      fehler(type_error,GETTEXT("~S: argument ~S does not contain a host specification"));
+    }
     VALUES1(parse_as_logical(thing));
   }
+  skipSTACK(1);
 }
 
 /* forward declaration */
