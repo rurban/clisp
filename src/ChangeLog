@@ -1,3 +1,7 @@
+2003-08-21  Sam Steingold  <sds@gnu.org>
+
+	* utils/modprep.c: rewrote in lisp
+
 2003-08-20  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (create-fun-obj): use *fasoutput-stream* instead
@@ -428,7 +432,7 @@
 
 2003-07-25  Sam Steingold  <sds@gnu.org>
 
-	* modprep.c: DEFUN can specify side-effect-class
+	* utils/modprep.c: DEFUN can specify side-effect-class
 
 2003-07-25  Sam Steingold  <sds@gnu.org>
 

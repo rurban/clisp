@@ -3,7 +3,7 @@
 CC = @CC@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
-MODPREP = ../modprep
+MODPREP = ../clisp -q -norc ../modprep
 CLISP =
 
 LN = ln
@@ -21,7 +21,7 @@ posix.fas : posix.lisp
 	$(CLISP) -c posix.lisp
 
 calls.m.c: calls.c
-	$(MODPREP) calls.c > calls.m.c
+	$(MODPREP) calls.c
 
 calls.o : calls.m.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
