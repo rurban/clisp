@@ -1262,29 +1262,30 @@
   (let ((location (slot-definition-location slot))
         ;; Compute the effective methods of SLOT-VALUE-USING-CLASS etc.
         ;; Note that we cannot use (class-prototype class) yet.
+        ;; Also, SLOT-VALUE-USING-CLASS etc. are not defined on STRUCTURE-CLASS.
         (efm-svuc
-          (if *classes-finished*
+          (if (and (semi-standard-class-p class) *classes-finished*)
             (compute-applicable-methods-effective-method-for-set
               |#'slot-value-using-class|
               (list `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
               (list class '`(CLASS-PROTOTYPE ,class) slot))
             #'%slot-value-using-class))
         (efm-ssvuc
-          (if *classes-finished*
+          (if (and (semi-standard-class-p class) *classes-finished*)
             (compute-applicable-methods-effective-method-for-set
               |#'(setf slot-value-using-class)|
               (list `(TYPEP ,<t>) `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
               (list 'ANY-VALUE class '`(CLASS-PROTOTYPE ,class) slot))
             #'%set-slot-value-using-class))
         (efm-sbuc
-          (if *classes-finished*
+          (if (and (semi-standard-class-p class) *classes-finished*)
             (compute-applicable-methods-effective-method-for-set
               |#'slot-boundp-using-class|
               (list `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
               (list class '`(CLASS-PROTOTYPE ,class) slot))
             #'%slot-boundp-using-class))
         (efm-smuc
-          (if *classes-finished*
+          (if (and (semi-standard-class-p class) *classes-finished*)
             (compute-applicable-methods-effective-method-for-set
               |#'slot-makunbound-using-class|
               (list `(EQL ,class) `(INSTANCE-OF-P ,class) `(EQL ,slot))
