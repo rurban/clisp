@@ -1795,6 +1795,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&editor;</member>
   <member><varname>CUSTOM:*ERROR-HANDLER*</varname></member>
   <member><varname>CUSTOM:*EVALHOOK*</varname></member>
+  <member>&fill-indent-sexp;</member>
   <member>&flocont;</member>
   <member>&floratcont;</member>
   <member>&foreign-enc;</member>

@@ -1113,22 +1113,23 @@
       stream)))
 
 ;; preliminary, see fill-out.lisp
-(defun stream-start-s-expression (stream) (declare (ignore stream)))
+(defun stream-start-s-expression (stream)
+  (declare (ignore stream)) *print-right-margin*)
 (defun stream-end-s-expression (stream) (declare (ignore stream)))
 
 ;; ~S, CLTL p.388, CLtL2 p. 584
 (defformat-simple format-s-expression (stream colon-modifier atsign-modifier
                   (mincol 0) (colinc 1) (minpad 0) (padchar #\Space))
                   (arg)
-  (stream-start-s-expression stream)
-  (if (and (zerop mincol) (zerop minpad))
-    (if (and colon-modifier (null arg))
-      (write-string "()" stream)
-      (prin1 arg stream))
-    (format-padded-string mincol colinc minpad padchar
-      atsign-modifier ; =: padleftflag
-      (if (and colon-modifier (null arg)) "()" (prin1-to-string arg))
-      stream))
+  (let ((*print-right-margin* (stream-start-s-expression stream)))
+    (if (and (zerop mincol) (zerop minpad))
+      (if (and colon-modifier (null arg))
+        (write-string "()" stream)
+        (prin1 arg stream))
+      (format-padded-string mincol colinc minpad padchar
+        atsign-modifier ; =: padleftflag
+        (if (and colon-modifier (null arg)) "()" (prin1-to-string arg))
+        stream)))
   (stream-end-s-expression stream))
 
 ;; ~W
@@ -2089,8 +2090,10 @@
                                (not colon-p))
                         (progn
                           (setq forms (revappend (remove 'NIL arglist) forms))
-                          (push '(STREAM-START-S-EXPRESSION STREAM) forms)
-                          (push `(PRIN1 ,(formatter-next-arg) STREAM) forms)
+                          (push `(let ((*print-right-margin*
+                                        (STREAM-START-S-EXPRESSION STREAM)))
+                                   (PRIN1 ,(formatter-next-arg) STREAM))
+                                forms)
                           (push '(STREAM-END-S-EXPRESSION STREAM) forms))
                         (simple-call)))
                      (FORMAT-WRITE                  ; #\W
