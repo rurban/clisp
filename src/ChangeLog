@@ -1,5 +1,17 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Support for unbuffered file streams on all platforms.
+        * lispbibl.d (HANDLES): Remove macro, assume it to be defined to 1.
+          (case_strmtype_file): Remove macro.
+          (if_strm_file_p): Update.
+        * spvw_memfile.d (memflags): Assume HANDLES to be 1.
+        * stream.d: Likewise.
+        * pseudofun.d: Likewise.
+        * io.d (pr_stream): Likewise.
+        * predtype.d: Update.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (strmtype_ch_file, strmtype_iu_file, strmtype_is_file):
           Remove enum values.
           (strmtype_file): New enum value.

@@ -55,7 +55,7 @@
       bit(10) |
     #endif
     # Codierung von strmtype:
-    #ifdef HANDLES
+    #if 1 # defined(HANDLES)
       bit(11) |
     #endif
     #ifdef KEYBOARD

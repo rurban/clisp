@@ -8996,9 +8996,7 @@ LISPFUNN(print_structure,2)
       # Streamspezifische Zusatzinformation:
         switch (type)
           { case strmtype_file:
-            #ifdef HANDLES
             case strmtype_handle:
-            #endif
               # File-Stream
               JUSTIFY_SPACE;
               prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type

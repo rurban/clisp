@@ -35,9 +35,7 @@ PSEUDOFUN(wr_ch_buff_out)
 PSEUDOFUN(rd_ch_generic) PSEUDOFUN(pk_ch_generic) PSEUDOFUN(wr_ch_generic) PSEUDOFUN(wr_ss_generic) PSEUDOFUN(rd_by_generic) PSEUDOFUN(wr_by_generic)
 #endif
 
-#ifdef HANDLES
 PSEUDOFUN(rd_by_handle) PSEUDOFUN(rd_by_array_handle) PSEUDOFUN(wr_by_handle) PSEUDOFUN(wr_by_array_handle) PSEUDOFUN(rd_ch_handle) PSEUDOFUN(rd_ch_array_handle) PSEUDOFUN(wr_ch_handle_x) PSEUDOFUN(wr_ch_array_handle_x) PSEUDOFUN(wr_ss_handle_x)
-#endif
 #if defined(KEYBOARD) || defined(MAYBE_NEXTAPP)
 PSEUDOFUN(rd_ch_keyboard)
 #endif
