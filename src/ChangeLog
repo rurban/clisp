@@ -1,3 +1,7 @@
+2003-01-21  Mirian Crzig Lennox  <mirian@cosmic.com>
+
+	* backquote.lisp, defmacro.lisp: translated all comments
+
 2003-01-19  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Make clisp compiling on cygwin with g++
@@ -14,7 +18,7 @@
 	gcv_object_t.
 	* hashtabl.d (prepare_resize): Likewise.
 	* spvw_typealloc.d (allocate_weakkvt_low, allocate_weakkvt): Likewise.
-	
+
 2003-01-16  Sam Steingold  <sds@gnu.org>
 
 	do not bind slot names (which may be special variables) in keyword
