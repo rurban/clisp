@@ -804,6 +804,17 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 #endif
 /* used by SOCKET, STREAM */
 
+/* shutdown(2) - older systems do not define SHUT_* */
+#ifndef SHUT_RD
+ #define SHUT_RD 0
+#endif
+#ifndef SHUT_WR
+ #define SHUT_WR 1
+#endif
+#ifndef SHUT_RDWR
+ #define SHUT_RDWR 2
+#endif
+
 /* Dynamic module loading:
    Even though HP-UX 10.20 and 11.00 support shl_load *and* dlopen,
    dlopen works correctly only with a patch. Because we want to avoid
