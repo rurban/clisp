@@ -66,13 +66,13 @@
 ;;; ---------------------------------------------------------------------------
 
 (defun structure-effective-slot-definition-initff (slotdef)
-  (slot-value slotdef 'initff))
+  (slot-value slotdef '$initff))
 (defun (setf structure-effective-slot-definition-initff) (new-value slotdef)
-  (setf (slot-value slotdef 'initff) new-value))
+  (setf (slot-value slotdef '$initff) new-value))
 (defun structure-effective-slot-definition-readonly (slotdef)
-  (slot-value slotdef 'readonly))
+  (slot-value slotdef '$readonly))
 (defun (setf structure-effective-slot-definition-readonly) (new-value slotdef)
-  (setf (slot-value slotdef 'readonly) new-value))
+  (setf (slot-value slotdef '$readonly) new-value))
 (defmethod initialize-instance ((slotdef structure-effective-slot-definition) &rest args)
   (apply #'initialize-instance-<structure-effective-slot-definition> slotdef args))
 

@@ -8,6 +8,8 @@
 	* clos-class1.lisp (class, slotted-class, structure-class,
 	standard-class): Likewise.
 	* clos-method1.lisp (standard-method): Likewise.
+	* clos-slotdef2.lisp (structure-effective-slot-definition-initff,
+	structure-effective-slot-definition-readonly): Update.
 	* clos-print.lisp (print-object@class): Update.
 
 2004-06-05  Bruno Haible  <bruno@clisp.org>
