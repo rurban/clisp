@@ -1,5 +1,12 @@
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
+	* genclisph.d (make_system, vectorp): Make consistent with lispbibl.d.
+	(simple_vector_p, simple_string_p, simple_bit_vector_p, bit_vector_p,
+	TheFpointer) [TYPECODES]: Fix compilation errors.
+	(general_vector_p, arrayp): New exports.
+
+2004-02-14  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (cclosure_flags) [TYPECODES]: Fix.
 
 2004-02-14  Bruno Haible  <bruno@clisp.org>
