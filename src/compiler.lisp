@@ -9062,7 +9062,8 @@ Optimizations that might apply after this one are retried.
       (let ((indices '())) ; we append code to those code-parts, whose indices are in this list.
         (setf (cdr lastc) '()) ; code preliminarily without the label to the end
         (dolist (refindex (symbol-value label))
-          (when (and (integerp refindex) (not (eql refindex index)))
+          (when (and (integerp refindex) (not (eql refindex index))
+                     (not (member refindex indices)))
             (let ((refcode (aref *code-parts* refindex)))
               (when (eq (first (car refcode)) 'JMP)
                 ;; append:
@@ -9522,9 +9523,8 @@ Optimizations that might apply after this one are retried.
                         #+CLISP-DEBUG nil)
               (make-fnode) (make-block)
               (make-tagbody) (make-var) (make-const) (make-c-source-point)
-              (make-signature) (clos::make-class) clos::<t>
-              (clos::make-slotted-class) (clos::make-structure-class)
-              (clos::make-standard-class) #'compile))
+              (make-signature) (clos::make-class-version) clos::<t>
+              #'compile))
  (trace (sys::optimize-label :pre-print (list *code-parts* *trace-args*
   (let* ((label (first *trace-args*))
          (index (or (second *trace-args*) (get label 'code-part)))

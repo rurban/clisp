@@ -841,6 +841,20 @@ NIL
  :good)
 (T :GOOD :GOOD)
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1167991&group_id=1355
+(test-compiler
+ (lambda (a b)
+   (declare (ignorable a b))
+   (declare (optimize (space 3) (debug 0) (safety 1)
+                      (compilation-speed 3) (speed 1)))
+   (prog2
+       (catch 'ct1 (if (or (and t (not (and (and (or a t) nil) nil))) nil)
+                       a
+                       (reduce #'(lambda (lmv5 lmv2) 0) (vector b 0 a))))
+       0))
+ 2212755 3154856)
+(T 0 0)
+
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=890138&group_id=1355&atid=101355>
 (load "bug001.lisp") T
 (load "bug002.lisp") T
