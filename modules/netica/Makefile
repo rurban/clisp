@@ -18,14 +18,14 @@ distribdir =
 
 all : netica.o wrap.fas
 
-netica.c : netica.lisp
+netica.c netica.fas : netica.lisp
 	$(CLISP) -c netica.lisp
 
 netica.o : netica.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -I$(NETICA) -c netica.c
 
-wrap.fas: wrap.lisp
-	$(CLISP) -c wrap.lisp
+%.fas: %.lisp
+	$(CLISP) -c $<
 
 # Make a module
 clisp-module : all
