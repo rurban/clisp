@@ -425,6 +425,11 @@
       ($instantiated       ; true if an instance has already been created
         :type boolean
         :initform nil)
+      ($direct-instance-specializers ; set of all eql-specializers of direct
+                           ; instances that may be used in methods, as a
+                           ; weak-list or weak-hash-table or NIL
+        :type (or hash-table weak-list null)
+        :initform nil)
       ($finalized-direct-subclasses ; set of all finalized direct subclasses,
                            ; as a weak-list or weak-hash-table or NIL
         :type (or hash-table weak-list null)
@@ -439,8 +444,9 @@
 (defconstant *<semi-standard-class>-funcallablep-location* 22)
 (defconstant *<semi-standard-class>-fixed-slot-locations-location* 23)
 (defconstant *<semi-standard-class>-instantiated-location* 24)
-(defconstant *<semi-standard-class>-finalized-direct-subclasses-location* 25)
-(defconstant *<semi-standard-class>-prototype-location* 26)
+(defconstant *<semi-standard-class>-direct-instance-specializers-location* 25)
+(defconstant *<semi-standard-class>-finalized-direct-subclasses-location* 26)
+(defconstant *<semi-standard-class>-prototype-location* 27)
 
 ;; Preliminary accessors.
 (predefun class-current-version (object)
@@ -459,6 +465,10 @@
   (sys::%record-ref object *<semi-standard-class>-instantiated-location*))
 (predefun (setf class-instantiated) (new-value object)
   (setf (sys::%record-ref object *<semi-standard-class>-instantiated-location*) new-value))
+(predefun class-direct-instance-specializers-table (object)
+  (sys::%record-ref object *<semi-standard-class>-direct-instance-specializers-location*))
+(predefun (setf class-direct-instance-specializers-table) (new-value object)
+  (setf (sys::%record-ref object *<semi-standard-class>-direct-instance-specializers-location*) new-value))
 (predefun class-finalized-direct-subclasses-table (object)
   (sys::%record-ref object *<semi-standard-class>-finalized-direct-subclasses-location*))
 (predefun (setf class-finalized-direct-subclasses-table) (new-value object)
@@ -480,7 +490,7 @@
      (:fixed-slot-locations t)))
 (defvar *<standard-class>-class-version* (make-class-version))
 
-(defconstant *<standard-class>-instance-size* 27)
+(defconstant *<standard-class>-instance-size* 28)
 
 ;; For DEFCLASS macro expansions.
 (defconstant *<standard-class>-valid-initialization-keywords* ; ABI

@@ -1,3 +1,34 @@
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
+	Implement notification from class redefinition to generic functions,
+	part 1.
+	* lispbibl.d (Class): Add direct_instance_specializers field.
+	* clos-specializer1.lisp (add-direct-method-<specializer>-<method>):
+	New function.
+	(add-direct-method): Use it.
+	* clos-class1.lisp (semi-standard-class): Add
+	direct-instance-specializers slot.
+	(*<semi-standard-class>-direct-instance-specializers-location*): New
+	constant.
+	(class-direct-instance-specializers-table): New accessor.
+	(*<standard-class>-instance-size*): Increment.
+	* clos-class3.lisp (reinitialize-instance-<class>): Call
+	update-subclass-instance-specializer-generic-functions when the CPL
+	changed.
+	(shared-initialize-<semi-standard-class>): Initialize the
+	direct-instance-specializers slot to empty.
+	(update-subclass-instance-specializer-generic-functions): New function.
+	(add-direct-instance-specializer, remove-direct-instance-specializer,
+	list-direct-instance-specializers): New functions.
+	* clos-genfun1.lisp (<funcallable-standard-class>-instance-size*):
+	Increment.
+	* clos-class5.lisp (do-change-class): Update the old class' and the new
+	class's direct-instance-specializer set.
+	* clos-specializer3.lisp (add-direct-method): Use
+	add-direct-method-<specializer>-<method>.
+	* clos-class6.lisp (class-direct-instance-specializers-table): New
+	accessor.
+
 2004-11-12  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun3.lisp (defmethod, defgeneric): Simplify the macro-
