@@ -231,10 +231,10 @@
         #ifdef EPIPE
         if (EPIPE < sys_nerr) {
         errormsg_table[EPIPE].name = "EPIPE";
-        errormsg_table[EPIPE].msg = GETTEXT("Broken pipe, child process terminated");
+        errormsg_table[EPIPE].msg = GETTEXT("Broken pipe, child process terminated or socket closed");
           # Note that these "translations" exploit that CLISP only catches
-          # SIGPIPEs from subprocesses. Other pipes lead to a deadly signal
-          # and never to this error message.
+          # SIGPIPEs from subprocesses and sockets. Other pipes lead to a
+          # deadly signal and never to this error message.
         }
         #endif
         /* Errors bei mathematischen Funktionen: */
