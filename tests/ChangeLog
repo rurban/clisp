@@ -1,3 +1,7 @@
+2004-05-02  Sam Steingold  <sds@gnu.org>
+
+	* pack11.tst: Add test for rename-package.
+
 2004-04-18  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add test that defclass removes old accessor methods.
