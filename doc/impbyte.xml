@@ -108,7 +108,7 @@
 </variablelist>
 </section>
 
-<section id="src-modules"><title>Modules</title>
+<section id="src-modules"><title>Internal &c-lang; Modules</title>
 
 <variablelist>
 <varlistentry id="spvw-d"><term>&spvw-d;</term>
