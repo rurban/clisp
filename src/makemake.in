@@ -3282,10 +3282,7 @@ if [ $CROSS = false ] ; then
     echodummyrule uninstall
     echol
     echol "uninstall-bin : force"
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/base/lispinit.mem"
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/full/lisp${LEXE}"
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/full/lispinit.mem"
+    echotab "\$(RMRF) \$(DESTDIR)\$(lisplibdir)"
     echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) uninstall prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
@@ -3299,19 +3296,8 @@ if [ $CROSS = false ] ; then
         echotab "\$(RM) \$(DESTDIR)\$(dvidir)/clisp.dvi"
         echotab "\$(RM) \$(DESTDIR)\$(psdir)/clisp.ps"
         ;;
-      *bsd)
-        echotab "\$(RM) \$(DESTDIR)\$(lispdocdir)/clisp.html"
-        ;;
     esac
-    echotab "for f in \$(READMES); do \$(RM) \$(DESTDIR)\$(lispdocdir)/\$\$f; done"
-    case "$fsstnd" in
-      *bsd)
-        echotab "for f in \$(MANUALS) ${manual_dvi}; do \$(RM) \$(DESTDIR)\$(lispdocdir)/\$\$f; done"
-        ;;
-      *)
-        echotab "for f in \$(MANUALS) ${manual_dvi}; do \$(RM) \$(DESTDIR)\$(lispdocdir)/doc/\$\$f; done"
-        ;;
-    esac
+    echotab "\$(RMRF) \$(DESTDIR)\$(lispdocdir)"
     echol
     echol
   fi
