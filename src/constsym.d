@@ -501,7 +501,7 @@ LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #ifdef HAVE_GETHOSTBYNAME
 LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
 #ifdef EXPORT_SYSCALLS
-LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",posix)
+LISPSYM(resolve_host_ipaddr_,"RESOLVE-HOST-IPADDR-INTERNAL",posix)
 #endif
 #endif
 # ---------- TIME ----------
@@ -606,8 +606,9 @@ LISPSYM(program_name,"PROGRAM-NAME",system)
 LISPSYM(lib_directory,"LIB-DIRECTORY",system)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
-LISPSYM(user_data,"USER-DATA",posix)
-LISPSYM(file_stat,"FILE-STAT",posix)
+LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
+LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
+LISPSYM(sysinfo_,"SYSINFO-INTERNAL",posix)
 #endif
 #endif
 # ---------- PREDTYPE ----------

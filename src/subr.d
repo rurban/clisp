@@ -549,7 +549,7 @@ LISPFUNN(machine_instance,0)
 #ifdef HAVE_GETHOSTBYNAME
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 #ifdef EXPORT_SYSCALLS
-LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
+LISPFUNN(resolve_host_ipaddr_,1)
 #endif
 #endif
 # ---------- TIME ----------
@@ -667,8 +667,9 @@ LISPFUNN(program_name,0)
 LISPFUNN(lib_directory,0)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
-LISPFUN(user_data,0,1,norest,nokey,0,NIL)
-LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
+LISPFUNN(user_data_,1)
+LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
+LISPFUNN(sysinfo_,0)
 #endif
 #endif
 # ---------- PREDTYPE ----------

@@ -202,9 +202,6 @@
     _(gleich), _(ungleich), _(kleiner), _(groesser), _(klgleich),
     _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
     _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
-#ifdef EXPORT_SYSCALLS
-    _(resolve_host_ipaddr),_(file_stat),_(user_data),
-#endif # EXPORT_SYSCALLS
     };
   # Das waren 63 SUBRs.
   #undef _

@@ -10,9 +10,9 @@ User visible changes
 * Fixed a bug in TRANSLATE-PATHNAME: Substitution of "**" did not work.
 
 * When configured with --with-export-syscalls, :syscalls is in *features*
-  and functions posix::resolve-ip-addr, posix::user-data, posix::file-stat,
-  as well as those libm.so functions which do not have a better counterpart
-  in ANSI CL are available.
+  and functions posix:resolve-ip-addr, posix:user-data, posix:file-stat,
+  posix:sysinfo as well as those libm.so functions which do not have a
+  better counterpart in ANSI CL are available.
 
 Other modifications
 -------------------
