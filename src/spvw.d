@@ -1333,6 +1333,19 @@ local void init_symbol_values (void) {
   define_constant(S(ff_language_ansi_c),fixnum(ff_lang_ansi_c)); # FFI::FF-LANGUAGE-ANSI-C
   define_constant(S(ff_language_stdcall),fixnum(ff_lang_stdcall)); # FFI::FF-LANGUAGE-STDCALL
  #endif
+  # for DISASSEM.LISP:
+ #ifdef UNIX
+  # SYS::*DISASSEMBLE-USE-LIVE-PROCESS* is system dependent:
+  # We use it where possible, because it allows peeking into dynamically
+  # loaded shared libraries.
+  # On FreeBSD 4.0, if set to T, gdb stops the clisp process.
+  # On Woe32, the debugging APIs are flawed, the Cygwin developers say.
+  #if defined(UNIX_FREEBSD) || defined(UNIX_CYGWIN)
+  define_variable(S(disassemble_use_live_process),NIL);
+  #else
+  define_variable(S(disassemble_use_live_process),T);
+  #endif
+ #endif
   # for PATHNAME:
  #ifdef LOGICAL_PATHNAMES
   { # SYS::*LOGICAL-PATHNAME-TRANSLATIONS* :=

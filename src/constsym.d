@@ -1942,6 +1942,9 @@ LISPSYM(args,"*ARGS*",ext) /* variable in SPVW */
 LISPSYM(appease_cerrors,"APPEASE-CERRORS",ext) /* macro for SPVW */
 LISPSYM(batchmode_errors,"BATCHMODE-ERRORS",system) /* macro for SPVW */
 LISPSYM(wait_keypress,"WAIT-KEYPRESS",system) /* function for SPVW */
+#ifdef UNIX
+LISPSYM(disassemble_use_live_process,"*DISASSEMBLE-USE-LIVE-PROCESS*",system) /* variable in SPVW */
+#endif
 /* ---------- FFI ---------- */
 #ifdef DYNAMIC_FFI
 /* LISPSYM(boolean,"BOOLEAN",ffi) */
