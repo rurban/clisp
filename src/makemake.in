@@ -3122,7 +3122,7 @@ if [ $CROSS = false ] ; then
     echol
     echol
     echol "installcheck : ${TESTSDIR} force"
-    echotab "cd ${TESTSDIR} && \$(MAKE) LISP=\"\$(bindir)/clisp\""
+    echotab "cd ${TESTSDIR} && \$(MAKE) LISP=\"\$(bindir)/clisp -E utf-8 -norc\""
     echol
     echol
     echol "uninstall : uninstall-bin uninstall-man"
