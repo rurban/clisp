@@ -83,11 +83,17 @@
                  (when (and (typep result 'sequence)
                             (typep my-result 'sequence))
                    (let ((pos (mismatch result my-result :test #'equalp)))
-                     (format log "~%Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
-                             pos (elt result pos) (elt my-result pos)
-                             (subseq result pos (+ pos 10))
-                             lisp-implementation-type
-                             (subseq my-result pos (+ pos 10))))))))))
+                     (let ((*print-length* 10))
+                       (flet ((pretty-tail-10 (seq)
+                                (if (and (> (length seq) (+ pos 10))
+                                         (typep seq 'string))
+                                  (concatenate 'string (subseq seq pos (+ pos 10)) "...")
+                                  (subseq seq pos))))
+                         (format log "~%Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
+                                 pos (elt result pos) (elt my-result pos)
+                                 (pretty-tail-10 result)
+                                 lisp-implementation-type
+                                 (pretty-tail-10 my-result)))))))))))
     (values total-count error-count)))
 
 (defun do-errcheck (stream log &optional ignore-errors)
