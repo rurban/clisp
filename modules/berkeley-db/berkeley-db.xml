@@ -303,6 +303,18 @@
  DB->set_lorder	Set the database byte order
  DB->set_pagesize	Set the underlying database page size
  DB->set_paniccall	Set panic callback
+ DB->set_append_recno	Set record append callback
+ DB->set_bt_compare	Set a Btree comparison function
+ DB->set_bt_minkey	Set the minimum number of keys per Btree page
+ DB->set_bt_prefix	Set a Btree prefix comparison function
+ DB->set_re_delim	Set the variable-length record delimiter
+ DB->set_re_len	Set the fixed-length record length
+ DB->set_re_pad	Set the fixed-length record pad byte
+ DB->set_re_source	Set the backing Recno text file
+ DB->set_h_ffactor	Set the Hash table density
+ DB->set_h_hash	Set a hashing function
+ DB->set_h_nelem	Set the Hash table size
+ DB->set_q_extentsize	Set Queue database extent size
  -->
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db
@@ -407,40 +419,6 @@
     (e.g., <constant>:QUEUE</constant>).</para></warning>
 </listitem></varlistentry>
 </variablelist>
-
-<section id="bdb-bt-rn-config"><title>Btree/Recno Configuration</title>
-
-<!--
- DB->set_append_recno	Set record append callback
- DB->set_bt_compare	Set a Btree comparison function
- DB->set_bt_minkey	Set the minimum number of keys per Btree page
- DB->set_bt_prefix	Set a Btree prefix comparison function
- DB->set_re_delim	Set the variable-length record delimiter
- DB->set_re_len	Set the fixed-length record length
- DB->set_re_pad	Set the fixed-length record pad byte
- DB->set_re_source	Set the backing Recno text file
- -->
-
-<variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
-</section>
-
-
-<section id="bdb-hash-q-config"><title>Hash/Queue Configuration</title>
- <!--
- DB->set_h_ffactor	Set the Hash table density
- DB->set_h_hash	Set a hashing function
- DB->set_h_nelem	Set the Hash table size
- DB->set_q_extentsize	Set Queue database extent size
- -->
-<variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
-</section>
-</section>
 
 <section id="bdb-cursor"><title>Database Cursor Operations</title>
 <!--
