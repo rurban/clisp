@@ -483,7 +483,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               goto m_end;
           }
         case_instance: # CLOS-instance
-          instance_un_realloc(obj);
           if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
           # so far unmarked
           goto m_record_components;
@@ -784,7 +783,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               goto m_end;
           }
         case_instance: # CLOS-instance
-          instance_un_realloc(obj);
           if (marked(TheInstance(obj))) goto m_schon_da; # marked?
           # so far unmarked
           mark(TheInstance(obj)); # mark
@@ -962,7 +960,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
               goto u_end;
           }
         case_instance: # unmark CLOS-instance:
-          instance_un_realloc(obj);
           if (!marked(TheInstance(obj))) goto u_end; # already unmarked?
           unmark(TheInstance(obj)); # unmark
           goto u_record_components;
@@ -1114,7 +1111,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             # traverse data-vector: end-recursive subst_circ_mark(data-vector)
             ptr = &TheIarray(obj)->data; goto enter_subst;
           case_instance: /* Record */
-            instance_un_realloc(obj); /*FALLTHROUGH*/
           case_closure: _case_structure _case_stream case_orecord:
             #ifndef TYPECODES
             switch (Record_type(obj)) {
@@ -1305,7 +1301,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             # traverse data-vector: end-recursive subst(data-vector)
             ptr = &TheIarray(obj)->data; goto enter_subst;
           case_instance: /* Record */
-            instance_un_realloc(obj); /*FALLTHROUGH*/
           case_closure: _case_structure _case_stream case_orecord:
             #ifndef TYPECODES
             switch (Record_type(obj)) {
@@ -1619,7 +1614,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             # traverse data-vector: end-recursive subst_circ_unmark(data-vector)
             ptr = &TheIarray(obj)->data; goto enter_subst;
           case_instance: /* Record */
-            instance_un_realloc(obj); /*FALLTHROUGH*/
           case_closure: _case_structure _case_stream case_orecord:
             #ifndef TYPECODES
             switch (Record_type(obj)) {

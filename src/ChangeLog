@@ -1,3 +1,8 @@
+2003-01-10  Sam Steingold  <sds@gnu.org>
+
+	* spvw_circ.d (get_circ_mark, subst_circ_mark, subst)
+	(subst_circ_unmark): reverted the last patch (not needed)
+
 2003-01-09  John  Hinsdale <hin@alma.com>
 
 	* modules/fastcgi/*: new add-in module for FastCGI interface
