@@ -1,5 +1,6 @@
 # Template messages for CLISP
-# Copyright (C) 1992-2001 Bruno Haible, Michael Stoll, Marcus Daniels
+# Copyright (C) 1992-2001 Bruno Haible, Michael Stoll,
+#                         Marcus Daniels, Sam Steingold
 # Bruno Haible <haible@clisp.cons.org>, 2001.
 #
 msgid ""
@@ -62,7 +63,7 @@ msgid "symbol ~S should be imported into ~S before being exported."
 msgstr ""
 
 #: constobj.d:407
-msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
+msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, do not export the symbol\" NIL))"
 msgstr ""
 
 #: constobj.d:410
@@ -538,7 +539,7 @@ msgid "Only %d bytes available.\n"
 msgstr ""
 
 #: spvw.d:2403
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr ""
 
 #: spvw.d:2624
@@ -1224,7 +1225,7 @@ msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr ""
 
 #: pathname.d:6721
-msgid "Couldn't access current directory"
+msgid "Could not access current directory"
 msgstr ""
 
 #: pathname.d:6871
@@ -1726,7 +1727,7 @@ msgid "~ from ~: bad syntax for array: #A~"
 msgstr ""
 
 #: io.d:3776
-msgid "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
+msgid "~ from ~: ~ = ~ does not allow the evaluation of ~"
 msgstr ""
 
 #: io.d:3903
@@ -2929,7 +2930,7 @@ msgid "Address already in use"
 msgstr ""
 
 #: errunix.d:390
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr ""
 
 #: errunix.d:396
@@ -2965,11 +2966,11 @@ msgid "Socket is not connected"
 msgstr ""
 
 #: errunix.d:444
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr ""
 
 #: errunix.d:450
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr ""
 
 #: errunix.d:456
@@ -3261,7 +3262,7 @@ msgid "floating point NaN occurred"
 msgstr ""
 
 #: rexx.d:34
-msgid "Communication with ARexx isn't possible."
+msgid "Communication with ARexx is not possible."
 msgstr ""
 
 #: rexx.d:116
@@ -3741,7 +3742,7 @@ msgid "Macro ~S is missing a lambda list."
 msgstr ""
 
 #: macros1.lisp:20 macros1.lisp:43
-msgid "~S: non-symbol ~S can't be a variable"
+msgid "~S: non-symbol ~S cannot be a variable"
 msgstr ""
 
 #: macros1.lisp:25 macros1.lisp:48
@@ -3749,7 +3750,7 @@ msgid "~S: the constant ~S must not be redefined to be a variable"
 msgstr ""
 
 #: macros1.lisp:62
-msgid "~S: non-symbol ~S can't be a defined constant"
+msgid "~S: non-symbol ~S cannot be a defined constant"
 msgstr ""
 
 #: macros1.lisp:95
@@ -4103,7 +4104,7 @@ msgid "~S ~S: ~S is not a slot option."
 msgstr ""
 
 #: defstruct.lisp:695
-msgid "~S ~S: structure of type ~S can't hold the name."
+msgid "~S ~S: structure of type ~S cannot hold the name."
 msgstr ""
 
 #: defstruct.lisp:746
@@ -4807,7 +4808,7 @@ msgid "~S ~S: There may be only one direct slot with the name ~S."
 msgstr ""
 
 #: clos.lisp:591
-msgid "~S ~S: slot options for slot ~S don't come in pairs"
+msgid "~S ~S: slot options for slot ~S must come in pairs"
 msgstr ""
 
 #: clos.lisp:602
@@ -4847,7 +4848,7 @@ msgid "~S ~S: option ~S should be written ~S"
 msgstr ""
 
 #: clos.lisp:747
-msgid "~S ~S, option ~S: arguments don't come in pairs"
+msgid "~S ~S, option ~S: arguments must come in pairs"
 msgstr ""
 
 #: clos.lisp:763

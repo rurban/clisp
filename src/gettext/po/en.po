@@ -62,8 +62,8 @@ msgid "symbol ~S should be imported into ~S before being exported."
 msgstr "symbol ~S should be imported into ~S before being exported."
 
 #: constobj.d:407
-msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
-msgstr "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
+msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, do not export the symbol\" NIL))"
+msgstr "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, do not export the symbol\" NIL))"
 
 #: constobj.d:410
 msgid "You may choose in favour of which symbol to resolve the conflict."
@@ -598,8 +598,8 @@ msgid "Only %d bytes available.\n"
 msgstr "Only %d bytes available.\n"
 
 #: spvw.d:2403
-msgid "Couldn't determine the end of the SP stack!\n"
-msgstr "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
+msgstr "Could not determine the end of the SP stack!\n"
 
 #: spvw.d:2624
 msgid ""
@@ -1298,8 +1298,8 @@ msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 
 #: pathname.d:6721
-msgid "Couldn't access current directory"
-msgstr "Couldn't access current directory"
+msgid "Could not access current directory"
+msgstr "Could not access current directory"
 
 #: pathname.d:6871
 msgid "~: ~ names a file, not a directory"
@@ -1802,8 +1802,8 @@ msgid "~ from ~: bad syntax for array: #A~"
 msgstr "~ from ~: bad syntax for array: #A~"
 
 #: io.d:3776
-msgid "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
-msgstr "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
+msgid "~ from ~: ~ = ~ does not allow the evaluation of ~"
+msgstr "~ from ~: ~ = ~ does not allow the evaluation of ~"
 
 #: io.d:3903
 msgid "~ from ~: a number must be given between # and $"
@@ -3012,8 +3012,8 @@ msgid "Address already in use"
 msgstr "Address already in use"
 
 #: errunix.d:390
-msgid "Can't assign requested address"
-msgstr "Can't assign requested address"
+msgid "Cannot assign requested address"
+msgstr "Cannot assign requested address"
 
 #: errunix.d:396
 msgid "Network is down"
@@ -3048,12 +3048,12 @@ msgid "Socket is not connected"
 msgstr "Socket is not connected"
 
 #: errunix.d:444
-msgid "Can't send after socket shutdown"
-msgstr "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
+msgstr "Cannot send after socket shutdown"
 
 #: errunix.d:450
-msgid "Too many references: can't splice"
-msgstr "Too many references: can't splice"
+msgid "Too many references: cannot splice"
+msgstr "Too many references: cannot splice"
 
 #: errunix.d:456
 msgid "Connection timed out"
@@ -3344,8 +3344,8 @@ msgid "floating point NaN occurred"
 msgstr "floating point NaN occurred"
 
 #: rexx.d:34
-msgid "Communication with ARexx isn't possible."
-msgstr "Communication with ARexx isn't possible."
+msgid "Communication with ARexx is not possible."
+msgstr "Communication with ARexx is not possible."
 
 #: rexx.d:116
 msgid "~ must be a string for commands or a vector of strings for a function"
@@ -3824,16 +3824,16 @@ msgid "Macro ~S is missing a lambda list."
 msgstr "Macro ~S is missing a lambda list."
 
 #: macros1.lisp:20 macros1.lisp:43
-msgid "~S: non-symbol ~S can't be a variable"
-msgstr "~S: non-symbol ~S can't be a variable"
+msgid "~S: non-symbol ~S cannot be a variable"
+msgstr "~S: non-symbol ~S cannot be a variable"
 
 #: macros1.lisp:25 macros1.lisp:48
 msgid "~S: the constant ~S must not be redefined to be a variable"
 msgstr "~S: the constant ~S must not be redefined to be a variable"
 
 #: macros1.lisp:62
-msgid "~S: non-symbol ~S can't be a defined constant"
-msgstr "~S: non-symbol ~S can't be a defined constant"
+msgid "~S: non-symbol ~S cannot be a defined constant"
+msgstr "~S: non-symbol ~S cannot be a defined constant"
 
 #: macros1.lisp:95
 msgid "~S redefines the constant ~S. Its old value was ~S."
@@ -4188,8 +4188,8 @@ msgid "~S ~S: ~S is not a slot option."
 msgstr "~S ~S: ~S is not a slot option."
 
 #: defstruct.lisp:695
-msgid "~S ~S: structure of type ~S can't hold the name."
-msgstr "~S ~S: structure of type ~S can't hold the name."
+msgid "~S ~S: structure of type ~S cannot hold the name."
+msgstr "~S ~S: structure of type ~S cannot hold the name."
 
 #: defstruct.lisp:746
 msgid "~S ~S: There may be only one slot with the name ~S."
@@ -4900,8 +4900,8 @@ msgid "~S ~S: There may be only one direct slot with the name ~S."
 msgstr "~S ~S: There may be only one direct slot with the name ~S."
 
 #: clos.lisp:591
-msgid "~S ~S: slot options for slot ~S don't come in pairs"
-msgstr "~S ~S: slot options for slot ~S don't come in pairs"
+msgid "~S ~S: slot options for slot ~S must come in pairs"
+msgstr "~S ~S: slot options for slot ~S must come in pairs"
 
 #: clos.lisp:602
 msgid "~S ~S, slot option for slot ~S: ~S is not a function name"
@@ -4940,8 +4940,8 @@ msgid "~S ~S: option ~S should be written ~S"
 msgstr "~S ~S: option ~S should be written ~S"
 
 #: clos.lisp:747
-msgid "~S ~S, option ~S: arguments don't come in pairs"
-msgstr "~S ~S, option ~S: arguments don't come in pairs"
+msgid "~S ~S, option ~S: arguments must come in pairs"
+msgstr "~S ~S, option ~S: arguments must come in pairs"
 
 #: clos.lisp:763
 msgid "~S ~S, option ~S: ~S may only be given once"

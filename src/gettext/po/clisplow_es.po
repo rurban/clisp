@@ -215,7 +215,7 @@ msgid "Only %d bytes available.\n"
 msgstr "Sólo quedan %d bytes disponibles.\n"
 
 #
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr "No fue posible determinar el final de la pila SP!\n"
 
 #
@@ -365,7 +365,7 @@ msgstr ""
 "No se puede subsanar SIGSEGV. Dirección de fallo = 0x%x.\n"
 
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
-msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. ¡¡¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
+msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. a¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
 
 msgid "munmap() fails."
 msgstr "munmap() falló."
@@ -588,7 +588,7 @@ msgid "Address already in use"
 msgstr "Dirección en uso"
 
 #
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr "No se puede asignar la dirección requerida"
 
 #
@@ -629,10 +629,10 @@ msgstr "El `socket' ya está conectado"
 msgid "Socket is not connected"
 msgstr "El `socket' no está conectado"
 
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr "No se puede enviar después de la ruptura del `socket'"
 
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr ""
 
 msgid "Connection timed out"
