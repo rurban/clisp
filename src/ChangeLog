@@ -1,3 +1,46 @@
+2004-01-11  Bruno Haible  <bruno@clisp.org>
+
+	* modules/wildcard/fnmatch.h: Remove file.
+	* modules/wildcard/fnmatch_.h: New file, from gnulib.
+	* modules/wildcard/fnmatch.c: Update from gnulib.
+	* modules/wildcard/fnmatch_loop.c: New file, from gnulib.
+	* modules/wildcard/configure.in: Use the macro from gnulib.
+	* modules/wildcard/Makefile.in (REGEX_O, REGEX_H): Remove variables.
+	(FNMATCH_O): New variable.
+	(fnmatch.o): Update.
+	(fnmatch.h): New rule.
+	(clean): Update.
+	* m4/fnmatch.m4: New file, from gnulib.
+	* m4/mbstate_t.m4: New file, from gnulib.
+
+	* eval.d (parse_dd): Simplify code.
+	(interpret_bytecode_): Restore the protection against
+	-fomit-frame-pointer.
+
+	* _clisp.1: Remove mention of option -verbose.
+
+	* _clisp.html: Resynchronize with _clisp.1.
+
+	* _distmakefile (uninstall): Make it work on non-Linux systems as well.
+
+	* amiga.d (read_helper, write_helper): Fix arg name.
+	* amigaaux.d (read_helper): Likewise.
+	* acorn.d (read_helper): Likewise.
+
+	* lispbibl.d (read_byte_array, write_byte_array): Fix description of
+	no_hang argument.
+	* stream.d (read_byte_array, write_byte_array): Likewise.
+	(wr_by_array_synonym, wr_by_array_broad, wr_by_array_twoway): Use uintL
+	instead of int.
+
+	* makemake.in: Remove useless trailing semicolons.
+
+	* clos.lisp (analyze-method-description, analyze-defgeneric,
+	make-generic-function-form, analyze-generic-fundefs): Remove
+	environment argument.
+	(defmethod, defgeneric, generic-flet, generic-labels): Update.
+	* compiler.lisp: Update clos::make-generic-function-form calls.
+
 2004-01-11  Sam Steingold  <sds@gnu.org>
 
 	* record.d (parse_seclass): be backward compatible (wrt 2004-01-09
