@@ -252,14 +252,14 @@ dnl DEFS HAVE_SHM if shm works
 CL_SHM
 dnl DEFS SHM_RMID_VALID
 CL_SHM_RMID
-dnl DEFS HAVE_DLOPEN, DLERROR_CONST, set variable LIBDL
+dnl DEFS HAVE_DLOPEN
 CL_DYNLOAD
 dnl
 AC_MSG_NOTICE([* checks for libraries])
 dnl
 dnl set variable LIBTERMCAP
 CL_TERMCAP
-dnl DEFS HAVE_READLINE_READLINE_H
+dnl DEFS HAVE_READLINE
 CL_READLINE
 dnl
 AC_MSG_NOTICE([* checks for OS services])

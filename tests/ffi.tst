@@ -525,4 +525,12 @@ MAKE-FOREIGN-STRING
 (type-of (setq custom:*foreign-encoding* orig-encoding))
 #+UNICODE EXT:ENCODING
 
+#+win32
+(progn
+  (def-call-out command-line
+      (:name "GetCommandLineA") (:library "kernel32.dll")
+      (:arguments) (:return-type ffi:c-string))
+  (stringp (print (command-line))))
+#+win32 T
+
 (progn (in-package "USER") (delete-package "FTEST") T) T

@@ -171,7 +171,11 @@ User visible changes
   + macros FFI:WITH-FOREIGN-STRING, and macro FFI:WITH-C-PLACE,
     see <http://clisp.cons.org/impnotes.html#foreign-stack-string> and
     <http://clisp.cons.org/impnotes.html#with-c-place>.
-  Thanks to Jorg Hohle <hoehle@users.sourceforge.net>
+  Thanks to Jorg Hohle <hoehle@users.sourceforge.net>.
+  + FFI:DEF-CALL-OUT and FFI:DEF-C-VAR now accept a :LIBRARY option which
+    allows you to specify the dynamic library which contains the object.
+    See <http://clisp.cons.org/impnotes.html#def-call-out> and
+    <http://clisp.cons.org/impnotes.html#def-c-var>.
 
 * FFI does not output extern variable and function declarations unless
   you set FFI:*OUTPUT-C-VARIABLES* and/or FFI:*OUTPUT-C-FUNCTIONS* to T.

@@ -3729,58 +3729,85 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
       end_callback();
     }
 
+#if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 
-#ifdef AMIGAOS
+#if defined(HAVE_DLFCN_H)
+#include <dlfcn.h>
+#endif
 
-# O(foreign_libraries) is an alist of all open libraries.
-# It is a list ((string . fpointer) ...)
-# although it could have been a list ((string . faddress) ...)
-# with all fa_offsets being 0.
-# G'hopft wie g'sprungen, nur konsistent muss es sein.
+/* O(foreign_libraries) is an alist of all open libraries.
+ It is a list ((string . fpointer) ...)
+ although it could have been a list ((string . faddress) ...)
+ with all fa_offsets being 0.
+ G'hopft wie g'sprungen, nur konsistent muss es sein. */
 
-# Open a library.
-  local struct Library * open_library (object name, uintL version);
-  local struct Library * open_library(name,version)
-    var object name;
-    var uintL version;
-    {
-      var struct Library * libaddr;
-      with_string_0(name,O(misc_encoding),libname, {
-        begin_system_call();
-        libaddr = OpenLibrary(libname,version);
-        end_system_call();
-      });
-      if (libaddr == NULL) {
-        pushSTACK(name);
-        pushSTACK(S(foreign_library));
-        fehler(error,GETTEXT("~: Cannot open library ~"));
-      }
-      return libaddr;
-    }
+#if defined(HAVE_DLERROR)
+local object dlerror_string (void)
+{ /* return the string object for dlerror() value */
+  var char* error;
+  begin_system_call(); error = dlerror(); end_system_call();
+  return asciz_to_string(error,O(misc_encoding));
+}
+#endif
 
-# (FFI::FOREIGN-LIBRARY name [required-version])
-# returns a foreign library specifier.
+local inline void *libopen (char *libname, uintL version) {
+ #if defined(AMIGAOS)
+  return (void*)OpenLibrary(libname,version);
+ #elif defined(WIN32_NATIVE)
+  return (void*)LoadLibrary(libname);
+ #else
+  return dlopen(libname,RTLD_NOW);
+ #endif
+}
+
+/* Open a library.
+ can trigger GC */
+local void * open_library (object name, uintL version)
+{
+  var void * handle;
+ open_library_restart:
+  name = check_string(name);
+  with_string_0(name,O(misc_encoding),libname, {
+    begin_system_call();
+    handle = libopen(libname,version);
+    end_system_call();
+  });
+  if (handle == NULL) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(name);
+   #if defined(HAVE_DLERROR)
+    pushSTACK(STACK_0);
+    STACK_1 = dlerror_string();
+   #endif
+    pushSTACK(S(foreign_library));
+   #if defined(HAVE_DLERROR)
+    check_value(error,GETTEXT("~: Cannot open library ~: ~"));
+   #else
+    check_value(error,GETTEXT("~: Cannot open library ~"));
+   #endif
+    name = value1;
+    goto open_library_restart;
+  }
+  return handle;
+}
+
+/* (FFI::FOREIGN-LIBRARY name [required-version])
+ returns a foreign library specifier. */
 LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 {
-  var object name = check_string(STACK_1);
-  var uintL v;
-  {
-    var object version = STACK_0;
-    if (!boundp(version)) {
-      v = 0;
-    } else {
-      v = I_to_uint32(check_uint32(version));
-    }
-  }
+  var uintL v = 0;
+  if (boundp(STACK_0))
+    v = I_to_uint32(check_uint32(STACK_0));
   {/* Check whether the library is on the alist or has already been opened. */
+    var object name = (STACK_1 = check_string(STACK_1));
     var object alist = O(foreign_libraries);
     while (consp(alist)) {
       if (equal(name,Car(Car(alist)))) {
         var object lib = Cdr(Car(alist));
         if (!fp_validp(TheFpointer(lib))) {
-          # Library already existed in a previous Lisp session.
-          # Update the address, and make it valid.
-          var struct Library * libaddr = open_library(name,v);
+          /* Library already existed in a previous Lisp session.
+             Update the address, and make it valid. */
+          var void * libaddr = open_library(name,v);
           TheFpointer(lib)->fp_pointer = libaddr;
           mark_fp_valid(TheFpointer(lib));
         }
@@ -3790,11 +3817,11 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
       alist = Cdr(alist);
     }
   }
-  # Pre-allocate room:
+  /* Pre-allocate room: */
   pushSTACK(allocate_cons()); pushSTACK(allocate_cons());
   pushSTACK(allocate_fpointer((void*)0));
   { /* Open the library: */
-    var struct Library * libaddr = open_library(STACK_(1+3),v);
+    var void * libaddr = open_library(STACK_(1+3),v);
     var object lib = popSTACK();
     TheFpointer(lib)->fp_pointer = libaddr;
     value1 = lib;
@@ -3818,7 +3845,7 @@ global void validate_fpointer (object obj)
     var object acons = Car(l);
     l = Cdr(l);
     if (eq(Cdr(acons),obj)) {
-      var struct Library * libaddr = open_library(Car(acons),0); # version ??
+      var void * libaddr = open_library(Car(acons),0); /*version??*/
       TheFpointer(obj)->fp_pointer = libaddr;
       mark_fp_valid(TheFpointer(obj));
       return;
@@ -3827,9 +3854,8 @@ global void validate_fpointer (object obj)
   fehler_fpointer_invalid(obj);
 }
 
-/* Check for a library argument. */
 local object check_library (object obj)
-{
+{ /* Check for a library argument. */
  restart:
   if (fpointerp(obj)) {
     var object alist = O(foreign_libraries);
@@ -3846,17 +3872,52 @@ local object check_library (object obj)
   goto restart;
 }
 
-# (FFI::FOREIGN-LIBRARY-VARIABLE name library offset c-type)
-# returns a foreign variable.
+local inline void* find_name (void *handle, char *name)
+{ /* find the name in the library handle  ==  dlsym()*/
+ #if defined(AMIGAOS)
+  return NULL;
+ #elif defined(WIN32_NATIVE)
+  return GetProcAddress(handle,name);
+ #else
+  return dlsym(handle,name);
+ #endif
+}
+
+local object object_address (object library, object name, object offset)
+{ /* return the foreign address of the foreign object named `name' */
+  if (nullp(offset)) {
+    void * address;
+   object_address_restart:
+    begin_system_call();
+    with_string_0(name,O(foreign_encoding),namez, {
+      address = find_name(TheFpointer(library)->fp_pointer, namez);
+    });
+    end_system_call();
+    if (address == NULL) {
+      pushSTACK(library);
+      pushSTACK(NIL); /* no PLACE */
+      pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
+      check_value(error,GETTEXT("~: no dynamic object named ~"));
+      name = value1; library = popSTACK();
+      goto object_address_restart;
+    }
+    return make_faddress(library,(sintP)address -
+                         (sintP)TheFpointer(library)->fp_pointer);
+  } else
+    return make_faddress(library,(sintP)I_to_sint32(offset));
+}
+
+/* (FFI::FOREIGN-LIBRARY-VARIABLE name library offset c-type)
+ returns a foreign variable. */
 LISPFUNN(foreign_library_variable,4)
 {
   STACK_3 = coerce_ss(STACK_3);
   STACK_2 = check_library(STACK_2);
-  STACK_1 = check_sint32(STACK_1);
+  if (!nullp(STACK_1)) STACK_1 = check_sint32(STACK_1);
   foreign_layout(STACK_0);
   var uintL size = data_size;
   var uintL alignment = data_alignment;
-  pushSTACK(make_faddress(STACK_2,(sintP)I_to_sint32(STACK_1)));
+  pushSTACK(object_address(STACK_2,STACK_3,STACK_1));
   var object fvar = allocate_fvariable();
   TheFvariable(fvar)->fv_name = STACK_(3+1);
   TheFvariable(fvar)->fv_address = STACK_0;
@@ -3870,13 +3931,13 @@ LISPFUNN(foreign_library_variable,4)
   VALUES1(fvar); skipSTACK(4+1);
 }
 
-# (FFI::FOREIGN-LIBRARY-FUNCTION name library offset c-function-type)
-# returns a foreign function.
+/* (FFI::FOREIGN-LIBRARY-FUNCTION name library offset c-function-type)
+ returns a foreign function. */
 LISPFUNN(foreign_library_function,4)
 {
   STACK_3 = coerce_ss(STACK_3);
   STACK_2 = check_library(STACK_2);
-  STACK_1 = check_sint32(STACK_1);
+  if (!nullp(STACK_1)) STACK_1 = check_sint32(STACK_1);
   {
     var object fvd = STACK_0;
     if (!(simple_vector_p(fvd)
@@ -3889,7 +3950,7 @@ LISPFUNN(foreign_library_function,4)
       fehler(error,GETTEXT("~: illegal foreign function type ~"));
     }
   }
-  pushSTACK(make_faddress(STACK_2,(sintP)I_to_sint32(STACK_1)));
+  pushSTACK(object_address(STACK_2,STACK_3,STACK_1));
   var object ffun = allocate_ffunction();
   var object fvd = STACK_(0+1);
   TheFfunction(ffun)->ff_name = STACK_(3+1);
@@ -3900,7 +3961,7 @@ LISPFUNN(foreign_library_function,4)
   VALUES1(ffun); skipSTACK(4+1);
 }
 
-#else # UNIX
+#else /* not AMIGA WIN32_NATIVE HAVE_DLOPEN */
 
 /* Try to make a Foreign-Pointer valid again.
  validate_fpointer(obj); */
@@ -3911,35 +3972,41 @@ global void validate_fpointer (object obj)
 
 #endif
 
-# Allow everybody the creation of a FOREIGN-VARIABLE and FOREIGN-FUNCTION
-# object, even without any module.
-# This allows, among others, a self-test of the FFI (see testsuite).
+/* Allow everybody the creation of a FOREIGN-VARIABLE and FOREIGN-FUNCTION
+ object, even without any module.
+ This allows, among others, a self-test of the FFI (see testsuite). */
 local uintL ffi_identity(uintL arg) { return arg; }
 global void* ffi_user_pointer = NULL;
 
-# Initialize the FFI.
+/* Initialize the FFI. */
 global void init_ffi (void) {
-  # Allocate a fresh zero foreign pointer:
+  /* Allocate a fresh zero foreign pointer: */
   O(fp_zero) = allocate_fpointer((void*)0);
   ffi_user_pointer = NULL;
   register_foreign_variable(&ffi_user_pointer,"ffi_user_pointer",
                             0,sizeof(ffi_user_pointer));
-  register_foreign_function((void*)&ffi_identity,"ffi_identity",ff_lang_ansi_c);
+  register_foreign_function((void*)&ffi_identity,"ffi_identity",
+                            ff_lang_ansi_c);
 }
 
-# De-Initialize the FFI.
+/* De-Initialize the FFI. */
 global void exit_ffi (void) {
- #ifdef AMIGAOS
-  # Close all foreign libraries.
+ #if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+  /* Close all foreign libraries. */
   var object alist = O(foreign_libraries);
   while (consp(alist)) {
     var object acons = Car(alist);
     var object obj = Cdr(acons);
     if (fp_validp(TheFpointer(obj))) {
-      var struct Library * libaddr =
-        (struct Library *)(TheFpointer(obj)->fp_pointer);
+      var void * libaddr = (TheFpointer(obj)->fp_pointer);
       begin_system_call();
+     #if defined(AMIGAOS)
       CloseLibrary(libaddr);
+     #elif defined(WIN32_NATIVE)
+      FreeLibrary(libaddr);
+     #else
+      dlclose(libaddr);
+     #endif
       end_system_call();
     }
     alist = Cdr(alist);

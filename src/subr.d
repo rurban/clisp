@@ -1214,13 +1214,12 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
 LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 LISPFUNN(lookup_foreign_function,2)
 LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL)
-#ifdef AMIGAOS
+#if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNN(foreign_library_variable,4)
 LISPFUNN(foreign_library_function,4)
-#endif
-
-#endif
+#endif  /* AMIGAOS || WIN32_NATIVE || HAVE_DLOPEN */
+#endif  /* DYNAMIC_FFI */
 #ifdef HAVE_AFFI
 LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
 LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)

@@ -770,11 +770,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   #undef HAVE_DLOPEN
 #endif
 #ifdef HAVE_DLOPEN
-  #include <dlfcn.h>
-  extern_C void* dlopen (const char * library, int flag);
-  extern_C void* dlsym (void* handle, DLSYM_CONST char * symbol);
-  extern_C int dlclose (void* handle);
-  extern_C DLERROR_CONST char * dlerror (void);
+  #include <dlfcn.h>            /* declares dlopen,dlsym,dlclose,dlerror */
   #define HAVE_DYNLOAD
 #endif
 

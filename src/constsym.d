@@ -1087,12 +1087,12 @@ LISPSYM(foreign_allocate,"FOREIGN-ALLOCATE",ffi)
 LISPSYM(foreign_free,"FOREIGN-FREE",ffi)
 LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi)
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
-#ifdef AMIGAOS
+#if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 LISPSYM(foreign_library,"FOREIGN-LIBRARY",ffi)
 LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi)
 LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi)
-#endif
-#endif
+#endif  /* AMIGAOS || WIN32_NATIVE || HAVE_DLOPEN */
+#endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
 LISPSYM(make_process,"MAKE-PROCESS",mt)
