@@ -2389,11 +2389,21 @@ No finalization request will be executed more than once.
 90.5 The Prompt
 ---------------
 
-The variable *prompt-with-package* controls the appearance of the
-prompt.  When *prompt-with-package* is nil the prompt consists of the
-string "> ". When *prompt-with-package* is not nil the prompt consists
-of a string like: "[package]> ", where "package" is the name of the
-package which is the value of the *package* variable.
+The variable `sys::*prompt*' controls the appearance of the
+prompt.  When its value is a function, it is called and it's value is
+printed with `princ'.  Otherwise, the value itself is printed with
+`princ'.  The default value of `sys::*prompt*' prints "package[nn]> "
+where "package" is the shortest (nick)name of the current package
+`*package*' if it is the same as it was in the beginning or if it
+doesn't contain symbol "T" (it is assumed that in the latter case you
+would want to keep in mind that your current package is something
+weird); and "nn" is the ordinal number of the current prompt (hopefully,
+it will remain finite).  To help you in constructing your own fancy
+prompts, 3 functions are provided: `sys::prompt-index', returning (and
+incrementing!) the current prompt number; `sys::prompt-new-package',
+returning `*package*' or NIL if the current package is the same as it
+was initially; and `sys::package-short-name' taking one argument, a
+package, and returning its shortest name or nickname.
 
 
                   CHAPTER 91: The Debugger and Stepper
