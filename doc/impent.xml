@@ -207,6 +207,7 @@
 <!ENTITY sost-shut "<link linkend='sost-shut'><function>SOCKET:SOCKET-STREAM-SHUTDOWN</function></link>">
 <!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
 <!ENTITY so-connect "<link linkend='so-connect'><function>SOCKET:SOCKET-CONNECT</function></link>">
+<!ENTITY so-opt "<link linkend='so-opt'><function>SOCKET:SOCKET-OPTIONS</function></link>">
 <!ENTITY socket-server "<link linkend='socket'><classname>SOCKET:SOCKET-SERVER</classname></link>">
 <!ENTITY socket-stream "<link linkend='socket'><classname>SOCKET:SOCKET-STREAM</classname></link>">
 <!ENTITY space "<link linkend='space'><function>EXT:SPACE</function></link>">

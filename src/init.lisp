@@ -1838,7 +1838,7 @@
 #+sockets
 (common-lisp:export
  '(socket-server socket-server-close socket-server-port socket-server-host
-   socket-accept socket-wait socket-status socket-connect
+   socket-accept socket-wait socket-status socket-connect socket-options
    socket-stream-host socket-stream-port socket-stream-peer socket-stream-local
    #-win32 socket-stream-handle
    socket-service-port)

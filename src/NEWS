@@ -17,6 +17,12 @@ User visible changes
 * EXT:SPECIAL-VARIABLE-P now accepts a second optional ENVIRONMENT argument.
   See <http://clisp.cons.org/impnotes.html#spe-var-p> for details.
 
+* You can now set socket options using new function SOCKET:SOCKET-OPTIONS.
+  See <http://clisp.cons.org/impnotes.html#so-opt> for details.
+  Suggested by Dave Richards <dave@synergy.org>.
+
+
+
 2.30 (2002-09-15)
 =================
 

@@ -15006,7 +15006,7 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
         }
       }
     } else
-        handle_set(all,&readfds,&writefds,&errorfds);
+      handle_set(all,&readfds,&writefds,&errorfds);
     if (select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr) < 0) {
       if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
       if (!sock_errno_is(EBADF)) { SOCK_error(); }
@@ -15029,6 +15029,121 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
   VALUES1(NIL);
  #endif
   skipSTACK(3);
+}
+
+/* the next three functions handle getsockopt()/setsockopt() calls
+   for boolean, integer and timeval options respectively.
+   both push one result on STACK */
+local void sock_opt_bool (SOCKET handle, int option, object value)
+{
+  var int val;
+  var uint len = sizeof(val);
+  if (-1 == getsockopt(handle,SOL_SOCKET,option,&val,&len)) OS_error();
+  pushSTACK(val ? T : NIL);
+  if (!(eq(value,nullobj))) {
+    val = !nullp(value);
+    if (-1 == setsockopt(handle,SOL_SOCKET,option,&val,len)) OS_error();
+  }
+}
+
+local void sock_opt_int (SOCKET handle, int option, object value)
+{
+  var uintL val;
+  var uint len = sizeof(val);
+  if (-1 == getsockopt(handle,SOL_SOCKET,option,&val,&len)) OS_error();
+  pushSTACK(fixnum(val));
+  if (!(eq(value,nullobj))) {
+    if (!posfixnump(value)) fehler_posfixnum(value);
+    val = posfixnum_to_L(value);
+    if (-1 == setsockopt(handle,SOL_SOCKET,option,&val,len)) OS_error();
+  }
+}
+
+local void sock_opt_time (SOCKET handle, int option, object value)
+{ /* may trigger GC */
+  var struct timeval val;
+  var uint len = sizeof(val);
+  if (-1 == getsockopt(handle,SOL_SOCKET,option,&val,&len)) OS_error();
+  if (val.tv_usec) {
+    double x = val.tv_sec + val.tv_sec*0.000001;
+    dfloatjanus t = *(dfloatjanus*)&x;
+    pushSTACK(c_double_to_DF(&t));
+  } else pushSTACK(fixnum(val.tv_sec));
+  if (!(eq(value,nullobj))) {
+    sec_usec(value,unbound,&val);
+    if (-1 == setsockopt(handle,SOL_SOCKET,option,&val,len)) OS_error();
+  }
+}
+
+
+/* (SOCKET-OPTIONS socket-stream &rest options)
+   queries and setf socket options.
+   returns the old value for each option:
+   (SOCKET-OPTIONS s :so-keepalive :so-rcvlowat 10)
+   will set :so-rcvlowat to 10 and return the current
+   value of :so-keepalive and the old value of :so-rcvlowat */
+LISPFUN(socket_options,1,0,rest,nokey,0,NIL) {
+  var object socket = *(rest_args_pointer STACKop 1);
+  var object *arg_p = rest_args_pointer;
+  var int count = argcount, retval_count = argcount;
+  var SOCKET handle;
+  stream_handles(socket,true,NULL,&handle,NULL);
+  while (count-->0) {
+    var object kwd = NEXT(arg_p);
+    var object arg = Next(arg_p);
+    if (count && !(symbolp(arg) && keywordp(arg))) {
+      NEXT(arg_p);
+      count--; retval_count--;
+    } else arg = nullobj;
+    begin_system_call();
+    if (eq(kwd,S(Kso_keepalive))) {
+      sock_opt_bool(handle,SO_KEEPALIVE,arg);
+    } else if (eq(kwd,S(Kso_error))) {
+      sock_opt_bool(handle,SO_ERROR,arg);
+    } else if (eq(kwd,S(Kso_linger))) {
+      struct linger val;
+      var uint len = sizeof(val);
+      if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,&val,&len)) OS_error();
+      if (val.l_onoff) pushSTACK(fixnum(val.l_linger));
+      else pushSTACK(NIL);
+      if (!(eq(arg,nullobj))) { /* arg points to STACK so it is safe */
+        if (posfixnump(arg)) {
+          val.l_onoff = 1;
+          val.l_linger = posfixnum_to_L(arg);
+        } else if (eq(T,arg)) {
+          val.l_onoff = 1;
+        } else if (nullp(arg)) {
+          val.l_onoff = 0;
+        } else fehler_posfixnum(arg);
+        if (-1 == setsockopt(handle,SOL_SOCKET,SO_LINGER,&val,len)) OS_error();
+      }
+    } else if (eq(kwd,S(Kso_oobinline))) {
+      sock_opt_bool(handle,SO_OOBINLINE,arg);
+    } else if (eq(kwd,S(Kso_type))) {
+      sock_opt_bool(handle,SO_TYPE,arg);
+    } else if (eq(kwd,S(Kso_rcvbuf))) {
+      sock_opt_int(handle,SO_RCVBUF,arg);
+    } else if (eq(kwd,S(Kso_sndbuf))) {
+      sock_opt_int(handle,SO_SNDBUF,arg);
+    } else if (eq(kwd,S(Kso_rcvlowat))) {
+      sock_opt_int(handle,SO_RCVLOWAT,arg);
+    } else if (eq(kwd,S(Kso_sndlowat))) {
+      sock_opt_int(handle,SO_SNDLOWAT,arg);
+    } else if (eq(kwd,S(Kso_rcvtimeo))) {
+      sock_opt_time(handle,SO_RCVTIMEO,arg);
+    } else if (eq(kwd,S(Kso_sndtimeo))) {
+      sock_opt_time(handle,SO_SNDTIMEO,arg);
+    } else {
+      pushSTACK(kwd);                   /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_socket_option)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(O(type_socket_option));
+      pushSTACK(kwd); pushSTACK(S(socket_options));
+      fehler(type_error,GETTEXT("~: argument ~ should be ~."));
+    }
+    end_system_call();
+  }
+  STACK_to_mv(retval_count);
+  skipSTACK(argcount+1);
 }
 
 # (SOCKET-STREAM-PORT socket-stream)
