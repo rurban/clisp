@@ -1,3 +1,8 @@
+1998-06-02  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * compiler.lsp (c-EVAL-WHEN): Treat (NOT :COMPILE-TOPLEVEL),
+          consistently with control.d.
+
 1998-06-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * configure: Always pass --with-included-gettext to gettext/configure.
