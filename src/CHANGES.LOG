@@ -11,6 +11,9 @@ User visible changes
 * X3J13 writeups <READER-ERROR:NEW-TYPE> and <PARSE-ERROR-STREAM:SPLIT-TYPES>
   are implemented: New condition classes PARSE-ERROR and READER-ERROR.
 
+* X3J13 writeup <UNDEFINED-VARIABLES-AND-FUNCTIONS:COMPROMISE> is implemented:
+  New condition class UNBOUND-SLOT. New function UNBOUND-SLOT-INSTANCE.
+
 * X3J13 writeups <COMMON-TYPE:REMOVE> and <COMPILER-LET-CONFUSION:ELIMINATE>
   are implemented: COMMONP and COMPILER-LET are not exported from package
   COMMON-LISP any more.

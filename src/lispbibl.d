@@ -10920,6 +10920,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
             unbound_variable,
             # trying to get the global function definition of an undefined function
             undefined_function,
+            # trying to get the value of an unbound slot
+            unbound_slot,
           # when some datum does not belong to the expected type
           type_error,
             # when some keyword does not belong to one of the allowed keywords
@@ -10928,6 +10930,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
           package_error,
           # attempted violation of *PRINT-READABLY*
           print_not_readable,
+          # errors related to parsing
+          parse_error,
           # errors while doing stream I/O
           stream_error,
             # unexpected end of stream

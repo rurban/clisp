@@ -28,8 +28,8 @@ restart condition warning serious-condition error simple-condition
 simple-warning simple-error storage-condition type-error simple-type-error
 program-error control-error package-error print-not-readable parse-error
 stream-error end-of-file reader-error file-error cell-error unbound-variable
-undefined-function arithmetic-error division-by-zero floating-point-overflow
-floating-point-underflow floating-point-inexact
+undefined-function unbound-slot arithmetic-error division-by-zero
+floating-point-overflow floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
 ;; Klassen:
 class built-in-class standard-class generic-function standard-generic-function
@@ -172,8 +172,8 @@ invoke-restart-interactively abort continue muffle-warning store-value
 use-value invoke-debugger simple-condition-format-string
 simple-condition-format-arguments type-error-datum type-error-expected-type
 package-error-package print-not-readable-object stream-error-stream
-file-error-pathname cell-error-name arithmetic-error-operation
-arithmetic-error-operands
+file-error-pathname cell-error-name unbound-slot-instance
+arithmetic-error-operation arithmetic-error-operands
 ;; Special-forms:
 eval-when quote function setq progn let let* locally progv flet
 labels macrolet symbol-macrolet if block return-from tagbody go

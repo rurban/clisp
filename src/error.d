@@ -175,13 +175,19 @@
              {var uintC argcount = 4;
               # arithmetic-error, division-by-zero, floating-point-overflow, floating-point-underflow
               #   --> ergänze :operation :operands ??
-              # cell-error, uncound-variable, undefined-function
+              # cell-error, uncound-variable, undefined-function, unbound-slot
               #   --> ergänze :name
               if (eq(type,S(simple_cell_error))
                   || eq(type,S(simple_unbound_variable))
                   || eq(type,S(simple_undefined_function))
+                  || eq(type,S(simple_unbound_slot))
                  )
                 { pushSTACK(S(Kname)); pushSTACK(BEFORE(stackptr)); # :name ...
+                  argcount += 2;
+                }
+              # unbound-slot --> ergänze :instance
+              if (eq(type,S(simple_unbound_slot)))
+                { pushSTACK(S(Kinstance)); pushSTACK(BEFORE(stackptr)); # :instance ...
                   argcount += 2;
                 }
               # type-error, keyword-error --> ergänze :datum, :expected-type

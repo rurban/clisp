@@ -647,7 +647,7 @@
       return x;
       badamount:
         pushSTACK(y); pushSTACK(S(ash));
-        fehler(error,
+        fehler(arithmetic_error,
                DEUTSCH ? "~: Zu groﬂe Schiebezahl ~" :
                ENGLISH ? "~: too large shift amount ~" :
                FRANCAIS ? "~ : DÈcalage ~ trop grand." :

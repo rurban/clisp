@@ -841,9 +841,15 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
       }
     fehler_axis:
       pushSTACK(array);
-      pushSTACK(axis_number);
+      pushSTACK(axis_number); # Wert für Slot DATUM von TYPE-ERROR
+      { var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(arrayrank(array));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
+      pushSTACK(STACK_2); # array
+      pushSTACK(STACK_2); # axis_number
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
+      fehler(type_error,
              DEUTSCH ? "~: ~ ist nicht >= 0 und < dem Rang von ~" :
              ENGLISH ? "~: ~ is not an nonnegative integer less than the rank of ~" :
              FRANCAIS ? "~: ~ n'est pas un entier >= 0 et strictement inférieur au rang de ~." :
@@ -1695,8 +1701,10 @@ LISPFUNN(array_has_fill_pointer_p,1) # (ARRAY-HAS-FILL-POINTER-P array), CLTL S.
              );
       # Fehlermeldung:
       fehler_fillp:
+        pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_vector_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
+        fehler(type_error,
                DEUTSCH ? "~: Vektor ~ hat keinen Fill-Pointer." :
                ENGLISH ? "~: vector ~ has no fill pointer" :
                FRANCAIS ? "~: Le vecteur ~ n'a pas de pointeur de remplissage." :
@@ -2943,9 +2951,11 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
        if (!nullp(STACK_2)) # fill-pointer angegeben?
          { # array muß Fill-Pointer haben:
            if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit)))
-             { pushSTACK(STACK_6);
+             { pushSTACK(STACK_6); # Wert für Slot DATUM von TYPE-ERROR
+               pushSTACK(O(type_vector_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+               pushSTACK(STACK_(6+2));
                pushSTACK(TheSubr(subr_self)->name);
-               fehler(error,
+               fehler(type_error,
                       DEUTSCH ? "~: Array ~ hat keinen Fill-Pointer." :
                       ENGLISH ? "~: array ~ has no fill-pointer" :
                       FRANCAIS ? "~: La matrice ~ n'a pas de pointeur de remplissage." :
@@ -3090,7 +3100,14 @@ LISPFUNN(vector_init_start,2)
       { value1 = STACK_0; mv_count=1; skipSTACK(2); } # index als Wert
       else
       { # Stackaufbau: seq, index.
-        fehler(error,
+        pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+        { var object tmp;
+          pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(len));
+          tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        }
+        pushSTACK(STACK_3); # seq
+        pushSTACK(STACK_3); # index
+        fehler(type_error,
                DEUTSCH ? "Unzulässiger START - Index ~ für ~" :
                ENGLISH ? "Illegal START index ~ for ~" :
                FRANCAIS ? "Index START ~ invalide pour ~." :
@@ -3120,7 +3137,14 @@ LISPFUNN(vector_fe_init_end,2)
       }
       else
       { # Stackaufbau: seq, index.
-        fehler(error,
+        pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+        { var object tmp;
+          pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(len));
+          tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        }
+        pushSTACK(STACK_3); # seq
+        pushSTACK(STACK_3); # index
+        fehler(type_error,
                DEUTSCH ? "Unzulässiger END - Index ~ für ~" :
                ENGLISH ? "Illegal END index ~ for ~" :
                FRANCAIS ? "Index END ~ invalide pour ~." :

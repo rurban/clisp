@@ -3,7 +3,7 @@
 # Fehlermeldung bei zu langen Long-FLoats
   nonreturning_function(local, fehler_LF_toolong, (void));
   local void fehler_LF_toolong()
-    { fehler(error,
+    { fehler(arithmetic_error,
              DEUTSCH ? "Zu lange Long-Floats" :
              ENGLISH ? "long float too long" :
              FRANCAIS ? "LONG-FLOAT trop long." :

@@ -1416,7 +1416,7 @@
 # Bignum-Überlauf melden:
   nonreturning_function(local, BN_ueberlauf, (void));
   local void BN_ueberlauf()
-    { fehler(error,
+    { fehler(arithmetic_error,
              DEUTSCH ? "Überlauf von Bignums" :
              ENGLISH ? "bignum overflow" :
              FRANCAIS ? "Dépassage de capacité des entiers BIGNUM" :

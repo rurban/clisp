@@ -211,8 +211,10 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
             list = Cdr(list);
       }   }
     bad_name:
+      pushSTACK(name); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_recognizable_sequence_type)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(name);
-      fehler(error,
+      fehler(type_error,
              DEUTSCH ? "Es gibt keine Sequences vom Typ ~." :
              ENGLISH ? "There are no sequences of type ~" :
              FRANCAIS ? "Il n'existe pas de séquences de type ~." :
