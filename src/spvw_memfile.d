@@ -550,7 +550,8 @@ local var oint offset_heaps_o[heapcount];
 local var bool offset_heaps_all_zero;
 #endif
 #ifdef SPVW_PAGES
-local var struct { aint old_page_start; oint offset_page_o; } *offset_pages;
+typedef struct { aint old_page_start; oint offset_page_o; } offset_pages_t;
+local var offset_pages_t *offset_pages;
 #define addr_mask  ~(((oint_addr_mask>>oint_addr_shift) & ~ (wbitm(oint_addr_relevant_len)-1)) << addr_shift) /* mostly = ~0 */
 #define pagenr_of(addr)  floor(addr,min_page_size_brutto)
 #define offset_pages_len  (pagenr_of((oint)((wbitm(oint_addr_relevant_len)-1)<<addr_shift))+1)
@@ -1123,7 +1124,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       }
       /* initialize offset-per-page-table: */
       begin_system_call();
-      offset_pages = malloc(offset_pages_len*sizeof(*offset_pages));
+      offset_pages = (offset_pages_t *)malloc(offset_pages_len*sizeof(*offset_pages));
       end_system_call();
       if (offset_pages==NULL) goto abort3;
       {

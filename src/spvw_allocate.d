@@ -463,11 +463,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
         { pagevar = make_space_gc(need,&(heap_ptr)->inuse,stack_ptr); } \
       inc_alloccount();                                                 \
     }
-  local Pages make_space_gc (uintL need, Pages* pages_ptr, AVL(AVLID,stack) * stack_ptr);
-  local Pages make_space_gc(need,pages_ptr,stack_ptr)
-    var uintL need;
-    var Pages* pages_ptr;
-    var AVL(AVLID,stack) * stack_ptr;
+  local Pages make_space_gc (uintL need, Pages* pages_ptr, AVL(AVLID,stack) * stack_ptr)
     { # AVL(AVLID,least)(need,pages_ptr,stack_ptr) == EMPTY
       # is already checked,
       # so there is not enough room.
@@ -527,7 +523,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       if ((need <= std_page_size) && !(mem.free_pages == NULL)) {
         # take a normal sized page from the common pool:
         var Pages page = mem.free_pages;
-        mem.free_pages = page->page_gcpriv.next;
+        mem.free_pages = (Pages)page->page_gcpriv.next;
         # page is already correctly initialized:
         # page->page_start = page->page_end = page_start0(page);
         # page->page_room =

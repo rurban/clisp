@@ -429,35 +429,37 @@ local NODE* AVL(AVLID,delete1) (NODE* node_to_delete, NODE* tree) {
       /* key > KEYOF(node->nodedata.value)  --> remove in right subtree: */
       nodeplace = &node->nodedata.right;
   }
-  /* stack_ptr = &stack[stack_count], nodeplace = stack_ptr[-1], */
-  var NODE** nodeplace_to_delete = nodeplace;
-  /* node_to_delete = *nodeplace_to_delete has to be removed. */
-  if (node_to_delete->nodedata.left == EMPTY) {
-    /* node_to_delete is replaced by node_to_delete->nodedata.right. */
-    *nodeplace_to_delete = node_to_delete->nodedata.right;
-    stack_ptr--; stack_count--; /* still no rebalance at *nodeplace_to_delete! */
-  } else {
-    /* node_to_delete is replaced by the element
-       of node_to_delete->nodedata.left that is situated rightmost. */
-    var NODE** * stack_ptr_to_delete = stack_ptr;
-    var NODE** nodeplace = &node_to_delete->nodedata.left;
-    var NODE* node;
-    loop {
-      node = *nodeplace;
-      if (node->nodedata.right == EMPTY)
-        break;
-      *stack_ptr++ = nodeplace; stack_count++;
-      nodeplace = &node->nodedata.right;
+  {
+    /* stack_ptr = &stack[stack_count], nodeplace = stack_ptr[-1], */
+    var NODE** nodeplace_to_delete = nodeplace;
+    /* node_to_delete = *nodeplace_to_delete has to be removed. */
+    if (node_to_delete->nodedata.left == EMPTY) {
+      /* node_to_delete is replaced by node_to_delete->nodedata.right. */
+      *nodeplace_to_delete = node_to_delete->nodedata.right;
+      stack_ptr--; stack_count--; /* still no rebalance at *nodeplace_to_delete! */
+    } else {
+      /* node_to_delete is replaced by the element
+         of node_to_delete->nodedata.left that is situated rightmost. */
+      var NODE** * stack_ptr_to_delete = stack_ptr;
+      var NODE** nodeplace = &node_to_delete->nodedata.left;
+      var NODE* node;
+      loop {
+        node = *nodeplace;
+        if (node->nodedata.right == EMPTY)
+          break;
+        *stack_ptr++ = nodeplace; stack_count++;
+        nodeplace = &node->nodedata.right;
+      }
+      *nodeplace = node->nodedata.left;
+      /* node takes the position of node_to_delete: */
+      node->nodedata.left = node_to_delete->nodedata.left;
+      node->nodedata.right = node_to_delete->nodedata.right;
+      node->nodedata.height = node_to_delete->nodedata.height;
+      *nodeplace_to_delete = node; /* instead of node_to_delete */
+      /* the rebalance-stack (path from the root downwards) does not
+         contain node_to_delete anymore, but node: */
+      *stack_ptr_to_delete = &node->nodedata.left; /* instead of &node_to_delete->nodedata.left */
     }
-    *nodeplace = node->nodedata.left;
-    /* node takes the position of node_to_delete: */
-    node->nodedata.left = node_to_delete->nodedata.left;
-    node->nodedata.right = node_to_delete->nodedata.right;
-    node->nodedata.height = node_to_delete->nodedata.height;
-    *nodeplace_to_delete = node; /* instead of node_to_delete */
-    /* the rebalance-stack (path from the root downwards) does not
-       contain node_to_delete anymore, but node: */
-    *stack_ptr_to_delete = &node->nodedata.left; /* instead of &node_to_delete->nodedata.left */
   }
   AVL(AVLID,rebalance)(stack_ptr,stack_count);
  fertig:

@@ -1599,7 +1599,7 @@ local void gc_unmarkcheck (void) {
       var Pages* pageptr = &mem.free_pages;
       var Pages page = *pageptr;
       until (page==NULL)
-        { var Pages nextpage = page->page_gcpriv.next;
+        { var Pages nextpage = (Pages) page->page_gcpriv.next;
           if (accu_space < needed_space)
             # retain page
             { accu_space += page->page_room;
