@@ -64,7 +64,10 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/uninames.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/vacall_r/vacall-i386-msvc.c ffcall/callback/trampoline_r/config.h.msvc acorn/pathname.txt
+all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/uninames.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/vacall_r/vacall-i386-msvc.c ffcall/callback/trampoline_r/config.h.msvc acorn/pathname.txt htmldoc
+
+htmldoc:
+	cd doc && make impnotes.html &&	cp impnotes.html ../src && cd ..;
 
 makefiles : os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
 
