@@ -236,10 +236,12 @@
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
     (std-find-method gf qualifiers specializers errorp)))
 
+;; MOP p. 33
 (defgeneric add-method (gf method)
   (:method ((gf standard-generic-function) (method standard-method))
     (std-add-method gf method)))
 
+;; MOP p. 91
 (defgeneric remove-method (gf method)
   (:method ((gf standard-generic-function) (method standard-method))
     (std-remove-method gf method)))

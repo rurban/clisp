@@ -40,6 +40,16 @@
   (:method ((specializer specializer))
     (list-direct-generic-functions specializer)))
 
+;; MOP p. 31
+(defgeneric add-direct-method (specializer method)
+  (:method ((specializer specializer) (method method))
+    (add-direct-method-internal specializer method)))
+
+;; MOP p. 89
+(defgeneric remove-direct-method (specializer method)
+  (:method ((specializer specializer) (method method))
+    (remove-direct-method-internal specializer method)))
+
 ;; MOP p. 103
 (defgeneric specializer-direct-methods (specializer)
   (:method ((specializer specializer))
