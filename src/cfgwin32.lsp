@@ -89,3 +89,4 @@ in ~/.clisprc.  On win32 you can also use the Registry."
         (check-type s (or null string))
         s)
       *clhs-root-default*))
+(setq *clhs-root-default* "http://www.harlequin.com/education/books/HyperSpec")
