@@ -62,6 +62,10 @@
 
 	* charstrg.d (char_name): fix the binary search to always terminate
 
+2001-08-13  Stefan Kain  <stefan.kain@freenet.de>
+
+	* eval.d: translated all comments
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* constsym.d (S(re_export)): Renamed from S(reexport).
@@ -747,6 +751,10 @@
 	(socket-status): go through `listen_char()' for
 	character streams only
 	Reported by Lennart Staflin.
+
+2001-06-12  Stefan Kain  <stefan.kain@freenet.de>
+
+	* io.d: translated all comments
 
 2001-06-11  Sam Steingold  <sds@gnu.org>
 
