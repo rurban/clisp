@@ -182,6 +182,14 @@
   (setf (sys::%record-ref class *<slotted-class>-subclass-of-stablehash-p-location*) new-value))
 
 ;; Not in MOP.
+(defun class-generic-accessors (class)
+  (assert (typep class 'slotted-class))
+  (sys::%record-ref class *<slotted-class>-generic-accessors-location*))
+(defun (setf class-generic-accessors) (new-value class)
+  (assert (typep class 'slotted-class))
+  (setf (sys::%record-ref class *<slotted-class>-generic-accessors-location*) new-value))
+
+;; Not in MOP.
 (defun class-direct-accessors (class)
   (assert (typep class 'slotted-class))
   (sys::%record-ref class *<slotted-class>-direct-accessors-location*))
