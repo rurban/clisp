@@ -1,4 +1,4 @@
-.TH "CLISP SOURCE" 1 "17 July 1999"
+.TH "CLISP SOURCE" 1 "2002-08-28"
 
 
 .SH ABOUT
@@ -21,7 +21,7 @@ The source files for lisp code.
 
 .TP
 .B *.fas
-Compiled lisp code. Now platform-independent.
+Compiled lisp code (platform-independent).
 
 
 .SH FILES
@@ -73,6 +73,12 @@ include file for Win32 based versions
 .TP 15
 .B xthread.d
 include file for thread support
+.TP 15
+.B posixmath.d
+POSIX math functions
+.TP
+.B posixmisc.d
+misc POSIX (system information etc)
 .TP 15
 .B modules.h
 list of foreign modules
@@ -126,7 +132,7 @@ Pathnames, file- and directory-related functions.
 Streams of all kinds: file streams, terminal stream, string streams etc.
 .TP 15
 .B socket.d
-Opening sockets for CLX.
+Opening sockets for TCP/IP and CLX.
 .TP 15
 .B io.d
 The lisp reader (parser) and printer (also pretty printer).
@@ -495,11 +501,17 @@ the screen access package
 .B rexx1.lisp
 for Amiga, an interface to Rexx
 .TP
-.B editor.lisp
+.B edit.lisp
 (optional) the screen editor
 .TP
-.B spanish.lisp
-spanish user messages
+.B posix.lisp
+export POSIX calls
+.TP
+.B threads.lisp
+MT interface
+.TP
+.BR spanish.lisp ", " german.lisp ", " french.lisp ", " russian.lisp ", " dutch.lisp
+i18n user messages
 .RE
 
 .TP
@@ -513,12 +525,6 @@ lists the source files
 .B FILES.1
 nroff master for
 .I FILES
-.TP
-.B bytecode.html
-documents the bytecode instruction set
-.TP
-.B CHANGES.LOG
-lists the changes to the source
 .TP
 .B NEWS
 lists the user visible changes
@@ -536,8 +542,8 @@ master for the distribution's manual page
 .B _clisp.html
 master for the distribution's manual page in HTML format
 .TP
-.B _impnotes.html
-master for the distribution's implementation notes
+.B impnotes.html
+the implementation notes
 .TP
 .RE
 
@@ -546,16 +552,13 @@ Internationalization:
 
 .RS 4
 .TP
-.B gettext/intl/*
-internationalization library, taken from GNU gettext-0.10.35
-.TP
-.B gettext/po/*.pot
+.B po/*.pot
 list of translatable messages ("portable object template")
 .TP
-.B gettext/po/*.po
+.B po/*.po
 translated messages ("portable objects")
 .TP
-.B gettext/po/*.gmo
+.B po/*.gmo
 translated messages ("GNU format message objects")
 .RE
 
@@ -567,21 +570,9 @@ Automatic configuration on Unix:
 .B configure.in
 lists the features to be checked
 .TP
-.B autoconf/autoconf
-the main program of GNU autoconf-2.13
-.TP
 .B autoconf/autoconf.m4
 .IR autoconf "'s"
 driver macros.
-Part of GNU autoconf-2.13
-.TP
-.B autoconf/acgeneral.m4
-.IR autoconf "'s"
-general feature testing macros.
-Part of GNU autoconf-2.13
-.TP
-.B autoconf/acspecific.m4
-macros that test for some standard features.
 Part of GNU autoconf-2.13
 .TP
 .B autoconf/aclocal.m4
