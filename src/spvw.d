@@ -931,6 +931,7 @@ local void init_symbol_tab_1 (void) {
      #endif
       ptr->symvalue = unbound;
       ptr->symfunction = unbound;
+      ptr->hashcode = unbound;
       ptr->proplist = NIL;
       ptr->pname = NIL;
       ptr->homepackage = NIL;

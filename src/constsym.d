@@ -20,16 +20,16 @@
 /* expander for the initialization of the symbol table: */
 #ifdef TYPECODES
   #define LISPSYM_B(name,printname,package)  \
-    { {S(name)}, unbound, unbound, NIL, NIL, NIL, },
+    { {S(name)}, unbound, unbound, unbound, NIL, NIL, NIL, },
 #else
-  #ifdef LINUX_NOEXEC_HEAPCODES
+  #if defined(LINUX_NOEXEC_HEAPCODES) && 0
     #define LISPSYM_B(name,printname,package)  \
       { S(name), xrecord_tfl(Rectype_Symbol,0,5,0), \
-        unbound, unbound, NIL, NIL, NIL, unbound, },
+        unbound, unbound, unbound, NIL, NIL, NIL, unbound, },
   #else
     #define LISPSYM_B(name,printname,package)  \
       { S(name), xrecord_tfl(Rectype_Symbol,0,5,0), \
-        unbound, unbound, NIL, NIL, NIL, },
+        unbound, unbound, unbound, NIL, NIL, NIL, },
   #endif
 #endif
 #define LISPSYM_C(name,printname,package)  printname,

@@ -4209,12 +4209,13 @@ typedef struct {
   VAROBJECT_HEADER
   gcv_object_t symvalue    _attribute_aligned_object_; # value cell
   gcv_object_t symfunction _attribute_aligned_object_; # function definition cell
+  gcv_object_t hashcode    _attribute_aligned_object_; # hash code
   gcv_object_t proplist    _attribute_aligned_object_; # property list
   gcv_object_t pname       _attribute_aligned_object_; # Printname
   gcv_object_t homepackage _attribute_aligned_object_; # Home-Package or NIL
   # If necessary, add fillers here to ensure sizeof(subr_t) is a multiple of
   # varobject_alignment.
-  #ifdef LINUX_NOEXEC_HEAPCODES
+  #if defined(LINUX_NOEXEC_HEAPCODES) && 0
   gcv_object_t filler      _attribute_aligned_object_;
   #endif
 } symbol_;
