@@ -1,4 +1,4 @@
-# autoconf/aclocal.m4 generated automatically by aclocal 1.6.2 -*- Autoconf -*-
+# autoconf/aclocal.m4 generated automatically by aclocal 1.6.1 -*- Autoconf -*-
 
 # Copyright 1996, 1997, 1998, 1999, 2000, 2001, 2002
 # Free Software Foundation, Inc.
@@ -6946,15 +6946,6 @@ AC_REQUIRE([CL_TERMCAP])dnl
 if test $ac_cv_search_tgetent != no ; then
   AC_LIB_LINKFLAGS_BODY(readline)
   AC_CHECK_HEADERS(readline/readline.h)
-  AC_MSG_CHECKING([for rl_already_prompted])
-  AC_TRY_COMPILE([
-#include <stdio.h>
-#include <readline/readline.h>
-  ],[rl_already_prompted = 1;],
-  ac_cv_header_readline_readline_h=yes
-  AC_MSG_RESULT([yes]),
-  ac_cv_header_readline_readline_h=no
-  AC_MSG_RESULT([no; readline is too old and will not be used]))
   if test $ac_cv_header_readline_readline_h = yes ; then
     AC_SEARCH_LIBS(readline, readline)
     # newer versions of readline prepend "rl_"
@@ -6969,8 +6960,16 @@ if test $ac_cv_search_tgetent != no ; then
       ],[char* ${RL_FCF} (char *, int);], [char* ${RL_FCF}();],
       cl_cv_proto_readline_const) ],
       [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
-      AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF})
-      AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const)
+    AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF})
+    AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const)
+    AC_MSG_CHECKING([for rl_already_prompted])
+    AC_TRY_COMPILE([
+#include <stdio.h>
+#include <readline/readline.h>
+    ],[rl_already_prompted = 1;],
+    AC_MSG_RESULT([yes])
+    AC_DEFINE(HAVE_READLINE),
+    AC_MSG_RESULT([no; readline is too old and will not be used]))
   fi
 fi
 ])
