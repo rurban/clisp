@@ -40,8 +40,8 @@ options: The following options are recognized:
                  FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
                            C_THREADS WIN32_THREADS
          --with-module=MODULE  build with add-on MODULE
-                               this requires dynamic FFI and will turn it on
-                               if the FFI checks pass
+                               some modules require dynamic FFI,
+                               so it will be turned on if the FFI checks pass
          --hyperspec=URL       the path to the Common Lisp HyperSpec
            (the default is http://www.lisp.org/HyperSpec/
             or the value of the environment variable CLHSROOT, if set).
