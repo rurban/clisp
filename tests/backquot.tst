@@ -115,6 +115,10 @@ X
 `(2 3 . #(,(+ 2 2) ,@(list 5)))
 (2 3 . #(4 5))
 
+;; Must preserve the element type of a given vector.
+(array-element-type `#A((unsigned-byte 8) (3) (1 2 3)))
+(unsigned-byte 8)
+
 (let ((o 1))
   (declare (special o))
   (eval (let ((a 2) (b 3))
