@@ -786,3 +786,13 @@
 <!ENTITY sig-err "&signal;s an &error-t;">
 
 <!ENTITY clisp-only "<title>Implementation dependent: only in &clisp;.</title>">
+<!ENTITY win32-only "<emphasis>Platform dependent: &win32; platform
+                     only.</emphasis>">
+<!ENTITY unix-only "<emphasis>Platform dependent: &unix; platform
+                    only.</emphasis>">
+<!ENTITY unix-w32-only "<emphasis>Platform dependent: &unix;, &win32;
+                        platforms only.</emphasis>">
+<!ENTITY unicode-only "<emphasis>Platform dependent: Only in &clisp; built
+                       &with; compile-time flag &unicode;</emphasis>">
+<!ENTITY non-unicode-only "<emphasis>Platform dependent: Only in &clisp; built
+                           &without; compile-time flag &unicode;</emphasis>">

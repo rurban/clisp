@@ -1603,8 +1603,7 @@ performance considerations.
 
 <!-- #ifdef UNICODE -->
 <variablelist>
-<varlistentry><term>Platform dependent: only in &clisp; built
-  &with; the compile-time flag &unicode;.</term>
+<varlistentry><term>&unicode-only;</term>
 <listitem><simpara>More precisely, &clisp; uses the 21-bit &unicode; 3.2
  character set (ISO 10646, also known as UCS-4).
 </simpara></listitem></varlistentry></variablelist>
@@ -1868,8 +1867,7 @@ performance considerations.
 
 <!-- #ifdef KEYBOARD -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &win32;
-   platforms only.</term>
+<varlistentry><term>&unix-w32-only;</term>
 <listitem><simpara>The system itself uses this &input-char; type only to
  mention special keys and &ctrl;/&alt;/&shift; key status on return from
  <code>(&read-char; &kbd-in;)</code>.</simpara></listitem></varlistentry>
@@ -1943,7 +1941,7 @@ performance considerations.
 
 <!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &win32; platforms only.</term>
+<varlistentry><term>&win32-only;</term>
 <listitem><simpara>When writing to a file, &nl-s; is converted to
  &cr-c;/&lf-c;. (This is the usual convention on &dos;.)
  For example, &cr-s;+&nl-s; is written as &cr-c;/&cr-c;/&lf-c;.
@@ -2566,7 +2564,7 @@ checks whether the &hash-table-t; is weak.</para>
 
 <variablelist>
 <!-- #if defined(PATHNAME_UNIX) -->
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
 <listitem><simpara>For example, <filename>#P"foo/bar"</filename> denotes
  the file &bar-f; in the directory &foo-f;,
  while <filename>#P"foo/bar/"</filename> denotes the subdirectory
@@ -2575,7 +2573,7 @@ checks whether the &hash-table-t; is weak.</para>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_WIN32 -->
-<varlistentry><term>Platform dependent: &win32;  platforms only.</term>
+<varlistentry><term>&win32-only;</term>
 <listitem><simpara>For example, <filename>#P"foo\\bar"</filename>
  denotes the file &bar-f; in the directory &foo-f;,
  while <filename>#P"foo\\bar\\"</filename> denotes the subdirectory
@@ -2658,7 +2656,7 @@ checks whether the &hash-table-t; is weak.</para>
 
 <!-- #ifdef PATHNAME_UNIX -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
 <varlistentry><term>&device-r;</term>&always-nil;</varlistentry>
@@ -2692,7 +2690,7 @@ checks whether the &hash-table-t; is weak.</para>
 
 <!-- #if defined(PATHNAME_WIN32) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &win32; platforms only.</term>
+<varlistentry><term>&win32-only;</term>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>
  <listitem><simpara>&nil; or &simple-string-t;, wildcard characters may
@@ -2740,8 +2738,7 @@ checks whether the &hash-table-t; is weak.</para>
 
 <!-- #ifdef PATHNAME_NOEXT -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &win32;
-    platforms only.</term>
+<varlistentry><term>&unix-w32-only;</term>
 <listitem><simpara>The wildcard characters: &file-star; matches any
  sequence of characters, &file-ques; matches any one character.
  </simpara></listitem></varlistentry>
@@ -2751,8 +2748,7 @@ checks whether the &hash-table-t; is weak.</para>
 <!-- #ifdef PATHNAME_NOEXT -->
 <formalpara id="name-type-split"><title>Name/type namestring split.</title>
 <para><variablelist>
-<varlistentry><term>Platform dependent:  &unix;, &win32;
-   platforms only.</term>
+<varlistentry><term>&unix-w32-only;</term>
 <listitem><para>A filename is split into name and type according to the
  following rule: <itemizedlist>
   <listitem><simpara>if there is no &file-dot; in the filename, then the
@@ -2803,7 +2799,7 @@ checks whether the &hash-table-t; is weak.</para>
 
 <variablelist>
 <!-- #ifdef PATHNAME_UNIX -->
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
 <listitem><informaltable id="unix-path-external-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ &file-slash; ]</entry>
@@ -2820,7 +2816,7 @@ checks whether the &hash-table-t; is weak.</para>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_WIN32 -->
-<varlistentry><term>Platform dependent: &win32; platforms only.</term>
+<varlistentry><term>&win32-only;</term>
 <listitem><informaltable id="win32-path-external-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ [<replaceable>drivespec</replaceable>] : ]</entry>
@@ -3077,7 +3073,7 @@ use <code>(&nconc; (&directory; "**/") (&directory; "**/*"))</code>.
 
 <!-- #ifdef UNIX -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
 <listitem><simpara>If the <constant>:CIRCLE</constant> argument is
  non-&nil;, the function avoids endless loops that may result from
  symbolic links.</simpara></listitem></varlistentry>
@@ -3117,11 +3113,11 @@ pointing to non-existent files and can take the following values:
 <para><code>(&cd; &path-r;)</code> sets it, <code>(&cd;)</code> returns it.
 <variablelist>
 <!-- #if defined(PATHNAME_UNIX) -->
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
  <listitem><simpara><code>(&cd; [&path-r;])</code>
    manages the current directory.</simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent: &win32; platforms only.</term>
+<varlistentry><term>&win32-only;</term>
  <listitem><simpara><code>(&cd; [&path-r;])</code>
    manages the current device and the current directory.
    </simpara></listitem></varlistentry>
@@ -3186,7 +3182,7 @@ pointing to non-existent files and can take the following values:
 
 <!-- #if defined(KEYBOARD) -->
 <variablelist><title>Macro &with-kbd;</title>
-<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
+<varlistentry><term>&unix-w32-only;</term>
 <listitem><para>&terminal-io-var; is not the only stream that
  communicates directly with the user: During execution of the body of a
  <code>(&with-kbd; . &body-r;)</code> form,
@@ -3197,8 +3193,7 @@ pointing to non-existent files and can take the following values:
 <variablelist>
 <!-- #ifdef WIN32 -->
  <varlistentry><term><constant>:hyper</constant></term>
-  <listitem><simpara><emphasis>(Platform dependent:
-   &win32; platforms only.)</emphasis>
+  <listitem><simpara>(&win32-only;)
    if a non-standard key.  These keys are:
 <!-- #ifdef WIN32 -->
    <emphasis>[&win32;]:</emphasis>
@@ -3210,8 +3205,7 @@ pointing to non-existent files and can take the following values:
     <listitem><para>the key name, for non-standard keys:
       <variablelist>
 <!-- #if defined(UNIX) || defined(WIN32) -->
-      <varlistentry><term>Platform dependent: &unix;, &win32;
-         platforms only.</term>
+      <varlistentry><term>&unix-w32-only;</term>
       <listitem><informaltable id="unix-kbd-keys" frame="all">
        <tgroup cols="2" colsep="1" rowsep="1" align="center">
        &key-value-header;<tbody>
@@ -3245,19 +3239,17 @@ pointing to non-existent files and can take the following values:
 
 <!-- #ifdef WIN32 -->
   <varlistentry><term><constant>:super</constant></term>
-   <listitem><simpara><emphasis>(Platform dependent:
-     &win32; platforms only.)</emphasis>
-  if pressed together with &shift; key(s) and if the keystroke would
-  have been an other without &shift;.</simpara></listitem></varlistentry>
+   <listitem><simpara>(&win32-only;) if pressed together with &shift;
+     key(s) and if the keystroke would have been an other without
+     &shift;.</simpara></listitem></varlistentry>
 <!-- #endif -->
   <varlistentry><term><constant>:control</constant></term>
    <listitem><simpara>if pressed together with the &ctrl; key.
    </simpara></listitem></varlistentry>
 <!-- #ifdef WIN32 -->
   <varlistentry><term><constant>:meta</constant></term>
-  <listitem><simpara><emphasis>(Platform dependent: &win32;
-    platforms only.)</emphasis> if pressed together with the &alt; key.
-  </simpara></listitem></varlistentry>
+  <listitem><simpara>(&win32-only;) if pressed together with the &alt;
+    key.</simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
  This keyboard input is not echoed on the screen.  During execution of a
@@ -3547,7 +3539,7 @@ functions are provided:
 
 <!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY!= 0)) -->
 <variablelist>
- <varlistentry><term>Platform dependent: &win32; platforms only.</term>
+ <varlistentry><term>&win32-only;</term>
 <listitem><simpara>When a &nl-s; is output to (respectively input from)
   a file stream, its file position is increased by 2 since &nl-s; is
   encoded as &cr-c;/&lf-c; in the file.
@@ -3923,7 +3915,7 @@ warning, you need to fix the source code of the incriminated method.</para>
  has no influence on the way floating point numbers are printed.</para>
 
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
+<varlistentry><term>&unix-w32-only;</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes screen output prettier.
  </simpara></listitem></varlistentry>
@@ -3979,22 +3971,17 @@ warning, you need to fix the source code of the incriminated method.</para>
   <entry>macro expander (defined by &defmacro; and friends)</entry></row>
  <!-- #ifdef FOREIGN -->
  <row><entry><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></entry>
-  <entry>foreign pointer <emphasis>(Platform dependent: &unix;,
-    &win32; platforms only.)</emphasis>
- </entry></row>
+  <entry>foreign pointer (&unix-w32-only;)</entry></row>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
  <row><entry><literal>#&lt;&foreign-address-t; #x...&gt;</literal></entry>
-  <entry>foreign address <emphasis>(Platform dependent: &unix;,
-    &win32; platforms only.)</emphasis></entry></row>
+  <entry>foreign address (&unix-w32-only;)</entry></row>
  <row><entry><literal>#&lt;&foreign-variable-t;
     &name-r; #x...&gt;</literal></entry>
-  <entry>foreign variable <emphasis>(Platform dependent: &unix;,
-    &win32; platforms only.)</emphasis></entry></row>
+  <entry>foreign variable (&unix-w32-only;)</entry></row>
  <row><entry><literal>#&lt;&foreign-function-t;
     &name-r; #x...&gt;</literal></entry>
-  <entry>foreign function <emphasis>(Platform dependent: &unix;,
-    &win32; platforms only.)</emphasis></entry></row>
+  <entry>foreign function (&unix-w32-only;)</entry></row>
 <!-- #endif -->
  <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
   <entry><quote>value</quote> of an unbound symbol, an unsupplied
@@ -4035,7 +4022,7 @@ warning, you need to fix the source code of the incriminated method.</para>
    "test.lisp")</code></simpara>
 <variablelist>
 <!-- #if defined(WIN32) -->
-<varlistentry><term>Platform dependent: &win32; platforms only.</term>
+<varlistentry><term>&win32-only;</term>
 <listitem><simpara>As in all strings, backslashes must be written twice
   here: <filename>#"A:\\programs\\test.lisp"</filename>
   </simpara></listitem></varlistentry>
@@ -4618,7 +4605,7 @@ E.g.,
 <section id="disassemble"><title>Function &disassemble;</title>
 
 <variablelist>
-<varlistentry><term>Platform dependent: &unix; platforms only.</term>
+<varlistentry><term>&unix-only;</term>
  <listitem><simpara>&disassemble; can disassemble to machine code,
    provided that &gnu; &gdb; is present.
    In that case the argument may be a
@@ -4840,13 +4827,13 @@ exhaust the available line length.</para></formalpara>
 <section id="machine"><title>Machine</title>
 <variablelist>
 <!-- #ifdef MACHINE_KNOWN -->
-<varlistentry><term>Platform dependent: &unix; platform only.</term>
+<varlistentry><term>&unix-only;</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
    should be defined in a site-specific &config-file; file.
    The default implementations try to read the value of the &env-var;
    <envar>ORGANIZATION</envar>, and, failing that, call &uname;.
 </simpara></listitem></varlistentry>
-<varlistentry><term>Platform dependent: &win32; platform only.</term>
+<varlistentry><term>&win32-only;</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
    should be defined in a site-specific &config-file; file.
    The default implementations try to read the registry.
