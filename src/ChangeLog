@@ -1,3 +1,10 @@
+2001-03-17  Sam Steingold  <sds@gnu.org>
+
+	load-inside-load bug fix
+	* pathname.d (parse_logical_word, parse_logical_host_prefix,
+	legal_logical_word, legal_name, legal_type, wildcard_match,
+	wildcard_diff): make sure that the `simple-string' is normal.
+
 2001-03-16  Sam Steingold  <sds@gnu.org>
 
 	`compile-file-pathname' bug fix
