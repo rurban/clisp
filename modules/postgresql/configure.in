@@ -1,0 +1,33 @@
+dnl AUTOCONF configuration for postgresql
+dnl Copyright (C) 2003  Sam Steingold <sds@gnu.org>
+dnl GNU GPL2
+
+AC_PREREQ(2.57)
+AC_INIT(postgresql, 1.0, clisp-list)
+AC_CONFIG_SRCDIR(postgresql.lisp)
+AC_CONFIG_HEADERS(config.h)
+
+AC_MSG_NOTICE([* PostgreSQL (Tools)])
+AC_PROG_CC
+AC_PROG_CPP
+
+AC_MSG_NOTICE([* PostgreSQL (Headers)])
+AC_HEADER_STDC
+AC_HEADER_TIME
+AC_CHECK_HEADERS(crypt.h postgres_ext.h)
+if test "$ac_cv_header_postgres_ext_h" != "yes"; then
+  AC_MSG_ERROR([cannot find PostgreSQL headers])
+fi
+
+AC_MSG_NOTICE([* PostgreSQL (Functions)])
+AC_SEARCH_LIBS(encrypt, crypt)
+AC_SEARCH_LIBS(PQconnectdb, pq)
+if test "$ac_cv_search_PQconnectdb" = "no"; then
+  AC_MSG_ERROR([cannot find PostgreSQL library])
+fi
+
+AC_MSG_NOTICE([* PostgreSQL (output)])
+AC_CONFIG_FILES(Makefile link.sh)
+AC_OUTPUT
+
+AC_MSG_NOTICE([* PostgreSQL (done)])
