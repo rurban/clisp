@@ -1,5 +1,12 @@
 1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d (SYS::ENCODINGP): New function.
+        * type.lsp: Implement typep for type ENCODING.
+          (subtypep): Treat ENCODING as an elementary type.
+        * compiler.lsp (c-typep-alist1): Implement typep for type ENCODING.
+
+1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_genera2.d (gc_mark_old_generation): Add braces, to avoid egcs
           warning.
         * spvw_genera3.d (update_old_generation): Likewise.

@@ -118,6 +118,7 @@
 (%put 'COMPLEX 'TYPE-SYMBOL #'complexp)
 (%put 'CONS 'TYPE-SYMBOL #'consp)
 (%put 'DOUBLE-FLOAT 'TYPE-SYMBOL #'double-float-p)
+(%put 'ENCODING 'TYPE-SYMBOL #'encodingp)
 (%put 'EXTENDED-CHAR 'TYPE-SYMBOL
   (function type-symbol-extended-char
     #+BASE-CHAR=CHARACTER
@@ -944,7 +945,7 @@
                  ) ) )
                  (if (and caremptyknown cdremptyknown) (no) (unknown))
       )) ) ) ) )
-      ((CHARACTER FUNCTION HASH-TABLE PACKAGE PATHNAME RANDOM-STATE
+      ((CHARACTER ENCODING FUNCTION HASH-TABLE PACKAGE PATHNAME RANDOM-STATE
         READTABLE STREAM SYMBOL)
        (no)
       )
