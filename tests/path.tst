@@ -521,7 +521,15 @@ t
        '((";**;*.*.*"  "/usr/share/common-lisp/systems/**/*.*")
          ("**;*.*.*"  "/usr/share/common-lisp/systems/**/*.*")
          (";*.*.*"  "/usr/share/common-lisp/systems/*.*")
-         ("*.*.*"  "/usr/share/common-lisp/systems/*.*")))
+         ("*.*.*"  "/usr/share/common-lisp/systems/*.*"))
+       (logical-pathname-translations "TEST-SIMPLE")
+       '(("*.*.*" "/usr/local/tmp/*.*.*")
+         ("*.*" "/usr/local/tmp/*.*"))
+       (logical-pathname-translations "TEST-SUBDIR")
+       '(("**;*.*" "/usr/local/share/**/*.*")
+         ("**;*.*.*" "/usr/local/share/**/*.*.*")
+         (";**;*.*" "/usr/local/share/r/**/*.*")
+         (";**;*.*.*" "/usr/local/share/r/**/*.*.*")))
  nil)
 nil
 
@@ -591,6 +599,18 @@ FIXME
                     :name "CLOCC" :type "FAS" :version :newest)
 #-CLISP
 FIXME
+
+;; Relative
+(my-check (translate-logical-pathname
+           (merge-pathnames (logical-pathname "TEST-SUBDIR:;FOO;BAR;")
+                            (logical-pathname "TEST-SIMPLE:ZOT.LISP")))
+          #p"/usr/local/share/r/foo/bar/zot.lisp")
+
+;; Absolute
+(my-check (translate-logical-pathname
+           (merge-pathnames (logical-pathname "TEST-SUBDIR:FOO;BAR;")
+                            (logical-pathname "TEST-SIMPLE:ZOT.LISP")))
+          #p"/usr/local/share/foo/bar/zot.lisp")
 
 (make-pathname :defaults "a.b" :name "c" :type nil)
 #p"c"
