@@ -1,3 +1,7 @@
+2001-05-09  Sam Steingold  <sds@gnu.org>
+
+	* symbols.tst: CLISP now implements compiler macros
+
 2001-05-04  Sam Steingold  <sds@gnu.org>
 
 	* strings.tst, array.tst: ELT should check FILL-POINTER and

@@ -240,8 +240,8 @@
        (known-missing
         #+CLISP
         '(*print-miser-width* *print-pprint-dispatch* *print-lines*
-          change-class compiler-macro compiler-macro-function call-method
-          define-compiler-macro define-method-combination copy-pprint-dispatch
+          call-method change-class copy-pprint-dispatch
+          define-method-combination
           ensure-generic-function invalid-method-error method-combination
           method-combination-error make-instances-obsolete make-method
           make-load-form make-load-form-saving-slots
