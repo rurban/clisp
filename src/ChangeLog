@@ -1,3 +1,8 @@
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (process-declarations): Add syntax check for most other
+	declaration types.
+
 2005-02-13  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (error_unless_invalid) [WIN32_NATIVE]: new function:

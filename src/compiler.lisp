@@ -1371,17 +1371,6 @@ for-value   NIL or T
 
 ;; top-level optimization settings
 (defconstant *optimize* #.(make-hash-table :test 'stablehash-eq))
-;; return 2 values: the quality and the value
-;; or issue a warning and return NIL
-(defun parse-optimize-quality (spec)
-  (typecase spec
-    ((cons #1=(member COMPILATION-SPEED DEBUG SAFETY SPACE SPEED)
-           (cons (integer 0 3) null))
-     (values (first spec) (second spec)))
-    (#1# (values spec 3))
-    ;; WARN is defined in CONDITION so we cannot use #'WARN here
-    (t (funcall (if (boundp '*warning-count*) #'c-warn 'warn)
-                (TEXT "Invalid ~S declaration ~S") 'optimize spec))))
 
 ;; (declared-optimize quality) returns the optimization level for the given
 ;; quality, as an integer between 0 and 3 (inclusive).
@@ -1409,7 +1398,8 @@ for-value   NIL or T
       (return-from declared-optimize (gethash quality *optimize* 1)))
     (let ((declspec (car denv)))
       (when (eq (car declspec) 'OPTIMIZE)
-        ;; PARSE-OPTIMIZE-QUALITY in PROCESS-DECLARATIONS enable ASSOC here
+        ;; We can use ASSOC here, because PROCESS-DECLARATIONS has
+        ;; canonicalized the syntax to (quality value).
         (let ((spec (assoc quality (cdr declspec) :test #'eq)))
           (when spec
             (return-from declared-optimize (second spec))))))
@@ -1464,15 +1454,99 @@ for-value   NIL or T
                    (push x readonlys)
                    (c-warn (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
                            x))))
-              ((OPTIMIZE)       ; record only correct declaration
-               (let ((specs
-                      (delete nil (mapcar (lambda (spec)
-                                            (multiple-value-list
-                                             (parse-optimize-quality spec)))
-                                          (cdr declspec)))))
-                 (when specs
-                   (push (cons 'OPTIMIZE specs) other))))
               (t
+               ;; Syntax check.
+               (case declspectype
+                 (TYPE
+                  (setq declspec
+                        (list* declspectype (second declspec)
+                               (mapcan #'(lambda (x)
+                                           (if (symbolp x)
+                                             (list x)
+                                             (progn
+                                               (c-warn (TEXT "Non-symbol ~S may not be subject to a TYPE declaration.")
+                                                       x)
+                                               '())))
+                                       (cddr declspec)))))
+                 (FTYPE
+                  (setq declspec
+                        (list* declspectype (second declspec)
+                               (mapcan #'(lambda (x)
+                                           (if (function-name-p x)
+                                             (list x)
+                                             (progn
+                                               (c-warn (TEXT "~S is not a function name and therefore may not be subject to a FTYPE declaration.")
+                                                       x)
+                                               '())))
+                                       (cddr declspec)))))
+                 ((INLINE NOTINLINE)
+                  (setq declspec
+                        (cons declspectype
+                              (mapcan #'(lambda (x)
+                                          (if (function-name-p x)
+                                            (list x)
+                                            (progn
+                                              (c-warn (TEXT "~S is not a function name and therefore may not be declared ~S.")
+                                                      x declspectype)
+                                              '())))
+                                      (cdr declspec)))))
+                 (OPTIMIZE
+                  (setq declspec
+                        (cons declspectype
+                              (mapcan #'(lambda (x)
+                                          (if (or (symbolp x)
+                                                  (and (consp x) (symbolp (car x))
+                                                       (consp (cdr x)) (realp (cadr x))
+                                                       (null (cddr x))))
+                                            (let ((quality (if (consp x) (car x) x)))
+                                              (if (memq quality '(COMPILATION-SPEED DEBUG SAFETY SPACE SPEED))
+                                                (if (or (atom x) (typep (cadr x) '(INTEGER 0 3)))
+                                                  ; Canonicalize, for easier search by quality.
+                                                  (list (if (atom x) `(,x 3) x))
+                                                  (progn
+                                                    (c-warn (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
+                                                            quality (cadr x))
+                                                    '()))
+                                                (progn
+                                                  (c-warn (TEXT "~S is not a valid OPTIMIZE quality.")
+                                                          quality)
+                                                  '())))
+                                            (progn
+                                              (c-warn (TEXT "Not a valid OPTIMIZE specifier: ~S")
+                                                      x)
+                                              '())))
+                                      (cdr declspec)))))
+                 (DYNAMIC-EXTENT
+                  (setq declspec
+                        (cons declspectype
+                              (mapcan #'(lambda (x)
+                                          (if (or (symbolp x)
+                                                  (and (consp x) (eq (car x) 'FUNCTION)
+                                                       (consp (cdr x))
+                                                       (function-name-p (cadr x))
+                                                       (null (cddr x))))
+                                            (list x)
+                                            (progn
+                                              (c-warn (TEXT "Not a valid DYNAMIC-EXTENT specifier: ~S")
+                                                      x)
+                                              '())))
+                                      (cdr declspec)))))
+                 (DECLARATION
+                  (setq declspec
+                        (list* declspectype (second declspec)
+                               (mapcan #'(lambda (x)
+                                           (if (symbolp x)
+                                             (list x)
+                                             (progn
+                                               (c-warn (TEXT "Non-symbol ~S may not be subject to a DECLARATION declaration.")
+                                                       x)
+                                               '())))
+                                       (cddr declspec)))))
+                 (COMPILE
+                  (when (cdr declspec)
+                    (c-warn (TEXT "The arguments of a COMPILE declaration are ignored: ~S")
+                            declspec)
+                    (setq declspec '(COMPILE)))))
                (push declspec other)))
             (c-warn (TEXT "Unknown declaration ~S.~%The whole declaration will be ignored.")
                     declspectype declspec)))))
@@ -3219,6 +3293,18 @@ for-value   NIL or T
         (apply #'c-warn (string-concat
                          (TEXT "Function ~S is deprecated.") " ~@?")
                         deprecation-info)))))
+
+;; return 2 values: the quality and the value
+;; or issue a warning and return NIL
+(defun parse-optimize-quality (spec)
+  (typecase spec
+    ((cons #1=(member COMPILATION-SPEED DEBUG SAFETY SPACE SPEED)
+           (cons (integer 0 3) null))
+     (values (first spec) (second spec)))
+    (#1# (values spec 3))
+    ;; WARN is defined in CONDITION so we cannot use #'WARN here
+    (t (funcall (if (boundp '*warning-count*) #'c-warn 'warn)
+                (TEXT "Invalid ~S declaration ~S") 'optimize spec))))
 
 ;; note global OPTIMIZE proclamations
 ;; sed by c-PROCLAIM and PROCLAIM in control.d
