@@ -5327,8 +5327,8 @@ LISPFUNN(pathname_match_p,2)
       if (logical) {
         push_solution(); return;
       }
-      #if HAS_DEVICE
       #endif
+      #if HAS_DEVICE
       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       if (nullp(muster) || eq(muster,S(Kwild))) {
         var object string =
