@@ -1,6 +1,6 @@
-# File: <clisp.spec - 1999-01-15 Fri 12:05:39 EST sds@eho.eaglets.com>
+# File: <clisp.spec - 1999-2-2 Tue 17:53:48 EST sds@eho.eaglets.com>
 # $Id$
-# Copyright (C) 1998 by Sam Steingold
+# Copyright (C) 1998, 1999 by Sam Steingold
 # GNU General Public License v.2 (GPL2) is applicable:
 # No warranty; you may copy/modify/redistribute under the same
 # conditions with the source code. See <URL:http://www.gnu.org>
@@ -10,14 +10,21 @@
 # building/installing CLISP.  If you read the comments below, you will
 # learn why.
 
+# to create the source/binary RPMs, do (as root!)
+# rpm -ba --sign clisp.spec
+
 %define name clisp
 %define version 1999.01.08
 %define clisp_build build
 
+# don't you just love that you have to fit the macro into one line?
+# this automatically upgrades `release' with each build.
+%define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > ,.release; mv ,.release .release; cat .release)
+
 Summary:      Common Lisp (ANSI CL) implementation
 Name:         %{name}
 Version:      %{version}
-Release:      3
+Release:      %{release}
 Icon:         clisp.gif
 Copyright:    GPL
 Group:        development/languages
@@ -67,6 +74,12 @@ The package was created by Sam Steingold <sds@goems.com>.
 # I reported all these as bugs.  No reply.
 
 %prep
+cat <<EOF
+This will build RPMs for CLISP: %{name}-%{version}-%{release}.
+We assume that you are in the top level source directory already.
+No unpacking or patching is done - we go straight to build and
+creating the RPMs.
+EOF
 %setup -T -D -n /usr/src/%{name}
 %build
 ##rm -rf src/VERSION
@@ -74,17 +87,17 @@ The package was created by Sam Steingold <sds@goems.com>.
 ##make -f Makefile.devel src/version.h
 ## make -f Makefile.devel
 ## make -f Makefile.devel check-configures
-#./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
-#    --with-module=regexp --with-module=bindings/linuxlibc6 \
-#    --with-module=clx/new-clx --build %{clisp_build}
+./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
+    --with-module=regexp --with-module=bindings/linuxlibc6 \
+    --with-module=clx/new-clx --build %{clisp_build}
 %install
-#cd %{clisp_build}
-#make install
-#test -d doc || mkdir doc
-#cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
-#    LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
-#    impnotes.html clisp.gif clreadline.html doc
-#cd ..
+cd %{clisp_build}
+make install
+test -d doc || mkdir doc
+cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
+    LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
+    impnotes.html clisp.gif clreadline.html doc
+cd ..
 
 # Can you believe it?!!  RPM runs chown -R root.root / chmod -R!!!
 # Who was the wise guy who invented this?!  Now not only I have to run
@@ -101,8 +114,9 @@ cd /usr/src/%{name}
 find . -name ".#*" | xargs rm -f
 cd ..
 mv clisp clisp-%{version}
-tar cfz redhat/SOURCES/clispsrc.tar.gz clisp-%{version} \
+tar cf redhat/SOURCES/clispsrc.tar clisp-%{version} \
     --exclude build --exclude CVS --exclude .cvsignore
+gzip -9v redhat/SOURCES/clispsrc.tar
 mv clisp-%{version} clisp
 cd clisp
 
@@ -131,4 +145,5 @@ cd clisp
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
 /usr/share/locale/fr/LC_MESSAGES/clisp.mo
+
 
