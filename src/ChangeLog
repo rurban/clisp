@@ -1,3 +1,10 @@
+1999-01-13  Sam Steingold  <sds@goems.com>
+
+	* clos.lsp (*gf-warn-on-removing-all-methods*): new variable.
+	(do-defgeneric): use it.
+	(*warn-if-gf-already-called*): new variable.
+	(warn-if-gf-already-called): use it.
+
 1999-01-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (main): Option --version implies -norc.
