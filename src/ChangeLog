@@ -1,3 +1,9 @@
+2004-02-17  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (version_diff): use version object (OR NULL
+	INTEGER (MEMBER :WILD :NEWEST)) without converting it to string
+	(translate_version): expect version to be a version object
+
 2004-02-16  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (write-sequence): make sure to return only one value
