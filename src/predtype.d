@@ -1,6 +1,6 @@
 /*
  * Predicates for equality and type tests, types, classes in CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-09-15
  */
@@ -1652,6 +1652,8 @@ LISPFUNNR(type_of,1)
           value1 = S(load_time_eval); break;
         case Rectype_Symbolmacro: /* Symbol-Macro */
           value1 = S(symbol_macro); break;
+        case Rectype_GlobalSymbolmacro: /* Global-Symbol-Macro */
+          value1 = S(global_symbol_macro); break;
         case Rectype_Macro: /* Macro */
           value1 = S(macro); break;
         case Rectype_FunctionMacro: /* FunctionMacro */
@@ -1960,6 +1962,7 @@ LISPFUNNR(class_of,1)
         case Rectype_Fsubr: /* Fsubr -> <t> */
         case Rectype_Loadtimeeval: /* Load-Time-Eval -> <t> */
         case Rectype_Symbolmacro: /* Symbol-Macro -> <t> */
+        case Rectype_GlobalSymbolmacro: /* Global-Symbol-Macro -> <t> */
         case Rectype_Macro: /* Macro -> <t> */
         case Rectype_FunctionMacro: /* FunctionMacro -> <t> */
         case Rectype_Encoding: /* Encoding -> <t> */
@@ -2592,6 +2595,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_special_operator,
   enum_hs_load_time_eval,
   enum_hs_symbol_macro,
+  enum_hs_global_symbol_macro,
   enum_hs_macro,
   enum_hs_function_macro,
   enum_hs_encoding,
@@ -2930,6 +2934,8 @@ local void heap_statistics_mapper (void* arg, object obj, uintM bytelen)
           pighole = &locals->builtins[(int)enum_hs_load_time_eval]; break;
         case Rectype_Symbolmacro: /* Symbol-Macro */
           pighole = &locals->builtins[(int)enum_hs_symbol_macro]; break;
+        case Rectype_GlobalSymbolmacro: /* Global-Symbol-Macro */
+          pighole = &locals->builtins[(int)enum_hs_global_symbol_macro]; break;
         case Rectype_Macro: /* Macro */
           pighole = &locals->builtins[(int)enum_hs_macro]; break;
         case Rectype_FunctionMacro: /* FunctionMacro */

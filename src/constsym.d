@@ -1,6 +1,6 @@
 /*
  * List of all symbols known to the C-program ("program constants")
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  */
 
@@ -223,7 +223,6 @@ LISPSYM(substring,"SUBSTRING",ext)
 LISPSYM(string_concat,"STRING-CONCAT",ext)
 /* ---------- CONTROL ---------- */
 LISPSYM(exit,"%EXIT",system)
-LISPSYM(psymbol_value,"%SYMBOL-VALUE",system)
 LISPSYM(symbol_value,"SYMBOL-VALUE",lisp)
 LISPSYM(symbol_function,"SYMBOL-FUNCTION",lisp)
 LISPSYM(fdefinition,"FDEFINITION",lisp)
@@ -255,6 +254,7 @@ LISPSYM(eval,"EVAL",lisp)
 LISPSYM(evalhook,"EVALHOOK",ext)
 LISPSYM(applyhook,"APPLYHOOK",ext)
 LISPSYM(constantp,"CONSTANTP",lisp)
+LISPSYM(global_symbol_macro_p,"GLOBAL-SYMBOL-MACRO-P",system)
 LISPSYM(function_side_effect,"FUNCTION-SIDE-EFFECT",system)
 LISPSYM(function_name_p,"FUNCTION-NAME-P",system)
 LISPSYM(check_function_name,"CHECK-FUNCTION-NAME",system)
@@ -780,6 +780,8 @@ LISPSYM(make_load_time_eval,"MAKE-LOAD-TIME-EVAL",system)
 LISPSYM(make_symbol_macro,"MAKE-SYMBOL-MACRO",system) /* ABI */
 LISPSYM(symbol_macro_p,"SYMBOL-MACRO-P",system)
 LISPSYM(symbol_macro_expand,"SYMBOL-MACRO-EXPAND",ext)
+LISPSYM(make_global_symbol_macro,"MAKE-GLOBAL-SYMBOL-MACRO",system)
+LISPSYM(global_symbol_macro_definition,"GLOBAL-SYMBOL-MACRO-DEFINITION",system)
 LISPSYM(make_macro,"MAKE-MACRO",system) /* ABI */
 LISPSYM(macrop,"MACROP",system)
 LISPSYM(macro_expander,"MACRO-EXPANDER",system)
@@ -1023,6 +1025,7 @@ LISPSYM(defgray,"%DEFGRAY",system)
 LISPSYM(putd,"%PUTD",system) /* ABI */
 LISPSYM(find_subr,"%FIND-SUBR",system)
 LISPSYM(proclaim_constant,"%PROCLAIM-CONSTANT",system) /* ABI */
+LISPSYM(proclaim_symbol_macro,"%PROCLAIM-SYMBOL-MACRO",system) /* ABI */
 LISPSYM(get,"GET",lisp)
 LISPSYM(getf,"GETF",lisp)
 LISPSYM(putf,"%PUTF",system) /* ABI */
@@ -1348,6 +1351,7 @@ LISPSYM(unicode_attributes_line,"UNICODE-ATTRIBUTES-LINE",system) /* function in
 #endif
 LISPSYM(designator,"DESIGNATOR",ext) /* type for CHARSTRG */
 LISPSYM(make_trampoline,"MAKE-TRAMPOLINE",system) /* function for RECORD */
+LISPSYM(symbolmacro,"SYMBOLMACRO",system) /* property in RECORD */
 LISPSYM(make_instance,"MAKE-INSTANCE",clos) /* error reporting in record.d */
 LISPSYM(shared_initialize,"SHARED-INITIALIZE",clos) /* ditto */
 LISPSYM(reinitialize_instance,"REINITIALIZE-INSTANCE",clos) /* ditto */
@@ -1701,6 +1705,7 @@ LISPSYM(readtable,"READTABLE",lisp) /* type in PREDTYPE */
 LISPSYM(special_operator,"SPECIAL-OPERATOR",ext) /* type in PREDTYPE */
 LISPSYM(load_time_eval,"LOAD-TIME-EVAL",ext) /* type in PREDTYPE */
 LISPSYM(symbol_macro,"SYMBOL-MACRO",ext) /* type in PREDTYPE */
+LISPSYM(global_symbol_macro,"GLOBAL-SYMBOL-MACRO",ext) /* type in PREDTYPE */
 LISPSYM(function_macro,"FUNCTION-MACRO",ext) /* type in PREDTYPE */
 LISPSYM(encoding,"ENCODING",ext) /* type in PREDTYPE */
 #ifdef FOREIGN

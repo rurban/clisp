@@ -1,6 +1,6 @@
 /*
  * list of all SUBRs
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  */
 
@@ -324,7 +324,6 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
 LISPFUN(string_concat,seclass_read,0,0,rest,nokey,0,NIL)
 /* ---------- CONTROL ---------- */
 LISPFUN(exit,seclass_default,0,1,norest,nokey,0,NIL)
-LISPFUNNR(psymbol_value,1)
 LISPFUNNR(symbol_value,1)
 LISPFUNNR(symbol_function,1)
 LISPFUNNR(fdefinition,1)
@@ -356,6 +355,7 @@ LISPFUNN(eval,1)
 LISPFUN(evalhook,seclass_default,3,1,norest,nokey,0,NIL)
 LISPFUN(applyhook,seclass_default,4,1,norest,nokey,0,NIL)
 LISPFUN(constantp,seclass_read,1,1,norest,nokey,0,NIL)
+LISPFUNNR(global_symbol_macro_p,1)
 LISPFUNNR(function_side_effect,1)
 LISPFUNNR(function_name_p,1)
 LISPFUNN(check_function_name,2)
@@ -913,6 +913,8 @@ LISPFUN(make_load_time_eval,seclass_no_se,1,0,norest,nokey,0,NIL)
 LISPFUN(make_symbol_macro,seclass_no_se,1,0,norest,nokey,0,NIL)
 LISPFUNNF(symbol_macro_p,1)
 LISPFUNN(symbol_macro_expand,1)
+LISPFUN(make_global_symbol_macro,seclass_no_se,1,0,norest,nokey,0,NIL)
+LISPFUNN(global_symbol_macro_definition,1)
 LISPFUNN(make_macro,1)
 LISPFUNN(macrop,1)
 LISPFUNN(macro_expander,1)
@@ -1205,6 +1207,7 @@ LISPFUNN(defgray,1)
 LISPFUNN(putd,2)
 LISPFUNN(find_subr,1)
 LISPFUNN(proclaim_constant,2)
+LISPFUNN(proclaim_symbol_macro,1)
 LISPFUN(get,seclass_read,2,1,norest,nokey,0,NIL)
 LISPFUN(getf,seclass_read,2,1,norest,nokey,0,NIL)
 LISPFUNN(putf,3)

@@ -36,10 +36,10 @@
   # define typecode_at(addr)  (((((Varobject)(addr))->header_flags)>>(oint_type_shift%8))&tint_type_mask)
 
   #define case_symbolwithflags  \
-    case symbol_type:                                        \
-    case symbol_type|bit(constant_bit_t):                    \
-    case symbol_type|bit(special_bit_t):                     \
-    case symbol_type|bit(special_bit_t)|bit(constant_bit_t)
+    case symbol_type:                                \
+    case symbol_type|bit(var_bit0_t):                \
+    case symbol_type|bit(var_bit1_t):                \
+    case symbol_type|bit(var_bit1_t)|bit(var_bit0_t)
 
 #endif
 

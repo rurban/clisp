@@ -437,6 +437,38 @@ FEXPAND-1
   (funcall f))
 5
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_3-2-2-3.html> does _not_ force
+;; programs to provide definitions for symbol-macros in the compile-time
+;; environment. If a symbol is a symbol-macro in the run-time environment
+;; only, CLHS 3.2.2.3 requires either an error or to treat the symbol-macro
+;; as absent or as present.
+(let ((f (gensym "FUNC-")) (a (gensym "A-")) (b (gensym "B-")))
+  (eval
+    `(progn
+       (defvar ,a 2)
+       (setq ,b 3)
+       (defun ,f () ,b)
+       (compile ',f)
+       (define-symbol-macro ,b ,a)
+       (,f))))
+; Must return either ERROR or 3 or 2. 
+3
+
+;; A symbol-macro can refer to its own symbol-value. (Nothing in CLHS forbids
+;; the use of SYMBOL-VALUE on a symbol defined as symbol-macro.)
+(progn
+  (define-symbol-macro foo137 (symbol-value 'foo137))
+  (setq foo137 73)
+  foo137)
+73
+
+;; Also check that it's possible to iterate over the property-list in
+;; interpreted mode.
+(progn
+  (define-symbol-macro foo138 (error "should not occur"))
+  (dolist (x (symbol-plist 'foo138)) (atom x)))
+NIL
+
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
 (defvar *my-typeof-counter* 0)
 *my-typeof-counter*

@@ -1,6 +1,6 @@
 /*
  * Encodings (character sets and conversions) for CLISP
- * Bruno Haible 1998-2004
+ * Bruno Haible 1998-2005
  * Sam Steingold 1998-2004
  */
 
@@ -1780,7 +1780,7 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
   } else if (encodingp(arg)) {
   }
  #ifdef UNICODE
-  else if (symbolp(arg) && constantp(TheSymbol(arg))
+  else if (symbolp(arg) && constant_var_p(TheSymbol(arg))
            && encodingp(Symbol_value(arg))) {
     arg = Symbol_value(arg);
   } else if (stringp(arg)) {
@@ -1788,7 +1788,7 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
     var object sym;
     arg = STACK_3; /* refetch */
     if (find_external_symbol(arg_upcase,false,O(charset_package),&sym)
-        && constantp(TheSymbol(sym)) && encodingp(Symbol_value(sym)))
+        && constant_var_p(TheSymbol(sym)) && encodingp(Symbol_value(sym)))
       arg = Symbol_value(sym);
     #ifdef HAVE_GOOD_ICONV
     else {

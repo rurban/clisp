@@ -1,6 +1,6 @@
 /*
  * Functions for records and structures in CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-04-16
  */
@@ -618,15 +618,63 @@ LISPFUNNF(symbol_macro_p,1)
  and returns T and the expansion if true, NIL if false.
  (defun symbol-macro-expand (v)
    (unless (symbolp v) (error ...))
-   (and (boundp v) (symbol-macro-p (%symbol-value v))
-        (values t (sys::%record-ref (%symbol-value v) 0)))) */
+   (and (sys::global-symbol-macro-p v)
+        (values t (sys::%record-ref (get v 'SYS::SYMBOLMACRO) 0)))) */
 LISPFUNN(symbol_macro_expand,1) {
   var object obj = check_symbol(popSTACK());
-  obj = Symbol_value(obj);
-  if (!symbolmacrop(obj))
-    VALUES1(NIL);
-  else
-    VALUES2(T, TheSymbolmacro(obj)->symbolmacro_expansion);
+  if (symmacro_var_p(TheSymbol(obj))) {
+    /* Fetch the symbol-macro definition from the property list: */
+    var object symbolmacro = get(obj,S(symbolmacro));
+    if (!eq(symbolmacro,unbound)) {
+      ASSERT(globalsymbolmacrop(symbolmacro));
+      VALUES2(T, TheSymbolmacro(TheGlobalSymbolmacro(symbolmacro)->globalsymbolmacro_definition)->symbolmacro_expansion);
+      return;
+    }
+    /* Huh? The symbol-macro definition got lost. */
+    clear_symmacro_flag(TheSymbol(obj));
+  }
+  VALUES1(NIL);
+}
+
+/* ===========================================================================
+ * global-symbol-macro:
+
+ The GlobalSymbolmacro object is used to wrap a Symbolmacro object while it
+ is stored on the property list, so that user code that iterates over the
+ elements of a property list in interpreted mode is not trapped.
+
+ (SYS::MAKE-GLOBAL-SYMBOL-MACRO expansion) returns a global-symbol-macro object
+   containing a symbol-macro object that represents the given expansion.
+ (SYS::GLOBAL-SYMBOL-MACRO-DEFINITION object) unwraps a global-symbol-macro
+   object and returns the symbol-macro object inside it.
+*/
+
+/* (SYS::MAKE-GLOBAL-SYMBOL-MACRO expansion) returns a global-symbol-macro object
+   containing a symbol-macro object that represents the given expansion. */
+LISPFUN(make_global_symbol_macro,seclass_no_se,1,0,norest,nokey,0,NIL) {
+  pushSTACK(allocate_symbolmacro());
+  var object gsm = allocate_globalsymbolmacro();
+  var object sm = popSTACK();
+  TheSymbolmacro(sm)->symbolmacro_expansion = popSTACK();
+  TheGlobalSymbolmacro(gsm)->globalsymbolmacro_definition = sm;
+  VALUES1(gsm);
+}
+
+/* (SYS::GLOBAL-SYMBOL-MACRO-DEFINITION object) unwraps a global-symbol-macro
+   object and returns the symbol-macro object inside it. */
+LISPFUNN(global_symbol_macro_definition,1)
+{
+  var object obj = popSTACK();
+  while (!globalsymbolmacrop(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(global_symbol_macro)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(global_symbol_macro)); pushSTACK(obj);
+    pushSTACK(S(global_symbol_macro_definition)); /* function name */
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
+    obj = value1;
+  }
+  VALUES1(TheGlobalSymbolmacro(obj)->globalsymbolmacro_definition);
 }
 
 /* ===========================================================================

@@ -750,7 +750,10 @@
         :datum venv :expected-type '(or null simple-vector)
         (TEXT "~S is an invalid variable environment")
         venv))
-    (and (boundp s) (%symbol-value s)))) ; not found
+    ; not found
+    (if (symbol-macro-expand s)
+      (global-symbol-macro-definition (get s 'SYMBOLMACRO))
+      (and (boundp s) (symbol-value s)))))
 
 ;; Most of the Expansion-functions return two values:
 ;;  (1) the expansion result,

@@ -1,3 +1,7 @@
+2005-01-05  Bruno Haible  <bruno@clisp.org>
+
+	* macro8.tst: Add tests for global symbol-macros.
+
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
 	* streams.tst: Adjust a test, taking into account that WARN now

@@ -16,7 +16,7 @@
 (defun copy-symbol (symbol &optional flag) ;; Common LISP, p. 169
   (let ((sym (make-symbol (symbol-name symbol))))
     (when flag
-      (when (boundp symbol) (sys::set-symbol-value sym (%symbol-value symbol)))
+      (when (boundp symbol) (sys::set-symbol-value sym (symbol-value symbol)))
       (when (fboundp symbol) (sys::%putd sym (symbol-function symbol)))
       (sys::%putplist sym (copy-list (symbol-plist symbol))))
     sym))
