@@ -3345,8 +3345,15 @@ if [ $CROSS = false ] ; then
 fi
 
 if [ ${HSYSOS} = cygwin ]; then
+  echol "setup.hint : full/lisp.exe"
+  echotab "echo 'sdesc: an ANSI Common Lisp implementation' > setup.hint"
+  echotab 'REQ=''; for f in `cygcheck full/lisp.exe`; do echo "* "$$f; f=`cygpath -u $$f`; REQ=$${REQ}" "`cygcheck -f $$f|sed "s/-.*//"`; done; echo "="$${REQ}; echo "requires:"$${REQ} >> setup.hint'
+  echotab "echo 'ldesc: \"' >> setup.hint"
+  echotab "cat SUMMARY >> setup.hint"
+  echotab "echo '\"' >> setup.hint"
+  echol
   echol "DEST_TMP='`pwd`/.install'";
-  echol "distrib : force"
+  echol "distrib : setup.hint force"
   echotab "\$(RMRF) \$(DEST_TMP); mkdir -p \$(DEST_TMP)"
   echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
   echotab "cd \$(DEST_TMP); tar cvfj ../clisp-`cat VERSION`-cygwin-`uname -r|sed 's/(.*)//g'`.tar.bz2 *"
