@@ -602,3 +602,22 @@ nil
                           (return-from b3 (multiple-value-prog1 10
                                             (return-from b3 100)))))))
 100
+
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=842912&group_id=1355&atid=101355>
+(FUNCALL
+ (COMPILE NIL
+          (LAMBDA (A B)
+            (UNWIND-PROTECT
+                 (BLOCK B2
+                   (FLET ((%F1 NIL B))
+                     (LOGIOR (IF A (IF (LDB-TEST (BYTE 23 1) 253966182)
+                                       (RETURN-FROM B2 A) -103275090)
+                                 62410)
+                             (IF (NOT (NOT (IF (NOT NIL) T
+                                               (LDB-TEST (BYTE 2 27)
+                                                         253671809))))
+                                 (RETURN-FROM B2 -22)
+                                 (%F1)))))
+              (setq a (+ a b)))))
+ 777595384624 -1510893868)
+777595384624

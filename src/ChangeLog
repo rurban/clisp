@@ -1,6 +1,11 @@
 2003-12-17  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (insert-combined-LAPs): Fix bug [ 860052 ]: (RET)
+	* compiler.lisp (coalesce): fixed bug [ 842912 ]:
+	do not coalesce unless NEW-CODE is non-NIL
+
+2003-12-17  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (insert-combined-LAPs): fix bug [ 860052 ]: (RET)
 	and (RETGF) can be preceded by a SKIPI instruction instead of a SKIP
 
 2003-12-16  Sam Steingold  <sds@gnu.org>

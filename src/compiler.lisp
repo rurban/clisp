@@ -8473,22 +8473,24 @@ Optimizations that might apply after this one are retried.
                        codes)
                  (push code11 new-code) ; lengthen new-code
                  (note-references code11 new-index)))
-              (let* ((new-label (make-label 'ALL))
-                     ;; All code-pieces from codes were shortened, they are now
-                     ;; lengthened by one (JMP new-label NIL).
-                     (jmpop `(JMP ,new-label NIL)))
-                (mapc #'(lambda (code index)
-                          (setf (aref *code-parts* index) (cons jmpop code)))
-                      codes indices)
-                ;; References to new-label
-                (setf (symbol-value new-label) indices)
-                (setf (get new-label 'code-part) new-index)
-                (vector-push-extend (nreconc new-code new-label) *code-parts*)
-                (vector-push-extend new-order *code-positions*))
-              ;; further possible optimizations:
-              (optimize-part (aref *code-parts* new-index))
-              (coalesce indices)
-              (setq modified t)))) ; change has taken place
+              (when new-code
+                (let* ((new-label (make-label 'ALL))
+                       ;; All code-pieces from codes were shortened, they
+                       ;; are now lengthened by one (JMP new-label NIL).
+                       (jmpop `(JMP ,new-label NIL)))
+                  (mapc #'(lambda (code index)
+                            (setf (aref *code-parts* index) (cons jmpop code)))
+                        codes indices)
+                  ;; References to new-label
+                  (setf (symbol-value new-label) indices)
+                  (setf (get new-label 'code-part) new-index)
+                  (vector-push-extend (nreconc new-code new-label)
+                                      *code-parts*)
+                  (vector-push-extend new-order *code-positions*))
+                ;; further possible optimizations:
+                (optimize-part (aref *code-parts* new-index))
+                (coalesce indices)
+                (setq modified t))))) ; change has taken place
       parts-ht)
     modified))
 
