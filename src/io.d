@@ -2955,7 +2955,7 @@ LISPFUNN(comment_reader,3) { # reads #|
 #                     ) )
 #             ) ) ) )
 # )   ) ) ) )
-LISPFUNN(char_reader,3) { # reads #\
+LISPFUNN(char_reader,3) { # reads #\\
   # stack layout: Stream, sub-char, n.
   var object* stream_ = test_stream_arg(STACK_2);
   # read Token, with Dummy-Character '\' as start of Token:

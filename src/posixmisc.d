@@ -12,7 +12,7 @@
 #include <sys/utsname.h>
 
 # Lisp interface to uname(2) & sysconf(3c)
-LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
+LISPFUNN(sysinfo_,0)
 # (POSIX::SYSINFO-INTERNAL)
 # if you modify this function wrt it's return values,
 # you should modify POSIX:SYSINFO in posix.lisp accordingly
@@ -103,7 +103,7 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
  pushSTACK(rl.rlim_cur == RLIM_INFINITY ? T : L_to_I(rl.rlim_cur)); \
  pushSTACK(rl.rlim_max == RLIM_INFINITY ? T : L_to_I(rl.rlim_max));
 
-LISPFUN(resource_usage_limits_,0,0,norest,nokey,0,NIL)
+LISPFUNN(resource_usage_limits_,0)
 # (POSIX::RESOURCE-USAGE-LIMITS-INTERNAL)
 # if you modify this function wrt its return values,
 # you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lisp accordingly
