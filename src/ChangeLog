@@ -1,3 +1,8 @@
+2003-09-19  Sam Steingold  <sds@gnu.org>
+
+	* unix.d (START_NO_BLOCK, END_NO_BLOCK): new macros
+	* stream.d (listen_handle): use them
+
 2003-09-17  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (f-side-effect): NOTINLINE ==> seclass (t . t)
