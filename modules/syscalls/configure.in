@@ -15,11 +15,11 @@ AC_PROG_GCC_TRADITIONAL
 AC_MSG_NOTICE([ * System Calls (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
-AC_CHECK_HEADERS(errno.h netdb.h sys/file.h sys/resource.h sys/utsname.h)
+AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h sys/utsname.h)
 AC_CHECK_HEADERS(pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h)
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
-AC_CHECK_FUNCS(clock flock gethostent getrusage getrlimit sysconf uname)
+AC_CHECK_FUNCS(clock fcntl gethostent getrusage getrlimit sysconf uname)
 AC_CHECK_FUNCS(getlogin getpwent getpwnam getpwuid getuid)
 AC_CHECK_FUNCS(fchmod fchown fstat link lstat stat symlink utimes)
 AC_CHECK_FUNCS(erf erfc lgamma lgamma_r)

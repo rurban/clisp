@@ -25,10 +25,18 @@
 #if defined(HAVE_ERRNO_H)
 # include <errno.h>
 #endif
+#if defined(HAVE_SYS_STAT_H)
+# include <sys/stat.h>
+#endif
+
 #if defined(_WIN32)
 /* need this for CreateHardLink to work */
 # define WINVER 0x0500
 /* get ASCII functions */
+# undef UNICODE
+#endif
+#if defined(__CYGWIN__)
+# define UNIX_CYGWIN32
 # undef UNICODE
 #endif
 
@@ -54,34 +62,75 @@ DEFVAR(misc_encoding, (funcall(L(misc_encoding),0),value1));
 DEFVAR(pathname_encoding, (funcall(L(pathname_encoding),0),value1));
 #endif
 
-#if defined(HAVE_FLOCK)
-
-#if defined(HAVE_SYS_FILE_H)
-# include <sys/file.h>
+#if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
+#if defined(HAVE_FCNTL_H)
+# include <fcntl.h>
 #endif
 
-DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED)
-{ /* the interface to flock(2) */
+DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
+{ /* the interface to fcntl(2) */
   Handle fd = (Handle)-1;
-  bool lock_p = !nullp(STACK_2), failed_p;
-  int operation = !lock_p ? LOCK_UN
-    : (nullp(STACK_1) || eq(unbound,STACK_1) ? LOCK_EX : LOCK_SH);
+  bool lock_p = !nullp(STACK_4), failed_p;
   object stream = nullobj;
-  if (nullp(STACK_0)) operation |= LOCK_NB;
-  if (posfixnump(STACK_3)) fd = posfixnum_to_L(STACK_3) ;
-  else stream = open_file_stream_handle(STACK_3,&fd);
+  uintL start = missingp(STACK_1) ? 0 : I_to_L(STACK_1);
+  uintL length;
+#if defined(WIN32_NATIVE)
+  DWORD flags = !lock_p ? 0 :
+    (missingp(STACK_2) ? LOCKFILE_EXCLUSIVE_LOCK : 0) |
+    (nullp(STACK_3) ? 0 : LOCKFILE_FAIL_IMMEDIATELY);
+  OVERLAPPED ol = {0,0,start,0,NULL};
+#else
+  int cmd = nullp(STACK_3) ? F_SETLK : F_SETLKW;
+  struct flock fl;
+  fl.l_type = missingp(STACK_2) ? F_RDLCK : F_WRLCK;
+  fl.l_whence = SEEK_SET;
+  fl.l_start = start;
+#endif
+  if (posfixnump(STACK_5)) fd = (Handle)posfixnum_to_L(STACK_5);
+  else stream = open_file_stream_handle(STACK_5,&fd);
+  if (missingp(STACK_0)) { /* use file size */
+    if (posfixnump(STACK_0)) { /* no stream give, use OS to get file size */
+#    if defined(WIN32_NATIVE)
+      LARGE_INTEGER size;
+      if (!GetFileSizeEx(fd,&size)) goto error;
+      length = size.LowPart;
+#    elif defined(HAVE_FLOCK)
+      struct stat st;
+      if (-1 == fstat(fd,&st)) goto error;
+      length = st.st_size;
+#    else
+      length = 0;
+#    endif
+    } else {
+      pushSTACK(stream); funcall(L(file_length),1);
+      length = I_to_UL(value1);
+    }
+  } else length = I_to_L(STACK_0);
   begin_system_call();
-  failed_p = flock(fd,operation);
+#if defined(WIN32_NATIVE)
+  if (lock_p) {
+    failed_p = !LockFileEx(fd,flags,0,length,0,&ol);
+    if (failed_p && nullp(STACK_3) && GetLastError() == ERROR_LOCK_VIOLATION)
+      failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
+  } else
+    failed_p = !UnlockFileEx(fd,0,length,0,&ol);
+#else
+  fl.l_len = length;
+  if ((failed_p = (-1 == fcntl(fd,cmd,&fl)))
+      && lock_p && (cmd == F_SETLK) && (errno == EACCES || errno == EAGAIN))
+    failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
+#endif
   end_system_call();
+     error:
   if (failed_p) {
     if (eq(stream,nullobj)) OS_error();
     else OS_filestream_error(stream);
   }
-  skipSTACK(4);
+  skipSTACK(6);
   VALUES_IF(lock_p);
 }
 
-#endif
+#endif  /* fcntl | WIN32_NATIVE */
 
 /* posix math functions in <math.h> */
 /* Must include <math.h> */
@@ -491,10 +540,6 @@ DEFUN(POSIX::USER-DATA, user)
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
 #if defined(HAVE_FSTAT) && defined(HAVE_LSTAT) && defined(HAVE_STAT)
-
-#if defined(HAVE_SYS_STAT_H)
-# include <sys/stat.h>
-#endif
 
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
@@ -993,7 +1038,7 @@ static void wfd_to_stack (WIN32_FIND_DATA *wfd) {
 DEFUN(POSIX::FILE-INFO, file)
 {
   WIN32_FIND_DATA wfd;
-  Handle hf;
+  HANDLE hf;
   object file = whole_namestring(STACK_0);
   with_string_0(file, O(pathname_encoding), pathz, {
     begin_system_call();

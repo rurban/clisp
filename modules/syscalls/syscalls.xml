@@ -101,21 +101,21 @@
    provide lisp-style error handling and precision, and do all the
    computations at the double float level.
  </simpara></listitem></varlistentry>
- <varlistentry><term>
+ <varlistentry id="stream-lock"><term>
    <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
-            <replaceable>lock-p</replaceable>
-            &key-amp; (:BLOCK &t;) (:SHARED &nil;))</literal></term>
-  <listitem><simpara>This is an interface to the &flock; system call.
-   It sets or removes a discretionary file lock for the file associated
+    <replaceable>lock-p</replaceable> &key-amp;
+    (:BLOCK &t;) (:SHARED &nil;) (:START 0) (:END &nil;))</literal></term>
+  <listitem><simpara>This is an interface to the &fcntl; system call.
+   It sets or removes a file lock for the (portion of the) file associated
    with &stream-r;, depending on <replaceable>lock-p</replaceable>.
    When <replaceable>block</replaceable> is &nil;, the call is non-blocking,
    and when the file is already locked, it &signal;s an &error-t;.
    When <replaceable>shared</replaceable> is non-&nil;,
    then lock can be shared between several callers.
-   Several processes can set a <replaceable>shared</replaceable> lock,
-   but only one can set an <emphasis>exclusive</emphasis> (i.e.,
-   non-<replaceable>shared</replaceable>) lock.
-  </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
+   Several processes can set a <replaceable>shared</replaceable>
+   (i.e., <emphasis>read</emphasis>) lock, but only one can set
+   an <emphasis>exclusive</emphasis> (i.e., <emphasis>write</emphasis>,
+   or non-<replaceable>shared</replaceable>) lock.
  </simpara></listitem></varlistentry>
  <varlistentry><term>
    <literal role="sexp">(<function>POSIX:COPY-FILE</function>
