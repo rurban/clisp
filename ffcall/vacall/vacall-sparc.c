@@ -1,7 +1,7 @@
 /* vacall function for sparc CPU */
 
 /*
- * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2005 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -103,7 +103,7 @@ __vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
     iret = (long)list.tmp._ptr;
   } else
   if (list.rtype == __VAstruct) {
-    if (list.flags & (__VA_SUNCC_STRUCT_RETURN | __VA_SUNPROCC_STRUCT_RETURN)) {
+    if (list.flags & __VA_SUNPROCC_STRUCT_RETURN) {
       /* Sun cc struct return convention. */
       /* The desired struct return address was passed in fp[16], later on
        * list.raddr = list.structraddr = fp[16]. Now the result has

@@ -125,21 +125,12 @@ typedef struct { double d; float f; } DF;
 typedef struct { double d; float f,g; } DF2;
 
 
-#if defined(__STDC__) || defined(__cplusplus)
 #define TEST_STRUCT_ARG(_type_)  \
   extern _type_ extern_##_type_;					\
   void set_##_type_ (_type_ arg) { extern_##_type_ = arg; }
 #define TEST_STRUCT_RETURN(_type_)  \
   extern _type_ extern_##_type_;					\
   _type_ get_##_type_ () { return extern_##_type_; }
-#else
-#define TEST_STRUCT_ARG(_type_)  \
-  extern _type_ extern_/**/_type_;					\
-  void set_/**/_type_ (arg) _type_ arg; { extern_/**/_type_ = arg; }
-#define TEST_STRUCT_RETURN(_type_)  \
-  extern _type_ extern_/**/_type_;					\
-  _type_ get_/**/_type_ () { return extern_/**/_type_; }
-#endif
 
 
 TEST_STRUCT_ARG(C1)

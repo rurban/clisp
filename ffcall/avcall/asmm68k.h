@@ -3,11 +3,7 @@
 
 #ifdef ASM_UNDERSCORE
 // SunOS, NetBSD, OpenBSD, Linux/a.out
-#ifdef __STDC__
 #define C(entrypoint) _##entrypoint
-#else
-#define C(entrypoint) _/**/entrypoint
-#endif
 #else
 // SVR4, A/UX, AMIX, Atari, Linux/ELF
 #define C(entrypoint) entrypoint
