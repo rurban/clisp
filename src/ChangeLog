@@ -1,5 +1,18 @@
 1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * array.d (fehler_subscript_range): Signal TYPE-ERROR instead of
+          ERROR. Two more arguments.
+          (fehler_index_range): Signal TYPE-ERROR instead of ERROR. One more
+          argument.
+          (test_subscripts, test_index, ROW-MAJOR-AREF, SYS::ROW-MAJOR-STORE,
+          SYS::SET-FILL-POINTER): Update.
+        * list.d (elt_up): Signal TYPE-ERROR instead of ERROR.
+        * charstrg.d (fehler_cmp_exclusive, fehler_cmd_exclusive): Signal
+          TYPE-ERROR instead of ERROR. One more argument.
+          (test_index): Update.
+
+1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * eval.d (fehler_specialform, fehler_macro): Signal UNDEFINED-FUNCTION
           instead of ERROR.
 
