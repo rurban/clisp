@@ -1,5 +1,14 @@
 1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make DEFUN behave the same way w.r.t. inlining, whether executing
+        compiled or interpreted.
+        * compiler.lsp (compile-form-in-toplevel-environment): New function.
+        * init.lsp (load): Call it, don't pass nil as %denv% to compile-form.
+          (defun): Save the lambdabody for inline compilation also when
+          running interpreted.
+
+1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         New command-line option "-w".
         * spvw.d (usage): Mention "-w".
           (argv_wait_keypress): New variable.
