@@ -364,8 +364,8 @@ intermediate language after the 1st pass:
 
    (RET)                      terminates the function with the values A0/...
 
-   (RETGF)                    terminates the function with 1 value A0 and poss.
-                              calls A0 as function, with the same
+   (RETGF)                    terminates the function with 1 value A0
+                              and poss. calls A0 as function, with the same
                               Arguments as the current function
 
    (JMP label)                jump to label
@@ -9035,9 +9035,11 @@ This step works on the code-list and changes is destructively.
 
 13. (SKIP n) (RET)                      --> (SKIP&RET n)
     (SKIP n) (RETGF)                    --> (SKIP&RETGF n)
-    ; (RET)                             --> (SKIP&RET 0)
-    ; (RETGF)                           --> (SKIP&RETGF 0)
-    ; does not occur, because the Closure itself is still in the Stack
+    (RET)                               --> (SKIP&RET 0)
+    (RETGF)                             --> (SKIP&RETGF 0)
+    ;; the last 2 can occur despite the Closure itself being still in
+    ;; the STACK because the preceding SKIP might have been folded into
+    ;; the previous SKIPI
 
 14. (UNWIND-PROTECT-CLOSE label)        --> (UNWIND-PROTECT-CLOSE)
 
@@ -9320,9 +9322,9 @@ This step works on the code-list and changes is destructively.
                  (setf (car middle) `(UNBIND ,count))
                  (setf (cdr middle) right)
                  (go next))))
-            ; We need these two rules because (RET) and (RETGF) are not always
-            ; preceded by (SKIP n); they can also be preceded by (SKIPI k1 k2 n)
-            ; with n >= 1.
+            ;; We need these two rules because (RET) and (RETGF) are not
+            ;; always preceded by (SKIP n); they can also be preceded by
+            ;; (SKIPI k1 k2 n) with n >= 1.
             (RET (ersetze 1 '(SKIP&RET 0)))
             (RETGF (ersetze 1 '(SKIP&RETGF 0)))
             (UNWIND-PROTECT-CLOSE (ersetze 1 '(UNWIND-PROTECT-CLOSE)))
