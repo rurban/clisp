@@ -1,5 +1,10 @@
 2005-02-09  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (declared-optimize): use POP
+	(c-GLOBAL-FUNCTION-CALL): simplified control flow
+
+2005-02-09  Sam Steingold  <sds@gnu.org>
+
 	* charstrg.d (coerce_char): accept SYS::INPUT-CHARACTER
 	* constsym.d (input_character, input_character_char): added
 	* init.lisp (char-key): export
