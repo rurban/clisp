@@ -2565,7 +2565,7 @@ for f in $ARI_ASMS $SP_ASMS ; do
   fi
 done
 
-if [ $HOS = unix ] ; then
+if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   echol "lisp.a : \$(OBJECTS)"
   echotab "ld -r -o lisp.o \$(OBJECTS)"
   echotab "chmod a-x lisp.o"
@@ -2897,7 +2897,7 @@ if [ $CROSS = false ] ; then
     echol
   else
     if [ $HOS = os2 -o $HOS = win32 ] ; then
-      echotab "comp *.fas ${TESTDIR}"
+      echotab "comp '*.fas' '${TESTDIR}'"
       echotab "echo The test passed if only GENSYM differences were found."
       echol
     else
