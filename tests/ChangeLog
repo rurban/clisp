@@ -1,6 +1,16 @@
+1998-10-20 Sam Steingold  <sds@goems.com>
+
+        * alltest.tst: added tests for `ldiff' and `tailp' handling
+	  of dotted lists (HyperSpec/Body/fun_ldiffcm_tailp.html).
+
 1998-10-15  Sam Steingold  <sds@goems.com>
 
 	* Makefile: remove /tmp/foo*.*.
+
+1998-09-09  Sam Steingold  <sds@goems.com>
+
+	* setf.tst: added multiple values `defsetf', `shiftf' and
+	  `rotatef' tests.
 
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
