@@ -2395,7 +2395,7 @@ local void initial_contents_aux(arg,obj)
             pushSTACK(TheSubr(*(localptr STACKop -2))->name);
             fehler(error,
                    DEUTSCH ? "~: ~ hat nicht die richtige Länge." :
-                   ENGLISH ? "~: ~ has not the correct length" :
+                   ENGLISH ? "~: ~ is of incorrect length" :
                    FRANCAIS ? "~: ~ n'est pas de longueur convenable." :
                    ""
                   );
@@ -2458,7 +2458,7 @@ local void initial_contents_aux(arg,obj)
            pushSTACK(TheSubr(subr_self)->name);
            fehler(type_error,
                   DEUTSCH ? "~: ~-Argument ~ hat nicht den Elementtyp ~." :
-                  ENGLISH ? "~: ~-argument ~ has not element type ~" :
+                  ENGLISH ? "~: ~-argument ~ does not have element type ~" :
                   FRANCAIS ? "~: Le ~ argument ~ n'a pas ~ comme type d'élément." :
                   ""
                  );
@@ -2848,7 +2848,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
              pushSTACK(TheSubr(subr_self)->name);
              fehler(type_error,
                     DEUTSCH ? "~: Array ~ hat nicht Elementtyp ~" :
-                    ENGLISH ? "~: array ~ has not element-type ~" :
+                    ENGLISH ? "~: array ~ does not have element-type ~" :
                     FRANCAIS ? "~: La matrice ~ n'as pas ~ comme type d'élément." :
                     ""
                    );
