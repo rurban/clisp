@@ -1,3 +1,74 @@
+2004-05-02  Bruno Haible  <bruno@clisp.org>
+
+	New type of records, LRECORD: no flags but max. 2^24 elements.
+	* lispbibl.d (weakkvt_type): Remove macro.
+	(mdarray_type): Choose highest values less than the other array type
+	codes.
+	(lrecord_type): New macro.
+	(case_weakkvt): Remove macro.
+	(case_lrecord): New macro.
+	(case_array): Remove weakkvt_type.
+	(case_sxrecord): New macro.
+	(case_record): Add lrecord_type.
+	(lrecord_tfl): New macro.
+	(record_): Move the rectype to be the first field after GCself.
+	(LRECORD_HEADER): New macro.
+	(lrecord_, Lrecord): New types.
+	(lrecord_length, Lrecord_length): New macros.
+	(SRECORD_HEADER, XRECORD_HEADER): Update.
+	(rectype_longlimit): New enumeration value.
+	(Rectype_WeakKVT): Change so it is >= rectype_longlimit.
+	(Stream): Move the strmtype to be the first field here as well.
+	(TheSarray): Remove weakkvt_type.
+	(TheWeakKVT, TheRecord): Update.
+	(TheLrecord): New macro.
+	(TheVarobject, ThePointer): Add instance_type, lrecord_type.
+	(SXrecord_length): Renamed from Record_length.
+	(SXrecord_nonweak_length): Renamed from Record_nonweak_length.
+	(Lrecord_nonweak_length, Record_length, Record_nonweak_length): New
+	macros.
+	(lrecordp): New macro.
+	(weakkvtp): Use lrecordp.
+	(case_Rectype_WeakKVT_above): Remove macro.
+	(case_Rectype_array_above): Remove Rectype_WeakKVT.
+	(allocate_lrecord): New declaration.
+	(allocate_srecord, allocate_xrecord): Update.
+	* spvw_multimap.d (MM_TYPECASES): Handle lrecords as well.
+	* spvw_global.d (init_mem_heaptypes): Don't handle weakkvt specially.
+	* spvw_objsize.d (size_lrecord): New macro.
+	(objsize): Handle lrecords as well. Don't handle weakkvt specially.
+	(objsize_sxrecord): Renamed from objsize_record.
+	(objsize_lrecord): New function.
+	(init_objsize_table): Handle lrecords as well. Don't handle weakkvt
+	specially.
+	* spvw_update.d (do_update_sxrecord): Renamed from do_update_record.
+	(do_update_lrecord): New macro.
+	(update_sxrecord): Renamed from update_record.
+	(update_lrecord): New macro.
+	(update_varobject): Treat sxrecords and lrecords separately.
+	* spvw_garcol.d (down_weakkvt, up_weakkvt): Remove macros.
+	(down_lrecord, up_lrecord): New macros.
+	(down_sxrecord): Renamed from down_record.
+	(up_sxrecord): Renamed from up_record.
+	(gc_mark): Handle lrecords as well. Don't handle weakkvt specially.
+	* spvw_genera1.d (walk_area_record): Handle lrecords as well.
+	(walk_area): Don't handle weakkvt specially.
+	(build_old_generation_cache): Likewise. Handle lrecords as well.
+	* spvw_typealloc.d (allocate_weakkvt_low): Use lrecord_type
+	instead of lrecord_type.
+	(allocate_lrecord, allocate_lrecord_): New functions.
+	(allocate_srecord_, allocate_xrecord_, make_ratio, make_complex):
+	Update.
+	* spvw_circ.d (get_circ_mark, get_circ_unmark, subst_circ_mark, subst,
+	subst_circ_unmark): Handle lrecords as well.
+	* io.d (prin_object_dispatch): Handle lrecords as well.
+	* predtype.d (equalp): Compare lrecords like with EQ.
+	(TYPE-OF): Handle lrecords as well. For weakkvt, return a symbol, not
+	a list.
+	(CLOS:CLASS-OF): Handle lrecords as well.
+	(heap_statistics_mapper): Handle lrecords as well.
+	* hashtabl.d (hashcode4_atom, sxhash_atom): Handle lrecords as well.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (*expected-failures*): Add IMAGPART.4,

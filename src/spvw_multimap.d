@@ -55,6 +55,7 @@
   #define MM_TYPECASES  \
     case_array: \
     case_closure: _case_structure _case_stream case_orecord: case_instance: \
+    case_lrecord: \
     case_system: \
     case_bignum: case_ratio: case_ffloat: case_dfloat: case_lfloat: case_complex: \
     case_symbolflagged: case_cons:

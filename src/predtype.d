@@ -957,7 +957,10 @@ global bool equalp (object obj1, object obj2)
     switch (typecode(obj1))
    #else
     if (orecordp(obj1)) {
-      goto case_orecord;
+      if (Record_type(obj1) < rectype_longlimit)
+        goto case_orecord;
+      else
+        goto case_lrecord;
     } else if (charp(obj1)) {
       goto case_char;
     } else
@@ -972,7 +975,6 @@ global bool equalp (object obj1, object obj2)
       case_b16vector: /* 16bit-vector */
       case_b32vector: /* 32bit-vector */
       case_string: /* string */
-      case_weakkvt: /* weak-key-value-table */
       case_vector: /* (VECTOR T) */
         if (!vectorp(obj2)) return false;
         /* obj1, obj2 both vectors. */
@@ -1059,8 +1061,8 @@ global bool equalp (object obj1, object obj2)
          #endif
           { /* obj1 and obj2 both records. */
             var uintC len;
-            if (Record_flags(obj1) != Record_flags(obj2)) return false;
             if (Record_type(obj1) != Record_type(obj2)) return false;
+            if (Record_flags(obj1) != Record_flags(obj2)) return false;
             if (Record_type(obj1) < rectype_limit) {
               if ((len=Srecord_length(obj1)) != Srecord_length(obj2)) return false;
             } else {
@@ -1088,6 +1090,8 @@ global bool equalp (object obj1, object obj2)
             }
           }
           return true;
+        case_lrecord:
+          return false; /* should already have been EQ */
         case_closure: /* closure */
           return false; /* should already have been EQ */
         case_instance: /* instance */
@@ -1410,15 +1414,6 @@ LISPFUNNR(type_of,1)
      #endif
     case_svector: /* Simple-Vector -> (SIMPLE-VECTOR dim0) */
       pushSTACK(S(simple_vector)); goto vectors;
-    case_weakkvt: /* weak-key-value-table -> (WEAK-KEY-VALUE-TABLE dim) */
-      pushSTACK(arg);
-      pushSTACK(allocate_cons());
-      value1 = allocate_cons();
-      Car(value1) = S(weak_kvtable);
-      Cdr(value1) = popSTACK();
-      Car(Cdr(value1)) = fixnum(Weakkvt_length(popSTACK())%2);
-      Cdr(Cdr(value1)) = NIL;
-      break;
     case_ostring: /* other string */
       /* -> ([BASE-]STRING dim0) or (VECTOR NIL dim0) or (SIMPLE-ARRAY NIL (dim0)) */
       {
@@ -1581,7 +1576,7 @@ LISPFUNNR(type_of,1)
         default:                value1 = S(stream); break;
       }
       break;
-    case_orecord: /* OtherRecord -> PACKAGE, ... */
+    case_orecord: case_lrecord: /* OtherRecord -> PACKAGE, ... */
       switch (Record_type(arg)) {
         case_Rectype_Symbol_above;
         case_Rectype_Sbvector_above;
@@ -1592,7 +1587,6 @@ LISPFUNNR(type_of,1)
         case_Rectype_Sb32vector_above;
         case_Rectype_Sstring_above;
         case_Rectype_Svector_above;
-        case_Rectype_WeakKVT_above;
         case_Rectype_ostring_above;
         case_Rectype_ovector_above;
         case_Rectype_obvector_above;
@@ -1654,6 +1648,8 @@ LISPFUNNR(type_of,1)
        #endif
         case Rectype_Weakpointer: /* Weak-Pointer */
           value1 = S(weak_pointer); break;
+        case Rectype_WeakKVT: /* Weak-Key-Value-Table */
+          value1 = S(weak_kvtable); break;
         case Rectype_Finalizer: /* Finalizer (should not occur) */
           value1 = S(finalizer); break;
        #ifdef SOCKET_STREAMS
@@ -1827,7 +1823,7 @@ LISPFUNNR(class_of,1)
     case_sb8vector: case_ob8vector:
     case_sb16vector: case_ob16vector:
     case_sb32vector: case_ob32vector:
-    case_svector: case_ovector: case_weakkvt: /* General-Vector -> <vector> */
+    case_svector: case_ovector: /* General-Vector -> <vector> */
       value1 = O(class_vector); break;
     case_mdarray: /* other Array -> <array> */
       value1 = O(class_array); break;
@@ -1851,7 +1847,7 @@ LISPFUNNR(class_of,1)
         default:                value1 = O(class_stream); break;
       }
       break;
-    case_orecord: /* OtherRecord -> <package>, ... */
+    case_orecord: case_lrecord: /* OtherRecord -> <package>, ... */
       switch (Record_type(arg)) {
         case_Rectype_Instance_above;
         case_Rectype_Structure_above;
@@ -1871,7 +1867,6 @@ LISPFUNNR(class_of,1)
         case_Rectype_Sb32vector_above;
         case_Rectype_ob32vector_above;
         case_Rectype_Svector_above;
-        case_Rectype_WeakKVT_above;
         case_Rectype_ovector_above;
         case_Rectype_mdarray_above;
         case_Rectype_Closure_above;
@@ -1909,6 +1904,7 @@ LISPFUNNR(class_of,1)
         case Rectype_Fvariable: /* Foreign-Variable -> <t> */
        #endif
         case Rectype_Weakpointer: /* Weak-Pointer -> <t> */
+        case Rectype_WeakKVT: /* Weak-Key-Value-Table -> <t> */
         case Rectype_Finalizer: /* Finalizer -> <t> */
        #ifdef SOCKET_STREAMS
         case Rectype_Socket_Server: /* Socket-Server -> <t> */
@@ -2707,9 +2703,6 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     case_svector: /* Simple-Vector */
       pighole = &locals->builtins[(int)enum_hs_simple_vector];
       break;
-    case_weakkvt: /* weak-key-value-table */
-      pighole = &locals->builtins[(int)enum_hs_weakkvt];
-      break;
     case_obvector: /* other Bit-Vector */
       pighole = &locals->builtins[(int)enum_hs_bit_vector];
       break;
@@ -2784,7 +2777,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
           pighole = &locals->builtins[(int)enum_hs_stream]; break;
       }
       break;
-    case_orecord: /* OtherRecord */
+    case_orecord: case_lrecord: /* OtherRecord */
       switch (Record_type(obj)) {
         case_Rectype_Instance_above;
         case_Rectype_Structure_above;
@@ -2797,7 +2790,6 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case_Rectype_Sb32vector_above;
         case_Rectype_Sstring_above;
         case_Rectype_Svector_above;
-        case_Rectype_WeakKVT_above;
         case_Rectype_obvector_above;
         case_Rectype_ob2vector_above;
         case_Rectype_ob4vector_above;
@@ -2857,6 +2849,9 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
        #endif
         case Rectype_Weakpointer: /* Weak-Pointer */
           pighole = &locals->builtins[(int)enum_hs_weakpointer]; break;
+        case Rectype_WeakKVT: /* weak-key-value-table */
+          pighole = &locals->builtins[(int)enum_hs_weakkvt];
+          break;
         case Rectype_Finalizer: /* Finalizer */
           pighole = &locals->builtins[(int)enum_hs_finalizer]; break;
        #ifdef SOCKET_STREAMS

@@ -3280,8 +3280,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define stream_type     (               BTB3     |BTB1|BTB0) # 0x0B  # %00001011  ; stream
   #define orecord_type    (               BTB3|BTB2          ) # 0x0C  # %00001100  ; OtherRecord (Package, Byte, ...)
   #define instance_type   (               BTB3|BTB2     |BTB0) # 0x0D  # %00001101  ; CLOS instance
-  #define mdarray_type    (               BTB3|BTB2|BTB1     ) # 0x0E  # %00001110  ; other array (rank/=1 or other eltype)
-  #define weakkvt_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; weak-key-value-table
+  #define lrecord_type    (               BTB3|BTB2|BTB1     ) # 0x0E  # %00001110  ; LongRecord (WeakKVT, ...)
+  #define mdarray_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; other array (rank/=1 or other eltype)
   #define sbvector_type   (          BTB4                    ) # 0x10  # %00010000  ; simple-bit-vector
   #define sb2vector_type  (          BTB4               |BTB0) # 0x11  # %00010001  ; simple (VECTOR (UNSIGNED-BYTE 2))
   #define sb4vector_type  (          BTB4          |BTB1     ) # 0x12  # %00010010  ; simple (VECTOR (UNSIGNED-BYTE 4))
@@ -3563,7 +3563,6 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define case_svector    case svector_type    # Simple-(General-)Vector
   #define case_ovector    case vector_type    # Other (General-)Vector
   #define case_mdarray    case mdarray_type   # other Array
-  #define case_weakkvt    case weakkvt_type   # Weak Key-Value Table
   #define case_string     case_sstring: case_ostring # general string
   #define case_bvector    case_sbvector: case_obvector # general bit vector
   #define case_b2vector   case_sb2vector: case_ob2vector # general 2bit vector
@@ -3572,7 +3571,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define case_b16vector  case_sb16vector: case_ob16vector # general 16bit vector
   #define case_b32vector  case_sb32vector: case_ob32vector # general 32bit vector
   #define case_vector     case_svector: case_ovector # general vector
-  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_weakkvt: case_mdarray # general Array
+  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_mdarray # general Array
   #define case_closure    case closure_type   # Closure
   #ifdef structure_type
   #define case_structure  case structure_type # Structure
@@ -3590,6 +3589,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #endif
   #define case_orecord    case orecord_type   # Other Record
   #define case_instance   case instance_type  # CLOS-Instance
+  #define case_lrecord    case lrecord_type   # Long Record
   #define case_char       case char_type      # Character
   #define case_subr       case subr_type      # SUBR
   #define case_system     case system_type    # Frame-Pointer, Read-Label, System
@@ -3621,7 +3621,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #endif
   #define case_number     case_real: case_complex # Number
   #define case_symbol     case symbol_type # Symbol
-  #define case_record     case_closure: _case_structure _case_stream _case_ratio _case_complex case_orecord: case_instance # Record general
+  #define case_sxrecord   case_closure: _case_structure _case_stream _case_ratio _case_complex case_orecord: case_instance # Srecord/Xrecord general
+  #define case_record     case_sxrecord: case_lrecord # Lrecord/Srecord/Xrecord general
   #if /* !defined(NO_symbolflags) && */ (oint_symbolflags_shift==oint_type_shift)
   #define case_symbolflagged  # Symbol with Flags                       \
           case symbol_type:                                             \
@@ -3729,10 +3730,12 @@ typedef varobject_ *  Varobject;
   #define special_bit_hf  (special_bit_t+(oint_type_shift%hfintsize))
 #else
   # Three possible layouts of type, flags, length:
-  #   8 bits type, 24 bits length [Vrecord]
+  #   8 bits type, 24 bits length [Vrecord, Lrecord]
   #   8 bits type, 8 bits flags, 16 bits length [Srecord]
   #   8 bits type, 8 bits flags, 8 bits length, 8 bits xlength [Xrecord]
   #define vrecord_tfl(type,length)  \
+    ((uintL)(uintB)(type)+((uintL)(length)<<8))
+  #define lrecord_tfl(type,length)  \
     ((uintL)(uintB)(type)+((uintL)(length)<<8))
   #define srecord_tfl(type,flags,length)  \
     ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(length)<<16))
@@ -3754,14 +3757,18 @@ typedef varobject_ *  Varobject;
 # Records
 # These are varobjects with a one-byte type field in memory.
 # There are three types of records:
-#   Vector-Records can have up to 16777215 elements, but have no flags.
+#   Vector-Records can have up to 16777215 elements, but have no flags and
+#   if TYPECODES also no type (because the type info is in the pointer).
+#   Long-Records can have up to 16777215 elements, but have no flags.
 #   Simple-Records can have up to 65535 elements,
 #   Extended-Records have room for up to 255 elements and 255 extra (non-Lisp)
 #   elements.
 # Vector-Records are recognized by their type field:
 #   rectype == Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector,
 #              Rectype_S[8|16|32]string, Rectype_Imm_S[8|16|32]string,
-#              Rectype_Svector, Rectype_WeakKVT.
+#              Rectype_Svector.
+# Long-Records are recognized by rectype >= rectype_longlimit, or if TYPECODES
+# equivalently by their typecode lrecord_type.
 # The others are partitioned into:
 #   - Simple-Records, if rectype < rectype_limit.
 #   - Extended-Records, if rectype >= rectype_limit.
@@ -3769,8 +3776,8 @@ typedef varobject_ *  Varobject;
 typedef struct {
   VAROBJECT_HEADER # self-pointer for GC
   #ifdef TYPECODES
+    sintB rectype;   # for OtherRecord and LongRecord: sub-type
     uintB recflags;  # for OtherRecord: flags
-    sintB rectype;   # for OtherRecord: sub-type
     uintW recfiller; # length and others
   #endif
   gcv_object_t recdata[unspecified] _attribute_aligned_object_; # elements
@@ -3819,10 +3826,38 @@ typedef vrecord_ *  Vrecord;
 #endif
 
 #ifdef TYPECODES
+  #define LRECORD_HEADER  \
+                 VAROBJECT_HEADER # self-pointer for GC \
+                 uintL tfl;       # subtype (1 byte), then length (3 bytes)
+#else
+  #define LRECORD_HEADER  \
+                 VAROBJECT_HEADER # self-pointer for GC, tfl
+#endif
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t recdata[unspecified] _attribute_aligned_object_; # reclength elements
+} lrecord_;
+typedef lrecord_ *  Lrecord;
+#ifdef TYPECODES
+  #if BIG_ENDIAN_P
+    #define lrecord_tfl(type,length)  \
+      (((uintL)(uintB)(type)<<24)+(uintL)(length))
+    #define lrecord_length(ptr)  ((ptr)->tfl & 0xFFFFFF)
+  #else
+    #define lrecord_tfl(type,length)  \
+      ((uintL)(uintB)(type)+((uintL)(length)<<8))
+    #define lrecord_length(ptr)  ((ptr)->tfl >> 8)
+  #endif
+#else
+  #define lrecord_length(ptr)  ((ptr)->tfl >> 8)
+#endif
+#define Lrecord_length(obj)  lrecord_length(TheLrecord(obj))
+
+#ifdef TYPECODES
   #define SRECORD_HEADER                                        \
                  VAROBJECT_HEADER # self-pointer GC             \
-                 uintB recflags;  # flags                       \
                  sintB rectype;   # subtype, < rectype_limit    \
+                 uintB recflags;  # flags                       \
                  uintW reclength; # lengths in objects
 #else
   #define SRECORD_HEADER  \
@@ -3843,8 +3878,8 @@ typedef srecord_ *  Srecord;
 #ifdef TYPECODES
   #define XRECORD_HEADER                                                \
                  VAROBJECT_HEADER  # self-pointer for GC                \
-                 uintB recflags;   # flags                              \
                  sintB rectype;    # subtype, >= rectype_limit          \
+                 uintB recflags;   # flags                              \
                  uintB reclength;  # lengths in objects                 \
                  uintB recxlength; # lengths of the extra objects
 #else
@@ -3918,7 +3953,6 @@ typedef xrecord_ *  Xrecord;
          Rectype_Complex,
          #endif
                           # Here the numbers end.
-         Rectype_WeakKVT,
          #ifndef TYPECODES
          Rectype_Symbol,
          #endif
@@ -3953,6 +3987,8 @@ typedef xrecord_ *  Xrecord;
          #ifdef YET_ANOTHER_RECORD
          Rectype_Yetanother,
          #endif
+           rectype_longlimit, # Here is the limit between Srecord/Xrecord and Lrecord.
+         Rectype_WeakKVT,
          rectype_for_broken_compilers_that_dont_like_trailing_commas
        };
 
@@ -4995,8 +5031,8 @@ typedef struct {
 typedef struct {
   #ifdef case_stream
     VAROBJECT_HEADER # self-pointer for GC
-    uintB strmflags; # flags
     uintB strmtype;  # subtype (as sintB >=0 !)
+    uintB strmflags; # flags
     uintB reclength; # length in object
     uintB recxlength; # lengths of the extra-elements
   #else
@@ -5583,7 +5619,7 @@ typedef enum {
   #endif
   #define TheDfloat(obj)  ((Dfloat)(types_pointable(dfloat_type|bit(sign_bit_t),obj)))
   #define TheLfloat(obj)  ((Lfloat)(types_pointable(lfloat_type|bit(sign_bit_t),obj)))
-  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type|weakkvt_type,obj)))
+  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type,obj)))
   #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type,obj)))
   #define TheCodevec(obj)  ((Codevec)(types_pointable(sb8vector_type,obj)))
   #define TheS8string(obj)  ((S8string)(types_pointable(sstring_type,obj)))
@@ -5593,9 +5629,10 @@ typedef enum {
   #define TheSistring(obj)  ((Sistring)(types_pointable(sstring_type,obj)))
   #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
   #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
-  #define TheWeakKVT(obj)  ((WeakKVT)(types_pointable(weakkvt_type,obj)))
+  #define TheWeakKVT(obj)  ((WeakKVT)(types_pointable(lrecord_type,obj)))
   #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type|string_type|vector_type,obj)))
-  #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type,obj)))
+  #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type|lrecord_type,obj)))
+  #define TheLrecord(obj)  ((Lrecord)(types_pointable(lrecord_type,obj)))
   #define TheSrecord(obj)  ((Srecord)(types_pointable(closure_type|structure_type|orecord_type|instance_type,obj)))
   #define TheXrecord(obj)  ((Xrecord)(types_pointable(stream_type|orecord_type,obj)))
   #define ThePackage(obj)  ((Package)(type_pointable(orecord_type,obj)))
@@ -5655,11 +5692,12 @@ typedef enum {
       (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
          |sb16vector_type|sb32vector_type                                \
        |sstring_type|svector_type                                        \
-       |mdarray_type|weakkvt_type                                        \
+       |mdarray_type                                                     \
        |bvector_type|b2vector_type|b4vector_type|b8vector_type           \
          |b16vector_type|b32vector_type                                  \
        |string_type|vector_type                                          \
-       |closure_type|structure_type|stream_type|orecord_type|symbol_type \
+       |closure_type|structure_type|stream_type|orecord_type             \
+       |instance_type|lrecord_type|symbol_type                           \
        |bignum_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t), \
        obj                                                               \
     )))
@@ -5669,11 +5707,12 @@ typedef enum {
      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
         |sb16vector_type|sb32vector_type                                \
       |sstring_type|svector_type                                        \
-      |mdarray_type|weakkvt_type                                        \
+      |mdarray_type                                                     \
       |bvector_type|b2vector_type|b4vector_type|b8vector_type           \
         |b16vector_type|b32vector_type                                  \
       |string_type|vector_type                                          \
-      |closure_type|structure_type|stream_type|orecord_type|symbol_type \
+      |closure_type|structure_type|stream_type|orecord_type             \
+      |instance_type|lrecord_type|symbol_type                           \
       |cons_type                                                        \
       |bignum_type|ffloat_type|dfloat_type|lfloat_type                  \
       |ratio_type|complex_type|bit(sign_bit_t),                         \
@@ -5739,6 +5778,7 @@ typedef enum {
   #define TheWeakKVT(obj)  ((WeakKVT)(ngci_pointable(obj)-varobject_bias))
   #define TheIarray(obj)  ((Iarray)(ngci_pointable(obj)-varobject_bias))
   #define TheRecord(obj)  ((Record)(ngci_pointable(obj)-varobject_bias))
+  #define TheLrecord(obj)  ((Lrecord)(ngci_pointable(obj)-varobject_bias))
   #define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-varobject_bias))
   #define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-varobject_bias))
   #define ThePackage(obj)  ((Package)(ngci_pointable(obj)-varobject_bias))
@@ -5816,16 +5856,28 @@ typedef enum {
 #define Symbol_name(obj)  (TheSymbol(obj)->pname)
 #define Symbol_package(obj)  (TheSymbol(obj)->homepackage)
 # Length (number of objects) of a record, obj has to be a Srecord/Xrecord:
+#define SXrecord_length(obj)  \
+  (Record_type(obj) < rectype_limit ? Srecord_length(obj) : Xrecord_length(obj))
+# Likewise, but ignoring weak pointers:
+#define SXrecord_nonweak_length(obj)  \
+  (Record_type(obj) < rectype_limit         \
+   ? Srecord_length(obj)                    \
+   : (Record_type(obj)==Rectype_Weakpointer \
+      ? 0                                   \
+      : Xrecord_length(obj)))
+# Length of an Lrecord, ignoring weak pointers:
+#define Lrecord_nonweak_length(obj)  \
+  (Record_type(obj)==Rectype_WeakKVT ? 0 : Lrecord_length(obj))
+# Length (number of objects) of a record, obj has to be a Record:
 #define Record_length(obj)  \
- (Record_type(obj) < rectype_limit ? Srecord_length(obj) : Xrecord_length(obj))
+  (Record_type(obj) >= rectype_longlimit \
+   ? Lrecord_length(obj)                 \
+   : SXrecord_length(obj))
 # Likewise, but ignoring weak pointers:
 #define Record_nonweak_length(obj)  \
- (Record_type(obj) < rectype_limit          \
-  ? Srecord_length(obj)                     \
-  : ((Record_type(obj)==Rectype_Weakpointer \
-      || Record_type(obj)==Rectype_WeakKVT) \
-     ? 0                                    \
-     : Xrecord_length(obj)))
+  (Record_type(obj) >= rectype_longlimit \
+   ? Lrecord_nonweak_length(obj)         \
+   : SXrecord_nonweak_length(obj))
 
 
 # ####################### type test predicates ############################### #
@@ -6091,14 +6143,14 @@ typedef enum {
 #endif
 
 #ifdef TYPECODES
-  # Test for Closure/Structure/Stream/Instance/OtherRecord
+  # Test for Closure/Structure/Stream/Instance/OtherRecord/LongRecord
     #define if_recordp(obj,statement1,statement2)  \
       switch (typecode(obj)) {          \
         case_record: statement1; break; \
         default: statement2; break;     \
       }
 #else
-  # Test for Srecord/Xrecord
+  # Test for Lrecord/Srecord/Xrecord
     #define if_recordp(obj,statement1,statement2)  \
       if (orecordp(obj))                                                     \
         switch (Record_type(obj)) {                                          \
@@ -6172,6 +6224,15 @@ typedef enum {
   #define orecordp(obj)  (typecode(obj)==orecord_type)
 #else
   #define orecordp(obj)  varobjectp(obj)
+#endif
+
+# Test for Long-Record
+# This is not really a type test (because there is no well-defined type
+# Long-Record). It's just a precondition for calling Record_type(obj).
+#ifdef TYPECODES
+  #define lrecordp(obj)  (typecode(obj)==lrecord_type)
+#else
+  #define lrecordp(obj)  varobjectp(obj)
 #endif
 
 # Test for Structure
@@ -6290,7 +6351,8 @@ typedef enum {
 
 # Test for WeakKVT
 #ifdef TYPECODES
-  #define weakkvtp(obj) (typecode(obj) == weakkvt_type)
+  #define weakkvtp(obj)  \
+    (lrecordp(obj) && (Record_type(obj) == Rectype_WeakKVT))
 #else
   # cases: Rectype_WeakKVT
   #define weakkvtp(obj)  \
@@ -6548,7 +6610,6 @@ typedef enum {
   #define case_Rectype_Sb32vector_above
   #define case_Rectype_Sstring_above
   #define case_Rectype_Svector_above
-  #define case_Rectype_WeakKVT_above
   #define case_Rectype_mdarray_above
   #define case_Rectype_obvector_above
   #define case_Rectype_ob2vector_above
@@ -6599,8 +6660,6 @@ typedef enum {
     case Rectype_S8string: case Rectype_Imm_S8string: case Rectype_S16string: case Rectype_Imm_S16string: case Rectype_S32string: case Rectype_Imm_S32string: case Rectype_reallocstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
-  #define case_Rectype_WeakKVT_above  \
-    case Rectype_WeakKVT: goto case_weakkvt;
   #define case_Rectype_mdarray_above  \
     case Rectype_mdarray: goto case_mdarray;
   #define case_Rectype_obvector_above  \
@@ -6662,7 +6721,7 @@ typedef enum {
     case Rectype_Sb16vector: case Rectype_b16vector:          \
     case Rectype_Sb32vector: case Rectype_b32vector:          \
     case Rectype_Svector: case Rectype_vector:                \
-    case Rectype_WeakKVT: case Rectype_mdarray:               \
+    case Rectype_mdarray:                                     \
       goto case_array;
   #define case_Rectype_number_above  /* don't forget immediate_number_p */ \
     case Rectype_Complex: case Rectype_Ratio:                      \
@@ -8111,6 +8170,22 @@ extern object allocate_imm_s32string (uintL len);
 extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # is used by ARRAY, IO
 
+# UP: allocates Long-Record
+# allocate_lrecord(rectype,reclen,type)
+# > sintB rectype: further type-info
+# > uintL reclen: length
+# > tint type: type-info
+# < result: LISP-object Record (elements are initialized with NIL)
+# can trigger GC
+#ifdef TYPECODES
+  extern object allocate_lrecord (uintB rectype, uintL reclen, tint type);
+#else
+  #define allocate_lrecord(rectype,reclen,type)  /* ignore type */ \
+    allocate_lrecord_(rectype,reclen)
+  extern object allocate_lrecord_ (uintB rectype, uintL reclen);
+#endif
+# is used by WEAK
+
 # UP: allocates Simple-Record
 # allocate_srecord(flags,rectype,reclen,type)
 # > uintB flags: Flags
@@ -8122,8 +8197,8 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #ifdef TYPECODES
   #define allocate_srecord(flags,rectype,reclen,type)  \
     allocate_srecord_(                                                     \
-       (BIG_ENDIAN_P ? ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype)  \
-                     : (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize)),\
+       (BIG_ENDIAN_P ? (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize)  \
+                     : ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype)),\
        reclen,                                                             \
        type)
   extern object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
@@ -8146,8 +8221,8 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #ifdef TYPECODES
   #define allocate_xrecord(flags,rectype,reclen,recxlen,type)  \
     allocate_xrecord_(                                                     \
-       (BIG_ENDIAN_P ? ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype)  \
-                     : (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize)),\
+       (BIG_ENDIAN_P ? (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize)  \
+                     : ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype)),\
        reclen,                                                             \
        recxlen,                                                            \
        type)
