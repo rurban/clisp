@@ -1098,9 +1098,10 @@ LISPFUNNR(ldiff,2)
     VALUES1(new_list);
 }
 
-/* check for RPLACA and RPLACD
- check_cons(obj)
- > obj: potential cons */
+/* check_cons(obj)
+ > obj: an object
+ < result: a cons, either the same as obj or a replacement
+ can trigger GC */
 local object check_cons_replacement (object obj) {
   do {
     pushSTACK(NIL);               /* no PLACE */
@@ -1109,43 +1110,47 @@ local object check_cons_replacement (object obj) {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a pair"));
     obj = value1;
-  } while (atomp(obj));
+  } while (!consp(obj));
   return obj;
 }
-#define check_cons(o)  if (matomp(o)) o = check_cons_replacement(o)
+static inline object check_cons (object obj) {
+  if (!consp(obj))
+    obj = check_cons_replacement(obj);
+  return obj;
+}
 
 LISPFUNN(rplaca,2)              /* (RPLACA cons object), CLTL S. 272 */
 {
-  check_cons(STACK_1);
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
+  var object arg1 = check_cons(STACK_1);
+  var object arg2 = STACK_0;
+  skipSTACK(2);
   Car(arg1) = arg2;
   VALUES1(arg1);
 }
 
 LISPFUNN(prplaca,2)             /* (SYS::%RPLACA cons object) */
 { /* like (RPLACA cons object), but return object as value */
-  check_cons(STACK_1);
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
+  var object arg1 = check_cons(STACK_1);
+  var object arg2 = STACK_0;
+  skipSTACK(2);
   Car(arg1) = arg2;
   VALUES1(arg2);
 }
 
 LISPFUNN(rplacd,2)              /* (RPLACD cons object), CLTL S. 272 */
 {
-  check_cons(STACK_1);
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
+  var object arg1 = check_cons(STACK_1);
+  var object arg2 = STACK_0;
+  skipSTACK(2);
   Cdr(arg1) = arg2;
   VALUES1(arg1);
 }
 
 LISPFUNN(prplacd,2)             /* (SYS::%RPLACD cons object) */
 { /* like (RPLACD cons object), but return object as value */
-  check_cons(STACK_1);
-  var object arg2 = popSTACK();
-  var object arg1 = popSTACK();
+  var object arg1 = check_cons(STACK_1);
+  var object arg2 = STACK_0;
+  skipSTACK(2);
   Cdr(arg1) = arg2;
   VALUES1(arg2);
 }
@@ -1919,20 +1924,18 @@ LISPFUNN(list_fe_init,1)
 
 LISPFUNN(list_access,2)
 { /* #'(lambda (seq pointer) (car pointer)) */
-  var object pointer = popSTACK();
-  check_cons(pointer);
+  var object pointer = check_cons(STACK_0);
   VALUES1(Car(pointer));
-  skipSTACK(1);
+  skipSTACK(2);
 }
 
 LISPFUNN(list_access_set,3)
 { /* #'(lambda (seq pointer value) (rplaca pointer value)) */
-  check_cons(STACK_1);
-  var object value = popSTACK();
-  var object pointer = popSTACK();
+  var object pointer = check_cons(STACK_1);
+  var object value = STACK_0;
   Car(pointer) = value;
   VALUES1(value);
-  skipSTACK(1);
+  skipSTACK(3);
 }
 
 LISPFUNN(list_llength,1)

@@ -1,3 +1,10 @@
+2004-06-02  Bruno Haible  <bruno@clisp.org>
+
+	* list.d (check_cons): Remove macro.
+	(check_cons): New function.
+	(RPLACA, SYS::%RPLACA, RPLACD, SYS::%RPLACD): Use it.
+	(SYS::LIST-ACCESS, SYS::LIST-ACCESS-SET): Likewise.
+
 2004-05-23  Bruno Haible  <bruno@clisp.org>
 
 	* backquote.lisp (bq-expand-list): Use iteration instead of recursion.
