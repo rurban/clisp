@@ -816,6 +816,8 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     proto = TheAsciz(string_to_asciz(tmp,Symbol_value(S(ascii))));
   else fehler_string(tmp);
 
+  if (symbolp(serv)) serv = Symbol_name(serv);
+
   if (eq(serv,unbound)) { # all services as a list
     int count = 0;
     begin_system_call();
@@ -823,7 +825,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
       SERVENT_TO_STACK(se);
       funcall(L(vector),4);
       pushSTACK(value1);
-      }
+    }
     endservent();
     end_system_call();
     value1 = listof(count); mv_count = 1;
@@ -837,7 +839,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     SERVENT_TO_STACK(se);
     funcall(L(values),4);
   } else fehler_string_int(serv);
-  }
+}
 
 #endif # SOCKET_STREAMS
 
