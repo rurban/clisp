@@ -93,12 +93,12 @@
    (and maybe gcc-cpp, ccpaux).
 */
 
-# this machine: WIN32 or GENERIC_UNIX
-#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__BEOS__)) && !defined(unix)
+/* this machine: WIN32 or GENERIC_UNIX */
+#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__)) && !defined(unix)
   #define unix
 #endif
 #if (defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))) || (defined(__WIN32__) && defined(__BORLANDC__))
-  #undef WIN32  # because of __MINGW32__
+  #undef WIN32                  /* because of __MINGW32__ */
   #define WIN32
 #endif
 #if !defined(WIN32)
@@ -5181,7 +5181,7 @@ typedef struct {
 } *  Class;
 
 # CLOS class-versions, see clos.lisp
-typedef struct { 
+typedef struct {
   LRECORD_HEADER
   gcv_object_t cv_newest_class             _attribute_aligned_object_; # the CLASS object describing the newest available version
   gcv_object_t cv_class                    _attribute_aligned_object_; # the CLASS object describing the slots

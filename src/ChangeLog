@@ -1,5 +1,9 @@
 2004-05-07  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (unix) [__OpenBSD__]: define
+
+2004-05-07  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/configure.in: <netinet/if_ether.h> requires
 	<net/if.h> to be included before it, which, in turn, requires
 	<sys/socket.h> to be included before it (on Solaris)
