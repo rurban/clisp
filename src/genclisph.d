@@ -163,18 +163,18 @@ void print_file (const char* fname) {
 static FILE *header_f = NULL, *test_f = NULL;
 static unsigned int test_count = 0, typedef_count = 0;
 
-void emit_typedef_test (char *new_type) {
+void emit_typedef_test (const char *new_type) {
   fprintf(test_f,"  printf(\"sizeof(%s)=%%d\\n\",sizeof(%s));\n",
           new_type,new_type);
   test_count++;
 }
-void emit_typedef (char* def, char* new_type) {
+void emit_typedef (const char* def, const char* new_type) {
   fprintf(header_f,"typedef %s %s;\n",def,new_type);
   typedef_count++;
   if (test_f) emit_typedef_test(new_type);
 }
 
-void emit_typedef_f (char* format, char* new_type) {
+void emit_typedef_f (const char* format, const char* new_type) {
   fputs("typedef ",header_f);
   fprintf(header_f,format,new_type);
   fputs(";\n",header_f);
@@ -438,6 +438,14 @@ int main(int argc, char* argv[])
  #ifdef WIDE
    printf("#define WIDE\n");
  #endif */
+  var const char* attribute_aligned_object = "";
+#if defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
+ #if defined(WIDE) && !defined(WIDE_HARD)
+  #ifdef GENERATIONAL_GC
+  attribute_aligned_object = " __attribute__ ((aligned(8)))";
+  #endif
+ #endif
+#endif
 #if !defined(WIDE_SOFT)
  #if defined(WIDE_AUXI)
   strcpy(buf,"struct { union { struct { ");
@@ -447,10 +455,11 @@ int main(int argc, char* argv[])
   strcat(buf,"uintP one_ob; uintP auxi_ob;");
   #endif
   strcat(buf," } both; oint align_o");
-  #ifdef GENERATIONAL_GC
-  strcat(buf," __attribute__ ((aligned(8)))");
-  #endif
-  strcat(buf,"; } u; }"); emit_typedef(buf,"gcv_object_t");
+  strcat(buf,attribute_aligned_object);
+  strcat(buf,"; } u");
+  strcat(buf,attribute_aligned_object);
+  strcat(buf,"; }");
+  emit_typedef(buf,"gcv_object_t");
   printf("#define one_o  u.both.one_ob\n");
   printf("#define auxi_o  u.both.auxi_ob\n");
  #elif defined(OBJECT_STRUCT)
@@ -481,10 +490,11 @@ int main(int argc, char* argv[])
   strcat(buf,"  struct { /*aint*/ uintL addr; /*tint*/ uintL type; } both;\n");
   #endif
   strcat(buf,"  oint one");
-  #ifdef GENERATIONAL_GC
-  strcat(buf," __attribute__ ((aligned(8)))");
-  #endif
-  strcat(buf,"; } u; }"); emit_typedef(buf,"gcv_object_t");
+  strcat(buf,attribute_aligned_object);
+  strcat(buf,"; } u");
+  strcat(buf,attribute_aligned_object);
+  strcat(buf,"; }");
+  emit_typedef(buf,"gcv_object_t");
  #else
   emit_typedef("oint","gcv_object_t");
  #endif
@@ -682,10 +692,11 @@ int main(int argc, char* argv[])
   printf("#define varobject_type(ptr) ((sintB)((ptr)->tfl & 0xFF))\n");
 #endif
 #ifdef TYPECODES
-  emit_typedef("struct { VAROBJECT_HEADER uintB recflags; sintB rectype; uintW recfiller; gcv_object_t recdata[unspecified]; }","record_");
+  sprintf(buf,"struct { VAROBJECT_HEADER uintB recflags; sintB rectype; uintW recfiller; gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
 #else
-  emit_typedef("struct { VAROBJECT_HEADER gcv_object_t recdata[unspecified]; }","record_");
+  sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
 #endif
+  emit_typedef(buf,"record_");
   emit_typedef("record_ *","Record");
 #ifdef TYPECODES
   printf("#define record_type(ptr)  ((ptr)->rectype)\n");
@@ -711,7 +722,8 @@ int main(int argc, char* argv[])
 #else
   printf("#define SRECORD_HEADER  VAROBJECT_HEADER\n");
 #endif
-  emit_typedef("struct { SRECORD_HEADER object recdata[unspecified]; }","srecord_");
+  sprintf(buf,"struct { SRECORD_HEADER object recdata[unspecified]%s; }",attribute_aligned_object);
+  emit_typedef(buf,"srecord_");
   emit_typedef("srecord_ *","Srecord");
 #ifdef TYPECODES
   printf("#define srecord_length(ptr)  ((ptr)->reclength)\n");
@@ -723,23 +735,30 @@ int main(int argc, char* argv[])
 #else
   printf("#define XRECORD_HEADER  VAROBJECT_HEADER\n");
 #endif
-/* emit_typedef("struct { XRECORD_HEADER gcv_object_t recdata[unspecified]; }","xrecord_");
- emit_typedef("xrecord_ *","Xrecord"); */
-  emit_typedef("struct { gcv_object_t cdr; gcv_object_t car; }","cons_");
+/* sprintf(buf,"struct { XRECORD_HEADER gcv_object_t recdata[unspecified]%s; }",attribute_aligned_object);
+   emit_typedef(buf,"xrecord_");
+   emit_typedef("xrecord_ *","Xrecord");
+*/
+  sprintf(buf,"struct { gcv_object_t cdr%s; gcv_object_t car%s; }",attribute_aligned_object,attribute_aligned_object);
+  emit_typedef(buf,"cons_");
   emit_typedef("cons_ *","Cons");
 /* #ifdef SPVW_MIXED
-   emit_typedef("struct { XRECORD_HEADER gcv_object_t rt_num; gcv_object_t rt_den; }","ratio_");
- #else
-   emit_typedef("struct { gcv_object_t rt_num; gcv_object_t rt_den; }","ratio_");
- #endif
- emit_typedef("ratio_ *","Ratio");
- #ifdef SPVW_MIXED
-   emit_typedef("struct { XRECORD_HEADER gcv_object_t c_real; gcv_object_t c_imag; }","complex_");
- #else
-   emit_typedef("struct { gcv_object_t c_real; gcv_object_t c_imag; }","complex_");
- #endif
- emit_typedef("complex_ *","Complex"); */
-  emit_typedef("struct { VAROBJECT_HEADER gcv_object_t symvalue; gcv_object_t symfunction; gcv_object_t proplist; gcv_object_t pname; gcv_object_t homepackage; }","symbol_");
+     sprintf(buf,"struct { XRECORD_HEADER gcv_object_t rt_num%s; gcv_object_t rt_den%s; }",attribute_aligned_object,attribute_aligned_object);
+   #else
+     sprintf(buf,"struct { gcv_object_t rt_num%s; gcv_object_t rt_den%s; }",attribute_aligned_object,attribute_aligned_object);
+   #endif
+   emit_typedef(buf,"ratio_");
+   emit_typedef("ratio_ *","Ratio");
+   #ifdef SPVW_MIXED
+     sprintf(buf,"struct { XRECORD_HEADER gcv_object_t c_real%s; gcv_object_t c_imag%s; }",attribute_aligned_object,attribute_aligned_object);
+   #else
+     sprintf(buf,"struct { gcv_object_t c_real%s; gcv_object_t c_imag%s; }",attribute_aligned_object,attribute_aligned_object);
+   #endif
+   emit_typedef(buf,"complex_");
+   emit_typedef("complex_ *","Complex");
+*/
+  sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; }",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+  emit_typedef(buf,"symbol_");
   emit_typedef("symbol_ *","Symbol");
   sprintf(buf,"uint%d",char_int_len); emit_typedef(buf,"cint");
   printf1("#define int_char(int_from_int_char)  type_data_object(%d,(aint)(cint)(int_from_int_char))\n",(tint)char_type);
@@ -813,7 +832,8 @@ int main(int argc, char* argv[])
 #endif
   emit_typedef("union { dfloat eksplicit; }","dfloatjanus");
   /* emit_typedef("struct { LRECORD_HEADER }","sarray_");
-     emit_typedef("sarray_ *","Sarray"); */
+     emit_typedef("sarray_ *","Sarray");
+  */
   emit_typedef("struct { LRECORD_HEADER uint8  data[unspecified]; }","sbvector_");
   emit_typedef("sbvector_ *","Sbvector");
 #ifdef UNICODE
@@ -822,7 +842,8 @@ int main(int argc, char* argv[])
   emit_typedef("struct { LRECORD_HEADER uint8  data[unspecified]; }","sstring_");
 #endif
   emit_typedef("sstring_ *","Sstring");
-  emit_typedef("struct { LRECORD_HEADER gcv_object_t data[unspecified]; }","svector_");
+  sprintf(buf,"struct { LRECORD_HEADER gcv_object_t data[unspecified]%s; }",attribute_aligned_object);
+  emit_typedef(buf,"svector_");
   emit_typedef("svector_ *","Svector");
 #ifdef TYPECODES
   printf("#define lrecord_length(ptr)  ((ptr)->length)\n");
@@ -836,19 +857,23 @@ int main(int argc, char* argv[])
   printf("#define sstring_length(ptr)  sarray_length(ptr)\n");
   printf("#define Sstring_length(obj)  sstring_length(TheSstring(obj))\n");
   printf("extern bool string_equal (object string1, object string2);\n");
-  /* #ifdef TYPECODES
+  /*
+  #ifdef TYPECODES
    printf("#define Array_type_simple_bit_vector(atype)  (%d+((atype)<<%d)",Array_type_sbvector,TB0);
    if (TB0+1 != TB1) printf("+((atype)&%d)",bit(TB0+1)-bit(TB1));
    if (TB1+1 != TB2) printf("+((atype)&%d)",bit(TB1+1)-bit(TB2));
    printf(");\n");
- #endif
- emit_typedef("struct { XRECORD_HEADER gcv_object_t pack_external_symbols; gcv_object_t pack_internal_symbols; gcv_object_t pack_shadowing_symbols; gcv_object_t pack_use_list; gcv_object_t pack_used_by_list; gcv_object_t pack_name; gcv_object_t pack_nicknames; } *","Package"); */
+  #endif
+  sprintf(buf,"struct { XRECORD_HEADER gcv_object_t pack_external_symbols%s; gcv_object_t pack_internal_symbols%s; gcv_object_t pack_shadowing_symbols%s; gcv_object_t pack_use_list%s; gcv_object_t pack_used_by_list%s; gcv_object_t pack_name%s; gcv_object_t pack_nicknames%s; } *",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+  emit_typedef(buf,"Package");
+  */
   emit_typedef("Srecord","Structure");
   printf("#define structure_types   recdata[0]\n");
-  emit_typedef("struct { SRECORD_HEADER gcv_object_t inst_class; gcv_object_t inst_cl_id; gcv_object_t other[unspecified]; } *","Instance");
+  sprintf(buf,"struct { SRECORD_HEADER gcv_object_t inst_class%s; gcv_object_t inst_cl_id%s; gcv_object_t other[unspecified]%s; } *",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+  emit_typedef(buf,"Instance");
   printf("typedef void Values;\n"); /* emit_typedef useless: no sizeof(void) */
   emit_typedef_f("Values (*%s)()","lisp_function_t");
-  strcpy(buf,"struct { lisp_function_t function; gcv_object_t name; gcv_object_t keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } %s");
+  sprintf(buf,"struct { lisp_function_t function; gcv_object_t name%s; gcv_object_t keywords%s; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
 #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
   strcat(buf," __attribute__ ((aligned (4)))");
 #endif
