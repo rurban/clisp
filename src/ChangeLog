@@ -1,8 +1,28 @@
 2002-01-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (RM) [win32]: prepend '-'
+	* ffcall/Makefile.msvc: prepend '-' before 'del'
+	* ffcall/avcall/Makefile.msvc: ditto
+	* ffcall/callback/Makefile.msvc: ditto
+	* ffcall/callback/trampoline_r/Makefile.msvc: ditto
+	* ffcall/callback/vacall_r/Makefile.msvc: ditto
+	* ffcall/trampoline/Makefile.msvc: ditto
+	* ffcall/vacall/Makefile.msvc: ditto
+	* libiconv/Makefile.msvc: ditto
+	* libiconv/lib/Makefile.msvc: ditto
+	* libiconv/libcharset/Makefile.msvc: ditto
+	* libiconv/libcharset/lib/Makefile.msvc: ditto
+	* libiconv/src/Makefile.msvc: ditto
+	* libiconv/tests/Makefile.msvc: ditto
+	* sigsegv/Makefile.msvc: ditto
+	From Indrayana Rustandi <i_rustandi@yahoo.com>
+
+2002-01-06  Sam Steingold  <sds@gnu.org>
+
 	FDEFINITION returns correctly for (SETF symbol) macros
 	* control.d (FDEFINITION): check SYS::SETF-EXPANDER property too
 	* constsym.d (SYS::SETF-EXPANDER): define the symbol here
+	Reported by William Harold Newman <william.newman@airmail.net>
 
 2002-01-06  Sam Steingold  <sds@gnu.org>
 

@@ -1800,14 +1800,15 @@ if [ $HOS = win32 -a $HSYS != win32gcc ] ; then
 else
   echol "MAKE = ${MAKE:-make}"
 fi
-echol "RM = ${RM}"
 echol "CP = ${CP}"
 echol "LN_S = ${LN_S}"
 echol "MV = ${MV}"
 echol "CAT = ${CAT}"
 if [ $HOS = win32 ] ; then
+  echol "RM = -${RM}"
   echol "TOUCH = -${TOUCH}"
 else
+  echol "RM = ${RM}"
   echol "TOUCH = ${TOUCH}"
 fi
 echol "GREP = ${GREP}"
