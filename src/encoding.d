@@ -13,8 +13,7 @@
 #endif
 
 /* =========================================================================
- * Individual encodings
- */
+ * Individual encodings */
 
 #ifdef UNICODE
 
@@ -53,6 +52,12 @@ nonreturning_function(global, fehler_unencodable,
     fehler(charset_type_error,
            GETTEXT("Character #\\u00$$$$$$ cannot be represented in the character set ~"));
   }
+}
+
+/* odd buffer for ucs-2 and such */
+nonreturning_function(local, fehler_buffer_parity, (object encoding)) {
+  pushSTACK(TheEncoding(encoding)->enc_charset);
+  fehler(error,GETTEXT("incomplete byte sequence at end of buffer for ~"));
 }
 
 /* The range function for an encoding covering all of Unicode. */
@@ -110,7 +115,12 @@ global void uni16le_wcstombs (object encoding, object stream,
 
 global uintL uni16_mblen (object encoding, const uintB* src,
                           const uintB* srcend) {
-  return floor(srcend-src,2);
+  var uintL len = srcend-src;
+  var bool error_p = len & 1; /* odd-p */
+  var uintL count = len >> 1; /* mod 2 */
+  if (error_p && !eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
+    return count+1;
+  else return count;
 }
 
 global void uni16be_mbstowcs (object encoding, object stream,
@@ -118,16 +128,26 @@ global void uni16be_mbstowcs (object encoding, object stream,
                               chart* *destp, chart* destend) {
   var const uintB* src = *srcp;
   var chart* dest = *destp;
-  var uintL count = floor(srcend-src,2);
+  var uintL len = srcend-src;
+  var bool error_p = len & 1; /* odd-p */
+  var uintL count = len >> 1; /* mod 2 */
   if (count > destend-dest)
     count = destend-dest;
   if (count > 0) {
-    dotimespL(count,count, {
+    do {
       *dest++ = as_chart(((cint)src[0] << 8) | (cint)src[1]);
       src += 2;
-    });
+    } while (--count);
     *srcp = src;
     *destp = dest;
+  }
+  if (error_p) {
+    var object action = TheEncoding(encoding)->enc_towcs_error;
+    if (eq(action,S(Kignore))) {
+    } else if (eq(action,S(Kerror))) {
+      fehler_buffer_parity(encoding);
+    } else
+      *(*destp)++ = char_code(action);
   }
 }
 
@@ -136,16 +156,26 @@ global void uni16le_mbstowcs (object encoding, object stream,
                               chart* *destp, chart* destend) {
   var const uintB* src = *srcp;
   var chart* dest = *destp;
-  var uintL count = floor(srcend-src,2);
+  var uintL len = srcend-src;
+  var bool error_p = len & 1; /* odd-p */
+  var uintL count = len >> 1; /* mod 2 */
   if (count > destend-dest)
     count = destend-dest;
   if (count > 0) {
-    dotimespL(count,count, {
+    do {
       *dest++ = as_chart((cint)src[0] | ((cint)src[1] << 8));
       src += 2;
-    });
+    } while (--count);
     *srcp = src;
     *destp = dest;
+  }
+  if (error_p) {
+    var object action = TheEncoding(encoding)->enc_towcs_error;
+    if (eq(action,S(Kignore))) {
+    } else if (eq(action,S(Kerror))) {
+      fehler_buffer_parity(encoding);
+    } else
+      *(*destp)++ = char_code(action);
   }
 }
 
@@ -155,23 +185,21 @@ global uintL uni16_wcslen (object encoding, const chart* src,
                            const chart* srcend) {
   var uintL count = srcend-src;
   var uintL result = 0;
-  if (count > 0) {
-    dotimespL(count,count, {
-      var chart ch = *src++;
-      if (as_cint(ch) < 0x10000)
-        result += 2;
-      else {
-        var object action = TheEncoding(encoding)->enc_tombs_error;
-        if (eq(action,S(Kignore))) {
-        } else if (uint8_p(action)) {
-          result++;
-        } else if (!eq(action,S(Kerror))) {
-          var chart c = char_code(action);
-          if (as_cint(c) < 0x10000)
-            result += 2;
-        }
+  while (count--) {
+    var chart ch = *src++;
+    if (as_cint(ch) < 0x10000)
+      result += 2;
+    else {
+      var object action = TheEncoding(encoding)->enc_tombs_error;
+      if (eq(action,S(Kignore))) {
+      } else if (uint8_p(action)) {
+        result++;
+      } else if (!eq(action,S(Kerror))) {
+        var chart c = char_code(action);
+        if (as_cint(c) < 0x10000)
+          result += 2;
       }
-    });
+    }
   }
   return result;
 }
@@ -295,10 +323,12 @@ nonreturning_function(local, fehler_uni32_invalid,
 
 global uintL uni32be_mblen (object encoding, const uintB* src,
                             const uintB* srcend) {
+  var uintL len = srcend-src;
+  var bool error_p = ((len & 3) != 0); /* rem 4 */
+  var uintL count = len >> 2; /* mod 4 */
   if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
-    return floor(srcend-src,4);
+    return count + error_p;
   else {
-    var uintL count = floor(srcend-src,4);
     var uintL result = 0;
     dotimesL(count,count, {
       var uint32 ch =
@@ -314,10 +344,12 @@ global uintL uni32be_mblen (object encoding, const uintB* src,
 
 global uintL uni32le_mblen (object encoding, const uintB* src,
                             const uintB* srcend) {
+  var uintL len = srcend-src;
+  var bool error_p = ((len & 3) != 0); /* rem 4 */
+  var uintL count = len >> 2; /* mod 4 */
   if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
-    return floor(srcend-src,4);
+    return count + error_p;
   else {
-    var uintL count = floor(srcend-src,4);
     var uintL result = 0;
     dotimesL(count,count, {
       var uint32 ch =
@@ -336,7 +368,9 @@ global void uni32be_mbstowcs (object encoding, object stream,
                               chart* *destp, chart* destend) {
   var const uintB* src = *srcp;
   var chart* dest = *destp;
-  var uintL scount = floor(srcend-src,4);
+  var uintL len = srcend-src;
+  var bool error_p = ((len & 3) != 0); /* rem 4 */
+  var uintL scount = len >> 2; /* mod 4 */
   var uintL dcount = destend-dest;
   if (scount > 0 && dcount > 0) {
     do {
@@ -359,6 +393,14 @@ global void uni32be_mbstowcs (object encoding, object stream,
     *srcp = src;
     *destp = dest;
   }
+  if (error_p) {
+    var object action = TheEncoding(encoding)->enc_towcs_error;
+    if (eq(action,S(Kignore))) {
+    } else if (eq(action,S(Kerror))) {
+      fehler_buffer_parity(encoding);
+    } else
+      *(*destp)++ = char_code(action);
+  }
 }
 
 global void uni32le_mbstowcs (object encoding, object stream,
@@ -366,7 +408,9 @@ global void uni32le_mbstowcs (object encoding, object stream,
                               chart* *destp, chart* destend) {
   var const uintB* src = *srcp;
   var chart* dest = *destp;
-  var uintL scount = floor(srcend-src,4);
+  var uintL len = srcend-src;
+  var bool error_p = ((len & 3) != 0); /* rem 4 */
+  var uintL scount = len >> 2; /* mod 4 */
   var uintL dcount = destend-dest;
   if (scount > 0 && dcount > 0) {
     do {
@@ -388,6 +432,14 @@ global void uni32le_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
+  }
+  if (error_p) {
+    var object action = TheEncoding(encoding)->enc_towcs_error;
+    if (eq(action,S(Kignore))) {
+    } else if (eq(action,S(Kerror))) {
+      fehler_buffer_parity(encoding);
+    } else
+      *(*destp)++ = char_code(action);
   }
 }
 

@@ -1,5 +1,17 @@
 2003-03-11  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 543072 ]: make-encoding :input-action on bad input (again)
+	* encoding.d (fehler_buffer_parity): new function
+	(uni16_mblen): check that the input buffer has even length
+	(uni16be_mbstowcs, uni16le_mbstowcs): barf when the input has an
+	odd number of bytes (use fehler_buffer_parity)
+	(uni32be_mblen, uni32le_mblen): check that the input buffer
+	length is divisible by 4
+	(uni32be_mbstowcs, uni32le_mbstowcs): barf when the input length
+	is not divisible by 4 (use fehler_buffer_parity)
+
+2003-03-11  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (fehler_foreign_object, foreign_address)
 	(foreign_pointer): new functions
 	(VALIDP): use foreign_pointer()
@@ -4351,7 +4363,7 @@
 
 2002-04-18  Sam Steingold  <sds@gnu.org>
 
-	fixed bug [ 543072 ]: make-encoding :input-action on bad input
+	fixed bug #[ 543072 ]: make-encoding :input-action on bad input
 	* stream.d (iconv_mblen, iconv_mbstowcs): treat EINVAL (incomplete
 	input) like EILEQ (conversion error) for delimited strings
 

@@ -1,27 +1,43 @@
 ;; -*- Lisp -*-
 
+;;(with-open-file (f "ucs" :direction :output :element-type '(unsigned-byte 8))
+;;  (write-byte-sequence #(0 65 0) f))
+
+;; <http://sourceforge.net/tracker/index.php?func=detail&aid=543072&group_id=1355&atid=101355>
 (string=
- (ext:convert-string-from-bytes
-  '#(255 254 65 0 13 0)
-  (ext:make-encoding :charset charset:utf-16))
+ (ext:convert-string-from-bytes '#(0 65 0 13) charset:ucs-2)
  (map 'string #'code-char '(65 13)))
 t
 
 (ext:convert-string-from-bytes
- '#(255 254 65 0 13) ; missing last 0
- (ext:make-encoding :charset charset:utf-16 :input-error-action :error))
+ '#(0 65 0) ; wrong length
+ (ext:make-encoding :charset charset:ucs-2 :input-error-action :error))
 ERROR
 
 (ext:convert-string-from-bytes
- '#(255 254 65 0 13) ; missing last 0
- (ext:make-encoding :charset charset:utf-16 :input-error-action #\Z))
+ '#(0 65 0) ; wrong length
+ (ext:make-encoding :charset charset:ucs-2 :input-error-action #\Z))
+"AZ"
+
+(string=
+ (ext:convert-string-from-bytes '#(0 0 0 65 0 0 0 13) charset:ucs-4)
+ (map 'string #'code-char '(65 13)))
+t
+
+(ext:convert-string-from-bytes
+ '#(0 0 0 65 0 0) ; wrong length
+ (ext:make-encoding :charset charset:ucs-4 :input-error-action :error))
+ERROR
+
+(ext:convert-string-from-bytes
+ '#(0 0 0 65 0 0 0) ; wrong length
+ (ext:make-encoding :charset charset:ucs-4 :input-error-action #\Z))
 "AZ"
 
 (defparameter *no-iconv-p*
   (with-ignored-errors (not (make-encoding :charset "utf-16"))))
 *no-iconv-p*
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=543072&group_id=1355&atid=101355
 ;; these are broken with glibc 2.2.2, but work with glibc 2.2.5
 ;; see <http://article.gmane.org/gmane.lisp.clisp.devel/9746>
 (if *no-iconv-p* t
