@@ -1,5 +1,14 @@
 2001-04-18  Sam Steingold  <sds@gnu.org>
 
+	ANSI CL compliance: HANDLER-BIND uses multiple handlers
+	for the a single error
+	* compiler.lisp (c-HANDLER-BIND): collect all handlers, even for
+	duplicate types
+	* eval.d (invoke_handlers): go over the whole list of handlers,
+	not stopping after the first match has been found.
+
+2001-04-18  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (stream-tab): new function
 	(disassemble-closure): use it
 

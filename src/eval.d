@@ -658,6 +658,7 @@ LISPFUNN(subr_info,1)
             # Typen des Vektors #(type1 label1 ... typem labelm) durchlaufen:
             var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
             var uintL i = 0;
+          handler_search:
             do {
               pushSTACK(cond); # cond retten
               pushSTACK(cond);
@@ -705,6 +706,8 @@ LISPFUNN(subr_info,1)
                 var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
                                   + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
                 interpret_bytecode(closure,codevec,index);
+                i += 2;
+                goto handler_search;
               } else {
                 # C-Handler aufrufen:
                 void* handler_fn = TheMachineCode(FRAME_(frame_closure));
