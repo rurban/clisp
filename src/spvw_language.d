@@ -286,6 +286,6 @@ global object CLSTEXT (const char* asciz) {
 global object CLOTEXT (const char* asciz) {
   dynamic_bind(S(packagestern),O(default_package)); # bind *PACKAGE*
   pushSTACK(CLSTEXT(asciz)); funcall(L(read_from_string),1);
-  dynamic_unbind();
+  dynamic_unbind(S(packagestern));
   return value1;
 }

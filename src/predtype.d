@@ -2734,8 +2734,8 @@ global void with_gc_statistics (gc_function_t* fun) {
       O(gc_statistics_list) = new_cons;
     }
     /* Done. */
-    if (danger) { dynamic_unbind(); }
-    dynamic_unbind();
+    if (danger) { dynamic_unbind(S(gc_statistics_stern)); }
+    dynamic_unbind(S(recurse_count_gc_statistics));
     skipSTACK(locals.structure_classes.count + locals.standard_classes.count);
     done_hs_locals(locals);
   }
