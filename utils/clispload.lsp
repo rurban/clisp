@@ -123,5 +123,9 @@
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
 (setf (ext:getenv "PAGER") "cat")
 
+;; Avoid warnings that bloat the log file.
+(setq *warn-on-floating-point-contagion* nil
+      *warn-on-floating-point-rational-contagion* nil)
+
 ;; Then the tests.
 (load "gclload2.lsp")
