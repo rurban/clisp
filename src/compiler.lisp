@@ -7297,6 +7297,14 @@ for-value   NIL or T
                                       key-flag keylist)))
       (t (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) args)))))
 
+;; check whether (FUNC FORM) can be inlined
+;; useful for (CONSTANTLY ...) and (COMPLEMENT ...)
+(defun inlinable-function-operation-form-p (form func)
+  (and (consp form) (eq (first form) func)
+       (consp (rest form)) (null (cddr form))
+       (not (fenv-search func))
+       (not (declared-notinline func))))
+
 ;; (c-FUNCTION-CALL funform arglist) compiles a function-call
 ;; (SYS::%FUNCALL funform . arglist).
 (defun c-FUNCTION-CALL (funform arglist)
@@ -7305,19 +7313,13 @@ for-value   NIL or T
     ;; call of a Lambda-expression is possible INLINE
     (return-from c-FUNCTION-CALL
       (c-FUNCALL-INLINE funform arglist nil (cdr (second funform)) t)))
-  (when (and (consp funform) (eq (first funform) 'COMPLEMENT)
-             (consp (rest funform)) (null (cddr funform))
-             (not (fenv-search 'COMPLEMENT))
-             (not (declared-notinline 'COMPLEMENT))
+  (when (and (inlinable-function-operation-form-p funform 'COMPLEMENT)
              (not (fenv-search 'NOT)))
     ;; (complement fn) -->
     ;; (let ((f fn)) ... #'(lambda (&rest args) (not (apply f args))) ...)
     (return-from c-FUNCTION-CALL
       (c-form `(NOT (SYS::%FUNCALL ,(second funform) ,@arglist)))))
-  (when (and (consp funform) (eq (first funform) 'CONSTANTLY)
-             (consp (rest funform)) (null (cddr funform))
-             (not (fenv-search 'CONSTANTLY))
-             (not (declared-notinline 'CONSTANTLY)))
+  (when (inlinable-function-operation-form-p funform 'CONSTANTLY)
     ;; (constantly obj) -->
     ;; (let ((o obj)) ... #'(lambda (&rest a) (declare (ignore a)) o) ...)
     (return-from c-FUNCTION-CALL
@@ -7346,19 +7348,13 @@ for-value   NIL or T
     (when (inline-callable-function-lambda-p funform n t)
       (return-from c-APPLY
         (c-FUNCALL-INLINE funform args apply-args (cdr (second funform)) t)))
-    (when (and (consp funform) (eq (first funform) 'COMPLEMENT)
-               (consp (rest funform)) (null (cddr funform))
-               (not (fenv-search 'COMPLEMENT))
-               (not (declared-notinline 'COMPLEMENT))
+    (when (and (inlinable-function-operation-form-p funform 'COMPLEMENT)
                (not (fenv-search 'NOT)))
       ;; (complement fn) -->
       ;; (let ((f fn)) ... #'(lambda (&rest args) (not (apply f args))) ...)
       (return-from c-APPLY
         (c-form `(NOT (APPLY ,(second funform) ,@arglist)))))
-    (when (and (consp funform) (eq (first funform) 'CONSTANTLY)
-               (consp (rest funform)) (null (cddr funform))
-               (not (fenv-search 'CONSTANTLY))
-               (not (declared-notinline 'CONSTANTLY)))
+    (when (inlinable-function-operation-form-p funform 'CONSTANTLY)
       ;; (constantly obj) -->
       ;; (let ((o obj)) ... #'(lambda (&rest a) (declare (ignore a)) o) ...)
       (return-from c-APPLY
@@ -7909,13 +7905,10 @@ for-value   NIL or T
                     (let ((pred-arg (macroexpand-form
                                       ,(case n (2 `(second *form*))
                                                (3 `(third *form*))))))
-                      (if (and (consp pred-arg)
-                               (eq (first pred-arg) 'COMPLEMENT)
-                               (consp (rest pred-arg)) (null (cddr pred-arg))
+                      (if (and (inlinable-function-operation-form-p
+                                pred-arg 'COMPLEMENT)
                                ;; (op-if (complement fn) ...) -->
                                ;; (op-if-not fn ...)
-                               (not (fenv-search 'COMPLEMENT))
-                               (not (declared-notinline 'COMPLEMENT))
                                (not (fenv-search 'NOT)))
                         (c-form ,(case n (2 `(list* ',op-if-not
                                               (second pred-arg) (cddr *form*)))
@@ -7928,12 +7921,10 @@ for-value   NIL or T
                     (let ((pred-arg (macroexpand-form
                                       ,(case n (2 `(second *form*))
                                                (3 `(third *form*))))))
-                      (if (and (consp pred-arg)
-                               (eq (first pred-arg) 'COMPLEMENT)
-                               (consp (rest pred-arg)) (null (cddr pred-arg))
+                      (if (and (inlinable-function-operation-form-p
+                                pred-arg 'COMPLEMENT)
                                ;; (op-if-not (complement fn) ...) -->
                                ;; (op-if fn ...)
-                               (not (fenv-search 'COMPLEMENT))
                                (not (fenv-search 'NOT)))
                         (c-form ,(case n (2 `(list* ',op-if (second pred-arg)
                                               (cddr *form*)))
