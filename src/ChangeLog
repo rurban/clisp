@@ -4,8 +4,7 @@
 	* configure.in: Invoke AC_SYS_LARGEFILE. Check size of 'off_t'.
 	* lispbibl.d (UQ_to_I, I_to_UQ): Declare also if sizeof(off_t) > 4.
 	* intelem.d (UQ_to_I, I_to_UQ): Define also if sizeof(off_t) > 4.
-	(UQ_to_I): Add cast to avoid gcc warning: "cast to pointer from integer
-	of different size".
+	(UQ_to_I): Fix to make it work when sizeof(oint) < sizeof(uint64).
 	* stream.d (uoff_t): New type.
 	(uoff_t_to_I, I_to_uoff_t, uoff_t_p): New macros.
 	(struct strm_buffered_extrafields_t): Change type of buffstart and
