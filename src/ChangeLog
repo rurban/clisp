@@ -6,10 +6,14 @@
 
 2002-12-05  Sam Steingold  <sds@gnu.org>
 
-	* clx.f (get_event_mask): fixed error handling
+	* modules/clx/new-clx/clx.f (get_event_mask): fixed error handling
 	removed saving/restoring subr_self throughout
 	(display_hash_table): replace STACK_0 instead of returning a value
 	(make_xid_obj_2): reflect this change
+	* modules/clx/new-clx/demos/sokoban.lisp (*xpm-directory*)
+	(*screen-directory*): use *LOAD-TRUENAME*, not *LOAD-PATHNAME*,
+	and make sure that :NAME and :TYPE are NIL
+	(save-state, load-state): use WITH-STANDARD-IO-SYNTAX
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
