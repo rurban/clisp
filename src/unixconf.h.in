@@ -89,6 +89,10 @@
 /* Define if you have <netdb.h>. */
 #undef HAVE_NETDB_H
 
+/* CL_LDAP */
+/* Define if you have <ldap.h>. */
+#undef HAVE_LDAP_H
+
 /* CL_TERM */
 /* Define if you have <termios.h>. */
 #undef HAVE_TERMIOS_H
