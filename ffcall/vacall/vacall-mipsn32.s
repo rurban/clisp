@@ -174,7 +174,7 @@ vacall:
 	.set	noreorder
 	.set	nomacro
 	beq	$12,$0,.L19
-	andi	$12,$13,0x200
+	andi	$12,$13,0x400
 	.set	macro
 	.set	reorder
 
@@ -669,7 +669,7 @@ vacall:
 .L51:
 	lw	$14,16($sp)
 	#nop
-	andi	$12,$14,0x1000
+	andi	$12,$14,0x2000
 	.set	noreorder
 	.set	nomacro
 	beq	$12,$0,.L62
@@ -697,7 +697,7 @@ vacall:
 	.set	noreorder
 	.set	nomacro
 	bne	$13,$12,.L74
-	andi	$12,$14,0x2000
+	andi	$12,$14,0x4000
 	.set	macro
 	.set	reorder
 
@@ -706,7 +706,7 @@ vacall:
 	l.s	$f0,0($12)
 	l.s	$f2,4($12)
 .L62:
-	andi	$12,$14,0x2000
+	andi	$12,$14,0x4000
 .L74:
 	.set	noreorder
 	.set	nomacro

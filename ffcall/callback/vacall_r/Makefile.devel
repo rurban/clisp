@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-sparc.S vacall-alpha.s vacall-hppa.s vacall-arm.s vacall-rs6000.s vacall-m88k.s vacall-convex.s \
+all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.mit.s vacall-m68k.mot.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-sparc.S vacall-alpha.s vacall-hppa.s vacall-arm.s vacall-rs6000.s vacall-m88k.s vacall-convex.s \
       vacall_r.h.msvc config.h.msvc
 
 vacall-i386.S : vacall-i386.c vacall_r.h.in
@@ -18,8 +18,11 @@ vacall-i386.S : vacall-i386.c vacall_r.h.in
 vacall-i386-msvc.c : vacall-i386.S asmi386.sh
 	(echo '#ifdef _MSC_VER' ; echo '#include "vacall_r.h"' ; echo '#endif' ; ./asmi386.sh < vacall-i386.S) > vacall-i386-msvc.c
 
-vacall-m68k.s : vacall-m68k.c vacall_r.h.in
-	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.s
+vacall-m68k.mit.s : vacall-m68k.c vacall_r.h.in
+	$(GCC) -V egcs-2.91.57 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mit.s
+
+vacall-m68k.mot.s : vacall-m68k.c vacall_r.h.in
+	$(GCC) -V egcs-2.91.57 -b m68k-linux $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mot.s
 
 vacall-mips.s : vacall-mips.c vacall_r.h.in
 	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S vacall-mips.c -o vacall-mips.s

@@ -90,7 +90,7 @@ L17:
 	rtn
 L18:
 	mov.w s2,s1
-	and #512,s1
+	and #1024,s1
 	eq.w #0,s1
 	jbrs.t L19
 	ld.w -12(fp),s1

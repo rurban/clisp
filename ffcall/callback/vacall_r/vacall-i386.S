@@ -72,7 +72,7 @@ L18:
 	movl 4(%esp),%edx
 	testb $1,%dl
 	jne L36
-	testb $2,%dh
+	testb $4,%dh
 	je L21
 	movl 20(%esp),%edx
 	cmpl $2,%edx
@@ -116,7 +116,7 @@ L31:
 L36:
 	movl 12(%esp),%eax
 L2:
-	testb $1,5(%esp)
+	testb $2,5(%esp)
 	je L35
 	movl 40(%esp),%ecx
 	movl 8(%esp),%esp

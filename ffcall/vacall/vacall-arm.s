@@ -95,7 +95,7 @@ L18:
 	ldrne	r0, [sp, #8]
 	bne	L2
 L19:
-	tst	r3, #512
+	tst	r3, #1024
 	beq	L2
 	ldr	r3, [sp, #16]
 	cmp	r3, #2

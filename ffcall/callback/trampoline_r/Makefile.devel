@@ -15,7 +15,7 @@ proto-i386.s : proto.c
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -S proto.c -o $@
 
 proto-m68k.s : proto.c
-	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S proto.c -o $@
+	$(GCC) -V egcs-2.91.57 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S proto.c -o $@
 
 proto-mips.s : proto.c
 	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -S proto.c -o $@ -mabicalls

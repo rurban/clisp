@@ -135,7 +135,7 @@ $L18:
 	.set	noreorder
 	.set	nomacro
 	beq	$12,$0,$L19
-	andi	$12,$13,0x0200
+	andi	$12,$13,0x0400
 	.set	macro
 	.set	reorder
 
@@ -594,7 +594,7 @@ $L73:
 $L51:
 	lw	$12,32($sp)
 	#nop
-	andi	$12,$12,0x1000
+	andi	$12,$12,0x2000
 	.set	noreorder
 	.set	nomacro
 	beq	$12,$0,$L62
@@ -624,7 +624,7 @@ $L63:
 $L62:
 	lw	$12,32($sp)
 	#nop
-	andi	$12,$12,0x2000
+	andi	$12,$12,0x4000
 	.set	noreorder
 	.set	nomacro
 	beq	$12,$0,$L2

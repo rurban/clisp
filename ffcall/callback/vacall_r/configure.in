@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for VACALL
-dnl  Bruno Haible 7.11.1997
+dnl  Bruno Haible 13.2.1999
 dnl
 AC_INIT(vacall_r.h.in)
 AC_CONFIG_HEADER(vacall_r.h config.h)
@@ -16,6 +16,7 @@ CL_CANONICAL_HOST(../../autoconf)
 CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_PCC_STRUCT_RETURN
 CL_SMALL_STRUCT_RETURN
+CL_IREG_FLOAT_RETURN
 CL_LONGLONG
 CL_CHAR_UNSIGNED
 AC_OUTPUT(Makefile)
