@@ -1,3 +1,14 @@
+2002-05-07  Paolo Bonzini  <bonzini@gnu.org>
+
+	* sigsegv.h.in [__hpux, hpux]: Define HAVE_SIGSEGV_RECOVERY.
+	* handler.c (UNIX_HPUX) [__hpux, hpux]: New macro.
+	Define the hacks to access CR21.
+	* test1.c (mmap_zeromap): Return the address.
+	(handler): Don't hardcode the correct fault address.
+	(main): Set page to the result of mmap_zeromap.
+	* test2.c (mmap_zeromap): Return the address.
+	(main): Set area1/area2/area3 to the result of mmap_zeromap.
+
 2002-05-06  Bruno Haible  <bruno@clisp.org>
 
 	* test1.c: Include <stdlib.h>, for exit().
