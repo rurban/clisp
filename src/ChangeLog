@@ -1,3 +1,17 @@
+2003-01-06  Sam Steingold  <sds@gnu.org>
+
+	some more work on MT: added stubs for functions,
+	WITH-TIMEOUT almost works
+	* zthread.d: new file - for the actual functions implementations
+	(CALL-WITH-TIMEOUT): almost works
+	* thread.lisp: renamed threads to processes to comply with CMUCL &c
+	(WITH-TIMEOUT): use CALL-WITH-TIMEOUT
+	* subr.d, constsym.d [MULTITHREAD]: added thread functions
+	* makemake.in: added zthread.d
+	* stream.d (sec_usec): made global for use in zthread.d
+	* lispbibl.d (current_thread): made static (compiles with -g now)
+	* xthread.d (xcondition_timedwait, xthread_cancel): added
+
 2003-01-04  Sam Steingold  <sds@gnu.org>
 
 	* hashtabl.d (%SET-HASH-TABLE-WEAK-P): a variable cannot have
