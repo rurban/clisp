@@ -4023,20 +4023,18 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
     # start- und end-Argumente überprüfen:
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) # Typname = STRING ?
-      { var uintL start = posfixnum_to_L(STACK_2);
-        var uintL end = posfixnum_to_L(STACK_1);
-        if (end-start == 0)
-          { value1 = Fixnum_0; mv_count=1; skipSTACK(5); return; }
-       {var uintL len;
-        var chart* charptr = unpack_string_rw(STACK_4,&len);
-        # Ab charptr kommen len Zeichen.
-        # Versuche, eine optimierte Lese-Routine aufzurufen:
-        var chart* endptr = read_char_array(STACK_3,&charptr[start],end-start);
-        if (!(endptr==NULL))
-          { value1 = fixnum(endptr-charptr); mv_count=1;
-            skipSTACK(5);
-            return;
-      }}  }
+      {  var uintL start = posfixnum_to_L(STACK_2);
+         var uintL end = posfixnum_to_L(STACK_1);
+         if (end-start == 0)
+           { value1 = Fixnum_0; mv_count=1; skipSTACK(5); return; }
+       { var uintL index = 0;
+         STACK_0 = iarray_displace_check(STACK_4,end,&index);
+         check_sstring_mutable(STACK_0);
+        {var uintL result = read_char_array(&STACK_3,&STACK_0,index+start,end-start);
+         value1 = fixnum(result); mv_count=1;
+         skipSTACK(5);
+         return;
+      }}}
     # Durchlauf-Pointer bestimmen:
     pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
     funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)

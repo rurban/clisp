@@ -130,12 +130,14 @@
     typedef object (* pk_ch_Pseudofun) (const object* stream_);
   #
   # Spezifikation für READ-CHAR-ARRAY - Pseudofunktion:
-  # fun(stream,charptr,len)
-  # > stream: Stream
-  # > chart* charptr: Adresse der zu füllenden Zeichenfolge
-  # > uintL len: Länge der zu füllenden Zeichenfolge, >0
-  # < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-    typedef chart* (* rd_ch_array_Pseudofun) (object stream, chart* charptr, uintL len);
+  # fun(&stream,&chararray,start,len)
+  # > stream: stream
+  # > object chararray: mutable simple-string
+  # > uintL start: start index of character sequence to be filled
+  # > uintL len: length of character sequence to be filled, >0
+  # < uintL result: number of characters that have been filled
+  # can trigger GC
+    typedef uintL (* rd_ch_array_Pseudofun) (const object* stream_, const object* chararray_, uintL start, uintL len);
   #
   # Spezifikation für WRITE-CHAR - Pseudofunktion:
   # fun(&stream,obj)
@@ -301,18 +303,30 @@
         { TheStream(*stream_)->strmflags |= strmflags_unread_B; }
       return newch;
     }
-  local chart* rd_ch_array_error (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_error(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+  local uintL rd_ch_array_error (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_error(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { fehler_illegal_streamop(S(read_char),stream); }
-  local chart* rd_ch_array_dummy (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_dummy(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+    { fehler_illegal_streamop(S(read_char),*stream_); }
+  local uintL rd_ch_array_dummy (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_dummy(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { return NULL; }
+    { var uintL end = start + len;
+      var uintL index = start;
+      do {
+        var object obj = rd_ch(*stream_)(stream_);
+        if (eq(obj,eof_value)) break;
+        if (!charp(obj)) { fehler_char(obj); }
+        TheSstring(*chararray_)->data[index] = char_code(obj);
+        index++;
+      } while (index < end);
+      return index - start;
+    }
   local void wr_ch_error (const object* stream_, object obj);
   local void wr_ch_error(stream_,obj)
     var const object* stream_;
@@ -551,36 +565,42 @@
         { return TheStream(stream)->strm_rd_ch_last; }
     }
 
-# UP: Liest mehrere Characters von einem Stream.
-# read_char_array(stream,charptr,len)
-# > stream: Stream
-# > chart* charptr: Adresse der zu füllenden Zeichenfolge
-# > uintL len: Länge der zu füllenden Zeichenfolge
-# < chart* ergebnis: Pointer ans Ende des gefüllten Bereiches oder NULL
-  global chart* read_char_array (object stream, chart* charptr, uintL len);
-  global chart* read_char_array(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+# Function: Reads several characters from a stream.
+# read_char_array(&stream,&chararray,start,len)
+# > stream: stream (on the STACK)
+# > object chararray: mutable simple-string (on the STACK)
+# > uintL start: start index of character sequence to be filled
+# > uintL len: length of character sequence to be filled
+# < uintL result: number of characters that have been filled
+# can trigger GC
+  global uintL read_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
+  global uintL read_char_array(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { if (len==0) { return charptr; }
-     {var object lastchar = TheStream(stream)->strm_rd_ch_last;
+    { if (len==0) { return 0; }
+     {var object stream = *stream_;
+      var object lastchar = TheStream(stream)->strm_rd_ch_last;
       if (eq(lastchar,eof_value)) # EOF ?
-        { return charptr; }
-      if (TheStream(stream)->strmflags & strmflags_unread_B)
-        { if (!charp(lastchar)) { return NULL; }
-          *charptr++ = char_code(lastchar);
-          len--;
-          if (len==0)
-            { TheStream(stream)->strmflags &= ~strmflags_unread_B;
-              return charptr;
-        }   }
-      {var chart* endptr = rd_ch_array(stream)(stream,charptr,len);
-       if (endptr == NULL) { return NULL; }
-       TheStream(stream)->strm_rd_ch_last =
-         (endptr == charptr+len ? code_char(endptr[-1]) : eof_value);
-       TheStream(stream)->strmflags &= ~strmflags_unread_B;
-       return endptr;
-    }}}
+        { return 0; }
+      {var uintL index = start;
+       if (TheStream(stream)->strmflags & strmflags_unread_B)
+         { if (!charp(lastchar)) { fehler_char(lastchar); }
+           TheSstring(*chararray_)->data[index++] = char_code(lastchar);
+           len--;
+           if (len==0)
+             { TheStream(stream)->strmflags &= ~strmflags_unread_B;
+               return 1;
+         }   }
+       {var uintL count = rd_ch_array(stream)(stream_,chararray_,index,len);
+        index += count;
+        stream = *stream_;
+        TheStream(stream)->strm_rd_ch_last =
+          (count == len ? code_char(TheSstring(*chararray_)->data[index-1]) : eof_value);
+        TheStream(stream)->strmflags &= ~strmflags_unread_B;
+        return index - start;
+    }}}}
 
 # Schreibt ein Character auf einen Stream.
 # write_char(&stream,ch);
@@ -936,14 +956,17 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Synonym-Streams:
-  local chart* rd_ch_array_synonym (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_synonym(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+  local uintL rd_ch_array_synonym (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_synonym(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-     {var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return read_char_array(get_synonym_stream(symbol),charptr,len);
+    { check_SP(); check_STACK();
+      pushSTACK(get_synonym_stream(TheStream(*stream_)->strm_synonym_symbol));
+     {var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+      skipSTACK(1);
+      return result;
     }}
 
 # WRITE-CHAR - Pseudofunktion für Synonym-Streams:
@@ -1463,33 +1486,30 @@ LISPFUNN(broadcast_stream_streams,1)
     }}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Concatenated-Streams:
-  local chart* rd_ch_array_concat (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_concat(stream,byteptr,len)
-    var object stream;
-    var chart* charptr;
+  local uintL rd_ch_array_concat (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_concat(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-     {var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
-      if (consp(streamlist))
-        { if (consp(Cdr(streamlist)))
-            # More than two streams are too complicated, because there is the
-            # possibility of a partial read (i.e. the first stream's contents
-            # is read upto EOF, and the second stream does not support
-            # read_char_array).
-            { return NULL; }
-            else
-            # Only one stream.
-            { var chart* endptr = read_char_array(Car(streamlist),charptr,len);
-              if (!(endptr==NULL))
-                if (!(endptr == charptr+len))
-                  { # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
-                    TheStream(stream)->strm_concat_list = Cdr(streamlist);
-                  }
-              return endptr;
-            }
-        }
-        else
-        { return charptr; }
+    { check_SP(); check_STACK();
+     {var uintL result = 0;
+      var object stream = *stream_;
+      var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
+      loop
+        { if (atomp(streamlist)) break;
+          pushSTACK(Car(streamlist));
+         {var uintL count = read_char_array(&STACK_0,chararray_,start,len);
+          skipSTACK(1);
+          result += count;
+          start += count; len -= count;
+          if (len == 0) break;
+          # EOF reached -> remove emptied stream from the list:
+          stream = *stream_;
+          streamlist =
+          TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+        }}
+      return result;
     }}
 
 # Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
@@ -1774,14 +1794,18 @@ LISPFUNN(concatenated_stream_streams,1)
     }}
 
 # READ-CHAR-ARRAY - Pseudofunktion für Two-Way-Streams:
-  local chart* rd_ch_array_twoway (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_twoway(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+  local uintL rd_ch_array_twoway (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_twoway(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { check_SP();
-      return read_char_array(TheStream(stream)->strm_twoway_input,charptr,len);
-    }
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+      skipSTACK(1);
+      return result;
+    }}
 
 # Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
 # make_twoway_stream(input_stream,output_stream)
@@ -1909,6 +1933,21 @@ LISPFUNN(two_way_stream_output_stream,1)
       return obj;
     }}
 
+# READ-CHAR-ARRAY - Pseudofunktion für Echo-Streams:
+  local uintL rd_ch_array_echo (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_echo(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
+    var uintL len;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(*stream_)->strm_twoway_input);
+     {var uintL result = read_char_array(&STACK_0,chararray_,start,len);
+      skipSTACK(1);
+      write_char_array(TheStream(*stream_)->strm_twoway_output,&TheSstring(*chararray_)->data[start],result);
+      return result;
+    }}
+
 # Liefert einen Echo-Stream zu einem Input-Stream und einem Output-Stream.
 # make_echo_stream(input_stream,output_stream)
 # > input_stream : Input-Stream
@@ -1930,7 +1969,7 @@ LISPFUNN(two_way_stream_output_stream,1)
       TheStream(stream)->strm_wr_by_array = P(wr_by_array_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
       TheStream(stream)->strm_pk_ch = P(pk_ch_twoway);
-      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_dummy);
+      TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_echo);
       TheStream(stream)->strm_rd_ch_last = NIL;
       TheStream(stream)->strm_wr_ch = P(wr_ch_twoway);
       TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_twoway);
@@ -2033,30 +2072,33 @@ LISPFUNN(echo_stream_output_stream,1)
     }
 
 # READ-CHAR-ARRAY - Pseudofunktion für String-Input-Streams:
-  local chart* rd_ch_array_str_in (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_str_in(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+  local uintL rd_ch_array_str_in (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_str_in(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    { var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
+    { var object stream = *stream_;
+      var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
       var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
       if (index < endindex)
-        { var uintL srclen;
+        { var chart* charptr = &TheSstring(*chararray_)->data[start];
+          var uintL srclen;
           var uintL srcoffset;
           var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen,&srcoffset);
           if (srclen < endindex) { fehler_str_in_adjusted(stream); }
          {var uintL count = endindex - index;
           if (count > len) { count = len; }
           # count = min(len,endindex-index) > 0.
-          len -= count;
           TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,count);
           SstringDispatch(string,
             { chartcopy(&TheSstring(string)->data[srcoffset+index],charptr,count); },
             { scintcopy(&TheSmallSstring(string)->data[srcoffset+index],charptr,count); }
             );
-          charptr += count;
+          return count;
         }}
-      return charptr;
+        else
+        { return 0; }
     }
 
 # Schließt einen String-Input-Stream.
@@ -5013,15 +5055,19 @@ global object iconv_range(encoding,start,end)
     }
 
 # READ-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
-  local chart* rd_ch_array_unbuffered (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_unbuffered(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+  local uintL rd_ch_array_unbuffered (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_unbuffered(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
     { # Need a temporary buffer for CR/LF->NL translation.
       #define tmpbufsize 4096
       var chart tmpbuf[tmpbufsize];
-      var chart* endptr = charptr+len;
+      var object stream = *stream_;
+      var chart* startptr = &TheSstring(*chararray_)->data[start];
+      var chart* endptr = startptr+len;
+      var chart* charptr = startptr;
       loop
         { var uintL remaining = endptr - charptr;
           if (remaining == 0) break;
@@ -5085,7 +5131,7 @@ global object iconv_range(encoding,start,end)
                 }
             } while (count > 0);
         }}}
-      return charptr;
+      return charptr - startptr;
       #undef tmpbufsize
     }
 
@@ -6390,15 +6436,18 @@ typedef struct strm_i_buffered_extrafields_struct {
     }
 
 # READ-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local chart* rd_ch_array_buffered (object stream, chart* charptr, uintL len);
-  local chart* rd_ch_array_buffered(stream,charptr,len)
-    var object stream;
-    var chart* charptr;
+  local uintL rd_ch_array_buffered (const object* stream_, const object* chararray_, uintL start, uintL len);
+  local uintL rd_ch_array_buffered(stream_,chararray_,start,len)
+    var const object* stream_;
+    var const object* chararray_;
+    var uintL start;
     var uintL len;
-    {
+    { var object stream = *stream_;
+      var chart* startptr = &TheSstring(*chararray_)->data[start];
+      var chart* charptr = startptr;
       #ifdef UNICODE
       var object encoding = TheStream(stream)->strm_encoding;
-      var chart* endptr = charptr+len;
+      var chart* endptr = startptr+len;
       loop
         { var chart* startptr = charptr;
           var uintB* bufferptr = buffered_nextbyte(stream);
@@ -6484,7 +6533,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           }
           if (charptr == endptr) break;
         }
-      return charptr;
+      return charptr - startptr;
       #else
       do { var uintB* ptr = buffered_nextbyte(stream);
            if (ptr == (uintB*)NULL) break; # EOF -> fertig
@@ -6508,7 +6557,7 @@ typedef struct strm_i_buffered_extrafields_struct {
            *charptr++ = ch; len--;
          }}
          while (len > 0);
-      return charptr;
+      return charptr - startptr;
       #endif
     }
 
