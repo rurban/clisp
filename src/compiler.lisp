@@ -11031,7 +11031,8 @@ The function make-closure is required.
                         :req-anz req-num
                         :opt-anz opt-num
                         :rest-flag (or rest-p key-p)
-                        :code (make-anode :seclass *seclass-dirty*)
+                        :code (let ((*form* nil) (*stackz* nil))
+                                (make-anode :seclass *seclass-dirty*))
                         :Blocks-Offset 0
                         :Tagbodys-Offset 0
                         :Keyword-Offset 0

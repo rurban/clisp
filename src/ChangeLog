@@ -1,3 +1,7 @@
+2004-08-06  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (make-trampoline): Make it work with #+CLISP-DEBUG too.
+
 2004-06-16  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export the generic-function-* accessors.
@@ -32,6 +36,7 @@
 	* clos-method2.lisp (analyze-method-description): Use typep-class
 	instead of generic-function-p.
 	* clos-genfun3.lisp (do-defmethod): Likewise.
+	* clos-genfun4.lisp (do-defgeneric): Likewise.
 
 2004-06-16  Bruno Haible  <bruno@clisp.org>
 
