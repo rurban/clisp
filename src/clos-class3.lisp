@@ -604,7 +604,12 @@
           ;; subclasses of class! Due to <inheritable-slot-definition-initer>
           ;; and <inheritable-slot-definition-doc>.
           ;; No need to call (install-class-direct-accessors class) here.
-  ) ) ) )
+      ) )
+      ;; Notification of listeners:
+      (map-dependents class
+        #'(lambda (dependent)
+            (apply #'update-dependent class dependent all-keys)))
+  ) )
   class)
 
 (defun equal-direct-slots (slots1 slots2)
@@ -617,6 +622,10 @@
       (and (consp initargs1) (consp initargs2)
            (eq (car (first initargs1)) (car (first initargs2)))
            (equal-default-initargs (cdr initargs1) (cdr initargs2)))))
+
+(defun map-dependents-<class> (class function)
+  (dolist (dependent (class-listeners class))
+    (funcall function dependent)))
 
 ;; ----------------------- General routines for <class> -----------------------
 

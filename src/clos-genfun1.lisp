@@ -15,7 +15,7 @@
 (defparameter *<funcallable-standard-class>-class-version*
   (class-current-version <funcallable-standard-class>))
 
-(defconstant *<funcallable-standard-class>-instance-size* 26)
+(defconstant *<funcallable-standard-class>-instance-size* 27)
 
 (defun make-instance-<funcallable-standard-class> (metaclass &rest args
                                                    &key name
@@ -139,7 +139,9 @@
 (defparameter <generic-function>
   #|
   (defclass generic-function (metaobject funcallable-standard-object)
-    ()
+    (($listeners          ; list of objects to be notified upon a change
+       :type list
+       :accessor gf-listeners))
     (:metaclass funcallable-standard-class)
     (:fixed-slot-locations)
     (:generic-accessors nil))
@@ -147,7 +149,10 @@
   (ensure-class 'generic-function
     :metaclass <funcallable-standard-class>
     :direct-superclasses `(,<metaobject> ,<funcallable-standard-object>)
-    :direct-slots '()
+    :direct-slots '((:name $listeners
+                     :readers (gf-listeners)
+                     :writers ((setf gf-listeners))
+                     :type list))
     :direct-default-initargs '()
     :fixed-slot-locations t
     :generic-accessors nil))
@@ -160,6 +165,8 @@
     (apply #'%shared-initialize gf situation args)) ; == (call-next-method)
   (when (or (eq situation 't) name-p)
     (setf (funcallable-name gf) name))
+  (when (eq situation 't)
+    (setf (gf-listeners gf) nil))
   gf)
 
 ;; ----------------------------------------------------------------------------

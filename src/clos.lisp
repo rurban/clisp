@@ -24,6 +24,7 @@
 (load "clos-method2")
 (load "clos-genfun3")
 ; Now DEFGENERIC, DEFMETHOD work. DEFCLASS works fully.
+(load "clos-dependent")
 (load "clos-genfun4")
 (load "clos-method3")
 (load "clos-methcomb3")

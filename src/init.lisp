@@ -441,6 +441,7 @@
 (ext:re-export "CLOS" "COMMON-LISP")
 (let ((clos-extra
         '(;; MOP for dependents
+          add-dependent remove-dependent map-dependents update-dependent
           ;; MOP for slot definitions
           slot-definition standard-slot-definition
           direct-slot-definition standard-direct-slot-definition
