@@ -911,6 +911,9 @@ LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
 LISPSYM(line_number,"LINE-NUMBER",system)
 LISPSYM(allow_read_eval,"ALLOW-READ-EVAL",system)
 LISPSYM(defgray,"%DEFGRAY",system)
+#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
+LISPSYM(stream_lock,"STREAM-LOCK",posix)
+#endif
 # ---------- SYMBOL ----------
 LISPSYM(putd,"%PUTD",system)
 LISPSYM(find_subr,"%FIND-SUBR",system)
@@ -1212,6 +1215,9 @@ LISPSYM(Kldap,"LDAP",keyword)
 LISPSYM(Kscope,"SCOPE",keyword)
 LISPSYM(Kself,"SELF",keyword)
 LISPSYM(Ktree,"TREE",keyword)
+#endif
+#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
+LISPSYM(Kshared,"SHARED",keyword)
 #endif
 
 # sonstige Symbole:

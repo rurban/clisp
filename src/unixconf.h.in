@@ -237,7 +237,7 @@
 /* Define if <errno.h> or <stdio.h> contains a declaration for perror(). */
 #undef HAVE_PERROR_DECL
 
-/* CL_STRERROR */
+/* AC_CHECK_FUNCS(strerror) */
 /* Define if you have the strerror() function. */
 #undef HAVE_STRERROR
 
@@ -279,7 +279,7 @@
 /* Define as the return type of vfork(). */
 #undef RETVFORKTYPE
 
-/* CL_SETSID */
+/* AC_CHECK_FUNCS(setsid setpgid) */
 /* Define if you have the setsid() function. */
 #undef HAVE_SETSID
 /* Define if you have the setpgid() function. */
@@ -410,9 +410,15 @@
 /* Define as const if the declaration of unlink() needs const. */
 #undef UNLINK_CONST
 
-/* CL_FSYNC */
+/* AC_CHECK_FUNCS(fsync flock) */
 /* Define if you have the fsync() system call. */
 #undef HAVE_FSYNC
+/* Define if you have the flock() system call. */
+#undef HAVE_FLOCK
+
+/* AC_CHECK_HEADERS(sys/file.h) */
+/* Define if you have sys/file.h */
+#undef HAVE_SYS_FILE_H
 
 /* CL_IOCTL */
 /* Define as the type of `request' in ioctl() declaration. */
@@ -452,7 +458,7 @@
 /* Define if you have the poll() system call but not select(). */
 #undef HAVE_POLL
 
-/* CL_UALARM */
+/* AC_CHECK_FUNCS(ualarm) */
 /* Define if you have the ualarm() function. */
 #undef HAVE_UALARM
 
@@ -462,7 +468,7 @@
 /* Define as const if the declaration of setitimer() needs const. */
 #undef SETITIMER_CONST
 
-/* CL_USLEEP */
+/* AC_CHECK_FUNCS(usleep) */
 /* Define if you have the usleep() function. */
 #undef HAVE_USLEEP
 
