@@ -1,3 +1,11 @@
+1998-09-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * array.d (vectorof): New function.
+          (VECTOR): Call it.
+        * lispbibl.d (vectorof): New declaration.
+        * genclisph.d (main): Declare vectorof.
+        * predtype.d (statistics_statistics): Use vectorof.
+
 1998-09-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * user1.lsp: Fix German message, broken by last patch.

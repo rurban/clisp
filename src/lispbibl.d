@@ -10272,6 +10272,16 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object allocate_byte_vector (uintB atype, uintL len);
 # wird verwendet von CLX
 
+# UP: Bildet einen Simple-Vektor mit gegebenen Elementen.
+# vectorof(len)
+# > uintC len: gewünschte Vektorlänge
+# > auf STACK: len Objekte, erstes zuoberst
+# < ergebnis: Simple-Vektor mit diesen Objekten
+# Erhöht STACK
+# verändert STACK, kann GC auslösen
+  extern object vectorof (uintC len);
+# wird verwendet von PREDTYPE
+
 # UP: Liefert zu einem Array gegebener Größe den Datenvektor und den Offset.
 # Überprüft auch, ob alle Elemente des Arrays physikalisch vorhanden sind.
 # iarray_displace_check(array,size,&index)
