@@ -314,7 +314,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    *ansi* *default-file-encoding* ; places.lisp
    #+UNICODE *misc-encoding*
-   #+UNICODE *t*germinal-encoding*
+   #+UNICODE *terminal-encoding*
    #+UNICODE *pathname-encoding*
    *source-file-types* *compiled-file-types*)
  "CUSTOM")
