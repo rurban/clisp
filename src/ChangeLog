@@ -1,3 +1,7 @@
+2004-04-29  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (PARSE-NAMESTRING): Fix a GC-safety bug.
+
 2004-04-28  Sam Steingold  <sds@gnu.org>
 
 	* comptran.d (N_cosh_N): Fix a GC-safety bug.
