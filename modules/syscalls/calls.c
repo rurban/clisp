@@ -1897,11 +1897,8 @@ DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE \
 
 DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 { /* Lisp interface to dup(2)/dup2(2). */
-  STACK_1 = check_posfixnum(STACK_1);
-  if (boundp(STACK_0)) STACK_0 = check_posfixnum(STACK_0);
- {Handle old_handle = (Handle)posfixnum_to_L(STACK_1);
-  Handle new_handle = (posfixnump(STACK_0) ? (Handle)posfixnum_to_L(STACK_0)
-                       : (Handle)-1);
+  Handle new_handle = (Handle)posfixnum_default2(popSTACK(),(uintL)-1);
+  Handle old_handle = (Handle)posfixnum_to_L(check_posfixnum(popSTACK()));
   begin_system_call();
   new_handle = handle_dup(old_handle,new_handle);
   end_system_call();
