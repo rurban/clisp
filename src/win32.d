@@ -190,7 +190,8 @@
 
 # Socket connections
 #ifdef __MINGW32__
-# this kills a warning in </usr/include/w32api/winsock.h>:
+# this kills a warning in </usr/include/w32api/winsock.h>
+# and </usr/include/w32api/winsock2.h>:
 # "fd_set and associated macros have been defined in sys/types.
 #  This may cause runtime problems with W32 sockets"
 # Bruno said:
@@ -199,7 +200,8 @@
 # See the #ifs around stream.d:low_write_unbuffered_socket() etc.
 #define USE_SYS_TYPES_FD_SET
 #endif
-  #include <winsock.h>
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
 #ifdef __MINGW32__
 #undef USE_SYS_TYPES_FD_SET
 #endif
@@ -254,7 +256,7 @@
   #define CONNECT_CONST const
   #define CONNECT_ADDRLEN_T int
   #define HAVE_IPV4
-  #undef HAVE_IPV6
+  #define HAVE_IPV6
   #undef HAVE_NETINET_IN_H
   #undef HAVE_ARPA_INET_H
   #define RET_INET_ADDR_TYPE unsigned long

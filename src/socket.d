@@ -124,6 +124,8 @@
     #endif
     extern_C struct hostent * gethostbyname (GETHOSTBYNAME_CONST char* name);
   #endif
+#elif defined(HAVE_IPV6)
+  #define in6_addr in_addr6
 #endif
 
 # Converts an AF_INET address to a printable, presentable format.
@@ -150,6 +152,17 @@
   #ifdef HAVE_INET_NTOP
     #define ipv6_ntop(buffer,addr)  \
       inet_ntop(AF_INET6,&addr,buffer,45+1)
+  #elif defined(WIN32) || defined(__CYGWIN32__)
+    #define ipv6_ntop(buffer,addr)  \
+      sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
+              ntohs(((u_short*)(addr).s6_addr)[0]), \
+              ntohs(((u_short*)(addr).s6_addr)[1]), \
+              ntohs(((u_short*)(addr).s6_addr)[2]), \
+              ntohs(((u_short*)(addr).s6_addr)[3]), \
+              ntohs(((u_short*)(addr).s6_addr)[4]), \
+              ntohs(((u_short*)(addr).s6_addr)[5]), \
+              ntohs(((u_short*)(addr).s6_addr)[6]), \
+              ntohs(((u_short*)(addr).s6_addr)[7]))
   #else
     #define ipv6_ntop(buffer,addr)  \
       sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
@@ -818,7 +831,7 @@ local void servent_to_stack (struct servent * se) {
 }
 
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
-# (LISP:SOCKET-SERVICE-PORT &optional service-name protocol)
+# (SOCKET:SOCKET-SERVICE-PORT &optional service-name protocol)
 # NB: Previous versions of this functions
 #  - accepted a string containing a number, e.g. "80",
 #  - returned NIL when the port does not belong to a named service.
@@ -843,7 +856,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 
   if (eq(serv,unbound) || eq(serv,S(Kdefault)) || nullp(serv)) {
     var uintL count = 0;
-    #ifndef WIN32
+    #if !defined(WIN32) && !defined(__CYGWIN32__)
     begin_system_call();
     for (; (se = getservent()); count++) {
       end_system_call();
