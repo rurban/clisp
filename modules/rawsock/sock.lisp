@@ -22,7 +22,7 @@
 
 (in-package "RAWSOCK")
 (pushnew :rawsock *features*)
-(push "RAWSOCK" ext:*system-package-list*)
+(pushnew "RAWSOCK" ext:*system-package-list* :test #'string=)
 
 (macrolet ((missing (type) `(error "~S: missing ~S slot" ',type 'data)))
 (defstruct (sockaddr (:constructor make-sa (%data)))
