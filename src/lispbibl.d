@@ -26,6 +26,7 @@
      DEBUG_SPVW
      DEBUG_BYTECODE
      DEBUG_BACKTRACE
+     DEBUG_COMPILER
  Flags that may be set through CFLAGS, in order to override the defaults:
    Object representation (on 32-bit platforms only):
      TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
