@@ -54,6 +54,7 @@
 [ <A HREF="#Option -norc"><CODE>-norc</CODE></A> ]
 [ <A HREF="#Option -L"><CODE>-L</CODE> <EM>language</EM></A> ]
 [ <A HREF="#Option -N"><CODE>-N</CODE> <EM>localedir</EM></A> ]
+[ <A HREF="#Option -E"><CODE>-E</CODE><EM>domain</EM> <EM>encoding</EM></A> ]
 [ <A HREF="#Option -q"><CODE>-q</CODE></A> ]
 [ <A HREF="#Option -w"><CODE>-w</CODE></A> ]
 [ <A HREF="#Option -I"><CODE>-I</CODE></A> ]
@@ -202,6 +203,16 @@ provided the corresponding message catalog is installed.
 will search its message catalogs in
 <EM>localedir</EM><CODE>/</CODE><EM>language</EM><CODE>/LC_MESSAGES/clisp.</CODE><EM>ext</EM>.
 <P>
+
+<DT> <A NAME="Option -E"> <CODE>-E</CODE><EM>domain</EM> <EM>encoding</EM> </A>
+<DD> Specifies the encoding used for a given domain, overriding the default
+which depends on the environment variables <CODE>LC_ALL</CODE>,
+<CODE>LC_CTYPE</CODE>, <CODE>LANG</CODE>. <EM>domain</EM> can be
+<CODE>file</CODE>, affecting <CODE>*default-file-encoding*</CODE>, or
+<CODE>pathname</CODE>, affecting <CODE>*pathname-encoding*</CODE>, or
+<CODE>terminal</CODE>, affecting <CODE>*terminal-encoding*</CODE>, or
+<CODE>foreign</CODE>, affecting <CODE>*foreign-encoding*</CODE>, or
+<CODE>misc</CODE>, affecting <CODE>*misc-encoding*</CODE>.
 
 <DT> <A NAME="Option -q"> <CODE>-q</CODE> </A>
 <DD> Quiet: <CODE>clisp</CODE>
@@ -625,7 +636,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 20 June 1999.
+Last modified: 4 July 1999.
 
 </BODY>
 

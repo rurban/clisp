@@ -198,6 +198,7 @@ int main (int argc, char* argv[])
                 case 's':
                 case 't':
                 case 'L':
+                case 'E':
                 case 'o':
                 case 'p':
                 case 'x':

@@ -1,4 +1,4 @@
-.TH CLISP 1 "20 June 1999"
+.TH CLISP 1 "4 July 1999"
 
 
 .SH NAME
@@ -50,6 +50,10 @@ clisp \- Common Lisp language interpreter and compiler
 [
 .B -N
 .I localedir
+]
+[
+.BI -E domain
+.I encoding
 ]
 [
 .B -q
@@ -263,6 +267,33 @@ Specifies the base directory of locale files.
 .B clisp
 will search its message catalogs in
 .IR localedir / language /LC_MESSAGES/clisp. ext .
+
+.TP
+.BI -E "domain encoding"
+Specifies the encoding used for a given domain, overriding the default
+which depends on the environment variables
+.BR LC_ALL ", " LC_CTYPE ", " LANG .
+.I domain
+can be
+.BR file ,
+affecting
+.BR *default-file-encoding* ,
+or
+.BR pathname ,
+affecting
+.BR *pathname-encoding* ,
+or
+.BR terminal ,
+affecting
+.BR *terminal-encoding* ,
+or
+.BR foreign ,
+affecting
+.BR *foreign-encoding* ,
+or
+.BR misc ,
+affecting
+.BR *misc-encoding* .
 
 .TP
 .B -q
