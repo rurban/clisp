@@ -1,5 +1,12 @@
 2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	partially restored support for --without-unicode
+	* encoding.d (EXT:ENCODING-CHARSET): only with #+UNICODE
+	* subr.d, constsym.d: likewise
+	* stream.d (rd_ch_array_unbuffered): typo
+	
+2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* foreign.d (SETF FFI:VALIDP): prevent from invalidating unique
 	session FFI pointer
 
