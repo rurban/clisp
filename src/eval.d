@@ -1688,7 +1688,7 @@ local object lambdabody_source (object lambdabody) {
       var gcv_object_t* closure_; # Pointer to the Closure in the STACK
       # create Closure (filled with NIL):
       {
-        var object closure = allocate_closure(iclos_length);
+        var object closure = allocate_closure(iclos_length,seclass_default);
         # and fill partially:
         TheIclosure(closure)->clos_docstring = popSTACK(); # Doc-String
         var object declarations              = popSTACK(); # Declarations

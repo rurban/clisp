@@ -4278,10 +4278,11 @@ LISPFUNN(closure_reader,3) { # read #Y
     }
     skipSTACK(3);
     # execute (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)):
-    pushSTACK(Car(obj)); obj = Cdr(obj); # 1. Argument
-    pushSTACK(Car(obj)); obj = Cdr(obj); # 2. Argument
-    pushSTACK(obj); # 3. Argument
-    funcall(L(make_closure),3);
+    pushSTACK(Car(obj)); obj = Cdr(obj); /* 1st argument (name) */
+    pushSTACK(Car(obj)); obj = Cdr(obj); /* 2nd argument (codevec) */
+    pushSTACK(Cdr(obj)); /* 3rd argument (const list) */
+    pushSTACK(Car(obj)); /* 4th argument (side-effect class) */
+    funcall(L(make_closure),4);
     mv_count=1; # value1 as value
   } else {
     # n specified -> read Codevector:
@@ -9303,6 +9304,8 @@ local void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     JUSTIFY_SPACE;
     # print Codevector bytewise, treat possible circularity:
     pr_circle(stream_,TheClosure(*obj_)->clos_codevec,&pr_cclosure_codevector);
+    JUSTIFY_SPACE;
+    prin_object(stream_,seclass_object(Cclosure_seclass(*obj_)));
     pr_record_ab(stream_,obj_,2,2); # print remaining components
     JUSTIFY_END_ENG;
     INDENT_END;

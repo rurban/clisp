@@ -375,7 +375,7 @@
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
   /* The date of the last change of the bytecode interpreter
      or the arglist of any built-in function in FUNTAB */
-  LISPOBJ(version,"(20021010)")
+  LISPOBJ(version,"(20030222)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")
@@ -751,6 +751,11 @@
   LISPOBJ(rexx_prefetch_inmsg,"NIL")
   LISPOBJ(type_rexx_host,"(OR STRING BOOLEAN)")
  #endif
+/* for control & io, function seclass_object(): */
+LISPOBJ(seclass_no_se,"(NIL . NIL)")
+LISPOBJ(seclass_read,"(T . NIL)")
+LISPOBJ(seclass_write,"(NIL . T)")
+LISPOBJ(seclass_default,"(T . T)")
 # for FOREIGN.D:
  #ifdef DYNAMIC_FFI
   LISPOBJ(fp_zero,"NIL")
