@@ -1,3 +1,7 @@
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
+	* spvw_debug.d (bt_out): Fix an invalid use of STACK_item_count.
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	Generalize the assert-restart-no-prompts hack.
