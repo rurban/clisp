@@ -1,5 +1,11 @@
 2004-02-25  Bruno Haible  <bruno@clisp.org>
 
+	* i18n.d: Prefix some symbols with "i18n_".
+	* subr.d: Update.
+	* constsym.d: Update.
+
+2004-02-25  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d: Remove syntactically invalid debugging statements.
 
 2004-02-25  Bruno Haible  <bruno@clisp.org>

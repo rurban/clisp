@@ -1,5 +1,5 @@
 # Internationalization for CLISP
-# Bruno Haible 1990-2002
+# Bruno Haible 1990-2004
 # Sam Steingold 1998-2002
 
 #include "lispbibl.c"
@@ -122,7 +122,7 @@ local inline object do_ngettext (const char* msgid, const char* msgid_plural,
 
 #endif
 
-LISPFUN(gettext,seclass_read,1,2,norest,nokey,0,NIL)
+LISPFUN(i18n_gettext,seclass_read,1,2,norest,nokey,0,NIL)
 { /* (I18N:GETTEXT msgid [domain [category]]) returns the translation of
  msgid in the given domain, depending on the given category. */
   var object msgid = check_string(STACK_2);
@@ -146,7 +146,7 @@ LISPFUN(gettext,seclass_read,1,2,norest,nokey,0,NIL)
   skipSTACK(3);
 }
 
-LISPFUN(ngettext,seclass_read,3,2,norest,nokey,0,NIL)
+LISPFUN(i18n_ngettext,seclass_read,3,2,norest,nokey,0,NIL)
 { /* (I18N:NGETTEXT msgid msgid_plural n [domain [category]]) returns
  the plural form of the translation for of msgid and n in the given domain,
  depending on the given category. */
@@ -191,7 +191,7 @@ LISPFUN(ngettext,seclass_read,3,2,norest,nokey,0,NIL)
   skipSTACK(5);
 }
 
-LISPFUNNR(textdomain,0)
+LISPFUNNR(i18n_textdomain,0)
 { /* (I18N:TEXTDOMAIN) returns the current default domain. */
   #ifdef GNU_GETTEXT
   var const char* domain;
@@ -204,7 +204,7 @@ LISPFUNNR(textdomain,0)
   #endif
 }
 
-LISPFUNN(set_textdomain,1)
+LISPFUNN(i18n_set_textdomain,1)
 { /* (I18N::SET-TEXTDOMAIN domain) sets the default domain. */
   var object domain = check_string(popSTACK());
   #ifdef GNU_GETTEXT
@@ -218,7 +218,7 @@ LISPFUNN(set_textdomain,1)
   VALUES1(domain);
 }
 
-LISPFUNNR(textdomaindir,1)
+LISPFUNNR(i18n_textdomaindir,1)
 { /* (I18N::TEXTDOMAINDIR domain) returns the message catalog directory
  for the given domain. */
   var object domain = check_string(popSTACK());
@@ -235,7 +235,7 @@ LISPFUNNR(textdomaindir,1)
   #endif
 }
 
-LISPFUNN(set_textdomaindir,2)
+LISPFUNN(i18n_set_textdomaindir,2)
 { /* (I18N::SET-TEXTDOMAINDIR domain directory) sets the message
   catalog directory for the given domain. */
   var object domain = check_string(STACK_1);

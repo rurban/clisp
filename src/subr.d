@@ -1,6 +1,6 @@
 /*
  * list of all SUBRs
- * Bruno Haible 1990-2003
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2004
  */
 
@@ -595,12 +595,12 @@ LISPFUN(argv,seclass_no_se,0,0,norest,nokey,0,NIL)
 LISPFUNNR(current_language,0)
 LISPFUNN(set_current_language,1)
 LISPFUNNR(text,1)
-LISPFUN(gettext,seclass_read,1,2,norest,nokey,0,NIL)
-LISPFUN(ngettext,seclass_read,3,2,norest,nokey,0,NIL)
-LISPFUNNR(textdomain,0)
-LISPFUNN(set_textdomain,1)
-LISPFUNNR(textdomaindir,1)
-LISPFUNN(set_textdomaindir,2)
+LISPFUN(i18n_gettext,seclass_read,1,2,norest,nokey,0,NIL)
+LISPFUN(i18n_ngettext,seclass_read,3,2,norest,nokey,0,NIL)
+LISPFUNNR(i18n_textdomain,0)
+LISPFUNN(i18n_set_textdomain,1)
+LISPFUNNR(i18n_textdomaindir,1)
+LISPFUNN(i18n_set_textdomaindir,2)
 /* ---------- SOCKET ---------- */
 #ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)
