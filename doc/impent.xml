@@ -102,6 +102,7 @@
 <!ENTITY dohash "<link linkend='dohash'><function>EXT:DOHASH</function></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:ELEMENT-TYPE</constant></link>">
 <!ENTITY encoding "<link linkend='encoding'><classname>EXT:ENCODING</classname></link>">
+<!ENTITY ethe "<link linkend='ethe'><function>EXT:ETHE</function></link>">
 <!ENTITY make-encoding "<link linkend='make-encoding'><function>EXT:MAKE-ENCODING</function></link>">
 <!ENTITY def-file-enc "<link linkend='def-file-enc'><varname>CUSTOM:*DEFAULT-FILE-ENCODING*</varname></link>">
 <!ENTITY path-enc "<link linkend='path-enc'><varname>CUSTOM:*PATHNAME-ENCODING*</varname></link>">
@@ -122,8 +123,10 @@
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY lfd "<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>">
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
-<!ENTITY mem-image "<link linkend='image'>memory image</link>">
+<!ENTITY mapcap "<link linkend='mapcap'><function>EXT:MAPCAP</function></link>">
+<!ENTITY maplap "<link linkend='mapcap'><function>EXT:MAPLAP</function></link>">
 <!ENTITY match-t "<classname>REGEXP::REGMATCH_T</classname>">
+<!ENTITY mem-image "<link linkend='image'>memory image</link>">
 <!ENTITY parsename "<link linkend='parsename'><varname>CUSTOM:*PARSE-NAMESTRING-ANSI*</varname></link>">
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>CUSTOM:*MERGE-PATHNAMES-ANSI*</varname></link>">
 <!ENTITY pathprint "<link linkend='pathprint'><varname>CUSTOM:*PRINT-PATHNAMES-ANSI*</varname></link>">
@@ -213,6 +216,7 @@
 <!ENTITY sub-2 "<subscript>2</subscript>">
 <!ENTITY sub-n "<subscript>n</subscript>">
 <!ENTITY b-r "<replaceable>b</replaceable>">
+<!ENTITY base-r "<replaceable>base</replaceable>">
 <!ENTITY bc-r "<replaceable>block-cons</replaceable>">
 <!ENTITY body-r "<replaceable>body</replaceable>">
 <!ENTITY c-r "<replaceable>c</replaceable>">
@@ -252,6 +256,7 @@
 <!ENTITY option-r "<replaceable>option</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
 <!ENTITY pattern-r "<replaceable>pattern</replaceable>">
+<!ENTITY pred-r "<replaceable>predicate</replaceable>">
 <!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
@@ -264,6 +269,7 @@
 <!ENTITY v-r "<replaceable>v</replaceable>">
 <!ENTITY var-r "<replaceable>variable</replaceable>">
 <!ENTITY value-r "<replaceable>value</replaceable>">
+<!ENTITY val-type-r "<replaceable>value-type</replaceable>">
 <!ENTITY x-r "<replaceable>x</replaceable>">
 <!ENTITY x1-r "<replaceable>x&sub-1;</replaceable>">
 <!ENTITY xn-r "<replaceable>x&sub-n;</replaceable>">
@@ -303,3 +309,5 @@
 <!ENTITY signed-byte-n "<literal role='type'>(&signed-byte-type; &n-r;)</literal>">
 <!ENTITY unsigned-byte-n "<literal role='type'>(&unsigned-byte-type; &n-r;)</literal>">
 <!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-class; (&unsigned-byte-type; 8))</literal>">
+<!ENTITY yes "<listitem><simpara>yes</simpara></listitem>">
+<!ENTITY no "<listitem><simpara>no</simpara></listitem>">
