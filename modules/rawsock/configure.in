@@ -13,7 +13,7 @@ AC_PROG_CPP
 AC_MSG_NOTICE([* RAWSOCK (Headers):])
 AC_HEADER_STDC
 AC_CHECK_HEADERS([sys/socket.h netinet/in.h arpa/inet.h linux/if_packet.h \
-                  sys/ioctl.h errno.h stropts.h poll.h sys/un.h])
+   sys/ioctl.h errno.h stropts.h poll.h sys/un.h winsock2.h ws2tcpip.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
 #if HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -29,11 +29,24 @@ AC_CHECK_HEADERS([netinet/if_ether.h],[],[],[
 ])
 
 AC_MSG_NOTICE([* RAWSOCK (Functions):])
-AC_SEARCH_LIBS(socket, socket)
-if test "$ac_cv_search_socket" = "no"; then
-  AC_MSG_ERROR([cannot find SOCKET library])
+if test "$ac_cv_header_winsock2_h" = "yes"; then
+  dnl this is windows, we know that socket() is in ws2_32
+  dnl note that AC_SEARCH_LIBS will not work because linking with ws2_32
+  dnl requires including <winsock2.h>
+  AC_MSG_CHECKING([for socket() in ws2_32])
+  LIBS=${LIBS}' -lws2_32';
+  AC_LINK_IFELSE(AC_LANG_PROGRAM([#include <winsock2.h>],[socket(0,0,0)]),
+  [ac_cv_search_socket=yes
+  AC_MSG_RESULT(yes)],
+  [ac_cv_search_socket=no
+  AC_MSG_RESULT(no)])
+else
+  AC_SEARCH_LIBS(socket, socket)
 fi
-AC_CHECK_FUNCS(poll)
+if test "$ac_cv_search_socket" = "no"; then
+  AC_MSG_FAILURE([cannot find SOCKET library])
+fi
+AC_CHECK_FUNCS(poll socketpair recvmsg sendmsg)
 
 AC_MSG_NOTICE([* RAWSOCK (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
