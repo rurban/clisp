@@ -102,9 +102,18 @@ User visible changes
 * New function EXT:XOR checks that exactly one of its arguments is non-NIL.
   See <http://clisp.cons.org/impnotes.html#xor> for details.
 
-* New functions FFI:FOREIGN-ALLOCATE and FFI:FOREIGN-FREE and macros
-  FFI:ALLOCATE-DEEP and FFI:ALLOCATE-SHALLOW permit heap allocation.
-  See <http://clisp.cons.org/impnotes.html#foreign-heap> for details.
+* New FFI functionality:
+  + functions FFI:FOREIGN-ALLOCATE and FFI:FOREIGN-FREE and macros
+    FFI:ALLOCATE-DEEP and FFI:ALLOCATE-SHALLOW permit heap allocation;
+    see <http://clisp.cons.org/impnotes.html#foreign-heap> for details;
+  + functions FFI:FOREIGN-ADDRESS-UNSIGNED and FFI:UNSIGNED-FOREIGN-ADDRESS
+    see <http://clisp.cons.org/impnotes.html#faddr-u> for details;
+  + function FFI:FOREIGN-ADDRESS
+    see <http://clisp.cons.org/impnotes.html#faddr> for details;
+  + macros C-VAR-ADDRESS and OFFSET
+    see <http://clisp.cons.org/impnotes.html#offset> and
+    <http://clisp.cons.org/impnotes.html#c-var-addr>
+  Thanks to Jörg Höhle <Joerg-Cyril.Hoehle@t-systems.com>.
 
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
