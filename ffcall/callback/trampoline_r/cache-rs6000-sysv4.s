@@ -32,4 +32,4 @@ __TR_clear_cache:
 	blr
 .Lfe1:
 	.size	 __TR_clear_cache,.Lfe1-__TR_clear_cache
-	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"

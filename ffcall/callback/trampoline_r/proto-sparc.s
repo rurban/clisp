@@ -6,24 +6,22 @@ ___gnu_compiled_c:
 	.proc	04
 _tramp:
 	!#PROLOGUE# 0
-	save %sp,-104,%sp
+	save	%sp, -104, %sp
 	!#PROLOGUE# 1
-	sethi %hi(1934968593),%o0
-	or %o0,%lo(1934968593),%g2
-	sethi %hi(-1161904448),%o0
-	call %o0+%lo(-1161904448),0
-	nop
-	mov %o0,%i0
+	sethi	%hi(1934967808), %o1
+	sethi	%hi(-1161905152), %o0
+	or	%o0, 704, %o0
+	call	%o0, 0
+	or	%o1, 785, %g2
 	ret
-	restore
+	restore %g0, %o0, %o0
 	.align 4
 	.global _jump
 	.proc	04
 _jump:
 	!#PROLOGUE# 0
 	!#PROLOGUE# 1
-	sethi %hi(-1161904448),%g3
-	jmp %g3+%lo(-1161904448)
-	nop
-	retl
-	nop
+	sethi	%hi(-1161905152), %g3
+	or	%g3, 704, %g3
+	jmp	%g3
+	 nop
