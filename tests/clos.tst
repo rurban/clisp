@@ -106,7 +106,8 @@ B
 (defmethod f ((i integer) (j number))
   (+ i j))
 (defmethod f ((s1 string) (s2 string))
-    (concatenate 'string s1 s2))
+  (concatenate 'string s1 s2))
+(lambda () (defmethod f ((x list) (y list)) (append x y)))
 ())
 NIL
 
