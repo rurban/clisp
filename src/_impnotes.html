@@ -5199,10 +5199,15 @@ functions and macros.
     inspect</a></h4>
 
 <p>The function <strong><a href="CLHSROOT/Body/fun_inspect.html">
-<code>inspect</code></a></strong> is not built in.  Two implementations
-are available as add-ons from the <a
-href="ftp://clisp.cons.org/pub/lisp/clisp/contrib/">
-ftp://clisp.cons.org/pub/lisp/clisp/contrib/</a> directory.)
+<code>inspect</code></a></strong> takes an additional keyword argument
+<code>:frontend</code>.  Two frontends are available at this time:
+<dl>
+ <dt><strong><code>:tty</code></strong>
+  <dd>interact with the user via the terminal.
+ <dt><strong><code>:http</code></strong>
+  <dd>interact with the user using a Web browser, such as Emacs/W3
+   or netscape.
+</dl>
 
 <a name="space"></a><h4>lisp:space</h4>
 
