@@ -161,7 +161,8 @@
                                     "symbols"
                 #+XCL               "tprint"
                 #+XCL               "tread"
-                                    "type"))
+                                    "type"
+                #+CLISP             "weakptr"))
     (with-accumulating-errors (error-count total-count) (run-test ff)))
   #+(or CLISP ALLEGRO CMU)
   (with-accumulating-errors (error-count total-count)
