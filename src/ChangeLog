@@ -1,3 +1,14 @@
+2002-10-12  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (DIRECTORY): accept new :IF-DOES-NOT-EXIST argument
+	(dir_search_if_none_t, dir_search_param_t): new typedefs
+	(directory_search): accept a second dir_search_param_t argument
+	(directory_search_scandir): accept a third dir_search_param_t argument
+	* subr.d, subrkw.d (DIRECTORY): added :IF-DOES-NOT-EXIST
+	* constobj.d (version): bumped (DIRECTORY is in FUNTAB)
+	(type_directory_not_exist): new type
+	* constsym.d (Kkeep, Kdiscard): new keywords
+
 2002-10-11  Sam Steingold  <sds@gnu.org>
 
 	fixed PEEK-CHAR for ECHO-STREAMs and non-NIL peek-type

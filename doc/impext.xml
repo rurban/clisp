@@ -985,7 +985,7 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal role="sexp">((&setf; &stream-element-type;)
     <replaceable>new-element-type</replaceable> &stream-r;)</literal></term>
   <listitem><simpara>Changes the stream's element type.</simpara>
-   <simpara>The default method signals an error.</simpara>
+   <simpara>The default method &signal;s an &error-t;.</simpara>
    <simpara>This function is a &clisp; extension (see <link
     linkend="stream-eltype">setting &stream-element-type;</link>)</simpara>
    </listitem></varlistentry>
@@ -3427,7 +3427,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    &timeout-k; seconds (which may be a non-negative real number or a
    list <literal role="sexp">(sec usec)</literal> or a pair
    <literal role="sexp">(sec . usec)</literal>).
-   Signals an &error; if no connection is made in that time.
+   &signal;s an &error-t; if no connection is made in that time.
   </simpara></listitem></varlistentry>
  <varlistentry id="so-connect"><term><literal role="sexp">(&so-connect;
     <replaceable>port</replaceable> &optional-amp; [&host-r;] &key-amp;
@@ -3657,7 +3657,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    It sets or removes a discretionary file lock for the file associated
    with &stream-r;, depending on <replaceable>lock-p</replaceable>.
    When <replaceable>block</replaceable> is &nil;, the call is non-blocking,
-   and when the file is already locked, it signals an error.
+   and when the file is already locked, it &signal;s an &error-t;.
    When <replaceable>shared</replaceable> is non-&nil;,
    then lock can be shared between several callers.
    Several processes can set a <replaceable>shared</replaceable> lock,

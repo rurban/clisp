@@ -8557,27 +8557,31 @@ LISPFUN(open,1,0,norest,key,6,
   VALUES1(open_file(filename,direction,if_exists,if_not_exists));
 }
 
-# UP: Returns a list of all matching pathnames.
-# directory_search(pathname)
-# > pathname: pathname with device /= :WILD
-#ifdef UNIX
-# > STACK_1: Circle-Flag
-#endif
-# > STACK_0: Full-Flag
-# < result:
-#     if name=NIL and type=NIL:     list of all matching directories,
-#     else (name=NIL -> name=:WILD):  list of all matching files.
-#     as absolute pathname without wildcards at a time,
-#     resp. for files and Full-Flag /=NIL as list
-#          (Pathname Write-Date Length)
-#          with Pathname without :WILD/:WILD-INFERIORS-components,
-#               Write-Date = Date of file creation (ss mm hh dd mm yy),
-#                 as Decoded-Time suitable for ENCODE-UNIVERSAL-TIME,
-#               Length = Length of the file (in Bytes).
-# can trigger GC
-local object directory_search (object pathname);
-# Method: Breadth-first-search, so that only one search operation runs
-# at a time.
+/* UP: Returns a list of all matching pathnames.
+ directory_search(pathname,dir_search_param)
+ > pathname: pathname with device /= :WILD
+ > dir_search_param: :if-does-not-exist, :circle flag, :full flag
+ < result:
+     if name=NIL and type=NIL:     list of all matching directories,
+     else (name=NIL -> name=:WILD):  list of all matching files.
+     as absolute pathname without wildcards at a time,
+     resp. for files and Full-Flag /=NIL as list
+          (Pathname Write-Date Length)
+          with Pathname without :WILD/:WILD-INFERIORS-components,
+               Write-Date = Date of file creation (ss mm hh dd mm yy),
+                 as Decoded-Time suitable for ENCODE-UNIVERSAL-TIME,
+               Length = Length of the file (in Bytes).
+ Method: Breadth-first-search (=> only one search operation runs at a time)
+ can trigger GC */
+typedef enum {
+  DIR_IF_NONE_DISCARD, DIR_IF_NONE_ERROR, DIR_IF_NONE_KEEP
+} dir_search_if_none_t;
+typedef struct {
+  dir_search_if_none_t if_none;
+  bool full_p;
+  bool circle_p;
+} dir_search_param_t;
+local object directory_search (object pathname, dir_search_param_t *dsp);
 
 #if defined(MSDOS) || defined(WIN32_NATIVE)
   # Common set of macros for directory search.
@@ -8887,7 +8891,8 @@ local bool directory_search_direntry_ok (object namestring,
 # stack layout: result-list, pathname, name&type, subdir-list, pathname-list,
 #              new-pathname-list, ht, pathname-list-rest, pathnames-to-insert,
 #              pathname, dir_namestring.
-local void directory_search_scandir (bool recursively, signean next_task) {
+local void directory_search_scandir (bool recursively, signean next_task,
+                                     dir_search_param_t *dsp) {
  #if defined(UNIX) || defined(RISCOS)
   {
     var object namestring;
@@ -8988,17 +8993,37 @@ local void directory_search_scandir (bool recursively, signean next_task) {
               # match (car subdir-list) with direntry:
               if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
              #endif
-              if (directory_search_direntry_ok(namestring,&status))
+              if (directory_search_direntry_ok(namestring,&status)) {
                 if (S_ISDIR(status.st_mode))
                   goto push_matching_subdir;
+              } else
+                switch (dsp->if_none) {
+                  case DIR_IF_NONE_DISCARD: break;
+                  case DIR_IF_NONE_ERROR:
+                    pushSTACK(namestring);
+                    fehler_file_not_exists();
+                  case DIR_IF_NONE_KEEP:
+                    goto push_matching_file;
+                  default: NOTREACHED;
+                }
             } else if (next_task > 0) {
              #ifndef RISCOS
               # match name&type with direntry:
               if (wildcard_match(STACK_(2+4+3),STACK_0))
              #endif
-              if (directory_search_direntry_ok(namestring,&status))
+              if (directory_search_direntry_ok(namestring,&status)) {
                 if (!S_ISDIR(status.st_mode))
                   goto push_matching_file;
+              } else
+                switch (dsp->if_none) {
+                  case DIR_IF_NONE_DISCARD: break;
+                  case DIR_IF_NONE_ERROR:
+                    pushSTACK(namestring);
+                    fehler_file_not_exists();
+                  case DIR_IF_NONE_KEEP:
+                    goto push_matching_file;
+                  default: NOTREACHED;
+                }
             }
             goto done_direntry;
           }
@@ -9084,24 +9109,38 @@ local void directory_search_scandir (bool recursively, signean next_task) {
                     }
                    #endif
                     # form truename (resolve symbolic links):
-                    assure_dir_exists(true,false);
-                    if (file_exists(_EMA_)) { # if file (still...) exists
-                      if (!nullp(STACK_(0+5+4+3+2))) # :FULL wanted?
+                    if (!eq(nullobj,assure_dir_exists(true,true))
+                        && file_exists(_EMA_)) {
+                      /* if file (still...) exists */
+                      if (dsp->full_p) /* :FULL wanted? */
                         with_stat_info(); # yes -> extend STACK_0
-                      # and push STACK_0 in front of result-list:
-                      {
+                      { /* and push STACK_0 in front of result-list: */
                         var object new_cons = allocate_cons();
                         Car(new_cons) = STACK_0;
                         Cdr(new_cons) = STACK_(4+4+3+2);
                         STACK_(4+4+3+2) = new_cons;
                       }
+                    } else if (dsp->if_none == DIR_IF_NONE_KEEP) {
+                      var object new_cons = allocate_cons();
+                      Car(new_cons) = STACK_1; /* unresolved pathname */
+                      Cdr(new_cons) = STACK_(4+4+3+2);
+                      STACK_(4+4+3+2) = new_cons;
                     }
                     skipSTACK(2);
                   }
               }
             }
-          }
-        done_direntry:
+          } else
+            switch (dsp->if_none) {
+              case DIR_IF_NONE_DISCARD: break;
+              case DIR_IF_NONE_ERROR:
+                pushSTACK(namestring);
+                fehler_file_not_exists();
+              case DIR_IF_NONE_KEEP:
+                goto push_matching_file;
+              default: NOTREACHED;
+            }
+         done_direntry:
           skipSTACK(1); # forget direntry
         }
     }
@@ -9222,7 +9261,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
                   pushSTACK(pathname);
                 }
                 assure_dir_exists(true,false); # build truename (resolve symbolic links)
-                if (!nullp(STACK_(0+5+4+3+2))) # :FULL wanted?
+                if (dsp->full_p) /* :FULL wanted? */
                   with_stat_info(); # yes -> extend STACK_0
                 # and push STACK_0 on front of result-list:
                 {
@@ -9324,7 +9363,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
               # entry is a (halfway) normal file.
               if (next_task>0) {
                 # prepare pathname for assembling
-                pushSTACK(copy_pathname(STACK_(2)));  
+                pushSTACK(copy_pathname(STACK_(2)));
                 # there will be resolved pathname
                 pushSTACK(NIL);
                 # direntry hacking
@@ -9341,7 +9380,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
                       followedp = resolve_shell_shortcut(linkfile_asciiz,resolved);
                       if (followedp)
                         STACK_(2) = coerce_pathname(asciz_to_string(resolved,O(pathname_encoding)));
-                    }); 
+                    });
                   }
                   skipSTACK(1); # drop type
 
@@ -9364,7 +9403,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
                       skipSTACK(2);
                     }
                     # test Full-Flag and poss. get more information:
-                    if (!nullp(STACK_(0+5+4+2+4))) { # :FULL wanted?
+                    if (dsp->full_p) { /* :FULL wanted? */
                       var decoded_time_t timepoint;
                       var uintL entry_size = 0;
                       # get file attributes into these vars
@@ -9425,7 +9464,7 @@ local void directory_search_scandir (bool recursively, signean next_task) {
  #endif
 }
 
-local object directory_search (object pathname) {
+local object directory_search (object pathname, dir_search_param_t *dsp) {
  #ifdef PATHNAME_RISCOS
   # If we search for a file with type /= NIL, we have to interpret the last
   # subdir as the type.
@@ -9531,7 +9570,7 @@ local object directory_search (object pathname) {
     # traverse pathname-list and construct new list:
     pushSTACK(NIL);
    #ifdef UNIX
-    if (!nullp(STACK_(1+5+1))) { # query :CIRCLE-Flag
+    if (dsp->circle_p) { /* query :CIRCLE-Flag */
       # maintain hash-table of all scanned directories so far (as
       # cons (dev . ino)) :
       pushSTACK(subr_self); # save subr_self
@@ -9592,7 +9631,7 @@ local object directory_search (object pathname) {
              #endif
                 {
                   # extend result-list:
-                  if (!nullp(STACK_(0+5+4+2))) # :FULL wanted?
+                  if (dsp->full_p) /* :FULL wanted? */
                     with_stat_info(); # yes -> extend STACK_0
                   # and push STACK_0 in front of result-list:
                   var object new_cons = allocate_cons();
@@ -9639,7 +9678,7 @@ local object directory_search (object pathname) {
         }
         # stack layout: ..., pathname, dir_namestring.
        #ifdef UNIX
-        if (!nullp(STACK_(1+5+4+2))) { # query :CIRCLE-flag
+        if (dsp->circle_p) { /* query :CIRCLE flag */
           # search pathname in the hash-table:
           var object hashcode = directory_search_hashcode();
           if (eq(hashcode,nullobj)) {
@@ -9662,7 +9701,7 @@ local object directory_search (object pathname) {
           Cdr(new_cons) = STACK_(4+4+2);
           STACK_(4+4+2) = new_cons;
         }
-        directory_search_scandir(recursively,next_task);
+        directory_search_scandir(recursively,next_task,dsp);
         skipSTACK(2); # forget pathname and dir_namestring
       next_pathname: ;
       }
@@ -9692,19 +9731,30 @@ local object directory_search (object pathname) {
 }
 #endif # PATHNAME_NOEXT
 
-# (DIRECTORY [pathname [:circle] [:full]]), CLTL p. 427
-LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) ) {
-  # stack layout: pathname, circle, full.
- #ifdef UNIX
-  # :CIRCLE-argument has default NIL:
-  if (!boundp(STACK_1))
-    STACK_1 = NIL;
- #endif
-  # :FULL-argument has default NIL:
-  if (!boundp(STACK_0))
-    STACK_0 = NIL;
-  # check pathname-argument:
-  var object pathname = STACK_2;
+/* (DIRECTORY [pathname [:circle] [:full] [:if-does-not-exist]]),
+   CLTL p. 427 */
+LISPFUN(directory,0,1,norest,key,3,(kw(if_does_not_exist),kw(circle),kw(full)))
+{ /* stack layout: pathname, if-does-not-exist, circle, full. */
+  var dir_search_param_t dsp;
+  if (!boundp(STACK_2) || eq(STACK_2,S(Kdiscard)))
+    /* :IF-DOES-NOT-EXIST defaults to :DISCARD */
+    dsp.if_none = DIR_IF_NONE_DISCARD;
+  else if (eq(STACK_2,S(Kerror)))
+    dsp.if_none = DIR_IF_NONE_ERROR;
+  else if (eq(STACK_2,S(Kkeep)))
+    dsp.if_none = DIR_IF_NONE_KEEP;
+  else {
+    pushSTACK(STACK_2); /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_directory_not_exist)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(STACK_(2+2)); /* :IF-DOES-NOT-EXIST argument */
+    pushSTACK(S(Kif_does_not_exist)); pushSTACK(S(directory));
+    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+  }
+  dsp.circle_p = !missingp(STACK_1); /* :CIRCLE argument defaults to NIL */
+  dsp.full_p = !missingp(STACK_0); /* :FULL argument defaults to NIL */
+  skipSTACK(3);
+  /* check pathname-argument: */
+  var object pathname = STACK_0;
   if (!boundp(pathname)) {
    #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
     pathname = O(wild_string); # Default is "*"
@@ -9715,31 +9765,30 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) ) {
  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   if (eq(ThePathname(pathname)->pathname_device,S(Kwild))) { # Device = :WILD ?
     # scan all devices
-    STACK_2 = pathname;
+    STACK_0 = pathname;
     pushSTACK(NIL); # pathname-list := NIL
-    pushSTACK(STACK_(0+1)); # full (for directory_search)
-    # stack layout: pathname, circle, full, pathname-list, full.
-    {
+    { /* stack layout: pathname, pathname-list. */
       var char drive;
       for (drive='A'; drive<='Z'; drive++) # traverse all drives
         if (good_drive(drive)) {
-          pushSTACK(n_char_to_string(&drive,1,O(pathname_encoding))); # device, one-element string
-          var object newpathname = copy_pathname(STACK_(2+2+1)); # copy pathname
-          ThePathname(newpathname)->pathname_device = popSTACK(); # take over drive
+          var object newpathname = copy_pathname(STACK_1);
+          ThePathname(newpathname)->pathname_device =
+            /* take over the device = one-element drive string */
+            n_char_to_string(&drive,1,O(pathname_encoding));
           # search within a drive:
-          var object newpathnames = directory_search(newpathname);
-          # and attach pathname-list in front of STACK_1:
-          STACK_1 = nreconc(newpathnames,STACK_1);
+          var object newpathnames = directory_search(newpathname,&dsp);
+          # and attach pathname-list in front of STACK_0:
+          STACK_0 = nreconc(newpathnames,STACK_0);
         }
     }
-    VALUES1(nreverse(STACK_1)); /* reverse pathname-list again */
-    skipSTACK(3+2);
+    VALUES1(nreverse(STACK_0)); /* reverse pathname-list again */
+    skipSTACK(2);
   } else
     # only one device to scan
  #endif
   {
-    VALUES1(directory_search(pathname)); /* form matching pathnames */
-    skipSTACK(3);
+    VALUES1(directory_search(pathname,&dsp)); /* form matching pathnames */
+    skipSTACK(1);
   }
 }
 
@@ -11212,7 +11261,8 @@ LISPFUN(copy_file,2,0,norest,key,4,
   STACK_3 = coerce_pathname(STACK_5); /* source */
   STACK_2 = coerce_pathname(STACK_4); /* dest */
   if (has_some_wildcards(STACK_3)) { /* wild source */
-    STACK_0 = directory_search(STACK_3);
+    dir_search_param_t dsp = { DIR_IF_NONE_DISCARD, false, false };
+    STACK_0 = directory_search(STACK_3,&dsp);
     if (has_some_wildcards(STACK_2)) { /* wild dest */
       while (!nullp(STACK_0)) {
         pushSTACK(Car(Car(STACK_0))); /* truename */
