@@ -40,7 +40,7 @@
 
 ;; flush the buffer and print a newline (when NEWLINE-P is non-NIL)
 (defun fill-stream-flush-buffer (stream newline-p)
-  (with-slots (target-stream buffer pending-indent current-indent indent-var
+  (with-slots (target-stream buffer pending-indent current-indent
                pending-space inside-sexp)
       stream
     (flet ((newline ()          ; terpri
