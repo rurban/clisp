@@ -208,7 +208,7 @@
   #define OPEN open
   #define CLOSE close
   # Wrapper um die System-Aufrufe, die Teilergebnisse und evtl. EINTR behandeln:
-  extern_C ssize_t read_helper (int fd, void* buf, size_t nbyte, bool partial_p);
+  extern_C ssize_t read_helper (int fd, void* buf, size_t nbyte, bool no_hang);
   #define safe_read(f,b,n)  read_helper(f,b,n,true)
   #define full_read(f,b,n)  read_helper(f,b,n,false)
   extern_C ssize_t full_write (int fd, const void* buf, size_t nbyte);
