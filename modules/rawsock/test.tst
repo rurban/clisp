@@ -81,7 +81,13 @@ T
         ;; :AF_INET works on cygwin but not on Linux
         (rawsock:socketpair :AF_UNIX :SOCK_STREAM nil))
   (print (list *sock1* *sock2*))
-  T) #-:win32 T
+  T) T
+
+#-:win32
+(let ((message "abazonk"))
+  (rawsock:sock-write *sock1* (to-bytes message))
+  (string= message (from-bytes *buffer* (rawsock:sock-read *sock2* *buffer*))))
+T
 
 #-:win32 (rawsock:sock-close *sock1*) 0
 #-:win32 (rawsock:sock-close *sock2*) 0
