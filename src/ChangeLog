@@ -1,3 +1,10 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (low_fill_buffered_handle): Don't call listen_handle;
+	fd_read cares about the perseverance. Don't set
+	BufferedStream_have_eof_p twice.
+	(buffered_nextbyte): Simplify.
+
 2004-10-24  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export compute-effective-method-as-function.
