@@ -1,5 +1,6 @@
 ;; load this file in the directory where your CLISP distribution is located
 ;; to set the Registry appropriately
+;; to create CLISP.BAT on your desktop
 
 (defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-base-cmd*
@@ -66,3 +67,10 @@
   (add-fas-file c2)
   (add-mem-file c2))
 
+(let ((bat-file (merge-pathnames
+                 "Profiles/All Users/Desktop/clisp.bat"
+                 (concatenate 'string (getenv "windir") "/"))))
+  (with-open-file (bat bat-file :direction :output)
+    (format t "~&writing <~a>..." bat-file) (force-output)
+    (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)
+    (format t "done~%")))
