@@ -1072,7 +1072,7 @@
                var DS r;
                UDS_divide_(a_MSDptr,a_len,a_LSDptr,b_MSDptr,b_len,b_LSDptr, divroomptr, &q,&r);
                a_MSDptr = b_MSDptr; a_len = b_len; a_LSDptr = b_LSDptr; # a := b
-               b_len = r.len; if (b_len==0) goto return_a; # b=0 -> fertig
+               b_len = r.len; if (b_len==0) goto return_a_coeffsb; # b=0 -> fertig
                b_LSDptr = old_a_LSDptr; # b übernimmt den vorherigen Platz von a
                b_MSDptr = copy_loop_down(r.LSDptr,b_LSDptr,b_len); # b := r kopieren
                # (uAa,uAb) := (uAb,uAa+q*uAb) :
@@ -1099,10 +1099,21 @@
        #   b = -uAb*sA * A +  uBb*sB * B
        # die die betragsmäßig kleinsten Koeffizienten hat.
        # Teste auf uBa < uBb. (Das kann auftreten, z.B. bei
-       # A=560014183, B=312839871 wird a=b=1, uAa < uBa, uAb < uBb.)
-       if ((uBb.len > uBa.len)
-           || (uBb.len == uBa.len
-               && compare_loop_up(uBb.MSDptr,uBa.MSDptr,uBb.len) > 0))
+       # A=560014183, B=312839871 wird a=b=1, uAa < uAb, uBa < uBb.)
+       # Falls uBa = uBb, teste auf uAa < uAb. (Das kann auftreten, z.B. bei
+       # A=2, B=3 wird a=b=1, uAa < uAb, uBa = uBb.)
+       if (uBb.len > uBa.len) goto return_a_coeffsa;
+       if (uBb.len < uBa.len) goto return_a_coeffsb;
+       // (uBb.len == uBa.len)
+       { var signean vergleich = compare_loop_up(uBb.MSDptr,uBa.MSDptr,uBb.len);
+         if (vergleich > 0) goto return_a_coeffsa;
+         if (vergleich < 0) goto return_a_coeffsb;
+       }
+       if (uAb.len > uAa.len) goto return_a_coeffsa;
+       if (uAb.len < uAa.len) goto return_a_coeffsb;
+       // (uAb.len == uAa.len)
+       if (compare_loop_up(uAb.MSDptr,uAa.MSDptr,uAb.len) > 0)
+         return_a_coeffsa:
          { # uAa mit Vorfaktor sA versehen:
            *--uAa.MSDptr = 0; uAa.len++;
            if (!(sA==0)) { neg_loop_down(uAa.LSDptr,uAa.len); }
@@ -1114,7 +1125,7 @@
            pushSTACK(DS_to_I(uBa.MSDptr,uBa.len)); # DS uBa als Vorfaktor von B
          }
          else
-         return_a:
+         return_a_coeffsb:
          { # uAb mit Vorfaktor -sA versehen:
            *--uAb.MSDptr = 0; uAb.len++;
            if (sA==0) { neg_loop_down(uAb.LSDptr,uAb.len); }

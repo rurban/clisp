@@ -2,6 +2,9 @@
 User visible changes
 --------------------
 
+* The function XGCD now really always returns coefficients of smallest
+  possible absolute value.
+
 Portability
 -----------
 
@@ -144,8 +147,8 @@ User visible changes
 
 * The function VALUES-LIST now verifies that its argument is a proper list.
 
-* The function XGCD now always returns coefficients of smallest possible
-  absolute value. Suggested by the LiDIA group.
+* The function XGCD now in most cases (but not always) returns coefficients of
+  smallest possible absolute value. Suggested by the LiDIA group.
 
 Portability
 -----------
