@@ -802,7 +802,7 @@ and numbers. Nevertheless, one should use
 <a href="CLHSROOT/Body/fun_eql.html">
 <code>eql</code></a> as it is more portable across CL implementations.
 
-<p><code>(let ((x y)) (eq x x))</code> always returns <code>T</code>,
+<p><code>(let ((x y)) (eq x x))</code> always returns <code>t</code>,
 regardless of <code>y</code>.
 
 <p><code>(setf (<a
@@ -6173,7 +6173,7 @@ platform-independent command line options:
   interface to Common Lisps.
  <dt><strong>-C</strong>
   <dd>Set <a href="#loadfile"><code>lisp:*load-compiling*</code></a> to
-  <code>T</code>.  Useful in <a href="#script">scripts</a>.
+  <code>t</code>.  Useful in <a href="#script">scripts</a>.
  <dt><strong>-norc</strong>
   <dd>Do not load the user run control file on startup.  Normally, CLISP
   executes <pre><code>(load (merge-pathnames
@@ -6195,7 +6195,7 @@ platform-independent command line options:
  <dt><a name="ansi"><strong>-a</strong></a>
   <dd>Stricter ANSI CL compliance:
   <ul>
-   <li>Set <code><strong>lisp:*ansi*</strong></code> to <code>T</code>.
+   <li>Set <code><strong>lisp:*ansi*</strong></code> to <code>t</code>.
        This implies:
     <ul>
      <li>ANSI CL compliant <a href="#pathprint"><code>pathname</code>
@@ -6209,7 +6209,7 @@ platform-independent command line options:
     </ul>
    <li>Set <a
    href="#flocont"><code>lisp:*floating-point-contagion-ansi*</code></a>
-   to <code>T</code>.
+   to <code>t</code>.
    <li>Start in package <a
    href="#clupack"><code>COMMON-LISP-USER</code></a>.
    <li>Add <code><strong>:ansi-cl</strong></code> to
