@@ -1,6 +1,6 @@
 /*
  * Functions for characters and strings for CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2002
  * German comments translated into English: Stefan Kain 2002-09-20
  */
@@ -1075,7 +1075,7 @@ LISPFUNNR(string_info,1)
   if (stringp(str)) {
     value3 = value2 = NIL;
    restart_it:
-    switch (Record_type(str)) {
+    switch (Array_type(str)) {
      #ifdef TYPECODES
       case Array_type_string: str = TheIarray(str)->data; goto restart_it;
       case Array_type_sstring:
@@ -1098,7 +1098,8 @@ LISPFUNNR(string_info,1)
      #endif
       default: NOTREACHED;
     }
-  } else value1 = value2 = value3 = NIL;
+  } else
+    value1 = value2 = value3 = NIL;
   mv_count = 3;
 }
 
