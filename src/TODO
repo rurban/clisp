@@ -26,12 +26,6 @@ prople (like myself) than the core developers (like you).
 Right now, genclisph.d produces clisp.h which is
 inconsistent with lispbibl.d when DEBUG_GCSAFETY is enabled.
 
-documentation clarification: is this still true?
-<http://www.podval.org/~sds/clisp/impnotes/dffi.html#param-mode>:
-        "[Currently, only :IN is fully implemented. :OUT works only with
-        ALLOCATION = :ALLOCA.]"
-<http://article.gmane.org/gmane.lisp.clisp.devel:13661>
-
 patch 2005-02-17 "Simplify the version handling"
 broke version handling:
 PACKAGE_* constants are re-defined too late.
