@@ -206,6 +206,12 @@ directory, the entry goes into <clisp/src/ChangeLog>; you should refer
 to the recent entries there for good examples of ChangeLog entries.
 One should always use a high-level overview of the change (1-2 lines)
 in the beginning of the entry, and use it as the CVS log message.
+The file name should include a path relative to one of 3 "roots":
+clisp/, clisp/src/ or clisp/modules/.  E.g., <clisp/utils/clispload.lsp>
+is recorded as <utils/clispload.lsp>, <clisp/modules/pcre/cpcre.c> as
+<pcre/cpcre.c> and <clisp/src/lispbibl.d> as <lispbibl.d>.
+The main requirement is that the record must be unambiguous.
+
 We highly recommend using Emacs change-log mode with font-lock, as the
 highlighting will give many valuable suggestions about the right format.
 Use M-x add-change-log-entry RET to add an entry, and some information
