@@ -1,5 +1,5 @@
 # Liste aller dem C-Programm bekannten Symbole ("Programmkonstanten")
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 
 # Der Macro LISPSYM deklariert ein LISP-Symbol.
 # LISPSYM(name,printname,package)
@@ -1713,10 +1713,8 @@ LISPSYM(cp1251,"CP1251",charset)
 LISPSYM(cp1252,"CP1252",charset)
 LISPSYM(cp1253,"CP1253",charset)
 LISPSYM(cp1254,"CP1254",charset)
-LISPSYM(cp1255,"CP1255",charset)
 LISPSYM(cp1256,"CP1256",charset)
 LISPSYM(cp1257,"CP1257",charset)
-LISPSYM(cp1258,"CP1258",charset)
 LISPSYM(hp_roman8,"HP-ROMAN8",charset) #                    |
 LISPSYM(nextstep,"NEXTSTEP",charset) #                      |
 LISPSYM(jisx0201,"JIS_X0201",charset) # --------------------+
@@ -1729,29 +1727,37 @@ LISPSYM(windows_1251,"WINDOWS-1251",charset)
 LISPSYM(windows_1252,"WINDOWS-1252",charset)
 LISPSYM(windows_1253,"WINDOWS-1253",charset)
 LISPSYM(windows_1254,"WINDOWS-1254",charset)
-LISPSYM(windows_1255,"WINDOWS-1255",charset)
 LISPSYM(windows_1256,"WINDOWS-1256",charset)
 LISPSYM(windows_1257,"WINDOWS-1257",charset)
-LISPSYM(windows_1258,"WINDOWS-1258",charset)
-#ifdef GNU_LIBICONV
+#if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
 # All documented encodings of libiconv, except those which are already builtin
 # without libiconv.
+#ifdef GNU_LIBICONV
 LISPSYM(koi8_ru,"KOI8-RU",charset) # -----------------------+ These block is
-LISPSYM(euc_jp,"EUC-JP",charset) #                          | referenced in
-LISPSYM(shift_jis,"SHIFT-JIS",charset) #                    | encoding.d
+#endif
+LISPSYM(cp1255,"CP1255",charset) #                          | referenced in
+LISPSYM(cp1258,"CP1258",charset) #                          | encoding.d
+LISPSYM(euc_jp,"EUC-JP",charset)
+LISPSYM(shift_jis,"SHIFT-JIS",charset)
 LISPSYM(cp932,"CP932",charset)
 LISPSYM(iso_2022_jp,"ISO-2022-JP",charset)
+#if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 3))
 LISPSYM(iso_2022_jp_2,"ISO-2022-JP-2",charset)
+#endif
+#ifdef GNU_LIBICONV
 LISPSYM(iso_2022_jp_1,"ISO-2022-JP-1",charset)
+#endif
 LISPSYM(euc_cn,"EUC-CN",charset)
+#ifdef GNU_LIBICONV
 LISPSYM(hz,"HZ",charset)
+#endif
 LISPSYM(gbk,"GBK",charset)
 LISPSYM(cp936,"CP936",charset)
 LISPSYM(gb18030,"GB18030",charset)
 LISPSYM(euc_tw,"EUC-TW",charset)
 LISPSYM(big5,"BIG5",charset)
 LISPSYM(cp950,"CP950",charset)
-LISPSYM(big5hkscs,"BIG5HKSCS",charset)
+LISPSYM(big5_hkscs,"BIG5-HKSCS",charset)
 LISPSYM(iso_2022_cn,"ISO-2022-CN",charset)
 LISPSYM(iso_2022_cn_ext,"ISO-2022-CN-EXT",charset)
 LISPSYM(euc_kr,"EUC-KR",charset)
@@ -1762,11 +1768,13 @@ LISPSYM(armscii_8,"ARMSCII-8",charset)
 LISPSYM(georgian_academy,"GEORGIAN-ACADEMY",charset)
 LISPSYM(georgian_ps,"GEORGIAN-PS",charset)
 LISPSYM(tis_620,"TIS-620",charset)
+#ifdef GNU_LIBICONV
 LISPSYM(mulelao_1,"MULELAO-1",charset)
+#endif
 LISPSYM(cp1133,"CP1133",charset)
 LISPSYM(viscii,"VISCII",charset)
 LISPSYM(tcvn,"TCVN",charset)
-#ifdef UNIX_AIX
+#if defined(GNU_LIBICONV) && defined(UNIX_AIX)
 LISPSYM(cp856,"CP856",charset)
 LISPSYM(cp922,"CP922",charset)
 LISPSYM(cp943,"CP943",charset)
@@ -1776,6 +1784,9 @@ LISPSYM(cp1129,"CP1129",charset)
 #endif
 LISPSYM(utf_16,"UTF-16",charset) #                          |
 LISPSYM(utf_7,"UTF-7",charset) # ---------------------------+
+# Aliases.
+LISPSYM(windows_1255,"WINDOWS-1255",charset)
+LISPSYM(windows_1258,"WINDOWS-1258",charset)
 #endif
 #endif
 LISPSYM(english,"ENGLISH",i18n) # a language for MISC

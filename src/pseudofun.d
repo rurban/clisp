@@ -1,5 +1,5 @@
 # List of all relocatable machine pointers
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2002
 
 # There are three kinds of relocatable pointers:
 #   LPSEUDOCODE(fun)                    local C function defined in stream.d
@@ -187,10 +187,8 @@ XPSEUDODATA(struct nls_table, nls_cp1251_table)
 XPSEUDODATA(struct nls_table, nls_cp1252_table)
 XPSEUDODATA(struct nls_table, nls_cp1253_table)
 XPSEUDODATA(struct nls_table, nls_cp1254_table)
-XPSEUDODATA(struct nls_table, nls_cp1255_table)
 XPSEUDODATA(struct nls_table, nls_cp1256_table)
 XPSEUDODATA(struct nls_table, nls_cp1257_table)
-XPSEUDODATA(struct nls_table, nls_cp1258_table)
 XPSEUDODATA(struct nls_table, nls_hp_roman8_table)
 XPSEUDODATA(struct nls_table, nls_nextstep_table)
 XPSEUDODATA(struct nls_table, nls_jisx0201_table)
