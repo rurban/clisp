@@ -1,3 +1,8 @@
+2002-02-28  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-write-lib): bind *PRINT-SYMBOLS-LONG* when
+	writing *.lib files, just like with *.fas files
+
 2002-02-27  Sam Steingold  <sds@gnu.org>
 
 	implemented weak hash-tables
