@@ -2871,17 +2871,21 @@ LISPFUNN(package_iterate,1)
           }
           if (false) {
            found:
-            # Ein Symbol value2 gefunden.
-            # Stelle sicher, dass es in pack accessible und nicht verdeckt
-            # ist. Ansonsten befindet sich ein davon verschiedenes Symbol
-            # desselben Namens in der Shadowing-Liste von pack.
+            # Found a symbol value.
+            # Verify that is it accessible in pack and, if :INHERITED
+            # is requested,
+            # 1. not hidden by a different symbol (which must be on the
+            #    shadowing-list of pack),
+            # 2. itself not already present in pack (because in this case
+            #    the accessibility would be :INTERNAL or :EXTERNAL).
             {
               var object shadowingsym;
               if (!(eq(Car(TheSvector(state)->data[5]),S(Kinherited))
-                    && shadowing_lookup(Symbol_name(value2),TheSvector(state)->data[4],&shadowingsym)
-                    && !eq(shadowingsym,value2)
-                 ) ) {
-                # Symbol value2 ist wirklich accessible.
+                    && (shadowing_lookup(Symbol_name(value2),TheSvector(state)->data[4],&shadowingsym)
+                        || symtab_find(value2,ThePackage(TheSvector(state)->data[4])->pack_internal_symbols)
+                        || symtab_find(value2,ThePackage(TheSvector(state)->data[4])->pack_external_symbols)
+                 ) )   ) {
+                # Symbol value2 is really accessible.
                 value1 = T; value3 = Car(TheSvector(state)->data[5]);
                 mv_count=3; return;
               }
