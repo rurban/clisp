@@ -48,20 +48,10 @@
 extern int errno;
 #endif /* !errno */
 
-extern int readline_echoing_p;
-extern int _rl_eof_char;
-
-extern int _rl_enable_keypad, _rl_enable_meta;
-
-extern void _rl_control_keypad ();
-
 #if defined (__GO32__)
 #  include <pc.h>
 #  undef HANDLE_SIGNALS
 #endif /* __GO32__ */
-
-/* Indirect functions to allow apps control over terminal management. */
-extern void rl_prep_terminal (), rl_deprep_terminal ();
 
 VFunction *rl_prep_term_function = rl_prep_terminal;
 VFunction *rl_deprep_term_function = rl_deprep_terminal;
@@ -363,12 +353,14 @@ static TIOTYPE otio;
 #  define OUTPUT_BEING_FLUSHED(tp)  0
 #endif
 
+#if defined (_AIX) || defined (_AIX41)
 static void
 rltty_warning (msg)
      char *msg;
 {
   fprintf (stderr, "readline: warning: %s\n", msg);
 }
+#endif
 
 #if defined (_AIX)
 void

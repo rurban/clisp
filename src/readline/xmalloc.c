@@ -18,6 +18,7 @@
    You should have received a copy of the GNU General Public License
    along with Readline; see the file COPYING.  If not, write to the Free
    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. */
+#define READLINE_LIBRARY
 
 #if defined (HAVE_CONFIG_H)
 #include <config.h>
@@ -31,7 +32,10 @@
 #  include "ansi_stdlib.h"
 #endif /* HAVE_STDLIB_H */
 
-static void memory_error_and_abort ();
+#include "xmalloc.h"
+
+/* Prototype declarations. */
+static void memory_error_and_abort _PROTO((char *fname));
 
 /* **************************************************************** */
 /*								    */
@@ -56,12 +60,12 @@ xmalloc (bytes)
 
 char *
 xrealloc (pointer, bytes)
-     char *pointer;
+     void *pointer;
      int bytes;
 {
   char *temp;
 
-  temp = pointer ? (char *)realloc (pointer, bytes) : (char *)malloc (bytes);
+  temp = pointer ? (char *)realloc ((char *)pointer, bytes) : (char *)malloc (bytes);
 
   if (temp == 0)
     memory_error_and_abort ("xrealloc");

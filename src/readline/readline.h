@@ -23,11 +23,20 @@
 #if !defined (_READLINE_H_)
 #define _READLINE_H_
 
+/* Need to include <stdio.h> for the declaration of FILE below. */
+#if defined(__GNUC__) || defined(__STDC__) || defined(__cplusplus)
+#  include <stdio.h>
+#endif
+
 #if defined (READLINE_LIBRARY)
+#  include "ansi_proto.h"
 #  include "keymaps.h"
+#  include "history.h"
 #  include "tilde.h"
 #else
+#  include <readline/ansi_proto.h>
 #  include <readline/keymaps.h>
+#  include <readline/history.h>
 #  include <readline/tilde.h>
 #endif
 
@@ -61,77 +70,159 @@ typedef struct _funmap {
 extern FUNMAP **funmap;
 
 /* Functions available to bind to key sequences. */
-extern int
-  rl_tilde_expand (), rl_set_mark (), rl_exchange_point_and_mark (),
-  rl_beg_of_line (), rl_backward (), rl_delete (), rl_end_of_line (),
-  rl_forward (), ding (), rl_newline (), rl_kill_line (),
-  rl_copy_region_to_kill (), rl_kill_region (), rl_char_search (),
-  rl_clear_screen (), rl_get_next_history (), rl_get_previous_history (),
-  rl_quoted_insert (), rl_reverse_search_history (), rl_transpose_chars (),
-  rl_unix_line_discard (), rl_unix_word_rubout (),
-  rl_yank (), rl_rubout (), rl_backward_word (), rl_kill_word (),
-  rl_forward_word (), rl_tab_insert (), rl_yank_pop (), rl_yank_nth_arg (),
-  rl_backward_kill_word (), rl_backward_kill_line (), rl_transpose_words (),
-  rl_complete (), rl_possible_completions (), rl_insert_completions (),
-  rl_menu_complete (),
-  rl_do_lowercase_version (), rl_kill_full_line (),
-  rl_digit_argument (), rl_universal_argument (), rl_abort (),
-  rl_undo_command (), rl_revert_line (), rl_beginning_of_history (),
-  rl_end_of_history (), rl_forward_search_history (), rl_insert (),
-  rl_upcase_word (), rl_downcase_word (), rl_capitalize_word (),
-  rl_restart_output (), rl_re_read_init_file (),
-  rl_dump_functions (), rl_dump_variables (), rl_dump_macros (),
-  rl_delete_horizontal_space (), rl_history_search_forward (),
-  rl_history_search_backward (), rl_tty_status (), rl_yank_last_arg (),
-  rl_insert_comment (), rl_backward_char_search (),
-  rl_copy_forward_word (), rl_copy_backward_word ();
+/* bind.c */
+extern int rl_re_read_init_file _PROTO((int count, int ignore));
+extern int rl_dump_functions _PROTO((int count, int key));
+extern int rl_dump_variables _PROTO((int count, int key));
+extern int rl_dump_macros _PROTO((int count, int key));
+/* complete.c */
+extern int rl_complete _PROTO((int ignore, int invoking_key));
+extern int rl_possible_completions _PROTO((int ignore, int invoking_key));
+extern int rl_insert_completions _PROTO((int ignore, int invoking_key));
+extern int rl_menu_complete _PROTO((int count, int ignore));
+/* isearch.c */
+extern int rl_reverse_search_history _PROTO((int sign, int key));
+extern int rl_forward_search_history _PROTO((int sign, int key));
+/* kill.c */
+extern int rl_kill_line _PROTO((int direction, int ignore));
+extern int rl_copy_region_to_kill _PROTO((int count, int ignore));
+extern int rl_kill_region _PROTO((int count, int ignore));
+extern int rl_unix_line_discard _PROTO((int count, int key));
+extern int rl_unix_word_rubout _PROTO((int count, int key));
+extern int rl_yank _PROTO((int count, int ignore));
+extern int rl_kill_word _PROTO((int count, int key));
+extern int rl_yank_pop _PROTO((int count, int key));
+extern int rl_yank_nth_arg _PROTO((int count, int ignore));
+extern int rl_backward_kill_word _PROTO((int count, int ignore));
+extern int rl_backward_kill_line _PROTO((int direction, int ignore));
+extern int rl_kill_full_line _PROTO((int count, int ignore));
+extern int rl_yank_last_arg _PROTO((int count, int key));
+extern int rl_copy_forward_word _PROTO((int count, int key));
+extern int rl_copy_backward_word _PROTO((int count, int key));
+/* readline.c */
+extern int rl_set_mark _PROTO((int count, int key));
+extern int rl_exchange_point_and_mark _PROTO((int count, int key));
+extern int rl_beg_of_line _PROTO((int count, int key));
+extern int rl_backward _PROTO((int count, int key));
+extern int rl_delete _PROTO((int count, int key));
+extern int rl_end_of_line _PROTO((int count, int key));
+extern int rl_forward _PROTO((int count, int key));
+extern int rl_newline _PROTO((int count, int key));
+extern int rl_char_search _PROTO((int count, int key));
+extern int rl_clear_screen _PROTO((int count, int key));
+extern int rl_get_next_history _PROTO((int count, int key));
+extern int rl_get_previous_history _PROTO((int count, int key));
+extern int rl_quoted_insert _PROTO((int count, int key));
+extern int rl_transpose_chars _PROTO((int count, int key));
+extern int rl_rubout _PROTO((int count, int key));
+extern int rl_backward_word _PROTO((int count, int key));
+extern int rl_forward_word _PROTO((int count, int key));
+extern int rl_tab_insert _PROTO((int count, int key));
+extern int rl_transpose_words _PROTO((int count, int key));
+extern int rl_do_lowercase_version _PROTO((int ignore1, int ignore2));
+extern int rl_digit_argument _PROTO((int ignore, int key));
+extern int rl_universal_argument _PROTO((int count, int key));
+extern int rl_beginning_of_history _PROTO((int count, int key));
+extern int rl_end_of_history _PROTO((int count, int key));
+extern int rl_insert _PROTO((int count, int c));
+extern int rl_upcase_word _PROTO((int count, int key));
+extern int rl_downcase_word _PROTO((int count, int key));
+extern int rl_capitalize_word _PROTO((int count, int key));
+extern int rl_delete_horizontal_space _PROTO((int count, int ignore));
+extern int rl_insert_comment _PROTO((int count, int key));
+extern int rl_backward_char_search _PROTO((int count, int key));
+/* rltty.c */
+extern int rl_restart_output _PROTO((int count, int key));
+/* search.c */
+extern int rl_history_search_forward _PROTO((int count, int ignore));
+extern int rl_history_search_backward _PROTO((int count, int ignore));
+/* terminal.c */
+extern int ding _PROTO((void));
+/* undo.c */
+extern int rl_undo_command _PROTO((int count, int key));
+extern int rl_revert_line _PROTO((int count, int key));
+/* util.c */
+extern int rl_tilde_expand _PROTO((int ignore, int key));
+extern int rl_abort _PROTO((int count, int key));
+extern int rl_tty_status _PROTO((int count, int key));
 
 /* Not available unless readline is compiled -DPAREN_MATCHING. */
-extern int rl_insert_close ();
+extern int rl_insert_close _PROTO((int count, int invoking_key));
 
 /* Not available unless READLINE_CALLBACKS is defined. */
-extern void rl_callback_handler_install ();
-extern void rl_callback_read_char ();
-extern void rl_callback_handler_remove ();
+extern void rl_callback_handler_install _PROTO((char *prompt, VFunction *linefunc));
+extern void rl_callback_read_char _PROTO((void));
+extern void rl_callback_handler_remove _PROTO((void));
 
 /* Not available unless __CYGWIN32__ is defined. */
 #ifdef __CYGWIN32__
-extern int rl_paste_from_clipboard ();
+extern int rl_paste_from_clipboard _PROTO((int count, int key));
 #endif
 
 /* These are *both* defined even when VI_MODE is not. */
-extern int rl_vi_editing_mode (), rl_emacs_editing_mode ();
+extern int rl_vi_editing_mode _PROTO((int count, int key));
+extern int rl_emacs_editing_mode _PROTO((int count, int key));
 
 /* Non incremental history searching. */
-extern int rl_noninc_forward_search ();
-extern int rl_noninc_reverse_search ();
-extern int rl_noninc_forward_search_again ();
-extern int rl_noninc_reverse_search_again ();
+extern int rl_noninc_forward_search _PROTO((int count, int key));
+extern int rl_noninc_reverse_search _PROTO((int count, int key));
+extern int rl_noninc_forward_search_again _PROTO((int count, int key));
+extern int rl_noninc_reverse_search_again _PROTO((int count, int key));
 
 /* Things for vi mode. Not available unless readline is compiled -DVI_MODE. */
-extern int rl_vi_check ();
-extern int
-  rl_vi_undo (), rl_vi_redo (), rl_vi_tilde_expand (),
-  rl_vi_movement_mode (), rl_vi_insertion_mode (), rl_vi_arg_digit (),
-  rl_vi_prev_word (), rl_vi_next_word (), rl_vi_char_search (),
-  rl_vi_eof_maybe (), rl_vi_append_mode (), rl_vi_put (),
-  rl_vi_append_eol (), rl_vi_insert_beg (), rl_vi_delete (),
-  rl_vi_first_print (), rl_vi_fword (), rl_vi_fWord (), rl_vi_bword (),
-  rl_vi_bWord (), rl_vi_eword (), rl_vi_eWord (), rl_vi_end_word (),
-  rl_vi_change_case (), rl_vi_match (), rl_vi_bracktype (),
-  rl_vi_change_char (), rl_vi_yank_arg (), rl_vi_search (),
-  rl_vi_search_again (),  rl_vi_subst (), rl_vi_overstrike (),
-  rl_vi_overstrike_delete (), rl_vi_replace(), rl_vi_column (),
-  rl_vi_delete_to (), rl_vi_change_to (), rl_vi_yank_to (),
-  rl_vi_complete (), rl_vi_fetch_history (), rl_vi_set_mark (),
-  rl_vi_goto_mark (), rl_vi_back_to_indent ();
+extern int rl_vi_check _PROTO((void));
+extern int rl_vi_undo _PROTO((int count, int key));
+extern int rl_vi_redo _PROTO((int count, int c));
+extern int rl_vi_tilde_expand _PROTO((int ignore, int key));
+extern int rl_vi_movement_mode _PROTO((int count, int key));
+extern int rl_vi_insertion_mode _PROTO((int count, int key));
+extern int rl_vi_arg_digit _PROTO((int count, int c));
+extern int rl_vi_prev_word _PROTO((int count, int key));
+extern int rl_vi_next_word _PROTO((int count, int key));
+extern int rl_vi_char_search _PROTO((int count, int key));
+extern int rl_vi_eof_maybe _PROTO((int count, int c));
+extern int rl_vi_append_mode _PROTO((int count, int key));
+extern int rl_vi_put _PROTO((int count, int key));
+extern int rl_vi_append_eol _PROTO((int count, int key));
+extern int rl_vi_insert_beg _PROTO((int count, int key));
+extern int rl_vi_delete _PROTO((int count, int key));
+extern int rl_vi_first_print _PROTO((int count, int key));
+extern int rl_vi_fword _PROTO((int count));
+extern int rl_vi_fWord _PROTO((int count));
+extern int rl_vi_bword _PROTO((int count));
+extern int rl_vi_bWord _PROTO((int count));
+extern int rl_vi_eword _PROTO((int count));
+extern int rl_vi_eWord _PROTO((int count));
+extern int rl_vi_end_word _PROTO((int count, int key));
+extern int rl_vi_change_case _PROTO((int count, int ignore));
+extern int rl_vi_match _PROTO((int ignore, int key));
+extern int rl_vi_bracktype _PROTO((int c));
+extern int rl_vi_change_char _PROTO((int count, int key));
+extern int rl_vi_yank_arg _PROTO((int count, int key));
+extern int rl_vi_search _PROTO((int count, int key));
+extern int rl_vi_search_again _PROTO((int count, int key));
+extern int rl_vi_subst _PROTO((int count, int key));
+extern int rl_vi_overstrike _PROTO((int count, int key));
+extern int rl_vi_overstrike_delete _PROTO((int count, int key));
+extern int rl_vi_replace _PROTO((int count, int key));
+extern int rl_vi_column _PROTO((int count, int key));
+extern int rl_vi_delete_to _PROTO((int count, int key));
+extern int rl_vi_change_to _PROTO((int count, int key));
+extern int rl_vi_yank_to _PROTO((int count, int key));
+extern int rl_vi_complete _PROTO((int ignore, int key));
+extern int rl_vi_fetch_history _PROTO((int count, int c));
+extern int rl_vi_set_mark _PROTO((int count, int key));
+extern int rl_vi_goto_mark _PROTO((int count, int key));
+extern int rl_vi_back_to_indent _PROTO((int count, int key));
 
 /* Keyboard macro commands. */
-extern int rl_start_kbd_macro (), rl_end_kbd_macro ();
-extern int rl_call_last_kbd_macro ();
-extern void rl_push_macro_input ();
+extern int rl_start_kbd_macro _PROTO((int ignore1, int ignore2));
+extern int rl_end_kbd_macro _PROTO((int count, int ignore));
+extern int rl_call_last_kbd_macro _PROTO((int count, int ignore));
+extern void rl_push_macro_input _PROTO((char *macro));
 
-extern int rl_arrow_keys(), rl_refresh_line ();
+extern int rl_arrow_keys _PROTO((int count, int c));
+extern int rl_refresh_line _PROTO((void));
 
 /* **************************************************************** */
 /*								    */
@@ -141,95 +232,316 @@ extern int rl_arrow_keys(), rl_refresh_line ();
 
 /* Readline functions. */
 /* Read a line of input.  Prompt with PROMPT.  A NULL PROMPT means none. */
-extern char *readline ();
+extern char *readline _PROTO((char *prompt));
 
 /* These functions are from bind.c. */
 /* rl_add_defun (char *name, Function *function, int key)
    Add NAME to the list of named functions.  Make FUNCTION
    be the function that gets called.
    If KEY is not -1, then bind it. */
-extern int rl_add_defun ();
+extern int rl_add_defun _PROTO((char *name, Function *function, int key));
 
-extern Keymap rl_make_bare_keymap ();
-extern Keymap rl_copy_keymap ();
-extern Keymap rl_make_keymap ();
-extern void rl_discard_keymap ();
-extern Keymap rl_get_keymap (), rl_get_keymap_by_name ();
-extern void rl_set_keymap ();
-extern char *rl_get_keymap_name ();
+extern Keymap rl_make_bare_keymap _PROTO((void));
+extern Keymap rl_copy_keymap _PROTO((Keymap map));
+extern Keymap rl_make_keymap _PROTO((void));
+extern void rl_discard_keymap _PROTO((Keymap map));
+extern Keymap rl_get_keymap _PROTO((void));
+extern Keymap rl_get_keymap_by_name _PROTO((char *name));
+extern void rl_set_keymap _PROTO((Keymap map));
+extern char *rl_get_keymap_name _PROTO((Keymap map));
 
-extern int rl_bind_key (), rl_bind_key_in_map ();
-extern int rl_unbind_key (), rl_unbind_key_in_map ();
-extern int rl_unbind_function_in_map (), rl_unbind_command_in_map ();
-extern int rl_set_key ();
-extern int rl_generic_bind ();
-extern int rl_parse_and_bind ();
+extern int rl_bind_key _PROTO((int key, Function *function));
+extern int rl_bind_key_in_map _PROTO((int key, Function *function, Keymap map));
+extern int rl_unbind_key _PROTO((int key));
+extern int rl_unbind_key_in_map _PROTO((int key, Keymap map));
+extern int rl_unbind_function_in_map _PROTO((Function *func, Keymap map));
+extern int rl_unbind_command_in_map _PROTO((char *command, Keymap map));
+extern int rl_set_key _PROTO((char *keyseq, Function *function, Keymap map));
+extern int rl_generic_bind _PROTO((int type, char *keyseq, char *data, Keymap map));
+extern int rl_parse_and_bind _PROTO((char *string));
 /* Backwards compatibility, use rl_generic_bind instead. */
-extern int rl_macro_bind (), rl_variable_bind ();
+extern int rl_macro_bind _PROTO((char *keyseq, char *macro, Keymap map));
+extern int rl_variable_bind _PROTO((char *name, char *value));
 
-extern int rl_read_init_file ();
+extern int rl_read_init_file _PROTO((char *filename));
 
-extern Function *rl_named_function (), *rl_function_of_keyseq ();
-extern char **rl_invoking_keyseqs (), **rl_invoking_keyseqs_in_map ();
-extern void rl_function_dumper ();
-extern void rl_variable_dumper ();
-extern void rl_macro_dumper ();
-extern void rl_list_funmap_names ();
+extern Function *rl_named_function _PROTO((char *string));
+extern Function *rl_function_of_keyseq _PROTO((char *keyseq, Keymap map, int *type));
+extern char **rl_invoking_keyseqs _PROTO((Function *function));
+extern char **rl_invoking_keyseqs_in_map _PROTO((Function *function, Keymap map));
+extern void rl_function_dumper _PROTO((int print_readably));
+extern void rl_variable_dumper _PROTO((int print_readably));
+extern void rl_macro_dumper _PROTO((int print_readably));
+extern void rl_list_funmap_names _PROTO((void));
 
 /* Undocumented in the texinfo manual; not really useful to programs. */
-extern int rl_translate_keyseq ();
-extern void rl_initialize_funmap ();
+extern int rl_translate_keyseq _PROTO((char *seq, char *array, int *len));
+extern void rl_initialize_funmap _PROTO((void));
 
 /* Functions for undoing. */
-extern int rl_begin_undo_group (), rl_end_undo_group ();
-extern void rl_add_undo (), free_undo_list ();
-extern int rl_do_undo ();
-extern int rl_modifying ();
+extern int rl_begin_undo_group _PROTO((void));
+extern int rl_end_undo_group _PROTO((void));
+extern void rl_add_undo _PROTO((enum undo_code what, int start, int end, char *text));
+extern void free_undo_list _PROTO((void));
+extern int rl_do_undo _PROTO((void));
+extern int rl_modifying _PROTO((int start, int end));
 
 /* Functions for redisplay. */
-extern void rl_redisplay ();
-extern int rl_forced_update_display ();
-extern int rl_clear_message ();
-extern int rl_reset_line_state ();
-extern int rl_on_new_line ();
+extern void rl_redisplay _PROTO((void));
+extern int rl_forced_update_display _PROTO((void));
+extern int rl_clear_message _PROTO((void));
+extern int rl_reset_line_state _PROTO((void));
+extern int rl_on_new_line _PROTO((void));
 
-#if defined (__STDC__) && defined (USE_VARARGS) && defined (PREFER_STDARG)
+#if (defined (__STDC__) || defined(__cplusplus)) && defined (USE_VARARGS) && defined (PREFER_STDARG)
 extern int rl_message (const char *, ...);
 #else
 extern int rl_message ();
 #endif
 
 /* Undocumented in texinfo manual. */
-extern int rl_character_len ();
-extern int rl_show_char ();
-extern int crlf ();
+extern int rl_character_len _PROTO((int c, int pos));
+extern int rl_show_char _PROTO((int c));
+extern int crlf _PROTO((void));
 
 /* Modifying text. */
-extern int rl_insert_text (), rl_delete_text ();
-extern int rl_kill_text ();
-extern char *rl_copy_text ();
+extern int rl_insert_text _PROTO((char *string));
+extern int rl_delete_text _PROTO((int from, int to));
+extern int rl_kill_text _PROTO((int from, int to));
+extern char *rl_copy_text _PROTO((int from, int to));
 
 /* `Public' utility functions. */
-extern int rl_reset_terminal ();
-extern int rl_stuff_char ();
-extern int rl_read_key (), rl_getc ();
+extern int rl_reset_terminal _PROTO((char *terminal_name));
+extern int rl_stuff_char _PROTO((int key));
+extern int rl_read_key _PROTO((void));
+extern int rl_getc _PROTO((FILE *stream));
 
-extern int rl_initialize ();
+extern int rl_initialize _PROTO((void));
 
 /* Undocumented. */
-extern int rl_expand_prompt ();
-extern int rl_set_signals (), rl_clear_signals ();
-extern int maybe_save_line (), maybe_unsave_line (), maybe_replace_line ();
+extern int rl_expand_prompt _PROTO((char *prompt));
+extern int rl_set_signals _PROTO((void));
+extern int rl_clear_signals _PROTO((void));
+extern int maybe_save_line _PROTO((void));
+extern int maybe_unsave_line _PROTO((void));
+extern int maybe_replace_line _PROTO((void));
 
 /* Completion functions. */
 /* These functions are from complete.c. */
-extern int rl_complete_internal ();
+extern int rl_complete_internal _PROTO((int what_to_do));
 
 /* Return an array of strings which are the result of repeatadly calling
    FUNC with TEXT. */
-extern char **completion_matches ();
-extern char *username_completion_function ();
-extern char *filename_completion_function ();
+extern char **completion_matches _PROTO((char *text, CPFunction *entry_function));
+extern char *username_completion_function _PROTO((char *text, int state));
+extern char *filename_completion_function _PROTO((char *text, int state));
+
+#if defined(READLINE_LIBRARY)
+
+#include "posixjmp.h" /* defines procenv_t */
+
+/* NOTE: Functions and variables prefixed with `_rl_' are
+   pseudo-global: they are global so they can be shared
+   between files in the readline library, but are not intended
+   to be visible to readline callers. */
+
+/* Other undocumented. */
+/* bind.c */
+extern void rl_set_keymap_from_edit_mode _PROTO((void));
+extern void _rl_bind_if_unbound _PROTO((char *keyseq, Function *default_func));
+/* callback.c */
+#if defined(READLINE_CALLBACKS)
+extern void readline_internal_setup _PROTO((void));
+#endif
+/* display.c */
+extern void _rl_move_cursor_relative _PROTO((int new, char *data));
+extern void _rl_move_vert _PROTO((int to));
+extern void _rl_save_prompt _PROTO((void));
+extern void _rl_restore_prompt _PROTO((void));
+extern char *_rl_make_prompt_for_search _PROTO((int pchar));
+extern void _rl_erase_at_end_of_line _PROTO((int l));
+extern void _rl_clear_to_eol _PROTO((int count));
+extern void _rl_clear_screen _PROTO((void));
+extern void _rl_update_final _PROTO((void));
+extern void _rl_redisplay_after_sigwinch _PROTO((void));
+extern void _rl_clean_up_for_exit _PROTO((void));
+/* funmap.c */
+extern int rl_add_funmap_entry _PROTO((char *name, Function *function));
+extern char **rl_funmap_names _PROTO((void));
+/* input.c */
+extern int _rl_any_typein _PROTO((void));
+extern int rl_execute_next _PROTO((int c));
+extern int _rl_input_available _PROTO((void));
+extern void _rl_insert_typein _PROTO((int c));
+/* macro.c */
+extern void _rl_with_macro_input _PROTO((char *string));
+extern int _rl_next_macro_key _PROTO((void));
+extern void _rl_push_executing_macro _PROTO((void));
+extern void _rl_pop_executing_macro _PROTO((void));
+extern void _rl_add_macro_char _PROTO((int c));
+extern void _rl_kill_kbd_macro _PROTO((void));
+/* nls.c */
+extern int _rl_init_eightbit _PROTO((void));
+/* parens.c */
+extern int rl_insert_close _PROTO((int count, int invoking_key));
+/* readline.c */
+extern void _rl_init_line_state _PROTO((void));
+extern void _rl_set_the_line _PROTO((void));
+extern int _rl_dispatch _PROTO((int key, Keymap map));
+extern int _rl_init_argument _PROTO((void));
+extern void _rl_fix_point _PROTO((int fix_mark_too));
+extern void _rl_replace_text _PROTO((char *text, int start, int end));
+extern int _rl_char_search_internal _PROTO((int count, int dir, int schar));
+extern void _rl_free_history_entry _PROTO((HIST_ENTRY *entry));
+extern int _rl_set_mark_at_pos _PROTO((int position));
+#if defined(READLINE_CALLBACKS)
+extern void readline_internal_setup _PROTO((void));
+extern char *readline_internal_teardown _PROTO((int eof));
+extern int readline_internal_char _PROTO((void));
+#endif
+/* rltty.c */
+extern void rl_prep_terminal _PROTO((int meta_flag));
+extern void rl_deprep_terminal _PROTO((void));
+extern void rltty_set_default_bindings _PROTO((Keymap kmap));
+/* shell.c */
+#include "shell.h"
+/* terminal.c */
+extern void _rl_get_screen_size _PROTO((int tty, int ignore_env));
+extern int _rl_init_terminal_io _PROTO((char *terminal_name));
+#ifdef _MINIX
+extern void _rl_output_character_function _PROTO((int c));
+#else
+extern int _rl_output_character_function _PROTO((int c));
+#endif
+extern void _rl_output_some_chars _PROTO((char *string, int count));
+extern int _rl_backspace _PROTO((int count));
+extern void _rl_enable_meta_key _PROTO((void));
+extern void _rl_control_keypad _PROTO((int on));
+/* util.c */
+extern int alphabetic _PROTO((int c));
+extern int _rl_abort_internal _PROTO((void));
+extern void rl_extend_line_buffer _PROTO((int len));
+extern char *_rl_strindex _PROTO((char *s1, char *s2));
+extern int _rl_qsort_string_compare _PROTO((char **s1, char **s2));
+extern int (_rl_uppercase_p) _PROTO((int c));
+extern int (_rl_lowercase_p) _PROTO((int c));
+extern int (_rl_pure_alphabetic) _PROTO((int c));
+extern int (_rl_digit_p) _PROTO((int c));
+extern int (_rl_to_lower) _PROTO((int c));
+extern int (_rl_to_upper) _PROTO((int c));
+extern int (_rl_digit_value) _PROTO((int c));
+/* vi_mode.c */
+extern void _rl_vi_initialize_line _PROTO((void));
+extern void _rl_vi_reset_last _PROTO((void));
+extern void _rl_vi_set_last _PROTO((int key, int repeat, int sign));
+extern int _rl_vi_textmod_command _PROTO((int c));
+extern void _rl_vi_done_inserting _PROTO((void));
+/* xmalloc.c */
+#include "xmalloc.h"
+
+/* Unused and undocumented. */
+/* bind.c */
+extern char *rl_untranslate_keyseq _PROTO((int seq));
+/* kill.c */
+extern int rl_set_retained_kills _PROTO((int num));
+/* readline.c */
+extern int rl_discard_argument _PROTO((void));
+/* rltty.c */
+extern int rl_stop_output _PROTO((int count, int key));
+/* terminal.c */
+extern void _rl_set_screen_size _PROTO((int rows, int cols));
+extern char *rl_get_termcap _PROTO((char *cap));
+/* undo.c */
+extern int _rl_fix_last_undo_of_type _PROTO((int type, int start, int end));
+/* util.c */
+extern char *_rl_savestring _PROTO((char *s));
+
+/* Undocumented variables. */
+/* complete.c */
+extern int _rl_complete_show_all;
+extern int _rl_complete_mark_directories;
+extern int _rl_print_completions_horizontally;
+extern int _rl_completion_case_fold;
+#if defined (VISIBLE_STATS)
+extern int rl_visible_stats;
+#endif /* VISIBLE_STATS */
+extern int rl_complete_with_tilde_expansion;
+extern int rl_completion_query_items;
+extern int rl_inhibit_completion;
+extern char *rl_completer_word_break_characters;
+extern char *rl_basic_word_break_characters;
+/* display.c */
+extern int _rl_vis_botlin;
+extern int _rl_last_c_pos;
+extern int rl_display_fixed;
+extern int _rl_suppress_redisplay;
+extern char *rl_display_prompt;
+/* funmap.c */
+extern char *possible_control_prefixes[];
+extern char *possible_meta_prefixes[];
+/* macro.c */
+extern int _rl_defining_kbd_macro;
+extern char *_rl_executing_macro;
+/* parens.c */
+#if defined (PAREN_MATCHING)
+extern int rl_blink_matching_paren;
+#endif /* PAREN_MATCHING */
+/* readline.c */
+extern int _rl_horizontal_scroll_mode;
+extern int _rl_mark_modified_lines;
+extern int _rl_bell_preference;
+extern int _rl_meta_flag;
+extern int _rl_convert_meta_chars_to_ascii;
+extern int _rl_output_meta_chars;
+extern char *_rl_comment_begin;
+extern int rl_explicit_arg;
+extern int rl_editing_mode;
+extern unsigned char _rl_parsing_conditionalized_out;
+extern Keymap _rl_keymap;
+extern char *rl_prompt;
+extern int rl_visible_prompt_length;
+extern Function *rl_last_func;
+extern int readline_echoing_p;
+extern FILE *rl_instream;
+extern FILE *rl_outstream;
+extern FILE *_rl_out_stream;
+extern int rl_key_sequence_length;
+extern int rl_pending_input;
+extern HIST_ENTRY *saved_line_for_history;
+extern int rl_line_buffer_len;
+extern int rl_point;
+extern int rl_end;
+extern char *rl_line_buffer;
+extern int _rl_last_command_was_kill;
+extern int _rl_eof_char;
+extern procenv_t readline_top_level;
+extern int rl_mark;
+extern int rl_done;
+extern int rl_numeric_arg;
+extern int rl_arg_sign;
+/* terminal.c */
+extern int _rl_enable_keypad;
+extern int _rl_enable_meta;
+extern char *term_clreol;
+extern char *term_clrpag;
+extern char *term_im;
+extern char *term_ic;
+extern char *term_ei;
+extern char *term_DC;
+extern char *term_up;
+extern char *term_dc;
+extern char *term_cr;
+extern char *term_IC;
+extern int screenheight;
+extern int screenwidth;
+extern int screenchars;
+extern int terminal_can_insert;
+extern int _rl_term_autowrap;
+/* undo.c */
+extern int _rl_doing_an_undo;
+extern int _rl_undo_group_level;
+
+#endif /* READLINE_LIBRARY */
 
 /* **************************************************************** */
 /*								    */
@@ -252,7 +564,8 @@ extern char *rl_prompt;
 extern char *rl_line_buffer;
 
 /* The location of point, and end. */
-extern int rl_point, rl_end;
+extern int rl_point;
+extern int rl_end;
 
 extern int rl_mark;
 
@@ -269,7 +582,8 @@ extern int rl_dispatching;
 extern char *rl_terminal_name;
 
 /* The input and output streams. */
-extern FILE *rl_instream, *rl_outstream;
+extern FILE *rl_instream;
+extern FILE *rl_outstream;
 
 /* If non-zero, then this is the address of a function to call just
    before readline_internal () prints the first prompt. */
@@ -410,7 +724,7 @@ extern int rl_inhibit_completion;
 #define MULT_MATCH      2
 
 #if !defined (savestring)
-extern char *savestring ();	/* XXX backwards compatibility */
+extern char *savestring _PROTO((char *s));	/* XXX backwards compatibility */
 #endif
 
 #endif /* _READLINE_H_ */

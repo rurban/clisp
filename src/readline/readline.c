@@ -70,105 +70,20 @@
 /* Evaluates its arguments multiple times. */
 #define SWAP(s, e)  do { int t; t = s; s = e; e = t; } while (0)
 
-/* NOTE: Functions and variables prefixed with `_rl_' are
-   pseudo-global: they are global so they can be shared
-   between files in the readline library, but are not intended
-   to be visible to readline callers. */
-
-/* Variables and functions imported from terminal.c */
-extern int _rl_init_terminal_io ();
-extern void _rl_enable_meta_key ();
-#ifdef _MINIX
-extern void _rl_output_character_function ();
-#else
-extern int _rl_output_character_function ();
-#endif
-extern void _rl_get_screen_size ();
-
-extern int _rl_enable_meta;
-extern int _rl_term_autowrap;
-extern int screenwidth, screenheight, screenchars;
-
-/* Variables and functions imported from rltty.c. */
-extern void rl_prep_terminal (), rl_deprep_terminal ();
-extern void rltty_set_default_bindings ();
-
-/* Functions imported from util.c. */
-extern void _rl_abort_internal ();
-extern void rl_extend_line_buffer ();
-extern int alphabetic ();
-
-/* Functions imported from bind.c. */
-extern void _rl_bind_if_unbound ();
-extern int rl_set_keymap_from_edit_mode ();
-
-/* Functions imported from input.c. */
-extern int _rl_any_typein ();
-extern void _rl_insert_typein ();
-extern int rl_read_key ();
-
-/* Functions imported from nls.c */
-extern int _rl_init_eightbit ();
-
-/* Functions imported from shell.c */
-extern char *get_env_value ();
-
-/* External redisplay functions and variables from display.c */
-extern void _rl_move_vert ();
-extern void _rl_update_final ();
-extern void _rl_clear_to_eol ();
-extern void _rl_clear_screen ();
-
-extern void _rl_save_prompt ();
-extern void _rl_restore_prompt ();
-
-extern void _rl_erase_at_end_of_line ();
-extern void _rl_move_cursor_relative ();
-
-extern int _rl_vis_botlin;
-extern int _rl_last_c_pos;
-extern int _rl_horizontal_scroll_mode;
-extern int rl_display_fixed;
-extern int _rl_suppress_redisplay;
-extern char *rl_display_prompt;
-
-/* Variables imported from complete.c. */
-extern char *rl_completer_word_break_characters;
-extern char *rl_basic_word_break_characters;
-extern int rl_completion_query_items;
-extern int rl_complete_with_tilde_expansion;
-
-/* Variables and functions from macro.c. */
-extern void _rl_add_macro_char ();
-extern void _rl_with_macro_input ();
-extern int _rl_next_macro_key ();
-extern int _rl_defining_kbd_macro;
-
-#if defined (VI_MODE)
-/* Functions imported from vi_mode.c. */
-extern void _rl_vi_set_last ();
-extern void _rl_vi_reset_last ();
-extern void _rl_vi_done_inserting ();
-extern int _rl_vi_textmod_command ();
-extern void _rl_vi_initialize_line ();
-#endif /* VI_MODE */
-
-extern UNDO_LIST *rl_undo_list;
-extern int _rl_doing_an_undo;
-
 /* Forward declarations used in this file. */
-void _rl_free_history_entry ();
+void _rl_free_history_entry _PROTO((HIST_ENTRY *entry));
 
-int _rl_dispatch ();
-int _rl_init_argument ();
+int _rl_dispatch _PROTO((int key, Keymap map));
+int _rl_init_argument _PROTO((void));
 
-static char *readline_internal ();
-static void readline_initialize_everything ();
-static void start_using_history ();
-static void bind_arrow_keys ();
+static char *readline_internal _PROTO((void));
+static void readline_initialize_everything _PROTO((void));
+static void start_using_history _PROTO((void));
+static void bind_arrow_keys _PROTO((void));
+static int rl_change_case _PROTO((int count, int op));
 
 #if !defined (__GO32__)
-static void readline_default_bindings ();
+static void readline_default_bindings _PROTO((void));
 #endif /* !__GO32__ */
 
 #if defined (__GO32__)
@@ -176,8 +91,6 @@ static void readline_default_bindings ();
 #  include <pc.h>
 #  undef HANDLE_SIGNALS
 #endif /* __GO32__ */
-
-extern char *xmalloc (), *xrealloc ();
 
 /* **************************************************************** */
 /*								    */
@@ -361,6 +274,13 @@ readline (prompt)
 #else
 #  define STATIC_CALLBACK static
 #endif
+
+/* Prototype declarations. */
+#if !defined (READLINE_CALLBACKS)
+static void readline_internal_setup _PROTO((void));
+static char *readline_internal_teardown _PROTO((int eof));
+#endif
+static int readline_internal_charloop _PROTO((void));
 
 STATIC_CALLBACK void
 readline_internal_setup ()
@@ -1561,8 +1481,6 @@ rl_insert_comment (count, key)
 #define UpCase 1
 #define DownCase 2
 #define CapCase 3
-
-static int rl_change_case ();
 
 /* Uppercase the word at point. */
 int

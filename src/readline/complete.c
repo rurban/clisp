@@ -71,42 +71,26 @@ extern struct passwd *getpwent ();
 /* Some standard library routines. */
 #include "readline.h"
 
-extern char *tilde_expand ();
-extern char *rl_copy_text ();
-extern void _rl_abort_internal ();
-extern int _rl_qsort_string_compare ();
-extern void _rl_replace_text ();
-
-extern Function *rl_last_func;
-extern int rl_editing_mode;
-extern int screenwidth;
-
-extern void _rl_move_vert ();
-extern int _rl_vis_botlin;
-extern int rl_display_fixed;
-
 /* Forward declarations for functions defined and used in this file. */
-char *filename_completion_function ();
-char **completion_matches ();
+char *filename_completion_function _PROTO((char *text, int state));
+char **completion_matches _PROTO((char *text, CPFunction *entry_function));
 
 #if defined (VISIBLE_STATS)
 #  if !defined (X_OK)
 #    define X_OK 1
 #  endif
-static int stat_char ();
+static int stat_char _PROTO((char *filename));
 #endif
 
-static char *rl_quote_filename ();
-static char *rl_strpbrk ();
+static char *rl_quote_filename _PROTO((char *s, int rtype, char *qcp));
+static char *rl_strpbrk _PROTO((char *string1, char *string2));
 
-static char **remove_duplicate_matches ();
-static void insert_match ();
-static int append_to_match ();
-static void insert_all_matches ();
-static void display_matches ();
-static int compute_lcd_of_matches ();
-
-extern char *xmalloc (), *xrealloc ();
+static char **remove_duplicate_matches _PROTO((char **matches));
+static void insert_match _PROTO((char *match, int start, int mtype, char *qc));
+static int append_to_match _PROTO((char *text, int delimiter, int quote_char));
+static void insert_all_matches _PROTO((char **matches, int point, char *qc));
+static void display_matches _PROTO((char **matches));
+static int compute_lcd_of_matches _PROTO((char **match_list, int matches, char *text));
 
 /* **************************************************************** */
 /*								    */
@@ -1331,7 +1315,7 @@ completion_matches (text, entry_function)
   match_list = (char **)xmalloc ((match_list_size + 1) * sizeof (char *));
   match_list[1] = (char *)NULL;
 
-  while (string = (*entry_function) (text, matches))
+  while ((string = (*entry_function) (text, matches)) != (char *)NULL)
     {
       if (matches + 1 == match_list_size)
 	match_list = (char **)xrealloc
@@ -1358,8 +1342,8 @@ completion_matches (text, entry_function)
    character (usually `~').  */
 char *
 username_completion_function (text, state)
-     int state;
      char *text;
+     int state;
 {
 #if defined (__GO32__) || defined (__WIN32__)
   return (char *)NULL;
@@ -1381,7 +1365,7 @@ username_completion_function (text, state)
       setpwent ();
     }
 
-  while (entry = getpwent ())
+  while ((entry = getpwent ()) != (struct passwd *)NULL)
     {
       /* Null usernames should result in all users as possible completions. */
       if (namelen == 0 || (STREQN (username, entry->pw_name, namelen)))
@@ -1415,8 +1399,8 @@ username_completion_function (text, state)
    completion for a command. */
 char *
 filename_completion_function (text, state)
-     int state;
      char *text;
+     int state;
 {
   static DIR *directory = (DIR *)NULL;
   static char *filename = (char *)NULL;

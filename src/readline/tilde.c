@@ -18,6 +18,7 @@
    You should have received a copy of the GNU General Public License
    along with Readline; see the file COPYING.  If not, write to the Free
    Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. */
+#define READLINE_LIBRARY
 
 #if defined (HAVE_CONFIG_H)
 #  include <config.h>
@@ -56,7 +57,7 @@ extern struct passwd *getpwuid (), *getpwnam ();
 #endif /* !HAVE_GETPW_DECLS */
 
 #if !defined (savestring)
-extern char *xmalloc ();
+extern char *xmalloc _PROTO((int bytes));
 #  ifndef strcpy
 extern char *strcpy ();
 #  endif
@@ -71,11 +72,11 @@ extern char *strcpy ();
 #  endif /* !__STDC__ */
 #endif /* !NULL */
 
-#if defined (TEST) || defined (STATIC_MALLOC)
+#if defined (TEST)
 static char *xmalloc (), *xrealloc ();
 #else
-extern char *xmalloc (), *xrealloc ();
-#endif /* TEST || STATIC_MALLOC */
+#include "xmalloc.h"
+#endif /* TEST */
 
 /* The default value of tilde_additional_prefixes.  This is set to
    whitespace preceding a tilde so that simple programs which do not
@@ -189,7 +190,7 @@ tilde_expand (string)
   int result_size, result_index;
 
   result_index = result_size = 0;
-  if (result = strchr (string, '~'))
+  if ((result = strchr (string, '~')) != (char *)NULL)
     result = xmalloc (result_size = (strlen (string) + 16));
   else
     result = xmalloc (result_size = (strlen (string) + 1));
@@ -420,7 +421,7 @@ main (argc, argv)
   exit (0);
 }
 
-static void memory_error_and_abort ();
+static void memory_error_and_abort _PROTO((void));
 
 static char *
 xmalloc (bytes)

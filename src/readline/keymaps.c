@@ -38,11 +38,6 @@
 #include "vi_keymap.c"
 #endif
 
-extern int rl_do_lowercase_version ();
-extern int rl_rubout (), rl_insert ();
-
-extern char *xmalloc (), *xrealloc ();
-
 /* **************************************************************** */
 /*								    */
 /*		      Functions for manipulating Keymaps.	    */
