@@ -10552,9 +10552,9 @@ The function make-closure is required.
 ;; Compiles a Top-Level-Form for COMPILE-FILE. The *toplevel-name* is
 ;; mostly passed unchanged. *toplevel-for-value* indicates, if the value
 ;; is needed (for LOAD :PRINT T) or not.
+(defvar *toplevel-name*)
 (defvar *toplevel-for-value*)
 (defun compile-toplevel-form (form &optional (*toplevel-name* *toplevel-name*))
-  (declare (special *toplevel-name*))
   (unless form (return-from compile-toplevel-form))
   (catch 'c-error
     ;; CLtL2 p. 90: "Processing of top-level forms in the file compiler ..."
