@@ -68,7 +68,7 @@ The keyword argument OUT specifies the output for log messages."
           ((format t "~s: no browser specified; please point your browser at
  --> <URL:~a>~%" 'browse-url url)))))
 
-(defun clhs (symbol-string &key (browser :netscape) (out *standard-output*))
+(defun clhs (symbol-string &key (browser *browser*) (out *standard-output*))
   "Dump the CLHS doc for the symbol."
   (unless *clhs-table*
     (setq *clhs-table* (read-from-file (clhs-file) :out out)))
