@@ -542,26 +542,20 @@
               new-space1 new-space2 new-gccount
               old-real1 old-real2 old-run1 old-run2 old-gc1 old-gc2
               old-space1 old-space2 old-gccount)
-  (macrolet ((merge-2-values (val1 val2)
+  (macrolet ((diff4 (val1-n val2-n val1-o val2-o)
                (if (< internal-time-units-per-second 1000000)
-                 `(dpb ,val1 (byte 16 16) ,val2) ; TIME_1: AMIGA, OS/2, UNIX_TIMES
-                 `(+ (* ,val1 internal-time-units-per-second) ,val2) ; TIME_2: UNIX sonst, WIN32
-            )) )
-    (let ((Real-Time (- (merge-2-values new-real1 new-real2)
-                        (merge-2-values old-real1 old-real2)
-          )          )
-          (Run-Time (- (merge-2-values new-run1 new-run2)
-                       (merge-2-values old-run1 old-run2)
-          )         )
-          (GC-Time (- (merge-2-values new-gc1 new-gc2)
-                      (merge-2-values old-gc1 old-gc2)
-          )        )
-          (Space (- (dpb new-space1 (byte 24 24) new-space2)
-                    (dpb old-space1 (byte 24 24) old-space2)
-          )      )
+                 ;; TIME_1: AMIGA, OS/2, UNIX_TIMES
+                 `(dpb (- ,val1-n ,val1-o) (byte 16 16) (- ,val2-n  ,val2-o))
+                 ;; TIME_2: other UNIX, WIN32
+                 `(+ (* (- ,val1-n ,val1-o) internal-time-units-per-second)
+                     (- ,val2-n ,val2-o)))))
+    (let ((Real-Time (diff4 new-real1 new-real2 old-real1 old-real2))
+          (Run-Time (diff4 new-run1 new-run2 old-run1 old-run2))
+          (GC-Time (diff4 new-gc1 new-gc2 old-gc1 old-gc2))
+          (Space (dpb (- new-space1 old-space1) (byte 24 24)
+                      (- new-space2 old-space2)))
           (GC-Count (- new-gccount old-gccount))
-          (stream *trace-output*)
-         )
+          (stream *trace-output*))
       (terpri stream)
       (write-string "Real time: " stream)
       (write (float (/ Real-Time internal-time-units-per-second)) :stream stream)
