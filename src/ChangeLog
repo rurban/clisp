@@ -1,5 +1,12 @@
 2003-07-28  Sam Steingold  <sds@gnu.org>
 
+	* misc.d (clisp_setenv) [WIN32_NATIVE]: use SetEnvironmentVariable()
+	(GETENV) [WIN32_NATIVE]: use GetEnvironmentStrings() and
+	FreeEnvironmentStrings() instead of the fictitious `environ' global
+	(push_envar): new function, extracted from GETENV
+
+2003-07-28  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d, stream.d, socket.d, misc.d, win32aux.d:
 	fixed g++/mingw compilation
 
