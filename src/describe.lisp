@@ -183,7 +183,7 @@ to print the corresponding values, or T for all of them.")
        (format stream (TEXT "a load-time evaluation promise.")))
       (EXT:SYMBOL-MACRO
        (format stream (TEXT "a symbol macro handler.")))
-      (EXT:MACRO
+      (SYS::MACRO
        (format stream (TEXT "a macro expander.")))
       (EXT:FUNCTION-MACRO
        (format stream (TEXT "a function with alternative macro expander.")))

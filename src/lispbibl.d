@@ -8686,7 +8686,7 @@ a functions- or macrobindings-frame or NIL (which means an empty
 lexical environment) or through a vector that is built as follows:
 The vector contains n bindings and has length 2n+1. The elements are
 n-time each function-name (a symbol) and the definiton that belongs to it (a
-closure or NIL or a Cons (SYS::MACRO . Closure) ) and as last element
+closure or NIL or a SYS::MACRO object) and as last element
 the predecessor environment.
 
 The block-environment
@@ -8901,7 +8901,7 @@ symbol/value pais 1,...,n-m have been active, but nested meanwhile and thus
 inactive on the stack again. Only the pairs n-m+1,...,n are active.
 Marker bits are not needed here, as opposed to the variable-bindings frames
 
-All values are closures or Conses (SYSTEM::MACRO . Closure).
+All values are closures or SYS::MACRO objects.
 The content of the Frameinfo-bytes is FUN_FRAME_INFO.
 
 Interpreted Block-Frames
