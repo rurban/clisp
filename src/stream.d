@@ -394,6 +394,7 @@ local maygc void wr_ch_array_dummy (const gcv_object_t* stream_,
 global bool terminal_stream_p (object stream) {
   if (!streamp(stream)) return false;
   if (eq(stream,Symbol_value(S(terminal_read_stream)))) return true;
+  if (!builtin_stream_p(stream)) return false;
   if (TheStream(stream)->strmtype == strmtype_terminal) return true;
   if (TheStream(stream)->strmtype == strmtype_synonym)
     return terminal_stream_p(Symbol_value # get_synonym_stream
