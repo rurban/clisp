@@ -4126,8 +4126,8 @@ warning, you need to fix the source code of the incriminated method.</para>
  being mandated by the &ansi-cl;.
  Therefore, in this case, &clisp;'s behavior is determined by the value
  of &pathprint;: when it is &nil;, we print pathnames like this:
-<computeroutput>#-CLISP &sharp-P;"..."
-#+CLISP &sharp-S;(&pathname-t; ...)</computeroutput>.
+<computeroutput>&sharp-minus;CLISP &sharp-P;"..."
+&sharp-plus;CLISP &sharp-S;(&pathname-t; ...)</computeroutput>.
  Otherwise, when the variable &pathprint; is non-&nil;, the
  &sharp-P; notation is used as per <ulink
  url="&clhs;/Body/sec_1-5-1-4-1.html">1.5.1.4.1 Resolution of Apparent
