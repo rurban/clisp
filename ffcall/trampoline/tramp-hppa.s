@@ -9,20 +9,14 @@
 ; on this software.
 ;
 
-	.SPACE $PRIVATE$
-	.SUBSPA $DATA$,QUAD=1,ALIGN=8,ACCESS=31
-	.SUBSPA $BSS$,QUAD=1,ALIGN=8,ACCESS=31,ZERO,SORT=82
-	.SPACE $TEXT$
-	.SUBSPA $LIT$,QUAD=0,ALIGN=8,ACCESS=44
-	.SUBSPA $CODE$,QUAD=0,ALIGN=8,ACCESS=44,CODE_ONLY
+	.code
 	.IMPORT $global$,DATA
 	.IMPORT $$dyncall,MILLICODE
-	.SPACE $TEXT$
-	.SUBSPA $CODE$
+	.code
 
 	.align 4
 	.EXPORT tramp,ENTRY,PRIV_LEV=3,ARGW0=GR,ARGW1=GR
-tramp
+	.label tramp
 	.PROC
 	.CALLINFO FRAME=0,NO_CALLS
 	.ENTRY
@@ -40,7 +34,7 @@ tramp
 	depi 0,31,2,%r21
 	ldw 4(0,%r21),%r19
 	ldw 0(0,%r21),%r21
-tramp_2
+	.label tramp_2
 	ldsid (0,%r21),%r1
 	mtsp %r1,%sr0
 	be,n 0(%sr0,%r21)
