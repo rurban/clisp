@@ -1,4 +1,4 @@
-# Makefile for the GNU C preprocessor
+# -*-Makefile-*- for the GNU C preprocessor
 
 CC = bcc32i -g0
 CFLAGS = -I. -O2 -DOUTPUT_LINE_COMMANDS
@@ -10,7 +10,7 @@ ALLOCA =
 #ALLOCA = alloca.obj
 
 cccp : cccp.obj cexp.obj version.obj obstack.obj $(ALLOCA)
-	$(CC) $(CFLAGS) -ecccp cccp.obj cexp.obj version.obj obstack.obj $(ALLOCA)
+	$(CC) -ecccp cccp.obj cexp.obj version.obj obstack.obj $(ALLOCA)
 
 cccp.obj : cccp.c config.h
 	$(CC) $(CFLAGS) -c cccp.c
@@ -27,3 +27,5 @@ obstack.obj : obstack.c obstack.h
 alloca.obj : alloca.c
 	$(CC) $(CFLAGS) -c alloca.c
 
+clean :
+	del *.obj cccp.exe
