@@ -4767,7 +4767,7 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
         case Atype_Char: # Simple-String erzeugen
           #ifdef HAVE_SMALL_SSTRING
           if (charp(STACK_4) && len>0) {
-            var cint initial_element = as_cint(STACK_4);
+            var cint initial_element = char_int(STACK_4);
             if (initial_element < cint8_limit)
               vector = allocate_s8string(len);
             else if (initial_element < cint16_limit)

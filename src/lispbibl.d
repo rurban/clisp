@@ -2291,7 +2291,7 @@ Ratio and Complex (only if SPVW_MIXED).
   # An object pointer is an empty pointer to begin with (so you cannot do
   # anything unwanted with it in C):
   #ifdef OBJECT_STRUCT
-    typedef struct { uintP one; } object;
+    typedef struct { uintP one_o; } object;
   #else
     typedef  void *  object;
   #endif
@@ -2308,16 +2308,16 @@ Ratio and Complex (only if SPVW_MIXED).
   typedef  sint64  soint;
   #ifdef WIDE_STRUCT
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
-      #define TYPEDEF_OBJECT  \
+      #define TYPEDEF_OBJECT                                             \
         typedef  union {                                                 \
           struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
-          oint one _attribute_aligned_object_;                           \
+          oint one_o _attribute_aligned_object_;                         \
         } object;
     #else
-      #define TYPEDEF_OBJECT  \
+      #define TYPEDEF_OBJECT                                             \
         typedef  union {                                                 \
           struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
-          oint one _attribute_aligned_object_;                           \
+          oint one_o _attribute_aligned_object_;                         \
         } object;
     #endif
   #else
@@ -2332,12 +2332,12 @@ Ratio and Complex (only if SPVW_MIXED).
 # as_oint(expr)   object --> oint
 # as_object(x)    oint --> object
 #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-  #define as_oint(expr)  ((expr).one)
+  #define as_oint(expr)  ((expr).one_o)
   #if 1
-    #define as_object(o)  ((object){one:(o)})
+    #define as_object(o)  ((object){one_o:(o)})
   #else
     extern __inline__ object as_object (register oint o)
-      { register object obj; obj.one = o; return obj; }
+      { register object obj; obj.one_o = o; return obj; }
   #endif
 #else
   #define as_oint(expr)  (oint)(expr)
@@ -3980,7 +3980,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # A standalone character. Prefer `chart' to `cint' wherever possible because
 # it is typesafe. sizeof(chart) = sizeof(cint).
 #ifdef CHART_STRUCT
-  typedef struct { cint one; } chart;
+  typedef struct { cint one_c; } chart;
 #else
   typedef cint chart;
 #endif
@@ -3988,12 +3988,12 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 # as_cint(ch)   chart --> cint
 # as_chart(c)   cint --> chart
 #ifdef CHART_STRUCT
-  #define as_cint(ch)  ((ch).one)
+  #define as_cint(ch)  ((ch).one_c)
   #if 1
-    #define as_chart(c)  ((chart){one:(c)})
+    #define as_chart(c)  ((chart){one_c:(c)})
   #else
     extern __inline__ chart as_chart (register cint c)
-      { register chart ch; ch.one = c; return ch; }
+      { register chart ch; ch.one_c = c; return ch; }
   #endif
 #else
   #define as_cint(ch)  (ch)
