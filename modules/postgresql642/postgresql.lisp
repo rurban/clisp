@@ -206,7 +206,7 @@
 (def-c-call-out PQoptions
     (:arguments (conn PGconn)) (:return-type c-string))
 (def-c-call-out PQstatus
-    (:arguments (conn PGconn)) (:return-type int)) ; ConnStatusType
+    (:arguments (conn PGconn)) (:return-type ConnStatusType))
 (def-c-call-out PQerrorMessage
     (:arguments (conn PGconn)) (:return-type c-string))
 (def-c-call-out PQsocket
@@ -258,10 +258,10 @@
                 (args (c-array-ptr PQArgBlock)) (nargs int))
   (:return-type PGresult))
 (def-c-call-out PQmakeEmptyPGresult
-    (:arguments (conn PGconn) (status int)) ; ?? ExecStatusType
+    (:arguments (conn PGconn) (status ExecStatusType))
   (:return-type PGresult))
 (def-c-call-out PQresultStatus
-    (:arguments (res PGresult)) (:return-type int)) ; ?? ExecStatusType
+    (:arguments (res PGresult)) (:return-type ExecStatusType))
 (def-c-call-out PQresultErrorMessage ; not in Pg.pm
     (:arguments (res PGresult)) (:return-type c-string))
 (def-c-call-out PQntuples
