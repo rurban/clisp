@@ -346,9 +346,9 @@
       (SYSTEM::PARSE-BODY body nil env)
     ;; It would be possible to put all these bindings into a single function,
     ;; but this would force variables into closures.
-    `(LET (; printer/reader variables:
+    `(LET (;; printer/reader variables:
            (*PACKAGE*                   *COMMON-LISP-USER-PACKAGE*)
-           ; printer variables:
+           ;; printer variables:
            (*PRINT-ARRAY*               T)
            (*PRINT-BASE*                10)
            (*PRINT-CASE*                ':UPCASE)
@@ -357,7 +357,7 @@
            (*PRINT-GENSYM*              T)
            (*PRINT-LENGTH*              NIL)
            (*PRINT-LEVEL*               NIL)
-          ;(*PRINT-LINES*               NIL) ; XP variable not present in CLISP
+           (*PRINT-LINES*               NIL)
           ;(*PRINT-MISER-WIDTH*         NIL) ; XP variable not present in CLISP
           ;(*PRINT-PPRINT-DISPATCH*     NIL) ; XP variable not present in CLISP
            (*PRINT-PRETTY*              NIL)
@@ -369,17 +369,14 @@
            (*PRINT-INDENT-LISTS*        1)   ; CLISP specific
            (SYSTEM::*PRIN-STREAM*       NIL) ; CLISP specific
            (SYSTEM::*PRIN-LINELENGTH*   79)  ; CLISP specific
-           ; reader variables:
+           ;; reader variables:
            (*READ-BASE*                 10)
            (*READ-DEFAULT-FLOAT-FORMAT* 'SINGLE-FLOAT)
            (*READ-EVAL*                 T)
            (*READ-SUPPRESS*             NIL)
-           (*READTABLE*                 (COPY-READTABLE NIL))
-          )
+           (*READTABLE*                 (COPY-READTABLE NIL)))
        ,@(if declarations `((DECLARE ,@declarations)))
-       ,@body-rest
-     )
-) )
+       ,@body-rest)))
 
 ;; ----------------------------------------------------------------------------
 
