@@ -1592,6 +1592,7 @@ local void usage (void) {
   printf(GETTEXTL("Startup actions:\n"));
   printf(GETTEXTL(" -ansi         - more ANSI CL compliance\n"));
   printf(GETTEXTL(" -traditional  - traditional (undoes -ansi)\n"));
+  printf(GETTEXTL(" -modern       - start in a case-sensitive lowercase-preferring package\n"));
   printf(GETTEXTL(" -p package    - start in the package\n"));
   printf(GETTEXTL(" -C            - set *LOAD-COMPILING* to T\n"));
   printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file\n"));
@@ -1831,6 +1832,7 @@ struct argv_actions {
   argv_compile_file_t* argv_compile_files;
   const char* argv_package;
   int argv_ansi; # 0: default; 1: ANSI; 2: traditional
+  bool argv_modern;
   bool argv_repl;
   uintL argv_expr_count;
   const char **argv_exprs; # stored backwards!
@@ -1870,6 +1872,7 @@ local inline int parse_options (int argc, const char* const* argv,
   p2->argv_compile_files = (argv_compile_file_t*) malloc((uintL)argc*sizeof(argv_compile_file_t)); # maximal argc file-arguments
   p2->argv_package = NULL;
   p2->argv_ansi = 0;
+  p2->argv_modern = false;
   p2->argv_repl = false;
   p2->argv_expr_count = 0;
   p2->argv_exprs = p2->argv_init_files + argc; # put -x and -i arguments into the same array
@@ -1905,6 +1908,7 @@ local inline int parse_options (int argc, const char* const* argv,
      -p package      set *PACKAGE*
      -ansi           more ANSI CL Compliance
      -traditional    traditional (undoes -ansi)
+     -modern         modern (set *PACKAGE* and *PRINT-CASE*)
      -x expr         execute LISP-expressions, then leave LISP
      -interactive-debug  override batch-mode for -c, -x and file
      -repl           enter REPL after -c, -x and file
@@ -1996,14 +2000,18 @@ local inline int parse_options (int argc, const char* const* argv,
             if (arg[2]=='m' && arg[3]=='\0') # "-mm" -> print a memory map
               { DumpProcessMemoryMap(); return 1; }
            #endif
-            OPTION_ARG;
-            SIZE_ARG(GETTEXTL("memory size"),p1->argv_memneed,100000,
-                     # memory size limited by:
-                     (oint_addr_len+addr_shift < intLsize-1
-                      # address space in oint_addr_len+addr_shift bits
-                      ? bitm(oint_addr_len+addr_shift)
-                      # (resp. big dummy-limit)
-                      : (uintM)bitm(oint_addr_len+addr_shift)-1));
+            if (asciz_equal(arg,"-modern"))
+              p2->argv_modern = true;
+            else {
+              OPTION_ARG;
+              SIZE_ARG(GETTEXTL("memory size"),p1->argv_memneed,100000,
+                       # memory size limited by:
+                       (oint_addr_len+addr_shift < intLsize-1
+                        # address space in oint_addr_len+addr_shift bits
+                        ? bitm(oint_addr_len+addr_shift)
+                        # (resp. big dummy-limit)
+                        : (uintM)bitm(oint_addr_len+addr_shift)-1));
+            }
             break;
           case 't': # traditional, temporary directory
             if (asciz_equal(arg,"-traditional"))
@@ -2867,6 +2875,25 @@ local inline void main_actions (struct argv_actions *p) {
       pushSTACK(NIL); funcall(L(set_ansi),1); break;
     default: # use the settings from the memory image
       break;
+  }
+  if (p->argv_modern) {
+    # (IN-PACKAGE "CS-COMMON-LISP-USER")
+    var object packname = ascii_to_string("CS-COMMON-LISP-USER");
+    pushSTACK(packname);
+    var object package = find_package(packname);
+    if (!nullp(package)) {
+      Symbol_value(S(packagestern)) = package;
+    } else {
+      pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+      terpri(&STACK_0);
+      write_sstring(&STACK_0,CLSTEXT("WARNING: no such package: "));
+      write_sstring(&STACK_0,STACK_1);
+      terpri(&STACK_0);
+      skipSTACK(1);
+    }
+    skipSTACK(1);
+    # (SETQ *PRINT-CASE* :DOWNCASE)
+    Symbol_value(S(print_case)) = S(Kdowncase);
   }
   if (p->argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
     { Symbol_value(S(load_compiling)) = T; }
