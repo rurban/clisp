@@ -9,16 +9,15 @@
     (make-array 1025. :element-type 'float :initial-element 0.0))
 (proclaim '(type (simple-array float (*)) **fft-re** **fft-im**))
 
-(defun fft                                      ;fast fourier transform
-       (areal aimag)                            ;areal = real part
+;; fast fourier transform
+(defun fft (areal #|real part|# aimag #|imaginary part|#)
   (declare (type (simple-array float (*)) areal aimag))
-  (prog*                                        ;aimag = imaginary part
+  (prog*
     ((ar areal) (ai aimag) (i 1) (j 0) (k 0) (m 0) ;compute m = log(n)
      (n (1- (array-dimension areal 0))) (le 0) (le1 0) (ip 0)
      (nv2 (the (values fixnum fixnum) (floor n 2)))
-     (nm1 (the fixnum (1- n)))
      (ur 0.0) (ui 0.0) (wr 0.0) (wi 0.0) (tr 0.0) (ti 0.0))
-    (declare (type fixnum i j k n nv2 nm1 m le le1 ip))
+    (declare (type fixnum i j k n nv2 m le le1 ip))
     (declare (type (simple-array float (*)) ar ai))
     (declare (type float ur ui wr wi tr ti))
  l1 (cond ((< i n)
