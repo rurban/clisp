@@ -1,8 +1,25 @@
+2001-10-01  Sam Steingold  <sds@gnu.org>
+
+	added EXPAND-DEFTYPE primitive, removed TYPE-EXPAND-1
+	* lispbibl.d (expand_deftype): added a prototype
+	* predtype.d (expand_deftype, EXPAND-DEFTYPE): implemented
+	(COERCE): use expand-deftype()
+	* constsym.d, subr.d (EXPAND-DEFTYPE): added
+	* sequence.d (find_seq_type): new local function
+	(valid_type): split into valid_type() and valid_type1(),
+	use expand_deftype() and find_seq_type()
+	(get_seq_type): use find_seq_type()
+	* type.lisp (typep, canonicalize-type, subtype-integer,
+	type-expand-1): use EXPAND-DEFTYPE
+	(type-expand-1): folded into type-expand
+	* describe.lisp (describe-object): do not use type-expand-1
+
 2001-09-24  Sam Steingold  <sds@gnu.org>
 
 	added functionp macro predicate
 	* lispbibl.d (functionp): define
 	* record.d (MAKE-FUNCTION-MACRO, MAKE-MACRO): use it
+	* predtype.d (COERCE): ditto
 
 2001-09-23  Sam Steingold  <sds@gnu.org>
 

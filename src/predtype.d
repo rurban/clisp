@@ -1938,13 +1938,43 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
     skipSTACK(3);
   }
 
+# UP: expand all DEFTYPE definitions in the type spec (recursively)
+# > type_spec: Lisp object
+# < result: the expansion (when not a deftyped type, returns the argument)
+extern object expand_deftype (object type_spec) {
+ start:
+  if (symbolp(type_spec)) { # (GET type-spec 'DEFTYPE-EXPANDER)
+    var object expander = get(type_spec,S(deftype_expander));
+    if (!eq(expander,unbound)) {
+      pushSTACK(type_spec);
+      pushSTACK(expander);
+      var object new_cons = allocate_cons();
+      expander = popSTACK();
+      Car(new_cons) = popSTACK(); # new_cons = (list type-spec)
+      pushSTACK(new_cons); funcall(expander,1); # call expander
+      type_spec = value1; # use the return value as the new type-spec
+      goto start;
+    }
+  } else if (mconsp(type_spec)) { # (GET (CAR type-spec) 'DEFTYPE-EXPANDER)
+    var object expander = get(Car(type_spec),S(deftype_expander));
+    if (!eq(expander,unbound)) {
+      pushSTACK(type_spec); funcall(expander,1); # call expander
+      type_spec = value1; # use the return value as the new type-spec
+      goto start;
+    }
+  }
+  return type_spec;
+}
+
+LISPFUNN(expand_deftype,1) # (SYS::EXPAND-DEFTYPE type-spec)
+{ value1 = expand_deftype(popSTACK()); mv_count = 1; }
+
 LISPFUNN(coerce,2)
 # (COERCE object result-type), CLTL S. 51
 # Method:
 # (TYPEP object result-type) -> return object
+#  first, expand deftype in result-type
 # result-type -- a type symbol:
-#   (get type 'DEFTYPE-EXPANDER) :=expander /= NIL ->
-#          re-start with (funcall expander (list result-type)) as argument
 #   type = T -> return object
 #   type = CHARACTER, STRING-CHAR -> call COERCE_CHAR
 #   type = BASE-CHAR -> call COERCE_CHAR and check
@@ -1959,9 +1989,7 @@ LISPFUNN(coerce,2)
 #          copy with COPY-SEQ.
 #   otherwise convert with COERCE-SEQUENCE
 # result-type -- a cons with symbol TYPE as CAR:
-#   type = AND -> (coerce object (second result-type)), mit TYPEP überprüfen
-#   (get type 'DEFTYPE-EXPANDER) :=expander /= NIL ->
-#          restart with (funcall expander result-type) as argument
+#   type = AND -> (coerce object (second result-type)), check with TYPEP
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
 #          use arithmetic conversion, then check with TYPEP
 #   type = COMPLEX -> check for being a numeber
@@ -1982,24 +2010,11 @@ LISPFUNN(coerce,2)
      return_object:
       value1 = STACK_1; mv_count=1; skipSTACK(2); return;
     }
-  start: # restart
     # stack layout: object, result-type.
     if (matomp(STACK_0)) {
       if (!symbolp(STACK_0)) goto fehler_type;
       # result-type is a symbol
       var object result_type = STACK_0;
-      { # (GET result-type 'DEFTYPE-EXPANDER)
-        var object expander = get(result_type,S(deftype_expander));
-        if (!eq(expander,unbound)) {
-          pushSTACK(expander);
-          var object new_cons = allocate_cons();
-          expander = popSTACK();
-          Car(new_cons) = STACK_0; # new_cons = (list result-type)
-          pushSTACK(new_cons); funcall(expander,1); # call expander
-          STACK_0 = value1; # use the return value as the new result-type
-          goto start;
-        }
-      }
       if (eq(result_type,T)) # result-type = T ?
         goto return_object; # yes -> object as the value
       if (eq(result_type,S(character)) || eq(result_type,S(string_char))
@@ -2132,14 +2147,6 @@ LISPFUNN(coerce,2)
           goto fehler_object;
         } else {
           value1 = STACK_0; mv_count=1; skipSTACK(3); return; # new-object
-        }
-      }
-      { # (GET type 'DEFTYPE-EXPANDER)
-        var object expander = get(type,S(deftype_expander));
-        if (!eq(expander,unbound)) {
-          pushSTACK(result_type); funcall(expander,1); # call expander
-          STACK_0 = value1; # use the return value as the new result-type
-          goto start;
         }
       }
       if (   eq(type,S(float)) # FLOAT ?
