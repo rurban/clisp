@@ -2,7 +2,7 @@
 
 /*
  * Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
- * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2002 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -120,7 +120,7 @@ Double D1={0.1}, D2={0.2}, D3={0.3}, D4={0.4}, D5={0.5}, D6={0.6}, D7={0.7}, D8=
 A A1={'a',0.1},A2={'b',0.2},A3={'\377',0.3};
 B B1={0.1,{1,2,3}},B2={0.2,{5,4,3}};
 J J1={47,11},J2={73,55};
-T T1={"the"},T2={"fox"};
+T T1={'t','h','e'},T2={'f','o','x'};
 X X1={"abcdefghijklmnopqrstuvwxyzABCDEF",'G'}, X2={"123",'9'}, X3={"return-return-return",'R'};
 
 /* void tests */

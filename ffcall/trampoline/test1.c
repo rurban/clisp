@@ -1,7 +1,7 @@
 /* Trampoline test */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2002 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -37,7 +37,7 @@ int f (x)
 
 int main ()
 {
-  function cf = alloc_trampoline(&f, &function_data, &magic);
+  function cf = alloc_trampoline((function)&f, &function_data, &magic);
   /* calling cf shall set  function_data = &magic  and then call f(x),
    * thus returning  magic + x.
    */
