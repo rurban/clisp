@@ -343,6 +343,7 @@ local bool equal_fvd (object fvd1, object fvd2)
         }
       }
     }
+  return false;
 }
 
 local bool equal_argfvds (object argfvds1, object argfvds2)
@@ -972,7 +973,7 @@ nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error,GETTEXT("~: element type has size 0: ~"));
 }
-global object convert_from_foreign (object fvd,const void*data)
+global object convert_from_foreign (object fvd, const void*data)
 {
   check_SP();
   check_STACK();
@@ -1861,7 +1862,8 @@ local void convert_to_foreign (object fvd, object obj, void* data)
         return;
       } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
         /* Use the union's first component. */
-        convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL,obj,data);
+        convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2]
+                           : NIL,obj,data);
         return;
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
         var object eltype = TheSvector(fvd)->data[1];
@@ -2060,12 +2062,14 @@ local void convert_to_foreign (object fvd, object obj, void* data)
 /* Convert Lisp data to foreign data.
  The foreign data has dynamic extent.
  1. convert_to_foreign_need(fvd,obj);
- 2. make room according to data_size and data_alignment, set allocaing_room_pointer.
+ 2. make room according to data_size and data_alignment,
+    set allocaing_room_pointer.
  3. convert_to_foreign_allocaing(fvd,obj,data,room_pointer); */
 local var void* allocaing_room_pointer;
 local void* allocaing (void* old_data, uintL size, uintL alignment)
 {
-  allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer + alignment-1) & -(long)alignment);
+  allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer
+                                    + alignment-1) & -(long)alignment);
   var void* result = allocaing_room_pointer;
   allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + size);
   return result;
@@ -2671,7 +2675,8 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
   TheFvariable(fvar)->fv_type    = arg_fvd;
   { var bool readonly = !missingp(STACK_1);
     record_flags_replace(TheFvariable(fvar), readonly ? fv_readonly : 0);
-    /* Must not set fv_malloc flag since it applies to sublevel structures only. */
+    /* Must not set fv_malloc flag since it applies
+       to sublevel structures only. */
   }
   /* Check alignment */
   if (!(((uintP)arg_address & (arg_alignment-1)) == 0)) {
@@ -2746,7 +2751,8 @@ nonreturning_function(local, fehler_foreign_function, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error,GETTEXT("~: argument is not a foreign function: ~"));
 }
-nonreturning_function(local, fehler_function_no_fvd, (object obj, object caller)) {
+nonreturning_function(local, fehler_function_no_fvd,
+                      (object obj, object caller)) {
   pushSTACK(obj);
   pushSTACK(caller);
   fehler(error,GETTEXT("~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~"));
@@ -2790,7 +2796,9 @@ LISPFUNN(lookup_foreign_function,2)
 /* Call the appropriate av_start_xxx macro for the result.
  do_av_start(flags,result_fvd,&alist,address,result_address,
              result_size,result_splittable); */
-local void do_av_start (uintWL flags, object result_fvd, av_alist * alist, void* address, void* result_address, uintL result_size, bool result_splittable)
+local void do_av_start (uintWL flags, object result_fvd, av_alist * alist,
+                        void* address, void* result_address, uintL result_size,
+                        bool result_splittable)
 {
   if (symbolp(result_fvd)) {
     if (eq(result_fvd,S(nil))) {
@@ -2899,7 +2907,9 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist * alist, void*
 #ifdef AMIGAOS
 local var sintWL AV_ARG_REGNUM; /* number of register where the argument is to be passed */
 #endif
-local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist, void* arg_address, unsigned long arg_size, unsigned long arg_alignment)
+local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
+                      void* arg_address, unsigned long arg_size,
+                      unsigned long arg_alignment)
 {
   if (symbolp(arg_fvd)) {
     if (eq(arg_fvd,S(nil))) {
@@ -3228,7 +3238,9 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
 /* Call the appropriate va_start_xxx macro for the result.
  do_va_start(flags,result_fvd,alist,result_size,result_alignment,
              result_splittable); */
-local void do_va_start (uintWL flags, object result_fvd, va_alist alist, uintL result_size, uintL result_alignment, bool result_splittable)
+local void do_va_start (uintWL flags, object result_fvd, va_alist alist,
+                        uintL result_size, uintL result_alignment,
+                        bool result_splittable)
 {
   if (symbolp(result_fvd)) {
     if (eq(result_fvd,S(nil))) {
@@ -3576,7 +3588,8 @@ local void callback (void* data, va_alist alist)
   var bool result_splittable = data_splittable;
   /* Call va_start_xxx: */
   begin_system_call();
-  do_va_start(flags,result_fvd,alist,result_size,result_alignment,result_splittable);
+  do_va_start(flags,result_fvd,alist,result_size,result_alignment,
+              result_splittable);
   end_system_call();
   { /* Walk through the arguments, convert them to Lisp data: */
     var uintL i;
@@ -3597,7 +3610,8 @@ local void callback (void* data, va_alist alist)
   funcall(STACK_(1+argcount),argcount);
   /* Allocate space for the result: */
   var DYNAMIC_ARRAY(result_room,char,result_size+result_alignment/*-1*/);
-  var void* result_address = (void*)((uintP)(result_room+result_alignment-1) & -(long)result_alignment);
+  var void* result_address = (void*)((uintP)(result_room+result_alignment-1)
+                                     & -(long)result_alignment);
   /* Convert the result: */
   if (flags & ff_malloc)
     convert_to_foreign_mallocing(STACK_2,value1,result_address);
@@ -3605,7 +3619,8 @@ local void callback (void* data, va_alist alist)
     convert_to_foreign_nomalloc(STACK_2,value1,result_address);
   /* Call va_return_xxx: */
   begin_system_call();
-  do_va_return(flags,STACK_2,alist,result_address,result_size,result_alignment);
+  do_va_return(flags,STACK_2,alist,result_address,result_size,
+               result_alignment);
   end_system_call();
   FREE_DYNAMIC_ARRAY(result_room);
   skipSTACK(3);
