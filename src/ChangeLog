@@ -2,9 +2,12 @@
 
 	YAPT (yet another pathname tweak)
 	* pathname.d (lslashp): removed, replaced with slashp
+	(looks_logical_p): new local function
 	(parse-namestring): with *PARSE-NAMESTRING-ANSI* non-nil, parse as
 	logical when pathname contains ";" - this is what others do
 	(merge-pathnames): merge to logical even when only one is logical
+	(make-pathname): coerce defaults to logical when the path is
+	logical already
 
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
