@@ -467,10 +467,10 @@ global SOCKET accept_connection (socket_handle)
 #   creates a connection to a server (which must be waiting
 #   on the specified host and port).
 
-global SOCKET create_client_socket (const char* hostname, int port);
+global SOCKET create_client_socket (const char* hostname, unsigned int port);
 global SOCKET create_client_socket(hostname,port)
   var const char* hostname;
-  var int port;
+  var unsigned int port;
   {
     var struct sockaddr_in sa;
     var struct hostent *hp;
