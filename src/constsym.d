@@ -1510,6 +1510,7 @@ LISPSYM(prin_jbstrings,"*PRIN-JBSTRINGS*",system) /* IO variable */
 LISPSYM(prin_jbmodus,"*PRIN-JBMODUS*",system) /* IO variable */
 LISPSYM(prin_jblpos,"*PRIN-JBLPOS*",system) /* IO variable */
 LISPSYM(format_tabulate,"FORMAT-TABULATE",system) /* see io.d and format.lisp */
+LISPSYM(load_forms,"*LOAD-FORMS*",system) /* see IO, COMPILER, LOADFORM */
 LISPSYM(terminal_read_open_object,"*TERMINAL-READ-OPEN-OBJECT*",system) /* IO */
 LISPSYM(terminal_read_stream,"*TERMINAL-READ-STREAM*",system) /* IO */
 LISPSYM(backquote,"BACKQUOTE",system) /* marker in IO */

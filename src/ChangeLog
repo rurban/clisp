@@ -1,5 +1,12 @@
 2004-01-08  Sam Steingold  <sds@gnu.org>
 
+	moved *LOAD-FORMS* to C to speed up instance output
+	* constsym.d (*LOAD-FORMS*): added
+	* io.d (pr_instance): check *LOAD-FORMS* before calling MAKE-INIT-FORM
+	* spvw.d (init_symbol_values): init *LOAD-FORMS*
+
+2004-01-08  Sam Steingold  <sds@gnu.org>
+
 	made MAKE-INIT-FORM more robust
 	* condition.lisp (method-call-error, method-call-type-error):
 	new conditions
