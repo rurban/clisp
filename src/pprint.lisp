@@ -99,7 +99,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 
 ;; ---------------------- pprint-logical-block ----------------------
 
-;; FIXME: handle *print-level*, *print-circle*, *print-length*
+;; FIXME: handle *print-circle*, *print-length*
 (defmacro pprint-logical-block ((stream-symbol object
                                  &key prefix per-line-prefix suffix)
                                 &body body)
@@ -111,7 +111,16 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
         (suf (gensym "PPLB-SUFF-")))
     `(let ((,pre ,prefix)
            (,suf ,suffix)
-           (*prin-line-prefix* ,per-line-prefix))
+           (*prin-line-prefix* ,per-line-prefix)
+           (*prin-miserp*
+            (and *print-miser-width*
+                 (> (line-position ,out)
+                    (- (or *print-right-margin* *prin-linelength*)
+                       *print-miser-width*))))
+           (*prin-indentation*
+            (if (boundp '*prin-indentation*)
+                (+ *prin-indentation* *print-indent-lists*)
+                0)))
       (when (and ,pre *prin-line-prefix*)
         (error (ENGLISH "~S: cannot supply both ~S (~S) and ~S (~S)")
                'pprint-logical-block :prefix ,pre
@@ -133,25 +142,17 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
           'pprint-logical-block :prefix 'string *prin-line-prefix*))
       (%pprint-logical-block
        (lambda (,out obj)
-         (let ((*prin-miserp*
-                (and *print-miser-width*
-                     (> (line-position ,out)
-                        (- (or *print-right-margin* *prin-linelength*)
-                           *print-miser-width*))))
-               (*prin-level* (1+ *prin-level*))
-               (*prin-l1* (+ *prin-l1* *print-indent-lists*))
-               (*prin-lm* (+ *prin-lm* *print-indent-lists*)))
-           (macrolet ((pprint-pop ()
-                        ;; FIXME: dotted lists &c
-                        '(pop obj))
-                      (pprint-exit-if-list-exhausted ()
-                        '(unless obj (go pprint-logical-block-end))))
-             (when ,pre
-               (write-string ,pre ,out)
-               (pprint-indent :current 0 ,out))
-             (tagbody ,@body
-              pprint-logical-block-end
-                (when ,suf (write-string ,suf ,out))))))
+         (macrolet ((pprint-pop ()
+                      ;; FIXME: dotted lists &c
+                      '(pop obj))
+                    (pprint-exit-if-list-exhausted ()
+                      '(unless obj (go pprint-logical-block-end))))
+           (when ,pre
+             (write-string ,pre ,out)
+             (pprint-indent :current 0 ,out))
+           (tagbody ,@body
+            pprint-logical-block-end
+              (when ,suf (write-string ,suf ,out)))))
        ,object ,out))))
 
 ;; ---------------------- utilities ----------------------

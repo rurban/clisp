@@ -1,3 +1,26 @@
+2001-09-14  Sam Steingold  <sds@gnu.org>
+
+	more work on the Pretty-Printer
+	* constsym.d (*PRIN-INDENTATION*): new var
+	* format.lisp (format-tabulate): use it instead of CURRENT-INDENT
+	(current-indent): removed
+	* io.d (cons_ssstring, pprint_prefix): new functions
+	(right_margin): use pprint_prefix()
+	(pphelp_newline): use PPHELP_NEW_STRING()
+	(justify_empty_1): use cons_ssstring()
+	(pr_enter_1): use pprint_prefix()
+	(PPRINT-INDENT): add spaces when necessary
+	(pprint_lisp): do level check
+	* lispbibl.d (cons_ssstring, PUSH_CONS, PPHELP_PUSH,
+	PPHELP_NEW_STRING): added (for io.d and stream.d)
+	* pprint.lisp (pprint-logical-block): moved binding out of lambda;
+	bind *PRIN-INDENTATION* instead of *PRIN-L1* and *PRIN-LM*
+	* spvw.d (init_symbol_values): defvar *PRIN-LINE-PREFIX* (forgot
+	on 2001-08-17) and *PRIN-INDENTATION*
+	* stream.d (wr_ch_pphelp): when given NL, start a new string
+	using PPHELP_NEW_STRING
+	(make_pphelp_stream): use cons_ssstring()
+
 2001-09-13  Sam Steingold  <sds@gnu.org>
 
 	* regexp.lisp: replaced CASE-INSENSITIVE with CASE-SENSITIVE

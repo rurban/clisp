@@ -1335,19 +1335,14 @@
   (if (null count) (setq count 1))
   (dotimes (i count) (write-char #\~ stream)))
 
-(defun current-indent ()
-  (if (boundp 'sys::*prin-level*)
-      (* sys::*prin-level* *print-indent-lists*)
-      (progn (warn "~s: ~s unbound" 'current-indent 'sys::*prin-level*)
-             0)))
-
 ;; ~T, CLTL p.398-399, CLtL2 p. 597-598
 (defun format-tabulate (stream colon-modifier atsign-modifier
                         &optional (colnum 1) (colinc 1))
   (if (null colnum) (setq colnum 1))
   (if (null colinc) (setq colinc 1))
   (let* ((new-colnum (+ (max colnum 0)
-                        (if colon-modifier (current-indent) 0)))
+                        (if (and colon-modifier (boundp '*prin-indentation*))
+                            *prin-indentation* 0)))
          (new-colinc (max colinc 1)) ; >0
          (pos (sys::line-position stream))) ; actual position, fixnum>=0 or NIL
     (if atsign-modifier

@@ -1429,6 +1429,7 @@ LISPSYM(prin_lines,"*PRIN-LINES*",system) # IO variable
 LISPSYM(prin_line_prefix,"*PRIN-LINE-PREFIX*",system) # IO variable
 LISPSYM(prin_miserp,"*PRIN-MISERP*",system) # IO variable
 LISPSYM(prin_pprinter,"*PRIN-PPRINTER*",system) # IO variable
+LISPSYM(prin_indentation,"*PRIN-INDENTATION*",system) # IO variable
 LISPSYM(prin_bqlevel,"*PRIN-BQLEVEL*",system) # IO variable
 LISPSYM(prin_stream,"*PRIN-STREAM*",system) # IO variable
 LISPSYM(prin_linelength,"*PRIN-LINELENGTH*",system) # IO variable
