@@ -11842,6 +11842,15 @@ Die Funktion make-closure wird dazu vorausgesetzt.
   (defun eval-env (form &optional (env *toplevel-environment*))
     (evalhook form nil nil env)
   )
+  ; Compiliert eine Form im Toplevel-Environment
+  (defun compile-form-in-toplevel-environment (form &aux (env *toplevel-environment*))
+    (compile-form form
+                  (svref env 0) ; %venv%
+                  (svref env 1) ; %fenv%
+                  (svref env 2) ; %benv%
+                  (svref env 3) ; %genv%
+                  (svref env 4) ; %denv%
+  ) )
 )
 
 ; Common-Lisp-Funktion COMPILE

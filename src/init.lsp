@@ -1277,7 +1277,7 @@ interpreter compiler
                 (setq obj
                   (multiple-value-list
                     (cond ((compiled-function-p obj) (funcall obj))
-                          (compiling (funcall (compile-form obj nil nil nil nil nil)))
+                          (compiling (funcall (compile-form-in-toplevel-environment obj)))
                           (t (eval obj))
                 ) ) )
                 (when print (when obj (print (first obj))))
@@ -1551,23 +1551,42 @@ interpreter compiler
                  ))
               `(LET ()
                  (SYSTEM::REMOVE-OLD-DEFINITIONS ,symbolform)
-                 ,@(if (and compiler::*compiling*
-                            compiler::*compiling-from-file*
-                            (member name compiler::*inline-functions* :test #'eq)
-                            (null compiler::*venv*)
-                            (null compiler::*fenv*)
-                            (null compiler::*benv*)
-                            (null compiler::*genv*)
-                            (eql compiler::*denv* *toplevel-denv*)
+                 ,@(if ; Is name declared inline?
+                       (if (and compiler::*compiling* compiler::*compiling-from-file*)
+                         (member name compiler::*inline-functions* :test #'equal)
+                         (eq (get (get-funname-symbol name) 'inlinable) 'inline)
                        )
-                     ; Lambdabody für Inline-Compilation aufheben:
-                     `((EVAL-WHEN (COMPILE)
-                         (COMPILER::C-DEFUN ',name ',lambdabody)
+                     ; Is the lexical environment the top-level environment?
+                     ; If yes, save the lambdabody for inline compilation.
+                     (if compiler::*compiling*
+                       (if (and (null compiler::*venv*)
+                                (null compiler::*fenv*)
+                                (null compiler::*benv*)
+                                (null compiler::*genv*)
+                                (eql compiler::*denv* *toplevel-denv*)
+                           )
+                         `((EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name ',lambdabody))
+                           (EVAL-WHEN (LOAD)
+                             (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION ',lambdabody)
+                          ))
+                         `((EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name)))
                        )
-                       (EVAL-WHEN (LOAD)
-                         (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION ',lambdabody)
-                      ))
-                     `((EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name)))
+                       (if (and (null (svref env 0)) ; venv
+                                (null (svref env 1)) ; fenv
+                           )
+                         `((EVAL-WHEN (EVAL)
+                             (LET ((%ENV (THE-ENVIRONMENT)))
+                               (IF (AND (NULL (SVREF %ENV 0)) ; venv
+                                        (NULL (SVREF %ENV 1)) ; fenv
+                                        (NULL (SVREF %ENV 2)) ; benv
+                                        (NULL (SVREF %ENV 3)) ; genv
+                                        (EQL (SVREF %ENV 4) *TOPLEVEL-DENV*) ; denv
+                                   )
+                                 (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION ',lambdabody)
+                          )) ) )
+                         '()
+                     ) )
+                     '()
                    )
                  ,@(if docstring
                      `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION ',docstring))
