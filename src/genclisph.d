@@ -1082,9 +1082,9 @@ int main(int argc, char* argv[])
   printf1("#define simple_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Svector);
 #endif
 #ifdef TYPECODES
-  printf4("#define general_vector_p(obj)  ((typecode(obj) == %d) || (typecode(obj) == %d && (Iarray_flags(obj) & %d) == %d))\n",(tint)svector_type,(tint)vector_type,arrayflags_atype_mask,Atype_T);
+  printf2("#define general_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)svector_type);
 #else
-  printf4("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) == %d) || (Record_type(obj) == %d && (Iarray_flags(obj) & %d) == %d)))\n",Rectype_Svector,Rectype_vector,arrayflags_atype_mask,Atype_T);
+  printf2("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Svector^Rectype_vector,Rectype_Svector&Rectype_vector);
 #endif
 #ifdef TYPECODES
   printf1("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
@@ -1113,6 +1113,8 @@ int main(int argc, char* argv[])
 #endif
   printf("extern object array_displace_check (object array, uintL size, uintL* index);\n");
   printf("extern uintL vector_length (object vector);\n");
+  printf("#define simple_nilarray_p(obj)  nullp(obj)\n");
+  printf("nonreturning_function(extern, fehler_nilarray_retrieve, (void));\n");
 #ifdef TYPECODES
   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
 #else
@@ -1689,7 +1691,10 @@ int main(int argc, char* argv[])
   emit_typedef("s32string_ *","S32string");
 
   printf("#define unpack_sstring_alloca(string,len,offset,charptr_assignment)");
-  printf("  if (sstring_eltype(TheSstring(string)) == %d) {",Sstringtype_32Bit);
+  printf("  if (simple_nilarray_p(string)) {");
+  printf("    if ((len) > 0) fehler_nilarray_retrieve();");
+  printf("    charptr_assignment NULL;");
+  printf("  } else if (sstring_eltype(TheSstring(string)) == %d) {",Sstringtype_32Bit);
   printf("    charptr_assignment (const chart*) &TheS32string(string)->data[offset];");
   printf("  } else {");
   printf("    var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));");
@@ -1705,7 +1710,12 @@ int main(int argc, char* argv[])
   printf("  }\n");
 #else
   printf("#define unpack_sstring_alloca(string,len,offset,charptr_assignment)");
-  printf("  charptr_assignment (const chart*) &TheSstring(string)->data[offset];\n");
+  printf("  if (simple_nilarray_p(string)) {");
+  printf("    if ((len) > 0) fehler_nilarray_retrieve();");
+  printf("    charptr_assignment NULL;");
+  printf("  } else {");
+  printf("    charptr_assignment (const chart*) &TheSstring(string)->data[offset];");
+  printf("  }\n");
 #endif
 
   printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");

@@ -1,3 +1,104 @@
+2004-03-07  Bruno Haible  <bruno@clisp.org>
+
+	Make the vectors of element type NIL be strings.
+	* lispbibl.d (general_vector_p): Undo last change.
+	(simple_nilarray_p): New macro.
+	(fehler_nilarray_retrieve): Renamed from fehler_retrieve. Remove
+	argument.
+	(fehler_nilarray_store): New declaration.
+	(fehler_nilarray_access): New declaration.
+	(SstringCase): Add a fifth argument.
+	(SstringDispatch): Signal an error when the string has element type
+	NIL.
+	(unpack_sstring_alloca): Handle strings of element type NIL.
+	(schar): Likewise.
+	(unpack_string_rw, unpack_string_ro): Can return NIL now.
+	* genclisph.d (main): Undo last change to general_vector_p. Emit
+	declarations of simple_nilarray_p, fehler_nilarray_retrieve. Update
+	unpack_sstring_alloca.
+	* array.d (iarray_displace, iarray_displace_check,
+	array_displace_check): Use simple_nilarray_p instead of nullp.
+	(fehler_nilarray_retrieve): Renamed from fehler_retrieve. Remove
+	argument.
+	(fehler_nilarray_store): New function.
+	(fehler_nilarray_access): New function.
+	(storagevector_aref): Update.
+	(fehler_store): Use simple_nilarray_p instead of nullp.
+	(array_atype): Handle strings of element type NIL. Array_type_vector
+	now implies Atype_T again.
+	(elt_copy_T_Char): Signal an error when dv2 has element type NIL.
+	(elt_copy_Char_Char): Signal an error when dv1 or dv2 has element type
+	NIL.
+	(elt_copy): Update.
+	(elt_move_Char): Signal an error when dv2 has element type NIL.
+	(elt_reverse): Signal an error when dv1 or dv2 has element type NIL.
+	(elt_nreverse): Update.
+	(ssstring_append_extend): Update.
+	(MAKE-ARRAY): Use simple_nilarray_p instead of nullp. Map Atype_NIL to
+	Array_type_string instead of Array_type_vector.
+	(ADJUST-ARRAY): Update.
+	* charstrg.d (unpack_string_ro): Can return NIL now.
+	(unpack_string_rw): Likewise. Signal an error when the string has
+	element type NIL and the length is > 0.
+	(copy_string_normal): Signal an error when the string has element type
+	NIL and the length is > 0.
+	(copy_string): Handle strings of element type NIL.
+	(coerce_imm_ss): Likewise.
+	(coerce_imm_normal_ss): Signal an error when the string has element
+	type NIL and the length is > 0.
+	(SYS::STRING-INFO): Handle strings of element type NIL.
+	(SCHAR): Update the error message for strings of element type NIL.
+	(SYSTEM::STORE-CHAR): Signal an error when the string has element type
+	NIL.
+	(SYSTEM::STORE-SCHAR): Update the error message for strings of element
+	type NIL.
+	(test_vector_limits): Signal an error when the string has element type
+	NIL and the length is > 0.
+	(test_string_limits_rw): Likewise.
+	(test_2_stringsym_limits): Likewise.
+	(string_comp, string_comp_ci): Handle strings of element type NIL.
+	(nstring_upcase, nstring_downcase, nstring_capitalize): Signal an error
+	when the string has element type NIL and length > 0.
+	(subsstring, SUBSTRING, string_concat): Signal an error when a string
+	has element type NIL and length > 0.
+	* predtype.d (equal): Handle strings of element type NIL.
+	(elt_compare): Update.
+	(SIMPLE-STRING-P): Include simple strings of element type NIL.
+	(TYPE-OF): For strings of element type NIL, return (VECTOR NIL dim0)
+	or (SIMPLE-ARRAY NIL (dim0)). Objects of type vector_type have element
+	type T again.
+	(heap_statistics_mapper): Handle strings of element type NIL. Objects
+	of type vector_type have element type T again.
+	* sequence.d (get_seq_type): Handle strings of element type NIL.
+	Objects of type vector_type have element type T again.
+	(READ-CHAR-SEQUENCE): Signal an error when the string has element type
+	NIL.
+	(WRITE-CHAR-SEQUENCE): Likewise.
+	* hashtabl.d (hashcode_string): Handle strings of element type NIL.
+	(hashcode4_vector): Likewise.
+	* io.d (string_printf): Handle strings of element type NIL.
+	(write_string): Signal an error when the string has element type NIL.
+	(pr_symbol_part): Don't SstringDispatch if the string's length is 0.
+	(pr_sstring_ab): Likewise.
+	(pr_string): Handle strings of element type NIL.
+	(UNREADABLE_START, UNREADABLE_END): Nop.
+	(pr_vector): Remove code for printing vectors of element type NIL.
+	(pr_nilvector): New function.
+	* stream.d (wr_ch_array_terminal3): Update.
+	(read_line): Handle strings of element type NIL.
+	* pathname.d (split_name_type): Don't SstringDispatch if the string's
+	length is 0.
+	(PARSE-NAMESTRING): Likewise. Update.
+	* spvw_typealloc.d (reallocate_small_string): Update.
+	* spvw_debug.d (string_out): Handle strings of element type NIL.
+	* encoding.d (string_to_asciz_): Handle strings of element type NIL.
+	* package.d (string_hashcode): Don't SstringDispatch if the string's
+	length is 0.
+	* type.lisp (canonicalize-type): In STRING and SIMPLE-STRING, the
+	element-type can be CHARACTER, BASE-CHAR or NIL, not just CHARACTER.
+	* describe.lisp (describe-object): Don't show string details for
+	strings of element type NIL.
+
 2004-03-19  Sam Steingold  <sds@gnu.org>
 
 	* clos.lisp (defgeneric): added (DECLARE IN-DEFUN) to avoid a

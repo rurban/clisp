@@ -194,7 +194,7 @@ LISPFUN(vector,seclass_no_se,0,0,rest,nokey,0,NIL)
  element type as the original array, without fill-pointer or adjustable bit;
  for arrays of element type NIL, the "storage vector" is the symbol NIL.
  It can be obtained by repeatedly taking TheIarray(array)->data, until
- array satisfies array_simplep || nullp. */
+ array satisfies array_simplep || simple_nilarray_p. */
 
 /* Function: Follows the TheIarray(array)->data chain until the storage-vector
  is reached, and thereby sums up displaced-offsets. This function is useful
@@ -224,7 +224,7 @@ local object iarray_displace (object array, uintL* index) {
   array = TheIarray(array)->data; /* next array is the storage-vector */
  simple:
   /* have reached the storage-vector, not indirect */
-  if (!nullp(array)) {
+  if (!simple_nilarray_p(array)) {
     if (simple_string_p(array)) {
       sstring_un_realloc(array);
       if (*index >= Sstring_length(array))
@@ -268,7 +268,7 @@ global object iarray_displace_check (object array, uintL size, uintL* index) {
   array = TheIarray(array)->data; /* next array is the storage-vector */
  simple:
   /* have reached the storage-vector, not indirect */
-  if (!nullp(array)) {
+  if (!simple_nilarray_p(array)) {
     if (simple_string_p(array)) {
       sstring_un_realloc(array);
       if (*index+size > Sstring_length(array))
@@ -309,7 +309,7 @@ global object array_displace_check (object array, uintL size, uintL* index) {
   array = TheIarray(array)->data; /* next array is the storage-vector */
  simple:
   /* have reached the storage-vector, not indirect */
-  if (!nullp(array)) {
+  if (!simple_nilarray_p(array)) {
     if (simple_string_p(array)) {
       sstring_un_realloc(array);
       if (*index+size > Sstring_length(array))
@@ -509,11 +509,22 @@ local object subscripts_to_index (object array, gcv_object_t* argptr,
   }
 }
 
-/* error: attempt to retrieve a value from (ARRAY NIL) */
-nonreturning_function(global, fehler_retrieve, (object array)) {
-  /* Ignore array, since it's always NIL. */
+/* error message: attempt to retrieve a value from (ARRAY NIL) */
+nonreturning_function(global, fehler_nilarray_retrieve, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error,GETTEXT("~: cannot retrieve values from an array of element type NIL"));
+}
+
+/* error message: attempt to store a value in (ARRAY NIL) */
+nonreturning_function(global, fehler_nilarray_store, (void)) {
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: cannot store values in an array of element type NIL"));
+}
+
+/* error message: attempt to access a value from (ARRAY NIL) */
+nonreturning_function(global, fehler_nilarray_access, (void)) {
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: cannot access values of an array of element type NIL"));
 }
 
 /* Function: Performs an AREF access.
@@ -541,7 +552,7 @@ global object storagevector_aref (object datenvektor, uintL index) {
     case Array_type_sstring: /* Simple-String */
       return code_char(schar(datenvektor,index));
     case Array_type_snilvector:  /* (VECTOR NIL) */
-      fehler_retrieve(datenvektor);
+      fehler_nilarray_retrieve();
     default: NOTREACHED;
   }
 }
@@ -551,7 +562,7 @@ global object storagevector_aref (object datenvektor, uintL index) {
 nonreturning_function(global, fehler_store, (object array, object value)) {
   pushSTACK(value); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL); /* TYPE-ERROR slot EXPECTED-TYPE */
-  if (!nullp(array)) {
+  if (!simple_nilarray_p(array)) {
     pushSTACK(array);
     STACK_1 = array_element_type(array); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_2); /* value */
@@ -819,7 +830,7 @@ local uintBWL array_atype (object array)
 {
   switch (Array_type(array)) {
     case Array_type_mdarray: /* general array -> look at Arrayflags */
-    case Array_type_vector: /* [GENERAL-]VECTOR or (VECTOR NIL) */
+    case Array_type_string: /* STRING or (VECTOR NIL) */
       return Iarray_flags(array) & arrayflags_atype_mask;
     case Array_type_sbvector:
     case Array_type_sb2vector:
@@ -835,10 +846,10 @@ local uintBWL array_atype (object array)
     case Array_type_b16vector:
     case Array_type_b32vector:
       return bNvector_atype(array);
-    case Array_type_string:
     case Array_type_sstring:
       return Atype_Char;
     case Array_type_svector:
+    case Array_type_vector: /* [GENERAL-]VECTOR */
       return Atype_T;
     #if 0 /* not necessary */
     case Array_type_snilvector:
@@ -2105,6 +2116,7 @@ local void elt_copy_32Bit_T (object dv1, uintL index1,
 }
 local void elt_copy_T_Char (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count) {
+  if (simple_nilarray_p(dv2)) fehler_nilarray_store();
   check_sstring_mutable(dv2);
  restart_it:
   SstringCase(dv2,{
@@ -2139,10 +2151,13 @@ local void elt_copy_T_Char (object dv1, uintL index1,
       if (!charp(value)) fehler_store(dv2,value);
       *ptr2++ = as_cint(char_code(value));
     });
+  },{
+    NOTREACHED;
   });
 }
 local void elt_copy_Char_Char (object dv1, uintL index1,
                                object dv2, uintL index2, uintL count) {
+  if (simple_nilarray_p(dv2)) fehler_nilarray_store();
   check_sstring_mutable(dv2);
   SstringCase(dv1,{
     var const cint8* ptr1 = &TheS8string(dv1)->data[index1];
@@ -2164,6 +2179,8 @@ local void elt_copy_Char_Char (object dv1, uintL index1,
       dotimespL(count,count, {
         *ptr2++ = *ptr1++;
       });
+    },{
+      NOTREACHED;
     });
   },{
    restart16:
@@ -2195,6 +2212,8 @@ local void elt_copy_Char_Char (object dv1, uintL index1,
       dotimespL(count,count, {
         *ptr2++ = *ptr1++;
       });
+    },{
+      NOTREACHED;
     });
   },{
    restart32:
@@ -2233,7 +2252,12 @@ local void elt_copy_Char_Char (object dv1, uintL index1,
       dotimespL(count,count, {
         *ptr2++ = *ptr1++;
       });
-    });});
+    },{
+      NOTREACHED;
+    });
+  },{
+    fehler_nilarray_retrieve();
+  });
 }
 local void elt_copy_T_Bit (object dv1, uintL index1,
                            object dv2, uintL index2, uintL count) {
@@ -2871,7 +2895,7 @@ global void elt_copy (object dv1, uintL index1,
         case Array_type_sb16vector:
         case Array_type_sb32vector:
         case Array_type_sstring: /* Simple-String */
-          fehler_retrieve(dv1);
+          fehler_nilarray_retrieve();
         default: NOTREACHED;
       }
     default: NOTREACHED;
@@ -2910,6 +2934,7 @@ local void elt_move_T (object dv1, uintL index1,
 }
 local void elt_move_Char (object dv1, uintL index1,
                           object dv2, uintL index2, uintL count) {
+  if (simple_nilarray_p(dv2)) fehler_nilarray_store();
   check_sstring_mutable(dv2);
   if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
     SstringDispatch(dv1,X, {
@@ -3417,6 +3442,8 @@ global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
           dotimespL(count,count, {
             *ptr2-- = *ptr1++;
           });
+        },{
+          fehler_nilarray_store();
         });
       },{
        restart16:
@@ -3446,6 +3473,8 @@ global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
           dotimespL(count,count, {
             *ptr2-- = *ptr1++;
           });
+        },{
+          fehler_nilarray_store();
         });
       },{
        restart32:
@@ -3483,12 +3512,16 @@ global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
           dotimespL(count,count, {
             *ptr2-- = *ptr1++;
           });
+        },{
+          fehler_nilarray_store();
         });
+      },{
+        fehler_nilarray_retrieve();
       });
     }
       break;
     case Array_type_snilvector:
-      fehler_retrieve(dv1);
+      fehler_nilarray_retrieve();
     default: NOTREACHED;
   }
 #undef SIMPLE_REVERSE
@@ -3593,7 +3626,7 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
       }
       break;
     case Array_type_snilvector:
-      fehler_retrieve(dv);
+      fehler_nilarray_retrieve();
     default: NOTREACHED;
   }
 #undef SIMPLE_NREVERSE
@@ -4017,7 +4050,7 @@ global object ssstring_extend (object ssstring, uintL needed_len) {
  extending it.
  ssstring_append_extend(ssstring,sstring,start,len)
  > ssstring: a semi-simple-string
- > sstring: a simple-string
+ > srcstring: a simple-string
  > start: the start index into the sstring
  > len: the number of characters to be pushed, starting from start; >0
  < result: the same semi-simple-string
@@ -4036,7 +4069,8 @@ global object ssstring_append_extend (object ssstring, object srcstring,
     SstringCase(srcstring,
       { copy_8bit_32bit(&TheS8string(srcstring)->data[start],ptr,len); },
       { copy_16bit_32bit(&TheS16string(srcstring)->data[start],ptr,len); },
-      { copy_32bit_32bit(&TheS32string(srcstring)->data[start],ptr,len); });
+      { copy_32bit_32bit(&TheS32string(srcstring)->data[start],ptr,len); },
+      { NOTREACHED; });
     #else
     copy_8bit_8bit(&TheS8string(srcstring)->data[start],ptr,len);
     #endif
@@ -4485,7 +4519,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
        and adjustable is not supplied
        and rank=1 ,
        then return a (semi-)simple vector: */
-    if ((rank==1) && nullp(STACK_6) && nullp(STACK_2) && !nullp(datenvektor)) {
+    if ((rank==1) && nullp(STACK_6) && nullp(STACK_2) && !simple_nilarray_p(datenvektor)) {
       DBGREALLOC(datenvektor);
       VALUES1(datenvektor); /* return datenvektor */
       skipSTACK(8); return;
@@ -4540,7 +4574,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
       Array_type_b32vector, /* Atype_32Bit -> Array_type_b32vector */
       Array_type_vector,    /* Atype_T     -> Array_type_vector */
       Array_type_string,    /* Atype_Char  -> Array_type_string */
-      Array_type_vector,    /* Atype_NIL   -> Array_type_vector */
+      Array_type_string,    /* Atype_NIL   -> Array_type_string */
       Array_type_vector,    /* unused yet */
       Array_type_vector,    /* unused yet */
       Array_type_vector,    /* unused yet */
@@ -4810,7 +4844,8 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         SstringCase(olddatenvektor,
           { datenvektor = allocate_s8string(totalsize); },
           { datenvektor = allocate_s16string(totalsize); },
-          { datenvektor = allocate_s32string(totalsize); });
+          { datenvektor = allocate_s32string(totalsize); },
+          { NOTREACHED; });
        #else
         datenvektor = allocate_string(totalsize);
        #endif

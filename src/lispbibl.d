@@ -5931,18 +5931,13 @@ typedef enum {
 # Test for general-vector=(vector t)
 #ifdef TYPECODES
   #define general_vector_p(obj)  \
-    ((typecode(obj) == svector_type) \
-     || (typecode(obj) == vector_type \
-         && (Iarray_flags(obj) & arrayflags_atype_mask) == Atype_T \
-    )   )
+    ((typecode(obj) & ~bit(notsimple_bit_t)) == svector_type)
 #else
   # cases: Rectype_Svector, Rectype_vector
   #define general_vector_p(obj)  \
     (varobjectp(obj) \
-     && ((Record_type(obj) == Rectype_Svector) \
-         || (Record_type(obj) == Rectype_vector \
-             && (Iarray_flags(obj) & arrayflags_atype_mask) == Atype_T \
-    )   )   )
+     && ((Record_type(obj) & ~(Rectype_Svector ^ Rectype_vector)) == (Rectype_Svector & Rectype_vector)) \
+    )
 #endif
 
 # Test for simple-string
@@ -10861,6 +10856,10 @@ extern object iarray_displace_check (object array, uintL size, uintL* index);
 extern object array_displace_check (object array, uintL size, uintL* index);
 # used by HASHTABL, PREDTYPE, IO, FOREIGN
 
+# Tests for the storage vector of an array of element type NIL.
+# simple_nilarray_p(obj)
+#define simple_nilarray_p(obj)  nullp(obj)
+
 # error-message
 # > STACK_1: Array (usually a Vector)
 # > STACK_0: (erroneous) Index
@@ -10868,8 +10867,14 @@ nonreturning_function(extern, fehler_index_range, (uintL bound));
 # used by SEQUENCE
 
 # error message: attempt to retrieve a value from (ARRAY NIL)
-nonreturning_function(extern, fehler_retrieve, (object array));
+nonreturning_function(extern, fehler_nilarray_retrieve, (void));
 # used by PREDTYPE
+
+# error message: attempt to store a value in (ARRAY NIL)
+nonreturning_function(extern, fehler_nilarray_store, (void));
+
+# error message: attempt to access a value from (ARRAY NIL)
+nonreturning_function(extern, fehler_nilarray_access, (void));
 
 # Function: Performs an AREF access.
 # storagevector_aref(storagevector,index)
@@ -11080,14 +11085,14 @@ extern object ssstring_extend (object ssstring, uintL needed_len);
 
 # Function: Adds a substring to a semi-simple-string, thereby possibly
 # extending it.
-# ssstring_append_extend(ssstring,sstring,start,len)
+# ssstring_append_extend(ssstring,srcstring,start,len)
 # > ssstring: a semi-simple-string
-# > sstring: a simple-string
+# > srcstring: a simple-string
 # > start: the start index into the sstring
 # > len: the number of characters to be pushed, starting from start
 # < result: the same semi-simple-string
 # can trigger GC
-extern object ssstring_append_extend (object ssstring, object sstring, uintL start, uintL len);
+extern object ssstring_append_extend (object ssstring, object srcstring, uintL start, uintL len);
 # used by STREAM
 
 # The following functions work on "semi-simple byte-vector"s.
@@ -11279,35 +11284,40 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 
 #endif
 
-# Dispatches among S8string, S16string and S32string.
-# SstringCase(string,s8string_statement,s16string_statement,s32string_statement);
-# > string: a not-reallocated simple-string
+# Dispatches among S8string, S16string, S32string and nilvector.
+# SstringCase(string,s8string_statement,s16string_statement,s32string_statement,nilvector_statement);
+# > string: a not-reallocated simple-string or simple-nilvector (i.e. NIL)
 # Executes one of the three statement, depending on the element size of string.
 #ifdef UNICODE
   #ifdef HAVE_SMALL_SSTRING
-    #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
+    #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement,nilvector_statement)  \
+      if (Array_type(string) == Array_type_snilvector) { nilvector_statement } else \
       if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit) { s8string_statement } else \
       if (sstring_eltype(TheSstring(string)) == Sstringtype_16Bit) { s16string_statement } else \
       if (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit) { s32string_statement } else \
       NOTREACHED;
   #else
-    #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
+    #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement,nilvector_statement)  \
+      if (Array_type(string) == Array_type_snilvector) { nilvector_statement } else \
       { s32string_statement }
   #endif
 #else
   # In this case we take the s32string_statement, not the s8string_statement,
   # because the s32string_statement is the right one for normal simple strings.
   #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
+    if (Array_type(string) == Array_type_snilvector) { nilvector_statement } else \
     { /*s8string_statement*/ s32string_statement }
 #endif
 # is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
-# Dispatches among S8string, S16string and S32string.
+# Dispatches among S8string, S16string, S32string and nilvector.
 # SstringDispatch(string,suffix,statement)
-# > string: a not-reallocated simple-string
+# > string: a not-reallocated simple-string or simple-nilvector (i.e. NIL)
 # Executes the statement with cint##suffix being bound to the appropriate
 # integer type (cint8, cint16 or cint32) and with Sstring being bound to the
 # appropriate struct pointer type (S8string, S16string or S32string).
+# Gives an error for simple-nilvector; must therefore only be called if the
+# contents of the string is really to be accessed.
 #define SstringDispatch(string,suffix,statement)  \
   SstringCase(string,                                                 \
     { typedef cint8 cint##suffix; typedef S8string Sstring##suffix;   \
@@ -11318,6 +11328,8 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
     },                                                                \
     { typedef cint32 cint##suffix; typedef S32string Sstring##suffix; \
       statement                                                       \
+    },                                                                \
+    { fehler_nilarray_access();                                       \
     })
 # is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
@@ -11340,7 +11352,10 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 #   (may be in string, may be on the stack)
 #ifdef HAVE_SMALL_SSTRING
   #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
-    if (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit) {             \
+    if (simple_nilarray_p(string)) {                                           \
+      if ((len) > 0) fehler_nilarray_retrieve();                               \
+      charptr_assignment NULL;                                                 \
+    } else if (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit) {      \
       charptr_assignment (const chart*) &TheS32string(string)->data[offset];   \
     } else {                                                                   \
       var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));             \
@@ -11356,16 +11371,20 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
     }
 #else
   #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
-    charptr_assignment (const chart*) &TheSnstring(string)->data[offset];
+    if (simple_nilarray_p(string)) {                                           \
+      if ((len) > 0) fehler_nilarray_retrieve();                               \
+      charptr_assignment NULL;                                                 \
+    } else {                                                                   \
+      charptr_assignment (const chart*) &TheSnstring(string)->data[offset];    \
+    }
 #endif
 # is used by
 
 # UP: Fetches a character from a simple string.
 # schar(string,index)
-# > object string: a not-reallocated simple string
+# > object string: a not-reallocated simple-string or simple-nilvector (i.e. NIL)
 # > uintL index: >= 0, < length of string
 # < chart result: character at the given position
-#ifdef UNICODE
 #ifndef COMPILE_STANDALONE
 static inline chart schar (object string, uintL index) {
   SstringDispatch(string,X, {
@@ -11374,17 +11393,14 @@ static inline chart schar (object string, uintL index) {
   return as_chart(0); /* not reached - just pacify the compiler */
 }
 #endif
-#else
-  #define schar(string,index)  as_chart(TheS32string(string)->data[index])
-#endif
 # is used by PATHNAME, STREAM
 
 # UP: unpacks a String.
 # unpack_string_rw(string,&len,&offset)  [for read-write access]
 # > object string: a String.
 # < uintL len: number of characters of the String.
-# < uintL offset: Offset in the Data-Vector.
-# < object result: Data-Vector
+# < uintL offset: offset in the datastorage vector
+# < object result: datastorage vector, a simple-string or NIL
 extern object unpack_string_rw (object string, uintL* len, uintL* offset);
 # is used by AFFI
 
@@ -11392,8 +11408,8 @@ extern object unpack_string_rw (object string, uintL* len, uintL* offset);
 # unpack_string_ro(string,&len,&offset)  [for read-only access]
 # > object string: a String.
 # < uintL len: number of characters of the String.
-# < uintL offset: Offset in the Data-Vector.
-# < object result: Data-Vector
+# < uintL offset: offset into the datastorage vector
+# < object result: datastorage vector, a simple-string or NIL
 extern object unpack_string_ro (object string, uintL* len, uintL* offset);
 # is used by STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING
 

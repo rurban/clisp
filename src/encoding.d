@@ -2072,7 +2072,8 @@ global object string_to_asciz_ (object obj) {
     var uintL len;
     var uintL offset;
     var object string = unpack_string_ro(obj,&len,&offset);
-    var const chart* sourceptr = &TheSnstring(string)->data[offset];
+    var const chart* sourceptr;
+    unpack_sstring_alloca(string,len,offset, sourceptr=);
     /* source-string: length in len, bytes at sourceptr */
     var uintB* destptr = &TheSbvector(newasciz)->data[0];
     /* destination-string: bytes at destptr */
