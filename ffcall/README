@@ -48,8 +48,9 @@ Files in this package:
 
 Copyright notice:
 
-Copyright 1995-2001 Bruno Haible, <haible@clisp.cons.org>
+Copyright 1995-2004 Bruno Haible, <haible@clisp.cons.org>
 Copyright 2000 Adam Fedor <fedor@gnu.org>
+Copyright 2004 Paul Guyot <pguyot@kallisys.net>
 
 This is free software distributed under the GNU General Public Licence
 described in the file COPYING. Contact the author if you don't have this
@@ -59,7 +60,7 @@ on this software.
 
 Distribution:
 
-ftp://ftp.santafe.edu/pub/gnu/ffcall-1.8.tar.gz
+ftp://ftp.santafe.edu/pub/gnu/ffcall-1.9.tar.gz
 
 Homepage:
 
