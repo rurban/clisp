@@ -10,6 +10,7 @@
 	`__grpread', `__grpalloc', `__grpscan'.
 	* foreign1.lsp (to-c-typedecl): more elaborate handling of `c-ptr',
 	`c-ptr-null', `c-array-ptr' and `c-function'.
+	* user1.lsp (prompt-index): removed; *prompt* modified accordingly.
 
 1998-10-06  Sam Steingold  <sds@goems.com>
 

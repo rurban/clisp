@@ -48,10 +48,6 @@
       (t name))))
 
 (defvar *command-index* 0 "The number of commands received so far.")
-(defun prompt-index ()
-  "Return the index of the prompt."
-  (incf *command-index*))
-
 (defvar *home-package* nil "The starting package of this session.")
 (defun prompt-new-package ()
   "Return the current package or NIL if it never changed."
@@ -67,7 +63,7 @@
                   (if (or (not (find-symbol "T" *package*))
                           (prompt-new-package))
                       (package-short-name *package*))
-                  (prompt-index))
+                  (incf *command-index*))
           (DEUTSCH "[*package* ungültig]"
            ENGLISH "[*package* invalid]"
            FRANCAIS "[*package* invalide]")))
