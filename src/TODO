@@ -14,6 +14,17 @@ Inefficiency of class redefinition when old or new class is unfinalizable
 support perseverances also on write side
 change wr_by_array_iau8_buffered to use persev instead of persev_full
 
+Passing --with-...-prefix=... configure argument to modules/.../configure
+<http://article.gmane.org/gmane.lisp.clisp.devel:13286>
+
+Modules on 64-bit platforms:
+<http://article.gmane.org/gmane.lisp.clisp.devel:13255>
+<http://sourceforge.net/tracker/index.php?func=detail&aid=981623&group_id=1355&atid=101355>
+
+Modern packages and modules:
+<http://article.gmane.org/gmane.lisp.clisp.devel:13335>
+<http://article.gmane.org/gmane.lisp.clisp.devel:13336>
+
 
 MUST-FIX BEFORE RELEASE 2.35
 ============================
