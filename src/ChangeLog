@@ -1,5 +1,16 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	* debug.d (read_form): Use fresh-line instead of terpri before the
+	prompt.
+	(SYS::READ-EVAL-PRINT): Add an elastic newline after printing the
+	values.
+	* reploop.lisp (get-frame-limit): Use fresh-line before and
+	elastic-newline after the output.
+	(print-error): Likewise.
+	(break-loop): Likewise. Remove extra newline after all helpstrings.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	* error.d (begin_error): Use fresh-line, not terpri.
 	(write_errorstring): Output an elastic newline at the end.
 	(ERROR, SYS::ERROR-OF-TYPE): Output an elastic newline after the error
