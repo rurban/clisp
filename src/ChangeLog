@@ -34,6 +34,12 @@
 	* clos-genfun5.lisp (ensure-generic-function-using-class): Define using
 	allow-making-generic.
 
+2004-09-02  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign1.lisp (parse-c-type, with-c-var, with-foreign-object):
+	Perform both optimizations in parse-c-type, so that all forms,
+	e.g. cast and offset, benefit.
+
 2004-09-01  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign1.lisp (parse-c-type): add define-compiler-macro
