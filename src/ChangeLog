@@ -1,3 +1,9 @@
+2004-06-20  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2.lisp (finalize-fast-gf, gf-never-called-p): Use a
+	prototype-factory-table instead of just a prototype-table. Use
+	set-funcallable-instance-function.
+
 2004-08-27  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (full-check): pass "-E utf-8" to clisp;

@@ -391,37 +391,38 @@
     (finalize-fast-gf gf)
     gf))
 
-(let ((prototype-table
-        (make-hash-table :key-type '(cons fixnum boolean) :value-type '(simple-array (unsigned-byte 8) (*))
+(let ((prototype-factory-table
+        (make-hash-table :key-type '(cons fixnum boolean) :value-type '(cons function (simple-array (unsigned-byte 8) (*)))
                          :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t)))
   (defun finalize-fast-gf (gf)
     (let* ((signature (std-gf-signature gf))
-           (reqanz (sig-req-num signature))
+           (reqnum (sig-req-num signature))
            (restp (gf-sig-restp signature))
-           (hash-key (cons reqanz restp))
-           (prototype
-            (or (gethash hash-key prototype-table)
-                (setf (gethash hash-key prototype-table)
-                      (let* ((reqvars (gensym-list reqanz))
-                             (proto-gf
-                              (eval `(LET ((GF 'MAGIC))
-                                       (DECLARE (COMPILE))
-                                       (%GENERIC-FUNCTION-LAMBDA
-                                        (,@reqvars ,@(if restp '(&REST ARGS) '()))
-                                        (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))
-                                        (FUNCALL 'INITIAL-FUNCALL-GF GF))))))
-                        ;; we must keep (sys::%record-ref proto-gf 1) .
-                        ;; (sys::%record-ref proto-gf 2) = #(NIL INITIAL-FUNCALL-GF MAGIC)
-                        (sys::%record-ref proto-gf 1))))))
-      (setf (sys::%record-ref gf 1) prototype)
-      (setf (sys::%record-ref gf 2) (vector 'NIL 'INITIAL-FUNCALL-GF gf))))
+           (hash-key (cons reqnum restp))
+           (prototype-factory
+             (car
+               (or (gethash hash-key prototype-factory-table)
+                   (setf (gethash hash-key prototype-factory-table)
+                         (let* ((reqvars (gensym-list reqnum))
+                                (prototype-factory
+                                  (eval `#'(LAMBDA (GF)
+                                             (DECLARE (COMPILE))
+                                             (%GENERIC-FUNCTION-LAMBDA
+                                               (,@reqvars ,@(if restp '(&REST ARGS) '()))
+                                               (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))
+                                               (FUNCALL 'INITIAL-FUNCALL-GF GF))))))
+                           (assert (<= (sys::%record-length (funcall prototype-factory 'dummy)) 3))
+                           (cons prototype-factory
+                                 (sys::closure-codevec (funcall prototype-factory 'dummy)))))))))
+      (set-funcallable-instance-function gf (funcall prototype-factory gf))))
   (defun gf-never-called-p (gf)
     (let* ((signature (std-gf-signature gf))
-           (reqanz (sig-req-num signature))
+           (reqnum (sig-req-num signature))
            (restp (gf-sig-restp signature))
-           (hash-key (cons reqanz restp))
-           (prototype (gethash hash-key prototype-table)))
-      (eq (sys::%record-ref gf 1) prototype)))
+           (hash-key (cons reqnum restp))
+           (prototype-factory+codevec (gethash hash-key prototype-factory-table)))
+      (assert prototype-factory+codevec)
+      (eq (sys::closure-codevec gf) (cdr prototype-factory+codevec))))
   (defvar *dynamically-modifiable-generic-function-names*
     ;; A list of names of functions, which ANSI CL explicitly denotes as
     ;; "Standard Generic Function"s, meaning that the user may add methods.
