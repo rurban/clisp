@@ -1,5 +1,10 @@
 2004-09-28  Sam Steingold  <sds@gnu.org>
 
+	* format.lisp (formatter-main-1): call STREAM-START-S-EXPRESSION
+	and STREAM-END-S-EXPRESSION for ~S
+
+2004-09-28  Sam Steingold  <sds@gnu.org>
+
 	package locking should not interfere with SETQ return value
 	* control.d (SETQ): restore value1 after setq()
 	* eval.d (setq): return value
