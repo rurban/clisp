@@ -1,7 +1,8 @@
 Supported CPUs:  (Put the GNU config.guess values here.)
      i386     i486-unknown-linux, i386-unknown-sysv4.0, i486-unknown-sco3.2v4.2,
               i386-pc-cygwin32, i386-pc-win32
-     m68k     m68k-next-bsd, m68k-next-nextstep3, m68k-sun-sunos4.0
+     m68k     m68k-next-bsd, m68k-next-nextstep3, m68k-sun-sunos4.0,
+              m68k-unknown-linux
      mips     mips-sgi-irix4.0.5, mips-sgi-irix5.2, mips-sgi-irix5.3,
               mips-sgi-irix6.2, mips-sgi-irix6.4
      sparc    sparc-sun-sunos4.1.1, sparc-sun-solaris2.3, sparc-sun-solaris2.4

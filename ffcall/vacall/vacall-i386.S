@@ -3,7 +3,7 @@
 gcc2_compiled.:
 C(__gnu_compiled_c:)
 .text
-	.align 4
+	.align 2
 .globl C(vacall)
 C(vacall:)
 	subl $36,%esp
@@ -69,7 +69,7 @@ L18:
 	movl (%esp),%edx
 	testb $1,%dl
 	jne L36
-	testb $2,%dh
+	testb $4,%dh
 	je L21
 	movl 16(%esp),%edx
 	cmpl $2,%edx
@@ -113,7 +113,7 @@ L31:
 L36:
 	movl 8(%esp),%eax
 L2:
-	testb $1,1(%esp)
+	testb $2,1(%esp)
 	je L35
 	movl 36(%esp),%ecx
 	movl 4(%esp),%esp

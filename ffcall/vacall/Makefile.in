@@ -59,8 +59,8 @@ vacall-sparc.o : vacall-sparc.s
 vacall-sparc.s : $(srcdir)/vacall-sparc.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc.S > vacall-sparc.s
 
-vacall-m68k.o : $(srcdir)/vacall-m68k.s
-	$(CC) -c $(srcdir)/vacall-m68k.s
+vacall-m68k.o : $(srcdir)/vacall-m68k.mit.s $(srcdir)/vacall-m68k.mot.s
+	if test @AS_UNDERSCORE@ = true; then syntax=mit; else syntax=mot; fi; $(CC) -c $(srcdir)/vacall-m68k.$${syntax}.s ; mv vacall-m68k.$${syntax}.o vacall-m68k.o
 
 vacall-mips.o : $(srcdir)/vacall-mips.s
 	$(CC) -c $(srcdir)/vacall-mips.s

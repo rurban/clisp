@@ -2,7 +2,7 @@
 #define _VACALL_H
 
 /*
- * Copyright 1995-1998 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -56,6 +56,8 @@
 #undef __PCC_STRUCT_RETURN__
 /* Define if small structs are returned in registers */
 #define __SMALL_STRUCT_RETURN__ 1
+/* Define if floating-point results are returned in the integer registers */
+#undef __IREG_FLOAT_RETURN__
 
 /* CL_LONGLONG */
 /* Define if your compiler supports the `long long' type. */
@@ -212,6 +214,9 @@ enum __VA_alist_flags
 #if defined(__m68k__) || defined(__sparc__)
   __VA_SUNCC_FLOAT_RETURN	= 1<<5,
 #endif
+#if defined(__m68k__)
+  __VA_FREG_FLOAT_RETURN	= 1<<6,
+#endif
   /* the default way to return floats */
   /* This choice here is based on the assumption that the function you are
    * going to call has been compiled with the same compiler you are using to
@@ -223,6 +228,8 @@ enum __VA_alist_flags
 #ifndef __VA_FLOAT_RETURN
 #if (defined(__m68k__) || defined(__sparc__)) && !defined(__GNUC__) && defined(sun) && !defined(__SUNPRO_C)  /* sun cc */
   __VA_FLOAT_RETURN		= __VA_SUNCC_FLOAT_RETURN,
+#elif (defined(__m68k__) && !defined(__IREG_FLOAT_RETURN__))
+  __VA_FLOAT_RETURN		= __VA_FREG_FLOAT_RETURN,
 #else
   __VA_FLOAT_RETURN		= 0,
 #endif
@@ -230,10 +237,10 @@ enum __VA_alist_flags
 
   /* how to pass structs */
 #if defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)
-  __VA_SGICC_STRUCT_ARGS	= 1<<6,
+  __VA_SGICC_STRUCT_ARGS	= 1<<7,
 #endif
 #if defined(__rs6000__)
-  __VA_AIXCC_STRUCT_ARGS	= 1<<6,
+  __VA_AIXCC_STRUCT_ARGS	= 1<<7,
 #endif
   /* the default way to pass floats */
   /* This choice here is based on the assumption that the function you are
@@ -263,7 +270,7 @@ enum __VA_alist_flags
    * "cc -ansi" is better anyway.
    */
   __VA_ANSI_FLOAT_ARGS		= 0,    /* pass floats as floats */
-  __VA_TRADITIONAL_FLOAT_ARGS	= 1<<7, /* pass floats as doubles */
+  __VA_TRADITIONAL_FLOAT_ARGS	= 1<<8, /* pass floats as doubles */
   /* the default way to pass floats */
   /* This choice here is based on the assumption that the function you are
    * going to call has been compiled with the same compiler you are using to
@@ -302,7 +309,7 @@ enum __VA_alist_flags
 
   /* stack cleanup policy */
   __VA_CDECL_CLEANUP		= 0, /* caller pops args after return */
-  __VA_STDCALL_CLEANUP		= 1<<8, /* callee pops args before return */
+  __VA_STDCALL_CLEANUP		= 1<<9, /* callee pops args before return */
 				     /* currently only supported on __i386__ */
 #ifndef __VA_CLEANUP
   __VA_CLEANUP			= __VA_CDECL_CLEANUP,
@@ -310,15 +317,15 @@ enum __VA_alist_flags
 
   /* These are for internal use only */
 #if defined(__i386__) || defined(__m68k__) || defined(__mipsn32__) || defined(__mips64__) || defined(__alpha__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__)
-  __VA_REGISTER_STRUCT_RETURN	= 1<<9,
+  __VA_REGISTER_STRUCT_RETURN	= 1<<10,
 #endif
 #if defined(__mips__) && !defined(__mipsn32__)
-  __VA_FLOAT_1			= 1<<10,
-  __VA_FLOAT_2			= 1<<11,
+  __VA_FLOAT_1			= 1<<11,
+  __VA_FLOAT_2			= 1<<12,
 #endif
 #if defined(__mipsn32__) || defined(__mips64__)
-  __VA_REGISTER_FLOATSTRUCT_RETURN	= 1<<12,
-  __VA_REGISTER_DOUBLESTRUCT_RETURN	= 1<<13,
+  __VA_REGISTER_FLOATSTRUCT_RETURN	= 1<<13,
+  __VA_REGISTER_DOUBLESTRUCT_RETURN	= 1<<14,
 #endif
 
   __VA_flag_for_broken_compilers_that_dont_like_trailing_commas
