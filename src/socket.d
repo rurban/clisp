@@ -936,7 +936,9 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
   if (NULL == he) {
     pushSTACK(ascii_to_string(H_ERRMSG));
     pushSTACK(arg);
-    fehler(os_error,"~: ~");
+    fehler(os_error,
+           GETTEXT("~: ~")
+          );
   }
 
   HOSTENT_TO_STACK(he);
