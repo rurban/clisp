@@ -2832,11 +2832,8 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
           if (eq(version,S(Knewest)))
             { pushSTACK(O(zero_string)); } # :NEWEST -> String "0"
             else
-          # Version (Integer >0) in String umwandeln: (sys::decimal-string version)
-          { pushSTACK(version);
-            C_decimal_string(); # == funcall(L(decimal_string),1);
-            pushSTACK(value1);
-          }
+            # Version (Integer >0) in String umwandeln: (sys::decimal-string version)
+            { pushSTACK(decimal_string(version)); }
           stringcount++; # und mitzählen
         }
       #endif
@@ -5025,7 +5022,7 @@ LISPFUNN(pathname_match_p,2)
         { if (nullp(muster) || eq(muster,S(Kwild)))
             { var object string =
                 (eq(beispiel,S(Kwild)) ? O(wild_string) :
-                 integerp(beispiel) ? (pushSTACK(beispiel), C_decimal_string(), value1) : # (SYS::DECIMAL-STRING beispiel)
+                 integerp(beispiel) ? decimal_string(beispiel) : # (SYS::DECIMAL-STRING beispiel)
                  NIL
                 );
               push_solution_with(string);
@@ -5041,7 +5038,7 @@ LISPFUNN(pathname_match_p,2)
       if (nullp(muster) || eq(muster,S(Kwild)))
         { var object string =
             (eq(beispiel,S(Kwild)) ? O(wild_string) :
-             integerp(beispiel) ? (pushSTACK(beispiel), C_decimal_string(), value1) : # (SYS::DECIMAL-STRING beispiel)
+             integerp(beispiel) ? decimal_string(beispiel) : # (SYS::DECIMAL-STRING beispiel)
              NIL;
             );
           push_solution_with(string);
