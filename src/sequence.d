@@ -1,5 +1,5 @@
 # Sequences for CLISP
-# Bruno Haible 1987-2000
+# Bruno Haible 1987-2001
 # Sam Steingold 2001
 
 #include "lispbibl.c"
@@ -289,36 +289,29 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 
 # Fehler, wenn der Sequence-Typ eine andere Länge vorgibt als die, die
 # herauskommt.
-  nonreturning_function(local, fehler_seqtype_length, (object seqtype_length, object computed_length));
-  local void fehler_seqtype_length(seqtype_length,computed_length)
-    var object seqtype_length;
-    var object computed_length;
-    { pushSTACK(computed_length); # TYPE-ERROR slot DATUM
-      pushSTACK(NIL);
-      pushSTACK(computed_length);
-      pushSTACK(seqtype_length);
-      pushSTACK(S(eql)); pushSTACK(seqtype_length);
-      { var object type = listof(2); STACK_2 = type; } # TYPE-ERROR slot EXPECTED-TYPE
-      fehler(type_error,
-             GETTEXT("sequence type forces length ~, but result has length ~")
-            );
-    }
+  nonreturning_function(local, fehler_seqtype_length, (object seqtype_length, object computed_length)) {
+    pushSTACK(computed_length); # TYPE-ERROR slot DATUM
+    pushSTACK(NIL);
+    pushSTACK(computed_length);
+    pushSTACK(seqtype_length);
+    pushSTACK(S(eql)); pushSTACK(seqtype_length);
+    { var object type = listof(2); STACK_2 = type; } # TYPE-ERROR slot EXPECTED-TYPE
+    fehler(type_error,
+           GETTEXT("sequence type forces length ~, but result has length ~")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer >=0
-  nonreturning_function(local, fehler_posint, (object fun, object kw, object obj));
-  local void fehler_posint(fun,kw,obj)
-    var object fun;
-    var object kw;
-    var object obj;
-    { pushSTACK(obj);                # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      pushSTACK(kw);
-      pushSTACK(fun);
-      fehler(type_error,
-             GETTEXT("~: ~ should be an integer >=0, not ~")
-            );
-    }
+  nonreturning_function(local, fehler_posint, (object fun, object kw, object obj)) {
+    pushSTACK(obj);                # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    pushSTACK(kw);
+    pushSTACK(fun);
+    fehler(type_error,
+           GETTEXT("~: ~ should be an integer >=0, not ~")
+          );
+  }
 
 # Macro: Trägt NIL als Defaultwert eines Parameters in den Stack ein:
 # default_NIL(par);
@@ -446,15 +439,12 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # Error message when trying to access past the end of a vector.
 # > vector: the vector
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_vector_index_range, (object vector));
-  local void fehler_vector_index_range(vector)
-    var object vector;
-    {
-      var uintL len = vector_length(vector);
-      pushSTACK(vector);
-      pushSTACK(UL_to_I(len));
-      fehler_index_range(len);
-    }
+  nonreturning_function(local, fehler_vector_index_range, (object vector)) {
+    var uintL len = vector_length(vector);
+    pushSTACK(vector);
+    pushSTACK(UL_to_I(len));
+    fehler_index_range(len);
+  }
 
 # UP: kopiert einen Teil einer Sequence in eine andere Sequence.
 # > STACK_6: sequence1
@@ -1980,13 +1970,12 @@ LISPFUN(replace,2,0,norest,key,4,\
 # Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
 # fehler_both_tests();
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_both_tests, (void));
-  global void fehler_both_tests()
-    { pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: Must not specify both arguments to :TEST and :TEST-NOT")
-            );
-    }
+  nonreturning_function(global, fehler_both_tests, (void)) {
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,
+           GETTEXT("~: Must not specify both arguments to :TEST and :TEST-NOT")
+          );
+  }
 
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
 # test_test_args(stackptr)

@@ -29,17 +29,14 @@
     }
 
 # Fehler, wenn Argument kein Byte.
-  nonreturning_function(local, fehler_byte, (object bad));
-  local void fehler_byte(bad)
-    var object bad;
-    {
-      pushSTACK(bad); # TYPE-ERROR slot DATUM
-      pushSTACK(S(byte)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(bad);
-      fehler(type_error,
-             GETTEXT("~ is not a BYTE specifier")
-            );
-    }
+  nonreturning_function(local, fehler_byte, (object bad)) {
+    pushSTACK(bad); # TYPE-ERROR slot DATUM
+    pushSTACK(S(byte)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(bad);
+    fehler(type_error,
+           GETTEXT("~ is not a BYTE specifier")
+          );
+  }
 
 # Zugriffsfunktionen:
 

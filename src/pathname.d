@@ -1313,8 +1313,7 @@ local object test_default_pathname (object defaults) {
 # fehler_pathname_designator(thing);
 # > thing: (fehlerhaftes) Argument
 # > subr_self: Aufrufer (ein SUBR)
-nonreturning_function(global, fehler_pathname_designator, (object thing));
-global void fehler_pathname_designator (object thing) {
+nonreturning_function(global, fehler_pathname_designator, (object thing)) {
   pushSTACK(thing);                       # TYPE-ERROR slot DATUM
   pushSTACK(O(type_designator_pathname)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(thing);
@@ -1350,8 +1349,7 @@ local object as_file_stream (object stream) {
     { if (nullp(TheStream(stream)->strm_file_truename)) \
         fehler_file_stream_unnamed(stream);             \
     }
-nonreturning_function(local, fehler_file_stream_unnamed, (object stream));
-local void fehler_file_stream_unnamed (object stream) {
+nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
   pushSTACK(stream); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
   pushSTACK(TheSubr(subr_self)->name);
@@ -5849,8 +5847,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # Fehler, wenn ein Directory nicht existiert
 # > obj: Pathname oder (besser) fehlerhafte Komponente
-nonreturning_function(local, fehler_dir_not_exists, (object obj));
-local void fehler_dir_not_exists (object obj) {
+nonreturning_function(local, fehler_dir_not_exists, (object obj)) {
   pushSTACK(obj); # FILE-ERROR slot PATHNAME
   pushSTACK(obj);
   fehler(file_error,GETTEXT("nonexistent directory: ~"));
@@ -5859,8 +5856,7 @@ local void fehler_dir_not_exists (object obj) {
 # Fehler, wenn eine Datei bereits existiert
 # > caller: Aufrufer (ein Symbol)
 # > pathname: Pathname
-nonreturning_function(local, fehler_file_exists, (object caller, object pathname));
-local void fehler_file_exists (object caller, object pathname) {
+nonreturning_function(local, fehler_file_exists, (object caller, object pathname)) {
   pushSTACK(pathname); # FILE-ERROR slot PATHNAME
   pushSTACK(pathname);
   pushSTACK(caller);
@@ -7239,8 +7235,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
 # Fehlermeldung wegen fehlendem Dateinamen
 # fehler_noname(pathname);
 # > pathname: Pathname
-nonreturning_function(local, fehler_noname, (object pathname));
-local void fehler_noname (object pathname) {
+nonreturning_function(local, fehler_noname, (object pathname)) {
   pushSTACK(pathname); # FILE-ERROR slot PATHNAME
   pushSTACK(pathname);
   fehler(file_error,GETTEXT("no file name given: ~"));
@@ -7249,8 +7244,7 @@ local void fehler_noname (object pathname) {
 # Fehler wegen unzulässiger Name/Type-Angabe
 # fehler_notdir(pathname);
 # > pathname: Pathname
-nonreturning_function(local, fehler_notdir, (object pathname));
-local void fehler_notdir (object pathname) {
+nonreturning_function(local, fehler_notdir, (object pathname)) {
   pushSTACK(pathname); # FILE-ERROR slot PATHNAME
   pushSTACK(pathname);
   fehler(file_error,GETTEXT("not a directory: ~"));
@@ -7314,8 +7308,7 @@ local void fehler_notdir (object pathname) {
 # fehler_file_not_exists();
 # > STACK_0: Pathname
 # > subr_self: Aufrufer (ein SUBR)
-nonreturning_function(local, fehler_file_not_exists, (void));
-local void fehler_file_not_exists (void) {
+nonreturning_function(local, fehler_file_not_exists, (void)) {
   # STACK_0 = FILE-ERROR slot PATHNAME
   pushSTACK(STACK_0); # pathname
   pushSTACK(TheSubr(subr_self)->name);
@@ -7628,8 +7621,7 @@ local bool openp (object pathname) {
 # Fehlermeldung wegen Löschversuch auf geöffnete Datei
 # fehler_delete_open(pathname);
 # > pathname: Truename der Datei
-nonreturning_function(local, fehler_delete_open, (object pathname));
-local void fehler_delete_open (object pathname) {
+nonreturning_function(local, fehler_delete_open, (object pathname)) {
   pushSTACK(pathname); # FILE-ERROR slot PATHNAME
   pushSTACK(pathname);
   fehler(file_error,GETTEXT("cannot delete file ~ since there is file stream open to it"));
@@ -7686,8 +7678,7 @@ LISPFUNN(delete_file,1)
 # Fehlermeldung wegen Umbenennungsversuch einer geöffneten Datei
 # fehler_rename_open(pathname);
 # > pathname: Truename der Datei
-nonreturning_function(local, fehler_rename_open, (object pathname));
-local void fehler_rename_open (object pathname) {
+nonreturning_function(local, fehler_rename_open, (object pathname)) {
   pushSTACK(pathname); # FILE-ERROR slot PATHNAME
   pushSTACK(pathname);
   fehler(file_error,GETTEXT("cannot rename file ~ since there is file stream open to it"));

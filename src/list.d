@@ -580,8 +580,7 @@ LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
 # fehler_nth()
 # > STACK_0: fehlerhafter Index
 # > subr_self: Aufrufer (ein SUBR)
-nonreturning_function(local, fehler_nth, (void));
-local void fehler_nth() {
+nonreturning_function(local, fehler_nth, (void)) {
   pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
   pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(STACK_(0+2));
@@ -674,8 +673,7 @@ LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
 # fehler_butlast(badindex)
 # > badindex: fehlerhaftes 2. Argument
 # > subr_self: Aufrufer (ein SUBR)
-nonreturning_function(local, fehler_butlast, (object badindex));
-local void fehler_butlast (object badindex) {
+nonreturning_function(local, fehler_butlast, (object badindex)) {
   pushSTACK(badindex); # TYPE-ERROR slot DATUM
   pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(badindex); pushSTACK(TheSubr(subr_self)->name);
@@ -1102,8 +1100,7 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
 # fehler_cons(badobject)
 # > badobject: Nicht-Cons
 # > subr_self: Aufrufer (ein SUBR)
-nonreturning_function(local, fehler_cons, (object badobject));
-local void fehler_cons (object badobject) {
+nonreturning_function(local, fehler_cons, (object badobject)) {
   pushSTACK(badobject); # TYPE-ERROR slot DATUM
   pushSTACK(S(cons)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);

@@ -1,5 +1,5 @@
 # Array functions
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2001
 
 #include "lispbibl.c"
 #include "arilev0.c" # for bit_op, also defines mulu24 and mulu32_unchecked
@@ -230,13 +230,11 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     }
 
 # Error, when a displaced array does not fit into its target array.
-  nonreturning_function(local, fehler_displaced_inconsistent, (void));
-  local void fehler_displaced_inconsistent()
-    {
-      fehler(error,
-             GETTEXT("An array has been shortened by adjusting it while another array was displaced to it.")
-            );
-    }
+  nonreturning_function(local, fehler_displaced_inconsistent, (void)) {
+    fehler(error,
+           GETTEXT("An array has been shortened by adjusting it while another array was displaced to it.")
+          );
+  }
 
 # Function: For an indirect array, returns the storage vector and the offset.
 # Also verifies that all elements of the array are physically present.
@@ -318,17 +316,14 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # Error message.
 # > obj: non-array
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_array, (object obj));
-  local void fehler_array(obj)
-    var object obj;
-    {
-      pushSTACK(obj); # slot DATUM of TYPE-ERROR
-      pushSTACK(S(array)); # slot EXPECTED-TYPE of TYPE-ERROR
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an array")
-            );
-    }
+  nonreturning_function(local, fehler_array, (object obj)) {
+    pushSTACK(obj); # slot DATUM of TYPE-ERROR
+    pushSTACK(S(array)); # slot EXPECTED-TYPE of TYPE-ERROR
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an array")
+          );
+  }
 
 # Checks an array argument.
 # > object: argument
@@ -351,66 +346,54 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # > array: array
 # > argcount: (wrong) number of subscripts
 # > subr_self: caller (a SUBR)
-  nonreturning_function(local, fehler_subscript_anz, (object array, uintC argcount));
-  local void fehler_subscript_anz(array,argcount)
-    var object array;
-    var uintC argcount;
-    {
-      pushSTACK(arrayrank(array));
-      pushSTACK(array);
-      pushSTACK(fixnum(argcount));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: got ~ subscripts, but ~ has rank ~")
-            );
-    }
+  nonreturning_function(local, fehler_subscript_anz, (object array, uintC argcount)) {
+    pushSTACK(arrayrank(array));
+    pushSTACK(array);
+    pushSTACK(fixnum(argcount));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,
+           GETTEXT("~: got ~ subscripts, but ~ has rank ~")
+          );
+  }
 
 # Error message
 # > argcount: number of subscripts
 # > STACK_(argcount): array
 # > STACK_(argcount-1),...,STACK_(0): subscripts
 # > subr_self: caller (a SUBR)
-  nonreturning_function(local, fehler_subscript_type, (uintC argcount));
-  local void fehler_subscript_type(argcount)
-    var uintC argcount;
-    {
-      var object list = listof(argcount); # list of subscripts
-      # STACK_0 is now the array.
-      pushSTACK(list);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
-            );
-    }
+  nonreturning_function(local, fehler_subscript_type, (uintC argcount)) {
+    var object list = listof(argcount); # list of subscripts
+    # STACK_0 is now the array.
+    pushSTACK(list);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,
+           GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
+          );
+  }
 
 # Error message
 # > argcount: number of subscripts
 # > STACK_(argcount): array
 # > STACK_(argcount-1),...,STACK_(0): subscripts
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_subscript_range, (uintC argcount, uintL subscript, uintL bound));
-  local void fehler_subscript_range(argcount,subscript,bound)
-    var uintC argcount;
-    var uintL subscript;
-    var uintL bound;
+  nonreturning_function(local, fehler_subscript_range, (uintC argcount, uintL subscript, uintL bound)) {
+    var object list = listof(argcount); # list of subscripts
+    pushSTACK(list);
+    # On STACK: array, subscript-list.
+    pushSTACK(UL_to_I(subscript)); # slot DATUM of TYPE-ERROR
     {
-      var object list = listof(argcount); # list of subscripts
-      pushSTACK(list);
-      # On STACK: array, subscript-list.
-      pushSTACK(UL_to_I(subscript)); # slot DATUM of TYPE-ERROR
-      {
-        var object tmp;
-        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
-        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        pushSTACK(tmp); # slot EXPECTED-TYPE of TYPE-ERROR
-      }
-      pushSTACK(STACK_(1+2));
-      pushSTACK(STACK_(0+3));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: subscripts ~ for ~ are out of range")
-            );
+      var object tmp;
+      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
+      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+      pushSTACK(tmp); # slot EXPECTED-TYPE of TYPE-ERROR
     }
+    pushSTACK(STACK_(1+2));
+    pushSTACK(STACK_(0+3));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: subscripts ~ for ~ are out of range")
+          );
+  }
 
 # Überprüft Subscripts für einen AREF/STORE-Zugriff, entfernt sie vom STACK
 # und liefert den Row-Major-Index (>=0, <arraysize_limit).
@@ -462,39 +445,34 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # > STACK_1: Array (meist Vektor)
 # > STACK_0: (fehlerhafter) Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_index_type, (void));
-  local void fehler_index_type()
-    {
-      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_(1+2));
-      pushSTACK(STACK_(0+3));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
-            );
-    }
+  nonreturning_function(local, fehler_index_type, (void)) {
+    pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(STACK_(1+2));
+    pushSTACK(STACK_(0+3));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
+          );
+  }
 
 # Fehlermeldung
 # > STACK_1: Array (meist Vektor)
 # > STACK_0: (fehlerhafter) Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_index_range, (uintL bound));
-  global void fehler_index_range(bound)
-    var uintL bound;
-    {
-      var object tmp;
-      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
-      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-      pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_(1+2));
-      pushSTACK(STACK_(0+3));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: index ~ for ~ is out of range")
-            );
-    }
+  nonreturning_function(global, fehler_index_range, (uintL bound)) {
+    var object tmp;
+    pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+    pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
+    tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+    pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(STACK_(1+2));
+    pushSTACK(STACK_(0+3));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: index ~ for ~ is out of range")
+          );
+  }
 
 # Überprüft einen Index für einen AREF/STORE-Zugriff in einen simplen Vektor.
 # test_index()
@@ -583,21 +561,17 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # Error when attempting to store an invalid value in an array.
 # fehler_store(array,value);
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_store, (object array, object value));
-  global void fehler_store(array,value)
-    var object array;
-    var object value;
-    {
-      pushSTACK(array);
-      pushSTACK(value); # TYPE-ERROR slot DATUM
-      pushSTACK(array_element_type(array)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_(0+2)); # array
-      pushSTACK(STACK_2); # value
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ does not fit into ~, bad type")
-            );
-    }
+  nonreturning_function(global, fehler_store, (object array, object value)) {
+    pushSTACK(array);
+    pushSTACK(value); # TYPE-ERROR slot DATUM
+    pushSTACK(array_element_type(array)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(STACK_(0+2)); # array
+    pushSTACK(STACK_2); # value
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ does not fit into ~, bad type")
+          );
+  }
 
 # Führt einen STORE-Zugriff aus.
 # storagevector_store(datenvektor,index,element)
@@ -717,11 +691,9 @@ LISPFUN(store,2,0,rest,nokey,0,NIL) # (SYS::STORE array {subscript} object)
 # Fehlermeldung
 # > STACK_1: Nicht-Simple-Vector
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_svector, (void));
-  local void fehler_svector()
-    {
-      fehler_kein_svector(TheSubr(subr_self)->name,STACK_1);
-    }
+  nonreturning_function(local, fehler_svector, (void)) {
+    fehler_kein_svector(TheSubr(subr_self)->name,STACK_1);
+  }
 
 LISPFUNN(svref,2) # (SVREF simple-vector index), CLTL S. 291
   {
@@ -1117,17 +1089,15 @@ LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
 # Fehlermeldung
 # fehler_bit_array()
 # > STACK_0: Array, der kein Bit-Array ist
-  nonreturning_function(local, fehler_bit_array, (void));
-  local void fehler_bit_array()
-    {
-      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_array_bit)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_(0+2));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an array of bits")
-            );
-    }
+  nonreturning_function(local, fehler_bit_array, (void)) {
+    pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_array_bit)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(STACK_(0+2));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an array of bits")
+          );
+  }
 
 LISPFUN(bit,1,0,rest,nokey,0,NIL) # (BIT bit-array {subscript}), CLTL S. 293
   {
@@ -4473,18 +4443,15 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # Fehlermeldung
 # > dim: fehlerhafte Dimension
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_dim_type, (object dim));
-  local void fehler_dim_type(dim)
-    var object dim;
-    {
-      pushSTACK(dim); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(dim);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
-            );
-    }
+  nonreturning_function(local, fehler_dim_type, (object dim)) {
+    pushSTACK(dim); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(dim);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
+          );
+  }
 
 # Hilfsroutine für MAKE-ARRAY und ADJUST-ARRAY:
 # Überprüft die Dimensionen und liefert den Rang und die Gesamtgröße.

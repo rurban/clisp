@@ -1,5 +1,5 @@
 # Funktionen für Records und Structures von CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 #include "lispbibl.c"
 
@@ -17,36 +17,31 @@
 # > STACK_0: (fehlerhafter) Index
 # > limit: exklusive Obergrenze für den Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_index, (uintL limit));
-  local void fehler_index(limit)
-    var uintL limit;
+  nonreturning_function(local, fehler_index, (uintL limit)) {
+    pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
     {
-      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-      {
-        var object tmp;
-        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(limit));
-        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
-      }
-      pushSTACK(STACK_(1+2)); # Record
-      pushSTACK(STACK_(0+3)); # Index
-      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-      fehler(type_error,
-             GETTEXT("~: ~ is not a valid index into ~")
-            );
+      var object tmp;
+      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(limit));
+      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+      pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
     }
+    pushSTACK(STACK_(1+2)); # Record
+    pushSTACK(STACK_(0+3)); # Index
+    pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+    fehler(type_error,
+           GETTEXT("~: ~ is not a valid index into ~")
+          );
+  }
 
 # Fehlermeldung
 # > STACK_0: (fehlerhafter) Record
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_record, (void));
-  local void fehler_record()
-    {
-      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-      fehler(error, # type_error ??
-             GETTEXT("~: ~ is not a record")
-            );
-    }
+  nonreturning_function(local, fehler_record, (void)) {
+    pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+    fehler(error, # type_error ??
+           GETTEXT("~: ~ is not a record")
+          );
+  }
 
 # Unterprogramm für Record-Zugriffsfunktionen:
 # > STACK_1: record-Argument
@@ -102,17 +97,15 @@ LISPFUNN(record_length,1)
           && (length>0)                                                        \
        ) )                                                                     \
       fehler_record_length();
-  nonreturning_function(local, fehler_record_length, (void));
-  local void fehler_record_length()
-    {
-      # STACK_0 = length, TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posint16)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(STACK_1); # length
-      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-      fehler(type_error,
-             GETTEXT("~: length ~ is illegal, should be of type (INTEGER (0) (65536))")
-            );
-    }
+  nonreturning_function(local, fehler_record_length, (void)) {
+    # STACK_0 = length, TYPE-ERROR slot DATUM
+    pushSTACK(O(type_posint16)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(STACK_1); # length
+    pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+    fehler(type_error,
+           GETTEXT("~: length ~ is illegal, should be of type (INTEGER (0) (65536))")
+          );
+  }
 
 # ==============================================================================
 # Structures:
@@ -317,16 +310,13 @@ LISPFUNN(closure_name,1)
   }
 
 # Fehler, wenn Argument keine compilierte Closure
-  nonreturning_function(local, fehler_cclosure, (object obj));
-  local void fehler_cclosure(obj)
-    var object obj;
-    {
-      pushSTACK(obj);
-      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-      fehler(error, # type_error ??
-             GETTEXT("~: This is not a compiled closure: ~")
-            );
-    }
+  nonreturning_function(local, fehler_cclosure, (object obj)) {
+    pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+    fehler(error, # type_error ??
+           GETTEXT("~: This is not a compiled closure: ~")
+          );
+  }
 
 LISPFUNN(closure_codevec,1)
 # (SYS::CLOSURE-CODEVEC closure) liefert den Code-Vektor einer compilierten
@@ -782,18 +772,15 @@ LISPFUNN(std_instance_p,1)
 # fehler_keine_klasse(caller,obj);
 # > subr_self: Aufrufer
 # > obj: Nicht-Klasse
-  nonreturning_function(local, fehler_keine_klasse, (object obj));
-  local void fehler_keine_klasse(obj)
-    var object obj;
-    {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(class)); # CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-      fehler(type_error,
-             GETTEXT("~: ~ is not a class")
-            );
-    }
+  nonreturning_function(local, fehler_keine_klasse, (object obj)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(S(class)); # CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+    fehler(type_error,
+           GETTEXT("~: ~ is not a class")
+          );
+  }
 
 LISPFUNN(allocate_std_instance,2)
 # (CLOS::ALLOCATE-STD-INSTANCE class n) liefert eine CLOS-Instanz der Länge n,

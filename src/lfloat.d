@@ -1,13 +1,11 @@
 # Grundfunktionen für Long-Floats
 
 # Fehlermeldung bei zu langen Long-FLoats
-  nonreturning_function(local, fehler_LF_toolong, (void));
-  local void fehler_LF_toolong()
-    {
-      fehler(arithmetic_error,
-             GETTEXT("long float too long")
-            );
-    }
+  nonreturning_function(local, fehler_LF_toolong, (void)) {
+    fehler(arithmetic_error,
+           GETTEXT("long float too long")
+          );
+  }
 
 # Entpacken eines Long-Float:
 # LF_decode(obj, zero_statement, sign=,exp=,mantMSDptr=,mantlen=,mantLSDptr=);

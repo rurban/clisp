@@ -1,5 +1,5 @@
 # Funktionen für Characters und Strings für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 #include "lispbibl.c"
 
@@ -2226,128 +2226,106 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
 
 
 # Fehler, wenn Index-Argument kein Integer ist.
-  nonreturning_function(local, fehler_int, (object kw, object obj));
-  local void fehler_int(kw,obj)
-    var object kw;
-    var object obj;
-    {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      if (eq(kw,nullobj)) {
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: index should be an integer, not ~")
-              );
-      } else {
-        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: ~-index should be an integer, not ~")
-              );
-      }
+  nonreturning_function(local, fehler_int, (object kw, object obj)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    if (eq(kw,nullobj)) {
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: index should be an integer, not ~")
+            );
+    } else {
+      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~-index should be an integer, not ~")
+            );
     }
+  }
 
 # Fehler, wenn Index-Argument kein Integer oder NIL ist.
-  nonreturning_function(local, fehler_int_null, (object kw, object obj));
-  local void fehler_int_null(kw,obj)
-    var object kw;
-    var object obj;
-    {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_end_index)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      if (eq(kw,nullobj)) {
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: index should be NIL or an integer, not ~")
-              );
-      } else {
-        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: ~-index should be NIL or an integer, not ~")
-              );
-      }
+  nonreturning_function(local, fehler_int_null, (object kw, object obj)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_end_index)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    if (eq(kw,nullobj)) {
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: index should be NIL or an integer, not ~")
+            );
+    } else {
+      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~-index should be NIL or an integer, not ~")
+            );
     }
+  }
 
 # Fehler, wenn Index-Argument negativ ist.
-  nonreturning_function(local, fehler_posint, (object kw, object obj));
-  local void fehler_posint(kw,obj)
-    var object kw;
-    var object obj;
-    {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      if (eq(kw,nullobj)) {
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: index should not be negative: ~")
-              );
-      } else {
-        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: ~-index should not be negative: ~")
-              );
-      }
+  nonreturning_function(local, fehler_posint, (object kw, object obj)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    if (eq(kw,nullobj)) {
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: index should not be negative: ~")
+            );
+    } else {
+      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~-index should not be negative: ~")
+            );
     }
+  }
 
 # Fehler, wenn Index-Argument nicht <= Grenze.
-  nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj, uintL grenze));
-  local void fehler_cmp_inclusive(kw,obj,grenze)
-    var object kw;
-    var object obj;
-    var uintL grenze;
+  nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj, uintL grenze)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(NIL);
+    pushSTACK(obj);
     {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(NIL);
-      pushSTACK(obj);
-      {
-        var object tmp;
-        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
-        tmp = listof(3);
-        STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
-      }
-      if (eq(kw,nullobj)) {
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: index ~ should not be greater than the length of the string")
-              );
-      } else {
-        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: ~-index ~ should not be greater than the length of the string")
-              );
-      }
+      var object tmp;
+      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
+      tmp = listof(3);
+      STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
     }
+    if (eq(kw,nullobj)) {
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: index ~ should not be greater than the length of the string")
+            );
+    } else {
+      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~-index ~ should not be greater than the length of the string")
+            );
+    }
+  }
 
 # Fehler, wenn Index-Argument nicht < Grenze.
-  nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj, uintL grenze));
-  local void fehler_cmp_exclusive(kw,obj,grenze)
-    var object kw;
-    var object obj;
-    var uintL grenze;
+  nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj, uintL grenze)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(NIL);
+    pushSTACK(obj);
     {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(NIL);
-      pushSTACK(obj);
-      {
-        var object tmp;
-        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
-        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
-      }
-      if (eq(kw,nullobj)) {
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: index ~ should be less than the length of the string")
-              );
-      } else {
-        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: ~-index ~ should be less than the length of the string")
-              );
-      }
+      var object tmp;
+      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
+      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+      STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
     }
+    if (eq(kw,nullobj)) {
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: index ~ should be less than the length of the string")
+            );
+    } else {
+      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~-index ~ should be less than the length of the string")
+            );
+    }
+  }
 
 # Macro: Überprüft ein Index-Argument
 # test_index(woher,wohin_zuweisung,def,default,vergleich,grenze,ucname,lcname)

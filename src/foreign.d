@@ -18,15 +18,12 @@
 # Complain about an invalid foreign pointer.
 # fehler_fpointer_invalid(obj);
 # > obj: invalid Fpointer
-  nonreturning_function(local, fehler_fpointer_invalid, (object obj));
-  local void fehler_fpointer_invalid(obj)
-    var object obj;
-    {
-      pushSTACK(obj);
-      fehler(error,
-             GETTEXT("~ comes from a previous Lisp session and is invalid")
-            );
-    }
+  nonreturning_function(local, fehler_fpointer_invalid, (object obj)) {
+    pushSTACK(obj);
+    fehler(error,
+           GETTEXT("~ comes from a previous Lisp session and is invalid")
+          );
+  }
 
 # (FFI::VALIDP foreign-entity) tests whether a foreign entity is still valid
 # or refers to an invalid foreign pointer.
@@ -172,43 +169,33 @@ LISPFUNN(validp,1)
 #   #(c-array-ptr <c-type>)
 
 # Error message.
-nonreturning_function(local, fehler_foreign_type, (object fvd));
-local void fehler_foreign_type(fvd)
-  var object fvd;
-  {
-    dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
-    pushSTACK(fvd);
-    fehler(error,
-           GETTEXT("illegal foreign data type ~")
-          );
-  }
+nonreturning_function(local, fehler_foreign_type, (object fvd)) {
+  dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
+  pushSTACK(fvd);
+  fehler(error,
+         GETTEXT("illegal foreign data type ~")
+        );
+}
 
 # Error message.
-nonreturning_function(local, fehler_convert, (object fvd, object obj));
-local void fehler_convert(fvd,obj)
-  var object fvd;
-  var object obj;
-  {
-    dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
-    pushSTACK(fvd);
-    pushSTACK(obj);
-    fehler(error,
-           GETTEXT("~ cannot be converted to the foreign type ~")
-          );
-  }
+nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
+  dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
+  pushSTACK(fvd);
+  pushSTACK(obj);
+  fehler(error,
+         GETTEXT("~ cannot be converted to the foreign type ~")
+        );
+}
 
 #if !defined(HAVE_LONGLONG)
 # Error message.
-nonreturning_function(local, fehler_64bit, (object fvd));
-local void fehler_64bit(fvd)
-  var object fvd;
-  {
-    dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
-    pushSTACK(fvd);
-    fehler(error,
-           GETTEXT("64 bit integers are not supported on this platform and with this C compiler: ~")
-          );
-  }
+nonreturning_function(local, fehler_64bit, (object fvd)) {
+  dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
+  pushSTACK(fvd);
+  fehler(error,
+         GETTEXT("64 bit integers are not supported on this platform and with this C compiler: ~")
+        );
+}
 #endif
 
 # Comparison of two fvd's.
@@ -566,13 +553,11 @@ local void* xmalloc(size)
   }
 #else # defined(AMIGAOS)
 # No malloc() is available. Disable malloc() and free() altogether.
-nonreturning_function(local, fehler_malloc_free, (void));
-local void fehler_malloc_free()
-  {
-    fehler(error,
-           GETTEXT(":MALLOC-FREE is not available under AMIGAOS.")
-          );
-  }
+nonreturning_function(local, fehler_malloc_free, (void)) {
+  fehler(error,
+         GETTEXT(":MALLOC-FREE is not available under AMIGAOS.")
+        );
+}
 #define malloc(amount)  (fehler_malloc_free(), NULL)
 #define free(pointer)  fehler_malloc_free()
 #define xmalloc(size)  malloc(size)
@@ -2103,26 +2088,20 @@ global void convert_to_foreign_nomalloc(fvd,obj,data)
 
 
 # Error messages.
-nonreturning_function(local, fehler_foreign_variable, (object obj));
-local void fehler_foreign_variable(obj)
-  var object obj;
-  {
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: argument is not a foreign variable: ~")
-          );
-  }
-nonreturning_function(local, fehler_variable_no_fvd, (object obj));
-local void fehler_variable_no_fvd(obj)
-  var object obj;
-  {
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: foreign variable with unknown type, missing DEF-C-VAR: ~")
-          );
-  }
+nonreturning_function(local, fehler_foreign_variable, (object obj)) {
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,
+         GETTEXT("~: argument is not a foreign variable: ~")
+        );
+}
+nonreturning_function(local, fehler_variable_no_fvd, (object obj)) {
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,
+         GETTEXT("~: foreign variable with unknown type, missing DEF-C-VAR: ~")
+        );
+}
 
 # (FFI::LOOKUP-FOREIGN-VARIABLE foreign-variable-name foreign-type)
 # looks up a foreign variable, given its Lisp name.
@@ -2547,27 +2526,20 @@ LISPFUNN(offset,3)
 
 
 # Error messages.
-nonreturning_function(local, fehler_foreign_function, (object obj));
-local void fehler_foreign_function(obj)
-  var object obj;
-  {
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: argument is not a foreign function: ~")
-          );
-  }
-nonreturning_function(local, fehler_function_no_fvd, (object obj, object caller));
-local void fehler_function_no_fvd(obj,caller)
-  var object obj;
-  var object caller;
-  {
-    pushSTACK(obj);
-    pushSTACK(caller);
-    fehler(error,
-           GETTEXT("~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~")
-          );
-  }
+nonreturning_function(local, fehler_foreign_function, (object obj)) {
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,
+         GETTEXT("~: argument is not a foreign function: ~")
+        );
+}
+nonreturning_function(local, fehler_function_no_fvd, (object obj, object caller)) {
+  pushSTACK(obj);
+  pushSTACK(caller);
+  fehler(error,
+         GETTEXT("~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~")
+        );
+}
 
 # (FFI::LOOKUP-FOREIGN-FUNCTION foreign-function-name foreign-type)
 # looks up a foreign function, given its Lisp name.

@@ -458,13 +458,11 @@
 
 # Fehlermeldung wegen NaN
 # fehler_nan();
-  nonreturning_function(local, fehler_nan, (void));
-  local void fehler_nan()
-    {
-      fehler(arithmetic_error,
-             GETTEXT("floating point NaN occurred")
-            );
-    }
+  nonreturning_function(local, fehler_nan, (void)) {
+    fehler(arithmetic_error,
+           GETTEXT("floating point NaN occurred")
+          );
+  }
 
 # IEEE-Single-Float:
 # Bit 31 = s, Bits 30..23 = e, Bits 22..0 = m.
