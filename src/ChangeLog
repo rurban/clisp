@@ -1,3 +1,10 @@
+2001-08-03  Sam Steingold  <sds@gnu.org>
+
+	some minor code rearrangements
+	* compiler.lisp (c-error-c): new macro
+	(analyze-lambdalist): added local macros CHECK-ITEM and SKIP-L,
+	removed local macro ERR-SUPERFLU
+
 2001-08-02  Sam Steingold  <sds@gnu.org>
 
 	Fixed bug #445286
