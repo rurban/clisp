@@ -66,3 +66,4 @@
 <!ENTITY iconv-u "<ulink url='&unix-u;/iconv.html'><command>iconv</command></ulink>">
 <!ENTITY ls "<ulink url='&unix-u;/ls.html'><command>ls</command></ulink>">
 <!ENTITY sh "<ulink url='&unix-u;/sh.html'><command>/bin/sh</command></ulink>">
+<!ENTITY uname-u "<ulink url='&unix-u;/uname.html'><command>uname</command></ulink>">

@@ -6,24 +6,22 @@
 (mapcar #'fmakunbound '(short-site-name long-site-name))
 
 (defun short-site-name ()
-  (let ((s (or
-            (system::registry "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"
+  (let ((s (or (sys::registry "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"
                               "RegisteredOrganization")
-            (system::registry "SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
+               (sys::registry "SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
                               "RegisteredOrganization"))))
     (check-type s string)
     s))
 (defun long-site-name ()
-  (let ((s (or
-            (system::registry "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"
+  (let ((s (or (sys::registry "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"
                               "RegisteredOwner")
-            (system::registry "SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
+               (sys::registry "SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
                               "RegisteredOwner"))))
     (check-type s string)
     s))
 
 (defparameter *editor* "notepad.exe" "The name of the editor.")
-(defun editor-name () (or (sys::getenv "EDITOR") *editor*))
+(defun editor-name () (or (getenv "EDITOR") *editor*))
 
 (defun editor-tempfile ()
   "The temporary file LISP creates for editing."
@@ -63,8 +61,8 @@ if device and directory are unspecified:")
   "This returns the root URL for the Common Lisp HyperSpec.
 You can set the environment variable `CLHSROOT' or redefine this function
 in ~/.clisprc.  On win32 you can also use the Registry."
-  (or (sys::getenv "CLHSROOT")
-      (let ((s (system::registry "SOFTWARE\\GNU\\CLISP" "CLHSROOT")))
+  (or (getenv "CLHSROOT")
+      (let ((s (sys::registry "SOFTWARE\\GNU\\CLISP" "CLHSROOT")))
         (check-type s (or null string))
         s)
       *clhs-root-default*))

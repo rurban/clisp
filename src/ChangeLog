@@ -1,3 +1,11 @@
+2003-06-07  Sam Steingold  <sds@gnu.org>
+
+	* cfgacorn.lisp, cfgamiga.lisp, cfgdos.lisp, cfgwin32.lisp:
+	no need to prefix GETENV with "SYS::"
+	* cfgsunux.lisp, cfgunix.lisp: ditto
+	(short-site-name): read from uname(1) -n
+	(long-site-name): read from uname(1) -a
+
 2003-06-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (get_screen_and_display): fixed a typo
