@@ -10071,7 +10071,7 @@ typedef struct {
 # > index1: absolute index into array1
 # > array2: second simple-bit-vector
 # > index2: absolute index into array2
-# > count: number of bits to be compared
+# > count: number of bits to be compared, > 0
 # < result: TRUE, if both slices are the same, bit for bit, else FALSE.
   extern boolean bit_compare (object array1, uintL index1,
                               object array2, uintL index2,
