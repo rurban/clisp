@@ -1,5 +1,10 @@
 2002-01-23  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (OBJECT_OUT): new macro
+	* spvw_debug.d (object_out): return obj
+
+2002-01-23  Sam Steingold  <sds@gnu.org>
+
 	* array.d (ssstring_extend_low): new function
 	(ssstring_push_extend, ssstring_extend): use it
 

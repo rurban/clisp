@@ -32,9 +32,9 @@
 # Output a lisp object in lisp notation to standard output.
 # object_out(obj);
 # can trigger GC
-  global void object_out (object obj);
+  global object object_out (object obj);
 
-# ------------------------------ Implementation --------------------------------
+# ----------------------------- Implementation --------------------------------
 
   global void asciz_out(asciz)
     var const char * asciz;
@@ -304,12 +304,11 @@
       }
     }
 
-  global void object_out(obj)
-    var object obj;
-    {
-      pushSTACK(obj);
-      pushSTACK(var_stream(S(terminal_io),strmflags_wr_ch_B)); # stream *TERMINAL-IO*
-      prin1(&STACK_0,STACK_1); # output the object
-      terpri(&STACK_0); # output a newline
-      skipSTACK(2);
-    }
+global object object_out(object obj) {
+  pushSTACK(obj);
+  pushSTACK(var_stream(S(terminal_io),strmflags_wr_ch_B)); # *TERMINAL-IO*
+  prin1(&STACK_0,STACK_1); # output the object
+  terpri(&STACK_0); # output a newline
+  skipSTACK(1);
+  return popSTACK(); # return the same object
+}
