@@ -10620,18 +10620,19 @@ local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
  :arguments : a list of strings
  :wait - nullp/not nullp - whether to wait for process to finish (default T)
  :input, :output, :error - i/o/e streams for process. basically file-streams,
-   pipe streams or terminal-streams. see stream_lend_handle() in stream.d for full list
-   of supported streams. Can be NIL (/dev/null), :pipe (pipe streams are created) or :terminal.
- :element-type, :external-format, :buffered : parameters for created pipe-stream if
-   one or more of :input, :output, :error is :pipe.
+   pipe streams or terminal-streams.
+   see stream_lend_handle() in stream.d for full list of supported streams.
+   Can be NIL (/dev/null), :pipe (pipe streams are created) or :terminal.
+ :element-type, :external-format, :buffered : parameters for created
+   pipe-stream if one or more of :input, :output, :error is :pipe.
  :priority : on windows : HIGH/LOW/NORMAL on UNIX : fixnum - see nice(2)
  returns: value1: if wait exit code, child PID otherwise
           value2: NIL or created pipe-output-stream, input stream for child
           value3: NIL or created pipe-input-stream, output stream for child
           value4: NIL or created pipe-input-stream, error stream for child  */
 LISPFUN(launch,seclass_default,1,0,norest,key,9,
-        (kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),
-         kw(output),kw(error),kw(priority))) {
+        (kw(element_type),kw(external_format),kw(buffered),kw(arguments),
+         kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
   STACK_9 = check_string(STACK_9); /* command_arg */
   if (!boundp(STACK_5)) STACK_5 = NIL; /* arguments_arg */
   else STACK_5 = check_list(STACK_5);
@@ -10655,10 +10656,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
       goto restart_priority;
     }
   }
-  /* duplicate one /dev/null handle for all 3 possible destinations and close it */
-  /* need to duplicate the handle to make it inheritable */
+  /* duplicate one /dev/null handle for all 3 possible destinations and close
+     it need to duplicate the handle to make it inheritable */
   var Handle hnull = NULL;/* not INVALID_HANDLE_VALUE for easy checking */
-
   var Handle hinput = NULL;
   var Handle hparent_out = NULL; /* in case of pipe, handle and indicator */
   /* STACK_3 == input_stream_arg */
@@ -10818,9 +10818,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
 
   end_system_call();
   value1 = wait_p ? fixnum(exitcode) : fixnum(pinfo.dwProcessId);
-  value2 = hparent_out?STACK_3:NIL; /* INPUT */
-  value3 = hparent_in?STACK_2:NIL; /* OUTPUT */
-  value4 = hparent_errin?STACK_1:NIL; /* ERROR */
+  value2 = hparent_out   ? (object)STACK_3 : NIL; /* INPUT */
+  value3 = hparent_in    ? (object)STACK_2 : NIL; /* OUTPUT */
+  value4 = hparent_errin ? (object)STACK_1 : NIL; /* ERROR */
   mv_count = 4;
   skipSTACK(10);
 }
@@ -11093,9 +11093,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   make_launch_pipe (1, true, hparent_errin, child);
 
   value1 = wait_p ? sfixnum(exit_code) : fixnum(child);
-  value2 = (!HNULLP(hparent_out))?STACK_3:NIL; /* INPUT */
-  value3 = (!HNULLP(hparent_in))?STACK_2:NIL; /* OUTPUT */
-  value4 = (!HNULLP(hparent_errin))?STACK_1:NIL; /* ERROR */
+  value2 = (!HNULLP(hparent_out))   ? (object)STACK_3 : NIL; /* INPUT */
+  value3 = (!HNULLP(hparent_in))    ? (object)STACK_2 : NIL; /* OUTPUT */
+  value4 = (!HNULLP(hparent_errin)) ? (object)STACK_1 : NIL; /* ERROR */
   mv_count = 4;
 
   skipSTACK(10);
