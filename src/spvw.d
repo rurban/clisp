@@ -1045,14 +1045,14 @@ local void init_symbol_tab_2 (void) {
                                         Symbol_value(S(utf_8)))
                       : ascii_to_string(*pname_ptr));
       pname_ptr++;
-      var uintB index = *index_ptr++;
-      var gcv_object_t* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
+      var uintB idx = *index_ptr++;
+      var gcv_object_t* package_ = &STACK_(package_anz-1) STACKop -(uintP)idx; # Pointer auf Package
       pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
       import(&STACK_0,package_); # first, import normally
-      if (index == (uintB)enum_lisp_index # in #<PACKAGE LISP>?
-          || index == (uintB)enum_charset_index # in #<PACKAGE CHARSET>?
-          || index == (uintB)enum_socket_index
-          || index == (uintB)enum_custom_index)
+      if (idx == (uintB)enum_lisp_index # in #<PACKAGE LISP>?
+          || idx == (uintB)enum_charset_index # in #<PACKAGE CHARSET>?
+          || idx == (uintB)enum_socket_index
+          || idx == (uintB)enum_custom_index)
         { export(&STACK_0,package_); } # yes -> also export
       Symbol_package(popSTACK()) = *package_; # and set the home-package
       ptr++;
