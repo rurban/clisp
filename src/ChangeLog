@@ -1,5 +1,10 @@
 2004-10-05  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (LAUNCH): exit_code is unsigned,
+	so use fixnum() instead of sfixnum() and avoid a GCC warning
+
+2004-10-05  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp: export ABSOLUTE-PATHNAME
 
 2004-10-05  Sam Steingold  <sds@gnu.org>
