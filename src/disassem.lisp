@@ -73,6 +73,8 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
 ;; Bruno Haible 1995
 ;; you may customize it to your needs.
 #+UNIX
+(defvar *disassemble-use-live-process* (and #+(or WIN32 CYGWIN) nil))
+#+UNIX
 (defun disassemble-machine-code (program-name pid function address)
   ;; This uses gdb.
   (unless (= (shell "gdb --version > /dev/null 2>&1") 0)
@@ -88,7 +90,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
         ;; On Windows older than Windows XP, we cannot use gdb on the live
         ;; process, due to a limitation of the Win32 API.
         ;; See http://sources.redhat.com/ml/cygwin/2003-06/msg00933.html
-        (use-live-process (and #+(or WIN32 CYGWIN) nil)))
+        (use-live-process *disassemble-use-live-process*))
     (with-open-file (f tempfilename :direction :output)
       ;; inhibit pausing after every 23 lines
       ;; (remove this if your gdb doesn't understand it)
