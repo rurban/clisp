@@ -10487,7 +10487,21 @@ The function make-closure is required.
     (let ((const-string-list
             (mapcar #'(lambda (x) (sys::write-to-short-string x 35))
                     const-list))
+          special-vars-read special-vars-write
           (lap-list (disassemble-LAP byte-list const-list)))
+      (dolist (L lap-list)
+        (when (consp (cdr L))
+          (case (cadr L)        ; instruction
+            ((GETVALUE GETVALUE&PUSH)
+             (pushnew (nth (caddr L) const-list) special-vars-read))
+            ((SETVALUE)
+             (pushnew (nth (caddr L) const-list) special-vars-write)))))
+      (when special-vars-read
+        (format stream (TEXT "~%reads special variable~P: ~S")
+              (length special-vars-read) special-vars-read))
+      (when special-vars-write
+        (format stream (TEXT "~%writes special variable~P : ~S")
+              (length special-vars-write) special-vars-write))
       (format stream (TEXT "~%~S byte-code instruction~:P:") (length lap-list))
       (dolist (L lap-list)
         (let ((PC (car L)) (instr (cdr L)))
