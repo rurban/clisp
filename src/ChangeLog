@@ -1,5 +1,11 @@
 2002-07-16  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (module-name): do not use ETYPECASE for
+	bootstrapping reasons
+	Reported by Marco Baringer <empb@bese.it>
+
+2002-07-16  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (GETENV): return all the environment as an alist when
 	the argument is NIL
 
