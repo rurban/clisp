@@ -68,7 +68,7 @@
 (def-c-enum PGVerbosity
   PQERRORS_TERSE                ; single-line error messages
   PQERRORS_DEFAULT              ; recommended style
-  PQERRORS_VERBOS)               ; all the facts, ma'am
+  PQERRORS_VERBOSE)             ; all the facts, ma'am
 
 ;;(def-c-type PGconn (c-struct vector)) ; components unknown
 ;;(def-c-type PGresult (c-struct vector)) ; components unknown
@@ -214,6 +214,9 @@
               (paramLengths (c-ptr (c-array-max int #.MAX-PARAM)) :out :alloca)
               (paramFormats (c-ptr (c-array-max int #.MAX-PARAM)) :out :alloca)
               (resultFormat int)))
+(def-call-out PQprepare (:return-type PGresult)
+  (:arguments (conn PGconn) (stmtName c-string) (query c-string) (nParams int)
+              (paramTypes (c-ptr (c-array-max Oid #.MAX-PARAM)) :out :alloca)))
 (def-call-out PQexecPrepared (:return-type PGresult)
   (:arguments (conn PGconn) (stmtName c-string) (nParams int)
               (paramValues (c-ptr (c-array-max c-string #.MAX-PARAM))
@@ -233,6 +236,9 @@
               (paramLengths (c-ptr (c-array-max int #.MAX-PARAM)) :out :alloca)
               (paramFormats (c-ptr (c-array-max int #.MAX-PARAM)) :out :alloca)
               (resultFormat int)))
+(def-call-out PQsendPrepare (:return-type int)
+  (:arguments (conn PGconn) (stmtName c-string) (query c-string) (nParams int)
+              (paramTypes (c-ptr (c-array-max Oid #.MAX-PARAM)) :out :alloca)))
 (def-call-out PQsendQueryPrepared (:return-type int)
   (:arguments (conn PGconn) (stmtName c-string) (nParams int)
               (paramValues (c-ptr (c-array-max c-string #.MAX-PARAM))

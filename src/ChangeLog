@@ -1,5 +1,9 @@
 2005-03-02  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/postgresql.lisp (PQprepare, PQsendPrepare): added
+
+2005-03-02  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_priority_value): define
 	separately on WIN32_NATIVE and UNIX: the former has a strict
 	symbol-number map and pre-defined constants, while the latter has
