@@ -392,7 +392,7 @@ global void savemem (object stream)
    #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP) /* else, page_alignment is = 1, anyway */
   { /* put alignment into practice: */
     begin_system_call();
-    var sintL ergebnis = lseek(handle,0,SEEK_CUR); /* fetch file-position */
+    var off_t ergebnis = lseek(handle,0,SEEK_CUR); /* fetch file-position */
     end_system_call();
     if (ergebnis<0) { builtin_stream_close(&STACK_0); OS_file_error(TheStream(STACK_0)->strm_file_truename); } /* error? */
     WRITE_page_alignment(ergebnis);
@@ -806,7 +806,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
     local var bool use_mmap = true;
     #endif
-    var uintL file_offset;
+    var off_t file_offset;
     #define set_file_offset(x)  file_offset = (x)
     #define inc_file_offset(x)  file_offset += (uintL)(x)
    #else
@@ -833,7 +833,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         /* skip first text line */
         var char c;
         begin_system_call();
-        if ( lseek(handle,-(long)sizeof(header),SEEK_CUR) <0) goto abort1; /* in file, back to the start */
+        if ( lseek(handle,-(off_t)sizeof(header),SEEK_CUR) <0) goto abort1; /* in file, back to the start */
         do { READ(&c,1); } while (c!='\n');
         end_system_call();
        #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
@@ -846,7 +846,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var int handles[2];
         var int child;
         begin_system_call();
-        if ( lseek(handle,-(long)sizeof(header),SEEK_CUR) <0)
+        if ( lseek(handle,-(off_t)sizeof(header),SEEK_CUR) <0)
           goto abort1; /* in file, back to the start */
         if (pipe(handles) != 0) goto abort1;
         if ((child = vfork()) ==0) {
