@@ -1,5 +1,10 @@
 2005-03-17  Sam Steingold  <sds@gnu.org>
 
+	* execname.c (find_executable) [LINUX|CYGWIN]: use
+	"/proc/self/exe" instead of sprintf()+getpid()
+
+2005-03-17  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: test for realpath()
 	* pathname.d (realpath): use the OS-supplied realpath()
 	implementation when it is available (we can add a workability test
