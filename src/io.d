@@ -821,12 +821,12 @@ LISPFUNN(set_readtable_case,2)
  retry_readtable_case:
   /* convert symbol value into an index by searching in table O(rtcase..): */
   var const gcv_object_t* ptr = &O(rtcase_0);
-  var object rtcase = Fixnum_0;
+  var uintC rtcase = 0;
   var uintC count = 4;
   while (count--) {
     if (eq(*ptr,value))
       goto found;
-    ptr++; rtcase = fixnum_inc(rtcase,1);
+    ptr++; rtcase++;
   };
   /* invalid value */
   pushSTACK(NIL); /* no PLACE */
@@ -839,11 +839,10 @@ LISPFUNN(set_readtable_case,2)
   check_value(type_error,GETTEXT("~S: new value ~S should be ~S, ~S, ~S or ~S."));
   value = value1;
   goto retry_readtable_case;
- found: /* found in  table */
+ found: /* found in table */
   var object readtable = check_readtable(popSTACK()); /* readtable */
-  /* rtcase is a GC-invariant fixnum */
-  TheReadtable(readtable)->readtable_case = rtcase;
-  VALUES1(value);
+  TheReadtable(readtable)->readtable_case = fixnum(rtcase);
+  VALUES1((&O(rtcase_0))[rtcase]);
 }
 
 # =============================================================================
