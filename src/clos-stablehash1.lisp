@@ -28,7 +28,7 @@
     (apply #'%shared-initialize object situation args) ; == (call-next-method)
     ; Bootstrapping: Simulate the effect of #'%shared-initialize.
     (when (eq situation 't) ; called from initialize-instance?
-      (setf (sys::%record-ref object *<standard-stablehash>-hashcode-location*)
+      (setf (standard-instance-access object *<standard-stablehash>-hashcode-location*)
             (sys::random-posfixnum))))
   object)
 

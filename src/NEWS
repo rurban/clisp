@@ -54,6 +54,9 @@ User visible changes
       SPECIALIZER-DIRECT-GENERIC-FUNCTIONS, SPECIALIZER-DIRECT-METHODS.
     New functions
       EQL-SPECIALIZER-OBJECT, INTERN-EQL-SPECIALIZER.
+  + Slot access:
+    New functions
+      STANDARD-INSTANCE-ACCESS, FUNCALLABLE-STANDARD-INSTANCE-ACCESS.
 
 * Several new datatypes that manage weak references:
     WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,

@@ -118,6 +118,7 @@
           slot-definition-location
           direct-slot-definition-class effective-slot-definition-class
           ;; MOP for slot access
+          standard-instance-access funcallable-standard-instance-access
           ;; MOP for classes
           class built-in-class structure-class standard-class
           class-name class-direct-superclasses class-precedence-list
