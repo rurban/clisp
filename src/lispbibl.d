@@ -151,7 +151,7 @@
 #ifdef OS2
   #define I80386
 #endif
-#if 0
+#if defined(__vax__)
   #define VAX
 #endif
 #if defined(arm) || defined(__arm)
@@ -163,10 +163,10 @@
   #endif
 #endif
 #ifdef GENERIC_UNIX
-  #if defined(m68k) || defined(mc68000)
+  #if defined(m68k) || defined(__m68k__) || defined(mc68000)
     #define MC680X0
   #endif
-  #if defined(mc68020) || (defined(m68k) && defined(NeXT))
+  #if defined(mc68020) || defined(__mc68020__) || (defined(m68k) && defined(NeXT))
     #define MC680X0
     #define MC680Y0
   #endif
@@ -179,7 +179,7 @@
       #define SPARC64
     #endif
   #endif
-  #if defined(mips) || defined(__mips)
+  #if defined(mips) || defined(__mips) || defined(__mips__)
     #define MIPS
     #if defined(_MIPS_SZLONG)
       #if (_MIPS_SZLONG == 64)
@@ -191,7 +191,7 @@
   #if defined(HP8XX) || defined(hppa) || defined(__hppa)
     #define HPPA
   #endif
-  #ifdef m88000
+  #if defined(m88000) || defined(__m88k__)
     #define M88000
   #endif
   #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc)
