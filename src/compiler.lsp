@@ -860,7 +860,7 @@ for-value   NIL oder T
        substring
        symbol-value #| symbol-function |# boundp fboundp special-operator-p system::set-symbol-value makunbound
        fmakunbound #| values-list |# system::driver system::unwind-to-driver
-       macro-function macroexpand macroexpand-1 proclaim eval evalhook applyhook
+       system::old-macro-function macroexpand macroexpand-1 proclaim eval evalhook applyhook
        constantp system::parse-body system::keyword-test
        invoke-debugger
        make-hash-table gethash system::puthash remhash maphash clrhash
