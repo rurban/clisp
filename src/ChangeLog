@@ -1,5 +1,8 @@
 2004-03-09  Bruno Haible  <bruno@clisp.org>
 
+	* Makefile.devel (potfiles): Set the CLISP environment variable for
+	po/Makefile.devel.
+	(src--distrib): Don't create clisp-$(VERSION)-potfiles.tar.bz2.
 	* po/Makefile.devel (DSOURCES): Remove rexx.
 	(LISPSOURCES): Add international, threads, deprecated. Remove rexx1.
 
