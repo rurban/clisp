@@ -9442,7 +9442,7 @@ typedef struct module_t {
   # Functions for Initialization
   void (*initfunction1) (struct module_t *); # only once
   void (*initfunction2) (struct module_t *); # always at start up
-  void (*exitfunction) (struct module_t *);  /* before termination */
+  void (*finifunction) (struct module_t *);  /* before termination */
   #ifdef DYNAMIC_MODULES
     struct module_t * next; # linked List
   #endif

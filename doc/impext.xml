@@ -2018,7 +2018,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <para>Each module has a finalization function
 <variablelist><varlistentry>
- <term><function>module__&name-r;__exit_function</function></term>
+ <term><function>module__&name-r;__fini_function</function></term>
 <listitem><simpara>called before exiting &clisp;.
 </simpara></listitem></varlistentry></variablelist>
 &name-r; is the <link linkend="mod-overview">module name</link>.</para>
@@ -2487,7 +2487,7 @@ only.</subtitle>
    to the appropriate <link linkend="modinit">initialization function</link>.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="c-exit"><term><literal role="sexp">(&c-finalize;
+<varlistentry id="c-fini"><term><literal role="sexp">(&c-fini;
    &fmt-r; {&arg-r;}*)</literal></term>
  <listitem><simpara>This form adds &c-lang; code
    <literal role="sexp">(&format; &nil; &fmt-r; {&arg-r;}*)</literal>

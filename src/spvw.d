@@ -3268,8 +3268,8 @@ nonreturning_function(global, quit, (void)) {
   { /* module finalization: */
     var module_t* module;       /* loop over modules */
     for_modules(all_other_modules,{
-      if (module->exitfunction) /* call exit function: */
-        (*module->exitfunction)(module);
+      if (module->finifunction) /* call exit function: */
+        (*module->finifunction)(module);
     });
   }
  #ifdef DYNAMIC_FFI
@@ -3404,8 +3404,8 @@ global void dynload_modules (const char * library, uintC modcount,
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
           }
           {
-            sprintf(symbolbuf,"module__%s__exit_function",modname);
-            module->exitfunction = (void (*) (module_t*))
+            sprintf(symbolbuf,"module__%s__fini_function",modname);
+            module->finifunction = (void (*) (module_t*))
               dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
