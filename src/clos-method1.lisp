@@ -16,7 +16,7 @@
 
 (defparameter <standard-method>
   (defclass standard-method (method)
-    ((function             ; the function
+    (($function            ; the function
        :type (or null function)
        :accessor std-method-function)
      (wants-next-method-p  ; flag, if the NEXT-METHOD (as function with all
@@ -167,7 +167,7 @@
 
 (defparameter <standard-accessor-method>
   (defclass standard-accessor-method (standard-method)
-    ((slot-definition      ; direct slot definition responsible for this method
+    (($slot-definition     ; direct slot definition responsible for this method
        :type direct-slot-definition
        :accessor %accessor-method-slot-definition))
     (:fixed-slot-locations)
