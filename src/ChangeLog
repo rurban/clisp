@@ -1,5 +1,55 @@
 2004-06-02  Sam Steingold  <sds@gnu.org>
 
+	more consistent macro/function naming, more error recovery
+	* stream.d (check_stream, check_streamtype, check_wr_int): removed
+	(get_streamtype_replacement): new function
+	(CHECK_streamtype, CHECK_builtin_stream, ASSERT_wr_int): new macros
+	(test_stream_args): remove, replace with ...
+	(check_stream_args): new function
+	(SYNONYM-STREAM-SYMBOL, BROADCAST-STREAM-STREAMS)
+	(CONCATENATED-STREAM-STREAMS, GENERIC-STREAM-CONTROLLER)
+	(TWO-WAY-STREAM-INPUT-STREAM, TWO-WAY-STREAM-OUTPUT-STREAM)
+	(ECHO-STREAM-INPUT-STREAM, ECHO-STREAM-OUTPUT-STREAM)
+	(test_n_bytes_args): use CHECK_streamtype
+	(stream_handles): fixed a bug: missing `return' in fixnum case
+	(MAKE-TWO-WAY-STREAM, MAKE-ECHO-STREAM): use check_stream_args()
+	(GENERIC-STREAM-P, TERMINAL-RAW, INPUT-STREAM-P, OUTPUT-STREAM-P)
+	(STREAM-EXTERNAL-FORMAT, INTERACTIVE-STREAM-P, READ-BYTE-LOOKAHEAD)
+	(READ-BYTE-WILL-HANG-P, WRITE-BYTE, LINE-NUMBER, ALLOW-READ-EVAL):
+	updated for the check_stream() changes
+	(BUILT-IN-STREAM-ELEMENT-TYPE): use CHECK_builtin_stream()
+	(bitbuff_ixu_sub, bitbuff_ixs_sub, wr_by_iau8_unbuffered)
+	(wr_by_iau8_buffered, WRITE-BYTE, WRITE-INTEGER): use CHECK_wr_int()
+	* io.d (test_disp_sub_char): completely recoverable, shift STACK args
+	(SET-DISPATCH-MACRO-CHARACTER, GET-DISPATCH-MACRO-CHARACTER): update
+	(test_stream_arg): remove, replace with ...
+	(check_stream_arg): new function
+	(RPAR-READER, STRING-READER, QUOTE-READER, LINE-COMMENT-READER)
+	(test_no_infix, CHAR-READER, radix_1, RADIX-READER, UNINTERNED-READER)
+	(BIT-VECTOR-READER, VECTOR-READER, ARRAY-READER, READ-EVAL-READER)
+	(LOAD-EVAL-READER, LABEL-DEFINITION-READER, NOT-READABLE-READER)
+	(SYNTAX-ERROR-READER, CLOSURE-READER, PPRINT-NEWLINE, %CIRCLEP)
+	(%PPRINT-LOGICAL-BLOCK, FORMAT-TABULATE, WRITE, PRIN1, PRINT, PPRINT)
+	(PRINC, WRITE-CHAR, write_string_up, TERPRI, FRESH-LINE, FINISH-OUTPUT)
+	(FORCE-OUTPUT, CLEAR-OUTPUT, WRITE-UNREADABLE, LINE-POSITION): use it
+	(test_istream, test_ostream): remove, replace with ..
+	(check_istream, check_ostream): new functions
+	(read_w, READ-DELIMITED-LIST, READ-LINE, READ-CHAR, UNREAD-CHAR)
+	(PEEK-CHAR, LISTEN, READ-CHAR-WILL-HANG-P, READ-CHAR-NO-HANG)
+	(CLEAR-INPUT): use check_istream()
+	(PARSE-INTEGER): recover from bad radix
+	(PRINT-STRUCTURE): use check_stream()
+	(WRITE-SPACES, PPRINT-INDENT, ): use check_ostream()
+	* error.d, lispbibl.d (check_stream_replacement): added
+	(fehler_stream, fehler_streamtype): removed
+	* debug.d (DESCRIBE-FRAME): use check_stream()
+	instead of fehler_stream()
+	* sequence.d (READ-CHAR-SEQUENCE, WRITE-CHAR-SEQUENCE)
+	(READ-BYTE-SEQUENCE, WRITE-BYTE-SEQUENCE): ditto
+	* constsym.d (x11_socket_stream, generic_stream): added
+
+2004-06-02  Sam Steingold  <sds@gnu.org>
+
 	* list.d (up2_test, up2_test_not, up_test, up_test_not, up_if)
 	(up_if_not): simplify return statement
 
