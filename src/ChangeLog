@@ -1,5 +1,10 @@
 2004-11-04  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d [WIN32_NATIVE]: #include <windows.h> before the
+	first use of HANDLE
+
+2004-11-04  Sam Steingold  <sds@gnu.org>
+
 	* win32aux.d (fd_read, fd_write): fixed the definition
 	to conform with the declaration
 
