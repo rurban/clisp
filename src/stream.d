@@ -1829,33 +1829,30 @@ LISPFUNN(make_two_way_stream,2) {
   value1 = make_twoway_stream(input_stream,output_stream); mv_count=1;
 }
 
+# check whether the stream S is a two-way-stream
+#define stream_twoway_p(s)                                              \
+  (builtin_stream_p(s) && (TheStream(s)->strmtype == strmtype_twoway))
+
 # (SYS::TWO-WAY-STREAM-P stream) == (TYPEP stream 'TWO-WAY-STREAM)
 LISPFUNN(two_way_stream_p,1) {
   var object arg = popSTACK();
-  value1 = (builtin_stream_p(arg)
-            && (TheStream(arg)->strmtype == strmtype_twoway)
-            ? T
-            : NIL);
+  value1 = (stream_twoway_p(arg) ? T : NIL);
   mv_count=1;
 }
 
 # (TWO-WAY-STREAM-INPUT-STREAM stream), CLtL2 p. 507
 LISPFUNN(two_way_stream_input_stream,1) {
   var object stream = popSTACK();
-  if (!(builtin_stream_p(stream)
-        && (TheStream(stream)->strmtype == strmtype_twoway))) {
+  if (!stream_twoway_p(stream))
     check_streamtype(stream,S(two_way_stream));
-  }
   value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
 }
 
 # (TWO-WAY-STREAM-OUTPUT-STREAM stream), CLtL2 p. 507
 LISPFUNN(two_way_stream_output_stream,1) {
   var object stream = popSTACK();
-  if (!(builtin_stream_p(stream)
-        && (TheStream(stream)->strmtype == strmtype_twoway))) {
+  if (!stream_twoway_p(stream))
     check_streamtype(stream,S(two_way_stream));
-  }
   value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
 }
 
@@ -1958,33 +1955,30 @@ LISPFUNN(make_echo_stream,2) {
   value1 = make_echo_stream(input_stream,output_stream); mv_count=1;
 }
 
+# check whether the stream S is a two-way-stream
+#define stream_echo_p(s)                                                 \
+  (builtin_stream_p(s) && (TheStream(s)->strmtype == strmtype_echo))
+
 # (SYS::ECHO-STREAM-P stream) == (TYPEP stream 'ECHO-STREAM)
 LISPFUNN(echo_stream_p,1) {
   var object arg = popSTACK();
-  value1 = (builtin_stream_p(arg)
-            && (TheStream(arg)->strmtype == strmtype_echo)
-            ? T
-            : NIL);
+  value1 = (stream_echo_p(arg) ? T : NIL);
   mv_count=1;
 }
 
 # (ECHO-STREAM-INPUT-STREAM stream), CLtL2 p. 507
 LISPFUNN(echo_stream_input_stream,1) {
   var object stream = popSTACK();
-  if (!(builtin_stream_p(stream)
-        && (TheStream(stream)->strmtype == strmtype_echo))) {
+  if (!stream_echo_p(stream))
     check_streamtype(stream,S(echo_stream));
-  }
   value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
 }
 
 # (ECHO-STREAM-OUTPUT-STREAM stream), CLtL2 p. 507
 LISPFUNN(echo_stream_output_stream,1) {
   var object stream = popSTACK();
-  if (!(builtin_stream_p(stream)
-        && (TheStream(stream)->strmtype == strmtype_echo))) {
+  if (!stream_echo_p(stream))
     check_streamtype(stream,S(echo_stream));
-  }
   value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
 }
 
