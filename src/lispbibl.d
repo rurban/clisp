@@ -12418,6 +12418,12 @@ extern object OSdir_to_pathname (const char* path);
 extern void init_pathnames (void);
 # is used by SPVW
 
+/* duplicate the handle (maybe into new_handle)
+ must be surrounded with begin_system_call()/end_system_call() */
+global Handle handle_dup (Handle old_handle, Handle new_handle);
+#define handle_dup1(h) handle_dup(h,(Handle)-1)
+/* used by STREAM */
+
 # Locates the executable program immediately after the program start.
 # find_executable(argv[0])
 extern int find_executable (const char * program_name);

@@ -10663,6 +10663,25 @@ LISPFUN(execute,seclass_default,1,0,norest,nokey,0,NIL) {
 
 #endif
 
+/* duplicate the handle (maybe into new_handle)
+ must be surrounded with begin_system_call()/end_system_call() */
+global Handle handle_dup (Handle old_handle, Handle new_handle) {
+ #if defined(UNIX)
+  new_handle = (new_handle == (Handle)-1 ? dup(old_handle)
+                : dup2(old_handle,new_handle));
+ #elif defined(WIN32_NATIVE)
+  if (!DuplicateHandle(GetCurrentProcess(),old_handle,
+                       GetCurrentProcess(),&new_handle,
+                       0, true, DUPLICATE_SAME_ACCESS))
+    OS_error();
+ #else
+  NOTREACHED;
+ #endif
+  if (new_handle == (Handle)-1)
+    OS_error();
+  return new_handle;
+}
+
 #ifdef HAVE_SHELL
 
 # (SHELL) calls a shell.
@@ -10777,17 +10796,6 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   VALUES_IF(exitcode == 0);
 }
 
-inline Handle MyDupHandle (Handle h0) {
-  var Handle h1;
-  if (!DuplicateHandle(GetCurrentProcess(),h0,
-       GetCurrentProcess(),&h1,
-       0, true, DUPLICATE_SAME_ACCESS))
-  {
-    OS_error();
-  }
-  return h1;
-}
-
 /* shell_quote - surrounds dangerous strings with double quotes. quotes quotes.
  dest should be twice as large as source + 2 (for quotes) + 1 for zero byte
  + 1 for poss endslash */
@@ -10854,12 +10862,18 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   if (!boundp(wait_arg)) wait_arg = S(t);
   if (!boundp(arg_arg)) arg_arg = S(nil);
   else if (!consp(arg_arg)) fehler_list(arg_arg);
-  var Handle hinput = MyDupHandle((boundp(input_arg) && !eq(input_arg,S(Kterminal)))?
-    stream_lend_handle(input_arg,true,&handletype):stdin_handle);
-  var Handle houtput = MyDupHandle((boundp(output_arg) && !eq(output_arg,S(Kterminal)))?
-    stream_lend_handle(output_arg,false,&handletype):stdout_handle);
-  var Handle herror = MyDupHandle((boundp(error_arg) && !eq(error_arg,S(Kterminal)))?
-    stream_lend_handle(error_arg,false,&handletype):stderr_handle);
+  var Handle hinput =
+    handle_dup1((boundp(input_arg) && !eq(input_arg,S(Kterminal)))
+                ? stream_lend_handle(input_arg,true,&handletype)
+                : stdin_handle);
+  var Handle houtput =
+    handle_dup1((boundp(output_arg) && !eq(output_arg,S(Kterminal)))
+                ? stream_lend_handle(output_arg,false,&handletype)
+                : stdout_handle);
+  var Handle herror =
+    handle_dup1((boundp(error_arg) && !eq(error_arg,S(Kterminal)))
+                ? stream_lend_handle(error_arg,false,&handletype)
+                : stderr_handle);
   var HANDLE prochandle;
 
   var int command_len = 0,command_pos = 0,i;
@@ -11676,31 +11690,16 @@ LISPFUN(duplicate_handle,seclass_default,1,1,norest,nokey,0,NIL) {
   var object new_fd = popSTACK();
   var object old_fd = popSTACK();
   if (!posfixnump(old_fd)) fehler_posfixnum(old_fd);
-  if (boundp(new_fd) && !nullp(new_fd) && !posfixnump(new_fd))
+  if (!(missingp(new_fd) || posfixnump(new_fd)))
     fehler_posfixnum(new_fd);
   var Handle old_handle = (Handle)posfixnum_to_L(old_fd);
   var Handle new_handle = (posfixnump(new_fd) ? (Handle)posfixnum_to_L(new_fd)
                            : (Handle)-1);
 
   begin_system_call();
- #if defined(UNIX)
-  new_handle = (new_handle == (Handle)-1 ? dup(old_handle)
-                : dup2(old_handle,new_handle));
- #elif defined(WIN32_NATIVE)
-  if (!DuplicateHandle(GetCurrentProcess(),old_handle,
-                       GetCurrentProcess(),&new_handle,
-                       0, true, DUPLICATE_SAME_ACCESS)) {
-    OS_error();
-  }
- #else
-  NOTREACHED;
- #endif
+  new_handle = handle_dup(old_handle,new_handle);
   end_system_call();
-  if (new_handle == (Handle)-1) {
-    OS_error();
-  } else {
-    VALUES1(fixnum(new_handle));
-  }
+  VALUES1(fixnum(new_handle));
 }
 
 #endif # EXPORT_SYSCALLS
