@@ -417,7 +417,7 @@ if test -n "$do_config"; then
       --cache-file=config.cache
   # libiconv must be built before gettext is even configured. This is because
   # we want gettext to recognize libiconv as being present, even though we
-  # don't install it publicly.
+  # do not install it publicly.
   for subdir in libiconv; do
     if test -d $subdir; then
       echo "executing $DIRNAME/$subdir/configure ..."
@@ -489,9 +489,9 @@ fi
 if grep 'ac_cv_func_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null \
    && grep 'ac_cv_lib_termcap_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null \
    && grep 'ac_cv_lib_ncurses_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null ; then
-  # On Unix systems lacking libtermcap and libncurses (rarely seen), we don't
+  # On Unix systems lacking libtermcap and libncurses (rarely seen), we do not
   # use our included termcap library because the user would have to install
-  # /etc/termcap. The user should better do that before compiling clisp.
+  # /etc/termcap.  The user should better do that before compiling clisp.
   makemake_args="$makemake_args --with-no-termcap-ncurses --with-noreadline"
 else
   if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
