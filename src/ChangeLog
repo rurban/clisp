@@ -2,6 +2,7 @@
 
 	* backquote.lisp (bq-vec-expand): fixed the unoptimized case
 	* compiler.lisp (compile-file): finish listing-stream with a newline
+	(compile) [CLISP-DEBUG]: bind *FORM* for TRACE (bug #[ 731248 ])
 
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
