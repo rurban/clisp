@@ -42,7 +42,7 @@
 	* defmacro.lisp (analyze-key): use it
 	* defstruct.lisp (defstruct): ditto
 	* foreign1.lisp (c-struct-constructor): ditto
-		* lambdalist.lisp (analyze-lambdalist, analyze-defsetf-lambdalist)
+	* lambdalist.lisp (analyze-lambdalist, analyze-defsetf-lambdalist)
 	(analyze-generic-function-lambdalist): ditto
 	* type.lisp (%the): ditto
 	* clos-package.lisp ("CLOS"): do not import SYS::*KEYWORD-PACKAGE*
@@ -80,6 +80,7 @@
 	* init.lisp (cerror): Internationalize.
 	* condition.lisp (cerror, maybe-continue): Likewise.
 	(break-loop): Likewise.
+	* reploop.lisp (break-loop): Likewise.
 
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
