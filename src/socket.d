@@ -337,7 +337,7 @@ local int with_host (char* host, host_fn_t fn, void* opts) {
 
 local int string_to_addr1 (void* addr, int addrlen, int family, void* ret) {
   *(object*)ret = (addrlen
-                   ? udigits_to_I(addr,addrlen)
+                   ? LEbytes_to_UI(addrlen,(const uintB*)addr)
                    : asciz_to_string((char*)addr,O(misc_encoding)));
   (void)family; /* ignore */
   return 0;

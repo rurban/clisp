@@ -1,5 +1,13 @@
 2005-01-28  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (udigits_to_I): Remove declaration.
+	* intelem.d (udigits_to_I): Remove function.
+	* socket.d (string_to_addr1): Call LEbytes_to_UI instead of
+	udigits_to_I.
+	* genclisph.d (main): Don't emit udigits_to_I declaration.
+
+2005-01-28  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (FAKE_8BIT_VECTOR): New macro.
 	(LEbytes_to_UI, LESbvector_to_UI, LEbytes_to_I, LESbvector_to_I,
 	UI_to_LEbytes, I_to_LEbytes): New declarations.
