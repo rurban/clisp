@@ -6010,32 +6010,32 @@ LISPFUNN(subr_info,1)
             #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
               #undef U_operand
               #define U_operand(where)  \
-                __asm__("\
-                  moveq #0,%0   ; \
-                  moveb %1@+,%0 ; \
-                  bpl 1f        ; \
-                  addb %0,%0    ; \
-                  lslw #7,%0    ; \
-                  moveb %1@+,%0 ; \
-                  1:              \
-                  " : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
+                __asm__(                 \
+                  "moveq #0,%0"   "\n\t" \
+                  "moveb %1@+,%0" "\n\t" \
+                  "bpl 1f"        "\n\t" \
+                  "addb %0,%0"    "\n\t" \
+                  "lslw #7,%0"    "\n\t" \
+                  "moveb %1@+,%0" "\n"   \
+                  "1:"                   \
+                  : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
             #endif
             #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
               #undef U_operand
               #define U_operand(where)  \
-                { var uintL dummy;       \
-                  __asm__("\
-                    ldub [%1],%0       ; \
-                    andcc %0,0x80,%%g0 ; \
-                    be 1f              ; \
-                     add %1,1,%1       ; \
-                    sll %0,25,%2       ; \
-                    ldub [%1],%0       ; \
-                    srl %2,17,%2       ; \
-                    add %1,1,%1        ; \
-                    or %0,%2,%0        ; \
-                    1:                   \
-                    " : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
+                { var uintL dummy;              \
+                  __asm__(                      \
+                    "ldub [%1],%0"       "\n\t" \
+                    "andcc %0,0x80,%%g0" "\n\t" \
+                    "be 1f"              "\n\t" \
+                    " add %1,1,%1"       "\n\t" \
+                    "sll %0,25,%2"       "\n\t" \
+                    "ldub [%1],%0"       "\n\t" \
+                    "srl %2,17,%2"       "\n\t" \
+                    "add %1,1,%1"        "\n\t" \
+                    "or %0,%2,%0"        "\n"   \
+                    "1:"                        \
+                    : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
                 }
             #endif
             #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
@@ -6054,17 +6054,17 @@ LISPFUNN(subr_info,1)
               #endif
               #undef U_operand
               #define U_operand(where)  \
-                __asm__("\
-                  movzbl (%1),"EAX" ; \
-                  incl %1           ; \
-                  testb "AL","AL"   ; \
-                  jge "LR(1,f)"     ; \
-                  andb $127,"AL"    ; \
-                  sall $8,"EAX"     ; \
-                  movb (%1),"AL"    ; \
-                  incl %1           ; \
-                  "LD(1)":            \
-                  " : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
+                __asm__(                   \
+                  "movzbl (%1),"EAX "\n\t" \
+                  "incl %1"         "\n\t" \
+                  "testb "AL","AL   "\n\t" \
+                  "jge "LR(1,f)     "\n\t" \
+                  "andb $127,"AL    "\n\t" \
+                  "sall $8,"EAX     "\n\t" \
+                  "movb (%1),"AL    "\n\t" \
+                  "incl %1"         "\n"   \
+                  LD(1)":"                 \
+                  : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
               # Vorsicht: 1. Der Sun-Assembler kennt diese Syntax für lokale Labels nicht.
               #              Daher generieren wir unsere lokalen Labels selbst.
               # Vorsicht: 2. ccr wird verändert. Wie deklariert man das??
@@ -6078,26 +6078,26 @@ LISPFUNN(subr_info,1)
               # Let's choose the first one. 1-byte operands are most frequent.
               #undef U_operand
               #define U_operand(where)  # (v1) \
-                { var uintL dummy;  \
-                  __asm__("\
-                    \n\t" "ldrb   %0,[%1],#1     ; \
-                    \n\t" "tst    %0,#0x80       ; \
-                    \n\t" "bicne  %0,%0,#0x80    ; \
-                    \n\t" "ldrneb %2,[%1],#1     ; \
-                    \n\t" "orrne  %0,%2,%0,LSL#8   \
-                    " : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+                { var uintL dummy;                 \
+                  __asm__(                         \
+                    "ldrb   %0,[%1],#1"     "\n\t" \
+                    "tst    %0,#0x80"       "\n\t" \
+                    "bicne  %0,%0,#0x80"    "\n\t" \
+                    "ldrneb %2,[%1],#1"     "\n\t" \
+                    "orrne  %0,%2,%0,LSL#8"        \
+                    : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
                 }
               #if 0
               #undef U_operand
               #define U_operand(where)  # (v2) \
-                { var uintL dummy;  \
-                  __asm__("\
-                    \n\t" "ldrb   %0,[%1],#1     ; \
-                    \n\t" "movs   %0,%0,LSL#25   ; \
-                    \n\t" "movcc  %0,%0,LSR#25   ; \
-                    \n\t" "ldrcsb %2,[%1],#1     ; \
-                    \n\t" "orrcs  %0,%2,%0,LSR#17  \
-                    " : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+                { var uintL dummy;                 \
+                  __asm__(                         \
+                    "ldrb   %0,[%1],#1"     "\n\t" \
+                    "movs   %0,%0,LSL#25"   "\n\t" \
+                    "movcc  %0,%0,LSR#25"   "\n\t" \
+                    "ldrcsb %2,[%1],#1"     "\n\t" \
+                    "orrcs  %0,%2,%0,LSR#17"       \
+                    : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
                 }
               #endif
             #endif
@@ -6132,118 +6132,118 @@ LISPFUNN(subr_info,1)
             #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
               #undef S_operand
               #define S_operand(where)  \
-                __asm__("\
-                  moveb %1@+,%0   ; \
-                  bpl 1f          ; \
-                  lslw #8,%0      ; \
-                  moveb %1@+,%0   ; \
-                  addw %0,%0      ; \
-                  asrw #1,%0      ; \
-                  bne 2f          ; \
-                  moveb %1@(2),%0 ; \
-                  swap %0         ; \
-                  moveb %1@+,%0   ; \
-                  lsll #8,%0      ; \
-                  moveb %1@,%0    ; \
-                  swap %0         ; \
-                  addql #2,%0     ; \
-                  moveb %1@+,%0   ; \
-                  jra 3f          ; \
-                  1:                \
-                  addb %0,%0      ; \
-                  asrb #1,%0      ; \
-                  extw %0         ; \
-                  2:                \
-                  extl %0         ; \
-                  3:                \
-                  " : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
+                __asm__(                   \
+                  "moveb %1@+,%0"   "\n\t" \
+                  "bpl 1f"          "\n\t" \
+                  "lslw #8,%0"      "\n\t" \
+                  "moveb %1@+,%0"   "\n\t" \
+                  "addw %0,%0"      "\n\t" \
+                  "asrw #1,%0"      "\n\t" \
+                  "bne 2f"          "\n\t" \
+                  "moveb %1@(2),%0" "\n\t" \
+                  "swap %0"         "\n\t" \
+                  "moveb %1@+,%0"   "\n\t" \
+                  "lsll #8,%0"      "\n\t" \
+                  "moveb %1@,%0"    "\n\t" \
+                  "swap %0"         "\n\t" \
+                  "addql #2,%0"     "\n\t" \
+                  "moveb %1@+,%0"   "\n\t" \
+                  "jra 3f"          "\n"   \
+                  "1:"                "\t" \
+                  "addb %0,%0"      "\n\t" \
+                  "asrb #1,%0"      "\n\t" \
+                  "extw %0"         "\n"   \
+                  "2:"                "\t" \
+                  "extl %0"         "\n"   \
+                  "3:"                     \
+                  : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
             #endif
             #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
               #undef S_operand
               #define S_operand(where)  \
-                { var uintL dummy;       \
-                  __asm__("\
-                    ldub [%1],%0       ; \
-                    andcc %0,0x80,%%g0 ; \
-                    be 2f              ; \
-                     add %1,1,%1       ; \
-                    sll %0,25,%2       ; \
-                    ldub [%1],%0       ; \
-                    sra %2,17,%2       ; \
-                    orcc %2,%0,%0      ; \
-                    bne 3f             ; \
-                     add %1,1,%1       ; \
-                    ldub [%1],%0       ; \
-                    sll %0,24,%2       ; \
-                    ldub [%1+1],%0     ; \
-                    sll %0,16,%0       ; \
-                    or %2,%0,%2        ; \
-                    ldub [%1+2],%0     ; \
-                    sll %0,8,%0        ; \
-                    or %2,%0,%2        ; \
-                    ldub [%1+3],%0     ; \
-                    or %2,%0,%0        ; \
-                    b 3f               ; \
-                     add %1,4,%1       ; \
-                    2:                   \
-                    sll %0,25,%0       ; \
-                    sra %0,25,%0       ; \
-                    3:                   \
-                    " : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
+                { var uintL dummy;              \
+                  __asm__(                      \
+                    "ldub [%1],%0"       "\n\t" \
+                    "andcc %0,0x80,%%g0" "\n\t" \
+                    "be 2f"              "\n\t" \
+                    " add %1,1,%1"       "\n\t" \
+                    "sll %0,25,%2"       "\n\t" \
+                    "ldub [%1],%0"       "\n\t" \
+                    "sra %2,17,%2"       "\n\t" \
+                    "orcc %2,%0,%0"      "\n\t" \
+                    "bne 3f"             "\n\t" \
+                    " add %1,1,%1"       "\n\t" \
+                    "ldub [%1],%0"       "\n\t" \
+                    "sll %0,24,%2"       "\n\t" \
+                    "ldub [%1+1],%0"     "\n\t" \
+                    "sll %0,16,%0"       "\n\t" \
+                    "or %2,%0,%2"        "\n\t" \
+                    "ldub [%1+2],%0"     "\n\t" \
+                    "sll %0,8,%0"        "\n\t" \
+                    "or %2,%0,%2"        "\n\t" \
+                    "ldub [%1+3],%0"     "\n\t" \
+                    "or %2,%0,%0"        "\n\t" \
+                    "b 3f"               "\n\t" \
+                    " add %1,4,%1"       "\n"   \
+                    "2:"                   "\t" \
+                    "sll %0,25,%0"       "\n\t" \
+                    "sra %0,25,%0"       "\n"   \
+                    "3:"                   "\t" \
+                    : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
                 }
             #endif
             #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
               #undef S_operand
               #define S_operand(where)  \
-                __asm__("\
-                  movzbl (%1),"EAX" ; \
-                  incl %1           ; \
-                  testb "AL","AL"   ; \
-                  jge "LR(1,f)"     ; \
-                  sall $8,"EAX"     ; \
-                  movb (%1),"AL"    ; \
-                  incl %1           ; \
-                  sall $17,"EAX"    ; \
-                  sarl $17,"EAX"    ; \
-                  jne "LR(2,f)"     ; \
-                  movb (%1),"AL"    ; \
-                  sall $8,"EAX"     ; \
-                  movb 1(%1),"AL"   ; \
-                  sall $8,"EAX"     ; \
-                  movb 2(%1),"AL"   ; \
-                  sall $8,"EAX"     ; \
-                  movb 3(%1),"AL"   ; \
-                  addl $4,"EAX"     ; \
-                  jmp "LR(2,f)"     ; \
-                  "LD(1)":            \
-                  sall $25,"EAX"    ; \
-                  sarl $25,"EAX"    ; \
-                  "LD(2)":            \
-                  " : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
+                __asm__(                   \
+                  "movzbl (%1),"EAX "\n\t" \
+                  "incl %1"         "\n\t" \
+                  "testb "AL","AL   "\n\t" \
+                  "jge "LR(1,f)     "\n\t" \
+                  "sall $8,"EAX     "\n\t" \
+                  "movb (%1),"AL    "\n\t" \
+                  "incl %1"         "\n\t" \
+                  "sall $17,"EAX    "\n\t" \
+                  "sarl $17,"EAX    "\n\t" \
+                  "jne "LR(2,f)     "\n\t" \
+                  "movb (%1),"AL    "\n\t" \
+                  "sall $8,"EAX     "\n\t" \
+                  "movb 1(%1),"AL   "\n\t" \
+                  "sall $8,"EAX     "\n\t" \
+                  "movb 2(%1),"AL   "\n\t" \
+                  "sall $8,"EAX     "\n\t" \
+                  "movb 3(%1),"AL   "\n\t" \
+                  "addl $4,"EAX     "\n\t" \
+                  "jmp "LR(2,f)     "\n"   \
+                  LD(1)":"            "\t" \
+                  "sall $25,"EAX    "\n\t" \
+                  "sarl $25,"EAX    "\n"   \
+                  LD(2)":"                 \
+                  : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
             #endif
             #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
               # Macro written by Peter Burwood.
               #undef S_operand
               #define S_operand(where)  \
-                { var uintL dummy;  \
-                  __asm__("\
-                    \n\t" "ldrb   %0,[%1],#1      ; \
-                    \n\t" "movs   %0,%0,LSL#25    ; \
-                    \n\t" "movcc  %0,%0,ASR#25    ; \
-                    \n\t" "bcc    "LR(1,f)"       ; \
-                    \n\t" "ldrb   %2,[%1],#1      ; \
-                    \n\t" "orr    %0,%0,%2,LSL#17 ; \
-                    \n\t" "movs   %0,%0,ASR#17    ; \
-                    \n\t" "bne    "LR(1,f)"       ; \
-                    \n\t" "ldrb   %0,[%1],#1      ; \
-                    \n\t" "ldrb   %2,[%1],#1      ; \
-                    \n\t" "orr    %0,%2,%0,LSL#8  ; \
-                    \n\t" "ldrb   %2,[%1],#1      ; \
-                    \n\t" "orr    %0,%2,%0,LSL#8  ; \
-                    \n\t" "ldrb   %2,[%1],#1      ; \
-                    \n\t" "orr    %0,%2,%0,LSL#8  ; \
-                    \n"LD(1)":                    ; \
-                    " : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+                { var uintL dummy;                  \
+                  __asm__(                          \
+                    "ldrb   %0,[%1],#1"      "\n\t" \
+                    "movs   %0,%0,LSL#25"    "\n\t" \
+                    "movcc  %0,%0,ASR#25"    "\n\t" \
+                    "bcc    "LR(1,f)         "\n\t" \
+                    "ldrb   %2,[%1],#1"      "\n\t" \
+                    "orr    %0,%0,%2,LSL#17" "\n\t" \
+                    "movs   %0,%0,ASR#17"    "\n\t" \
+                    "bne    "LR(1,f)         "\n\t" \
+                    "ldrb   %0,[%1],#1"      "\n\t" \
+                    "ldrb   %2,[%1],#1"      "\n\t" \
+                    "orr    %0,%2,%0,LSL#8"  "\n\t" \
+                    "ldrb   %2,[%1],#1"      "\n\t" \
+                    "orr    %0,%2,%0,LSL#8"  "\n\t" \
+                    "ldrb   %2,[%1],#1"      "\n\t" \
+                    "orr    %0,%2,%0,LSL#8"  "\n"   \
+                    LD(1)":"                        \
+                    : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
                 }
             #endif
             #
@@ -6261,53 +6261,53 @@ LISPFUNN(subr_info,1)
             #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
               #undef S_operand_ignore
               #define S_operand_ignore()  \
-                { var uintB where;    \
-                  __asm__("\
-                    moveb %1@+,%0   ; \
-                    bpl 1f          ; \
-                    addb %0,%0      ; \
-                    orb %1@+,%0     ; \
-                    bne 1f          ; \
-                    addql #4,%1     ; \
-                    1:                \
-                    " : "=d" (where), "=a" (byteptr) : "1" (byteptr) ); \
+                { var uintB where;           \
+                  __asm__(                   \
+                    "moveb %1@+,%0"   "\n\t" \
+                    "bpl 1f"          "\n\t" \
+                    "addb %0,%0"      "\n\t" \
+                    "orb %1@+,%0"     "\n\t" \
+                    "bne 1f"          "\n\t" \
+                    "addql #4,%1"     "\n"   \
+                    "1:"                     \
+                    "=d" (where), "=a" (byteptr) : "1" (byteptr) ); \
                 }
             #endif
             #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
               #undef S_operand_ignore
               #define S_operand_ignore()  \
-                { var uintL where;       \
-                  var uintL dummy;       \
-                  __asm__("\
-                    ldub [%1],%0       ; \
-                    andcc %0,0x80,%%g0 ; \
-                    be 1f              ; \
-                     add %1,1,%1       ; \
-                    sll %0,1,%2        ; \
-                    ldub [%1],%0       ; \
-                    orcc %2,%0,%0      ; \
-                    bne 1f             ; \
-                     add %1,1,%1       ; \
-                    add %1,4,%1        ; \
-                    1:                   \
-                    " : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
+                { var uintL where;              \
+                  var uintL dummy;              \
+                  __asm__(                      \
+                    "ldub [%1],%0"       "\n\t" \
+                    "andcc %0,0x80,%%g0" "\n\t" \
+                    "be 1f"              "\n\t" \
+                    " add %1,1,%1"       "\n\t" \
+                    "sll %0,1,%2"        "\n\t" \
+                    "ldub [%1],%0"       "\n\t" \
+                    "orcc %2,%0,%0"      "\n\t" \
+                    "bne 1f"             "\n\t" \
+                    " add %1,1,%1"       "\n\t" \
+                    "add %1,4,%1"        "\n"   \
+                    "1:"                        \
+                    : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
                 }
             #endif
             #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
               # Macro written by Peter Burwood.
               #undef S_operand_ignore
               #define S_operand_ignore()  \
-                { var uintL where;  \
-                  var uintL dummy;  \
-                  __asm__("\
-                    \n\t" "ldrb   %0,[%1],#1      ; \
-                    \n\t" "movs   %0,%0,LSL#25    ; \
-                    \n\t" "bcc    "LR(1,f)"       ; \
-                    \n\t" "ldrb   %2,[%1],#1      ; \
-                    \n\t" "orrs   %0,%2,%0,LSR#24 ; \
-                    \n\t" "addeq  %1,%1,#4        ; \
-                    \n"LD(1)":                    ; \
-                    " : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+                { var uintL where;                  \
+                  var uintL dummy;                  \
+                  __asm__(                          \
+                    "ldrb   %0,[%1],#1"      "\n\t" \
+                    "movs   %0,%0,LSL#25"    "\n\t" \
+                    "bcc    "LR(1,f)         "\n\t" \
+                    "ldrb   %2,[%1],#1"      "\n\t" \
+                    "orrs   %0,%2,%0,LSR#24" "\n\t" \
+                    "addeq  %1,%1,#4"        "\n"   \
+                    LD(1)":"                        \
+                    : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
                 }
             #endif
             #
