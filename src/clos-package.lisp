@@ -105,7 +105,8 @@
 
 ;;; MOP exports: ** also in init.lisp ** !
 (export
-        '(;; MOP for dependents
+        '(metaobject
+          ;; MOP for dependents
           add-dependent remove-dependent map-dependents update-dependent
           ;; MOP for slot definitions
           slot-definition standard-slot-definition
@@ -135,6 +136,7 @@
           reader-method-class writer-method-class
           ensure-class ensure-class-using-class
           ;; MOP for specializers
+          specializer eql-specializer
           specializer-direct-generic-functions specializer-direct-methods
           add-direct-method remove-direct-method
           eql-specializer-object intern-eql-specializer
@@ -144,7 +146,7 @@
           method-specializers method-qualifiers accessor-method-slot-definition
           extract-lambda-list extract-specializer-names
           ;; MOP for method combinations
-          find-method-combination
+          find-method-combination compute-effective-method
           ;; MOP for generic functions
           funcallable-standard-class funcallable-standard-object
           set-funcallable-instance-function
