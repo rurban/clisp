@@ -2170,9 +2170,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
     functions from &clisp;.  Two implementations are supplied:
    <itemizedlist>
     <listitem><simpara>mit-clx, from MIT
-     <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"
-            >ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</ulink>
-     - the standard implementation</simpara></listitem>
+      <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"/>
+      - the standard implementation</simpara></listitem>
     <listitem><simpara>new-clx, by &gilbert-baumann;
       - faster, with additional features, but not quite complete yet.
     </simpara></listitem>
