@@ -14486,30 +14486,31 @@ local int previous_line_virtual (int count, int key) {
 }
 #endif
 
-# init *STANDARD-INPUT* & *STANDARD-OUTPUT* from *TERMINAL-IO*
-# can trigger GC
+/* init *STANDARD-INPUT* & *STANDARD-OUTPUT* from *TERMINAL-IO*
+ can trigger GC */
 #define init_standard_io(direction)                                     \
-  local object init_standard_##direction (object syn_str) {             \
+  local object init_standard_##direction (object syn_str, bool batch_p) { \
     var object tio_s = Symbol_value(S(terminal_io));                    \
     return                                                              \
       ((stream_twoway_p(tio_s)                                          \
         && !terminal_stream_p(TheStream(tio_s)->strm_twoway_##direction)) \
-       ? (nullp(syn_str) ? make_standard_##direction()                  \
-          : (object)TheStream(tio_s)->strm_twoway_##direction)          \
-       : (!nullp(syn_str) ? syn_str                                     \
-          : make_synonym_stream(S(terminal_io))));                      \
+       ? ((object)TheStream(tio_s)->strm_twoway_##direction)            \
+       : (batch_p ? make_standard_##direction()                         \
+          : (!nullp(syn_str) ? syn_str                                  \
+             : make_synonym_stream(S(terminal_io)))));                  \
   }
 
 init_standard_io(input)
 init_standard_io(output)
 #undef init_standard_io
 
-# UP: Initializes the Stream-Variables.
-# init_streamvars(unixyp);
-# > unixyp: Flag, if *error-output* shall be initialized
-#            the Unix-Way (differing from the Standard)
-# can trigger GC
-global void init_streamvars (bool unixyp) {
+/* UP: Initializes the stream-variables.
+ init_streamvars(batch_p);
+ > batch_p: Flag, whether *standard-input*, *standard-output*, *error-output*
+            should be initialized to the C stdio handle-streams
+            (deviates from the standard)
+ can trigger GC */
+global void init_streamvars (bool batch_p) {
   #ifdef GNU_READLINE
   begin_call();
   # rl_readline_name = "CLisp";
@@ -14537,9 +14538,9 @@ global void init_streamvars (bool unixyp) {
     define_variable(S(debug_io),stream);         # *DEBUG-IO*
     define_variable(S(trace_output),stream);     # *TRACE-OUTPUT*
     /* *STANDARD-INPUT* and *STANDARD-OUTPUT* */
-    define_variable(S(standard_input),init_standard_input(stream));
-    define_variable(S(standard_output),init_standard_output(stream));
-    stream = unixyp
+    define_variable(S(standard_input),init_standard_input(stream,batch_p));
+    define_variable(S(standard_output),init_standard_output(stream,batch_p));
+    stream = batch_p
       ? handle_to_stream(stderr_handle,S(Koutput),NIL,
                          S(Kdefault),S(character))
       : (object)Symbol_value(S(standard_output));
@@ -14584,11 +14585,11 @@ local void fehler_value_stream (object sym) {
     # Synonym-Stream to *TERMINAL-IO* as Default
     stream = make_synonym_stream(S(terminal_io));
   } else if (eq(sym,S(standard_input))) {
-    stream = init_standard_input(NIL);
+    stream = init_standard_input(NIL,false);
   } else if (eq(sym,S(standard_output))) {
-    stream = init_standard_output(NIL);
+    stream = init_standard_output(NIL,false);
   # } else if (eq(sym,S(error_output))) {
-  #   stream = init_error_output(NIL);
+  #   stream = init_error_output(NIL,false);
   } else {
     # other Symbol, not fixable -> instant error-message:
     pushSTACK(Symbol_value(sym)); # TYPE-ERROR slot DATUM
