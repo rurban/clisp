@@ -1,5 +1,11 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (make_buffered_stream): Avoid a false GC-safety bug alert.
+	(It's not worth exploiting the fact that builtin_stream_close doesn't
+	cons for a file/pipe/socket stream.)
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (shifthash): Add allowgc argument.
 	* hashtabl.d (shifthash): Add allowgc argument.
 	* io.d (perchar_table_put, copy_perchar_table,
