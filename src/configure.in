@@ -17,8 +17,14 @@ dnl
 dnl
 AC_PREREQ(2.57)
 AC_INIT(GNU CLISP,2.31 (2003-09-01),http://clisp.cons.org/)
+AC_COPYRIGHT([AC_PACKAGE_NAME Copyright 1989-2003 by Bruno Haible and others
+AC_PACKAGE_NAME is distributed under the GNU GPL, see file COPYRIGHT])dnl
+AC_REVISION($Id$)dnl
 AC_CONFIG_SRCDIR(lispbibl.d)
 AC_CONFIG_HEADERS(unixconf.h)
+AC_ARG_WITH([readline],
+AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
+[ac_cv_use_readline=$withval], [ac_cv_use_readline=no])
 dnl
 AC_MSG_NOTICE([* checks for programs])
 dnl
@@ -259,8 +265,10 @@ AC_MSG_NOTICE([* checks for libraries])
 dnl
 dnl set variable LIBTERMCAP
 CL_TERMCAP
+if test "$ac_cv_use_readline" != "no" ; then
 dnl DEFS HAVE_READLINE
 CL_READLINE
+fi
 dnl
 AC_MSG_NOTICE([* checks for OS services])
 dnl

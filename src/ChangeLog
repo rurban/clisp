@@ -1,3 +1,9 @@
+2003-09-26  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: added AC_COPYRIGHT and AC_REVISION (sugar)
+	check for --with-readline and --without-readline and run
+	CL_READLINE only if readline was not disabled by the user
+
 2003-09-25  Sam Steingold  <sds@gnu.org>
 
 	* unix.d (NO_BLOCK_DECL): new macro
@@ -6,6 +12,7 @@
 	Suggested by Don Cohen <don-sourceforge@isis.cs3-inc.com>
 
 2003-09-24  John Hinsdale  <hin@alma.com>
+
 	* modules/oracle/oracle.lisp: connection retry logic
 	* src/makemake.in: syntax error in variable definition
 
