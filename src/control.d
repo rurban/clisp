@@ -466,7 +466,7 @@ local /*maygc*/ void make_variable_frame (object caller, object varspecs,
       }
     }
     *bind_ptr_ = args_end_pointer; /* pointer to first "genuine" binding */
-    { /* Then store the "genuine" variablen bindings (the variable
+    { /* Then store the "genuine" variable bindings (the variable
          and its unevaluated init at a time) in the stack: */
       var uintL var_anz = 0; /* number of variable bindings */
       {
