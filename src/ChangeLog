@@ -1,5 +1,9 @@
 1999-02-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * intgcd.d (I_I_xgcd_I_I_I): Use C comments, not C++ comments.
+
+1999-02-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (publish_host_data): If hd.truename is NULL, use
           hd.hostname, not hd.truename.
 
