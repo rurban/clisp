@@ -3943,13 +3943,27 @@ AC_SUBST(LIBDL)
 ])dnl
 dnl
 AC_DEFUN(CL_ICONV,
-[AC_CACHE_CHECK(for iconv, cl_cv_func_iconv, [
+[dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
+dnl those with the standalone libiconv installed).
+AC_CACHE_CHECK(for iconv, cl_cv_func_iconv, [
+cl_cv_func_iconv=no
+cl_cv_lib_iconv=no
 AC_TRY_LINK([#include <stdlib.h>
 #include <iconv.h>],
 [iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
-cl_cv_func_iconv=yes, cl_cv_func_iconv=no)
+cl_cv_func_iconv=yes)
+if test "$cl_cv_func_iconv" = no; then
+cl_save_LIBS="$LIBS"
+LIBS="$LIBS -liconv"
+AC_TRY_LINK([#include <stdlib.h>
+#include <iconv.h>],
+[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
+cl_cv_lib_iconv=yes
+cl_cv_func_iconv=yes)
+LIBS="$cl_save_LIBS"
+fi
 ])
-if test $cl_cv_func_iconv = yes; then
+if test "$cl_cv_func_iconv" = yes; then
   AC_DEFINE(HAVE_ICONV)
 CL_PROTO([iconv], [
 CL_PROTO_CONST([
@@ -3965,6 +3979,11 @@ cl_cv_proto_iconv_arg1)],
 [extern size_t iconv (iconv_t cd, $cl_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t* outbytesleft);])
 AC_DEFINE_UNQUOTED(ICONV_CONST,$cl_cv_proto_iconv_arg1)
 fi
+LIBICONV=
+if test "$cl_cv_lib_iconv" = yes; then
+  LIBICONV="-liconv"
+fi
+AC_SUBST(LIBICONV)
 ])dnl
 dnl
 AC_DEFUN(CL_TERMCAP,
