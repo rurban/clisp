@@ -89,6 +89,7 @@ PSEUDOFUN(wr_ch_printer)
 #endif
 
 # External definitions from ENCODING.D:
+#ifdef UNICODE
 XPSEUDO(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
 XPSEUDO(void, uni16be_mbstowcs, (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
 XPSEUDO(void, uni16le_mbstowcs, (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
@@ -170,4 +171,5 @@ XPSEUDO(struct nls_table, nls_cp1256_table,)
 XPSEUDO(struct nls_table, nls_cp1257_table,)
 XPSEUDO(struct nls_table, nls_cp1258_table,)
 XPSEUDO(struct nls_table, nls_nextstep_table,)
+#endif
 

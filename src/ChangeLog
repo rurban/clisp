@@ -1,3 +1,7 @@
+1999-02-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * pseudofun.d: Enclose all XPSEUDOs in #ifdef UNICODE.
+
 1999-02-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Unicode support.
