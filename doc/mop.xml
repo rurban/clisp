@@ -1046,46 +1046,47 @@ descriptions appear after the table.<informaltable>
     <entry>&standard-class;, &funcallable-standard-class;</entry>
     <entry>&forward-referenced-class;</entry>
     <entry>&built-in-class;</entry></row></thead>
-  <tbody><row><entry>&class-default-initargs;</entry>
-    <entry><xref linkend="CRM-2"/></entry>
-    <entry><xref linkend="CRM-3"/></entry>
+  <tbody>
+   <row><entry>&class-name;</entry>
+    <entry><xref linkend="CRM-1"/></entry>
+    <entry><xref linkend="CRM-1"/></entry>
+    <entry><xref linkend="CRM-8"/></entry></row>
+   <row><entry>&class-direct-superclasses;</entry>
+    <entry><xref linkend="CRM-1"/></entry>
+    <entry><xref linkend="CRM-4"/></entry>
+    <entry><xref linkend="CRM-7"/></entry></row>
+   <row><entry>&class-direct-slots;</entry>
+    <entry><xref linkend="CRM-1"/></entry>
+    <entry><xref linkend="CRM-4"/></entry>
     <entry><xref linkend="CRM-4"/></entry></row>
    <row><entry>&class-direct-default-initargs;</entry>
     <entry><xref linkend="CRM-1"/></entry>
     <entry><xref linkend="CRM-4"/></entry>
     <entry><xref linkend="CRM-4"/></entry></row>
-   <row><entry>&class-direct-slots;</entry>
-    <entry><xref linkend="CRM-1"/></entry>
-    <entry><xref linkend="CRM-4"/></entry>
-    <entry><xref linkend="CRM-4"/></entry></row>
-   <row><entry>&class-direct-subclasses;</entry>
-    <entry><xref linkend="CRM-9"/></entry>
-    <entry><xref linkend="CRM-9"/></entry>
-    <entry><xref linkend="CRM-7"/></entry></row>
-   <row><entry>&class-direct-superclasses;</entry>
-    <entry><xref linkend="CRM-1"/></entry>
-    <entry><xref linkend="CRM-4"/></entry>
-    <entry><xref linkend="CRM-7"/></entry></row>
-   <row><entry>&class-finalized-p;</entry>
-    <entry><xref linkend="CRM-2"/></entry>
-    <entry><xref linkend="CRM-6"/></entry>
-    <entry><xref linkend="CRM-5"/></entry></row>
-   <row><entry>&class-name;</entry>
-    <entry><xref linkend="CRM-1"/></entry>
-    <entry><xref linkend="CRM-1"/></entry>
-    <entry><xref linkend="CRM-8"/></entry></row>
    <row><entry>&cpl;</entry>
     <entry><xref linkend="CRM-2"/></entry>
     <entry><xref linkend="CRM-3"/></entry>
     <entry><xref linkend="CRM-7"/></entry></row>
-   <row><entry>&class-prototype;</entry>
-    <entry><xref linkend="CRM-10"/></entry>
-    <entry><xref linkend="CRM-10"/></entry>
-    <entry><xref linkend="CRM-10"/></entry></row>
+   <row><entry>&class-direct-subclasses;</entry>
+    <entry><xref linkend="CRM-9"/></entry>
+    <entry><xref linkend="CRM-9"/></entry>
+    <entry><xref linkend="CRM-7"/></entry></row>
    <row><entry>&class-slots;</entry>
     <entry><xref linkend="CRM-2"/></entry>
     <entry><xref linkend="CRM-3"/></entry>
     <entry><xref linkend="CRM-4"/></entry></row>
+   <row><entry>&class-default-initargs;</entry>
+    <entry><xref linkend="CRM-2"/></entry>
+    <entry><xref linkend="CRM-3"/></entry>
+    <entry><xref linkend="CRM-4"/></entry></row>
+   <row><entry>&class-finalized-p;</entry>
+    <entry><xref linkend="CRM-2"/></entry>
+    <entry><xref linkend="CRM-6"/></entry>
+    <entry><xref linkend="CRM-5"/></entry></row>
+   <row><entry>&class-prototype;</entry>
+    <entry><xref linkend="CRM-10"/></entry>
+    <entry><xref linkend="CRM-10"/></entry>
+    <entry><xref linkend="CRM-10"/></entry></row>
 </tbody></tgroup></informaltable></para>
 
 <orderedlist numeration="arabic"><title>Class Reader Methods</title>
@@ -2214,17 +2215,18 @@ initialization.</para></simplesect>
 
 <variablelist><title>The specified methods for the slot definition
   metaobject readers.</title>
- <varlistentry><term><literal role="method">(&slotdef-allocation;
+ <varlistentry>
+  <term><literal role="method">(&slotdef-name;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
-  <term><literal role="method">(&slotdef-initargs;
+  <term><literal role="method">(&slotdef-allocation;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
   <term><literal role="method">(&slotdef-initform;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
   <term><literal role="method">(&slotdef-initfunction;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
-  <term><literal role="method">(&slotdef-name;
-    (&slotdef-r; &standard-slotdef-t;))</literal></term>
   <term><literal role="method">(&slotdef-type;
+    (&slotdef-r; &standard-slotdef-t;))</literal></term>
+  <term><literal role="method">(&slotdef-initargs;
     (&slotdef-r; &standard-slotdef-t;))</literal></term>
   <listitem>&no-extra-specs;</listitem></varlistentry></variablelist>
 </section><!-- slotd-mo-readers-methods -->
@@ -2543,17 +2545,18 @@ the generic function metaobject during initialization or reinitialization.
 
 <variablelist><title>The specified methods for the generic function
   metaobject reader generic functions.</title>
-<varlistentry><term><literal role="method">(&gf-argument-precedence-order;
-   (&gf-r; &standard-generic-function-t;))</literal></term>
- <term><literal role="method">(&gf-declarations;
+<varlistentry>
+ <term><literal role="method">(&gf-name;
    (&gf-r; &standard-generic-function-t;))</literal></term>
  <term><literal role="method">(&gf-lambda-list;
+   (&gf-r; &standard-generic-function-t;))</literal></term>
+ <term><literal role="method">(&gf-argument-precedence-order;
+   (&gf-r; &standard-generic-function-t;))</literal></term>
+ <term><literal role="method">(&gf-declarations;
    (&gf-r; &standard-generic-function-t;))</literal></term>
  <term><literal role="method">(&gf-method-class;
    (&gf-r; &standard-generic-function-t;))</literal></term>
  <term><literal role="method">(&gf-method-combination;
-   (&gf-r; &standard-generic-function-t;))</literal></term>
- <term><literal role="method">(&gf-name;
    (&gf-r; &standard-generic-function-t;))</literal></term>
  <listitem>&no-extra-specs;</listitem></varlistentry>
 <varlistentry><term><literal role="method">(&gf-methods;
@@ -3541,13 +3544,14 @@ with the method during initialization.</para></simplesect>
 
 <variablelist>
  <title>The specified methods for the method metaobject readers.</title>
-<varlistentry><term><literal role="method">(&method-function;
-   (&method-r; &standard-method-t;))</literal></term>
- <term><literal role="method">(&method-lambda-list;
-   (&method-r; &standard-method-t;))</literal></term>
+<varlistentry>
  <term><literal role="method">(&method-specializers;
    (&method-r; &standard-method-t;))</literal></term>
  <term><literal role="method">(&method-qualifiers;
+   (&method-r; &standard-method-t;))</literal></term>
+ <term><literal role="method">(&method-lambda-list;
+   (&method-r; &standard-method-t;))</literal></term>
+ <term><literal role="method">(&method-function;
    (&method-r; &standard-method-t;))</literal></term>
  <listitem>&no-extra-specs;</listitem></varlistentry>
 <varlistentry><term><literal role="method">(&method-gf;
@@ -4432,14 +4436,14 @@ class of the &object-r; argument, which always immediately precedes the
  <thead><row><entry>Slot Access Function</entry><entry>Corresponding
     Slot Access Generic Function</entry></row></thead>
  <tbody>
+  <row><entry>&slot-value; &object-r; &slot-name-r;</entry>
+   <entry>&slot-value-UC; &class-r; &object-r; &slot-r;</entry></row>
+  <row><entry>&setf-slot-value; &nval-r; &object-r; &slot-name-r;</entry>
+   <entry>&setf-slot-value-UC; &nval-r; &class-r; &object-r; &slot-r;</entry></row>
   <row><entry>&slot-boundp; &object-r; &slot-name-r;</entry>
    <entry>&slot-boundp-UC; &class-r; &object-r; &slot-r;</entry></row>
   <row><entry>&slot-makunbound; &object-r; &slot-name-r;</entry>
    <entry>&slot-makunbound-UC; &class-r; &object-r; &slot-r;</entry></row>
-  <row><entry>&slot-value; &object-r; &slot-name-r;</entry>
-   <entry>&slot-value-UC; &class-r; &object-r; &slot-r;</entry></row>
-  <row><entry>&setf-slot-value; &object-r; &slot-name-r;</entry>
-   <entry>&setf-slot-value-UC; &class-r; &object-r; &slot-r;</entry></row>
 </tbody></tgroup></table>
 
 <para>At the lowest level, the instance structure protocol provides only
