@@ -196,14 +196,14 @@ while test -z "$endofargs"; do
       ;;
     -with-* | --with-*)
       package=`echol "$1"|sed 's/-*with-//'`
-      packopt=`echol "${package}"|sed 's/.*=//'`
+      packopt=`echol "${package}" | sed -n -e 's/^.*=\(.*\)$/\1/'`
       if test -z "${packopt}"; then packopt=1;
       elif [ "${packopt}" = "on" ];  then packopt=1;
       elif [ "${packopt}" = "off" ]; then packopt=0;
       elif [ "${packopt}" = "yes" ]; then packopt=1;
       elif [ "${packopt}" = "no" ];  then packopt=0;
       fi
-      package=`echol "${package}"|sed 's/=.*//'`
+      package=`echol "${package}" | sed -e 's/=.*//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
         echol "makemake: $package: invalid package name" >&2; exit 1
