@@ -1,3 +1,9 @@
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
+	Allocate narrow strings by default, instead of wide UCS-4 strings.
+	* charstrg.d (MAKE-STRING): Call allocate_s8string instead of
+	allocate_string.
+
 2004-12-16  John Hinsdale  <hin@alma.com>
 
 	* modules/oracle/orafns.c: Better error reporting of parse errors
