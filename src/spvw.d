@@ -1799,11 +1799,9 @@ local inline void init_lowest_level (char* argv[]) {
  #ifdef WIN32_NATIVE
   init_win32();
  #endif
- #ifdef UNIX
   begin_system_call();
   find_executable(argv[0]);
   end_system_call();
- #endif
 }
 
 # Very late de-initializations,
