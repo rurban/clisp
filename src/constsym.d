@@ -1497,6 +1497,8 @@ LISPSYM(Kbits,"BITS",keyword) /* make-input-character-argument for STREAM */
 LISPSYM(make_input_character,"MAKE-INPUT-CHARACTER",system) /* function for STREAM */
 LISPSYM(make_char,"MAKE-CHAR",ext) /* function for STREAM */
 LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",ext) /* variable in STREAM */
+LISPSYM(input_character,"INPUT-CHARACTER",system) /* type for CHARSTRG */
+LISPSYM(input_character_char,"INPUT-CHARACTER-CHAR",system) /* function for CHARSTRG */
 #endif
 LISPSYM(completion,"COMPLETION",system) /* function in STREAM when GNU_READLINE is used */
 #if defined(GNU_READLINE) || defined(NEXTAPP)

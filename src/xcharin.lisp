@@ -6,7 +6,7 @@
 (in-package "EXT")
 (export '(char-bits char-font char-font-limit char-bits-limit
           char-control-bit char-meta-bit char-super-bit char-hyper-bit
-          make-char char-bit set-char-bit))
+          make-char char-bit set-char-bit char-key))
 
 (in-package "SYSTEM")
 
@@ -47,6 +47,11 @@
         ((input-character-p char) (input-character-font char))
         (t (fehler-char-arg char 'char-font))
 ) )
+
+(defun char-key (char)
+  (cond ((typep char 'character) char)
+        ((input-character-p char) (input-character-key char))
+        (t (fehler-char-arg char 'char-key))))
 
 (defun test-font-arg (arg caller)
   (if (integerp arg)

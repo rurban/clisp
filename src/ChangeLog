@@ -1,3 +1,10 @@
+2005-02-09  Sam Steingold  <sds@gnu.org>
+
+	* charstrg.d (coerce_char): accept SYS::INPUT-CHARACTER
+	* constsym.d (input_character, input_character_char): added
+	* init.lisp (char-key): export
+	* xcharin.lisp (char-key): implemented
+
 2005-02-08  Bruno Haible  <bruno@clisp.org>
 
 	* type.lisp (safe-typep): Accept an env argument and return a second
