@@ -337,11 +337,11 @@ int main(int argc, char* argv[])
   print_file("stdbool.h");
 #endif
   printf("#undef NULL\n");
-#ifdef __cplusplus
+  printf("#ifdef __cplusplus\n");
   printf("#define NULL  0\n");
-#else
+  printf("#else\n");
   printf("#define NULL  ((void*) 0L)\n");
-#endif
+  printf("#endif\n");
 #if defined(GNU)
   printf("#define unspecified 0\n");
 #else
