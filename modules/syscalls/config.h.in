@@ -3,9 +3,6 @@
 /* Define to 1 if you have the `clock' function. */
 #undef HAVE_CLOCK
 
-/* Define to 1 if you have the `CreateHardLink' function. */
-#undef HAVE_CREATEHARDLINK
-
 /* lgamma sign is not available */
 #undef HAVE_DECL_SIGNGAM
 
