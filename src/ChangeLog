@@ -1,5 +1,25 @@
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
+	Respect user-defined methods on generic-function-method-combination.
+	* clos-genfun1.lisp (generic-function-method-combination): New
+	preliminary function.
+	(|#'generic-function-method-combination|): New variable.
+	(safe-gf-method-combination): New function.
+	* clos-methcomb2.lisp (call-method-duplicates-error): Call
+	safe-gf-method-combination instead of std-gf-method-combination.
+	* clos-genfun2.lisp (check-method-qualifiers,
+	invalid-method-qualifiers-error,
+	shared-initialize-<standard-generic-function>,
+	compute-applicable-methods-effective-method,
+	compute-applicable-methods-effective-method-for-set): Call
+	safe-gf-method-combination instead of std-gf-method-combination.
+	* clos-genfun4.lisp (no-next-method): Likewise.
+	(generic-function-method-combination): Redefine smoothly. Initialize
+	|#'generic-function-method-combination|.
+	* describe.lisp (describe-object@generic-function): Call
+	generic-function-method-combination instead of
+	std-gf-method-combination.
+
 	Respect user-defined methods on generic-function-lambda-list.
 	* clos-genfun1.lisp (generic-function-signature): New preliminary
 	function.

@@ -118,13 +118,13 @@
 
 ;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
 (defun check-method-qualifiers (gf method
-                                &optional (method-combination (std-gf-method-combination gf)))
+                                &optional (method-combination (safe-gf-method-combination gf)))
   (funcall (method-combination-check-method-qualifiers method-combination)
            gf method-combination method))
 (defun invalid-method-qualifiers-error (gf method)
   (error-of-type 'program-error
     (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
-    (method-combination-name (std-gf-method-combination gf)) gf
+    (method-combination-name (safe-gf-method-combination gf)) gf
     (method-qualifiers method) method))
 
 ;; Initialization of a <standard-generic-function> instance.
@@ -199,7 +199,7 @@
              'standard-generic-function (funcallable-name gf)
              ':method-combination 'method-combination method-combination))
     (unless (eq situation 't)
-      (unless (eq method-combination (std-gf-method-combination gf))
+      (unless (eq method-combination (safe-gf-method-combination gf))
         (dolist (method (safe-gf-methods gf))
           (check-method-qualifiers gf method method-combination)))))
   (when (or (eq situation 't) documentation-p)
@@ -1147,7 +1147,7 @@
           (or (cdr (assoc methods (std-gf-effective-method-cache gf) :test #'equal))
               (let ((effective-method
                       (let ((*method-combination-arguments* args))
-                        (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+                        (compute-effective-method-as-function gf (safe-gf-method-combination gf) methods))))
                 (push (cons methods effective-method) (std-gf-effective-method-cache gf))
                 effective-method))))
       (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
@@ -1263,7 +1263,7 @@
         (or (cdr (assoc methods (std-gf-effective-method-cache gf) :test #'equal))
             (let ((effective-method
                     (let ((*method-combination-arguments* tentative-args))
-                      (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+                      (compute-effective-method-as-function gf (safe-gf-method-combination gf) methods))))
               (push (cons methods effective-method) (std-gf-effective-method-cache gf))
               effective-method)))
       (error (TEXT "~S: ~S has ~S required argument~:P")

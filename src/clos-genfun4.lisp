@@ -156,7 +156,7 @@
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method method) &rest args
             &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))
-    (if (let ((method-combo (std-gf-method-combination gf)))
+    (if (let ((method-combo (safe-gf-method-combination gf)))
           (funcall (method-combination-call-next-method-allowed method-combo)
                    gf method-combo method))
       (cerror cont-mesg 'method-call-error
@@ -406,10 +406,12 @@
 (setq |#'generic-function-signature| #'generic-function-signature)
 
 ;; MOP p. 80
-(defgeneric generic-function-method-combination (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-method-combination gf)))
+(let ((*allow-making-generic* t))
+  (defgeneric generic-function-method-combination (generic-function)
+    (:method ((gf standard-generic-function))
+      (check-generic-function-initialized gf)
+      (std-gf-method-combination gf))))
+(setq |#'generic-function-method-combination| #'generic-function-method-combination)
 (initialize-extended-method-check #'generic-function-method-combination)
 
 ;; MOP p. 79
