@@ -1,6 +1,7 @@
 1998-12-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * configure: Don't lndir modules/CVS over to src/CVS.
+        * configure: Don't pass the --fsstnd argument to src/configure.
 
 1998-12-11  Sam Steingold  <sds@goems.com>
 
