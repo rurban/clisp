@@ -3967,9 +3967,39 @@ pointing to non-existent files and can take the following values:
       &signed-byte-n;, with the same &n-r;.</simpara></listitem>
 </itemizedlist></para>
 
+<section id="bin-stdio"><title>Binary input from &standard-input-var;</title>
+
 <para>Note that you cannot change &stream-element-type; for some
- built-in streams, such as <link linkend="terminal">terminal streams</link>
- (which is normally the value of &terminal-io-var;).</para>
+ built-in streams, such as <link linkend="terminal">terminal streams</link>,
+ which is normally the value of &terminal-io-var;.
+ Since &standard-input-var; normally is a &synonym-stream-t; pointing
+ to &terminal-io-var;, you cannot use &read-byte; in the it.</para>
+
+<para>Since <ulink url="http://hoohoo.ncsa.uiuc.edu/cgi/">CGI</ulink>
+ (Common Gateway Interface) provides the form data for
+ <command>METHOD="POST"</command> on the stdin,
+ and the server will &not-e; send you an &eos; on the end of the data,
+ you will need to use
+ <literal role="sexp">(&getenv; <envar>"CONTENT_LENGTH"</envar>)</literal>
+ to determine how much data you should read from stdin.
+ &clisp; will detect that stdin is not a terminal and create a regular
+ &file-stream-t; which can be passed to <literal role="sexp">(&setf;
+ &stream-element-type;)</literal>.
+ To test this functionality interactively,
+ you will need to open the standard input in the binary mode:
+<programlisting>
+ (let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
+                        :element-type &unsigned-byte-8;)))
+   (&with-open-file; (in "/dev/fd/0" :direction :input
+                       &eltype; &unsigned-byte-8;)
+     (&read-sequence; buf in))
+   buf)
+</programlisting>
+This should work on a modern &unix; systems.
+You will need to replace <filename>"/dev/fd/0"</filename> with the
+value appropriate for your platform, e.g., <filename>"con"</filename>
+for &win32;.</para>
+</section>
 
 </section>
 
@@ -4280,10 +4310,11 @@ functions are provided:
  &string-r;, &start-r;, &end-r;.
  &read-char; returns the &character-t;s of the current &string-r; one
  after another, as delimited by &start-r; and &end-r;, which default to
- <literal>0</literal> and &nil;, respectively. When the &string-r; is
- consumed, &func-r; is called again. The &string-r; returned by &func-r; should
- not be changed. (Otherwise &func-r; should copy the &string-r; with &copy-seq;
- or &subseq; beforehand.)
+ <literal>0</literal> and &nil;, respectively.
+ When the &string-r; is consumed, &func-r; is called again.
+ The &string-r; returned by &func-r; should not be changed,
+ otherwise &func-r; should copy the &string-r; with &copy-seq;
+ or &subseq; beforehand.
  <replaceable>mode</replaceable> determines the behavior of &listen;
  when the current &string-r; buffer is empty:
  <variablelist>
@@ -4298,8 +4329,8 @@ functions are provided:
    <listitem><simpara>this &function-t; tells, upon call, if further
      non-empty &string-r;s are to be expected.</simpara></listitem>
  </varlistentry></variablelist>
- &clear-input; discards the rest of the current &string-r;, so &func-r; will be
- called upon the next &read-char; operation.
+ &clear-input; discards the rest of the current &string-r;,
+ so &func-r; will be called upon the next &read-char; operation.
 </para>
 </section>
 
