@@ -129,4 +129,5 @@
           method-call-error method-call-type-error
           method-call-error-generic-function
           method-call-error-method method-call-error-argument-list
+          standard-stablehash structure-stablehash
 )        )

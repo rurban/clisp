@@ -39,6 +39,7 @@
 XPSEUDOCODE(bool, eql, (object obj1, object obj2))
 XPSEUDOCODE(bool, equal, (object obj1, object obj2))
 XPSEUDOCODE(bool, equalp, (object obj1, object obj2))
+XPSEUDOCODE(uint32, hashcode1stable, (object obj))
 XPSEUDOCODE(uint32, hashcode2, (object obj))
 XPSEUDOCODE(uint32, hashcode3, (object obj))
 XPSEUDOCODE(uint32, hashcode4, (object obj))

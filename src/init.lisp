@@ -328,7 +328,8 @@
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
    the-environment arglist getenv special-variable-p list-length-dotted
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
-   define-hash-table-test package-case-sensitive-p argv
+   fasthash-eq stablehash-eq define-hash-table-test package-case-sensitive-p
+   argv
    ;; declarations
    constant-inline constant-notinline
    ;; pseudo-types:
@@ -459,6 +460,7 @@
           method-call-error method-call-type-error
           method-call-error-generic-function
           method-call-error-method method-call-error-argument-list
+          standard-stablehash structure-stablehash
      ))  )
   ;; not in ANSI - export separately, after `re-export' above
   (export clos-extra "CLOS")

@@ -106,7 +106,7 @@
  one is rotated by 5 bits, then the other one is XOR-ed to it. */
 #define misch(x1,x2) (rotate_left(5,x1) ^ (x2))
 
-/* UP: Calculates the EQ-hashcode of an object.
+/* UP: Calculates the FASTHASH-EQ-hashcode of an object.
  hashcode1(obj)
  It is valid only until the next GC.
  (eq X Y) implies (= (hashcode1 X) (hashcode1 Y)).
@@ -118,6 +118,36 @@ local uint32 hashcode1 (object obj);
 #else
  #define hashcode1(obj)  ((uint32)as_oint(obj)) /* address (Bits 23..0) and typeinfo */
 #endif
+
+/* UP: Calculates the STABLEHASH-EQ-hashcode of an object.
+ hashcode1stable(obj)
+ It is valid across GC for instances of STANDARD-STABLEHASH, STRUCTURE-STABLEHASH.
+ (eq X Y) implies (= (hashcode1 X) (hashcode1 Y)).
+ > obj: an object
+ < result: hashcode, a 32-Bit-number */
+global uint32 hashcode1stable (object obj) {
+  if (instancep(obj)) {
+    var object obj_forwarded = obj;
+    instance_un_realloc(obj_forwarded);
+    /* No need for instance_update here; if someone redefines a class in
+       such a way that the hashcode slot goes away, the behaviour is
+       undefined. */
+    var object cv = TheInstance(obj_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    if (!nullp(TheClass(clas)->subclass_of_stablehash_p)) {
+      /* The hashcode slot is known to be at position 1, thanks to
+         :FIXED-SLOT-LOCATIONS. */
+      return posfixnum_to_L(TheInstance(obj_forwarded)->other[0]);
+    }
+  } else if (structurep(obj)) {
+    if (!nullp(memq(S(structure_stablehash),TheStructure(obj)->structure_types))) {
+      /* The hashcode slot is known to be at position 1, thanks to the way
+         slots are inherited in DEFSTRUCT. */
+      return posfixnum_to_L(TheStructure(obj)->recdata[1]);
+    }
+  }
+  return hashcode1(obj);
+}
 
 /* UP: Calculates the EQL-hashcode of an object.
  hashcode2(obj)
@@ -843,6 +873,21 @@ local uint32 hashcode_raw_user (object fun, object obj) {
   return I_to_UL(value1);
 }
 
+# Specification of the flags in a hash-table:
+  #define htflags_test_eq_B      bit(0) # test is EQ
+  #define htflags_test_eql_B     bit(1) # test is EQL
+  #define htflags_test_equal_B   bit(2) # test is EQUAL
+  #define htflags_test_equalp_B  bit(3) # test is EQUALP
+  #define htflags_stablehash_B   bit(4) # hash code of instances of
+                                        # STANDARD-STABLEHASH, STRUCTURE-STABLEHASH
+                                        # is GC-invariant
+  # define htflags_warn_gc_rehash_B bit(5) # Warn when a key is being added
+                                        # whose hash code is not GC-invariant.
+  # define htflags_gc_rehash_B   bit(6) # Set after a key has been added
+                                        # whose hash code is not GC-invariant.
+  # define htflags_invalid_B     bit(7) # Set when the list structure is
+                                        # invalid and the table needs a rehash.
+
 # Specification of the two types of Pseudo-Functions:
 
   # Specification for LOOKUP - Pseudo-Function:
@@ -888,9 +933,12 @@ local uint32 hashcode_raw_user (object fun, object obj) {
  can trigger GC - for user-defined ht_test */
 local inline uintL hashcode_raw (object ht, object obj) {
   var uintB flags = record_flags(TheHashtable(ht));
-  return (flags & bit(0) ? hashcode1(obj) : /* EQ-hashcode */
-          flags & (bit(0)|bit(1)|bit(2)|bit(3)) ? hashcodefn(ht)(obj) :
-          hashcode_raw_user(TheHashtable(ht)->ht_hash,obj));
+  return (flags & (htflags_test_eql_B | htflags_test_equal_B | htflags_test_equalp_B
+                   | htflags_stablehash_B)
+          ? hashcodefn(ht)(obj) /* General built-in hash code */
+          : flags & htflags_test_eq_B
+            ? hashcode1(obj) /* FASTHASH-EQ hashcode */
+            : hashcode_raw_user(TheHashtable(ht)->ht_hash,obj));
 }
 local inline uintL hashcode_cook (uint32 code, uintL size) {
   /* divide raw hashcode CODE by SIZE: */
@@ -911,8 +959,11 @@ local uintL hashcode (object ht, object obj) {
 local inline uintL hashcode_builtin (object ht, object obj) {
   var uintL size = TheHashtable(ht)->ht_size;
   var uintB flags = record_flags(TheHashtable(ht));
-  var uint32 coderaw = (flags & bit(0) ? hashcode1(obj) : /* EQ-hashcode */
-                        hashcodefn(ht)(obj));
+  var uint32 coderaw =
+    (flags & (htflags_test_eql_B | htflags_test_equal_B | htflags_test_equalp_B
+              | htflags_stablehash_B)
+     ? hashcodefn(ht)(obj) /* General built-in hash code */
+     : hashcode1(obj)); /* FASTHASH-EQ hashcode */
   return hashcode_cook(coderaw,size);
 }
 
@@ -1020,7 +1071,7 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
     Nptr = &KVptr[2];         /* pointer to index of next entry */
     var object key = KVptr[0];
     /* compare key with obj: */
-    if (flags & bit(0) ? eq(key,obj) :  /* compare with EQ */
+    if (flags & htflags_test_eq_B ? eq(key,obj) :  /* compare with EQ */
         testfn(ht)(key,obj)) {
       /* object obj found */
       *KVptr_ = KVptr; *Iptr_ = Iptr; return true;
@@ -1102,13 +1153,55 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
 #define hash_lookup(ht,obj,KVptr_,Iptr_)  \
   lookupfn(ht)(ht,obj,KVptr_,Iptr_)
 
+/* UP: Tests whether an object is instance of STANDARD-STABLEHASH or
+   STRUCTURE-STABLEHASH. */
+local inline bool instance_of_stablehash_p (object obj) {
+  if (instancep(obj)) {
+    var object obj_forwarded = obj;
+    instance_un_realloc(obj_forwarded);
+    var object cv = TheInstance(obj_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    return !nullp(TheClass(clas)->subclass_of_stablehash_p);
+  } else if (structurep(obj)) {
+    return !nullp(memq(S(structure_stablehash),TheStructure(obj)->structure_types));
+  }
+  return false;
+}
+
+/* UP: Tests whether the hash code of a given key in a hash table is stable
+   i.e. gc-invariant, or not.
+ > ht: hash-table
+ > obj: object
+ < result: true if the key's hash code is gc-invariant */
+local inline bool hashcode_gc_invariant_p (object ht, object obj) {
+  if (gcinvariant_object_p(obj))
+    return true;
+  if (record_flags(TheHashtable(ht)) & htflags_stablehash_B) {
+    /* Test consistently with hashcode1stable. */
+    return instance_of_stablehash_p(obj);
+  }
+  return false;
+}
+
+/* Warn if adding an key to a hash table degrades its performance.
+ can trigger GC */
+local void warn_key_forces_gc_rehash (object ht, object key) {
+  pushSTACK(CLSTEXT("Performance/scalability warning: The hash table ~S must "
+                    "be rehashed after each garbage collection, since its "
+                    "key ~S has a hash code that is not GC-invariant."));
+  pushSTACK(ht);
+  pushSTACK(key);
+  funcall(S(warn),3);
+}
+
 /* Macro: Insers a key-value-pair into a hash-table.
  hash_store(key,value);
  > object ht: hash-table
  > object freelist: Start of the free-list in next-vector, /= nix
  > key: key
  > value: value
- > gcv_object_t* Iptr: arbitrary element of the "list", that belongs to key */
+ > gcv_object_t* Iptr: arbitrary element of the "list", that belongs to key
+ can trigger GC */
 #define hash_store(key,value)                                           \
   do {                                                                  \
     var uintL index = posfixnum_to_L(freelist);    /* free index */     \
@@ -1128,7 +1221,18 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
      else put it to the list-end,                                       \
        because hash_lookup was ended with *Iptr=nix): */                \
     *KVptr = *Iptr; *Iptr = freelist;                                   \
-    clr_break_sem_2();                        /* allow breaks again */  \
+    { /* Set the htflags_gc_rehash_B bit if necessary. */               \
+      var bool this_key_forces_gc_rehash = false;                       \
+      if (!(record_flags(TheHashtable(ht)) & htflags_gc_rehash_B))      \
+        if (!hashcode_gc_invariant_p(ht,key)) {                         \
+          record_flags_set(TheHashtable(ht),htflags_gc_rehash_B);       \
+          this_key_forces_gc_rehash = true;                             \
+        }                                                               \
+      clr_break_sem_2();                       /* allow breaks again */ \
+      if (this_key_forces_gc_rehash)                                    \
+        if (record_flags(TheHashtable(ht)) & htflags_warn_gc_rehash_B)  \
+          warn_key_forces_gc_rehash(ht,key);                            \
+    }                                                                   \
   } while(0)
 
 /* hash_table_weak_type(ht)
@@ -1322,7 +1426,7 @@ local object resize (object ht, object maxcount) {
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
       var uintL hc_raw = 0;                                             \
-      var bool cacheable = !(flags & (bit(0)|bit(1)|bit(2)|bit(3))); /* not EQ|EQL|EQUAL|EQUALP */ \
+      var bool cacheable = (ht_test_code(record_flags(TheHashtable(ht)))==0); /* not EQ|EQL|EQUAL|EQUALP */ \
       if (cacheable) hc_raw = hashcode_raw(ht,STACK_(key_pos));         \
       do { /* hash-table must still be enlarged: */                     \
         /* calculate new maxcount: */                                   \
@@ -1362,8 +1466,29 @@ local void clrhash (object ht) {
     }
   }
   TheHashedAlist(kvtable)->hal_count = Fixnum_0; /* COUNT := 0 */
+  record_flags_clr(TheHashtable(ht),htflags_gc_rehash_B); /* no dangerous keys now */
   set_ht_invalid(TheHashtable(ht)); /* reorganize hashtable later */
   clr_break_sem_2();                 /* allow breaks again */
+}
+
+/* UP: fetches the value of *eq-hashfunction*. */
+local object get_eq_hashfunction () {
+  var object value = Symbol_value(S(eq_hashfunction));
+  if (eq(value,S(fasthash_eq)) || eq(value,S(stablehash_eq)))
+    return value;
+  else {
+    Symbol_value(S(eq_hashfunction)) = S(fasthash_eq);
+    pushSTACK(value);                   # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_eq_hashfunction)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(S(fasthash_eq));
+    pushSTACK(value);
+    pushSTACK(S(stablehash_eq)); pushSTACK(S(fasthash_eq));
+    pushSTACK(S(eq_hashfunction));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~S: The value of ~S should be ~S or ~S, not ~S.\n"
+                   "It has been reset to ~S."));
+  }
 }
 
 /* check the :WEAK argument and return it
@@ -1388,9 +1513,10 @@ local gcv_object_t check_weak (gcv_object_t weak) {
 
 /* (MAKE-HASH-TABLE [:test] [:size] [:rehash-size] [:rehash-threshold]
                     [:key-type] [:value-type]
-                    [:initial-contents] [:weak]), CLTL p. 283 */
-LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
-        (kw(weak),kw(initial_contents),kw(key_type),kw(value_type),
+                    [:weak] [:warn-if-needs-rehash-after-gc] [:initial-contents]), CLTL p. 283 */
+LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
+        (kw(initial_contents),kw(key_type),kw(value_type),
+         kw(warn_if_needs_rehash_after_gc),kw(weak),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 { /* The rehash-threshold correlates in our implementation to the
    ratio MAXCOUNT : SIZE = ca. 1 : 2.
@@ -1400,8 +1526,9 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
    could become a bignum too fast.
    The additional initial-contents-argument is an alist = list of
    (key . value) - pairs, that are used to initialize the table.
-   stack-layout:
-      weak, initial-contents, key-type, value-type,
+   STACK layout:
+      initial-contents, key-type, value-type,
+      warn-if-needs-rehash-after-gc, weak,
       test, size, rehash-size, rehash-threshold. */
   var uintB flags;
   var object lookuppfn;
@@ -1410,41 +1537,49 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
  check_test_restart: { /* check test-argument: */
     var object test = STACK_3;
     if (!boundp(test) || eq(test,S(eql)) || eq(test,L(eql))) {
-      flags = bit(1);           /* EQL as default */
+      flags = htflags_test_eql_B; /* EQL as default */
       hashcodepfn = P(hashcode2); testpfn = P(eql);
       lookuppfn = P(hash_lookup_builtin);
-    } else if (eq(test,S(eq)) || eq(test,L(eq))) {
-      flags = bit(0);           /* EQ */
-      hashcodepfn = unbound; testpfn = unbound;
-      lookuppfn = P(hash_lookup_builtin);
-    } else if (eq(test,S(equal)) || eq(test,L(equal))) {
-      flags = bit(2);           /* EQUAL */
-      hashcodepfn = P(hashcode3); testpfn = P(equal);
-      lookuppfn = P(hash_lookup_builtin);
-    } else if (eq(test,S(equalp)) || eq(test,L(equalp))) {
-      flags = bit(3);           /* EQUALP */
-      hashcodepfn = P(hashcode4); testpfn = P(equalp);
-      lookuppfn = P(hash_lookup_builtin);
     } else {
-      hashcodepfn = unbound; testpfn = unbound;
-      lookuppfn = P(hash_lookup_user);
-      if (symbolp(test)) {
-        var object ht_test = get(test,S(hash_table_test));
-        if (!consp(ht_test)) goto test_error;
-        STACK_3 = ht_test;
-        flags = 0; /* user-defined ht_test */
-      } else if (consp(test)) {
-        flags = 0; /* ad hoc (user-defined ht_test) */
+      if (eq(test,S(eq)) || eq(test,L(eq)))
+        test = get_eq_hashfunction();
+      if (eq(test,S(fasthash_eq))) {
+        flags = htflags_test_eq_B; /* FASTHASH-EQ */
+        hashcodepfn = unbound; testpfn = unbound;
+        lookuppfn = P(hash_lookup_builtin);
+      } else if (eq(test,S(stablehash_eq))) {
+        flags = htflags_test_eq_B | htflags_stablehash_B; /* STABLEHASH-EQ */
+        hashcodepfn = P(hashcode1stable); testpfn = unbound;
+        lookuppfn = P(hash_lookup_builtin);
+      } else if (eq(test,S(equal)) || eq(test,L(equal))) {
+        flags = htflags_test_equal_B; /* EQUAL */
+        hashcodepfn = P(hashcode3); testpfn = P(equal);
+        lookuppfn = P(hash_lookup_builtin);
+      } else if (eq(test,S(equalp)) || eq(test,L(equalp))) {
+        flags = htflags_test_equalp_B; /* EQUALP */
+        hashcodepfn = P(hashcode4); testpfn = P(equalp);
+        lookuppfn = P(hash_lookup_builtin);
       } else {
-       test_error:
-        pushSTACK(NIL); /* no PLACE */
-        pushSTACK(test); /* TYPE-ERROR slot DATUM */
-        pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        pushSTACK(test); pushSTACK(S(Ktest));
-        pushSTACK(S(make_hash_table));
-        check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
-        STACK_3 = value1;
-        goto check_test_restart;
+        hashcodepfn = unbound; testpfn = unbound;
+        lookuppfn = P(hash_lookup_user);
+        if (symbolp(test)) {
+          var object ht_test = get(test,S(hash_table_test));
+          if (!consp(ht_test)) goto test_error;
+          STACK_3 = ht_test;
+          flags = 0; /* user-defined ht_test */
+        } else if (consp(test)) {
+          flags = 0; /* ad hoc (user-defined ht_test) */
+        } else {
+         test_error:
+          pushSTACK(NIL); /* no PLACE */
+          pushSTACK(test); /* TYPE-ERROR slot DATUM */
+          pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
+          pushSTACK(test); pushSTACK(S(Ktest));
+          pushSTACK(S(make_hash_table));
+          check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+          STACK_3 = value1;
+          goto check_test_restart;
+        }
       }
     }
   } /* flags contains the flags for the test. */
@@ -1538,7 +1673,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
   { /* If the initial-contents-argument is specified, we set
      size := (max size (length initial-contents)) , so afterwards, when
      the initial-contents are written, the table needs not be enlarged: */
-    var object initial_contents = STACK_6;
+    var object initial_contents = STACK_8;
     if (boundp(initial_contents)) { /* specified ? */
       var uintL initial_length = llength(initial_contents); /* length of the alist */
       if (initial_length > posfixnum_to_L(STACK_2)) /* > size ? */
@@ -1554,12 +1689,13 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
     funcall(L(durch),1); /* (/ ...) */
     STACK_0 = value1;
   }
-  /* stack-layout:
-      weak, initial-contents, key-type, value-type,
+  /* STACK layout:
+      initial-contents, key-type, value-type,
+      warn-if-needs-rehash-after-gc, weak,
       test, size, rehash-size, mincount-threshold
-    provide vectors etc., with size as MAXCOUNT: [STACK_7 == weak] */
-  STACK_7 = check_weak(STACK_7);
-  prepare_resize(STACK_2,STACK_0,STACK_7);
+    provide vectors etc., with size as MAXCOUNT: [STACK_4 == weak] */
+  STACK_4 = check_weak(STACK_4);
+  prepare_resize(STACK_2,STACK_0,STACK_4);
   var object ht = allocate_hash_table(); /* new hash-tabelle */
   /* fill: */
   var object kvtable = popSTACK(); /* key-value-vector */
@@ -1568,25 +1704,33 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
   TheHashtable(ht)->ht_mincount = popSTACK(); /* MINCOUNT */
   TheHashtable(ht)->ht_size = posfixnum_to_L(popSTACK()); /* SIZE */
   TheHashtable(ht)->ht_maxcount = popSTACK(); /* MAXCOUNT */
-  /* stack-layout:
-     weak, initial-contents, key-type, value-type,
+  /* STACK layout:
+     initial-contents, key-type, value-type,
+     warn-if-needs-rehash-after-gc, weak,
      test, size, rehash-size, mincount-threshold. */
   TheHashtable(ht)->ht_mincount_threshold = popSTACK(); /*MINCOUNT-THRESHOLD*/
   TheHashtable(ht)->ht_rehash_size = popSTACK(); /* REHASH-SIZE */
   TheHashtable(ht)->ht_lookupfn = lookuppfn;
   TheHashtable(ht)->ht_hashcodefn = hashcodepfn;
   TheHashtable(ht)->ht_testfn = testpfn;
+  /* STACK layout:
+     initial-contents, key-type, value-type,
+     warn-if-needs-rehash-after-gc, weak, test, -. */
   if (flags==0) { /* user-defined ht_test */
     STACK_0 = ht;
     var object test = coerce_function(Car(STACK_1)); pushSTACK(test);
-    var object hash = coerce_function(Cdr(STACK_2)); ht = STACK_1;
+    var object hash = coerce_function(Cdr(STACK_2));
+    ht = STACK_1;
     TheHashtable(ht)->ht_test = popSTACK();
     TheHashtable(ht)->ht_hash = hash;
   }
+  /* Use warn-if-needs-rehash-after-gc argument. */
+  if (!missingp(STACK_3))
+    flags |= htflags_warn_gc_rehash_B;
   record_flags_replace(TheHashtable(ht), flags);
   clrhash(ht);                  /* empty table, COUNT := 0 */
-  skipSTACK(4);
-  /* stack-layout: weak, initial-contents. */
+  skipSTACK(6);
+  /* stack-layout: initial-contents. */
   {
     pushSTACK(ht);
     while (consp(STACK_1)) { /* if it was specified, so long as it was a cons: */
@@ -1617,7 +1761,6 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
     }
     skipSTACK(2); /* drop ht, initial-contents */
   }
-  skipSTACK(1); /* drop WEAK */
   VALUES1(ht); /* hash-table as value */
 }
 
@@ -1820,11 +1963,18 @@ LISPFUNNR(hash_table_size,1)
  or cons (test . hash) for user-defined ht_test
  can trigger GC - for user-defined ht_test */
 global object hash_table_test (object ht) {
-  switch (ht_test_code(record_flags(TheHashtable(ht)))) {
-    case bit(0): return S(eq);
-    case bit(1): return S(eql);
-    case bit(2): return S(equal);
-    case bit(3): return S(equalp);
+  var uintB test_code = ht_test_code(record_flags(TheHashtable(ht)));
+  switch (test_code) {
+    case htflags_test_eq_B:
+      return S(fasthash_eq);
+    case htflags_test_eq_B | htflags_stablehash_B:
+      return S(stablehash_eq);
+    case htflags_test_eql_B:
+      return S(eql);
+    case htflags_test_equal_B:
+      return S(equal);
+    case htflags_test_equalp_B:
+      return S(equalp);
     case 0: { /* user-defined ==> (test . hash) */
       pushSTACK(ht);
       var object ret = allocate_cons();
@@ -1844,6 +1994,22 @@ LISPFUNNF(hash_table_test,1)
 { /* (HASH-TABLE-TEST hashtable), CLtL2 p. 441, dpANS p. 18-9 */
   var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   VALUES1(hash_table_test(ht)); /* symbol as value */
+}
+
+/* (SYSTEM::FASTHASH-STABLE-P obj)
+   tests whether obj's FASTHASH-EQ hash code is stable across GCs. */
+LISPFUNNF(fasthash_stable_p,1)
+{
+  var object obj = popSTACK();
+  VALUES_IF(gcinvariant_object_p(obj));
+}
+
+/* (SYSTEM::STABLEHASH-STABLE-P obj)
+   tests whether obj's STABLEHASH-EQ hash code is stable across GCs. */
+LISPFUNNR(stablehash_stable_p,1)
+{
+  var object obj = popSTACK();
+  VALUES_IF(gcinvariant_object_p(obj) || instance_of_stablehash_p(obj));
 }
 
 /* auxiliary functions for WITH-HASH-TABLE-ITERATOR, CLTL2 p. 439:

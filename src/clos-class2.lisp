@@ -19,6 +19,11 @@
 (defconstant empty-ht (make-hash-table :key-type 'symbol :value-type 't
                                        :test #'eq :size 0))
 
+;; Definition of <structure-stablehash>.
+;; Used for (make-hash-table :test 'stablehash-eq).
+(defstruct (structure-stablehash (:predicate nil) (:copier nil))
+  (hashcode (sys::random-posfixnum))) ; GC invariant hash code
+
 ;; Definition of <class> and its subclasses.
 
 (defstruct (class (:predicate nil))
@@ -36,6 +41,8 @@
 
 (defstruct (slotted-class (:inherit class) (:predicate nil) (:copier nil)
                           (:conc-name "CLASS-"))
+  subclass-of-stablehash-p ; true if <standard-stablehash> or <structure-stablehash>
+                           ; is among the superclasses
   slots                    ; list of all slots (as effective-slot-definitions)
   default-initargs         ; default-initargs (as alist initarg -> (form function))
   valid-initargs           ; list of valid initargs
@@ -594,6 +601,8 @@
     (dolist (super augmented-direct-superclasses)
       (when (standard-class-p super)
         (add-direct-subclass super class))))
+  (setf (class-subclass-of-stablehash-p class)
+        (std-compute-subclass-of-stablehash-p class))
   (setf (class-slots class) (std-compute-slots class))
   (setf (class-slot-location-table class)
         (make-hash-table :key-type 'symbol :value-type 't :test #'eq))
@@ -800,6 +809,15 @@
 ;; Auxiliary function ((p1 . v1) ... (pn . vn)) -> (p1 v1 ... pn vn)
 (defun alist-to-plist (al)
   (mapcan #'(lambda (pv) (list (car pv) (cdr pv))) al))
+
+;; Determine whether a class inherits from <standard-stablehash> or
+;; <structure-stablehash>.
+(defun std-compute-subclass-of-stablehash-p (class)
+  (dolist (superclass (class-precedence-list class) nil)
+    (let ((superclassname (class-classname superclass)))
+      (when (or (eq superclassname 'standard-stablehash)
+                (eq superclassname 'structure-stablehash))
+        (return t)))))
 
 ;; CLtL2 28.1.3.2., ANSI CL 7.5.3. Inheritance of Slots and Slot Options
 
@@ -1270,6 +1288,8 @@
             <t>)))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
+  (setf (class-subclass-of-stablehash-p class)
+        (std-compute-subclass-of-stablehash-p class))
   ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
   (unless names
     (setq names
@@ -1354,6 +1374,7 @@
           :direct-superclasses '()
           :names (svref (get 'structure-object 'sys::defstruct-description) 0)))
   (setf (find-class 'structure-object) <structure-object>)
+  (define-structure-class 'structure-stablehash)
   (setq <class> (define-structure-class 'class))
   (let ((<slotted-class> (define-structure-class 'slotted-class)))
     (setq <structure-class> (define-structure-class 'structure-class))

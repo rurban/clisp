@@ -62,6 +62,13 @@
   DEFGENERIC-METHOD-COMBINATION.PROGN.10
   DEFGENERIC-METHOD-COMBINATION.PROGN.11
 
+  ;; Paul Dietz assumes that the HASH-TABLE-TEST function returns the
+  ;; EQ/EQL/EQUAL/EQUALP symbol.
+  ;; In CLISP, #'EQ has several function designators: EQ, EXT:FASTHASH-EQ,
+  ;; EXT:STABLEHASH-EQ, and the HASH-TABLE-TEST function returns one of
+  ;; them, arbitrarily.
+  HASH-TABLE-TEST.1 HASH-TABLE-TEST.2 HASH-TABLE-TEST.3 HASH-TABLE-TEST.4
+
   ;; In CLISP (atan 1L0) is more than long-float-epsilon apart from (/ pi 4).
   ATAN.11 ATAN.13
 

@@ -1,3 +1,52 @@
+2004-05-12  Bruno Haible  <bruno@clisp.org>
+
+	New hash-table tests FASTHASH-EQ and STABLEHASH-EQ.
+	* lispbibl.d (htflags_invalid_B, htflags_gc_rehash_B): New macros.
+	(mark_ht_invalid, mark_ht_valid, ht_validp): No need to rehash a
+	table if all its objects have a GC-invariant hash code.
+	(set_ht_invalid_if_needed): New macro.
+	(htflags_warn_gc_rehash_B): New macro.
+	(ht_test_code): Update.
+	(Class): Add field subclass_of_stablehash_p.
+	(StablehashStructure, StablehashInstance): New types.
+	* spvw.d (init_symbol_values): Initialize *EQ-HASHFUNCTION*.
+	* spvw_update.d: Provide customization through
+	update_hashtable_invalid.
+	* spvw_garcol.d (gar_col_normal, gar_col_compact, move_conses)
+	[GENERATIONAL_GC]: Set update_hashtable_invalid to false.
+	* spvw_memfile.d: Update.
+	* hashtabl.d (hashcode1stable): New function.
+	(htflags_test_eq_B, htflags_test_eql_B, htflags_test_equal_B,
+	htflags_test_equalp_B, htflags_stablehash_B): New macros.
+	(hashcode_raw): Use hashcode1 only for FASTHASH-EQ.
+	(hashcode_builtin): Likewise.
+	(hash_lookup_builtin): Update.
+	(instance_of_stablehash_p, hashcode_gc_invariant_p): New functions.
+	(warn_key_forces_gc_rehash): New function.
+	(hash_store): Update the htflags_gc_rehash_B bit. Optionally warn
+	when it is being set.
+	(hash_prepare_store): Update.
+	(clrhash): Update the htflags_gc_rehash_B bit.
+	(get_eq_hashfunction): New function.
+	(MAKE-HASH-TABLE): Add :warn-if-needs-rehash-after-gc argument.
+	Accept the tests FASTHASH-EQ and STABLEHASH-EQ.
+	(hash_table_test): Return FASTHASH-EQ or STABLEHASH-EQ instead of EQ.
+	(SYSTEM::FASTHASH-STABLE-P, SYSTEM::STABLEHASH-STABLE-P): New
+	functions.
+	* io.d (pr_orecord): Improve printing of hash tables.
+	* init.lisp: Export fasthash-eq, stablehash-eq from EXT.
+	Export standard-stablehash, structure-stablehash from CLOS and EXT.
+	* clos-package.lisp: Export standard-stablehash, structure-stablehash.
+	* defs1.lisp (ext:fasthash-eq, ext:stablehash-eq): New function
+	aliases.
+	* clos-class2.lisp (structure-stablehash): New class.
+	(slotted-class): Add slot subclass-of-stablehash-p.
+	(finalize-instance-standard-class): Initialize it.
+	(std-compute-subclass-of-stablehash-p): New function.
+	(initialize-instance-structure-class): Initialize it here too.
+	* clos-class5.lisp (standard-stablehash): New class.
+	* utils/clispload.lsp (*expected-failures*): Add HASH-TABLE-TEST.[1-4].
+
 2004-06-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c (REGEXP-EXEC): check
