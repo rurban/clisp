@@ -1,3 +1,7 @@
+2002-09-18  Will Newton  <will@misconception.org.uk>
+
+	* arihppa.d: syntactic changes to make the GNU assembler happy
+
 2002-09-18  Sam Steingold  <sds@gnu.org>
 
 	do not print QUOTE and FUNCTION specially when that results
