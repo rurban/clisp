@@ -1,5 +1,14 @@
 2005-04-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (SETPGRP) [!HAVE_SETPGRP_POSIX]:
+	call setpgrp(0,0) BSD-style
+	(SETPGID): new function
+	* modules/syscalls/posix.lisp (setpgid): export
+	* modules/syscalls/configure.in: check whether setpgrp() is POSIX
+	Reported by Lars Rosengreen <lars@margay.org>
+
+2005-04-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/resource.lisp: added (from mit-clx with
 	minor adaptations)
 

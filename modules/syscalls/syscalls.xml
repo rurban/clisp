@@ -445,11 +445,16 @@
  <varlistentry id="getpgrp"><term><code>(POSIX:GETPGRP &pid-r;)</code></term>
   <listitem><simpara>calls &getpgrp;</simpara></listitem></varlistentry>
  <varlistentry id="setpgrp"><term><code>(POSIX:SETPGRP)</code></term>
-  <listitem><simpara>calls &setpgrp;</simpara></listitem></varlistentry>
+  <listitem><simpara>calls &setpgrp;; on non-POSIX systems where
+    it requires 2 argumets (legacy BSD-style), it is called
+    as <code>&setpgrp;(0,0)</code></simpara></listitem></varlistentry>
  <varlistentry id="getsid"><term><code>(POSIX:GETSID &pid-r;)</code></term>
   <listitem><simpara>calls &getsid;</simpara></listitem></varlistentry>
  <varlistentry id="setsid"><term><code>(POSIX:SETSID)</code></term>
   <listitem><simpara>calls &setsid;</simpara></listitem></varlistentry>
+ <varlistentry id="setpgid"><term><code>(POSIX:SETPGID
+    &pid-r; <replaceable>pgid</replaceable>)</code></term>
+  <listitem><simpara>calls &setpgid;</simpara></listitem></varlistentry>
  <varlistentry id="endutxent"><term><code>(POSIX:ENDUTXENT)</code></term>
   <listitem><simpara>calls &endutxent;</simpara></listitem></varlistentry>
  <varlistentry id="getutxent"><term><code>(POSIX:GETUTXENT
