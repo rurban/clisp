@@ -111,7 +111,7 @@ depends on the &domain;: usually it is located at
 The notion of &domain; allows several Lisp programs running in the same
 image to request translations independently of each other.</para>
 
-<formalpara id="textdomain"><title>&textdomain;</title>
+<formalpara id="textdomain"><title>Function &textdomain;</title>
 <para><literal role="sexp">(&textdomain;)</literal> is a
 place that returns the default &domain;, used when no &domain;
 argument is passed to the &gettext; and &ngettext; functions.
@@ -123,7 +123,7 @@ The use of <literal role="sexp">(&setf; &textdomain;)</literal> is
 recommended only for programs that are so simple that they will never
 need more than one &domain;.</para></formalpara>
 
-<formalpara id="textdomaindir"><title>&textdomaindir;</title>
+<formalpara id="textdomaindir"><title>Function &textdomaindir;</title>
 <para><literal role="sexp">(&textdomaindir; &domain;)</literal>
 is a place that returns the base directory, called
 <filename>TEXTDOMAINDIR</filename> above, where the message
@@ -927,7 +927,7 @@ localized.</para>
 <para>Besides every &file-pipe-socket; stream containing an encoding,
  the following &symbol-macro; places contain global &encoding;s:</para>
 
-<formalpara id="def-file-enc"><title>&def-file-enc;</title>
+<formalpara id="def-file-enc"><title>Macro &def-file-enc;</title>
 <para>The &symbol-macro; place &def-file-enc; is the encoding used for
  new &file-pipe-socket; streams, when no &extfmt; argument was
  specified.</para></formalpara>
@@ -1611,7 +1611,7 @@ N. Gray to X3J13.</para>
  <filename>macros3.lisp</filename> and loaded from the file
  <filename>init.lisp</filename> during <command>make</command>:</para>
 
-<formalpara id="ethe"><title>&ethe;</title>
+<formalpara id="ethe"><title>Macro &ethe;</title>
 <para><literal role="sexp">(&ethe; &val-type-r; &form-r;)</literal>
  enforces a type check in both interpreted and compiled code.
  </para></formalpara>
@@ -1647,7 +1647,7 @@ is approximately equivalent to
 </para></formalpara>
 
 <formalpara id="with-collect">
-     <title><function>EXT:WITH-COLLECT</function></title>
+     <title>Macro <function>EXT:WITH-COLLECT</function></title>
 <para>Similar to the &loop;'s
  <ulink url="&clhs;/Body/sec_6-1-3.html"><constant>collect</constant></ulink>
  construct, except that it is looks more "Lispy" and can appear
