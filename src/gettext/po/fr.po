@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 1998-07-30\n"
-"POT-Creation-Date: 1998-08-09 13:42:25 EDT\n"
-"PO-Revision-Date: 1998-08-09 13:45:08 EDT\n"
+"Project-Id-Version: clisp 1998-08-05\n"
+"POT-Creation-Date: 1998-08-09 16:05:36 EDT\n"
+"PO-Revision-Date: 1998-08-09 16:08:15 EDT\n"
 "Last-Translator: Automatically generated <haible@mescaline.gnu.org>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -230,7 +230,7 @@ msgid ""
 "To shut off this warning, set ~S to ~S."
 msgstr ""
 "Opération sur nombres flottants de précisions différentes.\n"
-"***\n"
+"Pour plus de détails, voir ANSI CL 12.1.4.4 et les impnotes de CLISP.\n"
 "La précision effective du résultat dépend de\n"
 "~S.\n"
 "Pour éviter cet avertissement, mettre ~S à ~S."
@@ -3618,8 +3618,8 @@ msgid "~S redefines the constant ~S. Its old value was ~S."
 msgstr "~S redéfinit la constante ~S. Son ancienne valeur était ~S."
 
 #: macros1.lsp:167
-msgid "Bad syntax in ~S: ~S."
-msgstr "***"
+msgid "Invalid syntax in ~S form: ~S."
+msgstr "Syntax invalide dans forme ~S : ~S."
 
 #: macros1.lsp:285 places.lsp:401 places.lsp:668
 msgid "~S called with an odd number of arguments: ~S"
@@ -3707,7 +3707,7 @@ msgstr "La valeur de ~S doit être l'une des suivantes : ~{~S~^, ~}"
 
 #: macros2.lsp:283 conditio.lsp:1296
 msgid "~S used as a key in ~S, it would be better to use parentheses."
-msgstr "***"
+msgstr "La clé ~S dans ~S devrait être mise entre parenthèses."
 
 #: macros2.lsp:371
 msgid "type name should be a symbol, not ~S"
