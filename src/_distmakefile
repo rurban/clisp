@@ -61,7 +61,7 @@ INSTALL_DATA = $(INSTALL)
 
 SHELL = /bin/sh
 
-all : base/lisp$(lexe) full/lisp$(lexe)
+all : base/lisp$(lexe) full/lisp$(lexe) clisp
 
 #ifndef UNIX_BINARY_DISTRIB
 base/lisp$(lexe) : @@BASE_FILES@@
