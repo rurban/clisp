@@ -411,6 +411,7 @@ defs3.lsp \
 german.lsp \
 french.lsp \
 spanish.lsp \
+dutch.lsp \
 config.lsp
 
 FASFILES = \
@@ -454,6 +455,7 @@ defs3.fas \
 german.fas \
 french.fas \
 spanish.fas \
+dutch.fas \
 config.fas
 
 TXTFILES = \
@@ -502,6 +504,7 @@ stage/defs3.lsp \
 stage/german.lsp \
 stage/french.lsp \
 stage/spanish.lsp \
+stage/dutch.lsp \
 stage/config.lsp
 
 TESTFASFILES = \
@@ -545,6 +548,7 @@ stage/defs3.fas \
 stage/german.fas \
 stage/french.fas \
 stage/spanish.fas \
+stage/dutch.fas \
 stage/config.fas
 
 
@@ -1323,6 +1327,9 @@ french.fas : french.lsp lisp.exe interpreted.mem
 spanish.fas : spanish.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c spanish.lsp
 
+dutch.fas : dutch.lsp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c dutch.lsp
+
 config.fas : config.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c config.lsp
 
@@ -1471,6 +1478,9 @@ stage/french.lsp : french.lsp
 stage/spanish.lsp : spanish.lsp
 	$(LN) spanish.lsp stage
 
+stage/dutch.lsp : dutch.lsp
+	$(LN) dutch.lsp stage
+
 stage/config.lsp : config.lsp
 	$(LN) config.lsp stage
 
@@ -1593,6 +1603,9 @@ stage/french.fas : stage/french.lsp lisp.exe lispinit.mem
 
 stage/spanish.fas : stage/spanish.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/spanish.lsp
+
+stage/dutch.fas : stage/dutch.lsp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/dutch.lsp
 
 stage/config.fas : stage/config.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/config.lsp
