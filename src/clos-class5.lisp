@@ -362,18 +362,18 @@
 (do-defmethod 'shared-initialize
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'standard-object) (find-class 't))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%shared-initialize '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(instance slot-names &rest initargs)
     'signature #s(compiler::signature :req-num 2 :rest-p t)))
 (do-defmethod 'shared-initialize
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'structure-object) (find-class 't))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%shared-initialize '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(instance slot-names &rest initargs)
     'signature #s(compiler::signature :req-num 2 :rest-p t)))
@@ -416,18 +416,18 @@
 (do-defmethod 'reinitialize-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'standard-object))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%reinitialize-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'reinitialize-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'structure-object))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%reinitialize-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
@@ -482,18 +482,18 @@
 (do-defmethod 'initialize-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'standard-object))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%initialize-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'initialize-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'structure-object))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%initialize-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
@@ -540,18 +540,18 @@
 (do-defmethod 'allocate-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'standard-class))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%allocate-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'allocate-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'structure-class))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%allocate-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
@@ -604,18 +604,18 @@
 (do-defmethod 'make-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'standard-class))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%make-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'make-instance
   (make-instance-<standard-method> <standard-method>
     :specializers (list (find-class 'structure-class))
-    :initfunction #'(lambda (gf) (declare (ignore gf))
+    'initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%make-instance '(T)))
-    :wants-next-method-p nil
+    'wants-next-method-p nil
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))

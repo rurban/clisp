@@ -1,3 +1,30 @@
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method1.lisp (standard-method): Renamed function slot to
+	fast-function. Add function slot.
+	(initialize-instance-<standard-method>): Accept either :function or
+	fast-function argument. Rename :wants-next-method-p keyword to
+	clos::wants-next-method-p.
+	* clos-methcomb2.lisp (method-list-to-continuation,
+	std-method-function-or-substitute): New functions.
+	(callable-method-form-p, call-method-arg2elements-error): New
+	functions.
+	(effective-method-code-bricks): Use callable-method-form-p. Generate
+	different code for CALL-METHOD on methods with slow calling convention.
+	(build-effective-method-function-form): Don't optimize CALL-METHOD
+	on methods with slow calling convention.
+	* clos-genfun3.lisp (std-add-method): Store the initfunction's
+	result in the fast-function. Don't use the initfunction if there is
+	a slow function.
+	* clos-class3.lisp (install-class-direct-accessors): Update.
+	* clos-class5.lisp (shared-initialize, reinitialize-instance,
+	initialize-instance, allocate-instance, make-instance): Update.
+	* clos-method2.lisp (analyze-method-description): Update.
+	* clos-method3.lisp (initialize-instance@standard-method): Update.
+	(method-function): New generic function.
+	* disassem.lisp (disassemble@standard-method): Show the fast-function
+	if available.
+
 2004-07-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX::USAGE):

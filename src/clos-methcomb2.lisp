@@ -54,6 +54,66 @@
   (eq specializer1 specializer2))
 
 
+;;; ----------------- Bridging different calling conventions -----------------
+
+;; For most purposes, the fast-function is used. However, the MOP specifies
+;; a slow calling convention for the method-function. There are two places
+;; where this needs to be supported:
+;;   - The user can funcall the method-function of a method defined through
+;;     DEFMETHOD. For this case we need to convert the fast function into a
+;;     slow one. Done by std-method-function-or-substitute.
+;;   - The user can create methods through
+;;       (MAKE-INSTANCE <METHOD> :FUNCTION #'(lambda (args next-methods) ...))
+;;     and insert them in a generic-function. We have to call them with the
+;;     proper conventions. This is handled by the CALL-METHOD macro.
+;;     Note: We cannot provide the local macros/functions CALL-NEXT-METHOD and
+;;     NEXT-METHOD-P for this case. The user is responsible for peeking at the
+;;     next-methods list himself. Something like this:
+;;       (lambda (args next-methods)
+;;         (flet ((next-method-p () (not (null next-methods)))
+;;                (call-next-method (&rest new-args)
+;;                  (unless new-args (setq new-args args))
+;;                  (if (null next-methods)
+;;                    (apply #'no-next-method ... ... new-args)
+;;                    (funcall (method-function (first next-methods))
+;;                             new-args (rest next-methods)))))
+;;           ...))
+
+(defun method-list-to-continuation (methods-list)
+  (if methods-list
+    (let ((method (first methods-list))
+          (next-methods-list (rest methods-list)))
+      (if (std-method-fast-function method)
+        ; Fast method function calling conventions.
+        (let ((fast-func (std-method-fast-function method)))
+          (if (std-method-wants-next-method-p method)
+            (let ((next-continuation (method-list-to-continuation next-methods-list)))
+              #'(lambda (&rest args)
+                  (apply fast-func next-continuation args)))
+            ; Some methods are known a-priori to not use the next-method list.
+            fast-func))
+        ; Slow method function calling conventions.
+        (let ((slow-func (std-method-function method)))
+          #'(lambda (&rest args)
+              (funcall slow-func args next-methods-list)))))
+    nil))
+
+(defun std-method-function-or-substitute (method)
+  (or (std-method-function method)
+      (setf (std-method-function method)
+            #'(lambda (arguments next-methods-list)
+                ; Fast method function calling conventions.
+                (let ((fast-func (std-method-fast-function method)))
+                  (if fast-func
+                    (if (std-method-wants-next-method-p method)
+                      (apply fast-func
+                             (method-list-to-continuation next-methods-list)
+                             arguments)
+                      ; Some methods are known a-priori to not use the next-method list.
+                      (apply fast-func arguments))
+                    (error (TEXT "The method function of ~S cannot be called before the method has been added to a generic function.")
+                           method)))))))
+
 ;;; ------------- Error Messages for Long Form Method Combination -------------
 
 ;; Context about the method combination call, set during the execution of a
@@ -243,6 +303,11 @@
     (TEXT "~S cannot be used here: ~S")
     'make-method whole-form))
 
+(defun callable-method-form-p (form)
+  (or (typep form <method>)
+      (and (consp form) (eq (car form) 'MAKE-METHOD)
+           (consp (cdr form)) (null (cddr form)))))
+
 (defun call-method-arg1-error (whole-form)
   (error-of-type 'sys::source-program-error
     (TEXT "~S: The first argument is neither a method nor a (MAKE-METHOD ...) form: ~S")
@@ -251,6 +316,11 @@
 (defun call-method-arg2-error (whole-form)
   (error-of-type 'sys::source-program-error
     (TEXT "~S: The second argument is not a list: ~S")
+    'call-method whole-form))
+
+(defun call-method-arg2elements-error (whole-form)
+  (error-of-type 'sys::source-program-error
+    (TEXT "~S: The second argument is not a list of methods or (MAKE-METHOD ...) forms: ~S")
     'call-method whole-form))
 
 ;; Returns pieces of code to be used in the expansion of the effective-method.
@@ -293,9 +363,7 @@
             (DECLARE (IGNORE FORM))
             (MAKE-METHOD-ERROR WHOLE))
           (CALL-METHOD (&WHOLE WHOLE METHOD &OPTIONAL NEXT-METHODS-LIST)
-            (UNLESS (OR (TYPEP METHOD <METHOD>)
-                        (AND (CONSP METHOD) (EQ (CAR METHOD) 'MAKE-METHOD)
-                             (CONSP (CDR METHOD)) (NULL (CDDR METHOD))))
+            (UNLESS (CALLABLE-METHOD-FORM-P METHOD)
               (CALL-METHOD-ARG1-ERROR WHOLE))
             (UNLESS (LISTP NEXT-METHODS-LIST)
               (CALL-METHOD-ARG2-ERROR WHOLE))
@@ -311,12 +379,38 @@
                             (CDR NEXT-METHODS-LIST))))
                       'NIL)))
               (IF (TYPEP METHOD <METHOD>)
-                (IF (STD-METHOD-WANTS-NEXT-METHOD-P METHOD)
-                  (LIST* ',apply-fun (LIST 'QUOTE (STD-METHOD-FUNCTION METHOD))
-                         NEXT-METHODS-EM-FORM ',apply-args)
-                  ; Some methods are known a-priori to not use the next-method list.
-                  (LIST* ',apply-fun (LIST 'QUOTE (STD-METHOD-FUNCTION METHOD))
-                         ',apply-args))
+                (IF (STD-METHOD-FAST-FUNCTION METHOD)
+                  ; Fast method function calling conventions.
+                  (IF (STD-METHOD-WANTS-NEXT-METHOD-P METHOD)
+                    (LIST* ',apply-fun (LIST 'QUOTE (STD-METHOD-FAST-FUNCTION METHOD))
+                           NEXT-METHODS-EM-FORM ',apply-args)
+                    ; Some methods are known a-priori to not use the next-method list.
+                    (LIST* ',apply-fun (LIST 'QUOTE (STD-METHOD-FAST-FUNCTION METHOD))
+                           ',apply-args))
+                  ; Slow method function calling conventions.
+                  (PROGN
+                    (UNLESS (EVERY #'CALLABLE-METHOD-FORM-P NEXT-METHODS-LIST)
+                      (CALL-METHOD-ARG2ELEMENTS-ERROR WHOLE))
+                    (LIST 'FUNCALL (LIST 'QUOTE (STD-METHOD-FUNCTION METHOD))
+                      ',(cons (ecase apply-fun (APPLY 'LIST*) (FUNCALL 'LIST))
+                              apply-args)
+                      (LIST* 'LIST
+                        (MAPCAR #'(LAMBDA (NEXT-METHOD)
+                                    (IF (TYPEP NEXT-METHOD <METHOD>)
+                                      NEXT-METHOD ; no need to quote, since self-evaluating
+                                      (LIST 'MAKE-INSTANCE-<STANDARD-METHOD> '<STANDARD-METHOD>
+                                        ''FAST-FUNCTION
+                                          (LET ((CONT (GENSYM)))
+                                            (LIST 'FUNCTION
+                                              (LIST 'LAMBDA (CONS CONT ',lambdalist)
+                                                (LIST 'DECLARE (LIST 'IGNORABLE CONT))
+                                                (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
+                                                  (CDR NEXT-METHOD)))))
+                                        ''WANTS-NEXT-METHOD-P 'T
+                                        ':LAMBDA-LIST '',lambdalist
+                                        ''SIGNATURE ,signature
+                                        ':SPECIALIZERS '',(make-list req-num :initial-element <t>))))
+                                NEXT-METHODS-LIST)))))
                 (LET ((CONT (GENSYM)))
                   (LIST 'LET (LIST (LIST CONT NEXT-METHODS-EM-FORM))
                     (LIST 'DECLARE (LIST 'IGNORABLE CONT))
@@ -341,8 +435,9 @@
                       (eq (first effective-method-form) 'CALL-METHOD)
                       (consp (cdr effective-method-form))
                       (typep (second effective-method-form) <method>)
+                      (std-method-fast-function (second effective-method-form))
                       (not (std-method-wants-next-method-p (second effective-method-form))))
-               (std-method-function (second effective-method-form))
+               (std-method-fast-function (second effective-method-form))
                (let ((wrapped-ef-form
                        `(MACROLET ,macrodefs
                           ,effective-method-form)))

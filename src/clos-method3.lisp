@@ -12,19 +12,20 @@
 
 (defmethod initialize-instance ((method standard-method) &rest args
                                 &key qualifiers
-                                     ;lambda-list
-                                     ;specializers
+                                     lambda-list
+                                     specializers
                                      function
-                                     ;documentation
-                                     initfunction
-                                     wants-next-method-p
-                                     parameter-specializers
-                                     signature
-                                     gf
-                                     origin
+                                     documentation
+                                     ((fast-function fast-function) nil)
+                                     ((initfunction initfunction) nil)
+                                     ((wants-next-method-p wants-next-method-p) nil)
+                                     ((signature signature) nil)
+                                     ((gf gf) nil)
+                                     ((from-defgeneric from-defgeneric) nil)
                                 &allow-other-keys)
-  (declare (ignore qualifiers function initfunction wants-next-method-p
-                   parameter-specializers signature gf origin))
+  (declare (ignore qualifiers lambda-list specializers function documentation
+                   fast-function initfunction wants-next-method-p signature gf
+                   from-defgeneric))
   (apply #'initialize-instance-<standard-method> method args))
 
 (defmethod initialize-instance ((method standard-accessor-method) &rest args
@@ -38,6 +39,11 @@
   (error (TEXT "~S: The MOP does not allow reinitializing ~S")
          'reinitialize-instance instance))
 
+
+;; MOP p. 82
+(defgeneric method-function (method)
+  (:method ((method standard-method))
+    (std-method-function-or-substitute method)))
 
 ;; MOP p. 82
 (defgeneric method-qualifiers (method)
