@@ -1,5 +1,13 @@
 2004-10-19  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (eval-loaded-form-low): do not try to inline it:
+	when condition.lisp is compiled, this function is not necessarily
+	already compiled due to our bootstrapping process,
+	so it will not be inlined there (in eval-loaded-form),
+	therefore the "test" target (self-recompilation) will fail
+
+2004-10-19  Sam Steingold  <sds@gnu.org>
+
 	* clos-genfun3.lisp (defmethod): when the function is being
 	TRACEd, UNTRACE it to avoid an error
 	(defgeneric): use UNTRACE1, not UNTRACE
@@ -19,8 +27,8 @@
 	(*<structure-class>-kconstructor-location*): New constant.
 	(class-kconstructor, (setf class-kconstructor)): New functions.
 	(*<structure-class>-instance-size*): Increment.
-	* clos-class3.lisp (make-instance-<structure-class>,
-	shared-initialize-<structure-class>): Add kconstructor argument.
+	* clos-class3.lisp (make-instance-<structure-class>)
+	(shared-initialize-<structure-class>): Add kconstructor argument.
 	(define-structure-class): Accept four more arguments. Don't access the
 	defstruct-description.
 	* clos-class4.lisp (shared-initialize@structure-class): Add
@@ -43,8 +51,8 @@
 	using method-function-initargs.
 	* clos-method1.lisp (initialize-instance-<standard-method>): Drop
 	initfunction argument.
-	* clos-methcomb2.lisp (method-function-substitute,
-	method-function-initargs): New functions.
+	* clos-methcomb2.lisp (method-function-substitute)
+	(method-function-initargs): New functions.
 	(effective-method-code-bricks): Emit code to create method in two
 	steps, and pass fast-function instead of initfunction initarg, using
 	method-function-initargs.
@@ -63,12 +71,12 @@
 	Generalize method from <standard-method> to <method>.
 	* clos-method3.lisp (initialize-instance@standard-method): Drop
 	initfunction argument.
-	* clos-slots2.lisp (slot-value-using-class,
-	(setf slot-value-using-class), slot-boundp-using-class,
-	slot-makunbound-using-class): Pass fast-function instead of
+	* clos-slots2.lisp (slot-value-using-class)
+	((setf slot-value-using-class), slot-boundp-using-class)
+	(slot-makunbound-using-class): Pass fast-function instead of
 	initfunction initarg.
-	* clos-class5.lisp (shared-initialize, reinitialize-instance,
-	initialize-instance, allocate-instance, make-instance): Pass
+	* clos-class5.lisp (shared-initialize, reinitialize-instance)
+	(initialize-instance, allocate-instance, make-instance): Pass
 	fast-function instead of initfunction initarg.
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>

@@ -1487,7 +1487,13 @@
       funname
       (get-setf-symbol (second funname))))))
 
-(proclaim '(inline eval-loaded-form-low))
+;; in theory this is a good idea:
+;;   (proclaim '(inline eval-loaded-form-low))
+;; unfortunately, when condition.lisp is compiled,
+;; this funtion is not necessarily already compiled
+;; due to our bootstrapping process,
+;; so it will not be inlined there (in eval-loaded-form),
+;; therefore the "test" target (self-recompilation) will fail
 (defun eval-loaded-form-low (obj)
   (multiple-value-list
    (cond ((compiled-function-p obj) (funcall obj))
