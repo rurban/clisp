@@ -2529,15 +2529,14 @@ global int main (argc_t argc, char* argv[]) {
   # everything completely initialized.
   subr_self = NIL; # some valid lisp-object
   clear_break_sems(); set_break_sem_1();
+  begin_system_call();
   # establish interrupt-handler:
  #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
   install_sigwinch_handler();
  #endif
   # query the size of the terminal-window also now on program start:
  #if defined(HAVE_SIGNALS)
-  begin_system_call();
   update_linelength();
-  end_system_call();
  #endif
  #if defined(MSDOS)
   # the width of the screen in current screen-mode
