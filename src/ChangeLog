@@ -1,5 +1,11 @@
 2002-09-14  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-APPLY): check whether FUN is locally defined
+	to check signature in (flet ((foo (...) ...)) (apply #'foo ...))
+	this also kills a spurious warning about undefined functions
+
+2002-09-14  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (SOURCES): removed SOURCES3
 	(SOURCES2): simplified
 	(SOURCES3): removed

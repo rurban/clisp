@@ -7438,6 +7438,17 @@ for-value   NIL or T
         (test-list funform 2 2)
         (multiple-value-bind (name req opt rest-p key-p keylist allow-p)
             (function-signature fun t) ; global functions only
+          (unless name          ; fun is either local or undefined
+            (multiple-value-bind (a m f1 f2 f3) (fenv-search fun)
+              (declare (ignore m f1 f2))
+              (when a           ; fun is local
+                (setq name fun
+                      req (fnode-req-anz (car f3))
+                      opt (fnode-opt-anz (car f3))
+                      rest-p (fnode-rest-flag (car f3))
+                      key-p (fnode-keyword-flag (car f3))
+                      keylist (fnode-keywords (car f3))
+                      allow-p (fnode-allow-other-keys-flag (car f3))))))
           (if (and name (eq fun name))
               (test-argument-syntax args apply-args fun req opt rest-p
                                     key-p keylist allow-p)
