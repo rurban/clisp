@@ -31,17 +31,17 @@
 ;  ;; signalling might be better.
 ;  (declare (type font font)
 ;	   (type integer index)
-;	   (values (or null integer))))
+;	   (clx-values (or null integer))))
 
 ;(defun max-char-<metric> (font)
 ;  ;; Note: I have tentatively chosen separate accessors over allowing :min and
 ;  ;; :max as an index above.
 ;  (declare (type font font)
-;	   (values integer)))
+;	   (clx-values integer)))
 
 ;(defun min-char-<metric> (font)
 ;  (declare (type font font)
-;	   (values integer)))
+;	   (clx-values integer)))
 
 ;; Note: char16-<metric> accessors could be defined to accept two-byte indexes.
 
@@ -64,7 +64,7 @@
 		       `(defun ,name (font index)
 			  (declare (type font font)
 				   (type array-index index))
-			  (declare (values (or null ,type)))
+			  (declare (clx-values (or null ,type)))
 			  (when (and (font-name font)
 				     (index>= (font-max-char font) index (font-min-char font)))
 			    (the ,type
@@ -91,7 +91,7 @@
 		     (push
 		       `(defun ,name (font)
 			  (declare (type font font))
-			  (declare (values (or null ,type)))
+			  (declare (clx-values (or null ,type)))
 			  (when (font-name font)
 			    (the ,type
 				 ,(from
@@ -103,7 +103,7 @@
 		     (push
 		       `(defun ,name (font)
 			  (declare (type font font))
-			  (declare (values (or null ,type)))
+			  (declare (clx-values (or null ,type)))
 			  (when (font-name font)
 			    (the ,type
 				 ,(from
@@ -111,7 +111,7 @@
 					  (aref (the char-info-vec (font-max-bounds font))
 						,n))))))
 		       result)))
-	  
+
 	       (defun make-char-info
 		      (&key ,@(mapcar
 				#'(lambda (field)
@@ -119,8 +119,7 @@
 				fields))
 		 (declare ,@(mapcar #'(lambda (field) `(type ,@(reverse field))) fields))
 		 (let ((result (make-array ,(length fields) :element-type 'int16)))
-		   (declare (type char-info-vec result)
-			    (array-register result))
+		   (declare (type char-info-vec result))
 		   ,@(do* ((field fields (cdr field))
 			   (var (caar field) (caar field))
 			   (type (cadar field) (cadar field))
@@ -140,14 +139,14 @@
     (ascent int16)
     (descent int16)
     (attributes card16)))
-    
+
 (defun open-font (display name)
   ;; Font objects may be cached and reference counted locally within the display
   ;; object.  This function might not execute a with-display if the font is cached.
   ;; The protocol QueryFont request happens on-demand under the covers.
   (declare (type display display)
 	   (type stringable name))
-  (declare (values font))
+  (declare (clx-values font))
   (let* ((name-string (string-downcase (string name)))
 	 (font (car (member name-string (display-font-cache display)
 			    :key 'font-name
@@ -157,7 +156,7 @@
       (setq font (make-font :display display :name name-string))
       (setq font-id (allocate-resource-id display font 'font))
       (setf (font-id-internal font) font-id)
-      (with-buffer-request (display *x-openfont*)
+      (with-buffer-request (display +x-openfont+)
 	(resource-id font-id)
 	(card16 (length name-string))
 	(pad16 nil)
@@ -169,12 +168,12 @@
 (defun open-font-internal (font)
   ;; Called "under the covers" to open a font object
   (declare (type font font))
-  (declare (values resource-id))
+  (declare (clx-values resource-id))
   (let* ((name-string (font-name font))
 	 (display (font-display font))
 	 (id (allocate-resource-id display font 'font)))
     (setf (font-id-internal font) id)
-    (with-buffer-request (display *x-openfont*)
+    (with-buffer-request (display +x-openfont+)
       (resource-id id)
       (card16 (length name-string))
       (pad16 nil)
@@ -193,13 +192,13 @@
 (defun query-font (font)
   ;; Internal function called by font and char info accessors
   (declare (type font font))
-  (declare (values font-info))
+  (declare (clx-values font-info))
   (let ((display (font-display font))
 	font-id
 	font-info
 	props)
     (setq font-id (font-id font)) ;; May issue an open-font request
-    (with-buffer-request-and-reply (display *x-queryfont* 60)
+    (with-buffer-request-and-reply (display +x-queryfont+ 60)
 	 ((resource-id font-id))
       (let* ((min-byte2 (card16-get 40))
 	     (max-byte2 (card16-get 42))
@@ -250,7 +249,7 @@
       ;; Remove font from cache
       (setf (display-font-cache display) (delete font (display-font-cache display)))
       ;; Close the font
-      (with-buffer-request (display *x-closefont*)
+      (with-buffer-request (display +x-closefont+)
 	(resource-id id)))))
 
 (defun list-font-names (display pattern &key (max-fonts 65535) (result-type 'list))
@@ -258,14 +257,14 @@
 	   (type string pattern)
 	   (type card16 max-fonts)
 	   (type t result-type)) ;; CL type
-  (declare (values (sequence string)))
+  (declare (clx-values (clx-sequence string)))
   (let ((string (string pattern)))
-    (with-buffer-request-and-reply (display *x-listfonts* size :sizes (8 16))
+    (with-buffer-request-and-reply (display +x-listfonts+ size :sizes (8 16))
 	 ((card16 max-fonts (length string))
 	  (string string))
       (values
 	(read-sequence-string
-	  buffer-bbuf (index- size *replysize*) (card16-get 8) result-type *replysize*)))))
+	  buffer-bbuf (index- size +replysize+) (card16-get 8) result-type +replysize+)))))
 
 (defun list-fonts (display pattern &key (max-fonts 65535) (result-type 'list))
   ;; Note: Was called list-fonts-with-info.
@@ -278,10 +277,10 @@
 	   (type string pattern)
 	   (type card16 max-fonts)
 	   (type t result-type)) ;; CL type
-  (declare (values (sequence font)))
+  (declare (clx-values (clx-sequence font)))
   (let ((string (string pattern))
 	(result nil))
-    (with-buffer-request-and-reply (display *x-listfontswithinfo* 60
+    (with-buffer-request-and-reply (display +x-listfontswithinfo+ 60
 					    :sizes (8 16) :multiple-reply t)
 	 ((card16 max-fonts (length string))
 	  (string string))
@@ -331,16 +330,16 @@
 (defun font-path (display &key (result-type 'list))
   (declare (type display display)
 	   (type t result-type)) ;; CL type
-  (declare (values (sequence (or string pathname))))
-  (with-buffer-request-and-reply (display *x-getfontpath* size :sizes (8 16))
+  (declare (clx-values (clx-sequence (or string pathname))))
+  (with-buffer-request-and-reply (display +x-getfontpath+ size :sizes (8 16))
        ()
     (values
       (read-sequence-string
-	buffer-bbuf (index- size *replysize*) (card16-get 8) result-type *replysize*))))
+	buffer-bbuf (index- size +replysize+) (card16-get 8) result-type +replysize+))))
 
 (defun set-font-path (display paths)
   (declare (type display display)
-	   (type sequence paths)) ;; (sequence (or string pathname))
+	   (type (clx-sequence (or string pathname)) paths))
   (let ((path-length (length paths))
 	(request-length 8))
     ;; Find the request length
@@ -348,7 +347,7 @@
       (let* ((string (string (elt paths i)))
 	     (len (length string)))
 	(incf request-length (1+ len))))
-    (with-buffer-request (display *x-setfontpath* :length request-length)
+    (with-buffer-request (display +x-setfontpath+ :length request-length)
       (length (ceiling request-length 4))
       (card16 path-length)
       (pad16 nil)

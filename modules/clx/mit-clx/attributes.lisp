@@ -17,7 +17,6 @@
 ;;; Texas Instruments Incorporated provides this software "as is" without
 ;;; express or implied warranty.
 ;;;
-
 ;;;	The special variable *window-attributes* is an alist containg:
 ;;;	(drawable attributes attribute-changes geometry geometry-changes)
 ;;;	Where DRAWABLE is the associated window or pixmap
@@ -42,10 +41,10 @@
 
 (in-package :xlib)
 
-(eval-when (compile load eval)			;needed by Franz Lisp
-(defconstant *attribute-size* 44)
-(defconstant *geometry-size* 24)
-(defconstant *context-size* (max *attribute-size* *geometry-size* (* 16 4))))
+(eval-when (:compile-toplevel :load-toplevel :execute)			;needed by Franz Lisp
+(defconstant +attribute-size+ 44)
+(defconstant +geometry-size+ 24)
+(defconstant +context-size+ (max +attribute-size+ +geometry-size+ (* 16 4))))
 
 (defvar *window-attributes* nil) ;; Bound to an alist of (drawable . state) within WITH-STATE
 
@@ -54,7 +53,7 @@
 
 (defun allocate-context ()
   (or (threaded-atomic-pop *context-free-list* reply-next reply-buffer)
-      (make-reply-buffer *context-size*)))
+      (make-reply-buffer +context-size+)))
 
 (defun deallocate-context (context)
   (declare (type reply-buffer context))
@@ -64,7 +63,7 @@
 (defmacro state-attribute-changes (state) `(third ,state))
 (defmacro state-geometry (state) `(fourth ,state))
 (defmacro state-geometry-changes (state) `(fifth ,state))
- 
+
 (defmacro drawable-equal-function ()
   (if (member 'drawable *clx-cached-types*)
       ''eq ;; Allows the compiler to use the microcoded ASSQ primitive on LISPM's
@@ -155,7 +154,7 @@
 	  (setf (aref changes 0) (logior (aref changes 0) (ash 1 number))) ;; set mask bit
 	  (setf (aref changes (1+ number)) value))	;; save value
 						; Send change to the server
-      (with-buffer-request ((window-display window) *x-changewindowattributes*)
+      (with-buffer-request ((window-display window) +x-changewindowattributes+)
 	(window window)
 	(card32 (ash 1 number) value)))))
 ;;
@@ -182,7 +181,7 @@
 	  (setf (aref changes 0) (logior (aref changes 0) (ash 1 number))) ;; set mask bit
 	  (setf (aref changes (1+ number)) value))	;; save value
 						; Send change to the server
-      (with-buffer-request ((drawable-display drawable) *x-configurewindow*)
+      (with-buffer-request ((drawable-display drawable) +x-configurewindow+)
 	(drawable drawable)
 	(card16 (ash 1 number))
 	(card29 value)))))
@@ -204,7 +203,7 @@
 	      (deallocate-gcontext-state (state-attribute-changes state-entry))
 	      (setf (state-attribute-changes state-entry) nil))
 	    ;; Get window attributes
-	    (with-buffer-request-and-reply (display *x-getwindowattributes* size :sizes (8))
+	    (with-buffer-request-and-reply (display +x-getwindowattributes+ size :sizes (8))
 		 ((window window))
 	      (let ((repbuf (or (state-attributes state-entry) (allocate-context))))
 		(declare (type reply-buffer repbuf))
@@ -234,7 +233,7 @@
 	      (deallocate-gcontext-state (state-geometry-changes state-entry))
 	      (setf (state-geometry-changes state-entry) nil))
 	    ;; Get drawable attributes
-	    (with-buffer-request-and-reply (display *x-getgeometry* size :sizes (8))
+	    (with-buffer-request-and-reply (display +x-getgeometry+ size :sizes (8))
 		 ((drawable drawable))
 	      (let ((repbuf (or (state-geometry state-entry) (allocate-context))))
 		(declare (type reply-buffer repbuf))
@@ -252,7 +251,7 @@
 	 (mask (aref changes 0)))
     (declare (type display display)
 	     (type mask32 mask))
-    (with-buffer-request (display *x-changewindowattributes*)
+    (with-buffer-request (display +x-changewindowattributes+)
       (window window)
       (card32 mask)
       (progn ;; Insert a word in the request for each one bit in the mask
@@ -279,7 +278,7 @@
 	 (mask (aref changes 0)))
     (declare (type display display)
 	     (type mask16 mask))
-    (with-buffer-request (display *x-configurewindow*)
+    (with-buffer-request (display +x-configurewindow+)
       (window window)
       (card16 mask)
       (progn ;; Insert a word in the request for each one bit in the mask
@@ -298,7 +297,7 @@
 (defmacro with-attributes ((window &rest options) &body body)
   `(let ((.with-attributes-reply-buffer. (get-window-attributes-buffer ,window)))
      (declare (type reply-buffer .with-attributes-reply-buffer.))
-     (prog1 
+     (prog1
        (with-buffer-input (.with-attributes-reply-buffer. ,@options) ,@body)
        (unless *window-attributes*
 	 (deallocate-context .with-attributes-reply-buffer.)))))
@@ -309,7 +308,7 @@
 (defmacro with-geometry ((window &rest options) &body body)
   `(let ((.with-geometry-reply-buffer. (get-drawable-geometry-buffer ,window)))
      (declare (type reply-buffer .with-geometry-reply-buffer.))
-     (prog1 
+     (prog1
        (with-buffer-input (.with-geometry-reply-buffer. ,@options) ,@body)
        (unless *window-attributes*
 	 (deallocate-context .with-geometry-reply-buffer.)))))
@@ -320,19 +319,19 @@
 
 (defun window-visual (window)
   (declare (type window window))
-  (declare (values resource-id))
+  (declare (clx-values resource-id))
   (with-attributes (window :sizes 32)
     (resource-id-get 8)))
 
 (defun window-visual-info (window)
   (declare (type window window))
-  (declare (values visual-info))
+  (declare (clx-values visual-info))
   (with-attributes (window :sizes 32)
     (visual-info (window-display window) (resource-id-get 8))))
 
 (defun window-class (window)
   (declare (type window window))
-  (declare (values (member :input-output :input-only)))
+  (declare (clx-values (member :input-output :input-only)))
   (with-attributes (window :sizes 16)
     (member16-get 12 :copy :input-output :input-only)))
 
@@ -349,8 +348,6 @@
 	(t (x-type-error background '(or (member :none :parent-relative) integer pixmap))))
   background)
 
-#+Genera (eval-when (compile) (compiler:function-defined 'window-background))
-
 (defsetf window-background set-window-background)
 
 (defun set-window-border (window border)
@@ -364,14 +361,12 @@
 	(t (x-type-error border '(or (member :copy) integer pixmap))))
   border)
 
-#+Genera (eval-when (compile) (compiler:function-defined 'window-border))
-
 (defsetf window-border set-window-border)
 
 (defun window-bit-gravity (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values bit-gravity))
+  (declare (clx-values bit-gravity))
   (with-attributes (window :sizes 8)
     (member8-vector-get 14 *bit-gravity-vector*)))
 
@@ -385,7 +380,7 @@
 (defun window-gravity (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values win-gravity))
+  (declare (clx-values win-gravity))
   (with-attributes (window :sizes 8)
     (member8-vector-get 15 *win-gravity-vector*)))
 
@@ -399,7 +394,7 @@
 (defun window-backing-store (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values (member :not-useful :when-mapped :always)))
+  (declare (clx-values (member :not-useful :when-mapped :always)))
   (with-attributes (window :sizes 8)
     (member8-get 1 :not-useful :when-mapped :always)))
 
@@ -413,7 +408,7 @@
 (defun window-backing-planes (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values pixel))
+  (declare (clx-values pixel))
   (with-attributes (window :sizes 32)
     (card32-get 16)))
 
@@ -426,7 +421,7 @@
 (defun window-backing-pixel (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values pixel))
+  (declare (clx-values pixel))
   (with-attributes (window :sizes 32)
     (card32-get 20)))
 
@@ -439,7 +434,7 @@
 (defun window-save-under (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values (member :off :on)))
+  (declare (clx-values (member :off :on)))
   (with-attributes (window :sizes 8)
     (member8-get 24 :off :on)))
 
@@ -452,7 +447,7 @@
 (defun window-override-redirect (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values (member :off :on)))
+  (declare (clx-values (member :off :on)))
   (with-attributes (window :sizes 8)
     (member8-get 27 :off :on)))
 
@@ -465,7 +460,7 @@
 (defun window-event-mask (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values mask32))
+  (declare (clx-values mask32))
   (with-attributes (window :sizes 32)
     (card32-get 36)))
 
@@ -479,7 +474,7 @@
 (defun window-do-not-propagate-mask (window)
   ;; setf'able
   (declare (type window window))
-  (declare (values mask32))
+  (declare (clx-values mask32))
   (with-attributes (window :sizes 32)
     (card32-get 40)))
 
@@ -492,7 +487,7 @@
 
 (defun window-colormap (window)
   (declare (type window window))
-  (declare (values (or null colormap)))
+  (declare (clx-values (or null colormap)))
   (with-attributes (window :sizes 32)
     (let ((id (resource-id-get 28)))
       (if (zerop id) nil
@@ -507,7 +502,7 @@
 
 (defun window-cursor (window)
   (declare (type window window))
-  (declare (values cursor))
+  (declare (clx-values cursor))
   window
   (error "~S can only be set" 'window-cursor))
 
@@ -520,19 +515,19 @@
 
 (defun window-colormap-installed-p (window)
   (declare (type window window))
-  (declare (values boolean))
+  (declare (clx-values generalized-boolean))
   (with-attributes (window :sizes 8)
     (boolean-get 25)))
 
 (defun window-all-event-masks (window)
   (declare (type window window))
-  (declare (values mask32))
+  (declare (clx-values mask32))
   (with-attributes (window :sizes 32)
     (card32-get 32)))
 
 (defun window-map-state (window)
   (declare (type window window))
-  (declare (values (member :unmapped :unviewable :viewable)))
+  (declare (clx-values (member :unmapped :unviewable :viewable)))
   (with-attributes (window :sizes 8)
     (member8-get 26 :unmapped :unviewable :viewable)))
 
@@ -543,14 +538,14 @@
 
 (defun drawable-root (drawable)
   (declare (type drawable drawable))
-  (declare (values window))
+  (declare (clx-values window))
   (with-geometry (drawable :sizes 32)
     (window-get 8 (drawable-display drawable))))
 
 (defun drawable-x (drawable)
   ;; setf'able
   (declare (type drawable drawable))
-  (declare (values int16))
+  (declare (clx-values int16))
   (with-geometry (drawable :sizes 16)
     (int16-get 12)))
 
@@ -563,7 +558,7 @@
 (defun drawable-y (drawable)
   ;; setf'able
   (declare (type drawable drawable))
-  (declare (values int16))
+  (declare (clx-values int16))
   (with-geometry (drawable :sizes 16)
     (int16-get 14)))
 
@@ -577,7 +572,7 @@
   ;; setf'able
   ;; Inside width, excluding border.
   (declare (type drawable drawable))
-  (declare (values card16))
+  (declare (clx-values card16))
   (with-geometry (drawable :sizes 16)
     (card16-get 16)))
 
@@ -591,7 +586,7 @@
   ;; setf'able
   ;; Inside height, excluding border.
   (declare (type drawable drawable))
-  (declare (values card16))
+  (declare (clx-values card16))
   (with-geometry (drawable :sizes 16)
     (card16-get 18)))
 
@@ -603,14 +598,14 @@
 
 (defun drawable-depth (drawable)
   (declare (type drawable drawable))
-  (declare (values card8))
+  (declare (clx-values card8))
   (with-geometry (drawable :sizes 8)
     (card8-get 1)))
 
 (defun drawable-border-width (drawable)
   ;; setf'able
   (declare (type drawable drawable))
-  (declare (values integer))
+  (declare (clx-values integer))
   (with-geometry (drawable :sizes 16)
     (card16-get 20)))
 
@@ -630,8 +625,6 @@
     (when sibling
       (change-drawable-geometry window 5 (encode-type window sibling))))
   mode)
-
-#+Genera (eval-when (compile) (compiler:function-defined 'window-priority))
 
 (defsetf window-priority (window &optional sibling) (mode)
   ;; A bit strange, but retains setf form.

@@ -30,27 +30,25 @@
 ;; Event Resource
 (defvar *event-free-list* nil) ;; List of unused (processed) events
 
-(eval-when (eval compile load)
-(defconstant *max-events* 64) ;; Maximum number of events supported (the X11 alpha release only has 34)
-)
-(eval-when (eval compile load)
-(defvar *event-key-vector* (make-array *max-events* :initial-element nil)
+(eval-when (:execute :compile-toplevel :load-toplevel)
+(defconstant +max-events+ 64) ;; Maximum number of events supported (the X11 alpha release only has 34)
+(defvar *event-key-vector* (make-array +max-events+ :initial-element nil)
   "Vector of event keys - See define-event")
 )
-(defvar *event-macro-vector* (make-array *max-events* :initial-element nil)
+(defvar *event-macro-vector* (make-array +max-events+ :initial-element nil)
   "Vector of event handler functions - See declare-event")
-(defvar *event-handler-vector* (make-array *max-events* :initial-element nil)
+(defvar *event-handler-vector* (make-array +max-events+ :initial-element nil)
   "Vector of event handler functions - See declare-event")
-(defvar *event-send-vector* (make-array *max-events* :initial-element nil)
+(defvar *event-send-vector* (make-array +max-events+ :initial-element nil)
   "Vector of event sending functions - See declare-event")
 
 (defun allocate-event ()
   (or (threaded-atomic-pop *event-free-list* reply-next reply-buffer)
-      (make-reply-buffer *replysize*)))
+      (make-reply-buffer +replysize+)))
 
 (defun deallocate-event (reply-buffer)
   (declare (type reply-buffer reply-buffer))
-  (setf (reply-size reply-buffer) *replysize*)
+  (setf (reply-size reply-buffer) +replysize+)
   (threaded-atomic-push reply-buffer *event-free-list* reply-next reply-buffer))
 
 ;; Extensions are handled as follows:
@@ -96,19 +94,19 @@
 	   (type list events errors))
   (let ((name-symbol (kintern name)) ;; Intern name in the keyword package
 	(event-list (mapcar #'canonicalize-event-name events)))
-    `(eval-when (compile load eval)
+    `(eval-when (:compile-toplevel :load-toplevel :execute)
        (setq *extensions* (cons (list ',name-symbol ',event-list ',errors)
 				(delete ',name-symbol *extensions* :key #'car))))))
 
-(eval-when (compile eval load)
+(eval-when (:compile-toplevel :execute :load-toplevel)
 (defun canonicalize-event-name (event)
   ;; Returns the event name keyword given an event name stringable
   (declare (type stringable event))
-  (declare (values event-key))
+  (declare (clx-values event-key))
   (kintern event))
 ) ;; end eval-when
 
-(eval-when (compile eval load)
+(eval-when (:compile-toplevel :execute :load-toplevel)
 (defun allocate-extension-event-code (name)
   ;; Allocate an event-code for an extension
   ;; This is executed at COMPILE and LOAD time from DECLARE-EVENT.
@@ -136,7 +134,7 @@
   ;; Returns NIL when the event-code is for an extension that isn't handled.
   (declare (type display display)
 	   (type card8 code))
-  (declare (values (or null card8)))
+  (declare (clx-values (or null card8)))
   (setq code (logand #x7f code))
   (if (< code *first-extension-event-code*)
       code
@@ -155,7 +153,7 @@
   ;; Given an X11 event name, return the event-code
   (declare (type display display)
 	   (type event-key event))
-  (declare (values card8))
+  (declare (clx-values card8))
   (let ((code (get-event-code event)))
     (declare (type (or null card8) code))
     (when (>= code *first-extension-event-code*)
@@ -262,7 +260,7 @@
 
 (defun allocate-reply-buffer (size)
   (declare (type array-index size))
-  (if (index<= size *replysize*)
+  (if (index<= size +replysize+)
       (allocate-event)
     (let ((index (integer-length (index1- size))))
       (declare (type array-index index))
@@ -274,7 +272,7 @@
   (declare (type reply-buffer reply-buffer))
   (let ((size (reply-size reply-buffer)))
     (declare (type array-index size))
-    (if (index<= size *replysize*)
+    (if (index<= size +replysize+)
 	(deallocate-event reply-buffer)
       (let ((index (integer-length (index1- size))))
 	(declare (type array-index index))
@@ -323,18 +321,18 @@
 	   (type array-index length))
   (unwind-protect
       (progn
-	(when (index< *replysize* length)
+	(when (index< +replysize+ length)
 	  (let ((repbuf nil))
 	    (declare (type (or null reply-buffer) repbuf))
 	    (unwind-protect
 		(progn
 		  (setq repbuf (allocate-reply-buffer length))
 		  (buffer-replace (reply-ibuf8 repbuf) (reply-ibuf8 reply-buffer)
-				  0 *replysize*)
+				  0 +replysize+)
 		  (deallocate-event (shiftf reply-buffer repbuf nil)))
 	      (when repbuf
 		(deallocate-reply-buffer repbuf))))
-	  (when (buffer-input display (reply-ibuf8 reply-buffer) *replysize* length)
+	  (when (buffer-input display (reply-ibuf8 reply-buffer) +replysize+ length)
 	    (return-from read-reply-input t))
 	  (setf (reply-data-size reply-buffer) length))
 	(with-event-queue-internal (display)
@@ -384,13 +382,10 @@
 (defun read-input (display timeout force-output-p predicate &rest predicate-args)
   (declare (type display display)
 	   (type (or null number) timeout)
-	   (type boolean force-output-p)
+	   (type generalized-boolean force-output-p)
 	   (dynamic-extent predicate-args))
   (declare (type function predicate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent predicate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg predicate))
+	   (dynamic-extent predicate))
   (let ((reply-buffer nil)
 	(token (or (current-process) (cons nil nil))))
     (declare (type (or null reply-buffer) reply-buffer))
@@ -413,15 +408,15 @@
 			 (conditional-store (display-input-in-progress display) nil token))
 	       (if (eql timeout 0)
 		   (return-from read-input :timeout)
+		 ;;; XXX [pve]: this is the only location that has
+		 ;;; process-block. I think we can rewrite this into something
+		 ;;; more appropriate
 		 (apply #'process-block "CLX Input Lock"
 			#'(lambda (display predicate &rest predicate-args)
 			    (declare (type display display)
 				     (dynamic-extent predicate-args)
 				     (type function predicate)
-				     #+clx-ansi-common-lisp
-				     (dynamic-extent predicate)
-				     #+(and lispm (not clx-ansi-common-lisp))
-				     (sys:downward-funarg predicate))
+				     (dynamic-extent predicate))
 			    (or (apply predicate predicate-args)
 				(null (display-input-in-progress display))
 				(not (null (display-dead display)))))
@@ -437,7 +432,7 @@
 		   (let ((eof-p (buffer-input-wait display timeout)))
 		     (when eof-p (return-from read-input eof-p))))
 		 (without-aborts
-		   (let ((eof-p (buffer-input display buffer-bbuf 0 *replysize*
+		   (let ((eof-p (buffer-input display buffer-bbuf 0 +replysize+
 					      (if force-output-p 0 timeout))))
 		     (when eof-p
 		       (when (eq eof-p :timeout)
@@ -446,14 +441,14 @@
 			   (return-from read-input :timeout)))
 		       (setf (display-dead display) t)
 		       (return-from read-input eof-p)))
-		   (setf (reply-data-size reply-buffer) *replysize*)
+		   (setf (reply-data-size reply-buffer) +replysize+)
 		   (when (= (the card8 (setq type (read-card8 0))) 1)
-		     ;; Normal replies can be longer than *replysize*, so we
+		     ;; Normal replies can be longer than +replysize+, so we
 		     ;; have to handle them while aborts are still disallowed.
 		     (let ((value
 			     (read-reply-input
 			       display (read-card16 2)
-			       (index+ *replysize* (index* (read-card32 4) 4))
+			       (index+ +replysize+ (index* (read-card32 4) 4))
 			       (shiftf reply-buffer nil))))
 		       (when value
 			 (return-from read-input value))
@@ -505,9 +500,9 @@
 (defun wait-for-event (display timeout force-output-p)
   (declare (type display display)
 	   (type (or null number) timeout)
-	   (type boolean force-output-p))
+	   (type generalized-boolean force-output-p))
   (let ((event-process-p (not (eql timeout 0))))
-    (declare (type boolean event-process-p))
+    (declare (type generalized-boolean event-process-p))
     (unwind-protect
 	(loop
 	  (when event-process-p
@@ -560,7 +555,7 @@
 (defun event-listen (display &optional (timeout 0))
   (declare (type display display)
 	   (type (or null number) timeout)
-	   (values number-of-events-queued eof-or-timeout))
+	   (clx-values number-of-events-queued eof-or-timeout))
   ;; Returns the number of events queued locally, if any, else nil.  Hangs
   ;; waiting for events, forever if timeout is nil, else for the specified
   ;; number of seconds.
@@ -569,7 +564,7 @@
 			     (symbol-value current-event-symbol)))
 	 (queue (if current-event
 		    (reply-next (the reply-buffer current-event))
-		    (display-event-queue-head display))))
+		  (display-event-queue-head display))))
     (declare (type symbol current-event-symbol)
 	     (type (or null reply-buffer) current-event queue))
     (if queue
@@ -594,7 +589,7 @@
   ;; in the event components.
   (declare (type display display)
 	   (type event-key event-key)
-	   (type boolean append-p send-event-p)
+	   (type generalized-boolean append-p send-event-p)
 	   (dynamic-extent args))
   (unless (get event-key 'event-code)
     (x-type-error event-key 'event-key))
@@ -611,7 +606,7 @@
       (buffer-replace buffer
 		      (display-obuf8 display)
 		      0
-		      *replysize*
+		      +replysize+
 		      (index+ 12 (buffer-boffset display)))
       (setf (aref buffer 0) (if send-event-p (logior event-code #x80) event-code)
 	    (aref buffer 2) 0
@@ -648,7 +643,7 @@
 
 
 (defmacro define-event (name code)
-  `(eval-when (eval compile load)
+  `(eval-when (:execute :compile-toplevel :load-toplevel)
      (setf (svref *event-key-vector* ,code) ',name)
      (setf (get ',name 'event-code) ,code)))
 
@@ -691,7 +686,7 @@
 (define-event :mapping-notify 34)
 
 
-(defmacro declare-event (event-codes &body declares)
+(defmacro declare-event (event-codes &body declares &environment env)
   ;; Used to indicate the keyword arguments for handler functions in
   ;; process-event and event-case.
   ;; Generates the functions used in SEND-EVENT.
@@ -747,22 +742,22 @@
 	   (defun ,get-macro (display event-key variable)
 	     ;; Note: we take pains to macroexpand the get-code here to enable application
 	     ;; code to be compiled without having the CLX macros file loaded.
-	     (subst display '%buffer
-		    (getf `(:display (the display ,display)
-			    :event-key (the keyword ,event-key)
-			    :event-code (the card8 (logand #x7f (read-card8 0)))
-			    :send-event-p (the boolean (logbitp 7 (read-card8 0)))
-			    ,@(mapcar #'macroexpand get-code))
-			  variable)))
+	     `(let ((%buffer ,display))
+		(declare (ignorable %buffer))
+		,(getf `(:display (the display ,display)
+			 :event-key (the keyword ,event-key)
+			 :event-code (the card8 (logand #x7f (read-card8 0)))
+			 :send-event-p (logbitp 7 (read-card8 0))
+			 ,@',(mapcar #'(lambda (form)
+					 (clx-macroexpand form env))
+				     get-code))
+		       variable)))
 
 	   (defun ,get-function (display event handler)
 	     (declare (type display display)
 		      (type reply-buffer event))
 	     (declare (type function handler)
-		      #+clx-ansi-common-lisp
-		      (dynamic-extent handler)
-		      #+(and lispm (not clx-ansi-common-lisp))
-		      (sys:downward-funarg handler))
+		      (dynamic-extent handler))
 	     (reading-event (event :display display :sizes (8 16 ,@get-sizes))
 	       (funcall handler
 			:display display
@@ -948,7 +943,7 @@
   (window (window event-window))
   (keyword atom) ;; keyword
   ((or null card32) time)
-  ((member16 :new-value :deleted) state))
+  ((member8 :new-value :deleted) state))
 
 (declare-event :selection-clear
   (card16 sequence)
@@ -999,7 +994,7 @@
 
 (defun event-loop-setup (display)
   (declare (type display display)
-	   (values progv-vars progv-vals
+	   (clx-values progv-vars progv-vals
 		   current-event-symbol current-event-discarded-p-symbol))
   (let* ((progv-vars (display-current-event-symbol display))
 	 (current-event-symbol (first progv-vars))
@@ -1024,9 +1019,9 @@
 (defun event-loop-step-before (display timeout force-output-p current-event-symbol)
   (declare (type display display)
 	   (type (or null number) timeout)
-	   (type boolean force-output-p)
+	   (type generalized-boolean force-output-p)
 	   (type symbol current-event-symbol)
-	   (values event eof-or-timeout))
+	   (clx-values event eof-or-timeout))
   (unless (symbol-value current-event-symbol)
     (let ((eof-or-timeout (wait-for-event display timeout force-output-p)))
       (when eof-or-timeout
@@ -1042,7 +1037,7 @@
 (defun dequeue-event (display event)
   (declare (type display display)
 	   (type reply-buffer event)
-	   (values next))
+	   (clx-values next))
   ;; Remove the current event from the event queue
   (with-event-queue-internal (display)
     (let ((next (reply-next event))
@@ -1073,7 +1068,7 @@
 	&optional aborted)
   (declare (type display display)
 	   (type reply-buffer event)
-	   (type boolean discard-p aborted)
+	   (type generalized-boolean discard-p aborted)
 	   (type symbol current-event-symbol current-event-discarded-p-symbol))
   (when (and discard-p
 	     (not aborted)
@@ -1096,7 +1091,7 @@
 	 (.discard-p. ,discard-p))
      (declare (type display .display.)
 	      (type (or null number) .timeout.)
-	      (type boolean .force-output-p. .discard-p.))
+	      (type generalized-boolean .force-output-p. .discard-p.))
      (with-event-queue (.display. ,@(and timeout `(:timeout .timeout.)))
        (multiple-value-bind (.progv-vars. .progv-vals.
 			     .current-event-symbol. .current-event-discarded-p-symbol.)
@@ -1131,7 +1126,7 @@
   ;; inside even-case, event-cond or process-event when :peek-p is T and
   ;; :discard-p is NIL.
   (declare (type display display)
-	   (values boolean))
+	   (clx-values generalized-boolean))
   (let* ((symbols (display-current-event-symbol display))
 	 (event
 	   (let ((current-event-symbol (first symbols)))
@@ -1171,12 +1166,9 @@
 
   (declare (type display display)
 	   (type (or null number) timeout)
-	   (type boolean peek-p discard-p force-output-p))
+	   (type generalized-boolean peek-p discard-p force-output-p))
   (declare (type t handler)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent handler)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg #+Genera * #-Genera handler))
+	   (dynamic-extent handler))
   (event-loop (display event timeout force-output-p discard-p)
     (let* ((event-code (event-code event)) ;; Event decoder defined by DECLARE-EVENT
 	   (event-decoder (and (index< event-code (length *event-handler-vector*))
@@ -1204,15 +1196,15 @@
 
 (defun make-event-handlers (&key (type 'array) default)
   (declare (type t type)			;Sequence type specifier
-	   (type function default)
-	   (values sequence))			;Default handler for initial content
+	   (type (or null function) default)
+	   (clx-values sequence))			;Default handler for initial content
   ;; Makes a handler sequence suitable for process-event
-  (make-sequence type *max-events* :initial-element default))
+  (make-sequence type +max-events+ :initial-element default))
 
 (defun event-handler (handlers event-key)
   (declare (type sequence handlers)
 	   (type event-key event-key)
-	   (values function))
+	   (clx-values function))
   ;; Accessor for a handler sequence
   (elt handlers (position event-key *event-key-vector* :test #'eq)))
 
@@ -1220,7 +1212,7 @@
   (declare (type sequence handlers)
 	   (type event-key event-key)
 	   (type function handler)
-	   (values handler))
+	   (clx-values handler))
   (setf (elt handlers (position event-key *event-key-vector* :test #'eq)) handler))
 
 (defsetf event-handler set-event-handler)
@@ -1315,7 +1307,7 @@
 (defun get-event-code (event)
   ;; Returns the event code given an event-key
   (declare (type event-key event))
-  (declare (values card8))
+  (declare (clx-values card8))
   (or (get event 'event-code)
       (x-type-error event 'event-key)))
 
@@ -1323,7 +1315,7 @@
   (getf
     `(:display (the display ,display) :event-key (the keyword ,event-key) :event-code
 	       (the card8 (logand 127 (read-card8 0))) :send-event-p
-	       (the boolean (logbitp 7 (read-card8 0))))
+	       (logbitp 7 (read-card8 0)))
     variable))
 
 (defmacro event-dispatch ((display event peek-p) &body clauses)
@@ -1331,7 +1323,7 @@
   ;; CLAUSES are of the form:
   ;; (event-or-events binding-list test-form . body-forms)
   (let ((event-key (gensym))
-	(all-events (make-array *max-events* :element-type 'bit :initial-element 0)))
+	(all-events (make-array +max-events+ :element-type 'bit :initial-element 0)))
     `(reading-event (,event)
        (let ((,event-key (svref *event-key-vector* (event-code ,event))))
 	 (case ,event-key
@@ -1359,7 +1351,7 @@
 			   (let ((keys (do ((i 0 (1+ i))
 					    (key nil)
 					    (result nil))
-					   ((>= i *max-events*) result)
+					   ((>= i +max-events+) result)
 					 (setq key (svref *event-key-vector* i))
 					 (when (and key (zerop (aref all-events i)))
 					   (push key result)))))
@@ -1453,7 +1445,7 @@
 ;;; Error Handling
 ;;;-----------------------------------------------------------------------------
 
-(eval-when (eval compile load)
+(eval-when (:execute :compile-toplevel :load-toplevel)
 (defparameter
   *xerror-vector*
   '#(unknown-error
@@ -1481,7 +1473,7 @@
 (defun make-error (display event asynchronous)
   (declare (type display display)
 	   (type reply-buffer event)
-	   (type boolean asynchronous))
+	   (type generalized-boolean asynchronous))
   (reading-event (event)
     (let* ((error-code (read-card8 1))
 	   (error-key (get-error-key display error-code))
@@ -1529,17 +1521,6 @@
       (when (= code (second extension))
 	(return (first extension))))))
 
-#-(or clx-ansi-common-lisp excl lcl3.0 cmu (and kcl clos-conditions) (and CLISP have-clcs))
-(define-condition request-error (x-error)
-  ((display :reader request-error-display)
-   (error-key :reader request-error-error-key)
-   (major :reader request-error-major)
-   (minor :reader request-error-minor)
-   (sequence :reader request-error-sequence)
-   (current-sequence :reader request-error-current-sequence)
-   (asynchronous :reader request-error-asynchronous))
-  (:report report-request-error))
-
 (defun report-request-error (condition stream)
   (let ((error-key (request-error-error-key condition))
 	(asynchronous (request-error-asynchronous condition))
@@ -1554,7 +1535,7 @@
 
 ;; Since the :report arg is evaluated as (function report-request-error) the
 ;; define-condition must come after the function definition.
-#+(or clx-ansi-common-lisp excl lcl3.0 cmu (and kcl clos-conditions) (and CLISP have-clcs))
+
 (define-condition request-error (x-error)
   ((display :reader request-error-display :initarg :display)
    (error-key :reader request-error-error-key :initarg :error-key)
@@ -1626,7 +1607,7 @@
 ;;-----------------------------------------------------------------------------
 ;; Internal error conditions signaled by CLX
 
-(define-condition x-type-error (type-error #-cmu x-error)
+(define-condition x-type-error (type-error x-error)
   ((type-string :reader x-type-error-type-string :initarg :type-string))
   (:report
     (lambda (condition stream)
@@ -1802,7 +1783,7 @@
   ;;       macros for getting error fields. See DECODE-CORE-ERROR for
   ;;       an example.
   (declare (type symbol error-key)
-	   (type function function))
+	   (type (or symbol list) function))
   ;; First ensure the name is for a declared extension
   (unless (or (find error-key *xerror-vector*)
 	      (dolist (extension *extensions*)
@@ -1825,7 +1806,7 @@
   (declare (type display display)
 	   (type reply-buffer event)
 	   (type (or null keyword) arg))
-  (declare (values keyword/arg-plist))
+  (declare (clx-values keyword/arg-plist))
   display
   (reading-event (event)
     (let* ((sequence (read-card16 2))

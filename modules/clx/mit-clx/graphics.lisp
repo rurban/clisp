@@ -31,14 +31,14 @@
     (declare (type display display))
     (with-display (display)
       (force-gcontext-changes-internal gcontext)
-      (with-buffer-output (display :length *requestsize*)
+      (with-buffer-output (display :length +requestsize+)
 	(let* ((last-request-byte (display-last-request display))
 	       (current-boffset buffer-boffset))
 	  ;; To append or not append, that is the question
 	  (if (and (not *inhibit-appending*)
 		   last-request-byte
 		   ;; Same request?
-		   (= (aref-card8 buffer-bbuf last-request-byte) *x-polypoint*)
+		   (= (aref-card8 buffer-bbuf last-request-byte) +x-polypoint+)
 		   (progn ;; Set buffer pointers to last request
 		     (set-buffer-offset last-request-byte)
 		     ;; same drawable and gcontext?
@@ -51,7 +51,7 @@
 			   nil))))
 	      ;; Append request
 	      (progn
-		;; Set new request length		
+		;; Set new request length
 		(card16-put 2 (index+ 1 (index-ash (index- current-boffset last-request-byte)
 						   -2)))
 		(set-buffer-offset current-boffset)
@@ -61,7 +61,7 @@
 	    ;; New Request
 	    (progn
 	      (put-items (4)
-		(code *x-polypoint*)
+		(code +x-polypoint+)
 		(data 0) ;; Relative-p false
 		(length 4)
 		(drawable drawable)
@@ -70,15 +70,15 @@
 	      (buffer-new-request-number display)
 	      (setf (buffer-last-request display) buffer-boffset)
 	      (setf (display-boffset display) (index+ buffer-boffset 16)))))))
-    (display-invoke-after-function display))) 
+    (display-invoke-after-function display)))
 
 
 (defun draw-points (drawable gcontext points &optional relative-p)
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
 	   (type sequence points)		;(repeat-seq (integer x) (integer y))
-	   (type boolean relative-p))
-  (with-buffer-request ((drawable-display drawable) *x-polypoint* :gc-force gcontext)
+	   (type generalized-boolean relative-p))
+  (with-buffer-request ((drawable-display drawable) +x-polypoint+ :gc-force gcontext)
     ((data boolean) relative-p)
     (drawable drawable)
     (gcontext gcontext)
@@ -89,7 +89,7 @@
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
 	   (type int16 x1 y1 x2 y2)
-	   (type boolean relative-p))
+	   (type generalized-boolean relative-p))
   (let ((display (drawable-display drawable)))
     (declare (type display display))
     (when relative-p
@@ -97,14 +97,14 @@
       (incf y2 y1))
     (with-display (display)
       (force-gcontext-changes-internal gcontext)
-      (with-buffer-output (display :length *requestsize*)
+      (with-buffer-output (display :length +requestsize+)
 	(let* ((last-request-byte (display-last-request display))
 	       (current-boffset buffer-boffset))
 	  ;; To append or not append, that is the question
 	  (if (and (not *inhibit-appending*)
 		   last-request-byte
 		   ;; Same request?
-		   (= (aref-card8 buffer-bbuf last-request-byte) *x-polysegment*)
+		   (= (aref-card8 buffer-bbuf last-request-byte) +x-polysegment+)
 		   (progn ;; Set buffer pointers to last request
 		     (set-buffer-offset last-request-byte)
 		     ;; same drawable and gcontext?
@@ -126,7 +126,7 @@
 	    ;; New Request
 	    (progn
 	      (put-items (4)
-		(code *x-polysegment*)
+		(code +x-polysegment+)
 		(length 5)
 		(drawable drawable)
 		(gcontext gcontext)
@@ -134,17 +134,17 @@
 	      (buffer-new-request-number display)
 	      (setf (buffer-last-request display) buffer-boffset)
 	      (setf (display-boffset display) (index+ buffer-boffset 20)))))))
-    (display-invoke-after-function display))) 
+    (display-invoke-after-function display)))
 
 (defun draw-lines (drawable gcontext points &key relative-p fill-p (shape :complex))
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
 	   (type sequence points) ;(repeat-seq (integer x) (integer y))
-	   (type boolean relative-p fill-p)
+	   (type generalized-boolean relative-p fill-p)
 	   (type (member :complex :non-convex :convex) shape))
   (if fill-p
       (fill-polygon drawable gcontext points relative-p shape)
-    (with-buffer-request ((drawable-display drawable)  *x-polyline* :gc-force gcontext)
+    (with-buffer-request ((drawable-display drawable)  +x-polyline+ :gc-force gcontext)
       ((data boolean) relative-p)
       (drawable drawable)
       (gcontext gcontext)
@@ -156,9 +156,9 @@
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
 	   (type sequence points)		;(repeat-seq (integer x) (integer y))
-	   (type boolean relative-p)
+	   (type generalized-boolean relative-p)
 	   (type (member :complex :non-convex :convex) shape))
-  (with-buffer-request ((drawable-display drawable)  *x-fillpoly* :gc-force gcontext)
+  (with-buffer-request ((drawable-display drawable)  +x-fillpoly+ :gc-force gcontext)
     (drawable drawable)
     (gcontext gcontext)
     ((member8 :complex :non-convex :convex) shape)
@@ -169,8 +169,8 @@
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
 	   ;; (repeat-seq (integer x1) (integer y1) (integer x2) (integer y2)))
-	   (type sequence segments)) 
-  (with-buffer-request ((drawable-display drawable) *x-polysegment* :gc-force gcontext)
+	   (type sequence segments))
+  (with-buffer-request ((drawable-display drawable) +x-polysegment+ :gc-force gcontext)
     (drawable drawable)
     (gcontext gcontext)
     ((sequence :format int16) segments)))
@@ -181,14 +181,14 @@
 	   (type gcontext gcontext)
 	   (type int16 x y)
 	   (type card16 width height)
-	   (type boolean fill-p))
+	   (type generalized-boolean fill-p))
   (let ((display (drawable-display drawable))
-	(request (if fill-p *x-polyfillrectangle* *x-polyrectangle*)))
+	(request (if fill-p +x-polyfillrectangle+ +x-polyrectangle+)))
     (declare (type display display)
 	     (type card16 request))
     (with-display (display)
       (force-gcontext-changes-internal gcontext)
-      (with-buffer-output (display :length *requestsize*)
+      (with-buffer-output (display :length +requestsize+)
 	(let* ((last-request-byte (display-last-request display))
 	       (current-boffset buffer-boffset))
 	  ;; To append or not append, that is the question
@@ -227,16 +227,16 @@
 	      (buffer-new-request-number display)
 	      (setf (buffer-last-request display) buffer-boffset)
 	      (setf (display-boffset display) (index+ buffer-boffset 20)))))))
-    (display-invoke-after-function display))) 
+    (display-invoke-after-function display)))
 
 (defun draw-rectangles (drawable gcontext rectangles &optional fill-p)
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
 	   ;; (repeat-seq (integer x) (integer y) (integer width) (integer height)))
 	   (type sequence rectangles)
-	   (type boolean fill-p))
+	   (type generalized-boolean fill-p))
   (with-buffer-request ((drawable-display drawable)
-			(if fill-p *x-polyfillrectangle* *x-polyrectangle*)
+			(if fill-p +x-polyfillrectangle+ +x-polyrectangle+)
 			:gc-force gcontext)
     (drawable drawable)
     (gcontext gcontext)
@@ -249,14 +249,14 @@
 	   (type int16 x y)
 	   (type card16 width height)
 	   (type angle angle1 angle2)
-	   (type boolean fill-p))
+	   (type generalized-boolean fill-p))
   (let ((display (drawable-display drawable))
-	(request (if fill-p *x-polyfillarc* *x-polyarc*)))
+	(request (if fill-p +x-polyfillarc+ +x-polyarc+)))
     (declare (type display display)
 	     (type card16 request))
     (with-display (display)
       (force-gcontext-changes-internal gcontext)
-      (with-buffer-output (display :length *requestsize*)
+      (with-buffer-output (display :length +requestsize+)
 	(let* ((last-request-byte (display-last-request display))
 	       (current-boffset buffer-boffset))
 	  ;; To append or not append, that is the question
@@ -275,7 +275,7 @@
 			   nil))))
 	      ;; Append request
 	      (progn
-		;; Set new request length		
+		;; Set new request length
 		(card16-put 2 (index+ 3 (index-ash (index- current-boffset last-request-byte)
 						   -2)))
 		(set-buffer-offset current-boffset)
@@ -297,17 +297,17 @@
 	      (buffer-new-request-number display)
 	      (setf (buffer-last-request display) buffer-boffset)
 	      (setf (display-boffset display) (index+ buffer-boffset 24)))))))
-    (display-invoke-after-function display))) 
+    (display-invoke-after-function display)))
 
 (defun draw-arcs-list (drawable gcontext arcs &optional fill-p)
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
-	   (type list arcs) 
-	   (type boolean fill-p))
+	   (type list arcs)
+	   (type generalized-boolean fill-p))
   (let* ((display (drawable-display drawable))
 	 (limit (index- (buffer-size display) 12))
 	 (length (length arcs))
-	 (request (if fill-p *x-polyfillarc* *x-polyarc*)))
+	 (request (if fill-p +x-polyfillarc+ +x-polyarc+)))
     (with-buffer-request ((drawable-display drawable) request :gc-force gcontext)
       (drawable drawable)
       (gcontext gcontext)
@@ -333,12 +333,12 @@
 (defun draw-arcs-vector (drawable gcontext arcs &optional fill-p)
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
-	   (type vector arcs) 
-	   (type boolean fill-p))
+	   (type vector arcs)
+	   (type generalized-boolean fill-p))
   (let* ((display (drawable-display drawable))
 	 (limit (index- (buffer-size display) 12))
 	 (length (length arcs))
-	 (request (if fill-p *x-polyfillarc* *x-polyarc*)))
+	 (request (if fill-p +x-polyfillarc+ +x-polyarc+)))
     (with-buffer-request ((drawable-display drawable) request :gc-force gcontext)
       (drawable drawable)
       (gcontext gcontext)
@@ -365,8 +365,8 @@
 (defun draw-arcs (drawable gcontext arcs &optional fill-p)
   (declare (type drawable drawable)
 	   (type gcontext gcontext)
-	   (type sequence arcs) 
-	   (type boolean fill-p))
+	   (type sequence arcs)
+	   (type generalized-boolean fill-p))
   (etypecase arcs
     (list (draw-arcs-list drawable gcontext arcs fill-p))
     (vector (draw-arcs-vector drawable gcontext arcs fill-p))))
@@ -397,7 +397,7 @@
 	   (type int16 x y) ;; required
 	   (type card16 width height) ;; required
 	   (type (member :bitmap :xy-pixmap :z-pixmap) format))
-  (with-buffer-request ((drawable-display drawable) *x-putimage* :gc-force gcontext)
+  (with-buffer-request ((drawable-display drawable) +x-putimage+ :gc-force gcontext)
     ((data (member :bitmap :xy-pixmap :z-pixmap)) format)
     (drawable drawable)
     (gcontext gcontext)
@@ -429,9 +429,9 @@
 	   (type array-index start)
 	   (type pixel plane-mask)
 	   (type (member :xy-pixmap :z-pixmap) format))
-  (declare (values (sequence integer) depth visual-info))
+  (declare (clx-values (clx-sequence integer) depth visual-info))
   (let ((display (drawable-display drawable)))
-    (with-buffer-request-and-reply (display *x-getimage* nil :sizes (8 32))
+    (with-buffer-request-and-reply (display +x-getimage+ nil :sizes (8 32))
 	 (((data (member error :xy-pixmap :z-pixmap)) format)
 	  (drawable drawable)
 	  (int16 x y)
@@ -442,6 +442,6 @@
 	    (visual (resource-id-get 8)))
 	(values (sequence-get :result-type result-type :format card8
 			      :length length :start start :data data
-			      :index *replysize*)
+			      :index +replysize+)
 		depth
 		(visual-info display visual))))))

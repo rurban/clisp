@@ -31,8 +31,6 @@
 ;; returned.
 
 (deftype translation-function ()
-  #+explorer t
-  #-explorer
   '(function (sequence array-index array-index (or null font) vector array-index)
 	     (values array-index (or null int16 font) (or null int32))))
 
@@ -44,7 +42,7 @@
 ;; Specifying width is simply a hint, for performance.  Note that specifying
 ;; width may be difficult if transform can return nil.
 
-(defun translate-default (src src-start src-end font dst dst-start)
+(defun translate-default (src src-start src-end afont dst dst-start)
   ;; dst is guaranteed to have room for (- src-end src-start) integer elements,
   ;; starting at dst-start; whether dst holds 8-bit or 16-bit elements depends
   ;; on context.  font is the current font, if known.  The function should
@@ -63,36 +61,44 @@
   ;; (returns values: ending-index
   ;;                  (OR null horizontal-motion font)
   ;;                  (OR null translated-width))
+
+  ;; This is for replacing the clx-translate-default-function
+  ;; who does'nt know about accentated characters because
+  ;; of a call to cl:graphic-char-p that return nil with accentated characters.
+  ;; For further informations, on a clx-translate-function, see the clx-man.
   (declare (type sequence src)
-	   (type array-index src-start src-end dst-start)
-	   (type (or null font) font)
-	   (type vector dst)
-	   (inline graphic-char-p))
-  (declare (values integer (or null integer font) (or null integer)))
-  font ;;not used
-  (if (stringp src)
-      (do ((i src-start (index+ i 1))
-	   (j dst-start (index+ j 1))
-	   (char))
-	  ((index>= i src-end)
-	   i)
-	(declare (type array-index i j))
-	(if (graphic-char-p (setq char (char src i)))
-	    (setf (aref dst j) (char->card8 char))
-	  (return i)))
-      (do ((i src-start (index+ i 1))
-	   (j dst-start (index+ j 1))
-	   (elt))
-	  ((index>= i src-end)
-	   i)
-	(declare (type array-index i j))
-	(setq elt (elt src i))
-	(cond ((and (characterp elt) (graphic-char-p elt))
-	       (setf (aref dst j) (char->card8 elt)))
-	      ((integerp elt)
-	       (setf (aref dst j) elt))
-	      (t
-	       (return i))))))
+           (type xlib:array-index src-start src-end dst-start)
+           (type (or null xlib:font) afont)
+           (type vector dst))
+  (declare (xlib::clx-values integer (or null integer xlib:font) (or null integer)))
+
+  (let ((min-char-index (xlib:font-min-char afont))
+        (max-char-index (xlib:font-max-char afont)))
+    afont
+    (if (stringp src)
+        (do ((i src-start (xlib::index+ i 1))
+             (j dst-start (xlib::index+ j 1))
+             (char))
+            ((xlib::index>= i src-end)
+             i)
+            (declare (type xlib:array-index i j))
+            (setq char (xlib:char->card8 (char src i)))
+            (if (or (< char min-char-index) (> char max-char-index))
+                (return i)
+                (setf (aref dst j) char)))
+        (do ((i src-start (xlib::index+ i 1))
+             (j dst-start (xlib::index+ j 1))
+             (elt))
+            ((xlib::index>= i src-end)
+             i)
+            (declare (type xlib:array-index i j))
+            (setq elt (elt src i))
+            (when (characterp elt) (setq elt (xlib:char->card8 elt)))
+            (if (or (not (integerp elt))
+                    (< elt min-char-index)
+                    (> elt max-char-index))
+                (return i)
+                (setf (aref dst j) elt))))))
 
 ;; There is a question below of whether translate should always be required, or
 ;; if not, what the default should be or where it should come from.  For
@@ -110,11 +116,8 @@
   (declare (type sequence sequence)
 	   (type (or font gcontext) font))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg #+Genera * #-Genera translate))
-  (declare (values width ascent descent left right
+	   (dynamic-extent translate))
+  (declare (clx-values width ascent descent left right
 		  font-ascent font-descent direction
 		  (or null array-index)))
   (when (type? font 'gcontext)
@@ -129,7 +132,7 @@
 	 (descent 0)
 	 (overall-ascent (font-ascent font))
 	 (overall-descent (font-descent font))
-	 (overall-direction (font-direction font))	 
+	 (overall-direction (font-direction font))
 	 (next-start nil)
 	 (display (font-display font)))
     (declare (type int16 ascent descent overall-ascent overall-descent)
@@ -140,8 +143,8 @@
       (do* ((wbuf (display-tbuf16 display))
 	    (src-end (or end (length sequence)))
 	    (src-start start (index+ src-start buf-end))
-	    (end (index-min src-end (index+ src-start *buffer-text16-size*))
-		 (index-min src-end (index+ src-start *buffer-text16-size*)))
+	    (end (index-min src-end (index+ src-start +buffer-text16-size+))
+		 (index-min src-end (index+ src-start +buffer-text16-size+)))
 	    (buf-end 0)
 	    (new-font)
 	    (font-ascent 0)
@@ -154,7 +157,7 @@
 	(declare (type buffer-text16 wbuf)
 		 (type array-index src-start src-end end buf-end)
 		 (type int16 font-ascent font-descent)
-		 (type boolean stop-p))
+		 (type generalized-boolean stop-p))
 	;; Translate the text
 	(multiple-value-setq (buf-end new-font)
 	  (funcall (or translate #'translate-default)
@@ -162,7 +165,7 @@
 	(setq buf-end (- buf-end src-start))
 	(cond ((null new-font) (setq stop-p t))
 	      ((integerp new-font) (incf width (the int32 new-font))))
-	
+
 	(let (w a d l r)
 	  (if (or (font-char-infos-internal font) (font-local-only-p font))
 	      ;; Calculate text extents locally
@@ -199,7 +202,7 @@
 			    (setq overall-direction nil)))
 	  (:right-to-left (unless (eq font-direction :right-to-left)
 			    (setq overall-direction nil))))))
-    
+
     (values width
 	    ascent
 	    descent
@@ -217,11 +220,8 @@
 	   (type array-index start)
 	   (type (or null array-index) end))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg #+Genera * #-Genera translate))
-  (declare (values integer (or null integer)))
+	   (dynamic-extent translate))
+  (declare (clx-values integer (or null integer)))
   (when (type? font 'gcontext)
     (force-gcontext-changes font)
     (setq font (gcontext-font font t)))
@@ -236,8 +236,8 @@
       (do* ((wbuf (display-tbuf16 display))
 	    (src-end (or end (length sequence)))
 	    (src-start start (index+ src-start buf-end))
-	    (end (index-min src-end (index+ src-start *buffer-text16-size*))
-		 (index-min src-end (index+ src-start *buffer-text16-size*)))
+	    (end (index-min src-end (index+ src-start +buffer-text16-size+))
+		 (index-min src-end (index+ src-start +buffer-text16-size+)))
 	    (buf-end 0)
 	    (new-font)
 	    (stop-p nil))
@@ -246,7 +246,7 @@
 	      (setq next-start src-start)))
 	(declare (type buffer-text16 wbuf)
 		 (type array-index src-start src-end end buf-end)
-		 (type boolean stop-p))
+		 (type generalized-boolean stop-p))
 	;; Translate the text
 	(multiple-value-setq (buf-end new-font)
 	  (funcall (or translate #'translate-default)
@@ -254,7 +254,7 @@
 	(setq buf-end (- buf-end src-start))
 	(cond ((null new-font) (setq stop-p t))
 	      ((integerp new-font) (incf width (the int32 new-font))))
-	
+
 	(incf width
 	      (if (or (font-char-infos-internal font) (font-local-only-p font))
 		  (text-extents-local font wbuf 0 buf-end :width-only)
@@ -267,14 +267,14 @@
   (declare (type font font)
 	   (type string string)
 	   (type array-index start end))
-  (declare (values width ascent descent left right font-ascent font-descent direction))
+  (declare (clx-values width ascent descent left right font-ascent font-descent direction))
   (let ((display (font-display font))
 	(length (index- end start))
 	(font-id (font-id font)))
     (declare (type display display)
 	     (type array-index length)
 	     (type resource-id font-id))
-    (with-buffer-request-and-reply (display *x-querytextextents* 28 :sizes (8 16 32))
+    (with-buffer-request-and-reply (display +x-querytextextents+ 28 :sizes (8 16 32))
 	 (((data boolean) (oddp length))
 	  (length (index+ (index-ceiling length 2) 2))
 	  (resource-id font-id)
@@ -294,14 +294,14 @@
   (declare (type (or font gcontext) font)
 	   (type string string)
 	   (type array-index start end))
-  (declare (values integer))
+  (declare (clx-values integer))
   (let ((display (font-display font))
 	(length (index- end start))
 	(font-id (font-id font)))
     (declare (type display display)
 	     (type array-index length)
 	     (type resource-id font-id))
-    (with-buffer-request-and-reply (display *x-querytextextents* 28 :sizes 32)
+    (with-buffer-request-and-reply (display +x-querytextextents+ 28 :sizes 32)
 	 (((data boolean) (oddp length))
 	  (length (index+ (index-ceiling length 2) 2))
 	  (resource-id font-id)
@@ -313,13 +313,12 @@
   (declare (type font font)
 	   (type sequence sequence)
 	   (type integer start end)
-	   (type boolean width-only-p))
-  (declare (values width ascent descent overall-left overall-right))
+	   (type generalized-boolean width-only-p))
+  (declare (clx-values width ascent descent overall-left overall-right))
   (let* ((char-infos (font-char-infos font))
 	 (font-info (font-font-info font)))
     (declare (type font-info font-info))
-    (declare (type (simple-array int16 (*)) char-infos)
-	     (array-register char-infos))
+    (declare (type (simple-array int16 (*)) char-infos))
     (if (zerop (length char-infos))
 	;; Fixed width font
 	(let* ((font-width (max-char-width font))
@@ -335,7 +334,7 @@
 		    font-descent
 		    (max-char-left-bearing font)
 		    (+ width (- font-width) (max-char-right-bearing font)))))
-      
+
       ;; Variable-width font
       (let* ((first-col (font-info-min-byte2 font-info))
 	     (num-cols (1+ (- (font-info-max-byte2 font-info) first-col)))
@@ -345,7 +344,7 @@
 	(declare (type card8 first-col first-row last-row)
 		 (type card16 num-cols num-rows))
 	(if (or (plusp first-row) (plusp last-row))
-	    
+
 	    ;; Matrix (16 bit) font
 	    (macrolet ((char-info-elt (sequence elt)
 			 `(let* ((char (the card16 (elt ,sequence ,elt)))
@@ -386,7 +385,7 @@
 		      (incf width (aref char-infos (index+ 2 n)))
 		      (setq ascent (max ascent (aref char-infos (index+ 3 n))))
 		      (setq descent (max descent (aref char-infos (index+ 4 n)))))))))
-	  
+
 	  ;; Non-matrix (8 bit) font
 	  ;; The code here is identical to the above, except for the following macro:
 	  (macrolet ((char-info-elt (sequence elt)
@@ -462,14 +461,11 @@
 	   (type (or null int32) width)
 	   (type index-size size))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg #+Genera * #-Genera translate))
-  (declare (values boolean (or null int32)))
+	   (dynamic-extent translate))
+  (declare (clx-values generalized-boolean (or null int32)))
   (let* ((display (gcontext-display gcontext))
 	 (result t)
-	 (opcode *x-polytext8*))
+	 (opcode +x-polytext8+))
     (declare (type display display))
     (let ((vector (allocate-gcontext-state)))
       (declare (type gcontext-state vector))
@@ -478,7 +474,7 @@
 	  (funcall (or translate #'translate-default)
 		   vector 0 1 (gcontext-font gcontext t) vector 1)
 	;; Allow translate to set a new font
-	(when (type? new-font 'font) 
+	(when (type? new-font 'font)
 	  (setf (gcontext-font gcontext) new-font)
 	  (multiple-value-setq (new-start new-font translate-width)
 	    (funcall translate vector 0 1 new-font vector 1)))
@@ -489,7 +485,7 @@
 	(when translate-width (setq width translate-width))))
     (when result
       (when (eql size 16)
-	(setq opcode *x-polytext16*)
+	(setq opcode +x-polytext16+)
 	(setq elt (dpb elt (byte 8 8) (ldb (byte 8 8) elt))))
       (with-buffer-request (display opcode :gc-force gcontext)
 	(drawable drawable)
@@ -499,7 +495,7 @@
 	(card8 (ldb (byte 8 0) elt))
 	(card8 (ldb (byte 8 8) elt)))
       (values t width))))
-  
+
 (defun draw-glyphs (drawable gcontext x y sequence
 		    &key (start 0) end translate width (size :default))
   ;; First result is new start, if end was not reached.  Second result is
@@ -513,11 +509,8 @@
 	   (type (or null int32) width)
 	   (type index-size size))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg #+Genera * #-Genera translate))
-  (declare (values (or null array-index) (or null int32)))
+	   (dynamic-extent translate))
+  (declare (clx-values (or null array-index) (or null int32)))
   (unless end (setq end (length sequence)))
   (ecase size
     ((:default 8) (draw-glyphs8 drawable gcontext x y sequence start end
@@ -535,12 +528,9 @@
 	   (type sequence sequence)
 	   (type (or null array-index) end)
 	   (type (or null int32) width))
-  (declare (values (or null array-index) (or null int32)))
+  (declare (clx-values (or null array-index) (or null int32)))
   (declare (type translation-function translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg translate)) 
+	   (dynamic-extent translate))
   (let* ((src-start start)
 	 (src-end (or end (length sequence)))
 	 (next-start nil)
@@ -552,7 +542,7 @@
     (declare (type array-index src-start src-end length)
 	     (type (or null array-index) next-start)
 	     (type display display))
-    (with-buffer-request (display *x-polytext8* :gc-force gcontext :length request-length)
+    (with-buffer-request (display +x-polytext8+ :gc-force gcontext :length request-length)
       (drawable drawable)
       (gcontext gcontext)
       (int16 x y)
@@ -579,7 +569,7 @@
 
 	    (declare (type array-index src-chunk dst-chunk offset)
 		     (type (or null int32) overall-width)
-		     (type boolean stop-p))
+		     (type generalized-boolean stop-p))
 	    (setq src-chunk (index-min length *max-string-size*))
 	    (multiple-value-bind (new-start new-font translated-width)
 		(funcall translate
@@ -638,12 +628,9 @@
 	   (type sequence sequence)
 	   (type (or null array-index) end)
 	   (type (or null int32) width))
-  (declare (values (or null array-index) (or null int32)))
+  (declare (clx-values (or null array-index) (or null int32)))
   (declare (type translation-function translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg translate))
+	   (dynamic-extent translate))
   (let* ((src-start start)
 	 (src-end (or end (length sequence)))
 	 (next-start nil)
@@ -657,7 +644,7 @@
 	     (type (or null array-index) next-start)
 	     (type display display)
 	     (type buffer-text16 buffer))
-    (with-buffer-request (display *x-polytext16* :gc-force gcontext :length request-length)
+    (with-buffer-request (display +x-polytext16+ :gc-force gcontext :length request-length)
       (drawable drawable)
       (gcontext gcontext)
       (int16 x y)
@@ -684,7 +671,7 @@
 
 	    (declare (type array-index boffset src-chunk dst-chunk offset)
 		     (type (or null int32) overall-width)
-		     (type boolean stop-p))
+		     (type generalized-boolean stop-p))
 	    (setq src-chunk (index-min length *max-string-size*))
 	    (multiple-value-bind (new-start new-font translated-width)
 		(funcall translate
@@ -704,7 +691,7 @@
 	      (setq offset 0)
 	      (cond ((null new-font)
 		     ;; Don't stop if translate copied whole chunk
-		     (unless (index= src-chunk dst-chunk) 
+		     (unless (index= src-chunk dst-chunk)
 		       (setq stop-p t)))
 		    ((integerp new-font) (setq offset new-font))
 		    ((type? new-font 'font)
@@ -743,14 +730,11 @@
 	   (type (or null int32) width)
 	   (type index-size size))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg #+Genera * #-Genera translate))
-  (declare (values boolean (or null int32)))
+	   (dynamic-extent translate))
+  (declare (clx-values generalized-boolean (or null int32)))
   (let* ((display (gcontext-display gcontext))
 	 (result t)
-	 (opcode *x-imagetext8*))
+	 (opcode +x-imagetext8+))
     (declare (type display display))
     (let ((vector (allocate-gcontext-state)))
       (declare (type gcontext-state vector))
@@ -759,7 +743,7 @@
 	  (funcall (or translate #'translate-default)
 		   vector 0 1 (gcontext-font gcontext t) vector 1)
 	;; Allow translate to set a new font
-	(when (type? new-font 'font) 
+	(when (type? new-font 'font)
 	  (setf (gcontext-font gcontext) new-font)
 	  (multiple-value-setq (new-start new-font translate-width)
 	    (funcall translate vector 0 1 new-font vector 1)))
@@ -770,7 +754,7 @@
 	(when translate-width (setq width translate-width))))
     (when result
       (when (eql size 16)
-	(setq opcode *x-imagetext16*)
+	(setq opcode +x-imagetext16+)
 	(setq elt (dpb elt (byte 8 8) (ldb (byte 8 8) elt))))
       (with-buffer-request (display opcode :gc-force gcontext)
 	(drawable drawable)
@@ -799,11 +783,8 @@
 	   (type (or null int32) width)
 	   (type index-size size))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg #+Genera * #-Genera translate))
-  (declare (values (or null array-index) (or null int32)))
+	   (dynamic-extent translate))
+  (declare (clx-values (or null array-index) (or null int32)))
   (setf end (index-min (index+ start 255) (or end (length sequence))))
   (ecase size
     ((:default 8)
@@ -825,13 +806,10 @@
 	   (type array-index start)
 	   (type sequence sequence)
 	   (type (or null array-index) end)
-	   (type (or null int32) width)) 
+	   (type (or null int32) width))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg translate))
-  (declare (values (or null array-index) (or null int32)))
+	   (dynamic-extent translate))
+  (declare (clx-values (or null array-index) (or null int32)))
   (do* ((display (gcontext-display gcontext))
 	(length (index- end start))
 	;; Should metrics-p be T?  Don't want to pass a NIL font into translate...
@@ -842,11 +820,11 @@
     (declare (type display display)
 	     (type array-index length)
 	     (type (or null array-index) new-start chunk))
-    
+
     (when font-change
       (setf (gcontext-font gcontext) font))
     (block change-font
-      (with-buffer-request (display *x-imagetext8* :gc-force gcontext :length length)
+      (with-buffer-request (display +x-imagetext8+ :gc-force gcontext :length length)
 	(drawable drawable)
 	(gcontext gcontext)
 	(int16 x y)
@@ -859,7 +837,7 @@
 	      (funcall (or translate #'translate-default) sequence start end
 		       font buffer-bbuf (index+ buffer-boffset 16)))
 	    ;; Number of glyphs translated
-	    (setq chunk (index- new-start start))		
+	    (setq chunk (index- new-start start))
 	    ;; Check for initial font change
 	    (when (and (index-zerop chunk) (type? font 'font))
 	      (setq font-change t) ;; Loop around changing font
@@ -893,20 +871,17 @@
 	   (type (or null array-index) end)
 	   (type (or null int32) width))
   (declare (type (or null translation-function) translate)
-	   #+clx-ansi-common-lisp
-	   (dynamic-extent translate)
-	   #+(and lispm (not clx-ansi-common-lisp))
-	   (sys:downward-funarg translate))
-  (declare (values (or null array-index) (or null int32)))
+	   (dynamic-extent translate))
+  (declare (clx-values (or null array-index) (or null int32)))
   (do* ((display (gcontext-display gcontext))
 	(length (index- end start))
 	;; Should metrics-p be T?  Don't want to pass a NIL font into translate...
-	(font (gcontext-font gcontext t)) 
+	(font (gcontext-font gcontext t))
 	(font-change nil)
 	(new-start) (translated-width) (chunk)
 	(buffer (buffer-tbuf16 display)))
        (nil) ;; forever
-    
+
     (declare (type display display)
 	     (type array-index length)
 	     (type (or null array-index) new-start chunk)
@@ -915,7 +890,7 @@
       (setf (gcontext-font gcontext) font))
 
     (block change-font
-      (with-buffer-request (display *x-imagetext16* :gc-force gcontext :length length)
+      (with-buffer-request (display +x-imagetext16+ :gc-force gcontext :length length)
 	(drawable drawable)
 	(gcontext gcontext)
 	(int16 x y)
@@ -952,12 +927,12 @@
 
 (defun display-keycode-range (display)
   (declare (type display display))
-  (declare (values min max))
+  (declare (clx-values min max))
   (values (display-min-keycode display)
 	  (display-max-keycode display)))
 
 ;; Should this signal device-busy like the pointer-mapping setf, and return a
-;; boolean instead (true for success)?  Alternatively, should the
+;; generalized-boolean instead (true for success)?  Alternatively, should the
 ;; pointer-mapping setf be changed to set-pointer-mapping with a (member
 ;; :success :busy) result?
 
@@ -965,7 +940,7 @@
   ;; Setf ought to allow multiple values.
   (declare (type display display)
 	   (type sequence shift lock control mod1 mod2 mod3 mod4 mod5))
-  (declare (values (member :success :busy :failed)))
+  (declare (clx-values (member :success :busy :failed)))
   (let* ((keycodes-per-modifier (index-max (length shift)
 					   (length lock)
 					   (length control)
@@ -985,7 +960,7 @@
     (replace data mod3 :start1 (index* 5 keycodes-per-modifier))
     (replace data mod4 :start1 (index* 6 keycodes-per-modifier))
     (replace data mod5 :start1 (index* 7 keycodes-per-modifier))
-    (with-buffer-request-and-reply (display *x-setmodifiermapping* 4 :sizes 8)
+    (with-buffer-request-and-reply (display +x-setmodifiermapping+ 4 :sizes 8)
 	 ((data keycodes-per-modifier)
 	  ((sequence :format card8) data))
       (values (member8-get 1 :success :busy :failed)))))
@@ -993,12 +968,12 @@
 (defun modifier-mapping (display)
   ;; each value is a list of integers
   (declare (type display display))
-  (declare (values shift lock control mod1 mod2 mod3 mod4 mod5))
+  (declare (clx-values shift lock control mod1 mod2 mod3 mod4 mod5))
   (let ((lists nil))
-    (with-buffer-request-and-reply (display *x-getmodifiermapping* nil :sizes 8)
+    (with-buffer-request-and-reply (display +x-getmodifiermapping+ nil :sizes 8)
 	 ()
       (do* ((keycodes-per-modifier (card8-get 1))
-	    (advance-by *replysize* keycodes-per-modifier)
+	    (advance-by +replysize+ keycodes-per-modifier)
 	    (keys nil nil)
 	    (i 0 (index+ i 1)))
 	   ((index= i 8))
@@ -1028,7 +1003,7 @@
 	 (size (index* length keysyms-per-keycode))
 	 (request-length (index+ size 2)))
     (declare (type array-index keycode-end keysyms-per-keycode length request-length))
-    (with-buffer-request (display *x-setkeyboardmapping*
+    (with-buffer-request (display +x-setkeyboardmapping+
 				  :length (index-ash request-length 2)
 				  :sizes (32))
       (data length)
@@ -1048,7 +1023,7 @@
 	      ((index>= j keysyms-per-keycode))
 	    (declare (type array-index j))
 	    (card29-put (index* w 4) (aref keysyms i j))
-	    (index-incf w))))))) 
+	    (index-incf w)))))))
 
 (defun keyboard-mapping (display &key first-keycode start end data)
   ;; First-keycode specifies which keycode to start at (defaults to min-keycode).
@@ -1059,15 +1034,15 @@
 	   (type (or null card8) first-keycode)
 	   (type (or null array-index) start end)
 	   (type (or null (array * (* *))) data))
-  (declare (values (array * (* *))))
+  (declare (clx-values (array * (* *))))
   (unless first-keycode (setq first-keycode (display-min-keycode display)))
   (unless start (setq start first-keycode))
   (unless end (setq end (1+ (display-max-keycode display))))
-  (with-buffer-request-and-reply (display *x-getkeyboardmapping* nil :sizes (8 32))
+  (with-buffer-request-and-reply (display +x-getkeyboardmapping+ nil :sizes (8 32))
        ((card8 first-keycode (index- end start)))
     (do* ((keysyms-per-keycode (card8-get 1))
 	  (bytes-per-keycode (* keysyms-per-keycode 4))
-	  (advance-by *replysize* bytes-per-keycode)
+	  (advance-by +replysize+ bytes-per-keycode)
 	  (keycode-count (floor (card32-get 4) keysyms-per-keycode)
 			 (index- keycode-count 1))
 	  (result (if (and (arrayp data)

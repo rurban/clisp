@@ -50,7 +50,7 @@
 (defun trace-display (display)
   "Start a trace on DISPLAY.
  If display is already being traced, this discards previous history.
- See show-trace and describe-trace."  
+ See show-trace and describe-trace."
   (declare (type display display))
   (unless (getf (display-plist display) 'write-function)
     (bind-io-hooks display))
@@ -72,7 +72,7 @@
 	(bind-io-hooks display)
 	(remf (display-plist display) 'suspend-display-tracing))
     (warn "Tracing was not suspended for ~s" display)))
-  
+
 (defun untrace-display (display)
   "Stop tracing DISPLAY."
   (declare (type display display))
@@ -110,7 +110,7 @@
       (setf (display-input-function display) input-function))
     (remf (display-plist display) 'write-function)
     (remf (display-plist display) 'input-function)))
-  
+
 
 (defun byte-ref16 (vector index)
   #+clx-little-endian
@@ -127,7 +127,7 @@
 (defun byte-ref32 (a i)
   (declare (type buffer-bytes a)
 	   (type array-index i))
-  (declare (values card32))
+  (declare (clx-values card32))
   (declare-buffun)
   #+clx-little-endian
   (the card32
@@ -211,7 +211,7 @@
 			 (subseq vector start (+ start append-length))))
 	  (index-incf start append-length)
 	  (index-decf length append-length))))
-    
+
     ;; Copy new requests into the history
     (when (plusp length)
       (let ((reply-type (case (aref vector start) (0 :error) (1 :reply)
@@ -301,7 +301,7 @@
     (buffer-replace (reply-ibuf8 event)
 		    vector
 		    0
-		    *replysize*)
+		    +replysize+)
     (reading-event (event)
       (let* ((type (read-card8 0))
 	     (error-code (read-card8 1))
@@ -319,7 +319,7 @@
 		 ((colormap-error cursor-error drawable-error font-error gcontext-error
 				  id-choice-error pixmap-error window-error)
 		  (list :resource-id resource-id))
-		 (atom-error 
+		 (atom-error
 		  (list :atom-id resource-id))
 		 (value-error
 		  (list :value resource-id))
@@ -328,7 +328,7 @@
 		  (setq error-code 0)
 		  (list :error-code error-code)))))
 	type
-	(let ((condition 
+	(let ((condition
 		(apply #+lispm #'si:make-condition
 		       #+allegro #'make-condition
 		       #-(or lispm allegro) #'make-condition
@@ -392,7 +392,7 @@ If there is more than one event, return NUMBER in the sequence."
 		  (nil)
 		(if (setq vector (find-trace display event sequence i))
 		    (setq last-vector vector)
-		  (progn 
+		  (progn
 		    (format t "~%Event number ~d not found, last event was ~d"
 			    number (1- i))
 		    (return (trace-event-print display last-vector)))))
@@ -409,7 +409,7 @@ If there is more than one event, return NUMBER in the sequence."
     (buffer-replace (reply-ibuf8 event)
 		    vector
 		    0
-		    *replysize*)
+		    +replysize+)
     (prog1 (funcall event-decoder display event
 		    #'(lambda (&rest args &key send-event-p &allow-other-keys)
 			(setq args (copy-list args))
