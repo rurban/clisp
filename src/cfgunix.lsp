@@ -6,8 +6,8 @@
 (mapcar #'fmakunbound '(short-site-name long-site-name
                         editor-name edit-file editor-tempfile))
 
-(defun short-site-name () "Karlsruhe")
-(defun long-site-name () "Augartenstraﬂe 40, D-76137 Karlsruhe, Deutschland")
+(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
+(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:
