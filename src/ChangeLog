@@ -1,6 +1,6 @@
 2000-07-26  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in: Initialize install_root with $(DESTDIR).
+        * makemake.in (DESTDIR): Renamed from 'install_root'.
 
 2000-07-20  Sam Steingold  <sds@gnu.org>
 
