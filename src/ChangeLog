@@ -1,5 +1,11 @@
 1999-03-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * aclocal.m4 (CL_ICONV): Add check for iconv prototype.
+        * unixconf.h.in (ICONV_CONST): New macro.
+        * unix.d (iconv): Use ICONV_CONST.
+
+1999-03-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (CLISP_INTERNAL_CHARSET): For HP-UX, set it to "ucs2".
 
 1999-03-17  Sam Steingold  <sds@gnu.org>

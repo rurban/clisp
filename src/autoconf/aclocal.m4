@@ -4088,6 +4088,21 @@ cl_cv_func_iconv=yes, cl_cv_func_iconv=no)
 ])
 if test $cl_cv_func_iconv = yes; then
   AC_DEFINE(HAVE_ICONV)
+CL_PROTO([iconv], [
+CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <iconv.h>
+], [size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t* outbytesleft);],
+[size_t iconv();],
+cl_cv_proto_iconv_arg1)],
+[extern size_t iconv (iconv_t cd, $cl_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t* outbytesleft);])
+AC_DEFINE_UNQUOTED(ICONV_CONST,$cl_cv_proto_iconv_arg1)
 fi
 ])dnl
 dnl
