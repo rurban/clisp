@@ -18,8 +18,6 @@
   #include <stdlib.h>
   #include <sys/types.h>
   #include <unistd.h>
-  #define RETSTRLENTYPE size_t
-  #define STRLEN_CONST const
 
 # Tabelle der System-Fehlermeldungen
   #include <errno.h>
@@ -167,7 +165,7 @@
   #include <dirent.h>
   #define SDIRENT  struct dirent
   #if 0 # Die allgemeinen Routinen
-    #define DIRENT_WITHOUT_NAMLEN  # d_namlen includes the trailing null byte
+    #define HAVE_STRUCT_DIRENT_D_NAMLEN /* d_namlen includes the trailing null byte */
     #define d_reclen  d_namlen
     extern_C DIR* opendir (char* dirname); # siehe DIRECTORY(3V)
     extern_C SDIRENT* readdir (DIR* dirp); # siehe DIRECTORY(3V)

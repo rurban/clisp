@@ -53,9 +53,6 @@
 #include <errno.h>
 
 #include <string.h>  /* declares strcmp(), strlen(), strcpy() */
-#ifdef RETSTRLENTYPE /* unless strlen() is a macro */
-  extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
-#endif
 
 /* ============ hostnames and IP addresses only (no sockets) ============ */
 
@@ -119,14 +116,7 @@
     #endif
   #endif
   #ifdef HAVE_GETHOSTBYNAME
-    /* include <sys/types.h> */
-    #ifdef HAVE_NETDB_H
-      /* #include <sys/socket.h> */
-      /* #include <netdb.h> */
-    #else
-      /* #include <sun/netdb.h> */
-    #endif
-    extern_C struct hostent * gethostbyname (GETHOSTBYNAME_CONST char* name);
+/* gethostbyname() prototype should be already available */
   #endif
 #elif defined(HAVE_IPV6)
   #define in6_addr in_addr6
@@ -451,11 +441,6 @@ local SOCKET with_hostname (const char* host, unsigned short port,
 
 #ifndef WIN32
   #include <fcntl.h> /* declares fcntl() and defines F_SETFD */
-  #ifdef FCNTL_DOTS
-    extern_C int fcntl (int fd, int cmd, ...);
-  #else
-    extern_C int fcntl (int fd, int cmd, int arg);
-  #endif
   #ifndef FD_CLOEXEC
     #define FD_CLOEXEC  1
   #endif

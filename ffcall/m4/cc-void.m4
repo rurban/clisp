@@ -1,3 +1,4 @@
+dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
@@ -7,7 +8,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.57)
 
 AC_DEFUN([RL_VOID],
 [CL_COMPILE_CHECK([working void], rl_cv_c_void, ,
@@ -22,10 +23,11 @@ AC_DEFUN([CL_VOID],
 [void f();
 typedef void x; x g();
 typedef void* y; y a;
-], have_void=1, AC_DEFINE(void,char))dnl
+], have_void=1, AC_DEFINE(void,char,[Define to, say, char, if your system does not support void type]))dnl
 if test -n "$have_void"; then
 CL_COMPILE_CHECK([working \"return void\"], cl_cv_c_return_void,
 [void f() {} typedef void x; x g() { return f(); }], [],
-AC_DEFINE(return_void,[return]), AC_DEFINE(return_void,[]))dnl
+cl_cv_c_return_void_form=return, cl_cv_c_return_void_form="")
 fi
+AC_DEFINE_UNQUOTED(return_void,$cl_cv_c_return_void_form,[Define as `return' if your compiler allows returning expressions of type `void' from functions])
 ])

@@ -113,10 +113,12 @@
   extern void install_sigint_handler (void);
 # used by spvw.d
 
-# Environment variables
-  #include <stdlib.h>
-  extern char* getenv (const char* name);
-# used by pathname.d, misc.d
+/* Environment variables - getenv()
+ (note that win32 maintains two separate enviroment block,
+  one accessed by getenv and referred to by environ
+  and the other for GetEnvironmentStrings() &Co) */
+#include <stdlib.h>
+/* used by pathname.d, misc.d */
 
 # Locale definition function
   #include <locale.h>
@@ -295,7 +297,6 @@
     #define MAXHOSTNAMELEN 64
   #endif
   #define HAVE_GETHOSTBYNAME
-  #define GETHOSTBYNAME_CONST const
   #define CONNECT_NAME_T struct sockaddr
   #define CONNECT_CONST const
   #define CONNECT_ADDRLEN_T int
@@ -310,7 +311,6 @@
   #define SETSOCKOPT_CONST const
   #define SETSOCKOPT_ARG_T char*
   #define SETSOCKOPT_OPTLEN_T int
-  #define RETMEMSETTYPE void*
   #define HAVE_SHUTDOWN
   #ifdef HAVE_SHUTDOWN
     #define SHUT_RD   SD_RECEIVE

@@ -35,10 +35,7 @@ extern int errno; /* last error code */
 #include <string.h>
 extern_C char* strerror (int errnum);
 #else
-/* Number of operating system error messages */
-extern int sys_nerr;
-/* Operating system error messages */
-extern SYS_ERRLIST_CONST char* SYS_ERRLIST_CONST sys_errlist[];
+/* sys_errlist[] and sys_nerr are defined in either <stdio.h> or <errno.h> */
 #endif
 /* perror(3)
    On UnixWare 7.0.1 some errno value is defined to an invalid negative value,
@@ -52,15 +49,7 @@ extern SYS_ERRLIST_CONST char* SYS_ERRLIST_CONST sys_errlist[];
 #ifdef HAVE_GETPAGESIZE
   extern_C RETGETPAGESIZETYPE getpagesize (void); /* getpagesize(2) */
 #endif
-#ifndef malloc
-  extern_C RETMALLOCTYPE malloc (MALLOC_SIZE_T size); /* malloc(3V) */
-#endif
-#ifndef free
-  extern_C RETFREETYPE free (RETMALLOCTYPE ptr); /* malloc(3V) */
-#endif
-#ifndef realloc
-  extern_C RETMALLOCTYPE realloc (RETMALLOCTYPE ptr, MALLOC_SIZE_T size); /* REALLOC(3) */
-#endif
+/* malloc(), free(), realloc() are defined in <stdlib.h> */
 #ifdef UNIX_NEXTSTEP
   /* ignore the contents of libposix.a, since it is not documented */
   #undef HAVE_MMAP
@@ -181,14 +170,7 @@ extern SYS_ERRLIST_CONST char* SYS_ERRLIST_CONST sys_errlist[];
   #ifndef SHMMAX
     #define SHMMAX  0xFFFFFFFFUL /* maximum shared memory segment size accepted to mean infinite */
   #endif
-  extern_C int shmget (key_t key, SHMGET_SIZE_T size, int shmflg); /* SHMGET(2) */
-  extern_C RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg); /* SHMOP(2) */
-  extern_C int shmdt (SHMDT_ADDR_T shmaddr); /* SHMOP(2) */
-  #ifdef SHMCTL_DOTS
-    extern_C int shmctl (int shmid, int cmd, ...); /* SHMCTL(2) */
-  #else
-    extern_C int shmctl (int shmid, int cmd, struct shmid_ds * buf); /* SHMCTL(2) */
-  #endif
+/* <sys/shm.h> declares shmget(), shmat(), shmdt(), shmctl() */
 #endif
 /* used by SPVW, STREAM */
 
@@ -277,7 +259,7 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
 #if !defined(HAVE_UALARM) && defined(HAVE_SETITIMER)
   #define NEED_OWN_UALARM /* ualarm() can be implemented with setitimer() */
   #include <sys/time.h>
-  extern_C int setitimer (int which, SETITIMER_CONST struct itimerval * ivalue, struct itimerval * ovalue); /* SETITIMER(2) */
+  /* declares setitimer() */
   #define HAVE_UALARM
 #endif
 #ifdef HAVE_UALARM
@@ -335,35 +317,17 @@ extern_C int raise (int sig);
 #endif
 /* used by SPVW */
 
-/* check environment variables: */
-extern_C char* getenv (GETENV_CONST char* name); /* GETENV(3V) */
-/* used by PATHNAME, SPVW, MISC */
-
-/* set environment variables: */
-#if defined(HAVE_PUTENV)
-  extern_C int putenv (PUTENV_CONST char* name); /* PUTENV(3) */
-#elif defined(HAVE_SETENV)
-  extern_C int setenv (GETENV_CONST char* name, GETENV_CONST char* value, int overwrite); /* SETENV(3) */
-#endif
-/* used by SPVW */
+/* check environment variables:
+   getenv(), putenv(), setenv() are declared in <stdlib.h> */
 
 /* Adjustment to locale preferences: */
 #include <locale.h>
-extern_C char* setlocale (int category, SETLOCALE_CONST char* locale);
 /* used by SPVW */
 
 /* get user home directory: */
 #include <pwd.h>
-extern_C struct passwd * getpwnam (GETPWNAM_CONST char* name); /* GETPWENT(3V) */
-extern_C struct passwd * getpwuid (GETPWUID_UID_T uid); /* GETPWENT(3V) */
-extern_C uid_t getuid (void); /* GETUID(2V) */
-extern uid_t user_uid; /* Real User ID of the current process */
-extern_C char* getlogin (void); /* GETLOGIN(3V) */
+/* declares getpwnam(), getpwuid(), getuid(), user_uid, getlogin() */
 /* used by PATHNAME, SPVW */
-
-/* set working directory: */
-extern_C int chdir (CHDIR_CONST char* path); /* CHDIR(2V) */
-/* used by PATHNAME */
 
 /* get working directory: */
 #include <sys/param.h>
@@ -429,13 +393,8 @@ extern_C int fstat (int fd, struct stat * buf); /* STAT(2V) */
 #endif
 /* used by PATHNAME, STREAM, SPVW */
 
-/* remove file: */
-  extern_C int unlink (UNLINK_CONST char* path); /* UNLINK(2V) */
-/* used by PATHNAME, UNIXAUX */
-
-/* rename file: */
-  extern_C int rename (RENAME_CONST char* oldpath, RENAME_CONST char* newpath); /* RENAME(2V) */
-/* used by PATHNAME, UNIXAUX */
+/* unlink() - declared in <unistd.h>; used by PATHNAME, UNIXAUX */
+/* rename() - declared in <stdio.h>; used by PATHNAME, UNIXAUX */
 
 /* directory search: */
 #if defined(DIRENT) || defined(_POSIX_VERSION)
@@ -457,9 +416,7 @@ extern_C int fstat (int fd, struct stat * buf); /* STAT(2V) */
   #endif
   #define SDIRENT  struct direct
 #endif
-extern_C DIR* opendir (OPENDIR_CONST char* dirname); /* DIRECTORY(3V) */
-extern_C SDIRENT* readdir (DIR* dirp); /* DIRECTORY(3V) */
-extern_C RETCLOSEDIRTYPE closedir (DIR* dirp); /* DIRECTORY(3V) */
+/* declared in one of the above includes: opendir(), readdir(), closedir() */
 #ifdef VOID_CLOSEDIR
   #define CLOSEDIR(dirp)  (closedir(dirp),0)
 #else
@@ -467,23 +424,10 @@ extern_C RETCLOSEDIRTYPE closedir (DIR* dirp); /* DIRECTORY(3V) */
 #endif
 /* used by PATHNAME */
 
-/* create directory: */
-extern_C int mkdir (MKDIR_CONST char* path, mode_t mode); /* MKDIR(2V) */
-/* used by PATHNAME */
-
-/* remove directory: */
-extern_C int rmdir (RMDIR_CONST char* path); /* RMDIR(2V) */
-/* used by PATHNAME */
-
-/* work with open files: */
+/* work with open() files: */
 #include <fcntl.h>
 #if defined(ACCESS_NEEDS_SYS_FILE_H) || defined(OPEN_NEEDS_SYS_FILE_H)
   #include <sys/file.h>
-#endif
-#ifdef OPEN_DOTS
-extern_C int open (OPEN_CONST char* path, int flags, ...); /* OPEN(2V) */
-#else
-extern_C int open (OPEN_CONST char* path, int flags, mode_t mode); /* OPEN(2V) */
 #endif
 /* Only a few Unices (like UNIX_CYGWIN32) have O_TEXT and O_BINARY.
    BeOS 5 has them, but they have no effect. */
@@ -547,9 +491,6 @@ extern_C int fsync (int fd); /* FSYNC(2) */
     #define FD_ISSET(n,p)  ((p)->fds_bits[(n)/NFDBITS] & bit((n)%NFDBITS))
     #define FD_ZERO(p)  bzero((char*)(p),sizeof(*(p)))
     #include <string.h>
-    #ifndef memset
-      extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); /* MEMORY(3) */
-    #endif
     #define bzero(ptr,len)  memset(ptr,0,len)
   #endif
   extern_C int select (SELECT_WIDTH_T width, SELECT_SET_T* readfds,
@@ -558,7 +499,7 @@ extern_C int fsync (int fd); /* FSYNC(2) */
 #endif
 #ifdef EINTR
 /* wrapper around the system call, which intercepts and handles EINTR: */
-extern int nonintr_open (OPEN_CONST char* path, int flags, mode_t mode);
+extern int nonintr_open (char* path, int flags, mode_t mode);
 extern int nonintr_close (int fd);
 #define OPEN nonintr_open
 #define CLOSE nonintr_close
@@ -633,11 +574,7 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
   #define ioctl(fd,request,arg)  (ioctl)(fd,request,(IOCTL_ARGUMENT_T)(arg))
 #endif
 #ifndef HAVE_SELECT
-  #ifdef FCNTL_DOTS
-    extern_C int fcntl (int fd, int cmd, ...); /* FCNTL(2V) */
-  #else
-    extern_C int fcntl (int fd, int cmd, int arg); /* FCNTL(2V) */
-  #endif
+/* fcntl() will be used, declared in <fcntl.h> */
 #endif
 #if (defined(UNIX_TERM_TERMIOS) || defined(UNIX_TERM_TERMIO)) && !(defined(TCIFLUSH) && defined(TCOFLUSH))
   #define TCIFLUSH 0
@@ -666,15 +603,12 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 #endif
 /* used by SPVW, STREAM */
 
-/* process date/time of day: */
+/* process date/time of day: (time, localtime, gmtime) */
 #ifdef TM_IN_SYS_TIME
   #include <sys/time.h>
 #else
   #include <time.h>
 #endif
-extern_C time_t time (time_t* clock); /* TIME(3V) */
-extern_C struct tm * localtime (LOCALTIME_CONST time_t* clock); /* CTIME(3V) */
-extern_C struct tm * gmtime (LOCALTIME_CONST time_t* clock); /* CTIME(3V) */
 /* used by SPVW, MISC */
 
 /* query date/time of day: */
@@ -736,7 +670,6 @@ extern_C int pipe (int fd[2]); /* PIPE(2V) */
 #ifdef HAVE_VFORK_H
   #include <vfork.h>
 #endif
-extern_C RETVFORKTYPE vfork (void); /* VFORK(2) */
 extern_C int dup2 (int fd1, int fd2); /* DUP(2V) */
 #if defined(HAVE_SETPGID)
   extern_C pid_t getpid (void); /* GETPID(2V) */
@@ -748,17 +681,9 @@ extern_C int dup2 (int fd1, int fd2); /* DUP(2V) */
 #else
   #define SETSID()
 #endif
-extern_C int execv (EXECV_CONST char* path, EXECV1_CONST char* EXECV2_CONST argv[]); /* EXECL(3V) */
-#ifdef EXECL_DOTS
-  extern_C int execl (EXECV_CONST char* path, EXECL_CONST char* arg, ...); /* EXECL(3V) */
-#else
-  extern_C int execl (EXECV_CONST char* path, EXECL_CONST char* arg0, EXECL_CONST char* arg1, EXECL_CONST char* arg2, EXECL_CONST char* arg3); /* EXECL(3V) */
-#endif
-#ifdef EXECL_DOTS
-  extern_C int execlp (EXECV_CONST char* path, EXECL_CONST char* arg, ...); /* EXECL(3V) */
-#else
-  extern_C int execlp (EXECV_CONST char* path, EXECL_CONST char* arg0, EXECL_CONST char* arg1, EXECL_CONST char* arg2, EXECL_CONST char* arg3); /* EXECL(3V) */
-#endif
+
+/* exec*() functions are declared in unistd.h */
+
 /* NB: In the period between vfork() and execv()/execl()/execlp() the child
    process may access only the data in the stack and constant data,
    because the parent process keeps running in this time already
@@ -795,7 +720,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   #else
     #include <sun/netdb.h>
   #endif
-  extern_C struct hostent * gethostbyname (GETHOSTBYNAME_CONST char* name); /* GETHOSTENT(3) */
+/* gethostent(3) is declared in the above files */
 #endif
 #ifndef MAXHOSTNAMELEN
   #define MAXHOSTNAMELEN 64 /* see <sys/param.h> */
