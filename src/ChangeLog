@@ -1,3 +1,9 @@
+2002-10-11  Sam Steingold  <sds@gnu.org>
+
+	fixed PEEK-CHAR for ECHO-STREAMs and non-NIL peek-type
+	* io.d (wpeek_char_eof, PEEK-CHAR): use peek_char()+read_char(),
+	not read_char()+unread_char() - for the sake of echo streams
+
 2002-10-10  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (PARAMS): for the sake of a same-dir build, renamed

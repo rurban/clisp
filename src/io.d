@@ -1105,7 +1105,7 @@ nonreturning_function(local, fehler_eof, (const object* stream_)) {
 # can trigger GC
 local object wpeek_char_eof (const object* stream_) {
   loop {
-    var object ch = read_char(stream_); # read character
+    var object ch = peek_char(stream_); /* peek character */
     if (eq(ch,eof_value)) # EOF ?
       return ch;
     # check for Character:
@@ -1115,10 +1115,9 @@ local object wpeek_char_eof (const object* stream_) {
     get_readtable(readtable = );
     if (!(( # fetch Syntaxcode from table
            syntax_readtable_get(readtable,char_code(ch)))
-          == syntax_whitespace)) {
-      # no Whitespace -> push back last read character
-      unread_char(stream_,ch); return ch;
-    }
+          == syntax_whitespace))
+      return ch;
+    read_char(stream_); /* drop the last (whitespace) character */
   }
 }
 
@@ -4650,13 +4649,13 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL) {
     # peek-type is a Character
     var object ch;
     loop {
-      ch = read_char(stream_); # read character
+      ch = peek_char(stream_); /* what next? */
       if (eq(ch,eof_value))
         goto eof;
       if (eq(ch,peek_type)) # the preset End-character?
         break;
+      read_char(stream_); /* not done yet - skip this char */
     }
-    unread_char(stream_,ch); # push back character
     VALUES1(ch); skipSTACK(5); return;
   } else {
     pushSTACK(peek_type);        # TYPE-ERROR slot DATUM
