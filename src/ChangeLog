@@ -1,3 +1,8 @@
+2002-05-03  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [debug]: add -DDEBUG_OS_ERROR on all
+	platforms, do not add it on win32 when not debugging
+
 2002-05-02  Sam Steingold  <sds@gnu.org>
 
 	* io.d (read_token_1): permit input of multiply escaped illegal
