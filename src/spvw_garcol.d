@@ -1740,6 +1740,12 @@ local void gc_mark (object obj)
           while (!eq(L,Fixnum_0))
             { gc_mark(L); L = TheWeakKVT(L)->wkvt_cdr; }
         }
+       #ifdef DEBUG_SPVW
+        { /* the callers in back_trace must all be already marked */
+          var struct backtrace_t *bt = back_trace;
+          for (; bt; bt = bt->next) if (!marked(&(bt->next))) abort();
+        }
+       #endif
       # All active objects are marked now:
       # active objects of variable length and active two-pointer-objects carry
       # in their first byte a set mark bit, active SUBRs carry
