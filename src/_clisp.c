@@ -210,11 +210,13 @@ int main (int argc, char* argv[])
           case 's':
           case 't':
           case 'L':
-          case 'E':
           case 'o':
           case 'p':
           case 'x':
             OPTION_ARG;
+            break;
+          case 'E':
+            if (argptr < argptr_limit) argptr++; else goto usage;
             break;
           case 'i':
             if (arg[2] == '\0') argv_for = for_init;
