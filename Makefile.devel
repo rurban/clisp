@@ -79,7 +79,7 @@ win32msvc/makefile.msvc4 : makemake
 		win32msvc msvc4 > win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc5 : makemake
-	./makemake --with-dir-key --with-dynamic-ffi \
+	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
 		win32msvc msvc5 > win32msvc/makefile.msvc5
 
 win32bc/makefile : makemake
