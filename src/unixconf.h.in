@@ -109,26 +109,6 @@
 
 /* typedefs */
 
-/* AC_TYPE_SIZE_T */
-#ifndef size_t
-#undef size_t
-#endif
-
-/* AC_TYPE_PID_T */
-#ifndef pid_t
-#undef pid_t
-#endif
-
-/* AC_TYPE_UID_T */
-#ifndef uid_t
-#undef uid_t
-#endif
-
-/* AC_TYPE_OFF_T */
-#ifndef off_t
-#undef off_t
-#endif
-
 /* CL_CADDR_T */
 #undef CADDR_T
 
