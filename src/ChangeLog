@@ -1,8 +1,12 @@
+2004-09-08  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (load): use the input-stream as the unique EOF object
+
 2004-07-12  Bruno Haible  <bruno@clisp.org>
 
-	* clos-specializer1.lisp (add-direct-generic-function-internal,
-	remove-direct-generic-function-internal,
-	list-direct-generic-functions): Remove functions.
+	* clos-specializer1.lisp (add-direct-generic-function-internal)
+	(remove-direct-generic-function-internal)
+	(list-direct-generic-functions): Remove functions.
 	(forget-direct-generic-functions, add-direct-generic-function):
 	Remove functions.
 	(compute-direct-generic-functions): Return just a plain list.
