@@ -1,5 +1,9 @@
 2002-12-16  Sam Steingold  <sds@gnu.org>
 
+	* predtype.d (COERCE): accept CLOS class object as a type-spec
+
+2002-12-16  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (disassemble-closure): print the list of special
 	variables read and written
 
