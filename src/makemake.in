@@ -2930,7 +2930,7 @@ if [ $CROSS = false ] ; then
   fi
   # The strict minimum needed for building interpreted.mem is between 1100KW
   # and 1200KW. To reduce GCs, we spend 20% more than this.
-  echotab '$(RUN) -m 1400KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
+  echotab '$(RUN) -m 1400KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
   echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
@@ -2972,7 +2972,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -m 1400KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
+  echotab '$(RUN) -m 1400KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
   echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
@@ -2985,7 +2985,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -x "(and (load \"init.fas\") (ext::saveinitmem) (ext::exit))"'
+  echotab '$(RUN) -x "(and (load \"init.fas\") (ext::saveinitmem) (ext::exit)) (ext::exit t)"'
   echol
 
 fi
@@ -3083,7 +3083,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -x "(and (cd \"'"${RECOMPILEDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (ext::exit))"'
+  echotab '$(RUN) -x "(and (cd \"'"${RECOMPILEDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
   echotab "-\$(RM) lispinit2.mem"
   echotab "\$(MV) lispimag.mem lispinit2.mem"
   echol
