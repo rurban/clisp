@@ -1,3 +1,11 @@
+1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * excepsit.tst: New file.
+        * tests.lsp (do-test): New function, taken out of run-test.
+          (do-errcheck): New function.
+          (run-test): Take the tester function as optional argument.
+          (run-all-tests): Run the excepsit tests.
+
 1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * setf.tst: Don't use quoted lambda expressions.
