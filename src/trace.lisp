@@ -1,6 +1,7 @@
 ;; Tracer
 ;; Bruno Haible 13.2.1990, 15.3.1991, 4.4.1991
 ;; German comments translated into English: Stefan Kain 2001-12-26
+;; Sam Steingold 2001-2002
 
 ;; (TRACE) returns a list of traced functions
 ;; (TRACE fun ...) additionally traces the functions fun, ... .
@@ -121,7 +122,7 @@ CLOSURE must be compiled."
                'trace ',funname)
          (return nil))
        (let* ((,old-function (symbol-function ,symbolform))
-              (,macro-flag (consp ,old-function)))
+              (,macro-flag (macrop ,old-function)))
          (unless (eq ,old-function (get ,symbolform 'sys::tracing-definition))
            ;; already traced?
            (setf (get ,symbolform 'sys::traced-definition) ,old-function)
@@ -177,8 +178,9 @@ CLOSURE must be compiled."
                        (lambda (&rest *trace-args*
                                 &aux (*trace-form* (car *trace-args*))
                                      (*trace-function*
-                                      (cdr (get-traced-definition
-                                            ,symbolform))))
+                                      (macro-expander
+                                       (get-traced-definition
+                                        ,symbolform))))
                          ,@body))))))))
        '(,funname))))
 
