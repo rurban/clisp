@@ -27,7 +27,7 @@
 
 2004-04-13  Bruno Haible  <bruno@clisp.org>
 
-	Fix MAKE-INSTANCE-OBSOLETE's warning message.
+	Fix MAKE-INSTANCES-OBSOLETE's warning message.
 	* clos-class2.lisp (*make-instances-obsolete-caller*): New variable.
 	(ensure-class): Bind it.
 	(make-instances-obsolete-standard-class-nonrecursive): Use it in the
