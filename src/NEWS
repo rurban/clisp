@@ -41,8 +41,9 @@ User visible changes
   now contain strings, not pathnames.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
-* EXT:GETENV now returns all of the environment as an alist when its
-  argument is omitted or NIL.
+* EXT:GETENV now returns all of the OS environment as an alist
+  when its argument is omitted or NIL.
+  See <http://clisp.cons.org/impnotes.html#getenv> for details.
 
 * When configured with --with-export-syscalls,
   several new functions are available:
