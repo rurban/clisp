@@ -70,7 +70,7 @@
                + (uintL)((uintW)((uintL)(real_time.tv_usec) / 16) / 625); # tv_usec/10000
       }
   #endif
-  #if defined(DJUNIX) || defined(WATCOM) || defined(WINDOWS)
+  #if defined(DJUNIX) || defined(WATCOM)
     typedef struct { uintW year;  # Jahr (1980..2099)
                      uintB month; # Monat (1..12)
                      uintB day;   # Tag (1..31)
@@ -83,7 +83,6 @@
     local void get_decoded_time (internal_decoded_time* timepoint);
     local void get_decoded_time(timepoint)
       var internal_decoded_time* timepoint;
-      #if defined(DJUNIX) || defined(WATCOM) || (defined(EMUNIX) && defined(WINDOWS))
       { var union REGS in;
         var union REGS out;
         begin_system_call();
@@ -112,24 +111,6 @@
           }
         end_system_call();
       }
-      #endif
-      #if defined(EMUNIX) && !defined(WINDOWS)
-      # [ältere Version für EMX 0.8c, noch ohne ftime(): siehe emx08c-1.d]
-      { var struct _dtd datetime;
-        # Uhrzeit holen:
-        begin_system_call();
-        __ftime(&datetime);
-        end_system_call();
-        # und nach *timepoint umfüllen:
-        timepoint->year  = datetime.year;
-        timepoint->month = datetime.month;
-        timepoint->day   = datetime.day;
-        timepoint->hour  = datetime.hour;
-        timepoint->min   = datetime.min;
-        timepoint->sec   = datetime.sec;
-        timepoint->hsec  = datetime.hsec;
-      }
-      #endif
     global uintL get_time()
       { var internal_decoded_time timepoint;
         get_decoded_time(&timepoint);
@@ -149,7 +130,7 @@
                         * 100 + (uintL)timepoint.hsec;
       }}
   #endif
-  #if defined(EMUNIX) && !defined(WINDOWS)
+  #if defined(EMUNIX)
     global uintL get_time()
       { var struct timeb real_time;
         begin_system_call();
@@ -573,7 +554,7 @@
           convert_time(&real_time.tv_sec,&timepoint); # in Decoded-Time umwandeln
         }
         #endif
-        #if defined(DJUNIX) || defined(WATCOM) || defined(WINDOWS)
+        #if defined(DJUNIX) || defined(WATCOM)
         { var internal_decoded_time idt;
           get_decoded_time(&idt);
           timepoint.Sekunden = fixnum(idt.sec);
@@ -584,7 +565,7 @@
           timepoint.Jahr     = fixnum(idt.year);
         }
         #endif
-        #if defined(EMUNIX) && !defined(WINDOWS)
+        #if defined(EMUNIX)
         { var struct timeb real_time;
           begin_system_call();
           __ftime(&real_time); # aktuelle Uhrzeit

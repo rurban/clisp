@@ -235,7 +235,7 @@
         Write(stdout_handle,asciz,asciz_length(asciz));
         end_system_call();
       #endif
-      #if (defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WINDOWS)) || defined(RISCOS)
+      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(RISCOS)
         begin_system_call();
         full_write(stdout_handle,(RW_BUF_T)asciz,asciz_length(asciz));
         end_system_call();
@@ -253,46 +253,6 @@
         begin_system_call();
         nxterminal_write_string(asciz);
         end_system_call();
-      #endif
-      #ifdef WINDOWS
-        # Low-Level Debug Output kann nicht über Windows gehen, sondern muß
-        # ein File zum Ziel haben. Da unter DOS offene Files die Länge 0
-        # haben, müssen wir das File sofort wieder schließen.
-        #ifdef EMUNIX
-          # open(), close() usw. ruft bei RSX direkt DOS auf.
-          static int fd = -1;
-          begin_system_call();
-          if (fd<0)
-            { fd = open("c:/lisp.out",O_RDWR|O_CREAT|O_TRUNC|O_TEXT,my_open_mask); }
-          if (fd>=0)
-            { write(fd,asciz,asciz_length(asciz));
-              close(dup(fd)); # effectively fsync(fd)
-            }
-          end_system_call();
-        #else
-          var int fd;
-          static char buf[] = "c:/temp/lisp0000.out";
-          static uintL count = 0;
-          buf[12] = ((count >> 9) & 7) + '0';
-          buf[13] = ((count >> 6) & 7) + '0';
-          buf[14] = ((count >> 3) & 7) + '0';
-          buf[15] = ((count >> 0) & 7) + '0';
-          count++;
-          begin_system_call();
-          #ifndef WATCOM
-            fd = open(buf,O_RDWR|O_CREAT|O_TRUNC|O_TEXT,my_open_mask);
-            if (fd>=0) { write(fd,asciz,asciz_length(asciz)); close(fd); }
-          #else # WATCOM
-            # Das normale open(), close() schließt nicht richtig, wenn das
-            # Programm anschließend abstürzt.
-            { var unsigned int written;
-              fd = 0; _dos_creatnew(buf,0,&fd);
-              _dos_write(fd,asciz,asciz_length(asciz),&written);
-              _dos_close(fd);
-            }
-          #endif
-          end_system_call();
-        #endif
       #endif
       #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) # if (CRLFstring != NLstring)
         FREE_DYNAMIC_ARRAY(buffer);
@@ -2577,9 +2537,6 @@ typedef struct { Pages pages;
     global void* SP_bound;  # SP-Wachstumsgrenze
   #endif
   global void* STACK_bound; # STACK-Wachstumsgrenze
-  #if defined(EMUNIX) && defined(WINDOWS)
-    global void* SP_start;  # SP bei Programmstart
-  #endif
 
 # Bei Überlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
@@ -6520,9 +6477,6 @@ local uintC generation;
       set_break_sem_1(); # BREAK während Garbage Collection sperren
       gc_signalblock_on(); # Signale während Garbage Collection sperren
       gc_timer_on();
-      #ifdef WINDOWS
-      windows_note_gc_start();
-      #endif
       gcstart_space = used_space(); # belegten Speicherplatz ermitteln
       #ifdef HAVE_VADVISE
         begin_system_call();
@@ -6952,9 +6906,6 @@ local uintC generation;
         end_system_call();
       #endif
       immutable_on();
-      #ifdef WINDOWS
-      windows_note_gc_end();
-      #endif
       # von dieser GC benötigte Zeit zur GC-Gesamtzeit addieren:
       gc_timer_off();
       #ifdef GC_CLOSES_FILES
@@ -7224,9 +7175,6 @@ local uintC generation;
       set_break_sem_1(); # BREAK während Garbage Collection sperren
       gc_signalblock_on(); # Signale während Garbage Collection sperren
       gc_timer_on();
-      #ifdef WINDOWS
-      windows_note_gc_start();
-      #endif
       immutable_off(); # immutable Objekte werden jetzt modifizierbar
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ();
       { var uintL heapnr;
@@ -7296,9 +7244,6 @@ local uintC generation;
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ();
       CHECK_PACK_CONSISTENCY();
       immutable_on();
-      #ifdef WINDOWS
-      windows_note_gc_end();
-      #endif
       gc_timer_off();
       gc_signalblock_off(); # Signale wieder freigeben
       clr_break_sem_1(); # BREAK wieder ermöglichen
@@ -11777,10 +11722,6 @@ local uintC generation;
     # main() existiert schon in Lisp_main.m
     #define main  clisp_main
   #endif
-  #if defined(EMUNIX) && defined(WINDOWS)
-    # main() existiert bereits in libwin.a
-    #define main  clisp_main
-  #endif
   #ifndef argc_t
     #define argc_t int  # Typ von argc ist meist 'int'.
   #endif
@@ -12766,9 +12707,6 @@ local uintC generation;
             # zu einem späteren Zeitpunkt verhindert:
             if (mem.MEMBOT) { asciz_out(""); }
           #endif
-          #if defined(EMUNIX) && defined(WINDOWS)
-          SP_start = SP(); # Für System-Calls müssen wir auf diesen Stack zurück!!
-          #endif
           setSP(initial_SP); # SP setzen! Dabei gehen alle lokalen Variablen verloren!
         #endif
         pushSTACK(nullobj); pushSTACK(nullobj); # Zwei Nullpointer als STACKende-Kennung
@@ -12802,16 +12740,7 @@ local uintC generation;
         update_linelength();
         end_system_call();
       #endif
-      #if defined(MSDOS) && defined(WINDOWS)
-        { var int width;
-          var int height;
-          get_text_size(main_window,&width,&height);
-          if (width > 0)
-            { # Wert von SYS::*PRIN-LINELENGTH* verändern:
-              Symbol_value(S(prin_linelength)) = fixnum(width-1);
-        }   }
-      #endif
-      #if defined(MSDOS) && !defined(WINDOWS)
+      #if defined(MSDOS)
         # Die Breite des Bildschirms im aktuellen Bildschirm-Modus
         # jetzt beim Programmstart erfragen:
         if (isatty(stdout_handle)) # Standard-Output ein Terminal?
@@ -13154,7 +13083,7 @@ local uintC generation;
       #if defined(UNIX) || defined(RISCOS)
         exit(exitcode); # Calling exit(), not _exit(), allows profiling to work.
       #endif
-      #if (defined(MSDOS) && !defined(WINDOWS)) || defined(WIN32_NATIVE)
+      #if defined(MSDOS) || defined(WIN32_NATIVE)
         _exit(exitcode);
       #endif
       #ifdef AMIGAOS

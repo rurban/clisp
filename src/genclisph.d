@@ -1169,95 +1169,88 @@ global int main()
   #ifdef HAVE_SAVED_subr_self
     printf("extern object saved_subr_self;\n");
   #endif
-  #if defined(EMUNIX) && defined(WINDOWS)
-    printf("#define begin_call()  if ((aint)SP() > (aint)SP_start) alloca((aint)SP() - (aint)SP_start)\n");
-    printf("#define end_call()\n");
-    printf("#define begin_callback()\n");
-    printf("#define end_callback()\n");
-  #else
-    #if defined(HAVE_SAVED_STACK)
-      printf("extern object* saved_STACK;\n");
-    #endif
-    printf("#define begin_call()");
-           #ifdef HAVE_SAVED_mv_count
-             printf(" saved_mv_count = mv_count;");
+  #if defined(HAVE_SAVED_STACK)
+    printf("extern object* saved_STACK;\n");
+  #endif
+  printf("#define begin_call()");
+         #ifdef HAVE_SAVED_mv_count
+           printf(" saved_mv_count = mv_count;");
+         #endif
+         #ifdef HAVE_SAVED_value1
+           printf(" saved_value1 = value1;");
+         #endif
+         #ifdef HAVE_SAVED_subr_self
+           printf(" saved_subr_self = subr_self;");
+         #endif
+         #ifdef HAVE_SAVED_STACK
+           printf(" saved_STACK = STACK;");
+         #endif
+         printf("\n");
+  printf("#define end_call()");
+         #ifdef HAVE_SAVED_mv_count
+           printf(" mv_count = saved_mv_count;");
+         #endif
+         #ifdef HAVE_SAVED_value1
+           printf(" value1 = saved_value1;");
+         #endif
+         #ifdef HAVE_SAVED_subr_self
+           printf(" subr_self = saved_subr_self;");
+         #endif
+         #ifdef HAVE_SAVED_STACK
+           printf(" saved_STACK = (object*)NULL;");
+         #endif
+         printf("\n");
+  printf("#define begin_callback()  ");
+         #ifdef HAVE_SAVED_REGISTERS
+           printf("{ struct registers * registers = alloca(sizeof(struct registers));");
+           #ifdef STACK_register
+             printf(" registers->STACK_register_contents = STACK_reg;");
            #endif
-           #ifdef HAVE_SAVED_value1
-             printf(" saved_value1 = value1;");
+           #ifdef mv_count_register
+             printf(" registers->mv_count_register_contents = mv_count_reg;");
            #endif
-           #ifdef HAVE_SAVED_subr_self
-             printf(" saved_subr_self = subr_self;");
+           #ifdef value1_register
+             printf(" registers->value1_register_contents = value1_reg;");
            #endif
+           #ifdef subr_self_register
+             printf(" registers->subr_self_register_contents = subr_self_reg;");
+           #endif
+           #ifdef HAVE_SAVED_STACK
+             printf(" STACK = saved_STACK;");
+           #endif
+           printf(" { var object* top_of_frame = STACK; pushSTACK(as_object((aint)callback_saved_registers)); finish_frame(CALLBACK); } callback_saved_registers = registers; } ");
+         #endif
+         printf("end_call()\n");
+  printf("#define end_callback() ");
+         #ifdef HAVE_SAVED_mv_count
+           printf(" saved_mv_count = mv_count;");
+         #endif
+         #ifdef HAVE_SAVED_value1
+           printf(" saved_value1 = value1;");
+         #endif
+         #ifdef HAVE_SAVED_subr_self
+           printf(" saved_subr_self = subr_self;");
+         #endif
+         #ifdef HAVE_SAVED_REGISTERS
+           printf(" { struct registers * registers = callback_saved_registers; if (!(mtypecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
            #ifdef HAVE_SAVED_STACK
              printf(" saved_STACK = STACK;");
            #endif
-           printf("\n");
-    printf("#define end_call()");
-           #ifdef HAVE_SAVED_mv_count
-             printf(" mv_count = saved_mv_count;");
+           #ifdef STACK_register
+             printf(" STACK_reg = registers->STACK_register_contents;");
            #endif
-           #ifdef HAVE_SAVED_value1
-             printf(" value1 = saved_value1;");
+           #ifdef mv_count_register
+             printf(" mv_count_reg = registers->mv_count_register_contents;");
            #endif
-           #ifdef HAVE_SAVED_subr_self
-             printf(" subr_self = saved_subr_self;");
+           #ifdef value1_register
+             printf(" value1_reg = registers->value1_register_contents;");
            #endif
-           #ifdef HAVE_SAVED_STACK
-             printf(" saved_STACK = (object*)NULL;");
+           #ifdef subr_self_register
+             printf(" subr_self_reg = registers->subr_self_register_contents;");
            #endif
-           printf("\n");
-    printf("#define begin_callback()  ");
-           #ifdef HAVE_SAVED_REGISTERS
-             printf("{ struct registers * registers = alloca(sizeof(struct registers));");
-             #ifdef STACK_register
-               printf(" registers->STACK_register_contents = STACK_reg;");
-             #endif
-             #ifdef mv_count_register
-               printf(" registers->mv_count_register_contents = mv_count_reg;");
-             #endif
-             #ifdef value1_register
-               printf(" registers->value1_register_contents = value1_reg;");
-             #endif
-             #ifdef subr_self_register
-               printf(" registers->subr_self_register_contents = subr_self_reg;");
-             #endif
-             #ifdef HAVE_SAVED_STACK
-               printf(" STACK = saved_STACK;");
-             #endif
-             printf(" { var object* top_of_frame = STACK; pushSTACK(as_object((aint)callback_saved_registers)); finish_frame(CALLBACK); } callback_saved_registers = registers; } ");
-           #endif
-           printf("end_call()\n");
-    printf("#define end_callback() ");
-           #ifdef HAVE_SAVED_mv_count
-             printf(" saved_mv_count = mv_count;");
-           #endif
-           #ifdef HAVE_SAVED_value1
-             printf(" saved_value1 = value1;");
-           #endif
-           #ifdef HAVE_SAVED_subr_self
-             printf(" saved_subr_self = subr_self;");
-           #endif
-           #ifdef HAVE_SAVED_REGISTERS
-             printf(" { struct registers * registers = callback_saved_registers; if (!(mtypecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
-             #ifdef HAVE_SAVED_STACK
-               printf(" saved_STACK = STACK;");
-             #endif
-             #ifdef STACK_register
-               printf(" STACK_reg = registers->STACK_register_contents;");
-             #endif
-             #ifdef mv_count_register
-               printf(" mv_count_reg = registers->mv_count_register_contents;");
-             #endif
-             #ifdef value1_register
-               printf(" value1_reg = registers->value1_register_contents;");
-             #endif
-             #ifdef subr_self_register
-               printf(" subr_self_reg = registers->subr_self_register_contents;");
-             #endif
-             printf(" }");
-           #endif
-           printf("\n");
-  #endif
+           printf(" }");
+         #endif
+         printf("\n");
 # #if defined(AMIGAOS) || defined(NO_ASYNC_INTERRUPTS)
 #   printf("#define begin_system_call()\n");
 #   printf("#define end_system_call()\n");
@@ -1265,9 +1258,6 @@ global int main()
 #   printf("#define begin_system_call()  begin_call()\n");
 #   printf("#define end_system_call()  end_call()\n");
 # #endif
-  #if (defined(EMUNIX) && defined(WINDOWS))
-    extern void* SP_start;
-  #endif
 # printf("#define check_STACK()  if (STACK_overflow()) STACK_ueber()\n");
 # #ifdef STACK_DOWN
 #   printf("#define STACK_overflow()  ( (aint)STACK < (aint)STACK_bound )\n");
