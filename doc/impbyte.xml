@@ -290,7 +290,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 <epigraph><attribution><ulink url="http://www.franz.com/~jkf/">John
   Foderaro</ulink></attribution>
  <para>&cl; is a <emphasis>programmable</emphasis>
-  programming language</para></epigraph>
+  programming language.</para></epigraph>
 
 <para>&clisp; can be easily extended the same way any other &cl;
  implementation can: create a lisp file with your variables, functions,
@@ -337,8 +337,9 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   functions!  Always remember about <link linkend="gc-safety"
   >GC-safety</link>!</para></warning>
 
-<para>These instructions are intentionally terse - you are encouraged
- to use &ffi-pac; instead of adding built-ins directly.</para>
+<para>These instructions are intentionally terse - you are encouraged to
+ use &module;s and/or &ffi-pac; instead of adding built-ins
+ directly.</para>
 </section>
 
 <section id="add-var"><title>Adding a built-in variable.</title>
