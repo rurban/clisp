@@ -1,3 +1,10 @@
+2002-12-17  Sam Steingold  <sds@gnu.org>
+
+	when :CONC-NAME is NIL, use the slot name as accessor and setter
+	* defstruct.lisp (ds-make-accessors, ds-make-defsetfs): when
+	concname is NIL, use slot-name without concatenation
+	(defstruct): do not reset NIL conc-name-option to ""
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	New memory model WIDE_AUXI.
