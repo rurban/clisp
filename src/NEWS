@@ -93,6 +93,9 @@ User visible changes
 
 * Type COMPLEX now correctly uses UPGRADED-COMPLEX-PART-TYPE.
 
+* Improved accuracy of some transcendental functions, e.g., now
+  (EXPT -5.0 2.0) return #C(25.0 0.0).
+
 * Fixed a bug: Conversion from bytes to string did not work for the encoding
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).

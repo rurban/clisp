@@ -91,7 +91,7 @@ local object pi (object x) {
                    return O(SF_pi), # pi as SF
                    return O(FF_pi), # pi as FF
                    return O(DF_pi), # pi as DF
-                   return O(pi)   , # pi as LF with default length
+                   return pi_F_float_F(x), # pi as LF in the same format as x
                    ,); # nothing to save
 }
 
@@ -420,7 +420,7 @@ local object pi (object x) {
 
 # R_sin_R(x) liefert den Sinus (sin x) einer reellen Zahl x.
 # can trigger GC
-  local object R_sin_R (object x);
+local object R_sin_R (object x);
 # Methode:
 # x rational -> bei x=0 0 als Ergebnis, sonst x in Float umwandeln.
 # x Float -> Genauigkeit erhöhen,
@@ -494,6 +494,10 @@ local object pi (object x) {
     }}
 
 /* R_cos_sin_R_R(x) places ((cos x),(sin x)), on the Stack.
+   when start_p, this is a start of a computation,
+    so the precision will be raised
+   when end_p, this is also the end of the computation,
+    so the precision will be lowed back to this number
  can trigger GC
  Method:
  x rational -> if x=0 ==> (1,0), otherwise x ==> float.
@@ -514,7 +518,8 @@ local object pi (object x) {
    if q = 1 mod 4: ((- (sin r)), (cos r))
    if q = 2 mod 4: ((- (cos r)), (- (sin r)))
    if q = 3 mod 4: ((sin r), (- (cos r))) */
-local void R_cos_sin_R_R (object x) {
+local void R_cos_sin_R_R (object x,bool start_p,object *end_p)
+{
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_0)) # x=0 -> return (1,0)
       { pushSTACK(Fixnum_1); pushSTACK(Fixnum_0); return; }
@@ -522,14 +527,20 @@ local void R_cos_sin_R_R (object x) {
   }
   /* x -- float */
   pushSTACK(x); /* save x */
-  x = F_extend_F(x); /* increase computational accuracy */
+  if (start_p) /* increase computational precision */
+    x = F_extend_F(x);
   F_pi2_round_I_F(x); /* divide by pi/2 */
   /* stack layout: Argument, q, r. */
   x = STACK_0;
   if (R_zerop(x) /* r=0.0 -> cos=1.0+O(r^2), sin=r+O(r^3) */
       || (F_exponent_L(x) <= (sintL)(-F_float_digits(x))>>1)) { /* e <= -d/2 <==> e <= -ceiling(d/2) ? */
-    pushSTACK(I_F_float_F(Fixnum_1,STACK_2)); /* cos=1 */
-    pushSTACK(F_F_float_F(STACK_1,STACK_3)); /* sin=r */
+    if (end_p != NULL) {
+      pushSTACK(RA_R_float_F(Fixnum_1,*end_p)); /* cos=1 */
+      pushSTACK(F_R_float_F(STACK_1,*end_p)); /* sin=r */
+    } else {
+      pushSTACK(I_F_float_F(Fixnum_1,STACK_0)); /* cos=1 */
+      pushSTACK(STACK_1); /* sin=r */
+    }
   } else {
     pushSTACK(F_I_scale_float_F(STACK_0,Fixnum_minus1)); /* s := r/2 */
     pushSTACK(F_sinx_F(STACK_0)); /* y := (sin(s)/s)^2 */
@@ -537,7 +548,9 @@ local void R_cos_sin_R_R (object x) {
     x = F_F_mal_F(STACK_0,STACK_1); /* y*s */
     x = F_F_mal_F(STACK_2,x); /* y*s*r */
     x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*r */
-    pushSTACK(F_F_float_F(x,STACK_4)); /* scale and save cos(r) */
+    if (end_p != NULL) /* scale and save cos(r) */
+      pushSTACK(F_R_float_F(x,*end_p));
+    else pushSTACK(x);
     x = F_F_mal_F(STACK_1,STACK_2); /* y*s */
     x = F_F_mal_F(x,STACK_2); /* y*s*s */
     x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*s = cos(s)^2 */
@@ -545,7 +558,8 @@ local void R_cos_sin_R_R (object x) {
     x = F_sqrt_F(x); /* cos(s)*sin(s)/s */
     x = F_F_mal_F(x,STACK_2); /* cos(s)*sin(s) */
     x = F_I_scale_float_F(x,Fixnum_1); /* 2*cos(s)*sin(s) = sin(r) */
-    x = F_F_float_F(x,STACK_5); /* scale sin(r) */
+    if (end_p != NULL) /* scale sin(r) */
+      x = F_R_float_F(x,*end_p);
     STACK_2 = STACK_0;
     STACK_1 = x;
     skipSTACK(1);
@@ -567,6 +581,7 @@ local void R_cos_sin_R_R (object x) {
     }
   }
   skipSTACK(2+1);
+  return;
 }
 
 # F_lnx_F(x) liefert zu einem Float x (>=1/2, <=2) ln(x) als Float.
@@ -699,7 +714,6 @@ local void R_cos_sin_R_R (object x) {
 
 # R_ln_R(x) liefert zu einer reellen Zahl x>0 die Zahl ln(x).
 # can trigger GC
-  local object R_ln_R (object x);
 # Methode:
 # x rational -> bei x=1 0 als Ergebnis, sonst x in Float umwandeln.
 # x Float ->
@@ -708,35 +722,36 @@ local void R_cos_sin_R_R (object x) {
 #   (m,e) := (decode-float x), so dass 1/2 <= m < 1.
 #   m<2/3 -> m:=2m, e:=e-1, so dass 2/3 <= m <= 4/3.
 #   ln(m) errechnen, ln(x)=ln(m)+e*ln(2) als Ergebnis.
-  local object R_ln_R(x)
-    var object x;
-    { if (R_rationalp(x))
-        { if (eq(x,Fixnum_1)) { return Fixnum_0; } # x=1 -> 0 als Ergebnis
-          x = RA_float_F(x); # sonst in Float umwandeln
-        }
-      # x Float
-      pushSTACK(x); # x retten
-      x = F_extend2_F(x); # Rechengenauigkeit erhöhen
-      F_decode_float_F_I_F(x); # m,e,s bestimmen
-      # Stackaufbau: x, m, e, s.
-      if (F_F_comp(STACK_2,
-                   make_SF(0,0+SF_exp_mid,floor(bit(SF_mant_len+2),3)) # Short-Float 2/3
-                  )
-          < 0
-         ) # m < 2/3 ->
-        { STACK_2 = F_I_scale_float_F(STACK_2,Fixnum_1); # m verdoppeln
-          STACK_1 = I_minus1_plus_I(STACK_1); # e decrementieren
-        }
-      STACK_2 = F_lnx_F(STACK_2); # ln(m) im genaueren Float-Format errechnen
-     {var object temp;
-      temp = ln2_F_float_F(STACK_0); # ln(2) im genaueren Float-Format
-      temp = R_R_mal_R(STACK_1,temp); # e*ln(2)
-      temp = R_R_plus_R(STACK_2,temp); # ln(m)+e*ln(2)
-      temp = F_F_float_F(temp,STACK_3); # (float ... x)
-      skipSTACK(4);
-      return temp;
-    }}
-  #define F_ln_F  R_ln_R
+local object R_ln_R (object x, bool start_p, object* end_p)
+{
+  if (R_rationalp(x)) {
+    if (eq(x,Fixnum_1)) { return Fixnum_0; } /* x=1 -> return 0 */
+    x = RA_float_F(x); /* convert to float */
+  }
+  /* x -- float */
+  pushSTACK(x); /* save x */
+  if (start_p) /* increase accuracy */
+    x = F_extend2_F(x);
+  F_decode_float_F_I_F(x); /* compute m,e,s */
+  /* Stack layout: x, m, e, s. */
+  if (F_F_comp(STACK_2,
+               make_SF(0,0+SF_exp_mid,floor(bit(SF_mant_len+2),3))) /* short-float 2/3 */
+      < 0) { /* m < 2/3 -> */
+    STACK_2 = F_I_scale_float_F(STACK_2,Fixnum_1); /* double m */
+    STACK_1 = I_minus1_plus_I(STACK_1); /* decrement e */
+  }
+  STACK_2 = F_lnx_F(STACK_2); /* ln(m) in the more accurate float format */
+  { var object temp;
+    temp = ln2_F_float_F(STACK_0); /* ln(2) in that float format */
+    temp = R_R_mal_R(STACK_1,temp); /* e*ln(2) */
+    temp = R_R_plus_R(STACK_2,temp); /* ln(m)+e*ln(2) */
+    if (end_p != NULL) /* (float ... x) */
+      temp = F_R_float_F(temp,*end_p);
+    skipSTACK(4);
+    return temp;
+  }
+}
+#define F_ln_F  R_ln_R
 
 # I_I_log_RA(a,b) liefert zu Integers a>0, b>1 den Logarithmus log(a,b)
 # als exakte rationale Zahl, oder nullobj wenn er irrational ist.
@@ -902,9 +917,13 @@ local void R_cos_sin_R_R (object x) {
               STACK_1 = RA_F_float_F(a,b); # a := (float a b)
         }   }
       # Nun a,b beide Floats.
-      STACK_1 = R_ln_R(STACK_1); # (ln a) errechnen
-     {var object lnb = R_ln_R(popSTACK()); # (ln b) errechnen
-      return F_F_durch_F(popSTACK(),lnb); # (/ (ln a) (ln b)) als Ergebnis
+      pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln a) */
+      pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln b) */
+      STACK_0 = F_F_durch_F(STACK_1,STACK_0); /* (/ (ln a) (ln b)) */
+      STACK_1 = R_R_contagion_R(STACK_2,STACK_3);
+      { var object ret = F_R_float_F(STACK_0,STACK_1);
+        skipSTACK(4);
+        return ret;
     }}
 
 # F_expx_F(x) liefert zu einem Float x (betragsmäßig <1) exp(x) als Float.
@@ -966,7 +985,6 @@ local void R_cos_sin_R_R (object x) {
 
 # R_exp_R(x) liefert zu einer reellen Zahl x die Zahl exp(x).
 # can trigger GC
-  local object R_exp_R (object x);
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
 # x Float ->
@@ -974,32 +992,35 @@ local void R_cos_sin_R_R (object x) {
 #   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erhöhen,
 #   (q,r) := (floor x ln(2))
 #   Ergebnis ist exp(q*ln(2)+r) = (scale-float exp(r) q).
-  local object R_exp_R(x)
-    var object x;
-    { if (R_rationalp(x))
-        # x rational
-        { if (eq(x,Fixnum_0)) { return Fixnum_1; } # x=0 -> 1 als Ergebnis
-          x = RA_float_F(x); # sonst in Float umwandeln
-        }
-      # x Float
-      pushSTACK(x); # x retten
-      x = F_extend2_F(x); # Genauigkeit vergrößern
-      # durch ln(2) dividieren (bei 0<=x<1/2 kann man sofort q:=0 setzen)
-      if ((!R_minusp(x)) && (F_exponent_L(x)<0))
-        { pushSTACK(Fixnum_0); pushSTACK(x); } # x>=0, Exponent <0 -> 0<=x<1/2 -> Division unnötig
-        else
-        { pushSTACK(x);
-         {var object ln2 = ln2_F_float_F(x); # ln(2) mit hinreichender Genauigkeit
-          x = popSTACK();
-          F_F_floor_I_F(x,ln2); # x durch ln(2) dividieren
-        }}
-      # Stackaufbau: originales x, q, r.
-     {var object temp = F_expx_F(STACK_0); # exp(r)
-      temp = F_I_scale_float_F(temp,STACK_1); # mal 2^q
-      temp = F_F_float_F(temp,STACK_2); # (float ... x) als Ergebnis
-      skipSTACK(3);
-      return temp;
+local object R_exp_R (object x, bool start_p, object* end_p)
+{
+  if (R_rationalp(x)) { /* x rational */
+    if (eq(x,Fixnum_0)) { return Fixnum_1; } /* x=0 -> return 1 */
+    x = RA_float_F(x); /* ==> float */
+  }
+  /* x -- float */
+  pushSTACK(x); /* save x */
+  if (start_p) /* increase accuracy */
+    x = F_extend2_F(x);
+  /* divide by ln(2) (if 0<=x<1/2 can immediately set q:=0) */
+  if ((!R_minusp(x)) && (F_exponent_L(x)<0)) {
+    /* x>=0, Exponent <0 -> 0<=x<1/2 -> division not necessary */
+    pushSTACK(Fixnum_0); pushSTACK(x);
+  } else {
+    pushSTACK(x);
+    { var object ln2 = ln2_F_float_F(x); /* ln(2) with sufficient accuracy */
+      x = popSTACK();
+      F_F_floor_I_F(x,ln2); /* x / ln(2) */
     }}
+  /* stack layout: original x, q, r. */
+  { var object temp = F_expx_F(STACK_0); /* exp(r) */
+    temp = F_I_scale_float_F(temp,STACK_1); /* * 2^q */
+    if (end_p != NULL) /* (float ... x) als Ergebnis */
+      temp = F_R_float_F(temp,*end_p);
+    skipSTACK(3);
+    return temp;
+  }
+}
 
 # R_sinh_R(x) liefert zu einer reellen Zahl x die Zahl sinh(x).
 # can trigger GC
@@ -1023,7 +1044,7 @@ local void R_cos_sin_R_R (object x) {
         { var object temp;
           pushSTACK(x);
           pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
-          temp = F_sqrt_F(F_sinhx_F(x)); # Wurzel aus (sinh(x)/x)^2
+          temp = F_sqrt_F(F_sinhx_F(temp)); # Wurzel aus (sinh(x)/x)^2
           temp = F_F_mal_F(temp,STACK_0); # mit genauerem x multiplizieren
           temp = F_F_float_F(temp,STACK_1); # und wieder runden
           skipSTACK(2);
@@ -1032,10 +1053,12 @@ local void R_cos_sin_R_R (object x) {
         else
         # e>0 -> verwende exp(x)
         { var object temp;
-          pushSTACK(temp = R_exp_R(x)); # y:=exp(x)
+          pushSTACK(x);
+          pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
           temp = F_durch_F(temp); # (/ y)
           temp = F_F_minus_F(popSTACK(),temp); # von y subtrahieren
-          return F_I_scale_float_F(temp,Fixnum_minus1); # (scale-float ... -1)
+          return F_F_float_F(F_I_scale_float_F(temp,Fixnum_minus1),
+                             popSTACK()); /* (scale-float ... -1) */
     }   }
 
 # R_cosh_R(x) liefert zu einer reellen Zahl x die Zahl cosh(x).
@@ -1064,10 +1087,12 @@ local void R_cos_sin_R_R (object x) {
        if (e > 0)
          # e>0 -> verwende exp(x)
          { var object temp;
-           pushSTACK(temp = R_exp_R(x)); # y:=exp(x)
+           pushSTACK(x);
+           pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
            temp = F_durch_F(temp); # (/ y)
            temp = F_F_plus_F(popSTACK(),temp); # zu y addieren
-           return F_I_scale_float_F(temp,Fixnum_minus1); # (scale-float ... -1)
+           return F_F_float_F(F_I_scale_float_F(temp,Fixnum_minus1),
+                              popSTACK()); /* (scale-float ... -1) */
          }
          else
          # e<=0
@@ -1092,7 +1117,6 @@ local void R_cos_sin_R_R (object x) {
 
 # R_cosh_sinh_R_R(x) liefert ((cosh x),(sinh x)), beide Werte auf dem Stack.
 # can trigger GC
-  local void R_cosh_sinh_R_R (object x);
 # Methode:
 # x rational -> bei x=0 (1,0) als Ergebnis, sonst x in Float umwandeln.
 # x Float -> Genauigkeit erhöhen,
@@ -1108,48 +1132,55 @@ local void R_cos_sin_R_R (object x) {
 #   falls e>0: y:=exp(x) errechnen,
 #     (scale-float (+ y (/ y)) -1) und (scale-float (- y (/ y)) -1) bilden.
 #   Genauigkeit wieder verringern.
-  local void R_cosh_sinh_R_R(x)
-    var object x;
-    { if (R_rationalp(x))
-        # x rational
-        { if (eq(x,Fixnum_0)) { pushSTACK(Fixnum_1); pushSTACK(Fixnum_0); return; } # x=0 -> (1,0) als Ergebnis
-          x = RA_float_F(x); # sonst in Float umwandeln
-        }
-      # x Float
-      {var sintL e = F_exponent_L(x);
-       if (e > 0)
-         # e>0 -> verwende exp(x)
-         { var object temp;
-           pushSTACK(temp = R_exp_R(x)); # y:=exp(x)
-           pushSTACK(temp = F_durch_F(temp)); # (/ y)
-           # Stackaufbau: exp(x), exp(-x).
-           temp = F_F_minus_F(STACK_1,temp); # von y subtrahieren
-           temp = F_I_scale_float_F(temp,Fixnum_minus1); # (scale-float ... -1)
-          {var object temp2 = STACK_0;
-           STACK_0 = temp;
-           temp = F_F_plus_F(STACK_1,temp2); # zu y addieren
-           STACK_1 = F_I_scale_float_F(temp,Fixnum_minus1); # (scale-float ... -1)
-           return;
-         }}
-         else
-         # e<=0
-         { if (R_zerop(x)
-               || (e <= (sintL)(1-F_float_digits(x))>>1) # e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ?
-              )
-             { pushSTACK(x); pushSTACK(x); STACK_1 = I_F_float_F(Fixnum_1,x); return; }
-          {var object temp;
-           pushSTACK(x);
-           pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
-           pushSTACK(F_square_F(temp)); # x*x
-           pushSTACK(temp = F_sinhx_F(STACK_1)); # y:=(sinh(x)/x)^2
-           # Stackaufbau: originales x, x, x^2, y.
-           temp = F_sqrt_F(temp); # sqrt(y) = sinh(x)/x
-           temp = F_F_mal_F(STACK_2,temp); # x*sqrt(y) = sinh(x)
-           STACK_2 = F_F_float_F(temp,STACK_3); # und wieder runden
-           temp = F_F_mal_F(STACK_1,STACK_0); # x^2*y
-           temp = F_sqrt_F(R_R_plus_R(Fixnum_1,temp)); # sqrt(1+x^2*y)
-           STACK_3 = F_F_float_F(temp,STACK_3); # und wieder runden
-           skipSTACK(2); return;
-         }}
-    } }
-
+local void R_cosh_sinh_R_R (object x, bool start_p, object* end_p)
+{
+  if (R_rationalp(x)) { /* x rational */
+    if (eq(x,Fixnum_0)) /* x=0 -> return (1,0) */
+      { pushSTACK(Fixnum_1); pushSTACK(Fixnum_0); return; }
+    x = RA_float_F(x); /* ==> Float */
+  }
+  /* x -- float */
+  { var sintL e = F_exponent_L(x);
+    if (e > 0) { /* e>0 -> use exp(x) */
+      var object temp;
+      pushSTACK(x);
+      pushSTACK(temp = R_exp_R(x,start_p,NULL)); /* y:=exp(x) */
+      pushSTACK(temp = F_durch_F(temp)); /* (/ y) */
+      /* stack layout: x, exp(x), exp(-x). */
+      temp = F_F_plus_F(STACK_1,temp); /* + y */
+      temp = F_I_scale_float_F(temp,Fixnum_minus1); /* /2 */
+      if (end_p != NULL)        /* cosh */
+        STACK_2 = F_F_float_F(temp,*end_p);
+      else STACK_2 = temp;
+      temp = F_F_minus_F(STACK_1,STACK_0); /* - y */
+      STACK_1 = F_I_scale_float_F(temp,Fixnum_minus1); /* /2 */
+      if (end_p != NULL)        /* sinh */
+        STACK_1 = F_F_float_F(STACK_1,*end_p);
+      skipSTACK(1);
+      return;
+    } else { /* e<=0 */
+      if (R_zerop(x)
+          || (e <= (sintL)(1-F_float_digits(x))>>1)) { /* e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ? */
+        pushSTACK(x); pushSTACK(x); STACK_1 = I_F_float_F(Fixnum_1,x); return;
+      }
+      pushSTACK(x);
+      { var object temp = (start_p ? F_extend_F(x) : x);
+        pushSTACK(temp);
+        pushSTACK(F_square_F(temp)); /* x*x */
+        pushSTACK(temp = F_sinhx_F(STACK_1)); /* y:=(sinh(x)/x)^2 */
+        /* stack layout: original x, x, x^2, y. */
+        temp = F_sqrt_F(temp); /* sqrt(y) = sinh(x)/x */
+        temp = F_F_mal_F(STACK_2,temp); /* x*sqrt(y) = sinh(x) */
+        if (end_p != NULL) /* restore the accuracy */
+          STACK_2 = F_F_float_F(temp,STACK_3);
+        else STACK_2 = temp;
+        temp = F_F_mal_F(STACK_1,STACK_0); /* x^2*y */
+        temp = F_sqrt_F(R_R_plus_R(Fixnum_1,temp)); /* sqrt(1+x^2*y) */
+        if (end_p != NULL) /* restore the accuracy */
+          STACK_3 = F_F_float_F(temp,STACK_3);
+        else STACK_3 = temp;
+        skipSTACK(2); return;
+      }
+    }
+  }
+}

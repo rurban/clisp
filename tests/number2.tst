@@ -1,3 +1,5 @@
+;; -*- lisp -*-
+
 (defun check-xgcd (a b)
   (multiple-value-bind (g u v) (xgcd a b)
     (if (= g (+ (* a u) (* b v))) g
@@ -31,3 +33,26 @@ check-xgcd
 
 (isqrt #x3FFFFFFFC000000000007F)
 #x7FFFFFFFBFF
+
+;; transcendental functions
+
+#+clisp (setq *break-on-warnings* t) #+clisp t
+
+(expt -5s0 2s0) #c(25s0 0s0)
+(expt -5f0 2f0) #c(25f0 0f0)
+(expt -5d0 2d0) #c(25d0 0d0)
+
+(cis 10) #c(-0.8390715 -0.5440211)
+
+(sinh 0)    0
+(sinh 0d0)  0d0
+
+(tan 0d0)   0d0
+(tanh 0d0)  0d0
+
+(tan 1.57f0) 1255.8483f0
+(tan 1.57d0) 1255.7655915007895d0
+
+(atan #c(1 2))  #C(1.3389726 0.4023595)
+(tan  #c(1 2))  #C(0.033812825 1.0147936)
+(tanh #c(20 2)) #C(1.0 0.0)
