@@ -221,3 +221,6 @@ whenever you add a feature or fix a bug, the more tests, the better.
 One requirement must be satisfied after every CVS commit:
     $ cvs up -C; ./configure --build build-dir
 must pass all tests, the old and the new alike.
+
+Documentation changes do not need a ChangeLog entry.  Do not abbreviate
+function, variable and file names (e.g., using regular expressions).
