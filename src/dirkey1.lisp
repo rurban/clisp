@@ -8,7 +8,7 @@
 (export
  '(dir-key-type dir-key-path dir-key-direction dir-key-open-p dir-key-open
    dir-key-close dir-key-subkeys dir-key-attributes dir-key-value
-   dir-key-subkey-delete dir-key-value-delete
+   dir-key-subkey-delete dir-key-value-delete dir-key
    dir-key-single-value with-dir-key-open dir-key-copy
    with-dir-key-search dir-key-children dir-key-values dir-key-dump-tree
    dir-key-info))

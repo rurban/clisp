@@ -1225,7 +1225,7 @@ LISPSYM(Kresult,"RESULT",keyword)
 LISPSYM(Kstring,"STRING",keyword)
 LISPSYM(Ktoken,"TOKEN",keyword)
 #endif
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE) || (defined(UNIX_CYGWIN32) && defined(DIR_KEY))
 LISPSYM(Kwin32,"WIN32",keyword)
 #endif
 #ifdef DIR_KEY
