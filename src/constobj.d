@@ -580,9 +580,9 @@
   LISPOBJ(empty_logical_pathname,".") # (schon initialisiert)
   LISPOBJ(default_logical_pathname_host,"\"SYS\"")
  #endif
-  LISPOBJ_S(leer_string,"")
+  LISPOBJ_S(empty_string,"")
   LISPOBJ_S(wild_string,"*")
-  LISPOBJ_S(doppelpunkt_string,":")
+  LISPOBJ_S(colon_string,":")
  #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
   LISPOBJ_S(semicolon_string,";")
   LISPOBJ_S(zero_string,"0")
@@ -596,10 +596,10 @@
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(DIR_KEY)
   LISPOBJ_S(slash_string,"/")
  #endif
-  LISPOBJ_S(punkt_string,".")
+  LISPOBJ_S(dot_string,".")
  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
-  LISPOBJ_S(punktpunkt_string,"..")
-  LISPOBJ_S(punktpunktpunkt_string,"...")
+  LISPOBJ_S(dotdot_string,"..")
+  LISPOBJ_S(dotdotdot_string,"...")
  #endif
  #ifdef PATHNAME_RISCOS
   LISPOBJ_S(parent_string,"^")
