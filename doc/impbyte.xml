@@ -397,7 +397,7 @@ vector does not need to be scanned for pointers).</para>
   <listitem><simpara>This is the byte vector. It is a
    &simple-bit-vector-type; (because that's the simplest type in &clisp;
    which contains immediate data -- note that <literal
-   role="sexp">(&simple-vector-type; (&unsigned-byte-type; 8))</literal>
+   role="type">(&simple-vector-type; (&unsigned-byte-type; 8))</literal>
    is more complex than this).
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry><term>&consts;[]</term>
