@@ -1,5 +1,64 @@
 2003-10-26  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d: Drop &!.
+	* spvw.d: Drop &!.
+	* spvw_module.d (module_names_to_stack): Use 'global'.
+	* spvw_alloca.d: Use ANSI C prototypes.
+	* spvw_mmap.d: Use ANSI C prototypes.
+	* spvw_multimap.d: Use ANSI C prototypes. Indentation & braces.
+	* spvw_global.d: Use ANSI C prototypes. Indentation & braces.
+	* spvw_gcstat.d: Whitespace changes.
+	* spvw_update.d: Indentation & braces.
+	* spvw_fault.d: Use ANSI C prototypes. Indentation & braces.
+	* spvw_sigcld.d: Use ANSI C prototypes.
+	* spvw_sigwinch.d: Drop &!.
+	* spvw_garcol.d: Use ANSI C prototypes. Indentation & braces.
+	* spvw_genera1.d: Use ANSI C prototypes. Indentation & braces.
+	* spvw_allocate.d: Use ANSI C prototypes. Indentation & braces.
+	* spvw_circ.d: Use ANSI C prototypes. Indentation & braces.
+	* spvw_memfile.d: Indentation & braces.
+	* eval.d: ANSI C prototypes. Drop &!. Indentation & braces.
+	* control.d: Drop &!.
+	* pathname.d: Whitespace changes.
+	* stream.d: Use ANSI C prototypes. Indentation & braces.
+	* socket.d: Drop &!.
+	* io.d: Whitespace changes.
+	* array.d: Whitespace changes.
+	* hashtabl.d: Whitespace changes.
+	* package.d: Whitespace changes.
+	* sequence.d: Use ANSI C prototypes. Indentation & braces.
+	* charstrg.d: Whitespace changes.
+	* debug.d: Use ANSI C prototypes. Drop &!. Indentation & braces.
+	* errunix.d: Use ANSI C prototypes.
+	* errwin32.d: Use ANSI C prototypes.
+	* misc.d: Drop &!.
+	* time.d: Whitespace changes.
+	* predtype.d: Whitespace changes.
+	* intplus.d: Use ANSI C prototypes.
+	* intcomp.d: Use ANSI C prototypes.
+	* intbyte.d: Use ANSI C prototypes.
+	* intmal.d: Use ANSI C prototypes.
+	* intdiv.d: Use ANSI C prototypes.
+	* intgcd.d: Use ANSI C prototypes. Indentation & braces.
+	* int2adic.d: Use ANSI C prototypes.
+	* intsqrt.d: Use ANSI C prototypes.
+	* intprint.d: Use ANSI C prototypes.
+	* intread.d: Use ANSI C prototypes.
+	* rational.d: Use ANSI C prototypes. Indentation & braces.
+	* sfloat.d: Use ANSI C prototypes.
+	* ffloat.d: Use ANSI C prototypes.
+	* flo_konv.d: Use ANSI C prototypes.
+	* flo_rest.d: Nop.
+	* realelem.d: Nop.
+	* realrand.d: Use ANSI C prototypes.
+	* realtran.d: Use ANSI C prototypes. Indentation & braces.
+	* compelem.d: Use ANSI C prototypes. Indentation & braces.
+	* comptran.d: Use ANSI C prototypes. Indentation & braces.
+	* foreign.d: Drop &!.
+	* unixaux.d: Use ANSI C prototypes.
+
+2003-10-26  Bruno Haible  <bruno@clisp.org>
+
 	Make DEBUG_GCSAFETY work with generational GC.
 	* spvw_heap.d (old_new_pointer_t): Change type of field 'o' to
 	gcv_object_t.

@@ -46,16 +46,16 @@ local void warn_floating_point_contagion (void) {
 
 
 /* generates a Float-operation F_op_F like F_minus_F or F_durch_F */
-#define GEN_F_op1(op)                                  \
-    local object CONCAT3(F_,op,_F) (var object x)      \
-      {                                                \
-        floatcase(x,                                   \
-                  { return CONCAT3(SF_,op,_SF) (x); }, \
-                  { return CONCAT3(FF_,op,_FF) (x); }, \
-                  { return CONCAT3(DF_,op,_DF) (x); }, \
-                  { return CONCAT3(LF_,op,_LF) (x); }  \
-                 );                                    \
-      }
+#define GEN_F_op1(op)                                \
+    local object CONCAT3(F_,op,_F) (object x)        \
+    {                                                \
+      floatcase(x,                                   \
+                { return CONCAT3(SF_,op,_SF) (x); }, \
+                { return CONCAT3(FF_,op,_FF) (x); }, \
+                { return CONCAT3(DF_,op,_DF) (x); }, \
+                { return CONCAT3(LF_,op,_LF) (x); }  \
+               );                                    \
+    }
 
 /* F_minus_F(x) returns (- x), with x being a Float.
  can trigger GC */
@@ -370,7 +370,7 @@ local signean F_F_comp (object x, object y)
 /* Generates a function like SF_ffloor_SF
  Method: x<0 -> round away from 0, else round towards 0. */
 #define GEN_ffloor(F)                                 \
-  local object CONCAT3(F,_ffloor_,F) (var object x) { \
+  local object CONCAT3(F,_ffloor_,F) (object x) {     \
     return (R_minusp(x)                               \
             ? CONCAT3(F,_futruncate_,F) (x)           \
             : CONCAT3(F,_ftruncate_,F) (x));          \
@@ -398,7 +398,7 @@ GEN_ffloor(LF)
 /* Generates a function like SF_fceiling_SF
  Method: x<0 -> round towards 0, else round away from 0. */
 #define GEN_fceiling(F)                                 \
-  local object CONCAT3(F,_fceiling_,F) (var object x) { \
+  local object CONCAT3(F,_fceiling_,F) (object x) {     \
     return (R_minusp(x)                                 \
             ? CONCAT3(F,_ftruncate_,F) (x)              \
             : CONCAT3(F,_futruncate_,F) (x));           \
@@ -426,7 +426,7 @@ GEN_fceiling(LF)
 
 /* Generates a function like SF_fround_SF_SF */
 #define GEN_fround(F,rounding)                                          \
-  local void CONCAT7(F,_f,rounding,_,F,_,F) (var object x) {            \
+  local void CONCAT7(F,_f,rounding,_,F,_,F) (object x) {                \
     pushSTACK(x);                                                       \
    {var object y = CONCAT5(F,_f,rounding,_,F) (x); /* integer part of x */ \
     x = STACK_0; STACK_0 = y;                                           \
@@ -528,7 +528,7 @@ GEN_fround(LF,round)
 
 /* Generates a function like SF_round_I_SF */
 #define GEN_round(F,rounding)                                           \
-  local void CONCAT7(F,_,rounding,_,I,_,F) (var object x) {             \
+  local void CONCAT7(F,_,rounding,_,I,_,F) (object x) {                 \
     CONCAT7(F,_f,rounding,_,F,_,F) (x);                                 \
     STACK_1 = CONCAT3(F,_to_,I) (STACK_1); /* integer part as Integer */ \
   }
@@ -628,7 +628,7 @@ GEN_round(LF,round)
 
 /* Generates a function like F_fround_F_F */
 #define GEN_F_fround(rounding)                                  \
-  local void CONCAT3(F_f,rounding,_F_F) (var object x) {        \
+  local void CONCAT3(F_f,rounding,_F_F) (object x) {            \
     floatcase(x,                                                \
               { CONCAT3(SF_f,rounding,_SF_SF) (x); return; },   \
               { CONCAT3(FF_f,rounding,_FF_FF) (x); return; },   \
@@ -663,7 +663,7 @@ GEN_F_fround(round)
 
 /* Generates a function like F_round_I_F */
 #define GEN_F_round(rounding)                                           \
-  local void CONCAT3(F_,rounding,_I_F) (var object x) {                 \
+  local void CONCAT3(F_,rounding,_I_F) (object x) {                     \
     floatcase(x,                                                        \
               { CONCAT3(SF_,rounding,_I_SF) (x); return; },             \
               { CONCAT3(FF_,rounding,_I_FF) (x); return; },             \
@@ -709,7 +709,7 @@ GEN_F_round(round)
      can trigger GC                                                     \
      Method:                                                            \
      F_rounding_I_F(x/y) -> (q,r). Return q and x-y*q=y*r. \ */         \
-  local void CONCAT3(F_F_,rounding,_I_F) (var object x, var object y) { \
+  local void CONCAT3(F_F_,rounding,_I_F) (object x, object y) {         \
     pushSTACK(y);                                                       \
     CONCAT3(F_,rounding,_I_F) (F_F_durch_F(x,y)); /* form whole-numbered part of the quotient */ \
     y = STACK_2; STACK_2 = STACK_1;                                     \

@@ -1229,14 +1229,14 @@ LISPFUNNF(arrayp,1)
 LISPFUNNF(simple_array_p,1)
 { /* (SYSTEM::SIMPLE-ARRAY-P object) */
   var object arg = popSTACK();
-  VALUES_IF(simplep(arg) ||
-            (arrayp(arg) && /* other arrays, only if all flag bits = 0 */
-             ((Iarray_flags(arg)
-               & (bit(arrayflags_adjustable_bit)
-                  | bit(arrayflags_fillp_bit)
-                  | bit(arrayflags_displaced_bit)
-                  | bit(arrayflags_dispoffset_bit) ))
-              == 0)));
+  VALUES_IF(simplep(arg)
+            || (arrayp(arg) && /* other arrays, only if all flag bits = 0 */
+                ((Iarray_flags(arg)
+                  & (bit(arrayflags_adjustable_bit)
+                     | bit(arrayflags_fillp_bit)
+                     | bit(arrayflags_displaced_bit)
+                     | bit(arrayflags_dispoffset_bit) ))
+                 == 0)));
 }
 
 LISPFUNNF(bit_vector_p,1)

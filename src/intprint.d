@@ -122,55 +122,52 @@
 # digits_need(len,base) liefert eine obere Abschätzung für die Anzahl der
 # Ziffern im Stellenwertsystem der Basis base, die eine UDS der Länge len
 # braucht.
-  local uintL digits_need (uintC len, uintWL base);
-  local uintL digits_need(len,base)
-    var uintC len;
-    var uintWL base;
-    {
-      # 1+ceiling(len * intDsize*log(2)/log(base)) Bytes oder etwas mehr
-      var uintL need = 1+floor(len,1024/intDsize); # > ceiling(len*intDsize/1024) >= 0
-      switch (base) { # need mit ceiling(1024*log(2)/log(base)) multiplizieren:
-        case 2: need = 1024*need; break;
-        case 3: need = 647*need; break;
-        case 4: need = 512*need; break;
-        case 5: need = 442*need; break;
-        case 6: need = 397*need; break;
-        case 7: need = 365*need; break;
-        case 8: need = 342*need; break;
-        case 9: need = 324*need; break;
-        case 10: need = 309*need; break;
-        case 11: need = 297*need; break;
-        case 12: need = 286*need; break;
-        case 13: need = 277*need; break;
-        case 14: need = 269*need; break;
-        case 15: need = 263*need; break;
-        case 16: need = 256*need; break;
-        case 17: need = 251*need; break;
-        case 18: need = 246*need; break;
-        case 19: need = 242*need; break;
-        case 20: need = 237*need; break;
-        case 21: need = 234*need; break;
-        case 22: need = 230*need; break;
-        case 23: need = 227*need; break;
-        case 24: need = 224*need; break;
-        case 25: need = 221*need; break;
-        case 26: need = 218*need; break;
-        case 27: need = 216*need; break;
-        case 28: need = 214*need; break;
-        case 29: need = 211*need; break;
-        case 30: need = 209*need; break;
-        case 31: need = 207*need; break;
-        case 32: need = 205*need; break;
-        case 33: need = 203*need; break;
-        case 34: need = 202*need; break;
-        case 35: need = 200*need; break;
-        case 36: need = 199*need; break;
-        default: NOTREACHED;
-      }
-      # Nun gilt need >= len*intDsize*log(2)/log(base).
-      need += 1; # Platzbedarf in Bytes
-      return need;
+  local uintL digits_need (uintC len, uintWL base)
+  {
+    # 1+ceiling(len * intDsize*log(2)/log(base)) Bytes oder etwas mehr
+    var uintL need = 1+floor(len,1024/intDsize); # > ceiling(len*intDsize/1024) >= 0
+    switch (base) { # need mit ceiling(1024*log(2)/log(base)) multiplizieren:
+      case 2: need = 1024*need; break;
+      case 3: need = 647*need; break;
+      case 4: need = 512*need; break;
+      case 5: need = 442*need; break;
+      case 6: need = 397*need; break;
+      case 7: need = 365*need; break;
+      case 8: need = 342*need; break;
+      case 9: need = 324*need; break;
+      case 10: need = 309*need; break;
+      case 11: need = 297*need; break;
+      case 12: need = 286*need; break;
+      case 13: need = 277*need; break;
+      case 14: need = 269*need; break;
+      case 15: need = 263*need; break;
+      case 16: need = 256*need; break;
+      case 17: need = 251*need; break;
+      case 18: need = 246*need; break;
+      case 19: need = 242*need; break;
+      case 20: need = 237*need; break;
+      case 21: need = 234*need; break;
+      case 22: need = 230*need; break;
+      case 23: need = 227*need; break;
+      case 24: need = 224*need; break;
+      case 25: need = 221*need; break;
+      case 26: need = 218*need; break;
+      case 27: need = 216*need; break;
+      case 28: need = 214*need; break;
+      case 29: need = 211*need; break;
+      case 30: need = 209*need; break;
+      case 31: need = 207*need; break;
+      case 32: need = 205*need; break;
+      case 33: need = 203*need; break;
+      case 34: need = 202*need; break;
+      case 35: need = 200*need; break;
+      case 36: need = 199*need; break;
+      default: NOTREACHED;
     }
+    # Nun gilt need >= len*intDsize*log(2)/log(base).
+    need += 1; # Platzbedarf in Bytes
+    return need;
+  }
 
 # Wandelt eine UDS in ein Stellensystem um.
 # UDS_to_DIGITS(MSDptr,len,base, &ergebnis);
@@ -201,63 +198,59 @@
 #   Mache aus X wieder eine NUDS (maximal 1 Nulldigit streichen).
 #   Dies solange bis X=0.
 #   Streiche die führenden Nullen.
-  local void UDS_to_DIGITS(MSDptr,len,base,erg)
-    var uintD* MSDptr;
-    var uintC len;
-    var uintD base;
-    var DIGITS* erg;
-    {
-      # Aufsuchen von k-1 und b^k aus der Tabelle:
-      var const power_table_entry * tableptr = &table[base-2];
-      var uintC k_1 = tableptr->k_1; # k-1
-      var uintD b_hoch_k = tableptr->b_hoch_k; # b^k
-      var chart* erg_ptr = erg->LSBptr;
-      begin_arith_call();
-      #define next_digit(d)  { *--erg_ptr = ascii(d<10 ? '0'+d : 'A'-10+d); }
-      # normalisiere zu einer NUDS:
-      loop {
-        if (len==0) { # 0 -> eine Ziffer '0'
-          next_digit(0); goto fertig;
-        }
-        if (MSDptr[0]==0) {
-          MSDptr++; len--;
-        } else
+  local void UDS_to_DIGITS (uintD* MSDptr, uintC len, uintD base, DIGITS* erg)
+  {
+    # Aufsuchen von k-1 und b^k aus der Tabelle:
+    var const power_table_entry * tableptr = &table[base-2];
+    var uintC k_1 = tableptr->k_1; # k-1
+    var uintD b_hoch_k = tableptr->b_hoch_k; # b^k
+    var chart* erg_ptr = erg->LSBptr;
+    begin_arith_call();
+    #define next_digit(d)  { *--erg_ptr = ascii(d<10 ? '0'+d : 'A'-10+d); }
+    # normalisiere zu einer NUDS:
+    loop {
+      if (len==0) { # 0 -> eine Ziffer '0'
+        next_digit(0); goto fertig;
+      }
+      if (MSDptr[0]==0) {
+        MSDptr++; len--;
+      } else
+        break;
+    }
+    loop {
+      # Noch die NUDS MSDptr/len/.. mit len>0 abzuarbeiten.
+      # Single-Precision-Division durch b^k:
+      var uintD rest = divu_loop_up(b_hoch_k,MSDptr,len);
+      # Zerlegen des Restes in seine k Ziffern:
+      var uintC count = k_1;
+      if ((intDsize>=11) || (count>0))
+        # (Bei intDsize>=11 ist wegen b<=36 zwangsläufig
+        # k = ceiling(intDsize*log(2)/log(b))-1 >= 2, also count = k_1 > 0.)
+        do {
+          var uintD d;
+          #if HAVE_DD
+            divuD((uintDD)rest,base,rest=,d=);
+          #else
+            divuD(0,rest,base,rest=,d=);
+          #endif
+          next_digit(d);
+        } until (--count == 0);
+      next_digit(rest); # letzte der k Ziffern ablegen
+      # Quotienten normalisieren (max. 1 Digit streichen):
+      if (MSDptr[0]==0) {
+        MSDptr++; len--;
+        if (len==0)
           break;
       }
-      loop {
-        # Noch die NUDS MSDptr/len/.. mit len>0 abzuarbeiten.
-        # Single-Precision-Division durch b^k:
-        var uintD rest = divu_loop_up(b_hoch_k,MSDptr,len);
-        # Zerlegen des Restes in seine k Ziffern:
-        var uintC count = k_1;
-        if ((intDsize>=11) || (count>0))
-          # (Bei intDsize>=11 ist wegen b<=36 zwangsläufig
-          # k = ceiling(intDsize*log(2)/log(b))-1 >= 2, also count = k_1 > 0.)
-          do {
-            var uintD d;
-            #if HAVE_DD
-              divuD((uintDD)rest,base,rest=,d=);
-            #else
-              divuD(0,rest,base,rest=,d=);
-            #endif
-            next_digit(d);
-          } until (--count == 0);
-        next_digit(rest); # letzte der k Ziffern ablegen
-        # Quotienten normalisieren (max. 1 Digit streichen):
-        if (MSDptr[0]==0) {
-          MSDptr++; len--;
-          if (len==0)
-            break;
-        }
-      }
-      #undef next_digit
-      # Streiche führende Nullen:
-      while (chareq(*erg_ptr,ascii('0'))) {
-        erg_ptr++;
-      }
-     fertig:
-      erg->MSBptr = erg_ptr;
-      erg->len = erg->LSBptr - erg_ptr;
-      end_arith_call();
     }
+    #undef next_digit
+    # Streiche führende Nullen:
+    while (chareq(*erg_ptr,ascii('0'))) {
+      erg_ptr++;
+    }
+   fertig:
+    erg->MSBptr = erg_ptr;
+    erg->len = erg->LSBptr - erg_ptr;
+    end_arith_call();
+  }
 

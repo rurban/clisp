@@ -1201,8 +1201,8 @@ local void clrhash (object ht) {
 local gcv_object_t check_weak (gcv_object_t weak) {
  check_weak_restart:
   if (missingp(weak)) return NIL;
-  if (eq(weak,S(Kkey)) || eq(weak,S(Kvalue)) ||
-      eq(weak,S(Keither)) || eq(weak,S(Kboth)))
+  if (eq(weak,S(Kkey)) || eq(weak,S(Kvalue))
+      || eq(weak,S(Keither)) || eq(weak,S(Kboth)))
     return weak;
   /* invalid */
   pushSTACK(NIL); /* no PLACE */

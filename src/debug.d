@@ -1,5 +1,5 @@
 /* top level loop, aux functions for the debugger, stepper for CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2003
  * ILISP friendliness: Marcus Daniels 8.4.1994
  * Sam Steingold 2001-2003
  */
@@ -364,41 +364,40 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
 
 # Startet den normalen Driver (Read-Eval-Print-Loop)
 # driver();
-  global void driver (void);
-  global void driver()
-    {
-      var p_backtrace_t bt_save = back_trace;
-      var struct backtrace_t bt_here;
-      bt_here.bt_next = NULL;
-      bt_here.bt_caller = L(driver);
-      bt_here.bt_stack = STACK;
-      bt_here.bt_num_arg = -1;
-      back_trace = &bt_here;
-      loop {
-        var object driverfun = Symbol_value(S(driverstern)); # Wert von *DRIVER*
-        if (nullp(driverfun))
-          break;
-        funcall(driverfun,0); # mit 0 Argumenten aufrufen
-      }
-      # Default-Driver:
-      Symbol_value(S(break_count)) = Fixnum_0; # SYS::*BREAK-COUNT* := 0
-      # dann einen Driver-Frame aufbauen:
-      {
-        var gcv_object_t* top_of_frame = STACK; # Pointer übern Frame
-        var sp_jmp_buf returner; # Rücksprungpunkt merken
-        finish_entry_frame(DRIVER,&!returner,,;);
-        # Hier ist der Einsprungpunkt.
-        loop {
-          # (SYS::READ-EVAL-PRINT "> ") ausführen:
-          pushSTACK(O(prompt_string)); # Prompt "> "
-          funcall(L(read_eval_print),1);
-          if (eq(value1,T)) # EOF gelesen -> Schleife beenden
-            break;
-        }
-        skipSTACK(2); # Driver-Frame auflösen
-      }
-      back_trace = bt_save;
+  global void driver (void)
+  {
+    var p_backtrace_t bt_save = back_trace;
+    var struct backtrace_t bt_here;
+    bt_here.bt_next = NULL;
+    bt_here.bt_caller = L(driver);
+    bt_here.bt_stack = STACK;
+    bt_here.bt_num_arg = -1;
+    back_trace = &bt_here;
+    loop {
+      var object driverfun = Symbol_value(S(driverstern)); # Wert von *DRIVER*
+      if (nullp(driverfun))
+        break;
+      funcall(driverfun,0); # mit 0 Argumenten aufrufen
     }
+    # Default-Driver:
+    Symbol_value(S(break_count)) = Fixnum_0; # SYS::*BREAK-COUNT* := 0
+    # dann einen Driver-Frame aufbauen:
+    {
+      var gcv_object_t* top_of_frame = STACK; # Pointer übern Frame
+      var sp_jmp_buf returner; # Rücksprungpunkt merken
+      finish_entry_frame(DRIVER,returner,,;);
+      # Hier ist der Einsprungpunkt.
+      loop {
+        # (SYS::READ-EVAL-PRINT "> ") ausführen:
+        pushSTACK(O(prompt_string)); # Prompt "> "
+        funcall(L(read_eval_print),1);
+        if (eq(value1,T)) # EOF gelesen -> Schleife beenden
+          break;
+      }
+      skipSTACK(2); # Driver-Frame auflösen
+    }
+    back_trace = bt_save;
+  }
 
 /* Starts a secondary driver (Read-Eval-Print-Loop)
  break_driver(continuable_p);
@@ -453,7 +452,7 @@ global void break_driver (bool continuable_p) {
     { /* make driver-frame: */
       var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
       var sp_jmp_buf returner; /* return point */
-      finish_entry_frame(DRIVER,&!returner,,;);
+      finish_entry_frame(DRIVER,returner,,;);
       /* re-entry point is here */
       loop {
         /* (SYS::READ-EVAL-PRINT Prompt) */
@@ -540,22 +539,20 @@ LISPFUNN(load,1)
 # #define frame_p()  (!( (as_oint(FRAME_(0)) & wbit(frame_bit_o)) ==0))
 # in zweiter Näherung, unter Berücksichtigung der Frames mit Skip2-bit:
   #define frame_p()  framep(FRAME)
-  local bool framep (gcv_object_t* FRAME);
-  local bool framep(FRAME)
-    var gcv_object_t* FRAME;
-    {
-      # Ein normales Lisp-Objekt ist kein Frame:
-      if ((as_oint(FRAME_(0)) & wbit(frame_bit_o)) ==0)
-        return false;
-      # Beginnt bei FRAME_(-1) ein Frame ohne Skip2-Bit, so ist FRAME_(0)
-      # Teil dieses Frames, also nicht selber Beginn eines Frames:
-      if (   (!(FRAME==STACK)) # nicht die STACK-Grenzen überschreiten!
-          && ((as_oint(FRAME_(-1)) & wbit(skip2_bit_o)) == 0)
-          && framep(FRAME STACKop -1)
-         )
-        return false;
-      return true; # Sonst beginnt hier ein Frame.
-    }
+  local bool framep (gcv_object_t* FRAME)
+  {
+    # Ein normales Lisp-Objekt ist kein Frame:
+    if ((as_oint(FRAME_(0)) & wbit(frame_bit_o)) ==0)
+      return false;
+    # Beginnt bei FRAME_(-1) ein Frame ohne Skip2-Bit, so ist FRAME_(0)
+    # Teil dieses Frames, also nicht selber Beginn eines Frames:
+    if (   (!(FRAME==STACK)) # nicht die STACK-Grenzen überschreiten!
+        && ((as_oint(FRAME_(-1)) & wbit(skip2_bit_o)) == 0)
+        && framep(FRAME STACKop -1)
+       )
+      return false;
+    return true; # Sonst beginnt hier ein Frame.
+  }
 
 # Macro: Erniedrigt FRAME bis zum nächsten Frame.
 #define next_frame_down()  do { FRAME skipSTACKop -1; } until (frame_p());
@@ -585,175 +582,155 @@ LISPFUNN(load,1)
   ((framecode(FRAME_(0)) & ~bit(trapped_bit_t)) == (APPLY_frame_info & ~bit(trapped_bit_t)))
 
 # UP: überspringt ein Stackitem nach oben
-  local gcv_object_t* frame_up_1 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_up_1(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      if (frame_p())
-        FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-      else
-        FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
-      return (stack_upend_p() ? stackptr : FRAME);
-    }
+  local gcv_object_t* frame_up_1 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    if (frame_p())
+      FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+    else
+      FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
+    return (stack_upend_p() ? stackptr : FRAME);
+  }
 
 # UP: überspringt ein Stackitem nach unten
-  local gcv_object_t* frame_down_1 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_down_1(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      next_frame_down(); # nächsten Frame drunter suchen
-      if (!(topofframe(FRAME_(0)) == stackptr)) # nicht direkt unterhalb stackptr?
-        FRAME = stackptr STACKop -1;
-      return (stack_downend_p() ? stackptr : FRAME);
-    }
+  local gcv_object_t* frame_down_1 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    next_frame_down(); # nächsten Frame drunter suchen
+    if (!(topofframe(FRAME_(0)) == stackptr)) # nicht direkt unterhalb stackptr?
+      FRAME = stackptr STACKop -1;
+    return (stack_downend_p() ? stackptr : FRAME);
+  }
 
 # UP: springt zum nächsthöheren Frame
-  local gcv_object_t* frame_up_2 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_up_2(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      if (frame_p())
-        FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-      else
-        FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
-      loop {
-        if (stack_upend_p())
-          return stackptr;
-        if (as_oint(FRAME_(0)) & wbit(frame_bit_o))
+  local gcv_object_t* frame_up_2 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    if (frame_p())
+      FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+    else
+      FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
+    loop {
+      if (stack_upend_p())
+        return stackptr;
+      if (as_oint(FRAME_(0)) & wbit(frame_bit_o))
+        return FRAME;
+      FRAME skipSTACKop 1;
+    }
+  }
+
+# UP: springt zum nächstniedrigeren Frame
+  local gcv_object_t* frame_down_2 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    next_frame_down(); # nächsten Frame drunter suchen
+    return (stack_downend_p() ? stackptr : FRAME);
+  }
+
+# UP: springt zum nächsthöheren lexikalischen Frame
+  local gcv_object_t* frame_up_3 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    if (frame_p())
+      FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+    else
+      FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
+    loop {
+      if (stack_upend_p())
+        return stackptr;
+      if (frame_p()) {
+        if (lexical_frame_p())
           return FRAME;
+        FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+      } else {
         FRAME skipSTACKop 1;
       }
     }
-
-# UP: springt zum nächstniedrigeren Frame
-  local gcv_object_t* frame_down_2 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_down_2(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      next_frame_down(); # nächsten Frame drunter suchen
-      return (stack_downend_p() ? stackptr : FRAME);
-    }
-
-# UP: springt zum nächsthöheren lexikalischen Frame
-  local gcv_object_t* frame_up_3 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_up_3(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      if (frame_p())
-        FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-      else
-        FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
-      loop {
-        if (stack_upend_p())
-          return stackptr;
-        if (frame_p()) {
-          if (lexical_frame_p())
-            return FRAME;
-          FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-        } else {
-          FRAME skipSTACKop 1;
-        }
-      }
-    }
+  }
 
 # UP: springt zum nächstniedrigeren lexikalischen Frame
-  local gcv_object_t* frame_down_3 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_down_3(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      loop {
-        next_frame_down(); # nächsten Frame drunter suchen
-        if (stack_downend_p())
-          return stackptr;
-        if (lexical_frame_p())
-          break;
-      }
-      return FRAME;
+  local gcv_object_t* frame_down_3 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    loop {
+      next_frame_down(); # nächsten Frame drunter suchen
+      if (stack_downend_p())
+        return stackptr;
+      if (lexical_frame_p())
+        break;
     }
+    return FRAME;
+  }
 
 # UP: springt zum nächsthöheren EVAL/APPLY-Frame
-  local gcv_object_t* frame_up_4 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_up_4(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      if (frame_p())
+  local gcv_object_t* frame_up_4 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    if (frame_p())
+      FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+    else
+      FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
+    loop {
+      if (stack_upend_p())
+        return stackptr;
+      if (frame_p()) {
+        if (evalapply_frame_p())
+          return FRAME;
         FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-      else
-        FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
-      loop {
-        if (stack_upend_p())
-          return stackptr;
-        if (frame_p()) {
-          if (evalapply_frame_p())
-            return FRAME;
-          FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-        } else {
-          FRAME skipSTACKop 1;
-        }
+      } else {
+        FRAME skipSTACKop 1;
       }
     }
+  }
 
 # UP: springt zum nächstniedrigeren EVAL/APPLY-Frame
-  local gcv_object_t* frame_down_4 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_down_4(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      loop {
-        next_frame_down(); # nächsten Frame drunter suchen
-        if (stack_downend_p())
-          return stackptr;
-        if (evalapply_frame_p())
-          break;
-      }
-      return FRAME;
+  local gcv_object_t* frame_down_4 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    loop {
+      next_frame_down(); # nächsten Frame drunter suchen
+      if (stack_downend_p())
+        return stackptr;
+      if (evalapply_frame_p())
+        break;
     }
+    return FRAME;
+  }
 
 # UP: springt zum nächsthöheren APPLY-Frame
-  local gcv_object_t* frame_up_5 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_up_5(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      if (frame_p())
+  local gcv_object_t* frame_up_5 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    if (frame_p())
+      FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+    else
+      FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
+    loop {
+      if (stack_upend_p())
+        return stackptr;
+      if (frame_p()) {
+        if (apply_frame_p())
+          return FRAME;
         FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-      else
-        FRAME skipSTACKop 1; # Pointer aufs nächste Objekt
-      loop {
-        if (stack_upend_p())
-          return stackptr;
-        if (frame_p()) {
-          if (apply_frame_p())
-            return FRAME;
-          FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
-        } else {
-          FRAME skipSTACKop 1;
-        }
+      } else {
+        FRAME skipSTACKop 1;
       }
     }
+  }
 
 # UP: springt zum nächstniedrigeren APPLY-Frame
-  local gcv_object_t* frame_down_5 (gcv_object_t* stackptr);
-  local gcv_object_t* frame_down_5(stackptr)
-    var gcv_object_t* stackptr;
-    {
-      var gcv_object_t* FRAME = stackptr;
-      loop {
-        next_frame_down(); # nächsten Frame drunter suchen
-        if (stack_downend_p())
-          return stackptr;
-        if (apply_frame_p())
-          break;
-      }
-      return FRAME;
+  local gcv_object_t* frame_down_5 (gcv_object_t* stackptr)
+  {
+    var gcv_object_t* FRAME = stackptr;
+    loop {
+      next_frame_down(); # nächsten Frame drunter suchen
+      if (stack_downend_p())
+        return stackptr;
+      if (apply_frame_p())
+        break;
     }
+    return FRAME;
+  }
 
 # Typ eines Pointers auf eine Hochsteige- bzw. Absteige-Routine:
 typedef gcv_object_t* (*climb_fun_t) (gcv_object_t* stackptr);
@@ -789,19 +766,18 @@ local climb_fun_t test_mode_arg (const climb_fun_t* table) {
 # > STACK_0: Lisp-Objekt, sollte ein Frame-Pointer sein
 # < ergebnis: Frame-Pointer
 # erhöht STACK um 1
-  local gcv_object_t* test_framepointer_arg (void);
-  local gcv_object_t* test_framepointer_arg()
-    {
-      var object arg = popSTACK();
-      if (!framepointerp(arg)) {
-        pushSTACK(arg);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: ~ is not a stack pointer")
-              );
-      }
-      return uTheFramepointer(arg);
+  local gcv_object_t* test_framepointer_arg (void)
+  {
+    var object arg = popSTACK();
+    if (!framepointerp(arg)) {
+      pushSTACK(arg);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: ~ is not a stack pointer")
+            );
     }
+    return uTheFramepointer(arg);
+  }
 
 LISPFUNN(frame_up_1,2)
 # (SYS::FRAME-UP-1 framepointer mode) liefert den Frame-Pointer 1 höher.
@@ -863,87 +839,86 @@ LISPFUNN(the_frame,0)
 # STACK_0 aktiv war.
 # same_env_as();
 # erhöht STACK um 1, baut auf dem STACK einen ENV5-Frame auf
-  local void same_env_as (void);
-  local void same_env_as()
-    {
-      var gcv_object_t* FRAME = test_framepointer_arg();
-      # 5 Environments noch "leer":
-      var object found_var_env = nullobj;
-      var object found_fun_env = nullobj;
-      var object found_block_env = nullobj;
-      var object found_go_env = nullobj;
-      var object found_decl_env = nullobj;
-      # und füllen:
+  local void same_env_as (void)
+  {
+    var gcv_object_t* FRAME = test_framepointer_arg();
+    # 5 Environments noch "leer":
+    var object found_var_env = nullobj;
+    var object found_fun_env = nullobj;
+    var object found_block_env = nullobj;
+    var object found_go_env = nullobj;
+    var object found_decl_env = nullobj;
+    # und füllen:
+    loop {
+      # ab FRAME abwärts nach ENV-Frames suchen:
       loop {
-        # ab FRAME abwärts nach ENV-Frames suchen:
-        loop {
-          FRAME skipSTACKop -1;
-          if (FRAME==STACK) # Stack zu Ende?
-            goto end;
-          if (frame_p()
-              && (!( (as_oint(FRAME_(0)) & wbit(skip2_bit_o)) ==0))
-              && (!( (as_oint(FRAME_(0)) & wbit(envbind_bit_o)) ==0))
-             )
-            break;
-        }
-        # Nächster ENV-Frame gefunden.
-        # Sein Inhalt füllt die noch leeren Komponenten von env:
-        switch (framecode(FRAME_(0)) & envbind_case_mask_t) {
-          case (ENV1V_frame_info & envbind_case_mask_t): # 1 VAR_ENV
-            if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
-            break;
-          case (ENV1F_frame_info & envbind_case_mask_t): # 1 FUN_ENV
-            if (eq(found_fun_env,nullobj)) { found_fun_env = FRAME_(1); }
-            break;
-          case (ENV1B_frame_info & envbind_case_mask_t): # 1 BLOCK_ENV
-            if (eq(found_block_env,nullobj)) { found_block_env = FRAME_(1); }
-            break;
-          case (ENV1G_frame_info & envbind_case_mask_t): # 1 GO_ENV
-            if (eq(found_go_env,nullobj)) { found_go_env = FRAME_(1); }
-            break;
-          case (ENV1D_frame_info & envbind_case_mask_t): # 1 DECL_ENV
-            if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(1); }
-            break;
-          case (ENV2VD_frame_info & envbind_case_mask_t): # 1 VAR_ENV und 1 DECL_ENV
-            if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
-            if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(2); }
-            break;
-          case (ENV5_frame_info & envbind_case_mask_t): # alle 5 Environments
-            if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
-            if (eq(found_fun_env,nullobj)) { found_fun_env = FRAME_(2); }
-            if (eq(found_block_env,nullobj)) { found_block_env = FRAME_(3); }
-            if (eq(found_go_env,nullobj)) { found_go_env = FRAME_(4); }
-            if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(5); }
-            break;
-          default: NOTREACHED;
-        }
-        # Falls alle einzelnen Environments von env gefüllt (/=nullobj) sind,
-        # ist das Environment fertig:
-        if (   (!eq(found_var_env,nullobj))
-            && (!eq(found_fun_env,nullobj))
-            && (!eq(found_block_env,nullobj))
-            && (!eq(found_go_env,nullobj))
-            && (!eq(found_decl_env,nullobj))
+        FRAME skipSTACKop -1;
+        if (FRAME==STACK) # Stack zu Ende?
+          goto end;
+        if (frame_p()
+            && (!( (as_oint(FRAME_(0)) & wbit(skip2_bit_o)) ==0))
+            && (!( (as_oint(FRAME_(0)) & wbit(envbind_bit_o)) ==0))
            )
-          goto fertig;
+          break;
       }
-     end: # Stack zu Ende.
-      # Hole restliche Environment-Komponenten aus dem aktuellen Environment:
-      if (eq(found_var_env,nullobj)) { found_var_env = aktenv.var_env; }
-      if (eq(found_fun_env,nullobj)) { found_fun_env = aktenv.fun_env; }
-      if (eq(found_block_env,nullobj)) { found_block_env = aktenv.block_env; }
-      if (eq(found_go_env,nullobj)) { found_go_env = aktenv.go_env; }
-      if (eq(found_decl_env,nullobj)) { found_decl_env = aktenv.decl_env; }
-     fertig:
-      # Environment-Frame aufbauen:
-      make_ENV5_frame();
-      # aktuelle Environments setzen:
-      aktenv.var_env   = found_var_env  ;
-      aktenv.fun_env   = found_fun_env  ;
-      aktenv.block_env = found_block_env;
-      aktenv.go_env    = found_go_env   ;
-      aktenv.decl_env  = found_decl_env ;
+      # Nächster ENV-Frame gefunden.
+      # Sein Inhalt füllt die noch leeren Komponenten von env:
+      switch (framecode(FRAME_(0)) & envbind_case_mask_t) {
+        case (ENV1V_frame_info & envbind_case_mask_t): # 1 VAR_ENV
+          if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
+          break;
+        case (ENV1F_frame_info & envbind_case_mask_t): # 1 FUN_ENV
+          if (eq(found_fun_env,nullobj)) { found_fun_env = FRAME_(1); }
+          break;
+        case (ENV1B_frame_info & envbind_case_mask_t): # 1 BLOCK_ENV
+          if (eq(found_block_env,nullobj)) { found_block_env = FRAME_(1); }
+          break;
+        case (ENV1G_frame_info & envbind_case_mask_t): # 1 GO_ENV
+          if (eq(found_go_env,nullobj)) { found_go_env = FRAME_(1); }
+          break;
+        case (ENV1D_frame_info & envbind_case_mask_t): # 1 DECL_ENV
+          if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(1); }
+          break;
+        case (ENV2VD_frame_info & envbind_case_mask_t): # 1 VAR_ENV und 1 DECL_ENV
+          if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
+          if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(2); }
+          break;
+        case (ENV5_frame_info & envbind_case_mask_t): # alle 5 Environments
+          if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
+          if (eq(found_fun_env,nullobj)) { found_fun_env = FRAME_(2); }
+          if (eq(found_block_env,nullobj)) { found_block_env = FRAME_(3); }
+          if (eq(found_go_env,nullobj)) { found_go_env = FRAME_(4); }
+          if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(5); }
+          break;
+        default: NOTREACHED;
+      }
+      # Falls alle einzelnen Environments von env gefüllt (/=nullobj) sind,
+      # ist das Environment fertig:
+      if (   (!eq(found_var_env,nullobj))
+          && (!eq(found_fun_env,nullobj))
+          && (!eq(found_block_env,nullobj))
+          && (!eq(found_go_env,nullobj))
+          && (!eq(found_decl_env,nullobj))
+         )
+        goto fertig;
     }
+   end: # Stack zu Ende.
+    # Hole restliche Environment-Komponenten aus dem aktuellen Environment:
+    if (eq(found_var_env,nullobj)) { found_var_env = aktenv.var_env; }
+    if (eq(found_fun_env,nullobj)) { found_fun_env = aktenv.fun_env; }
+    if (eq(found_block_env,nullobj)) { found_block_env = aktenv.block_env; }
+    if (eq(found_go_env,nullobj)) { found_go_env = aktenv.go_env; }
+    if (eq(found_decl_env,nullobj)) { found_decl_env = aktenv.decl_env; }
+   fertig:
+    # Environment-Frame aufbauen:
+    make_ENV5_frame();
+    # aktuelle Environments setzen:
+    aktenv.var_env   = found_var_env  ;
+    aktenv.fun_env   = found_fun_env  ;
+    aktenv.block_env = found_block_env;
+    aktenv.go_env    = found_go_env   ;
+    aktenv.decl_env  = found_decl_env ;
+  }
 
 LISPFUNN(same_env_as,2)
 # (SYS::SAME-ENV-AS framepointer fun) aktiviert dasselbe lexikalische
@@ -1068,319 +1043,320 @@ local void print_back_trace (const gcv_object_t* stream_,
 # und liefert den nächsthöheren stackptr.
 # print_stackitem(&stream,FRAME)
 # can trigger GC
-  local gcv_object_t* print_stackitem (const gcv_object_t* stream_, gcv_object_t* FRAME);
-  local gcv_object_t* print_stackitem(stream_,FRAME)
-    var const gcv_object_t* stream_;
-    var gcv_object_t* FRAME;
-    {
-      if (!frame_p()) {
-        # kein Frame, normales LISP-Objekt
-        write_sstring(stream_,O(showstack_string_lisp_obj)); # "¿- "
-        var object obj = FRAME_(0);
-        #if !defined(NO_symbolflags)
-        switch (typecode(obj)) { # evtl. Symbol-Flags entfernen
-          case_symbolflagged: obj = symbol_without_flags(obj);
-          default: break;
-        }
+  local gcv_object_t* print_stackitem (const gcv_object_t* stream_, gcv_object_t* FRAME)
+  {
+    if (!frame_p()) {
+      # kein Frame, normales LISP-Objekt
+      write_sstring(stream_,O(showstack_string_lisp_obj)); # "¿- "
+      var object obj = FRAME_(0);
+      #if !defined(NO_symbolflags)
+      switch (typecode(obj)) { # evtl. Symbol-Flags entfernen
+        case_symbolflagged: obj = symbol_without_flags(obj);
+        default: break;
+      }
+      #endif
+      prin1(stream_,obj); # LISP-Objekt ausgeben
+      return FRAME STACKop 1;
+    } else {
+      # Frame angetroffen
+      var gcv_object_t* FRAME_top = topofframe(FRAME_(0)); # Pointer übern Frame
+      switch (framecode(FRAME_(0))) { # je nach Frametyp
+        case TRAPPED_APPLY_frame_info:
+          # getrapte APPLY-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "APPLY frame with breakpoint for call "));
+          goto APPLY_frame;
+        case APPLY_frame_info:
+          # APPLY-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "APPLY frame for call "));
+        APPLY_frame:
+          # Funktionsnamen und Argumente ausgeben:
+          write_ascii_char(stream_,'('); # '(' ausgeben
+          prin1(stream_,TheIclosure(FRAME_(frame_closure))->clos_name); # Namen ausgeben
+          {
+            var gcv_object_t* argptr = FRAME_top;
+            var uintL count = STACK_item_count(FRAME STACKop frame_args,FRAME_top);
+            dotimesL(count,count, {
+              write_ascii_char(stream_,' '); # ' ' ausgeben
+              write_ascii_char(stream_,'\''); # "'" ausgeben
+              prin1(stream_,NEXT(argptr)); # nächstes Argument ausgeben
+            });
+          }
+          write_ascii_char(stream_,')'); # ')' ausgeben
+          break;
+        case TRAPPED_EVAL_frame_info:
+          # getrapte EVAL-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "EVAL frame with breakpoint for form "));
+          goto EVAL_frame;
+        case EVAL_frame_info:
+          # EVAL-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "EVAL frame for form "));
+        EVAL_frame:
+          prin1(stream_,FRAME_(frame_form)); # Form ausgeben
+          break;
+        case DYNBIND_frame_info:
+          # dynamische Variablenbindungsframes:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding variables (~ = dynamically):"));
+          # Bindungen ausgeben:
+          FRAME skipSTACKop 1;
+          until (FRAME==FRAME_top) {
+            # Bindung von Symbol FRAME_(0) an Wert FRAME_(1) ausgeben:
+            write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
+            write_ascii_char(stream_,'~'); # '~' ausgeben
+            write_ascii_char(stream_,' '); # ' ' ausgeben
+            prin1(stream_,FRAME_(0)); # Symbol ausgeben
+            write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
+            prin1(stream_,FRAME_(1)); # Wert ausgeben
+            FRAME skipSTACKop 2;
+          }
+          break;
+        #ifdef HAVE_SAVED_REGISTERS
+        case CALLBACK_frame_info:
+          # Callback-Register-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "CALLBACK frame"));
+          break;
         #endif
-        prin1(stream_,obj); # LISP-Objekt ausgeben
-        return FRAME STACKop 1;
-      } else {
-        # Frame angetroffen
-        var gcv_object_t* FRAME_top = topofframe(FRAME_(0)); # Pointer übern Frame
-        switch (framecode(FRAME_(0))) { # je nach Frametyp
-          case TRAPPED_APPLY_frame_info:
-            # getrapte APPLY-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "APPLY frame with breakpoint for call "));
-            goto APPLY_frame;
-          case APPLY_frame_info:
-            # APPLY-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "APPLY frame for call "));
-          APPLY_frame:
-            # Funktionsnamen und Argumente ausgeben:
-            write_ascii_char(stream_,'('); # '(' ausgeben
-            prin1(stream_,TheIclosure(FRAME_(frame_closure))->clos_name); # Namen ausgeben
-            {
-              var gcv_object_t* argptr = FRAME_top;
-              var uintL count = STACK_item_count(FRAME STACKop frame_args,FRAME_top);
-              dotimesL(count,count, {
-                write_ascii_char(stream_,' '); # ' ' ausgeben
-                write_ascii_char(stream_,'\''); # "'" ausgeben
-                prin1(stream_,NEXT(argptr)); # nächstes Argument ausgeben
-              });
+        # Variablen- und Funktionsbindungsframes:
+        case VAR_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding variables "));
+          #ifdef NO_symbolflags
+          prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
+          write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
+          pushSTACK(FRAME_(frame_next_env)); # weiteres Environment retten
+          # Bindungen ausgeben:
+          FRAME skipSTACKop frame_bindings;
+          until (FRAME==FRAME_top) {
+            if (!( (as_oint(FRAME_(varframe_binding_mark)) & wbit(active_bit_o)) ==0)) {
+              # Bindung von Symbol FRAME_(1) an Wert FRAME_(2) ausgeben:
+              write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
+              if (!( (as_oint(FRAME_(varframe_binding_mark)) & wbit(dynam_bit_o)) ==0)) # Bindung dynamisch?
+                write_ascii_char(stream_,'~'); # ja -> '~' ausgeben
+              write_ascii_char(stream_,' '); # ' ' ausgeben
+              prin1(stream_,symbol_without_flags(FRAME_(varframe_binding_sym))); # Symbol ausgeben
+              write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
+              prin1(stream_,FRAME_(varframe_binding_value)); # Wert ausgeben
             }
-            write_ascii_char(stream_,')'); # ')' ausgeben
-            break;
-          case TRAPPED_EVAL_frame_info:
-            # getrapte EVAL-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "EVAL frame with breakpoint for form "));
-            goto EVAL_frame;
-          case EVAL_frame_info:
-            # EVAL-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "EVAL frame for form "));
-          EVAL_frame:
-            prin1(stream_,FRAME_(frame_form)); # Form ausgeben
-            break;
-          case DYNBIND_frame_info:
-            # dynamische Variablenbindungsframes:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding variables (~ = dynamically):"));
-            # Bindungen ausgeben:
-            FRAME skipSTACKop 1;
-            until (FRAME==FRAME_top) {
+            FRAME skipSTACKop varframe_binding_size;
+          }
+          goto VARFUN_frame_next;
+          #else
+          goto VARFUN_frame;
+          #endif
+        case FUN_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding functions "));
+          goto VARFUN_frame;
+        VARFUN_frame:
+          prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
+          write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
+          pushSTACK(FRAME_(frame_next_env)); # weiteres Environment retten
+          # Bindungen ausgeben:
+          FRAME skipSTACKop frame_bindings;
+          until (FRAME==FRAME_top) {
+            if (!( (as_oint(FRAME_(0)) & wbit(active_bit_o)) ==0)) {
               # Bindung von Symbol FRAME_(0) an Wert FRAME_(1) ausgeben:
               write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
-              write_ascii_char(stream_,'~'); # '~' ausgeben
+              if (!( (as_oint(FRAME_(0)) & wbit(dynam_bit_o)) ==0)) # Bindung dynamisch?
+                write_ascii_char(stream_,'~'); # ja -> '~' ausgeben
               write_ascii_char(stream_,' '); # ' ' ausgeben
-              prin1(stream_,FRAME_(0)); # Symbol ausgeben
+              prin1(stream_,symbol_without_flags(FRAME_(0))); # Symbol ausgeben
               write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
               prin1(stream_,FRAME_(1)); # Wert ausgeben
-              FRAME skipSTACKop 2;
             }
-            break;
-          #ifdef HAVE_SAVED_REGISTERS
-          case CALLBACK_frame_info:
-            # Callback-Register-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "CALLBACK frame"));
-            break;
-          #endif
-          # Variablen- und Funktionsbindungsframes:
-          case VAR_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding variables "));
-            #ifdef NO_symbolflags
-            prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
-            pushSTACK(FRAME_(frame_next_env)); # weiteres Environment retten
-            # Bindungen ausgeben:
-            FRAME skipSTACKop frame_bindings;
-            until (FRAME==FRAME_top) {
-              if (!( (as_oint(FRAME_(varframe_binding_mark)) & wbit(active_bit_o)) ==0)) {
-                # Bindung von Symbol FRAME_(1) an Wert FRAME_(2) ausgeben:
-                write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
-                if (!( (as_oint(FRAME_(varframe_binding_mark)) & wbit(dynam_bit_o)) ==0)) # Bindung dynamisch?
-                  write_ascii_char(stream_,'~'); # ja -> '~' ausgeben
-                write_ascii_char(stream_,' '); # ' ' ausgeben
-                prin1(stream_,symbol_without_flags(FRAME_(varframe_binding_sym))); # Symbol ausgeben
-                write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
-                prin1(stream_,FRAME_(varframe_binding_value)); # Wert ausgeben
-              }
-              FRAME skipSTACKop varframe_binding_size;
-            }
-            goto VARFUN_frame_next;
-            #else
-            goto VARFUN_frame;
-            #endif
-          case FUN_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding functions "));
-            goto VARFUN_frame;
-          VARFUN_frame:
-            prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
-            pushSTACK(FRAME_(frame_next_env)); # weiteres Environment retten
-            # Bindungen ausgeben:
-            FRAME skipSTACKop frame_bindings;
-            until (FRAME==FRAME_top) {
-              if (!( (as_oint(FRAME_(0)) & wbit(active_bit_o)) ==0)) {
-                # Bindung von Symbol FRAME_(0) an Wert FRAME_(1) ausgeben:
-                write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
-                if (!( (as_oint(FRAME_(0)) & wbit(dynam_bit_o)) ==0)) # Bindung dynamisch?
-                  write_ascii_char(stream_,'~'); # ja -> '~' ausgeben
-                write_ascii_char(stream_,' '); # ' ' ausgeben
-                prin1(stream_,symbol_without_flags(FRAME_(0))); # Symbol ausgeben
-                write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
-                prin1(stream_,FRAME_(1)); # Wert ausgeben
-              }
-              FRAME skipSTACKop 2;
-            }
-          VARFUN_frame_next:
-            # Weiteres Environment ausgeben:
-            write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
-            {
-              var object env = popSTACK(); # weiteres Environment
-              if (!simple_vector_p(env)) {
-                prin1(stream_,env);
-              } else {
-                # weiteres Environment ist ein Vektor, der Länge 2n+1
-                do {
-                  pushSTACK(env);
-                  var uintL count = floor(Svector_length(env),2); # = n = Bindungszahl
-                  var uintL index = 0;
-                  dotimesL(count,count, {
-                    write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
-                    prin1(stream_,TheSvector(STACK_0)->data[index++]); # Symbol ausgeben
-                    write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
-                    prin1(stream_,TheSvector(STACK_0)->data[index++]); # Symbol ausgeben
-                  });
-                  env = TheSvector(popSTACK())->data[index]; # letztes Vektor-Element
-                } while (simple_vector_p(env));
-              }
-            }
-            break;
-          # Compilierte Block/Tagbody-Frames:
-          case CBLOCK_CTAGBODY_frame_info:
-            if (simple_vector_p(Car(FRAME_(frame_ctag)))) {
-              # compilierte Tagbody-Frames:
-              write_sstring(stream_,CLSTEXT(NLstring "compiled tagbody frame for "));
-              prin1(stream_,Car(FRAME_(frame_ctag))); # Tag-Vektor
+            FRAME skipSTACKop 2;
+          }
+        VARFUN_frame_next:
+          # Weiteres Environment ausgeben:
+          write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
+          {
+            var object env = popSTACK(); # weiteres Environment
+            if (!simple_vector_p(env)) {
+              prin1(stream_,env);
             } else {
-              # compilierte Block-Frames:
-              write_sstring(stream_,CLSTEXT(NLstring "compiled block frame for "));
-              prin1(stream_,Car(FRAME_(frame_ctag))); # Blockname
-            }
-            break;
-          # Interpretierte Block-Frames:
-          case IBLOCK_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "block frame "));
-            goto IBLOCK_frame;
-          case NESTED_IBLOCK_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "nested block frame "));
-            goto IBLOCK_frame;
-          IBLOCK_frame:
-            pushSTACK(FRAME_(frame_next_env));
-            prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" for "));
-            prin1(stream_,FRAME_(frame_name)); # Blockname
-            goto NEXT_ENV;
-          # Interpretierte Tagbody-Frames:
-          case ITAGBODY_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "tagbody frame "));
-            goto ITAGBODY_frame;
-          case NESTED_ITAGBODY_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "nested tagbody frame "));
-            goto ITAGBODY_frame;
-          ITAGBODY_frame:
-            pushSTACK(FRAME_(frame_next_env));
-            prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" for"));
-            # Tags/Bodys ausgeben:
-            FRAME skipSTACKop frame_bindings;
-            until (FRAME==FRAME_top) {
-              # Bindung von Tag FRAME_(0) an Body FRAME_(1) ausgeben:
-              write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
-              prin1(stream_,FRAME_(0)); # Tag ausgeben
-              write_sstring(stream_,O(showstack_string_zuordtag)); # " --> "
-              prin1(stream_,FRAME_(1)); # Body ausgeben
-              FRAME skipSTACKop 2;
-            }
-            goto NEXT_ENV;
-          NEXT_ENV: # Ausgeben eines Block- oder Tagbody-Environments STACK_0
-            write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
-            {
-              var object env = popSTACK();
-              if (!consp(env)) {
-                prin1(stream_,env);
-              } else {
-                # weiteres Environment ist eine Aliste
-                do {
-                  pushSTACK(Cdr(env));
-                  env = Car(env);
-                  if (atomp(env)) {
-                    pushSTACK(S(show_stack));
-                    fehler(error,
-                           GETTEXT("~: environment is not an alist")
-                          );
-                  }
-                  pushSTACK(Cdr(env));
-                  pushSTACK(Car(env));
-                  write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
-                  prin1(stream_,popSTACK());
-                  write_sstring(stream_,O(showstack_string_zuordtag)); # " --> "
-                  prin1(stream_,popSTACK());
-                  env = popSTACK();
-                } while (consp(env));
-              }
-            }
-            break;
-          case CATCH_frame_info:
-            # Catch-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "catch frame for tag "));
-            prin1(stream_,FRAME_(frame_tag)); # Tag
-            break;
-          case HANDLER_frame_info:
-            # Handler-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "handler frame for conditions"));
-            {
-              var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
-              var uintL i = 0;
+              # weiteres Environment ist ein Vektor, der Länge 2n+1
               do {
-                write_ascii_char(stream_,' '); # ' ' ausgeben
-                prin1(stream_,TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # Typ i ausgeben
-                i += 2;
-              } while (i < m2);
+                pushSTACK(env);
+                var uintL count = floor(Svector_length(env),2); # = n = Bindungszahl
+                var uintL index = 0;
+                dotimesL(count,count, {
+                  write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
+                  prin1(stream_,TheSvector(STACK_0)->data[index++]); # Symbol ausgeben
+                  write_sstring(stream_,O(showstack_string_zuord)); # " <--> "
+                  prin1(stream_,TheSvector(STACK_0)->data[index++]); # Symbol ausgeben
+                });
+                env = TheSvector(popSTACK())->data[index]; # letztes Vektor-Element
+              } while (simple_vector_p(env));
             }
-            break;
-          case UNWIND_PROTECT_frame_info:
-            # Unwind-Protect-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "unwind-protect frame"));
-            break;
-          case DRIVER_frame_info:
-            # Driver-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring NLstring "driver frame"));
-            break;
-          # Environment-Frames:
-          case ENV1V_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
-            write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
-            prin1(stream_,FRAME_(1));
-            break;
-          case ENV1F_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
-            write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
-            prin1(stream_,FRAME_(1));
-            break;
-          case ENV1B_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
-            write_sstring(stream_,O(showstack_string_BENV_frame)); # "¿  BLOCK_ENV <--> "
-            prin1(stream_,FRAME_(1));
-            break;
-          case ENV1G_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
-            write_sstring(stream_,O(showstack_string_GENV_frame)); # "¿  GO_ENV <--> "
-            prin1(stream_,FRAME_(1));
-            break;
-          case ENV1D_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
-            write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
-            prin1(stream_,FRAME_(1));
-            break;
-          case ENV2VD_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
-            write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
-            prin1(stream_,FRAME_(1));
-            write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
-            prin1(stream_,FRAME_(2));
-            break;
-          case ENV5_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
-            write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
-            prin1(stream_,FRAME_(1));
-            write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
-            prin1(stream_,FRAME_(2));
-            write_sstring(stream_,O(showstack_string_BENV_frame)); # "¿  BLOCK_ENV <--> "
-            prin1(stream_,FRAME_(3));
-            write_sstring(stream_,O(showstack_string_GENV_frame)); # "¿  GO_ENV <--> "
-            prin1(stream_,FRAME_(4));
-            write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
-            prin1(stream_,FRAME_(5));
-            break;
-          default:
-            pushSTACK(S(show_stack));
-            fehler(serious_condition,
-                   GETTEXT("~: unknown frame type")
-                  );
-        }
-        return FRAME_top; # Pointer übern Frame
+          }
+          break;
+        # Compilierte Block/Tagbody-Frames:
+        case CBLOCK_CTAGBODY_frame_info:
+          if (simple_vector_p(Car(FRAME_(frame_ctag)))) {
+            # compilierte Tagbody-Frames:
+            write_sstring(stream_,CLSTEXT(NLstring "compiled tagbody frame for "));
+            prin1(stream_,Car(FRAME_(frame_ctag))); # Tag-Vektor
+          } else {
+            # compilierte Block-Frames:
+            write_sstring(stream_,CLSTEXT(NLstring "compiled block frame for "));
+            prin1(stream_,Car(FRAME_(frame_ctag))); # Blockname
+          }
+          break;
+        # Interpretierte Block-Frames:
+        case IBLOCK_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "block frame "));
+          goto IBLOCK_frame;
+        case NESTED_IBLOCK_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "nested block frame "));
+          goto IBLOCK_frame;
+        IBLOCK_frame:
+          pushSTACK(FRAME_(frame_next_env));
+          prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
+          write_sstring(stream_,CLSTEXT(" for "));
+          prin1(stream_,FRAME_(frame_name)); # Blockname
+          goto NEXT_ENV;
+        # Interpretierte Tagbody-Frames:
+        case ITAGBODY_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "tagbody frame "));
+          goto ITAGBODY_frame;
+        case NESTED_ITAGBODY_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "nested tagbody frame "));
+          goto ITAGBODY_frame;
+        ITAGBODY_frame:
+          pushSTACK(FRAME_(frame_next_env));
+          prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
+          write_sstring(stream_,CLSTEXT(" for"));
+          # Tags/Bodys ausgeben:
+          FRAME skipSTACKop frame_bindings;
+          until (FRAME==FRAME_top) {
+            # Bindung von Tag FRAME_(0) an Body FRAME_(1) ausgeben:
+            write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
+            prin1(stream_,FRAME_(0)); # Tag ausgeben
+            write_sstring(stream_,O(showstack_string_zuordtag)); # " --> "
+            prin1(stream_,FRAME_(1)); # Body ausgeben
+            FRAME skipSTACKop 2;
+          }
+          goto NEXT_ENV;
+        NEXT_ENV: # Ausgeben eines Block- oder Tagbody-Environments STACK_0
+          write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
+          {
+            var object env = popSTACK();
+            if (!consp(env)) {
+              prin1(stream_,env);
+            } else {
+              # weiteres Environment ist eine Aliste
+              do {
+                pushSTACK(Cdr(env));
+                env = Car(env);
+                if (atomp(env)) {
+                  pushSTACK(S(show_stack));
+                  fehler(error,
+                         GETTEXT("~: environment is not an alist")
+                        );
+                }
+                pushSTACK(Cdr(env));
+                pushSTACK(Car(env));
+                write_sstring(stream_,O(showstack_string_bindung)); # "¿  | "
+                prin1(stream_,popSTACK());
+                write_sstring(stream_,O(showstack_string_zuordtag)); # " --> "
+                prin1(stream_,popSTACK());
+                env = popSTACK();
+              } while (consp(env));
+            }
+          }
+          break;
+        case CATCH_frame_info:
+          # Catch-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "catch frame for tag "));
+          prin1(stream_,FRAME_(frame_tag)); # Tag
+          break;
+        case HANDLER_frame_info:
+          # Handler-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "handler frame for conditions"));
+          {
+            var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
+            var uintL i = 0;
+            do {
+              write_ascii_char(stream_,' '); # ' ' ausgeben
+              prin1(stream_,TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # Typ i ausgeben
+              i += 2;
+            } while (i < m2);
+          }
+          break;
+        case UNWIND_PROTECT_frame_info:
+          # Unwind-Protect-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring "unwind-protect frame"));
+          break;
+        case DRIVER_frame_info:
+          # Driver-Frames:
+          write_sstring(stream_,CLSTEXT(NLstring NLstring "driver frame"));
+          break;
+        # Environment-Frames:
+        case ENV1V_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
+          prin1(stream_,FRAME_(1));
+          break;
+        case ENV1F_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
+          prin1(stream_,FRAME_(1));
+          break;
+        case ENV1B_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          write_sstring(stream_,O(showstack_string_BENV_frame)); # "¿  BLOCK_ENV <--> "
+          prin1(stream_,FRAME_(1));
+          break;
+        case ENV1G_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          write_sstring(stream_,O(showstack_string_GENV_frame)); # "¿  GO_ENV <--> "
+          prin1(stream_,FRAME_(1));
+          break;
+        case ENV1D_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
+          prin1(stream_,FRAME_(1));
+          break;
+        case ENV2VD_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
+          prin1(stream_,FRAME_(1));
+          write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
+          prin1(stream_,FRAME_(2));
+          break;
+        case ENV5_frame_info:
+          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
+          prin1(stream_,FRAME_(1));
+          write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
+          prin1(stream_,FRAME_(2));
+          write_sstring(stream_,O(showstack_string_BENV_frame)); # "¿  BLOCK_ENV <--> "
+          prin1(stream_,FRAME_(3));
+          write_sstring(stream_,O(showstack_string_GENV_frame)); # "¿  GO_ENV <--> "
+          prin1(stream_,FRAME_(4));
+          write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
+          prin1(stream_,FRAME_(5));
+          break;
+        default:
+          pushSTACK(S(show_stack));
+          fehler(serious_condition,
+                 GETTEXT("~: unknown frame type")
+                );
       }
+      return FRAME_top; # Pointer übern Frame
     }
+  }
 
 LISPFUNN(describe_frame,2)
 # (SYS::DESCRIBE-FRAME stream framepointer) gibt das Stackitem, auf das der
 # Pointer zeigt, detailliert aus.
   {
     var gcv_object_t* FRAME = test_framepointer_arg(); # Pointer in den Stack
-    if (!streamp(STACK_0)) fehler_stream(STACK_0);
-    { var p_backtrace_t bt = back_trace;
+    if (!streamp(STACK_0))
+      fehler_stream(STACK_0);
+    {
+      var p_backtrace_t bt = back_trace;
       unwind_back_trace(bt,FRAME);
-      if (bt->bt_stack == FRAME) print_back_trace(&STACK_0,bt,0); }
+      if (bt->bt_stack == FRAME)
+        print_back_trace(&STACK_0,bt,0);
+    }
     print_stackitem(&STACK_0,FRAME); # Stack-Item ausgeben
     skipSTACK(1); VALUES0; /* no values */
   }

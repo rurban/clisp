@@ -124,8 +124,8 @@ global uintB eltype_code (object obj)
   /* (SYS::SUBTYPE-INTEGER obj) */
   pushSTACK(obj); funcall(S(subtype_integer),1);
   obj = popSTACK(); /* restore obj */
-  if ((mv_count>1) && integerp(value1) &&
-      positivep(value1) && integerp(value2)) {
+  if ((mv_count>1) && integerp(value1)
+      && positivep(value1) && integerp(value2)) {
     var uintL l = I_integer_length(value2); /* (INTEGER-LENGTH high) */
     if (l<=1)
       return Atype_Bit;
@@ -1007,8 +1007,8 @@ LISPFUN(array_row_major_index,seclass_read,1,0,rest,nokey,0,NIL)
 LISPFUNNF(adjustable_array_p,1)
 { /* (ADJUSTABLE-ARRAY-P array), CLTL p. 293 */
   var object array = test_array(popSTACK()); /* fetch argument */
-  VALUES_IF(!array_simplep(array) &&
-            (Iarray_flags(array) & bit(arrayflags_adjustable_bit)));
+  VALUES_IF(!array_simplep(array)
+            && (Iarray_flags(array) & bit(arrayflags_adjustable_bit)));
 }
 
 LISPFUNN(array_displacement,1)

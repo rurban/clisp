@@ -84,7 +84,7 @@
 # Acorn        Risc PC            RISC OS 3.x                   GNU           [__]arm, [__]riscos, __GNUC__
 # Acorn        Risc PC            RISC OS 3.x                   Norcroft      [__]arm, [__]riscos
 # APPLE IIGS   Apple              ??                            ??
-# For ANSI-C-Compiler: use pre-processors comment5, ansidecl
+# For ANSI-C-Compiler: use pre-processors comment5, varbrace
 #   (and maybe gcc-cpp, ccpaux).
 
 
@@ -1030,10 +1030,6 @@
 # Storage-Class-Specifier in declarations at the beginning of a block:
 # var                       will lead a variable declaration
 #define var
-
-# Address of the first element of an array: &!array
-# (To clarify that the address of the whole array is given.
-# If you write &array, it is a type-error to be precise.)
 
 # Generalized if-statement:
 # if (cond1) ... {elif (condi) ...} [else ...]
@@ -10271,7 +10267,7 @@ typedef struct {
   unwind_back_trace(back_trace,STACK);                                  \
   LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count();                       \
   begin_longjmp_call();                                                 \
-  longjmpspl(&!*returner,(aint)returner);/* jump there, pass own addess (/=0) */\
+  longjmpspl(*returner,(aint)returner);/* jump there, pass own addess (/=0) */\
   NOTREACHED;                                                           \
  } while(0)
 # is used by EVAL

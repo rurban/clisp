@@ -80,62 +80,57 @@
   # OPEN() only with O_RDONLY instead of O_RDWR.
   # Hence MAP_PRIVATE instead of MAP_SHARED.
 
-  local int initmap (const char* tmpdir);
-  local int initmap(tmpdir)
-    var const char* tmpdir;
+  local int initmap (const char* tmpdir)
+  {
     # build up virtual memory mapping:
+    # we need a temporary file.
+    # tempfilename := (string-concat tmpdir "/" "lisptemp.mem")
     {
-      # we need a temporary file.
-      # tempfilename := (string-concat tmpdir "/" "lisptemp.mem")
+      var const char* ptr1 = tmpdir;
+      var char* ptr2 = &tempfilename[0];
+      while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
+      if (!((ptr2 > &tempfilename[0]) && (ptr2[-1] == '/')))
+        *ptr2++ = '/';
+      ptr1 = "lisptemp.mem";
+      while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
+      #if (TEMPFILE_DEBUG_LEVEL > 0)
+      *ptr2++ = '.';
+      #if (TEMPFILE_DEBUG_LEVEL == 1)
       {
-        var const char* ptr1 = tmpdir;
-        var char* ptr2 = &tempfilename[0];
-        while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
-        if (!((ptr2 > &tempfilename[0]) && (ptr2[-1] == '/')))
-          *ptr2++ = '/';
-        ptr1 = "lisptemp.mem";
-        while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
-        #if (TEMPFILE_DEBUG_LEVEL > 0)
-        *ptr2++ = '.';
-        #if (TEMPFILE_DEBUG_LEVEL == 1)
-        {
-          unsigned int pid = getpid();
-          *ptr2++ = ((pid >> 12) & 0x0f) + 'a';
-          *ptr2++ = ((pid >> 8) & 0x0f) + 'a';
-          *ptr2++ = ((pid >> 4) & 0x0f) + 'a';
-          *ptr2++ = (pid & 0x0f) + 'a';
-        }
-        #endif
-        *ptr2++ = '0';
-        #endif
-        *ptr2 = '\0';
+        unsigned int pid = getpid();
+        *ptr2++ = ((pid >> 12) & 0x0f) + 'a';
+        *ptr2++ = ((pid >> 8) & 0x0f) + 'a';
+        *ptr2++ = ((pid >> 4) & 0x0f) + 'a';
+        *ptr2++ = (pid & 0x0f) + 'a';
       }
-      {
-        var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
-        if (fd<0) {
-          fprintf(stderr,GETTEXTL("Cannot open <%s>."),"/dev/zero");
-          errno_out(errno);
-          return -1; # error
-        }
-        zero_fd = fd;
-      }
-      return 0;
+      #endif
+      *ptr2++ = '0';
+      #endif
+      *ptr2 = '\0';
     }
+    {
+      var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
+      if (fd<0) {
+        fprintf(stderr,GETTEXTL("Cannot open <%s>."),"/dev/zero");
+        errno_out(errno);
+        return -1; # error
+      }
+      zero_fd = fd;
+    }
+    return 0;
+  }
 
   #ifdef HAVE_MSYNC
     typedef struct { void* mm_addr; uintL mm_len; } mmap_interval_t;
     local mmap_interval_t mmap_intervals[256]; # 256 is abundant.
     local mmap_interval_t* mmap_intervals_ptr = &mmap_intervals[0];
-    local void remember_mmap_interval (void* map_addr, uintL map_len);
-    local void remember_mmap_interval(map_addr,map_len)
-      var void* map_addr;
-      var uintL map_len;
-      {
-        if (mmap_intervals_ptr == &mmap_intervals[256])
-          abort();
-        mmap_intervals_ptr->mm_addr = map_addr; mmap_intervals_ptr->mm_len = map_len;
-        mmap_intervals_ptr++;
-      }
+    local void remember_mmap_interval (void* map_addr, uintL map_len)
+    {
+      if (mmap_intervals_ptr == &mmap_intervals[256])
+        abort();
+      mmap_intervals_ptr->mm_addr = map_addr; mmap_intervals_ptr->mm_len = map_len;
+      mmap_intervals_ptr++;
+    }
     local void msync_mmap_intervals (void) {
       var mmap_interval_t* ptr = &mmap_intervals[0];
       while (ptr != mmap_intervals_ptr) {
@@ -152,127 +147,109 @@
      #define msync_mmap_intervals()
   #endif
 
-  local int fdmap (int fd, void* map_addr, uintL map_len, int readonly, int shared, int remember);
-  local int fdmap(fd,map_addr,map_len,readonly,shared,remember)
+  local int fdmap (int fd, void* map_addr, uintL map_len, int readonly, int shared, int remember)
+  {
+    if ( (void*) mmap((MMAP_ADDR_T)map_addr, # wished address
+                      map_len, # length
+                      readonly ? PROT_READ : PROT_READ_WRITE, # access rights
+                      (shared ? MAP_SHARED : 0) | MAP_FIXED, # exactly to this address!
+                      fd, 0 # put file at position 0
+                     )
+         == (void*)(-1)
+       ) {
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
+              map_addr);
+      errno_out(errno);
+      return -1; # error
+    }
+    #ifdef HAVE_MSYNC
+    if (remember)
+      remember_mmap_interval(map_addr,map_len);
+    #endif
+    return 0;
+  }
+
+  local int zeromap (void* map_addr, uintL map_len)
+  {
+    return fdmap(zero_fd,map_addr,map_len,false,false,false);
+  }
+
+  local int open_temp_fd (uintL map_len)
+  {
     var int fd;
-    var void* map_addr;
-    var uintL map_len;
-    var int readonly;
-    var int shared;
-    var int remember;
-    {
-      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # wished address
-                        map_len, # length
-                        readonly ? PROT_READ : PROT_READ_WRITE, # access rights
-                        (shared ? MAP_SHARED : 0) | MAP_FIXED, # exactly to this address!
-                        fd, 0 # put file at position 0
-                       )
-           == (void*)(-1)
-         ) {
-        fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
-                map_addr);
-        errno_out(errno);
-        return -1; # error
-      }
-      #ifdef HAVE_MSYNC
-      if (remember)
-        remember_mmap_interval(map_addr,map_len);
-      #endif
-      return 0;
+    #if (TEMPFILE_DEBUG_LEVEL > 0)
+    tempfilename[strlen(tempfilename)-1]++;
+    #endif
+    #if (TEMPFILE_DEBUG_LEVEL <= 1)
+    fd = OPEN(tempfilename,O_RDWR|O_CREAT|O_TRUNC|O_EXCL,my_open_mask);
+    #else
+    fd = OPEN(tempfilename,O_RDWR|O_CREAT,my_open_mask);
+    #endif
+    if (fd<0) {
+      fprintf(stderr,GETTEXTL("Cannot open <%s>."),tempfilename);
+      errno_out(errno);
+      return -1; # error
     }
-
-  local int zeromap (void* map_addr, uintL map_len);
-  local int zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    {
-      return fdmap(zero_fd,map_addr,map_len,false,false,false);
+    #if (TEMPFILE_DEBUG_LEVEL == 0)
+    # and hopefully make it inaccessible by deleting it:
+    # (the operating system will delete the file only when at the end of
+    # this process in _exit() a close(fd) is performed.)
+    if ( unlink(tempfilename) <0) {
+      fprintf(stderr,GETTEXTL("Cannot delete <%s>."),tempfilename);
+      errno_out(errno);
+      return -1; # error
     }
-
-  local int open_temp_fd (uintL map_len);
-  local int open_temp_fd(map_len)
-    var uintL map_len;
+    #endif
+    # check, if there is enough disk space:
     {
-      var int fd;
-      #if (TEMPFILE_DEBUG_LEVEL > 0)
-      tempfilename[strlen(tempfilename)-1]++;
-      #endif
-      #if (TEMPFILE_DEBUG_LEVEL <= 1)
-      fd = OPEN(tempfilename,O_RDWR|O_CREAT|O_TRUNC|O_EXCL,my_open_mask);
-      #else
-      fd = OPEN(tempfilename,O_RDWR|O_CREAT,my_open_mask);
-      #endif
-      if (fd<0) {
-        fprintf(stderr,GETTEXTL("Cannot open <%s>."),tempfilename);
-        errno_out(errno);
-        return -1; # error
-      }
-      #if (TEMPFILE_DEBUG_LEVEL == 0)
-      # and hopefully make it inaccessible by deleting it:
-      # (the operating system will delete the file only when at the end of
-      # this process in _exit() a close(fd) is performed.)
-      if ( unlink(tempfilename) <0) {
-        fprintf(stderr,GETTEXTL("Cannot delete <%s>."),tempfilename);
-        errno_out(errno);
-        return -1; # error
-      }
-      #endif
-      # check, if there is enough disk space:
-      {
-        var struct statfs statbuf;
-        if (!( fstatfs(fd,&statbuf) <0))
-          if (!(statbuf.f_bsize == (long)(-1)) && !(statbuf.f_bavail == (long)(-1))) {
-            var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
-            if (available < map_len) {
-              # there is likely too few disk space
-              fprintf(stderr,GETTEXTL("** WARNING: ** Too little free disk space for <%s>." NLstring),tempfilename);
-              fprintf(stderr,GETTEXTL("Please restart LISP with less memory (option -m)." NLstring));
-            }
+      var struct statfs statbuf;
+      if (!( fstatfs(fd,&statbuf) <0))
+        if (!(statbuf.f_bsize == (long)(-1)) && !(statbuf.f_bavail == (long)(-1))) {
+          var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
+          if (available < map_len) {
+            # there is likely too few disk space
+            fprintf(stderr,GETTEXTL("** WARNING: ** Too little free disk space for <%s>." NLstring),tempfilename);
+            fprintf(stderr,GETTEXTL("Please restart LISP with less memory (option -m)." NLstring));
           }
-      }
-      # inflate to the size map_len:
-      {
-        var uintB dummy = 0;
-        if (( lseek(fd,map_len-1,SEEK_SET) <0) || (!( full_write(fd,&dummy,1) ==1))) {
-          fprintf(stderr,GETTEXTL("Cannot make <%s> long enough."),
-                  tempfilename);
-          errno_out(errno);
-          return -1; # error
         }
-      }
-      return fd;
     }
+    # inflate to the size map_len:
+    {
+      var uintB dummy = 0;
+      if (( lseek(fd,map_len-1,SEEK_SET) <0) || (!( full_write(fd,&dummy,1) ==1))) {
+        fprintf(stderr,GETTEXTL("Cannot make <%s> long enough."),
+                tempfilename);
+        errno_out(errno);
+        return -1; # error
+      }
+    }
+    return fd;
+  }
 
   #if !defined(MAP_MEMORY_TABLES)
     # copies the content of the interval [map_addr..map_addr+map_len-1] to the file.
-    local int fdsave (int fd, void* map_addr, uintL map_len);
-    local int fdsave(fd,map_addr,map_len)
-      var int fd;
-      var void* map_addr;
-      var uintL map_len;
-      {
-        if (( lseek(fd,0,SEEK_SET) <0) || (!( full_write(fd,map_addr,map_len) == map_len))) {
-          fprintf(stderr,GETTEXTL("Cannot fill <%s>."),tempfilename);
-          errno_out(errno);
-          return -1; # error
-        }
-        return 0;
+    local int fdsave (int fd, void* map_addr, uintL map_len)
+    {
+      if (( lseek(fd,0,SEEK_SET) <0) || (!( full_write(fd,map_addr,map_len) == map_len))) {
+        fprintf(stderr,GETTEXTL("Cannot fill <%s>."),tempfilename);
+        errno_out(errno);
+        return -1; # error
       }
+      return 0;
+    }
   #else
     #define fdsave(fd,map_addr,map_len)  0
   #endif
 
-  local int close_temp_fd (int fd);
-  local int close_temp_fd(fd)
-    var int fd;
-    {
-      if ( CLOSE(fd) <0) {
-        fprintf(stderr,GETTEXTL("Cannot close <%s>."),tempfilename);
-        errno_out(errno);
-        return -1; # error
-      }
-      return 0;
+  local int close_temp_fd (int fd)
+   {
+    if ( CLOSE(fd) <0) {
+      fprintf(stderr,GETTEXTL("Cannot close <%s>."),tempfilename);
+      errno_out(errno);
+      return -1; # error
     }
+    return 0;
+  }
 
   # procedure for multimap:
   # 1. open temporary file
@@ -285,37 +262,41 @@
     #define close_mapid(fd)  close_temp_fd(fd)
 
   #define multimap1(type,typecases,mapid,map_addr,map_len)  \
-    { switch (type)        \
-        { typecases        \
-            if ( map_mapid(mapid,combine(type,map_addr),map_len,false) <0) \
-              goto no_mem; \
-            break;         \
-          default: break;  \
-    }   }
+    { switch (type) {    \
+        typecases        \
+          if ( map_mapid(mapid,combine(type,map_addr),map_len,false) <0) \
+            goto no_mem; \
+          break;         \
+        default: break;  \
+      }                  \
+    }
 
   #define done_mapid(mapid,map_addr,map_len)  \
     if ( close_mapid(mapid) <0) \
       goto no_mem;
   #define exitmap()  \
-    msync_mmap_intervals();                                \
-    if (zero_fd >= 0)                                      \
-      if ( CLOSE(zero_fd) <0) {                                         \
-        fprintf(stderr,GETTEXTL("Cannot close <%s>."),"/dev/zero");     \
-        errno_out(errno);                                       \
+    msync_mmap_intervals();                                         \
+    if (zero_fd >= 0)                                               \
+      if ( CLOSE(zero_fd) <0) {                                     \
+        fprintf(stderr,GETTEXTL("Cannot close <%s>."),"/dev/zero"); \
+        errno_out(errno);                                           \
       }
 
   #define multimap(typecases,map_addr,map_len,save_flag)  \
-    { # open temporary file:                                  \
-      var int mapid = open_mapid(map_len);                    \
-      if (mapid<0) goto no_mem;                               \
-      if (save_flag) { if ( fdsave(mapid,(void*)map_addr,map_len) <0) goto no_mem; } \
-      # and put multimapped into the memory:                  \
-      { var oint type;                                        \
-        for (type=0; type < mm_types_count; type++)           \
-          { multimap1(type,typecases,mapid,map_addr,map_len); } \
-      }                                                       \
-      # and poss. make publicly inaccessible:                 \
-      done_mapid(mapid,map_addr,map_len);                     \
+    { # open temporary file:                                        \
+      var int mapid = open_mapid(map_len);                          \
+      if (mapid<0) goto no_mem;                                     \
+      if (save_flag) {                                              \
+        if ( fdsave(mapid,(void*)map_addr,map_len) <0) goto no_mem; \
+      }                                                             \
+      # and put multimapped into the memory:                        \
+      { var oint type;                                              \
+        for (type=0; type < mm_types_count; type++) {               \
+          multimap1(type,typecases,mapid,map_addr,map_len);         \
+        }                                                           \
+      }                                                             \
+      # and poss. make publicly inaccessible:                       \
+      done_mapid(mapid,map_addr,map_len);                           \
     }
 
 #endif # MULTIMAP_MEMORY_VIA_FILE
@@ -328,111 +309,95 @@
   #define init_map_pagesize()  \
     { map_pagesize = SHMLBA; }
 
-  local int initmap (void);
-  local int initmap()
+  local int initmap (void)
+  {
+    #ifdef UNIX_LINUX
     {
-      #ifdef UNIX_LINUX
-      {
-        var struct shminfo shminfo;
-        if ( shmctl(0,IPC_INFO,(struct shmid_ds *)&shminfo) <0)
-          if (errno==ENOSYS) {
-            fprintf(stderr,GETTEXTL("Recompile your operating system with SYSV IPC support." NLstring));
-            return -1; # error
-          }
-      }
-      #endif
-      return 0;
+      var struct shminfo shminfo;
+      if ( shmctl(0,IPC_INFO,(struct shmid_ds *)&shminfo) <0)
+        if (errno==ENOSYS) {
+          fprintf(stderr,GETTEXTL("Recompile your operating system with SYSV IPC support." NLstring));
+          return -1; # error
+        }
     }
+    #endif
+    return 0;
+  }
 
-  local int open_shmid (uintL map_len);
-  local int open_shmid(map_len)
-    var uintL map_len;
-    {
-      var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute only for me'
-      if (shmid<0) {
-        fprintf(stderr,GETTEXTL("Cannot allocate private shared memory segment of size %d."),map_len);
-        errno_out(errno);
-        return -1; # error
-      }
-      return shmid;
+  local int open_shmid (uintL map_len)
+  {
+    var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute only for me'
+    if (shmid<0) {
+      fprintf(stderr,GETTEXTL("Cannot allocate private shared memory segment of size %d."),map_len);
+      errno_out(errno);
+      return -1; # error
     }
+    return shmid;
+  }
 
   #ifndef SHM_REMAP  # Only UNIX_LINUX needs SHM_REMAP in the shmflags
     #define SHM_REMAP  0
   #endif
-  local int idmap (int shmid, void* map_addr, int shmflags);
-  local int idmap(shmid,map_addr,shmflags)
-    var int shmid;
-    var void* map_addr;
-    var int shmflags;
-    {
-      if ( shmat(shmid,
-                 map_addr, # address
-                 shmflags # flags (default: read/write)
-                )
-           == (void*)(-1)) {
-        fprintf(stderr,GETTEXTL("Cannot map shared memory to address 0x%x."),
-                map_addr);
-        errno_out(errno);
-        return -1; # error
-      }
-      return 0;
+  local int idmap (int shmid, void* map_addr, int shmflags)
+  {
+    if ( shmat(shmid,
+               map_addr, # address
+               shmflags # flags (default: read/write)
+              )
+         == (void*)(-1)) {
+      fprintf(stderr,GETTEXTL("Cannot map shared memory to address 0x%x."),
+              map_addr);
+      errno_out(errno);
+      return -1; # error
     }
+    return 0;
+  }
 
   #if !defined(MAP_MEMORY_TABLES)
     # copies the content of the interval [map_addr..map_addr+map_len-1] into
     # the shared-memory-segment.
-    local int shmsave (int shmid, void* map_addr, uintL map_len);
-    local int shmsave(shmid,map_addr,map_len)
-      var int shmid;
-      var void* map_addr;
-      var uintL map_len;
-      {
-        var void* temp_addr = shmat(shmid,
-                                         0, # address: arbitrary
-                                         0 # flags: need none
-                                        );
-        if (temp_addr == (void*)(-1)) {
-          fprintf(stderr,GETTEXTL("%s: Cannot fill shared memory."),"shmat");
-          errno_out(errno);
-          return -1; # error
-        }
-        memcpy(temp_addr,map_addr,map_len);
-        if (shmdt(temp_addr) < 0) {
-          fprintf(stderr,GETTEXTL("%s: Cannot fill shared memory."),"shmdt");
-          errno_out(errno);
-          return -1; # error
-        }
-        return 0;
-      }
-  #else
-    #define shmsave(shmid,map_addr,map_len)  0
-  #endif
-
-  local int close_shmid (int shmid);
-  local int close_shmid(shmid)
-    var int shmid;
+    local int shmsave (int shmid, void* map_addr, uintL map_len)
     {
-      if ( shmctl(shmid,IPC_RMID,NULL) <0) {
-        fprintf(stderr,GETTEXTL("Cannot remove shared memory segment."));
+      var void* temp_addr = shmat(shmid,
+                                  0, # address: arbitrary
+                                  0 # flags: need none
+                                 );
+      if (temp_addr == (void*)(-1)) {
+        fprintf(stderr,GETTEXTL("%s: Cannot fill shared memory."),"shmat");
+        errno_out(errno);
+        return -1; # error
+      }
+      memcpy(temp_addr,map_addr,map_len);
+      if (shmdt(temp_addr) < 0) {
+        fprintf(stderr,GETTEXTL("%s: Cannot fill shared memory."),"shmdt");
         errno_out(errno);
         return -1; # error
       }
       return 0;
     }
+  #else
+    #define shmsave(shmid,map_addr,map_len)  0
+  #endif
 
-  local int zeromap (void* map_addr, uintL map_len);
-  local int zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    {
-      var int shmid = open_shmid(map_len);
-      if (shmid<0)
-        return -1; # error
-      if (idmap(shmid,map_addr,0) < 0)
-        return -1; # error
-      return close_shmid(shmid);
+  local int close_shmid (int shmid)
+  {
+    if ( shmctl(shmid,IPC_RMID,NULL) <0) {
+      fprintf(stderr,GETTEXTL("Cannot remove shared memory segment."));
+      errno_out(errno);
+      return -1; # error
     }
+    return 0;
+  }
+
+  local int zeromap (void* map_addr, uintL map_len)
+  {
+    var int shmid = open_shmid(map_len);
+    if (shmid<0)
+      return -1; # error
+    if (idmap(shmid,map_addr,0) < 0)
+      return -1; # error
+    return close_shmid(shmid);
+  }
 
   # procedure for multimap:
   # 1. make shared-memory-region available
@@ -445,17 +410,18 @@
     #define close_mapid(shmid)  close_shmid(shmid)
 
   #define multimap1(type,typecases,mapid,map_addr,map_len)  \
-    { switch (type)                                  \
-        { typecases                                  \
-            if ( map_mapid(mapid, combine(type,map_addr), map_len, \
-                           (type==0 ? SHM_REMAP : 0) \
-                          )                          \
-                 <0                                  \
-               )                                     \
-              goto no_mem;                           \
-            break;                                   \
-          default: break;                            \
-    }   }
+    { switch (type) {                                 \
+        typecases                                  \
+          if ( map_mapid(mapid, combine(type,map_addr), map_len, \
+                         (type==0 ? SHM_REMAP : 0) \
+                        )                          \
+               <0                                  \
+             )                                     \
+            goto no_mem;                           \
+          break;                                   \
+        default: break;                            \
+      }                                            \
+    }
 
   #define done_mapid(mapid,map_addr,map_len)  \
     if ( close_mapid(mapid) <0) \
@@ -465,22 +431,25 @@
   #define multimap(typecases,total_map_addr,total_map_len,save_flag)  \
     { var uintL remaining_len = total_map_len;                                 \
       var aint map_addr = total_map_addr;                                      \
-      do { var uintL map_len = (remaining_len > SHMMAX ? SHMMAX : remaining_len);  \
-           # open shared-memory-region:                                        \
-           var int mapid = open_mapid(map_len);                                \
-           if (mapid<0) goto no_mem;                                           \
-           if (save_flag && (map_addr==total_map_addr))                        \
-             { if ( shmsave(mapid,(void*)total_map_addr,total_map_len) <0) goto no_mem; } \
-           # and put multimapped into the memory:                              \
-           { var oint type;                                                    \
-             for (type=0; type < mm_types_count; type++)                       \
-               { multimap1(type,typecases,mapid,map_addr,map_len); }           \
-           }                                                                   \
-           # and poss. make publicly inaccessible:                             \
-           done_mapid(mapid,map_addr,map_len);                                 \
-           map_addr += map_len; remaining_len -= map_len;                      \
-         }                                                                     \
-         until (remaining_len==0);                                             \
+      do {                                                                     \
+        var uintL map_len = (remaining_len > SHMMAX ? SHMMAX : remaining_len); \
+        # open shared-memory-region:                                           \
+        var int mapid = open_mapid(map_len);                                   \
+        if (mapid<0) goto no_mem;                                              \
+        if (save_flag && (map_addr==total_map_addr)) {                         \
+          if ( shmsave(mapid,(void*)total_map_addr,total_map_len) <0)          \
+            goto no_mem;                                                       \
+        }                                                                      \
+        # and put multimapped into the memory:                                 \
+        { var oint type;                                                       \
+          for (type=0; type < mm_types_count; type++) {                        \
+            multimap1(type,typecases,mapid,map_addr,map_len);                  \
+          }                                                                    \
+        }                                                                      \
+        # and poss. make publicly inaccessible:                                \
+        done_mapid(mapid,map_addr,map_len);                                    \
+        map_addr += map_len; remaining_len -= map_len;                         \
+      } until (remaining_len==0);                                              \
     }
 
 #endif # MULTIMAP_MEMORY_VIA_SHM
