@@ -5285,10 +5285,10 @@ typedef struct {
   # - die Pseudofunktionentabelle in PSEUDOFUN.D
   # anpassen!
 # weitere typspezifische Komponenten:
-  #define strm_eltype          strm_other[3] # CHARACTER or ([UN]SIGNED-BYTE n)
+  #define strm_eltype          strm_other[0] # CHARACTER or ([UN]SIGNED-BYTE n)
   #define strm_file_name       strm_other[4] # Filename, ein Pathname oder NIL
   #define strm_file_truename   strm_other[5] # Truename, ein nicht-Logical Pathname oder NIL
-  #define strm_file_handle     strm_other[2] # eingepacktes Handle
+  #define strm_file_handle     strm_other[3] # eingepacktes Handle
   #define strm_synonym_symbol  strm_other[0]
   #define strm_broad_list      strm_other[0] # Liste von Streams
   #define strm_concat_list     strm_other[0] # Liste von Streams
