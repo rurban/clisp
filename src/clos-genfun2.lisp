@@ -39,7 +39,7 @@
   (defun %make-gf (name signature argorder methods)
     (sys::%make-closure name prototype-code
                         (list nil signature argorder methods
-                              (find-method-combination 'standard))
+                              (get-method-combination 'standard 'defgeneric))
                         sys::*seclass-dirty*)))
 
 #||
