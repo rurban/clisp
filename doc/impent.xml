@@ -174,6 +174,7 @@
 <!ENTITY ch-meta "<link linkend='char-bits'><constant>EXT:CHAR-META-BIT</constant></link>">
 <!ENTITY ch-super "<link linkend='char-bits'><constant>EXT:CHAR-SUPER-BIT</constant></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
+<!ENTITY char-key "<link linkend='with-kbd'><function>EXT:CHAR-KEY</function></link>">
 <!ENTITY cur-frame "<link linkend='cur-frame'>current stack frame</link>">
 <!ENTITY no-prim "<link linkend='no-prim'><function>CLOS:NO-PRIMARY-METHOD</function></link>">
 <!ENTITY meth-call-err "<link linkend='meth-call-err'><classname>CLOS:METHOD-CALL-ERROR</classname></link>">
@@ -236,7 +237,7 @@
 <!ENTITY input-char "<link linkend='input-char'><classname>SYS::INPUT-CHARACTER</classname></link>">
 <!ENTITY init-hooks "<link linkend='init-hooks'><varname>CUSTOM:*INIT-HOOKS*</varname></link>">
 <!ENTITY fini-hooks "<link linkend='fini-hooks'><varname>CUSTOM:*FINI-HOOKS*</varname></link>">
-<!ENTITY kbd-in "<olink targetdoc='impnotes' targetptr='terminal'><varname>EXT:*KEYBOARD-INPUT*</varname></olink>">
+<!ENTITY kbd-in "<olink targetdoc='impnotes' targetptr='with-kbd'><varname>EXT:*KEYBOARD-INPUT*</varname></olink>">
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY letf "<link linkend='letf'><function>EXT:LETF</function></link>">
 <!ENTITY letf-star "<link linkend='letf'><function>EXT:LETF*</function></link>">
@@ -375,7 +376,7 @@
 <!ENTITY weak-or-mapping "<link linkend='weak-or-mapping'><classname>EXT:WEAK-OR-MAPPINGINTER</classname></link>">
 <!ENTITY weak-or-relation "<link linkend='weak-or-relation'><classname>EXT:WEAK-OR-RELATION</classname></link>">
 <!ENTITY weak-pointer "<link linkend='weak-pointer'><classname>EXT:WEAK-POINTER</classname></link>">
-<!ENTITY with-kbd "<link linkend='terminal'><function>EXT:WITH-KEYBOARD</function></link>">
+<!ENTITY with-kbd "<link linkend='with-kbd'><function>EXT:WITH-KEYBOARD</function></link>">
 <!ENTITY with-print "<link linkend='hardcopy'><function>EXT:WITH-OUTPUT-TO-PRINTER</function></link>">
 <!ENTITY with-restarts "<link linkend='with-restarts'><function>EXT:WITH-RESTARTS</function></link>">
 <!ENTITY wr-by-seq "<link linkend='wr-by-seq'><function>EXT:WRITE-BYTE-SEQUENCE</function></link>">
