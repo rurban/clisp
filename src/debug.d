@@ -818,13 +818,12 @@ LISPFUNN(the_frame,0)
   local void same_env_as()
     {
       var gcv_object_t* FRAME = test_framepointer_arg();
-      var environment_t env;
       # 5 Environments noch "leer":
-      env.var_env = nullobj;
-      env.fun_env = nullobj;
-      env.block_env = nullobj;
-      env.go_env = nullobj;
-      env.decl_env = nullobj;
+      var object found_var_env = nullobj;
+      var object found_fun_env = nullobj;
+      var object found_block_env = nullobj;
+      var object found_go_env = nullobj;
+      var object found_decl_env = nullobj;
       # und füllen:
       loop {
         # ab FRAME abwärts nach ENV-Frames suchen:
@@ -842,55 +841,59 @@ LISPFUNN(the_frame,0)
         # Sein Inhalt füllt die noch leeren Komponenten von env:
         switch (framecode(FRAME_(0)) & envbind_case_mask_t) {
           case (ENV1V_frame_info & envbind_case_mask_t): # 1 VAR_ENV
-            if (eq(env.var_env,nullobj)) { env.var_env = FRAME_(1); }
+            if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
             break;
           case (ENV1F_frame_info & envbind_case_mask_t): # 1 FUN_ENV
-            if (eq(env.fun_env,nullobj)) { env.fun_env = FRAME_(1); }
+            if (eq(found_fun_env,nullobj)) { found_fun_env = FRAME_(1); }
             break;
           case (ENV1B_frame_info & envbind_case_mask_t): # 1 BLOCK_ENV
-            if (eq(env.block_env,nullobj)) { env.block_env = FRAME_(1); }
+            if (eq(found_block_env,nullobj)) { found_block_env = FRAME_(1); }
             break;
           case (ENV1G_frame_info & envbind_case_mask_t): # 1 GO_ENV
-            if (eq(env.go_env,nullobj)) { env.go_env = FRAME_(1); }
+            if (eq(found_go_env,nullobj)) { found_go_env = FRAME_(1); }
             break;
           case (ENV1D_frame_info & envbind_case_mask_t): # 1 DECL_ENV
-            if (eq(env.decl_env,nullobj)) { env.decl_env = FRAME_(1); }
+            if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(1); }
             break;
           case (ENV2VD_frame_info & envbind_case_mask_t): # 1 VAR_ENV und 1 DECL_ENV
-            if (eq(env.var_env,nullobj)) { env.var_env = FRAME_(1); }
-            if (eq(env.decl_env,nullobj)) { env.decl_env = FRAME_(2); }
+            if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
+            if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(2); }
             break;
           case (ENV5_frame_info & envbind_case_mask_t): # alle 5 Environments
-            if (eq(env.var_env,nullobj)) { env.var_env = FRAME_(1); }
-            if (eq(env.fun_env,nullobj)) { env.fun_env = FRAME_(2); }
-            if (eq(env.block_env,nullobj)) { env.block_env = FRAME_(3); }
-            if (eq(env.go_env,nullobj)) { env.go_env = FRAME_(4); }
-            if (eq(env.decl_env,nullobj)) { env.decl_env = FRAME_(5); }
+            if (eq(found_var_env,nullobj)) { found_var_env = FRAME_(1); }
+            if (eq(found_fun_env,nullobj)) { found_fun_env = FRAME_(2); }
+            if (eq(found_block_env,nullobj)) { found_block_env = FRAME_(3); }
+            if (eq(found_go_env,nullobj)) { found_go_env = FRAME_(4); }
+            if (eq(found_decl_env,nullobj)) { found_decl_env = FRAME_(5); }
             break;
           default: NOTREACHED;
         }
         # Falls alle einzelnen Environments von env gefüllt (/=nullobj) sind,
         # ist das Environment fertig:
-        if (   (!eq(env.var_env,nullobj))
-            && (!eq(env.fun_env,nullobj))
-            && (!eq(env.block_env,nullobj))
-            && (!eq(env.go_env,nullobj))
-            && (!eq(env.decl_env,nullobj))
+        if (   (!eq(found_var_env,nullobj))
+            && (!eq(found_fun_env,nullobj))
+            && (!eq(found_block_env,nullobj))
+            && (!eq(found_go_env,nullobj))
+            && (!eq(found_decl_env,nullobj))
            )
           goto fertig;
       }
      end: # Stack zu Ende.
       # Hole restliche Environment-Komponenten aus dem aktuellen Environment:
-      if (eq(env.var_env,nullobj)) { env.var_env = aktenv.var_env; }
-      if (eq(env.fun_env,nullobj)) { env.fun_env = aktenv.fun_env; }
-      if (eq(env.block_env,nullobj)) { env.block_env = aktenv.block_env; }
-      if (eq(env.go_env,nullobj)) { env.go_env = aktenv.go_env; }
-      if (eq(env.decl_env,nullobj)) { env.decl_env = aktenv.decl_env; }
+      if (eq(found_var_env,nullobj)) { found_var_env = aktenv.var_env; }
+      if (eq(found_fun_env,nullobj)) { found_fun_env = aktenv.fun_env; }
+      if (eq(found_block_env,nullobj)) { found_block_env = aktenv.block_env; }
+      if (eq(found_go_env,nullobj)) { found_go_env = aktenv.go_env; }
+      if (eq(found_decl_env,nullobj)) { found_decl_env = aktenv.decl_env; }
      fertig:
       # Environment-Frame aufbauen:
       make_ENV5_frame();
       # aktuelle Environments setzen:
-      aktenv = env;
+      aktenv.var_env   = found_var_env  ;
+      aktenv.fun_env   = found_fun_env  ;
+      aktenv.block_env = found_block_env;
+      aktenv.go_env    = found_go_env   ;
+      aktenv.decl_env  = found_decl_env ;
     }
 
 LISPFUNN(same_env_as,2)

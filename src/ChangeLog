@@ -1,5 +1,22 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (gcv_environment_t): New type.
+	(aktenv): Change type to gcv_environment_t.
+	(make_STACK_env): Use gcv_environment_t.
+	(nest_env): Change argument and return type to gcv_environment_t*.
+	(get_closure): Change argument type to gcv_environment_t*.
+	* spvw.d (aktenv): Change type to gcv_environment_t.
+	* eval.d (nest_env): Change argument and return type to
+	gcv_environment_t*.
+	(get_closure): Change argument type to gcv_environment_t*.
+	Don't mix environment_t and gcv_environment_t.
+	(eval, eval_applyhook): Update.
+	* control.d (compile_eval_form): Don't mix environment_t and
+	gcv_environment_t.
+	(EVALHOOK, APPLYHOOK): Likewise.
+	* debug.d (same_env_as): Likewise.
+	* predtype.d (COERCE): Update.
+
 	* array.d, control.d, eval.d, lispbibl.d, predtype.d, sequence.d,
 	spvw.d, spvw_circ.d, spvw_garcol.d, spvw_genera1.d, spvw_memfile.d,
 	spvw_objsize.d, spvw_update.d, spvwtabo.d: Use sizeof(gcv_object_t)

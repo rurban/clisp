@@ -390,16 +390,20 @@ local Values compile_eval_form (void)
      get the whole form from the EVAL-frame in the stack: */
   pushSTACK(STACK_(frame_form)); /* as first argument */
   {
-    var environment_t* stack_env = nest_aktenv(); /* nest current environment, push on STACK */
+    var gcv_environment_t* stack_env = nest_aktenv(); /* nest current environment, push on STACK */
    #if !defined(STACK_UP)
-    var environment_t my_env;
-    my_env = *stack_env; /* and transfer here */
+    /* and transfer here */
+    var object my_var_env = stack_env->var_env;
+    var object my_fun_env = stack_env->fun_env;
+    var object my_block_env = stack_env->block_env;
+    var object my_go_env = stack_env->go_env;
+    var object my_decl_env = stack_env->decl_env;
     skipSTACK(5); /* and take away from STACK again */
-    pushSTACK(my_env.var_env); /* second argument */
-    pushSTACK(my_env.fun_env); /* third argument */
-    pushSTACK(my_env.block_env); /* fourth argument */
-    pushSTACK(my_env.go_env); /* fifth argument */
-    pushSTACK(my_env.decl_env); /* sixth argument */
+    pushSTACK(my_var_env); /* second argument */
+    pushSTACK(my_fun_env); /* third argument */
+    pushSTACK(my_block_env); /* fourth argument */
+    pushSTACK(my_go_env); /* fifth argument */
+    pushSTACK(my_decl_env); /* sixth argument */
    #endif
     funcall(S(compile_form),6);
   }
@@ -2119,7 +2123,11 @@ LISPFUN(evalhook,3,1,norest,nokey,0,NIL)
   /* build environment-frame: */
   make_ENV5_frame();
   /* set current environments: */
-  aktenv = env5;
+  aktenv.var_env   = env5.var_env  ;
+  aktenv.fun_env   = env5.fun_env  ;
+  aktenv.block_env = env5.block_env;
+  aktenv.go_env    = env5.go_env   ;
+  aktenv.decl_env  = env5.decl_env ;
   /* evaluate form bypassing *EVALHOOK* and *APPLYHOOK* : */
   eval_no_hooks(form);
   unwind(); /* unwind environment-frame */
@@ -2138,7 +2146,11 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
   /* build environment-frame: */
   make_ENV5_frame();
   /* set current environments: */
-  aktenv = env5;
+  aktenv.var_env   = env5.var_env  ;
+  aktenv.fun_env   = env5.fun_env  ;
+  aktenv.block_env = env5.block_env;
+  aktenv.go_env    = env5.go_env   ;
+  aktenv.decl_env  = env5.decl_env ;
   { /* save fun: */
     pushSTACK(fun);
     var gcv_object_t* fun_ = &STACK_0;
