@@ -1379,6 +1379,8 @@
                 (if (probe-file filename) (list filename) '())))
           extensions))
 
+(proclaim '(special *compile-verbose*))
+(setq *compile-verbose* t)         ; defined in spvw.d
 (proclaim '(special *load-verbose*))
 (setq *load-verbose* t)         ; defined in spvw.d
 (proclaim '(special *load-print*))
@@ -1573,7 +1575,8 @@
               (sys::built-in-stream-close input-stream))
           (or (eq stream filename)
               (sys::built-in-stream-close stream))
-          (when *load-compiling* (compiler::c-report-problems))))
+          (when (and *load-compiling* *load-verbose* *compile-verbose*)
+            (compiler::c-report-problems))))
       (when *load-verbose*
         (fresh-line)
         (write-string ";;")
