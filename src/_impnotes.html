@@ -1615,9 +1615,13 @@ different float types is rounded to the float format of the shortest
 <p>If the variable
 <code><strong>lisp:*warn-on-floating-point-contagion*</strong></code> is
 true, a warning is emitted for every coercion involving different
-floating-point types.  <p>When rational numbers are to be converted to
-floats (due to <code>float</code>, <code>coerce</code>,
-<code>sqrt</code> or a transcendental function), the result type is
+floating-point types.
+
+<p>When rational numbers are to be converted to
+floats (due to <a href="CLHSROOT/Body/syscla_float.html fun_float.html">
+<code>float</code></a>, <a href="CLHSROOT/Body/fun_coerce.html">
+<code>coerce</code></a>, <a href="CLHSROOT/Body/fun_sqrtcm_isqrt.html">
+<code>sqrt</code></a> or a transcendental function), the result type is
 given by the variable
 <code><strong>lisp:*default-float-format*</strong></code>.
 
@@ -4434,8 +4438,9 @@ ANSI CL standard.  Therefore, in this case, we print it like this
 
 <pre><code>#-CLISP #P"" #+CLISP #S(PATHNAME ...)</code></pre>
 
-<p>when the variable <a href="#ansi"><code>lisp:*ansi*</code></a> is not
-set, otherwise the <code>#P""</code> notation is used as per <a
+<p>When the variable
+<code><strong>lisp:*print-pathnames-ansi*</strong></code> is not set,
+otherwise the <code>#P""</code> notation is used as per <a
 href="CLHSROOT/Body/sec_1-5-1-4.html">1.5.1.4.1 Resolution of Apparent
 Conflicts in Exceptional Situations</a>.
 
@@ -5796,7 +5801,7 @@ specified by the vote.
  <dt><a href="CLHSROOT/Issues/iss253.html">
      PACKAGE-DELETION:NEW-FUNCTION</a>             <dd>yes
  <dt><a href="CLHSROOT/Issues/iss254.html">
-     PACKAGE-FUNCTION-CONSISTENCY:MORE-PERMISSIVE</a> <dd>no
+     PACKAGE-FUNCTION-CONSISTENCY:MORE-PERMISSIVE</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss255.html">
      PARSE-ERROR-STREAM:SPLIT-TYPES</a>            <dd>yes
  <dt><a href="CLHSROOT/Issues/iss256.html">
@@ -5855,7 +5860,11 @@ specified by the vote.
  <dt><a href="CLHSROOT/Issues/iss282.html">
      QUOTE-SEMANTICS:NO-COPYING</a>                <dd>yes
  <dt><a href="CLHSROOT/Issues/iss283.html">
-     RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</a>     <dd>no
+     RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</a>
+     <dd>yes, when <a name="count-ansi">
+     <code><strong>lisp:*sequence-count-ansi*</strong></code></a> is
+     non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>;
+     otherwise negative <code>:count</code> values are not allowed.
  <dt><a href="CLHSROOT/Issues/iss284.html">
      RANGE-OF-START-AND-END-PARAMETERS:INTEGER-AND-INTEGER-NIL</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss285.html">
@@ -7045,15 +7054,22 @@ command line options:
    <a href="#imppack"><code>USER</code></a> for the images built by
    the CLISP build process).
  <dt><a name="ansi"><strong>-a</strong></a>
-  <dd>Stricter ANSI CL compliance:
-  <ul>
-   <li>Set the <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
-    symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
-    <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.  This implies:
-    <ul>
-     <li>ANSI CL compliant <a href="CLHSROOT/Body/syscla_pathname.html">
-      <code>pathname</code></a> <a href="#pathprint">printing</a>.
-     <li><a href="CLHSROOT/Body/typ_fixnum.html">
+  <dd>Stricter ANSI CL compliance, i.e., start in package <a
+   href="#clupack"><code>COMMON-LISP-USER</code></a> and set the <a
+   href="CLHSROOT/Body/mac_define-symbol-macro.html">
+   symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
+   <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>, which
+   implies:
+   <ul>
+    <li>Setting <a
+      href="#pathprint"><code>lisp:*print-pathnames-ansi*</code></a> to
+      <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a> for ANSI
+      CL compliant <a href="CLHSROOT/Body/syscla_pathname.html">
+      <code>pathname</code></a> printing.
+    <li>Setting
+      <code><strong>lisp:*coerce-fixnum-char-ansi*</strong></code> to
+      <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>
+      so that <a href="CLHSROOT/Body/typ_fixnum.html">
       <code>fixnum</code></a>s cannot be
       <a href="CLHSROOT/Body/fun_coerce.html">
       <code>coerce</code></a>d to
@@ -7063,34 +7079,43 @@ command line options:
       <code>fixnum</code></a> is not a
       <a href="CLHSROOT/Body/glo_c.html#character_designator">
       character designator</a> in ANSI CL.)
-     <li>Setting <a
+    <li>Setting <a
+      href="#count-ansi"><code>lisp:*sequence-count-ansi*</code></a> to
+      <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a> so that
+      negative <code>:count</code> keyword parameter is equivalent to
+      0 as per the <a href="CLHSROOT/Issues/iss283.html">
+      RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</a> ANSI CL Issue 283.
+    <li>Setting <a
       href="#pathmerge"><code>lisp:*merge-pathnames-ansi*</code></a>
       to <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
-     <li>Setting <a
+    <li>Setting <a
       href="#flocont"><code>lisp:*floating-point-contagion-ansi*</code></a>
       to <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
-     <li>Adding <code><strong>:ansi-cl</strong></code> to
+    <li>Adding <code><strong>:ansi-cl</strong></code> to
       <a href="#features"><code>*features*</code></a>.
-    </ul>
-   <li>Start in package <a
-   href="#clupack"><code>COMMON-LISP-USER</code></a>.
-  </ul>
-  Please note that if you run CLISP with the <strong>-a</strong> switch
-  or set the <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
-  symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
-  <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>
-  and <a href="#image">save image</a>, then all subsequent invocations
-  of CLISP with this image will be as if with <strong>-a</strong>
-  (regardless whether you actually supply the <strong>-a</strong>
-  switch).  You can always set the
-  <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
-  symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
-  <a href="CLHSROOT/Body/convar_nil.html">
-  <code>nil</code></a>, reversing the above settings, i.e.,
-  <ul>
-   <li>Readable <a href="CLHSROOT/Body/syscla_pathname.html">
-      <code>pathname</code></a> <a href="#pathprint">printing</a>.
-   <li><a href="CLHSROOT/Body/typ_fixnum.html">
+   </ul>
+   Please note that if you run CLISP with the <strong>-a</strong> switch
+   or set the <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
+   symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
+   <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>
+   and <a href="#image">save image</a>, then all subsequent invocations
+   of CLISP with this image will be as if with <strong>-a</strong>
+   (regardless whether you actually supply the <strong>-a</strong>
+   switch).  You can always set the
+   <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
+   symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
+   <a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a>, reversing the above settings, i.e.,
+   <ul>
+    <li>Setting <a
+      href="#pathprint"><code>lisp:*print-pathnames-ansi*</code></a> to
+      <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> for
+      readable <a href="CLHSROOT/Body/syscla_pathname.html">
+      <code>pathname</code></a> printing.
+    <li>Setting
+      <code><strong>lisp:*coerce-fixnum-char-ansi*</strong></code> to
+      <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      so that <a href="CLHSROOT/Body/typ_fixnum.html">
       <code>fixnum</code></a>s <strong>can</strong> be
       <a href="CLHSROOT/Body/fun_coerce.html">
       <code>coerce</code></a>d to
@@ -7098,15 +7123,21 @@ command line options:
       <code>character</code></a>s
       (via <a href="CLHSROOT/Body/fun_code-char.html">
       <code>code-char</code></a>).
-   <li>Setting <a
+    <li>Setting <a
+      href="#count-ansi"><code>lisp:*sequence-count-ansi*</code></a> to
+      <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> to
+      signal an error on negative <code>:count</code> keyword parameter,
+      contrary to the <a href="CLHSROOT/Issues/iss283.html">
+      RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</a> ANSI CL Issue 283.
+    <li>Setting <a
       href="#pathmerge"><code>lisp:*merge-pathnames-ansi*</code></a>
       to <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
-   <li>Setting <a
+    <li>Setting <a
       href="#flocont"><code>lisp:*floating-point-contagion-ansi*</code></a>
       to <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
-   <li>Deleting <code><strong>:ansi-cl</strong></code> from
+    <li>Deleting <code><strong>:ansi-cl</strong></code> from
       <a href="#features"><code>*features*</code></a>.
-  </ul>
+   </ul>
  <dt><strong>-x sexp</strong>
   <dd>Execute the <em>SEXP</em> and exit.
 </dl>
