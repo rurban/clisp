@@ -1,3 +1,8 @@
+2003-12-17  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (insert-combined-LAPs): Fix bug: (RET) and (RETGF)
+	can be preceded by a SKIPI instruction instead of a SKIP.
+
 2003-12-16  Sam Steingold  <sds@gnu.org>
 
 	use system-wide wildcard(fnmatch) implementation when it is available
