@@ -223,6 +223,10 @@ February 17
           (return (values (round total-age name-count) name-and-age-list))))
 (19 (FRED 22 SUE 26 ALICE 19 JOE 20 JUNE 10))
 
+(LOOP FOR X FROM 1 TO 20 WHEN (EQL (MOD X 5) 0) COLLECT X INTO FOO
+  WHEN (EQL (MOD X 5) 2) COLLECT X INTO FOO FINALLY (RETURN FOO))
+(2 5 7 10 12 15 17 20)
+
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-1.html>
 (loop for i in '(bird 3 4 turtle (1 . 4) horse cat)
       when (symbolp i) collect i)
