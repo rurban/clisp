@@ -18,3 +18,4 @@ done
 NEW_MODULES="$mod_list"
 TO_LOAD='matlab wrap'
 CLFLAGS="${CLFLAGS}" # -L${matlab}
+PATH="${PATH}:/cygdrive/c/MATLAB6p5/bin/win32/"

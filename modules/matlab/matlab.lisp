@@ -9,7 +9,7 @@
   (:modern t)
   (:use "COMMON-LISP" "FFI")
   (:shadowing-import-from "EXPORTING"
-           #:defconstant #:defun #:defmacro
+           #:defconstant #:defun #:defmacro #:defvar
            #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (in-package "MATLAB")
@@ -273,14 +273,14 @@
 
 ;; double *mxGetPr(const mxArray *array_ptr);
 (c-lines "double mx_aref (const mxArray *array_ptr, int i, int j, int n) { return mxGetPr(array_ptr)[i*n+j]; }~%")
-(def-call-out mx_aref (:return-type double-float)
+(def-call-out mx-aref (:return-type double-float) (:name "mx_aref")
   (:arguments (array_ptr (c-pointer mxArray))
               (i int) (j int) (n int)))
-(c-lines "void set_mx_aref (double val, const mxArray *array_ptr, int i, int j, int n) { mxGetPr(array_ptr)[i*n+j] = val; }~%")
+(c-lines "void set_mx_aref (const mxArray *array_ptr, int i, int j, int n, double val) { mxGetPr(array_ptr)[i*n+j] = val; }~%")
 (ffi:def-call-out set_mx_aref (:return-type nil)
-  (:arguments (val double-float) (array_ptr (c-pointer mxArray))
-              (i int) (j int) (n int)))
-(defsetf mx_aref set_mx_aref)
+  (:arguments (array_ptr (c-pointer mxArray)) (i int) (j int) (n int)
+              (val double-float)))
+(defsetf mx-aref set_mx_aref)
 ;; void *mxGetData(const mxArray *array_ptr);
 (def-call-out mxGetData (:return-type c-pointer)
   (:arguments (array_ptr (c-pointer mxArray))))
