@@ -190,10 +190,10 @@ RE-TEST
 
 (re-test "()ef" "def") ("ef" "")
 (re-test "()*" "-") ("" "")
-(re-test "*a" "-") ()
-(re-test "^*" "-") ("")
-(re-test "$*" "-") ("")
-(re-test "(*)b" "-") ()
+(re-test "*a" "-") ERROR    ; ("*a"): "Invalid preceding regular expression"
+(re-test "^*" "-") ERROR    ; ("^*"): "Invalid preceding regular expression"
+(re-test "$*" "-") ERROR    ; ("$*"): "Invalid preceding regular expression"
+(re-test "(*)b" "-") ERROR  ; ("(*)b"): "Invalid preceding regular expression"
 (re-test "$b" "b") ()
 
 (re-test "a\\(b" "a(b") ("a(b")
@@ -291,13 +291,16 @@ ERROR ; (")("): "Unmatched ( or \\("
 
 (re-test "{[^}
 ]*}" "{M.D. Harrison and A. Monk (Ed.)} \n\t foo: 2")
-("{M.D. Harrison and A. Monk (Ed.)}")
+;; ("{M.D. Harrison and A. Monk (Ed.)}")
+ERROR                           ;  "Invalid content of \\{\\}"
 (re-test "{[^}
 ]*}" "{M.D. Harrison and
-A. Monk (Ed.)} \n\t foo: 2") ()
+A. Monk (Ed.)} \n\t foo: 2")
+ERROR                           ; "Invalid content of \\{\\}"
 (re-test "{[^}
 ]*}" "{M.D. Harrison and {A. Monk} (Ed.)} \n\t foo: 2")
-("{M.D. Harrison and {A. Monk}")
+;; ("{M.D. Harrison and {A. Monk}")
+ERROR                           ; "Invalid content of \\{\\}"
 
 (re-test "ca?r" "car") ("car")
 (re-test "ca?r" "cr") ("cr")
@@ -435,9 +438,8 @@ yz")
 ;; Some tests for class matches (my own)
 (re-test "[[:alpha:]_][[:alnum:]_]*" "c_identifier") ("c_identifier")
 (re-test "[[:xdigit:]]*" "12aBcD89") ("12aBcD89")
-;; In the following pattern, because :] is missing, the pattern is
-;; interpreted as an ordinary range
-(re-test "[[:xdigit]+" "0[x:dig") ("[x:dig")
+;; undefined behavior:
+;;(re-test "[[:xdigit]+" "0[x:dig") ("[x:dig")
 
 ;; *******************************************************
 ;; the tests that follows are from:
