@@ -24,7 +24,7 @@ AC_CONFIG_SRCDIR(lispbibl.d)
 AC_CONFIG_HEADERS(unixconf.h)
 AC_ARG_WITH([readline],
 AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
-[ac_cv_use_readline=$withval], [ac_cv_use_readline=no])
+[ac_cv_use_readline=$withval], [ac_cv_use_readline=yes])
 dnl
 AC_MSG_NOTICE([* checks for programs])
 dnl
@@ -265,8 +265,9 @@ AC_MSG_NOTICE([* checks for libraries])
 dnl
 dnl set variable LIBTERMCAP
 CL_TERMCAP
-if test "$ac_cv_use_readline" != "no" ; then
-dnl DEFS HAVE_READLINE
+if test "$ac_cv_use_readline" = "no" ; then
+AC_MSG_NOTICE([not checking for readline])
+else dnl DEFS HAVE_READLINE
 CL_READLINE
 fi
 dnl
