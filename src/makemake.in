@@ -1457,7 +1457,7 @@ LPARTS=$LPARTS' edit macros3 foreign1 defs3 spanish config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
-TXT_FILES='README README.de README.en README.es clisp.1 clisp.html'
+TXT_FILES='README README.de README.es clisp.1 clisp.html'
 if [ $CROSS = false -a $HOS = unix ] ; then
   TXT_FILES=$TXT_FILES' clisp.c distmakefile'
 fi
@@ -2861,7 +2861,7 @@ else
   manual_readline=''
   manualx_readline=''
 fi
-echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.en README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
+echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
 echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
 echol
 echol "impnotes.html: ${SRCDIR}_impnotes.html"
@@ -3362,7 +3362,7 @@ clean1 : clean0
 	-rmdir ${TESTSDIR}
 	-rmdir w${TESTDIR}
 	-rmdir w${TESTSDIR}
-	-\$(RM) README README.de README.en README.es clisp.1 clisp.man clisp.html impnotes.html clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.html impnotes.html clisp.c distmakefile \$(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE} is recompiled
 # without changing the bytecode format.

@@ -1,5 +1,10 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * _README: Refer to _README.en unconditionally.
+        * makemake.in: Don't refer to `README.en'. `README' is enough.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Since make_machine and make_machine_code are different on some
         platforms...
         * pseudofun.d (LPSEUDOCODE): New macro, replaces PSEUDOFUN.
