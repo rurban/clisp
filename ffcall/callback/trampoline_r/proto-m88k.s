@@ -1,15 +1,6 @@
 	version	 "03.00"
 	file	 "proto.c"
 data
-
-; cc1 (2.6.3) arguments: -O -fdefer-pop -fomit-frame-pointer
-; -fcse-follow-jumps -fcse-skip-blocks -fexpensive-optimizations
-; -fthread-jumps -fstrength-reduce -fpeephole -ffunction-cse -finline
-; -fcaller-saves -freg-struct-return -fdelayed-branch -frerun-cse-after-loop
-; -fschedule-insns -fschedule-insns2 -fcommon -fgnu-linker -m88110 -m88100
-; -m88000 -mocs-debug-info -mocs-frame-position -msvr4 -mcheck-zero-division
-; -mstandard
-
 gcc2_compiled.:
 text
 	align	 8
@@ -42,7 +33,6 @@ jump:
 	or.u	 #r9,#r0,0xbabe
 	or	 #r9,#r9,0xbec0
 	jmp	 #r9
-	align	 4
 .Lte1:
 
 section	 .tdesc,"a"
