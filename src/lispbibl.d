@@ -11966,15 +11966,24 @@ typedef enum {
  fehler(errortype,errorstring);
  > errortype: condition-type
  > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
-   At every tilde, a LISP-object is taken from the STACK and printed
-   instead of the tilde.
+   At every tilde-S, a LISP-object is taken from the STACK and printed
+   instead of the tilde-S.
  > on the STACK: initial values for the Condition, depending on error-type */
 nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));
+/* used by all modules */
+
 /* Report an error and try to recover by asking the user to supply a value.
- Arguments - as above, expect one additional element on the STACK for PLACE
- - the first argument of CHECK-VALUE (see condition.lisp)
- If returns, the 2 return values from CHECK-VALUE are in value1 & value2
- (value1 supplied by the user, value2 indicates whether PLACE should be filled)
+ check_value(errortype,errorstring);
+ > errortype: condition-type
+ > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
+   At every tilde-S, a LISP-object is taken from the STACK and printed
+   instead of the tilde-S.
+ > on the STACK: PLACE (form to be shown to the user) or NIL, then
+   the initial values for the Condition, depending on error-type
+ < value1, value2: return values from CHECK-VALUE:
+   value1 = value supplied by the user,
+   value2 = indicates whether PLACE should be filled
+ < STACK: cleaned up
  can trigger GC */
 extern void check_value (condition_t errortype, const char * errorstring);
 /* used by all modules */

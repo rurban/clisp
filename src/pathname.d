@@ -673,7 +673,7 @@ local object test_optional_host (object host, bool convert) {
     pushSTACK(O(type_host)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(host);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: host should be NIL or a string, not ~"));
+    fehler(type_error,GETTEXT("~S: host should be NIL or a string, not ~S"));
   }
   host = coerce_normal_ss(host); /* as Normal-Simple-String */
   if (convert)
@@ -693,7 +693,7 @@ local object test_optional_host (object host, bool convert) {
  badhost:
   pushSTACK(host);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(parse_error,GETTEXT("~: illegal hostname ~"));
+  fehler(parse_error,GETTEXT("~S: illegal hostname ~S"));
 }
 
 #else
@@ -716,7 +716,7 @@ local object test_optional_host (object host) {
     pushSTACK(O(type_host)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(host);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: host should be NIL or a string, not ~"));
+    fehler(type_error,GETTEXT("~S: host should be NIL or a string, not ~S"));
   }
   host = coerce_normal_ss(host); /* as Normal-Simple-String */
   {
@@ -737,7 +737,7 @@ local object test_optional_host (object host) {
  badhost:
   pushSTACK(host);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(parse_error,GETTEXT("~: illegal hostname ~"));
+  fehler(parse_error,GETTEXT("~S: illegal hostname ~S"));
 }
 
 #else
@@ -753,7 +753,7 @@ local object test_optional_host (object host) {
       pushSTACK(S(null)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(host);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: host should be NIL, not ~"));
+      fehler(type_error,GETTEXT("~S: host should be NIL, not ~S"));
     }
   }
   return NIL;
@@ -863,7 +863,7 @@ nonreturning_function(global, fehler_pathname_designator, (object thing)) {
   pushSTACK(thing);
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,
-         GETTEXT("~: argument ~ should be a pathname designator ~"));
+         GETTEXT("~S: argument ~S should be a pathname designator ~S"));
 }
 
 /* Tracks a chain of Synonym-Streams, so long as a File-Stream
@@ -897,7 +897,7 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
   pushSTACK(stream); /* FILE-ERROR slot PATHNAME */
   pushSTACK(stream);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(file_error,GETTEXT("~: filename for ~ is unknown"));
+  fehler(file_error,GETTEXT("~S: filename for ~S is unknown"));
 }
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
@@ -1692,7 +1692,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
               /* else: error */
               pushSTACK(username);
               pushSTACK(S(parse_namestring));
-              fehler(parse_error,GETTEXT("~: there is no user named ~"));
+              fehler(parse_error,GETTEXT("~S: there is no user named ~S"));
             }
             end_system_call();
             userhomedir = /* homedir as pathname */
@@ -1751,7 +1751,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
                 pushSTACK(envvar);
                 pushSTACK(S(parse_namestring));
                 fehler(parse_error,
-                       GETTEXT("~: there is no environment variable ~"));
+                       GETTEXT("~S: there is no environment variable ~S"));
               }
               envval_dir = /* value of the variable as pathname */
                 asciz_dir_to_pathname(envval,O(misc_encoding));
@@ -1907,7 +1907,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
       pushSTACK(STACK_(4+2+1)); /* thing */
       pushSTACK(S(parse_namestring));
       fehler(parse_error,
-             GETTEXT("~: syntax error in filename ~ at position ~"));
+             GETTEXT("~S: syntax error in filename ~S at position ~S"));
     }
  #if HAS_HOST || defined(LOGICAL_PATHNAMES)
   /* Check that if a :host argument (or :host component of the :defaults
@@ -1923,7 +1923,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           pushSTACK(parsed_host);
           pushSTACK(STACK_(3+2+2));
           pushSTACK(S(parse_namestring));
-          fehler(error,GETTEXT("~: hosts ~ and ~ of ~ should coincide"));
+          fehler(error,GETTEXT("~S: hosts ~S and ~S of ~S should coincide"));
         }
       } else
         TheLogpathname(STACK_0)->pathname_host = STACK_(3+2);
@@ -1938,7 +1938,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           pushSTACK(parsed_host);
           pushSTACK(STACK_(3+2+2));
           pushSTACK(S(parse_namestring));
-          fehler(error,GETTEXT("~: hosts ~ and ~ of ~ should coincide"));
+          fehler(error,GETTEXT("~S: hosts ~S and ~S of ~S should coincide"));
         }
       } else
         ThePathname(STACK_0)->pathname_host = STACK_(3+2);
@@ -2098,7 +2098,7 @@ LISPFUNNR(logical_pathname,1)
     pushSTACK(O(type_logical_pathname)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(thing);
     pushSTACK(S(logical_pathname));
-    fehler(type_error,GETTEXT("~: argument ~ is not a logical pathname, string, stream or symbol"));
+    fehler(type_error,GETTEXT("~S: argument ~S is not a logical pathname, string, stream or symbol"));
   } else {
     VALUES1(parse_as_logical(thing));
   }
@@ -2145,7 +2145,7 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,0,_EMA_) {
         /* STACK_1 = pathname; -- FILE-ERROR slot PATHNAME */
         STACK_0 = STACK_1;
         pushSTACK(S(translate_logical_pathname));
-        fehler(file_error,GETTEXT("~: endless loop while resolving ~"));
+        fehler(file_error,GETTEXT("~S: endless loop while resolving ~S"));
       }
       if (nullp(TheLogpathname(STACK_1)->pathname_host)) {
         /* replace host NIL with default-host: */
@@ -2172,7 +2172,7 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,0,_EMA_) {
         STACK_0 = STACK_1;
         pushSTACK(host);
         pushSTACK(S(translate_logical_pathname));
-        fehler(file_error,GETTEXT("~: unknown logical host ~ in ~"));
+        fehler(file_error,GETTEXT("~S: unknown logical host ~S in ~S"));
       }
       /* (ASSOC pathname translations :test #'pathname-match-p): */
       pushSTACK(STACK_1); pushSTACK(translations);
@@ -2184,7 +2184,7 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,0,_EMA_) {
         /* STACK_1 = pathname; -- FILE-ERROR slot PATHNAME */
         STACK_0 = STACK_1;
         pushSTACK(S(translate_logical_pathname));
-        fehler(file_error,GETTEXT("~: No replacement rule for ~ is known."));
+        fehler(file_error,GETTEXT("~S: No replacement rule for ~S is known."));
       }
       /* (TRANSLATE-PATHNAME pathname (first rule) (second rule) :MERGE NIL):*/
       pushSTACK(STACK_1); pushSTACK(Car(value1)); pushSTACK(Car(Cdr(value1)));
@@ -2496,7 +2496,7 @@ local object test_optional_version (object def) {
     pushSTACK(O(type_version)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(version);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~"));
+    fehler(type_error,GETTEXT("~S: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~S"));
   }
   return STACK_0;
 }
@@ -2516,7 +2516,7 @@ local void test_optional_version_ (void) {
     pushSTACK(O(type_version)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(version);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~"));
+    fehler(type_error,GETTEXT("~S: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~S"));
   }
 }
 #endif
@@ -3330,7 +3330,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         pushSTACK(STACK_(5+1));
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               GETTEXT("~: on host ~, device ~ is invalid, should be NIL"));
+               GETTEXT("~S: on host ~S, device ~S is invalid, should be NIL"));
       }
      #endif
     }
@@ -3523,7 +3523,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
   }
  fehler_arg: /* error-message: */
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: illegal ~ argument ~"));
+  fehler(error,GETTEXT("~S: illegal ~S argument ~S"));
 }
 #undef COERCE_PATHNAME_SLOT
 
@@ -3787,7 +3787,7 @@ local void check_no_wildcards (object pathname) {
   /* error-message, if the pathname contains wildcards: */
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
-  fehler(file_error,GETTEXT("wildcards are not allowed here: ~"));
+  fehler(file_error,GETTEXT("wildcards are not allowed here: ~S"));
 }
 
 LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
@@ -3822,7 +3822,7 @@ LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
     pushSTACK(key);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
-           GETTEXT("~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~"));
+           GETTEXT("~S: argument ~S should be ~S, ~S, ~S, ~S, ~S, ~S or ~S"));
   }
   VALUES_IF(erg); /* boolean value */
   skipSTACK(2);
@@ -4768,7 +4768,7 @@ local object translate_pathname (gcv_object_t* subst, object pattern) {
   /* stack layout: subst, pattern. */
   pushSTACK(STACK_1);
   pushSTACK(S(translate_pathname));
-  fehler(error,GETTEXT("~: replacement pieces ~ do not fit into ~"));
+  fehler(error,GETTEXT("~S: replacement pieces ~S do not fit into ~S"));
 }
 #undef GET_ITEM
 #undef GET_ITEM_S
@@ -4847,7 +4847,7 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,2,
     pushSTACK(STACK_(3+1));
     pushSTACK(STACK_(4+1+1));
     pushSTACK(S(translate_pathname));
-    fehler(error,GETTEXT("~: ~ is not a specialization of ~"));
+    fehler(error,GETTEXT("~S: ~S is not a specialization of ~S"));
   }
   /* 2.,3. step: */
   pushSTACK(NIL); /* pathnames := '() */
@@ -4895,7 +4895,7 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,2,
       pushSTACK(STACK_(3+3));
       pushSTACK(STACK_(4+4));
       pushSTACK(S(translate_pathname));
-      fehler(error,GETTEXT("(~ ~ ~ ~) is ambiguous: ~"));
+      fehler(error,GETTEXT("(~S ~S ~S ~S) is ambiguous: ~S"));
     }
     value1 = Car(value1);
   }
@@ -4916,7 +4916,7 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,2,
 nonreturning_function(local, fehler_dir_not_exists, (object obj)) {
   pushSTACK(obj); /* FILE-ERROR slot PATHNAME */
   pushSTACK(obj);
-  fehler(file_error,GETTEXT("nonexistent directory: ~"));
+  fehler(file_error,GETTEXT("nonexistent directory: ~S"));
 }
 
 /* error, if a file already exits
@@ -4925,7 +4925,7 @@ nonreturning_function(local, fehler_file_exists, (void)) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(file_error,GETTEXT("~: file ~ already exists"));
+  fehler(file_error,GETTEXT("~S: file ~S already exists"));
 }
 
 #ifdef LOGICAL_PATHNAMES
@@ -5141,14 +5141,14 @@ local object use_default_dir (object pathname) {
           pushSTACK(STACK_2); /* FILE-ERROR slot PATHNAME */
           pushSTACK(O(backslash_string)); /* "\\" */
           pushSTACK(directory_namestring(STACK_(2+2))); /* directory of pathname */
-          fehler(file_error,GETTEXT("no directory ~ above ~"));
+          fehler(file_error,GETTEXT("no directory ~S above ~S"));
         }
         if (eq(Car(STACK_0),S(Kwild_inferiors))) { /* newlist starts with '...\' ? */
           /* :PARENT from "...\" returns Error */
           pushSTACK(STACK_2); /* FILE-ERROR slot PATHNAME */
           pushSTACK(directory_namestring(STACK_(2+1))); /* directory of pathname */
           fehler(file_error, /* '"..\\" after "...\\" is inadmissible: ~' */
-                 GETTEXT("\"..\\\\\" after \"...\\\\\" is invalid: ~"));
+                 GETTEXT("\"..\\\\\" after \"...\\\\\" is invalid: ~S"));
         }
         STACK_0 = Cdr(STACK_0);
       } else { /* (also if :ABSOLUTE !) */
@@ -5326,14 +5326,14 @@ local object default_directory (void) {
     end_system_call();
     pushSTACK(O(dot_string)); /* FILE-ERROR slot PATHNAME */
     pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding))); /* message */
-    fehler(file_error,GETTEXT("UNIX error while GETWD: ~"));
+    fehler(file_error,GETTEXT("UNIX error while GETWD: ~S"));
   }
   end_system_call();
   /* It must start with '/' : */
   if (!(path_buffer[0] == '/')) {
     pushSTACK(O(dot_string)); /* FILE-ERROR slot PATHNAME */
     pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
-    fehler(file_error,GETTEXT("UNIX GETWD returned ~"));
+    fehler(file_error,GETTEXT("UNIX GETWD returned ~S"));
   }
   /* convert to pathname: */
   return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
@@ -5427,7 +5427,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       if (!(path_buffer[0] == '/')) {
         /* STACK_0 = FILE-ERROR slot PATHNAME */
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
-        fehler(file_error,GETTEXT("UNIX REALPATH returned ~"));
+        fehler(file_error,GETTEXT("UNIX REALPATH returned ~S"));
       }
       /* possibly add a '/' at the end: */
       var char* pathptr = &path_buffer[0];
@@ -5466,7 +5466,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         /* STACK_0 = FILE-ERROR slot PATHNAME */
         pushSTACK(whole_namestring(STACK_0));
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(file_error,GETTEXT("~: ~ names a directory, not a file"));
+        fehler(file_error,GETTEXT("~S: ~S names a directory, not a file"));
       }
      if_HAVE_LSTAT(
       else if (possible_symlink(namestring_asciz) && S_ISLNK(status.st_mode)) {
@@ -5620,7 +5620,7 @@ LISPFUN(namestring,seclass_read,1,1,norest,nokey,0,NIL) {
 nonreturning_function(local, fehler_noname, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
-  fehler(file_error,GETTEXT("no file name given: ~"));
+  fehler(file_error,GETTEXT("no file name given: ~S"));
 }
 #define check_noname(pathname)                                          \
   do { if (namenullp(pathname)) { fehler_noname(pathname); } } while(0)
@@ -5631,7 +5631,7 @@ nonreturning_function(local, fehler_noname, (object pathname)) {
 nonreturning_function(local, fehler_notdir, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
-  fehler(file_error,GETTEXT("not a directory: ~"));
+  fehler(file_error,GETTEXT("not a directory: ~S"));
 }
 #define check_notdir(pathname)                                  \
   do { if (!(nullp(ThePathname(pathname)->pathname_name)        \
@@ -5676,7 +5676,7 @@ nonreturning_function(local, fehler_file_not_exists, (void)) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(file_error,GETTEXT("~: file ~ does not exist"));
+  fehler(file_error,GETTEXT("~S: file ~S does not exist"));
 }
 
 /* TRUENAME for a pathname
@@ -5709,7 +5709,7 @@ LISPFUNNR(truename,1)
         /* STACK_0 = FILE-ERROR slot PATHNAME */
         pushSTACK(STACK_0); /* pathname */
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(file_error,GETTEXT("~: pathname with type but without name makes no sense: ~"));
+        fehler(file_error,GETTEXT("~S: pathname with type but without name makes no sense: ~S"));
       }
       /* no name and no type specified -> pathname as result */
     } else {
@@ -5880,7 +5880,7 @@ local bool openp (object pathname) {
 nonreturning_function(local, fehler_delete_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
-  fehler(file_error,GETTEXT("cannot delete file ~ since there is file stream open to it"));
+  fehler(file_error,GETTEXT("cannot delete file ~S since there is file stream open to it"));
 }
 #define check_delete_open(pathname)                                     \
  do { if (openp(pathname)) { fehler_delete_open(pathname); } } while(0)
@@ -5931,7 +5931,7 @@ LISPFUNN(delete_file,1) {
 nonreturning_function(local, fehler_rename_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
-  fehler(file_error,GETTEXT("cannot rename file ~ since there is file stream open to it"));
+  fehler(file_error,GETTEXT("cannot rename file ~S since there is file stream open to it"));
 }
 
 /* UP: Renames a file.
@@ -6196,7 +6196,7 @@ global direction_t check_direction (object dir) {
     pushSTACK(O(type_direction)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(dir); pushSTACK(S(Kdirection));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+    fehler(type_error,GETTEXT("~S: illegal ~S argument ~S"));
   }
 }
 
@@ -6215,7 +6215,7 @@ global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
     pushSTACK(O(type_if_does_not_exist)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(if_not_exist); pushSTACK(S(Kif_does_not_exist));
     pushSTACK(S(open));
-    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+    fehler(type_error,GETTEXT("~S: illegal ~S argument ~S"));
   }
 }
 global object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist) {
@@ -6250,7 +6250,7 @@ global if_exists_t check_if_exists (object if_exists) {
     pushSTACK(if_exists);         /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_if_exists)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(if_exists); pushSTACK(S(Kif_exists)); pushSTACK(S(open));
-    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+    fehler(type_error,GETTEXT("~S: illegal ~S argument ~S"));
   }
 }
 global object if_exists_symbol (if_exists_t if_exists) {
@@ -7373,7 +7373,7 @@ LISPFUN(directory,seclass_read,1,0,norest,key,3,
     pushSTACK(O(type_directory_not_exist)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_(2+2)); /* :IF-DOES-NOT-EXIST argument */
     pushSTACK(S(Kif_does_not_exist)); pushSTACK(S(directory));
-    fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+    fehler(type_error,GETTEXT("~S: illegal ~S argument ~S"));
   }
   dsp.circle_p = !missingp(STACK_1); /* :CIRCLE argument defaults to NIL */
   dsp.full_p = !missingp(STACK_0); /* :FULL argument defaults to NIL */
@@ -7472,7 +7472,7 @@ local object shorter_directory (object pathname, bool resolve_links) {
   baddir:
     /* STACK_0 = pathname, FILE-ERROR slot PATHNAME */
     pushSTACK(STACK_0);
-    fehler(file_error,GETTEXT("root directory not allowed here: ~"));
+    fehler(file_error,GETTEXT("root directory not allowed here: ~S"));
   }
   subdirs = reverse(subdirs); /* copy list and reverse */
   pushSTACK(subdirs); /* save cons with last subdir as CAR */
@@ -8259,7 +8259,7 @@ local sintL interpret_launch_priority () {
   pushSTACK(priority_arg);
   pushSTACK(S(Kpriority));
   pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~: illegal ~ argument ~"));
+  check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
   priority_arg = value1;
   goto restart_priority;
 }
@@ -8735,7 +8735,7 @@ LISPFUNN(lib_directory,0)
     VALUES1(O(lib_dir));
   } else {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: library directory is not known, use a command line option to specify it"));
+    fehler(error,GETTEXT("~S: library directory is not known, use a command line option to specify it"));
   }
 }
 

@@ -149,13 +149,13 @@ local void write_errorasciz (const char* asciz) {
                              (const uintB*)(asciz + asciz_length(asciz)));
 }
 
-/* UP: Outputs an errorstring. At each tilde '~' an object from the stack
- is printed, at each '$' a character from the stack is printed.
+/* UP: Outputs an errorstring. At each tilde-S '~S' an object from the stack
+ is printed, at each tilde-C '~C' a character from the stack is printed.
  write_errorstring(errorstring)
  > STACK_0: Stream etc.
  > errorstring: Errorstring (an non-relocatable ASCIZ-string),
                 in UTF-8 Encoding
- > STACK_7, STACK_8, ...: arguments (for each '~' resp. '$' one argument),
+ > STACK_7, STACK_8, ...: arguments (for each '~S' resp. '~C' one argument),
    in reversed order as with FUNCALL !
  < result: STACK-value above the stream and the arguments */
 local gcv_object_t* write_errorstring (const char* errorstring)
@@ -166,25 +166,32 @@ local gcv_object_t* write_errorstring (const char* errorstring)
     if (ch==0) /* string finished? */
       break;
     if (ch=='~') { /* tilde? */
-      /* yes -> print an object from stack: */
-      write_errorobject(BEFORE(argptr));
-      errorstring++;
-    } else if (ch=='$') { /* '$' ? */
-      /* yes -> print a character from stack: */
-      write_errorchar(BEFORE(argptr));
-      errorstring++;
-    } else {
-      /* no -> output all characters until the next special character */
-      var const char* ptr = errorstring;
-      loop {
-        ptr++;
-        ch = *ptr;
-        if (ch==0 || ch=='~' || ch=='$')
-          break;
+      if (errorstring[1]=='S') {
+        /* print an object from stack: */
+        write_errorobject(BEFORE(argptr));
+        errorstring += 2;
+        continue;
       }
-      write_errorasciz_substring((const uintB*)errorstring,(const uintB*)ptr);
-      errorstring = ptr;
+      if (errorstring[1]=='C') {
+        /* print a character from stack: */
+        write_errorchar(BEFORE(argptr));
+        errorstring += 2;
+        continue;
+      }
+      pushSTACK(asciz_to_string(errorstring,Symbol_value(S(utf_8))));
+      fehler(error,
+             GETTEXT("internal error or error in message catalog: invalid low-level format string ~S"));
     }
+    /* output all characters until the next special character */
+    var const char* ptr = errorstring;
+    loop {
+      ptr++;
+      ch = *ptr;
+      if (ch==0 || ch=='~')
+        break;
+    }
+    write_errorasciz_substring((const uintB*)errorstring,(const uintB*)ptr);
+    errorstring = ptr;
   }
   return argptr;
 }
@@ -320,8 +327,8 @@ local void prepare_error (condition_t errortype, const char* errorstring,
  fehler(errortype,errorstring);
  > errortype: condition type
  > errorstring: Constant ASCIZ-string, in UTF-8 Encoding.
-   At each tilde a LISP-object is taken from STACK and printed instead of
-   the tilde.
+   At each tilde-S a LISP-object is taken from STACK and printed instead of
+   the tilde-S.
  > on the STACK: initialization values for the condition,
                  according to errortype */
 nonreturning_function(global, fehler, (condition_t errortype,
@@ -334,11 +341,19 @@ nonreturning_function(global, fehler, (condition_t errortype,
   /* NOTREACHED; */
 }
 
-/* just like fehler(), but allow recovery via STORE-VALUE / USE-VALUE
- expects one more stack element before everything cosumed by fehler() -
- the place to be modified or NIL
- the returned multiple values come from CHECK-VALUE (see condition.lisp)
- may trigger GC */
+/* Report an error and try to recover by asking the user to supply a value.
+ check_value(errortype,errorstring);
+ > errortype: condition-type
+ > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
+   At every tilde-S, a LISP-object is taken from the STACK and printed
+   instead of the tilde-S.
+ > on the STACK: PLACE (form to be shown to the user) or NIL, then
+   the initial values for the Condition, depending on error-type
+ < value1, value2: return values from CHECK-VALUE:
+   value1 = value supplied by the user,
+   value2 = indicates whether PLACE should be filled
+ < STACK: cleaned up
+ can trigger GC */
 global void check_value (condition_t errortype, const char* errorstring)
 {
   prepare_error(errortype,errorstring,nullpSv(use_clcs));
@@ -659,7 +674,7 @@ global void tast_break (void)
     terpri(&STACK_0); /* new line */
     write_sstring(&STACK_0,O(error_string1)); /* print "*** - " */
     /* print string, consume caller names, clean up STACK: */
-    set_args_end_pointer(write_errorstring(GETTEXT("~: User break")));
+    set_args_end_pointer(write_errorstring(GETTEXT("~S: User break")));
     break_driver(true); /* call break-driver */
   } else {
     pushSTACK(CLSTEXT("Continue execution"));
@@ -723,8 +738,8 @@ global object check_fpointer (object obj, bool restart_p) {
     pushSTACK(S(foreign_pointer)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
     if (restart_p)
-      check_value(type_error,GETTEXT("~: ~ is not a ~"));
-    else fehler(type_error,GETTEXT("~: ~ is not a ~"));
+      check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
+    else fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
     goto check_fpointer_restart;
   }
@@ -732,8 +747,8 @@ global object check_fpointer (object obj, bool restart_p) {
     pushSTACK(NIL);                /* no PLACE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     if (restart_p)
-      check_value(error,GETTEXT("~: ~ comes from a previous Lisp session and is invalid"));
-    else fehler(error,GETTEXT("~: ~ comes from a previous Lisp session and is invalid"));
+      check_value(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
+    else fehler(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
     obj = value1;
     goto check_fpointer_restart;
   }
@@ -748,7 +763,7 @@ nonreturning_function(global, fehler_list, (object obj)) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a list"));
+  fehler(type_error,GETTEXT("~S: ~S is not a list"));
 }
 /* ditto - recoverable
  can trigger GC */
@@ -758,7 +773,7 @@ global object check_list (object obj) {
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
     pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a list"));
+    check_value(type_error,GETTEXT("~S: ~S is not a list"));
     obj = value1;
   }
   return obj;
@@ -773,7 +788,7 @@ nonreturning_function(global, fehler_proper_list, (object caller, object obj))
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~: A true list must not end with ~"));
+  fehler(type_error,GETTEXT("~S: A true list must not end with ~S"));
 }
 
 /* UP: error, if an object is not a symbol.
@@ -789,7 +804,7 @@ global object check_symbol (object sy) {
     pushSTACK(sy);        /* TYPE-ERROR slot DATUM */
     pushSTACK(S(symbol)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(sy); pushSTACK(caller);
-    check_value(type_error,GETTEXT("~: ~ is not a symbol"));
+    check_value(type_error,GETTEXT("~S: ~S is not a symbol"));
     sy = value1;
   }
   return sy;
@@ -810,7 +825,7 @@ global object check_symbol_non_constant (object obj, object caller)
     pushSTACK(obj);
     pushSTACK(caller);
     check_value(source_program_error,
-                GETTEXT("~: ~ is a constant, may not be used as a variable"));
+                GETTEXT("~S: ~S is a constant, may not be used as a variable"));
     obj = value1;
   }
   return obj;
@@ -826,7 +841,7 @@ global object check_symbol_special (object obj, object caller)
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(S(special)); pushSTACK(obj); pushSTACK(caller);
     check_value(source_program_error,
-                GETTEXT("~: ~ is not a symbol, cannot be declared ~"));
+                GETTEXT("~S: ~S is not a symbol, cannot be declared ~S"));
     caller = popSTACK();
     obj = value1;
   }
@@ -842,7 +857,7 @@ nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_vector)); pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~: ~ is not a ~"));
+  fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
 }
 
 /* error-message, if an object is not a vector.
@@ -852,7 +867,7 @@ nonreturning_function(global, fehler_vector, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a vector"));
+  fehler(type_error,GETTEXT("~S: ~S is not a vector"));
 }
 
 /* error-message, if an object is not an environment.
@@ -862,7 +877,7 @@ nonreturning_function(global, fehler_environment, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_svector5)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ may not be used as an environment"));
+  fehler(type_error,GETTEXT("~S: ~S may not be used as an environment"));
 }
 
 /* error-message, if an argument is not a Fixnum >=0 :
@@ -872,7 +887,7 @@ nonreturning_function(global, fehler_posfixnum, (object obj)) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ should be a nonnegative fixnum"));
+  fehler(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
 }
 /* < posfixnum
    can trigger GC */
@@ -882,7 +897,7 @@ global object check_posfixnum (object obj) {
     pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: argument ~ should be a nonnegative fixnum"));
+    check_value(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
     obj = value1;
   }
   return obj;
@@ -898,7 +913,7 @@ global object check_integer (object obj) {
     pushSTACK(S(integer));      /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an integer"));
+    check_value(type_error,GETTEXT("~S: ~S is not an integer"));
     obj = value1;
   }
   return obj;
@@ -910,7 +925,7 @@ global object check_pos_integer (object obj) {
     pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a non-negative integer"));
+    check_value(type_error,GETTEXT("~S: ~S is not a non-negative integer"));
     obj = value1;
   }
   return obj;
@@ -924,7 +939,7 @@ nonreturning_function(global, fehler_char, (object obj)) {
   pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a character"));
+  fehler(type_error,GETTEXT("~S: argument ~S is not a character"));
 }
 /* can trigger GC */
 global object check_char (object obj) {
@@ -934,7 +949,7 @@ global object check_char (object obj) {
     pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: argument ~ is not a character"));
+    check_value(type_error,GETTEXT("~S: argument ~S is not a character"));
     obj = value1;
   }
   return obj;
@@ -948,7 +963,7 @@ global object check_string (object obj) {
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: argument ~ is not a string"));
+    check_value(type_error,GETTEXT("~S: argument ~S is not a string"));
     obj = value1;
   }
   return obj;
@@ -961,7 +976,7 @@ nonreturning_function(global, fehler_sstring, (object obj)) {
   pushSTACK(S(simple_string)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_string)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
+  fehler(type_error,GETTEXT("~S: argument ~S is not a ~S"));
 }
 
 /* error-message, if a Simple-String is immutable:
@@ -969,7 +984,7 @@ nonreturning_function(global, fehler_sstring, (object obj)) {
  > obj: the String */
 nonreturning_function(global, fehler_sstring_immutable, (object obj)) {
   pushSTACK(obj);
-  fehler(error,GETTEXT("Attempt to modify a read-only string: ~"));
+  fehler(error,GETTEXT("Attempt to modify a read-only string: ~S"));
 }
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
@@ -979,7 +994,7 @@ nonreturning_function(global, fehler_string_integer, (object obj)) {
   pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,
-         GETTEXT("~: argument ~ is neither a string nor an integer"));
+         GETTEXT("~S: argument ~S is neither a string nor an integer"));
 }
 
 /* Error message, if a string size is too big.
@@ -991,7 +1006,7 @@ nonreturning_function(global, fehler_stringsize, (uintL size)) {
   pushSTACK(O(type_stringsize)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   fehler(type_error,
-         GETTEXT("string too long: desired length ~ exceeds the supported maximum length"));
+         GETTEXT("string too long: desired length ~S exceeds the supported maximum length"));
 }
 
 /* error-message, if an argument is not a Stream:
@@ -1001,7 +1016,7 @@ nonreturning_function(global, fehler_stream, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a stream"));
+  fehler(type_error,GETTEXT("~S: argument ~S is not a stream"));
 }
 
 /* error-message, if an argument is not a Stream of required stream type:
@@ -1012,7 +1027,7 @@ nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
   pushSTACK(obj);  /* TYPE-ERROR slot DATUM */
   pushSTACK(type); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ should be a stream of type ~"));
+  fehler(type_error,GETTEXT("~S: argument ~S should be a stream of type ~S"));
 }
 
 /* Report an error when the argument is not an encoding:
@@ -1065,8 +1080,8 @@ global object check_encoding (object arg, const gcv_object_t *e_default,
   if (keyword_p) pushSTACK(S(Kexternal_format));
   pushSTACK(TheSubr(subr_self)->name);
   check_value(type_error,
-              keyword_p ? GETTEXT("~: illegal ~ argument ~")
-              : GETTEXT("~: argument ~ is not a character set"));
+              keyword_p ? GETTEXT("~S: illegal ~S argument ~S")
+              : GETTEXT("~S: argument ~S is not a character set"));
   arg = value1;
   goto restart;
 }
@@ -1084,7 +1099,7 @@ nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
   var object arglist = listof(argcount);
   STACK_1 = arglist;
   fehler(program_error,
-         GETTEXT("~: keyword arguments in ~ should occur pairwise"));
+         GETTEXT("~S: keyword arguments in ~S should occur pairwise"));
 }
 
 /* error-message for flawed keyword
@@ -1096,7 +1111,7 @@ nonreturning_function(global, fehler_key_notkw, (object kw, object caller)) {
   pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
   pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
   fehler(keyword_error,
-         GETTEXT("~: ~ marker ~ is not a symbol"));
+         GETTEXT("~S: ~S marker ~S is not a symbol"));
 }
 
 /* error-message for flawed keyword
@@ -1119,8 +1134,8 @@ nonreturning_function(global, fehler_key_badkw,
     STACK_4 = type;
   }
   fehler(keyword_error,
-         GETTEXT("~: illegal keyword/value pair ~, ~ in argument list.\n"
-                 "The allowed keywords are ~"));
+         GETTEXT("~S: illegal keyword/value pair ~S, ~S in argument list.\n"
+                 "The allowed keywords are ~S"));
 }
 
 /* error-message, if an argument is not a Function:
@@ -1133,7 +1148,7 @@ global object check_function (object obj) {
     pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a function"));
+    check_value(type_error,GETTEXT("~S: ~S is not a function"));
     if (symbolp(value1))
       obj = Symbol_function(value1);
     else if (funnamep(value1)) {
@@ -1168,7 +1183,7 @@ global object check_fdefinition (object funname, object caller)
     pushSTACK(STACK_1/*funname*/); /* CELL-ERROR Slot NAME */
     pushSTACK(STACK_0); /* funname */
     pushSTACK(STACK_4); /* caller */
-    check_value(undefined_function,GETTEXT("~: undefined function ~"));
+    check_value(undefined_function,GETTEXT("~S: undefined function ~S"));
     store_p = eq(value2,T);
     /* this is the only place where check_value()'s second value is checked
        for something other than non-NIL */
@@ -1216,7 +1231,7 @@ global object check_funname (condition_t errtype, object caller, object obj) {
       default: NOTREACHED;
     }
     pushSTACK(obj); pushSTACK(caller);
-    check_value(errtype,GETTEXT("~: ~ is not a function name"));
+    check_value(errtype,GETTEXT("~S: ~S is not a function name"));
     obj = value1;
   }
   skipSTACK(1); /* drop caller */
@@ -1232,7 +1247,7 @@ nonreturning_function(global, fehler_lambda_expression,
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
   fehler(type_error,
-         GETTEXT("~: argument ~ is not a function.\n"
+         GETTEXT("~S: argument ~S is not a function.\n"
                  "To get a function in the current environment, write (FUNCTION ...).\n"
                  "To get a function in the global environment, write (COERCE '... 'FUNCTION)."));
 }
@@ -1248,10 +1263,10 @@ nonreturning_function(global, fehler_too_many_args,
   pushSTACK(fixnum(nmax));
   pushSTACK(fixnum(ngiven));
   if (!boundp(caller))
-    fehler(program_error,GETTEXT("EVAL/APPLY: Too many arguments (~ instead of at most ~) given to ~"));
+    fehler(program_error,GETTEXT("EVAL/APPLY: Too many arguments (~S instead of at most ~S) given to ~S"));
   else {
     pushSTACK(caller);
-    fehler(program_error,GETTEXT("~: Too many arguments (~ instead of at most ~) given to ~"));
+    fehler(program_error,GETTEXT("~S: Too many arguments (~S instead of at most ~S) given to ~S"));
   }
 }
 
@@ -1266,10 +1281,10 @@ nonreturning_function(global, fehler_too_few_args,
   pushSTACK(fixnum(nmin));
   pushSTACK(fixnum(ngiven));
   if (!boundp(caller))
-    fehler(program_error,GETTEXT("EVAL/APPLY: Too few arguments (~ instead of at least ~) given to ~"));
+    fehler(program_error,GETTEXT("EVAL/APPLY: Too few arguments (~S instead of at least ~S) given to ~S"));
   else {
     pushSTACK(caller);
-    fehler(program_error,GETTEXT("~: Too few arguments (~ instead of at least ~) given to ~"));
+    fehler(program_error,GETTEXT("~S: Too few arguments (~S instead of at least ~S) given to ~S"));
   }
 }
 
@@ -1284,7 +1299,7 @@ global object check_uint8 (object obj) {
     pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an 8-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an 8-bit number"));
     obj = value1;
   }
   return obj;
@@ -1301,7 +1316,7 @@ global object check_sint8 (object obj) {
     pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an 8-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an 8-bit number"));
     obj = value1;
   }
   return obj;
@@ -1318,7 +1333,7 @@ global object check_uint16 (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a 16-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a 16-bit number"));
     obj = value1;
   }
   return obj;
@@ -1335,7 +1350,7 @@ global object check_sint16 (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a 16-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a 16-bit number"));
     obj = value1;
   }
   return obj;
@@ -1352,7 +1367,7 @@ global object check_uint32 (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an 32-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an 32-bit number"));
     obj = value1;
   }
   return obj;
@@ -1369,7 +1384,7 @@ global object check_sint32 (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an 32-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an 32-bit number"));
     obj = value1;
   }
   return obj;
@@ -1386,7 +1401,7 @@ global object check_uint64 (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an 64-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an 64-bit number"));
     obj = value1;
   }
   return obj;
@@ -1403,7 +1418,7 @@ global object check_sint64 (object obj) {
     pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an 64-bit number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an 64-bit number"));
     obj = value1;
   }
   return obj;
@@ -1424,7 +1439,7 @@ global object check_uint (object obj) {
     pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
    #endif
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an `unsigned int' number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an `unsigned int' number"));
     obj = value1;
   }
   return obj;
@@ -1445,7 +1460,7 @@ global object check_sint (object obj) {
     pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
    #endif
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not an `int' number"));
+    check_value(type_error,GETTEXT("~S: ~S is not an `int' number"));
     obj = value1;
   }
   return obj;
@@ -1466,7 +1481,7 @@ global object check_ulong (object obj) {
     pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
    #endif
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a `unsigned long' number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a `unsigned long' number"));
     obj = value1;
   }
   return obj;
@@ -1487,7 +1502,7 @@ global object check_slong (object obj) {
     pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
    #endif
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a `long' number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a `long' number"));
     obj = value1;
   }
   return obj;
@@ -1504,7 +1519,7 @@ global object check_ffloat (object obj) {
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(single_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a single-float"));
+    check_value(type_error,GETTEXT("~S: ~S is not a single-float"));
     obj = value1;
   }
   return obj;
@@ -1521,7 +1536,7 @@ global object check_dfloat (object obj) {
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(double_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a double-float"));
+    check_value(type_error,GETTEXT("~S: ~S is not a double-float"));
     obj = value1;
   }
   return obj;

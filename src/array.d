@@ -333,7 +333,7 @@ nonreturning_function(local, fehler_array, (object obj)) {
   pushSTACK(obj); /* slot DATUM of TYPE-ERROR */
   pushSTACK(S(array)); /* slot EXPECTED-TYPE of TYPE-ERROR */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an array"));
+  fehler(type_error,GETTEXT("~S: ~S is not an array"));
 }
 
 /* Checks an array argument.
@@ -362,7 +362,7 @@ nonreturning_function(local, fehler_subscript_anz,
   pushSTACK(array);
   pushSTACK(fixnum(argcount));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: got ~ subscripts, but ~ has rank ~"));
+  fehler(error,GETTEXT("~S: got ~S subscripts, but ~S has rank ~S"));
 }
 
 /* error: bas subscript values
@@ -374,7 +374,7 @@ nonreturning_function(local, fehler_subscript_type, (uintC argcount)) {
   /* STACK_0 is now the array. */
   pushSTACK(list);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
+  fehler(error,GETTEXT("~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
 }
 
 /* error: bad subscript values
@@ -396,7 +396,7 @@ nonreturning_function(local, fehler_subscript_range,
   pushSTACK(STACK_(1+2));
   pushSTACK(STACK_(0+3));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: subscripts ~ for ~ are out of range"));
+  fehler(type_error,GETTEXT("~S: subscripts ~S for ~S are out of range"));
 }
 
 /* checks subscripts for an AREF/STORE-access, removes them from STACK
@@ -449,7 +449,7 @@ nonreturning_function(local, fehler_index_type, (void)) {
   pushSTACK(STACK_(1+2));
   pushSTACK(STACK_(0+3));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
+  fehler(type_error,GETTEXT("~S: index ~S for ~S is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
 }
 
 /* error: bad index
@@ -464,7 +464,7 @@ nonreturning_function(global, fehler_index_range, (uintL bound)) {
   pushSTACK(STACK_(1+2));
   pushSTACK(STACK_(0+3));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: index ~ for ~ is out of range"));
+  fehler(type_error,GETTEXT("~S: index ~S for ~S is out of range"));
 }
 
 /* checks an index for a AREF/STORE-access into a simple vector.
@@ -512,19 +512,19 @@ local object subscripts_to_index (object array, gcv_object_t* argptr,
 /* error message: attempt to retrieve a value from (ARRAY NIL) */
 nonreturning_function(global, fehler_nilarray_retrieve, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: cannot retrieve values from an array of element type NIL"));
+  fehler(error,GETTEXT("~S: cannot retrieve values from an array of element type NIL"));
 }
 
 /* error message: attempt to store a value in (ARRAY NIL) */
 nonreturning_function(global, fehler_nilarray_store, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: cannot store values in an array of element type NIL"));
+  fehler(error,GETTEXT("~S: cannot store values in an array of element type NIL"));
 }
 
 /* error message: attempt to access a value from (ARRAY NIL) */
 nonreturning_function(global, fehler_nilarray_access, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: cannot access values of an array of element type NIL"));
+  fehler(error,GETTEXT("~S: cannot access values of an array of element type NIL"));
 }
 
 /* Function: Performs an AREF access.
@@ -567,11 +567,11 @@ nonreturning_function(global, fehler_store, (object array, object value)) {
     STACK_1 = array_element_type(array); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_2); /* value */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~ does not fit into ~, bad type"));
+    fehler(type_error,GETTEXT("~S: ~S does not fit into ~S, bad type"));
   } else {
     pushSTACK(STACK_1); /* value */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~ cannot be stored in an array of element type NIL"));
+    fehler(type_error,GETTEXT("~S: ~S cannot be stored in an array of element type NIL"));
   }
 }
 
@@ -936,7 +936,7 @@ LISPFUNNR(array_dimension,2)
   pushSTACK(STACK_2); /* array */
   pushSTACK(STACK_2); /* axis_number */
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an nonnegative integer less than the rank of ~"));
+  fehler(type_error,GETTEXT("~S: ~S is not an nonnegative integer less than the rank of ~S"));
 }
 
 /* Function: Returns the list of dimensions of an array.
@@ -1118,7 +1118,7 @@ nonreturning_function(local, fehler_bit_array, (void)) {
   pushSTACK(O(type_array_bit)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(STACK_(0+2));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not an array of bits"));
+  fehler(type_error,GETTEXT("~S: ~S is not an array of bits"));
 }
 
 LISPFUN(bit,seclass_read,1,0,rest,nokey,0,NIL)
@@ -1919,7 +1919,7 @@ local Values bit_up (bit_op_fun_t* op)
     pushSTACK(array2); pushSTACK(array1);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           GETTEXT("~: The arguments ~ and ~ should be arrays of bits with the same dimensions"));
+           GETTEXT("~S: The arguments ~S and ~S should be arrays of bits with the same dimensions"));
   }
  fehler3: { /* error-message for 3 arguments */
     var object array1 = STACK_2;
@@ -1928,7 +1928,7 @@ local Values bit_up (bit_op_fun_t* op)
     pushSTACK(array2); pushSTACK(array1);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           GETTEXT("~: The arguments ~, ~ and ~ should be arrays of bits with the same dimensions"));
+           GETTEXT("~S: The arguments ~S, ~S and ~S should be arrays of bits with the same dimensions"));
   }
 }
 
@@ -3679,7 +3679,7 @@ local uintL* get_fill_pointer (object obj) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_vector_with_fill_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: vector ~ has no fill pointer"));
+  fehler(type_error,GETTEXT("~S: vector ~S has no fill pointer"));
 }
 
 LISPFUNNR(fill_pointer,1) { /* (FILL-POINTER vector), CLTL p. 296 */
@@ -3726,7 +3726,7 @@ LISPFUNN(vector_pop,1) /* (VECTOR-POP vector), CLTL p. 296 */
   if (*fillp==0) {
     /* fill-pointer was =0 -> error-message */
     pushSTACK(array); pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: ~ has length zero"));
+    fehler(error,GETTEXT("~S: ~S has length zero"));
   } else {
     var uintL index = --(*fillp); /* decrease fill-pointer */
     var object datenvektor = iarray_displace(array,&index);
@@ -3738,7 +3738,7 @@ LISPFUNN(vector_pop,1) /* (VECTOR-POP vector), CLTL p. 296 */
 nonreturning_function(local, fehler_extension, (object extension)) {
   pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
   fehler(error,
-         GETTEXT("~: extending the vector by ~ elements makes it too long"));
+         GETTEXT("~S: extending the vector by ~S elements makes it too long"));
 }
 
 LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
@@ -3759,7 +3759,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
       /* vector not adjustable -> error-message: */
       /* array still in STACK_0 */
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~ works only on adjustable arrays, not on ~"));
+      fehler(error,GETTEXT("~S works only on adjustable arrays, not on ~S"));
     }
     var uintB atype = Iarray_flags(array) & arrayflags_atype_mask;
     var uintL len = fillp[-1]; /* former length (dimension 0) */
@@ -3776,7 +3776,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
         pushSTACK(O(type_posfixnum1)); /* TYPE-ERROR slot EXPECTED-TYPE */
         pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               GETTEXT("~: extension ~ should be a positive fixnum"));
+               GETTEXT("~S: extension ~S should be a positive fixnum"));
       }
     } else {
       /* default-extension: */
@@ -3868,7 +3868,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
         pushSTACK(array_element_type(STACK_(0+1))); /* TYPE-ERROR slot EXPECTED-TYPE */
         pushSTACK(STACK_(0+2)); pushSTACK(STACK_(1+3));
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,GETTEXT("~: cannot push ~ into array ~ (bad type)"));
+        fehler(type_error,GETTEXT("~S: cannot push ~S into array ~S (bad type)"));
       }
     }
     set_break_sem_1(); /* forbid interrupts */
@@ -3933,7 +3933,7 @@ nonreturning_function(local, fehler_dim_type, (object dim)) {
   pushSTACK(O(type_array_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(dim);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
+  fehler(type_error,GETTEXT("~S: dimension ~S is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
 }
 
 /* ======================================================================== */
@@ -4191,7 +4191,7 @@ local uintL test_dims (uintL* totalsize_) {
              total-size too large */
           pushSTACK(STACK_7); /* dims */
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~: dimensions ~ produce too large total-size"));
+          fehler(error,GETTEXT("~S: dimensions ~S produce too large total-size"));
         }
       totalsize = produkt_lo;
       rank++;
@@ -4228,7 +4228,7 @@ local void test_otherkeys (void) {
     if (initcount > 1) { /* more than one initialization? */
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             GETTEXT("~: ambiguous, more than one initialization specified"));
+             GETTEXT("~S: ambiguous, more than one initialization specified"));
     }
   }
   /* test, if :displaced-index-offset was used without :displaced-to: */
@@ -4237,7 +4237,7 @@ local void test_otherkeys (void) {
     pushSTACK(S(Kdisplaced_to));
     pushSTACK(S(Kdisplaced_index_offset));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: ~ must not be specified without ~"));
+    fehler(error,GETTEXT("~S: ~S must not be specified without ~S"));
   }
 }
 
@@ -4296,7 +4296,7 @@ local object make_storagevector (uintL len, uintB eltype) {
         pushSTACK(STACK_(5+3)); /* element-type */
         pushSTACK(STACK_(4+4)); /* initial-element */
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,GETTEXT("~: the initial-element ~ is not of type ~"));
+        fehler(type_error,GETTEXT("~S: the initial-element ~S is not of type ~S"));
       }
       vector = popSTACK();
      #ifdef HAVE_SMALL_SSTRING
@@ -4380,7 +4380,7 @@ local void initial_contents_aux (void* arg, object obj) {
     if (!(eq(value1,*(localptr STACKop locals->depth)))) {
       /* defective sequence seq still in STACK_0. */
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: ~ is of incorrect length"));
+      fehler(error,GETTEXT("~S: ~S is of incorrect length"));
     }
     /* length is correct, now execute (MAP NIL #'INITIAL-CONTENTS-AUX seq) : */
     map_sequence(STACK_0,&initial_contents_aux,locals);
@@ -4404,7 +4404,7 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
     pushSTACK(displaced_to);
     pushSTACK(S(Kdisplaced_to));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~-argument ~ is not an array"));
+    fehler(type_error,GETTEXT("~S: ~S-argument ~S is not an array"));
   }
   { /* determine element type of displaced_to: */
     var uintB displaced_eltype = array_atype(STACK_1);
@@ -4421,7 +4421,7 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
       pushSTACK(S(Kdisplaced_to));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             GETTEXT("~: ~-argument ~ does not have element type ~"));
+             GETTEXT("~S: ~S-argument ~S does not have element type ~S"));
     }
   }
   /* check displaced-index-offset: */
@@ -4436,7 +4436,7 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
     pushSTACK(STACK_(0+2));
     pushSTACK(S(Kdisplaced_index_offset));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~-argument ~ is not of type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))"));
+    fehler(type_error,GETTEXT("~S: ~S-argument ~S is not of type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))"));
   }
   { /* check, if addressed sub part fits completely into displaced-to: */
     var uintL displaced_totalsize = array_total_size(displaced_to);
@@ -4446,7 +4446,7 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
       pushSTACK(fixnum(displaced_index_offset));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             GETTEXT("~: array-total-size + displaced-offset (= ~) exceeds total size ~ of ~-argument"));
+             GETTEXT("~S: array-total-size + displaced-offset (= ~S) exceeds total size ~S of ~S-argument"));
     }
   }
   return displaced_index_offset;
@@ -4467,14 +4467,14 @@ local uintL test_fillpointer (uintL totalsize) {
     pushSTACK(STACK_(2+2));
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
-           GETTEXT("~: fill-pointer ~ should be a nonnegative fixnum"));
+           GETTEXT("~S: fill-pointer ~S should be a nonnegative fixnum"));
   } else {
     var uintL fillpointer = posfixnum_to_L(STACK_2);
     if (!(fillpointer <= totalsize)) { /* compare with length */
       pushSTACK(fixnum(totalsize));
       pushSTACK(STACK_(2+1));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: fill-pointer argument ~ is larger than the length ~"));
+      fehler(error,GETTEXT("~S: fill-pointer argument ~S is larger than the length ~S"));
     }
     return fillpointer;
   }
@@ -4542,7 +4542,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
     pushSTACK(O(type_array_rank)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(fixnum(rank));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: attempted rank ~ is too large"));
+    fehler(type_error,GETTEXT("~S: attempted rank ~S is too large"));
   }
  #endif
   /* assemble flags for allocate_iarray: */
@@ -4555,7 +4555,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
       pushSTACK(S(Kfill_pointer));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             GETTEXT("~: ~ may not be specified for an array of rank ~"));
+             GETTEXT("~S: ~S may not be specified for an array of rank ~S"));
     }
     flags |= bit(arrayflags_fillp_bit);
     fillpointer = test_fillpointer(totalsize); /* fill-pointer-value */
@@ -4750,7 +4750,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         pushSTACK(STACK_(6+1)); /* array */
         pushSTACK(fixnum(oldrank));
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~: rank ~ of array ~ cannot be altered: ~"));
+        fehler(error,GETTEXT("~S: rank ~S of array ~S cannot be altered: ~S"));
       }
     }
   }
@@ -4770,7 +4770,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
       pushSTACK(STACK_(5+2)); /* element-type */
       pushSTACK(STACK_(6+3)); /* array */
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: array ~ does not have element-type ~"));
+      fehler(type_error,GETTEXT("~S: array ~S does not have element-type ~S"));
     }
   } else { /* default is the element-type of the array-argument */
     eltype = array_atype(STACK_6);
@@ -4880,7 +4880,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         if (eq(array,to_array)) {
           pushSTACK(array);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~: cannot displace array ~ to itself"));
+          fehler(error,GETTEXT("~S: cannot displace array ~S to itself"));
         }
         /* if to_array is simple (thus not displaced), */
         /* there is no cycle. */
@@ -4902,7 +4902,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
       pushSTACK(O(type_vector_with_fill_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(STACK_(6+2));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: array ~ has no fill-pointer"));
+      fehler(type_error,GETTEXT("~S: array ~S has no fill-pointer"));
     }
     fillpointer = test_fillpointer(totalsize); /* fill-pointer-value */
   } else {
@@ -4916,7 +4916,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         pushSTACK(array);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               GETTEXT("~: the fill-pointer of array ~ is ~, greater than ~"));
+               GETTEXT("~S: the fill-pointer of array ~S is ~S, greater than ~S"));
       }
   }
   { /* modify array: */
@@ -5047,7 +5047,7 @@ LISPFUNN(vector_init_start,2)
     }
     pushSTACK(STACK_3); /* seq */
     pushSTACK(STACK_3); /* index */
-    fehler(type_error,GETTEXT("Illegal START index ~ for ~"));
+    fehler(type_error,GETTEXT("Illegal START index ~S for ~S"));
   }
 }
 
@@ -5077,7 +5077,7 @@ LISPFUNN(vector_fe_init_end,2)
     }
     pushSTACK(STACK_3); /* seq */
     pushSTACK(STACK_3); /* index */
-    fehler(type_error,GETTEXT("Illegal END index ~ for ~"));
+    fehler(type_error,GETTEXT("Illegal END index ~S for ~S"));
   }
 }
 
@@ -5088,7 +5088,7 @@ LISPFUNN(make_bit_vector,1)
     pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_1); /* size */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: invalid bit-vector length ~"));
+    fehler(type_error,GETTEXT("~S: invalid bit-vector length ~S"));
   }
   var uintL size = posfixnum_to_L(popSTACK()); /* length */
   VALUES1(allocate_bit_vector(Atype_Bit,size)); /* return a bit-vector */

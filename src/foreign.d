@@ -16,7 +16,7 @@
 /* complain about non-foreign object */
 nonreturning_function(local, fehler_foreign_object, (object arg)) {
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: argument is not a foreign object: ~"));
+  fehler(error,GETTEXT("~S: argument is not a foreign object: ~S"));
 }
 
 /* Allocate a foreign address.
@@ -46,7 +46,7 @@ local object foreign_address (object obj, bool allocate_p)
         pushSTACK(S(foreign_function));
         pushSTACK(S(foreign_address));
         pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~: argument ~ should be a ~, ~ or ~"));
+        fehler(error,GETTEXT("~S: argument ~S should be a ~S, ~S or ~S"));
       case Rectype_Faddress:
         return obj;
       case Rectype_Fvariable:
@@ -100,13 +100,13 @@ LISPFUNN(set_validp,2)
       if (eq(fp,O(fp_zero))) {
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               GETTEXT("~: must not invalidate the sole FFI session pointer"));
+               GETTEXT("~S: must not invalidate the sole FFI session pointer"));
       }
       mark_fp_invalid(TheFpointer(fp));
     }
   } else if (new_value) {
     pushSTACK(fp); pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: cannot resurrect the zombie ~"));
+    fehler(error,GETTEXT("~S: cannot resurrect the zombie ~S"));
   }
   VALUES_IF(new_value);
 }
@@ -175,7 +175,7 @@ global void register_foreign_variable (void* address, const char * name_asciz,
     obj = TheFaddress(obj)->fa_base;
     if (fp_validp(TheFpointer(obj))) {
       pushSTACK(name);
-      fehler(error,GETTEXT("A foreign variable ~ already exists"));
+      fehler(error,GETTEXT("A foreign variable ~S already exists"));
     } else {
       /* Variable already existed in a previous Lisp session.
          Update the address, and make it and any of its subvariables valid. */
@@ -210,7 +210,7 @@ global void register_foreign_function (void* address, const char * name_asciz,
     obj = TheFaddress(obj)->fa_base;
     if (fp_validp(TheFpointer(obj))) {
       pushSTACK(name);
-      fehler(error,GETTEXT("A foreign function ~ already exists"));
+      fehler(error,GETTEXT("A foreign function ~S already exists"));
     } else {
       /* Function already existed in a previous Lisp session.
          Update the address, and make it valid. */
@@ -254,7 +254,7 @@ global void register_foreign_function (void* address, const char * name_asciz,
 nonreturning_function(local, fehler_foreign_type, (object fvd)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd);
-  fehler(error,GETTEXT("illegal foreign data type ~"));
+  fehler(error,GETTEXT("illegal foreign data type ~S"));
 }
 
 /* Error message. */
@@ -262,7 +262,7 @@ nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd);
   pushSTACK(obj);
-  fehler(error,GETTEXT("~ cannot be converted to the foreign type ~"));
+  fehler(error,GETTEXT("~S cannot be converted to the foreign type ~S"));
 }
 
 #if !defined(HAVE_LONGLONG)
@@ -270,7 +270,7 @@ nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
 nonreturning_function(local, fehler_64bit, (object fvd)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd);
-  fehler(error,GETTEXT("64 bit integers are not supported on this platform and with this C compiler: ~"));
+  fehler(error,GETTEXT("64 bit integers are not supported on this platform and with this C compiler: ~S"));
 }
 #endif
 
@@ -395,7 +395,7 @@ local void check_cc_match (object fun, object resulttype,
         && equal_argfvds(argtypes,TheFfunction(fun)->ff_argtypes)
         && eq(flags,TheFfunction(fun)->ff_flags))) {
     pushSTACK(fun);
-    fehler(error,GETTEXT("~ cannot be converted to a foreign function with another calling convention."));
+    fehler(error,GETTEXT("~S cannot be converted to a foreign function with another calling convention."));
   }
 }
 
@@ -928,7 +928,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
 nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
   pushSTACK(fvd);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: element type has size 0: ~"));
+  fehler(error,GETTEXT("~S: element type has size 0: ~S"));
 }
 global object convert_from_foreign (object fvd, const void* data)
 {
@@ -2072,12 +2072,12 @@ global void convert_to_foreign_nomalloc (object fvd, object obj, void* data)
 nonreturning_function(local, fehler_foreign_variable, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: argument is not a foreign variable: ~"));
+  fehler(error,GETTEXT("~S: argument is not a foreign variable: ~S"));
 }
 nonreturning_function(local, fehler_variable_no_fvd, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: foreign variable with unknown type, missing DEF-C-VAR: ~"));
+  fehler(error,GETTEXT("~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"));
 }
 
 /* (FFI::LOOKUP-FOREIGN-VARIABLE foreign-variable-name foreign-type)
@@ -2089,7 +2089,7 @@ LISPFUNN(lookup_foreign_variable,2)
   var object fvar = gethash(name,O(foreign_variable_table));
   if (eq(fvar,nullobj)) {
     pushSTACK(name);
-    fehler(error,GETTEXT("A foreign variable ~ does not exist"));
+    fehler(error,GETTEXT("A foreign variable ~S does not exist"));
   }
   /* The first LOOKUP-FOREIGN-VARIABLE determines the variable's type. */
   if (nullp(TheFvariable(fvar)->fv_type)) {
@@ -2099,7 +2099,7 @@ LISPFUNN(lookup_foreign_variable,2)
                & (data_alignment-1)) == 0))) {
       pushSTACK(fvar);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: foreign variable ~ does not have the required size or alignment"));
+      fehler(error,GETTEXT("~S: foreign variable ~S does not have the required size or alignment"));
     }
     TheFvariable(fvar)->fv_type = fvd;
   }
@@ -2111,7 +2111,7 @@ LISPFUNN(lookup_foreign_variable,2)
       pushSTACK(TheFvariable(fvar)->fv_type);
       pushSTACK(fvar);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: type specifications for foreign variable ~ conflict: ~ and ~"));
+      fehler(error,GETTEXT("~S: type specifications for foreign variable ~S conflict: ~S and ~S"));
     }
     /* If the types are not exactly the same but still compatible,
        allocate a new foreign variable with the given fvd. */
@@ -2159,7 +2159,7 @@ LISPFUNN(set_foreign_value,2)
     if (record_flags(TheFvariable(fvar)) & fv_readonly) {
       pushSTACK(fvar);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: foreign variable ~ may not be modified"));
+      fehler(error,GETTEXT("~S: foreign variable ~S may not be modified"));
     }
     if (record_flags(TheFvariable(fvar)) & fv_malloc) {
       /* Protect this using a semaphore??
@@ -2205,7 +2205,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
     pushSTACK(fvd);
     pushSTACK(fvar);
     pushSTACK(S(element));
-    fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not an array"));
+    fehler(error,GETTEXT("~S: foreign variable ~S of type ~S is not an array"));
   }
   /* Check the subscript count: */
   if (!(argcount == fvdlen-2)) {
@@ -2213,7 +2213,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
     pushSTACK(fvar);
     pushSTACK(fixnum(argcount));
     pushSTACK(S(element));
-    fehler(error,GETTEXT("~: got ~ subscripts, but ~ has rank ~"));
+    fehler(error,GETTEXT("~S: got ~S subscripts, but ~S has rank ~S"));
   }
   /* Check the subscripts: */
   var uintL row_major_index = 0;
@@ -2228,7 +2228,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
         /* STACK_0 is fvar now. */
         pushSTACK(list);
         pushSTACK(S(element));
-        fehler(error,GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
+        fehler(error,GETTEXT("~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
       }
       var uintL subscript = posfixnum_to_L(subscriptobj);
       var uintL dim = I_to_uint32(*dimptr);
@@ -2237,7 +2237,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
         /* STACK_0 is fvar now. */
         pushSTACK(list);
         pushSTACK(S(element));
-        fehler(error,GETTEXT("~: subscripts ~ for ~ are out of range"));
+        fehler(error,GETTEXT("~S: subscripts ~S for ~S are out of range"));
       }
       /* Compute row_major_index := row_major_index*dim+subscript: */
       row_major_index = mulu32_unchecked(row_major_index,dim)+subscript;
@@ -2282,7 +2282,7 @@ LISPFUNN(deref,1)
     pushSTACK(fvd);
     pushSTACK(fvar);
     pushSTACK(S(element));
-    fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not a pointer"));
+    fehler(error,GETTEXT("~S: foreign variable ~S of type ~S is not a pointer"));
   }
   fvd = TheSvector(fvd)->data[1]; /* the target's foreign type */
   pushSTACK(fvd);
@@ -2388,14 +2388,14 @@ LISPFUNN(slot,2)
   pushSTACK(fvd);
   pushSTACK(fvar);
   pushSTACK(S(slot));
-  fehler(error,GETTEXT("~: foreign variable ~ of type ~ is not a struct or union"));
+  fehler(error,GETTEXT("~S: foreign variable ~S of type ~S is not a struct or union"));
  bad_slot:
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T  */
   pushSTACK(slot);
   pushSTACK(fvd);
   pushSTACK(fvar);
   pushSTACK(S(slot));
-  fehler(error,GETTEXT("~: foreign variable ~ of type ~ has no component with name ~"));
+  fehler(error,GETTEXT("~S: foreign variable ~S of type ~S has no component with name ~S"));
 }
 
 /* (FFI::%CAST foreign-variable c-type)
@@ -2465,7 +2465,7 @@ LISPFUNN(offset,3) {
        & (alignment-1))) {
     pushSTACK(new_fvar);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
+    fehler(error,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
   }
   VALUES1(new_fvar);
   skipSTACK(3+1);
@@ -2642,7 +2642,7 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
     dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
     pushSTACK(fvar);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
+    fehler(error,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
   }
   { /* :INITIAL-CONTENTS NIL also causes an initialization! */
     var object initarg = STACK_3;
@@ -2697,7 +2697,7 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
         if (full_recurse) {
           pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~: ~ has no type, :FULL is illegal"));
+          fehler(error,GETTEXT("~S: ~S has no type, :FULL is illegal"));
         }
       free_address:
         begin_system_call();
@@ -2714,13 +2714,13 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 nonreturning_function(local, fehler_foreign_function, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: argument is not a foreign function: ~"));
+  fehler(error,GETTEXT("~S: argument is not a foreign function: ~S"));
 }
 nonreturning_function(local, fehler_function_no_fvd,
                       (object obj, object caller)) {
   pushSTACK(obj);
   pushSTACK(caller);
-  fehler(error,GETTEXT("~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~"));
+  fehler(error,GETTEXT("~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"));
 }
 
 /* (FFI::LOOKUP-FOREIGN-FUNCTION foreign-function-name foreign-type)
@@ -2735,18 +2735,18 @@ LISPFUNN(lookup_foreign_function,2)
     dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
     pushSTACK(fvd);
     pushSTACK(S(lookup_foreign_function));
-    fehler(error,GETTEXT("~: illegal foreign function type ~"));
+    fehler(error,GETTEXT("~S: illegal foreign function type ~S"));
   }
   var object oldffun = gethash(name,O(foreign_function_table));
   if (eq(oldffun,nullobj)) {
     pushSTACK(name);
     pushSTACK(S(lookup_foreign_function));
-    fehler(error,GETTEXT("~: A foreign function ~ does not exist"));
+    fehler(error,GETTEXT("~S: A foreign function ~S does not exist"));
   }
   if (!eq(TheFfunction(oldffun)->ff_flags,TheSvector(fvd)->data[3])) {
     pushSTACK(oldffun);
     pushSTACK(S(lookup_foreign_function));
-    fehler(error,GETTEXT("~: calling conventions for foreign function ~ conflict"));
+    fehler(error,GETTEXT("~S: calling conventions for foreign function ~S conflict"));
   }
   TheFfunction(ffun)->ff_name = TheFfunction(oldffun)->ff_name;
   TheFfunction(ffun)->ff_address = TheFfunction(oldffun)->ff_address;
@@ -3022,7 +3022,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
             dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
             pushSTACK(arg_fvd);
             pushSTACK(S(foreign_call_out));
-            fehler(error,GETTEXT("~: :OUT argument is not a pointer: ~"));
+            fehler(error,GETTEXT("~S: :OUT argument is not a pointer: ~S"));
           }
           outargcount++;
         }
@@ -3633,9 +3633,9 @@ local void * open_library (object name, uintL version)
    #endif
     pushSTACK(S(foreign_library));
    #if defined(HAVE_DLERROR)
-    check_value(error,GETTEXT("~: Cannot open library ~: ~"));
+    check_value(error,GETTEXT("~S: Cannot open library ~S: ~S"));
    #else
-    check_value(error,GETTEXT("~: Cannot open library ~"));
+    check_value(error,GETTEXT("~S: Cannot open library ~S"));
    #endif
     name = value1;
     goto open_library_restart;
@@ -3671,8 +3671,8 @@ local void* object_handle (object library, gcv_object_t *name, bool retry_p)
     pushSTACK(Car(library)); pushSTACK(*name);
     pushSTACK(TheSubr(subr_self)->name);
     if (retry_p)
-      check_value(error,GETTEXT("~: no dynamic object named ~ in library ~"));
-    else fehler(error,GETTEXT("~: no dynamic object named ~ in library ~"));
+      check_value(error,GETTEXT("~S: no dynamic object named ~S in library ~S"));
+    else fehler(error,GETTEXT("~S: no dynamic object named ~S in library ~S"));
     *name = value1; library = popSTACK();
     goto object_handle_restart;
   }
@@ -3778,7 +3778,7 @@ local object check_library (object obj)
   }
   pushSTACK(NIL); /* no PLACE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  check_value(error,GETTEXT("~: ~ is not a library"));
+  check_value(error,GETTEXT("~S: ~S is not a library"));
   obj = value1;
   goto restart;
 }
@@ -3823,7 +3823,7 @@ LISPFUNN(foreign_library_variable,4)
   if ((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1)) {
     pushSTACK(fvar);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
+    fehler(error,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
   }
   STACK_0 = fvar; /* save */
   push_foreign_object(fvar,STACK_(2+1));
@@ -3846,7 +3846,7 @@ LISPFUNN(foreign_library_function,4)
       dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
       pushSTACK(fvd);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: illegal foreign function type ~"));
+      fehler(error,GETTEXT("~S: illegal foreign function type ~S"));
     }
   }
   pushSTACK(object_address(STACK_2,&STACK_3,STACK_1));

@@ -319,7 +319,7 @@ nonreturning_function(local, fehler_digits, (object obj)) {
   pushSTACK(O(type_posfixnum1)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument should be a positive fixnum, not ~"));
+  fehler(type_error,GETTEXT("~S: argument should be a positive fixnum, not ~S"));
 }
 
 /* check_number(obj) checks, if obj is a number.
@@ -332,7 +332,7 @@ local inline object check_number (object obj) {
     pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a number"));
     obj = value1;
   }
   return obj;
@@ -349,7 +349,7 @@ global object check_real (object obj) {
     pushSTACK(S(real)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a real number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a real number"));
     obj = value1;
     goto restart;
   });
@@ -366,7 +366,7 @@ local inline object check_float (object obj) {
     pushSTACK(S(float)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a floating-point number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a floating-point number"));
     obj = value1;
   }
   return obj;
@@ -383,7 +383,7 @@ local inline object check_rational (object obj) {
     pushSTACK(S(rational)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a rational number"));
+    check_value(type_error,GETTEXT("~S: ~S is not a rational number"));
     obj = value1;
     goto restart;
   });
@@ -1550,7 +1550,7 @@ local object check_random_state (object obj) {
       pushSTACK(S(random_state)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(obj); pushSTACK(S(random_state));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: argument should be a ~, not ~"));
+      fehler(type_error,GETTEXT("~S: argument should be a ~S, not ~S"));
     }
   } else { /* not specified -> default from *RANDOM-STATE* */
     obj = Symbol_value(S(random_state_stern)); /* value of *RANDOM-STATE* */
@@ -1562,7 +1562,7 @@ local object check_random_state (object obj) {
       pushSTACK(obj); pushSTACK(S(random_state));
       pushSTACK(S(random_state_stern));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: the value of ~ should be a ~, not ~"));
+      fehler(type_error,GETTEXT("~S: the value of ~S should be a ~S, not ~S"));
     }
   }
 }
@@ -1584,7 +1584,7 @@ LISPFUN(random,seclass_default,1,1,norest,nokey,0,NIL)
   pushSTACK(O(type_random_arg)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(x); pushSTACK(S(random));
   fehler(type_error,
-         GETTEXT("~: argument should be positive and an integer or float, not ~"));
+         GETTEXT("~S: argument should be positive and an integer or float, not ~S"));
 }
 
 /* make_random_state(r) returns a new random-state with initial state

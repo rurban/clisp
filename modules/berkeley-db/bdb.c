@@ -73,7 +73,7 @@ nonreturning_function(static, error_bdb, (int status, char *caller)) {
   pushSTACK(asciz_to_string(db_strerror(status),GLO(misc_encoding)));
   pushSTACK(asciz_to_string(caller,GLO(misc_encoding)));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,"~ (~): ~");
+  fehler(error,"~S (~S): ~S");
 }
 #define SYSCALL(caller,args)     do {                           \
     int db_error_code;                                          \
@@ -95,7 +95,7 @@ static void* object_handle (object obj, object type, bool null_on_error) {
     pushSTACK(`BDB::ENV`);      /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(`BDB::ENV`); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
     type = popSTACK();          /* restore */
   }
@@ -138,7 +138,7 @@ DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
       pushSTACK(STACK_2);                /* host */
       pushSTACK(`BDB::ENV`); pushSTACK(S(string)); pushSTACK(`:HOST`);
       pushSTACK(TheSubr(subr_self)->name);
-      check_value(type_error,GETTEXT("~: ~ should be a ~ or a ~, not ~"));
+      check_value(type_error,GETTEXT("~S: ~S should be a ~S or a ~S, not ~S"));
       STACK_2 = value1;
       goto host_restart;
     }
@@ -359,7 +359,7 @@ static void fill_dbt (object obj, DBT* key)
     pushSTACK(GLO(type_uint8_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(GLO(type_uint8_vector)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a vector of type ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a vector of type ~S"));
     obj = value1;
   }
   init_dbt(key,DB_DBT_USERMEM);
@@ -515,7 +515,7 @@ static DBTYPE check_dbtype (object type) {
   pushSTACK(`:UNKNOWN`); pushSTACK(`:RECNO`); pushSTACK(`:QUEUE`);
   pushSTACK(`:HASH`); pushSTACK(`:BTREE`); pushSTACK(type);
   pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~: ~ should be one of ~, ~, ~, ~ or ~"));
+  check_value(type_error,GETTEXT("~S: ~S should be one of ~S, ~S, ~S, ~S or ~S"));
   type = value1;
   goto restart_check_dbtype;
 }

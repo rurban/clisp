@@ -10,7 +10,7 @@ nonreturning_function(local, fehler_sym_plist_odd, (object symbol)) {
   pushSTACK(Symbol_plist(symbol)); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(symbol); pushSTACK(S(get));
-  fehler(type_error,GETTEXT("~: the property list of ~ has an odd length"));
+  fehler(type_error,GETTEXT("~S: the property list of ~S has an odd length"));
 }
 /* Error when the property list has odd length
  fehler_plist_odd(caller,plist);
@@ -20,7 +20,7 @@ nonreturning_function(local, fehler_plist_odd, (object caller, object plist)) {
   pushSTACK(plist);             /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));     /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(plist); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~: the property list ~ has an odd length"));
+  fehler(type_error,GETTEXT("~S: the property list ~S has an odd length"));
 }
 
 /* UP: find the key in the property list
@@ -94,7 +94,7 @@ LISPFUNN(find_subr,1)
     if (!subrp(result)) {
       pushSTACK(symbol);
       pushSTACK(S(find_subr));
-      fehler(error,GETTEXT("~: ~ is not a system function"));
+      fehler(error,GETTEXT("~S: ~S is not a system function"));
     }
     VALUES1(result);
   }
@@ -349,7 +349,7 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
           pushSTACK(x);
           pushSTACK(S(gensym));
           fehler(type_error,
-                 GETTEXT("~: index ~ is negative")
+                 GETTEXT("~S: index ~S is negative")
                 );
         }
         # x ist ein Integer >=0
@@ -360,7 +360,7 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
         pushSTACK(x);
         pushSTACK(S(gensym));
         fehler(type_error,
-               GETTEXT("~: invalid argument ~")
+               GETTEXT("~S: invalid argument ~S")
               );
       }
     }
@@ -374,7 +374,7 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
         pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(new_value); pushSTACK(counter);
         fehler(type_error,
-               GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~. New value ~.")
+               GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~S. New value ~S.")
               );
       }
       Symbol_value(S(gensym_counter)) = I_1_plus_I(counter); # (incf *GENSYM-COUNTER*)

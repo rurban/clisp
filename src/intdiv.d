@@ -358,7 +358,7 @@
     pushSTACK(STACK_(1+2)); # x
     pushSTACK(STACK_(0+3)); # y
     fehler(arithmetic_error,
-           GETTEXT("quotient ~ / ~ is not an integer")
+           GETTEXT("quotient ~S / ~S is not an integer")
           );
   }
 
