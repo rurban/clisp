@@ -2311,46 +2311,10 @@ local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_compile_files);
 }
 
-static struct argv_initparams argv1;
-static struct argv_actions argv2;
-
-# main program stores the name 'main'.
-#ifdef NEXTAPP
-  # main() already exists in Lisp_main.m
-  #define main  clisp_main
-#endif
-#ifndef argc_t
-  #define argc_t int  # Type of argc is mostly 'int'.
-#endif
-global int main (argc_t argc, char* argv[]) {
-  # initialization of memory management.
-  # overall procedure:
-  # process command-line-options.
-  # determine memory partitioning.
-  # look at command string and either load LISP-data from .MEM-file
-  # or create manually and initialize static LISP-data.
-  # build up interrupt-handler.
-  # print banner.
-  # jump into the driver.
-  init_lowest_level(argv);
-  var struct argv_init_c argv0;
-  {
-    var int parse_result = parse_options(argc,(const char**)argv,&argv0,&argv1,&argv2);
-    if (parse_result >= 0) {
-      exitcode = parse_result;
-      goto end_of_main;
-    }
-  }
-  # The argv_* variables now have their final values.
-  # Analyze the environment variables determining the locale.
-  # Deal with LC_CTYPE.
-  init_ctype();
-  # Deal with LC_MESSAGE.
-  # (This must come last, because it may unset environment variable LC_ALL)
- #ifndef LANGUAGE_STATIC
-  init_language(argv0.argv_language,argv0.argv_localedir);
- #endif
-  if (!(setjmp(original_context) == 0)) goto end_of_main;
+# Initialize memory and load the specified memory image.
+# Returns 0 if successful, -1 upon error (after printing an error message
+# to stderr).
+local inline int init_memory (const struct argv_initparams *p) {
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
@@ -2416,7 +2380,7 @@ global int main (argc_t argc, char* argv[]) {
       teile*varobject_alignment
      #endif
       ;
-    var uintL memneed = argv1.argv_memneed; # needed memory
+    var uintL memneed = p->argv_memneed; # needed memory
     var aint memblock; # lower address of the provided memory block
    #if !(defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY))
     memneed = teile_STACK*floor(memneed,teile); # do not yet calculate memory for objects
@@ -2456,13 +2420,13 @@ global int main (argc_t argc, char* argv[]) {
       fprintf(stderr,GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution."),
               memblock);
       fputs("\n",stderr);
-      goto no_mem;
+      return -1;
     }
     if (memneed < MINIMUM_SPACE+RESERVE) { # but with less than MINIMUM_SPACE
       # we will not be satisfied:
       fprintf(stderr,GETTEXTL("Only %d bytes available."),memneed);
       fputs("\n",stderr);
-      goto no_mem;
+      return -1;
     }
    #endif
    #ifdef MULTIMAP_MEMORY
@@ -2481,9 +2445,9 @@ global int main (argc_t argc, char* argv[]) {
     # and its boundaries are located on page boundaries.
    #ifdef MULTIMAP_MEMORY
     #ifdef MULTIMAP_MEMORY_VIA_FILE
-    if ( initmap(argv1.argv_tmpdir) <0) goto no_mem;
+    if ( initmap(p->argv_tmpdir) <0) return -1;
     #else
-    if ( initmap() <0) goto no_mem;
+    if ( initmap() <0) return -1;
     #endif
     multimap(case_machine: MM_TYPECASES, memblock, memneed, false);
     #ifdef MAP_MEMORY_TABLES
@@ -2493,7 +2457,7 @@ global int main (argc_t argc, char* argv[]) {
     }
     # set subr_tab to address 0:
     if (zeromap(&subr_tab,round_up(varobjects_misaligned+total_subr_anz*sizeof(subr_t),pagesize)) <0)
-      goto no_mem;
+      return -1;
     #else
     # multimap symbol_tab and subr_tab:
     # symbol_tab and subr_tab keep their address. The region, they
@@ -2518,9 +2482,11 @@ global int main (argc_t argc, char* argv[]) {
       }
     }
     #endif # MAP_MEMORY_TABLES
+    if (false)
+     no_mem: return -1;
    #endif # MULTIMAP_MEMORY
    #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) # <==> SPVW_PURE_BLOCKS || TRIVIALMAP_MEMORY
-    if ( initmap() <0) goto no_mem;
+    if ( initmap() <0) return -1;
     #ifdef SINGLEMAP_MEMORY
     { # pre-initialize all heaps:
       var uintL heapnr;
@@ -2531,14 +2497,14 @@ global int main (argc_t argc, char* argv[]) {
         if ((mem.heaptype[heapnr] >= -1)
             && prepare_zeromap(&heapptr->heap_limit,
                                &heapptr->heap_hardlimit,true) <0)
-          goto no_mem;
+          return -1;
       }
     }
     # set symbol_tab, subr_tab to address 0:
     # (for this purpose case_symbolflagged must be equivalent to case_symbol!)
     #define map_tab(tab,size)                                                \
       do { var uintL map_len = round_up(size,map_pagesize);                  \
-           if ( zeromap(&tab,map_len) <0) goto no_mem;                       \
+           if ( zeromap(&tab,map_len) <0) return -1;                         \
            mem.heaps[typecode(as_object((oint)&tab))].heap_limit += map_len; \
       } while(0)
     map_tab(symbol_tab,sizeof(symbol_tab));
@@ -2575,7 +2541,7 @@ global int main (argc_t argc, char* argv[]) {
       mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
       mem.heaps[1].heap_limit = start + round_down(4*part,map_pagesize);
       #endif
-      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,true) <0) goto no_mem;
+      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,true) <0) return -1;
      #else # SPVW_MIXED_BLOCKS_STAGGERED
       #if defined(SUN4_29)
       var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
@@ -2609,7 +2575,7 @@ global int main (argc_t argc, char* argv[]) {
         mem.heaps[1].heap_limit = start + round_down(2*part,map_pagesize);
       mem.heaps[1].heap_hardlimit = start + round_down(3*part,map_pagesize);
       #endif
-      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,true) <0) goto no_mem;
+      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,true) <0) return -1;
      #endif
       free(malloc_addr);
     }
@@ -2640,8 +2606,8 @@ global int main (argc_t argc, char* argv[]) {
       # for typecode = system_type:
       var aint low = (aint)type_zero_oint(system_type);
       var aint high = low + map_len;
-      if ( prepare_zeromap(&low,&high,true) <0) goto no_mem;
-      if ( zeromap((void*)low,map_len) <0) goto no_mem;
+      if ( prepare_zeromap(&low,&high,true) <0) return -1;
+      if ( zeromap((void*)low,map_len) <0) return -1;
      #ifdef STACK_DOWN
       STACK_bound = (gcv_object_t*)low + 0x40; # 64 pointers additionally safety margin
       setSTACK(STACK = (gcv_object_t*)high); # initialize STACK
@@ -2791,10 +2757,10 @@ global int main (argc_t argc, char* argv[]) {
  #endif
   init_subr_tab_1(); # initialize subr_tab
   markwatchset = NULL; markwatchset_allocated = markwatchset_size = 0;
-  if (argv1.argv_memfile==NULL) # manual initialization:
+  if (p->argv_memfile==NULL) # manual initialization:
     initmem();
   else # load memory file:
-    loadmem(argv1.argv_memfile);
+    loadmem(p->argv_memfile);
   # init O(current_language)
   O(current_language) = current_language_o(language);
   # set current evaluator-environments to the toplevel-value:
@@ -2803,6 +2769,52 @@ global int main (argc_t argc, char* argv[]) {
   aktenv.block_env = NIL;
   aktenv.go_env    = NIL;
   aktenv.decl_env  = O(top_decl_env);
+  # That's it.
+  return 0;
+}
+
+static struct argv_initparams argv1;
+static struct argv_actions argv2;
+
+# main program stores the name 'main'.
+#ifdef NEXTAPP
+  # main() already exists in Lisp_main.m
+  #define main  clisp_main
+#endif
+#ifndef argc_t
+  #define argc_t int  # Type of argc is mostly 'int'.
+#endif
+global int main (argc_t argc, char* argv[]) {
+  # initialization of memory management.
+  # overall procedure:
+  # process command-line-options.
+  # determine memory partitioning.
+  # look at command string and either load LISP-data from .MEM-file
+  # or create manually and initialize static LISP-data.
+  # build up interrupt-handler.
+  # print banner.
+  # jump into the driver.
+  init_lowest_level(argv);
+  var struct argv_init_c argv0;
+  {
+    var int parse_result = parse_options(argc,(const char**)argv,&argv0,&argv1,&argv2);
+    if (parse_result >= 0) {
+      exitcode = parse_result;
+      goto end_of_main;
+    }
+  }
+  # The argv_* variables now have their final values.
+  # Analyze the environment variables determining the locale.
+  # Deal with LC_CTYPE.
+  init_ctype();
+  # Deal with LC_MESSAGE.
+  # (This must come last, because it may unset environment variable LC_ALL)
+ #ifndef LANGUAGE_STATIC
+  init_language(argv0.argv_language,argv0.argv_localedir);
+ #endif
+  if (!(setjmp(original_context) == 0)) goto end_of_main;
+  # Initialize memory and load a memory image (if specified).
+  if (init_memory(&argv1) < 0) goto no_mem;
   # Prepare for catching SP overflow.
   install_stackoverflow_handler(0x4000); # 16 KB reserve should be enough
   { /* init ARGV */
@@ -3397,8 +3409,8 @@ global void dynload_modules (const char * library, uintC modcount,
             var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_t),pagesize);
             multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, true);
             if (false)
-              no_mem:
-            fehler_dlerror("multimap",NULL,"out of memory for subr_tab");
+             no_mem:
+              fehler_dlerror("multimap",NULL,"out of memory for subr_tab");
           }
          #endif
           # main initialization.
