@@ -100,8 +100,17 @@
        FRANCAIS "types de symboles manquants dans ~S")
       ':internal ':external ':inherited 'with-package-iterator
   ) )
+  (dolist (symboltype types)
+    (case symboltype
+      ((:INTERNAL :EXTERNAL :INHERITED))
+      (t (error-of-type 'source-program-error
+           (DEUTSCH "~S: Flag muss eines der Symbole ~S, ~S, ~S sein, nicht ~S"
+            ENGLISH "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S"
+            FRANCAIS "~S : Chaque type de symboles doit être l'un des symboles ~S, ~S, ~S, et non ~S")
+           'with-package-iterator ':internal ':external ':inherited symboltype
+  ) ) )  )
   (let ((iterfun (gensym "WPI")))
-    `(let ((,iterfun (package-iterator-function ,pack-list ',types)))
+    `(let ((,iterfun (package-iterator-function ,pack-list ',(remove-duplicates types))))
        (macrolet ((,name () '(funcall ,iterfun)))
          ,@body
      ) )

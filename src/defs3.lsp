@@ -188,8 +188,8 @@ when unless cond
 case typecase  otherwise ; otherwise als Marker für die catchall-clause
 return loop do do* dolist dotimes prog prog* multiple-value-list
 multiple-value-bind multiple-value-setq nth-value defmacro destructuring-bind
-declaim remf defpackage do-symbols do-external-symbols do-all-symbols incf decf
-with-package-iterator
+declaim remf defpackage do-symbols do-external-symbols do-all-symbols
+with-package-iterator incf decf
 push pushnew pop with-hash-table-iterator defstruct with-open-stream
 with-input-from-string with-output-to-string with-standard-io-syntax
 print-unreadable-object with-open-file define-symbol-macro
