@@ -1,5 +1,11 @@
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
+	* syscalls/calls.c: Don't set Solaris specific flags just temporarily
+	for a few includes. We don't control their effect.
+	* syscalls/Makefile.in (CPPFLAGS): Add Solaris specific flags here.
+
+2004-10-03  Bruno Haible  <bruno@clisp.org>
+
 	* utils/modprep.lisp: Don't print modprep's timings.
 	(modprep): Print a filename using ~A, not ~S.
 
