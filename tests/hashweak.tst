@@ -111,7 +111,7 @@ nil
            (sys::%record-ref ht 2)
            (sys::%record-ref ht 1)))
        (whal_itable (kvt) (sys::%record-ref kvt 1)))
-  (let* ((ht (make-hash-table :test 'ext:stablehash-eq :weak :key))
+  (let* ((ht (make-hash-table :test 'ext::stablehash-eq :weak :key))
          (kvt (ht_kvtable ht)))
     (assert (simple-vector-p (whal_itable kvt)))
     (gc) ; first GC removed kvt from the all_weakpointers list
