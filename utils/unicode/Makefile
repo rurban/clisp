@@ -22,6 +22,7 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_iso8859_14.c \
  $(DESTDIR)nls_iso8859_15.c \
  $(DESTDIR)nls_koi8_r.c \
+ $(DESTDIR)nls_koi8_u.c \
  $(DESTDIR)nls_mac_arabic.c \
  $(DESTDIR)nls_mac_centraleurope.c \
  $(DESTDIR)nls_mac_croatian.c \
@@ -144,6 +145,9 @@ $(DESTDIR)nls_iso8859_15.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-15.T
 
 $(DESTDIR)nls_koi8_r.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MISC/KOI8-R.TXT nls_table
 	./nls_table koi8-r nls_koi8_r.c $(DESTDIR) < $<
+
+$(DESTDIR)nls_koi8_u.c : $(TABLESDIR)/csets-new/KOI8-U.TXT nls_table
+	./nls_table koi8-u nls_koi8_u.c $(DESTDIR) < $<
 
 $(DESTDIR)nls_mac_arabic.c : $(TABLESDIR)/jdk-1.1.7b/MAC-ARABIC.TXT nls_table
 	./nls_table mac-arabic nls_mac_arabic.c $(DESTDIR) < $<

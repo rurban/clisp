@@ -895,6 +895,7 @@ static const unsigned char nopage[256] = {
 #include "nls_iso8859_14.c"
 #include "nls_iso8859_15.c"
 #include "nls_koi8_r.c"
+#include "nls_koi8_u.c"
 #include "nls_mac_arabic.c"
 #include "nls_mac_centraleurope.c"
 #include "nls_mac_croatian.c"
@@ -968,6 +969,7 @@ static const nls_table * const nls_tables[] = {
   &nls_iso8859_14_table,
   &nls_iso8859_15_table,
   &nls_koi8_r_table,
+  &nls_koi8_u_table,
   &nls_mac_arabic_table,
   &nls_mac_centraleurope_table,
   &nls_mac_croatian_table,
@@ -1903,6 +1905,8 @@ LISPFUNN(charset_range,3)
           pushSTACK(Symbol_value(S(iso8859_15))); 
         elif (asciz_equal(name,"KOI8-R"))
           pushSTACK(Symbol_value(S(koi8_r)));
+        elif (asciz_equal(name,"KOI8-U"))
+          pushSTACK(Symbol_value(S(koi8_u)));
         #if (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
         elif (asciz_equal(name,"eucJP"))
           pushSTACK(ascii_to_string("EUC-JP"));
