@@ -584,6 +584,10 @@ NIL
 ;TAGBODY, GO, MULTIPLE-VALUE-LIST, MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1,
 ;MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, VALUES, VALUES-LIST, CATCH,
 
+(let ((ls (loop for i from 1 to (1- multiple-values-limit) collect i)))
+  (equal ls (multiple-value-list (values-list ls))))
+t
+
 ;UNWIND-PROTECT, THROW,
 
 ;Kap 8 MACROS
