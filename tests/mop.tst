@@ -2473,9 +2473,8 @@ t
   ;; When a new virtual generic function is created, it needs to be call
   ;; update-virtual-generic-function now, and later when the method set changes.
   (defmethod initialize-instance :after ((gf virtual-generic-function) &rest args)
-    (when (slot-boundp gf 'base-class)
-      (update-virtual-generic-function gf)
-      (clos:add-dependent gf *virtual-generic-function-updater*)))
+    (update-virtual-generic-function gf)
+    (clos:add-dependent gf *virtual-generic-function-updater*))
 
   ;; Verify that only methods dispatching on the first argument are added.
   (defmethod clos:add-method ((gf virtual-generic-function) (method method))
