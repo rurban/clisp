@@ -1,3 +1,6 @@
+2003-09-30  John Hinsdale  <hin@alma.com>
+	* modules/oracle/oracle.lisp: Fix bug that leaks connections
+
 2003-09-30  Bruno Haible  <bruno@clisp.org>
 
 	Support for files larger than 2 GB or 4 GB on platforms with LFS.
