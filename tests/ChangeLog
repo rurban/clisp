@@ -1,3 +1,8 @@
+2004-03-08  Bruno Haible  <bruno@clisp.org>
+
+	* hashlong.tst (symbole): Use DO-EXTERNAL-SYMBOLS, not DO-SYMBOLS.
+	* clos.tst: Add test for test-mc-standard-bad-qualifiers.
+
 2004-03-08  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst (check-mult): new test for FP multiplication
