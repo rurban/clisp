@@ -416,7 +416,7 @@ Normally
 loads a user run control (RC) file on startup (this happens after the
 .BI \-C
 option is processed).  The file loaded is
-#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
 .B _clisprc.lisp
 or
 .B _clisprc.fas
