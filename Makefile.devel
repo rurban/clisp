@@ -129,11 +129,9 @@ makemake : src/makemake.in
 
 
 CONFIGURES = src/configure						 \
-	modules/wildcard/configure modules/wildcard/config.h.in		 \
-	modules/regexp/configure modules/regexp/config.h.in		 \
+	modules/wildcard/configure modules/regexp/configure 		 \
 	modules/clx/new-clx/configure					 \
-	modules/dirkey/configure modules/dirkey/config.h.in		 \
-	modules/syscalls/configure modules/syscalls/config.h.in		 \
+	modules/dirkey/configure modules/syscalls/configure 		 \
 	modules/oracle/configure modules/fastcgi/configure		 \
 	ffcall/configure ffcall/avcall/configure ffcall/vacall/configure \
 	ffcall/trampoline/configure ffcall/callback/configure		 \
@@ -141,8 +139,10 @@ CONFIGURES = src/configure						 \
 	ffcall/callback/trampoline_r/configure				 \
 	utils/hln/configure						 \
 	libcharset/configure
+CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in	\
+	modules/dirkey/config.h.in modules/syscalls/config.h.in
 
-configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES)
+configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
 	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
