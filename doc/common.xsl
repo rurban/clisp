@@ -68,7 +68,6 @@ set       toc,title
 <xsl:param name="generate.section.toc.level" select="3"/>
 <xsl:param name="generate.index" select="1"/>
 <xsl:param name="refentry.generate.title" select="1"/>
-<xsl:param name="shade.verbatim" select="1"/>
 <xsl:param name="use.id.as.filename" select="1"/>
 <xsl:param name="section.autolabel" select="1"/>
 <xsl:param name="section.label.includes.component.label" select="1"/>
