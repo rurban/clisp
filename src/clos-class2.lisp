@@ -28,8 +28,7 @@
   all-superclasses         ; hash table of all superclasses (incl. the class itself)
   precedence-list          ; ordered list of all superclasses (with the class itself first),
                            ; or NIL while the class is waiting to be finalized
-  (slot-location-table empty-ht) ; hash table slotname -> location of the slot
-  direct-subclasses)       ; list of all direct subclasses
+  (slot-location-table empty-ht)) ; hash table slotname -> location of the slot
 
 (defstruct (built-in-class (:inherit class) (:conc-name "CLASS-")))
 
@@ -48,6 +47,7 @@
   direct-slots             ; list of all freshly added slots (as plists)
   direct-default-initargs  ; freshly added default-initargs (as plist)
   instantiated             ; true if an instance has already been created
+  direct-subclasses        ; list of all direct subclasses
   proto)                   ; class prototype - an instance or NIL
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
@@ -590,10 +590,11 @@
           (add-default-superclass direct-superclasses <standard-object>)))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
+  (dolist (super direct-superclasses)
+    (when (standard-class-p super)
+      (pushnew class (class-direct-subclasses super))))
   (setf (class-slots class) (std-compute-slots class))
   (setf (class-slot-location-table class) (make-hash-table :test #'eq))
-  (dolist (cl direct-superclasses)
-    (pushnew class (class-direct-subclasses cl)))
   (setf (class-instance-size class) 1) ; slot 0 is the class_version pointer
   (let ((shared-index (std-layout-slots class (class-slots class))))
     (when (plusp shared-index)
@@ -986,8 +987,6 @@
         (std-compute-cpl class direct-superclasses))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (class-precedence-list class)))
-  (dolist (cl direct-superclasses)
-    (pushnew class (class-direct-subclasses cl)))
   class)
 
 ;; --------------- Creation of an instance of <structure-class> ---------------
@@ -1046,8 +1045,6 @@
             (mapcar #'(lambda (slot)
                         (cons (slotdef-name slot) (slotdef-location slot)))
                     slots)))
-  (dolist (cl direct-superclasses)
-    (pushnew class (class-direct-subclasses cl)))
   (setf (class-instance-size class) size)
   (setf (class-slots class) slots)
   ;; When called via ENSURE-CLASS,
