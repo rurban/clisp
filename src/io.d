@@ -4774,8 +4774,9 @@ LISPFUNN(unix_executable_reader,3) # liest #!
 # > STACK_1: eof-value
 # > STACK_0: recursive-p
 # < mv_space/mv_count: Werte
-  local Values eof_handling (void);
-  local Values eof_handling()
+  local Values eof_handling (int mvc);
+  local Values eof_handling(mvc)
+     var int mvc;
     {
       if (!nullp(STACK_2)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
         # Error melden:
@@ -4789,7 +4790,7 @@ LISPFUNN(unix_executable_reader,3) # liest #!
         var object eofval = STACK_1;
         if (eq(eofval,unbound))
           eofval = NIL; # Default ist NIL
-        value1 = eofval; mv_count=1; skipSTACK(4); # eofval als Wert
+        value1 = eofval; mv_count=mvc; skipSTACK(4); # eofval als Wert
       }
     }
 
@@ -4814,7 +4815,7 @@ LISPFUNN(unix_executable_reader,3) # liest #!
         if (eq(obj,dot_value))
           fehler_dot(STACK_3); # Dot -> Error
         if (eq(obj,eof_value)) {
-          return_Values eof_handling(); # EOF-Behandlung
+          return_Values eof_handling(1); # EOF-Behandlung
         } else {
           value1 = obj; mv_count=1; skipSTACK(4); # obj als Wert
         }
@@ -4892,7 +4893,8 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
         # Buffer zur Wiederverwendung freigeben:
         O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
         # EOF speziell behandeln:
-        return_Values eof_handling();
+        value2 = T;
+        return_Values eof_handling(2);
       } else {
         # Buffer kopieren und dabei in Simple-String umwandeln:
         value1 = copy_string(STACK_1);
@@ -4913,7 +4915,7 @@ LISPFUN(read_char,0,4,norest,nokey,0,NIL)
     test_istream(stream_);
     var object ch = read_char(stream_); # Character lesen
     if (eq(ch,eof_value)) {
-      return_Values eof_handling();
+      return_Values eof_handling(1);
     } else {
       value1 = ch; mv_count=1; skipSTACK(4); return; # ch als Wert
     }
@@ -4982,7 +4984,7 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
             );
     }
    eof: # EOF liegt vor
-    eof_handling(); skipSTACK(1); return;
+    eof_handling(1); skipSTACK(1); return;
   }
 
 LISPFUN(listen,0,1,norest,nokey,0,NIL)
@@ -5021,11 +5023,11 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
       fehler_illegal_streamop(S(read_char_no_hang),stream);
     var signean status = listen_char(stream);
     if (ls_eof_p(status)) { # EOF ?
-      return_Values eof_handling();
+      return_Values eof_handling(1);
     } elif (ls_avail_p(status)) { # Zeichen verfügbar
       var object ch = read_char(stream_); # Character lesen
       if (eq(ch,eof_value)) { # sicherheitshalber nochmals auf EOF abfragen
-        return_Values eof_handling();
+        return_Values eof_handling(1);
       } else {
         value1 = ch; mv_count=1; skipSTACK(4); return; # ch als Wert
       }
