@@ -946,10 +946,12 @@ LISPFUN(log,seclass_read,1,1,norest,nokey,0,NIL)
   var object base = STACK_0;
   if (!boundp(base)) { /* LOG with one argument */
     var object arg = STACK_1;
-    if (complexp(arg))
-      STACK_0 = R_R_contagion_R(TheComplex(arg)->c_real,
-                                TheComplex(arg)->c_imag);
-    else STACK_0 = STACK_1;
+    /* Determine the floating-point format to use for the result. */
+    if (complexp(arg)) {
+      STACK_0 = R_R_contagion_R(TheComplex(arg)->c_real,TheComplex(arg)->c_imag);
+      arg = STACK_1;
+    } else
+      STACK_0 = arg;
     VALUES1(N_log_N(arg,true,&STACK_0));
   } else { /* LOG with two arguments */
     base = check_number(base);
