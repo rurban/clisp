@@ -1,3 +1,9 @@
+2001-08-25  Bruno Haible  <haible@clisp.cons.org>
+
+	Make it compile in C++ mode.
+	* foreign.d (free_foreign_callin): Cast free_callback argument.
+	(struct_alignment): Provide alternative definition in C++.
+
 2001-09-22  Sam Steingold  <sds@gnu.org>
 
 	* error.d (end_error): use exit() instead of NOTREACHED to avoid
