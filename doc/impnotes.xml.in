@@ -25,7 +25,7 @@
   <!ENTITY netica SYSTEM "../modules/netica/netica.xml">
   <!ENTITY matlab SYSTEM "../modules/matlab/matlab.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
-  <!ENTITY pcre SYSTEM "../modules/pari/pari.xml">
+  <!ENTITY pari SYSTEM "../modules/pari/pari.xml">
   <!ENTITY pcre SYSTEM "../modules/pcre/pcre.xml">
   <!ENTITY rawsock SYSTEM "../modules/rawsock/rawsock.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
@@ -164,6 +164,7 @@
 &dirkey;
 &berkeley-db;
 &regexp;
+&pari;
 &pcre;
 &i18n;
 &syscalls;
