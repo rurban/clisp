@@ -4743,6 +4743,13 @@ for-value   NIL or T
                     :seclass (anodes-seclass-or anode1)
                     :code `(,anode1
                             ,@(if (eq *for-value* 'ALL) '((VALUES1)) '())))
+        ;; Here we generate the assignments in reverse order, using (POP)
+        ;; instructions, because they are faster than the (LOAD i) instructions
+        ;; that would be needed if we did the assignments in left-to-right
+        ;; order. However, ANSI CL says the assignments are (conceptually)
+        ;; performed in left-to-right order. The only case when this might
+        ;; matter is when the symbol list contains duplicates. In this case,
+        ;; we have to eliminate some assignments.
         (do ((L (second *form*) (cdr L))
              #+CLISP-DEBUG (anodelist (list anode1))
              (seclass (anode-seclass anode1))
@@ -4758,15 +4765,16 @@ for-value   NIL or T
                :code (cons anode1 codelist)))
           (let ((symbol (car L)))
             (if (symbolp symbol)
-              (let ((setter (c-VARSET symbol
-                              (make-anode :type 'NOP
-                                          :sub-anodes '()
-                                          :seclass *seclass-foldable*
-                                          :code '())
-                              (and *for-value* (null codelist)))))
-                (set-check-lock 'multiple-value-setq symbol)
-                (push setter codelist)
-                (seclass-or-f seclass setter))
+              (unless (memq symbol (cdr L))
+                (let ((setter (c-VARSET symbol
+                                (make-anode :type 'NOP
+                                            :sub-anodes '()
+                                            :seclass *seclass-foldable*
+                                            :code '())
+                                (and *for-value* (null codelist)))))
+                  (set-check-lock 'multiple-value-setq symbol)
+                  (push setter codelist)
+                  (seclass-or-f seclass setter)))
               (c-error-c (TEXT "Cannot assign to non-symbol ~S.")
                          symbol)))
           (push '(POP) codelist)

@@ -1,3 +1,9 @@
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (c-MULTIPLE-VALUE-SETQ): Eliminate assignments to
+	symbols that occur later again in the symbol list.
+	Found by Paul Dietz's ansi-tests test suite.
+
 2005-02-17  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (anymodule): do not assume bash, just sh, when
