@@ -1,3 +1,8 @@
+1999-02-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * Makefile.in: No suffix rule .c.o, for the sake of Solaris make which
+          apparently doesn't understand VPATH.
+
 1998-05-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 	
 	Support DEC Alpha running Linux (libc6):
