@@ -2344,17 +2344,20 @@ LISPFUNN(keyword_test,2)
     }
   }
   { /* check whether all specified keywords occur in kwlist: */
-    var bool allow_seen = false; /* seen an :ALLOW-OTHER-KEYS NIL ? */
     var object arglistr = arglist;
     while (consp(arglistr)) {
       var object key = Car(arglistr); arglistr = Cdr(arglistr);
       var object val = Car(arglistr); arglistr = Cdr(arglistr);
       if (eq(key,S(Kallow_other_keys))) {
-        if (!allow_seen) {
-          if (nullp(val)) allow_seen = true;
-          else goto fertig;
-        }
-      } else if (nullp(memq(key,STACK_0))) { /* not found */
+        if (nullp(val)) break;  /* need check */
+        else goto fertig;       /* no check */
+      }
+    }
+    for (arglistr = arglist; consp(arglistr); ) {
+      var object key = Car(arglistr); arglistr = Cdr(arglistr);
+      var object val = Car(arglistr); arglistr = Cdr(arglistr);
+      if (!eq(key,S(Kallow_other_keys))
+          && nullp(memq(key,STACK_0))) { /* not found */
         pushSTACK(key); /* KEYWORD-ERROR Slot DATUM */
         pushSTACK(key);
         pushSTACK(STACK_(0+2));

@@ -1040,18 +1040,23 @@ local void keyword_test (object caller, gcv_object_t* rest_args_pointer,
   if (eq(valid_keywords,T))
     return;
   { /* check whether all specified keywords occur in valid_keywords: */
-    var bool allow_seen = false; /* seen an :ALLOW-OTHER-KEYS NIL ? */
     var gcv_object_t* ptr = rest_args_pointer;
     var uintC count = argcount;
     do {
       var object key = NEXT(ptr);
       var object val = NEXT(ptr);
       if (eq(key,S(Kallow_other_keys))) {
-        if (!allow_seen) {
-          if (nullp(val)) allow_seen = true;
-          else return;
-        }
-      } else if (nullp(memq(key,valid_keywords))) { /* not found */
+        if (nullp(val)) break;  /* need a check */
+        else return;            /* no check */
+      }
+    } while(--count);
+    ptr = rest_args_pointer;
+    count = argcount;
+    do {
+      var object key = NEXT(ptr);
+      var object val = NEXT(ptr);
+      if (!eq(key,S(Kallow_other_keys))
+          && nullp(memq(key,valid_keywords))) { /* not found */
         pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
         pushSTACK(valid_keywords);
         pushSTACK(valid_keywords);
