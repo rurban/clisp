@@ -1,5 +1,10 @@
 2001-07-25  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (create_client_socket, create_server_socket):
+	 avoid warnings
+
+2001-07-25  Sam Steingold  <sds@gnu.org>
+
 	* defs2.lisp (with-standard-io-syntax): bind *PRINT-LINES*
 
 2001-07-24  Sam Steingold  <sds@gnu.org>
