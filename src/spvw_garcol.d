@@ -2259,7 +2259,7 @@
         # neue Adressen ersetzt.
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
           # Pointer im LISP-Stack aktualisieren:
-            for_all_STACKs(update_STACK(objptr));
+            update_STACKs();
           # Programmkonstanten aktualisieren:
             update_tables();
           # Pointer in den Cons-Zellen aktualisieren:
