@@ -1,3 +1,10 @@
+2001-08-27  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (load): when checking whether FILENAME names a
+	compiled file, do not call MAKE-PATHNAME since if
+	*DEFAULT-PATHNAME-DEFAULTS* has a non-trivial host, the search
+	will always fail
+
 2001-08-27  Stefan Kain  <stefan.kain@freenet.de>
 
 	* init.lisp: translated all comments
