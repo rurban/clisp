@@ -6755,6 +6755,10 @@ for-value   NIL or T
                             ,(if (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type)
                                `(LOAD-TIME-VALUE (CLOS:FIND-CLASS ',(clos:class-name type)))
                                typeform)))))
+              ((clos::eql-specializer-p type)
+               (return-from c-TYPEP
+                 (let ((*form* `(EQL ,objform ',(clos::eql-specializer-singleton type))))
+                   (c-EQL))))
               ;; ((sys::encodingp type) ...) ; not worth optimizing
               )))
     (c-GLOBAL-FUNCTION-CALL-form
