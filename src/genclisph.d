@@ -1127,7 +1127,7 @@ global int main()
     printf("extern object saved_value1;\n");
   #endif
   #ifdef HAVE_SAVED_back_trace
-    printf("extern struct backtrace_t* saved_back_trace;\n");
+    printf("extern p_backtrace_t saved_back_trace;\n");
   #endif
   #if defined(HAVE_SAVED_STACK)
     printf("extern gcv_object_t* saved_STACK;\n");
@@ -1373,12 +1373,13 @@ global int main()
 # printf("#define value3  mv_space[2]\n");
 # printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n");
     printf("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_caller;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};\n");
+    printf("typedef struct backtrace_t * p_backtrace_t;\n");
     printf("#define subr_self  back_trace->bt_caller\n");
   #if !defined(back_trace_register)
-    printf("extern struct backtrace_t* back_trace;\n");
+    printf("extern p_backtrace_t back_trace;\n");
   #else
     printf("#ifndef IN_MODULE_CC\n");
-    printf("register object back_trace __asm__(\"%s\");\n",back_trace_register);
+    printf("register p_backtrace_t back_trace __asm__(\"%s\");\n",back_trace_register);
     printf("#endif\n");
   #endif
 # printf("#define args_end_pointer  STACK\n");

@@ -1,8 +1,20 @@
+2002-12-09  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (p_backtrace_t): new type, mostly useful for
+	debugging back_trace issues in C++ mode
+	(back_trace_check): declared
+	(BT_CHECK, BT_CHECK1): new CPP macros
+	(saved_back_trace, back_trace, _back_trace, _saved_back_trace):
+	type p_backtrace_t
+	* genclisph.d, spvw.d, spvw_garcol.d: ditto
+	* spvw_debug.d (back_trace_check): implemented
+	(back_trace_depth, back_trace_out): handle circular back_trace
+
 2002-12-09  Bruno Haible  <bruno@clisp.org>
 
-	* arilev1i.d (add_loop_down, addto_loop_down, sub_loop_down,
-	subx_loop_down, subfrom_loop_down): Limit variable scope to make it
-	compile in C++ mode.
+	* arilev1i.d (add_loop_down, addto_loop_down, sub_loop_down)
+	(subx_loop_down, subfrom_loop_down): Limit variable scope to make
+	it compile in C++ mode.
 
 2002-12-09  Sam Steingold  <sds@gnu.org>
 
