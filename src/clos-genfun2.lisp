@@ -69,18 +69,28 @@
               (values signature argument-precedence-order indices)))
           (values signature reqvars (countup reqnum)))))))
 
+;; Checks a generic-function declspecs list.
+(defun check-gf-declspecs (declspecs keyword errfunc)
+  (unless (proper-list-p declspecs)
+    (funcall errfunc (TEXT "The ~S argument should be a proper list, not ~S")
+             keyword declspecs))
+  (dolist (declspec declspecs)
+    (unless (and (consp declspec) (eq (first declspec) 'OPTIMIZE))
+      (funcall errfunc (TEXT "In the ~S argument, only ~S declarations are permitted, not ~S")
+               keyword 'optimize declspec))))
+
 ;; Initialization of a <standard-generic-function> instance.
-(defun shared-initialize-<standard-generic-function>
-    (gf situation &rest args
-     &key (name nil name-p)
-          (lambda-list nil lambda-list-p)
-          (argument-precedence-order nil argument-precedence-order-p)
-          (method-class nil method-class-p)
-          (method-combination nil method-combination-p)
-          (documentation nil documentation-p)
-          (declarations nil declarations-p)
-     &allow-other-keys
-     &aux signature argorder)
+(defun shared-initialize-<standard-generic-function> (gf situation &rest args
+                                                      &key (name nil name-p)
+                                                           (lambda-list nil lambda-list-p)
+                                                           (argument-precedence-order nil argument-precedence-order-p)
+                                                           (method-class nil method-class-p)
+                                                           (method-combination nil method-combination-p)
+                                                           (documentation nil documentation-p)
+                                                           (declarations nil declarations-p)
+                                                           (declare nil declare-p)
+                                                      &allow-other-keys
+                                                      &aux signature argorder)
   (declare (ignore name name-p))
   (apply #'shared-initialize-<generic-function> gf situation args)
   (when (eq situation 't)
@@ -138,13 +148,22 @@
       (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a string or NIL, not ~S")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'standard-generic-function (funcallable-name gf) ':documentation documentation)))
-  (when (or (eq situation 't) declarations-p)
+  (when (or (eq situation 't) declarations-p declare-p)
     ; Check the declarations.
-    (unless (proper-list-p declarations)
-      (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a proper list, not ~S")
+    ; ANSI CL specifies the keyword :DECLARE for ensure-generic-function, but the
+    ; MOP p. 50 specifies the keyword :DECLARATIONS for ensure-generic-function-using-class.
+    (when (and declarations-p declare-p)
+      (error (TEXT "(~S ~S) for generic function ~S: The ~S and ~S arguments cannot be specified together.")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'standard-generic-function (funcallable-name gf)
-             ':declarations declarations)))
+             ':declarations ':declare))
+    (let ((declspecs (if declare-p declare declarations)))
+      (check-gf-declspecs declspecs (if declare-p ':declare ':declarations)
+        #'(lambda (errorstring &rest arguments)
+            (error (TEXT "(~S ~S) for generic function ~S: ~A")
+                   (if (eq situation 't) 'initialize-instance 'shared-initialize)
+                   'standard-generic-function (funcallable-name gf)
+                   (apply #'format nil errorstring arguments))))))
   ; Fill the slots.
   (when lambda-list-p
     (setf (std-gf-lambda-list gf) lambda-list)
@@ -156,8 +175,8 @@
     (setf (std-gf-method-combination gf) method-combination))
   (when (or (eq situation 't) documentation-p)
     (setf (std-gf-documentation gf) documentation))
-  (when (or (eq situation 't) declarations-p)
-    (setf (std-gf-declspecs gf) declarations))
+  (when (or (eq situation 't) declarations-p declare-p)
+    (setf (std-gf-declspecs gf) (if declare-p declare declarations)))
   (when (eq situation 't)
     (setf (std-gf-methods gf) '()))
   (when (or (eq situation 't) lambda-list-p method-combination-p)
@@ -174,9 +193,10 @@
                                                              method-combination
                                                              documentation
                                                              declarations
+                                                             declare
                                                         &allow-other-keys)
   (declare (ignore name lambda-list argument-precedence-order method-class
-                   method-combination documentation declarations))
+                   method-combination documentation declarations declare))
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'initialize-instance later.
   (apply #'shared-initialize-<standard-generic-function> gf 't args)
@@ -190,12 +210,13 @@
                                                        method-combination
                                                        documentation
                                                        declarations
+                                                       declare
                                                   &allow-other-keys)
   ;; class = <standard-generic-function>
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
   (declare (ignore class name lambda-list argument-precedence-order method-class
-                   method-combination documentation declarations))
+                   method-combination documentation declarations declare))
   (let ((gf (%allocate-instance <standard-generic-function>)))
     (apply #'initialize-instance-<standard-generic-function> gf args)))
 
@@ -229,12 +250,13 @@
 ;;   )        )
 
 ;; Returns a generic function without dispatch-code. Not callable!!
-(defun %make-gf (generic-function-class name lambda-list argument-precedence-order method-class)
+(defun %make-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs)
   (make-generic-function-instance generic-function-class
     :name name
     :lambda-list lambda-list
     :argument-precedence-order argument-precedence-order
-    :method-class method-class))
+    :method-class method-class
+    :declarations declspecs))
 
 #||
  (defun make-gf (generic-function-class name lambdabody signature argorder methods)
@@ -252,8 +274,8 @@
 
 #|| ;; Generic functions with primitive dispatch:
 
- (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class methods)
-  (let* ((final (%make-gf generic-function-class name lambda-list argument-precedence-order method-class))
+ (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs methods)
+  (let* ((final (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs))
          (preliminary
            (eval `(LET ((GF ',final))
                     (DECLARE (COMPILE))
@@ -363,8 +385,8 @@
 
 ;; Generic functions with optimized dispatch:
 
-(defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class)
-  (let ((gf (%make-gf generic-function-class name lambda-list argument-precedence-order method-class)))
+(defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs)
+  (let ((gf (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs)))
     (finalize-fast-gf gf)
     gf))
 
@@ -448,7 +470,7 @@
   (multiple-value-bind (bindings lambdabody) (compute-dispatch gf)
     (let ((preliminary
            (eval `(LET ,bindings
-                    (DECLARE (COMPILE))
+                    (DECLARE ,@(std-gf-declspecs gf) (COMPILE))
                      (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
       (assert (<= (sys::%record-length preliminary) 3))
       preliminary)))

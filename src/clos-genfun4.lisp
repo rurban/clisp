@@ -6,9 +6,9 @@
 (in-package "CLOS")
 
 
-(defun make-generic-function (generic-function-class funname lambda-list argument-precedence-order method-combo method-class
+(defun make-generic-function (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs
                               &rest methods)
-  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class)))
+  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class declspecs)))
     (setf (std-gf-method-combination gf)
           (coerce-to-method-combination funname method-combo))
     (dolist (method methods) (std-add-method gf method))
@@ -19,7 +19,7 @@
 ;; a generic function through DEFGENERIC.
 (defparameter *allow-making-generic* nil)
 
-(defun do-defgeneric (funname generic-function-class lambda-list signature argument-precedence-order method-combo method-class &rest methods)
+(defun do-defgeneric (funname generic-function-class lambda-list signature argument-precedence-order method-combo method-class declspecs &rest methods)
   (if (fboundp funname)
     (let ((gf (fdefinition funname)))
       (if (typep-class gf <generic-function>)
@@ -45,7 +45,8 @@
           (shared-initialize-<standard-generic-function> gf nil
             :lambda-list lambda-list
             :argument-precedence-order argument-precedence-order
-            :method-class method-class)
+            :method-class method-class
+            :declarations declspecs)
           (let ((method-combo (coerce-to-method-combination funname method-combo)))
             (unless (eq method-combo (std-gf-method-combination gf))
               (dolist (method (std-gf-methods gf))
@@ -60,18 +61,18 @@
             'defgeneric funname)
           (setf (fdefinition funname)
                 (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order
-                       method-combo method-class methods)))))
+                       method-combo method-class declspecs methods)))))
     (setf (fdefinition funname)
           (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order
-                 method-combo method-class methods))))
+                 method-combo method-class declspecs methods))))
 
 
 #||  ;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
- (defun make-generic-function-now (generic-function-class funname lambda-list argument-precedence-order method-combo method-class
+ (defun make-generic-function-now (generic-function-class funname lambda-list argument-precedence-order method-combo method-class declspecs
                                    &rest methods)
-  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class)))
+  (let ((gf (make-fast-gf generic-function-class funname lambda-list argument-precedence-order method-class declspecs)))
     (setf (std-gf-method-combination gf)
           (coerce-to-method-combination funname method-combo))
     (dolist (method methods) (std-add-method gf method))
@@ -83,10 +84,10 @@
 ;; For GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
 
 (defun make-generic-function-form (caller whole-form funname lambda-list options)
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form method-forms)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form declspecs docstring method-forms)
       (analyze-defgeneric caller whole-form funname lambda-list options)
-    (declare (ignore signature))
-    `(MAKE-GENERIC-FUNCTION ,generic-function-class-form ',funname ',lambda-list ',argument-precedence-order ',method-combo ,method-class-form
+    (declare (ignore signature docstring))
+    `(MAKE-GENERIC-FUNCTION ,generic-function-class-form ',funname ',lambda-list ',argument-precedence-order ',method-combo ,method-class-form ',declspecs
                             ,@method-forms)))
 
 #| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,

@@ -22,7 +22,7 @@
                                    declarations
                                    &allow-other-keys)
   (declare (ignore name lambda-list argument-precedence-order method-class
-                   method-combination documentation declarations))
+                   method-combination documentation declarations declare))
   (apply #'shared-initialize-<standard-generic-function> gf situation args))
 
 ;; ----------------------------------------------------------------------------
