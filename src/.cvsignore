@@ -3,6 +3,7 @@
 *.mem
 *.run
 *.exe
+*.i.c
 avcall
 avcall.h
 callback
