@@ -1,3 +1,7 @@
+1999-02-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in: Improve parsing of --hyperspec argument.
+
 1999-02-17  Sam Steingold  <sds@goems.com>
 
         * spvw.d: user ascii* instead of asciz* for constant string
