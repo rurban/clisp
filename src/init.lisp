@@ -1509,7 +1509,8 @@
          #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
          (*package* *package*) ; bind *PACKAGE*
          (*readtable* *readtable*) ; bind *READTABLE*
-         (compiler::*c-error-output* *error-output*)) ; for compiling
+         (compiler::*c-error-output* *error-output*) ; for compiling
+         (eof-indicator input-stream))
     (when *load-verbose*
       (fresh-line)
       (write-string ";;")
@@ -1528,8 +1529,8 @@
       (unwind-protect
            (tagbody weiter
              (when *load-echo* (fresh-line))
-             (let ((obj (read input-stream nil input-stream)))
-               (when (eql obj input-stream) (go done))
+             (let ((obj (read input-stream nil eof-indicator)))
+               (when (eql obj eof-indicator) (go done))
                (setq obj (multiple-value-list
                           (cond ((compiled-function-p obj) (funcall obj))
                                 (*load-compiling*
