@@ -6373,7 +6373,7 @@ global object iconv_range(encoding,start,end)
         # File-Stream für Integers
         # Bitbuffer allozieren:
         pushSTACK(stream);
-        var object bitbuffer = allocate_bit_vector(eltype->size);
+        var object bitbuffer = allocate_bit_vector(Atype_Bit,eltype->size);
         stream = popSTACK();
         TheStream(stream)->strm_bitbuffer = bitbuffer;
       }
@@ -8296,7 +8296,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           # Buffer allozieren:
           pushSTACK(stream);
           {
-            var object buffer = allocate_bit_vector(strm_buffered_bufflen*8);
+            var object buffer = allocate_bit_vector(Atype_8Bit,strm_buffered_bufflen);
             stream = popSTACK();
             TheStream(stream)->strm_buffered_buffer = buffer;
           }
@@ -8311,7 +8311,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             # Bitbuffer allozieren:
             pushSTACK(stream);
             {
-              var object bitbuffer = allocate_bit_vector(ceiling(eltype->size,8)*8);
+              var object bitbuffer = allocate_bit_vector(Atype_Bit,ceiling(eltype->size,8)*8);
               stream = popSTACK();
               TheStream(stream)->strm_bitbuffer = bitbuffer;
             }
@@ -10645,7 +10645,7 @@ LISPFUNN(make_keyboard_stream,0)
           {
             var object lastline = string_to_asciz(TheStream(stream)->strm_terminal_outbuff,TheStream(stream)->strm_encoding);
             begin_system_call();
-            prompt = (char*) malloc(Sbvector_length(lastline)/8+1);
+            prompt = (char*) malloc(Sbvector_length(lastline)+1);
             if (!(prompt==NULL)) {
               strcpy(prompt,TheAsciz(lastline));
               #ifndef NO_MATCH  # not needed any more in readline-2.2-clisp or newer
@@ -15990,9 +15990,7 @@ LISPFUNN(listen_byte,1)
       }
       {
         var object vector = STACK_2;
-        if (!(general_byte_vector_p(vector) # Bit/Byte-Vektor?
-              && ((Iarray_flags(vector) & arrayflags_atype_mask) == Atype_8Bit) # 8Bit
-           ) ) {
+        if (!bit_vector_p(Atype_8Bit,vector)) {
           pushSTACK(vector); # Wert für Slot DATUM von TYPE-ERROR
           pushSTACK(O(type_uint8_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(vector);
@@ -16017,7 +16015,6 @@ LISPFUNN(read_n_bytes,4)
     var uintL totalcount;
     test_n_bytes_args(&startindex,&totalcount);
     if (!(totalcount==0)) {
-      STACK_0 = TheIarray(STACK_0)->data;
       if (!(read_byte_array(&STACK_1,&STACK_0,startindex,totalcount) == totalcount)) {
         pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(1+1)); # Stream
@@ -16037,7 +16034,6 @@ LISPFUNN(write_n_bytes,4)
     var uintL totalcount;
     test_n_bytes_args(&startindex,&totalcount);
     if (!(totalcount==0)) {
-      STACK_0 = TheIarray(STACK_0)->data;
       write_byte_array(&STACK_1,&STACK_0,startindex,totalcount);
     }
     skipSTACK(2);
@@ -17041,7 +17037,7 @@ LISPFUNN(built_in_stream_set_element_type,2)
               # New element type is an integer type.
               # Bitbuffer allozieren:
               pushSTACK(stream);
-              var object bitbuffer = allocate_bit_vector(eltype.size);
+              var object bitbuffer = allocate_bit_vector(Atype_Bit,eltype.size);
               stream = popSTACK();
               TheStream(stream)->strm_bitbuffer = bitbuffer;
               flags &= ~(strmflags_open_B & ~strmflags_by_B);

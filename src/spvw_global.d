@@ -355,6 +355,11 @@
           switch (heapnr) {
             case_sstring:
             case_sbvector:
+            case_sb2vector:
+            case_sb4vector:
+            case_sb8vector:
+            case_sb16vector:
+            case_sb32vector:
             case_bignum:
             #ifndef WIDE
             case_ffloat:
@@ -364,6 +369,11 @@
               mem.heaptype[heapnr] = 2; break;
             case_ostring:
             case_obvector:
+            case_ob2vector:
+            case_ob4vector:
+            case_ob8vector:
+            case_ob16vector:
+            case_ob32vector:
             case_vector:
             case_mdarray:
             case_record:

@@ -28,23 +28,24 @@
       return newvector;
     }
 
-# Function: Copies a simple-bit-vector.
+# Function: Copies a simple-bit/byte-vector.
 # copy_sbvector(vector)
-# > vector: simple-bit-vector
-# < result: fresh simple-bit-vector with the same contents
+# > vector: simple-bit/byte-vector
+# < result: fresh simple-bit/byte-vector with the same contents
 # can trigger GC
   global object copy_sbvector (object vector);
   global object copy_sbvector(vector)
     var object vector;
     {
+      var uintB atype = Array_type(vector) - Array_type_sbvector;
       var uintL length = Sbvector_length(vector);
       pushSTACK(vector);
-      var object newvector = allocate_bit_vector(length); # vector of same length
+      var object newvector = allocate_bit_vector(atype,length); # vector of same length
       vector = popSTACK();
       if (!(length==0)) {
         var const uintB* ptr1 = &TheSbvector(vector)->data[0];
         var uintB* ptr2 = &TheSbvector(newvector)->data[0];
-        dotimespL(length,ceiling(length,8), {
+        dotimespL(length,ceiling(length<<atype,8), {
           *ptr2++ = *ptr1++;
         });
       }
@@ -146,28 +147,6 @@ LISPFUNN(copy_simple_vector,1)
       return Atype_T;
     }
 
-# Function: Allocates a byte vector.
-# allocate_byte_vector(atype,len)
-# > uintB atype: Atype_nBit
-# > uintL len: length (number of n-bit blocks)
-# < result: fresh semi-simple byte-vector of the given length
-# can trigger GC
-  global object allocate_byte_vector (uintB atype, uintL len);
-  global object allocate_byte_vector(atype,len)
-    var uintB atype;
-    var uintL len;
-    {
-      var object new_sbvector = allocate_bit_vector(len<<atype);
-      # fresh simple-bit-vector of suitable length
-      pushSTACK(new_sbvector); # save it
-      var object new_array = allocate_iarray(atype,1,Array_type_bvector);
-                             # flags: none, element-type Atype_nBit, rank=1
-      TheIarray(new_array)->totalsize =
-        TheIarray(new_array)->dims[0] = len; # enter length and total-size
-      TheIarray(new_array)->data = popSTACK(); # enter storage vector
-      return new_array;
-    }
-
 # Function: Creates a simple-vector with given elements.
 # vectorof(len)
 # > uintC len: desired vector length
@@ -201,9 +180,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # The "storage vector" of an array is the a 1-dimensional array, of the same
 # element type as the original array, without fill-pointer or adjustable bit.
 # In can be obtained by repeatedly taking TheIarray(array)->data, until
-# [for the element types T, BIT, CHARACTER] array satisfies array_simplep, or
-# [for the element types (UNSIGNED-BYTE n)] array is an indirect array without
-# arrayflags_..._bits such that TheIarray(array)->data is a simple-bit-vector.
+# array satisfies array_simplep.
 
 # Function: Follows the TheIarray(array)->data chain until the storage-vector
 # is reached, and thereby sums up displaced-offsets. This function is useful
@@ -234,22 +211,12 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       }
      notdisplaced:
       # array is indirect, but not displaced
-      if (Iarray_flags(array) & bit(arrayflags_notbytep_bit)) {
-        array = TheIarray(array)->data; # next array is the storage-vector
-       simple:
-        # have reached the storage-vector, not indirect
-        if (*index >= Sarray_length(array))
-          goto fehler_bad_index;
-        return array;
-      } else {
-        # byte-array
-        if (!simple_bit_vector_p(TheIarray(array)->data))
-          array = TheIarray(array)->data;
-        # have reached the storage-vector, indirect
-        if (*index >= TheIarray(array)->totalsize)
-          goto fehler_bad_index;
-        return array;
-      }
+      array = TheIarray(array)->data; # next array is the storage-vector
+     simple:
+      # have reached the storage-vector, not indirect
+      if (*index >= Sarray_length(array))
+        goto fehler_bad_index;
+      return array;
      fehler_bad_index:
       fehler(error, # more details??
              GETTEXT("index too large")
@@ -291,22 +258,12 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       }
      notdisplaced:
       # array is indirect, but not displaced
-      if (Iarray_flags(array) & bit(arrayflags_notbytep_bit)) {
-        array = TheIarray(array)->data; # next array is the storage-vector
-       simple:
-        # have reached the storage-vector, not indirect
-        if (*index+size > Sarray_length(array))
-          goto fehler_bad_index;
-        return array;
-      } else {
-        # Byte-Array
-        if (!simple_bit_vector_p(TheIarray(array)->data))
-          array = TheIarray(array)->data;
-        # have reached the storage-vector, indirect
-        if (*index+size > TheIarray(array)->totalsize)
-          goto fehler_bad_index;
-        return array;
-      }
+      array = TheIarray(array)->data; # next array is the storage-vector
+     simple:
+      # have reached the storage-vector, not indirect
+      if (*index+size > Sarray_length(array))
+        goto fehler_bad_index;
+      return array;
      fehler_bad_index:
       fehler_displaced_inconsistent();
     }
@@ -339,22 +296,12 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       }
      notdisplaced:
       # array is indirect, but not displaced
-      if (Iarray_flags(array) & bit(arrayflags_notbytep_bit)) {
-        array = TheIarray(array)->data; # next array is the storage-vector
-       simple:
-        # have reached the storage-vector, not indirect
-        if (*index+size > Sarray_length(array))
-          goto fehler_bad_index;
-        return array;
-      } else {
-        # Byte-Array
-        if (!simple_bit_vector_p(TheIarray(array)->data))
-          array = TheIarray(array)->data;
-        # have reached the storage-vector, indirect
-        if (*index+size > TheIarray(array)->totalsize)
-          goto fehler_bad_index;
-        return array;
-      }
+      array = TheIarray(array)->data; # next array is the storage-vector
+     simple:
+      # have reached the storage-vector, not indirect
+      if (*index+size > Sarray_length(array))
+        goto fehler_bad_index;
+      return array;
      fehler_bad_index:
       fehler_displaced_inconsistent();
     }
@@ -605,28 +552,21 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           return TheSvector(datenvektor)->data[index];
         case Array_type_sbvector: # Simple-Bit-Vector
           return ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 );
+        case Array_type_sb2vector:
+          return fixnum((TheSbvector(datenvektor)->data[index/4]>>(2*((~index)%4)))&(bit(2)-1));
+        case Array_type_sb4vector:
+          return fixnum((TheSbvector(datenvektor)->data[index/2]>>(4*((~index)%2)))&(bit(4)-1));
+        case Array_type_sb8vector:
+          return fixnum(TheSbvector(datenvektor)->data[index]);
+        case Array_type_sb16vector:
+          return fixnum(((uint16*)&TheSbvector(datenvektor)->data[0])[index]);
+        case Array_type_sb32vector:
+          return UL_to_I(((uint32*)&TheSbvector(datenvektor)->data[0])[index]);
         case Array_type_sstring: # Simple-String
           SstringDispatch(datenvektor,
             { return code_char(TheSstring(datenvektor)->data[index]); },
             { return code_char(as_chart(TheSmallSstring(datenvektor)->data[index])); }
             );
-        case Array_type_bvector: # Byte-Vector
-          {
-            var uintB* ptr = &TheSbvector(TheIarray(datenvektor)->data)->data[0];
-            switch (Iarray_flags(datenvektor) /* & arrayflags_atype_mask */ ) {
-              case Atype_2Bit:
-                return fixnum((ptr[index/4]>>(2*((~index)%4)))&(bit(2)-1));
-              case Atype_4Bit:
-                return fixnum((ptr[index/2]>>(4*((~index)%2)))&(bit(4)-1));
-              case Atype_8Bit:
-                return fixnum(ptr[index]);
-              case Atype_16Bit:
-                return fixnum(((uint16*)ptr)[index]);
-              case Atype_32Bit:
-                return UL_to_I(((uint32*)ptr)[index]);
-              default: NOTREACHED
-            }
-          }
         default: NOTREACHED
       }
     }
@@ -661,6 +601,47 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             }
           }
           break;
+        case Array_type_sb2vector:
+          {
+            var uintL wert;
+            if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(2))) {
+              var uintB* ptr = &TheSbvector(datenvektor)->data[index/4];
+              *ptr ^= (*ptr ^ (wert<<(2*((~index)%4)))) & ((bit(2)-1)<<(2*((~index)%4)));
+              return;
+            }
+          }
+          break;
+        case Array_type_sb4vector:
+          {
+            var uintL wert;
+            if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(4))) {
+              var uintB* ptr = &TheSbvector(datenvektor)->data[index/2];
+              *ptr ^= (*ptr ^ (wert<<(4*((~index)%2)))) & ((bit(4)-1)<<(4*((~index)%2)));
+              return;
+            }
+          }
+          break;
+        case Array_type_sb8vector:
+          {
+            var uintL wert;
+            if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(8))) {
+              TheSbvector(datenvektor)->data[index] = wert;
+              return;
+            }
+          }
+          break;
+        case Array_type_sb16vector:
+          {
+            var uintL wert;
+            if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(16))) {
+              ((uint16*)&TheSbvector(datenvektor)->data[0])[index] = wert;
+              return;
+            }
+          }
+          break;
+        case Array_type_sb32vector:
+          ((uint32*)&TheSbvector(datenvektor)->data[0])[index] = I_to_UL(element); # evtl. Fehlermeldung macht I_to_UL
+          return;
         #ifndef TYPECODES
         case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: # immutable Simple-String
           fehler_sstring_immutable(datenvektor);
@@ -671,42 +652,6 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           if (charp(element)) {
             TheSstring(datenvektor)->data[index] = char_code(element);
             return;
-          }
-          break;
-        case Array_type_bvector: # Byte-Vector
-          {
-            var uintB* ptr = &TheSbvector(TheIarray(datenvektor)->data)->data[0];
-            var uintL wert;
-            switch (Iarray_flags(datenvektor) /* & arrayflags_atype_mask */ ) {
-              case Atype_2Bit:
-                if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(2))) {
-                  ptr[index/4] ^= (ptr[index/4] ^ (wert<<(2*((~index)%4)))) & ((bit(2)-1)<<(2*((~index)%4)));
-                  return;
-                }
-                break;
-              case Atype_4Bit:
-                if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(4))) {
-                  ptr[index/2] ^= (ptr[index/2] ^ (wert<<(4*((~index)%2)))) & ((bit(4)-1)<<(4*((~index)%2)));
-                  return;
-                }
-                break;
-              case Atype_8Bit:
-                if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(8))) {
-                  ptr[index] = wert;
-                  return;
-                }
-                break;
-              case Atype_16Bit:
-                if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(16))) {
-                  ((uint16*)ptr)[index] = wert;
-                  return;
-                }
-                break;
-              case Atype_32Bit:
-                ((uint32*)ptr)[index] = I_to_UL(element); # evtl. Fehlermeldung macht I_to_UL
-                return;
-              default: NOTREACHED
-            }
           }
           break;
         default: NOTREACHED
@@ -848,36 +793,51 @@ LISPFUNN(row_major_store,3)
   global object array_element_type(array)
     var object array;
     {
+      var uintBWL atype;
       switch (Array_type(array)) {
         case Array_type_sstring:
         case Array_type_string: # String -> CHARACTER
           return S(character);
         case Array_type_sbvector: # Simple-Bit-Vector -> BIT
+        case Array_type_bvector: # Bit-Vector -> BIT
           return S(bit);
+        case Array_type_sb2vector: # Simple-2Bit-Vector -> (UNSIGNED-BYTE 2)
+        case Array_type_sb4vector: # Simple-4Bit-Vector -> (UNSIGNED-BYTE 4)
+        case Array_type_sb8vector: # Simple-8Bit-Vector -> (UNSIGNED-BYTE 8)
+        case Array_type_sb16vector: # Simple-16Bit-Vector -> (UNSIGNED-BYTE 16)
+        case Array_type_sb32vector: # Simple-32Bit-Vector -> (UNSIGNED-BYTE 32)
+          atype = Array_type(array) - Array_type_sbvector;
+          break;
+        case Array_type_b2vector: # 2Bit-Vector -> (UNSIGNED-BYTE 2)
+        case Array_type_b4vector: # 4Bit-Vector -> (UNSIGNED-BYTE 4)
+        case Array_type_b8vector: # 8Bit-Vector -> (UNSIGNED-BYTE 8)
+        case Array_type_b16vector: # 16Bit-Vector -> (UNSIGNED-BYTE 16)
+        case Array_type_b32vector: # 32Bit-Vector -> (UNSIGNED-BYTE 32)
+          atype = Array_type(array) - Array_type_bvector;
+          break;
         case Array_type_svector:
         case Array_type_vector: # allg. Vector -> T
           return S(t);
-        case Array_type_bvector: # Byte-Vector
         case Array_type_mdarray: # allgemeiner Array
-          {
-            var uintBWL atype = Iarray_flags(array) & arrayflags_atype_mask;
-            switch (atype) {
-              case Atype_T:           return S(t);         # T
-              case Atype_Bit:         return S(bit);       # BIT
-              case Atype_Char:        return S(character); # CHARACTER
-              case Atype_2Bit:        # (UNSIGNED-BYTE 2)
-              case Atype_4Bit:        # (UNSIGNED-BYTE 4)
-              case Atype_8Bit:        # (UNSIGNED-BYTE 8)
-              case Atype_16Bit:       # (UNSIGNED-BYTE 16)
-              case Atype_32Bit:       # (UNSIGNED-BYTE 32)
-                pushSTACK(S(unsigned_byte));
-                pushSTACK(fixnum(bit(atype)));
-                return listof(2);
-              default: NOTREACHED
-            }
+          atype = Iarray_flags(array) & arrayflags_atype_mask;
+          switch (atype) {
+            case Atype_T:           return S(t);         # T
+            case Atype_Bit:         return S(bit);       # BIT
+            case Atype_Char:        return S(character); # CHARACTER
+            case Atype_2Bit:        # (UNSIGNED-BYTE 2)
+            case Atype_4Bit:        # (UNSIGNED-BYTE 4)
+            case Atype_8Bit:        # (UNSIGNED-BYTE 8)
+            case Atype_16Bit:       # (UNSIGNED-BYTE 16)
+            case Atype_32Bit:       # (UNSIGNED-BYTE 32)
+              break;
+            default: NOTREACHED
           }
+          break;
         default: NOTREACHED
       }
+      pushSTACK(S(unsigned_byte));
+      pushSTACK(fixnum(bit(atype)));
+      return listof(2);
     }
 
 LISPFUNN(array_element_type,1) # (ARRAY-ELEMENT-TYPE array), CLTL S. 291
@@ -1151,7 +1111,7 @@ LISPFUN(bit,1,0,rest,nokey,0,NIL) # (BIT bit-array {subscript}), CLTL S. 293
     # Subscripts verarbeiten und Datenvektor und Index holen:
     var uintL index;
     var object datenvektor = subscripts_to_index(array,rest_args_pointer,argcount, &index);
-    if (!(simple_bit_vector_p(datenvektor)))
+    if (!simple_bit_vector_p(Atype_Bit,datenvektor))
       fehler_bit_array();
     # Datenvektor ist ein Simple-Bit-Vector. Element des Datenvektors holen:
     value1 = ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ); mv_count=1;
@@ -1164,7 +1124,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
     # Subscripts verarbeiten und Datenvektor und Index holen:
     var uintL index;
     var object datenvektor = subscripts_to_index(array,rest_args_pointer,argcount, &index);
-    if (!(simple_bit_vector_p(datenvektor)))
+    if (!simple_bit_vector_p(Atype_Bit,datenvektor))
       fehler_bit_array();
     # Datenvektor ist ein Simple-Bit-Vector. Element des Datenvektors holen:
     value1 = ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ); mv_count=1;
@@ -1476,14 +1436,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         case Array_type_sbvector:
           len = Sbvector_length(STACK_2); goto vector;
         case Array_type_bvector:
-          {
-            var Iarray array1 = TheIarray(STACK_2);
-            # bit-array1 muss den Elementtyp BIT haben:
-            if (!((iarray_flags(array1) & arrayflags_atype_mask) == Atype_Bit))
-              goto fehler2;
-            len = array1->totalsize;
-            goto vector;
-          }
+          len = TheIarray(STACK_2)->totalsize; goto vector;
         case Array_type_mdarray:
           {
             var Iarray array1 = TheIarray(STACK_2);
@@ -1516,14 +1469,8 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             goto fehler2;
           break;
         case Array_type_bvector:
-          {
-            var Iarray array2 = TheIarray(STACK_1);
-            # bit-array2 muss den Elementtyp BIT haben:
-            if (!((iarray_flags(array2) & arrayflags_atype_mask) == Atype_Bit))
-              goto fehler2;
-            if (!(len == array2->totalsize))
-              goto fehler2;
-          }
+          if (!(len == TheIarray(STACK_1)->totalsize))
+            goto fehler2;
           break;
         default:
           goto fehler2;
@@ -1533,7 +1480,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         var object array3 = STACK_0;
         if (eq(array3,unbound) || eq(array3,NIL)) { # nicht angegeben oder NIL?
           # ja -> neuen Vektor erzeugen:
-          STACK_0 = allocate_bit_vector(len);
+          STACK_0 = allocate_bit_vector(Atype_Bit,len);
         } elif (eq(array3,T)) {
           STACK_0 = STACK_2; # statt T verwende bit-array1
         } else {
@@ -1547,9 +1494,6 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                 goto fehler3;
               break;
             case Array_type_bvector:
-              # bit-array3 muss den Elementtyp BIT haben:
-              if (!((Iarray_flags(array3) & arrayflags_atype_mask) == Atype_Bit))
-                goto fehler3;
               if (!(len == TheIarray(array3)->totalsize))
                 goto fehler3;
               break;
@@ -1599,8 +1543,8 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         var object array3 = STACK_0;
         if (eq(array3,unbound) || eq(array3,NIL)) { # nicht angegeben oder NIL?
           # ja -> neuen Array erzeugen:
-          STACK_0 = allocate_bit_vector(len); # Bitvektor erzeugen
-          array3 = allocate_iarray(bit(arrayflags_notbytep_bit)|Atype_Bit,rank,Array_type_mdarray); # Array erzeugen
+          STACK_0 = allocate_bit_vector(Atype_Bit,len); # Bitvektor erzeugen
+          array3 = allocate_iarray(Atype_Bit,rank,Array_type_mdarray); # Array erzeugen
           TheIarray(array3)->data = STACK_0; # Datenvektor eintragen
           # Dimensionen eintragen:
           if (rank > 0) {
@@ -1655,19 +1599,19 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       {
         var uintL index1 = 0; # Index in Datenvektor von bit-array1
         var object array1 = # Datenvektor von bit-array1
-                            (simple_bit_vector_p(STACK_2)
+                            (simple_bit_vector_p(Atype_Bit,STACK_2)
                               ? STACK_2
                               : iarray_displace_check(STACK_2,len,&index1)
                             );
         var uintL index2 = 0; # Index in Datenvektor von bit-array2
         var object array2 = # Datenvektor von bit-array2
-                            (simple_bit_vector_p(STACK_1)
+                            (simple_bit_vector_p(Atype_Bit,STACK_1)
                               ? STACK_1
                               : iarray_displace_check(STACK_1,len,&index2)
                             );
         var uintL index3 = 0; # Index in Datenvektor von bit-array3
         var object array3 = # Datenvektor von bit-array3
-                            (simple_bit_vector_p(STACK_0)
+                            (simple_bit_vector_p(Atype_Bit,STACK_0)
                               ? STACK_0
                               : iarray_displace_check(STACK_0,len,&index3)
                             );
@@ -2051,18 +1995,15 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         case Atype_Bit: # array ist ein Bit-Vektor
         case Atype_2Bit: case Atype_4Bit: case Atype_8Bit:
         case Atype_16Bit: case Atype_32Bit: # array ist ein Byte-Vektor
-          neuer_datenvektor = (atype==Atype_Bit
-                               ? allocate_bit_vector(newlen)
-                               : allocate_byte_vector(atype,newlen)
-                              );
+          neuer_datenvektor = allocate_bit_vector(atype,newlen);
           array = STACK_0; # array wieder holen
           # alten in neuen Datenvektor kopieren:
           if (len>0) {
             var uintL index = 0;
             var object datenvektor = iarray_displace_check(array,len,&index);
             index = index << atype;
-            var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(atype==Atype_Bit ? datenvektor : TheIarray(datenvektor)->data)->data[0]))[index/bitpack];
-            var uint_bitpack* ptr2 = (uint_bitpack*)(&TheSbvector(atype==Atype_Bit ? neuer_datenvektor : TheIarray(neuer_datenvektor)->data)->data[0]);
+            var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(datenvektor)->data[0]))[index/bitpack];
+            var uint_bitpack* ptr2 = (uint_bitpack*)(&TheSbvector(neuer_datenvektor)->data[0]);
             var uintL bitpackcount = ceiling(len<<atype,bitpack); # Anzahl der zu schreibenden Worte
             # kopiere bitpackcount Words, von ptr1 ab (dabei um
             # (index mod bitpack) Bits nach links schieben), mit
@@ -2127,7 +2068,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   global object allocate_bit_vector_0(len)
     var uintL len;
     {
-      var object newvec = allocate_bit_vector(len); # neuer Bit-Vektor
+      var object newvec = allocate_bit_vector(Atype_Bit,len); # neuer Bit-Vektor
       var uintL count = ceiling(len,bitpack); # ceiling(len/bitpack) Worte mit Nullen füllen
       if (!(count==0)) {
         var uint_bitpack* ptr = (uint_bitpack*)(&TheSbvector(newvec)->data[0]);
@@ -2188,7 +2129,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       # neuer Normal-Simple-String dieser Länge
       pushSTACK(new_string); # retten
       var object new_array =
-        allocate_iarray(bit(arrayflags_fillp_bit)|bit(arrayflags_notbytep_bit)|Atype_Char,1,Array_type_string);
+        allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
         # Flags: nur FILL_POINTER_BIT, Elementtyp CHARACTER, Rang=1
       TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
       TheIarray(new_array)->totalsize =
@@ -2320,13 +2261,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   global object make_ssbvector(len)
     var uintL len;
     {
-      pushSTACK(allocate_bit_vector(len*8));
+      pushSTACK(allocate_bit_vector(Atype_8Bit,len));
       var object new_array =
-        allocate_iarray(bit(arrayflags_fillp_bit)|bit(arrayflags_notbytep_bit)|Atype_Bit,1,Array_type_bvector);
+        allocate_iarray(bit(arrayflags_fillp_bit)|Atype_8Bit,1,Array_type_b8vector);
         # Flags: nur FILL_POINTER_BIT, Elementtyp BIT, Rang=1
       TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
       TheIarray(new_array)->totalsize =
-        TheIarray(new_array)->dims[0] = len*8; # Länge und Total-Size eintragen
+        TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
       TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
       return new_array;
     }
@@ -2343,21 +2284,21 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var object ssbvector;
     var uintB b;
     {
-      var object sbvector = TheIarray(ssbvector)->data; # Datenvektor (ein Simple-Bit-Vektor)
+      var object sbvector = TheIarray(ssbvector)->data; # Datenvektor (ein Simple-8Bit-Vektor)
       if (TheIarray(ssbvector)->dims[1] # Fill-Pointer
           >= Sbvector_length(sbvector) ) { # >= Länge ?
         # ja -> Bit-Vektor wird um den Faktor 2 länger gemacht
         pushSTACK(ssbvector); # ssbvector retten
         pushSTACK(sbvector); # Datenvektor ebenfalls retten
-        var object neuer_sbvector = allocate_bit_vector(2 * Sbvector_length(sbvector));
-        # neuer Simple-Bit-Vektor der doppelten Länge
+        var object neuer_sbvector = allocate_bit_vector(Atype_8Bit,2*Sbvector_length(sbvector));
+        # neuer Simple-8Bit-Vektor der doppelten Länge
         sbvector = popSTACK(); # sbvector zurück
         # Inhalt von sbvector nach neuer_sbvector kopieren:
         {
           var uintB* ptr1 = &TheSbvector(sbvector)->data[0];
           var uintB* ptr2 = &TheSbvector(neuer_sbvector)->data[0];
           var uintL count;
-          dotimespL(count,Sbvector_length(sbvector)/8, {
+          dotimespL(count,Sbvector_length(sbvector), {
             *ptr2++ = *ptr1++;
           });
         }
@@ -2372,7 +2313,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       # Nun ist wieder sbvector der Datenvektor, und es gilt
       # Fill-Pointer < Länge(Datenvektor).
       # Character hineinschieben und Fill-Pointer erhöhen:
-      TheSbvector(sbvector)->data[ ((TheIarray(ssbvector)->dims[1] += 8) - 8)/8 ] = b;
+      TheSbvector(sbvector)->data[ TheIarray(ssbvector)->dims[1]++ ] = b;
       return ssbvector;
     }
 
@@ -2528,7 +2469,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           }
         case Atype_Bit: # Simple-Bit-Vector erzeugen
           {
-            var object vektor = allocate_bit_vector(len);
+            var object vektor = allocate_bit_vector(Atype_Bit,len);
             if (!(eq(STACK_4,unbound))) { # initial-element angegeben?
               # ja -> überprüfen:
               var uint_bitpack initial_bitpack;
@@ -2570,9 +2511,9 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         case Atype_4Bit:
         case Atype_8Bit:
         case Atype_16Bit:
-        case Atype_32Bit: # semi-simplen Byte-Vektor erzeugen
+        case Atype_32Bit: # simplen Byte-Vektor erzeugen
           {
-            var object vektor = allocate_byte_vector(eltype,len);
+            var object vektor = allocate_bit_vector(eltype,len);
             if (!(eq(STACK_4,unbound))) { # initial-element angegeben?
               # ja -> überprüfen, muss passender Integer sein:
               var uintL wert;
@@ -2591,7 +2532,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                   case Atype_8Bit:
                     #if !(varobject_alignment%2 == 0)
                     {
-                      var uintB* ptr = &TheSbvector(TheIarray(vektor)->data)->data[0];
+                      var uintB* ptr = &TheSbvector(vektor)->data[0];
                       dotimespL(len,len, {
                         *ptr++ = wert;
                       });
@@ -2604,7 +2545,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                   case Atype_16Bit:
                     #if !(varobject_alignment%4 == 0)
                     {
-                      var uint16* ptr = (uint16*)(&TheSbvector(TheIarray(vektor)->data)->data[0]);
+                      var uint16* ptr = (uint16*)(&TheSbvector(vektor)->data[0]);
                       dotimespL(len,len, {
                         *ptr++ = wert;
                       });
@@ -2616,7 +2557,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                     #endif
                   case Atype_32Bit:
                     {
-                      var uint32* ptr = (uint32*)(&TheSbvector(TheIarray(vektor)->data)->data[0]);
+                      var uint32* ptr = (uint32*)(&TheSbvector(vektor)->data[0]);
                       dotimespL(len,len, {
                         *ptr++ = wert;
                       });
@@ -2761,15 +2702,30 @@ local void initial_contents_aux(arg,obj)
         # Elementtyp von displaced_to bestimmen:
         var uintB displaced_eltype;
         switch (Array_type(STACK_1)) {
-          case Array_type_mdarray: case Array_type_bvector: # allgemeiner Array -> Arrayflags anschauen
+          case Array_type_mdarray: # allgemeiner Array -> Arrayflags anschauen
             displaced_eltype = Iarray_flags(displaced_to) & arrayflags_atype_mask;
             break;
           # Zuordnung  Vektor-Typinfo -> ATYPE-Byte :
-          case Array_type_sbvector: displaced_eltype = Atype_Bit; break;
+          case Array_type_sbvector:
+          case Array_type_sb2vector:
+          case Array_type_sb4vector:
+          case Array_type_sb8vector:
+          case Array_type_sb16vector:
+          case Array_type_sb32vector:
+            displaced_eltype = Array_type(STACK_1) - Array_type_sbvector; break;
+          case Array_type_bvector:
+          case Array_type_b2vector:
+          case Array_type_b4vector:
+          case Array_type_b8vector:
+          case Array_type_b16vector:
+          case Array_type_b32vector:
+            displaced_eltype = Array_type(STACK_1) - Array_type_bvector; break;
           case Array_type_string:
-          case Array_type_sstring: displaced_eltype = Atype_Char; break;
+          case Array_type_sstring:
+            displaced_eltype = Atype_Char; break;
           case Array_type_vector:
-          case Array_type_svector: displaced_eltype = Atype_T; break;
+          case Array_type_svector:
+            displaced_eltype = Atype_T; break;
           default: NOTREACHED
         }
         # displaced_eltype ist der ATYPE des :displaced-to-Arguments.
@@ -2882,8 +2838,6 @@ LISPFUN(make_array,1,0,norest,key,7,\
     var uintB flags = eltype;
     var uintL displaced_index_offset;
     var uintL fillpointer;
-    if (!((eltype<=Atype_32Bit) && !(eltype==Atype_Bit))) # außer bei Byte-Vektoren
-      flags |= bit(arrayflags_notbytep_bit); # notbytep-Bit setzen
     # Falls nicht displaced, Datenvektor bilden und evtl. füllen:
     if (nullp(STACK_1)) { # displaced-to nicht angegeben?
       # Datenvektor bilden:
@@ -2945,15 +2899,15 @@ LISPFUN(make_array,1,0,norest,key,7,\
       local const tint type_table[8] =
         {
           # Tabelle für Zuordnung  ATYPE-Byte -> Vektor-Typinfo
-          Array_type_bvector,  # Atype_Bit   -> Array_type_bvector
-          Array_type_bvector,  # Atype_2Bit  -> Array_type_bvector
-          Array_type_bvector,  # Atype_4Bit  -> Array_type_bvector
-          Array_type_bvector,  # Atype_8Bit  -> Array_type_bvector
-          Array_type_bvector,  # Atype_16Bit -> Array_type_bvector
-          Array_type_bvector,  # Atype_32Bit -> Array_type_bvector
-          Array_type_vector,   # Atype_T     -> Array_type_vector
-          Array_type_string,   # Atype_Char  -> Array_type_string
-                               # restliche ATYPEs unbenutzt
+          Array_type_bvector,   # Atype_Bit   -> Array_type_bvector
+          Array_type_b2vector,  # Atype_2Bit  -> Array_type_b2vector
+          Array_type_b4vector,  # Atype_4Bit  -> Array_type_b4vector
+          Array_type_b8vector,  # Atype_8Bit  -> Array_type_b8vector
+          Array_type_b16vector, # Atype_16Bit -> Array_type_b16vector
+          Array_type_b32vector, # Atype_32Bit -> Array_type_b32vector
+          Array_type_vector,    # Atype_T     -> Array_type_vector
+          Array_type_string,    # Atype_Char  -> Array_type_string
+                                # restliche ATYPEs unbenutzt
         };
       type = type_table[eltype];
     } else {
@@ -3075,8 +3029,8 @@ LISPFUN(make_array,1,0,norest,key,7,\
         # (setf (aref newvec newindex) (aref oldvec oldindex))
         # so kopieren, dass keine GC ausgelöst werden kann:
         if (eltype == Atype_32Bit) {
-          ((uint32*)&TheSbvector(TheIarray(newvec)->data)->data[0])[newindex]
-            = ((uint32*)&TheSbvector(TheIarray(oldvec)->data)->data[0])[oldindex];
+          ((uint32*)&TheSbvector(newvec)->data[0])[newindex]
+            = ((uint32*)&TheSbvector(oldvec)->data[0])[oldindex];
         } else {
           storagevector_store(newvec,newindex,storagevector_aref(oldvec,oldindex));
         }
@@ -3172,8 +3126,8 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     }
     test_otherkeys(); # einiges überprüfen
     var uintB flags = Iarray_flags(STACK_6);
-    # Die Flags enthalten genau eltype als Atype (mit evtl.
-    # arrayflags_notbytep_bit) und arrayflags_adjustable_bit und daher auch
+    # Die Flags enthalten genau eltype als Atype und
+    # arrayflags_adjustable_bit und daher auch
     # arrayflags_dispoffset_bit und vielleicht auch arrayflags_fillp_bit
     # (diese werden nicht verändert) und vielleicht auch
     # arrayflags_displaced_bit (dieses kann geändert werden).
@@ -3458,7 +3412,7 @@ LISPFUNN(make_bit_vector,1)
             );
     }
     var uintL size = posfixnum_to_L(popSTACK()); # Länge
-    value1 = allocate_bit_vector(size); # euen Bit-Vektor beschaffen
+    value1 = allocate_bit_vector(Atype_Bit,size); # euen Bit-Vektor beschaffen
     mv_count=1;
   }
 

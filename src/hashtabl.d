@@ -311,11 +311,7 @@
       var uintL index = 0;
       var object sbv = array_displace_check(obj,len,&index);
       # sbv der Datenvektor, index ist der Index in den Datenvektor.
-      if (!simple_bit_vector_p(sbv)) {
-        # Bei Byte-Vektoren schauen wir in deren Bitvektor hinein.
-        len = len << (Iarray_flags(sbv) /* & arrayflags_atype_mask */ );
-        sbv = TheIarray(sbv)->data;
-      }
+      len = len << (Array_type(sbv) - Array_type_sbvector);
       #if BIG_ENDIAN_P && (varobject_alignment%2 == 0)
         # Bei Big-Endian-Maschinen kann man gleich mit 16 Bit auf einmal arbeiten
         # (sofern varobject_alignment durch 2 Byte teilbar ist):
@@ -415,7 +411,8 @@
       } else {
         var tint type = typecode(obj) # Typinfo
                         & ~bit(notsimple_bit_t); # ob simple oder nicht, ist irrelevant
-        if (type == (sbvector_type & ~bit(notsimple_bit_t))) # Bit-Vektor ?
+        if (type >= (sbvector_type & ~bit(notsimple_bit_t)) # Bit/Byte-Vektor ?
+            && type <= (sb32vector_type & ~bit(notsimple_bit_t)))
           return hashcode_bvector(obj); # komponentenweise ansehen
         if (type == (sstring_type & ~bit(notsimple_bit_t))) # String ?
           return hashcode_string(obj); # komponentenweise ansehen
@@ -439,6 +436,11 @@
         switch (Record_type(obj)) {
           case_Rectype_number_above;
           case Rectype_Sbvector: case Rectype_bvector:
+          case Rectype_Sb2vector: case Rectype_b2vector:
+          case Rectype_Sb4vector: case Rectype_b4vector:
+          case Rectype_Sb8vector: case Rectype_b8vector:
+          case Rectype_Sb16vector: case Rectype_b16vector:
+          case Rectype_Sb32vector: case Rectype_b32vector:
             return hashcode_bvector(obj);
           case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string:
             return hashcode_string(obj);
@@ -629,7 +631,7 @@
     var uint32 bish_code;
     {
       if (count > 0) {
-        var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index/4];
+        var const uintB* ptr = &TheSbvector(dv)->data[index/4];
         dotimespL(count,count, {
           var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%4)) & (bit(2)-1)]; # nächstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
@@ -646,7 +648,7 @@
     var uint32 bish_code;
     {
       if (count > 0) {
-        var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index/2];
+        var const uintB* ptr = &TheSbvector(dv)->data[index/2];
         dotimespL(count,count, {
           var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%2)) & (bit(4)-1)]; # nächstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
@@ -663,7 +665,7 @@
     var uint32 bish_code;
     {
       if (count > 0) {
-        var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index];
+        var const uintB* ptr = &TheSbvector(dv)->data[index];
         dotimespL(count,count, {
           var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
@@ -678,7 +680,7 @@
     var uint32 bish_code;
     {
       if (count > 0) {
-        var const uint16* ptr = &((uint16*)&TheSbvector(TheIarray(dv)->data)->data[0])[index];
+        var const uint16* ptr = &((uint16*)&TheSbvector(dv)->data[0])[index];
         dotimespL(count,count, {
           var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
@@ -693,7 +695,7 @@
     var uint32 bish_code;
     {
       if (count > 0) {
-        var const uint32* ptr = &((uint32*)&TheSbvector(TheIarray(dv)->data)->data[0])[index];
+        var const uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
         dotimespL(count,count, {
           var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
@@ -712,22 +714,18 @@
           return hashcode4_vector_T(dv,index,count,bish_code);
         case Array_type_sbvector: # Simple-Bit-Vector
           return hashcode4_vector_Bit(dv,index,count,bish_code);
+        case Array_type_sb2vector:
+          return hashcode4_vector_2Bit(dv,index,count,bish_code);
+        case Array_type_sb4vector:
+          return hashcode4_vector_4Bit(dv,index,count,bish_code);
+        case Array_type_sb8vector:
+          return hashcode4_vector_8Bit(dv,index,count,bish_code);
+        case Array_type_sb16vector:
+          return hashcode4_vector_16Bit(dv,index,count,bish_code);
+        case Array_type_sb32vector:
+          return hashcode4_vector_32Bit(dv,index,count,bish_code);
         case Array_type_sstring: # Simple-String
           return hashcode4_vector_Char(dv,index,count,bish_code);
-        case Array_type_bvector: # Byte-Vector
-          switch (Iarray_flags(dv) /* & arrayflags_atype_mask */ ) {
-            case Atype_2Bit:
-              return hashcode4_vector_2Bit(dv,index,count,bish_code);
-            case Atype_4Bit:
-              return hashcode4_vector_4Bit(dv,index,count,bish_code);
-            case Atype_8Bit:
-              return hashcode4_vector_8Bit(dv,index,count,bish_code);
-            case Atype_16Bit:
-              return hashcode4_vector_16Bit(dv,index,count,bish_code);
-            case Atype_32Bit:
-              return hashcode4_vector_32Bit(dv,index,count,bish_code);
-            default: NOTREACHED
-          }
         default: NOTREACHED
       }
     }
@@ -764,7 +762,12 @@
       switch (0)
       #endif
       {
-        case_bvector: # Bit/Byte-Vektor
+        case_bvector: # Bit-Vektor
+        case_b2vector: # 2Bit-Vektor
+        case_b4vector: # 4Bit-Vektor
+        case_b8vector: # 8Bit-Vektor
+        case_b16vector: # 16Bit-Vektor
+        case_b32vector: # 32Bit-Vektor
         case_string: # String
         case_vector: # (VECTOR T)
           # komponentenweise ansehen:
@@ -806,6 +809,11 @@
         case_orecord:
           switch (Record_type(obj)) {
             case_Rectype_bvector_above;
+            case_Rectype_b2vector_above;
+            case_Rectype_b4vector_above;
+            case_Rectype_b8vector_above;
+            case_Rectype_b16vector_above;
+            case_Rectype_b32vector_above;
             case_Rectype_string_above;
             case_Rectype_vector_above;
             case_Rectype_mdarray_above;
@@ -1980,6 +1988,11 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
           return highlow32((as_oint(obj)>>oint_type_shift)&(bitm(oint_type_len)-1),0xDABE); # Typinfo*2^16+Kennung
           #endif
         case_bvector: # bit-vector
+        case_b2vector: # 2bit-vector
+        case_b4vector: # 4bit-vector
+        case_b8vector: # 8bit-vector
+        case_b16vector: # 16bit-vector
+        case_b32vector: # 32bit-vector
           # Bit-Vektor-Inhalt
           return hashcode_bvector(obj);
         case_string: # String
@@ -2014,6 +2027,11 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
             switch (rectype) {
               case_Rectype_Symbol_above;
               case_Rectype_bvector_above;
+              case_Rectype_b2vector_above;
+              case_Rectype_b4vector_above;
+              case_Rectype_b8vector_above;
+              case_Rectype_b16vector_above;
+              case_Rectype_b32vector_above;
               case_Rectype_string_above;
               case_Rectype_Svector_above;
               case_Rectype_ovector_above;

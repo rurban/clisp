@@ -11131,7 +11131,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         var uintC count;
         dotimespC(count,argcount+1, {
           var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
-          argvdata_length += Sbvector_length(arg)/8;
+          argvdata_length += Sbvector_length(arg);
         });
       }
       var DYNAMIC_ARRAY(argvdata,char,argvdata_length);
@@ -11142,7 +11142,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         dotimespC(count,argcount+1, {
           var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
           var char* ptr = TheAsciz(arg);
-          var uintL len = Sbvector_length(arg)/8;
+          var uintL len = Sbvector_length(arg);
           dotimesL(len,len-1, { *argvdataptr++ = *ptr++; } ); # und kopieren
           *argvdataptr++ = ' ';
         });
@@ -11201,7 +11201,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         var uintC count;
         dotimespC(count,argcount+1, {
           var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
-          argvdata_length += Sbvector_length(arg)/8;
+          argvdata_length += Sbvector_length(arg);
         });
       }
       var DYNAMIC_ARRAY(argv,char*,1+(uintL)argcount+1);
@@ -11214,7 +11214,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         dotimespC(count,argcount+1, {
           var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
           var char* ptr = TheAsciz(arg);
-          var uintL len = Sbvector_length(arg)/8;
+          var uintL len = Sbvector_length(arg);
           *argvptr++ = argvdataptr; # in argv einfüllen
           dotimespL(len,len, { *argvdataptr++ = *ptr++; } ); # und kopieren
         });

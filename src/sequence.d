@@ -229,11 +229,30 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
     var object seq;
     { var object name;
       if (listp(seq)) { name = S(list); } # Typ LIST
-      elif (stringp(seq)) { name = S(string); } # Typ STRING
-      elif (bit_vector_p(seq)) { name = S(bit_vector); } # Typ BIT-VECTOR
-      elif (general_byte_vector_p(seq)) # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-        { name = fixnum(bit(Iarray_flags(seq) & arrayflags_atype_mask)); }
-      elif (vectorp(seq)) { name = S(vector); } # Typ [GENERAL-]VECTOR
+      elif (vectorp(seq)) {
+        switch (Array_type(seq)) {
+          case Array_type_sstring: case Array_type_string:
+            name = S(string); break; # Typ STRING
+          case Array_type_sbvector: case Array_type_bvector:
+            name = S(bit_vector); break; # Typ BIT-VECTOR
+          case Array_type_sb2vector:
+          case Array_type_sb4vector:
+          case Array_type_sb8vector:
+          case Array_type_sb16vector:
+          case Array_type_sb32vector:
+            # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
+            name = fixnum(bit(Array_type(seq)-Array_type_sbvector)); break;
+          case Array_type_b2vector:
+          case Array_type_b4vector:
+          case Array_type_b8vector:
+          case Array_type_b16vector:
+          case Array_type_b32vector:
+            # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
+            name = fixnum(bit(Array_type(seq)-Array_type_bvector)); break;
+          default:
+            name = S(vector); break; # Typ [GENERAL-]VECTOR
+        }
+      }
       elif (structurep(seq))
         { name = TheStructure(seq)->structure_types; # Structure-Typen-List*e
           while (consp(name)) { name = Cdr(name); } # davon den letzten Typ nehmen
@@ -4124,7 +4143,7 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        STACK_0 = TheIarray(iarray_displace_check(STACK_4,end,&index))->data;
+        STACK_0 = iarray_displace_check(STACK_4,end,&index);
        {var uintL result = read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
         value1 = fixnum(start+result); mv_count=1;
         skipSTACK(5);
@@ -4167,7 +4186,7 @@ LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        STACK_0 = TheIarray(iarray_displace_check(STACK_4,end,&index))->data;
+        STACK_0 = iarray_displace_check(STACK_4,end,&index);
         write_byte_array(&STACK_3,&STACK_0,index+start,end-start);
         goto done;
       }

@@ -197,6 +197,11 @@
                 case_symbol: # Symbol
                   down_varobject(TheSymbol,symbol_objects_offset,sizeof(symbol_)-sizeof(object));
                 case_sbvector: # simple-bit-vector
+                case_sb2vector: # simple-2bit-vector
+                case_sb4vector: # simple-4bit-vector
+                case_sb8vector: # simple-8bit-vector
+                case_sb16vector: # simple-16bit-vector
+                case_sb32vector: # simple-32bit-vector
                 case_sstring: # simple-string
                 case_bignum: # Bignum
                 #ifndef WIDE
@@ -206,7 +211,7 @@
                 case_lfloat: # Long-Float
                   # Objekte variabler Länge, die keine Pointer enthalten:
                   down_nopointers(TheVarobject);
-                case_mdarray: case_obvector: case_ostring: case_ovector:
+                case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
                   # Arrays, die nicht simple sind:
                   down_iarray();
                 case_svector: # simple-vector
@@ -238,6 +243,11 @@
                 case varobject_bias:
                   switch (Record_type(dies))
                     { case Rectype_Sbvector:
+                      case Rectype_Sb2vector:
+                      case Rectype_Sb4vector:
+                      case Rectype_Sb8vector:
+                      case Rectype_Sb16vector:
+                      case Rectype_Sb32vector:
                       case Rectype_Sstring: case Rectype_Imm_Sstring:
                       case Rectype_Imm_SmallSstring:
                       case Rectype_Bignum:
@@ -249,6 +259,11 @@
                         down_svector();
                       case Rectype_mdarray:
                       case Rectype_bvector:
+                      case Rectype_b2vector:
+                      case Rectype_b4vector:
+                      case Rectype_b8vector:
+                      case Rectype_b16vector:
+                      case Rectype_b32vector:
                       case Rectype_string:
                       case Rectype_vector:
                         down_iarray();
@@ -301,7 +316,7 @@
                   case_svector:
                     # simple-vector mit mindestens 1 Komponente
                     up_svector();
-                  case_mdarray: case_obvector: case_ostring: case_ovector:
+                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
                     # Nicht-simple Arrays:
                     up_iarray();
                   case_record: # Srecord/Xrecord
@@ -318,6 +333,11 @@
                   #endif
                     # Das sind direkte Objekte, keine Pointer.
                   case_sbvector: # simple-bit-vector
+                  case_sb2vector: # simple-2bit-vector
+                  case_sb4vector: # simple-4bit-vector
+                  case_sb8vector: # simple-8bit-vector
+                  case_sb16vector: # simple-16bit-vector
+                  case_sb32vector: # simple-32bit-vector
                   case_sstring: # simple-string
                   case_bignum: # Bignum
                   #ifndef WIDE

@@ -1762,7 +1762,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
           seed_lo = get_32_Dptr(&seedMSDptr[32/intDsize]);
         }}
       # neuen Zustands-Bitvektor holen und füllen:
-      {var object seed = allocate_bit_vector(64);
+      {var object seed = allocate_bit_vector(Atype_Bit,64);
        var uintD* seedMSDptr = (uintD*)(&TheSbvector(seed)->data[0]);
        set_32_Dptr(seedMSDptr,seed_hi);
        set_32_Dptr(&seedMSDptr[32/intDsize],seed_lo);

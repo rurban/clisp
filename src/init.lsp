@@ -17,7 +17,9 @@ stream file-stream synonym-stream broadcast-stream concatenated-stream
 two-way-stream echo-stream string-stream string string-char symbol t vector
 satisfies values mod signed-byte unsigned-byte
 ; Pseudo-Typen:
-byte-vector special-form system-function
+simple-2bit-vector 2bit-vector simple-4bit-vector 4bit-vector
+simple-8bit-vector 8bit-vector simple-16bit-vector 16bit-vector
+simple-32bit-vector 32bit-vector special-form system-function
 ;; Konstanten:
 lambda-list-keywords lambda-parameters-limit nil t call-arguments-limit
 multiple-values-limit pi boole-clr boole-set boole-1 boole-2 boole-c1 boole-c2

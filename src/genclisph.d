@@ -813,8 +813,8 @@ global int main()
 #   printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(complex_type); printf("))\n");
 #   printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(symbol_type); printf("))\n");
     printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(bignum_type|bit(sign_bit_t)); printf("))\n");
-#   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sstring_type|svector_type); printf("))\n");
-#   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type); printf("))\n");
+#   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|s8bvector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
+#   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|s8bvector_type|sb16vector_type|sb32vector_type); printf("))\n");
 #   printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
 #   printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
     printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
@@ -916,7 +916,7 @@ global int main()
 # #ifdef TYPECODES
 #   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
 # #else
-#   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",9-1);
+#   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",19-1);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
@@ -931,42 +931,27 @@ global int main()
 # #ifdef TYPECODES
 #   printf2("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
 # #else
-#   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= %d))\n",8-6);
+#   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= %d))\n",18-16);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
 # #else
-#   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) == %d))\n",9-6);
+#   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",19-16);
 # #endif
 # #ifdef TYPECODES
-#   printf2("#define simple_bit_vector_p(obj)  (typecode(obj) == %d)\n",(tint)sbvector_type);
+#   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == %d+(atype))\n",(tint)sbvector_type);
 # #else
-#   printf1("#define simple_bit_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Sbvector);
+#   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
 # #endif
 # #ifdef TYPECODES
-#   printf("#define bit_vector_p(obj)  \\\n");
-#   printf4("  ((typecode(obj) == %d) || ((typecode(obj) == %d) \\\n",(tint)sbvector_type,(tint)bvector_type);
-#   printf2("       && ((Iarray_flags(obj) & %d) == %d) \\\n",arrayflags_atype_mask,Atype_Bit);
-#   printf("  )   )\n");
+#   printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == %d+(atype))\n",(tint)bit(notsimple_bit_t),(tint)sbvector_type);
 # #else
-#   printf("#define bit_vector_p(obj)  \\\n");
-#   printf2("  (varobjectp(obj) && ((Record_type(obj) == %d) || ((Record_type(obj) == %d)",Rectype_Sbvector,Rectype_bvector);
-#   printf2(" && ((Iarray_flags(obj) & %d) == %d))))\n",arrayflags_atype_mask,Atype_Bit);
-# #endif
-# #ifdef TYPECODES
-#   printf2("#define byte_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sbvector_type);
-# #else
-#   printf2("#define byte_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
-# #endif
-# #ifdef TYPECODES
-#   printf2("#define general_byte_vector_p(obj)  (typecode(obj) == %d)\n",(tint)bvector_type);
-# #else
-#   printf1("#define general_byte_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_bvector);
+#   printf2("#define bit_vector_p(atype,obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d+(atype)))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
 # #else
-#   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",10-1);
+#   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",20-1);
 # #endif
 # #ifdef TYPECODES
 #   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
@@ -1235,7 +1220,7 @@ global int main()
 # printf("extern object allocate_cons (void);\n");
 # printf("extern object make_symbol (object string);\n");
 # printf("extern object allocate_vector (uintL len);\n");
-# printf("extern object allocate_bit_vector (uintL len);\n");
+# printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
 # printf("extern object allocate_string (uintL len);\n");
 # #ifdef asciz_length
 #   #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
