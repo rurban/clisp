@@ -22,8 +22,8 @@
  <listitem><simpara>Call
    <ulink url="&netica-c-api;NewNeticaEnviron_ns.html"
           ><function>NewNeticaEnviron_ns()</function></ulink> and
-   <ulink url="&netica-c-api;GetNodeExpectedUtils_bn.html"
-          ><function>GetNodeExpectedUtils_bn()</function></ulink>
+   <ulink url="&netica-c-api;InitNetica_bn.html"
+          ><function>InitNetica_bn()</function></ulink>
    and print some statistics; initialize
    <varname>netica:*env*</varname>.</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(netica:check-errors &key-amp;
@@ -32,20 +32,20 @@
    <ulink url="&netica-c-api;ClearError_ns.html">clear</ulink>, the errors of
    the given <ulink url="&netica-c-api;ErrorSeverity_ns.html">severity</ulink>
    and above.  You should call this function
-   after <emphasys>every</emphasys> call to a Netica function.
+   after <emphasis>every</emphasis> call to a Netica function.
    Every wrapper function in this list calls it, so you do &not-e; need to
    call it after a call to a wrapper function.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(netica:error-message
    error)</literal></term>
- <listitem><simpara>Convert netica error to a string, using
-   <ulink url="&netica-c-api;ErrorCategory_ns.html">ErrorCategory_ns</ulink>,
-   <ulink url="&netica-c-api;ErrorSeverity_ns.html">ErrorSeverity_ns</ulink>,
-   <ulink url="&netica-c-api;ErrorNumber_ns.html">ErrorNumber_ns</ulink>,
-   <ulink url="&netica-c-api;ErrorMessage_ns.html">ErrorMessage_ns</ulink>.
+ <listitem><simpara>Convert netica error to a &string-t; containing
+   <ulink url="&netica-c-api;ErrorCategory_ns.html">error category</ulink>,
+   <ulink url="&netica-c-api;ErrorSeverity_ns.html">error severity</ulink>,
+   <ulink url="&netica-c-api;ErrorNumber_ns.html">error number</ulink>,
+   <ulink url="&netica-c-api;ErrorMessage_ns.html">error message</ulink>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(netica:close-netica &key-amp;
-   :env :verbose</literal></term>
+   :env :verbose)</literal></term>
  <listitem><simpara>Terminate the netica session.
    Sets <varname>netica:*env*</varname> to &nil; when it was closed.
 </simpara></listitem></varlistentry>
@@ -59,10 +59,10 @@
 <varlistentry><term><literal role="sexp">(netica:net-info net)</literal></term>
  <listitem><simpara>Print some information about the net
    (<ulink url="&netica-c-api;GetNetName_bn.html">name</ulink>,
-   <ulink url="&netica-c-api;GetNetTitle_bn.html">title</ulink>,
-   <ulink url="&netica-c-api;GetNetComment_bn.html">comment</ulink>,
-   <ulink url="&netica-c-api;GetNetFileName_bn.html">file name</ulink> and
-   <ulink url="&netica-c-api;GetNetNodes_bn.html">nodes</ulink>).
+    <ulink url="&netica-c-api;GetNetTitle_bn.html">title</ulink>,
+    <ulink url="&netica-c-api;GetNetComment_bn.html">comment</ulink>,
+    <ulink url="&netica-c-api;GetNetFileName_bn.html">file name</ulink> and
+    <ulink url="&netica-c-api;GetNetNodes_bn.html">nodes</ulink>).
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(netica:make-node &key-amp;
    :name :net :kind :levels :states :num-states :title :comment :parents
@@ -99,19 +99,18 @@
  <listitem><simpara><ulink url="&netica-c-api;NewStreamFile_ns.html">Open
     a netica stream</ulink>, execute &body-r;,
    <ulink url="&netica-c-api;DeleteStream_ns.html">close the stream</ulink>
-   - just like &with-open-file;.
-</simpara></listitem></varlistentry>
+   - just like &with-open-file;.</simpara></listitem></varlistentry>
 <varlistentry><term><varname>netica:*verbose*</varname></term>
- <listitem><simpara>the log &stream-t; or &nil;; the default value for
+ <listitem><simpara>The log &stream-t; or &nil;; the default value for
    the <literal>:VERBOSE</literal> argument.
 </simpara></listitem></varlistentry>
 <varlistentry><term><varname>netica:*license*</varname></term>
- <listitem><simpara>the license key provided by
+ <listitem><simpara>The license key provided by
    <ulink url="http://norsys.com/">Norsys</ulink>; the default value
    for the <literal>:LICENSE</literal> argument.
 </simpara></listitem></varlistentry>
 <varlistentry><term><varname>netica:*env*</varname></term>
- <listitem><simpara>the Netica environment object; the default value
+ <listitem><simpara>The Netica environment object; the default value
    for the <literal>:ENV</literal> argument.
 </simpara></listitem></varlistentry>
 </variablelist>
