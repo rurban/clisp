@@ -49,6 +49,8 @@ AC_MSG_NOTICE([* checks for UNIX variants that set DEFS])
 dnl
 dnl DEFS _ALL_SOURCE
 AC_AIX
+dnl DEFS _GNU_SOURCE
+AC_GNU_SOURCE
 dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
 AC_SYS_LARGEFILE
 dnl sets variables CC_GCC, GCC_X_NONE
