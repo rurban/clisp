@@ -1,3 +1,7 @@
+2005-02-10  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (declared-optimize): Revert last patch: Don't use POP.
+
 2005-02-09  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (declared-optimize): use POP
