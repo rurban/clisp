@@ -454,7 +454,8 @@ Continue       :c       switch off single step mode, continue evaluation
 
     (if may-continue
       (progn
-        (write-string "** - Continuable Error" *error-output*)
+        (write-string "** - " *error-output*)
+        (write-string (TEXT "Continuable Error") *error-output*)
         (terpri *error-output*))
       (write-string "*** - " *error-output*))
 
