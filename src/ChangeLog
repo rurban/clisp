@@ -1,3 +1,15 @@
+1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Simplify the element-type handling.
+        * stream.d (eltype_kind, decoded_eltype): New types.
+          (test_eltype_arg): Moved. Changed signature.
+          (canon_eltype): New function.
+          (strmtype_ch_file, strmtype_iu_file, strmtype_is_file): Remove
+          macros.
+          (make_unbuffered_file_stream): Changed signature.
+          (make_file_stream): Use a decoded_eltype. Call canon_eltype.
+          (init_streamvars): Update.
+
 1999-01-27  Sam Steingold  <sds@goems.com>
 
         * spvw.d (print_banner): updated copyright statements.
