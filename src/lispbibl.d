@@ -5511,37 +5511,6 @@ typedef Srecord  Structure;
 #define structure_length(ptr)  srecord_length(ptr)
 #define Structure_length(obj)  structure_length(TheStructure(obj))
 
-# CLOS-Classes (= instances of <class>), see clos.lisp
-typedef struct {
-  SRECORD_HEADER
-  gcv_object_t structure_types_2       _attribute_aligned_object_; # list (metaclass <class>)
-  gcv_object_t hashcode                _attribute_aligned_object_; # GC invariant hash code
-  gcv_object_t metaclass               _attribute_aligned_object_; # a subclass of <class>
-  gcv_object_t classname               _attribute_aligned_object_; # a symbol
-  gcv_object_t direct_superclasses     _attribute_aligned_object_; # direct superclasses
-  gcv_object_t all_superclasses        _attribute_aligned_object_; # all superclasses, including itself
-  gcv_object_t precedence_list         _attribute_aligned_object_; # ordered list of all superclasses
-  gcv_object_t direct_subclasses       _attribute_aligned_object_; # weak-list or weak-hash-table of all direct subclasses
-  gcv_object_t direct_slots            _attribute_aligned_object_;
-  gcv_object_t slots                   _attribute_aligned_object_;
-  gcv_object_t slot_location_table     _attribute_aligned_object_; # hashtable slotname -> where the slot is located
-  gcv_object_t direct_default_initargs _attribute_aligned_object_;
-  gcv_object_t default_initargs        _attribute_aligned_object_;
-  gcv_object_t documentation           _attribute_aligned_object_; # string or NIL
-  # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
-  gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
-  gcv_object_t valid_initargs          _attribute_aligned_object_;
-  gcv_object_t instance_size           _attribute_aligned_object_;
-  # from here on only for metaclass = <standard-class>
-  gcv_object_t current_version         _attribute_aligned_object_; /* most recent class-version, points back to this class */
-  gcv_object_t direct_accessors        _attribute_aligned_object_;
-  gcv_object_t fixed_slot_locations    _attribute_aligned_object_;
-  gcv_object_t instantiated            _attribute_aligned_object_;
-  gcv_object_t finalized_direct_subclasses _attribute_aligned_object_; /* weak-list or weak-hash-table of all finalized direct subclasses */
-  gcv_object_t proto                   _attribute_aligned_object_; /* class prototype - an instance or NIL */
-  gcv_object_t other[unspecified]      _attribute_aligned_object_;
-} *  Class;
-
 # CLOS class-versions, see clos.lisp
 typedef struct {
   VRECORD_HEADER
@@ -5602,6 +5571,39 @@ typedef struct {
   # from here on only for class = <effective-slot-definition>
   gcv_object_t slotdef_location           _attribute_aligned_object_;
 } *  SlotDefinition;
+
+# CLOS-Classes (= instances of <class>), see clos-class1.lisp
+typedef struct {
+  SRECORD_HEADER
+  gcv_object_t inst_class_version       _attribute_aligned_object_; # indirect pointer to a CLOS-class
+  gcv_object_t hashcode                 _attribute_aligned_object_; # GC invariant hash code
+  gcv_object_t direct_generic_functions _attribute_aligned_object_; # set of GFs that use this specializer
+  gcv_object_t direct_methods           _attribute_aligned_object_; # set of methods that use this specializer
+  gcv_object_t classname                _attribute_aligned_object_; # a symbol
+  gcv_object_t direct_superclasses      _attribute_aligned_object_; # direct superclasses
+  gcv_object_t all_superclasses         _attribute_aligned_object_; # all superclasses, including itself
+  gcv_object_t precedence_list          _attribute_aligned_object_; # ordered list of all superclasses
+  gcv_object_t direct_subclasses        _attribute_aligned_object_; # weak-list or weak-hash-table of all direct subclasses
+  gcv_object_t direct_slots             _attribute_aligned_object_;
+  gcv_object_t slots                    _attribute_aligned_object_;
+  gcv_object_t slot_location_table      _attribute_aligned_object_; # hashtable slotname -> where the slot is located
+  gcv_object_t direct_default_initargs  _attribute_aligned_object_;
+  gcv_object_t default_initargs         _attribute_aligned_object_;
+  gcv_object_t documentation            _attribute_aligned_object_; # string or NIL
+  gcv_object_t initialized              _attribute_aligned_object_; # set to true when the class is initialized
+  # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
+  gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
+  gcv_object_t valid_initargs           _attribute_aligned_object_;
+  gcv_object_t instance_size            _attribute_aligned_object_;
+  # from here on only for metaclass = <standard-class>
+  gcv_object_t current_version          _attribute_aligned_object_; /* most recent class-version, points back to this class */
+  gcv_object_t direct_accessors         _attribute_aligned_object_;
+  gcv_object_t fixed_slot_locations     _attribute_aligned_object_;
+  gcv_object_t instantiated             _attribute_aligned_object_;
+  gcv_object_t finalized_direct_subclasses _attribute_aligned_object_; /* weak-list or weak-hash-table of all finalized direct subclasses */
+  gcv_object_t prototype                _attribute_aligned_object_; /* class prototype - an instance or NIL */
+  gcv_object_t other[unspecified]       _attribute_aligned_object_;
+} *  Class;
 
 # Closures
 typedef struct {
@@ -6013,7 +6015,6 @@ typedef enum {
   #endif
   #define TheStream(obj)  ((Stream)(type_pointable(stream_type,obj)))
   #define TheStructure(obj)  ((Structure)(type_pointable(structure_type,obj)))
-  #define TheClass(obj)  ((Class)(type_pointable(structure_type,obj)))
   #define TheClosure(obj)  ((Closure)(type_pointable(closure_type,obj)))
   #define TheIclosure(obj)  ((Iclosure)(type_pointable(closure_type,obj)))
   #define TheCclosure(obj)  ((Cclosure)(type_pointable(closure_type,obj)))
@@ -6172,7 +6173,6 @@ typedef enum {
   #endif
   #define TheStream(obj)  ((Stream)(ngci_pointable(obj)-varobject_bias))
   #define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-varobject_bias))
-  #define TheClass(obj)  ((Class)(ngci_pointable(obj)-varobject_bias))
   #define TheClosure(obj)  ((Closure)(ngci_pointable(obj)-varobject_bias))
   #define TheIclosure(obj)  ((Iclosure)(ngci_pointable(obj)-varobject_bias))
   #define TheCclosure(obj)  ((Cclosure)(ngci_pointable(obj)-varobject_bias))
@@ -6202,6 +6202,7 @@ typedef enum {
 #endif
 #define TheClassVersion(obj)  ((ClassVersion)TheSvector(obj))
 #define TheSlotDefinition(obj)  ((SlotDefinition)TheInstance(obj))
+#define TheClass(obj)  ((Class)TheInstance(obj))
 
 # Some acronyms
 # Access to objects that are conses:
@@ -6565,19 +6566,28 @@ typedef enum {
 # Our CLOS implements all classes as instances of a
 # (not necessarily direct) subclass of <class>.
 #define if_classp(obj,statement1,statement2)  \
-    if (structurep(obj)) {                                       \
-      var object list = Cdr(TheStructure(obj)->structure_types); \
-      var object sublist = O(class_structure_types);             \
-      # (tailp sublist list) bestimmen:                          \
-      loop {                                                     \
-        if (eq(list,sublist)) goto obj##_classp_yes;             \
-        if (atomp(list)) goto obj##_classp_no;                   \
-        list = Cdr(list);                                        \
-      }                                                          \
-     obj##_classp_yes: statement1;                               \
-    } else {                                                     \
-     obj##_classp_no: statement2;                                \
-    }
+  if (instancep(obj)) {                                               \
+    {                                                                 \
+      var object obj_forwarded = obj;                                 \
+      instance_un_realloc(obj_forwarded);                             \
+      /*instance_update(obj,obj_forwarded); - not needed since we don't access a slot */ \
+      var object cv = TheInstance(obj_forwarded)->inst_class_version; \
+      /* Treat the most frequent cases first, for speed. */           \
+      if (eq(cv,O(class_version_standard_class))) # direct instance of STANDARD-CLASS? \
+        goto obj##_classp_yes;                                        \
+      if (eq(cv,O(class_version_structure_class))) # direct instance of STRUCTURE-CLASS? \
+        goto obj##_classp_yes;                                        \
+      if (eq(cv,O(class_version_built_in_class))) # direct instance of BUILT-IN-CLASS? \
+        goto obj##_classp_yes;                                        \
+      /* Now a slow, but general instanceof test. */                  \
+      var object objclas = TheClassVersion(cv)->cv_newest_class;      \
+      if (eq(gethash(O(class_class),TheClass(objclas)->all_superclasses),nullobj)) \
+        goto obj##_classp_no;                                         \
+    }                                                                 \
+   obj##_classp_yes: statement1;                                      \
+  } else {                                                            \
+   obj##_classp_no: statement2;                                       \
+  }
 
 # Test for Other-Record
 # This is not really a type test (because there is no well-defined type

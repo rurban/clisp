@@ -54,6 +54,9 @@
 ;; Classes
 
 (eval-when (compile load eval)
+  (defmethod clos:validate-superclass ((class class) (superclass (eql clos::<stream>)))
+    (or (call-next-method)
+        (eq (clos::class-classname class) 'fundamental-stream)))
   (let ((clos::*allow-mixing-metaclasses* t))
     (clos:defclass fundamental-stream (stream clos:standard-object)
       (($open :type boolean :initform t) ; whether the stream is open

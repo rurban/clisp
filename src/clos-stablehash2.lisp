@@ -7,15 +7,17 @@
 
 ;;; ===========================================================================
 
-;; Define the class <standard-stablehash>.
-(macrolet ((form () *<standard-stablehash>-defclass*))
-  (form))
-
-
 ;;; Lift the initialization protocol.
 
 (defmethod initialize-instance ((object standard-stablehash) &rest args
                                 &key)
   (apply #'initialize-instance-<standard-stablehash> object args))
+
+;;; ===========================================================================
+
+;; Definition of <structure-stablehash>.
+;; Used for (make-hash-table :test 'stablehash-eq).
+(defstruct (structure-stablehash (:predicate nil) (:copier nil))
+  (hashcode (sys::random-posfixnum))) ; GC invariant hash code
 
 ;;; ===========================================================================

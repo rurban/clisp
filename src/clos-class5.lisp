@@ -6,24 +6,6 @@
 (in-package "CLOS")
 
 
-(defgeneric class-name (class)
-  (:method ((class class))
-    (class-classname class)))
-
-(defgeneric (setf class-name) (new-value class)
-  (:method (new-value (class class))
-    (unless (symbolp new-value)
-      (error-of-type 'type-error
-        :datum new-value :expected-type 'symbol
-        (TEXT "~S: The name of a class must be a symbol, not ~S")
-        '(setf class-name) new-value))
-    (when (built-in-class-p class)
-      (error-of-type 'error
-        (TEXT "~S: The name of the built-in class ~S cannot be modified")
-        '(setf class-name) class))
-    (setf (class-classname class) new-value)))
-
-
 ;;; CLtL2 28.1.9., ANSI CL 7.1. Object Creation and Initialization
 
 ;; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
@@ -519,7 +501,7 @@
 #||
  (defgeneric allocate-instance (class)
   (:method ((class standard-class))
-    (unless (class-precedence-list class) (finalize-class class t))
+    (unless (%class-precedence-list class) (finalize-class class t))
     (allocate-std-instance class (class-instance-size class)))
   (:method ((class structure-class))
     (sys::%make-structure (class-names class) (class-instance-size class)
@@ -534,7 +516,8 @@
   ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
   ;; (class-current-version class) is a simple-vector, (class-names class) a cons.
   (if (atom (class-current-version class))
-    (progn (unless (class-precedence-list class) (finalize-class class t))
+    (progn
+      (unless (%class-precedence-list class) (finalize-class class t))
       (allocate-std-instance class (class-instance-size class)))
     (sys::%make-structure (class-names class) (class-instance-size class)
                           :initial-element unbound)))
@@ -641,35 +624,6 @@
       ;; return the instance
       instance)))
 
-;; Users want to be able to create instances of subclasses of <standard-class>
-;; and <structure-class>. So, when creating a class, we now go through
-;; MAKE-INSTANCE and INITIALIZE-INSTANCE.
-(setf (fdefinition 'make-instance-standard-class) #'make-instance)
-(setf (fdefinition 'make-instance-structure-class) #'make-instance)
-(defmethod initialize-instance ((new-class-object standard-class) &rest args
-                                &key name (metaclass <standard-class>)
-                                documentation direct-superclasses direct-slots
-                                direct-default-initargs)
-  (declare (ignore documentation direct-superclasses direct-slots
-                   direct-default-initargs))
-  (setf (class-classname new-class-object) name)
-  (setf (class-metaclass new-class-object) metaclass) ; = (class-of new-class-object)
-  (apply #'initialize-instance-standard-class new-class-object args)
-  new-class-object)
-(defmethod initialize-instance ((new-class-object structure-class) &rest args
-                                &key name (metaclass <structure-class>)
-                                documentation direct-superclasses
-                                ((:direct-slots direct-slots-as-lists) '())
-                                ((direct-slots direct-slots-as-metaobjects) '())
-                                direct-default-initargs names slots size)
-  (declare (ignore documentation direct-superclasses direct-slots-as-lists
-                   direct-slots-as-metaobjects direct-default-initargs names
-                   slots size))
-  (setf (class-classname new-class-object) name)
-  (setf (class-metaclass new-class-object) metaclass) ; = (class-of new-class-object)
-  (apply #'initialize-instance-structure-class new-class-object args)
-  new-class-object)
-
 ;;; change-class
 (defgeneric change-class (instance new-class &key &allow-other-keys)
   (:method ((instance standard-object) (new-class standard-class)
@@ -764,28 +718,7 @@
     (apply #'shared-initialize instance added-slots initargs)))
 (setq |#'update-instance-for-redefined-class| #'update-instance-for-redefined-class)
 
-;;; class prototype (MOP)
-
-(defgeneric class-prototype (class)
-  (:method ((class standard-class))
-    (or (class-proto class)
-        (setf (class-proto class)
-              (let ((old-instantiated (class-instantiated class)))
-                (prog1
-                  (clos::%allocate-instance class)
-                  ;; The allocation of the prototype doesn't need to flag the
-                  ;; class as being instantiated, because 1. the prototype is
-                  ;; thrown away when the class is redefined, 2. we don't want
-                  ;; a redefinition with nonexistent or non-finalized
-                  ;; superclasses to succeed despite of the prototype.
-                  (setf (class-instantiated class) old-instantiated))))))
-  (:method ((name symbol)) (class-prototype (find-class name))))
-
 ;;; class finalization (MOP)
-
-(defgeneric class-finalized-p (class)
-  (:method ((class standard-class)) (not (null (class-precedence-list class))))
-  (:method ((name symbol)) (class-finalized-p (find-class name))))
 
 (defgeneric finalize-inheritance (class)
   (:method ((class standard-class)) (finalize-class class t))

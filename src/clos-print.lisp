@@ -29,7 +29,7 @@
                    (class-version-p (class-current-version object))
                    (slot-boundp object 'precedence-list))
             (progn
-              (unless (class-precedence-list object) ; not yet finalized?
+              (unless (%class-precedence-list object) ; not yet finalized?
                 (write-string " " stream)
                 (write :incomplete :stream stream))
               ;; FIXME: Overhaul this questionable and confusing feature.

@@ -1,4 +1,6 @@
-;;;; Common Lisp Object System for CLISP: Classes
+;;;; Common Lisp Object System for CLISP
+;;;; Class metaobjects
+;;;; Part 3: Class definition and redefinition.
 ;;;; Bruno Haible 21.8.1993 - 2004
 ;;;; Sam Steingold 1998 - 2004
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
@@ -6,77 +8,23 @@
 (in-package "CLOS")
 
 
-;; For bootstrapping.
-(eval-when (compile load eval)
-  (defun define-structure-class (name) (declare (ignore name)) ) ; preliminary
-  (defun defstruct-remove-print-object-method (name) (declare (ignore name)) ) ; preliminary
-)
 ;; Wipe out all traces of an earlier loaded CLOS.
 (eval-when (load eval)
   (do-all-symbols (s) (remprop s 'CLOSCLASS)))
 
-;; An empty hash table.
-(defconstant empty-ht
-             (make-hash-table :key-type 'symbol :value-type 't
-                              :test 'eq :warn-if-needs-rehash-after-gc t
-                              :size 0))
-
-;; Definition of <structure-stablehash>.
-;; Used for (make-hash-table :test 'stablehash-eq).
-(defstruct (structure-stablehash (:predicate nil) (:copier nil))
-  (hashcode (sys::random-posfixnum))) ; GC invariant hash code
-
-;; Definition of <class> and its subclasses.
-
-(defstruct (class (:inherit structure-stablehash) (:predicate nil))
-  metaclass                ; (class-of class) = (class-metaclass class), a class
-  classname                ; (class-name class) = (class-classname class), a symbol
-  direct-superclasses      ; list of all direct superclasses (or their names,
-                           ; while the class is waiting to be finalized)
-  all-superclasses         ; hash table of all superclasses (incl. the class itself)
-  precedence-list          ; ordered list of all superclasses (with the class itself first),
-                           ; or NIL while the class is waiting to be finalized
-  direct-subclasses-table  ; weak-list or weak-hash-table of all direct subclasses
-  direct-slots             ; list of all freshly added slots (as direct-slot-definition instances)
-  slots                    ; list of all slots (as effective-slot-definitions)
-  (slot-location-table empty-ht) ; hash table slotname -> location of the slot
-  direct-default-initargs  ; freshly added default-initargs (as alist initarg -> (form function))
-  default-initargs         ; default-initargs (as alist initarg -> (form function))
-  documentation)           ; string or NIL
-
-(defstruct (built-in-class (:inherit class) (:conc-name "CLASS-")))
-
-(defstruct (slotted-class (:inherit class) (:predicate nil) (:copier nil)
-                          (:conc-name "CLASS-"))
-  subclass-of-stablehash-p ; true if <standard-stablehash> or <structure-stablehash>
-                           ; is among the superclasses
-  valid-initargs           ; list of valid initargs
-  instance-size)           ; number of slots of the direct instances + 1
-
-(defstruct (structure-class (:inherit slotted-class) (:conc-name "CLASS-"))
-  names)                   ; encoding of the include-nesting, a list
-
-(defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
-  current-version          ; most recent class-version, points back to this class
-  direct-accessors         ; automatically generated accessor methods (as plist)
-  fixed-slot-locations     ; flag whether to guarantee same slot locations in all subclasses
-  instantiated             ; true if an instance has already been created
-  finalized-direct-subclasses-table ; weak-list or weak-hash-table of all finalized direct subclasses
-  proto)                   ; class prototype - an instance or NIL
-
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
 (defun subclassp (class1 class2)
-  (unless (class-precedence-list class1) (finalize-class class1 t))
+  (unless (%class-precedence-list class1) (finalize-class class1 t))
   (values
     (gethash class2 (class-all-superclasses class1)))) ; T or (default) NIL
 
-;; Access to slots of instances of the class <class> is done by means of the
-;; defstruct-defined accessors, hence there are no bootstrapping-problems here.
-
 ;; Continue bootstrapping.
 (%defclos
-  ;; distinctive mark for CLASS-P
-  (svref (get 'class 'sys::defstruct-description) 0)
+  ;; distinctive marks for CLASS-P
+  *<standard-class>-class-version*
+  *<structure-class>-class-version*
+  *<built-in-class>-class-version*
+  'class
   ;; built-in-classes for CLASS-OF
   (vector 'array 'bit-vector 'character 'complex 'cons 'float 'function
           'hash-table 'integer 'null 'package 'pathname
@@ -104,13 +52,13 @@
                (error-of-type 'sys::source-program-error
                  (TEXT "~S ~S: expecting list of superclasses instead of ~S")
                  'defclass name superclass-specs))
-             (mapcar (lambda (superclass)
-                       (unless (symbolp superclass)
-                         (error-of-type 'sys::source-program-error
-                           (TEXT "~S ~S: superclass name ~S should be a symbol")
-                           'defclass name superclass))
-                       `',superclass)
-                     superclass-specs)))
+             (mapcar #'(lambda (superclass)
+                         (unless (symbolp superclass)
+                           (error-of-type 'sys::source-program-error
+                             (TEXT "~S ~S: superclass name ~S should be a symbol")
+                             'defclass name superclass))
+                         `',superclass)
+                       superclass-specs)))
          (classvar (gensym))
          (accessor-decl-forms '())
          (accessor-def-forms '())
@@ -366,7 +314,8 @@
                                (documentation nil)
                                (fixed-slot-locations nil)
                           &allow-other-keys)
-  (let ((a-standard-class-p (subclassp metaclass <standard-class>))
+  (let ((a-standard-class-p (or (eq metaclass <standard-class>)
+                                (subclassp metaclass <standard-class>)))
         (class (find-class name nil)))
     (when (and class (not (eq (class-name class) name)))
       ;; Ignore the old class if the given name is not its "proper name".
@@ -388,120 +337,129 @@
                   direct-superclasses))
     (if class
       (progn
-        ;; Normalize the (class-direct-superclasses class) in the same way as
-        ;; the direct-superclasses argument, so that we can compare the two
-        ;; lists using EQUAL.
-        (when (and a-standard-class-p (null (class-precedence-list class)))
-          (do ((l (class-direct-superclasses class) (cdr l)))
-              ((atom l))
-            (let ((c (car l)))
-              (unless (class-p c)
-                (let ((new-c (or (find-class c nil) c)))
-                  (setf (car l) new-c)
-                  (when (class-p new-c) ; changed from symbol to class
-                    (add-direct-subclass new-c class)))))))
-        ;; Convert the direct-slots to <direct-slot-definition> instances.
-        (setq direct-slots (convert-direct-slots class direct-slots))
-        ;; Trivial changes (that can occur when loading the same code twice)
-        ;; do not require updating the instances:
-        ;; changed slot-options :initform, :documentation,
-        ;; changed class-options :default-initargs, :documentation.
-        (if (and (equal direct-superclasses (class-direct-superclasses class))
-                 (equal-direct-slots direct-slots (class-direct-slots class))
-                 (equal-default-initargs direct-default-initargs
-                                         (class-direct-default-initargs class))
-                 (eq fixed-slot-locations (class-fixed-slot-locations class)))
+        (if (and (%class-precedence-list class) ; already finalized?
+                 (subclassp class <metaobject>))
+          ;; Things would go awry when we try to redefine <class> and similar.
+          (warn (TEXT "Redefining metaobject class ~S has no effect.")
+                class)
           (progn
-            ;; Store new slot-inits:
-            (do ((l-old (class-direct-slots class) (cdr l-old))
-                 (l-new direct-slots (cdr l-new)))
-                ((null l-new))
-              (let ((old (car l-old))
-                    (new (car l-new)))
-                (setf (slot-definition-initform old) (slot-definition-initform new))
-                (setf (slot-definition-initfunction old) (slot-definition-initfunction new))
-                (setf (slot-definition-documentation old) (slot-definition-documentation new))))
-            ;; Store new default-initargs:
-            (do ((l-old (class-direct-default-initargs class) (cdr l-old))
-                 (l-new direct-default-initargs (cdr l-new)))
-                ((null l-new))
-              (let ((old (cdar l-old))
-                    (new (cdar l-new)))
-                ;; Move initform and initfunction from new destructively into
-                ;; the old one:
-                (setf (car old) (car new))
-                (setf (cadr old) (cadr new))))
-            ;; Store new documentation:
-            (setf (class-documentation class) documentation)
-            ;; NB: These modifications are automatically inherited by the
-            ;; subclasses of class! Due to <inheritable-slot-definition-initer>
-            ;; and <inheritable-slot-definition-doc>.
-          )
-          ;; Instances have to be updated:
-          (let* ((was-finalized (class-precedence-list class))
-                 (must-be-finalized
-                   (and was-finalized
-                        (some #'class-instantiated (list-all-finalized-subclasses class))))
-                 (old-direct-superclasses (class-direct-superclasses class))
-                 (old-direct-accessors (class-direct-accessors class))
-                 old-class)
-            ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
-            (do ((l old-direct-accessors (cddr l)))
-                ((endp l))
-              (let ((funname (car l))
-                    (method (cadr l)))
-                (remove-method (fdefinition funname) method)))
-            (setf (class-direct-accessors class) '())
-            ;; Clear the cached prototype.
-            (setf (class-proto class) nil)
-            ;; Declare all instances as obsolete, and backup the class object.
-            (let ((old-version (class-current-version class))
-                  (*make-instances-obsolete-caller* 'defclass))
-              (make-instances-obsolete class)
-              (setq old-class (cv-class old-version)))
-            (locally (declare (compile))
-              (sys::%handler-bind
-                  ;; If an error occurs during the class redefinition, switch back
-                  ;; to the old definition, so that existing instances can continue
-                  ;; to be used.
-                  ((ERROR #'(lambda (condition)
-                              (declare (ignore condition))
-                              ;; Restore the class using the backup copy.
-                              (let ((new-version (class-current-version class)))
-                                (dotimes (i (sys::%record-length class))
-                                  (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
-                                (setf (class-current-version class) new-version))
-                              ;; Restore the accessor methods.
-                              (do ((l old-direct-accessors (cddr l)))
-                                  ((endp l))
-                                (let ((funname (car l))
-                                      (method (cadr l)))
-                                  (add-method (fdefinition funname) method)))
-                              (setf (class-direct-accessors class) old-direct-accessors))))
-                (apply (cond ((eq metaclass <standard-class>)
-                              #'initialize-instance-standard-class)
-                             ((eq metaclass <built-in-class>)
-                              #'initialize-instance-built-in-class)
-                             ((eq metaclass <structure-class>)
-                              #'initialize-instance-structure-class)
-                             (t #'initialize-instance))
-                       class
-                       :name name
-                       :direct-superclasses direct-superclasses
-                       'direct-slots direct-slots
-                       all-keys)
-                ;; FIXME: Need to handle changes of shared slots here?
-                (update-subclasses-for-redefined-class class
-                  was-finalized must-be-finalized old-direct-superclasses)))))
+            ;; Normalize the (class-direct-superclasses class) in the same way as
+            ;; the direct-superclasses argument, so that we can compare the two
+            ;; lists using EQUAL.
+            (when (and a-standard-class-p (null (%class-precedence-list class)))
+              (do ((l (class-direct-superclasses class) (cdr l)))
+                  ((atom l))
+                (let ((c (car l)))
+                  (unless (class-p c)
+                    (let ((new-c (or (find-class c nil) c)))
+                      (unless (symbolp new-c)
+                        (check-allowed-superclass class new-c))
+                      (setf (car l) new-c)
+                      (when (class-p new-c) ; changed from symbol to class
+                        (add-direct-subclass new-c class)))))))
+            ;; Convert the direct-slots to <direct-slot-definition> instances.
+            (setq direct-slots (convert-direct-slots class direct-slots))
+            ;; Trivial changes (that can occur when loading the same code twice)
+            ;; do not require updating the instances:
+            ;; changed slot-options :initform, :documentation,
+            ;; changed class-options :default-initargs, :documentation.
+            (if (and (equal (or direct-superclasses (default-direct-superclasses class))
+                            (class-direct-superclasses class))
+                     (equal-direct-slots direct-slots (class-direct-slots class))
+                     (equal-default-initargs direct-default-initargs
+                                             (class-direct-default-initargs class))
+                     (eq fixed-slot-locations (class-fixed-slot-locations class)))
+              (progn
+                ;; Store new slot-inits:
+                (do ((l-old (class-direct-slots class) (cdr l-old))
+                     (l-new direct-slots (cdr l-new)))
+                    ((null l-new))
+                  (let ((old (car l-old))
+                        (new (car l-new)))
+                    (setf (slot-definition-initform old) (slot-definition-initform new))
+                    (setf (slot-definition-initfunction old) (slot-definition-initfunction new))
+                    (setf (slot-definition-documentation old) (slot-definition-documentation new))))
+                ;; Store new default-initargs:
+                (do ((l-old (class-direct-default-initargs class) (cdr l-old))
+                     (l-new direct-default-initargs (cdr l-new)))
+                    ((null l-new))
+                  (let ((old (cdar l-old))
+                        (new (cdar l-new)))
+                    ;; Move initform and initfunction from new destructively into
+                    ;; the old one:
+                    (setf (car old) (car new))
+                    (setf (cadr old) (cadr new))))
+                ;; Store new documentation:
+                (setf (class-documentation class) documentation)
+                ;; NB: These modifications are automatically inherited by the
+                ;; subclasses of class! Due to <inheritable-slot-definition-initer>
+                ;; and <inheritable-slot-definition-doc>.
+              )
+              ;; Instances have to be updated:
+              (let* ((was-finalized (%class-precedence-list class))
+                     (must-be-finalized
+                       (and was-finalized
+                            (some #'class-instantiated (list-all-finalized-subclasses class))))
+                     (old-direct-superclasses (class-direct-superclasses class))
+                     (old-direct-accessors (class-direct-accessors class))
+                     old-class)
+                ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
+                (do ((l old-direct-accessors (cddr l)))
+                    ((endp l))
+                  (let ((funname (car l))
+                        (method (cadr l)))
+                    (remove-method (fdefinition funname) method)))
+                (setf (class-direct-accessors class) '())
+                ;; Clear the cached prototype.
+                (setf (class-prototype class) nil)
+                ;; Declare all instances as obsolete, and backup the class object.
+                (let ((old-version (class-current-version class))
+                      (*make-instances-obsolete-caller* 'defclass))
+                  (make-instances-obsolete class)
+                  (setq old-class (cv-class old-version)))
+                (locally (declare (compile))
+                  (sys::%handler-bind
+                      ;; If an error occurs during the class redefinition, switch back
+                      ;; to the old definition, so that existing instances can continue
+                      ;; to be used.
+                      ((ERROR #'(lambda (condition)
+                                  (declare (ignore condition))
+                                  ;; Restore the class using the backup copy.
+                                  (let ((new-version (class-current-version class)))
+                                    (dotimes (i (sys::%record-length class))
+                                      (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
+                                    (setf (class-current-version class) new-version))
+                                  ;; Restore the accessor methods.
+                                  (do ((l old-direct-accessors (cddr l)))
+                                      ((endp l))
+                                    (let ((funname (car l))
+                                          (method (cadr l)))
+                                      (add-method (fdefinition funname) method)))
+                                  (setf (class-direct-accessors class) old-direct-accessors))))
+                    (apply (cond ((eq metaclass <standard-class>)
+                                  #'initialize-instance-<standard-class>)
+                                 ((eq metaclass <built-in-class>)
+                                  #'initialize-instance-<built-in-class>)
+                                 ((eq metaclass <structure-class>)
+                                  #'initialize-instance-<structure-class>)
+                                 (t #'initialize-instance))
+                           class
+                           :name name
+                           :direct-superclasses direct-superclasses
+                           'direct-slots direct-slots
+                           all-keys)
+                    ;; FIXME: Need to handle changes of shared slots here?
+                    (update-subclasses-for-redefined-class class
+                      was-finalized must-be-finalized old-direct-superclasses)))))))
         ;; Modified class as value:
         class)
       (setf (find-class name)
             (apply (cond ((eq metaclass <standard-class>)
-                          #'make-instance-standard-class)
+                          #'make-instance-<standard-class>)
                          ((eq metaclass <built-in-class>)
-                          #'make-instance-built-in-class)
+                          #'make-instance-<built-in-class>)
                          ((eq metaclass <structure-class>)
-                          #'make-instance-structure-class)
+                          #'make-instance-<structure-class>)
                          (t #'make-instance))
                    metaclass
                    :name name
@@ -520,12 +478,15 @@
 
 ;; ----------------------- General routines for <class> -----------------------
 
-(defun add-default-superclass (direct-superclasses default-superclass)
-  ;; Sometimes one wants to coerce a certain superclass.
-  ;; But it may not be specified twice.
-  (if (memq default-superclass direct-superclasses)
-    direct-superclasses
-    (append direct-superclasses (list default-superclass))))
+;; Preliminary.
+(defun class-name (class)
+  (class-classname class))
+
+;; Returns the list of implicit direct superclasses when none was specified.
+(defun default-direct-superclasses (class)
+  (cond ((typep class <standard-class>) (list <standard-object>))
+        ((typep class <structure-class>) (list <structure-object>))
+        (t '())))
 
 ;; When this is true, all safety checks about the metaclasses
 ;; of superclasses are omitted.
@@ -538,6 +499,21 @@
         (TEXT "(~S ~S): superclass ~S should be of class ~S")
         'DEFCLASS name (find-if-not metaclass-test direct-superclasses)
         metaclass))))
+
+;; Preliminary.
+(defun validate-superclass (class superclass)
+  (or ;; Green light if class and superclass belong to the same metaclass.
+      (eq (sys::%record-ref class 0) (sys::%record-ref superclass 0))
+      ;; Other than that, only <standard-object> and <structure-object> can
+      ;; inherit from <t> without belonging to the same metaclass.
+      (and (eq superclass <t>)
+           (memq (class-classname class) '(standard-object structure-object)))))
+
+(defun check-allowed-superclass (class superclass)
+  (unless (validate-superclass class superclass)
+    (error (TEXT "(~S ~S) for class ~S: ~S does not allow ~S to become a subclass of ~S. You may define a method on ~S to allow this.")
+           'initialize-instance 'class (class-classname class) 'validate-superclass class superclass
+           'validate-superclass)))
 
 ;;; The direct-subclasses slot can be either
 ;;; - NIL or a weak-list (for saving memory when there are few subclasses), or
@@ -555,15 +531,15 @@
   remove-direct-subclass
   list-direct-subclasses)
 
-(defun update-subclasses-sets (class old-augmented-direct-superclasses new-augmented-direct-superclasses)
+(defun update-subclasses-sets (class old-direct-superclasses new-direct-superclasses)
   ;; Drop classes that are not yet defined; they have no subclasses list.
-  (setq old-augmented-direct-superclasses (remove-if #'symbolp old-augmented-direct-superclasses))
-  (setq new-augmented-direct-superclasses (remove-if #'symbolp new-augmented-direct-superclasses))
-  (unless (equal old-augmented-direct-superclasses new-augmented-direct-superclasses)
+  (setq old-direct-superclasses (remove-if #'symbolp old-direct-superclasses))
+  (setq new-direct-superclasses (remove-if #'symbolp new-direct-superclasses))
+  (unless (equal old-direct-superclasses new-direct-superclasses)
     (let ((removed-direct-superclasses
-            (set-difference old-augmented-direct-superclasses new-augmented-direct-superclasses))
+            (set-difference old-direct-superclasses new-direct-superclasses))
           (added-direct-superclasses
-            (set-difference new-augmented-direct-superclasses old-augmented-direct-superclasses)))
+            (set-difference new-direct-superclasses old-direct-superclasses)))
       (dolist (super removed-direct-superclasses)
         (remove-direct-subclass super class))
       (dolist (super added-direct-superclasses)
@@ -727,7 +703,7 @@
 ;; Determine whether a class inherits from <standard-stablehash> or
 ;; <structure-stablehash>.
 (defun std-compute-subclass-of-stablehash-p (class)
-  (dolist (superclass (class-precedence-list class) nil)
+  (dolist (superclass (%class-precedence-list class) nil)
     (let ((superclassname (class-classname superclass)))
       (when (or (eq superclassname 'standard-stablehash)
                 (eq superclassname 'structure-stablehash))
@@ -735,7 +711,7 @@
 
 ;; CLtL2 28.1.3.2., ANSI CL 7.5.3. Inheritance of Slots and Slot Options
 
-(defun std-compute-slots (class &optional (more-direct-slots '()))
+(defun std-compute-slots (class)
   ;; Gather all slot-specifiers, ordered by precedence:
   (let ((all-slots
           (mapcan
@@ -756,11 +732,8 @@
                                         (when location
                                           (setq loc location)))))))
                               (list* slot alloc loc)))
-                        (reverse
-                          (append
-                            (if (standard-class-p c) (class-direct-slots c))
-                            (if (eq c class) more-direct-slots)))))
-            (class-precedence-list class))))
+                        (reverse (class-direct-slots c))))
+            (%class-precedence-list class))))
     ;; Partition by slot-names:
     (setq all-slots
           (let ((ht (make-hash-table :key-type 'symbol :value-type 't
@@ -921,94 +894,80 @@
 
 ;; --------------- Creation of an instance of <built-in-class> ---------------
 
-(defun make-instance-built-in-class
-    (metaclass &key name (direct-superclasses '()) &allow-other-keys)
+(defun make-instance-<built-in-class> (metaclass &rest args
+                                       &key name (direct-superclasses '())
+                                       &allow-other-keys)
   ;; metaclass = <built-in-class>
-  (check-metaclass-mix name direct-superclasses
-                       #'built-in-class-p 'BUILT-IN-CLASS)
-  (let ((class (make-built-in-class :classname name :metaclass metaclass)))
-    (initialize-instance-built-in-class
-     class :direct-superclasses direct-superclasses :name name)))
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'make-instance later.
+  (declare (ignore metaclass name direct-superclasses))
+  (let ((class (allocate-metaobject-instance *<built-in-class>-class-version*
+                                             *<built-in-class>-instance-size*)))
+    (apply #'initialize-instance-<built-in-class> class args)))
 
-(defun initialize-instance-built-in-class (class &key direct-superclasses
-                                           documentation &allow-other-keys)
-  (setf (class-direct-superclasses class) (copy-list direct-superclasses))
-  (update-subclasses-sets class '() direct-superclasses)
-  (setf (class-documentation class) documentation)
+(defun initialize-instance-<built-in-class> (class &rest args
+                                             &key name
+                                                  (direct-superclasses '())
+                                             &allow-other-keys)
+  (check-metaclass-mix name direct-superclasses
+                       #'built-in-class-p 'built-in-class)
+  (apply #'initialize-instance-<class> class args)
+  ; Initialize the remaining <class> slots:
   (setf (class-precedence-list class)
         (std-compute-cpl class direct-superclasses))
   (setf (class-all-superclasses class)
-        (std-compute-superclasses (class-precedence-list class)))
-  (setf (class-direct-subclasses-table class) '())
-  (setf (class-direct-slots class) '())
+        (std-compute-superclasses (%class-precedence-list class)))
   (setf (class-slots class) '())
+  (setf (class-default-initargs class) '())
+  ; Done.
   class)
 
 ;; --------------- Creation of an instance of <structure-class> ---------------
 
-(defun make-instance-structure-class
-    (metaclass &rest args
-               &key name (direct-superclasses '())
-                    ;; The following keys come from ENSURE-CLASS.
-                    ((:direct-slots direct-slots-as-lists) '())
-                    (direct-default-initargs '()) (documentation nil)
-                    ;; The following keys come from DEFINE-STRUCTURE-CLASS.
-                    names
-                    ((direct-slots direct-slots-as-metaobjects) '())
-                    (slots '()) (size 1)
-               &allow-other-keys)
+(defun make-instance-<structure-class> (metaclass &rest args
+                                        &key name (direct-superclasses '())
+                                             ;; The following keys come from ENSURE-CLASS.
+                                             ((:direct-slots direct-slots-as-lists) '())
+                                             (direct-default-initargs '()) (documentation nil)
+                                             ;; The following keys come from DEFINE-STRUCTURE-CLASS.
+                                             ((names names) nil)
+                                             ((direct-slots direct-slots-as-metaobjects) '())
+                                             ((slots slots) '()) ((size size) 1)
+                                        &allow-other-keys)
   ;; metaclass = <structure-class>
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
-  ;; But note a subtle difference: This definition here sets unspecified class
-  ;; slots to NIL; make-instance doesn't do this.
-  (declare (ignore direct-superclasses direct-slots-as-lists
+  (declare (ignore metaclass name direct-superclasses direct-slots-as-lists
                    direct-default-initargs documentation
                    names direct-slots-as-metaobjects slots size))
-  (let ((class (make-structure-class :classname name :metaclass metaclass)))
-    (apply #'initialize-instance-structure-class class args)))
+  (let ((class (allocate-metaobject-instance *<structure-class>-class-version*
+                                             *<structure-class>-instance-size*)))
+    (apply #'initialize-instance-<structure-class> class args)))
 
-(defun initialize-instance-structure-class
-    (class &rest args
-           &key name (direct-superclasses '())
-                ;; The following keys come from ENSURE-CLASS.
-                ((:direct-slots direct-slots-as-lists) '())
-                (direct-default-initargs '()) (documentation nil)
-                ;; The following keys come from DEFINE-STRUCTURE-CLASS.
-                names
-                ((direct-slots direct-slots-as-metaobjects) '())
-                (slots '()) (size 1)
-           &allow-other-keys)
+(defun initialize-instance-<structure-class> (class &rest args
+                                              &key name (direct-superclasses '())
+                                                   ;; The following keys come from ENSURE-CLASS.
+                                                   ((:direct-slots direct-slots-as-lists) '())
+                                                   (direct-default-initargs '()) (documentation nil)
+                                                   ;; The following keys come from DEFINE-STRUCTURE-CLASS.
+                                                   ((names names) nil)
+                                                   ((direct-slots direct-slots-as-metaobjects) '())
+                                                   ((slots slots) '()) ((size size) 1)
+                                              &allow-other-keys)
   ;; metaclass <= <structure-class>
-  (when *classes-finished*
-    (apply #'%initialize-instance class args)) ; == (call-next-method)
-  (unless (null (cdr direct-superclasses))
-    (error-of-type 'error
-      (TEXT "(~S ~S): metaclass ~S forbids more than one direct superclass")
-      'DEFCLASS name 'STRUCTURE-CLASS))
+  (declare (ignore direct-slots-as-lists direct-slots-as-metaobjects
+                   documentation))
   (check-metaclass-mix name direct-superclasses
                        #'structure-class-p 'STRUCTURE-CLASS)
-  (setf (class-direct-superclasses class) (copy-list direct-superclasses))
-  (let ((augmented-direct-superclasses
-          (add-default-superclass
-            (add-default-superclass direct-superclasses
-                                    <structure-object>)
-            <t>)))
-    (update-subclasses-sets class '() augmented-direct-superclasses)
-    (setf (class-precedence-list class)
-          (std-compute-cpl class augmented-direct-superclasses)))
+  (apply #'initialize-instance-<slotted-class> class args)
+  (setq direct-superclasses (class-direct-superclasses class)) ; augmented
+  ; Initialize the remaining <class> slots:
+  (setf (class-precedence-list class)
+        (std-compute-cpl class direct-superclasses))
   (setf (class-all-superclasses class)
-        (std-compute-superclasses (class-precedence-list class)))
-  (setf (class-subclass-of-stablehash-p class)
-        (std-compute-subclass-of-stablehash-p class))
-  (setf (class-direct-subclasses-table class) '())
-  (setf (class-direct-slots class) direct-slots-as-metaobjects)
-  ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
+        (std-compute-superclasses (%class-precedence-list class)))
   (unless names
-    (setq names
-          (cons name
-                (if direct-superclasses
-                    (class-names (first direct-superclasses)) '())))
+    ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
     (when direct-superclasses
       (setq slots (class-slots (first direct-superclasses)))
       (setq size (class-instance-size (first direct-superclasses)))))
@@ -1021,30 +980,37 @@
                         (cons (slot-definition-name slot) (slot-definition-location slot)))
                     slots)))
   (setf (class-instance-size class) size)
-  (setf (class-slots class) slots)
-  ;; When called via ENSURE-CLASS,
-  ;; we may have to treat additional direct slots.
-  (when direct-slots-as-lists
-    (let* ((more-direct-slots (convert-direct-slots class direct-slots-as-lists))
-           (more-slots (std-compute-slots class more-direct-slots))
+  (unless names
+    (let* ((more-slots (std-compute-slots class))
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
           (TEXT "(~S ~S): metaclass ~S does not support shared slots")
-          'DEFCLASS name 'STRUCTURE-CLASS))
-      (setf (class-direct-slots class) (append (class-direct-slots class) more-direct-slots))
-      (setf (class-slots class) (append (class-slots class) more-slots))))
+                'DEFCLASS name 'STRUCTURE-CLASS))
+      (setq slots (append slots more-slots))))
+  (setf (class-slots class) slots)
   (setf (class-default-initargs class)
         (remove-duplicates
           (append direct-default-initargs
                   (mapcap #'class-default-initargs
-                    (cdr (class-precedence-list class))))
+                    (cdr (%class-precedence-list class))))
           :key #'car
           :from-end t))
+  ; Initialize the remaining <slotted-class> slots:
+  (setf (class-subclass-of-stablehash-p class)
+        (std-compute-subclass-of-stablehash-p class))
   (setf (class-valid-initargs class)
         (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
-  (setf (class-documentation class) documentation)
+  (setf (class-instance-size class) size)
+  ; Initialize the remaining <structure-class> slots:
+  (unless names
+    (setq names
+          (cons name
+                (if direct-superclasses
+                   (class-names (first direct-superclasses))
+                   '()))))
   (setf (class-names class) names)
+  ; Done.
   (system::note-new-structure-class)
   class)
 
@@ -1059,14 +1025,14 @@
                                    all-slots))
              (direct-slots (svref descr 5)))
         (setf (find-class name)
-              (make-instance-structure-class <structure-class>
+              (make-instance-<structure-class> <structure-class>
                 :name name
                 :direct-superclasses
                   (if (cdr names) (list (find-class (second names))) '())
-                :names names
+                'names names
                 'direct-slots direct-slots
-                :slots slots
-                :size (if all-slots
+                'slots slots
+                'size (if all-slots
                         (1+ (slot-definition-location (car (last all-slots))))
                         1)))))))
 (defun undefine-structure-class (name)
@@ -1074,59 +1040,53 @@
 
 ;; --------------- Creation of an instance of <standard-class> ---------------
 
-(defun make-instance-standard-class
-    (metaclass &rest args
-               &key name (direct-superclasses '()) (direct-slots '())
-                    (direct-default-initargs '()) &allow-other-keys)
+(defun make-instance-<standard-class> (metaclass &rest args
+                                       &key name
+                                            (direct-superclasses '())
+                                            (direct-slots '())
+                                            (direct-default-initargs '())
+                                       &allow-other-keys)
   ;; metaclass = <standard-class>
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
-  ;; But note a subtle difference: This definition here sets unspecified class
-  ;; slots to NIL; make-instance doesn't do this.
-  (declare (ignore direct-superclasses direct-slots direct-default-initargs))
-  (let ((class (make-standard-class :classname name :metaclass metaclass)))
-    (apply #'initialize-instance-standard-class class args)))
+  (declare (ignore metaclass name direct-superclasses direct-slots
+                   direct-default-initargs))
+  (let ((class (allocate-metaobject-instance *<standard-class>-class-version*
+                                             *<standard-class>-instance-size*)))
+    (apply #'initialize-instance-<standard-class> class args)))
 
-(defun initialize-instance-standard-class
-    (class &rest args
-           &key (direct-superclasses '())
-                ((:direct-slots direct-slots-as-lists) '())
-                ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
-                (direct-default-initargs '()) (documentation nil)
-                (fixed-slot-locations nil)
-           &allow-other-keys
-           &aux (old-augmented-direct-superclasses '()))
-  (if (slot-boundp class 'current-version)
-    (setq old-augmented-direct-superclasses
-          (add-default-superclass (class-direct-superclasses class)
-                                  <standard-object>))
-    (progn
-      (setf (class-current-version class)
-            (make-class-version :newest-class class
-                                :class class
-                                :serial 0))
-      (setf (class-direct-subclasses-table class) '())
+(defun initialize-instance-<standard-class> (class &rest args
+                                             &key (direct-superclasses '())
+                                                  ((:direct-slots direct-slots-as-lists) '())
+                                                  ((direct-slots direct-slots-as-metaobjects) '())
+                                                  (direct-default-initargs '()) (documentation nil)
+                                                  (fixed-slot-locations nil)
+                                             &allow-other-keys)
+  (declare (ignore direct-superclasses direct-slots-as-lists
+                   direct-slots-as-metaobjects direct-default-initargs
+                   documentation))
+  (apply #'initialize-instance-<slotted-class> class args)
+  (when (eq (sys::%record-ref class *<standard-class>-current-version-location*)
+            (sys::%unbound))
+    (setf (class-current-version class)
+          (make-class-version :newest-class class
+                              :class class
+                              :serial 0))
+    (unless *classes-finished*
+      ; Bootstrapping: Simulate the effect of #'%initialize-instance.
       (setf (class-direct-accessors class) '())
       (setf (class-instantiated class) nil)
       (setf (class-finalized-direct-subclasses-table class) '())))
-  (when *classes-finished*
-    (apply #'%initialize-instance class args)) ; == (call-next-method)
-  (setf (class-direct-superclasses class) (copy-list direct-superclasses))
-  (let ((new-augmented-direct-superclasses
-          (add-default-superclass direct-superclasses <standard-object>)))
-    (update-subclasses-sets class old-augmented-direct-superclasses
-                                  new-augmented-direct-superclasses))
-  (setf (class-direct-slots class)
-        (if direct-slots-as-metaobjects-p
-          direct-slots-as-metaobjects
-          (convert-direct-slots class direct-slots-as-lists)))
-  (setf (class-direct-default-initargs class) direct-default-initargs)
-  (setf (class-documentation class) documentation)
-  (setf (class-fixed-slot-locations class) fixed-slot-locations)
+  ; Initialize the remaining <class> slots:
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
   (setf (class-all-superclasses class) nil) ; mark as not yet finalized
-  (setf (class-proto class) nil)
-  (finalize-class class nil) ; try to finalize it
+  ; Initialize the remaining <slotted-class> slots:
+  ; Initialize the remaining <standard-class> slots:
+  (setf (class-fixed-slot-locations class) fixed-slot-locations)
+  (setf (class-prototype class) nil)
+  ; Try to finalize it.
+  (finalize-class class nil)
+  ; Done.
   class)
 
 ;; ---------------- Finalizing an instance of <standard-class> ----------------
@@ -1143,7 +1103,7 @@
                                  ; The stack of classes being finalized now:
                                  (finalizing-now nil))
   (when (or (class-p class) (setq class (find-class class force-p)))
-    (if (class-precedence-list class) ; already finalized?
+    (if (%class-precedence-list class) ; already finalized?
       class
       (progn
         ;; Here we get only for instances of STANDARD-CLASS, since instances
@@ -1164,6 +1124,8 @@
                 ;; be nil here, otherwise an error was signaled already. So we
                 ;; have to return nil as well.
                 (return-from finalize-class nil))
+              (when (symbolp superclass) ; changed from symbol to class
+                (check-allowed-superclass class finalized-superclass))
               (setf (car superclassesr) finalized-superclass)
               (when (symbolp superclass) ; changed from symbol to class
                 (add-direct-subclass finalized-superclass class)))))
@@ -1171,27 +1133,20 @@
         (finalize-instance-standard-class class)
         class))))
 
-(let (unbound) (declare (compile)) ; unbound = #<unbound>
-(defun def-unbound (x) (declare (compile)) (setq unbound x))
 (defun finalize-instance-standard-class (class
        &aux (direct-superclasses (class-direct-superclasses class))
             (name (class-name class))
-            (old-slot-location-table
-              (if (slot-boundp class 'slot-location-table)
-                (class-slot-location-table class)
-                empty-ht)))
+            (old-slot-location-table (class-slot-location-table class)))
   ;; metaclass <= <standard-class>
   (check-metaclass-mix name direct-superclasses
                        #'standard-class-p 'STANDARD-CLASS)
-  (let ((augmented-direct-superclasses
-          (add-default-superclass direct-superclasses <standard-object>)))
-    (setf (class-precedence-list class)
-          (std-compute-cpl class augmented-direct-superclasses))
-    (setf (class-all-superclasses class)
-          (std-compute-superclasses (class-precedence-list class)))
-    (dolist (super augmented-direct-superclasses)
-      (when (standard-class-p super)
-        (add-finalized-direct-subclass super class))))
+  (setf (class-precedence-list class)
+        (std-compute-cpl class direct-superclasses))
+  (setf (class-all-superclasses class)
+        (std-compute-superclasses (%class-precedence-list class)))
+  (dolist (super direct-superclasses)
+    (when (standard-class-p super)
+      (add-finalized-direct-subclass super class)))
   (setf (class-subclass-of-stablehash-p class)
         (std-compute-subclass-of-stablehash-p class))
   (setf (class-slots class) (std-compute-slots class))
@@ -1218,18 +1173,17 @@
                             (let ((initfunction (slot-definition-initfunction slot)))
                               (if initfunction
                                 (funcall initfunction)
-                                unbound)))))
+                                (sys::%unbound))))))
                   (incf i)))))))
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
   (setf (class-default-initargs class)
         (remove-duplicates
-          (mapcap #'class-direct-default-initargs (class-precedence-list class))
+          (mapcap #'class-direct-default-initargs (%class-precedence-list class))
           :key #'car
           :from-end t))
   (setf (class-valid-initargs class)
         (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
   (system::note-new-standard-class))
-) ; let
 
 ;; --------------- Redefining an instance of <standard-class> ---------------
 
@@ -1238,35 +1192,46 @@
   (make-instances-obsolete-standard-class class))
 
 (defun make-instances-obsolete-standard-class (class)
-  (when (class-precedence-list class) ; nothing to do if not yet finalized
+  (when (%class-precedence-list class) ; nothing to do if not yet finalized
     ;; Recurse to the subclasses. (Even if there are no direct instances of
     ;; this class: the subclasses may have instances.)
     (mapc #'make-instances-obsolete-standard-class-nonrecursive
           (list-all-finalized-subclasses class))))
 
 (defun make-instances-obsolete-standard-class-nonrecursive (class)
-  (when (class-instantiated class) ; don't warn if there are no instances
+  (if (and (%class-precedence-list class) ; already finalized?
+           (subclassp class <metaobject>))
+    ; Don't obsolete metaobject instances.
     (let ((name (class-name class))
           (caller *make-instances-obsolete-caller*)
           ;; Rebind *make-instances-obsolete-caller* because WARN may enter a
           ;; nested REP-loop.
           (*make-instances-obsolete-caller* 'make-instances-obsolete))
-      (if (eq caller 'defclass)
-        (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
-              caller name)
-        (warn (TEXT "~S: instances of class ~S are made obsolete")
-              caller name))))
-  ;; Create a new class-version. (Even if there are no instances: the
-  ;; shared-slots may need change.)
-  (let* ((copy (copy-standard-class class))
-         (old-version (class-current-version copy))
-         (new-version
-           (make-class-version :newest-class class
-                               :class class
-                               :serial (1+ (cv-serial old-version)))))
-    (setf (cv-class old-version) copy)
-    (setf (cv-next old-version) new-version)
-    (setf (class-current-version class) new-version)))
+      (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, but its instances cannot be made obsolete")
+            caller name))
+    (progn
+      (when (class-instantiated class) ; don't warn if there are no instances
+        (let ((name (class-name class))
+              (caller *make-instances-obsolete-caller*)
+              ;; Rebind *make-instances-obsolete-caller* because WARN may enter a
+              ;; nested REP-loop.
+              (*make-instances-obsolete-caller* 'make-instances-obsolete))
+          (if (eq caller 'defclass)
+            (warn (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+                  caller name)
+            (warn (TEXT "~S: instances of class ~S are made obsolete")
+                  caller name))))
+      ;; Create a new class-version. (Even if there are no instances: the
+      ;; shared-slots may need change.)
+      (let* ((copy (copy-standard-class class))
+             (old-version (class-current-version copy))
+             (new-version
+               (make-class-version :newest-class class
+                                   :class class
+                                   :serial (1+ (cv-serial old-version)))))
+        (setf (cv-class old-version) copy)
+        (setf (cv-next old-version) new-version)
+        (setf (class-current-version class) new-version)))))
 
 ;; After a class redefinition, finalize the subclasses so that the instances
 ;; can be updated.
@@ -1274,37 +1239,34 @@
   (when was-finalized ; nothing to do if not finalized before the redefinition
     ;; Handle the class itself specially, because its superclasses list now is
     ;; not the same as before.
-    (let ((old-augmented-direct-superclasses
-            (add-default-superclass old-direct-superclasses <standard-object>)))
-      (setf (class-precedence-list class) nil) ; mark as not yet finalized
-      (setf (class-all-superclasses class) nil) ; mark as not yet finalized
-      (if must-be-finalized
-        ;; The class remains finalized.
-        (progn
-          (finalize-class class t)
-          (let ((new-augmented-direct-superclasses
-                  (add-default-superclass (class-direct-superclasses class) <standard-object>)))
-            (unless (equal old-augmented-direct-superclasses new-augmented-direct-superclasses)
-              (let ((removed-direct-superclasses
-                      (set-difference old-augmented-direct-superclasses new-augmented-direct-superclasses))
-                    (added-direct-superclasses
-                      (set-difference new-augmented-direct-superclasses old-augmented-direct-superclasses)))
-                (dolist (super removed-direct-superclasses)
-                  (when (standard-class-p super)
-                    (remove-finalized-direct-subclass super class)))
-                (dolist (super added-direct-superclasses)
-                  (when (standard-class-p super)
-                    (add-finalized-direct-subclass super class)))))))
-        ;; The class becomes unfinalized.
-        (dolist (super old-augmented-direct-superclasses)
-          (when (standard-class-p super)
-            (remove-finalized-direct-subclass super class)))))
+    (setf (class-precedence-list class) nil) ; mark as not yet finalized
+    (setf (class-all-superclasses class) nil) ; mark as not yet finalized
+    (if must-be-finalized
+      ;; The class remains finalized.
+      (progn
+        (finalize-class class t)
+        (let ((new-direct-superclasses (class-direct-superclasses class)))
+          (unless (equal old-direct-superclasses new-direct-superclasses)
+            (let ((removed-direct-superclasses
+                    (set-difference old-direct-superclasses new-direct-superclasses))
+                  (added-direct-superclasses
+                    (set-difference new-direct-superclasses old-direct-superclasses)))
+              (dolist (super removed-direct-superclasses)
+                (when (standard-class-p super)
+                  (remove-finalized-direct-subclass super class)))
+              (dolist (super added-direct-superclasses)
+                (when (standard-class-p super)
+                  (add-finalized-direct-subclass super class)))))))
+      ;; The class becomes unfinalized.
+      (dolist (super old-direct-superclasses)
+        (when (standard-class-p super)
+          (remove-finalized-direct-subclass super class))))
     ;; Now handle the true subclasses.
     (mapc #'update-subclasses-for-redefined-class-nonrecursive
           (rest (list-all-finalized-subclasses class)))))
 
 (defun update-subclasses-for-redefined-class-nonrecursive (class)
-  (when (class-precedence-list class) ; nothing to do if not yet finalized
+  (when (%class-precedence-list class) ; nothing to do if not yet finalized
     (setf (class-precedence-list class) nil) ; mark as not yet finalized
     (setf (class-all-superclasses class) nil) ; mark as not yet finalized
     (if (class-instantiated class)
@@ -1312,11 +1274,9 @@
       (finalize-class class t)
       ;; The class becomes unfinalized. If it has an instantiated subclass, the
       ;; subclass' finalize-class invocation will re-finalize this one.
-      (let ((augmented-direct-superclasses
-              (add-default-superclass (class-direct-superclasses class) <standard-object>)))
-        (dolist (super augmented-direct-superclasses)
-          (when (standard-class-p super)
-            (remove-finalized-direct-subclass super class)))))))
+      (dolist (super (class-direct-superclasses class))
+        (when (standard-class-p super)
+          (remove-finalized-direct-subclass super class))))))
 
 ;; Store the information needed by the update of obsolete instances in a
 ;; class-version object. Invoked when an instance needs to be updated.
@@ -1406,13 +1366,10 @@
     (let ((tsorted-list '()))
       (labels ((add-with-superclasses-first (cls)
                  (when (gethash cls as-set)
-                   (let ((augmented-direct-superclasses
-                           (add-default-superclass (class-direct-superclasses cls)
-                                                   <standard-object>)))
-                     (remhash cls as-set)
-                     (dolist (supercls augmented-direct-superclasses)
-                       (add-with-superclasses-first supercls))
-                     (push cls tsorted-list)))))
+                   (remhash cls as-set)
+                   (dolist (supercls (class-direct-superclasses cls))
+                     (add-with-superclasses-first supercls))
+                   (push cls tsorted-list))))
         (mapc #'add-with-superclasses-first as-list))
       (setq tsorted-list (nreverse tsorted-list))
       (assert (eq (first tsorted-list) class))
@@ -1422,68 +1379,86 @@
 
 ;; Bootstrapping
 (progn
-  ;; 1. class <t>
-  (setq <t>
-        (make-instance-built-in-class nil :name 't :direct-superclasses '()))
-  ;; 2. classes <structure-class> and <structure-object>
-  (setq <structure-class> (make-structure-class)) ; Dummy, so that (setf find-class) works
-  (setq <structure-object> <t>)
-  (setq <structure-object>
-        (make-instance-structure-class <structure-class>
-          :name 'structure-object
-          :direct-superclasses '()
-          :names (svref (get 'structure-object 'sys::defstruct-description) 0)))
-  (setf (find-class 'structure-object) <structure-object>)
-  (define-structure-class 'structure-stablehash)
-  (setq <class> (define-structure-class 'class))
-  (let ((<slotted-class> (define-structure-class 'slotted-class)))
-    (setq <structure-class> (define-structure-class 'structure-class))
-    (setf (class-metaclass <structure-object>) <structure-class>)
-    (setf (class-metaclass <class>) <structure-class>)
-    (setf (class-metaclass <slotted-class>) <structure-class>)
-    (setf (class-metaclass <structure-class>) <structure-class>))
-  ;; 3. all structure-classes
-  (labels ((define-structure-class-with-includes (name)
-             (when (get name 'sys::defstruct-description)
-               (unless (find-class name nil)
-                 (let ((names (svref (get name 'sys::defstruct-description)
-                                     0)))
-                   (when (cdr names)
-                     (define-structure-class-with-includes (second names))))
-                 (define-structure-class name)))))
-    (do-all-symbols (s) (define-structure-class-with-includes s)))
-  ;; 4. classes <standard-class>, <built-in-class>
-  (setq <standard-class> (find-class 'standard-class))
-  (setq <built-in-class> (find-class 'built-in-class))
-  ;; 5. finish class <t>
-  (setf (class-metaclass <t>) <built-in-class>)
-  (setf (find-class 't) <t>)
-  ;; 6. class <standard-object>
-  (setq <standard-object>
-        (make-standard-class
-          :classname 'standard-object
-          :metaclass <standard-class>
-          :direct-superclasses `(,<t>)
-          :direct-slots '()
-          :slots '()
-          :slot-location-table empty-ht
-          :instance-size 1
-          :direct-default-initargs nil
-          :default-initargs nil))
-  (setf (class-current-version <standard-object>)
-        (make-class-version :newest-class <standard-object>
-                            :class <standard-object>
-                            :serial 0))
-  (setf (class-all-superclasses <standard-object>)
-        (std-compute-superclasses
-          (setf (class-precedence-list <standard-object>)
-                `(,<standard-object> ,<t>))))
-  (setf (find-class 'standard-object) <standard-object>)
-  (system::note-new-standard-class)
-  ;; 7. value #<unbound>
-  (def-unbound
-    (sys::%record-ref (allocate-std-instance <standard-object> 2) 1)))
 
+  ;; 1. Define the class <t>.
+  (setq <t>
+        (make-instance-<built-in-class> nil
+          :name 't
+          :direct-superclasses '()))
+  (setf (find-class 't) <t>)
+
+  ;; 2. Define the class <standard-object>.
+  (setq <standard-object>
+        (let ((*allow-mixing-metaclasses* t))
+          (make-instance-<standard-class> nil
+            :name 'standard-object
+            :direct-superclasses `(,<t>)
+            :direct-slots '()
+            :slots '()
+            :slot-location-table empty-ht
+            :instance-size 1
+            :direct-default-initargs '()
+            :default-initargs '())))
+  (setf (find-class 'standard-object) <standard-object>)
+
+  ;; 3. Define the class <metaobject>.
+  (setq <metaobject>
+        (macrolet ((form () *<metaobject>-defclass*))
+          (form)))
+
+  ;; 4. Define the class <standard-stablehash>.
+  (macrolet ((form () *<standard-stablehash>-defclass*))
+    (form))
+
+  ;; 5. Define the class <specializer>.
+  (macrolet ((form () *<specializer>-defclass*))
+    (form))
+
+  ;; 6. Define the class <class>.
+  (setq <class>
+        (macrolet ((form () *<class>-defclass*))
+          (form)))
+
+  ;; 7. Define the class <built-in-class>.
+  (setq <built-in-class>
+        (macrolet ((form () *<built-in-class>-defclass*))
+          (form)))
+  (replace-class-version <built-in-class>
+                         *<built-in-class>-class-version*)
+
+  ;; 8. Define the classes <slotted-class>, <standard-class>, <structure-class>.
+  (macrolet ((form () *<slotted-class>-defclass*))
+    (form))
+  (setq <standard-class>
+    (macrolet ((form () *<standard-class>-defclass*))
+      (form)))
+  (replace-class-version <standard-class>
+                         *<standard-class>-class-version*)
+  (setq <structure-class>
+    (macrolet ((form () *<structure-class>-defclass*))
+      (form)))
+  (replace-class-version <structure-class>
+                         *<structure-class>-class-version*)
+
+  ;; 9. Define the class <structure-object>.
+  (setq <structure-object>
+        (let ((*allow-mixing-metaclasses* t))
+          (make-instance-<structure-class> <structure-class>
+            :name 'structure-object
+            :direct-superclasses `(,<t>)
+            :direct-slots '()
+            :direct-default-initargs '()
+            'names (list 'structure-object))))
+  (setf (find-class 'structure-object) <structure-object>)
+  (setf (get 'structure-object 'sys::defstruct-description)
+        (vector (class-names <structure-object>)
+                'T
+                (class-instance-size <structure-object>)
+                nil
+                '()
+                '()))
+
+);progn
 
 ;;; Install built-in classes:
 ;; See CLtL2 p. 783 table 28-1, ANSI CL 4.3.7.
@@ -1491,10 +1466,10 @@
              (let ((name (intern (string-trim "<>" (symbol-name new)))))
                `(setf (find-class ',name)
                   (setq ,new
-                    (make-instance-built-in-class
-                     <built-in-class> :name ',name
-                     :direct-superclasses
-                     (list ,@(cdr (reverse classes)))))))))
+                    (make-instance-<built-in-class> <built-in-class>
+                      :name ',name
+                      :direct-superclasses
+                        (list ,@(cdr (reverse classes)))))))))
  ;(def <t>)
   (def <t> <character>)
   (def <t> <function>)
@@ -1535,8 +1510,11 @@
 
 ;; Continue bootstrapping.
 (%defclos
-  ;; distinctive mark for CLASS-P
-  (svref (get 'class 'sys::defstruct-description) 0)
+  ;; distinctive marks for CLASS-P
+  *<standard-class>-class-version*
+  *<structure-class>-class-version*
+  *<built-in-class>-class-version*
+  <class>
   ;; built-in-classes for CLASS-OF
   (vector <array> <bit-vector> <character> <complex> <cons> <float> <function>
           <hash-table> <integer> <null> <package> <pathname>

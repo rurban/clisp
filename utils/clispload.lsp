@@ -80,8 +80,8 @@
   ;; type.
   COMPLEX.2 COMPLEX.4 COMPLEX.5 IMAGPART.4
 
-  ;; In CLISP the classes CLASS and METHOD are implemented as structures.
-  TYPES.3 BUILT-IN-CLASS-CPL STANDARD-CLASS-CPL STANDARD-METHOD-CPL
+  ;; In CLISP the class METHOD is implemented as a structure.
+  TYPES.3 STANDARD-METHOD-CPL
 
   ;; Paul Dietz assumes that the classes STREAM and CONDITION are disjoint.
   ;; In CLISP they are not, because the user can create subclasses inheriting

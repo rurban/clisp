@@ -159,8 +159,11 @@
   LISPOBJ(kwpair_start2,":START2")
   LISPOBJ(kwpair_end2,":END2")
 # for PREDTYPE.D:
-  # distinctive mark for classes, is filled by CLOS::%DEFCLOS
-  LISPOBJ(class_structure_types,"(CLOS::CLASS STRUCTURE-OBJECT)")
+  # distinctive marks for classes, are filled by CLOS::%DEFCLOS
+  LISPOBJ(class_version_standard_class,"#()")
+  LISPOBJ(class_version_structure_class,"#()")
+  LISPOBJ(class_version_built_in_class,"#()")
+  LISPOBJ(class_class,"CLOS::CLASS")
   # some built-in-classes, are filled by CLOS::%DEFCLOS
   LISPOBJ(class_array,"ARRAY")             # ---+
   LISPOBJ(class_bit_vector,"BIT-VECTOR")   #    |   order

@@ -115,7 +115,7 @@
           'define-condition name 'define-condition option)))
     (let ((defclass-form
             `(CLOS:DEFCLASS ,name
-               ,(clos::add-default-superclass parent-types 'CONDITION)
+               ,(or parent-types '(CONDITION))
                ,slot-specs
                ,@(if docstring-option `(,docstring-option))
                ,@(if default-initargs-option `(,default-initargs-option)))))

@@ -621,7 +621,6 @@
    )
 )
 
-(fmakunbound 'def-atomic-type)
 (fmakunbound 'def-compound-type)
 
 ;; ----------------------------------------------------------------------------
