@@ -49,6 +49,10 @@
 	AC_DEFINE_UNQUOTED, not AC_DEFINE. Fixes bug introduced on 2003-08-03
 	(no ChangeLog entry). Needed on OSF/1 and AIX.
 
+2004-03-12  Sam Steingold  <sds@gnu.org>
+
+	* po/ru.po, po/clisplow_ru.po: Update translations.
+
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (testsuite, testsuite-all): Set CLISP_LANGUAGE to empty
