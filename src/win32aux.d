@@ -471,12 +471,12 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool no_hang) {
 }
 
 /* Writing to a file/pipe/console handle. */
-global int write_helper (HANDLE fd, const void* buf, int nbyte, bool no_hang)
+global int write_helper (HANDLE fd, const void* b, int nbyte, bool no_hang)
 {
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+  handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
-  var const char* buf = (const char*) buf;
+  var const char* buf = (const char*) b;
 #ifndef UNICODE
   /* Possibly translate characters. */
   if (nbyte > 0) {
