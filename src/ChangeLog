@@ -1,3 +1,9 @@
+1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * loop.lsp (expand-loop): Generalize 1998-11-05 patch: The FOR
+          FROM/TO/BY clauses can come in any order. Make sure the order of
+          evaluation is preserved.
+
 1998-12-20  Sam Steingold  <sds@goems.com>
 
 	* _clisp.c (main): accept an '-F' argument to run the full version
