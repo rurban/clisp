@@ -212,12 +212,13 @@ for the &gettext; function.  An underscore is customary.</para>
 
 <para>Now the program's maintainer creates a message catalog template
 through the command
-
 <screen>
 bash$ xgettext -o prog.pot prog.lisp
 </screen>
+</para>
 
-Note: xgettext version 0.11 or higher is required here.</para>
+<note><title>Note</title>
+ <para>xgettext version 0.11 or higher is required here.</para></note>
 
 <para>The message catalog template looks roughly like this.</para>
 
@@ -1431,12 +1432,13 @@ N. Gray to X3J13.</para>
  If the <replaceable>guardian</replaceable> is &gc;ed before &object-r;
  is, nothing happens.</para>
 
-<note><para>Note: The time when <quote>the &object-r; is being
- &gc;ed</quote> is not defined deterministically.  (Actually, it might
- possibly never occur.)  It denotes a moment at which no references to
- &object-r; exist from other Lisp objects.  When the &func-r; is called,
- &object-r; (and possibly <replaceable>guardian</replaceable>) enter the
- "arena of live Lisp objects" again.</para></note>
+<note><title>Note</title>
+ <para>The time when <quote>the &object-r; is being &gc;ed</quote> is
+  not defined deterministically.  (Actually, it might possibly never
+  occur.)  It denotes a moment at which no references to &object-r;
+  exist from other Lisp objects.  When the &func-r; is called,
+  &object-r; (and possibly <replaceable>guardian</replaceable>) enter
+  the "arena of live Lisp objects" again.</para></note>
 
 <para>No finalization request will be executed more than once.</para>
 
@@ -1719,8 +1721,9 @@ here <function>WITH-FOO</function> does not receive the
   <member><varname>CUSTOM:*USER-MAIL-ADDRESS*</varname></member>
   <member>&warn-fpc;</member>
   <member><varname>CUSTOM:*WITH-HTML-OUTPUT-DOCTYPE*</varname></member>
- </simplelist></para>
-<note><para>Note: some of these variables are platform-specific.</para></note>
+</simplelist></para>
+<note><title>Note</title><para>Some of these variables are
+  platform-specific.</para></note>
 
 <para>You should set these variables (and do whatever other
  customization you see fit) in the file &config-file; in the build
@@ -4372,8 +4375,7 @@ bash$
 
 <variablelist>
 <!-- #ifdef UNIX -->
-<varlistentry><term>Platform dependent: &unix;
-   platforms only.</term>
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&exec; &program-r;
        <replaceable>arg&sub-1;</replaceable>
        <replaceable>arg&sub-2;</replaceable> ...)</literal>
@@ -4385,8 +4387,7 @@ bash$
 <!-- #endif -->
 
 <!-- #ifdef HAVE_SHELL -->
-<varlistentry><term>Platform dependent: &unix;,
-   &win32; platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&shell; [&command-r;])</literal>
    calls the operating system's shell. <literal
    role="sexp">(&shell;)</literal> calls the shell for interactive use.
@@ -4483,8 +4484,7 @@ bash$
 
 <!-- #ifdef PIPES -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &win32;
-    platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
 <listitem><variablelist>
  <varlistentry><term><literal role="sexp">(&mk-pipe-in;
     &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
