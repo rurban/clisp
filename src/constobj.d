@@ -60,7 +60,6 @@
   #endif
 
 # zu SPVW.D:
-  LISPOBJ(ansi,"NIL")
   # chained list of all active weak-pointers:
   LISPOBJ(all_weakpointers,"0")
   # Liste aller Finalisierer:
@@ -524,6 +523,7 @@
     /* ENGLISH */ "ENGLISH")
   LISPOBJ(current_language_cache,"NIL")
  #endif
+  LISPOBJ(ansi,"NIL")
 # zu TIME.D:
  #ifdef TIME_RELATIVE
   # Start-Universal-Time:
