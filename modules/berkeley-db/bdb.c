@@ -111,7 +111,13 @@ DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
   DB_ENV *dbe, *dbe_cl;
   bool remote_p = boundp(STACK_2); /* host ==> remote */
   int status, cl_timeout = 0, sv_timeout = 0;
+ #if defined(DB_RPCCLIENT)      /* 4.2 and later */
+  SYSCALL(db_env_create,(&dbe,remote_p ? DB_RPCCLIENT : 0));
+ #elif defined(DB_CLIENT)       /* 4.1 and before */
   SYSCALL(db_env_create,(&dbe,remote_p ? DB_CLIENT : 0));
+ #else
+  #error "how does your Berkeley DB create a remote client?"
+ #endif
   if (remote_p) {
     if (posfixnump(STACK_0)) sv_timeout = posfixnum_to_L(STACK_0);
     if (posfixnump(STACK_1)) cl_timeout = posfixnum_to_L(STACK_1);
