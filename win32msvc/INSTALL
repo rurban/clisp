@@ -24,7 +24,7 @@ development environment, using native system calls
 
    Now you can call VC command line utilities in the proper enviroinment
    prepending it with vcvars32. For example
-       
+
         vcvars32 nmake
 
 3. Ensure unix-like command-line utilities used in the build: sed, grep,
@@ -63,7 +63,7 @@ development environment, using native system calls
 
         copy win32msvc\makefile.msvc5d src\makefile
 
-   Check that enviroinment variable MSVCDIR points to VC98 directory
+   Check that environment variable MSVCDIR points to VC98 directory
    or uncomment and modify the value of MSVCDIR in src\makefile to
    match your site.
 
