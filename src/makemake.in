@@ -842,18 +842,18 @@ if [ $XCC_GCC = true ] ; then
   fi
   XCFLAGS="$XCPPFLAGS $XCFLAGS"
   if [ "$DEBUGGING" != debug ] ; then
-    # Frame-Pointer brauchen wir nicht. Da, wo wir ihn brauchen (in eval.d:
-    # interpret_bytecode_()), erzwingen wir ihn durch Benutzung von alloca().
-    # Unter Windows darf -fomit-frame-pointer i.a. nicht verwendet werden (da
-    # sonst gcc womöglich Daten-Pointer nach %ebp legt, was wegen inkompatibler
-    # Segmentregister nicht zulässig ist). Glücklicherweise ist das bei rsxw32
-    # kein Problem, da dort %cs = 0x185F, %ds = %es = %fs = %gs = %ss = 0x1867,
-    # insbesondere %ds = %ss.
+    # We do not need a frame-pointer. Where we need it (in eval.d:
+    # interpret_bytecode_()), we enforce it by using alloca().
+    # On Windows, -fomit-frame-pointer may not be used in general (because
+    # otherwise gcc might store data-pointers in %ebp, which is not admissible
+    # because of incompatible segment registers). Fortunately, this is no
+    # problem with rsxw32, because %cs = 0x185F,
+    # %ds = %es = %fs = %gs = %ss = 0x1867, in particular %ds = %ss.
     XCFLAGS=$XCFLAGS' -fomit-frame-pointer'
   fi
   if [ $TSYS = amiga ] ; then
-    # Register A4 enthält den Stack.
-    # Die GCC-Strength-Reduction ist auf dem 68000 nicht problemlos.
+    # register A4 contains the stack.
+    # The GCC-Strength-Reduction is not unproblematic on 68000.
     XCFLAGS=$XCFLAGS' -ffixed-a4 -fno-strength-reduce'
   fi
   if [ $TSYS = acorn ] ; then
@@ -2645,12 +2645,12 @@ else
     fi
   else
     # DOS has a very limited command line length
-    # XCLFLAGS=$XCLFLAGS' -s' # strip, geht unter emx0.8f nicht mehr
+    # XCLFLAGS=$XCLFLAGS' -s' # strip, does not work anymore on emx0.8f
     echotab "\$(RM) lisp"
     echotab "\$(RM) lisp${LEXE}"
     echotab "${XCC} ${XCFLAGS} -o lisp @gcclink.in ${XCLFLAGS} ${LIBS}"
     echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p"
-    # Strippen darf man wegen -lvideo erst hinterher.
+    # strip may be done only afterwards because of -lvideo
     echotab "emxbind -s lisp${LEXE}"
   fi
   echol
