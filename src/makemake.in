@@ -483,6 +483,11 @@ TESTSDIR=suite
 
 # Main host OS dependencies:
 
+# DOS-style filenames and file utilities
+H_DOS="false";
+if [ $HOS = os2 ]; then H_DOS="true"; fi
+if [ $HOS = win32 -a $HSYS != win32gcc ]; then H_DOS="true"; fi
+
 # HEXE = extension for executable files on host
 if [ $HOS = os2 -o $HOS = win32 ] ; then
   HEXE='.exe'
@@ -539,7 +544,7 @@ if [ $HOS = acorn ] ; then
 else
   NEXT='/'
 fi
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $H_DOS = "true" ] ; then
   # Replace '/' with '\':
   PARENT_=`echol $PARENT | sed -e 's,/,\\\\,g'`
   NEXT_=`echol $NEXT | sed -e 's,/,\\\\,g'`
@@ -559,7 +564,7 @@ fi
 
 UTILDIR="${SRCTOPDIR}utils${NEXT}"
 DOCDIR="${SRCTOPDIR}doc${NEXT}"
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $H_DOS = "true" ] ; then
   # Replace '/' with '\':
   SRCTOPDIR_=`echol $SRCTOPDIR | sed -e 's,/,\\\\,g'`
   UTILDIR_=`echol $UTILDIR | sed -e 's,/,\\\\,g'`
@@ -598,7 +603,7 @@ else
 fi
 
 # RM = command for deleting files
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $H_DOS = "true" ] ; then
   RM='del'
 else
   if [ $HOS = acorn ] ; then
@@ -609,7 +614,7 @@ else
 fi
 
 # CP = command for copying files
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $H_DOS = "true" ] ; then
   CP='copy'
 else
   if [ $HOS = acorn ] ; then
@@ -619,7 +624,7 @@ else
 fi
 
 # LN_S = command for copying read-only files
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $H_DOS = "true" ] ; then
   LN_S='copy'
 else
   if [ $HOS = acorn ] ; then
@@ -634,7 +639,7 @@ if [ "$HLN" = hln ] ; then
 fi
 
 # MV = command for renaming files
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $H_DOS = "true" ] ; then
   MV='ren'
 else
   if [ $HOS = acorn ] ; then
@@ -645,7 +650,7 @@ else
 fi
 
 # CAT = command for typing files to stdout
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $H_DOS = "true" ] ; then
   CAT='type'
 else
   CAT='cat'
