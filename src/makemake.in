@@ -3238,7 +3238,7 @@ echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
 echol "anymodule \$(BASE_MODULES) \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
 echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
-echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; CC=\"\$(CC)\" ./configure --cache-file="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache ; fi"
+echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; . \$\${cache}; test \"\$\${ac_cv_env_CC_set}\" = set && export CC=\"\$\${ac_cv_env_CC_value}\"; ./configure --cache-file=\$\${cache} ) ; fi"
 EVERY_INCLUDES_DOTS_C=''
 for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
   EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
