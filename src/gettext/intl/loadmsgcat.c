@@ -58,6 +58,7 @@ char *alloca ();
 
 #ifdef _LIBC
 # include <langinfo.h>
+# include <locale.h>
 #endif
 
 #if (defined HAVE_MMAP && defined HAVE_MUNMAP && !defined DISALLOW_MMAP) \
@@ -396,8 +397,6 @@ _nl_load_domain (domain_file)
 #  if HAVE_ICONV
 		  extern const char *locale_charset (void);
 		  outcharset = locale_charset ();
-		  if (outcharset == NULL)
-		    outcharset = "";
 #  endif
 # endif
 		}

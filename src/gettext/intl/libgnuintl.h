@@ -20,9 +20,26 @@
 
 #include <locale.h>
 
+/* The LC_MESSAGES locale category is the category used by the functions
+   gettext() and dgettext().  It is specified in POSIX, but not in ANSI C.
+   On systems that don't define it, use an arbitrary value instead.
+   On Solaris, <locale.h> defines __LOCALE_H then includes <libintl.h> (i.e.
+   this file!) and then only defines LC_MESSAGES.  To avoid a redefinition
+   warning, don't define LC_MESSAGES in this case.  */
+#if !defined LC_MESSAGES && !defined __LOCALE_H
+# define LC_MESSAGES 1729
+#endif
+
 /* We define an additional symbol to signal that we use the GNU
    implementation of gettext.  */
 #define __USE_GNU_GETTEXT 1
+
+/* Resolve a platform specific conflict on DJGPP.  GNU gettext takes
+   precedence over _conio_gettext.  */
+#ifdef __DJGPP__
+# undef gettext
+# define gettext gettext
+#endif
 
 #ifndef PARAMS
 # if __STDC__ || defined __cplusplus
