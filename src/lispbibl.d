@@ -11358,7 +11358,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 #else
   # In this case we take the s32string_statement, not the s8string_statement,
   # because the s32string_statement is the right one for normal simple strings.
-  #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
+  #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement,nilvector_statement)  \
     if (Array_type(string) == Array_type_snilvector) { nilvector_statement } else \
     { /*s8string_statement*/ s32string_statement }
 #endif
