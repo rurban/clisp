@@ -2933,6 +2933,145 @@ LISPFUNN(generic_stream_p,1)
 # Streams communicating with the exterior world, based on bytes
 # =============================================================
 
+# Classification of possible :ELEMENT-TYPEs.
+  typedef enum {
+                eltype_ch,    # CHARACTER
+                eltype_iu,    # (UNSIGNED-BYTE n)
+                eltype_is     # (SIGNED-BYTE n)
+               }
+          eltype_kind;
+
+# An analyzed :ELEMENT-TYPE argument.
+  typedef struct { eltype_kind kind;
+                   uintL       size; # the n in ([UN]SIGNED-BYTE n),
+                                     # >0, <intDsize*uintWC_max
+                 }
+          decoded_eltype;
+
+# UP: Check a :ELEMENT-TYPE argument.
+# test_eltype_arg(&eltype,&decoded);
+# > object eltype: argument (in the STACK)
+# > subr_self: calling function
+# < subr_self: unchanged
+# < decoded: decoded eltype
+# kann GC auslösen
+  local void test_eltype_arg (object* eltype_, decoded_eltype* decoded);
+  local void test_eltype_arg(eltype_,decoded)
+    var object* eltype_;
+    var decoded_eltype* decoded;
+    { var object arg = *eltype_;
+      if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # CHARACTER, STRING-CHAR, :DEFAULT
+        { decoded->kind = eltype_ch; return; }
+      if (eq(arg,S(bit))) # BIT
+        { decoded->kind = eltype_iu; decoded->size = 1; return; }
+      if (eq(arg,S(unsigned_byte))) # UNSIGNED-BYTE
+        { decoded->kind = eltype_iu; decoded->size = 8; return; }
+      if (eq(arg,S(signed_byte))) # SIGNED-BYTE
+        { decoded->kind = eltype_is; decoded->size = 8; return; }
+     {var object eltype_size;
+      if (consp(arg) && mconsp(Cdr(arg)) && nullp(Cdr(Cdr(arg)))) # zweielementige Liste
+        { var object h = Car(arg);
+          if (eq(h,S(mod))) # (MOD n)
+            { decoded->kind = eltype_iu;
+              h = Car(Cdr(arg)); # n
+              # muss ein Integer >0 sein:
+              if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
+                goto bad_eltype;
+              # eltype_size := (integer-length (1- n)) bilden:
+              pushSTACK(subr_self); # subr_self retten
+              pushSTACK(h); funcall(L(einsminus),1); # (1- n)
+              pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
+              eltype_size = value1;
+              subr_self = popSTACK(); # subr_self zurück
+              goto eltype_integer;
+            }
+          if (eq(h,S(unsigned_byte))) # (UNSIGNED-BYTE n)
+            { decoded->kind = eltype_iu;
+              eltype_size = Car(Cdr(arg));
+              goto eltype_integer;
+            }
+          if (eq(h,S(signed_byte))) # (SIGNED-BYTE n)
+            { decoded->kind = eltype_is;
+              eltype_size = Car(Cdr(arg));
+              goto eltype_integer;
+            }
+        }
+      pushSTACK(subr_self); # subr_self retten
+      # Erstmal ein wenig kanonischer machen (damit die verschiedenen
+      # SUBTYPEP dann nicht dreimal dasselbe machen müssen):
+      pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
+      pushSTACK(value1); # canon-arg retten
+      pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
+      if (!nullp(value1))
+        { skipSTACK(1);
+          subr_self = popSTACK();
+          decoded->kind = eltype_ch;
+          return;
+        }
+      funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
+      subr_self = popSTACK(); # subr_self zurück
+      if (!((mv_count>1) && integerp(value1) && integerp(value2)))
+         goto bad_eltype;
+      { # arg is a subtype of `(INTEGER ,low ,high) and
+        # value1 = low, value2 = high.
+        var uintL l;
+        if (positivep(value1))
+          { l = I_integer_length(value2); # (INTEGER-LENGTH high)
+            decoded->kind = eltype_iu;
+          }
+        else
+          { var uintL l1 = I_integer_length(value1); # (INTEGER-LENGTH low)
+            var uintL l2 = I_integer_length(value2); # (INTEGER-LENGTH high)
+            l = (l1>l2 ? l1 : l2) + 1;
+            decoded->kind = eltype_is;
+          }
+        eltype_size = fixnum(l);
+      }
+     eltype_integer:
+      # eltype_size überprüfen:
+      if (!(posfixnump(eltype_size) && !eq(eltype_size,Fixnum_0)
+            && ((oint_data_len < log2_intDsize+intWCsize) # (Bei oint_data_len <= log2(intDsize)+intWCsize-1
+                # ist stets eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1).)
+                || (as_oint(eltype_size) < as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1))))
+         ) )   )
+        goto bad_eltype;
+      decoded->size = posfixnum_to_L(eltype_size);
+      return;
+     bad_eltype:
+      pushSTACK(*eltype_); pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             DEUTSCH ? "~: Als :ELEMENT-TYPE-Argument ist ~ unzulässig." :
+             ENGLISH ? "~: illegal :ELEMENT-TYPE argument ~" :
+             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE." :
+             ""
+            );
+    }}
+
+# UP: Returns a canonical representation for a :ELEMENT-TYPE.
+# canon_eltype(&decoded)
+# > decoded: decoded eltype
+# < result: either CHARACTER or ([UN]SIGNED-BYTE n)
+# kann GC auslösen
+  local object canon_eltype (const decoded_eltype* decoded);
+  local object canon_eltype(decoded)
+    var const decoded_eltype* decoded;
+    { switch (decoded->kind)
+        { case eltype_ch:
+            # CHARACTER
+            return S(character);
+          case eltype_iu:
+            # (UNSIGNED-BYTE bitsize)
+            pushSTACK(S(unsigned_byte));
+            pushSTACK(fixnum(decoded->size));
+            return listof(2);
+          case eltype_is:
+            # (SIGNED-BYTE bitsize)
+            pushSTACK(S(signed_byte));
+            pushSTACK(fixnum(decoded->size));
+            return listof(2);
+          default: NOTREACHED;
+    }   }
+
 #if defined(UNIX) || defined(EMUNIX) || defined(DJUNIX) || defined(WATCOM) || defined(RISCOS)
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Handle.
@@ -3322,10 +3461,6 @@ typedef struct strm_u_file_extrafields_struct {
              ""
             );
     }
-
-  #define strmtype_ch_file  0
-  #define strmtype_iu_file  1
-  #define strmtype_is_file  2
 
 # Subroutines for Integer-Streams
 # ===============================
@@ -4513,28 +4648,27 @@ typedef struct strm_u_file_extrafields_struct {
 # ======================
 
 # UP: erzeugt ein File-Handle-Stream
-# make_unbuffered_file_stream(handle,direction)
+# make_unbuffered_file_stream(handle,direction,&eltype)
 # > handle: Handle des geöffneten Files
 # > STACK_2: Element-Type
 # > STACK_1: Filename, ein Pathname
 # > STACK_0: Truename, ein Pathname
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > type, eltype_size: Element-Type again
+# > eltype: Element-Type in decoded form
 # < ergebnis: File-Handle-Stream
 # < STACK: aufgeräumt
 # kann GC auslösen
-  local object make_unbuffered_file_stream (object handle, uintB direction, uintB type, object eltype_size);
-  local object make_unbuffered_file_stream(handle,direction,type,eltype_size)
+  local object make_unbuffered_file_stream (object handle, uintB direction, const decoded_eltype* eltype);
+  local object make_unbuffered_file_stream(handle,direction,eltype)
     var object handle;
     var uintB direction;
-    var uintB type;
-    var object eltype_size;
+    var const decoded_eltype* eltype;
     { # Flags:
       var uintB flags =
           ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
         | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
         ;
-      if (type==strmtype_ch_file)
+      if (eltype->kind == eltype_ch)
         { flags &= strmflags_ch_B; }
         else
         { flags &= strmflags_by_B; flags |= strmflags_ia_B; }
@@ -4545,7 +4679,7 @@ typedef struct strm_u_file_extrafields_struct {
       var object stream = allocate_stream(flags,strmtype_file,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       # und füllen:
       if (direction & bit(0))
-        { if (type==strmtype_ch_file)
+        { if (eltype->kind==eltype_ch)
             { TheStream(stream)->strm_rd_by = P(rd_by_error);
               TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
               TheStream(stream)->strm_rd_ch = P(rd_ch_handle);
@@ -4553,15 +4687,15 @@ typedef struct strm_u_file_extrafields_struct {
             }
             else
             { TheStream(stream)->strm_rd_by =
-                (type==strmtype_iu_file
-                 ? (posfixnum_to_L(eltype_size) == 8
+                (eltype->kind == eltype_iu
+                 ? (eltype->size == 8
                     ? P(rd_by_iau8_handle)
                     : P(rd_by_iau_handle)
                    )
                  : P(rd_by_ias_handle)
                 );
               TheStream(stream)->strm_rd_by_array =
-                (type==strmtype_iu_file && (posfixnum_to_L(eltype_size) == 8)
+                ((eltype->kind == eltype_iu) && (eltype->size == 8)
                  ? P(rd_by_array_iau8_handle)
                  : P(rd_by_array_dummy)
                 );
@@ -4576,7 +4710,7 @@ typedef struct strm_u_file_extrafields_struct {
         }
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
       if (direction & bit(2))
-        { if (type==strmtype_ch_file)
+        { if (eltype->kind == eltype_ch)
             { TheStream(stream)->strm_wr_by = P(wr_by_error);
               TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
               TheStream(stream)->strm_wr_ch = P(wr_ch_handle_x);
@@ -4585,15 +4719,15 @@ typedef struct strm_u_file_extrafields_struct {
             }
             else
             { TheStream(stream)->strm_wr_by =
-                (type==strmtype_iu_file
-                 ? (posfixnum_to_L(eltype_size) == 8
+                (eltype->kind == eltype_iu
+                 ? (eltype->size == 8
                     ? P(wr_by_iau8_handle)
                     : P(wr_by_iau_handle)
                    )
                  : P(wr_by_ias_handle)
                 );
               TheStream(stream)->strm_wr_by_array =
-                (type==strmtype_iu_file && (posfixnum_to_L(eltype_size) == 8)
+                ((eltype->kind == eltype_iu) && (eltype->size == 8)
                  ? P(wr_by_array_iau8_handle)
                  : P(wr_by_array_dummy)
                 );
@@ -4625,14 +4759,14 @@ typedef struct strm_u_file_extrafields_struct {
       TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
       TheStream(stream)->strm_eltype = popSTACK();
       HandleStream_buffered(stream) = FALSE;
-      if (type==strmtype_ch_file)
+      if (eltype->kind == eltype_ch)
         { HandleStream_lineno(stream) = 1; }
         else
         # File-Stream für Integers
-        { HandleStream_bitsize(stream) = posfixnum_to_L(eltype_size);
+        { HandleStream_bitsize(stream) = eltype->size;
           # Bitbuffer allozieren:
           pushSTACK(stream);
-         {var object bitbuffer = allocate_bit_vector(posfixnum_to_L(eltype_size));
+         {var object bitbuffer = allocate_bit_vector(eltype->size);
           stream = popSTACK();
           TheStream(stream)->strm_bitbuffer = bitbuffer;
         }}
@@ -5956,108 +6090,6 @@ typedef struct strm_i_file_extrafields_struct {
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }}}
 
-# UP: Check a :ELEMENT-TYPE argument.
-# test_eltype_arg(&eltype,&type,&eltype_size);
-# > object eltype: argument (in the STACK)
-# > subr_self: calling function
-# < subr_self: unchanged
-# < uintB type: one of (strmtype_ch_file, strmtype_iu_file, strmtype_is_file)
-# < object eltype_size: (in case of strmtype_iu_file, strmtype_is_file)
-#     the size of an element in bits, a fixnum >0, <intDsize*uintWC_max
-# kann GC auslösen
-  local void test_eltype_arg (object* eltype_, uintB* type_, object* eltype_size_);
-  local void test_eltype_arg(eltype_,type_,eltype_size_)
-    var object* eltype_;
-    var uintB* type_;
-    var object* eltype_size_;
-    { var object arg = *eltype_;
-      if (eq(arg,unbound) || eq(arg,S(character)) || eq(arg,S(string_char)) || eq(arg,S(Kdefault))) # CHARACTER, STRING-CHAR, :DEFAULT
-        { *type_ = strmtype_ch_file; return; }
-      if (eq(arg,S(bit))) # BIT
-        { *type_ = strmtype_iu_file; *eltype_size_ = Fixnum_1; return; }
-      if (eq(arg,S(unsigned_byte))) # UNSIGNED-BYTE
-        { *type_ = strmtype_iu_file; *eltype_size_ = fixnum(8); return; }
-      if (eq(arg,S(signed_byte))) # SIGNED-BYTE
-        { *type_ = strmtype_is_file; *eltype_size_ = fixnum(8); return; }
-     {var object eltype_size;
-      if (consp(arg) && mconsp(Cdr(arg)) && nullp(Cdr(Cdr(arg)))) # zweielementige Liste
-        { var object h = Car(arg);
-          if (eq(h,S(mod))) # (MOD n)
-            { *type_ = strmtype_iu_file;
-              h = Car(Cdr(arg)); # n
-              # muss ein Integer >0 sein:
-              if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
-                goto bad_eltype;
-              # eltype_size := (integer-length (1- n)) bilden:
-              pushSTACK(subr_self); # subr_self retten
-              pushSTACK(h); funcall(L(einsminus),1); # (1- n)
-              pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
-              eltype_size = value1;
-              subr_self = popSTACK(); # subr_self zurück
-              goto eltype_integer;
-            }
-          if (eq(h,S(unsigned_byte))) # (UNSIGNED-BYTE n)
-            { *type_ = strmtype_iu_file;
-              eltype_size = Car(Cdr(arg));
-              goto eltype_integer;
-            }
-          if (eq(h,S(signed_byte))) # (SIGNED-BYTE n)
-            { *type_ = strmtype_is_file;
-              eltype_size = Car(Cdr(arg));
-              goto eltype_integer;
-            }
-        }
-      pushSTACK(subr_self); # subr_self retten
-      # Erstmal ein wenig kanonischer machen (damit die verschiedenen
-      # SUBTYPEP dann nicht dreimal dasselbe machen müssen):
-      pushSTACK(arg); funcall(S(canonicalize_type),1); # (SYS::CANONICALIZE-TYPE arg)
-      pushSTACK(value1); # canon-arg retten
-      pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); # (SUBTYPEP canon-arg 'CHARACTER)
-      if (!nullp(value1))
-        { skipSTACK(1);
-          subr_self = popSTACK();
-          *type_ = strmtype_ch_file;
-          return;
-        }
-      funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER canon-arg)
-      subr_self = popSTACK(); # subr_self zurück
-      if (!((mv_count>1) && integerp(value1) && integerp(value2)))
-         goto bad_eltype;
-      { # arg is a subtype of `(INTEGER ,low ,high) and
-        # value1 = low, value2 = high.
-        var uintL l;
-        if (positivep(value1))
-          { l = I_integer_length(value2); # (INTEGER-LENGTH high)
-            *type_ = strmtype_iu_file;
-          }
-        else
-          { var uintL l1 = I_integer_length(value1); # (INTEGER-LENGTH low)
-            var uintL l2 = I_integer_length(value2); # (INTEGER-LENGTH high)
-            l = (l1>l2 ? l1 : l2) + 1;
-            *type_ = strmtype_is_file;
-          }
-        eltype_size = fixnum(l);
-      }
-     eltype_integer:
-      # eltype_size überprüfen:
-      if (!(posfixnump(eltype_size) && !eq(eltype_size,Fixnum_0)
-            && ((oint_data_len < log2_intDsize+intWCsize) # (Bei oint_data_len <= log2(intDsize)+intWCsize-1
-                # ist stets eltype_size < 2^oint_data_len < intDsize*(2^intWCsize-1).)
-                || (as_oint(eltype_size) < as_oint(fixnum(intDsize*(uintL)(bitm(intWCsize)-1))))
-         ) )   )
-        goto bad_eltype;
-      *eltype_size_ = eltype_size;
-      return;
-     bad_eltype:
-      pushSTACK(*eltype_); pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             DEUTSCH ? "~: Als :ELEMENT-TYPE-Argument ist ~ unzulässig." :
-             ENGLISH ? "~: illegal :ELEMENT-TYPE argument ~" :
-             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE." :
-             ""
-            );
-    }}
-
 # UP: erzeugt ein File-Stream
 # make_file_stream(direction,append_flag)
 # > STACK_3: :ELEMENT-TYPE argument
@@ -6075,45 +6107,23 @@ typedef struct strm_i_file_extrafields_struct {
   global object make_file_stream(direction,append_flag)
     var uintB direction;
     var boolean append_flag;
-    { var uintB type;
-      var object eltype_size = NIL;
-      # Check the :ELEMENT-TYPE argument:
-      test_eltype_arg(&STACK_3,&type,&eltype_size);
-      # Construct Element-Type as an object:
-      { var object eltype;
-        switch (type)
-          { case strmtype_ch_file:
-              # CHARACTER
-              eltype = S(character); break;
-            case strmtype_iu_file:
-              # (UNSIGNED-BYTE bitsize)
-              pushSTACK(S(unsigned_byte));
-              pushSTACK(eltype_size);
-              eltype = listof(2);
-              break;
-            case strmtype_is_file:
-              # (SIGNED-BYTE bitsize)
-              pushSTACK(S(signed_byte));
-              pushSTACK(eltype_size);
-              eltype = listof(2);
-              break;
-            default: NOTREACHED;
-          }
-        STACK_3 = eltype;
-      }
+    { var decoded_eltype eltype;
+      # Check and canonicalize the :ELEMENT-TYPE argument:
+      test_eltype_arg(&STACK_3,&eltype);
+      STACK_3 = canon_eltype(&eltype);
       # Stackaufbau: eltype, filename, truename, handle.
      {var object handle = popSTACK();
       # Nur reguläre Files zu gebufferten File-Streams machen.
       # Alles andere gibt File-Handle-Streams, weil vermutlich lseek() nicht geht.
       if (!nullp(handle))
         { if (!regular_handle_p(TheHandle(handle)))
-            { if (((type == strmtype_ch_file)
+            { if (((eltype.kind == eltype_ch)
                    ? TRUE
-                   : ((posfixnum_to_L(eltype_size) % 8) == 0)
+                   : ((eltype.size % 8) == 0)
                   )
                   && !append_flag
                  )
-                { return make_unbuffered_file_stream(handle,direction,type,eltype_size); }
+                { return make_unbuffered_file_stream(handle,direction,&eltype); }
                 else
                 { pushSTACK(STACK_0); # Truename, Wert für Slot PATHNAME von FILE-ERROR
                   pushSTACK(STACK_0);
@@ -6134,23 +6144,22 @@ typedef struct strm_i_file_extrafields_struct {
              strmflags_open_B # sonst Read/Write
             )
             &
-            (type>=strmtype_iu_file ? strmflags_by_B : strmflags_ch_B) # auf Integers oder Characters
+            (eltype.kind==eltype_ch ? strmflags_ch_B : strmflags_by_B) # on characters or integers
           );
         # Art von Integer-Streams:
         var uintB art;
         # Länge:
         var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
-        if (!(type==strmtype_ch_file))
+        if (!(eltype.kind==eltype_ch))
           { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
-            {var uintL bitsize = posfixnum_to_L(eltype_size);
-             if ((bitsize%8)==0)
-               { art = strmflags_ia_B; } # Art a
-               else
-               { if (bitsize<8)
-                   { art = strmflags_ib_B; } # Art b
-                   else
-                   { art = strmflags_ic_B; } # Art c
-            }  }
+            if ((eltype.size%8)==0)
+              { art = strmflags_ia_B; } # Art a
+              else
+              { if (eltype.size<8)
+                  { art = strmflags_ib_B; } # Art b
+                  else
+                  { art = strmflags_ic_B; } # Art c
+              }
             flags |= art; # Art in die Flags mit aufnehmen
           }
         #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
@@ -6160,8 +6169,8 @@ typedef struct strm_i_file_extrafields_struct {
         var object stream = allocate_stream(flags,strmtype_file,strm_handle_len,xlen);
         # und füllen:
         # Komponenten aller Streams:
-        switch (type)
-          { case strmtype_ch_file:
+        switch (eltype.kind)
+          { case eltype_ch:
               TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
               TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
               TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_ch_file);
@@ -6169,35 +6178,29 @@ typedef struct strm_i_file_extrafields_struct {
               TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_ch_file);
               TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
               break;
-            case strmtype_iu_file:
+            case eltype_iu:
               TheStream(stream)->strm_rd_by =
                 (art==strmflags_ia_B
-                 ? (posfixnum_to_L(eltype_size) == 8
-                    ? P(rd_by_iau8_file)
-                    : P(rd_by_iau_file)
-                   )
+                 ? (eltype.size == 8 ? P(rd_by_iau8_file) : P(rd_by_iau_file))
                  : art==strmflags_ib_B ? P(rd_by_ibu_file) : P(rd_by_icu_file)
                 );
               TheStream(stream)->strm_rd_by_array =
-                (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
+                (art==strmflags_ia_B && (eltype.size == 8)
                  ? P(read_byte_array_iau8_file)
                  : P(rd_by_array_dummy)
                 );
               TheStream(stream)->strm_wr_by =
                 (art==strmflags_ia_B
-                 ? (posfixnum_to_L(eltype_size) == 8
-                    ? P(wr_by_iau8_file)
-                    : P(wr_by_iau_file)
-                   )
+                 ? (eltype.size == 8 ? P(wr_by_iau8_file) : P(wr_by_iau_file))
                  : art==strmflags_ib_B ? P(wr_by_ibu_file) : P(wr_by_icu_file)
                 );
               TheStream(stream)->strm_wr_by_array =
-                (art==strmflags_ia_B && (posfixnum_to_L(eltype_size) == 8)
+                (art==strmflags_ia_B && (eltype.size == 8)
                  ? P(write_byte_array_iau8_file)
                  : P(wr_by_array_dummy)
                 );
               break;
-            case strmtype_is_file:
+            case eltype_is:
               TheStream(stream)->strm_rd_by =
                 (art==strmflags_ia_B ? P(rd_by_ias_file) :
                  art==strmflags_ib_B ? P(rd_by_ibs_file) :
@@ -6258,15 +6261,15 @@ typedef struct strm_i_file_extrafields_struct {
             FileStream_index(stream) = 0; # index := 0
             FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
             FileStream_position(stream) = 0; # position := 0
-            if (type==strmtype_ch_file)
+            if (eltype.kind==eltype_ch)
               # File-Stream für Characters
               { HandleStream_lineno(stream) = 1; }
-            elif (type>=strmtype_iu_file)
+              else
               # File-Stream für Integers
-              { HandleStream_bitsize(stream) = posfixnum_to_L(eltype_size);
+              { HandleStream_bitsize(stream) = eltype.size;
                 # Bitbuffer allozieren:
                 pushSTACK(stream);
-               {var object bitbuffer = allocate_bit_vector(ceiling(posfixnum_to_L(eltype_size),8)*8);
+               {var object bitbuffer = allocate_bit_vector(ceiling(eltype.size,8)*8);
                 stream = popSTACK();
                 TheStream(stream)->strm_bitbuffer = bitbuffer;
                }
@@ -13677,8 +13680,9 @@ LISPFUNN(socket_stream_handle,1)
           # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
           pushSTACK(asciz_to_string("/dev/fd/2")); funcall(L(pathname),1);
           pushSTACK(S(character)); pushSTACK(value1); pushSTACK(value1);
-          stream = make_unbuffered_file_stream(allocate_handle(2),4,strmtype_ch_file,NIL);
-        }
+         {var decoded_eltype eltype = { eltype_ch };
+          stream = make_unbuffered_file_stream(allocate_handle(2),4,&eltype);
+        }}
       #endif
       define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
     }}
