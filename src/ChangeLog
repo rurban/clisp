@@ -1,5 +1,18 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Use the system's iconv() function if available.
+        * aclocal.m4 (CL_ICONV): New macro.
+        * configure.in: Call it.
+        * unixconf.h.in (HAVE_ICONV): New macro.
+        * unix.d: Declare iconv_open, iconv, iconv_close.
+        * encoding.d (MAKE-ENCODING): Accept strings as well.
+          (iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs): New
+          functions.
+        * pseudofun.d: Add them.
+        * stream.d (test_external_format_arg): Accept strings as well.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * configure: Recommend --with-unicode.
         * makemake.in (*/makefile*): Pass --with-unicode to makemake.
 
