@@ -25,16 +25,16 @@
     #ifdef TYPECODES
       bit(1) |
     #endif
-    #ifdef STANDARD_TYPECODES
+    #if 0 # defined(STANDARD_TYPECODES)
       bit(2) |
     #endif
-    #ifdef PACKED_TYPECODES
+    #if 0 # defined(PACKED_TYPECODES)
       bit(3) |
     #endif
-    #ifdef SEVENBIT_TYPECODES
+    #if 0 # defined(SEVENBIT_TYPECODES)
       bit(4) |
     #endif
-    #ifdef SIXBIT_TYPECODES
+    #if 0 # defined(SIXBIT_TYPECODES)
       bit(5) |
     #endif
     #ifdef case_structure

@@ -124,10 +124,6 @@
   #endif
   #if defined(sparc) || defined(__sparc__)
     # evtl. SUN4_29 falls nur Adressen <2^29 unterstützt werden.
-    #ifdef SUN4_29
-      #define SUN4_29_1  # handling using PACKED_TYPECODES
-      # define SUN4_29_2  # handling using SIXBIT_TYPECODES
-    #endif
   #endif
   #if defined(hp9000s800) || defined(__hp9000s800)
     #define HP8XX
@@ -220,8 +216,6 @@
   #ifndef __GNUC__
     #define RISCOS_CCBUG  # Bug in Norcrofts C-Compiler umgehen
   #endif
-  #define ACORN_1  # Typcode "oben"
-  # define ACORN_2  # Typcode "unten"
 #endif
 #ifdef WIN32
   # Windows NT, Windows 95
@@ -281,7 +275,6 @@
     #   SunOS 5
     #define UNIX_SYSV_USL  # Unix System V R 4 von der AT&T-Tochter USL
     #define UNIX_SYSV_UHC_1 # Behandlung analog HPPA && UNIX_HPUX
-    # define UNIX_SYSV_UHC_2 # Behandlung analog AMIGA3000 - langsamer
     #ifdef SNI
       #define UNIX_SINIX # Siemens is nix
     #endif
@@ -1628,8 +1621,9 @@
   # Choose typecodes on 64-bit machines (because there's enough room for type
   # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
   # today), except if the CPU cannot address more than 16 MB anyway.
-  # NO_TYPECODES will normally not work if alignof(subr_) = alignof(long) < 4.
-  #if defined(WIDE) || defined(MC68000) || (alignment_long < 4)
+  # NO_TYPECODES will normally not work if alignof(subr_) = alignof(long) < 4,
+  # but with egcs-1.1 or newer we can force alignof(subr_) = 4.
+  #if defined(WIDE) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
     #define TYPECODES
   #else
     #define NO_TYPECODES
@@ -2323,10 +2317,16 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFFUL
   #endif
+# Now come the platforms with TYPECODES. oint_type_len should be >= 8,
+# and oint_type_mask should have at least 8 bits set and at most one bit in
+# common with oint_addr_mask.
 #elif defined(WIDE_HARD)
   #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
     # UNIX_OSF:
     #   Gewöhnliche Pointer liegen im Bereich 1*2^32..2*2^32.
+    #   Code address range:    0x000000012xxxxxxx
+    #   Malloc address range:  0x000000014xxxxxxx
+    #   Shared libraries:      0x000003FFCxxxxxxx
     # UNIX_LINUX:
     #   Code address range:    0x000000012xxxxxxx
     #   Malloc address range:  0x000000012xxxxxxx
@@ -2421,7 +2421,36 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFF00000000ULL
   #endif
-#elif (defined(MC680X0) && !defined(AMIGA3000) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE)) || (defined(I80386) && !defined(WATCOM_BLAKE) && !defined(UNIX_SYSV_UHC_2) && !defined(UNIX_SYSV_UHC_1) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE) && !defined(UNIX_GNU) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE)) || (defined(SPARC) && !defined(SUN4_29_2)) || (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX)) || defined(M88000) || (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX)) || defined(VAX) || (defined(CONVEX) && !defined(UNIX_CONVEX)) || defined(ACORN_1)
+# Now come the 32-bit platforms with TYPECODES. We need to support it only on
+# MC680X0 platforms without new gcc.
+# It worked on the following platforms in the past, and may still work on:
+#   (defined(MC680X0) && !defined(AMIGA3000) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
+#   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_GNU) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
+#   (defined(SPARC) && !defined(SUN4_29))
+#   (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX))
+#   defined(M88000)
+#   (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
+#   defined(VAX)
+#   (defined(CONVEX) && !defined(UNIX_CONVEX))
+#   defined(RISCOS)
+#elif (defined(I80386) && (defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0))) || defined(TRY_TYPECODES_1)
+  # You can add more platforms here provided that
+  # 1. you need it,
+  # 2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
+  # 3. it works.
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask (0xFF000000UL & ~(CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE))
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask (0x00FFFFFFUL | CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE)
+  #define oint_data_shift 0
+  #define oint_data_len 24
+  #define oint_data_mask 0x00FFFFFFUL
+#elif 0 || defined(TRY_TYPECODES_2)
+  # You can add more platforms here provided that
+  # 1. you need it,
+  # 2. it works.
   # Bits 31..24 = Typcode, Bits 23..0 = Adresse
   #define oint_type_shift 24
   #define oint_type_len 8
@@ -2429,225 +2458,10 @@ Ratio and Complex (only if SPVW_MIXED).
   #define oint_addr_shift 0
   #define oint_addr_len 24
   #define oint_addr_mask 0x00FFFFFFUL
-#elif defined(ACORN_2)
-  # Bits 31..8 = Adresse, Bits 7..0 = Typcode
-  #define oint_type_shift 0
-  #define oint_type_len 8
-  #define oint_type_mask 0x000000FFUL
-  #define oint_addr_shift 8
-  #define oint_addr_len 24
-  #define oint_addr_mask 0xFFFFFF00UL
-#elif defined(ACORN_3) || (defined(I80386) && defined(WIN32_NATIVE))
-  # Bits 31..26 = Typcode, Bits 25..0 = Adresse
-  #define oint_type_shift 26
-  #define oint_type_len 6
-  #define oint_type_mask 0xFC000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 26
-  #define oint_addr_mask 0x03FFFFFFUL
-#elif defined(ACORN_4)
-  # Bits 31..6 = Adresse, Bits 5..0 = Typcode
-  #define oint_type_shift 0
-  #define oint_type_len 6
-  #define oint_type_mask 0x0000003FUL
-  #define oint_addr_shift 6
-  #define oint_addr_len 26
-  #define oint_addr_mask 0xFFFFFFC0UL
-#elif defined(AMIGA3000)
-  # Bits 31..6 = Adresse/2, Bits 5..0 = Typcode
-  #define oint_type_shift 0
-  #define oint_type_len 6
-  #define oint_type_mask 0x0000003FUL
-  #define oint_addr_shift 6
-  #define oint_addr_len 26
-  #define oint_addr_mask 0xFFFFFFC0UL
-  #define addr_shift 1
-#elif defined(UNIX_SYSV_UHC_2)
-  # Bits 31..6 = Adresse/4, Bits 5..0 = Typcode
-  #define oint_type_shift 0
-  #define oint_type_len 6
-  #define oint_type_mask 0x0000003FUL
-  #define oint_addr_shift 6
-  #define oint_addr_len 26
-  #define oint_addr_mask 0xFFFFFFC0UL
-  #define addr_shift 2  # funktioniert nicht wegen STACK_alignment ??
-#elif defined(I80386) && defined(UNIX_CYGWIN32)
-  # Bits 31..7 = Adresse/4, Bits 6..0 = Typcode
-  #define oint_type_shift 0
-  #define oint_type_len 7
-  #define oint_type_mask 0x0000007FUL
-  #define oint_addr_shift 7
-  #define oint_addr_len 25
-  #define oint_addr_mask 0xFFFFFF80UL
-  #define addr_shift 2
-#elif (defined(HPPA) && defined(UNIX_HPUX)) || (defined(MC680X0) && defined(UNIX_AMIX))
-  # Bits 29..24 = Typcode, Bits 31..30,23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 6
-  #define oint_type_mask 0x3F000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24 # vernünftig nutzbar sind nur die unteren 24 Bit
-  #define oint_addr_mask 0xC0FFFFFFUL
-  # Beachte: unten wird aint = uint24 = uint32 sein.
-#elif defined(I80386) && defined(UNIX_CYGWIN32) && defined(WINDOWS_NT)
-  # Bits 31..26,24 = Typcode, Bits 25,23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xFD000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x02FFFFFFUL
-  # Malloc address range: starting at 0x02000000.
-  # Shared libraries: cygwin32.dll is at 0x10000000, other libraries are
-  # at 0x7Fxxxxxx.
-  #define vm_addr_mask 0xEFFFFFFFUL
-#elif defined(I80386) && defined(UNIX_CYGWIN32) && defined(WINDOWS_95)
-  # Bits 31..27,25 = Typcode, Bits 26,24..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xFA000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x05FFFFFFUL
-  # Malloc address range: starting at 0x04800000 or 0x05000000.
-  # Shared libraries: cygwin32.dll is at 0x10000000.
-#elif defined(UNIX_SYSV_UHC_1)
-  # Bits 31..28,26..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xF7000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x08FFFFFFUL
-#elif defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || defined(UNIX_GNU)) && ((defined(DYNAMIC_MODULES) && !defined(NO_MORRIS_GC)) || defined(EFENCE)) # Linux with ELF binary format (or GNU, with ELF as well)
-  # Dynamic loading of modules gives &module_xxx_object_tab = 0x40xxxxxx,
-  # which yields to problems in the Morris GC (the 0x40000000 being masked out).
-  # Use of libefence causes malloc to return addresses = 0x40xxxxxx.
-  # Bits 31,29..28,26..24 = Typcode, Bits 30,27,23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xB7000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x48FFFFFFUL
-#elif defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || defined(UNIX_GNU)) # Linux with ELF binary format (or GNU, with ELF as well)
-  # Bits 31..28,26..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xF7000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x08FFFFFFUL
-  # Shared libraries are mapped in at 0x50000000 or 0x40000000, via mmap().
-  #define vm_addr_mask 0xBFFFFFFFUL
-#elif defined(MIPS) && (defined(UNIX_IRIX) || defined(UNIX_DEC_ULTRIX))
-  # Bits 31..29,27..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xEF000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x10FFFFFFUL
-#elif defined(RS6000) && defined(UNIX_AIX)
-  # Bits 31..30,28..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xDF000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x20FFFFFFUL
-#elif defined(RS6000) && defined(UNIX_LINUX)
-  # Bits 31..25 = Typcode, Bits 24..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xFE000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x01FFFFFFUL
-  # Virtual address range is only 2 GB, and moreover libc-1.99 mmap() is
-  # broken, thinks that addresses >= 0x80000000 are errors.
-  # Shared libraries are mapped in at 0x2AAAA000, via mmap(). We risk to
-  # overwrite them only if someone uses several megabytes of negative bignums.
-  #define vm_addr_mask 0x7FFFFFFFUL
-#elif defined(SPARC) && defined(SUN4_29_2)
-  # Bits 31,28..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0x9F000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x60FFFFFFUL
-#elif defined(WATCOM_BLAKE)
-  # Bits 30..25 = Typcode, Bits 31,24..0 = Adresse
-  #define oint_type_shift 25
-  #define oint_type_len 6
-  #define oint_type_mask 0x7E000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 25
-  #define oint_addr_mask 0x81FFFFFFUL
-#elif defined(UNIX_NEXTSTEP)
-  # Bits 31..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xFF000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x00FFFFFFUL
-  # UNIX_NEXTSTEP has shared libraries at 0x05000000, related storage at
-  # 0x04000000, a stack from 0x03F80000..0x04000000. We avoid this address
-  # range of VM addresses by not using bits 26 and 24 in our typecode
-  # bit encoding scheme.
-  #define vm_addr_mask 0xFAFFFFFFUL
-#elif defined(UNIX_SYSV_PTX)
-  # Bits 31..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xFF000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x00FFFFFFUL
-  # UNIX_SYSV_PTX has its stack above 0x40000000. We avoid this address range
-  # of VM addresses by not using bit 30 in our typecode bit encoding scheme.
-  #define vm_addr_mask 0xBFFFFFFFUL
-#elif defined(I80386) && defined(UNIX_SUNOS5)
-  # Bits 31..28,26..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xF7000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x08FFFFFFUL
-  # UNIX_SUNOS5 has shared libraries at 0x80000000. We avoid this
-  # address range of VM addresses by not using bit 31 in our typecode bit
-  # encoding scheme.
-  #define vm_addr_mask 0x7FFFFFFFUL
-#elif defined(UNIX_NETBSD) # experimentell??
-  # Bits 31..24 = Typcode, Bits 23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0xFF000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x00FFFFFFUL
-  # NetBSD 1.0 has its shared libraries above 0x10000000. We avoid this
-  # address range of VM addresses by not using bit 28 in our typecode bit
-  # encoding scheme.
-  #define vm_addr_mask 0xEFFFFFFFUL
-#elif (defined(CONVEX) && defined(UNIX_CONVEX)) || (defined(MC680X0) && defined(UNIX_LINUX) && CODE_ADDRESS_RANGE)
-  # Bits 30..24 = Typcode, Bits 31,23..0 = Adresse
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask 0x7F000000UL
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask 0x80FFFFFFUL
-  # UNIX_CONVEX user space addresses are in the range 0x80000000..0xFFFFFFFF.
-  # Memory mapping works in the range 0x80000000..0xBFFFFFFFUL.
-  # UNIX_LINUX m68k user space (for ELF executables) is in the range
-  # 0x80000000..0xEFFFFFFF. Shared libraries start at 0xC0000000.
-  #define vm_addr_mask 0xBFFFFFFFUL
+#elif 0
+  #error "TYPECODES not supported any more on this platform. Use -DNO_TYPECODES."
 #else
-  #error "How to split a pointer into type and address? -- Größen oint_type_shift, oint_addr_shift neu einstellen!"
+  #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DNO_TYPECODES."
 #endif
 
 # Meist nutzen wir den ganzen Platz einer Adresse für die Daten von Fixnums etc.
@@ -3110,11 +2924,10 @@ Ratio and Complex (only if SPVW_MIXED).
   #define tint_allowed_type_mask  tint_type_mask
 #endif
 
-# Wir haben 6 bis 8 Typbits zur Verfügung: TB7, [TB6,] [TB5,] TB4, ..., TB0.
+# Wir haben 7 bis 8 Typbits zur Verfügung: TB7, [TB6,] TB5, TB4, ..., TB0.
 # Alle müssen in tint_allowed_type_mask und damit auch in tint_type_mask
 # gesetzt sein. Wir verteilen sie unter der Annahme, dass in tint_type_mask
-# höchstens ein Bit fehlt. TB6 und TB5 werden, falls nicht benutzbar,
-# auf -1 gesetzt.
+# höchstens ein Bit fehlt. TB6 wird, falls nicht benutzbar, auf -1 gesetzt.
 #if ((0xFF & ~tint_allowed_type_mask) == 0)
   #define TB7 7
   #define TB6 6
@@ -3133,50 +2946,45 @@ Ratio and Complex (only if SPVW_MIXED).
   #define TB2 2
   #define TB1 1
   #define TB0 0
-#elif (oint_type_len==6)
-  #define TB7 5
-  #define TB6 -1
-  #define TB5 -1
-  #define TB4 4
-  #define TB3 3
-  #define TB2 2
-  #define TB1 1
-  #define TB0 0
-#elif (oint_type_len>=8) && !((0xFF & ~tint_allowed_type_mask) == 0)
+#else
   # Manchem Bit müssen wir aus dem Weg gehen:
-  #define tint_avoid  (0xFF & ~tint_allowed_type_mask)
-  #if ((tint_avoid & (tint_avoid-1)) == 0)
-    # tint_avoid besteht aus genau einem Bit, das es zu vermeiden gilt.
-    #if (tint_avoid > bit(0))
-      #define TB0 0
-    #else
-      #define TB0 1
-    #endif
-    #if (tint_avoid > bit(1))
-      #define TB1 1
-    #else
-      #define TB1 2
-    #endif
-    #if (tint_avoid > bit(2))
-      #define TB2 2
-    #else
-      #define TB2 3
-    #endif
-    #if (tint_avoid > bit(3))
-      #define TB3 3
-    #else
-      #define TB3 4
-    #endif
-    #if (tint_avoid > bit(4))
-      #define TB4 4
-    #else
-      #define TB4 5
-    #endif
-    #if (tint_avoid > bit(5))
-      #define TB5 5
-    #else
-      #define TB5 6
-    #endif
+  #define tint_avoid  ((bitm(oint_type_len)-1) & ~tint_allowed_type_mask)
+  # tint_avoid darf höchstens ein Bit enthalten:
+  #if (tint_avoid & (tint_avoid-1))
+    #error "Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!"
+  #endif
+  # tint_avoid besteht aus genau einem Bit, das es zu vermeiden gilt.
+  #if (tint_avoid > bit(0))
+    #define TB0 0
+  #else
+    #define TB0 1
+  #endif
+  #if (tint_avoid > bit(1))
+    #define TB1 1
+  #else
+    #define TB1 2
+  #endif
+  #if (tint_avoid > bit(2))
+    #define TB2 2
+  #else
+    #define TB2 3
+  #endif
+  #if (tint_avoid > bit(3))
+    #define TB3 3
+  #else
+    #define TB3 4
+  #endif
+  #if (tint_avoid > bit(4))
+    #define TB4 4
+  #else
+    #define TB4 5
+  #endif
+  #if (tint_avoid > bit(5))
+    #define TB5 5
+  #else
+    #define TB5 6
+  #endif
+  #if ((tint_allowed_type_mask & ~0xFF) == 0)
     #define TB6 -1
     #if (tint_avoid > bit(6))
       #define TB7 6
@@ -3184,168 +2992,43 @@ Ratio and Complex (only if SPVW_MIXED).
       #define TB7 7
     #endif
   #else
-    # tint_avoid darf höchstens zwei Bits enthalten:
-    #if ((tint_avoid & (tint_avoid-1)) & ((tint_avoid & (tint_avoid-1)) - 1))
-      #error "Bogus oint_type_mask -- oint_type_mask neu einstellen!"
-    #endif
-    # Das eine verbotene Bit können wir immer noch als GC-Bit nutzen,
-    # vorausgesetzt, es ist in tint_type_mask enthalten:
-    #define tint_maybegc_type_mask  (0xFF & tint_type_mask & ~tint_allowed_type_mask)
-    #if (tint_maybegc_type_mask!=0)
-      # Davon nehmen wir das kleinere Bit als GC-Bit:
-      #define tint_avoid1  (tint_maybegc_type_mask & -tint_maybegc_type_mask)
-      #if (tint_avoid1 == bit(0))
-        #define TB7 0
-      #elif (tint_avoid1 == bit(1))
-        #define TB7 1
-      #elif (tint_avoid1 == bit(2))
-        #define TB7 2
-      #elif (tint_avoid1 == bit(3))
-        #define TB7 3
-      #elif (tint_avoid1 == bit(4))
-        #define TB7 4
-      #elif (tint_avoid1 == bit(5))
-        #define TB7 5
-      #elif (tint_avoid1 == bit(6))
-        #define TB7 6
-      #elif (tint_avoid1 == bit(7))
-        #define TB7 7
-      #else
-        #error "Bogus tint_avoid1!"
-      #endif
-      #define TB6 -1
-      # Und das größere Bit gilt es noch zu vermeiden:
-      #define tint_avoid2  (tint_avoid & ~tint_avoid1)
-      #if (TB7 > 0) && (tint_avoid2 > bit(0))
-        #define TB0 0
-      #elif (TB7 > 1) || (tint_avoid2 > bit(1))
-        #define TB0 1
-      #else
-        #define TB0 2
-      #endif
-      #if (TB7 > 1) && (tint_avoid2 > bit(1))
-        #define TB1 1
-      #elif (TB7 > 2) || (tint_avoid2 > bit(2))
-        #define TB1 2
-      #else
-        #define TB1 3
-      #endif
-      #if (TB7 > 2) && (tint_avoid2 > bit(2))
-        #define TB2 2
-      #elif (TB7 > 3) || (tint_avoid2 > bit(3))
-        #define TB2 3
-      #else
-        #define TB2 4
-      #endif
-      #if (TB7 > 3) && (tint_avoid2 > bit(3))
-        #define TB3 3
-      #elif (TB7 > 4) || (tint_avoid2 > bit(4))
-        #define TB3 4
-      #else
-        #define TB3 5
-      #endif
-      #if (TB7 > 4) && (tint_avoid2 > bit(4))
-        #define TB4 4
-      #elif (TB7 > 5) || (tint_avoid2 > bit(5))
-        #define TB4 5
-      #else
-        #define TB4 6
-      #endif
-      #if (TB7 > 5) && (tint_avoid2 > bit(5))
-        #define TB5 5
-      #elif (TB7 > 6) || (tint_avoid2 > bit(6))
-        #define TB5 6
-      #else
-        #define TB5 7
-      #endif
+    #if (tint_avoid > bit(6))
+      #define TB6 6
     #else
-      # Wir müssen beiden Bits vollständig aus dem Weg gehen.
-      #define tint_avoid1  (tint_avoid & -tint_avoid)     # das kleinere der Bits
-      #define tint_avoid2  (tint_avoid & (tint_avoid-1))  # das größere der Bits
-      #if (tint_avoid1 > bit(0))
-        #define TB0 0
-      #elif (tint_avoid2 > bit(1))
-        #define TB0 1
-      #else
-        #define TB0 2
-      #endif
-      #if (tint_avoid1 > bit(1))
-        #define TB1 1
-      #elif (tint_avoid2 > bit(2))
-        #define TB1 2
-      #else
-        #define TB1 3
-      #endif
-      #if (tint_avoid1 > bit(2))
-        #define TB2 2
-      #elif (tint_avoid2 > bit(3))
-        #define TB2 3
-      #else
-        #define TB2 4
-      #endif
-      #if (tint_avoid1 > bit(3))
-        #define TB3 3
-      #elif (tint_avoid2 > bit(4))
-        #define TB3 4
-      #else
-        #define TB3 5
-      #endif
-      #if (tint_avoid1 > bit(4))
-        #define TB4 4
-      #elif (tint_avoid2 > bit(5))
-        #define TB4 5
-      #else
-        #define TB4 6
-      #endif
-      #define TB5 -1
-      #define TB6 -1
-      #if (tint_avoid1 > bit(5))
-        #define TB7 5
-      #elif (tint_avoid2 > bit(6))
-        #define TB7 6
-      #else
-        #define TB7 7
-      #endif
+      #define TB6 7
+    #endif
+    #if (tint_avoid > bit(7))
+      #define TB7 7
+    #else
+      #define TB7 8
     #endif
   #endif
-#else
-  #error "Bogus TB7..TB0 -- TB7..TB0 neu einstellen!"
 #endif
 
-#if (TB7==7)&&(TB6==6)&&(TB5==5)&&(TB4==4)&&(TB3==3)&&(TB2==2)&&(TB1==1)&&(TB0==0)
-  #if defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT)
-    #define SUN3_TYPECODES
-  #elif defined(SUN4_29_1) && defined(MAP_MEMORY) && !defined(WIDE_SOFT)
-    #define PACKED_TYPECODES
-  #elif defined(DECALPHA) && defined(UNIX_OSF) && defined(MAP_MEMORY)
-    #define PACKED_TYPECODES
-  #else
-    #define STANDARD_TYPECODES
-  #endif
-#endif
-#if (oint_type_len>=8) && (TB6==-1)
-  #if (TB5==-1)
-    #define SIXBIT_TYPECODES
-  #elif defined(DECALPHA) && defined(UNIX_OSF) && defined(MAP_MEMORY)
-    #define PACKED_TYPECODES
-  #else
-    #define SEVENBIT_TYPECODES
-  #endif
-#endif
-#if (oint_type_len==7)
-  #define SEVENBIT_TYPECODES
-#endif
-#if (oint_type_len==6)
-  #define SIXBIT_TYPECODES
-#endif
+# Bitmasken zu den Typbits:
+  #define BTB0  bit(TB0)
+  #define BTB1  bit(TB1)
+  #define BTB2  bit(TB2)
+  #define BTB3  bit(TB3)
+  #define BTB4  bit(TB4)
+  #define BTB5  bit(TB5)
+  #define BTB6  bit(TB6)
+  #define BTB7  bit(TB7)
 
-#ifdef STANDARD_TYPECODES
+#define STANDARD_8BIT_TYPECODES
+
+#ifdef STANDARD_8BIT_TYPECODES
 
 #if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE == 0)
   # Bei 0x60000000 sitzen die Shared-Libraries.
   # Bei 0x50000000 (Linux 1.2) bzw. 0x40000000 (Linux 2.0) sitzen diverse
   # mmap-Seiten, z.B. von setlocale() oder gettext() alloziert.
   # Deswegen brauchen wir die Typcode-Verteilung nur ein wenig zu ändern.
+#endif
+
+#if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)
+  # Code and malloc memory is at 0x08000000.
+  # Therefore avoid allocating typecode 0x08 for the moment.
 #endif
 
 #if (defined(MC680X0) || (defined(SPARC) && !defined(SUN4_29))) && defined(UNIX_LINUX)
@@ -3358,6 +3041,11 @@ Ratio and Complex (only if SPVW_MIXED).
   # Deswegen brauchen wir die Typcode-Verteilung aber nicht zu ändern.
 #endif
 
+#if defined(DECALPHA) && defined(UNIX_OSF) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
+# mmap() geht nur mit Adressen >=0, <2^38, aber da gewöhnliche Pointer im
+# Bereich 1*2^32..2*2^32 liegen, bleiben uns nur die Bits 37..33 als Typbits.
+#endif
+
 #if defined(SPARC64) && defined(UNIX_LINUX)
   # Bei 0x70000000 sitzen die Shared Libraries.
   # Deswegen brauchen wir die Typcode-Verteilung aber nicht zu ändern.
@@ -3365,21 +3053,23 @@ Ratio and Complex (only if SPVW_MIXED).
 
 # Typbits:
 # in Typcodes (tint):
-  #define garcol_bit_t     7  # gesetzt nur während der Garbage Collection!
-  #define cons_bit_t       6  # gesetzt nur bei CONS
-  #define symbol_bit_t     5  # gesetzt nur bei SYMBOL
-  #define number_bit_t     4  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  2  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
-  #define float_bit_t      1
-  #define float1_bit_t     3
-  #define float2_bit_t     2
-  #define ratio_bit_t      3
-  #define bignum_bit_t     2
+  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
+  #if (TB6 >= 0)
+    #define cons_bit_t     TB6  # gesetzt nur bei CONS
+  #endif
+  #define number_bit_t     TB5  # gesetzt nur bei Zahlen
+  #define notsimple_bit_t  TB3  # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define float_bit_t      TB1
+  #define float1_bit_t     TB3
+  #define float2_bit_t     TB2
+  #define ratio_bit_t      TB3
+  #define bignum_bit_t     TB2
 # in Objekten (oint):
   #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
-  #define cons_bit_o       (cons_bit_t+oint_type_shift)      # gesetzt nur bei CONS
-  #define symbol_bit_o     (symbol_bit_t+oint_type_shift)    # gesetzt nur bei SYMBOL
+  #if (TB6 >= 0)
+    #define cons_bit_o     (cons_bit_t+oint_type_shift)      # gesetzt nur bei CONS
+  #endif
   #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
   #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
   #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
@@ -3390,598 +3080,66 @@ Ratio and Complex (only if SPVW_MIXED).
   #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
 
 # konstante Typcodes:
-  #define machine_type   0x00  # %00000000  ; Maschinenpointer
-  #define sbvector_type  0x01  # %00000001  ; Simple-Bit-Vector
-  #define sstring_type   0x02  # %00000010  ; Simple-String
-  #define svector_type   0x03  # %00000011  ; Simple-Vector
-  #define mdarray_type   0x04  # %00000100  ; sonstiger Array (Rang /=1 oder
-                               #            ; - später vielleicht - anderer Elementtyp)
-  #define bvector_type   0x05  # %00000101  ; sonstiger Bit-Vector oder Byte-Vector
-  #define string_type    0x06  # %00000110  ; sonstiger String
-  #define vector_type    0x07  # %00000111  ; sonstiger (VECTOR T)
-  #define closure_type   0x08  # %00001000  ; Closure
-  #define structure_type 0x09  # %00001001  ; Structure
-  #define stream_type    0x0A  # %00001010  ; Stream
-  #define orecord_type   0x0B  # %00001011  ; OtherRecord (Package, Byte, ...)
-  #define instance_type  0x0C  # %00001100  ; CLOS-Instanz
-  #define char_type      0x0D  # %00001101  ; Character
-  #define subr_type      0x0E  # %00001110  ; SUBR
-  #define system_type    0x0F  # %00001111  ; Frame-Pointer, Read-Label, SYSTEM
-  #define fixnum_type    0x10  # %00010000  ; Fixnum
-  #define sfloat_type    0x12  # %00010010  ; Short-Float
-  #define bignum_type    0x14  # %00010100  ; Bignum
-  #define ffloat_type    0x16  # %00010110  ; Single-Float
-  #define ratio_type     0x18  # %00011000  ; Ratio
-  #define dfloat_type    0x1A  # %00011010  ; Double-float
-  #define complex_type   0x1C  # %00011100  ; Complex
-  #define lfloat_type    0x1E  # %00011110  ; Long-Float
-  #define symbol_type    0x20  # %00100000  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          #define active_bit  1  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   2  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    3  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #define oint_symbolflags_shift  oint_type_shift
-          # Bits für Symbole im Selbstpointer:
-          #define constant_bit_t  1  # zeigt an, ob das Symbol eine Konstante ist
-          #define special_bit_t   2  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #if defined(I80386) && defined(UNIX_LINUX)
-  #define cons_type      0x44  # %01000100  ; Cons
-  #else
-  #define cons_type      0x40  # %01000000  ; Cons
+  #define machine_type    (0)                                  # 0x00  # %00000000  ; machine pointer
+  #define subr_type       (                              BTB0) # 0x01  # %00000001  ; SUBR
+  #define char_type       (                         BTB1     ) # 0x02  # %00000010  ; character
+  #define system_type     (                         BTB1|BTB0) # 0x03  # %00000011  ; frame-pointer, read-label, system
+  #define symbol_type     (                    BTB2          ) # 0x04  # %000001xx  ; symbol
+          # bits for symbols in the GCself pointer:
+          #define constant_bit_t  TB0  # set if the symbol is a constant
+          #define special_bit_t   TB1  # set if the symbol is SPECIAL proclaimed
+  #if (TB6 < 0)
+  #define cons_type       (               BTB3               ) # 0x08  # %00001000  ; cons
   #endif
+  #define closure_type    (               BTB3          |BTB0) # 0x09  # %00001001  ; closure
+  #define structure_type  (               BTB3     |BTB1     ) # 0x0A  # %00001010  ; structure
+  #define stream_type     (               BTB3     |BTB1|BTB0) # 0x0B  # %00001011  ; stream
+  #define orecord_type    (               BTB3|BTB2          ) # 0x0C  # %00001100  ; OtherRecord (Package, Byte, ...)
+  #define instance_type   (               BTB3|BTB2     |BTB0) # 0x0D  # %00001101  ; CLOS instance
+  #define mdarray_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; other array (rank/=1 or other eltype)
+  #define sbvector_type   (          BTB4                    ) # 0x10  # %00010000  ; simple-bit-vector
+  #define sstring_type    (          BTB4     |BTB2|BTB1     ) # 0x16  # %00010110  ; simple-string
+  #define svector_type    (          BTB4     |BTB2|BTB1|BTB0) # 0x17  # %00010111  ; simple-vector
+  #define bvector_type    (          BTB4|BTB3               ) # 0x18  # %00011000  ; non-simple bit-vector
+  #define string_type     (          BTB4|BTB3|BTB2|BTB1     ) # 0x1E  # %00011110  ; non-simple string
+  #define vector_type     (          BTB4|BTB3|BTB2|BTB1|BTB0) # 0x1F  # %00011111  ; non-simple (VECTOR T)
+  #define fixnum_type     (     BTB5                         ) # 0x20  # %00100000  ; fixnum
+  #define sfloat_type     (     BTB5               |BTB1     ) # 0x22  # %00100010  ; short-float
+  #define bignum_type     (     BTB5          |BTB2          ) # 0x24  # %00100100  ; bignum
+  #define ffloat_type     (     BTB5          |BTB2|BTB1     ) # 0x26  # %00100110  ; single-float
+  #define ratio_type      (     BTB5     |BTB3               ) # 0x28  # %00101000  ; ratio
+  #define dfloat_type     (     BTB5     |BTB3     |BTB1     ) # 0x2A  # %00101010  ; double-float
+  #define complex_type    (     BTB5     |BTB3|BTB2          ) # 0x2C  # %00101100  ; complex
+  #define lfloat_type     (     BTB5     |BTB3|BTB2|BTB1     ) # 0x2E  # %00101110  ; long-float
+  #if (TB6 >= 0)
+  #define cons_type       (BTB6                              ) # 0x40  # %01000000  ; cons
+  #endif
+
+# Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
+# sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
+  #define active_bit  0  # gesetzt: Bindung ist aktiv
+  #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
+  #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+  #define oint_symbolflags_shift  oint_type_shift
+#if (varobject_alignment >= bit(3))
+  #define oint_symbolflags_shift  oint_addr_shift
+#else
+  #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
+#endif
 
 #ifndef WIDE
   # Typ ist GC-invariant, wenn
-  # Typinfobyte=0 oder char_type <= Typinfobyte < bignum_type.
+  # Typinfobyte >=0, <= system_type oder >= fixnum_type, < bignum_type.
     #define gcinvariant_type_p(type)  \
-      (((type)==0) || ((char_type<=(type)) && ((type)<bignum_type)))
+      (((type) & ~(BTB5|BTB1|BTB0)) == 0)
 #else
   # Typ ist GC-invariant, wenn
-  # Typinfobyte eines von 0x00,0x0D..0x13,0x16..0x17 ist.
+  # Typinfobyte eines von 0x00..0x03,0x20..0x23,0x26..0x27 ist.
     #define gcinvariant_type_p(type)  \
-      (((type)<0x18) && ((bit(type) & 0xFF301FFEUL) == 0))
+      ((((type)>>(TB0+1))<0x14) && ((bit((type)>>(TB0+1)) & 0xFFF4FFFCUL) == 0))
 #endif
 
-#endif # STANDARD_TYPECODES
-
-#ifdef PACKED_TYPECODES
-
-#ifdef SUN4_29_1
-# Zugriffe sind nur auf Pointer >=0, <2^29 erlaubt.
-# Daher eine etwas gedrängte Typcode-Verteilung.
-#endif
-
-#if defined(DECALPHA) && defined(UNIX_OSF) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
-# mmap() geht nur mit Adressen >=0, <2^38, aber da gewöhnliche Pointer im
-# Bereich 1*2^32..2*2^32 liegen, bleiben uns nur die Bits 37..33 als Typbits.
-#endif
-
-# Typbits:
-# in Typcodes (tint):
-  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
-  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
-  #define float_bit_t      TB1
-  #define float1_bit_t     TB3
-  #define float2_bit_t     TB2
-  #define ratio_bit_t      TB3
-  #define bignum_bit_t     TB2
-# in Objekten (oint):
-  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
-  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
-  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
-  #define float_bit_o      (float_bit_t+oint_type_shift)
-  #define float1_bit_o     (float1_bit_t+oint_type_shift)
-  #define float2_bit_o     (float2_bit_t+oint_type_shift)
-  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
-  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
-
-# konstante Typcodes:
-  #define machine_type   (0)                                            # 0x00  # %00000000  ; Maschinenpointer
-  #define sbvector_type  (                                    bit(TB0)) # 0x01  # %00000001  ; Simple-Bit-Vector
-  #define sstring_type   (                           bit(TB1)         ) # 0x02  # %00000010  ; Simple-String
-  #define svector_type   (                           bit(TB1)|bit(TB0)) # 0x03  # %00000011  ; Simple-Vector
-  #define mdarray_type   (                  bit(TB2)                  ) # 0x04  # %00000100  ; sonstiger Array (Rang /=1 oder
-                                                                                #            ; - später vielleicht - anderer Elementtyp)
-  #define bvector_type   (                  bit(TB2)         |bit(TB0)) # 0x05  # %00000101  ; sonstiger Bit-Vector oder Byte-Vector
-  #define string_type    (                  bit(TB2)|bit(TB1)         ) # 0x06  # %00000110  ; sonstiger String
-  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0)) # 0x07  # %00000111  ; sonstiger (VECTOR T)
-  #define closure_type   (         bit(TB3)                           ) # 0x08  # %00001000  ; Closure
-  #define structure_type (         bit(TB3)                  |bit(TB0)) # 0x09  # %00001001  ; Structure
-  #define stream_type    (         bit(TB3)         |bit(TB1)         ) # 0x0A  # %00001010  ; Stream
-  #define orecord_type   (         bit(TB3)         |bit(TB1)|bit(TB0)) # 0x0B  # %00001011  ; OtherRecord (Package, Byte, ...)
-  #define instance_type  (         bit(TB3)|bit(TB2)                  ) # 0x0C  # %00001100  ; CLOS-Instanz
-  #define symbol_type    (         bit(TB3)|bit(TB2)         |bit(TB0)) # 0x0D  # %00001101  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          # sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
-          #define active_bit  0  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #if (varobject_alignment >= bit(3))
-            #define oint_symbolflags_shift  oint_addr_shift
-          #else
-            #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
-          #endif
-          # Bits für Symbole im Selbstpointer:
-          #if !((TB3+3==TB7) || (TB3+2==TB7) || (TB3+1==TB7))
-            #define constant_bit_t  (TB3+3)  # zeigt an, ob das Symbol eine Konstante ist
-            #define special_bit_t   (TB3+2)  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #else
-            #define constant_bit_t  (TB7+3)  # zeigt an, ob das Symbol eine Konstante ist
-            #define special_bit_t   (TB7+2)  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #endif
-  #define cons_type      (         bit(TB3)|bit(TB2)|bit(TB1)         ) # 0x0E  # %00001110  ; Cons
-  #define subr_type      (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0)) # 0x0F  # %00001111  ; SUBR
-  #define fixnum_type    (bit(TB4)                                    ) # 0x10  # %00010000  ; Fixnum
-  #define sfloat_type    (bit(TB4)                  |bit(TB1)         ) # 0x12  # %00010010  ; Short-Float
-  #define bignum_type    (bit(TB4)         |bit(TB2)                  ) # 0x14  # %00010100  ; Bignum
-  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         ) # 0x16  # %00010110  ; Single-Float
-  #define ratio_type     (bit(TB4)|bit(TB3)                           ) # 0x18  # %00011000  ; Ratio
-  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         ) # 0x1A  # %00011010  ; Double-float
-  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  ) # 0x1C  # %00011100  ; Complex
-  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         ) # 0x1E  # %00011110  ; Long-Float
-  #define system_type    (bit(TB5)                                    ) # 0x20  # %00100000  ; Frame-Pointer, Read-Label, SYSTEM
-  #define char_type      (bit(TB5)|bit(TB0)                           ) # 0x21  # %00100001  ; Character
-
-# Typ ist GC-invariant, wenn
-  #if (TB5==5)&&(TB4==4)&&(TB3==3)&&(TB2==2)&&(TB1==1)&&(TB0==0) && !defined(WIDE)
-    # Typinfobyte eines von 0x00,0x0F,0x10,0x11,0x12,0x13,0x20,0x21 ist.
-    #define gcinvariant_type_p(type)  \
-      (((type)>=32) || ((bit(type) & 0xFFF07FFEUL) == 0))
-  #elif (TB5==6)&&(TB4==5)&&(TB3==4)&&(TB2==3)&&(TB1==2)&&(TB0==1) && defined(WIDE)
-    # Typinfobyte/2 eines von 0x00,0x0F,0x10,0x11,0x12,0x13,0x16,0x17,0x20,0x21 ist.
-    #define gcinvariant_type_p(type)  \
-      (((type)>=64) || ((bit((type)>>1) & 0xFF307FFEUL) == 0))
-  #elif !defined(WIDE)
-    # Typinfobyte = 0 oder subr_type <= Typinfobyte < bignum_type oder Typinfobyte >= system_type ist.
-    #define gcinvariant_type_p(type)  \
-      (((type) == 0) || ((subr_type <= (type)) && ((type) < bignum_type)) || (system_type <= (type)))
-  #else
-    #error "gcinvariant_type_p() implementieren!"
-  #endif
-
-#endif # PACKED_TYPECODES
-
-#ifdef SEVENBIT_TYPECODES
-
-#if defined(UNIX_SYSV_UHC_1) || (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || defined(UNIX_GNU)))
-# Mallozierter Speicher belegt den Bereich ab 0x08000000.
-# Für die Typinformation stehen nur 7 Bit zur Verfügung, und die für den
-# Typcode zur Verfügung stehenden Bits liegen nicht am Stück.
-# Wir müssen Bit 3 aus dem Weg gehen.
-#if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)
-# Shared Libraries belegen den Bereich ab 0x40000000 oder 0x50000000.
-# Nehme daher Bit 6 als GC-Bit.
-#endif
-#endif
-
-#if defined(UNIX_IRIX) || defined(UNIX_DEC_ULTRIX)
-# Mallozierter Speicher belegt den Bereich ab 0x10000000.
-# Für die Typinformation stehen nur 7 Bit zur Verfügung, und die für den
-# Typcode zur Verfügung stehenden Bits liegen nicht am Stück.
-# Wir müssen Bit 4 aus dem Weg gehen.
-#endif
-
-#ifdef UNIX_AIX
-# Mallozierter Speicher belegt den Bereich ab 0x20000000.
-# Für die Typinformation stehen nur 7 Bit zur Verfügung, und die für den
-# Typcode zur Verfügung stehenden Bits liegen nicht am Stück.
-# Wir müssen Bit 5 aus dem Weg gehen.
-#endif
-
-#if defined(UNIX_NEXTSTEP) && defined(MAP_MEMORY)
-# UNIX_NEXTSTEP verbietet uns die Benutzung von Adressen im Bereich von
-# unterhalb 0x04000000 bis oberhalb 0x05000000. Wir vermeiden daher als
-# Typbits Bit 0 und Bit 2 (ausgenommen GC-Bit, das ja vor jedem Speicherzugriff
-# wegmaskiert wird).
-#endif
-
-#if defined(UNIX_CONVEX) && defined(MAP_MEMORY)
-# Bei UNIX_CONVEX liegt der Adressraum der Prozesse ab 0x80000000.
-# mmap() funktioniert allerdings nur unterhalb von 0xC000000. Daher
-# gehört Bit 31 zur Adresse, und Bit 30 müssen wir aus dem Weg gehen.
-#endif
-
-#if defined(I80386) && defined(UNIX_CYGWIN32)
-# Mallozierter Speicher belegt den Bereich ab 0x02000000 unter WinNT, aber
-# den Bereich ab 0x04800000 oder 0x05000000 unter Win95. Wenn man dieselben
-# Binaries und dieselben mem-Files für beides verwenden will, bleiben nur
-# noch die Bits 31..27 und 1..0 für Typinformation übrig. Alignment = 4 kann
-# man voraussetzen.
-#endif
-
-#if defined(DECALPHA) && defined(UNIX_LINUX) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
-# Mallozierter Speicher belegt den Bereich ab 0x120000000.
-# Wir müssen Bit 32 aus dem Weg gehen.
-#endif
-
-#if defined(RS6000) && defined(UNIX_LINUX)
-# On MkLinux, code and mallocated memory starts at 0x01000000. Avoid bit 24.
-# Moreover, bit 31 cannot be used in addresses.
-# Shared libraries are at 0x2AAAA000, but we won't probably hit them.
-#endif
-
-# Typbits:
-# in Typcodes (tint):
-  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
-  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
-  #define float_bit_t      TB1
-  #define float1_bit_t     TB3
-  #define float2_bit_t     TB2
-  #define ratio_bit_t      TB3
-  #define bignum_bit_t     TB2
-# in Objekten (oint):
-  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
-  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
-  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
-  #define float_bit_o      (float_bit_t+oint_type_shift)
-  #define float1_bit_o     (float1_bit_t+oint_type_shift)
-  #define float2_bit_o     (float2_bit_t+oint_type_shift)
-  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
-  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
-
-# konstante Typcodes:
-  #define machine_type   (0)                                             # %000000  ; Maschinenpointer
-  #define sbvector_type  (                                    bit(TB0))  # %000001  ; Simple-Bit-Vector
-  #define sstring_type   (                           bit(TB1)         )  # %000010  ; Simple-String
-  #define svector_type   (                           bit(TB1)|bit(TB0))  # %000011  ; Simple-Vector
-  #define mdarray_type   (                  bit(TB2)                  )  # %000100  ; sonstiger Array (Rang /=1 oder
-                                                                         #          ; - später vielleicht - anderer Elementtyp)
-  #define bvector_type   (                  bit(TB2)         |bit(TB0))  # %000101  ; sonstiger Bit-Vector oder Byte-Vector
-  #define string_type    (                  bit(TB2)|bit(TB1)         )  # %000110  ; sonstiger String
-  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0))  # %000111  ; sonstiger (VECTOR T)
-  #define closure_type   (         bit(TB3)                           )  # %001000  ; Closure
-  #define structure_type (         bit(TB3)                  |bit(TB0))  # %001001  ; Structure
-  #define stream_type    (         bit(TB3)         |bit(TB1)         )  # %001010  ; Stream
-  #define orecord_type   (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; OtherRecord (Package, Byte, ...)
-  #define instance_type  (         bit(TB3)|bit(TB2)                  )  # %001100  ; CLOS-Instanz
-  #define char_type      (         bit(TB3)|bit(TB2)         |bit(TB0))  # %001101  ; Character
-  #define subr_type      (         bit(TB3)|bit(TB2)|bit(TB1)         )  # %001110  ; SUBR
-  #define system_type    (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0))  # %001111  ; Frame-Pointer, Read-Label, SYSTEM
-  #define fixnum_type    (bit(TB4)                                    )  # %010000  ; Fixnum
-  #define sfloat_type    (bit(TB4)                  |bit(TB1)         )  # %010010  ; Short-Float
-  #define bignum_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Bignum
-  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Single-Float
-  #define ratio_type     (bit(TB4)|bit(TB3)                           )  # %011000  ; Ratio
-  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
-  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
-  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
-  #define symbol_type    (bit(TB5)                                    )  # %100000  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          #define active_bit  TB0  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   TB1  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    TB2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #define oint_symbolflags_shift  oint_type_shift
-          # Bits für Symbole im Selbstpointer:
-          #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
-          #define special_bit_t   TB1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #define cons_type      (bit(TB5)|bit(TB3)|bit(TB2)                  )  # %101000  ; Cons
-
-#ifndef WIDE
-  # Typ ist GC-invariant, wenn
-  # Typinfobyte=0 oder char_type <= Typinfobyte < bignum_type.
-    #define gcinvariant_type_p(type)  \
-      (((type)==0) || ((char_type<=(type)) && ((type)<bignum_type)))
-#elif (TB5==6)&&(TB4==5)&&(TB3==4)&&(TB2==3)&&(TB1==2)&&(TB0==1) && defined(WIDE)
-  # Typinfobyte/2 eines von 0x00,0x0D,0x0E,0x0F,0x10,0x11,0x12,0x13,0x16,0x17 ist.
-  #define gcinvariant_type_p(type)  \
-    (((type)<64) && ((bit((type)>>1) & 0xFF301FFEUL) == 0))
-#else
-  #error "gcinvariant_type_p() implementieren!"
-#endif
-
-#endif # SEVENBIT_TYPECODES
-
-#ifdef PACKED_SEVENBIT_TYPECODES
-
-# Typbits:
-# in Typcodes (tint):
-  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
-  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
-  #define float_bit_t      TB1
-  #define float1_bit_t     TB3
-  #define float2_bit_t     TB2
-  #define ratio_bit_t      TB3
-  #define bignum_bit_t     TB2
-# in Objekten (oint):
-  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
-  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
-  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
-  #define float_bit_o      (float_bit_t+oint_type_shift)
-  #define float1_bit_o     (float1_bit_t+oint_type_shift)
-  #define float2_bit_o     (float2_bit_t+oint_type_shift)
-  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
-  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
-
-# konstante Typcodes:
-  #define machine_type   (0)                                             # %000000  ; Maschinenpointer
-  #define sbvector_type  (                                    bit(TB0))  # %000001  ; Simple-Bit-Vector
-  #define sstring_type   (                           bit(TB1)         )  # %000010  ; Simple-String
-  #define svector_type   (                           bit(TB1)|bit(TB0))  # %000011  ; Simple-Vector
-  #define mdarray_type   (                  bit(TB2)                  )  # %000100  ; sonstiger Array (Rang /=1 oder
-                                                                         #          ; - später vielleicht - anderer Elementtyp)
-  #define bvector_type   (                  bit(TB2)         |bit(TB0))  # %000101  ; sonstiger Bit-Vector oder Byte-Vector
-  #define string_type    (                  bit(TB2)|bit(TB1)         )  # %000110  ; sonstiger String
-  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0))  # %000111  ; sonstiger (VECTOR T)
-  #define symbol_type    (         bit(TB3)                           )  # %001000  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          #define active_bit  0  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #if (varobject_alignment >= bit(3))
-            #define oint_symbolflags_shift  oint_addr_shift
-          #else
-            #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
-          #endif
-          # Bits für Symbole im Selbstpointer:
-          #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
-          #define special_bit_t   TB4  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #define cons_type      (         bit(TB3)                  |bit(TB0))  # %001001  ; Cons
-  #define closure_type   (         bit(TB3)         |bit(TB1)         )  # %001010  ; Closure
-  #define structure_type (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Structure
-  #define orecord_type   (         bit(TB3)|bit(TB2)                  )  # %001100  ; OtherRecord (Stream, Package, Byte, ...)
-  #define instance_type  (         bit(TB3)|bit(TB2)         |bit(TB0))  # %001101  ; CLOS-Instanz
-  #define subr_type      (         bit(TB3)|bit(TB2)|bit(TB1)         )  # %001110  ; SUBR
-  #define system_type    (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0))  # %001111  ; Frame-Pointer, Read-Label, SYSTEM
-  #define fixnum_type    (bit(TB4)                                    )  # %010000  ; Fixnum
-  #define sfloat_type    (bit(TB4)                  |bit(TB1)         )  # %010010  ; Short-Float
-  #define bignum_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Bignum
-  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Single-Float
-  #define ratio_type     (bit(TB4)|bit(TB3)                           )  # %011000  ; Ratio
-  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
-  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
-  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
-  #define char_type      (bit(TB5)|bit(TB3)         |bit(TB1)         )  # %101010  ; Character
-
-#ifndef WIDE
-  # Typ ist GC-invariant, wenn
-  # Typinfobyte=0 oder subr_type <= Typinfobyte < bignum_type oder Typinfobyte >= char_type.
-    #define gcinvariant_type_p(type)  \
-      (((type)==0) || ((subr_type<=(type)) && ((type)<bignum_type)) || (char_type<=(type)))
-#else
-  #error "gcinvariant_type_p() implementieren!"
-#endif
-
-#endif # PACKED_SEVENBIT_TYPECODES
-
-#ifdef SIXBIT_TYPECODES
-
-#if defined(ACORN_3) || defined(ACORN_4)
-# Speicher kann den Bereich von 0x00000000 bis 0x03FFFFFF umfassen.
-# Für die Typinformation stehen nur 6 Bit zur Verfügung.
-#endif
-
-#ifdef AMIGA3000
-# Speicher kann den Bereich von 0x07000000 bis 0x0FFFFFFF umfassen.
-# Für die Typinformation stehen nur 6 Bit zur Verfügung, und dies auch nur,
-# wenn wir Alignment = 4 voraussetzen.
-# Das können wir aber nicht, da der C-Compiler bzw. der Linker im Text-Segment
-# nur Alignment = 2 hat. Somit können wir nur den Bereich von 0x07000000 bis
-# 0x07FFFFFF nutzen.
-#endif
-
-#if defined(I80386) && defined(WIN32_NATIVE)
-# The memory map looks like this:
-#   0x00000000 - 0x00400000  stack, executable
-#   0x00400000 - 0x00E00000  (WinNT 4.0 only) something
-#   then free
-#   0x75xxxxxx               DLLs
-#   0x77xxxxxx               DLLs
-#   0x78xxxxxx               DLLs
-#   0x7Fxxxxxx               DLLs
-#   0x80000000 - 0xFFFFFFFF  not present
-# Therefore we put the type bits into bits 31..26 (bit 31 being the GC bit),
-# and let the base address range extend from 0x00000000 to 0x03FFFFFF. This
-# should be enough for up to 50 MB memory use.
-# Also, we avoid to map memory to addresses 0x70000000 - 0x7FFFFFFF.
-#define NUMBER_BITS_INVERTED
-#endif
-
-#if defined(HPPA) && defined(UNIX_HPUX)
-# Mallozierter Speicher belegt den Bereich ab 0x40000000.
-# Für die Typinformation stehen die Bits 29..24 zur Verfügung.
-#endif
-
-#ifdef UNIX_AMIX
-# Bits 31..30 werden vom Betriebssystem belegt.
-# Für die Typinformation stehen die Bits 29..24 zur Verfügung.
-#endif
-
-#ifdef UNIX_SYSV_UHC_2
-# Mallozierter Speicher belegt den Bereich ab 0x08000000.
-# Für die Typinformation stehen nur 6 Bit zur Verfügung, und dies auch nur,
-# wenn wir Alignment = 4 voraussetzen.
-#endif
-
-#ifdef WATCOM_BLAKE
-# When run with virtual memory or in the DOS box, the DOS4GW extender returns
-# malloc'ed memory in the range beginning at 0x80000000.
-# The type information can use the bits 30..25.
-#endif
-
-#ifdef SUN4_29_2
-# Zugriffe sind nur auf Pointer >=0, <2^29 erlaubt.
-#endif
-
-# Für die Typinformation stehen nur 6 Bit zur Verfügung.
-# Daher eine etwas gedrängte Typcode-Verteilung.
-
-# Typbits:
-# in Typcodes (tint):
-  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
-  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
-  #define float_bit_t      TB1
-  #define float1_bit_t     TB3
-  #define float2_bit_t     TB2
-  #define ratio_bit_t      TB3
-  #define bignum_bit_t     TB2
-# in Objekten (oint):
-  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
-  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
-  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
-  #define float_bit_o      (float_bit_t+oint_type_shift)
-  #define float1_bit_o     (float1_bit_t+oint_type_shift)
-  #define float2_bit_o     (float2_bit_t+oint_type_shift)
-  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
-  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
-
-# konstante Typcodes:
-  #define machine_type   (0)                                             # %000000  ; Maschinenpointer
-  #define sbvector_type  (                                    bit(TB0))  # %000001  ; Simple-Bit-Vector
-  #define sstring_type   (                           bit(TB1)         )  # %000010  ; Simple-String
-  #define svector_type   (                           bit(TB1)|bit(TB0))  # %000011  ; Simple-Vector
-  #define mdarray_type   (                  bit(TB2)                  )  # %000100  ; sonstiger Array (Rang /=1 oder
-                                                                         #          ; - später vielleicht - anderer Elementtyp)
-  #define bvector_type   (                  bit(TB2)         |bit(TB0))  # %000101  ; sonstiger Bit-Vector oder Byte-Vector
-  #define string_type    (                  bit(TB2)|bit(TB1)         )  # %000110  ; sonstiger String
-  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0))  # %000111  ; sonstiger (VECTOR T)
-  #define orecord_type   (         bit(TB3)                           )  # %001000  ; OtherRecord (Structure, Stream, Package, Byte, ...)
-  #define instance_type  (         bit(TB3)                  |bit(TB0))  # %001001  ; CLOS-Instanz
-  #define closure_type   (         bit(TB3)         |bit(TB1)         )  # %001010  ; Closure
-  #define cons_type      (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Cons
-  #define symbol_type    (         bit(TB3)|bit(TB2)                  )  # %001100  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          #define active_bit  0  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #if (varobject_alignment >= 8)
-            # sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
-            #define oint_symbolflags_shift  oint_addr_shift
-          #else
-            #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
-          #endif
-          # Bits für Symbole im Selbstpointer:
-          #define constant_bit_t  TB1  # zeigt an, ob das Symbol eine Konstante ist
-          #define special_bit_t   TB0  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #define subr_type      (         bit(TB3)|bit(TB2)         |bit(TB0))  # %001101  ; SUBR
-  #define system_type    (         bit(TB3)|bit(TB2)|bit(TB1)         )  # %001110  ; Frame-Pointer, Read-Label, SYSTEM
-  #define char_type      (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0))  # %001111  ; Character
- #ifndef NUMBER_BITS_INVERTED
-  #define fixnum_type    (bit(TB4)                                    )  # %010000  ; Fixnum
-  #define sfloat_type    (bit(TB4)                  |bit(TB1)         )  # %010010  ; Short-Float
-  #define bignum_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Bignum
-  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Single-Float
-  #define ratio_type     (bit(TB4)|bit(TB3)                           )  # %011000  ; Ratio
-  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
-  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
-  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
- #else # NUMBER_BITS_INVERTED inverts TB2 and TB3 and also TB1 (so that N_integerp remains fast)
-  #define lfloat_type    (bit(TB4)                                    )  # %011100  ; Long-Float
-  #define complex_type   (bit(TB4)                  |bit(TB1)         )  # %011110  ; Complex
-  #define dfloat_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Double-float
-  #define ratio_type     (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Ratio
-  #define ffloat_type    (bit(TB4)|bit(TB3)                           )  # %011000  ; Single-Float
-  #define bignum_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Bignum
-  #define sfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Short-Float
-  #define fixnum_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Fixnum
- #endif
-
-# Typ ist GC-invariant, wenn
-# Typinfobyte eines von 0x00,0x0D,0x0E,0x0F,0x10,0x11,0x12,0x13 ist.
-  #if (TB4==4)&&(TB3==3)&&(TB2==2)&&(TB1==1)&&(TB0==0) && !defined(WIDE)
-    #ifndef NUMBER_BITS_INVERTED
-      #define gcinvariant_type_p(type)  \
-        ((bit(type) & 0xFFF01FFEUL) == 0)
-    #else
-      #define gcinvariant_type_p(type)  \
-        ((bit(type) & 0x0FFF1FFEUL) == 0)
-    #endif
-  #elif !defined(WIDE)
-    #ifndef NUMBER_BITS_INVERTED
-      #define gcinvariant_type_p(type)  \
-        (((type)==0) || ((subr_type<=(type)) && ((type)<bignum_type)))
-    #else
-      #define gcinvariant_type_p(type)  \
-        (((type)==0) || ((subr_type<=(type)) && ((type)<lfloat_type)) || (sfloat_type<=(type)))
-    #endif
-  #else
-    #error "gcinvariant_type_p() implementieren!"
-  #endif
-
-#endif # SIXBIT_TYPECODES
-
-#ifdef SUN3_TYPECODES
-
-# Typbits:
-# in Typcodes (tint):
-  #define garcol_bit_t     1  # gesetzt nur während der Garbage Collection!
-  #define cons_bit_t       7  # gesetzt nur bei CONS
-  #define symbol_bit_t     6  # gesetzt nur bei SYMBOL
-  #define number_bit_t     2  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  0  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
-  #define float_bit_t      5
-  #define float1_bit_t     3
-  #define float2_bit_t     4
-  #define ratio_bit_t      3
-  #define bignum_bit_t     4
-# in Objekten (oint):
-  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
-  #define cons_bit_o       (cons_bit_t+oint_type_shift)      # gesetzt nur bei CONS
-  #define symbol_bit_o     (symbol_bit_t+oint_type_shift)    # gesetzt nur bei SYMBOL
-  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
-  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
-  #define float_bit_o      (float_bit_t+oint_type_shift)
-  #define float1_bit_o     (float1_bit_t+oint_type_shift)
-  #define float2_bit_o     (float2_bit_t+oint_type_shift)
-  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
-  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
-
-# konstante Typcodes:
-  #define machine_type   0x00  # %00000000  ; Maschinenpointer
-  #define sbvector_type  0x10  # %00010000  ; Simple-Bit-Vector
-  #define sstring_type   0x08  # %00001000  ; Simple-String
-  #define svector_type   0x18  # %00011000  ; Simple-Vector
-  #define mdarray_type   0x01  # %00000001  ; sonstiger Array (Rang /=1 oder
-                               #            ; - später vielleicht - anderer Elementtyp)
-  #define bvector_type   0x11  # %00010001  ; sonstiger Bit-Vector oder Byte-Vector
-  #define string_type    0x09  # %00001001  ; sonstiger String
-  #define vector_type    0x19  # %00011001  ; sonstiger (VECTOR T)
-  #define closure_type   0x20  # %00100000  ; Closure
-  #define structure_type 0x21  # %00100001  ; Structure
-  #define stream_type    0x28  # %00101000  ; Stream
-  #define orecord_type   0x29  # %00101001  ; OtherRecord (Package, Byte, ...)
-  #define instance_type  0x39  # %00111001  ; CLOS-Instanz
-  #define char_type      0x31  # %00110001  ; Character
-  #define subr_type      0x30  # %00110000  ; SUBR
-  #define system_type    0x38  # %00111000  ; Frame-Pointer, Read-Label, SYSTEM
-  #define fixnum_type    0x04  # %00000100  ; Fixnum
-  #define sfloat_type    0x24  # %00100100  ; Short-Float
-  #define bignum_type    0x14  # %00010100  ; Bignum
-  #define ffloat_type    0x34  # %00110100  ; Single-Float
-  #define ratio_type     0x0C  # %00001100  ; Ratio
-  #define dfloat_type    0x2C  # %00101100  ; Double-float
-  #define complex_type   0x1C  # %00011100  ; Complex
-  #define lfloat_type    0x3C  # %00111100  ; Long-Float
-  #define symbol_type    0x40  # %01000000  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          #define active_bit  3  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   4  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    5  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #define oint_symbolflags_shift  oint_type_shift
-          # Bits für Symbole im Selbstpointer:
-          #define constant_bit_t  3  # zeigt an, ob das Symbol eine Konstante ist
-          #define special_bit_t   4  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #define cons_type      0x80  # %10000000  ; Cons
-
-# Typ ist GC-invariant, wenn
-# Typinfobyte eines von 0x00,0x04,0x05,0x24,0x25,0x30,0x31,0x38 ist.
-  #define gcinvariant_type_p(type)  \
-    (((type)<0x39) && (((type)==0) || !((bit((type)>>1) & 0x11040004) == 0)))
-
-#endif # SUN3_TYPECODES
+#endif # STANDARD_8BIT_TYPECODES
 
 #if !(gcinvariant_type_p(ffloat_type) == defined(WIDE))
   #error "gcinvariant_type_p() fehlerhaft implementiert!"
@@ -4020,7 +3178,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # nicht mehr auszumaskieren, bevor man auf die Adresse zugreift:
 #define addressbus_mask  hardware_addressbus_mask
 #ifdef MAP_MEMORY
-  #if defined(SUN4_29_1)
+  #if defined(SUN4_29)
     # Durchs Memory-Mapping sind jetzt die Bits 28..24 einer Adresse redundant.
     #undef addressbus_mask
     #define addressbus_mask  0xE0FFFFFFUL
@@ -5628,7 +4786,12 @@ typedef struct {
     uintB rest_flag;        # Flag für beliebig viele Argumente
     uintB key_flag;         # Flag für Keywords
     uintW key_anz;          # Anzahl Keywordparameter
-  } subr_;
+  } subr_
+    #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
+      # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
+      __attribute__ ((aligned (4)))
+    #endif
+    ;
   typedef subr_ *  Subr;
 # GC benötigt Information, wo hierin Objekte stehen:
   #define subr_const_offset  offsetof(subr_,name)
@@ -6084,7 +5247,7 @@ typedef struct {
 # Test auf Vector (Typbytes %001,%010,%011,%101,%110,%111)
   #ifdef TYPECODES
     #define vectorp(obj)  \
-      ((tint)((typecode(obj) & ~bit(notsimple_bit_t))-1) <= (tint)(svector_type-1))
+      ((tint)(typecode(obj) - sbvector_type) <= (tint)(vector_type - sbvector_type))
   #else
     # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
     #        Rectype_bvector, Rectype_vector, Rectype_string
@@ -6095,7 +5258,7 @@ typedef struct {
 # Test auf simple-vector oder simple-bit-vector oder simple-string
   #ifdef TYPECODES
     #define simplep(obj)  \
-      ((tint)(typecode(obj) - 1) <= (tint)(svector_type-1))
+      ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
   #else
     # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define simplep(obj)  \
@@ -6105,7 +5268,7 @@ typedef struct {
 # Test eines Array auf simple-vector oder simple-bit-vector oder simple-string
   #ifdef TYPECODES
     #define array_simplep(obj)  \
-      (typecode(obj) <= svector_type)
+      ((typecode(obj) & bit(notsimple_bit_t)) == 0)
   #else
     # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define array_simplep(obj)  \
@@ -6205,7 +5368,7 @@ typedef struct {
 # Test auf Array allgemein
   #ifdef TYPECODES
     #define arrayp(obj)  \
-      ((tint)(typecode(obj) - 1) <= (tint)(vector_type-1))
+      ((tint)(typecode(obj) - mdarray_type) <= (tint)(vector_type - mdarray_type))
   #else
     # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
     #        Rectype_bvector, Rectype_vector, Rectype_string,
