@@ -1,3 +1,68 @@
+2005-01-05  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (constant_bit_t, special_bit_t): Remove macros.
+	(var_bit0_t, var_bit1_t): New macros.
+	(constant_bit_f, special_bit_f): Remove macros.
+	(var_bit0_f, var_bit1_f): New macros.
+	(constant_bit_hf, special_bit_hf): Remove macros.
+	(var_bit0_hf, var_bit1_hf): New macros.
+	(Rectype_GlobalSymbolmacro): New enum value.
+	(constant_var_p): Renamed from constantp. Change to use var_bit0,
+	var_bit1.
+	(special_var_p): Change to use var_bit0, var_bit1.
+	(symmacro_var_p): New macro.
+	(set_const_flag, clear_const_flag): Change to use var_bit0, var_bit1.
+	(set_special_flag, clear_special_flag): Likewise.
+	(set_symmacro_flag, clear_symmacro_flag): New macros.
+	(GlobalSymbolmacro): New type.
+	(globalsymbolmacro_length): New macro.
+	(TheGlobalSymbolmacro): New macro.
+	(globalsymbolmacrop, allocate_globalsymbolmacro): New macros.
+	(check_symbol_non_constant): Update.
+	* spvw_objsize.d (case_symbolwithflags): Update.
+	* eval.d (SYS::SPECIAL-VARIABLE-P): constant_var_p now implies
+	special_var_p.
+	(sym_value_place): Remove function.
+	(sym_value): Turned into a function again. Add a symbolmacro_ argument.
+	Handle symbol-macros in more detail.
+	(check_local_symbol_value): Remove function.
+	(sym_macrop, setq, macroexp0): Change symbol-macro handling.
+	(eval1): Inline old check_local_symbol_value function. Change
+	symbol-macro handling.
+	(interpret_bytecode_): Update.
+	* control.d (SYS::%SYMBOL-VALUE): Remove function.
+	(SYMBOL-VALUE, SET): Don't test for symbol-macro. Access the value cell
+	always.
+	(make_variable_frame): constant_var_p now implies special_var_p.
+	Update.
+	(PROCLAIM): Signal an error when a symbol-macro is being proclaimed
+	special.
+	(form_constant_p): Update.
+	(SYS::GLOBAL-SYMBOL-MACRO-P): New function.
+	* symbol.d (SYS::%PROCLAIM-CONSTANT): Signal an error when a
+	symbol-macro is being proclaimed constant.
+	(SYS::%PROCLAIM-SYMBOL-MACRO): New function.
+	* package.d (make_present): Signal an error when a symbol-macro is
+	being imported into the KEYWORD package. Use set_const_flag.
+	* record.d (SYMBOL-MACRO-EXPAND): Look for the symbol-macro definition
+	on the property list.
+	(SYS::MAKE-GLOBAL-SYMBOL-MACRO): New function.
+	(SYS::GLOBAL-SYMBOL-MACRO-DEFINITION): New function.
+	* io.d (pr_orecord): Handle GlobalSymbolmacro.
+	* predtype.d (TYPE-OF, CLASS-OF): Handle GlobalSymbolmacro.
+	(enum_hs_global_symbol_macro): New enum item.
+	(heap_statistics_mapper): Handle GlobalSymbolmacro.
+	* error.d (check_symbol_non_constant_replacement, check_encoding):
+	Update.
+	* encoding.d (MAKE-ENCODING): Update.
+	* init.lisp (venv-assoc): Use symbol-macro-expand and
+	global-symbol-macro-definition instead of %symbol-value.
+	* macros2.lisp (define-symbol-macro): Put the definition on the
+	property-list, not in the value cell. Call %proclaim-symbol-macro.
+	* defs1.lisp (copy-symbol): Use symbol-value instead of %symbol-value.
+	* describe.lisp (apropos, describe-object@symbol): Symbol-macros are
+	now orthogonal to the contents of the value cell.
+
 2005-01-06  Sam Steingold  <sds@gnu.org>
 
 	* time.d (convert_time_from_universal): new function

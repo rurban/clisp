@@ -1,6 +1,6 @@
 /*
  * Special Forms, Control Structures, Evaluator Related Stuff for CLISP
- * Bruno Haible 1990-2003
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2003
  * German comments translated into English: Stefan Kain 2002-09-28
  */
@@ -105,20 +105,10 @@ local maygc void check_global_symbol_value (object symbol) {
   }
 }
 
-LISPFUNNR(psymbol_value,1)
-{ /* (SYS::%SYMBOL-VALUE symbol), CLTL p. 90 */
-  var object symbol = check_symbol(popSTACK());
-  check_global_symbol_value(symbol);
-  mv_count = 1;
-}
-
 LISPFUNNR(symbol_value,1)
 { /* (SYMBOL-VALUE symbol), CLTL p. 90 */
   var object symbol = check_symbol(popSTACK());
   check_global_symbol_value(symbol); /* value1 <- Symbol_value */
-  if (symbolmacrop(value1)) /* symbol-macro? */
-    /* yes -> expand and evaluate: */
-    eval_noenv(TheSymbolmacro(value1)->symbolmacro_expansion);
   mv_count=1;
 }
 
@@ -274,19 +264,11 @@ LISPSPECFORM(psetq, 0,0,body)
   }
 }
 
+/* (SETF (SYMBOL-VALUE symbol) value) = (SET symbol value), CLTL p. 92 */
 LISPFUNN(set,2)
-{ /* (SETF (SYMBOL-VALUE symbol) value) = (SET symbol value), CLTL p. 92 */
+{
   var object symbol = check_symbol_non_constant(STACK_1,S(set));
-  if (symbolmacrop(Symbol_value(symbol))) { /* symbol-macro? */
-    /* Evaluate `(SETF ,expansion (QUOTE ,value)) */
-    pushSTACK(S(setf));
-    pushSTACK(TheSymbolmacro(Symbol_value(symbol))->symbolmacro_expansion);
-    pushSTACK(S(quote)); pushSTACK(STACK_(0+3));
-    { object qv = listof(2); pushSTACK(qv); }
-    eval_noenv(listof(3)); mv_count=1;
-  } else {
-    VALUES1(Symbol_value(symbol) = STACK_0);
-  }
+  VALUES1(Symbol_value(symbol) = STACK_0);
   skipSTACK(2);
 }
 
@@ -550,8 +532,7 @@ local /*maygc*/ void make_variable_frame (object caller, object varspecs,
            #endif
           }
           if (eq(caller,S(symbol_macrolet))) {
-            if (constantp(TheSymbol(symbol))
-                || special_var_p(TheSymbol(symbol))) {
+            if (special_var_p(TheSymbol(symbol))) {
               pushSTACK(symbol);
               pushSTACK(caller);
               fehler(program_error,
@@ -565,7 +546,7 @@ local /*maygc*/ void make_variable_frame (object caller, object varspecs,
             }
             /* static binding */
           } else {
-            if (constantp(TheSymbol(symbol))) {
+            if (constant_var_p(TheSymbol(symbol))) {
               pushSTACK(value1); pushSTACK(value2);   /* save */
               pushSTACK(caller); pushSTACK(varspecs); /* save */
               pushSTACK(declarations);
@@ -573,6 +554,7 @@ local /*maygc*/ void make_variable_frame (object caller, object varspecs,
               declarations = popSTACK(); varspecs = popSTACK(); /* restore */
               caller = popSTACK();
               value2 = popSTACK(); value1 = popSTACK();         /* restore */
+              ASSERT(!constant_var_p(TheSymbol(symbol)));
               STACK_(varframe_binding_sym) = symbol;
             }
             if (specdecled || special_var_p(TheSymbol(symbol))) {
@@ -2081,6 +2063,13 @@ LISPFUNN(proclaim,1)
   if (eq(decltype,S(special))) { /* SPECIAL */
     while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
       var object symbol = check_symbol(Car(STACK_0/*declspec*/));
+      if (symmacro_var_p(TheSymbol(symbol))) {
+        /* HyperSpec/Body/mac_define-symbol-macro.html says that making a
+           global symbol-macro special is undefined. */
+        pushSTACK(S(special)); pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
+        fehler(program_error,
+               GETTEXT("~S: attempting to turn ~S into a ~S variable, but it is already a global symbol-macro."));
+      }
       if (!keywordp(symbol))
         clear_const_flag(TheSymbol(symbol));
       set_special_flag(TheSymbol(symbol));
@@ -2225,7 +2214,8 @@ LISPFUN(applyhook,seclass_default,4,1,norest,nokey,0,NIL)
 
 /* check whether the form is a constant */
 local bool form_constant_p (object form) {
-  if (symbolp(form)) return constantp(TheSymbol(form));
+  if (symbolp(form))
+    return constant_var_p(TheSymbol(form));
   if (consp(form)) {
     var object head = Car(form);
     if (eq(head,S(quote))) return true;
@@ -2259,6 +2249,14 @@ LISPFUN(constantp,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (CONSTANTP expr [env]), CLTL p. 324 */
   skipSTACK(1); /* environment is not used */
   VALUES_IF(form_constant_p(popSTACK()));
+}
+
+/* (SYS::GLOBAL-SYMBOL-MACRO-P symbol) tests if the symbol is a global
+   symbol macro, defined through DEFINE-SYMBOL-MACRO. */
+LISPFUNNR(global_symbol_macro_p,1)
+{
+  var object symbol = check_symbol(popSTACK());
+  VALUES_IF(symmacro_var_p(TheSymbol(symbol)));
 }
 
 /* (FUNCTION-SIDE-EFFECT fun) -> seclass, fdefinition, name */

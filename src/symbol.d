@@ -1,5 +1,5 @@
 # Funktionen betr. Symbole für CLISP
-# Bruno Haible 1990-2002
+# Bruno Haible 1990-2005
 
 #include "lispbibl.c"
 
@@ -105,10 +105,32 @@ LISPFUNN(proclaim_constant,2)
   {
     var object symbol = check_symbol(STACK_1);
     var object val = STACK_0; skipSTACK(2);
+    if (symmacro_var_p(TheSymbol(symbol))) {
+      /* HyperSpec/Body/mac_define-symbol-macro.html says that making a
+         global symbol-macro special is undefined; likewise for constants. */
+      pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
+      fehler(program_error,
+             GETTEXT("~S: attempting to turn ~S into a constant, but it is already a global symbol-macro."));
+    }
     set_const_flag(TheSymbol(symbol)); # symbol zu einer Konstanten machen
     Symbol_value(symbol) = val; # ihren Wert setzen
     VALUES1(symbol); /* return symbol */
   }
+
+/* (SYS::%PROCLAIM-SYMBOL-MACRO symbol)
+   turns the symbol into a global symbol macro. */
+LISPFUNN(proclaim_symbol_macro,1)
+{
+  var object symbol = check_symbol(popSTACK());
+  if (special_var_p(TheSymbol(symbol))) {
+    /* HyperSpec/Body/mac_define-symbol-macro.html mandates a program-error. */
+    pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
+    fehler(program_error,
+           GETTEXT("~S: attempting to turn ~S into a global symbol-macro, but it is already declared SPECIAL."));
+  }
+  set_symmacro_flag(TheSymbol(symbol)); /* Change symbol to a symbol-macro. */
+  VALUES1(symbol); /* return symbol */
+}
 
 LISPFUN(get,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GET symbol key [not-found]), CLTL p. 164 */

@@ -1,6 +1,6 @@
 /*
  * Error-Handling for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-09-11
@@ -896,7 +896,7 @@ global maygc object check_symbol_non_constant_replacement (object obj, object ca
 {
   for (;;) {
     obj = check_symbol(obj);
-    if (constantp(TheSymbol(obj))) {
+    if (constant_var_p(TheSymbol(obj))) {
       pushSTACK(NIL); /* no PLACE */
       pushSTACK(obj); /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(obj); pushSTACK(caller);
@@ -1161,7 +1161,7 @@ global maygc object check_encoding (object arg, const gcv_object_t *e_default,
   if (encodingp(arg))
     return arg;
  #ifdef UNICODE
-  if (symbolp(arg) && constantp(TheSymbol(arg))
+  if (symbolp(arg) && constant_var_p(TheSymbol(arg))
       && encodingp(Symbol_value(arg)))
     return Symbol_value(arg);
   #ifdef HAVE_GOOD_ICONV

@@ -788,13 +788,14 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
 #undef binds_sym_p
 }
 
+/* (SYS::SPECIAL-VARIABLE-P symbol &optional environment)
+   tests whether the symbol is a special variable or a constant.
+   A missing or NIL environment means the global environment. */
 LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
-{ /* (SYS::SPECIAL-VARIABLE-P symbol &optional environment)
-     check whether the symbol is a special variable or a constant
-     missing or NIL environment means null environment */
+{
   var object symbol = check_symbol(STACK_1);
   var object env = STACK_0; skipSTACK(2);
-  if (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol))) {
+  if (special_var_p(TheSymbol(symbol))) {
     value1 = T;
   } else if (missingp(env)) {
     value1 = NIL;
@@ -816,42 +817,45 @@ LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
 }
 
 /* UP: returns the value of a symbol in an environment.
- sym_value(symbol,venv)
+ sym_value(symbol,venv,&symbolmacro)
  > symbol: Symbol
  > venv: a Variable- and Symbolmacro-Environment
- < result: value of the Symbols in this Environment */
-local gcv_object_t* sym_value_place (object sym, object env)
+ < symbolmacro: symbol-macro definition, or nullobj if not a symbol-macro
+ < result: value of the symbol in this environment, or
+           nullobj if a symbol-macro */
+local gcv_object_t sym_value (object sym, object env, object* symbolmacro_)
 {
-  if (constantp(TheSymbol(sym)) || special_var_p(TheSymbol(sym))) {
-    /* constants & symbols declared special have only global values */
+  if (special_var_p(TheSymbol(sym))) {
+    /* Constants and symbols declared special have only global values. */
     goto global_value;
   } else {
-    var gcv_object_t *binding = symbol_env_search(sym,env);
-    if (binding != NULL && !eq(*binding,specdecl))
-      return binding;
+    var gcv_object_t* binding = symbol_env_search(sym,env);
+    if (binding != NULL) {
+      var object val = *binding;
+      if (eq(val,specdecl))
+        goto global_value;
+      if (symbolmacrop(val)) {
+        *symbolmacro_ = val;
+        return nullobj;
+      }
+      *symbolmacro_ = nullobj;
+      return val;
+    }
+    if (symmacro_var_p(TheSymbol(sym))) {
+      /* Fetch the symbol-macro definition from the property list: */
+      var object symbolmacro = get(sym,S(symbolmacro));
+      if (!eq(symbolmacro,unbound)) {
+        ASSERT(globalsymbolmacrop(symbolmacro));
+        *symbolmacro_ = TheGlobalSymbolmacro(symbolmacro)->globalsymbolmacro_definition;
+        return nullobj;
+      }
+      /* Huh? The symbol-macro definition got lost. */
+      clear_symmacro_flag(TheSymbol(sym));
+    }
   }
  global_value: /* the global (dynamic) value of the Symbol */
-  return &(Symbol_value(sym));
-}
-#define sym_value(sym,env) *sym_value_place(sym,env)
-/* like sym_value, but force bound
- the value is returned in value1
- can trigger GC */
-local maygc void check_local_symbol_value (object sym, object env)
-{
-  value1 = sym_value(sym,env);
-  if (!boundp(value1)) {
-    do {
-      pushSTACK(sym); pushSTACK(env); /* save */
-      pushSTACK(sym); /* PLACE */
-      pushSTACK(sym); /* CELL-ERROR slot NAME */
-      pushSTACK(sym);
-      check_value(unbound_variable,GETTEXT("EVAL: variable ~S has no value"));
-      env = popSTACK(); sym = popSTACK();
-    } while (!boundp(value1));
-    if (!nullp(value2)) /* STORE-VALUE */
-      *sym_value_place(sym,env) = value1;
-  }
+  *symbolmacro_ = nullobj;
+  return Symbol_value(sym);
 }
 
 /* UP: determines, if a Symbol is a Macro in the current environment.
@@ -859,23 +863,32 @@ local maygc void check_local_symbol_value (object sym, object env)
  > symbol: Symbol
  < result: true if sym is a Symbol-Macro */
 global bool sym_macrop (object sym) {
-  var object val = sym_value(sym,aktenv.var_env);
-  return (symbolmacrop(val));
+  var object symbolmacro;
+  sym_value(sym,aktenv.var_env,&symbolmacro);
+  return !eq(symbolmacro,nullobj);
 }
 
 /* UP: Sets the value of a Symbol in the current Environment.
  setq(symbol,value);
- > symbol: Symbol, no constant
+ > symbol: Symbol, no constant, not a symbol-macro in the current Environment
  > value: desired value of the Symbols in the current Environment
  < result: value
  can trigger GC */
 global maygc object setq (object sym, object value)
 {
-  if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
+  if (special_var_p(TheSymbol(sym))) {
+    /* Constants and symbols declared special have only global values. */
     goto global_value;
-  { var gcv_object_t *binding = symbol_env_search(sym,aktenv.var_env);
-    if (binding != NULL && !eq(*binding,specdecl))
+  } else {
+    var gcv_object_t* binding = symbol_env_search(sym,aktenv.var_env);
+    if (binding != NULL) {
+      var object val = *binding;
+      if (eq(val,specdecl))
+        goto global_value;
+      ASSERT(!symbolmacrop(val));
       return *binding = value;
+    }
+    ASSERT(!symmacro_var_p(TheSymbol(sym)));
   }
  global_value: /* the global (dynamic) value of the Symbol */
   pushSTACK(value); pushSTACK(sym);
@@ -1396,10 +1409,11 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
         }
       }
     } elif (symbolp(form)) {
-      var object val = sym_value(form,TheSvector(env)->data[0]);
-      if (symbolmacrop(val)) { # found Symbol-Macro?
+      var object symbolmacro;
+      var object val = sym_value(form,TheSvector(env)->data[0],&symbolmacro);
+      if (!eq(symbolmacro,nullobj)) { # found Symbol-Macro?
         # yes -> expand
-        value1 = TheSymbolmacro(val)->symbolmacro_expansion; value2 = T;
+        value1 = TheSymbolmacro(symbolmacro)->symbolmacro_expansion; value2 = T;
         return;
       }
     }
@@ -2908,14 +2922,26 @@ local maygc Values eval1 (object form)
   if (atomp(form)) {
     if (symbolp(form)) { /* Form is a Symbol */
       /* value1 = value in the current Environment - not unbound! */
-      check_local_symbol_value(form,aktenv.var_env);
-      if (symbolmacrop(value1)) { /* Symbol-Macro? */
+      var object symbolmacro;
+      value1 = sym_value(form,aktenv.var_env,&symbolmacro);
+      if (!eq(symbolmacro,nullobj)) { /* Symbol-Macro? */
         /* yes -> expand and evaluate again: */
         skipSTACK(1); /* forget value of *APPLYHOOK* */
         check_SP(); check_STACK();
-        eval(TheSymbolmacro(value1)->symbolmacro_expansion); /* evaluate Expansion */
+        eval(TheSymbolmacro(symbolmacro)->symbolmacro_expansion); /* evaluate Expansion */
         unwind(); /* unwind EVAL-Frame */
       } else {
+        if (!boundp(value1)) {
+          do {
+            pushSTACK(form); /* PLACE */
+            pushSTACK(form); /* CELL-ERROR slot NAME */
+            pushSTACK(form);
+            check_value(unbound_variable,GETTEXT("EVAL: variable ~S has no value"));
+            form = STACK_(frame_form+1);
+          } while (!boundp(value1));
+          if (!nullp(value2)) /* STORE-VALUE */
+            value1 = setq(form,value1);
+        }
         mv_count=1; /* value1 as value */
         skipSTACK(1);
         unwind(); /* unwind EVAL-Frame */
@@ -6539,7 +6565,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           U_operand(n);
           var object symbol = TheCclosure(closure)->clos_consts[n];
           # The Compiler has already checked, that it's a Symbol.
-          if (constantp(TheSymbol(symbol))) {
+          if (constant_var_p(TheSymbol(symbol))) {
             pushSTACK(symbol); pushSTACK(Closure_name(closure));
             fehler(error,GETTEXT("~S: assignment to constant symbol ~S is impossible"));
           }

@@ -223,9 +223,9 @@
   `(LET ()
      (EVAL-WHEN (COMPILE LOAD EVAL)
        (CHECK-NOT-SPECIAL-VARIABLE-P ',symbol)
-       (MAKUNBOUND ',symbol)
-       (SYSTEM::SET-SYMBOL-VALUE ',symbol
-                                 (SYSTEM::MAKE-SYMBOL-MACRO ',expansion)))
+       (SYSTEM::%PUT ',symbol 'SYSTEM::SYMBOLMACRO
+                     (SYSTEM::MAKE-GLOBAL-SYMBOL-MACRO ',expansion))
+       (SYSTEM::%PROCLAIM-SYMBOL-MACRO ',symbol))
      ',symbol))
 (defun check-not-special-variable-p (symbol) ; ABI
   (when (special-variable-p symbol)

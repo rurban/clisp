@@ -1,6 +1,6 @@
 /*
  * Input/Output for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Marcus Daniels 11.3.1997
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2001-06-12
@@ -8898,6 +8898,24 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_LAST(false);
         write_sstring_case(stream_,O(printstring_symbolmacro)); # SYMBOL-MACRO
         pr_record_ab(stream_,obj_,0,0); # print component
+        JUSTIFY_END_FILL;
+        UNREADABLE_END;
+        skipSTACK(1);
+      }
+      LEVEL_END;
+      break;
+    case Rectype_GlobalSymbolmacro: # #<GLOBAL SYMBOL-MACRO expansion>
+      CHECK_PRINT_READABLY(obj);
+      LEVEL_CHECK;
+      {
+        pushSTACK(obj); # save Global-Symbol-Macro
+        var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
+        UNREADABLE_START;
+        JUSTIFY_LAST(false);
+        write_sstring_case(stream_,O(printstring_globalsymbolmacro)); # GLOBAL SYMBOL-MACRO
+        JUSTIFY_SPACE; JUSTIFY_LAST(true);
+        # Print expansion:
+        prin_object(stream_,TheSymbolmacro(TheGlobalSymbolmacro(*obj_)->globalsymbolmacro_definition)->symbolmacro_expansion);
         JUSTIFY_END_FILL;
         UNREADABLE_END;
         skipSTACK(1);

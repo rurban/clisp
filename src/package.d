@@ -1,6 +1,6 @@
 /*
  * Package Management for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1999-2004
  * German comments translated into English: Stefan Kain 2002-02-20
  */
@@ -722,15 +722,25 @@ local maygc void cerror_package_locked (object func, object pack, object obj) {
  only call, if BREAK_SEM_2 is set
  can trigger GC */
 local maygc void make_present (object sym, object pack) {
-  if (nullp(Symbol_package(sym)))
-    Symbol_package(sym) = pack;
   if (!eq(pack,O(keyword_package))) {
-    /* insert symbol into the internal symbols: */
+    if (nullp(Symbol_package(sym)))
+      Symbol_package(sym) = pack;
+    /* Insert symbol into the internal symbols: */
     symtab_insert(sym,ThePackage(pack)->pack_internal_symbols);
-  } else { /* modify symbol and insert into the external symbols: */
+  } else {
+    if (symmacro_var_p(TheSymbol(sym))) {
+      /* HyperSpec/Body/mac_define-symbol-macro.html says that making a
+         global symbol-macro special is undefined; likewise for constants. */
+      pushSTACK(pack); pushSTACK(sym); pushSTACK(TheSubr(subr_self)->name);
+      fehler(program_error,
+             GETTEXT("~S: Importing ~S into ~S would turn it into a constant, but it is already a global symbol-macro."));
+    }
+    if (nullp(Symbol_package(sym)))
+      Symbol_package(sym) = pack;
+    /* Modify symbol and insert into the external symbols: */
     Symbol_value(sym) = sym; /* sym gets itself as value */
-    /* mark as constant: */
-    TheSymbol(sym)->header_flags |= bit(constant_bit_hf);
+    /* Mark as constant: */
+    set_const_flag(TheSymbol(sym));
     symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
   }
 }
