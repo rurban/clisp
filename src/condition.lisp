@@ -35,7 +35,7 @@
 (in-package "EXT")
 (export
  '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
-   simple-condition-format-string simple-charset-type-error)
+   simple-condition-format-string simple-charset-type-error retry)
  "EXT")
 (in-package "CUSTOM")
 (common-lisp:export '(*break-on-warnings*) "CUSTOM")
@@ -1032,6 +1032,9 @@
 (defun use-value (value &optional condition)
   (invoke-restart-condition-if-exists 'USE-VALUE condition value))
 
+;; like CONTINUE but is not triggered by ^D
+(defun retry (&optional condition)
+  (invoke-restart-condition-if-exists 'RETRY condition))
 
 ;;; 29.4.2. Assertions
 
@@ -1175,7 +1178,7 @@
                    (lambda (val) (return-from check-value (values val nil)))))
           (when (and (consp place) (eq 'fdefinition (car place)))
             (list (make-restart ; for check_fdefinition() only!
-                   :name 'CONTINUE
+                   :name 'RETRY
                    :report (lambda (stream)
                              (format stream (report-no-new-value-string)))
                    :interactive #'assert-restart-no-prompts
