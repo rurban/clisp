@@ -87,7 +87,7 @@ cache-hppa.lo : $(srcdir)/cache-hppa.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-hppa.s
 
 cache-rs6000.lo : $(srcdir)/cache-rs6000-sysv4.s
-	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-sysv4.s ; mv cache-rs6000-sysv4.o cache-rs6000.o
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-sysv4.s ; mv -f cache-rs6000-sysv4.o cache-rs6000.o ; mv -f cache-rs6000-sysv4.lo cache-rs6000.lo
 
 cache-convex.lo : $(srcdir)/cache-convex.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-convex.s
