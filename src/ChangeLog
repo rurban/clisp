@@ -1,5 +1,11 @@
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp (cerror): Internationalize.
+	* condition.lisp (cerror, maybe-continue): Likewise.
+	(break-loop): Likewise.
+
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
 	Avoid a possible collision with SP in libncurses.
 	* lispbibl.d (SP): Alias to getSP in all cases.
 	(NEED_OWN_GETSP): New macro.

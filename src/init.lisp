@@ -310,7 +310,8 @@
     (function cerror
       (lambda (continue-format-string error-format-string &rest args)
         (terpri *error-output*)
-        (write-string "** - Continuable Error" *error-output*)
+        (write-string "** - " *error-output*)
+        (write-string (TEXT "Continuable Error") *error-output*)
         (terpri *error-output*)
         (apply #'format *error-output* error-format-string args)
         (terpri *debug-io*)
@@ -2050,7 +2051,8 @@
            (or continue-format-string t) error-format-string args)
     (progn
       (terpri *error-output*)
-      (write-string "** - Continuable Error" *error-output*)
+      (write-string "** - " *error-output*)
+      (write-string (TEXT "Continuable Error") *error-output*)
       (terpri *error-output*)
       (apply #'format *error-output* error-format-string args)
       (terpri *debug-io*)
