@@ -30,10 +30,7 @@
   nonreturning_function(local, fehler_norexx, (void));
   local void fehler_norexx()
     { fehler(error,
-             DEUTSCH ? "Keine Kommunikation mit ARexx möglich." :
-             ENGLISH ? "Communication with ARexx isn't possible." :
-             FRANCAIS ? "La communication avec ARexx n'est pas possible." :
-             ""
+             GETTEXT("Communication with ARexx isn't possible.")
             );
     }
 
@@ -111,10 +108,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
             pushSTACK(S(simple_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(STACK_1);
             fehler(type_error,
-                   DEUTSCH ? "~ muss ein String für Kommandos oder ein Vektor von Strings für eine Funktion sein." :
-                   ENGLISH ? "~ must be a string for commands or a vector of strings for a function" :
-                   FRANCAIS ? "~ doit être une chaîne pour une commande ou un vecteur de chaînes pour une fonction." :
-                   ""
+                   GETTEXT("~ must be a string for commands or a vector of strings for a function")
                   );
           }
         fargs = Svector_length(STACK_(5+1));
@@ -123,10 +117,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
             pushSTACK(fixnum(MAXRMARG));
             pushSTACK(S(rexx_put));
             fehler(error,
-                   DEUTSCH ? "~: ARexx Funktion muss 0 bis ~ Argumente haben: ~" :
-                   ENGLISH ? "~: an ARexx function must have 0 to ~ arguments: ~" :
-                   FRANCAIS ? "~ : Une fonction ARexx a de 0 à ~ arguments : ~" :
-                   ""
+                   GETTEXT("~: an ARexx function must have 0 to ~ arguments: ~")
                   );
           }
         # Alle Argumentstrings aus dem Vektor auf dem Stack ablegen:
@@ -140,10 +131,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
                 pushSTACK(arg);
                 pushSTACK(S(rexx_put));
                 fehler(type_error,
-                       DEUTSCH ? "~: Muss für ARexx ein String sein: ~" :
-                       ENGLISH ? "~: must be a string for ARexx: ~" :
-                       FRANCAIS ? "~ : Doit être une chaîne pour ARexx : ~" :
-                       ""
+                       GETTEXT("~: must be a string for ARexx: ~")
                       );
               }
             # Argument in Simple-String umwandeln:
@@ -164,10 +152,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
           pushSTACK(host);
           pushSTACK(S(Khost));
           fehler(type_error,
-                 DEUTSCH ? "Für ~ sind nur NIL, T oder Strings erlaubt: ~" :
-                 ENGLISH ? "Only NIL, T and strings are accepted for ~ : ~" :
-                 FRANCAIS ? "Seul NIL, T ou bien une chaîne sont permis pour ~ : ~" :
-                 ""
+                 GETTEXT("Only NIL, T and strings are accepted for ~ : ~")
                 );
     }   }
     # Stackaufbau: ... string/vector ..(5 keyword-args).. foreign ..(fargs).. .
@@ -466,10 +451,7 @@ LISPFUNN(rexx_reply,3)
         pushSTACK(STACK_(1+2));
         pushSTACK(S(rexx_reply));
         fehler(type_error,
-               DEUTSCH ? "~: Kein Fixnum: ~" :
-               ENGLISH ? "~: Not a Fixnum: ~" :
-               FRANCAIS ? "~ : ~ n'est pas de type FIXNUM" :
-               ""
+               GETTEXT("~: Not a Fixnum: ~")
               );
       }
     # return-string sollte ein String oder NIL sein.
@@ -479,10 +461,7 @@ LISPFUNN(rexx_reply,3)
       { pushSTACK(STACK_2);
         pushSTACK(S(rexx_reply));
         fehler(error,
-               DEUTSCH ? "~: Keine eingehende Rexx Nachricht: ~" :
-               ENGLISH ? "~: Not an incoming Rexx message: ~" :
-               FRANCAIS ? "~ : ~ n'est pas un message Rexx entrant" :
-               ""
+               GETTEXT("~: Not an incoming Rexx message: ~")
               );
       }
     # Beantworten:

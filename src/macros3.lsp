@@ -10,12 +10,8 @@
          (IF (SYS::%THE ,g ',(type-for-discrimination typespec))
            (VALUES-LIST ,g)
            (ERROR-OF-TYPE 'ERROR ; 'TYPE-ERROR ??
-             (DEUTSCH "Die Form ~S lieferte ~:[keine Werte~;~:*~{~S~^ ; ~}~] ,~@
-                       das ist nicht vom Typ ~S."
-              ENGLISH "The form ~S yielded ~:[no values~;~:*~{~S~^ ; ~}~] ,~@
-                       that's not of type ~S."
-              FRANCAIS "La forme ~S a rendu ~:[aucune valeur~;~:*~{~S~^ ; ~}~] ,~@
-                        ceci n'est pas de type ~S.")
+             (ENGLISH "The form ~S yielded ~:[no values~;~:*~{~S~^ ; ~}~] ,~@
+                       that's not of type ~S.")
              ',form ,g ',typespec
 ) )  ) ) ) )
 ;-------------------------------------------------------------------------------
@@ -65,9 +61,7 @@
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
-        (DEUTSCH "Dotted List im Code von LETF*, endet mit ~S"
-         ENGLISH "LETF* code contains a dotted list, ending with ~S"
-         FRANCAIS "Dans le code de LETF*, occurence d'une paire pointée terminée en ~S")
+        (ENGLISH "LETF* code contains a dotted list, ending with ~S")
         bindlist
       )
       (values `(LET* () ,@declare ,@body) t)
@@ -86,9 +80,7 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
-            (DEUTSCH "Falsche Syntax in Bindung zu LETF* : ~S"
-             ENGLISH "illegal syntax in LETF* binding: ~S"
-             FRANCAIS "Syntaxe illégale dans une liaison pour LETF* : ~S")
+            (ENGLISH "illegal syntax in LETF* binding: ~S")
             bind
       ) ) )
       (multiple-value-bind (rest-expanded flag)
@@ -232,9 +224,7 @@
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
-        (DEUTSCH "Dotted List im Code von LETF, endet mit ~S"
-         ENGLISH "LETF code contains a dotted list, ending with ~S"
-         FRANCAIS "Dans le code de LETF, occurence d'une paire pointée terminée en ~S")
+        (ENGLISH "LETF code contains a dotted list, ending with ~S")
         bindlist
       )
       (values '() '() '() '())
@@ -253,9 +243,7 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
-            (DEUTSCH "Falsche Syntax in Bindung zu LETF : ~S"
-             ENGLISH "illegal syntax in LETF binding: ~S"
-             FRANCAIS "Syntaxe illégale dans une liaison pour LETF : ~S")
+            (ENGLISH "illegal syntax in LETF binding: ~S")
             bind
       ) ) )
       (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist))

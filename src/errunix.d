@@ -44,904 +44,550 @@
         #ifdef EPERM
         if (EPERM < sys_nerr) {
         errormsg_table[EPERM].name = "EPERM";
-        errormsg_table[EPERM].msg =
-          ENGLISH ? "Operation not permitted" :
-          DEUTSCH ? "Keine Berechtigung dazu" :
-          FRANCAIS ? "Opération non autorisée" :
-          "";
+        errormsg_table[EPERM].msg = GETTEXT("Operation not permitted");
         }
         #endif
         #ifdef ENOENT
         if (ENOENT < sys_nerr) {
         errormsg_table[ENOENT].name = "ENOENT";
-        errormsg_table[ENOENT].msg =
-          ENGLISH ? "No such file or directory" :
-          DEUTSCH ? "File oder Directory existiert nicht" :
-          FRANCAIS ? "Fichier ou répertoire non existant" :
-          "";
+        errormsg_table[ENOENT].msg = GETTEXT("No such file or directory");
         }
         #endif
         #ifdef ESRCH
         if (ESRCH < sys_nerr) {
         errormsg_table[ESRCH].name = "ESRCH";
-        errormsg_table[ESRCH].msg =
-          ENGLISH ? "No such process" :
-          DEUTSCH ? "Dieser Prozess existiert nicht (mehr)" :
-          FRANCAIS ? "Processus inexistant" :
-          "";
+        errormsg_table[ESRCH].msg = GETTEXT("No such process");
         }
         #endif
         #ifdef EINTR
         if (EINTR < sys_nerr) {
         errormsg_table[EINTR].name = "EINTR";
-        errormsg_table[EINTR].msg =
-          ENGLISH ? "Interrupted system call" :
-          DEUTSCH ? "Unterbrechung während Betriebssystem-Aufruf" :
-          FRANCAIS ? "Appel système interrompu" :
-          "";
+        errormsg_table[EINTR].msg = GETTEXT("Interrupted system call");
         }
         #endif
         #ifdef EIO
         if (EIO < sys_nerr) {
         errormsg_table[EIO].name = "EIO";
-        errormsg_table[EIO].msg =
-          ENGLISH ? "I/O error" :
-          DEUTSCH ? "Fehler bei Schreib-/Lesezugriff" :
-          FRANCAIS ? "Erreur E/S" :
-          "";
+        errormsg_table[EIO].msg = GETTEXT("I/O error");
         }
         #endif
         #ifdef ENXIO
         if (ENXIO < sys_nerr) {
         errormsg_table[ENXIO].name = "ENXIO";
-        errormsg_table[ENXIO].msg =
-          ENGLISH ? "No such device or address" :
-          DEUTSCH ? "Gerät existiert nicht oder Laufwerk leer" :
-          FRANCAIS ? "Périphérique ou adresse inexistant" :
-          "";
+        errormsg_table[ENXIO].msg = GETTEXT("No such device or address");
         }
         #endif
         #ifdef E2BIG
         if (E2BIG < sys_nerr) {
         errormsg_table[E2BIG].name = "E2BIG";
-        errormsg_table[E2BIG].msg =
-          ENGLISH ? "Arg list too long" :
-          DEUTSCH ? "Zu lange Argumentliste" :
-          FRANCAIS ? "Liste d'arguments trop longue" :
-          "";
+        errormsg_table[E2BIG].msg = GETTEXT("Arg list too long");
         }
         #endif
         #ifdef ENOEXEC
         if (ENOEXEC < sys_nerr) {
         errormsg_table[ENOEXEC].name = "ENOEXEC";
-        errormsg_table[ENOEXEC].msg =
-          ENGLISH ? "Exec format error" :
-          DEUTSCH ? "Kein ausführbares Programm" :
-          FRANCAIS ? "Programme non exécutable" :
-          "";
+        errormsg_table[ENOEXEC].msg = GETTEXT("Exec format error");
         }
         #endif
         #ifdef EBADF
         if (EBADF < sys_nerr) {
         errormsg_table[EBADF].name = "EBADF";
-        errormsg_table[EBADF].msg =
-          ENGLISH ? "Bad file number" :
-          DEUTSCH ? "File-Descriptor wurde nicht für diese Operation geöffnet" :
-          FRANCAIS ? "Descripteur de fichier non alloué" :
-          "";
+        errormsg_table[EBADF].msg = GETTEXT("Bad file number");
         }
         #endif
         #ifdef ECHILD
         if (ECHILD < sys_nerr) {
         errormsg_table[ECHILD].name = "ECHILD";
-        errormsg_table[ECHILD].msg =
-          ENGLISH ? "No child processes" :
-          DEUTSCH ? "Worauf warten?" :
-          FRANCAIS ? "Pas de processus fils" :
-          "";
+        errormsg_table[ECHILD].msg = GETTEXT("No child processes");
         }
         #endif
         #ifdef EAGAIN
         if (EAGAIN < sys_nerr) {
         errormsg_table[EAGAIN].name = "EAGAIN";
-        errormsg_table[EAGAIN].msg =
-          ENGLISH ? "No more processes" :
-          DEUTSCH ? "Kann keinen weiteren Prozess erzeugen" :
-          FRANCAIS ? "Essayez encore" :
-          "";
+        errormsg_table[EAGAIN].msg = GETTEXT("No more processes");
         }
         #endif
         #ifdef ENOMEM
         if (ENOMEM < sys_nerr) {
         errormsg_table[ENOMEM].name = "ENOMEM";
-        errormsg_table[ENOMEM].msg =
-          ENGLISH ? "Not enough memory" :
-          DEUTSCH ? "Hauptspeicher oder Swapspace reicht nicht" :
-          FRANCAIS ? "Pas assez de mémoire" :
-          "";
+        errormsg_table[ENOMEM].msg = GETTEXT("Not enough memory");
         }
         #endif
         #ifdef EACCES
         if (EACCES < sys_nerr) {
         errormsg_table[EACCES].name = "EACCES";
-        errormsg_table[EACCES].msg =
-          ENGLISH ? "Permission denied" :
-          DEUTSCH ? "Keine Berechtigung" :
-          FRANCAIS ? "Permission refusée" :
-          "";
+        errormsg_table[EACCES].msg = GETTEXT("Permission denied");
         }
         #endif
         #ifdef EFAULT
         if (EFAULT < sys_nerr) {
         errormsg_table[EFAULT].name = "EFAULT";
-        errormsg_table[EFAULT].msg =
-          ENGLISH ? "Bad address" :
-          DEUTSCH ? "Ungültige Adresse" :
-          FRANCAIS ? "Mauvaise adresse" :
-          "";
+        errormsg_table[EFAULT].msg = GETTEXT("Bad address");
         }
         #endif
         #ifdef ENOTBLK
         if (ENOTBLK < sys_nerr) {
         errormsg_table[ENOTBLK].name = "ENOTBLK";
-        errormsg_table[ENOTBLK].msg =
-          ENGLISH ? "Block device required" :
-          DEUTSCH ? "Nur block-strukturierte Geräte erlaubt" :
-          FRANCAIS ? "Périphérique bloc requis" :
-          "";
+        errormsg_table[ENOTBLK].msg = GETTEXT("Block device required");
         }
         #endif
         #ifdef EBUSY
         if (EBUSY < sys_nerr) {
         errormsg_table[EBUSY].name = "EBUSY";
-        errormsg_table[EBUSY].msg =
-          ENGLISH ? "Device busy" :
-          DEUTSCH ? "Filesystem darf nicht gekappt werden" :
-          FRANCAIS ? "Périphérique occupé" :
-          "";
+        errormsg_table[EBUSY].msg = GETTEXT("Device busy");
         }
         #endif
         #ifdef EEXIST
         if (EEXIST < sys_nerr) {
         errormsg_table[EEXIST].name = "EEXIST";
-        errormsg_table[EEXIST].msg =
-          ENGLISH ? "File exists" :
-          DEUTSCH ? "File existiert schon" :
-          FRANCAIS ? "Le fichier existe déjà" :
-          "";
+        errormsg_table[EEXIST].msg = GETTEXT("File exists");
         }
         #endif
         #ifdef EXDEV
         if (EXDEV < sys_nerr) {
         errormsg_table[EXDEV].name = "EXDEV";
-        errormsg_table[EXDEV].msg =
-          ENGLISH ? "Cross-device link" :
-          DEUTSCH ? "Links können nur aufs selbe Gerät gehen" :
-          FRANCAIS ? "Lien entre périphériques différents" :
-          "";
+        errormsg_table[EXDEV].msg = GETTEXT("Cross-device link");
         }
         #endif
         #ifdef ENODEV
         if (ENODEV < sys_nerr) {
         errormsg_table[ENODEV].name = "ENODEV";
-        errormsg_table[ENODEV].msg =
-          ENGLISH ? "No such device" :
-          DEUTSCH ? "Gerät nicht da oder unpassend" :
-          FRANCAIS ? "Périphérique inexistant" :
-          "";
+        errormsg_table[ENODEV].msg = GETTEXT("No such device");
         }
         #endif
         #ifdef ENOTDIR
         if (ENOTDIR < sys_nerr) {
         errormsg_table[ENOTDIR].name = "ENOTDIR";
-        errormsg_table[ENOTDIR].msg =
-          ENGLISH ? "Not a directory" :
-          DEUTSCH ? "Das ist kein Directory" :
-          FRANCAIS ? "N'est pas un répertoire" :
-          "";
+        errormsg_table[ENOTDIR].msg = GETTEXT("Not a directory");
         }
         #endif
         #ifdef EISDIR
         if (EISDIR < sys_nerr) {
         errormsg_table[EISDIR].name = "EISDIR";
-        errormsg_table[EISDIR].msg =
-          ENGLISH ? "Is a directory" :
-          DEUTSCH ? "Das ist ein Directory" :
-          FRANCAIS ? "Est un répertoire" :
-          "";
+        errormsg_table[EISDIR].msg = GETTEXT("Is a directory");
         }
         #endif
         #ifdef EINVAL
         if (EINVAL < sys_nerr) {
         errormsg_table[EINVAL].name = "EINVAL";
-        errormsg_table[EINVAL].msg =
-          ENGLISH ? "Invalid argument" :
-          DEUTSCH ? "Ungültiger Parameter" :
-          FRANCAIS ? "Paramètre illicite" :
-          "";
+        errormsg_table[EINVAL].msg = GETTEXT("Invalid argument");
         }
         #endif
         #ifdef ENFILE
         if (ENFILE < sys_nerr) {
         errormsg_table[ENFILE].name = "ENFILE";
-        errormsg_table[ENFILE].msg =
-          ENGLISH ? "File table overflow" :
-          DEUTSCH ? "Tabelle der offenen Files ist voll" :
-          FRANCAIS ? "Dépassement de la table des fichiers" :
-          "";
+        errormsg_table[ENFILE].msg = GETTEXT("File table overflow");
         }
         #endif
         #ifdef EMFILE
         if (EMFILE < sys_nerr) {
         errormsg_table[EMFILE].name = "EMFILE";
-        errormsg_table[EMFILE].msg =
-          ENGLISH ? "Too many open files" :
-          DEUTSCH ? "Zu viele offene Files" :
-          FRANCAIS ? "Trop de fichiers ouverts" :
-          "";
+        errormsg_table[EMFILE].msg = GETTEXT("Too many open files");
         }
         #endif
         #ifdef ENOTTY
         if (ENOTTY < sys_nerr) {
         errormsg_table[ENOTTY].name = "ENOTTY";
-        errormsg_table[ENOTTY].msg =
-          ENGLISH ? "Inappropriate ioctl for device" :
-          DEUTSCH ? "Falscher Gerätetyp" :
-          FRANCAIS ? "Périphérique ne comprend pas ce ioctl" :
-          "";
+        errormsg_table[ENOTTY].msg = GETTEXT("Inappropriate ioctl for device");
         }
         #endif
         #ifdef ETXTBSY
         if (ETXTBSY < sys_nerr) {
         errormsg_table[ETXTBSY].name = "ETXTBSY";
-        errormsg_table[ETXTBSY].msg =
-          ENGLISH ? "Text file busy" :
-          DEUTSCH ? "Programm wird gerade geändert oder ausgeführt" :
-          FRANCAIS ? "Fichier code occupé" :
-          "";
+        errormsg_table[ETXTBSY].msg = GETTEXT("Text file busy");
         }
         #endif
         #ifdef EFBIG
         if (EFBIG < sys_nerr) {
         errormsg_table[EFBIG].name = "EFBIG";
-        errormsg_table[EFBIG].msg =
-          ENGLISH ? "File too large" :
-          DEUTSCH ? "Zu großes File" :
-          FRANCAIS ? "Fichier trop grand" :
-          "";
+        errormsg_table[EFBIG].msg = GETTEXT("File too large");
         }
         #endif
         #ifdef ENOSPC
         if (ENOSPC < sys_nerr) {
         errormsg_table[ENOSPC].name = "ENOSPC";
-        errormsg_table[ENOSPC].msg =
-          ENGLISH ? "No space left on device" :
-          DEUTSCH ? "Platte oder Diskette voll" :
-          FRANCAIS ? "Plus d'espace libre sur le périphérique" :
-          "";
+        errormsg_table[ENOSPC].msg = GETTEXT("No space left on device");
         }
         #endif
         #ifdef ESPIPE
         if (ESPIPE < sys_nerr) {
         errormsg_table[ESPIPE].name = "ESPIPE";
-        errormsg_table[ESPIPE].msg =
-          ENGLISH ? "Illegal seek" :
-          DEUTSCH ? "Nicht positionierbares File" :
-          FRANCAIS ? "seek illégal" :
-          "";
+        errormsg_table[ESPIPE].msg = GETTEXT("Illegal seek");
         }
         #endif
         #ifdef EROFS
         if (EROFS < sys_nerr) {
         errormsg_table[EROFS].name = "EROFS";
-        errormsg_table[EROFS].msg =
-          ENGLISH ? "Read-only file system" :
-          DEUTSCH ? "Dieses Filesystem erlaubt keinen Schreibzugriff" :
-          FRANCAIS ? "Système de fichiers en lecture seulement" :
-          "";
+        errormsg_table[EROFS].msg = GETTEXT("Read-only file system");
         }
         #endif
         #ifdef EMLINK
         if (EMLINK < sys_nerr) {
         errormsg_table[EMLINK].name = "EMLINK";
-        errormsg_table[EMLINK].msg =
-          ENGLISH ? "Too many links" :
-          DEUTSCH ? "Zu viele Links auf ein File" :
-          FRANCAIS ? "Trop de liens" :
-          "";
+        errormsg_table[EMLINK].msg = GETTEXT("Too many links");
         }
         #endif
         #ifdef EPIPE
         if (EPIPE < sys_nerr) {
         errormsg_table[EPIPE].name = "EPIPE";
-        errormsg_table[EPIPE].msg =
+        errormsg_table[EPIPE].msg = GETTEXT("Broken pipe, child process terminated");
           # Note that these "translations" exploit that CLISP only catches
           # SIGPIPEs from subprocesses. Other pipes lead to a deadly signal
           # and never to this error message.
-          ENGLISH ? "Broken pipe, child process terminated" :
-          DEUTSCH ? "Rohrbruch, Tochterprozess beendet" :
-          FRANCAIS ? "Rupture du tuyau, processus fils terminé" :
-          "";
         }
         #endif
         /* Errors bei mathematischen Funktionen: */
         #ifdef EDOM
         if (EDOM < sys_nerr) {
         errormsg_table[EDOM].name = "EDOM";
-        errormsg_table[EDOM].msg =
-          ENGLISH ? "Argument out of domain" :
-          DEUTSCH ? "Argument zu mathematischer Funktion außerhalb des Definitionsbereichs" :
-          FRANCAIS ? "Argument mathématique en dehors du domaine de définition de la fonction" :
-          "";
+        errormsg_table[EDOM].msg = GETTEXT("Argument out of domain");
         }
         #endif
         #ifdef ERANGE
         if (ERANGE < sys_nerr) {
         errormsg_table[ERANGE].name = "ERANGE";
-        errormsg_table[ERANGE].msg =
-          ENGLISH ? "Result too large" :
-          DEUTSCH ? "Ergebnis mathematischer Funktion zu groß" :
-          FRANCAIS ? "Résultat mathématique non représentable" :
-          "";
+        errormsg_table[ERANGE].msg = GETTEXT("Result too large");
         }
         #endif
         /* Errors bei Non-Blocking I/O und Interrupt I/O: */
         #ifdef EWOULDBLOCK
         if (EWOULDBLOCK < sys_nerr) {
         errormsg_table[EWOULDBLOCK].name = "EWOULDBLOCK";
-        errormsg_table[EWOULDBLOCK].msg =
-          ENGLISH ? "Operation would block" :
-          DEUTSCH ? "Darauf müsste gewartet werden" :
-          FRANCAIS ? "L'opération devrait bloquer" :
-          "";
+        errormsg_table[EWOULDBLOCK].msg = GETTEXT("Operation would block");
         }
         #endif
         #ifdef EINPROGRESS
         if (EINPROGRESS < sys_nerr) {
         errormsg_table[EINPROGRESS].name = "EINPROGRESS";
-        errormsg_table[EINPROGRESS].msg =
-          ENGLISH ? "Operation now in progress" :
-          DEUTSCH ? "Das kann lange dauern" :
-          FRANCAIS ? "Opération maintenant en cours" :
-          "";
+        errormsg_table[EINPROGRESS].msg = GETTEXT("Operation now in progress");
         }
         #endif
         #ifdef EALREADY
         if (EALREADY < sys_nerr) {
         errormsg_table[EALREADY].name = "EALREADY";
-        errormsg_table[EALREADY].msg =
-          ENGLISH ? "Operation already in progress" :
-          DEUTSCH ? "Es läuft schon eine Operation" :
-          FRANCAIS ? "Opération déjà en cours" :
-          "";
+        errormsg_table[EALREADY].msg = GETTEXT("Operation already in progress");
         }
         #endif
         /* weitere allgemein übliche Errors: */
         #ifdef ELOOP
         if (ELOOP < sys_nerr) {
         errormsg_table[ELOOP].name = "ELOOP";
-        errormsg_table[ELOOP].msg =
-          ENGLISH ? "Too many levels of symbolic links" :
-          DEUTSCH ? "Zu viele symbolische Links in einem Pathname" :
-          FRANCAIS ? "Trop de liens symboliques rencontrés" :
-          "";
+        errormsg_table[ELOOP].msg = GETTEXT("Too many levels of symbolic links");
         }
         #endif
         #ifdef ENAMETOOLONG
         if (ENAMETOOLONG < sys_nerr) {
         errormsg_table[ENAMETOOLONG].name = "ENAMETOOLONG";
-        errormsg_table[ENAMETOOLONG].msg =
-          ENGLISH ? "File name too long" :
-          DEUTSCH ? "Zu langer Filename" :
-          FRANCAIS ? "Nom du fichier trop long" :
-          "";
+        errormsg_table[ENAMETOOLONG].msg = GETTEXT("File name too long");
         }
         #endif
         #ifdef ENOTEMPTY
         if (ENOTEMPTY < sys_nerr) {
         errormsg_table[ENOTEMPTY].name = "ENOTEMPTY";
-        errormsg_table[ENOTEMPTY].msg =
-          ENGLISH ? "Directory not empty" :
-          DEUTSCH ? "Directory ist nicht leer" :
-          FRANCAIS ? "Répertoire non vide" :
-          "";
+        errormsg_table[ENOTEMPTY].msg = GETTEXT("Directory not empty");
         }
         #endif
         /* Errors im Zusammenhang mit Network File System (NFS): */
         #ifdef ESTALE
         if (ESTALE < sys_nerr) {
         errormsg_table[ESTALE].name = "ESTALE";
-        errormsg_table[ESTALE].msg =
-          ENGLISH ? "Stale NFS file handle" :
-          DEUTSCH ? "Offenes File auf entferntem Filesystem wurde gelöscht" :
-          FRANCAIS ? "Fichier NFS perdu" :
-          "";
+        errormsg_table[ESTALE].msg = GETTEXT("Stale NFS file handle");
         }
         #endif
         #ifdef EREMOTE
         if (EREMOTE < sys_nerr) {
         errormsg_table[EREMOTE].name = "EREMOTE";
-        errormsg_table[EREMOTE].msg =
-          ENGLISH ? "Too many levels of remote in path" :
-          DEUTSCH ? "Mount läuft nicht auf entfernten Filesystemen" :
-          FRANCAIS ? "Mount éloigné ne marche pas" :
-          "";
+        errormsg_table[EREMOTE].msg = GETTEXT("Too many levels of remote in path");
         }
         #endif
         /* Errors im Zusammenhang mit Sockets, IPC und Netzwerk: */
         #ifdef ENOTSOCK
         if (ENOTSOCK < sys_nerr) {
         errormsg_table[ENOTSOCK].name = "ENOTSOCK";
-        errormsg_table[ENOTSOCK].msg =
-          ENGLISH ? "Socket operation on non-socket" :
-          DEUTSCH ? "Socket-Operation und kein Socket" :
-          FRANCAIS ? "Opération de type socket sur un fichier non-socket" :
-          "";
+        errormsg_table[ENOTSOCK].msg = GETTEXT("Socket operation on non-socket");
         }
         #endif
         #ifdef EDESTADDRREQ
         if (EDESTADDRREQ < sys_nerr) {
         errormsg_table[EDESTADDRREQ].name = "EDESTADDRREQ";
-        errormsg_table[EDESTADDRREQ].msg =
-          ENGLISH ? "Destination address required" :
-          DEUTSCH ? "Operation braucht Zieladresse" :
-          FRANCAIS ? "Adresse de destination obligatoire" :
-          "";
+        errormsg_table[EDESTADDRREQ].msg = GETTEXT("Destination address required");
         }
         #endif
         #ifdef EMSGSIZE
         if (EMSGSIZE < sys_nerr) {
         errormsg_table[EMSGSIZE].name = "EMSGSIZE";
-        errormsg_table[EMSGSIZE].msg =
-          ENGLISH ? "Message too long" :
-          DEUTSCH ? "Zu lange Nachricht" :
-          FRANCAIS ? "Message trop long" :
-          "";
+        errormsg_table[EMSGSIZE].msg = GETTEXT("Message too long");
         }
         #endif
         #ifdef EPROTOTYPE
         if (EPROTOTYPE < sys_nerr) {
         errormsg_table[EPROTOTYPE].name = "EPROTOTYPE";
-        errormsg_table[EPROTOTYPE].msg =
-          ENGLISH ? "Protocol wrong type for socket" :
-          DEUTSCH ? "Dieses Protokoll passt nicht zu diesem Socket" :
-          FRANCAIS ? "Mauvais type de protocole pour un socket" :
-          "";
+        errormsg_table[EPROTOTYPE].msg = GETTEXT("Protocol wrong type for socket");
         }
         #endif
         #ifdef ENOPROTOOPT
         if (ENOPROTOOPT < sys_nerr) {
         errormsg_table[ENOPROTOOPT].name = "ENOPROTOOPT";
-        errormsg_table[ENOPROTOOPT].msg =
-          ENGLISH ? "Option not supported by protocol" :
-          DEUTSCH ? "Fehlerhafte Option zu Protokoll auf Socket" :
-          FRANCAIS ? "Protocole non disponible" :
-          "";
+        errormsg_table[ENOPROTOOPT].msg = GETTEXT("Option not supported by protocol");
         }
         #endif
         #ifdef EPROTONOSUPPORT
         if (EPROTONOSUPPORT < sys_nerr) {
         errormsg_table[EPROTONOSUPPORT].name = "EPROTONOSUPPORT";
-        errormsg_table[EPROTONOSUPPORT].msg =
-          ENGLISH ? "Protocol not supported" :
-          DEUTSCH ? "Protokoll nicht implementiert" :
-          FRANCAIS ? "Protocole non supporté" :
-          "";
+        errormsg_table[EPROTONOSUPPORT].msg = GETTEXT("Protocol not supported");
         }
         #endif
         #ifdef ESOCKTNOSUPPORT
         if (ESOCKTNOSUPPORT < sys_nerr) {
         errormsg_table[ESOCKTNOSUPPORT].name = "ESOCKTNOSUPPORT";
-        errormsg_table[ESOCKTNOSUPPORT].msg =
-          ENGLISH ? "Socket type not supported" :
-          DEUTSCH ? "Socket-Typ nicht implementiert" :
-          FRANCAIS ? "Type de socket non supporté" :
-          "";
+        errormsg_table[ESOCKTNOSUPPORT].msg = GETTEXT("Socket type not supported");
         }
         #endif
         #ifdef EOPNOTSUPP
         if (EOPNOTSUPP < sys_nerr) {
         errormsg_table[EOPNOTSUPP].name = "EOPNOTSUPP";
-        errormsg_table[EOPNOTSUPP].msg =
-          ENGLISH ? "Operation not supported on socket" :
-          DEUTSCH ? "Operation auf diesem Socket nicht implementiert" :
-          FRANCAIS ? "Opération non supportée sur socket" :
-          "";
+        errormsg_table[EOPNOTSUPP].msg = GETTEXT("Operation not supported on socket");
         }
         #endif
         #ifdef EPFNOSUPPORT
         if (EPFNOSUPPORT < sys_nerr) {
         errormsg_table[EPFNOSUPPORT].name = "EPFNOSUPPORT";
-        errormsg_table[EPFNOSUPPORT].msg =
-          ENGLISH ? "Protocol family not supported" :
-          DEUTSCH ? "Protokoll-Familie nicht implementiert" :
-          FRANCAIS ? "Famille de protocoles non supportée" :
-          "";
+        errormsg_table[EPFNOSUPPORT].msg = GETTEXT("Protocol family not supported");
         }
         #endif
         #ifdef EAFNOSUPPORT
         if (EAFNOSUPPORT < sys_nerr) {
         errormsg_table[EAFNOSUPPORT].name = "EAFNOSUPPORT";
-        errormsg_table[EAFNOSUPPORT].msg =
-          ENGLISH ? "Address family not supported by protocol family" :
-          DEUTSCH ? "Adressen-Familie passt nicht zu diesem Protokoll" :
-          FRANCAIS ? "Famille d'adresses non supportée par le protocole" :
-          "";
+        errormsg_table[EAFNOSUPPORT].msg = GETTEXT("Address family not supported by protocol family");
         }
         #endif
         #ifdef EADDRINUSE
         if (EADDRINUSE < sys_nerr) {
         errormsg_table[EADDRINUSE].name = "EADDRINUSE";
-        errormsg_table[EADDRINUSE].msg =
-          ENGLISH ? "Address already in use" :
-          DEUTSCH ? "Adresse schon belegt" :
-          FRANCAIS ? "Adresse déjà utilisée" :
-          "";
+        errormsg_table[EADDRINUSE].msg = GETTEXT("Address already in use");
         }
         #endif
         #ifdef EADDRNOTAVAIL
         if (EADDRNOTAVAIL < sys_nerr) {
         errormsg_table[EADDRNOTAVAIL].name = "EADDRNOTAVAIL";
-        errormsg_table[EADDRNOTAVAIL].msg =
-          ENGLISH ? "Can't assign requested address" :
-          DEUTSCH ? "Adresse nicht (auf diesem Rechner) verfügbar" :
-          FRANCAIS ? "Ne peut pas assigner l'adresse demandée" :
-          "";
+        errormsg_table[EADDRNOTAVAIL].msg = GETTEXT("Can't assign requested address");
         }
         #endif
         #ifdef ENETDOWN
         if (ENETDOWN < sys_nerr) {
         errormsg_table[ENETDOWN].name = "ENETDOWN";
-        errormsg_table[ENETDOWN].msg =
-          ENGLISH ? "Network is down" :
-          DEUTSCH ? "Netz streikt" :
-          FRANCAIS ? "Le réseau est éteint" :
-          "";
+        errormsg_table[ENETDOWN].msg = GETTEXT("Network is down");
         }
         #endif
         #ifdef ENETUNREACH
         if (ENETUNREACH < sys_nerr) {
         errormsg_table[ENETUNREACH].name = "ENETUNREACH";
-        errormsg_table[ENETUNREACH].msg =
-          ENGLISH ? "Network is unreachable" :
-          DEUTSCH ? "Netz unbekannt und außer Sichtweite" :
-          FRANCAIS ? "Le réseau ne peut être atteint" :
-          "";
+        errormsg_table[ENETUNREACH].msg = GETTEXT("Network is unreachable");
         }
         #endif
         #ifdef ENETRESET
         if (ENETRESET < sys_nerr) {
         errormsg_table[ENETRESET].name = "ENETRESET";
-        errormsg_table[ENETRESET].msg =
-          ENGLISH ? "Network dropped connection on reset" :
-          DEUTSCH ? "Rechner bootete, Verbindung gekappt" :
-          FRANCAIS ? "Le réseau a rompu la connection à cause d'une remise à zéro" :
-          "";
+        errormsg_table[ENETRESET].msg = GETTEXT("Network dropped connection on reset");
         }
         #endif
         #ifdef ECONNABORTED
         if (ECONNABORTED < sys_nerr) {
         errormsg_table[ECONNABORTED].name = "ECONNABORTED";
-        errormsg_table[ECONNABORTED].msg =
-          ENGLISH ? "Software caused connection abort" :
-          DEUTSCH ? "Musste diese Verbindung kappen" :
-          FRANCAIS ? "Echec de connection à cause du logiciel" :
-          "";
+        errormsg_table[ECONNABORTED].msg = GETTEXT("Software caused connection abort");
         }
         #endif
         #ifdef ECONNRESET
         if (ECONNRESET < sys_nerr) {
         errormsg_table[ECONNRESET].name = "ECONNRESET";
-        errormsg_table[ECONNRESET].msg =
-          ENGLISH ? "Connection reset by peer" :
-          DEUTSCH ? "Gegenseite kappte die Verbindung" :
-          FRANCAIS ? "Connection remise à zéro par le correspondant" :
-          "";
+        errormsg_table[ECONNRESET].msg = GETTEXT("Connection reset by peer");
         }
         #endif
         #ifdef ENOBUFS
         if (ENOBUFS < sys_nerr) {
         errormsg_table[ENOBUFS].name = "ENOBUFS";
-        errormsg_table[ENOBUFS].msg =
-          ENGLISH ? "No buffer space available" :
-          DEUTSCH ? "Nicht genügend Platz für einen Buffer" :
-          FRANCAIS ? "Pas d'espace disponible pour un buffer" :
-          "";
+        errormsg_table[ENOBUFS].msg = GETTEXT("No buffer space available");
         }
         #endif
         #ifdef EISCONN
         if (EISCONN < sys_nerr) {
         errormsg_table[EISCONN].name = "EISCONN";
-        errormsg_table[EISCONN].msg =
-          ENGLISH ? "Socket is already connected" :
-          DEUTSCH ? "Socket ist bereits verbunden" :
-          FRANCAIS ? "Le socket est déjà connecté" :
-          "";
+        errormsg_table[EISCONN].msg = GETTEXT("Socket is already connected");
         }
         #endif
         #ifdef ENOTCONN
         if (ENOTCONN < sys_nerr) {
         errormsg_table[ENOTCONN].name = "ENOTCONN";
-        errormsg_table[ENOTCONN].msg =
-          ENGLISH ? "Socket is not connected" :
-          DEUTSCH ? "Socket hat keine Verbindung" :
-          FRANCAIS ? "Le socket n'est pas connecté" :
-          "";
+        errormsg_table[ENOTCONN].msg = GETTEXT("Socket is not connected");
         }
         #endif
         #ifdef ESHUTDOWN
         if (ESHUTDOWN < sys_nerr) {
         errormsg_table[ESHUTDOWN].name = "ESHUTDOWN";
-        errormsg_table[ESHUTDOWN].msg =
-          ENGLISH ? "Can't send after socket shutdown" :
-          DEUTSCH ? "Shutdown hat den Socket schon deaktiviert" :
-          FRANCAIS ? "Impossibilité d'envoyer après un arrêt de socket" :
-          "";
+        errormsg_table[ESHUTDOWN].msg = GETTEXT("Can't send after socket shutdown");
         }
         #endif
         #ifdef ETOOMANYREFS
         if (ETOOMANYREFS < sys_nerr) {
         errormsg_table[ETOOMANYREFS].name = "ETOOMANYREFS";
-        errormsg_table[ETOOMANYREFS].msg =
-          /*ENGLISH*/ TRUE ? "Too many references: can't splice" :
-          "";
+        errormsg_table[ETOOMANYREFS].msg = GETTEXT("Too many references: can't splice");
         }
         #endif
         #ifdef ETIMEDOUT
         if (ETIMEDOUT < sys_nerr) {
         errormsg_table[ETIMEDOUT].name = "ETIMEDOUT";
-        errormsg_table[ETIMEDOUT].msg =
-          ENGLISH ? "Connection timed out" :
-          DEUTSCH ? "Verbindung nach Timeout gekappt" :
-          FRANCAIS ? "Durée écoulée pour la connection" :
-          "";
+        errormsg_table[ETIMEDOUT].msg = GETTEXT("Connection timed out");
         }
         #endif
         #ifdef ECONNREFUSED
         if (ECONNREFUSED < sys_nerr) {
         errormsg_table[ECONNREFUSED].name = "ECONNREFUSED";
-        errormsg_table[ECONNREFUSED].msg =
-          ENGLISH ? "Connection refused" :
-          DEUTSCH ? "Gegenseite verweigert die Verbindung" :
-          FRANCAIS ? "Connection refusée" :
-          "";
+        errormsg_table[ECONNREFUSED].msg = GETTEXT("Connection refused");
         }
         #endif
         #if 0
         errormsg_table[].name = "";
-        errormsg_table[].msg =
-          /*ENGLISH*/ TRUE ? "Remote peer released connection" :
-          "";
+        errormsg_table[].msg = GETTEXT("Remote peer released connection");
         #endif
         #ifdef EHOSTDOWN
         if (EHOSTDOWN < sys_nerr) {
         errormsg_table[EHOSTDOWN].name = "EHOSTDOWN";
-        errormsg_table[EHOSTDOWN].msg =
-          ENGLISH ? "Host is down" :
-          DEUTSCH ? "Gegenseite ist wohl abgeschaltet" :
-          FRANCAIS ? "L'hôte est éteint" :
-          "";
+        errormsg_table[EHOSTDOWN].msg = GETTEXT("Host is down");
         }
         #endif
         #ifdef EHOSTUNREACH
         if (EHOSTUNREACH < sys_nerr) {
         errormsg_table[EHOSTUNREACH].name = "EHOSTUNREACH";
-        errormsg_table[EHOSTUNREACH].msg =
-          ENGLISH ? "Host is unreachable" :
-          DEUTSCH ? "Gegenseite nicht in Sichtweite, nicht erreichbar" :
-          FRANCAIS ? "Aucune route pour cet hôte" :
-          "";
+        errormsg_table[EHOSTUNREACH].msg = GETTEXT("Host is unreachable");
         }
         #endif
         #if 0
         errormsg_table[].name = "";
-        errormsg_table[].msg =
-          /*ENGLISH*/ TRUE ? "Networking error" :
-          "";
+        errormsg_table[].msg = GETTEXT("Networking error");
         #endif
         /* Quotas: */
         #ifdef EPROCLIM
         if (EPROCLIM < sys_nerr) {
         errormsg_table[EPROCLIM].name = "EPROCLIM";
-        errormsg_table[EPROCLIM].msg =
-          ENGLISH ? "Too many processes" :
-          DEUTSCH ? "Zu viele Prozesse am Laufen" :
-          FRANCAIS ? "Trop de processus" :
-          "";
+        errormsg_table[EPROCLIM].msg = GETTEXT("Too many processes");
         }
         #endif
         #ifdef EUSERS
         if (EUSERS < sys_nerr) {
         errormsg_table[EUSERS].name = "EUSERS";
-        errormsg_table[EUSERS].msg =
-          ENGLISH ? "Too many users" :
-          DEUTSCH ? "Zu viele Benutzer aktiv" :
-          FRANCAIS ? "Trop d'utilisateurs" :
-          "";
+        errormsg_table[EUSERS].msg = GETTEXT("Too many users");
         }
         #endif
         #ifdef EDQUOT
         if (EDQUOT < sys_nerr) {
         errormsg_table[EDQUOT].name = "EDQUOT";
-        errormsg_table[EDQUOT].msg =
-          ENGLISH ? "Disk quota exceeded" :
-          DEUTSCH ? "Plattenplatz rationiert, Ihr Anteil ist erschöpft" :
-          FRANCAIS ? "Ration d'espace est épuisée" :
-          "";
+        errormsg_table[EDQUOT].msg = GETTEXT("Disk quota exceeded");
         }
         #endif
         /* Errors im Zusammenhang mit STREAMS: */
         #ifdef ENOSTR
         if (ENOSTR < sys_nerr) {
         errormsg_table[ENOSTR].name = "ENOSTR";
-        errormsg_table[ENOSTR].msg =
-          ENGLISH ? "Not a stream device" :
-          DEUTSCH ? "Das ist kein STREAM" :
-          FRANCAIS ? "Pas un STREAM" :
-          "";
+        errormsg_table[ENOSTR].msg = GETTEXT("Not a stream device");
         }
         #endif
         #ifdef ETIME
         if (ETIME < sys_nerr) {
         errormsg_table[ETIME].name = "ETIME";
-        errormsg_table[ETIME].msg =
-          ENGLISH ? "Timer expired" :
-          DEUTSCH ? "STREAM braucht länger als erwartet" :
-          FRANCAIS ? "Timer de STREAM écoulé" :
-          "";
+        errormsg_table[ETIME].msg = GETTEXT("Timer expired");
         }
         #endif
         #ifdef ENOSR
         if (ENOSR < sys_nerr) {
         errormsg_table[ENOSR].name = "ENOSR";
-        errormsg_table[ENOSR].msg =
-          ENGLISH ? "Out of stream resources" :
-          DEUTSCH ? "Kein Platz für weiteren STREAM" :
-          FRANCAIS ? "Plus de place pour un STREAM" :
-          "";
+        errormsg_table[ENOSR].msg = GETTEXT("Out of stream resources");
         }
         #endif
         #ifdef ENOMSG
         if (ENOMSG < sys_nerr) {
         errormsg_table[ENOMSG].name = "ENOMSG";
-        errormsg_table[ENOMSG].msg =
-          ENGLISH ? "No message of desired type" :
-          DEUTSCH ? "Nachrichten dieses Typs gibt es hier nicht" :
-          FRANCAIS ? "Pas de messages du type désigné" :
-          "";
+        errormsg_table[ENOMSG].msg = GETTEXT("No message of desired type");
         }
         #endif
         #ifdef EBADMSG
         if (EBADMSG < sys_nerr) {
         errormsg_table[EBADMSG].name = "EBADMSG";
-        errormsg_table[EBADMSG].msg =
-          ENGLISH ? "Not a data message" :
-          DEUTSCH ? "Nachricht von unbekanntem Typ angekommen" :
-          FRANCAIS ? "Reçu message de type inconnu" :
-          "";
+        errormsg_table[EBADMSG].msg = GETTEXT("Not a data message");
         }
         #endif
         /* Errors bei SystemV IPC: */
         #ifdef EIDRM
         if (EIDRM < sys_nerr) {
         errormsg_table[EIDRM].name = "EIDRM";
-        errormsg_table[EIDRM].msg =
-          ENGLISH ? "Identifier removed" :
-          DEUTSCH ? "Name (einer Semaphore) wurde gelöscht" :
-          FRANCAIS ? "Identificateur supprimé" :
-          "";
+        errormsg_table[EIDRM].msg = GETTEXT("Identifier removed");
         }
         #endif
         /* Errors bei SystemV Record-Locking: */
         #ifdef EDEADLK
         if (EDEADLK < sys_nerr) {
         errormsg_table[EDEADLK].name = "EDEADLK";
-        errormsg_table[EDEADLK].msg =
-          ENGLISH ? "Resource deadlock would occur" :
-          DEUTSCH ? "Das würde zu einem Deadlock führen" :
-          FRANCAIS ? "Blocage mutuel de la ressource " :
-          "";
+        errormsg_table[EDEADLK].msg = GETTEXT("Resource deadlock would occur");
         }
         #endif
         #ifdef ENOLCK
         if (ENOLCK < sys_nerr) {
         errormsg_table[ENOLCK].name = "ENOLCK";
-        errormsg_table[ENOLCK].msg =
-          ENGLISH ? "No record locks available" :
-          DEUTSCH ? "Zu viele Zugriffsvorbehalte auf einmal" :
-          FRANCAIS ? "Pas de verrou disponible" :
-          "";
+        errormsg_table[ENOLCK].msg = GETTEXT("No record locks available");
         }
         #endif
         /* Errors bei Remote File System (RFS): */
         #ifdef ENONET
         if (ENONET < sys_nerr) {
         errormsg_table[ENONET].name = "ENONET";
-        errormsg_table[ENONET].msg =
-          ENGLISH ? "Machine is not on the network" :
-          DEUTSCH ? "Rechner nicht übers Netz erreichbar" :
-          FRANCAIS ? "La machine n'est pas sur le réseau" :
-          "";
+        errormsg_table[ENONET].msg = GETTEXT("Machine is not on the network");
         }
         #endif
         #ifdef EREMOTE
         if (EREMOTE < sys_nerr) {
         errormsg_table[EREMOTE].name = "EREMOTE";
-        errormsg_table[EREMOTE].msg =
-          ENGLISH ? "Object is remote" :
-          DEUTSCH ? "Das kann nur der dortige Rechner" :
-          FRANCAIS ? "Objet à distance" :
-          "";
+        errormsg_table[EREMOTE].msg = GETTEXT("Object is remote");
         }
         #endif
         #ifdef ERREMOTE
         if (ERREMOTE < sys_nerr) {
         errormsg_table[ERREMOTE].name = "ERREMOTE";
-        errormsg_table[ERREMOTE].msg =
-          ENGLISH ? "Object is remote" :
-          DEUTSCH ? "Das kann nur der dortige Rechner" :
-          FRANCAIS ? "Objet à distance" :
-          "";
+        errormsg_table[ERREMOTE].msg = GETTEXT("Object is remote");
         }
         #endif
         #ifdef ENOLINK
         if (ENOLINK < sys_nerr) {
         errormsg_table[ENOLINK].name = "ENOLINK";
-        errormsg_table[ENOLINK].msg =
-          ENGLISH ? "Link has been severed" :
-          DEUTSCH ? "Verbindung ist zusammengebrochen" :
-          FRANCAIS ? "Le lien a été coupé" :
-          "";
+        errormsg_table[ENOLINK].msg = GETTEXT("Link has been severed");
         }
         #endif
         #ifdef EADV
         if (EADV < sys_nerr) {
         errormsg_table[EADV].name = "EADV";
-        errormsg_table[EADV].msg =
-          ENGLISH ? "Advertise error" :
-          DEUTSCH ? "Andere Rechner benutzen noch unsere Ressourcen" :
-          FRANCAIS ? "Erreur d'annonce" :
-          "";
+        errormsg_table[EADV].msg = GETTEXT("Advertise error");
         }
         #endif
         #ifdef ESRMNT
         if (ESRMNT < sys_nerr) {
         errormsg_table[ESRMNT].name = "ESRMNT";
-        errormsg_table[ESRMNT].msg =
-          ENGLISH ? "Srmount error" :
-          DEUTSCH ? "Andere Rechner benutzen noch unsere Ressourcen" :
-          FRANCAIS ? "Erreur srmount" :
-          "";
+        errormsg_table[ESRMNT].msg = GETTEXT("Srmount error");
         }
         #endif
         #ifdef ECOMM
         if (ECOMM < sys_nerr) {
         errormsg_table[ECOMM].name = "ECOMM";
-        errormsg_table[ECOMM].msg =
-          ENGLISH ? "Communication error on send" :
-          DEUTSCH ? "Beim Senden: Rechner nicht erreichbar" :
-          FRANCAIS ? "Erreur de communication lors d'un envoi" :
-          "";
+        errormsg_table[ECOMM].msg = GETTEXT("Communication error on send");
         }
         #endif
         #ifdef EPROTO
         if (EPROTO < sys_nerr) {
         errormsg_table[EPROTO].name = "EPROTO";
-        errormsg_table[EPROTO].msg =
-          ENGLISH ? "Protocol error" :
-          DEUTSCH ? "Protokoll klappt nicht" :
-          FRANCAIS ? "Erreur de protocole" :
-          "";
+        errormsg_table[EPROTO].msg = GETTEXT("Protocol error");
         }
         #endif
         #ifdef EMULTIHOP
         if (EMULTIHOP < sys_nerr) {
         errormsg_table[EMULTIHOP].name = "EMULTIHOP";
-        errormsg_table[EMULTIHOP].msg =
-          ENGLISH ? "Multihop attempted" :
-          DEUTSCH ? "Ressourcen nicht direkt erreichbar" :
-          FRANCAIS ? "Tentative de sauts multiples" :
-          "";
+        errormsg_table[EMULTIHOP].msg = GETTEXT("Multihop attempted");
         }
         #endif
         #ifdef EDOTDOT
@@ -954,33 +600,21 @@
         #ifdef EREMCHG
         if (EREMCHG < sys_nerr) {
         errormsg_table[EREMCHG].name = "EREMCHG";
-        errormsg_table[EREMCHG].msg =
-          ENGLISH ? "Remote address changed" :
-          DEUTSCH ? "Rechner hat jetzt eine andere Adresse" :
-          FRANCAIS ? "Adresse à distance changée" :
-          "";
+        errormsg_table[EREMCHG].msg = GETTEXT("Remote address changed");
         }
         #endif
         /* Errors von POSIX: */
         #ifdef ENOSYS
         if (ENOSYS < sys_nerr) {
         errormsg_table[ENOSYS].name = "ENOSYS";
-        errormsg_table[ENOSYS].msg =
-          ENGLISH ? "Function not implemented" :
-          DEUTSCH ? "Funktion ist nicht implementiert" :
-          FRANCAIS ? "Fonction non implémentée" :
-          "";
+        errormsg_table[ENOSYS].msg = GETTEXT("Function not implemented");
         }
         #endif
         /* Sonstige: */
         #ifdef EMSDOS /* emx 0.8e - 0.8h */
         if (EMSDOS < sys_nerr) {
         errormsg_table[EMSDOS].name = "EMSDOS";
-        errormsg_table[EMSDOS].msg =
-          ENGLISH ? "Not supported under MS-DOS" :
-          DEUTSCH ? "Das geht unter MS-DOS nicht" :
-          FRANCAIS ? "Pas supporté sous MS-DOS" :
-          "";
+        errormsg_table[EMSDOS].msg = GETTEXT("Not supported under MS-DOS");
         }
         #endif
         return 0;
@@ -999,17 +633,9 @@
       var uintC errcode;
       { # Meldungbeginn ausgeben:
         #ifdef UNIX
-        write_errorstring(DEUTSCH ? "UNIX-Fehler " :
-                          ENGLISH ? "UNIX error " :
-                          FRANCAIS ? "Erreur UNIX " :
-                          ""
-                         );
+        write_errorstring(GETTEXT("UNIX error "));
         #else
-        write_errorstring(DEUTSCH ? "UNIX-Bibliotheks-Fehler " :
-                          ENGLISH ? "UNIX library error " :
-                          FRANCAIS ? "Erreur dans la librairie UNIX " :
-                          ""
-                         );
+        write_errorstring(GETTEXT("UNIX library error "));
         #endif
         # Fehlernummer ausgeben:
         write_errorobject(fixnum(errcode));

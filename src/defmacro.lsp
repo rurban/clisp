@@ -41,12 +41,8 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
     ) )   )   ))
     (unless allow-other-keys-flag
       (if unallowed-arglistr
-        (cerror (DEUTSCH "Beide werden übergangen."
-                 ENGLISH "Both will be ignored."
-                 FRANCAIS "Ignorer les deux.")
-                (DEUTSCH "Unzulässiges Keyword ~S mit Wert ~S"
-                 ENGLISH "Invalid keyword-value-pair: ~S ~S"
-                 FRANCAIS "Mot-clé illégal ~S, valeur ~S")
+        (cerror (ENGLISH "Both will be ignored.")
+                (ENGLISH "Invalid keyword-value-pair: ~S ~S")
                 (first unallowed-arglistr) (second unallowed-arglistr)
     ) ) )
 ) )
@@ -55,9 +51,7 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
 
 (defun macro-call-error (macro-form)
   (error-of-type 'source-program-error
-    (DEUTSCH "Der Macro ~S kann nicht mit ~S Argumenten aufgerufen werden: ~S"
-     ENGLISH "The macro ~S may not be called with ~S arguments"
-     FRANCAIS "Le macro ~S ne peut pas être appelé avec ~S arguments : ~S")
+    (ENGLISH "The macro ~S may not be called with ~S arguments")
     (car macro-form) (1- (length macro-form)) macro-form
 ) )
 
@@ -128,20 +122,14 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
       (do ((listr lambdalistr (cdr listr)))
           ((atom listr)
            (if listr
-             (cerror (DEUTSCH "Der Teil danach wird ignoriert."
-                      ENGLISH "The rest of the lambda list will be ignored."
-                      FRANCAIS "Ignorer ce qui suit.")
-                     (DEUTSCH "Die Lambdaliste des Macros ~S enthält einen Punkt nach &AUX."
-                      ENGLISH "The lambda list of macro ~S contains a dot after &AUX."
-                      FRANCAIS "La lambda-liste du macro ~S contient un point après &AUX.")
+             (cerror (ENGLISH "The rest of the lambda list will be ignored.")
+                     (ENGLISH "The lambda list of macro ~S contains a dot after &AUX.")
                      name
           )) )
         (cond ((symbolp (car listr)) (setq %let-list (cons `(,(car listr) nil) %let-list)))
               ((atom (car listr))
                (error-of-type 'source-program-error
-                 (DEUTSCH "Im Macro ~S ist als &AUX-Variable nicht verwendbar: ~S"
-                  ENGLISH "in macro ~S: ~S may not be used as &AUX variable."
-                  FRANCAIS "Dans le macro ~S, l'utilisation de ~S n'est pas possible comme variable &AUX.")
+                 (ENGLISH "in macro ~S: ~S may not be used as &AUX variable.")
                  name (car listr)
               ))
               (t (setq %let-list
@@ -159,12 +147,8 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
            (g))
           ((atom listr)
            (if listr
-             (cerror (DEUTSCH "Der Teil danach wird ignoriert."
-                      ENGLISH "The rest of the lambda list will be ignored."
-                      FRANCAIS "Ignorer ce qui suit.")
-                     (DEUTSCH "Die Lambdaliste des Macros ~S enthält einen Punkt nach &KEY."
-                      ENGLISH "The lambda list of macro ~S contains a dot after &KEY."
-                      FRANCAIS "La lambda-liste du macro ~S contient un point après &KEY.")
+             (cerror (ENGLISH "The rest of the lambda list will be ignored.")
+                     (ENGLISH "The lambda list of macro ~S contains a dot after &KEY.")
                      name
           )) )
         (setq next (car listr))
@@ -173,12 +157,8 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
               ((or (eq next '&ENVIRONMENT) (eq next '&WHOLE) (eq next '&OPTIONAL)
                    (eq next '&REST) (eq next '&BODY) (eq next '&KEY)
                )
-               (cerror (DEUTSCH "Es wird ignoriert."
-                        ENGLISH "It will be ignored."
-                        FRANCAIS "Il sera ignoré.")
-                       (DEUTSCH "Die Lambdaliste des Macros ~S enthält ein ~S an falscher Stelle."
-                        ENGLISH "The lambda list of macro ~S contains a badly placed ~S."
-                        FRANCAIS "La lambda-liste du macro ~S contient un ~S mal placé.")
+               (cerror (ENGLISH "It will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains a badly placed ~S.")
                        name next
               ))
               (t
@@ -195,12 +175,8 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                        (setq kwlist (cons kw kwlist))
                       )
                       ((atom next)
-                       (cerror (DEUTSCH "Es wird ignoriert."
-                                ENGLISH "It will be ignored."
-                                FRANCAIS "Il sera ignoré.")
-                               (DEUTSCH "Die Lambdaliste des Macros ~S enthält folgendes unpassende Element: ~S"
-                                ENGLISH "The lambda list of macro ~S contains the invalid element ~S"
-                                FRANCAIS "La lambda-liste du macro ~S contient cet élément inadmissible : ~S")
+                       (cerror (ENGLISH "It will be ignored.")
+                               (ENGLISH "The lambda list of macro ~S contains the invalid element ~S")
                                name next
                       ))
                       ((symbolp (car next))
@@ -230,12 +206,8 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                        (setq kwlist (cons kw kwlist))
                       )
                       ((not (and (consp (car next)) (keywordp (caar next)) (consp (cdar next))))
-                       (cerror (DEUTSCH "Sie wird ignoriert."
-                                ENGLISH "~0*It will be ignored."
-                                FRANCAIS "Elle sera ignorée.")
-                               (DEUTSCH "Die Lambdaliste des Macros ~S enthält eine unzulässige Keywordspezifikation: ~S"
-                                ENGLISH "The lambda list of macro ~S contains an invalid keyword specification ~S"
-                                FRANCAIS "La lambda-liste du macro ~S contient une spécification de mot-clé inadmissible : ~S")
+                       (cerror (ENGLISH "~0*It will be ignored.")
+                               (ENGLISH "The lambda list of macro ~S contains an invalid keyword specification ~S")
                                name (car next)
                       ))
                       ((symbolp (cadar next))
@@ -306,16 +278,12 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
     (lambda (lambdalistr restexp name)
       (if (atom lambdalistr)
         (error-of-type 'source-program-error
-          (DEUTSCH "Die Lambdaliste des Macros ~S enthält keine Variable nach &REST/&BODY."
-           ENGLISH "The lambda list of macro ~S is missing a variable after &REST/&BODY."
-           FRANCAIS "Il manque une variable après &REST/BODY dans la lambda-liste du macro ~S.")
+          (ENGLISH "The lambda list of macro ~S is missing a variable after &REST/&BODY.")
           name
       ) )
       (unless (symbolp (car lambdalistr))
         (error-of-type 'source-program-error
-          (DEUTSCH "Die Lambdaliste des Macros ~S enthält eine unzulässige Variable nach &REST/&BODY: ~S"
-           ENGLISH "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S"
-           FRANCAIS "La lambda-liste du macro ~S contient une variable indamissible après &REST/BODY : ~S")
+          (ENGLISH "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
           name (car lambdalistr)
       ) )
       (let ((restvar (car lambdalistr))
@@ -324,22 +292,14 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
         (setq %let-list (cons `(,restvar ,restexp) %let-list))
         (cond ((null listr))
               ((atom listr)
-               (cerror (DEUTSCH "Der Teil danach wird ignoriert."
-                        ENGLISH "The rest of the lambda list will be ignored."
-                        FRANCAIS "Ignorer ce qui suit.")
-                       (DEUTSCH "Die Lambdaliste des Macros ~S enthält einen Punkt an falscher Stelle."
-                        ENGLISH "The lambda list of macro ~S contains a misplaced dot."
-                        FRANCAIS "La lambda-liste du macro ~S contient un point mal placé.")
+               (cerror (ENGLISH "The rest of the lambda list will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains a misplaced dot.")
                        name
               ))
               ((eq (car listr) '&KEY) (analyze-key (cdr listr) restvar name))
               ((eq (car listr) '&AUX) (analyze-aux (cdr listr) name))
-              (t (cerror (DEUTSCH "Dieser ganze Teil wird ignoriert."
-                          ENGLISH "They will be ignored."
-                          FRANCAIS "Ignorer cette partie.")
-                         (DEUTSCH "Die Lambdaliste des Macros ~S enthält überflüssige Elemente: ~S"
-                          ENGLISH "The lambda list of macro ~S contains superfluous elements: ~S"
-                          FRANCAIS "La lambda-liste du macro ~S contient des éléments superflus : ~S")
+              (t (cerror (ENGLISH "They will be ignored.")
+                         (ENGLISH "The lambda list of macro ~S contains superfluous elements: ~S")
                          name listr
   ) ) ) )     )  )
 )
@@ -392,9 +352,7 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
            (when listr
              (unless (symbolp listr)
                (error-of-type 'source-program-error
-                 (DEUTSCH "Die Lambdaliste des Macros ~S enthält eine unzulässige &REST-Variable: ~S"
-                  ENGLISH "The lambda list of macro ~S contains an illegal &REST variable: ~S"
-                  FRANCAIS "La lambda-liste du macro ~S contient une variable &REST inadmissible : ~S")
+                 (ENGLISH "The lambda list of macro ~S contains an illegal &REST variable: ~S")
                  name listr
              ) )
              (setq %let-list (cons `(,listr ,accessexp) %let-list))
@@ -408,19 +366,13 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                    (setq listr (cdr listr))
                  )
                  (error-of-type 'source-program-error
-                   (DEUTSCH "Die Lambdaliste des Macros ~S enthält ein unzulässiges &WHOLE: ~S"
-                    ENGLISH "The lambda list of macro ~S contains an invalid &WHOLE: ~S"
-                    FRANCAIS "La lambda-liste du macro ~S contient un &WHOLE inadmissible : ~S")
+                   (ENGLISH "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
                    name listr
               )) )
               ((eq item '&OPTIONAL)
                (if withinoptional
-                 (cerror (DEUTSCH "Es wird ignoriert."
-                          ENGLISH "It will be ignored."
-                          FRANCAIS "Il sera ignoré.")
-                         (DEUTSCH "Die Lambdaliste des Macros ~S enthält ein überflüssiges ~S."
-                          ENGLISH "The lambda list of macro ~S contains a superfluous ~S."
-                          FRANCAIS "La lambda-liste du macro ~S contient un ~S superflu.")
+                 (cerror (ENGLISH "It will be ignored.")
+                         (ENGLISH "The lambda list of macro ~S contains a superfluous ~S.")
                          name item
                ) )
                (setq withinoptional t)
@@ -435,21 +387,13 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                (return-from nil (analyze-key (cdr listr) g name))
               )
               ((eq item '&ALLOW-OTHER-KEYS)
-               (cerror (DEUTSCH "Es wird ignoriert."
-                        ENGLISH "It will be ignored."
-                        FRANCAIS "Il sera ignoré.")
-                       (DEUTSCH "Die Lambdaliste des Macros ~S enthält ~S vor &KEY."
-                        ENGLISH "The lambda list of macro ~S contains ~S before &KEY."
-                        FRANCAIS "La lambda-liste du macro ~S contient ~S avant &KEY.")
+               (cerror (ENGLISH "It will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains ~S before &KEY.")
                        name item
               ))
               ((eq item '&ENVIRONMENT)
-               (cerror (DEUTSCH "Es wird ignoriert."
-                        ENGLISH "It will be ignored."
-                        FRANCAIS "Il sera ignoré.")
-                       (DEUTSCH "Die Lambdaliste des Macros ~S enthält ~S, was hier unzulässig ist."
-                        ENGLISH "The lambda list of macro ~S contains ~S which is illegal here."
-                        FRANCAIS "La lambda-liste du macro ~S contient ~S qui est inadmissible ici.")
+               (cerror (ENGLISH "It will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains ~S which is illegal here.")
                        name item
               ))
               ((eq item '&AUX)
@@ -468,9 +412,7 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                      ((atom item)
                       #1=
                       (error-of-type 'source-program-error
-                        (DEUTSCH "Die Lambdaliste des Macros ~S enthält ein unzulässiges Element: ~S"
-                         ENGLISH "The lambda list of macro ~S contains an invalid element ~S"
-                         FRANCAIS "La lambda-liste du macro ~S contient un élément inadmissible : ~S")
+                        (ENGLISH "The lambda list of macro ~S contains an invalid element ~S")
                         name item
                      ))
                      ((symbolp (car item))
@@ -484,9 +426,7 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                       (when (and (consp (cdr item)) (consp (cddr item)))
                         (unless (symbolp (caddr item))
                           (error-of-type 'source-program-error
-                            (DEUTSCH "Die Lambdaliste des Macros ~S enthält eine unzulässige supplied-Variable: ~S"
-                             ENGLISH "The lambda list of macro ~S contains an invalid supplied-variable ~S"
-                             FRANCAIS "La lambda-liste du macro ~S contient une «supplied-variable» indamissible : ~S")
+                            (ENGLISH "The lambda list of macro ~S contains an invalid supplied-variable ~S")
                             name (caddr item)
                         ) )
                         (setq %let-list
@@ -548,9 +488,7 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                 (cadr listr)
             ) )
             (error-of-type 'source-program-error
-              (DEUTSCH "In der Lambdaliste des Macros ~S muss nach &ENVIRONMENT ein Symbol (nicht NIL) folgen: ~S"
-               ENGLISH "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S"
-               FRANCAIS "Dans la lambda-liste du macro ~S, &ENVIRONMENT doit être suivi par un symbole autre que NIL : ~S")
+              (ENGLISH "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S")
               name lambdalist
           ) )
   ) ) ) )
@@ -572,23 +510,17 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
     (lambda (macrodef)
       (if (atom macrodef)
         (error-of-type 'source-program-error
-          (DEUTSCH "Daraus kann kein Macro definiert werden: ~S"
-           ENGLISH "Cannot define a macro from that: ~S"
-           FRANCAIS "Aucun macro n'est définissable à partir de ~S")
+          (ENGLISH "Cannot define a macro from that: ~S")
           macrodef
       ) )
       (unless (symbolp (car macrodef))
         (error-of-type 'source-program-error
-          (DEUTSCH "Der Name eines Macros muss ein Symbol sein, nicht: ~S"
-           ENGLISH "The name of a macro must be a symbol, not ~S"
-           FRANCAIS "Le nom d'un macro doit être un symbole et non ~S")
+          (ENGLISH "The name of a macro must be a symbol, not ~S")
           (car macrodef)
       ) )
       (if (atom (cdr macrodef))
         (error-of-type 'source-program-error
-          (DEUTSCH "Der Macro ~S hat keine Lambdaliste."
-           ENGLISH "Macro ~S is missing a lambda list."
-           FRANCAIS "Le macro ~S ne possède pas de lambda-liste.")
+          (ENGLISH "Macro ~S is missing a lambda list.")
           (car macrodef)
       ) )
       (let ((name (car macrodef))

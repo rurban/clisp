@@ -27,9 +27,7 @@
   (unless (socket-server-p object)
     (error-of-type 'type-error
       :datum object :expected-type 'socket-server
-      (DEUTSCH "~S: ~S ist kein SOCKET-SERVER"
-       ENGLISH "~S: ~S is not a SOCKET-SERVER"
-       FRANCAIS "~S : ~S n'est pas un SOCKET-SERVER")
+      (ENGLISH "~S: ~S is not a SOCKET-SERVER")
       caller object
 ) ) )
 

@@ -27,9 +27,7 @@
 
 (defun typespec-error (fun type)
   (error-of-type 'error
-    (DEUTSCH "~S: ~S ist keine zugelassene Typspezifikation."
-     ENGLISH "~S: invalid type specification ~S"
-     FRANCAIS "~S : ~S n'est pas une spécification de type légale.")
+    (ENGLISH "~S: invalid type specification ~S")
     fun type
 ) )
 
@@ -56,9 +54,7 @@
          ((and (eq (first y) 'SATISFIES) (eql (length y) 2))
             (unless (symbolp (second y))
               (error-of-type 'error
-                (DEUTSCH "~S: Argument zu SATISFIES muss Symbol sein: ~S"
-                 ENGLISH "~S: argument to SATISFIES must be a symbol: ~S"
-                 FRANCAIS "~S : L'argument de SATISFIES doit être un symbole: ~S")
+                (ENGLISH "~S: argument to SATISFIES must be a symbol: ~S")
                 'typep (second y)
             ) )
             (if (funcall (symbol-function (second y)) x) t nil)
@@ -280,9 +276,7 @@
                 (< (first low) x)
              )
              (t (error-of-type 'error
-                  (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
-                   ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
-                   FRANCAIS "~S : L'argument de ~S doit être *, ~S ou une liste de ~S: ~S")
+                  (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type low
        )     )  )
        (cond ((eq high '*))
@@ -291,9 +285,7 @@
                 (> (first high) x)
              )
              (t (error-of-type 'error
-                  (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
-                   ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
-                   FRANCAIS "~S : L'argument de ~S doit être *, ~S ou une liste de ~S: ~S")
+                  (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type high
 ) )    )     )  )
 (%put 'MOD 'TYPE-LIST
@@ -301,9 +293,7 @@
     (lambda (x n)
       (unless (integerp n)
         (error-of-type 'error
-          (DEUTSCH "~S: Argument zu MOD muss ganze Zahl sein: ~S"
-           ENGLISH "~S: argument to MOD must be an integer: ~S"
-           FRANCAIS "~S : L'argument de MOD doit être un entier: ~S")
+          (ENGLISH "~S: argument to MOD must be an integer: ~S")
           'typep n
       ) )
       (and (integerp x) (<= 0 x) (< x n))
@@ -314,9 +304,7 @@
     (lambda (x &optional (n '*))
       (unless (or (eq n '*) (integerp n))
         (error-of-type 'error
-          (DEUTSCH "~S: Argument zu SIGNED-BYTE muss ganze Zahl oder * sein: ~S"
-           ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S"
-           FRANCAIS "~S : L'argument de SIGNED-BYTE doit être un entier ou bien * : ~S")
+          (ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
           'typep n
       ) )
       (and (integerp x) (or (eq n '*) (< (integer-length x) n)))
@@ -327,9 +315,7 @@
     (lambda (x &optional (n '*))
       (unless (or (eq n '*) (integerp n))
         (error-of-type 'error
-          (DEUTSCH "~S: Argument zu UNSIGNED-BYTE muss ganze Zahl oder * sein: ~S"
-           ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S"
-           FRANCAIS "~S : L'argument de UNSIGNED-BYTE doit être un entier ou bien * : ~S")
+          (ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
           'typep n
       ) )
       (and (integerp x)
@@ -499,9 +485,7 @@
     (if (and (consp type) (eq (car type) 'VALUES))
       (macrolet ((typespec-error ()
                    '(error-of-type 'error
-                      (DEUTSCH "Falsch aufgebauter Type-Specifier: ~S"
-                       ENGLISH "Invalid type specifier ~S"
-                       FRANCAIS "Spécificateur de type mal formé : ~S")
+                      (ENGLISH "Invalid type specifier ~S")
                       type
                 ))  )
         (let ((vals values)

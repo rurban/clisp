@@ -37,10 +37,7 @@ local char hex_table[] = "0123456789ABCDEF";
       pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
       pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
       fehler(charset_type_error,
-             DEUTSCH ? "Zeichen #\\u$$$$ kann im Zeichensatz ~ nicht dargestellt werden." :
-             ENGLISH ? "Character #\\u$$$$ cannot be represented in the character set ~" :
-             FRANCAIS ? "Le caractère #\\u$$$$ ne peut pas être représenté en ~." :
-             ""
+             GETTEXT("Character #\\u$$$$ cannot be represented in the character set ~")
             );
     }
 
@@ -198,10 +195,7 @@ global void uni32le_wcstombs (object encoding, object stream, const chart* *srcp
       pushSTACK(TheEncoding(encoding)->enc_charset);
       dotimespC(count,8, { pushSTACK(ascii_char(hex_table[code&0x0F])); code = code>>4; });
       fehler(error,
-             DEUTSCH ? "Zeichen #x$$$$$$$$ in ~ Konversion, kein Unicode-16, sorry" :
-             ENGLISH ? "character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry" :
-             FRANCAIS ? "caractère #x$$$$$$$$ pendant conversion ~, pas un Unicode-16, désolé" :
-             ""
+             GETTEXT("character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry")
             );
     }
 
@@ -347,10 +341,7 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp, c
       pushSTACK(ascii_char(hex_table[b1&0x0F]));
       pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
       fehler(error,
-             DEUTSCH ? "Ungültiges Byte #x$$ in ~ Konversion, kein Unicode-16" :
-             ENGLISH ? "invalid byte #x$$ in ~ conversion, not a Unicode-16" :
-             FRANCAIS ? "octet invalide #x$$ pendant conversion ~, pas un Unicode-16" :
-             ""
+             GETTEXT("invalid byte #x$$ in ~ conversion, not a Unicode-16")
             );
     }
 
@@ -367,10 +358,7 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp, c
       pushSTACK(ascii_char(hex_table[b1&0x0F]));
       pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
       fehler(error,
-             DEUTSCH ? "Ungültige Byte-Folge #x$$ #x$$ in ~ Konversion" :
-             ENGLISH ? "invalid byte sequence #x$$ #x$$ in ~ conversion" :
-             FRANCAIS ? "séquence d'octets invalide #x$$ #x$$ pendant conversion ~" :
-             ""
+             GETTEXT("invalid byte sequence #x$$ #x$$ in ~ conversion")
             );
     }
 
@@ -390,10 +378,7 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp, c
       pushSTACK(ascii_char(hex_table[b1&0x0F]));
       pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
       fehler(error,
-             DEUTSCH ? "Ungültige Byte-Folge #x$$ #x$$ #x$$ in ~ Konversion" :
-             ENGLISH ? "invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion" :
-             FRANCAIS ? "séquence d'octets invalide #x$$ #x$$ #x$$ pendant conversion ~" :
-             ""
+             GETTEXT("invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion")
             );
     }
 
@@ -909,10 +894,7 @@ global object nls_range (object encoding, uintL start, uintL end);
       pushSTACK(ascii_char(hex_table[b&0x0F]));
       pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
       fehler(error,
-             DEUTSCH ? "Ungültiges Byte #x$$ in ~ Konversion" :
-             ENGLISH ? "invalid byte #x$$ in ~ conversion" :
-             FRANCAIS ? "octet invalide #x$$ pendant conversion ~" :
-             ""
+             GETTEXT("invalid byte #x$$ in ~ conversion")
             );
     }
 
@@ -1152,10 +1134,7 @@ LISPFUN(make_encoding,0,0,norest,key,2,
         pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(make_encoding));
         fehler(type_error,
-               DEUTSCH ? "~: Als :CHARSET-Argument ist ~ unzulässig." :
-               ENGLISH ? "~: illegal :CHARSET argument ~" :
-               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :CHARSET." :
-               ""
+               GETTEXT("~: illegal :CHARSET argument ~")
               );
       }
     STACK_1 = arg;
@@ -1168,10 +1147,7 @@ LISPFUN(make_encoding,0,0,norest,key,2,
         pushSTACK(O(type_line_terminator)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(make_encoding));
         fehler(type_error,
-               DEUTSCH ? "~: Als :LINE-TERMINATOR-Argument ist ~ unzulässig." :
-               ENGLISH ? "~: illegal :LINE-TERMINATOR argument ~" :
-               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :LINE-TERMINATOR." :
-               ""
+               GETTEXT("~: illegal :LINE-TERMINATOR argument ~")
               );
       }
     # Create a new encoding.
@@ -1209,10 +1185,7 @@ LISPFUNN(encodingp,1)
       pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist kein Zeichensatz." :
-             ENGLISH ? "~: argument ~ is not a character set" :
-             FRANCAIS ? "~ : L'argument ~ n'est pas un jeu de caractères." :
-             ""
+             GETTEXT("~: argument ~ is not a character set")
             );
     }
 
@@ -1626,10 +1599,7 @@ LISPFUNN(set_foreign_encoding,1)
     if (!(TheEncoding(encoding)->max_bytes_per_char == 1))
       { pushSTACK(encoding); pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: ~ ist kein 1:1 Encoding." :
-               ENGLISH ? "~: ~ is not a 1:1 encoding" :
-               FRANCAIS ? "~ : ~ n'est pas un système de codage 1:1" :
-               ""
+               GETTEXT("~: ~ is not a 1:1 encoding")
               );
       }
     value1 = O(foreign_encoding) = encoding; mv_count=1;

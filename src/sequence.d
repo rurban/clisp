@@ -216,10 +216,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pushSTACK(O(type_recognizable_sequence_type)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(name);
       fehler(type_error,
-             DEUTSCH ? "Es gibt keine Sequences vom Typ ~." :
-             ENGLISH ? "There are no sequences of type ~" :
-             FRANCAIS ? "Il n'existe pas de séquences de type ~." :
-             ""
+             GETTEXT("There are no sequences of type ~")
             );
     }
 
@@ -266,10 +263,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pushSTACK(S(sequence)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(seq);
       fehler(type_error,
-             DEUTSCH ? "Das ist keine Sequence: ~" :
-             ENGLISH ? "~ is not a sequence" :
-             FRANCAIS ? "~ n'est pas une séquence." :
-             ""
+             GETTEXT("~ is not a sequence")
             );
     }
 
@@ -286,10 +280,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pushSTACK(S(eql)); pushSTACK(seqtype_length);
       { var object type = listof(2); STACK_2 = type; } # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       fehler(type_error,
-             DEUTSCH ? "Sequence-Typ gibt Länge ~ vor, Ergebnis hat aber die Länge ~." :
-             ENGLISH ? "sequence type forces length ~, but result has length ~" :
-             FRANCAIS ? "Le type de séquence implique une longueur ~, mais le résultat est de longueur ~." :
-             ""
+             GETTEXT("sequence type forces length ~, but result has length ~")
             );
     }
 
@@ -305,10 +296,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pushSTACK(kw);
       pushSTACK(fun);
       fehler(type_error,
-             DEUTSCH ? "~: ~ muss ein Integer >=0 sein, nicht ~" :
-             ENGLISH ? "~: ~ should be an integer >=0, not ~" :
-             FRANCAIS ? "~ : ~ doit être un entier positif ou zéro et non ~" :
-             ""
+             GETTEXT("~: ~ should be an integer >=0, not ~")
             );
     }
 
@@ -359,10 +347,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           pushSTACK(start); pushSTACK(kwptr[0]);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: ~ = ~ darf ~ = ~ nicht übersteigen." :
-                 ENGLISH ? "~: ~ = ~ should not be greater than ~ = ~" :
-                 FRANCAIS ? "~ : ~ = ~ ne doit pas excéder ~ = ~." :
-                 ""
+                 GETTEXT("~: ~ = ~ should not be greater than ~ = ~")
                 );
         }
     }}
@@ -393,10 +378,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           pushSTACK(start); pushSTACK(kwptr[0]);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: ~ = ~ darf ~ = ~ nicht übersteigen." :
-                 ENGLISH ? "~: ~ = ~ should not be greater than ~ = ~" :
-                 FRANCAIS ? "~ : ~ = ~ ne doit pas excéder ~ = ~." :
-                 ""
+                 GETTEXT("~: ~ = ~ should not be greater than ~ = ~")
                 );
         }
     }}
@@ -509,10 +491,7 @@ LISPFUNN(elt,2) # (ELT sequence index), CLTL S. 248
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(0+2)); pushSTACK(S(elt));
         fehler(type_error,
-               DEUTSCH ? "~: Der Index muss ein Fixnum >=0 sein, nicht ~" :
-               ENGLISH ? "~: the index should be a fixnum >=0, not ~" :
-               FRANCAIS ? "~ : L'index doit être de type FIXNUM positif ou zéro et non ~" :
-               ""
+               GETTEXT("~: the index should be a fixnum >=0, not ~")
               );
       }
     # SEQ-ELT aufrufen:
@@ -529,10 +508,7 @@ LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(1+2)); pushSTACK(S(elt)); pushSTACK(S(setf));
         fehler(type_error,
-               DEUTSCH ? "~ ~: Der Index muss ein Fixnum >=0 sein, nicht ~" :
-               ENGLISH ? "~ ~: the index should be a fixnum >=0, not ~" :
-               FRANCAIS ? "~ ~ : L'index doit être de type FIXNUM positif ou zéro et non ~" :
-               ""
+               GETTEXT("~ ~: the index should be a fixnum >=0, not ~")
               );
       }
     # SEQ-SET-ELT aufrufen:
@@ -671,10 +647,7 @@ LISPFUNN(length,1) # (LENGTH sequence), CLTL S. 248
     pushSTACK(S(sequence)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(arg); pushSTACK(S(length));
     fehler(type_error,
-           DEUTSCH ? "~: ~ ist keine Sequence." :
-           ENGLISH ? "~: ~ is not a sequence" :
-           FRANCAIS ? "~ : ~ n'est pas une séquence." :
-           ""
+           GETTEXT("~: ~ is not a sequence")
           );
   }
 
@@ -777,10 +750,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         if (!(posfixnump(value1))) # sollte ein Fixnum >=0 sein
           { pushSTACK(value1); pushSTACK(S(nreverse));
             fehler(error,
-                   DEUTSCH ? "~: Fehlerhafte Länge aufgetreten: ~" :
-                   ENGLISH ? "~: bad length ~" :
-                   FRANCAIS ? "~ : occurence d'une mauvaise longueur: ~" :
-                   ""
+                   GETTEXT("~: bad length ~")
                   );
           }
         {var uintL len = posfixnum_to_L(value1); # len
@@ -881,10 +851,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
         pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(size); pushSTACK(S(make_sequence));
         fehler(type_error,
-               DEUTSCH ? "~: SIZE muss ein Integer >=0 sein, nicht ~" :
-               ENGLISH ? "~: size should be an integer >=0, not ~" :
-               FRANCAIS ? "~ : SIZE doit être un entier positif ou zéro et non ~" :
-               ""
+               GETTEXT("~: size should be an integer >=0, not ~")
               );
       }
     # initial-element bei Strings defaultmäßig ergänzen:
@@ -892,10 +859,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
       { if (!eq(STACK_1,unbound)) # :update ohne :initial-element -> Error
           { pushSTACK(S(make_sequence));
             fehler(error,
-                   DEUTSCH ? "~: :UPDATE darf nur mit :INITIAL-ELEMENT angegeben werden." :
-                   ENGLISH ? "~: :update must not be specified without :initial-element" :
-                   FRANCAIS ? "~ : :UPDATE ne peut être spécifié qu'avec :INITIAL-ELEMENT." :
-                   ""
+                   GETTEXT("~: :update must not be specified without :initial-element")
                   );
           }
         if (eq(seq_type(typdescr),S(string))) # Typname = STRING ?
@@ -1019,10 +983,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
               if (!(posfixnump(len)))
                 { pushSTACK(len); pushSTACK(S(concatenate));
                   fehler(error,
-                         DEUTSCH ? "~: Fehlerhafte Länge aufgetreten: ~" :
-                         ENGLISH ? "~: bad length ~" :
-                         FRANCAIS ? "~ : occurence d'une mauvaise longueur: ~" :
-                         ""
+                         GETTEXT("~: bad length ~")
                         );
                 }
               total_length = I_I_plus_I(total_length,len); # total_length = total_length + len
@@ -1139,10 +1100,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
             pushSTACK(predicate);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: ~ ist keine Funktion." :
-                   ENGLISH ? "~: ~ is not a function" :
-                   FRANCAIS ? "~: ~ n'est pas une fonction." :
-                   ""
+                   GETTEXT("~: ~ is not a function")
                   );
       }   }
       # rest_args_pointer zeigt jetzt über alle argcount+1 Sequence-Argumente
@@ -1857,10 +1815,7 @@ LISPFUN(replace,2,0,norest,key,4,\
   global void fehler_both_tests()
     { pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: Argumente zu :TEST und :TEST-NOT dürfen nicht beide angegeben werden." :
-             ENGLISH ? "~: Must not specify both arguments to :TEST and :TEST-NOT" :
-             FRANCAIS ? "~ : Les arguments pour :TEST et :TEST-NOT ne peuvent être spécifiés en même temps." :
-             ""
+             GETTEXT("~: Must not specify both arguments to :TEST and :TEST-NOT")
             );
     }
 
@@ -1989,10 +1944,7 @@ LISPFUN(replace,2,0,norest,key,4,\
           { pushSTACK(*(stackptr STACKop 0)); # sequence
             pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~: Zu lange Sequence: ~" :
-                   ENGLISH ? "~: sequence ~ is too long" :
-                   FRANCAIS ? "~ : Séquence trop longue: ~" :
-                   ""
+                   GETTEXT("~: sequence ~ is too long")
                   );
           }
         bvl = posfixnum_to_L(bvsize); # Länge des Bitvektors als Longword
@@ -2454,10 +2406,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
           if (!(posfixnump(size)))
             { pushSTACK(*(stackptr STACKop 0)); # sequence
               fehler(error,
-                     DEUTSCH ? "Zu lange Sequence: ~" :
-                     ENGLISH ? "too long sequence ~" :
-                     FRANCAIS ? "Séquence trop longue : ~" :
-                     ""
+                     GETTEXT("too long sequence ~")
                     );
             }
           bvl = posfixnum_to_L(size);

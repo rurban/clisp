@@ -445,10 +445,7 @@
   nonreturning_function(local, fehler_nan, (void));
   local void fehler_nan()
     { fehler(arithmetic_error,
-             DEUTSCH ? "Floating-Point NaN aufgetreten" :
-             ENGLISH ? "floating point NaN occurred" :
-             FRANCAIS ? "apparition d'un NaN au lieu d'un nombre à virgule flottante" :
-             ""
+             GETTEXT("floating point NaN occurred")
             );
     }
 

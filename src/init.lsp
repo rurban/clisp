@@ -342,20 +342,14 @@ interpreter compiler
     (lambda (symbol) ; entfernt die alten Funktionsdefinitionen eines Symbols
       (if (special-operator-p symbol)
         (error-of-type 'error
-          (DEUTSCH "~S ist eine Special-Form und darf nicht umdefiniert werden."
-           ENGLISH "~S is a special form and may not be redefined."
-           FRANCAIS "~S est une forme spéciale et ne peut pas être redéfinie.")
+          (ENGLISH "~S is a special form and may not be redefined.")
           symbol
       ) )
       (if (and (or (fboundp symbol) (macro-function symbol))
                (sys::exported-lisp-symbol-p symbol)
           )
-        (cerror (DEUTSCH "Die alte Definition wird weggeworfen."
-                 ENGLISH "The old definition will be lost"
-                 FRANCAIS "L'ancienne définition sera perdue.")
-                (DEUTSCH "D~2@*~:[ie~;er~]~0@* COMMON-LISP-~A ~S wird umdefiniert."
-                 ENGLISH "Redefining the COMMON LISP ~A ~S"
-                 FRANCAIS "L~2@*~:[a~;e~]~0@* ~A ~S de COMMON-LISP va être redéfini~:[e~;~].")
+        (cerror (ENGLISH "The old definition will be lost")
+                (ENGLISH "Redefining the COMMON LISP ~A ~S")
                 (fbound-string symbol) ; "Funktion" bzw. "Macro"
                 symbol
                 (macro-function symbol)
@@ -372,9 +366,7 @@ interpreter compiler
         (sys::%put symbol 'sys::inline-expansion t)
       )
       (when (get symbol 'sys::traced-definition) ; Trace streichen
-        (warn (DEUTSCH "DEFUN/DEFMACRO: ~S war getraced und wird umdefiniert!"
-               ENGLISH "DEFUN/DEFMACRO: redefining ~S; it was traced!"
-               FRANCAIS "DEFUN/DEFMACRO : ~S était tracée et est redéfinie!")
+        (warn (ENGLISH "DEFUN/DEFMACRO: redefining ~S; it was traced!")
               symbol
         )
         (untrace2 symbol)
@@ -394,9 +386,7 @@ interpreter compiler
   (function %the-environment-error
     (lambda ()
       (error-of-type 'source-program-error
-        (DEUTSCH "~S ist in compiliertem Code unmöglich."
-         ENGLISH "~S is impossible in compiled code"
-         FRANCAIS "~S est impossible dans du code compilé.")
+        (ENGLISH "~S is impossible in compiled code")
         'the-environment
     ) )
 ) )
@@ -478,9 +468,7 @@ interpreter compiler
       ) ) )
       (error-of-type 'type-error
         :datum fenv :expected-type '(or null simple-vector)
-        (DEUTSCH "~S ist kein korrektes Function-Environment."
-         ENGLISH "~S is an invalid function environment"
-         FRANCAIS "~S n'est pas un environnement de fonctions correct.")
+        (ENGLISH "~S is an invalid function environment")
         fenv
     ) )
     'T ; nicht gefunden
@@ -527,9 +515,7 @@ interpreter compiler
       ) ) )
       (error-of-type 'type-error
         :datum venv :expected-type '(or null simple-vector)
-        (DEUTSCH "~S ist kein korrektes Variablen-Environment."
-         ENGLISH "~S is an invalid variable environment"
-         FRANCAIS "~S n'est pas un environnement de variables correct.")
+        (ENGLISH "~S is an invalid variable environment")
         venv
     ) )
     (and (boundp s) (%symbol-value s)) ; nicht gefunden
@@ -594,23 +580,17 @@ interpreter compiler
                         (cond ((or (eq h 'T) (closurep h) (null h)) (values (rest form) nil))
                               ((and (consp h) (eq (first h) 'MACRO))
                                (error-of-type 'source-program-error
-                                 (DEUTSCH "~S: ~S unzulässig, da ~S ein lokaler Macro ist"
-                                  ENGLISH "~S: ~S is illegal since ~S is a local macro"
-                                  FRANCAIS "~S : ~S n'est pas permis car ~S est un macro local")
+                                 (ENGLISH "~S: ~S is illegal since ~S is a local macro")
                                  '%expand form (second form)
                               ))
                               (t (error-of-type 'error
-                                   (DEUTSCH "~S: Falscher Aufbau eines Function-Environment: ~S"
-                                    ENGLISH "~S: invalid function environment ~S"
-                                    FRANCAIS "~S : mauvais environnement de fonction ~S")
+                                   (ENGLISH "~S: invalid function environment ~S")
                                    '%expand *fenv*
                               )  )
                       ) )
                       (if (atom (second form))
                         (error-of-type 'source-program-error
-                          (DEUTSCH "~S: ~S unzulässig, da ~S kein Symbol"
-                           ENGLISH "~S: ~S is invalid since ~S is not a symbol"
-                           FRANCAIS "~S : ~S est inadmissible car ~S n'est pas un symbole")
+                          (ENGLISH "~S: ~S is invalid since ~S is not a symbol")
                           '%expand form (second form)
                         )
                         (multiple-value-call #'%expand-cons (rest form)
@@ -784,9 +764,7 @@ interpreter compiler
                     ((atom L1)
                      (if L1
                        (error-of-type 'source-program-error
-                         (DEUTSCH "Dotted list im Code von MACROLET, endet mit ~S"
-                          ENGLISH "code after MACROLET contains a dotted list, ending with ~S"
-                          FRANCAIS "Le code de MACROLET contient une paire pointée, terminée par ~S")
+                         (ENGLISH "code after MACROLET contains a dotted list, ending with ~S")
                          L1
                        )
                        (let ((*fenv* (apply #'vector (nreverse (cons *fenv* L2)))))
@@ -802,9 +780,7 @@ interpreter compiler
                               (cons (car macrodef) L2)
                       ) )
                       (error-of-type 'source-program-error
-                        (DEUTSCH "Falsche Syntax in MACROLET: ~S"
-                         ENGLISH "illegal syntax in MACROLET: ~S"
-                         FRANCAIS "syntaxe illégale dans MACROLET : ~S")
+                        (ENGLISH "illegal syntax in MACROLET: ~S")
                         macrodef
               ) ) ) ) )
               (SYMBOL-MACROLET ; Body im erweiterten Environment expandieren
@@ -813,9 +789,7 @@ interpreter compiler
                     ((atom L1)
                      (if L1
                        (error-of-type 'source-program-error
-                         (DEUTSCH "Dotted list im Code von SYMBOL-MACROLET, endet mit ~S"
-                          ENGLISH "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
-                          FRANCAIS "Le code de SYMBOL-MACROLET contient une paire pointée, terminée par ~S")
+                         (ENGLISH "code after SYMBOL-MACROLET contains a dotted list, ending with ~S")
                          L1
                        )
                        (let ((*venv* (apply #'vector (nreverse (cons *venv* L2)))))
@@ -824,9 +798,7 @@ interpreter compiler
                                ((atom L3))
                              (if (member (caar L3) specials :test #'eq)
                                (error-of-type 'source-program-error
-                                 (DEUTSCH "~S: Symbol ~S darf nicht gleichzeitig SPECIAL und Makro deklariert werden."
-                                  ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
-                                  FRANCAIS "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps.")
+                                 (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                                  'symbol-macrolet (caar L3)
                          ) ) ) )
                          (values (%expand-form (cons 'LOCALLY (cddr form))) t)
@@ -841,18 +813,14 @@ interpreter compiler
                             (expansion (cadr symdef)))
                         (if (special-variable-p symbol)
                           (error-of-type 'program-error
-                            (DEUTSCH "~S: Symbol ~S ist SPECIAL deklariert und darf nicht Makro deklariert werden."
-                             ENGLISH "~S: symbol ~S is declared special and must not be declared a macro"
-                             FRANCAIS "~S : Le symbole ~S est déclaré SPECIAL et ne peut être déclaré macro.")
+                            (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro")
                             'symbol-macrolet symbol
                           )
                           (setq L2
                             (cons (make-symbol-macro expansion) (cons symbol L2))
                       ) ) )
                       (error-of-type 'source-program-error
-                        (DEUTSCH "Falsche Syntax in SYMBOL-MACROLET: ~S"
-                         ENGLISH "illegal syntax in SYMBOL-MACROLET: ~S"
-                         FRANCAIS "syntaxe illégale dans SYMBOL-MACROLET : ~S")
+                        (ENGLISH "illegal syntax in SYMBOL-MACROLET: ~S")
                         symdef
               ) ) ) ) )
               (%HANDLER-BIND ; Handlerliste und Body expandieren
@@ -890,9 +858,7 @@ interpreter compiler
                    (values (%expand-form (funcall (cdr h) form *fenv*)) t)
                   ) ; Expander aufrufen
                   (t (error-of-type 'error
-                       (DEUTSCH "Falscher Aufbau eines Function-Environment in ~S: ~S"
-                        ENGLISH "bad function environment occurred in ~S: ~S"
-                        FRANCAIS "mauvais environnement de fonction dans ~S : ~S")
+                       (ENGLISH "bad function environment occurred in ~S: ~S")
                        '%expand-form *fenv*
         ) ) )     )  )
         (if (consp f)
@@ -901,9 +867,7 @@ interpreter compiler
             (%expand-list (rest form))
           )
           (error-of-type 'source-program-error
-            (DEUTSCH "~S: ~S ist keine korrekte Form"
-             ENGLISH "~S: invalid form ~S"
-             FRANCAIS "~S : forme Lisp incorrecte ~S")
+            (ENGLISH "~S: invalid form ~S")
             '%expand-form form
 ) ) ) ) ) )
 
@@ -914,9 +878,7 @@ interpreter compiler
   (if (atom l)
     (if l
       (error-of-type 'source-program-error
-        (DEUTSCH "Dotted list im Code, endet mit ~S"
-         ENGLISH "code contains a dotted list, ending with ~S"
-         FRANCAIS "une paire pointée dans le code, terminée par ~S")
+        (ENGLISH "code contains a dotted list, ending with ~S")
         l
       )
       (values nil nil)
@@ -959,9 +921,7 @@ interpreter compiler
 (defun %expand-lambda (l)
   (unless (eq (first l) 'lambda)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: ~S sollte LAMBDA-Ausdruck sein"
-       ENGLISH "~S: ~S should be a lambda expression"
-       FRANCAIS "~S : ~S devrait être une expression LAMBDA")
+      (ENGLISH "~S: ~S should be a lambda expression")
       '%expand-form l
   ) )
   (multiple-value-call #'%expand-cons l
@@ -1002,9 +962,7 @@ interpreter compiler
   (if (atom ll)
     (if ll
       (error-of-type 'source-program-error
-        (DEUTSCH "Lambdaliste darf nicht mit dem Atom ~S enden"
-         ENGLISH "lambda list must not end with the atom ~S"
-         FRANCAIS "La lambda-liste ne peut pas se terminer par l'atome ~S")
+        (ENGLISH "lambda list must not end with the atom ~S")
         ll
       )
       (values nil nil)
@@ -1036,9 +994,7 @@ interpreter compiler
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
-        (DEUTSCH "~S: Variablenliste endet mit dem Atom ~S"
-         ENGLISH "~S: variable list ends with the atom ~S"
-         FRANCAIS "~S : La liste de variables se termine par l'atome ~S")
+        (ENGLISH "~S: variable list ends with the atom ~S")
         'let vs
       )
       (progn
@@ -1055,9 +1011,7 @@ interpreter compiler
   (if (atom vs)
     (if vs
       (error-of-type 'source-program-error
-        (DEUTSCH "~S: Variablenliste endet mit dem Atom ~S"
-         ENGLISH "~S: variable list ends with the atom ~S"
-         FRANCAIS "~S : La liste de variables se termine par l'atome ~S")
+        (ENGLISH "~S: variable list ends with the atom ~S")
         'let* vs
       )
       (values nil nil)
@@ -1170,9 +1124,7 @@ interpreter compiler
   (if (atom fundefs)
     (if fundefs
       (error-of-type 'source-program-error
-        (DEUTSCH "FLET/LABELS: Dotted list im Code, endet mit ~S"
-         ENGLISH "FLET/LABELS: code contains a dotted list, ending with ~S"
-         FRANCAIS "FLET/LABELS : une paire pointée dans le code, terminée par ~S")
+        (ENGLISH "FLET/LABELS: code contains a dotted list, ending with ~S")
         fundefs
       )
       (list *fenv*)
@@ -1181,9 +1133,7 @@ interpreter compiler
       (if (and (consp fundef) (function-name-p (car fundef)) (consp (cdr fundef)))
         (list* (car fundef) nil (%expand-fundefs-1 (cdr fundefs)))
         (error-of-type 'source-program-error
-          (DEUTSCH "Falsche Syntax in FLET/LABELS: ~S"
-           ENGLISH "illegal syntax in FLET/LABELS: ~S"
-           FRANCAIS "syntaxe incorrecte dans FLET/LABELS : ~S")
+          (ENGLISH "illegal syntax in FLET/LABELS: ~S")
           fundef
 ) ) ) ) )
 ; (%expand-fundefs-2 fundefs) expandiert eine Funktionsdefinitionenliste,
@@ -1311,15 +1261,10 @@ interpreter compiler
              (end-of-file "EOF")) ; einmaliges Objekt
         (when verbose
           (fresh-line)
-          (write-string (DEUTSCH ";; Datei "
-                         ENGLISH ";; Loading file "
-                         FRANCAIS ";; Chargement du fichier ")
-          )
+          (write-string (ENGLISH ";; Loading file "))
           (princ filename)
-          (write-string (DEUTSCH " wird geladen..."
-                         ENGLISH " ..."
-                         FRANCAIS " ...")
-        ) )
+          (write-string (ENGLISH " ..."))
+        )
         (sys::allow-read-eval input-stream t)
         (block nil
           (unwind-protect
@@ -1342,23 +1287,16 @@ interpreter compiler
         ) )
         (when verbose
           (fresh-line)
-          (write-string (DEUTSCH ";; Datei "
-                         ENGLISH ";; Loading of file "
-                         FRANCAIS ";; Le fichier ")
-          )
+          (write-string (ENGLISH ";; Loading of file "))
           (princ filename)
-          (write-string (DEUTSCH " ist geladen."
-                         ENGLISH " is finished."
-                         FRANCAIS " est chargé.")
-        ) )
+          (write-string (ENGLISH " is finished."))
+        )
         t
       )
       (if if-does-not-exist
         (error-of-type 'file-error
           :pathname filename
-          (DEUTSCH "Eine Datei mit Namen ~A gibt es nicht."
-           ENGLISH "A file with name ~A does not exist"
-           FRANCAIS "Il n'existe pas de fichier de nom ~A.")
+          (ENGLISH "A file with name ~A does not exist")
           filename
         )
         nil
@@ -1372,9 +1310,7 @@ interpreter compiler
       (lambda (form env)
         (unless (and (consp (cdr form)) (consp (cddr form)))
           (error-of-type 'source-program-error
-            (DEUTSCH "~S: Funktionsname und/oder Parameterliste fehlt"
-             ENGLISH "~S: missing function name and/or parameter list"
-             FRANCAIS "~S : Le nom de fonction et/ou la liste de paramètre manque")
+            (ENGLISH "~S: missing function name and/or parameter list")
             'defun
         ) )
         (let ((name (cadr form))
@@ -1382,16 +1318,12 @@ interpreter compiler
               (body (cdddr form)))
           (unless (symbolp name)
             (error-of-type 'source-program-error
-              (DEUTSCH "~S: ~S ist kein Symbol."
-               ENGLISH "~S: ~S is not a symbol."
-               FRANCAIS "~S : ~S n'est pas un symbole.")
+              (ENGLISH "~S: ~S is not a symbol.")
               'defun name
           ) )
           (when (special-operator-p name)
             (error-of-type 'source-program-error
-              (DEUTSCH "~S: Spezialform ~S kann nicht umdefiniert werden."
-               ENGLISH "~S: special form ~S cannot be redefined."
-               FRANCAIS "~S : La forme spéciale ~S ne peut pas être redéfinie.")
+              (ENGLISH "~S: special form ~S cannot be redefined.")
               'defun name
           ) )
           (multiple-value-bind (body-rest declarations docstring)
@@ -1436,9 +1368,7 @@ interpreter compiler
               (body (cdddr form)))
           (when (atom exitclause)
             (error-of-type 'source-program-error
-              (DEUTSCH "Exitclause in ~S muss Liste sein."
-               ENGLISH "exit clause in ~S must be a list"
-               FRANCAIS "La clause de sortie dans ~S doit être une liste.")
+              (ENGLISH "exit clause in ~S must be a list")
               'do
           ) )
           (let ((bindlist nil)
@@ -1589,23 +1519,17 @@ interpreter compiler
       (lambda (form env)
         (if (atom (cdr form))
           (error-of-type 'source-program-error
-            (DEUTSCH "~S: Daraus kann keine Funktion definiert werden: ~S"
-             ENGLISH "~S: cannot define a function from that: ~S"
-             FRANCAIS "~S : Pas de définition de fonction possible à partir de: ~S")
+            (ENGLISH "~S: cannot define a function from that: ~S")
             'defun (cdr form)
         ) )
         (unless (function-name-p (cadr form))
           (error-of-type 'source-program-error
-            (DEUTSCH "~S: Der Name einer Funktion muss ein Symbol sein, nicht: ~S"
-             ENGLISH "~S: the name of a function must be a symbol, not ~S"
-             FRANCAIS "~S : Le nom d'une fonction doit être un symbole et non ~S")
+            (ENGLISH "~S: the name of a function must be a symbol, not ~S")
             'defun (cadr form)
         ) )
         (if (atom (cddr form))
           (error-of-type 'source-program-error
-            (DEUTSCH "~S: Die Funktion ~S hat keine Lambdaliste."
-             ENGLISH "~S: function ~S is missing a lambda list"
-             FRANCAIS "~S : Il manque une lambda-liste à la fonction ~S.")
+            (ENGLISH "~S: function ~S is missing a lambda list")
             'defun (cadr form)
         ) )
         (let ((name (cadr form))
@@ -1708,13 +1632,8 @@ interpreter compiler
 (definternational date-format
   (t ENGLISH)
 )
-(deflocalized date-format DEUTSCH
-  (formatter "~1{~3@*~D.~4@*~D.~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")
-)
 (deflocalized date-format ENGLISH
-  (formatter "~1{~5@*~D-~4@*~2,'0D-~3@*~2,'0D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}"))
-(deflocalized date-format FRANCAIS
-  (formatter "~1{~3@*~D/~4@*~D/~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")
+  (formatter "~1{~5@*~D-~4@*~2,'0D-~3@*~2,'0D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")
 )
 (defun date-format ()
   (localized 'date-format)
@@ -1821,9 +1740,7 @@ interpreter compiler
       (terpri *debug-io*)
       (if (interactive-stream-p *debug-io*)
         (progn
-          (write-string (DEUTSCH "Wenn Sie (mit Continue) fortfahren: "
-                         ENGLISH "If you continue (by typing 'continue'): "
-                         FRANCAIS "Si vous continuez (en tapant «continue»): ")
+          (write-string (ENGLISH "If you continue (by typing 'continue'): ")
                         *debug-io*
           )
           (apply #'format *debug-io* continue-format-string args)
@@ -1902,6 +1819,8 @@ interpreter compiler
 
 (LOAD "defs3")     ;; the COMMON-LISP package
 
+#+GETTEXT (LOAD "german") ;; Deutsche Meldungen
+#+GETTEXT (LOAD "french") ;; Französische Meldungen
 #+GETTEXT (LOAD "spanish") ;; Spanische Meldungen
 
 (LOAD "config")    ;; configuration parameters to be adjusted by the user

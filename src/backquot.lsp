@@ -36,16 +36,12 @@
   (declare (ignore char))
   (cond ((null *backquote-level*)
          (error-of-type 'error
-           (DEUTSCH "~S: Komma darf nur innerhalb von Backquote auftreten."
-            ENGLISH "~S: comma is illegal outside of backquote"
-            FRANCAIS "~S : Une virgule ne peut apparaître qu'à l'intérieur d'un «backquote».")
+           (ENGLISH "~S: comma is illegal outside of backquote")
            'read
         ))
         ((zerop *backquote-level*)
          (error-of-type 'error
-           (DEUTSCH "~S: Es dürfen nicht mehr Kommata als Backquotes auftreten."
-            ENGLISH "~S: more commas out than backquotes in, is illegal"
-            FRANCAIS "~S : Il ne peut y avoir plus de virgules que de «backquote».")
+           (ENGLISH "~S: more commas out than backquotes in, is illegal")
            'read
         ))
         (t (let ((*backquote-level* (1- *backquote-level*)))
@@ -206,16 +202,12 @@
           ((and (eq (first skel) 'splice) (consp (rest skel)))
            ; ,@form ist verboten
            (error-of-type 'error
-             (DEUTSCH "Die Syntax ,@form ist nur innerhalb von Listen erlaubt."
-              ENGLISH "The syntax ,@form is valid only in lists"
-              FRANCAIS "La syntaxe ,@form n'est permise qu'à l'intérieur d'une liste.")
+             (ENGLISH "The syntax ,@form is valid only in lists")
           ))
           ((and (eq (first skel) 'nsplice) (consp (rest skel)))
            ; ,.form ist verboten
            (error-of-type 'error
-             (DEUTSCH "Die Syntax ,.form ist nur innerhalb von Listen erlaubt."
-              ENGLISH "The syntax ,.form is valid only in lists"
-              FRANCAIS "La syntaxe ,.form n'est permise qu'à l'intérieur d'une liste.")
+             (ENGLISH "The syntax ,.form is valid only in lists")
           ))
           ((and (eq (first skel) 'backquote) (consp (rest skel)))
            ; verschachtelte Backquotes

@@ -208,10 +208,7 @@
               if (ergebnis<0) { OS_file_error(TheStream(STACK_0)->strm_file_truename); } # Fehler aufgetreten?  \
               pushSTACK(TheStream(STACK_0)->strm_file_truename); # Wert für Slot PATHNAME von FILE-ERROR \
               fehler(file_error,                                     \
-                     DEUTSCH ? "Diskette/Platte voll." :             \
-                     ENGLISH ? "disk full" :                         \
-                     FRANCAIS ? "Disque plein." :                    \
-                     ""                                              \
+                     GETTEXT("disk full")                            \
                     );                                               \
             }                                                        \
           end_system_call();                                         \
@@ -706,10 +703,7 @@
         {var int abbruch_errno = errno;
          asciz_out(program_name); asciz_out(": ");
          asciz_out_s(
-           DEUTSCH ? "Betriebssystem-Fehler beim Versuch, das Initialisierungsfile `%s' zu laden." NLstring :
-           ENGLISH ? "operating system error during load of initialisation file `%s'" NLstring :
-           FRANCAIS ? "Erreur système pendant le chargement du fichier d'initialisation `%s'." NLstring :
-           "",
+           GETTEXT("operating system error during load of initialisation file `%s'" NLstring),
            filename
            );
          errno_out(abbruch_errno);
@@ -1154,11 +1148,7 @@
                           goto block_done;
                         }
                         else
-                        { asciz_out(DEUTSCH ? "Kann das Initialisierungsfile nicht in den Speicher legen." :
-                                    ENGLISH ? "Cannot map the initialisation file into memory." :
-                                    FRANCAIS ? "Ne peux placer le fichier d'initialisation en mémoire." :
-                                    ""
-                                   );
+                        { asciz_out(GETTEXT("Cannot map the initialisation file into memory."));
                           #ifdef HAVE_MMAP
                           errno_out(errno);
                           #else
@@ -1406,32 +1396,17 @@
       abbruch1:
         {var int abbruch_errno = OS_errno;
          asciz_out(program_name); asciz_out(": ");
-         asciz_out(
-           DEUTSCH ? "Betriebssystem-Fehler beim Versuch, das Initialisierungsfile zu laden." NLstring :
-           ENGLISH ? "operating system error during load of initialisation file" NLstring :
-           FRANCAIS ? "Erreur système pendant le chargement du fichier d'initialisation." NLstring :
-           ""
-           );
+         asciz_out(GETTEXT("operating system error during load of initialisation file" NLstring));
          errno_out(abbruch_errno);
         }
         goto abbruch_quit;
       abbruch2:
         asciz_out(program_name); asciz_out(": ");
-        asciz_out(
-          DEUTSCH ? "Initialisierungsfile wurde nicht von dieser LISP-Version erzeugt." NLstring :
-          ENGLISH ? "initialisation file was not created by this version of LISP" NLstring :
-          FRANCAIS ? "Le fichier d'initialisation ne provient pas de cette version de LISP." NLstring :
-          ""
-          );
+        asciz_out(GETTEXT("initialisation file was not created by this version of LISP" NLstring));
         goto abbruch_quit;
       abbruch3:
         asciz_out(program_name); asciz_out(": ");
-        asciz_out(
-          DEUTSCH ? "Speicherplatz reicht für Initialisierung nicht aus." NLstring :
-          ENGLISH ? "not enough memory for initialisation" NLstring :
-          FRANCAIS ? "Il n'y a pas assez de mémoire pour l'initialisation." NLstring :
-          ""
-          );
+        asciz_out(GETTEXT("not enough memory for initialisation" NLstring));
         goto abbruch_quit;
       abbruch_quit:
         # Abbruch.

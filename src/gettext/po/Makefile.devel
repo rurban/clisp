@@ -15,10 +15,10 @@ GMSGFMT = gmsgfmt --statistics
 all : tmp pot gmo
 
 # This is hardwired. (See clisp-xgettext.)
-PREDEF_LINGUAS = de en fr
+PREDEF_LINGUAS = en
 # Other languages must be translated by hand. They must also be added
 # to the variable ALL_LINGUAS in ../configure.in.
-OTHER_LINGUAS = es
+OTHER_LINGUAS = de fr es
 
 LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
@@ -44,9 +44,7 @@ SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lsp,$(LSPSOURCES))
 # Lots of small catalog pieces. This will help reduce the building time
 # for the catalogs, since most often only a few source files change.
 SOURCES_POT := $(patsubst %,tmp/%.pot,$(SOURCES))
-SOURCES_DE := $(patsubst %,tmp/%.de,$(SOURCES))
 SOURCES_EN := $(patsubst %,tmp/%.en,$(SOURCES))
-SOURCES_FR := $(patsubst %,tmp/%.fr,$(SOURCES))
 
 tmp :
 	test -d tmp || mkdir tmp
@@ -54,10 +52,8 @@ tmp :
 $(SOURCES_POT) : tmp/%.pot : ../../% clisp-xgettext
 	(cd ../.. ; $${CLISP} gettext/po/clisp-xgettext $* gettext/po/tmp)
 
-# When a .pot file is built, it automatically builds also the .de,.en,.fr files.
-$(SOURCES_DE) : tmp/%.de : tmp/%.pot
+# When a .pot file is built, it automatically builds also the .en file.
 $(SOURCES_EN) : tmp/%.en : tmp/%.pot
-$(SOURCES_FR) : tmp/%.fr : tmp/%.pot
 
 pot : clisp.pot $(patsubst %,%.po,$(LINGUAS))
 
@@ -67,20 +63,10 @@ clisp.pot : $(SOURCES_POT) ../../VERSION po_header clisp-msguniq
 	$${CLISP} ./clisp-msguniq clisp.pox $@
 	$(RM) clisp.pox
 
-de.po : $(SOURCES_DE) ../../VERSION po_header clisp-msguniq
-	(./po_header de ; cat $(SOURCES_DE)) > de.pox
-	$${CLISP} ./clisp-msguniq de.pox $@
-	$(RM) de.pox
-
 en.po : $(SOURCES_EN) ../../VERSION po_header clisp-msguniq
 	(./po_header en ; cat $(SOURCES_EN)) > en.pox
 	$${CLISP} ./clisp-msguniq en.pox $@
 	$(RM) en.pox
-
-fr.po : $(SOURCES_FR) ../../VERSION po_header clisp-msguniq
-	(./po_header fr ; cat $(SOURCES_FR)) > fr.pox
-	$${CLISP} ./clisp-msguniq fr.pox $@
-	$(RM) fr.pox
 
 
 PACKAGE = clisp
@@ -101,13 +87,12 @@ $(patsubst %,%.po,$(OTHER_LINGUAS)) : %.po : $(PACKAGE).pot
 	cp -p $*.pox $*.po
 	rm -f $*.pox
 
-# A single "$(MSGMERGE) $(LINGUA).po.new $(PACKAGE).pot" throws away old
+# A single "$(MSGMERGE) $*.po.new $(PACKAGE).pot" throws away old
 # translations. Two separate $(MSGMERGE) runs don't do this.
-LINGUA = es
-$(LINGUA).po.merged : $(LINGUA).po.new $(LINGUA).po $(PACKAGE).pot
-	$(MSGMERGE) $(LINGUA).po.new $(LINGUA).po -o $(LINGUA).po.tmp
-	$(MSGMERGE) $(LINGUA).po.tmp $(PACKAGE).pot -o $(LINGUA).po.merged
-	$(RM) $(LINGUA).po.tmp
+$(patsubst %,%.po.merged,$(OTHER_LINGUAS)) : %.po.merged : %.po.new %.po $(PACKAGE).pot
+	$(MSGMERGE) $*.po.new $*.po -o $*.po.tmp
+	$(MSGMERGE) $*.po.tmp $*.pot -o $*.po.merged
+	$(RM) $*.po.tmp
 
 
 # We must generate and distribute the .gmo files, because on the machine

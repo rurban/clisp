@@ -225,10 +225,7 @@
       pushSTACK(stream);
       pushSTACK(caller);
       fehler(stream_error,
-             DEUTSCH ? "~ auf ~ ist unzulässig." :
-             ENGLISH ? "~ on ~ is illegal" :
-             FRANCAIS ? "~ de/sur ~ est impossible." :
-             ""
+             GETTEXT("~ on ~ is illegal")
             );
     }
 
@@ -493,10 +490,7 @@
               pushSTACK(stream);
               pushSTACK(S(unread_char));
               fehler(stream_error,
-                     DEUTSCH ? "~: Das letzte von ~ gelesene Zeichen war nicht ~." :
-                     ENGLISH ? "~: the last character read from ~ was not ~" :
-                     FRANCAIS ? "~ : Le dernier caractère lu dans ~ n'était pas ~." :
-                     ""
+                     GETTEXT("~: the last character read from ~ was not ~")
                     );
             }
             else
@@ -505,10 +499,7 @@
               pushSTACK(stream);
               pushSTACK(S(unread_char));
               fehler(stream_error,
-                     DEUTSCH ? "~ von ~ ohne vorheriges ~." :
-                     ENGLISH ? "~ from ~ without ~ before it" :
-                     FRANCAIS ? "~ de ~ sans précédent ~." :
-                     ""
+                     GETTEXT("~ from ~ without ~ before it")
                     );
             }
     }   }
@@ -695,10 +686,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(stream);
       pushSTACK(caller);
       fehler(file_error,
-             DEUTSCH ? "~: Kann nichts auf ~ ausgeben." :
-             ENGLISH ? "~: cannot output to ~" :
-             FRANCAIS ? "~ : Ne peux rien écrire sur ~." :
-             ""
+             GETTEXT("~: cannot output to ~")
             );
     }
 
@@ -713,10 +701,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(stream);
       pushSTACK(obj);
       fehler(type_error,
-             DEUTSCH ? "~ ist kein Character und kann daher nicht auf ~ ausgegeben werden." :
-             ENGLISH ? "~ is not a character, cannot be output onto ~" :
-             FRANCAIS ? "~, n'étant pas de type CHARACTER, ne peut pas être écrit dans ~." :
-             ""
+             GETTEXT("~ is not a character, cannot be output onto ~")
             );
     }
 
@@ -731,10 +716,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(stream);
       pushSTACK(obj);
       fehler(type_error,
-             DEUTSCH ? "~ ist kein Integer und kann daher nicht auf ~ ausgegeben werden." :
-             ENGLISH ? "~ is not an integer, cannot be output onto ~" :
-             FRANCAIS ? "~, n'étant pas un entier, ne peut pas être écrit dans ~." :
-             ""
+             GETTEXT("~ is not an integer, cannot be output onto ~")
             );
     }
 
@@ -748,10 +730,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(stream);
       pushSTACK(obj);
       fehler(stream_error,
-             DEUTSCH ? "Integer ~ ist zu groß oder zu klein und kann daher nicht auf ~ ausgegeben werden." :
-             ENGLISH ? "integer ~ is out of range, cannot be output onto ~" :
-             FRANCAIS ? "L'entier ~, n'étant pas dans l'intervalle souhaité, ne peut pas être écrit dans ~." :
-             ""
+             GETTEXT("integer ~ is out of range, cannot be output onto ~")
             );
     }
 
@@ -784,10 +763,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(O(type_input_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein Input-Stream sein, nicht ~" :
-             ENGLISH ? "~: argument ~ should be an input stream" :
-             FRANCAIS ? "~ : L'argument doit être un «stream» d'entrée et non pas ~." :
-             ""
+             GETTEXT("~: argument ~ should be an input stream")
             );
     }
 
@@ -805,10 +781,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(O(type_output_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein Output-Stream sein, nicht ~" :
-             ENGLISH ? "~: argument ~ should be an output stream" :
-             FRANCAIS ? "~ : L'argument doit être un «stream» de sortie et non pas ~." :
-             ""
+             GETTEXT("~: argument ~ should be an output stream")
             );
     }
 
@@ -1095,10 +1068,7 @@ LISPFUNN(make_synonym_stream,1)
         pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muss ein Symbol sein, nicht ~" :
-               ENGLISH ? "~: argument should be a symbol, not ~" :
-               FRANCAIS ? "~ : L'argument doit être un symbole et non ~":
-               ""
+               GETTEXT("~: argument should be a symbol, not ~")
               );
       }
     value1 = make_synonym_stream(arg); mv_count=1;
@@ -1981,10 +1951,7 @@ LISPFUNN(echo_stream_output_stream,1)
       pushSTACK(TheStream(stream)->strm_str_in_string);
       pushSTACK(stream);
       fehler(stream_error,
-             DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
-             ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
-             FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
-             ""
+             GETTEXT("~ is beyond the end because the string ~ has been adjusted")
             );
     }
 
@@ -2104,10 +2071,7 @@ LISPFUNN(string_input_stream_index,1)
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: ~ ist kein String-Input-Stream." :
-               ENGLISH ? "~: ~ is not a string input stream" :
-               FRANCAIS ? "~ : ~ n'est pas un «stream» lisant d'une chaîne." :
-               ""
+               GETTEXT("~: ~ is not a string input stream")
               );
       }
    {var object index = TheStream(stream)->strm_str_in_index;
@@ -2208,10 +2172,7 @@ LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_po
                 pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
                 pushSTACK(S(make_string_output_stream));
                 fehler(error,
-                       DEUTSCH ? "~: ~-Argument muss ein Untertyp von ~ sein, nicht ~" :
-                       ENGLISH ? "~: ~ argument must be a subtype of ~, not ~" :
-                       FRANCAIS ? "~ : L'argument ~ doit être un sous-type de ~, et non ~" :
-                       ""
+                       GETTEXT("~: ~ argument must be a subtype of ~, not ~")
                       );
       }   }   }
    {var object stream = make_string_output_stream(); # String-Output-Stream
@@ -2244,10 +2205,7 @@ LISPFUNN(get_output_stream_string,1)
       { # stream in STACK_0
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: ~ ist kein String-Output-Stream." :
-               ENGLISH ? "~: ~ is not a string output stream" :
-               FRANCAIS ? "~ : ~ n'est pas un «stream» écrivant dans une chaîne." :
-               ""
+               GETTEXT("~: ~ is not a string output stream")
               );
       }
    {value1 = get_output_stream_string(&STACK_0); mv_count=1; # Angesammeltes als Wert
@@ -2285,10 +2243,7 @@ LISPFUNN(make_string_push_stream,1)
          pushSTACK(O(type_string_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
          pushSTACK(S(with_output_to_string));
          fehler(type_error,
-                DEUTSCH ? "~: Argument muss ein String mit Fill-Pointer sein, nicht ~" :
-                ENGLISH ? "~: argument ~ should be a string with fill pointer" :
-                FRANCAIS ? "~ : L'argument doit être une chaîne munie d'un pointeur de remplissage et non ~." :
-                ""
+                GETTEXT("~: argument ~ should be a string with fill pointer")
                );
     }  }
     {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
@@ -2483,10 +2438,7 @@ LISPFUNN(string_stream_p,1)
             pushSTACK(TheStream(stream)->strm_buff_in_string);
             pushSTACK(stream);
             fehler(stream_error,
-                   DEUTSCH ? "~ hinterm Stringende angelangt, weil String ~ adjustiert wurde." :
-                   ENGLISH ? "~ is beyond the end because the string ~ has been adjusted" :
-                   FRANCAIS ? "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée." :
-                   ""
+                   GETTEXT("~ is beyond the end because the string ~ has been adjusted")
                   );
           }
        {var object ch; # Zeichen aus dem String holen
@@ -2592,10 +2544,7 @@ LISPFUNN(buffered_input_stream_index,1)
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: ~ ist kein Buffered-Input-Stream." :
-               ENGLISH ? "~: ~ is not a buffered input stream" :
-               FRANCAIS ? "~ : ~ n'est pas un «stream» d'entrée bufferisé." :
-               ""
+               GETTEXT("~: ~ is not a buffered input stream")
               );
       }
    {var object index = TheStream(stream)->strm_buff_in_index;
@@ -2904,10 +2853,7 @@ LISPFUNN(generic_stream_controller,1)
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: Stream muss ein Generic-Stream sein, nicht ~" :
-               ENGLISH ? "~: stream must be a generic-stream, not ~" :
-               FRANCAIS ? "~ : Le stream doit être un «generic-stream» et non ~" :
-               ""
+               GETTEXT("~: stream must be a generic-stream, not ~")
               );
       }
     value1=TheStream(stream)->strm_controller_object;
@@ -2991,10 +2937,7 @@ LISPFUNN(generic_stream_p,1)
       if (eq(arg,T)) { return 1; }
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: Als :BUFFERED-Argument ist ~ unzulässig." :
-             ENGLISH ? "~: illegal :BUFFERED argument ~" :
-             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :BUFFERED." :
-             ""
+             GETTEXT("~: illegal :BUFFERED argument ~")
             );
     }
 
@@ -3106,10 +3049,7 @@ LISPFUNN(generic_stream_p,1)
      bad_eltype:
       pushSTACK(*eltype_); pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: Als :ELEMENT-TYPE-Argument ist ~ unzulässig." :
-             ENGLISH ? "~: illegal :ELEMENT-TYPE argument ~" :
-             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE." :
-             ""
+             GETTEXT("~: illegal :ELEMENT-TYPE argument ~")
             );
     }}
 
@@ -3176,10 +3116,7 @@ LISPFUNN(generic_stream_p,1)
       pushSTACK(O(type_external_format)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Als :EXTERNAL-FORMAT-Argument ist ~ unzulässig." :
-             ENGLISH ? "~: illegal :EXTERNAL-FORMAT argument ~" :
-             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :EXTERNAL-FORMAT." :
-             ""
+             GETTEXT("~: illegal :EXTERNAL-FORMAT argument ~")
             );
     }
 
@@ -3590,10 +3527,7 @@ typedef struct strm_unbuffered_extrafields_struct {
   local void fehler_interrupt()
     { pushSTACK(TheSubr(subr_self)->name);
       fehler(serious_condition,
-             DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-             ENGLISH ? "~: Ctrl-C: User break" :
-             FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-             ""
+             GETTEXT("~: Ctrl-C: User break")
             );
     }
 
@@ -3640,10 +3574,7 @@ global object iconv_range (object encoding, uintL start, uintL end);
     var object encoding;
     { pushSTACK(TheEncoding(encoding)->enc_charset);
       fehler(error,
-             DEUTSCH ? "Unbekannter Zeichensatz ~" :
-             ENGLISH ? "unknown character set ~" :
-             FRANCAIS ? "jeu de caractères ~ inconnu" :
-             ""
+             GETTEXT("unknown character set ~")
             );
     }
 
@@ -5586,10 +5517,7 @@ global object iconv_range(encoding,start,end)
         { pushSTACK(canon_eltype(eltype));
           pushSTACK(S(Kelement_type));
           fehler(error,
-                 DEUTSCH ? "Ungebufferte Streams benötigen ein ~ mit durch 8 teilbarer Bitzahl, nicht ~" :
-                 ENGLISH ? "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~" :
-                 FRANCAIS ? "Les flots non bufferisés nécessitent un ~ avec un taille (en bits) divisible par 8, et non ~" :
-                 ""
+                 GETTEXT("Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~")
                 );
         }
     }
@@ -5985,10 +5913,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0); # Wert für Slot PATHNAME von FILE-ERROR
           pushSTACK(STACK_(0+1)); # stream
           fehler(file_error,
-                 DEUTSCH ? "Diskette/Platte voll. Deswegen wurde ~ geschlossen." :
-                 ENGLISH ? "Closed ~ because disk is full." :
-                 FRANCAIS ? "Ai fermé ~, parce que le disque est sans doute plein." :
-                 ""
+                 GETTEXT("Closed ~ because disk is full.")
                 );
     }}  }
 
@@ -6163,10 +6088,7 @@ typedef struct strm_i_buffered_extrafields_struct {
     { pushSTACK(!nullp(TheStream(stream)->strm_file_truename) ? TheStream(stream)->strm_file_truename : stream); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(stream);
       fehler(file_error,
-             DEUTSCH ? "Positionierung von ~ hinter EOF unmöglich." :
-             ENGLISH ? "cannot position ~ beyond EOF" :
-             FRANCAIS ? "Ne peux pas positionner ~ au-delà de la fin du fichier." :
-             ""
+             GETTEXT("cannot position ~ beyond EOF")
             );
     }
 
@@ -7649,10 +7571,7 @@ typedef struct strm_i_buffered_extrafields_struct {
               pushSTACK(S(Kelement_type));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(file_error,
-                     DEUTSCH ? "~: Argument ~ ~ wurde spezifiziert, aber ~ ist kein reguläres File." :
-                     ENGLISH ? "~: argument ~ ~ was specified, but ~ is not a regular file." :
-                     FRANCAIS ? "~ : L'argument ~ ~ a été donné, mais ~ n'est pas un fichier régulier." :
-                     ""
+                     GETTEXT("~: argument ~ ~ was specified, but ~ is not a regular file.")
                     );
             }
          {var boolean handle_tty = FALSE;
@@ -7684,10 +7603,7 @@ typedef struct strm_i_buffered_extrafields_struct {
               pushSTACK(S(Kdirection));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(file_error,
-                     DEUTSCH ? "~: Argumente ~ ~ und ~ ~ wurden spezifiziert, aber ~ ist kein reguläres File." :
-                     ENGLISH ? "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file." :
-                     FRANCAIS ? "~ : Les arguments ~ ~ et ~ ~ ont été donnés, mais ~ n'est pas un fichier régulier." :
-                     ""
+                     GETTEXT("~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file.")
                     );
             }
          {# Positioning the buffer on block boundaries is possible only if
@@ -7749,10 +7665,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                   # STACK_0 = Wert für Slot STREAM von STREAM-ERROR
                   pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ? TheStream(STACK_0)->strm_file_truename : STACK_0);
                   fehler(stream_error,
-                         DEUTSCH ? "File ~ hat nicht das Format eines Integer-Files." :
-                         ENGLISH ? "file ~ is not an integer file" :
-                         FRANCAIS ? "Le fichier ~ n'a pas le format d'un fichier d'entiers." :
-                         ""
+                         GETTEXT("file ~ is not an integer file")
                         );
                 }
               # Auf die gelesene EOF-Position verlassen wir uns jetzt!
@@ -9538,10 +9451,7 @@ LISPFUNN(make_keyboard_stream,0)
           pushSTACK(*stream_);
           pushSTACK(ch);
           fehler(stream_error,
-                 DEUTSCH ? "Character ~ enthält Bits und kann daher nicht auf ~ ausgegeben werden." :
-                 ENGLISH ? "character ~ contains bits, cannot be output onto ~" :
-                 FRANCAIS ? "Le caractère ~ contient des «bits» et ne peut pas être écrit dans ~." :
-                 ""
+                 GETTEXT("character ~ contains bits, cannot be output onto ~")
                 );
         }
      #if (!(char_font_len_c == 4))
@@ -10214,10 +10124,7 @@ LISPFUNN(make_keyboard_stream,0)
     var object stream;
     { pushSTACK(stream);
       fehler(error,
-             DEUTSCH ? "RAW-Modus wird auf ~ nicht unterstützt." :
-             ENGLISH ? "RAW mode not supported on ~" :
-             FRANCAIS ? "Le mode «RAW» n'est pas supporté par ~." :
-             ""
+             GETTEXT("RAW mode not supported on ~")
             );
     }
 
@@ -10592,10 +10499,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
       pushSTACK(stream);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: Argument ~ sollte ein Window-Stream sein." :
-             ENGLISH ? "~: argument ~ should be a window stream" :
-             FRANCAIS ? "~ : L'argument ~ devrait être un WINDOW-STREAM." :
-             ""
+             GETTEXT("~: argument ~ should be a window stream")
             );
     }
 
@@ -11401,10 +11305,7 @@ LISPFUNN(window_cursor_off,1)
       if (ergebnis==0) # nicht erfolgreich?
         { pushSTACK(var_stream(S(terminal_io),0)); # Wert für Slot PATHNAME von FILE-ERROR
           fehler(file_error,
-                 DEUTSCH ? "Kann nichts auf Standard-Output ausgeben." :
-                 ENGLISH ? "cannot output to standard output" :
-                 FRANCAIS ? "Ne peut rien écrire sur la sortie principale." :
-                 ""
+                 GETTEXT("cannot output to standard output")
                 );
         }
     }}
@@ -12653,20 +12554,12 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
       { var const char* s = getenv("TERM");
         if (s==NULL)
           { end_system_call();
-            return (DEUTSCH ? "Environment enthält keine TERM-Variable." :
-                    ENGLISH ? "environment has no TERM variable" :
-                    FRANCAIS ? "L'environnment ne contient pas de variable TERM." :
-                    ""
-                   );
+            return GETTEXT("environment has no TERM variable");
           }
         if (!(tgetent(tbuf,s)==1))
           { end_system_call();
             pushSTACK(asciz_to_string(s,O(misc_encoding)));
-            return (DEUTSCH ? "TERMCAP kennt Terminal-Typ ~ nicht." :
-                    ENGLISH ? "terminal type ~ unknown to termcap" :
-                    FRANCAIS ? "TERMCAP ne connait pas le type d'écran ~." :
-                    ""
-                   );
+            return GETTEXT("terminal type ~ unknown to termcap");
           }
       }
       { var int i = tgetnum("co");
@@ -12686,44 +12579,24 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
       #endif
       if (tgetflag("hc"))
         { end_system_call();
-          return (DEUTSCH ? "Unzureichendes Terminal: Hardcopy-Terminal." :
-                  ENGLISH ? "insufficient terminal: hardcopy terminal" :
-                  FRANCAIS ? "Terminal insuffisant : imprimante au lieu d'écran." :
-                  ""
-                 );
+          return GETTEXT("insufficient terminal: hardcopy terminal");
         }
       if (tgetflag("os"))
         { end_system_call();
-          return (DEUTSCH ? "Unzureichendes Terminal: Kann Ausgegebenes nicht mehr löschen." :
-                  ENGLISH ? "insufficient terminal: overstrikes, cannot clear output" :
-                  FRANCAIS ? "Terminal insuffisant : ne peut rien effacer." :
-                  ""
-                 );
+          return GETTEXT("insufficient terminal: overstrikes, cannot clear output");
         }
       if (tgetflag("ns"))
         { end_system_call();
-          return (DEUTSCH ? "Unzureichendes Terminal: Kann nicht scrollen." :
-                  ENGLISH ? "insufficient terminal: cannot scroll" :
-                  FRANCAIS ? "Terminal insuffisant : pas de défilement." :
-                  ""
-                 );
+          return GETTEXT("insufficient terminal: cannot scroll");
         }
       if (!(CLcap = tgetstr("cl",&tp)))
         { # Könnte CLcap = "\n\n\n\n"; als Default nehmen ('weird HPs')
           end_system_call();
-          return (DEUTSCH ? "Unzureichendes Terminal: Kann Bildschirm nicht löschen." :
-                  ENGLISH ? "insufficient terminal: cannot clear screen" :
-                  FRANCAIS ? "Terminal insuffisant : ne peut pas effacer l'écran." :
-                  ""
-                 );
+          return GETTEXT("insufficient terminal: cannot clear screen");
         }
       if (!(CMcap = tgetstr("cm",&tp)))
         { end_system_call();
-          return (DEUTSCH ? "Unzureichendes Terminal: Kann Cursor nicht willkürlich positionieren." :
-                  ENGLISH ? "insufficient terminal: cannot position cursor randomly" :
-                  FRANCAIS ? "Terminal insuffisant : ne peut pas placer le curseur n'importe où." :
-                  ""
-                 );
+          return GETTEXT("insufficient terminal: cannot position cursor randomly");
         }
       # Capabilities initialisieren:
       AM = tgetflag("am"); if (tgetflag("LP")) { AM = FALSE; }
@@ -13180,10 +13053,7 @@ LISPFUNN(window_cursor_off,1)
   local void fehler_screen()
     { pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: Paket SCREEN ist nicht implementiert." :
-             ENGLISH ? "~: package SCREEN is not implemented" :
-             FRANCAIS ? "~ : Le paquet SCREEN n'est pas implémenté." :
-             ""
+             GETTEXT("~: package SCREEN is not implemented")
             );
     }
 
@@ -14575,10 +14445,7 @@ LISPFUNN(make_x11socket_stream,2)
         pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(1+2));
         fehler(type_error,
-               DEUTSCH ? "Host muss ein String sein, nicht ~" :
-               ENGLISH ? "host should be string, not ~" :
-               FRANCAIS ? "L'hôte devrait être un chaîne et non ~" :
-               ""
+               GETTEXT("host should be string, not ~")
               );
       }
     if (!posfixnump(STACK_0))
@@ -14586,10 +14453,7 @@ LISPFUNN(make_x11socket_stream,2)
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(0+2));
         fehler(type_error,
-               DEUTSCH ? "Display sollte ein Fixnum >=0 sein, nicht ~" :
-               ENGLISH ? "display should be a nonnegative fixnum, not ~" :
-               FRANCAIS ? "Le «display» doit être de type FIXNUM >= 0 et non ~" :
-               ""
+               GETTEXT("display should be a nonnegative fixnum, not ~")
               );
      }
    {var const char* host = TheAsciz(string_to_asciz(STACK_1,O(misc_encoding)));
@@ -14626,10 +14490,7 @@ LISPFUNN(listen_byte,1)
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: Stream muss ein Socket-Stream sein, nicht ~" :
-               ENGLISH ? "~: stream must be a socket-stream, not ~" :
-               FRANCAIS ? "~ : Le stream doit être un «socket-stream» et non ~" :
-               ""
+               GETTEXT("~: stream must be a socket-stream, not ~")
               );
       }
     value1 = (ls_avail_p(UnbufferedStreamLow_listen(stream)(stream)) ? T : NIL);
@@ -14675,10 +14536,7 @@ LISPFUNN(listen_byte,1)
          { pushSTACK(stream);
            pushSTACK(TheSubr(subr_self)->name);
            fehler(error,
-                  DEUTSCH ? "~: Stream muss ein Socket-Stream sein, nicht ~" :
-                  ENGLISH ? "~: stream must be a socket-stream, not ~" :
-                  FRANCAIS ? "~ : Le stream doit être un «socket-stream» et non ~" :
-                  ""
+                  GETTEXT("~: stream must be a socket-stream, not ~")
                  );
       }  }
       {var object vector = STACK_2;
@@ -14690,10 +14548,7 @@ LISPFUNN(listen_byte,1)
            pushSTACK(vector);
            pushSTACK(TheSubr(subr_self)->name);
            fehler(type_error,
-                  DEUTSCH ? "~: Argument ~ sollte ein Vektor vom Typ (ARRAY (UNSIGNED-BYTE 8) (*)) sein." :
-                  ENGLISH ? "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))" :
-                  FRANCAIS ? "~ : l'argument ~ doit être un vecteur de type (ARRAY (UNSIGNED-BYTE 8) (*))." :
-                  ""
+                  GETTEXT("~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))")
                  );
          }
        if (!posfixnump(STACK_0)) { fehler_posfixnum(STACK_0); }
@@ -14714,10 +14569,7 @@ LISPFUNN(read_n_bytes,4)
             pushSTACK(STACK_(1+1)); # Stream
             pushSTACK(S(read_n_bytes));
             fehler(end_of_file,
-                   DEUTSCH ? "~: Eingabestream ~ ist zu Ende." :
-                   ENGLISH ? "~: input stream ~ has reached its end" :
-                   FRANCAIS ? "~ : Le «stream» d'entrée ~ est épuisé." :
-                   ""
+                   GETTEXT("~: input stream ~ has reached its end")
                   );
       }   }
     skipSTACK(2);
@@ -14903,20 +14755,14 @@ local void test_socket_server(obj,check_open)
         pushSTACK(obj);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist kein SOCKET-SERVER" :
-               ENGLISH ? "~: ~ is not a SOCKET-SERVER" :
-               FRANCAIS ? "~ : ~ n'est pas un SOCKET-SERVER" :
-               ""
+               GETTEXT("~: ~ is not a SOCKET-SERVER")
               );
       }
     if (check_open && nullp(TheSocketServer(obj)->socket_handle))
       { pushSTACK(obj);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~ auf ~ ist unzulässig." :
-               ENGLISH ? "~ on ~ is illegal" :
-               FRANCAIS ? "~ de/sur ~ est impossible." :
-               ""
+               GETTEXT("~ on ~ is illegal")
               );
       }
   }
@@ -14970,10 +14816,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
     pushSTACK(STACK_0);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
-           DEUTSCH ? "~: Argument ~ ist kein offener SOCKET-STREAM oder positive FIXNUM" :
-           ENGLISH ? "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM" :
-           FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ouvert ou FIXNUM positif" :
-           ""
+           GETTEXT("~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM")
           );
 
    doit:
@@ -15152,10 +14995,7 @@ local object test_socket_stream(obj,check_open)
                   pushSTACK(obj);
                   pushSTACK(TheSubr(subr_self)->name);
                   fehler(type_error,
-                         DEUTSCH ? "~: Argument ~ ist kein offener SOCKET-STREAM" :
-                         ENGLISH ? "~: argument ~ is not an open SOCKET-STREAM" :
-                         FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ouvert" :
-                         ""
+                         GETTEXT("~: argument ~ is not an open SOCKET-STREAM")
                         );
                 }
               return obj;
@@ -15167,10 +15007,7 @@ local object test_socket_stream(obj,check_open)
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
-           DEUTSCH ? "~: Argument ~ ist kein SOCKET-STREAM" :
-           ENGLISH ? "~: argument ~ is not a SOCKET-STREAM" :
-           FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM" :
-           ""
+           GETTEXT("~: argument ~ is not a SOCKET-STREAM")
           );
   }
 
@@ -15404,18 +15241,12 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(sym); # Variable
           if (!streamp(Symbol_value(sym)))
             { fehler(type_error,
-                     DEUTSCH ? "Der Wert von ~ ist kein Stream: ~" :
-                     ENGLISH ? "The value of ~ is not a stream: ~" :
-                     FRANCAIS ? "La valeur de ~ n'est pas de type STREAM : ~" :
-                     ""
+                     GETTEXT("The value of ~ is not a stream: ~")
                     );
             }
             else
             { fehler(type_error,
-                     DEUTSCH ? "Der Wert von ~ ist kein passender Stream: ~" :
-                     ENGLISH ? "The value of ~ is not an appropriate stream: ~" :
-                     FRANCAIS ? "La valeur de ~ n'est pas un STREAM acceptable : ~" :
-                     ""
+                     GETTEXT("The value of ~ is not an appropriate stream: ~")
                     );
         }   }
       sym = popSTACK();
@@ -15428,10 +15259,7 @@ LISPFUNN(socket_stream_handle,1)
       pushSTACK(oldvalue); # alter Variablenwert
       pushSTACK(sym); # Variable
       fehler(type_error,
-             DEUTSCH ? "Der Wert von ~ war kein Stream: ~. Wurde zurückgesetzt auf ~." :
-             ENGLISH ? "The value of ~ was not a stream: ~. It has been changed to ~." :
-             FRANCAIS ? "La valeur de ~ n'était pas de type STREAM : ~. Changé en ~." :
-             ""
+             GETTEXT("The value of ~ was not a stream: ~. It has been changed to ~.")
             );
     }}
 
@@ -15449,10 +15277,7 @@ local void rl_memory_abort()
     rl_present_p = FALSE;
     Symbol_value(S(terminal_io)) = make_terminal_stream();
     fehler(storage_condition,
-           DEUTSCH ? "Readline-Library: kein freier Speicher mehr da." :
-           ENGLISH ? "readline library: out of memory." :
-           FRANCAIS ? "Bibliothèque readline: mémoire épuisée." :
-           ""
+           GETTEXT("readline library: out of memory.")
           );
   }
 
@@ -15649,10 +15474,7 @@ LISPFUNN(set_stream_element_type,2)
                   pushSTACK(S(Kelement_type));
                   pushSTACK(S(set_stream_element_type));
                   fehler(error,
-                         DEUTSCH ? "~: Der ~ von ~ kann nicht von ~ auf ~ geändert werden." :
-                         ENGLISH ? "~: The ~ of ~ cannot be changed from ~ to ~." :
-                         FRANCAIS ? "~ : Le ~ de ~ ne peux pas être changé de ~ en ~." :
-                         ""
+                         GETTEXT("~: The ~ of ~ cannot be changed from ~ to ~.")
                         );
                 }
               # Transform the lastchar back, if possible.
@@ -16530,10 +16352,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
           pushSTACK(S(Kelement_type));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~ benötigt ein ~ mit durch 8 teilbarer Bitzahl, nicht ~" :
-                 ENGLISH ? "~ needs an ~ with a bit size being a multiple of 8, not ~" :
-                 FRANCAIS ? "~ nécessite un ~ avec un taille (en bits) divisible par 8, et non ~" :
-                 ""
+                 GETTEXT("~ needs an ~ with a bit size being a multiple of 8, not ~")
                 );
     }   }
 
@@ -16553,10 +16372,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
       pushSTACK(O(type_endianness)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Als Endianness-Argument ist ~ unzulässig." :
-             ENGLISH ? "~: illegal endianness argument ~" :
-             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour «endianness»." :
-             ""
+             GETTEXT("~: illegal endianness argument ~")
             );
     }
 
@@ -16575,10 +16391,7 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
             pushSTACK(STACK_(2+1)); # Stream
             pushSTACK(S(read_byte));
             fehler(end_of_file,
-                   DEUTSCH ? "~: Eingabestream ~ ist zu Ende." :
-                   ENGLISH ? "~: input stream ~ has reached its end" :
-                   FRANCAIS ? "~ : Le «stream» d'entrée ~ est épuisé." :
-                   ""
+                   GETTEXT("~: input stream ~ has reached its end")
                   );
           }
           else
@@ -16798,10 +16611,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
             pushSTACK(STACK_(4+1)); # Stream
             pushSTACK(S(read_integer));
             fehler(end_of_file,
-                   DEUTSCH ? "~: Eingabestream ~ ist zu Ende." :
-                   ENGLISH ? "~: input stream ~ has reached its end" :
-                   FRANCAIS ? "~ : Le «stream» d'entrée ~ est épuisé." :
-                   ""
+                   GETTEXT("~: input stream ~ has reached its end")
                   );
           }
           else
@@ -17037,10 +16847,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
         pushSTACK(obj);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muss ein offener File-Stream sein, nicht ~" :
-               ENGLISH ? "~: argument ~ is not an open file stream" :
-               FRANCAIS ? "~ : L'argument ~ doit être un «stream» ouvert sur un fichier." :
-               ""
+               GETTEXT("~: argument ~ is not an open file stream")
               );
     }
 
@@ -17073,10 +16880,7 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
                 pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
                 pushSTACK(TheSubr(subr_self)->name);
                 fehler(type_error,
-                       DEUTSCH ? "~: Position-Argument muss ~ oder ~ oder ein Integer >=0 sein, nicht ~" :
-                       ENGLISH ? "~: position argument should be ~ or ~ or a nonnegative integer, not ~" :
-                       FRANCAIS ? "~ : L'argument position doit être ~, ~ ou un entier positif ou zéro, mais non ~." :
-                       ""
+                       GETTEXT("~: position argument should be ~ or ~ or a nonnegative integer, not ~")
                       );
               }
             value1 = T; mv_count=1; # Wert T

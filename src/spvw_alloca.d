@@ -40,17 +40,9 @@ typedef struct malloca_header
         else
         {
           #ifdef VIRTUAL_MEMORY
-          asciz_out( DEUTSCH ? NLstring "*** - " "Kein virtueller Speicher mehr verfügbar: RESET" :
-                     ENGLISH ? NLstring "*** - " "Virtual memory exhausted. RESET" :
-                     FRANCAIS ? NLstring "*** - " "La mémoire virtuelle est épuisée : RAZ" :
-                     ""
-                   );
+          asciz_out(GETTEXT(NLstring "*** - " "Virtual memory exhausted. RESET"));
           #else
-          asciz_out( DEUTSCH ? NLstring "*** - " "Speicher voll: RESET" :
-                     ENGLISH ? NLstring "*** - " "Memory exhausted. RESET" :
-                     FRANCAIS ? NLstring "*** - " "La mémoire est épuisée : RAZ" :
-                     ""
-                   );
+          asciz_out(GETTEXT(NLstring "*** - " "Memory exhausted. RESET")); :
           #endif
           reset();
     }   }

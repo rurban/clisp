@@ -1101,10 +1101,7 @@ local boolean legal_logical_word_char(ch)
           pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Host muss NIL oder ein String sein, nicht ~" :
-                 ENGLISH ? "~: host should be NIL or a string, not ~" :
-                 FRANCAIS ? "~ : Le nom de machine hôte doit être NIL ou de type STRING et non ~" :
-                 ""
+                 GETTEXT("~: host should be NIL or a string, not ~")
                 );
         }
       host = coerce_normal_ss(host); # als Normal-Simple-String
@@ -1122,10 +1119,7 @@ local boolean legal_logical_word_char(ch)
         { pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(parse_error,
-                 DEUTSCH ? "~: syntaktisch illegaler Hostname ~" :
-                 ENGLISH ? "~: illegal hostname ~" :
-                 FRANCAIS ? "~ : Syntaxe incorrecte pour un nom de machine hôte: ~" :
-                 ""
+                 GETTEXT("~: illegal hostname ~")
                 );
         }
     }
@@ -1152,10 +1146,7 @@ local boolean legal_logical_word_char(ch)
           pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Host muss NIL oder ein String sein, nicht ~" :
-                 ENGLISH ? "~: host should be NIL or a string, not ~" :
-                 FRANCAIS ? "~ : Le nom de machine hôte doit être NIL ou de type STRING et non ~" :
-                 ""
+                 GETTEXT("~: host should be NIL or a string, not ~")
                 );
         }
       host = coerce_normal_ss(host); # als Normal-Simple-String
@@ -1172,10 +1163,7 @@ local boolean legal_logical_word_char(ch)
         { pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(parse_error,
-                 DEUTSCH ? "~: syntaktisch illegaler Hostname ~" :
-                 ENGLISH ? "~: illegal hostname ~" :
-                 FRANCAIS ? "~ : Syntaxe incorrecte pour un nom de machine hôte: ~" :
-                 ""
+                 GETTEXT("~: illegal hostname ~")
                 );
         }
     }
@@ -1197,10 +1185,7 @@ local boolean legal_logical_word_char(ch)
               pushSTACK(host);
               pushSTACK(TheSubr(subr_self)->name);
               fehler(type_error,
-                     DEUTSCH ? "~: Host muss NIL sein, nicht ~" :
-                     ENGLISH ? "~: host should be NIL, not ~" :
-                     FRANCAIS ? "~ : Le nom de machine hôte doit être NIL et non ~" :
-                     ""
+                     GETTEXT("~: host should be NIL, not ~")
                     );
             }
         }
@@ -1323,10 +1308,7 @@ local boolean legal_logical_word_char(ch)
       pushSTACK(thing);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein String, Symbol, File-Stream oder Pathname sein, nicht ~" :
-             ENGLISH ? "~: argument should be a string, symbol, file stream or pathname, not ~" :
-             FRANCAIS ? "~ : L'argument doit être une chaîne, un symbole, un «stream» de fichier ou un «pathname» et non ~" :
-             ""
+             GETTEXT("~: argument should be a string, symbol, file stream or pathname, not ~")
             );
     }
 
@@ -1364,10 +1346,7 @@ local boolean legal_logical_word_char(ch)
       pushSTACK(stream);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(file_error,
-             DEUTSCH ? "~: Filename für ~ ist unbekannt" :
-             ENGLISH ? "~: filename for ~ is unknown" :
-             FRANCAIS ? "~ : Pas de nom de fichier connu pour ~" :
-             ""
+             GETTEXT("~: filename for ~ is unknown")
             );
     }
 
@@ -1886,10 +1865,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                          { pushSTACK(envvar);
                            pushSTACK(S(parse_namestring));
                            fehler(parse_error,
-                                  DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
-                                  ENGLISH ? "~: there is no environment variable ~" :
-                                  FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
-                                  ""
+                                  GETTEXT("~: there is no environment variable ~")
                                  );
                          }
                        pushSTACK(asciz_to_string(envval,O(misc_encoding))); # Wert der Variablen als String
@@ -2136,10 +2112,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                               pushSTACK(username);
                               pushSTACK(S(parse_namestring));
                               fehler(parse_error,
-                                     DEUTSCH ? "~: Es gibt keinen Benutzer mit Namen ~." :
-                                     ENGLISH ? "~: there is no user named ~" :
-                                     FRANCAIS ? "~ : Il n'y a pas d'utilisateur de nom ~." :
-                                     ""
+                                     GETTEXT("~: there is no user named ~")
                                     );
                             }
                           end_system_call();
@@ -2191,10 +2164,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                           { pushSTACK(envvar);
                             pushSTACK(S(parse_namestring));
                             fehler(parse_error,
-                                   DEUTSCH ? "~: Es gibt keine Environment-Variable ~." :
-                                   ENGLISH ? "~: there is no environment variable ~" :
-                                   FRANCAIS ? "~ : Il n'y a pas de variable ~ dans l'environnement." :
-                                   ""
+                                   GETTEXT("~: there is no environment variable ~")
                                   );
                           }
                         envval_dir = asciz_dir_to_pathname(envval,O(misc_encoding)); # Wert der Variablen als Pathname
@@ -2510,10 +2480,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               pushSTACK(STACK_(4+2+1)); # thing
               pushSTACK(S(parse_namestring));
               fehler(parse_error,
-                     DEUTSCH ? "~: Syntax Error im Dateinamen ~ an Position ~." :
-                     ENGLISH ? "~: syntax error in filename ~ at position ~" :
-                     FRANCAIS ? "~ : Erreur de syntaxe dans le nom de fichier ~, à la position ~." :
-                     ""
+                     GETTEXT("~: syntax error in filename ~ at position ~")
                     );
             }
         #ifdef LOGICAL_PATHNAMES
@@ -2526,10 +2493,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   pushSTACK(STACK_(3+2+2));
                   pushSTACK(S(parse_namestring));
                   fehler(error,
-                         DEUTSCH ? "~: Hosts ~ und ~ von ~ stimmen nicht überein." :
-                         ENGLISH ? "~: hosts ~ and ~ of ~ should coincide" :
-                         FRANCAIS ? "~ : Les «hosts» ~ et ~ de ~ ne sont pas les mêmes." :
-                         ""
+                         GETTEXT("~: hosts ~ and ~ of ~ should coincide")
                         );
           }     }
         #endif
@@ -2754,10 +2718,7 @@ LISPFUNN(logical_pathname,1)
         pushSTACK(thing);
         pushSTACK(S(logical_pathname));
         fehler(type_error,
-               DEUTSCH ? "~: Argument ~ ist kein Logical Pathname, String, Stream oder Symbol." :
-               ENGLISH ? "~: argument ~ is not a logical pathname, string, stream or symbol" :
-               FRANCAIS ? "~ : L'argument ~ n'est pas un «pathname logique», une chaîne, un «stream» ou un symbole." :
-               ""
+               GETTEXT("~: argument ~ is not a logical pathname, string, stream or symbol")
               );
       }
     else
@@ -2812,10 +2773,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
                 STACK_0 = STACK_1;
                 pushSTACK(S(translate_logical_pathname));
                 fehler(file_error,
-                       DEUTSCH ? "~: Endlosschleife beim Auflösen von ~" :
-                       ENGLISH ? "~: endless loop while resolving ~" :
-                       FRANCAIS ? "~ : boucle infinie pour ~" :
-                       ""
+                       GETTEXT("~: endless loop while resolving ~")
                       );
               }
             if (nullp(TheLogpathname(STACK_1)->pathname_host))
@@ -2837,10 +2795,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
                 pushSTACK(host);
                 pushSTACK(S(translate_logical_pathname));
                 fehler(file_error,
-                       DEUTSCH ? "~: Logical Host ~ ist unbekannt: ~" :
-                       ENGLISH ? "~: unknown logical host ~ in ~" :
-                       FRANCAIS ? "~ : host ~ inconnu dans ~" :
-                       ""
+                       GETTEXT("~: unknown logical host ~ in ~")
                       );
               }
             # (ASSOC pathname translations :test #'pathname-match-p):
@@ -2852,10 +2807,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
                 STACK_0 = STACK_1;
                 pushSTACK(S(translate_logical_pathname));
                 fehler(file_error,
-                       DEUTSCH ? "~: Keine Ersetzungsregel für ~ ist bekannt." :
-                       ENGLISH ? "~: No replacement rule for ~ is known." :
-                       FRANCAIS ? "~ : Aucune règle de traduction est connue pour ~." :
-                       ""
+                       GETTEXT("~: No replacement rule for ~ is known.")
                       );
               }
             # (TRANSLATE-PATHNAME pathname (first rule) (second rule) :MERGE NIL):
@@ -3223,10 +3175,7 @@ LISPFUNN(host_namestring,1)
           pushSTACK(version);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: :VERSION-Argument muss NIL oder ein Fixnum >0 oder :WILD oder :NEWEST sein, nicht ~" :
-                 ENGLISH ? "~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~" :
-                 FRANCAIS ? "~ : L'argument pour :VERSION doit être NIL, un petit nombre entier positif, :WILD ou :NEWEST mais non ~" :
-                 ""
+                 GETTEXT("~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~")
                 );
         }
       return version;
@@ -3252,10 +3201,7 @@ LISPFUNN(host_namestring,1)
           pushSTACK(version);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: :VERSION-Argument muss NIL oder :WILD oder :NEWEST sein, nicht ~" :
-                 ENGLISH ? "~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~" :
-                 FRANCAIS ? "~ : L'argument pour :VERSION doit être NIL, :WILD ou :NEWEST mais non ~" :
-                 ""
+                 GETTEXT("~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~")
                 );
     }   }
 #endif
@@ -4281,10 +4227,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     fehler_arg:
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           DEUTSCH ? "~: Unzulässiges ~-Argument ~" :
-           ENGLISH ? "~: illegal ~ argument ~" :
-           FRANCAIS ? "~ : Argument incorrect pour ~ : ~" :
-           ""
+           GETTEXT("~: illegal ~ argument ~")
           );
   }
 
@@ -4594,10 +4537,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
-             DEUTSCH ? "Hier sind keine Wildcards (Dateiquantoren) erlaubt: ~" :
-             ENGLISH ? "wildcards are not allowed here: ~" :
-             FRANCAIS ? "Les caractères joker ne sont pas permis ici : ~" :
-             ""
+             GETTEXT("wildcards are not allowed here: ~")
             );
     }
 
@@ -4626,10 +4566,7 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
         pushSTACK(key);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument ~ sollte ~, ~, ~, ~, ~, ~ oder ~ sein." :
-               ENGLISH ? "~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~" :
-               FRANCAIS ? "~ : L'argument ~ devrait être ~, ~, ~, ~, ~, ~ ou ~ ." :
-               ""
+               GETTEXT("~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~")
               );
       }
     value1 = (erg ? T : NIL); mv_count=1; # boolescher Wert
@@ -5754,10 +5691,7 @@ LISPFUNN(pathname_match_p,2)
       pushSTACK(STACK_1);
       pushSTACK(S(translate_pathname));
       fehler(error,
-             DEUTSCH ? "~: Ersetzungsstücke ~ passen nicht in ~." :
-             ENGLISH ? "~: replacement pieces ~ do not fit into ~" :
-             FRANCAIS ? "~ : Les pièces ~ ne vont pas dans ~." :
-             ""
+             GETTEXT("~: replacement pieces ~ do not fit into ~")
             );
     }
 
@@ -5823,10 +5757,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         pushSTACK(STACK_(4+1+1));
         pushSTACK(S(translate_pathname));
         fehler(error,
-               DEUTSCH ? "~: ~ ist keine Spezialisierung von ~." :
-               ENGLISH ? "~: ~ is not a specialization of ~" :
-               FRANCAIS ? "~ : ~ ne spécialise pas ~." :
-               ""
+               GETTEXT("~: ~ is not a specialization of ~")
               );
       }
     # 2.,3. Schritt:
@@ -5875,10 +5806,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             pushSTACK(STACK_(4+4));
             pushSTACK(S(translate_pathname));
             fehler(error,
-                   DEUTSCH ? "(~ ~ ~ ~) ist nicht eindeutig: ~" :
-                   ENGLISH ? "(~ ~ ~ ~) is ambiguous: ~" :
-                   FRANCAIS ? "(~ ~ ~ ~) est ambigu: ~" :
-                   ""
+                   GETTEXT("(~ ~ ~ ~) is ambiguous: ~")
                   );
           }
         value1 = Car(value1);
@@ -5903,10 +5831,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     { pushSTACK(obj); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(obj);
       fehler(file_error,
-             DEUTSCH ? "Directory existiert nicht: ~" :
-             ENGLISH ? "nonexistent directory: ~" :
-             FRANCAIS ? "Le répertoire ~ n'existe pas." :
-             ""
+             GETTEXT("nonexistent directory: ~")
             );
     }
 
@@ -5921,10 +5846,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       pushSTACK(pathname);
       pushSTACK(caller);
       fehler(file_error,
-             DEUTSCH ? "~: Eine Datei ~ existiert bereits." :
-             ENGLISH ? "~: File ~ already exists" :
-             FRANCAIS ? "~ : Le fichier ~ existe déjà." :
-             ""
+             GETTEXT("~: File ~ already exists")
             );
     }
 
@@ -6263,10 +6185,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                       pushSTACK(O(backslash_string)); # "\\"
                       pushSTACK(directory_namestring(STACK_(2+2))); # Directory von pathname
                       fehler(file_error,
-                             DEUTSCH ? "Directory ~ oberhalb ~ existiert nicht." :
-                             ENGLISH ? "no directory ~ above ~" :
-                             FRANCAIS ? "Il n'y a pas de répertoire ~ au delà de ~." :
-                             ""
+                             GETTEXT("no directory ~ above ~")
                             );
                     }
                   if (eq(Car(STACK_0),S(Kwild_inferiors))) # newlist fängt mit '...\' an ?
@@ -6274,10 +6193,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                       pushSTACK(STACK_2); # Wert für Slot PATHNAME von FILE-ERROR
                       pushSTACK(directory_namestring(STACK_(2+1))); # Directory von pathname
                       fehler(file_error, # '"..\\" nach "...\\" ist unzulässig: ~'
-                             DEUTSCH ? "\"..\\\\\" nach \"...\\\\\" ist unzulässig: ~" :
-                             ENGLISH ? "\"..\\\\\" after \"...\\\\\" is invalid: ~" :
-                             FRANCAIS ? "\"..\\\\\" après \"...\\\\\" n'est pas permis : ~" :
-                             ""
+                             GETTEXT("\"..\\\\\" after \"...\\\\\" is invalid: ~")
                             );
                     }
                   STACK_0 = Cdr(STACK_0);
@@ -6472,10 +6388,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           end_system_call(); clr_break_sem_4();
           pushSTACK(unbound); # "Wert" für Slot PATHNAME von FILE-ERROR
           fehler(file_error,
-                 DEUTSCH ? "Zugriff auf aktuelles Verzeichnis nicht möglich." :
-                 ENGLISH ? "Couldn't access current directory" :
-                 FRANCAIS ? "Le répertoire courant n'est pas accessible." :
-                 ""
+                 GETTEXT("Couldn't access current directory")
                 );
         }
       end_system_call();
@@ -6622,10 +6535,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                     pushSTACK(dir_namestring);
                     pushSTACK(TheSubr(subr_self)->name);
                     fehler(file_error,
-                           DEUTSCH ? "~: ~ ist ein File und kein Directory." :
-                           ENGLISH ? "~: ~ names a file, not a directory" :
-                           FRANCAIS ? "~ : ~ est un fichier et non un répertoire." :
-                           ""
+                           GETTEXT("~: ~ names a file, not a directory")
                           );
                   }
                 end_system_call();
@@ -6674,10 +6584,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                  pushSTACK(whole_namestring(STACK_0));
                  pushSTACK(TheSubr(subr_self)->name);
                  fehler(file_error,
-                        DEUTSCH ? "~: ~ ist ein Directory und kein File." :
-                        ENGLISH ? "~: ~ names a directory, not a file" :
-                        FRANCAIS ? "~ : ~ désigne un répertoire et non un fichier." :
-                        ""
+                        GETTEXT("~: ~ names a directory, not a file")
                        );
                }
                else
@@ -6721,10 +6628,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
           pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding))); # Meldung
           fehler(file_error,
-                 DEUTSCH ? "UNIX-Fehler bei GETWD: ~" :
-                 ENGLISH ? "UNIX error while GETWD: ~" :
-                 FRANCAIS ? "Erreur UNIX pendant GETWD : ~" :
-                 "~"
+                 GETTEXT("UNIX error while GETWD: ~")
                 );
         }
       end_system_call();
@@ -6733,10 +6637,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         { pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
           pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
           fehler(file_error,
-                 DEUTSCH ? "UNIX GETWD lieferte ~" :
-                 ENGLISH ? "UNIX GETWD returned ~" :
-                 FRANCAIS ? "GETWD d'UNIX a retourné ~" :
-                 ""
+                 GETTEXT("UNIX GETWD returned ~")
                 );
         }
       # in Pathname umwandeln:
@@ -6830,10 +6731,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               { # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
                 pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
                 fehler(file_error,
-                       DEUTSCH ? "UNIX REALPATH lieferte ~" :
-                       ENGLISH ? "UNIX REALPATH returned ~" :
-                       FRANCAIS ? "REALPATH d'UNIX a retourné ~" :
-                       ""
+                       GETTEXT("UNIX REALPATH returned ~")
                       );
               }
             # Am Schluss evtl. ein '/' anfügen:
@@ -6876,10 +6774,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                     pushSTACK(whole_namestring(STACK_0));
                     pushSTACK(TheSubr(subr_self)->name);
                     fehler(file_error,
-                           DEUTSCH ? "~: ~ ist ein Directory und kein File." :
-                           ENGLISH ? "~: ~ names a directory, not a file" :
-                           FRANCAIS ? "~ : ~ désigne un répertoire et non un fichier." :
-                           ""
+                           GETTEXT("~: ~ names a directory, not a file")
                           );
                   }
                 if_HAVE_LSTAT(
@@ -7048,10 +6943,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               pushSTACK(O(root_string));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(file_error,
-                     DEUTSCH ? "~: Ist ein Device angegeben, muss das Directory mit ~ anfangen: ~" :
-                     ENGLISH ? "~: If a device is specified, the directory must begin with ~: ~" :
-                     FRANCAIS ? "~ : Quand un composant DEVICE est spécifié, le répertoire doit commencer par ~: ~" :
-                     ""
+                     GETTEXT("~: If a device is specified, the directory must begin with ~: ~")
                     );
             }
         }
@@ -7118,10 +7010,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                   pushSTACK(O(root_string)); # "$."
                   pushSTACK(directory_namestring(STACK_(2+2))); # Directory von pathname
                   fehler(file_error,
-                         DEUTSCH ? "Directory ~ oberhalb ~ existiert nicht." :
-                         ENGLISH ? "no directory ~ above ~" :
-                         FRANCAIS ? "Il n'y a pas de répertoire ~ au delà de ~." :
-                         ""
+                         GETTEXT("no directory ~ above ~")
                         );
                 }
               STACK_0 = Cdr(STACK_0);
@@ -7240,10 +7129,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               pushSTACK(whole_namestring(STACK_0));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(file_error,
-                     DEUTSCH ? "~: ~ ist ein Directory und kein File." :
-                     ENGLISH ? "~: ~ names a directory, not a file" :
-                     FRANCAIS ? "~ : ~ désigne un répertoire et non un fichier." :
-                     ""
+                     GETTEXT("~: ~ names a directory, not a file")
                     );
             }
           else
@@ -7445,10 +7331,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
     { pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
-             DEUTSCH ? "Dateiname muss angegeben werden: ~" :
-             ENGLISH ? "no file name given: ~" :
-             FRANCAIS ? "Un nom de fichier doit être fourni : ~" :
-             ""
+             GETTEXT("no file name given: ~")
             );
     }
 
@@ -7461,10 +7344,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
     { pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
-             DEUTSCH ? "Das ist keine Directory-Angabe: ~" :
-             ENGLISH ? "not a directory: ~" :
-             FRANCAIS ? "Ceci ne désigne pas un répertoire : ~" :
-             ""
+             GETTEXT("not a directory: ~")
             );
     }
 
@@ -7529,10 +7409,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
       pushSTACK(STACK_0); # pathname
       pushSTACK(TheSubr(subr_self)->name);
       fehler(file_error,
-             DEUTSCH ? "~: Datei ~ existiert nicht." :
-             ENGLISH ? "~: file ~ does not exist" :
-             FRANCAIS ? "~ : Le fichier ~ n'existe pas." :
-             ""
+             GETTEXT("~: file ~ does not exist")
             );
     }
 
@@ -7561,10 +7438,7 @@ LISPFUNN(truename,1)
                 pushSTACK(STACK_0); # pathname
                 pushSTACK(TheSubr(subr_self)->name);
                 fehler(file_error,
-                       DEUTSCH ? "~: Pathname mit TYPE, aber ohne NAME sinnlos: ~" :
-                       ENGLISH ? "~: pathname with type but without name makes no sense: ~" :
-                       FRANCAIS ? "~ : Un PATHNAME avec TYPE mais sans NAME est insensé: ~" :
-                       ""
+                       GETTEXT("~: pathname with type but without name makes no sense: ~")
                       );
               }
             # Kein Name und kein Typ angegeben -> pathname als Ergebnis
@@ -7792,10 +7666,7 @@ LISPFUNN(probe_directory,1)
     { pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
-             DEUTSCH ? "Datei ~ kann nicht gelöscht werden, weil ein File-Stream auf sie geöffnet wurde." :
-             ENGLISH ? "cannot delete file ~ since there is file stream open to it" :
-             FRANCAIS ? "Le fichier ~ ne peut pas être effacé car il est encore ouvert comme «stream»." :
-             ""
+             GETTEXT("cannot delete file ~ since there is file stream open to it")
             );
     }
 
@@ -7852,10 +7723,7 @@ LISPFUNN(delete_file,1)
     { pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
-             DEUTSCH ? "Datei ~ kann nicht umbenannt werden, weil ein File-Stream auf sie geöffnet wurde." :
-             ENGLISH ? "cannot rename file ~ since there is file stream open to it" :
-             FRANCAIS ? "Le fichier ~ ne peut pas être renommé car il est encore ouvert comme «stream»." :
-             ""
+             GETTEXT("cannot rename file ~ since there is file stream open to it")
             );
     }
 
@@ -8439,19 +8307,13 @@ LISPFUNN(rename_file,2)
               # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
               pushSTACK(STACK_0);
               fehler(file_error,
-                     DEUTSCH ? "Eine Datei mit Namen ~ existiert nicht." :
-                     ENGLISH ? "file ~ does not exist" :
-                     FRANCAIS ? "Un fichier de nom ~ n'existe pas." :
-                     ""
+                     GETTEXT("file ~ does not exist")
                     );
             fehler_exists: # Fehler, da Datei bereits existiert
               # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
               pushSTACK(STACK_0);
               fehler(file_error,
-                     DEUTSCH ? "Eine Datei mit Namen ~ existiert bereits." :
-                     ENGLISH ? "a file named ~ already exists" :
-                     FRANCAIS ? "Un fichier de nom ~ existe déjà." :
-                     ""
+                     GETTEXT("a file named ~ already exists")
                     );
           }
         handle_ok:
@@ -8501,10 +8363,7 @@ LISPFUN(open,1,0,norest,key,6,\
         pushSTACK(O(type_direction)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
-               DEUTSCH ? "~: Als :DIRECTION-Argument ist ~ unzulässig." :
-               ENGLISH ? "~: illegal :DIRECTION argument ~" :
-               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :DIRECTION." :
-               ""
+               GETTEXT("~: illegal :DIRECTION argument ~")
               );
     } }
     # :element-type wird später überprüft.
@@ -8523,10 +8382,7 @@ LISPFUN(open,1,0,norest,key,6,\
         pushSTACK(O(type_if_exists)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
-               DEUTSCH ? "~: Als :IF-EXISTS-Argument ist ~ unzulässig." :
-               ENGLISH ? "~: illegal :IF-EXISTS argument ~" :
-               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :IF-EXISTS." :
-               ""
+               GETTEXT("~: illegal :IF-EXISTS argument ~")
               );
     } }
     # :if-does-not-exist überprüfen und in if_not_exists übersetzen:
@@ -8540,10 +8396,7 @@ LISPFUN(open,1,0,norest,key,6,\
         pushSTACK(O(type_if_does_not_exist)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
-               DEUTSCH ? "~: Als :IF-DOES-NOT-EXIST-Argument ist ~ unzulässig." :
-               ENGLISH ? "~: illegal :IF-DOES-NOT-EXIST argument ~" :
-               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :IF-DOES-NOT-EXIST." :
-               ""
+               GETTEXT("~: illegal :IF-DOES-NOT-EXIST argument ~")
               );
     } }
     # :external-format wird später überprüft.
@@ -10045,10 +9898,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
            # STACK_0 = pathname, Wert für Slot PATHNAME von FILE-ERROR
            pushSTACK(STACK_0);
            fehler(file_error,
-                  DEUTSCH ? "Hier sind nur echte Unterdirectories zulässig, nicht ~" :
-                  ENGLISH ? "root directory not allowed here: ~" :
-                  FRANCAIS ? "Le répertoire racine n'est pas permis ici : ~" :
-                  ""
+                  GETTEXT("root directory not allowed here: ~")
                  );
          }
        subdirs = reverse(subdirs); # Liste kopieren und dabei umdrehen
@@ -10788,10 +10638,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
             pushSTACK(command);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: Befehl muss ein String sein, nicht ~." :
-                   ENGLISH ? "~: the command should be a string, not ~" :
-                   FRANCAIS ? "~ : La commande doit être de type STRING et non ~." :
-                   ""
+                   GETTEXT("~: the command should be a string, not ~")
                   );
           }
         with_string_0(command,O(misc_encoding),command_asciz,
@@ -10835,10 +10682,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         pushSTACK(command);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Befehl muss ein String sein, nicht ~." :
-               ENGLISH ? "~: the command should be a string, not ~" :
-               FRANCAIS ? "~ : La commande doit être de type STRING et non ~." :
-               ""
+               GETTEXT("~: the command should be a string, not ~")
               );
       }
    {var HANDLE prochandle;
@@ -10898,10 +10742,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
             pushSTACK(command);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: Befehl muss ein String sein, nicht ~." :
-                   ENGLISH ? "~: the command should be a string, not ~" :
-                   FRANCAIS ? "~ : La commande doit être de type STRING et non ~." :
-                   ""
+                   GETTEXT("~: the command should be a string, not ~")
                   );
           }
         with_string_0(command,O(misc_encoding),command_asciz,

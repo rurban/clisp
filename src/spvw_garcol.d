@@ -1997,11 +1997,7 @@
         if (FALSE)
           munmap_failure:
           { end_system_call();
-            asciz_out(DEUTSCH ? "munmap() klappt nicht." :
-                      ENGLISH ? "munmap() fails." :
-                      FRANCAIS ? "munmap() ne fonctionne pas." :
-                      ""
-                     );
+            asciz_out(GETTEXT("munmap() fails."));
             errno_out(OS_errno);
             abort();
           }

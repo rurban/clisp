@@ -3861,11 +3861,7 @@
     local void OS_error_internal(errcode)
       var DWORD errcode;
       { # Meldungbeginn ausgeben:
-        write_errorstring(DEUTSCH ? "Win32-Fehler " :
-                          ENGLISH ? "Win32 error " :
-                          FRANCAIS ? "Erreur Win32 " :
-                          ""
-                         );
+        write_errorstring(GETTEXT("Win32 error "));
         # Fehlernummer ausgeben:
         write_errorobject(UL_to_I(errcode));
         # nach Möglichkeit noch ausführlicher:
@@ -3919,11 +3915,7 @@
         clr_break_sem_4(); # keine Win32-Operation mehr aktiv
         begin_error(); # Fehlermeldung anfangen
         # Meldungbeginn ausgeben:
-        write_errorstring(DEUTSCH ? "Winsock-Fehler " :
-                          ENGLISH ? "Winsock error " :
-                          FRANCAIS ? "Erreur Winsock " :
-                          ""
-                         );
+        write_errorstring(GETTEXT("Winsock error "));
         # Fehlernummer ausgeben:
         write_errorobject(L_to_I(errcode));
         # nach Möglichkeit noch ausführlicher:

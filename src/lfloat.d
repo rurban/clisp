@@ -4,10 +4,7 @@
   nonreturning_function(local, fehler_LF_toolong, (void));
   local void fehler_LF_toolong()
     { fehler(arithmetic_error,
-             DEUTSCH ? "Zu lange Long-Floats" :
-             ENGLISH ? "long float too long" :
-             FRANCAIS ? "LONG-FLOAT trop long." :
-             ""
+             GETTEXT("long float too long")
             );
     }
 

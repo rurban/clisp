@@ -128,12 +128,15 @@
   # Initialisiert die Sprache, gegeben die Sprachbezeichnung.
     local boolean init_language_from (const char* langname);
     #ifdef GNU_GETTEXT
-      #define language_spanish  3
+      #define language_deutsch   1
+      #define language_francais  2
+      #define language_spanish   3
     #endif
     local boolean init_language_from(langname)
       var const char* langname;
       { if (asciz_equal(langname,"ENGLISH") || asciz_equal(langname,"english"))
           { language = language_english; return TRUE; }
+        #ifdef GNU_GETTEXT
         if (asciz_equal(langname,"DEUTSCH") || asciz_equal(langname,"deutsch")
             || asciz_equal(langname,"GERMAN") || asciz_equal(langname,"german")
            )
@@ -145,7 +148,6 @@
             || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")
            )
           { language = language_francais; return TRUE; }
-        #ifdef GNU_GETTEXT
         if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
             #ifndef ASCII_CHS
             || asciz_equal(langname,"ESPAÑOL") || asciz_equal(langname,"español")
@@ -193,10 +195,6 @@
             { # LANG hat i.a. die Syntax Sprache[_Land][.Zeichensatz]
               if (lang[0]=='e' && lang[1]=='n' && !alphanumericp((uintB)lang[2])) # "en"
                 { language = language_english; goto chosen2; }
-              if (lang[0]=='d' && lang[1]=='e' && !alphanumericp((uintB)lang[2])) # "de"
-                { language = language_deutsch; goto chosen2; }
-              if (lang[0]=='f' && lang[1]=='r' && !alphanumericp((uintB)lang[2])) # "fr"
-                { language = language_francais; goto chosen2; }
         }   }
         #endif
         # Default: Englisch

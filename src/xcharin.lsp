@@ -33,9 +33,7 @@
 (defun fehler-char-arg (arg caller)
   (error-of-type 'type-error
     :datum arg :expected-type 'character
-    (DEUTSCH "~: Argument ~S ist kein Character."
-     ENGLISH "~: argument ~S is not a character"
-     FRANCAIS "~ : L'argument ~S n'est pas un caractère.")
+    (ENGLISH "~: argument ~S is not a character")
     caller arg
 ) )
 
@@ -56,9 +54,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (DEUTSCH "~S: Font-Argument muss ein Integer sein, nicht ~S."
-       ENGLISH "~S: the font argument should be an integer, not ~S"
-       FRANCAIS "~S : L'argument fonte doit être un entier et non ~S.")
+      (ENGLISH "~S: the font argument should be an integer, not ~S")
       caller arg
 ) ) )
 
@@ -67,9 +63,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (DEUTSCH "~S: Bits-Argument muss ein Integer sein, nicht ~S."
-       ENGLISH "~S: the bits argument should be an integer, not ~S"
-       FRANCAIS "~S : L'argument bits doit être un entier et non ~S.")
+      (ENGLISH "~S: the bits argument should be an integer, not ~S")
       caller arg
 ) ) )
 
@@ -91,9 +85,7 @@
     (:HYPER   char-hyper-bit)
     (t (error-of-type 'type-error
          :datum arg :expected-type '(MEMBER :CONTROL :META :SUPER :HYPER)
-         (DEUTSCH "~S: Als Bit-Name sind nur ~S, ~S, ~S, ~S zugelassen, nicht ~S."
-          ENGLISH "~S: the only bit names are ~S, ~S, ~S, ~S, not ~S"
-          FRANCAIS "~S : Les seuls noms bits permis sont ~S, ~S, ~S et ~S et non ~S.")
+         (ENGLISH "~S: the only bit names are ~S, ~S, ~S, ~S, not ~S")
          caller ':CONTROL ':META ':SUPER ':HYPER arg
 ) ) )  )
 

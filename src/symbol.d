@@ -19,10 +19,7 @@
           pushSTACK(symbol);
           pushSTACK(S(symbol_function));
           fehler(undefined_function,
-                 DEUTSCH ? "~: ~ hat keine globale Funktionsdefinition." :
-                 ENGLISH ? "~: ~ has no global function definition" :
-                 FRANCAIS ? "~ : ~ n'a pas de définition globale de fonction." :
-                 ""
+                 GETTEXT("~: ~ has no global function definition")
                 );
         }
       if (consp(fun))
@@ -30,10 +27,7 @@
           pushSTACK(symbol);
           pushSTACK(S(function));
           fehler(undefined_function,
-                 DEUTSCH ? "~: ~ ist ein Macro und keine Funktion." :
-                 ENGLISH ? "~: ~ is a macro, not a function" :
-                 FRANCAIS ? "~ : ~ est une macro et non une fonction." :
-                 ""
+                 GETTEXT("~: ~ is a macro, not a function")
                 );
         }
       return fun;
@@ -49,10 +43,7 @@
     { pushSTACK(symbol);
       pushSTACK(S(get));
       fehler(error,
-             DEUTSCH ? "~: Die Property-Liste von ~ hat ungerade Länge." :
-             ENGLISH ? "~: the property list of ~ has an odd length" :
-             FRANCAIS ? "~ : La liste de propriétés attachée à ~ est de longueur impaire." :
-             ""
+             GETTEXT("~: the property list of ~ has an odd length")
             );
     }
 
@@ -102,10 +93,7 @@ LISPFUNN(putd,2)
     pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(fun);
     fehler(type_error,
-           DEUTSCH ? "SETF SYMBOL-FUNCTION: ~ ist keine Funktion." :
-           ENGLISH ? "SETF SYMBOL-FUNCTION: ~ is not a function" :
-           FRANCAIS ? "SETF SYMBOL-FUNCTION : ~ n'est pas une fonction." :
-           ""
+           GETTEXT("SETF SYMBOL-FUNCTION: ~ is not a function")
           );
     ok: # fun korrekt, in die Funktionszelle stecken:
     value1 = popSTACK(); # function-Argument als Wert
@@ -127,10 +115,7 @@ LISPFUNN(find_subr,1)
       { pushSTACK(symbol);
         pushSTACK(S(find_subr));
         fehler(error,
-               DEUTSCH ? "~: ~ ist keine System-Funktion." :
-               ENGLISH ? "~: ~ is not a system function" :
-               FRANCAIS ? "~ : ~ n'est pas une fonction du système." :
-               ""
+               GETTEXT("~: ~ is not a system function")
               );
       }
     value1 = result; mv_count=1;
@@ -180,10 +165,7 @@ LISPFUN(getf,2,1,norest,nokey,0,NIL)
     { pushSTACK(STACK_2);
       pushSTACK(S(getf));
       fehler(error,
-             DEUTSCH ? "~: Die Property-Liste ~ hat ungerade Länge." :
-             ENGLISH ? "~: the property list ~ has an odd length" :
-             FRANCAIS ? "~ : La liste de propriétés ~ est de longueur impaire." :
-             ""
+             GETTEXT("~: the property list ~ has an odd length")
             );
     }
     notfound: # key nicht gefunden
@@ -220,10 +202,7 @@ LISPFUNN(get_properties,2)
     { pushSTACK(plist);
       pushSTACK(S(get_properties));
       fehler(error,
-             DEUTSCH ? "~: Die Property-Liste ~ hat ungerade Länge." :
-             ENGLISH ? "~: the property list ~ has an odd length" :
-             FRANCAIS ? "~ : La liste de propriétés ~ est de longueur impaire." :
-             ""
+             GETTEXT("~: the property list ~ has an odd length")
             );
     }
     notfound: # key nicht gefunden
@@ -354,18 +333,14 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
 #              (if (minusp x)
 #                (error-of-type 'type-error
 #                       :datum x :expected-type '(INTEGER 0 *)
-#                       #+DEUTSCH "~S: Index ~S ist negativ."
-#                       #+ENGLISH "~S: index ~S is negative"
-#                       #+FRANCAIS "~S: L'index ~S est négatif."
+#                       (ENGLISH "~S: index ~S is negative")
 #                       'gensym x
 #                )
 #                (setq counter x)
 #             ))
 #             (t (error-of-type 'type-error
 #                       :datum x :expected-type '(OR STRING INTEGER)
-#                       #+DEUTSCH "~S: Argument ~S hat falschen Typ"
-#                       #+ENGLISH "~S: invalid argument ~S"
-#                       #+FRANCAIS "~S: L'argument ~S n'est pas du bon type."
+#                       (ENGLISH "~S: invalid argument ~S")
 #                       'gensym x
 #             )  )
 #     ) )
@@ -392,10 +367,7 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
                 pushSTACK(x);
                 pushSTACK(S(gensym));
                 fehler(type_error,
-                       DEUTSCH ? "~: Index ~ ist negativ." :
-                       ENGLISH ? "~: index ~ is negative" :
-                       FRANCAIS ? "~ : L'index ~ est négatif." :
-                       ""
+                       GETTEXT("~: index ~ is negative")
                       );
               }
             # x ist ein Integer >=0
@@ -407,10 +379,7 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
             pushSTACK(x);
             pushSTACK(S(gensym));
             fehler(type_error,
-                   DEUTSCH ? "~: Argument ~ hat falschen Typ." :
-                   ENGLISH ? "~: invalid argument ~" :
-                   FRANCAIS ? "~ : L'argument ~ n'est pas du bon type." :
-                   ""
+                   GETTEXT("~: invalid argument ~")
                   );
       }   }
     # String zusammenbauen:
@@ -423,10 +392,7 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
             pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(new_value); pushSTACK(counter);
             fehler(type_error,
-                   DEUTSCH ? "Der Wert von *GENSYM-COUNTER* war kein Integer >= 0. Alter Wert: ~. Neuer Wert: ~." :
-                   ENGLISH ? "The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~. New value ~." :
-                   FRANCAIS ? "La valeur de *GENSYM-COUNTER* n'était pas un entier >= 0. Ancienne valeur : ~. Nouvelle valeur : ~." :
-                   ""
+                   GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~. New value ~.")
                   );
           }
         Symbol_value(S(gensym_counter)) = I_1_plus_I(counter); # (incf *GENSYM-COUNTER*)

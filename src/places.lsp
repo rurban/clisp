@@ -21,9 +21,7 @@
   (or (get symbol 'SYSTEM::SETF-FUNCTION)
       (progn
         (when (get symbol 'SYSTEM::SETF-EXPANDER)
-          (warn (DEUTSCH "Die Funktion (~S ~S) ist durch einen SETF-Expander verborgen."
-                 ENGLISH "The function (~S ~S) is hidden by a SETF expander."
-                 FRANCAIS "La fonction (~S ~S) est cachée par une méthode SETF.")
+          (warn (ENGLISH "The function (~S ~S) is hidden by a SETF expander.")
                 'setf symbol
         ) )
         (setf (get symbol 'SYSTEM::SETF-FUNCTION) (setf-symbol symbol))
@@ -84,9 +82,7 @@
                             (if (keywordp argform)
                               (push argform new-access-form)
                               (error-of-type 'source-program-error
-                                (DEUTSCH "Das Argument ~S zu ~S sollte ein Keyword sein."
-                                 ENGLISH "The argument ~S to ~S should be a keyword."
-                                 FRANCAIS "L'argument ~S de ~S doit être un mot-clé.")
+                                (ENGLISH "The argument ~S to ~S should be a keyword.")
                                 argform (car access-form)
                             ) )
                             (let ((tempvar (gensym)))
@@ -141,9 +137,7 @@
                 ))
         )) )
         (t (error-of-type 'source-program-error
-             (DEUTSCH "Das Argument muss eine 'SETF-place' sein, ist aber keine: ~S"
-              ENGLISH "Argument ~S is not a SETF place."
-              FRANCAIS "L'argument ~S doit représenter une place modifiable.")
+             (ENGLISH "Argument ~S is not a SETF place.")
              form
   )     )  )
 )
@@ -156,9 +150,7 @@
       (get-setf-expansion form env)
     (unless (and (consp stores) (null (cdr stores)))
       (error-of-type 'source-program-error
-        (DEUTSCH "Diese 'SETF-place' produziert mehrere 'Store-Variable': ~S"
-         ENGLISH "SETF place ~S produces more than one store variable."
-         FRANCAIS "La place modifiable ~S produit plusieurs variables de résultat.")
+        (ENGLISH "SETF place ~S produces more than one store variable.")
         form
     ) )
     (values vars vals stores store-form access-form)
@@ -182,9 +174,7 @@
 (defun documentation (symbol doctype)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (DEUTSCH "~S: Das ist als erstes Argument unzulässig, da kein Symbol: ~S"
-       ENGLISH "~S: first argument ~S is illegal, not a symbol"
-       FRANCAIS "~S : Le premier argument ~S est invalide car ce n'est pas un symbole.")
+      (ENGLISH "~S: first argument ~S is illegal, not a symbol")
       'documentation symbol
   ) )
   (getf (get (get-funname-symbol symbol) 'SYSTEM::DOCUMENTATION-STRINGS) doctype)
@@ -192,9 +182,7 @@
 (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (DEUTSCH "~S: Das ist als erstes Argument unzulässig, da kein Symbol: ~S"
-       ENGLISH "~S: first argument ~S is illegal, not a symbol"
-       FRANCAIS "~S : Le premier argument ~S est invalide car ce n'est pas un symbole.")
+      (ENGLISH "~S: first argument ~S is illegal, not a symbol")
       'documentation symbol
   ) )
   (setq symbol (get-funname-symbol symbol))
@@ -230,9 +218,7 @@
                                 &environment env)
   (unless (symbolp accessfn)
     (error-of-type 'source-program-error
-      (DEUTSCH "Der Name der Access-Function muss ein Symbol sein und nicht ~S."
-       ENGLISH "The name of the access function must be a symbol, not ~S"
-       FRANCAIS "Le nom de la fonction d'accès doit être un symbole et non ~S.")
+      (ENGLISH "The name of the access function must be a symbol, not ~S")
       accessfn
   ) )
   (multiple-value-bind (body-rest declarations docstring)
@@ -265,9 +251,7 @@
               (setq mainform
                 `(IF ,lengthtest
                    (ERROR-OF-TYPE 'PROGRAM-ERROR
-                     (DEUTSCH "Der SETF-Expander für ~S kann nicht mit ~S Argumenten aufgerufen werden."
-                      ENGLISH "The SETF expander for ~S may not be called with ~S arguments."
-                      FRANCAIS "L'«expandeur» SETF pour ~S ne peut pas être appelé avec ~S arguments.")
+                     (ENGLISH "The SETF expander for ~S may not be called with ~S arguments.")
                      (QUOTE ,accessfn) (1- (LENGTH SYSTEM::%LAMBDA-LIST))
                    )
                    ,mainform
@@ -304,15 +288,11 @@
                    (second args)
                    (if (cddr args)
                      (error-of-type 'source-program-error
-                       (DEUTSCH "Zu viele Argumente für DEFSETF: ~S"
-                        ENGLISH "Too many arguments to DEFSETF: ~S"
-                        FRANCAIS "Trop d'arguments pour DEFSETF : ~S")
+                       (ENGLISH "Too many arguments to DEFSETF: ~S")
                        (cdr args)
                      )
                      (error-of-type 'source-program-error
-                       (DEUTSCH "Der Dok.-String zu DEFSETF muss ein String sein: ~S"
-                        ENGLISH "The doc string to DEFSETF must be a string: ~S"
-                        FRANCAIS "La documentation pour DEFSETF doit être un chaîne : ~S")
+                       (ENGLISH "The doc string to DEFSETF must be a string: ~S")
                        (second args)
                  ) ) )
               )
@@ -322,9 +302,7 @@
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
          (when (null (second args))
            (error-of-type 'source-program-error
-             (DEUTSCH "Bei DEFSETF muss mindestens eine 'Store-Variable' angegeben werden."
-              ENGLISH "Missing store variable in DEFSETF."
-              FRANCAIS "Une variable de résultat doit être précisée dans DEFSETF.")))
+             (ENGLISH "Missing store variable in DEFSETF.")))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t env)
            (let* ((storevars (second args))
@@ -365,9 +343,7 @@
               ) )
         )) )
         (t (error-of-type 'source-program-error
-             (DEUTSCH "DEFSETF-Aufruf für ~S ist falsch aufgebaut."
-              ENGLISH "Illegal syntax in DEFSETF for ~S"
-              FRANCAIS "Le DEFSETF ~S est mal formé.")
+             (ENGLISH "Illegal syntax in DEFSETF for ~S")
              accessfn
 ) )     )  )
 ;;;----------------------------------------------------------------------------
@@ -380,9 +356,7 @@
   (let ((pointer (nthcdr index list)))
     (if (null pointer)
       (error-of-type 'error
-        (DEUTSCH "(SETF (NTH ...) ...) : Index ~S ist zu groß für ~S."
-         ENGLISH "(SETF (NTH ...) ...) : index ~S is too large for ~S"
-         FRANCAIS "(SETF (NTH ...) ...) : L'index ~S est trop grand pour ~S.")
+        (ENGLISH "(SETF (NTH ...) ...) : index ~S is too large for ~S")
         index list
       )
       (rplaca pointer value)
@@ -482,9 +456,7 @@
                (declare (ignore ge))
                (when (atom (cdr args))
                  (error-of-type 'source-program-error
-                   (DEUTSCH "PSETF mit einer ungeraden Anzahl von Argumenten aufgerufen: ~S"
-                    ENGLISH "PSETF called with an odd number of arguments: ~S"
-                    FRANCAIS "PSETF fut appelé avec un nombre impair d'arguments : ~S")
+                   (ENGLISH "PSETF called with an odd number of arguments: ~S")
                    form))
                `(LET* ,(mapcar #'list vr vl)
                   (MULTIPLE-VALUE-BIND ,sv ,(second args)
@@ -530,9 +502,7 @@
              ((ATOM ,var1) NIL)
            (COND ((ATOM (CDR ,var1))
                   (ERROR-OF-TYPE 'ERROR
-                    (DEUTSCH "REMF: Property-Liste ungerader Länge aufgetreten."
-                     ENGLISH "REMF: property list with an odd length"
-                     FRANCAIS "REMF : Occurence d'une liste de propriétés de longueur impaire.")
+                    (ENGLISH "REMF: property list with an odd length")
                  ))
                  ((EQ (CAR ,var1) ,indicatorvar)
                   (IF ,var2
@@ -582,24 +552,18 @@
              (if (symbolp (second lambdalistr))
                (setq restvar (second lambdalistr))
                (error-of-type 'source-program-error
-                 (DEUTSCH "In der Definition von ~S ist die &REST-Variable kein Symbol: ~S"
-                  ENGLISH "In the definition of ~S: &REST variable ~S should be a symbol."
-                  FRANCAIS "Dans la définition de ~S la variable pour &REST n'est pas un symbole : ~S.")
+                 (ENGLISH "In the definition of ~S: &REST variable ~S should be a symbol.")
                  name (second lambdalistr)
              ) )
              (if (null (cddr lambdalistr))
                (return)
                (error-of-type 'source-program-error
-                 (DEUTSCH "Nach &REST ist nur eine Variable erlaubt; es kam: ~S"
-                  ENGLISH "Only one variable is allowed after &REST, not ~S"
-                  FRANCAIS "Une seule variable est permise pour &REST et non ~S.")
+                 (ENGLISH "Only one variable is allowed after &REST, not ~S")
                  lambdalistr
             )) )
             ((or (eq next '&KEY) (eq next '&ALLOW-OTHER-KEYS) (eq next '&AUX))
              (error-of-type 'source-program-error
-               (DEUTSCH "In einer DEFINE-MODIFY-MACRO-Lambdaliste ist ~S unzulässig."
-                ENGLISH "Illegal in a DEFINE-MODIFY-MACRO lambda list: ~S"
-                FRANCAIS "~S n'est pas permis dans une lambda-liste pour DEFINE-MODIFY-MACRO.")
+               (ENGLISH "Illegal in a DEFINE-MODIFY-MACRO lambda list: ~S")
                next
             ))
             ((symbolp next) (push next varlist))
@@ -607,9 +571,7 @@
              (push (first next) varlist)
             )
             (t (error-of-type 'source-program-error
-                 (DEUTSCH "Lambdalisten dürfen nur Symbole und Listen enthalten, nicht aber ~S"
-                  ENGLISH "lambda list may only contain symbols and lists, not ~S"
-                  FRANCAIS "Les lambda-listes ne peuvent contenir que des symboles et des listes et non ~S.")
+                 (ENGLISH "lambda list may only contain symbols and lists, not ~S")
                  next
             )  )
     ) )
@@ -726,17 +688,13 @@
                        )
                    ))
                    (t (error-of-type 'source-program-error
-                        (DEUTSCH "Das ist keine erlaubte 'SETF-Place' : ~S"
-                         ENGLISH "Illegal SETF place: ~S"
-                         FRANCAIS "Ceci n'est pas une place modifiable valide : ~S")
+                        (ENGLISH "Illegal SETF place: ~S")
                         (first args)
              )     )  )
           ))
           ((oddp argcount)
            (error-of-type 'source-program-error
-             (DEUTSCH "~S mit einer ungeraden Anzahl von Argumenten aufgerufen: ~S"
-              ENGLISH "~S called with an odd number of arguments: ~S"
-              FRANCAIS "~S fut appelé avec un nombre impair d'arguments : ~S")
+             (ENGLISH "~S called with an odd number of arguments: ~S")
              'setf form
           ))
           (t (do* ((arglist args (cddr arglist))
@@ -749,9 +707,7 @@
 (defmacro shiftf (&whole form &rest args &environment env)
   (when (< (length args) 2)
     (error-of-type 'source-program-error
-      (DEUTSCH "SHIFTF mit zu wenig Argumenten aufgerufen: ~S"
-       ENGLISH "SHIFTF called with too few arguments: ~S"
-       FRANCAIS "SHIFTF fut appelé avec trop peu d'arguments : ~S")
+      (ENGLISH "SHIFTF called with too few arguments: ~S")
       form))
   (do* ((arglist args (cdr arglist))
         (res (list 'let* nil nil)) lf ff
@@ -791,9 +747,7 @@
       ((atom plistr) (list* indicator value plist))
     (when (atom (cdr plistr))
       (error-of-type 'error
-        (DEUTSCH "(SETF (GETF ...) ...) : Property-Liste ungerader Länge aufgetaucht."
-         ENGLISH "(SETF (GETF ...) ...) : property list with an odd length"
-         FRANCAIS "(SETF (GETF ...) ...) : Occurence d'une liste de propriétés de longueur impaire.")
+        (ENGLISH "(SETF (GETF ...) ...) : property list with an odd length")
     ))
     (when (eq (car plistr) indicator)
       (rplaca (cdr plistr) value)
@@ -828,9 +782,7 @@
 (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (DEUTSCH "Das ist als erstes Argument unzulässig, da kein Symbol: ~S"
-       ENGLISH "first argument ~S is illegal, not a symbol"
-       FRANCAIS "Le premier argument ~S est invalide car ce n'est pas un symbole.")
+      (ENGLISH "first argument ~S is illegal, not a symbol")
       symbol
   ) )
   (setq symbol (get-funname-symbol symbol))
@@ -940,17 +892,13 @@
       )
     (setq fun (second fun))
     (error-of-type 'source-program-error
-      (DEUTSCH "SETF von APPLY ist nur für Funktionen der Form #'symbol als Argument definiert."
-       ENGLISH "SETF APPLY is only defined for functions of the form #'symbol."
-       FRANCAIS "Un SETF de APPLY n'est défini que pour les fonctions de la forme #'symbole.")
+      (ENGLISH "SETF APPLY is only defined for functions of the form #'symbol.")
   ) )
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
       (get-setf-expansion (cons fun args) env)
     (unless (eq (car (last args)) (car (last SM2)))
       (error-of-type 'source-program-error
-        (DEUTSCH "APPLY von ~S kann nicht als 'SETF-Place' aufgefasst werden."
-         ENGLISH "APPLY on ~S is not a SETF place."
-         FRANCAIS "APPLY de ~S ne peux pas être considéré comme une place modifiable.")
+        (ENGLISH "APPLY on ~S is not a SETF place.")
         fun
     ) )
     (let ((item (car (last SM1)))) ; 'item' steht für eine Argumentliste!
@@ -1005,9 +953,7 @@
                (setq fun (second fun))
           )
     (error-of-type 'source-program-error
-      (DEUTSCH "SETF von FUNCALL ist nur für Funktionen der Form #'symbol definiert."
-       ENGLISH "SETF FUNCALL is only defined for functions of the form #'symbol."
-       FRANCAIS "Un SETF de FUNCALL n'est défini que pour les fonctions de la forme #'symbole.")
+      (ENGLISH "SETF FUNCALL is only defined for functions of the form #'symbol.")
   ) )
   (get-setf-expansion (cons fun args) env)
 )
