@@ -235,6 +235,9 @@ global int main()
 # printf("#define ASSERT(expr)  { if (!(expr)) { NOTREACHED } }\n");
 # #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
 #   printf("#define alloca  __builtin_alloca\n");
+# #elif defined(MICROSOFT)
+#   printf("#include <malloc.h>\n");
+#   printf("#define alloca _alloca\n");
 # #elif defined(HAVE_ALLOCA_H) || defined(RISCOS)
 #   printf("#include <alloca.h>\n");
 #   #ifndef alloca
@@ -248,9 +251,6 @@ global int main()
 #   printf("#pragma alloca\n");
 # #elif defined(WATCOM)
 #   printf("#include <malloc.h>\n");
-# #elif defined(MICROSOFT)
-#   printf("#include <malloc.h>\n");
-#   printf("#define alloca _alloca\n");
 # #elif !defined(NO_ALLOCA)
 #   printf("extern void* alloca (int size);\n");
 # #endif
