@@ -1,3 +1,15 @@
+2001-07-13  Sam Steingold  <sds@gnu.org>
+
+	abstracted some code
+	* stream.d (bitbuff_iu_I, bitbuff_is_I): new functions
+	(read-integer): use them
+	(rd_by_iu_I): use bitbuff_iu_I()
+	(rd_by_is_I): use bitbuff_is_I()
+	(bitbuff_ixu_sub, bitbuff_ixs_sub): new functions
+	(write-integer): use them
+	(wr_by_ixu_sub): use bitbuff_ixu_sub()
+	(wr_by_ixs_sub): use bitbuff_ixs_sub()
+
 2001-07-11  Sam Steingold  <sds@gnu.org>
 
 	YAPT (yet another pathname tweak)
@@ -36,7 +48,7 @@
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
 	replaced chartcopy with memcpy
-	compilation time of compile.lisp wend down 3.76%
+	compilation time of compile.lisp went down 3.76%
 	fixed bug #438486
 	* charstrg.d (chartcopy): removed
 	* lispbibl.d (chartcopy): defined to expand to memcpy()
@@ -49,7 +61,7 @@
 
 	fixed the 2001-05-01 patch
 	* spvw.d (main): call set_ansi only
-	when -ansi or -traditional was given
+	when either -ansi or -traditional was given
 
 2001-07-03  Sam Steingold  <sds@gnu.org>
 
