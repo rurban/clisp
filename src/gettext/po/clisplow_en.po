@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-09\n"
-"POT-Creation-Date: 2001-07-16 18:42:48 EDT\n"
+"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
 "PO-Revision-Date: 2000-06-13 22:37:09 CEST\n"
 "Last-Translator: Automatically generated <haible@honolulu>\n"
 "Language-Team: English <en@li.org>\n"
@@ -167,16 +167,6 @@ msgstr "Only %d bytes available.\n"
 
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Could not determine the end of the SP stack!\n"
-
-msgid ""
-"\n"
-"WARNING: No initialization file specified.\n"
-msgstr ""
-"\n"
-"WARNING: No initialization file specified.\n"
-
-msgid "Please try: "
-msgstr "Please try: "
 
 msgid "Not enough memory for Lisp.\n"
 msgstr "Not enough memory for Lisp.\n"
@@ -589,41 +579,6 @@ msgstr "Not supported under MS-DOS"
 
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr "This version of CLISP runs only in low address memory.\n"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

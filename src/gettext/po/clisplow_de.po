@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2001-07-16 18:42:48 EDT\n"
+"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: German <de@li.org>\n"
@@ -161,16 +161,6 @@ msgstr "Nur %d Bytes verfügbar.\n"
 
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!\n"
-
-msgid ""
-"\n"
-"WARNING: No initialization file specified.\n"
-msgstr ""
-"\n"
-"WARNUNG: Kein Initialisierungsfile angegeben.\n"
-
-msgid "Please try: "
-msgstr "Versuchen Sie: "
 
 msgid "Not enough memory for Lisp.\n"
 msgstr "Nicht genug Speicher für LISP\n"
@@ -590,48 +580,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -668,30 +617,9 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 #, fuzzy
 
-
-
-
-
-
-
-
-
-
-
-
+#, fuzzy
 
 #, fuzzy
 
@@ -785,7 +713,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-
+#, fuzzy
 
 
 
@@ -843,183 +771,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
 
 
 
@@ -1127,169 +878,9 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #, fuzzy
 
 #, fuzzy
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
 
 #, fuzzy
 
@@ -1354,6 +945,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1375,6 +967,41 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
 
 
 
@@ -1476,6 +1103,341 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
 #, fuzzy
 
 
@@ -1511,6 +1473,9 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
+
+#, fuzzy
 
 
 
@@ -1527,8 +1492,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-
-
+#, fuzzy
 
 
 
@@ -1698,40 +1662,16 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
+
+
+#, fuzzy
 
 #, fuzzy
 
 #, fuzzy
 
 #, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #, fuzzy
@@ -1760,6 +1700,67 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
 
 
 
@@ -1787,6 +1788,41 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
 
 
 
