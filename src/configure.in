@@ -82,8 +82,6 @@ AC_C_CONST
                       dnl DEFS const
 AC_C_INLINE
                       dnl DEFS inline
-CL_NOWARN
-                      dnl DEFS __nowarn__
 CL_VOID
                       dnl DEFS void
 CL_LONGLONG
