@@ -459,11 +459,6 @@ dnl The same holds for the mem* functions in <string.h> and SunOS.
 #include <limits.h>], AC_DEFINE(STDC_HEADERS))
 ])dnl
 dnl
-AC_DEFUN(CL_STDLIB_H,
-[AC_BEFORE([$0], [CL_ABORT])
-AC_CHECK_HEADERS(stdlib.h)]
-)dnl
-dnl
 AC_DEFUN(CL_UNISTD_H,
 [AC_CHECK_HEADERS(unistd.h)]
 )dnl
@@ -473,9 +468,8 @@ dnl BSD systems require #include <sys/file.h> for O_RDWR etc. being defined.
 [AC_BEFORE([$0], [CL_MMAP])
 AC_CHECK_HEADERS(sys/file.h)
 if test $ac_cv_header_sys_file_h = yes; then
-openflags_decl='#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+openflags_decl='
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -511,9 +505,7 @@ AC_DEFUN(CL_MALLOC,
 AC_EGREP_HEADER([void.*\*.*malloc], stdlib.h, malloc_void=1)dnl
 if test -z "$malloc_void"; then
 AC_TRY_COMPILE([
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -526,9 +518,7 @@ else
 cl_cv_proto_malloc_ret="char*"
 fi
 CL_PROTO_TRY([
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -543,9 +533,7 @@ dnl
 AC_DEFUN(CL_FREE,
 [CL_PROTO([free], [
 CL_PROTO_RET([
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -555,20 +543,15 @@ AC_DEFINE_UNQUOTED(RETFREETYPE,$cl_cv_proto_free_ret)
 ])dnl
 dnl
 AC_DEFUN(CL_ABORT,
-[AC_REQUIRE([CL_STDLIB_H])dnl
-CL_PROTO([abort], [
+[CL_PROTO([abort], [
 CL_PROTO_RET([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 ], [int abort();], cl_cv_proto_abort_ret, int, void)
 CL_PROTO_RET([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -579,64 +562,27 @@ AC_DEFINE_UNQUOTED(ABORT_VOLATILE,$cl_cv_proto_abort_vol)
 ])dnl
 dnl
 AC_DEFUN(CL_MKDIR,
-[AC_BEFORE([$0], [CL_OPEN])
-CL_PROTO([mkdir], [
-AC_EGREP_HEADER(mode_t, sys/types.h,
-dnl mode_t defined. check if it is really used by mkdir() :
-CL_PROTO_TRY([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-], [int mkdir (char* path, mode_t mode);], [int mkdir();], mode_t_unneeded=1, )
-if test -z "$mode_t_unneeded"; then
-CL_PROTO_TRY([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-], [int mkdir (const char* path, mode_t mode);], [int mkdir();], mode_t_unneeded=1, )
-fi)dnl
-if test -n "$mode_t_unneeded"; then
-cl_cv_type_mode_t="mode_t"
-else
-cl_cv_type_mode_t="int"
-fi
-dnl Now MODE_T should be correct, check for const:
+[CL_PROTO([mkdir], [
 CL_PROTO_CONST([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
-], [int mkdir (char* path, $cl_cv_type_mode_t mode);], [int mkdir();], cl_cv_proto_mkdir_arg1)
-], [extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, $cl_cv_type_mode_t);])
-AC_DEFINE_UNQUOTED(MODE_T,$cl_cv_type_mode_t)
+], [int mkdir (char* path, mode_t mode);], [int mkdir();], cl_cv_proto_mkdir_arg1)
+], [extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, mode_t);])
 AC_DEFINE_UNQUOTED(MKDIR_CONST,$cl_cv_proto_mkdir_arg1)
 ])dnl
 dnl
 AC_DEFUN(CL_OPEN,
-[AC_REQUIRE([CL_MKDIR])dnl defines MODE_T
-AC_BEFORE([$0], [CL_FILECHARSET])dnl
+[AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([open], [
-for y in 'MODE_T mode' '...'; do
+for y in 'mode_t mode' '...'; do
 for x in '' 'const'; do
 if test -z "$have_open"; then
 CL_PROTO_TRY([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -663,7 +609,7 @@ fi
 if test $cl_cv_proto_open_dots = yes; then
 cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, ..."
 else
-cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, $cl_cv_type_mode_t"
+cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, mode_t"
 fi
 ], [extern int open ($cl_cv_proto_open_args);])
 AC_DEFINE_UNQUOTED(OPEN_CONST,$cl_cv_proto_open_arg1)
@@ -685,9 +631,7 @@ have_getpagesize=1)dnl
 if test -n "$have_getpagesize"; then
 CL_PROTO([getpagesize], [
 CL_PROTO_RET([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -705,8 +649,6 @@ AC_DEFINE(HAVE_MACH_VM)dnl
 dnl
 AC_DEFUN(CL_MMAP,
 [AC_REQUIRE([CL_OPENFLAGS])dnl
-AC_REQUIRE([AC_TYPE_SIZE_T])dnl On AIX, the mmap() prototype references size_t which is undefined.
-AC_REQUIRE([AC_TYPE_OFF_T])dnl We use off_t below.
 AC_BEFORE([$0], [CL_MUNMAP])AC_BEFORE([$0], [CL_MPROTECT])
 AC_CHECK_HEADER(sys/mman.h, , no_mmap=1)dnl
 if test -z "$no_mmap"; then
@@ -719,9 +661,7 @@ for y in 'void*' 'caddr_t'; do
 for x in 'void*' 'caddr_t'; do
 if test -z "$have_mmap_decl"; then
 CL_PROTO_TRY([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -756,9 +696,7 @@ case "$host" in
     avoid=0 ;;
 esac
 mmap_prog_1='
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -882,9 +820,7 @@ AC_CHECK_FUNCS(mprotect)dnl
 if test $ac_cv_func_mprotect = yes; then
 CL_PROTO([mprotect], [
 CL_PROTO_CONST([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -898,9 +834,7 @@ AC_CACHE_CHECK(for working mprotect, cl_cv_func_mprotect_works, [
 mprotect_prog='
 #include <sys/types.h>
 /* declare malloc() */
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1011,9 +945,7 @@ case "$host_cpu" in
 AC_TRY_RUN([
 #include <sys/types.h>
 /* declare malloc() */
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1051,9 +983,7 @@ AC_BEFORE([$0], [CL_SHM])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 CL_PROTO([shmget], [
 CL_PROTO_TRY([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1073,9 +1003,7 @@ AC_BEFORE([$0], [CL_SHM])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 CL_PROTO([shmat], [
 CL_PROTO_RET([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1085,9 +1013,7 @@ CL_PROTO_RET([
 ], [void* shmat();],
 cl_cv_proto_shmat_ret, [void*], [char*])
 CL_PROTO_CONST([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1110,9 +1036,7 @@ CL_PROTO([shmdt], [
 for x in 'void*' 'char*' 'const void *' 'const char *'; do
 if test -z "$have_shmdt_decl"; then
 CL_PROTO_TRY([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1135,9 +1059,7 @@ AC_BEFORE([$0], [CL_SHM])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 CL_PROTO([shmctl], [
 CL_PROTO_TRY([
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
