@@ -1,5 +1,11 @@
 2005-03-29  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (RAWSOCK:SOCKATMARK): added
+	* modules/rawsock/configure.in: check for sockatmark()
+	* modules/rawsock/sock.lisp (sockatmark): export
+
+2005-03-29  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (LISPFUN_F) [TYPECODES]: do no wrap gcv_nullobj
 	with {} to avoid a gcc warning
 
