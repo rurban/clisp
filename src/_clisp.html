@@ -116,7 +116,7 @@ more efficiently.</p>
 This option is normally not necessary, because the installation directory
 is already built-in in the <code>clisp</code> executable.
 #endif
-Directory <var>lisplibdir</var> can be changed at run-time using the
+Directory <var>lisplibdir</var> can be changed dynamically using the
 symbol-macro <code>*lib-directory*</code>.
 <p/></dd>
 
@@ -214,7 +214,7 @@ Other languages may be specified through the environment variable
 <code>LANG</code>,
 provided the corresponding message catalog is installed.
 #endif
-The language may be changed at run-time using the symbol macro
+The language may be changed dynamically using the symbol macro
 <a href="impnotes.html#language"><code>*current-language*</code></a>,
 <p/></dd>
 
@@ -223,7 +223,7 @@ The language may be changed at run-time using the symbol macro
 <dd>Specifies the base directory of locale files. <code>clisp</code>
 will search its message catalogs in
 <var>localedir</var><code>/</code><var>language</var><code>/LC_MESSAGES/clisp.mo</code>.
-This directory may be changed at run-time using the symbol macro
+This directory may be changed dynamically using the symbol macro
 <a href="impnotes.html#language"><code>*current-language*</code></a>,
 <p/></dd>
 
@@ -280,8 +280,7 @@ It sets the symbol macro <code>*ansi*</code> to <code>t</code>.
 See <a href="impnotes.html#ansi">"Maximum ANSI CL compliance"</a>,
 for details.<p/></dd>
 
-<dt><a name="opt-traditional"
-    ><strong><code>-traditional</code></strong></a></dt>
+<dt id="opt-traditional"><strong><code>-traditional</code></strong></dt>
 <dd>Traditional: reverses the residual effects of
     <a href="#opt-ansi"><code>-ansi</code></a>
     in the saved image.<p/></dd>
