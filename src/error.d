@@ -204,6 +204,7 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
   dynamic_bind(S(prin_stream),unbound); # bind SYS::*PRIN-STREAM* to #<UNBOUND>
   pushSTACK(STACK_(0+3+3+3)); # condition
   funcall(L(invoke_debugger),1); # (INVOKE-DEBUGGER condition)
+  NOTREACHED;
 }
 
 # Beendet die Ausgabe einer Fehlermeldung und startet neuen Driver.
