@@ -68,6 +68,13 @@ document stack
          print the section of STACK
 end
 
+define zbacktrace
+       p back_trace_out(0,0)
+end
+document zbacktrace
+         print the CLISP backtrace
+end
+
 break funcall
 commands
         zout fun
@@ -93,7 +100,7 @@ disable 1 2 3 4
 
 watch back_trace
 commands
-        p back_trace_out(0,0)
+        zbacktrace
         continue
 end
 disable 8
