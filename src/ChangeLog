@@ -1,3 +1,7 @@
+1998-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * list.d (LDIFF): Allow dotted lists, like for TAILP.
+
 1998-10-15  Sam Steingold  <sds@goems.com>
 
 	* loop.lsp (expand-loop): fixed handling of `of-type' in
