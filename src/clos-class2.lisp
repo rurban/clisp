@@ -1218,7 +1218,7 @@
   ;; But note a subtle difference: This definition here sets unspecified class
   ;; slots to NIL; make-instance doesn't do this.
   (declare (ignore direct-superclasses direct-slots direct-default-initargs
-                   names slots size))
+                   names slots size documentation))
   (let ((class (make-structure-class :classname name :metaclass metaclass)))
     (apply #'initialize-instance-structure-class class args)))
 
@@ -1294,6 +1294,7 @@
   class)
 
 ;; DEFSTRUCT-Hook
+(eval-when (compile load eval) (fmakunbound 'define-structure-class))
 (defun define-structure-class (name)
   (let ((descr (get name 'sys::defstruct-description)))
     (when descr
