@@ -4189,14 +4189,13 @@ local object ssstring_extend_low (object ssstring, uintL size) {
   pushSTACK(ssstring);
   var object new_data = allocate_string(size);
   ssstring = popSTACK();
-  var object old_data = TheIarray(ssstring)->data;
-  chartcopy(TheSstring(old_data)->data,
-            TheSstring(new_data)->data,Sstring_length(old_data));
+  if (TheIarray(ssstring)->dims[1] > 0)
+    chartcopy(TheSstring(TheIarray(ssstring)->data)->data,
+              TheSstring(new_data)->data,TheIarray(ssstring)->dims[1]);
   set_break_sem_1(); # forbid interrupts
   TheIarray(ssstring)->data = new_data;
   TheIarray(ssstring)->totalsize = TheIarray(ssstring)->dims[0] = size;
   clr_break_sem_1(); # permit interrupts again
-  TheIarray(ssstring)->data = new_data;
   return ssstring;
 }
 
