@@ -12,7 +12,7 @@
 
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean"
-           "[su]?int[LB0-9]*" "Values")
+           "[su]?int[BCL0-9]*" "Values" "fsubr_function" "lisp_function")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
 
@@ -28,18 +28,21 @@
 
 (defvar d-extra-keywords
   (eval-when-compile
-   (regexp-opt '("var" "local" "global" "dotimesp?[CLW]" "true" "false"
-                 "NIL" "T" "loop" "inline" "NULL" "[a-z]*STACK"))))
+   (regexp-opt '("var" "local" "global" "true" "false" "NIL" "T" "loop"
+                 "inline" "NULL" "popSTACK" "pushSTACK" "skipSTACK"
+                 "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
+                 "dotimesW" "nonreturning_function" "return_Values")
+               'words)))
 
 (defvar d-font-lock-keywords-1
   (mapcar #'d-mode-modify-font-lock c-font-lock-keywords-1))
 
 (defvar d-font-lock-keywords-2
-  (cons (concat "\\<\\(" d-extra-keywords "\\)\\>")
+  (cons d-extra-keywords
         (mapcar #'d-mode-modify-font-lock c-font-lock-keywords-2)))
 
 (defvar d-font-lock-keywords-3
-  (cons (concat "\\<\\(" d-extra-keywords "\\)\\>")
+  (cons d-extra-keywords
         (mapcar #'d-mode-modify-font-lock c-font-lock-keywords-3)))
 
 (defvar d-font-lock-keywords d-font-lock-keywords-1)
@@ -53,7 +56,7 @@
   (d-mode-add-font-locking
    (if sds-xemacs (get 'c-mode 'font-lock-defaults)
        (cdr (assq 'c-mode font-lock-defaults-alist))))
-  "the `font-lock-defaults' for `d-mode'")
+  "The `font-lock-defaults' for `d-mode'.")
 
 (define-derived-mode d-mode c-mode "D"
   "Major mode for editing CLISP source code.
