@@ -3417,6 +3417,12 @@ pointing to non-existent files and can take the following values:
   </simpara></listitem></varlistentry>
 </variablelist></para>
 
+<warning id="make-stream-warn-buffering"><title>Beware of buffering!</title>
+ <para>When there are several Lisp &stream-t;s backed by the same OS
+  file handle, the behavior may be highly confusing when some of the
+  Lisp streams are &buffered;.  Use &force-output; for &out-s;s,
+  and <link linkend="bulk-io">bulk input</link> for &in-s;s.</para></warning>
+
 <para>The handle is duplicated (with &dup;), so it is safe to &close;
  a &stream-t; returned by &make-stream;.</para></section>
 
