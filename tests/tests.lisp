@@ -139,6 +139,7 @@
            #+CLISP                  "genstream"
            #+XCL                    "hash"
                                     "hashlong"
+          #+CLISP                   "hashweak"
                                     "iofkts"
                                     "lambda"
                                     "lists151"

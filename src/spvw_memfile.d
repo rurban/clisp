@@ -478,6 +478,7 @@
         update_conses();
         update_varobjects();
         update_weakpointers();
+        update_weakkvtables();
         #undef update_fs_function
         #undef update_fp_invalid
         #undef update_ht_invalid
@@ -506,6 +507,7 @@
         update_conses();
         update_varobjects();
         update_weakpointers();
+        update_weakkvtables();
         #undef update_fs_function
         #undef update_fp_invalid
         #undef update_ht_invalid
@@ -1331,6 +1333,8 @@
           #define update  loadmem_update
           # Update weak-pointers:
             update_weakpointers();
+          # Update weak kvtables:
+            update_weakkvtables();
           # Programmkonstanten aktualisieren:
             update_tables();
           #ifdef SINGLEMAP_MEMORY_RELOCATE

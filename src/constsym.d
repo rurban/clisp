@@ -298,6 +298,8 @@ LISPSYM(hash_table_size,"HASH-TABLE-SIZE",lisp)
 LISPSYM(hash_table_test,"HASH-TABLE-TEST",lisp)
 LISPSYM(hash_table_iterator,"HASH-TABLE-ITERATOR",system)
 LISPSYM(hash_table_iterate,"HASH-TABLE-ITERATE",system)
+LISPSYM(hash_table_weak_p,"HASH-TABLE-WEAK-P",ext)
+LISPSYM(set_hash_table_weak_p,"%SET-HASH-TABLE-WEAK-P",system)
 LISPSYM(class_gethash,"CLASS-GETHASH",clos)
 LISPSYM(class_tuple_gethash,"CLASS-TUPLE-GETHASH",clos)
 LISPSYM(sxhash,"SXHASH",lisp)
@@ -1154,6 +1156,7 @@ LISPSYM(Kcount,"COUNT",keyword)
 LISPSYM(Ksize,"SIZE",keyword)
 LISPSYM(Krehash_size,"REHASH-SIZE",keyword)
 LISPSYM(Krehash_threshold,"REHASH-THRESHOLD",keyword)
+LISPSYM(Kweak,"WEAK",keyword)
 LISPSYM(Kdefaults,"DEFAULTS",keyword)
 LISPSYM(Kdevice,"DEVICE",keyword)
 LISPSYM(Kdirectory,"DIRECTORY",keyword)
@@ -1551,6 +1554,7 @@ LISPSYM(foreign_variable,"FOREIGN-VARIABLE",ffi) # als Typ in PREDTYPE
 LISPSYM(foreign_function,"FOREIGN-FUNCTION",ffi) # als Typ in PREDTYPE
 #endif
 LISPSYM(weak_pointer,"WEAK-POINTER",ext) # als Typ in PREDTYPE
+LISPSYM(weak_kvtable,"WEAK-KEY-VALUE-TABLE",ext) # a Type in PREDTYPE
 LISPSYM(finalizer,"FINALIZER",ext) # als Typ in PREDTYPE
 #ifdef YET_ANOTHER_RECORD
 LISPSYM(yet_another,"YET-ANOTHER",ext) # als Typ in PREDTYPE

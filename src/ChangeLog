@@ -1,3 +1,50 @@
+2002-02-27  Sam Steingold  <sds@gnu.org>
+
+	implemented weak hash-tables
+	* hashtabl.d (MAKE-HASH-TABLE): accept :WEAK keyword argument
+	(rehash, hash_store, REMHASH, MAPHASH, HASH-TABLE-ITERATE)
+	(CLASS-TUPLE-GETHASH): use ht_kvtable()/kvtable_data()
+	(hash_lookup): remove obsolete key/value from a weak HT
+	(prepare_resize): accept third argument `weak'
+	(resize): handle weak hash-tables
+	(HASH-TABLE-WEAK-P, %SET-HASH-TABLE-WEAK-P): implemented
+	(sxhash_atom): handle WeakKVT
+	* constobj.d (all_weakkvtables, hs_weakkvt): new objects
+	(version): bumped because of the MAKE-HASH-TABLE change
+	* constsym.d (hash_table_weak_p, set_hash_table_weak_p, Kweak)
+	(weak_kvtable): added
+	* init.lisp (hash-table-weak-p, weak-key-value-table):
+	export from EXT
+	* io.d (pr_weakkvt): new pr_routine_t
+	(prin_object_dispatch): use it to print a Weak KVT
+	(pr_kvtable): handle weak KVTs
+	* lispbibl.d (weakkvt_type, case_weakkvt, Rectype_WeakKVT): added
+	(ht_weak_p, kvtable_data, ht_kvt_data): new macros
+	(weakkvt_t): new lrecord
+	(TheSarray, TheVarobject, ThePointer): added weakkvt_type
+	(Weakkvt_length, TheWeakKVT, weakkvtp, case_Rectype_WeakKVT_above):
+	concomitant macros
+	(if_recordp): Rectype_WeakKVT is not a record
+	(allocate_weakkvt): declare
+	(map_hashtable, map_hashtable_nogc): accomodate weak hash-tables
+	* places.lisp (hash-table-weak-p): added defsetf
+	* predtype.d (CLASS-OF, TYPE-OF, heap_statistics_mapper):
+	handle Weak KVT
+	(enum_hs_weakkvt): added to the enum
+	* spvw.d (init_object_tab_1): init O(all_weakkvtables)
+	* spvw_garcol.d (gar_col_normal): mark & update O(all_weakkvtables)
+	(gar_col_compact, move_conses): update O(all_weakkvtables)
+	* spvw_global.d (init_mem_heaptypes): handle Weak KVT
+	* spvw_memfile.d (savemem, loadmem_from_handle):
+	update O(all_weakkvtables)
+	* spvw_objsize.d (objsize): handle case_weakkvt
+	* spvw_typealloc (allocate_weakkvt): implemented
+	* spvw_update.d (update_weakkvtables, update_weakkvtables_mod): added
+	* subr.d (make_hash_table): added :WEAK
+	(hash_table_weak_p, set_hash_table_weak_p): added
+	* subrkw.d (make_hash_table): added :WEAK
+	* version.h, VERSION: bumped to 2.27.3
+
 2002-02-26  Sam Steingold  <sds@gnu.org>
 
 	* error.d (signal_and_debug): avoid a GCC warning

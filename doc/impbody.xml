@@ -2370,17 +2370,30 @@ and &end-k;:</para>
 
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
-<para>&make-hash-table; has an additional keyword
- <constant>:initial-contents</constant>:</para>
+<para>&make-hash-table; supports additional keywords
+ <constant>:initial-contents</constant>
+ and <constant>:weak</constant>:</para>
 
 <programlisting>
 (&make-hash-table; &key-amp; :test :initial-contents :size
-                 :rehash-size :rehash-threshold)
+                 :rehash-size :rehash-threshold :weak)
 </programlisting>
 
 <para>The <constant>:initial-contents</constant> argument is an
  &alist; that is used to initialize the new hash table.
  The <constant>:rehash-threshold</constant> argument is ignored.</para>
+
+<para>The boolean <constant>:weak</constant> argument defaults to &nil;
+and specifies whether the &hash-table-class; is <emphasis>weak</emphasis>:
+the key is not considered accessible for the &gc;ion purposes, i.e., if
+is is only accessible in the weak &hash-table-class;, it is &gc;ed and
+removed from the weak &hash-table-class;.</para>
+
+<para>The &setf;able predicate <function>EXT:HASH-TABLE-WEAK-P</function>
+checks whether the &hash-table-class; is weak.</para>
+
+<para>Just like &weak-pointer;s, weak &hash-table-class;s cannot be
+printed readably.</para>
 
 </section>
 

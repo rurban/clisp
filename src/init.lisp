@@ -289,7 +289,7 @@
    int-char char-bits char-font char-bit set-char-bit
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
    char-meta-bit char-super-bit char-hyper-bit string-char-p
-   long-float-digits package-lock
+   long-float-digits package-lock hash-table-weak-p weak-key-value-table
    the-environment arglist getenv special-variable-p
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
    ;; declarations

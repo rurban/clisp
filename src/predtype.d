@@ -963,6 +963,7 @@
           case_b16vector: # 16Bit-Vektor
           case_b32vector: # 32Bit-Vektor
           case_string: # String
+          case_weakkvt: # weak-key-value-table
           case_vector: # (VECTOR T)
             if (!vectorp(obj2)) goto no;
             # obj1, obj2 beide Vektoren.
@@ -1454,6 +1455,15 @@ LISPFUNN(type_of,1)
         #endif
       case_svector: # Simple-Vector -> (SIMPLE-VECTOR dim0)
         pushSTACK(S(simple_vector)); goto vectors;
+      case_weakkvt: # weak-key-value-table -> (WEAK-KEY-VALUE-TABLE dim)
+        pushSTACK(arg);
+        pushSTACK(allocate_cons());
+        value1 = allocate_cons();
+        Car(value1) = S(weak_kvtable);
+        Cdr(value1) = popSTACK();
+        Car(Cdr(value1)) = fixnum(Weakkvt_length(popSTACK())%2);
+        Cdr(Cdr(value1)) = NIL;
+        break;
       case_ostring: # sonstiger String -> ([BASE-]STRING dim0)
         #if (base_char_code_limit == char_code_limit)
         pushSTACK(S(base_string)); goto vectors;
@@ -1545,6 +1555,7 @@ LISPFUNN(type_of,1)
           case_Rectype_Sb32vector_above;
           case_Rectype_Sstring_above;
           case_Rectype_Svector_above;
+          case_Rectype_WeakKVT_above;
           case_Rectype_ostring_above;
           case_Rectype_ovector_above;
           case_Rectype_obvector_above;
@@ -1766,7 +1777,7 @@ LISPFUNN(class_of,1)
       case_sb8vector: case_ob8vector:
       case_sb16vector: case_ob16vector:
       case_sb32vector: case_ob32vector:
-      case_svector: case_ovector: # General-Vector -> <vector>
+      case_svector: case_ovector: case_weakkvt: # General-Vector -> <vector>
         value1 = O(class_vector); break;
       case_mdarray: # sonstiger Array -> <array>
         value1 = O(class_array); break;
@@ -1810,6 +1821,7 @@ LISPFUNN(class_of,1)
           case_Rectype_Sb32vector_above;
           case_Rectype_ob32vector_above;
           case_Rectype_Svector_above;
+          case_Rectype_WeakKVT_above;
           case_Rectype_ovector_above;
           case_Rectype_mdarray_above;
           case_Rectype_Closure_above;
@@ -2370,6 +2382,7 @@ enum { # The values of this enumeration are 0,1,2,...
   enum_hs_foreign_function,
   #endif
   enum_hs_weakpointer,
+  enum_hs_weakkvt,
   enum_hs_finalizer,
   #ifdef SOCKET_STREAMS
   enum_hs_socket_server,
@@ -2555,6 +2568,9 @@ local void heap_statistics_mapper(arg,obj,bytelen)
       case_svector: # Simple-Vector
         pighole = &locals->builtins[(int)enum_hs_simple_vector];
         break;
+      case_weakkvt: # weak-key-value-table
+        pighole = &locals->builtins[(int)enum_hs_weakkvt];
+        break;
       case_obvector: # sonstiger Bit-Vector
         pighole = &locals->builtins[(int)enum_hs_bit_vector];
         break;
@@ -2633,6 +2649,7 @@ local void heap_statistics_mapper(arg,obj,bytelen)
           case_Rectype_Sb32vector_above;
           case_Rectype_Sstring_above;
           case_Rectype_Svector_above;
+          case_Rectype_WeakKVT_above;
           case_Rectype_obvector_above;
           case_Rectype_ob2vector_above;
           case_Rectype_ob4vector_above;
