@@ -858,3 +858,13 @@ T
   (or (null home) (not (not (pathnamep home)))))
 T
 
+(let* ((n "abazonk") (f (ext:string-concat n ".lisp"))
+       (d (ext:string-concat n "/")))
+  (with-open-file (s f :direction :output)
+    (prin1 `(ext:delete-dir ,d) s))
+  (ext:make-dir d)
+  (list (ext:probe-directory d)
+        (load n)
+        (not (null (delete-file f)))
+        (ext:probe-directory d)))
+(T T T NIL)
