@@ -3941,6 +3941,19 @@ fi
 ])
 if test "$cl_cv_func_dlopen" = yes; then
   AC_DEFINE(HAVE_DLOPEN)
+  CL_PROTO([dlsym], [
+  CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <dlfcn.h>
+], [void* dlsym (void* handle, char* symbol);], [void* dlsym();],
+cl_cv_proto_dlsym_arg2)],
+[extern void* dlsym (void* handle, $cl_cv_proto_dlsym_arg2 char* symbol);])
+  AC_DEFINE_UNQUOTED(DLSYM_CONST,$cl_cv_proto_dlsym_arg2)
   CL_PROTO([dlerror], [
   CL_PROTO_CONST([
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)

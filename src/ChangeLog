@@ -1,5 +1,11 @@
 1998-08-03  Bruno Haible  <haible@ilog.fr>
 
+        * aclocal.m4 (CL_DYNLOAD): Check for const in dlsym declaration.
+        * unixconf.h: Define DLSYM_CONST.
+        * unix.d (dlsym): Use DLSYM_CONST.
+
+1998-08-03  Bruno Haible  <haible@ilog.fr>
+
         * makemake.in (NOASM): Don't define on Solaris/x86.
           (ASM_FILTER): Fix so it works on Solaris/x86.
 
