@@ -420,6 +420,10 @@
 /* Define if you have sys/file.h */
 #undef HAVE_SYS_FILE_H
 
+/* AC_CHECK_FUNCS(gethostent) */
+/* Define if you have the gethostent() system call. */
+#undef HAVE_GETHOSTENT
+
 /* CL_IOCTL */
 /* Define as the type of `request' in ioctl() declaration. */
 #undef IOCTL_REQUEST_T
