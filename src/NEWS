@@ -10,7 +10,7 @@ Important notes
 User visible changes
 --------------------
 
-* Parts of the CLOS MetaObject Protocol are supported:
+* The CLOS MetaObject Protocol is supported:
   + New class METAOBJECT.
   + Classes:
     New classes
