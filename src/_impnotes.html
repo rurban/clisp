@@ -179,6 +179,7 @@ details.
    <li><a href="#quit">Quitting Lisp</a>
    <li><a href="#language">The Language</a>
    <li><a href="#encoding">Encodings</a>
+   <li><a href="#gstream">Defining new kinds of Streams</a>
    <li><a href="#weak">Weak Pointers</a>
    <li><a href="#final">Finalization</a>
    <li><a href="#prompt">The Prompt</a>
@@ -4048,97 +4049,6 @@ called command as well.
 
 <!-- #endif -->
 
-<!-- #ifdef GENERIC_STREAMS -->
-<h4>Generic streams</h4>
-Generic streams are user programmable streams. The programmer interface:
-<dl>
-  <dt><code>(<strong>lisp:make-generic-stream</strong>
-   <var>controller</var>)</code>
-  <dd>returns a generic stream.
-
-  <dt><code>(<strong>lisp:generic-stream-controller</strong>
-     <var>stream</var>)</code>
-   <dd>returns a private object to which generic stream methods dispatch.
-     The typical usage is to retrieve the object originally provided by the
-     user in <code>lisp:make-generic-stream</code>.
-
-  <dt><code>(<strong>lisp:generic-stream-p</strong>
-    <var>stream</var>)</code>
-   <dd>determines whether a stream is a generic stream, returning
-    <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a> if it is,
-    <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> otherwise.
-</dl>
-
-<p>In order to specify the behaviour of a generic stream, the user must
-define CLOS methods on the following CLOS generic functions. The
-function <code>generic-stream-<var>xyz</var></code> corresponds to the
-Common Lisp function <code><var>xyz</var></code>. They all take a
-controller and some number of arguments.
-
-<dl>
-  <dt><code>(<strong>lisp:generic-stream-read-char</strong>
-             <var>controller</var>)</code>
-   <dd> Returns and consumes the next character,
-    <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> at
-    end of file. Takes one argument, the controller object.
-  <dt><code>(<strong>lisp:generic-stream-peek-char</strong>
-             <var>controller</var>)</code>
-   <dd> Returns the next character,
-   <a href="CLHSROOT/Body/convar_nil.html">
-   <code>nil</code></a> at end of file. A
-   second value indicates whether the side effects associated with
-   consuming the character were executed:
-   <a href="CLHSROOT/Body/convar_t.html">
-   <code>t</code></a> means that a full
-   <a href="CLHSROOT/Body/fun_read-char.html">
-   <code>read-char</code></a> was done,
-   <a href="CLHSROOT/Body/convar_nil.html">
-   <code>nil</code></a> means that no side effects were done. Takes one
-   argument, the controller object.
-  <dt><code>(<strong>lisp:generic-stream-read-byte</strong>
-             <var>controller</var>)</code>
-   <dd> Returns and consumes the next integer,
-       <a href="CLHSROOT/Body/convar_nil.html">
-       <code>nil</code></a> at end of file.
-       Takes one argument, the controller object.
-  <dt><a name="generic-stream-read-char-will-hang-p"></a>
-      <code>(<strong>lisp:generic-stream-read-char-will-hang-p</strong>
-             <var>controller</var>)</code>
-  <dd> This generic function is used to query the stream's input status.
-    It returns <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
-    if <code>lisp:generic-stream-read-char</code> and
-    <code>lisp:generic-stream-peek-char</code> will certainly return
-    immediately. Otherwise it returns true.
-  <dt><code>(<strong>lisp:generic-stream-write-char</strong>
-             <var>controller</var> <var>ch</var>)</code>
-    <dd> First argument is the controller object.
-         Second argument is the character to be written.
-  <dt><code>(<strong>lisp:generic-stream-write-byte</strong>
-             <var>controller</var> <var>by</var>)</code>
-    <dd> First argument is the controller object.
-         Second argument is the integer to be written.
-  <dt><code>(<strong>lisp:generic-stream-write-string</strong>
-            <var>controller</var> <var>string</var> <var>start</var>
-            <var>len</var>)</code>
-   <dd> Called with argument list <code>(<var>controller</var>
-     <var>string</var> <var>start</var> <var>len</var>)</code>, this
-     function shall write <code>(subseq (the string <var>string</var>)
-     <var>start</var> (+ <var>start</var> <var>len</var>))</code>
-     First argument is the controller object.
-  <dt><code>(<strong>lisp:generic-stream-clear-input</strong>
-             <var>controller</var>)</code>
-  <dt><code>(<strong>lisp:generic-stream-clear-output</strong>
-             <var>controller</var>)</code>
-  <dt><code>(<strong>lisp:generic-stream-finish-output</strong>
-             <var>controller</var>)</code>
-  <dt><code>(<strong>lisp:generic-stream-force-output</strong>
-             <var>controller</var>)</code>
-  <dt><code>(<strong>lisp:generic-stream-close</strong>
-             <var>controller</var>)</code>
-    <dd> Take one argument, the controller object.
-</dl>
-<!-- #endif -->
-
 <h3><a href="CLHSROOT/Body/sec_the_streams_dictionary.html">
     21.2. The Streams Dictionary</a></h3>
 
@@ -6133,6 +6043,7 @@ specified by the vote.
 
 <a name="extensions"></a><h2>Extensions-1: Platform independent Extensions</h2>
 
+
 <a name="image"></a><h3>Extensions-1.1. Saving an Image</h3>
 
 <p>The function <code>(<strong>lisp:saveinitmem</strong>
@@ -6146,6 +6057,7 @@ function that will be executed at startup of the saved image.  The
 starting package of the new image is the one in which you were when you
 invoked <code>lisp:saveinitmem</code>.
 
+
 <a name="quit"></a><h3>Extensions-1.2. Quitting Lisp</h3>
 
 <p>The functions <code>(<strong>lisp:exit</strong>
@@ -6155,6 +6067,7 @@ invoked <code>lisp:saveinitmem</code>.
 <var>errorp</var> is not <a href="CLHSROOT/Body/convar_nil.html">
 <code>nil</code></a>, CLISP aborts with error status, i.e., the
 environment is informed that the CLISP session did not succeed.
+
 
 <a name="language"></a><h3>Extensions-1.3. The Language</h3>
 
@@ -6189,6 +6102,7 @@ and add language-dependent values through the macro
 value will be treated like the default-language.) You can then access
 the localized value through the function call
 <pre><code>(<strong>lisp:localized</strong> <var>symbol</var> &amp;optional <var>language</var>)</code></pre>
+
 
 <a name="encoding"></a><h3>Extensions-1.4. Encodings</h3>
 
@@ -6545,7 +6459,406 @@ specified.
 <!-- #endif -->
 
 
-<a name="weak"></a><h3>Extensions-1.5. Weak Pointers</h3>
+<a name="gstream"></a><h3>Extensions-1.5. Defining new kinds of Streams</h3>
+
+Two mechanisms are supported for creating new streams with user-defined
+behaviour:
+<ul>
+  <li>You can create a new subclass of <code>lisp:fundamental-stream</code>
+      and define methods for the elementary stream operations on it.
+      These generic functions all have a name starting with the prefix
+      "stream-".
+  <li>You can create a new subclass of
+      <code>lisp:generic-stream-controller</code>
+      and define methods for the elementary stream operations on it.
+      These generic functions all have a name starting with the prefix
+      "generic-stream-". The stream itself is a different object, created
+      using the function <code>lisp:make-generic-stream</code>.
+</ul>
+<p>
+The <code>fundamental-stream</code> API is based on a proposal by David N Gray
+and is supported by most Common Lisp implementations currently in use. The
+<code>generic-stream-controller</code> API is CLISP specific and is now
+obsolete.
+
+<h4>Gray streams</h4>
+This interface permits the definition of new classes of streams, and to
+program their behaviour by defining methods for the elementary stream
+operations. It is based on a proposal of David N Gray to X3J13, available from
+<a href="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail">ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail</a>.
+<p>
+All symbols defined by this interface, starting with the prefix
+"fundamental-" or "stream-", are exported from the package "LISP".
+<p>
+The following classes are defined.
+<dl>
+  <dt><code><strong>fundamental-stream</strong></code>
+    <dd>This is a superclass of all user-defined streams. It is a subclass of
+        <a href="CLHSROOT/Body/syscla_stream.html"><code>stream</code></a>
+        and of
+        <a href="CLHSROOT/Body/cla_standard-object.html"><code>standard-object</code></a>.
+        Its metaclass is
+        <a href="CLHSROOT/Body/syscla_standard-class.html"><code>standard-class</code></a>.
+  <dt><code><strong>fundamental-input-stream</strong></code>
+    <dd>This is a superclass of all user-defined input streams. It is a
+        subclass of <code>fundamental-stream</code>. The built-in
+        function
+        <a href="CLHSROOT/Body/fun_input-str_put-stream-p.html"><code>input-stream-p</code></a>
+        returns true on instances of this class.
+        This means that when you define a new stream class capable of doing
+        input, you have to make it a subclass of
+        <code>fundamental-input-stream</code>.
+  <dt><code><strong>fundamental-output-stream</strong></code>
+    <dd>This is a superclass of all user-defined output streams. It is a
+        subclass of <code>fundamental-stream</code>. The built-in
+        function
+        <a href="CLHSROOT/Body/fun_input-str_put-stream-p.html"><code>output-stream-p</code></a>
+        returns true on instances of this class.
+        This means that when you define a new stream class capable of doing
+        output, you have to make it a subclass of
+        <code>fundamental-output-stream</code>.
+  <dt><code><strong>fundamental-character-stream</strong></code>
+    <dd>This is a superclass of all user-defined streams whose element-type is
+        <a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>.
+        It is a subclass of <code>fundamental-stream</code>. It defines a
+        method on
+        <a href="CLHSROOT/Body/fun_stream-element-type.html"><code>stream-element-type</code></a>
+        that returns
+        <a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>.
+  <dt><code><strong>fundamental-binary-stream</strong></code>
+    <dd>This is a superclass of all user-defined streams whose element-type is
+        a subtype of
+        <a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>.
+        It is a subclass of <code>fundamental-stream</code>.
+        When you define a subclass of <code>fundamental-binary-stream</code>,
+        you have to provide a method on
+        <a href="CLHSROOT/Body/fun_stream-element-type.html"><code>stream-element-type</code></a>.
+  <dt><code><strong>fundamental-character-input-stream</strong></code>
+    <dd>This is a convenience class inheriting from both
+        <code>fundamental-character-stream</code> and
+        <code>fundamental-input-stream</code>.
+  <dt><code><strong>fundamental-character-output-stream</strong></code>
+    <dd>This is a convenience class inheriting from both
+        <code>fundamental-character-stream</code> and
+        <code>fundamental-output-stream</code>.
+  <dt><code><strong>fundamental-binary-input-stream</strong></code>
+    <dd>This is a convenience class inheriting from both
+        <code>fundamental-binary-stream</code> and
+        <code>fundamental-input-stream</code>.
+  <dt><code><strong>fundamental-binary-output-stream</strong></code>
+    <dd>This is a convenience class inheriting from both
+        <code>fundamental-binary-stream</code> and
+        <code>fundamental-output-stream</code>.
+</dl>
+The following are general generic functions defined on streams.
+<dl>
+  <dt><code>(<strong><a href="CLHSROOT/Body/fun_stream-element-type.html">stream-element-type</a></strong> <var>stream</var>)</code>
+    <dd>Returns the stream's element type, normally a subtype of
+        <a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>
+        or
+        <a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>.
+        <br>
+        The method for <code>fundamental-character-stream</code> returns
+        <a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>.
+  <dt><code>(<strong>(setf stream-element-type)</strong> <var>new-element-type</var> <var>stream</var>)</code>
+    <dd>Changes the stream's element type.
+        <br>The default method signals an error.
+        <br>This function is a CLISP extension.
+  <dt><code>(<strong><a href="CLHSROOT/Body/fun_close.html">close</a></strong> <var>stream</var> &amp;key :abort)</code>
+    <dd>Closes the stream and flushes any associated buffers.
+        <br>When you define a primary method on this function, don't forget to
+        <code>(call-next-method)</code>.
+  <dt><code>(<strong><a href="CLHSROOT/Body/fun_open-stream-p.html">open-stream-p</a></strong> <var>stream</var>)</code>
+    <dd>Returns true before the stream has been closed, and
+        <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+        after the stream has been closed.
+        <br>You don't need to add methods to this function.
+</dl>
+The following are generic functions for character input.
+<dl>
+  <dt><code>(<strong>stream-read-char</strong> <var>stream</var>)</code>
+    <dd>If a character was pushed back using <code>stream-unread-char</code>,
+        returns and consumes it. Otherwise returns and consumes the next
+        character from the stream. Returns <code>:eof</code> if the
+        end-of-stream is reached.
+        <br>You must define a method for this function.
+  <dt><code>(<strong>stream-unread-char</strong> <var>stream</var> <var>character</var>)</code>
+    <dd>Pushes <var>character</var>, which must be the last character read
+        from the stream, back onto the front of the stream.
+        <br>You must define a method for this function.
+  <dt><code>(<strong>stream-read-char-no-hang</strong> <var>stream</var>)</code>
+    <dd>Returns a character or <code>:eof</code>, like
+        <code>stream-read-char</code>, if that would return immediately. If
+        <code>stream-read-char</code>'s value is not available immediately,
+        returns <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+        instead of waiting.
+        <br>The default method simply calls <code>stream-read-char</code>;
+        this is sufficient for streams whose <code>stream-read-char</code>
+        method never blocks.
+  <dt><code>(<strong>stream-peek-char</strong> <var>stream</var>)</code>
+    <dd>If a character was pushed back using <code>stream-unread-char</code>,
+        returns it. Otherwise returns the next character from the stream,
+        avoiding any side effects <code>stream-read-char</code> would do.
+        Returns <code>:eof</code> if the end-of-stream is reached.
+        <br>The default method calls <code>stream-read-char</code> and
+        <code>stream-unread-char</code>; this is sufficient for streams
+        whose <code>stream-read-char</code> method has no side-effects.
+  <dt><code>(<strong>stream-listen</strong> <var>stream</var>)</code>
+    <dd>If a character was pushed back using <code>stream-unread-char</code>,
+        returns it. Otherwise returns the next character from the stream,
+        if already available. If no character is available immediately, or if
+        end-of-stream is reached, returns
+        <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
+        <br>The default method calls <code>stream-read-char-no-hang</code>
+        and <code>stream-unread-char</code>; this is sufficient for streams
+        whose <code>stream-read-char</code> method has no side-effects.
+  <dt><code>(<strong>stream-read-char-will-hang-p</strong> <var>stream</var>)</code>
+    <dd>Returns <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+        if <code>stream-read-char</code> will return immediately. Otherwise
+        it returns true.
+        <br>The default method calls <code>stream-read-char-no-hang</code>
+        and <code>stream-unread-char</code>; this is sufficient for streams
+        whose <code>stream-read-char</code> method has no side-effects.
+        <br>This function is a CLISP extension.
+  <dt><code>(<strong>stream-read-char-sequence</strong> <var>stream</var>
+             <var>sequence</var> &amp;optional [<var>start</var> [<var>end</var>]])</code>
+    <dd>Fills the subsequence of <var>sequence</var> specified by
+        <code><var>:start</var></code> and <code><var>:end</var></code> with
+        characters consecutively read from <var>stream</var>. Returns the
+        index of the first element of <var>sequence</var> that was not updated
+        (= <var>end</var> or &lt; <var>end</var> if the stream reached its end).
+        <br><var>sequence</var> is an array of characters, i.e. a string.
+        <var>start</var> is a nonnegative integer and default to 0.
+        <var>end</var> is a nonnegative integer or <code>nil</code> and
+        defaults to <code>nil</code>, which stands for
+        <code>(<a href="CLHSROOT/Body/fun_length.html">length</a> <var>sequence</var>)</code>.
+        <br>The default method repeatedly calls <code>stream-read-char</code>;
+        this is always sufficient if speed does not matter.
+        <br>This function is a CLISP extension.
+  <dt><code>(<strong>stream-read-line</strong> <var>stream</var>)</code>
+    <dd>Reads a line of characters, and return two values: the line (a string,
+        without the terminating <code>#\Newline</code> character), and a
+        boolean value which is true if the line was terminated by end-of-stream
+        instead of <code>#\Newline</code>.
+        <br>The default method repeatedly calls <code>stream-read-char</code>;
+        this is always sufficient.
+  <dt><code>(<strong>stream-clear-input</strong> <var>stream</var>)</code>
+    <dd>Clears all pending interactive input from the stream, and returns true
+        if some pending input was removed.
+        <br>The default method does nothing and returns <code>nil</code>; this
+        is sufficient for non-interactive streams. 
+</dl>
+The following are generic functions for character output.
+<dl>
+  <dt><code>(<strong>stream-write-char</strong> <var>stream</var> <var>character</var>)</code>
+    <dd>Writes <var>character</var>.
+        <br>You must define a method for this function.
+  <dt><code>(<strong>stream-line-column</strong> <var>stream</var>)</code>
+    <dd>Returns the column number where the next character would be written
+        (0 stands for the first column), or
+        <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> if
+        that is not meaningful for this stream.
+        <br>You must define a method for this function.
+  <dt><code>(<strong>stream-start-line-p</strong> <var>stream</var>)</code>
+    <dd>Returns true if the next character would be written at the start of
+        a new line.
+        <br>The default method calls <code>stream-line-column</code> and
+        compares its result with 0; this is sufficient for streams whose
+        <code>stream-line-column</code> never returns
+        <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
+  <dt><code>(<strong>stream-write-char-sequence</strong> <var>stream</var>
+             <var>sequence</var> &amp;optional [<var>start</var> [<var>end</var>]])</code>
+    <dd>Outputs the subsequence of <var>sequence</var> specified by
+        <code><var>:start</var></code> and <code><var>:end</var></code> to
+        <var>stream</var>.
+        <br><var>sequence</var> is an array of characters, i.e. a string.
+        <var>start</var> is a nonnegative integer and default to 0.
+        <var>end</var> is a nonnegative integer or <code>nil</code> and
+        defaults to <code>nil</code>, which stands for
+        <code>(<a href="CLHSROOT/Body/fun_length.html">length</a> <var>sequence</var>)</code>.
+        <br>The default method repeatedly calls <code>stream-write-char</code>;
+        this is always sufficient if speed does not matter.
+        <br>This function is a CLISP extension.
+  <dt><code>(<strong>stream-write-string</strong> <var>stream</var>
+             <var>string</var> &amp;optional [<var>start</var> [<var>end</var>]])</code>
+    <dd>Outputs the subsequence of <var>string</var> specified by
+        <code><var>:start</var></code> and <code><var>:end</var></code> to
+        <var>stream</var>. Returns <var>string</var>.
+        <br><var>string</var> is a string.
+        <var>start</var> is a nonnegative integer and default to 0.
+        <var>end</var> is a nonnegative integer or <code>nil</code> and
+        defaults to <code>nil</code>, which stands for
+        <code>(<a href="CLHSROOT/Body/fun_length.html">length</a> <var>string</var>)</code>.
+        <br>The default method calls <code>stream-write-char-sequence</code>;
+        this is always sufficient.
+  <dt><code>(<strong>stream-terpri</strong> <var>stream</var>)</code>
+    <dd>Outputs a <code>#\Newline</code> character.
+        <br>The default method calls <code>stream-write-char</code>; this is
+        always sufficient.
+  <dt><code>(<strong>stream-fresh-line</strong> <var>stream</var>)</code>
+    <dd>Possibly outputs a <code>#\Newline</code> character, so as to ensure
+        that the next character would be written at the start of a new line.
+        Returns true if it did output a <code>#\Newline</code> character.
+        <br>The default method calls <code>stream-start-line-p</code> and
+        then <code>stream-terpri</code> if necessary; this is always
+        sufficient.
+  <dt><code>(<strong>stream-finish-output</strong> <var>stream</var>)</code>
+    <dd>Ensures that any buffered output has reached its destination, and
+        then returns.
+        <br>The default method does nothing.
+  <dt><code>(<strong>stream-force-output</strong> <var>stream</var>)</code>
+    <dd>Brings any buffered output on its way towards its destination, and
+        returns without waiting until it has reached its destination.
+        <br>The default method does nothing.
+  <dt><code>(<strong>stream-clear-output</strong> <var>stream</var>)</code>
+    <dd>Attempts to discard any buffered output which has not yet reached its
+        destination.
+        <br>The default method does nothing.
+  <dt><code>(<strong>stream-advance-to-column</strong> <var>stream</var> <var>column</var>)</code>
+    <dd>Ensures that the next character will be written at <var>column</var> at
+        least.
+        <br>The default method outputs an appropriate amount of space characters;
+        this is sufficient for non-proportional output.
+</dl>
+The following are generic functions for binary input.
+<dl>
+  <dt><code>(<strong>stream-read-byte</strong> <var>stream</var>)</code>
+    <dd>Returns and consumes the next integer from the stream. Returns
+        <code>:eof</code> if the end-of-stream is reached.
+        <br>You must define a method for this function.
+  <dt><code>(<strong>stream-read-byte-sequence</strong> <var>stream</var>
+             <var>sequence</var> &amp;optional [<var>start</var> [<var>end</var>]])</code>
+    <dd>Fills the subsequence of <var>sequence</var> specified by
+        <code><var>:start</var></code> and <code><var>:end</var></code> with
+        integers consecutively read from <var>stream</var>. Returns the
+        index of the first element of <var>sequence</var> that was not updated
+        (= <var>end</var> or &lt; <var>end</var> if the stream reached its end).
+        <br><var>sequence</var> is an array of integers.
+        <var>start</var> is a nonnegative integer and default to 0.
+        <var>end</var> is a nonnegative integer or <code>nil</code> and
+        defaults to <code>nil</code>, which stands for
+        <code>(<a href="CLHSROOT/Body/fun_length.html">length</a> <var>sequence</var>)</code>.
+        <br>The default method repeatedly calls <code>stream-read-byte</code>;
+        this is always sufficient if speed does not matter.
+        <br>This function is a CLISP extension.
+</dl>
+The following are generic functions for binary output.
+<dl>
+  <dt><code>(<strong>stream-write-byte</strong> <var>stream</var> <var>integer</var>)</code>
+    <dd>Writes <var>integer</var>.
+        <br>You must define a method for this function.
+  <dt><code>(<strong>stream-write-byte-sequence</strong> <var>stream</var>
+             <var>sequence</var> &amp;optional [<var>start</var> [<var>end</var>]])</code>
+    <dd>Outputs the subsequence of <var>sequence</var> specified by
+        <code><var>:start</var></code> and <code><var>:end</var></code> to
+        <var>stream</var>.
+        <br><var>sequence</var> is an array of integers.
+        <var>start</var> is a nonnegative integer and default to 0.
+        <var>end</var> is a nonnegative integer or <code>nil</code> and
+        defaults to <code>nil</code>, which stands for
+        <code>(<a href="CLHSROOT/Body/fun_length.html">length</a> <var>sequence</var>)</code>.
+        <br>The default method repeatedly calls <code>stream-write-byte</code>;
+        this is always sufficient if speed does not matter.
+        <br>This function is a CLISP extension.
+</dl>
+
+
+<!-- #ifdef GENERIC_STREAMS -->
+<h4>Generic streams</h4>
+This interface is CLISP specific and now obsolete. Please use the Gray streams
+interface instead.
+<p>
+Generic streams are user programmable streams. The programmer interface:
+<dl>
+  <dt><code>(<strong>lisp:make-generic-stream</strong>
+   <var>controller</var>)</code>
+  <dd>returns a generic stream.
+
+  <dt><code>(<strong>lisp:generic-stream-controller</strong>
+     <var>stream</var>)</code>
+   <dd>returns a private object to which generic stream methods dispatch.
+     The typical usage is to retrieve the object originally provided by the
+     user in <code>lisp:make-generic-stream</code>.
+
+  <dt><code>(<strong>lisp:generic-stream-p</strong>
+    <var>stream</var>)</code>
+   <dd>determines whether a stream is a generic stream, returning
+    <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a> if it is,
+    <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> otherwise.
+</dl>
+
+<p>In order to specify the behaviour of a generic stream, the user must
+define CLOS methods on the following CLOS generic functions. The
+function <code>generic-stream-<var>xyz</var></code> corresponds to the
+Common Lisp function <code><var>xyz</var></code>. They all take a
+controller and some number of arguments.
+
+<dl>
+  <dt><code>(<strong>lisp:generic-stream-read-char</strong>
+             <var>controller</var>)</code>
+   <dd> Returns and consumes the next character,
+    <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> at
+    end of file. Takes one argument, the controller object.
+  <dt><code>(<strong>lisp:generic-stream-peek-char</strong>
+             <var>controller</var>)</code>
+   <dd> Returns the next character,
+   <a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a> at end of file. A
+   second value indicates whether the side effects associated with
+   consuming the character were executed:
+   <a href="CLHSROOT/Body/convar_t.html">
+   <code>t</code></a> means that a full
+   <a href="CLHSROOT/Body/fun_read-char.html">
+   <code>read-char</code></a> was done,
+   <a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a> means that no side effects were done. Takes one
+   argument, the controller object.
+  <dt><code>(<strong>lisp:generic-stream-read-byte</strong>
+             <var>controller</var>)</code>
+   <dd> Returns and consumes the next integer,
+       <a href="CLHSROOT/Body/convar_nil.html">
+       <code>nil</code></a> at end of file.
+       Takes one argument, the controller object.
+  <dt><a name="generic-stream-read-char-will-hang-p"></a>
+      <code>(<strong>lisp:generic-stream-read-char-will-hang-p</strong>
+             <var>controller</var>)</code>
+  <dd> This generic function is used to query the stream's input status.
+    It returns <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+    if <code>lisp:generic-stream-read-char</code> and
+    <code>lisp:generic-stream-peek-char</code> will certainly return
+    immediately. Otherwise it returns true.
+  <dt><code>(<strong>lisp:generic-stream-write-char</strong>
+             <var>controller</var> <var>ch</var>)</code>
+    <dd> First argument is the controller object.
+         Second argument is the character to be written.
+  <dt><code>(<strong>lisp:generic-stream-write-byte</strong>
+             <var>controller</var> <var>by</var>)</code>
+    <dd> First argument is the controller object.
+         Second argument is the integer to be written.
+  <dt><code>(<strong>lisp:generic-stream-write-string</strong>
+            <var>controller</var> <var>string</var> <var>start</var>
+            <var>len</var>)</code>
+   <dd> Called with argument list <code>(<var>controller</var>
+     <var>string</var> <var>start</var> <var>len</var>)</code>, this
+     function shall write <code>(subseq (the string <var>string</var>)
+     <var>start</var> (+ <var>start</var> <var>len</var>))</code>
+     First argument is the controller object.
+  <dt><code>(<strong>lisp:generic-stream-clear-input</strong>
+             <var>controller</var>)</code>
+  <dt><code>(<strong>lisp:generic-stream-clear-output</strong>
+             <var>controller</var>)</code>
+  <dt><code>(<strong>lisp:generic-stream-finish-output</strong>
+             <var>controller</var>)</code>
+  <dt><code>(<strong>lisp:generic-stream-force-output</strong>
+             <var>controller</var>)</code>
+  <dt><code>(<strong>lisp:generic-stream-close</strong>
+             <var>controller</var>)</code>
+    <dd> Take one argument, the controller object.
+</dl>
+<!-- #endif -->
+
+
+<a name="weak"></a><h3>Extensions-1.6. Weak Pointers</h3>
 
 <p>A weak pointer is an object holding a reference to a given object,
 without keeping the latter from being garbage-collected.
@@ -6566,7 +6879,7 @@ else <a href="CLHSROOT/Body/convar_nil.html">
 <code>nil</code></a>.
 
 
-<a name="final"></a><h3>Extensions-1.6. Finalization</h3>
+<a name="final"></a><h3>Extensions-1.7. Finalization</h3>
 
 <p>Calling <code>(<strong>lisp:finalize</strong> <var>object</var>
 <var>function</var>)</code> has the effect that when the specified
@@ -6591,7 +6904,8 @@ never occurs.) It denotes a moment at which no references to
 
 <p>No finalization request will be executed more than once.
 
-<a name="prompt"></a><h3>Extensions-1.7. The Prompt</h3>
+
+<a name="prompt"></a><h3>Extensions-1.8. The Prompt</h3>
 
 <p>The variable <code><strong>sys::*prompt*</strong></code> controls the
 appearance of the prompt.  When its value is a function, it is called
@@ -6620,7 +6934,8 @@ a variable <code><strong>sys::*command-index*</strong></code> contains
 the current prompt number, it is your responsibility to increment it
 (this variable is bound to 0 before saving the image).
 
-<a name="options"></a><h3>Extensions-1.8. Command Line Options</h3>
+
+<a name="options"></a><h3>Extensions-1.9. Command Line Options</h3>
 
 <p>CLISP executables (<em>lisp.run</em> and <em>clisp</em> on UNIX
 systems, <em>lisp.exe</em> on Win32, etc) accept the following
@@ -6767,7 +7082,8 @@ command line options:
   <dd>Execute the <em>SEXP</em> and exit.
 </dl>
 
-<a name="macros3"></a><h3>Extensions-1.9. Additional Fancy Macros</h3>
+
+<a name="macros3"></a><h3>Extensions-1.10. Additional Fancy Macros</h3>
 
 <p>If you uncomment the <code>(load "macros3")</code> line in the file
 <code>"init.lsp"</code> before doing <code>make</code>, or load the file
