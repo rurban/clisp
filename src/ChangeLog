@@ -1,3 +1,8 @@
+2004-08-21  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (insert-combined-LAPs): Use assert instead of
+	check-type.
+
 2004-06-20  Bruno Haible  <bruno@clisp.org>
 
 	Implement the :method-class option.
