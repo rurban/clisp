@@ -292,10 +292,10 @@
       var internal_time t1 = { 0xD53E8000, 0x19DB1DE };
       var internal_time t2;
       var internal_time t3;
-      mulu32(timebuf.time,ticks_per_second,t1.dwHighDateTime=,
-             t1.dwLowDateTime=);
-      mulu32(timebuf.millitm,ticks_per_second/1000,t2.dwHighDateTime=,
-             t2.dwLowDateTime=);
+      mulu32(timebuf.time,ticks_per_second,
+             t1.dwHighDateTime=,t1.dwLowDateTime=);
+      mulu32(timebuf.millitm,ticks_per_second/1000,
+             t2.dwHighDateTime=,t2.dwLowDateTime=);
       add_internal_time(t1,t2, it);
       add_internal_time(it,t3, it);
       #endif
@@ -709,7 +709,7 @@
        var uintL real_time; # Sekunden
        var internal_time it;
        get_real_time(&it);
-       # real_time sind Sekunden seit 1.1.1970
+       # it.tv_sec sind Sekunden seit 1.1.1970
        # 25567*24*60*60 Sekunden zwischen 1.1.1900 und 1.1.1970
        real_time = 2208988800UL + it.tv_sec;
       #endif
@@ -728,7 +728,8 @@
        sub_internal_time(internal_real_time,offset,internal_real_time);
        divu_6432_3232(internal_real_time.dwHighDateTime,
                       internal_real_time.dwLowDateTime,
-                      ticks_per_second, real_time=,);
+                      ticks_per_second,
+                      real_time=,);
       #endif
      #endif
      return real_time;
