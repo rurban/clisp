@@ -34,6 +34,7 @@ options: The following options are recognized:
          --without-PACKAGE     do not use PACKAGE
          --with-module=MODULE  build with add-on MODULE
          --with-export-syscalls export some UNIX syscalls to Lisp
+         --with-dir-key        dir-key access (win32 registry, LDAP, Gnome)
          --hyperspec=URL       the path to the Common Lisp HyperSpec
            (the default is http://www.lisp.org/HyperSpec
             or the value of the environment variable CLHSROOT, if set).
@@ -154,6 +155,9 @@ do
         passnext=yes ;;
 
       --with-export-syscalls)
+        makemake_args="$makemake_args $arg" ;;
+
+      --with-dir-key)
         makemake_args="$makemake_args $arg" ;;
 
       --with-* | --without-*)
