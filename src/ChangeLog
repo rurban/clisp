@@ -1,5 +1,11 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	Remove a redundant blank line at the beginning of DIR's output.
+	* init.lisp (dir): Use fresh-line at the beginning and an elastic
+	newline after each filename.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	Remove an extra blank line at the beginning of trace output, and
 	also after trace output if the program is using newline convention A.
 	* trace.lisp (trace-pre-output): Use fresh-line instead of terpri at
