@@ -202,8 +202,13 @@
     #endif
     # check, if there is enough disk space:
     {
+      #if HAVE_SYS_STATVFS_H
+      var struct statvfs statbuf;
+      if (!( fstatvfs(fd,&statbuf) <0))
+      #else
       var struct statfs statbuf;
       if (!( fstatfs(fd,&statbuf) <0))
+      #endif
         if (!(statbuf.f_bsize == (long)(-1)) && !(statbuf.f_bavail == (long)(-1))) {
           var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
           if (available < map_len) {
