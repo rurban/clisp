@@ -5257,8 +5257,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
  <listitem><simpara>&disassemble; can disassemble to machine code,
-   provided that &gnu;
-   <ulink url="http://sources.redhat.com/gdb/">gdb</ulink> is present.
+   provided that &gnu; &gdb; is present.
    In that case the argument may be a
    <classname>EXT:SYSTEM-FUNCTION</classname>, a
    &foreign-function;, a special operator indicator,
