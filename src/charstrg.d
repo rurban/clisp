@@ -2761,7 +2761,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
         );
     }
 
-LISPFUN(string_gleich,2,0,norest,key,4,\
+LISPFUN(string_gleich,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 300
   {
@@ -2781,7 +2781,7 @@ LISPFUN(string_gleich,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_ungleich,2,0,norest,key,4,\
+LISPFUN(string_ungleich,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING/= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
   {
@@ -2794,7 +2794,7 @@ LISPFUN(string_ungleich,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_kleiner,2,0,norest,key,4,\
+LISPFUN(string_kleiner,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING< string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
   {
@@ -2807,7 +2807,7 @@ LISPFUN(string_kleiner,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_groesser,2,0,norest,key,4,\
+LISPFUN(string_groesser,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING> string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
   {
@@ -2820,7 +2820,7 @@ LISPFUN(string_groesser,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_klgleich,2,0,norest,key,4,\
+LISPFUN(string_klgleich,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING<= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
   {
@@ -2833,7 +2833,7 @@ LISPFUN(string_klgleich,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_grgleich,2,0,norest,key,4,\
+LISPFUN(string_grgleich,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING>= string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
   {
@@ -2987,7 +2987,7 @@ LISPFUN(string_grgleich,2,0,norest,key,4,\
         );
     }
 
-LISPFUN(string_equal,2,0,norest,key,4,\
+LISPFUN(string_equal,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-EQUAL string1 string2 :start1 :end1 :start2 :end2), CLTL S. 301
   {
@@ -3007,7 +3007,7 @@ LISPFUN(string_equal,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_not_equal,2,0,norest,key,4,\
+LISPFUN(string_not_equal,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-NOT-EQUAL string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
   {
@@ -3020,7 +3020,7 @@ LISPFUN(string_not_equal,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_lessp,2,0,norest,key,4,\
+LISPFUN(string_lessp,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-LESSP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
   {
@@ -3033,7 +3033,7 @@ LISPFUN(string_lessp,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_greaterp,2,0,norest,key,4,\
+LISPFUN(string_greaterp,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-GREATERP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
   {
@@ -3046,7 +3046,7 @@ LISPFUN(string_greaterp,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_not_greaterp,2,0,norest,key,4,\
+LISPFUN(string_not_greaterp,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-NOT-GREATERP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
   {
@@ -3059,7 +3059,7 @@ LISPFUN(string_not_greaterp,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(string_not_lessp,2,0,norest,key,4,\
+LISPFUN(string_not_lessp,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (STRING-NOT-LESSP string1 string2 :start1 :end1 :start2 :end2), CLTL S. 302
   {
@@ -3111,7 +3111,7 @@ LISPFUN(string_not_lessp,2,0,norest,key,4,\
      notfound: return NIL;
     }
 
-LISPFUN(search_string_gleich,2,0,norest,key,4,\
+LISPFUN(search_string_gleich,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (SYS::SEARCH-STRING= string1 string2 [:start1] [:end1] [:start2] [:end2])
 # = (search string1 string2 :test #'char= [:start1] [:end1] [:start2] [:end2])
@@ -3125,7 +3125,7 @@ LISPFUN(search_string_gleich,2,0,norest,key,4,\
     mv_count=1;
   }
 
-LISPFUN(search_string_equal,2,0,norest,key,4,\
+LISPFUN(search_string_equal,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (SYS::SEARCH-STRING-EQUAL string1 string2 [:start1] [:end1] [:start2] [:end2])
 # = (search string1 string2 :test #'char-equal [:start1] [:end1] [:start2] [:end2])

@@ -907,7 +907,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
       }
   }
 
-LISPFUN(make_sequence,2,0,norest,key,2,\
+LISPFUN(make_sequence,2,0,norest,key,2,
         (kw(initial_element),kw(update)) )
 # (MAKE-SEQUENCE type size [:initial-element] [:update]), CLTL S. 249
 # mit zusätzlichem Argument :update, z.B.
@@ -1622,7 +1622,7 @@ LISPFUN(notevery,2,0,rest,nokey,0,NIL)
         { pushSTACK(value1); funcall(_key,1); }                               \
     }
 
-LISPFUN(reduce,2,0,norest,key,5,\
+LISPFUN(reduce,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(initial_value)) )
 # (REDUCE function sequence [:from-end] [:start] [:end] [:key] [:initial-value]),
 # CLTL S. 251, CLTL2 S. 397
@@ -1786,7 +1786,7 @@ LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
     value1 = popSTACK(); mv_count=1; # sequence als Wert
   }
 
-LISPFUN(replace,2,0,norest,key,4,\
+LISPFUN(replace,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 # (REPLACE sequence1 sequence2 [:start1] [:end1] [:start2] [:end2]),
 # CLTL S. 252
@@ -2358,7 +2358,7 @@ LISPFUN(replace,2,0,norest,key,4,\
         return remove_help(stackptr,bvl,dl); # DELETE wie REMOVE behandeln
     }}
 
-LISPFUN(remove,2,0,norest,key,7,\
+LISPFUN(remove,2,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (REMOVE item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 253
@@ -2369,7 +2369,7 @@ LISPFUN(remove,2,0,norest,key,7,\
     skipSTACK(2+7+1);
   }
 
-LISPFUN(remove_if,2,0,norest,key,5,\
+LISPFUN(remove_if,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (REMOVE-IF test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 253
@@ -2379,7 +2379,7 @@ LISPFUN(remove_if,2,0,norest,key,5,\
     skipSTACK(2+5+1);
   }
 
-LISPFUN(remove_if_not,2,0,norest,key,5,\
+LISPFUN(remove_if_not,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (REMOVE-IF-NOT test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 253
@@ -2389,7 +2389,7 @@ LISPFUN(remove_if_not,2,0,norest,key,5,\
     skipSTACK(2+5+1);
   }
 
-LISPFUN(delete,2,0,norest,key,7,\
+LISPFUN(delete,2,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (DELETE item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 254
@@ -2400,7 +2400,7 @@ LISPFUN(delete,2,0,norest,key,7,\
     skipSTACK(2+7+1);
   }
 
-LISPFUN(delete_if,2,0,norest,key,5,\
+LISPFUN(delete_if,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (DELETE-IF test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 254
@@ -2410,7 +2410,7 @@ LISPFUN(delete_if,2,0,norest,key,5,\
     skipSTACK(2+5+1);
   }
 
-LISPFUN(delete_if_not,2,0,norest,key,5,\
+LISPFUN(delete_if_not,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (DELETE-IF-NOT test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 254
@@ -2800,13 +2800,13 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
         skipSTACK(7+3); # STACK aufräumen
     }}}
 
-LISPFUN(remove_duplicates,1,0,norest,key,6,\
+LISPFUN(remove_duplicates,1,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (REMOVE-DUPLICATES sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 254
   { return_Values seq_duplicates(&remove_help); }
 
-LISPFUN(delete_duplicates,1,0,norest,key,6,\
+LISPFUN(delete_duplicates,1,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (DELETE-DUPLICATES sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 254
@@ -2937,7 +2937,7 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,\
       return popSTACK(); # sequence2 als Ergebnis
     }
 
-LISPFUN(substitute,3,0,norest,key,7,\
+LISPFUN(substitute,3,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (SUBSTITUTE newitem item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 255
@@ -2948,7 +2948,7 @@ LISPFUN(substitute,3,0,norest,key,7,\
     skipSTACK(3+7+1);
   }
 
-LISPFUN(substitute_if,3,0,norest,key,5,\
+LISPFUN(substitute_if,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (SUBSTITUTE-IF newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 255
@@ -2958,7 +2958,7 @@ LISPFUN(substitute_if,3,0,norest,key,5,\
     skipSTACK(3+5+1);
   }
 
-LISPFUN(substitute_if_not,3,0,norest,key,5,\
+LISPFUN(substitute_if_not,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (SUBSTITUTE-IF-NOT newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 255
@@ -3097,7 +3097,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
         }
     }
 
-LISPFUN(nsubstitute,3,0,norest,key,7,\
+LISPFUN(nsubstitute,3,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (NSUBSTITUTE newitem item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 256
@@ -3108,7 +3108,7 @@ LISPFUN(nsubstitute,3,0,norest,key,7,\
     skipSTACK(3+7+1);
   }
 
-LISPFUN(nsubstitute_if,3,0,norest,key,5,\
+LISPFUN(nsubstitute_if,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (NSUBSTITUTE-IF newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 256
@@ -3118,7 +3118,7 @@ LISPFUN(nsubstitute_if,3,0,norest,key,5,\
     skipSTACK(3+5+1);
   }
 
-LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
+LISPFUN(nsubstitute_if_not,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (NSUBSTITUTE-IF-NOT newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 256
@@ -3216,7 +3216,7 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
       skipSTACK(3); # STACK aufräumen
     }
 
-LISPFUN(find,2,0,norest,key,6,\
+LISPFUN(find,2,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (FIND item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 257
@@ -3227,7 +3227,7 @@ LISPFUN(find,2,0,norest,key,6,\
     skipSTACK(2+6+1);
   }
 
-LISPFUN(find_if,2,0,norest,key,4,\
+LISPFUN(find_if,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (FIND-IF test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
@@ -3237,7 +3237,7 @@ LISPFUN(find_if,2,0,norest,key,4,\
     skipSTACK(2+4+1);
   }
 
-LISPFUN(find_if_not,2,0,norest,key,4,\
+LISPFUN(find_if_not,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (FIND-IF-NOT test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
@@ -3337,7 +3337,7 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
       skipSTACK(4); # STACK aufräumen
     }
 
-LISPFUN(position,2,0,norest,key,6,\
+LISPFUN(position,2,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (POSITION item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 257
@@ -3348,7 +3348,7 @@ LISPFUN(position,2,0,norest,key,6,\
     skipSTACK(2+6+1);
   }
 
-LISPFUN(position_if,2,0,norest,key,4,\
+LISPFUN(position_if,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (POSITION-IF test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
@@ -3358,7 +3358,7 @@ LISPFUN(position_if,2,0,norest,key,4,\
     skipSTACK(2+4+1);
   }
 
-LISPFUN(position_if_not,2,0,norest,key,4,\
+LISPFUN(position_if_not,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (POSITION-IF-NOT test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
@@ -3451,7 +3451,7 @@ LISPFUN(position_if_not,2,0,norest,key,4,\
       value1 = STACK_2; mv_count=1; skipSTACK(4); # total als Wert
     }
 
-LISPFUN(count,2,0,norest,key,6,\
+LISPFUN(count,2,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (COUNT item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 257
@@ -3462,7 +3462,7 @@ LISPFUN(count,2,0,norest,key,6,\
     skipSTACK(2+6+1);
   }
 
-LISPFUN(count_if,2,0,norest,key,4,\
+LISPFUN(count_if,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (COUNT-IF test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
@@ -3472,7 +3472,7 @@ LISPFUN(count_if,2,0,norest,key,4,\
     skipSTACK(2+4+1);
   }
 
-LISPFUN(count_if_not,2,0,norest,key,4,\
+LISPFUN(count_if_not,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (COUNT-IF-NOT test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
@@ -3482,8 +3482,8 @@ LISPFUN(count_if_not,2,0,norest,key,4,\
     skipSTACK(2+4+1);
   }
 
-LISPFUN(mismatch,2,0,norest,key,8,\
-        (kw(start1),kw(end1),kw(start2),kw(end2),kw(from_end),\
+LISPFUN(mismatch,2,0,norest,key,8,
+        (kw(start1),kw(end1),kw(start2),kw(end2),kw(from_end),
          kw(key),kw(test),kw(test_not)) )
 # (MISMATCH sequence1 sequence2
 #           [:start1] [:end1] [:start2] [:end2] [:from-end] [:key] [:test] [:test-not]),
@@ -3647,8 +3647,8 @@ LISPFUN(mismatch,2,0,norest,key,8,\
       } }
   }}
 
-LISPFUN(search,2,0,norest,key,8,\
-        (kw(start1),kw(end1),kw(start2),kw(end2),kw(from_end),\
+LISPFUN(search,2,0,norest,key,8,
+        (kw(start1),kw(end1),kw(start2),kw(end2),kw(from_end),
          kw(key),kw(test),kw(test_not)) )
 # (SEARCH sequence1 sequence2
 #         [:start1] [:end1] [:start2] [:end2] [:from-end] [:key] [:test] [:test-not]),
