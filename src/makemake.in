@@ -450,7 +450,7 @@ case $# in
      shift 2
      if [ ${TSYS} = "win32gcc" ]; then
        CC="gcc -mno-cygwin";
-       LN_S="cp -p"; # CLISP/WIN32_NATIVE does not suppport win32 *.lnk
+       CPP="${CC} -E";
      fi
      ;;
 esac
@@ -2168,7 +2168,13 @@ for util in $UTILS ; do
       OBSOLETE=$OBSOLETE" ${util}.c"
     else
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+      if [ ${HSYS} = "win32gcc" ]; then
+        # **HACK**: avoid -mno-cygwin so that comment5.exe
+        #           understands symbolic links
+        echotab_to_HEXE "gcc \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+      else
+        echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
+      fi
       echol
     fi
   fi
