@@ -1,5 +1,10 @@
 2005-03-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (SET-FILE-STAT): added a cast to avoid
+	a woe32 warning (and maybe fix a bug?)
+
+2005-03-17  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: bumped for yet another woe32/cygwin pre-test
 
 2005-03-17  Sam Steingold  <sds@gnu.org>
