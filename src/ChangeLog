@@ -1,5 +1,10 @@
 2004-04-23  Sam Steingold  <sds@gnu.org>
 
+	* rawsock/rawsock.c, rawsock/sock.lisp: renamed CLOSESOCK to
+	SOCK-CLOSE for consistency with SOCK-READ and SOCK-WRITE
+
+2004-04-23  Sam Steingold  <sds@gnu.org>
+
 	* clx/mit-clx/dependent.lisp (make-process-lock, process-wakeup):
 	so not signal an error
 	(holding-lock): no warning
