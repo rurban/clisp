@@ -1,5 +1,14 @@
 1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_circ.d: New file.
+        * spvw.d (mlbitmap, mlb_alloc, mlb_add, mlb_free, get_circ_global,
+           get_circ_mark, get_circ_unmark, get_circularities,
+           subst_circ_global, subst_circ_mark, subst_circ_unmark, subst_circ):
+          Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Remove support for immutable objects. It was limited to a small range
         of systems (those with good shared memory support), introduced a 16 MB
         limit on 32-bit machines, required specially compiled binaries, and
