@@ -628,7 +628,7 @@ LISPSYM(delete_dir,"DELETE-DIR",ext)
 LISPSYM(ensure_directories_exist,"ENSURE-DIRECTORIES-EXIST",lisp)
 LISPSYM(file_write_date,"FILE-WRITE-DATE",lisp)
 LISPSYM(file_author,"FILE-AUTHOR",lisp)
-#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
+#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
 LISPSYM(execute,"EXECUTE",ext)
 #endif
 #ifdef HAVE_SHELL
@@ -637,7 +637,7 @@ LISPSYM(shell_name,"SHELL-NAME",system)
 #endif
 LISPSYM(shell,"SHELL",ext)
 #endif
-#if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
+#if defined(UNIX) || defined(WIN32_NATIVE)
 LISPSYM(launch,"LAUNCH",ext)
 #endif
 #if defined(WIN32_NATIVE)
@@ -1147,7 +1147,7 @@ LISPSYM(Kfill,"FILL",keyword)           /* PPRINT-NEWLINE */
 LISPSYM(Kmiser,"MISER",keyword)         /* PPRINT-NEWLINE */
 LISPSYM(Kmandatory,"MANDATORY",keyword) /* PPRINT-NEWLINE */
 LISPSYM(Kblock,"BLOCK",keyword)     /* PPRINT-INDENT */
-LISPSYM(Kcurrent,"CURRENT",keyword) /* PPRINT-INDENT & PATHNAME_RISCOS */
+LISPSYM(Kcurrent,"CURRENT",keyword) /* PPRINT-INDENT */
 LISPSYM(Kgensym,"GENSYM",keyword)
 LISPSYM(Kescape,"ESCAPE",keyword)
 LISPSYM(Kbase,"BASE",keyword)
@@ -1214,7 +1214,7 @@ LISPSYM(Kinput_error_action,"INPUT-ERROR-ACTION",keyword)
 LISPSYM(Koutput_error_action,"OUTPUT-ERROR-ACTION",keyword)
 LISPSYM(Kansi_cl,"ANSI-CL",keyword)
 LISPSYM(Kextra_file_types,"EXTRA-FILE-TYPES",keyword)
-#if defined(UNIX) || defined(RISCOS) || defined (WIN32_NATIVE)
+#if defined(UNIX) || defined (WIN32_NATIVE)
 LISPSYM(Kwait,"WAIT",keyword)
 LISPSYM(Kterminal,"TERMINAL",keyword)
 LISPSYM(Kpipe,"PIPE",keyword)
@@ -1410,14 +1410,8 @@ LISPSYM(Kwild,"WILD",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kwild_inferiors,"WILD-INFERIORS",keyword) /* pathname component in PATHNAME */
 LISPSYM(Krelative,"RELATIVE",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kabsolute,"ABSOLUTE",keyword) /* pathname component in PATHNAME */
-#if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
+#ifdef PATHNAME_AMIGAOS
 LISPSYM(Kparent,"PARENT",keyword) /* pathname component in PATHNAME */
-#endif
-#ifdef PATHNAME_RISCOS
-LISPSYM(Kroot,"ROOT",keyword) /* pathname component in PATHNAME */
-LISPSYM(Khome,"HOME",keyword) /* pathname component in PATHNAME */
-LISPSYM(Klibrary,"LIBRARY",keyword) /* pathname component in PATHNAME */
-LISPSYM(Kprevious,"PREVIOUS",keyword) /* pathname component in PATHNAME */
 #endif
 LISPSYM(Knewest,"NEWEST",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kcommon,"COMMON",keyword) /* argument in PATHNAME */

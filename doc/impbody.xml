@@ -1686,7 +1686,7 @@ performance considerations.
 <!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; (except &nextstep;),
-   &win32;, &amiga;, &acorn; platforms only, and only in
+   &win32;, &amiga; platforms only, and only in
    &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
@@ -1931,7 +1931,7 @@ performance considerations.
 
 <!-- #ifdef KEYBOARD -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;, &acorn;
+<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;
    platforms only.</term>
 <listitem><simpara>The system itself uses this &input-char; type only to
  mention special keys and &ctrl;/&alt;/&shift; key status on return from
@@ -2233,7 +2233,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef UNIX_CHARNAMES -->
 <table id="unix-chars-table" frame="all">
- <title>Platform dependent characters: &unix;, &acorn; platforms.</title>
+ <title>Platform dependent characters: &unix; platforms.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2661,15 +2661,6 @@ printed readably.</para>
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
-<!-- #ifdef PATHNAME_RISCOS -->
-<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
-<listitem><simpara>For example, <filename>#P"foo.bar"</filename> denotes
- the file &foo-f; in the directory &bar-f;,
- while <filename>#P"foo.bar."</filename> denotes the subdirectory
- &bar-f; of the directory &foo-f;.
-</simpara></listitem></varlistentry>
-<!-- #endif -->
-
 <!-- #if defined(PATHNAME_WIN32) || defined(UNIX_CYGWIN32) -->
 <varlistentry id="device-prefix"><term>Platform dependent: &win32; and
   &cygwin; platforms only.</term>
@@ -3024,470 +3015,6 @@ printed readably.</para>
  </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 <!-- #endif -->
-
-<!-- #ifdef PATHNAME_RISCOS -->
-<variablelist>
-<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
-<listitem><simpara>RISC OS provides several file systems as standard
-  (ADFS, IDEFS, NetFS, RamFS, NetPrint) and support for extra file
-  systems (DOSFS, ResourceFS and DeviceFS).</simpara>
-
-<simpara>A module called FileSwitch is at the center of all file system
- operation in RISC OS.  FileSwitch provides a common core of functions
- used by all file systems.  It only provides the parts of these services
- that are device independent.  The device dependent services that
- control the hardware are provided by separate modules, which are the
- actual file systems.  FileSwitch keeps track of active file systems and
- switches between them as necessary.</simpara>
-
-<simpara>One of the file system modules that RISC OS provides is
- FileCore.  It takes the normal calls that FileSwitch sends to a file
- system module, and converts them to a simpler set of calls to modules
- that control the hardware.  Unlike FileSwitch it creates a fresh
- instantiation of itself for each module that it supports.  Using
- FileCore to build file system modules imposes a more rigid structure on
- it, as more of the file system is predefined.</simpara>
-
-<simpara>As well as standard file systems, FileSwitch supports image
- file systems.  These provide facilities for RISC OS to handle media in
- foreign formats, and to support `image files' (or partitions) in those
- formats.  Rather than accessing the hardware directly they rely on
- standard RISC OS file systems to do so.  DOSFS is an example of an
- image file system used to handle DOS format discs.</simpara>
-
-<variablelist>
-<varlistentry><term>Terminology</term>
- <listitem><simpara>A pathname may include a file system name, a special
-  field, a media name (e.g., a disc name), directory name(s), and the
-  name of the object itself; each of these parts of a pathname is known
-  as an `element' of the pathname.</simpara></listitem></varlistentry>
-<varlistentry><term>Filenames</term>
- <listitem><simpara>Filename `elements' may be up to ten characters in
-  length on FileCore-based file systems and on NetFS.  These characters
-  may be digits or letters.  FileSwitch makes no distinction between
-  upper and lower case, although file systems can do so.  As a general
-  rule, you should not use top-bit-set characters in filenames, although
-  some file systems (such as FileCore-based ones) support them.  Other
-  characters may be used provided they do not have a special
-  significance.  Those that do are listed below:</simpara>
-
- <variablelist>
-  <varlistentry><term>&file-dot;</term>
-   <listitem><simpara>Separates directory specifications, e.g.,
-   <filename>"$.fred"</filename></simpara></listitem></varlistentry>
-  <varlistentry><term>&file-colon;</term>
-   <listitem><simpara>Introduces a drive or disc specification, e.g.,
-   <filename>":0"</filename>, <filename>":bigdisc"</filename>.  It also
-   marks the end of a file system name, e.g.,
-   <filename>"adfs:"</filename></simpara></listitem></varlistentry>
-  <varlistentry><term>&file-star;</term>
-   <listitem><simpara>Acts as a `wildcard' to match zero or more
-   characters.</simpara></listitem></varlistentry>
-  <varlistentry><term>&file-hash;</term>
-   <listitem><simpara>Acts as a `wildcard' to match any single
-   character.</simpara></listitem></varlistentry>
-  <varlistentry><term>&file-doll;</term>
-   <listitem><simpara>is the name of the root directory of the disc.
-   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>"&amp;"</filename></term>
-   <listitem><simpara>is the user root directory (URD)
-   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>"@"</filename></term>
-   <listitem><simpara>is the currently selected directory (CSD)
-   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>"^"</filename></term>
-   <listitem><simpara>is the `parent' directory
-   </simpara></listitem></varlistentry>
-  <varlistentry><term><filename>"%"</filename></term>
-   <listitem><simpara>is the currently selected library (CSL)
-   </simpara></listitem></varlistentry>
-  <varlistentry><term>&file-bsla;</term>
-   <listitem><simpara>is the previously selected directory (PSD)
-   </simpara></listitem></varlistentry>
-  </variablelist></listitem></varlistentry>
-
-<varlistentry><term>Directories</term>
- <listitem><simpara>The root directory, &file-doll;, forms the top of
-  the directory hierarchy of the media which contains the CSD.
-  &file-doll; does not have a parent directory, trying to access its
-  parent will just access &file-doll;.  Each directory name is separated
-  by a &file-dot; character.  For example:</simpara>
- <itemizedlist>
-  <listitem><simpara><filename>"$.Documents.Memos"</filename>
-   </simpara></listitem>
-  <listitem><simpara><filename>"%.cc"</filename></simpara></listitem>
- </itemizedlist></listitem></varlistentry>
-
-<varlistentry><term>File Systems</term>
-
- <listitem><simpara>Files may also be accessed on file systems other
-  than the current one by prefixing the filename with a file system
-  specification.  A file system name may appear between &file-dash;
-  characters, or suffixed by a &file-colon;, though the latter is
-  advised since &file-dash; can also be used to introduce a parameter on
-  a command line, or as part of a file name.  For example:</simpara>
-
- <itemizedlist>
-  <listitem><simpara><filename>"-net-$.SystemMesg"</filename>
-   </simpara></listitem>
-  <listitem><simpara><filename>"adfs:%.aasm"</filename></simpara></listitem>
- </itemizedlist></listitem></varlistentry>
-
-<varlistentry><term>Special Fields</term>
-
- <listitem><simpara>Special fields are used to supply more information
-  to the file system than you can using standard path names; for example
-  NetFS and NetPrint use them to specify server addresses or names. They
-  are introduced by a &file-hash; character; a variety of syntaxes are
-  possible:</simpara>
-
-<itemizedlist>
-  <listitem><simpara><filename>  "net#MJHardy::disc1.mike"</filename>
-   </simpara></listitem>
-  <listitem><simpara><filename>     "#MJHardy::disc1.mike"</filename>
-   </simpara></listitem>
-  <listitem><simpara><filename> "-net#MJHardy-:disc1.mike"</filename>
-   </simpara></listitem>
-  <listitem><simpara><filename>    "-#MJHardy-:disc1.mike"</filename>
-   </simpara></listitem>
-</itemizedlist>
-
- <simpara>The special fields here are all MJHardy, and give the name of
-  the fileserver to use.  Special fields may use any character except for
-  control characters, double quote '&quot;', solidus '|' and space.  If
-  a special field contains a hyphen you may only use the first two
-  syntaxes given above.</simpara></listitem></varlistentry>
-
-<varlistentry><term><filename>"File$Path"</filename> and
-  <filename>"Run$Path"</filename></term>
-
- <listitem><simpara>These two special variables control exactly where a
-  file will be looked for, according to the operation being performed on
-  it.</simpara>
-
-<informaltable id="acorn-path-vars" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
- <thead><row><entry>name</entry><entry>purpose</entry></row></thead><tbody>
- <row><entry>File$Path</entry>
-    <entry>for read operations</entry></row>
- <row><entry>Run$Path</entry>
-    <entry>for execute operations</entry></row>
-</tbody></tgroup></informaltable>
-
- <simpara>The contents of each variable should expand to a list or
-  prefixes, separated by commas.  When a read operation is performed
-  then the prefixes in <filename>"File$Path"</filename> are used in the
-  order in which they are listed. The first object that matches is used,
-  whether it be a file or directory.  Similarly any execute operation
-  uses the prefixes in Run$Path.  These search paths are only used when
-  the pathname does not contain an explicit file system reference, e.g.,
-  executing <filename>"adfs:file"</filename> will not use
-  <filename>"Run$Path"</filename>.</simpara></listitem></varlistentry>
-
-<varlistentry><term>Other path variables</term>
- <listitem><para>You can set up other path variables and use them as
-  pseudo file systems.  For example if you typed:
-  <literallayout><userinput>*Set Source$Path adfs:$.src.,adfs:$.public.src.</userinput></literallayout>,
-  you could then refer to the pseudo file system as
-  <filename>"Source:"</filename> or (less preferable) as
-  <filename>"-Source-"</filename>.  These path variables work in the same
-  was as <filename>"File$Path"</filename> and
-  <filename>"Run$Path"</filename>.</para>
-
- <simpara>NOTE: Path variables are not implemented in this version of
- &clisp;.  A workaround for this is to use "&lt;Foo$Path&gt;"
- instead of "Foo:" until they are made available.</simpara>
- </listitem></varlistentry>
-
-<varlistentry id="pathnames-externally-acorn"><term>from Lisp-string
-  notation to internal representation</term>
-
- <listitem><simpara><emphasis>No</emphasis> swapping.
-   &foolisp-f; means file type &lisp-file; and file name &foo-f;.
-   This is pseudo-BNF:</simpara>
- <variablelist>
-  <varlistentry><term>legal character ::==</term>
-   <listitem><simpara>any ISO latin-1 graphic character &ge; ' ' except
-    '.' ':' '*' '#' '$' '&amp;' '@' '^' '%' '\' '?'
-    </simpara></listitem></varlistentry>
-  <varlistentry><term>extended legal character ::==</term>
-   <listitem><simpara>any ISO latin-1 graphic character &ge; ' ' except
-    ':' '&quot;' '|'
-    </simpara></listitem></varlistentry>
-  <varlistentry><term>legal-wild char ::==</term>
-   <listitem><simpara>legal char | '*' | '#' | '?'
-    </simpara></listitem></varlistentry>
-  <varlistentry><term>host ::==</term>
-   <listitem><simpara> '-' { extended legal char except '-' }+ '-'
-    | { extended legal char except '-' } { extended legal char }* ':' | empty
-    </simpara></listitem></varlistentry>
-  <varlistentry><term>device ::==</term>
-   <listitem><simpara> ':' { legal char }+ '.' | empty
-    </simpara></listitem></varlistentry>
-  <varlistentry><term>directory ::==</term>
-    <listitem><para> { '$' | '&amp;' | '@' | '%' | '\' } '.'
-    { subdirectory }* | { subdirectory }+ | empty
-    <informaltable id="acorn-directory" frame="all">
-    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
-     <row><entry>'$' -&gt;</entry>
-         <entry>&absolute-k; &root-k;</entry></row>
-     <row><entry>'&amp;' -&gt;</entry>
-         <entry>&absolute-k; &home-k;</entry></row>
-     <row><entry>'@' -&gt;</entry>
-         <entry>&absolute-k; &current-k;</entry></row>
-     <row><entry>'%' -&gt;</entry>
-         <entry>&absolute-k; &library-k;</entry></row>
-     <row><entry>'\' -&gt;</entry>
-         <entry>&absolute-k; &previous-k;</entry></row>
-     <row><entry>else</entry><entry>&relative-k;</entry></row>
-    </tbody></tgroup></informaltable></para></listitem></varlistentry>
-  <varlistentry><term>subdirectory ::==</term>
-   <listitem><para>{ '^' | { legal-wild char }+ } '.'
-   <informaltable id="acorn-subdirectory" frame="all">
-    <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
-    <row><entry>'^' -&gt;</entry><entry>&parent-k;</entry></row>
-   </tbody></tgroup></informaltable></para></listitem></varlistentry>
-  <varlistentry><term>filename ::==</term>
-   <listitem><simpara>{ { legal-wild char }+ | empty }
-   </simpara></listitem></varlistentry>
-  <varlistentry><term>filetype ::==</term>
-   <listitem><simpara>{ '.' { legal-wild char }+ | empty }
-   </simpara></listitem></varlistentry>
-  <varlistentry><term>pathname ::==</term>
-   <listitem><simpara>host device directory filename filetype
-   </simpara></listitem></varlistentry>
- </variablelist>
-
-<para>Examples:
-<informaltable id="acorn-path-example-table" frame="all">
- <tgroup cols="6" colsep="1" rowsep="1" align="center">
-   <thead><row><entry>String</entry><entry>Hostname</entry>
-   <entry>Device</entry><entry>Directory</entry>
-   <entry>Name</entry><entry>Type</entry></row></thead><tbody>
- <row><entry><filename>"-net-$.SystemMesg"</filename></entry>
-   <entry><filename>"net"</filename></entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>"SystemMesg"</filename></entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>"net#MJHardy::disc1.mike"</filename></entry>
-   <entry><filename>"net#MJHardy"</filename></entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>"mike"</filename></entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>"#MJHardy::disc1.mike"</filename></entry>
-   <entry><filename>"#MJHardy"</filename></entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>"mike"</filename></entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>"-net#MJHardy-:disc1.mike"</filename></entry>
-   <entry><filename>"net#MJHardy"</filename></entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>"mike"</filename></entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>"-#MJHardy-:disc1.mike"</filename></entry>
-   <entry><filename>"#MJHardy"</filename></entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry><filename>"mike"</filename></entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>"@.foo"</filename></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&nil;</entry></row>
- <row><entry>&foo-f;</entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&nil;</entry></row>
- <row><entry><filename>"^."</filename></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; &parent-k;)</literal></entry>
-   <entry>&nil;</entry><entry>&nil;</entry></row>
- <row><entry><filename>"@.^."</filename></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &current-k;
-        &parent-k;)</literal></entry>
-   <entry>&nil;</entry><entry>&nil;</entry></row>
- <row><entry><filename>"foo.bar"</filename></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&bar-f;</entry></row>
- <row><entry><filename>"foo.bar.baz"</filename></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
-   <entry>&bar-f;</entry><entry><filename>"baz"</filename></entry></row>
- <row><entry><filename>"foo.bar."</filename></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; &foo-f; &bar-f;)</literal></entry>
-   <entry>&nil;</entry>
-   <entry>&nil;</entry></row>
- <row><entry><filename>"foo.@."</filename></entry>
-   <entry>illegal</entry>
-   <entry/><entry/><entry/><entry/></row>
-</tbody></tgroup></informaltable></para></listitem></varlistentry>
-
-<varlistentry><term>From internal representation to RISCOS string</term>
-
- <listitem><simpara>with swapping <emphasis>only</emphasis> of name/type
-  components.</simpara>
-
-<informaltable id="acorn-name-type-swap" frame="all">
- <tgroup cols="6" colsep="1" rowsep="1" align="center">
-  <thead><row><entry>Hostname</entry><entry>Device</entry>
-  <entry>Directory</entry><entry>Name</entry>
-  <entry>Type</entry><entry>RISCOS String</entry></row></thead><tbody>
- <row><entry><filename>"net"</filename></entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&nil;</entry>
-   <entry><filename>"net::disc1.$.foo"</filename></entry></row>
- <row><entry><filename>"net#MJ"</filename></entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;
-          &foo-f;)</literal></entry>
-   <entry>&bar-f;</entry><entry><filename>"baz"</filename></entry>
-   <entry><filename>"net#MJ::disc1.$.foo.baz.bar"</filename></entry></row>
- <row><entry><filename>"adfs"</filename></entry>
-   <entry><filename>"4"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k; &foo-f;
-          &bar-f;)</literal></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><filename>"adfs::4.$.foo.bar"</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;
-          &foo-f;)</literal></entry>
-   <entry>&bar-f;</entry><entry>&nil;</entry>
-   <entry><filename>":disc1.$.foo.bar"</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry>illegal here</entry></row>
- <row><entry>&nil;</entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry>&nil;</entry><entry>&nil;</entry>
-   <entry><filename>":disc1."</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry><filename>"disc1"</filename></entry>
-   <entry>&nil;</entry><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><filename>":disc1."</filename></entry></row>
- <row><entry>&nil;</entry>
-   <entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &root-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&nil;</entry>
-   <entry><filename>"$.foo"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &current-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&nil;</entry>
-   <entry><filename>"@.foo"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&bar-f;</entry>
-   <entry><filename>"bar.foo"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
-   <entry>&bar-f;</entry><entry><filename>"baz"</filename></entry>
-   <entry><filename>"foo.baz.bar"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &library-k;)</literal></entry>
-   <entry>&bar-f;</entry><entry>&nil;</entry>
-   <entry><filename>"%.bar"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&absolute-k; &library-k;
-          &foo-f;)</literal></entry>
-   <entry>&bar-f;</entry><entry>&nil;</entry>
-   <entry><filename>"%.foo.bar"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k;)</literal></entry>
-   <entry>&foo-f;</entry><entry>&bar-f;</entry>
-   <entry><filename>"bar.foo"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
-   <entry>&bar-f;</entry><entry>&nil;</entry>
-   <entry><filename>"foo.bar"</filename></entry></row>
- <row><entry>&nil;</entry><entry>&nil;</entry>
-   <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
-   <entry>&nil;</entry><entry>&bar-f;</entry>
-   <entry>illegal here</entry></row>
-</tbody></tgroup></informaltable>
-
-<simpara>That is, the RISCOS string is the flattening-concatenation
- of</simpara>
-
-<programlisting>
-  (append
-    (if (null hostname) "" (append hostname ":"))
-    (if (null device) "" (append ":" device "."))
-    (case (pop directory)
-      (:absolute (case (pop directory)
-                         (:root "$.")
-                         (:home "&amp;.")
-                         (:current "@.")
-                         (:library "%.")
-                         (:previous "\\.")))
-      (:relative ""))
-    (mapcar (lambda (subdir) (append subdir ".")) directory)
-    (if (null name)
-        (if (null type) "" (error "type with name illegal here"))
-        (if (null type)
-            name
-            (append type "." name))))
-</programlisting>
-</listitem></varlistentry>
-
-<varlistentry><term>internal representation</term>
-<listitem><variablelist>&path-comps;
-<varlistentry><term>&host-r;</term>&string-or-nil;</varlistentry>
-<varlistentry><term>&device-r;</term>&string-or-nil;</varlistentry>
-<varlistentry>&dir-term;
- <listitem><informaltable id="acorn-dir-table" frame="all">
-  <tgroup cols="2" colsep="1" rowsep="1" align="center">
-   <thead><row><entry>element</entry><entry>values</entry></row></thead><tbody>
- <row><entry>&startpoint-r;</entry>
-   <entry>&relative-k; | &absolute-k;
-   <replaceable>anchor</replaceable></entry></row>
- <row><entry><replaceable>anchor</replaceable></entry>
-   <entry>&root-k; | &home-k; | &current-k; | &library-k; |
-   &previous-k;</entry></row>
- &subdirs-def;
- <row><entry>&subdir-r;</entry><entry>&parent-k;</entry></row>
- <row><entry>&subdir-r;</entry>
-   <entry>&simple-string-t;, may contain wildcard characters
-   &file-ques;, &file-hash; and &file-star;</entry></row>
- </tbody></tgroup></informaltable></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>
- <listitem><simpara>&simple-string-t; or &nil;, may contain wildcard
- characters &file-ques;,&file-hash; and &file-star; (may also be
- specified as &wild-k;)</simpara></listitem></varlistentry>
-<varlistentry><term>&type-r;</term>
- <listitem><simpara>&nil; or &simple-string-t;, may contain wildcard
- characters &file-ques;,&file-hash; and &file-star; (may also be
- specified as &wild-k;)</simpara></listitem></varlistentry>
-&version-nil;
-</variablelist>
-
-<para>Constraint: &startpoint-r; is not &absolute-k; &root-k; only if device
- is &nil;. If the device is specified, the pathname must be &absolute-k;
- &root-k;.</para>
-
-<para>The wildcard characters: &file-star; matches any sequence of
- characters, &file-hash; or &file-ques; matches any one character.</para>
-
-<para>Due to the name/type swapping rule, there are pathnames that
- cannot result from &parse-namestring;.  To get a pathname whose type is
- &nil;, &make-pathname; must be used.  Example: <literal
- role="sexp">(&make-pathname; :directory "!Clisp." &name-k;
- "README")</literal>.</para>
-
-</listitem></varlistentry></variablelist>
-</listitem></varlistentry></variablelist>
-<!-- #endif -->
 </section>
 
 </section>
@@ -3566,12 +3093,6 @@ printed readably.</para>
 <para>Name and type may be &string-t;s of any &length;
  (consisting of printing &ascii; characters, except &file-slash;,
  &file-bsla;, &file-colon;).</para></listitem></varlistentry>
-<!-- #endif -->
-
-<!-- #ifdef PATHNAME_RISCOS -->
-<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
-<listitem><simpara>see <link linkend="pathnames-externally-acorn">above</link>.
-</simpara></listitem></varlistentry>
 <!-- #endif -->
 
 </variablelist>
@@ -3865,11 +3386,6 @@ pointing to non-existent files and can take the following values:
 <varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
    manages the current directory.</simpara></listitem></varlistentry>
-<!-- #elif defined(PATHNAME_RISCOS) -->
-<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
- <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
-   manages the current host, current device and the current directory.
-   </simpara></listitem></varlistentry>
 <!-- #else -->
 <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</term>
@@ -3935,7 +3451,7 @@ pointing to non-existent files and can take the following values:
 
 <!-- #if defined(KEYBOARD) || defined(AMIGAOS) -->
 <variablelist><title>Macro &with-kbd;</title>
-<varlistentry><term>Platform dependent: &unix;, &amiga;, &acorn;, &dos;,
+<varlistentry><term>Platform dependent: &unix;, &amiga;, &dos;,
   &os2;, &win32; platforms only.</term>
 <listitem><para>&terminal-io-var; is not the only stream that
  communicates directly with the user: During execution of the body of a
@@ -4666,8 +4182,8 @@ functions are provided:
 
 <variablelist>
 <!-- #ifndef AMIGAOS -->
-<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;,
-   &acorn; platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;
+   platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes screen output prettier.
  </simpara></listitem></varlistentry>
@@ -4789,13 +4305,6 @@ functions are provided:
    platforms only.</term>
 <listitem><simpara>As in all strings, backslashes must be written twice
   here: <filename>#"A:\\programs\\test.lisp"</filename>
-  </simpara></listitem></varlistentry>
-<!-- #endif -->
-
-<!-- #ifdef RISCOS -->
-<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
-<listitem><simpara> As in all strings, backslashes must be written twice
-  here: <filename>#"\\.test.lisp"</filename>
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist></listitem>
@@ -5501,7 +5010,7 @@ exhaust the available line length.</para></formalpara>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <variablelist id="default-tz">
-<varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
+<varlistentry><term>Platform dependent: &amiga;, &dos;, &os2;
   platforms only.</term>
  <listitem><simpara>The variable <firstterm>&default-tz;</firstterm>
    contains the default time zone used by &encode-universal-time; and
@@ -5518,7 +5027,7 @@ exhaust the available line length.</para></formalpara>
 <table id="internal-time-units-table" frame="all">
  <title>Time granularity</title>
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
- <thead><row><entry>platform</entry><entry>&acorn;, &dos;, &os2;</entry>
+ <thead><row><entry>platform</entry><entry>&dos;, &os2;</entry>
         <entry>&amiga;</entry><entry>&unix;</entry>
         <entry>&win32;</entry></row></thead><tbody>
  <row><entry>&internal-time-units-per-second;</entry><entry>100</entry>
@@ -5545,7 +5054,7 @@ exhaust the available line length.</para></formalpara>
    The default implementations try to read the registry.
 </simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
+<varlistentry><term>Platform dependent: &amiga;, &dos;, &os2;
   platforms only.</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
    &machine-instance; and &short-site-name;, &long-site-name; should be

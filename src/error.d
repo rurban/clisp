@@ -359,9 +359,9 @@ global void check_value (condition_t errortype, const char* errorstring)
 #include "erramiga.c"
 #endif
 
-#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX)
 #include "errunix.c"
-#endif /* UNIX || EMUNIX || RISCOS */
+#endif /* UNIX || EMUNIX */
 
 #ifdef WIN32_NATIVE
 #include "errwin32.c"

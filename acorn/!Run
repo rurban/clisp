@@ -1,6 +1,0 @@
-| !Run file for Clisp
-| Alter the wimpslot if required to give more memory to CLISP.
-set clisp$path <Obey$Dir>.
-| Uncomment the following line, if you want the delete key to backspace.
-| set Clisp$Backspace_Backspaces ""
-taskwindow "clisp:lisp -M clisp:mem.lispinit" -wimpslot 2500k -name CLISP -ctrl -display -quit

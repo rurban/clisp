@@ -4502,8 +4502,8 @@ bash$
 <section id="exec"><title>Shell</title>
 
 <variablelist>
-<!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
-<varlistentry><term>Platform dependent: &unix;, &acorn;, &dos;, &os2;,
+<!-- #if defined(UNIX) || defined(MSDOS) -->
+<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;,
    platforms only.</term>
  <listitem><simpara><literal role="sexp">(&exec; &program-r;
        <replaceable>arg&sub-1;</replaceable>
@@ -4523,7 +4523,7 @@ bash$
 
 <!-- #ifdef HAVE_SHELL -->
 <varlistentry><term>Platform dependent: &unix;, &amiga;,
-   &acorn;, &dos;, &os2;, &win32; platforms only.</term>
+   &dos;, &os2;, &win32; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&shell; [&command-r;])</literal>
    calls the operating system's shell. <literal
    role="sexp">(&shell;)</literal> calls the shell for interactive use.

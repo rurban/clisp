@@ -19,6 +19,6 @@ Primary-site:   ftp://sunsite.unc.edu:/pub/Linux/devel/lang/lisp/
                 clisp-2.32.tar.gz
 Alternate-site: http://ftp.gnu.org/gnu/clisp/
 Original-site:  http://clisp.cons.org
-Platforms:      C/C++ compiler on Unix, OS/2, Win32, Amiga, Acorn.
+Platforms:      C/C++ compiler on Unix, OS/2, Win32, Amiga.
 Copying-policy: GNU GPL
 End

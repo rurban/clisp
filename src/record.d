@@ -866,10 +866,6 @@ local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
  > STACK_0: slot-name
  < result: pointer to the slot (value1 = (class-of instance)),
              or NULL (then SLOT-MISSING was called). */
-local gcv_object_t* slot_up (void);
-#ifdef RISCOS_CCBUG
-  #pragma -z0
-#endif
 local gcv_object_t* slot_up (void) {
   pushSTACK(STACK_1); C_class_of(); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
@@ -883,9 +879,6 @@ local gcv_object_t* slot_up (void) {
     return NULL;
   }
 }
-#ifdef RISCOS_CCBUG
-  #pragma -z1
-#endif
 
 LISPFUNN(slot_value,2) {
   var gcv_object_t* slot = slot_up();
@@ -902,9 +895,6 @@ LISPFUNN(slot_value,2) {
   skipSTACK(2);
 }
 
-#ifdef RISCOS_CCBUG
-  #pragma -z0
-#endif
 LISPFUNN(set_slot_value,3) {
   /* stack layout: instance, slot-name, new-value. */
   pushSTACK(STACK_2); C_class_of(); /* determine(CLASS-OF instance) */
@@ -922,9 +912,6 @@ LISPFUNN(set_slot_value,3) {
   mv_count=1;
   skipSTACK(3);
 }
-#ifdef RISCOS_CCBUG
-  #pragma -z1
-#endif
 
 LISPFUNN(slot_boundp,2) {
   var gcv_object_t* slot = slot_up();
@@ -939,18 +926,12 @@ LISPFUNN(slot_makunbound,2) {
   skipSTACK(2);
 }
 
-#ifdef RISCOS_CCBUG
-  #pragma -z0
-#endif
 LISPFUNNR(slot_exists_p,2) {
   pushSTACK(STACK_1); C_class_of(); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
     gethash(STACK_0,TheClass(value1)->slot_location_table);
   VALUES_IF(! eq(slotinfo,nullobj)); skipSTACK(2);
 }
-#ifdef RISCOS_CCBUG
-  #pragma -z1
-#endif
 
 /* (CLOS::%CHANGE-CLASS instance new-class do-copy-p)
    copy instance (and return the copy)
@@ -1385,9 +1366,6 @@ local Values do_initialize_instance (object info,
   set_args_end_pointer(rest_args_pointer STACKop 1); /* clean up STACK */
 }
 
-#ifdef RISCOS_CCBUG
-  #pragma -z0
-#endif
 /* (CLOS::%MAKE-INSTANCE class &rest initargs)
  class is an Instance of <standard-class> or <structure-class>,
  initargs is a list (of pairs, hopefully).
@@ -1520,6 +1498,3 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
     }
   }
 }
-#ifdef RISCOS_CCBUG
-  #pragma -z1
-#endif

@@ -1369,9 +1369,6 @@ local void init_object_tab (void) {
       " :DOS"
       #endif
      #endif
-     #ifdef RISCOS
-      " :ACORN-RISCOS"
-     #endif
      #ifdef UNIX
       " :UNIX"
      #endif
@@ -1635,10 +1632,6 @@ local void print_banner ()
   var const char * banner2 =
     GETTEXT("                    Amiga version: Joerg Hoehle\n");
   #endif
-  #ifdef RISCOS
-  var const char * banner2 =
-    GETTEXT("                    RISCOS port: Peter Burwood, Bruno Haible\n");
-  #endif
   var const char * banner3 = "\n";
   var int candles = 0;
   var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
@@ -1709,7 +1702,7 @@ local void print_banner ()
   ptr = banner1; count = sizeof(banner1)/sizeof(banner1[0]);
   while (count--)
     write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
- #if defined(AMIGA) || defined(RISCOS)
+ #ifdef AMIGA
   write_sstring(&STACK_0,asciz_to_string(banner2+offset,O(internal_encoding)));
  #endif
   write_sstring(&STACK_0,asciz_to_string(banner3,O(internal_encoding)));
@@ -1769,35 +1762,6 @@ global int main (argc_t argc, char* argv[]) {
  #endif
  #ifdef WIN32_NATIVE
   init_win32();
- #endif
- #ifdef RISCOS
-  # disable unixlib's automatic name munging:
-  __uname_control = 1;
-  #if !defined(HAVE_FFI)
-  # Disable save/restore of floating-point registers in setjmp(), longjmp().
-  # This gives a substantial performance increase, especially in the
-  # interpreter. However, it is extremely hairy: It relies on the fact
-  # that we do not use floating-point operations (except possibly in ffloat.d
-  # or dfloat.d - where we do not use longjmp() and do not call any C code
-  # which could perform a longjmp()). This optimization is not possible
-  # if we intend to call foreign functions (and maybe longjmp out of a
-  # Lisp callback, thus unwinding the stack of a C function which uses
-  # floating-point registers).
-  { extern int __fpflag; __fpflag = 0; }
-  #endif
-  # Attach "delete" behaviour to the "backspace" key.
-  if (!getenv("Clisp$Backspace_Backspaces")) { # this is user-configurable
-    # Fix UnixLib's interpretation of the normal "delete" key being
-    # delete (and "backspace" key being Ctrl-H ?? - the Emacs disease).
-    struct termio tin;
-    begin_system_call();
-    if (!( ioctl(0,TCGETA,&tin) ==0))
-      { if (!((errno==ENOTTY)||(errno==EINVAL))) { OS_error(); } }
-    tin.c_cc[VERASE] = BS;
-    if (!( ioctl(0,TCSETA,&tin) ==0))
-      { if (!((errno==ENOTTY)||(errno==EINVAL))) { OS_error(); } }
-    end_system_call();
-  }
  #endif
  #ifdef UNIX
   begin_system_call();
@@ -2748,7 +2712,7 @@ global int main (argc_t argc, char* argv[]) {
     response[len] = `\0`; sscanf(&response[5],"%d;%d", &lines, &columns); # ??
   }
  #endif
- #if (defined(HAVE_SIGNALS) && (defined(UNIX) || defined(EMUNIX) || defined(RISCOS))) || defined(WIN32_NATIVE)
+ #if (defined(HAVE_SIGNALS) && (defined(UNIX) || defined(EMUNIX))) || defined(WIN32_NATIVE)
   # install Ctrl-C-Handler:
   install_sigint_handler();
  #endif
@@ -2823,11 +2787,7 @@ global int main (argc_t argc, char* argv[]) {
     write_sstring(&STACK_0,CLSTEXT("\nWARNING: No initialization file specified.\n"));
     write_sstring(&STACK_0,CLSTEXT("Please try: "));
     write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
-   #ifdef RISCOS
-    write_string(&STACK_0,ascii_to_string(" -M mem.lispinit\n"));
-   #else
     write_string(&STACK_0,ascii_to_string(" -M lispinit.mem\n"));
-   #endif
     skipSTACK(1);
   }
   if (argv_lisplibdir == NULL) {
@@ -2887,7 +2847,7 @@ global int main (argc_t argc, char* argv[]) {
    #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
     pushSTACK(ascii_to_string(".clisprc"));
    #endif
-   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
     pushSTACK(ascii_to_string("_clisprc"));
    #endif
     pushSTACK(S(Kdefaults));
@@ -3079,10 +3039,10 @@ global int main (argc_t argc, char* argv[]) {
  #ifdef WIN32_NATIVE
   done_win32();
  #endif
- #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
+ #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS)
   terminal_sane(); # switch terminal again in normal mode
  #endif
- #if defined(UNIX) || defined(RISCOS)
+ #ifdef UNIX
   exit(exitcode); # Calling exit(), not _exit(), allows profiling to work.
  #endif
  #if defined(MSDOS) || defined(WIN32_NATIVE)

@@ -271,7 +271,7 @@
 
 #ifdef LISPARIT
 
-#if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
+#if defined(GNU) && !defined(CONVEX)
   #define SAVE_NUM_STACK
   #define RESTORE_NUM_STACK  ;
   #define num_stack_need(need,low_zuweisung,high_zuweisung)  \

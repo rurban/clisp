@@ -750,7 +750,7 @@ local void loadmem (const char* filename)
   if (handle<0) goto abort1;
   setmode(handle,O_BINARY);
  #endif
- #if defined(UNIX) || defined(RISCOS)
+ #ifdef UNIX
   var int handle = OPEN((char*)filename,O_RDONLY|O_BINARY,my_open_mask);
   if (handle<0) goto abort1;
  #endif
@@ -797,7 +797,7 @@ local void loadmem (const char* filename)
     begin_system_call(); CLOSE(handle); end_system_call();
   }
  #endif
- #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+ #if defined(UNIX) || defined(EMUNIX)
   if (handle >= 0) {
     begin_system_call(); CLOSE(handle); end_system_call();
   }
@@ -1429,7 +1429,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     mem.memfile_still_being_read = false;
    #else
     begin_system_call();
-    #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+    #if defined(UNIX) || defined(EMUNIX)
     if ( CLOSE(handle) <0) goto abort1;
     #elif defined(AMIGAOS)
     /* Never close handles twice */
@@ -1543,7 +1543,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
  #ifdef AMIGAOS
   begin_system_call(); CLOSE(handle); end_system_call();
  #endif
- #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+ #if defined(UNIX) || defined(EMUNIX)
   begin_system_call(); CLOSE(handle); end_system_call();
  #endif
  #ifdef WIN32_NATIVE

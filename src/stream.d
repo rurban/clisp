@@ -3124,11 +3124,9 @@ local object canon_eltype (const decoded_el_t* decoded) {
 #define test_external_format_arg(arg)                   \
   check_encoding(arg,&O(default_file_encoding),true)
 
-#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX)
 
 # UP: Deletes already entered interactive Input from a Handle.
-  local void clear_tty_input (Handle handle);
-#if !defined(RISCOS)
   local void clear_tty_input (Handle handle)
    {
     # Method 1: tcflush TCIFLUSH, see TERMIOS(3V)
@@ -3177,13 +3175,8 @@ local object canon_eltype (const decoded_el_t* decoded) {
     #endif
     end_system_call();
   }
-#else
-  #define clear_tty_input(handle)
-#endif
 
 # UP: Move the pending Output of a Handle to the destination.
-  local void finish_tty_output (Handle handle);
-#if !defined(RISCOS)
   local void finish_tty_output (Handle handle)
   {
     # Method 1: fsync, see FSYNC(2)
@@ -3247,13 +3240,10 @@ local object canon_eltype (const decoded_el_t* decoded) {
     #endif
     end_system_call();
   }
-#else
-  #define finish_tty_output(handle)
-#endif
 
 # UP: Move the pending Output of a Handle to the destination.
   local void force_tty_output (Handle handle);
-#if !((defined(UNIX) && !defined(HAVE_FSYNC)) || defined(RISCOS))
+#if !(defined(UNIX) && !defined(HAVE_FSYNC))
   local void force_tty_output (Handle handle)
   {
     # Method: fsync, see FSYNC(2)
@@ -3278,7 +3268,7 @@ local object canon_eltype (const decoded_el_t* decoded) {
 
 # UP: Deletes the pending Output of a Handle.
   local void clear_tty_output (Handle handle);
-#if !(defined(EMUNIX) || defined(RISCOS))
+#if !defined(EMUNIX)
   local void clear_tty_output (Handle handle)
   {
     # Method 1: tcflush TCOFLUSH, see TERMIOS(3V)
@@ -3317,7 +3307,7 @@ local object canon_eltype (const decoded_el_t* decoded) {
   #define clear_tty_output(handle)
 #endif
 
-#endif # defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+#endif # defined(UNIX) || defined(EMUNIX)
 
 #if defined(WIN32_NATIVE)
 
@@ -3396,7 +3386,7 @@ local bool regular_handle_p (Handle handle) {
   end_system_call();
   return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode));
  #endif
- #if defined(MSDOS) || defined(RISCOS)
+ #if defined(MSDOS)
   var struct stat statbuf;
   begin_system_call();
   if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
@@ -4122,7 +4112,7 @@ local void ChannelStream_fini (object stream) {
 # Closes a handle.
 local void low_close_handle (object stream, object handle) {
   begin_system_call();
- #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
+ #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
   if (!( CLOSE(TheHandle(handle)) ==0))
     { end_system_call(); OS_filestream_error(stream); }
  #endif
@@ -5972,7 +5962,7 @@ typedef struct strm_i_buffered_extrafields_t {
 global object file_stream_truename (object s)
 { return FileStream_truename(s); }
 
-#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX)
 # Assumption: All File-Descriptors delivered by OPEN(2)  (called Handles
 # here) fit in an uintW.
 # Substantiation: as is generally known: 0 <= fd < getdtablesize() .
@@ -5993,7 +5983,7 @@ global object file_stream_truename (object s)
 #         SEEK_CUR  "relative"
 #         SEEK_END  "at the end"
 # < result: new Position
-#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX)
   #define handle_lseek(stream,handle,offset,mode,result_assignment)     \
     { var off_t result = lseek(TheHandle(handle),offset,mode);          \
       if (result<0) /* error occurred? */                               \
@@ -6074,7 +6064,7 @@ local void low_flush_buffered_handle (object stream, uintL bufflen) {
   if (result==bufflen) { # everything written correctly
     end_system_call(); BufferedStream_modified(stream) = false;
   } else { # not everything written
-    #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+    #if defined(UNIX) || defined(EMUNIX)
     if (result<0) # error occurred?
       #ifdef ENOSPC
       if (!(errno == ENOSPC))
@@ -7647,7 +7637,7 @@ global object make_file_stream (direction_t direction, bool append_flag,
   # Default is T for regular files, NIL for non-regular files because they
   # probably don't support lseek().
   buffered = test_buffered_arg(STACK_3);
- #if defined(UNIX) || defined(RISCOS)
+ #if defined(UNIX)
   # /proc files are unbuffered by default
   if ((buffered == 0) && !nullp(STACK_4)) { # truename
     var object dir = ThePathname(STACK_4)->pathname_directory;
@@ -7842,7 +7832,7 @@ local void finish_output_buffered (object stream) {
       if (CLOSE(handle2)<0) { end_system_call(); OS_filestream_error(stream); }
       end_system_call();
     #endif
-    #ifdef RISCOS # || MSDOS, if we hadn't something better already
+    #if 0 # || MSDOS, if we hadn't something better already
      # close File (DOS writes physically):
       begin_system_call();
       if ( CLOSE(TheHandle(BufferedStream_channel(stream))) <0) {
@@ -8004,7 +7994,7 @@ LISPFUNNF(file_stream_p,1)
 #   CONTROL    if pressed with Control-Key,
 #   META       if pressed with Alternate-Key.
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+#if defined(UNIX) && !defined(NEXTAPP)
   # Additional Components:
   #define strm_keyboard_isatty  strm_isatty   # Flag, if stdin is a Terminal
   #define strm_keyboard_handle  strm_ichannel # Handle for listen_char_unbuffered()
@@ -8417,7 +8407,7 @@ local signean listen_char_keyboard (object stream) {
   end_system_call(); return ls_wait;
 }
 #endif
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+#if defined(UNIX) && !defined(NEXTAPP)
   #define listen_char_keyboard  listen_char_unbuffered
 #endif
 #if defined(NEXTAPP)
@@ -8446,7 +8436,7 @@ local bool clear_input_keyboard (object stream) {
   }
   skipSTACK(1);
  #endif
- #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+ #if defined(UNIX) && !defined(NEXTAPP)
   if (nullp(TheStream(stream)->strm_keyboard_isatty)) # File -> do nothing
     return false;
   # Terminal
@@ -8731,7 +8721,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
 }
 #endif
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+#if defined(UNIX) && !defined(NEXTAPP)
 local inline gcv_object_t* kbd_last_buf (const object stream) {
   var gcv_object_t* last_ = &TheStream(stream)->strm_keyboard_buffer;
   while (mconsp(*last_)) { last_ = &Cdr(*last_); }
@@ -8977,7 +8967,7 @@ local void keybinding (const char* cap, const key_event_t event) {
 # make_keyboard_stream()
 # can trigger GC
 local object make_keyboard_stream (void) {
- #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+ #if defined(UNIX) && !defined(NEXTAPP)
   {
     # build Table of all assignments character-sequence -> Key :
     pushSTACK(NIL);
@@ -9156,7 +9146,7 @@ local object make_keyboard_stream (void) {
  #endif
   s->strm_rd_ch = P(rd_ch_keyboard); # READ-CHAR-Pseudofunction
   s->strm_rd_ch_array = P(rd_ch_array_dummy); # READ-CHAR-SEQUENCE-Pseudofunction
- #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+ #if defined(UNIX) && !defined(NEXTAPP)
   # determine Flag isatty = (stdin_tty ? T : NIL) :
   begin_system_call();
   s->strm_keyboard_isatty = (isatty(stdin_handle) ? T : NIL);
@@ -9386,7 +9376,7 @@ local object make_terminal_stream_ (void) {
 
 #endif # NEXTAPP
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+#if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
 
 # Functionality:
 # Standard-Input and Standard-Output are accessed.
@@ -10023,7 +10013,7 @@ local void clear_output_terminal3 (object stream) {
 
 local bool stdio_same_tty_p (void)
 { /* check that STDIN and STDOUT point to the same TTY */
-#if defined(UNIX) || defined(RISCOS)
+#ifdef UNIX
  #if defined(UNIX_CYGWIN32)
   /* st_ino does not make sense on Cygwin: they are based on
      filenames, and stdin is CONIN$ while stdout is CONOUT$ */
@@ -10212,7 +10202,7 @@ nonreturning_function(local, fehler_terminal_raw, (object stream)) {
 
 #endif
 
-#if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS)
+#if defined(UNIX) || defined(AMIGAOS)
 
 # (SYS::TERMINAL-RAW *terminal-io* flag [errorp])
 # flag /= NIL: sets the Terminal in cbreak/noecho-Mode,
@@ -10233,7 +10223,7 @@ nonreturning_function(local, fehler_terminal_raw, (object stream)) {
 # (SYS::TERMINAL-RAW *terminal-io* nil) is essentially
 # (shell "stty sane")
 
-#if defined(UNIX) || defined(RISCOS)
+#ifdef UNIX
 
 local void term_raw (void);
 local void term_unraw (void);
@@ -10437,7 +10427,7 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
   mv_count=1;
 }
 
-#endif # UNIX || RISCOS
+#endif # UNIX
 
 #ifdef AMIGAOS
 
@@ -10508,11 +10498,11 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
 
 #endif # AMIGAOS
 
-#endif # UNIX || AMIGAOS || RISCOS
+#endif # UNIX || AMIGAOS
 
-#endif # (UNIX && !NEXTAPP) || MSDOS || AMIGAOS || RISCOS || WIN32_NATIVE
+#endif # (UNIX && !NEXTAPP) || MSDOS || AMIGAOS || WIN32_NATIVE
 
-#if !((defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS))
+#if !((defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS))
 
 LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
   VALUES1(NIL); skipSTACK(3); /* do nothing */
@@ -11236,7 +11226,7 @@ LISPFUNN(window_cursor_off,1) {
 
 #endif # WIN32_NATIVE
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
+#if defined(UNIX) && !defined(NEXTAPP)
 
 # -----------------------------------------------------------------------------
 
@@ -13001,7 +12991,7 @@ LISPFUNN(window_cursor_off,1) {
   VALUES0;
 }
 
-#endif # (UNIX && !NEXTAPP) || RISCOS
+#endif # UNIX && !NEXTAPP
 
 #if defined(MAYBE_NEXTAPP) && defined(NEXTAPP)
 
@@ -15706,7 +15696,7 @@ global void init_streamvars (bool unixyp) {
   # Initialize the *KEYBOARD-INPUT* stream. This can fail in some cases,
   # therefore we do it after the standard streams are in place, so that
   # the user will get a reasonable error message.
-  #if defined(UNIX) || defined(RISCOS)
+  #ifdef UNIX
   # Building the keyboard stream is a costly operation. Delay it
   # until we really need it.
   define_variable(S(keyboard_input),NIL);     # *KEYBOARD-INPUT*
@@ -16699,7 +16689,7 @@ global signean listen_char (object stream) {
         #if defined(NEXTAPP)
           return listen_char_terminal(stream);
         #endif
-        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { return listen_char_terminal1(stream); },
           { return listen_char_terminal2(stream); },
@@ -16797,7 +16787,7 @@ global bool clear_input (object stream) {
       #if defined(NEXTAPP)
         result = clear_input_terminal(stream);
       #endif
-      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
         terminalcase(stream,
         { result = clear_input_terminal1(stream); },
         { result = clear_input_terminal2(stream); },
@@ -17067,7 +17057,7 @@ global void clear_output (object stream) {
           }
           break;
         case strmtype_terminal:
-          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { clear_output_terminal1(stream); },
           { clear_output_terminal2(stream); },
@@ -17247,7 +17237,7 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
         goto restart_stream_lend_handle;
       #ifdef KEYBOARD
       case strmtype_keyboard:
-       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
+       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
         if (inputp) {
           if (handletype) *handletype = 1;
           return TheHandle(TheStream(stream)->strm_keyboard_handle);

@@ -462,7 +462,7 @@
 # for PATHNAME.D:
   LISPOBJ(lib_dir,"NIL") # must be set via a command line option
   LISPOBJ(type_designator_pathname,"(OR STRING FILE-STREAM PATHNAME)")
- #if defined(UNIX) || defined(RISCOS) || defined (WIN32_NATIVE)
+ #if defined(UNIX) || defined (WIN32_NATIVE)
   LISPOBJ(type_priority,"(OR (MEMBER :HIGH :NORMAL :LOW) INTEGER)")
  #endif
  #ifdef LOGICAL_PATHNAMES
@@ -491,14 +491,6 @@
   LISPOBJ_S(dotdot_string,"..")
   LISPOBJ_S(dotdotdot_string,"...")
  #endif
- #ifdef PATHNAME_RISCOS
-  LISPOBJ_S(parent_string,"^")
-  LISPOBJ_S(root_string,"$.")
-  LISPOBJ_S(home_string,"&.")
-  LISPOBJ_S(current_string,"@.")
-  LISPOBJ_S(library_string,"%.")
-  LISPOBJ(previous_string,"\"\\\\.\"")
- #endif
  #ifdef PATHNAME_OS2
   LISPOBJ(pipe_subdirs,"(\"PIPE\")")
  #endif
@@ -514,9 +506,6 @@
  #ifdef PATHNAME_UNIX
   LISPOBJ_S(backupextend_string,"%") # name-extension of backupfiles
  #endif
- #ifdef PATHNAME_RISCOS
-  LISPOBJ_S(backupprepend_string,"~") # name-extension of backupfiles
- #endif
  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   # default-drive (as string of length 1):
   LISPOBJ(default_drive,"NIL")
@@ -524,10 +513,6 @@
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   LISPOBJ_S(wildwild_string,"**")
   LISPOBJ(directory_absolute,"(:ABSOLUTE)") # directory of the empty absolute pathname
- #endif
- #ifdef PATHNAME_RISCOS
-  LISPOBJ(directory_absolute,"(:ABSOLUTE :ROOT)") # directory of the empty absolute pathname
-  LISPOBJ(directory_homedir,"(:ABSOLUTE :HOME)") # directory of the user-homedir-pathname
  #endif
  #ifdef USER_HOMEDIR
   LISPOBJ(user_homedir,"#\".\"") # user-homedir-pathname
@@ -544,9 +529,6 @@
  #endif
  #ifdef WIN32_NATIVE
   LISPOBJ(command_shell,"NIL") # command-interpreter as string
- #endif
- #ifdef RISCOS
-  LISPOBJ(command_shell,"\"gos\"")
  #endif
  #endif
   # list of all open channel-streams, terminal-streams:
