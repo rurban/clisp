@@ -1364,6 +1364,18 @@ ERROR
 (defclass foo120 () () (:other-option blabla))
 ERROR
 
+;; Check that invalid slot options are rejected.
+(defclass foo121 () ((x :name bar)))
+ERROR
+(defclass foo122 () ((x :readers (bar))))
+ERROR
+(defclass foo123 () ((x :writers (bar))))
+ERROR
+(defclass foo124 () ((x :initargs (bar))))
+ERROR
+(defclass foo125 () ((x :initform 17 :initfunction (lambda () 42))))
+ERROR
+
 
 ;;; ensure-generic-function
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>

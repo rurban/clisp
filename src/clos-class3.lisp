@@ -192,6 +192,15 @@
                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a string")
                                         'defclass name slot-name argument))
                                     (setq documentation argument))
+                                   ((:NAME :READERS :WRITERS :INITARGS :INITFUNCTION)
+                                    ;; These are valid initialization keywords for
+                                    ;; <direct-slot-definition>, but nevertheless
+                                    ;; not valid DEFCLASS slot options.
+                                    (error-of-type 'ext:source-program-error
+                                      :form whole-form
+                                      :detail optionkey
+                                      (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
+                                      'defclass name slot-name optionkey))
                                    (t
                                      (if (symbolp optionkey)
                                        (let ((acons (assoc optionkey user-defined-args)))
