@@ -1015,15 +1015,16 @@ portable program modifies the binding of any slot of a prototype instance.
  </programlisting>
  Now one can find out how many <classname>COUNTED-OBJECT</classname>s
  have been created by using
- <literal role="sexp">(HOW-MANY (&class-prototype; (&find-class 'COUNTER)))</literal>:
- <programlisting>
-  (make-instance 'counted-object :name 'foo)
+  <literal role="sexp">(HOW-MANY
+   (&class-prototype; (&find-class; 'COUNTER)))</literal>:
+  <programlisting>
+  (&make-instance; 'counted-object :name 'foo)
     <returnvalue>#&lt;COUNTED-OBJECT #x203028C9&gt;</returnvalue>
-  (how-many (clos:class-prototype (find-class 'counter)))
+  (HOW-MANY (&class-prototype; (&find-class; 'counter)))
     <returnvalue>1</returnvalue>
-  (make-instance 'counted-object :name 'bar)
+  (&make-instance; 'counted-object :name 'bar)
     <returnvalue>#&lt;COUNTED-OBJECT #x20306CB1&gt;</returnvalue>
-  (how-many (clos:class-prototype (find-class 'counter)))
+  (HOW-MANY (&class-prototype; (&find-class; 'counter)))
     <returnvalue>2</returnvalue>
 </programlisting></para>
 </informalexample></simplesect>
