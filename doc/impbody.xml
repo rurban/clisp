@@ -3600,6 +3600,13 @@ is not a defined logical host yet, we proceed as follows:
  It will, unlike &probe-file; or &truename;, not &signal; an &error-t;
  if the parent directory of &path-r; does not exist.</para></formalpara>
 
+<formalpara id="del-file"><title>Function &delete-file;</title>
+<para><literal role="sexp">(&delete-file; &path-r;)</literal> deletes
+ the pathname &path-r;, not its &truename;, and returns the absolute
+ pathname it actually removed or &nil; if &path-r; did not exist.
+ When &path-r; points to a file which is currently open in &clisp;, an
+ &error-t; is &signal;led.</para></formalpara>
+
 <section id="dir"><title>Function &directory;</title>
 
 <para><literal role="sexp">(&directory; &optional-amp; &path-r; &key-amp;
