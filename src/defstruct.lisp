@@ -970,7 +970,7 @@
                 (setq initfunction nil ; FIXME
                       initfunctionform variable)))
             (let ((initer (cons initform initfunction))
-                  (initargs (list (intern (symbol-name slotname) *keyword-package*)))
+                  (initargs (list (symbol-keyword slotname)))
                   (accessorname (ds-accessor-name slotname conc-name-option)))
               (declare (ignore accessorname))
               (push (cons

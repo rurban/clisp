@@ -158,8 +158,7 @@
                               (setq h (clos::class-kconstructor h)))
                        ;; h is the keyword constructor for the structure
                        `(,h ,@(mapcan #'(lambda (s v)
-                                          (list (intern (symbol-name s) compiler::*keyword-package*)
-                                                v))
+                                          (list (symbol-keyword s) v))
                                       slots vars))
                        ;; no keyword constructor found ->
                        ;; use CLOS:SLOT-VALUE instead

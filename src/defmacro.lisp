@@ -178,7 +178,7 @@ the actual object #<MACRO expander> for the FENV.
                    ((and (consp next) (eql (length next) 1))
                     (setq next (list (car next) %default-form)))))
            (cond ((symbolp next)  ; foo
-                  (setq kw (intern (symbol-name next) *keyword-package*))
+                  (setq kw (symbol-keyword next))
                   (setq %let-list
                         (cons `(,next (GETF ,restvar ',kw NIL)) %let-list))
                   (setq kwlist (cons kw kwlist)))
@@ -187,7 +187,7 @@ the actual object #<MACRO expander> for the FENV.
                           (TEXT "The lambda list of macro ~S contains the invalid element ~S")
                           name next))
                  ((symbolp (car next))  ; (foo ...)
-                  (setq kw (intern (symbol-name (car next)) *keyword-package*))
+                  (setq kw (symbol-keyword (car next)))
                   (when (setq svar (get-supplied-p name next))
                     (setq %let-list (cons `(,svar t) %let-list)))
                   (setq %let-list
