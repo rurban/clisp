@@ -30,11 +30,11 @@ installdirs : force
 uninstall : force
 	cd @subdir@; $(MAKE) uninstall
 
-minicheck : force
-	cd @subdir@; $(MAKE) minicheck
-
 check : force
 	cd @subdir@; $(MAKE) check
+
+extracheck : force
+	cd @subdir@; $(MAKE) extracheck
 
 mostlyclean : force
 	cd @subdir@; $(MAKE) mostlyclean
