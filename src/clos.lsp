@@ -1906,15 +1906,15 @@
 ) )    )
 (defun specializers-agree-p (specializers1 specializers2)
   (and (eql (length specializers1) (length specializers2))
-       (every #'(lambda (parspec1 parspec2)
-                  (or ; zwei gleiche Klassen?
-                      (eq parspec1 parspec2)
-                      ; zwei gleiche EQL-Specializer?
-                      (and (consp parspec1) (consp parspec2)
-                           (eql (second parspec1) (second parspec2))
-                ) )   )
-              specializers1 specializers2
-) )    )
+       (every #'same-specializers-p specializers1 specializers2)
+) )
+(defun same-specializers-p (parspec1 parspec2)
+  (or ; zwei gleiche Klassen?
+      (eq parspec1 parspec2)
+      ; zwei gleiche EQL-Specializer?
+      (and (consp parspec1) (consp parspec2)
+           (eql (second parspec1) (second parspec2))
+) )   )
 
 ;; 28.1.6.2. applicable methods
 (defun method-applicable-p (method required-arguments)
@@ -3380,19 +3380,72 @@
     (setf (class-classname class) new-value)
 ) )
 
+; An argument is called "dispatching" if not all the corresponding parameter
+; specializers are <t>.
+(defun dispatching-arg-p (index methods)
+  (notevery #'(lambda (method)
+                (eq (nth index (std-method-parameter-specializers method)) <t>)
+              )
+            methods
+) )
+(defun single-dispatching-arg (reqanz methods)
+  (let ((first-dispatching-arg
+          (dotimes (i reqanz nil) (when (dispatching-arg-p i methods) (return i)))
+       ))
+    (and first-dispatching-arg
+         (do ((i (1+ first-dispatching-arg) (1+ i)))
+             ((>= i reqanz) first-dispatching-arg)
+           (when (dispatching-arg-p i methods) (return nil))
+) ) )    )
+(defun dispatching-arg-type (index methods)
+  `(OR ,@(remove-duplicates
+           (mapcar #'(lambda (method)
+                       (nth index (std-method-parameter-specializers method))
+                     )
+                   methods
+           )
+           :test #'same-specializers-p
+   )     )
+)
+
 (defgeneric no-applicable-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (error-of-type 'error
-      (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
-      'no-applicable-method gf args
-) ) )
+    (let* ((reqanz (first (gf-signature gf)))
+           (methods (gf-methods gf))
+           (dispatching-arg (single-dispatching-arg reqanz methods)))
+      (if dispatching-arg
+        (error-of-type 'type-error
+          :datum (first args)
+          :expected-type (dispatching-arg-type dispatching-arg methods)
+          (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
+          'no-applicable-method gf args
+        )
+        (error-of-type 'error
+          (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
+          'no-applicable-method gf args
+) ) ) ) )
 
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (error-of-type 'error
-      (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
-      'no-primary-method gf args
-) ) )
+    (let* ((reqanz (first (gf-signature gf)))
+           (methods (mapcan #'(lambda (method)
+                                (when (equal (std-method-qualifiers method) '())
+                                  (list method)
+                              ) )
+                            (gf-methods gf)
+           )        )
+           (dispatching-arg (single-dispatching-arg reqanz methods)))
+      (if dispatching-arg
+        (error-of-type 'type-error
+          :datum (first args)
+          :expected-type (dispatching-arg-type dispatching-arg methods)
+          (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+          'no-primary-method gf args
+        )
+        (error-of-type 'error
+          (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+          'no-primary-method gf args
+) ) ) ) )
 
 (defun %no-next-method (method &rest args)
   (apply #'no-next-method (std-method-gf method) method args)
