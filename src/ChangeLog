@@ -1,5 +1,10 @@
 2003-05-24  Sam Steingold  <sds@gnu.org>
 
+	* hashtabl.d (rehash): fixed an "off by one" bug in user-defined HTs
+	(hash_lookup): fixed a GC-safety bug in user-defined HTs
+
+2003-05-24  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (stringlist_to_asciizlist): always defined;
 	fixed GC-safety errors
 	(LAUNCH): return NIL when :WAIT was NIL
