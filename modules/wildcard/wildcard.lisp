@@ -10,6 +10,7 @@
 
 (default-foreign-language :stdc)
 
+(c-lines "#include <config.h>~%")
 (c-lines "#include <fnmatch.h>~%")
 
 (def-call-out fnmatch
