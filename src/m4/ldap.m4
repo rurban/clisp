@@ -8,8 +8,13 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.57)
 
 AC_DEFUN([CL_LDAP],
-[AC_CHECK_HEADERS(ldap.h)]
+[AC_CHECK_HEADERS(lber.h ldap.h,,,
+dnl Solaris/cc requires <lber.h> to be included before <ldap.h>
+[[#if HAVE_LBER_H
+# include <lber.h>
+#endif
+]])]
 )

@@ -37,6 +37,9 @@
 # endif
 # define WIN32_REGISTRY 1
 #elif defined(HAVE_LDAP_H)
+# if defined(HAVE_LBER_H)
+#  include <lber.h>        /* Solaris/cc requires this */
+# endif
 # include <ldap.h>
 # define ACCESS_LDAP
 #endif

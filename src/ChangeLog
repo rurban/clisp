@@ -1,3 +1,8 @@
+2004-02-25  Sam Steingold  <sds@gnu.org>
+
+	* m4/ldap.m4 (CL_LDAP): Solaris/cc requires <lber.h> before <ldap.h>
+	* modules/dirkey/dirkey.c: ditto
+
 2004-02-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/mit-clx/input.lisp (declare-event): fixed a
