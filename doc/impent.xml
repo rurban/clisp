@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- *** Entities for impnotes.xml *** -->
+<!ENTITY clisp-list "<email>clisp-list@sf.net</email>">
+<!ENTITY clisp-devel "<email>clisp-devel@sf.net</email>">
 
 <!-- *** general *** -->
 <!ENTITY c-lang "<ulink url='http://www.eskimo.com/~scs/C-faq/top.html'><command>C</command></ulink>">
