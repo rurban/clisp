@@ -24,7 +24,7 @@
 (import 'compiler::%optimize-function-lambda)
 
 (defpackage "CLOS"
-  (:import-from "EXT" ext:mapcap)
+  (:import-from "EXT" ext:mapcap ext:proper-list-p)
   (:import-from "SYSTEM"
     ;; Import:
     sys::text                   ; for error messages (i18n.d)
