@@ -943,6 +943,10 @@
 ;;;----------------------------------------------------------------------------
 (defsetf long-float-digits SYSTEM::%SET-LONG-FLOAT-DIGITS)
 ;;;----------------------------------------------------------------------------
+(defsetf system::%record-ref system::%record-store)
+;;;----------------------------------------------------------------------------
+(defsetf system::%structure-ref system::%structure-store)
+;;;----------------------------------------------------------------------------
 #+LOGICAL-PATHNAMES
 (defsetf logical-pathname-translations set-logical-pathname-translations)
 ;;;----------------------------------------------------------------------------
