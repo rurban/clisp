@@ -1,3 +1,11 @@
+2004-05-26  Bruno Haible  <bruno@clisp.org>
+
+	* functions.lisp (function-lambda-expression): Moved to here from
+	defs2.lisp.
+	(function-name): Likewise. Make more efficient.
+	* defs2.lisp (function-lambda-expression, function-name): Move to
+	functions.lisp.
+
 2004-05-25  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 959549 ]: Win32 bug: LISTEN eats the first character
