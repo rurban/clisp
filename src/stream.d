@@ -14886,6 +14886,7 @@ local void handle_set (object socket, fd_set *readfds, fd_set *writefds,
 # check the appropriate fd_sets for the socket,
 # either a socket-server, a socket-stream or a (socket . direction)
 # see socket_status() for details
+# can trigger GC
 local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
                            fd_set *errorfds) {
   object sock = (consp(socket) ? Car(socket) : socket);
@@ -14954,9 +14955,11 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
   if (many_sockets_p) {
     var object list = all;
     var int index = 0;
-    for(; !nullp(list); list = Cdr(list), index++) {
+    while(!nullp(list)) {
+      index++; pushSTACK(list); # save list
       object tmp = handle_isset(Car(list),&readfds,&writefds,&errorfds);
-      pushSTACK(tmp);
+      list = Cdr(STACK_0); # (POP list)
+      STACK_0 = tmp;
     }
     value1 = listof(index);
   } else
