@@ -2630,11 +2630,13 @@ several sources, e.g. both a console and ARexx, at the same time.
 99.7 Socket Streams
 -------------------
 
-(SOCKET-SERVER [port])
-
+(SOCKET-SERVER [port-or-sock])
+  
 This function creates a socket, and binds a port the socket, and then
-listens for connect attempts.  The server exists to watch for client 
-connect attempts.
+listens for connect attempts.  The server exists to watch for client
+connect attempts.  The optional argument is either a port (positive
+fixnum) or a socket-stream (from whose peer the connections will be
+made).
 
 (SOCKET-SERVER-CLOSE socket-server)
 
@@ -2673,11 +2675,16 @@ returns NIL.
 
 A convenience function for looking up a port given the service name.
 
-(SOCKET-STREAM-PEER-HOST socket-stream)
+(SOCKET-STREAM-PEER socket-stream)
 
-Given a stream, this function returns the name
-of the host on the opposite side of the connection;
-the server-side can use this to see who connected.
+Given a stream, this function returns the name of the host on the
+opposite side of the connection and its port number; the server-side can
+use this to see who connected.
+
+(SOCKET-STREAM-LOCAL socket-stream)
+
+The dual to `SOCKET-STREAM-PEER' - same information, host name and port
+number, but for the local host.
 
 #endif
 #ifdef UNIX

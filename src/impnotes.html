@@ -4494,11 +4494,13 @@ This specification is subject to change.
 
 <DL>
 <DT>
-<CODE>(<STRONG>socket-server</STRONG> [<VAR>port</VAR>])</CODE>
+<CODE>(<STRONG>socket-server</STRONG> [<VAR>port-or-sock</VAR>])</CODE>
 <DD>
 This function creates a socket, and binds a port the socket, and then
 listens for connect attempts.  The server exists to watch for client 
-connect attempts.
+connect attempts.  The optional argument is either a port (positive
+fixnum) or a socket-stream (from whose peer the connections will be
+made).
 <DT>
 <CODE>(<STRONG>socket-server-close</STRONG> <VAR>socket-server</VAR>)</CODE>
 <DD>
@@ -4534,11 +4536,17 @@ returns <CODE>nil</CODE>.
 <DD>
 A convenience function for looking up a port given the service name.
 <DT>
-<CODE>(<STRONG>socket-stream-peer-host</STRONG> <VAR>socket-stream</VAR>)</CODE>
+<CODE>(<STRONG>socket-stream-peer</STRONG> <VAR>socket-stream</VAR>)</CODE>
 <DD>
-Given a stream, this function returns the name
-of the host on the opposite side of the connection;
-the server-side can use this to see who connected.
+Given a stream, this function returns the name of the host on the
+opposite side of the connection and its port number; the server-side can
+use this to see who connected.
+</DL>
+<DT>
+<CODE>(<STRONG>socket-stream-local</STRONG> <VAR>socket-stream</VAR>)</CODE>
+<DD>
+The dual to <CODE>socket-stream-peer</CODE> - same information, host
+name and port number, but for the local host.
 </DL>
 <!-- #endif -->
 <!-- #ifdef UNIX -->
