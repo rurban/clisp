@@ -3365,10 +3365,10 @@ LISPFUNN(generic_stream_p,1)
 
 # Fields used for the input side only:
 
-  #define strm_isatty    strm_other[2] # T or NIL, depending whether the input
-                                       # handle is a tty and therefore needs
-                                       # special treatment in the pollstatus
-                                       # function on some OSes
+  #define strm_isatty    strm_other[2] # /=NIL or NIL, depending whether the
+                                       # input handle is a tty and therefore
+                                       # needs special treatment in the
+                                       # low_listen function on some OSes
                                        # (used by unbuffered streams only)
   #define strm_ihandle   strm_other[3] # the input handle,
                                        # an encapsulated file descriptor, or, on
@@ -4648,21 +4648,22 @@ typedef struct strm_u_file_extrafields_struct {
 # ======================
 
 # UP: erzeugt ein File-Handle-Stream
-# make_unbuffered_file_stream(handle,direction,&eltype)
-# > handle: Handle des geöffneten Files
-# > STACK_2: Element-Type
-# > STACK_1: Filename, ein Pathname
-# > STACK_0: Truename, ein Pathname
+# make_unbuffered_stream(type,handle_tty,direction,&eltype)
+# > STACK_1: Element-Type
+# > STACK_0: Handle des geöffneten Files
+# > type: stream type
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
 # > eltype: Element-Type in decoded form
-# < ergebnis: File-Handle-Stream
+# > handle_tty: ob das Handle ein tty ist (nur nötig falls direction & bit(0))
+# < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
 # < STACK: aufgeräumt
 # kann GC auslösen
-  local object make_unbuffered_file_stream (object handle, uintB direction, const decoded_eltype* eltype);
-  local object make_unbuffered_file_stream(handle,direction,eltype)
-    var object handle;
+  local object make_unbuffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_tty);
+  local object make_unbuffered_stream(type,direction,eltype,handle_tty)
+    var uintB type;
     var uintB direction;
     var const decoded_eltype* eltype;
+    var boolean handle_tty;
     { # Flags:
       var uintB flags =
           ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
@@ -4672,11 +4673,8 @@ typedef struct strm_u_file_extrafields_struct {
         { flags &= strmflags_ch_B; }
         else
         { flags &= strmflags_by_B; flags |= strmflags_ia_B; }
-      #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
-      pushSTACK(handle); # Handle retten
-      #endif
      {# Stream allozieren:
-      var object stream = allocate_stream(flags,strmtype_file,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
+      var object stream = allocate_stream(flags,type,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
       # und füllen:
       if (direction & bit(0))
         { if (eltype->kind==eltype_ch)
@@ -4743,20 +4741,16 @@ typedef struct strm_u_file_extrafields_struct {
           TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
         }
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
-      handle = popSTACK(); # Handle zurück
-      #endif
-      TheStream(stream)->strm_ihandle =
-      TheStream(stream)->strm_ohandle = handle; # Handle eintragen
-      # Flag isatty = (handle_tty ? T : NIL) bestimmen:
-      begin_system_call();
-      TheStream(stream)->strm_isatty = (isatty(TheHandle(handle)) ? T : NIL);
-      end_system_call();
-      # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
-      # Daher ist (vgl. file_write_date) strm_file_handle == strm_ohandle,
-      # und wir tragen nun die Pathnames ein:
-      TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
-      TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
+      {var object handle = popSTACK();
+       if (direction & bit(0))
+         { TheStream(stream)->strm_ihandle = handle; } # Handle eintragen
+       if (direction & bit(2))
+         { TheStream(stream)->strm_ohandle = handle; } # Handle eintragen
+       if (type == strmtype_file)
+         { TheStream(stream)->strm_file_handle = handle; } # Handle eintragen
+      }
+      # Flag isatty = (handle_tty ? T : NIL) eintragen:
+      TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
       TheStream(stream)->strm_eltype = popSTACK();
       HandleStream_buffered(stream) = FALSE;
       if (eltype->kind == eltype_ch)
@@ -4770,15 +4764,6 @@ typedef struct strm_u_file_extrafields_struct {
           stream = popSTACK();
           TheStream(stream)->strm_bitbuffer = bitbuffer;
         }}
-      if (direction & bit(0)) { HandleStream_input_init(stream); }
-      if (direction & bit(2)) { HandleStream_output_init(stream); }
-      # Liste der offenen Streams um stream erweitern:
-      pushSTACK(stream);
-      {var object new_cons = allocate_cons();
-       Car(new_cons) = stream = popSTACK();
-       Cdr(new_cons) = O(open_files);
-       O(open_files) = new_cons;
-      }
       return stream;
     }}
 
@@ -6123,7 +6108,31 @@ typedef struct strm_i_file_extrafields_struct {
                   )
                   && !append_flag
                  )
-                { return make_unbuffered_file_stream(handle,direction,&eltype); }
+                { pushSTACK(STACK_2); pushSTACK(handle);
+                  { var boolean handle_tty = FALSE;
+                    if (direction & bit(0))
+                      { begin_system_call();
+                        handle_tty = isatty(TheHandle(handle));
+                        end_system_call();
+                      }
+                   {var object stream = make_unbuffered_stream(strmtype_file,direction,&eltype,handle_tty);
+                    # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
+                    # Daher ist (vgl. file_write_date) strm_file_handle == strm_ohandle,
+                    # und wir tragen nun die Pathnames ein:
+                    TheStream(stream)->strm_file_truename = STACK_0; # Truename eintragen
+                    TheStream(stream)->strm_file_name = STACK_1; # Filename eintragen
+                    skipSTACK(3);
+                    if (direction & bit(0)) { HandleStream_input_init(stream); }
+                    if (direction & bit(2)) { HandleStream_output_init(stream); }
+                    # Liste der offenen Streams um stream erweitern:
+                    pushSTACK(stream);
+                    {var object new_cons = allocate_cons();
+                     Car(new_cons) = stream = popSTACK();
+                     Cdr(new_cons) = O(open_files);
+                     O(open_files) = new_cons;
+                    }
+                    return stream;
+                } }}
                 else
                 { pushSTACK(STACK_0); # Truename, Wert für Slot PATHNAME von FILE-ERROR
                   pushSTACK(STACK_0);
@@ -13679,9 +13688,13 @@ LISPFUNN(socket_stream_handle,1)
         { # Für *ERROR-OUTPUT* einen anderen Stream verwenden. Auf den
           # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
           pushSTACK(asciz_to_string("/dev/fd/2")); funcall(L(pathname),1);
-          pushSTACK(S(character)); pushSTACK(value1); pushSTACK(value1);
+          pushSTACK(value1);
+          pushSTACK(S(character)); pushSTACK(allocate_handle(2));
          {var decoded_eltype eltype = { eltype_ch };
-          stream = make_unbuffered_file_stream(allocate_handle(2),4,&eltype);
+          stream = make_unbuffered_stream(strmtype_file,4,&eltype,FALSE);
+          HandleStream_output_init(stream);
+          TheStream(stream)->strm_file_name =
+          TheStream(stream)->strm_file_truename = popSTACK();
         }}
       #endif
       define_variable(S(error_output),stream);     # *ERROR-OUTPUT*
