@@ -3674,7 +3674,7 @@ global uintL iconv_mblen(encoding,src,srcend)
               var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
               if (res == (size_t)(-1))
                 { if (errno == EINVAL) # incomplete input?
-                    break; 
+                    break;
                   else
                     { var int saved_errno = errno;
                       iconv_close(cd);
@@ -7264,7 +7264,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         { fehler_bad_integer(stream,obj); }
       write_byte_buffered(stream,posfixnum_to_L(obj));
     }
- 
+
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
   local const uintB* wr_by_array_iau8_buffered (object stream, const uintB* byteptr, uintL len);
   local const uintB* wr_by_array_iau8_buffered(stream,byteptr,len)
@@ -17417,54 +17417,6 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
   pushSTACK(UL_to_I(buf.st_mtime+2208988800)); # time of last modification
   pushSTACK(UL_to_I(buf.st_ctime+2208988800)); # time of last change
   funcall(L(values),14);
-}
-
-#define PASSWD_TO_STACK(pwd)                                   \
-  pushSTACK(asciz_to_string(pwd->pw_name,O(misc_encoding)));   \
-  pushSTACK(asciz_to_string(pwd->pw_passwd,O(misc_encoding))); \
-  pushSTACK(UL_to_I(pwd->pw_uid));                             \
-  pushSTACK(UL_to_I(pwd->pw_gid));                             \
-  pushSTACK(asciz_to_string(pwd->pw_gecos,O(misc_encoding)));  \
-  pushSTACK(asciz_to_string(pwd->pw_dir,O(misc_encoding)));    \
-  pushSTACK(asciz_to_string(pwd->pw_shell,O(misc_encoding)))
-
-# return the data for the user as 7 values (slots of struct passwd)
-# or a list of simple vectors of length 7 is no argument was given.
-LISPFUN(user_data,0,1,norest,nokey,0,NIL)
-# (LISP::USER-DATA &optional user)
-{
-  var object user = popSTACK();
-  struct passwd *pwd = NULL;
-
-  if (nullp(user))  { # all users as a list
-    int count = 0;
-    begin_system_call();
-    for (; (pwd = getpwent()); count++) {
-      PASSWD_TO_STACK(pwd);
-      funcall(L(vector),7);
-      pushSTACK(value1);
-    }
-    endpwent();
-    end_system_call();
-    value1 = listof(count); mv_count = 1;
-    return;
-  }
-
-    begin_system_call();
-  if (posfixnump(user)) pwd = getpwuid(posfixnum_to_L(user));
-  else if (eq(user,unbound) || eq(user,S(Kdefault)))
-    pwd = getpwnam(getlogin());
-  else if (symbolp(user))
-    pwd = getpwnam(TheAsciz(string_to_asciz(Symbol_name(user),
-                                            O(misc_encoding))));
-  else if (stringp(user))
-    pwd = getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding))));
-  else { end_system_call(); fehler_string_int(user); }
-  end_system_call();
-
-  if (NULL == pwd) { OS_error(); }
-  PASSWD_TO_STACK(pwd);
-  funcall(L(values),7);
 }
 
 #endif # UNIX
