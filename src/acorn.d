@@ -165,7 +165,7 @@
   #include <dirent.h>
   #define SDIRENT  struct dirent
   #if 0 # Die allgemeinen Routinen
-    #define HAVE_STRUCT_DIRENT_D_NAMLEN /* d_namlen includes the trailing null byte */
+    #undef HAVE_STRUCT_DIRENT_D_NAMLEN /* d_namlen includes the trailing null byte */
     #define d_reclen  d_namlen
     extern_C DIR* opendir (char* dirname); # siehe DIRECTORY(3V)
     extern_C SDIRENT* readdir (DIR* dirp); # siehe DIRECTORY(3V)
