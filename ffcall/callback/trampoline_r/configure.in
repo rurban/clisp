@@ -52,7 +52,7 @@ if test ${host_cpu} = rs6000; then
     *) ;;
   esac
 fi
-if test ${host_cpu} = sparc -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${host_cpu} = convex; then
+if test ${host_cpu} = sparc -o ${host_cpu} = sparc64 -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${host_cpu} = convex; then
   CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).lo'
 fi
 if test ${host_cpu} = rs6000; then

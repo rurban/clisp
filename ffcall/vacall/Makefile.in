@@ -62,6 +62,12 @@ vacall-sparc.o : vacall-sparc.s
 vacall-sparc.s : $(srcdir)/vacall-sparc.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > vacall-sparc.s
 
+vacall-sparc64.o : vacall-sparc64.s
+	$(CC) @GCC_X_NONE@ -c vacall-sparc64.s
+
+vacall-sparc64.s : $(srcdir)/vacall-sparc64.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc64.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > vacall-sparc64.s
+
 vacall-m68k.o : vacall-m68k.s
 	$(CC) @GCC_X_NONE@ -c vacall-m68k.s
 
@@ -180,7 +186,7 @@ mostlyclean : clean
 
 clean : force
 	$(RM) *.o *.a core
-	$(RM) vacall-i386.s vacall-sparc.s vacall-m68k.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-arm.s
+	$(RM) vacall-i386.s vacall-sparc.s vacall-sparc64.s vacall-m68k.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-arm.s
 	$(RM) minitests.o minitests.s minitests minitests.out
 	$(RM) tests.o tests.s tests tests.out
 
