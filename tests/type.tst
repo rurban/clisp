@@ -542,8 +542,8 @@ TYPEOF-TYPEP-SUBTYPE
                              '(t t))))
             (push (list a b) failures))))))
   failures)
-#-(or CMU SBCL) NIL
-#+(or CMU SBCL)
+#-(or CLISP CMU SBCL) NIL
+#+(or CLISP CMU SBCL)
 ((STREAM STANDARD-GENERIC-FUNCTION)
  (STREAM GENERIC-FUNCTION)
  (STREAM FUNCTION)

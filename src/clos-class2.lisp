@@ -20,8 +20,8 @@
 (defvar <standard-object>)             ; <standard-class>
 (defvar <funcallable-standard-object>) ; <funcallable-standard-class>
 (defvar <structure-object>)            ; <structure-class>
-(defvar <generic-function>)            ; <built-in-class>
-(defvar <standard-generic-function>)   ; <built-in-class>
+(defvar <generic-function>)            ; <funcallable-standard-class>
+(defvar <standard-generic-function>)   ; <funcallable-standard-class>
 ;(defvar <method>)                     ; here <structure-class>
 ;(defvar <standard-method>)            ; here <structure-class>
 (defvar <standard-reader-method>)      ; here <structure-class>

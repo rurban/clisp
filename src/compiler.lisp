@@ -3143,7 +3143,7 @@ for-value   NIL or T
           ;;  (let ((def (and (fboundp symbol) (fdefinition symbol))))
           ;;    (if (clos::generic-function-p def)
           ;;        (clos::check-signature-congruence
-          ;;         def symbol (clos::gf-signature def) signature)))
+          ;;         def symbol (clos::std-gf-signature def) signature)))
           ;; but it would be a waste of time since the signature
           ;; congruence check will be done at load time anyway and
           ;; - the above check catches only separate `defmethod' forms,

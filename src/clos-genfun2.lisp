@@ -5,6 +5,191 @@
 
 (in-package "CLOS")
 
+;; ===================== Generic Function Initialization =====================
+
+; n --> list (0 ... n-1)
+(defun countup (n)
+  (do* ((count n (1- count))
+        (l '() (cons count l)))
+       ((eql count 0) l)))
+
+;; Checks a generic-function lambda-list and argument-precedence-order.
+;; Returns three values:
+;; 1. the lambda-list's signature,
+;; 2. the argument-precedence-order, as a list of variables,
+;; 3. the argument-precedence-order, as a list of numbers from 0 to reqnum-1.
+;; Reports errors through errfunc (a function taking an error format string
+;; and format string arguments).
+(defun check-gf-lambdalist+argorder (lambdalist argument-precedence-order argument-precedence-order-p errfunc)
+  ;; Check the lambda-list.
+  (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
+      (sys::analyze-generic-function-lambdalist lambdalist
+        #'(lambda (errorstring &rest arguments)
+            (funcall errfunc (TEXT "Invalid generic function lambda-list: ~A")
+                     (apply #'format nil errorstring arguments))))
+    (declare (ignore keyvars))
+    (let ((reqnum (length reqvars))
+          (optnum (length optvars))
+          (restp (or (not (eql rest 0)) keyp))) ; &key implies &rest
+      (let ((signature
+              (make-signature :req-num reqnum :opt-num optnum
+                              :rest-p restp :keys-p keyp
+                              :keywords keywords :allow-p allowp)))
+        (if argument-precedence-order-p
+          ;; Check the argument-precedence-order.
+          (progn
+            (unless (proper-list-p argument-precedence-order)
+              (funcall errfunc (TEXT "The ~S argument should be a proper list, not ~S")
+                       ':argument-precedence-order argument-precedence-order))
+            (let ((indices
+                    (mapcar #'(lambda (x)
+                                (or (position x reqvars)
+                                    (funcall errfunc (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
+                                             ':argument-precedence-order x argument-precedence-order)))
+                            argument-precedence-order)))
+              ;; Is argument-precedence-order a permutation of reqvars?
+              ;; In other words: Is the mapping
+              ;;         argument-precedence-order --> reqvars
+              ;; resp.   indices                   --> {0, ..., reqnum-1}
+              ;; bijective?
+              (unless (or (<= (length indices) 1) (apply #'/= indices)) ; injective?
+                (funcall errfunc (TEXT "Incorrect ~S argument: Some variable occurs twice in ~S")
+                         ':argument-precedence-order argument-precedence-order))
+              (unless (eql (length indices) reqnum) ; surjective?
+                (funcall errfunc (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
+                         ':argument-precedence-order
+                         (set-difference reqvars argument-precedence-order)
+                         argument-precedence-order))
+              (values signature argument-precedence-order indices)))
+          (values signature reqvars (countup reqnum)))))))
+
+;; Initialization of a <standard-generic-function> instance.
+(defun shared-initialize-<standard-generic-function> (gf situation &rest args
+                                                      &key (name nil name-p)
+                                                           (lambda-list nil lambda-list-p)
+                                                           (argument-precedence-order nil argument-precedence-order-p)
+                                                           (method-class nil method-class-p)
+                                                           (method-combination nil method-combination-p)
+                                                           (documentation nil documentation-p)
+                                                           (declarations nil declarations-p)
+                                                      &allow-other-keys
+                                                      &aux signature argorder)
+  (declare (ignore name name-p))
+  (apply #'shared-initialize-<generic-function> gf situation args)
+  (when (eq situation 't)
+    (setf (std-gf-initialized gf) nil))
+  (when (and argument-precedence-order-p (not lambda-list-p))
+    (error (TEXT "(~S ~S) for generic function ~S: ~S argument specified without a ~S argument.")
+           (if (eq situation 't) 'initialize-instance 'shared-initialize)
+           'standard-generic-function (funcallable-name gf)
+           ':argument-precedence-order ':lambda-list))
+  (when lambda-list-p
+    ; Check the lambda-list and argument-precedence-order.
+    (multiple-value-setq (signature argument-precedence-order argorder)
+        (check-gf-lambdalist+argorder lambda-list
+          argument-precedence-order argument-precedence-order-p
+          #'(lambda (errorstring &rest arguments)
+              (error (TEXT "(~S ~S) for generic function ~S: ~A")
+                     (if (eq situation 't) 'initialize-instance 'shared-initialize)
+                     'standard-generic-function (funcallable-name gf)
+                     (apply #'format nil errorstring arguments))))))
+  (when (or (eq situation 't) method-class-p)
+    ; Check the method-class.
+    (unless method-class-p
+      (setq method-class <standard-method>))
+    (unless (class-p method-class)
+      (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a class, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'standard-generic-function (funcallable-name gf)
+             ':method-class method-class))
+    (unless (subclassp method-class <method>)
+      (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a subclass of ~S, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'standard-generic-function (funcallable-name gf)
+             ':method-class 'method method-class)))
+  (when (or (eq situation 't) method-combination-p)
+    ; Check the method-combination.
+    #| ; Not sure whether giving an error here is appropriate.
+    (unless method-combination-p
+      (error (TEXT "(~S ~S) for generic function ~S: Missing ~S argument.")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'standard-generic-function (funcallable-name gf)
+             ':method-combination))
+    |#
+    (unless method-combination-p
+      (setq method-combination
+            (get-method-combination 'STANDARD '(initialize-instance standard-generic-function))))
+    (unless (typep-class method-combination <method-combination>)
+      (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a ~S object, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'standard-generic-function (funcallable-name gf)
+             ':method-combination 'method-combination method-combination)))
+  (when (or (eq situation 't) documentation-p)
+    ; Check the documentation.
+    (unless (or (null documentation) (stringp documentation))
+      (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a string or NIL, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'standard-generic-function (funcallable-name gf) ':documentation documentation)))
+  (when (or (eq situation 't) declarations-p)
+    ; Check the declarations.
+    (unless (proper-list-p declarations)
+      (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a proper list, not ~S")
+             (if (eq situation 't) 'initialize-instance 'shared-initialize)
+             'standard-generic-function (funcallable-name gf)
+             ':declarations declarations)))
+  ; Fill the slots.
+  (when lambda-list-p
+    (setf (std-gf-lambda-list gf) lambda-list)
+    (setf (std-gf-signature gf) signature)
+    (setf (std-gf-argorder gf) argorder))
+  (when (or (eq situation 't) method-class-p)
+    (setf (std-gf-default-method-class gf) method-class))
+  (when (or (eq situation 't) method-combination-p)
+    (setf (std-gf-method-combination gf) method-combination))
+  (when (or (eq situation 't) documentation-p)
+    (setf (std-gf-documentation gf) documentation))
+  (when (or (eq situation 't) declarations-p)
+    (setf (std-gf-declspecs gf) declarations))
+  (when (eq situation 't)
+    (setf (std-gf-methods gf) '()))
+  ; Now allow the user to call the generic-function-xxx accessor functions.
+  (setf (std-gf-initialized gf) t)
+  gf)
+
+(defun initialize-instance-<standard-generic-function> (gf &rest args
+                                                        &key name
+                                                             lambda-list
+                                                             argument-precedence-order
+                                                             method-class
+                                                             method-combination
+                                                             documentation
+                                                             declarations
+                                                        &allow-other-keys)
+  (declare (ignore name lambda-list argument-precedence-order method-class
+                   method-combination documentation declarations))
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'initialize-instance later.
+  (apply #'shared-initialize-<standard-generic-function> gf 't args)
+  gf)
+
+(defun make-instance-<standard-generic-function> (class &rest args
+                                                  &key name
+                                                       lambda-list
+                                                       argument-precedence-order
+                                                       method-class
+                                                       method-combination
+                                                       documentation
+                                                       declarations
+                                                  &allow-other-keys)
+  ;; class = <standard-generic-function>
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'make-instance later.
+  (declare (ignore class name lambda-list argument-precedence-order method-class
+                   method-combination documentation declarations))
+  (let ((gf (%allocate-instance <standard-generic-function>)))
+    (apply #'initialize-instance-<standard-generic-function> gf args)))
+
+;; ======================= Installing the Dispatch Code =======================
 
 ;; The dispatch-code for generic functions is formed with
 ;; `(%GENERIC-FUNCTION-LAMBDA ,@lambdabody)
@@ -28,19 +213,12 @@
 ;;                    class-of cons gethash funcall apply ...
 ;;   )        )
 
-;; returns a generic function without dispatch-code. Not callable!!
-(let* ((prototype ; a senseless function
-        #'(lambda (&rest args)
-            (declare (compile) (ignore args))
-            (tagbody 1 (go 1))))
-       (prototype-code (sys::%record-ref prototype 1)))
-  ;; seclass is dirty because a generic function
-  ;; can always signal a NO-APPLICABLE-METHOD error
-  (defun %make-gf (name signature argorder methods)
-    (sys::%make-closure name prototype-code
-                        (list nil signature argorder methods
-                              (get-method-combination 'standard 'defgeneric))
-                        sys::*seclass-dirty*)))
+;; Returns a generic function without dispatch-code. Not callable!!
+(defun %make-gf (name lambda-list argument-precedence-order)
+  (make-instance-<standard-generic-function> <standard-generic-function>
+    :name name
+    :lambda-list lambda-list
+    :argument-precedence-order argument-precedence-order))
 
 #||
  (defun make-gf (name lambdabody signature argorder methods)
@@ -58,8 +236,8 @@
 
 #|| ;; Generic functions with primitive dispatch:
 
- (defun make-slow-gf (name signature argorder methods)
-  (let* ((final (%make-gf name signature argorder methods))
+ (defun make-slow-gf (name lambda-list argument-precedence-order methods)
+  (let* ((final (%make-gf name lambda-list argument-precedence-order))
          (preliminary
            (eval `(LET ((GF ',final))
                     (DECLARE (COMPILE))
@@ -68,6 +246,7 @@
                       (APPLY 'SLOW-FUNCALL-GF GF ARGS))))))
     (setf (sys::%record-ref final 1) (sys::closure-codevec preliminary))
     (setf (sys::%record-ref final 2) (sys::%record-ref preliminary 2))
+    (setf (std-gf-methods final) methods)
     final))
 
  (let* ((prototype
@@ -89,9 +268,9 @@
 
  ;; call of a generic function
  (defun slow-funcall-gf (gf &rest args)
-  (let ((reqanz (sig-req-num (gf-signature gf)))
-        (arg-order (gf-argorder gf))
-        (methods (gf-methods gf)))
+  (let ((reqanz (sig-req-num (std-gf-signature gf)))
+        (arg-order (std-gf-argorder gf))
+        (methods (std-gf-methods gf)))
     (unless (>= (length args) reqanz)
       (error-of-type 'program-error
         (TEXT "Too few arguments to ~S: ~S")
@@ -168,8 +347,8 @@
 
 ;; Generic functions with optimized dispatch:
 
-(defun make-fast-gf (name signature argorder)
-  (let ((gf (%make-gf name signature argorder '())))
+(defun make-fast-gf (name lambda-list argument-precedence-order)
+  (let ((gf (%make-gf name lambda-list argument-precedence-order)))
     (finalize-fast-gf gf)
     gf))
 
@@ -177,7 +356,7 @@
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(simple-array (unsigned-byte 8) (*))
                          :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t)))
   (defun finalize-fast-gf (gf)
-    (let* ((signature (gf-signature gf))
+    (let* ((signature (std-gf-signature gf))
            (reqanz (sig-req-num signature))
            (restp (gf-sig-restp signature))
            (hash-key (cons reqanz restp))
@@ -198,7 +377,7 @@
       (setf (sys::%record-ref gf 1) prototype)
       (setf (sys::%record-ref gf 2) (vector 'NIL 'INITIAL-FUNCALL-GF gf))))
   (defun gf-never-called-p (gf)
-    (let* ((signature (gf-signature gf))
+    (let* ((signature (std-gf-signature gf))
            (reqanz (sig-req-num signature))
            (restp (gf-sig-restp signature))
            (hash-key (cons reqanz restp))
@@ -265,15 +444,15 @@
 ;; One does not need to write (APPLY ... Arguments)
 ;; it is done by %GENERIC-FUNCTION-LAMBDA automatically.
 (defun compute-dispatch (gf)
-  (let* ((signature (gf-signature gf))
+  (let* ((signature (std-gf-signature gf))
          (req-anz (sig-req-num signature))
          (req-vars (gensym-list req-anz))
          (restp (gf-sig-restp signature))
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
-         (arg-order (gf-argorder gf))
-         (methods (gf-methods gf))
+         (arg-order (std-gf-argorder gf))
+         (methods (std-gf-methods gf))
          (block-name (gensym))
          (maybe-no-applicable nil)
          (ht-vars '())) ; list of hashtable variables and their inits
@@ -577,21 +756,21 @@
 (defun compute-applicable-methods-effective-method (gf &rest args)
   ;; FIXME: Unify this with compute-applicable-methods.
   ;; 1. Select the applicable methods:
-  (let* ((signature (gf-signature gf))
+  (let* ((signature (std-gf-signature gf))
          (req-num (sig-req-num signature))
          (req-args (subseq args 0 req-num))
          (methods
            (remove-if-not #'(lambda (method)
                               (method-applicable-p method req-args))
-                          (the list (gf-methods gf)))))
+                          (the list (std-gf-methods gf)))))
     (when (null methods)
       (return-from compute-applicable-methods-effective-method
         (no-method-caller 'no-applicable-method gf)))
     ;; 2. Sort the applicable methods by precedence order:
-    (setq methods (sort-applicable-methods methods req-args (gf-argorder gf)))
+    (setq methods (sort-applicable-methods methods req-args (std-gf-argorder gf)))
     ;; 3. Combine the methods to an effective method:
     (let ((*method-combination-arguments* args))
-      (compute-effective-method-as-function gf (gf-method-combination gf) methods))))
+      (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
 
 (defun compute-effective-method-as-function (gf combination methods)
   ;; Apply method combination:

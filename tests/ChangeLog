@@ -1,3 +1,8 @@
+2004-06-13  Bruno Haible  <bruno@clisp.org>
+
+	* type.tst: Update SUBTYPEP test to match the fact that the user can
+	create subclasses of both STREAM and STANDARD-GENERIC-FUNCTION.
+
 2004-06-12  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add tests of set-funcallable-instance-function.

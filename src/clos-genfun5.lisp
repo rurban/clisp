@@ -1,10 +1,31 @@
-;;;; Common Lisp Object System for CLISP: Generic Functions
+;;;; Common Lisp Object System for CLISP
+;;;; Generic Functions
+;;;; Part n-2: make/initialize-instance methods, generic functions.
 ;;;; Bruno Haible 21.8.1993 - 2004
 ;;;; Sam Steingold 1998 - 2004
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
 
+
+;; ----------------------------------------------------------------------------
+
+;;; Lift the initialization protocol.
+
+(defmethod initialize-instance ((gf standard-generic-function) &rest args
+                                &key name
+                                     lambda-list
+                                     argument-precedence-order
+                                     method-class
+                                     method-combination
+                                     documentation
+                                     declarations
+                                     &allow-other-keys)
+  (declare (ignore name lambda-list argument-precedence-order method-class
+                   method-combination documentation declarations))
+  (apply #'initialize-instance-<standard-generic-function> gf args))
+
+;; ----------------------------------------------------------------------------
 
 ;; An argument is called "dispatching" if not all the corresponding parameter
 ;; specializers are <t>.
@@ -29,8 +50,8 @@
 
 (defgeneric no-applicable-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((reqanz (sig-req-num (gf-signature gf)))
-           (methods (gf-methods gf))
+    (let* ((reqanz (sig-req-num (std-gf-signature gf)))
+           (methods (std-gf-methods gf))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
       (sys::retry-function-call
        (if dispatching-arg
@@ -48,8 +69,8 @@
 
 (defgeneric missing-required-method (gf combination group-name group-filter &rest args)
   (:method ((gf t) (combination method-combination) (group-name symbol) (group-filter function) &rest args)
-    (let* ((reqanz (sig-req-num (gf-signature gf)))
-           (methods (remove-if-not group-filter (gf-methods gf)))
+    (let* ((reqanz (sig-req-num (std-gf-signature gf)))
+           (methods (remove-if-not group-filter (std-gf-methods gf)))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
       (if dispatching-arg
         (error-of-type 'method-call-type-error
@@ -67,8 +88,8 @@
 ;; and the PRIMARY method group.
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((reqanz (sig-req-num (gf-signature gf)))
-           (methods (remove-if-not #'null (gf-methods gf)
+    (let* ((reqanz (sig-req-num (std-gf-signature gf)))
+           (methods (remove-if-not #'null (std-gf-methods gf)
                                    :key #'std-method-qualifiers))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
       (sys::retry-function-call
@@ -90,7 +111,7 @@
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method standard-method) &rest args
             &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))
-    (if (let ((method-combo (gf-method-combination gf)))
+    (if (let ((method-combo (std-gf-method-combination gf)))
           (funcall (method-combination-call-next-method-allowed method-combo)
                    gf method-combo method))
       (cerror cont-mesg 'method-call-error
@@ -107,6 +128,59 @@
             :format-control (TEXT "~S: ~S is invalid within primary methods")
             :format-arguments (list gf 'CALL-NEXT-METHOD)))))))
 
+;; ----------------------------------------------------------------------------
+
+(defun check-generic-function-initialized (gf)
+  (unless (std-gf-initialized gf)
+    (error (TEXT "The generic function ~S has not yet been initialized.")
+           gf)))
+
+;; MOP p. 80
+(defgeneric generic-function-name (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (funcallable-name gf)))
+
+;; MOP p. 80
+(defgeneric generic-function-methods (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-methods gf)))
+
+;; MOP p. 80
+(defgeneric generic-function-method-class (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-default-method-class gf)))
+
+;; MOP p. 79
+(defgeneric generic-function-lambda-list (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-lambda-list gf)))
+
+;; MOP p. 80
+(defgeneric generic-function-method-combination (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-method-combination gf)))
+
+;; MOP p. 79
+(defgeneric generic-function-argument-precedence-order (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (let ((argorder (std-gf-argorder gf))
+          (lambdalist (std-gf-lambda-list gf)))
+      (mapcar #'(lambda (i) (nth i lambdalist)) argorder))))
+
+;; MOP p. 79
+(defgeneric generic-function-declarations (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-declspecs gf)))
+
+;; ----------------------------------------------------------------------------
+
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
     (std-find-method gf qualifiers specializers errorp)))
@@ -121,8 +195,8 @@
 
 (defgeneric compute-applicable-methods (gf args)
   (:method ((gf standard-generic-function) args)
-    (let ((reqanz (sig-req-num (gf-signature gf)))
-          (methods (gf-methods gf)))
+    (let ((reqanz (sig-req-num (std-gf-signature gf)))
+          (methods (std-gf-methods gf)))
       (if (>= (length args) reqanz)
         (let ((req-args (subseq args 0 reqanz)))
           ;; 1. Select the applicable methods:
@@ -131,7 +205,7 @@
               #'(lambda (method) (method-applicable-p method req-args))
               (the list methods)))
           ;; 2. Sort the applicable methods by precedence order:
-          (sort-applicable-methods methods req-args (gf-argorder gf)))
+          (sort-applicable-methods methods req-args (std-gf-argorder gf)))
         nil)))) ; rather no error
 
 ;; MOP p. 41

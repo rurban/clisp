@@ -9493,11 +9493,8 @@ local void pr_cclosure (const gcv_object_t* stream_, object obj) {
     pr_cclosure_lang(stream_,obj);
   } else {
     # *PRINT-CLOSURE* = NIL ->
-    # only print #<GENERIC-FUNCTION name> resp. #<COMPILED-CLOSURE name> :
-    pr_other_obj(stream_,Closure_name(obj),
-                 (TheCodevec(TheClosure(obj)->clos_codevec)->ccv_flags & bit(4) # generic function?
-                  ? O(printstring_generic_function)
-                  : O(printstring_compiled_closure)));
+    # only print #<COMPILED-CLOSURE name> :
+    pr_other_obj(stream_,Closure_name(obj),O(printstring_compiled_closure));
   }
 }
 

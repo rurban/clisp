@@ -49,7 +49,7 @@
 
 ;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method &optional
-                                   (gf-sign (gf-signature gf))
+                                   (gf-sign (std-gf-signature gf))
                                    (m-sign (std-method-signature method)))
   (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
     (error-of-type 'error
@@ -79,13 +79,13 @@
 
 ;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
 (defun check-method-qualifiers (gf method
-                                &optional (method-combo (gf-method-combination gf)))
+                                &optional (method-combo (std-gf-method-combination gf)))
   (funcall (method-combination-check-method-qualifiers method-combo)
            gf method-combo method))
 (defun invalid-method-qualifiers-error (gf method)
   (error-of-type 'sys::source-program-error
     (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
-    (method-combination-name (gf-method-combination gf)) gf
+    (method-combination-name (std-gf-method-combination gf)) gf
     (std-method-qualifiers method) method))
 
 ;; Add a method to a generic function
@@ -107,22 +107,22 @@
         (setf (std-method-wants-next-method-p method) nil))))
   ;; method is finished. store:
   (warn-if-gf-already-called gf)
-  (let ((old-method (find method (gf-methods gf) :test #'methods-agree-p)))
+  (let ((old-method (find method (std-gf-methods gf) :test #'methods-agree-p)))
     (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
           ((eq gf |#'initialize-instance|) (note-ii-change method))
           ((eq gf |#'reinitialize-instance|) (note-ri-change method))
           ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
           ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
           ((eq gf |#'shared-initialize|) (note-si-change method)))
-    (setf (gf-methods gf)
+    (setf (std-gf-methods gf)
           (cons method
                 (if old-method
                   (progn
                     (when *gf-warn-on-replacing-method*
                       (warn (TEXT "Replacing method ~S in ~S")
                             old-method gf))
-                    (remove old-method (gf-methods gf)))
-                  (gf-methods gf))))
+                    (remove old-method (std-gf-methods gf)))
+                  (std-gf-methods gf))))
     (finalize-fast-gf gf))
   ;;(sys::closure-set-seclass gf
   ;;  (sys::seclass-or (sys::function-side-effect gf)
@@ -132,7 +132,7 @@
 
 ;; removal of a method from a generic function:
 (defun std-remove-method (gf method)
-  (let ((old-method (find (std-method-initfunction method) (gf-methods gf)
+  (let ((old-method (find (std-method-initfunction method) (std-gf-methods gf)
                           :key #'std-method-initfunction)))
     (when old-method
       (warn-if-gf-already-called gf)
@@ -144,11 +144,11 @@
             ((eq gf |#'update-instance-for-redefined-class|) (note-uirc-change method))
             ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
-      (setf (gf-methods gf) (remove old-method (gf-methods gf))
+      (setf (std-gf-methods gf) (remove old-method (std-gf-methods gf))
             (std-method-generic-function old-method) nil
             (std-method-from-defgeneric old-method) nil)
       ;;(sys::closure-set-seclass gf
-      ;;  (reduce #'sys::seclass-or (gf-methods gf)
+      ;;  (reduce #'sys::seclass-or (std-gf-methods gf)
       ;;          :key #'(lambda (method)
       ;;                   (sys::seclass-or (sys::function-side-effect (std-method-function method))
       ;;                                    (sys::function-side-effect (std-method-fast-function method))))
@@ -158,7 +158,7 @@
 
 ;; find a method in a generic function:
 (defun std-find-method (gf qualifiers specializers &optional (errorp t))
-  (let ((n (sig-req-num (gf-signature gf))))
+  (let ((n (sig-req-num (std-gf-signature gf))))
     (unless (listp specializers)
       (error-of-type 'error
         (TEXT "~S: the specializers argument is not a list: ~S")
@@ -176,9 +176,9 @@
                         specializer))
                   specializers)))
   ;; so to speak
-  ;;   (find hypothetical-method (gf-methods gf) :test #'methods-agree-p)
+  ;;   (find hypothetical-method (std-gf-methods gf) :test #'methods-agree-p)
   ;; cf. methods-agree-p
-  (dolist (method (gf-methods gf))
+  (dolist (method (std-gf-methods gf))
     (when (and (equal (std-method-qualifiers method) qualifiers)
                (specializers-agree-p (std-method-specializers method)
                                      specializers))
@@ -214,23 +214,28 @@
             (TEXT "~S: ~S does not name a generic function")
             'defmethod funname)))
       (setf (fdefinition funname)
-            (let ((signature (std-method-signature method)))
-              (make-fast-gf funname
-                            ;; GF signature <== method signature
-                            (make-signature
-                             :req-num (sig-req-num signature)
-                             :opt-num (sig-opt-num signature)
-                             :rest-p (sig-rest-p signature))
-                            ;; argorder := (0 ... reqanz-1)
-                            (countup (sig-req-num signature))))))
+            ;; Create a GF compatible with the given method signature.
+            (let* ((m-lambdalist (std-method-lambda-list method))
+                   (m-signature (std-method-signature method))
+                   (req-num (sig-req-num m-signature))
+                   (opt-num (sig-opt-num m-signature))
+                   (rest-p (sig-rest-p m-signature))
+                   (gf-lambdalist (append (subseq m-lambdalist 0 req-num)
+                                          (if (> opt-num 0)
+                                            (cons '&OPTIONAL
+                                              (mapcar #'(lambda (item) (if (consp item) (first item) item))
+                                                      (subseq m-lambdalist (+ req-num 1) (+ req-num 1 opt-num))))
+                                            '())
+                                          (if rest-p
+                                            (list '&REST
+                                                  (let ((i (position '&REST m-lambdalist)))
+                                                    (if i (nth (+ i 1) m-lambdalist) (gensym))))
+                                            '()))))
+                ; gf-lambdalist's signature is
+                ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
+                (make-fast-gf funname gf-lambdalist (subseq m-lambdalist 0 req-num)))))
     method)
   method)
-
-; n --> list (0 ... n-1)
-(defun countup (n)
-  (do* ((count n (1- count))
-        (l '() (cons count l)))
-       ((eql count 0) l)))
 
 
 ;;; (DECLAIM-METHOD function-name qualifier* spec-lambda-list)
@@ -255,113 +260,94 @@
 ;; funname: function name, symbol or (SETF symbol)
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
-;; --> signature, argorder, method combination, method-forms, docstring
+;; --> signature, argument-precedence-order, method combination, method-forms, docstring
 (defun analyze-defgeneric (caller funname lambdalist options)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
       (TEXT "~S: the name of a function must be a symbol, not ~S")
       caller funname lambdalist))
-  ;; parse the lambdalist:
-  (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
-      (analyze-defgeneric-lambdalist caller funname lambdalist)
-    ;; process the options:
-    (let ((method-forms '())
-          (method-combination 'STANDARD)
-          (argorders nil)
-          (docstrings nil))
-      (dolist (option options)
-        (unless (listp option)
-          (error-of-type 'sys::source-program-error
-            (TEXT "~S ~S: not a ~S option: ~S")
-            caller funname 'defgeneric option))
-        (case (first option)
-          (DECLARE
-           ;; the declaration is being ignored.
-           ;; the compiler will ignore it in any case.
-           (unless (every
-                    #'(lambda (x) (and (consp x) (eq (first x) 'OPTIMIZE)))
-                    (rest option))
-             (warn (TEXT "~S ~S: Only ~S declarations are permitted: ~S")
-                   caller funname 'optimize option)))
-          (:ARGUMENT-PRECEDENCE-ORDER
-           (when argorders
+  ;; Parse the lambdalist:
+  (analyze-defgeneric-lambdalist caller funname lambdalist)
+  ;; Process the options:
+  (let ((method-forms '())
+        (method-combination 'STANDARD)
+        (argorders nil)
+        (docstrings nil))
+    (dolist (option options)
+      (unless (listp option)
+        (error-of-type 'sys::source-program-error
+          (TEXT "~S ~S: not a ~S option: ~S")
+          caller funname 'defgeneric option))
+      (case (first option)
+        (DECLARE
+         ;; The declaration is being ignored.
+         ;; The compiler will ignore it in any case.
+         (unless (every
+                   #'(lambda (x) (and (consp x) (eq (first x) 'OPTIMIZE)))
+                   (rest option))
+           (warn (TEXT "~S ~S: Only ~S declarations are permitted: ~S")
+                 caller funname 'optimize option)))
+        (:ARGUMENT-PRECEDENCE-ORDER
+         (when argorders
+           (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: ~S may only be specified once.")
+             caller funname ':argument-precedence-order))
+         (setq argorders option))
+        (:DOCUMENTATION
+         (unless (and (eql (length option) 2) (stringp (second option)))
+           (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: A string must be specified after ~S : ~S")
+             caller funname ':documentation option))
+         (when docstrings
+           (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: Only one ~S string is allowed")
+             caller funname ':documentation))
+         (setq docstrings (rest option)))
+        (:METHOD-COMBINATION
+         ;; The method combination designator must be present and may not be
+         ;; null. Allowed are STANDARD without options, a symbol with options,
+         ;; or, in the case of invocation from ensure-generic-function,
+         ;; a method-combination object with options.
+         (let ((designator (cadr option)))
+           (if (or (typep designator <method-combination>)
+                   (and designator (symbolp designator)))
+             (setf method-combination (rest option))
              (error-of-type 'sys::source-program-error
-               (TEXT "~S ~S: ~S may only be specified once.")
-               caller funname ':argument-precedence-order))
-           (setq argorders option))
-          (:DOCUMENTATION
-           (unless (and (eql (length option) 2) (stringp (second option)))
-             (error-of-type 'sys::source-program-error
-               (TEXT "~S ~S: A string must be specified after ~S : ~S")
-               caller funname ':documentation option))
-           (when docstrings
-             (error-of-type 'sys::source-program-error
-               (TEXT "~S ~S: Only one ~S string is allowed")
-               caller funname ':documentation))
-           (setq docstrings (rest option)))
-          (:METHOD-COMBINATION
-           ;; The method combination designator must be present and may not be
-           ;; null. Allowed are STANDARD without options, a symbol with options,
-           ;; or, in the case of invocation from ensure-generic-function,
-           ;; a method-combination object with options.
-           (let ((designator (cadr option)))
-             (if (or (typep designator <method-combination>)
-                     (and designator (symbolp designator)))
-                 (setf method-combination (rest option))
-                 (error-of-type 'sys::source-program-error
-                   (TEXT "~S ~S: Invalid method combination: ~S")
-                   caller funname option))))
-          (:GENERIC-FUNCTION-CLASS
-           ;; the class of the generic function is being ignored.
-           (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
-             (error-of-type 'sys::source-program-error
-               (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
-               caller funname 'standard-generic-function option)))
-          (:METHOD-CLASS
-           ;; the class of the methods is being ignored.
-           (unless (equal (rest option) '(STANDARD-METHOD))
-             (error-of-type 'sys::source-program-error
-               (TEXT "~S ~S: The only valid method class name is ~S : ~S")
-               caller funname 'standard-method option)))
-          (:METHOD
-           (push (analyze-method-description caller funname (rest option))
-            method-forms))
-          (t (error-of-type 'sys::source-program-error
-               (TEXT "~S ~S: invalid syntax in ~S option: ~S")
-               caller funname 'defstruct option))))
-      ;; check :argument-precedence-order :
-      (let ((argorder
-             (if argorders
-               (let ((l (mapcar #'(lambda (x)
-                                    (or (position x req-vars)
-                                        (error-of-type 'sys::source-program-error
-                                          (TEXT "~S ~S: ~S is not one of the required parameters: ~S")
-                                          caller funname x argorders)))
-                                (rest argorders))))
-                 ;; Is (rest argorders) a permutation of req-vars ?
-                 ;; In other words: Is the mapping
-                 ;;        (rest argorders)  -->  req-vars
-                 ;; resp.   l --> {0, ..., reqanz-1}
-                 ;; bijective?
-                 (unless (apply #'/= l) ; injective?
-                   (error-of-type 'sys::source-program-error
-                     (TEXT "~S ~S: some variable occurs twice in ~S")
-                     caller funname argorders))
-                 (unless (eql (length l) reqanz) ; surjective?
-                   (error-of-type 'sys::source-program-error
-                     (TEXT "~S ~S: ~S is missing some required parameter")
-                     caller funname argorders))
-                 l)
-               (countup reqanz))))
-        (values (make-signature :req-num reqanz :opt-num optanz
-                                :rest-p restp :keys-p keyp
-                                :keywords keywords :allow-p allowp)
-                argorder
-                method-combination
-                ;; list of the method-forms
-                (nreverse method-forms)
-                ;; docstring or nil
-                (car docstrings))))))
+               (TEXT "~S ~S: Invalid method combination: ~S")
+               caller funname option))))
+        (:GENERIC-FUNCTION-CLASS
+         ;; the class of the generic function is being ignored.
+         (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
+           (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
+             caller funname 'standard-generic-function option)))
+        (:METHOD-CLASS
+         ;; the class of the methods is being ignored.
+         (unless (equal (rest option) '(STANDARD-METHOD))
+           (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: The only valid method class name is ~S : ~S")
+             caller funname 'standard-method option)))
+        (:METHOD
+         (push (analyze-method-description caller funname (rest option))
+               method-forms))
+        (t (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: invalid syntax in ~S option: ~S")
+             caller funname 'defstruct option))))
+    ;; Check :argument-precedence-order :
+    (multiple-value-bind (signature argument-precedence-order argorder)
+        (check-gf-lambdalist+argorder lambdalist (rest argorders) argorders
+          #'(lambda (errorstring &rest arguments)
+              (error-of-type 'sys::source-program-error
+                (TEXT "~S ~S: ~A")
+                caller funname (apply #'format nil errorstring arguments))))
+      (declare (ignore argorder))
+      (values signature
+              argument-precedence-order
+              method-combination
+              ;; list of the method-forms
+              (nreverse method-forms)
+              ;; docstring or nil
+              (car docstrings)))))
 
 ;; parse the lambdalist:
 ;; lambdalist --> reqnum, req-vars, optnum, restp, keyp, keywords, allowp
@@ -388,7 +374,7 @@
 ;;; DEFGENERIC
 
 (defmacro defgeneric (funname lambda-list &rest options)
-  (multiple-value-bind (signature argorder method-combo method-forms docstring)
+  (multiple-value-bind (signature argument-precedence-order method-combo method-forms docstring)
       (analyze-defgeneric 'defgeneric funname lambda-list options)
     `(LET ()
        (DECLARE (SYS::IN-DEFUN ,funname))
@@ -403,7 +389,7 @@
                                         ',(second funname))))))
              `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION
                                            ',docstring))))
-       (DO-DEFGENERIC ',funname ',signature ',argorder ',method-combo
+       (DO-DEFGENERIC ',funname ',lambda-list ',signature ',argument-precedence-order ',method-combo
                       ,@method-forms))))
 
 (defun ensure-generic-function (function-name &key argument-precedence-order
@@ -411,7 +397,7 @@
                                 generic-function-class lambda-list
                                 method-class method-combination)
   (declare (ignore environment))
-  (multiple-value-bind (signature argorder method-combo)
+  (multiple-value-bind (signature argument-precedence-order method-combo)
       (analyze-defgeneric
        'defgeneric function-name lambda-list
        `(,@(if declare `(:declare ,declare))
@@ -425,4 +411,4 @@
                       generic-function-class)))
          ,@(if method-combination `(:method-combination ,method-combination))
          ,@(if method-class `(:method-class ,method-class))))
-    (do-defgeneric function-name signature argorder method-combo)))
+    (do-defgeneric function-name lambda-list signature argument-precedence-order method-combo)))

@@ -108,41 +108,128 @@
 
 ;; low-level-representation:
 ;; Compiled functions (Cclosures), for which a certain bit is set in
-;; the flag-byte of the code-vector. Additionally behind it:
-;; - the signature, a signature struct (see compiler.lisp)
-;; - the argument-precedence-order, as list of numbers from 0 to reqanz-1,
-;; - the list of all methods.
-;; - the method combination object
+;; the flag-byte of the code-vector.
 
 ;; The compiler uses (at GENERIC-FLET, GENERIC-LABELS) and the evaluator
 ;; presupposes likewise, that a generic function does not change its
 ;; calling convention.
-;; A generic function with signature (reqanz optanz restp keywords allowp)
+;; A generic function with signature (reqnum optnum restp keywords allowp)
 ;; is from the very beginning (!) a compiled function with
-;;         reqanz  required parameters
+;;         reqnum  required parameters
 ;;         0       optional parameters
-;;         &rest if and only if (or (> optanz 0) restp),
+;;         &rest if and only if (or (> optnum 0) restp),
 ;;         without &key.
-(defun callinfo (reqanz optanz restp keywords allowp)
+(defun callinfo (reqnum optnum restp keywords allowp)
   (declare (ignore keywords allowp))
-  (list reqanz 0 (or (> optanz 0) restp) nil nil nil))
+  (list reqnum 0 (or (> optnum 0) restp) nil nil nil))
 
-(defun gf-signature (gf)
-  (sys::%record-ref gf 3))
-(defun (setf gf-signature) (new gf)
-  (setf (sys::%record-ref gf 3) new))
+;; ----------------------------------------------------------------------------
 
-(defun gf-argorder (gf)
-  (sys::%record-ref gf 4))
-(defun (setf gf-argorder) (new gf)
-  (setf (sys::%record-ref gf 4) new))
+(defparameter <generic-function>
+  #|
+  (defclass generic-function (metaobject funcallable-standard-object)
+    ()
+    (:metaclass funcallable-standard-class)
+    (:fixed-slot-locations)
+    (:generic-accessors nil))
+  |#
+  (ensure-class 'generic-function
+    :metaclass <funcallable-standard-class>
+    :direct-superclasses `(,<metaobject> ,<funcallable-standard-object>)
+    :direct-slots '()
+    :direct-default-initargs '()
+    :fixed-slot-locations t
+    :generic-accessors nil))
 
-(defun gf-methods (gf)
-  (sys::%record-ref gf 5))
-(defun (setf gf-methods) (new gf)
-  (setf (sys::%record-ref gf 5) new))
+;; Initialization of a <generic-function> instance.
+(defun shared-initialize-<generic-function> (gf situation &rest args
+                                             &key (name nil name-p)
+                                             &allow-other-keys)
+  (when *classes-finished*
+    (apply #'%shared-initialize gf situation args)) ; == (call-next-method)
+  (when (or (eq situation 't) name-p)
+    (setf (funcallable-name gf) name))
+  gf)
 
-(defun gf-method-combination (gf)
-  (sys::%record-ref gf 6))
-(defun (setf gf-method-combination) (new gf)
-  (setf (sys::%record-ref gf 6) new))
+;; ----------------------------------------------------------------------------
+
+(defparameter <standard-generic-function>
+  #|
+  (defclass standard-generic-function (generic-function)
+    (($signature           ; a signature struct
+       :type (simple-vector 6)
+       :accessor std-gf-signature)
+     ($argorder            ; the argument-precedence-order, as a list of
+                           ; numbers from 0 to reqnum-1,
+       :type list
+       :accessor std-gf-argorder)
+     ($methods             ; the list of all methods
+       :type list
+       :accessor std-gf-methods)
+     ($method-combination  ; a method-combination object
+       :type method-combination
+       :accessor std-gf-method-combination)
+     ($default-method-class ; default class for newly added methods
+       :type class
+       :accessor std-gf-default-method-class)
+     ($lambda-list         ; a redundant non-canonical encoding of the
+                           ; signature
+       :type list
+       :accessor std-gf-lambda-list)
+     ($documentation
+       :type (or null string)
+       :accessor std-gf-documentation)
+     ($declspecs           ; a list of declaration-specifiers
+       :type list
+       :accessor std-gf-declspecs)
+     ($initialized         ; true if an instance has already been created
+       :type boolean
+       :accessor std-gf-initialized))
+    (:metaclass funcallable-standard-class)
+    (:fixed-slot-locations)
+    (:generic-accessors nil))
+  |#
+  (ensure-class 'standard-generic-function
+    :metaclass <funcallable-standard-class>
+    :direct-superclasses `(,<generic-function>)
+    :direct-slots '((:name $signature
+                     :readers (std-gf-signature)
+                     :writers ((setf std-gf-signature))
+                     :type (simple-vector 6))
+                    (:name $argorder
+                     :readers (std-gf-argorder)
+                     :writers ((setf std-gf-argorder))
+                     :type list)
+                    (:name $methods
+                     :readers (std-gf-methods)
+                     :writers ((setf std-gf-methods))
+                     :type list)
+                    (:name $method-combination
+                     :readers (std-gf-method-combination)
+                     :writers ((setf std-gf-method-combination))
+                     :type method-combination)
+                    (:name $default-method-class
+                     :readers (std-gf-default-method-class)
+                     :writers ((setf std-gf-default-method-class))
+                     :type class)
+                    (:name $lambda-list
+                     :readers (std-gf-lambda-list)
+                     :writers ((setf std-gf-lambda-list))
+                     :type list)
+                    (:name $documentation
+                     :readers (std-gf-documentation)
+                     :writers ((setf std-gf-documentation))
+                     :type (or null string))
+                    (:name $declspecs
+                     :readers (std-gf-declspecs)
+                     :writers ((setf std-gf-declspecs))
+                     :type list)
+                    (:name $initialized
+                     :readers (std-gf-initialized)
+                     :writers ((setf std-gf-initialized))
+                     :type boolean))
+    :direct-default-initargs '()
+    :fixed-slot-locations t
+    :generic-accessors nil))
+
+;; ============================================================================

@@ -41,6 +41,7 @@
 (load "clos-class6")
 (load "clos-method4")
 (load "clos-methcomb4")
+(load "clos-genfun6")
 (load "clos-print")
 (load "documentation")
 

@@ -29,7 +29,7 @@
   (vector 'array 'bit-vector 'character 'complex 'cons 'float 'function
           'hash-table 'integer 'null 'package 'pathname
           #+LOGICAL-PATHNAMES 'logical-pathname
-          'random-state 'ratio 'readtable 'standard-generic-function
+          'random-state 'ratio 'readtable
           'stream 'file-stream 'synonym-stream 'broadcast-stream
           'concatenated-stream 'two-way-stream 'echo-stream 'string-stream
           'string 'symbol 't 'vector))
@@ -2011,8 +2011,6 @@
  ;(def <t>)
   (def <t> <character>)
   (def <t> <function>)
-  (def     <function> <generic-function>)
-  (def                <generic-function> <standard-generic-function>)
   (def <t> <hash-table>)
   (def <t> <package>)
   (def <t> <pathname>)
@@ -2057,7 +2055,7 @@
   (vector <array> <bit-vector> <character> <complex> <cons> <float> <function>
           <hash-table> <integer> <null> <package> <pathname>
           #+LOGICAL-PATHNAMES <logical-pathname>
-          <random-state> <ratio> <readtable> <standard-generic-function>
+          <random-state> <ratio> <readtable>
           <stream> <file-stream> <synonym-stream> <broadcast-stream>
           <concatenated-stream> <two-way-stream> <echo-stream> <string-stream>
           <string> <symbol> <t> <vector>))
