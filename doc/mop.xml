@@ -2828,7 +2828,13 @@ not specified.</simpara></listitem>
    <replaceable>generic-function-class</replaceable> are added at the
    end of the list of arguments to pass to &ensure-gf;. This is needed to
    make the generic function reflect the &defgeneric; form.</simpara>
-</note></listitem></itemizedlist>
+</note></listitem>
+<listitem><note>&clisp-only;<simpara id="mop-defgeneric-user-options">Any
+   other options become the value of keyword arguments with the same name.
+   The value of the keyword argument is the tail of the option. An &err-sig;
+   if any option appears more than once in the &defgeneric; form.</simpara>
+</note></listitem>
+</itemizedlist>
 
 <para>The result of the call to &ensure-gf; is returned as the result of
 evaluating or executing the &defgeneric; form.</para>
@@ -5472,9 +5478,11 @@ cache of the dependent when it is updated.</para>
 
 <itemizedlist id="mop-clisp-ext"><title>Extensions specific to &clisp;</title>
 <listitem><para>The &mop; is applicable to classes of type &structure-class;.
-The default superclass for &structure-class; instances is &structure-object-t;.
-Structure classes do not support multiple inheritance and reinitialization.
-See <xref linkend="mop-cl-init-mo"/>.</para></listitem>
+  The default superclass for &structure-class; instances is &structure-object-t;.
+  Structure classes do not support multiple inheritance and reinitialization.
+  See <xref linkend="mop-cl-init-mo"/>.</para></listitem>
+<listitem><para>The &defgeneric; macro supports user-defined options.  See
+  <xref linkend="mop-defgeneric-user-options"/>.</para></listitem>
 <listitem><para>The class &method-t; is subclassable.
   See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
 <listitem><para>Slot names like &nil; and &t; are allowed.
