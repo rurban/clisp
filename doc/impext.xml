@@ -3664,8 +3664,7 @@ double test_dll(struct bar *ptr)
 
 </example>
 
-<example id="ex-dffi-validity">
- <title>Controling validity of ressources.</title>
+<example id="ex-dffi-validity"><title>Controling validity of resources.</title>
 
 <para>&set-foreign-pointer; is useful in conjunction with (setf &validp;) to
 limit the extent of external resources. Closing twice can be avoided by
