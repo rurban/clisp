@@ -3586,7 +3586,7 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
     return false;
   }
  #endif
- #ifdef WIN32_NATIVE
+ #if defined(WIN32_NATIVE)
   /* Same handle? */
   if (handle1 == handle2)
     return true;
@@ -14147,7 +14147,11 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~S: argument ~S is not an open stream"));
   }
+ restart_stream_handles:
   switch (TheStream(obj)->strmtype) {
+    case strmtype_synonym:
+      obj = resolve_synonym_stream(obj);
+      goto restart_stream_handles;
     case strmtype_terminal:
       if (in_sock)  *in_sock  = (SOCKET)stdin_handle;
       if (out_sock) *out_sock = (SOCKET)stdout_handle;

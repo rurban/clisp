@@ -1,5 +1,10 @@
 2005-01-13  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (stream_handles): handle SYNONYM-STREAMs
+	Reported by <ayan@ayan.net>
+
+2005-01-13  Sam Steingold  <sds@gnu.org>
+
 	* inspect.lisp (inspect-frontend): use (FORMAT "~&~S~%") instead
 	of PRIN1 for :M & :E; print conditions with ~A
 
