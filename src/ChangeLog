@@ -1,5 +1,11 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (strm_unbuffered_extrafields_t, strm_buffered_extrafields_t):
+	Change type of bitfields from 'bool' to 'int', because 'bool' can now
+	be equivalent to 'long'. Needed on AIX 4 with xlc.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (NULL): Don't define on AIX.
 	Needed on AIX with xlc.
 

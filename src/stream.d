@@ -3480,7 +3480,7 @@ typedef struct strm_unbuffered_extrafields_t {
    # Microsoft editors insert new lines with eol = CR/LF, while other Microsoft
    # editors insert new lines with eol = CR. Java learned the lesson and
    # understands all three line-terminators. So do we.
-  bool ignore_next_LF : 8;             # true after reading a CR
+  /*bool*/int  ignore_next_LF : 8;     # true after reading a CR
   # Fields used for the output side only:
   void         (* low_write)         (object stream, uintB b);
   const uintB* (* low_write_array)   (object stream, const uintB* byteptr, uintL len, bool no_hang);
@@ -5749,12 +5749,13 @@ typedef struct strm_buffered_extrafields_t {
   uoff_t buffstart;    # start position of buffer
   uintL endvalid;      # index up to which the data is known to be valid
   uintL index;         # index into buffer (>=0, <=endvalid)
-  bool have_eof_p : 8; # indicates that eof is right after endvalid
-  bool modified : 8;   # true if the buffer contains modified data, else false
-  bool regular : 8;    # whether the handle refers to a regular file
-  bool blockpositioning : 8; # whether the handle refers to a regular file
-                        # and permits to position the buffer at
-                        # buffstart = (sector number) * strm_buffered_bufflen
+  /*bool*/int have_eof_p : 8; # indicates that eof is right after endvalid
+  /*bool*/int modified : 8;   # true if the buffer contains modified data,
+                              # else false
+  /*bool*/int regular : 8;    # whether the handle refers to a regular file
+  /*bool*/int blockpositioning : 8; # whether the handle refers to a regular
+                          # file and permits to position the buffer at
+                          # buffstart = (sector number) * strm_buffered_bufflen
   # endvalid always indicates how much of the buffer contains data
   # have_eof_p = true indicates that the EOF is known to be at the
   #    endvalid position.  It could be there without have_eof_p being true,
