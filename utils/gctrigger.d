@@ -844,7 +844,7 @@ local void convert (void)
     else if (token.type == ident && String_equals(token.string,"maygc"))
       seen_maygc = TRUE;
     else if (seen_maygc && token.type == sep && token.ch == '(') {
-      VectorString parameters_of_type_object;
+      var VectorString parameters_of_type_object;
       handle_opening_token(&token);
       # Remember the variable names from the parameter list.
       VectorString_init(&parameters_of_type_object);
