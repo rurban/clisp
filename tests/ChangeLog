@@ -1,5 +1,9 @@
 1998-12-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * number2.tst: Add a GCD test, which fails with egcs-1.1 on Sparc.
+
+1998-12-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * excepsit.tst: /etc/mtab does not exist on all systems, use
           /etc/passwd instead.
 
