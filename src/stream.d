@@ -251,8 +251,7 @@ local uintL rd_by_array_dummy (const gcv_object_t* stream_,
                       ? eof_value : rd_by(stream)(stream));
     if (eq(obj,eof_value))
       break;
-    if (!uint8_p(obj))
-      fehler_uint8(obj);
+    obj = check_uint8(obj);
     TheSbvector(*bytearray_)->data[index] =
       (uintB)(as_oint(obj) >> oint_data_shift);
     index++;

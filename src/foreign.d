@@ -2554,7 +2554,7 @@ LISPFUNN(offset,3) {
     if (nullp(fvd))
       fehler_variable_no_fvd(fvar);
   }
-  check_sint32(STACK_1);
+  STACK_1 = check_sint32(STACK_1);
   foreign_layout(STACK_0);
   var uintL size = data_size;
   var uintL alignment = data_alignment;
@@ -3766,10 +3766,10 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   var uintL v;
   {
     var object version = STACK_0;
-    if (!boundp(STACK_0)) {
+    if (!boundp(version)) {
       v = 0;
     } else {
-      check_uint32(version); v = I_to_uint32(version);
+      v = I_to_uint32(check_uint32(version));
     }
   }
   {/* Check whether the library is on the alist or has already been opened. */
@@ -3808,53 +3808,51 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   mv_count=1; skipSTACK(2);
 }
 
-# Try to make a Foreign-Pointer valid again.
-# validate_fpointer(obj);
-  global void validate_fpointer (object obj);
-  global void validate_fpointer(obj)
-    var object obj;
-    {
-      # If the foreign pointer belongs to a foreign library from a previous
-      # session, we reopen the library.
-      var object l = O(foreign_libraries);
-      while (consp(l)) {
-        var object acons = Car(l);
-        l = Cdr(l);
-        if (eq(Cdr(acons),obj)) {
-          var struct Library * libaddr = open_library(Car(acons),0); # version ??
-          TheFpointer(obj)->fp_pointer = libaddr;
-          mark_fp_valid(TheFpointer(obj));
-          return;
-        }
-      }
-      fehler_fpointer_invalid(obj);
+/* Try to make a Foreign-Pointer valid again.
+ validate_fpointer(obj); */
+global void validate_fpointer (object obj)
+{ /* If the foreign pointer belongs to a foreign library from a previous
+     session, we reopen the library. */
+  var object l = O(foreign_libraries);
+  while (consp(l)) {
+    var object acons = Car(l);
+    l = Cdr(l);
+    if (eq(Cdr(acons),obj)) {
+      var struct Library * libaddr = open_library(Car(acons),0); # version ??
+      TheFpointer(obj)->fp_pointer = libaddr;
+      mark_fp_valid(TheFpointer(obj));
+      return;
     }
+  }
+  fehler_fpointer_invalid(obj);
+}
 
-# Check for a library argument.
-  local void test_library (object obj);
-  local void test_library(obj)
-    var object obj;
-    {
-      if (fpointerp(obj)) {
-        var object alist = O(foreign_libraries);
-        while (consp(alist)) {
-          if (eq(obj,Cdr(Car(alist))))
-            return;
-          alist = Cdr(alist);
-        }
-      }
-      pushSTACK(obj);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: ~ is not a library"));
+/* Check for a library argument. */
+local object check_library (object obj)
+{
+ restart:
+  if (fpointerp(obj)) {
+    var object alist = O(foreign_libraries);
+    while (consp(alist)) {
+      if (eq(obj,Cdr(Car(alist))))
+        return obj;
+      alist = Cdr(alist);
     }
+  }
+  pushSTACK(NIL); /* no PLACE */
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  check_value(error,GETTEXT("~: ~ is not a library"));
+  obj = value1;
+  goto restart;
+}
 
 # (FFI::FOREIGN-LIBRARY-VARIABLE name library offset c-type)
 # returns a foreign variable.
 LISPFUNN(foreign_library_variable,4)
 {
   STACK_3 = coerce_ss(STACK_3);
-  test_library(STACK_2);
-  check_sint32(STACK_1);
+  STACK_2 = check_library(STACK_2);
+  STACK_1 = check_sint32(STACK_1);
   foreign_layout(STACK_0);
   var uintL size = data_size;
   var uintL alignment = data_alignment;
@@ -3864,7 +3862,7 @@ LISPFUNN(foreign_library_variable,4)
   TheFvariable(fvar)->fv_address = STACK_0;
   TheFvariable(fvar)->fv_size = fixnum(size);
   TheFvariable(fvar)->fv_type = STACK_(0+1);
-  if (!(((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1)) == 0)) {
+  if ((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1)) {
     pushSTACK(fvar);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
@@ -3877,8 +3875,8 @@ LISPFUNN(foreign_library_variable,4)
 LISPFUNN(foreign_library_function,4)
 {
   STACK_3 = coerce_ss(STACK_3);
-  test_library(STACK_2);
-  check_sint32(STACK_1);
+  STACK_2 = check_library(STACK_2);
+  STACK_1 = check_sint32(STACK_1);
   {
     var object fvd = STACK_0;
     if (!(simple_vector_p(fvd)
@@ -3904,15 +3902,12 @@ LISPFUNN(foreign_library_function,4)
 
 #else # UNIX
 
-# Try to make a Foreign-Pointer valid again.
-# validate_fpointer(obj);
-  global void validate_fpointer (object obj);
-  global void validate_fpointer(obj)
-    var object obj;
-    {
-      # Can't do anything.
-      fehler_fpointer_invalid(obj);
-    }
+/* Try to make a Foreign-Pointer valid again.
+ validate_fpointer(obj); */
+global void validate_fpointer (object obj)
+{ /* Can't do anything. */
+  fehler_fpointer_invalid(obj);
+}
 
 #endif
 
