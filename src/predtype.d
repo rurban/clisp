@@ -2288,7 +2288,7 @@ LISPFUNN(coerce,2)
 # ==============================================================================
 #                               Heap statistics
 
-# Notification from defstruc.lsp and clos.lsp.
+# Notification from defstruct.lisp and clos.lisp.
 LISPFUNN(note_new_structure_class,0)
   {
     O(structure_class_count_max) = fixnum_inc(O(structure_class_count_max),1);

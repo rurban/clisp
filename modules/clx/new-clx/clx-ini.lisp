@@ -1,7 +1,7 @@
 (let ((clxffn   (merge-pathnames "clx.fas" *load-pathname*))
       (imageffn (merge-pathnames "image.fas" *load-pathname*))
-      (clxlfn   (merge-pathnames "clx.lsp" *load-pathname*))
-      (imagelfn (merge-pathnames "image.lsp" *load-pathname*)))
+      (clxlfn   (merge-pathnames "clx.lisp" *load-pathname*))
+      (imagelfn (merge-pathnames "image.lisp" *load-pathname*)))
   (delete-file clxffn)
   (delete-file imageffn)
   (compile-file clxlfn)
@@ -12,7 +12,7 @@
         (t
          (format T "~%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
          (format T "~%")
-         (format T "~%  Build failed, clx.lsp and image.lsp were not correctly")
+         (format T "~%  Build failed, clx.lisp and image.lisp were not correctly")
          (format T "~%  compiled. CLX is incomplete and non-functional.")
          (format T "~%")
          (format T "~%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

@@ -77,8 +77,8 @@ int main (int argc, char* argv[])
 
   /*
    * To determine whether -W was given, we go through the options.
-   * Because when "clisp foo.lsp -W" is invoked, the "-W" is an argument
-   * for foo.lsp, not for clisp. Therefore we have to stop when we encounter
+   * Because when "clisp foo.lisp -W" is invoked, the "-W" is an argument
+   * for foo.lisp, not for clisp. Therefore we have to stop when we encounter
    * the first non-option, non-option-argument. Unfortunately, we have to
    * know about all of clisp's options.
    */

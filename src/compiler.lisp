@@ -165,7 +165,7 @@
   (defparameter c-typep-alist1 nil)
   (defparameter c-typep-alist2 nil)
   (defparameter c-typep-alist3 nil)
-  ; Sucht ein Programm-File. Siehe INIT.LSP :
+  ; Sucht ein Programm-File. Siehe INIT.LISP :
   (defun search-file (filename extensions
                       &aux (use-extensions (null (pathname-type filename))) )
     (when use-extensions
@@ -210,7 +210,7 @@
           (apply #'lisp:macroexpand-1 (cons dummysym (cdr form)) env)
         )
   ) )
-  ; siehe DEFS1.LSP :
+  ; siehe DEFS1.LISP :
   (defun date-format ()
     (ENGLISH "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}")
   )
@@ -8273,8 +8273,8 @@ der Docstring (oder NIL).
         (c-GLOBAL-FUNCTION-CALL-form `(MAPLAP ,funform ,@forms))
 ) ) ) )
 
-;; c-TYPEP vgl. TYPEP in type.lsp
-(defun c-TYPEP () ; vgl. TYPEP in type.lsp
+;; c-TYPEP vgl. TYPEP in type.lisp
+(defun c-TYPEP () ; vgl. TYPEP in type.lisp
   (test-list *form* 3 3)
   (let ((objform (second *form*))
         (typeform (macroexpand-form (third *form*))))
@@ -8396,7 +8396,7 @@ der Docstring (oder NIL).
     (c-GLOBAL-FUNCTION-CALL-form `(TYPEP ,objform ,typeform))
 ) )
 
-;; c-FORMAT vgl. FORMAT in format.lsp
+;; c-FORMAT vgl. FORMAT in format.lisp
 (defun c-FORMAT ()
   (test-list *form* 3)
   ; Give a warning for the common error of forgotten destination.
@@ -12193,7 +12193,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                                (new-output-stream nil) (new-listing-stream nil)
                     )
   (setq file (or (first (search-file file *source-file-types*))
-                 (merge-pathnames file (merge-pathnames '#".lsp"))
+                 (merge-pathnames file (merge-pathnames '#".lisp"))
   )          )
   (when (and output-file (not (streamp output-file)))
     (setq output-file
@@ -12356,7 +12356,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ; Das muss mit compile-file (s.o.) konsistent sein!
 (defun compile-file-pathname (file &key (output-file 'T) &allow-other-keys)
   (setq file (or (first (search-file file *source-file-types*))
-                 (merge-pathnames file (merge-pathnames '#".lsp"))
+                 (merge-pathnames file (merge-pathnames '#".lisp"))
   )          )
   (when (and output-file (not (streamp output-file)))
     (setq output-file

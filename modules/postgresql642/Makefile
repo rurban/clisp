@@ -12,13 +12,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = postgresql.o link.sh Makefile postgresql.lsp
+DISTRIBFILES = postgresql.o link.sh Makefile postgresql.lisp
 distribdir =
 
 all : postgresql.o
 
-postgresql.c : postgresql.lsp
-	$(CLISP) -c postgresql.lsp
+postgresql.c : postgresql.lisp
+	$(CLISP) -c postgresql.lisp
 
 postgresql.o : postgresql.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c postgresql.c

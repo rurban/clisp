@@ -1,4 +1,4 @@
-;;;; File DEFMACRO.LSP
+;;;; File DEFMACRO.LISP
 ;;; Macro DEFMACRO und einige Hilfsfunktionen für komplizierte Macros.
 ;;; 1. 9. 1988
 ;;; Adaptiert an DEFTYPE am 10.6.1989

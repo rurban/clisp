@@ -75,7 +75,7 @@
 <h1 align=center>Implementation Notes for CLISP</h1>
 
 <center>
-<strong>Last modified: 2000-02-18</strong><br>
+<strong>Last modified: 2000-03-31</strong><br>
 <img src="clisp.gif" width=48 height=48 alt="[CLISP icon]">
 </center>
 
@@ -2884,7 +2884,7 @@ wildcard characters are allowed in the strings, and <var>name</var> =
   <tr> <td>or
     <td align=right><code>                      name.typ</code>
   <tr> <td>or
-    <td align=right><code>    sub1.typ/**/sub3.typ/x*.lsp</code>
+    <td align=right><code>    sub1.typ/**/sub3.typ/x*.lisp</code>
   <tr> <td>or similar.
 </table>
 
@@ -3022,7 +3022,7 @@ wildcard characters are allowed in the strings, and <var>name</var> =
   <tr> <td>or
    <td align=right><code>                         name.typ</code>
   <tr> <td>or
-   <td align=right><code>       sub1.typ/**/sub3.typ/x*.lsp</code>
+   <td align=right><code>       sub1.typ/**/sub3.typ/x*.lisp</code>
   <tr> <td>or similar.
 </table>
 </dl>
@@ -3094,7 +3094,7 @@ wildcard characters are allowed in the strings, and <var>name</var>
   <tr> <td>or
    <td align=right><code>                     name.typ</code>
   <tr> <td>or
-   <td align=left><code>*:\sub1.typ\**\sub3.typ\x*.lsp</code>
+   <td align=left><code>*:\sub1.typ\**\sub3.typ\x*.lisp</code>
   <tr> <td>or similar.
 </table>
 
@@ -3267,8 +3267,8 @@ workaround for this is to use &#34;&lt;Foo$Path&gt;&#34; instead of
  <p><dt><a name="pathnames-externally-acorn">
      from Lisp-string notation to internal representation</a>
 
- <dd><em>No</em> swapping. "foo.lsp" means file type
-"lsp" and file name "foo". This is pseudo-BNF:
+ <dd><em>No</em> swapping. "foo.lisp" means file type
+"lisp" and file name "foo". This is pseudo-BNF:
 <dl>
 <dt>legal character ::= <dd>any ISO latin-1 graphic character &gt;= ' ' except
                     '.' ':' '*' '#' '$' '&amp;' '@' '^' '%' '\' '?'
@@ -4549,7 +4549,7 @@ but also of characters and some <code>#&lt;...&gt;</code> objects.
 
 <p>In the absence of <code><strong>sys::write-float-decimal</strong></code>,
 floating point numbers are output in radix 2.  This function is defined
-in <code>floatpri.lsp</code> and is not available if you run CLISP
+in <code>floatprint.lisp</code> and is not available if you run CLISP
 without a memory image.
 
 <p>If <a href="CLHSROOT/Body/var_stprint-readablyst.html">
@@ -4567,7 +4567,7 @@ floating point numbers are printed.
 <code>*print-pretty*</code></a> is initially
 <a href="CLHSROOT/Body/convar_nil.html">
 <code>nil</code></a> but set to <a href="CLHSROOT/Body/convar_t.html">
-<code>t</code></a> in <code>config.lsp</code>. This makes screen output
+<code>t</code></a> in <code>config.lisp</code>. This makes screen output
 prettier.
 <!-- #else -->
 <dt><em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
@@ -4575,7 +4575,7 @@ prettier.
 <code>*print-pretty*</code></a> is initially
 <a href="CLHSROOT/Body/convar_nil.html">
 <code>nil</code></a> but set to <a href="CLHSROOT/Body/convar_t.html">
-<code>t</code></a> in <code>config.lsp</code>. This makes unbuffered screen
+<code>t</code></a> in <code>config.lisp</code>. This makes unbuffered screen
 output much faster.
 <!-- #endif -->
 </dl>
@@ -4683,20 +4683,20 @@ meaningfully read in:
 <ul>
 <li><code>#Y</code> is used to read compiled functions and to set the
      current input stream's encoding.
-<li><code>#""</code> is used to read pathnames: <code>#"test.lsp"</code>
-     is the value of <code>(pathname "test.lsp")</code>
+<li><code>#""</code> is used to read pathnames: <code>#"test.lisp"</code>
+     is the value of <code>(pathname "test.lisp")</code>
 <dl>
 <!-- #if defined(MSDOS) -->
 <dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
     <strong>Win32</strong> platforms only.</em>
 <dd> As in all strings, backslashes must be written twice here:
-     <code>#"A:\\programs\\test.lsp"</code>
+     <code>#"A:\\programs\\test.lisp"</code>
 <!-- #endif -->
 
 <!-- #ifdef RISCOS -->
 <dt><em>Platform dependent: <strong>Acorn</strong> platforms only.</em>
 <dd> As in all strings, backslashes must be written twice here:
-     <code>#"\\.test.lsp"</code>
+     <code>#"\\.test.lisp"</code>
 <!-- #endif -->
 </dl>
 </ul>
@@ -4798,7 +4798,7 @@ compiles a file to platform-independent bytecode.
 <code>*compile-print*</code></a> provide
 defaults for the <code>:warnings</code>, <code>:verbose</code>,
 <code>:print</code> keyword arguments, respectively.  For each input
-file (default file type: <code>#p".lsp"</code>) the following
+file (default file type: <code>#p".lisp"</code>) the following
 files are generated:
 
 <p><table border=1>
@@ -5249,7 +5249,7 @@ detailed analysis), and the number of GCs performed, if any.
 <code>ed</code></a> calls the external
 editor specified by the variable
 <code><strong>lisp:*editor*</strong></code> (see
-<code>config.lsp</code>). If the argument is a function name which was
+<code>config.lisp</code>). If the argument is a function name which was
 defined in the current session (not loaded from a file), the program
 text to be edited is a pretty-printed version (without comments) of the
 text which was used to define the function.
@@ -5306,7 +5306,7 @@ consumed by the current CLISP process since its startup.
   <code>short-site-name</code></a>,
   <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
   <code>long-site-name</code></a> should be defined in a site-specific
-  <code>config.lsp</code> file.
+  <code>config.lisp</code> file.
 <!-- #else -->
  <dt><em>Platform dependent: <strong>DOS</strong>,
      <strong>OS/2</strong>, <strong>Amiga</strong>,
@@ -5321,7 +5321,7 @@ consumed by the current CLISP process since its startup.
   <code>short-site-name</code></a>,
   <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
   <code>long-site-name</code></a> should be defined by every user in his
-  site-specific <code>config.lsp</code> file.
+  site-specific <code>config.lisp</code> file.
 <!-- #endif -->
 </dl>
 
@@ -7252,7 +7252,7 @@ implies the following:
 <a name="macros3"></a><h3>Extensions-1.10. Additional Fancy Macros</h3>
 
 <p>If you uncomment the <code>(load "macros3")</code> line in the file
-<code>"init.lsp"</code> before doing <code>make</code>, or load the file
+<code>"init.lisp"</code> before doing <code>make</code>, or load the file
 <code>"macros3"</code>into a running CLISP, you get access to the
 following macros:
 
@@ -7521,8 +7521,8 @@ this order.)
    --&gt;
    TO_LOAD='/<var>somewhere</var>/bindings/linux.fas'
 </code></pre>
-<li>Compile <code>linux.lsp</code>, creating <code>linux.c</code>:
-<pre><code>   $ clisp -c /<var>somewhere</var>/bindings/linux.lsp
+<li>Compile <code>linux.lisp</code>, creating <code>linux.c</code>:
+<pre><code>   $ clisp -c /<var>somewhere</var>/bindings/linux.lisp
 </code></pre>
 <li>Create a new linking set:
 <pre><code>   $ clisp-link add-module-set linux base base+linux
@@ -8382,7 +8382,7 @@ Suppose the following is defined in a file <code>"cfun.c"</code>:
        }
 </code></pre>
 It is possible to call this function from Lisp using the file
-<code>"callcfun.lsp"</code> (do not call it <code>"cfun.lsp"</code> -
+<code>"callcfun.lisp"</code> (do not call it <code>"cfun.lisp"</code> -
 <code>compile-file</code> would overwrite <code>"cfun.c"</code>) whose
 contents is:
 <pre>
@@ -8408,7 +8408,7 @@ Use the module facility:
        $ ln -s ../cfun.o cfun.o
        Add cfun.o to NEW_LIBS and NEW_FILES in link.sh.
        $ cd ..
-       $ base/lisp.run -M base/lispinit.mem -c callcfun.lsp
+       $ base/lisp.run -M base/lispinit.mem -c callcfun.lisp
        $ clisp-link add-module-set cfun base base+cfun
        $ base+cfun/lisp.run -M base+cfun/lispinit.mem -i callcfun
        &gt; (test-c-call::call-cfun)
@@ -8461,7 +8461,7 @@ variable-sized array.
            free(sorted_array);
        }
 </code></pre>
-This is accompanied by <code>"sort2.lsp"</code>:
+This is accompanied by <code>"sort2.lisp"</code>:
 <pre>
 <code>       (use-package "FFI")
        (def-call-in lispsort_begin (:arguments (n int))
@@ -8484,7 +8484,7 @@ This is accompanied by <code>"sort2.lsp"</code>:
          (sort v #'&lt;)
        )
 </code></pre>
-To test this, use the following test file <code>"sorttest.lsp"</code>:
+To test this, use the following test file <code>"sorttest.lisp"</code>:
 <pre>
 <code>       (def-call-out sort10
                      (:name "lispsort_double")
@@ -8502,7 +8502,7 @@ Now try
        $ ln -s ../sort1.o sort1.o
        Add sort1.o to NEW_LIBS and NEW_FILES in link.sh.
        $ cd ..
-       $ base/lisp.run -M base/lispinit.mem -c sort2.lsp sorttest.lsp
+       $ base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
        $ clisp-link add-module-set sort base base+sort
        $ base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
        &gt; (sort10 10 '#(0.501d0 0.528d0 0.615d0 0.550d0 0.711d0
@@ -8834,7 +8834,7 @@ you, the programmer, may have not defined, you may consider declaring
 every function yourself to be certain what the return and argument types
 are. See example 4 below.
 
-<p>The file <code>read-fd.lsp</code> defines the function
+<p>The file <code>read-fd.lisp</code> defines the function
 <code>make-partial-fd-file</code> with which the provided
 <code>".affi"</code> files have been prepared from the
 original Amiga FD files (located in the directory
@@ -8866,7 +8866,7 @@ CLISP does not call finalizers when it exits, use
 imported from the package AFFI originating from a brain-damage, causing
 the usual symbol headaches when using foreign functions calls within
 macros. Luckily, even if the high-level interface (or its implementation
-in <code>affi1.lsp</code>) were to change, the low-level part
+in <code>affi1.lisp</code>) were to change, the low-level part
 (<code>affi.d</code>) should remain untouched as all it knows are
 integers and foreign-pointers, no symbols. The difficulty is just to get
 the library base value at run-time. Feel free to suggest enhancements to
@@ -9175,7 +9175,7 @@ languages.
       executables so that clicking on them would make CLISP execute the
       appropriate code.
  <dt><strong>Linux</strong> with <code>CONFIG_BINFMT_MISC=y</code>
-  <dd>Associate the extensions <code>fas</code> and <code>lsp</code>
+  <dd>Associate the extensions <code>fas</code> and <code>lisp</code>
       with CLISP; then you can make the files executable and run them
       from the command line.
  <dt><strong>Amiga</strong>
@@ -9184,8 +9184,8 @@ languages.
       appropriate code.  Note that several <code>fas</code> files
       can be concatenated (using <code>Join</code>) into one file.
 </dl>
-These three techniques apply to a single <code>lsp</code> or <code>fas</code>
-file. If your application is made up of several <code>lsp</code> or
+These three techniques apply to a single <code>lisp</code> or <code>fas</code>
+file. If your application is made up of several <code>lisp</code> or
 <code>fas</code> files, you can simply concatenate them (using
 <code>cat</code>(1)) into one file; the techniques then apply to that
 concatenated file.
@@ -9194,7 +9194,7 @@ concatenated file.
 <!-- #ifdef UNIX -->
 <dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 
-<dd>On Unix, a text file (<code>fas</code> or <code>lsp</code>) can be
+<dd>On Unix, a text file (<code>fas</code> or <code>lisp</code>) can be
 made executable by adding a first line of the form
 
 <pre><code>#!<var>interpreter</var> [<var>interpreter-args</var>]</code></pre>
@@ -9309,17 +9309,17 @@ do (as <code>root</code>; you might want to put these lines into
 <code>/etc/rc.d/rc.local</code>):
 
 <pre><code><strong>bash#</strong> echo ":CLISP:E::fas::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
-<strong>bash#</strong> echo ":CLISP:E::lsp::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register</code></pre>
+<strong>bash#</strong> echo ":CLISP:E::lisp::/usr/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register</code></pre>
 
 <p>Then you can do the following:
-<pre><code><strong>bash$</strong> cat &lt;&lt; EOF &gt; hello.lsp
+<pre><code><strong>bash$</strong> cat &lt;&lt; EOF &gt; hello.lisp
 (print "hello, world!")
 EOF
-<strong>bash$</strong> clisp -c hello.lsp
+<strong>bash$</strong> clisp -c hello.lisp
 
-Compiling file /home/sds/hello.lsp ...
+Compiling file /home/sds/hello.lisp ...
 
-Compilation of file /home/sds/hello.lsp is finished.
+Compilation of file /home/sds/hello.lisp is finished.
 0 errors, 0 warnings
 <strong>bash$</strong> chmod +x hello.fas
 <strong>bash$</strong> hello.fas

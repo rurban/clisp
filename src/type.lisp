@@ -19,7 +19,7 @@
 (export '(type-expand-1 type-expand))
 (in-package "SYSTEM")
 
-; vorläufig, solange bis clos.lsp geladen wird:
+; vorläufig, solange bis clos.lisp geladen wird:
 (unless (fboundp 'clos::built-in-class-p)
   (defun clos::built-in-class-p (object) (declare (ignore object)) nil)
   (defun clos::subclassp (class1 class2) (declare (ignore class1 class2)) nil)

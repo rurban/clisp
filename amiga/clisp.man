@@ -122,10 +122,10 @@ FILES
      lispinit.mem
           initial memory image
 
-     config.lsp
+     config.lisp
           site-dependent configuration
 
-     *.lsp
+     *.lisp
           lisp source
 
      *.fas

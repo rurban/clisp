@@ -215,7 +215,7 @@ Discussion:
 
 * How to customize Emacs for use of CLISP?
 
-  1. When you load a Lisp file (extension ".lsp") into Emacs, it
+  1. When you load a Lisp file (extension ".lisp") into Emacs, it
      automatically switches to lisp-mode, magically by a variable
      called auto-mode-alist.
      One feature of the lisp-mode is that the tab key indents the current

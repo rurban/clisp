@@ -1775,7 +1775,7 @@
   #if defined(UNIX) || defined(RISCOS)
     #define UNIX_CHARNAMES
   #endif
-# Bei Erweiterung: CONSTOBJ, CHARSTRG, FORMAT.LSP erweitern.
+# Bei Erweiterung: CONSTOBJ, CHARSTRG, FORMAT.LISP erweitern.
 
 # Whether to link with GNU libiconv, for character set conversion.
   #if 1
@@ -1789,7 +1789,7 @@
   #if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
     # Wenn nur eine Sprache gewünscht ist, brauchen wir kein gettext.
     # Mit einem C++-Compiler ist die gettext-Library nicht compilierbar.
-    # Ist der Zeichensatz nicht ISOLATIN oder IBMPC, lässt sich spanish.lsp
+    # Ist der Zeichensatz nicht ISOLATIN oder IBMPC, lässt sich spanish.lisp
     # weder laden noch compilieren.
     #define GNU_GETTEXT
   #endif
@@ -1803,7 +1803,7 @@
       #define TERMINAL_USES_KEYBOARD
     #endif
   #endif
-# Bei Erweiterung: STREAM, USER1.LSP erweitern.
+# Bei Erweiterung: STREAM, USER1.LISP erweitern.
 
 # Ob wir die GNU Readline-Library für *TERMINAL-IO* benutzen:
   #if ((defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS)) && !defined(__cplusplus) && !defined(NO_READLINE)
@@ -1825,7 +1825,7 @@
       #define PIPES2  # bidirektionale Pipes
     #endif
   #endif
-# Bei Erweiterung: STREAM und USER2.LSP erweitern.
+# Bei Erweiterung: STREAM und USER2.LISP erweitern.
 
 # If the system has sockets, we support socket streams:
   # We assume that if we have gethostbyname(), we have a networking OS
@@ -1970,7 +1970,7 @@
   #if defined(TIME_UNIX) || defined(TIME_WIN32) || defined(TIME_UNIX_TIMES)
     #define SLEEP_2
   #endif
-# Bei Erweiterung: TIME, DEFS1.LSP erweitern.
+# Bei Erweiterung: TIME, DEFS1.LISP erweitern.
 
 # Ob das Betriebssystem uns die Run-Time liefern kann, oder ob wir sie
 # selber akkumulieren müssen (was bei Multitasking-Betriebssystemen ein wenig
@@ -4701,7 +4701,7 @@ typedef Srecord  Structure;
 #define structure_length(ptr)  srecord_length(ptr)
 #define Structure_length(obj)  structure_length(TheStructure(obj))
 
-# CLOS-Klassen (= Instanzen von <class>), siehe clos.lsp
+# CLOS-Klassen (= Instanzen von <class>), siehe clos.lisp
 typedef struct {
   SRECORD_HEADER
   object structure_types_2;   # Liste (metaclass <class>)

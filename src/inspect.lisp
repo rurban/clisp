@@ -514,4 +514,4 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
       (delete-package *package*))
     (values)))
 
-;;; inspect.lsp ends here
+;;; inspect.lisp ends here

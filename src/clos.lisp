@@ -16,7 +16,7 @@
   ;; Import:
   sys::error-of-type                                 ; in error.d definiert
   sys::function-name-p                               ; in control.d definiert
-  sys::function-block-name                           ; in init.lsp definiert
+  sys::function-block-name                           ; in init.lisp definiert
 ; clos::generic-function-p                           ; in predtype.d definiert
 ; clos::class-p clos:class-of clos:find-class        ; in predtype.d definiert
 ; clos::structure-object-p                           ; in record.d definiert
@@ -26,15 +26,15 @@
 ; clos:slot-boundp clos:slot-makunbound              ; in record.d definiert
 ; clos:slot-exists-p                                 ; in record.d definiert
 ; clos::class-gethash clos::class-tuple-gethash      ; in hashtabl.d definiert
-  compiler::memq compiler::*keyword-package*         ; in compiler.lsp definiert
-  compiler::%generic-function-lambda                 ; in compiler.lsp definiert
-  compiler::%optimize-function-lambda                ; in compiler.lsp definiert
-; clos:generic-flet clos:generic-labels              ; in compiler.lsp behandelt
+  compiler::memq compiler::*keyword-package*         ; in compiler.lisp definiert
+  compiler::%generic-function-lambda                 ; in compiler.lisp definiert
+  compiler::%optimize-function-lambda                ; in compiler.lisp definiert
+; clos:generic-flet clos:generic-labels              ; in compiler.lisp behandelt
   ;; Export:
-; clos::closclass   ; als Property in predtype.d, type.lsp, compiler.lsp benutzt
+; clos::closclass   ; als Property in predtype.d, type.lisp, compiler.lisp benutzt
 ; clos:class                     ; in record.d benutzt
-; clos:generic-function          ; in type.lsp, compiler.lsp benutzt
-; clos:standard-generic-function ; in predtype.d, type.lsp, compiler.lsp benutzt
+; clos:generic-function          ; in type.lisp, compiler.lisp benutzt
+; clos:standard-generic-function ; in predtype.d, type.lisp, compiler.lisp benutzt
 ; clos:slot-missing clos:slot-unbound  ; von record.d aufgerufen
 ; clos::*make-instance-table*          ; von record.d benutzt
 ; clos::*reinitialize-instance-table*  ; von record.d benutzt
@@ -42,22 +42,22 @@
 ; clos::initial-initialize-instance    ; von record.d aufgerufen
 ; clos::initial-make-instance          ; von record.d aufgerufen
 ; clos:print-object                    ; von io.d aufgerufen
-; clos:describe-object                 ; von user2.lsp aufgerufen
-; clos::define-structure-class         ; von defstruc.lsp aufgerufen
-; clos::defstruct-remove-print-object-method ; von defstruc.lsp aufgerufen
-; clos::built-in-class-p               ; von type.lsp aufgerufen
-; clos::subclassp                      ; von type.lsp aufgerufen, in compiler.lsp benutzt
-; clos:class-name                      ; in type.lsp, compiler.lsp benutzt
-; clos:find-class                      ; in compiler.lsp benutzt
-; clos::defgeneric-lambdalist-callinfo ; von compiler.lsp aufgerufen
-; clos::make-generic-function-form     ; von compiler.lsp aufgerufen
+; clos:describe-object                 ; von user2.lisp aufgerufen
+; clos::define-structure-class         ; von defstruct.lisp aufgerufen
+; clos::defstruct-remove-print-object-method ; von defstruct.lisp aufgerufen
+; clos::built-in-class-p               ; von type.lisp aufgerufen
+; clos::subclassp                      ; von type.lisp aufgerufen, in compiler.lisp benutzt
+; clos:class-name                      ; in type.lisp, compiler.lisp benutzt
+; clos:find-class                      ; in compiler.lisp benutzt
+; clos::defgeneric-lambdalist-callinfo ; von compiler.lisp aufgerufen
+; clos::make-generic-function-form     ; von compiler.lisp aufgerufen
 )
 
 ) ; defpackage
 
 (in-package "CLOS")
 
-;;; Exportierungen: ** auch in init.lsp ** !
+;;; Exportierungen: ** auch in init.lisp ** !
 (export '(
   ;; Namen von Funktionen und Macros:
   slot-value slot-boundp slot-makunbound slot-exists-p with-slots with-accessors
@@ -828,7 +828,7 @@
   (make-standard-slot-definition name allocation initargs location initer)
 )
 
-#| ; In defstruc.lsp ist im wesentlichen das Folgende enthalten.
+#| ; In defstruct.lisp ist im wesentlichen das Folgende enthalten.
 ; In record.d und hier wird benutzt, dass die ersten 4 Attribute übereinstimmen!
 (defstruct (structure-slot-definition (:include slot-definition)
             (:conc-name "DS-SLOT-")

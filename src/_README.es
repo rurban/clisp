@@ -80,11 +80,11 @@ Consta de los siguientes ficheros:
 #ifndef UNIX_BINARY_DISTRIB
    src/clisp.c            fuentes del programa
 #endif
-   src/config.lsp         configuración dependiente del lugar
+   src/config.lisp        configuración dependiente del lugar
 
 y - cuando le apetezca, si le gusta leer código fuente -
 
-   src/*.lsp              el código fuente de lispinit.mem
+   src/*.lisp             el código fuente de lispinit.mem
    src/*.fas              los mismos ficheros, una vez compilados
 #if !defined(UNIX_BINARY_DISTRIB) && defined(GNU_READLINE)
 
@@ -153,14 +153,14 @@ o
 #ifdef GNU_READLINE
       readline.dvi	 documentación de la librería GNU readline en formato DVI
 #endif
-      config.lsp         configuración dependiente del lugar
+      config.lisp        configuración dependiente del lugar
 #if !(defined(UNIX) || defined(WIN32))
-      timezone.lsp       zona horaria dependiente del lugar
+      timezone.lisp      zona horaria dependiente del lugar
 #endif
 
 y - cuando le apetezca, si le gusta leer código fuente -
 
-      *.lsp              el código fuente de lispinit.mem
+      *.lisp             el código fuente de lispinit.mem
 #if !defined(OS2)
       *.fas              los mismos ficheros, una vez compilados
 #endif
@@ -278,13 +278,13 @@ línea LIBS del fichero BASE/MAKEVARS por "libnoreadline.a".
 
 #endif
 #endif
-Cambie las cadenas en SRC/CONFIG.LSP, empleando para ello un editor de
+Cambie las cadenas en SRC/CONFIG.LISP, empleando para ello un editor de
 textos.
 #else
-Edite el fichero CONFIG.LSP y modifíquelo adecuadamente para su
+Edite el fichero CONFIG.LISP y modifíquelo adecuadamente para su
 estación, con especial atención a las definiciones de short-site-name
 y long-site-name. Si lo desea, también puede modificar la definición
-de la zona horaria al final del fichero TIMEZONE.LSP.
+de la zona horaria al final del fichero TIMEZONE.LISP.
 #endif
 Luego ejecute
 
@@ -317,15 +317,15 @@ seleccionado. Luego
 
 #endif
 #if defined(UNIX) || defined(WIN32)
-        (compile-file "src/config.lsp")
+        (compile-file "src/config.lisp")
         (load "src/config.fas")
 #else
-        (compile-file "config.lsp")
+        (compile-file "config.lisp")
         (load "config.fas")
 
-y - si modificó el fichero TIMEZONE.LSP -
+y - si modificó el fichero TIMEZONE.LISP -
 
-        (compile-file "timezone.lsp")
+        (compile-file "timezone.lisp")
         (load "timezone.fas")
 #endif
 

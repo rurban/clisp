@@ -41,7 +41,7 @@
 ;; DEUTSCH: Das temporäre File, das LISP beim Editieren anlegt:
 ;; FRANCAIS: Fichier temporaire créé par LISP pour l'édition :
 (defun editor-tempfile ()
-  "lisptemp.lsp"
+  "lisptemp.lisp"
 )
 
 ;; ENGLISH: (edit-file file) edits a file.

@@ -77,9 +77,9 @@ some platforms can be found in file unix/PLATFORMS.
 
 6. Type
 
-         make config.lsp
+         make config.lisp
 
-   and edit the contents of config.lsp appropriately for your site,
+   and edit the contents of config.lisp appropriately for your site,
    especially the definitions of short-site-name and long-site-name.
 
    If you have unpacked some add-on modules (see the main INSTALL file for

@@ -1,7 +1,7 @@
 ;;;; Copyright: (c) copyright 1996 by Gilbert Baumann, distributed under GPL.
 ;;;; Some parts are from the MIT-CLX Distribution, copyrighted by
 ;;;; Texas Instruments Incorporated, but freely distributable
-;;;; for details see image.lsp or the MIT-CLX distribution.
+;;;; for details see image.lisp or the MIT-CLX distribution.
 
 (provide ':clx)
 
@@ -1294,7 +1294,7 @@
 (defparameter *keyword-package* (find-package :keyword))
 (defun kintern (name) (intern (string name) *keyword-package*))
 
-;;;;From depdefs.lsp
+;;;;From depdefs.lisp
 ;;;;
 ;;; This defines a type which is a subtype of the integers.
 ;;; This type is used to describe all variables that can be array indices.

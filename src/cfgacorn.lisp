@@ -9,10 +9,10 @@
 
 (defun machine-type () "Acorn")
 (defun machine-version () "Risc PC, OS 3.7")
-(defun machine-instance () (or (sys::getenv "HOSTNAME") "edit config.lsp"))
+(defun machine-instance () (or (sys::getenv "HOSTNAME") "edit config.lisp"))
 
-(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
-(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
+(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
+(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:

@@ -65,7 +65,7 @@ o The *-00 version:
 
   + resembles the *-low version but has been compiled for a 68000 only. It
     doesn't need to clear the upper 8 bits, leading to faster execution on
-    these machines (I measured 8% when compiling AFFI1.LSP, not that much).
+    these machines (I measured 8% when compiling AFFI1.LISP, not that much).
 
   + removing german and french language support would make the executable
     size 14% smaller but not the image without new .fas files, so I
@@ -117,7 +117,7 @@ o CLISP always allocates its own stack (in private memory) and should
 o The lisp.run executable contains symbolic information. Symbolic information
   will help you report bugs (if you find any, CLISP has been very stable).
 
-o Hints for your config.lsp:
+o Hints for your config.lisp:
 (defparameter *editor* "memacs")        ; Micro-Emacs editor
 (defparameter *editor* "ced -keepio")   ; Cygnus ED (right?)
 

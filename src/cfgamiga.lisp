@@ -8,11 +8,11 @@
 
 (defun machine-type () "Amiga")
 (defun machine-version () "Amiga, OS 2.04-3.1")
-(defun machine-instance () (or (sys::getenv "HOSTNAME") "edit config.lsp"))
+(defun machine-instance () (or (sys::getenv "HOSTNAME") "edit config.lisp"))
 
-(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
+(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
 
-(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
+(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:
@@ -23,7 +23,7 @@
 ;; ENGLISH: The temporary file LISP creates for editing:
 ;; DEUTSCH: Das temporäre File, das LISP beim Editieren anlegt:
 ;; FRANCAIS: Fichier temporaire créé par LISP pour l'édition :
-(defun editor-tempfile () "T:lisptemp.lsp")
+(defun editor-tempfile () "T:lisptemp.lisp")
 
 ;; ENGLISH: The list of directories where programs are searched on LOAD etc.
 ;;          if device and directory are unspecified:
@@ -42,11 +42,11 @@
 ;; FRANCAIS: Pour que les sorties sur l'écran soient plus rapides et plus lisibles:
 (setq *print-pretty* t)
 
-;; ENGLISH: Also set the variable *default-time-zone* in TIMEZONE.LSP according
+;; ENGLISH: Also set the variable *default-time-zone* in TIMEZONE.LISP according
 ;;          to your time zone.
-;; DEUTSCH: Setzen Sie auch die Variable *default-time-zone* in TIMEZONE.LSP
+;; DEUTSCH: Setzen Sie auch die Variable *default-time-zone* in TIMEZONE.LISP
 ;;          auf die bei Ihnen gültige Zeitzone.
-;; FRANCAIS: Dans TIMEZONE.LSP, affectez à *default-time-zone* la valeur
+;; FRANCAIS: Dans TIMEZONE.LISP, affectez à *default-time-zone* la valeur
 ;;           correspondante à votre fuseau horaire.
 ;; (setq *default-time-zone* 0)
 

@@ -7,7 +7,7 @@ CLISP = clisp -q -norc
 LN = ln
 SHELL = /bin/sh
 
-DISTRIBFILES = link.sh Makefile clx-preload.lsp clx.lsp clx.fas image.lsp image.fas clx.o
+DISTRIBFILES = link.sh Makefile clx-preload.lisp clx.lisp clx.fas image.lisp image.fas clx.o
 distribdir =
 
 ### Custom defs.
@@ -21,11 +21,11 @@ X_CFLAGS = @X_CFLAGS@
 
 all : clx.fas image.fas clx.o
 
-clx.fas clx.lib: clx.lsp clx-preload.lsp
-	$(CLISP) -i clx-preload.lsp -c clx.lsp
+clx.fas clx.lib: clx.lisp clx-preload.lisp
+	$(CLISP) -i clx-preload.lisp -c clx.lisp
 
-image.fas: image.lsp clx.lib
-	$(CLISP) -i clx-preload.lsp -c image.lsp
+image.fas: image.lisp clx.lib
+	$(CLISP) -i clx-preload.lisp -c image.lisp
 
 $(E2D): e2d.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -o $(E2D) e2d.c

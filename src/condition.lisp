@@ -1178,7 +1178,7 @@ muffle-cerrors appease-cerrors exit-on-error
 
 ;;; 29.4.2. Assertions
 
-;; These macros supersede the corresponding ones from macros2.lsp.
+;; These macros supersede the corresponding ones from macros2.lisp.
 
 (defun report-new-value (stream)
   (write-string (report-one-new-value-string) stream)
@@ -1280,7 +1280,7 @@ muffle-cerrors appease-cerrors exit-on-error
 
 ;;; 29.4.3. Exhaustive Case Analysis
 
-;; These macros supersede the corresponding ones from macros2.lsp.
+;; These macros supersede the corresponding ones from macros2.lisp.
 
 (flet ((parenthesize-keys (clauses)
          ;; PARENTHESIZE-KEYS is necessary to avoid confusing

@@ -6,8 +6,8 @@
 (mapcar #'fmakunbound '(short-site-name long-site-name
                         editor-name edit-file editor-tempfile))
 
-(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
-(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
+(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
+(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:
@@ -27,7 +27,7 @@
 ;; DEUTSCH: Das temporäre File, das LISP beim Editieren anlegt:
 ;; FRANCAIS: Fichier temporaire créé par LISP pour l'édition :
 (defun editor-tempfile ()
-  (merge-pathnames "lisptemp.lsp" (user-homedir-pathname))
+  (merge-pathnames "lisptemp.lisp" (user-homedir-pathname))
 )
 
 ;; ENGLISH: The list of directories where programs are searched on LOAD etc.:

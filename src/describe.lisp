@@ -506,7 +506,7 @@ to print the corresponding values, or T for all of them.")
     (if (compiled-function-p obj)
       ; compilierte Closure
       (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list allow-other-keys-p)
-          (sys::signature obj) ; siehe compiler.lsp
+          (sys::signature obj) ; siehe compiler.lisp
         (values req-anz opt-anz rest-p key-p keyword-list allow-other-keys-p)
       )
       ; interpretierte Closure

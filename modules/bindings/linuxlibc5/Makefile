@@ -12,13 +12,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = linux.o link.sh Makefile linux.lsp
+DISTRIBFILES = linux.o link.sh Makefile linux.lisp
 distribdir =
 
 all : linux.o
 
-linux.c : linux.lsp
-	$(CLISP) -c linux.lsp
+linux.c : linux.lisp
+	$(CLISP) -c linux.lisp
 
 linux.o : linux.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c linux.c

@@ -39,7 +39,7 @@ The files *.tst contain test forms and their corresponding results.
 You may feed the test forms one by one to an interpreter and compare the
 results you get with the predicted ones.
 
-This tasks is automated by tests.lsp. Run
+This tasks is automated by tests.lisp. Run
 
       > (load "tests")
       > (run-all-tests)
@@ -65,7 +65,7 @@ Notes:
   deliberately ignoring a bug in your implementation.
 
 * The tests "hash", "readtable", "tread", "tprint" are currently not used
-  by tests.lsp.
+  by tests.lisp.
 
 * Additions are welcome.
 

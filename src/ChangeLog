@@ -1,3 +1,31 @@
+2000-03-31  Bruno Haible  <haible@clisp.cons.org>
+
+        Renamed all *.lsp files to *.lisp.
+        * Makefile.devel, configure: Update.
+        * _README.en, _README.de, _README.es: Update.
+        * _clisp.1, _clisp.html, _clisp.c, _impnotes.html: Update.
+        * constobj.d (O(source_file_type)): Change to #".lisp".
+        * cfg*.lisp (editor-tempfile): Return "lisptemp.lisp".
+        * edit.lisp (editor-tempfile): Likewise.
+        * compiler.lisp (compile-file, compile-file-pathname): Use ".lisp"
+          as default pathname type.
+        * defs1.lsp (default logical pathname translations): Map ".LISP" to
+          ".lisp".
+        * init.lsp (*source-file-types*): Set to (#".lisp" #".lsp").
+        * clisp-link.in: Update.
+        * makemake.in: Update.
+        * gettext/po/{Makefile.devel,clisp-xgettext}: Update.
+        * acorn/swap-ext.pl: Update.
+        * nextapp/Lisp/Coordinator.m: Update.
+        * os2/{convert.bax,interpreted.in}: Update.
+        * modules/bindings/linuxlibc5/Makefile: Update.
+        * modules/bindings/linuxlibc6/Makefile: Update.
+        * modules/clx/mit-clx/{Makefile*,README.CLISP,link.sh}: Update.
+        * modules/clx/new-clx/{Makefile.in,README,link.sh.in,clx.f,
+          clx-ini.lisp,clx.lisp,demos/sokoban.lisp}: Update.
+        * modules/regexp/{Makefile.in,README,configure.in}: Update.
+        * modules/wildcard/{Makefile.in,configure.in}: Update.
+
 2000-03-30  Bruno Haible  <haible@clisp.cons.org>
 
         * lispbibl.d (hz): Undefine.

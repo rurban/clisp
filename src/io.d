@@ -351,8 +351,8 @@
         table['\''] = L(quote_reader);
         table['#'] = popSTACK(); # Dispatch-Vektor für '#'
         table[';'] = L(line_comment_reader);
-        table['`'] = S(backquote_reader); # siehe BACKQUOT.LSP
-        table[','] = S(comma_reader); # siehe BACKQUOT.LSP
+        table['`'] = S(backquote_reader); # siehe BACKQUOTE.LISP
+        table[','] = S(comma_reader); # siehe BACKQUOTE.LISP
         pushSTACK(m_table); # retten
       }
       # Readtable bauen:
@@ -2035,7 +2035,7 @@ LISPFUNN(set_readtable_case,2)
         return; # mv_space/mv_count belassen
       } else {
         # Dispatch-Macro-Zeichen.
-        # When this changes, keep DISPATCH-READER in defs2.lsp up to date.
+        # When this changes, keep DISPATCH-READER in defs2.lisp up to date.
         pushSTACK(macrodef); # Vektor retten
         var object arg; # Argument (Integer >=0 oder NIL)
         var object subch; # sub-char

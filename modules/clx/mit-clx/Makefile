@@ -8,15 +8,15 @@ lisplibdir = $(libdir)/lisp
 CLISP = clisp
 LISP = $(CLISP)
 
-ALLLSP = attributes.lsp buffer.lsp bufmac.lsp clx.lsp depdefs.lsp \
-         dependent.lsp describe.lsp display.lsp fonts.lsp gcontext.lsp \
-         graphics.lsp image.lsp input.lsp keysyms.lsp macros.lsp manager.lsp \
-         package.lsp requests.lsp resource.lsp text.lsp trace.lsp translate.lsp
+ALLLISP = attributes.lisp buffer.lisp bufmac.lisp clx.lisp depdefs.lisp \
+          dependent.lisp describe.lisp display.lisp fonts.lisp gcontext.lisp \
+          graphics.lisp image.lisp input.lisp keysyms.lisp macros.lisp manager.lisp \
+          package.lisp requests.lisp resource.lisp text.lisp trace.lisp translate.lisp
 
-ALLFAS = attributes.fas buffer.fas bufmac.fas clx.fas depdefs.fas \
-         dependent.fas describe.fas display.fas fonts.fas gcontext.fas \
-         graphics.fas image.fas input.fas keysyms.fas macros.fas manager.fas \
-         package.fas requests.fas resource.fas text.fas trace.fas translate.fas
+ALLFAS =  attributes.fas buffer.fas bufmac.fas clx.fas depdefs.fas \
+          dependent.fas describe.fas display.fas fonts.fas gcontext.fas \
+          graphics.fas image.fas input.fas keysyms.fas macros.fas manager.fas \
+          package.fas requests.fas resource.fas text.fas trace.fas translate.fas
 
 
 # Choose one of the packers:
@@ -43,17 +43,17 @@ PACKEXT = .tar.Z
 
 SHELL = /bin/sh
 
-DISTRIBFILES = link.sh Makefile README.CLISP $(ALLLSP) $(ALLFAS)
+DISTRIBFILES = link.sh Makefile README.CLISP $(ALLLISP) $(ALLFAS)
 distribdir =
 
 all: defsystem.fas stamp.fas $(ALLFAS) clx.mem
 
-defsystem.fas defsystem.lib : defsystem.lsp
+defsystem.fas defsystem.lib : defsystem.lisp
 	$(LISP) -q -c defsystem
 
 $(ALLFAS) : stamp.fas
 
-stamp.fas : $(ALLLSP) defsystem.fas
+stamp.fas : $(ALLLISP) defsystem.fas
 	$(LISP) -m 4MB -q -i defsystem -x '(compile-clx)'
 	touch stamp.fas
 
@@ -71,7 +71,7 @@ install : clx.mem
 distrib : src-distrib clisp-distrib
 
 src-distrib : force
-	$(PACK) $(PACKOPT) /tmp/clx-src$(PACKEXT) README Makefile *.lsp *.txt
+	$(PACK) $(PACKOPT) /tmp/clx-src$(PACKEXT) README Makefile *.lisp *.txt
 
 clisp-distrib : force clx.mem
 	$(PACK) $(PACKOPT) /tmp/clx$(PACKEXT) README clx.mem

@@ -16,7 +16,7 @@ The source files for unpreprocessed C code.
 The C code after preprocessing by ansidecl.
 
 .TP
-.B *.lsp
+.B *.lisp
 The source files for lisp code.
 
 .TP
@@ -381,124 +381,124 @@ Lisp source files:
 
 .RS 4
 .TP
-.B init.lsp
+.B init.lisp
 first file to be loaded, loads everything else
 .TP
-.B defseq.lsp
+.B defseq.lisp
 defines the usual sequence types for the generic sequence functions
 .TP
-.B backquot.lsp
+.B backquote.lisp
 implements the backquote read macro
 .TP
-.B defmacro.lsp
+.B defmacro.lisp
 implements
 .I defmacro
 .TP
-.B macros1.lsp
+.B macros1.lisp
 the most important macros
 .TP
-.B macros2.lsp
+.B macros2.lisp
 some other macros
 .TP
-.B defs1.lsp
+.B defs1.lisp
 miscellaneous definitions
 .TP
-.B timezone.lsp
+.B timezone.lisp
 site-dependent definition of time zone, except for Unix
 .TP
-.B places.lsp
+.B places.lisp
 macros using places, definitions of most places
 .TP
-.B floatpri.lsp
+.B floatprint.lisp
 printing floating point numbers in base 10
 .TP
-.B type.lsp
+.B type.lisp
 functions working with type specifiers:
 .IR typep ", " subtypep
 .TP
-.B defstruc.lsp
+.B defstruct.lisp
 implements the
 .I defstruct
 macro
 .TP
-.B format.lsp
+.B format.lisp
 implements
 .I format
 .TP
-.B user1.lsp
+.B user1.lisp
 user interface, from the system's point of view
 .TP
-.B user2.lsp
+.B user2.lisp
 user interface, from the user's point of view
 .TP
-.B trace.lsp
+.B trace.lisp
 tracer
 .TP
-.B macros3.lsp
+.B macros3.lisp
 (optional) the macros
 .IR letf ", " letf* " and " ethe .
 .TP
-.B config.lsp
+.B config.lisp
 (user written) site-dependent configuration,
 may be a link to one of the following:
 .RS
 .TP 15
-.B cfgsunux.lsp
+.B cfgsunux.lisp
 for Unix, using SunOS
 .TP 15
-.B cfgunix.lsp
+.B cfgunix.lisp
 for any other Unix
 .TP 15
-.B cfgamiga.lsp
+.B cfgamiga.lisp
 for Amiga
 .TP 15
-.B cfgdos.lsp
+.B cfgdos.lisp
 for OS/2 version
 .TP 15
-.B cfgwin32.lsp
+.B cfgwin32.lisp
 for WinNT/Win95 version
 .TP 15
-.B cfgacorn.lsp
+.B cfgacorn.lisp
 for Acorn, using RiscOS
 .RE
 .TP
-.B compiler.lsp
+.B compiler.lisp
 compiles lisp code to bytecode
 .TP
-.B disassem.lsp
+.B disassem.lisp
 disassembles machine code
 .TP
-.B defs2.lsp
+.B defs2.lisp
 miscellaneous CLtL2 compatible definitions
 .TP
-.B loop.lsp
+.B loop.lisp
 implements a CLtL2/dpANS compatible LOOP macro
 .TP
-.B clos.lsp
+.B clos.lisp
 implements a subset of the Common Lisp Object System
 .TP
-.B conditio.lsp
+.B condition.lisp
 implements the Common Lisp Condition System
 .TP
-.B defs3.lsp
+.B defs3.lisp
 more CLtL2 compatible definitions
 .TP
-.B gstream.lsp
+.B gstream.lisp
 generic stream default methods
 .TP
-.B foreign1.lsp
+.B foreign1.lisp
 foreign language interface
 .TP
-.B screen.lsp
+.B screen.lisp
 the screen access package
 .TP
-.B rexx1.lsp
+.B rexx1.lisp
 for Amiga, an interface to Rexx
 .TP
-.B editor.lsp
+.B editor.lisp
 (optional) the screen editor
 .TP
-.B spanish.lsp
+.B spanish.lisp
 spanish user messages
 .RE
 

@@ -157,15 +157,15 @@ LIBOBJECTS = $(filter-out modules.o,$(OBJECTS))
 
 E_LSPFILES =
 ifdef FFI
-E_LSPFILES =foreign1.lsp
+E_LSPFILES =foreign1.lisp
 endif
 LSPFILES = \
- init.lsp defseq.lsp backquot.lsp defmacro.lsp macros1.lsp macros2.lsp \
- defs1.lsp places.lsp floatpri.lsp type.lsp defstruc.lsp format.lsp \
- user1.lsp user2.lsp trace.lsp macros3.lsp config.lsp compiler.lsp \
- timezone.lsp defs2.lsp clos.lsp conditio.lsp defs3.lsp gstream.lsp \
- screen.lsp loop.lsp rexx1.lsp affi1.lsp $(E_LSPFILES)
-FASFILES = $(subst .lsp,.fas,$(LSPFILES))
+ init.lisp defseq.lisp backquote.lisp defmacro.lisp macros1.lisp macros2.lisp \
+ defs1.lisp places.lisp floatprint.lisp type.lisp defstruct.lisp format.lisp \
+ user1.lisp user2.lisp trace.lisp macros3.lisp config.lisp compiler.lisp \
+ timezone.lisp defs2.lisp clos.lisp condition.lisp defs3.lisp gstream.lisp \
+ screen.lisp loop.lisp rexx1.lisp affi1.lisp $(E_LSPFILES)
+FASFILES = $(subst .lisp,.fas,$(LSPFILES))
 RFASFILES = $(addprefix $(R),$(FASFILES))
 
 IMEMFILE = interpreted.mem
@@ -175,12 +175,12 @@ CLISPEXE = lisp.run
 DMEMFILE = compiler.mem
 SMEMFILE = small.mem
 
-.SUFFIXES: .d .lsp
+.SUFFIXES: .d .lisp
 
-# No need to make .d or .lsp files
+# No need to make .d or .lisp files
 %.d:
 
-%.lsp:
+%.lisp:
 
 #%.c: $(R)%.d
 
@@ -296,17 +296,17 @@ ifdef LMEM
 	@avail >nil: flush
 endif
 	@date
-	$(CLISPEXE) -x (cd"/src/")(load"init.lsp")(saveinitmem)(exit)
+	$(CLISPEXE) -x (cd"/src/")(load"init.lisp")(saveinitmem)(exit)
 	@date
 	$(MV) $(R)lispinit.mem $@
 
 # compile LISP files
-$(RFASFILES): %.fas: %.lsp
+$(RFASFILES): %.fas: %.lisp
 ifdef LMEM
 	@avail >nil: flush
 endif
 	@date
-	$(CLISPEXE) -M $(DMEMFILE) -c $*.lsp
+	$(CLISPEXE) -M $(DMEMFILE) -c $*.lisp
 	@date
 
 # make a useful bootstrap world, set DMEMFILE=interpreted.mem
@@ -315,7 +315,7 @@ ifdef LMEM
 	@avail >nil: flush
 endif
 	@date
-	$(CLISPEXE) -x (cd"/src/")(load"init.lsp")(saveinitmem)(exit)
+	$(CLISPEXE) -x (cd"/src/")(load"init.lisp")(saveinitmem)(exit)
 	@date
 	$(MV) $(R)lispinit.mem $@
 

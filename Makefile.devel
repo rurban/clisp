@@ -270,7 +270,7 @@ os2--distrib : force
 	cp -p $(DOSDIR)/ANNOUNCE $(DOSDIR)/COPYRIGHT $(DOSDIR)/GNU-GPL $(DOSDIR)/SUMMARY $(DOSDIR)/NEWS $(TEMPDIR)
 	cp -p $(DOSDIR)/lisp.exe $(TEMPDIR)
 	cp -p $(DOSDIR)/lispinit.mem $(TEMPDIR)
-	cp -p $(DOSDIR)/*.lsp $(TEMPDIR)
+	cp -p $(DOSDIR)/*.lisp $(TEMPDIR)
 	# cp -p $(DOSDIR)/*.fas $(TEMPDIR)
 	mkdir $(TEMPDIR)/locale
 	for lang in en de fr es; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
