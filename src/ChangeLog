@@ -1,3 +1,10 @@
+2000-04-04  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (*source-file-types*): added #".cl"
+	(search-file <first def>): do not call `reverse'
+	(load): swap `*compiled-file-types*' and
+	`*source-file-types*' accordingly.
+
 2000-04-04  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * io.d (eof_handling): eof-value defaults to NIL.
