@@ -219,11 +219,13 @@
         goto chosen2;
         #else
         #ifdef HAVE_ENVIRONMENT
+        #define ascii_alphanumericp(c)  \
+          ((c>='A' && c<='Z') || (c>='a' && c<='z') || (c>='0' && c<='9'))
         {
           var const char* lang = getenv("LANG");
           if (lang) {
             # LANG hat i.a. die Syntax Sprache[_Land][.Zeichensatz]
-            if (lang[0]=='e' && lang[1]=='n' && !alphanumericp((uintB)lang[2])) { # "en"
+            if (lang[0]=='e' && lang[1]=='n' && !ascii_alphanumericp(lang[2])) { # "en"
               language = language_english; goto chosen2;
             }
           }
