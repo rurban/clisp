@@ -1,5 +1,21 @@
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make read_char_array recurse through any kind of stream.
+        * lispbibl.d (read_char_array): Change calling convention.
+        * stream.d (rd_ch_array_Pseudofun): Change type definition.
+          (rd_ch_array_error): Change calling convention.
+          (rd_ch_array_dummy): Likewise. Loop, calling read_char.
+          (read_char_array): Change calling convention.
+          (rd_ch_array_synonym): Likewise.
+          (rd_ch_array_concat): Likewise. Treat general case.
+          (rd_ch_array_twoway): Change calling convention.
+          (rd_ch_array_echo): New function.
+          (make_echo_stream): Use it.
+          (rd_ch_array_str_in): Change calling convention.
+          (rd_ch_array_unbuffered, rd_ch_array_buffered): Likewise.
+        * sequence.d (READ-CHAR-SEQUENCE): Update.
+        * pseudofun.d: Update.
+
         Make write_byte_array recurse through any kind of stream.
         * lispbibl.d (write_byte_array): Change calling convention.
         * stream.d (wr_by_array_Pseudofun): Change type definition.
