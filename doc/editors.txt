@@ -207,16 +207,11 @@ Discussion:
      /usr/X11R6/lib/X11/fonts/*/fonts.alias of your X11 distribution.
 
   5. Make the X11 selections work the normal way (i.e. as in xedit and
-     axe) in XEmacs. Copy the file emacs/souris.el from the CLISP distribution
-     to your home directory and insert into your .emacs:
+     axe). With recent versions of GNU Emacs and XEmacs, it is sufficient
+     to add to your .emacs:
 
          ;; X11 mouse and selection handling.
-         (if (string-match "XEmacs" emacs-version)
-           (load-file (concat (getenv "HOME") "/souris.el"))
-         )
-
-     Unfortunately, I have no fix for the broken X11 selections in
-     GNU Emacs.
+         (setq-default mouse-yank-at-point t)
 
 * How to customize Emacs for use of CLISP?
 
