@@ -1,3 +1,7 @@
+2001-03-22  Bruno Haible  <haible@clisp.cons.org>
+
+	* lispbibl.d (sstring_normal_p): Fix typo.
+
 2001-03-21  Bruno Haible  <haible@clisp.cons.org>
 
 	Make it possible to compile gstream.lisp with interpreted.mem.
