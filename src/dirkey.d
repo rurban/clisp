@@ -288,7 +288,7 @@ local HKEY parse_registry_path (const char* path, const char** base_ret)
 }
 
 local void open_reg_key (HKEY hkey, char* path, direction_t dir,
-                         int if_not_exists, HKEY* p_hkey) {
+                         if_does_not_exist_t if_not_exists, HKEY* p_hkey) {
   REGSAM perms = KEY_READ;
   switch (dir) {
     case DIRECTION_OUTPUT: perms = KEY_WRITE; break;
