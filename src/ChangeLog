@@ -1,3 +1,8 @@
+2005-01-09  Bruno Haible  <bruno@clisp.org>
+
+	* clisp-link.in (func_tmpdir): New function.
+	(run): Use it for all temporary files and directories.
+
 2005-01-03  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (SP_ueber, STACK_ueber): Output a newline before reset(1).

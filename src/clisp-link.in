@@ -42,6 +42,37 @@ verbose () {
   "$@"
 }
 
+# func_tmpdir
+# creates a temporary directory.
+# Sets variable
+# - tmp             pathname of freshly created temporary directory
+func_tmpdir ()
+{
+  # Use the environment variable TMPDIR, falling back to /tmp. This allows
+  # users to specify a different temporary directory, for example, if their
+  # /tmp is filled up or too small.
+  : ${TMPDIR=/tmp}
+  {
+    # Use the mktemp program if available. If not available, hide the error
+    # message.
+    tmp=`(umask 077 && mktemp -d -q "$TMPDIR/gtXXXXXX") 2>/dev/null` &&
+    test -n "$tmp" && test -d "$tmp"
+  } ||
+  {
+    # Use a simple mkdir command. It is guaranteed to fail if the directory
+    # already exists.  $RANDOM is bash specific and expands to empty in shells
+    # other than bash, ksh and zsh.  Its use does not increase security;
+    # rather, it minimizes the probability of failure in a very cluttered /tmp
+    # directory.
+    tmp=$TMPDIR/gt$$-$RANDOM
+    (umask 077 && mkdir "$tmp")
+  } ||
+  {
+    echo "$0: cannot create a temporary directory in $TMPDIR" >&2
+    { (exit 1); exit 1; }
+  }
+}
+
 # Remove the comment to Set debugging output on
 #set -x
 
@@ -519,10 +550,11 @@ case "$1" in
             LOAD=${LOAD}' '"$moduledir/$f"
           done
         done
-        tmpsharedlib="${TMPDIR-/tmp}/clisplink$$.so"
-        tmpinitlisp="${TMPDIR-/tmp}/clisplink$$.lisp"
+        func_tmpdir
+        tmpsharedlib="$tmp/clisplink.so"
+        tmpinitlisp="$tmp/clisplink.lisp"
         # What to do if we abort.
-        trap 'rm -f "$tmpsharedlib" "$tmpinitlisp"' 0 1 2 15
+        trap 'rm -rf "$tmp"' 0 1 2 15
         # Create an initialization file with a couple of load forms.
         (for f in $PRELOAD; do echo "(load \"${f}\")"; done
          echo "(system::dynload-modules \"$tmpsharedlib\" (quote ("
@@ -533,15 +565,16 @@ case "$1" in
         lib="$tmpsharedlib"; libs="$LINKLIBS"; verbose @createsharedlib@
         # Run clisp, attach the shared library and load the Lisp stuff.
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
-        rm -f "$tmpsharedlib" "$tmpinitlisp"
+        rm -rf "$tmp"
         trap '' 0 1 2 15
       fi
     else
-      destinationdir="${TMPDIR-/tmp}/clisplink$$"
+      func_tmpdir
+      destinationdir="$tmp"
       # What to do if we abort.
-      trap 'rm -rf "$destinationdir"' 0 1 2 15
+      trap 'rm -rf "$tmp"' 0 1 2 15
       "$0" add-module-sets "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem
-      rm -rf "$destinationdir"
+      rm -rf "$tmp"
       trap '' 0 1 2 15
     fi
     ;;
