@@ -232,7 +232,12 @@ local object valid_type1 (object name) {
     name = TheClass(name)->classname;
     goto expanded_unconstrained; # other classes could be DEFSTRUCT defined types
   }, {});
-  return NIL;
+  /* Call (SYS::SUBTYPE-SEQUENCE name): */
+  pushSTACK(name); funcall(S(subtype_sequence),1);
+  if (eq(value1,S(sequence)) || eq(value1,NIL))
+    return NIL;
+  name = value1;
+  /* TODO: Extract possible length constraints from the type specifier. */
  expanded_unconstrained:
   pushSTACK(unbound); # no length constraint
  expanded:

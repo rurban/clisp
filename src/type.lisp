@@ -1000,6 +1000,146 @@ Henry Baker:
  (type-null '(and integer character))
 |#
 
+;; Determines a sequence kind (an atom, as defined in defseq.lisp: one of
+;;   LIST - stands for LIST
+;;   VECTOR - stands for (VECTOR T)
+;;   STRING - stands for (VECTOR CHARACTER)
+;;   1, 2, 4, 8, 16, 32 - stands for (VECTOR (UNSIGNED-BYTE n))
+;;   0 - stands for (VECTOR NIL))
+;; that indicates the sequence type meant by the given type. Other possible
+;; return values are
+;;   SEQUENCE - denoting a type whose intersection with (OR LIST VECTOR) is not
+;;              subtype of LIST or VECTOR, or
+;;   NIL - indicating a type whose intersection with (OR LIST VECTOR) is empty.
+;; When the type is (OR (VECTOR eltype1) ... (VECTOR eltypeN)), the chosen
+;; element type is the smallest element type that contains all of eltype1 ...
+;; eltypeN.
+;;
+;; User-defined sequence types are not supported here.
+;;
+;; This implementation inlines the (tail-recursive) canonicalize-type
+;; function. Its advantage is that it doesn't cons as much. Also it employs
+;; some heuristics and does not have the full power of SUBTYPEP.
+(defun subtype-sequence (type)
+  (setq type (expand-deftype type))
+  (cond ((symbolp type)
+         (case type
+           ((LIST CONS NULL) 'LIST)
+           ((NIL) 'NIL)
+           ((BIT-VECTOR SIMPLE-BIT-VECTOR) '1)
+           ((STRING SIMPLE-STRING BASE-STRING SIMPLE-BASE-STRING) 'STRING)
+           ((VECTOR SIMPLE-VECTOR ARRAY SIMPLE-ARRAY) 'VECTOR)
+           ((SEQUENCE) 'SEQUENCE)
+           (t 'NIL)))
+        ((and (consp type) (symbolp (first type)))
+         (unless (and (list-length type) (null (cdr (last type))))
+           (typespec-error 'subtypep type))
+         (case (first type)
+           (MEMBER ; (MEMBER &rest objects)
+            (let ((kind 'NIL))
+              (dolist (x (rest type))
+                (setq kind (sequence-type-union kind (type-of-sequence x))))
+              kind))
+           (EQL ; (EQL object)
+            (unless (eql (length type) 2)
+              (typespec-error 'subtypep type))
+            (type-of-sequence (second type)))
+           (OR ; (OR type*)
+            (let ((kind 'NIL))
+              (dolist (x (rest type))
+                (setq kind (sequence-type-union kind (subtype-sequence x))))
+              kind))
+           (AND ; (AND type*)
+            (let ((kind 'SEQUENCE))
+              (dolist (x (rest type))
+                (setq kind (sequence-type-intersection kind (subtype-sequence x))))
+              kind))
+           ((SIMPLE-BIT-VECTOR BIT-VECTOR) ; (SIMPLE-BIT-VECTOR &optional size)
+            (when (cddr type)
+              (typespec-error 'subtypep type))
+            '1)
+           ((SIMPLE-STRING STRING SIMPLE-BASE-STRING BASE-STRING) ; (SIMPLE-STRING &optional size)
+            (when (cddr type)
+              (typespec-error 'subtypep type))
+            'STRING)
+           (SIMPLE-VECTOR ; (SIMPLE-VECTOR &optional size)
+            (when (cddr type)
+              (typespec-error 'subtypep type))
+            'VECTOR)
+           ((VECTOR ARRAY SIMPLE-ARRAY) ; (VECTOR &optional el-type size), (ARRAY &optional el-type dimensions)
+            (when (cdddr type)
+              (typespec-error 'subtypep type))
+            (let ((el-type (if (cdr type) (second type) '*)))
+              (if (eq el-type '*)
+                'VECTOR
+                (let ((eltype (upgraded-array-element-type el-type)))
+                  (cond ((eq eltype 'T) 'VECTOR)
+                        ((eq eltype 'CHARACTER) 'STRING)
+                        ((eq eltype 'BIT) '1)
+                        ((and (consp eltype) (eq (first eltype) 'UNSIGNED-BYTE)) (second eltype))
+                        ((eq eltype 'NIL) '0)
+                        (t (error (TEXT "~S is not up-to-date with ~S for element type ~S")
+                                  'subtypep-sequence 'upgraded-array-element-type eltype)))))))
+           ((CONS) ; (CONS &optional cartype cdrtype)
+            (when (cdddr type)
+              (typespec-error 'subtypep type))
+            'LIST)
+           (t 'NIL)))
+        ((clos::class-p type)
+         (if (and (clos::built-in-class-p type)
+                  (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
+           (subtype-sequence (clos:class-name type))
+           'NIL))
+        ((clos::eql-specializer-p type)
+         (type-of-sequence (clos::eql-specializer-singleton type)))
+        (t 'NIL)))
+(defun type-of-sequence (x)
+  (cond ((listp x) 'LIST)
+        ((vectorp x)
+         (let ((eltype (array-element-type x)))
+           (cond ((eq eltype 'T) 'VECTOR)
+                 ((eq eltype 'CHARACTER) 'STRING)
+                 ((eq eltype 'BIT) '1)
+                 ((and (consp eltype) (eq (first eltype) 'UNSIGNED-BYTE)) (second eltype))
+                 ((eq eltype 'NIL) '0)
+                 (t (error (TEXT "~S is not up-to-date with ~S for element type ~S")
+                           'type-of-sequence 'array-element-type eltype)))))
+        (t 'NIL)))
+(defun sequence-type-union (t1 t2)
+  (cond ; Simple general rules.
+        ((eql t1 t2) t1)
+        ((eq t1 'NIL) t2)
+        ((eq t2 'NIL) t1)
+        ; Now the union of two different types.
+        ((or (eq t1 'SEQUENCE) (eq t2 'SEQUENCE)) 'SEQUENCE)
+        ((or (eq t1 'LIST) (eq t2 'LIST))
+         ; union of LIST and a vector type
+         'SEQUENCE)
+        ((or (eq t1 'VECTOR) (eq t2 'VECTOR)) 'VECTOR)
+        ((eql t1 0) t2)
+        ((eql t2 0) t1)
+        ((or (eq t1 'STRING) (eq t2 'STRING))
+         ; union of STRING and an integer-vector type
+         'VECTOR)
+        (t (max t1 t2))))
+(defun sequence-type-intersection (t1 t2)
+  (cond ; Simple general rules.
+        ((eql t1 t2) t1)
+        ((or (eq t1 'NIL) (eq t2 'NIL)) 'NIL)
+        ; Now the intersection of two different types.
+        ((eq t1 'SEQUENCE) t2)
+        ((eq t2 'SEQUENCE) t1)
+        ((or (eq t1 'LIST) (eq t2 'LIST))
+         ; intersection of LIST and a vector type
+         'NIL)
+        ((eq t1 'VECTOR) t2)
+        ((eq t2 'VECTOR) t1)
+        ((or (eql t1 0) (eql t2 0)) '0)
+        ((or (eq t1 'STRING) (eq t2 'STRING))
+         ; intersection of STRING and an integer-vector type
+         '0)
+        (t (min t1 t2))))
+
 ;; ============================================================================
 
 (defun type-expand (typespec &optional once-p)
