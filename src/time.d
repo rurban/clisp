@@ -448,8 +448,8 @@ global maygc object convert_time_to_universal (const FILETIME* time) {
   return UL_to_I(real_time);
 }
 global void convert_time_from_universal (object universal, FILETIME* time) {
-  uint64 ut = (I_to_uint64(universal) + (uint64)109207 * (uint64)86400)
-    * (uint64)ticks_per_second;
+  var uint64 ut = (I_to_uint64(universal) + (uint64)109207 * (uint64)86400)
+                  * (uint64)ticks_per_second;
   time->dwHighDateTime = (uint32)(ut>>32 & 0xFFFFFFFFul);
   time->dwLowDateTime =  (uint32)(ut     & 0xFFFFFFFFul);
 }

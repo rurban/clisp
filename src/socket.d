@@ -170,7 +170,7 @@
 
 /* for syscalls & rawsock modules */
 global object addr_to_string (short type, char *addr) {
-  char buffer[MAXHOSTNAMELEN];
+  var char buffer[MAXHOSTNAMELEN];
  #ifdef HAVE_IPV6
   if (type == AF_INET6)
     return asciz_to_string(ipv6_ntop(buffer,*(const struct in6_addr*)addr),
@@ -355,9 +355,9 @@ local int resolve_host1 (void* addr, int addrlen, int family, void* ret) {
   return 0;
 }
 global struct hostent* resolve_host (object arg) {
-  struct hostent* he;
+  var struct hostent* he;
   if (eq(arg,S(Kdefault))) {
-    char * host;
+    var char* host;
     get_hostname(host =);
     begin_system_call();
     he = gethostbyname(host);
@@ -370,14 +370,14 @@ global struct hostent* resolve_host (object arg) {
       end_system_call();
     });
   } else if (uint32_p(arg)) {
-    uint32 ip = I_to_uint32(arg);
+    var uint32 ip = I_to_uint32(arg);
     begin_system_call();
     he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
     end_system_call();
   } else if (vectorp(arg)) {
     /* bit vector: treat as raw IP address data */
-    uintL vec_len = vector_length(arg);
-    uintL data_size;            /* size of data in byte */
+    var uintL vec_len = vector_length(arg);
+    var uintL data_size;            /* size of data in byte */
     switch (array_atype(arg)) {
       /* vec_len must be a whole number of bytes */
       case Atype_Bit:   data_size = vec_len>>3;
@@ -395,8 +395,8 @@ global struct hostent* resolve_host (object arg) {
       default: goto resolve_host_bad_vector;
     }
     if (data_size == sizeof(struct in_addr)) {
-      uintL index;
-      object data = array_displace_check(arg,vec_len,&index);
+      var uintL index;
+      var object data = array_displace_check(arg,vec_len,&index);
       begin_system_call();
       he = gethostbyaddr((char*)(TheSbvector(data)->data+index),
                          data_size,AF_INET);
@@ -404,8 +404,8 @@ global struct hostent* resolve_host (object arg) {
     }
    #ifdef HAVE_IPV6
     else if (data_size == sizeof(struct in6_addr)) {
-      uintL index;
-      object data = array_displace_check(arg,vec_len,&index);
+      var uintL index;
+      var object data = array_displace_check(arg,vec_len,&index);
       begin_system_call();
       he = gethostbyaddr((char*)(TheSbvector(data)->data+index),
                          data_size,AF_INET6);
@@ -431,8 +431,8 @@ global struct hostent* resolve_host (object arg) {
   }
  #ifdef HAVE_IPV6
   else if (fixnump(arg)) { /* what if we ever get fixnums>32 bit?! */
-    uintL ip = I_to_UL(arg);
-    struct in6_addr addr;
+    var uintL ip = I_to_UL(arg);
+    var struct in6_addr addr;
     begin_system_call();
     memset(&addr,0,sizeof(struct in6_addr));
     memcpy(&addr,&ip,sizeof(uintL)); /* FIXME: endianness?! */
@@ -440,7 +440,7 @@ global struct hostent* resolve_host (object arg) {
     end_system_call();
   } else if (bignump(arg) && positivep(arg)
              && Bignum_length(arg)*intDsize <= sizeof(struct in6_addr)) {
-    /* arg is an integer of length at most 128 big - IPv6 address */
+    /* arg is an integer of length at most 128 bit - IPv6 address */
     NOTREACHED;                 /* FIXME */
   }
  #endif
@@ -521,6 +521,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
     }
   }
 }
+
 #endif /* TCPCONN */
 
 /* ========================== X server connection ======================== */
@@ -579,7 +580,7 @@ local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen,
       return INVALID_SOCKET;
    #ifdef TCP_NODELAY
     { /* turn off TCP coalescence (the bandwidth saving Nagle algorithm) */
-      int tmp = 1;
+      var int tmp = 1;
       setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (SETSOCKOPT_ARG_T)&tmp,
                  sizeof(int));
     }
