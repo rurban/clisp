@@ -1,5 +1,9 @@
 1998-09-10  Sam Steingold  <sds@goems.com>
 
+        * user1.lsp (prompt-new-package): removed the `values' declaration.
+
+1998-09-10  Sam Steingold  <sds@goems.com>
+
 	* places.lsp (setf-VALUES-aux): replaced `get-setf-method' with
 	`get-setf-expansion' therefore comply with SETF-OF-VALUES:ADD.
 

@@ -35,7 +35,7 @@
 
 (defun package-short-name (pkg)
   "Return the shortest (nick)name of the package."
-  (declare (type package pkg) (values simple-string))
+  (declare (type package pkg))
   (reduce (lambda (st0 st1)
             (declare (simple-string st0 st1))
             (if (> (length st0) (length st1)) st1 st0))
