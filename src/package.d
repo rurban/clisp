@@ -2203,6 +2203,7 @@ LISPFUNN(set_package_lock,2) {
       else                mark_pack_locked(pa);
     }
   } else {
+    pack = test_package_arg(pack);
     if (eq(lock_p,NIL)) mark_pack_unlocked(pack);
     else                mark_pack_locked(pack);
   }
