@@ -15659,7 +15659,7 @@ local object stream_reset_eltype (object stream, decoded_el_t* eltype_) {
       pushSTACK(stream);
       UnbufferedStream_ignore_next_LF(stream) = false; # do not skip LF!
       var object ch = read_char(&STACK_0);
-      if (!eq(ch,eof_value) && !chareq(ch,ascii_char(LF)))
+      if (!eq(ch,eof_value) && !chareq(char_code(ch),ascii(LF)))
         unread_char(&STACK_0,ch);
       stream = popSTACK();
     }

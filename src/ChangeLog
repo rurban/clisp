@@ -1,5 +1,15 @@
 2002-06-26  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d: separate `chart' and `object'
+	(object, as_oint, as_object) [OBJECT_STRUCT]: `one' --> `one_o'
+	(chart, as_cint, as_chart) [CHART_STRUCT]: `one' --> `one_c'
+	* stream.d (stream_reset_eltype): compare ch with LF properly
+	* array.d (make_storagevector): use char_int(), not as_cint(), to
+	convert an object to `cint'
+	* spvw_mark.d (mark, unmark): object slot is `one_o'
+
+2002-06-26  Sam Steingold  <sds@gnu.org>
+
 	* m4/general.m4 (CL_CANONICAL_HOST_CPU)
 	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): handle hppa64
 	the same way as hppa1 and hppa2
