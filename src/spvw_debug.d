@@ -162,10 +162,42 @@ global object nobject_out (FILE* out, object obj) {
   else if (eq(obj,specdecl))  fputs("#<SPECDECL>",out);
   else if (eq(obj,eof_value)) fputs("#<EOF>",out);
   else if (eq(obj,dot_value)) fputs("#<DOT>",out);
-  else if (varobjectp(obj))
-    fprintf(out,"#<varobject type=%d address=%u>",
+  else if (as_oint(obj) & wbit(frame_bit_o)) {
+    fputs("#<frame ",out);
+    switch (framecode(obj)) {
+      case DYNBIND_frame_info: fputs("DYNBIND",out); break;
+      case ENV1V_frame_info: fputs("ENV1V",out); break;
+      case ENV1F_frame_info: fputs("ENV1F",out); break;
+      case ENV1B_frame_info: fputs("ENV1B",out); break;
+      case ENV1G_frame_info: fputs("ENV1G",out); break;
+      case ENV1D_frame_info: fputs("ENV1D",out); break;
+      case ENV2VD_frame_info: fputs("ENV2VD",out); break;
+      case ENV5_frame_info: fputs("ENV5",out); break;
+     #ifdef HAVE_SAVED_REGISTERS
+      case CALLBACK_frame_info: fputs("CALLBACK",out); break;
+     #endif
+      case VAR_frame_info: fputs("VAR",out); break;
+      case FUN_frame_info: fputs("FUN",out); break;
+      case IBLOCK_frame_info: fputs("IBLOCK",out); break;
+      case NESTED_IBLOCK_frame_info: fputs("NESTED_IBLOCK",out); break;
+      case ITAGBODY_frame_info: fputs("ITAGBODY",out); break;
+      case NESTED_ITAGBODY_frame_info: fputs("NESTED_ITAGBODY",out); break;
+      case CBLOCK_CTAGBODY_frame_info: fputs("CBLOCK_CTAGBODY",out); break;
+      case APPLY_frame_info: fputs("APPLY",out); break;
+      case TRAPPED_APPLY_frame_info: fputs("TRAPPED_APPLY",out); break;
+      case EVAL_frame_info: fputs("EVAL",out); break;
+      case TRAPPED_EVAL_frame_info: fputs("TRAPPED_EVAL",out); break;
+      case CATCH_frame_info: fputs("CATCH",out); break;
+      case HANDLER_frame_info: fputs("HANDLER",out); break;
+      case UNWIND_PROTECT_frame_info: fputs("UNWIND_PROTECT",out); break;
+      case DRIVER_frame_info: fputs("DRIVER",out); break;
+      default: fputs("**UNKNOWN**",out);
+    }
+    fprintf(out," 0x%X>",as_oint(obj));
+  } else if (varobjectp(obj))
+    fprintf(out,"#<varobject type=%d address=0x%X>",
             varobject_type(TheVarobject(obj)),ThePointer(obj));
-  else fprintf(out,"#<huh?! address=%u>",ThePointer(obj));
+  else fprintf(out,"#<huh?! address=0x%X>",ThePointer(obj));
   fflush(out);
   return obj;
 }
@@ -184,7 +216,7 @@ local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
   if (out == NULL) out = stdout;
   if (!bt) bt = back_trace;
   for (; bt; bt=bt->bt_next, index++) {
-    fprintf(out,"[%d/0x%x]%s ",index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
+    fprintf(out,"[%d/0x%X]%s ",index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
     nobject_out(out,bt->bt_caller);
     if (bt->bt_num_arg >= 0)
       fprintf(out," %d args",bt->bt_num_arg);
