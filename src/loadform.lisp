@@ -35,9 +35,10 @@
   (($object :initarg :object :reader missing-load-form-object)))
 
 (defun signal-missing-load-form (object)
-  (error-of-type 'missing-load-form :object object
-    (TEXT "No method has been defined on ~S for class ~S")
-    'make-load-form (class-name (class-of object))))
+  (let ((class (class-name (class-of object))))
+    (error-of-type 'missing-load-form :object object
+      (TEXT "A method on ~S for class ~S is necessary for externalizing an object of class ~S, according to ANSI CL 3.2.4.4, but no such method is defined.")
+      'make-load-form class class)))
 
 (defgeneric make-load-form (object &optional environment)
   ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_make-load-form.html>
