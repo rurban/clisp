@@ -796,6 +796,23 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
             );
     }
 
+# Error for string/number
+# > obj: the incorrect argument
+# > subr_self: caller (a SUBR)
+  nonreturning_function(global, fehler_string_int, (object obj));
+  global void fehler_string_int(obj)
+    var object obj;
+    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Argument ~ ist kein String." :
+             ENGLISH ? "~: argument ~ is neither a string designator nor an integer" :
+             FRANCAIS ? "~: L'argument ~ n'est pas une chaîne." :
+             ""
+            );
+    }
+
 # Fehlermeldung, falls ein Argument kein Simple-String ist:
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)

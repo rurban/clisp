@@ -11283,7 +11283,6 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
     end_system_call();
   } else if (stringp(file)) {
     char * string = TheAsciz(string_to_asciz(file,O(pathname_encoding)));
-    printf("string: %s\n", string);
     begin_system_call();
     if (0 != ((eq(link,unbound) || nullp(link)) ?
               stat(string,&buf) : lstat(string,&buf)))
@@ -11346,15 +11345,7 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
     if (NULL == pwd) { OS_error(); }
     PASSWD_TO_STACK(pwd);
     funcall(L(values),7);
-  } else {
-    pushSTACK(user);
-    pushSTACK(S(user_data));
-    fehler(type_error,
-           DEUTSCH ? "~: ~" :
-           ENGLISH ? "~: host should be a string, a symbol, or a positive integer, not ~" :
-           FRANCAIS ? "~: ~" :
-           "");
-  }
+  } else fehler_string_int(user);
 }
 
 #endif # UNIX

@@ -1,3 +1,15 @@
+1999-03-12  Sam Steingold  <sds@gnu.org>
+
+	* subr.d: arlists for `socket_service_port' and `resolve_host_ipaddr'.
+	* stream.d (socket_service_port): moved from here to socket.d
+	* pathname.d (user_data): use `fehler_string_int'.
+        * socket.d (resolve_service): removed.
+	(socket_service_port): moved here.  optional second arg - protocol.
+	return all services as a list when called with no arguments.
+	(resolve_host_ipaddr): when called with no args, localhost is returned.
+	* error.d (fehler_string_int): new function.
+	* lispbibl.d (fehler_string_int): declare.
+
 1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * encoding.d: Make UNICODE-16 an alias for UNICODE-16-BIG-ENDIAN.
