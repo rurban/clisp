@@ -797,19 +797,20 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
      #if defined(WIN32_NATIVE)
       ret = interruptible_socket_wait(fd,socket_wait_write,tvp);
      #else
-     restart_select:
-      var fd_set handle_set;
-      FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-      ret = select(FD_SETSIZE,NULL,&handle_set,NULL,tvp);
-      if (ret < 0) {
-        if (sock_errno_is(EINTR)) goto restart_select;
-        saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+     restart_select: {
+        var fd_set handle_set;
+        FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+        ret = select(FD_SETSIZE,NULL,&handle_set,NULL,tvp);
+        if (ret < 0) {
+          if (sock_errno_is(EINTR)) goto restart_select;
+          saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+        }
       }
      #endif
-     if (ret == 0) {
-       CLOSESOCKET(fd); sock_set_errno(ETIMEDOUT);
-       return INVALID_SOCKET;
-     }
+      if (ret == 0) {
+        CLOSESOCKET(fd); sock_set_errno(ETIMEDOUT);
+        return INVALID_SOCKET;
+      }
     }
     { /* connected - restore blocking IO */
       var int non_blocking_io = 0;

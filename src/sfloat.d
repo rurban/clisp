@@ -633,78 +633,74 @@
                       );
     }
 
-# I_to_SF(x) wandelt ein Integer x in ein Short-Float um und rundet dabei.
-# can trigger GC
-  local object I_to_SF (object x);
-# Methode:
-# x=0 -> Ergebnis 0.0
-# Merke Vorzeichen von x.
-# x:=(abs x)
-# Exponent:=(integer-length x)
-#   Greife die 18 höchstwertigen Bits heraus (angeführt von einer 1).
-#   Runde das letzte Bit weg:
-#     Bit 0 = 0 -> abrunden,
-#     Bit 0 = 1 und Rest =0 -> round-to-even,
-#     Bit 0 = 1 und Rest >0 -> aufrunden.
-#   Dabei um ein Bit nach rechts schieben.
-#   Bei Aufrundung auf 2^17 (rounding overflow) Mantisse um 1 Bit nach rechts
-#     schieben und Exponent incrementieren.
-  local object I_to_SF(x)
-    var object x;
-    {
-      if (eq(x,Fixnum_0))
-        return SF_0;
-      var signean sign = R_sign(x); # Vorzeichen
-      if (!(sign==0))
-        x = I_minus_I(x); # bei x<0: x := (- x)
-      var uintL exp = I_integer_length(x); # (integer-length x)
-      # NDS zu x>0 bilden:
-      var uintD* MSDptr;
-      var uintC len;
-      I_to_NDS_nocopy(x, MSDptr=,len=,);
-      # MSDptr/len/LSDptr ist die NDS zu x, len>0.
-      # Führende Digits holen: Brauche SF_mant_len+1 Bits, dazu intDsize
-      # Bits (die NDS kann mit bis zu intDsize Nullbits anfangen).
-      # Dann werden diese Bits um (exp mod intDsize) nach rechts geschoben.
-      var uintD msd = *MSDptr++; # erstes Digit
-      var uint32 msdd = 0; # weitere min(len-1,32/intDsize) Digits
-      #define NEXT_DIGIT(i)  \
-        {                                                     \
-          if (--len == 0) goto ok;                            \
-          msdd |= (uint32)(*MSDptr++) << (32-(i+1)*intDsize); \
-        }
-      DOCONSTTIMES(32/intDsize,NEXT_DIGIT);
-      #undef NEXT_DIGIT
-      --len; ok:
-      # Die NDS besteht aus msd, msdd, und len weiteren Digits.
-      # Das höchste in 2^32*msd+msdd gesetzte Bit ist Bit Nummer
-      # 31 + (exp mod intDsize).
-      var uintL shiftcount = exp % intDsize;
-      var uint32 mant = # führende 32 Bits
-        (shiftcount==0
-         ? msdd
-         : (((uint32)msd << (32-shiftcount)) | (msdd >> shiftcount))
-        );
-      # Das höchste in mant gesetzte Bit ist Bit Nummer 31.
-      if ( ((mant & bit(30-SF_mant_len)) ==0) # Bit 14 =0 -> abrunden
-           || ( ((mant & (bit(30-SF_mant_len)-1)) ==0) # Bit 14 =1 und Bits 13..0 =0
-                && ((msdd & (bit(shiftcount)-1)) ==0) # und weitere Bits aus msdd =0
-                && (!test_loop_up(MSDptr,len)) # und alle weiteren Digits =0
-                # round-to-even, je nach Bit 15 :
-                && ((mant & bit(31-SF_mant_len)) ==0)
-         )    ) {
-        # abrunden
-        mant = mant >> (31-SF_mant_len);
-      } else {
-        # aufrunden
-        mant = mant >> (31-SF_mant_len);
-        mant += 1;
-        if (mant >= bit(SF_mant_len+1)) { # rounding overflow?
-          mant = mant>>1; exp = exp+1;
-        }
+/* I_to_SF(x) wandelt ein Integer x in ein Short-Float um und rundet dabei.
+ can trigger GC
+ Methode:
+ x=0 -> Ergebnis 0.0
+ Merke Vorzeichen von x.
+ x:=(abs x)
+ Exponent:=(integer-length x)
+   Greife die 18 höchstwertigen Bits heraus (angeführt von einer 1).
+   Runde das letzte Bit weg:
+     Bit 0 = 0 -> abrunden,
+     Bit 0 = 1 und Rest =0 -> round-to-even,
+     Bit 0 = 1 und Rest >0 -> aufrunden.
+   Dabei um ein Bit nach rechts schieben.
+   Bei Aufrundung auf 2^17 (rounding overflow) Mantisse um 1 Bit nach rechts
+     schieben und Exponent incrementieren. */
+local object I_to_SF (object x)
+{
+  if (eq(x,Fixnum_0))
+    return SF_0;
+  var signean sign = R_sign(x); # Vorzeichen
+  if (!(sign==0))
+    x = I_minus_I(x); # bei x<0: x := (- x)
+  var uintL exp = I_integer_length(x); # (integer-length x)
+  # NDS zu x>0 bilden:
+  var uintD* MSDptr;
+  var uintC len;
+  I_to_NDS_nocopy(x, MSDptr=,len=,);
+  # MSDptr/len/LSDptr ist die NDS zu x, len>0.
+  # Führende Digits holen: Brauche SF_mant_len+1 Bits, dazu intDsize
+  # Bits (die NDS kann mit bis zu intDsize Nullbits anfangen).
+  # Dann werden diese Bits um (exp mod intDsize) nach rechts geschoben.
+  var uintD msd = *MSDptr++; # erstes Digit
+  var uint32 msdd = 0; # weitere min(len-1,32/intDsize) Digits
+ #define NEXT_DIGIT(i) {                                \
+    if (--len == 0) goto ok;                            \
+    msdd |= (uint32)(*MSDptr++) << (32-(i+1)*intDsize); \
+  }
+  DOCONSTTIMES(32/intDsize,NEXT_DIGIT);
+ #undef NEXT_DIGIT
+  --len; ok: {
+    # Die NDS besteht aus msd, msdd, und len weiteren Digits.
+    # Das höchste in 2^32*msd+msdd gesetzte Bit ist Bit Nummer
+    # 31 + (exp mod intDsize).
+    var uintL shiftcount = exp % intDsize;
+    var uint32 mant = # führende 32 Bits
+      (shiftcount==0
+       ? msdd
+       : (((uint32)msd << (32-shiftcount)) | (msdd >> shiftcount)));
+    # Das höchste in mant gesetzte Bit ist Bit Nummer 31.
+    if ( ((mant & bit(30-SF_mant_len)) ==0) # Bit 14 =0 -> abrunden
+         || ( ((mant & (bit(30-SF_mant_len)-1)) ==0) # Bit 14 =1 und Bits 13..0 =0
+              && ((msdd & (bit(shiftcount)-1)) ==0) # und weitere Bits aus msdd =0
+              && (!test_loop_up(MSDptr,len)) # und alle weiteren Digits =0
+              # round-to-even, je nach Bit 15 :
+              && ((mant & bit(31-SF_mant_len)) ==0))) {
+      # abrunden
+      mant = mant >> (31-SF_mant_len);
+    } else {
+      # aufrunden
+      mant = mant >> (31-SF_mant_len);
+      mant += 1;
+      if (mant >= bit(SF_mant_len+1)) { # rounding overflow?
+        mant = mant>>1; exp = exp+1;
       }
-      encode_SF(sign,(sintL)exp,mant, return);
     }
+    encode_SF(sign,(sintL)exp,mant, return);
+  }
+}
 
 # RA_to_SF(x) wandelt eine rationale Zahl x in ein Short-Float um
 # und rundet dabei.
