@@ -1,3 +1,8 @@
+2001-08-30  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (MERGE-PATHNAMES): when physical directories do not
+	match, check for unbound directory in pathname
+
 2001-08-29  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (assure_dir_exists): [WIN32_NATIVE] signal an error
