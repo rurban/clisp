@@ -1,5 +1,7 @@
 ;; Foreign functions provided by PostgreSQL
 
+(pushnew :PostgreSQL *features*)
+
 (defpackage "SQL"
   (:case-sensitive t)
   (:nicknames "POSTGRES" "POSTGRESQL")

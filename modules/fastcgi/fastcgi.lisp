@@ -27,6 +27,7 @@
 )
 
 (in-package "FASTCGI")
+(pushnew :fastcgi *features*)
 
 (FFI:default-foreign-language :STDC)
 
@@ -100,7 +101,7 @@
 
 ; CAT
 ; Concatenate strings
-(defun cat (&rest args) 
+(defun cat (&rest args)
   (apply #'concatenate 'string (mapcar #'to-string (flatten args))))
 
 ; FLATTEN

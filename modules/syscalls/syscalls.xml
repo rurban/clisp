@@ -5,6 +5,8 @@
 <para>The &posix-pac; module makes some system calls available from lisp.
  Not all of these system calls are actually POSIX, so this package has a
  nickname <quote role="package">OS</quote>.</para>
+<simpara>When this module is present, &features-var; contains the
+ symbol <constant>:SYSCALLS</constant>.</simpara>
 
 <variablelist>
  <varlistentry><term><literal

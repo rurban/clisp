@@ -12,6 +12,7 @@
            "MATCH-STRINGS" "MATCH-STRING" "MATCH" "MATCH-START" "MATCH-END"))
 
 (in-package "PCRE")
+(pushnew :pcre *features*)
 (push "PCRE" ext:*system-package-list*)
 
 (defstruct (pattern (:constructor make-pat (compiled study)))

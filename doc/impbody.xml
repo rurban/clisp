@@ -4131,70 +4131,78 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 
 <section id="features"><title>Variable &features-var;</title>
 
-<para>The variable &features-var; initially contains the symbols
-<table id="features-table" frame="all">
- <title>&features-var; content</title>
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
- <thead><row><entry>keyword</entry><entry>meaning</entry></row></thead><tbody>
-<row><entry><constant>:CLISP</constant></entry>
-   <entry>the name of this implementation</entry></row>
-<row><entry><constant>:ANSI-CL</constant></entry><entry/></row>
-<row><entry><constant>:COMMON-LISP</constant></entry><entry/></row>
-<row><entry><constant>:INTERPRETER</constant></entry><entry/></row>
-<row><entry><constant>:COMPILER</constant></entry><entry/></row>
+<para>The variable &features-var; initially contains the following symbols
+<variablelist id="features-table"><title>Default &features-var;</title>
+<varlistentry><term><constant>:CLISP</constant></term>
+  <listitem><simpara>the name of this implementation
+</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:ANSI-CL</constant></term>
+ <listitem><simpara>&clisp;
+   <ulink url="&clhs;/Body/glo_p.html#purports_to_conform">purports to
+    conform</ulink> to &ansi-cl;</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:COMMON-LISP</constant></term>
+ <listitem><simpara>required by &ansi-cl;</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:INTERPRETER</constant></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry><term><constant>:COMPILER</constant></term>
+ <listitem><simpara>&compile; and &compile-file; are implemented
+</simpara></listitem></varlistentry>
 <!-- #ifdef SOCKET_STREAMS -->
-<row><entry><constant>:SOCKETS</constant></entry>
-   <entry>see &socket-stream;s</entry></row>
+<varlistentry><term><constant>:SOCKETS</constant></term>
+ <listitem><simpara>see &socket-stream;s</simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef GENERIC_STREAMS -->
-<row><entry><constant>:GENERIC-STREAMS</constant></entry>
-   <entry>see <link linkend="clos-stream">Defining new kinds of
-    Streams</link></entry></row>
-<!-- #endif -->
-<!-- #ifdef EXPORT_SYSCALLS -->
-<row><entry><constant>:SYSCALLS</constant></entry>
-   <entry>see <link linkend="syscalls">System Calls</link></entry></row>
-<!-- #endif -->
-<!-- #ifdef DIR_KEY -->
-<row><entry><constant>:DIR-KEY</constant></entry>
-   <entry>see <link linkend="dir-key">Directory Access</link></entry></row>
+<varlistentry><term><constant>:GENERIC-STREAMS</constant></term>
+ <listitem><simpara>see <link linkend="clos-stream">Defining new kinds of
+    Streams</link></simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef LOGICAL_PATHNAMES -->
-<row><entry><constant>:LOGICAL-PATHNAMES</constant></entry>
-  <entry/></row>
+<varlistentry><term><constant>:LOGICAL-PATHNAMES</constant></term>
+ <listitem><simpara><link linkend="log-path">Logical Pathnames</link>
+   are implemented</simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
-<row><entry><constant>:FFI</constant></entry>
-   <entry>if a foreign function interface (see &ffi-pac;) is supported
-     <emphasis>(Platform dependent: many &unix;, &win32; platforms
-     only)</emphasis></entry></row>
+<varlistentry><term><constant>:FFI</constant></term>
+ <listitem><simpara>if a foreign function interface (see &ffi-pac;) is
+   supported <emphasis>(Platform dependent: many &unix;, &win32;
+    platforms only)</emphasis></simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
-<row><entry><constant>:GETTEXT</constant></entry>
-   <entry>if internationalization (see &i18n-pac;) using the &ggettext;
-     package is supported
-     <emphasis>(Platform dependent: most &unix; platforms
-     only)</emphasis></entry></row>
+<varlistentry><term><constant>:GETTEXT</constant></term>
+ <listitem><simpara>if internationalization (see &i18n-pac;) using the
+   &ggettext; package is supported
+   <emphasis>(Platform dependent: most &unix; platforms
+    only)</emphasis></simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
-<row><entry><constant>:UNICODE</constant></entry>
-   <entry>if &unicode; (ISO 10646) characters are supported (see
-     &charset-pac;)</entry></row>
+<varlistentry><term><constant>:UNICODE</constant></term>
+ <listitem><simpara>if &unicode; (ISO 10646) characters are supported
+   (see &charset-pac;)</simpara></listitem></varlistentry>
 <!-- #endif -->
-<row><entry><constant>:LOOP</constant></entry><entry/></row>
-<row><entry><constant>:CLOS</constant></entry><entry/></row>
-<row><entry><constant>:WIN32</constant></entry>
- <entry>if &hw; = PC (clone) and
-  &os; = Win32 (Windows 95/98/NT/Me/2000/XP)</entry></row>
-<row><entry><constant>:PC386</constant></entry>
- <entry>if &hw; = PC (clone) with a 386/486/586/686/786 CPU</entry></row>
-<row><entry>&unix-k;</entry>
- <entry>if &os; = Unix (in this case the &hw; is irrelevant!)</entry></row>
-<row><entry><constant>:CYGWIN</constant></entry>
- <entry>if &clisp; is using the &cygwin; &unix; compatibility layer on
-  top of &win32; (in that case &unix-k; is also present)</entry></row>
-</tbody></tgroup></table></para>
+<varlistentry><term><constant>:LOOP</constant></term>
+ <listitem><simpara>&loop; is implemented</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:CLOS</constant></term>
+ <listitem><simpara>&clos; is implemented</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:WIN32</constant></term>
+ <listitem><simpara>if &hw; = PC (clone) and &os; = Win32
+  (Windows 95/98/NT/Me/2000/XP)</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:PC386</constant></term>
+ <listitem><simpara>if &hw; = PC (clone) with a 386/486/586/686/786 CPU
+</simpara></listitem></varlistentry>
+<varlistentry><term>&unix-k;</term>
+ <listitem><simpara>if &os; = Unix (in this case the &hw; is irrelevant!)
+</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:CYGWIN</constant></term>
+ <listitem><simpara>if &clisp; is using the &cygwin; &unix;
+   compatibility layer on top of &win32;
+   (in that case &unix-k; is also present)
+</simpara></listitem></varlistentry></variablelist></para>
 
+<para>Each &module; should add the appropriate keyword, e.g.,
+ <link linkend="syscalls"><constant>:SYSCALLS</constant></link>,
+ <link linkend="dir-key"><constant>:DIR-KEY</constant></link>,
+ <link linkend="regexp"><constant>:REGEXP</constant></link>,
+ <link linkend="pcre"><constant>:PCRE</constant></link>, etc.</para>
 </section>
 </section>
 </chapter>

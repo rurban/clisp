@@ -4,6 +4,8 @@
 
 <para>This is an interface to <ulink url="http://www.pcre.org/">Perl
   Compatible Regular Expressions</ulink>.</para>
+<simpara>When this module is present, &features-var; contains the
+ symbol <constant>:PCRE</constant>.</simpara>
 
 <variablelist id="pcre-api"><title>PCRE module API</title>
  <varlistentry id="pcre-version">
