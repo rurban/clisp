@@ -1,3 +1,8 @@
+2004-06-03  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method1.lisp (initialize-instance-<standard-method>): Check the
+	qualifiers argument.
+
 2004-07-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (BDB:DBE-SET-OPTIONS): finish the

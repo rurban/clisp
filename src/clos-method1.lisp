@@ -27,7 +27,7 @@
      (parameter-specializers ; list ({class | (EQL object)}*)
        :type list
        :accessor std-method-parameter-specializers)
-     (qualifiers           ; list of symbols, e.g. (:before)
+     (qualifiers           ; list of non-NIL atoms, e.g. (:before)
        :type list
        :accessor std-method-qualifiers)
      (signature            ; signature struct (see functions.lisp)
@@ -83,6 +83,12 @@
                                               &allow-other-keys)
   (when *classes-finished*
     (apply #'%initialize-instance method args)) ; == (call-next-method)
+  (unless (proper-list-p qualifiers)
+    (error (TEXT "(~S ~S): The ~S argument should be a proper list, not ~S")
+           'initialize-instance 'standard-method ':qualifiers qualifiers))
+  (unless (notany #'listp qualifiers)
+    (error (TEXT "(~S ~S): The qualifiers list should consist of non-NIL atoms, not ~S")
+           'initialize-instance 'standard-method qualifiers))
   (setf (std-method-function method) function)
   (setf (std-method-wants-next-method-p method) wants-next-method-p)
   (setf (std-method-parameter-specializers method) parameter-specializers)

@@ -39,6 +39,7 @@
          'reinitialize-instance instance))
 
 
+;; MOP p. 82
 (defgeneric method-qualifiers (method)
   (:method ((method standard-method))
     (std-method-qualifiers method)))
