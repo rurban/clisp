@@ -275,10 +275,10 @@ static void close_errfile (DB_ENV *dbe) {
   end_system_call();
 }
 static void close_errpfx (DB_ENV *dbe) {
-  char *errpfx;
+  const char *errpfx;
   begin_system_call();
   dbe->get_errpfx(dbe,&errpfx);
-  if (errpfx) free(errpfx);
+  if (errpfx) free((void*)errpfx);
   end_system_call();
 }
 DEFUN(BDB:DBE-CLOSE, dbe)
@@ -414,7 +414,7 @@ static void reset_errpfx (DB_ENV *dbe) {
 /* extract errfile
  can trigger GC */
 static object dbe_get_errpfx (DB_ENV *dbe) {
-  char* errpfx = NULL;
+  const char* errpfx;
   begin_system_call();
   dbe->get_errpfx(dbe,&errpfx);
   end_system_call();
