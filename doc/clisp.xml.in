@@ -98,7 +98,7 @@
 
 <refsection id="description"><title>Description</title>
 
-<para>Invokes the Common Lisp interpreter and compiler.
+<para>Invokes the &cl; interpreter and compiler.
 When called without arguments, executes the &repl;,
 in which expressions are in turn &read; from the standard input,
 &eval;uated by the lisp interpreter,
@@ -120,8 +120,7 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-version"><term><option>--version</option></term>
  <listitem><simpara>Displays the &clisp; version number,
    as given by the function &lisp-implementation-version;,
-   the value of the variable <olink targetdoc="impnotes"
-   targetptr="features"><varname>*FEATURES*</varname></olink>,
+   the value of the variable &features-my;,
    as well some other information.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-license"><term><option>--license</option></term>
