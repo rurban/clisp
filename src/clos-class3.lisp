@@ -40,6 +40,8 @@
   direct-slots             ; list of all freshly added slots (as direct-slot-definition instances)
   slots                    ; list of all slots (as effective-slot-definitions)
   (slot-location-table empty-ht) ; hash table slotname -> location of the slot
+  direct-default-initargs  ; freshly added default-initargs (as alist initarg -> (form function))
+  default-initargs         ; default-initargs (as alist initarg -> (form function))
   documentation)           ; string or NIL
 
 (defstruct (built-in-class (:inherit class) (:conc-name "CLASS-")))
@@ -48,7 +50,6 @@
                           (:conc-name "CLASS-"))
   subclass-of-stablehash-p ; true if <standard-stablehash> or <structure-stablehash>
                            ; is among the superclasses
-  default-initargs         ; default-initargs (as alist initarg -> (form function))
   valid-initargs           ; list of valid initargs
   instance-size)           ; number of slots of the direct instances + 1
 
@@ -57,7 +58,6 @@
 
 (defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
   current-version          ; most recent class-version, points back to this class
-  direct-default-initargs  ; freshly added default-initargs (as alist initarg -> (form function))
   direct-accessors         ; automatically generated accessor methods (as plist)
   fixed-slot-locations     ; flag whether to guarantee same slot locations in all subclasses
   instantiated             ; true if an instance has already been created
@@ -680,11 +680,7 @@
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
   (setf (class-default-initargs class)
         (remove-duplicates
-          (mapcap
-            #'(lambda (c)
-                (when (standard-class-p c)
-                  (class-direct-default-initargs c)))
-            (class-precedence-list class))
+          (mapcap #'class-direct-default-initargs (class-precedence-list class))
           :key #'car
           :from-end t))
   (setf (class-valid-initargs class)
@@ -1359,10 +1355,7 @@
   (setf (class-default-initargs class)
         (remove-duplicates
           (append direct-default-initargs
-                  (mapcap
-                    #'(lambda (c)
-                        (when (structure-class-p c)
-                          (class-default-initargs c)))
+                  (mapcap #'class-default-initargs
                     (cdr (class-precedence-list class))))
           :key #'car
           :from-end t))
