@@ -3,6 +3,28 @@
 
 is currently being developed and does not work yet.
 
+General principles
+------------------
+
+* Parallelizability Principle:
+
+  Simple formulation:
+    "A program that was developed for a single-threaded world and which shares
+     no application objects with programs running in other threads must run
+     fine, without problems."
+
+  Extended formulation:
+    "If, in a single-threaded world, execution of program A before program B
+     produces semantically the same results as execution of program B before
+     program A, then in a multithreaded world, it is possible to run A and B
+     simultaneously in different threads, and the result will be the same as
+     in the two single-threaded cases (A before B, or B before A)."
+  That's what the users ultimately want.
+  - If A and B have no objects in common, then the implementation ensures by
+    itself that the principle is fulfilled.
+  - If A and B shared some objects, the implementation allows the programs
+    to satisfy the principle with little effort.
+
 Installation
 ------------
 
@@ -53,7 +75,8 @@ Packages
 --------
 
 PACKAGE objects are LOCKABLE and are locked by INTERN before adding a
-symbol (if FUND-SYMBOL fails).
+symbol (if FIND-SYMBOL fails).
+(This is a consequence of the Parallelizability Principle.)
 This puts an unknown speed penalty on READ and therefore LOAD.
 
 CLOS
@@ -61,6 +84,7 @@ CLOS
 
 DEFCLASS, DEFGENERIC, DEFMETHOD, DEFSTRUCT must get a global "DEF-CLOS"
 lock because they change the global class hierarchy.
+(This is a consequence of the Parallelizability Principle.)
 
 Hash Tables and Sequences
 -------------------------
@@ -70,6 +94,16 @@ sharing HASH-TABLEs and SEQUENCEs between threads.
 If two threads evaluate
    (INCF (GETHASH x global-ht 0)),
 the results are undefined.
+-- But this doesn't allow the programmer to fulfill the Parallelizability
+   Principle easily.
+     Program PRELUDE: (defparameter global-ht (make-hash-table))
+     Program A: (setf (gethash 'a global-ht) 'aaaa)
+     Program B: (setf (gethash 'b global-ht) 'bbbb)
+   The Parallelizability Principle implies that the programmer should
+   have an easy way to declare that global-ht is shared, without modifying
+   the programs A and B. The obvious proposal is that he changes the PRELUDE:
+        (defparameter global-ht (make-hash-table :lockable t))
+--
 Automatic locking will impose an unjustifiable penalty on HASH-TABLEs
 and SEQUENCEs local to threads.
 It is also consistent with the usual Common Lisp approach of
