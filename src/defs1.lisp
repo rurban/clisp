@@ -375,6 +375,10 @@
 ;; Different hash code algorithms for the same test.
 (sys::%putd 'ext:fasthash-eq #'eq)
 (sys::%putd 'ext:stablehash-eq #'eq)
+(sys::%putd 'ext:fasthash-eql #'eql)
+(sys::%putd 'ext:stablehash-eql #'eql)
+(sys::%putd 'ext:fasthash-equal #'equal)
+(sys::%putd 'ext:stablehash-equal #'equal)
 
 
 ;;; functions for strings (Chapter 18)
