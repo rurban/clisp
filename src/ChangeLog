@@ -1,3 +1,24 @@
+1999-01-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        For being able to use a C++ compiler in place of a C compiler.
+        * acgeneral.m4 (AC_HAVE_LIBRARY, AC_CHECK_SIZEOF): Declare `main' with
+          return type `int'.
+        * acspecific.m4 (AC_PROG_CC_WORKS, AC_DIR_HEADER, AC_TYPE_GETGROUPS,
+           AC_FUNC_CLOSEDIR_VOID, AC_FUNC_FNMATCH, AC_FUNC_GETPGRP,
+           AC_FUNC_SETPGRP, AC_FUNC_VFORK, AC_FUNC_WAIT3, AC_FUNC_ALLOCA,
+           AC_FUNC_UTIME_NULL, AC_FUNC_STRCOLL, AC_FUNC_SETVBUF_REVERSED,
+           AC_FUNC_MEMCMP, AC_C_CHAR_UNSIGNED, AC_INT_16_BITS,
+           AC_LONG_64_BITS, AC_C_BIGENDIAN, AC_SYS_RESTARTABLE_SYSCALLS):
+          Likewise.
+        * aclocal.m4 (CL_CC_WORKS, CL_CXX_WORKS, CL_SHELLARGS,
+           CL_PCC_STRUCT_RETURN, CL_SMALL_STRUCT_RETURN, CL_LONGLONG,
+           CL_LONGDOUBLE, CL_SIGNAL_REINSTALL, CL_SIGNAL_UNBLOCK,
+           CL_SIGNAL_BLOCK_OTHERS, CL_SIGACTION_REINSTALL,
+           CL_SIGACTION_UNBLOCK, CL_ELOOP, CL_IOCTL, CL_TIMES_CLOCK,
+           CL_ADDRESS_RANGE, CL_MMAP, CL_MPROTECT, CL_CODEEXEC, CL_SHM,
+           CL_SHM_RMID, CL_FILECHARSET, CL_CHAR_UNSIGNED,
+           CL_WORDS_LITTLEENDIAN): Likewise.
+
 1999-01-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * acgeneral.m4, acspecific.m4: Upgrade to autoconf-2.13.

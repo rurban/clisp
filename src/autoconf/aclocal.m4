@@ -520,7 +520,7 @@ AC_DEFUN(CL_CC_WORKS,
 [AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
 AC_LANG_SAVE()
 AC_LANG_C()
-AC_TRY_RUN([main() { exit(0); }],
+AC_TRY_RUN([int main() { exit(0); }],
 cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
 AC_LANG_RESTORE()
@@ -535,7 +535,7 @@ AC_DEFUN(CL_CXX_WORKS,
 [AC_CACHE_CHECK(whether CXX works at all, cl_cv_prog_cxx_works, [
 AC_LANG_SAVE()
 AC_LANG_CPLUSPLUS()
-AC_TRY_RUN([main() { exit(0); }],
+AC_TRY_RUN([int main() { exit(0); }],
 cl_cv_prog_cxx_works=yes, cl_cv_prog_cxx_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cxx_works=yes, cl_cv_prog_cxx_works=no))
 AC_LANG_RESTORE()
@@ -558,9 +558,9 @@ cat > conftest.c <<EOF
 extern "C" void exit(int);
 #endif
 #if defined(__STDC__) || defined(__cplusplus)
-main (int argc, char** argv)
+int main (int argc, char** argv)
 #else
-main (argc,argv) int argc; char** argv;
+int main (argc,argv) int argc; char** argv;
 #endif
 { printf("%d\n",argc); exit(0); }
 EOF
@@ -767,7 +767,7 @@ AC_DEFUN(CL_PCC_STRUCT_RETURN,
 AC_TRY_RUN([typedef struct { int a; int b; int c; int d; int e; } foo;
 foo foofun () { static foo foopi = {3141,5926,5358,9793,2385}; return foopi; }
 foo* (*fun) () = (foo* (*) ()) foofun;
-main()
+int main()
 { foo foo1;
   foo* fooptr1;
   foo foo2;
@@ -792,7 +792,7 @@ AC_DEFUN(CL_SMALL_STRUCT_RETURN,
 AC_TRY_RUN([typedef struct { int x; } foo; int y;
 foo foofun () { foo f; f.x = y; return f; }
 int (*fun) () = (int (*) ()) foofun;
-main()
+int main()
 { y = 37; if ((*fun)() != 37) exit(1);
   y = 55; if ((*fun)() != 55) exit(1);
   exit(0);
@@ -810,7 +810,7 @@ esac
 dnl
 AC_DEFUN(CL_LONGLONG,
 [AC_CACHE_CHECK(for long long type, cl_cv_c_longlong, [
-AC_TRY_RUN([main()
+AC_TRY_RUN([int main()
 {
 /* long longs don't work right with gcc-2.7.2 on m68k */
 /* long longs don't work right with gcc-2.7.2 on rs6000: avcall/tests.c gets
@@ -840,7 +840,7 @@ esac
 dnl
 AC_DEFUN(CL_LONGDOUBLE,
 [AC_CACHE_CHECK(for long double type, cl_cv_c_longdouble, [
-AC_TRY_RUN([main()
+AC_TRY_RUN([int main()
 { long double x = 2.7182818284590452354L; x = x*x; exit (x==0.0L); }],
 cl_cv_c_longdouble=yes, cl_cv_c_longdouble=no,
 dnl When cross-compiling, don't assume anything.
@@ -1463,7 +1463,7 @@ typedef RETSIGTYPE (*signal_handler) (int);
 #else
 typedef RETSIGTYPE (*signal_handler) ();
 #endif
-main() { /* returns 0 if they need not to be reinstalled */
+int main() { /* returns 0 if they need not to be reinstalled */
   signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(!( (signal_handler)signal(SIGALRM,(signal_handler)sigalrm_handler)
           == (signal_handler)sigalrm_handler
@@ -1522,7 +1522,7 @@ RETSIGTYPE sigalrm_handler()
 #endif
 }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be unblocked */
+int main() { /* returns 0 if they need not to be unblocked */
   signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(wasblocked);
 }], cl_cv_func_signal_blocked=no, cl_cv_func_signal_blocked=yes,
@@ -1585,7 +1585,7 @@ RETSIGTYPE sigalrm_handler()
 #endif
 }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be unblocked */
+int main() { /* returns 0 if they need not to be unblocked */
   signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(somewereblocked);
 }], cl_cv_func_signal_blocked_others=no, cl_cv_func_signal_blocked_others=yes,
@@ -1657,7 +1657,7 @@ signal_handler mysignal (sig, handler)
 /* volatile */ int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be reinstalled */
+int main() { /* returns 0 if they need not to be reinstalled */
   mysignal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(!( mysignal(SIGALRM,(signal_handler)sigalrm_handler)
           == (signal_handler)sigalrm_handler
@@ -1740,7 +1740,7 @@ RETSIGTYPE sigalrm_handler()
 #endif
 }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be unblocked */
+int main() { /* returns 0 if they need not to be unblocked */
   mysignal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(wasblocked);
 }], cl_cv_func_sigaction_blocked=no, cl_cv_func_sigaction_blocked=yes,
@@ -2440,12 +2440,12 @@ cat > conftest.c <<EOF
 #include <errno.h>
 #include <stdio.h>
 #ifdef ELOOP
-main () { printf("ELOOP\n"); exit(0); }
+int main () { printf("ELOOP\n"); exit(0); }
 #else
 extern int errno;
 #define foo "conflink"
 #define foobar "conflink/somefile"
-main()
+int main()
 { /* If a system goes into an endless loop on this, it must be really broken. */
   if (symlink(foo,foo)<0) exit(1);
   if (unlink(foobar)>=0) { unlink(foo); exit(1); }
@@ -2837,7 +2837,7 @@ int open ($cl_cv_proto_open_args);
 #else
 int open();
 #endif
-main ()
+int main ()
 { int fd = open("conftest.c",O_RDONLY,0644);
   long x;
   exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&x) >= 0) && (x > 0)));
@@ -3026,7 +3026,7 @@ AC_TRY_RUN([
 #include <sys/time.h> /* needed for CLK_TCK on SYSV PTX */
 #endif
 #include <sys/times.h>
-main ()
+int main ()
 { struct tms buffer;
   clock_t result1;
   clock_t result2;
@@ -3259,7 +3259,7 @@ cat > conftest.c <<EOF
 #include "confdefs.h"
 $address_range_prog
 dnl printf_address(chop_address(&main)); doesn't work in C++.
-main() { printf_address(chop_address(&printf_address)); exit(0); }
+int main() { printf_address(chop_address(&printf_address)); exit(0); }
 EOF
 AC_TRY_EVAL(ac_link)
 cl_cv_address_code=`./conftest`
@@ -3291,7 +3291,7 @@ RETMALLOCTYPE malloc();
 #endif
 #endif
 $address_range_prog
-main() { printf_address(chop_address(malloc(10000))); exit(0); }
+int main() { printf_address(chop_address(malloc(10000))); exit(0); }
 EOF
 AC_TRY_EVAL(ac_link)
 cl_cv_address_malloc=`./conftest`
@@ -3328,7 +3328,7 @@ extern char* tmpnam ();
    However, the return value of tmpnam(NULL) is a pointer to a static
    buffer in the shared library. (This buffer is unlikely to be named
    by a global symbol.) */
-main() {
+int main() {
   char* addr;
   addr = (char*) tmpnam((char*)0);
   if (!addr) addr = (char*) &printf;
@@ -3455,7 +3455,7 @@ RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T length, int prot, int flags, int
 #else
 RETMMAPTYPE mmap();
 #endif
-main () {
+int main () {
 '
 mmap_prog_2="#define bits_to_avoid $avoid"'
 #define my_shift 24
@@ -3627,7 +3627,7 @@ int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
 int mprotect();
 #endif
 char foo;
-main () {
+int main () {
   unsigned long pagesize = getpagesize();
 #define page_align(address)  (char*)((unsigned long)(address) & -pagesize)
 '
@@ -3721,7 +3721,7 @@ RETMALLOCTYPE malloc();
 #endif
 #endif
 int fun () { return 31415926; }
-main ()
+int main ()
 { long size = (char*)&main - (char*)&fun;
   char* funcopy = (char*) malloc(size);
   int i;
@@ -3891,7 +3891,7 @@ int shmctl();
 #define segsize 0x10000
 #define attaches 128
 #define base_addr 0x01000000
-main ()
+int main ()
 { int shmid, i; char* addr; char* result;
   if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0) exit(1);
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
@@ -3945,7 +3945,7 @@ extern int shmget();
 extern RETSHMATTYPE shmat();
 extern int shmctl();
 #endif
-main ()
+int main ()
 { unsigned int pagesize = 8192; /* should be a multiple of SHMLBA */
   unsigned long addr = (unsigned long) malloc(2*pagesize);
   addr += pagesize-1; addr = (addr/pagesize)*pagesize;
@@ -4113,7 +4113,7 @@ changequote(,)dnl
 /* A small program which checks for each character whether or not it is
  * valid in filenames. */
 #define N 256
-main ()
+int main ()
 {
 #ifdef __CYGWIN32__
   /* The test below would cause a dialog box to pop up (ch == ':'),
@@ -4324,7 +4324,7 @@ AC_TRY_RUN(
 #if !defined(__STDC__) || __STDC__ != 1
 #define volatile
 #endif
-main() {
+int main() {
   volatile char c = 255; exit(c < 0);
 }], ac_cv_c_char_unsigned=yes, ac_cv_c_char_unsigned=no,
 ac_cv_c_char_unsigned="guessing no")
@@ -4390,7 +4390,7 @@ dnl
 AC_DEFUN(CL_WORDS_LITTLEENDIAN,
 [AC_MSG_CHECKING(byte ordering)
 AC_CHECK_VAL(cl_cv_sys_endian, [
-AC_TRY_RUN([main () {
+AC_TRY_RUN([int main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
   union
   {
