@@ -6,14 +6,21 @@
 <section id="spec-symb"><title>Special Symbols
   <ulink url="&clhs;/Body/sec_1-4-1-3.html">[CLHS-1.4.1.3]</ulink></title>
 
-<para>The final delimiter of an interactive stream: On &unix;, the user
- has to type <keycombo>&ctrl;<keysym>D</keysym></keycombo> at the
- beginning of a line. On &win32;, the user has to type
- <keycombo>&ctrl;<keysym>Z</keysym></keycombo>, followed
- by <keycap>Return</keycap>.  This final delimiter is never actually
- seen by programs; no need to test for <keysym>#\^D</keysym> or
- <keysym>#\^Z</keysym> - use &read-char-no-hang; to check for end of
- stream.  Calling &clear-input; on the stream removes the &eos; state,
+<para>The <firstterm>final delimiter
+  <indexterm id="fin-delim" significance="preferred">
+   <primary id="fin-delim-i">final delimiter</primary></indexterm></firstterm>
+ of an interactive stream:
+ <variablelist><varlistentry><term>&unix;</term>
+   <listitem><simpara>type <keycombo>&ctrl;<keysym>D</keysym></keycombo>
+     at the beginning of a line</simpara></listitem></varlistentry>
+  <varlistentry><term>&win32;</term>
+   <listitem><simpara>type <keycombo>&ctrl;<keysym>Z</keysym></keycombo>,
+     followed by <keycap>Return</keycap></simpara></listitem>
+ </varlistentry></variablelist>
+ This final delimiter is never actually seen by programs; no need to
+ test for <keysym>#\^D</keysym> or <keysym>#\^Z</keysym> - use
+ &read-char-no-hang; to check for end of stream.
+ Calling &clear-input; on the stream removes the &eos; state,
  thus making it available for further input.</para>
 
 <para>A newline character can be entered by the user by pressing the
@@ -58,8 +65,10 @@
 <section id="tokens"><title>Symbols as Tokens
   <ulink url="&clhs;/Body/sec_2-3-4.html">[CLHS-2.3.4]</ulink></title>
 
-<para>A <firstterm>reserved token</firstterm>, i.e., a
- <ulink url="&clhs;/Body/glo_t.html#token">token</ulink> that has
+<para>A <firstterm>reserved token
+  <indexterm id="res-token" significance="preferred">
+   <primary id="res-token-i">reserved token</primary></indexterm></firstterm>,
+ i.e., a <ulink url="&clhs;/Body/glo_t.html#token">token</ulink> that has
  <ulink url="&clhs;/Body/glo_p.html#potential_number">potential number</ulink>
  syntax but cannot be interpreted as a &number-t;, is interpreted as
  &symbol-t; when being read.</para>
@@ -423,8 +432,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <para><firstterm>&gen-flet;<indexterm id="gen-flet" significance="preferred">
    <primary id="gen-flet-i"><function>GENERIC-FLET</function>
- </primary></indexterm></firstterm>
- and
+ </primary></indexterm></firstterm> and
  <firstterm>&gen-labels;<indexterm id="gen-labels" significance="preferred">
    <primary id="gen-labels-i"><function>GENERIC-LABELS</function>
  </primary></indexterm></firstterm>
@@ -1887,8 +1895,8 @@ performance considerations.
 <section id="char-attrib"><title>Character Attributes
    <ulink url="&clhs;/Body/sec_13-1-3.html">[CLHS-13.1.3]</ulink></title>
 
-<para>Characters have no implementation-defined attributes.  All characters
-are simple characters.</para>
+<para>Characters have no implementation-defined attributes.
+ All characters are simple characters.</para>
 
 </section>
 
