@@ -233,7 +233,7 @@
                                                      '()))))
                          ; gf-lambdalist's signature is
                          ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
-                         (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method> '()))))))
+                         (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method> '() nil))))))
          (method
            (if (listp method-or-initargs)
              (apply #'make-method-instance (std-gf-default-method-class gf)
@@ -446,15 +446,7 @@
        (COMPILER::EVAL-WHEN-COMPILE
          (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
        ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
-       ,@(if docstring
-           (let ((symbolform
-                   (if (atom funname)
-                     `',funname
-                     `(LOAD-TIME-VALUE (SYSTEM::GET-SETF-SYMBOL
-                                        ',(second funname))))))
-             `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION
-                                           ',docstring))))
-       (DO-DEFGENERIC ',funname ,generic-function-class-form ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form ',declspecs
+       (DO-DEFGENERIC ',funname ,generic-function-class-form ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form ',declspecs ',docstring
                       ,@method-forms))))
 
 (defun ensure-generic-function (function-name &key argument-precedence-order
@@ -477,4 +469,4 @@
          ,@(if method-combination `((:method-combination ,method-combination)))
          ,@(if method-class `((:method-class ,method-class)))))
     (declare (ignore declspecs docstring method-forms))
-    (do-defgeneric function-name (eval generic-function-class-form) lambda-list signature argument-precedence-order method-combo (eval method-class-form) (append declare declarations))))
+    (do-defgeneric function-name (eval generic-function-class-form) lambda-list signature argument-precedence-order method-combo (eval method-class-form) (append declare declarations) documentation)))
