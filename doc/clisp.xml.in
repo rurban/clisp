@@ -628,13 +628,17 @@ that can be executed more efficiently.</para>
    &user-homedir-pathname;.</simpara></listitem></varlistentry>
 <!-- #endif -->
 
+<varlistentry>
 <!-- #ifdef UNIX -->
-<varlistentry><term><envar>SHELL</envar></term>
- <listitem><simpara>is used to find the interactive command interpreter
-   called by <olink targetdoc="impnotes"
+<term><envar>SHELL</envar></term>
+<!-- #endif -->
+<!-- #ifdef WIN32_NATIVE -->
+<term><envar>COMSPEC</envar></term>
+<!-- #endif -->
+<listitem><simpara>is used to find the interactive command interpreter
+  called by <olink targetdoc="impnotes"
    targetptr="shell"><function>SHELL</function></olink>.
 </simpara></listitem></varlistentry>
-<!-- #endif -->
 
 <!-- #ifdef UNIX -->
 <varlistentry><term><envar>TERM</envar></term>
