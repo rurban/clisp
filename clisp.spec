@@ -144,9 +144,9 @@ cd clisp
 /usr/man/man3/clreadline.3
 /usr/man/man1/clisp.1
 %attr(755,root,root) /usr/bin/clisp
-%attr(755,root,root) /usr/lib/clisp/lisp.run
+%attr(755,root,root) /usr/lib/clisp/base/lisp.run
 %attr(755,root,root) /usr/lib/clisp/full/lisp.run
-/usr/lib/clisp/lispinit.mem
+/usr/lib/clisp/base/lispinit.mem
 /usr/lib/clisp/full/lispinit.mem
 /usr/share/locale/de/LC_MESSAGES/clisp.mo
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
