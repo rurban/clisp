@@ -61,8 +61,8 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
         __vaword word5, __vaword word6, __vaword word7, __vaword word8,
         __vaword firstword)
 {
-  /* egcs-1.1 does not allocate stack space for word1,...,word8. */
-  /* The following account for the stack frame increase from 208 to 272 bytes
+  /* gcc-2.95 does not allocate stack space for word1,...,word8. */
+  /* The following account for the stack frame increase from 192 to 256 bytes
    * done by postprocessing. */
 #define firstword (*(&firstword+8))
   /* Move the arguments passed in registers to their stack locations. */

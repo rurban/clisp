@@ -12,13 +12,13 @@ __vacall_r:
 	save	%sp, -448, %sp
 	!$PROLOGUE$ 1
 	add	%fp, 2223, %o0
-	std	%f0, [%fp+1903]
 	stx	%i5, [%o0-8]
 	stx	%i0, [%o0-48]
 	stx	%i1, [%o0-40]
 	stx	%i2, [%o0-32]
 	stx	%i3, [%o0-24]
 	stx	%i4, [%o0-16]
+	std	%f0, [%fp+1903]
 	std	%f2, [%fp+1911]
 	std	%f4, [%fp+1919]
 	std	%f6, [%fp+1927]
@@ -45,8 +45,8 @@ __vacall_r:
 	st	%f17, [%fp+1867]
 	st	%f19, [%fp+1871]
 	st	%f21, [%fp+1875]
-	st	%f23, [%fp+1879]
 	add	%o0, -48, %o0
+	st	%f23, [%fp+1879]
 	stx	%o0, [%fp+1783]
 	st	%f25, [%fp+1883]
 	ldx	[%g5+8], %o0
@@ -757,4 +757,4 @@ __vacall_r:
 	nop
 .LLfe1:
 	.size	 __vacall_r,.LLfe1-__vacall_r
-	.ident	"GCC: (GNU) 2.95 19990714 (prerelease)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"
