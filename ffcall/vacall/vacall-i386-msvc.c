@@ -5,6 +5,7 @@
 TEXT()
 	ALIGN(2)
 GLOBL(C(vacall))
+	DECLARE_FUNCTION(vacall)
 FUNBEGIN(vacall)
 	INSN2(sub,l	,NUM(36),R(esp))
 	INSN2(mov,l	,NUM(0),X4 MEM(esp))
