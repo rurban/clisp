@@ -1,3 +1,10 @@
+1998-12-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * excepsit.tst: Replaced the `delete-file' test (testing for EACCES
+          or EPERM) by another one (testing for ENOTDIR), in order to avoid
+          failure on Solaris, and in order not to upset people who mistakenly
+          run it as root.
+
 1998-11-06  Sam Steingold  <sds@goems.com>
 
         * loop.tst: added a test for `by' preceding `upto'.
