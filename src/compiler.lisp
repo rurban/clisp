@@ -1076,13 +1076,13 @@ for-value   NIL or T
 (defparameter specdecl
   (eval
    '(let ((*evalhook*
-           #'(lambda (form env)
-               (declare (ignore form))
-               ;; The Evalhook-Mechanism passes the Environment.
-               ;; (svref...0) thereof is the Variable-Environment,
-               ;; (svref...1) thereof is the associated "value"
-               ;; #<SPECIAL REFERENCE> from the *evalhook*-binding.
-               (svref (svref env 0) 1))))
+            #'(lambda (form env)
+                (declare (ignore form))
+                ;; The Evalhook-Mechanism passes the Environment.
+                ;; (svref...0) thereof is the Variable-Environment,
+                ;; (svref...1) thereof is the associated "value"
+                ;; #<SPECIAL REFERENCE> from the *evalhook*-binding.
+                (svref (svref env 0) 1))))
      0)))
 ;; determines, if the Symbol var represents a Special-Variable
 (defun proclaimed-special-p (var)
@@ -1169,8 +1169,9 @@ for-value   NIL or T
                  (return-from venv-search
                    (if (and (var-p val) #| (eq (var-name val) v) |# )
                      (if (var-specialp val) 'SPECIAL (values T val))
-                     (if (eq val specdecl) 'SPECIAL
-                         (values 'LOCAL venv (1+ i)))))))))
+                     (if (eq val specdecl)
+                       'SPECIAL
+                       (values 'LOCAL venv (1+ i)))))))))
           (t (compiler-error 'venv-search venv)))))
 
 ;; (venv-search-macro v) searches in *venv* for a Variable with the Symbol v.
@@ -1250,8 +1251,8 @@ for-value   NIL or T
 )
 (defun const-value-safe (c)
   (if (eq (const-horizon c) :form)
-      (compiler-error 'const-value c)
-      (const-value c)))
+    (compiler-error 'const-value c)
+    (const-value c)))
 
 ;; In the 2nd Pass Variables with constantp=T are treated as Constants.
 
@@ -1599,8 +1600,8 @@ for-value   NIL or T
       seclass1
       (mapcar #'(lambda (l1 l2)
                   (if (or (eq l1 'T) (eq l2 'T))
-                      'T
-                      (union l1 l2)))
+                    'T
+                    (union l1 l2)))
               seclass1 seclass2))))
 
 ;; So that the list of sub-anodes does not have to be calculated, however
@@ -1622,13 +1623,13 @@ for-value   NIL or T
   ;; (dynamic variables are not eliminated; they are contained in varlist
   ;; as VAR-structures and in seclass as symbols.)
   (if (seclass-foldable-p seclass)
-      *seclass-foldable*
-      (mapcar #'(lambda (l)
-                  (if (eq l 'T)
-                      'T
-                      ;; same as (set-difference l varlist)
-                      (remove-if #'(lambda (var) (memq var varlist)) l)))
-              seclass)))
+    *seclass-foldable*
+    (mapcar #'(lambda (l)
+                (if (eq l 'T)
+                  'T
+                  ;; same as (set-difference l varlist)
+                  (remove-if #'(lambda (var) (memq var varlist)) l)))
+            seclass)))
 
 ;; determines, if the order of evaluation of two anodes can be permuted -
 ;; so long as the stack-states permit this.
@@ -1705,19 +1706,20 @@ for-value   NIL or T
                           (lineno2 *compile-file-lineno2*)
                           (file *compile-file-truename*))
   (if (and file lineno1 lineno2)
-      (string-concat
-       ;; the first check is: "are we in the same file"?
-       ;; we check for `*compile-file-pathname*' too since
-       ;; `match-known-unknown-functions' binds `*compile-file-truename*'
-       ;; (to pass the right value to this function!)
-       (format nil (if (and *compile-file-pathname*
-                            (equalp file *compile-file-truename*))
-                       "" (format nil (TEXT " in file ~S") file)))
-       (format nil (if (= lineno1 lineno2)
-                       (TEXT " in line ~D")
-                       (TEXT " in lines ~D..~D"))
-               lineno1 lineno2))
-      ""))
+    (string-concat
+      ;; the first check is: "are we in the same file"?
+      ;; we check for `*compile-file-pathname*' too since
+      ;; `match-known-unknown-functions' binds `*compile-file-truename*'
+      ;; (to pass the right value to this function!)
+      (format nil (if (and *compile-file-pathname*
+                           (equalp file *compile-file-truename*))
+                    ""
+                    (format nil (TEXT " in file ~S") file)))
+      (format nil (if (= lineno1 lineno2)
+                    (TEXT " in line ~D")
+                    (TEXT " in lines ~D..~D"))
+              lineno1 lineno2))
+    ""))
 
 (defun c-source-point-location (point)
   (c-source-location (c-source-point-lineno1 point)
@@ -2110,9 +2112,9 @@ for-value   NIL or T
               (if (null a)
                 ;; no local definition --> expand-compiler-macro
                 (let ((handler
-                       (gethash (setq *form* (expand-compiler-macro *form*)
-                                      fun (and (consp *form*) (car *form*)))
-                                c-form-table)))
+                        (gethash (setq *form* (expand-compiler-macro *form*)
+                                       fun (and (consp *form*) (car *form*)))
+                                 c-form-table)))
                   (if handler ; found handler function?
                     ;; ==> (symbolp fun) = T
                     (if (or (and (special-operator-p fun)
@@ -2231,7 +2233,8 @@ for-value   NIL or T
             :sub-anodes '()
             :seclass (make-seclass
                       :uses (if (and *for-value* (not (var-constantp var)))
-                                (list symbol) 'NIL))
+                              (list symbol)
+                              'NIL))
             :code (if *for-value*
                     (if (var-constantp var)
                       `((CONST ,(make-const
@@ -2573,14 +2576,14 @@ for-value   NIL or T
 (defmacro try-eval (&body forms)
   `(block try-eval
      (let ((*error-handler*
-            #'(lambda (&rest error-args)
-                ;; NB: the warning may be reported twice: if you compile
-                ;; (* 1d30 1d30), this will be called first from c-STAR
-                ;; (because this is a * form), and second from
-                ;; c-DIRECT-FUNCTION-CALL (because this is a constant form)
-                (apply #'c-warn (TEXT "Run time error expected: ~@?")
-                       (cdr error-args))
-                (return-from try-eval nil))))
+             #'(lambda (&rest error-args)
+                 ;; NB: the warning may be reported twice: if you compile
+                 ;; (* 1d30 1d30), this will be called first from c-STAR
+                 ;; (because this is a * form), and second from
+                 ;; c-DIRECT-FUNCTION-CALL (because this is a constant form)
+                 (apply #'c-warn (TEXT "Run time error expected: ~@?")
+                        (cdr error-args))
+                 (return-from try-eval nil))))
        ,@forms)
      t))
 
@@ -2709,44 +2712,45 @@ for-value   NIL or T
               ;; if possible, the last Keys are evaluated at last.
               ;; However, we use only one single (PUSH-UNBOUND ...).
               (let* ((key-positions
-                      ;; list of triples (key stack-depth free-p), where
-                      ;; stack-depth = keyanz-1...0 and free-p states,
-                      ;; if the Slot is already filled.
-                      (let ((i keyanz))
-                        (mapcar #'(lambda (key) (list key (decf i) t))
-                                keylist)))
+                       ;; list of triples (key stack-depth free-p), where
+                       ;; stack-depth = keyanz-1...0 and free-p states,
+                       ;; if the Slot is already filled.
+                       (let ((i keyanz))
+                         (mapcar #'(lambda (key) (list key (decf i) t))
+                                 keylist)))
                      (anodes
-                      ;; list of quadruples (needed key-position anode stackz),
-                      ;; where key-position is the stack-depth of the
-                      ;; Keyword-Slots or NIL, anode is the Anode for
-                      ;; this argument.  The list is kept in the same
-                      ;; order, as is specified by the argument-list.
-                      ;; exception: needed = NIL for anodes, whose
-                      ;; calculation was brought forward or suspended.
-                      (let ((L '()))
-                        (loop
-                         (when (null args) (return))
-                         (let* ((key (c-constant-value (pop args)))
-                                (tripel (assoc key key-positions :test #'eq)) ; can be =NIL!
-                                (for-value (third tripel))
-                                (arg (pop args)))
-                           ;; for-value /= NIL: Existing Keyword,
-                           ;; and the Slot is still empty
-                           ;; for-value = NIL: ALLOW-allowed Keyword
-                           ;; or Slot already filled
-                           (unless for-value
-                             (c-warn
-                              (TEXT "~S: ignored duplicate keyword ~S ~S")
-                              fun key arg))
-                           (let* ((*stackz* (cons 0 *stackz*)) ; 0 will be replaced later
-                                  (anode (c-form arg (if for-value
-                                                         'ONE 'NIL))))
-                             (seclass-or-f seclass anode)
-                             (push (list t (and for-value (second tripel))
-                                         anode *stackz*)
-                                   L))
-                           (setf (third tripel) nil)))
-                        (nreverse L))))
+                       ;; list of quadruples (needed key-position anode stackz),
+                       ;; where key-position is the stack-depth of the
+                       ;; Keyword-Slots or NIL, anode is the Anode for
+                       ;; this argument.  The list is kept in the same
+                       ;; order, as is specified by the argument-list.
+                       ;; exception: needed = NIL for anodes, whose
+                       ;; calculation was brought forward or suspended.
+                       (let ((L '()))
+                         (loop
+                           (when (null args) (return))
+                           (let* ((key (c-constant-value (pop args)))
+                                  (tripel (assoc key key-positions :test #'eq)) ; can be =NIL!
+                                  (for-value (third tripel))
+                                  (arg (pop args)))
+                             ;; for-value /= NIL: Existing Keyword,
+                             ;; and the Slot is still empty
+                             ;; for-value = NIL: ALLOW-allowed Keyword
+                             ;; or Slot already filled
+                             (unless for-value
+                               (c-warn
+                                 (TEXT "~S: ignored duplicate keyword ~S ~S")
+                                 fun key arg))
+                             (let* ((*stackz* (cons 0 *stackz*)) ; 0 will be replaced later
+                                    (anode (c-form arg (if for-value 'ONE 'NIL))))
+                               (seclass-or-f seclass anode)
+                               (push (list t
+                                           (and for-value (second tripel))
+                                           anode
+                                           *stackz*)
+                                     L))
+                             (setf (third tripel) nil)))
+                         (nreverse L))))
                 (let ((depth1 0)
                       (depth2 0)
                       (codelist-from-end '()))
@@ -2763,25 +2767,25 @@ for-value   NIL or T
                       (let ((anodeetc (car anodesr))) ; next Quadruple
                         (when (first anodeetc) ; something else to do?
                           (if (and
-                               (or ; no Keyword, i.e. no (STORE ...) necessary?
-                                (null (second anodeetc))
-                                ;; topmost Keyword?
-                                (= (second anodeetc) (- keyanz depth1 1)))
-                               ;; does anodeetc commute with previous anodes?
-                               (commute-with-rest-p anodeetc anodes anodesr))
-                              ;; bring forward:
-                              (progn
-                                (setf (first (fourth anodeetc))
-                                      depth1) ; correct stack depth
-                                (push (third anodeetc)
-                                      codelist) ; into the code-list
-                                (when (second anodeetc)
-                                  (push '(PUSH) codelist)
-                                  (incf depth1))
-                                ;; we don't need this one anymore:
-                                (setf (first anodeetc) nil))
-                              ;; else we do nothing.
-                              ))))
+                                (or ; no Keyword, i.e. no (STORE ...) necessary?
+                                  (null (second anodeetc))
+                                  ;; topmost Keyword?
+                                  (= (second anodeetc) (- keyanz depth1 1)))
+                                ;; does anodeetc commute with previous anodes?
+                                (commute-with-rest-p anodeetc anodes anodesr))
+                            ;; bring forward:
+                            (progn
+                              (setf (first (fourth anodeetc))
+                                    depth1) ; correct stack depth
+                              (push (third anodeetc)
+                                    codelist) ; into the code-list
+                              (when (second anodeetc)
+                                (push '(PUSH) codelist)
+                                (incf depth1))
+                              ;; we don't need this one anymore:
+                              (setf (first anodeetc) nil))
+                            ;; else we do nothing.
+                            ))))
                     ;; bring backwards as much as possible:
                     (setq anodes (nreverse anodes))
                     (do ((anodesr anodes (cdr anodesr)))
@@ -2789,25 +2793,25 @@ for-value   NIL or T
                       (let ((anodeetc (car anodesr))) ; next Quadruple
                         (when (first anodeetc) ; still sth. to do?
                           (if (and
-                               (or ; no Keyword, i.e. no (STORE ...) necessary?
-                                (null (second anodeetc))
-                                ;; lowest Keyword?
-                                (= (second anodeetc) depth2))
-                               ;; does anodeetc commute with all later anodes?
-                               (commute-with-rest-p anodeetc anodes anodesr))
-                              ;; push to the End:
-                              (progn
-                                (when (second anodeetc)
-                                  (push '(PUSH) codelist-from-end)
-                                  (incf depth2))
-                                (setf (first (fourth anodeetc))
-                                      (- keyanz depth2)) ; correct stack-depth
-                                (push (third anodeetc)
-                                      codelist-from-end) ; into the code-list
-                                ;; we don't need this one anymore
-                                (setf (first anodeetc) nil))
-                              ;; else we do nothing.
-                              ))))
+                                (or ; no Keyword, i.e. no (STORE ...) necessary?
+                                  (null (second anodeetc))
+                                  ;; lowest Keyword?
+                                  (= (second anodeetc) depth2))
+                                ;; does anodeetc commute with all later anodes?
+                                (commute-with-rest-p anodeetc anodes anodesr))
+                            ;; push to the End:
+                            (progn
+                              (when (second anodeetc)
+                                (push '(PUSH) codelist-from-end)
+                                (incf depth2))
+                              (setf (first (fourth anodeetc))
+                                    (- keyanz depth2)) ; correct stack-depth
+                              (push (third anodeetc)
+                                    codelist-from-end) ; into the code-list
+                              ;; we don't need this one anymore
+                              (setf (first anodeetc) nil))
+                            ;; else we do nothing.
+                            ))))
                     (setq anodes (nreverse anodes))
                     (let ((depth-now (- keyanz depth2)))
                       ;; codelist-from-end decreases the Stack by depth2
@@ -2947,7 +2951,7 @@ for-value   NIL or T
              (if check ; (and (<= req n) (or rest-p (<= n (+ req opt))))
                ;; we make the call INLINE.
                (let ((sideeffects ; side-effect-class of the function-execution
-                      (function-side-effect fun)))
+                       (function-side-effect fun)))
                  (if (and (null *for-value*) (null (cdr sideeffects)))
                    ;; don't have to call the function,
                    ;; only evaluate the arguments
@@ -3085,8 +3089,8 @@ for-value   NIL or T
     (if *compiling-from-file*
       (let ((kf (assoc name *known-functions* :test #'equal))
             (uf (if (listp args)
-                    (list* name (make-c-source-point) args apply-args)
-                    (list name (make-c-source-point)))))
+                  (list* name (make-c-source-point) args apply-args)
+                  (list name (make-c-source-point)))))
         (if kf
           (match-known-unknown-functions uf kf)
           (push uf *unknown-functions*)))
@@ -3185,11 +3189,11 @@ for-value   NIL or T
     (unless p-given (setq pathname (pathname mod-name)))
     (flet ((load-lib (file)
              (let* ((*load-paths*
-                     (cons (make-pathname :name nil :type nil
-                                          :defaults *compile-file-truename*)
-                           *load-paths*))
+                      (cons (make-pathname :name nil :type nil
+                                           :defaults *compile-file-truename*)
+                            *load-paths*))
                     (present-files
-                     (search-file file (append *source-file-types* '("lib"))))
+                      (search-file file (append *source-file-types* '("lib"))))
                     (newest-file (first present-files)))
                ;; if the libfile occurs among the found Files
                ;; and if it is the newest:
@@ -3522,7 +3526,7 @@ for-value   NIL or T
               (make-var :name symbol :specialp nil
                 :constantp (anode-constantp form-anode) ; is set to NIL for assignments
                 :constant (if (anode-constantp form-anode)
-                              (anode-constant form-anode))
+                            (anode-constant form-anode))
                 :usedp nil :for-value-usedp nil :really-usedp nil
                 :closurep nil ; is possibly set to T
                 :stackz *stackz* :venvc *venvc* :fnode *func*))))
@@ -3826,21 +3830,21 @@ for-value   NIL or T
                      (checking-movable-var-list keys-vars keys-anodes)
                      (checking-movable-var-list aux-vars aux-anodes)))
                  (codelist
-                  `(,*func-start-label*
-                    ,@(c-make-closure closurevars closuredummy-venvc
-                                      closuredummy-stackz)
-                    ,@(mapcap #'c-bind-fixed-var req-vars req-dummys
-                              req-stackzs)
-                    ,@(c-bind-with-svars opt-vars opt-dummys opts-vars
-                                         opt-anodes opts-anodes opt-stackzs)
-                    ,@(mapcap #'c-bind-fixed-var rest-vars rest-dummys
-                              rest-stackzs)
-                    ,@(c-bind-with-svars key-vars key-dummys keys-vars
-                                         key-anodes keys-anodes key-stackzs)
-                    ,@(mapcap #'c-bind-movable-var-anode aux-vars aux-anodes)
-                    ,body-anode
-                    (UNWIND ,*stackz* ,oldstackz t)
-                    ,(if gf-p '(RETGF) '(RET))))
+                   `(,*func-start-label*
+                     ,@(c-make-closure closurevars closuredummy-venvc
+                                       closuredummy-stackz)
+                     ,@(mapcap #'c-bind-fixed-var req-vars req-dummys
+                               req-stackzs)
+                     ,@(c-bind-with-svars opt-vars opt-dummys opts-vars
+                                          opt-anodes opts-anodes opt-stackzs)
+                     ,@(mapcap #'c-bind-fixed-var rest-vars rest-dummys
+                               rest-stackzs)
+                     ,@(c-bind-with-svars key-vars key-dummys keys-vars
+                                          key-anodes keys-anodes key-stackzs)
+                     ,@(mapcap #'c-bind-movable-var-anode aux-vars aux-anodes)
+                     ,body-anode
+                     (UNWIND ,*stackz* ,oldstackz t)
+                     ,(if gf-p '(RETGF) '(RET))))
                  (anode-list `(,@opt-anodes ,@(remove nil opts-anodes)
                                ,@key-anodes ,@(remove nil keys-anodes)
                                ,@aux-anodes ,body-anode))
@@ -4207,20 +4211,20 @@ for-value   NIL or T
      :sub-anodes '()
      :seclass *seclass-pure*
      :code (if *for-value*
-               `((CONST ,(if *fasoutput-stream* ; not called right away
-                           (if (and (symbolp form) (c-constantp form))
-                             (make-const :horizon ':all
-                                         :form form
-                                         :ltv-form *form*
-                                         :value (c-constant-value form))
-                             (make-const :horizon ':form
-                                         :form form
-                                         :ltv-form *form*))
+             `((CONST ,(if *fasoutput-stream* ; not called right away
+                         (if (and (symbolp form) (c-constantp form))
                            (make-const :horizon ':all
-                                       :value (eval form)
                                        :form form
-                                       :ltv-form *form*))))
-               '()))))
+                                       :ltv-form *form*
+                                       :value (c-constant-value form))
+                           (make-const :horizon ':form
+                                       :form form
+                                       :ltv-form *form*))
+                         (make-const :horizon ':all
+                                     :value (eval form)
+                                     :form form
+                                     :ltv-form *form*))))
+             '()))))
 
 ;; compile (CATCH tag {form}*)
 (defun c-CATCH ()
@@ -4624,8 +4628,8 @@ for-value   NIL or T
               (unless *-flag (push 0 *stackz*)) ; room for closing-bindings
               (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; compile Body
                 ;; check the variables:
-                (let* ((closurevars (checking-movable-var-list
-                                     varlist anodelist))
+                (let* ((closurevars
+                         (checking-movable-var-list varlist anodelist))
                        (codelist
                          `(,@(c-make-closure closurevars closuredummy-venvc
                                              closuredummy-stackz)
@@ -4915,10 +4919,11 @@ for-value   NIL or T
               `((TAGBODY-OPEN
                   ,(new-const (map 'simple-vector
                                    #'(lambda (tag)
-                                       (if (numberp tag) tag
-                                           ;; GENSYM --> NIL so that
-                                           ;; *.fas will not contain GENSYMs
-                                           (and (symbol-package tag) tag)))
+                                       (if (numberp tag)
+                                         tag
+                                         ;; GENSYM --> NIL so that
+                                         ;; *.fas will not contain GENSYMs
+                                         (and (symbol-package tag) tag)))
                                    used-tags))
                   ,@used-label-list)
                 ,@codelist
@@ -5092,24 +5097,23 @@ for-value   NIL or T
                 (push (car namelistr) L)
                 (push (car fenvconslistr) L)))
            (get-anode (type)
-             `(let* ((closurevars (checking-movable-var-list
-                                   varlist anodelist))
+             `(let* ((closurevars (checking-movable-var-list varlist anodelist))
                      (anode
-                      (make-anode
-                       :type ',type
-                       :sub-anodes `(,@anodelist ,body-anode)
-                       :seclass (seclass-without
-                                 (anodelist-seclass-or
-                                  `(,@anodelist ,body-anode))
-                                 varlist)
-                       :code `(,@(c-make-closure closurevars closuredummy-venvc
-                                                 closuredummy-stackz)
-                               ,@(mapcap #'c-bind-movable-var-anode varlist
-                                         anodelist)
-                               ,body-anode
-                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-               (closuredummy-add-stack-slot
-                closurevars closuredummy-stackz closuredummy-venvc)
+                       (make-anode
+                         :type ',type
+                         :sub-anodes `(,@anodelist ,body-anode)
+                         :seclass (seclass-without
+                                    (anodelist-seclass-or
+                                      `(,@anodelist ,body-anode))
+                                    varlist)
+                         :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                                   closuredummy-stackz)
+                                 ,@(mapcap #'c-bind-movable-var-anode
+                                           varlist anodelist)
+                                 ,body-anode
+                                 (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
+               (closuredummy-add-stack-slot closurevars
+                                            closuredummy-stackz closuredummy-venvc)
                (optimize-var-list varlist)
                anode)))
 
@@ -5236,7 +5240,7 @@ for-value   NIL or T
         ;; fenvconslist = list of Conses (fdescr . var) for *fenv*
         ;; (fdescr still without fnode, which is inserted later).
         (let ((*fenv* ; activate function-name
-               (add-fenv namelist fenvconslist)))
+                (add-fenv namelist fenvconslist)))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
           (let* ((fnodelist ; compile functions
                    (mapcar #'(lambda (name lambdaname lambdabody fenvcons)
@@ -5417,7 +5421,7 @@ for-value   NIL or T
                 (push var varlist)))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
           (let ((body-anode ; compile remaining forms
-                 (c-form `(PROGN ,@(cddr *form*)))))
+                  (c-form `(PROGN ,@(cddr *form*)))))
             (get-anode CLOS:GENERIC-FLET)))))))
 
 ;; compile (CLOS:GENERIC-LABELS ({genfundefs}*) {form}*)
@@ -5469,12 +5473,12 @@ for-value   NIL or T
         ;; fenvconslist = list of Conses (fdescr . var) for *fenv*,
         ;; formlist = list of Constructor-Forms of the generic functions.
         (let ((*fenv* ; activate function-names
-               (add-fenv namelist fenvconslist)))
+                (add-fenv namelist fenvconslist)))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
           (let* ((anodelist
-                  (mapcar #'(lambda (form) (c-form form 'ONE)) formlist))
+                   (mapcar #'(lambda (form) (c-form form 'ONE)) formlist))
                  (body-anode ; compile remaining forms
-                  (c-form `(PROGN ,@(cddr *form*)))))
+                   (c-form `(PROGN ,@(cddr *form*)))))
             (get-anode CLOS:GENERIC-LABELS)))))))
 
 ) ; macrolet
@@ -5507,28 +5511,29 @@ for-value   NIL or T
         (let ((symdef (car L)))
           (if (and (consp symdef) (symbolp (car symdef))
                    (consp (cdr symdef)) (null (cddr symdef)))
-              (progn (push (first symdef) symbols)
-                     (push (second symdef) expansions))
-              (c-error-c (TEXT "~S: Illegal syntax: ~S")
-                         'symbol-macrolet symdef))))
+            (progn
+              (push (first symdef) symbols)
+              (push (second symdef) expansions))
+            (c-error-c (TEXT "~S: Illegal syntax: ~S")
+                       'symbol-macrolet symdef))))
     (let ((*denv* *denv*)
           (*venv*
-           (apply #'vector
-                  (nconc (mapcan #'(lambda (sym exp)
-                                     (list sym (make-symbol-macro exp)))
-                                 symbols expansions)
-                         (list *venv*)))))
+            (apply #'vector
+                   (nconc (mapcan #'(lambda (sym exp)
+                                      (list sym (make-symbol-macro exp)))
+                                  symbols expansions)
+                          (list *venv*)))))
       (multiple-value-bind (body-rest declarations) (parse-body (cddr *form*))
         (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
             (process-declarations declarations)
           (push-specials)
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
-                (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro")
-                           'symbol-macrolet symbol)
-                (when (memq symbol *specials*)
-                  (c-error-c (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
-                             'symbol-macrolet symbol))))
+              (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro")
+                         'symbol-macrolet symbol)
+              (when (memq symbol *specials*)
+                (c-error-c (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
+                           'symbol-macrolet symbol))))
           (funcall c `(PROGN ,@body-rest)))))))
 
 ;; compile (EVAL-WHEN ({situation}*) {form}*)
@@ -5554,8 +5559,7 @@ for-value   NIL or T
     (let ((form `(PROGN ,@(cddr *form*))))
       (when (and compile-p load-p) (c-write-lib form))
       (when compile-p (eval form))
-      (funcall c (if (or load-p (and execute-p (not top-level-p)))
-                     form nil)))))
+      (funcall c (if (or load-p (and execute-p (not top-level-p))) form nil)))))
 
 ;; compile (COND {clause}*)
 (defun c-COND ()
@@ -5736,34 +5740,34 @@ for-value   NIL or T
              (push 1 *stackz*)
              (let* ((condition-sym (gensym))
                     (condition-anode
-                     (make-anode :type 'CONDITION
-                                 :sub-anodes '()
-                                 :seclass *seclass-read*
-                                 :code '())) ; first comes (HANDLER-BEGIN)
+                      (make-anode :type 'CONDITION
+                                  :sub-anodes '()
+                                  :seclass *seclass-read*
+                                  :code '())) ; first comes (HANDLER-BEGIN)
                     (condition-var (bind-movable-var condition-sym
                                                      condition-anode)))
                (push-*venv* condition-var)
                (let ((body-anode
-                      (c-form `(FUNCALL ,handler ,condition-sym) 'NIL)))
+                       (c-form `(FUNCALL ,handler ,condition-sym) 'NIL)))
                  ;; Check the variables (must not happen in the closure):
                  (checking-movable-var-list (list condition-var)
                                             (list condition-anode))
                  (let* ((codelist
-                         `(,label
-                           (HANDLER-BEGIN)
-                           ,@(c-bind-movable-var-anode condition-var
-                                                       condition-anode)
-                           ,body-anode
-                           (UNWINDSP ,*stackz* ,*func*) ; (SKIPSP k1 k2)
-                           (UNWIND ,*stackz* ,oldstackz NIL) ; (SKIP 2)
-                           (RET)))
+                          `(,label
+                            (HANDLER-BEGIN)
+                            ,@(c-bind-movable-var-anode condition-var
+                                                        condition-anode)
+                            ,body-anode
+                            (UNWINDSP ,*stackz* ,*func*) ; (SKIPSP k1 k2)
+                            (UNWIND ,*stackz* ,oldstackz NIL) ; (SKIP 2)
+                            (RET)))
                         (anode
-                         (make-anode
-                          :type 'HANDLER
-                          :sub-anodes `(,body-anode)
-                          :seclass *seclass-dirty* ; actually irrelevant
-                          :stackz oldstackz
-                          :code codelist)))
+                          (make-anode
+                            :type 'HANDLER
+                            :sub-anodes `(,body-anode)
+                            :seclass *seclass-dirty* ; actually irrelevant
+                            :stackz oldstackz
+                            :code codelist)))
                    (optimize-var-list (list condition-var))
                    anode))))
            handler-anodes))))
@@ -6038,8 +6042,9 @@ for-value   NIL or T
                       (finish-using-applyarg '() '() '() '() restvar)))
                   ;; bind rest-parameter:
                   (let* ((form (if applyarglist
-                                 (if arglist `(LIST* ,@arglist ,@applyarglist)
-                                     (first applyarglist))
+                                 (if arglist
+                                   `(LIST* ,@arglist ,@applyarglist)
+                                   (first applyarglist))
                                  (if arglist `(LIST ,@arglist) 'NIL)))
                          (anode (let ((*venv* oldvenv)
                                       (*fenv* oldfenv)
@@ -6763,7 +6768,7 @@ for-value   NIL or T
                         ((eq (first type) 'MEMBER)
                           (return-from c-TYPEP
                             (let ((*form* `(CASE ,objform
-                                            (,(rest type) T) (t NIL))))
+                                             (,(rest type) T) (t NIL))))
                               (c-CASE))))
                         ((and (eq (first type) 'EQL) (eql (length type) 2))
                           (return-from c-TYPEP
@@ -6790,8 +6795,8 @@ for-value   NIL or T
                             (return-from c-TYPEP
                               (let ((*form* `((lambda ,@lambdabody) ,objform)))
                                 (c-FUNCALL-INLINE
-                                  (symbol-suffix '#:TYPEP (symbol-name
-                                                           (first type)))
+                                  (symbol-suffix '#:TYPEP
+                                                 (symbol-name (first type)))
                                   (list objform)
                                   nil
                                   lambdabody
@@ -7339,8 +7344,8 @@ for-value   NIL or T
                     (let ((pred-form (macroexpand-form
                                        ,(case n (2 `(second *form*))
                                                 (3 `(third *form*))))))
-                      (if (inlinable-function-operation-form-p
-                           pred-form 'COMPLEMENT)
+                      (if (inlinable-function-operation-form-p pred-form
+                                                               'COMPLEMENT)
                         ;; (op-if (complement fn) ...) --> (op-if-not fn ...)
                         (c-form ,(case n (2 `(list* ',op-if-not
                                               (second pred-form) (cddr *form*)))
@@ -7355,8 +7360,8 @@ for-value   NIL or T
                     (let ((pred-form (macroexpand-form
                                        ,(case n (2 `(second *form*))
                                                 (3 `(third *form*))))))
-                      (if (inlinable-function-operation-form-p
-                           pred-form 'COMPLEMENT)
+                      (if (inlinable-function-operation-form-p pred-form
+                                                               'COMPLEMENT)
                         ;; (op-if-not (complement fn) ...) --> (op-if fn ...)
                         (c-form ,(case n (2 `(list* ',op-if (second pred-form)
                                               (cddr *form*)))
@@ -7913,14 +7918,16 @@ New Operations:
                         (multiple-value-bind (k n m)
                             (access-in-closure var venvc stackz)
                           (if n
-                            (if k `(LOADIC ,(car k) ,(cdr k) ,n ,m)
-                                `(LOADC ,n ,m))
+                            (if k
+                              `(LOADIC ,(car k) ,(cdr k) ,n ,m)
+                              `(LOADC ,n ,m))
                             `(LOADV ,k ,(1+ m))))
                         ;; lexical and in Stack, so in the same function
                         (multiple-value-bind (k n)
                             (access-in-stack stackz (var-stackz var))
-                          (if k `(LOADI ,(car k) ,(cdr k) ,n)
-                              `(LOAD ,n) ))))))
+                          (if k
+                            `(LOADI ,(car k) ,(cdr k) ,n)
+                            `(LOAD ,n) ))))))
                 *code-part*)
                (setq *current-vars* (list var)))))
           (SET
@@ -7936,8 +7943,9 @@ New Operations:
                     (multiple-value-bind (k n m)
                         (access-in-closure var venvc stackz)
                       (if n
-                        (if k `(STOREIC ,(car k) ,(cdr k) ,n ,m)
-                            `(STOREC ,n ,m))
+                        (if k
+                          `(STOREIC ,(car k) ,(cdr k) ,n ,m)
+                          `(STOREC ,n ,m))
                         `(STOREV ,k ,(1+ m))))
                     ;; lexical and in Stack, so in the same function
                     (multiple-value-bind (k n)
@@ -7985,10 +7993,10 @@ New Operations:
                )
              ;; boolean value known at jump
              (if (if (eq *current-value* 'FALSE)
-                     ;; value=NIL -> omit JMPIF
-                     (memq (first item) '(JMPIF JMPIF1))
-                     ;; value/=NIL -> omit JMPIFNOT
-                     (memq (first item) '(JMPIFNOT JMPIFNOT1)))
+                   ;; value=NIL -> omit JMPIF
+                   (memq (first item) '(JMPIF JMPIF1))
+                   ;; value/=NIL -> omit JMPIFNOT
+                   (memq (first item) '(JMPIFNOT JMPIFNOT1)))
                ;; omit jump
                nil
                ;; convert to JMP:
@@ -8553,8 +8561,9 @@ Simplification-Rules for Operations:
         ;; (JSR n label) [(SKIP m)] (RET) --> (JMPTAIL n n+m label)
         (let ((n (second (first codelistr)))
               (label (third (first codelistr)))
-              (m (if (eq codelistr (cdr codelist)) 0
-                     (second (second codelist)))))
+              (m (if (eq codelistr (cdr codelist))
+                   0
+                   (second (second codelist)))))
           (setf (first codelist) `(JMPTAIL ,n ,(+ n m) ,label)))
         (remove-references (first codelistr)) ; (JSR ...) is discarded
         (note-references (first codelist)) ; (JMPTAIL ...) is inserted
@@ -8631,10 +8640,10 @@ Optimizations that might apply after this one are retried.
              ;; eliminate references out of this code-part.
              (let ((labellist '())) ; list of labels that have lost references
                (loop
-                (when (atom code) (return))
-                (setq labellist
-                      (nreconc labellist (remove-references
-                                          (pop code) index))))
+                 (when (atom code) (return))
+                 (setq labellist
+                       (nreconc labellist
+                                (remove-references (pop code) index))))
                (setf (aref *code-parts* index) nil) ; remove code-part
                ;; At Labels with fewer references continue optimization:
                ;; (Caution: This can change *code-parts*.)
@@ -9004,7 +9013,7 @@ Optimizations that might apply after this one are retried.
           (when (cdr indices) ; at least two indices with this code-end?
             ;; try to coalesce a code-piece that is as long as possible:
             (let ((codes ; list of code-pieces to be coalesced
-                   (mapcar #'(lambda (i) (aref *code-parts* i)) indices))
+                    (mapcar #'(lambda (i) (aref *code-parts* i)) indices))
                   (new-code '()) ; here the common code is collected
                   (new-index (fill-pointer *code-parts*)) ; its index
                   (new-order ; the common piece is sorted at the last part
@@ -9153,9 +9162,9 @@ Optimizations that might apply after this one are retried.
                            (let* ((refcode (aref *code-parts* jmpcase1-ref))
                                   (refcode1 (car refcode))
                                   (jmpop
-                                   (if (eq label (second refcode1))
-                                       `(JMPIFNOT1 ,(third refcode1))
-                                       `(JMPIF1 ,(second refcode1)))))
+                                    (if (eq label (second refcode1))
+                                      `(JMPIFNOT1 ,(third refcode1))
+                                      `(JMPIF1 ,(second refcode1)))))
                              (setf (cdr lastc) (list* label jmpop
                                                       (cdr refcode)))
                              (setf (aref *code-parts* jmpcase1-ref) nil)
@@ -9168,10 +9177,9 @@ Optimizations that might apply after this one are retried.
                                                  (get (third refcode1)
                                                       'for-value)))
                                   (jmpop
-                                   (if (eq label (second refcode1))
-                                       `(JMPIFNOT ,(third refcode1) ,for-value)
-                                       `(JMPIF ,(second refcode1)
-                                         ,for-value))))
+                                    (if (eq label (second refcode1))
+                                      `(JMPIFNOT ,(third refcode1) ,for-value)
+                                      `(JMPIF ,(second refcode1) ,for-value))))
                              (setf (cdr lastc)
                                    (list* label jmpop (cdr refcode)))
                              (setf (aref *code-parts* jmpcase-ref) nil)
@@ -9430,7 +9438,7 @@ This step determines, how many SP-Entries the function needs at most.
                                      (h (assoc ,label seen-label-alist)))
                                 (unless (and h (spd<= depth (cdr h)))
                                   (let ((depth
-                                         (if h (spdmax depth (cdr h)) depth)))
+                                          (if h (spdmax depth (cdr h)) depth)))
                                     (setq h (assoc ,label unseen-label-alist))
                                     (if h
                                       (unless (spd<= depth (cdr h))
@@ -9672,8 +9680,8 @@ This step works on the code-list and changes is destructively.
              ;; e.g. (ATOM) --> (PUSH) (CALLS ATOM)
              (setf (car crest) '(PUSH)
                    (cdr crest) (cons (if (eq item 'ATOM)
-                                         (CALLS-code-fun atom)
-                                         (CALLS-code-fun consp))
+                                       (CALLS-code-fun atom)
+                                       (CALLS-code-fun consp))
                                      (cdr crest)))))))))
   ;; Now the other Conversions: One single run.
   ;; Two pointers loop through the code-list: ...middle.right...
@@ -9704,57 +9712,57 @@ This step works on the code-list and changes is destructively.
           (when (and #| (consp right) |# (consp (car right)))
             ;; normal conversions, with chaining of the arguments:
             (let ((new-op
-                   (cdr (assoc (first item)
-                               (case (first (car right))
-                                 (PUSH  '((T        . T&PUSH)
-                                          (CONST    . CONST&PUSH)
-                                          (LOADI    . LOADI&PUSH)
-                                          (LOADC    . LOADC&PUSH)
-                                          (LOADV    . LOADV&PUSH)
-                                          (GETVALUE . GETVALUE&PUSH)
-                                          (CALL     . CALL&PUSH)
-                                          (CALL1    . CALL1&PUSH)
-                                          (CALL2    . CALL2&PUSH)
-                                          (CALLS1   . CALLS1&PUSH)
-                                          (CALLS2   . CALLS2&PUSH)
-                                          (CALLSR   . CALLSR&PUSH)
-                                          (CALLC    . CALLC&PUSH)
-                                          (CALLCKEY . CALLCKEY&PUSH)
-                                          (CAR      . CAR&PUSH)
-                                          (CDR      . CDR&PUSH)
-                                          (CONS     . CONS&PUSH)
-                                          (LIST     . LIST&PUSH)
-                                          (LIST*    . LIST*&PUSH)
-                                          (FUNCALL  . FUNCALL&PUSH)
-                                          (APPLY    . APPLY&PUSH)
-                                          (COPY-CLOSURE . COPY-CLOSURE&PUSH)
-                                          (HANDLER-BEGIN . HANDLER-BEGIN&PUSH)))
-                                 (JMPIF
-                                  (let ((alist
-                                         '((EQ     . JMPIFEQ)
-                                           (LOAD   . LOAD&JMPIF)
-                                           (CALL1  . CALL1&JMPIF)
-                                           (CALL2  . CALL2&JMPIF)
-                                           (CALLS1 . CALLS1&JMPIF)
-                                           (CALLS2 . CALLS2&JMPIF)
-                                           (CALLSR . CALLSR&JMPIF))))
-                                    (when (third (car right))
-                                      (setq alist (cdr alist)))
-                                    (setf (cddr (car right)) '())
-                                    alist))
-                                 (JMPIFNOT
-                                  (let ((alist
-                                         '((EQ     . JMPIFNOTEQ)
-                                           (LOAD   . LOAD&JMPIFNOT)
-                                           (CALL1  . CALL1&JMPIFNOT)
-                                           (CALL2  . CALL2&JMPIFNOT)
-                                           (CALLS1 . CALLS1&JMPIFNOT)
-                                           (CALLS2 . CALLS2&JMPIFNOT)
-                                           (CALLSR . CALLSR&JMPIFNOT))))
-                                    (when (third (car right))
-                                      (setq alist (cdr alist)))
-                                    (setf (cddr (car right)) '())
-                                    alist))
+                    (cdr (assoc (first item)
+                                (case (first (car right))
+                                  (PUSH  '((T        . T&PUSH)
+                                           (CONST    . CONST&PUSH)
+                                           (LOADI    . LOADI&PUSH)
+                                           (LOADC    . LOADC&PUSH)
+                                           (LOADV    . LOADV&PUSH)
+                                           (GETVALUE . GETVALUE&PUSH)
+                                           (CALL     . CALL&PUSH)
+                                           (CALL1    . CALL1&PUSH)
+                                           (CALL2    . CALL2&PUSH)
+                                           (CALLS1   . CALLS1&PUSH)
+                                           (CALLS2   . CALLS2&PUSH)
+                                           (CALLSR   . CALLSR&PUSH)
+                                           (CALLC    . CALLC&PUSH)
+                                           (CALLCKEY . CALLCKEY&PUSH)
+                                           (CAR      . CAR&PUSH)
+                                           (CDR      . CDR&PUSH)
+                                           (CONS     . CONS&PUSH)
+                                           (LIST     . LIST&PUSH)
+                                           (LIST*    . LIST*&PUSH)
+                                           (FUNCALL  . FUNCALL&PUSH)
+                                           (APPLY    . APPLY&PUSH)
+                                           (COPY-CLOSURE . COPY-CLOSURE&PUSH)
+                                           (HANDLER-BEGIN . HANDLER-BEGIN&PUSH)))
+                                  (JMPIF
+                                   (let ((alist
+                                           '((EQ     . JMPIFEQ)
+                                             (LOAD   . LOAD&JMPIF)
+                                             (CALL1  . CALL1&JMPIF)
+                                             (CALL2  . CALL2&JMPIF)
+                                             (CALLS1 . CALLS1&JMPIF)
+                                             (CALLS2 . CALLS2&JMPIF)
+                                             (CALLSR . CALLSR&JMPIF))))
+                                     (when (third (car right))
+                                       (setq alist (cdr alist)))
+                                     (setf (cddr (car right)) '())
+                                     alist))
+                                  (JMPIFNOT
+                                   (let ((alist
+                                           '((EQ     . JMPIFNOTEQ)
+                                             (LOAD   . LOAD&JMPIFNOT)
+                                             (CALL1  . CALL1&JMPIFNOT)
+                                             (CALL2  . CALL2&JMPIFNOT)
+                                             (CALLS1 . CALLS1&JMPIFNOT)
+                                             (CALLS2 . CALLS2&JMPIFNOT)
+                                             (CALLSR . CALLSR&JMPIFNOT))))
+                                     (when (third (car right))
+                                       (setq alist (cdr alist)))
+                                     (setf (cddr (car right)) '())
+                                     alist))
                                  (STORE '((NIL    . NIL&STORE)
                                           (T      . T&STORE)
                                           (POP    . POP&STORE)
@@ -9813,7 +9821,8 @@ This step works on the code-list and changes is destructively.
                              (memq (first (cadr right)) '(JMPIF JMPIFNOT))
                              (null (third (cadr right))))
                     (ersetze 3 `(,(if (eq (first (cadr right)) 'JMPIF)
-                                      'JMPIFEQTO 'JMPIFNOTEQTO)
+                                    'JMPIFEQTO
+                                    'JMPIFNOTEQTO)
                                  ,(second item)
                                  ,(second (cadr right)))))))))
             (LOAD
@@ -9847,13 +9856,15 @@ This step works on the code-list and changes is destructively.
                       (when (equal (caddr right) '(PUSH))
                         (ersetze 4 `(,(if (equal (cadr right)
                                                  (CALLS-code-fun 1+))
-                                          'LOAD&INC&PUSH 'LOAD&DEC&PUSH)
+                                        'LOAD&INC&PUSH
+                                        'LOAD&DEC&PUSH)
                                       ,n)))
                       (when (and (eq (first (caddr right)) 'STORE)
                                  (eql (second (caddr right)) n))
                         (ersetze 4 `(,(if (equal (cadr right)
                                                  (CALLS-code-fun 1+))
-                                          'LOAD&INC&STORE 'LOAD&DEC&STORE)
+                                        'LOAD&INC&STORE
+                                        'LOAD&DEC&STORE)
                                       ,n))))
                     (ersetze 2 `(LOAD&PUSH ,n)))))))
             (JMPIFBOUNDP ; simplify (JMPIFBOUNDP n l) (NIL) (STORE n) l
@@ -9868,8 +9879,8 @@ This step works on the code-list and changes is destructively.
                (ersetze 3 `(UNBOUND->NIL ,(second item)))))
             (JSR
              (if (and #| (consp right) |# (equal (car right) '(PUSH)))
-                 (ersetze 2 `(JSR&PUSH ,(third item)))
-                 (ersetze 1 `(JSR ,(third item)))))
+               (ersetze 2 `(JSR&PUSH ,(third item)))
+               (ersetze 1 `(JSR ,(third item)))))
             (UNBIND1
              (let ((count 1))
                (loop
@@ -10504,8 +10515,8 @@ The function make-closure is required.
         definition))
     (flet ((closure-slot (obj num)
              (if (sys::closurep obj)
-                 (sys::%record-ref obj num)
-                 nil)))
+               (sys::%record-ref obj num)
+               nil)))
       (let ((*compiling* t)
             (*error-count* 0)
             (*warning-count* 0)
@@ -10582,7 +10593,7 @@ The function make-closure is required.
                                   ((null Lr))
                                 (let* ((subform (pop Lr))
                                        (*toplevel-for-value*
-                                        (and *toplevel-for-value* (null Lr))))
+                                         (and *toplevel-for-value* (null Lr))))
                                   (compile-toplevel-form
                                    subform
                                    (symbol-suffix *toplevel-name*
@@ -10745,9 +10756,9 @@ The function make-closure is required.
 ;; 2. the input file pathname.
 (defun compile-file-pathname-helper (file output-file)
   (let ((input-file
-         (or (and (not (logical-pathname-p (pathname file)))
-                  (first (search-file file *source-file-types*)))
-             (merge-pathnames file (make-pathname :type "lisp")))))
+          (or (and (not (logical-pathname-p (pathname file)))
+                   (first (search-file file *source-file-types*)))
+              (merge-pathnames file (make-pathname :type "lisp")))))
     (values
       (if (or (null output-file) (streamp output-file))
         output-file
@@ -10801,9 +10812,10 @@ The function make-closure is required.
                                (external-format :default)
                           &aux liboutput-file (*coutput-file* nil)
                                (*compile-file-directory*
-                                (if (eq t output-file) nil
-                                    (make-pathname :name nil :type nil
-                                                   :defaults output-file)))
+                                 (if (eq t output-file)
+                                   nil
+                                   (make-pathname :name nil :type nil
+                                                  :defaults output-file)))
                                (new-output-stream nil)
                                (new-listing-stream nil))
   (multiple-value-setq (output-file file)
@@ -10830,12 +10842,13 @@ The function make-closure is required.
                (*compile-file-lineno1* nil)
                (*compile-file-lineno2* nil)
                (*fasoutput-stream* ; a Stream or NIL
-                (if new-output-stream
-                    (open output-file :direction :output)
-                    (if (streamp output-file) output-file nil)))
+                 (if new-output-stream
+                   (open output-file :direction :output)
+                   (if (streamp output-file) output-file nil)))
                (*liboutput-stream* ; a Stream or NIL
-                (if new-output-stream
-                    (open liboutput-file :direction :output) nil))
+                 (if new-output-stream
+                   (open liboutput-file :direction :output)
+                   nil))
                (*coutput-stream* nil) ; a Stream or NIL at the moment
                (*ffi-module* nil) ; NIL at the moment
                (*load-forms* (make-hash-table :key-type 't :value-type 't
@@ -10864,11 +10877,11 @@ The function make-closure is required.
                         (make-broadcast-stream *error-output* listing-stream)
                         *error-output*))
                     (verbose-out
-                     (when *compile-verbose*
-                       (if listing-stream
-                           (make-broadcast-stream
-                            *standard-output* listing-stream)
-                           *standard-output*)))
+                      (when *compile-verbose*
+                        (if listing-stream
+                          (make-broadcast-stream *standard-output*
+                                                 listing-stream)
+                          *standard-output*)))
                     (*func* nil)
                     (*fenv* nil)
                     (*benv* nil)
@@ -10917,8 +10930,8 @@ The function make-closure is required.
                   (setq *compile-file-lineno1* (line-number istream))
                   (let* ((form (read istream nil eof-value))
                          (form-name (make-symbol
-                                     (write-to-string
-                                      form :level 2 :length 3 :pretty nil))))
+                                      (write-to-string
+                                        form :level 2 :length 3 :pretty nil))))
                     (setq *compile-file-lineno2* (line-number istream))
                     (when (eql form eof-value) (return))
                     (when *compile-print* (format t "~&; ~A~." form-name))
