@@ -2,6 +2,7 @@
 
 	* describe.lisp (describe-object) [SOCKETS]: handle SOCKET-SERVER
 	Reported by "John K. Hinsdale" <hin@alma.com>
+	* genclisph.d (Atype_32Bit): export for gdi (Dan Stanger)
 
 2003-09-03  Sam Steingold  <sds@gnu.org>
 

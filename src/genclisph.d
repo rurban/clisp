@@ -1303,6 +1303,7 @@ int main()
   printf("extern object allocate_cons (void);\n");
 # printf("extern object make_symbol (object string);\n");
   printf("extern object allocate_vector (uintL len);\n");
+  printf("#define Atype_32Bit %d\n",Atype_32Bit);
   printf("#define Atype_8Bit %d\n",Atype_8Bit);
   printf("#define Atype_Bit %d\n",Atype_Bit);
   printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
