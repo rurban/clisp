@@ -3,7 +3,7 @@
 gcc2_compiled.:
 C(__gnu_compiled_c:)
 .text
-	.align 2
+	.align 4
 .globl C(__builtin_avcall)
 C(__builtin_avcall:)
 	pushl %ebp
