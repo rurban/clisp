@@ -55,7 +55,7 @@ something like \"file:/usr/local/doc/HyperSpec/\"."
            (if (file-exists-p f) f
              (setq f (concat d "Symbol-Table.text"))
              (if (file-exists-p f) f
-               (error "no symbol table at ~s" root))))
+               (error "no symbol table at %s" root))))
          nil nil nil t)
         (goto-char 0)
         (current-buffer))
@@ -70,7 +70,7 @@ something like \"file:/usr/local/doc/HyperSpec/\"."
         (goto-char 0)
         (unless (looking-at "^HTTP/.*200 *OK$")
           (kill-buffer (current-buffer))
-          (error "no symbol table at ~s" root)))
+          (error "no symbol table at %s" root)))
       ;; skip to the first symbol
       (search-forward "\n\n")
       (current-buffer))))
