@@ -2564,7 +2564,6 @@ done
 if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   # on w32 -g, using lisp.o leads to a crash on the first statement in main()
   test $HSYSOS = win32gcc -o $HSYSOS = cygwin32; no_lisp_o=$?;
-  echo "lisp.o: "$no_lisp_o >&2;
   echol "lisp.a : \$(OBJECTS)"
   if [ $no_lisp_o = 1 ]; then
     echotab "ld -r -o lisp.o \$(OBJECTS)"
@@ -3178,6 +3177,7 @@ done
 echol
 
 if [ $CROSS = false ] ; then
+
   echol "clisp : clisp.c"
   echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"'"\$\$builddir"'\"' -DLOCALEDIR='\"'"\$\$builddir/locale"'\"' clisp.c -o clisp"
   echol
