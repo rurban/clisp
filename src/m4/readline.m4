@@ -19,7 +19,7 @@ if test $ac_cv_search_tgetent != no ; then
     if [ test $ac_cv_func_rl_filename_completion_function = no ];
     then RL_FCF=filename_completion_function;
     else RL_FCF=rl_filename_completion_function; fi
-    CL_PROTO([${RL_FCF}], [
+    CL_PROTO([rl_filename_completion_function], [
       CL_PROTO_CONST([
 #include <stdio.h>
 #include <readline/readline.h>
