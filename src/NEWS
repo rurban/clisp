@@ -343,7 +343,7 @@ User visible changes
   + Third party code walkers can now handle HANDLER-BIND et al.
 
 * Woe32 distribution now comes with a binary driver clisp.exe.
-  Do not copy it anywhere!  Just create a shortcut to it.
+  Do not copy it anywhere - create a shortcut to it instead!
   Use install.bat to automate shortcut creation.
 
 Modules
@@ -365,7 +365,7 @@ Modules
   other functionality for Lisp program internationalization.
   See <http://clisp.cons.org/impnotes.html#i18n-mod> for details.
 
-* New module PARI interfacee to <http://pari.math.u-bordeaux.fr/>.
+* New module PARI interfaces to <http://pari.math.u-bordeaux.fr/>.
   See <http://clisp.cons.org/impnotes.html#pari> for details.
 
 * Module syscalls now exports functions POSIX:CRYPT, POSIX:ENCRYPT,
