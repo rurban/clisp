@@ -1,3 +1,7 @@
+2001-06-07  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (LPARTS): add foreign1 only when foreign is in CPARTS
+
 2001-06-02  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (to-c-typedecl): tweak the 2001-05-30 patch.
