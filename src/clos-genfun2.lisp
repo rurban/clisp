@@ -250,13 +250,14 @@
 ;;   )        )
 
 ;; Returns a generic function without dispatch-code. Not callable!!
-(defun %make-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs)
+(defun %make-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)
   (make-generic-function-instance generic-function-class
     :name name
     :lambda-list lambda-list
     :argument-precedence-order argument-precedence-order
     :method-class method-class
-    :declarations declspecs))
+    :declarations declspecs
+    :documentation documentation))
 
 #||
  (defun make-gf (generic-function-class name lambdabody signature argorder methods)
@@ -274,8 +275,8 @@
 
 #|| ;; Generic functions with primitive dispatch:
 
- (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs methods)
-  (let* ((final (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs))
+ (defun make-slow-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation methods)
+  (let* ((final (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation))
          (preliminary
            (eval `(LET ((GF ',final))
                     (DECLARE (COMPILE))
@@ -385,8 +386,8 @@
 
 ;; Generic functions with optimized dispatch:
 
-(defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs)
-  (let ((gf (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs)))
+(defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)
+  (let ((gf (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)))
     (finalize-fast-gf gf)
     gf))
 
