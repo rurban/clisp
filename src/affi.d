@@ -513,7 +513,7 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
             var object encoding = O(foreign_encoding);
             var const uintB* byteptr = (uintB*)address;
             ASSERT(Encoding_mblen(encoding)(encoding,byteptr,byteptr+length) == length);
-            Encoding_mbstowcs(encoding)(encoding,&byteptr,byteptr+length,&charptr,charptr+length);
+            Encoding_mbstowcs(encoding)(encoding,nullobj,&byteptr,byteptr+length,&charptr,charptr+length);
             ASSERT(byteptr == (uintB*)address+length);
             #else
             dotimespL(length,length, { *charptr++ = as_chart(*((uintB*)address)++); } );
