@@ -10,9 +10,11 @@
 # kann GC auslösen
   global void gar_col (void);
 
+#ifdef SPVW_PAGES
 # Supplement a simple garbage collection with a compaction.
 # kann GC auslösen
   local void gar_col_compact (void);
+#endif
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
 # Move the conses, to make a little more room.
