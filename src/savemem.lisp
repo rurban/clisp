@@ -7,8 +7,8 @@
 ;;---------------------------------------------------------------------------
 ;; Stores the current memory contents as "lispimag.mem", omitting garbage
 ;; collectible objects.
-;; This function does not take arguments and has no local variables, there
-;; otherwise in the interpreted mode the values of variables were stored.
+;; This function does not take arguments and has no local variables, since
+;; otherwise in the interpreted mode the values of the variables are stored.
 (defun %saveinitmem ()
   (do-all-symbols (sym) (remprop sym 'sys::definition))
   (when (fboundp 'clos::install-dispatch)
