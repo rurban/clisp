@@ -242,8 +242,7 @@ LISPFUNN(machine_version,0)
 #endif # MACHINE_KNOWN
 
 #if defined(HAVE_ENVIRONMENT)
-/* environ declaration must be outside of the function scope for g++/mingw */
-extern char** environ;
+/* "extern char** environ" is declared in <stdlib.h> */
 
 /* push the (VAR . VALUE) on the STACK
  can trigger GC */
