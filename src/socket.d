@@ -319,9 +319,10 @@ local bool all_digits_dots (const char* host) {
 /* for system call module */
 local struct hostent* resolve_host1 (char* name) {
   struct hostent* he;
+  char buffer[MAXHOSTNAMELEN];
   begin_system_call();
  #ifdef HAVE_INET_PTON
-  if (inet_pton(AF_INET,namez,(void*)buffer) > 0)
+  if (inet_pton(AF_INET,name,(void*)buffer) > 0)
     he = gethostbyaddr(buffer,sizeof(struct in_addr),AF_INET);
   #ifdef HAVE_IPV6
   else if (inet_pton(AF_INET6,name,buffer) > 0)
