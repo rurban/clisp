@@ -1060,11 +1060,14 @@
 (def-call-out close (:arguments (fd int)) (:return-type int))
 
 (def-call-out read-helper
-    (:arguments (fd int) (buf c-pointer) (nbytes size_t) (partial-p boolean))
+    (:arguments (fd int) (buf c-pointer) (nbytes size_t) (no-hang-p boolean))
   (:return-type ssize_t) (:name "read_helper"))
-(defmacro read (fd buf nbytes) `(read-helper ,fd ,buf ,nbytes t))
-(def-call-out write (:arguments (fd int) (buf c-pointer) (nbytes size_t))
-  (:return-type ssize_t) (:name "full_write"))
+(defmacro read (fd buf nbytes) `(read-helper ,fd ,buf ,nbytes nil))
+(def-call-out write-helper
+    (:arguments (fd int) (buf (c-ptr (c-array-max char 4096)) :out :alloca)
+                (nbytes size_t) (no-hang-p boolean))
+  (:return-type ssize_t) (:name "write_helper"))
+(defmacro write (fd buf nbytes) `(write-helper ,fd ,buf ,nbytes nil))
 
 (def-call-out pipe (:arguments (pipedes (c-ptr (c-array int 2)) :out))
   (:return-type int))
