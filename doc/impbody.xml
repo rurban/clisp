@@ -3775,7 +3775,7 @@ functions are provided:
  &close;.</para>
 
 <para>The functionality of &elastic-newline; is also available through
- &format;, see <xref linkend="format-dot"/>.</para>
+ <link linkend="format-dot">~.</link>.</para>
 
 <para>A technique for avoiding unnecessary blank lines in output is to
  begin each chunk of output with a call to &fresh-line; and to terminate it
@@ -4052,11 +4052,10 @@ functions are provided:
  is similar to &format-slash;, but avoids putting a function name into a
  string, thus, even if the function is not interned in the &clu-pac;
  package, you might not need to specify the package explicitly.
- <code>(&format; &stream-r; "~args!" &func-r; &object-r;)</code> is
+ <code>(&format; &stream-r; "~arguments!" &func-r; &object-r;)</code> is
   equivalent to <code>(&funcall; &func-r; &stream-r; &object-r;
   <replaceable>colon-modifier-p</replaceable>
-  <replaceable>atsign-modifier-p</replaceable>
-  <replaceable>args</replaceable>)</code>.</para>
+  <replaceable>atsign-modifier-p</replaceable> &args-r;)</code>.</para>
 
 <para>The additional &format; instruction
  <firstterm>~.<indexterm id="format-dot" significance="preferred">
