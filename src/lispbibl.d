@@ -4411,6 +4411,10 @@ typedef symbol_ *  Symbol;
   #define symbol_without_flags(symbol)  \
     as_object(as_oint(symbol) & ~((wbit(active_bit)|wbit(dynam_bit)|wbit(svar_bit))<<oint_symbolflags_shift))
 #endif
+/* add a flag to the object */
+#define SET_BIT(o,b)  as_object(as_oint(o) | wbit(b));
+/* remove a flag from the object */
+#define CLR_BIT(o,b)  as_object(as_oint(o) & ~wbit(b));
 
 # Characters
 

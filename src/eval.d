@@ -752,7 +752,7 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
     (eq(*(bindingptr STACKop 1),sym) /* the right symbol? */ \
      && eq(*(bindingptr STACKop 0),fixnum(bit(active_bit)))) /* active & static? */
 #else
-  var object cmp = as_object(as_oint(sym) | wbit(active_bit_o)); /* for comparison: binding must be active */
+  var object cmp = SET_BIT(sym,active_bit_o); /* for comparison: binding must be active */
   #define binds_sym_p(bindingptr)  \
     (eq(*(bindingptr STACKop 0),cmp)) /* right symbol & active & static? */
 #endif
@@ -1143,7 +1143,7 @@ global maygc Values eval_noenv (object form) {
               } else {
                 # static binding, lexical scope
                 *(bindingsptr STACKop varframe_binding_mark) =
-                  as_object(as_oint(*(bindingsptr STACKop varframe_binding_mark)) & ~wbit(active_bit_o)); # deactivate binding
+                  CLR_BIT(*(bindingsptr STACKop varframe_binding_mark),active_bit_o); /* deactivate binding */
                 *ptr++ = *(bindingsptr STACKop varframe_binding_sym); # copy binding in the vector
                 *ptr++ = *(bindingsptr STACKop varframe_binding_value);
               }
@@ -2418,7 +2418,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       /* the special-references first: */
       dotimesC(count,spec_count, {
         pushSTACK(specdecl); /* SPECDECL as "value" */
-        pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); /* active */
+        pushSTACK_symbolwithflags(*varptr++,0); /* INactive */
       });
       frame_pointer = args_end_pointer;
       if (var_count-spec_count > 0) {
@@ -2466,16 +2466,13 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
         *(markptr STACKop varframe_binding_value) = /* old value in frame */ \
           TheSymbolflagged(sym)->symvalue;                              \
-        /* activate binding: */                                         \
-        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o));   \
         /* new value in value-cell: */                                  \
         TheSymbolflagged(sym)->symvalue = (value);                      \
       } else { /* activate static binding: */                           \
         /* new value in frame: */                                       \
         *(markptr STACKop varframe_binding_value) = (value);            \
-        /* activate binding: */                                         \
-        *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o));   \
       }                                                                 \
+      *markptr = SET_BIT(*markptr,active_bit_o);/* activate binding */  \
      }}
     { /* process required parameters: fetch next argument and bind in stack */
       var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_req_anz);
@@ -2510,7 +2507,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
           bind_next_var(next_arg,optmarkptr=); /* bind next variable */
           if (as_oint(*optmarkptr) & wbit(svar_bit_o)) {
             /* supplied-p-Parameter follows? */
-            *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
+            *optmarkptr = CLR_BIT(*optmarkptr,svar_bit_o);
             bind_next_var(T,); /* yes -> bind to T */
           }
           inits = Cdr(inits); /* shorten Init-Forms-List */
@@ -2529,7 +2526,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         bind_next_var(inits,optmarkptr=); /* bind next variable */
         if (as_oint(*optmarkptr) & wbit(svar_bit_o)) {
           /* supplied-p-Parameter follows? */
-          *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
+          *optmarkptr = CLR_BIT(*optmarkptr,svar_bit_o);
           bind_next_var(NIL,); /* yes -> bind to NIL */
         }
       });
@@ -2549,7 +2546,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
           bind_next_var(inits,keymarkptr=); /* bind next Variable */
           if (as_oint(*keymarkptr) & wbit(svar_bit_o)) {
             /* supplied-p-Parameter follows? */
-            *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
+            *keymarkptr = CLR_BIT(*keymarkptr,svar_bit_o);
             bind_next_var(NIL,); /* yes -> bind to NIL */
           }
         });
@@ -2638,7 +2635,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
                 var gcv_object_t* keymarkptr;
                 bind_next_var(var_value,keymarkptr=); /* bind keyword-var */
                 if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { /* supplied-p-Parameter follows? */
-                  *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
+                  *keymarkptr = CLR_BIT(*keymarkptr,svar_bit_o);
                   bind_next_var(svar_value,); /* yes -> bind to NIL resp. T */
                 }
               }

@@ -413,9 +413,6 @@ local maygc object check_varspec (object varspec, object caller) {
   return value1;
 }
 
-/* add a bit to the object */
-#define SET_BIT(o,b)  as_object(as_oint(o) | wbit(b));
-
 /* the variables declared special appear on the stack twice:
    with binding SPECDECL (added when processing declarations)
    and the actual value (added when processing bindings).
