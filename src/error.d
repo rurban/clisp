@@ -329,9 +329,9 @@
 #include "errwin32.c"
 #endif
 
-# Just like OS_error, but takes a file stream and signals a FILE-ERROR.
+# Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
 # OS_filestream_error(stream);
-# > stream: a file stream
+# > stream: a channel stream
 # > end_system_call() already called
   nonreturning_function(global, OS_filestream_error, (object stream));
   global void OS_filestream_error(stream)

@@ -9758,7 +9758,7 @@ LISPFUNN(print_structure,2)
       # falls Stream geschlossen, "CLOSED " ausgeben:
       if ((TheStream(*obj_)->strmflags & strmflags_open_B) == 0)
         write_sstring_case(stream_,O(printstring_closed));
-      # if a file stream, print "BUFFERED " or "UNBUFFERED ":
+      # if a channel or socket stream, print "BUFFERED " or "UNBUFFERED ":
       var uintL type = TheStream(*obj_)->strmtype;
       switch (type) {
         case strmtype_file:
