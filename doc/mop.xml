@@ -285,10 +285,11 @@ combination metaobjects.</para></note>
 <section id="mop-mo-cl-inheritance">
  <title>Inheritance Structure of Metaobject Classes</title>
 
+<graphic srccredit="Inheritance Structure of Metaobject Classes"
+         fileref="mop-classes-all.gif" align="center"/>
+
 <para>The inheritance structure of the specified metaobject classes is
- shown in <xref linkend="mop-inherit-struct"/> and in the
- <ulink url='mop-classes-all.gif'>class inheritance diagram</ulink>.
- The class of every class
+ shown in <xref linkend="mop-inherit-struct"/>. The class of every class
  shown is &standard-class; except for the classes &t-t; and &function-t;,
  which are instances of the class &built-in-class;, and the classes
  &generic-function-t; and &standard-generic-function-t;, which are
@@ -840,9 +841,10 @@ requirement.  Other ordering relationships in the keyword arguments to
 of evaluating or executing the &defclass; form.</para>
 </section><!-- mop-cl-defclass -->
 
-<section><title>Inheritance Structure of Class Metaobject Classes</title>
-
-<!-- img src="mop-classes-class.gif" -->
+<section id="mop-cl-Inheritance">
+ <title>Inheritance Structure of Class Metaobject Classes</title>
+<graphic srccredit="Inheritance Structure of Class Metaobject Classes"
+         fileref="mop-classes-class.gif" align="center"/>
 </section>
 
 <section id="mop-cl-readers">
@@ -2120,9 +2122,10 @@ any dependents of the class metaobject will be updated by calling
 
 <section id="mop-sd"><title>Slot Definitions</title>
 
-<section><title>Inheritance Structure of Slot Definition Metaobject Classes</title>
-
-<!-- img src="mop-classes-slotdef.gif" -->
+<section id="mop-sd-inheritance">
+ <title>Inheritance Structure of Slot Definition Metaobject Classes</title>
+<graphic srccredit="Inheritance Structure of Slot Definition Metaobject Classes"
+         fileref="mop-classes-slotdef.gif" align="center"/>
 </section>
 
 <section id="mop-sd-readers">
@@ -2432,9 +2435,10 @@ restrictions.</para>
 
 <section id="mop-gf"><title>Generic Functions</title>
 
-<section><title>Inheritance Structure of Generic Function Metaobject Classes</title>
-
-<!-- img src="mop-classes-genfun.gif" -->
+<section id="mop-gf-inheritance">
+ <title>Inheritance Structure of Generic Function Metaobject Classes</title>
+<graphic srccredit="Inheritance Structure of GF Metaobject Classes"
+         fileref="mop-classes-genfun.gif" align="center"/>
 </section>
 
 <section id="mop-gf-readers">
@@ -3444,9 +3448,10 @@ override the system's definitions.</para>
 
 <section id="mop-meth"><title>Methods</title>
 
-<section><title>Inheritance Structure of Method Metaobject Classes</title>
-
-<!-- img src="mop-classes-method.gif" -->
+<section id="mop-meth-inheritance">
+ <title>Inheritance Structure of Method Metaobject Classes</title>
+<graphic srccredit="Inheritance Structure of Method Metaobject Classes"
+         fileref="mop-classes-method.gif" align="center"/>
 </section>
 
 <section id="mop-meth-mo-readers">
@@ -4077,9 +4082,10 @@ method during initialization.</para></simplesect>
 
 <section id="mop-specializers"><title>Specializers</title>
 
-<section><title>Inheritance Structure of Specializer Metaobject Classes</title>
-
-<!-- img src="mop-classes-specializer.gif" -->
+<section id="mop-specializers-inheritance">
+ <title>Inheritance Structure of Specializer Metaobject Classes</title>
+<graphic srccredit="Inheritance Structure of Specializer Metaobject Classes"
+         fileref="mop-classes-specializer.gif" align="center"/>
 </section>
 
 <section id="mop-spec-readers"><title>Introspection</title>
@@ -4343,9 +4349,10 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 
 <section id="mop-meth-comb"><title>Method Combinations</title>
 
-<section><title>Inheritance Structure of Method Combination Metaobject Classes</title>
-
-<!-- img src="mop-classes-methcomb.gif" -->
+<section id="mop-meth-comb-inheritance">
+ <title>Inheritance Structure of Method Combination Metaobject Classes</title>
+<graphic srccredit="Inheritance Structure of meth-comb MO Classes"
+         fileref="mop-classes-methcomb.gif" align="center"/>
 </section>
 
 <section id="mop-meth-comb-customize"><title>Customization</title>
