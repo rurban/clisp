@@ -4,7 +4,7 @@
 # Sam Steingold 1998-2002
 
 #include "lispbibl.c"
-
+#include <stdio.h>              /* declares fprintf */
 
 # SYS::*RECURSIVE-ERROR-COUNT* = Rekursionstiefe der Ausgabe von Errormeldungen
 
@@ -300,9 +300,9 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
         signal_and_debug(value1);
       }
     }
-    # there is no point in using the condition system here:
-    # we will get into an infinite loop reporting the error
-    printf("[%s:%d] cannot handle the fatal error due to a fatal error in the fatal error handler!\n",__FILE__,__LINE__);
+    /* there is no point in using the condition system here:
+       we will get into an infinite loop reporting the error */
+    fprintf(stderr,"[%s:%d] cannot handle the fatal error due to a fatal error in the fatal error handler!\n",__FILE__,__LINE__);
     abort();
     # NOTREACHED;
   }

@@ -1,5 +1,10 @@
 2002-06-25  Sam Steingold  <sds@gnu.org>
 
+	* error.d (end_error): print the abort message to stderr
+	include <stdio.h> to avoid compiler warning
+
+2002-06-25  Sam Steingold  <sds@gnu.org>
+
 	* charstrg.d (STRING-INFO): new function
 	* constsym.d, subr.d (string_info): added
 
