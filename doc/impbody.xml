@@ -3503,21 +3503,21 @@ functions are provided:
  <varlistentry id="wr-by-seq"><term>&wr-by-seq;
    performs multiple &write-byte; operations:</term>
  <listitem><simpara><literal role="sexp">(&wr-by-seq; &sequence-r;
-  &stream-r; &key-amp; &start-k; &end-k;)</literal> outputs the
+  &stream-r; &key-amp; &start-k; &end-k; :NO-HANG)</literal> outputs the
   &integer-t;s of the subsequence of &sequence-r; specified by
-  &start-k; and &end-k; to &stream-k;. It returns &sequence-r;.</simpara>
+  &start-k; and &end-k; to &stream-r;.
+  When <constant>:NO-HANG</constant> is non-&nil;, does not block.
+  Returns two values: &sequence-r; and the index of the first byte that
+  was not output.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket-s; with
   &stream-element-type; &unsigned-byte-8;.</simpara></listitem></varlistentry>
 <varlistentry id="wr-ch-seq"><term>&wr-ch-seq;
   performs multiple &write-char; operations:</term>
  <listitem><simpara><literal role="sexp">(&wr-ch-seq; &sequence-r;
-  &stream-r; &key-amp; &start-k; &end-k;  :NO-HANG)</literal> outputs the
+  &stream-r; &key-amp; &start-k; &end-k;)</literal> outputs the
   characters of the subsequence of &sequence-r; specified by &start-k;
-  and &end-k; to &stream-k;.
-  When <constant>:NO-HANG</constant> is non-&nil;, does not block.
-  Returns two values: &sequence-r; and the index of the first byte that
-  was not output.</simpara>
+  and &end-k; to &stream-r;. Returns the &sequence-r; argument.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-t; and &stream-k; is a &file-pipe-socket-s; with
   &stream-element-type; &character-t;.</simpara></listitem></varlistentry>
