@@ -197,7 +197,7 @@
 <!ENTITY make-stream "<link linkend='make-stream'><function>EXT:MAKE-STREAM</function></link>">
 <!ENTITY mapcap "<link linkend='mapcap'><function>EXT:MAPCAP</function></link>">
 <!ENTITY maplap "<link linkend='mapcap'><function>EXT:MAPLAP</function></link>">
-<!ENTITY match-t "<classname>REGEXP::REGMATCH_T</classname>">
+<!ENTITY match-t "<classname>REGEXP:MATCH</classname>">
 <!ENTITY mem-image "<link linkend='image'>memory image</link>">
 <!ENTITY misc-enc "<link linkend='misc-enc'><varname>CUSTOM:*MISC-ENCODING*</varname></link>">
 <!ENTITY mk-pipe-in "<link linkend='pipe'><function>EXT:MAKE-PIPE-INPUT-STREAM</function></link>">

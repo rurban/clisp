@@ -39,15 +39,15 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
   <example id="ex-re-match"><title>&re-match;</title>
    <programlisting>
     (&re-match; "quick" "The quick brown fox jumped quickly.")
-     <literal role="sexp">#S(&match-t; :RM_SO 4 :RM_EO 9)</literal>
+     <literal role="sexp">#S(&match-t; :START 4 :END 9)</literal>
     (&re-match; "quick" "The quick brown fox jumped quickly." :start 8)
-     <literal role="sexp">#S(&match-t; :RM_SO 27 :RM_EO 32)</literal>
+     <literal role="sexp">#S(&match-t; :START 27 :END 32)</literal>
     (&re-match; "quick" "The quick brown fox jumped quickly." :start 8 :end 30)
      &nil;
     (&re-match; "\\([a-z]*\\)[0-9]*\\(bar\\)" "foo12bar")
-     <literal role="sexp">#S(&match-t; :RM_SO 0 :RM_EO 8) ;</literal>
-     <literal role="sexp">#S(&match-t; :RM_SO 0 :RM_EO 3) ;</literal>
-     <literal role="sexp">#S(&match-t; :RM_SO 5 :RM_EO 8)</literal>
+     <literal role="sexp">#S(&match-t; :START 0 :END 8) ;</literal>
+     <literal role="sexp">#S(&match-t; :START 0 :END 3) ;</literal>
+     <literal role="sexp">#S(&match-t; :START 5 :END 8)</literal>
   </programlisting></example>
 </para></listitem></varlistentry>
 
