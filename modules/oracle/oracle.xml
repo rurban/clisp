@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="oracle"><title>&oracle-link; Interface</title>
+<para>
+The &oracle-link; module allows a &clisp; program to act as client to an
+&oracle-link; database server.  The module includes full
+SQL support, transactions (including auto-commit), support for most
+&oracle-link; data types (LONG, BLOB, CLOB, RAW, etc.), automatic conversion
+between &oracle-link; and &cl; data types, database connection caching and
+retry, concurrent connections to multiple databases, proper handling
+of &oracle-link; errors, and more.  </para>
+<para>The module can be used to build sophisticated &oracle-link; database
+applications in &cl;.</para>
+
+<section>
+
+<title>Functions and Macros in package <quote role="package">ORACLE</quote></title><para>Access to
+&oracle-link; is via these functions and macros in package <quote role="package">ORACLE</quote>.
+When any &oracle-link; function fails, the general Lisp function
+<literal>ERROR</literal> is called, with the condition string set to
+include the &oracle-link; error number, the &oracle-link; message text, and other
+context of the error (e.g., the text and parse location of a SQL
+query).
+</para>
+
+<!-- List of functions an macros -->
+<variablelist>
+
+		<!-- CONNECT -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:CONNECT
+<replaceable>user</replaceable>
+<replaceable>password</replaceable>
+<replaceable>server</replaceable>
+&optional-amp;
+<replaceable>schema</replaceable>
+<replaceable>auto-commit</replaceable>
+<replaceable>prefetch-buffer-bytes</replaceable>
+<replaceable>long-len</replaceable>
+<replaceable>truncate-ok</replaceable>)</literal></term>
+<listitem>
+<simpara>
+
+Connect to an &oracle-link; database.  All subsequent operations will affect
+this database until the next call to <function>CONNECT</function>.  A
+single program can access different &oracle-link; schemas concurrently by
+repeated calls to <function>CONNECT</function>.  Database connections
+are cached and re-used: if you call <function>CONNECT</function> again
+with the same <replaceable>user</replaceable>,
+<replaceable>schema</replaceable>, and
+<replaceable>server</replaceable>, the previous &oracle-link; connection will
+be re-used.  <function>CONNECT</function> may not be called inside
+<function>WITH-TRANSACTION</function>.
+
+Returns: &t; if a cached connection was re-used, &nil; if a new
+connection was created (and cached).
+
+The meaning of the arguments is as follows:
+</simpara>
+<para>
+<informaltable frame="all"><tgroup cols="2">
+<thead><row><entry>Argument</entry><entry>Meaning</entry></row></thead>
+<tbody>
+<row><entry><replaceable>user</replaceable></entry><entry>&oracle-link; user ID</entry></row>
+<row><entry><replaceable>password</replaceable></entry><entry>Password for user, or NIL if
+<replaceable>user</replaceable> has no password (!)</entry></row>
+<row><entry><replaceable>server</replaceable></entry><entry>&oracle-link; server ID (SID)</entry></row>
+
+<row><entry><replaceable>schema</replaceable></entry> <entry>&oracle-link;
+default schema (default: &nil;).  If null, same as user.  This allows
+you to log on with one user's id/password but see the database as if
+you were some other user.</entry></row>
+
+<row><entry><replaceable>auto-commit</replaceable></entry>
+<entry>Flag: whether to commit after every operation (default: &t;).
+Set this to &nil; if you intend to do transactions and call
+<function>COMMIT</function> explicitly.  However,
+<function>WITH-TRANSACTION</function> is probably
+easier.</entry></row>
+
+<row><entry><replaceable>prefetch-buffer-bytes</replaceable></entry>
+<entry>Number of bytes to cache from SQL SELECT fetches (default: 64
+Kbytes) If you are very short of memory, or have a slow connection to
+&oracle-link;, you can reduce this to 10k or so.  Alternatively, if you
+have a fast connection to &oracle-link; and regularly do large queries, you
+can increase throughput by increasing this value.</entry></row>
+
+<row><entry><replaceable>long-len</replaceable></entry> <entry>Number
+of bytes to fetch for "long" (LONG, [BC]LOB) types.  Long data that
+exceeds this size will raise an error, or be truncated depending on
+the value of <replaceable>truncate-ok</replaceable> (below).  Setting
+<replaceable>long-len</replaceable> to zero and
+<replaceable>truncate-ok</replaceable> to &nil;
+will disable long fetching entirely.  If
+<replaceable>long-len</replaceable> is &nil; or negative, defaults
+to 500k bytes.</entry></row>
+
+<row><entry><replaceable>truncate-ok</replaceable></entry> <entry>Flag:
+if set, allow truncation of LONG columns to
+<replaceable>long-len</replaceable> bytes on fetch; otherwise, fetches
+of LONG columns exceeding <replaceable>long-len</replaceable> bytes
+will raise an error.  Default: &nil;.</entry></row>
+
+</tbody>
+</tgroup></informaltable>
+</para>
+</listitem>
+</varlistentry>
+
+		<!-- DISCONNECT -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:DISCONNECT)</literal></term>
+<listitem>
+<simpara>
+Disconnect from the database currently connected.  No more calls can
+be made until <function>CONNECT</function> is called again.  The
+connection is closed and removed from the connection cache.  Does
+nothing if there is no connection.  <function>DISCONNECT</function>
+may not be called inside <function>WITH-TRANSACTION</function>.
+Returns &nil;.
+</simpara></listitem></varlistentry>
+
+
+		<!-- RUN-SQL -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:RUN-SQL
+<replaceable>sql</replaceable>
+&optional-amp;
+<replaceable>params</replaceable>
+<replaceable>is-select</replaceable>)</literal></term>
+<listitem>
+<simpara>
+
+Execute a SQL statement.  Must be <function>CONNECT</function>ed to a
+database.  Returns the number of rows affected by the SQL operation,
+for non-SELECT statements, zero for SELECT statements.  For
+destructive database operations (INSERT, UPDATE, DELETE), the results
+are committed to the database immediately if
+<replaceable>auto-commit</replaceable> when establishing the current
+connection; see <function>CONNECT</function>.  The meaning of the
+arguments is as follows: </simpara>
+
+<para>
+<informaltable frame="all"><tgroup cols="2">
+<thead><row><entry>Argument</entry><entry>Meaning</entry></row></thead>
+<tbody>
+<row><entry><replaceable>sql</replaceable></entry>
+<entry>
+Text of SQL statement, as a string.  The <replaceable>sql</replaceable>
+statement may contain &oracle-link; "named
+parameters," e.g. ":myparam" whose values will be substituted
+from the parameters given in <replaceable>params</replaceable>.
+</entry></row>
+<row><entry><replaceable>params</replaceable></entry>
+<entry>
+A mapping of the names of the bind-parameters in the query to their
+values.  The set of named parameters in the query must match exactly the keys
+mapped by <replaceable>params</replaceable>.  The mapping may be passed as either (1) a hash
+table whose keys are the named parameters or (2) a list of pairs,
+((name value) (name value) ...).  Parameter values passed from Lisp are converted
+to the appropriate &oracle-link; data types (see <function>FETCH</function>).
+</entry></row>
+<row><entry><replaceable>is-select</replaceable></entry>
+<entry>
+Flag: whether the statement is a SELECT query.  You usually do not
+need to set this as it is detected by default based on the SQL text.
+However, there are situations, such as when a SELECT query begins with
+comment, that you need to specify it explicitly.
+</entry></row>
+</tbody>
+</tgroup></informaltable>
+</para>
+</listitem>
+</varlistentry>
+
+		<!-- DO-ROWS -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:DO-ROWS
+<replaceable>vars</replaceable>
+&body-amp;
+<replaceable>body</replaceable>)</literal></term>
+<listitem>
+<simpara>
+Macro which loops over a SQL SELECT
+result, evaluating, for each row in the result, the forms in
+<replaceable>body</replaceable>,
+binding symbols given in <replaceable>vars</replaceable>
+to corresponding database columns in the SELECT result.
+The argument <replaceable>vars</replaceable> must be a non-empty list
+of symbols matching a subset of the columns of an active SELECT query.
+If a SELECT column is an &oracle-link; expression such as
+<literal>SUBSTR(mycol, 1, 10)</literal>, it is
+recommended to use a column alias, e.g., <literal>SELECT SUBSTR(mycol, 1, 10) AS
+myvar</literal>, in which case the column alias will be used as the symbol
+bound to the column value.
+</simpara>
+<simpara>As <function>DO-ROWS</function> expands into a <function>DO*</function> loop,
+the loop may be terminated prematurely, before all rows are fetched, by
+using <literal role="sexp">(RETURN)</literal>
+anywhere in <replaceable>body</replaceable>.
+</simpara>
+<simpara>
+It is allowed to call <function>CONNECT</function> in the
+<replaceable>body</replaceable> of the loop, but only to switch the
+connection to a database other than the one that was used to
+do the SELECT.  This is useful for reading from one database while
+writing to another.
+</simpara>
+<simpara>
+
+In <replaceable>vars</replaceable>, instead of a single symbol, a pair
+(<replaceable>bound-var</replaceable>
+<replaceable>"column-name"</replaceable>) may be specified, which will
+cause values from the SELECTed column or alias ,
+<replaceable>column-name</replaceable>, to be bound to Lisp variable,
+<replaceable>bound-var</replaceable>.  This is for unusual cases where
+a Lisp variable cannot be created with the same name as the column (e.g., a
+column named "T"), or when it is inconvenient or impossible to alias
+the column with <literal>SELECT ... AS</literal>.
+
+</simpara>
+</listitem>
+</varlistentry>
+
+		<!-- FETCH -->
+<varlistentry><term><literal role="sexp">(ORACLE:FETCH
+&optional-amp;
+<replaceable>result-type</replaceable>)</literal></term>
+<listitem>
+<simpara>
+
+Fetch a single row of data.  Returns a row of values corresponding to
+the columns of an active SELECT statment.  The row data is returned in
+one of three different forms, depending on the value of the symbol
+<replaceable>result-type</replaceable>:
+
+</simpara>
+<para>
+<informaltable frame="all"><tgroup cols="2">
+<thead><row><entry>Value of <replaceable>result-type</replaceable></entry><entry>Returned result</entry></row></thead>
+<tbody>
+
+<row><entry><classname>'ARRAY</classname></entry>
+<entry>
+Values will be returned in an &array-t; with the same number of
+columns as in the SELECT statement, in the same order.
+This is the default.
+</entry></row>
+<row><entry><classname>'PAIRS</classname></entry>
+<entry>
+A list of pairs, <literal>((column, value) ...)</literal> is be returned.  The
+number and order of pairs is the same as the columns in the
+SELECT statement.
+</entry></row>
+<row><entry><classname>'HASH</classname></entry>
+<entry>
+A &hash-table-t; whose keys are the column names and whose values
+are the column values in the row.  The SELECT columns <emphasis>must
+be unique</emphasis> and be valid Lisp symbols to use this option. If
+you are SELECTing an expression, you probably want to use a column
+alias: <literal>SELECT &lt;expr&gt; AS some_alias ...</literal>
+</entry></row>
+</tbody>
+</tgroup></informaltable></para>
+
+<para>
+
+The following data type conversions are done between &oracle-link; datatypes and
+&cl; data types:
+
+<informaltable frame="all"><tgroup cols="2">
+<thead><row><entry>&oracle-link; type</entry><entry>Converts to/from &cl; type</entry></row></thead>
+<tbody>
+<row><entry>Numeric (NUMBER, INTEGER, FLOAT)</entry>
+<entry>
+The appropriate &cl; numeric type (FIXNUM, BIGNUM, FLOAT)
+</entry></row>
+<row><entry>String (CHAR, VARCHAR, VARCHAR2)</entry>
+<entry>
+A &cl; string.  Note that CHAR will be padded out to its full, fixed length as
+defined in &oracle-link;; VARCHAR will be a string of variable length.  Also note
+that &oracle-link; has no "zero-length string" value -- it returns the SQL special
+value NULL which is converted to &nil; (see below).
+</entry></row>
+<row><entry>DATE</entry>
+<entry>
+A string of the form "YYYY-MM-DD HH:MM:SS" where HH is 24-hour form.  If you want
+dates formatted differently, convert them to strings in &oracle-link; using
+<literal>SELECT TO_CHAR(mydate, '<replaceable>template</replaceable>') AS mydate</literal>; the result will then
+be returned as a string, formatted as per <replaceable>template</replaceable>.
+</entry></row>
+<row><entry>RAW, LONG RAW</entry>
+<entry>
+A hexadecimal string, with two hex digits for each byte of &oracle-link; data.
+Note that this means the Lisp string will be twice the size, in bytes, as the &oracle-link; data.
+</entry></row>
+<row><entry>"Large" types (LONG, BLOB, CLOB)</entry>
+<entry>
+A Lisp string of (arbitrary, possibly binary) data.  Note that truncation may
+occur; see the <function>CONNECT</function> parameters <replaceable>long-len</replaceable>
+and <replaceable>truncate-ok</replaceable>.
+</entry></row>
+<row><entry>NULL</entry>
+<entry>
+The &cl; value &nil;
+</entry></row>
+</tbody></tgroup></informaltable>
+
+</para>
+</listitem>
+</varlistentry>
+
+		<!-- FETCH-ALL -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:FETCH-ALL
+&optional-amp;
+<replaceable>max-rows</replaceable>
+<replaceable>result-type</replaceable>
+<replaceable>item-type</replaceable>)</literal></term>
+<listitem>
+<simpara>
+
+Fetch some or all the rows from a query and return result as a
+sequence of sequences.  Arguments are all optional: 
+<replaceable>max-rows</replaceable> limits the result to
+that numbers of rows;
+<replaceable>result-type</replaceable> is the type of
+sequence of the rows, either
+'<classname>ARRAY</classname> (the default) or
+'<classname>LIST</classname>; 
+<replaceable>item-type</replaceable> is the type of
+sequence of the column values for each row, either
+'<classname>ARRAY</classname> (the default) or
+'<classname>LIST</classname>.
+Each row fetched always contains the full set of column values SELECTed.
+</simpara>
+<simpara>
+<function>FETCH-ALL</function> is often useful in conjunction with
+<function>MAP</function> or <function>REDUCE</function> to iterate
+over an entire SELECT result to construct a single Lisp value.
+
+</simpara>
+</listitem>
+</varlistentry>
+
+		<!-- PEEK-->
+
+<varlistentry><term><literal role="sexp">(ORACLE:PEEK
+&optional-amp;
+<replaceable>result-type</replaceable>)</literal></term>
+<listitem>
+<simpara>
+
+Peek at next row of data (without fetching it).  Returns a row ala
+<function>FETCH</function>, except does not advance to the next row.
+Repeated calls to <function>PEEK</function> will thus return the same
+row of data.  Returns &nil; if at EOF.  If data is available, returns
+row data just as <function>FETCH</function> (see
+<function>FETCH</function> for data format and conversions done).
+Optional argument <replaceable>result-type</replaceable> is the type
+of sequence of the column values for the returned row, either
+'<classname>ARRAY</classname> (the default) or
+'<classname>LIST</classname>.  <function>PEEK</function> is a useful look-ahead
+for database reporting functions that may need to "break" on changes in
+data to print headers, summaries, etc.
+</simpara></listitem></varlistentry>
+
+		<!-- COLUMNS -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:COLUMNS)</literal></term>
+<listitem>
+<simpara>
+Returns information on the columns of a SELECT result, in the form of an array of
+SQLCOL structures, one for each result column in the most
+recent SELECT statement.  It is not necessary to have called
+<function>FETCH</function> before requesting column information on
+the query, however the query must have been compiled and executed
+with <function>RUN-SQL</function>.
+Each SQLCOL structure has these slots:
+</simpara>
+<para>
+<informaltable frame="all"><tgroup cols="2">
+<thead><row><entry>SQLCOL Slot Name</entry><entry>Meaning</entry></row></thead>
+<tbody>
+<row><entry>NAME</entry><entry>The &oracle-link; column name or the expression selected.  If the
+query used a column alias, <literal>SELECT <replaceable>expr</replaceable> AS
+<replaceable>alias</replaceable></literal>, then
+<replaceable>alias</replaceable> will be returned as the column name.
+</entry></row>
+<row><entry>TYPE</entry><entry>&oracle-link; data type (VARCHAR, NUMBER, DATE, ...)</entry></row>
+<row><entry>SIZE</entry><entry>&oracle-link; data length (useful mostly for character types)</entry></row>
+<row><entry>SCALE</entry><entry>For numeric types, number of digits to right of decimal</entry></row>
+<row><entry>PRECISION</entry><entry>For numeric types, total number of significant digits</entry></row>
+<row><entry>NULL_OK</entry><entry>&t; if NULLs allowed, &nil; if nulls are not allowed.</entry></row>
+</tbody></tgroup></informaltable></para>
+<simpara>
+To access the values of the SQLCOL structures, use the standard accessor functions, e.g.,
+<literal>(ORACLE:SQLCOL-NAME (elt (ORACLE:COLUMNS) 0))</literal>
+</simpara>
+</listitem></varlistentry>
+
+		<!-- EOF -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:EOF)</literal></term>
+<listitem>
+<simpara>
+Returns EOF status.  A SELECT query cursor is considered at EOF if the next
+FETCH would return no data.  Must be connected to a database, and have
+an active SELECT statement.
+</simpara></listitem></varlistentry>
+
+		<!-- INSERT-ROW -->
+<varlistentry><term><literal role="sexp">(ORACLE:INSERT-ROW
+<replaceable>table</replaceable>
+<replaceable>values</replaceable>)</literal></term>
+<listitem>
+<simpara>
+Inserts a single row into <replaceable>table</replaceable>.
+Second argument <replaceable>values</replaceable> is a map of
+column names to values: either a hash table whose keys are the column
+names, or a list of (name, value) pairs.  Columns missing from the map
+will be given the default &oracle-link; value, or NULL.  Returns the number
+of rows inserted (i.e., always 1).
+</simpara></listitem></varlistentry>
+
+		<!-- UPDATE-ROW -->
+<varlistentry><term><literal role="sexp">(ORACLE:UPDATE-ROW
+<replaceable>table</replaceable>
+<replaceable>condition</replaceable>
+<replaceable>vals</replaceable>
+&optional-amp;
+<replaceable>params</replaceable>)</literal></term>
+<listitem>
+<simpara>
+Updates rows in <replaceable>table</replaceable>.  Second argument
+<replaceable>condition</replaceable> is a string expression for a WHERE
+clause (without the "WHERE") which determines which rows are updated.
+Third argument <replaceable>vals</replaceable> is a map of columns to
+be updated to their new values: a hash table whose keys are column
+names, or list of (name, value) pairs.  Optional
+<replaceable>params</replaceable> specifies values for named
+parameters that may occur in <replaceable>condition</replaceable>,
+e.g., when the condition is a match on a primary key, e.g.: <literal>"pk_column
+= :pk_val"</literal>.  Returns the number of rows updated.
+</simpara></listitem></varlistentry>
+
+		<!-- ROW-COUNT -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:ROW-COUNT)</literal></term>
+<listitem>
+<simpara>
+For SELECT statements, returns the number of rows
+<function>FETCH</function>ed (<emphasis>not</emphasis>
+<function>PEEK</function>ed) so far.  For other statements (e.g.,
+INSERT, UPDATE, DELETE), returns the number of rows affected by the
+last operation (e.g., inserted, updated, deleted).  Must be connected
+to a database and have an active SQL statement.
+</simpara></listitem></varlistentry>
+
+		<!-- WITH-TRANSACTION -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:WITH-TRANSACTION
+&body-amp;
+<replaceable>body</replaceable>)</literal></term>
+<listitem>
+<simpara>
+
+Evaluates the forms in <replaceable>body</replaceable> atomically as a
+database transaction, ensuring that either all the database operations
+done in <replaceable>body</replaceable> complete successfully, or none
+of them do.  If pending (un-committed) changes exist when this macro
+is entered, they are <emphasis>rolled back</emphasis> (undone), so
+that the database is affected only by the subsequent updates inside
+<replaceable>body</replaceable>.  Nesting of
+<function>WITH-TRANSACTION</function> blocks is not allowed and will
+raise an error.  There is no effect on the status of
+<replaceable>auto-commit</replaceable> given in
+<function>CONNECT</function>; it resumes its previous state when the
+macro exits.  The value of the <function>WITH-TRANSACTION</function>
+expression is that of the last form in <replaceable>body</replaceable>.
+</simpara></listitem></varlistentry>
+
+		<!-- COMMIT -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:COMMIT)</literal></term>
+<listitem>
+<simpara>
+Commits (makes permanent) any pending changes to the database.  The
+<replaceable>auto-commit</replaceable> parameter to
+<function>CONNECT</function> must not have been set to use this
+function, nor can it be called inside a
+<function>WITH-TRANSACTION</function> block. Always returns NIL.
+</simpara></listitem></varlistentry>
+
+		<!-- ROLLBACK -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:ROLLBACK)</literal></term>
+<listitem>
+<simpara>
+Rolls back (undoes and abandons) any pending changes to the database.
+The <replaceable>auto-commit</replaceable> parameter to
+<function>CONNECT</function> must not have been set to use this
+function, nor can it be called inside a
+<function>WITH-TRANSACTION</function> block. Always returns NIL.
+</simpara></listitem></varlistentry>
+
+		<!-- AUTO-COMMIT -->
+
+<varlistentry><term><literal role="sexp">(ORACLE:AUTO-COMMIT)</literal></term>
+<listitem>
+<simpara>
+Toggles the state of <replaceable>auto-commit</replaceable> initially
+given to <function>CONNECT</function> for the current connection.
+With <replaceable>auto-commit</replaceable> enabled, modifications to
+the database are committed (made permanent) after each destructive SQL
+operation made with calls to <function>RUN-SQL</function>,
+<function>INSERT-ROW</function>, <function>UPDATE_ROW</function>, etc.
+With <replaceable>auto-commit</replaceable> disabled, transactional
+integrity is under the programmer's control and is managed either by
+(1) explicitly calling <function>COMMIT</function> or
+<function>ROLLBACK</function> to commit or undo the pending
+operations, or (2) wrapping code blocks with database operations
+inside the <function>WITH-TRANSACTION</function> macro.
+<function>AUTO-COMMIT</function> returns the previous status of
+<replaceable>auto-commit</replaceable>.
+<function>AUTO-COMMIT</function> may not be called inside
+<function>WITH-TRANSACTION</function>.
+</simpara></listitem></varlistentry>
+
+
+<!-- =-=-==-=-==-=-==-=-==-=-==-=-=   End of functions section -->
+
+</variablelist>
+</section>
+
+<section><title>&oracle-link; Example</title>
+
+<para>
+Below is a simple example script which uses &oracle-link;'s demo database
+schema, <literal>SCOTT</literal>.
+
+<programlisting>(setf server "orcl") ; Change this to your server's SID
+(oracle:connect "scott" "tiger" server)
+
+(oracle:run-sql "SELECT deptno, dname, loc FROM dept ORDER BY DNAME")
+(oracle:do-rows (deptno dname loc)
+  (format t "Dept. no is '~A', " deptno)
+  (format t "Dept. name is '~A', " dname)
+  (format t "Dept. loc is '~A'~%" loc))
+
+(oracle:update-row "dept" "dname = :acctval" '(("dname" "NEWACCT")) '(("acctval" "ACCOUNTING")))
+
+(oracle:run-sql "SELECT deptno, dname, loc FROM dept ORDER BY DNAME")
+(oracle:do-rows (deptno dname loc)
+  (format t "Dept. no is '~A', " deptno)
+  (format t "Dept. name is '~A', " dname)
+  (format t "Dept. loc is '~A'~%" loc))
+
+(oracle:update-row "dept" "dname = :acctval" '(("dname" "ACCOUNTING")) '(("acctval" "NEWACCT")))
+</programlisting>
+</para>
+</section>
+
+
+
+
+<section><title>&oracle-link; Configuration</title>
+
+<para>
+Obviously, a working &oracle-link; environment is required.  It is
+recommended that you first be able to log on and use the &oracle-link;
+SQL*Plus application to test your environment <emphasis>before
+</emphasis> attempting &oracle-link; access via the &clisp; module.  At a
+minimum you will need to set environment variables
+<literal>$ORACLE_HOME</literal> to the &oracle-link; base directory and
+<literal>$LD_LIBRARY_PATH</literal> to include
+<literal>$ORACLE_HOME/lib</literal> and possibly other directories.
+</para>
+
+</section>
+
+<section><title>Building the &oracle-link; Interface</title>
+<para>
+
+The module uses the &oracle-link; Call Interface (&oracle-oci;) &c-lang; library.  To
+build the module you will need the &oracle-link; &oracle-oci; headers and link
+libraries; as a quick check, make sure you have the file <filename>oci.h</filename>
+somewhere under <filename>$ORACLE_HOME</filename>,
+probably in <filename>$ORACLE_HOME/rdbms/demo/oci.h</filename>
+</para>
+
+<para>
+
+To build the module into &clisp;, specify
+<command>./configure ... --with-module=oracle ...</command>
+at build time.  Thereafter, to
+load the &clisp; linking set which contains the module, you need to run
+&clisp; as
+<command>clisp ... -K full ...</command>.
+You can test that you really have the &oracle-link;-enabled &clisp; by
+evaluating <literal role="sexp">(describe 'oracle:connect)</literal>
+It may be necessary to edit the Makefile in the
+<filename>modules/oracle</filename> subdirectory of the distribution
+prior to running <command>./configure</command>.
+
+
+</para>
+
+
+</section>
+
+</section>
