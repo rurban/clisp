@@ -1,6 +1,6 @@
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d: Disable the use of global register variables for
+	* lispbibl.d: Enable the use of global register variables for
 	gcc >= 3.4.
 
 2004-04-22  Bruno Haible  <bruno@clisp.org>
