@@ -1453,9 +1453,9 @@ fi
 
 COMMENTS=''
 
-LPARTS='        init defseq backquot defmacro macros1 macros2 defs1 timezone'
-LPARTS=$LPARTS' places floatpri type defstruc format savemem trace compiler'
-LPARTS=$LPARTS' disassem defs2 loop clos conditio gstream xcharin keyboard'
+LPARTS='        init defseq backquote defmacro macros1 macros2 defs1 timezone'
+LPARTS=$LPARTS' places floatprint type defstruct format savemem trace compiler'
+LPARTS=$LPARTS' disassem defs2 loop clos condition gstream xcharin keyboard'
 LPARTS=$LPARTS' screen runprog query reploop dribble complete describe room'
 LPARTS=$LPARTS' edit macros3 posix foreign1 defs3 clhs inspect'
 LPARTS=$LPARTS' german french spanish dutch config'
@@ -1823,8 +1823,8 @@ cat <<\!!
 #           Typically, you will have rules like this in your Makefile:
 #               foo.o : foo.c
 #                       $(CC) $(CFLAGS) -I$(INCLUDES) -c foo.c
-#               foo.fas : foo.lsp
-#                       $(CLISP) -c foo.lsp
+#               foo.fas : foo.lisp
+#                       $(CLISP) -c foo.lisp
 #
 #        clisp-module-distrib
 #
@@ -1929,7 +1929,7 @@ echol
 echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
 echol
 
-echolist "LSPFILES =" "$LPARTS" ".lsp"
+echolist "LISPFILES =" "$LPARTS" ".lisp"
 echol
 
 echolist "FASFILES =" "$LPARTS" ".fas"
@@ -1938,7 +1938,7 @@ echol
 echolist "TXTFILES =" "$DOC" ".txt"
 echol
 
-echolist "TESTLSPFILES =" "$LPARTS" ".lsp" "${TESTDIR}${NEXT_M}"
+echolist "TESTLISPFILES =" "$LPARTS" ".lisp" "${TESTDIR}${NEXT_M}"
 echol
 echolist "TESTFASFILES =" "$LPARTS" ".fas" "${TESTDIR}${NEXT_M}"
 echol
@@ -2589,8 +2589,8 @@ fi
 
 echol
 
-echol "alllsp : \$(LSPFILES)"
-echodummyrule alllsp
+echol "alllisp : \$(LISPFILES)"
+echodummyrule alllisp
 echol
 
 if [ $TOS = amiga ] ; then
@@ -2615,16 +2615,16 @@ if [ $TOS = unix ] ; then
 fi
 for f in $LPARTS ; do
   if [ $f = config ] ; then
-    echol "${f}.lsp : ${SRCDIR}${CONFIG}.lsp"
-    echotab "\$(CP) ${SRCDIR}${CONFIG}.lsp ${f}.lsp"
+    echol "${f}.lisp : ${SRCDIR}${CONFIG}.lisp"
+    echotab "\$(CP) ${SRCDIR}${CONFIG}.lisp ${f}.lisp"
     if [ $TOS = unix ] ; then
-      echotab "echo '(setq *clhs-root-default* \"${hyperspec}\")' >> ${f}.lsp"
+      echotab "echo '(setq *clhs-root-default* \"${hyperspec}\")' >> ${f}.lisp"
     fi
     echol
   else
     if [ -n "${SRCDIR}" ] ; then
-      echol "${f}.lsp : ${SRCDIR}${f}.lsp"
-      echotab "-\$(LN) ${SRCDIR}${f}.lsp ${f}.lsp"
+      echol "${f}.lisp : ${SRCDIR}${f}.lisp"
+      echotab "-\$(LN) ${SRCDIR}${f}.lisp ${f}.lisp"
       echol
     fi
   fi
@@ -2638,12 +2638,12 @@ fi
 
 if [ $CROSS = false ] ; then
 
-  echol "$interpreted.mem : lisp${LEXE} \$(LSPFILES)"
+  echol "$interpreted.mem : lisp${LEXE} \$(LISPFILES)"
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
   if [ $HOS != os2 ] ; then
-    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"'
   else
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc < interpreted.in"
   fi
@@ -2655,18 +2655,18 @@ fi
 if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
-    echol "${f}.fas : ${f}.lsp lisp${LEXE} $interpreted.mem"
-    # The strict minimum needed for compiling compiler.lsp is between 750KW
+    echol "${f}.fas : ${f}.lisp lisp${LEXE} $interpreted.mem"
+    # The strict minimum needed for compiling compiler.lisp is between 750KW
     # and 800KW. To reduce GCs, we spend 20% more than this.
-    echotab "${HERE}lisp${LEXE} -m 1000KW -M $interpreted.mem$localeflags -Efile ISO-8859-1 -norc -q -c ${f}.lsp"
+    echotab "${HERE}lisp${LEXE} -m 1000KW -M $interpreted.mem$localeflags -Efile ISO-8859-1 -norc -q -c ${f}.lisp"
     echol
   done
 
 else
 
   for f in $LPARTS ; do
-    echol "${f}.fas : ${f}.lsp"
-    echotab 'clisp -M cross.mem$localeflags -Efile ISO-8859-1 -norc -q -x "(cross:compile-file \"'"${f}.lsp"'\")"'
+    echol "${f}.fas : ${f}.lisp"
+    echotab 'clisp -M cross.mem$localeflags -Efile ISO-8859-1 -norc -q -x "(cross:compile-file \"'"${f}.lisp"'\")"'
     echol
   done
 
@@ -2674,12 +2674,12 @@ fi
 
 if [ $CROSS = false ] ; then
 
-  echol "$halfcompiled.mem : lisp${LEXE} \$(LSPFILES) compiler.fas"
+  echol "$halfcompiled.mem : lisp${LEXE} \$(LISPFILES) compiler.fas"
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
   if [ $HOS != os2 ] ; then
-    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"'
   else
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc < interpreted.in"
   fi
@@ -2717,9 +2717,9 @@ if [ $CROSS = false ] ; then
   echodummyrule check
   echol
 
-  echol "# Test: recompile \$(LSPFILES) and compare their contents."
+  echol "# Test: recompile \$(LISPFILES) and compare their contents."
 
-  echol "test : lispinit.mem ${TESTDIR} \$(TESTLSPFILES) \$(TESTFASFILES)"
+  echol "test : lispinit.mem ${TESTDIR} \$(TESTLISPFILES) \$(TESTFASFILES)"
   if [ $HOS = unix ] ; then
     for f in $LPARTS ; do
       echotab "cmp -s ${f}.fas ${TESTDIR}/${f}.fas"' || (echo "Test failed." ; exit 1)'
@@ -2742,18 +2742,18 @@ if [ $CROSS = false ] ; then
   echol
 
   for f in $LPARTS ; do
-    echol "${TESTDIR}${NEXT_M}${f}.lsp : ${f}.lsp"
+    echol "${TESTDIR}${NEXT_M}${f}.lisp : ${f}.lisp"
     if [ $HOS = unix ] ; then
-      echotab "cd ${TESTDIR} && \$(LN) ${PARENT_}${f}.lsp ${f}.lsp"
+      echotab "cd ${TESTDIR} && \$(LN) ${PARENT_}${f}.lisp ${f}.lisp"
     else
-      echotab "\$(LN) ${f}.lsp ${TESTDIR}"
+      echotab "\$(LN) ${f}.lisp ${TESTDIR}"
     fi
     echol
   done
 
   for f in $LPARTS ; do
-    echol "${TESTDIR}${NEXT_M}${f}.fas : ${TESTDIR}${NEXT_M}${f}.lsp lisp${LEXE} lispinit.mem"
-    echotab "${HERE}lisp${LEXE} -M lispinit.mem$localeflags -Efile ISO-8859-1 -norc -q -c ${TESTDIR}${NEXT}${f}.lsp"
+    echol "${TESTDIR}${NEXT_M}${f}.fas : ${TESTDIR}${NEXT_M}${f}.lisp lisp${LEXE} lispinit.mem"
+    echotab "${HERE}lisp${LEXE} -M lispinit.mem$localeflags -Efile ISO-8859-1 -norc -q -c ${TESTDIR}${NEXT}${f}.lisp"
     echol
   done
 
@@ -2778,7 +2778,7 @@ if [ $CROSS = false ] ; then
     echol "${TESTSDIR} :"
     echotab "-mkdir ${TESTSDIR}"
     echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/Makefile ."
-    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.lsp ."
+    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.lisp ."
     echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.tst ."
     echol
     echol
@@ -3270,7 +3270,7 @@ echotab "${LN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
 echotab "${LN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/src"
-echotab "${LN} \$(LSPFILES) \$(FASFILES) \$(TOPDIR)/src"
+echotab "${LN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
 echotab "${LN} clisp-link \$(TOPDIR)"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${LN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
@@ -3315,9 +3315,9 @@ if [ $HSYS = acorn ] ; then
     f=`echol $f | cut -c 1-10`
     echotab "\$(CP) txt.$f ^.!Clisp.txt.$f"
   done
-  echotab "-cdir ^.!Clisp.lsp"
+  echotab "-cdir ^.!Clisp.lisp"
   for f in config timezone; do
-    echotab "\$(CP) lsp.$f ^.!Clisp.lsp.$f"
+    echotab "\$(CP) lisp.$f ^.!Clisp.lisp.$f"
   done
   echotab "\$(CP) ^.acorn.!Run ^.!Clisp.!Run"
   echotab "settype ^.!Clisp.!Run Obey"
@@ -3344,7 +3344,7 @@ if [ $HOS = win32 ] ; then
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/src ; \\"
-  echotab "cp -p \$(LSPFILES) \$\$distdir/src/ ; \\"
+  echotab "cp -p \$(LISPFILES) \$\$distdir/src/ ; \\"
   echotab "chmod 755 \$\$distdir/. \$\$distdir/*/. ; \\"
   echotab "chmod 644 \`find \$\$distdir -type f -print\` ; \\"
   echotab "rm -f \$\$distfile ; \\"
@@ -3439,9 +3439,9 @@ cat <<!!
 echol "clean5 : clean4"
 echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
-  echotab "-\$(RM) \$(DFILES) modules.h \$(LSPFILES) version.h NEWS clisp.gif"
+  echotab "-\$(RM) \$(DFILES) modules.h \$(LISPFILES) version.h NEWS clisp.gif"
 else
-  echotab "-\$(RM) config.lsp"
+  echotab "-\$(RM) config.lisp"
 fi
 if [ $TOS = unix ] ; then
   echotab "-\$(RM) MAGIC.add"

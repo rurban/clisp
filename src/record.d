@@ -874,7 +874,7 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
 # instance ist eine Instanz von <standard-object> oder <structure-object>,
 # initargs eine paarige Liste.
 # Das ist die primäre Methode von CLOS:SHARED-INITIALIZE.
-# vgl. clos.lsp
+# vgl. clos.lisp
 # (defmethod shared-initialize ((instance standard-object) slot-names &rest initargs)
 #   (dolist (slot (class-slots (class-of instance)))
 #     (let ((slotname (slotdef-name slot)))
@@ -972,7 +972,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 # instance ist eine Instanz von <standard-object> oder <structure-object>,
 # initargs eine paarige Liste.
 # Das ist die primäre Methode von CLOS:REINITIALIZE-INSTANCE.
-# vgl. clos.lsp
+# vgl. clos.lisp
 # (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
 #   (let ((h (gethash (class-of instance) *reinitialize-instance-table*)))
 #     (if h
@@ -1003,7 +1003,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
   # (GETHASH class *REINITIALIZE-INSTANCE-TABLE*) suchen:
   { var object info = gethash(clas,Symbol_value(S(reinitialize_instance_table)));
     if (eq(info,nullobj))
-      # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lsp.
+      # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lisp.
       { funcall(S(initial_reinitialize_instance),argcount+1); return; }
     # Keywords überprüfen:
     if (!((argcount%2) == 0))
@@ -1070,7 +1070,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 # instance ist eine Instanz von <standard-object> oder <structure-object>,
 # initargs eine paarige Liste.
 # Das ist die primäre Methode von CLOS:INITIALIZE-INSTANCE.
-# vgl. clos.lsp
+# vgl. clos.lisp
 # (defmethod initialize-instance ((instance standard-object) &rest initargs)
 #   (let ((h (gethash class *make-instance-table*)))
 #     (if h
@@ -1103,7 +1103,7 @@ LISPFUN(initialize_instance,1,0,rest,nokey,0,NIL)
   # (GETHASH class *MAKE-INSTANCE-TABLE*) suchen:
   { var object info = gethash(clas,Symbol_value(S(make_instance_table)));
     if (eq(info,nullobj))
-      # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lsp.
+      # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lisp.
       { funcall(S(initial_initialize_instance),argcount+1); return; }
     if (!((argcount%2) == 0))
       { var object arglist = listof(argcount);
@@ -1199,7 +1199,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
 # (CLOS::%MAKE-INSTANCE class &rest initargs)
 # class ist eine Instanz der <standard-class> oder <structure-class>,
 # initargs eine (hoffentlich paarige) Liste.
-# vgl. clos.lsp
+# vgl. clos.lisp
 # (defun %make-instance (class &rest initargs)
 #   ; 28.1.9.3., 28.1.9.4. default-initargs zur Kenntnis nehmen:
 #   (dolist (default-initarg (class-default-initargs class))
@@ -1277,7 +1277,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
   { var object clas = Before(rest_args_pointer);
     var object info = gethash(clas,Symbol_value(S(make_instance_table)));
     if (eq(info,nullobj))
-      # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lsp.
+      # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lisp.
       { return_Values funcall(S(initial_make_instance),2*argcount+1); }
       else
       { # Keywords überprüfen:

@@ -2846,7 +2846,7 @@ local void print_banner ()
         # für jedes File
         #   (EXIT-ON-ERROR
         #     (APPEASE-CERRORS
-        #       (COMPILE-FILE (setq file (MERGE-PATHNAMES file (MERGE-PATHNAMES '#".lsp" (CD))))
+        #       (COMPILE-FILE (setq file (MERGE-PATHNAMES file (MERGE-PATHNAMES '#".lisp" (CD))))
         #                     [:OUTPUT-FILE (setq output-file (MERGE-PATHNAMES (MERGE-PATHNAMES output-file (MERGE-PATHNAMES '#".fas" (CD))) file))]
         #                     [:LISTING (MERGE-PATHNAMES '#".lis" (or output-file file))]
         #   ) ) )
@@ -2859,9 +2859,9 @@ local void print_banner ()
                   var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
                   pushSTACK(S(compile_file));
                   pushSTACK(filename);
-                  pushSTACK(O(source_file_type)); # #".lsp"
+                  pushSTACK(O(source_file_type)); # #".lisp"
                   funcall(L(cd),0); pushSTACK(value1); # (CD)
-                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lsp" (CD))
+                  funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES '#".lisp" (CD))
                   pushSTACK(value1);
                   funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES file ...)
                   pushSTACK(value1);

@@ -6,15 +6,15 @@ lisplibdir = $(libdir)/gcl-1.0
 
 LISP = gcl
 
-ALLLSP = attributes.lsp buffer.lsp bufmac.lsp clx.lsp depdefs.lsp \
-         dependent.lsp describe.lsp display.lsp fonts.lsp gcontext.lsp \
-         graphics.lsp image.lsp input.lsp keysyms.lsp macros.lsp manager.lsp \
-         package.lsp requests.lsp resource.lsp text.lsp trace.lsp
+ALLLISP = attributes.lisp buffer.lisp bufmac.lisp clx.lisp depdefs.lisp \
+          dependent.lisp describe.lisp display.lisp fonts.lisp gcontext.lisp \
+          graphics.lisp image.lisp input.lisp keysyms.lisp macros.lisp manager.lisp \
+          package.lisp requests.lisp resource.lisp text.lisp trace.lisp
 
-ALLO =   attributes.o buffer.o bufmac.o clx.o depdefs.o \
-         dependent.o describe.o display.o fonts.o gcontext.o \
-         graphics.o image.o input.o keysyms.o macros.o manager.o \
-         package.o requests.o resource.o text.o trace.o
+ALLO =    attributes.o buffer.o bufmac.o clx.o depdefs.o \
+          dependent.o describe.o display.o fonts.o gcontext.o \
+          graphics.o image.o input.o keysyms.o macros.o manager.o \
+          package.o requests.o resource.o text.o trace.o
 
 # Standard Unix packer. Requires GNU tar.
 PACK = tar
@@ -23,12 +23,12 @@ PACKEXT = .tar.gz
 
 all: defsystem.o stamp.o $(ALLO) gclx
 
-defsystem.o : defsystem.lsp
+defsystem.o : defsystem.lisp
 	echo '(compile-file "defsystem")' | $(LISP)
 
 $(ALLO) : stamp.o
 
-stamp.o : $(ALLLSP) defsystem.o
+stamp.o : $(ALLLISP) defsystem.o
 	echo '(load "defsystem") (compile-clx)' | $(LISP)
 	touch stamp.o
 

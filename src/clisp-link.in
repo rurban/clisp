@@ -170,7 +170,7 @@ case "$1" in
        for fc in $files_c; do
          fo=`echo "$fc" | sed -e 's,\.c$,,'`.o
          mod=`echo "$fc" | sed -e 's,\.c$,,' | sed -e 's,[^A-Za-z0-9_],_,g'`
-         # The last sed command must agree with foreign1.lsp:to-module-name.
+         # The last sed command must agree with foreign1.lisp:to-module-name.
          echo 'if test -r '"$fc"'; then'
          echo '  file_list="$file_list"'"' $fo'"
          echo '  mod_list="$mod_list"'"' $mod'"
@@ -511,20 +511,20 @@ case "$1" in
           done
         done
         tmpsharedlib="${TMPDIR-/tmp}/clisplink$$.so"
-        tmpinitlsp="${TMPDIR-/tmp}/clisplink$$.lsp"
+        tmpinitlisp="${TMPDIR-/tmp}/clisplink$$.lisp"
         # What to do if we abort.
-        trap 'rm -f "$tmpsharedlib" "$tmpinitlsp"' 0 1 2 15
+        trap 'rm -f "$tmpsharedlib" "$tmpinitlisp"' 0 1 2 15
         # Create an initialization file with a couple of load forms.
         (for f in $PRELOAD; do echo "(load \"${f}\")"; done
          echo "(system::dynload-modules \"$tmpsharedlib\" (quote ("
          for mod in $MODULES; do echo "  \"${mod}\""; done
          echo ")))"
-         for f in $LOAD; do echo "(load \"${f}\")"; done ) > "$tmpinitlsp"
+         for f in $LOAD; do echo "(load \"${f}\")"; done ) > "$tmpinitlisp"
         # Create a shared library.
         lib="$tmpsharedlib"; libs="$LINKLIBS"; verbose @createsharedlib@
         # Run clisp, attach the shared library and load the Lisp stuff.
-        "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -i "$tmpinitlsp"
-        rm -f "$tmpsharedlib" "$tmpinitlsp"
+        "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
+        rm -f "$tmpsharedlib" "$tmpinitlisp"
         trap '' 0 1 2 15
       fi
     else

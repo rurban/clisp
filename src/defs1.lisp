@@ -443,7 +443,7 @@
                  (merge-pathnames host
                    (string-concat (sys::getenv "CLISP_LOGICAL_PATHNAME_TRANSLATIONS"))
                  )
-                 (make-pathname :type '#".lsp")
+                 (make-pathname :type '#".lisp")
            ) ) )
         |#
         (if (and (fboundp 'sys::getenv)
@@ -457,7 +457,7 @@
                  host
   ) ) ) ) )
   (set-logical-pathname-translations "SYS"
-    '((";*.LISP" "*.lsp") ("*.*" "*.*") ("*" "*"))
+    '((";*.LISP" "*.lisp") ("*.*" "*.*") ("*" "*"))
   )
 )
 
@@ -599,7 +599,7 @@
 ) )
 
 ; Bei vielen Betriebssystemen (nicht bei UNIX, WIN32) muss die Zeitzone beim
-; Installieren in timezone.lsp eingetragen werden. Hier stehen nur
+; Installieren in timezone.lisp eingetragen werden. Hier stehen nur
 ; Defaultwerte.
 
 #-(or UNIX WIN32)

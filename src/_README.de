@@ -73,11 +73,11 @@ Zu CLISP gehören folgende Dateien:
 #ifndef UNIX_BINARY_DISTRIB
    src/clisp.c          Quellen des Wegweisers
 #endif
-   src/config.lsp       örtliche Konfiguration
+   src/config.lisp      örtliche Konfiguration
 
 und - als Zugabe, für den Fall, daß Sie Quellen lesen möchten -
 
-   src/*.lsp            die Quellen zu lispinit.mem
+   src/*.lisp           die Quellen zu lispinit.mem
    src/*.fas            dieselben Dateien in compilierter Form
 #if !defined(UNIX_BINARY_DISTRIB) && defined(GNU_READLINE)
 
@@ -146,14 +146,14 @@ oder
 #ifdef GNU_READLINE
       readline.dvi     Dokumentation zur GNU Readline-Bibliothek
 #endif
-      config.lsp       örtliche Konfiguration
+      config.lisp      örtliche Konfiguration
 #if !(defined(UNIX) || defined(WIN32))
-      timezone.lsp     örtliche Zeitzone
+      timezone.lisp    örtliche Zeitzone
 #endif
 
 und - als Zugabe, für den Fall, daß Sie Quellen lesen möchten -
 
-      *.lsp            die Quellen zu lispinit.mem
+      *.lisp           die Quellen zu lispinit.mem
 #if !defined(OS2)
       *.fas            dieselben Dateien in compilierter Form
 #endif
@@ -267,11 +267,11 @@ möchten, ersetzen Sie vorher in der LIBS-Zeile der Datei base/makevars
 
 #endif
 #endif
-Passen Sie die Strings innerhalb von src/config.lsp mit einem Texteditor an.
+Passen Sie die Strings innerhalb von src/config.lisp mit einem Texteditor an.
 #else
-Passen Sie den Inhalt von config.lsp, insbesondere die Definitionen von
+Passen Sie den Inhalt von config.lisp, insbesondere die Definitionen von
 short-site-name und long-site-name, an Ihre örtlichen Gegebenheiten an.
-Vielleicht möchten Sie auch die Zeitzonendefinition am Ende von timezone.lsp
+Vielleicht möchten Sie auch die Zeitzonendefinition am Ende von timezone.lisp
 ändern.
 #endif
 Starten Sie dann
@@ -305,15 +305,15 @@ wird), dann
 
 #endif
 #if defined(UNIX) || defined(WIN32)
-        (compile-file "src/config.lsp")
+        (compile-file "src/config.lisp")
         (load "src/config.fas")
 #else
-        (compile-file "config.lsp")
+        (compile-file "config.lisp")
         (load "config.fas")
 
-und - falls Sie timezone.lsp verändert haben -
+und - falls Sie timezone.lisp verändert haben -
 
-        (compile-file "timezone.lsp")
+        (compile-file "timezone.lisp")
         (load "timezone.fas")
 #endif
 

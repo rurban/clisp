@@ -92,7 +92,7 @@
   LISPOBJ(type_output_error_action,"(OR (MEMBER :ERROR :IGNORE) CHARACTER (UNSIGNED-BYTE 8))")
 # zu CHARSTRG.D:
   # Bei Änderung der Character-Namen außer CONSTOBJ.D auch
-  # CHARSTRG.D, FORMAT.LSP, IMPNOTES.HTML anpassen!
+  # CHARSTRG.D, FORMAT.LISP, IMPNOTES.HTML anpassen!
   #ifdef AMIGA_CHARNAMES
     LISPOBJ(charname_0,"\"Null\"")
     LISPOBJ(charname_1,"\"Code1\"")
@@ -247,7 +247,7 @@
   # einige Built-In-Klassen, werden von CLOS::%DEFCLOS gefüllt
   LISPOBJ(class_array,"ARRAY")             # ---+
   LISPOBJ(class_bit_vector,"BIT-VECTOR")   #    |   Reihenfolge
-  LISPOBJ(class_character,"CHARACTER")     #    |   mit clos.lsp
+  LISPOBJ(class_character,"CHARACTER")     #    |   mit clos.lisp
   LISPOBJ(class_complex,"COMPLEX")         #    |   abgestimmt!
   LISPOBJ(class_cons,"CONS")
   LISPOBJ(class_float,"FLOAT")
@@ -694,7 +694,7 @@
   LISPOBJ_LS(mkdirp_string,
     /* ENGLISH */ "Creating directory: ")
   # Defaults für COMPILE-FILE-Aufruf in SPVW:
-  LISPOBJ(source_file_type,"#\".lsp\"")
+  LISPOBJ(source_file_type,"#\".lisp\"")
   LISPOBJ(compiled_file_type,"#\".fas\"")
   LISPOBJ(listing_file_type,"#\".lis\"")
 # zu STREAM.D:

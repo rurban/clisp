@@ -1,5 +1,5 @@
 ;; Foreign functions provided by PostgreSQL
-;; File: <postgresql.lsp - 1999-03-20 Sat 21:02:41 EST sds@eho.eaglets.com>
+;; File: <postgresql.lisp - 1999-03-20 Sat 21:02:41 EST sds@eho.eaglets.com>
 
 (defpackage "SQL"
   (:case-sensitive t)

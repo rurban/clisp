@@ -97,7 +97,7 @@ LISPFUNN(copy_simple_vector,1)
   global uintB eltype_code (object element_type);
   global uintB eltype_code(obj)
     var object obj;
-    # When this function is changed, also update upgraded-array-element-type in type.lsp!
+    # When this function is changed, also update upgraded-array-element-type in type.lisp!
     {
       # (cond ((eq obj 'BIT) Atype_Bit)
       #       ((eq obj 'CHARACTER) Atype_Char)

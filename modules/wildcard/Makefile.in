@@ -12,13 +12,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = wildcard.o fnmatch.o link.sh Makefile README wildcard.lsp wildcard.texinfo wildcard.dvi
+DISTRIBFILES = wildcard.o fnmatch.o link.sh Makefile README wildcard.lisp wildcard.texinfo wildcard.dvi
 distribdir =
 
 all : wildcard.o fnmatch.o
 
-wildcard.c : wildcard.lsp
-	$(CLISP) -c wildcard.lsp
+wildcard.c : wildcard.lisp
+	$(CLISP) -c wildcard.lisp
 
 wildcard.o : wildcard.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c wildcard.c

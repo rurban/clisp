@@ -4,7 +4,7 @@
 Since CLISP is provided with source, you can add features you want yourself.
 
 Additions in Lisp are accomplished by writing a Lisp module and adding a
-LOAD form for it at the end of init.lsp. Please conditionalize with #+ and #-
+LOAD form for it at the end of init.lisp. Please conditionalize with #+ and #-
 if you use features that are not present in all platforms supported by CLISP.
 
 Additions in C or assembly language are also possible, as well as interfacing
@@ -39,10 +39,10 @@ C. C code that makes up the interface between CLISP and part B. You may use
 
 Part A code.
 
-Make the names of the .lsp files known to your makefile. This is done by
+Make the names of the .lisp files known to your makefile. This is done by
 modifying the lines CODE=... in makemake.in.
 Make them also contained in lispinit.mem. This is done by adding LOAD forms
-at the end of init.lsp.
+at the end of init.lisp.
 
 Part B and C code.
 

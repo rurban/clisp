@@ -21,7 +21,7 @@
 ;;    is treated as equivalent to
 ;;       ENGLISH ? string : ""
 ;;
-;; 2. In .lsp files,
+;; 2. In .lisp files,
 ;;       (DEUTSCH string
 ;;        ENGLISH string
 ;;        FRANCAIS string)
@@ -88,7 +88,7 @@
                            (warn "no string found at ~A:~S" filename lineno)
                            (return nil))
                 ) ) )
-                (lsp-parse-string ()
+                (lisp-parse-string ()
                   (loop
                     (cond ((>= pos (length line))
                            (setf line (read-line file))
@@ -248,14 +248,14 @@
                              ;:fr-key "FRANCAIS "
                              :string-parser #'d-parse-string
                ))
-               ((search ".lsp$" (concatenate 'string filename "$"))
-                ;; Extract strings from a .lsp file
+               ((search ".lisp$" (concatenate 'string filename "$"))
+                ;; Extract strings from a .lisp file
                 (do-one-file :all-grepper ;"grep -n '\\(DEUTSCH\\|ENGLISH\\|FRANCAIS\\) ' "
                                           "grep -n 'ENGLISH ' "
                              :en-key "ENGLISH "
                              ;:de-key "DEUTSCH "
                              ;:fr-key "FRANCAIS "
-                             :string-parser #'lsp-parse-string
+                             :string-parser #'lisp-parse-string
                ))
                (t (error "unknown file type: ~S" filename))
          )

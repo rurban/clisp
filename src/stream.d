@@ -5307,10 +5307,10 @@ global object iconv_range(encoding,start,end)
         }
       }
       #elif defined(WIN32_NATIVE)
-      # This is pretty complex. To test this, create a file "listen.lsp"
+      # This is pretty complex. To test this, create a file "listen.lisp"
       # containing the code
       #   (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
-      # and execute "lisp.exe -q -i listen.lsp" with redirected standard input.
+      # and execute "lisp.exe -q -i listen.lisp" with redirected standard input.
       begin_system_call();
       switch (GetFileType(handle)) {
         case FILE_TYPE_CHAR:
@@ -8935,7 +8935,7 @@ local object make_key_event(event)
     return value1;
   }
 
-# Values for the bits, must agree with xcharin.lsp.
+# Values for the bits, must agree with xcharin.lisp.
   #define char_control_c  1
   #define char_meta_c     2
   #define char_super_c    4
@@ -11446,7 +11446,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
 # Handle-Streams (andere Text-Fenster) in den Raw-Modus schalten.
 
 # Beim Terminal-Stream speichern wir den momentanen Zustand (um so wenig wie
-# möglich umschalten zu müssen), bei den Handle-Streams wird das von screen.lsp
+# möglich umschalten zu müssen), bei den Handle-Streams wird das von screen.lisp
 # übernommen.
 local LONG terminal_mode = 0; # 0 = CON, 1 = RAW
 

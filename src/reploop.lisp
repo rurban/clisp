@@ -620,7 +620,7 @@ Continue       :c      switch off single step mode, continue evaluation
 
 ;;;--------------------------------------------------------------------------
 
-;; Now that conditio.lsp is loaded and *break-driver* has a value:
+;; Now that condition.lisp is loaded and *break-driver* has a value:
 ;; Activate the Condition System.
 (setq *use-clcs* t)
 

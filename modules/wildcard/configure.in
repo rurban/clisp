@@ -1,7 +1,7 @@
 dnl  AUTOCONF configuration for wildcard
 dnl  Bruno Haible 12.4.1997
 dnl
-AC_INIT(wildcard.lsp)
+AC_INIT(wildcard.lisp)
 AC_CONFIG_HEADER(config.h)
 
 AC_PROG_CC

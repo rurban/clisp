@@ -249,14 +249,14 @@ interpreter compiler
 ))
 
 (in-package "LISP")
-; Exportierungen von conditio.lsp
+; Exportierungen von condition.lisp
 (export '(
-  handler-bind                  ; vorgezogen für compiler.lsp
-  find-restart compute-restarts ; vorgezogen für user1.lsp
+  handler-bind                  ; vorgezogen für compiler.lisp
+  find-restart compute-restarts ; vorgezogen für user1.lisp
   invoke-restart-interactively  ; dito
-  restart                       ; vermeide Konflikt mit user1.lsp
-  continue                      ; vermeide Konflikt mit user1.lsp
-  end-of-file                   ; vermeide Konflikt mit init.lsp, user2.lsp
+  restart                       ; vermeide Konflikt mit user1.lisp
+  continue                      ; vermeide Konflikt mit user1.lisp
+  end-of-file                   ; vermeide Konflikt mit init.lisp, user2.lisp
   ; Typen für error-of-type:
   condition warning serious-condition error storage-condition type-error
   program-error control-error package-error print-not-readable parse-error
@@ -268,7 +268,7 @@ interpreter compiler
 
 (in-package "USER" :use '("LISP" "CLOS"))
 
-; Optionale Files wie macros3.lsp, defs2.lsp, loop.lsp, defs3.lsp machen ihre
+; Optionale Files wie macros3.lisp, defs2.lisp, loop.lisp, defs3.lisp machen ihre
 ; Exportierungen selber.
 
 
@@ -1195,7 +1195,7 @@ interpreter compiler
 (proclaim '(special *load-paths*))
 (setq *load-paths* nil)
 (proclaim '(special *source-file-types*))
-(setq *source-file-types* '(#".lsp"))
+(setq *source-file-types* '(#".lisp" #".lsp"))
 (proclaim '(special *compiled-file-types*))
 (setq *compiled-file-types* '(#".fas"))
 
@@ -1241,7 +1241,7 @@ interpreter compiler
                 )
                 ; Datei mit genau diesem Namen nicht vorhanden.
                 ; Suche unter den Dateien mit demselben Namen und den
-                ; Extensions "LSP", "FAS" die neueste:
+                ; Extensions "LISP", "FAS" die neueste:
                 (let ((present-files
                         (search-file filename
                           (append *source-file-types* *compiled-file-types*)
@@ -1485,7 +1485,7 @@ interpreter compiler
 
 (LOAD "defseq")   ;; Definitionen von Standard-Sequences
 
-(LOAD "backquot") ;; Backquote-Readmacro
+(LOAD "backquote") ;; Backquote-Readmacro
 
 (PROGN
 
@@ -1641,11 +1641,11 @@ interpreter compiler
 
 ;; ab hier ist SETF u.ä. funktionsfähig.
 
-(LOAD "floatpri") ;; Ausgabe von Floating-Points
+(LOAD "floatprint") ;; Ausgabe von Floating-Points
 
 (LOAD "type")     ;; TYPEP
 
-(LOAD "defstruc") ;; DEFSTRUCT-Macro
+(LOAD "defstruct") ;; DEFSTRUCT-Macro
 
 (LOAD "format")   ;; FORMAT
 
@@ -1808,7 +1808,7 @@ interpreter compiler
 
 (LOAD "clos")      ;; CLOS
 
-(LOAD "conditio")  ;; Conditions
+(LOAD "condition") ;; Conditions
 
 ;; At this point the core Common Lisp is complete.
 

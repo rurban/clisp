@@ -1796,7 +1796,7 @@ LISPFUNN(class_gethash,2)
 # ist wie (GETHASH (funcall (hash-tuple-function n) class1 ... classn) ht)
 # mit classi = (CLASS-OF objecti).
 # Dabei sei n>0, ht eine EQUAL-Hashtabelle und (hash-tuple-function n) wie in
-# clos.lsp definiert.
+# clos.lisp definiert.
 # Diese Funktion ist der Kern des Dispatch für generische Funktionen. Sie soll
 # darum schnell sein und nicht consen.
   # Für 1 < n <= 16 ist

@@ -7,7 +7,7 @@
 ;;; conditions with the source code.
 
 ;; for your cut&paste convenience:
-;; (load "/usr/src/clisp/modules/postgresql/sql.lsp")
+;; (load "/usr/src/clisp/modules/postgresql/sql.lisp")
 ;; (cl-user::sql-test-1)
 
 (in-package :cl-user)
@@ -185,4 +185,4 @@
     (sql-transaction conn "CLOSE mycursor" sql::PGRES_COMMAND_OK t)
     (sql-transaction conn "COMMIT" sql::PGRES_COMMAND_OK t)))
 
-;;; file sql.lsp ends here
+;;; file sql.lisp ends here

@@ -46,11 +46,11 @@ It consists of the following files:
       ANNOUNCE         announcement
       COPYRIGHT        copyright notice
       GNU-GPL          free software license
-      config.lsp       site-dependent configuration
+      config.lisp      site-dependent configuration
 
 and - to your convenience, if you like reading source -
 
-      *.lsp            the source of lispinit.mem
+      *.lisp           the source of lispinit.mem
       *.fas            the same files, already compiled
 
 
@@ -69,9 +69,9 @@ say c:\emx\dll. Add c:\emx\dll (insert the correct drive letter)
 to the LIBPATH statement in your config.sys file. Reboot your computer
 to enable the new LIBPATH statement and the new environment variables.
 
-Edit the contents of config.lsp appropriately for your site,
+Edit the contents of config.lisp appropriately for your site,
 especially the definitions of short-site-name and long-site-name.
-You may also want to edit the time zone definition in defs1.lsp.
+You may also want to edit the time zone definition in defs1.lisp.
 Then start
 
          lisp.exe -M lispinit.mem
@@ -85,7 +85,7 @@ appears, type
         (compile-file "config")
         (load "config")
 
-and - in case you modified defs1.lsp -
+and - in case you modified defs1.lisp -
 
         (compile-file "defs1")
         (load "defs1")
@@ -115,7 +115,7 @@ And create a batch file that starts lisp:
 The editor:
 -----------
 
-Normally CLISP's ED function calls the editor you specified in config.lsp.
+Normally CLISP's ED function calls the editor you specified in config.lisp.
 However, after you did
 
     (load "editor")
