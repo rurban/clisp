@@ -1,3 +1,23 @@
+2004-11-17  Bruno Haible  <bruno@clisp.org>
+
+	Use forward-referenced-class instances instead of symbols in the
+	direct-superclasses list.
+	* clos-class1.lisp (shared-initialize-<defined-class>): Don't accept
+	symbols in the direct-superclasses list any more.
+	* clos-class2.lisp (<forward-referenced-class>): New variable.
+	((setf find-class)): When replacing a forward-referenced class, move
+	the list of subclasses from the old class object to the new one.
+	* clos-class3.lisp (ensure-class-using-class-<t>): Convert symbols in
+	the direct-superclasses list to forward-referenced-class instances.
+	(reinitialize-instance-<defined-class>): Likewise. Handle the change
+	from a forward-referenced-class to a defined-class.
+	(update-subclasses-sets): Treat the forward-referenced-class the same
+	way.
+	(finalize-class): Handle the case where the argument is a
+	forward-referenced-class. Handle the change from a
+	forward-referenced-class to a defined-class.
+	(<forward-referenced-class>): Initialize.
+
 2004-11-22  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (low_read_unbuffered_handle): Use full_read instead of read.
