@@ -1275,15 +1275,6 @@
                              (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
                            (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))))))))
 
-;; Auxiliary function for non-generic accessors.
-(defun error-accessor-typecheck (caller object class)
-  (error-of-type 'type-error
-    :datum object :expected-type class
-    "~S: The argument is not of type ~S: ~S"
-    caller
-    (if (eq (find-class (class-name class) nil) class) (class-name class) class)
-    object))
-
 ;; Remove a set of accessor methods given as a plist.
 (defun remove-accessor-methods (plist)
   (do ((l plist (cddr l)))

@@ -1,3 +1,14 @@
+2004-06-01  Bruno Haible  <bruno@clisp.org>
+
+	Thinner type checks.
+	* clos-macros.lisp (accessor-typecheck): New macro.
+	(error-accessor-typecheck): New function, moved here from
+	clos-class3.lisp.
+	* clos-class3.lisp (error-accessor-typecheck): Move function away.
+	* clos-slotdef3.lisp: Use error-accessor-typecheck instead of assert.
+	* clos-specializer3.lisp: Likewise.
+	* clos-class6.lisp: Likewise.
+
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export standard-slot-definition.

@@ -14,24 +14,24 @@
 ;; Optimized accessors, with type checking.
 
 (defun specializer-direct-generic-functions-table (specializer)
-  (assert (typep specializer 'specializer))
+  (accessor-typecheck specializer 'specializer 'specializer-direct-generic-functions-table)
   (sys::%record-ref specializer *<specializer>-direct-generic-functions-location*))
 (defun (setf specializer-direct-generic-functions-table) (new-value specializer)
-  (assert (typep specializer 'specializer))
+  (accessor-typecheck specializer 'specializer '(setf specializer-direct-generic-functions-table))
   (setf (sys::%record-ref specializer *<specializer>-direct-generic-functions-location*) new-value))
 
 (defun specializer-direct-methods-table (specializer)
-  (assert (typep specializer 'specializer))
+  (accessor-typecheck specializer 'specializer 'specializer-direct-methods-table)
   (sys::%record-ref specializer *<specializer>-direct-methods-location*))
 (defun (setf specializer-direct-methods-table) (new-value specializer)
-  (assert (typep specializer 'specializer))
+  (accessor-typecheck specializer 'specializer '(setf specializer-direct-methods-table))
   (setf (sys::%record-ref specializer *<specializer>-direct-methods-location*) new-value))
 
 (defun eql-specializer-singleton (specializer)
-  (assert (typep specializer 'eql-specializer))
+  (accessor-typecheck specializer 'eql-specializer 'eql-specializer-singleton)
   (sys::%record-ref specializer *<eql-specializer>-singleton-location*))
 (defun (setf eql-specializer-singleton) (new-value specializer)
-  (assert (typep specializer 'eql-specializer))
+  (accessor-typecheck specializer 'eql-specializer '(setf eql-specializer-singleton))
   (setf (sys::%record-ref specializer *<eql-specializer>-singleton-location*) new-value))
 
 
