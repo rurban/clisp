@@ -76,6 +76,7 @@
 <arg><option><link linkend="opt-ilisp">-I</link></option></arg>
 <group><arg><option><link linkend="opt-ansi">-ansi</link></option></arg>
  <arg><option><link linkend="opt-traditional" >-traditional</link></option></arg></group>
+<arg><option><link linkend="opt-modern">-modern</link></option></arg>
 <arg><option><link linkend="opt-pack">-p &pack-r;</link></option></arg>
 <arg>&opt-C;</arg>
 <arg><option><link linkend="opt-norc">-norc</link></option></arg>
@@ -337,6 +338,15 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-traditional"><term><option>-traditional</option></term>
  <listitem><simpara>Traditional: reverses the residual effects of
    &ansi-opt; in the saved &mem-image;.</simpara></listitem></varlistentry>
+
+<varlistentry id="opt-modern"><term><option>-modern</option></term>
+ <listitem><simpara>Provides a modern view of symbols: At startup the
+  &package-var; variable will be set to the
+  <quote role='package'>CS-COMMON-LISP-USER</quote> package, and the
+  &print-base-var; will be set to <term><constant>:downcase</constant></term>.
+  This has the effect that symbol lookup is case-sensitive (except for
+  keywords and old-style packages) and that keywords and uninterned symbols
+  are printed with lower-case preferrence.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-pack"><term><option>-p</option> &pack-r;</term>
  <listitem><simpara>At startup the value of the variable &package-var;

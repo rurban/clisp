@@ -95,6 +95,11 @@ User visible changes
   and <http://clisp.cons.org/impnotes.html#mop-clisp> for a list
   of differences between CLISP and "The Art of the Metaobject Protocol".
 
+* CLISP now supports programming with case sensitive symbols. This is the
+  default when CLISP is started with the new command line option "-modern".
+  See <http://clisp.cons.org/impnotes.html#case-sensitive-packages> for
+  details.
+
 * Several new datatypes that manage weak references:
     WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,
     WEAK-MAPPING, WEAK-AND-MAPPING, WEAK-OR-MAPPING, WEAK-ALIST.

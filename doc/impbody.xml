@@ -1110,13 +1110,20 @@ performance considerations.
    <ulink url="&clhs;/Body/sec_the_packa_s_dictionary.html">[CLHS-11.2]</ulink></title>
 
 <section id="package-case"><title>Package Case-Sensitivity</title>
-<para>&make-package; accepts a keyword argument &case-sensitive-k;.
- Similarly, &defpackage; accepts an option &case-sensitive-k;.
- When its value is non-&nil;, the package will be <firstterm>case
- sensitive</firstterm>, i.e., the reader will not case-convert symbol
- names before looking them up or creating them in this package.
+<para>&make-package; accepts a keyword argument &case-sensitive-k; and a
+ keyword argument &case-inverted-k;. Similarly, &defpackage; accepts an option
+ &case-sensitive-k; and an option &case-inverted-k;.
+ When the &case-sensitive-k; value is non-&nil;, the package will be
+ <firstterm>case sensitive</firstterm>, i.e., the reader will not case-convert
+ symbol names before looking them up or creating them in this package.
+ When the &case-inverted-k; value is non-&nil;, the package's symbol names
+ will be <firstterm>case inverted</firstterm>, i.e., the reader will map
+ uppercase characters to lower case and lowercase characters to upper case
+ when looking up or creating symbols in this package, and the printer will do
+ the inverse transformation.
  The package names are still subject to
- <code>(&readtable-case; &readtable-var;)</code>, though.</para>
+ <code>(&readtable-case; &readtable-var;)</code>, though.
+ See <xref linkend="case-sensitive-packages"/> for details.</para>
 </section>
 
 <section id="make-pack"><title>Function &make-package;</title>
