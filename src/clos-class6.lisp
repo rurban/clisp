@@ -242,6 +242,14 @@
   (setf (sys::%record-ref class *<structure-class>-names-location*) new-value))
 
 ;; Not in MOP.
+(defun class-kconstructor (class)
+  (accessor-typecheck class 'structure-class 'class-kconstructor)
+  (sys::%record-ref class *<structure-class>-kconstructor-location*))
+(defun (setf class-kconstructor) (new-value class)
+  (accessor-typecheck class 'structure-class '(setf class-kconstructor))
+  (setf (sys::%record-ref class *<structure-class>-kconstructor-location*) new-value))
+
+;; Not in MOP.
 (defun class-current-version (class)
   (accessor-typecheck class 'semi-standard-class 'class-current-version)
   (sys::%record-ref class *<semi-standard-class>-current-version-location*))

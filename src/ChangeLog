@@ -1,3 +1,20 @@
+2004-10-14  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class1.lisp (structure-class): Add slot kconstructor.
+	(*<structure-class>-kconstructor-location*): New constant.
+	(class-kconstructor, (setf class-kconstructor)): New functions.
+	(*<structure-class>-instance-size*): Increment.
+	* clos-class3.lisp (make-instance-<structure-class>,
+	shared-initialize-<structure-class>): Add kconstructor argument.
+	(define-structure-class): Accept four more arguments. Don't access the
+	defstruct-description.
+	* clos-class4.lisp (shared-initialize@structure-class): Add
+	kconstructor argument.
+	* clos-class6.lisp (class-kconstructor, (setf class-kconstructor)): New
+	functions.
+	* defstruct.lisp (defstruct): Pass four more arguments to
+	define-structure-class.
+
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos-method1.lisp (initialize-instance-<standard-method>): Ignore

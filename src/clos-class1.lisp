@@ -381,20 +381,27 @@
 (defvar *<structure-class>-defclass*
   '(defclass structure-class (slotted-class)
      (($names              ; encoding of the include-nesting, a list
-        :type cons))
+        :type cons)
+      ($kconstructor       ; name of keyword constructor function
+        :type symbol))
      (:fixed-slot-locations t)))
 (defvar *<structure-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
 (defconstant *<structure-class>-names-location* 21)
+(defconstant *<structure-class>-kconstructor-location* 22)
 
 ;; Preliminary accessors.
 (defun class-names (object)
   (sys::%record-ref object *<structure-class>-names-location*))
 (defun (setf class-names) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-names-location*) new-value))
+(defun class-kconstructor (object)
+  (sys::%record-ref object *<structure-class>-kconstructor-location*))
+(defun (setf class-kconstructor) (new-value object)
+  (setf (sys::%record-ref object *<structure-class>-kconstructor-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 22)
+(defconstant *<structure-class>-instance-size* 23)
 
 ;;; ===========================================================================
 
