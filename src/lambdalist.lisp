@@ -458,4 +458,56 @@
         (nreverse optvar) (nreverse optinit) (nreverse optsvar)
         rest)))
 
+;;; Analyzes a define-method-combination lambda-list (ANSI CL 3.4.10.).
+;;; Reports errors through errfunc (a function taking an error format string
+;;; and format string arguments).
+;; Returns 14 values:
+;; 1. &whole parameter or 0
+;; 2. list of required parameters
+;; 3. list of optional parameters
+;; 4. list of init-forms of the optional parameters
+;; 5. list of supplied-vars for the optional parameters (0 for the missing)
+;; 6. &rest parameter or 0
+;; 7. flag, if keywords are allowed
+;; 8. list of keywords
+;; 9. list of keyword parameters
+;; 10. list of init-forms of the keyword parameters
+;; 11. list of supplied-vars for the keyword parameters (0 for the missing)
+;; 12. flag, if other keywords are allowed
+;; 13. list of &aux variables
+;; 14. list of init-forms of the &aux variables
+  (defun analyze-method-combination-lambdalist (lambdalist errfunc)
+    (let ((L lambdalist) ; rest of the lambda-list
+          (whole 0))
+      ;; The lists are all accumulated in reversed order.
+      ;; &whole parameter:
+      (when (and (consp L) (eq (car L) '&whole))
+        (setq L (cdr L))
+        (macrolet ((err-nowhole ()
+                     `(funcall errfunc (TEXT "Missing &WHOLE parameter in lambda list ~S")
+                                       lambdalist)))
+          (if (atom L)
+            (err-nowhole)
+            (prog ((item (car L)))
+              (if (symbolp item)
+                (if (memq item lambda-list-keywords)
+                  (progn (err-nowhole) (return))
+                  (setq whole item))
+                (err-invalid item))
+              (setq L (cdr L))))))
+      ;; The rest should be an ordinary lambda-list.
+      (multiple-value-bind (reqvar optvar optinit optsvar rest
+                            keyflag keyword keyvar keyinit keysvar allow-other-keys
+                            auxvar auxinit)
+          (analyze-lambdalist L errfunc)
+        (values
+          whole
+          reqvar
+          optvar optinit optsvar
+          rest
+          keyflag
+          keyword keyvar keyinit keysvar
+          allow-other-keys
+          auxvar auxinit))))
+
 ) ; macrolet
