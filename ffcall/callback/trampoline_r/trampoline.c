@@ -22,7 +22,7 @@
 #endif
 #if defined(__rs6000__)
 #if defined(__NetBSD__)
-#define __powerpcnetbsd__
+#define __rs6000netbsd__
 #else
 #if !defined(_AIX)
 #define __rs6000sysv4__  /* SysV.4 ABI, real machine code. */
@@ -206,7 +206,7 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #include <sys/syslocal.h>
 #endif
 /* Inline assembly function for instruction cache flush. */
-#if defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__hppaold__) || defined(__rs6000sysv4__) || defined(__convex__) || defined(__powerpcnetbsd__)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__hppaold__) || defined(__rs6000sysv4__) || defined(__rs6000netbsd__) || defined(__convex__)
 #ifdef __GNUC__
 extern inline
 #if defined(__sparc__) || defined(__sparc64__)
@@ -283,7 +283,11 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 32
 #define TRAMP_ALIGN 4
 #endif
-#if defined(__rs6000sysv4__) || defined(__powerpcnetbsd__)
+#ifdef __rs6000sysv4__
+#define TRAMP_LENGTH 24
+#define TRAMP_ALIGN 4
+#endif
+#ifdef __rs6000netbsd__
 #define TRAMP_LENGTH 24
 #define TRAMP_ALIGN 4
 #endif
@@ -868,7 +872,7 @@ __TR_function alloc_trampoline_r (address, data0, data1)
 #define tramp_data(function)  \
   hilo(*(unsigned short *) (function + 2), *(unsigned short *) (function + 6))
 #endif
-#ifdef __powerpcnetbsd__
+#ifdef __rs6000netbsd__
   /* function:
    *    {liu|lis} 13,hi16(<data>)		3D A0 hi16(<data>)
    *    {oril|ori} 13,13,lo16(<data>)		61 AD lo16(<data>)
