@@ -43,7 +43,7 @@ to print the corresponding values, or T for all of them.")
   (or (eq t *apropos-do-more*) (memq what *apropos-do-more*)))
 
 (defun apropos (string &optional (package nil))
-  (dolist (sym (apropos-list string package) (terpri))
+  (dolist (sym (apropos-list string package) (fresh-line))
     (format t "~&~s~40t" sym)
     (when (fboundp sym)
       (write-string "   ")
