@@ -45,6 +45,9 @@ TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 #DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
 DIST=podval:~/public_html/clisp
 
+# When writing docbook documentation, you need the "DocBook Definitive Guide"
+# http://docbook.org/tdg/en/html/docbook-x.html
+
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
 # e.g., (open)jade, you can use this definition,
