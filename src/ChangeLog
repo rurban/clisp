@@ -1,5 +1,9 @@
 2005-01-31  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (rd_ch_keyboard) [WIN32_NATIVE]: recognize many more keys
+
+2005-01-31  Sam Steingold  <sds@gnu.org>
+
 	* spvw_sigsegv.d (print_mem_stats): new function
 	(sigsegv_handler_failed, stackoverflow_handler): call it
 
