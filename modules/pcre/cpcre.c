@@ -82,8 +82,13 @@ DEFUN(PCRE::PCRE-FREE,fp)
   object fp = popSTACK();
   if (fpointerp(fp) && fp_validp(TheFpointer(fp))) {
     void *datum = TheFpointer(fp)->fp_pointer;
-    pcre_free(datum);
-    VALUES1(T);
+    if (datum) {
+      pcre_free(datum);
+      TheFpointer(fp)->fp_pointer = NULL;
+      /* mark_fp_invalid() is not exported from clisp.h */
+      /* mark_fp_invalid(TheFpointer(fp)); */
+      VALUES1(T);
+    } else VALUES1(NIL);
   } else VALUES1(NIL);
 }
 

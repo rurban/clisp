@@ -1,3 +1,8 @@
+2004-05-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/pcre/cpcre.c (PCRE-FREE): set fp_pointer to NULL
+	* modules/regexp/regexi.c (REGEXP-FREE): ditto
+
 2004-05-05  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in: Use "sed -n -e '$p'" instead of "tail -n 1".
