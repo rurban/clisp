@@ -6,7 +6,8 @@
 (in-package "CLOS")
 
 
-;; 28.1.6.3. agreement on parameter specializers and qualifiers
+;; CLtL2 28.1.6.3., ANSI CL 7.6.3. Agreement on Parameter Specializers and
+;;                                 Qualifiers
 (defun methods-agree-p (method1 method2)
   (and (equal (std-method-qualifiers method1) (std-method-qualifiers method2))
        (specializers-agree-p (std-method-parameter-specializers method1)
@@ -21,12 +22,13 @@
       (and (consp parspec1) (consp parspec2)
            (eql (second parspec1) (second parspec2)))))
 
-;; 28.1.6.2. applicable methods
+;; CLtL2 28.1.6.2., ANSI CL 7.6.2. Applicable methods
 (defun method-applicable-p (method required-arguments)
   (every #'typep required-arguments
          (std-method-parameter-specializers method)))
 
-;; 28.1.7.1. sorting the applicable methods by precedence order
+;; CLtL2 28.1.7.1., ANSI CL 7.6.6.1. Sorting the applicable methods by
+;;                                   precedence order
 (defun sort-applicable-methods (methods required-arguments argument-order)
   (sort (copy-list methods)
         #'(lambda (method1 method2) ; method1 < method2 ?

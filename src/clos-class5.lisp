@@ -6,7 +6,7 @@
 (in-package "CLOS")
 
 
-;;; 28.1.9. Object creation and initialization
+;;; CLtL2 28.1.9., ANSI CL 7.1. Object Creation and Initialization
 
 ;; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
 ;; - MAKE-INSTANCE must be informed about the methods of ALLOCATE-INSTANCE,
@@ -161,7 +161,7 @@
               caller initargs))))
 ||#
 
-;; 28.1.9.5., 28.1.9.4.
+;; CLtL2 28.1.9.5., 28.1.9.4., ANSI CL 7.1.5., 7.1.4.
 (defgeneric shared-initialize
     (instance slot-names &rest initargs &key &allow-other-keys))
 (setq |#'shared-initialize| #'shared-initialize)
@@ -189,7 +189,7 @@
 (do-defmethod 'shared-initialize
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%shared-initialize '(T)))
+                      (cons #'clos::%shared-initialize '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object) (find-class 't))
     :qualifiers '()
@@ -197,14 +197,14 @@
 (do-defmethod 'shared-initialize
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%shared-initialize '(T)))
+                      (cons #'clos::%shared-initialize '(T)))
     :wants-next-method-p nil
     :parameter-specializers
       (list (find-class 'structure-object) (find-class 't))
     :qualifiers '()
     :signature #s(compiler::signature :req-num 2 :rest-p t)))
 
-;; 28.1.12.
+;; CLtL2 28.1.12., ANSI CL 7.3.
 (defgeneric reinitialize-instance
     (instance &rest initargs &key &allow-other-keys))
 (setq |#'reinitialize-instance| #'reinitialize-instance)
@@ -219,7 +219,7 @@
   (let ((h (gethash (class-of instance) *reinitialize-instance-table*)))
     (if h
       (progn
-        ;; 28.1.9.2. validity of initialization arguments
+        ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
         (let ((valid-keywords (car h)))
           (unless (eq valid-keyword 't)
             (sys::keyword-test initargs valid-keywords)))
@@ -242,7 +242,7 @@
 (do-defmethod 'reinitialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%reinitialize-instance '(T)))
+                      (cons #'clos::%reinitialize-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
@@ -250,7 +250,7 @@
 (do-defmethod 'reinitialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%reinitialize-instance '(T)))
+                      (cons #'clos::%reinitialize-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
@@ -280,7 +280,7 @@
                         (first (std-method-parameter-specializers method))))
                    (and (atom specializer) (subclassp class specializer))))
              (gf-methods |#'reinitialize-instance|))))))
-    ;; 28.1.9.2. validity of initialization arguments
+    ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
     (unless (eq valid-keywords 't)
       (sys::keyword-test initargs valid-keywords))
     (let ((si-ef (compute-effective-method
@@ -289,7 +289,7 @@
             (cons valid-keywords si-ef))
       (apply si-ef instance 'NIL initargs))))
 
-;; 28.1.9.6.
+;; CLtL2 28.1.9.6., ANSI CL 7.1.6.
 (defgeneric initialize-instance (instance &rest initargs
                                  &key &allow-other-keys))
 (setq |#'initialize-instance| #'initialize-instance)
@@ -328,7 +328,7 @@
 (do-defmethod 'initialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%initialize-instance '(T)))
+                      (cons #'clos::%initialize-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
@@ -336,7 +336,7 @@
 (do-defmethod 'initialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%initialize-instance '(T)))
+                      (cons #'clos::%initialize-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
@@ -379,7 +379,7 @@
 (do-defmethod 'allocate-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%allocate-instance '(T)))
+                      (cons #'clos::%allocate-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
@@ -387,20 +387,21 @@
 (do-defmethod 'allocate-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%allocate-instance '(T)))
+                      (cons #'clos::%allocate-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
 
-;; 28.1.9.7.
+;; CLtL2 28.1.9.7., ANSI CL 7.1.7.
 (defgeneric make-instance (class &rest initargs &key &allow-other-keys)
   (:method ((class symbol) &rest initargs)
     (apply #'make-instance (find-class class) initargs)))
 #||
  (defmethod make-instance ((class standard-class) &rest initargs)
   (check-initialization-argument-list initargs 'make-instance)
-  ;; 28.1.9.3., 28.1.9.4. take note of default-initargs:
+  ;; CLtL2 28.1.9.3., 28.1.9.4., ANSI CL 7.1.3., 7.1.4.: Take note of
+  ;; default-initargs:
   (dolist (default-initarg (class-default-initargs class))
     (let ((nothing default-initarg))
       (when (eq (getf initargs (car default-initarg) nothing) nothing)
@@ -410,7 +411,7 @@
                       (let ((init (cdr default-initarg)))
                         (if (car init) (funcall (car init)) (cdr init)))))))))
   #||
-  ;; 28.1.9.2. validity of initialization arguments
+  ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
   (sys::keyword-test initargs
       (union (class-valid-initargs class)
              (applicable-keywords #'initialize-instance class))) ; ??
@@ -420,7 +421,7 @@
   (let ((h (gethash class *make-instance-table*)))
     (if h
       (progn
-        ;; 28.1.9.2. validity of initialization arguments
+        ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
         (let ((valid-keywords (svref h 0)))
           (unless (eq valid-keywords 't)
             (sys::keyword-test initargs valid-keywords)))
@@ -441,7 +442,7 @@
 (do-defmethod 'make-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%make-instance '(T)))
+                      (cons #'clos::%make-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
@@ -449,7 +450,7 @@
 (do-defmethod 'make-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
-                            (cons #'clos::%make-instance '(T)))
+                      (cons #'clos::%make-instance '(T)))
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()

@@ -197,8 +197,8 @@
                 )) ) ) )
           (let ((ef (ef-1 primary-methods before-methods after-methods
                           around-methods)))
-            ;; keyword-check (28.1.6.4., 28.1.6.5.) ??
-            ;; return effective methode.
+            ;; keyword-check (CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5.) ??
+            ;; return effective method.
             ;; It will then be applied to the arguments:
             ef))))))
 
@@ -615,7 +615,8 @@
              (method-combination-options combination) args)))
 
 (defun gf-keyword-arguments (restp signature methods)
-  ;; 28.1.6.4., 28.1.6.5.: Keyword arguments in generic functions
+  ;; CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5. Keyword Arguments in
+  ;;                                                    Generic Functions
   (when restp
     ;; The generic function has &REST or &KEY, thus try all methods.
     ;; "If the lambda-list of ... the generic function definition

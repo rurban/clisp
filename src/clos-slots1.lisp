@@ -10,113 +10,115 @@
 ;; The access functions could look like this, if we use
 ;; SLOT-VALUE-USING-CLASS.
 
-;; access to the slots of objects of the metaclass <standard-class>:
+ ;; Access to the slots of objects of the metaclass <standard-class>.
+ ;; Note that all functions that refer to #<UNBOUND> must be compiled.
  (defun std-slot-value (instance slot-name)
-  (declare (compile))
-  (let* ((class (class-of instance))
-         (slot-location (gethash slot-name (class-slot-location-table class))))
-    ((lambda (value)
-       (if (eq value unbound)
-         (slot-unbound class instance slot-name)
-         value))
-     (cond ((null slot-location)
-            (slot-missing class instance slot-name 'slot-value))
-           ((atom slot-location) ; access local slot
-            (sys::%record-ref instance slot-location))
-           (t ; access shared slot
-            (svref (class-shared-slots (car slot-location))
-                   (cdr slot-location)))))))
+   (declare (compile))
+   (let* ((class (class-of instance))
+          (slot-location (gethash slot-name (class-slot-location-table class))))
+     ((lambda (value)
+        (if (eq value unbound)
+          (slot-unbound class instance slot-name)
+          value))
+      (cond ((null slot-location)
+             (slot-missing class instance slot-name 'slot-value))
+            ((atom slot-location) ; access local slot
+             (sys::%record-ref instance slot-location))
+            (t ; access shared slot
+             (svref (class-shared-slots (car slot-location))
+                    (cdr slot-location)))))))
  (defun std-setf-slot-value (instance slot-name new-value)
-  (let* ((class (class-of instance))
-         (slot-location (gethash slot-name (class-slot-location-table class))))
-    (cond ((null slot-location)
-           (slot-missing class instance slot-name 'setf new-value))
-          ((atom slot-location) ; access local slot
-           (sys::%record-store instance slot-location new-value))
-          (t ; access shared slot
-           (setf (svref (class-shared-slots (car slot-location))
-                        (cdr slot-location))
-                 new-value)))))
+   (let* ((class (class-of instance))
+          (slot-location (gethash slot-name (class-slot-location-table class))))
+     (cond ((null slot-location)
+            (slot-missing class instance slot-name 'setf new-value))
+           ((atom slot-location) ; access local slot
+            (sys::%record-store instance slot-location new-value))
+           (t ; access shared slot
+            (setf (svref (class-shared-slots (car slot-location))
+                         (cdr slot-location))
+                  new-value)))))
  (defun std-slot-boundp (instance slot-name)
-  (declare (compile))
-  (let* ((class (class-of instance))
-         (slot-location (gethash slot-name (class-slot-location-table class))))
-    (cond ((null slot-location)
-           (slot-missing class instance slot-name 'slot-boundp))
-          ((atom slot-location) ; access local slot
-           (not (eq (sys::%record-ref instance slot-location) unbound)))
-          (t ; access shared slot
-           (not (eq (svref (class-shared-slots (car slot-location))
-                           (cdr slot-location)) unbound))))))
+   (declare (compile))
+   (let* ((class (class-of instance))
+          (slot-location (gethash slot-name (class-slot-location-table class))))
+     (cond ((null slot-location)
+            (slot-missing class instance slot-name 'slot-boundp))
+           ((atom slot-location) ; access local slot
+            (not (eq (sys::%record-ref instance slot-location) unbound)))
+           (t ; access shared slot
+            (not (eq (svref (class-shared-slots (car slot-location))
+                            (cdr slot-location))
+                     unbound))))))
  (defun std-slot-makunbound (instance slot-name)
-  (declare (compile))
-  (let* ((class (class-of instance))
-         (slot-location (gethash slot-name (class-slot-location-table class))))
-    (cond ((null slot-location)
-           (slot-missing class instance slot-name 'slot-makunbound))
-          ((atom slot-location) ; access local slot
-           (sys::%record-store instance slot-location unbound))
-          (t ; access shared slot
-           (setf (svref (class-shared-slots (car slot-location))
-                        (cdr slot-location))
-                 unbound)))))
+   (declare (compile))
+   (let* ((class (class-of instance))
+          (slot-location (gethash slot-name (class-slot-location-table class))))
+     (cond ((null slot-location)
+            (slot-missing class instance slot-name 'slot-makunbound))
+           ((atom slot-location) ; access local slot
+            (sys::%record-store instance slot-location unbound))
+           (t ; access shared slot
+            (setf (svref (class-shared-slots (car slot-location))
+                         (cdr slot-location))
+                  unbound)))))
  (defun std-slot-exists-p (instance slot-name)
-  (and (gethash slot-name (class-slot-location-table (class-of instance))) t))
+   (and (gethash slot-name (class-slot-location-table (class-of instance))) t))
 
-;; general access to slots:
+ ;; General access to slots:
  (defun slot-value (object slot-name)
-  (let ((class (class-of object)))
-    ;; treat metaclass <standard-class> separately
-    ;; for efficiency reasons and because of bootstrapping
-    (if (eq (class-of class) <standard-class>)
-      (std-slot-value object slot-name)
-      (slot-value-using-class class object slot-name))))
+   (let ((class (class-of object)))
+     ;; Treat metaclass <standard-class> separately for efficiency reasons
+     ;; and because of bootstrapping.
+     (if (eq (class-of class) <standard-class>)
+       (std-slot-value object slot-name)
+       (slot-value-using-class class object slot-name))))
  (defun (setf slot-value) (new-value object slot-name)
-  (let ((class (class-of object)))
-    ;; treat metaclass <standard-class> separately
-    ;; for efficiency reasons and because of bootstrapping
-    (if (eq (class-of class) <standard-class>)
-      (std-setf-slot-value object slot-name new-value)
-      (setf-slot-value-using-class new-value class object slot-name))))
+   (let ((class (class-of object)))
+     ;; Treat metaclass <standard-class> separately for efficiency reasons
+     ;; and because of bootstrapping.
+     (if (eq (class-of class) <standard-class>)
+       (std-setf-slot-value object slot-name new-value)
+       (setf-slot-value-using-class new-value class object slot-name))))
  (defun slot-boundp (object slot-name)
-  (let ((class (class-of object)))
-    ;; treat metaclass <standard-class> separately
-    ;; for efficiency reasons and because of bootstrapping
-    (if (eq (class-of class) <standard-class>)
-      (std-slot-boundp object slot-name)
-      (slot-boundp-using-class class object slot-name))))
+   (let ((class (class-of object)))
+     ;; Treat metaclass <standard-class> separately for efficiency reasons
+     ;; and because of bootstrapping.
+     (if (eq (class-of class) <standard-class>)
+       (std-slot-boundp object slot-name)
+       (slot-boundp-using-class class object slot-name))))
  (defun slot-makunbound (object slot-name)
-  (let ((class (class-of object)))
-    ;; treat metaclass <standard-class> separately
-    ;; for efficiency reasons and because of bootstrapping
-    (if (eq (class-of class) <standard-class>)
-      (std-slot-makunbound object slot-name)
-      (slot-makunbound-using-class class object slot-name))))
+   (let ((class (class-of object)))
+     ;; Treat metaclass <standard-class> separately for efficiency reasons
+     ;; and because of bootstrapping.
+     (if (eq (class-of class) <standard-class>)
+       (std-slot-makunbound object slot-name)
+       (slot-makunbound-using-class class object slot-name))))
  (defun slot-exists-p (object slot-name)
-  (let ((class (class-of object)))
-    ;; treat metaclass <standard-class> separately
-    ;; for efficiency reasons and because of bootstrapping
-    (if (eq (class-of class) <standard-class>)
-      (std-slot-exists-p object slot-name)
-      (slot-exists-p-using-class class object slot-name))))
+   (let ((class (class-of object)))
+     ;; Treat metaclass <standard-class> separately for efficiency reasons
+     ;; and because of bootstrapping.
+     (if (eq (class-of class) <standard-class>)
+       (std-slot-exists-p object slot-name)
+       (slot-exists-p-using-class class object slot-name))))
 
  (defun slot-value-using-class (class object slot-name)
-  (no-slot-error class object slot-name))
+   (no-slot-error class object slot-name))
  (defun setf-slot-value-using-class (new-value class object slot-name)
-  (declare (ignore new-value))
-  (no-slot-error class object slot-name))
+   (declare (ignore new-value))
+   (no-slot-error class object slot-name))
  (defun slot-boundp-using-class (class object slot-name)
-  (no-slot-error class object slot-name))
+   (no-slot-error class object slot-name))
  (defun slot-makunbound-using-class (class object slot-name)
-  (no-slot-error class object slot-name))
+   (no-slot-error class object slot-name))
  (defun slot-exists-p-using-class (class object slot-name)
-  (no-slot-error class object slot-name))
+   (no-slot-error class object slot-name))
 
  (defun no-slot-error (class object slot-name)
-  (declare (ignore slot-name))
-  (error-of-type 'error
-    (TEXT "instance ~S of class ~S has no slots (wrong metaclass)")
-    object class))
+   (declare (ignore slot-name))
+   (error-of-type 'error
+     (TEXT "instance ~S of class ~S has no slots (wrong metaclass)")
+     object class))
 ||#
 
 ;; For efficiency - we want to circumvent the test for <standard-class> -,
