@@ -14,12 +14,12 @@
        (let ((in (two-way-stream-input-stream stream))
              (out (two-way-stream-output-stream stream)))
          (and (sys::echo-stream-p in) (sys::broadcast-stream-p out)
-              (let ((so (echo-stream-input-stream in))
-                    (ta (echo-stream-output-stream in))
-                    (bl (broadcast-stream-streams out)))
-                (when (and (eq so (pop bl))
-                           (eq ta (pop bl)))
-                  (values so ta)))))))
+              (let ((source (echo-stream-input-stream in))
+                    (target (echo-stream-output-stream in))
+                    (broadcast-list (broadcast-stream-streams out)))
+                (when (and (eq source (pop broadcast-list))
+                           (eq target (pop broadcast-list)))
+                  (values source target)))))))
 (defun dribble-stream-p (obj) (not (null (dribble-stream obj))))
 ;; should this be integrated into CLOS and the rest of CLISP?
 ;; right now DRIBBLE-STREAM is not a recognizable subtype of TWO-WAY-STREAM.
@@ -39,31 +39,32 @@
 (defun dribble-stream-target (ds)
   (nth-value 1 (check-dribble-stream ds 'dribble-stream-target)))
 (defun dribble-toggle (stream &optional file)
-  (multiple-value-bind (so ta) (dribble-stream stream)
-    (if so
+  (multiple-value-bind (source target) (dribble-stream stream)
+    (if source
       (if file                  ; already dribbling
-        (warn (TEXT "Already dribbling ~S to ~S") so ta)
+        (warn (TEXT "Already dribbling ~S to ~S") source target)
         (progn
-          (format ta (TEXT ";; Dribble of ~S finished ") so)
-          (funcall (date-format) ta (multiple-value-list (get-decoded-time)))
-          (terpri ta)
-          (values so ta)))
+          (format target (TEXT ";; Dribble of ~S finished ") source)
+          (funcall (date-format) target (multiple-value-list (get-decoded-time)))
+          (terpri target)
+          (values source target)))
       (if file                    ; not dribbling
-        (let ((ta (if (and (streamp ta) (open-stream-p file)
-                           (output-stream-p file))
-                    file
-                    (open file :direction :output
-                          :if-exists :append
-                          :if-does-not-exist :create))))
-          (format ta (TEXT ";; Dribble of ~S started ") stream)
-          (funcall (date-format) ta (multiple-value-list (get-decoded-time)))
-          (terpri ta)
-          (values (make-dribble-stream stream ta) ta))
+        (let ((target
+                (if (and (streamp target)
+                         (open-stream-p file) (output-stream-p file))
+                  file
+                  (open file :direction :output
+                             :if-exists :append
+                             :if-does-not-exist :create))))
+          (format target (TEXT ";; Dribble of ~S started ") stream)
+          (funcall (date-format) target (multiple-value-list (get-decoded-time)))
+          (terpri target)
+          (values (make-dribble-stream stream target) target))
         (warn (TEXT "Currently not dribbling from ~S.") stream)))))
 
 (defun dribble (&optional file)
-  (multiple-value-bind (so ta) (dribble-toggle *terminal-io* file)
-    (when (streamp so)          ; no warning
-      (unless file (close ta))  ; dribble off
-      (setq *terminal-io* so))
-    ta))
+  (multiple-value-bind (source target) (dribble-toggle *terminal-io* file)
+    (when (streamp source)         ; no warning
+      (unless file (close target)) ; dribble off
+      (setq *terminal-io* source))
+    target))
