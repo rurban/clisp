@@ -1,3 +1,17 @@
+2004-03-10  Bruno Haible  <bruno@clisp.org>
+
+	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Don't require CL_MALLOC. Don't
+	declare malloc().
+	* m4/malloc.m4: Remove file.
+	* m4/free.m4: Remove file.
+	* m4/shmget.m4: Remove file.
+	* m4/shmdt.m4: Remove file.
+	* m4/shmctl.m4: Remove file.
+	* m4/open.m4: Remove file.
+	* m4/setsid.m4: Remove file.
+	* m4/sh-args.m4: Remove file.
+	* m4/sigaltstack.m4: Remove file.
+
 2004-03-04  Bruno Haible  <bruno@clisp.org>
 
 	* io.d (pr_symbol): If *print-readably* is true, assume
