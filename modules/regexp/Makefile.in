@@ -31,7 +31,7 @@ regexi.m.c : regexi.c $(MODPREP)
 	$(CLISP) $(MODPREP) regexi.c
 
 regex.o : regex.c regex.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(INCLUDES) -DHAVE_CONFIG_H -Dclisp -c regex.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(INCLUDES) -DHAVE_CONFIG_H -c regex.c
 
 # Make a module
 clisp-module : all
