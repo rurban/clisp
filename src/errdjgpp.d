@@ -7,30 +7,26 @@
     local void OS_error_internal(errcode)
       var uintC errcode;
       { # Meldungbeginn ausgeben:
-        write_errorstring(DEUTSCH ? "DJDOS-Fehler " :
-                          ENGLISH ? "DJDOS error " :
-                          FRANCAIS ? "Erreur DJDOS " :
-                          ""
-                         );
+        write_errorstring(GETTEXT("DJDOS error "));
         # Fehlernummer ausgeben:
         write_errorobject(fixnum(errcode));
         # nach Möglichkeit noch ausführlicher:
         if (errcode < 36)
           {# Zu Fehlernummern <36 ist ein Text da.
            #ifdef LANGUAGE_STATIC
-             #define lang3(english,deutsch,francais)  ENGLISH ? english : DEUTSCH ? deutsch : FRANCAIS ? francais : ""
+             #define lang3(english)  english
              #define lang1(string)  string
              #define langcount  1
              #define language  0
              #define translate(string)  string
            #else
              #ifndef GNU_GETTEXT
-               #define lang3(english,deutsch,francais)  english, deutsch, francais
-               #define lang1(string)  string, string, string
-               #define langcount  3
+               #define lang3(english)  english
+               #define lang1(string)  string
+               #define langcount  1
                #define translate(string)  string
              #else # GNU_GETTEXT
-               #define lang3(english,deutsch,francais)  english
+               #define lang3(english)  english
                #define lang1(string)  string
                #define langcount  1
                #define language  0
@@ -40,97 +36,53 @@
            local const char* errormsg_table[36*(1+langcount)] = {
              /*  0 */ "", lang1(""),
              /*  1 */ "ENOSYS",
-                      lang3( /* ENGLISH */ "Function not implemented" ,
-                             /* DEUTSCH */ "Funktion ist nicht implementiert" ,
-                             /* FRANCAIS */ "Fonction non implémentée"),
+                      lang3( /* ENGLISH */ "Function not implemented"),
              /*  2 */ "ENOENT",
-                      lang3( /* ENGLISH */ "No such file or directory" ,
-                             /* DEUTSCH */ "File oder Directory existiert nicht" ,
-                             /* FRANCAIS */ "Fichier ou répertoire non existant"),
+                      lang3( /* ENGLISH */ "No such file or directory"),
              /*  3 */ "ENOTDIR",
-                      lang3( /* ENGLISH */ "Not a directory" ,
-                             /* DEUTSCH */ "Das ist kein Directory" ,
-                             /* FRANCAIS */ "N'est pas un répertoire"),
+                      lang3( /* ENGLISH */ "Not a directory"),
              /*  4 */ "EMFILE",
-                      lang3( /* ENGLISH */ "Too many open files" ,
-                             /* DEUTSCH */ "Zu viele offene Files" ,
-                             /* FRANCAIS */ "Trop de fichiers ouverts"),
+                      lang3( /* ENGLISH */ "Too many open files"),
              /*  5 */ "EACCES",
-                      lang3( /* ENGLISH */ "Permission denied" ,
-                             /* DEUTSCH */ "Keine Berechtigung" ,
-                             /* FRANCAIS */ "Permission refusée"),
+                      lang3( /* ENGLISH */ "Permission denied"),
              /*  6 */ "EBADF",
-                      lang3( /* ENGLISH */ "Bad file number" ,
-                             /* DEUTSCH */ "File-Descriptor wurde nicht für diese Operation geöffnet" ,
-                             /* FRANCAIS */ "Descripteur de fichier non alloué"),
+                      lang3( /* ENGLISH */ "Bad file number"),
              /*  7 */ "EARENA",
-                      lang3( /* ENGLISH */ "Memory control blocks destroyed" ,
-                             /* DEUTSCH */ "Speicherverwaltung ist durcheinander" ,
-                             /* FRANCAIS */ "gestionnaire de mémoire perdu"),
+                      lang3( /* ENGLISH */ "Memory control blocks destroyed"),
              /*  8 */ "ENOMEM",
-                      lang3( /* ENGLISH */ "Not enough memory" ,
-                             /* DEUTSCH */ "Hauptspeicher oder Swapspace reicht nicht" ,
-                             /* FRANCAIS */ "Pas assez de mémoire"),
+                      lang3( /* ENGLISH */ "Not enough memory"),
              /*  9 */ "ESEGV",
-                      lang3( /* ENGLISH */ "Invalid memory address" ,
-                             /* DEUTSCH */ "Ungültige Speicher-Adresse" ,
-                             /* FRANCAIS */ "adresse mémoire illicite"),
+                      lang3( /* ENGLISH */ "Invalid memory address"),
              /* 10 */ "EBADENV",
-                      lang3( /* ENGLISH */ "Invalid environment" ,
-                             /* DEUTSCH */ "Ungültiges Environment" ,
-                             /* FRANCAIS */ "environnement incorrect"),
+                      lang3( /* ENGLISH */ "Invalid environment"),
              /* 11 */ "", lang1(""),
              /* 12 */ "EACCODE",
-                      lang3( /* ENGLISH */ "Invalid access code" ,
-                             /* DEUTSCH */ "Ungültiger Zugriffsmodus" ,
-                             /* FRANCAIS */ "mode d'accès illégal"),
+                      lang3( /* ENGLISH */ "Invalid access code"),
              /* 13...14 */ "", lang1(""), "", lang1(""),
              /* 15 */ "ENODEV",
-                      lang3( /* ENGLISH */ "No such device" ,
-                             /* DEUTSCH */ "Gerät nicht da oder unpassend" ,
-                             /* FRANCAIS */ "Périphérique inexistant"),
+                      lang3( /* ENGLISH */ "No such device"),
              /* 16 */ "ECURDIR",
-                      lang3( /* ENGLISH */ "Attempt to remove the current directory" ,
-                             /* DEUTSCH */ "Das aktuelle Verzeichnis kann nicht entfernt werden" ,
-                             /* FRANCAIS */ "Le répertoire courant ne peut pas être effacé"),
+                      lang3( /* ENGLISH */ "Attempt to remove the current directory"),
              /* 17 */ "ENOTSAME",
-                      lang3( /* ENGLISH */ "Can't move to other than the same device" ,
-                             /* DEUTSCH */ "Verschieben geht nicht über Laufwerksgrenzen hinweg" ,
-                             /* FRANCAIS */ "ne peux pas déplacer au-delà de l'unité"),
+                      lang3( /* ENGLISH */ "Can't move to other than the same device"),
              /* 18 */ "ENOMORE",
-                      lang3( /* ENGLISH */ "No more files" ,
-                             /* DEUTSCH */ "Keine weiteren Dateien" ,
-                             /* FRANCAIS */ "Pas plus de fichiers"),
+                      lang3( /* ENGLISH */ "No more files"),
              /* 19 */ "EINVAL",
-                      lang3( /* ENGLISH */ "Invalid argument" ,
-                             /* DEUTSCH */ "Ungültiger Parameter" ,
-                             /* FRANCAIS */ "Paramètre illicite"),
+                      lang3( /* ENGLISH */ "Invalid argument"),
              /* 20 */ "E2BIG",
-                      lang3( /* ENGLISH */ "Arg list too long" ,
-                             /* DEUTSCH */ "Zu lange Argumentliste" ,
-                             /* FRANCAIS */ "Liste d'arguments trop longue"),
+                      lang3( /* ENGLISH */ "Arg list too long"),
              /* 21 */ "ENOEXEC",
-                      lang3( /* ENGLISH */ "Exec format error" ,
-                             /* DEUTSCH */ "Kein ausführbares Programm" ,
-                             /* FRANCAIS */ "Programme non exécutable"),
+                      lang3( /* ENGLISH */ "Exec format error"),
              /* 22 */ "EXDEV",
-                      lang3( /* ENGLISH */ "Cross-device link" ,
-                             /* DEUTSCH */ "Links können nur aufs selbe Gerät gehen" ,
-                             /* FRANCAIS */ "Lien entre périphériques différents"),
+                      lang3( /* ENGLISH */ "Cross-device link"),
              /* 23...27 */ "", lang1(""), "", lang1(""), "", lang1(""), "", lang1(""), "", lang1(""),
              /* 28...32 */ "", lang1(""), "", lang1(""), "", lang1(""), "", lang1(""), "", lang1(""),
              /* 33 */ "EDOM",
-                      lang3( /* ENGLISH */ "Argument out of domain" ,
-                             /* DEUTSCH */ "Argument zu mathematischer Funktion außerhalb des Definitionsbereichs" ,
-                             /* FRANCAIS */ "Argument mathématique en dehors du domaine de définition de la fonction"),
+                      lang3( /* ENGLISH */ "Argument out of domain"),
              /* 34 */ "ERANGE",
-                      lang3( /* ENGLISH */ "Result too large" ,
-                             /* DEUTSCH */ "Ergebnis mathematischer Funktion zu groß" ,
-                             /* FRANCAIS */ "Résultat mathématique non représentable"),
+                      lang3( /* ENGLISH */ "Result too large"),
              /* 35 */ "EEXIST",
-                      lang3( /* ENGLISH */ "File exists" ,
-                             /* DEUTSCH */ "File existiert schon" ,
-                             /* FRANCAIS */ "Le fichier existe déjà"),
+                      lang3( /* ENGLISH */ "File exists"),
              };
            var const char* errorname = errormsg_table[errcode*(1+langcount)];
            var const char* errormsg = translate(errormsg_table[errcode*(1+langcount)+1+language]);

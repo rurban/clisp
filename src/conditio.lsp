@@ -58,12 +58,6 @@ muffle-cerrors appease-cerrors exit-on-error
 (deflocalized print-condition-format ENGLISH
   (formatter "Condition of type ~S.")
 )
-(deflocalized print-condition-format DEUTSCH
-  (formatter "Ausnahmefall vom Typ ~S.")
-)
-(deflocalized print-condition-format FRANCAIS
-  (formatter "Condition exceptionnelle de type ~S.")
-)
 (clos:defgeneric print-condition (condition stream)
   (:method ((condition condition) stream)
     (format stream (localized 'print-condition-format) (type-of condition))
@@ -81,23 +75,17 @@ muffle-cerrors appease-cerrors exit-on-error
 (defmacro define-condition (name parent-types slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Der Name einer Condition muss ein Symbol sein, nicht: ~S"
-       ENGLISH "~S: the name of a condition must be a symbol, not ~S"
-       FRANCAIS "~S : Le nom d'une condition exceptionnelle doit être un symbole et non ~S")
+      (ENGLISH "~S: the name of a condition must be a symbol, not ~S")
       'define-condition name
   ) )
   (unless (and (listp parent-types) (every #'symbolp parent-types))
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Die Liste der Obertypen muss eine Liste von Symbolen sein, nicht: ~S"
-       ENGLISH "~S: the parent-type list must be a list of symbols, not ~S"
-       FRANCAIS "~S : La liste des types doit être une liste de symboles et non ~S")
+      (ENGLISH "~S: the parent-type list must be a list of symbols, not ~S")
       'define-condition parent-types
   ) )
   (unless (listp slot-specs)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Die Liste der Slot-Beschreibungen muss eine Liste sein, nicht: ~S"
-       ENGLISH "~S: the slot description list must be a list, not ~S"
-       FRANCAIS "~S : La liste des descriptions de «slots» doit être une listeet non ~S")
+      (ENGLISH "~S: the slot description list must be a list, not ~S")
       'define-condition slot-specs
   ) )
   (let ((docstring-option nil)
@@ -109,21 +97,15 @@ muffle-cerrors appease-cerrors exit-on-error
             (:DOCUMENTATION (setq docstring-option option))
             (:REPORT (setq report-function (rest option)))
             (T (error-of-type 'source-program-error
-                 (DEUTSCH "~S ~S: Die Option ~S gibt es nicht."
-                  ENGLISH "~S ~S: unknown option ~S"
-                  FRANCAIS "~S ~S : Option ~S non reconnue.")
+                 (ENGLISH "~S ~S: unknown option ~S")
                  'define-condition name (first option)
           ) )  )
           (error-of-type 'source-program-error
-            (DEUTSCH "~S ~S: Falsche Syntax in ~S-Option: ~S"
-             ENGLISH "~S ~S: invalid syntax in ~S option: ~S"
-             FRANCAIS "~S ~S : Mauvaise syntaxe dans l'option ~S: ~S")
+            (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
             'define-condition name 'define-condition option
         ) )
         (error-of-type 'source-program-error
-          (DEUTSCH "~S ~S: Das ist keine ~S-Option: ~S"
-           ENGLISH "~S ~S: not a ~S option: ~S"
-           FRANCAIS "~S ~S : Ceci n'est pas une option ~S: ~S")
+          (ENGLISH "~S ~S: not a ~S option: ~S")
           'define-condition name 'define-condition option
     ) ) )
     (let ((defclass-form
@@ -151,9 +133,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (defun make-condition (type &rest slot-initializations)
   (unless (subtypep type 'condition)
     (error-of-type 'error
-      (DEUTSCH "~S: Typ ~S ist kein Untertyp von ~S."
-       ENGLISH "~S: type ~S is not a subtype of ~S"
-       FRANCAIS "~S : Le type ~S n'est pas un sous-type de ~S.")
+      (ENGLISH "~S: type ~S is not a subtype of ~S")
       'make-condition type 'condition
   ) )
   (apply #'clos:make-instance type slot-initializations)
@@ -169,9 +149,7 @@ muffle-cerrors appease-cerrors exit-on-error
         (unless (eq caller-name 'cerror)
           (error-of-type 'type-error
             :datum arguments :expected-type 'null
-            (DEUTSCH "~S ~S: Überflüssige Argumente ~S"
-             ENGLISH "~S ~S: superfluous arguments ~S"
-             FRANCAIS "~S ~S : Les arguments ~S sont superflus.")
+            (ENGLISH "~S ~S: superfluous arguments ~S")
             caller-name datum arguments
       ) ) )
       datum
@@ -188,9 +166,7 @@ muffle-cerrors appease-cerrors exit-on-error
     (t
       (error-of-type 'type-error
         :datum datum :expected-type '(or condition symbol string function)
-        (DEUTSCH "~S: Condition-Argument muss ein String, ein Symbol oder eine Condition sein, nicht ~S"
-         ENGLISH "~S: the condition argument must be a string, a symbol or a condition, not ~S"
-         FRANCAIS "~S : L'argument de condition exceptionnelle doit être de type STRING, SYMBOL ou CONDITION et non ~S")
+        (ENGLISH "~S: the condition argument must be a string, a symbol or a condition, not ~S")
         caller-name datum
 ) ) ) )
 
@@ -583,25 +559,19 @@ muffle-cerrors appease-cerrors exit-on-error
         (block check-clause
           (unless (and (consp clause) (consp (cdr clause)) (listp (second clause)))
             (error-of-type 'source-program-error
-              (DEUTSCH "~S: Illegale Syntax für Klausel: ~S"
-               ENGLISH "~S: illegal syntax of clause ~S"
-               FRANCAIS "~S : syntaxe inadmissible de la phrase ~S")
+              (ENGLISH "~S: illegal syntax of clause ~S")
               'handler-case clause
           ) )
           (when (eq (first clause) ':no-error)
             (if (null clauses) ; at the end of the clauses?
               (progn (setq no-error-clause clause) (return-from check-clause))
-              (warn (DEUTSCH "~S: ~S-Klausel an falscher Stelle: ~S"
-                     ENGLISH "~S: misplaced ~S clause: ~S"
-                     FRANCAIS "~S : phrase ~S mal placée: ~S")
+              (warn (ENGLISH "~S: misplaced ~S clause: ~S")
                     'handler-case ':no-error clause
           ) ) )
           (let ((varlist (second clause))) ; known as a list
             (unless (null (cdr varlist))
               (error-of-type 'source-program-error
-                (DEUTSCH "~S: Zu viele Variablen ~S in Klausel ~S"
-                 ENGLISH "~S: too many variables ~S in clause ~S"
-                 FRANCAIS "~S : trop de variables ~S dans la phrase ~S")
+                (ENGLISH "~S: too many variables ~S in clause ~S")
                 'handler-case varlist clause
           ) ) )
           (push (cons (gensym) clause) extended-clauses)
@@ -814,9 +784,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (defun find-restart (restart-identifier &optional condition)
   (cond ((null restart-identifier)
          (error-of-type 'error
-           (DEUTSCH "~S: ~S ist als Restart-Name hier nicht zulässig. Verwenden Sie ~S."
-            ENGLISH "~S: ~S is not a valid restart name here. Use ~S instead."
-            FRANCAIS "~S : ~S n'est pas valable comme nom de «restart» ici. Utilisez ~S.")
+           (ENGLISH "~S: ~S is not a valid restart name here. Use ~S instead.")
            'find-restart restart-identifier 'compute-restarts
         ))
         ((symbolp restart-identifier)
@@ -837,18 +805,14 @@ muffle-cerrors appease-cerrors exit-on-error
         )) )
         (t (error-of-type 'type-error
              :datum restart-identifier :expected-type '(or symbol restart)
-             (DEUTSCH "~S: Ungültiger Restart-Name: ~S"
-              ENGLISH "~S: invalid restart name ~S"
-              FRANCAIS "~S : Nom inadmissible pour un «restart»: ~S")
+             (ENGLISH "~S: invalid restart name ~S")
              'find-restart restart-identifier
         )  )
 ) )
 
 (defun restart-not-found (restart-identifier)
   (error-of-type 'control-error
-    (DEUTSCH "~S: Ein Restart mit Namen ~S ist nicht sichtbar."
-     ENGLISH "~S: No restart named ~S is visible."
-     FRANCAIS "~S : Un «restart» de nom ~S n'est pas visible.")
+    (ENGLISH "~S: No restart named ~S is visible.")
     'invoke-restart restart-identifier
 ) )
 
@@ -906,9 +870,7 @@ muffle-cerrors appease-cerrors exit-on-error
   (setq body `(PROGN ,@body))
   (unless (listp restart-specs)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Das ist keine Liste: ~S"
-       ENGLISH "~S: not a list: ~S"
-       FRANCAIS "~S : ceci n'est pas une liste: ~S")
+      (ENGLISH "~S: not a list: ~S")
       'restart-bind restart-specs
   ) )
   (if restart-specs
@@ -917,9 +879,7 @@ muffle-cerrors appease-cerrors exit-on-error
                ,@(mapcar #'(lambda (spec)
                              (unless (and (listp spec) (consp (cdr spec)) (symbolp (first spec)))
                                (error-of-type 'source-program-error
-                                 (DEUTSCH "~S: Ungültige Restart-Spezifikation: ~S"
-                                  ENGLISH "~S: invalid restart specification ~S"
-                                  FRANCAIS "~S : spécification inadmissible d'un «restart»: ~S")
+                                 (ENGLISH "~S: invalid restart specification ~S")
                                  'restart-bind spec
                              ) )
                              (apply #'(lambda (name function
@@ -930,9 +890,7 @@ muffle-cerrors appease-cerrors exit-on-error
                                           ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                                           ; and no report information is provided."
                                           (error-of-type 'source-program-error
-                                            (DEUTSCH "~S: Bei unbenannten Restarts muss ~S angegeben werden: ~S"
-                                             ENGLISH "~S: unnamed restarts require ~S to be specified: ~S"
-                                             FRANCAIS "~S : Il faut spécifier ~S pour des «restarts» anonymes: ~S")
+                                            (ENGLISH "~S: unnamed restarts require ~S to be specified: ~S")
                                             'restart-bind ':REPORT-FUNCTION spec
                                         ) )
                                         (make-restart-form `',name
@@ -971,9 +929,7 @@ muffle-cerrors appease-cerrors exit-on-error
   (defun expand-restart-case (caller restart-clauses form)
     (unless (listp restart-clauses)
       (error-of-type 'source-program-error
-        (DEUTSCH "~S: Das ist keine Liste: ~S"
-         ENGLISH "~S: not a list: ~S"
-         FRANCAIS "~S : ceci n'est pas une liste: ~S")
+        (ENGLISH "~S: not a list: ~S")
         caller restart-clauses
     ) )
     (let ((xclauses ; list of expanded clauses
@@ -982,9 +938,7 @@ muffle-cerrors appease-cerrors exit-on-error
               #'(lambda (restart-clause &aux (clause restart-clause))
                   (unless (and (consp clause) (consp (cdr clause)) (symbolp (first clause)))
                     (error-of-type 'source-program-error
-                      (DEUTSCH "~S: Ungültige Restart-Spezifikation: ~S"
-                       ENGLISH "~S: invalid restart specification ~S"
-                       FRANCAIS "~S : spécification inadmissible d'un «restart»: ~S")
+                      (ENGLISH "~S: invalid restart specification ~S")
                       caller clause
                   ) )
                   (let ((name (pop clause))
@@ -1007,9 +961,7 @@ muffle-cerrors appease-cerrors exit-on-error
                     ) )
                     (unless passed-arglist
                       (error-of-type 'source-program-error
-                        (DEUTSCH "~S: Restart-Spezifikation ohne Lambda-Liste: ~S"
-                         ENGLISH "~S: missing lambda list in restart specification ~S"
-                         FRANCAIS "~S : il faut une lambda-liste dans la spécification d'un «restart»: ~S")
+                        (ENGLISH "~S: missing lambda list in restart specification ~S")
                         caller clause
                     ) )
                     (multiple-value-bind (test interactive report)
@@ -1024,9 +976,7 @@ muffle-cerrors appease-cerrors exit-on-error
                         ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                         ; and no report information is provided."
                         (error-of-type 'source-program-error
-                          (DEUTSCH "~S: Bei unbenannten Restarts muss ~S angegeben werden: ~S"
-                           ENGLISH "~S: unnamed restarts require ~S to be specified: ~S"
-                           FRANCAIS "~S : Il faut spécifier ~S pour des «restarts» anonymes: ~S")
+                          (ENGLISH "~S: unnamed restarts require ~S to be specified: ~S")
                           caller ':REPORT restart-clause
                       ) )
                       (when (and (consp arglist) (not (member (first arglist) lambda-list-keywords))
@@ -1034,9 +984,7 @@ muffle-cerrors appease-cerrors exit-on-error
                             )
                         ; restart takes required arguments but does not have an
                         ; interactive function that will prompt for them.
-                        (warn (DEUTSCH "~S: Restart kann nicht interaktiv aufgerufen werden, weil ~S fehlt: ~S"
-                               ENGLISH "~S: restart cannot be invoked interactively because it is missing a ~S option: ~S"
-                               FRANCAIS "~S : Ce «restart» ne peut prendre le contrôle en dialogue car il manque un ~S : ~S")
+                        (warn (ENGLISH "~S: restart cannot be invoked interactively because it is missing a ~S option: ~S")
                               caller ':INTERACTIVE restart-clause
                       ) )
                       `(,(gensym)
@@ -1235,9 +1183,7 @@ muffle-cerrors appease-cerrors exit-on-error
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
              (format *query-io*
-                     (DEUTSCH "~%Neues ~S [Wert ~D von ~D]: "
-                      ENGLISH "~%New ~S [value ~D of ~D]: "
-                      FRANCAIS "~%Nouveau ~S [valeur ~D de ~D]: ")
+                     (ENGLISH "~%New ~S [value ~D of ~D]: ")
                      place ii nn)
              (push (read *query-io*) res))))))
 
@@ -1334,9 +1280,7 @@ muffle-cerrors appease-cerrors exit-on-error
          (mapcar #'(lambda (c)
                      (cond ((or (eq (car c) 't)
                                 (eq (car c) 'otherwise))
-                            (warn (DEUTSCH "Schlüssel ~S in Fallunterscheidung sollte lieber in Klammern gesetzt werden: ~S"
-                                   ENGLISH "~S used as a key in ~S, it would be better to use parentheses."
-                                   FRANCAIS "La clé ~S dans ~S devrait être mise entre parenthèses.")
+                            (warn (ENGLISH "~S used as a key in ~S, it would be better to use parentheses.")
                                   (car c) c)
                             (cons (list (car c)) (cdr c)))
                            (t c)))
@@ -1458,9 +1402,7 @@ muffle-cerrors appease-cerrors exit-on-error
       (with-restarts
           ((CONTINUE
             :report (lambda (stream)
-                      (format stream (DEUTSCH "~S-Schleife beenden."
-                                      ENGLISH "Return from ~S loop"
-                                      FRANCAIS "Quitter le cycle de ~S.")
+                      (format stream (ENGLISH "Return from ~S loop")
                                      'break
                     ) )
             ()
@@ -1510,9 +1452,7 @@ muffle-cerrors appease-cerrors exit-on-error
         (terpri *debug-io*)
         (if (interactive-stream-p *debug-io*)
           (progn
-            (write-string (DEUTSCH "Wenn Sie (mit Continue) fortfahren: "
-                           ENGLISH "If you continue (by typing 'continue'): "
-                           FRANCAIS "Si vous continuez (en tapant «continue»): ")
+            (write-string (ENGLISH "If you continue (by typing 'continue'): ")
                           *debug-io*
             )
             (apply #'format *debug-io* continue-format-string args)
@@ -1546,9 +1486,7 @@ muffle-cerrors appease-cerrors exit-on-error
   (if (not *use-clcs*)
     (progn
       (terpri *error-output*)
-      (write-string (DEUTSCH "WARNUNG:"
-                     ENGLISH "WARNING:"
-                     FRANCAIS "AVERTISSEMENT :")
+      (write-string (ENGLISH "WARNING:")
                     *error-output*
       )
       (terpri *error-output*)
@@ -1560,9 +1498,7 @@ muffle-cerrors appease-cerrors exit-on-error
         (unless (typep condition 'warning)
           (error-of-type 'type-error
             :datum condition :expected-type 'warning
-            (DEUTSCH "~S: Das ist ernster als eine Warnung: ~A"
-             ENGLISH "~S: This is more serious than a warning: ~A"
-             FRANCAIS "~S : C'est plus sérieux qu'un avertissement: ~A")
+            (ENGLISH "~S: This is more serious than a warning: ~A")
             'warn condition
         ) )
         (with-restarts
@@ -1573,9 +1509,7 @@ muffle-cerrors appease-cerrors exit-on-error
             (signal condition)
         ) )
         (terpri *error-output*)
-        (write-string (DEUTSCH "WARNUNG:"
-                       ENGLISH "WARNING:"
-                       FRANCAIS "AVERTISSEMENT :")
+        (write-string (ENGLISH "WARNING:")
                       *error-output*
         )
         (terpri *error-output*)
@@ -1584,9 +1518,7 @@ muffle-cerrors appease-cerrors exit-on-error
           (with-restarts
               ((CONTINUE
                 :report (lambda (stream)
-                          (format stream (DEUTSCH "~S-Schleife beenden."
-                                          ENGLISH "Return from ~S loop"
-                                          FRANCAIS "Quitter le cycle de ~S.")
+                          (format stream (ENGLISH "Return from ~S loop")
                                          'break
                         ) )
                 () (return-from warn)

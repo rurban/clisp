@@ -433,11 +433,7 @@ local void xmprotect(addr,len,prot)
   var uintL len;
   var int prot;
   { if (mprotect((MMAP_ADDR_T)addr,len,prot) < 0)
-      { asciz_out(DEUTSCH ? "mprotect() klappt nicht." :
-                  ENGLISH ? "mprotect() fails." :
-                  FRANCAIS ? "mprotect() ne fonctionne pas." :
-                  ""
-                 );
+      { asciz_out(GETTEXT("mprotect() fails."));
         errno_out(OS_errno);
         abort();
   }   }

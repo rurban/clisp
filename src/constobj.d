@@ -30,36 +30,32 @@
     LISPOBJ(name,"\"" initstring "\"")
 
 # Der Macro LISPOBJ_L deklariert ein von language abhängiges LISP-Objekt.
-# LISPOBJ_L(name,deutsch_initstring,english_initstring,francais_initstring)
+# LISPOBJ_L(name,english_initstring)
 # > name: Objekt ist als OL(name) ansprechbar
-# > deutsch_initstring: Initialisierungsstring für DEUTSCH
 # > english_initstring: Initialisierungsstring für ENGLISH
-# > francais_initstring: Initialisierungsstring für FRANCAIS
   #ifdef LANGUAGE_STATIC
-    #define LISPOBJ_L(name,deutsch,english,francais)  \
-      LISPOBJ(name, DEUTSCH ? deutsch : ENGLISH ? english : FRANCAIS ? francais : "")
+    #define LISPOBJ_L(name,english)  \
+      LISPOBJ(name,english)
   #else
     #ifndef GNU_GETTEXT
-      #define LISPOBJ_L(name,deutsch,english,francais)  \
-        LISPOBJ(name,english) LISPOBJ(name##_l1,deutsch) LISPOBJ(name##_l2,francais)
+      #define LISPOBJ_L(name,english)  \
+        LISPOBJ(name,english)
     #else # GNU_GETTEXT
-      #define LISPOBJ_L(name,deutsch,english,francais)  \
+      #define LISPOBJ_L(name,english)  \
         LISPOBJ(name,"@"english)
     #endif
   #endif
 
 # Der Macro LISPOBJ_LS deklariert einen von language abhängigen LISP-String.
-# LISPOBJ_LS(name,deutsch_initstring,english_initstring,francais_initstring)
+# LISPOBJ_LS(name,english_initstring)
 # > name: Objekt ist als OLS(name) ansprechbar
-# > deutsch_initstring: Initialisierungsstring für DEUTSCH
 # > english_initstring: Initialisierungsstring für ENGLISH
-# > francais_initstring: Initialisierungsstring für FRANCAIS
-# Alle drei Strings in C-Syntax, dürfen keine Backslashs enthalten.
+# Der Initstring in C-Syntax, darf keine Backslashs enthalten.
   #ifndef GNU_GETTEXT
-    #define LISPOBJ_LS(name,deutsch,english,francais)  \
-      LISPOBJ_L(name, "\""deutsch"\"", "\""english"\"", "\""francais"\"")
+    #define LISPOBJ_LS(name,english)  \
+      LISPOBJ_L(name, "\""english"\"")
   #else # GNU_GETTEXT
-    #define LISPOBJ_LS(name,deutsch,english,francais)  \
+    #define LISPOBJ_LS(name,english)  \
       LISPOBJ(name,"\""english"\"")
   #endif
 
@@ -361,143 +357,75 @@
   LISPOBJ(default_package,".")
   # verschiedene Strings und Listen für interaktive Konfliktbehebung:
   LISPOBJ_LS(query_string1,
-    /* DEUTSCH */ "Wählen Sie bitte aus:",
-    /* ENGLISH */ "Please choose:",
-    /* FRANCAIS */ "Choisissez :")
+    /* ENGLISH */ "Please choose:")
   LISPOBJ_S(query_string2,"          ")
   LISPOBJ_S(query_string3,"  --  ")
   LISPOBJ_LS(query_string4,
-    /* DEUTSCH */ "Wählen Sie bitte eines von ~:{~A~:^, ~} aus.",
-    /* ENGLISH */ "Please choose one of ~:{~A~:^, ~} .",
-    /* FRANCAIS */ "Choisissez parmi ~:{~A~:^, ~}, s.v.p.")
+    /* ENGLISH */ "Please choose one of ~:{~A~:^, ~} .")
   LISPOBJ_S(query_string5,">> ")
   LISPOBJ_LS(unint_string1,
-    /* DEUTSCH */ "Symbol ~A aus #<PACKAGE ~A> wird als Shadowing deklariert.",
-    /* ENGLISH */ "symbol ~A from #<PACKAGE ~A> will become a shadowing symbol",
-    /* FRANCAIS */ "Le symbole ~A du paquetage #<PACKAGE ~A> sera déclaré «shadowing».")
+    /* ENGLISH */ "symbol ~A from #<PACKAGE ~A> will become a shadowing symbol")
   LISPOBJ_LS(unint_string2,
-    /* DEUTSCH */ "Sie dürfen auswählen, welches der gleichnamigen Symbole Vorrang bekommt, um den Konflikt aufzulösen.",
-    /* ENGLISH */ "You may choose the symbol in favour of which to resolve the conflict.",
-    /* FRANCAIS */ "Vous pouvez choisir, parmi les symboles homonymes, auquel donner priorité pour éviter le conflit de noms.")
+    /* ENGLISH */ "You may choose the symbol in favour of which to resolve the conflict.")
   LISPOBJ_LS(unint_string3,
-    /* DEUTSCH */ "Durch Uninternieren von ~S aus ~S entsteht ein Namenskonflikt.",
-    /* ENGLISH */ "uninterning ~S from ~S uncovers a name conflict.",
-    /* FRANCAIS */ "Un conflit de noms apparaît dès que ~S est retiré de ~S.")
+    /* ENGLISH */ "uninterning ~S from ~S uncovers a name conflict.")
   LISPOBJ_LS(import_string1,
-    /* DEUTSCH */ "Sie dürfen über das weitere Vorgehen entscheiden.",
-    /* ENGLISH */ "You may choose how to proceed.",
-    /* FRANCAIS */ "Vous pouvez décider de la démarche à suivre.")
+    /* ENGLISH */ "You may choose how to proceed.")
   LISPOBJ_LS(import_string2,
-    /* DEUTSCH */ "Durch Importieren von ~S in ~S entsteht ein Namenskonflikt mit ~S.",
-    /* ENGLISH */ "importing ~S into ~S produces a name conflict with ~S.",
-    /* FRANCAIS */ "Un conflit de noms apparaît par l'importation de ~S dans ~S avec ~S.")
+    /* ENGLISH */ "importing ~S into ~S produces a name conflict with ~S.")
   LISPOBJ_LS(import_string3,
-    /* DEUTSCH */ "Durch Importieren von ~S in ~S entsteht ein Namenskonflikt mit ~S und weiteren Symbolen.",
-    /* ENGLISH */ "importing ~S into ~S produces a name conflict with ~S and other symbols.",
-    /* FRANCAIS */ "Un conflit de noms apparaît par l'importation de ~S dans ~S avec ~S et d'autres symboles.")
+    /* ENGLISH */ "importing ~S into ~S produces a name conflict with ~S and other symbols.")
   LISPOBJ_L(import_list1,
-    /* DEUTSCH */ "((\"I\" \"Importieren und dabei das eine andere Symbol uninternieren\" T)"
-                  " (\"N\" \"Nicht importieren, alles beim alten lassen\" NIL))",
     /* ENGLISH */ "((\"I\" \"import it and unintern the other symbol\" T)"
-                  " (\"N\" \"do not import it, leave undone\" NIL))",
-    /* FRANCAIS */ "((\"I\" \"Importer en retirant l'autre symbole\" T)"
-                   " (\"N\" \"Ne pas importer, ne rien faire\" NIL))")
+                  " (\"N\" \"do not import it, leave undone\" NIL))")
   LISPOBJ_L(import_list2,
-    /* DEUTSCH */ "((\"I\" \"Importieren, dabei das eine andere Symbol uninternieren und die anderen Symbole verdecken\" T)"
-                  " (\"N\" \"Nicht importieren, alles beim alten lassen\" NIL))",
     /* ENGLISH */ "((\"I\" \"import it, unintern one other symbol and shadow the other symbols\" T)"
-                  " (\"N\" \"do not import it, leave undone\" NIL))",
-    /* FRANCAIS */ "((\"I\" \"Importer en retirant l'autre symbole et en cachant les autres\" T)"
-                   " (\"N\" \"Ne pas importer, ne rien faire\" NIL))")
+                  " (\"N\" \"do not import it, leave undone\" NIL))")
   LISPOBJ_L(import_list3,
-    /* DEUTSCH */ "((\"I\" \"Importieren und das andere Symbol shadowen\" T) (\"N\" \"Nichts tun\" NIL))",
-    /* ENGLISH */ "((\"I\" \"import it and shadow the other symbol\" T) (\"N\" \"do nothing\" NIL))",
-    /* FRANCAIS */ "((\"I\" \"Importer et cacher l'autre symbole\" T) (\"N\" \"Ne rien faire\"NIL))")
+    /* ENGLISH */ "((\"I\" \"import it and shadow the other symbol\" T) (\"N\" \"do nothing\" NIL))")
   LISPOBJ_LS(export_string1,
-    /* DEUTSCH */ "Sie dürfen über das weitere Vorgehen entscheiden.",
-    /* ENGLISH */ "You may choose how to proceed.",
-    /* FRANCAIS */ "Vous pouvez décider de la démarche à suivre.")
+    /* ENGLISH */ "You may choose how to proceed.")
   LISPOBJ_LS(export_string2,
-    /* DEUTSCH */ "Symbol ~S müsste erst in ~S importiert werden, bevor es exportiert werden kann.",
-    /* ENGLISH */ "symbol ~S should be imported into ~S before being exported.",
-    /* FRANCAIS */ "Le symbole ~S devrait d'abord être importé avant de pouvoir être exporté.")
+    /* ENGLISH */ "symbol ~S should be imported into ~S before being exported.")
   LISPOBJ_L(export_list1,
-    /* DEUTSCH */ "((\"I\" \"Symbol erst importieren\" T)"
-                  " (\"N\" \"Nichts tun, Symbol nicht exportieren\" NIL))",
     /* ENGLISH */ "((\"I\" \"import the symbol first\" T)"
-                  " (\"N\" \"do nothing, don't export the symbol\" NIL))",
-    /* FRANCAIS */ "((\"I\" \"Tout d'abord importer le symbole\" NIL)"
-                   " (\"N\" \"Ne rien faire, ne pas exporter le symbole\" T))")
+                  " (\"N\" \"do nothing, don't export the symbol\" NIL))")
   LISPOBJ_LS(export_string3,
-    /* DEUTSCH */ "Sie dürfen aussuchen, welches Symbol Vorrang hat.",
-    /* ENGLISH */ "You may choose in favour of which symbol to resolve the conflict.",
-    /* FRANCAIS */ "Vous pouvez choisir à quel symbole donner priorité.")
+    /* ENGLISH */ "You may choose in favour of which symbol to resolve the conflict.")
   LISPOBJ_LS(export_string4,
-    /* DEUTSCH */ "Durch Exportieren von ~S aus ~S ergibt sich ein Namenskonflikt mit ~S in ~S.",
-    /* ENGLISH */ "exporting ~S from ~S produces a name conflict with ~S from ~S.",
-    /* FRANCAIS */ "Un conflit de noms apparaît par l'exportation de ~S depuis ~S avec ~S de ~S.")
+    /* ENGLISH */ "exporting ~S from ~S produces a name conflict with ~S from ~S.")
   LISPOBJ_LS(export_string5,
-    /* DEUTSCH */ "Welches Symbol soll in ~S Vorrang haben?",
-    /* ENGLISH */ "Which symbol should be accessible in ~S ?",
-    /* FRANCAIS */ "Quel symbole devrait obtenir la priorité dans ~S ?")
+    /* ENGLISH */ "Which symbol should be accessible in ~S ?")
   LISPOBJ_S(export_string6,"1")
   LISPOBJ_S(export_string7,"2")
   LISPOBJ_LS(export_string8,
-    /* DEUTSCH */ "Das zu exportierende Symbol ",
-    /* ENGLISH */ "the symbol to export, ",
-    /* FRANCAIS */ "Le symbole à exporter ")
+    /* ENGLISH */ "the symbol to export, ")
   LISPOBJ_LS(export_string9,
-    /* DEUTSCH */ "Das alte Symbol ",
-    /* ENGLISH */ "the old symbol, ",
-    /* FRANCAIS */ "Le symbole original ")
+    /* ENGLISH */ "the old symbol, ")
   LISPOBJ_LS(usepack_string1,
-    /* DEUTSCH */ "Sie dürfen bei jedem Konflikt angeben, welches Symbol Vorrang haben soll.",
-    /* ENGLISH */ "You may choose for every conflict in favour of which symbol to resolve it.",
-    /* FRANCAIS */ "Pour chaque conflit, vous pouvez choisir à quel symbole donner priorité.")
+    /* ENGLISH */ "You may choose for every conflict in favour of which symbol to resolve it.")
   LISPOBJ_LS(usepack_string2,
-    /* DEUTSCH */ "~S Namenskonflikte bei USE-PACKAGE von ~S in die Package ~S.",
-    /* ENGLISH */ "~S name conflicts while executing USE-PACKAGE of ~S into package ~S.",
-    /* FRANCAIS */ "~S conflits de nom par USE-PACKAGE de ~S dans le paquetage ~S.")
+    /* ENGLISH */ "~S name conflicts while executing USE-PACKAGE of ~S into package ~S.")
   LISPOBJ_LS(usepack_string3,
-    /* DEUTSCH */ "Welches Symbol mit dem Namen ~S soll in ~S Vorrang haben?",
-    /* ENGLISH */ "which symbol with name ~S should be accessible in ~S ?",
-    /* FRANCAIS */ "À quel symbole de nom ~S donner priorité dans ~S ?")
+    /* ENGLISH */ "which symbol with name ~S should be accessible in ~S ?")
   LISPOBJ_LS(makepack_string1,
-    /* DEUTSCH */ "Sie dürfen einen neuen Namen eingeben.",
-    /* ENGLISH */ "You can input another name.",
-    /* FRANCAIS */ "Vous pouvez entrer un nouveau nom.")
+    /* ENGLISH */ "You can input another name.")
   LISPOBJ_LS(makepack_string2,
-    /* DEUTSCH */ "Sie dürfen einen neuen Nickname eingeben.",
-    /* ENGLISH */ "You can input another nickname.",
-    /* FRANCAIS */ "Vous pouvez entrer un nouveau nom supplémentaire.")
+    /* ENGLISH */ "You can input another nickname.")
   LISPOBJ_LS(makepack_string3,
-    /* DEUTSCH */ "Eine Package mit dem Namen ~S gibt es schon.",
-    /* ENGLISH */ "a package with name ~S already exists.",
-    /* FRANCAIS */ "Il existe déjà un paquetage de nom ~S.")
+    /* ENGLISH */ "a package with name ~S already exists.")
   LISPOBJ_LS(makepack_string4,
-    /* DEUTSCH */ "Bitte neuen Packagenamen eingeben:",
-    /* ENGLISH */ "Please input new package name:",
-    /* FRANCAIS */ "Prière d'entrer un nouveau nom de paquetage :")
+    /* ENGLISH */ "Please input new package name:")
   LISPOBJ_LS(makepack_string5,
-    /* DEUTSCH */ "Bitte neuen Packagenickname eingeben:",
-    /* ENGLISH */ "Please input new package nickname:",
-    /* FRANCAIS */ "Prière d'entrer un nouveau nom supplémentaire du paquetage :")
+    /* ENGLISH */ "Please input new package nickname:")
   LISPOBJ_LS(delpack_string1,
-    /* DEUTSCH */ "Ignorieren.",
-    /* ENGLISH */ "Ignore.",
-    /* FRANCAIS */ "Ignorer cela.")
+    /* ENGLISH */ "Ignore.")
   LISPOBJ_LS(delpack_string2,
-    /* DEUTSCH */ "~S: Eine Package mit Namen ~S gibt es nicht.",
-    /* ENGLISH */ "~S: There is no package with name ~S.",
-    /* FRANCAIS */ "~S : Il n'y a pas de paquetage de nom ~S.")
+    /* ENGLISH */ "~S: There is no package with name ~S.")
   LISPOBJ_LS(delpack_string3,
-    /* DEUTSCH */ "~*~S wird trotzdem gelöscht.",
-    /* ENGLISH */ "~*Nevertheless delete ~S.",
-    /* FRANCAIS */ "~*Tout de même effacer ~S.")
+    /* ENGLISH */ "~*Nevertheless delete ~S.")
   LISPOBJ_LS(delpack_string4,
-    /* DEUTSCH */ "~S: ~S wird von ~{~S~^, ~} benutzt.",
-    /* ENGLISH */ "~S: ~S is used by ~{~S~^, ~}.",
-    /* FRANCAIS */ "~S: De ~S héritent ~{~S~^, ~}.")
+    /* ENGLISH */ "~S: ~S is used by ~{~S~^, ~}.")
   # Default-Use-List:
   LISPOBJ(use_default,"(\"LISP\" \"CLOS\")")
   # Default-Package bei ANSI-CL-Compliance:
@@ -511,78 +439,54 @@
   #ifdef VERSION_MM
   #if VERSION_MM==1
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "Januar",
-    /* ENGLISH */ "January",
-    /* FRANCAIS */ "Janvier")
+    /* ENGLISH */ "January")
   #endif
   #if VERSION_MM==2
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "Februar",
-    /* ENGLISH */ "February",
-    /* FRANCAIS */ "Février")
+    /* ENGLISH */ "February")
   #endif
   #if VERSION_MM==3
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "März",
-    /* ENGLISH */ "March",
-    /* FRANCAIS */ "Mars")
+    /* ENGLISH */ "March")
   #endif
   #if VERSION_MM==4
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "April",
-    /* ENGLISH */ "April",
-    /* FRANCAIS */ "Avril")
+    /* ENGLISH */ "April")
   #endif
   #if VERSION_MM==5
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "Mai",
-    /* ENGLISH */ "May",
-    /* FRANCAIS */ "Mai")
+    /* ENGLISH */ "May")
   #endif
   #if VERSION_MM==6
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "Juni",
-    /* ENGLISH */ "June",
-    /* FRANCAIS */ "Juin")
+    /* ENGLISH */ "June")
   #endif
   #if VERSION_MM==7
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "Juli",
-    /* ENGLISH */ "July",
-    /* FRANCAIS */ "Juillet")
+    /* ENGLISH */ "July")
   #endif
   #if VERSION_MM==8
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "August",
-    /* ENGLISH */ "August",
-    /* FRANCAIS */ "Août")
+    /* ENGLISH */ "August")
   #endif
   #if VERSION_MM==9
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "September",
-    /* ENGLISH */ "September",
-    /* FRANCAIS */ "Septembre")
+    /* ENGLISH */ "September")
   #endif
   #if VERSION_MM==10
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "Oktober",
-    /* ENGLISH */ "October",
-    /* FRANCAIS */ "Octobre")
+    /* ENGLISH */ "October")
   #endif
   #if VERSION_MM==11
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "November",
-    /* ENGLISH */ "November",
-    /* FRANCAIS */ "Novembre")
+    /* ENGLISH */ "November")
   #endif
   #if VERSION_MM==12
   LISPOBJ_LS(lisp_implementation_version_month_string,
-    /* DEUTSCH */ "Dezember",
-    /* ENGLISH */ "December",
-    /* FRANCAIS */ "Décembre")
+    /* ENGLISH */ "December")
   #endif
   #else # [dummy: often version.h is not included]
-  LISPOBJ_LS(lisp_implementation_version_month_string,"","","")
+  LISPOBJ_LS(lisp_implementation_version_month_string,"")
   #endif
   LISPOBJ_S(lisp_implementation_version_year_string,VERSION_YYYY_STRING)
   LISPOBJ(lisp_implementation_version_string,"NIL") # ein Cache
@@ -593,41 +497,29 @@
     LISPOBJ(machine_instance_string,"NIL")
   #endif
   LISPOBJ_LS(software_type_string,
-    /* DEUTSCH */ "ANSI-C-Programm",
-    /* ENGLISH */ "ANSI C program",
-    /* FRANCAIS */ "Programme en ANSI C")
+    /* ENGLISH */ "ANSI C program")
  #if defined(GNU)
   #if defined(__cplusplus)
   LISPOBJ_LS(c_compiler_name,
-    /* DEUTSCH */ "GNU-C++ ",
-    /* ENGLISH */ "GNU C++ ",
-    /* FRANCAIS */ "GNU C++ ")
+    /* ENGLISH */ "GNU C++ ")
   #else
   LISPOBJ_LS(c_compiler_name,
-    /* DEUTSCH */ "GNU-C ",
-    /* ENGLISH */ "GNU C ",
-    /* FRANCAIS */ "GNU C ")
+    /* ENGLISH */ "GNU C ")
   #endif
   LISPOBJ_S(c_compiler_version,__VERSION__)
   LISPOBJ(software_version_string,"NIL") # ein Cache
  #else
   #if defined(__cplusplus)
   LISPOBJ_LS(software_version_string,
-    /* DEUTSCH */ "C++-Compiler",
-    /* ENGLISH */ "C++ compiler",
-    /* FRANCAIS */ "Compilateur C++")
+    /* ENGLISH */ "C++ compiler")
   #else
   LISPOBJ_LS(software_version_string,
-    /* DEUTSCH */ "C-Compiler",
-    /* ENGLISH */ "C compiler",
-    /* FRANCAIS */ "Compilateur C")
+    /* ENGLISH */ "C compiler")
   #endif
  #endif
  #ifdef GNU_GETTEXT
   LISPOBJ_L(current_language,
-    /* DEUTSCH */ "DEUTSCH",
-    /* ENGLISH */ "ENGLISH",
-    /* FRANCAIS */ "FRANCAIS")
+    /* ENGLISH */ "ENGLISH")
   LISPOBJ(current_language_cache,"NIL")
  #endif
 # zu TIME.D:
@@ -784,16 +676,12 @@
   LISPOBJ(base10_radixnil,"(:BASE 10 :RADIX NIL)")
   # Defaults-Warnungs-String:
   LISPOBJ_LS(defaults_warn_string,
-    /* DEUTSCH */ "Der Wert von ~S war kein Pathname. ~:*~S wird zurückgesetzt.",
-    /* ENGLISH */ "The value of ~S was not a pathname. ~:*~S is being reset.",
-    /* FRANCAIS */ "La valeur de ~S n'était pas de type PATHNAME. ~:*~S est réinitialisé.")
+    /* ENGLISH */ "The value of ~S was not a pathname. ~:*~S is being reset.")
   # Defaultwert für :DIRECTORY-Argument:
   LISPOBJ(directory_default,"(:RELATIVE)")
   # Message-String:
   LISPOBJ_LS(mkdirp_string,
-    /* DEUTSCH */ "Erzeuge Verzeichnis: ",
-    /* ENGLISH */ "Creating directory: ",
-    /* FRANCAIS */ "Création du répertoire : ")
+    /* ENGLISH */ "Creating directory: ")
   # Defaults für COMPILE-FILE-Aufruf in SPVW:
   LISPOBJ(source_file_type,"#\".lsp\"")
   LISPOBJ(compiled_file_type,"#\".fas\"")
@@ -934,13 +822,9 @@
   LISPOBJ(LF_ln10,".") # Wert von ln 10, so genau wie bekannt
   # Warnungs-Strings:
   LISPOBJ_LS(default_float_format_warnung_string,
-    /* DEUTSCH */ "In ~S wurde ein illegaler Wert vorgefunden," NLstring "~S wird auf ~S zurückgesetzt.",
-    /* ENGLISH */ "The variable ~S had an illegal value." NLstring "~S has been reset to ~S.",
-    /* FRANCAIS */ "Une valeur invalide fut trouvée dans la variable ~S," NLstring "~S fut réinitialisé à ~S.")
+    /* ENGLISH */ "The variable ~S had an illegal value." NLstring "~S has been reset to ~S.")
   LISPOBJ_LS(fpcontagion_warn_string,
-     /* DEUTSCH */ "Floating-Point-Operation kombiniert Zahlen verschiedener Genauigkeit." NLstring "Genaueres dazu in ANSI CL 12.1.4.4 und den CLISP impnotes." NLstring "Die effektive Genauigkeit des Ergebnisses wird von" NLstring "~S kontrolliert." NLstring "Um diese Warnung abzuschalten, ~S auf ~S setzen.",
-     /* ENGLISH */ "Floating point operation combines numbers of different precision." NLstring "See ANSI CL 12.1.4.4 and the CLISP impnotes for details." NLstring "The result's actual precision is controlled by" NLstring "~S." NLstring "To shut off this warning, set ~S to ~S.",
-     /* FRANCAIS */ "Opération sur nombres flottants de précisions différentes." NLstring "Pour plus de détails, voir ANSI CL 12.1.4.4 et les impnotes de CLISP." NLstring "La précision effective du résultat dépend de" NLstring "~S." NLstring "Pour éviter cet avertissement, mettre ~S à ~S.")
+     /* ENGLISH */ "Floating point operation combines numbers of different precision." NLstring "See ANSI CL 12.1.4.4 and the CLISP impnotes for details." NLstring "The result's actual precision is controlled by" NLstring "~S." NLstring "To shut off this warning, set ~S to ~S.")
 # zu EVAL.D:
   # Toplevel-Deklarations-Environment:
   LISPOBJ(top_decl_env,"(NIL)") # Liste aus O(declaration_types) (wird nachinitialisiert)
@@ -955,108 +839,60 @@
   LISPOBJ_S(breakprompt_string,". Break> ")
   # Abschieds-String:
   LISPOBJ_LS(bye_string,
-    /* DEUTSCH */ "Bis bald!",
-    /* ENGLISH */ "Bye.",
-    /* FRANCAIS */ "À bientôt!")
+    /* ENGLISH */ "Bye.")
   # verschiedene Strings zur Beschreibung des Stacks:
   LISPOBJ_S(showstack_string_lisp_obj,NLstring "- ")
   LISPOBJ_S(showstack_string_bindung,NLstring "  | ")
   LISPOBJ_LS(showstack_string_next_env,
-    /* DEUTSCH */ NLstring "  Weiteres Environment: ",
-    /* ENGLISH */ NLstring "  Next environment: ",
-    /* FRANCAIS */ NLstring "  prochain environnement : ")
+    /* ENGLISH */ NLstring "  Next environment: ")
   LISPOBJ_LS(showstack_string_TRAPPED_APPLY_frame,
-    /* DEUTSCH */ NLstring "APPLY-Frame mit Breakpoint für Aufruf ",
-    /* ENGLISH */ NLstring "APPLY frame with breakpoint for call ",
-    /* FRANCAIS */ NLstring "«frame» APPLY avec point d'interception pour l'application ")
+    /* ENGLISH */ NLstring "APPLY frame with breakpoint for call ")
   LISPOBJ_LS(showstack_string_APPLY_frame,
-    /* DEUTSCH */ NLstring "APPLY-Frame für Aufruf ",
-    /* ENGLISH */ NLstring "APPLY frame for call ",
-    /* FRANCAIS */ NLstring "«frame» APPLY pour l'application ")
+    /* ENGLISH */ NLstring "APPLY frame for call ")
   LISPOBJ_LS(showstack_string_TRAPPED_EVAL_frame,
-    /* DEUTSCH */ NLstring "EVAL-Frame mit Breakpoint für Form ",
-    /* ENGLISH */ NLstring "EVAL frame with breakpoint for form ",
-    /* FRANCAIS */ NLstring "«frame» EVAL avec point d'interception pour la forme ")
+    /* ENGLISH */ NLstring "EVAL frame with breakpoint for form ")
   LISPOBJ_LS(showstack_string_EVAL_frame,
-    /* DEUTSCH */ NLstring "EVAL-Frame für Form ",
-    /* ENGLISH */ NLstring "EVAL frame for form ",
-    /* FRANCAIS */ NLstring "«frame» EVAL pour la forme ")
+    /* ENGLISH */ NLstring "EVAL frame for form ")
   LISPOBJ_LS(showstack_string_DYNBIND_frame,
-    /* DEUTSCH */ NLstring "Variablenbindungs-Frame bindet (~ = dynamisch):",
-    /* ENGLISH */ NLstring "frame binding variables (~ = dynamically):",
-    /* FRANCAIS */ NLstring "Le «frame» de liaison de variables (~ signifiant dynamique) lie :")
+    /* ENGLISH */ NLstring "frame binding variables (~ = dynamically):")
   #ifdef HAVE_SAVED_REGISTERS
   LISPOBJ_LS(showstack_string_CALLBACK_frame,
-    /* DEUTSCH */ NLstring "CALLBACK-Frame",
-    /* ENGLISH */ NLstring "CALLBACK frame",
-    /* FRANCAIS */ NLstring "«frame» CALLBACK")
+    /* ENGLISH */ NLstring "CALLBACK frame")
   #endif
   LISPOBJ_LS(showstack_string_VAR_frame,
-    /* DEUTSCH */ NLstring "Variablenbindungs-Frame ",
-    /* ENGLISH */ NLstring "frame binding variables ",
-    /* FRANCAIS */ NLstring "«frame» de liaison de variables ")
+    /* ENGLISH */ NLstring "frame binding variables ")
   LISPOBJ_LS(showstack_string_FUN_frame,
-    /* DEUTSCH */ NLstring "Funktionsbindungs-Frame ",
-    /* ENGLISH */ NLstring "frame binding functions ",
-    /* FRANCAIS */ NLstring "«frame» de liaison de fonctions ")
+    /* ENGLISH */ NLstring "frame binding functions ")
   LISPOBJ_LS(showstack_string_binds,
-    /* DEUTSCH */ " bindet (~ = dynamisch):",
-    /* ENGLISH */ " binds (~ = dynamically):",
-    /* FRANCAIS */ " lie (~ signifiant dynamiquement) :")
+    /* ENGLISH */ " binds (~ = dynamically):")
   LISPOBJ_S(showstack_string_zuord," <--> ")
   LISPOBJ_LS(showstack_string_IBLOCK_frame,
-    /* DEUTSCH */ NLstring "Block-Frame ",
-    /* ENGLISH */ NLstring "block frame ",
-    /* FRANCAIS */ NLstring "«frame» BLOCK ")
+    /* ENGLISH */ NLstring "block frame ")
   LISPOBJ_LS(showstack_string_NESTED_IBLOCK_frame,
-    /* DEUTSCH */ NLstring "Block-Frame (genestet) ",
-    /* ENGLISH */ NLstring "nested block frame ",
-    /* FRANCAIS */ NLstring "«frame» BLOCK dépilé ")
+    /* ENGLISH */ NLstring "nested block frame ")
   LISPOBJ_LS(showstack_string_for1,
-    /* DEUTSCH */ " für ",
-    /* ENGLISH */ " for ",
-    /* FRANCAIS */ " pour ")
+    /* ENGLISH */ " for ")
   LISPOBJ_LS(showstack_string_CBLOCK_frame,
-    /* DEUTSCH */ NLstring "Block-Frame (compiliert) für ",
-    /* ENGLISH */ NLstring "compiled block frame for ",
-    /* FRANCAIS */ NLstring "«frame» BLOCK compilé pour ")
+    /* ENGLISH */ NLstring "compiled block frame for ")
   LISPOBJ_LS(showstack_string_ITAGBODY_frame,
-    /* DEUTSCH */ NLstring "Tagbody-Frame ",
-    /* ENGLISH */ NLstring "tagbody frame ",
-    /* FRANCAIS */ NLstring "«frame» TAGBODY ")
+    /* ENGLISH */ NLstring "tagbody frame ")
   LISPOBJ_LS(showstack_string_NESTED_ITAGBODY_frame,
-    /* DEUTSCH */ NLstring "Tagbody-Frame (genestet) ",
-    /* ENGLISH */ NLstring "nested tagbody frame ",
-    /* FRANCAIS */ NLstring "«frame» TAGBODY dépilé ")
+    /* ENGLISH */ NLstring "nested tagbody frame ")
   LISPOBJ_LS(showstack_string_for2,
-    /* DEUTSCH */ " für",
-    /* ENGLISH */ " for",
-    /* FRANCAIS */ " pour")
+    /* ENGLISH */ " for")
   LISPOBJ_S(showstack_string_zuordtag," --> ")
   LISPOBJ_LS(showstack_string_CTAGBODY_frame,
-    /* DEUTSCH */ NLstring "Tagbody-Frame (compiliert) für ",
-    /* ENGLISH */ NLstring "compiled tagbody frame for ",
-    /* FRANCAIS */ NLstring "«frame» TAGBODY compilé pour ")
+    /* ENGLISH */ NLstring "compiled tagbody frame for ")
   LISPOBJ_LS(showstack_string_CATCH_frame,
-    /* DEUTSCH */ NLstring "Catch-Frame für Tag ",
-    /* ENGLISH */ NLstring "catch frame for tag ",
-    /* FRANCAIS */ NLstring "«frame» CATCH pour l'étiquette ")
+    /* ENGLISH */ NLstring "catch frame for tag ")
   LISPOBJ_LS(showstack_string_HANDLER_frame,
-    /* DEUTSCH */ NLstring "Handler-Frame für Conditions",
-    /* ENGLISH */ NLstring "handler frame for conditions",
-    /* FRANCAIS */ NLstring "«frame» HANDLER pour les conditions")
+    /* ENGLISH */ NLstring "handler frame for conditions")
   LISPOBJ_LS(showstack_string_UNWIND_PROTECT_frame,
-    /* DEUTSCH */ NLstring "Unwind-Protect-Frame",
-    /* ENGLISH */ NLstring "unwind-protect frame",
-    /* FRANCAIS */ NLstring "«frame» UNWIND-PROTECT")
+    /* ENGLISH */ NLstring "unwind-protect frame")
   LISPOBJ_LS(showstack_string_DRIVER_frame,
-    /* DEUTSCH */ NLstring NLstring "Driver-Frame",
-    /* ENGLISH */ NLstring NLstring "driver frame",
-    /* FRANCAIS */ NLstring NLstring "«driver frame»")
+    /* ENGLISH */ NLstring NLstring "driver frame")
   LISPOBJ_LS(showstack_string_ENV_frame,
-    /* DEUTSCH */ NLstring "Environment-Bindungs-Frame",
-    /* ENGLISH */ NLstring "frame binding environments",
-    /* FRANCAIS */ NLstring "«frame» de liaison d'environnements")
+    /* ENGLISH */ NLstring "frame binding environments")
   LISPOBJ_S(showstack_string_VENV_frame,NLstring "  VAR_ENV <--> ")
   LISPOBJ_S(showstack_string_FENV_frame,NLstring "  FUN_ENV <--> ")
   LISPOBJ_S(showstack_string_BENV_frame,NLstring "  BLOCK_ENV <--> ")

@@ -109,10 +109,7 @@
       #endif
       # Über 'fehler' in eine Break-Schleife springen:
       fehler(serious_condition,
-             DEUTSCH ? "Ctrl-C: Tastatur-Interrupt" :
-             ENGLISH ? "Ctrl-C: User break" :
-             FRANCAIS ? "Ctrl-C : Interruption clavier" :
-             ""
+             GETTEXT("Ctrl-C: User break")
             );
     #endif
     }
@@ -141,10 +138,7 @@
       #endif
       # Über 'fehler' in eine Break-Schleife springen:
       fehler(serious_condition,
-             DEUTSCH ? "Ctrl-C: Tastatur-Interrupt" :
-             ENGLISH ? "Ctrl-C: User break" :
-             FRANCAIS ? "Ctrl-C : Interruption clavier" :
-             ""
+             GETTEXT("Ctrl-C: User break")
             );
     }
 

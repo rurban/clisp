@@ -1553,10 +1553,7 @@ LISPFUNN(type_of,1)
         unknown: # unbekannter Typ
           pushSTACK(S(type_of));
           fehler(serious_condition,
-                 DEUTSCH ? "~: Typ nicht identifizierbar!!!" :
-                 ENGLISH ? "~: unidentifiable type!!!" :
-                 FRANCAIS ? "~ : Type non identifiable!!!" :
-                 ""
+                 GETTEXT("~: unidentifiable type!!!")
                 );
       }
     mv_count=1;
@@ -1727,20 +1724,14 @@ LISPFUNN(class_of,1)
         unknown: # unbekannter Typ
           pushSTACK(S(class_of));
           fehler(serious_condition,
-                 DEUTSCH ? "~: Typ nicht identifizierbar!!!" :
-                 ENGLISH ? "~: unidentifiable type!!!" :
-                 FRANCAIS ? "~ : Type non identifiable!!!" :
-                 ""
+                 GETTEXT("~: unidentifiable type!!!")
                 );
       }
     if_classp(value1, ; ,
       { pushSTACK(value1);
         pushSTACK(S(class_of));
         fehler(error,
-               DEUTSCH ? "~: Typ ~ entspricht keiner Klasse." :
-               ENGLISH ? "~: type ~ does not correspond to a class" :
-               FRANCAIS ? "~ : aucune classe ne correspond au type ~" :
-               ""
+               GETTEXT("~: type ~ does not correspond to a class")
               );
       });
   fertig:
@@ -1753,18 +1744,14 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 #   (declare (ignore environment)) ; was sollte das Environment bedeuten?
 #   (unless (symbolp symbol)
 #     (error-of-type 'type-error
-#       (DEUTSCH "~S: Argument ~S ist kein Symbol."
-#        ENGLISH "~S: argument ~S is not a symbol"
-#        FRANCAIS "~S : L'argument ~S n'est pas un symbole.")
+#       (ENGLISH "~S: argument ~S is not a symbol")
 #       'find-class symbol
 #   ) )
 #   (let ((class (get symbol 'CLOS::CLASS)))
 #     (if (not (class-p class))
 #       (if errorp
 #         (error-of-type 'error
-#           (DEUTSCH "~S: ~S benennt keine Klasse."
-#            ENGLISH "~S: ~S does not name a class"
-#            FRANCAIS "~S : ~S n'est pas le nom d'une classe.")
+#           (ENGLISH "~S: ~S does not name a class")
 #           'find-class symbol
 #         )
 #         nil
@@ -1777,10 +1764,7 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
       pushSTACK(STACK_(2+2));
       pushSTACK(S(find_class));
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist kein Symbol." :
-             ENGLISH ? "~: argument ~ is not a symbol" :
-             FRANCAIS ? "~ : L'argument ~ n'est pas un symbole." :
-             ""
+             GETTEXT("~: argument ~ is not a symbol")
             );
     }
  {var object clas = get(STACK_2,S(closclass)); # (GET symbol 'CLOS::CLOSCLASS)
@@ -1789,10 +1773,7 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
         { pushSTACK(STACK_2);
           pushSTACK(S(find_class));
           fehler(error,
-                 DEUTSCH ? "~: ~ benennt keine Klasse." :
-                 ENGLISH ? "~: ~ does not name a class" :
-                 FRANCAIS ? "~ : ~ n'est pas le nom d'une classe." :
-                 ""
+                 GETTEXT("~: ~ does not name a class")
                 );
         }
       value1 = NIL;
@@ -2090,10 +2071,7 @@ LISPFUNN(coerce,2)
       # result-type in STACK_0
       pushSTACK(S(coerce));
       fehler(error,
-             DEUTSCH ? "~: ~ ist keine zugelassene Typspezifikation." :
-             ENGLISH ? "~: bad type specification ~" :
-             FRANCAIS ? "~ : ~ est une mauvaise spécification de type." :
-             ""
+             GETTEXT("~: bad type specification ~")
             );
     fehler_object:
       # Stackaufbau: object, result-type, type-error-datum, type-error-expected-type.
@@ -2101,10 +2079,7 @@ LISPFUNN(coerce,2)
       pushSTACK(STACK_(3+1)); # object
       pushSTACK(S(coerce));
       fehler(type_error,
-             DEUTSCH ? "~: ~ kann nicht in Typ ~ umgewandelt werden." :
-             ENGLISH ? "~: ~ cannot be coerced to type ~" :
-             FRANCAIS ? "~ : ~ ne peut pas être transformé en objet de type ~." :
-             ""
+             GETTEXT("~: ~ cannot be coerced to type ~")
             );
   }
 

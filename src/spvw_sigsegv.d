@@ -27,10 +27,7 @@
   # Put a breakpoint here if you want to catch CLISP just before it dies.
   global void sigsegv_handler_failed(address)
     var void* address;
-    { asciz_out_1(DEUTSCH ? NLstring "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%x." NLstring :
-                  ENGLISH ? NLstring "SIGSEGV cannot be cured. Fault address = 0x%x." NLstring :
-                  FRANCAIS ? NLstring "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x." NLstring :
-                  "",
+    { asciz_out_1(GETTEXT(NLstring "SIGSEGV cannot be cured. Fault address = 0x%x." NLstring),
                   address
                  );
     }
@@ -66,12 +63,7 @@
   local void stackoverflow_handler(emergency)
     var int emergency;
     { if (emergency)
-        { asciz_out(DEUTSCH ? "Szenario Apollo 13: Stack-Überlauf-Behandlung ging schief. Beim nächsten Stack-Überlauf kracht's!!!" NLstring :
-                    ENGLISH ? "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring :
-                    FRANCAIS ? "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!" NLstring :
-                    ""
-                   );
-        }
+        { asciz_out(GETTEXT("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring)); }
       SP_ueber();
     }
 

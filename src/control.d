@@ -55,10 +55,7 @@ LISPSPECFORM(quote, 1,0,nobody)
     { pushSTACK(obj);
       pushSTACK(caller);
       fehler(source_program_error,
-             DEUTSCH ? "~: Funktionsname ~ ist kein Symbol." :
-             ENGLISH ? "~: function name ~ should be a symbol" :
-             FRANCAIS ? "~: Le nom de fonction ~ n'est pas un symbôle." :
-             ""
+             GETTEXT("~: function name ~ should be a symbol")
             );
     }
 
@@ -82,10 +79,7 @@ LISPSPECFORM(function, 1,1,nobody)
                 pushSTACK(funname);
                 pushSTACK(S(function));
                 fehler(undefined_function,
-                       DEUTSCH ? "~: Die Funktion ~ ist nicht definiert." :
-                       ENGLISH ? "~: undefined function ~" :
-                       FRANCAIS ? "~: La fonction ~ n'est pas définie." :
-                       ""
+                       GETTEXT("~: undefined function ~")
                       );
               }
             value1 = fun; mv_count=1; skipSTACK(2); return;
@@ -102,10 +96,7 @@ LISPSPECFORM(function, 1,1,nobody)
       { pushSTACK(funname);
         pushSTACK(S(function));
         fehler(source_program_error,
-               DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
-               ENGLISH ? "~: ~ is not a function name" :
-               FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
-               ""
+               GETTEXT("~: ~ is not a function name")
               );
       }
     # Lambdaausdruck
@@ -124,10 +115,7 @@ LISPSPECFORM(function, 1,1,nobody)
       pushSTACK(symbol);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(unbound_variable,
-             DEUTSCH ? "~: ~ hat keinen dynamischen Wert." :
-             ENGLISH ? "~: ~ has no dynamic value" :
-             FRANCAIS ? "~: ~ n'a pas de valeur dynamique." :
-             ""
+             GETTEXT("~: ~ has no dynamic value")
             );
     }
 
@@ -165,10 +153,7 @@ LISPFUNN(symbol_value,1)
       pushSTACK(symbol);
       pushSTACK(caller);
       fehler(undefined_function,
-             DEUTSCH ? "~: ~ hat keine globale Funktionsdefinition." :
-             ENGLISH ? "~: ~ has no global function definition" :
-             FRANCAIS ? "~ : ~ n'a pas de définition globale de fonction." :
-             ""
+             GETTEXT("~: ~ has no global function definition")
             );
     }
 
@@ -240,10 +225,7 @@ LISPFUNN(special_operator_p,1)
     { pushSTACK(symbol);
       pushSTACK(caller);
       fehler(error,
-             DEUTSCH ? "~: Der Konstanten ~ kann kein Wert zugewiesen werden." :
-             ENGLISH ? "~: the value of the constant ~ may not be altered" :
-             FRANCAIS ? "~: Aucune valeur ne peut être assignée à la constante ~." :
-             ""
+             GETTEXT("~: the value of the constant ~ may not be altered")
             );
     }
 
@@ -268,10 +250,7 @@ LISPFUNN(special_operator_p,1)
               # Der ganze Body noch in STACK_0.
               pushSTACK(caller);
               fehler(source_program_error,
-                     DEUTSCH ? "~ mit ungerader Anzahl von Argumenten: ~" :
-                     ENGLISH ? "~ called with odd number of arguments: ~" :
-                     FRANCAIS ? "~ appelé avec un nombre impair d'arguments : ~" :
-                     ""
+                     GETTEXT("~ called with odd number of arguments: ~")
                     );
             }
           body = Cdr(body);
@@ -281,10 +260,7 @@ LISPFUNN(special_operator_p,1)
         { fehler_dotted: # Der ganze Body noch in STACK_0.
           pushSTACK(caller);
           fehler(source_program_error,
-                 DEUTSCH ? "Dotted List als Argumentliste an ~ : ~" :
-                 ENGLISH ? "dotted list given to ~ : ~" :
-                 FRANCAIS ? "Liste pointée d'arguments fournie à ~ : ~" :
-                 ""
+                 GETTEXT("dotted list given to ~ : ~")
                 );
         }
       return FALSE;
@@ -375,10 +351,7 @@ LISPFUNN(makunbound,1)
       { pushSTACK(symbol);
         pushSTACK(S(makunbound));
         fehler(error,
-               DEUTSCH ? "~: Der Wert der Konstanten ~ muss erhalten bleiben." :
-               ENGLISH ? "~: the value of the constant ~ must not be removed" :
-               FRANCAIS ? "~: La valeur de la constante ~ doit être conservée." :
-               ""
+               GETTEXT("~: the value of the constant ~ must not be removed")
               );
       }
     Symbol_value(symbol) = unbound;
@@ -400,10 +373,7 @@ LISPFUNN(fmakunbound,1)
         { pushSTACK(symbol);
           pushSTACK(S(fmakunbound));
           fehler(error,
-                 DEUTSCH ? "~: Definition der Spezialform ~ darf nicht gelöscht werden." :
-                 ENGLISH ? "~: the special form definition of ~ must not be removed" :
-                 FRANCAIS ? "~: La définition de la forme spéciale ~ doit être conservée." :
-                 ""
+                 GETTEXT("~: the special form definition of ~ must not be removed")
                 );
     }   }
     Symbol_function(symbol) = unbound;
@@ -473,10 +443,7 @@ LISPSPECFORM(prog2, 2,0,body)
     { pushSTACK(body);
       pushSTACK(caller);
       fehler(source_program_error,
-             DEUTSCH ? "~: Doc-Strings sind nicht hier erlaubt: ~" :
-             ENGLISH ? "~: doc-strings are not allowed here: ~" :
-             FRANCAIS ? "~: Une chaîne de documentation n'est pas permise ici : ~" :
-             ""
+             GETTEXT("~: doc-strings are not allowed here: ~")
             );
     }
 
@@ -543,10 +510,7 @@ LISPSPECFORM(prog2, 2,0,body)
                         { pushSTACK(declsym);
                           pushSTACK(caller);
                           fehler(source_program_error,
-                                 DEUTSCH ? "~: ~ ist kein Symbol, wurde aber als SPECIAL deklariert." :
-                                 ENGLISH ? "~: ~ is not a symbol, but was declared SPECIAL" :
-                                 FRANCAIS ? "~: ~ n'est pas un symbôle mais fut déclaré SPECIAL." :
-                                 ""
+                                 GETTEXT("~: ~ is not a symbol, but was declared SPECIAL")
                                 );
                         }
                       # Special-deklariertes Symbol im Stack ablegen:
@@ -585,10 +549,7 @@ LISPSPECFORM(prog2, 2,0,body)
                 { pushSTACK(Car(varspecs));
                   pushSTACK(caller);
                   fehler(source_program_error,
-                         DEUTSCH ? "~: ~ ist keine korrekte Variablenspezifikation." :
-                         ENGLISH ? "~: illegal variable specification ~" :
-                         FRANCAIS ? "~: ~ n'est pas une spécification de variable licite." :
-                         ""
+                         GETTEXT("~: illegal variable specification ~")
                         );
                 }
               pushSTACK(init); # Init und
@@ -623,20 +584,14 @@ LISPSPECFORM(prog2, 2,0,body)
                     { pushSTACK(symbol);
                       pushSTACK(caller);
                       fehler(program_error,
-                             DEUTSCH ? "~: Symbol ~ ist SPECIAL deklariert und darf nicht Makro deklariert werden." :
-                             ENGLISH ? "~: symbol ~ is declared special and must not be declared a macro" :
-                             FRANCAIS ? "~ : Le symbole ~ est déclaré SPECIAL et ne peut être déclaré macro." :
-                             ""
+                             GETTEXT("~: symbol ~ is declared special and must not be declared a macro")
                             );
                     }
                   if (specdecled)
                     { pushSTACK(symbol);
                       pushSTACK(caller);
                       fehler(source_program_error,
-                             DEUTSCH ? "~: Symbol ~ darf nicht gleichzeitig SPECIAL und Makro deklariert werden." :
-                             ENGLISH ? "~: symbol ~ must not be declared SPECIAL and a macro at the same time" :
-                             FRANCAIS ? "~ : Le symbole ~ ne peut être déclaré SPECIAL et macro en même temps." :
-                             ""
+                             GETTEXT("~: symbol ~ must not be declared SPECIAL and a macro at the same time")
                             );
                     }
                   # statische Bindung
@@ -646,10 +601,7 @@ LISPSPECFORM(prog2, 2,0,body)
                     { pushSTACK(symbol);
                       pushSTACK(caller);
                       fehler(program_error,
-                             DEUTSCH ? "~: ~ ist eine Konstante und kann nicht dynamisch gebunden werden." :
-                             ENGLISH ? "~: ~ is a constant, cannot be bound" :
-                             FRANCAIS ? "~: ~ est une constante et ne peut pas être liée." :
-                             ""
+                             GETTEXT("~: ~ is a constant, cannot be bound")
                             );
                     }
                   if (special_var_p(TheSymbol(symbol)))
@@ -668,10 +620,7 @@ LISPSPECFORM(prog2, 2,0,body)
         if (var_anz > (uintC)(~(uintC)0)) # passt es in ein uintC ?
           { pushSTACK(caller);
             fehler(source_program_error,
-                   DEUTSCH ? "~: Zuviele Variablen und/oder Deklarationen." :
-                   ENGLISH ? "~: too many variables and/or declarations" :
-                   FRANCAIS ? "~: Trop de déclarations et/ou de variables." :
-                   ""
+                   GETTEXT("~: too many variables and/or declarations")
                   );
           }
         #endif
@@ -852,10 +801,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
               { pushSTACK(Car(varspecs));
                 pushSTACK(S(compiler_let));
                 fehler(source_program_error,
-                       DEUTSCH ? "~: ~ ist keine korrekte Variablenspezifikation." :
-                       ENGLISH ? "~: illegal variable specification ~" :
-                       FRANCAIS ? "~: ~ n'est pas une spécification de variable licite." :
-                       ""
+                       GETTEXT("~: illegal variable specification ~")
                       );
               }
             # symbol sollte ein nichtkonstantes Symbol sein:
@@ -868,10 +814,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
                 pushSTACK(symbol);
                 pushSTACK(S(compiler_let));
                 fehler(program_error,
-                       DEUTSCH ? "~: ~ ist eine Konstante und kann nicht dynamisch gebunden werden." :
-                       ENGLISH ? "~: ~ is a constant, cannot be bound" :
-                       FRANCAIS ? "~: ~ est une constante et ne peut pas être liée." :
-                       ""
+                       GETTEXT("~: ~ is a constant, cannot be bound")
                       );
               }
             pushSTACK(Cdr(varspecs));
@@ -937,10 +880,7 @@ LISPSPECFORM(progv, 2,0,body)
     { pushSTACK(obj);
       pushSTACK(caller);
       fehler(source_program_error,
-             DEUTSCH ? "~: ~ ist keine Funktionsspezifikation." :
-             ENGLISH ? "~: ~ is not a function specification" :
-             FRANCAIS ? "~: ~ n'est pas une spécification de fonction." :
-             ""
+             GETTEXT("~: ~ is not a function specification")
             );
     }
 
@@ -1082,10 +1022,7 @@ LISPSPECFORM(macrolet, 1,0,body)
             pushSTACK(macrodefs);
             pushSTACK(S(macrolet));
             fehler(source_program_error,
-                   DEUTSCH ? "~: ~ ist keine Macro-Spezifikation." :
-                   ENGLISH ? "~: ~ is not a macro specification" :
-                   FRANCAIS ? "~: ~ n'est pas une spécification de macro." :
-                   ""
+                   GETTEXT("~: ~ is not a macro specification")
                   );
           }
        {var object name = Car(macrodefs);
@@ -1093,10 +1030,7 @@ LISPSPECFORM(macrolet, 1,0,body)
           { pushSTACK(name);
             pushSTACK(S(macrolet));
             fehler(source_program_error,
-                   DEUTSCH ? "~: Macro-Name ~ ist kein Symbol." :
-                   ENGLISH ? "~: macro name ~ should be a symbol" :
-                   FRANCAIS ? "~: Le nom de macro ~ n'est pas un symbôle." :
-                   ""
+                   GETTEXT("~: macro name ~ should be a symbol")
                   );
           }
         if (!mconsp(Cdr(macrodefs))) { goto fehler_spec; }
@@ -1200,10 +1134,7 @@ LISPSPECFORM(cond, 0,0,body)
           { pushSTACK(clause);
             pushSTACK(S(cond));
             fehler(source_program_error,
-                   DEUTSCH ? "~: Klausel ~ muss Liste sein." :
-                   ENGLISH ? "~: clause ~ should be a list" :
-                   FRANCAIS ? "~: La clause ~ doit être une liste." :
-                   ""
+                   GETTEXT("~: clause ~ should be a list")
                   );
           }
         pushSTACK(Cdr(clause)); # Klausel-Rest retten
@@ -1234,10 +1165,7 @@ LISPSPECFORM(case, 1,0,body)
           { pushSTACK(clause);
             pushSTACK(S(case));
             fehler(source_program_error,
-                   DEUTSCH ? "~: Keylist fehlt: ~" :
-                   ENGLISH ? "~: missing key list: ~" :
-                   FRANCAIS ? "~ : la liste d'objects-clé manque: ~" :
-                   ""
+                   GETTEXT("~: missing key list: ~")
                   );
           }
        {var object keys = Car(clause);
@@ -1246,10 +1174,7 @@ LISPSPECFORM(case, 1,0,body)
             pushSTACK(keys);
             pushSTACK(S(case));
             fehler(source_program_error,
-                   DEUTSCH ? "~: Die ~-Klausel muss die letzte sein." :
-                   ENGLISH ? "~: the ~ clause must be the last one" :
-                   FRANCAIS ? "~ : La clause ~ doit être la dernière." :
-                   ""
+                   GETTEXT("~: the ~ clause must be the last one")
                   );
           }
         else
@@ -1306,10 +1231,7 @@ LISPSPECFORM(block, 1,0,body)
     { pushSTACK(name);
       pushSTACK(S(return_from));
       fehler(control_error,
-             DEUTSCH ? "~: Der Block mit Namen ~ wurde bereits verlassen." :
-             ENGLISH ? "~: the block named ~ has already been left" :
-             FRANCAIS ? "~: Le bloc de nom ~ a déjà été quitté." :
-             ""
+             GETTEXT("~: the block named ~ has already been left")
             );
     }
 
@@ -1344,10 +1266,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
     pushSTACK(name);
     pushSTACK(S(return_from));
     fehler(source_program_error,
-           DEUTSCH ? "~: Es ist kein Block namens ~ sichtbar." :
-           ENGLISH ? "~: no block named ~ is currently visible" :
-           FRANCAIS ? "~: Aucun bloc de nom ~ n'est visible." :
-           ""
+           GETTEXT("~: no block named ~ is currently visible")
           );
     # Block-Frame gefunden: env
     found:
@@ -1593,10 +1512,7 @@ LISPSPECFORM(tagbody, 0,0,body)
                 { pushSTACK(item);
                   pushSTACK(S(tagbody));
                   fehler(source_program_error,
-                         DEUTSCH ? "~: ~ ist weder Marke noch Statement." :
-                         ENGLISH ? "~: ~ is neither tag nor form" :
-                         FRANCAIS ? "~: ~ n'est ni un marqueur ni une forme à evaluer." :
-                         ""
+                         GETTEXT("~: ~ is neither tag nor form")
                         );
                 }
     }   }   }
@@ -1638,10 +1554,7 @@ LISPSPECFORM(go, 1,0,nobody)
       { pushSTACK(tag);
         pushSTACK(S(go));
         fehler(source_program_error,
-               DEUTSCH ? "~: ~ ist keine zulässige Marke." :
-               ENGLISH ? "~: illegal tag ~" :
-               FRANCAIS ? "~: ~ n'est pas un marqueur permis." :
-               ""
+               GETTEXT("~: illegal tag ~")
               );
       }
     # GO_ENV durchgehen:
@@ -1680,10 +1593,7 @@ LISPSPECFORM(go, 1,0,nobody)
                   { pushSTACK(tag);
                     pushSTACK(S(go));
                     fehler(control_error,
-                           DEUTSCH ? "~: Tagbody zur Marke ~ wurde bereits verlassen." :
-                           ENGLISH ? "~: tagbody for tag ~ has already been left" :
-                           FRANCAIS ? "~: Le TAGBODY du marqueur ~ a déjà été quitté." :
-                           ""
+                           GETTEXT("~: tagbody for tag ~ has already been left")
                           );
                   }
                 FRAME = uTheFramepointer(env); # Pointer auf den (noch aktiven!) Frame
@@ -1698,10 +1608,7 @@ LISPSPECFORM(go, 1,0,nobody)
     pushSTACK(tag);
     pushSTACK(S(go));
     fehler(source_program_error,
-           DEUTSCH ? "~: Es ist keine Marke namens ~ sichtbar." :
-           ENGLISH ? "~: no tag named ~ is currently visible" :
-           FRANCAIS ? "~: Aucun marqueur de nom ~ n'est visible." :
-           ""
+           GETTEXT("~: no tag named ~ is currently visible")
           );
     # Tagbody-Frame gefunden. FRAME ist ein Pointer auf ihn (ohne Typinfo),
     # value1 die Liste der auszuführenden Formen.
@@ -1719,10 +1626,7 @@ LISPSPECFORM(go, 1,0,nobody)
     var object caller;
     { pushSTACK(caller);
       fehler(error,
-             DEUTSCH ? "~: Zu viele Werte." :
-             ENGLISH ? "~: too many values" :
-             FRANCAIS ? "~: Trop de valeurs." :
-             ""
+             GETTEXT("~: too many values")
             );
     }
 
@@ -1761,10 +1665,7 @@ LISPSPECFORM(multiple_value_call, 1,0,body)
       { pushSTACK(*fun_);
         pushSTACK(S(multiple_value_call));
         fehler(program_error,
-               DEUTSCH ? "~: Zu viele Argumente für ~" :
-               ENGLISH ? "~: too many arguments to ~" :
-               FRANCAIS ? "~: Trop d'arguments pour ~." :
-               ""
+               GETTEXT("~: too many arguments to ~")
               );
       }
     funcall(*fun_,argcount); # Funktion aufrufen
@@ -1970,10 +1871,7 @@ LISPSPECFORM(throw, 2,0,nobody)
     pushSTACK(tag);
     pushSTACK(S(throw));
     fehler(control_error,
-           DEUTSCH ? "~: Es gibt kein CATCH zur Marke ~." :
-           ENGLISH ? "~: there is no CATCHer for tag ~" :
-           FRANCAIS ? "~: Il n'y a pas de CATCH correspondant au marqueur ~." :
-           ""
+           GETTEXT("~: there is no CATCHer for tag ~")
           );
   }}
 
@@ -2011,10 +1909,7 @@ LISPFUNN(unwind_to_driver,0)
           pushSTACK(O(type_svector2)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(arg);
           fehler(type_error,
-                 DEUTSCH ? "Argument ~ ist kein Macroexpansions-Environment." :
-                 ENGLISH ? "Argument ~ is not a macroexpansion environment" :
-                 FRANCAIS ? "L'argument ~ n'est pas un environnement pour macros" :
-                 ""
+                 GETTEXT("Argument ~ is not a macroexpansion environment")
                 );
     }   }
 
@@ -2064,10 +1959,7 @@ LISPSPECFORM(declare, 0,0,body)
 # (DECLARE {decl-spec}), CLTL S. 153
   { # ({decl-spec}) bereits in STACK_0
     fehler(source_program_error,
-           DEUTSCH ? "Deklarationen ~ an dieser Stelle nicht erlaubt." :
-           ENGLISH ? "declarations ~ are not allowed here" :
-           FRANCAIS ? "Les déclarations ~ ne sont pas permises à cet endroit." :
-           ""
+           GETTEXT("declarations ~ are not allowed here")
           );
   }
 
@@ -2088,10 +1980,7 @@ LISPSPECFORM(the, 2,0,nobody)
         pushSTACK(STACK_(1+2)); # form
         pushSTACK(S(the));
         fehler(error, # type_error ??
-               DEUTSCH ? "~: Die Form ~ produzierte die Werte ~, nicht vom Typ ~" :
-               ENGLISH ? "~: ~ evaluated to the values ~, not of type ~" :
-               FRANCAIS ? "~: La forme ~ a produit les valeurs ~ qui ne sont pas de type ~." :
-               ""
+               GETTEXT("~: ~ evaluated to the values ~, not of type ~")
               );
       }
     # Typ-Check OK -> Werte zurückgeben:
@@ -2106,10 +1995,7 @@ LISPFUNN(proclaim,1)
       { pushSTACK(declspec);
         pushSTACK(S(proclaim));
         fehler(error,
-               DEUTSCH ? "~: Falsche Deklaration: ~" :
-               ENGLISH ? "~: bad declaration ~" :
-               FRANCAIS ? "~: Mauvaise déclaration : ~" :
-               ""
+               GETTEXT("~: bad declaration ~")
               );
       }
    {var object decltype = Car(declspec); # Deklarationstyp
@@ -2212,10 +2098,7 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
           pushSTACK(env);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~ ist nicht als Environment geeignet." :
-                 ENGLISH ? "~: ~ may not be used as an environment" :
-                 FRANCAIS ? "~: ~ ne peut pas être utilisé comme environnement." :
-                 ""
+                 GETTEXT("~: ~ may not be used as an environment")
                 );
     }   }
 
@@ -2264,10 +2147,7 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
             { pushSTACK(*fun_);
               pushSTACK(S(applyhook));
               fehler(program_error,
-                     DEUTSCH ? "~: Zu viele Argumente für ~" :
-                     ENGLISH ? "~: too many arguments given to ~" :
-                     FRANCAIS ? "~: Trop d'arguments pour ~." :
-                     ""
+                     GETTEXT("~: too many arguments given to ~")
                     );
         }   }
       funcall(*fun_,argcount); # Funktion anwenden
@@ -2350,20 +2230,14 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
              if (!docstring_allowed) # kein Doc-String erlaubt?
                { pushSTACK(STACK_3); # ganzer body
                  fehler(source_program_error,
-                        DEUTSCH ? "Hier sind keine Doc-Strings erlaubt: ~" :
-                        ENGLISH ? "no doc-strings allowed here: ~" :
-                        FRANCAIS ? "Les chaînes de documentation ne sont pas permises ici : ~" :
-                        ""
+                        GETTEXT("no doc-strings allowed here: ~")
                        );
                }
              if (!nullp(STACK_2)) # schon ein Doc-String dagewesen?
                # ja -> mehr als ein Doc-String ist zuviel:
                { pushSTACK(STACK_3); # ganzer body
                  fehler(source_program_error,
-                        DEUTSCH ? "In ~ kommen zu viele Doc-Strings vor." :
-                        ENGLISH ? "Too many documentation strings in ~" :
-                        FRANCAIS ? "Trop de chaînes de documentation apparaîssent dans ~." :
-                        ""
+                        GETTEXT("Too many documentation strings in ~")
                        );
                }
              STACK_2 = form; # neuer Doc-String
@@ -2421,10 +2295,7 @@ LISPFUNN(keyword_test,2)
       if (!((argcount%2) == 0))
         { pushSTACK(arglist);
           fehler(program_error,
-                 DEUTSCH ? "Keyword-Argumentliste ~ hat ungerade Länge." :
-                 ENGLISH ? "keyword argument list ~ has an odd length" :
-                 FRANCAIS ? "La liste de mots clé ~ est de longueur impaire." :
-                 ""
+                 GETTEXT("keyword argument list ~ has an odd length")
                 );
     }   }
     # Suche, ob :ALLOW-OTHER-KEYS kommt:
@@ -2454,10 +2325,7 @@ LISPFUNN(keyword_test,2)
             STACK_3 = type; # `(MEMBER ,@kwlist) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
           }
           fehler(keyword_error,
-                 DEUTSCH ? "Unzulässiges Keyword/Wert-Paar ~, ~ in einer Argumentliste. Die erlaubten Keywords sind ~" :
-                 ENGLISH ? "illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~" :
-                 FRANCAIS ? "Paire mot-clé - valeur ~, ~ illicite dans une liste d'arguments. Les mots-clé permis sont ~" :
-                 ""
+                 GETTEXT("illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~")
                 );
           found: # gefunden. Weiter:
           arglistr = Cdr(Cdr(arglistr));

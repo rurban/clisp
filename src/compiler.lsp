@@ -56,7 +56,7 @@
 
 #-CROSS (in-package "COMPILER")
 #+CROSS (in-package "CROSS" :nicknames '("CLISP"))
-#-CLISP (defmacro DEUTSCH (x ENGLISH y FRANCAIS z) y)
+#-CLISP (defmacro ENGLISH (x) x)
 ;; Konvention: Schreibe SYSTEM::PNAME für ein Symbol, das "zufällig" in
 ;; #<PACKAGE SYSTEM> sitzt, wir das Symbol aber nicht weiter benutzen.
 ;; Schreibe SYS::PNAME, wenn wir von dem Symbol irgendwelche Eigenschaften
@@ -213,9 +213,7 @@
   ) )
   ; siehe DEFS1.LSP :
   (defun date-format ()
-    (DEUTSCH "~1{~3@*~D.~4@*~D.~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}"
-     ENGLISH "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}"
-     FRANCAIS "~1{~3@*~D/~4@*~D/~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")
+    (ENGLISH "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}")
   )
   (defun sys::line-number (stream) nil)
 )
@@ -356,9 +354,7 @@ Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
         ; Codevector lesen
         (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
           (unless (= (length obj) arg)
-            (error (DEUTSCH "Falsche Länge eines Closure-Vektors: ~S"
-                    ENGLISH "Bad length of closure vector: ~S"
-                    FRANCAIS "Mauvaise longueur pour un vecteur de fermeture : ~S")
+            (error (ENGLISH "Bad length of closure vector: ~S")
                    arg
           ) )
           obj
@@ -1749,9 +1745,7 @@ for-value   NIL oder T
 
 ; Fehlermeldungsfunktion
 (defun compiler-error (caller &optional where)
-  (error (DEUTSCH "Fehler im Compiler!! Aufgetreten in ~A~@[ bei ~A~]."
-          ENGLISH "Compiler bug!! Occurred in ~A~@[ at ~A~]."
-          FRANCAIS "Erreur dans le compilateur!! Arrivé dans ~A~@[ au point ~A~].")
+  (error (ENGLISH "Compiler bug!! Occurred in ~A~@[ at ~A~].")
          caller where
 ) )
 
@@ -2428,9 +2422,7 @@ der Docstring (oder NIL).
   (setq declspeclist (nreverse declspeclist))
   (dolist (declspec declspeclist)
     (if (or (atom declspec) (cdr (last declspec)))
-      (c-warn (DEUTSCH "Falsche Deklarationen-Syntax: ~S~%Wird ignoriert."
-               ENGLISH "Bad declaration syntax: ~S~%Will be ignored."
-               FRANCAIS "Mauvaise syntaxe pour une déclaration : ~S~%Ignorée.")
+      (c-warn (ENGLISH "Bad declaration syntax: ~S~%Will be ignored.")
               declspec
       )
       (let ((declspectype (car declspec)))
@@ -2450,43 +2442,33 @@ der Docstring (oder NIL).
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x specials)
-                     (c-warn (DEUTSCH "Nur Symbole können SPECIAL-deklariert werden, nicht ~S."
-                              ENGLISH "Non-symbol ~S may not be declared SPECIAL."
-                              FRANCAIS "Seuls les symboles peuvent être déclarés SPECIAL, pas ~S.")
+                     (c-warn (ENGLISH "Non-symbol ~S may not be declared SPECIAL.")
                              x
                 )) ) )
                 ((eq declspectype 'IGNORE)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x ignores)
-                     (c-warn (DEUTSCH "Nur Symbole können IGNORE-deklariert werden, nicht ~S."
-                              ENGLISH "Non-symbol ~S may not be declared IGNORE."
-                              FRANCAIS "Seuls les symboles peuvent être déclarés IGNORE, pas ~S.")
+                     (c-warn (ENGLISH "Non-symbol ~S may not be declared IGNORE.")
                              x
                 )) ) )
                 ((eq declspectype 'IGNORABLE)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x ignorables)
-                     (c-warn (DEUTSCH "Nur Symbole können IGNORABLE-deklariert werden, nicht ~S."
-                              ENGLISH "Non-symbol ~S may not be declared IGNORABLE."
-                              FRANCAIS "Seuls les symboles peuvent être déclarés IGNORABLE.")
+                     (c-warn (ENGLISH "Non-symbol ~S may not be declared IGNORABLE.")
                              x
                 )) ) )
                 ((eq declspectype 'SYS::READ-ONLY)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x readonlys)
-                     (c-warn (DEUTSCH "Nur Symbole können READ-ONLY-deklariert werden, nicht ~S."
-                              ENGLISH "Non-symbol ~S may not be declared READ-ONLY."
-                              FRANCAIS "Seuls les symboles peuvent être déclarés READ-ONLY.")
+                     (c-warn (ENGLISH "Non-symbol ~S may not be declared READ-ONLY.")
                              x
                 )) ) )
                 (t (push declspec *denv*))
           )
-          (c-warn (DEUTSCH "Unbekannte Deklaration ~S.~%Die ganze Deklaration ~S wird ignoriert."
-                   ENGLISH "Unknown declaration ~S.~%The whole declaration will be ignored."
-                   FRANCAIS "Déclaration inconnue ~S.~%Toute la déclaration ~S est ignorée.")
+          (c-warn (ENGLISH "Unknown declaration ~S.~%The whole declaration will be ignored.")
                   declspectype declspec
   ) ) ) ) )
   (values specials ignores ignorables readonlys)
@@ -2818,12 +2800,8 @@ der Docstring (oder NIL).
   (if (and *compiling-from-file* *compile-file-lineno1* *compile-file-lineno2*)
     (format nil
             (if (= *compile-file-lineno1* *compile-file-lineno2*)
-              (DEUTSCH " in Zeile ~D"
-               ENGLISH " in line ~D"
-               FRANCAIS " dans la ligne ~D")
-              (DEUTSCH " in Zeilen ~D..~D"
-               ENGLISH " in lines ~D..~D"
-               FRANCAIS " dans les lignes ~D..~D")
+              (ENGLISH " in line ~D")
+              (ENGLISH " in lines ~D..~D")
             )
             *compile-file-lineno1* *compile-file-lineno2*
     )
@@ -2835,9 +2813,7 @@ der Docstring (oder NIL).
 ; gibt eine Compiler-Warnung aus (mittels FORMAT).
 (defun c-warn (cstring &rest args)
   (setq cstring
-    (concatenate 'string (DEUTSCH "~%WARNUNG~@[ in Funktion ~S~]~A :~%"
-                          ENGLISH "~%WARNING~@[ in function ~S~]~A :~%"
-                          FRANCAIS "~%AVERTISSEMENT~@[ dans la fonction ~S~]~A :~%")
+    (concatenate 'string (ENGLISH "~%WARNING~@[ in function ~S~]~A :~%")
                          cstring
   ) )
   (incf *warning-count*)
@@ -2869,9 +2845,7 @@ der Docstring (oder NIL).
       (when *compiling-from-file* (pushnew in-function *functions-with-errors*))
     )
     (format *c-error-output*
-            (DEUTSCH "~%ERROR~@[ in Funktion ~S~]~A :~%~?"
-             ENGLISH "~%ERROR~@[ in function ~S~]~A :~%~?"
-             FRANCAIS "~%ERREUR~@[ dans la fonction ~S~]~A :~%~?")
+            (ENGLISH "~%ERROR~@[ in function ~S~]~A :~%~?")
             in-function (c-source-location)
             cstring args
   ) )
@@ -3013,22 +2987,16 @@ der Docstring (oder NIL).
 ; und mindestens l1, höchstens aber l2 Elemente hat. Sonst Error.
 (defun test-list (L &optional (l1 0) (l2 nil))
   (unless (and (listp L) (null (cdr (last L))))
-    (c-error (DEUTSCH "Dotted list im Code: ~S"
-              ENGLISH "Code contains dotted list ~S"
-              FRANCAIS "Paire pointée dans le code en ~S")
+    (c-error (ENGLISH "Code contains dotted list ~S")
              L
   ) )
   (unless (>= (length L) l1)
-    (c-error (DEUTSCH "Form zu kurz (zu wenig Argumente): ~S"
-              ENGLISH "Form too short, too few arguments: ~S"
-              FRANCAIS "Forme trop courte (trop peu d'arguments) : ~S")
+    (c-error (ENGLISH "Form too short, too few arguments: ~S")
              L
   ) )
   (when l2
     (unless (<= (length L) l2)
-      (c-error (DEUTSCH "Form zu lang (zu viele Argumente): ~S"
-                ENGLISH "Form too long, too many arguments: ~S"
-                FRANCAIS "Forme trop longue (trop d'arguments) : ~S")
+      (c-error (ENGLISH "Form too long, too many arguments: ~S")
                L
   ) ) )
 )
@@ -3162,9 +3130,7 @@ der Docstring (oder NIL).
                )
                (c-CONST)
               )
-              (t (c-error (DEUTSCH "Das ist keine gültige Form: ~S"
-                           ENGLISH "Invalid form: ~S"
-                           FRANCAIS "Forme invalide : ~S")
+              (t (c-error (ENGLISH "Invalid form: ~S")
                           *form*
         )     )  )
         (let ((fun (first *form*)))
@@ -3216,9 +3182,7 @@ der Docstring (oder NIL).
             (if (and (consp fun) (eq (car fun) 'LAMBDA))
               (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| nicht: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
-              (c-error (DEUTSCH "Das ist nicht der Name einer Funktion: ~S"
-                        ENGLISH "Not the name of a function: ~S"
-                        FRANCAIS "Ceci n'est pas le nom d'une fonction : ~S")
+              (c-error (ENGLISH "Not the name of a function: ~S")
                        fun
     ) ) ) ) ) )
   ))
@@ -3293,12 +3257,8 @@ der Docstring (oder NIL).
   ; Suche die Variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
-      (c-warn (DEUTSCH "~S ist weder deklariert noch gebunden,~@
-                        behandle es als SPECIAL-deklarierte Variable."
-               ENGLISH "~S is neither declared nor bound,~@
-                        it will be treated as if it were declared SPECIAL."
-               FRANCAIS "~S n'est ni déclaré ni lié,~@
-                         et va être traité comme étant déclaré SPECIAL.")
+      (c-warn (ENGLISH "~S is neither declared nor bound,~@
+                        it will be treated as if it were declared SPECIAL.")
               symbol
       )
       (when *compiling-from-file*
@@ -3377,12 +3337,8 @@ der Docstring (oder NIL).
   ; Suche die Variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
-      (c-warn (DEUTSCH "~S ist weder deklariert noch gebunden,~@
-                        behandle es als SPECIAL-deklarierte Variable."
-               ENGLISH "~S is neither declared nor bound,~@
-                        it will be treated as if it were declared SPECIAL."
-               FRANCAIS "~S n'est ni déclaré ni lié,~@
-                         et va être traité comme étant déclaré SPECIAL.")
+      (c-warn (ENGLISH "~S is neither declared nor bound,~@
+                        it will be treated as if it were declared SPECIAL.")
               symbol
       )
       (setq a 'SPECIAL)
@@ -3398,12 +3354,8 @@ der Docstring (oder NIL).
                                )
                       :code (if (var-constantp var)
                               (progn
-                                (c-warn (DEUTSCH "Der Konstante ~S kann nicht zugewiesen werden.~@
-                                                  Die Zuweisung wird ignoriert."
-                                         ENGLISH "The constant ~S may not be assigned to.~@
-                                                  The assignment will be ignored."
-                                         FRANCAIS "Rien ne peut être assigné à la constante ~S.~@
-                                                   L'assignation est ignorée.")
+                                (c-warn (ENGLISH "The constant ~S may not be assigned to.~@
+                                                  The assignment will be ignored.")
                                         symbol
                                 )
                                 '((VALUES1))
@@ -3544,20 +3496,14 @@ der Docstring (oder NIL).
 ;   (length args) <= (req+opt oder, falls rest-p oder key-p, unendlich).
 (defun test-argument-syntax (args applyargs fun req opt rest-p key-p keylist allow-p)
   (unless (and (listp args) (null (cdr (last args))))
-    (c-error (DEUTSCH "Argumentliste zu Funktion ~S ist dotted: ~S"
-              ENGLISH "argument list to function ~S is dotted: ~S"
-              FRANCAIS "Liste pointée d'arguments pour la fonction ~S : ~S")
+    (c-error (ENGLISH "argument list to function ~S is dotted: ~S")
              fun args
   ) )
   (let ((n (length args))
         (reqopt (+ req opt)))
     (unless (and (or applyargs (<= req n)) (or rest-p key-p (<= n reqopt)))
-      (c-warn (DEUTSCH "~S mit ~S~:[~; oder mehr~] Argumenten aufgerufen, braucht aber ~
-                        ~:[~:[~S bis ~S~;~S~]~;mindestens ~*~S~] Argumente."
-               ENGLISH "~S called with ~S~:[~; or more~] arguments, but it requires ~
-                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
-               FRANCAIS "~S est appelé avec ~S ~:[~;ou plus d'~]arguments mais a besoin ~
-                         ~:[de ~:[~S à ~S~;~S~]~;d'au moins ~*~S~] arguments.")
+      (c-warn (ENGLISH "~S called with ~S~:[~; or more~] arguments, but it requires ~
+                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments.")
               fun n applyargs
               (or rest-p key-p)  (eql req reqopt) req reqopt
       )
@@ -3569,9 +3515,7 @@ der Docstring (oder NIL).
     (when rest-p (return-from test-argument-syntax 'DYNAMIC-KEYS))
     (setq n (- n reqopt) args (nthcdr reqopt args))
     (unless (evenp n)
-      (c-warn (DEUTSCH "Keyword-Argumente zu Funktion ~S sind nicht paarig: ~S"
-               ENGLISH "keyword arguments to function ~S should occur pairwise: ~S"
-               FRANCAIS "Les arguments de genre mot-clé pour la fonction ~S ne sont pas par paires : ~S")
+      (c-warn (ENGLISH "keyword arguments to function ~S should occur pairwise: ~S")
               fun args
       )
       (return-from test-argument-syntax 'NIL)
@@ -3582,12 +3526,8 @@ der Docstring (oder NIL).
         )
         ((null keyargs)
          (if wrong-key
-           (c-error (DEUTSCH "Keyword ~S ist bei Funktion ~S nicht erlaubt.~
-                              ~%Erlaubt ~:[sind nur ~{~S~#[~; und ~S~:;, ~]~}~;ist nur ~{~S~}~]."
-                     ENGLISH "keyword ~S is not allowed for function ~S.~
-                              ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~]."
-                     FRANCAIS "L'argument mot-clé ~S n'est pas permis pour la fonction ~S.~
-                               ~%Seul~:[s sont permis ~{~S~#[~; et ~S~:;, ~]~}~; est permis ~{~S~}~].")
+           (c-error (ENGLISH "keyword ~S is not allowed for function ~S.~
+                              ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~].")
                     wrong-key fun (eql (length keylist) 1) keylist
            )
            'STATIC-KEYS
@@ -3598,9 +3538,7 @@ der Docstring (oder NIL).
         )
         (setq key (c-constant-value key))
         (unless (keywordp key)
-          (c-warn (DEUTSCH "Das Argument ~S zu Funktion ~S ist kein Keyword."
-                   ENGLISH "argument ~S to function ~S is not a keyword"
-                   FRANCAIS "L'argument ~S pour la fonction ~S n'est pas un mot-clé.")
+          (c-warn (ENGLISH "argument ~S to function ~S is not a keyword")
                   (first keyargs) fun
           )
           (return-from test-argument-syntax 'DYNAMIC-KEYS)
@@ -4256,12 +4194,8 @@ der Docstring (oder NIL).
                ) ) ) )
                ; falsche Argumentezahl -> doch nicht INLINE:
                (progn
-                 (c-warn (DEUTSCH "~S mit ~S Argumenten aufgerufen, braucht aber ~
-                                   ~:[~:[~S bis ~S~;~S~]~;mindestens ~*~S~] Argumente."
-                          ENGLISH "~S called with ~S arguments, but it requires ~
-                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
-                          FRANCAIS "~S est appelé avec ~S arguments mais a besoin ~
-                                    ~:[de ~:[~S à ~S~;~S~]~;d'au moins ~*~S~] arguments.")
+                 (c-warn (ENGLISH "~S called with ~S arguments, but it requires ~
+                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments.")
                          fun n
                          rest-p  (eql opt 0) req (+ req opt)
                  )
@@ -4440,9 +4374,7 @@ der Docstring (oder NIL).
            (push (caar L) symbols) (push (cadar L) forms)
           )
           (t (catch 'c-error
-               (c-error (DEUTSCH "Falsche Syntax in LET/LET*: ~S"
-                         ENGLISH "Illegal syntax in LET/LET*: ~S"
-                         FRANCAIS "Mauvaise syntaxe pour LET/LET* : ~S")
+               (c-error (ENGLISH "Illegal syntax in LET/LET*: ~S")
                         (car L)
     )     )  ) )
 ) )
@@ -4479,25 +4411,19 @@ der Docstring (oder NIL).
        ; alle in umgedrehter Reihenfolge
     (macrolet ((err-illegal (item)
                  `(catch 'c-error
-                    (c-error (DEUTSCH "Dieser Lambdalistenmarker ist an dieser Stelle nicht erlaubt: ~S"
-                              ENGLISH "Lambda list marker ~S not allowed here."
-                              FRANCAIS "Le marqueur de lambda-liste ~S n'est pas permis ici.")
+                    (c-error (ENGLISH "Lambda list marker ~S not allowed here.")
                              ,item
                   ) )
                )
                (err-norest ()
                  `(catch 'c-error
-                    (c-error (DEUTSCH "Fehlender &REST-Parameter in der Lambdaliste: ~S"
-                              ENGLISH "Missing &REST parameter in lambda list ~S"
-                              FRANCAIS "Il manque le paramètre &REST dans la lambda-liste ~S")
+                    (c-error (ENGLISH "Missing &REST parameter in lambda list ~S")
                              lambdalist
                   ) )
                )
                (err-superflu (item)
                  `(catch 'c-error
-                    (c-error (DEUTSCH "Überflüssiges Lambdalisten-Element: ~S"
-                              ENGLISH "Lambda list element ~S is superfluous."
-                              FRANCAIS "L'élément de lambda-liste est superflu : ~S")
+                    (c-error (ENGLISH "Lambda list element ~S is superfluous.")
                              ,item
                   ) )
               ))
@@ -4672,9 +4598,7 @@ der Docstring (oder NIL).
       ; Hier gilt (atom L).
       (if L
         (catch 'c-error
-          (c-error (DEUTSCH "Eine Lambdaliste, die einen Punkt enthält, ist nur bei Macros erlaubt, nicht hier: ~S"
-                    ENGLISH "Lambda lists with dots are only allowed in macros, not here: ~S"
-                    FRANCAIS "Les listes lambdas contenant une paire pointée ne sont permises qu'avec des macros et non ici : ~S")
+          (c-error (ENGLISH "Lambda lists with dots are only allowed in macros, not here: ~S")
                    lambdalist
       ) ) )
     )
@@ -4690,9 +4614,7 @@ der Docstring (oder NIL).
 
 (defun lambdalist-error (item)
   (catch 'c-error
-    (c-error (DEUTSCH "Unzulässiges Lambdalistenelement: ~S"
-              ENGLISH "Illegal lambda list element ~S"
-              FRANCAIS "N'est pas permis dans une lambda-liste : ~S")
+    (c-error (ENGLISH "Illegal lambda list element ~S")
              item
 ) ) )
 
@@ -4788,15 +4710,11 @@ der Docstring (oder NIL).
     (if (member sym *ignores* :test #'eq)
       ; var ignore-deklariert
       (if (var-specialp var)
-        (c-warn (DEUTSCH "Binden der Variablen ~S kann trotz IGNORE-Deklaration~%Seiteneffekte haben, weil sie SPECIAL deklariert ist."
-                 ENGLISH "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL."
-                 FRANCAIS "Lier la variable ~S peut avoir des effets de bord malgré la déclaration IGNORE~%car elle a été déclarée SPECIAL.")
+        (c-warn (ENGLISH "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL.")
                 sym
         )
         (if (var-for-value-usedp var)
-          (c-style-warn (DEUTSCH "Variable ~S wird trotz IGNORE-Deklaration benutzt."
-                         ENGLISH "variable ~S is used despite of IGNORE declaration."
-                         FRANCAIS "La variable ~S est utilisée malgré la déclaration IGNORE.")
+          (c-style-warn (ENGLISH "variable ~S is used despite of IGNORE declaration.")
                         sym
       ) ) )
       ; var nicht ignore-deklariert
@@ -4807,17 +4725,13 @@ der Docstring (oder NIL).
           (unless (null (symbol-package sym)) ; sym ein (gensym) ?
             ; (Symbole ohne Home-Package kommen nicht vom Benutzer, die Warnung
             ; würde nur verwirren).
-            (c-style-warn (DEUTSCH "Variable ~S wird nicht benutzt.~%Schreibfehler oder fehlende IGNORE-Deklaration?"
-                           ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
-                           FRANCAIS "La variable ~S n'est pas utilisée.~%Mauvaise orthographe ou déclaration IGNORE manquante?")
+            (c-style-warn (ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?")
                           sym
     ) ) ) ) )
     (when (member sym *readonlys* :test #'eq)
       (unless (var-specialp var)
         (when (var-assignedp var)
-          (c-warn (DEUTSCH "Der Variablen ~S wird trotz READ-ONLY-Deklaration ein Wert zugewiesen."
-                   ENGLISH "The variable ~S is assigned to, despite of READ-ONLY declaration."
-                   FRANCAIS "La variable ~S est affectée malgré la déclaration READ-ONLY.")
+          (c-warn (ENGLISH "The variable ~S is assigned to, despite of READ-ONLY declaration.")
                   sym
     ) ) ) )
 ) )
@@ -4863,9 +4777,7 @@ der Docstring (oder NIL).
     (progn
       (when (l-constantp symbol)
         (catch 'c-error
-          (c-error (DEUTSCH "Konstante ~S kann nicht gebunden werden."
-                    ENGLISH "Constant ~S cannot be bound."
-                    FRANCAIS "La constante ~S ne peut pas être liée.")
+          (c-error (ENGLISH "Constant ~S cannot be bound.")
                    symbol
       ) ) )
       (make-special-var symbol)
@@ -5001,9 +4913,7 @@ der Docstring (oder NIL).
       (if (l-constantp symbol)
         (progn
           (catch 'c-error
-            (c-error (DEUTSCH "Konstante ~S kann nicht gebunden werden."
-                      ENGLISH "Constant ~S cannot be bound."
-                      FRANCAIS "La constante ~S ne peut pas être liée.")
+            (c-error (ENGLISH "Constant ~S cannot be bound.")
                      symbol
           ) )
           (push 0 *stackz*)
@@ -5742,9 +5652,7 @@ der Docstring (oder NIL).
 ; compiliere (DECLARE {declspec}*)
 (defun c-DECLARE ()
   (test-list *form* 1)
-  (c-error (DEUTSCH "Deklarationen sind an dieser Stelle nicht erlaubt: ~S"
-            ENGLISH "Misplaced declaration: ~S"
-            FRANCAIS "Une déclaration n'est pas permise ici : ~S")
+  (c-error (ENGLISH "Misplaced declaration: ~S")
            *form*
 ) )
 
@@ -5956,9 +5864,7 @@ der Docstring (oder NIL).
 (defun c-SETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
-    (c-error (DEUTSCH "Ungerade viele Argumente zu SETQ: ~S"
-              ENGLISH "Odd number of arguments to SETQ: ~S"
-              FRANCAIS "Nombre impair d'arguments pour SETQ : ~S")
+    (c-error (ENGLISH "Odd number of arguments to SETQ: ~S")
              *form*
   ) )
   (if (null (cdr *form*))
@@ -5995,9 +5901,7 @@ der Docstring (oder NIL).
             ) )
             (progn
               (catch 'c-error
-                (c-error (DEUTSCH "Zuweisung auf ~S unmöglich, da kein Symbol."
-                          ENGLISH "Cannot assign to non-symbol ~S."
-                          FRANCAIS "Rien ne peut être assigné à ~S car ce n'est pas un symbole.")
+                (c-error (ENGLISH "Cannot assign to non-symbol ~S.")
                          symboli
               ) )
               (push '(VALUES1) codelist)
@@ -6009,9 +5913,7 @@ der Docstring (oder NIL).
 (defun c-PSETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
-    (c-error (DEUTSCH "Ungerade viele Argumente zu PSETQ: ~S"
-              ENGLISH "Odd number of arguments to PSETQ: ~S"
-              FRANCAIS "Nombre impair d'arguments pour PSETQ : ~S")
+    (c-error (ENGLISH "Odd number of arguments to PSETQ: ~S")
              *form*
   ) )
   (if (null (cdr *form*))
@@ -6036,9 +5938,7 @@ der Docstring (oder NIL).
                 (push 0 *stackz*)
               )
               (catch 'c-error
-                (c-error (DEUTSCH "Zuweisung auf ~S unmöglich, da kein Symbol."
-                          ENGLISH "Cannot assign to non-symbol ~S."
-                          FRANCAIS "Rien ne peut être assigné à ~S car ce n'est pas un symbole.")
+                (c-error (ENGLISH "Cannot assign to non-symbol ~S.")
                          symboli
         ) ) ) ) )
         ; Versuche, sie so zu reorganisieren, dass möglichst wenige (PUSH)
@@ -6136,9 +6036,7 @@ der Docstring (oder NIL).
                 (seclass-or-f seclass setter)
               )
               (catch 'c-error
-                (c-error (DEUTSCH "Zuweisung auf ~S unmöglich, da kein Symbol."
-                          ENGLISH "Cannot assign to non-symbol ~S."
-                          FRANCAIS "Rien ne peut être assigné à ~S car ce n'est pas un symbole.")
+                (c-error (ENGLISH "Cannot assign to non-symbol ~S.")
                          symbol
           ) ) ) )
           (push '(POP) codelist)
@@ -6276,9 +6174,7 @@ der Docstring (oder NIL).
   (let ((symbols (second *form*)))
     (dolist (sym symbols)
       (unless (symbolp sym)
-        (c-error (DEUTSCH "Nur Symbole können Variable sein, nicht ~S"
-                  ENGLISH "Only symbols may be used as variables, not ~S"
-                  FRANCAIS "Seuls les symboles peuvent servir de variable et non ~S")
+        (c-error (ENGLISH "Only symbols may be used as variables, not ~S")
                  sym
     ) ) )
     (if (= (length symbols) 1)
@@ -6383,9 +6279,7 @@ der Docstring (oder NIL).
            )    )
            (push (caar L) varlist) (push (eval (cadar L)) valueslist))
           (t (catch 'c-error
-               (c-error (DEUTSCH "Falsche Syntax in COMPILER-LET: ~S"
-                         ENGLISH "Illegal syntax in COMPILER-LET: ~S"
-                         FRANCAIS "Mauvaise syntaxe pour COMPILER-LET : ~S")
+               (c-error (ENGLISH "Illegal syntax in COMPILER-LET: ~S")
                         (car L)
     )     )  ) )
 ) )
@@ -6393,9 +6287,7 @@ der Docstring (oder NIL).
 (macrolet ((check-blockname (name)
              `(unless (symbolp ,name)
                 (catch 'c-error
-                  (c-error (DEUTSCH "Blockname muss ein Symbol sein, nicht ~S"
-                            ENGLISH "Block name must be a symbol, not ~S"
-                            FRANCAIS "Un nom de bloc doit être un symbole et non ~S")
+                  (c-error (ENGLISH "Block name must be a symbol, not ~S")
                            ,name
                 ) )
                 (setq ,name NIL) ; Default-Blockname
@@ -6444,9 +6336,7 @@ der Docstring (oder NIL).
     (check-blockname name)
     (let ((a (benv-search name)))
       (cond ((null a) ; dieser Blockname ist unsichtbar
-             (c-error (DEUTSCH "RETURN-FROM auf Block ~S an dieser Stelle nicht möglich."
-                       ENGLISH "RETURN-FROM block ~S is impossible from here."
-                       FRANCAIS "RETURN-FROM bloc ~S est impossible à partir d'ici.")
+             (c-error (ENGLISH "RETURN-FROM block ~S is impossible from here.")
                       name
             ))
             ((block-p a) ; in *benv* ohne %benv% sichtbar
@@ -6517,9 +6407,7 @@ der Docstring (oder NIL).
               (push (make-label 'NIL) labellist)
             )
             (catch 'c-error
-              (c-error (DEUTSCH "Nur Zahlen und Symbole sind zulässige Sprungziele, nicht aber ~S"
-                        ENGLISH "Only numbers and symbols are valid tags, not ~S"
-                        FRANCAIS "Seuls les symboles et les nombres peuvent servir de marqueur de saut et non ~S")
+              (c-error (ENGLISH "Only numbers and symbols are valid tags, not ~S")
                        item
     ) ) ) ) ) )
     (let* ((*stackz* (cons 0 *stackz*)) ; evtl. TAGBODY-Frame
@@ -6590,16 +6478,12 @@ der Docstring (oder NIL).
   (test-list *form* 2 2)
   (let ((tag (second *form*)))
     (unless (or (symbolp tag) (numberp tag))
-      (c-error (DEUTSCH "Sprungziel muss ein Symbol oder eine Zahl sein, nicht ~S"
-                ENGLISH "Tag must be a symbol or a number, not ~S"
-                FRANCAIS "Le marqueur de saut doit être un symbole ou un nombre et non ~S")
+      (c-error (ENGLISH "Tag must be a symbol or a number, not ~S")
                tag
     ) )
     (multiple-value-bind (a b) (genv-search tag)
       (cond ((null a) ; dieser Tag ist unsichtbar
-             (c-error (DEUTSCH "GO auf Tag ~S an dieser Stelle nicht möglich."
-                       ENGLISH "GO to tag ~S is impossible from here."
-                       FRANCAIS "GO vers le marqueur ~S n'est pas possible ici.")
+             (c-error (ENGLISH "GO to tag ~S is impossible from here.")
                       tag
             ))
             ((tagbody-p a) ; in *genv* ohne %genv% sichtbar
@@ -6674,9 +6558,7 @@ der Docstring (oder NIL).
                      `((CONST ,(make-funname-const name)) (SYMBOL-FUNCTION))
           ))       )
           (SYSTEM::MACRO
-           (c-error (DEUTSCH "~S ist keine Funktion, sondern ein lokal definierter Macro."
-                     ENGLISH "~S is not a function. It is a locally defined macro."
-                     FRANCAIS "~S n'est pas une fonction mais une macro définie localement.")
+           (c-error (ENGLISH "~S is not a function. It is a locally defined macro.")
                     name
           ))
           (GLOBAL ; gefunden in %fenv%
@@ -6712,9 +6594,7 @@ der Docstring (oder NIL).
                 )
                 (cdr funname)
           ) ) )
-          (c-error (DEUTSCH "Nur Symbole und Lambda-Ausdrücke sind Namen von Funktionen, nicht ~S"
-                    ENGLISH "Only symbols and lambda expressions are function names, not ~S"
-                    FRANCAIS "Seuls les symboles et les lambda-expressions sont des noms de fonction et non ~S")
+          (c-error (ENGLISH "Only symbols and lambda expressions are function names, not ~S")
                    funname
 ) ) ) ) ) )
 
@@ -6765,9 +6645,7 @@ der Docstring (oder NIL).
 
 (macrolet ((err-syntax (specform fdef)
              `(catch 'c-error
-                (c-error (DEUTSCH "Falsche Syntax einer Funktionsdefinition in ~S: ~S"
-                          ENGLISH "Illegal function definition syntax in ~S: ~S"
-                          FRANCAIS "Mauvaise syntaxe de définition de fonction dans ~S : ~S")
+                (c-error (ENGLISH "Illegal function definition syntax in ~S: ~S")
                          ,specform ,fdef
               ) )
           ))
@@ -7207,24 +7085,18 @@ der Docstring (oder NIL).
                     )
                   (progn (push (first symdef) symbols) (push (second symdef) expansions))
                   (catch 'c-error
-                    (c-error (DEUTSCH "Falsche Syntax in SYMBOL-MACROLET: ~S"
-                              ENGLISH "Illegal syntax in SYMBOL-MACROLET: ~S"
-                              FRANCAIS "Mauvaise syntaxe pour SYMBOL-MACROLET : ~S")
+                    (c-error (ENGLISH "Illegal syntax in SYMBOL-MACROLET: ~S")
                              symdef
             ) ) ) ) )
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
               (catch 'c-error
-                (c-error (DEUTSCH "~S: Symbol ~S ist SPECIAL deklariert und darf nicht Makro deklariert werden."
-                          ENGLISH "~S: symbol ~S is declared special and must not be declared a macro"
-                          FRANCAIS "~S : Le symbole ~S est déclaré SPECIAL et ne peut être déclaré macro.")
+                (c-error (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro")
                          'symbol-macrolet symbol
               ) )
               (if (member symbol *specials* :test #'eq)
                 (catch 'c-error
-                  (c-error (DEUTSCH "~S: Symbol ~S darf nicht gleichzeitig SPECIAL und Makro deklariert werden."
-                            ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
-                            FRANCAIS "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps.")
+                  (c-error (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                            'symbol-macrolet symbol
           ) ) ) ) )
           (setq *venv* ; *venv* erweitern
@@ -7254,9 +7126,7 @@ der Docstring (oder NIL).
                  ((or (equal situation '(NOT COMPILE))
                       (equal situation '(NOT :COMPILE-TOPLEVEL)))
                   (setq load-flag t))
-                 (t (c-error (DEUTSCH "Situation bei EVAL-WHEN muss EVAL, LOAD oder COMPILE sein, nicht ~S."
-                              ENGLISH "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S"
-                              FRANCAIS "EVAL-WHEN ne s'applique qu'aux situations EVAL, LOAD ou COMPILE et non ~S.")
+                 (t (c-error (ENGLISH "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S")
                              situation
     ) ) )  )     )  )
     (let ((form `(PROGN ,@(cddr *form*))))
@@ -7277,9 +7147,7 @@ der Docstring (oder NIL).
         'NIL
         (let ((clause (car clauses)))
           (if (atom clause)
-            (c-error (DEUTSCH "COND-Klausel ohne Test: ~S"
-                      ENGLISH "COND clause without test: ~S"
-                      FRANCAIS "Clause COND sans aucun test : ~S")
+            (c-error (ENGLISH "COND clause without test: ~S")
                      clause
             )
             (let ((test (car clause)))
@@ -7301,9 +7169,7 @@ der Docstring (oder NIL).
           ((endp clauses))
         (let ((clause (pop clauses)))
           (if (atom clause)
-            (c-error (DEUTSCH "CASE-Klausel ohne Objekte: ~S"
-                      ENGLISH "CASE clause without objects: ~S"
-                      FRANCAIS "Clause CASE sans objets LISP : ~S")
+            (c-error (ENGLISH "CASE clause without objects: ~S")
                      clause
             )
             (let ((keys (car clause)))
@@ -7313,9 +7179,7 @@ der Docstring (oder NIL).
                   (progn
                     (when clauses
                       (catch 'c-error
-                        (c-error (DEUTSCH "~S: Die ~S-Klausel muss die letzte sein: ~S"
-                                  ENGLISH "~S: the ~S clause must be the last one: ~S"
-                                  FRANCAIS "~S : La clause ~S doit être la dernière: ~S")
+                        (c-error (ENGLISH "~S: the ~S clause must be the last one: ~S")
                                  'case keys *form*
                     ) ) )
                     (setq keys 'T)
@@ -7325,9 +7189,7 @@ der Docstring (oder NIL).
                     (dolist (key (if (listp keys) keys (list keys)))
                       (if (not (member key allkeys :test #'eql)) ; remove-duplicates
                         (progn (push key allkeys) (push key newkeys))
-                        (c-style-warn (DEUTSCH "Doppelt aufgeführter ~S-Fall ~S : ~S"
-                                       ENGLISH "Duplicate ~S label ~S : ~S"
-                                       FRANCAIS "~S : Le choix ~S se répète: ~S")
+                        (c-style-warn (ENGLISH "Duplicate ~S label ~S : ~S")
                                       'case key *form*
                     ) ) )
                     (setq keys (nreverse newkeys))
@@ -7589,9 +7451,7 @@ der Docstring (oder NIL).
         ; zu viele Argumente angegeben. Wird beseitigt durch Einführung
         ; mehrerer zusätzlicher optionaler Argumente:
         (catch 'c-error
-          (c-error (DEUTSCH "Zuviele Argumente für ~S"
-                    ENGLISH "Too many arguments to ~S"
-                    FRANCAIS "Trop d'arguments pour ~S")
+          (c-error (ENGLISH "Too many arguments to ~S")
                    funform
         ) )
         (dotimes (i (- |t| (+ r s)))
@@ -7606,9 +7466,7 @@ der Docstring (oder NIL).
         ; zu wenige Argumente angegeben. Wird beseitigt durch Einführung
         ; zusätzlicher Argumente:
         (catch 'c-error
-          (c-error (DEUTSCH "Zuwenig Argumente für ~S"
-                    ENGLISH "Too few arguments to ~S"
-                    FRANCAIS "Trop peu d'arguments pour ~S")
+          (c-error (ENGLISH "Too few arguments to ~S")
                    funform
         ) )
         (setq arglist (append arglist (make-list (- r |t|) :initial-element nil)))
@@ -8487,9 +8345,7 @@ der Docstring (oder NIL).
                     ((and (consp low) (null (rest low)) (funcall tester (first low)))
                      `((< ,(first low) ,x))
                     )
-                    (t (c-warn (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
-                                ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
-                                FRANCAIS "~S : L'argument de ~S doit être *, ~S ou une liste de ~S: ~S")
+                    (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                                'typep caller caller caller low
                        )
                        (throw 'c-TYPEP nil)
@@ -8499,9 +8355,7 @@ der Docstring (oder NIL).
                     ((and (consp high) (null (rest high)) (funcall tester (first high)))
                      `((> ,(first high) ,x))
                     )
-                    (t (c-warn (DEUTSCH "~S: Argument zu ~S muss *, ~S oder eine Liste von ~S sein: ~S"
-                                ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
-                                FRANCAIS "~S : L'argument de ~S doit être *, ~S ou une liste de ~S: ~S")
+                    (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                                'typep caller caller caller high
                        )
                        (throw 'c-TYPEP nil)
@@ -8548,9 +8402,7 @@ der Docstring (oder NIL).
       ,#'(lambda (x &optional n &rest illegal-args)
            (declare (ignore illegal-args))
            (unless (integerp n)
-             (c-warn (DEUTSCH "~S: Argument zu MOD muss ganze Zahl sein: ~S"
-                      ENGLISH "~S: argument to MOD must be an integer: ~S"
-                      FRANCAIS "~S : L'argument de MOD doit être un entier: ~S")
+             (c-warn (ENGLISH "~S: argument to MOD must be an integer: ~S")
                      'typep n
              )
              (throw 'c-TYPEP nil)
@@ -8562,9 +8414,7 @@ der Docstring (oder NIL).
       ,#'(lambda (x &optional (n '*) &rest illegal-args)
            (declare (ignore illegal-args))
            (unless (or (eq n '*) (integerp n))
-             (c-warn (DEUTSCH "~S: Argument zu SIGNED-BYTE muss ganze Zahl oder * sein: ~S"
-                      ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S"
-                      FRANCAIS "~S : L'argument de SIGNED-BYTE doit être un entier ou bien * : ~S")
+             (c-warn (ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
                      'typep n
              )
              (throw 'c-TYPEP nil)
@@ -8578,9 +8428,7 @@ der Docstring (oder NIL).
       ,#'(lambda (x &optional (n '*) &rest illegal-args)
            (declare (ignore illegal-args))
            (unless (or (eq n '*) (integerp n))
-             (c-warn (DEUTSCH "~S: Argument zu UNSIGNED-BYTE muss ganze Zahl oder * sein: ~S"
-                      ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S"
-                      FRANCAIS "~S : L'argument de UNSIGNED-BYTE doit être un entier ou bien * : ~S")
+             (c-warn (ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
                      'typep n
              )
              (throw 'c-TYPEP nil)
@@ -8677,9 +8525,7 @@ der Docstring (oder NIL).
                   (cond ((and (eq (first type) 'SATISFIES) (eql (length type) 2))
                           (let ((fun (second type)))
                             (unless (symbolp (second type))
-                              (c-warn (DEUTSCH "~S: Argument zu SATISFIES muss Symbol sein: ~S"
-                                       ENGLISH "~S: argument to SATISFIES must be a symbol: ~S"
-                                       FRANCAIS "~S : L'argument de SATISFIES doit être un symbole: ~S")
+                              (c-warn (ENGLISH "~S: argument to SATISFIES must be a symbol: ~S")
                                       'typep (second type)
                               )
                               (throw 'c-TYPEP nil)
@@ -12114,9 +11960,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                      &aux (macro-flag nil) (trace-flag nil) (save-flag nil))
   (unless (function-name-p name)
     (error-of-type 'error
-      (DEUTSCH "Name einer zu compilierenden Funktion muss ein Symbol sein, nicht: ~S"
-       ENGLISH "Name of function to be compiled must be a symbol, not ~S"
-       FRANCAIS "Le nom d'une fonction à compiler doit être un symbole et non ~S")
+      (ENGLISH "Name of function to be compiled must be a symbol, not ~S")
       name
   ) )
   (let ((symbol (get-funname-symbol name)))
@@ -12127,9 +11971,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (when (and name (setq svar (get symbol 'sys::traced-definition)))
           (if (consp svar)
             (progn
-              (warn (DEUTSCH "~S: ~S war getraced und wird umdefiniert!"
-                     ENGLISH "~S: redefining ~S; it was traced!"
-                     FRANCAIS "~S: ~S est redéfinie, alors qu'elle était tracée!")
+              (warn (ENGLISH "~S: redefining ~S; it was traced!")
                     'compile name
               )
               (sys::untrace2 name)
@@ -12137,9 +11979,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
             (setq trace-flag t)
         ) )
         (when (compiled-function-p definition)
-          (warn (DEUTSCH "~S ist schon compiliert."
-                 ENGLISH "~S is already compiled."
-                 FRANCAIS "~S est déjà compilée.")
+          (warn (ENGLISH "~S is already compiled.")
                 definition
           )
           (when name
@@ -12160,9 +12000,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (unless (fboundp symbol)
           (error-of-type 'undefined-function
             :name name
-            (DEUTSCH "Funktion ~S ist undefiniert."
-             ENGLISH "Undefined function ~S"
-             FRANCAIS "Fonction non définie ~S.")
+            (ENGLISH "Undefined function ~S")
             name
         ) )
         (if (setq definition (get symbol 'sys::traced-definition))
@@ -12174,9 +12012,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
           (setq definition (cdr definition))
         )
         (when (compiled-function-p definition)
-          (warn (DEUTSCH "~S ist schon compiliert."
-                 ENGLISH "~S is already compiled."
-                 FRANCAIS "~S est déjà compilée.")
+          (warn (ENGLISH "~S is already compiled.")
                 name
           )
           (return-from compile name)
@@ -12185,9 +12021,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 (sys::closurep definition)
             )
       (error-of-type 'error
-        (DEUTSCH "Das ist weder ein Lambda-Ausdruck noch ein funktionales Objekt:~%~S"
-         ENGLISH "Not a lambda expression nor a function: ~S"
-         FRANCAIS "Ni lambda-expression ni fonction : ~S")
+        (ENGLISH "Not a lambda expression nor a function: ~S")
         definition
     ) )
     (let ((*compiling* t)
@@ -12418,9 +12252,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
             (progn
               (when listing-stream
                 (format listing-stream
-                  (DEUTSCH "~&Listing der Compilation von Datei ~A~%am ~@? durch ~A in der Version ~A"
-                   ENGLISH "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
-                   FRANCAIS "~&Listage de la compilation du fichier ~A~%le ~@? par ~A, version ~A")
+                  (ENGLISH "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A")
                   file
                   (date-format)
                   (multiple-value-list (get-decoded-time))
@@ -12463,9 +12295,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (eof-value "EOF")
                     (form-count 0)
                    )
-                (c-comment (DEUTSCH "~%Datei ~A wird compiliert..."
-                            ENGLISH "~%Compiling file ~A ..."
-                            FRANCAIS "~%Compilation du fichier ~A...")
+                (c-comment (ENGLISH "~%Compiling file ~A ...")
                            file
                 )
                 (when *fasoutput-stream*
@@ -12513,50 +12343,36 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                       (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count))
                 ) ) )
                 (finalize-coutput-file)
-                (c-comment (DEUTSCH "~&~%Compilation von Datei ~A beendet."
-                            ENGLISH "~&~%Compilation of file ~A is finished."
-                            FRANCAIS "~&~%Compilation du fichier ~A terminée.")
+                (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
                            file
                 )
-                (c-comment (DEUTSCH "~%~D Error~:P, ~D Warnung~:[en~;~]"
-                            ENGLISH "~%~D error~:P, ~D warning~:P"
-                            FRANCAIS "~%~D erreur~:P, ~D avertissement~:P")
+                (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
                            *error-count* *warning-count* (eql *warning-count* 1)
                 )
                 (when top-call
                   (when *functions-with-errors*
-                    (c-comment (DEUTSCH "~%Es gab Errors in den folgenden Funktionen:~%~{~<~%~:; ~S~>~^~}"
-                                ENGLISH "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
-                                FRANCAIS "~%Il y a des erreurs dans les fonctions :~%~{~<~%~:; ~S~>~^~}" )
+                    (c-comment (ENGLISH "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
                                (nreverse *functions-with-errors*)
                   ) )
                   (setq *unknown-functions*
                     (nset-difference *unknown-functions* *known-functions* :test #'equal)
                   )
                   (when *unknown-functions*
-                    (c-comment (DEUTSCH "~%Folgende Funktionen wurden verwendet, aber nicht definiert:~%~{~<~%~:; ~S~>~^~}"
-                                ENGLISH "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
-                                FRANCAIS "~%Les fonctions suivantes sont utilisées mais non définies :~%~{~<~%~:; ~S~>~^~}")
+                    (c-comment (ENGLISH "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
                                (nreverse *unknown-functions*)
                   ) )
                   (let ((unknown-vars (set-difference *unknown-free-vars* *known-special-vars*))
                         (too-late-vars (intersection *unknown-free-vars* *known-special-vars*)))
                     (when unknown-vars
-                      (c-comment (DEUTSCH "~%Folgende Special-Variablen wurden nicht definiert:~%~{~<~%~:; ~S~>~^~}"
-                                  ENGLISH "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
-                                  FRANCAIS "~%Les variables utilisées comme SPECIAL ne sont pas définies :~%~{~<~%~:; ~S~>~^~}")
+                      (c-comment (ENGLISH "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
                                  (nreverse unknown-vars)
                     ) )
                     (when too-late-vars
-                      (c-comment (DEUTSCH "~%Folgende Special-Variablen wurden zu spät definiert:~%~{~<~%~:; ~S~>~^~}"
-                                  ENGLISH "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
-                                  FRANCAIS "~%Les variables déclarées SPECIAL sont définies trop tard :~%~{~<~%~:; ~S~>~^~}")
+                      (c-comment (ENGLISH "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
                                  (nreverse too-late-vars)
                   ) ) )
                   (when *deprecated-functions*
-                    (c-comment (DEUTSCH "~%Folgende Funktionen wurden verwendet, von ihnen wird aber abgeraten:~%~{~<~%~:; ~S~>~^~}"
-                                ENGLISH "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}"
-                                FRANCAIS "~%Les fonctions suivantes sont utilisées mais sont découragées :~%~{~<~%~:; ~S~>~^~}")
+                    (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}")
                                (nreverse *deprecated-functions*)
                   ) )
                 )
@@ -12617,9 +12433,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 
 #-CLISP
 (defun disassemble-closure (closure &optional (stream *standard-output*))
-  (format stream (DEUTSCH "~%~%Disassembly von Funktion ~S"
-                  ENGLISH "~%~%Disassembly of function ~S"
-                  FRANCAIS "~%~%Déassemblage de la fonction ~S")
+  (format stream (ENGLISH "~%~%Disassembly of function ~S")
                  (closure-name closure)
   )
   (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list allow-other-keys-p
@@ -12630,37 +12444,25 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         ((null L))
       (format stream "~%(CONST ~S) = ~S" i (car L))
     )
-    (format stream (DEUTSCH "~%~S notwendige Argumente"
-                    ENGLISH "~%~S required arguments"
-                    FRANCAIS "~%~S arguments nécessaires")
+    (format stream (ENGLISH "~%~S required arguments")
                    req-anz
     )
-    (format stream (DEUTSCH "~%~S optionale Argumente"
-                    ENGLISH "~%~S optional arguments"
-                    FRANCAIS "~%~S arguments facultatifs")
+    (format stream (ENGLISH "~%~S optional arguments")
                    opt-anz
     )
-    (format stream (DEUTSCH "~%~:[Kein Rest-Parameter~;Rest-Parameter vorhanden~]"
-                    ENGLISH "~%~:[No rest parameter~;Rest parameter~]"
-                    FRANCAIS "~%~:[Pas de paramètre &REST~;Paramètre &REST~]")
+    (format stream (ENGLISH "~%~:[No rest parameter~;Rest parameter~]")
                    rest-p
     )
     (if key-p
       (let ((kw-count (length keyword-list)))
-        (format stream (DEUTSCH "~%~S Keyword-Parameter: ~{~S~^, ~}."
-                        ENGLISH "~%~S keyword parameter~:P: ~{~S~^, ~}."
-                        FRANCAIS "~%~S mot~:P-clé : ~{~S~^, ~}.")
+        (format stream (ENGLISH "~%~S keyword parameter~:P: ~{~S~^, ~}.")
                        kw-count keyword-list
         )
         (when allow-other-keys-p
-          (format stream (DEUTSCH "~%Andere Keywords sind zugelassen."
-                          ENGLISH "~%Other keywords are allowed."
-                          FRANCAIS "~%D'autres mots-clé sont permis.")
-      ) ) )
-      (format stream (DEUTSCH "~%Keine Keyword-Parameter"
-                      ENGLISH "~%No keyword parameters"
-                      FRANCAIS "~%Pas de mot-clé")
-    ) )
+          (format stream (ENGLISH "~%Other keywords are allowed."))
+      ) )
+      (format stream (ENGLISH "~%No keyword parameters"))
+    )
     (let ((const-string-list (mapcar #'write-to-string const-list)))
       (do ((L (disassemble-LAP byte-list const-list) (cdr L)))
           ((null L))
@@ -12676,9 +12478,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 (defun disassemble-closure (closure &optional (stream *standard-output*))
   (terpri stream)
   (terpri stream)
-  (write-string (DEUTSCH "Disassembly von Funktion "
-                 ENGLISH "Disassembly of function "
-                 FRANCAIS "Déassemblage de la fonction ")
+  (write-string (ENGLISH "Disassembly of function ")
                 stream
   )
   (prin1 (closure-name closure) stream)
@@ -12696,37 +12496,27 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     )
     (terpri stream)
     (prin1 req-anz stream)
-    (write-string (DEUTSCH " notwendige Argumente"
-                   ENGLISH " required arguments"
-                   FRANCAIS " arguments nécessaires")
+    (write-string (ENGLISH " required arguments")
                   stream
     )
     (terpri stream)
     (prin1 opt-anz stream)
-    (write-string (DEUTSCH " optionale Argumente"
-                   ENGLISH " optional arguments"
-                   FRANCAIS " arguments facultatifs")
+    (write-string (ENGLISH " optional arguments")
                   stream
     )
     (terpri stream)
     (if rest-p
-      (write-string (DEUTSCH "Rest-Parameter vorhanden"
-                     ENGLISH "Rest parameter"
-                     FRANCAIS "Paramètre &REST")
+      (write-string (ENGLISH "Rest parameter")
                     stream
       )
-      (write-string (DEUTSCH "Kein Rest-Parameter"
-                     ENGLISH "No rest parameter"
-                     FRANCAIS "Pas de paramètre &REST")
+      (write-string (ENGLISH "No rest parameter")
                     stream
     ) )
     (if key-p
       (let ((kw-count (length keyword-list)))
         (terpri stream)
         (prin1 kw-count stream)
-        (format stream (DEUTSCH " Keyword-Parameter: "
-                        ENGLISH " keyword parameter~P: "
-                        FRANCAIS " mot~P-clé : ")
+        (format stream (ENGLISH " keyword parameter~P: ")
                        kw-count
         )
         (do ((L keyword-list))
@@ -12736,16 +12526,12 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         )
         (when allow-other-keys-p
           (terpri stream)
-          (write-string (DEUTSCH "Andere Keywords sind zugelassen."
-                         ENGLISH "Other keywords are allowed."
-                         FRANCAIS "D'autres mots-clé sont permis.")
+          (write-string (ENGLISH "Other keywords are allowed.")
                         stream
       ) ) )
       (progn
         (terpri stream)
-        (write-string (DEUTSCH "Keine Keyword-Parameter"
-                       ENGLISH "No keyword parameters"
-                       FRANCAIS "Pas de mot-clé")
+        (write-string (ENGLISH "No keyword parameters")
                       stream
     ) ) )
     (let ((const-string-list
@@ -12799,9 +12585,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (unless (fboundp object)
       (error-of-type 'undefined-function
         :name object
-        (DEUTSCH "Funktion ~S ist undefiniert."
-         ENGLISH "Undefined function ~S"
-         FRANCAIS "Fonction non définie ~S.")
+        (ENGLISH "Undefined function ~S")
         object
     ) )
     (setq name object)
@@ -12824,9 +12608,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
          ) ) )
   (unless (sys::closurep object)
     (error-of-type 'error
-      (DEUTSCH "~S kann nicht disassembliert werden."
-       ENGLISH "Cannot disassemble ~S"
-       FRANCAIS "Impossible de déassembler ~S")
+      (ENGLISH "Cannot disassemble ~S")
       object
   ) )
   ; object ist eine Closure.

@@ -50,9 +50,7 @@
                           (prompt-new-package))
                       (package-short-name *package*))
                   (incf *command-index*))
-          (DEUTSCH "[*package* ungültig]"
-           ENGLISH "[*package* invalid]"
-           FRANCAIS "[*package* invalide]")))
+          (ENGLISH "[*package* invalid]")))
   "The top level prompt.  If a function, the return value is used.
 If anything else, printed.")
 
@@ -161,58 +159,24 @@ If anything else, printed.")
 )
 (defun debug-return ()
   (return-from-eval-frame *debug-frame*
-    (read-form (DEUTSCH "Werte: "
-                ENGLISH "Values: "
-                FRANCAIS "Valeurs : ")
-  ) )
+    (read-form (ENGLISH "Values: "))
+  )
   (throw 'debug 'continue)
 )
 (defun debug-continue () (throw 'debug 'quit))
 
 (defun commands0 ()
              (list
-               (DEUTSCH "
-Help = diese Liste
-Benutzen Sie die üblichen Editiermöglichkeiten.
-(quit) oder (exit) verlässt CLISP."
-                ENGLISH "
+               (ENGLISH "
 Help = this list
 Use the usual editing capabilities.
 (quit) or (exit) leaves CLISP."
-                FRANCAIS "
-Help = cette liste
-Éditez de la façon habituelle.
-(quit) ou (exit) quitte CLISP."
                )
                (cons "Help"   #'debug-help  )
 )            )
 (defun commands1 ()
              (list
-               (DEUTSCH "
-Help   = dieses Menü
-Abort  = Abbruch, Rücksprung zur nächsthöheren Eingabeschleife
-Unwind = Abbruch, Rücksprung zur nächsthöheren Eingabeschleife
-Mode-1 = alle Stack-Elemente inspizieren
-Mode-2 = alle Frames inspizieren
-Mode-3 = nur lexikalische Frames inspizieren
-Mode-4 = nur EVAL- und APPLY-Frames inspizieren (Default)
-Mode-5 = nur APPLY-Frames inspizieren
-Where  = diesen Frame inspizieren
-Up     = nächsthöheren Frame inspizieren
-Top    = obersten Frame inspizieren
-Down   = nächstneueren Frame inspizieren
-Bottom = neuesten Frame inspizieren
-Backtrace-1 = alle Stack-Elemente auflisten
-Backtrace-2 = alle Frames auflisten
-Backtrace-3 = alle lexikalische Frames auflisten
-Backtrace-4 = alle EVAL- und APPLY-Frames auflisten
-Backtrace-5 = alle APPLY-Frames auflisten
-Backtrace   = Stack auflisten im aktuellen Mode
-Break+ = Breakpoint im EVAL-Frame setzen
-Break- = Breakpoint im EVAL-Frame löschen
-Redo   = Form im EVAL-Frame erneut auswerten
-Return = EVAL-Frame mit gegebenen Werten verlassen"
-                ENGLISH "
+               (ENGLISH "
 Help   = this command list
 Abort  = abort to the next recent input loop
 Unwind = abort to the next recent input loop
@@ -236,30 +200,6 @@ Break+ = set breakpoint in EVAL frame
 Break- = disable breakpoint in EVAL frame
 Redo   = re-evaluate form in EVAL frame
 Return = leave EVAL frame, prescribing the return values"
-                FRANCAIS "
-Help   = ce menu-ci
-Abort  = arrêt, retour au niveau supérieur
-Unwind = arrêt, retour au niveau supérieur
-Mode-1 = examiner tous les éléments de la pile
-Mode-2 = examiner tous les «frames»
-Mode-3 = examiner uniquement les «frames» lexicaux
-Mode-4 = examiner uniquement les «frames» EVAL et APPLY (par défaut)
-Mode-5 = examiner uniquement les «frames» APPLY
-Where  = examiner ce «frame»
-Up     = examiner un «frame» supérieur
-Top    = examiner le «frame» le plus élevé
-Down   = examiner un prochain «frame» plus récent (inférieur)
-Bottom = examiner le «frame» le plus récent (le plus bas)
-Backtrace-1 = montrer tous les éléments de la pile
-Backtrace-2 = montrer tous les «frames»
-Backtrace-3 = montrer tous les «frames» lexicaux
-Backtrace-4 = montrer tous les «frames» EVAL et APPLY
-Backtrace-5 = montrer tous les «frames» APPLY
-Backtrace   = montrer la pile en mode actuel
-Break+ = placer un point d'interception dans le «frame» EVAL
-Break- = enlever le point d'interception du «frame» EVAL
-Redo   = réévaluer la forme dans le «frame» EVAL
-Return = quitter le «frame» EVAL avec certaines valeurs"
                )
                (cons "Help"   #'debug-help  )
                (cons "?"      #'debug-help  )
@@ -291,12 +231,8 @@ Return = quitter le «frame» EVAL avec certaines valeurs"
 )            )
 (defun commands3 ()
              (list
-               (DEUTSCH "
-Continue = Rest weiter abarbeiten"
-                ENGLISH "
+               (ENGLISH "
 Continue = continue evaluation"
-                FRANCAIS "
-Continue = continuer l'évaluation"
                )
                (cons "Continue" #'debug-continue)
 )            )
@@ -352,9 +288,7 @@ Continue = continuer l'évaluation"
       (if (> *recursive-error-count* 3)
         (progn
           (setq *recursive-error-count* 0)
-          (write-string (DEUTSCH "Unausgebbare Fehlermeldung"
-                         ENGLISH "Unprintable error message"
-                         FRANCAIS "Message inimprimable")
+          (write-string (ENGLISH "Unprintable error message")
                         *error-output*
         ) )
         (sys::print-condition condition *error-output*)
@@ -364,18 +298,14 @@ Continue = continuer l'évaluation"
       (if continuable
         (when interactive-p
           (terpri *debug-io*)
-          (write-string (DEUTSCH "Sie können (mit Continue) fortfahren."
-                         ENGLISH "You can continue (by typing 'continue')."
-                         FRANCAIS "Vous pouvez continuer (tapez «continue» pour cela).")
+          (write-string (ENGLISH "You can continue (by typing 'continue').")
                         *debug-io*
           )
         )
         (progn
           (terpri *debug-io*)
           (when interactive-p
-            (write-string (DEUTSCH "Wenn Sie (mit Continue) fortfahren: "
-                           ENGLISH "If you continue (by typing 'continue'): "
-                           FRANCAIS "Si vous continuez (en tapant «continue»): ")
+            (write-string (ENGLISH "If you continue (by typing 'continue'): ")
                           *debug-io*
             )
           )
@@ -387,12 +317,8 @@ Continue = continuer l'évaluation"
         (when interactive-p
           (terpri *debug-io*)
           (write-string (if may-continue
-                          (DEUTSCH "Weitere mögliche Optionen:"
-                           ENGLISH "The following restarts are available too:"
-                           FRANCAIS "D'autres rentrées possibles:")
-                          (DEUTSCH "Mögliche Optionen:"
-                           ENGLISH "The following restarts are available:"
-                           FRANCAIS "Rentrées possibles:")
+                          (ENGLISH "The following restarts are available too:")
+                          (ENGLISH "The following restarts are available:")
                         )
                         *debug-io*
         ) )
@@ -484,27 +410,13 @@ Continue = continuer l'évaluation"
 
 (defun commands4 ()
              (list
-               (DEUTSCH "
-Step     = Step into form: diese Form im Einzelschrittmodus ausführen
-Next     = Step over form: diese Form auf einmal ausführen
-Over     = Step over this level: bis zum Aufrufer auf einmal ausführen
-Continue = Einzelschrittmodus abschalten, Rest ausführen
-Step-until, Next-until, Over-until, Continue-until:
-           dito, jedoch mit Angabe einer Abbruchbedingung"
-                ENGLISH "
+               (ENGLISH "
 Step     = step into form: evaluate this form in single step mode
 Next     = step over form: evaluate this form at once
 Over     = step over this level: evaluate at once up to the next return
 Continue = switch off single step mode, continue evaluation
 Step-until, Next-until, Over-until, Continue-until:
            same as above, specify a condition when to stop"
-                FRANCAIS "
-Step     = step into form: évaluer cette forme petit à petit
-Next     = step over form: évaluer cette forme en bloc
-Over     = step over this level: évaluer tout le reste jusqu'au prochain retour
-Continue = continue: évaluer tout le reste en bloc
-Step-until, Next-until, Over-until, Continue-until:
-           de même, avec spécification d'une condition d'arrêt"
                )
                (cons "Step"     #'(lambda () (throw 'stepper 'into)))
                (cons "Next"     #'(lambda () (throw 'stepper 'over)))
@@ -519,32 +431,16 @@ Step-until, Next-until, Over-until, Continue-until:
 (defun step-values (values)
   (let ((*standard-output* *debug-io*))
     (terpri #|*debug-io*|#)
-    (write-string (DEUTSCH "Step "
-                   ENGLISH "step "
-                   FRANCAIS "Step ")
-                  #|*debug-io*|#
-    )
+    (write-string (ENGLISH "step ") #|*debug-io*|#)
     (write *step-level* #|:stream *debug-io*|#)
     (write-string " ==> " #|*debug-io*|#)
     (case (length values)
-      (0 (write-string (DEUTSCH "Keine Werte"
-                        ENGLISH "no values"
-                        FRANCAIS "Aucune valeur")
-                       #|*debug-io*|#
-      )  )
-      (1 (write-string (DEUTSCH "Wert: "
-                        ENGLISH "value: "
-                        FRANCAIS "Valeur : ")
-                       #|*debug-io*|#
-         )
+      (0 (write-string (ENGLISH "no values") #|*debug-io*|#))
+      (1 (write-string (ENGLISH "value: ") #|*debug-io*|#)
          (write (car values) #|:stream *debug-io*|#)
       )
       (t (write (length values) #|:stream *debug-io*|#)
-         (write-string (DEUTSCH " Werte: "
-                        ENGLISH " values: "
-                        FRANCAIS " Valeurs : ")
-                       #|*debug-io*|#
-         )
+         (write-string (ENGLISH " values: ") #|*debug-io*|#)
          (do ((L values))
              ((endp L))
            (write (pop L) #|:stream *debug-io*|#)
@@ -580,11 +476,7 @@ Step-until, Next-until, Over-until, Continue-until:
              (*debug-frame* (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*))
             )
         (fresh-line #|*debug-io*|#)
-        (write-string (DEUTSCH "Step "
-                       ENGLISH "step "
-                       FRANCAIS "Step ")
-                      #|*debug-io*|#
-        )
+        (write-string (ENGLISH "step ") #|*debug-io*|#)
         (write *step-level* #|:stream *debug-io*|#)
         (write-string " --> " #|*debug-io*|#)
         (write form #|:stream *debug-io*|# :length 4 :level 3)
@@ -612,10 +504,7 @@ Step-until, Next-until, Over-until, Continue-until:
                       (t ) ; alles andere, insbesondere continue
             ) )   ) )
             (when watchp
-              (let ((form (read-form (DEUTSCH "Abbruchbedingung: "
-                                      ENGLISH "condition when to stop: "
-                                      FRANCAIS "condition d'arrêt : ")
-                   ))     )
+              (let ((form (read-form (ENGLISH "condition when to stop: "))))
                 (setq *step-watch* ; Funktion, die 'form' bei *debug-frame* auswertet
                   (eval-at *debug-frame* `(function (lambda () ,form)))
             ) ) )

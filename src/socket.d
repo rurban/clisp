@@ -933,10 +933,8 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
     pushSTACK(arg);
     pushSTACK(ascii_to_string(H_ERRMSG));
     fehler(os_error,
-           DEUTSCH ? "~: ~" :
-           ENGLISH ? "~: ~" :
-           FRANCAIS ? "~: ~" :
-           "");
+           GETTEXT("~: ~")
+          );
   }
 
   HOSTENT_TO_STACK(he);

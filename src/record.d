@@ -30,10 +30,7 @@
       pushSTACK(STACK_(0+3)); # Index
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein erlaubter Index für ~." :
-             ENGLISH ? "~: ~ is not a valid index into ~" :
-             FRANCAIS ? "~ : ~ n'est pas un index valide pour ~." :
-             ""
+             GETTEXT("~: ~ is not a valid index into ~")
             );
     }
 
@@ -44,10 +41,7 @@
   local void fehler_record()
     { pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(error, # type_error ??
-             DEUTSCH ? "~: ~ ist kein Record." :
-             ENGLISH ? "~: ~ is not a record" :
-             FRANCAIS ? "~ : ~ n'est pas un «record»." :
-             ""
+             GETTEXT("~: ~ is not a record")
             );
     }
 
@@ -107,10 +101,7 @@ LISPFUNN(record_length,1)
       pushSTACK(STACK_1); # length
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist nicht als Länge zugelassen, da nicht vom Typ (INTEGER (0) (65536))." :
-             ENGLISH ? "~: length ~ is illegal, should be of type (INTEGER (0) (65536))" :
-             FRANCAIS ? "~ : ~ n'est pas permis comme longueur parce qu'il faut le type (INTEGER (0) (65536))." :
-             ""
+             GETTEXT("~: length ~ is illegal, should be of type (INTEGER (0) (65536))")
             );
     }
 
@@ -147,10 +138,7 @@ LISPFUNN(record_length,1)
           pushSTACK(STACK_(1+3));
           pushSTACK(TheSubr(subr_self)->name); # Funktionsname
           fehler(type_error,
-                 DEUTSCH ? "~: ~ ist keine Structure vom Typ ~." :
-                 ENGLISH ? "~: ~ is not a structure of type ~" :
-                 FRANCAIS ? "~ : ~ n'est pas une structure de type ~." :
-                 ""
+                 GETTEXT("~: ~ is not a structure of type ~")
                 );
         }
      {var object structure = STACK_1;
@@ -197,10 +185,7 @@ LISPFUNN(structure_ref,3)
         pushSTACK(value1);
         pushSTACK(S(structure_ref));
         fehler(unbound_slot,
-               DEUTSCH ? "~: Slot ~ von ~ hat keinen Wert." :
-               ENGLISH ? "~: Slot ~ of ~ has no value" :
-               FRANCAIS ? "~ : Composant ~ de ~ n'a pas de valeur." :
-               ""
+               GETTEXT("~: Slot ~ of ~ has no value")
               );
       }
     mv_count=1;
@@ -237,10 +222,7 @@ LISPFUNN(copy_structure,1)
         pushSTACK(STACK_1); # structure
         pushSTACK(TheSubr(subr_self)->name); # Funktionsname
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist keine Structure." :
-               ENGLISH ? "~: ~ is not a structure" :
-               FRANCAIS ? "~ : ~ n'est pas une structure." :
-               ""
+               GETTEXT("~: ~ is not a structure")
               );
       }
    {var uintC length = Structure_length(STACK_0);
@@ -300,10 +282,7 @@ LISPFUNN(closure_name,1)
       { pushSTACK(closure);
         pushSTACK(TheSubr(subr_self)->name); # Funktionsname
         fehler(error, # type_error ??
-               DEUTSCH ? "~: ~ ist keine Closure." :
-               ENGLISH ? "~: ~ is not a closure" :
-               FRANCAIS ? "~ : ~ n'est pas une fermeture." :
-               ""
+               GETTEXT("~: ~ is not a closure")
               );
       }
     value1 = TheClosure(closure)->clos_name; mv_count=1;
@@ -316,10 +295,7 @@ LISPFUNN(closure_name,1)
     { pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(error, # type_error ??
-             DEUTSCH ? "~: Das ist keine compilierte Closure: ~" :
-             ENGLISH ? "~: This is not a compiled closure: ~" :
-             FRANCAIS ? "~ : Ceci n'est pas un fermeture compilée : ~" :
-             ""
+             GETTEXT("~: This is not a compiled closure: ~")
             );
     }
 
@@ -390,10 +366,7 @@ LISPFUNN(make_code_vector,1)
       pushSTACK(O(type_uint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_1);
       fehler(type_error,
-             DEUTSCH ? "~ ist als Byte in einem Code-Vektor ungeeignet." :
-             ENGLISH ? "~ is not a valid code-vector byte" :
-             FRANCAIS ? "~ est inutilisable comme octet dans un «code-vector»." :
-             ""
+             GETTEXT("~ is not a valid code-vector byte")
             );
   }
 
@@ -409,10 +382,7 @@ LISPFUNN(make_closure,3)
         pushSTACK(STACK_(1+2));
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Als Code-Vektor einer Funktion ist ~ ungeeignet." :
-               ENGLISH ? "~: invalid code-vector ~" :
-               FRANCAIS ? "~ : ~ n'est pas utilisable comme «code-vector» d'une fonction." :
-               ""
+               GETTEXT("~: invalid code-vector ~")
               );
       }
    {# neue Closure der Länge (+ 2 (length consts)) erzeugen:
@@ -422,10 +392,7 @@ LISPFUNN(make_closure,3)
         pushSTACK(STACK_2); # name
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: Funktion ~ ist zu groß: ~" :
-               ENGLISH ? "~: function ~ is too big: ~" :
-               FRANCAIS ? "~ : La function ~ est trop grosse: ~" :
-               ""
+               GETTEXT("~: function ~ is too big: ~")
               );
       }
     {var object closure = allocate_closure(length);
@@ -456,10 +423,7 @@ LISPFUNN(generic_function_effective_method_function,1)
         pushSTACK(oldclos);
         pushSTACK(TheSubr(subr_self)->name); # Funktionsname
         fehler(type_error,
-               DEUTSCH ? "~: Das ist keine generische Funktion: ~" :
-               ENGLISH ? "~: This is not a generic function: ~" :
-               FRANCAIS ? "~ : Ceci n'est pas une fonction générique : ~" :
-               ""
+               GETTEXT("~: This is not a generic function: ~")
               );
       }
     # Closure gleicher Länge allozieren:
@@ -568,10 +532,7 @@ LISPFUNN(weak_pointer_value,1)
         pushSTACK(wp);
         pushSTACK(TheSubr(subr_self)->name); # Funktionsname
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist kein Weak-Pointer." :
-               ENGLISH ? "~: ~ is not a weak pointer" :
-               FRANCAIS ? "~ : ~ n'est pas de type WEAK-POINTER." :
-               ""
+               GETTEXT("~: ~ is not a weak pointer")
               );
       }
     if (eq(TheWeakpointer(wp)->wp_cdr,unbound))
@@ -633,10 +594,7 @@ LISPFUNN(std_instance_p,1)
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine Klasse." :
-             ENGLISH ? "~: ~ is not a class" :
-             FRANCAIS ? "~ : ~ n'est pas une classe." :
-             ""
+             GETTEXT("~: ~ is not a class")
             );
     }
 
@@ -847,10 +805,7 @@ LISPFUNN(slot_exists_p,2)
              STACK_4 = type; # `(MEMBER ,@valid_keywords) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
             }
             fehler(keyword_error,
-                   DEUTSCH ? "~: Unzulässiges Keyword/Wert-Paar ~, ~ in der Argumentliste." NLstring "Die erlaubten Keywords sind ~" :
-                   ENGLISH ? "~: illegal keyword/value pair ~, ~ in argument list." NLstring "The allowed keywords are ~" :
-                   FRANCAIS ? "~ : Paire mot-clé - valeur ~, ~ illicite dans la liste d'arguments." NLstring "Les mots-clé permis sont ~" :
-                   ""
+                   GETTEXT("~: illegal keyword/value pair ~, ~ in argument list." NLstring "The allowed keywords are ~")
                   );
             kw_found: # gefunden. Weiter:
             NEXT(ptr);
@@ -884,10 +839,7 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
     { var object arglist = listof(argcount);
       pushSTACK(arglist);
       fehler(program_error,
-             DEUTSCH ? "SHARED-INITIALIZE: Keyword-Argumentliste ~ hat ungerade Länge." :
-             ENGLISH ? "SHARED-INITIALIZE: keyword argument list ~ has an odd length" :
-             FRANCAIS ? "SHARED-INITIALIZE : La liste de mots clé ~ est de longueur impaire." :
-             ""
+             GETTEXT("SHARED-INITIALIZE: keyword argument list ~ has an odd length")
             );
     }
   argcount = argcount/2; # Anzahl der Initarg/Wert-Paare
@@ -1001,10 +953,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
       { var object arglist = listof(argcount);
         pushSTACK(arglist);
         fehler(program_error,
-               DEUTSCH ? "REINITIALIZE-INSTANCE: Keyword-Argumentliste ~ hat ungerade Länge." :
-               ENGLISH ? "REINITIALIZE-INSTANCE: keyword argument list ~ has an odd length" :
-               FRANCAIS ? "REINITIALIZE-INSTANCE : La liste de mots clé ~ est de longueur impaire." :
-               ""
+               GETTEXT("REINITIALIZE-INSTANCE: keyword argument list ~ has an odd length")
               );
       }
     argcount = argcount/2; # Anzahl der Initarg/Wert-Paare
@@ -1103,10 +1052,7 @@ LISPFUN(initialize_instance,1,0,rest,nokey,0,NIL)
       { var object arglist = listof(argcount);
         pushSTACK(arglist);
         fehler(program_error,
-               DEUTSCH ? "INITIALIZE-INSTANCE: Keyword-Argumentliste ~ hat ungerade Länge." :
-               ENGLISH ? "INITIALIZE-INSTANCE: keyword argument list ~ has an odd length" :
-               FRANCAIS ? "INITIALIZE-INSTANCE : La liste de mots clé ~ est de longueur impaire." :
-               ""
+               GETTEXT("INITIALIZE-INSTANCE: keyword argument list ~ has an odd length")
               );
       }
     argcount = argcount/2; # Anzahl der Initarg/Wert-Paare
@@ -1233,10 +1179,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
     { var object arglist = listof(argcount);
       pushSTACK(arglist);
       fehler(program_error,
-             DEUTSCH ? "MAKE-INSTANCE: Keyword-Argumentliste ~ hat ungerade Länge." :
-             ENGLISH ? "MAKE-INSTANCE: keyword argument list ~ has an odd length" :
-             FRANCAIS ? "MAKE-INSTANCE : La liste de mots clé ~ est de longueur impaire." :
-             ""
+             GETTEXT("MAKE-INSTANCE: keyword argument list ~ has an odd length")
             );
     }
   argcount = argcount/2; # Anzahl der Initarg/Wert-Paare

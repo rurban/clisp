@@ -37,9 +37,7 @@
   (let ((h (assoc lang *all-languages*)))
     (unless h
       (error-of-type 'error
-        (DEUTSCH "Sprache ~S ist nicht definiert."
-         ENGLISH "Language ~S is not defined"
-         FRANCAIS "La langue ~S n'est pas définie.")
+        (ENGLISH "Language ~S is not defined")
         lang
     ) )
     (cdr h)
@@ -49,9 +47,7 @@
     (if h
       (unless (eq (cdr h) parent-lang)
         (error-of-type 'error
-          (DEUTSCH "Sprache ~S erbt von ~S."
-           ENGLISH "Language ~S inherits from ~S"
-           FRANCAIS "La langue ~S hérite de ~S.")
+          (ENGLISH "Language ~S inherits from ~S")
           lang (cdr h)
       ) )
       (progn
@@ -65,8 +61,6 @@
   `(SYSTEM::ENSURE-LANGUAGE ',lang ',parent-lang)
 )
 (deflanguage ENGLISH)
-(deflanguage DEUTSCH)
-(deflanguage FRANCAIS)
 (defmacro definternational (symbol &rest options)
   `(PROGN
      ,@(mapcap #'(lambda (option)
@@ -103,9 +97,7 @@
       (let ((h (assoc lang *all-languages*)))
         (unless h
           (error-of-type 'error
-            (DEUTSCH "~S: Sprache ~S ist nicht definiert."
-             ENGLISH "~S: Language ~S is not defined"
-             FRANCAIS "~S : La langue ~S n'est pas définie.")
+            (ENGLISH "~S: Language ~S is not defined")
             'localized lang
         ) )
         (let ((value (get symbol lang notfound)))
@@ -128,9 +120,7 @@
   #'(lambda (language)
       (if (eq *localized-recursion* symbol) ; catch endless recursion
         (error-of-type 'error
-          (DEUTSCH "~S ~S: kein Wert für Default-Sprache ~S."
-           ENGLISH "~S ~S: no value for default language ~S"
-           FRANCAIS "~S ~S : valeur pour la langue par défaut ~S manque.")
+          (ENGLISH "~S ~S: no value for default language ~S")
           'localized symbol language
         )
         (let ((*localized-recursion* symbol))
@@ -145,9 +135,7 @@
         ((atom typeclauselistr))
       (cond ((atom (car typeclauselistr))
              (error-of-type 'source-program-error
-               (DEUTSCH "Unzulässige Klausel in ~S: ~S"
-                ENGLISH "Invalid clause in ~S: ~S"
-                FRANCAIS "Clause inadmissible dans ~S : ~S")
+               (ENGLISH "Invalid clause in ~S: ~S")
                'typecase (car typeclauselistr)
             ))
             ((let ((type (caar typeclauselistr)))
@@ -166,26 +154,18 @@
 ) )
 ;-------------------------------------------------------------------------------
 (defun type-error-string ()
-  (DEUTSCH "~A~%Der Wert ist: ~S"
-   ENGLISH "~A~%The value is: ~S"
-   FRANCAIS "~A~%La valeur est : ~S")
+  (ENGLISH "~A~%The value is: ~S")
 )
 (defun check-type-error-string (place string typespec)
   (format nil
-    (DEUTSCH "Der Wert von ~S sollte ~:[vom Typ ~S~;~:*~A~] sein."
-     ENGLISH "The value of ~S should be ~:[of type ~S~;~:*~A~]."
-     FRANCAIS "La valeur de ~S devrait être ~:[de type ~S~;~:*~A~].")
+    (ENGLISH "The value of ~S should be ~:[of type ~S~;~:*~A~].")
     place string typespec
 ) )
 (defun report-one-new-value-string ()
-  (DEUTSCH "Sie dürfen einen neuen Wert eingeben."
-   ENGLISH "You may input a new value."
-   FRANCAIS "Vous pouvez entrer une nouvelle valeur.")
+  (ENGLISH "You may input a new value.")
 )
 (defun prompt-for-new-value-string ()
-  (DEUTSCH "~%Neues ~S: "
-   ENGLISH "~%New ~S: "
-   FRANCAIS "~%Nouveau ~S : ")
+  (ENGLISH "~%New ~S: ")
 )
 (defmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
@@ -206,20 +186,14 @@
 ) )
 ;-------------------------------------------------------------------------------
 (defun report-no-new-value-string ()
-  (DEUTSCH "Neuer Anlauf"
-   ENGLISH "Retry"
-   FRANCAIS "Reéssayer")
+  (ENGLISH "Retry")
 )
 (defun report-new-values-string ()
-  (DEUTSCH "Sie dürfen neue Werte eingeben."
-   ENGLISH "You may input new values."
-   FRANCAIS "Vous pouvez entrer de nouvelles valeurs.")
+  (ENGLISH "You may input new values.")
 )
 (defun assert-error-string (test-form)
   (format nil
-    (DEUTSCH "Der Wert von ~S darf nicht NIL sein."
-     ENGLISH "~S must evaluate to a non-NIL value."
-     FRANCAIS "La valeur de ~S ne peut pas être NIL.")
+    (ENGLISH "~S must evaluate to a non-NIL value.")
     test-form
 ) )
 (defmacro assert (test-form &optional (place-list nil) (string nil) &rest args)
@@ -255,16 +229,12 @@
 ;-------------------------------------------------------------------------------
 (defun typecase-error-string (keyform typelist)
   (format nil
-    (DEUTSCH "Der Wert von ~S muss einem der Typen ~{~S~^, ~} angehören."
-     ENGLISH "The value of ~S must be of one of the types ~{~S~^, ~}"
-     FRANCAIS "La valeur de ~S doit appartenir à l'un des types ~{~S~^, ~}.")
+    (ENGLISH "The value of ~S must be of one of the types ~{~S~^, ~}")
     keyform typelist
 ) )
 (defun case-error-string (keyform caselist)
   (format nil
-    (DEUTSCH "Der Wert von ~S muss einer der folgenden sein: ~{~S~^, ~}"
-     ENGLISH "The value of ~S must be one of ~{~S~^, ~}"
-     FRANCAIS "La valeur de ~S doit être l'une des suivantes : ~{~S~^, ~}")
+    (ENGLISH "The value of ~S must be one of ~{~S~^, ~}")
     keyform caselist
 ) )
 
@@ -280,9 +250,7 @@
          (mapcar #'(lambda (c)
                      (cond ((or (eq (car c) 't)
                                 (eq (car c) 'otherwise))
-                            (warn (DEUTSCH "Schlüssel ~S in Fallunterscheidung sollte lieber in Klammern gesetzt werden: ~S"
-                                   ENGLISH "~S used as a key in ~S, it would be better to use parentheses."
-                                   FRANCAIS "La clé ~S dans ~S devrait être mise entre parenthèses.")
+                            (warn (ENGLISH "~S used as a key in ~S, it would be better to use parentheses.")
                                   (car c) c)
                             (cons (list (car c)) (cdr c)))
                            (t c)))
@@ -367,16 +335,12 @@
 (defmacro deftype (name lambdalist &body body &environment env)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      (DEUTSCH "Typname muss ein Symbol sein, nicht ~S"
-       ENGLISH "type name should be a symbol, not ~S"
-       FRANCAIS "Le type doit être un symbole et non ~S")
+      (ENGLISH "type name should be a symbol, not ~S")
       name
   ) )
   (if (or (get name 'TYPE-SYMBOL) (get name 'TYPE-LIST))
     (error-of-type 'source-program-error
-      (DEUTSCH "~S ist ein eingebauter Typ und darf nicht umdefiniert werden."
-       ENGLISH "~S is a built-in type and may not be redefined."
-       FRANCAIS "~S est un type prédéfini et ne peut pas être redéfini.")
+      (ENGLISH "~S is a built-in type and may not be redefined.")
       name
   ) )
   (multiple-value-bind (body-rest declarations docstring)
@@ -409,9 +373,7 @@
 ) ) ) )
 (defun type-call-error (deftype-form)
   (error-of-type 'error
-    (DEUTSCH "Der Deftype-Expander für ~S kann nicht mit ~S Argumenten aufgerufen werden."
-     ENGLISH "The deftype expander for ~S may not be called with ~S arguments."
-     FRANCAIS "L'«expandeur» de DEFTYPE pour ~S ne peut pas être appelé avec ~S arguments.")
+    (ENGLISH "The deftype expander for ~S may not be called with ~S arguments.")
     (car deftype-form) (1- (length deftype-form))
 ) )
 ;-------------------------------------------------------------------------------
@@ -419,9 +381,7 @@
 (defmacro define-symbol-macro (symbol expansion)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Der Name eines Symbol-Macros muss ein Symbol sein, nicht: ~S"
-       ENGLISH "~S: the name of a symbol macro must be a symbol, not ~S"
-       FRANCAIS "~S : Le nom d'un macro symbole doit être un symbole et non ~S")
+      (ENGLISH "~S: the name of a symbol macro must be a symbol, not ~S")
       'define-symbol-macro symbol
   ) )
   `(LET ()
@@ -436,9 +396,7 @@
 (defun check-not-special-variable-p (symbol)
   (when (special-variable-p symbol)
     (error-of-type 'program-error
-      (DEUTSCH "~S: Das Symbol ~S benennt eine globale Variable."
-       ENGLISH "~S: the symbol ~S names a global variable"
-       FRANCAIS "~S : Le symbole ~S est le nom d'une variable globale.")
+      (ENGLISH "~S: the symbol ~S names a global variable")
       'define-symbol-macro symbol
 ) ) )
 ;-------------------------------------------------------------------------------

@@ -82,9 +82,7 @@
               )
   (unless (function-name-p funname)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Funktionsname sollte ein Symbol sein, nicht ~S"
-       ENGLISH "~S: function name should be a symbol, not ~S"
-       FRANCAIS "~S : Le nom de la fonction doit être un symbole et non ~S")
+      (ENGLISH "~S: function name should be a symbol, not ~S")
       'trace funname
   ) )
   (let ((symbolform
@@ -94,17 +92,13 @@
        )) )
     `(block nil
        (unless (fboundp ,symbolform) ; Funktion überhaupt definiert?
-         (warn (DEUTSCH "~S: Funktion ~S ist nicht definiert."
-                ENGLISH "~S: undefined function ~S"
-                FRANCAIS "~S : La fonction ~S n'est pas définie.")
+         (warn (ENGLISH "~S: undefined function ~S")
                'trace ',funname
          )
          (return nil)
        )
        (when (special-operator-p ,symbolform) ; Special-Form: nicht tracebar
-         (warn (DEUTSCH "~S: Special-Form ~S kann nicht getraced werden."
-                ENGLISH "~S: cannot trace special form ~S"
-                FRANCAIS "~S : La forme spéciale ~S ne peut pas être tracée.")
+         (warn (ENGLISH "~S: cannot trace special form ~S")
                'trace ',funname
          )
          (return nil)
@@ -115,9 +109,7 @@
            (setf (get ,symbolform 'sys::traced-definition) ,old-function)
            (pushnew ',funname *traced-functions* :test #'equal)
          )
-         (format t (DEUTSCH "~&;; ~:[Funktion~;Macro~] ~S wird getraced."
-                    ENGLISH "~&;; Tracing ~:[function~;macro~] ~S."
-                    FRANCAIS "~&;; Traçage ~:[de la fonction~;du macro~] ~S.")
+         (format t (ENGLISH "~&;; Tracing ~:[function~;macro~] ~S.")
                    ,macro-flag ',funname
          )
          (replace-in-fenv (get ,symbolform 'sys::traced-definition) ',funname
@@ -273,9 +265,7 @@
 (defun untrace1 (funname)
   (unless (function-name-p funname)
     (error-of-type 'source-program-error
-      (DEUTSCH "~S: Funktionsname sollte ein Symbol sein, nicht ~S"
-       ENGLISH "~S: function name should be a symbol, not ~S"
-       FRANCAIS "~S : Le nom de la fonction doit être un symbole et non ~S")
+      (ENGLISH "~S: function name should be a symbol, not ~S")
       'untrace funname
   ) )
   (let* ((symbol (get-funname-symbol funname))
@@ -291,9 +281,7 @@
               (replace-in-fenv old-definition funname (symbol-function symbol) old-definition)
               (setf (symbol-function symbol) old-definition)
             )
-            (warn (DEUTSCH "~S: ~S war getraced und wurde umdefiniert!"
-                   ENGLISH "~S: ~S was traced and has been redefined!"
-                   FRANCAIS "~S : ~S était tracée et a été redéfinie!")
+            (warn (ENGLISH "~S: ~S was traced and has been redefined!")
                   'untrace funname
           ) )
           `(,funname)

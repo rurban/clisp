@@ -38,18 +38,14 @@
 (defun declare-library-base (symbol name)
   "Associate the SYMBOL referencing library NAME and import it."
   (unless (and (keywordp symbol) (stringp name))
-    (error (DEUTSCH "Base ~S kein Schlüsselwort oder Libraryname ~S kein String"
-            ENGLISH "Basename ~S not a keyword or libraryname ~S not a string"
-            FRANCAIS "La base ~S n'est pas un mot-clé ou alors le nom de librairie ~S n'est pas une chaîne")
+    (error (ENGLISH "Basename ~S not a keyword or libraryname ~S not a string")
       symbol name))
   (setq symbol (intern (symbol-name symbol) (load-time-value (find-package "AFFI"))))
   (let ((found (assoc symbol *libraries-alist* :test #'eq)))
     (cond (found
            (unless (string-equal name (third found))
              ;; how possibly continue with cerror?
-             (error (DEUTSCH "Libraryredefinition: alt ~S, neu ~S"
-                     ENGLISH "Library redefinition: old ~S, new ~S"
-                     FRANCAIS "Redéfinition d'une librarie : avant ~S, maintenant ~S")
+             (error (ENGLISH "Library redefinition: old ~S, new ~S")
                (third found) name)))
           (t (push (list symbol 0 name) *libraries-alist*))))
   (proclaim `(special ,symbol))
@@ -59,9 +55,7 @@
 
 (defun check-library-base (symbol)
   (or (assoc symbol *libraries-alist* :test #'eq)
-      (error (DEUTSCH "Unbekannte Library: ~S"
-              ENGLISH "Unknown library: ~S"
-              FRANCAIS "Librairie inconnue : ~S")
+      (error (ENGLISH "Unknown library: ~S")
         symbol)))
 
 ;;TODO? library version
@@ -88,9 +82,7 @@
   (let ((found (check-library-base symbol)))
     (cond
       ((not (boundp symbol))
-       (error (DEUTSCH "Library ~S ist gar nicht geöffnet"
-               ENGLISH "Library ~S is not open"
-               FRANCAIS "La librairie ~S n'est pas ouverte")
+       (error (ENGLISH "Library ~S is not open")
          symbol))
       ;;TODO? count<0 Test
       ((zerop (decf (second found)))
@@ -152,9 +144,7 @@ be a string, which must be the name of a known library."
                    (info (gethash common *library-functions*)))
               (if (and info (eq (car info) base))
                   (import-or-loose common)
-                  (error (DEUTSCH "Funktion in Library ~S unbekannt: ~S"
-                          ENGLISH "Unknown function of library ~S: ~S"
-                          FRANCAIS "Fonction inconnue dans la librarie ~S : ~S")
+                  (error (ENGLISH "Unknown function of library ~S: ~S")
                    name common))))))))
       ((EQL T)
        ;; as we don't store functions on a per-library basis, walk over all
@@ -180,9 +170,7 @@ be a string, which must be the name of a known library."
 (defun defflibfun (name library offset mask result-type &rest arg-types)
   (check-library-base library)
   (unless (typep offset 'fixnum)        ;TODO not only reg calls
-    (error (DEUTSCH "Offset ist kein FIXNUM: ~S"
-            ENGLISH "Offset must be a fixnum: ~S"
-            FRANCAIS "Le déplacement ~S n'est pas de type FIXNUM")
+    (error (ENGLISH "Offset must be a fixnum: ~S")
       offset))
   (let ((old (gethash name *library-functions*))
         (new (cons library
@@ -193,9 +181,7 @@ be a string, which must be the name of a known library."
     (unless (equalp old new)
       (when old
         (format *error-output*
-                (DEUTSCH "~&;; Definitionsänderung der foreign-library Funktion ~S~%;;  von ~S nach ~S.~%"
-                 ENGLISH "~&;; redefining foreign library function ~S~%;;  from ~S to ~S~%"
-                 FRANCAIS "~&;; Redéfinition de la fonction étrangère ~S~%;;  de ~S en ~S~%")
+                (ENGLISH "~&;; redefining foreign library function ~S~%;;  from ~S to ~S~%")
                 name old new))
       ;; TODO check types
       (setf (gethash name *library-functions*) new)))
@@ -214,9 +200,7 @@ be a string, which must be the name of a known library."
                              '(:D0 :D1 :D2 :D3 :D4 :D5 :D6 :D7
                                :A0 :A1 :A2 :A3 :A4 :A5 :A6)
                              :test test)
-                            (error (DEUTSCH "Unbekanntes Register: ~S"
-                                    ENGLISH "Unknown register: ~S"
-                                    FRANCAIS "Registre inconnu : ~S")
+                            (error (ENGLISH "Unknown register: ~S")
                               (first regs)))))))))
     (calc (reverse regs) 0)))
 
@@ -228,9 +212,7 @@ be a string, which must be the name of a known library."
       (unless (and (symbolp (first arg))  ; variable name
                    #+AMIGA (keywordp (third arg)) ; register
                    (null (nthcdr 3 arg))) ; nothing more
-        (error (DEUTSCH "Ungültige Parameterspezifikation ~S in ~S"
-                ENGLISH "Invalid parameter specification ~S in function ~S"
-                FRANCAIS "Spécification invalide d'argument ~S pour la fonction ~S")
+        (error (ENGLISH "Invalid parameter specification ~S in function ~S")
           arg name)))
     `(defflibfun ',name ',base
       ',(second (assoc :offset options))
@@ -242,9 +224,7 @@ be a string, which must be the name of a known library."
 (flet
     ((function-info (name)
        (or (gethash name *library-functions*)
-           (error (DEUTSCH "Unbekannte Libraryfunktion: ~S"
-                   ENGLISH "Unknown library function: ~S"
-                   FRANCAIS "Fonction d'une librairie inconnue : ~S")
+           (error (ENGLISH "Unknown library function: ~S")
              name))))
 
 (defun flibcall (name &rest args)
@@ -261,9 +241,7 @@ be a string, which must be the name of a known library."
     (if (= (length args) (- (length (cdr info)) 2))
         `(sys::%libcall ,(car info) ',(cdr info) . ,args)
         (sys::error-of-type 'sys::source-program-error
-          (DEUTSCH "Falsche anzahl an Argumenten für ~S: ~S"
-           ENGLISH "Bad number of arguments for ~S: ~S"
-           FRANCAIS "Mauvais nombre d'arguments pour ~S : ~S")
+          (ENGLISH "Bad number of arguments for ~S: ~S")
           name (length args)))))
 
 ) ; flet

@@ -333,10 +333,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muss eine Zahl sein: ~" :
-             ENGLISH ? "argument to ~ should be a number: ~" :
-             FRANCAIS ? "L'argument pour ~ doit être un nombre et non ~." :
-             ""
+             GETTEXT("argument to ~ should be a number: ~")
             );
     }
 
@@ -351,10 +348,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muss eine reelle Zahl sein: ~" :
-             ENGLISH ? "argument to ~ should be a real number: ~" :
-             FRANCAIS ? "L'argument pour ~ doit être un nombre réel et non ~." :
-             ""
+             GETTEXT("argument to ~ should be a real number: ~")
             );
     }
 
@@ -369,10 +363,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muss eine Floating-Point-Zahl sein: ~" :
-             ENGLISH ? "argument to ~ should be a floating point number: ~" :
-             FRANCAIS ? "L'argument pour ~ doit être un nombre à virgule flottante et non ~." :
-             ""
+             GETTEXT("argument to ~ should be a floating point number: ~")
             );
     }
 
@@ -387,10 +378,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muss eine rationale Zahl sein: ~" :
-             ENGLISH ? "argument to ~ should be a rational number: ~" :
-             FRANCAIS ? "L'argument pour ~ doit être un nombre rationnel et non ~." :
-             ""
+             GETTEXT("argument to ~ should be a rational number: ~")
             );
     }
 
@@ -405,10 +393,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "Argument zu ~ muss eine ganze Zahl sein: ~" :
-             ENGLISH ? "argument to ~ should be an integer: ~" :
-             FRANCAIS ? "L'argument pour ~ doit être un nombre entier et non ~." :
-             ""
+             GETTEXT("argument to ~ should be an integer: ~")
             );
     }
 
@@ -423,10 +408,7 @@
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein Fixnum >0 sein, nicht ~" :
-             ENGLISH ? "~: argument should be a positive fixnum, not ~" :
-             FRANCAIS ? "~ : L'argument doit être de type FIXNUM positif et non ~." :
-             ""
+             GETTEXT("~: argument should be a positive fixnum, not ~")
             );
     }
 
@@ -1689,10 +1671,7 @@ LISPFUNN(deposit_field,3)
               pushSTACK(obj);
               pushSTACK(TheSubr(subr_self)->name);
               fehler(type_error,
-                     DEUTSCH ? "~: Argument muss ein Random-State sein, nicht ~" :
-                     ENGLISH ? "~: argument should be a random-state, not ~" :
-                     FRANCAIS ? "~ : L'argument doit être un «random-state» et non ~." :
-                     ""
+                     GETTEXT("~: argument should be a random-state, not ~")
                     );
         }   }
         else
@@ -1707,10 +1686,7 @@ LISPFUNN(deposit_field,3)
               pushSTACK(S(random_state_stern));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(type_error,
-                     DEUTSCH ? "~: Der Wert von ~ sollte ein Random-State sein, nicht ~" :
-                     ENGLISH ? "~: the value of ~ should be a random-state, not ~" :
-                     FRANCAIS ? "~ : La valeur de ~ devrait être un «random-state» et non ~." :
-                     ""
+                     GETTEXT("~: the value of ~ should be a random-state, not ~")
                     );
         }   }
     }
@@ -1729,10 +1705,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
     pushSTACK(O(type_random_arg)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(x); pushSTACK(S(random));
     fehler(type_error,
-           DEUTSCH ? "~: Argument muss positiv und Integer oder Float sein, nicht ~" :
-           ENGLISH ? "~: argument should be positive and an integer or float, not ~" :
-           FRANCAIS ? "~ : L'argument doit être positif et de type entier ou flottant et non ~." :
-           ""
+           GETTEXT("~: argument should be positive and an integer or float, not ~")
           );
   }
 
@@ -1814,10 +1787,7 @@ LISPFUNN(fakultaet,1)
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(x); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~ : Argument muss ein Fixnum >=0 sein, nicht ~" :
-               ENGLISH ? "~ : argument should be a fixnum >=0, not ~" :
-               FRANCAIS ? "~ : L'argument doit être de type FIXNUM positif ou zéro et non ~." :
-               ""
+               GETTEXT("~ : argument should be a fixnum >=0, not ~")
               );
       }
     # x ist ein Fixnum >=0.

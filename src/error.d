@@ -45,10 +45,7 @@
                  # Note: All translations of this error message should be in
                  # pure ASCII, to avoid endless recursion if *terminal-encoding*
                  # supports only ASCII characters.
-                 DEUTSCH ? "Unausgebbare Fehlermeldung" :
-                 ENGLISH ? "Unprintable error message" :
-                 FRANCAIS ? "Message inimprimable" :
-                 ""
+                 GETTEXT("Unprintable error message")
                 );
         }
      {var object error_handler = Symbol_value(S(error_handler)); # *ERROR-HANDLER*
@@ -600,11 +597,7 @@ LISPFUNN(invoke_debugger,1)
       write_sstring(&STACK_0,O(error_string1)); # "*** - " ausgeben
       # String ausgeben, Aufrufernamen verbrauchen, STACK aufräumen:
       set_args_end_pointer(
-        write_errorstring(DEUTSCH ? "~: Tastatur-Interrupt" :
-                          ENGLISH ? "~: User break" :
-                          FRANCAIS ? "~ : Interruption clavier" :
-                          "~"
-                         ));
+        write_errorstring(GETTEXT("~: User break")));
       break_driver(T); # Break-Driver aufrufen
     }
 
@@ -652,10 +645,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(list)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine Liste." :
-             ENGLISH ? "~: ~ is not a list" :
-             FRANCAIS ? "~ : ~ n'est pas une liste." :
-             ""
+             GETTEXT("~: ~ is not a list")
             );
     }
 
@@ -670,10 +660,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(list)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Eine echte Liste darf nicht mit ~ aufhören." :
-             ENGLISH ? "~: A true list must not end with ~" :
-             FRANCAIS ? "~ : Une vraie liste ne peut pas se terminer en ~." :
-             ""
+             GETTEXT("~: A true list must not end with ~")
             );
     }
 
@@ -690,10 +677,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(obj);
       pushSTACK(caller);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Symbol." :
-             ENGLISH ? "~: ~ is not a symbol" :
-             FRANCAIS ? "~ : ~ n'est pas un symbole." :
-             ""
+             GETTEXT("~: ~ is not a symbol")
             );
     }
 
@@ -722,10 +706,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(obj);
       pushSTACK(caller);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Simple-Vector." :
-             ENGLISH ? "~: ~ is not a simple-vector" :
-             FRANCAIS ? "~: ~ n'est pas de type SIMPLE-VECTOR." :
-             ""
+             GETTEXT("~: ~ is not a simple-vector")
             );
     }
 
@@ -740,10 +721,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Vektor." :
-             ENGLISH ? "~: ~ is not a vector" :
-             FRANCAIS ? "~: ~ n'est pas un vecteur." :
-             ""
+             GETTEXT("~: ~ is not a vector")
             );
     }
 
@@ -758,10 +736,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein Fixnum >=0 sein, nicht ~" :
-             ENGLISH ? "~: argument ~ should be a nonnegative fixnum" :
-             FRANCAIS ? "~ : L'argument doit être de type FIXNUM positif ou zéro et non pas ~." :
-             ""
+             GETTEXT("~: argument ~ should be a nonnegative fixnum")
             );
     }
 
@@ -776,10 +751,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist kein Character." :
-             ENGLISH ? "~: argument ~ is not a character" :
-             FRANCAIS ? "~: L'argument ~ n'est pas un caractère." :
-             ""
+             GETTEXT("~: argument ~ is not a character")
             );
     }
 
@@ -793,10 +765,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist kein String." :
-             ENGLISH ? "~: argument ~ is not a string" :
-             FRANCAIS ? "~: L'argument ~ n'est pas une chaîne." :
-             ""
+             GETTEXT("~: argument ~ is not a string")
             );
     }
 
@@ -810,10 +779,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(simple_string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist kein Simple-String." :
-             ENGLISH ? "~: argument ~ is not a simple string" :
-             FRANCAIS ? "~: L'argument ~ n'est pas de type SIMPLE-STRING." :
-             ""
+             GETTEXT("~: argument ~ is not a simple string")
             );
     }
 
@@ -826,10 +792,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     var object obj;
     { pushSTACK(obj);
       fehler(error,
-             DEUTSCH ? "Versuch der Modifikation eines unveränderlichen String: ~" :
-             ENGLISH ? "Attempt to modify a read-only string: ~" :
-             FRANCAIS ? "Tentative de modification d'une chaîne non modifiable: ~" :
-             ""
+             GETTEXT("Attempt to modify a read-only string: ~")
             );
     }
 #endif
@@ -844,10 +807,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_string_integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist weder ein String noch eine ganze Zahl." :
-             ENGLISH ? "~: argument ~ is neither a string nor an integer" :
-             FRANCAIS ? "~: L'argument ~ n'est ni une chaîne ni un nombre entier." :
-             ""
+             GETTEXT("~: argument ~ is neither a string nor an integer")
             );
     }
 
@@ -862,10 +822,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein Stream sein, nicht ~" :
-             ENGLISH ? "~: argument ~ should be a stream" :
-             FRANCAIS ? "~ : L'argument doit être de type STREAM et non pas ~." :
-             ""
+             GETTEXT("~: argument ~ should be a stream")
             );
     }
 
@@ -882,10 +839,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(type); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ sollte ein Stream vom Typ ~ sein." :
-             ENGLISH ? "~: argument ~ should be a stream of type ~" :
-             FRANCAIS ? "~ : L'argument ~ devrait être de type ~." :
-             ""
+             GETTEXT("~: argument ~ should be a stream of type ~")
             );
     }
 
@@ -900,10 +854,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist keine Funktion." NLstring "Um eine Funktion im aktuellen Environment zu bekommen, (FUNCTION ...) schreiben." NLstring "Um eine Funktion im globalen Environment zu bekommen, (COERCE '... 'FUNCTION) schreiben." :
-             ENGLISH ? "~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION)." :
-             FRANCAIS ? "~ : L'argument ~ n'est pas une fonction." NLstring "Pour obtenir une fonction dans l'environnement courant, écrire (FUNCTION ...)." NLstring "Pour obtenir une fonction dans l'environnement global, écrire (COERCE '... 'FUNCTION)." :
-             ""
+             GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION).")
             );
     }
 
@@ -920,10 +871,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_uint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 8-bit-Zahl." :
-             ENGLISH ? "~: ~ is not an 8-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 8 bits." :
-             ""
+             GETTEXT("~: ~ is not an 8-bit number")
             );
     }
 
@@ -938,10 +886,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_sint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 8-bit-Zahl." :
-             ENGLISH ? "~: ~ is not an 8-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 8 bits." :
-             ""
+             GETTEXT("~: ~ is not an 8-bit number")
             );
     }
 
@@ -956,10 +901,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_uint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 16-bit-Zahl." :
-             ENGLISH ? "~: ~ is not a 16-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 16 bits." :
-             ""
+             GETTEXT("~: ~ is not a 16-bit number")
             );
     }
 
@@ -974,10 +916,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_sint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 16-bit-Zahl." :
-             ENGLISH ? "~: ~ is not a 16-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 16 bits." :
-             ""
+             GETTEXT("~: ~ is not a 16-bit number")
             );
     }
 
@@ -992,10 +931,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 32-bit-Zahl." :
-             ENGLISH ? "~: ~ is not an 32-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 32 bits." :
-             ""
+             GETTEXT("~: ~ is not an 32-bit number")
             );
     }
 
@@ -1010,10 +946,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 32-bit-Zahl." :
-             ENGLISH ? "~: ~ is not an 32-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 32 bits." :
-             ""
+             GETTEXT("~: ~ is not an 32-bit number")
             );
     }
 
@@ -1028,10 +961,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_uint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 64-bit-Zahl." :
-             ENGLISH ? "~: ~ is not an 64-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 64 bits." :
-             ""
+             GETTEXT("~: ~ is not an 64-bit number")
             );
     }
 
@@ -1046,10 +976,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(O(type_sint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine 64-bit-Zahl." :
-             ENGLISH ? "~: ~ is not an 64-bit number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre à 64 bits." :
-             ""
+             GETTEXT("~: ~ is not an 64-bit number")
             );
     }
 
@@ -1068,10 +995,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine `unsigned int'-Zahl." :
-             ENGLISH ? "~: ~ is not an `unsigned int' number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre «unsigned int»." :
-             ""
+             GETTEXT("~: ~ is not an `unsigned int' number")
             );
     }
 
@@ -1090,10 +1014,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine `int'-Zahl." :
-             ENGLISH ? "~: ~ is not an `int' number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre «int»." :
-             ""
+             GETTEXT("~: ~ is not an `int' number")
             );
     }
 
@@ -1112,10 +1033,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine `unsigned long'-Zahl." :
-             ENGLISH ? "~: ~ is not a `unsigned long' number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre «unsigned long»." :
-             ""
+             GETTEXT("~: ~ is not a `unsigned long' number")
             );
     }
 
@@ -1134,10 +1052,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist keine `long'-Zahl." :
-             ENGLISH ? "~: ~ is not a `long' number" :
-             FRANCAIS ? "~ : ~ n'est pas un nombre «long»." :
-             ""
+             GETTEXT("~: ~ is not a `long' number")
             );
     }
 
@@ -1152,10 +1067,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(single_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Single-Float." :
-             ENGLISH ? "~: ~ is not a single-float" :
-             FRANCAIS ? "~ : ~ n'est pas de type SINGLE-FLOAT." :
-             ""
+             GETTEXT("~: ~ is not a single-float")
             );
     }
 
@@ -1170,10 +1082,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
       pushSTACK(S(double_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Double-Float." :
-             ENGLISH ? "~: ~ is not a double-float" :
-             FRANCAIS ? "~ : ~ n'est pas de type DOUBLE-FLOAT." :
-             ""
+             GETTEXT("~: ~ is not a double-float")
             );
     }
 

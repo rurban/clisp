@@ -694,10 +694,7 @@ static const cint nop_page[256] = {
             pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(obj);
             fehler(type_error,
-                   DEUTSCH ? "Das ist kein String: ~" :
-                   ENGLISH ? "This is not a string: ~" :
-                   FRANCAIS ? "Ceci n'est pas une chaîne : ~" :
-                   ""
+                   GETTEXT("This is not a string: ~")
                   );
     }   }
 
@@ -776,10 +773,7 @@ static const cint nop_page[256] = {
       pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       fehler(type_error,
-             DEUTSCH ? "Das ist kein String: ~" :
-             ENGLISH ? "This is not a string: ~" :
-             FRANCAIS ? "Ceci n'est pas une chaîne : ~" :
-             ""
+             GETTEXT("This is not a string: ~")
             );
     }
 #endif
@@ -809,10 +803,7 @@ static const cint nop_page[256] = {
       pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       fehler(type_error,
-             DEUTSCH ? "Das ist kein String: ~" :
-             ENGLISH ? "This is not a string: ~" :
-             FRANCAIS ? "Ceci n'est pas une chaîne : ~" :
-             ""
+             GETTEXT("This is not a string: ~")
             );
     }
 #endif
@@ -856,10 +847,7 @@ static const cint nop_page[256] = {
       pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       fehler(type_error,
-             DEUTSCH ? "Das ist kein String: ~" :
-             ENGLISH ? "This is not a string: ~" :
-             FRANCAIS ? "Ceci n'est pas une chaîne : ~" :
-             ""
+             GETTEXT("This is not a string: ~")
             );
     }
 #endif
@@ -1149,10 +1137,7 @@ LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
       pushSTACK(O(type_radix)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Als Zahlsystembasis sind nur Integers zwischen 2 und 36 zulässig, nicht ~." :
-             ENGLISH ? "~: the radix must be an integer between 2 and 36, not ~" :
-             FRANCAIS ? "~: Seuls les entiers compris entre 2 et 36 sont possible comme base et non ~." :
-             ""
+             GETTEXT("~: the radix must be an integer between 2 and 36, not ~")
             );
     }
 
@@ -1485,10 +1470,7 @@ LISPFUNN(code_char,1)
         pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(codeobj); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Code-Argument muss ein Integer sein, nicht ~." :
-               ENGLISH ? "~: the code argument should be an integer, not ~" :
-               FRANCAIS ? "~: L'argument code doit être un entier et non ~." :
-               ""
+               GETTEXT("~: the code argument should be an integer, not ~")
               );
       }
     # codeobj ist jetzt ein Integer.
@@ -1508,10 +1490,7 @@ LISPFUNN(character,1) # (CHARACTER object), CLTL S. 241
         pushSTACK(STACK_1);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ kann nicht in ein Character umgewandelt werden." :
-               ENGLISH ? "~: cannot coerce ~ to a character" :
-               FRANCAIS ? "~: ~ ne peut pas être transformé en caractère." :
-               ""
+               GETTEXT("~: cannot coerce ~ to a character")
               );
       }
       else
@@ -1547,10 +1526,7 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
         pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(weightobj); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Weight-Argument muss ein Integer sein, nicht ~." :
-               ENGLISH ? "~: the weight argument should be an integer, not ~" :
-               FRANCAIS ? "~ : L'argument poids doit être un entier et non ~." :
-               ""
+               GETTEXT("~: the weight argument should be an integer, not ~")
               );
       }
     # weightobj ist jetzt ein Integer.
@@ -1588,10 +1564,7 @@ LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
         pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Argument muss ein Integer sein, nicht ~." :
-               ENGLISH ? "~: argument should be an integer, not ~" :
-               FRANCAIS ? "~: L'argument doit être un entier et non ~." :
-               ""
+               GETTEXT("~: argument should be an integer, not ~")
               );
       }
   }
@@ -1615,19 +1588,13 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index muss ein Integer sein, nicht ~." :
-                 ENGLISH ? "~: index should be an integer, not ~" :
-                 FRANCAIS ? "~: L'index doit être un entier et non ~." :
-                 ""
+                 GETTEXT("~: index should be an integer, not ~")
                 );
         }
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index muss ein Integer sein, nicht ~." :
-                 ENGLISH ? "~: ~-index should be an integer, not ~" :
-                 FRANCAIS ? "~: L'index ~ doit être un entier et non ~." :
-                 ""
+                 GETTEXT("~: ~-index should be an integer, not ~")
                 );
     }   }
 
@@ -1642,19 +1609,13 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index muss NIL oder ein Integer sein, nicht ~." :
-                 ENGLISH ? "~: index should be NIL or an integer, not ~" :
-                 FRANCAIS ? "~: L'index doit être NIL ou un entier et non ~." :
-                 ""
+                 GETTEXT("~: index should be NIL or an integer, not ~")
                 );
         }
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index muss NIL oder ein Integer sein, nicht ~." :
-                 ENGLISH ? "~: ~-index should be NIL or an integer, not ~" :
-                 FRANCAIS ? "~: L'index ~ doit être NIL ou un entier et non ~." :
-                 ""
+                 GETTEXT("~: ~-index should be NIL or an integer, not ~")
                 );
     }   }
 
@@ -1669,19 +1630,13 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index muss >=0 sein, nicht ~." :
-                 ENGLISH ? "~: index should not be negative: ~" :
-                 FRANCAIS ? "~: L'index doit être positif ou zéro et non ~." :
-                 ""
+                 GETTEXT("~: index should not be negative: ~")
                 );
         }
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index muss >=0 sein, nicht ~." :
-                 ENGLISH ? "~: ~-index should not be negative: ~" :
-                 FRANCAIS ? "~: L'index ~ doit être positif ou zéro et non ~." :
-                 ""
+                 GETTEXT("~: ~-index should not be negative: ~")
                 );
     }   }
 
@@ -1702,19 +1657,13 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index ~ darf die Stringlänge nicht überschreiten." :
-                 ENGLISH ? "~: index ~ should not be greater than the length of the string" :
-                 FRANCAIS ? "~: L'index ~ ne peut pas être plus grand que la longueur de la chaîne." :
-                 ""
+                 GETTEXT("~: index ~ should not be greater than the length of the string")
                 );
         }
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index ~ darf die Stringlänge nicht überschreiten." :
-                 ENGLISH ? "~: ~-index ~ should not be greater than the length of the string" :
-                 FRANCAIS ? "~: L'index ~ = ~ ne peut pas être plus grand que la longueur de la chaîne." :
-                 ""
+                 GETTEXT("~: ~-index ~ should not be greater than the length of the string")
                 );
     }   }
 
@@ -1735,19 +1684,13 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Index ~ muss kleiner als die Stringlänge sein." :
-                 ENGLISH ? "~: index ~ should be less than the length of the string" :
-                 FRANCAIS ? "~: L'index ~ doit être plus petit que la longueur de la chaîne." :
-                 ""
+                 GETTEXT("~: index ~ should be less than the length of the string")
                 );
         }
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Index ~ muss kleiner als die Stringlänge sein." :
-                 ENGLISH ? "~: ~-index ~ should be less than the length of the string" :
-                 FRANCAIS ? "~: L'index ~ = ~ doit être plus petit que la longueur de la chaîne." :
-                 ""
+                 GETTEXT("~: ~-index ~ should be less than the length of the string")
                 );
     }   }
 
@@ -1845,10 +1788,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
           pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Argument muss ein Character sein, nicht ~." :
-                 ENGLISH ? "~: argument should be a character, not ~" :
-                 FRANCAIS ? "~: L'argument doit être un caractère et non ~." :
-                 ""
+                 GETTEXT("~: argument should be a character, not ~")
                 );
         }
     }
@@ -1913,10 +1853,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
           pushSTACK(STACK_2); # :START-Index
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: :START-Index ~ darf den :END-Index ~ nicht überschreiten." :
-                 ENGLISH ? "~: :start-index ~ must not be greater than :end-index ~" :
-                 FRANCAIS ? "~: L'index :START ~ ne doit pas être supérieur à l'index :END ~." :
-                 ""
+                 GETTEXT("~: :start-index ~ must not be greater than :end-index ~")
                 );
         }
       skipSTACK(3);
@@ -1967,10 +1904,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       pushSTACK(O(type_stringsymchar)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muss ein String, Symbol oder Character sein, nicht ~." :
-             ENGLISH ? "~: argument ~ should be a string, a symbol or a character" :
-             FRANCAIS ? "~: L'argument ~ doit être de type STRING, SYMBOL ou CHARACTER et non ~." :
-             ""
+             GETTEXT("~: argument ~ should be a string, a symbol or a character")
             );
     }
 
@@ -2011,10 +1945,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
           pushSTACK(STACK_2); # :START-Index
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: :START-Index ~ darf den :END-Index ~ nicht überschreiten." :
-                 ENGLISH ? "~: :start-index ~ must not be greater than :end-index ~" :
-                 FRANCAIS ? "~: L'index :START ~ ne doit pas être supérieur à l'index :END ~." :
-                 ""
+                 GETTEXT("~: :start-index ~ must not be greater than :end-index ~")
                 );
         }
       skipSTACK(3);
@@ -2069,10 +2000,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
             pushSTACK(STACK_4); # :START1-Index
             pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~: :START1-Index ~ darf den :END1-Index ~ nicht überschreiten." :
-                   ENGLISH ? "~: :start1-index ~ must not be greater than :end1-index ~" :
-                   FRANCAIS ? "~: L'index :START1 ~ ne doit pas être supérieur à l'index :END1 ~." :
-                   ""
+                   GETTEXT("~: :start1-index ~ must not be greater than :end1-index ~")
                   );
           }
         # Ergebnisse zu string1 herausgeben:
@@ -2095,10 +2023,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
             pushSTACK(STACK_2); # :START2-Index
             pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~: :START2-Index ~ darf den :END2-Index ~ nicht überschreiten." :
-                   ENGLISH ? "~: :start2-index ~ must not be greater than :end2-index ~" :
-                   FRANCAIS ? "~: L'index :START2 ~ ne doit pas être supérieur à l'index :END2 ~." :
-                   ""
+                   GETTEXT("~: :start2-index ~ must not be greater than :end2-index ~")
                   );
           }
         # Ergebnisse zu string2 herausgeben:
@@ -2630,10 +2555,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
         pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(2+2)); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist als Stringlänge nicht geeignet, da kein Fixnum >= 0." :
-               ENGLISH ? "~: the string length ~ should be nonnegative fixnum" :
-               FRANCAIS ? "~: La longueur de chaîne ~ doit être de type FIXNUM positif ou zéro." :
-               ""
+               GETTEXT("~: the string length ~ should be nonnegative fixnum")
               );
       }
     size = posfixnum_to_L(STACK_2);
@@ -2649,10 +2571,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
                 pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
                 pushSTACK(S(make_string));
                 fehler(error,
-                       DEUTSCH ? "~: ~-Argument muss ein Untertyp von ~ sein, nicht ~" :
-                       ENGLISH ? "~: ~ argument must be a subtype of ~, not ~" :
-                       FRANCAIS ? "~ : L'argument ~ doit être un sous-type de ~, et non ~" :
-                       ""
+                       GETTEXT("~: ~ argument must be a subtype of ~, not ~")
                       );
       }   }   }
    {var object new_string = allocate_string(size); # neuen String besorgen
@@ -2666,10 +2585,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
           pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(initial_element); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: :INITIAL-ELEMENT ~ ist nicht vom Typ CHARACTER." :
-                 ENGLISH ? "~: :initial-element ~ should be of type character" :
-                 FRANCAIS ? "~: L'élément initial ~ n'est pas de type CHARACTER." :
-                 ""
+                 GETTEXT("~: :initial-element ~ should be of type character")
                 );
         }
         else
@@ -2930,10 +2846,7 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
         pushSTACK(STACK_2); # :START-Index
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: :START-Index ~ darf den :END-Index ~ nicht überschreiten." :
-               ENGLISH ? "~: :start-index ~ must not be greater than :end-index ~" :
-               FRANCAIS ? "~: L'index :START ~ ne doit pas être supérieur à l'index :END ~." :
-               ""
+               GETTEXT("~: :start-index ~ must not be greater than :end-index ~")
               );
       }
     skipSTACK(3);

@@ -460,10 +460,7 @@
       pushSTACK(S(readtable)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(sym);
       fehler(type_error,
-             DEUTSCH ? "Der Wert von ~ war keine Readtable, musste zurückgesetzt werden." :
-             ENGLISH ? "The value of ~ was not a readtable. It has been reset." :
-             FRANCAIS ? "La valeur de ~ n'était pas un «readtable» et fut remise à la valeur standard." :
-             ""
+             GETTEXT("The value of ~ was not a readtable. It has been reset.")
             );
     }
 
@@ -545,10 +542,7 @@ LISPFUNN(defio,2)
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument ~ ist keine Readtable." :
-             ENGLISH ? "~: argument ~ is not a readtable" :
-             FRANCAIS ? "~ : L'argument ~ n'est pas un «readtable»." :
-             ""
+             GETTEXT("~: argument ~ is not a readtable")
             );
     }
 
@@ -724,10 +718,7 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
                     pushSTACK(ch);
                     pushSTACK(TheSubr(subr_self)->name);
                     fehler(error,
-                           DEUTSCH ? "~: ~ ist ein Dispatch-Macro-Zeichen." :
-                           ENGLISH ? "~: ~ is a dispatch macro character" :
-                           FRANCAIS ? "~ : ~ est un caractère de «macro-dispatch»." :
-                           ""
+                           GETTEXT("~: ~ is a dispatch macro character")
                           );
                   }
                 # Clone #'dispatch-reader.
@@ -788,10 +779,7 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
         { pushSTACK(disp_ch);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: ~ ist kein Dispatch-Macro-Zeichen." :
-                 ENGLISH ? "~: ~ is not a dispatch macro character" :
-                 FRANCAIS ? "~ : ~ n'est pas un caractère de «macro-dispatch»." :
-                 ""
+                 GETTEXT("~: ~ is not a dispatch macro character")
                 );
         }
       # disp-char ist ein Dispatching-Macro-Character, entry der Vektor.
@@ -819,10 +807,7 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
         pushSTACK(STACK_1);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Ziffer $ als sub-char nicht erlaubt." :
-               ENGLISH ? "~: digit $ not allowed as sub-char" :
-               FRANCAIS ? "~ : Un chiffre $ n'est pas permis comme sous-caractère." :
-               ""
+               GETTEXT("~: digit $ not allowed as sub-char")
               );
       }
       else
@@ -867,10 +852,7 @@ LISPFUNN(set_readtable_case,2)
     pushSTACK(value);
     pushSTACK(S(set_readtable_case));
     fehler(type_error,
-           DEUTSCH ? "~: neuer Wert ~ sollte ~, ~, ~ oder ~ sein." :
-           ENGLISH ? "~: new value ~ should be ~, ~, ~ or ~." :
-           FRANCAIS ? "~ : La nouvelle valeur ~ devrait être ~, ~, ~ ou ~." :
-           ""
+           GETTEXT("~: new value ~ should be ~, ~, ~ or ~.")
           );
     found: # in der Tabelle gefunden
     TheReadtable(readtable)->readtable_case = rtcase;
@@ -906,13 +888,8 @@ LISPFUNN(set_readtable_case,2)
           pushSTACK(value);
           pushSTACK(symbol);
           fehler(type_error,
-                 DEUTSCH ? "Der Wert von ~ sollte eine ganze Zahl zwischen 2 und 36 sein, nicht ~." NLstring
-                           "Er wird auf 10 gesetzt." :
-                 ENGLISH ? "The value of ~ should be an integer between 2 and 36, not ~." NLstring
-                           "It has been reset to 10." :
-                 FRANCAIS ? "La valeur de ~ doit être un nombre entier entre 2 et 36 et non ~." NLstring
-                            "Elle a été mise à 10." :
-                 ""
+                 GETTEXT("The value of ~ should be an integer between 2 and 36, not ~." NLstring
+                         "It has been reset to 10.")
                 );
         }
     }
@@ -961,10 +938,7 @@ LISPFUNN(set_readtable_case,2)
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             DEUTSCH ? "~ von ~: Gelesenes Zeichen ist kein Character: ~" :
-             ENGLISH ? "~ from ~: character read should be a character: ~" :
-             FRANCAIS ? "~ de ~ : le caractère lu n'est pas un caractère: ~" :
-             ""
+             GETTEXT("~ from ~: character read should be a character: ~")
             );
     }
 
@@ -1000,10 +974,7 @@ LISPFUNN(set_readtable_case,2)
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(end_of_file,
-             DEUTSCH ? "~: Eingabestream ~ ist zu Ende." :
-             ENGLISH ? "~: input stream ~ has reached its end" :
-             FRANCAIS ? "~ : Le «stream» d'entrée ~ est épuisé." :
-             ""
+             GETTEXT("~: input stream ~ has reached its end")
             );
     }
 
@@ -1019,20 +990,14 @@ LISPFUNN(set_readtable_case,2)
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(end_of_file,
-                 DEUTSCH ? "~: Eingabestream ~ endet innerhalb eines Objekts. Letzte öffnende Klammer vermutlich in Zeile ~." :
-                 ENGLISH ? "~: input stream ~ ends within an object. Last opening parenthesis probably in line ~." :
-                 FRANCAIS ? "~ : Le «stream» d'entrée ~ se termine à l'intérieur d'un objet. La dernière parenthèse ouverte se trouve probablement dans la ligne ~." :
-                 ""
+                 GETTEXT("~: input stream ~ ends within an object. Last opening parenthesis probably in line ~.")
                 );
         }
         else
         { pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(end_of_file,
-                 DEUTSCH ? "~: Eingabestream ~ endet innerhalb eines Objekts." :
-                 ENGLISH ? "~: input stream ~ ends within an object" :
-                 FRANCAIS ? "~ : Le «stream» d'entrée ~ se termine à l'intérieur d'un objet." :
-                 ""
+                 GETTEXT("~: input stream ~ ends within an object")
                 );
     }   }
 
@@ -1334,10 +1299,7 @@ LISPFUNN(set_readtable_case,2)
                 pushSTACK(*stream_); # Stream
                 pushSTACK(S(read));
                 fehler(stream_error,
-                       DEUTSCH ? "~ von ~: Zeichen ~ ist nicht erlaubt." :
-                       ENGLISH ? "~ from ~: illegal character ~" :
-                       FRANCAIS ? "~ de ~ : Le caractère ~ n'est pas permis ici." :
-                       ""
+                       GETTEXT("~ from ~: illegal character ~")
                       );
                 break;
               case syntax_single_esc:
@@ -1350,10 +1312,7 @@ LISPFUNN(set_readtable_case,2)
                     pushSTACK(*stream_);
                     pushSTACK(S(read));
                     fehler(end_of_file,
-                           DEUTSCH ? "~: Eingabestream ~ endet mitten im Token nach Single-Escape-Zeichen." :
-                           ENGLISH ? "~: input stream ~ ends within a token after single escape character" :
-                           FRANCAIS ? "~ : Le «stream» d'entrée ~ se termine à l'intérieur d'un lexème, suivant un caractère de simple échappement." :
-                           ""
+                           GETTEXT("~: input stream ~ ends within a token after single escape character")
                           );
                   }
               escape:
@@ -1400,10 +1359,7 @@ LISPFUNN(set_readtable_case,2)
                     pushSTACK(*stream_);
                     pushSTACK(S(read));
                     fehler(end_of_file,
-                           DEUTSCH ? "~: Eingabestream ~ endet mitten im Token nach Multiple-Escape-Zeichen." :
-                           ENGLISH ? "~: input stream ~ ends within a token after multiple escape character" :
-                           FRANCAIS ? "~ : Le «stream» d'entrée se termine au milieu d'un lexème, suivant un caractère de multi-échappement." :
-                           ""
+                           GETTEXT("~: input stream ~ ends within a token after multiple escape character")
                           );
                   }
                 # nein -> Token normal zu Ende
@@ -1943,10 +1899,7 @@ LISPFUNN(set_readtable_case,2)
           pushSTACK(*stream_);
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: ~ hat keine Macrozeichendefinition." :
-                 ENGLISH ? "~ from ~: ~ has no macro character definition" :
-                 FRANCAIS ? "~ de ~ : ~ n'a pas de définition de macro-caractère." :
-                 ""
+                 GETTEXT("~ from ~: ~ has no macro character definition")
                 );
         }
       if (!simple_vector_p(macrodef)) # ein Simple-Vector?
@@ -1960,10 +1913,7 @@ LISPFUNN(set_readtable_case,2)
               pushSTACK(*stream_);
               pushSTACK(S(read));
               fehler(error,
-                     DEUTSCH ? "~ von ~: Macrozeichendefinition zu ~ darf keine ~ Werte liefern, sondern höchstens einen." :
-                     ENGLISH ? "~ from ~: macro character definition for ~ may not return ~ values, only one value." :
-                     FRANCAIS ? "~ de ~ : La définition du macro-caractère ~ ne doit pas retourner ~ valeurs mais au plus une." :
-                     ""
+                     GETTEXT("~ from ~: macro character definition for ~ may not return ~ values, only one value.")
                     );
             }
           # höchstens 1 Wert.
@@ -1987,10 +1937,7 @@ LISPFUNN(set_readtable_case,2)
                     pushSTACK(*stream_); # Stream
                     pushSTACK(S(read));
                     fehler(end_of_file,
-                           DEUTSCH ? "~: Eingabestream ~ endet innerhalb eines Read-Macro zu ~" :
-                           ENGLISH ? "~: input stream ~ ends within read macro beginning to ~" :
-                           FRANCAIS ? "~ : Le «stream» d'entrée se termine à l'intérieur d'un macro de lecture en ~" :
-                           ""
+                           GETTEXT("~: input stream ~ ends within read macro beginning to ~")
                           );
                   }
                 # Sonst auf Character überprüfen.
@@ -2020,10 +1967,7 @@ LISPFUNN(set_readtable_case,2)
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
               fehler(stream_error,
-                     DEUTSCH ? "~ von ~: Nach ~ ist ~ als Dispatch-Macrozeichen undefiniert." :
-                     ENGLISH ? "~ from ~: After ~ is ~ an undefined dispatch macro character" :
-                     FRANCAIS ? "~ de ~ : Après ~ ~ n'est plus défini comme macro caractère de «dispatch»." :
-                     ""
+                     GETTEXT("~ from ~: After ~ is ~ an undefined dispatch macro character")
                     );
             }
           pushSTACK(*stream_); # Stream als 1. Argument
@@ -2037,12 +1981,7 @@ LISPFUNN(set_readtable_case,2)
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
               fehler(error,
-                     DEUTSCH ? "~ von ~: Dispatch-Macrozeichen-Definition zu ~ nach ~ darf keine ~ Werte liefern,"
-                               " sondern höchstens einen." :
-                     ENGLISH ? "~ from ~: dispatch macro character definition for ~ after ~ may not return ~ values,"
-                               " only one value." :
-                     FRANCAIS ? "~ de ~ : La définition de caractère macro de «dispatch» pour ~ après ~ ne doit pas retourner ~ valeurs." :
-                     ""
+                     GETTEXT("~ from ~: dispatch macro character definition for ~ after ~ may not return ~ values, only one value.")
                     );
             }
           # höchstens 1 Wert.
@@ -2115,10 +2054,7 @@ LISPFUNN(set_readtable_case,2)
               pushSTACK(*stream_);
               pushSTACK(S(read));
               fehler(stream_error,
-                     DEUTSCH ? "~ von ~: Ein nur aus Punkten bestehendes Token ist nicht einlesbar." :
-                     ENGLISH ? "~ from ~: a token consisting only of dots cannot be meaningfully read in" :
-                     FRANCAIS ? "~ de ~ : Un lexème ne comprenant que des points ne peut pas être lu." :
-                     ""
+                     GETTEXT("~ from ~: a token consisting only of dots cannot be meaningfully read in")
                     );
             }
           # Länge=1 -> dot_value als Wert
@@ -2215,10 +2151,7 @@ LISPFUNN(set_readtable_case,2)
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: Zuviele Doppelpunkte im Token ~" :
-                 ENGLISH ? "~ from ~: too many colons in token ~" :
-                 FRANCAIS ? "~ de ~ : Trop de deux-points dans le lexème ~" :
-                 ""
+                 GETTEXT("~ from ~: too many colons in token ~")
                 );
         }
         # Symbol suchen bzw. erzeugen:
@@ -2267,10 +2200,7 @@ LISPFUNN(set_readtable_case,2)
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
               fehler(package_error,
-                     DEUTSCH ? "~ von ~: Eine Package mit dem Namen ~ gibt es nicht." :
-                     ENGLISH ? "~ from ~: there is no package with name ~" :
-                     FRANCAIS ? "~ de ~ : Il n'y a pas de paquetage de nom ~." :
-                     ""
+                     GETTEXT("~ from ~: there is no package with name ~")
                     );
             }
           if (!pack_casesensitivep(pack))
@@ -2300,10 +2230,7 @@ LISPFUNN(set_readtable_case,2)
                   pushSTACK(*stream_); # Stream
                   pushSTACK(S(read));
                   fehler(package_error,
-                         DEUTSCH ? "~ von ~: In ~ gibt es kein externes Symbol mit Namen ~" :
-                         ENGLISH ? "~ from ~: ~ has no external symbol with name ~" :
-                         FRANCAIS ? "~ de ~ : ~ ne comprend pas de symbole externe de nom ~." :
-                         ""
+                         GETTEXT("~ from ~: ~ has no external symbol with name ~")
                         );
             }   }
         }}
@@ -2347,10 +2274,7 @@ LISPFUNN(set_readtable_case,2)
       pushSTACK(stream); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             DEUTSCH ? "~ von ~: Token \".\" an dieser Stelle nicht erlaubt." :
-             ENGLISH ? "~ from ~: token \".\" not allowed here" :
-             FRANCAIS ? "~ de ~ : Le lexème \".\" n'est pas permis ici." :
-             ""
+             GETTEXT("~ from ~: token \".\" not allowed here")
             );
     }
 
@@ -2399,10 +2323,7 @@ LISPFUNN(set_readtable_case,2)
               pushSTACK(S(read_reference_table));
               pushSTACK(S(read));
               fehler(error,
-                     DEUTSCH ? "~: Der Wert von ~ wurde von außen verändert." :
-                     ENGLISH ? "~: the value of ~ has been arbitrarily altered" :
-                     FRANCAIS ? "~ : La valeur de ~ fut modifiée extérieurement." :
-                     ""
+                     GETTEXT("~: the value of ~ has been arbitrarily altered")
                     );
             }
          }# Aliste alist ist OK
@@ -2417,10 +2338,7 @@ LISPFUNN(set_readtable_case,2)
                pushSTACK(bad_reference);
                pushSTACK(S(read));
                fehler(stream_error,
-                      DEUTSCH ? "~: ~ aus ~ ist in ~ = ~ nicht aufgeführt." :
-                      ENGLISH ? "~: no entry for ~ from ~ in ~ = ~" :
-                      FRANCAIS ? "~ : ~ dans ~ n'est pas énoncé dans ~ = ~." :
-                      ""
+                      GETTEXT("~: no entry for ~ from ~ in ~ = ~")
                      );
           }  }
           return popSTACK();
@@ -2617,10 +2535,7 @@ LISPFUNN(set_readtable_case,2)
                 pushSTACK(*stream_); # Stream
                 pushSTACK(S(read_delimited_list));
                 fehler(stream_error,
-                       DEUTSCH ? "~ von ~: Kein korrekter Listenabschluss einer Dotted List." :
-                       ENGLISH ? "~ from ~: illegal end of dotted list" :
-                       FRANCAIS ? "~ de ~ : liste pointée ne se termine pas correctement." :
-                       ""
+                       GETTEXT("~ from ~: illegal end of dotted list")
                       );
               }
             if (scode < syntax_t_macro) # Macro-Character?
@@ -2691,10 +2606,7 @@ LISPFUNN(rpar_reader,2) # liest )
     pushSTACK(*stream_); # stream
     pushSTACK(S(read));
     fehler(stream_error,
-           DEUTSCH ? "~ von ~: ~ am Anfang eines Objekts" :
-           ENGLISH ? "~ from ~: an object cannot start with ~" :
-           FRANCAIS ? "~ de ~ : un object ne peut pas commencer par ~" :
-           ""
+           GETTEXT("~ from ~: an object cannot start with ~")
           );
   }
 
@@ -2777,10 +2689,7 @@ LISPFUNN(string_reader,2) # liest "
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(end_of_file,
-             DEUTSCH ? "~: Eingabestream ~ endet innerhalb eines Strings." :
-             ENGLISH ? "~: input stream ~ ends within a string" :
-             FRANCAIS ? "~ : Le «stream» d'entrée ~ se termine au milieu d'une chaîne." :
-             ""
+             GETTEXT("~: input stream ~ ends within a string")
             );
   }
 
@@ -2841,10 +2750,7 @@ LISPFUNN(line_comment_reader,2) # liest ;
       pushSTACK(STACK_(1+2)); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             DEUTSCH ? "~ von ~: Zwischen #"" und $ darf keine Zahl stehen." :
-             ENGLISH ? "~ from ~: no number allowed between #"" and $" :
-             FRANCAIS ? "~ de ~ : il ne faut pas de nombre entre #"" et $" :
-             ""
+             GETTEXT("~ from ~: no number allowed between #"" and $")
             );
     }
 
@@ -2936,10 +2842,7 @@ LISPFUNN(comment_reader,3) # liest #|
       pushSTACK(STACK_(1+3)); # Stream
       pushSTACK(S(read));
       fehler(end_of_file,
-             DEUTSCH ? "~: Eingabestream ~ endet innerhalb eines Kommentars #$ ... $#" :
-             ENGLISH ? "~: input stream ~ ends within a comment #$ ... $#" :
-             FRANCAIS ? "~ : Le «stream» d'entrée se termine au cours d'un commentaire #$ ... $#" :
-             ""
+             GETTEXT("~: input stream ~ ends within a comment #$ ... $#")
             );
     fertig:
       value1 = NIL; mv_count=0; skipSTACK(2); # keine Werte zurück
@@ -3018,10 +2921,7 @@ LISPFUNN(char_reader,3) # liest #\
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: Fontnummer ~ für Zeichen ist zu groß (muss = 0 sein)" :
-                 ENGLISH ? "~ from ~: font number ~ for character is too large, should be = 0" :
-                 FRANCAIS ? "~ de ~ : Le numéro ~ de font de caractère est trop grand (devrait être = 0)." :
-                 ""
+                 GETTEXT("~ from ~: font number ~ for character is too large, should be = 0")
                 );
         }
     # Font fertig.
@@ -3051,10 +2951,7 @@ LISPFUNN(char_reader,3) # liest #\
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
               fehler(stream_error,
-                     DEUTSCH ? "~ von ~: Ein Character-Bit mit Namen ~ gibt es nicht." :
-                     ENGLISH ? "~ from ~: there is no character bit with name ~" :
-                     FRANCAIS ? "~ de ~ : ~ n'est pas le nom d'un bit de caractère." :
-                     ""
+                     GETTEXT("~ from ~: there is no character bit with name ~")
                     );
             }
             bit_ok: # Bitname gefunden, Bit gesetzt
@@ -3113,10 +3010,7 @@ LISPFUNN(char_reader,3) # liest #\
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Ein Character mit Namen ~ gibt es nicht." :
-                   ENGLISH ? "~ from ~: there is no character with name ~" :
-                   FRANCAIS ? "~ de ~ : ~ n'est pas le nom d'un caractère." :
-                   ""
+                   GETTEXT("~ from ~: there is no character with name ~")
                   );
           }
         # gefunden
@@ -3177,10 +3071,7 @@ LISPFUNN(char_reader,3) # liest #\
             pushSTACK(STACK_(2+4)); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Das Token ~ nach #$ lässt sich nicht als rationale Zahl in Basis ~ interpretieren." :
-                   ENGLISH ? "~ from ~: token ~ after #$ is not a rational number in base ~" :
-                   FRANCAIS ? "~ de ~ : Le lexème ~ après ne peut être interprété comme nombre rationnel en base ~." :
-                   ""
+                   GETTEXT("~ from ~: token ~ after #$ is not a rational number in base ~")
                   );
           default: NOTREACHED
         }
@@ -3246,10 +3137,7 @@ LISPFUNN(radix_reader,3) # liest #R
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Zwischen #"" und R muss die Zahlsystembasis angegeben werden." :
-               ENGLISH ? "~ from ~: the number base must be given between #"" and R" :
-               FRANCAIS ? "~ de ~ : La base numérique doit être spécifiée entre #"" et R." :
-               ""
+               GETTEXT("~ from ~: the number base must be given between #"" and R")
               );
       }
    {var uintL base;
@@ -3264,10 +3152,7 @@ LISPFUNN(radix_reader,3) # liest #R
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Die zwischen #"" und R angegebene Basis ~ liegt nicht zwischen 2 und 36." :
-               ENGLISH ? "~ from ~: The base ~ given between #"" and R should lie between 2 and 36" :
-               FRANCAIS ? "~ de ~ : La base numérique ~ spécifiée entre #"" et R doit être entre 2 et 36." :
-               ""
+               GETTEXT("~ from ~: The base ~ given between #"" and R should lie between 2 and 36")
               );
       }
   }}
@@ -3311,10 +3196,7 @@ LISPFUNN(complex_reader,3) # liest #C
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             DEUTSCH ? "~ von ~: Falsche Syntax für komplexe Zahl: #C~" :
-             ENGLISH ? "~ from ~: bad syntax for complex number: #C~" :
-             FRANCAIS ? "~ de ~ : Syntaxe inadmissible pour un nombre complexe: #C~" :
-             ""
+             GETTEXT("~ from ~: bad syntax for complex number: #C~")
             );
   }}
 
@@ -3346,10 +3228,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
          pushSTACK(*stream_); # Stream
          pushSTACK(S(read));
          fehler(stream_error,
-                DEUTSCH ? "~ von ~: Nach #: muss ein Token folgen." :
-                ENGLISH ? "~ from ~: token expected after #:" :
-                FRANCAIS ? "~ de ~ : Il faut un lexème après #:" :
-                ""
+                GETTEXT("~ from ~: token expected after #:")
                );
        }
      # Token zu Ende lesen:
@@ -3375,10 +3254,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
        pushSTACK(*stream_); # Stream
        pushSTACK(S(read));
        fehler(stream_error,
-              DEUTSCH ? "~ von ~: Das Token ~ nach #: darf keine Doppelpunkte enthalten." :
-              ENGLISH ? "~ from ~: token ~ after #: should contain no colon" :
-              FRANCAIS ? "~ de ~ : Le lexème ~ après ne doit pas contenir de deux-points." :
-              ""
+              GETTEXT("~ from ~: token ~ after #: should contain no colon")
              );
   } }
 
@@ -3428,10 +3304,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Nach #* dürfen nur Nullen und Einsen kommen." :
-               ENGLISH ? "~ from ~: only zeroes and ones are allowed after #*" :
-               FRANCAIS ? "~ de ~ : Seuls 0 et 1 sont permis après #*" :
-               ""
+               GETTEXT("~ from ~: only zeroes and ones are allowed after #*")
               );
       }
    {var object buff_1 = O(token_buff_1); # Character-Buffer
@@ -3460,10 +3333,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Bit-Vektor länger als angegebene Länge ~." :
-                    ENGLISH ? "~ from ~: bit vector is longer than the explicitly given length ~" :
-                    FRANCAIS ? "~ de ~ : Le vecteur de bits est plus long que la longueur explicite ~." :
-                    ""
+                    GETTEXT("~ from ~: bit vector is longer than the explicitly given length ~")
                    );
            }
          if ((n>0) && (len==0))
@@ -3472,10 +3342,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Element für Bit-Vektor der Länge ~ muss spezifiziert werden." :
-                    ENGLISH ? "~ from ~: must specify element of bit vector of length ~" :
-                    FRANCAIS ? "~ de ~ : Il faut spécifier un élément pour un vecteur de bits de longueur ~." :
-                    ""
+                    GETTEXT("~ from ~: must specify element of bit vector of length ~")
                    );
            }
        }
@@ -3549,10 +3416,7 @@ LISPFUNN(vector_reader,3) # liest #(
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Vektor länger als angegebene Länge ~." :
-                   ENGLISH ? "~ from ~: vector is longer than the explicitly given length ~" :
-                   FRANCAIS ? "~ de ~ : Le vecteur est plus long que la longueur explicite ~." :
-                   ""
+                   GETTEXT("~ from ~: vector is longer than the explicitly given length ~")
                   );
           }
         if ((n>0) && (len==0))
@@ -3561,10 +3425,7 @@ LISPFUNN(vector_reader,3) # liest #(
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Element für Vektor der Länge ~ muss spezifiziert werden." :
-                   ENGLISH ? "~ from ~: must specify element of vector of length ~" :
-                   FRANCAIS ? "~ de ~ : Il faut spécifier un élément pour un vecteur de longueur ~." :
-                   ""
+                   GETTEXT("~ from ~: must specify element of vector of length ~")
                   );
           }
       }
@@ -3644,10 +3505,7 @@ LISPFUNN(array_reader,3) # liest #A
           pushSTACK(*stream_); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: Falsche Syntax für Array: #A~" :
-                 ENGLISH ? "~ from ~: bad syntax for array: #A~" :
-                 FRANCAIS ? "~ de ~ : Syntaxe inadmissible pour une matrice: #A~" :
-                 ""
+                 GETTEXT("~ from ~: bad syntax for array: #A~")
                 );
       }
     # n gibt den Rang des Arrays an.
@@ -3710,10 +3568,7 @@ LISPFUNN(array_reader,3) # liest #A
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             DEUTSCH ? "~ von ~: ~ = ~ erlaubt nicht die Evaluierung von ~" :
-             ENGLISH ? "~ from ~: ~ = ~ doesn't allow the evaluation of ~" :
-             FRANCAIS ? "~ de ~ : ~ = ~ ne permet pas l'évaluation de ~" :
-             ""
+             GETTEXT("~ from ~: ~ = ~ doesn't allow the evaluation of ~")
             );
     }
 
@@ -3836,10 +3691,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
           pushSTACK(STACK_(2+2)); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: Zwischen #"" und $ muss eine Zahl angegeben werden." :
-                 ENGLISH ? "~ from ~: a number must be given between #"" and $" :
-                 FRANCAIS ? "~ de ~ : Un nombre doit être spécifié entre #"" et $" :
-                 ""
+                 GETTEXT("~ from ~: a number must be given between #"" and $")
                 );
         }
       # n ist ein Integer >=0
@@ -3851,10 +3703,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
           pushSTACK(STACK_(2+3)); # Stream
           pushSTACK(S(read));
           fehler(stream_error,
-                 DEUTSCH ? "~ von ~: Label #~? zu groß" :
-                 ENGLISH ? "~ from ~: label #~? too large" :
-                 FRANCAIS ? "~ de ~ : La marque #~? est trop grande." :
-                 ""
+                 GETTEXT("~ from ~: label #~? too large")
                 );
         }
      {var object label = make_read_label(posfixnum_to_L(n)); # Internal-Label mit Nummer n
@@ -3876,10 +3725,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
         fehler(error,
-               DEUTSCH ? "~ von ~: Der Wert von ~ wurde von außen verändert, er ist keine A-Liste: ~" :
-               ENGLISH ? "~ from ~: the value of ~ has been altered arbitrarily, it is not an alist: ~" :
-               FRANCAIS ? "~ de ~ : La valeur de ~ a été modifiée extérieurement, elle n'est plus une aliste: ~" :
-               ""
+               GETTEXT("~ from ~: the value of ~ has been altered arbitrarily, it is not an alist: ~")
               );
     }}
 
@@ -3896,10 +3742,7 @@ LISPFUNN(label_definition_reader,3) # liest #=
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Label #~= darf nicht zweimal definiert werden." :
-               ENGLISH ? "~ from ~: label #~= may not be defined twice" :
-               FRANCAIS ? "~ de ~ : La marque #~= ne peut pas être définie deux fois." :
-               ""
+               GETTEXT("~ from ~: label #~= may not be defined twice")
               );
       }
       else
@@ -3925,10 +3768,7 @@ LISPFUNN(label_definition_reader,3) # liest #=
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: #~= #~#"" ist nicht erlaubt." :
-                   ENGLISH ? "~ from ~: #~= #~#"" is illegal" :
-                   FRANCAIS ? "~ de ~ : #~= #~#"" n'est pas permis." :
-                   ""
+                   GETTEXT("~ from ~: #~= #~#"" is illegal")
                   );
           }
         # gelesenes Objekt als (cdr h) eintragen:
@@ -3953,10 +3793,7 @@ LISPFUNN(label_reference_reader,3) # liest ##
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Label #~#"" ist nicht definiert." :
-               ENGLISH ? "~ from ~: undefined label #~#" :
-               FRANCAIS ? "~ de ~ : La marque #~#"" n'est pas définie." :
-               ""
+               GETTEXT("~ from ~: undefined label #~#")
               );
       }
   }}
@@ -3972,10 +3809,7 @@ LISPFUNN(not_readable_reader,3) # liest #<
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(stream_error,
-           DEUTSCH ? "~ von ~: Als #<...> ausgegebene Objekte sind nicht mehr einlesbar." :
-           ENGLISH ? "~ from ~: objects printed as #<...> cannot be read back in" :
-           FRANCAIS ? "~ de ~ : Des objets qui ont été imprimés en forme #<...> ne peuvent servir d'entrée." :
-           ""
+           GETTEXT("~ from ~: objects printed as #<...> cannot be read back in")
           );
   }
 
@@ -3992,10 +3826,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
     fehler(stream_error,
-           DEUTSCH ? "~ von ~: Wegen ~ als #"" ausgegebene Objekte sind nicht mehr einlesbar." :
-           ENGLISH ? "~ from ~: objects printed as #"" in view of ~ cannot be read back in" :
-           FRANCAIS ? "~ de ~ : Des objets qui ont été imprimés en #"" à cause de ~ ne peuvent servir d'entrée." :
-           ""
+           GETTEXT("~ from ~: objects printed as #"" in view of ~ cannot be read back in")
           );
   }
 
@@ -4075,10 +3906,7 @@ LISPFUNN(syntax_error_reader,3) # liest #) und #whitespace
         pushSTACK(STACK_(1+2)); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Als Feature ist ~ nicht erlaubt." :
-               ENGLISH ? "~ from ~: illegal feature ~" :
-               FRANCAIS ? "~ de ~ : Feature ~ n'est pas permis." :
-               ""
+               GETTEXT("~ from ~: illegal feature ~")
               );
       ja: return 0; # expr ist erfüllt
       nein: return ~0; # expr ist nicht erfüllt
@@ -4209,10 +4037,7 @@ LISPFUNN(structure_reader,3) # liest #S
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Nach #S muss, in Klammern, der Typ und der Inhalt der Structure kommen, nicht ~" :
-               ENGLISH ? "~ from ~: #S must be followed by the type and the contents of the structure, not ~" :
-               FRANCAIS ? "~ de ~ : Après #S on s'attend au type et au contenu de la structure, entre parenthèses, et pas à ~" :
-               ""
+               GETTEXT("~ from ~: #S must be followed by the type and the contents of the structure, not ~")
               );
       }
     {var object name = Car(args); # Typ der Structure
@@ -4224,10 +4049,7 @@ LISPFUNN(structure_reader,3) # liest #S
          pushSTACK(*stream_); # Stream
          pushSTACK(S(read));
          fehler(stream_error,
-                DEUTSCH ? "~ von ~: Der Typ einer Structure muss ein Symbol sein, nicht ~" :
-                ENGLISH ? "~ from ~: the type of a structure should be a symbol, not ~" :
-                FRANCAIS ? "~ de ~ : Le type d'une structure doit être un symbole et non ~" :
-                ""
+                GETTEXT("~ from ~: the type of a structure should be a symbol, not ~")
                );
        }
      pushSTACK(name);
@@ -4241,10 +4063,7 @@ LISPFUNN(structure_reader,3) # liest #S
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Fehlerhafte HASH-TABLE." :
-                    ENGLISH ? "~ from ~: bad HASH-TABLE" :
-                    FRANCAIS ? "~ de ~ : HASH-TABLE inadmissible." :
-                    ""
+                    GETTEXT("~ from ~: bad HASH-TABLE")
                    );
            }
          # (MAKE-HASH-TABLE :TEST (car args) :INITIAL-CONTENTS (cdr args))
@@ -4271,10 +4090,7 @@ LISPFUNN(structure_reader,3) # liest #S
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Fehlerhafter ~." :
-                    ENGLISH ? "~ from ~: bad ~" :
-                    FRANCAIS ? "~ de ~ : ~ inadmissible." :
-                    ""
+                    GETTEXT("~ from ~: bad ~")
                    );
            }
          STACK_0 = Car(args); # Simple-Bit-Vektor retten
@@ -4303,10 +4119,7 @@ LISPFUNN(structure_reader,3) # liest #S
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Es ist noch keine Structure des Typs ~ definiert worden." :
-                   ENGLISH ? "~ from ~: no structure of type ~ has been defined" :
-                   FRANCAIS ? "~ de ~ : Aucune structure de type ~ n'est définie." :
-                   ""
+                   GETTEXT("~ from ~: no structure of type ~ has been defined")
                   );
           }
         # description muss ein Simple-Vector der Länge >=4 sein:
@@ -4317,10 +4130,7 @@ LISPFUNN(structure_reader,3) # liest #S
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Schlecht aufgebaute ~ zu ~" :
-                   ENGLISH ? "~ from ~: bad ~ for ~" :
-                   FRANCAIS ? "~ de ~ : Mauvaise ~ appartenante à ~" :
-                   ""
+                   GETTEXT("~ from ~: bad ~ for ~")
                   );
           }
         # Konstruktorfunktion holen:
@@ -4332,10 +4142,7 @@ LISPFUNN(structure_reader,3) # liest #S
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Structures des Typs ~ können nicht eingelesen werden (Konstruktorfunktion unbekannt)" :
-                    ENGLISH ? "~ from ~: structures of type ~ cannot be read in, missing constructor function" :
-                    FRANCAIS ? "~ de ~ : Des structures de type ~ ne peuvent être entrées car la fonction constructeur est inconnue." :
-                    ""
+                    GETTEXT("~ from ~: structures of type ~ cannot be read in, missing constructor function")
                    );
            }
     # Konstruktorfunktion mit angepasster Argumentliste aufrufen:
@@ -4354,10 +4161,7 @@ LISPFUNN(structure_reader,3) # liest #S
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Eine Structure ~ darf keine Komponente \".\" enthalten." :
-                    ENGLISH ? "~ from ~: a structure ~ may not contain a component \".\"" :
-                    FRANCAIS ? "~ de ~ : Une structure ~ ne doit pas contenir un composant \".\"" :
-                    ""
+                    GETTEXT("~ from ~: a structure ~ may not contain a component \".\"")
                    );
            }
          {var object slot = Car(args);
@@ -4368,10 +4172,7 @@ LISPFUNN(structure_reader,3) # liest #S
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
               fehler(stream_error,
-                     DEUTSCH ? "~ von ~: ~ ist kein Symbol und daher kein Slot der Structure ~." :
-                     ENGLISH ? "~ from ~: ~ is not a symbol, not a slot name of structure ~" :
-                     FRANCAIS ? "~ de ~ : ~ n'est pas un symbole, donc pas le nom d'un composant de la structure ~." :
-                     ""
+                     GETTEXT("~ from ~: ~ is not a symbol, not a slot name of structure ~")
                     );
             }
           if (nullp(Cdr(args)))
@@ -4381,10 +4182,7 @@ LISPFUNN(structure_reader,3) # liest #S
               pushSTACK(*stream_); # Stream
               pushSTACK(S(read));
               fehler(stream_error,
-                     DEUTSCH ? "~ von ~: Wert der Komponente ~ in der Structure ~ fehlt." :
-                     ENGLISH ? "~ from ~: missing value of slot ~ in structure ~" :
-                     FRANCAIS ? "~ de ~ : La valeur du composant ~ dans la structure ~ manque." :
-                     ""
+                     GETTEXT("~ from ~: missing value of slot ~ in structure ~")
                     );
             }
           if (matomp(Cdr(args))) goto dotted;
@@ -4404,10 +4202,7 @@ LISPFUNN(structure_reader,3) # liest #S
              pushSTACK(*stream_); # Stream
              pushSTACK(S(read));
              fehler(stream_error,
-                    DEUTSCH ? "~ von ~: Zu viele Komponenten für Structure ~." :
-                    ENGLISH ? "~ from ~: too many slots for structure ~" :
-                    FRANCAIS ? "~ de ~ : Trop de composants pour une structure ~." :
-                    ""
+                    GETTEXT("~ from ~: too many slots for structure ~")
                    );
            }
        }
@@ -4453,10 +4248,7 @@ LISPFUNN(structure_reader,3) # liest #S
         pushSTACK(STACK_(2+2)); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               DEUTSCH ? "~ von ~: Falsche Syntax nach #~Y für Codevektor einer Closure" :
-               ENGLISH ? "~ from ~: illegal syntax of closure code vector after #~Y" :
-               FRANCAIS ? "~ de ~ : Mauvaise syntaxe de vecteur pour le code d'une «closure» après #~Y" :
-               ""
+               GETTEXT("~ from ~: illegal syntax of closure code vector after #~Y")
               );
       }
   # UP: Überprüft, ob Character ch mit Syntaxcode scode eine
@@ -4506,10 +4298,7 @@ LISPFUNN(closure_reader,3) # liest #Y
             pushSTACK(*stream_); # Stream
             pushSTACK(S(read));
             fehler(stream_error,
-                   DEUTSCH ? "~ von ~: Objekt #Y~ hat nicht die Syntax einer compilierten Closure." :
-                   ENGLISH ? "~ from ~: object #Y~ has not the syntax of a compiled closure" :
-                   FRANCAIS ? "~ de ~ : L'objet #Y~ n'a pas la syntaxe d'une «closure» compilée." :
-                   ""
+                   GETTEXT("~ from ~: object #Y~ has not the syntax of a compiled closure")
                   );
           }
         skipSTACK(3);
@@ -4643,10 +4432,7 @@ LISPFUNN(ansi_pathname_reader,3) # liest #P
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             DEUTSCH ? "~ von ~: Falsche Syntax für Pathname: #P~" :
-             ENGLISH ? "~ from ~: bad syntax for pathname: #P~" :
-             FRANCAIS ? "~ de ~ : Syntaxe inadmissible pour un pathname: #P~" :
-             ""
+             GETTEXT("~ from ~: bad syntax for pathname: #P~")
             );
   }}
 
@@ -4849,10 +4635,7 @@ LISPFUN(unread_char,1,1,norest,nokey,0,NIL)
         pushSTACK(ch);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist kein Character." :
-               ENGLISH ? "~: ~ is not a character" :
-               FRANCAIS ? "~ : ~ n'est pas un caractère." :
-               ""
+               GETTEXT("~: ~ is not a character")
               );
       }
     unread_char(stream_,ch); # char auf Stream zurückschieben
@@ -4896,10 +4679,7 @@ LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
         pushSTACK(peek_type);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Peek-Type muss NIL oder T oder ein Character sein, nicht ~" :
-               ENGLISH ? "~: peek type should be NIL or T or a character, not ~" :
-               FRANCAIS ? "~ : Le mode de PEEK doit être NIL ou T ou un caractère et non ~" :
-               ""
+               GETTEXT("~: peek type should be NIL or T or a character, not ~")
               );
       }
     eof: # EOF liegt vor
@@ -5048,10 +4828,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
              pushSTACK(S(Kradix));
              pushSTACK(TheSubr(subr_self)->name);
              fehler(type_error,
-                    DEUTSCH ? "~: ~-Argument muss ein Integer zwischen 2 und 36 sein, nicht ~" :
-                    ENGLISH ? "~: ~ argument should be an integer between 2 and 36, not ~" :
-                    FRANCAIS ? "~ : L'argument ~ doit être un entier entre 2 et 36, pas ~" :
-                    ""
+                    GETTEXT("~: ~ argument should be an integer between 2 and 36, not ~")
                    );
     }  }   }
     # base = Wert des :radix-Arguments.
@@ -5142,10 +4919,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
           pushSTACK(string);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(stream_error,
-                 DEUTSCH ? "~: String ~ hat nicht die Syntax eines Integers." :
-                 ENGLISH ? "~: string ~ does not have integer syntax" :
-                 FRANCAIS ? "~ : La chaîne ~ n'a pas la syntaxe d'un nombre entier." :
-                 ""
+                 GETTEXT("~: string ~ does not have integer syntax")
                 );
         }
       value1 = NIL; # NIL als 1. Wert
@@ -5308,10 +5082,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       pushSTACK(S(print_readably));
       pushSTACK(S(print));
       fehler(print_not_readable,
-             DEUTSCH ? "~: Trotz ~ kann ~ nicht wiedereinlesbar ausgegeben werden." :
-             ENGLISH ? "~: Despite of ~, ~ cannot be printed readably." :
-             FRANCAIS ? "~ : Malgré ~, ~ ne peut pas être imprimé de façon lisible." :
-             ""
+             GETTEXT("~: Despite of ~, ~ cannot be printed readably.")
             );
     }
 
@@ -5336,13 +5107,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       pushSTACK(S(print));
       Symbol_value(print_case) = S(Kupcase); # (setq *PRINT-CASE* ':UPCASE)
       fehler(type_error,
-             DEUTSCH ? "~: Der Wert ~ von ~ ist weder ~ noch ~ noch ~." NLstring
-                       "Er wird auf ~ gesetzt." :
-             ENGLISH ? "~: the value ~ of ~ is neither ~ nor ~ nor ~." NLstring
-                       "It is reset to ~." :
-             FRANCAIS ? "~ : La valeur ~ de ~ n'est ni ~ ni ~ ni ~." NLstring
-                        "Elle est remplacée par ~." :
-             ""
+             GETTEXT("~: the value ~ of ~ is neither ~ nor ~ nor ~." NLstring
+                     "It is reset to ~.")
             );
     }
 
@@ -5743,10 +5509,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
     else
       { pushSTACK(prm); pushSTACK(S(print_right_margin));
         fehler(error,
-               DEUTSCH ? "~: muss eine positive ganze Zahl oder NIL sein, nicht ~" :
-               ENGLISH ? "~: must be a positive integer or NIL, not ~" :
-               FRANCAIS ? "~ : doit être un entier positif ou NIL, et non ~" :
-               ""
+               GETTEXT("~: must be a positive integer or NIL, not ~")
               );
   }   }
 
@@ -6386,10 +6149,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               pushSTACK(S(print_circle_table)); # SYS::*PRINT-CIRCLE-TABLE*
               pushSTACK(S(print));
               fehler(error,
-                     DEUTSCH ? "~: Der Wert von ~ wurde von außen verändert." :
-                     ENGLISH ? "~: the value of ~ has been arbitrarily altered" :
-                     FRANCAIS ? "~ : La valeur de ~ fut modifiée extérieurement." :
-                     ""
+                     GETTEXT("~: the value of ~ has been arbitrarily altered")
                     );
             }
           # Durch den Vektor table = #(i ...) mit m+1 (0<=i<=m) Elementen
@@ -6594,10 +6354,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               dynamic_bind(S(print_circle),NIL); # *PRINT-CIRCLE* an NIL binden
               pushSTACK(S(print));
               fehler(storage_condition,
-                     DEUTSCH ? "~: Stack reicht nicht zum Feststellen der Zirkularitäten." :
-                     ENGLISH ? "~: not enough stack space for carrying out circularity analysis" :
-                     FRANCAIS ? "~ : La pile n'est pas suffisante pour analyser les liaisons circulaires." :
-                     ""
+                     GETTEXT("~: not enough stack space for carrying out circularity analysis")
                     );
             }
           else
@@ -8177,10 +7934,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
               pushSTACK(S(defstruct_description));
               pushSTACK(S(print));
               fehler(error,
-                     DEUTSCH ? "~: Schlecht aufgebaute ~" :
-                     ENGLISH ? "~: bad ~" :
-                     FRANCAIS ? "~ : Mauvaise ~" :
-                     ""
+                     GETTEXT("~: bad ~")
                     );
             }
          {var boolean readable = # TRUE falls (svref description 2) /= NIL
@@ -8294,10 +8048,7 @@ LISPFUNN(print_structure,2)
         pushSTACK(structure); # structure
         pushSTACK(TheSubr(subr_self)->name); # Funktionsname
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist keine Structure." :
-               ENGLISH ? "~: ~ is not a structure" :
-               FRANCAIS ? "~ : ~ n'est pas une structure." :
-               ""
+               GETTEXT("~: ~ is not a structure")
               );
       }
     if (!streamp(STACK_0)) { fehler_stream(STACK_0); }
@@ -9102,10 +8853,7 @@ LISPFUNN(print_structure,2)
           default:
             pushSTACK(S(print));
             fehler(serious_condition,
-                   DEUTSCH ? "~: Record unbekannten Typs ist aufgetaucht!" :
-                   ENGLISH ? "~: an unknown record type has been generated!" :
-                   FRANCAIS ? "~ : Un objet composé de type inconnu a été rencontré!" :
-                   ""
+                   GETTEXT("~: an unknown record type has been generated!")
                   );
     }   }
 
@@ -9797,10 +9545,7 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
         pushSTACK(ch);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist kein Character." :
-               ENGLISH ? "~: ~ is not a character" :
-               FRANCAIS ? "~ : ~ n'est pas un caractère." :
-               ""
+               GETTEXT("~: ~ is not a character")
               );
       }
     write_char(&STACK_0,ch);

@@ -353,10 +353,7 @@
     nonreturning_function(local, arith_ueberlauf, (void));
     local void arith_ueberlauf()
       { fehler(storage_condition,
-               DEUTSCH ? "Stacküberlauf beim Hantieren mit langen Zahlen" :
-               ENGLISH ? "stack overflow during bignum arithmetic" :
-               FRANCAIS ? "Débordement de pile lors d'opérations avec de longs nombres" :
-               ""
+               GETTEXT("stack overflow during bignum arithmetic")
               );
       }
   #
@@ -418,10 +415,7 @@
   nonreturning_function(local, divide_0, (void));
   local void divide_0()
     { fehler(division_by_zero,
-             DEUTSCH ? "Division durch Null" :
-             ENGLISH ? "division by zero" :
-             FRANCAIS ? "Division par zéro" :
-             ""
+             GETTEXT("division by zero")
             );
     }
 
@@ -430,10 +424,7 @@
   nonreturning_function(local, fehler_overflow, (void));
   local void fehler_overflow()
     { fehler(floating_point_overflow,
-             DEUTSCH ? "Floating-Point Überlauf" :
-             ENGLISH ? "floating point overflow" :
-             FRANCAIS ? "Débordement de nombre à virgule flottante" :
-             ""
+             GETTEXT("floating point overflow")
             );
     }
 
@@ -442,10 +433,7 @@
   nonreturning_function(local, fehler_underflow, (void));
   local void fehler_underflow()
     { fehler(floating_point_underflow,
-             DEUTSCH ? "Floating-Point Unterlauf" :
-             ENGLISH ? "floating point underflow" :
-             FRANCAIS ? "Débordement vers zéro de nombre à virgule flottante" :
-             ""
+             GETTEXT("floating point underflow")
             );
     }
 

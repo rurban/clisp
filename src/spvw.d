@@ -596,10 +596,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
      failed:
       xmutex_unlock(&allthreads_lock);
       fehler(error,
-             DEUTSCH ? "Konnte Symbol-Wert nicht per-Thread machen." :
-             ENGLISH ? "could not make symbol value per-thread" :
-             FRANCAIS ? "Ne peux pas rendre la valeur d'un symbole dépendant du thread." :
-             ""
+             GETTEXT("could not make symbol value per-thread")
             );
     }
 
@@ -649,20 +646,12 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # Bei Überlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
   global void SP_ueber()
-    { asciz_out( DEUTSCH ? NLstring "*** - " "Programmstack-Überlauf: RESET" :
-                 ENGLISH ? NLstring "*** - " "Program stack overflow. RESET" :
-                 FRANCAIS ? NLstring "*** - " "Débordement de pile de programme : RAZ" :
-                 ""
-               );
+    { asciz_out(GETTEXT(NLstring "*** - " "Program stack overflow. RESET"));
       reset();
     }
   nonreturning_function(global, STACK_ueber, (void));
   global void STACK_ueber()
-    { asciz_out( DEUTSCH ? NLstring "*** - " "LISP-Stack-Überlauf: RESET" :
-                 ENGLISH ? NLstring "*** - " "Lisp stack overflow. RESET" :
-                 FRANCAIS ? NLstring "*** - " "Débordement de pile Lisp : RAZ" :
-                 ""
-               );
+    { asciz_out(GETTEXT(NLstring "*** - " "Lisp stack overflow. RESET"));
       reset();
     }
 
@@ -801,16 +790,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       pushSTACK(fixnum(line));
       pushSTACK(ascii_to_string(file));
       fehler(serious_condition,
-             DEUTSCH ? "Interner Fehler: Anweisung in File ~, Zeile ~ wurde ausgeführt!!" NLstring
-                       "Bitte schicken Sie eine Mitteilung an die Programm-Autoren, "
-                       "mit der Beschreibung, wie Sie diesen Fehler erzeugt haben!" :
-             ENGLISH ? "internal error: statement in file ~, line ~ has been reached!!" NLstring
-                       "Please send the authors of the program "
-                       "a description how you produced this error!" :
-             FRANCAIS ? "Erreur interne : Dans le fichier ~, la ligne ~ fut exécutée!" NLstring
-                        "Veuillez signaler aux auteurs du programme comment "
-                        "vous avez pu faire apparaître cette erreur, s.v.p.!" :
-             ""
+             GETTEXT("internal error: statement in file ~, line ~ has been reached!!" NLstring
+                     "Please send the authors of the program a description how you produced this error!")
             );
     }
 
@@ -869,11 +850,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           default: goto illegal;
         }
       illegal:
-        asciz_out(DEUTSCH ? "Unbekannter FSUBR-Argumenttyp" NLstring :
-                  ENGLISH ? "Unknown signature of an FSUBR" NLstring :
-                  FRANCAIS ? "Type d'argument inconnu pour FSUBR" NLstring :
-                  ""
-                 );
+        asciz_out(GETTEXT("Unknown signature of an FSUBR" NLstring));
         quit_sofort(1);
     }
 
@@ -982,11 +959,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           default: goto illegal;
         }
       illegal:
-        asciz_out(DEUTSCH ? "Unbekannter SUBR-Argumenttyp" NLstring :
-                  ENGLISH ? "Unknown signature of a SUBR" NLstring :
-                  FRANCAIS ? "Type d'argument inconnu pour SUBR" NLstring :
-                  ""
-                 );
+        asciz_out(GETTEXT("Unknown signature of a SUBR" NLstring));
         quit_sofort(1);
     }
 
@@ -1603,10 +1576,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                   else
                   { var object pack = find_package(asciz_to_string(packname,O(internal_encoding)));
                     if (nullp(pack)) # Package nicht gefunden?
-                      { asciz_out_ss(DEUTSCH ? "Modul `%s' benötigt Package %s." NLstring :
-                                     ENGLISH ? "module `%s' requires package %s." NLstring :
-                                     FRANCAIS ? "Pas de module «%s» sans le paquetage %s." NLstring :
-                                     "",
+                      { asciz_out_ss(GETTEXT("module `%s' requires package %s." NLstring),
                                      module->name, packname
                                     );
                         quit_sofort(1);
@@ -1727,46 +1697,29 @@ local void print_banner ()
   "   \\  `-+-'  /       8         8           8      ooooo   8oooo" NLstring,
    "    `-__|__-'        8         8           8           8  8" NLstring,
    "        |            8     o   8           8     o     8  8" NLstring,
-   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring, };
+   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring,
+  };
   const char * const banner1[] = {
-   NLstring, "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
-   "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
-   "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998"
    NLstring,
-   "Copyright (c) Bruno Haible, Sam Steingold 1999" NLstring, };
+   "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
+   "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
+   "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998" NLstring,
+   "Copyright (c) Bruno Haible, Sam Steingold 1999" NLstring,
+  };
   #ifdef AMIGA
   var const char * banner2 =
-    DEUTSCH ? "                    Amiga-Version: Jörg Höhle" NLstring :
-    ENGLISH ? "                    Amiga version: Jörg Höhle" NLstring :
-    FRANCAIS ? "                    version Amiga: Jörg Höhle" NLstring :
-    "";
+    GETTEXT("                    Amiga version: Jörg Höhle" NLstring);
   #endif
   #ifdef RISCOS
   var const char * banner2 =
-    DEUTSCH ?
-    "                    RISCOS-Portierung: Peter Burwood, Bruno Haible"
-    NLstring :
-    ENGLISH ?
-    "                    RISCOS port: Peter Burwood, Bruno Haible" NLstring :
-    FRANCAIS ?
-    "                    portage RISCOS: Peter Burwood et Bruno Haible"
-    NLstring :
-    "";
+    GETTEXT("                    RISCOS port: Peter Burwood, Bruno Haible" NLstring);
   #endif
   #ifdef DJUNIX
   var const char * banner2 =
-    DEUTSCH ?
-    "                    DOS-Portierung: Jürgen Weber, Bruno Haible" NLstring :
-    ENGLISH ?
-    "                    DOS port: Jürgen Weber, Bruno Haible" NLstring :
-    FRANCAIS ?
-    "                    adapté à DOS par Jürgen Weber et Bruno Haible"
-    NLstring :
-    "";
+    GETTEXT("                    DOS port: Jürgen Weber, Bruno Haible" NLstring);
   #endif
   var const char * banner3 = NLstring ;
-  var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ?
-                      0 : 20);
+  var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
   var const char * const * ptr = banner0;
   var uintC count;
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
@@ -1972,17 +1925,11 @@ local void print_banner ()
                            arg++; break;                            \
                        }                                            \
                      if (!(*arg == '\0')) # Argument zu Ende?       \
-                       { asciz_out_s(DEUTSCH ? "Syntax für %s: nnnnnnn oder nnnnKB oder nMB" NLstring : \
-                                     ENGLISH ? "Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring : \
-                                     FRANCAIS ? "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB" NLstring : \
-                                     "", docstring);                \
+                       { asciz_out_s(GETTEXT("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
                          usage (1);                                 \
                        }                                            \
                      if (!((val >= limit_low) && (val <= limit_high))) \
-                       { asciz_out_s(DEUTSCH ? "%s ist nicht im gültigen Bereich" NLstring : \
-                                     ENGLISH ? "%s out of range" NLstring : \
-                                     FRANCAIS ? "%s n'est pas entre les bornes" NLstring : \
-                                     "", docstring);                \
+                       { asciz_out_s(GETTEXT("%s out of range" NLstring), docstring); \
                          usage (1);                                 \
                        }                                            \
                      # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
@@ -1994,10 +1941,7 @@ local void print_banner ()
                       { DumpProcessMemoryMap(); quit_sofort(1); }
                     #endif
                     OPTION_ARG
-                    SIZE_ARG(DEUTSCH ? "Speichervorrat" :
-                             ENGLISH ? "memory size" :
-                             FRANCAIS ? "taille mémoire" :
-                             "",
+                    SIZE_ARG(GETTEXT("memory size"),
                              argv_memneed,100000,
                              (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
                               ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
@@ -2007,10 +1951,7 @@ local void print_banner ()
                   #ifndef NO_SP_MALLOC
                   case 's': # Stack size
                     OPTION_ARG
-                    SIZE_ARG(DEUTSCH ? "Stackspeichervorrat" :
-                             ENGLISH ? "stack size" :
-                             FRANCAIS ? "taille de pile" :
-                             "",
+                    SIZE_ARG(GETTEXT("stack size"),
                              argv_stackneed,40000,8*1024*1024)
                     break;
                   #endif
@@ -2322,20 +2263,14 @@ local void print_banner ()
         { begin_system_call();
           memblock = (aint)malloc(1);
           end_system_call();
-          asciz_out_1(DEUTSCH ? "Ergebnis von malloc() = %x ist nicht mit der Typcodeverteilung kompatibel." NLstring :
-                      ENGLISH ? "Return value of malloc() = %x is not compatible with type code distribution." NLstring :
-                      FRANCAIS ? "La valeur de malloc() = %x n'est pas compatible avec le codage des types." NLstring :
-                      "",
+          asciz_out_1(GETTEXT("Return value of malloc() = %x is not compatible with type code distribution." NLstring),
                       memblock
                      );
           goto no_mem;
         }
       if (memneed < MINIMUM_SPACE+RESERVE) # aber mit weniger als MINIMUM_SPACE
         # geben wir uns nicht zufrieden:
-        { asciz_out_1(DEUTSCH ? "Nur %d Bytes verfügbar." NLstring :
-                      ENGLISH ? "Only %d bytes available." NLstring :
-                      FRANCAIS ? "Seuls %d octets libres." NLstring :
-                      "",
+        { asciz_out_1(GETTEXT("Only %d bytes available." NLstring),
                       memneed
                      );
           goto no_mem;
@@ -2570,11 +2505,7 @@ local void print_banner ()
             # page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000.
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info)))
-                { asciz_out(DEUTSCH ? "Konnte das Ende des SP-Stacks nicht herausfinden!" NLstring :
-                            ENGLISH ? "Couldn't determine the end of the SP stack!" NLstring :
-                            FRANCAIS ? "Impossible de savoir où se termine la pile SP!" NLstring :
-                            ""
-                           );
+                { asciz_out(GETTEXT("Couldn't determine the end of the SP stack!" NLstring));
                   SP_bound = 0;
                 }
                 else
@@ -2812,17 +2743,11 @@ local void print_banner ()
         # Warnung für Anfänger
         { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
           write_sstring(&STACK_0,
-            asciz_to_string(DEUTSCH ? NLstring "WARNUNG: Kein Initialisierungsfile angegeben." NLstring :
-                            ENGLISH ? NLstring "WARNING: No initialisation file specified." NLstring :
-                            FRANCAIS ? NLstring "AVERTISSEMENT : Pas de fichier d'initialisation." NLstring :
-                            "",
+            asciz_to_string(GETTEXT(NLstring "WARNING: No initialisation file specified." NLstring),
                             O(internal_encoding)
                            ));
           write_sstring(&STACK_0,
-            asciz_to_string(DEUTSCH ? "Versuchen Sie: " :
-                            ENGLISH ? "Please try: " :
-                            FRANCAIS ? "Essayez: " :
-                            "",
+            asciz_to_string(GETTEXT("Please try: "),
                             O(internal_encoding)
                            ));
           write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
@@ -3022,12 +2947,7 @@ local void print_banner ()
       # Falls der Speicher nicht ausreichte:
       no_mem:
       asciz_out(program_name); asciz_out(": ");
-      asciz_out(
-        DEUTSCH ? "Nicht genug Speicher für LISP" NLstring :
-        ENGLISH ? "Not enough memory for Lisp." NLstring :
-        FRANCAIS ? "Il n'y a pas assez de mémoire pour LISP." NLstring :
-        ""
-        );
+      asciz_out(GETTEXT("Not enough memory for Lisp." NLstring));
       quit_sofort(1);
       /*NOTREACHED*/
      # Beendigung des Programms durch quit_sofort():

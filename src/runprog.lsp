@@ -159,9 +159,7 @@
                (setq output (pathname output))
                (error-of-type 'file-error
                  :pathname output
-                 (DEUTSCH "~S: Eine Datei ~S existiert bereits."
-                  ENGLISH "~S: File ~S already exists"
-                  FRANCAIS "~S : Le fichier ~S existe déjà.")
+                 (ENGLISH "~S: File ~S already exists")
                  'run-shell-command output
          ) ) ) )
          (setq command

@@ -108,11 +108,7 @@
       }
       { var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
         if (fd<0)
-          { asciz_out(DEUTSCH ? "Kann /dev/zero nicht öffnen." :
-                      ENGLISH ? "Cannot open /dev/zero ." :
-                      FRANCAIS ? "Ne peux pas ouvrir /dev/zero ." :
-                      ""
-                     );
+          { asciz_out(GETTEXT("Cannot open /dev/zero ."));
             errno_out(errno);
             return -1; # error
           }
@@ -138,10 +134,7 @@
       { var mmap_interval* ptr = &mmap_intervals[0];
         until (ptr==mmap_intervals_ptr)
           { if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0)
-              { asciz_out_2(DEUTSCH ? "msync(0x%x,0x%x,MS_INVALIDATE) scheitert." :
-                            ENGLISH ? "msync(0x%x,0x%x,MS_INVALIDATE) fails." :
-                            FRANCAIS ? "msync(0x%x,0x%x,MS_INVALIDATE) - erreur." :
-                            "",
+              { asciz_out_2(GETTEXT("msync(0x%x,0x%x,MS_INVALIDATE) fails."),
                             ptr->mm_addr, ptr->mm_len
                            );
                 errno_out(errno);
@@ -169,10 +162,7 @@
                        )
            == (void*)(-1)
          )
-        { asciz_out_1(DEUTSCH ? "Kann keinen Speicher an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map memory to address 0x%x ." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire à l'adresse 0x%x ." :
-                      "",
+        { asciz_out_1(GETTEXT("Cannot map memory to address 0x%x ."),
                       map_addr
                      );
           errno_out(errno);
@@ -203,10 +193,7 @@
       fd = OPEN(tempfilename,O_RDWR|O_CREAT,my_open_mask);
       #endif
       if (fd<0)
-        { asciz_out_s(DEUTSCH ? "Kann %s nicht öffnen." :
-                      ENGLISH ? "Cannot open %s ." :
-                      FRANCAIS ? "Ne peux pas ouvrir %s ." :
-                      "",
+        { asciz_out_s(GETTEXT("Cannot open %s ."),
                       tempfilename
                      );
           errno_out(errno);
@@ -217,10 +204,7 @@
       # (Das Betriebssystem löscht das File erst dann, wenn am Ende dieses
       # Prozesses in _exit() ein close(fd) durchgeführt wird.)
       if ( unlink(tempfilename) <0)
-        { asciz_out_s(DEUTSCH ? "Kann %s nicht löschen." :
-                      ENGLISH ? "Cannot delete %s ." :
-                      FRANCAIS ? "Ne peux pas effacer %s ." :
-                      "",
+        { asciz_out_s(GETTEXT("Cannot delete %s ."),
                       tempfilename
                      );
           errno_out(errno);
@@ -234,25 +218,15 @@
             { var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
               if (available < map_len)
                 # auf der Platte ist voraussichtlich zu wenig Platz
-                { asciz_out_s(DEUTSCH ? "** WARNUNG: ** Zu wenig freier Plattenplatz für %s ." NLstring :
-                              ENGLISH ? "** WARNING: ** Too few free disk space for %s ." NLstring :
-                              FRANCAIS ? "** AVERTISSEMENT : ** Trop peu de place disque restante sur %s ." NLstring :
-                              "",
-                              tempfilename
+                { asciz_out_s(GETTEXT("** WARNING: ** Too few free disk space for %s ." NLstring),
+                             tempfilename
                              );
-                  asciz_out(DEUTSCH ? "Bitte LISP mit weniger Speicher (Option -m) neu starten." NLstring :
-                            ENGLISH ? "Please restart LISP with fewer memory (option -m)." NLstring :
-                            FRANCAIS ? "Prière de relancer LISP avec moins de mémoire (option -m)." NLstring :
-                            ""
-                           );
+                  asciz_out(GETTEXT("Please restart LISP with fewer memory (option -m)." NLstring));
       }     }   }
       # Auf Größe map_len aufblähen:
       { var uintB dummy = 0;
         if (( lseek(fd,map_len-1,SEEK_SET) <0) || (!( full_write(fd,&dummy,1) ==1)))
-          { asciz_out_s(DEUTSCH ? "Kann %s nicht aufblähen." :
-                        ENGLISH ? "Cannot make %s long enough." :
-                        FRANCAIS ? "Ne peux pas agrandir %s ." :
-                        "",
+          { asciz_out_s(GETTEXT("Cannot make %s long enough."),
                         tempfilename
                        );
             errno_out(errno);
@@ -269,10 +243,7 @@
       var void* map_addr;
       var uintL map_len;
       { if (( lseek(fd,0,SEEK_SET) <0) || (!( full_write(fd,map_addr,map_len) == map_len)))
-          { asciz_out_s(DEUTSCH ? "Kann %s nicht füllen." :
-                        ENGLISH ? "Cannot fill %s ." :
-                        FRANCAIS ? "Ne peux pas remplir %s ." :
-                        "",
+          { asciz_out_s(GETTEXT("Cannot fill %s ."),
                         tempfilename
                        );
             errno_out(errno);
@@ -288,10 +259,7 @@
   local int close_temp_fd(fd)
     var int fd;
     { if ( CLOSE(fd) <0)
-        { asciz_out_s(DEUTSCH ? "Kann %s nicht schließen." :
-                      ENGLISH ? "Cannot close %s ." :
-                      FRANCAIS ? "Ne peux pas fermer %s ." :
-                      "",
+        { asciz_out_s(GETTEXT("Cannot close %s ."),
                       tempfilename
                      );
           errno_out(errno);
@@ -323,15 +291,11 @@
     if ( close_mapid(mapid) <0) \
       goto no_mem;
   #define exitmap()  \
-    msync_mmap_intervals();                                       \
-    if (zero_fd >= 0)                                             \
-      if ( CLOSE(zero_fd) <0)                                     \
-        { asciz_out(DEUTSCH ? "Kann /dev/zero nicht schließen." : \
-                    ENGLISH ? "Cannot close /dev/zero ." :        \
-                    FRANCAIS ? "Ne peux pas fermer /dev/zero ." : \
-                    ""                                            \
-                   );                                             \
-          errno_out(errno);                                       \
+    msync_mmap_intervals();                               \
+    if (zero_fd >= 0)                                     \
+      if ( CLOSE(zero_fd) <0)                             \
+        { asciz_out(GETTEXT("Cannot close /dev/zero .")); \
+          errno_out(errno);                               \
         }
 
   #define multimap(typecases,map_addr,map_len,save_flag)  \
@@ -365,11 +329,7 @@
       { var struct shminfo shminfo;
         if ( shmctl(0,IPC_INFO,(struct shmid_ds *)&shminfo) <0)
           if (errno==ENOSYS)
-            { asciz_out(DEUTSCH ? "Compilieren Sie Ihr Betriebssystem neu mit Unterstützung von SYSV IPC." NLstring :
-                        ENGLISH ? "Recompile your operating system with SYSV IPC support." NLstring :
-                        FRANCAIS ? "Recompilez votre système opérationnel tel qu'il comprenne IPC SYSV." NLstring :
-                        ""
-                       );
+            { asciz_out(GETTEXT("Recompile your operating system with SYSV IPC support." NLstring));
               return -1; # error
       }     }
      #endif
@@ -381,11 +341,7 @@
     var uintL map_len;
     { var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute nur für mich'
       if (shmid<0)
-        { asciz_out(DEUTSCH ? "Kann kein privates Shared-Memory-Segment aufmachen." :
-                    ENGLISH ? "Cannot allocate private shared memory segment." :
-                    FRANCAIS ? "Ne peux pas allouer de segment privé de mémoire partagée." :
-                    ""
-                   );
+        { asciz_out(GETTEXT("Cannot allocate private shared memory segment."));
           errno_out(errno);
           return -1; # error
         }
@@ -406,10 +362,7 @@
                 )
            == (void*)(-1)
          )
-        { asciz_out_1(DEUTSCH ? "Kann kein Shared-Memory an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map shared memory to address 0x%x." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire partagée à l'adresse 0x%x." :
-                      "",
+        { asciz_out_1(GETTEXT("Cannot map shared memory to address 0x%x."),
                       map_addr
                      );
           errno_out(errno);
@@ -431,21 +384,13 @@
                                          0 # Flags: brauche keine
                                         );
         if (temp_addr == (void*)(-1))
-          { asciz_out(DEUTSCH ? "Kann Shared Memory nicht füllen." :
-                      ENGLISH ? "Cannot fill shared memory." :
-                      FRANCAIS ? "Ne peux pas remplir la mémoire partagée." :
-                      ""
-                     );
+          { asciz_out(GETTEXT("Cannot fill shared memory."));
             errno_out(errno);
             return -1; # error
           }
         memcpy(temp_addr,map_addr,map_len);
         if (shmdt(temp_addr) < 0)
-          { asciz_out(DEUTSCH ? "Konnte Shared Memory nicht füllen." :
-                      ENGLISH ? "Could not fill shared memory." :
-                      FRANCAIS ? "Ne pouvais pas remplir la mémoire partagée." :
-                      ""
-                     );
+          { asciz_out(GETTEXT("Could not fill shared memory."));
             errno_out(errno);
             return -1; # error
           }
@@ -459,11 +404,7 @@
   local int close_shmid(shmid)
     var int shmid;
     { if ( shmctl(shmid,IPC_RMID,NULL) <0)
-        { asciz_out(DEUTSCH ? "Kann Shared-Memory-Segment nicht entfernen." :
-                    ENGLISH ? "Cannot remove shared memory segment." :
-                    FRANCAIS ? "Ne peux pas retirer un segment de mémoire partagée." :
-                    ""
-                   );
+        { asciz_out(GETTEXT("Cannot remove shared memory segment."));
           errno_out(errno);
           return -1; # error
         }

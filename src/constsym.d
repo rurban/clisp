@@ -1532,8 +1532,6 @@ LISPSYM(windows_1257,"WINDOWS-1257",charset)
 LISPSYM(windows_1258,"WINDOWS-1258",charset)
 #endif
 LISPSYM(english,"ENGLISH",lisp) # als Language für MISC
-LISPSYM(deutsch,"DEUTSCH",lisp) # als Language für MISC
-LISPSYM(francais,"FRANCAIS",lisp) # als Language für MISC
 LISPSYM(init_hooks,"*INIT-HOOKS*",system) # als Variable für SPVW
 LISPSYM(quiet,"*QUIET*",system) # als Variable für SPVW
 LISPSYM(Klisting,"LISTING",keyword) # als Argument für SPVW

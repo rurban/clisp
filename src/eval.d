@@ -544,10 +544,7 @@ LISPFUNN(subr_info,1)
               { pushSTACK(sym);
                 pushSTACK(S(progv));
                 fehler(program_error,
-                       DEUTSCH ? "~: ~ ist eine Konstante und kann nicht dynamisch gebunden werden." :
-                       ENGLISH ? "~: ~ is a constant, cannot be bound dynamically" :
-                       FRANCAIS ? "~: ~ est une constante et ne peut pas être liée dynamiquement." :
-                       ""
+                       GETTEXT("~: ~ is a constant, cannot be bound dynamically")
                       );
               }
             pushSTACK(Symbol_value(sym)); # alter Wert der Variablen
@@ -1449,10 +1446,7 @@ LISPFUNN(subr_info,1)
                  # ja -> mehr als ein Doc-String ist zuviel:
                  { pushSTACK(STACK_4); # formlist
                    fehler(source_program_error,
-                          DEUTSCH ? "In ~ kommen zu viele Doc-Strings vor." :
-                          ENGLISH ? "Too many documentation strings in ~" :
-                          FRANCAIS ? "Trop de chaînes de documentation apparaîssent dans ~." :
-                          ""
+                          GETTEXT("Too many documentation strings in ~")
                          );
                  }
                STACK_1 = form; # neuer Doc-String
@@ -1646,10 +1640,7 @@ LISPFUNN(subr_info,1)
       if (atomp(lambdabody))
         { pushSTACK(name);
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Lambda-Liste für ~ fehlt." :
-                 ENGLISH ? "FUNCTION: lambda-list for ~ is missing" :
-                 FRANCAIS ? "FUNCTION: La lambda-liste pour ~ manque." :
-                 ""
+                 GETTEXT("FUNCTION: lambda-list for ~ is missing")
                 );
         }
       # und der CAR muss eine Liste sein:
@@ -1658,10 +1649,7 @@ LISPFUNN(subr_info,1)
          { pushSTACK(lambdalist);
            pushSTACK(name);
            fehler(source_program_error,
-                  DEUTSCH ? "FUNCTION: Lambda-Liste für ~ muss eine Liste sein, nicht ~" :
-                  ENGLISH ? "FUNCTION: lambda-list for ~ should be a list, not ~" :
-                  FRANCAIS ? "FUNCTION: La lambda-liste pour ~ doit être une liste et non ~" :
-                  ""
+                  GETTEXT("FUNCTION: lambda-list for ~ should be a list, not ~")
                  );
       }  }
       pushSTACK(name);
@@ -1768,10 +1756,7 @@ LISPFUNN(subr_info,1)
             if (atomp(declspec))
               { pushSTACK(declspec);
                 fehler(source_program_error,
-                       DEUTSCH ? "FUNCTION: ~ ist keine erlaubte Deklaration." :
-                       ENGLISH ? "FUNCTION: illegal declaration ~" :
-                       FRANCAIS ? "FUNCTION: ~ n'est pas une déclaration licite." :
-                       ""
+                       GETTEXT("FUNCTION: illegal declaration ~")
                       );
               }
             # SPECIAL-Deklaration verarbeiten:
@@ -1782,10 +1767,7 @@ LISPFUNN(subr_info,1)
                     if (!symbolp(sym))
                       { pushSTACK(sym);
                         fehler(source_program_error,
-                               DEUTSCH ? "FUNCTION: ~ ist kein Symbol, wurde aber als SPECIAL deklariert." :
-                               ENGLISH ? "FUNCTION: ~ is not a symbol, cannot be declared SPECIAL" :
-                               FRANCAIS ? "FUNCTION: ~ n'est pas un symbôle mais fut déclaré SPECIAL." :
-                               ""
+                               GETTEXT("FUNCTION: ~ is not a symbol, cannot be declared SPECIAL")
                               );
                       }
                     # Symbol im STACK ablegen:
@@ -1860,10 +1842,7 @@ LISPFUNN(subr_info,1)
                           # varspec ist zu lang
                           { pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
                             fehler(source_program_error,
-                                   DEUTSCH ? "FUNCTION: Zu lange Variablenspezifikation nach &OPTIONAL: ~" :
-                                   ENGLISH ? "FUNCTION: too long variable specification after &OPTIONAL: ~" :
-                                   FRANCAIS ? "FUNCTION: Spécification de variable trop longue après &OPTIONAL : ~" :
-                                   ""
+                                   GETTEXT("FUNCTION: too long variable specification after &OPTIONAL: ~")
                                   );
                           }
                         item = Car(item_rest); # drittes Listenelement: svar
@@ -1899,19 +1878,13 @@ LISPFUNN(subr_info,1)
         { NEXT_ITEM(badLLkey,badLLkey,key,badLLkey,aux,ende);
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Nach &REST var muss &KEY oder &AUX oder Listenende folgen: ~" :
-                 ENGLISH ? "FUNCTION: &REST var must be followed by &KEY or &AUX or end of list: ~" :
-                 FRANCAIS ? "FUNCTION: &KEY, &AUX ou fin de liste doit suivre une variable &REST : ~." :
-                 ""
+                 GETTEXT("FUNCTION: &REST var must be followed by &KEY or &AUX or end of list: ~")
                 );
         }
         badrest:
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Nach &REST muss Variable folgen: ~" :
-                 ENGLISH ? "FUNCTION: &REST must be followed by a variable: ~" :
-                 FRANCAIS ? "FUNCTION: Une variable doit suivre &REST : ~" :
-                 ""
+                 GETTEXT("FUNCTION: &REST must be followed by a variable: ~")
                 );
         key: # &KEY-Parameter abarbeiten, auf dem STACK ablegen
              # und Init-Formen in die Closure stecken:
@@ -1960,10 +1933,7 @@ LISPFUNN(subr_info,1)
                       { pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
                         pushSTACK(keyword);
                         fehler(source_program_error,
-                               DEUTSCH ? "FUNCTION: ~ in ~ ist kein Keyword." :
-                               ENGLISH ? "FUNCTION: ~ in ~ is not a keyword" :
-                               FRANCAIS ? "FUNCTION: ~ dans ~ n'est pas un mot-clé." :
-                               ""
+                               GETTEXT("FUNCTION: ~ in ~ is not a keyword")
                               );
                       }
                     item = Cdr(item); # (var)
@@ -2011,20 +1981,14 @@ LISPFUNN(subr_info,1)
         fehler_keyspec:
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Variablenspezifikation nach &KEY ist nicht korrekt: ~" :
-                 ENGLISH ? "FUNCTION: incorrect variable specification after &KEY: ~" :
-                 FRANCAIS ? "FUNCTION: Spécification de variable incorrecte après &KEY : ~" :
-                 ""
+                 GETTEXT("FUNCTION: incorrect variable specification after &KEY: ~")
                 );
         allow: # &ALLOW-OTHER-KEYS abarbeiten:
         { TheIclosure(*closure_)->clos_allow_flag = T; # Flag auf T setzen
           NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,aux,ende);
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Auf &ALLOW-OTHER-KEYS muss &AUX oder Listenende folgen: ~" :
-                 ENGLISH ? "FUNCTION: &ALLOW-OTHER-KEYS must be followed by &AUX or end of list: ~" :
-                 FRANCAIS ? "FUNCTION: &AUX ou fin de liste doit suivre &ALLOW-OTHER-KEYS : ~" :
-                 ""
+                 GETTEXT("FUNCTION: &ALLOW-OTHER-KEYS must be followed by &AUX or end of list: ~")
                 );
         }
         aux: # &AUX-Parameter abarbeiten, auf dem STACK ablegen und
@@ -2057,10 +2021,7 @@ LISPFUNN(subr_info,1)
                       # varspec ist zu lang
                       { pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
                         fehler(source_program_error,
-                               DEUTSCH ? "FUNCTION: Zu lange Variablenspezifikation nach &AUX: ~" :
-                               ENGLISH ? "FUNCTION: too long variable specification after &AUX: ~" :
-                               FRANCAIS ? "FUNCTION: Spécification de variable trop longue après &AUX : ~" :
-                               ""
+                               GETTEXT("FUNCTION: too long variable specification after &AUX: ~")
                               );
                   }   }
                   else
@@ -2081,46 +2042,31 @@ LISPFUNN(subr_info,1)
           pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
           pushSTACK(item);
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: Lambda-Listen-Keyword ~ an der falschen Stelle: ~" :
-                 ENGLISH ? "FUNCTION: badly placed lambda-list keyword ~: ~" :
-                 FRANCAIS ? "FUNCTION: Mot clé de lambda-liste ~ mal placé : ~" :
-                 ""
+                 GETTEXT("FUNCTION: badly placed lambda-list keyword ~: ~")
                 );
         fehler_symbol:
           pushSTACK(item);
           fehler(source_program_error,
-                 DEUTSCH ? "FUNCTION: ~ ist kein Symbol und kann daher nicht als Variable verwendet werden." :
-                 ENGLISH ? "FUNCTION: ~ is not a symbol, may not be used as a variable" :
-                 FRANCAIS ? "FUNCTION: ~ n'est pas un symbole et ne peut donc pas être utilisé comme variable." :
-                 ""
+                 GETTEXT("FUNCTION: ~ is not a symbol, may not be used as a variable")
                 );
         fehler_constant:
           pushSTACK(item);
           fehler(program_error,
-                 DEUTSCH ? "FUNCTION: ~ ist eine Konstante und kann daher nicht als Variable verwendet werden." :
-                 ENGLISH ? "FUNCTION: ~ is a constant, may not be used as a variable" :
-                 FRANCAIS ? "FUNCTION: ~ est une constante et ne peut donc pas être utilisée comme variable." :
-                 ""
+                 GETTEXT("FUNCTION: ~ is a constant, may not be used as a variable")
                 );
         ende: # Listenende erreicht
         #undef NEXT_ITEM
         if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) # Zu viele Parameter?
           { pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
             fehler(source_program_error,
-                   DEUTSCH ? "FUNCTION: Zu viele Parameter in der Lambda-Liste ~" :
-                   ENGLISH ? "FUNCTION: too many parameters in the lambda-list ~" :
-                   FRANCAIS ? "FUNCTION: Trop de paramètres dans la lambda-liste ~" :
-                   ""
+                   GETTEXT("FUNCTION: too many parameters in the lambda-list ~")
                   );
           }
         # Da nun var_count <= lp_limit_1, passen alle counts in ein uintC.
         if (!nullp(lambdalist)) # Lambda-Liste eine Dotted List?
           { pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
             fehler(source_program_error,
-                   DEUTSCH ? "FUNCTION: Ein Punkt in der Lambda-Liste ist nur bei Macros erlaubt, nicht hier: ~" :
-                   ENGLISH ? "FUNCTION: a dot in a lambda-list is allowed only for macros, not here: ~" :
-                   FRANCAIS ? "FUNCTION: Un point dans une lambda-liste n'est permis que pour des macros, pas ici : ~" :
-                   ""
+                   GETTEXT("FUNCTION: a dot in a lambda-list is allowed only for macros, not here: ~")
                   );
           }
         # Variablen zu einem Vektor zusammenfassen und in die Closure,
@@ -2194,10 +2140,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(funname);
       pushSTACK(caller);
       fehler(undefined_function,
-             DEUTSCH ? "~: ~ ist eine Spezialform, keine Funktion." :
-             ENGLISH ? "~: ~ is a special form, not a function" :
-             FRANCAIS ? "~ : ~ est une forme spéciale et non une fonction." :
-             ""
+             GETTEXT("~: ~ is a special form, not a function")
             );
     }
 
@@ -2213,10 +2156,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(funname);
       pushSTACK(caller);
       fehler(undefined_function,
-             DEUTSCH ? "~: ~ ist ein Macro und keine Funktion." :
-             ENGLISH ? "~: ~ is a macro, not a function" :
-             FRANCAIS ? "~ : ~ est une macro et non une fonction." :
-             ""
+             GETTEXT("~: ~ is a macro, not a function")
             );
     }
 
@@ -2232,10 +2172,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(funname);
       pushSTACK(caller);
       fehler(undefined_function,
-             DEUTSCH ? "~: Die Funktion ~ ist undefiniert." :
-             ENGLISH ? "~: the function ~ is undefined" :
-             FRANCAIS ? "~ : La fonction ~ n'est pas définie." :
-             ""
+             GETTEXT("~: the function ~ is undefined")
             );
     }
 
@@ -2287,10 +2224,7 @@ LISPFUNN(subr_info,1)
         { pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: ~ ist keine Funktion." :
-                 ENGLISH ? "~: ~ is not a function" :
-                 FRANCAIS ? "~: ~ n'est pas une fonction." :
-                 ""
+                 GETTEXT("~: ~ is not a function")
                 );
         }
     }
@@ -2352,10 +2286,7 @@ LISPFUNN(subr_info,1)
     var object fun;
     { pushSTACK(fun);
       fehler(program_error,
-             DEUTSCH ? "EVAL/APPLY: Keyword-Argumente für ~ sind nicht paarig." :
-             ENGLISH ? "EVAL/APPLY: keyword arguments for ~ should occur pairwise" :
-             FRANCAIS ? "EVAL/APPLY: Les arguments mot-clé de ~ ne sont pas par paires." :
-             ""
+             GETTEXT("EVAL/APPLY: keyword arguments for ~ should occur pairwise")
             );
     }
 
@@ -2367,10 +2298,7 @@ LISPFUNN(subr_info,1)
     var object fun;
     { pushSTACK(fun);
       fehler(program_error,
-             DEUTSCH ? "EVAL/APPLY: Zu viele Argumente für ~" :
-             ENGLISH ? "EVAL/APPLY: too many arguments given to ~" :
-             FRANCAIS ? "EVAL/APPLY: Trop d'arguments pour ~." :
-             ""
+             GETTEXT("EVAL/APPLY: too many arguments given to ~")
             );
     }
 
@@ -2384,10 +2312,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
       pushSTACK(kw);
       fehler(keyword_error,
-             DEUTSCH ? "EVAL/APPLY: ~ ist kein Keyword." :
-             ENGLISH ? "EVAL/APPLY: ~ is not a keyword" :
-             FRANCAIS ? "EVAL/APPLY: ~ n'est pas un mot-clé." :
-             ""
+             GETTEXT("EVAL/APPLY: ~ is not a keyword")
             );
     }
 
@@ -2411,10 +2336,7 @@ LISPFUNN(subr_info,1)
        STACK_3 = type; # `(MEMBER ,@kwlist) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
       }
       fehler(keyword_error,
-             DEUTSCH ? "EVAL/APPLY: Das Keyword ~ ist bei ~ nicht erlaubt. Die möglichen Keywords sind ~" :
-             ENGLISH ? "EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~" :
-             FRANCAIS ? "EVAL/APPLY: Le mot-clé ~ n'est pas permis pour ~. Possibles sont ~" :
-             ""
+             GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~")
             );
     }
 
@@ -2600,10 +2522,7 @@ LISPFUNN(subr_info,1)
             { if (argcount < count)
                 { pushSTACK(TheIclosure(closure)->clos_name);
                   fehler(program_error,
-                         DEUTSCH ? "EVAL/APPLY: Zu wenig Argumente für ~" :
-                         ENGLISH ? "EVAL/APPLY: too few arguments given to ~" :
-                         FRANCAIS ? "EVAL/APPLY: Trop peu d'arguments pour ~." :
-                         ""
+                         GETTEXT("EVAL/APPLY: too few arguments given to ~")
                         );
                 }
               argcount -= count;
@@ -2679,10 +2598,7 @@ LISPFUNN(subr_info,1)
           { if (argcount>0) # noch Argumente da -> Fehler
               { pushSTACK(TheIclosure(closure)->clos_name);
                 fehler(program_error,
-                       DEUTSCH ? "EVAL/APPLY: Zu viele Argumente für ~" :
-                       ENGLISH ? "EVAL/APPLY: too many arguments given to ~" :
-                       FRANCAIS ? "EVAL/APPLY: Trop d'arguments pour ~." :
-                       ""
+                       GETTEXT("EVAL/APPLY: too many arguments given to ~")
                       );
               }
           }
@@ -3082,10 +2998,7 @@ LISPFUNN(subr_info,1)
                 { pushSTACK(form); # Wert für Slot NAME von CELL-ERROR
                   pushSTACK(form);
                   fehler(unbound_variable,
-                         DEUTSCH ? "EVAL: Die Variable ~ hat keinen Wert." :
-                         ENGLISH ? "EVAL: variable ~ has no value" :
-                         FRANCAIS ? "EVAL: La variable ~ n'a pas de valeur." :
-                         ""
+                         GETTEXT("EVAL: variable ~ has no value")
                         );
                 }
               elif (symbolmacrop(value1)) # Symbol-Macro?
@@ -3115,10 +3028,7 @@ LISPFUNN(subr_info,1)
           else
             { pushSTACK(form);
               fehler(source_program_error,
-                     DEUTSCH ? "EVAL: ~ ist keine korrekte Form." :
-                     ENGLISH ? "EVAL: illegal form ~" :
-                     FRANCAIS ? "EVAL: ~ n'est pas une forme correcte." :
-                     ""
+                     GETTEXT("EVAL: illegal form ~")
                     );
             }
         }
@@ -3192,10 +3102,7 @@ LISPFUNN(subr_info,1)
                 { pushSTACK(fun);
                   pushSTACK(S(eval));
                   fehler(source_program_error,
-                         DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
-                         ENGLISH ? "~: ~ is not a function name" :
-                         FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
-                         ""
+                         GETTEXT("~: ~ is not a function name")
                         );
                 }
             }
@@ -3271,10 +3178,7 @@ LISPFUNN(subr_info,1)
               pushSTACK(form);
               pushSTACK(Car(form));
               fehler(source_program_error,
-                     DEUTSCH ? "EVAL: Zu wenig Parameter für Spezialform ~: ~" :
-                     ENGLISH ? "EVAL: too few parameters for special-form ~: ~" :
-                     FRANCAIS ? "EVAL: Trop peu de paramètres pour la forme spéciale ~ : ~" :
-                     ""
+                     GETTEXT("EVAL: too few parameters for special-form ~: ~")
                     );
             }
           fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
@@ -3285,10 +3189,7 @@ LISPFUNN(subr_info,1)
               pushSTACK(form);
               pushSTACK(Car(form));
               fehler(source_program_error,
-                     DEUTSCH ? "EVAL: Zu viele Parameter für Spezialform ~: ~" :
-                     ENGLISH ? "EVAL: too many parameters for special-form ~: ~" :
-                     FRANCAIS ? "EVAL: Trop de paramètres pour la forme spéciale ~ : ~" :
-                     ""
+                     GETTEXT("EVAL: too many parameters for special-form ~: ~")
                     );
             }
           fehler_dotted: # Argumentliste args endet mit Atom /= NIL
@@ -3298,10 +3199,7 @@ LISPFUNN(subr_info,1)
               pushSTACK(form);
               pushSTACK(Car(form));
               fehler(source_program_error,
-                     DEUTSCH ? "EVAL: Parameterliste für Spezialform ~ ist dotted: ~" :
-                     ENGLISH ? "EVAL: dotted parameter list for special form ~: ~" :
-                     FRANCAIS ? "EVAL: La liste de paramètres pour la forme spéciale ~ est pointée." :
-                     ""
+                     GETTEXT("EVAL: dotted parameter list for special form ~: ~")
                     );
             }
           #undef REQ_PAR
@@ -3366,10 +3264,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(form);
       pushSTACK(fun);
       fehler(source_program_error,
-             DEUTSCH ? "EVAL: Zu wenig Argumente für ~: ~" :
-             ENGLISH ? "EVAL: too few arguments given to ~: ~" :
-             FRANCAIS ? "EVAL: Trop peu d'arguments pour ~ : ~" :
-             ""
+             GETTEXT("EVAL: too few arguments given to ~: ~")
             );
     }
 
@@ -3381,10 +3276,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(form);
       pushSTACK(fun);
       fehler(source_program_error,
-             DEUTSCH ? "EVAL: Zu viele Argumente für ~: ~" :
-             ENGLISH ? "EVAL: too many arguments given to ~: ~" :
-             FRANCAIS ? "EVAL: Trop d'arguments pour ~ : ~" :
-             ""
+             GETTEXT("EVAL: too many arguments given to ~: ~")
             );
     }
 
@@ -3396,10 +3288,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(form);
       pushSTACK(fun);
       fehler(source_program_error,
-             DEUTSCH ? "EVAL: Argumentliste für ~ ist dotted: ~" :
-             ENGLISH ? "EVAL: argument list given to ~ is dotted: ~" :
-             FRANCAIS ? "EVAL: La liste d'arguments passée à ~ est pointée." :
-             ""
+             GETTEXT("EVAL: argument list given to ~ is dotted: ~")
             );
     }
 
@@ -4213,10 +4102,7 @@ LISPFUNN(subr_info,1)
           pushSTACK(fun);
           pushSTACK(S(apply));
           fehler(type_error,
-                 DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
-                 ENGLISH ? "~: ~ is not a function name" :
-                 FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
-                 ""
+                 GETTEXT("~: ~ is not a function name")
                 );
         }
     }
@@ -4228,10 +4114,7 @@ LISPFUNN(subr_info,1)
     var object name;
     { pushSTACK(name);
       fehler(program_error,
-             DEUTSCH ? "APPLY: Argumentliste für ~ ist dotted." :
-             ENGLISH ? "APPLY: argument list given to ~ is dotted" :
-             FRANCAIS ? "APPLY: La liste d'arguments pour ~ est pointée." :
-             ""
+             GETTEXT("APPLY: argument list given to ~ is dotted")
             );
     }
 
@@ -4242,10 +4125,7 @@ LISPFUNN(subr_info,1)
     var object name;
     { pushSTACK(name);
       fehler(program_error,
-             DEUTSCH ? "APPLY: Zu viele Argumente für ~" :
-             ENGLISH ? "APPLY: too many arguments given to ~" :
-             FRANCAIS ? "APPLY: Trop d'arguments pour ~." :
-             ""
+             GETTEXT("APPLY: too many arguments given to ~")
             );
     }
 
@@ -4256,10 +4136,7 @@ LISPFUNN(subr_info,1)
     var object name;
     { pushSTACK(name);
       fehler(program_error,
-             DEUTSCH ? "APPLY: Zu wenig Argumente für ~" :
-             ENGLISH ? "APPLY: too few arguments given to ~" :
-             FRANCAIS ? "APPLY: Trop peu d'arguments pour ~." :
-             ""
+             GETTEXT("APPLY: too few arguments given to ~")
             );
     }
 
@@ -5133,10 +5010,7 @@ LISPFUNN(subr_info,1)
           pushSTACK(fun);
           pushSTACK(S(funcall));
           fehler(type_error,
-                 DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
-                 ENGLISH ? "~: ~ is not a function name" :
-                 FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
-                 ""
+                 GETTEXT("~: ~ is not a function name")
                 );
         }
     }
@@ -6674,10 +6548,7 @@ LISPFUNN(subr_info,1)
                   { pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
                     pushSTACK(symbol);
                     fehler(unbound_variable,
-                           DEUTSCH ? "Symbol ~ hat keinen Wert." :
-                           ENGLISH ? "symbol ~ has no value" :
-                           FRANCAIS ? "Le symbôle ~ n'a pas de valeur." :
-                           ""
+                           GETTEXT("symbol ~ has no value")
                           );
                   }
                 value1 = Symbol_value(symbol); mv_count=1;
@@ -6692,10 +6563,7 @@ LISPFUNN(subr_info,1)
                   { pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
                     pushSTACK(symbol);
                     fehler(unbound_variable,
-                           DEUTSCH ? "Symbol ~ hat keinen Wert." :
-                           ENGLISH ? "symbol ~ has no value" :
-                           FRANCAIS ? "Le symbôle ~ n'a pas de valeur." :
-                           ""
+                           GETTEXT("symbol ~ has no value")
                           );
                   }
                 pushSTACK(Symbol_value(symbol));
@@ -6709,10 +6577,7 @@ LISPFUNN(subr_info,1)
                 if (constantp(TheSymbol(symbol)))
                   { pushSTACK(symbol);
                     fehler(error,
-                           DEUTSCH ? "Zuweisung nicht möglich auf das konstante Symbol ~" :
-                           ENGLISH ? "assignment to constant symbol ~ is impossible" :
-                           FRANCAIS ? "Une assignation du symbôle constant ~ n'est pas possible." :
-                           ""
+                           GETTEXT("assignment to constant symbol ~ is impossible")
                           );
                   }
                 Symbol_value(symbol) = value1; mv_count=1;
@@ -7302,10 +7167,7 @@ LISPFUNN(subr_info,1)
                      { pushSTACK(fun);
                        pushSTACK(S(multiple_value_call));
                        fehler(program_error,
-                              DEUTSCH ? "~: Zu viele Argumente für ~" :
-                              ENGLISH ? "~: too many arguments given to ~" :
-                              FRANCAIS ? "~: Trop d'arguments pour ~." :
-                              ""
+                              GETTEXT("~: too many arguments given to ~")
                              );
                      }
                    # Funktion anwenden, Stack anheben bis unter die Funktion:
@@ -7471,10 +7333,7 @@ LISPFUNN(subr_info,1)
                     pushSTACK(TheSvector(tag_vector)->data[l]); # Marke l
                     pushSTACK(S(go));
                     fehler(control_error,
-                           DEUTSCH ? "(~ ~): Der Tagbody mit den Marken ~ wurde bereits verlassen." :
-                           ENGLISH ? "(~ ~): the tagbody of the tags ~ has already been left" :
-                           FRANCAIS ? "(~ ~): Le «tagbody» avec les marqueurs ~ a déjà été quitté." :
-                           ""
+                           GETTEXT("(~ ~): the tagbody of the tags ~ has already been left")
                           );
                   }
                 # Übergabewert an den Tagbody:
@@ -7510,10 +7369,7 @@ LISPFUNN(subr_info,1)
                     pushSTACK(TheSvector(tag_vector)->data[l]); # Marke l
                     pushSTACK(S(go));
                     fehler(control_error,
-                           DEUTSCH ? "(~ ~): Der Tagbody mit den Marken ~ wurde bereits verlassen." :
-                           ENGLISH ? "(~ ~): the tagbody of the tags ~ has already been left" :
-                           FRANCAIS ? "(~ ~): Le «tagbody» avec les marqueurs ~ a déjà été quitté." :
-                           ""
+                           GETTEXT("(~ ~): the tagbody of the tags ~ has already been left")
                           );
                   }
                 # Übergabewert an den Tagbody:
@@ -7572,10 +7428,7 @@ LISPFUNN(subr_info,1)
                 pushSTACK(tag);
                 pushSTACK(S(throw));
                 fehler(control_error,
-                       DEUTSCH ? "~: Es gibt kein CATCH zur Marke ~." :
-                       ENGLISH ? "~: there is no CATCHer for tag ~" :
-                       FRANCAIS ? "~: Il n'y a pas de CATCH correspondant au marqueur ~." :
-                       ""
+                       GETTEXT("~: there is no CATCHer for tag ~")
                       );
               }
             # ------------------- (13) UNWIND-PROTECT -----------------------
@@ -7597,10 +7450,7 @@ LISPFUNN(subr_info,1)
               #if STACKCHECKC
               if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
                 { fehler(serious_condition,
-                         DEUTSCH ? "STACK kaputt." :
-                         ENGLISH ? "STACK corrupted" :
-                         FRANCAIS ? "Pile STACK est corrompue." :
-                         ""
+                         GETTEXT("STACK corrupted")
                         );
                 }
               #endif
@@ -7925,10 +7775,7 @@ LISPFUNN(subr_info,1)
               pushSTACK(STACK_(0+3)); # index
               pushSTACK(S(svref));
               fehler(type_error,
-                     DEUTSCH ? "~: ~ ist kein passender Index für ~" :
-                     ENGLISH ? "~: ~ is not a correct index into ~" :
-                     FRANCAIS ? "~: ~ n'est pas un index convenable dans ~." :
-                     ""
+                     GETTEXT("~: ~ is not a correct index into ~")
                     );
             }
             CASE cod_list:                   # (LIST n)
@@ -8525,10 +8372,7 @@ LISPFUNN(subr_info,1)
               pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); # fehlerhafte Bytenummer
               pushSTACK(closure); # Closure
               fehler(serious_condition,
-                     DEUTSCH ? "Undefinierter Byte-Code in ~ bei Byte ~" :
-                     ENGLISH ? "undefined bytecode in ~ at byte ~" :
-                     FRANCAIS ? "Code octet indéfinissable ~ à l'octet ~" :
-                     ""
+                     GETTEXT("undefined bytecode in ~ at byte ~")
                     );
             #undef L_operand
             #undef S_operand
@@ -8538,20 +8382,14 @@ LISPFUNN(subr_info,1)
           }
         fehler_zuviele_werte:
           fehler(error,
-                 DEUTSCH ? "Zu viele Werte erzeugt." :
-                 ENGLISH ? "too many return values" :
-                 FRANCAIS ? "Trop de valeurs VALUES." :
-                 ""
+                 GETTEXT("too many return values")
                 );
         #if STACKCHECKC
         fehler_STACK_putt:
           pushSTACK(fixnum(byteptr-&codeptr->data[0])); # PC
           pushSTACK(closure); # FUNC
           fehler(serious_condition,
-                 DEUTSCH ? "Stack kaputt in ~ bei Byte ~" :
-                 ENGLISH ? "Corrupted STACK in ~ at byte ~" :
-                 FRANCAIS ? "Pile STACK corrompue dans ~ à l'octet ~" :
-                 ""
+                 GETTEXT("Corrupted STACK in ~ at byte ~")
                 );
         #endif
         finished:

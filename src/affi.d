@@ -79,10 +79,7 @@ local void fehler_ffi_nocall(ffinfo)
   var object ffinfo;
   { pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           DEUTSCH ? "~: Nicht unterstützter Aufrufmechanismus: ~" :
-           ENGLISH ? "~: Unsupported call mechanism: ~" :
-           FRANCAIS ? "~: Convention d'appel non supportée : ~" :
-           ""
+           GETTEXT("~: Unsupported call mechanism: ~")
           );
   }
 
@@ -92,10 +89,7 @@ local void fehler_ffi_proto(ffinfo)
   { pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           DEUTSCH ? "~: Ungültiger Funktionsprototyp: ~" :
-           ENGLISH ? "~: Bad function prototype: ~" :
-           FRANCAIS ? "~ : Mauvais prototype : ~" :
-           ""
+           GETTEXT("~: Bad function prototype: ~")
           );
   }
 
@@ -105,10 +99,7 @@ local void fehler_ffi_argcount(ffinfo)
   { pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(program_error,
-           DEUTSCH ? "~: Unpassende Anzahl Argumente für Prototyp ~." :
-           ENGLISH ? "~: Wrong number of arguments for prototype ~" :
-           FRANCAIS ? "~: Mauvais nombre d'arguments pour le prototype ~." :
-           ""
+           GETTEXT("~: Wrong number of arguments for prototype ~")
           );
   }
 
@@ -121,10 +112,7 @@ local void fehler_ffi_argtype(obj,type,ffinfo)
     pushSTACK(fixnump(type) ? S(integer) : T); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(obj); pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
-           DEUTSCH ? "~: Unpassendes Argument für Prototyp ~: ~" :
-           ENGLISH ? "~: Bad argument for prototype ~: ~" :
-           FRANCAIS ? "~: Argument incorrect pour le prototype ~ : ~" :
-           ""
+           GETTEXT("~: Bad argument for prototype ~: ~")
           );
   }
 
@@ -134,10 +122,7 @@ local void fehler_ffi_arg(obj)
   var object obj;
   { pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     fehler(control_error,
-           DEUTSCH ? "~: Unpassendes Argument: ~" :
-           ENGLISH ? "~: Bad argument: ~" :
-           FRANCAIS ? "~: Argument incorrect : ~" :
-           ""
+           GETTEXT("~: Bad argument: ~")
           );
   }
 
@@ -156,10 +141,7 @@ local aint convert_address(obj, offset)
         pushSTACK(S(unsigned_byte)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ ist keine gültige Adresse." :
-               ENGLISH ? "~: ~ is not a valid address" :
-               FRANCAIS ? "~: ~ n'est pas une bonne adresse." :
-               ""
+               GETTEXT("~: ~ is not a valid address")
               );
       }
     if (!eq(offset,unbound))

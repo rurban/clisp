@@ -95,18 +95,14 @@
 (defmacro with-package-iterator ((name pack-list &rest types) &body body)
   (unless types
     (error-of-type 'source-program-error
-      (DEUTSCH "Fehlende Symbol-Typen (~S/~S/~S) in ~S"
-       ENGLISH "missing symbol types (~S/~S/~S) in ~S"
-       FRANCAIS "types de symboles manquants dans ~S")
+      (ENGLISH "missing symbol types (~S/~S/~S) in ~S")
       ':internal ':external ':inherited 'with-package-iterator
   ) )
   (dolist (symboltype types)
     (case symboltype
       ((:INTERNAL :EXTERNAL :INHERITED))
       (t (error-of-type 'source-program-error
-           (DEUTSCH "~S: Flag muss eines der Symbole ~S, ~S, ~S sein, nicht ~S"
-            ENGLISH "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S"
-            FRANCAIS "~S : Chaque type de symboles doit être l'un des symboles ~S, ~S, ~S, et non ~S")
+           (ENGLISH "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
            'with-package-iterator ':internal ':external ':inherited symboltype
   ) ) )  )
   (let ((iterfun (gensym "WPI")))
@@ -419,9 +415,7 @@
   (defun logical-pathname-translations (host)
     (setq host (string-upcase host))
     (or (gethash host sys::*logical-pathname-translations*) ; :test #'equal !
-        (error (DEUTSCH "~S: ~S benennt keinen Logical Host."
-                ENGLISH "~S: ~S does not name a logical host"
-                FRANCAIS "~S : ~S n'est pas le nom d'un «host logique».")
+        (error (ENGLISH "~S: ~S does not name a logical host")
                'logical-pathname-translations host
   ) )   )
   (defun set-logical-pathname-translations (host translations)
@@ -459,9 +453,7 @@
           (list (list (sys::getenv (string-concat "LOGICAL_HOST_" host "_FROM"))
                       (sys::getenv (string-concat "LOGICAL_HOST_" host "_TO"))
           )     )
-          (error (DEUTSCH "Keine Umsetzungen für Logical Host ~S gefunden."
-                  ENGLISH "No translations for logical host ~S found"
-                  FRANCAIS "Aucune traduction du host logique ~S n'a été trouvé.")
+          (error (ENGLISH "No translations for logical host ~S found")
                  host
   ) ) ) ) )
   (set-logical-pathname-translations "SYS"
@@ -547,9 +539,7 @@
     )
     (error-of-type 'type-error
       :datum time :expected-type '(REAL 0 *)
-      (DEUTSCH "~S: Argument muss eine Zahl >=0 sein, nicht ~S"
-       ENGLISH "~S: argument ~S should be a nonnegative number"
-       FRANCAIS "~S : L'argument doit être un nombre positif ou zéro et non ~S")
+      (ENGLISH "~S: argument ~S should be a nonnegative number")
       'sleep time
 ) ) )
 
@@ -711,9 +701,7 @@
                                   (<= -13 Zeitzone 12)
           )    ) )    ) )    )
     (error-of-type 'error
-      (DEUTSCH "Inkorrektes Datum: ~S.~S.~S, ~Sh~Sm~Ss, Zeitzone ~S"
-       ENGLISH "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S"
-       FRANCAIS "Date incorrecte : ~S/~S/~S, ~Sh~Sm~Ss, heure ~S")
+      (ENGLISH "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S")
       Tag Monat Jahr Stunde Minute Sekunde Zeitzone
   ) )
   (+ Sekunde
@@ -782,19 +770,13 @@
 ; Liefert den Typ eines Symbols sym mit (fboundp sym).
 (defun fbound-string (sym)
   (cond ((special-operator-p sym)
-         (DEUTSCH "Spezialform"
-          ENGLISH "special form"
-          FRANCAIS "forme spéciale")
+         (ENGLISH "special form")
         )
         ((functionp (symbol-function sym))
-         (DEUTSCH "Funktion"
-          ENGLISH "function"
-          FRANCAIS "fonction")
+         (ENGLISH "function")
         )
-        (t (DEUTSCH "Macro"
-            ENGLISH "macro"
-            FRANCAIS "macro")
-) )     )
+        (t (ENGLISH "macro"))
+) )
 
 ; *ERROR-HANDLER* should be NIL or a function which accepts the following
 ; arguments:

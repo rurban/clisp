@@ -486,30 +486,7 @@
   #ifdef ENGLISH
     #undef ENGLISH
     #define ENGLISH 1
-  #else
-    #define ENGLISH 0
-  #endif
-  #ifdef DEUTSCH
-    #undef DEUTSCH
-    #define DEUTSCH 1
-  #else
-    #define DEUTSCH 0
-  #endif
-  #ifdef FRANCAIS
-    #undef FRANCAIS
-    #define FRANCAIS 1
-  #else
-    #define FRANCAIS 0
-  #endif
-  #if (DEUTSCH+ENGLISH+FRANCAIS > 1)
-    #error "Ambiguous choice of language -- Sprache nicht eindeutig!!"
-  #endif
-  #if (DEUTSCH+ENGLISH+FRANCAIS > 0)
     #define LANGUAGE_STATIC
-  #else # noch keine Sprache ausgewählt
-    #undef ENGLISH
-    #undef DEUTSCH
-    #undef FRANCAIS
   #endif
 
 
@@ -7723,14 +7700,10 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Sprache, in der mit dem Benutzer kommuniziert wird:
 #ifndef LANGUAGE_STATIC
   #define language_english   0
-  #define language_deutsch   1
-  #define language_francais  2
   #ifndef GNU_GETTEXT
     # Sprache wird zur Laufzeit von der Variablen language bestimmt.
     extern uintL language;
     #define ENGLISH  (language==language_english)
-    #define DEUTSCH  (language==language_deutsch)
-    #define FRANCAIS  (language==language_francais)
   #else # GNU_GETTEXT
     #include "libintl.h"
     # Fetch the message translations from a message catalog.
@@ -7738,17 +7711,10 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       extern char* gettext (const char * msgid);
     #endif
     extern const char * clgettext (const char * msgid);
-    # These macros are grotesque, but they have the advantage to
-    # keep the source legible and require no preprocessor work.
-    # They work as long as
-    # - For every international message, all 3 flavors are present
-    #   and FRANCAIS is listed after ENGLISH. (Well, DEUTSCH is
-    #   optional.)
-    # - `clgettext' is a function, not a macro. (Well, it may be a
-    #   macro without arguments, expanding to a function name.)
-    #define ENGLISH  1 ? clgettext ( 1
-    #define DEUTSCH  0
-    #define FRANCAIS  "" ) : 0
+    # GETTEXT(english_message) fetches the translation of english_message.
+    # GETTEXT is a special tag recognized by clisp-xgettext. We choose English
+    # because it's the only language understood by all CLISP developers.
+    #define GETTEXT clgettext
     #
     # Fetch the message translations of a string.
     # localized_string(obj)

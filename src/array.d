@@ -221,10 +221,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           }
       fehler_bad_index:
         fehler(error, # ausführlicher??
-               DEUTSCH ? "Index in Array zu groß." :
-               ENGLISH ? "index too large" :
-               FRANCAIS ? "Index dans matrice trop grand." :
-               ""
+               GETTEXT("index too large")
               );
     }
 
@@ -232,10 +229,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
   nonreturning_function(local, fehler_displaced_inconsistent, (void));
   local void fehler_displaced_inconsistent()
     { fehler(error,
-             DEUTSCH ? "Der Ziel-Array eines Displaced-Array wurde durch Adjustieren verkleinert." :
-             ENGLISH ? "An array has been shortened by adjusting it while another array was displaced to it." :
-             FRANCAIS ? "La matrice cible d'un «displaced-array» a été rapetissée par ajustement." :
-             ""
+             GETTEXT("An array has been shortened by adjusting it while another array was displaced to it.")
             );
     }
 
@@ -334,10 +328,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       pushSTACK(S(array)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Array." :
-             ENGLISH ? "~: ~ is not an array" :
-             FRANCAIS ? "~ : ~ n'est pas une matrice." :
-             ""
+             GETTEXT("~: ~ is not an array")
             );
     }
 
@@ -371,10 +362,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       pushSTACK(fixnum(argcount));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: Es wurden ~ Subscripts angegeben, ~ hat aber den Rang ~." :
-             ENGLISH ? "~: got ~ subscripts, but ~ has rank ~" :
-             FRANCAIS ? "~: ~ indices donnés mais ~ est de rang ~." :
-             ""
+             GETTEXT("~: got ~ subscripts, but ~ has rank ~")
             );
     }
 
@@ -389,10 +377,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       pushSTACK(list);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error,
-             DEUTSCH ? "~: Subscripts ~ für ~ sind nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-             ENGLISH ? "~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))" :
-             FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas de type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-             ""
+             GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
             );
     }
 
@@ -417,10 +402,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Subscripts ~ für ~ liegen nicht im erlaubten Bereich." :
-             ENGLISH ? "~: subscripts ~ for ~ are out of range" :
-             FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas dans l'intervalle permis." :
-             ""
+             GETTEXT("~: subscripts ~ for ~ are out of range")
             );
     }
 
@@ -480,10 +462,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Index ~ für ~ ist nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-             ENGLISH ? "~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))" :
-             FRANCAIS ? "~: L'indice ~ pour ~ n'est pas de type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-             ""
+             GETTEXT("~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
             );
     }
 
@@ -503,10 +482,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Index ~ für ~ ist zu groß." :
-             ENGLISH ? "~: index ~ for ~ is out of range" :
-             FRANCAIS ? "~: L'index ~ pour ~ est trop grand." :
-             ""
+             GETTEXT("~: index ~ for ~ is out of range")
             );
     }
 
@@ -671,10 +647,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         pushSTACK(STACK_2); # element
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: ~ hat nicht den richtigen Typ für ~" :
-               ENGLISH ? "~: ~ does not fit into ~, bad type" :
-               FRANCAIS ? "~: ~ n'est pas de type correct pour ~." :
-               ""
+               GETTEXT("~: ~ does not fit into ~, bad type")
               );
     } }
 
@@ -865,10 +838,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
       pushSTACK(STACK_2); # axis_number
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist nicht >= 0 und < dem Rang von ~" :
-             ENGLISH ? "~: ~ is not an nonnegative integer less than the rank of ~" :
-             FRANCAIS ? "~: ~ n'est pas un entier >= 0 et strictement inférieur au rang de ~." :
-             ""
+             GETTEXT("~: ~ is not an nonnegative integer less than the rank of ~")
             );
   }
 
@@ -1061,10 +1031,7 @@ LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
       pushSTACK(STACK_(0+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: ~ ist kein Bit-Array." :
-             ENGLISH ? "~: ~ is not an array of bits" :
-             FRANCAIS ? "~: ~ n'est pas une matrice de bits." :
-             ""
+             GETTEXT("~: ~ is not an array of bits")
             );
     }
 
@@ -1575,10 +1542,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
           pushSTACK(array2); pushSTACK(array1);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: Die Argumente ~ und ~ müssen Bit-Arrays gleicher Dimensionierung sein." :
-                 ENGLISH ? "~: The arguments ~ and ~ should be arrays of bits with the same dimensions" :
-                 FRANCAIS ? "~: Les arguments ~ et ~ doivent être des matrices de mêmes dimensions." :
-                 ""
+                 GETTEXT("~: The arguments ~ and ~ should be arrays of bits with the same dimensions")
                 );
         }
       fehler3: # Fehlermeldung bei 3 Argumenten
@@ -1588,10 +1552,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
           pushSTACK(array2); pushSTACK(array1);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: Die Argumente ~, ~ und ~ müssen Bit-Arrays gleicher Dimensionierung sein." :
-                 ENGLISH ? "~: The arguments ~, ~ and ~ should be arrays of bits with the same dimensions" :
-                 FRANCAIS ? "~: Les arguments ~, ~ et ~ doivent être des matrices de mêmes dimensions." :
-                 ""
+                 GETTEXT("~: The arguments ~, ~ and ~ should be arrays of bits with the same dimensions")
                 );
         }
     }
@@ -1727,10 +1688,7 @@ LISPFUNN(array_has_fill_pointer_p,1) # (ARRAY-HAS-FILL-POINTER-P array), CLTL S.
         pushSTACK(O(type_vector_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Vektor ~ hat keinen Fill-Pointer." :
-               ENGLISH ? "~: vector ~ has no fill pointer" :
-               FRANCAIS ? "~: Le vecteur ~ n'a pas de pointeur de remplissage." :
-               ""
+               GETTEXT("~: vector ~ has no fill pointer")
               );
     }
 
@@ -1776,10 +1734,7 @@ LISPFUNN(vector_pop,1) # (VECTOR-POP vector), CLTL S. 296
       { # Fill-Pointer war =0 -> Fehlermeldung
         pushSTACK(array); pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               DEUTSCH ? "~: ~ hat keine aktiven Elemente." :
-               ENGLISH ? "~: ~ has length zero" :
-               FRANCAIS ? "~: ~ ne contient pas d'éléments actifs (la longueur est nulle)." :
-               ""
+               GETTEXT("~: ~ has length zero")
               );
       }
       else
@@ -1808,10 +1763,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
             # array noch in STACK_0
             pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~ funktioniert nur auf adjustierbaren Arrays, nicht auf ~" :
-                   ENGLISH ? "~ works only on adjustable arrays, not on ~" :
-                   FRANCAIS ? "~ ne fonctionne qu'avec des matrices ajustables et non avec ~." :
-                   ""
+                   GETTEXT("~ works only on adjustable arrays, not on ~")
                   );
           }
         { var uintB atype = Iarray_flags(array) & arrayflags_atype_mask;
@@ -1829,10 +1781,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                   pushSTACK(O(type_posfixnum1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
                   pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
                   fehler(type_error,
-                         DEUTSCH ? "~: Extension ~ sollte ein Fixnum > 0 sein." :
-                         ENGLISH ? "~: extension ~ should be a positive fixnum" :
-                         FRANCAIS ? "~: L'extension ~ doit être de type FIXNUM strictement positif." :
-                         ""
+                         GETTEXT("~: extension ~ should be a positive fixnum")
                         );
             }   }
             else
@@ -1855,10 +1804,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
               { # Vektor würde zu lang -> Fehlermeldung
                 pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
                 fehler(error,
-                       DEUTSCH ? "~: Durch die angegebene Extension von ~ wird der Vektor zu lang." :
-                       ENGLISH ? "~: extending the vector by ~ elements makes it too long" :
-                       FRANCAIS ? "~: Étendre le vecteur de ~ le rend trop long." :
-                       ""
+                       GETTEXT("~: extending the vector by ~ elements makes it too long")
                       );
               }
             #endif
@@ -1949,10 +1895,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                       pushSTACK(STACK_(0+2)); pushSTACK(STACK_(1+3));
                       pushSTACK(TheSubr(subr_self)->name);
                       fehler(type_error,
-                             DEUTSCH ? "~: Das Objekt ~ kann nicht in den Array ~ geschoben werden, weil vom falschen Typ." :
-                             ENGLISH ? "~: cannot push ~ into array ~ (bad type)" :
-                             FRANCAIS ? "~: L'objet ~ ne peut pas être poussé dans la matrice ~ car il est de mauvais type." :
-                             ""
+                             GETTEXT("~: cannot push ~ into array ~ (bad type)")
                             );
                     }
                 }
@@ -2199,10 +2142,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       pushSTACK(dim);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Dimension ~ ist nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-             ENGLISH ? "~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))" :
-             FRANCAIS ? "~: La dimension ~ n'est pas de type  `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))." :
-             ""
+             GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
             );
     }
 
@@ -2243,10 +2183,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                   pushSTACK(STACK_7); # dims
                   pushSTACK(TheSubr(subr_self)->name);
                   fehler(error,
-                         DEUTSCH ? "~: Dimensionen ~ ergeben zu große Gesamtgröße." :
-                         ENGLISH ? "~: dimensions ~ produce too large total-size" :
-                         FRANCAIS ? "~: Les dimensions ~ donnent une taille totale trop grande." :
-                         ""
+                         GETTEXT("~: dimensions ~ produce too large total-size")
                         );
                 }
               totalsize = produkt_lo;
@@ -2280,10 +2217,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         if (initcount > 1) # Mehr als eine Initialisierung?
           { pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~: Mehr als eine Initialisierung angegeben." :
-                   ENGLISH ? "~: ambiguous, more than one initialisation specified" :
-                   FRANCAIS ? "~: Il fut indiqué plus d'une initialisation, c'est ambigu." :
-                   ""
+                   GETTEXT("~: ambiguous, more than one initialisation specified")
                   );
       }   }
       # Testen, ob :displaced-index-offset ohne :displaced-to verwendet wurde:
@@ -2294,10 +2228,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           pushSTACK(S(Kdisplaced_index_offset));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: ~ darf nur zusammen mit ~ verwendet werden." :
-                 ENGLISH ? "~: ~ must not be specified without ~" :
-                 FRANCAIS ? "~: ~ ne peut être utilisé qu'avec ~." :
-                 ""
+                 GETTEXT("~: ~ must not be specified without ~")
                 );
         }
     }
@@ -2412,10 +2343,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
             pushSTACK(STACK_(4+3)); # initial-element
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
-                   DEUTSCH ? "~: Das Initialisierungselement ~ ist nicht vom Typ ~." :
-                   ENGLISH ? "~: the initial-element ~ is not of type ~" :
-                   FRANCAIS ? "~: L'élément initial ~ n'est pas de type ~." :
-                   ""
+                   GETTEXT("~: the initial-element ~ is not of type ~")
                   );
     }   }
 
@@ -2499,10 +2427,7 @@ local void initial_contents_aux(arg,obj)
           { # fehlerhafte Sequence seq noch in STACK_0.
             pushSTACK(TheSubr(*(localptr STACKop -2))->name);
             fehler(error,
-                   DEUTSCH ? "~: ~ hat nicht die richtige Länge." :
-                   ENGLISH ? "~: ~ is of incorrect length" :
-                   FRANCAIS ? "~: ~ n'est pas de longueur convenable." :
-                   ""
+                   GETTEXT("~: ~ is of incorrect length")
                   );
           }
         # Länge stimmt, nun (MAP NIL #'INITIAL-CONTENTS-AUX seq) ausführen:
@@ -2532,10 +2457,7 @@ local void initial_contents_aux(arg,obj)
           pushSTACK(S(Kdisplaced_to));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: ~-Argument ~ ist kein Array." :
-                 ENGLISH ? "~: ~-argument ~ is not an array" :
-                 FRANCAIS ? "~: Le ~ argument ~ n'est pas une matrice." :
-                 ""
+                 GETTEXT("~: ~-argument ~ is not an array")
                 );
         }
       {# Elementtyp von displaced_to bestimmen:
@@ -2562,10 +2484,7 @@ local void initial_contents_aux(arg,obj)
            pushSTACK(S(Kdisplaced_to));
            pushSTACK(TheSubr(subr_self)->name);
            fehler(type_error,
-                  DEUTSCH ? "~: ~-Argument ~ hat nicht den Elementtyp ~." :
-                  ENGLISH ? "~: ~-argument ~ does not have element type ~" :
-                  FRANCAIS ? "~: Le ~ argument ~ n'a pas ~ comme type d'élément." :
-                  ""
+                  GETTEXT("~: ~-argument ~ does not have element type ~")
                  );
          }
       }
@@ -2580,10 +2499,7 @@ local void initial_contents_aux(arg,obj)
            pushSTACK(S(Kdisplaced_index_offset));
            pushSTACK(TheSubr(subr_self)->name);
            fehler(type_error,
-                  DEUTSCH ? "~: ~-Argument ~ ist nicht vom Typ `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))." :
-                  ENGLISH ? "~: ~-argument ~ is not of type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))" :
-                  FRANCAIS ? "~: Le ~ argument ~ n'est pas de type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))." :
-                  ""
+                  GETTEXT("~: ~-argument ~ is not of type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))")
                  );
          }
        {# Überprüfen, ob angesprochenes Teilstück ganz in displaced-to passt:
@@ -2594,10 +2510,7 @@ local void initial_contents_aux(arg,obj)
             pushSTACK(fixnum(displaced_index_offset));
             pushSTACK(TheSubr(subr_self)->name);
             fehler(error,
-                   DEUTSCH ? "~: Array-Gesamtgröße mit Displaced-Offset (~) > Gesamtgröße ~ des ~-Arguments" :
-                   ENGLISH ? "~: array-total-size + displaced-offset (= ~) exceeds total size ~ of ~-argument" :
-                   FRANCAIS ? "~: La taille totale de la matrice avec «displaced-offset» (~) est supérieure à la taille totale ~ du ~ argument." :
-                   ""
+                   GETTEXT("~: array-total-size + displaced-offset (= ~) exceeds total size ~ of ~-argument")
                   );
        }  }
        return displaced_index_offset;
@@ -2621,10 +2534,7 @@ local void initial_contents_aux(arg,obj)
           pushSTACK(STACK_(2+2));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Gewünschter Fill-Pointer ~ sollte ein Fixnum >=0 sein." :
-                 ENGLISH ? "~: fill-pointer ~ should be a nonnegative fixnum" :
-                 FRANCAIS ? "~: Le pointeur de remplissage ~ devrait être de type FIXNUM positif ou zéro." :
-                 ""
+                 GETTEXT("~: fill-pointer ~ should be a nonnegative fixnum")
                 );
         }
       else
@@ -2634,10 +2544,7 @@ local void initial_contents_aux(arg,obj)
               pushSTACK(STACK_(2+1));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(error,
-                     DEUTSCH ? "~: Gewünschter Fill-Pointer ~ ist größer als die Länge ~" :
-                     ENGLISH ? "~: fill-pointer argument ~ is larger than the length ~" :
-                     FRANCAIS ? "~: L'argument ~ pour le pointeur de remplissage est plus grand que la longueur ~." :
-                     ""
+                     GETTEXT("~: fill-pointer argument ~ is larger than the length ~")
                     );
             }
           return fillpointer;
@@ -2707,10 +2614,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
           pushSTACK(fixnum(rank));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Der gewünschte Rang ~ ist zu groß." :
-                 ENGLISH ? "~: attempted rank ~ is too large" :
-                 FRANCAIS ? "~: Le rang souhaité est trop grand." :
-                 ""
+                 GETTEXT("~: attempted rank ~ is too large")
                 );
         }
       #endif
@@ -2724,10 +2628,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
               pushSTACK(S(Kfill_pointer));
               pushSTACK(TheSubr(subr_self)->name);
               fehler(error,
-                     DEUTSCH ? "~: ~ darf bei einem Array vom Rang ~ nicht angegeben werden." :
-                     ENGLISH ? "~: ~ may not be specified for an array of rank ~" :
-                     FRANCAIS ? "~: ~ ne peut pas être spécifié avec une matrice de rang ~." :
-                     ""
+                     GETTEXT("~: ~ may not be specified for an array of rank ~")
                     );
             }
           flags |= bit(arrayflags_fillp_bit);
@@ -2910,10 +2811,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
           pushSTACK(array);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 DEUTSCH ? "~: Array ~ ist nicht adjustierbar." :
-                 ENGLISH ? "~: array ~ is not adjustable" :
-                 FRANCAIS ? "~: La matrice ~ n'est pas ajustable." :
-                 ""
+                 GETTEXT("~: array ~ is not adjustable")
                 );
           #else
           ??
@@ -2935,10 +2833,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
          pushSTACK(fixnum(oldrank));
          pushSTACK(TheSubr(subr_self)->name);
          fehler(error,
-                DEUTSCH ? "~: Dimensionszahl ~ des Arrays ~ kann nicht geändert werden: ~" :
-                ENGLISH ? "~: rank ~ of array ~ cannot be altered: ~" :
-                FRANCAIS ? "~: Le rang ~ de la matrice ~ ne peut pas être modifié." :
-                ""
+                GETTEXT("~: rank ~ of array ~ cannot be altered: ~")
                );
     }  }
     {# element-type in einen Code umwandeln und überprüfen:
@@ -2953,10 +2848,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
              pushSTACK(STACK_(6+3)); # array
              pushSTACK(TheSubr(subr_self)->name);
              fehler(type_error,
-                    DEUTSCH ? "~: Array ~ hat nicht Elementtyp ~" :
-                    ENGLISH ? "~: array ~ does not have element-type ~" :
-                    FRANCAIS ? "~: La matrice ~ n'as pas ~ comme type d'élément." :
-                    ""
+                    GETTEXT("~: array ~ does not have element-type ~")
                    );
        }   }
        else
@@ -3011,10 +2903,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
                    { pushSTACK(array);
                      pushSTACK(TheSubr(subr_self)->name);
                      fehler(error,
-                            DEUTSCH ? "~: Array ~ kann nicht auf sich selbst displaced werden." :
-                            ENGLISH ? "~: cannot displace array ~ to itself" :
-                            FRANCAIS ? "~: La matrice ~ ne peut pas être déplacée («displaced») vers elle-même." :
-                            ""
+                            GETTEXT("~: cannot displace array ~ to itself")
                            );
                    }
                  # Falls to_array simple ist (also nicht displaced),
@@ -3036,10 +2925,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
                pushSTACK(STACK_(6+2));
                pushSTACK(TheSubr(subr_self)->name);
                fehler(type_error,
-                      DEUTSCH ? "~: Array ~ hat keinen Fill-Pointer." :
-                      ENGLISH ? "~: array ~ has no fill-pointer" :
-                      FRANCAIS ? "~: La matrice ~ n'a pas de pointeur de remplissage." :
-                      ""
+                      GETTEXT("~: array ~ has no fill-pointer")
                      );
              }
            fillpointer = test_fillpointer(totalsize); # Fill-Pointer-Wert
@@ -3055,10 +2941,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
                  pushSTACK(array);
                  pushSTACK(TheSubr(subr_self)->name);
                  fehler(error,
-                        DEUTSCH ? "~: Array ~ hat einen Fill-Pointer ~ > gewünschte Länge ~." :
-                        ENGLISH ? "~: the fill-pointer of array ~ is ~, greater than ~" :
-                        FRANCAIS ? "~: La matrice ~ possède un pointeur de remplissage ~ supérieur à la longueur souhaitée ~." :
-                        ""
+                        GETTEXT("~: the fill-pointer of array ~ is ~, greater than ~")
                        );
          }     }
        # Array modifizieren:
@@ -3188,10 +3071,7 @@ LISPFUNN(vector_init_start,2)
         pushSTACK(STACK_3); # seq
         pushSTACK(STACK_3); # index
         fehler(type_error,
-               DEUTSCH ? "Unzulässiger START - Index ~ für ~" :
-               ENGLISH ? "Illegal START index ~ for ~" :
-               FRANCAIS ? "Index START ~ invalide pour ~." :
-               ""
+               GETTEXT("Illegal START index ~ for ~")
               );
       }
   }}
@@ -3225,10 +3105,7 @@ LISPFUNN(vector_fe_init_end,2)
         pushSTACK(STACK_3); # seq
         pushSTACK(STACK_3); # index
         fehler(type_error,
-               DEUTSCH ? "Unzulässiger END - Index ~ für ~" :
-               ENGLISH ? "Illegal END index ~ for ~" :
-               FRANCAIS ? "Index END ~ invalide pour ~." :
-               ""
+               GETTEXT("Illegal END index ~ for ~")
               );
       }
   }}
@@ -3241,10 +3118,7 @@ LISPFUNN(make_bit_vector,1)
         pushSTACK(STACK_1); # size
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
-               DEUTSCH ? "~: Als Bit-Vektoren-Länge ist ~ ungeeignet." :
-               ENGLISH ? "~: invalid bit-vector length ~" :
-               FRANCAIS ? "~: ~ n'est pas convenable comme longeur de vecteur bit." :
-               ""
+               GETTEXT("~: invalid bit-vector length ~")
               );
       }
    {var uintL size = posfixnum_to_L(popSTACK()); # Länge

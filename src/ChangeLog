@@ -1,5 +1,26 @@
 1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Stop storing german and french translations in the source files.
+        * german.lsp, french.lsp: New files.
+        * makemake.in (LPARTS): Add them.
+        * init.lsp: Load them.
+        * *.d, *.lsp: Remove german and french translations.
+        * compiler.lsp: Define macro ENGLISH instead of DEUTSCH.
+        * lispbibl.d (DEUTSCH, FRANCAIS): Remove macros.
+          (ENGLISH): Simplify.
+          (language_deutsch, language_francais): Remove macros.
+          (GETTEXT): New macro.
+        * genclisph.d (main): Update.
+        * constobj.d (LISPOBJ_L, LISPOBJ_LS): Simplify.
+        * erramiga.d (lang3, lang1): Simplify.
+        * errdjgpp.d (lang3, lang1): Likewise.
+        * spvw_language.d (language_deutsch, language_francais): Define only
+          if GNU_GETTEXT.
+          (init_languages_from): Treat de and fr only if GNU_GETTEXT.
+          (init_language) [!GNU_GETTEXT]: Don't treat de and fr.
+
+1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * io.d (right_margin): Update translations.
 
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
