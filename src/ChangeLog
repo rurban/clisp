@@ -1,3 +1,8 @@
+2004-08-31  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (parse_options): Don't do destructive side effects on argv[].
+	(main_actions): Update.
+
 2004-08-31  Bruno Haible <bruno@clisp.org>
 
 	* spvw.d (struct argv_actions): Remove argv_selection_array, add
