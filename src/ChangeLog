@@ -1,5 +1,15 @@
 2004-05-23  Bruno Haible  <bruno@clisp.org>
 
+	* backquote.lisp: Reorder.
+	(backquote, bq-nconc): Moved to here from init.lisp.
+	(*unquote-occurred*): Renamed from *unquote-occured*.
+	(bq-expand-vector): Renamed from bq-vec-expand.
+	(bq-optimize-for-list): Renamed from bq-optimize.
+	(bq-optimize-for-vector): Renamed from bq-optimize-vec.
+	* init.lisp (backquote, bq-nconc): Moved to backquote.lisp.
+
+2004-05-23  Bruno Haible  <bruno@clisp.org>
+
 	Make SPVW_MIXED_BLOCKS_STAGGERED work with LINUX_NOEXEC_HEAPCODES.
 	* lispbibl.d (nonimmediate_heapnr) [HEAPCODES]: New macro.
 	* spvw_genera1.d (rebuild_old_generation_cache): Use it.
