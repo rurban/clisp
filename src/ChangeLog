@@ -1,6 +1,19 @@
 2005-03-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (xlib_error_handler): use switch, not if
+	(DEFINE_INTEGER_GETTER): also define get_##type_0 (default to 0)
+	(get_ordering): default=Unsorted
+	(get_modifier_mask): unbound -> 0
+	(XLIB:SET-GCONTEXT-CLIP-MASK): rely on get_ordering() default
+	(XLIB:CLEAR-AREA, XLIB:PUT-IMAGE, XLIB:TEXT-EXTENTS, XLIB:TEXT-WIDTH)
+	(XLIB:ALLOC-COLOR-CELLS, XLIB:ALLOC-COLOR-PLANES, XLIB:GET-PROPERTY)
+	(XLIB:WARP-POINTER-IF-INSIDE, XLIB:WARP-POINTER-RELATIVE-IF-INSIDE)
+	(XLIB:BELL): use get_##type_0
+	(XLIB:GRAB-BUTTON, XLIB:UNGRAB-BUTTON, XLIB:GRAB-KEY, XLIB:UNGRAB-KEY):
+	rely on get_modifier_mask() default
+	(get_shape_kind): default=ShapeBounding
+	(get_shape_operation): default=ShapeSet
+	(XLIB:SHAPE-COMBINE): reply on these defaults
 
 2005-03-28  Sam Steingold  <sds@gnu.org>
 
