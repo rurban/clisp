@@ -164,7 +164,7 @@
     _(set_long_float_digits), _(log2), _(log10),
     # other:
     };
-  # that were 526-43 SUBRs.
+  # that were 527-43 SUBRs.
   # Now FUNTABR :
   local const Subr FUNTABR[] = {
     # SPVW : 0 SUBRs
@@ -177,8 +177,8 @@
     _(char_klgleich), _(char_grgleich), _(char_equal), _(char_not_equal),
     _(char_lessp), _(char_greaterp), _(char_not_greaterp), _(char_not_lessp),
     _(string_concat),
-    # CONTROL : 10 SUBRs
-    _(apply), _(pfuncall), _(funcall), _(mapcar), _(maplist), _(mapc),
+    # CONTROL : 9 SUBRs
+    _(apply), _(funcall), _(mapcar), _(maplist), _(mapc),
     _(mapl), _(mapcan), _(mapcon), _(values),
     # DEBUG : 0 SUBRs
     # ERROR : 2 SUBRs
@@ -204,7 +204,7 @@
     _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
     _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
     };
-  # That were 64 SUBRs.
+  # That were 63 SUBRs.
   #undef _
   #define FUNTAB1  (&FUNTAB[0])
   #define FUNTAB2  (&FUNTAB[256])
@@ -1349,7 +1349,7 @@ global Values eval_noenv (object form) {
             #   Definition) -> don't expand, because
             #   (MACRO-FUNCTION funname) => NIL
             # Symbol (lexical function definition during SYS::%EXPAND)
-            # expand: (list* 'SYS::%FUNCALL Symbol (cdr form))
+            # expand: (list* 'FUNCALL Symbol (cdr form))
             if (macrop(fdef)) {
               # #<MACRO expander> -> expand:
               # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
@@ -1361,7 +1361,7 @@ global Values eval_noenv (object form) {
               return;
             } elif (symbolp(fdef)) {
               # fdef a Symbol
-              # Must be expanded to (SYS::%FUNCALL fdef ...) :
+              # Must be expanded to (FUNCALL fdef ...) :
               pushSTACK(Cdr(form)); # (cdr form)
               pushSTACK(fdef); # Symbol
               {
@@ -1371,8 +1371,8 @@ global Values eval_noenv (object form) {
               }
               {
                 var object new_cons = allocate_cons();
-                Car(new_cons) = S(pfuncall); Cdr(new_cons) = popSTACK();
-                value1 = new_cons; # (cons 'SYS::%FUNCALL (cons Symbol (cdr form)))
+                Car(new_cons) = S(funcall); Cdr(new_cons) = popSTACK();
+                value1 = new_cons; # (cons 'FUNCALL (cons Symbol (cdr form)))
               }
               value2 = T; return; # expansion has taken place.
             }

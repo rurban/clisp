@@ -66,7 +66,7 @@
     ; Default ist entweder Konstante oder Funktion oder Symbol
     (if (constantp default)
         `(,arg ,default)
-        `(,arg (SYS::%FUNCALL ,default)))))
+        `(,arg (FUNCALL ,default)))))
 
 #| Hilfsfunktion für beide Konstruktoren:
    (ds-make-constructor-body type name names size slotlist)

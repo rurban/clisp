@@ -1936,7 +1936,6 @@ for-value   NIL or T
        (WITHOUT-PACKAGE-LOCK . c-WITHOUT-PACKAGE-LOCK)
        ;; Inline-compiled functions:
        (FUNCALL . c-FUNCALL)
-       (SYS::%FUNCALL . c-FUNCALL)
        (APPLY . c-APPLY)
        (+ . c-PLUS)
        (* . c-STAR)
@@ -2097,14 +2096,14 @@ for-value   NIL or T
                   (c-form (mac-exp m *form*))
                   (case f1
                     (GLOBAL ; found in the interpreter environment %fenv%
-                     ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
+                     ; (c-form `(FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
                      (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) (cdr *form*)))
                     (LOCAL  ; local function (found in *fenv*)
-                     ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
+                     ; (c-form `(FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
                      (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*)))
                     (t (compiler-error 'c-form))))))
             (if (lambda-form-p fun)
-              (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
+              (c-form `(FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| not: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
               (c-error (TEXT "Not the name of a function: ~S") fun))))))))
   #+COMPILER-DEBUG (setf (anode-source anode) *form*)
@@ -4546,7 +4545,7 @@ for-value   NIL or T
 (defun c-MULTIPLE-VALUE-CALL ()
   (test-list *form* 2)
   (if (null (cddr *form*))
-    ;; (c-form `(SYS::%FUNCALL ,(second *form*))) ; 0 Arguments for form1
+    ;; (c-form `(FUNCALL ,(second *form*))) ; 0 Arguments for form1
     (c-FUNCTION-CALL (second *form*) '())
     (let* ((anode1 (c-form (second *form*) 'ONE))
            #+COMPILER-DEBUG (anodelist (list anode1))
@@ -5918,7 +5917,7 @@ for-value   NIL or T
                                                      condition-anode)))
                (push-*venv* condition-var)
                (let ((body-anode
-                      (c-form `(SYS::%FUNCALL ,handler ,condition-sym) 'NIL)))
+                      (c-form `(FUNCALL ,handler ,condition-sym) 'NIL)))
                  ;; Check the variables (must not happen in the closure):
                  (checking-movable-var-list (list condition-var)
                                             (list condition-anode))
@@ -5989,10 +5988,10 @@ for-value   NIL or T
 
 ;; function-calls, that are treated like special forms:
 
-;; First FUNCALL resp. SYS::%FUNCALL.
+;; First FUNCALL
 
 ;; (c-FUNCALL-NOTINLINE funform args) compiles a function-call
-;; (SYS::%FUNCALL funform . args),
+;; (FUNCALL funform . args),
 ;; for which the STACK-Layout of the arguments cannot be determined
 ;; at compile-time.
 (defun c-FUNCALL-NOTINLINE (funform args)
@@ -6016,7 +6015,7 @@ for-value   NIL or T
       (push 1 *stackz*))))
 
 ;; (c-FUNCALL-INLINE funform args applyargs lambdabody sameenv) compiles a
-;; function-call (SYS::%FUNCALL funform . args) resp.
+;; function-call (FUNCALL funform . args) resp.
 ;; (APPLY funform . args applyargs) [applyargs a list out of a form],
 ;; for which the STACK-Layout of the arguments can be determined at
 ;; compile-time.  sameenv specifies, if lambdabody is to be viewed in
@@ -6309,8 +6308,8 @@ for-value   NIL or T
        (not (fenv-search func))
        (not (declared-notinline func))))
 
-;; (c-FUNCTION-CALL funform arglist) compiles a function-call
-;; (SYS::%FUNCALL funform . arglist).
+;; (c-FUNCTION-CALL funform arglist) compiles a function call
+;; (FUNCALL funform . arglist).
 (defun c-FUNCTION-CALL (funform arglist)
   (setq funform (macroexpand-form funform))
   (when (inline-callable-function-lambda-p funform (length arglist))
@@ -6322,7 +6321,7 @@ for-value   NIL or T
     ;; (complement fn) -->
     ;; (let ((f fn)) ... #'(lambda (&rest args) (not (apply f args))) ...)
     (return-from c-FUNCTION-CALL
-      (c-form `(NOT (SYS::%FUNCALL ,(second funform) ,@arglist)))))
+      (c-form `(NOT (FUNCALL ,(second funform) ,@arglist)))))
   (when (inlinable-function-operation-form-p funform 'CONSTANTLY)
     ;; (constantly obj) -->
     ;; (let ((o obj)) ... #'(lambda (&rest a) (declare (ignore a)) o) ...)
@@ -6642,8 +6641,8 @@ for-value   NIL or T
            (TAGBODY ,tag
              ,(c-MAP-on-CARs-inner
                 #'(lambda (itemvars)
-                    `(SETQ ,erg (,adjoin-fun (SYS::%FUNCALL
-                                              ,funform ,@itemvars) ,erg)))
+                    `(SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@itemvars)
+                                             ,erg)))
                 blockname
                 restvars)
              (SETQ ,@(shift-vars restvars))
@@ -6662,7 +6661,7 @@ for-value   NIL or T
            (TAGBODY ,tag
              (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar)) restvars))
                (RETURN-FROM ,blockname))
-             (SETQ ,erg (,adjoin-fun (SYS::%FUNCALL ,funform ,@restvars) ,erg))
+             (SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@restvars) ,erg))
              (SETQ ,@(shift-vars restvars))
              (GO ,tag))))
        (SYS::LIST-NREVERSE ,erg))))
@@ -6682,7 +6681,7 @@ for-value   NIL or T
                (LET* ,(mapcar #'list restvars forms)
                  (TAGBODY ,tag
                    ,(c-MAP-on-CARs-inner
-                     #'(lambda (itemvars) `(SYS::%FUNCALL ,funform ,@itemvars))
+                     #'(lambda (itemvars) `(FUNCALL ,funform ,@itemvars))
                      blockname
                      restvars)
                    (SETQ ,@(shift-vars restvars))
@@ -6707,7 +6706,7 @@ for-value   NIL or T
                    (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar))
                                      restvars))
                      (RETURN-FROM ,blockname))
-                   (SYS::%FUNCALL ,funform ,@restvars)
+                   (FUNCALL ,funform ,@restvars)
                    (SETQ ,@(shift-vars restvars))
                    (GO ,tag))))
              ,tempvar)))

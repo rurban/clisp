@@ -376,7 +376,7 @@
   # or the arglist of any built-in function in FUNTAB
   /* FIXME/TODO: when you will be modifying this the next time:
      [2002-09-03]: add :TRUNAMEP arg to DIRECTORY */
-  LISPOBJ(version,"(20020925)")
+  LISPOBJ(version,"(20021002)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")
