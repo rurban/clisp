@@ -31,6 +31,9 @@ User visible changes
 * New macro EXT:FCASE which allows specifying comparison function in CASE.
   See the impnotes <http://clisp.cons.org/impnotes.html#fcase> for details.
 
+* New user variable CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*.
+  See the impnotes <http://clisp.cons.org/impnotes.html#load-lpt> for details.
+
 * CLISP now supports internationalized Lisp programs, via GNU gettext.
   See the impnotes <http://clisp.cons.org/impnotes.html#i18n> for details.
 
