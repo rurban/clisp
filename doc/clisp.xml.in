@@ -9,14 +9,11 @@
   %imp-entities;
   <!ENTITY % unix-entities SYSTEM "unix-ent.xml">
   %unix-entities;
-  <!ENTITY cur-lang "<olink targetdoc='impnotes' targetptr='language'><varname>*current-language*</varname></olink>">
   <!ENTITY dom "<replaceable>domain</replaceable>">
   <!ENTITY ld "<replaceable>locale-dir</replaceable>">
   <!ENTITY lf "<replaceable>lisp-file</replaceable>">
   <!ENTITY lld "<replaceable>lisp-lib-dir</replaceable>">
-  <!ENTITY mem-img "<olink targetdoc='impnotes' targetptr='image'>memory image</olink>">
   <!ENTITY my-compile-file "<olink targetdoc='impnotes' targetptr='compilefile'><function>COMPILE-FILE</function></olink>">
-  <!ENTITY o-L "<option><link linkend='opt-lang'>-L</link></option>">
   <!ENTITY rt "<link linkend='runtime'>runtime</link>">
   <!ENTITY config-lisp "<link linkend='config-file'><filename>config.lisp</filename></link>">
 ]>
@@ -154,7 +151,7 @@ that can be executed more efficiently.</para>
    targetptr="linkset">linking set</olink> to be run.
    This is a directory (relative to the
    <link linkend="opt-libdir">&lld;</link>)
-   containing at least a main executable (&rt;) and an initial &mem-img;.
+   containing at least a main executable (&rt;) and an initial &mem-image;.
    Possible values are
    <variablelist><varlistentry><term><command>base</command></term>
      <listitem><simpara>the core &clisp;</simpara></listitem></varlistentry>
@@ -168,7 +165,7 @@ that can be executed more efficiently.</para>
 
 <varlistentry id="opt-memfile"><term><option>-M</option>
   <replaceable>mem-file</replaceable></term>
- <listitem><simpara>Specifies the initial &mem-img;.
+ <listitem><simpara>Specifies the initial &mem-image;.
    This must be a memory dump produced by the
    <function>EXT:SAVEINITMEM</function> function by
    this <command>clisp</command> &rt;.
@@ -264,14 +261,14 @@ that can be executed more efficiently.</para>
    provided the corresponding message catalog is installed.
 <!-- #endif -->
    The language may be changed dynamically using the symbol macro
-   &cur-lang;.</para></listitem></varlistentry>
+   &curr-lang;.</para></listitem></varlistentry>
 
 <varlistentry id="opt-locale"><term><option>-N</option> &ld;</term>
 <listitem><simpara>Specifies the base directory of locale files.
   &clisp; will search its message catalogs in
   <filename>&ld;/&lang-r;/LC_MESSAGES/clisp.mo</filename>.
   This directory may be changed dynamically using the symbol macro
-  &cur-lang;.</simpara></listitem></varlistentry>
+  &curr-lang;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-enc">
  <term><option>-E</option>&dom; &encoding-r;</term>
@@ -280,31 +277,25 @@ that can be executed more efficiently.</para>
    <envar>LC_ALL</envar>, <envar>LC_CTYPE</envar>, <envar>LANG</envar>.
    &dom; can be
    <variablelist><varlistentry><term><constant>file</constant></term>
-     <listitem><simpara>affecting <olink targetdoc="impnotes"
-    targetptr="def-file-enc"><varname>*default-file-encoding*</varname></olink>
+     <listitem><simpara>affecting &def-file-enc;
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>pathname</constant></term>
-     <listitem><simpara>affecting <olink targetdoc="impnotes"
-     targetptr="path-enc" ><varname>*pathname-encoding*</varname></olink>
+     <listitem><simpara>affecting &path-enc;
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>terminal</constant></term>
-     <listitem><simpara>affecting <olink targetdoc="impnotes"
-      targetptr="term-enc" ><varname>*terminal-encoding*</varname></olink>
+     <listitem><simpara>affecting &term-enc;
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>foreign</constant></term>
-     <listitem><simpara>affecting <olink targetdoc="impnotes"
-      targetptr="foreign-enc" ><varname>*foreign-encoding*</varname></olink>
+     <listitem><simpara>affecting &foreign-enc;
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>misc</constant></term>
-     <listitem><simpara>affecting <olink targetdoc="impnotes"
-       targetptr="misc-enc" ><varname>*misc-encoding*</varname></olink>
+     <listitem><simpara>affecting &misc-enc;
     </simpara></listitem></varlistentry>
     <varlistentry><term><replaceable>blank</replaceable></term>
      <listitem><simpara>affecting all of the above.
    </simpara></listitem></varlistentry></variablelist></para>
-   <warning><para>Note that these values cannot be saved in a &mem-img;.
-     You have to use the <link linkend="opt-norc">init file</link>
-     or <olink targetdoc="impnotes" targetptr="image">init-function</olink>
+   <warning><para>Note that these values cannot be saved in a &mem-image;.
+     You have to use the &RC-file; or &init-function;
      to set them on startup.</para></warning></listitem></varlistentry>
 
 <varlistentry id="opt-verbose"><term><option>-q</option></term>
@@ -374,7 +365,7 @@ that can be executed more efficiently.</para>
 <varlistentry id="opt-traditional"><term><option>-traditional</option></term>
  <listitem><simpara>Traditional: reverses the residual effects of
    <option><link linkend="opt-ansi">-ansi</link></option>
-   in the saved &mem-img;.</simpara></listitem></varlistentry>
+   in the saved &mem-image;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-pack"><term><option>-p</option> &pack-r;</term>
  <listitem><simpara>At startup the value of the variable &package-var;
@@ -385,9 +376,7 @@ that can be executed more efficiently.</para>
 
 <varlistentry id="opt-load-comp"><term><option>-C</option></term>
  <listitem><simpara>Compile when loading: at startup the value of the
-   variable <olink targetdoc="impnotes" targetptr="loadfile"
-                   ><varname>*LOAD-COMPILING*</varname></olink>
-   will be set to &t;.
+   variable &load-comp; will be set to &t;.
    Code being &load;ed will then be &compile;d on the fly.
    This results in slower loading, but faster execution.
 </simpara></listitem></varlistentry>
@@ -395,8 +384,8 @@ that can be executed more efficiently.</para>
 <varlistentry id="opt-norc"><term><option>-norc</option></term>
  <listitem><simpara>Normally &clisp; loads the user
    <ulink url="http://www.faqs.org/docs/artu/ch10s03.html"><quote>run
-     control</quote> (RC)</ulink> file on startup (this happens after the
-   &opt-C; option is processed).
+     control</quote> (RC)</ulink> file on startup (this happens
+   <emphasis>after</emphasis> the &opt-C; option is processed).
    The file loaded is
 <!-- #if defined(PATHNAME_WIN32) -->
    <filename>_clisprc.lisp</filename> or <filename>_clisprc.fas</filename>
@@ -407,7 +396,7 @@ that can be executed more efficiently.</para>
    or <filename>${HOME}/.clisprc.fas</filename>,
 <!-- #endif -->
    whichever is newest.  This option, <option>-norc</option>, prevents
-   loading of the RC file.
+   loading of the &RC-file;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-init"><term><option>-i</option>
@@ -463,10 +452,9 @@ that can be executed more efficiently.</para>
    or <command>"--"</command>, the normal &repl; is
    entered, and the rest of the arguments is still available
    in <varname>*ARGS*</varname>, for parsing by the
-   <olink targetdoc="impnotes" targetptr="image">init-function</olink>
-   of the current image.
+   &init-function; of the current image.
    This option must be the last one.
-   No <link linkend="opt-norc">RC file</link> will be executed.
+   No &RC-file; will be executed.
 </simpara></listitem></varlistentry>
 
 </variablelist>
@@ -564,7 +552,7 @@ that can be executed more efficiently.</para>
 </simpara></listitem></varlistentry>
 
 <varlistentry><term><filename>lispinit.mem</filename></term>
-<listitem><simpara>initial &mem-img;</simpara></listitem></varlistentry>
+<listitem><simpara>initial &mem-image;</simpara></listitem></varlistentry>
 
 <varlistentry id="config-file"><term><filename>config.lisp</filename></term>
 <listitem><simpara>site-dependent configuration (should have been
@@ -601,7 +589,7 @@ that can be executed more efficiently.</para>
 <variablelist>
 <varlistentry><term><envar>CLISP_LANGUAGE</envar></term>
  <listitem><simpara>specifies the language &clisp; uses to communicate
-   with the user.  The legal values are identical to those of the &o-L;
+   with the user.  The legal values are identical to those of the &opt-L;
    option which can be used to override this environment variable.
 </simpara></listitem></varlistentry>
 
@@ -627,7 +615,7 @@ that can be executed more efficiently.</para>
  <listitem><simpara>specifies the language &clisp;
    uses to communicate with the user, unless it is already specified
    through the environment variable <envar>CLISP_LANGUAGE</envar> or the
-   &o-L; option.
+   &opt-L; option.
 <!-- #ifdef UNICODE -->
    It also specifies the locale determining the character set in use, unless
    already specified through the environment variable <envar>LC_CTYPE</envar>.
