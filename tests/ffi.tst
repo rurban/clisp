@@ -529,8 +529,8 @@ MAKE-FOREIGN-STRING
 (progn
   (def-call-out command-line
       (:name "GetCommandLineA") (:library "kernel32.dll")
-      (:arguments) (:return-type ffi:c-string))
-  (stringp (print (command-line))))
+      (:arguments) (:return-type ffi:c-string) (:language :stdc))
+  (stringp (command-line)))
 #+win32 T
 
 (progn (in-package "USER") (delete-package "FTEST") T) T
