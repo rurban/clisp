@@ -148,6 +148,8 @@ User visible changes
 * Fixed a bug: Closing a SOCKET-SERVER twice, or using a closed SOCKET-SERVER
   could result in inappropriate error messages.
 
+* Fixed a bug: (format nil "~@D" 0) ==> "+0" now.
+
 Portability
 -----------
 
