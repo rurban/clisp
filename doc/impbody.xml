@@ -825,7 +825,7 @@ is the same as
  these variables might have.
  Therefore the code which relies on the values of such variables, e.g
  <programlisting>(loop for x on y finally (return x))</programlisting>
- is inherrently non-portable across &cl; implementations,
+ is inherently non-portable across &cl; implementations,
  and should be avoided.</para>
 
 </section>
