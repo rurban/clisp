@@ -6196,6 +6196,8 @@ local bool circle_p (object obj,circle_info_t* ci) {
   # check *PRINT-CIRCLE*:
   if (!nullpSv(print_circle)) {
     var object table = Symbol_value(S(print_circle_table)); # SYS::*PRINT-CIRCLE-TABLE*
+    if (nullp(table))     /* no circularities were detected in object */
+      goto normal;
     if (!simple_vector_p(table)) { # should be a simple-vector!
     bad_table:
       dynamic_bind(S(print_circle),NIL); # bind *PRINT-CIRCLE* to NIL
@@ -6523,7 +6525,8 @@ local void pr_enter_2 (const gcv_object_t* stream_, object obj, pr_routine_t* pr
                         !nullpSv(print_array) || !nullpSv(print_readably), # /= 0 if, and only if *PRINT-ARRAY* /= NIL
                         !nullpSv(print_closure) || !nullpSv(print_readably)); # /= 0 and only if *PRINT-CLOSURE* /= NIL
     obj = popSTACK();
-    if (nullp(circularities)) { # no circularities found.
+    if (nullp(circularities)    /* no circularities found */
+        && nullpSv(print_readably)) { /* no need for printable output */
       # can bind *PRINT-CIRCLE* to NIL.
       dynamic_bind(S(print_circle),NIL);
       pr_enter_1(stream_,obj,pr_xxx);
