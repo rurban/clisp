@@ -1904,10 +1904,16 @@ LISPFUNNR(charset_typep,2) {
   skipSTACK(2);
 }
 
+/* (EXT:ENCODING-LINE-TERMINATOR encoding) --> :UNIX/:DOS/:MAC */
+LISPFUNNF(encoding_line_terminator,1) {
+  var object encoding = check_encoding(popSTACK(),DEFAULT_ENC,false);
+  VALUES1(TheEncoding(encoding)->enc_eol);
+}
+
 #ifdef UNICODE
 
 /* (EXT:ENCODING-CHARSET encoding) --> charset */
-LISPFUNNR(encoding_charset,1) {
+LISPFUNNF(encoding_charset,1) {
   var object encoding = check_encoding(popSTACK(),DEFAULT_ENC,false);
   VALUES1(TheEncoding(encoding)->enc_charset);
 }
