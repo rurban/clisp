@@ -4,7 +4,8 @@ Supported CPUs:  (Put the GNU config.guess values here.)
               i486-unknown-sco3.2v4.2 (gcc, cc -Of),
               i486-unknown-os2emx (gcc), i386-pc-cygwin32 (gcc),
               i386-pc-win32 (msvc4, msvc5)
-     m68k     m68k-next-nextstep3 (cc), m68k-sun-sunos4.0 (cc)
+     m68k     m68k-next-nextstep3 (cc), m68k-sun-sunos4.0 (cc),
+              m68k-unknown-linux (gcc)
      mips     mips-sgi-irix4.0.5 (gcc, cc -ansi, cc -D__STDC__, cc -cckr),
               mips-sgi-irix5.2 (gcc, cc -ansi, cc -D__STDC__, cc -cckr),
               mips-sgi-irix5.3 (gcc, cc -ansi, cc -D__STDC__, cc -cckr),
