@@ -4218,89 +4218,83 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
   }
 
 LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
-# (READ-BYTE-SEQUENCE sequence stream [:start] [:end]), cf. dpANS S. 21-26
-  { # Stackaufbau: sequence, stream, start, end.
-    # sequence überprüfen:
-    pushSTACK(get_valid_seq_type(STACK_3));
-    # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
-    if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
-    # Defaultwert für start ist 0:
-    start_default_0(STACK_2);
-    # Defaultwert für end ist die Länge der Sequence:
-    end_default_len(STACK_1,STACK_4,STACK_0);
-    # start- und end-Argumente überprüfen:
-    test_start_end(&O(kwpair_start),&STACK_1);
-    if (eq(seq_type(STACK_0),fixnum(8))) # Typname = (VECTOR (UNSIGNED-BYTE 8)) ?
-      { var uintL start = posfixnum_to_L(STACK_2);
-        var uintL end = posfixnum_to_L(STACK_1);
-        var uintL index = 0;
-        STACK_0 = array_displace_check(STACK_4,end,&index);
-       {var uintL result = read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
-        VALUES1(fixnum(start+result));
-        skipSTACK(5);
-        return;
-      }}
-    # Durchlauf-Pointer bestimmen:
-    pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
-    funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)
-    pushSTACK(value1); # =: pointer
-    # Stackaufbau: sequence, stream, index, end, typdescr, pointer.
-    until (eql(STACK_3,STACK_2)) # index = end (beides Integers) -> fertig
-      { var object item = read_byte(STACK_4); # ein Element lesen
-        if (eq(item,eof_value)) break; # EOF -> fertig
-        pushSTACK(STACK_5); pushSTACK(STACK_(0+1)); pushSTACK(item);
-        funcall(seq_access_set(STACK_(1+3)),3); # (SEQ-ACCESS-SET sequence pointer item)
-        # pointer := (SEQ-UPD sequence pointer) :
-        pointer_update(STACK_0,STACK_5,STACK_1);
-        # index := (1+ index) :
-        increment(STACK_3);
-      }
-    VALUES1(STACK_3); /* return index */
-    skipSTACK(6);
+{ /* (READ-BYTE-SEQUENCE sequence stream [:start] [:end]),
+    cf. dpANS p. 21-26 */
+  /* stack layout: sequence, stream, start, end. */
+  pushSTACK(get_valid_seq_type(STACK_3)); /* check sequence */
+  /* stack layout: sequence, stream, start, end, typdescr. */
+  if (!streamp(STACK_3)) fehler_stream(STACK_3); /* check stream */
+  start_default_0(STACK_2); /* default value for start is 0 */
+  end_default_len(STACK_1,STACK_4,STACK_0); /* end defaults to length */
+  test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */
+  if (eq(seq_type(STACK_0),fixnum(8))) {
+    /* type = (VECTOR (UNSIGNED-BYTE 8)) ? */
+    var uintL start = posfixnum_to_L(STACK_2);
+    var uintL end = posfixnum_to_L(STACK_1);
+    var uintL index = 0;
+    STACK_0 = array_displace_check(STACK_4,end,&index);
+   {var uintL result =
+     read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
+    VALUES1(fixnum(start+result));
+    skipSTACK(5);
+    return;
+   }}
+  /* determine start pointer: */
+  pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
+  funcall(seq_init_start(STACK_(0+2)),2); /* (SEQ-INIT-START sequence start) */
+  pushSTACK(value1); /* =: pointer */
+  /* stack layout: sequence, stream, index, end, typdescr, pointer. */
+  while (!eql(STACK_3,STACK_2)) { /* index = end (both integers) -> done */
+    var object item = read_byte(STACK_4); /* get an element */
+    if (eq(item,eof_value)) break; /* EOF -> done */
+    /* (SEQ-ACCESS-SET sequence pointer item): */
+    pushSTACK(STACK_5); pushSTACK(STACK_(0+1)); pushSTACK(item);
+    funcall(seq_access_set(STACK_(1+3)),3);
+    /* pointer := (SEQ-UPD sequence pointer) : */
+    pointer_update(STACK_0,STACK_5,STACK_1);
+    increment(STACK_3); /* index := (1+ index) */
   }
+  VALUES1(STACK_3); /* return index */
+  skipSTACK(6);
+}
 
 LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
-# (WRITE-BYTE-SEQUENCE sequence stream [:start] [:end]), cf. dpANS S. 21-27
-  { # Stackaufbau: sequence, stream, start, end.
-    # sequence überprüfen:
-    pushSTACK(get_valid_seq_type(STACK_3));
-    # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
-    if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
-    # Defaultwert für start ist 0:
-    start_default_0(STACK_2);
-    # Defaultwert für end ist die Länge der Sequence:
-    end_default_len(STACK_1,STACK_4,STACK_0);
-    # start- und end-Argumente überprüfen:
-    test_start_end(&O(kwpair_start),&STACK_1);
-    if (eq(seq_type(STACK_0),fixnum(8))) # Typname = (VECTOR (UNSIGNED-BYTE 8)) ?
-      { var uintL start = posfixnum_to_L(STACK_2);
-        var uintL end = posfixnum_to_L(STACK_1);
-        var uintL index = 0;
-        STACK_0 = array_displace_check(STACK_4,end,&index);
-        write_byte_array(&STACK_3,&STACK_0,index+start,end-start);
-        goto done;
-      }
-    # start- und end-Argumente subtrahieren:
-    STACK_1 = I_I_minus_I(STACK_1,STACK_2); # (- end start), ein Integer >=0
-    # Stackaufbau: sequence, item, start, count, typdescr.
-    # Durchlauf-Pointer bestimmen:
-    pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
-    funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)
-    STACK_2 = value1; # =: pointer
-    # Stackaufbau: sequence, stream, pointer, count, typdescr.
-    until (eq(STACK_1,Fixnum_0)) # count (ein Integer) = 0 -> fertig
-      { pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
-        funcall(seq_access(STACK_(0+2)),2); # (SEQ-ACCESS sequence pointer)
-        write_byte(STACK_3,value1); # ein Element ausgeben
-        # pointer := (SEQ-UPD sequence pointer) :
-        pointer_update(STACK_2,STACK_4,STACK_0);
-        # count := (1- count) :
-        decrement(STACK_1);
-      }
-    done:
-    skipSTACK(4);
-    VALUES1(popSTACK()); /* return sequence */
+{ /* (WRITE-BYTE-SEQUENCE sequence stream [:start] [:end]),
+    cf. dpANS S. 21-27 */
+  /* stack layout: sequence, stream, start, end. */
+  pushSTACK(get_valid_seq_type(STACK_3)); /* sequence check */
+  /* stack layout: sequence, stream, start, end, typdescr. */
+  if (!streamp(STACK_3)) { fehler_stream(STACK_3); } /* check stream */
+  start_default_0(STACK_2); /* default value for start is 0 */
+  end_default_len(STACK_1,STACK_4,STACK_0); /* end defaults to length */
+  test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */
+  if (eq(seq_type(STACK_0),fixnum(8))) {
+    /* type = (VECTOR (UNSIGNED-BYTE 8)) ? */
+    var uintL start = posfixnum_to_L(STACK_2);
+    var uintL end = posfixnum_to_L(STACK_1);
+    var uintL index = 0;
+    STACK_0 = array_displace_check(STACK_4,end,&index);
+    write_byte_array(&STACK_3,&STACK_0,index+start,end-start);
+    goto done;
   }
-
+  /* subtract start and end: */
+  STACK_1 = I_I_minus_I(STACK_1,STACK_2); /* (- end start), an integer >=0 */
+  /* stack layout: sequence, item, start, count, typdescr. */
+  /* determine start pointer: */
+  pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
+  funcall(seq_init_start(STACK_(0+2)),2); /* (SEQ-INIT-START sequence start) */
+  STACK_2 = value1; /* =: pointer */
+  /* stack layout: sequence, stream, pointer, count, typdescr. */
+  while (!eq(STACK_1,Fixnum_0)) { /* count (an integer) = 0 -> done */
+    pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
+    funcall(seq_access(STACK_(0+2)),2); /* (SEQ-ACCESS sequence pointer) */
+    write_byte(STACK_3,value1); /* output an element  */
+    /* pointer := (SEQ-UPD sequence pointer) : */
+    pointer_update(STACK_2,STACK_4,STACK_0);
+    /* count := (1- count) : */
+    decrement(STACK_1);
+  }
+ done:
+  skipSTACK(4);
+  VALUES1(popSTACK()); /* return sequence */
+}
