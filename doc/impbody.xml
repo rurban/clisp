@@ -3011,13 +3011,12 @@ checks whether the &hash-table-t; is weak.</para>
      &name-r;</simpara></listitem></varlistentry></variablelist>
    </para></listitem>
   </itemizedlist></para>
-<simpara>Due to this name/type splitting rule, there are pathnames that
- cannot result from &parse-namestring;.
- To get a pathname whose type contains a dot or whose name contains a
- dot and whose type is &nil;, &make-pathname; must be used.  Example:
- <code>(&make-pathname; &name-k; "foo.bar")</code>.
- </simpara></listitem></varlistentry>
-</variablelist></para></formalpara>
+ <note><simpara>Due to this name/type splitting rule, there are pathnames
+   that cannot result from &parse-namestring;.
+   To get a pathname whose type contains a dot or whose name contains a
+   dot and whose type is &nil;, &make-pathname; must be used.  Example:
+   <code>(&make-pathname; &name-k; "foo.bar")</code>.</simpara></note>
+</listitem></varlistentry></variablelist></para></formalpara>
 <!-- #endif -->
 </section>
 
@@ -3028,7 +3027,9 @@ checks whether the &hash-table-t; is weak.</para>
 
 <para>The symbol <constant>:UNSPECIFIC</constant> is not permitted as a
  pathname component for any slot of any pathname.
- It is also illegal to pass it as an argument to &make-pathname;.</para>
+ It is also illegal to pass it as an argument to &make-pathname;,
+ although it &is-e; a legal argument (treated as &nil;)
+ to &user-homedir-pathname;.</para>
 
 <para>The only use for <constant>:UNSPECIFIC</constant> is that it is
  returned by &pathname-device; for &logical-pathname-t;s, as required by
