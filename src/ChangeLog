@@ -1,5 +1,10 @@
 1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (CFILES): Don't include $UNICODE_INCLUDES $NLS_INCLUDES.
+          (init): Instead, add them to the `init' target.
+
+1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Libtoolify avcall and callback.
         * foreign.d: Include avcall.h and callback.h.
         * makemake.in (foreign): Depend on avcall.h and callback.h.
