@@ -599,7 +599,7 @@ local host_data * socket_getlocalname_aux(socket_handle,hd)
   var host_data * hd;
   {
     var sockaddr_max addr;
-    var int addrlen = sizeof(sockaddr_max);
+    var SOCKLEN_T addrlen = sizeof(sockaddr_max);
     if (getsockname(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
       return NULL;
     # Fill in hd->hostname and hd->port.
@@ -648,7 +648,7 @@ global host_data * socket_getpeername(socket_handle,hd)
   var host_data * hd;
   {
     var sockaddr_max addr;
-    var int addrlen = sizeof(sockaddr_max);
+    var SOCKLEN_T addrlen = sizeof(sockaddr_max);
     var struct hostent* hp;
     # Get host's IP address.
     if (getpeername(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
@@ -726,7 +726,7 @@ global SOCKET create_server_socket (hd, sock, port)
       fd = with_hostname("0.0.0.0",port,&bindlisten_via_ip);
     } else {
       var sockaddr_max addr;
-      var int addrlen = sizeof(sockaddr_max);
+      var SOCKLEN_T addrlen = sizeof(sockaddr_max);
       if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
         return INVALID_SOCKET;
       switch (((struct sockaddr *)&addr)->sa_family) {
@@ -756,7 +756,7 @@ global SOCKET accept_connection (socket_handle)
   var SOCKET socket_handle;
   {
     var sockaddr_max addr;
-    var int addrlen = sizeof(sockaddr_max);
+    var SOCKLEN_T addrlen = sizeof(sockaddr_max);
     return accept(socket_handle,(struct sockaddr *)&addr,&addrlen);
     # We can ignore the contents of addr, because we can retrieve it again
     # through socket_getpeername() later.
