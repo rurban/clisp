@@ -196,9 +196,12 @@
                                     "symbols"
                   #+XCL             "tprint"
                   #+XCL             "tread"
-                                    "type"
-                  #+CLISP ,@(unless disable-risky '("weakptr"))))
+                                    "type"))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
+    #+CLISP
+    (dotimes (i 50)
+      (with-accumulating-errors (error-count total-count)
+        (run-test "weakptr")))
     #+(or CLISP ALLEGRO CMU)
     (with-accumulating-errors (error-count total-count)
       (run-test "conditions" #'do-test nil))

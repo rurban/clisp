@@ -1,3 +1,8 @@
+2004-04-28  Bruno Haible  <bruno@clisp.org>
+
+	* tests.lisp (run-all-tests): Enable weakptr test and run it
+	repeatedly.
+
 2004-04-17  Bruno Haible  <bruno@clisp.org>
 
 	Add support for CMUCL 18e.
