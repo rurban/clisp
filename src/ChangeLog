@@ -1,5 +1,10 @@
 2005-01-31  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f: use skipSTACK() instead of popSTACK()
+	to avoid a gcc warning
+
+2005-01-31  Sam Steingold  <sds@gnu.org>
+
 	* exporting.lisp (export-structure-accessories): reverted the
 	2005-01-27 patch: export accessors for direct slots, not effective
 	slots: first, the indirect slots may be "private" - defined
