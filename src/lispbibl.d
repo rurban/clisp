@@ -10441,6 +10441,7 @@ extern object allocate_bit_vector_0 (uintL len);
 # < fresh: fresh semi-simple-string of the given length
 # can trigger GC
 extern object make_ssstring (uintL len);
+#define SEMI_SIMPLE_DEFAULT_SIZE 50
 # used by STREAM, IO
 
 # Function: Adds a character to a semi-simple-string, thereby possibly
