@@ -37,6 +37,9 @@
      (signature            ; signature struct (see functions.lisp)
        :type (simple-vector 6)
        :accessor std-method-signature)
+     (documentation        ; string or NIL
+       :type (or string null)
+       :accessor std-method-documentation)
      (gf                   ; the generic function, which this method belongs to
                            ; (only for the purpose of CALL-NEXT-METHOD and
                            ; NO-NEXT-METHOD)
@@ -77,7 +80,7 @@
                                                    (lambda-list nil lambda-list-p)
                                                    (specializers nil specializers-p)
                                                    (function nil function-p)
-                                                   ;(documentation nil)
+                                                   (documentation nil)
                                                    initfunction
                                                    wants-next-method-p
                                                    ((signature signature) nil signature-p)
@@ -134,6 +137,10 @@
     (error (TEXT "(~S ~S): The lambda list ~S has ~S required arguments, but the specializers list ~S has length ~S.")
            'initialize-instance 'standard-method lambda-list (sig-req-num signature)
            specializers (length specializers)))
+  ; Check the documentation.
+  (unless (or (null documentation) (stringp documentation))
+    (error (TEXT "(~S ~S): The ~S argument should be a string or NIL, not ~S")
+           'initialize-instance 'standard-method ':documentation documentation))
   ; Fill the slots.
   (setf (std-method-function method) function)
   (setf (std-method-wants-next-method-p method) wants-next-method-p)
@@ -141,6 +148,7 @@
   (setf (std-method-qualifiers method) qualifiers)
   (setf (std-method-lambda-list method) lambda-list)
   (setf (std-method-signature method) signature)
+  (setf (std-method-documentation method) documentation)
   (setf (std-method-gf method) gf)
   (setf (std-method-initfunction method) initfunction)
   (setf (std-method-origin method) origin)
