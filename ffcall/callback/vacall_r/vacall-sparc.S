@@ -6,141 +6,135 @@
 	.proc	020
 C(__vacall_r:)
 	!$PROLOGUE$ 0
-	save %sp,-144,%sp
+	save	%sp, -144, %sp
 	!$PROLOGUE$ 1
-	st %i0,[%fp+68]
-	st %i1,[%fp+72]
-	st %i2,[%fp+76]
-	st %i3,[%fp+80]
-	st %i4,[%fp+84]
-	st %i5,[%fp+88]
-	st %g0,[%fp-48]
-	add %fp,68,%o0
-	st %o0,[%fp-44]
-	st %g0,[%fp-40]
-	ld [%fp+64],%o0
-	st %g0,[%fp-36]
-	st %o0,[%fp-16]
-	ld [%g2],%o2
-	ld [%g2+4],%o0
-	call %o2,0
-	add %fp,-48,%o1
-	ld [%fp-36],%o0
-	cmp %o0,0
-	be L3
-	cmp %o0,1
-	be L45
-	cmp %o0,2
-	bne L6
-	cmp %o0,3
-L45:
-	b L3
-	ldsb [%fp-24],%i0
-L6:
-	bne L8
-	ld [%fp-36],%o0
-	b L3
-	ldub [%fp-24],%i0
-L8:
-	cmp %o0,4
-	bne L10
-	ld [%fp-36],%o0
-	b L3
-	ldsh [%fp-24],%i0
-L10:
-	cmp %o0,5
-	bne L12
-	ld [%fp-36],%o0
-	b L3
-	lduh [%fp-24],%i0
-L12:
-	cmp %o0,6
-	be L46
-	ld [%fp-36],%o0
-	cmp %o0,7
-	be L46
-	cmp %o0,8
-	be L46
-	cmp %o0,9
-	be L46
-	add %o0,-10,%o0
-	cmp %o0,1
-	bgu L22
-	ld [%fp-36],%o0
-	ld [%fp-24],%i0
-	b L3
-	ld [%fp-20],%i1
-L22:
-	cmp %o0,12
-	bne L24
-	ld [%fp-36],%o0
-	ld [%fp-48],%o0
-	andcc %o0,32,%g0
-	be L25
-	ld [%fp-24],%f2
-	b L3
-	fstod %f2,%f0
-L25:
-	b L3
-	ld [%fp-24],%f0
-L24:
-	cmp %o0,13
-	bne L28
-	ld [%fp-36],%o0
-	b L3
-	ldd [%fp-24],%f0
-L28:
-	cmp %o0,14
-	bne L30
-	ld [%fp-36],%o0
+	add	%fp, 92, %o0
+	st	%i2, [%o0-16]
+	st	%i3, [%o0-12]
+	st	%i4, [%o0-8]
+	st	%i5, [%o0-4]
+	st	%i0, [%o0-24]
+	st	%i1, [%o0-20]
+	add	%o0, -24, %o1
+	st	%o1, [%fp-44]
+	st	%g0, [%fp-48]
+	st	%g0, [%fp-40]
+	st	%g0, [%fp-36]
+	ld	[%o0-28], %o2
+	ld	[%g2+4], %o0
+	st	%o2, [%fp-16]
+	ld	[%g2], %o3
+	call	%o3, 0
+	add	%fp, -48, %o1
+	ld	[%fp-36], %o0
+	cmp	%o0, 0
+	be	L4
+	cmp	%o0, 1
+	be	L46
+	mov	%o0, %o1
+	cmp	%o1, 2
+	bne	L7
+	cmp	%o1, 3
 L46:
-	b L3
-	ld [%fp-24],%i0
-L30:
-	cmp %o0,15
-	bne L3
-	ld [%fp-48],%o0
-	andcc %o0,24,%g0
-	be L33
-	ld [%fp-32],%o0
-	ld [%i7+8],%o1
-	and %o0,4095,%o0
-	cmp %o0,%o1
-	bne L3
-	ld [%fp-40],%i0
-	b L3
-	add %i7,4,%i7
-L33:
-	ld [%fp-48],%o0
-	andcc %o0,1,%g0
-	be L36
-	andcc %o0,2,%g0
-	b L3
-	ld [%fp-40],%i0
-L36:
-	be L38
-	ld [%fp-32],%o0
-	cmp %o0,1
-	bne L39
-	cmp %o0,2
-	ld [%fp-40],%o0
-	b L3
-	ldub [%o0],%i0
+	b	L4
+	ldsb	[%fp-24], %i0
+L7:
+	bne	L9
+	cmp	%o1, 4
+	b	L4
+	ldub	[%fp-24], %i0
+L9:
+	bne	L11
+	cmp	%o1, 5
+	b	L4
+	ldsh	[%fp-24], %i0
+L11:
+	bne	L13
+	cmp	%o1, 6
+	b	L4
+	lduh	[%fp-24], %i0
+L13:
+	be	L47
+	cmp	%o1, 7
+	be	L47
+	cmp	%o1, 8
+	be	L47
+	cmp	%o1, 9
+	be	L47
+	add	%o1, -10, %o0
+	cmp	%o0, 1
+	bgu	L23
+	cmp	%o1, 12
+	ld	[%fp-24], %i0
+	b	L4
+	ld	[%fp-20], %i1
+L23:
+	bne	L25
+	cmp	%o1, 13
+	ld	[%fp-48], %o0
+	andcc	%o0, 32, %g0
+	be	L26
+	ld	[%fp-24], %f2
+	b	L4
+	fstod	%f2, %f0
+L26:
+	b	L4
+	ld	[%fp-24], %f0
+L25:
+	bne	L29
+	cmp	%o1, 14
+	b	L4
+	ldd	[%fp-24], %f0
+L29:
+	bne	L31
+	cmp	%o1, 15
+L47:
+	b	L4
+	ld	[%fp-24], %i0
+L31:
+	bne	L4
+	ld	[%fp-48], %o0
+	andcc	%o0, 24, %g0
+	be	L34
+	mov	%o0, %o1
+	ld	[%fp-32], %o0
+	ld	[%i7+8], %o1
+	and	%o0, 4095, %o0
+	cmp	%o0, %o1
+	bne	L4
+	ld	[%fp-40], %i0
+	b	L4
+	add	%i7, 4, %i7
+L34:
+	andcc	%o1, 1, %g0
+	be	L37
+	andcc	%o1, 2, %g0
+	b	L4
+	ld	[%fp-40], %i0
+L37:
+	be	L39
+	ld	[%fp-32], %o0
+	cmp	%o0, 1
+	bne	L40
+	mov	%o0, %o1
+	ld	[%fp-40], %o0
+	b	L4
+	ldub	[%o0], %i0
+L40:
+	cmp	%o1, 2
+	bne	L43
+	cmp	%o1, 4
+	ld	[%fp-40], %o0
+	b	L4
+	lduh	[%o0], %i0
+L43:
+	bne,a	L4
+	add	%i7, 4, %i7
+	ld	[%fp-40], %o0
+	b	L4
+	ld	[%o0], %i0
 L39:
-	bne L42
-	ld [%fp-32],%o0
-	ld [%fp-40],%o0
-	b L3
-	lduh [%o0],%i0
-L42:
-	cmp %o0,4
-	bne,a L3
-	add %i7,4,%i7
-	ld [%fp-40],%o0
-	b L3
-	ld [%o0],%i0
-L38:
-	add %i7,4,%i7
-L3:
+	add	%i7, 4, %i7
+L4:
 	ret
 	restore
