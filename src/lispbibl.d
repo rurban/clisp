@@ -3878,7 +3878,7 @@ typedef complex_ *  Complex;
 typedef struct {
   VAROBJECT_HEADER
   object symvalue;    # value cell
-  object symfunction; # funktion definition cell
+  object symfunction; # function definition cell
   object proplist;    # property list
   object pname;       # Printname
   object homepackage; # Home-Package or NIL
@@ -8020,7 +8020,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 
 # UP: allocates foreign function
 # allocate_ffunction()
-# < result: LISP-object foreign funktion
+# < result: LISP-object foreign function
 # can trigger GC
 #define allocate_ffunction()  \
   allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
@@ -10214,7 +10214,7 @@ extern object coerce_function (object obj);
 #define LISPSPECFORM  LISPSPECFORM_B
 # is used by CONTROL
 
-# The macro LISPFUN initiates a declaration of a LISP-Funktions.
+# The macro LISPFUN initiates a declaration of a LISP functions.
 # LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,allow_flag,keywords)
 # > name: the name of the function (a C-Identifier)
 # > req_anz: number of required parameters (a number)
@@ -10224,8 +10224,8 @@ extern object coerce_function (object obj);
 # > key_anz: number of keyword-parameters, a number (0 if nokey)
 # > allow_flag: either noallow or allow, depending on whether &ALLOW-OTHER-KEYS
 #               exists after &KEY (noallow if nokey)
-# > keywords: eithr NIL or an expression of the form v(kw(keyword1),...,kw(keywordn))
-#             (NIL if nokey)
+# > keywords: either NIL or an expression of the form
+#             v(kw(keyword1),...,kw(keywordn))   (NIL if nokey)
 # See SUBR.D
 #define LISPFUN  LISPFUN_B
 # is used by all modules
