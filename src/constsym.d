@@ -778,6 +778,7 @@ LISPSYM(make_pipe_io_stream,"MAKE-PIPE-IO-STREAM",lisp)
 #endif
 #ifdef X11SOCKETS
 LISPSYM(make_x11socket_stream,"MAKE-SOCKET-STREAM",system)
+LISPSYM(listen_byte,"LISTEN-BYTE",system)
 LISPSYM(read_n_bytes,"READ-N-BYTES",system)
 LISPSYM(write_n_bytes,"WRITE-N-BYTES",system)
 #endif
