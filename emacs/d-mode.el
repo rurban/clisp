@@ -19,6 +19,17 @@ The point should be on the prototype and the definition should follow."
     (delete-region (1- (point)) (- (search-forward "{" nil nil) 2))
     (c-indent-region beg (progn (backward-char 2) (forward-sexp) (point)))))
 
+(defun d-mode-convert-lispfun ()
+  "Convert the LISPFUN to the new indentation."
+  (interactive "")
+  (search-forward "LISPFUN")
+  (beginning-of-line)
+  (let ((beg (point)))
+    (forward-sexp 2) (insert " {")
+    (search-forward "{") (delete-region (line-beginning-position) (1+ (point)))
+    (goto-char beg)
+    (c-indent-region beg (progn (forward-sexp 3) (point)))))
+
 (defun d-mode-indent-sharp (s-element)
   "Check whether a macro or a comment and indent accordingly."
   (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
