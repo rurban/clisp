@@ -1,5 +1,43 @@
 2005-02-20  Bruno Haible  <bruno@clisp.org>
 
+	Fix wrong intermediate precision used in many transcendental function
+	computations since 2002-09-11. Avoid unjustified contagion warnings.
+	* realelem.d (R_float_digits): New function.
+	* realtran.d (R_tan_R): New function, extracted from N_tan_N.
+	(R_ln_R): Avoid computing 0*ln(2).
+	(R_cosh_sinh_R_R): Small optim.
+	(R_tanh_R): New function, extracted from N_tanh_N.
+	* comptran.d (N_exp_N): Don't use F_extend2_F to extend b's precision;
+	instead let R_cos_sin_R_R do it. Let R_exp_R increase the precision
+	always. Avoid unjustified contagion warnings.
+	(N_log_N): Don't use F_extend2_F to extend the precision; instead use
+	F_extend_F. Small optim.
+	(N_N_expt_N): Compute the needed precision correctly. Fix bug
+	introduced on 2002-09-11: Don't waste time if x is a very long float
+	and y is a short float.
+	(N_sin_N): Fix bug introduced on 2002-09-11: If (realpart x) is the
+	exact 0, return a complex number with realpart exact 0. Avoid
+	unjustified contagion warnings.
+	(N_cos_N): Handle the case of (realpart x) = 0 separately. Avoid
+	unjustified contagion warnings.
+	(N_tan_N): Use R_tan_R. Fix bug introduced on 2002-09-11: If
+	(realpart x) is the exact 0, return a complex number with realpart
+	exact 0. Avoid unjustified contagion warnings.
+	(N_cis_N): Handle the case of (realpart x) = 0 separately. Fix bug
+	introduced on 2002-09-11: (exp (- b)) was computed with too small
+	precision. Avoid unjustified contagion warnings.
+	(N_sinh_N): Fix bug introduced on 2002-09-11: If (realpart x) is the
+	exact 0, return a complex number with realpart exact 0. Avoid
+	unjustified contagion warnings.
+	(N_cosh_N): Handle the case of (realpart x) = 0 separately. Avoid
+	unjustified contagion warnings.
+	(N_tanh_N): Use R_tanh_R. Fix bug introduced on 2002-09-11: If
+	(realpart x) is the exact 0, return a complex number with realpart
+	exact 0. Avoid unjustified contagion warnings.
+	(R_R_atanh_R_R): Use F_extend_F instead of F_extend2_F.
+
+2005-02-20  Bruno Haible  <bruno@clisp.org>
+
 	* describe.lisp (describe-object@package): Print information about
 	case-sensitive or case-inverted packages.
 	Suggested by Duane Rettig <duane@franz.com>.
