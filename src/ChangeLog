@@ -1,3 +1,9 @@
+2004-06-19  Bruno Haible  <bruno@clisp.org>
+
+	* record.d (SYS::CLOSURE-CODEVEC): Return the code vector itself,
+	don't convert it to a list.
+	* compiler.lisp (signature): Convert the code vector to a list here.
+
 2004-08-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/configure.in: check

@@ -10279,7 +10279,7 @@ The function make-closure is required.
 ;; 8. const-list
 (defun signature (closure)
   (let ((const-list (closure-consts closure))
-        (byte-list (closure-codevec closure)))
+        (byte-list (coerce (closure-codevec closure) 'list)))
     (macrolet ((pop2 (listvar)
                  (if *big-endian*
                    ; BIG-ENDIAN-Processor
