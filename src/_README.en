@@ -176,7 +176,7 @@ Then start
 
 When the LISP prompt
 
-      > _
+      [1]> _
 
 appears, type
 
@@ -233,14 +233,7 @@ Assuming D:\GNU\CLISP :
 #endif
 
 #ifdef WIN32_NATIVE
-And create a batch file that starts lisp:
-
-   copy con c:\bat\clisp.bat
-   d:\gnu\clisp\lisp.exe -M d:\gnu\clisp\lispinit.mem -B d:\gnu\clisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
-   [Ctrl-Z]
-#endif
-
-#ifdef WIN32_NATIVE
+And create a shortcut file to the main driver clisp.exe.
 You can also use file install.bat which creates the driver file
 on your desktop and sets up the registry.
 #endif
@@ -272,12 +265,12 @@ When you encounter problems:
 
 After errors, you are in the debugger:
 
-     1. Break> _
+     Break 1 [2]> _
 
 You can evaluate forms, as usual. Furthermore:
 
      Help
-               prints help
+               prints context-sensitive help
      Abort     or
      Unwind
                climbs up to the next higher input loop
@@ -289,11 +282,12 @@ error occurred.
 
 #ifdef UNIX
 On bigger problems, e.g. core dumps, please send a description of the error
-#endif
 and how to produce it reliably to the authors or the maintainer.
+#endif
 Please accompany it with the CLISP version, which you get by calling
 (lisp-implementation-version), as well as the OS name and version.
 
+See http://clisp.cons.org/clisp.html#bugs for more information.
 
 Sources:
 --------
