@@ -298,8 +298,11 @@ Modules
 
 * Module syscalls now exports functions POSIX:CRYPT, POSIX:ENCRYPT,
   POSIX:SETKEY, POSIX:SET-FILE-STAT, POSIX:CONVERT-MODE, POSIX:UMASK,
-  POSIX:MKNOD.
+  POSIX:MKNOD, OS:FILE-PROPERTIES.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
+
+* Module berkeley-db is vastly expanded.
+  See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
 
 * Modules now have an exit function.
   See <http://clisp.cons.org/impnotes.html#modexit> for details.
