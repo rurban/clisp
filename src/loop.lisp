@@ -1,8 +1,9 @@
 ;; ANSI CL Loop
-;; (LOOP {loop-clause}*), CLTL2 S. 163,709-747
-;; Bruno Haible 19.10.1991-20.10.1991, 22.10.1991, 6.6.1993, 28.6.1994,
-;;   16.6.1996
-;; Sam Steingold 1999-03-11, 2000-02-24, 2001-08-16
+;; (LOOP {loop-clause}*), CLtL2 p. 163,709-747
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1.html>
+;; <http://www.lisp.org/HyperSpec/Body/mac_loop.html>
+;; Bruno Haible 1991-2002
+;; Sam Steingold 1999-2002
 
 (in-package "COMMON-LISP")
 (export '(loop loop-finish))
@@ -1067,4 +1068,3 @@
   (if y (max x y) x))
 (defun min-if (x y)
   (if y (min x y) x))
-
