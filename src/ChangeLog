@@ -25,8 +25,8 @@
 	* clos-package.lisp: Likewise.
 	* clos-methcomb2.lisp (compute-effective-method-as-function-form):
 	Add an argument and bind *method-combination-arguments* here.
-	* clos-genfun2b.lisp (compute-applicable-methods-effective-method,
-	compute-applicable-methods-effective-method-for-set): Don't check
+	* clos-genfun2b.lisp (compute-applicable-methods-effective-method)
+	(compute-applicable-methods-effective-method-for-set): Don't check
 	against empty method list. Don't bind *method-combination-arguments*.
 	Instead, pass the arguments to compute-effective-method-as-function.
 	(compute-effective-method-as-function): Add args argument, pass it
