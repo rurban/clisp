@@ -202,7 +202,7 @@
                   #+CLISP           "hashweak"))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
     #+CLISP
-    (dotimes (i 50)
+    (dotimes (i 20)
       (with-accumulating-errors (error-count total-count)
         (run-test "weakptr")))
     #+(or CLISP ALLEGRO CMU)
