@@ -8,6 +8,7 @@
 
 	* modules/clx/new-clx/clx.f (get_event_mask): fixed error handling
 	removed saving/restoring subr_self throughout
+	applied the macrology patch (boundp, missingp, VALUES1 &c)
 	(display_hash_table): replace STACK_0 instead of returning a value
 	(make_xid_obj_2): reflect this change
 	* modules/clx/new-clx/clx.lisp (*GCONTEXT-COMPONENTS*):
