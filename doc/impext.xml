@@ -296,13 +296,13 @@ localized.</para>
 </simplelist></para>
 
 <para>This is controlled by the &symbol-macro; <emphasis
- role="strong"><varname>CUSTOM:*CURRENT-LANGUAGE*</varname></emphasis>,
+ role="strong">&curr-lang;</emphasis>,
  which can be set at run time as well as using <ulink
  url="clisp.html#opt-lang"><option>-L</option></ulink> start-up option.
  If you wish to change the <ulink url="clisp.html#opt-locale">locale
  directory</ulink> at run time too, you can do that by
- setting <varname>CUSTOM:*CURRENT-LANGUAGE*</varname> to a &cons-t; cell,
- whose &car; is the language (a &symbol-t;, one of the above), and whose
+ setting &curr-lang; to a &cons-t; cell, whose &car; is the language
+ (a &symbol-t;, one of the above), and whose
  &cdr; is the new locale directory.</para>
 
 <para>More languages can be defined through the macro <emphasis
@@ -733,7 +733,7 @@ localized.</para>
  <emphasis>program</emphasis> &iconv-u;: <command>iconv -l</command>.
  </simpara>
 
-<simpara>When an encoding is available both as a &enc-built-in; and
+<simpara>When an &encoding; is available both as a &enc-built-in; and
  through &iconv;, the &enc-built-in; is used, because it is more
  efficient and available across all platforms.</simpara>
 
@@ -1434,12 +1434,10 @@ N. Gray to X3J13.</para>
 
 <section id="prompt"><title>Extensions-1.8. The Prompt</title>
 
-<para>The variable <emphasis
- role="strong"><varname>CUSTOM:*PROMPT*</varname></emphasis> controls
+<para>The variable <emphasis role="strong">&prompt;</emphasis> controls
  the appearance of the prompt.  When its value is a function, it is
  called and its value is printed with &princ;.  Otherwise, the value
- itself is printed with &princ;.  The default value of
- <varname>CUSTOM:*PROMPT*</varname> prints
+ itself is printed with &princ;.  The default value of &prompt; prints
  <prompt>"package[n]&gt;&nbsp;"</prompt> where &pack-r; is the shortest
  (nick)name of the current package &package-var; if it is &not-e; the
  same as it was in the beginning or if it does not contain symbol &t;
@@ -1616,8 +1614,64 @@ here <function>WITH-FOO</function> does not receive the
 
 <para>The user-customizable variables are located in the package
  &custom-pac; and thus can be listed using
-   <literal role="sexp">(&apropos; "" "CUSTOM")</literal>.
-</para>
+ <literal role="sexp">(&apropos; "" "CUSTOM")</literal>:
+ <simplelist type="horiz" columns="3">
+  <member>&ansi;</member>
+  <member><varname>CUSTOM:*APPLYHOOK*</varname></member>
+  <member><varname>CUSTOM:*BREAK-ON-WARNINGS*</varname></member>
+  <member>&browser;</member>
+  <member>&browsers;</member>
+  <member><varname>CUSTOM:*CLHS-ROOT-DEFAULT*</varname></member>
+  <member>&fixnum-char-ansi;</member>
+  <member>&compile-warn;</member>
+  <member>&compiled-types;</member>
+  <member>&curr-lang;</member>
+  <member>&def-file-enc;</member>
+  <member>&default-float-format;</member>
+  <member>&default-tz;</member>
+  <member><varname>CUSTOM:*DEFTYPE-DEPTH-LIMIT*</varname></member>
+  <member>&dev-prefix;</member>
+  <member>&editor;</member>
+  <member><varname>CUSTOM:*ERROR-HANDLER*</varname></member>
+  <member><varname>CUSTOM:*EVALHOOK*</varname></member>
+  <member>&flocont;</member>
+  <member>&foreign-enc;</member>
+  <member><varname>CUSTOM:*INSPECT-BROWSER*</varname></member>
+  <member><varname>CUSTOM:*INSPECT-FRONTEND*</varname></member>
+  <member><varname>CUSTOM:*INSPECT-LENGTH*</varname></member>
+  <member><varname>CUSTOM:*INSPECT-PRINT-LENGTH*</varname></member>
+  <member><varname>CUSTOM:*INSPECT-PRINT-LEVEL*</varname></member>
+  <member><varname>CUSTOM:*INSPECT-PRINT-LINES*</varname></member>
+  <member><varname>CUSTOM:*LIB-DIRECTORY*</varname></member>
+  <member>&load-comp;</member>
+  <member>&load-echo;</member>
+  <member>&load-lpt-db;</member>
+  <member>&load-obs;</member>
+  <member>&load-paths;</member>
+  <member>&pathmerge;</member>
+  <member>&misc-enc;</member>
+  <member><varname>CUSTOM:*PACKAGE-TASKS-TREAT-SPECIALLY*</varname></member>
+  <member>&parsename;</member>
+  <member>&parsedot;</member>
+  <member>&path-enc;</member>
+  <member>&ppr-first-newline;</member>
+  <member>&pr-closure;</member>
+  <member>&pr-indent;</member>
+  <member>&pathprint;</member>
+  <member><varname>CUSTOM:*PRINT-PRETTY-FILL*</varname></member>
+  <member>&pr-rpars;</member>
+  <member><varname>CUSTOM:*PRINT-SYMBOLS-LONG*</varname></member>
+  <member>&prompt;</member>
+  <member>&count-ansi;</member>
+  <member>&source-types;</member>
+  <member>&sys-pack-list;</member>
+  <member>&term-enc;</member>
+  <member>&trace-indent;</member>
+  <member><varname>CUSTOM:*USER-MAIL-ADDRESS*</varname></member>
+  <member>&warn-fpc;</member>
+  <member><varname>CUSTOM:*WITH-HTML-OUTPUT-DOCTYPE*</varname></member>
+ </simplelist>
+ Note that some of these variables are platform-specific.</para>
 
 </section>
 
