@@ -318,19 +318,19 @@
           # x in NDS umwandeln, als UDS auffassen:
           BN_to_NDS_nocopy(x, x_MSDptr=,x_len=,x_LSDptr=);
           # y in NDS umwandeln, als UDS auffassen:
-          I_to_NDS_nocopy(y, y_MSDptr=,y_len=,y_LSDptr=);
+         {I_to_NDS_nocopy(y, y_MSDptr=,y_len=,y_LSDptr=);
           # dividieren:
-         {var DS q;
-          var DS r;
-          begin_arith_call();
-          UDS_divide(x_MSDptr,x_len,x_LSDptr,y_MSDptr,y_len,y_LSDptr, &q,&r);
-          end_arith_call();
-          RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-          # q in Integer umwandeln:
-          pushSTACK(NUDS_to_I(q.MSDptr,q.len));
-          # r in Integer umwandeln (jetzt erst, nachdem q verwertet ist!):
-          pushSTACK(NUDS_to_I(r.MSDptr,r.len));
-        }}
+          {var DS q;
+           var DS r;
+           begin_arith_call();
+           UDS_divide(x_MSDptr,x_len,x_LSDptr,y_MSDptr,y_len,y_LSDptr, &q,&r);
+           end_arith_call();
+           RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
+           # q in Integer umwandeln:
+           pushSTACK(NUDS_to_I(q.MSDptr,q.len));
+           # r in Integer umwandeln (jetzt erst, nachdem q verwertet ist!):
+           pushSTACK(NUDS_to_I(r.MSDptr,r.len));
+        }}}
     }
 
 # Fehler, wenn Quotient keine ganze Zahl ist
