@@ -182,7 +182,7 @@ do
         passnext=yes ;;
 
       --with-debug)
-        makemake_args="$makemake_args --verbose"
+        makemake_args="--verbose=yes $makemake_args"
         debug="debug" ;;
 
       --without-dynamic-ffi | --with-dynamic-ffi=no | --with-no-dynamic-ffi)
