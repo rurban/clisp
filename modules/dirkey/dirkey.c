@@ -93,13 +93,6 @@ extern object nobject_out (FILE* stream, object obj);
 
 DEFMODULE(dirkey,"LDAP");
 
-#if CLISP_UNICODE
-object misc_encoding (void) {funcall(L(misc_encoding),0); return value1;}
-# if defined(GNOME)
-object pathname_encoding(void){funcall(L(pathname_encoding),0);return value1;}
-# endif
-#endif
-
 enum { /* DIR-KEY slots */
   DK_TYPE=0,
   DK_DIR=1,
@@ -167,7 +160,7 @@ static object registry_value_to_object (DWORD type, DWORD size,
     case REG_NONE: return NIL;
     case REG_SZ:
     case REG_EXPAND_SZ: /* should we actually expand the env vars?! */
-      return asciz_to_string(buffer,misc_encoding());
+      return asciz_to_string(buffer,GLO(misc_encoding));
     case REG_DWORD_LITTLE_ENDIAN:
       if (REG_DWORD_LITTLE_ENDIAN != REG_DWORD)
         return UL_to_I(((unsigned char)buffer[3] << 24)+
@@ -194,7 +187,7 @@ static object registry_value_to_object (DWORD type, DWORD size,
           object new_cons = allocate_cons();
           Cdr(new_cons) = STACK_0;
           STACK_0 = new_cons;
-          Car(STACK_0) = n_char_to_string(buffer+ii,jj-ii,misc_encoding());
+          Car(STACK_0) = n_char_to_string(buffer+ii,jj-ii,GLO(misc_encoding));
         }
         ii = jj + 1;
       }
@@ -236,7 +229,7 @@ DEFUN(LDAP:DIR-KEY-CLOSE,dk)
 #    endif
 #    if defined(GNOME)
       if (eq(slots[DK_TYPE],`:GNOME`)) {
-        with_string_0(slots[DK_PATH],pathname_encoding(),pathz,{
+        with_string_0(slots[DK_PATH],GLO(pathname_encoding),pathz,{
           gnome_config_drop_file(pathz);
           gnome_config_sync_file(pathz);
         });
@@ -398,12 +391,12 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     if (NULL != slots) {
       root = test_dir_key(root,true);
       slots = dir_key_slots(root);
-      with_string_0(path,misc_encoding(),pathz,{
+      with_string_0(path,GLO(misc_encoding),pathz,{
         open_reg_key((HKEY)SLOT_HANDLE(slots),pathz,
                      direction,if_not_exists,(HKEY*)&ret_handle);
       });
     } else {
-      with_string_0(path,misc_encoding(),pathz,{
+      with_string_0(path,GLO(misc_encoding),pathz,{
         char* base;
         HKEY hkey = parse_registry_path(pathz,(const char**)&base);
         open_reg_key(hkey,base,direction,if_not_exists,(HKEY*)&ret_handle);
@@ -416,7 +409,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     if (NULL != slots) {
       root = test_dir_key(root,true);
       begin_system_call();
-      with_string_0(path,misc_encoding(),pathz,{
+      with_string_0(path,GLO(misc_encoding),pathz,{
         status = ldap_simple_bind_s((LDAP*)ret_handle,pathz,NULL);
       });
       if (status != LDAP_SUCCESS)
@@ -425,7 +418,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     } else { /* :LDAP */
       struct ldap_url_desc* ldap_url = NULL;
       begin_system_call();
-      with_string_0(path,misc_encoding(),pathz,
+      with_string_0(path,GLO(misc_encoding),pathz,
                     { status = ldap_url_parse(pathz,&ldap_url); });
       if (status != 0) {
         end_system_call();
@@ -438,7 +431,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
       if ((status = ldap_simple_bind_s((LDAP*)ret_handle,ldap_url->lud_dn,
                                        NULL)) != LDAP_SUCCESS) {
         pushSTACK(path);
-       {object dn = asciz_to_string(ldap_url->lud_dn,misc_encoding());
+       {object dn = asciz_to_string(ldap_url->lud_dn,GLO(misc_encoding));
         path = popSTACK();
         LDAP_ERR2STR(path,dn,status);
       }}
@@ -515,7 +508,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
       { object new_cons = allocate_cons();                              \
         Cdr(new_cons) = STACK_0;                                        \
         STACK_0 = new_cons; }                                           \
-      { object string = asciz_to_string(buf,misc_encoding());           \
+      { object string = asciz_to_string(buf,GLO(misc_encoding));        \
         Car(STACK_0) = string; }                                        \
     }                                                                   \
     value1 = nreverse(popSTACK());                                      \
@@ -530,7 +523,7 @@ DEFUN(LDAP::DIR-KEY-SUBKEYS, key)
     int ii, len = sizeof(roots)/sizeof(*roots);
     skipSTACK(1);
     for (ii=0; ii<len; ii++)
-      pushSTACK(asciz_to_string(roots[ii].name,misc_encoding()));
+      pushSTACK(asciz_to_string(roots[ii].name,GLO(misc_encoding)));
     VALUES1(listof(len));
   } else
 # endif
@@ -651,7 +644,7 @@ static void init_iteration_node (object state, object subkey,
  {object dk = test_dir_key(ITST_DKEY(STACK_4/*state*/),true);
   gcv_object_t *slots = dir_key_slots(dk);
   FOREIGN *fp = &(TheFpointer(STACK_0/*handle*/)->fp_pointer);
-  with_string_0(*new_path,misc_encoding(),pathz,{
+  with_string_0(*new_path,GLO(misc_encoding),pathz,{
     open_reg_key((HKEY)SLOT_HANDLE(slots),pathz,check_direction(slots[DK_DIR]),
                  IF_DOES_NOT_EXIST_UNBOUND/*ignore*/,(HKEY*)fp);
   });
@@ -690,7 +683,7 @@ static object state_next_key (object state) {
                                 keynum,buffer,keylen);
       if (status == ERROR_SUCCESS) {
         NODE_KEY(node) = fixnum_inc(NODE_KEY(node),1);
-        return asciz_to_string(buffer,misc_encoding());
+        return asciz_to_string(buffer,GLO(misc_encoding));
       } else {
         SYSCALL_WIN32(RegCloseKey((HKEY)(fp->fp_pointer)));
         fp->fp_pointer = NULL;
@@ -772,7 +765,7 @@ DEFUN(LDAP::DKEY-SEARCH-NEXT-ATT,state)
   XOUT(state,"LDAP::DKEY-SEARCH-NEXT-ATT");
   if (status == ERROR_SUCCESS) {
     NODE_ATT(node) = fixnum_inc(NODE_ATT(node),1);
-    pushSTACK(asciz_to_string(att,misc_encoding()));
+    pushSTACK(asciz_to_string(att,GLO(misc_encoding)));
     pushSTACK(registry_value_to_object(type,size,dat));
   } else {
     pushSTACK(NIL);
@@ -806,7 +799,7 @@ DEFUN(LDAP::DIR-KEY-VALUE, key name &optional default) {
  {object dkey = test_dir_key(STACK_2,true);
   object name = STACK_1;
   object default_value = STACK_0;
-  with_string_0(name,misc_encoding(),namez,{
+  with_string_0(name,GLO(misc_encoding),namez,{
     DWORD status;
     DWORD type;
     DWORD size;
@@ -841,9 +834,9 @@ DEFUN(LDAP::SET-DKEY-VALUE, key name value)
   object name = STACK_1;
   object value = STACK_0;
   HKEY hk = (HKEY)SLOT_HANDLE(dir_key_slots(dkey));
-  with_string_0(name,misc_encoding(),namez, {
+  with_string_0(name,GLO(misc_encoding),namez, {
     if (stringp(value)) {
-      with_string_0(value,misc_encoding(),valz, {
+      with_string_0(value,GLO(misc_encoding),valz, {
         SYSCALL_WIN32(RegSetValueEx(hk,namez,0,REG_SZ,
                                     (BYTE*)valz,strlen(valz)));
       });
@@ -872,7 +865,7 @@ DEFUN(LDAP::SET-DKEY-VALUE, key name value)
   STACK_0 = check_string(STACK_0);                                      \
  {object dkey = test_dir_key(STACK_1,true);                             \
   object name = STACK_0; skipSTACK(2);                                  \
-  with_string_0(name,misc_encoding(),namez,{                            \
+  with_string_0(name,GLO(misc_encoding),namez,{                         \
     SYSCALL_WIN32(call((HKEY)SLOT_HANDLE(dir_key_slots(dkey)),namez));  \
     });}                                                                \
   VALUES1(NIL)
@@ -918,7 +911,7 @@ DEFUN(LDAP::DKEY-INFO,key) {
                                 &max_value_length,
                                 &security_descriptor,
                                 &write_time));
-  value1 = (class_name ? asciz_to_string(class_name,misc_encoding()) : NIL);
+  value1 = (class_name ? asciz_to_string(class_name,GLO(misc_encoding)) : NIL);
   value2 = L_to_I(num_sub_keys);
   value3 = L_to_I(max_sub_key_length);
   value4 = L_to_I(max_class_length);

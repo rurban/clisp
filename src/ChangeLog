@@ -1,9 +1,10 @@
 2003-08-12  Sam Steingold  <sds@gnu.org>
 
-	* modules/dirkey/dirkey.c, modules/syscalls/calls.c
-	(misc_encoding, pathname_encoding): functions, not module
-	variables, because they must pick the user changes to
-	*MISC-ENCODING* and *PATHNAME-ENCODING* at run time
+	* modules/dirkey/dirkey.c, modules/syscalls/calls.c:
+	* modules/regexp/regexi.c (misc_encoding, pathname_encoding):
+	use GLO to pick the user changes to *MISC-ENCODING*
+	and *PATHNAME-ENCODING* at run time
+	* genclisph.d (object_tab): enabled
 
 2003-08-12  Sam Steingold  <sds@gnu.org>
 
