@@ -179,6 +179,9 @@
 <!ENTITY clu-pac "<ulink url='&clhs;/Body/sec_11-1-2-2.html'><quote role='package'>COMMON-LISP-USER</quote></ulink>">
 <!ENTITY kwd-pac "<ulink url='&clhs;/Body/sec_11-1-2-3.html'><quote role='package'>KEYWORD</quote></ulink>">
 
+<!-- *** reader *** -->
+<!ENTITY sharp-S "<ulink url='&clhs;/Body/sec_2-4-8-13'><literal role='data'>#S</literal></ulink>">
+<!ENTITY sharp-P "<ulink url='&clhs;/Body/sec_2-4-8-14'><literal role='data'>#P</literal></ulink>">
 
 <!-- *** format instructions *** -->
 <!ENTITY format-a "<ulink url='&clhs;/Body/sec_22-3-4-1.html'><literal>~A</literal></ulink>">
