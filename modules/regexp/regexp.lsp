@@ -216,7 +216,7 @@ extern void mregfree (regex_t *preg);
                      (make-array (- end start) :element-type 'character
                                  :displaced-to string
                                  :displaced-index-offset start))))
-    (declare (string string) (fixnum len end))
+    (declare (string string) (fixnum len))
     (multiple-value-bind (errcode matches)
         (regexec compiled-pattern string #.num-matches 0)
       ;; Compute return values.
