@@ -721,7 +721,6 @@
      &key &allow-other-keys)
   (:method ((instance standard-object) added-slots discarded-slots
             property-list &rest initargs)
-    (declare (ignore discarded-slots property-list))
     (check-initialization-argument-list initargs 'update-instance-for-redefined-class)
     ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
     (let ((class (class-of instance)))
@@ -731,7 +730,7 @@
           (let (independent)
             (multiple-value-setq (valid-keywords independent)
                 (valid-update-instance-for-redefined-class-keywords
-                  class added-slots discarded-slots property-list))
+                 class added-slots discarded-slots property-list))
             (when independent
               (setf (gethash class *update-instance-for-redefined-class-table*)
                     valid-keywords))))
