@@ -1231,7 +1231,7 @@
       #else
       var uintL manthi;
       #endif
-      SAVE_NUM_STACK # num_stack retten
+      { SAVE_NUM_STACK # save num_stack
       {
         var DS q;
         var DS r;
@@ -1324,7 +1324,7 @@
         }
         #endif
       }
-      RESTORE_NUM_STACK # num_stack zurück
+      RESTORE_NUM_STACK } # num_stack back
       #ifdef intQsize
       encode_DF(sign1,exp1,manthi, return);
       #else
@@ -1373,8 +1373,8 @@
       {
         var uintD mant [128/intDsize];
         set_32_Dptr(mant,(uint32)(mantx>>32)); set_32_Dptr(&mant[32/intDsize],(uint32)mantx);
-          set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
-        SAVE_NUM_STACK # num_stack retten
+        set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
+        { SAVE_NUM_STACK # save num_stack
         var DS wurzel;
         var bool exactp;
         UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
@@ -1400,7 +1400,7 @@
             mantx = mantx>>1; exp = exp+1;
           }
         }
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK } # num_stack back
       }
       encode_DF(0,exp,mantx, return);
     }
