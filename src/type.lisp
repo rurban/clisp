@@ -35,7 +35,7 @@
 ; Return the character set of an encoding (a symbol or string).
 (defun encoding-charset (encoding) (sys::%record-ref encoding 3))
 
-;===============================================================================
+;; ============================================================================
 
 ;;; TYPEP, CLTL S. 72, S. 42-51
 (defun typep (x y &aux f) ; x = Objekt, y = Typ
@@ -89,7 +89,7 @@
     (t (typespec-error 'typep y))
 ) )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 (defun upgraded-array-element-type (type)
   ; siehe array.d
@@ -116,7 +116,7 @@
   ) )  ) ) )
 )
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ;; Macros for defining the various built-in "atomic type specifier"s and
 ;; "compound type specifier"s. The following macros add information for both
@@ -564,7 +564,7 @@
 (fmakunbound 'def-atomic-type)
 (fmakunbound 'def-compound-type)
 
-;-------------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 ; Typtest ohne Gefahr einer Fehlermeldung. Für SIGNAL und HANDLER-BIND.
 (defun safe-typep (x y)
@@ -1180,24 +1180,24 @@
            (intervals2 (get-charset-range (encoding-charset encoding2)))
            (n1 (length intervals1))
            (n2 (length intervals2))
-           (j1 0)  ; grows by 2 from 0 to n1
-           (j2 0)) ; grows by 2 from 0 to n2
+           (jj1 0)  ; grows by 2 from 0 to n1
+           (jj2 0)) ; grows by 2 from 0 to n2
       (loop
         ; Get next interval from intervals1.
-        (when (eql j1 n1) (return-from charset-subtypep t))
-        (let ((i1 (schar intervals1 j1)) (i2 (schar intervals1 (+ j1 1))))
+        (when (eql jj1 n1) (return-from charset-subtypep t))
+        (let ((i1 (schar intervals1 jj1)) (i2 (schar intervals1 (+ jj1 1))))
           ; Test whether [i1,i2] is contained in intervals2.
           (let (i3 i4)
             (loop
-              (when (eql j2 n2)
+              (when (eql jj2 n2)
                 ; [i1,i2] not contained in intervals2.
                 (return-from charset-subtypep nil)
               )
-              (setq i3 (schar intervals2 j2))
-              (setq i4 (schar intervals2 (+ j2 1)))
+              (setq i3 (schar intervals2 jj2))
+              (setq i4 (schar intervals2 (+ jj2 1)))
               ; If i3 <= i4 < i1 <= i2, skip the interval [i3,i4].
               (when (char>= i4 i1) (return))
-              (incf j2 2)
+              (incf jj2 2)
             )
             (when (char< i1 i3)
               ; i1 not contained in intervals2.
@@ -1208,7 +1208,7 @@
               (return-from charset-subtypep nil)
             )
             ; Now (<= i3 i1) and (<= i2 i4), hence [i1,i2] contained in intervals2.
-            (incf j1 2)
+            (incf jj1 2)
   ) ) ) ) )
 )
 
@@ -1470,7 +1470,7 @@ Calling (equal type1 type2) is wrong: they may be MEMBER or EQL specifiers
 referring to circular lists.
 |#
 
-;===============================================================================
+;; ============================================================================
 
 (defun type-expand-1 (typespec &aux f)
   (cond ((symbolp typespec)
@@ -1512,4 +1512,4 @@ referring to circular lists.
       (values typespec nil)
 ) ) )
 
-;===============================================================================
+;; ============================================================================
