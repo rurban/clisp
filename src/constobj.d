@@ -853,6 +853,8 @@
   # Abschieds-String:
   LISPOBJ_LS(bye_string,
     /* ENGLISH */ "Bye.")
+  LISPOBJ_LS(keypress_string,
+    /* ENGLISH */ "Press a key to terminate...")
   # verschiedene Strings zur Beschreibung des Stacks:
   LISPOBJ_S(showstack_string_lisp_obj,NLstring "- ")
   LISPOBJ_S(showstack_string_bindung,NLstring "  | ")

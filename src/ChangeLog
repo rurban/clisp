@@ -1,5 +1,15 @@
 1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        New command-line option "-w".
+        * spvw.d (usage): Mention "-w".
+          (argv_wait_keypress): New variable.
+          (main): Set it if option "-w" is given.
+          (quit): If argv_wait_keypress, emit a message and call WAIT-KEYPRESS.
+        * _clisp.c (main): Accept "-w".
+        * keyboard.lsp (wait-keypress): New function.
+
+1999-06-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * describe.lsp (describe-object): Treat FOREIGN-FUNCTION, SYMBOL-MACRO,
           ENCODING.
 

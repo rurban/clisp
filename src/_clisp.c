@@ -188,6 +188,7 @@ int main (int argc, char* argv[])
                 case 'C':
                 case 'l':
                 case 'a':
+                case 'w':
                 case 'n': /* -norc */
                 case '-':
                   break;
