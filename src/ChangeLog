@@ -1,5 +1,6 @@
 2004-05-21  Sam Steingold  <sds@gnu.org>
 
+	* constobj.d (software_type): use "cflags.h"
 	* makemake.in (cflags.h): new target
 
 2004-05-08  Bruno Haible  <bruno@clisp.org>
