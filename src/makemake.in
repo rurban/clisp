@@ -1348,7 +1348,7 @@ SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_
 
 UNICODE_INCLUDES=''
 if [ -z "$with_nounicode" ] ; then
-  UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute'
+  UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uninames'
 fi
 
 NLS_INCLUDES=''
