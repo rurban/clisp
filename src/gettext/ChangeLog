@@ -1,6 +1,13 @@
-2001-03-22  Bruno Haible  <haible@clisp.cons.org>
+2001-04-09  Bruno Haible <haible@clisp.cons.org>
+
+	* intl/loadmsgcat.c: Don't use GNU C extensions if __APPLE_CC__ is
+	defined. Apple's MacOS X compiler has not all the features that the
+	regular GCC with the same version number has.
+
+2001-03-23  Bruno Haible  <haible@clisp.cons.org>
 
 	* intl/*: Upgrade from 2001-03-15 to 2001-03-22.
+	* aclocal.m4: Likewise.
 
 2001-03-15  Bruno Haible  <haible@clisp.cons.org>
 
