@@ -2839,12 +2839,9 @@ LISPFUNN(make_generic_stream,1) {
 LISPFUNN(generic_stream_p,1) {
   var object stream = popSTACK();
   check_stream(stream);
-  if (builtin_stream_p(stream)
-      && eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
-      && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic)))
-    { VALUES1(T); }
-  else
-    { VALUES1(NIL); }
+  VALUES_IF(builtin_stream_p(stream)
+            && eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
+            && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic)));
 }
 
 #endif
@@ -15490,33 +15487,21 @@ local char* xrealloc (void* ptr, int count) {
 LISPFUNN(built_in_stream_open_p,1) {
   var object stream = popSTACK();
   check_builtin_stream(stream);
-  if (TheStream(stream)->strmflags & strmflags_open_B) { # Stream open?
-    VALUES1(T);
-  } else {
-    VALUES1(NIL);
-  }
+  VALUES_IF(TheStream(stream)->strmflags & strmflags_open_B); /* open? */
 }
 
 # (INPUT-STREAM-P stream), CLTL p. 332, CLtL2 p. 505
 LISPFUNN(input_stream_p,1) {
   var object stream = popSTACK();
   check_stream(stream);
-  if (input_stream_p(stream)) {
-    VALUES1(T);
-  } else {
-    VALUES1(NIL);
-  }
+  VALUES_IF(input_stream_p(stream));
 }
 
 # (OUTPUT-STREAM-P stream), CLTL p. 332, CLtL2 p. 505
 LISPFUNN(output_stream_p,1) {
   var object stream = popSTACK();
   check_stream(stream);
-  if (output_stream_p(stream)) {
-    VALUES1(T);
-  } else {
-    VALUES1(NIL);
-  }
+  VALUES_IF(output_stream_p(stream));
 }
 
 # (SYS::STREAM-ELEMENT-TYPE-EQ T0 T1)
@@ -15532,15 +15517,11 @@ LISPFUNN(output_stream_p,1) {
 LISPFUNN(stream_element_type_eq,2) {
   object t0 = popSTACK();
   object t1 = popSTACK();
-  if (eq(t0,t1)
-      || (consp(t0) && consp(t1) && eq(Car(t0),Car(t1))
-          && (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte)))
-          && consp(Cdr(t0)) && consp(Cdr(t1))
-          && eql(Car(Cdr(t0)),Car(Cdr(t1))))) {
-    VALUES1(T);
-  } else {
-    VALUES1(NIL);
-  }
+  VALUES_IF(eq(t0,t1)
+            || (consp(t0) && consp(t1) && eq(Car(t0),Car(t1))
+                && (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte)))
+                && consp(Cdr(t0)) && consp(Cdr(t1))
+                && eql(Car(Cdr(t0)),Car(Cdr(t1)))));
 }
 
 # (SYS::BUILT-IN-STREAM-ELEMENT-TYPE stream)
