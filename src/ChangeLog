@@ -1,5 +1,10 @@
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
+	* constsym.d: Avoid compilation error when compiling with GNU_GETTEXT
+	but without UNICODE.
+
+2002-05-26  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (FILES): List the additional .a files in the same order
 	as in LIBS, not in the reverse order.
 	(LIBS): Add libreadline.a in front of libcharset.a. This avoids a link
