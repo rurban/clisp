@@ -11,14 +11,6 @@ Readline interface problem:
 Restore interpretation of command-line options.
         [sds: what does this mean?]
 
-Modules on 64-bit platforms:
-<http://article.gmane.org/gmane.lisp.clisp.devel:13255>
-with debug, modules do not build:
-calls.c:1866: incompatible types in initialization
-calls.c:1866: initializer element is not constant
-calls.c:1866: (near initialization for `module__syscalls__subr_tab._subr_posix_bogomips.GCself.one_o')
-<http://sourceforge.net/tracker/index.php?func=detail&aid=981623&group_id=1355&atid=101355>
-
 
 MUST-FIX BEFORE RELEASE 2.35
 ============================
