@@ -1,5 +1,13 @@
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 
+	Command-line option -modern.
+	* spvw.d (usage): Mention option -modern.
+	(struct argv_actions): Add argv_modern field.
+	(parse_options): Initialize it. Recognize -modern.
+	(main_actions): Handle argv_modern option.
+
+2004-12-12  Bruno Haible  <bruno@clisp.org>
+
 	Support for :case-inverted packages and package CS-COMMON-LISP.
 	* lispbibl.d (mark_pack_caseinverted, pack_caseinvertedp): New macros.
 	(mark_pack_locked, mark_pack_unlocked, pack_locked_p): Use bit 2.
