@@ -1,3 +1,12 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (low_read_array_unbuffered_handle): Don't call
+	low_listen_unbuffered_handle; the perseverance is now completely
+	handled by fd_read.
+	(low_read_array_unbuffered_socket): Don't call
+	low_listen_unbuffered_socket; the perseverance is now completely
+	handled by sock_read.
+
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp (custom:*suppress-check-redefinition*): Initialize to nil.
