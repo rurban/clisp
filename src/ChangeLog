@@ -1,3 +1,8 @@
+2002-11-30  Sam Steingold  <sds@gnu.org>
+
+	* places.lisp (remove-plist): new function
+	* inspect.lisp (with-http-output): use it instead of remf
+
 2002-11-28  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (expand-loop): APPEND/NCONC do not allow backward
