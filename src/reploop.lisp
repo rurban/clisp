@@ -549,7 +549,7 @@ Continue       :c       switch off single step mode, continue evaluation
 (defvar *step-quit* most-positive-fixnum "critical Step-depth")
 ;; the stepper wakes up, as soon as *step-level* <= *step-quit*
 
-(defvar *step-watch* nil)		; terminating condition
+(defvar *step-watch* nil)               ; terminating condition
 
 (defmacro step (form)
   "(STEP form), CLTL p. 441"
@@ -588,7 +588,7 @@ Continue       :c       switch off single step mode, continue evaluation
     (when (>= *step-level* *step-quit*) ; while *step-level* >= *step-quit*
       (if (and *step-watch* (funcall *step-watch*)) ; and no Breakpoint,
         (setq *step-quit* most-positive-fixnum)
-        (return-from step-hook-fn	; the Stepper remains passive
+        (return-from step-hook-fn       ; the Stepper remains passive
           (evalhook form nil nil env)))) ; (e.g. it simply evaluates the Form)
     (tagbody
       (let* ((stream (make-synonym-stream '*debug-io*))
@@ -650,7 +650,7 @@ Continue       :c       switch off single step mode, continue evaluation
         (step-values
          (multiple-value-list (evalhook form #'step-hook-fn nil env))))
      over-this-level
-      (setq *step-quit* *step-level*)	; keep the Stepper sleeping
+      (setq *step-quit* *step-level*)   ; keep the Stepper sleeping
      over
       (return-from step-hook-fn
         (step-values
