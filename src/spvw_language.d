@@ -176,6 +176,8 @@ global void init_language (const char* argv_language,
     # platforms for which gettext is compiled with HAVE_LOCALE_NULL
     # defined.
     setlocale(LC_MESSAGES,locale);
+    # Invalidate the gettext internal caches.
+    textdomain(textdomain(NULL));
   }
  #endif
  chosen2:
