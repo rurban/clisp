@@ -3518,55 +3518,81 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <simpara>This is similar to
     &listen;, which checks only one &stream-t; and only for input, and
     &so-wait;, which works only with &socket-server;s.</simpara>
-   <variablelist><title>Possible values of
-       <replaceable>socket-stream-or-list</replaceable></title>
-    <varlistentry><term>&socket-stream; or &socket-server;</term>
-     <listitem><simpara>Returns &t; if a connection on the
-      &socket-server; is available; or &input-k;, &output-k; or &io-k;
-      if some input/output is possible on the &socket-stream;,
-      or &error-k; when i/o will cause an error.
+   <simpara>We define <quote>status</quote> for a &socket-server; or a
+    &socket-stream; to be &error-k; if any i/o operation will cause an
+    error.</simpara>
+   <simpara>Additionally, for a &socket-server;, we define
+    <quote>status</quote> to be &t; if a connection is available, i.e.,
+    is &so-accept; will not block, and &nil; otherwise.</simpara>
+   <para>Additionally, for a &socket-stream;, we define
+    <quote>status</quote> in the given direction (one of &input-k;,
+    &output-k;, and &io-k;) to be
+    <variablelist><title>&input-k; status:</title>
+     <varlistentry><term>&nil;</term>
+      <listitem><simpara>reading will block
      </simpara></listitem></varlistentry>
+     <varlistentry><term>&input-k;</term>
+      <listitem><simpara>some input is available
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>&eof-k;</term>
+      <listitem><simpara>the stream has reached its end
+    </simpara></listitem></varlistentry></variablelist>
+    <variablelist><title>&output-k; status:</title>
+     <varlistentry><term>&nil;</term>
+      <listitem><simpara>writing will block
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>&output-k;</term>
+      <listitem><simpara>output to the stream will not block
+     </simpara></listitem></varlistentry></variablelist>
+    <table id="so-status-i-o" frame="all"><title>&io-k; status</title>
+     <tgroup cols="4" colsep="1" rowsep="1" align="center">
+      <colspec colname="out"/><colspec colname="nil"/>
+      <colspec colname="inp"/><colspec colname="eof"/>
+      <thead><row><entry morerows="1" valign="bottom">output status</entry>
+        <entry namest="nil" nameend="eof">input status</entry></row>
+       <row><entry>&nil;</entry><entry>&input-k;</entry>
+        <entry>&eof-k;</entry></row></thead>
+      <tbody><row><entry>&nil;</entry><entry>&nil;</entry>
+        <entry>&input-k;</entry><entry>&eof-k;</entry></row>
+       <row><entry>&output-k;</entry><entry>&output-k;</entry>
+        <entry>&io-k;</entry><entry>&append-k;</entry></row></tbody>
+    </tgroup></table></para>
+   <variablelist><title>Possible values of
+     <replaceable>socket-stream-or-list</replaceable></title>
+    <varlistentry><term>&socket-stream; or &socket-server;</term>
+     <listitem><simpara>Returns the appropriate status, as defined
+       above (&io-k; status for &socket-stream;)
+    </simpara></listitem></varlistentry>
     <varlistentry><term><literal role="sexp">(&socket-stream;
        . &direction-r;)</literal></term>
-     <listitem><simpara>Return the appropriate keyword (&input-k;,
-      &output-k; or &io-k;, or &error-k;) if some input/output is
-      possible on the &socket-stream; in the specified &direction-r;
-      (which should be one of &input-k;, &output-k; or &io-k;).
-     </simpara></listitem></varlistentry>
+     <listitem><simpara>Return the status in the specified direction
+    </simpara></listitem></varlistentry>
     <varlistentry><term>a list of the above</term>
      <listitem><simpara>Return a list of values, one for each element of the
-      argument list (a la &mapcar;)</simpara></listitem></varlistentry>
+       argument list (a la &mapcar;)</simpara></listitem></varlistentry>
    </variablelist>
+   <simpara>If you want to avoid &cons;ing up a fresh list, you can
+    make the elements of <replaceable>socket-stream-or-list</replaceable>
+    to be <literal role="sexp">(&sost-r; &direction-r; .
+     &x-r;)</literal> or <literal role="sexp">(&sost-r;)</literal> or
+    <literal role="sexp">(&sose-r;)</literal>.  Then &so-status; will
+    destructively modify its argument and replace &x-r; or &nil; with
+    the status and return the modified list.</simpara>
+   <simpara>The second value returned is the number of objects with
+    non-&nil; status, i.e., <quote>actionable</quote> objects.</simpara>
    <simpara>The optional arguments specify the timeout. &nil; means
     wait forever, <literal>0</literal> means poll.  Note that this
     function never waits for input or output to arrive, only for
     information on input or output presence (so that &read-char; or
     &write-char; will not block) to become available (or a connection to
     become possible).</simpara>
-   <simpara>For each &socket-stream; this function returns</simpara>
-   <variablelist><title>Return values of &so-status;</title>
-    <varlistentry><term>&nil;</term>
-     <listitem><simpara>when no information is available or no operation
-      is possible</simpara></listitem></varlistentry>
-    <varlistentry><term>&error-k;</term>
-     <listitem><simpara>when an i/o operation will cause an error
-     </simpara></listitem></varlistentry>
-    <varlistentry><term>&input-k;</term>
-     <listitem><simpara>when you can only read from the stream
-     </simpara></listitem></varlistentry>
-    <varlistentry><term>&output-k;</term>
-     <listitem><simpara>when you can only write to the stream
-     </simpara></listitem></varlistentry>
-    <varlistentry><term>&io-k;</term>
-     <listitem><simpara>when you can both read from and write to the stream
-     </simpara></listitem></varlistentry>
-  </variablelist></listitem></varlistentry>
+ </listitem></varlistentry>
  <varlistentry id="sost-hopo">
-   <term><literal role="sexp">(&sost-host; &sost-r;)</literal></term>
-   <term><literal role="sexp">(&sost-port; &sost-r;)</literal></term>
+  <term><literal role="sexp">(&sost-host; &sost-r;)</literal></term>
+  <term><literal role="sexp">(&sost-port; &sost-r;)</literal></term>
   <listitem><simpara>These two functions return information about the
-   &socket-stream;.  For a server, &sost-host; returns &nil;.
-  </simpara></listitem></varlistentry>
+    &socket-stream;.  For a server, &sost-host; returns &nil;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="service-port"><term><literal role="sexp">(&service-port;
                  &optional-amp; <replaceable>service-name</replaceable>
                  (<replaceable>protocol</replaceable> "tcp"))</literal></term>
