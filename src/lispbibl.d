@@ -5107,6 +5107,12 @@ typedef struct { XRECORD_HEADER
                }
         * Socket_server;
 #define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(object))
+typedef struct {
+  unsigned long int host;
+  char hostname[20];
+  char * truename;
+  unsigned int port;
+} host_data;
 #endif
 
 #ifdef YET_ANOTHER_RECORD

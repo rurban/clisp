@@ -11948,7 +11948,7 @@ LISPFUNN(write_n_bytes,4)
 local object make_socket_stream (SOCKET handle, object host, object port);
 local object make_socket_stream(handle,host,port)
   var SOCKET handle;
-  var object host; # NIL or string
+  var object host; # string
   var object port; # fixnum >=0
   { pushSTACK(allocate_socket(handle));
     # Stream allozieren:
@@ -12005,24 +12005,24 @@ LISPFUNN(socket_server_close,1)
     value1 = NIL; mv_count=0;
   }}
 
-extern SOCKET create_server_socket (unsigned int *port, SOCKET sock);
-extern const char * socket_getmyname (SOCKET socket_handle);
+extern SOCKET create_server_socket (host_data *hd, SOCKET sock);
 
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 # (SOCKET-SERVER [port-or-sock])
   {
     var SOCKET sk;
-    var unsigned int port = (posfixnump(STACK_0) ?
-                             posfixnum_to_L(STACK_0) : 0);
     var SOCKET sock = (socket_stream_p(STACK_0) ?
                        TheSocket(TheStream(STACK_0)->strm_ihandle) :
                        INVALID_SOCKET);
-    var char *myname;
+    var host_data myname;
+
+    bzero ((void *) &myname, sizeof(host_data));
+    if (posfixnump(STACK_0)) myname.port = posfixnum_to_L(STACK_0);
 
     if (posfixnump(STACK_0) || eq(STACK_0,unbound) ||
         socket_stream_p(STACK_0)) {
     begin_system_call();
-      sk = create_server_socket(&port, sock);
+      sk = create_server_socket(&myname, sock);
     end_system_call();
       if (sk == INVALID_SOCKET) { SOCK_error(); }
     } else {
@@ -12033,19 +12033,16 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
       fehler(type_error,
              DEUTSCH ? "~: Argument ~ ist kein SOCKET-STREAM oder positive FIXNUM" :
              ENGLISH ? "~: argument ~ is neither a SOCKET-STREAM nor a positive FIXNUM" :
-             FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ou FIXNUM oisitif" :
+             FRANCAIS ? "~ : L'argument ~ n'est pas un SOCKET-STREAM ou FIXNUM positif" :
              ""
              );
     }
 
-    begin_system_call();
-    myname = socket_getmyname(sk);
-    end_system_call();
     pushSTACK(allocate_socket(sk));
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
-    TheSocketServer(STACK_0)->port = fixnum(port);
-    { var object host = asciz_to_string(myname); # for GC-safety
+    TheSocketServer(STACK_0)->port = fixnum(myname.port);
+    { var object host = asciz_to_string(myname.hostname); # for GC-safety
       TheSocketServer(STACK_0)->host = host;}
     pushSTACK(STACK_0);
     pushSTACK(L(socket_server_close));
@@ -12076,16 +12073,17 @@ extern SOCKET accept_connection (SOCKET socket_handle);
 LISPFUNN(socket_accept,1)
 # (SOCKET-ACCEPT socket-server)
   {
-    var SOCKET s;
+    var SOCKET sock;
     var SOCKET handle;
 
     test_socket_server(STACK_0);
-    s = TheSocket(TheSocketServer(STACK_0)->socket_handle);
+    sock = TheSocket(TheSocketServer(STACK_0)->socket_handle);
     begin_system_call();
-    handle = accept_connection (s);
+    handle = accept_connection (sock);
     end_system_call();
     if (handle == INVALID_SOCKET) { SOCK_error(); }
-    value1 = make_socket_stream(handle,NIL,TheSocketServer(STACK_0)->port);
+    value1 = make_socket_stream(handle,TheSocketServer(STACK_0)->host,
+                                TheSocketServer(STACK_0)->port);
     mv_count = 1;
     skipSTACK(1);
   }
@@ -12215,22 +12213,50 @@ LISPFUNN(socket_stream_host,1)
     mv_count=1;
   }
 
-extern const char * socket_getpeername (SOCKET socket_handle);
+extern host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
+extern host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd);
 
-LISPFUNN(socket_stream_peer_host,1)
-# (SOCKET-STREAM-PEERNAME socket-stream)
+local void publish_host_data (host_data * (*func)());
+local void publish_host_data (func)
+  var host_data * (*func)();
   {
-    var SOCKET s;
-    var const char * peername;
+    var SOCKET sk;
+    var host_data hd;
+
+    bzero ((void *) &hd, sizeof(host_data));
 
     test_socket_stream(STACK_0);
-    s = TheSocket(TheStream(STACK_0)->strm_ihandle);
+    sk = TheSocket(TheStream(STACK_0)->strm_ihandle);
 
     begin_system_call();
-    if ((peername = socket_getpeername(s)) == NULL) { SOCK_error(); }
+    if (NULL == (*func)(sk, &hd)) { SOCK_error(); }
     end_system_call();
     skipSTACK(1);
-    value1 = asciz_to_string(peername); mv_count=1;
+    if (NULL == hd.truename) value1 = asciz_to_string (hd.truename);
+    else {
+      var char* tmp_str = malloc (strlen (hd.truename) + strlen (hd.hostname) + 4);
+      strcpy(tmp_str, hd.hostname);
+      strcat(tmp_str, " (");
+      strcat(tmp_str, hd.truename);
+      strcat(tmp_str, ")");
+      value1 = asciz_to_string (tmp_str);
+      free (tmp_str);
+    }
+    value2 = fixnum (hd.port);
+
+    mv_count=2;
+  }
+
+LISPFUNN(socket_stream_peer,1)
+# (SOCKET-STREAM-PEER socket-stream)
+  {
+    publish_host_data (&socket_getpeername);
+  }
+
+LISPFUNN(socket_stream_local,1)
+# (SOCKET-STREAM-LOCAL socket-stream)
+  {
+    publish_host_data (&socket_getlocalname);
   }
 
 #ifndef WIN32_NATIVE

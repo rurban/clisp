@@ -1,5 +1,20 @@
 1998-12-15  Sam Steingold  <sds@goems.com>
 
+	* constsym.d: added `SOCKET-STREAM-LOCAL', renamed
+	`SOCKET-STREAM-PEER-HOST' to `SOCKET-STREAM-PEER'.
+	* subr.d: ditto.
+	* socket.d (create_server_socket, socket_getpeername,
+	socket_getlocalname): use `host_data' structure instead of statics.
+	(fill_hostname): new function (renamed from `ip_to_string'.
+	(socket_getlocalname): new function (renamed from `socket_getmyname').
+	* stream.d (socket_server): use `host_data' structure.
+	(publish_host_data): new function.
+	(socket_stream_peer, socket_stream_local): use it.
+	* _impnotes.txt, impnotes.html: document the changes.
+        * lispbibl.d: added `typedef host_data'.
+
+1998-12-15  Sam Steingold  <sds@goems.com>
+
 	* makemake.in: added --fsstnd options `redhat' and `debian'.
 
 1998-12-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>

@@ -784,7 +784,8 @@ LISPSYM(socket_connect,"SOCKET-CONNECT",lisp)
 LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
 LISPSYM(socket_stream_port,"SOCKET-STREAM-PORT",lisp)
 LISPSYM(socket_stream_host,"SOCKET-STREAM-HOST",lisp)
-LISPSYM(socket_stream_peer_host,"SOCKET-STREAM-PEER-HOST",lisp)
+LISPSYM(socket_stream_peer,"SOCKET-STREAM-PEER",lisp)
+LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",lisp)
 #ifndef WIN32_NATIVE
 LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",lisp)
 #endif
