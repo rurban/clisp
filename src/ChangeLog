@@ -1,6 +1,12 @@
+2000-11-25  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (UNIX_LISP_TIME_DIFF): new macro
+	* time.d (real_time_sec): use it
+	* pathname.d (file_stat_): ditto
+
 2000-11-20  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in (lisp.exe): Make the stack 3 MB large.
+	* makemake.in (lisp.exe): Make the stack 3 MB large.
 
 2000-11-16  Bruno Haible  <haible@clisp.cons.org>
 
@@ -322,32 +328,32 @@
 2000-06-16  Thomas Klausner  <wiz@danbala.ifoer.tuwien.ac.at>
             Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (unix): Define on NetBSD.
-        * modules/clx/new-clx/e2d.c: Treat __MACH__, __NetBSD__, __BeOS__ as
-          Unix.
-        * makemake.in (fsstnd): New variant netbsd.
-          (install, installdirs, uninstall): For fsstnd=netbsd, install the
-          html files in $(lispdocdir), not $(htmldir), and the extra
-          documentation in $(lispdocdir), not $(lispdocdir)/doc.
+	* lispbibl.d (unix): Define on NetBSD.
+	* modules/clx/new-clx/e2d.c: Treat __MACH__, __NetBSD__, __BeOS__ as
+	Unix.
+	* makemake.in (fsstnd): New variant netbsd.
+	(install, installdirs, uninstall): For fsstnd=netbsd, install the
+	html files in $(lispdocdir), not $(htmldir), and the extra
+	documentation in $(lispdocdir), not $(lispdocdir)/doc.
 
 2000-06-12  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in (LIBGCC): Set to empty on BeOS.
-          (interpreted.mem, lispinit.mem, lispinit2.mem): On BeOS, copy the
-          executable before running it (workaround BeOS kernel bug).
+	* makemake.in (LIBGCC): Set to empty on BeOS.
+	(interpreted.mem, lispinit.mem, lispinit2.mem): On BeOS, copy the
+	executable before running it (workaround BeOS kernel bug).
 
-        * unix.d (sock_read, sock_write, closesocket): Don't #define on BeOS.
-        * unixaux.d (sock_read, sock_write): New functions.
-        * stream.d (low_listen_unbuffered_handle): On BeOS, don't use select
-          on file handles. Use O_NONBLOCK as a preferred alternative to
-          O_NDELAY.
-          (rd_ch_keyboard): On BeOS, don't use select on file handles.
-          (low_close_socket, low_read_unbuffered_socket,
-           low_listen_unbuffered_socket, low_clear_input_unbuffered_socket,
-           low_read_array_unbuffered_socket, low_write_unbuffered_socket,
-           low_write_array_unbuffered_socket, low_fill_buffered_socket,
-           low_flush_buffered_socket): Define on BeOS, differently from the
-          file handles analogs.
+	* unix.d (sock_read, sock_write, closesocket): Don't #define on BeOS.
+	* unixaux.d (sock_read, sock_write): New functions.
+	* stream.d (low_listen_unbuffered_handle): On BeOS, don't use select
+	on file handles. Use O_NONBLOCK as a preferred alternative to
+	O_NDELAY.
+	(rd_ch_keyboard): On BeOS, don't use select on file handles.
+	(low_close_socket, low_read_unbuffered_socket):
+	(low_listen_unbuffered_socket, low_clear_input_unbuffered_socket):
+	(low_read_array_unbuffered_socket, low_write_unbuffered_socket):
+	(low_write_array_unbuffered_socket, low_fill_buffered_socket):
+	(low_flush_buffered_socket): Define on BeOS, differently from the
+	file handles analogs.
 
 2000-06-11  Bruno Haible  <haible@clisp.cons.org>
 
