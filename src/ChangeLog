@@ -1,5 +1,9 @@
 1999-01-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_garcol.d (gar_col_compact): Conditionalize declaration.
+
+1999-01-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * intgcd.d (I_I_xgcd_I_I_I): Now really ensure the 2nd and 3rd value
           are of minimum absolute value.
 
