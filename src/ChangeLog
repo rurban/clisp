@@ -1,5 +1,9 @@
 2004-11-23  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (PC386) [AMD64]: define
+
+2004-11-23  Sam Steingold  <sds@gnu.org>
+
 	reverted the 2003-10-10 patch and fixed the problem differently:
 	since the problem is that COMPILE/LOAD-TIME-VALUE must work even
 	inside COMPILE-FILE, *FASOUTPUT-STREAM* should be bound there
