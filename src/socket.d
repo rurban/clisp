@@ -52,7 +52,6 @@
 
 #include <errno.h>
 
-#include <stdio.h>   /* declares sprintf() */
 #include <string.h>  /* declares strcmp(), strlen(), strcpy() */
 #ifdef RETSTRLENTYPE /* unless strlen() is a macro */
   extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);

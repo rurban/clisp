@@ -1,3 +1,54 @@
+2002-11-25  Sam Steingold  <sds@gnu.org>
+
+	use C standard I/O <stdio.h> instead of asciz_out() and friends
+	* acorn.d, encoding.d, error.d, genclisph.d, io.d, misc.d:
+	* msdos.d, pathname.d, socket.d, spvw.d, stream.d:
+	do not include <stdio.h> here
+	* lispbibl.d: include <stdio.h>
+	(asciz_out, asciz_out_s, asciz_out_ss, asciz_out_1, asciz_out_2)
+	(asciz_out_3, asciz_out_1_, asciz_out_2_, asciz_out_3_, dez_out)
+	(dez_out_, hex_out, hex_out_, mem_hex_out): removed
+	(STACK_diff): new macro
+	(bt_beyond_stack_p): use it
+	(OS_error, OBJECT_OUT, OS_file_error, OS_filestream_error):
+	use fprintf(), fputs() &c instead of asciz_out() and friends
+	(nobject_out): declare
+	* affi.d (reg_call): ditto
+	* amigaaux.d (abort, init_amiga): ditto
+	* avl.d (AVL/out): ditto
+	* erramiga.d, errunix.d, errwin32.d (errno_out): ditto
+	* predtype.d (with_gc_statistics): ditto
+	* rexx.d (debug_asciz_out, debug_out_1): ditto
+	* spvw.d (SP_ueber, STACK_ueber, fsubr_argtype, subr_argtype)
+	(fehler_code_alignment, init_subr_tab_1, init_module_2)
+	(usage, main): ditto
+	* spvw_alloca.d (malloca): ditto
+	* spvw_allocate.d (error_speicher_voll, make_space_gc_true)
+	(make_space_gc_false, make_space_gc): ditto
+	* spvw_fault.d (handle_mmap_fault, handle_fault, xmprotect): ditto
+	* spvw_garcol.d (gc_unmarkcheck, gar_col_normal): ditto
+	* spvw_global.d (check_gc_consistency, check_gc_consistency_2): ditto
+	* spvw_memfile.d (loadmem, loadmem_from_handle): ditto
+	* spvw_mmap.d (mmap_zeromap, mmap_prepare, mmap_filemap)
+	(mprotect, mmap_init): ditto
+	* spvw_multimap.d (initmap, msync_mmap_intervals, fdmap, idmap)
+	(open_temp_fd, fdsave, close_temp_fd, exitmap, open_shmid)
+	(shmsave, close_shmid): ditto
+	* spvw_sigsegv.d (sigsegv_handler_failed): ditto
+	* stream.d (rd_ch_keyboard) [WIN32_NATIVE]: ditto
+	* win32aux.d (DumpProcessMemoryMap); ditto
+	* pathname.d (string_concat): ditto
+	(debug_output, debug_printf): removed
+	(DOUT, SDOUT): use object_out() and nobject_out()
+	* debug.d (back_trace_out): moved to spvw_debug.d
+	* spvw_debug.d (asciz_out, asciz_out_s, asciz_out_ss, asciz_out_1)
+	(asciz_out_2, asciz_out_3, asciz_out_1_, asciz_out_2_, asciz_out_3_)
+	(dez_out, dez_out_, hex_out, hex_out_): removed
+	(mem_hex_out): turned into local, use fputs(), not asciz_out()
+	(string_out, nobject_out): non-consing, STACK non-modifying output
+	(back_trace_depth): new function
+	(back_trace_out): moved here, use nobject_out() and STACK_diff()
+
 2002-11-23  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (interpret_bytecode, eval_closure, apply_closure)

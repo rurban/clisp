@@ -689,19 +689,18 @@ local NODE* AVL(AVLID,sort) (NODE* tree) {
 #endif
 
 #ifdef DEBUG_AVL
-/* prints an AVL-tree.
-   uses asciz_out() and hex_out(). */
+/* prints an AVL-tree. */
 local void AVL(AVLID,out) (NODE* tree) {
-  if (!(tree==EMPTY)) {
-    asciz_out("(");
+  if (tree!=EMPTY) {
+    printf("(");
     if (!(tree->nodedata.left==EMPTY)) {
-      AVL(AVLID,out)(tree->nodedata.left); asciz_out("<");
+      AVL(AVLID,out)(tree->nodedata.left); printf("<");
     }
-    hex_out(tree);
+    printf("%x",tree);
     if (!(tree->nodedata.right==EMPTY)) {
-      asciz_out(">"); AVL(AVLID,out)(tree->nodedata.right);
+      printf(">"); AVL(AVLID,out)(tree->nodedata.right);
     }
-    asciz_out(")");
+    printf(")");
   }
 }
 #endif

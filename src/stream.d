@@ -9,8 +9,6 @@
 #include "arilev0.c" # for R_sign
 
 #ifdef GNU_READLINE
-  /* older readline versions appear to need <stdio.h> for FILE* */
-  #include <stdio.h>
   #include <readline/readline.h>
   #include <readline/history.h>
 #endif
@@ -8572,7 +8570,7 @@ local object rd_ch_keyboard (const object* stream_) {
           case 18: case 20:
             break;
           default:
-            asciz_out_3("Unknown keyboard event, VKeyCode = %d, VScanCode = %d, AsciiChar = %d\n",event.Event.KeyEvent.wVirtualKeyCode,event.Event.KeyEvent.wVirtualScanCode,event.Event.KeyEvent.uAsciiChar);
+            fprintf(stderr,"Unknown keyboard event, VKeyCode = %d, VScanCode = %d, AsciiChar = %d\n",event.Event.KeyEvent.wVirtualKeyCode,event.Event.KeyEvent.wVirtualScanCode,event.Event.KeyEvent.uAsciiChar);
         }
         continue;
       found_keycode:

@@ -175,6 +175,6 @@ nonreturning_function(global, OS_file_error, (object pathname)) {
    errno_out(errorcode);
    > LONG errorcode: error code */
 global void errno_out (LONG errorcode) {
-  asciz_out(" IoErr() = "); dez_out(errorcode); asciz_out("." NLstring);
+  fprintf(stderr," IoErr() = %d\n",errorcode);
 }
 

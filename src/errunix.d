@@ -724,29 +724,22 @@
     #define translate(string)  string
   #endif
 
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
-  # errno_out(errorcode);
-  # > int errorcode: Fehlercode
-    global void errno_out (int errorcode);
-    global void errno_out(errorcode)
-      var int errorcode;
-      {
-        asciz_out(" errno = ");
-        var os_error_t errormsg;
-        get_errormsg(errorcode,&errormsg);
-        errormsg.msg = translate(errormsg.msg);
-        if (errormsg.name[0] != 0 || errormsg.msg[0] != 0) {
-          if (errormsg.name[0] != 0) { # bekannter Name?
-            asciz_out(errormsg.name);
-          } else {
-            dez_out(errorcode);
-          }
-          if (errormsg.msg[0] != 0) { # nichtleere Meldung?
-            asciz_out(": "); asciz_out(errormsg.msg);
-          }
-        } else {
-          dez_out(errorcode);
-        }
-        asciz_out("." NLstring);
-      }
+/* print an error
+ > int errorcode: error code (errno) */
+global void errno_out (int errorcode) {
+  fprintf(stderr," errno = ");
+  var os_error_t errormsg;
+  get_errormsg(errorcode,&errormsg);
+  errormsg.msg = translate(errormsg.msg);
+  if (errormsg.name[0] != 0 || errormsg.msg[0] != 0) {
+    if (errormsg.name[0] != 0) /* known name? */
+      fprintf(stderr,errormsg.name);
+    else
+      fprintf(stderr,"%d",errorcode);
+    if (errormsg.msg[0] != 0) /* message? */
+      fprintf(stderr,": %s",errormsg.msg);
+  } else
+    fprintf(stderr,"%d",errorcode);
+  fprintf(stderr,".\n");
+}
 
