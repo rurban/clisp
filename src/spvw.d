@@ -1,6 +1,6 @@
 # (SPVW = Speicherverwaltung): Memory Management for CLISP
-# Bruno Haible 1990-2002
-# Sam Steingold 1998-2002
+# Bruno Haible 1990-2003
+# Sam Steingold 1998-2003
 # German comments translated into English: Stefan Kain 2002-03-24
 
 # Content:
@@ -1589,7 +1589,7 @@ local void print_banner ()
    "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998" NLstring,
-   "Copyright (c) Bruno Haible, Sam Steingold 1999-2002" NLstring,
+   "Copyright (c) Bruno Haible, Sam Steingold 1999-2003" NLstring,
   };
   #ifdef AMIGA
   var const char * banner2 =
