@@ -3795,7 +3795,7 @@ elif [ $HOS = win32 ] ; then
     echotab "cp clisp-link clisp.exe \$\$distdir/; \\"
   fi
   if [ -n "${USE_GETTEXT}" ]; then
-    echotab "cp -r locale/ \$\$distdir/"
+    echotab "cp -r locale/ \$\$distdir/; \\"
   fi
   if [ "${with_dynamic_modules}" != no ]; then
     echotab "mkdir \$\$distdir/dynmod ; \\"
