@@ -123,9 +123,9 @@ to print the corresponding values, or T for all of them.")
     (clear-output target-stream)
 ) )
 
+;; Returns the length of the list, or nil if circular.
+;; The second value is the last atom (i.e., `dotted-p').
 (defun list-length-dotted (obj)
-  ;; return the length of the list or nil if circular
-  ;; the second value is the last atom (i.e., `dotted-p')
   ;; cf. function list-length in CLtL p. 265
   (do ((nn 0 (+ nn 2))
        (fast obj (cddr fast))
