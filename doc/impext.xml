@@ -3388,6 +3388,34 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    Blocks until the server accepts the connections.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
+    role="sexp">(<function>lisp:socket-status</function>
+                 <replaceable>socket-or-list</replaceable>
+                 &optional-amp; [<replaceable>seconds</replaceable>
+                 [<replaceable>microseconds</replaceable>]])</literal></term>
+  <listitem><simpara>Checks whether it is possible to read from or write
+   to a socket stream.</simpara>
+   <simpara><replaceable>socket-or-list</replaceable> is an open socket
+   stream (one symbol is returned) or a list of streams (a list of
+   symbols, one for each stream, is returned).</simpara>
+   <simpara>For each stream returns</simpara>
+   <variablelist>
+    <varlistentry><term>&nil;</term>
+     <listitem><simpara>when no information is available or no operation
+      is possible</simpara></listitem></varlistentry>
+    <varlistentry><term>&error-k;</term>
+     <listitem><simpara>when an i/o operation will cause an
+      error</simpara></listitem></varlistentry>
+    <varlistentry><term>&input-k;</term>
+     <listitem><simpara>when you can only read from the
+      stream</simpara></listitem></varlistentry>
+    <varlistentry><term>&output-k;</term>
+     <listitem><simpara>when you can only write to the
+      stream</simpara></listitem></varlistentry>
+    <varlistentry><term>&io-k;</term>
+     <listitem><simpara>when you can both read from and write to the
+      stream</simpara></listitem></varlistentry>
+  </variablelist></listitem></varlistentry>
+ <varlistentry><term><literal
     role="sexp">(<function>lisp:socket-stream-host</function>
                  <replaceable>socket-stream</replaceable>)</literal>,
    <literal role="sexp">(<function>lisp:socket-stream-port</function>
