@@ -486,19 +486,6 @@
 (proclaim '(special *toplevel-denv*))
 (setq *toplevel-denv* (svref *toplevel-environment* 4))
 
-;; returns the name of the implicit block for a function-name
-(defun function-block-name (funname)
-  (if (atom funname) funname (second funname)))
-
-;; inserts an implicit BLOCK in the BODY.
-;; uses *VENV* and *FENV*.
-(defun add-implicit-block (name body)
-  (multiple-value-bind (body-rest declarations docstring)
-      (sys::parse-body body t)
-    (append (if declarations (list (cons 'DECLARE declarations)))
-            (if docstring (list docstring))
-            (list (list* 'BLOCK (function-block-name name) body-rest)))))
-
 ;;; functions for expansion of macros within a piece of code
 ;;;
 ;;; Altogether, the whole Code (of a function) is walked through and

@@ -1,5 +1,9 @@
 2003-12-05  Sam Steingold  <sds@gnu.org>
 
+	code re-arrangement and streamlining
+	* init.lisp, eval.d (ADD-IMPLICIT-BLOCK, FUNCTION-BLOCK-NAME):
+	moved to eval.d from init.lisp (already implemented in C anyway!)
+	* constsym.d, subr.d (add_implicit_block, function_block_name): added
 	* control.d (PARSE-BODY): do not macroexpand anything as per ANSI
 	CL (see also patch 2003-02-14); use parse_dd() for all the work;
 	do not accept ENV argument
