@@ -104,6 +104,9 @@ LET* mit x: bound: ab der nächsten initform, bind after corresponding initform
 LAMBDA: erst alle Argumente auswerten, dann erst die vorhandenen Parameter
 binden, dann jeweils initform und binden.
 <http://groups-beta.google.com/group/comp.lang.lisp/browse_thread/thread/6a9841771d95feb2?tvc=2>
+Another example is:
+(let ((x 5)) (let ((x (1+ x))) (declare (special x)) (print x)))
+should print 6.
 
 
 (directory "/proc/self/*" :full t )
