@@ -1967,19 +1967,20 @@ performance considerations.
 <formalpara><title>Rationale</title>
 <para>In &clisp;, &nl-s; is identical to &lf-s;
  (which is specifically permitted by &ansi-cl; in section
- <ulink url="http://www.lisp.org/HyperSpec/Body/sec_13-1-7.html">Character
-  Names</ulink>).
+ <ulink url="&clhs;/Body/sec_13-1-7.html">13.1.7 <quote>Character
+   Names</quote></ulink>).
  Consider a file containing exactly this string:
- <code>(&concatenate; 'string "foo" (string &lf-s;)
-  "bar" (string &cr-s;) (string &lf-s;))</code>
+ <code>(&concatenate; '&string-any; "foo" (&string; &lf-s;)
+  "bar" (&string; &cr-s;) (&string; &lf-s;))</code>
  Suppose we open it with <code>(&open; "foo" &extfmt; &dos-k;)</code>.
  What should &read-line; return?
  Right now, it returns <returnvalue>"foo"</returnvalue>
  (the second &read-line; returns <returnvalue>"bar"</returnvalue>
  and reaches &eos;).
- If our i/o were "faithful", &read-line; would have returned the string
- <code>(&concatenate; 'string "foo" (string &lf-s;) "bar")</code>, i.e.,
- a string with an embedded &nl-s; between <returnvalue>"foo"</returnvalue>
+ If our i/o were <quote>faithful</quote>, &read-line; would have
+ returned the string <code>(&concatenate; '&string-any; "foo" (&string;
+  &lf-s;) "bar")</code>, i.e., a string with an embedded &nl-s;
+ between <returnvalue>"foo"</returnvalue>
  and <returnvalue>"bar"</returnvalue> (because a single &lf-s; is not a
  &nl-s; in the specified &extfmt;, it will not make &read-line; return,
  but it &is-e; a &clisp; &nl-s;!)  Even though the specification for
@@ -1995,7 +1996,7 @@ performance considerations.
    <ulink url="&clhs;/Body/sec_13-1-9.html">[CLHS-13.1.9]</ulink></title>
 
 <para>The integer returned by &char-int; is the same as the character's
- code.</para>
+ code (&char-code;).</para>
 
 </section>
 
@@ -2280,21 +2281,22 @@ and the international alphabetic characters from the character set:
 <chapter id="strings"><title>Strings
    <ulink url="&clhs;/Body/chap-16.html">[CLHS-16]</ulink></title>
 
-<para>String comparison is based on the function &char-leq;.  Therefore
- diphthongs do not obey the usual national rules.  Example:
- <literal>o</literal> &lt; <literal>oe</literal> &lt;
- <literal>z</literal> &lt; <literal>&ouml;</literal>.</para>
-
 <section id="string-dict"><title>The Strings Dictionary
    <ulink url="&clhs;/Body/sec_the_strings_dictionary.html">[CLHS-16.2]</ulink></title>
 
-<section id="string-width"><title>Functions on strings</title>
+<section id="string-comp"><title>String Comparison</title>
+<para>String comparison (&string-lst; and friends) is based on the
+ function &char-leq; (see <xref linkend="char-ord"/>).
+ Therefore diphthongs do not obey the usual national rules.  Example:
+ <literal>o &lt; oe &lt; z &lt; &ouml;</literal>.</para></section>
 
-<formalpara><title>Function &string-width;</title>
- <para><code>(&string-width; &string-r; &key-amp; &start-r;
-   &end-r;)</code> returns the number of screen columns occupied by
-  &string-r;.  This is computed as the sum of all &char-width;s of all
-  of the &string-r;'s characters.</para></formalpara></section>
+<section id="string-width"><title>Function &string-width;</title>
+<para><code>(&string-width; &string-r; &key-amp; &start-r;
+  &end-r;)</code> returns the number of screen columns occupied by
+ &string-r;.  This is computed as the sum of all &char-width;s of all
+ of the &string-r;'s characters:<programlisting language="lisp">
+(&reduce; #'&plus; &string-r; &key-k; #'&char-width;)
+</programlisting></para></section>
 
 </section>
 </chapter>
@@ -2462,7 +2464,7 @@ whether &stablehash-eq; should be preferred over
 
 <para>The <constant>:REHASH-THRESHOLD</constant> argument is ignored.</para>
 
-<para>The <constant>:WEAK</constant> can take the following values:
+<para>The <constant>:WEAK</constant> argument can take the following values:
  <simplelist columns="1">
  <member>&nil; (default)</member>
  <member>&key-k;</member>
