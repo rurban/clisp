@@ -173,6 +173,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
 ;; all `inspection' objects in this session
 (defparameter *inspect-all* (make-array 10 :fill-pointer 0 :adjustable t))
 (defparameter *inspect-debug* 0) ; debug level
+(defvar *inspect-unbound-value*) ; the value for the unbound slots
 
 ;;;
 ;;; backend
@@ -293,8 +294,9 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
     (apply #'make-inspection :num-slots 2
            :nth-slot (lambda (ii)
                        (case ii
-                         (0 (values (if (boundp obj) (symbol-value obj)
-                                        nil) ; #<unbound>?
+                         (0 (values (if (boundp obj)
+                                        (symbol-value obj)
+                                        *inspect-unbound-value*)
                                     :symbol-value))
                          (1 (values (symbol-plist obj) :symbol-plist))))
            :set-slot (lambda (ii val)
@@ -320,10 +322,13 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
              :num-slots (length slots)
              :nth-slot (lambda (ii)
                          (let ((slot (nth ii slots)))
-                           (values (clos:slot-value obj slot) slot)))
+                           (values (if (clos:slot-boundp obj slot)
+                                       (clos:slot-value obj slot)
+                                       *inspect-unbound-value*)
+                                   slot)))
              :set-slot (lambda (ii val)
                          (setf (clos:slot-value obj (nth ii slots)) val))
-             :self obj :title "structure object"
+             :self obj :title "standard object"
              :blurb (list (format nil "type: ~s" (type-of obj))) opts)))
   (:method ((obj ratio) &rest opts)
     (apply #'make-inspection :self obj :title "rational number"
@@ -360,8 +365,8 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
   (let ((insp (etypecase id-or-insp
                 (inspection id-or-insp)
                 (fixnum (aref *inspect-all* id-or-insp)))))
-    (insp-check insp)
     (when insp
+      (insp-check insp)
       (case com
         (:q :q)
         (:s                     ; re-inspect Self
@@ -572,8 +577,8 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
               (with-tag (:h1)
                 (format out "error: wrong command: ~:d/~s" id com))
               (with-tag (:p)
-                (princ "either this is an old inspect session, or a " out))
-              (with-tag (:a :href "https://sourceforge.net/bugs/?func=addbug&group_id=1802") (print "bug" out)))))
+                (princ "either this is an old inspect session, or a " out)
+                (with-tag (:a :href "https://sourceforge.net/bugs/?func=addbug&group_id=1802") (princ "bug" out))))))
     (when (> *inspect-debug* 0)
       (format t "~s [~s]: cmd:~d/~s id:~d~%" 'inspect-frontend frontend
               id com (insp-id insp)))))
@@ -585,14 +590,15 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
 ;;;###autoload
 (defun inspect (object &key (frontend *inspect-frontend*)
                 (browser *inspect-browser*))
-  (let ((*print-array* nil) (*print-pretty* t)
-        (*print-circle* t) (*print-escape* t)
-        #-clisp (*print-lines* *inspect-print-lines*)
-        (*print-level* *inspect-print-level*)
-        (*print-length* *inspect-print-length*)
-        (*package* (make-package (gensym "INSPECT-TMP-PACKAGE-"))) ; for `read'
-        (*inspect-frontend* frontend)
-        (*inspect-browser* browser))
+  (let* ((*print-array* nil) (*print-pretty* t)
+         (*print-circle* t) (*print-escape* t)
+         #-clisp (*print-lines* *inspect-print-lines*)
+         (*print-level* *inspect-print-level*)
+         (*print-length* *inspect-print-length*)
+         (*package* (make-package (gensym "INSPECT-TMP-PACKAGE-")))
+         (*inspect-unbound-value* (intern "#<unbound>" *package*))
+         (*inspect-frontend* frontend)
+         (*inspect-browser* browser))
     (unwind-protect
          (inspect-frontend (inspect-backend object) frontend)
       (inspect-finalize frontend)

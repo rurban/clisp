@@ -1,119 +1,127 @@
+2001-02-07  Sam Steingold  <sds@gnu.org>
+
+	* inspect.lisp: Fixed bug #130567: unbound slots.
+	(*inspect-unbound-value*): new internal variable
+	(inspect-cllib): bind it
+	(inspect-backend): use it for unbound symbols and slots
+	(get-insp): call `insp-check' only when `insp' is non-NIL
+
 2001-02-06  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (ICONV_CONST) [!UNIX]: New macro.
+	* lispbibl.d (ICONV_CONST) [!UNIX]: New macro.
 
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
-        * stream.d (iconv_init): Remove macro, not needed any more since
-          libiconv-1.5.
-          (iconv): Define as macro, to cast second argument.
-          (iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs,
-           iconv_range, ChannelStream_init): Don't call iconv_init.
+	* stream.d (iconv_init): Remove macro, not needed any more since
+	  libiconv-1.5.
+	(iconv): Define as macro, to cast second argument.
+	(iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs,
+	 iconv_range, ChannelStream_init): Don't call iconv_init.
 
 2001-02-04  Sam Steingold  <sds@gnu.org>
-            Bruno Haible  <haible@clisp.cons.org>
+	    Bruno Haible  <haible@clisp.cons.org>
 
-        * pathname.d (whole_namestring): Don't set subr_self.
-          (file_namestring): New function.
-          (FILE-NAMESTRING): Simplification: Call file_namestring.
-          (ENOUGH-NAMESTRING): Set subr_self before calling whole_namestring.
-          (assure_dir_exists): Simplification: Call directory_namestring and
-          whole_namestring.
-          (change_default): Simplification: Call directory_namestring.
-          (NAMESTRING): Set subr_self before calling whole_namestring.
-          (directory_exists): Simplification: Call directory_namestring.
-          (directory_search): Simplification: Call file_namestring.
-
-2001-02-04  Bruno Haible  <haible@clisp.cons.org>
-
-        * autoconf/aclocal.m4 (CL_STDBOOL_H): New macro.
-        * configure.in: Invoke it.
-        * unixconf.h.in (HAVE_STDBOOL_H): New macro.
-        * makemake.in (EVERY_INCLUDES_H): Add stdbool.h, unless the system
-          has it.
-          (stdbool.h): New rule.
-          (clean4): Remove stdbool.h.
-        * lispbibl.d (boolean, FALSE, TRUE): Remove definitions. Include
-          stdbool.h instead.
-        * All *.d: Use bool/false/true instead of boolean/FALSE/TRUE.
-        * genclisph.d (main): Include or copy stdbool.h instead of defining
-          boolean/FALSE/TRUE.
+	* pathname.d (whole_namestring): Don't set subr_self.
+	(file_namestring): New function.
+	(FILE-NAMESTRING): Simplification: Call file_namestring.
+	(ENOUGH-NAMESTRING): Set subr_self before calling whole_namestring.
+	(assure_dir_exists): Simplification: Call directory_namestring and
+	  whole_namestring.
+	(change_default): Simplification: Call directory_namestring.
+	(NAMESTRING): Set subr_self before calling whole_namestring.
+	(directory_exists): Simplification: Call directory_namestring.
+	(directory_search): Simplification: Call file_namestring.
 
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
-        * pathname.d (translate_directory): Don't choke if 'subst' doesn't
-          specify any pieces for the directory.
+	* autoconf/aclocal.m4 (CL_STDBOOL_H): New macro.
+	* configure.in: Invoke it.
+	* unixconf.h.in (HAVE_STDBOOL_H): New macro.
+	* makemake.in (EVERY_INCLUDES_H): Add stdbool.h, unless the system
+	  has it.
+	(stdbool.h): New rule.
+	(clean4): Remove stdbool.h.
+	* lispbibl.d (boolean, FALSE, TRUE): Remove definitions. Include
+	  stdbool.h instead.
+	* All *.d: Use bool/false/true instead of boolean/FALSE/TRUE.
+	* genclisph.d (main): Include or copy stdbool.h instead of defining
+	  boolean/FALSE/TRUE.
 
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
-        * pathname.d (PARSE-NAMESTRING): Make treatment of :HOST argument CLHS
-          compliant.
+	* pathname.d (translate_directory): Don't choke if 'subst' doesn't
+	  specify any pieces for the directory.
 
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
-        * spvw.d (init_symbol_values): Initialize
-          SYS::*LOGICAL-PATHNAME-TRANSLATIONS* to an EQUALP hash table.
+	* pathname.d (PARSE-NAMESTRING): Make treatment of :HOST argument CLHS
+	  compliant.
 
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
-        * pathname.d: Back out Sam's 2001-01-03 and 2001-01-04 patches.
-          (host_namestring_parts): Use "\\\\" instead of twice "\\".
-          (directory_namestring): Include the host namestring parts.
-          (MERGE-PATHNAMES): If pathname's host is NIL but pathname's device
-          is non-NIL, on Win32, don't take the defaults' host+device.
-          (MAKE-PATHNAME): If pathname's host and device are both non-NIL on
-          Win32, signal an error.
-          (use_default_dir) [OS2, WIN32]: If the pathname already has a host:
-          1. Don't insert the default drive. 2. Resolve :RELATIVE to
-          :ABSOLUTE.
-          (assure_dir_exists): Include host_namestring_parts.
-          (directory_exists): Likewise.
-          (CD): Signal error if pathname includes a host.
+	* spvw.d (init_symbol_values): Initialize
+	  SYS::*LOGICAL-PATHNAME-TRANSLATIONS* to an EQUALP hash table.
+
+2001-02-04  Bruno Haible  <haible@clisp.cons.org>
+
+	* pathname.d: Back out Sam's 2001-01-03 and 2001-01-04 patches.
+	(host_namestring_parts): Use "\\\\" instead of twice "\\".
+	(directory_namestring): Include the host namestring parts.
+	(MERGE-PATHNAMES): If pathname's host is NIL but pathname's device
+	  is non-NIL, on Win32, don't take the defaults' host+device.
+	(MAKE-PATHNAME): If pathname's host and device are both non-NIL on
+	  Win32, signal an error.
+	(use_default_dir) [OS2, WIN32]: If the pathname already has a host:
+	  1. Don't insert the default drive. 2. Resolve :RELATIVE to
+	  :ABSOLUTE.
+	(assure_dir_exists): Include host_namestring_parts.
+	(directory_exists): Likewise.
+	(CD): Signal error if pathname includes a host.
 
 2001-02-03  Bruno Haible  <haible@clisp.cons.org>
 
-        * configure: Also copy gettext/autoconf.
-        * makemake.in (libintl.h): Link to gettext/intl/libintl.h.
-        * lispbibl.d (GETTEXTL): New macro.
-          (clgettextl): New declaration.
-        * amigaaux.d: Use GETTEXTL instead of GETTEXT for strings to be output
-          via asciz_out().
-        * spvw.d: Likewise.
-        * spvw_alloca.d: Likewise.
-        * spvw_allocate.d: Likewise.
-        * spvw_fault.d: Likewise.
-        * spvw_garcol.d: Likewise.
-        * spvw_memfile.d: Likewise.
-        * spvw_mmap.d: Likewise.
-        * spvw_multimap.d: Likewise.
-        * spvw_sigsegv.d: Likewise.
-        * spvw_language.d (init_language): Call bindtextdomain also for domain
-          "clisplow". Remove textdomain() call. Call bind_textdomain_codeset.
-          (to_latin_table, from_latin_table, cvgettext): Remove.
-          (clgettext): Call dgettext with domain "clisp".
-          (clgettextl): New function.
-          (localized_string): Check argument must be in ASCII. clgettext()
-          returns value in UTF-8.
-          (localized_object): Likewise.
-        * error.d (write_errorasciz_substring): New function.
-          (write_errorasciz): Use it.
-          (write_errorstring): Move into string segment after segment, not
-          byte after byte.
-        * errunix.d (get_errormsg): Use GETTEXTL instead of GETTEXT, so the
-          strings end up in both clisp.mo and clisplow.mo.
-          (OS_error_internal): Define 'translate' as clgettext, for UTF-8
-          converted translation.
-          (errno_out): Define 'translate' as clgettextl, for locale dependent
-          encoded translation.
+	* configure: Also copy gettext/autoconf.
+	* makemake.in (libintl.h): Link to gettext/intl/libintl.h.
+	* lispbibl.d (GETTEXTL): New macro.
+	(clgettextl): New declaration.
+	* amigaaux.d: Use GETTEXTL instead of GETTEXT for strings to be output
+	  via asciz_out().
+	* spvw.d: Likewise.
+	* spvw_alloca.d: Likewise.
+	* spvw_allocate.d: Likewise.
+	* spvw_fault.d: Likewise.
+	* spvw_garcol.d: Likewise.
+	* spvw_memfile.d: Likewise.
+	* spvw_mmap.d: Likewise.
+	* spvw_multimap.d: Likewise.
+	* spvw_sigsegv.d: Likewise.
+	* spvw_language.d (init_language): Call bindtextdomain also for domain
+	  "clisplow". Remove textdomain() call. Call bind_textdomain_codeset.
+	(to_latin_table, from_latin_table, cvgettext): Remove.
+	(clgettext): Call dgettext with domain "clisp".
+	(clgettextl): New function.
+	(localized_string): Check argument must be in ASCII. clgettext()
+	  returns value in UTF-8.
+	(localized_object): Likewise.
+	* error.d (write_errorasciz_substring): New function.
+	(write_errorasciz): Use it.
+	(write_errorstring): Move into string segment after segment, not
+	  byte after byte.
+	* errunix.d (get_errormsg): Use GETTEXTL instead of GETTEXT, so the
+	  strings end up in both clisp.mo and clisplow.mo.
+	(OS_error_internal): Define 'translate' as clgettext, for UTF-8
+	  converted translation.
+	(errno_out): Define 'translate' as clgettextl, for locale dependent
+	  encoded translation.
 
 2001-02-01  Bruno Haible  <haible@clisp.cons.org>
 
-        * io.d (pr_sstring_ab): Make GC safe.
+	* io.d (pr_sstring_ab): Make GC safe.
 
 2001-02-01  Bruno Haible  <haible@clisp.cons.org>
 
-        * stream.d (read_line): When EOF was reached, always set
-          strm_rd_ch_last to eof_value.
+	* stream.d (read_line): When EOF was reached, always set
+	  strm_rd_ch_last to eof_value.
 
 2001-01-29  Sam Steingold  <sds@gnu.org>
 
