@@ -1818,48 +1818,80 @@
                               ,@req-dummies
                               ,@(if rest-dummy `(&REST ,rest-dummy) '())
                              )
-                             (MACROLET
-                               ((CALL-NEXT-METHOD (&REST NEW-ARG-EXPRS)
-                                  (IF NEW-ARG-EXPRS
-                                    (LIST 'IF ',cont
-                                      ; Let's do argument checking in the interpreter only
-                                      (LIST 'IF '(EVAL-WHEN (EVAL) T)
-                                        (LIST '%CALL-NEXT-METHOD
-                                          ',self
-                                          ',cont
-                                          (LIST ',(if rest-dummy 'LIST* 'LIST)
-                                            ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                            ,@(if rest-dummy `(',rest-dummy) '())
-                                          )
-                                          (CONS 'LIST NEW-ARG-EXPRS)
-                                        )
-                                        (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
-                                      )
-                                      (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS)
-                                    )
-                                    ,(if rest-dummy
-                                       `(LIST 'IF ',cont
-                                          (LIST 'APPLY ',cont
-                                            ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                            ',rest-dummy
-                                          )
-                                          (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
-                                            ',self
-                                            ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                            ',rest-dummy
-                                        ) )
-                                       `(LIST 'IF ',cont
-                                          (LIST 'FUNCALL ',cont
-                                            ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                          )
-                                          (LIST '%NO-NEXT-METHOD
-                                            ',self
-                                            ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                        ) )
+                             (SYSTEM::FUNCTION-MACRO-LET
+                               ((CALL-NEXT-METHOD
+                                  ((&REST NEW-ARGS)
+                                   (IF NEW-ARGS
+                                     (IF ,cont
+                                       ; Let's do argument checking in the interpreter only
+                                       (IF (EVAL-WHEN (EVAL) T)
+                                         (%CALL-NEXT-METHOD
+                                           ,self
+                                           ,cont
+                                           ,(if rest-dummy
+                                              `(LIST* ,@req-dummies ,rest-dummy)
+                                              `(LIST ,@req-dummies)
+                                            )
+                                           NEW-ARGS
+                                         )
+                                         (APPLY ,cont NEW-ARGS)
+                                       )
+                                       (APPLY (FUNCTION %NO-NEXT-METHOD) ,self NEW-ARGS)
                                      )
-                                ) )
-                                (NEXT-METHOD-P () ',cont)
-                               )
+                                     ,(if rest-dummy
+                                        `(IF ,cont
+                                           (APPLY ,cont ,@req-dummies ,rest-dummy)
+                                           (APPLY (FUNCTION %NO-NEXT-METHOD) ,self ,@req-dummies ,rest-dummy)
+                                         )
+                                        `(IF ,cont
+                                           (FUNCALL ,cont ,@req-dummies)
+                                           (%NO-NEXT-METHOD ,self ,@req-dummies)
+                                         )
+                                      )
+                                  ))
+                                  ((&REST NEW-ARG-EXPRS)
+                                   (IF NEW-ARG-EXPRS
+                                     (LIST 'IF ',cont
+                                       ; Let's do argument checking in the interpreter only
+                                       (LIST 'IF '(EVAL-WHEN (EVAL) T)
+                                         (LIST '%CALL-NEXT-METHOD
+                                           ',self
+                                           ',cont
+                                           (LIST ',(if rest-dummy 'LIST* 'LIST)
+                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                             ,@(if rest-dummy `(',rest-dummy) '())
+                                           )
+                                           (CONS 'LIST NEW-ARG-EXPRS)
+                                         )
+                                         (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
+                                       )
+                                       (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS)
+                                     )
+                                     ,(if rest-dummy
+                                        `(LIST 'IF ',cont
+                                           (LIST 'APPLY ',cont
+                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                             ',rest-dummy
+                                           )
+                                           (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
+                                             ',self
+                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                             ',rest-dummy
+                                         ) )
+                                        `(LIST 'IF ',cont
+                                           (LIST 'FUNCALL ',cont
+                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                           )
+                                           (LIST '%NO-NEXT-METHOD
+                                             ',self
+                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                         ) )
+                                      )
+                                )) )
+                                (NEXT-METHOD-P
+                                  (() ,cont)
+                                  (() ',cont)
+                               ))
                                ; neuer Body:
                                ,(if rest-dummy
                                   `(APPLY (FUNCTION ,lambda-expr)
@@ -1869,20 +1901,37 @@
                                 )
                             ))
                          )
-                         `(,@lambdabody-part1
-                           (MACROLET
-                             ((CALL-NEXT-METHOD ()
-                                (ERROR-OF-TYPE 'PROGRAM-ERROR
-                                  (ENGLISH "~S ~S: ~S is invalid within ~S methods")
-                                  ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)
-                              ) )
-                              (NEXT-METHOD-P ()
-                                (ERROR-OF-TYPE 'PROGRAM-ERROR
-                                  (ENGLISH "~S ~S: ~S is invalid within ~S methods")
-                                  ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers)
-                             )) )
-                             ,@lambdabody-part2
-                          ))
+                         (let ((errorform1
+                                 `(ERROR-OF-TYPE 'PROGRAM-ERROR
+                                    (ENGLISH "~S ~S: ~S is invalid within ~S methods")
+                                    ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)
+                                  )
+                               )
+                               (errorform2
+                                 `(ERROR-OF-TYPE 'PROGRAM-ERROR
+                                    (ENGLISH "~S ~S: ~S is invalid within ~S methods")
+                                    ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers)
+                                  )
+                              ))
+                           `(,@lambdabody-part1
+                             (SYSTEM::FUNCTION-MACRO-LET
+                               ((CALL-NEXT-METHOD
+                                  ((&REST NEW-ARGS)
+                                   (DECLARE (IGNORE NEW-ARGS))
+                                   ,errorform1 ; error at run time
+                                  )
+                                  ((&REST NEW-ARG-EXPRS)
+                                   (DECLARE (IGNORE NEW-ARG-EXPRS))
+                                   ,errorform1 ; error at macroexpansion time
+                                  )
+                                )
+                                (NEXT-METHOD-P
+                                  (() ,errorform2) ; error at run time
+                                  (() ,errorform2) ; error at macroexpansion time
+                               ))
+                               ,@lambdabody-part2
+                            ))
+                          )
                 )) ) ) )
             `(MAKE-STANDARD-METHOD
                :INITFUNCTION
