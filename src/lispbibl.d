@@ -1720,7 +1720,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
     #if (__GNUC__ > 2) || (__GNUC_MINOR__ >= 7) # circumvent gcc-2.6.3 bug
       # Typechecking by the C-compiler
       #define OBJECT_STRUCT
-      #if !(defined(MC680X0) || defined(ARM)) # only if struct_alignment==1
+      #if !(defined(MC680X0) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) # only if struct_alignment==1, and not with g++ 3.3
         #define CHART_STRUCT
       #endif
     #endif
