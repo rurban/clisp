@@ -79,42 +79,45 @@
 
 ;; For GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
 
-(defun make-generic-function-form (caller funname lambda-list options)
+(defun make-generic-function-form (caller whole-form funname lambda-list options)
   (multiple-value-bind (signature argument-precedence-order method-combo method-class-form method-forms)
-      (analyze-defgeneric caller funname lambda-list options)
+      (analyze-defgeneric caller whole-form funname lambda-list options)
     (declare (ignore signature))
     `(MAKE-GENERIC-FUNCTION ',funname ',lambda-list ',argument-precedence-order ',method-combo ,method-class-form
                             ,@method-forms)))
 
 #| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,
  but not a macro, so this definition violates the standard
- (defmacro generic-function (lambda-list &rest options)
-  (make-generic-function-form 'generic-function 'LAMBDA
+ (defmacro generic-function (&whole whole-form
+                             lambda-list &rest options)
+  (make-generic-function-form 'generic-function whole-form 'LAMBDA
                               lambda-list options))
 |#
 
 ;; For GENERIC-FLET, GENERIC-LABELS
-(defun analyze-generic-fundefs (caller fundefs)
+(defun analyze-generic-fundefs (caller whole-form fundefs)
   (let ((names '())
         (funforms '()))
     (dolist (fundef fundefs)
       (unless (and (consp fundef) (consp (cdr fundef)))
         (error-of-type 'ext:source-program-error
-          :form fundef
+          :form whole-form
+          :detail fundef
           (TEXT "~S: ~S is not a generic function specification")
           caller fundef))
       (push (first fundef) names)
       (push (make-generic-function-form
-             caller (first fundef) (second fundef) (cddr fundef))
+             caller whole-form (first fundef) (second fundef) (cddr fundef))
             funforms))
     (values (nreverse names) (nreverse funforms))))
 
 
 ;;; GENERIC-FLET
 
-(defmacro generic-flet (fundefs &body body)
+(defmacro generic-flet (&whole whole-form
+                        fundefs &body body)
   (multiple-value-bind (funnames funforms)
-      (analyze-generic-fundefs 'generic-flet fundefs)
+      (analyze-generic-fundefs 'generic-flet whole-form fundefs)
     (let ((varnames (gensym-list funnames)))
       `(LET ,(mapcar #'list varnames funforms)
          (FLET ,(mapcar #'(lambda (varname funname)
@@ -124,9 +127,10 @@
 
 ;;; GENERIC-LABELS
 
-(defmacro generic-labels (fundefs &body body)
+(defmacro generic-labels (&whole whole-form
+                          fundefs &body body)
   (multiple-value-bind (funnames funforms)
-      (analyze-generic-fundefs 'generic-labels fundefs)
+      (analyze-generic-fundefs 'generic-labels whole-form fundefs)
     (let ((varnames (gensym-list funnames)))
       `(LET ,varnames
          (FLET ,(mapcar #'(lambda (varname funname)

@@ -9,19 +9,23 @@
 ;; that it works on a special form without replacing the special form
 ;; handler. ANSI CL requires that all standard macros, even when implemented
 ;; as special forms, have a macro expander available.
-(defmacro defmacro-special (&body macrodef)
-  (multiple-value-bind (expansion name) (make-macro-expansion macrodef)
+(defmacro defmacro-special (&whole whole-form
+                            &body macrodef)
+  (multiple-value-bind (expansion name) (make-macro-expansion macrodef whole-form)
     `(SYSTEM::%PUT ',name 'SYSTEM::MACRO ,expansion)))
 
-(defmacro defvar (symbol &optional (initial-value nil svar) docstring)
+(defmacro defvar (&whole whole-form
+                  symbol &optional (initial-value nil svar) docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      :form symbol
+      :form whole-form
+      :detail symbol
       (TEXT "~S: non-symbol ~S cannot be a variable")
       'defvar symbol))
   (if (constantp symbol)
     (error-of-type 'source-program-error
-      :form symbol
+      :form whole-form
+      :detail symbol
       (TEXT "~S: the constant ~S must not be redefined to be a variable")
       'defvar symbol))
   `(LET ()
@@ -33,15 +37,18 @@
            `((SYS::%SET-DOCUMENTATION ',symbol 'VARIABLE ',docstring)))
      ',symbol))
 
-(defmacro defparameter (symbol initial-value &optional docstring)
+(defmacro defparameter (&whole whole-form
+                        symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      :form symbol
+      :form whole-form
+      :detail symbol
       (TEXT "~S: non-symbol ~S cannot be a variable")
       'defparameter symbol))
   (if (constantp symbol)
     (error-of-type 'source-program-error
-      :form symbol
+      :form whole-form
+      :detail symbol
       (TEXT "~S: the constant ~S must not be redefined to be a variable")
       'defparameter symbol))
   `(LET ()
@@ -50,10 +57,12 @@
      ,@(if docstring `((SYS::%SET-DOCUMENTATION ',symbol 'VARIABLE ',docstring)))
      ',symbol))
 
-(defmacro defconstant (&whole form symbol initial-value &optional docstring)
+(defmacro defconstant (&whole whole-form
+                       symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      :form symbol
+      :form whole-form
+      :detail symbol
       (TEXT "~S: non-symbol ~S cannot be defined constant")
       'defconstant symbol))
   (let ((initial-var (gensym)))
@@ -64,10 +73,10 @@
          (IF (CONSTANTP ',symbol)
            (UNLESS (CONSTANT-EQL ,initial-value ,initial-var
                                  (SYMBOL-VALUE ',symbol))
-             (CONSTANT-WARNING ',symbol ',form)))
+             (CONSTANT-WARNING ',symbol ',whole-form)))
          (SYS::%PROCLAIM-CONSTANT ',symbol ,initial-var)
          ,@(if docstring
-               `((SYS::%SET-DOCUMENTATION ',symbol 'VARIABLE ',docstring)))
+             `((SYS::%SET-DOCUMENTATION ',symbol 'VARIABLE ',docstring)))
          ',symbol))))
 ; For inhibiting warnings about redefining constants when the old and the new
 ; value are the same string / bit vector:
@@ -125,15 +134,17 @@
   (let ((tag (gensym)))
     `(BLOCK NIL (TAGBODY ,tag ,@body (GO ,tag)))))
 
-(defun do/do*-expand (varclauselist exitclause body do let psetq)
+(defun do/do*-expand (whole-form varclauselist exitclause body do let psetq)
   (when (atom exitclause)
     (error-of-type 'source-program-error
-      :form exitclause
+      :form whole-form
+      :detail exitclause
       (TEXT "exit clause in ~S must be a list")
       do))
   (flet ((bad-syntax (formpiece)
            (error-of-type 'source-program-error
-             :form formpiece
+             :form whole-form
+             :detail formpiece
              (TEXT "Invalid syntax in ~S form: ~S.") do formpiece)))
     (let ((bindlist nil)
           (reinitlist nil)
@@ -180,11 +191,13 @@
               (RETURN-FROM NIL (PROGN ,@(rest exitclause))))))))))
 
 (fmakunbound 'do)
-(defmacro do (varclauselist exitclause &body body)
-  (do/do*-expand varclauselist exitclause body 'DO 'LET 'PSETQ))
+(defmacro do (&whole whole-form
+              varclauselist exitclause &body body)
+  (do/do*-expand whole-form varclauselist exitclause body 'DO 'LET 'PSETQ))
 
-(defmacro do* (varclauselist exitclause &body body)
-  (do/do*-expand varclauselist exitclause body 'DO* 'LET* 'SETQ))
+(defmacro do* (&whole whole-form
+               varclauselist exitclause &body body)
+  (do/do*-expand whole-form varclauselist exitclause body 'DO* 'LET* 'SETQ))
 
 (defmacro dolist ((var listform &optional resultform) &body body)
   (multiple-value-bind (body-rest declarations) (sys::parse-body body)
@@ -220,7 +233,8 @@
            ,@declarations
            ,@body-rest)))))
 
-(defmacro-special psetq (&whole form &rest args)
+(defmacro-special psetq (&whole whole-form
+                         &rest args)
   (do* ((setlist nil)
         (bindlist nil)
         (arglist args (cddr arglist)))
@@ -229,9 +243,10 @@
         (cons 'LET (cons (nreverse bindlist) (nreverse setlist))))
     (if (null (cdr arglist))
       (error-of-type 'source-program-error
-        :form form
+        :form whole-form
+        :detail whole-form
         (TEXT "~S called with an odd number of arguments: ~S")
-        'psetq form))
+        'psetq whole-form))
     (let ((g (gensym)))
       (setq setlist (cons `(SETQ ,(first arglist) ,g) setlist))
       (setq bindlist (cons `(,g ,(second arglist)) bindlist)))))
@@ -256,7 +271,7 @@
 (defmacro-special locally (&body body)
   `(LET () ,@body))
 
-(defun case-expand (form-name test keyform clauses)
+(defun case-expand (whole-form form-name test keyform clauses)
   (let ((var (gensym (string-concat (symbol-name form-name) "-KEY-"))))
     `(let ((,var ,keyform))
       (cond
@@ -266,14 +281,16 @@
                      (remaining-clauses (rest remaining-clauses)))
                  (unless (consp clause)
                    (error-of-type 'source-program-error
-                     :form clause
+                     :form whole-form
+                     :detail clause
                      (TEXT "~S: missing key list")
                      form-name))
                  (let ((keys (first clause)))
                    `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
                              (if remaining-clauses
                                  (error-of-type 'source-program-error
-                                   :form remaining-clauses
+                                   :form whole-form
+                                   :detail clause
                                    (TEXT "~S: the ~S clause must be the last one")
                                    form-name keys)
                                  't))
@@ -285,10 +302,12 @@
                      ,@(rest clause)))))
            clauses)))))
 
-(defmacro fcase (test keyform &body clauses)
-  (case-expand 'fcase test keyform clauses))
-(defmacro-special case (keyform &body clauses)
-  (case-expand 'case 'eql keyform clauses))
+(defmacro fcase (&whole whole-form
+                 test keyform &body clauses)
+  (case-expand whole-form 'fcase test keyform clauses))
+(defmacro-special case (&whole whole-form
+                        keyform &body clauses)
+  (case-expand whole-form 'case 'eql keyform clauses))
 
 (defmacro prog (varlist &body body)
   (multiple-value-bind (body-rest declarations) (sys::parse-body body)
@@ -314,22 +333,25 @@
 #|
 ;; Dieser hier ist zwar kürzer, aber er reduziert COND auf OR,
 ;; das seinerseits wieder auf COND reduziert, ...
- (defmacro-special cond (&body clauses)
-  (ifify clauses))
+ (defmacro-special cond (&whole whole-form
+                         &body clauses)
+  (ifify whole-form clauses))
 ;; macht eine clauselist von COND zu verschachtelten IFs und ORs.
- (defun ifify (clauselist)
+ (defun ifify (whole-form clauselist)
   (cond ((null clauselist) NIL)
         ((atom clauselist)
          (error-of-type 'source-program-error
-           :form clauselist
+           :form whole-form
+           :detail clauselist
            (TEXT "Not a list of COND clauses: ~S")
            clauselist))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
-           :form (car clauselist)
+           :form whole-form
+           :detail (car clauselist)
            (TEXT "The atom ~S must not be used as a COND clause.")
            (car clauselist)))
-        (t (let ((ifif (ifify (cdr clauselist))))
+        (t (let ((ifif (ifify whole-form (cdr clauselist))))
              (if (cdar clauselist)
                ; mindestens zweielementige Klausel
                (if (constantp (caar clauselist))
@@ -352,17 +374,20 @@
 
 ;; Noch einfacher ginge es auch so:
 #|
- (defmacro-special cond (&body clauses)
+ (defmacro-special cond (&whole whole-form
+                         &body clauses)
   (cond ((null clauses) 'NIL)
         ((atom clauses)
          (error-of-type 'source-program-error
-           :form clauses
+           :form whole-form
+           :detail clauses
            (TEXT "COND code contains a dotted list, ending with ~S")
            clauses))
         (t (let ((clause (car clauses)))
              (if (atom clause)
                (error-of-type 'source-program-error
-                 :form clause
+                 :form whole-form
+                 :detail clause
                  (TEXT "COND clause without test: ~S")
                  clause)
                (let ((test (car clause)))
@@ -372,27 +397,30 @@
 |#
 
 ;; Dieser hier reduziert COND etwas umständlicher auf IF-Folgen:
-(defmacro-special cond (&body clauses)
+(defmacro-special cond (&whole whole-form
+                        &body clauses)
   (let ((g (gensym)))
-    (multiple-value-bind (ifif needed-g) (ifify clauses g)
+    (multiple-value-bind (ifif needed-g) (ifify whole-form clauses g)
       (if needed-g
         `(LET (,g) ,ifif)
         ifif))))
 ; macht eine clauselist von COND zu verschachtelten IFs.
 ; Zwei Werte: die neue Form, und ob die Dummyvariable g benutzt wurde.
-(defun ifify (clauselist g)
+(defun ifify (whole-form clauselist g)
   (cond ((null clauselist) (values NIL nil))
         ((atom clauselist)
          (error-of-type 'source-program-error
-           :form clauselist
+           :form whole-form
+           :detail clauselist
            (TEXT "Not a list of COND clauses: ~S")
            clauselist))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
-           :form (car clauselist)
+           :form whole-form
+           :detail (car clauselist)
            (TEXT "The atom ~S must not be used as a COND clause.")
            (car clauselist)))
-        (t (multiple-value-bind (ifif needed-g) (ifify (cdr clauselist) g)
+        (t (multiple-value-bind (ifif needed-g) (ifify whole-form (cdr clauselist) g)
              (if (cdar clauselist)
                ; mindestens zweielementige Klausel
                (if (constantp (caar clauselist))

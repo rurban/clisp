@@ -5292,7 +5292,8 @@ for-value   NIL or T
                    (fnode (c-lambdabody
                             (symbol-suffix (fnode-name *func*) name)
                             (second funmacdef)))
-                   (macro (make-macro-expander (cons name (third funmacdef)))))
+                   (macro (make-macro-expander (cons name (third funmacdef))
+                                               *form*)))
               (push name L1)
               (push fnode L2)
               (push macro L3))
@@ -5363,10 +5364,10 @@ for-value   NIL or T
             (let ((name (first fdef)))
               (push name L1)
               (push (clos::defgeneric-lambdalist-callinfo 'clos:generic-flet
-                        name (second fdef))
+                      *form* name (second fdef))
                     L2)
               (push (clos::make-generic-function-form 'clos:generic-flet
-                      name (second fdef) (cddr fdef))
+                      *form* name (second fdef) (cddr fdef))
                     L3))
             (err-syntax 'CLOS:GENERIC-FLET fdef))))
     ;; namelist = list of Names,
@@ -5441,12 +5442,12 @@ for-value   NIL or T
                           ;; fdescr
                           (list* nil 'GENERIC
                                  (clos::defgeneric-lambdalist-callinfo
-                                     'clos:generic-labels name (second fdef)))
+                                   'clos:generic-labels *form* name (second fdef)))
                           ;; Variable
                           (car L2))
                         L3)
                   (push (clos::make-generic-function-form 'clos:generic-labels
-                          name (second fdef) (cddr fdef))
+                          *form* name (second fdef) (cddr fdef))
                         L4))
                 (err-syntax 'CLOS:GENERIC-LABELS fdef))))
         ;; namelist = liste of Names, varlist = list of Variables,
@@ -5476,7 +5477,7 @@ for-value   NIL or T
     (let* ((macrodef (car L1))
            (name (car macrodef)))
       (push name L2)
-      (push (make-macro-expander macrodef) L2))))
+      (push (make-macro-expander macrodef *form*) L2))))
 
 ;; compile (SYMBOL-MACROLET ({symdef}*) {declaration}* {form}*)
 (defun c-SYMBOL-MACROLET (&optional (c #'c-form))
@@ -10386,7 +10387,9 @@ The function make-closure is required.
       (when (and error-when-failed-p (not (zerop *error-count*)))
         (let ((form (cons name lambdabody)))
           (error-of-type 'source-program-error
-            :form form (TEXT "~S cannot be compiled") form)))
+            :form form
+            :detail form
+            (TEXT "~S cannot be compiled") form)))
       funobj)))
 
 ;; is called for (lambda (...) (declare (compile)) ...) and returns a

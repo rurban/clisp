@@ -73,7 +73,8 @@
                             (if (keywordp argform)
                               (push argform new-access-form)
                               (error-of-type 'source-program-error
-                                :form argform
+                                :form form
+                                :detail argform
                                 (TEXT "The argument ~S to ~S should be a keyword.")
                                 argform (car access-form)
                             ) )
@@ -126,6 +127,7 @@
         )) )
         (t (error-of-type 'source-program-error
              :form form
+             :detail form
              (TEXT "~S: Argument ~S is not a SETF place.")
              'get-setf-expansion form))))
 ;;;----------------------------------------------------------------------------
@@ -135,6 +137,7 @@
     (unless (and (consp stores) (null (cdr stores)))
       (error-of-type 'source-program-error
         :form form
+        :detail form
         (TEXT "SETF place ~S produces more than one store variable.")
         form
     ) )
@@ -173,18 +176,21 @@
                ,ns)))))))
 ;;;----------------------------------------------------------------------------
 (eval-when (load compile eval)
-  (defun check-accessor-name (accessfn)
+  (defun check-accessor-name (accessfn whole-form)
     (unless (symbolp accessfn)
       (error-of-type 'source-program-error
-        :form accessfn
+        :form whole-form
+        :detail accessfn
         (TEXT "The name of the accessor must be a symbol, not ~S")
         accessfn))))
-(defmacro define-setf-expander (accessfn lambdalist &body body)
-  (check-accessor-name accessfn)
+(defmacro define-setf-expander (&whole whole-form
+                                accessfn lambdalist &body body)
+  (check-accessor-name accessfn whole-form)
   (multiple-value-bind (body-rest declarations docstring)
       (system::parse-body body t)
     (if (null body-rest) (setq body-rest '(NIL)))
-    (let ((name (make-symbol (string-concat "SETF-" (symbol-name accessfn)))))
+    (let ((name (make-symbol (string-concat "SETF-" (symbol-name accessfn))))
+          (SYSTEM::%WHOLE-FORM whole-form))
       (multiple-value-bind (newlambdalist envvar)
           (remove-env-arg lambdalist name)
         (let ((SYSTEM::%ARG-COUNT 0)
@@ -239,8 +245,9 @@
              ) )
 ) ) ) ) ) )
 ;;;----------------------------------------------------------------------------
-(defmacro defsetf (accessfn &rest args)
-  (check-accessor-name accessfn)
+(defmacro defsetf (&whole whole-form
+                   accessfn &rest args)
+  (check-accessor-name accessfn whole-form)
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
          `(EVAL-WHEN (LOAD COMPILE EVAL)
             (LET ()
@@ -256,11 +263,13 @@
                    (second args)
                    (if (cddr args)
                      (error-of-type 'source-program-error
-                       :form (cdr args)
+                       :form whole-form
+                       :detail (cdr args)
                        (TEXT "~S: Too many arguments: ~S")
                        'defsetf (cdr args))
                      (error-of-type 'source-program-error
-                       :form (second args)
+                       :form whole-form
+                       :detail (second args)
                        (TEXT "~S: The documentation string must be a string: ~S")
                        'defsetf (second args))))
               )
@@ -270,7 +279,8 @@
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
          (when (null (second args))
            (error-of-type 'source-program-error
-             :form args
+             :form whole-form
+             :detail args
              (TEXT "~S ~S: Missing store variable.") 'defsetf accessfn))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t)
@@ -282,9 +292,10 @@
                                             keyp keywords keyvars keyinits keysvars
                                             allowp env)
                           (analyze-defsetf-lambdalist lambdalist
-                            #'(lambda (form errorstring &rest arguments)
+                            #'(lambda (detail errorstring &rest arguments)
                                 (error-of-type 'source-program-error
-                                  :form form
+                                  :form whole-form
+                                  :detail detail
                                   (TEXT "~S ~S: invalid ~S lambda-list: ~A")
                                   'defsetf accessfn 'defsetf
                                   (apply #'format nil errorstring arguments))))
@@ -319,7 +330,8 @@
               ) )
         )) )
         (t (error-of-type 'source-program-error
-             :form args
+             :form whole-form
+             :detail args
              (TEXT "(~S ~S): Illegal syntax.")
              'defsetf accessfn))))
 ;;;----------------------------------------------------------------------------
@@ -435,16 +447,18 @@
                                      sv)
                              se))))))))))
 ;----------------------------------------------------------------------------
-(defmacro psetf (&whole form &rest args &environment env)
+(defmacro psetf (&whole whole-form
+                 &rest args &environment env)
   (labels ((recurse (args)
              (multiple-value-bind (vr vl sv se ge)
                  (get-setf-expansion (car args) env)
                (declare (ignore ge))
                (when (atom (cdr args))
                  (error-of-type 'source-program-error
-                   :form form
+                   :form whole-form
+                   :detail whole-form
                    (TEXT "~S called with an odd number of arguments: ~S")
-                   'psetf form))
+                   'psetf whole-form))
                `(LET* ,(mapcar #'list vr vl)
                   (MULTIPLE-VALUE-BIND ,sv ,(second args)
                     ,@(when (cddr args) (list (recurse (cddr args))))
@@ -520,12 +534,14 @@
       )
       (setq lv sv lf se))))
 ;;;----------------------------------------------------------------------------
-(defmacro define-modify-macro (name lambdalist function &optional docstring)
+(defmacro define-modify-macro (&whole whole-form
+                               name lambdalist function &optional docstring)
   (multiple-value-bind (reqvars optvars optinits optsvars rest)
       (analyze-modify-macro-lambdalist lambdalist
-        #'(lambda (form errorstring &rest arguments)
+        #'(lambda (detail errorstring &rest arguments)
             (error-of-type 'source-program-error
-              :form form
+              :form whole-form
+              :detail detail
               (TEXT "~S ~S: invalid ~S lambda-list: ~A")
               'define-modify-macro name 'define-modify-macro
               (apply #'format nil errorstring arguments))))
@@ -562,7 +578,8 @@
 ;;;----------------------------------------------------------------------------
 (define-modify-macro incf (&optional (delta 1)) +)
 ;;;----------------------------------------------------------------------------
-(defmacro setf (&whole form &rest args &environment env)
+(defmacro setf (&whole whole-form
+                &rest args &environment env)
   (let ((argcount (length args)))
     (cond ((eql argcount 2)
            (let* ((place (first args))
@@ -630,7 +647,7 @@
              (cond ((symbolp place)
                     `(SETQ ,place ,value)
                    )
-                   ((and (consp form) (symbolp (car form)))
+                   ((and (consp whole-form) (symbolp (car whole-form)))
                     (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
                         (get-setf-expansion place env)
                       (declare (ignore SM5))
@@ -641,14 +658,16 @@
                        )
                    ))
                    (t (error-of-type 'source-program-error
-                        :form (first args)
+                        :form whole-form
+                        :detail (first args)
                         (TEXT "~S: Illegal place: ~S")
                         'setf (first args))))))
           ((oddp argcount)
            (error-of-type 'source-program-error
-             :form form
+             :form whole-form
+             :detail whole-form
              (TEXT "~S called with an odd number of arguments: ~S")
-             'setf form))
+             'setf whole-form))
           (t (do* ((arglist args (cddr arglist))
                    (L nil))
                   ((null arglist) `(LET () (PROGN ,@(nreverse L))))
@@ -656,12 +675,14 @@
           )  )
 ) ) )
 ;;;----------------------------------------------------------------------------
-(defmacro shiftf (&whole form &rest args &environment env)
+(defmacro shiftf (&whole whole-form
+                  &rest args &environment env)
   (when (< (length args) 2)
     (error-of-type 'source-program-error
-      :form args
+      :form whole-form
+      :detail args
       (TEXT "~S: too few arguments: ~S")
-      'shiftf form))
+      'shiftf whole-form))
   (do* ((arglist args (cdr arglist))
         (res (list 'let* nil nil)) lf ff
         (tail (cdr res)) bindlist stores lv fv)
@@ -812,7 +833,8 @@
             `(THE ,type ,SM5)
 ) ) )
 ;;;----------------------------------------------------------------------------
-(define-setf-expander APPLY (fun &rest args &environment env)
+(define-setf-expander APPLY (&whole whole-form
+                             fun &rest args &environment env)
   (if (and (listp fun)
            (eq (list-length fun) 2)
            (eq (first fun) 'FUNCTION)
@@ -820,14 +842,16 @@
       )
     (setq fun (second fun))
     (error-of-type 'source-program-error
-      :form fun
+      :form whole-form
+      :detail fun
       (TEXT "~S is only defined for functions of the form #'symbol.")
       '(setf apply)))
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
       (get-setf-expansion (cons fun args) env)
     (unless (eq (car (last args)) (car (last SM2)))
       (error-of-type 'source-program-error
-        :form (cons fun args)
+        :form whole-form
+        :detail (cons fun args)
         (TEXT "~S on ~S is not a SETF place.")
         'apply fun))
     (let ((item (car (last SM1)))) ; 'item' steht für eine Argumentliste!
@@ -872,7 +896,8 @@
 ;;;----------------------------------------------------------------------------
 ;;; Zusätzliche Definitionen von places
 ;;;----------------------------------------------------------------------------
-(define-setf-expander funcall (fun &rest args &environment env)
+(define-setf-expander funcall (&whole whole-form
+                               fun &rest args &environment env)
   (unless (and (listp fun)
                (eq (list-length fun) 2)
                (let ((fun1 (first fun)))
@@ -882,7 +907,8 @@
                (setq fun (second fun))
           )
     (error-of-type 'source-program-error
-      :form (list fun args)
+      :form whole-form
+      :detail (cons fun args)
       (TEXT "~S is only defined for functions of the form #'symbol.")
       '(setf funcall)))
   (get-setf-expansion (cons fun args) env)
@@ -922,7 +948,8 @@
         (values SM1 SM2 SM3 SM4 SM5)
 ) ) ) )
 ;;;----------------------------------------------------------------------------
-(define-setf-expander IF (condition t-form f-form &environment env)
+(define-setf-expander IF (&whole whole-form
+                          condition t-form f-form &environment env)
   (let ((conditionvar (gensym)))
     (multiple-value-bind (T-SM1 T-SM2 T-SM3 T-SM4 T-SM5)
         (get-setf-expansion t-form env)
@@ -930,7 +957,8 @@
           (get-setf-expansion f-form env)
         (unless (eql (length T-SM3) (length F-SM3))
           (error-of-type 'source-program-error
-            :form (list 'if condition t-form f-form)
+            :form whole-form
+            :detail whole-form
             (TEXT "SETF place ~S expects different numbers of values in the true and false branches (~D vs. ~D values).")
             (list 'IF condition t-form f-form) (length T-SM3) (length F-SM3)))
         (values

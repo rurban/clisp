@@ -83,8 +83,7 @@
   (funcall (method-combination-check-method-qualifiers method-combo)
            gf method-combo method))
 (defun invalid-method-qualifiers-error (gf method)
-  (error-of-type 'ext:source-program-error
-    :form (std-method-qualifiers method)
+  (error-of-type 'program-error
     (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
     (method-combination-name (std-gf-method-combination gf)) gf
     (std-method-qualifiers method) method))
@@ -195,10 +194,11 @@
 
 ;;; DEFMETHOD
 
-(defmacro defmethod (funname &rest method-description)
+(defmacro defmethod (&whole whole-form
+                     funname &rest method-description)
   (setq funname (sys::check-function-name funname 'defmethod))
   (multiple-value-bind (method-initargs-forms signature)
-      (analyze-method-description 'defmethod funname method-description)
+      (analyze-method-description 'defmethod whole-form funname method-description)
     `(LET ()
       (COMPILER::EVAL-WHEN-COMPILE
        (COMPILER::C-DEFUN ',funname ,signature nil 'defmethod))
@@ -253,10 +253,11 @@
 ;; does the compile-time side effects of
 ;; (DEFMETHOD function-name qualifier* spec-lambda-list ...)
 
-(defmacro declaim-method (funname &rest method-description)
+(defmacro declaim-method (&whole whole-form
+                          funname &rest method-description)
   (setq funname (sys::check-function-name funname 'declaim-method))
   (multiple-value-bind (method-initargs-forms signature)
-      (analyze-method-description 'defmethod funname method-description)
+      (analyze-method-description 'defmethod whole-form funname method-description)
     (declare (ignore method-initargs-forms))
     `(COMPILER::EVAL-WHEN-COMPILE
        (COMPILER::C-DEFUN ',funname ,signature nil 'defmethod))))
@@ -265,14 +266,15 @@
 ;;; For DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
 ;;;     WITH-ADDED-METHODS
 ;; caller: symbol
+;; whole-form: whole source form
 ;; funname: function name, symbol or (SETF symbol)
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
 ;; --> signature, argument-precedence-order, method combination, method-class-form, method-forms, docstring
-(defun analyze-defgeneric (caller funname lambdalist options)
+(defun analyze-defgeneric (caller whole-form funname lambdalist options)
   (setq funname (sys::check-function-name funname caller))
   ;; Parse the lambdalist:
-  (analyze-defgeneric-lambdalist caller funname lambdalist)
+  (analyze-defgeneric-lambdalist caller whole-form funname lambdalist)
   ;; Process the options:
   (let ((method-forms '())
         (method-combination 'STANDARD)
@@ -282,7 +284,8 @@
     (dolist (option options)
       (unless (listp option)
         (error-of-type 'ext:source-program-error
-          :form option
+          :form whole-form
+          :detail option
           (TEXT "~S ~S: not a ~S option: ~S")
           caller funname 'defgeneric option))
       (case (first option)
@@ -297,19 +300,22 @@
         (:ARGUMENT-PRECEDENCE-ORDER
          (when argorders
            (error-of-type 'ext:source-program-error
-             :form option
+             :form whole-form
+             :detail options
              (TEXT "~S ~S: ~S may only be specified once.")
              caller funname ':argument-precedence-order))
          (setq argorders option))
         (:DOCUMENTATION
          (unless (and (eql (length option) 2) (stringp (second option)))
            (error-of-type 'ext:source-program-error
-             :form option
+             :form whole-form
+             :detail option
              (TEXT "~S ~S: A string must be specified after ~S : ~S")
              caller funname ':documentation option))
          (when docstrings
            (error-of-type 'ext:source-program-error
-             :form (second option)
+             :form whole-form
+             :detail options
              (TEXT "~S ~S: Only one ~S string is allowed")
              caller funname ':documentation))
          (setq docstrings (rest option)))
@@ -323,41 +329,48 @@
                    (and designator (symbolp designator)))
              (setf method-combination (rest option))
              (error-of-type 'ext:source-program-error
-               :form option
+               :form whole-form
+               :detail designator
                (TEXT "~S ~S: Invalid method combination: ~S")
                caller funname option))))
         (:GENERIC-FUNCTION-CLASS
          ;; the class of the generic function is being ignored.
          (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
            (error-of-type 'ext:source-program-error
-             :form option
+             :form whole-form
+             :detail option
              (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
              caller funname 'standard-generic-function option)))
         (:METHOD-CLASS
          (unless (and (eql (length option) 2) (symbolp (second option)))
            (error-of-type 'ext:source-program-error
-             :form option
+             :form whole-form
+             :detail option
              (TEXT "~S ~S: A class name must be specified after ~S : ~S")
              caller funname ':method-class option))
          (when method-classes
            (error-of-type 'ext:source-program-error
-             :form options
+             :form whole-form
+             :detail options
              (TEXT "~S ~S: Only one ~S option is allowed.")
              caller funname ':method-class))
          (setq method-classes (rest option)))
         (:METHOD
-         (push (analyze-method-description caller funname (rest option))
+         (push (analyze-method-description caller whole-form funname (rest option))
                method-forms))
         (t (error-of-type 'ext:source-program-error
-             :form option
+             :form whole-form
+             :detail option
              (TEXT "~S ~S: invalid syntax in ~S option: ~S")
              caller funname 'defgeneric option))))
     ;; Check :argument-precedence-order :
     (multiple-value-bind (signature argument-precedence-order argorder)
         (check-gf-lambdalist+argorder lambdalist (rest argorders) argorders
-          #'(lambda (form errorstring &rest arguments)
+          #'(lambda (detail errorstring &rest arguments)
               (error-of-type 'ext:source-program-error
-                :form form (TEXT "~S ~S: ~A")
+                :form whole-form
+                :detail detail
+                (TEXT "~S ~S: ~A")
                 caller funname (apply #'format nil errorstring arguments))))
       (declare (ignore argorder))
       (let ((method-class-form
@@ -381,12 +394,13 @@
 
 ;; parse the lambdalist:
 ;; lambdalist --> reqnum, req-vars, optnum, restp, keyp, keywords, allowp
-(defun analyze-defgeneric-lambdalist (caller funname lambdalist)
+(defun analyze-defgeneric-lambdalist (caller whole-form funname lambdalist)
   (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
       (sys::analyze-generic-function-lambdalist lambdalist
-        #'(lambda (form errorstring &rest arguments)
+        #'(lambda (detail errorstring &rest arguments)
             (error-of-type 'ext:source-program-error
-              :form form
+              :form whole-form
+              :detail detail
               (TEXT "~S ~S: invalid generic function lambda-list: ~A")
               caller funname (apply #'format nil errorstring arguments))))
     (declare (ignore keyvars))
@@ -395,18 +409,19 @@
             keyp keywords allowp)))
 
 ;; transform lambdalist into calling convention:
-(defun defgeneric-lambdalist-callinfo (caller funname lambdalist)
+(defun defgeneric-lambdalist-callinfo (caller whole-form funname lambdalist)
   (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
-      (analyze-defgeneric-lambdalist caller funname lambdalist)
+      (analyze-defgeneric-lambdalist caller whole-form funname lambdalist)
     (declare (ignore req-vars keyp))
     (callinfo reqanz optanz restp keywords allowp)))
 
 
 ;;; DEFGENERIC
 
-(defmacro defgeneric (funname lambda-list &rest options)
+(defmacro defgeneric (&whole whole-form
+                      funname lambda-list &rest options)
   (multiple-value-bind (signature argument-precedence-order method-combo method-class-form method-forms docstring)
-      (analyze-defgeneric 'defgeneric funname lambda-list options)
+      (analyze-defgeneric 'defgeneric whole-form funname lambda-list options)
     `(LET ()
        (DECLARE (SYS::IN-DEFUN ,funname))
        (COMPILER::EVAL-WHEN-COMPILE

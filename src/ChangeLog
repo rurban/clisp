@@ -1,5 +1,145 @@
 2004-08-21  Bruno Haible  <bruno@clisp.org>
 
+	Add a slot to the SOURCE-PROGRAM-ERROR condition.
+	* control.d (MACROLET, SYSTEM::FUNCTION-MACRO-LET): Pass one more
+	argument to sys::make-macro-expander.
+	* error.d (end_error): Pass :DETAIL instead of :FORM.
+	* init.lisp: Export ext:source-program-error-detail.
+	(%uncompilable): Pass both :FORM and :DETAIL when signalling a
+	source-program-error.
+	(%whole-form): Proclaim special.
+	(%expand-form): Bind %whole-form. Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(%expand-list, %expand-lambda, %expand-lambdalist, %expand-varspez,
+	%expand-varspez*, %expand-fundefs-1, %expand-funmacdefs-1): Pass both
+	:FORM and :DETAIL when signalling a source-program-error.
+	(defun, do): Likewise.
+	(defmacro): Pass whole form to sys::make-macro-expansion.
+	* defmacro.lisp (macro-call-error): Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(%whole-form): Proclaim special.
+	(analyze-aux, get-supplied-p, analyze-rest): Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	(empty-pattern): Add 'wholevar' argument. Pass both :FORM and :DETAIL
+	when signalling a source-program-error.
+	(analyze1, remove-env-arg): Expect %whole-var to be bound. Pass both
+	:FORM and :DETAIL when signalling a source-program-error.
+	(make-macro-expansion): Add 'whole' argument. Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	(make-macro-expander): Add 'whole' argument.
+	* macros1.lisp (defmacro-special): Pass whole form to
+	make-macro-expansion.
+	(defvar, defparameter, defconstant): Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(do/do*-expand): Add 'whole' argument. Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(do, do*): Update.
+	(psetq): Pass both :FORM and :DETAIL when signalling a
+	source-program-error.
+	(case-expand): Add 'whole' argument. Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(fcase, case): Update.
+	(cond): Pass whole form to ifify.
+	(ifify): Add 'whole' argument. Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	* macros2.lisp (typecase): Pass both :FORM and :DETAIL when signalling
+	a source-program-error.
+	(deftype): Likewise. Bind %whole-form for analyze1.
+	(define-symbol-macro): Pass both :FORM and :DETAIL when signalling a
+	source-program-error.
+	* defs1.lisp (with-package-iterator): Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	* places.lisp (get-setf-expansion, get-setf-method): Pass both :FORM
+	and :DETAIL when signalling a source-program-error.
+	(check-accessor-name): Add 'whole' argument. Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	(define-setf-expander): Pass whole form to check-accessor-name. Bind
+	%whole-form, for remove-env-arg.
+	(defsetf): Pass whole form to check-accessor-name. Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	(psetf, define-modify-macro, setf, shiftf, apply, funcall, if): Pass
+	both :FORM and :DETAIL when signalling a source-program-error.
+	* defpackage.lisp (defpackage): Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	* clos-class3.lisp (defclass): Likewise.
+	(finalize-class): Signal a program-error, not a source-program-error.
+	* defstruct.lisp (ds-make-boa-constructor): Add 'whole' argument. Pass
+	both :FORM and :DETAIL when signalling a source-program-error.
+	(defstruct): Pass both :FORM and :DETAIL when signalling a
+	source-program-error.
+	* cmacros.lisp (define-compiler-macro): Pass whole form to
+	sys::make-macro-expansion.
+	* compiler.lisp (c-FUNCTION-MACRO-LET): Pass whole form to
+	make-macro-expander.
+	(c-GENERIC-FLET, c-GENERIC-LABELS): Pass whole form to
+	defgeneric-lambdalist-callinfo and make-generic-function-form.
+	(c-MACROLET): Pass whole form to make-macro-expander.
+	(compile-lambda-helper): Pass both :FORM and :DETAIL when signalling a
+	source-program-error.
+	* defs2.lisp (destructuring-bind): Bind %whole-var for analyze1.
+	* loop.lisp (loop-syntax-error, expand-loop): Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	* clos-slots1.lisp (with-slots, with-accessors): Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	* clos-method1.lisp (initialize-instance-<standard-method>): Update.
+	* clos-method2.lisp (program-error-reporter): Signal a program-error,
+	not a source-program-error.
+	(analyze-method-description): Add 'whole' argument. Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	* clos-methcomb2.lisp (invalid-sort-order-error): Signal a
+	program-error, not a source-program-error.
+	(any-method-combination-check-options): Likewise.
+	(check-em-arguments-option, check-em-generic-function-option): Add
+	'whole' argument. Pass both :FORM and :DETAIL when signalling a
+	source-program-error.
+	(call-method, make-method, make-method-error,): Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	(call-method-arg1-error, call-method-arg2-error,
+	call-method-arg2elements-error): Likewise.
+	(build-effective-method-function-form): Update for changed errfunc
+	signature.
+	(compute-effective-method-as-function-form): Update.
+	(standard-method-combination-check-options): Signal a program-error,
+	not a source-program-error.
+	(standard-method-combination-check-method-qualifiers): Likewise.
+	(short-form-method-combination-check-method-qualifiers): Likewise.
+	(parse-method-groups): Add 'whole' argument. Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	(define-method-combination): Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	* clos-genfun3.lisp (invalid-method-qualifiers-error): Likewise.
+	(defmethod, declaim-method): Pass the whole form to
+	analyze-method-description.
+	(analyze-defgeneric): Add 'whole' argument. Pass both :FORM and :DETAIL
+	when signalling a source-program-error.
+	(analyze-defgeneric-lambdalist): Likewise.
+	(defgeneric-lambdalist-callinfo): Likewise.
+	(defgeneric): Pass the whole form to analyze-defgeneric.
+	* clos-genfun4.lisp (make-generic-function-form): Add 'whole' argument.
+	(analyze-generic-fundefs): Likewise. Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(generic-flet): Pass the whole form to analyze-generic-fundefs.
+	(generic-labels): Likewise.
+	* condition.lisp: Export ext:source-program-error-detail.
+	(source-program-error): Slot $detail replaces $form. New slot $form.
+	(expand-restart-case): Add 'whole' argument. Pass both :FORM and
+	:DETAIL when signalling a source-program-error.
+	(restart-case, with-restarts): Update.
+	* foreign1.lisp (DEF-C-VAR): Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(element, deref, slot, cast, offset, c-var-object, c-var-address,
+	typeof): Likewise.
+	* affi1.lisp (mlibcall): Pass both :FORM and :DETAIL when signalling a
+	source-program-error.
+	* macros3.lisp (LETF*): Pass whole form to expand-LETF*.
+	(expand-LETF*): Add 'whole' argument. Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+	(LETF): Pass whole form to expand-LETF.
+	(expand-LETF): Add 'whole' argument. Pass both :FORM and :DETAIL when
+	signalling a source-program-error.
+
+2004-08-21  Bruno Haible  <bruno@clisp.org>
+
 	* constsym.d (sys::check-symbol): Renamed from sys::%check-symbol.
 	(sys::check-function-name): Renamed from sys::%check-function-name.
 	* control.d: Likewise.

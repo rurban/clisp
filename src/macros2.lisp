@@ -1,13 +1,15 @@
 (common-lisp:in-package "SYSTEM")
 ;; ----------------------------------------------------------------------------
-(defmacro typecase (keyform &rest typeclauselist)
+(defmacro typecase (&whole whole-form
+                    keyform &rest typeclauselist)
   (let* ((tempvar (gensym))
          (condclauselist nil))
     (do ((typeclauselistr typeclauselist (cdr typeclauselistr)) spec)
         ((atom typeclauselistr))
       (cond ((atom (car typeclauselistr))
              (error-of-type 'source-program-error
-               :form (car typeclauselistr)
+               :form whole-form
+               :detail (car typeclauselistr)
                (TEXT "Invalid clause in ~S: ~S")
                'typecase (car typeclauselistr)))
             ((eq (setq spec (caar typeclauselistr)) T)
@@ -165,21 +167,25 @@
       (retry-loop 'CASE keyform keyclauselist
                   (case-errorstring keyform keyclauselist)))))
 ;; ----------------------------------------------------------------------------
-(defmacro deftype (name lambdalist &body body)
+(defmacro deftype (&whole whole-form
+                   name lambdalist &body body)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      :form name
+      :form whole-form
+      :detail name
       (TEXT "type name should be a symbol, not ~S")
       name))
   (if (or (get name 'TYPE-SYMBOL) (get name 'TYPE-LIST))
     (error-of-type 'source-program-error
-      :form name
+      :form whole-form
+      :detail name
       (TEXT "~S is a built-in type and may not be redefined.")
       name))
   (multiple-value-bind (body-rest declarations docstring)
       (SYSTEM::PARSE-BODY body t)
     (if declarations (setq declarations (list (cons 'DECLARE declarations))))
-    (let ((%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
+    (let ((%whole-form whole-form)
+          (%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
           (%let-list nil) (%keyword-tests nil) (%default-form '(QUOTE *)))
       (analyze1 lambdalist '(CDR <DEFTYPE-FORM>) name '<DEFTYPE-FORM>)
       (let ((lengthtest (make-length-test '<DEFTYPE-FORM>))
@@ -206,10 +212,12 @@
     (car deftype-form) (1- (length deftype-form))))
 ;; ----------------------------------------------------------------------------
 ;; cf. X3J13 vote <173>
-(defmacro define-symbol-macro (symbol expansion)
+(defmacro define-symbol-macro (&whole whole-form
+                               symbol expansion)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      :form symbol
+      :form whole-form
+      :detail symbol
       (TEXT "~S: the name of a symbol macro must be a symbol, not ~S")
       'define-symbol-macro symbol))
   `(LET ()

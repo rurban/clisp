@@ -232,13 +232,15 @@ be a string, which must be the name of a known library."
            (cdr info)
            args)))
 
-(defmacro mlibcall (name &rest args)
+(defmacro mlibcall (&whole whole-form
+                    name &rest args)
   "Call library function NAME with ARGS."
   (let ((info (function-info name)))
     (if (= (length args) (- (length (cdr info)) 2))
         `(sys::%libcall ,(car info) ',(cdr info) . ,args)
         (sys::error-of-type 'ext:source-program-error
-          :form args
+          :form whole-form
+          :detail args
           (TEXT "Bad number of arguments for ~S: ~S")
           name (length args)))))
 

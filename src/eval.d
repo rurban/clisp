@@ -1419,7 +1419,7 @@ global bool parse_dd (object formlist)
         goto fertig; /* yes -> last form can't be a Doc-String! */
       if (!nullp(STACK_1)) { /* preceding Doc-String? */
         /* yes -> more than one Doc-String is too much: */
-        pushSTACK(STACK_2);  /* SOURCE-PROGRAM-ERROR slot FORM */
+        pushSTACK(STACK_2);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(STACK_0);
         fehler(source_program_error,
                GETTEXT("Too many documentation strings in ~S"));
@@ -1620,14 +1620,14 @@ global object get_closure (object lambdabody, object name, bool blockp,
 {
   /* Lambdabody must be a Cons: */
   if (atomp(lambdabody)) {
-    pushSTACK(lambdabody);  /* SOURCE-PROGRAM-ERROR slot FORM */
+    pushSTACK(lambdabody);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(name);
     fehler(source_program_error,GETTEXT("~S: lambda-list for ~S is missing"));
   }
   { /* and the CAR must be a List: */
     var object lambdalist = Car(lambdabody);
     if (!listp(lambdalist)) {
-      pushSTACK(lambdalist);  /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(lambdalist);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(lambdalist); pushSTACK(name); pushSTACK(S(function));
       fehler(source_program_error,
              GETTEXT("~S: lambda-list for ~S should be a list, not ~S"));
@@ -1752,7 +1752,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
       var object declspec = Car(declarations);
       /* declspec must be a List: */
       if (atomp(declspec)) {
-        pushSTACK(declspec);  /* SOURCE-PROGRAM-ERROR slot FORM */
+        pushSTACK(declspec);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(declspec); pushSTACK(S(function));
         fehler(source_program_error,
                GETTEXT("~S: illegal declaration ~S"));
@@ -1845,7 +1845,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
         item_rest = Cdr(item_rest);
         if (consp(item_rest)) {
           if (mconsp(Cdr(item_rest))) { /* varspec is too lang */
-            pushSTACK(item_rest);  /* SOURCE-PROGRAM-ERROR slot FORM */
+            pushSTACK(item_rest);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
             pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
             pushSTACK(S(LLoptional)); pushSTACK(S(function));
             fehler(source_program_error,
@@ -1883,7 +1883,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
   /* set Rest-Flag to T: */
   TheIclosure(*closure_)->clos_rest_flag = T;
   NEXT_ITEM(badLLkey,badLLkey,key,badLLkey,aux,ende);
-  pushSTACK(item);  /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(item);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
   pushSTACK(S(LLaux)); pushSTACK(S(LLkey));
   pushSTACK(S(LLrest)); pushSTACK(S(function));
@@ -1891,7 +1891,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
          GETTEXT("~S: ~S var must be followed by ~S or ~S or end of list: ~S"));
  badrest:
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
-  pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(LLrest)); pushSTACK(S(function));
   fehler(source_program_error,
          GETTEXT("~S: ~S must be followed by a variable: ~S"));
@@ -1985,7 +1985,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
   }
  fehler_keyspec:
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
-  pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(LLkey)); pushSTACK(S(function));
   fehler(source_program_error,
          GETTEXT("~S: incorrect variable specification after ~S: ~S"));
@@ -1993,7 +1993,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
   TheIclosure(*closure_)->clos_allow_flag = T; /* set Flag to T */
   NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,aux,ende);
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
-  pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(LLaux)); pushSTACK(S(LLallow_other_keys));
   pushSTACK(S(function));
   fehler(source_program_error,
@@ -2024,7 +2024,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
       if (consp(item_rest)) {
         init_form = Car(item_rest); /* second list-element: init */
         if (mconsp(Cdr(item_rest))) { /* varspec too long */
-          pushSTACK(item_rest);  /* SOURCE-PROGRAM-ERROR slot FORM */
+          pushSTACK(item_rest);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
           pushSTACK(S(LLaux)); pushSTACK(S(function));
           fehler(source_program_error,
@@ -2045,7 +2045,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
   }
   /* Collected error messages: */
  badLLkey:
-  pushSTACK(item);  /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(item);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
   pushSTACK(item); pushSTACK(S(function));
   fehler(source_program_error,
@@ -2055,14 +2055,14 @@ global object get_closure (object lambdabody, object name, bool blockp,
   if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) {
     /* too many parameters? */
     pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
-    pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot FORM */
+    pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(S(function));
     fehler(source_program_error,
            GETTEXT("~S: too many parameters in the lambda-list ~S"));
   }
   /* var_count <= lp_limit_1, therefore all counts fit in an uintC. */
   if (!nullp(*lalist_)) { /* is Lambda-List a Dotted List? */
-    pushSTACK(*lalist_);  /* SOURCE-PROGRAM-ERROR slot FORM */
+    pushSTACK(*lalist_);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
     pushSTACK(S(function));
     fehler(source_program_error,
@@ -3070,7 +3070,7 @@ local Values eval1 (object form)
         }
         {
           var object form = STACK_(frame_form); # Form from EVAL-Frame
-          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot FORM */
+          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(form); pushSTACK(Car(form));
           fehler(source_program_error,
                  GETTEXT("EVAL: too few parameters for special operator ~S: ~S"));
@@ -3083,7 +3083,7 @@ local Values eval1 (object form)
         }
         {
           var object form = STACK_(frame_form); # Form from EVAL-Frame
-          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot FORM */
+          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(form); pushSTACK(Car(form));
           fehler(source_program_error,
                  GETTEXT("EVAL: too many parameters for special operator ~S: ~S"));
@@ -3095,7 +3095,7 @@ local Values eval1 (object form)
         }
         {
           var object form = STACK_(frame_form); # Form from EVAL-Frame
-          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot FORM */
+          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(form); pushSTACK(Car(form));
           fehler(source_program_error,
                  GETTEXT("EVAL: dotted parameter list for special operator ~S: ~S"));
@@ -3155,7 +3155,7 @@ local Values eval_applyhook(object fun) {
 # In EVAL: error, if too few arguments
 nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
   var object form = STACK_(frame_form); # Form
-  pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
   fehler(source_program_error,
@@ -3165,7 +3165,7 @@ nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
 # In EVAL: error, if too many arguments
 nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
   var object form = STACK_(frame_form); # Form
-  pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   fehler(source_program_error,
@@ -3175,7 +3175,7 @@ nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
 # In EVAL: error, if dotted argument-list
 nonreturning_function(local, fehler_eval_dotted, (object fun)) {
   var object form = STACK_(frame_form); # Form
-  pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   fehler(source_program_error,
          GETTEXT("EVAL: argument list given to ~S is dotted: ~S"));
