@@ -42,7 +42,7 @@ local bool init_language_from (const char* langname);
   #define language_dutch     4
 #endif
 
-local object current_language_o (uint lang) {
+local object current_language_o (uintL lang) {
   switch (lang) {
     case language_english: return S(english);
    #ifdef GNU_GETTEXT
