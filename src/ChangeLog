@@ -1,5 +1,12 @@
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
+	Rely on FILL-STREAM to format warnings and error messages.
+	* realelem.d (warn_floating_point_rational_contagion): removed
+	manual newlines from the message
+	* flo_rest.d (warn_floating_point_contagion): ditto
+
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (pathname_version_maybe): define
 	(file_namestring_parts, namestring_correctly_parseable_p): use it
 
