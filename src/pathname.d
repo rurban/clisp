@@ -10975,7 +10975,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
         break;
       default: NOTREACHED;
     }
-    if (!GetExitCodeProcess(prochandle,&exit_code))
+    if (!GetExitCodeProcess(prochandle,(DWORD*)&exit_code))
       { end_system_call(); OS_error(); }
   }
   /* we can safely close handle of a running process - it doesn't
