@@ -561,13 +561,15 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
 #elif defined(NEED_SYS_IOCTL_H)
   #include <sys/ioctl.h>
 #endif
-#ifdef IOCTL_DOTS
-  extern_C int ioctl (int fd, IOCTL_REQUEST_T request, ...); /* IOCTL(2) */
-  #define IOCTL_ARGUMENT_T  CADDR_T
-#else
-  extern_C int ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg); /* IOCTL(2) */
-  /* 3rd argument is always cast to type IOCTL_ARGUMENT_T (usually CADDR_T): */
-  #define ioctl(fd,request,arg)  (ioctl)(fd,request,(IOCTL_ARGUMENT_T)(arg))
+#ifdef HAVE_IOCTL
+  #ifdef IOCTL_DOTS
+    extern_C int ioctl (int fd, IOCTL_REQUEST_T request, ...); /* IOCTL(2) */
+    #define IOCTL_ARGUMENT_T  CADDR_T
+  #else
+    extern_C int ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg); /* IOCTL(2) */
+    /* 3rd argument is always cast to type IOCTL_ARGUMENT_T (usually CADDR_T): */
+    #define ioctl(fd,request,arg)  (ioctl)(fd,request,(IOCTL_ARGUMENT_T)(arg))
+  #endif
 #endif
 #ifndef HAVE_SELECT
 /* fcntl() will be used, declared in <fcntl.h> */
