@@ -89,8 +89,10 @@ htmldoc:
 	cd doc && make all && make html && cd ..;
 
 makefiles :                                                                \
-	win32msvc/makefile.msvc4 win32msvc/makefile.msvc7                  \
-	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d
+	win32msvc/makefile.msvc7                                           \
+	win32msvc/makefile.msvc6 win32msvc/makefile.msvc6d                 \
+	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d                 \
+	win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc4 : makemake
 	./makemake --with-dynamic-ffi \
@@ -103,6 +105,14 @@ win32msvc/makefile.msvc5 : makemake
 win32msvc/makefile.msvc5d : makemake
 	./makemake --with-dynamic-ffi \
 		win32msvc msvc5 debug > win32msvc/makefile.msvc5d
+
+win32msvc/makefile.msvc6 : makemake
+	./makemake --with-dynamic-ffi \
+		win32msvc msvc6 > win32msvc/makefile.msvc6
+
+win32msvc/makefile.msvc6d : makemake
+	./makemake --with-dynamic-ffi \
+		win32msvc msvc6 debug > win32msvc/makefile.msvc6d
 
 win32msvc/makefile.msvc7 : makemake
 	./makemake --with-dynamic-ffi \

@@ -81,6 +81,7 @@ EOP
 #   makemake win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
 #   makemake --with-dynamic-ffi win32msvc msvc5 > make.win32msvc/makefile.msvc5
+#   makemake --with-dynamic-ffi win32msvc msvc6 > make.win32msvc/makefile.msvc6
 
 
 # Fix the "echo" command. The SysV /bin/sh (and also ksh, and also bash if
@@ -483,7 +484,7 @@ if [ $TSYS = win32msvc ] ; then
   case $COMPILER in
     msvc4) CFLAGS=${CFLAGS}" -G5 -O1"
       ;;
-    msvc5 | msvc7)
+    msvc5 | msvc6 | msvc7)
       if [ "$DEBUGGING" != debug ] ; then
         CFLAGS=${CFLAGS}" -G5 -Os -Oy -Ob1 -Gs -Gf -Gy"
       else
@@ -937,12 +938,15 @@ else
       # -+ means to accept C++ comments in MSVC's include files.
       # _MSC_VER=1000 _M_IX86=500 means to simulate msvc4 on i586.
       # _MSC_VER=1100 _M_IX86=500 means to simulate msvc5 on i586.
+      # _MSC_VER=1200 _M_IX86=500 means to simulate msvc6 on i586.
       # _MSC_VER=1300 _M_IX86=500 means to simulate msvc7 (.NET) on i586.
       XCPP="$XCPP -+ -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
       case ${COMPILER} in
         msvc4) XCPP="$XCPP -D_MSC_VER=1000"
           ;;
         msvc5) XCPP="$XCPP -D_MSC_VER=1100 -D_INTEGRAL_MAX_BITS=64"
+          ;;
+        msvc6) XCPP="$XCPP -D_MSC_VER=1200 -D_INTEGRAL_MAX_BITS=64"
           ;;
         msvc7) XCPP="$XCPP -D_MSC_VER=1300 -D_INTEGRAL_MAX_BITS=64 -I\$(MSVCDIR)/PlatformSDK/include"
           ;;
@@ -1691,7 +1695,7 @@ if [ $HSYS = win32msvc ] ; then
   if [ $COMPILER = msvc4 ] ; then
     echol "MSVCDIR = d:/msdev"
   fi
-  if [ $COMPILER = msvc5 ] ; then
+  if [ $COMPILER = msvc5 -o $COMPILER = msvc6 ] ; then
     echol "#MSVCDIR = d:/devstudio/vc"
     echol "#MSVCDIR = c:/msvs/vc98"
     echol "#MSVCDIR = \"C:/Program Files/Microsoft Visual Studio/VC98\""

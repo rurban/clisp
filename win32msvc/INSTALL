@@ -63,13 +63,17 @@ or MSVC7.0 development environment, using native system calls
 
         copy win32msvc\makefile.msvc4 src\makefile
 
-     for MSVC5.0 or MSVC6.0:
+     for MSVC5.0:
 
         copy win32msvc\makefile.msvc5 src\makefile
 
+     for MSVC6.0:
+
+        copy win32msvc\makefile.msvc6 src\makefile
+
      same, debug version:
 
-        copy win32msvc\makefile.msvc5d src\makefile
+        copy win32msvc\makefile.msvc6d src\makefile
 
    Check that environment variable MSVCDIR points to VC98 directory
    or uncomment and modify the value of MSVCDIR in src\makefile to

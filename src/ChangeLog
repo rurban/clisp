@@ -1,3 +1,11 @@
+2004-09-09  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: Accept msvc6 and handle it like msvc5.
+	* Makefile.devel (win32msvc/makefile.msvc6, win32msvc/makefile.msvc6d):
+	New targets.
+	(makefiles): Depend on them.
+	Suggested by Jörg Höhle.
+
 2004-07-12  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (Class): Remove direct_generic_functions field.
