@@ -11859,9 +11859,9 @@ extern uintL llength1 (object obj, object* last);
 
 # UP: Makes a list with exactly len elements
 # make_list(len)
-# > (STACK): Initial value for the elements
+# > STACK_0: Initial value for the elements
 # > uintL len: desired list length
-# < result: list with D1.L elements
+# < result: list with len elements
 # can trigger GC
 extern object make_list (uintL len);
 # is used by

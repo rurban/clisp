@@ -106,9 +106,9 @@ global uintL llength1 (object list, object* last) {
 
 # UP: Bildet eine Liste mit genau len Elementen
 # make_list(len)
-# > (STACK): Initialisierungswert für die Elemente
+# > STACK_0: Initialisierungswert für die Elemente
 # > uintL len: gewünschte Listenlänge
-# < ergebnis: Liste mit D1.L Elementen
+# < ergebnis: Liste mit len Elementen
 # can trigger GC
 global object make_list (uintL len) {
   pushSTACK(NIL);
