@@ -1,3 +1,7 @@
+2000-09-21    <martin@atzmueller.net>
+
+	* reploop.lisp (debug-backtrace): cleanup of unused variable.
+
 2000-09-12  Bruno Haible  <haible@clisp.cons.org>
 
         Followup to Sam's 1999-04-07 patch.

@@ -143,28 +143,27 @@ If anything else, printed.")
      (format *debug-io* "
 ~%Enter the limit for max. frames to print or ':all' for all: ")
      (setq number (read-from-string (read-line *debug-io* nil nil)))
-     (if (or (integerp number) (eq number :all) )
+     (if (or (integerp number) (eq number :all))
        (return)
        (format *debug-io* "~&~A is not a number. Try again." number)))
     (unless (eq number :all)
-      number) ) )
+      number)))
 
 ;;; sets the limit for frames to print in a backtrace
 (defun debug-set-frame-limit ()
-  (setq *debug-print-frame-limit* (get-frame-limit) )
+  (setq *debug-print-frame-limit* (get-frame-limit))
   (throw 'debug 'continue))
 
 ;;; debug-backtrace with-optional 'print-limit'
 (defun debug-backtrace (&optional (mode *debug-mode*)
                                   (limit *debug-print-frame-limit*)
-                                  (prompt-limit-p nil) )
+                                  (prompt-limit-p nil))
   (let ((frame (frame-down-1 (frame-up-1 *frame-limit1* mode) mode))
-        tmp-limit)
-    (when prompt-limit-p
-      (setq limit (get-frame-limit) )   ; local limit takes precedence!
-      )
-    (do ((i 0 (1+ i) ) )
-        ( (and limit (>= i limit)) nil)
+        (local-limit (or (and prompt-limit-p
+			      (get-frame-limit))   ; local limit takes precedence!
+			 limit)))
+    (do ((i 0 (1+ i)))
+        ((and local-limit (>= i local-limit)) nil)
       (describe-frame *standard-output* frame)
       (when (eq frame (setq frame (frame-up-1 frame mode)))
         (return)))
@@ -387,7 +386,7 @@ Continue       :c      switch off single step mode, continue evaluation
     (if may-continue
       (progn
         (write-string "** - Continuable Error" *error-output*)
-        (terpri *error-output*) )
+        (terpri *error-output*))
       (write-string "*** - " *error-output*))
 
     ;; Output the error message, but don't trap into recursive errors.
