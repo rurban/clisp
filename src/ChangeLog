@@ -1,3 +1,8 @@
+1999-01-25  Sam Steingold  <sds@goems.com>
+
+	* spvw.d: expanded --help, added --license, removed trailing
+	whitespace.
+
 1999-01-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (strm_file_name, strm_file_truename, strm_file_handle,
