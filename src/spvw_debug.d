@@ -69,7 +69,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
   if (stringp(obj)) {
     fputc('"',out);
     string_out(out,obj);
-    fputc('\"',out);
+    fputc('"',out);
   } else if (charp(obj)) {
     var object name = char_name(char_code(obj));
     fprintf(out,"[%c]",as_cint(char_code(obj)));
