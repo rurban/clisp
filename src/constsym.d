@@ -1429,10 +1429,11 @@ LISPSYM(Kappend,"APPEND",keyword) # als Argument in PATHNAME
 LISPSYM(Ksupersede,"SUPERSEDE",keyword) # als Argument in PATHNAME
 LISPSYM(Kcreate,"CREATE",keyword) # als Argument in PATHNAME
 #ifdef EXPORT_SYSCALLS
-LISPSYM(Khard,"HARD",keyword) /* Argument to COPY-FILE in PATHNAME */
-LISPSYM(Ksymbolic,"SYMBOLIC",keyword) /* Argument to COPY-FILE in PATHNAME */
-LISPSYM(Klink,"LINK",keyword) /* Argument to COPY-FILE in PATHNAME */
+LISPSYM(Ksymlink,"SYMLINK",keyword) /* Argument to COPY-FILE in PATHNAME */
+LISPSYM(Kcopy,"COPY",keyword) /* Argument to COPY-FILE in PATHNAME */
+LISPSYM(Khardlink,"HARDLINK",keyword) /* Argument to COPY-FILE in PATHNAME */
 LISPSYM(Kpreserve,"PRESERVE",keyword) /* Argument to COPY-FILE in PATHNAME */
+LISPSYM(Kmethod,"METHOD",keyword) /* Argument to COPY-FILE in PATHNAME */
 #endif
 LISPSYM(warn,"WARN",lisp) # als Funktion in STREAM, PATHNAME
 LISPSYM(Kignore,"IGNORE",keyword) # als Argument in ENCODING
