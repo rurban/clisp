@@ -2395,7 +2395,7 @@ for-value   NIL or T
   (when (and (function-name-p obj) (fboundp obj))
     (setq obj (fdefinition obj)))
   (if (closurep obj)
-    (if (compiled-function-p obj)
+    (if (sys::%compiled-function-p obj)
         ;; compiled closure
         (multiple-value-bind (req-num opt-num rest-p key-p keywords allow-p)
             (signature obj)
@@ -9994,7 +9994,7 @@ The function make-closure is required.
                     'compile name)
               (sys::untrace2 name))
             (setq trace-flag t)))
-        (when (compiled-function-p definition)
+        (when (sys::%compiled-function-p definition)
           (warn (TEXT "~S is already compiled.")
                 definition)
           (when name
@@ -10019,7 +10019,7 @@ The function make-closure is required.
         (when (macrop definition)
           (setq macro-flag t)
           (setq definition (macro-expander definition)))
-        (when (compiled-function-p definition)
+        (when (sys::%compiled-function-p definition)
           (warn (TEXT "~S is already compiled.") name)
           (return-from compile name))))
     (unless (or (and (consp definition) (eq (car definition) 'lambda))
@@ -10475,7 +10475,7 @@ The function make-closure is required.
     (labels ((mark (cl) ; enters a Closure cl (recursive) in closures.
                (push cl closures) ; mark cl
                (dolist (c (closure-consts cl)) ; and all Sub-Closures
-                 (when (and (sys::closurep c) (compiled-function-p c))
+                 (when (and (sys::closurep c) (sys::%compiled-function-p c))
                    (unless (member c closures) (mark c)))))) ; mark likewise
       (mark closure)) ; mark Main-Closure
     (dolist (c (nreverse closures)) ; disassemble all Closures

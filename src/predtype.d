@@ -1162,6 +1162,17 @@ LISPFUNNF(numberp,1)
 LISPFUNNR(compiled_function_p,1) {
   /* (COMPILED-FUNCTION-P object), CLTL p. 76 */
   var object arg = popSTACK();
+  /* check for SUBR or compiled closure (excluding generic functions) or
+     foreign function: */
+  VALUES_IF(subrp(arg)
+            || (cclosurep(arg)
+                && (TheCodevec(TheClosure(arg)->clos_codevec)->ccv_flags & bit(4)) == 0)
+            || ffunctionp(arg));
+}
+
+LISPFUNNR(pcompiled_function_p,1) {
+  /* (SYS::%COMPILED-FUNCTION-P object) */
+  var object arg = popSTACK();
   /* check for SUBR or compiled closure or foreign function: */
   VALUES_IF(subrp(arg) || cclosurep(arg) || ffunctionp(arg));
 }

@@ -82,7 +82,8 @@
                (error-of-type 'type-error
                  :datum closure :expected-type 'closure
                  (TEXT "~S: ~S must name a closure") 'local name))
-             (if (compiled-function-p closure) closure
+             (if (sys::%compiled-function-p closure)
+                 closure
                  (fdefinition (compile name closure)))))
          (local-helper (spec)
            (do* ((spe (cdr spec) (cdr spe))
@@ -102,7 +103,8 @@
         (TEXT "~S: ~S must be a closure") `(setf (local ,@spec) ,new-def)))
     (multiple-value-bind (clo pos) (local-helper spec)
       (sys::%record-store clo pos
-         (if (compiled-function-p new-def) new-def
+         (if (sys::%compiled-function-p new-def)
+             new-def
              (fdefinition (compile (closure-name (sys::%record-ref clo pos))
                                    new-def)))))))
 
