@@ -1945,9 +1945,9 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 # When changed: extend stream.d
 
 # Whether external communication via Rexx is supported.
-  #ifdef AMIGAOS
+#ifdef AMIGAOS
   #define REXX
-  # define REXX_SERVER  # not yet ?JCH?
+  # define REXX_SERVER  # not yet ?JCH??
 #endif
 # When changed: extend REXX.
 
