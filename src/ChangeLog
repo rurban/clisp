@@ -1,5 +1,12 @@
 2005-03-16  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (checker): new slot bitmasks
+	(new-checker): accept bitmasks
+	(print-tables-1): when bitmasks is supplied,
+	output *_to_list() and *_from_list()
+
+2005-03-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/Makefile.in (regex.o): removed -Dclisp
 
 2005-03-14  Bruno Haible  <bruno@clisp.org>

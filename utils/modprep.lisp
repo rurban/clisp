@@ -51,7 +51,7 @@ The input file is normal C code, modified like this:
   }
   it is convenient for parsing flag arguments to DEFUNs
 - DEFCHECKER(c_name, [enum|type]=..., suffix= ..., prefix=..., default=...,
-             reverse= ..., C_CONST1 C_CONST2 C_CONST3)
+             bitmasks= ..., reverse= ..., C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
   static [enum_]type c_name (object arg) {
@@ -83,6 +83,7 @@ The input file is normal C code, modified like this:
  enum means no #ifdef
  prefix, suffix default to ""
  reverse defaults to "" and means NOTREACHED
+ bitmasks means additional *_to_list and *_from_list functions are defined
 
 Restrictions and caveats:
 - A module should consist of a single file.
@@ -619,7 +620,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
 (defstruct (checker (:include cpp-helper))
-  enum-p type prefix suffix reverse default cpp-odefs type-odef)
+  enum-p type prefix suffix reverse bitmasks default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
 (defun to-C-name (name prefix suffix)
   (etypecase name
@@ -630,18 +631,18 @@ and turn it into DEFUN(funname,lambdalist,signature)."
     (cons (setq name (second name))))
   name)
 (defun new-checker (name cpp-names &key type prefix suffix reverse default enum
-                    (condition (current-condition)))
+                    bitmasks (condition (current-condition)))
   "NAME is the name of the checker function
 CPP-NAMES is the list of possible values, either strings or
  pairs (:KEYWORD VALUE), value is not #ifdef'ed"
-  (setq default (unless (eq default T)
-                  (and default
-                       (or (parse-integer default :junk-allowed t) default))))
+  (setq default (and (not (eq default T)) default
+                     (or (parse-integer default :junk-allowed t) default))
+        bitmasks (and (not (eq bitmasks T)) bitmasks))
   (when (and type enum)
     (error "~S(~S): cannot specify both ~A=~S and ~A=~S"
            'new-checker name :type type :enum enum))
   (let ((ch (make-checker :type (or type enum) :name name :reverse reverse
-                          :prefix prefix :suffix suffix
+                          :prefix prefix :suffix suffix :bitmasks bitmasks
                           :enum-p (not (null enum)) :cpp-names cpp-names
                           :default default))
         (type-odef (if default
@@ -1006,9 +1007,9 @@ commas and parentheses."
     (newline out)
     (loop :for ch :across *checkers* :for default = (checker-default ch)
       :for prefix = (checker-prefix ch) :for suffix = (checker-suffix ch)
-      :for reverse = (checker-reverse ch)
+      :for reverse = (checker-reverse ch) :for bitmasks = (checker-bitmasks ch)
       :for type-tag = (objdef-tag (checker-type-odef ch))
-      :for c-name = (checker-name ch) :for c-type = (checker-type ch)
+      :for c-name = (checker-name ch) :for c-type = (or (checker-type ch) "int")
       :for enum-p = (checker-enum-p ch) :for need-default = (stringp default)
       :initially
       (formatln out "struct c_lisp_pair {int c_const; gcv_object_t *l_const;};")
@@ -1027,7 +1028,7 @@ commas and parentheses."
             (formatln out "  { 0, NULL }")
             (formatln out "};")
             (formatln out "static const uintL ~A_table_size = (sizeof(~A_table)/sizeof(struct c_lisp_pair))-1;" c-name c-name)
-            (formatln out "static ~A ~A (object a) {" (or c-type "int") c-name)
+            (formatln out "static ~A ~A (object a) {" c-type c-name)
             (formatln out "  unsigned int index;")
             (formatln out " restart_~A:" c-name)
             (formatln out "  if (integerp(a)) return I_to_L(a);")
@@ -1048,11 +1049,9 @@ commas and parentheses."
             (formatln out "    a = value1; goto restart_~A;" c-name)
             (formatln out "  }")
             (formatln out "}")
-            (formatln out "static object ~A_reverse (~A a) {"
-                      c-name (or c-type "int"))
-            (formatln out "  unsigned int index;")
-            (formatln out "  for (index = 0; index < ~A_table_size; index++)"
-                      c-name)
+            (formatln out "static object ~A_reverse (~A a) {" c-name c-type)
+            (formatln out "  unsigned int index = 0;")
+            (formatln out "  for (; index < ~A_table_size; index++)" c-name)
             (formatln out "    if (a == ~A_table[index].c_const)" c-name)
             (formatln out "      return *~A_table[index].l_const;" c-name)
             (when need-default
@@ -1060,7 +1059,31 @@ commas and parentheses."
             (if (stringp reverse)
                 (formatln out "  return ~A(a);" reverse)
                 (formatln out "  NOTREACHED;"))
-            (formatln out "}")))
+            (formatln out "}")
+            (when bitmasks
+              (formatln out "static object ~A_to_list (~A a) {" c-name c-type)
+              (formatln out "  int count = 0;")
+              (formatln out "  unsigned int index = 0;")
+              (formatln out "  for (; index < ~A_table_size; index++) {" c-name)
+              (formatln out "    unsigned int c_const = ~A_table[index].c_const;" c-name)
+              (formatln out "    if (c_const == (a & c_const)) {")
+              (formatln out "      pushSTACK(*~A_table[index].l_const);" c-name)
+              (formatln out "      count++;")
+              (formatln out "      a &= ~~c_const;") ; clear this bit
+              (formatln out "    }")
+              (formatln out "  }")
+              ;; not all bits accounted for:
+              (formatln out "  if (a) { pushSTACK(fixnum(a)); count++; }")
+              (formatln out "  return listof(count);")
+              (formatln out "}")
+              (formatln out "static ~A ~A_from_list (object a) {" c-type c-name)
+              (formatln out "  ~A ret = 0;" c-type)
+              (formatln out "  pushSTACK(a);")
+              (formatln out "  for (; !endp(STACK_0); STACK_0 = Cdr(STACK_0))")
+              (formatln out "    ret |= ~A(Car(STACK_0));" c-name)
+              (formatln out "  skipSTACK(1);")
+              (formatln out "  return ret;")
+              (formatln out "}"))))
     (newline out)))
 
 (defun print-tables-2 (out)
