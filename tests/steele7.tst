@@ -92,6 +92,11 @@ a
      (list a b))
 (1 0)
 
+(let (x239)
+  (declare (special x239))
+  (symbol-value 'x239))
+nil
+
 ;let*
 (let* ((a 1)(b 2) c )
      (declare (integer a b))
