@@ -10979,6 +10979,14 @@ typedef struct {
 
 # ####################### MISCBIBL zu MISC.D ############################## #
 
+#ifdef HAVE_ENVIRONMENT
+# Modify the environment variables.
+# clisp_setenv(name,value) sets the value of the environment variable `name'
+# to `value' and returns 0. Returns -1 if not enough memory.
+extern int clisp_setenv (const char * name, const char * value);
+
+#endif
+
 # ####################### ERRBIBL zu ERROR.D ############################## #
 
 # Klassifikation der bekannten Condition-Typen:

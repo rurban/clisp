@@ -245,26 +245,140 @@ LISPFUNN(machine_version,0)
 #ifdef HAVE_ENVIRONMENT
 
 LISPFUNN(get_env,1)
-# (SYSTEM::GETENV string) liefert den zu string im Betriebssystem-Environment
-# assoziierten String oder NIL.
-  {
-    var object arg = popSTACK();
-    if (stringp(arg)) {
-      var const char* found;
-      with_string_0(arg,O(misc_encoding),envvar, {
-        begin_system_call();
-        found = getenv(envvar);
-        end_system_call();
-      });
-      if (!(found==NULL))
-        value1 = asciz_to_string(found,O(misc_encoding)); # gefunden -> String als Wert
-      else
-        value1 = NIL; # nicht gefunden -> Wert NIL
-    } else {
-      value1 = NIL; # Kein String -> Wert NIL
-    }
-    mv_count=1;
+# (EXT:GETENV string) return the string associated with the given string
+# in the OS Environment or NIL if no value
+{
+  var object arg = popSTACK();
+  if (!stringp(arg))
+    fehler_string(arg);
+  var const char* found;
+  with_string_0(arg,O(misc_encoding),envvar, {
+    begin_system_call();
+    found = getenv(envvar);
+    end_system_call();
+  });
+  if (found!=NULL)
+    value1 = asciz_to_string(found,O(misc_encoding));
+  else
+    value1 = NIL;
+  mv_count=1;
+}
+
+local char * cat_env_var(char * buffer,const char * name,uintL namelen,
+                         const char * value,uintL valuelen) {
+  memcpy(buffer,name,namelen);
+  if (value != NULL) {
+    buffer[namelen] = '=';
+    memcpy(buffer+namelen+1,value,valuelen);
+    buffer[namelen+valuelen+1] = 0;
+  } else
+    buffer[namelen] = 0;
+  return buffer;
+}
+
+# Modify the environment variables. putenv() is POSIX, but some BSD systems
+# only have setenv(). Therefore (and because it's simpler to use) we
+# implement this interface, but without the third argument.
+# clisp_setenv(name,value) sets the value of the environment variable `name'
+# to `value' and returns 0. Returns -1 if not enough memory.
+global int clisp_setenv (const char * name, const char * value) {
+  var uintL namelen = asciz_length(name);
+  var uintL valuelen = (value==NULL ? 0 : asciz_length(value));
+#if defined(HAVE_PUTENV)
+  var char* buffer = malloc(namelen+1+valuelen+1);
+  if (!buffer)
+    return -1; # no need to set errno = ENOMEM
+  return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
+#elif defined(HAVE_SETENV)
+  return setenv(name,value,1);
+#else
+  # Uh oh, neither putenv() nor setenv(), have to frob the environment
+  # ourselves. Routine taken from glibc and fixed in several aspects.
+  extern char** environ;
+  var char** epp;
+  var char* ep;
+  var uintL envvar_count = 0;
+  for (epp = environ; (ep = *epp) != NULL; epp++) {
+    var const char * np = name;
+    # Compare *epp and name:
+    while (*np != '\0' && *np == *ep) { np++; ep++; }
+    if (*np == '\0' && *ep == '=')
+      break;
+    envvar_count++;
   }
+  ep = *epp;
+  if (ep == NULL) {
+    if (value != NULL) {
+      # name not found in environ, add it.
+      # if value is NULL - nothing is to be done!
+      # Remember the environ, so that we can free it if we need
+      # to reallocate it again next time.
+      var static char** last_environ = NULL;
+      var char** new_environ = (char**) malloc((envvar_count+2)*sizeof(char*));
+      if (!new_environ)
+        return -1; # no need to set errno = ENOMEM
+      { # copy environ
+        var uintL count;
+        epp = environ;
+        for (count = 0; count < envvar_count; count++)
+          new_environ[count] = epp[count];
+      }
+      ep = (char*) malloc(namelen+1+valuelen+1);
+      if (!ep) {
+        free(new_environ); return -1; # no need to set errno = ENOMEM
+      }
+      new_environ[envvar_count] = cat_env_var(ep,name,namelen,value,valuelen);
+      new_environ[envvar_count+1] = NULL;
+      environ = new_environ;
+      if (last_environ != NULL)
+        free(last_environ);
+      last_environ = new_environ;
+    }
+  } else {
+    # name found, replace its value.
+    # We could be tempted to overwrite name's value directly if
+    # the new value is not longer than the old value. But that's
+    # not a good idea - maybe someone still has a pointer to
+    # this area around.
+    # should we free() the old value?!
+    ep = (char*) malloc(namelen+1+valuelen+1);
+    if (!ep)
+      return -1; # no need to set errno = ENOMEM
+    *epp = cat_env_var(ep,name,namelen,value,valuelen);
+  }
+  return 0;
+#endif
+}
+
+LISPFUNN(set_env,2)
+# (SYS::SETENV name value)
+# define the OS Environment variable NAME to have VALUE (string or NIL)
+{
+  if (!stringp(STACK_1)) fehler_string(STACK_1);
+  if (!stringp(STACK_0) && !nullp(STACK_0)) fehler_string(STACK_0);
+  var object value = popSTACK();
+  var object name = popSTACK();
+  var int error;
+  with_string_0(name,O(misc_encoding),namez, {
+    begin_system_call();
+    if (nullp(value)) {
+      if (getenv(namez))
+        error = clisp_setenv(namez,NULL);
+    } else with_string_0(value,O(misc_encoding),valuez, {
+      error = clisp_setenv(namez,valuez);
+    });
+    end_system_call();
+  });
+  if (error) {
+    pushSTACK(value);
+    pushSTACK(name);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,
+           GETTEXT("~ (~ ~): out of memory"));
+  }
+  value1 = value;
+  mv_count = 1;
+}
 
 #endif
 
