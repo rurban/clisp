@@ -677,7 +677,8 @@
   #if defined(MC680X0)
     #define STACK_register "a4" # highest address register after sp=A7,fp=A6/A5
   #endif
-  #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
+  #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES) \
+    && !(__GNUC__ >= 3) /* GCC3 bug, see CLISP bugs 710737 & 723097 */
     # On BeOS, everything is compiled as PIC, hence %ebx is already booked.
     # If DYNAMIC_MODULES is defined, external modules are compiled as PIC,
     # which is why %ebx is already in use.
