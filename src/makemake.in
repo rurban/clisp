@@ -1367,7 +1367,7 @@ if [ -z "$with_nounicode" ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_7 nls_iso8859_8 nls_iso8859_9'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_10 nls_iso8859_13 nls_iso8859_14'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_15'
-  NLS_INCLUDES=$NLS_INCLUDES' nls_koi8_r'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_koi8_r nls_koi8_u'
   NLS_INCLUDES=$NLS_INCLUDES' nls_mac_arabic nls_mac_centraleurope'
   NLS_INCLUDES=$NLS_INCLUDES' nls_mac_croatian nls_mac_cyrillic nls_mac_dingbat'
   NLS_INCLUDES=$NLS_INCLUDES' nls_mac_greek nls_mac_hebrew nls_mac_iceland'

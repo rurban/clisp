@@ -440,6 +440,9 @@
           if (asciz_equal(codeset,"KOI8-R"))
             locale_charset = "KOI8-R";
           else
+          if (asciz_equal(codeset,"KOI8-U"))
+            locale_charset = "KOI8-U";
+          else
           if (   asciz_equal(codeset,"eucJP")
               || asciz_equal(codeset,"ujis")
               || asciz_equal(codeset,"AJEC")
@@ -519,6 +522,9 @@
           else
           if (0)
             locale_charset = "KOI8-R";
+          else
+          if (0)
+            locale_charset = "KOI8-U";
           else
           if (0)
             locale_charset = "eucJP";
@@ -610,6 +616,9 @@
             else
             if (0)
               locale_charset = "KOI8-R";
+            else
+            if (0)
+              locale_charset = "KOI8-U";
             else
             if (   asciz_equal(lang,"ja")
                 || asciz_equal(lang,"Jp")

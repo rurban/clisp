@@ -1,3 +1,15 @@
+1999-12-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * utils/unicode/Makefile (ALL): Add nls_koi8_u.c.
+          (nls_koi8_u.c): New rule.
+        * nls_koi8_u.c: New file.
+        * spvw_ctype.d (init_ctype): Accept KOI8-U.
+        * encoding.d: Include nls_koi8_u.c.
+          (nls_tables): Add nls_koi8_u.
+          (encoding_from_name): Accept KOI8-U.
+        * pseudofun.d (nls_koi8_u_table): New entry.
+        * makemake.in (NLS_INCLUDES): Add nls_koi8_u.
+
 1999-12-29  Sam Steingold  <sds@gnu.org>
 
 	* unixaux.d (sysinfo_): added _SC_THREAD_THREADS_MAX
