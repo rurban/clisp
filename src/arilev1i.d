@@ -433,7 +433,7 @@
        carry_1:
         count--;
       } until (count==0);
-      return -1;
+      return (uintD)-1;
     }
 
 # Subtraktionsschleife:
@@ -476,7 +476,7 @@
            carry_1:
             count--;
           } until (count==0);
-        return -1;
+        return (uintD)-1;
       }
     }
 
@@ -515,7 +515,7 @@
        carry_1:
         count--;
       } until (count==0);
-      return -1;
+      return (uintD)-1;
     }
 
 # Decrementierschleife:
@@ -531,7 +531,7 @@
         if (!( (*--ptr)-- == 0 ))
           return 0; # kein weiterer Übertrag
       });
-      return -1; # weiterer Übertrag
+      return (uintD)-1; # weiterer Übertrag
     }
 
 # Negierschleife:
@@ -554,7 +554,7 @@
       dotimesC(count,count, { # alle anderen Digits invertieren
         --ptr; *ptr = ~ *ptr;
       });
-      return -1;
+      return (uintD)-1;
     }
 
 #endif
