@@ -1,3 +1,11 @@
+2005-01-21  Bruno Haible  <bruno@clisp.org>
+
+	Implement the scope of free SPECIAL declarations as ANSI CL 3.3.4
+	specifies it. ANSI CL issue <DECLARATION-SCOPE:NO-HOISTING>.
+	* compiler.lisp (c-LAMBDABODY,c-LET/LET*, c-MULTIPLE-VALUE-BIND,
+	c-FUNCALL-INLINE): Call push-specials immediately before
+	compiling the body-forms, not at the beginning.
+
 2005-01-24  Sam Steingold  <sds@gnu.org>
 
 	* defpackage.lisp (defpackage): duplicate USE-PACKAGE is OK

@@ -3785,7 +3785,6 @@ for-value   NIL or T
               closuredummy-stackz closuredummy-venvc)
           (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
             (process-declarations declarations))
-          (push-specials)
           ;; visibility of Closure-Dummyvar:
           (push nil *venvc*)
           (setq closuredummy-venvc *venvc*)
@@ -3819,6 +3818,7 @@ for-value   NIL or T
           ;; activate the bindings of the Aux-Variables:
           (multiple-value-setq (aux-vars aux-anodes)
             (bind-aux-vars auxvar auxinit))
+          (push-specials)
           (let* ((body-anode (c-form `(PROGN ,@body-rest) (if gf-p 'ONE 'ALL)))
                  ;; check the variables:
                  (closurevars
@@ -4617,7 +4617,6 @@ for-value   NIL or T
           (*venvc* *venvc*))
       (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
           (process-declarations declarations)
-        (push-specials)
         ;; syntax-test of the parameter-list:
         (multiple-value-bind (symbols initforms)
             (analyze-letlist (second *form*))
@@ -4627,6 +4626,7 @@ for-value   NIL or T
             (multiple-value-bind (varlist anodelist stackzlist)
                 (process-movable-var-list symbols initforms *-flag)
               (unless *-flag (push 0 *stackz*)) ; room for closing-bindings
+              (push-specials)
               (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; compile Body
                 ;; check the variables:
                 (let* ((closurevars
@@ -4688,14 +4688,14 @@ for-value   NIL or T
               (*venvc* *venvc*))
           (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
               (process-declarations declarations)
-            (push-specials)
             (if (null symbols) ; empty variable-list -> bind nothing
-              (let* ((anode1 (c-form (third *form*) 'NIL))
-                     (anode2 (c-form `(PROGN ,@(cdddr *form*)))))
-                (make-anode :type 'MULTIPLE-VALUE-BIND
-                  :sub-anodes (list anode1 anode2)
-                  :seclass (anodes-seclass-or anode1 anode2)
-                  :code `(,anode1 ,anode2)))
+              (let ((anode1 (c-form (third *form*) 'NIL)))
+                (push-specials)
+                (let ((anode2 (c-form `(PROGN ,@(cdddr *form*)))))
+                  (make-anode :type 'MULTIPLE-VALUE-BIND
+                    :sub-anodes (list anode1 anode2)
+                    :seclass (anodes-seclass-or anode1 anode2)
+                    :code `(,anode1 ,anode2))))
               (let ((anode1 (c-form (third *form*) 'ALL)))
                 (push nil *venvc*) ; visibility of Closure-Dummyvar
                 (multiple-value-bind (varlist stackvarlist)
@@ -4709,44 +4709,45 @@ for-value   NIL or T
                                 ((null varlistr) (nreverse L))
                              (let ((var (car varlistr)))
                                (push-*venv* var)
-                               (push *stackz* L) (bind-fixed-var-2 var))))
-                         (body-anode ; compile Body
-                           (c-form `(PROGN ,@body-rest)))
-                         ; check the variables:
-                         (closurevars (checking-fixed-var-list varlist))
-                         (codelist ; generate Code
-                           `(,anode1
-                             (NV-TO-STACK ,(length symbols))
-                             ,@(c-make-closure closurevars closuredummy-venvc
-                                               closuredummy-stackz)
-                             ,@ ; bind special- or Closure-variables:
-                               (do ((stackvarlistr stackvarlist
-                                                   (cdr stackvarlistr))
-                                    (stackzlistr stackzlist (cdr stackzlistr))
-                                    (varlistr varlist (cdr varlistr))
-                                    (L '()))
-                                   ((null varlistr) (nreverse L))
-                                 (setq L (revappend
-                                          (c-bind-fixed-var
-                                           (car varlistr)
-                                           (car stackvarlistr)
-                                           (car stackzlistr))
-                                          L)))
-                             ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)))
-                         (anode
-                           (make-anode
-                             :type 'MULTIPLE-VALUE-BIND
-                             :sub-anodes (list anode1 body-anode)
-                             :seclass (seclass-without
-                                        (anodes-seclass-or anode1 body-anode)
-                                        varlist)
-                             :stackz oldstackz
-                             :code codelist)))
-                    (closuredummy-add-stack-slot
-                     closurevars closuredummy-stackz closuredummy-venvc)
-                    (optimize-var-list varlist)
-                    anode))))))))))
+                               (push *stackz* L) (bind-fixed-var-2 var)))))
+                    (push-specials)
+                    (let* ((body-anode ; compile Body
+                             (c-form `(PROGN ,@body-rest)))
+                           ; check the variables:
+                           (closurevars (checking-fixed-var-list varlist))
+                           (codelist ; generate Code
+                             `(,anode1
+                               (NV-TO-STACK ,(length symbols))
+                               ,@(c-make-closure closurevars closuredummy-venvc
+                                                 closuredummy-stackz)
+                               ,@ ; bind special- or Closure-variables:
+                                 (do ((stackvarlistr stackvarlist
+                                                     (cdr stackvarlistr))
+                                      (stackzlistr stackzlist (cdr stackzlistr))
+                                      (varlistr varlist (cdr varlistr))
+                                      (L '()))
+                                     ((null varlistr) (nreverse L))
+                                   (setq L (revappend
+                                             (c-bind-fixed-var
+                                               (car varlistr)
+                                               (car stackvarlistr)
+                                               (car stackzlistr))
+                                             L)))
+                               ,body-anode
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))
+                           (anode
+                             (make-anode
+                               :type 'MULTIPLE-VALUE-BIND
+                               :sub-anodes (list anode1 body-anode)
+                               :seclass (seclass-without
+                                          (anodes-seclass-or anode1 body-anode)
+                                          varlist)
+                               :stackz oldstackz
+                               :code codelist)))
+                      (closuredummy-add-stack-slot
+                        closurevars closuredummy-stackz closuredummy-venvc)
+                      (optimize-var-list varlist)
+                      anode)))))))))))
 
 ;; compile (COMPILER-LET ({var|(var value)}*) {form}*)
 (defun c-COMPILER-LET (&optional (c #'c-form))
@@ -5933,7 +5934,6 @@ for-value   NIL or T
             (multiple-value-setq
                 (*specials* *ignores* *ignorables* *readonlys*)
               (process-declarations declarations))
-            (push-specials)
             (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
             (setq closuredummy-stackz *stackz* closuredummy-venvc *venvc*)
             (flet ((finish-using-applyarg
@@ -6068,6 +6068,7 @@ for-value   NIL or T
             ;; activate the bindings of the Aux-Variables:
             (multiple-value-setq (aux-vars aux-anodes)
               (bind-aux-vars auxvar auxinit))
+            (push-specials)
             (let* ((body-anode (c-form `(PROGN ,@body-rest)))
                    ;; check the variables:
                    (varlist
