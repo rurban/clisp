@@ -59,16 +59,14 @@ PACKEXT = .tar.bz2
 TOPDIR = clisp
 T = $(TOPDIR)
 
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure #$T/HTML-index.html
-#SOURCES2 = $T/src/*
-SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
-SOURCES3 = $T/src/po/*[^p]
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
+SOURCES2 = $T/src
 SOURCES4 = $T/ffcall $T/libcharset $T/utils
 SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/modules
-SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
+SOURCES7 = $T/tests $T/benchmarks $T/emacs $T/doc $T/Makefile.devel
 
-SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES3) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
+SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
 
 DOSDIR = /c:/clisp/src
 EMXDIR = /c:/emx

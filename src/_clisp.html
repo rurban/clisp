@@ -12,7 +12,7 @@
  <title>CLISP manual page</title>
 </head>
 <body>
-<h1>CLISP manual page</h1>
+<h1>CLISP manual page (version VERSION)</h1>
 
 <ul>
 <li><a href="#name">Name</a></li>
@@ -102,8 +102,12 @@ more efficiently.</p>
 <dd>Displays a help message on how to use <code>clisp</code>.<p/></dd>
 
 <dt id="opt-version"><strong><code>--version</code></strong></dt>
-<dd>Displays the <code>clisp</code> version number, as given by the
- function call <code>(<a href="http://www.lisp.org/HyperSpec/Body/fun_lisp-impl_tion-version.html">lisp-implementation-version</a>)</code>.<p/></dd>
+<dd>Displays the <code>clisp</code> version number,
+ as given by the function call
+ <code>(<a href="CLHSROOT/Body/fun_lisp-impl_tion-version.html"
+           >lisp-implementation-version</a>)</code>
+ and the values of the variable
+ <a href="impnotes.html#features"><code>*features*</code></a>.<p/></dd>
 
 <dt id="opt-license"><strong><code>--license</code></strong></dt>
 <dd>Displays a summary of the licensing information, the
@@ -421,9 +425,9 @@ Each line of <var>optionfile</var> is treated as a separate argument to
 </blockquote>
 
 <p>available online as the</p>
-<blockquote title="CLHS" cite="http://www.lisp.org/HyperSpec/FrontMatter/">
+<blockquote title="CLHS" cite="CLHSROOT/FrontMatter/">
  <p>Common Lisp HyperSpec
- (<a href="http://www.lisp.org/HyperSpec/FrontMatter/">"CLHS"</a> for short)</p>
+ (<a href="CLHSROOT/FrontMatter/">"CLHS"</a> for short)</p>
 </blockquote>
 
 <p>which supersedes the earlier specifications</p>
@@ -482,7 +486,7 @@ EOF (Ctrl-\e)
    <a href="http://www.gnu.org/software/bash/">bash</a>-style.</li>
   <li>If you have not started typing the next symbol (i.e., you are at
    a whitespace), the current function or macro is
-   <a href="http://www.lisp.org/HyperSpec/Body/fun_describe.html"
+   <a href="CLHSROOT/Body/fun_describe.html"
       >DESCRIBE</a>d.</li>
   <li>Otherwise, the symbol you are currently typing is completed.</li></ul>
  <p/></dd>
@@ -583,7 +587,8 @@ EOF (Ctrl-\e)
 #ifdef UNIX
  <dt><code>HOME</code> and <code>USER</code> (Unix implementation only)</dt>
   <dd>are used for determining the value of the function
-   <code><a href="http://www.lisp.org/HyperSpec/Body/fun_user-homedir-pathname.html">user-homedir-pathname</a></code><p/></dd>
+   <code><a href="CLHSROOT/Body/fun_user-homedir-pathname.html"
+            >user-homedir-pathname</a></code><p/></dd>
 #endif
 
 #ifdef UNIX

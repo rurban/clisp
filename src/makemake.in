@@ -3035,6 +3035,7 @@ for f in $TXT_FILES ; do
   if [ $f = README ] ; then
     depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
   fi
+  if [ $f = clisp.html ] ; then depends=$depends" VERSION"; fi
   echol "${f} : ${SRCDIR}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
   echotab "\$(TXT2C) < ${SRCDIR}_${f} > $txt.c"
   if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
@@ -3063,7 +3064,7 @@ for f in $TXT_FILES ; do
     fi
   fi
   if [ $f = clisp.html -a $HOS != win32 ] ; then
-    line=$line" | sed -e 's,HREF=\"CLHSROOT/,HREF=\"${hyperspec}/,'"
+    line=$line" | sed -e 's,href=\"CLHSROOT/,href=\"${hyperspec}/,' -e 's,VERSION,`cat VERSION`,'"
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
@@ -3453,7 +3454,7 @@ if [ $HOS = win32 ] ; then
   echotab "nroff -man clisp.1 > clisp.man"
   if [ $HOS = win32 ] ; then
     for f in clisp.html ; do
-      echotab "sed -e 's,HREF=\"CLHSROOT/,HREF=\"${hyperspec}/,' < $f > $f.new"
+      echotab "sed -e 's,href=\"CLHSROOT/,href=\"${hyperspec}/,' -e 's,VERSION,`cat VERSION`,' < $f > $f.new"
       echotab "mv $f.new $f"
     done
   fi
