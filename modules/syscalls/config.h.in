@@ -96,9 +96,6 @@
 /* Define to 1 if you have the `lgamma' function. */
 #undef HAVE_LGAMMA
 
-/* Define to 1 if you have the <limits.h> header file. */
-#undef HAVE_LIMITS_H
-
 /* Define to 1 if you have the `link' function. */
 #undef HAVE_LINK
 
