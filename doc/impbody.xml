@@ -1264,11 +1264,9 @@ can give problems:
  sets the &package-var; initially to the &cs-clu; package, and
  &print-base-var; to <constant>:downcase</constant>.</para>
 
-<para>For packages to be located in the modern, case-sensitive world, you
- need to augment their &defpackage; declaration, by adding the options
- <code>(&case-sensitive-k; &t;) (&case-inverted-k; &t;)</code>, and replacing
- <code>(:use #:cl)</code> with <code>(:use #:cs-cl)</code>.
-</para>
+<para>For packages to be located in the <quote>modern</quote>
+ (case-sensitive) world, you need to augment their &defpackage;
+ declaration by adding the option <code>(&modern-k; &t;)</code>.</para>
 
 </section>
 </section>
@@ -1281,19 +1279,36 @@ can give problems:
  <literal role="data">(&cl-pac;)</literal>.</para>
 
 <para>&make-package; accepts additional keyword arguments
- &case-sensitive-k; and &case-inverted-k;.</para></section>
+ &case-sensitive-k; and &case-inverted-k; (but &not-e; &modern-k;!)
+</para></section>
 
 <section id="defpack"><title>Macro &defpackage;</title>
-<para>&defpackage; accepts additional options &case-sensitive-k; and
- &case-inverted-k;.</para>
+<para>&defpackage; accepts additional options &case-sensitive-k;,
+ &case-inverted-k;, and &modern-k;.</para>
 <para>When the package being defined already exists, it is modified as
  follows (and in this order):<variablelist>
-  <varlistentry><term>&case-sensitive-k;</term><term>&case-inverted-k;</term>
+  <varlistentry><term>&case-sensitive-k;</term>
    <listitem><simpara>adjusted with <code>(&setf; &pack-sensitive;)</code>
      (with a warning)</simpara></listitem></varlistentry>
   <varlistentry><term>&case-inverted-k;</term>
    <listitem><simpara>adjusted with <code>(&setf; &pack-inverted;)</code>
      (with a warning)</simpara></listitem></varlistentry>
+  <varlistentry><term>&modern-k;</term>
+   <listitem><para>if &cl-pac; is being used, it is un-used and
+     &cs-cl; is used instead; also, &cs-cl; is used instead of &cl-pac;
+     throughout the &defpackage; form, e.g.,<programlisting language="lisp">
+(&defpackage; "FOO"
+  (&modern-k; &t;)
+  (&use-k; "COMMON-LISP" "EXT"))
+</programlisting>is equivalent to<programlisting language="lisp">
+(&defpackage; "FOO"
+  (&case-sensitive-k; &t;)
+  (&case-inverted-k; &t;)
+  (&use-k; "CS-COMMON-LISP" "EXT"))
+</programlisting></para>
+    <simpara><code>(&modern-k; &nil;)</code> reverts the
+      effects of <code>(&modern-k; &t;)</code>.</simpara>
+  </listitem></varlistentry>
   <varlistentry><term><constant>:NICKNAMES</constant></term>
    <listitem><simpara>adjusted with &rename-package;
   </simpara></listitem></varlistentry>
