@@ -323,7 +323,7 @@
 #endif
 
 #ifdef HAVE_MMAP_DEVZERO
-  local int zero_fd; # open handle for /dev/zero
+  local int mmap_zero_fd; # open handle for /dev/zero
   # How to access /dev/zero: Sometimes /dev/zero has permissions 0644.
   # Therefore we can OPEN() it only with O_RDONLY instead of O_RDWR.
   # Therefore, in the mmap() call, we use MAP_PRIVATE instead of MAP_SHARED.
@@ -334,7 +334,7 @@
   #endif
 #endif
 #ifdef HAVE_MMAP_ANON
-  #define zero_fd  -1 # any invalid handles works!
+  #define mmap_zero_fd  -1 # any invalid handles works!
   #define map_flags  MAP_ANON | MAP_PRIVATE
 #endif
 
@@ -380,7 +380,7 @@
             errno_out(errno);
             return -1; # error
           }
-        zero_fd = fd;
+        mmap_zero_fd = fd;
       }
       #endif
       return 0;
@@ -396,7 +396,7 @@
                         map_len, # Länge
                         PROT_READ_WRITE, # Zugriffsrechte
                         map_flags | MAP_FIXED, # genau an diese Adresse!
-                        zero_fd, 0 # leere Seiten legen
+                        mmap_zero_fd, 0 # leere Seiten legen
                        )
            == (void*)(-1)
          )
