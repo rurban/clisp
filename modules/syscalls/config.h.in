@@ -76,6 +76,9 @@
 /* Define to 1 if you have the `getuid' function. */
 #undef HAVE_GETUID
 
+/* Define to 1 if you have the `GlobalMemoryStatusEx' function. */
+#undef HAVE_GLOBALMEMORYSTATUSEX
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -109,6 +112,9 @@
 
 /* Define to 1 if you have the `setkey' function. */
 #undef HAVE_SETKEY
+
+/* Define to 1 if you have the `setrlimit' function. */
+#undef HAVE_SETRLIMIT
 
 /* Define to 1 if you have the <shlobj.h> header file. */
 #undef HAVE_SHLOBJ_H
