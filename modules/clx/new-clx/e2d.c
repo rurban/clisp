@@ -549,7 +549,7 @@ void compile_signature (FILE *sink, int req, int opt, int restflag, int keyflag,
 }
 
 void parse_signature (char **arg, int *req_out, int *opt_out,
-                                  int *restflag_out, int *keyflag_out)
+                      int *restflag_out, int *keyflag_out)
 {
   if (sscanf (arg[0], "%d", req_out) != 1)
     {
@@ -649,7 +649,7 @@ char *do_defun (FILE *in, FILE *out, char *line)
       if (simple_p)
         fprintf (out, "LISPFUNN (%s, %s)", c_name, arg[0]);
       else
-        fprintf (out, "LISPFUN (%s, %s, %s, %s, %s, %s, NIL)",
+        fprintf (out, "LISPFUN (%s, seclass_default, %s, %s, %s, %s, %s, NIL)",
                  c_name, arg[0], arg[1], arg[2], arg[3], arg[4]);
     }
   else
@@ -660,7 +660,7 @@ char *do_defun (FILE *in, FILE *out, char *line)
       fprintf (stderr, "Notice: Signature (%s, %s, %s, %s) for function '%s' will be emulated.\n",
                        arg[0], arg[1], arg[2], arg[3],
                        name);
-      fprintf (out, "LISPFUN (%s, 0, 0, rest, nokey, 0, NIL)", c_name);
+      fprintf (out, "LISPFUN (%s, seclass_default, 0, 0, rest, nokey, 0, NIL)", c_name);
 
       /* Now slurp in the whole definition of the function and
        * interpret the arguments on our own.
@@ -712,7 +712,7 @@ char *do_defun (FILE *in, FILE *out, char *line)
     static char subr [4096];
     static char sym [1024];
     sprintf (subr,
-             "{ (lisp_function_t)(&C_%s), nullobj,NIL,0, %s, %s, (uintB)subr_%s, (uintB)subr_%s, %s, },",
+             "{ (lisp_function_t)(&C_%s), nullobj,NIL,0, %s, %s, (uintB)subr_%s, (uintB)subr_%s, %s, seclass_default, },",
              c_name,
              arg[0], arg[1], arg[2], arg[3], arg[4]);
     sprintf (sym , "{ \"%s\", \"%s\", },", pack, sym_name);
