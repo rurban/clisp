@@ -1,5 +1,5 @@
 # Include-File für UNIX-Version von CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 
 # Konstanten für Steuerzeichen:
@@ -36,6 +36,11 @@
     extern SYS_ERRLIST_CONST char* SYS_ERRLIST_CONST sys_errlist[]; # Betriebssystem-Fehlermeldungen
   #endif
   # siehe PERROR(3)
+  # On UnixWare 7.0.1 some errno value is defined to an invalid negative value,
+  # causing an out-of-bounds array access in errunix.d.
+  #if (EDQUOT < 0)
+    #undef EDQUOT
+  #endif
 # wird verwendet von ERROR, SPVW, STREAM, PATHNAME
 
 # Bereitstellen des Arbeitsspeichers
