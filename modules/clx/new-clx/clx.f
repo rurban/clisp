@@ -4127,12 +4127,13 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
   return;                       /* all done */
 
 sorry:
-  fehler (error, "Sorry, my implementation of XLIB:PUT-IMAGE is still not complete.");
+  fehler (error, "Sorry, my implementation of XLIB:PUT-IMAGE is still incomplete.");
 }
 
-#if defined(DEBUG_CLX)
+#if DEBUG_CLX
 /* from Barry Fishman <barry_fishman@att.net>
-   http://article.gmane.org/gmane.lisp.clisp.general/7587  */
+   http://article.gmane.org/gmane.lisp.clisp.general/7587
+ This presumes little-endian bitmaps */
 void dump_image (XImage *image)
 { /* test function to print the contents of the bitmap */
   int x, y;
