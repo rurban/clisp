@@ -1,3 +1,9 @@
+2002-10-31  Sam Steingold  <sds@gnu.org>
+
+	* error.d, lispbibl.d (fehler_lambda_expression): accept `caller' argument
+	* symbol.d (%PUTD): pass caller to fehler_lambda_expression()
+	* eval.d (coerce_function, apply, funcall): ditto
+
 2002-10-30  Sam Steingold  <sds@gnu.org>
 
 	* error.d (fehler_proper_list): accept `caller' argument

@@ -2164,7 +2164,7 @@ nonreturning_function(local, fehler_undefined, (object caller, object funname)) 
         else
           fehler_undefined(TheSubr(subr_self)->name,obj);
       } elif (consp(obj) && eq(Car(obj),S(lambda))) { # Cons (LAMBDA . ...) ?
-        fehler_lambda_expression(obj);
+        fehler_lambda_expression(TheSubr(subr_self)->name,obj);
       } else
         fehler_function(obj);
     }
@@ -4036,9 +4036,9 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
         return_Values apply_subr(L(foreign_call_out),args_on_stack+1,other_args);
       }
       #endif
-      elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
-        subr_self = L(apply); fehler_lambda_expression(fun);
-      } else
+      else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
+        fehler_lambda_expression(S(apply),fun);
+      else
         fehler_funname_type(S(apply),fun);
     }
 
@@ -4950,9 +4950,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         return_Values funcall_subr(L(foreign_call_out),args_on_stack+1);
       }
       #endif
-      elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
-        subr_self = L(funcall); fehler_lambda_expression(fun);
-      } else
+      else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
+        fehler_lambda_expression(S(funcall),fun);
+      else
         fehler_funname_type(S(funcall),fun);
     }
 
