@@ -1219,7 +1219,7 @@ fi
 #      IF platform has strict libc version checking
 #        THEN use static library distribution
 #        ELSE use BINARY_DISTRIB
-if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
+if [ $CROSS = false ] ; then
   # Distinguish good SunOS 4 from the SunOS 5 garbage called "Solaris 2":
   case "$host_os" in
     solaris*)
