@@ -1604,10 +1604,10 @@ LISPFUNN(hash_table_weak_p,1) {
   VALUES1(ht_weak(ht));
 }
 
-# (SYS::%SET-HASH-TABLE-WEAK-P ht val) == (SETF (HASH-TABLE-WEAK-P ht) val)
+/* (SYS::%SET-HASH-TABLE-WEAK-P ht val) == (SETF (HASH-TABLE-WEAK-P ht) val) */
 LISPFUNN(set_hash_table_weak_p,2) {
-  var gcv_object_t val = check_weak(popSTACK()); # weak-p
-  var object ht = STACK_0; # hashtable argument
+  var object val = check_weak(popSTACK()); /* weak-p */
+  var object ht = STACK_0; /* hashtable argument */
   check_hashtable(ht);
   if (nullp(val) && ht_weak_p(ht)) {
     var uintL len = Weakkvt_length(TheHashtable(ht)->ht_kvtable);
