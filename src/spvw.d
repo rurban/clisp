@@ -3055,11 +3055,11 @@ nonreturning_function(global, quit, (void)) {
   if (quit_retry==0) {
     quit_retry++; # If this fails, do not retry it. For robustness.
     funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
+    pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B));
+    funcall(L(fresh_line),1);   /* (FRESH-LINE *error-output*) */
     if (argv_verbose >= 2) {
       pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
     }
-    pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
-    funcall(L(fresh_line),1); # (FRESH-LINE *error-output*)
   }
   # Then wait for a keypress:
   if (argv_wait_keypress) {
