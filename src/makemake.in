@@ -748,7 +748,7 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
     if [ $TSYS = win32msvc ] ; then
       LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib'
     fi
-    LIBS=$LIBS' ole32.lib wldap32.lib'
+    LIBS=$LIBS' ole32.lib wldap32.lib shell32.lib'
     # With Borland C++, we must generate stub libraries for system DLLs
     # ourselves.
     if [ $TSYS = win32bc ] ; then
