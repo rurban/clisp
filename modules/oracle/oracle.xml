@@ -4,10 +4,11 @@
 The &oracle-link; module allows a &clisp; program to act as client to an
 &oracle-link; database server.  The module includes full
 SQL support, transactions (including auto-commit), support for most
-&oracle-link; data types (LONG, BLOB, CLOB, RAW, etc.), automatic conversion
+&oracle-link; data types (<type>LONG</type>, <type>BLOB</type>,
+<type>CLOB</type>, <type>RAW</type>, etc.), automatic conversion
 between &oracle-link; and &cl; data types, database connection caching and
 retry, concurrent connections to multiple databases, proper handling
-of &oracle-link; errors, and more.  </para>
+of &oracle-link; errors, and more.</para>
 <para>The module can be used to build sophisticated &oracle-link; database
 applications in &cl;.</para>
 <simpara>When this module is present, &features-var; contains the
@@ -28,7 +29,7 @@ SQL query).</para>
 
 		<!-- CONNECT -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:CONNECT
+<varlistentry id="ora-connect"><term><literal role="sexp">(ORACLE:CONNECT
 <replaceable>user</replaceable>
 <replaceable>password</replaceable>
 <replaceable>server</replaceable>
@@ -42,14 +43,14 @@ SQL query).</para>
 <simpara>
 
 Connect to an &oracle-link; database.  All subsequent operations will affect
-this database until the next call to <function>CONNECT</function>.  A
+this database until the next call to &ora-connect;.  A
 single program can access different &oracle-link; schemas concurrently by
-repeated calls to <function>CONNECT</function>.  Database connections
-are cached and re-used: if you call <function>CONNECT</function> again
+repeated calls to &ora-connect;.  Database connections
+are cached and re-used: if you call &ora-connect; again
 with the same <replaceable>user</replaceable>,
 <replaceable>schema</replaceable>, and
 <replaceable>server</replaceable>, the previous &oracle-link; connection will
-be re-used.  <function>CONNECT</function> may not be called inside
+be re-used.  &ora-connect; may not be called inside
 <function>WITH-TRANSACTION</function>.
 
 Returns: &t; if a cached connection was re-used, &nil; if a new
@@ -57,7 +58,7 @@ connection was created (and cached).
 
 The meaning of the arguments is as follows:
 </simpara>
-<variablelist><title>Arguments for <function>CONNECT</function></title>
+<variablelist><title>Arguments for &ora-connect;</title>
 <varlistentry><term><replaceable>user</replaceable></term>
  <listitem><simpara>&oracle-link; user ID</simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>password</replaceable></term>
@@ -108,7 +109,7 @@ The meaning of the arguments is as follows:
 <listitem>
 <simpara>
 Disconnect from the database currently connected.  No more calls can
-be made until <function>CONNECT</function> is called again.  The
+be made until &ora-connect; is called again.  The
 connection is closed and removed from the connection cache.  Does
 nothing if there is no connection.  <function>DISCONNECT</function>
 may not be called inside <function>WITH-TRANSACTION</function>.
@@ -124,13 +125,13 @@ Returns &nil;.
 <replaceable>params</replaceable>
 <replaceable>is-select</replaceable>)</literal></term>
 <listitem>
-<simpara>Execute a SQL statement.  Must be <function>CONNECT</function>ed
+<simpara>Execute a SQL statement.  Must be &ora-connect;ed
 to a database.  Returns the number of rows affected by the SQL operation,
 for non-SELECT statements, zero for SELECT statements.  For
 destructive database operations (INSERT, UPDATE, DELETE), the results
 are committed to the database immediately if
 <replaceable>auto-commit</replaceable> when establishing the current
-connection; see <function>CONNECT</function>.  The meaning of the
+connection; see &ora-connect;.  The meaning of the
 arguments is as follows: </simpara>
 <variablelist><title>Arguments for <function>RUN-SQL</function></title>
 <varlistentry><term><replaceable>sql</replaceable></term>
@@ -174,7 +175,7 @@ arguments is as follows: </simpara>
   <simpara>As <function>DO-ROWS</function> expands into a &do-star;
    loop, it may be terminated prematurely, before all rows are fetched,
    by using &return; anywhere in &body-r;.</simpara>
-  <simpara>It is allowed to call <function>CONNECT</function> in the
+  <simpara>It is allowed to call &ora-connect; in the
    &body-r; of the loop, but only to switch the connection to a database
    other than the one that was used to do the SELECT.  This is useful
    for reading from one database while writing to another.
@@ -242,7 +243,7 @@ arguments is as follows: </simpara>
       twice the size, in bytes, as the &oracle-link; data.</entry></row>
     <row><entry>"Large" types (LONG, BLOB, CLOB)</entry>
      <entry>A Lisp string of (arbitrary, possibly binary) data.  Note
-      that truncation may occur; see the <function>CONNECT</function>
+      that truncation may occur; see the &ora-connect;
       parameters <replaceable>long-len</replaceable>
       and <replaceable>truncate-ok</replaceable>.</entry></row>
     <row><entry>&c-NULL;</entry>
@@ -288,7 +289,7 @@ over an entire SELECT result to construct a single Lisp value.
 <listitem>
 <simpara>
 
-Peek at next row of data (without fetching it).  Returns a row ala
+Peek at next row of data (without fetching it).  Returns a row a la
 <function>FETCH</function>, except does not advance to the next row.
 Repeated calls to <function>PEEK</function> will thus return the same
 row of data.  Returns &nil; if at EOF.  If data is available, returns
@@ -296,8 +297,8 @@ row data just as <function>FETCH</function> (see
 <function>FETCH</function> for data format and conversions done).
 Optional argument <replaceable>result-type</replaceable> is the type
 of sequence of the column values for the returned row, either
-'<classname>ARRAY</classname> (the default) or
-'<classname>LIST</classname>.  <function>PEEK</function> is a useful look-ahead
+&array-t; (the default) or &list-t;.
+<function>PEEK</function> is a useful look-ahead
 for database reporting functions that may need to "break" on changes in
 data to print headers, summaries, etc.
 </simpara></listitem></varlistentry>
@@ -416,7 +417,7 @@ that the database is affected only by the subsequent updates inside
 <function>WITH-TRANSACTION</function> blocks is not allowed and will
 raise an error.  There is no effect on the status of
 <replaceable>auto-commit</replaceable> given in
-<function>CONNECT</function>; it resumes its previous state when the
+&ora-connect;; it resumes its previous state when the
 macro exits.  The value of the <function>WITH-TRANSACTION</function>
 expression is that of the last form in &body-r;.
 </simpara></listitem></varlistentry>
@@ -428,7 +429,7 @@ expression is that of the last form in &body-r;.
 <simpara>
 Commits (makes permanent) any pending changes to the database.  The
 <replaceable>auto-commit</replaceable> parameter to
-<function>CONNECT</function> must not have been set to use this
+&ora-connect; must not have been set to use this
 function, nor can it be called inside a
 <function>WITH-TRANSACTION</function> block. Always returns NIL.
 </simpara></listitem></varlistentry>
@@ -440,7 +441,7 @@ function, nor can it be called inside a
 <simpara>
 Rolls back (undoes and abandons) any pending changes to the database.
 The <replaceable>auto-commit</replaceable> parameter to
-<function>CONNECT</function> must not have been set to use this
+&ora-connect; must not have been set to use this
 function, nor can it be called inside a
 <function>WITH-TRANSACTION</function> block. Always returns NIL.
 </simpara></listitem></varlistentry>
@@ -451,7 +452,7 @@ function, nor can it be called inside a
 <listitem>
 <simpara>
 Toggles the state of <replaceable>auto-commit</replaceable> initially
-given to <function>CONNECT</function> for the current connection.
+given to &ora-connect; for the current connection.
 With <replaceable>auto-commit</replaceable> enabled, modifications to
 the database are committed (made permanent) after each destructive SQL
 operation made with calls to <function>RUN-SQL</function>,
@@ -529,23 +530,15 @@ you have the file <filename>oci.h</filename> somewhere
 under <envar>ORACLE_HOME</envar>, probably
 in <filename>$<envar>ORACLE_HOME</envar>/rdbms/demo/oci.h</filename>.</para>
 
-<para>
-
-To build the module into &clisp;, specify
-<command>./configure ... --with-module=oracle ...</command>
-at build time.
-Thereafter, to load the &clisp; linking set which contains the module,
-you need to run &clisp; with the option
-<olink targetdoc="man" targetptr="opt-link-set"><option>-K
-  full</option></olink>.
+<para>To build the module into &clisp;, configure with
+<command>./configure ... --with-module=oracle ...</command>.
+The <command>full</command> &linkset; will contain the module,
+so you will need to use the &opt-K; option to use it.
 You can test that you really have the &oracle-link;-enabled &clisp; by
 evaluating <literal role="sexp">(&describe; 'oracle:connect)</literal>
 It may be necessary to edit the Makefile in the
 <filename>modules/oracle</filename> subdirectory of the distribution
-prior to running <command>./configure</command>.
-
-
-</para>
+prior to running <command>./configure</command>.</para>
 
 
 </section>
