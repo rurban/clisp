@@ -1,3 +1,8 @@
+2000-04-02  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * autoconf/aclocal.m4 (CL_TERMCAP): When both libtermcap and
+        libncurses exist, prefer the latter.
+
 2000-03-12  Bruno Haible  <haible@clisp.cons.org>
 
         Add support for S390 CPU.
