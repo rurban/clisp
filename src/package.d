@@ -2769,16 +2769,16 @@ LISPFUNN(package_iterate,1) {
           #    the accessibility would be :INTERNAL or :EXTERNAL).
           {
             var object shadowingsym;
-            if (!(eq(Car(TheSvector(state)->data[5]),S(Kinherited)) &&
-                  (shadowing_lookup(Symbol_name(value2),
-                                    TheSvector(state)->data[4],
-                                    &shadowingsym) ||
-                   symtab_find(value2,
-                               ThePackage(TheSvector(state)->data[4])->
-                               pack_internal_symbols) ||
-                   symtab_find(value2,
-                               ThePackage(TheSvector(state)->data[4])->
-                               pack_external_symbols)))) {
+            if (!(eq(Car(TheSvector(state)->data[5]),S(Kinherited))
+                  && (shadowing_lookup(Symbol_name(value2),
+                                       TheSvector(state)->data[4],
+                                       &shadowingsym)
+                      || symtab_find(value2,
+                                     ThePackage(TheSvector(state)->data[4])->
+                                     pack_internal_symbols)
+                      || symtab_find(value2,
+                                     ThePackage(TheSvector(state)->data[4])->
+                                     pack_external_symbols)))) {
               # Symbol value2 is really accessible.
               value1 = T; value3 = Car(TheSvector(state)->data[5]);
               mv_count=3; return;
