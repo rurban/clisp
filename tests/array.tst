@@ -486,6 +486,17 @@ ERROR
 (BIT-NOT BVONE)
 #*0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
+(let* ((s1 (make-array nil :initial-element 0 :element-type 'bit))
+       (s2 (make-array nil :initial-element 1 :element-type 'bit)))
+  (list (bit-xor s1 s2) s1 s2))
+(#0A1 #0A0 #0A1)
+
+(let* ((a1 (make-array '(2 2) :element-type 'bit :initial-contents '((0 1) (0 1))))
+       (a2 (make-array '(2 2) :element-type 'bit :initial-contents '((0 0) (1 1))))
+       (result (bit-and a1 a2)))
+  (list a1 a2 result))
+(#2A((0 1) (0 1)) #2A((0 0) (1 1)) #2A((0 0) (0 1)))
+
 (FORMAT T "~%test operations with fill-pointer~%")   NIL
 
 (MAKE-ARRAY (QUOTE (3 4 5)) :FILL-POINTER T)   ERROR

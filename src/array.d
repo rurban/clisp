@@ -1668,8 +1668,7 @@ local Values bit_up (bit_op_fun_t* op)
     default:
       goto fehler2;
   }
-  /* check bit-array3: */
-  {
+  { /* check bit-array3: */
     var object array3 = STACK_0;
     if (missingp(array3)) { /* unbound or NIL? */
       /* yes -> create new vector: */
@@ -1716,8 +1715,7 @@ local Values bit_up (bit_op_fun_t* op)
       if (rank > 0) {
         var uintC count;
         var uintL* dimptr1 = dimptr;
-        var uintL* dimptr2;
-        dimptr2 = &array2->dims[0];
+        var uintL* dimptr2 = &array2->dims[0];
         if (iarray_flags(array2) & bit(arrayflags_dispoffset_bit))
           dimptr2++;
         dotimespC(count,rank, {
@@ -1737,14 +1735,13 @@ local Values bit_up (bit_op_fun_t* op)
       STACK_0 = allocate_bit_vector(Atype_Bit,len); /* create bitvector */
       array3 = allocate_iarray(Atype_Bit,rank,Array_type_mdarray); /* create array */
       TheIarray(array3)->data = STACK_0; /* store data vector */
+      TheIarray(array3)->totalsize = len;
       /* store dimensions: */
       if (rank > 0) {
         var uintC count;
         var uintL* dimptr1 = dimptr;
         var uintL* dimptr2 = &TheIarray(array3)->dims[0];
-        dotimespC(count,rank, {
-          *dimptr1++ = *dimptr2++;
-        });
+        dotimespC(count,rank, { *dimptr2++ = *dimptr1++;});
       }
       STACK_0 = array3; /* store new array */
     } else if (eq(array3,T)) {
@@ -1767,8 +1764,7 @@ local Values bit_up (bit_op_fun_t* op)
           if (rank > 0) {
             var uintC count;
             var uintL* dimptr1 = dimptr;
-            var uintL* dimptr2;
-            dimptr2 = &array3->dims[0];
+            var uintL* dimptr2 = &array3->dims[0];
             if (iarray_flags(array3) & bit(arrayflags_dispoffset_bit))
               dimptr2++;
             dotimespC(count,rank, {
