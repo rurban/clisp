@@ -1091,6 +1091,7 @@ LISPSYM(Kjunk_allowed,"JUNK-ALLOWED",keyword)
 LISPSYM(Kcase,"CASE",keyword)
 LISPSYM(Klevel,"LEVEL",keyword)
 LISPSYM(Klength,"LENGTH",keyword)
+LISPSYM(Klines,"LINES",keyword)
 LISPSYM(Kgensym,"GENSYM",keyword)
 LISPSYM(Kescape,"ESCAPE",keyword)
 LISPSYM(Kbase,"BASE",keyword)
@@ -1387,11 +1388,13 @@ LISPSYM(print_circle,"*PRINT-CIRCLE*",lisp) # als Variable in IO       |
 LISPSYM(print_pretty,"*PRINT-PRETTY*",lisp) # als Variable in IO       |
 LISPSYM(print_closure,"*PRINT-CLOSURE*",custom) # als Variable in IO   |
 LISPSYM(print_readably,"*PRINT-READABLY*",lisp) # als Variable in IO   |
+LISPSYM(print_lines,"*PRINT-LINES*",lisp) # als Variable in IO         |
 LISPSYM(print_right_margin,"*PRINT-RIGHT-MARGIN*",lisp) # -------------+
 LISPSYM(print_rpars,"*PRINT-RPARS*",custom) # als Variable in IO
 LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",custom) # als Variable in IO
 LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) # als Variable in IO
 LISPSYM(prin_level,"*PRIN-LEVEL*",system) # als Variable in IO
+LISPSYM(prin_lines,"*PRIN-LINES*",system) # als Variable in IO
 LISPSYM(prin_bqlevel,"*PRIN-BQLEVEL*",system) # als Variable in IO
 LISPSYM(prin_stream,"*PRIN-STREAM*",system) # als Variable in IO
 LISPSYM(prin_linelength,"*PRIN-LINELENGTH*",system) # als Variable in IO

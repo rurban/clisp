@@ -1225,11 +1225,13 @@
         define_variable(S(print_pretty),NIL);           # *PRINT-PRETTY* := NIL
         define_variable(S(print_closure),NIL);          # *PRINT-CLOSURE* := NIL
         define_variable(S(print_readably),NIL);         # *PRINT-READABLY* := NIL
+        define_variable(S(print_lines),NIL);            # *PRINT-LINES* := NIL
         define_variable(S(print_right_margin),NIL);     # *PRINT-RIGHT-MARGIN* := NIL
         define_variable(S(print_rpars),NIL);            # *PRINT-RPARS* := NIL
         define_variable(S(print_indent_lists),fixnum(1)); # *PRINT-INDENT-LISTS* := 1
         define_variable(S(print_circle_table),unbound); # SYS::*PRINT-CIRCLE-TABLE*
         define_variable(S(prin_level),unbound);         # SYS::*PRIN-LEVEL*
+        define_variable(S(prin_lines),unbound);         # SYS::*PRIN-LINES*
         define_variable(S(prin_stream),unbound);        # SYS::*PRIN-STREAM*
         define_variable(S(prin_linelength),fixnum(79)); # SYS::*PRIN-LINELENGTH* := 79 (vorläufig)
         define_variable(S(prin_l1),unbound);            # SYS::*PRIN-L1*

@@ -1,3 +1,23 @@
+2001-07-22  Sam Steingold  <sds@gnu.org>
+
+	Implemented *PRINT-LINES*
+	* io.d (pphelp_newline): incf SYS::*PRIN-LINES*
+	(check_lines_limit, double_dots): new functions
+	(CHECK_LINES_LIMIT): new macro
+	(justify_end_eng, justify_end_weit, pr_cons, pr_vector,
+	pr_array_recursion, pr_structure_default, pr_record_ab,
+	pr_record_rest, pr_record_descr, pr_orecord,
+	pr_cclosure_codevector): use it
+	(pr_enter): bind SYS::*PRIN-LINES*
+	(print_vars_anz): increased to 14
+	(write, write-to-string): added :LINES arg
+	* constsym.d: added :LINES, *PRINT-LINES* and SYS::*PRIN-LINES*
+	* init.lisp: export *PRINT-LINES*
+	* inspect.lisp (inspect): bind *PRINT-LINES* to *INSPECT-PRINT-LINES*
+	* spvw.d (init_symbol_values): define *PRINT-LINES*
+	 and SYS::*PRIN-LINES*
+	* subr.d, subrkw.d (write, write-to-string): added :LINES arg
+
 2001-07-21  Sam Steingold  <sds@gnu.org>
 
 	massive reindentations and code re-arrangements
