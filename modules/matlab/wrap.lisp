@@ -28,6 +28,7 @@
        (when ,eng (engClose ,eng)))))
 
 (defun engine (&optional (cmd *command*))
+  "ensure that we have a working matlab engine"
   (or *engine* (setq *engine* (engOpen cmd))))
 
 (defmacro with-MATfile ((file name &optional (mode "r")) &body body)
