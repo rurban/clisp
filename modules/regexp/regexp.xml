@@ -126,10 +126,7 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
 (let ((h (make-hash-table :test #'equal :size 10)) (n 0))
   (with-open-file (f "/etc/passwd")
     (with-loop-split (s f ":")
-      (let ((sh (seventh s)))
-        (if (gethash sh h)
-            (incf (gethash sh h))
-            (setf (gethash sh h) 1)))))
+      (incf (gethash (seventh s) h 0))))
   (with-hash-table-iterator (i h)
     (loop (multiple-value-bind (r k v) (i)
             (unless r (return))
@@ -157,6 +154,7 @@ my $ii = 0;
 for my $kk (keys(%hash)) {
   print "[",++$ii,"] \"",$kk,"\"  --  ",$hash{$kk},"\n";
 }
+close(INF);
 </programlisting></para>
 
 </section>
