@@ -1,5 +1,11 @@
 1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * genstream.tst: Untabify.
+          (generic-stream-read-char-status): Renamed from
+          generic-stream-listen.
+
+1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * conditions.tst: Use :format-control instead of :format-string.
 
 1999-05-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
