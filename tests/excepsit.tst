@@ -1183,3 +1183,7 @@ program-error
 
 (loop for x = '(nil nil nil) for x = 1 count x until t)
 program-error
+
+(loop with foo = '(a b) for x in '(c d) collecting x into foo
+  finally (return foo))
+program-error

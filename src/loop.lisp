@@ -472,7 +472,7 @@
            (dolist (var (li-vars initialization))
              (when (memq var var-list)
                (error-of-type 'source-program-error
-                 (TEXT "~S: duplicate iteration variable ~S") 'loop var))
+                 (TEXT "~S: duplicate iteration variable ~S") *whole* var))
              (push var var-list))
            (push initialization initializations)))
        (make-endtest (endtest-form)
@@ -978,16 +978,23 @@
                             (cdr everytime) (revappend endtest-forms (cdr everytime)))
                       (setq stepbefore-code (revappend endtest-forms stepbefore-code))))
                   (setq startup-code (revappend endtest-forms startup-code)))))))
-        (push
-         (make-loop-init
-          :specform 'LET
-          :bindings
-          `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
-            ,@(mapcar #'(lambda (var) `(,var NIL)) (delete-duplicates accu-vars-nil))
-            ,@(mapcar #'(lambda (var) `(,var 0)) (delete-duplicates accu-vars-0)))
-          :declspecs
-          (nreverse accu-declarations))
-         initializations1)
+        (flet ((check-accu-var (var)
+                 (when (memq var var-list)
+                   (error-of-type 'source-program-error
+                     (TEXT "~S: accumulation variable ~S is already bound")
+                     *whole* var))))
+          (push
+           (make-loop-init
+            :specform 'LET
+            :bindings
+            `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
+                ,@(mapcar #'(lambda (var) (check-accu-var var) `(,var NIL))
+                          (delete-duplicates accu-vars-nil))
+                ,@(mapcar #'(lambda (var) (check-accu-var var) `(,var 0))
+                          (delete-duplicates accu-vars-0)))
+            :declspecs
+            (nreverse accu-declarations))
+           initializations1))
         ;; Remove the NIL placeholders in stepafter-code.
         (setq stepafter-code (delete 'NIL stepafter-code))
         ;; If initially-code and stepafter-code both end in the same

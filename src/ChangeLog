@@ -1,3 +1,8 @@
+2002-11-16  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (expand-loop): fixed a bug: check that accumulation
+	variables have not been bound yet (by iteration or WITH clauses)
+
 2002-11-15  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (expand-loop): fixed a bug: package argument for
