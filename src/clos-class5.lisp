@@ -350,7 +350,7 @@
 ||#
 ;; the main work is done by a SUBR:
 (do-defmethod 'shared-initialize
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%shared-initialize '(T)))
     :wants-next-method-p nil
@@ -358,7 +358,7 @@
     :qualifiers '()
     :signature #s(compiler::signature :req-num 2 :rest-p t)))
 (do-defmethod 'shared-initialize
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%shared-initialize '(T)))
     :wants-next-method-p nil
@@ -403,7 +403,7 @@
 ||#
 ;; the main work is done by a SUBR:
 (do-defmethod 'reinitialize-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%reinitialize-instance '(T)))
     :wants-next-method-p nil
@@ -411,7 +411,7 @@
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'reinitialize-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%reinitialize-instance '(T)))
     :wants-next-method-p nil
@@ -467,7 +467,7 @@
 ||#
 ;; the main work is done by a SUBR:
 (do-defmethod 'initialize-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%initialize-instance '(T)))
     :wants-next-method-p nil
@@ -475,7 +475,7 @@
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'initialize-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%initialize-instance '(T)))
     :wants-next-method-p nil
@@ -523,7 +523,7 @@
 ||#
 ; the main work is done by a SUBR:
 (do-defmethod 'allocate-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%allocate-instance '(T)))
     :wants-next-method-p nil
@@ -531,7 +531,7 @@
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'allocate-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%allocate-instance '(T)))
     :wants-next-method-p nil
@@ -585,7 +585,7 @@
 ||#
 ;; the main work is done by a SUBR:
 (do-defmethod 'make-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%make-instance '(T)))
     :wants-next-method-p nil
@@ -593,7 +593,7 @@
     :qualifiers '()
     :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'make-instance
-  (make-standard-method
+  (make-instance-<standard-method> <standard-method>
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%make-instance '(T)))
     :wants-next-method-p nil

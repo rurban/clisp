@@ -120,7 +120,7 @@
                                           :rest-p restp :keys-p keyp
                                           :keywords keywords :allow-p allowp)))
                 (values
-                  `(MAKE-STANDARD-METHOD
+                  `(MAKE-INSTANCE-<STANDARD-METHOD> (LOAD-TIME-VALUE <STANDARD-METHOD>)
                      :INITFUNCTION
                        #'(LAMBDA (,self)
                            ,@(if compile '((DECLARE (COMPILE))))
