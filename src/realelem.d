@@ -1149,7 +1149,7 @@
   #            goto Loop
   #   finally partial_quotient(c).
   #   Here partial_quotient(c) denotes the iteration
-  #     i := i+1, p[i] := a*p[i-1]+p[i-2], q[i] := a*q[i-1]+q[i-2].
+  #     i := i+1, p[i] := c*p[i-1]+p[i-2], q[i] := c*q[i-1]+q[i-2].
   #   At the end, return s * (p[i]/q[i]).
   #   This rational number is already in lowest terms because
   #   p[i]*q[i-1]-p[i-1]*q[i] = (-1)^i.
