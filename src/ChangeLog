@@ -1,3 +1,12 @@
+2003-02-23  Sam Steingold  <sds@gnu.org>
+
+	* check-lispfun.lisp (get-lisp-def): return the name of the form
+	as well as the arguments as two values
+	(*const-decls*): new variable
+	(get-lisp-defs): take all LISP* forms
+	(check-lisp-defs): exclude *const-decls* files
+	(write-subrs): new function
+
 2003-02-20  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (destructuring-error): as per CLHS 3.5.1.7, signal
