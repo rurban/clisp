@@ -7,6 +7,7 @@
 (defpackage #:rawsock
   (:documentation "Raw Socket access")
   (:use #:lisp)
+  (:shadow #:listen)            ; an ANSI CL symbol
   (:export #:buffer #:open-unix-socket #:open-unix-socket-stream
            #:accept #:bind #:connect
            #:getpeername #:getsockname
