@@ -901,6 +901,9 @@ local Values do_allocate_instance (object clas);
   class must be an instance of <standard-class> or <structure-class>. */
 LISPFUN(pallocate_instance,seclass_read,1,0,rest,nokey,0,NIL) {
   check_initialization_argument_list(argcount,S(allocate_instance));
+  # No need to check the validity of the initargs, because ANSI CL says
+  # "The caller of allocate-instance is expected to have already checked
+  #  the initialization arguments."
   set_args_end_pointer(rest_args_pointer); /* clean up STACK */
   return_Values do_allocate_instance(popSTACK());
 }
