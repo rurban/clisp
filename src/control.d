@@ -187,18 +187,6 @@ LISPFUNN(special_operator_p,1)
   VALUES_IF(fsubrp(obj));
 }
 
-/* error-message at assignment, if a symbol is a constant.
- (A constant may not be altered.)
- fehler_symbol_constant(caller,symbol);
- > caller: Caller (a symbol)
- > symbol: constant symbol */
-nonreturning_function(local, fehler_symbol_constant,
-                      (object caller, object symbol)) {
-  pushSTACK(symbol);
-  pushSTACK(caller);
-  fehler(error,GETTEXT("~: the value of the constant ~ may not be altered"));
-}
-
 /* UP: Check the body of a SETQ- or PSETQ-form.
  > caller: Caller (a symbol)
  > STACK_0: Body
@@ -206,11 +194,7 @@ nonreturning_function(local, fehler_symbol_constant,
 local bool check_setq_body (object caller) {
   var object body = STACK_0;
   while (consp(body)) {
-    var object symbol = Car(body); /* variable */
-    if (!symbolp(symbol))
-      fehler_kein_symbol(caller,symbol);
-    if (constantp(TheSymbol(symbol)))
-      fehler_symbol_constant(caller,symbol);
+    var object symbol = test_symbol_non_constant(caller,Car(body));
     if (sym_macrop(symbol))
       return true;
     body = Cdr(body);
@@ -297,9 +281,7 @@ LISPSPECFORM(psetq, 0,0,body)
 
 LISPFUNN(set,2)
 { /* (SETF (SYMBOL-VALUE symbol) value) = (SET symbol value), CLTL p. 92 */
-  var object symbol = test_symbol(STACK_1);
-  if (constantp(TheSymbol(symbol))) /* constant? */
-    fehler_symbol_constant(S(set),symbol);
+  var object symbol = test_symbol_non_constant(S(set),STACK_1);
   if (symbolmacrop(Symbol_value(symbol))) { /* symbol-macro? */
     /* Evaluate `(SETF ,expansion (QUOTE ,value)) */
     pushSTACK(S(setf));
@@ -314,13 +296,7 @@ LISPFUNN(set,2)
 
 LISPFUNN(makunbound,1)
 { /* (MAKUNBOUND symbol), CLTL p. 92 */
-  var object symbol = test_symbol(popSTACK());
-  if (constantp(TheSymbol(symbol))) {
-    pushSTACK(symbol);
-    pushSTACK(S(makunbound));
-    fehler(error,
-           GETTEXT("~: the value of the constant ~ must not be removed"));
-  }
+  var object symbol = test_symbol_non_constant(S(makunbound),popSTACK());
   Symbol_value(symbol) = unbound;
   VALUES1(symbol);
 }
@@ -755,7 +731,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
     var object symbol;
     if (consp(varspec)) {
       /* varspec is a Cons */
-      symbol = Car(varspec);
+      symbol = test_symbol_non_constant(S(compiler_let),Car(varspec));
       varspec = Cdr(varspec);
       if (consp(varspec) && nullp(Cdr(varspec))) {
         varspec = Car(varspec); /* Initform = second list element */
@@ -767,27 +743,12 @@ LISPSPECFORM(compiler_let, 1,0,body)
         fehler(source_program_error,
                GETTEXT("~: illegal variable specification ~"));
       }
-      /* symbol should be a non-constant symbol: */
-      if (!symbolp(symbol)) {
-       fehler_symbol:
-        fehler_kein_symbol(S(compiler_let),symbol);
-        }
-      if (constantp(TheSymbol(symbol))) {
-       fehler_constant:
-        pushSTACK(symbol);
-        pushSTACK(S(compiler_let));
-        fehler(program_error,GETTEXT("~: ~ is a constant, cannot be bound"));
-      }
       pushSTACK(Cdr(varspecs));
       eval_noenv(varspec); /* evaluate initform */
       varspecs = STACK_0;
       STACK_0 = value1; /* and into the stack */
     } else {
-      symbol = varspec;
-      if (!symbolp(symbol))
-        goto fehler_symbol;
-      if (constantp(TheSymbol(symbol)))
-        goto fehler_constant;
+      symbol = test_symbol_non_constant(S(compiler_let),varspec);
       pushSTACK(NIL); /* NIL as value into the stack */
       varspecs = Cdr(varspecs);
     }
@@ -1801,11 +1762,8 @@ LISPSPECFORM(multiple_value_setq, 2,0,nobody)
     var object varlist = STACK_1;
     /* peruse variable list: */
     while (consp(varlist)) {
-      var object symbol = Car(varlist); /* next variable */
-      if (!symbolp(symbol)) /* should be a symbol */
-        fehler_kein_symbol(S(multiple_value_setq),symbol);
-      if (constantp(TheSymbol(symbol))) /* and not a constant */
-        fehler_symbol_constant(S(multiple_value_setq),symbol);
+      var object symbol =       /* next variable */
+        test_symbol_non_constant(S(multiple_value_setq),Car(varlist));
       if (sym_macrop(symbol)) /* and not a symbol-macro */
         goto expand;
       varlist = Cdr(varlist);
