@@ -3494,13 +3494,26 @@ in the generic function instance."
   (values (compute-effective-method |#'initialize-instance| instance)
           (compute-effective-method |#'shared-initialize| instance 'T)))
 
+#|| ;; Now in record.d.
+ (defun check-initialization-argument-list (initargs caller)
+   (do ((l initargs (cddr l)))
+       ((endp l))
+     (unless (symbolp (car l))
+       (error "~S: invalid initialization argument ~S"
+              caller (car l)))
+     (when (endp (cdr l))
+       (error "~S: keyword arguments in ~S should occur pairwise"
+              caller initargs))))
+||#
+
 ;; 28.1.9.5., 28.1.9.4.
 (defgeneric shared-initialize
     (instance slot-names &rest initargs &key &allow-other-keys))
 (setq |#'shared-initialize| #'shared-initialize)
 #||
- (defmethod shared-initialize ((instance standard-object)
-                              slot-names &rest initargs)
+ (defmethod shared-initialize ((instance standard-object) slot-names
+                               &rest initargs)
+  (check-initialization-argument-list initargs 'shared-initialize)
   (dolist (slot (class-slots (class-of instance)))
     (let ((slotname (slotdef-name slot)))
       (multiple-value-bind (init-key init-value foundp)
@@ -3542,10 +3555,12 @@ in the generic function instance."
 (setq |#'reinitialize-instance| #'reinitialize-instance)
 #||
  (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
+  (check-initialization-argument-list initargs 'reinitialize-instance)
   (apply #'shared-initialize instance 'NIL initargs))
 ||#
 #|| ; optimized:
  (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
+  (check-initialization-argument-list initargs 'reinitialize-instance)
   (let ((h (gethash (class-of instance) *reinitialize-instance-table*)))
     (if h
       (progn
@@ -3625,10 +3640,12 @@ in the generic function instance."
 (setq |#'initialize-instance| #'initialize-instance)
 #||
  (defmethod initialize-instance ((instance standard-object) &rest initargs)
+  (check-initialization-argument-list initargs 'initialize-instance)
   (apply #'shared-initialize instance 'T initargs))
 ||#
 #|| ; optimized:
  (defmethod initialize-instance ((instance standard-object) &rest initargs)
+  (check-initialization-argument-list initargs 'initialize-instance)
   (let ((h (gethash class *make-instance-table*)))
     (if h
       (if (not (eq (svref h 3) #'clos::%shared-initialize))
@@ -3694,7 +3711,7 @@ in the generic function instance."
 ||#
 #||
  (defun %allocate-instance (class &rest initargs)
-  (declare (ignore initargs))
+  (check-initialization-argument-list initargs 'allocate-instance)
   ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
   ;; (class-shared-slots class) is a simple-vector, (class-names class) a cons.
   (if (atom (class-shared-slots class))
@@ -3727,6 +3744,7 @@ in the generic function instance."
     (apply #'make-instance (find-class class) initargs)))
 #||
  (defmethod make-instance ((class standard-class) &rest initargs)
+  (check-initialization-argument-list initargs 'make-instance)
   ;; 28.1.9.3., 28.1.9.4. take note of default-initargs:
   (dolist (default-initarg (class-default-initargs class))
     (let ((nothing default-initarg))

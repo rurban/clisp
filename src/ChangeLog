@@ -1,5 +1,15 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	ANSI CL compliance: Improved argument list checking.
+	* record.d (check_keywords): Remove macro.
+	(check_initialization_argument_list): New function.
+	(CLOS::%ALLOCATE-INSTANCE, CLOS::%SHARED-INITIALIZE,
+	CLOS::%REINITIALIZE-INSTANCE, CLOS::%INITIALIZE-INSTANCE,
+	CLOS::%MAKE-INSTANCE): Use check_initialization_argument_list instead
+	of check_keywords.
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	ANSI CL compliance.
 	* clos.lisp (ensure-class): Don't modify the old class if it doesn't
 	have a "proper name".
