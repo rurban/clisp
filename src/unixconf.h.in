@@ -269,6 +269,10 @@
    function. */
 #undef HAVE_SETFPUCW
 
+/* CL_RAISE */
+/* Define if you have the raise() function. */
+#undef HAVE_RAISE
+
 /* CL_ABORT */
 /* Define as the return type of abort(). */
 #undef RETABORTTYPE

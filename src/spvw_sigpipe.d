@@ -39,7 +39,11 @@
       # Revert to the default handler and re-raise the signal.
       # This should be sufficient to kill us.
       SIGNAL(SIGPIPE,SIG_DFL);
+      #if !(defined(UNIX) && !defined(HAVE_RAISE))
       raise(SIGPIPE);
+      #else
+      kill(getpid(),SIGPIPE);
+      #endif
     }
 
 #define install_sigpipe_handler()  \

@@ -325,7 +325,9 @@
   # schreiben, nicht jedoch in eventuell mprotect-geschützte Bereiche.
   #endif
   # Ein Signal veranlassen.
-  extern_C int raise (int sig);
+  #ifdef HAVE_RAISE
+    extern_C int raise (int sig);
+  #endif
 # wird verwendet von SPVW
 
 # Environment-Variablen abfragen:
