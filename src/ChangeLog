@@ -1,3 +1,12 @@
+2002-05-17  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 557155 ]: inspector :http broken Content-Length
+	* inspect.lisp (with-http-output): convert the string to a vector
+	with CONVERT-STRING-TO-BYTES and STREAM-EXTERNAL-FORMAT of the
+	socket to reliably compute the `Content-length:' header;
+	then write it with WRITE-BYTE-SEQUENCE (temporarily changing
+	STREAM-ELEMENT-TYPE to binary)
+
 2002-05-17  Bruno Haible  <bruno@clisp.org>
 
 	* stdbool.h.in: Upgrade to gettext-0.11.3.
