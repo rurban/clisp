@@ -104,14 +104,8 @@ User visible changes
   + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
     forms.
   + Fixes to internationalized error messages.
-  + The return value of ASINH was always rounded to a SINGLE-FLOAT.
-  + The return value of NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE,
-    WRITE-STRING, WRITE-LINE, when called with a displaced string as argument,
-    was wrong.
   + Passing a package as second argument of RENAME-PACKAGE led to an
     unjustified error.
-  + Some cases of ,@ inside doubly-nested backquote led to an unjustified
-    error.
 
 Modules
 -------
@@ -135,6 +129,28 @@ Portability
 * Weak pointers now also work on platforms without mmap().
 
 * Weak hash tables now also work on platforms without mmap().
+
+
+2.33.1 (2004-05-22)
+===================
+
+User visible changes
+--------------------
+
+* Bug fixes:
+  + The return value of ASINH was always rounded to a SINGLE-FLOAT.
+  + The return value of NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE,
+    WRITE-STRING, WRITE-LINE, when called with a displaced string as argument,
+    was wrong.
+  + Some cases of ,@ inside doubly-nested backquote led to an unjustified
+    error.
+
+Portability
+-----------
+
+* Improved portability for Solaris/SPARC64 in 64-bit mode.
+
+* Buildable with GCC-3.4.
 
 * Fixed a bug in (ASH x MOST-NEGATIVE-FIXNUM) on some platforms.
 
