@@ -1575,11 +1575,9 @@ N. Gray to X3J13.</para>
 
 <section id="macros3"><title>Extensions-1.10. Additional Fancy Macros</title>
 
-<para>If you uncomment the <literal role="sexp">(&load;
- "macros3")</literal> line in the file <filename>init.lisp</filename>
- before doing <command>make</command>, or load the file
- <filename>macros3.lisp</filename> into a running &clisp;, you can
- use the following macros:</para>
+<para>&clisp; comes with some extension macros, defined in the file
+ <filename>macros3.lisp</filename> and loaded from the file
+ <filename>init.lisp</filename> during <command>make</command>:</para>
 
 <formalpara id="ethe"><title>&ethe;</title>
 <para><literal role="sexp">(&ethe; &val-type-r; &form-r;)</literal>
@@ -1631,11 +1629,6 @@ is approximately equivalent to
 returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
 <literal role="sexp">(0 2 4 6 8)</literal> as multiple values.
 </para></formalpara>
-
-<para>You might want to add a <literal role="sexp">(&load;
- "macros3")</literal> statement to your <ulink
- url="clisp.html#opt-norc"><filename>.clisprc</filename></ulink>
- file if you do not want to dump your own &mem-image;.</para>
 
 </section>
 
