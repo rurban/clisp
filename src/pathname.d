@@ -3957,13 +3957,19 @@ local bool legal_logical_word (object obj) {
 # legal_name(object)
 # > object: if a simple-string, a normal-simple-string
 local bool legal_name (object obj) {
-  if (!simple_string_p(obj))
-    return false;
-  ASSERT(sstring_normal_p(obj));
-  var uintL len = Sstring_length(obj);
+  if (!stringp(obj)) return false;
+  var uintL len, offset;
+  obj = unpack_string_ro(obj,&len,&offset);
   if (len > 0) {
-    var const chart* charptr = &TheSstring(obj)->data[0];
-    dotimespL(len,len, { if (!legal_namechar(*charptr++)) { return false; }});
+    SstringDispatch(obj, {
+      var const chart* charptr = &TheSstring(obj)->data[offset];
+      dotimespL(len,len,
+        { if (!legal_namechar(*charptr++)) return false; });
+    },{
+      var const scint* charptr = &TheSmallSstring(obj)->data[offset];
+      dotimespL(len,len,
+        { if (!legal_namechar(as_chart(*charptr++))) return false; });
+    });
   }
   return true;
 }
@@ -4156,6 +4162,16 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         #endif
           STACK_3 = O(directory_default); # Default ist (:RELATIVE)
         goto directory_ok;
+      } else if (eq(directory,S(Kwild)) || eq(directory,S(Kwild_inferiors))) {
+        directory = S(Kwild_inferiors);
+        goto directory_add_absolute;
+      } else if (stringp(directory)) {
+        if (!legal_name(directory)) goto directory_bad;
+      directory_add_absolute:
+        pushSTACK(S(Kabsolute));
+        pushSTACK(directory);
+        STACK_3 = directory = listof(2);
+        goto directory_ok;
       } else if (consp(directory)) { # ein Cons?
         STACK_3 = directory = subst_coerce_normal_ss(directory);
         if (convert)
@@ -4171,7 +4187,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           if (!logical && eq(startpoint,S(Kabsolute))) {
             directory = Cdr(directory);
             startpoint = Car(directory);
-            if (!(eq(startpoint,S(Kroot))
+            if (!(   eq(startpoint,S(Kroot))
                   || eq(startpoint,S(Khome))
                   || eq(startpoint,S(Kcurrent))
                   || eq(startpoint,S(Klibrary))
