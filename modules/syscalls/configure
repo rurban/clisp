@@ -2860,7 +2860,8 @@ done
 
 
 
-for ac_header in errno.h fcntl.h netdb.h sys/resource.h
+
+for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -3315,7 +3316,7 @@ fi
 done
 
 if test "$ac_cv_header_shlobj_h" = yes ; then
-   LIBS=${LIBS}' -luser32 -lole32 -luuid';
+   LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
 fi
 
 
@@ -3853,7 +3854,7 @@ done
 
 
 
-for ac_func in fchmod fchown fstat link stat symlink utimes
+for ac_func in fchmod fchown fstat link stat symlink utime
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
