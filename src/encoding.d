@@ -472,7 +472,8 @@ global uintL utf8_mblen(encoding,src,srcend)
       }
       if (c < 0xE0) { # 2 byte sequence
         if (src+2 > srcend) break;
-        if ((src[1] ^ 0x80) < 0x40) {
+        if (((src[1] ^ 0x80) < 0x40)
+            && (c >= 0xC2)) {
           src += 2;
           count++;
           continue;
@@ -490,7 +491,8 @@ global uintL utf8_mblen(encoding,src,srcend)
       }
       if (c < 0xF0) { # 3 byte sequence
         if (src+3 > srcend) break;
-        if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)) {
+        if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
+            && (c >= 0xE1 || src[1] >= 0xA0)) {
           src += 3;
           count++;
           continue;
@@ -544,7 +546,8 @@ global void utf8_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
       if (dest == destend) break;
       if (c < 0xE0) { # 2 byte sequence
         if (src+2 > srcend) break;
-        if ((src[1] ^ 0x80) < 0x40) {
+        if (((src[1] ^ 0x80) < 0x40)
+            && (c >= 0xC2)) {
           *dest++ = as_chart(((cint)(c & 0x1F) << 6) | (cint)(src[1] ^ 0x80));
           src += 2;
           continue;
@@ -562,7 +565,8 @@ global void utf8_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
       }
       if (c < 0xF0) { # 3 byte sequence
         if (src+3 > srcend) break;
-        if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)) {
+        if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
+            && (c >= 0xE1 || src[1] >= 0xA0)) {
           *dest++ = as_chart(((cint)(c & 0x0F) << 12) | ((cint)(src[1] ^ 0x80) << 6) | (cint)(src[2] ^ 0x80));
           src += 3;
           continue;

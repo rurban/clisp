@@ -1,5 +1,10 @@
 1999-11-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d (utf8_mblen, utf8_mbstowcs): Make the UTF-8 decoder
+          "safe": Reject overlong byte sequences.
+
+1999-11-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (char_width): New declaration.
         * charstrg.d (non_spacing_table_data, nonspacing_table_ind): New
           arrays.
