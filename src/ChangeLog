@@ -1,5 +1,9 @@
 2005-02-16  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c: use SOCKLEN_T instead of socklen_t
+
+2005-02-16  Sam Steingold  <sds@gnu.org>
+
 	DEFCHECKER now accepts option-like arguments foo=bar
 	* utils/modprep.lisp (split-option): new function
 	(split-command): use it
