@@ -131,7 +131,7 @@ NIL
     (list
      (loop :with key :and val
        :do (setf (values key val)
-                 (bdb:dbc-get cu :INTEGER :STRING :DB_NEXT :error nil))
+                 (bdb:dbc-get cu :INTEGER :STRING :NEXT :error nil))
        :until (eq key :notfound)
        :collect (list key val))
      (bdb:db-get db 4 :error nil))))
@@ -162,15 +162,15 @@ NIL
     (show-db db)
     (unwind-protect
          (print (loop :repeat 20 :for x = (random max) :collect
-                  (list (bdb:db-put db nil x :action :DB_APPEND) x
-                        (bdb:db-put db nil (! x) :action :DB_APPEND) (! x))))
+                  (list (bdb:db-put db nil x :action :APPEND) x
+                        (bdb:db-put db nil (! x) :action :APPEND) (! x))))
       (close db))
     (print db)))
 NIL
 
 ;; locks - will NOT be automatically closed by DBE-CLOSE
 (defparameter *locker* (print (bdb:lock-id *dbe*))) *locker*
-(defparameter *lock* (print (bdb:lock-get *dbe* "foo" *locker* :DB_LOCK_READ)))
+(defparameter *lock* (print (bdb:lock-get *dbe* "foo" *locker* :READ)))
 *lock*
 
 (close *dbe*) T
@@ -218,7 +218,7 @@ NIL
 
 (let ((li ()))
   (loop (multiple-value-bind (key val)
-            (bdb:dbc-get *cursor* :STRING :STRING :DB_NEXT :error nil)
+            (bdb:dbc-get *cursor* :STRING :STRING :NEXT :error nil)
           (when (eq key :notfound) (return li))
           (format t "~&=[count=~D]=> ~S -> ~S~%"
                   (bdb:dbc-count *cursor*) key val)
@@ -246,7 +246,7 @@ NIL
     (show-db db)
     (bdb:with-dbc (cu db)
       (loop (multiple-value-bind (key val)
-                (bdb:dbc-get cu :INTEGER :INTEGER :DB_NEXT :error nil)
+                (bdb:dbc-get cu :INTEGER :INTEGER :NEXT :error nil)
               (when (eq key :notfound) (return))
               (format t "~&=[count=~D]=> ~S -> ~S~%"
                       (bdb:dbc-count cu) key val)
@@ -260,12 +260,12 @@ NIL
     (show-db db)
     (bdb:with-dbc (cu db)
       (loop (multiple-value-bind (key val)
-                (bdb:dbc-get cu :INTEGER :INTEGER :DB_NEXT :error nil)
+                (bdb:dbc-get cu :INTEGER :INTEGER :NEXT :error nil)
               (when (eq key :notfound) (return))
               (format t "~&=[count=~D]=> ~S -> ~S~%"
                       (bdb:dbc-count cu) key val)
               (multiple-value-bind (key1 val1)
-                  (bdb:dbc-get cu :INTEGER :INTEGER :DB_NEXT)
+                  (bdb:dbc-get cu :INTEGER :INTEGER :NEXT)
                 (format t "~&=[count=~D]=> ~S -> ~S~%"
                         (bdb:dbc-count cu) key1 val1)
                 (assert (= (! val) val1))))))))

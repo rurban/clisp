@@ -184,7 +184,7 @@ static void wrap_finalize (void* pointer, object parents,
  DB_ENV->errx	Error message
 */
 
-DEFCHECKER(dbe_encryption_check, DB_ENCRYPT_AES)
+DEFCHECKER(dbe_encryption_check, "DB_ENCRYPT", AES)
 /* set the password to perform encryption and decryption.
  can trigger GC */
 static void dbe_set_encryption (DB_ENV *dbe, gcv_object_t *o_flags_,
@@ -436,9 +436,8 @@ static void set_flags (object arg, u_int32_t *flag_on, u_int32_t *flag_off,
 static void set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
   if (boundp(arg)) SYSCALL(dbe->set_verbose,(dbe,flag,!nullp(arg)));
 }
-DEFCHECKER(check_lk_detect,DB_LOCK_DEFAULT DB_LOCK_EXPIRE DB_LOCK_MAXLOCKS \
-           DB_LOCK_MINLOCKS DB_LOCK_MINWRITE DB_LOCK_OLDEST DB_LOCK_RANDOM \
-           DB_LOCK_YOUNGEST)
+DEFCHECKER(check_lk_detect,"DB_LOCK", DEFAULT EXPIRE MAXLOCKS \
+           MINLOCKS MINWRITE OLDEST RANDOM YOUNGEST)
 DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       :ERRFILE :ERRPFX :PASSWORD :ENCRYPT :LOCK_TIMEOUT :TXN_TIMEOUT :TIMEOUT \
       :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
@@ -1102,7 +1101,7 @@ DEFUN(BDB:DB-FD, db)
   VALUES1(fixnum(fd));
 }
 
-DEFCHECKER(db_get_action, DB_CONSUME DB_CONSUME_WAIT DB_GET_BOTH DB_SET_RECNO)
+DEFCHECKER(db_get_action,"DB",CONSUME CONSUME-WAIT GET-BOTH SET-RECNO)
 DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_DIRTY_READ DB_MULTIPLE DB_RMW)
 DEFUN(BDB:DB-GET, db key &key :ACTION :AUTO_COMMIT :DIRTY_READ :MULTIPLE :RMW \
       :TRANSACTION :ERROR :TYPE)
@@ -1311,7 +1310,7 @@ DEFUN(BDB:DB-REMOVE, db file database)
   VALUES0; skipSTACK(3);
 }
 
-DEFCHECKER(db_put_action, DB_APPEND DB_NODUPDATA DB_NOOVERWRITE)
+DEFCHECKER(db_put_action,"DB",APPEND NODUPDATA NOOVERWRITE)
 DEFFLAGSET(db_put_flags, DB_AUTO_COMMIT)
 DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
 { /* Store items into a database */
@@ -1797,10 +1796,9 @@ static dbt_o_t fill_or_init (object datum, DBT *pdbt, u_int32_t re_len) {
     return check_dbt_type(datum);
   } else return fill_dbt(datum,pdbt,re_len); /* datum */
 }
-DEFCHECKER(dbc_get_action, DB_CURRENT DB_FIRST DB_GET_BOTH          \
-           DB_GET_BOTH_RANGE DB_GET_RECNO DB_JOIN_ITEM DB_LAST DB_NEXT \
-           DB_NEXT_DUP DB_NEXT_NODUP DB_PREV DB_PREV_NODUP DB_SET      \
-           DB_SET_RANGE DB_SET_RECNO)
+DEFCHECKER(dbc_get_action,"DB",CURRENT FIRST GET-BOTH GET-BOTH-RANGE \
+           GET-RECNO JOIN-ITEM LAST NEXT NEXT-DUP NEXT-NODUP         \
+           PREV PREV-NODUP SET SET-RANGE SET-RECNO)
 DEFFLAGSET(dbc_get_options, DB_DIRTY_READ DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
 DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
       :MULTIPLE_KEY :RMW :ERROR)
@@ -1833,8 +1831,7 @@ DEFUN(BDB:DBC-GET, cursor key data action &key :DIRTY_READ :MULTIPLE \
   mv_count = 2;
 }
 
-DEFCHECKER(dbc_put_flag, DB_AFTER DB_BEFORE DB_CURRENT DB_KEYFIRST \
-           DB_KEYLAST DB_NODUPDATA)
+DEFCHECKER(dbc_put_flag,"DB",AFTER BEFORE CURRENT KEYFIRST KEYLAST NODUPDATA)
 DEFUN(BDB:DBC-PUT, cursor key data flag)
 { /* retrieve key/data pairs from the database */
   u_int32_t flag = dbc_put_flag(popSTACK());
@@ -1864,9 +1861,8 @@ DEFUN(BDB:LOCK-DETECT, dbe action)
   VALUES_IF(aborted);
 }
 
-DEFCHECKER(check_lockmode, db_lockmode_t,                               \
-           DB_LOCK_NG DB_LOCK_READ DB_LOCK_WRITE DB_LOCK_WAIT DB_LOCK_IWRITE \
-           DB_LOCK_IREAD DB_LOCK_IWR DB_LOCK_DIRTY DB_LOCK_WWRITE)
+DEFCHECKER(check_lockmode, db_lockmode_t, "DB_LOCK",            \
+           NG READ WRITE WAIT IWRITE IREAD IWR DIRTY WWRITE)
 DEFFLAGSET(lock_get_flags, DB_LOCK_NOWAIT)
 DEFUN(BDB:LOCK-GET, dbe object locker mode &key :NOWAIT)
 { /* Acquire a lock */
@@ -2089,7 +2085,7 @@ DEFUN(BDB:LOGC-CLOSE, logc)
   } else { skipSTACK(1); VALUES1(NIL); }
 }
 
-DEFCHECKER(logc_get_action, DB_CURRENT DB_FIRST DB_LAST DB_NEXT DB_PREV)
+DEFCHECKER(logc_get_action,"DB",CURRENT FIRST LAST NEXT PREV)
 DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
 { /* return records from the log. */
   int no_error = nullp(popSTACK());
@@ -2163,7 +2159,7 @@ DEFUN(BDB:TXN-ABORT, txn)
   } else { skipSTACK(1); VALUES1(NIL); }
 }
 
-DEFCHECKER(txn_check_sync, DB_TXN_NOSYNC DB_TXN_SYNC)
+DEFCHECKER(txn_check_sync,"DB_TXN",NOSYNC SYNC)
 DEFUN(BDB:TXN-COMMIT, txn &key :SYNC)
 { /* Commit a transaction */
   u_int32_t flags = txn_check_sync(popSTACK());
@@ -2264,7 +2260,7 @@ DEFUN(BDB:TXN-RECOVER, dbe &key :FIRST :NEXT)
   VALUES1(listof(retnum));
 }
 
-DEFCHECKER(txn_timeout_check, DB_SET_LOCK_TIMEOUT DB_SET_TXN_TIMEOUT)
+DEFCHECKER(txn_timeout_check,"DB_SET", LOCK-TIMEOUT TXN-TIMEOUT)
 DEFUN(BDB:TXN-SET-TIMEOUT, txn timeout which)
 { /* set timeout values for locks or transactions for the specified
      transaction */
