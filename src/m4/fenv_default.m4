@@ -1,3 +1,4 @@
+dnl -*- Autoconf -*-
 dnl Copyright (C) 2002 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
@@ -42,7 +43,7 @@ int main ()
    cl_cv_cc_float_divbyzero="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_float_divbyzero])
   if test "$cl_cv_cc_float_divbyzero" = yes; then
-    AC_DEFINE(FLOAT_DIV0_EXCEPTION,
+    AC_DEFINE(FLOAT_DIV0_EXCEPTION,1,
       [Define to 1 if 'float' division by zero raises an exception.])
   fi
 ])
@@ -72,7 +73,7 @@ int main ()
    cl_cv_cc_double_divbyzero="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_double_divbyzero])
   if test "$cl_cv_cc_double_divbyzero" = yes; then
-    AC_DEFINE(DOUBLE_DIV0_EXCEPTION,
+    AC_DEFINE(DOUBLE_DIV0_EXCEPTION,1,
       [Define to 1 if 'double' division by zero raises an exception.])
   fi
 ])
@@ -103,7 +104,7 @@ int main ()
    cl_cv_cc_longdouble_divbyzero="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_longdouble_divbyzero])
   if test "$cl_cv_cc_longdouble_divbyzero" = yes; then
-    AC_DEFINE(LONGDOUBLE_DIV0_EXCEPTION,
+    AC_DEFINE(LONGDOUBLE_DIV0_EXCEPTION,1,
       [Define to 1 if 'long double' division by zero raises an exception.])
   fi
 fi
@@ -135,7 +136,7 @@ int main ()
    cl_cv_cc_float_overflow="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_float_overflow])
   if test "$cl_cv_cc_float_overflow" = yes; then
-    AC_DEFINE(FLOAT_OVERFLOW_EXCEPTION,
+    AC_DEFINE(FLOAT_OVERFLOW_EXCEPTION,1,
       [Define to 1 if 'float' overflow raises an exception.])
   fi
 ])
@@ -165,7 +166,7 @@ int main ()
    cl_cv_cc_double_overflow="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_double_overflow])
   if test "$cl_cv_cc_double_overflow" = yes; then
-    AC_DEFINE(DOUBLE_OVERFLOW_EXCEPTION,
+    AC_DEFINE(DOUBLE_OVERFLOW_EXCEPTION,1,
       [Define to 1 if 'double' overflow raises an exception.])
   fi
 ])
@@ -198,7 +199,7 @@ int main ()
    cl_cv_cc_longdouble_overflow="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_longdouble_overflow])
   if test "$cl_cv_cc_longdouble_overflow" = yes; then
-    AC_DEFINE(LONGDOUBLE_OVERFLOW_EXCEPTION,
+    AC_DEFINE(LONGDOUBLE_OVERFLOW_EXCEPTION,1,
       [Define to 1 if 'long double' overflow raises an exception.])
   fi
 fi
@@ -230,7 +231,7 @@ int main ()
    cl_cv_cc_float_underflow="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_float_underflow])
   if test "$cl_cv_cc_float_underflow" = yes; then
-    AC_DEFINE(FLOAT_UNDERFLOW_EXCEPTION,
+    AC_DEFINE(FLOAT_UNDERFLOW_EXCEPTION,1,
       [Define to 1 if 'float' underflow raises an exception.])
   fi
 ])
@@ -260,7 +261,7 @@ int main ()
    cl_cv_cc_double_underflow="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_double_underflow])
   if test "$cl_cv_cc_double_underflow" = yes; then
-    AC_DEFINE(DOUBLE_UNDERFLOW_EXCEPTION,
+    AC_DEFINE(DOUBLE_UNDERFLOW_EXCEPTION,1,
       [Define to 1 if 'double' underflow raises an exception.])
   fi
 ])
@@ -293,7 +294,7 @@ int main ()
    cl_cv_cc_longdouble_underflow="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_longdouble_underflow])
   if test "$cl_cv_cc_longdouble_underflow" = yes; then
-    AC_DEFINE(LONGDOUBLE_UNDERFLOW_EXCEPTION,
+    AC_DEFINE(LONGDOUBLE_UNDERFLOW_EXCEPTION,1,
       [Define to 1 if 'long double' underflow raises an exception.])
   fi
 fi
@@ -324,7 +325,7 @@ int main ()
    cl_cv_cc_float_inexact="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_float_inexact])
   if test "$cl_cv_cc_float_inexact" = yes; then
-    AC_DEFINE(FLOAT_INEXACT_EXCEPTION,
+    AC_DEFINE(FLOAT_INEXACT_EXCEPTION,1,
       [Define to 1 if a 'float' inexact operation raises an exception.])
   fi
 ])
@@ -353,7 +354,7 @@ int main ()
    cl_cv_cc_double_inexact="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_double_inexact])
   if test "$cl_cv_cc_double_inexact" = yes; then
-    AC_DEFINE(DOUBLE_INEXACT_EXCEPTION,
+    AC_DEFINE(DOUBLE_INEXACT_EXCEPTION,1,
       [Define to 1 if a 'double' inexact operation raises an exception.])
   fi
 ])
@@ -383,7 +384,7 @@ int main ()
    cl_cv_cc_longdouble_inexact="guessing no")])
   AC_MSG_RESULT([$cl_cv_cc_longdouble_inexact])
   if test "$cl_cv_cc_longdouble_inexact" = yes; then
-    AC_DEFINE(LONGDOUBLE_INEXACT_EXCEPTION,
+    AC_DEFINE(LONGDOUBLE_INEXACT_EXCEPTION,1,
       [Define to 1 if a 'long double' inexact operation raises an exception.])
   fi
 fi
