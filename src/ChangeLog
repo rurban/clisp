@@ -1,3 +1,13 @@
+2005-03-22  Bruno Haible  <bruno@clisp.org>
+
+	* build-aux: New directory, taking most files from autoconf/.
+	* configure.in (CL_CANONICAL_HOST): Update.
+	* modules/berkeley-db/configure.in (AC_CONFIG_AUX_DIR): Update.
+	* modules/pcre/configure.in (AC_CONFIG_AUX_DIR): Update.
+	* modules/postgresql/configure.in (AC_CONFIG_AUX_DIR): Update.
+	* modules/pari/configure.in (AC_CONFIG_AUX_DIR): Update.
+	* modules/regexp/configure.in (AC_CONFIG_AUX_DIR): Update.
+
 2005-03-22  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib) [win32]: fixed 2005-03-10 patch: missing "; \\"

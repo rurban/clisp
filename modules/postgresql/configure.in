@@ -12,7 +12,7 @@ AC_PROG_CC
 AC_PROG_CPP
 
 dnl Search for libpq and define LIBPQ, LTLIBPQ and INCPQ.
-AC_CONFIG_AUX_DIR(../../src/autoconf)
+AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([pq])
 
 AC_MSG_NOTICE([* PostgreSQL (Headers)])

@@ -73,7 +73,7 @@ CL_CC_WORKS
 dnl
 AC_MSG_NOTICE([* check for host type])
 dnl
-CL_CANONICAL_HOST(autoconf)
+CL_CANONICAL_HOST(build-aux)
 dnl sets variables host, host_cpu, host_vendor, host_os
 CL_CANONICAL_HOST_CPU
 dnl
