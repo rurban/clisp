@@ -202,12 +202,13 @@
     `(LET* ,bindlist ,form)))
 
 ; In simple assignments like (SETQ foo #:G0) the #:G0 can be replaced directly.
-(defun simple-assignment-p (store-form stores)
+(defun simple-assignment-p (env store-form stores) ; ABI
   (and (= (length stores) 1)
        (consp store-form)
        (eq (first store-form) 'SETQ)
        (= (length store-form) 3)
        (symbolp (second store-form))
+       (not (nth-value 1 (macroexpand-1 (second store-form) env)))
        (simple-use-p (third store-form) (first stores))
 ) )
 (defun simple-use-p (form var)
@@ -219,7 +220,7 @@
 (defmacro push (item place &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
-    (if (simple-assignment-p setterform stores)
+    (if (simple-assignment-p env setterform stores)
       (subst-in-form `(CONS ,item ,getterform) (car stores) setterform)
       (let* ((bindlist (mapcar #'list temps subforms))
              (tempvars (gensym-list (length stores)))
@@ -482,7 +483,7 @@
 (defmacro pop (place &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
-    (if (and (symbolp getterform) (simple-assignment-p setterform stores))
+    (if (and (symbolp getterform) (simple-assignment-p env setterform stores))
       `(PROG1 (CAR ,getterform) ,(subst-in-form `(CDR ,getterform) (car stores) setterform))
       ;; Be sure to call the CARs before the CDRs - it matters in case
       ;; not all of the places evaluate to lists.
@@ -524,7 +525,7 @@
 (defmacro pushnew (item place &rest keylist &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
-    (if (simple-assignment-p setterform stores)
+    (if (simple-assignment-p env setterform stores)
       (subst-in-form `(ADJOIN ,item ,getterform ,@keylist) (car stores) setterform)
       (let* ((bindlist (mapcar #'list temps subforms))
              (tempvars (gensym-list (length stores)))
@@ -554,7 +555,7 @@
         `(MULTIPLE-VALUE-BIND (,new-plist ,removed-p)
              (SYSTEM::%REMF ,(first stores) ,indicatorvar)
            (WHEN (AND ,removed-p (ATOM ,new-plist))
-             ,(if (simple-assignment-p setterform stores)
+             ,(if (simple-assignment-p env setterform stores)
                 (subst-in-form new-plist (first stores) setterform)
                 `(PROGN (SETQ ,(first stores) ,new-plist) ,setterform)))
            ,removed-p)))))
@@ -627,7 +628,7 @@
                ;; may be evaluated after the GETTER instead of before.
                (LET ((FUNCTION-APPLICATION
                        (LIST* ',function GETTERFORM ,@varlist ,restvar)))
-                 (IF (SIMPLE-ASSIGNMENT-P SETTERFORM STORES)
+                 (IF (SIMPLE-ASSIGNMENT-P ENV SETTERFORM STORES)
                    (WRAP-LET*
                      LET-LIST
                      (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM))
@@ -641,7 +642,7 @@
                                 (LIST* ,@varlist ,restvar)))
                       (FUNCTION-APPLICATION
                         (LIST* ',function GETTERFORM ARGVARS)))
-                 (IF (SIMPLE-ASSIGNMENT-P SETTERFORM STORES)
+                 (IF (SIMPLE-ASSIGNMENT-P ENV SETTERFORM STORES)
                    (WRAP-LET*
                      (NCONC LET-LIST
                             (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar)))
@@ -704,7 +705,7 @@
                                                   (sqr (cdr setterform) (cdr sqr)))
                                                  ((or (null str) (null sqr))
                                                   (and (null str) (null sqr)))
-                                               (unless (simple-assignment-p (car sqr) (list (car str)))
+                                               (unless (simple-assignment-p env (car sqr) (list (car str)))
                                                  (return nil)
                                         )    ) )
                                         (let ((vlist (mapcar #'second (rest setterform))))
