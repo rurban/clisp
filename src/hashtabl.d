@@ -1088,8 +1088,8 @@ local object resize (object ht, object maxcount) {
 }
 
 # Macro: Enlarges a hash-table until freelist /= nix
-# hash_prepare_store();
-# > object key: key (in stack)
+# hash_prepare_store(key);
+# > object key: key (in STACK)
 # > object ht: hash-table
 # < object ht: hash-table
 # < object freelist: start of the free-list in the next-vector, /= nix
@@ -1811,7 +1811,7 @@ local uint32 sxhash_atom (object obj) {
       #ifdef TYPECODES
       return highlow32(typecode(obj),0xDABE); # typeinfo*2^16+identification
       #else
-      return highlow32((as_oint(obj)>>oint_type_shift)&(bitm(oint_type_len)-1),0xDABE); # typeinfo*2^16+identification
+      return highlow32((as_oint(obj)>>oint_type_shift)&(oint_type_mask>>oint_type_shift),0xDABE); # typeinfo*2^16+identification
       #endif
     case_bvector: # bit-vector
     case_b2vector: # 2bit-vector
