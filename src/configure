@@ -12924,20 +12924,29 @@ main ()
                  y = z-1;
                  z++;
                } while ((z < N) && legal[z]);
-            { int need_and = 0;
-              if (x > 0) { printf("(ch >= %d)",x); need_and = 1; }
-              if (y < N-1)
-                { if (need_and) printf(" && ");
-                  printf("(ch <= %d)",y);
-                  need_and = 1;
-                }
+            { int premises = 0;
+              if (x > 0) premises++;
+              if (y < N-1) premises++;
               for (i = x; i <= y; i++)
                 if (! legal[i])
+                  premises++;
+              if (premises > 1) printf("(");
+              { int need_and = 0;
+                if (x > 0) { printf("(ch >= %d)",x); need_and = 1; }
+                if (y < N-1)
                   { if (need_and) printf(" && ");
-                    printf("(ch != %d)",i);
+                    printf("(ch <= %d)",y);
                     need_and = 1;
                   }
-              if (!need_and) printf("1");
+                for (i = x; i <= y; i++)
+                  if (! legal[i])
+                    { if (need_and) printf(" && ");
+                      printf("(ch != %d)",i);
+                      need_and = 1;
+                    }
+                if (!need_and) printf("1");
+              }
+              if (premises > 1) printf(")");
             }
             z = y+1;
           }
@@ -12951,7 +12960,7 @@ main ()
   exit(0);
 }
 EOF
-{ (eval echo configure:12955: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
+{ (eval echo configure:12964: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
 cl_cv_os_valid_filename_char=`./conftest`
 fi
 rm -rf conftest*
@@ -12961,7 +12970,7 @@ fi
 if test -z "$cl_cv_os_valid_filename_char"; then
   cl_cv_os_valid_filename_charset="guessing 7-bit"
 else
-  if test "$cl_cv_os_valid_filename_char" = '(ch >= 1) && (ch != 47)'; then
+  if test "$cl_cv_os_valid_filename_char" = '((ch >= 1) && (ch != 47))'; then
     cl_cv_os_valid_filename_charset="8-bit"
   else
     cl_cv_os_valid_filename_charset="7-bit"
@@ -12976,7 +12985,7 @@ EOF
 fi
 
                       echo $ac_n "checking for inline __builtin_strlen""... $ac_c" 1>&6
-echo "configure:12980: checking for inline __builtin_strlen" >&5
+echo "configure:12989: checking for inline __builtin_strlen" >&5
 if eval "test \"`echo '$''{'cl_cv_builtin_strlen'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -12989,7 +12998,7 @@ int foo (x) char* x;
 #endif
 { return __builtin_strlen(x); }
 EOF
-if { ac_try='${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext'; { (eval echo configure:12993: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } >/dev/null 2>&1 ; then
+if { ac_try='${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext'; { (eval echo configure:13002: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } >/dev/null 2>&1 ; then
   if grep strlen conftest.s >/dev/null ; then
     cl_cv_builtin_strlen=no
   else
@@ -13010,7 +13019,7 @@ EOF
 fi
 
                       echo $ac_n "checking for inline __builtin_strcmp""... $ac_c" 1>&6
-echo "configure:13014: checking for inline __builtin_strcmp" >&5
+echo "configure:13023: checking for inline __builtin_strcmp" >&5
 if eval "test \"`echo '$''{'cl_cv_builtin_strcmp'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -13023,7 +13032,7 @@ int foo (x,y) char* x; char* y;
 #endif
 { return __builtin_strcmp(x,y); }
 EOF
-if { ac_try='${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext'; { (eval echo configure:13027: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } >/dev/null 2>&1 ; then
+if { ac_try='${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext'; { (eval echo configure:13036: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } >/dev/null 2>&1 ; then
   if grep strcmp conftest.s >/dev/null ; then
     cl_cv_builtin_strcmp=no
   else
@@ -13044,7 +13053,7 @@ EOF
 fi
 
                       echo $ac_n "checking whether characters are unsigned""... $ac_c" 1>&6
-echo "configure:13048: checking whether characters are unsigned" >&5
+echo "configure:13057: checking whether characters are unsigned" >&5
 if eval "test \"`echo '$''{'ac_cv_c_char_unsigned'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -13052,7 +13061,7 @@ else
 if test $ac_cv_prog_gcc = yes; then
   # GCC predefines this symbol on systems where it applies.
 cat > conftest.$ac_ext <<EOF
-#line 13056 "configure"
+#line 13065 "configure"
 #include "confdefs.h"
 #ifdef __CHAR_UNSIGNED__
   yes
@@ -13074,7 +13083,7 @@ if test "$cross_compiling" = yes; then
   ac_cv_c_char_unsigned="guessing no"
 else
   cat > conftest.$ac_ext <<EOF
-#line 13078 "configure"
+#line 13087 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -13087,7 +13096,7 @@ main() {
   volatile char c = 255; exit(c < 0);
 }
 EOF
-if { (eval echo configure:13091: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:13100: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest && (./conftest; exit) 2>/dev/null
 then
   ac_cv_c_char_unsigned=yes
 else
@@ -13127,7 +13136,7 @@ cl_machine_file_h=intparam.h
 if test $cross_compiling = no; then
 if test -z "$cl_cv_file_intparam_h"; then
 echo "checking for integer types and behaviour" 1>&6
-echo "configure:13131: checking for integer types and behaviour" >&5
+echo "configure:13140: checking for integer types and behaviour" >&5
 cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 EOF
@@ -13138,7 +13147,7 @@ if test $ac_cv_prog_gcc = yes; then
 # target 80386. Strip "-O".
 CC=`echo "$CC " | sed -e 's/-O //g'`
 fi
-{ (eval echo configure:13142: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
+{ (eval echo configure:13151: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
 CC="$ORIGCC"
 if test -s conftest; then
   echo "creating $cl_machine_file_h"
