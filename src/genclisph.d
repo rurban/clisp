@@ -911,7 +911,7 @@ global int main()
 #     printf("#define numberp(obj)  (wbit_test(as_oint(obj),%d))\n",number_bit_o);
 #   #endif
 # #else
-#   printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",0x27,(fixnum_type&sfloat_type));
+#   printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",(4 << imm_type_shift) | immediate_bias,(fixnum_type&sfloat_type));
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define vectorp(obj)  ((tint)((typecode(obj) & ~%d)-1) <= (tint)%d)\n",(tint)bit(notsimple_bit_t),(tint)(svector_type-1));
@@ -987,22 +987,22 @@ global int main()
 # #ifdef TYPECODES
 #   printf1("#define charp(obj)  (typecode(obj)==%d)\n",(tint)char_type);
 # #else
-#   printf2("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",0x3F,char_type);
+#   printf2("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,char_type);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define integerp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)),(tint)(fixnum_type&bignum_type));
 # #else
-#   printf3("#define integerp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && (Record_type(obj) == %d)))\n",0x37,fixnum_type,Rectype_Bignum);
+#   printf3("#define integerp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && (Record_type(obj) == %d)))\n",(6 << imm_type_shift) | immediate_bias,fixnum_type,Rectype_Bignum);
 # #endif
   #ifdef TYPECODES
     printf2("#define fixnump(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)fixnum_type);
   #else
-    printf2("#define fixnump(obj)  ((as_oint(obj) & %d) == %d)\n",0x37,fixnum_type);
+    printf2("#define fixnump(obj)  ((as_oint(obj) & %d) == %d)\n",(6 << imm_type_shift) | immediate_bias,fixnum_type);
   #endif
   #ifdef TYPECODES
     printf1("#define posfixnump(obj)  (typecode(obj) == %d)\n",(tint)fixnum_type);
   #else
-    printf2("#define posfixnump(obj)  ((as_oint(obj) & %d) == %d)\n",0x3F,fixnum_type);
+    printf2("#define posfixnump(obj)  ((as_oint(obj) & %d) == %d)\n",(7 << imm_type_shift) | immediate_bias,fixnum_type);
   #endif
   #ifdef TYPECODES
     printf2("#define bignump(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)bignum_type);
@@ -1022,12 +1022,12 @@ global int main()
 # #ifdef TYPECODES
 #   printf2("#define floatp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((sfloat_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t)) & ~(sfloat_type&ffloat_type&dfloat_type&lfloat_type)),(tint)(sfloat_type&ffloat_type&dfloat_type&lfloat_type));
 # #else
-#   printf4("#define floatp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d)))\n",0x37,sfloat_type,Rectype_Lfloat,Rectype_Ffloat-Rectype_Lfloat);
+#   printf4("#define floatp(obj)  (((as_oint(obj) & %d) == %d) || (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d)))\n",(6 << imm_type_shift) | immediate_bias,sfloat_type,Rectype_Lfloat,Rectype_Ffloat-Rectype_Lfloat);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define short_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)sfloat_type);
 # #else
-#   printf2("#define short_float_p(obj)  ((as_oint(obj) & &d) == %d)\n",0x37,sfloat_type);
+#   printf2("#define short_float_p(obj)  ((as_oint(obj) & &d) == %d)\n",(6 << imm_type_shift) | immediate_bias,sfloat_type);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define single_float_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(sign_bit_t),(tint)ffloat_type);
