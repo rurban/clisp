@@ -1,3 +1,14 @@
+2005-04-04  Sam Steingold  <sds@gnu.org>
+
+	* modules/matlab/wrap.lisp (copy-lisp-to-mxArray):
+	renamed from copy-lisp-to-matlab
+	(copy-mxArray-to-lisp): renamed from copy-matlab-to-lisp
+	(copy-lisp-to-matlab, copy-matlab-to-lisp): call them to copy variables
+	(invert-matrix): reuse the engine
+	* modules/matlab/matlab.lisp (engGetVisible, engSetVisible)
+	(engOpenSingleUse): win32-only
+	(mx_aref, set_mx_aref): fixed 2dim<->1dim conversion
+
 2005-04-03  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/posix.lisp (utmpx): new defstruct
