@@ -1,5 +1,9 @@
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (namestring_correctly_parseable_p): fixed the last patch
+
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
 	* utils/clispload.lsp: _really_ set
 	custom:*warn-on-floating-point...contagion* to nil
 

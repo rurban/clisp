@@ -3157,10 +3157,17 @@ global bool namestring_correctly_parseable_p (gcv_object_t *path_)
     type = ThePathname(*path_)->pathname_type;
     goto parse_namestring_dot_file_type;
   }
-  /* name cannot be "": it is replaced with NIL by MAKE-PATHNAME;
-     when the underlying physical file system does not support version,
+  /* name cannot be "": it is replaced with NIL by MAKE-PATHNAME; */
+ #if HAS_VERSION
+  /* when the underlying physical file system DOES support version,
+     we are confident - for no good reason so far! -
+     that we will be able to print the pathname properly */
+  return true;
+ #else
+  /* when the underlying physical file system does NOT support version,
      pathname version is not printed, so cannot be read back! */
-  return nullp(pathname_version_maybe(*path_));
+  return nullp(ThePathname(*path_)->pathname_version);
+ #endif
 }
 #endif
 
