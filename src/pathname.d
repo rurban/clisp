@@ -8500,7 +8500,7 @@ LISPFUNN(dynload_modules,2) {
       pushSTACK(string_to_asciz(Car(*arg_),Symbol_value(S(ascii))));
       *arg_ = Cdr(*arg_);
     });
-    endp(*arg_); /* test for true list */
+    endp(*arg_); /* test for proper list */
   }
   {
     var const char * libpath = TheAsciz(string_to_asciz(*(arg_ STACKop 1),O(pathname_encoding)));
