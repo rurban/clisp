@@ -100,7 +100,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 { /* the interface to fcntl(2) */
   Handle fd = (Handle)-1;
   bool lock_p = !nullp(STACK_4), failed_p;
-  object stream = nullobj;
+  object stream;
   uintL start = missingp(STACK_1) ? 0 : I_to_L(STACK_1);
   uintL length;
 #if defined(WIN32_NATIVE)
@@ -115,8 +115,12 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
   fl.l_whence = SEEK_SET;
   fl.l_start = start;
 #endif
-  if (posfixnump(STACK_5)) fd = (Handle)posfixnum_to_L(STACK_5);
-  else stream = open_file_stream_handle(STACK_5,&fd);
+  if (posfixnump(STACK_5)) {
+    fd = (Handle)posfixnum_to_L(STACK_5);
+    stream = nullobj;
+  } else {
+    stream = open_file_stream_handle(STACK_5,&fd);
+  }
   if (missingp(STACK_0)) { /* no :LENGTH => use file size */
     if (posfixnump(STACK_0)) { /* no stream given, use OS to get file size */
 #    if defined(WIN32_NATIVE)
