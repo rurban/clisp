@@ -653,16 +653,24 @@ FIXME
 (translate-logical-pathname
  (merge-pathnames (logical-pathname "TEST-SUBDIR:;FOO;BAR;")
                   (logical-pathname "TEST-SIMPLE:ZOT.LISP")))
-#p"/usr/local/share/r/foo/bar/zot.lisp"
+#+CLISP #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY
+                    (:ABSOLUTE "usr" "local" "share" "r" "foo" "bar")
+                    :NAME "zot" :TYPE "lisp" :VERSION :NEWEST)
+#-CLISP #p"/usr/local/share/r/foo/bar/zot.lisp"
 
 ;; Absolute
 (translate-logical-pathname
  (merge-pathnames (logical-pathname "TEST-SUBDIR:FOO;BAR;")
                   (logical-pathname "TEST-SIMPLE:ZOT.LISP")))
-#p"/usr/local/share/foo/bar/zot.lisp"
+#+CLISP #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY
+                    (:ABSOLUTE "usr" "local" "share" "foo" "bar")
+                    :NAME "zot" :TYPE "lisp" :VERSION :NEWEST)
+#-CLISP #p"/usr/local/share/foo/bar/zot.lisp"
 
 (make-pathname :defaults "a.b" :name "c" :type nil)
-#p"c"
+#+CLISP #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY (:RELATIVE)
+                    :NAME "c" :TYPE NIL :VERSION :NEWEST)
+#-CLISP #p"c"
 
 #+CLISP
 (make-pathname :defaults #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
@@ -747,3 +755,32 @@ T
              (list (probe-file old) (not (not (probe-file new)))))
     (delete-file new)))
 ((T NIL) 3 (NIL T))
+
+(wild-pathname-p (make-pathname :version :wild))   T
+
+(pathname-version (merge-pathnames (make-pathname)
+                                   (make-pathname :version :newest)
+                                   nil))
+:NEWEST
+
+(pathname-version (merge-pathnames (make-pathname)
+                                   (make-pathname :version nil)
+                                   :newest))
+:NEWEST
+
+;; directory may not return wild pathnames
+(remove-if-not #'wild-pathname-p
+               (directory (make-pathname :name :wild :type :wild
+                                         :version :wild)))
+NIL
+
+(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+  (unwind-protect
+       (let ((d (directory (make-pathname
+                            :defaults (open file :direction :probe
+                                            :if-does-not-exist :create)
+                            :version :wild))))
+         (list (= (length d) 1)
+               (remove-if-not #'wild-pathname-p d)))
+    (delete-file file)))
+(T NIL)

@@ -379,11 +379,7 @@
  #if HAS_HOST || defined(LOGICAL_PATHNAMES)
   LISPOBJ(type_host,"(OR NULL STRING)")
  #endif
- #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
   LISPOBJ(type_version,"(OR (MEMBER NIL :WILD :NEWEST) (INTEGER (0) #.MOST-POSITIVE-FIXNUM) PATHNAME)")
- #else
-  LISPOBJ(type_version,"(MEMBER NIL :WILD :NEWEST)")
- #endif
   LISPOBJ(type_direction,"(MEMBER :INPUT :INPUT-IMMUTABLE :OUTPUT :IO :PROBE)")
   LISPOBJ(type_if_exists,"(MEMBER :ERROR :NEW-VERSION :RENAME :RENAME-AND-DELETE :OVERWRITE :APPEND :SUPERSEDE NIL)")
   LISPOBJ(type_if_does_not_exist,"(MEMBER :ERROR :CREATE NIL)")
@@ -410,10 +406,7 @@
   LISPOBJ_S(empty_string,"")
   LISPOBJ_S(wild_string,"*")
   LISPOBJ_S(colon_string,":")
- #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
   LISPOBJ_S(semicolon_string,";")
-  LISPOBJ_S(zero_string,"0")
- #endif
  #ifdef PATHNAME_WIN32
   LISPOBJ(backslash_string,"\"\\\\\"")
  #endif
