@@ -898,6 +898,7 @@ LISPSYM(socket_stream_port,"SOCKET-STREAM-PORT",socket)
 LISPSYM(socket_stream_host,"SOCKET-STREAM-HOST",socket)
 LISPSYM(socket_stream_peer,"SOCKET-STREAM-PEER",socket)
 LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",socket)
+LISPSYM(socket_options,"SOCKET-OPTIONS",socket)
 #ifdef HAVE_SHUTDOWN
 LISPSYM(socket_stream_shutdown,"SOCKET-STREAM-SHUTDOWN",socket)
 #endif
@@ -1225,6 +1226,17 @@ LISPSYM(Klc_monetary,"LC_MONETARY",keyword)
 #endif
 #ifdef SOCKET_STREAMS
 LISPSYM(Ktimeout,"TIMEOUT",keyword)
+LISPSYM(Kso_keepalive,"SO-KEEPALIVE",keyword)
+LISPSYM(Kso_error,"SO-ERROR",keyword)
+LISPSYM(Kso_linger,"SO-LINGER",keyword)
+LISPSYM(Kso_oobinline,"SO-OOBINLINE",keyword)
+LISPSYM(Kso_type,"SO-TYPE",keyword)
+LISPSYM(Kso_rcvbuf,"SO-RCVBUF",keyword)
+LISPSYM(Kso_sndbuf,"SO-SNDBUF",keyword)
+LISPSYM(Kso_rcvlowat,"SO-RCVLOWAT",keyword)
+LISPSYM(Kso_sndlowat,"SO-SNDLOWAT",keyword)
+LISPSYM(Kso_rcvtimeo,"SO-RCVTIMEO",keyword)
+LISPSYM(Kso_sndtimeo,"SO-SNDTIMEO",keyword)
 #endif
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)

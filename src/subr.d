@@ -995,6 +995,7 @@ LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
 LISPFUN(socket_stream_peer,1,1,norest,nokey,0,NIL)
 LISPFUN(socket_stream_local,1,1,norest,nokey,0,NIL)
+LISPFUN(socket_options,1,0,rest,nokey,0,NIL)
 #ifdef HAVE_SHUTDOWN
 LISPFUNN(socket_stream_shutdown,2)
 #endif

@@ -1,3 +1,13 @@
+2002-09-26  Sam Steingold  <sds@gnu.org>
+
+	SOCKET:SOCKET-OPTIONS - an interface to getsockopt/setsockopt
+	* stream.d (sock_opt_bool, sock_opt_int, sock_opt_time)
+	(SOCKET-OPTIONS): new functions
+	* constsym.d (SOCKET-OPTIONS, :SO-*): added
+	* subr.d (socket_options): added
+	* constobj.d (type_socket_option): added
+	* init.lisp (SOCKET-OPTIONS): export
+
 2002-09-25  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (special-variable-p): added a COMPILER-MACRO

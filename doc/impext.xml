@@ -3544,6 +3544,18 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    This is not the case for a &socket-stream; which was shut down in
    the &input-k; direction: it is still open (for output) but it cannot
    be read from.</para></listitem></varlistentry>
+ <varlistentry id="so-opt"><term><literal role="sexp">(&so-opt;
+    &sose-r; &rest-amp; {&option-r;}*)</literal></term>
+  <listitem><simpara>Query and, optionally, set socket options using
+   &getsockopt; and &setsockopt;.
+   An &option-r; is a keyword, optionally followed by the new value.
+   When the new value is not supplied, &setsockopt; is not called.
+   For each option the old (or current, if new value was not supplied)
+   value is returned. E.g., <literal role="sexp">(&so-opt; &sose-r;
+   :SO-LINGER 1 :SO-RCVLOWAT)</literal> returns 2 values: &nil;, the old
+   value of the <constant>:SO-LINGER</constant> option, and 1, the
+   current value of the <constant>:SO-RCVLOWAT</constant> option.
+  </simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
 </section>
@@ -4170,11 +4182,11 @@ future).</para>
    use the &wdkey-open; macro.</simpara></listitem></varlistentry>
  <varlistentry id="with-dir-key-open"><term><literal
    role="sexp">(&wdkey-open; (&var-r; &dkey-r; &path-r; &rest-amp;
-    <replaceable>options</replaceable>) &body-amp; &body-r;)</literal></term>
+    {&option-r;}*) &body-amp; &body-r;)</literal></term>
   <listitem><simpara>Open the directory key (by calling &dkey-open;
-   on &dkey-r;, &path-r; and <replaceable>options</replaceable>), bind
-   it to &var-r;, execute &body-r;, then close it with &dkey-close;.
-  </simpara></listitem></varlistentry>
+   on &dkey-r;, &path-r; and &option-r;s), bind it to &var-r;,
+   execute &body-r;, then close it with &dkey-close;.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp"
    >(<function>LDAP:DIR-KEY-TYPE</function> &dkey-r;)</literal></term>
   <listitem><simpara>Return the &dk-t; of the directory key
