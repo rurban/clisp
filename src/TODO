@@ -53,6 +53,11 @@ Review all macros and tighten the runtime interface of the macros.
   check-redefinition
 
 
+Cannot remove symbolic links to directories
+with either DELETE-FILE or DELETE-DIR.
+<http://article.gmane.org/gmane.lisp.clisp.devel:13452>
+
+
 CLISP_LANGUAGE=german LC_ALL=C clisp -q
 > (/ 0)
 => endless loop
@@ -98,6 +103,7 @@ LET mit x:  bound: only the body, bind last
 LET* mit x: bound: ab der nächsten initform, bind after corresponding initform
 LAMBDA: erst alle Argumente auswerten, dann erst die vorhandenen Parameter
 binden, dann jeweils initform und binden.
+<http://groups-beta.google.com/group/comp.lang.lisp/browse_thread/thread/6a9841771d95feb2?tvc=2>
 
 
 (directory "/proc/self/*" :full t )
