@@ -12966,13 +12966,7 @@ fi
 
 done
 if test $ac_cv_header_sys_resource_h = yes; then
-    echo "$as_me:$LINENO: checking whether getrusage works" >&5
-echo $ECHO_N "checking whether getrusage works... $ECHO_C" >&6
-if test "${cl_cv_func_getrusage_works+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-  echo "$as_me:$LINENO: checking for getrusage" >&5
+    echo "$as_me:$LINENO: checking for getrusage" >&5
 echo $ECHO_N "checking for getrusage... $ECHO_C" >&6
 if test "${cl_cv_func_getrusage+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -13098,6 +13092,12 @@ echo "$as_me:$LINENO: result: ${ac_t:-
          }$cl_cv_proto_getrusage" >&5
 echo "${ECHO_T}${ac_t:-
          }$cl_cv_proto_getrusage" >&6
+    echo "$as_me:$LINENO: checking whether getrusage works" >&5
+echo $ECHO_N "checking whether getrusage works... $ECHO_C" >&6
+if test "${cl_cv_func_getrusage_works+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
     if test "$cross_compiling" = yes; then
   cl_cv_func_getrusage_works="guessing no"
 else
@@ -13152,11 +13152,10 @@ cl_cv_func_getrusage_works=no
 fi
 rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
-  fi
-
 fi
 echo "$as_me:$LINENO: result: $cl_cv_func_getrusage_works" >&5
 echo "${ECHO_T}$cl_cv_func_getrusage_works" >&6
+  fi
   if test $cl_cv_func_getrusage_works = yes; then
     cat >>confdefs.h <<\_ACEOF
 #define HAVE_GETRUSAGE 1
@@ -21786,6 +21785,516 @@ _ACEOF
   esac
 fi
 
+
+  echo "$as_me:$LINENO: checking whether single-float divbyzero raises an exception" >&5
+echo $ECHO_N "checking whether single-float divbyzero raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_float_divbyzero+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_float_divbyzero="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+static void sigfpe_handler (int sig) { exit (1); }
+float x = 1;
+float y = 0;
+float z;
+float nan;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x / y; nan = y / y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_float_divbyzero=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_float_divbyzero=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_float_divbyzero" >&5
+echo "${ECHO_T}$cl_cv_cc_float_divbyzero" >&6
+  if test "$cl_cv_cc_float_divbyzero" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define FLOAT_DIV0_EXCEPTION Define to 1 if 'float' division by zero raises an exception.
+_ACEOF
+
+  fi
+
+
+  echo "$as_me:$LINENO: checking whether single-float overflow raises an exception" >&5
+echo $ECHO_N "checking whether single-float overflow raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_float_overflow+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_float_overflow="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+#include <float.h>
+static void sigfpe_handler (int sig) { exit (1); }
+float x = FLT_MAX;
+float y = FLT_MAX;
+float z;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x * y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_float_overflow=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_float_overflow=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_float_overflow" >&5
+echo "${ECHO_T}$cl_cv_cc_float_overflow" >&6
+  if test "$cl_cv_cc_float_overflow" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define FLOAT_OVERFLOW_EXCEPTION Define to 1 if 'float' overflow raises an exception.
+_ACEOF
+
+  fi
+
+
+  echo "$as_me:$LINENO: checking whether single-float underflow raises an exception" >&5
+echo $ECHO_N "checking whether single-float underflow raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_float_underflow+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_float_underflow="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+#include <float.h>
+static void sigfpe_handler (int sig) { exit (1); }
+float x = FLT_MIN;
+float y = FLT_MIN;
+float z;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x * y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_float_underflow=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_float_underflow=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_float_underflow" >&5
+echo "${ECHO_T}$cl_cv_cc_float_underflow" >&6
+  if test "$cl_cv_cc_float_underflow" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define FLOAT_UNDERFLOW_EXCEPTION Define to 1 if 'float' underflow raises an exception.
+_ACEOF
+
+  fi
+
+
+  echo "$as_me:$LINENO: checking whether single-float inexact raises an exception" >&5
+echo $ECHO_N "checking whether single-float inexact raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_float_inexact+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_float_inexact="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+static void sigfpe_handler (int sig) { exit (1); }
+float x = 1;
+float y = 3;
+float z;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x / y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_float_inexact=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_float_inexact=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_float_inexact" >&5
+echo "${ECHO_T}$cl_cv_cc_float_inexact" >&6
+  if test "$cl_cv_cc_float_inexact" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define FLOAT_INEXACT_EXCEPTION Define to 1 if a 'float' inexact operation raises an exception.
+_ACEOF
+
+  fi
+
+
+  echo "$as_me:$LINENO: checking whether double-float divbyzero raises an exception" >&5
+echo $ECHO_N "checking whether double-float divbyzero raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_double_divbyzero+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_double_divbyzero="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+static void sigfpe_handler (int sig) { exit (1); }
+double x = 1;
+double y = 0;
+double z;
+double nan;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x / y; nan = y / y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_double_divbyzero=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_double_divbyzero=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_double_divbyzero" >&5
+echo "${ECHO_T}$cl_cv_cc_double_divbyzero" >&6
+  if test "$cl_cv_cc_double_divbyzero" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_DIV0_EXCEPTION Define to 1 if 'double' division by zero raises an exception.
+_ACEOF
+
+  fi
+
+
+  echo "$as_me:$LINENO: checking whether double-float overflow raises an exception" >&5
+echo $ECHO_N "checking whether double-float overflow raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_double_overflow+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_double_overflow="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+#include <float.h>
+static void sigfpe_handler (int sig) { exit (1); }
+double x = DBL_MAX;
+double y = DBL_MAX;
+double z;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x * y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_double_overflow=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_double_overflow=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_double_overflow" >&5
+echo "${ECHO_T}$cl_cv_cc_double_overflow" >&6
+  if test "$cl_cv_cc_double_overflow" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_OVERFLOW_EXCEPTION Define to 1 if 'double' overflow raises an exception.
+_ACEOF
+
+  fi
+
+
+  echo "$as_me:$LINENO: checking whether double-float underflow raises an exception" >&5
+echo $ECHO_N "checking whether double-float underflow raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_double_underflow+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_double_underflow="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+#include <float.h>
+static void sigfpe_handler (int sig) { exit (1); }
+double x = DBL_MIN;
+double y = DBL_MIN;
+double z;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x * y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_double_underflow=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_double_underflow=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_double_underflow" >&5
+echo "${ECHO_T}$cl_cv_cc_double_underflow" >&6
+  if test "$cl_cv_cc_double_underflow" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_UNDERFLOW_EXCEPTION Define to 1 if 'double' underflow raises an exception.
+_ACEOF
+
+  fi
+
+
+  echo "$as_me:$LINENO: checking whether double-float inexact raises an exception" >&5
+echo $ECHO_N "checking whether double-float inexact raises an exception... $ECHO_C" >&6
+  if test "${cl_cv_cc_double_inexact+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+    if test "$cross_compiling" = yes; then
+  cl_cv_cc_double_inexact="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <stdlib.h>
+#include <signal.h>
+static void sigfpe_handler (int sig) { exit (1); }
+double x = 1;
+double y = 3;
+double z;
+int main ()
+{
+  signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif
+  z = x / y;
+  exit (0);
+}
+
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_cc_double_inexact=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+cl_cv_cc_double_inexact=yes
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+  echo "$as_me:$LINENO: result: $cl_cv_cc_double_inexact" >&5
+echo "${ECHO_T}$cl_cv_cc_double_inexact" >&6
+  if test "$cl_cv_cc_double_inexact" = yes; then
+    cat >>confdefs.h <<\_ACEOF
+#define DOUBLE_INEXACT_EXCEPTION Define to 1 if a 'double' inexact operation raises an exception.
+_ACEOF
+
+  fi
+
 cl_machine_file_c=${srcdir}/intparam.c
 cl_machine_file_h=intparam.h
 if test $cross_compiling = no; then
@@ -21819,6 +22328,48 @@ if test -s conftest; then
     mv conftest.h "$cl_machine_file_h"
   fi
   cl_cv_file_intparam_h=1
+else
+  echo "creation of $cl_machine_file_h failed"
+fi
+rm -f conftest*
+fi
+else
+echo "cross-compiling - cannot create $cl_machine_file_h"
+fi
+
+cl_machine_file_c=${srcdir}/floatparam.c
+cl_machine_file_h=floatparam.h
+if test $cross_compiling = no; then
+if test -z "$cl_cv_file_floatparam_h"; then
+{ echo "$as_me:$LINENO: checking for floating-point types and behaviour..." >&5
+echo "$as_me: checking for floating-point types and behaviour..." >&6;}
+cat > conftest.$ac_ext <<EOF
+#include "confdefs.h"
+EOF
+cat "$cl_machine_file_c" >> conftest.$ac_ext
+ORIGCC="$CC"
+if test $ac_cv_c_compiler_gnu = yes; then
+# gcc -O (gcc version <= 2.3.2) crashes when compiling long long shifts for
+# target 80386. Strip "-O".
+CC=`echo "$CC " | sed -e 's/-O //g'`
+fi
+{ (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }
+CC="$ORIGCC"
+if test -s conftest; then
+  echo "creating $cl_machine_file_h"
+  ./conftest > conftest.h
+  if cmp -s "$cl_machine_file_h" conftest.h 2>/dev/null; then
+    # The file exists and we would not be changing it
+    rm -f conftest.h
+  else
+    rm -f "$cl_machine_file_h"
+    mv conftest.h "$cl_machine_file_h"
+  fi
+  cl_cv_file_floatparam_h=1
 else
   echo "creation of $cl_machine_file_h failed"
 fi
