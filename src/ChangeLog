@@ -1,5 +1,10 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw.d (main): If no memfile is specified, option "-norc" is
+          implied.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * comment5.d (main): Remove a gcc warning.
 
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
