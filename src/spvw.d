@@ -2887,9 +2887,11 @@ typedef struct { Pages pages;
             return size_lfloat(lfloat_length((Lfloat)addr));
           #ifdef TYPECODES
           case_machine:
+          #ifndef SIXBIT_TYPECODES
           case_char:
           case_subr:
           case_system:
+          #endif
           case_fixnum:
           case_sfloat:
           #ifdef WIDE

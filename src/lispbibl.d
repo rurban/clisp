@@ -3862,7 +3862,11 @@ Ratio and Complex (only if SPVW_MIXED).
   #define bvector_type   (                  bit(TB2)         |bit(TB0))  # %000101  ; sonstiger Bit-Vector oder Byte-Vector
   #define string_type    (                  bit(TB2)|bit(TB1)         )  # %000110  ; sonstiger String
   #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0))  # %000111  ; sonstiger (VECTOR T)
-  #define symbol_type    (         bit(TB3)                           )  # %001000  ; Symbol
+  #define orecord_type   (         bit(TB3)                           )  # %001000  ; OtherRecord (Structure, Stream, Package, Byte, ...)
+  #define instance_type  (         bit(TB3)                  |bit(TB0))  # %001001  ; CLOS-Instanz
+  #define closure_type   (         bit(TB3)         |bit(TB1)         )  # %001010  ; Closure
+  #define cons_type      (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Cons
+  #define symbol_type    (         bit(TB3)|bit(TB2)                  )  # %001100  ; Symbol
           # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
           #define active_bit  0  # gesetzt: Bindung ist aktiv
           #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
@@ -3874,12 +3878,8 @@ Ratio and Complex (only if SPVW_MIXED).
             #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
           #endif
           # Bits für Symbole im Selbstpointer:
-          #define constant_bit_t  TB4  # zeigt an, ob das Symbol eine Konstante ist
+          #define constant_bit_t  TB1  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   TB0  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #define cons_type      (         bit(TB3)                  |bit(TB0))  # %001001  ; Cons
-  #define instance_type  (         bit(TB3)         |bit(TB1)         )  # %001010  ; CLOS-Instanz
-  #define closure_type   (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Closure
-  #define orecord_type   (         bit(TB3)|bit(TB2)                  )  # %001100  ; OtherRecord (Structure, Stream, Package, Byte, ...)
   #define subr_type      (         bit(TB3)|bit(TB2)         |bit(TB0))  # %001101  ; SUBR
   #define system_type    (         bit(TB3)|bit(TB2)|bit(TB1)         )  # %001110  ; Frame-Pointer, Read-Label, SYSTEM
   #define char_type      (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0))  # %001111  ; Character
