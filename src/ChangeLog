@@ -1,3 +1,8 @@
+1999-06-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * init.lsp (defun): Don't use get-funname-symbol, to avoid
+          bootstrapping problems.
+
 1999-06-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	SOCK_error() generates an error of type `os-error'.
