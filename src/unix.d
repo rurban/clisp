@@ -384,7 +384,7 @@
 
 # Auflösen symbolischer Links in Pfadnamen:
   #ifdef HAVE_READLINK
-    extern_C int readlink (READLINK_CONST char* path, READLINK_BUF_T buf, READLINK_SIZE_T bufsiz); # siehe READLINK(2)
+    extern_C RETREADLINKTYPE readlink (READLINK_CONST char* path, READLINK_BUF_T buf, READLINK_SIZE_T bufsiz); # siehe READLINK(2)
   #endif
 # wird verwendet von PATHNAME
 
@@ -519,6 +519,9 @@
     #define HAVE_SELECT # siehe unixaux.d
   #endif
   #ifdef HAVE_SELECT
+    #ifdef UNIX_BEOS
+      #include <sys/socket.h>
+    #endif
     #ifndef _EMUL_SYS_TIME_H
       #include <sys/time.h>
     #endif

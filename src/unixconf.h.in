@@ -347,6 +347,8 @@
 /* CL_READLINK */
 /* Define if you have the readlink() function. */
 #undef HAVE_READLINK
+/* Define as the return type of readlink(). */
+#undef RETREADLINKTYPE
 /* Define as const if the declaration of readlink() needs const. */
 #define READLINK_CONST
 /* Define as the type of `buf' in readlink() declaration. */

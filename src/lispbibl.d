@@ -78,7 +78,7 @@
 
 
 # diese Maschine: AMIGA oder ACORN oder OS2 oder WIN32 oder GENERIC_UNIX
-#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__)) && !defined(unix)
+#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__BEOS__)) && !defined(unix)
   #define unix
 #endif
 #if (defined(amiga) || defined(AMIGA))
@@ -307,6 +307,9 @@
   #endif
   #ifdef __CYGWIN32__
     #define UNIX_CYGWIN32  # Cygwin32 (UNIXlike auf WinNT/Win95)
+  #endif
+  #ifdef __BEOS__
+    #define UNIX_BEOS  # BeOS (UNIXlike)
   #endif
 #endif
 #ifdef OS2
@@ -1177,7 +1180,7 @@
 
 # nicht-lokale Ausgänge
   #include <setjmp.h>
-  #if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU)
+  #if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS)
     # Folgende Routinen sind effizienter (hantieren nicht mit Signal-Masken):
     #undef setjmp
     #undef longjmp
