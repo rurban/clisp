@@ -8405,7 +8405,7 @@ local object make_key_event(event)
       #ifdef WIN32_NATIVE
         clear_tty_input(TheHandle(TheStream(stream)->strm_keyboard_handle));
         pushSTACK(stream);
-        while (listen_keyboard(STACK_0) == 0) { read_char(&STACK_0); }
+        while (ls_avail_p(listen_keyboard(STACK_0))) { read_char(&STACK_0); }
         skipSTACK(1);
       #endif
       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
@@ -8416,7 +8416,7 @@ local object make_key_event(event)
         TheStream(stream)->strm_rd_ch_last = NIL; # gewesenes EOF vergessen
         clear_tty_input(stdin_handle);
         pushSTACK(stream);
-        while (listen_keyboard(STACK_0) == 0) { read_char(&STACK_0); }
+        while (ls_avail_p(listen_keyboard(STACK_0))) { read_char(&STACK_0); }
         skipSTACK(1);
       #endif
       return TRUE;
@@ -9618,14 +9618,13 @@ LISPFUNN(make_keyboard_stream,0)
         # File -> nichts tun
         { return FALSE; }
       # Terminal
-      TheStream(stream)->strm_rd_ch_last = NIL; # gewesenes EOF vergessen
+      clear_input_unbuffered(stream); # forget about past EOF, call clear_tty_input
       #if TERMINAL_LINEBUFFERED
       TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
       TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
       #endif
-      clear_tty_input(stdin_handle);
       pushSTACK(stream);
-      while (listen_terminal2(STACK_0) == 0) { read_char(&STACK_0); }
+      while (ls_avail_p(listen_terminal2(STACK_0))) { read_char(&STACK_0); }
       skipSTACK(1);
       return TRUE;
     }
@@ -9803,14 +9802,13 @@ LISPFUNN(make_keyboard_stream,0)
         # File -> nichts tun
         { return FALSE; }
       # Terminal
-      TheStream(stream)->strm_rd_ch_last = NIL; # gewesenes EOF vergessen
+      clear_input_unbuffered(stream); # forget about past EOF, call clear_tty_input
       #if TERMINAL_LINEBUFFERED
       TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
       TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
       #endif
-      clear_tty_input(stdin_handle);
       pushSTACK(stream);
-      while (listen_terminal3(STACK_0) == 0) { read_char(&STACK_0); }
+      while (ls_avail_p(listen_terminal3(STACK_0))) { read_char(&STACK_0); }
       skipSTACK(1);
       return TRUE;
     }
