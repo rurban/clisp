@@ -2329,7 +2329,7 @@ LISPFUNN(keyword_test,2)
   var object arglist = STACK_1;
   { /* check number of arguments: */
     var uintL argcount = llength(arglist);
-    if (!((argcount%2) == 0)) {
+    if (argcount % 2) {
       pushSTACK(arglist);
       fehler(program_error,
              GETTEXT("keyword argument list ~ has an odd length"));
@@ -2343,27 +2343,32 @@ LISPFUNN(keyword_test,2)
       arglistr = Cdr(Cdr(arglistr));
     }
   }
-  { /* search, if all specified keywords occur in kwlist: */
+  { /* check whether all specified keywords occur in kwlist: */
+    var bool allow_seen = false; /* seen an :ALLOW-OTHER-KEYS NIL ? */
     var object arglistr = arglist;
     while (consp(arglistr)) {
-      var object key = Car(arglistr);
-      if (!nullp(memq(key,STACK_0)))
-        goto found;
-      /* not found */
-      pushSTACK(key); /* KEYWORD-ERROR Slot DATUM */
-      pushSTACK(key);
-      pushSTACK(STACK_(0+2));
-      pushSTACK(Car(Cdr(arglistr)));
-      pushSTACK(key);
-      {
-        var object type = allocate_cons();
-        Car(type) = S(member); Cdr(type) = STACK_(0+5);
-        STACK_3 = type; /* `(MEMBER ,@kwlist) = KEYWORD-ERROR Slot EXPECTED-TYPE */
+      var object key = Car(arglistr); arglistr = Cdr(arglistr);
+      var object val = Car(arglistr); arglistr = Cdr(arglistr);
+      if (eq(key,S(Kallow_other_keys))) {
+        if (!allow_seen) {
+          if (nullp(val)) allow_seen = true;
+          else goto fertig;
+        }
+      } else if (nullp(memq(key,STACK_0))) { /* not found */
+        pushSTACK(key); /* KEYWORD-ERROR Slot DATUM */
+        pushSTACK(key);
+        pushSTACK(STACK_(0+2));
+        pushSTACK(val);
+        pushSTACK(key);
+        { /* `(MEMBER ,@kwlist) = KEYWORD-ERROR Slot EXPECTED-TYPE */
+          var object type = allocate_cons();
+          Car(type) = S(member); Cdr(type) = STACK_(0+5);
+          STACK_3 = type;
+        }
+        fehler(keyword_error,
+               GETTEXT("Illegal keyword/value pair ~, ~ in argument list."
+                       NLstring "The allowed keywords are ~"));
       }
-      fehler(keyword_error,
-             GETTEXT("illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~"));
-     found: /* found. continue: */
-      arglistr = Cdr(Cdr(arglistr));
     }
   }
  fertig:
