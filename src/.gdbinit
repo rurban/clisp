@@ -4,10 +4,25 @@ file lisp.run
 set args -B . -M lispinit.mem -q -norc
 
 define zout
-        print object_out($arg0)
+        output object_out($arg0)
 end
 document zout
         print the specified object with PRIN1
+end
+
+define stack
+       set $idx = $arg1
+       while $idx >= $arg0
+         echo ***** STACK_
+         output $idx
+         echo \ *****\n
+         output object_out(STACK[-1-$idx])
+         echo \n
+         set $idx = $idx-1
+       end
+end
+document stack
+         print the section of STACK
 end
 
 break funcall
