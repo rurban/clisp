@@ -856,19 +856,38 @@ T
        (peek-char nil (first (concatenated-stream-streams cs)) nil nil)))
 T
 
-(let ((cs (make-two-way-stream (make-string-input-stream "a")
+(let ((2w (make-two-way-stream (make-string-input-stream "a")
                                *standard-output*)))
-  (unread-char (read-char cs) cs)
-  (eql (peek-char nil cs)
-       (peek-char nil (two-way-stream-input-stream cs) nil nil)))
+  (unread-char (read-char 2w) 2w)
+  (eql (peek-char nil 2w)
+       (peek-char nil (two-way-stream-input-stream 2w) nil nil)))
 T
 
-(let ((cs (make-echo-stream (make-string-input-stream "a")
-                            *standard-output*)))
-  (unread-char (read-char cs) cs)
-  (eql (peek-char nil cs)
-       (peek-char nil (echo-stream-input-stream cs) nil nil)))
-T
+(let* ((so (make-string-output-stream))
+       (ve (make-array 1))
+       (ec (make-echo-stream (make-string-input-stream "a") so)))
+  (unread-char (read-char ec) ec)
+  (unread-char (read-char ec) ec)
+  (unread-char (read-char ec) ec)
+  (read-sequence ve ec)
+  (unread-char (aref ve 0) ec)
+  (list (eql (peek-char nil ec)
+             (peek-char nil (echo-stream-input-stream ec) nil nil))
+        (get-output-stream-string so)))
+(T "a")
+
+(let* ((so1 (make-string-output-stream))
+       (so2 (make-string-output-stream))
+       (ec1 (make-echo-stream (make-string-input-stream "a") so1))
+       (ec2 (make-echo-stream ec1 so2)))
+  (unread-char (read-char ec2) ec2)
+  (unread-char (read-char ec2) ec2)
+  (unread-char (read-char ec2) ec2)
+  (list (eql (peek-char nil ec2)
+             (peek-char nil ec1 nil nil))
+        (get-output-stream-string so1)
+        (get-output-stream-string so2)))
+(T "a" "a")
 
 (progn
 (makunbound 's)
