@@ -1,5 +1,11 @@
 2004-02-02  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_array_recursion): Add an rdepth argument. Use dense output
+	if rdepth==1.
+	(pr_array): Pass the rank as initial rdepth.
+
+2004-02-02  Bruno Haible  <bruno@clisp.org>
+
 	* Makefile.devel (%/configure.in, %/config.h.in): Restrict the rule
 	to not match files in ffcall and libcharset.
 	(ffcall/vacall/config.h.in, ffcall/trampoline/config.h.in,
