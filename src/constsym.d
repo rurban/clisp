@@ -1083,6 +1083,7 @@ LISPSYM(deref,"%DEREF",ffi)
 LISPSYM(slot,"%SLOT",ffi)
 LISPSYM(cast,"%CAST",ffi)
 LISPSYM(offset,"%OFFSET",ffi)
+LISPSYM(exec_on_stack,"EXEC-ON-STACK",ffi)
 LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi)
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
 #ifdef AMIGAOS
