@@ -7674,7 +7674,8 @@ global object make_file_stream (direction_t direction, bool append_flag,
   }
   skipSTACK(3);
   # extend List of open File-Streams by stream:
-  stream = add_to_open_streams(stream);
+  if (direction != DIRECTION_PROBE)
+    stream = add_to_open_streams(stream);
   # treat Mode :APPEND:
   # CLHS says that :APPEND implies that "the file pointer is _initially_
   # positioned at the end of the file". Note that this is different from
