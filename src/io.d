@@ -3839,9 +3839,9 @@ LISPFUNN(not_feature_reader,3) { # reads #-
 #                 (if (symbolp name)
 #                   (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
 #                     (if desc
-#                       (if (svref desc 2)
+#                       (if (svref desc 3)
 #                         (values
-#                           (apply (svref desc 2) ; der Konstruktor
+#                           (apply (svref desc 3) ; der Konstruktor
 #                                  (structure-arglist-expand name (cdr args))
 #                         ) )
 #                         (error "~S: Structures of type ~S cannot be read (constructor function unknown)"
@@ -3965,8 +3965,8 @@ LISPFUNN(structure_reader,3) { # reads #S
         fehler(stream_error,
                GETTEXT("~S from ~S: no structure of type ~S has been defined"));
       }
-      # description must be a Simple-Vector of length >=4:
-      if (!(simple_vector_p(description) && (Svector_length(description) >= 4))) {
+      # description must be a Simple-Vector of length >=5:
+      if (!(simple_vector_p(description) && (Svector_length(description) >= 5))) {
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(name);
         pushSTACK(S(defstruct_description));
@@ -3975,8 +3975,8 @@ LISPFUNN(structure_reader,3) { # reads #S
         fehler(stream_error,GETTEXT("~S from ~S: bad ~S for ~S"));
       }
       # fetch constructor-function:
-      var object constructor = # (svref description 2)
-        TheSvector(description)->data[2];
+      var object constructor = # (svref description 3)
+        TheSvector(description)->data[3];
       if (nullp(constructor)) {
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(name);
@@ -7948,7 +7948,7 @@ local void pr_instance (const gcv_object_t* stream_, object obj) {
 # (defun print-structure (structure stream)
 #   (let ((description (get name 'DEFSTRUCT-DESCRIPTION)))
 #     (if description
-#       (let ((readable (svref description 2)))
+#       (let ((readable (svref description 3)))
 #         (write-string (if readable "#S(" "#<") stream)
 #         (prin1 name stream)
 #         (dolist (slot (svref description 3))
@@ -8042,16 +8042,16 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
   if (boundp(description)) { /* print structure with slot-name: */
     pushSTACK(description);
     # stack layout: structure, name, description.
-    # description must be a simple-vector of length >=4 !
+    # description must be a simple-vector of length >=5 !
     if (!(simple_vector_p(description)
-          && (Svector_length(description) >= 4))) {
+          && (Svector_length(description) >= 5))) {
     bad_description:
       pushSTACK(S(defstruct_description));
       pushSTACK(S(print));
       fehler(error,GETTEXT("~S: bad ~S"));
     }
-    var bool readable = # true if (svref description 2) /= NIL
-      !nullp(TheSvector(description)->data[2]);
+    var bool readable = # true if (svref description 3) /= NIL
+      !nullp(TheSvector(description)->data[3]);
     if (readable) { # print structure re-readably:
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
       KLAMMER_AUF;
@@ -8061,10 +8061,10 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
       CHECK_PRINT_READABLY(*structure_);
       UNREADABLE_START;
     }
-    pushSTACK(TheSvector(*(structure_ STACKop -2))->data[3]);
+    pushSTACK(TheSvector(*(structure_ STACKop -2))->data[4]);
     JUSTIFY_LAST(!some_printable_slots(STACK_0));
     prin_object(stream_,*(structure_ STACKop -1)); # print name
-    # loop through slot-list STACK_0 = (svref description 3) :
+    # loop through slot-list STACK_0 = (svref description 4) :
     {
       var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
       var uintL length = 0; # previous length := 0

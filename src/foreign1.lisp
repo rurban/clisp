@@ -151,7 +151,7 @@
                    (LAMBDA ,vars
                     (DECLARE (COMPILE))
                     ,(if (and (setq h (get class 'sys::defstruct-description))
-                              (setq h (svref h 2)))
+                              (setq h (svref h 3)))
                          ;; h is the keyword constructor for the structure
                          `(,h ,@(mapcan #'(lambda (s v)
                                             (list (intern (symbol-name s) compiler::*keyword-package*)
