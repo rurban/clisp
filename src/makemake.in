@@ -1,4 +1,4 @@
-# Konstruktion des Makefiles fürs Compilieren von CLISP
+# Creation of the Makefile used for compiling CLISP
 # Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
 # Sam Steingold 17.2.1999
 
@@ -357,15 +357,16 @@ case $# in
        if [ $TSYS = win32msvc ] ; then
          CC='cl'
          CC_GCC=false
+         CFLAGS='$(MFLAGS)'
          # -G5 means to optimize for i586.
          # "-Od -Z7" means to compile for debugging.
          # "-O1" means to optimize on msvc4,
          # "-Os -Oy -Ob1 -Gs -Gf -Gy" means to optimize on msvc5
          # ("-O1" and "-O2" are buggy in msvc5.0).
          if [ $COMPILER = msvc5 ] ; then
-           CFLAGS='-G5 -Os -Oy -Ob1 -Gs -Gf -Gy'
+           CFLAGS=$CFLAGS' -G5 -Os -Oy -Ob1 -Gs -Gf -Gy'
          else
-           CFLAGS='-G5 -O1'
+           CFLAGS=$CFLAGS' -G5 -O1'
          fi
          CLFLAGS=''
          CC_ANSI=true
@@ -1574,6 +1575,17 @@ echol "# $0$makemake_args"
 echol
 echol '# -------------- Start of configurable section --------------------'
 echol
+if [ $TSYS = win32msvc ] ; then
+  echol "# Flags that can be set on the nmake command line:"
+  echol "#   MFLAGS={-ML|-MT|-MD} for defining the compilation model"
+  echol "#     MFLAGS=-ML (the default)  Single-threaded, statically linked - libc.lib"
+  echol "#     MFLAGS=-MT                Multi-threaded, statically linked  - libcmt.lib"
+  echol "#     MFLAGS=-MD                Multi-threaded, dynamically linked - msvcrt.lib"
+  echol '!if !defined(MFLAGS)'
+  echol 'MFLAGS='
+  echol '!endif'
+  echol
+fi
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
@@ -2591,7 +2603,7 @@ else
     if [ $HSYS = win32msvc ] ; then
       # MSVC's incremental linking is buggy, avoid it.
       echotab "\$(RM) lisp.ilk"
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} /MD \$(OBJECTS) modules${TOBJ} ${LIBS} /link /out:lisp${LEXE}"
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} /link /out:lisp${LEXE}"
       # Need at least 1200 KB stack for creating the first interpreted.mem,
       # but the default stack size is only 1 MB.
       echotab "editbin /stack:2097152 lisp${LEXE}"
