@@ -219,13 +219,18 @@ extern void mregfree (regex_t *preg);
       ;; Compute return values.
       (if (zerop errcode)
         (values-list          ; the first value will be non-NIL
-         (map 'list (if (eql start 0)
-                      #'identity
-                      (lambda (match)
-                        (incf (match-start match) start)
-                        (incf (match-end match) start)
-                        match))
-              (delete-if #'minusp matches :key #'match-start)))
+         (do ((n (position-if-not #'minusp matches :key #'match-start
+                                  :from-end t)
+                 (1- n))
+              (result '()))
+             ((minusp n) result)
+           (let ((match (svref matches n)))
+             (push (cond ((= (match-start match) -1) nil)
+                         (t (unless (eql start 0)
+                              (incf (match-start match) start)
+                              (incf (match-end match) start))
+                            match))
+                   result))))
         nil))))
 
 ;; The following implementation of MATCH compiles the pattern
