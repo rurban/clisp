@@ -1,9 +1,5 @@
 # Saving and loading of memory images.
 
-#ifdef UNIX_LINUX
-  #include <stdio.h> # declares sprintf()
-#endif
-
 # ------------------------------ Specification ---------------------------------
 
 # Saves a memory image on diskette.
@@ -216,11 +212,14 @@
       var uintL universal_time = I_to_UL(value1);
       funcall(L(machine_instance),0);
       var char hostname[MAXHOSTNAMELEN+1];
-      if (nullp(value1)) hostname[0] = 0;
-      else with_string_0(value1,O(misc_encoding),host,{
-        strncpy(hostname,host,MAXHOSTNAMELEN);
-        hostname[MAXHOSTNAMELEN] = 0;
-      });
+      if (nullp(value1))
+        hostname[0] = '\0';
+      else {
+        with_string_0(value1,O(misc_encoding),host,{
+          strncpy(hostname,host,MAXHOSTNAMELEN);
+          hostname[MAXHOSTNAMELEN] = '\0';
+        });
+      }
       # Erst eine GC ausführen:
       gar_col();
       #define WRITE(buf,len)  \
@@ -287,8 +286,8 @@
       header._heapcount = heapcount;
       #endif
       header._dumptime = universal_time;
+      memset(&header._dumphost[0],'\0',MAXHOSTNAMELEN+1);
       strncpy(header._dumphost,hostname,MAXHOSTNAMELEN);
-      header._dumphost[MAXHOSTNAMELEN] = 0;
       WRITE(&header,sizeof(header));
       # Modulnamen rausschreiben:
       {
@@ -1463,19 +1462,19 @@
         FREE_DYNAMIC_ARRAY(old_modules);
         begin_system_call(); free(offset_subrs); end_system_call();
         {
-         # char memdumptime[4+1+2+1+2 +1+ 2+1+2+1+2+1]; # YYYY-MM-DD HH:MM:SS
-         # sprintf(memdumptime,"%04d-%02d-%02d %02d:%02d:%02d",
-         #         posfixnum_to_L(header._dumptime.Jahr),
-         #         posfixnum_to_L(header._dumptime.Monat),
-         #         posfixnum_to_L(header._dumptime.Tag),
-         #         posfixnum_to_L(header._dumptime.Stunden),
-         #         posfixnum_to_L(header._dumptime.Minuten),
-         #         posfixnum_to_L(header._dumptime.Sekunden));
-          char memdumptime[11];
+          # char memdumptime[4+1+2+1+2 +1+ 2+1+2+1+2+1]; # YYYY-MM-DD HH:MM:SS
+          # sprintf(memdumptime,"%04d-%02d-%02d %02d:%02d:%02d",
+          #         posfixnum_to_L(header._dumptime.Jahr),
+          #         posfixnum_to_L(header._dumptime.Monat),
+          #         posfixnum_to_L(header._dumptime.Tag),
+          #         posfixnum_to_L(header._dumptime.Stunden),
+          #         posfixnum_to_L(header._dumptime.Minuten),
+          #         posfixnum_to_L(header._dumptime.Sekunden));
+          char memdumptime[10+1];
           sprintf(memdumptime,"%u",header._dumptime);
           O(memory_image_timestamp) = ascii_to_string(memdumptime);
-          O(memory_image_host) = ascii_to_string(header._dumphost);
         }
+        O(memory_image_host) = ascii_to_string(header._dumphost);
       }
       # offene Files für geschlossen erklären:
       closed_all_files();
