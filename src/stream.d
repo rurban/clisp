@@ -16734,11 +16734,13 @@ local uintL check_float_eltype (gcv_object_t* eltype_) {
   fehler(error,GETTEXT("~S: illegal ~S argument ~S"));
 }
 
-# UP: Check an endianness argument.
-# test_endianness_arg(arg)
-# > arg: the argument
-# < bool result: endianness (BIG = true, LITTLE = false)
-local bool test_endianness_arg (object arg) {
+/* UP: Check an endianness argument.
+ check_endianness_arg(arg)
+ > arg: the argument
+ < bool result: endianness (BIG = true, LITTLE = false)
+ can trigger GC */
+local bool maygc check_endianness_arg (object arg) {
+ restart_check_endianness_arg:
   if (!boundp(arg) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
     return false;
   if (eq(arg,S(Kbig)))
@@ -16746,7 +16748,9 @@ local bool test_endianness_arg (object arg) {
   pushSTACK(arg);                # TYPE-ERROR slot DATUM
   pushSTACK(O(type_endianness)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: illegal endianness argument ~S"));
+  check_value(type_error,GETTEXT("~S: illegal endianness argument ~S"));
+  arg = value1;
+  goto restart_check_endianness_arg;
 }
 
 
@@ -16943,13 +16947,12 @@ LISPFUN(read_byte_no_hang,seclass_default,1,2,norest,nokey,0,NIL) {
 # (READ-INTEGER stream element-type [endianness [eof-error-p [eof-value]]])
 # is a generalized READ-BYTE.
 LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
-  var object stream = check_stream(STACK_4);
-  # check Element-Type:
+  /* check Element-Type */
   var decoded_el_t eltype;
   test_eltype_arg(&STACK_3,&eltype);
   check_multiple8_eltype(&eltype);
-  # check Endianness:
-  var bool endianness = test_endianness_arg(STACK_2);
+  var bool endianness = check_endianness_arg(STACK_2); /* check Endianness */
+  var object stream = check_stream(STACK_4);
   var uintL bitsize = eltype.size;
   var uintL bytesize = bitsize/8;
   var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
@@ -16996,11 +16999,9 @@ LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
 # (READ-FLOAT stream element-type [endianness [eof-error-p [eof-value]]])
 # reads a float in IEEE binary representation.
 LISPFUN(read_float,seclass_default,2,3,norest,nokey,0,NIL) {
+  var uintL bytesize = check_float_eltype(&STACK_3); /* check Element-Type */
+  var bool endianness = check_endianness_arg(STACK_2); /* check Endianness */
   var object stream = check_stream(STACK_4);
-  # check Element-Type:
-  var uintL bytesize = check_float_eltype(&STACK_3);
-  # check Endianness:
-  var bool endianness = test_endianness_arg(STACK_2);
   var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
@@ -17068,13 +17069,12 @@ LISPFUNN(write_byte,2) {
 # (WRITE-INTEGER integer stream element-type [endianness])
 # is a generalized WRITE-BYTE.
 LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
-  var object stream = check_stream(STACK_2);
-  # check Element-Type:
+  /* check Element-Type */
   var decoded_el_t eltype;
   test_eltype_arg(&STACK_1,&eltype);
   check_multiple8_eltype(&eltype);
-  # check Endianness:
-  var bool endianness = test_endianness_arg(STACK_0);
+  var bool endianness = check_endianness_arg(STACK_0); /* check Endianness */
+  var object stream = check_stream(STACK_2);
   # check Integer:
   var uintL bitsize = eltype.size;
   var uintL bytesize = bitsize/8;
@@ -17107,11 +17107,9 @@ LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
 # (WRITE-FLOAT float stream element-type [endianness])
 # writes a float in IEEE binary representation.
 LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
+  var uintL bytesize = check_float_eltype(&STACK_1); /* check Element-Type */
+  var bool endianness = check_endianness_arg(STACK_0); /* check Endianness */
   var object stream = check_stream(STACK_2);
-  # check Element-Type:
-  var uintL bytesize = check_float_eltype(&STACK_1);
-  # check Endianness:
-  var bool endianness = test_endianness_arg(STACK_0);
   # check Float:
   var object obj = STACK_3;
   switch (bytesize) {
