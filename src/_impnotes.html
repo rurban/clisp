@@ -5595,7 +5595,8 @@ be used as encodings. To create such an encoding, call
 <code>:charset</code> argument.
 <p>These encodings are not assigned to global variables, since there
 is no portable way to get the list of all character sets supported
-by iconv(). On Linux and GNU systems, you get this list by calling
+by iconv().
+<p>On Linux and GNU systems, you get this list by calling
 the <em>program</em> iconv: <code>iconv --list</code>. GNU glibc-2.1
 supports in particular, among others:
 <ul>
@@ -5604,6 +5605,20 @@ supports in particular, among others:
       Chinese language,
   <li><code>EUC-KR</code> and <code>ISO-2022-KR</code>, for the Korean language.
 </ul>
+<p>HP-UX systems support in particular, among others:
+<ul>
+  <li><code>eucJP</code> and <code>sjis</code>, for the Japanese language,
+  <li><code>eucTW</code>, <code>big5</code> and <code>chinese-gb</code>, for
+      the Chinese language,
+  <li><code>eucKR</code>, for the Korean language.
+</ul>
+<p>On Solaris systems, you can forget about iconv-based encodings, because
+all the possible encodings are already built-in. (Solaris knows about
+Japanese, Chinese and Korean encodings, but can convert them only to/from
+UTF-8, not to/from UCS-2, which is clisp's internal encoding.)
+<p>On IRIX systems, you can forget about iconv-based encodings as well,
+because all the interesting possible encodings are already built-in.
+<p>On OSF/1 systems, iconv-based encodings are not usable at all.
 <p>When an encoding is available as a built-in (see the list above) and
 through iconv(), the built-in is preferred, because it is more efficient
 and available across platforms.
