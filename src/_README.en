@@ -450,10 +450,10 @@ After errors, you are in the debugger:
 You can evaluate forms, as usual. Furthermore:
 
      Help
-               calles help
+               prints help
      Abort     or
      Unwind
-               climbs up to next higher input loop
+               climbs up to the next higher input loop
      Backtrace
                shows the contents of the stack, helpful for debugging
 
@@ -472,8 +472,8 @@ On bigger problems, e.g. register dumps, please send a description of the error
 #ifdef RISCOS
 On bigger problems, e.g. stack dumps, please send a description of the error
 #endif
-and how to produce it reliably to the authors or the maintainer. Please
-accompany it with the CLISP version, which you get by calling
+and how to produce it reliably to the authors or the maintainer.
+Please accompany it with the CLISP version, which you get by calling
 (lisp-implementation-version), as well as the OS name and version.
 
 
