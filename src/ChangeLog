@@ -1,5 +1,12 @@
 2002-06-14  Sam Steingold  <sds@gnu.org>
 
+	* complete.lisp (completion): when there is no word to complete,
+	describe the current funcall and return 0
+	* stream.d (lisp_completion): when COMPLETION returns 0,
+	refresh the current line using rl_refresh_line()
+
+2002-06-14  Sam Steingold  <sds@gnu.org>
+
 	grand type renaming continues
 	array_dim_size --> array_dim_size_t
 	environment --> environment_t
