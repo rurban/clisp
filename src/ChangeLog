@@ -1,5 +1,11 @@
 1999-06-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * compiler.lsp (*toplevel-environment*, *toplevel-denv*): Move
+          variables...
+        * init.lsp (*toplevel-environment*, *toplevel-denv*): ... to here.
+
+1999-06-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * intparam.d (printf_underscored): Change argument type to
           `const char*'.
 
