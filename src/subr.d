@@ -1,5 +1,5 @@
 # Liste aller SUBRs
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 # Eine C-compilierte LISP-Funktion wird definiert durch eine Deklaration
 #   LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
@@ -536,8 +536,6 @@ LISPFUNN(registry,2)
 #endif
 LISPFUNN(software_type,0)
 LISPFUNN(software_version,0)
-LISPFUNN(current_language,0)
-LISPFUNN(language,3)
 LISPFUNN(identity,1)
 LISPFUNN(address_of,1)
 #ifdef HAVE_DISASSEMBLER
@@ -546,6 +544,15 @@ LISPFUNN(program_id,0)
 #endif
 LISPFUNN(ansi,0)
 LISPFUNN(set_ansi,1)
+# ---------- I18N ----------
+LISPFUNN(current_language,0)
+LISPFUNN(language,3)
+LISPFUN(gettext,1,2,norest,nokey,0,NIL)
+LISPFUN(ngettext,3,2,norest,nokey,0,NIL)
+LISPFUNN(textdomain,0)
+LISPFUNN(set_textdomain,1)
+LISPFUNN(textdomaindir,1)
+LISPFUNN(set_textdomaindir,2)
 # ---------- SOCKET ----------
 #ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)

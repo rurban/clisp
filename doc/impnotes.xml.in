@@ -175,7 +175,7 @@
    [Platform-independent Extensions]</tocentry>
    <tocentry linkend="image">[Saving an Image]</tocentry>
    <tocentry linkend="quit">[Quitting Lisp]</tocentry>
-   <tocentry linkend="language">[The Language]</tocentry>
+   <tocentry linkend="i18n">[Internationalization]</tocentry>
    <tocentry linkend="encoding">[Encodings]</tocentry>
    <tocentry linkend="clos-stream">[Defining new kinds of Streams]</tocentry>
    <tocentry linkend="weak">[Weak Pointers]</tocentry>

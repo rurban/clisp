@@ -489,8 +489,6 @@ LISPSYM(registry,"REGISTRY",system)
 #endif
 LISPSYM(software_type,"SOFTWARE-TYPE",lisp)
 LISPSYM(software_version,"SOFTWARE-VERSION",lisp)
-LISPSYM(current_language,"CURRENT-LANGUAGE",system)
-LISPSYM(language,"LANGUAGE",system)
 LISPSYM(identity,"IDENTITY",lisp)
 LISPSYM(address_of,"ADDRESS-OF",system)
 #ifdef HAVE_DISASSEMBLER
@@ -499,6 +497,15 @@ LISPSYM(program_id,"PROGRAM-ID",system)
 #endif
 LISPSYM(ansi,"ANSI",system)
 LISPSYM(set_ansi,"SET-ANSI",system)
+# ---------- I18N ----------
+LISPSYM(current_language,"CURRENT-LANGUAGE",system)
+LISPSYM(language,"LANGUAGE",system)
+LISPSYM(gettext,"GETTEXT",i18n)
+LISPSYM(ngettext,"NGETTEXT",i18n)
+LISPSYM(textdomain,"TEXTDOMAIN",i18n)
+LISPSYM(set_textdomain,"SET-TEXTDOMAIN",i18n)
+LISPSYM(textdomaindir,"TEXTDOMAINDIR",i18n)
+LISPSYM(set_textdomaindir,"SET-TEXTDOMAINDIR",i18n)
 # ---------- SOCKET ----------
 #ifdef MACHINE_KNOWN
 LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
@@ -1152,6 +1159,13 @@ LISPSYM(Kinput_error_action,"INPUT-ERROR-ACTION",keyword)
 LISPSYM(Koutput_error_action,"OUTPUT-ERROR-ACTION",keyword)
 LISPSYM(Kansi_cl,"ANSI-CL",keyword)
 LISPSYM(Kextra_file_types,"EXTRA-FILE-TYPES",keyword)
+#ifdef GNU_GETTEXT
+LISPSYM(Klc_messages,"LC_MESSAGES",keyword)
+LISPSYM(Klc_ctype,"LC_CTYPE",keyword)
+LISPSYM(Klc_time,"LC_TIME",keyword)
+LISPSYM(Klc_collate,"LC_COLLATE",keyword)
+LISPSYM(Klc_monetary,"LC_MONETARY",keyword)
+#endif
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)
 LISPSYM(Kstring,"STRING",keyword)
