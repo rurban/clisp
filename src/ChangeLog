@@ -1,5 +1,15 @@
 2004-01-29  Sam Steingold  <sds@gnu.org>
 
+	some fixes for Garnet
+	* modules/clx/new-clx/clx.f (get_font_info_and_display): fixed
+	arguments passed to SLOT-VALUE
+	(general_plist_writer, SET-GCONTEXT-DASHES): fixed arguments
+	passed to SET-SLOT-VALUE
+	(SET-GCONTEXT-DASHES): use REPLACE instead of an explicit loop
+	(BELL): the second argument is optional
+
+2004-01-29  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 874859 ]: incorrect stack cleanup
 	* compiler.lisp (simplify): fixed a typo in SKIPSP+SKIPI=>SKIPI
 
