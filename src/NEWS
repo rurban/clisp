@@ -105,6 +105,8 @@ User visible changes
   + Documentation strings at a place where only declarations and forms are
     allowed now give a warning, not an error.
   + LAST, BUTLAST and NBUTLAST check their list argument for circularity.
+  + Different LOAD-TIME-VALUE forms that are EQUAL but not EQ are no longer
+    coalesced by COMPILE-FILE.
   + NAMESTRING no longer accepts an optional second argument.
 
 * TRANSLATE-PATHNAME and TRANSLATE-LOGICAL-PATHNAME accept a new keyword
