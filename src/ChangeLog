@@ -1,5 +1,11 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (DRIVERFLAGS): New variable.
+	(clisp, install-bin): Use it.
+	Needed for HP-UX 10.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (testsuite, testsuite-all): Pass the SHELL variable to
 	the suite/Makefile. Needed for HP-UX 10.
 
