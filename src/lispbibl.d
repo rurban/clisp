@@ -4227,6 +4227,10 @@ typedef iarray_ *  Iarray;
     #define Array_type_sb32vector  sb32vector_type   # Sbvector
     #define Array_type_sstring     sstring_type      # Sstring
     #define Array_type_svector     svector_type      # Svector
+    # Array_type_simple_bit_vector(atype)
+    # maps Atype_[n]Bit to Array_type_sb[n]vector. Depends on TB0, TB1, TB2.
+    #define Array_type_simple_bit_vector(atype)  \
+      (Array_type_sbvector + ((atype)<<TB0) + ((atype)&(bit(TB0+1)-bit(TB1))) + ((atype)&(bit(TB1+1)-bit(TB2))))
   #else
     #define Array_type(obj)  Record_type(obj)
     #define Array_type_bvector     Rectype_bvector     # Iarray
@@ -5398,7 +5402,7 @@ typedef struct {
 # Test auf simple-bit[n]-vector
   #ifdef TYPECODES
     #define simple_bit_vector_p(atype,obj)  \
-      (typecode(obj) == sbvector_type+(atype))
+      (typecode(obj) == Array_type_simple_bit_vector(atype))
   #else
     # cases: Rectype_Sb[2^n]vector
     #define simple_bit_vector_p(atype,obj)  \
@@ -5408,7 +5412,7 @@ typedef struct {
 # Test auf bit[n]-vector
   #ifdef TYPECODES
     #define bit_vector_p(atype,obj)  \
-      ((typecode(obj) & ~bit(notsimple_bit_t)) == sbvector_type+(atype))
+      ((typecode(obj) & ~bit(notsimple_bit_t)) == Array_type_simple_bit_vector(atype))
   #else
     # cases: Rectype_Sb[2^n]vector, Rectype_b[2^n]vector
     #define bit_vector_p(atype,obj)  \
