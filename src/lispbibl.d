@@ -12579,8 +12579,9 @@ extern bool endp (object obj);
  > list: an object
  < result: the length (integer >= 0, or NIL for circular lists)
  < dotted: if non-circular, the last atom, i.e., the indicator whether the list
-           is dotted */
-extern object list_length (object list, object *dottedp);
+           is dotted
+ can trigger GC */
+extern maygc object list_length (object list, object *dottedp);
 /* used by SEQUENCE */
 
 /* proper_list_p(obj)

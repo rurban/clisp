@@ -541,8 +541,9 @@ LISPFUNNF(endp,1)
  > list: an object
  < result: the length (integer >= 0, or NIL for circular lists)
  < dotted: if non-circular, the last atom, i.e., the indicator whether the list
-           is dotted */
-global object list_length (object list, object *dottedp) {
+           is dotted
+ can trigger GC */
+global maygc object list_length (object list, object *dottedp) {
 /* (defun list-length (list)
      (do ((n 0 (+ n 2))
           (fast list (cddr fast))
@@ -564,8 +565,10 @@ global object list_length (object list, object *dottedp) {
     fast = Cdr(fast); n++;
     slow = Cdr(slow);
   }
-  *dottedp = fast;
-  return UL_to_I(n);
+  pushSTACK(fast);
+  var object len = UL_to_I(n);
+  *dottedp = popSTACK();
+  return len;
 }
 
 LISPFUNNR(list_length,1)
