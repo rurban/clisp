@@ -5,6 +5,7 @@
 	(SHORTCUT-INFO) [WIN32_NATIVE, UNIX_CYGWIN32]: new functions
 	* modules/syscalls/posix.lisp (file-info, shortcut-info)
 	[WIN32_NATIVE, UNIX_CYGWIN32]: new structures
+	* install.bat: run the full linking set
 
 2003-07-29  Sam Steingold  <sds@gnu.org>
 
