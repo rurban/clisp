@@ -1,3 +1,125 @@
+2004-04-11  Bruno Haible  <bruno@clisp.org>
+
+	Speed up the argument type checks.
+	* lispbibl.d (check_fpointer): Turn into an inline function.
+	(check_fpointer_replacement): New declaration.
+	(check_list): Turn into an inline function.
+	(check_list_replacement): New declaration.
+	(check_symbol): Turn into an inline function.
+	(check_symbol_replacement): New declaration.
+	(check_symbol_non_constant): Turn into an inline function.
+	(check_symbol_non_constant_replacement): New declaration.
+	(check_posfixnum): Turn into an inline function.
+	(check_posfixnum_replacement): New declaration.
+	(check_integer): Turn into an inline function.
+	(check_integer_replacement): New declaration.
+	(check_pos_integer): Turn into an inline function.
+	(check_pos_integer_replacement): New declaration.
+	(check_char): Turn into an inline function.
+	(check_char_replacement): New declaration.
+	(check_string): Turn into an inline function.
+	(check_string_replacement): New declaration.
+	(check_function): Turn into an inline function.
+	(check_function_replacement): New declaration.
+	(check_funname): Turn into an inline function.
+	(check_funname_replacement): New declaration.
+	(check_uint8): Turn into an inline function.
+	(check_uint8_replacement): New declaration.
+	(check_sint8): Turn into an inline function.
+	(check_sint8_replacement): New declaration.
+	(check_uint16): Turn into an inline function.
+	(check_uint16_replacement): New declaration.
+	(check_sint16): Turn into an inline function.
+	(check_sint16_replacement): New declaration.
+	(check_uint32): Turn into an inline function.
+	(check_uint32_replacement): New declaration.
+	(check_sint32): Turn into an inline function.
+	(check_sint32_replacement): New declaration.
+	(check_uint64): Turn into an inline function.
+	(check_uint64_replacement): New declaration.
+	(check_sint64): Turn into an inline function.
+	(check_sint64_replacement): New declaration.
+	(check_uint): Turn into an inline function.
+	(check_uint_replacement): New declaration.
+	(check_sint): Turn into an inline function.
+	(check_sint_replacement): New declaration.
+	(check_ulong): Turn into an inline function.
+	(check_ulong_replacement): New declaration.
+	(check_slong): Turn into an inline function.
+	(check_slong_replacement): New declaration.
+	(check_ffloat): Turn into an inline function.
+	(check_ffloat_replacement): New declaration.
+	(check_dfloat): Turn into an inline function.
+	(check_dfloat_replacement): New declaration.
+	(check_structure): Turn into an inline function.
+	(check_structure_replacement): New declaration.
+	(check_real): Turn into an inline function.
+	(check_real_replacement): New declaration.
+	* error.d (check_fpointer_replacement): Renamed from check_fpointer.
+	(check_list_replacement): Renamed from check_list. Assume the argument
+	already failed the type check.
+	(check_symbol_replacement): Renamed from check_symbol. Assume the
+	argument already failed the type check.
+	(check_symbol_non_constant_replacement): Renamed from
+	check_symbol_non_constant.
+	(check_posfixnum_replacement): Renamed from check_posfixnum. Assume the
+	argument already failed the type check.
+	(check_integer_replacement): Renamed from check_integer. Assume the
+	argument already failed the type check.
+	(check_pos_integer_replacement): Renamed from check_pos_integer. Assume
+	the argument already failed the type check.
+	(check_char_replacement): Renamed from check_char. Assume the argument
+	already failed the type check.
+	(check_string_replacement): Renamed from check_string. Assume the
+	argument already failed the type check.
+	(check_function_replacement): Renamed from check_function. Assume the
+	argument already failed the type check.
+	(check_funname_replacement): Renamed from check_funname. Assume the
+	argument already failed the type check.
+	(check_uint8_replacement): Renamed from check_uint8. Assume the
+	argument already failed the type check.
+	(check_sint8_replacement): Renamed from check_sint8. Assume the
+	argument already failed the type check.
+	(check_uint16_replacement): Renamed from check_uint16. Assume the
+	argument already failed the type check.
+	(check_sint16_replacement): Renamed from check_sint16. Assume the
+	argument already failed the type check.
+	(check_uint32_replacement): Renamed from check_uint32. Assume the
+	argument already failed the type check.
+	(check_sint32_replacement): Renamed from check_sint32. Assume the
+	argument already failed the type check.
+	(check_uint64_replacement): Renamed from check_uint64. Assume the
+	argument already failed the type check.
+	(check_sint64_replacement): Renamed from check_sint64. Assume the
+	argument already failed the type check.
+	(check_uint_replacement): Renamed from check_uint. Assume the
+	argument already failed the type check.
+	(check_sint_replacement): Renamed from check_sint. Assume the
+	argument already failed the type check.
+	(check_ulong_replacement): Renamed from check_ulong. Assume the
+	argument already failed the type check.
+	(check_slong_replacement): Renamed from check_slong. Assume the
+	argument already failed the type check.
+	(check_ffloat_replacement): Renamed from check_ffloat. Assume the
+	argument already failed the type check.
+	(check_dfloat_replacement): Renamed from check_dfloat. Assume the
+	argument already failed the type check.
+	* record.d (check_structure_replacement): Renamed from check_structure.
+	Assume the argument already failed the type check.
+	* lisparit.d (check_number): Turn into an inline function.
+	(check_number_replacement): New function.
+	(check_real_replacement): Renamed from check_real. Assume the argument
+	already failed the type check.
+	(check_float): Turn into an inline function.
+	(check_float_replacement): New function.
+	(check_rational): Turn into an inline function.
+	(check_rational_replacement): New function.
+	* eval.d (eval1, apply, funcall): Use check_funname_replacement instead
+	of check_funname.
+	* control.d (funname_to_symbol, FLET, LABELS): Likewise.
+	* genclisph.d (main): Update. Emit definitions for inline,
+	single_float_p, double_float_p, uint_p, sint_p, ulong_p, slong_p.
+
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (simplify_directory): signal an error on (:ABSOLUTE :UP)
