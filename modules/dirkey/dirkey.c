@@ -12,9 +12,6 @@
 # define OBJECT_OUT(o,l)
 #endif
 
-#ifdef WIN32
-# define WIN32_NATIVE
-#endif
 #ifdef __CYGWIN__
 # define UNIX_CYGWIN32
 #endif
@@ -92,7 +89,7 @@ typedef enum {
 
 #ifdef DEBUG
 extern object nobject_out (FILE* stream, object obj);
-# define XOUT(obj,label)                                                 \
+# define XOUT(obj,label)                                                \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
    obj=nobject_out(stdout,obj), printf("\n"))
 #else
