@@ -69,30 +69,28 @@ DEFUN(PCRE::PCRE-FREE,fp)
 
 DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
       :EXTENDED :ANCHORED :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY \
-      :NOTEMPTY :UTF8 :NO-AUTO-CAPTURE :NO-UTF8-CHECK)
+      :NOTEMPTY :NO-AUTO-CAPTURE)
 { /* compile the pattern, return PATTERN struct */
-  int options =
-    (missingp(STACK_(13)) ? 0 : PCRE_CASELESS) |
-    (missingp(STACK_(12)) ? 0 : PCRE_MULTILINE) |
-    (missingp(STACK_(11)) ? 0 : PCRE_DOTALL) |
-    (missingp(STACK_10)   ? 0 : PCRE_EXTENDED) |
-    (missingp(STACK_9)    ? 0 : PCRE_ANCHORED) |
-    (missingp(STACK_8)    ? 0 : PCRE_DOLLAR_ENDONLY) |
-    (missingp(STACK_7)    ? 0 : PCRE_EXTRA) |
-    (missingp(STACK_6)    ? 0 : PCRE_NOTBOL) |
-    (missingp(STACK_5)    ? 0 : PCRE_NOTEOL) |
-    (missingp(STACK_4)    ? 0 : PCRE_UNGREEDY) |
-    (missingp(STACK_3)    ? 0 : PCRE_NOTEMPTY) |
-    (missingp(STACK_2)    ? 0 : PCRE_UTF8) |
-    (missingp(STACK_1)    ? 0 : PCRE_NO_AUTO_CAPTURE) |
-    (missingp(STACK_0)    ? 0 : PCRE_NO_UTF8_CHECK);
-  bool study = !missingp(STACK_(14));
+  int options = PCRE_UTF8 |
+    (missingp(STACK_(11)) ? 0 : PCRE_CASELESS) |
+    (missingp(STACK_10)   ? 0 : PCRE_MULTILINE) |
+    (missingp(STACK_9)    ? 0 : PCRE_DOTALL) |
+    (missingp(STACK_8)    ? 0 : PCRE_EXTENDED) |
+    (missingp(STACK_7)    ? 0 : PCRE_ANCHORED) |
+    (missingp(STACK_6)    ? 0 : PCRE_DOLLAR_ENDONLY) |
+    (missingp(STACK_5)    ? 0 : PCRE_EXTRA) |
+    (missingp(STACK_4)    ? 0 : PCRE_NOTBOL) |
+    (missingp(STACK_3)    ? 0 : PCRE_NOTEOL) |
+    (missingp(STACK_2)    ? 0 : PCRE_UNGREEDY) |
+    (missingp(STACK_1)    ? 0 : PCRE_NOTEMPTY) |
+    (missingp(STACK_0)    ? 0 : PCRE_NO_AUTO_CAPTURE);
+  bool study = !missingp(STACK_(12));
   const char *error_message;
   int error_offset;
   pcre *compiled_pattern;
-  gcv_object_t *string = &STACK_(15), *cmp;
+  gcv_object_t *string = &STACK_(13), *cmp;
  pcre_compile_restart:
-  with_string_0(check_string(*string),GLO(misc_encoding),pattern, {
+  with_string_0(check_string(*string),Symbol_value(S(utf_8)),pattern, {
       begin_system_call();
       compiled_pattern = pcre_compile(pattern,options,&error_message,
                                       &error_offset,NULL);
@@ -125,7 +123,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
     pushSTACK(allocate_fpointer(pe));
   } else pushSTACK(NIL);
   funcall(`PCRE::MAKE-PAT`,2);
-  skipSTACK(16);
+  skipSTACK(14);
 }
 
 /* can trigger GC */
@@ -150,7 +148,7 @@ static void check_pattern (object pat, pcre** compiled_pattern,
 
 /* two object should be on STACK for the error message */
 nonreturning_function(static, pcre_error, (int status)) {
-  pushSTACK(fixnum(status)); pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
   switch (status) {
     case PCRE_ERROR_NOMATCH:        fehler(error,"~/~ (~ ~): NOMATCH");
     case PCRE_ERROR_NULL:           fehler(error,"~/~ (~ ~): NULL");
@@ -293,23 +291,22 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
 }
 
 DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
-      :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY :NO-UTF8-CHECK)
+      :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY)
 { /* match the SUBJECT string against a pre-compiled PATTERN;
      return a vector of MATCH structures or NIL if no matches */
   int options =
-    (missingp(STACK_4) ? 0 : PCRE_ANCHORED) |
-    (missingp(STACK_3) ? 0 : PCRE_NOTBOL) |
-    (missingp(STACK_2) ? 0 : PCRE_NOTEOL) |
-    (missingp(STACK_1) ? 0 : PCRE_NOTEMPTY) |
-    (missingp(STACK_0) ? 0 : PCRE_NO_UTF8_CHECK);
-  int offset = missingp(STACK_5) ? 0
+    (missingp(STACK_3) ? 0 : PCRE_ANCHORED) |
+    (missingp(STACK_2) ? 0 : PCRE_NOTBOL) |
+    (missingp(STACK_1) ? 0 : PCRE_NOTEOL) |
+    (missingp(STACK_0) ? 0 : PCRE_NOTEMPTY);
+  int offset = missingp(STACK_4) ? 0
     : posfixnum_to_L(check_posfixnum(STACK_5));
-  bool bool_p = !missingp(STACK_6);
+  bool bool_p = !missingp(STACK_5);
   int *ovector;
   int capture_count, ovector_size, ret;
   pcre *c_pat;
   pcre_extra *study;
-  skipSTACK(7); /* drop all options */
+  skipSTACK(6); /* drop all options */
   check_pattern(STACK_1,&c_pat,&study);
   begin_system_call();
   ret = pcre_fullinfo(c_pat,study,PCRE_INFO_CAPTURECOUNT,&capture_count);
@@ -317,7 +314,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
   if (ret < 0) pcre_error(ret);
   ovector_size = 3 * (capture_count + 1);
   ovector = alloca(ovector_size);
-  with_string_0(check_string(STACK_0),GLO(misc_encoding),subject, {
+  with_string_0(check_string(STACK_0),Symbol_value(S(utf_8)),subject, {
       begin_system_call();
       ret = pcre_exec(c_pat,study,subject,subject_len,offset,options,
                       ovector,ovector_size);
