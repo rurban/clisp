@@ -1292,20 +1292,20 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
         STACK_2 = Fixnum_1; /* turn 0 into 1 */
     }
   } /* size is now a fixnum >0. */
-  check_rehash_size: { /* check rehash-size: */
+  check_rehash_size: { /* (OR (INTEGER 1 *) (FLOAT (1.0) *)) */
     if (!boundp(STACK_1)) { /* default-rehash-size = 1.5s0 */
       STACK_1 = make_SF(0,SF_exp_mid+1,(bit(SF_mant_len)*3)/2);
     } else {
       if (!floatp(STACK_1)) { /* Float is OK */
-        if (!posfixnump(STACK_1)) { /* else it should be a fixnum >=0 */
+        if (!integerp(STACK_1) || R_minusp(STACK_1) || eq(STACK_1,Fixnum_0)) {
+          /* else it should be a positive integer */
          bad_rehash_size:
           pushSTACK(NIL); /* no PLACE */
           pushSTACK(STACK_(1+1)); /* TYPE-ERROR slot DATUM */
           pushSTACK(O(type_hashtable_rehash_size)); /* EXPECTED-TYPE */
           pushSTACK(STACK_(1+3)); pushSTACK(S(Krehash_size));
           pushSTACK(S(make_hash_table));
-          check_value(type_error,
-                      GETTEXT("~: ~ argument should be a float > 1, not ~"));
+          check_value(type_error,GETTEXT("~: ~ argument should be an integer or a float > 1, not ~"));
           STACK_1 = value1;
           goto check_rehash_size;
         }
@@ -1338,20 +1338,20 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
       STACK_1 = value1; /* =: rehash-size */
     }
   } /* rehash-size is a short-float >= 1.125 . */
- check_rehash_threshold: { /* check rehash-threshold: should be a float >=0, <=1 */
+ check_rehash_threshold: { /* check rehash-threshold: should be real in [0;1]*/
     var object rehash_threshold = STACK_0;
     if (boundp(rehash_threshold)) { /* not specified -> OK */
-      if (!floatp(rehash_threshold)) {
+      if_realp(rehash_threshold,{},{
        bad_rehash_threshold:
         pushSTACK(NIL); /* no PLACE */
         pushSTACK(rehash_threshold); /* TYPE-ERROR slot DATUM */
         pushSTACK(O(type_hashtable_rehash_threshold)); /* TYPE-ERROR slot EXPECTED-TYPE */
         pushSTACK(STACK_1); pushSTACK(S(Krehash_threshold));
         pushSTACK(S(make_hash_table));
-        check_value(type_error,GETTEXT("~: ~ argument should be a float between 0 and 1, not ~"));
+        check_value(type_error,GETTEXT("~: ~ argument should be a real between 0 and 1, not ~"));
         STACK_0 = value1;
         goto check_rehash_threshold;
-      }
+      });
       pushSTACK(Fixnum_1);
       pushSTACK(rehash_threshold);
       pushSTACK(Fixnum_0);
