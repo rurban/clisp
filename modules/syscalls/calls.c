@@ -1,6 +1,8 @@
 /*
  * system calls
  * Copyright (C) 2003-2004 Sam Steingold
+ * Copyright (C) 2005 Bruno Haible
+ * Copyright (C) 2005 Arseny Slobodyuk
  * GPL2
  */
 
@@ -188,9 +190,9 @@ DEFUNF(POSIX::Y0,x) { VAL_D(y0); mv_count=1; }
 DEFUNF(POSIX::Y1,x) { VAL_D(y1); mv_count=1; }
 DEFUNF(POSIX:YN,i y){ VAL_ID(yn); mv_count=1; }
 
-#if defined(HAVE_LGAMMA) || defined(HAVE_LGAMMA_R)
+#if defined(HAVE_LGAMMA) || defined(HAVE_DECL_LGAMMA_R)
 DEFUNF(POSIX::LGAMMA,x) {
-# if defined(HAVE_LGAMMA_R)
+# if defined(HAVE_DECL_LGAMMA_R)
   int sign;
   double res = lgamma_r(D_S,&sign);
   value2 = (sign > 0 ? Fixnum_1 : Fixnum_minus1);
