@@ -1488,17 +1488,24 @@ local inline maygc uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
   while (!eq(FRAME_(0),nullobj) /* nullobj = stack end */
          && (frame_limit==0 || count<frame_limit)) {
     fresh_line(stream_);
-    while (bt_beyond_stack_p(bt,FRAME)) {
-      print_back_trace(stream_,bt,++count);
-      terpri(stream_);
-      bt = bt->bt_next;
-    }
     if (frame_up_x != NULL) {
       var gcv_object_t* next_frame = (*frame_up_x)(FRAME);
       if (next_frame == FRAME) break;
-      print_stackitem(stream_,FRAME = next_frame);
-    } else
+      FRAME = next_frame;
+      while (bt_beyond_stack_p(bt,FRAME)) {
+        print_back_trace(stream_,bt,++count);
+        terpri(stream_);
+        bt = bt->bt_next;
+      }
+      print_stackitem(stream_,FRAME);
+    } else {
+      while (bt_beyond_stack_p(bt,FRAME)) {
+        print_back_trace(stream_,bt,++count);
+        terpri(stream_);
+        bt = bt->bt_next;
+      }
       FRAME = print_stackitem(stream_,FRAME);
+    }
     elastic_newline(stream_);
   }
   skipSTACK(1); /* drop *STANDARD-OUTPUT* */
