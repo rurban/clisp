@@ -9,6 +9,7 @@
 
 <!-- *** general references about Common Lisp *** -->
 <!ENTITY clhs "http://www.lisp.org/HyperSpec">
+<!ENTITY clrfi "http://clrfi.alu.org/clrfi">
 <!ENTITY mop-home "http://www.lisp.org/mop">
 <!ENTITY cl "<ulink url='http://www.lisp.org'><command>Common Lisp</command></ulink>">
 <!ENTITY clos "<ulink url='&clhs;/Body/chap-7.html'><command>CLOS</command></ulink>">
@@ -197,6 +198,7 @@
 <!ENTITY int-time "<ulink url='&clhs;/Body/sec_25-1-4-3.html'>internal time</ulink>">
 <!ENTITY seconds "<ulink url='&clhs;/Body/sec_25-1-4-4.html'>seconds</ulink>">
 <!ENTITY TZ "<ulink url='&clhs;/Body/glo_t.html#time_zone'>time zone</ulink>">
+<!ENTITY feature-expr "<ulink url='&clhs;/Body/sec_24-1-2-1.html'>feature exression</ulink>">
 
 <!-- *** variables, bindings etc *** -->
 <!ENTITY environment "<ulink url='&clhs;/Body/sec_3-1-1.html'>environment</ulink>">
@@ -219,6 +221,8 @@
 <!ENTITY sharp-A "<ulink url='&clhs;/Body/sec_2-4-8-12'><literal role='data'>#<replaceable>rank</replaceable>A</literal></ulink>">
 <!ENTITY sharp-S "<ulink url='&clhs;/Body/sec_2-4-8-13'><literal role='data'>#S</literal></ulink>">
 <!ENTITY sharp-P "<ulink url='&clhs;/Body/sec_2-4-8-14'><literal role='data'>#P</literal></ulink>">
+<!ENTITY sharp-plus "<ulink url='&clhs;/Body/sec_2-4-8-18'><literal role='data'>#+</literal></ulink>">
+<!ENTITY sharp-minus "<ulink url='&clhs;/Body/sec_2-4-8-19'><literal role='data'>#-</literal></ulink>">
 
 <!-- *** format instructions *** -->
 <!ENTITY format-a "<ulink url='&clhs;/Body/sec_22-3-4-1.html'><literal>~A</literal></ulink>">
