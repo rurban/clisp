@@ -88,10 +88,15 @@
     (multiple-value-bind (clo pos) (local-helper spec)
       (sys::%record-ref clo pos)))
   (defun %local-set (new-def spec)
+    (unless (closurep new-def)
+      (error-of-type 'type-error
+        :datum new-def :expected-type 'closure
+        (TEXT "~S: ~S must be a closure") `((setf local) ,@spec)) new-def)
     (multiple-value-bind (clo pos) (local-helper spec)
       (sys::%record-store clo pos
-         (fdefinition (compile (closure-name (sys::%record-ref clo pos))
-                               new-def))))))
+         (if (compiled-function-p new-def) new-def
+             (fdefinition (compile (closure-name (sys::%record-ref clo pos))
+                                   new-def)))))))
 
 (defmacro local (&rest spec)
   "Return the closure defined locally with LABELS or FLET.
