@@ -5864,9 +5864,9 @@ local void justify_space (const object* stream_) {
   }
 }
 
-local void mutli_line_sub_block_out (object block, const object* stream_) {
+local void multi_line_sub_block_out (object block, const object* stream_) {
   block = nreverse(block); # bring lines into the right order
-  if (!stringp(Car(block))) # drop the initial indentation
+  while (!stringp(Car(block))) # drop the initial indentations
     block = Cdr(block);
   # print first line on the PPHELP-stream:
   pushSTACK(block);
@@ -5907,7 +5907,7 @@ local void justify_end_eng (const object* stream_) {
       var object block = Car(STACK_0); # next block
       STACK_0 = Cdr(STACK_0); # shorten blocklist
       if (consp(block)) { # Sub-Block with several lines
-        mutli_line_sub_block_out(block,stream_);
+        multi_line_sub_block_out(block,stream_);
         # Modus := multi-liner:
         stream = *stream_;
         TheStream(stream)->strm_pphelp_modus = mehrzeiler;
@@ -6032,7 +6032,7 @@ local void justify_end_weit (const object* stream_) {
       var object block = Car(STACK_0); # next block
       STACK_0 = Cdr(STACK_0); # shorten block list
       if (consp(block)) { # multi-line sub-block
-        mutli_line_sub_block_out(block,stream_);
+        multi_line_sub_block_out(block,stream_);
       } else { # single-line sub-block
         # print it on the PPHELP-stream:
         write_string(stream_,block);
