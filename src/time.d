@@ -1,5 +1,6 @@
 # Time measuring functions for CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2002
+# Sam Steingold 1998-2002
 
 #include "lispbibl.c"
 #include "arilev0.c"  # for high16, low16 in %%TIME,
@@ -1128,9 +1129,7 @@ LISPFUNN(time,0)
     pushSTACK(fixnum( ((tm.gcfreed.hi << 8) + (tm.gcfreed.lo >> 24)) & (bit(24)-1) ));
     pushSTACK(fixnum( tm.gcfreed.lo & (bit(24)-1) ));
     #endif
-    # letzter Wert: GC-Count
+    # last value: GC count
     pushSTACK(fixnum(tm.gccount));
-    funcall(L(values),9); # 9 Werte produzieren
+    funcall(L(values),9); # return 9 values
   }
-
-
