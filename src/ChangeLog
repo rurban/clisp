@@ -1,5 +1,9 @@
 2004-10-05  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (unused): do not redefine (win32.d already defines it)
+
+2004-10-05  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (LAUNCH): exit_code is unsigned,
 	so use fixnum() instead of sfixnum() and avoid a GCC warning
 
