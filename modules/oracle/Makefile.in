@@ -4,7 +4,7 @@
 # $Id
 
 # This will come from the environment
-ORACLE_HOME = /usr/local/oracle
+# ORACLE_HOME = /usr/local/oracle
 
 CC = @CC@
 CFLAGS = @CFLAGS@
