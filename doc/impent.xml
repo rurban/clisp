@@ -775,3 +775,5 @@
 <!ENTITY ascii-iso-ext "an extension of the &charset-ascii;, suitable for the">
 <!ENTITY err-sig "&error-t; is &signal;led">
 <!ENTITY sig-err "&signal;s an &error-t;">
+
+<!ENTITY clisp-only "<title>Implementation dependent: only in &clisp;.</title>">
