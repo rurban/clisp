@@ -1,3 +1,8 @@
+2003-07-02  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: AC_PREREQ(2.57) because Makefile.devel calls
+	autoconf with the option --include which 2.13 does not understand
+
 2003-01-01  Bruno Haible  <bruno@clisp.org>
 
 	* Makefile.in (mkinstalldirs): Renamed from MKINSTALLDIRS.
