@@ -44,12 +44,7 @@
    (with-open-file (pot2 (concatenate 'string destdir "/" filename ".pot2")
                         :direction :output
                         #+UNICODE :external-format #+UNICODE charset:iso-8859-1)
-    (with-open-file (en (concatenate 'string destdir "/" filename ".en")
-                        :direction :output
-                        #+UNICODE :external-format #+UNICODE charset:iso-8859-1)
       (let ((allpots (make-broadcast-stream pot pot2))
-            (pot+en (make-broadcast-stream pot en))
-            (allpots+en (make-broadcast-stream pot pot2 en))
             (lineno 0) ; number of the line (usually = (1- (sys::line-number file)))
             (line nil) (pos nil))
        (labels ((goto-line (no)
@@ -166,13 +161,12 @@
                     (write-char #\" stream)
                 ) )
                 (output-hunk (no msgid with-2)
-                  (let ((ostream (if with-2 allpots+en pot+en)))
+                  (let ((ostream (if with-2 allpots pot)))
                     (format ostream "~%#: ~A:~D~%" filename no)
                     (format ostream "msgid ")
                     (output-string msgid ostream)
                     (format ostream "~%msgstr ")
-                    (output-string "" (if with-2 allpots pot))
-                    (output-string msgid en) ; default English translation is msgid itself
+                    (output-string "" ostream)
                     (format ostream "~%")
                 ) )
                 (do-one-file (&key all-grepper keys string-parser)
@@ -221,6 +215,6 @@
                (t (error "unknown file type: ~S" filename))
          )
       ))
-)))))
+))))
 
 (main (first *args*) (second *args*))
