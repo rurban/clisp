@@ -1,0 +1,95 @@
+# Makefile for sigsegv
+
+#### Start of system configuration section. ####
+
+# Directories used by "make":
+srcdir = @srcdir@
+
+# Directories used by "make install":
+prefix = @prefix@
+local_prefix = /usr/local
+exec_prefix = $(prefix)
+libdir = $(exec_prefix)/lib
+includedir = $(prefix)/include
+mandir = $(exec_prefix)/man
+
+# Programs used by "make":
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPP = @CPP@
+INCLUDES = -I. -I$(srcdir)
+AR = ar
+AR_FLAGS = rc
+RANLIB = @RANLIB@
+MV = mv
+LN = ln
+RM = rm -f
+
+# Programs used by "make install":
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+#### End of system configuration section. ####
+
+SHELL = /bin/sh
+
+OBJECTS = handler.o dispatcher.o
+
+all : sigsegv.h libsigsegv.a
+
+sigsegv.h :
+	ln $(srcdir)/sigsegv.h sigsegv.h || cp $(srcdir)/sigsegv.h sigsegv.h
+
+handler.o : $(srcdir)/handler.c $(srcdir)/sigsegv.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/handler.c
+
+dispatcher.o : $(srcdir)/dispatcher.c $(srcdir)/sigsegv.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/dispatcher.c
+
+libsigsegv.a : $(OBJECTS)
+	$(RM) libsigsegv.a
+	$(AR) $(AR_FLAGS) libsigsegv.a $(OBJECTS)
+	$(RANLIB) libsigsegv.a
+
+install : all force
+	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
+	$(INSTALL_DATA) libsigsegv.a $(libdir)/libsigsegv.a
+	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
+	$(INSTALL_DATA) $(srcdir)/sigsegv.h $(includedir)/sigsegv.h
+
+installdirs : force
+	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
+	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
+
+uninstall : force
+	$(RM) $(libdir)/libsigsegv.a
+	$(RM) $(includedir)/sigsegv.h
+
+test1 : $(srcdir)/test1.c $(srcdir)/sigsegv.h libsigsegv.a
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c libsigsegv.a -o test1
+
+test2 : $(srcdir)/test2.c $(srcdir)/sigsegv.h libsigsegv.a
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test2.c libsigsegv.a -o test2
+
+test3 : $(srcdir)/test3.c $(srcdir)/sigsegv.h libsigsegv.a
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test3.c libsigsegv.a -o test3
+
+check : all test1 test2 test3
+	./test1
+	./test2
+	./test3
+
+mostlyclean : clean
+
+clean : force
+	$(RM) *.o *.a core
+	$(RM) test1 test2 test3
+
+distclean : clean
+	$(RM) config.status config.log config.cache Makefile config.h
+
+maintainer-clean : distclean
+
+force :
+
