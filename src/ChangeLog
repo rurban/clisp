@@ -1,5 +1,14 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	* compiler.lisp (c-warn, c-error): Use ~& at the beginning and ~. at
+	the end of the output.
+	(match-known-unknown-functions): Likewise.
+	(c-report-problems): Likewise. Remove blank line at the end.
+	(compile-file): Use fresh-line before and elastic-newline after the
+	output. Remove blank lines.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	Remove a redundant blank line at the beginning of DIR's output.
 	* init.lisp (dir): Use fresh-line at the beginning and an elastic
 	newline after each filename.
