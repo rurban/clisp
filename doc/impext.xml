@@ -3600,7 +3600,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>These three techniques apply to a single <filename>lisp</filename>
+<para>These four techniques apply to a single <filename>lisp</filename>
  or <filename>fas</filename> file.  If your application is made up of
  several <filename>lisp</filename> or <filename>fas</filename> files, you
  can simply concatenate them (using <function>cat</function>(1)) into
@@ -3634,9 +3634,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <listitem><para>On some platforms, the first line which specifies the
  interpreter is limited in length:
    <itemizedlist>
-         <listitem><simpara>max. 32 characters on SunOS 4,</simpara></listitem>
-         <listitem><simpara>max. 80 characters on HP-UX,</simpara></listitem>
-         <listitem><simpara>max. 127 characters on Linux.</simpara></listitem>
+     <listitem><simpara>max. 32 characters on SunOS 4,</simpara></listitem>
+     <listitem><simpara>max. 80 characters on HP-UX,</simpara></listitem>
+     <listitem><simpara>max. 127 characters on Linux.</simpara></listitem>
    </itemizedlist>
    Characters exceeding this limit are simply cut off by the system.
    At least 128 characters are accepted on Solaris, IRIX, AIX, OSF/1.
@@ -3655,9 +3655,10 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
  normal spaces.</simpara></listitem>
 </itemizedlist>
 
-<para>The script should contain Lisp forms, except in the #! line.  The
- file is normally loaded, through the function &load;.  Before it is
- loaded, the variable <emphasis
+<para>The script should contain Lisp forms, except in the
+ <literal>#!</literal> line.
+ The file is loaded normally, through the function &load;.
+ Before it is loaded, the variable <emphasis
  role="strong"><varname>ext:*args*</varname></emphasis> is bound to a
  list of strings, representing the arguments given to the Lisp script.
  &standard-input-var; and &standard-output-var; are bound, as usual, to
@@ -3665,8 +3666,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
  Unix error output.  Continuable errors will be turned to warnings.
  Non-continuable errors and
  <keycombo><keycap>Ctrl</keycap><keysym>C</keysym></keycombo> interrupts
- will terminate the execution of the Lisp script with error status. If
- you wish the script's contents to be compiled during loading, add
+ will terminate the execution of the Lisp script with an error status.
+ If you wish the script's contents to be compiled during loading, add
    <ulink url="clisp.html#Option -C"><option>-C</option></ulink> to the
  <replaceable>interpreter-args</replaceable>.</para>
 
@@ -3714,6 +3715,12 @@ input will be available.</para>
  all the code in the file), while the clicking on a &clisp; memory image
  (with <filename>mem</filename> extension) will start clisp with the
  given <link linkend="image">memory image</link>.</para>
+
+<para>Note that &clisp; is distributed with a file
+ <filename>install.bat</filename>, which creates a file
+ <filename>clisp.bat</filename> on your desktop and also associates
+ <filename>fas</filename>, <filename>list</filename>, and
+ <filename>mem</filename> files with &clisp;.</para>
 
 </listitem></varlistentry>
 <!-- #endif -->
