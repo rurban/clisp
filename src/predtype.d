@@ -1293,9 +1293,10 @@ LISPFUNNR(type_of,1)
   {
     case_cons: /* Cons -> CONS */
       value1 = S(cons); break;
-    case_symbol: /* Symbol -> SYMBOL or NULL or BOOLEAN */
+    case_symbol: /* Symbol -> SYMBOL or NULL or BOOLEAN or KEYWORD */
       value1 = (nullp(arg) ? S(null) :
                 eq(arg,T) ? S(boolean) :
+                eq(Symbol_package(arg),O(keyword_package)) ? S(keyword) :
                 S(symbol));
       break;
     case_machine: /* maschine pointer -> ADDRESS */
@@ -1526,7 +1527,8 @@ LISPFUNNR(type_of,1)
       value1 = S(system_internal); break;
    #endif
     case_fixnum: /* Fixnum -> FIXNUM */
-      value1 = S(fixnum); break;
+      value1 = (eq(arg,Fixnum_0) || eq(arg,Fixnum_1) ? S(bit) : S(fixnum));
+      break;
     case_bignum: /* Bignum -> BIGNUM */
       value1 = S(bignum); break;
     case_ratio: /* Ratio -> RATIO */
