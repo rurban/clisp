@@ -1552,8 +1552,9 @@ LISPFUNNR(type_of,1)
          this means that TYPE-OF must distinguish between positive
          and negative integers: */
     case_fixnum: /* Fixnum -> BIT or FIXNUM+ or FIXNUM- */
-      value1 = (eq(arg,Fixnum_0) || eq(arg,Fixnum_1) ? S(bit) :
-                positivep(arg) ? O(type_posfixnum) : O(type_negfixnum));
+      value1 = (eq(arg,Fixnum_0) || eq(arg,Fixnum_1) ? (object)S(bit)
+                : positivep(arg) ? (object)O(type_posfixnum)
+                : (object)O(type_negfixnum));
       break;
     case_bignum: /* Bignum -> BIGNUM+ or BIGNUM- */
       value1 = positivep(arg) ? O(type_posbignum) : O(type_negbignum); break;
