@@ -215,6 +215,7 @@ The vector is freshly constructed, but the strings are shared"
 (defvar *module-package*)
 (defvar *module-all-packages*)
 (defvar *init-2-name* nil "Did the module define its own init2?")
+(defvar *exit-name* nil "Did the module define its own exit function?")
 
 (defun defmodule-p (line)
   (let* ((pos (next-non-blank line 0))
@@ -226,7 +227,9 @@ The vector is freshly constructed, but the strings are shared"
             (subseq line (next-non-blank line (1+ pos))
                     (prev-non-blank line (setq pos (position #\, line))))
             *init-2-name* (format nil "module__~A__init_function_2"
-                                  *module-name*))
+                                  *module-name*)
+            *exit-name* (format nil "module__~A__exit_function"
+                                *module-name*))
       (assert pos () "no comma in DEFMODULE directive")
       (setq *module-package*
             (subseq line (setq pos (1+ (position #\" line)))
@@ -795,7 +798,9 @@ commas and parentheses."
               *must-close-next-defun* nil *in-defun* nil))
       (when (and *init-2-name* (search *init-2-name* line))
         (setq *init-2-name* nil)) ; module defines its own init2
-      (when (or (null status) (eql status #\;)) status (return)))
+      (when (and *exit-name* (search *exit-name* line))
+        (setq *exit-name* nil)) ; module defines its own exit-func
+      (when (or (null status) (eql status #\;)) (return)))
     (setf (line-contents ln) line)))
 
 ;; *** output ***
@@ -1022,6 +1027,11 @@ commas and parentheses."
     (when *init-2-name*         ; no init2 => define a dummy
       (newline out)
       (format out "void ~A (module_t* module)" *init-2-name*)
+      (newline out) (write-string "{" out) (newline out)
+      (write-string "}" out) (newline out))
+    (when *exit-name*         ; no exit-func => define a dummy
+      (newline out)
+      (format out "void ~A (module_t* module)" *exit-name*)
       (newline out) (write-string "{" out) (newline out)
       (write-string "}" out) (newline out))))
 

@@ -30,7 +30,8 @@ extern uintC object_tab_size;
   extern subr_initdata_t module__##module_name##__subr_tab_initdata[];  \
   extern object_initdata_t module__##module_name##__object_tab_initdata[]; \
   extern void module__##module_name##__init_function_1(struct module_t *); \
-  extern void module__##module_name##__init_function_2(struct module_t *);
+  extern void module__##module_name##__init_function_2(struct module_t *); \
+  extern void module__##module_name##__exit_function(struct module_t *);
  #include "modules.h"
 #undef MODULE
 #ifdef DYNAMIC_MODULES
@@ -42,7 +43,7 @@ module_t modules[] = {
   { "clisp",
     (subr_t*)((char*)&subr_tab_data+varobjects_misaligned), &subr_tab_data_size,
     (gcv_object_t*)&object_tab, &object_tab_size,
-    true, NULL, NULL, NULL, NULL
+    true, NULL, NULL, NULL, NULL, NULL
     _NEXT_NULL },
  #define MODULE(module_name)                                            \
   { #module_name, /* cannot use STRING(): module_name may be a CPP macro */ \
@@ -54,7 +55,8 @@ module_t modules[] = {
     &module__##module_name##__subr_tab_initdata[0],                     \
     &module__##module_name##__object_tab_initdata[0],                   \
     &module__##module_name##__init_function_1,                          \
-    &module__##module_name##__init_function_2                           \
+    &module__##module_name##__init_function_2,                          \
+    &module__##module_name##__exit_function                             \
     _NEXT_NULL                                                          \
   },
   #include "modules.h"

@@ -1,10 +1,28 @@
 2004-11-02  Sam Steingold  <sds@gnu.org>
 
+	Modules now have an exit function.
+	* foreign1.lisp (ffi-module): new slot FINALIZE
+	(*c-finalize*): new symbol macro
+	(finalize-coutput-file): write its contents into exitfunction
+	(C-FINALIZE): new public macro
+	(do-c-finalize): new aux function
+	* lispbibl.d, genclisph.d (module_t): added slot exitfunction
+	* modules.d (MODULE, modules): ditto
+	* spvw.d (quit): call exitfunction() for all modules
+	(dynload_modules): init the exitfunction slot
+	* utils/modprep.lisp (*exit-name*): new variable
+	(defmodule-p): initialize it
+	(parse): check for it
+	(print-tables-2): write a dummy exitfunction
+
+2004-11-02  Sam Steingold  <sds@gnu.org>
+
+	New FFI macros C-INIT-ONCE and C-INIT-ALWAYS.
 	* foreign1.lisp (ffi-module): new slots INIT-ONCE and INIT-ALWAYS
 	(*init-once*, *init-always*): new symbol macros
 	(finalize-coutput-file): write their contents into initfunction[12]
 	(C-INIT-ONCE, C-INIT-ALWAYS): new public macros
-	(do-c-init-once, do-c-init-always): new aux function
+	(do-c-init-once, do-c-init-always): new aux functions
 
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
