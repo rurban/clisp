@@ -91,6 +91,8 @@ User visible changes
     now generates a PROGRAM-ERROR instead of just an ERROR.
   + Documentation strings are now attached to class objects, not just to
     their name.
+  + Arrays with total array size 0 are printed in a lossy way if
+    CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI* is true.
 
 * The behaviour of the function UPGRADED-COMPLEX-PART-TYPE has changed.
 
