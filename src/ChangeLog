@@ -1,5 +1,9 @@
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d, hashtabl.d, stream.d: unified some error messages
+
+2001-07-10  Sam Steingold  <sds@gnu.org>
+
 	finished the 2001-06-21 patch
 	* lispbibl.d (make_file_stream): declare direction arg as direction_t
 	* stream.d (make_unbuffered_stream, make_buffered_stream,

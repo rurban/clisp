@@ -1299,11 +1299,9 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       else {
         pushSTACK(test); # TYPE-ERROR slot DATUM
         pushSTACK(O(type_hashtable_test)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(test);
+        pushSTACK(test); pushSTACK(S(Ktest));
         pushSTACK(S(make_hash_table));
-        fehler(type_error,
-               GETTEXT("~: illegal :TEST argument ~")
-              );
+        fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
       }
     }
     # flags enthält die Flags zum Test.
