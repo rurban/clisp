@@ -18,16 +18,19 @@
   (setq packname (string packname))
   ;; Process important options:
   (let ((case-sensitive nil) ; flag for :CASE-SENSITIVE
-        (case-inverted nil)) ; flag for :CASE-INVERTED
+        (case-inverted nil)  ; flag for :CASE-INVERTED
+        (modern :DEFAULT))   ; flag for :MODERN
     (dolist (option options)
       (when (listp option)
         (case (first option)
           (:CASE-SENSITIVE ; CLISP extension
-           (when (not (null (second option)))
-             (setq case-sensitive t)))
+           (when (second option) (setq case-sensitive t)))
           (:CASE-INVERTED ; CLISP extension
-           (when (not (null (second option)))
-             (setq case-inverted t))))))
+           (when (second option) (setq case-inverted t)))
+          (:MODERN ; CLISP extension
+           (setq modern (second option)
+                 case-sensitive (not (null modern))
+                 case-inverted case-sensitive)))))
     (let ((to-string (if case-inverted #'cs-cl:string #'cl:string)))
       ;; Process options:
       (let ((size nil) ; :SIZE has been supplied
@@ -36,7 +39,7 @@
             (shadow-list '()) ; list of symbol names to shadow
             (shadowing-list '()) ; list of pairs (symbol-name . package-name) for shadowing-import
             (use-list '()) ; list of package-names for use-package
-            (use-default '("COMMON-LISP")) ; default for use-list
+            (use-default "COMMON-LISP") ; default use-list
             (import-list '()) ; list of (symbol-name . package-name) for import
             (intern-list '()) ; list of symbol-names for intern
             (symname-list '()) ; list of all symbol names specified so far
@@ -48,7 +51,17 @@
                      :detail name
                      (TEXT "~S ~A: the symbol ~A must not be specified more than once")
                      'defpackage packname name)
-                   (push name symname-list))))
+                   (push name symname-list)))
+               (modernize (name)
+                 ;; MODERN: CL ==> CS-CL
+                 (let ((pack (find-package name)))
+                   (ecase modern
+                     ((t) (if (eq pack #.(find-package "COMMON-LISP"))
+                              "CS-COMMON-LISP" (package-name pack)))
+                     ((nil) (if (eq pack #.(find-package "CS-COMMON-LISP"))
+                                "COMMON-LISP" (package-name pack)))
+                     ((:DEFAULT) (package-name pack))))))
+          (setq use-default (modernize use-default))
           (dolist (option options)
             (if (listp option)
               (if (keywordp (car option))
@@ -82,19 +95,19 @@
                    (let ((pack (string (second option))))
                      (dolist (name (cddr option))
                        (setq name (funcall to-string name))
-                       (let ((name+pack (cons name pack)))
+                       (let ((name+pack (cons name (modernize pack))))
                          (unless (member name+pack shadowing-list :test #'equal) ; #'string= on car and cdr
                            (push name+pack shadowing-list)
                            (record-symname name))))))
                   (:USE
                    (dolist (name (rest option))
-                     (push (string name) use-list))
+                     (push (modernize name) use-list))
                    (setq use-default nil))
                   (:IMPORT-FROM
                    (let ((pack (string (second option))))
                      (dolist (name (cddr option))
                        (setq name (funcall to-string name))
-                       (let ((name+pack (cons name pack)))
+                       (let ((name+pack (cons name (modernize pack))))
                          (unless (member name+pack import-list :test #'equal) ; #'string= on car and cdr
                            (push name+pack import-list)
                            (record-symname name))))))
@@ -111,6 +124,7 @@
                        (push name export-list))))
                   (:CASE-SENSITIVE) ; CLISP extension, already handled above
                   (:CASE-INVERTED) ; CLISP extension, already handled above
+                  (:MODERN) ; CLISP extension, already handled above
                   (T (error-of-type 'source-program-error
                        :form whole-form
                        :detail (first option)
@@ -133,7 +147,7 @@
         (setq nickname-list (nreverse nickname-list))
         (setq shadow-list (nreverse shadow-list))
         (setq shadowing-list (nreverse shadowing-list))
-        (setq use-list (or use-default (nreverse use-list)))
+        (setq use-list (if use-default (list use-default) (nreverse use-list)))
         (setq import-list (nreverse import-list))
         (setq intern-list (nreverse intern-list))
         (setq export-list (nreverse export-list))
@@ -142,6 +156,23 @@
            (SYSTEM::%IN-PACKAGE ,packname :NICKNAMES ',nickname-list :USE '()
                                 :CASE-SENSITIVE ,case-sensitive
                                 :CASE-INVERTED ,case-inverted)
+           ;; Step 0
+           ,@(ecase modern
+               ((t)
+                `((when (find "COMMON-LISP" (package-use-list ,packname)
+                              :test #'string= :key #'package-name)
+                    (unuse-package "COMMON-LISP" ,packname)
+                    (use-package "CS-COMMON-LISP" ,packname)
+                    (setq use-list (delete "CS-COMMON-LISP" use-list
+                                           :test #'string=)))))
+               ((nil)
+                `((when (find "CS-COMMON-LISP" (package-use-list ,packname)
+                              :test #'string= :key #'package-name)
+                    (unuse-package "CS-COMMON-LISP" ,packname)
+                    (use-package "COMMON-LISP" ,packname)
+                    (setq use-list (delete "COMMON-LISP" use-list
+                                           :test #'string=)))))
+               ((:DEFAULT) '()))
            ;; Step 1
            ,@(if shadow-list
                `((,(if case-inverted 'CS-CL:shadow 'CL:SHADOW)
