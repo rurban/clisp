@@ -1,3 +1,10 @@
+1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in (NLS_INCLUDES): Add nls_iso8859_10, nls_iso8859_13.
+        * encoding.d: Include them.
+          (nls_tables): Refer to them.
+        * pseudofun.d: Likewise.
+
 1999-06-25  Sam Steingold  <sds@goems.com>
 
 	* describe.lsp (apropos): print the macro for symbol-macro, no
