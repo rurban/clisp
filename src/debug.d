@@ -425,8 +425,7 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
    In this case we have to - because of 'logfile' - print an NL to
    stdout, and because stdin prints an NL at the end of line
    automatically, this new line really cannot be avoided.) */
-  if (!eq(get_line_position(STACK_(1+2)),Fixnum_0))
-    terpri(&STACK_(1+2));       /* (fresh-line ostream) */
+  fresh_line(&STACK_(1+2));     /* (fresh-line ostream) */
   if (mconsp(STACK_0)) {
     loop {
       var object valsr = STACK_0;
