@@ -6,26 +6,31 @@
 (in-package "CLOS")
 
 
-; for bootstrapping
+;; For bootstrapping.
 (eval-when (compile load eval)
   (defun define-structure-class (name) (declare (ignore name)) ) ; preliminary
   (defun defstruct-remove-print-object-method (name) (declare (ignore name)) ) ; preliminary
 )
-;; wipe out all traces of an earlier loaded CLOS
+;; Wipe out all traces of an earlier loaded CLOS.
 (eval-when (load eval)
   (do-all-symbols (s) (remprop s 'CLOSCLASS)))
 
+;; An empty hash table.
 (defconstant empty-ht (make-hash-table :test #'eq :size 0))
 
+;; Definition of <class> and its subclasses.
+
 (defstruct (class (:predicate nil))
-  (id 0) ; the class ID to keep instances in sync with redefined classes
-  metaclass ; (class-of class) = (class-metaclass class), a class
-  classname ; (class-name class) = (class-classname class), a symbol
-  direct-superclasses ; list of all direct superclasses
-  all-superclasses ; hash table of all superclasses (incl. the class itself)
-  precedence-list ; ordered list of all superclasses (with the class itself first)
+  (id 0)                   ; the class ID to keep instances in sync with redefined classes
+  metaclass                ; (class-of class) = (class-metaclass class), a class
+  classname                ; (class-name class) = (class-classname class), a symbol
+  direct-superclasses      ; list of all direct superclasses (or their names,
+                           ; while the class is waiting to be finalized)
+  all-superclasses         ; hash table of all superclasses (incl. the class itself)
+  precedence-list          ; ordered list of all superclasses (with the class itself first),
+                           ; or NIL while the class is waiting to be finalized
   (slot-location-table empty-ht) ; hash table slotname -> location of the slot
-  direct-subclasses) ; list of all direct subclasses
+  direct-subclasses)       ; list of all direct subclasses
 
 (defstruct (built-in-class (:inherit class) (:conc-name "CLASS-")))
 
@@ -37,7 +42,7 @@
   instance-size)           ; number of slots of the direct instances + 2
 
 (defstruct (structure-class (:inherit slotted-class) (:conc-name "CLASS-"))
-  names)                       ; encoding of the include-nesting, a list
+  names)                   ; encoding of the include-nesting, a list
 
 (defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
   shared-slots             ; simple-vector with the values of all shared slots, or nil
@@ -47,10 +52,10 @@
   proto)                   ; class prototype - an instance
                            ; or (added . discarded) slots for old definitions
 
-;; access to slots of instances of the class <class> by means of the
-;; defstruct-accessors, hence no bootstrapping-problems here.
+;; Access to slots of instances of the class <class> is done by means of the
+;; defstruct-defined accessors, hence there are no bootstrapping-problems here.
 
-;; continue bootstrapping
+;; Continue bootstrapping.
 (%defclos
   ;; distinctive mark for CLASS-P
   (svref (get 'class 'sys::defstruct-description) 0)
@@ -63,7 +68,8 @@
           'concatenated-stream 'two-way-stream 'echo-stream 'string-stream
           'string 'symbol 't 'vector))
 
-;;; DEFCLASS
+
+;;; -------------------------------- DEFCLASS --------------------------------
 
 (defmacro defclass (name superclass-specs slot-specs &rest options)
   (unless (symbolp name)
@@ -287,9 +293,9 @@
     `(CONS 'NIL ,form)
     `(CONS (FUNCTION (LAMBDA () ,form)) 'NIL)))
 
-;; DEFCLASS-execution:
+;; DEFCLASS execution:
 
-;; information of a slot that is still significant at runtime:
+;; Information about a slot that is still significant at runtime:
 (defstruct (slot-definition
              (:conc-name "SLOTDEF-")
              (:type vector) (:predicate nil) (:copier nil) (:constructor nil))
@@ -367,7 +373,7 @@
                                (direct-default-initargs '())
                                (documentation nil)
                           &allow-other-keys)
-  ;; store new documentation:
+  ;; Store new documentation:
   (when documentation (sys::%set-documentation name 'TYPE documentation))
   (let ((class (find-class name nil)))
     (when (and class (not (eq (class-name class) name)))
@@ -482,7 +488,8 @@
         'DEFCLASS name (find-if-not metaclass-test direct-superclasses)
         metaclass))))
 
-;; creation of an instance of <standard-class>:
+
+;; --------------- Creation of an instance of <standard-class> ---------------
 
 (let (unbound) (declare (compile)) ; unbound = #<unbound>
 (defun def-unbound (x) (declare (compile)) (setq unbound x))
@@ -500,8 +507,8 @@
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-direct-slots class) direct-slots)
   (setf (class-direct-default-initargs class) direct-default-initargs)
-  (setf (class-precedence-list class) nil)
-  (class-finalize class nil)
+  (setf (class-precedence-list class) nil) ; mark as not yet finalized
+  (class-finalize class nil) ; try to finalize it
   class)
 (defun finalize-instance-standard-class
     (class &aux (direct-superclasses (class-direct-superclasses class))
@@ -532,7 +539,8 @@
                               (if (car init) (funcall (car init)) (cdr init))
                               unbound)))
                   (incf i)))))))
-  (setf (class-default-initargs class) ; 28.1.3.3.
+  ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
+  (setf (class-default-initargs class)
         (remove-duplicates
           (mapcan
             #'(lambda (c)
@@ -694,14 +702,14 @@
           direct-superclasses)
     L))
 
-;; stuff all superclasses (from the precedence-list) into a hash-table.
+;; Stuff all superclasses (from the precedence-list) into a hash-table.
 (defun std-compute-superclasses (precedence-list)
   (let ((ht (make-hash-table :test #'eq)))
     (mapc #'(lambda (superclass) (setf (gethash superclass ht) t))
           precedence-list)
     ht))
 
-;; auxiliary function (p1 v1 ... pn vn) -> ((p1 . v1) ... (pn . vn))
+;; Auxiliary function (p1 v1 ... pn vn) -> ((p1 . v1) ... (pn . vn))
 (defun plist-to-alist (pl &aux (al '()))
   (loop
     (when (null pl) (return))
@@ -709,11 +717,11 @@
     (setq pl (cddr pl)))
   (nreverse al))
 
-;; auxiliary function ((p1 . v1) ... (pn . vn)) -> (p1 v1 ... pn vn)
+;; Auxiliary function ((p1 . v1) ... (pn . vn)) -> (p1 v1 ... pn vn)
 (defun alist-to-plist (al)
   (mapcan #'(lambda (pv) (list (car pv) (cdr pv))) al))
 
-;; 28.1.3.2. Inheritance of Slots and Slot Options
+;; CLtL2 28.1.3.2., ANSI CL 7.5.3. Inheritance of Slots and Slot Options
 
 (defun std-compute-slots (class &optional (more-direct-slots '()))
   ;; Gather all slot-specifiers, ordered by precedence:
@@ -809,7 +817,8 @@
     (setf (class-instance-size class) local-index)
     shared-index))
 
-;; creation of an instance of <built-in-class>:
+;; --------------- Creation of an instance of <built-in-class> ---------------
+
 (defun make-instance-built-in-class
     (metaclass &key name (direct-superclasses '()) &allow-other-keys)
   ;; metaclass = <built-in-class>
@@ -818,6 +827,7 @@
   (let ((class (make-built-in-class :classname name :metaclass metaclass)))
     (initialize-instance-built-in-class
      class :direct-superclasses direct-superclasses :name name)))
+
 (defun initialize-instance-built-in-class (class &key direct-superclasses
                                            &allow-other-keys)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
@@ -829,7 +839,7 @@
     (pushnew class (class-direct-subclasses cl)))
   class)
 
-;; creation of an instance of <structure-class>:
+;; --------------- Creation of an instance of <structure-class> ---------------
 
 (defun make-instance-structure-class
     (metaclass &rest args
@@ -843,6 +853,7 @@
                    names slots size))
   (let ((class (make-structure-class :classname name :metaclass metaclass)))
     (apply #'initialize-instance-structure-class class args)))
+
 (defun initialize-instance-structure-class
     (class &key name (direct-superclasses '())
      ;; The following keys come from ENSURE-CLASS.
@@ -927,6 +938,8 @@
                          (1+ (sys::ds-slot-offset (car (last all-slots))))
                          1)))))))
 
+;; ---------------------------------------------------------------------------
+
 ;; Bootstrapping
 (progn
   ;; 1. class <t>
@@ -987,7 +1000,7 @@
     (sys::%record-ref (allocate-std-instance <standard-object> 3) 2)))
 
 
-;; 28.1.4. Integrating Types and Classes
+;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
 (defun subclassp (class1 class2)
   (values
    (gethash class2 (class-all-superclasses class1)))) ; T or (default) NIL

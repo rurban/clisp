@@ -34,7 +34,7 @@
 (defvar |#'shared-initialize| nil)
 (defvar *gf-warn-on-replacing-method* t)
 
-;; 28.1.6.4. congruent lambda lists
+;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method &optional
                                    (gf-sign (gf-signature gf))
                                    (m-sign (std-method-signature method)))
@@ -64,7 +64,7 @@
         (TEXT "~S does not accept the keywords ~S of ~S")
         method (sig-keywords gf-sign) gf))))
 
-;; 28.1.7.2, 28.1.7.4 method qualifiers
+;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
 (defun check-method-qualifiers (gf method
                                 &optional (method-combo (gf-method-combination gf)))
   (funcall (method-combination-check-method-qualifiers method-combo)

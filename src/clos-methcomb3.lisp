@@ -121,7 +121,7 @@
                         ,ef-fun))))))))
 
 (defun standard-method-combination-check-method-qualifiers (gf method-combo method)
-  ;; 28.1.7.2, 28.1.7.4 method qualifiers
+  ;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
   (let ((qualifiers (std-method-qualifiers method)))
     (when qualifiers
       (let ((allowed-qualifiers (method-combination-qualifiers method-combo)))

@@ -21,7 +21,7 @@
                    'setf-compiler-macro))
   (:method ((x symbol) (doc-type symbol))
     ;; doc-type = `function', `compiler-macro', `setf', `variable', `type',
-    ;; `setf-compiler-macro', `structure'
+    ;; `setf-compiler-macro'
     (getf (gethash x sys::*documentation*) doc-type))
   (:method ((x symbol) (doc-type (eql 'structure))) ; structure --> type
     (declare (ignore doc-type))
@@ -53,6 +53,7 @@
   (:method ((x structure-class) (doc-type (eql 'type)))
     (declare (ignore doc-type))
     (documentation (class-name x) 'type))
+  ;;; The following are CLISP extensions.
   (:method ((x standard-object) (doc-type (eql 't)))
     (declare (ignore doc-type))
     (documentation (class-of x) 'type))
@@ -86,7 +87,7 @@
      'setf-compiler-macro new-value))
   (:method (new-value (x symbol) (doc-type symbol))
     ;; doc-type = `function', `compiler-macro', `setf', `variable', `type',
-    ;; `setf-compiler-macro', `structure'
+    ;; `setf-compiler-macro'
     (sys::%set-documentation x doc-type new-value))
   (:method (new-value (x symbol) (doc-type (eql 'structure)))
     (declare (ignore doc-type))
@@ -119,6 +120,7 @@
   (:method (new-value (x structure-class) (doc-type (eql 'type)))
     (declare (ignore doc-type))
     (sys::%set-documentation (class-name x) 'type new-value))
+  ;;; The following are CLISP extensions.
   (:method (new-value (x standard-object) (doc-type (eql 't)))
     (declare (ignore doc-type))
     (sys::%set-documentation (class-of x) 'type new-value))
