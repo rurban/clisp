@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-printer.lisp,v 1.15 2004/03/09 23:23:15 yuji Exp $
+;; $ Id: must-printer.lisp,v 1.16 2004/08/09 02:49:54 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -774,7 +774,7 @@
 (string= "G01" (write-to-string (make-symbol "G01") :escape t :gensym nil))
 (string= "G01" (write-to-string (make-symbol "G01") :escape nil :gensym nil))
 (string= "#:G01" (write-to-string (make-symbol "G01") :escape t :gensym t))
-#-CLISP ; CLISP prints symbols readably with vertical bars: "#:|G01|"
+#-CLISP ;Bruno: CLISP prints symbols readably with vertical bars: "#:|G01|"
 (string= "#:G01"
          ;; Variable *PRINT-READABLY*
          ;; http://www.lispworks.com/reference/HyperSpec/Body/v_pr_rda.htm

@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-loop.lisp,v 1.10 2004/02/29 08:16:03 yuji Exp $
+;; $ Id: must-loop.lisp,v 1.16 2004/09/28 01:52:16 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -612,7 +612,11 @@
             stack)
        '((2) (1 2) (0 1 2)))
 
-
+(equal (let (stack)
+         (loop for a on '(0 1 2 3) by #'(lambda (arg) (cddddr arg))
+               do (push a stack))
+         stack)
+       '((0 1 2 3)))
 
 
 ;; for-as-across
@@ -646,8 +650,6 @@
 (equal (let (stack) (loop for a of-type fixnum across #(0 1 2)
                           do (push a stack)) stack)
        '(2 1 0))
-
-
 
 
 
@@ -710,6 +712,40 @@
                when (= i 3) return t)
          stack)
        '(3 2 1 0))
+
+(flet ((triple (n) (values n (+ n 1) (+ n 2))))
+  (equal (loop for i from 0 upto 2
+               for (a b c) = (multiple-value-list (triple i))
+               append `(,a ,b ,c))
+         '(0 1 2 1 2 3 2 3 4)))
+(flet ((triple (n) (values n `(,(+ n 1)) `((,(+ n 2))))))
+  (equal (loop for i from 0 upto 2
+               for (a (b) ((c))) = (multiple-value-list (triple i))
+               append `(,a ,b ,c))
+         '(0 1 2 1 2 3 2 3 4)))
+(flet ((triple (n) (values n
+                           `(,(+ n 10) ,(+ n 11) ,(+ n 12) ,(+ n 13))
+                           `(,(+ n 20) ,(+ n 21) ,(+ n 22)))))
+  (equal (loop for i from 0 upto 2
+               for (a (b0 b1 b2 b3) (c0 c1 c2)) = (multiple-value-list (triple i))
+               append `(,a ,b0 ,b1 ,b2 ,b3 ,c0 ,c1 ,c2))
+         '(0 10 11 12 13 20 21 22 1 11 12 13 14 21 22 23 2 12 13 14 15 22 23 24)))
+         
+(flet ((triple (n) (values n
+                           `(,(+ n 10) ,(+ n 11) ,(+ n 12) ,(+ n 13))
+                           `(,(+ n 200)
+                             (,(+ n 210) ,(+ n 211) ,(+ n 212) ,(+ n 213))
+                             ,(+ n 220)))))
+  (equal (loop for i from 0 upto 2
+               for (a (b0 b1 b2 b3) (c0 (c10 c11 c12) c2)) =
+               (multiple-value-list (triple i))
+               append `(,a ,b0 ,b1 ,b2 ,b3 ,c0 ,c10 ,c11 ,c12 ,c2))
+         '(0 10 11 12 13 200 210 211 212 220
+           1 11 12 13 14 201 211 212 213 221
+           2 12 13 14 15 202 212 213 214 222)))
+  
+
+
 
 
 
@@ -1020,6 +1056,8 @@
   (null (set-exclusive-or stack '(#\a #\b #\c))))
 
 
+
+
 ;; for-as and preposition
 (equal (let (stack)
          (loop for a from 1 upto 3 and x = 0 then a
@@ -1117,6 +1155,15 @@
          (7 8 9 8 7 6) (4 3 2 1 0 -1) (6 7 8 9 8 7) (5 4 3 2 1 0) (5 6 7 8 9 8)
          (6 5 4 3 2 1) (4 5 6 7 8 9) (7 6 5 4 3 2) (3 4 5 6 7 8) (8 7 6 5 4 3)
          (2 3 4 5 6 7) (9 8 7 6 5 4) (1 2 3 4 5 6)))
+
+(let (stack)
+  (loop for a on (progn (push 1 stack) '(0 1 2))
+        and b across (progn (push 2 stack) "abc"))
+  (equal '(2 1) stack))
+
+
+
+;; ambiguous cases
 (equal (let ((a 5))
          (loop for a from 0 upto 5
                and b from a downto 0
@@ -1162,6 +1209,29 @@
 (equal (loop with (a b c) of-type float
              return (list a b c))
        '(0.0 0.0 0.0))
+(flet ((triple () (values 0 1 2)))
+  (equal (loop with (a b c) = (multiple-value-list (triple))
+               do (return (list a b c)))
+         '(0 1 2)))
+(flet ((triple () (values 0 '(1) 2)))
+  (equal (loop with (a (b) c) = (multiple-value-list (triple))
+               do (return (list a b c)))
+         '(0 1 2)))
+(flet ((triple () (values 0 '(0 1 2) 2)))
+  (equal (loop with (a (nil b) c d) = (multiple-value-list (triple))
+               do (return (list a b c d)))
+         '(0 1 2 nil)))
+
+(flet ((triple () (values 0 1 2)))
+  (equal (loop with (a b c) fixnum = (multiple-value-list (triple))
+               do (return (list a b c)))
+         '(0 1 2)))
+(flet ((triple () (values 0 '(1) 2)))
+  (equal (loop with (a (b) c) of-type (fixnum (fixnum) fixnum) =
+               (multiple-value-list (triple))
+               do (return (list a b c)))
+         '(0 1 2)))
+
 
 
 ;; binding (preferable)
@@ -1195,14 +1265,18 @@
          do (incf x)
          initially (incf x) (incf x) finally (incf x) (return (incf x)))
    7)
-#-CLISP ; unfounded expectations about the value of for-as iteration variables
-        ; in INITIALLY and FINALLY clauses
-(equal (let (val) (loop for a downto 3 from 100
-                        for b in '(x y z) and c = 50 then (1+ c)
-                        initially (setq val (list a b c))
-                        finally (setq val (append (list a b c) val)))
-            val)
-       '(97 z 52 100 x 50))
+
+; #-CLISP
+; ;;Bruno: unfounded expectations about the value of for-as iteration
+; ;;variables in INITIALLY and FINALLY clauses
+; ;;(See http://www.cliki.net/Proposed%20ANSI%20Revisions%20and%20Clarifications
+; ;;for a discussion of this spec weakness.)
+; (equal (let (val) (loop for a downto 3 from 100
+;                         for b in '(x y z) and c = 50 then (1+ c)
+;                         initially (setq val (list a b c))
+;                         finally (setq val (append (list a b c) val)))
+;             val)
+;        '(97 z 52 100 x 50))
 (= 33 (loop with x = 2
             initially (setq x (* x 3))
             for i below 3
@@ -1440,6 +1514,8 @@
              collecting a
              appending b)
        '(0 2 1 0 1 1 0 2 0))
+
+
 
 (= 15 (loop for i of-type fixnum in '(1 2 3 4 5) sum i))
 (= 22.4 (let ((series '(1.2 4.3 5.7))) (loop for v in series sum (* 2.0 v))))
@@ -1686,6 +1762,12 @@
             summing a))
 (null (loop for a downfrom 5 to 1
             summing a into n))    ;; not return automatically
+
+(= (loop for i from 1 to 4
+         sum i fixnum
+         count t fixnum)
+   14)
+
 
 ;; maximize
 (= 5 (loop for i in '(2 1 5 3 4) maximize i))
@@ -2466,8 +2548,14 @@
 ;; double binding
 (handler-case
     (macroexpand '(loop with a = 0 for a downfrom 10 to 0 do (print a)))
-  (program-error ()
-    t)
+  (program-error () t)
+  (error () nil)
+  (:no-error (&rest rest)
+    (declare (ignore rest))          
+    nil))
+(handler-case
+    (macroexpand '(loop for a from 0 upto 10 collect t into a))
+  (program-error () t)
   (error () nil)
   (:no-error (&rest rest)
     (declare (ignore rest))
@@ -2541,6 +2629,18 @@
        '(0 10 20 30 40 50 60 70 80 90 100))
 
 
+;; it
+(let ((it '0))
+  (equal (loop for a in '(nil x y nil z) when a collect it and collect it)
+         '(x 0 y 0 z 0)))
+  
+(let ((it '0))
+  (equal (loop for a in '(x nil y nil z nil)
+               if a collect it end
+               collect it)
+         '(X 0 0 Y 0 0 Z 0 0)))
+
+
 
 ;; for-as-package
 (subsetp '(cl:car cl:cdr cl:list)
@@ -2577,7 +2677,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2595,7 +2695,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2615,7 +2715,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2633,7 +2733,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2653,7 +2753,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2671,7 +2771,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2691,7 +2791,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2709,7 +2809,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -2730,7 +2830,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2747,7 +2847,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2766,7 +2866,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2783,7 +2883,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2802,7 +2902,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2819,7 +2919,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2838,7 +2938,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2855,7 +2955,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2875,7 +2975,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2892,7 +2992,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2909,7 +3009,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2926,7 +3026,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2943,7 +3043,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2960,7 +3060,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2977,7 +3077,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -2994,7 +3094,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3012,7 +3112,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3030,7 +3130,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3050,7 +3150,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3068,7 +3168,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3088,7 +3188,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3106,7 +3206,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3126,7 +3226,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3144,7 +3244,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (push (intern name "TB-BAR-TO-USE") bag0)
@@ -3165,7 +3265,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3182,7 +3282,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3201,7 +3301,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3218,7 +3318,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3237,7 +3337,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3254,7 +3354,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3273,7 +3373,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3290,7 +3390,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3310,7 +3410,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3327,7 +3427,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3344,7 +3444,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3361,7 +3461,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3378,7 +3478,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3395,7 +3495,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3412,7 +3512,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3429,7 +3529,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3447,7 +3547,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3465,7 +3565,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
@@ -3483,7 +3583,7 @@
     (delete-package "TB-BAR-TO-USE"))
   (make-package "TB-BAR-TO-USE")
   (when (find-package "TB-FOO") (delete-package "TB-FOO"))
-  (let ((pkg (make-package "TB-FOO" :use "TB-BAR-TO-USE"))
+  (let ((pkg (make-package "TB-FOO" :use '("TB-BAR-TO-USE")))
         bag0 bag)
     (mapc #'(lambda (name)
               (export (intern name "TB-BAR-TO-USE") "TB-BAR-TO-USE"))
