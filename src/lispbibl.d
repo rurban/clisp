@@ -1701,7 +1701,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 #if defined(GNU) && (SAFETY >= 3)
   #if (__GNUC__ >= 2)
-    #if (__GNUC_MINOR__ >= 7) # circumvent gcc-2.6.3 bug
+    #if (__GNUC__ > 2) || (__GNUC_MINOR__ >= 7) # circumvent gcc-2.6.3 bug
       # Typechecking by the C-compiler
       #define OBJECT_STRUCT
       #if !(defined(MC680X0) || defined(ARM)) # only if struct_alignment==1
