@@ -2937,10 +2937,15 @@ unit</ulink> (usually a file), a warning is issued and
  &c-function;.
 </simpara></listitem></varlistentry></variablelist>
 
-<para>Passing &c-struct;, &c-union;, &c-array;, &c-array-max; values as
- arguments (not via pointers) is only possible to the extent the &c-lang;
- compiler supports it. Most &c-lang; compilers do it right, but some
- &c-lang; compilers (such as gcc on hppa) have problems with this.</para>
+<warning id="ffi-struct-arg"><simpara>Passing &c-struct;, &c-union;,
+  &c-array;, &c-array-max; values as arguments (not via pointers) is
+  only possible to the extent the &c-lang; compiler supports it.
+  Most &c-lang; compilers do it right, but some &c-lang; compilers
+  (such as gcc on hppa and win32) have problems with this.
+  The recommended workaround is to pass pointers; this is fully supported.
+  See also this &clisp-list;
+  <ulink url="http://article.gmane.org/gmane.lisp.clisp.devel/10089"
+         >message</ulink>.</simpara></warning>
 
 </section>
 
