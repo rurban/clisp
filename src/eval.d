@@ -755,17 +755,19 @@ LISPFUNN(subr_info,1)
           # Environment ist ein Pointer auf einen Variablenbindungs-Frame
           { var object* FRAME = TheFramepointer(env);
            {var uintL count = as_oint(FRAME_(frame_anz)); # Anzahl der Bindungen
-            var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
-            dotimesL(count,count,
-              { if (binds_sym_p(bindingsptr)) # richtiges Symbol und aktiv und statisch?
-                  { var object value = *(bindingsptr STACKop varframe_binding_value);
-                    if (eq(value,specdecl))
-                      { goto global_value; }
-                      else
-                      { return value; }
-                  }
-                bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
-              });
+            if (count > 0)
+              { var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
+                dotimespL(count,count,
+                  { if (binds_sym_p(bindingsptr)) # richtiges Symbol und aktiv und statisch?
+                      { var object value = *(bindingsptr STACKop varframe_binding_value);
+                        if (eq(value,specdecl))
+                          { goto global_value; }
+                          else
+                          { return value; }
+                      }
+                    bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
+                  });
+              }
             env = FRAME_(frame_next_env);
             goto next_env;
           }}
@@ -835,16 +837,18 @@ LISPFUNN(subr_info,1)
           # Environment ist ein Pointer auf einen Variablenbindungs-Frame
           { var object* FRAME = TheFramepointer(env);
            {var uintL count = as_oint(FRAME_(frame_anz)); # Anzahl der Bindungen
-            var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
-            dotimesL(count,count,
-              { if (binds_sym_p(bindingsptr)) # richtiges Symbol und aktiv und statisch?
-                  { if (eq(*(bindingsptr STACKop varframe_binding_value),specdecl))
-                      { goto global_value; }
-                      else
-                      { *(bindingsptr STACKop varframe_binding_value) = value; return; }
-                  }
-                bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
-              });
+            if (count > 0)
+              { var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
+                dotimespL(count,count,
+                  { if (binds_sym_p(bindingsptr)) # richtiges Symbol und aktiv und statisch?
+                      { if (eq(*(bindingsptr STACKop varframe_binding_value),specdecl))
+                          { goto global_value; }
+                          else
+                          { *(bindingsptr STACKop varframe_binding_value) = value; return; }
+                      }
+                    bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
+                  });
+              }
             env = FRAME_(frame_next_env);
             goto next_env;
           }}
@@ -893,12 +897,14 @@ LISPFUNN(subr_info,1)
           # Environment ist ein Pointer auf einen Funktionsbindungs-Frame
           { var object* FRAME = TheFramepointer(env);
            {var uintL count = as_oint(FRAME_(frame_anz)); # Anzahl der Bindungen
-            var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
-            dotimesL(count,count,
-              { if (equal(*(bindingsptr STACKop 0),sym)) # richtiges Symbol?
-                  { value = *(bindingsptr STACKop 1); goto fertig; }
-                bindingsptr skipSTACKop 2; # nein: nächste Bindung
-              });
+            if (count > 0)
+              { var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
+                dotimespL(count,count,
+                  { if (equal(*(bindingsptr STACKop 0),sym)) # richtiges Symbol?
+                      { value = *(bindingsptr STACKop 1); goto fertig; }
+                    bindingsptr skipSTACKop 2; # nein: nächste Bindung
+                  });
+              }
             env = FRAME_(frame_next_env);
             goto next_env;
           }}
@@ -1150,13 +1156,14 @@ LISPFUNN(subr_info,1)
                  # Vektor für count Tags erzeugen:
                  { var object tagvec = allocate_vector(count);
                    # und füllen:
-                   { var object* ptr = &TheSvector(tagvec)->data[0];
-                     # Tags ab tagsptr in den Vektor ab ptr eintragen:
-                     dotimesL(count,count,
-                       { *ptr++ = *(tagsptr STACKop 0);
-                         tagsptr skipSTACKop 2;
-                       });
-                   }
+                   if (count > 0)
+                     { var object* ptr = &TheSvector(tagvec)->data[0];
+                       # Tags ab tagsptr in den Vektor ab ptr eintragen:
+                       dotimespL(count,count,
+                         { *ptr++ = *(tagsptr STACKop 0);
+                           tagsptr skipSTACKop 2;
+                         });
+                     }
                    pushSTACK(tagvec); # und retten
                  }
                  # Nächstes Alistencons (cons Tag-Vektor Frame-Pointer) erzeugen:

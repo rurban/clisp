@@ -103,9 +103,11 @@ LISPFUN(make_encoding,0,0,norest,key,2,
       var const uintB* bptr;
       var uintL len;
       { var object obj = allocate_string(len); # String allozieren
-        var chart* ptr = &TheSstring(obj)->data[0];
-        # Zeichenfolge von bptr nach ptr kopieren:
-        dotimesL(len,len, { *ptr++ = as_chart(*bptr++); } );
+        if (len > 0)
+          { var chart* ptr = &TheSstring(obj)->data[0];
+            # Zeichenfolge von bptr nach ptr kopieren:
+            dotimespL(len,len, { *ptr++ = as_chart(*bptr++); } );
+          }
         return obj;
       }
   #endif
@@ -136,13 +138,15 @@ LISPFUN(make_encoding,0,0,norest,key,2,
     { var const uintB* bptr = (const uintB*)asciz;
       var uintL len = asciz_length(asciz);
       var object obj = allocate_string(len); # String allozieren
-      var chart* ptr = &TheSstring(obj)->data[0];
-      # Zeichenfolge von bptr nach ptr kopieren:
-      dotimesL(len,len,
-        { var uintB b = *bptr++;
-          ASSERT(b < 0x80);
-          *ptr++ = as_chart(b);
-        });
+      if (len > 0)
+        { var chart* ptr = &TheSstring(obj)->data[0];
+          # Zeichenfolge von bptr nach ptr kopieren:
+          dotimespL(len,len,
+            { var uintB b = *bptr++;
+              ASSERT(b < 0x80);
+              *ptr++ = as_chart(b);
+            });
+        }
       return obj;
     }
 

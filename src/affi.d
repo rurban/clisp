@@ -461,11 +461,11 @@ local void bytecopy(to,from,length,size)
   var uintC size;
   { switch (size)
       { case 1: case 8:
-          dotimesL(length,length, { *((UBYTE*)to)++ = *((UBYTE*)from)++; }); break;
+          dotimespL(length,length, { *((UBYTE*)to)++ = *((UBYTE*)from)++; }); break;
         case 2: case 16:
-          dotimesL(length,length, { *((UWORD*)to)++ = *((UWORD*)from)++; }); break;
+          dotimespL(length,length, { *((UWORD*)to)++ = *((UWORD*)from)++; }); break;
         case 4: case 32:
-          dotimesL(length,length, { *((ULONG*)to)++ = *((ULONG*)from)++; }); break;
+          dotimespL(length,length, { *((ULONG*)to)++ = *((ULONG*)from)++; }); break;
         default:
           /* NOTREACHED */
   }   }
@@ -504,15 +504,18 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
     elif (stringp(into)) # copy memory into a LISP string
       { var uintL length;
         var chart* charptr = unpack_string_rw(into,&length);
-        #ifdef UNICODE
-        var object encoding = O(foreign_encoding);
-        var const uintB* byteptr = (uintB*)address;
-        ASSERT(Encoding_mblen(encoding)(encoding,byteptr,byteptr+length) == length);
-        Encoding_mbstowcs(encoding)(encoding,&byteptr,byteptr+length,&charptr,charptr+length);
-        ASSERT(byteptr == (uintB*)address+length);
-        #else
-        dotimesL(length,length, { *charptr++ = as_chart(*((uintB*)address)++); } );
-        #endif
+        if (length > 0)
+          {
+            #ifdef UNICODE
+            var object encoding = O(foreign_encoding);
+            var const uintB* byteptr = (uintB*)address;
+            ASSERT(Encoding_mblen(encoding)(encoding,byteptr,byteptr+length) == length);
+            Encoding_mbstowcs(encoding)(encoding,&byteptr,byteptr+length,&charptr,charptr+length);
+            ASSERT(byteptr == (uintB*)address+length);
+            #else
+            dotimespL(length,length, { *charptr++ = as_chart(*((uintB*)address)++); } );
+            #endif
+          }
         value1 = into;
       }
     elif (!bit_vector_p(into) # copy memory into a LISP unsigned-byte vector
@@ -520,9 +523,11 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
       { var uintBWL size = Iarray_flags(into) & arrayflags_atype_mask;
         if (!((size==Atype_8Bit) || (size==Atype_16Bit) || (size==Atype_32Bit))) { goto fehler_type; }
        {var uintL length = vector_length(into);
-        var uintL index = 0;
-        var object dv = iarray_displace_check(into,length,&index);
-        bytecopy(&TheSbvector(TheIarray(dv)->data)->data[index],(void*)address,length,bit(size));
+        if (length > 0)
+          { var uintL index = 0;
+            var object dv = iarray_displace_check(into,length,&index);
+            bytecopy(&TheSbvector(TheIarray(dv)->data)->data[index],(void*)address,length,bit(size));
+          }
         value1 = into;
       }}
     else
@@ -591,10 +596,11 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
       { var uintBWL size = Iarray_flags(from) & arrayflags_atype_mask;
         if (!((size==Atype_8Bit) || (size==Atype_16Bit) || (size==Atype_32Bit))) { goto fehler_type; }
        {var uintL length = vector_length(from);
-        var uintL index = 0;
-        var object dv = iarray_displace_check(from,length,&index);
-        bytecopy((void*)address,&TheSbvector(TheIarray(dv)->data)->data[index],length,bit(size));
-      }}
+        if (length > 0)
+          { var uintL index = 0;
+            var object dv = iarray_displace_check(from,length,&index);
+            bytecopy((void*)address,&TheSbvector(TheIarray(dv)->data)->data[index],length,bit(size));
+      }}  }
     else
       { fehler_type:
         fehler_ffi_type(from);

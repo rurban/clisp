@@ -2540,30 +2540,32 @@ local void heap_statistics_mapper(arg,obj,bytelen)
             ptr++; i++;
           });
       }
-      { var NODE* ptr = locals->structure_classes.free_nodes;
-        var uintL count;
-        dotimesL(count,locals->structure_classes.count,
-          { --ptr;
-           {var object hsr = make_list(2);
-            Car(hsr) = *ptr->nodedata.value.name;
-            Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
-            Cdr(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_bytes);
-            TheSvector(*result_)->data[i] = hsr;
-            i++;
-          }});
-      }
-      { var NODE* ptr = locals->standard_classes.free_nodes;
-        var uintL count;
-        dotimesL(count,locals->standard_classes.count,
-          { --ptr;
-           {var object hsr = make_list(2);
-            Car(hsr) = TheClass(*ptr->nodedata.value.name)->classname;
-            Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
-            Cdr(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_bytes);
-            TheSvector(*result_)->data[i] = hsr;
-            i++;
-          }});
-      }
+      { var uintL count = locals->structure_classes.count;
+        if (count > 0)
+          { var NODE* ptr = locals->structure_classes.free_nodes;
+            dotimespL(count,count,
+              { --ptr;
+               {var object hsr = make_list(2);
+                Car(hsr) = *ptr->nodedata.value.name;
+                Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
+                Cdr(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_bytes);
+                TheSvector(*result_)->data[i] = hsr;
+                i++;
+              }});
+      }   }
+      { var uintL count = locals->standard_classes.count;
+        if (count > 0)
+          { var NODE* ptr = locals->standard_classes.free_nodes;
+            dotimespL(count,count,
+              { --ptr;
+               {var object hsr = make_list(2);
+                Car(hsr) = TheClass(*ptr->nodedata.value.name)->classname;
+                Car(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_instances);
+                Cdr(Cdr(hsr)) = L_to_I(ptr->nodedata.value.n_bytes);
+                TheSvector(*result_)->data[i] = hsr;
+                i++;
+              }});
+      }   }
     }}
 
 LISPFUNN(heap_statistics,0)

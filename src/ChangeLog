@@ -1,5 +1,34 @@
 1999-02-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Convert dotimesL with loop variables into dotimespL.
+        * affi.d (bytecopy): Use dotimespL. Assume length > 0.
+          (SYSTEM::MEM-READ): Use dotimespL instead of dotimesL.
+        * array.d (reshape): Likewise.
+        * charstrg.d (string_gleich, string_equal, SUBSTRING): Likewise.
+        * control.d (PSETQ): Likewise.
+        * error.d (convert_simple_condition): Likewise.
+        * eval.d (sym_value, setq, sym_function, nest_env): Likewise.
+        * encoding.d (make_string_, ascii_to_string): Likewise.
+        * graph.d (gr_text): Likewise.
+        * io.d (test_potential_number_syntax, test_number_syntax, test_dots,
+           upcase_token, uninterned_reader, bit_vector_reader,
+           write_sstring_case, klammer_zu): Likewise.
+        * record.d (CLOS::ALLOCATE-STD-INSTANCE, CLOS::%ALLOCATE-INSTANCE,
+           CLOS::%MAKE-INSTANCE): Likewise.
+        * spvw.d (main): Likewise.
+        * foreign.d (convert_from_foreign_array_fill, convert_to_foreign):
+          Likewise.
+        * hashtabl.d (clrhash): Likewise.
+        * intread.d (DIGITS_to_I): Likewise.
+        * pathname.d (common_case, test_optional_host, all_digits,
+           parse_logical_pathnamestring, legal_name_or_type, legal_name,
+           legal_type, MAKE-PATHNAME, has_wildcards, has_word_wildcards,
+           SYSTEM::DYNLOAD-MODULES): Likewise.
+        * predtype.d (heap_statistics_result): Likewise.
+        * stream.d (wr_ss_terminal3): Likewise.
+        * spvw_debug.d (mem_hex_out): Likewise.
+        * spvw_typealloc.d (allocate_vector): Likewise.
+
         Convert dotimesC with loop variables into dotimespC.
         * affi.d (affi_call_argsa): Use dotimespC instead of dotimesC.
         * arilev1i.d (shiftleft_loop_down, shiftleftcopy_loop_down,
