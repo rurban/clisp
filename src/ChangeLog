@@ -4,6 +4,7 @@
 	appropriately for Linux/x86_64.
 	(SINGLEMAP_MEMORY, MULTIMAP_MEMORY) [AMD64 Linux]: Don't define on this
 	platform.
+	* spvw.d (main): Limit the mmap()ed addresses to 36 bits.
 
 2004-02-26  Bruno Haible  <bruno@clisp.org>
 

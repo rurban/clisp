@@ -2378,6 +2378,10 @@ global int main (argc_t argc, char* argv[]) {
       var aint end = bitm(oint_addr_len-1); # keep garcol_bit zero
        #endif
       var aint part = floor(end - (start & (end-1)),5);
+      #if defined(AMD64) && defined(UNIX_LINUX)
+      # Don't use more than 36 address bits, otherwise mmap() fails.
+      part &= 0x0000000FFFFFFFFFUL;
+      #endif
       mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
       mem.heaps[1].heap_limit = start + round_down(4*part,map_pagesize);
       #endif
@@ -2401,6 +2405,10 @@ global int main (argc_t argc, char* argv[]) {
       var aint end = (start | (bitm(garcol_bit_o)-1)) + 1; # keep garcol_bit zero
        #endif
       var aint part = floor(end - (start & (end-1)),5);
+      #if defined(AMD64) && defined(UNIX_LINUX)
+      # Don't use more than 36 address bits, otherwise mmap() fails.
+      part &= 0x0000000FFFFFFFFFUL;
+      #endif
       mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
       mem.heaps[0].heap_hardlimit =
         mem.heaps[1].heap_limit = start + round_down(2*part,map_pagesize);
