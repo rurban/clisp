@@ -851,8 +851,8 @@ global object sstring_store_array (object string, uintL offset,
 global object stringof (uintL len) {
   var object new_string = allocate_string(len);
   if (len > 0) {
-    var object* topargptr = STACK STACKop len;
-    var object* argptr = topargptr;
+    var gcv_object_t* topargptr = STACK STACKop len;
+    var gcv_object_t* argptr = topargptr;
     var chart* ptr = &TheSstring(new_string)->data[0];
     dotimespL(len,len, {
       *ptr++ = char_code(NEXT(argptr));
@@ -1209,19 +1209,19 @@ global object coerce_char (object obj) {
  defined in CONSTOBJ.D, */
 #ifdef AMIGA_CHARNAMES
   #define charname_table_length  45  /* length of the table */
-  #define charname_table  ((object*)(&object_tab.charname_0)) /* table starts with charname_0 */
+  #define charname_table  ((gcv_object_t*)(&object_tab.charname_0)) /* table starts with charname_0 */
 #endif
 #ifdef MSDOS_CHARNAMES
   #define charname_table_length  13  /* length of the table */
-  #define charname_table  ((object*)(&object_tab.charname_0)) /* table starts with charname_0 */
+  #define charname_table  ((gcv_object_t*)(&object_tab.charname_0)) /* table starts with charname_0 */
 #endif
 #ifdef WIN32_CHARNAMES
   #define charname_table_length  13  /* length of the table */
-  #define charname_table  ((object*)(&object_tab.charname_0)) /* table starts with charname_0 */
+  #define charname_table  ((gcv_object_t*)(&object_tab.charname_0)) /* table starts with charname_0 */
 #endif
 #ifdef UNIX_CHARNAMES
   #define charname_table_length  46  /* length of the table */
-  #define charname_table  ((object*)(&object_tab.charname_0bis)) /* table starts with charname_0bis */
+  #define charname_table  ((gcv_object_t*)(&object_tab.charname_0bis)) /* table starts with charname_0bis */
 #endif
 /* table of codes for this name: */
 local const uintB charname_table_codes [charname_table_length]
@@ -1262,7 +1262,7 @@ global object char_name (chart code) {
   var cint c = as_cint(code);
   {
     var const uintB* codes_ptr = &charname_table_codes[0];
-    var object* strings_ptr = &charname_table[0];
+    var const gcv_object_t* strings_ptr = &charname_table[0];
     var uintC count;
     dotimesC(count,charname_table_length, {
       if (c == *codes_ptr++) /* compare code with charname_table_codes[i] */
@@ -1369,7 +1369,7 @@ global object char_name (chart code) {
 global object name_char (object string) {
   {
     var const uintB* codes_ptr = &charname_table_codes[0];
-    var object* strings_ptr = &charname_table[0];
+    var const gcv_object_t* strings_ptr = &charname_table[0];
     var uintC count;
     dotimesC(count,charname_table_length, {
       if (string_equal(string,*strings_ptr++)) /* compare string with charname_table[i] */
@@ -1637,7 +1637,7 @@ LISPFUNN(alphanumericp,1) /* (ALPHANUMERICP char), CLTL p. 236 */
  are characters. if not, Error.
  > argcount: number of arguments - 1
  > args_pointer: pointer to the arguments */
-local void test_char_args (uintC argcount, const object* args_pointer) {
+local void test_char_args (uintC argcount, const gcv_object_t* args_pointer) {
   dotimespC(argcount,argcount+1, {
     var object arg = NEXT(args_pointer); /* next argument */
     if (!charp(arg)) /* must be a character */
@@ -1650,9 +1650,9 @@ local void test_char_args (uintC argcount, const object* args_pointer) {
  and transforms them into uppercase letters.
  > argcount: number of arguments - 1
  > args_pointer: pointer to the arguments */
-local void test_char_args_upcase (uintC argcount, object* args_pointer) {
+local void test_char_args_upcase (uintC argcount, gcv_object_t* args_pointer) {
   dotimespC(argcount,argcount+1, {
-    var object* argptr = &NEXT(args_pointer);
+    var gcv_object_t* argptr = &NEXT(args_pointer);
     var object arg = *argptr; /* next argument */
     if (!charp(arg)) /* must be a character */
       fehler_char(arg);
@@ -1662,7 +1662,7 @@ local void test_char_args_upcase (uintC argcount, object* args_pointer) {
 }
 
 /* UP: (CHAR= char {char}) for checked arguments */
-local Values char_gleich (uintC argcount, object* args_pointer) {
+local Values char_gleich (uintC argcount, gcv_object_t* args_pointer) {
 /* method:
  n+1 arguments Arg[0..n].
  x:=Arg[n].
@@ -1682,19 +1682,19 @@ local Values char_gleich (uintC argcount, object* args_pointer) {
 }
 
 /* UP: (CHAR/= char {char}) for checked arguments */
-local Values char_ungleich (uintC argcount, object* args_pointer) {
+local Values char_ungleich (uintC argcount, gcv_object_t* args_pointer) {
 /* method:
  n+1 arguments Arg[0..n].
  for j:=n-1 to 0 step -1 do
    x:=Arg[j+1], for i:=j to 0 step -1 do
                    if Arg[i]=x then return(NIL),
  return(T). */
-  var object* arg_j_ptr = args_end_pointer;
+  var gcv_object_t* arg_j_ptr = args_end_pointer;
   var uintC j = argcount;
   while (j!=0) {
     var object x = BEFORE(arg_j_ptr); /* second last argument */
     /* compare with all previous arguments: */
-    var object* arg_i_ptr = arg_j_ptr;
+    var gcv_object_t* arg_i_ptr = arg_j_ptr;
     var uintC i;
     dotimespC(i,j, {
       if (eq(BEFORE(arg_i_ptr),x))
@@ -1708,7 +1708,7 @@ local Values char_ungleich (uintC argcount, object* args_pointer) {
 }
 
 /* UP: (CHAR< char {char}) for checked arguments */
-local Values char_kleiner (uintC argcount, object* args_pointer) {
+local Values char_kleiner (uintC argcount, gcv_object_t* args_pointer) {
   /* Method:
      n+1 Arguments Arg[0..n].
      for i:=n to 1 step -1 do
@@ -1725,7 +1725,7 @@ local Values char_kleiner (uintC argcount, object* args_pointer) {
 }
 
 /* UP: (CHAR> char {char}) for checked arguments */
-local Values char_groesser (uintC argcount, object* args_pointer)
+local Values char_groesser (uintC argcount, gcv_object_t* args_pointer)
 /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
@@ -1743,7 +1743,7 @@ local Values char_groesser (uintC argcount, object* args_pointer)
 }
 
 /* UP: (CHAR<= char {char}) for checked arguments */
-local Values char_klgleich (uintC argcount, object* args_pointer)
+local Values char_klgleich (uintC argcount, gcv_object_t* args_pointer)
 /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
@@ -1761,7 +1761,7 @@ local Values char_klgleich (uintC argcount, object* args_pointer)
 }
 
 /* UP: (CHAR>= char {char}) for checked arguments */
-local Values char_grgleich (uintC argcount, object* args_pointer)
+local Values char_grgleich (uintC argcount, gcv_object_t* args_pointer)
 /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
@@ -1780,84 +1780,84 @@ local Values char_grgleich (uintC argcount, object* args_pointer)
 
 LISPFUN(char_gleich,1,0,rest,nokey,0,NIL)
 { /* (CHAR= char {char}), CLTL p. 237 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_gleich(argcount,args_pointer);
 }
 
 LISPFUN(char_ungleich,1,0,rest,nokey,0,NIL)
 { /* (CHAR/= char {char}), CLTL p. 237 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_ungleich(argcount,args_pointer);
 }
 
 LISPFUN(char_kleiner,1,0,rest,nokey,0,NIL)
 { /* (CHAR< char {char}), CLTL p. 237 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_kleiner(argcount,args_pointer);
 }
 
 LISPFUN(char_groesser,1,0,rest,nokey,0,NIL)
 { /* (CHAR> char {char}), CLTL p. 237 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_groesser(argcount,args_pointer);
 }
 
 LISPFUN(char_klgleich,1,0,rest,nokey,0,NIL)
 { /* (CHAR<= char {char}), CLTL p. 237 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_klgleich(argcount,args_pointer);
 }
 
 LISPFUN(char_grgleich,1,0,rest,nokey,0,NIL)
 { /* (CHAR>= char {char}), CLTL p. 237 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_grgleich(argcount,args_pointer);
 }
 
 LISPFUN(char_equal,1,0,rest,nokey,0,NIL)
 { /* (CHAR-EQUAL char {char}), CLTL p. 239 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_gleich(argcount,args_pointer);
 }
 
 LISPFUN(char_not_equal,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-EQUAL char {char}), CLTL p. 239 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_ungleich(argcount,args_pointer);
 }
 
 LISPFUN(char_lessp,1,0,rest,nokey,0,NIL)
 { /* (CHAR-LESSP char {char}), CLTL p. 239 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_kleiner(argcount,args_pointer);
 }
 
 LISPFUN(char_greaterp,1,0,rest,nokey,0,NIL)
 { /* (CHAR-GREATERP char {char}), CLTL p. 239 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_groesser(argcount,args_pointer);
 }
 
 LISPFUN(char_not_greaterp,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-GREATERP char {char}), CLTL p. 239 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_klgleich(argcount,args_pointer);
 }
 
 LISPFUN(char_not_lessp,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-LESSP char {char}), CLTL p. 239 */
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_grgleich(argcount,args_pointer);
 }
@@ -3362,12 +3362,12 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
  < STACK: cleaned up
  can trigger GC */
 global object string_concat (uintC argcount) {
-  var object* args_pointer = (args_end_pointer STACKop argcount);
+  var gcv_object_t* args_pointer = (args_end_pointer STACKop argcount);
   /* args_pointer = pointer to the arguments
      check, if they are all strings, and add the lengths: */
   var uintL total_length = 0;
   if (argcount > 0) {
-    var object* argptr = args_pointer;
+    var gcv_object_t* argptr = args_pointer;
     var uintC count;
     dotimespC(count,argcount, {
       var object arg = NEXT(argptr); /* next argument */
@@ -3380,7 +3380,7 @@ global object string_concat (uintC argcount) {
   var object new_string = allocate_string(total_length); /* new string */
   if (argcount > 0) {
     var cint32* charptr2 = &TheS32string(new_string)->data[0];
-    var object* argptr = args_pointer;
+    var gcv_object_t* argptr = args_pointer;
     do {
       var object arg = NEXT(argptr); /* next argument-string */
       var uintL len; /* its length */

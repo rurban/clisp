@@ -373,7 +373,7 @@ local uint32 hashcode3_atom (object obj) {
       # pathname -> look at it component-wise:
       check_SP();
       var uint32 bish_code = 0xB0DD939EUL;
-      var object* ptr = &((Record)ThePathname(obj))->recdata[0];
+      var const gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
       var uintC count;
       dotimespC(count,Xrecord_length(obj), {
         var uint32 next_code = hashcode_pathcomp(*ptr++); # hashcode of the next component
@@ -406,7 +406,7 @@ local uint32 hashcode3_atom (object obj) {
       case Rectype_Pathname: { # pathname -> look at it component-wise:
         check_SP();
         var uint32 bish_code = 0xB0DD939EUL;
-        var object* ptr = &((Record)ThePathname(obj))->recdata[0];
+        var gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
         var uintC count;
         dotimespC(count,Xrecord_length(obj), {
           var uint32 next_code = hashcode_pathcomp(*ptr++); # hashcode of the next component
@@ -513,7 +513,7 @@ local uint32 hashcode4_vector_T (object dv, uintL index,
                                  uintL count, uint32 bish_code) {
   if (count > 0) {
     check_SP();
-    var const object* ptr = &TheSvector(dv)->data[index];
+    var const gcv_object_t* ptr = &TheSvector(dv)->data[index];
     dotimespL(count,count, {
       var uint32 next_code = hashcode4(*ptr++); # next component's hashcode
       bish_code = misch(bish_code,next_code); # add
@@ -738,7 +738,7 @@ local uint32 hashcode4_atom (object obj) {
         + (Record_type(obj) << 16) + len;
       if (len > 0) {
         check_SP();
-        var const object* ptr = &TheRecord(obj)->recdata[0];
+        var const gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
         var uintC count;
         dotimespC(count,len, {
           var uint32 next_code = hashcode4(*ptr++); # next component's hashcode
@@ -852,7 +852,7 @@ local void rehash (object ht) {
   # fill index-vector with "nix" :
   var object Ivektor = TheHashtable(ht)->ht_itable; # index-vector
   {
-    var object* ptr = &TheSvector(Ivektor)->data[0];
+    var gcv_object_t* ptr = &TheSvector(Ivektor)->data[0];
     var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_size); # SIZE, >0
     dotimespL(count,count, { *ptr++ = nix; } );
   }
@@ -860,8 +860,8 @@ local void rehash (object ht) {
   var object Nvektor = TheHashtable(ht)->ht_ntable; # next-vector
   var object index = TheHashtable(ht)->ht_maxcount; # MAXCOUNT
   var uintL maxcount = posfixnum_to_L(index);
-  var object* Nptr = &TheSvector(Nvektor)->data[maxcount];
-  var object* KVptr = ht_kvt_data(ht) + 2*maxcount; # end of kvtable
+  var gcv_object_t* Nptr = &TheSvector(Nvektor)->data[maxcount];
+  var gcv_object_t* KVptr = ht_kvt_data(ht) + 2*maxcount; # end of kvtable
   var object freelist = nix;
   var object count = Fixnum_0;
   loop {
@@ -881,7 +881,7 @@ local void rehash (object ht) {
       # "list", that starts at entry hashindex, in order to extend index:
       # copy entry from index-vector to the next-vector
       # end replace with index (a pointer to this location) :
-      var object* Iptr = &TheSvector(Ivektor)->data[hashindex];
+      var gcv_object_t* Iptr = &TheSvector(Ivektor)->data[hashindex];
       *--Nptr = *Iptr; # copy entry into the next-vector
       *Iptr = index; # and replace pointer to it
       count = fixnum_inc(count,1); # count
@@ -905,26 +905,26 @@ local void rehash (object ht) {
 # < if not found: result=false,
 #     *Iptr : entry belonging to key in index-vector
 #             or an arbitrary element of the "list" starting there
-local bool hash_lookup (object ht, object obj, object** KVptr_,
-                        object** Nptr_, object** Iptr_) {
+local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
+                        gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
   var uintB flags = record_flags(TheHashtable(ht));
   if (!ht_validp(TheHashtable(ht))) {
     # hash-table must still be reorganized
     rehash(ht);
   }
   var uintL hashindex = hashcode(ht,obj); # calculate hashcode
-  var object* Nptr = # pointer to the current entry
+  var gcv_object_t* Nptr = # pointer to the current entry
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
-  var object * kvt_data = ht_kvt_data(ht);
+  var gcv_object_t* kvt_data = ht_kvt_data(ht);
   loop {
     # track "list" :
     if (eq(*Nptr,nix)) # "list" finished -> not found
       break;
     var uintL index = posfixnum_to_L(*Nptr); # next index
-    var object* Iptr = Nptr;
+    var gcv_object_t* Iptr = Nptr;
     Nptr = # pointer to entry in next-vector
       &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];
-    var object* KVptr = # pointer to entries in key-value-vector
+    var gcv_object_t* KVptr = # pointer to entries in key-value-vector
       kvt_data + 2*index;
     var object key = KVptr[0];
     if (!boundp(key)) { /* weak HT - obsolete key and value */
@@ -956,12 +956,12 @@ local bool hash_lookup (object ht, object obj, object** KVptr_,
 # > object freelist: Start of the free-list in next-vector, /= nix
 # > key: key
 # > value: value
-# > object* Iptr: arbitrary element of the "list", that belongs to key
+# > gcv_object_t* Iptr: arbitrary element of the "list", that belongs to key
 #define hash_store(key,value)                                                \
   do { var uintL index = posfixnum_to_L(freelist); # free index              \
-       var object* Nptr = # address of the free entry in next-vector          \
-         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];               \
-       var object* KVptr = # address of the free entries in key-value-vector  \
+       var gcv_object_t* Nptr = # address of the free entry in next-vector     \
+         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];              \
+       var gcv_object_t* KVptr = # address of the free entries in key-value-vector \
          ht_kvt_data(ht) + 2*index;                                           \
        set_break_sem_2(); # protect from breaks                               \
        # increment COUNT:                                                     \
@@ -1048,10 +1048,10 @@ local object resize (object ht, object maxcount) {
   # copy all key-value-pairs with key /= "leer" :
   # For traversing the old key-value-vector:
   var uintL oldcount = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
-  var object* oldKVptr = ht_kvt_data(ht);
+  var gcv_object_t* oldKVptr = ht_kvt_data(ht);
   # For traversing the new key-value-vector:
   var uintL count = maxcountL;
-  var object* KVptr = kvtable_data(KVvektor);
+  var gcv_object_t* KVptr = kvtable_data(KVvektor);
   # For counting:
   var object counter = Fixnum_0;
   dotimesL(oldcount,oldcount, {
@@ -1093,7 +1093,7 @@ local object resize (object ht, object maxcount) {
 # > object ht: hash-table
 # < object ht: hash-table
 # < object freelist: start of the free-list in the next-vector, /= nix
-# < object* Iptr: arbitrary element of the "list", that belongs to the key
+# < gcv_object_t* Iptr: arbitrary element of the "list", that belongs to the key
 # can trigger GC
 #define hash_prepare_store(key)                                           \
   do { retry:                                                             \
@@ -1124,7 +1124,7 @@ local void clrhash (object ht) {
   {
     var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
     if (count > 0) {
-      var object* KVptr = ht_kvt_data(ht);
+      var gcv_object_t* KVptr = ht_kvt_data(ht);
       dotimespL(count,count, { # in each entry
         *KVptr++ = leer; *KVptr++ = leer; # deplete key and value
       });
@@ -1312,9 +1312,9 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
         # execute (SYSTEM::PUTHASH (car next) hashtable (cdr next)) ,
         # whereby the table cannot grow:
         var object key = Car(next);
-        var object* KVptr;
-        var object* Nptr;
-        var object* Iptr;
+        var gcv_object_t* KVptr;
+        var gcv_object_t* Nptr;
+        var gcv_object_t* Iptr;
         if (hash_lookup(ht,key,&KVptr,&Nptr,&Iptr)) { # search in the hashtable
           # already found -> was already contained in the alist further on the
           # left, and in alists the first association (left)
@@ -1344,9 +1344,9 @@ LISPFUN(make_hash_table,0,0,norest,key,6,
 # > ht: hash-table
 # < result: if found, belonging value, else nullobj
 global object gethash (object obj, object ht) {
-  var object* KVptr;
-  var object* Nptr;
-  var object* Iptr;
+  var gcv_object_t* KVptr;
+  var gcv_object_t* Nptr;
+  var gcv_object_t* Iptr;
   if (hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr))
     return KVptr[1]; # found -> value
   else
@@ -1369,9 +1369,9 @@ nonreturning_function(local, fehler_hashtable, (object obj)) {
 LISPFUN(gethash,2,1,norest,nokey,0,NIL) {
   var object ht = STACK_1; # hashtable-argument
   check_hashtable(ht);
-  var object* KVptr;
-  var object* Nptr;
-  var object* Iptr;
+  var gcv_object_t* KVptr;
+  var gcv_object_t* Nptr;
+  var gcv_object_t* Iptr;
   # search key STACK_2 in the hash-table:
   if (hash_lookup(ht,STACK_2,&KVptr,&Nptr,&Iptr)) { # found -> Value as value:
     VALUES2(KVptr[1], T); /* and T as the 2nd value */
@@ -1389,9 +1389,9 @@ LISPFUN(gethash,2,1,norest,nokey,0,NIL) {
 LISPFUNN(puthash,3) {
   var object ht = STACK_1; # hashtable-argument
   check_hashtable(ht);
-  var object* KVptr;
-  var object* Nptr;
-  var object* Iptr;
+  var gcv_object_t* KVptr;
+  var gcv_object_t* Nptr;
+  var gcv_object_t* Iptr;
   # search key STACK_2 in the hash-table:
   if (hash_lookup(ht,STACK_2,&KVptr,&Nptr,&Iptr)) { # found -> replace value:
     VALUES1(KVptr[1] = popSTACK()); skipSTACK(2);
@@ -1412,9 +1412,9 @@ LISPFUNN(puthash,3) {
 # < result: old value
 # can trigger GC
 global object shifthash (object ht, object obj, object value) {
-  var object* KVptr;
-  var object* Nptr;
-  var object* Iptr;
+  var gcv_object_t* KVptr;
+  var gcv_object_t* Nptr;
+  var gcv_object_t* Iptr;
   # search key obj in the hash-table:
   if (hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)) { # found -> replace value:
     var object oldvalue = KVptr[1];
@@ -1435,9 +1435,9 @@ LISPFUNN(remhash,2) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
   var object key = popSTACK(); # key-argument
-  var object* KVptr;
-  var object* Nptr;
-  var object* Iptr;
+  var gcv_object_t* KVptr;
+  var gcv_object_t* Nptr;
+  var gcv_object_t* Iptr;
   # search key in the hash-table:
   if (hash_lookup(ht,key,&KVptr,&Nptr,&Iptr)) {
     # found -> drop from the hash-table:
@@ -1488,7 +1488,7 @@ LISPFUNN(maphash,2) {
     if (index==0)
       break;
     index -= 2;
-    var object* KVptr = kvtable_data(STACK_0) + index;
+    var gcv_object_t* KVptr = kvtable_data(STACK_0) + index;
     if (!eq(KVptr[0],leer)) { # key /= "leer" ?
       pushSTACK(KVptr[0]); # key as the 1st argument
       pushSTACK(KVptr[1]); # value as the 2nd argument
@@ -1576,7 +1576,7 @@ LISPFUNN(hash_table_iterate,1) {
       if (index==0) # index=0 -> no more elements
         break;
       Cdr(state) = fixnum_inc(Cdr(state),-1); # decrement index
-      var object* KVptr = kvtable_data(table) + 2*index-2;
+      var gcv_object_t* KVptr = kvtable_data(table) + 2*index-2;
       if (!eq(KVptr[0],leer)) { # Key /= "leer" ?
         VALUES3(T,
                 KVptr[0], /* key as the 2nd value */
@@ -1621,9 +1621,9 @@ LISPFUNN(class_gethash,2) {
   var object ht = STACK_1; # hashtable-argument
   check_hashtable(ht);
   C_class_of(); # value1 := (CLASS-OF object)
-  var object* KVptr;
-  var object* Nptr;
-  var object* Iptr;
+  var gcv_object_t* KVptr;
+  var gcv_object_t* Nptr;
+  var gcv_object_t* Iptr;
   # search key value1 in the hash-table:
   if (hash_lookup(ht,value1,&KVptr,&Nptr,&Iptr)) { # found -> Value as value:
     VALUES2(KVptr[1], T); /* and T as the 2nd value */
@@ -1649,7 +1649,7 @@ local const uintC tuple_half_2 [17] = {0,0,1,2,2,3,4,4,4,5,6,7,8,8,8,8,8};
 
 # auxiliary function: hashcode of a series of atoms, as if they were
 # consed together via (hash-tuple-function n) :
-local uint32 hashcode_tuple (uintC n, const object* args_pointer,
+local uint32 hashcode_tuple (uintC n, const gcv_object_t* args_pointer,
                              uintC depth) {
   if (n==1) {
     return hashcode1(Next(args_pointer)); # hashcode3_atom for classes
@@ -1683,7 +1683,7 @@ local uint32 hashcode_tuple (uintC n, const object* args_pointer,
 }
 # auxiliary function: Comparison of an object with a series of atoms, as if
 # they were consed together via (hash-tuple-function n) :
-local bool equal_tuple (object obj, uintC n, const object* args_pointer) {
+local bool equal_tuple (object obj, uintC n, const gcv_object_t* args_pointer) {
   if (n==1) {
     if (eq(obj,Next(args_pointer)))
       return true;
@@ -1727,7 +1727,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
   argcount++; rest_args_pointer skipSTACKop 1; # arguments: ht {object}+
   # first apply CLASS-OF to each argument:
   {
-    var object* arg_pointer = rest_args_pointer;
+    var gcv_object_t* arg_pointer = rest_args_pointer;
     var uintC count;
     dotimespC(count,argcount, {
       pushSTACK(Next(arg_pointer)); C_class_of(); # (CLASS-OF arg)
@@ -1746,7 +1746,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
     var uintL hashindex;
     divu_3232_3232(code,posfixnum_to_L(TheHashtable(ht)->ht_size),
                    (void),hashindex = );
-    var object* Nptr = # pointer to the current entry
+    var gcv_object_t* Nptr = # pointer to the current entry
       &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
     loop {
       # track "list" :
@@ -1755,7 +1755,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
       var uintL index = posfixnum_to_L(*Nptr); # next index
       Nptr = # pointer to entry in next-vector
         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];
-      var object* KVptr = # pointer to entries in key-value-vector
+      var gcv_object_t* KVptr = # pointer to entries in key-value-vector
         ht_kvt_data(ht)+2*index;
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { # compare key
         # found
@@ -1901,7 +1901,7 @@ local uint32 sxhash_atom (object obj) {
       # record, in which all elements can be utilized
       check_SP();
       {
-        var object* ptr = &TheRecord(obj)->recdata[0];
+        var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
         var uintC count = Record_length(obj);
         dotimespC(count,count, {
           # combine hashcode of the next component:

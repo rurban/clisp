@@ -55,14 +55,14 @@ local void gc_mark (object obj)
 #define down_pair()                                                     \
   if (in_old_generation(dies,typecode(dies),1))                         \
     goto up; /* do not mark older generation */                         \
-  { var object* dies_ = (object*)ThePointer(dies);                      \
+  { var gcv_object_t* dies_ = (gcv_object_t*)ThePointer(dies);          \
     if (marked(dies_)) goto up; /* marked -> go up */                   \
       mark(dies_); /* mark */                                           \
   }                                                                     \
   { var object dies_ = objectplus(dies,(soint)(sizeof(cons_)-sizeof(object))<<(oint_addr_shift-addr_shift)); \
     /* start with the last pointer */                                   \
-    var object nachf = *(object*)ThePointer(dies_); /* successor */     \
-    *(object*)ThePointer(dies_) = vorg; /* store predecessor */         \
+    var object nachf = *(gcv_object_t*)ThePointer(dies_); /* successor */ \
+    *(gcv_object_t*)ThePointer(dies_) = vorg; /* store predecessor */   \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* successor becomes current object */                \
     goto down; /* and descent */                                        \
@@ -75,15 +75,15 @@ local void gc_mark (object obj)
 #define down_varobject(The,first_offset,last_offset)                    \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
-  { var object* dies_ = (object*)The(dies);                             \
+  { var gcv_object_t* dies_ = (gcv_object_t*)The(dies);                 \
     if (marked(dies_)) goto up; /* marked -> up */                      \
     mark(dies_); /* mark */                                             \
     mark(pointerplus(dies_,first_offset)); /* mark first pointer */     \
   }                                                                     \
   { var object dies_ = objectplus(dies,(soint)(last_offset)<<(oint_addr_shift-addr_shift)); \
     /* start with the last pointer */                                   \
-    var object nachf = *(object*)The(dies_); /* successor */            \
-    *(object*)The(dies_) = vorg; /* store predecessor */                \
+    var object nachf = *(gcv_object_t*)The(dies_); /* successor */      \
+    *(gcv_object_t*)The(dies_) = vorg; /* store predecessor */          \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* predecessor becomes current object */              \
     goto down; /* and descent */                                        \
@@ -100,14 +100,14 @@ local void gc_mark (object obj)
 #define down_iarray()                                                   \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
-  { var object* dies_ = (object*)TheIarray(dies);                       \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheIarray(dies);           \
     if (marked(dies_)) goto up; /* marked -> up */                      \
     mark(dies_); /* mark */                                             \
   }                                                                     \
   { var object dies_ = objectplus(dies,(soint)(iarray_data_offset)<<(oint_addr_shift-addr_shift)); \
     /* data vector is the first and only pointer */                     \
-    var object nachf = *(object*)TheIarray(dies_); /* successor */      \
-    *(object*)TheIarray(dies_) = vorg; /* stor predecessor */           \
+    var object nachf = *(gcv_object_t*)TheIarray(dies_); /* successor */ \
+    *(gcv_object_t*)TheIarray(dies_) = vorg; /* stor predecessor */     \
     mark(TheIarray(dies_)); /* mark first and only pointer */           \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* predecessor becomes current object */              \
@@ -120,7 +120,7 @@ local void gc_mark (object obj)
 #define down_svector()                                                  \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
-  { var object* dies_ = (object*)TheSvector(dies);                      \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheSvector(dies);          \
     if (marked(dies_)) goto up; /* marked -> up */                      \
     mark(dies_); /* mark */                                             \
   }                                                                     \
@@ -132,8 +132,8 @@ local void gc_mark (object obj)
       + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
       - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) );      \
     /* start with the last pointer */                                   \
-    var object nachf = *(object*)TheSvector(dies_); /* successor */     \
-    *(object*)TheSvector(dies_) = vorg; /* store predecessor */         \
+    var object nachf = *(gcv_object_t*)TheSvector(dies_); /* successor */ \
+    *(gcv_object_t*)TheSvector(dies_) = vorg; /* store predecessor */   \
     mark(&TheSvector(dies)->data[0]); /* mark first pointer */          \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* predecessor becomes current object */              \
@@ -145,7 +145,7 @@ local void gc_mark (object obj)
   }
 #define down_weakkvt()                                            \
   if (in_old_generation(dies,typecode(dies),0)) goto up;          \
-  { var object* dies_ = (object*)TheSvector(dies);                \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheSvector(dies);    \
     if (marked(dies_)) goto up;                                   \
     mark(dies_);                                                  \
   } goto up; /* no elements to "sub-mark" */
@@ -156,7 +156,7 @@ local void gc_mark (object obj)
 #define down_record()                                                   \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
-  { var object* dies_ = (object*)TheRecord(dies);                       \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheRecord(dies);           \
     if (marked(dies_)) goto up; /* marked -> up */                      \
     mark(dies_); /* marked */                                           \
   }                                                                     \
@@ -168,8 +168,8 @@ local void gc_mark (object obj)
       + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
       - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) );      \
     /* start with the last pointer */                                   \
-    var object nachf = *(object*)TheRecord(dies_); /* successor */      \
-    *(object*)TheRecord(dies_) = vorg; /* store predecessor */          \
+    var object nachf = *(gcv_object_t*)TheRecord(dies_); /* successor */ \
+    *(gcv_object_t*)TheRecord(dies_) = vorg; /* store predecessor */    \
     mark(&TheRecord(dies)->recdata[0]); /* mark first pointer */        \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* predecessor becomes current object */              \
@@ -180,14 +180,14 @@ local void gc_mark (object obj)
     vorg = vorvorg; goto up; /* go further up */  \
   }
 #define down_subr()                                                     \
-  { var object* dies_ = (object*)pointerplus(TheSubr(dies),subr_const_offset);\
+  { var gcv_object_t* dies_ = (gcv_object_t*)pointerplus(TheSubr(dies),subr_const_offset);\
     if (marked(dies_)) goto up; /* marked -> up */                      \
     /* mark later */                                                    \
   }                                                                     \
   { var object dies_ = objectplus(dies,(soint)(subr_const_offset+(subr_const_anz-1)*sizeof(object))<<(oint_addr_shift-addr_shift)); \
     /* start with the last pointer */                                   \
-    var object nachf = *(object*)TheSubr(dies_); /* successor */        \
-    *(object*)TheSubr(dies_) = vorg; /* store predecessor */            \
+    var object nachf = *(gcv_object_t*)TheSubr(dies_); /* successor */  \
+    *(gcv_object_t*)TheSubr(dies_) = vorg; /* store predecessor */      \
     /* mark first pointer (and thus the SUBR itself) : */               \
     mark(pointerplus(TheSubr(dies),subr_const_offset));                 \
     vorg = dies_; /* current object becomes new predecessor */          \
@@ -309,24 +309,24 @@ local void gc_mark (object obj)
     /* no ->
        next element further left (come from 'up', go to 'down')
        dies = currently marked  object, store in *vorg */
-    var object vorvorg = *(object*)ThePointer(vorg); /* old predecessor */
-    *(object*)ThePointer(vorg) = dies; /* write back component */
+    var object vorvorg = *(gcv_object_t*)ThePointer(vorg); /* old predecessor */
+    *(gcv_object_t*)ThePointer(vorg) = dies; /* write back component */
     vorg = objectplus(vorg,-(soint)(sizeof(object))<<(oint_addr_shift-addr_shift)); /* go to next component */
     if (marked(ThePointer(vorg))) { /* already marked? */
       dies = /* next component, without mark */
-        without_mark_bit(*(object*)ThePointer(vorg));
-      *(object*)ThePointer(vorg) = /* further relocate old predecessor, thereby renew mark */
+        without_mark_bit(*(gcv_object_t*)ThePointer(vorg));
+      *(gcv_object_t*)ThePointer(vorg) = /* further relocate old predecessor, thereby renew mark */
         with_mark_bit(vorvorg);
     } else {
-      dies = *(object*)ThePointer(vorg); /* next component, without mark */
-      *(object*)ThePointer(vorg) = vorvorg; /* further relocate old predecessor */
+      dies = *(gcv_object_t*)ThePointer(vorg); /* next component, without mark */
+      *(gcv_object_t*)ThePointer(vorg) = vorvorg; /* further relocate old predecessor */
     }
     goto down;
   }
   { /* already through -> ascent again */
     var object vorvorg = /* fetch old predecessor, without mark bit */
-      without_mark_bit(*(object*)ThePointer(vorg));
-    *(object*)ThePointer(vorg) = dies; /* write back first component */
+      without_mark_bit(*(gcv_object_t*)ThePointer(vorg));
+    *(gcv_object_t*)ThePointer(vorg) = dies; /* write back first component */
    #ifdef TYPECODES
     switch (typecode(vorg)) {
      case_pair: /* object with exactly two pointers (Cons and similar) */
@@ -421,9 +421,9 @@ local void gc_mark (object obj)
   # - from the LISP-stack or
   # - at Generational-GC: from the old generation or
   # - as program-constant (the list of all packages belongs to this).
-    local void gc_mark_stack (object* objptr);
+    local void gc_mark_stack (gcv_object_t* objptr);
     local void gc_mark_stack(objptr)
-      var object* objptr;
+      var gcv_object_t* objptr;
       { until (eq(*objptr,nullobj)) # until STACK is finished:
           { if ( as_oint(*objptr) & wbit(frame_bit_o) ) # does a frame start here?
              { if (( as_oint(*objptr) & wbit(skip2_bit_o) ) == 0) # without skip2-Bit?
@@ -577,9 +577,9 @@ local void gc_mark (object obj)
         # p1 < p2, p1 points to a marked cell.
         unmark(p1); # unmark
         # copy content of cell into the unmark cell:
-        ((object*)p2)[0] = ((object*)p1)[0];
-        ((object*)p2)[1] = ((object*)p1)[1];
-        *(object*)p1 = pointer_as_object(p2); # leave new addresse
+        ((gcv_object_t*)p2)[0] = ((gcv_object_t*)p1)[0];
+        ((gcv_object_t*)p2)[1] = ((gcv_object_t*)p1)[1];
+        *(gcv_object_t*)p1 = pointer_as_object(p2); # leave new addresse
         mark(p1); # and mark (as identification for the update)
         p1 += sizeof(cons_); # this cell is finished.
         goto sweeploop; # continue
@@ -619,9 +619,9 @@ local void gc_mark (object obj)
             }
         # p1 < p2, p1 points to an unmarked cell.
         # copy cell content from the marked into the unmark cell:
-        ((object*)p1)[0] = ((object*)p2)[0];
-        ((object*)p1)[1] = ((object*)p2)[1];
-        *(object*)p2 = pointer_as_object(p1); # leave new address
+        ((gcv_object_t*)p1)[0] = ((gcv_object_t*)p2)[0];
+        ((gcv_object_t*)p1)[1] = ((gcv_object_t*)p2)[1];
+        *(gcv_object_t*)p2 = pointer_as_object(p1); # leave new address
         mark(p2); # and mark (as identification for update)
         p1 += sizeof(cons_); # this cell is finished.
         goto sweeploop; # continue
@@ -649,14 +649,14 @@ local void gc_mark (object obj)
       var aint d = 0; # also count free memory
       until (p1==p2)
         { if (!marked(p1))
-            { ((object*)p1)[0] = nullobj;
-              ((object*)p1)[1] = nullobj;
+            { ((gcv_object_t*)p1)[0] = nullobj;
+              ((gcv_object_t*)p1)[1] = nullobj;
               d += sizeof(cons_);
             }
             else
             { unmark(p1);
               #ifdef DEBUG_SPVW
-              if (eq(((object*)p1)[0],nullobj) || eq(((object*)p1)[1],nullobj))
+              if (eq(((gcv_object_t*)p1)[0],nullobj) || eq(((gcv_object_t*)p1)[1],nullobj))
                 abort();
               #endif
             }
@@ -685,7 +685,7 @@ local void gc_mark (object obj)
       var aint p1limit = page->page_end; # upper bound
       until (p1==p1limit) # always: p1 <= p2 <= p1limit
         { # both cells of a cons are treated exactly the same.
-          var object obj = *(object*)p1;
+          var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
             { # p1 is moved to p2.
               #ifdef TYPECODES
@@ -693,8 +693,8 @@ local void gc_mark (object obj)
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = upointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = type_pointer_object(typecode(obj),p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = type_pointer_object(typecode(obj),p2);
                     obj = next_obj;
                   }}
                 # if the cell contains a pointer "to the right",
@@ -706,20 +706,20 @@ local void gc_mark (object obj)
                           if (!in_old_generation(obj,type,1) && (p > p1))
                             { # For later update, insert
                               # p1 in the list of pointers to p:
-                              *(object*)p1 = *(object*)p;
-                              *(object*)p = with_mark_bit(type_pointer_object(type,p1));
+                              *(gcv_object_t*)p1 = *(gcv_object_t*)p;
+                              *(gcv_object_t*)p = with_mark_bit(type_pointer_object(type,p1));
                               break;
                         }   }
                       default:
-                        *(object*)p1 = obj;
+                        *(gcv_object_t*)p1 = obj;
                 }   }
               #else # no TYPECODES
                 # the so far registered pointers to this cell are updated:
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = (aint)ThePointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
                     obj = next_obj;
                   }}
                 # if the cell contains a pointer "to the right",
@@ -729,14 +729,14 @@ local void gc_mark (object obj)
                     if (!in_old_generation(obj,,1) && (p > p1))
                       { # For later update, insert
                         # p1 in the list of pointers to p:
-                        *(object*)p1 = *(object*)p;
-                        *(object*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p1));
+                        *(gcv_object_t*)p1 = *(gcv_object_t*)p;
+                        *(gcv_object_t*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p1));
                       }
                       else
-                      { *(object*)p1 = obj; }
+                      { *(gcv_object_t*)p1 = obj; }
                   }
                   else
-                  { *(object*)p1 = obj; }
+                  { *(gcv_object_t*)p1 = obj; }
               #endif
               p2 += sizeof(object);
             }
@@ -761,7 +761,7 @@ local void gc_mark (object obj)
       #ifdef DEBUG_SPVW
       until (p1==p1limit)
         { p1 -= 2*sizeof(object);
-          if (eq(*(object*)p1,nullobj)+eq(*(object*)(p1^sizeof(object)),nullobj)==1)
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
             abort();
         }
       p1 = page->page_end;
@@ -770,14 +770,14 @@ local void gc_mark (object obj)
         { # both cells of a cons are treated exactly the same.
           p1 -= sizeof(object);
           #ifdef DEBUG_SPVW
-          if (eq(*(object*)p1,nullobj)+eq(*(object*)(p1^sizeof(object)),nullobj)==1)
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
             abort();
           if (!((p1 % (2*sizeof(object))) == 0))
             { if (!((p2 % (2*sizeof(object))) == 0))
                 abort();
             }
           #endif
-         {var object obj = *(object*)p1;
+         {var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
             { p2 -= sizeof(object);
               # p1 is moved to p2.
@@ -786,14 +786,14 @@ local void gc_mark (object obj)
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = upointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = type_pointer_object(typecode(obj),p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = type_pointer_object(typecode(obj),p2);
                     obj = next_obj;
                   }}
                 #ifdef DEBUG_SPVW
                 if (eq(obj,nullobj)) abort();
                 #endif
-                *(object*)p2 = obj;
+                *(gcv_object_t*)p2 = obj;
                 { var tint type = typecode(obj);
                   if (!gcinvariant_type_p(type)) # un-movable -> do nothing
                     switch (type)
@@ -803,18 +803,18 @@ local void gc_mark (object obj)
                               { # For later update, insert
                                 # p2 into the list of pointers to p:
                                 #ifdef DEBUG_SPVW
-                                if (eq(*(object*)p,nullobj)) abort();
+                                if (eq(*(gcv_object_t*)p,nullobj)) abort();
                                 #endif
-                                *(object*)p2 = *(object*)p;
-                                *(object*)p = with_mark_bit(type_pointer_object(type,p2));
+                                *(gcv_object_t*)p2 = *(gcv_object_t*)p;
+                                *(gcv_object_t*)p = with_mark_bit(type_pointer_object(type,p2));
                               }
                             elif (p == p1) # pointer to itself?
-                              { *(object*)p2 = type_pointer_object(type,p2); }
+                              { *(gcv_object_t*)p2 = type_pointer_object(type,p2); }
                           }
                           break;
                         default: # object of variable length
                           if (marked(ThePointer(obj))) # marked?
-                            *(object*)p2 = type_untype_object(type,untype(*(object*)ThePointer(obj)));
+                            *(gcv_object_t*)p2 = type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj)));
                           break;
                 }     }
               #else # no TYPECODES
@@ -822,14 +822,14 @@ local void gc_mark (object obj)
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = (aint)ThePointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
                     obj = next_obj;
                   }}
                 #ifdef DEBUG_SPVW
                 if (eq(obj,nullobj)) abort();
                 #endif
-                *(object*)p2 = obj;
+                *(gcv_object_t*)p2 = obj;
                 if (!gcinvariant_object_p(obj)) # un-movable -> do nothing
                   { if (consp(obj))
                       # Two-Pointer-Object
@@ -838,18 +838,18 @@ local void gc_mark (object obj)
                           { # for later update, insert
                             # p2 into the list of pointers to p:
                             #ifdef DEBUG_SPVW
-                            if (eq(*(object*)p,nullobj)) abort();
+                            if (eq(*(gcv_object_t*)p,nullobj)) abort();
                             #endif
-                            *(object*)p2 = *(object*)p;
-                            *(object*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2));
+                            *(gcv_object_t*)p2 = *(gcv_object_t*)p;
+                            *(gcv_object_t*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2));
                           }
                         elif (p == p1) # pointer to itself?
-                          { *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2); }
+                          { *(gcv_object_t*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2); }
                       }
                       else
                         # object of variable length
                         { if (marked(ThePointer(obj))) # marked?
-                            *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
+                            *(gcv_object_t*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
                         }
                   }
               #endif
@@ -879,7 +879,7 @@ local void gc_mark (object obj)
       #ifdef DEBUG_SPVW
       until (p1==p1limit)
         { p1 -= 2*sizeof(object);
-          if (eq(*(object*)p1,nullobj)+eq(*(object*)(p1^sizeof(object)),nullobj)==1)
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
             abort();
         }
       p1 = page->page_end;
@@ -888,10 +888,10 @@ local void gc_mark (object obj)
         { # both cells of a cons are treated exactly the same.
           p1 -= sizeof(object);
           #ifdef DEBUG_SPVW
-          if (eq(*(object*)p1,nullobj)+eq(*(object*)(p1^sizeof(object)),nullobj)==1)
+          if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(object)),nullobj)==1)
             abort();
           #endif
-         {var object obj = *(object*)p1;
+         {var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
             { p2 -= sizeof(object);
               # p1 is moved to p2.
@@ -900,8 +900,8 @@ local void gc_mark (object obj)
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = upointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = type_pointer_object(typecode(obj),p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = type_pointer_object(typecode(obj),p2);
                     obj = next_obj;
                   }}
                 # obj = original content of the cell p1.
@@ -916,20 +916,20 @@ local void gc_mark (object obj)
                           if (!in_old_generation(obj,type,1) && (p < p1))
                             { # For later update, insert
                               # p1 into the list of pointers to p:
-                              *(object*)p1 = *(object*)p;
-                              *(object*)p = with_mark_bit(type_pointer_object(type,p1));
+                              *(gcv_object_t*)p1 = *(gcv_object_t*)p;
+                              *(gcv_object_t*)p = with_mark_bit(type_pointer_object(type,p1));
                               break;
                         }   }
                       default:
-                        *(object*)p1 = obj;
+                        *(gcv_object_t*)p1 = obj;
                 }   }
               #else
                 # the so far registered pointers to this cell are updated:
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = (aint)ThePointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
                     obj = next_obj;
                   }}
                 # obj = original content of the cell p1.
@@ -942,14 +942,14 @@ local void gc_mark (object obj)
                     if (!in_old_generation(obj,,1) && (p < p1))
                       { # For later update, insert
                         # p1 into the list of pointers to p:
-                        *(object*)p1 = *(object*)p;
-                        *(object*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p1));
+                        *(gcv_object_t*)p1 = *(gcv_object_t*)p;
+                        *(gcv_object_t*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p1));
                       }
                       else
-                      { *(object*)p1 = obj; }
+                      { *(gcv_object_t*)p1 = obj; }
                   }
                   else
-                  { *(object*)p1 = obj; }
+                  { *(gcv_object_t*)p1 = obj; }
               #endif
             }
         }}
@@ -971,7 +971,7 @@ local void gc_mark (object obj)
       var aint p2 = p1; # lower bound
       until (p1==p1limit) # always: p1limit <= p1 <= p2
         { # both cells of a cons are treated exactly the same.
-          var object obj = *(object*)p1;
+          var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
             { # p1 is moved to p2.
               #ifdef TYPECODES
@@ -979,8 +979,8 @@ local void gc_mark (object obj)
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = upointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = type_pointer_object(typecode(obj),p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = type_pointer_object(typecode(obj),p2);
                     obj = next_obj;
                   }}
                 # obj = true content of the cell p1.
@@ -993,34 +993,34 @@ local void gc_mark (object obj)
                               { # For later update, insert
                                 # p2 into the list of pointers to p:
                                 #ifdef DEBUG_SPVW
-                                if (eq(*(object*)p,nullobj)) abort();
+                                if (eq(*(gcv_object_t*)p,nullobj)) abort();
                                 #endif
-                                *(object*)p2 = *(object*)p;
-                                *(object*)p = with_mark_bit(type_pointer_object(type,p2));
+                                *(gcv_object_t*)p2 = *(gcv_object_t*)p;
+                                *(gcv_object_t*)p = with_mark_bit(type_pointer_object(type,p2));
                               }
                             elif (p == p1) # Pointer to itself?
-                              { *(object*)p2 = type_pointer_object(type,p2); }
+                              { *(gcv_object_t*)p2 = type_pointer_object(type,p2); }
                             else
-                              { *(object*)p2 = obj; }
+                              { *(gcv_object_t*)p2 = obj; }
                           }
                           break;
                         default: # object of variable length
                           if (marked(ThePointer(obj))) # marked?
-                            *(object*)p2 = type_untype_object(type,untype(*(object*)ThePointer(obj)));
+                            *(gcv_object_t*)p2 = type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj)));
                             else
-                            *(object*)p2 = obj;
+                            *(gcv_object_t*)p2 = obj;
                           break;
                       }
                     else # un-movable or pointer into the old generation -> do nothing
-                    { *(object*)p2 = obj; }
+                    { *(gcv_object_t*)p2 = obj; }
                 }
               #else
                 # The newly registered pointers to this cell are updated:
                 until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                   { obj = without_mark_bit(obj);
                    {var aint p = (aint)ThePointer(obj);
-                    var object next_obj = *(object*)p;
-                    *(object*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
+                    var object next_obj = *(gcv_object_t*)p;
+                    *(gcv_object_t*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
                     obj = next_obj;
                   }}
                 # obj = true content of the cell p1.
@@ -1032,26 +1032,26 @@ local void gc_mark (object obj)
                           { # For later update, insert
                             # p2 into the list of pointers to p:
                             #ifdef DEBUG_SPVW
-                            if (eq(*(object*)p,nullobj)) abort();
+                            if (eq(*(gcv_object_t*)p,nullobj)) abort();
                             #endif
-                            *(object*)p2 = *(object*)p;
-                            *(object*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2));
+                            *(gcv_object_t*)p2 = *(gcv_object_t*)p;
+                            *(gcv_object_t*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2));
                           }
                         elif (p == p1) # pointer to itself?
-                          { *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2); }
+                          { *(gcv_object_t*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2); }
                         else
-                          { *(object*)p2 = obj; }
+                          { *(gcv_object_t*)p2 = obj; }
                       }
                       else
                       # Object of variable length
                       { if (marked(ThePointer(obj))) # marked?
-                          *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
+                          *(gcv_object_t*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
                           else
-                          *(object*)p2 = obj;
+                          *(gcv_object_t*)p2 = obj;
                       }
                   }
                   else # un-movable or pointer into the old generation -> do nothing
-                  { *(object*)p2 = obj; }
+                  { *(gcv_object_t*)p2 = obj; }
               #endif
               p2 += sizeof(object);
             }
@@ -1085,15 +1085,15 @@ local void gc_mark (object obj)
       until (p1==p1limit) # always: p1limit <= p2 <= p1
         { # both cells of a cons are treated exactly the same.
           p1 -= sizeof(object);
-         {var object obj = *(object*)p1;
+         {var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
             { p2 -= sizeof(object);
               # p1 is moved to p2.
               # the so far registered pointers to this cell are updated:
               until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                 { obj = without_mark_bit(obj);
-                 {var object next_obj = *(object*)pointable(obj);
-                  *(object*)pointable(obj) = as_object(p2);
+                 {var object next_obj = *(gcv_object_t*)pointable(obj);
+                  *(gcv_object_t*)pointable(obj) = as_object(p2);
                   obj = next_obj;
                 }}
               # obj = original content of the cell p1.
@@ -1104,11 +1104,11 @@ local void gc_mark (object obj)
                  )
                 { # For later update, insert
                   # p1 into the list of pointers to obj:
-                  *(object*)p1 = *(object*)pointable(obj);
-                  *(object*)pointable(obj) = with_mark_bit(as_object(p1));
+                  *(gcv_object_t*)p1 = *(gcv_object_t*)pointable(obj);
+                  *(gcv_object_t*)pointable(obj) = with_mark_bit(as_object(p1));
                 }
                 else
-                { *(object*)p1 = obj; }
+                { *(gcv_object_t*)p1 = obj; }
             }
         }}
       if (!(p2==p1limit)) abort();
@@ -1129,14 +1129,14 @@ local void gc_mark (object obj)
       var aint p2 = p1; # lower bound
       until (p1==p1limit) # always: p1limit <= p1 <= p2
         { # both cells of a cons are treated exactly the same.
-          var object obj = *(object*)p1;
+          var object obj = *(gcv_object_t*)p1;
           if (!eq(obj,nullobj))
             { # p1 is moved to p2.
               # The newly registered pointers to this cell are updated:
               until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) # process list
                 { obj = without_mark_bit(obj);
-                 {var object next_obj = *(object*)pointable(obj);
-                  *(object*)pointable(obj) = as_object(p2);
+                 {var object next_obj = *(gcv_object_t*)pointable(obj);
+                  *(gcv_object_t*)pointable(obj) = as_object(p2);
                   obj = next_obj;
                 }}
               # obj = true content of cell p1.
@@ -1147,23 +1147,23 @@ local void gc_mark (object obj)
                     { if ((aint)pointable(obj) > p1) # pointer to the right?
                         { # For later update, insert
                           # p2 into the list of pointers to obj:
-                          *(object*)p2 = *(object*)pointable(obj);
-                          *(object*)pointable(obj) = with_mark_bit(as_object(p2));
+                          *(gcv_object_t*)p2 = *(gcv_object_t*)pointable(obj);
+                          *(gcv_object_t*)pointable(obj) = with_mark_bit(as_object(p2));
                         }
                       elif ((aint)pointable(obj) == p1) # pointer to itself?
-                        { *(object*)p2 = as_object(p2); }
+                        { *(gcv_object_t*)p2 = as_object(p2); }
                       else
-                        { *(object*)p2 = obj; }
+                        { *(gcv_object_t*)p2 = obj; }
                     }
                     else
                     # object of variable length
                     { if (marked(ThePointer(obj))) # marked?
-                        *(object*)p2 = type_untype_object(type,untype(*(object*)ThePointer(obj)));
+                        *(gcv_object_t*)p2 = type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj)));
                         else
-                        *(object*)p2 = obj;
+                        *(gcv_object_t*)p2 = obj;
                     }
                   else # un-movable or pointer into the old generation -> do nothing
-                  { *(object*)p2 = obj; }
+                  { *(gcv_object_t*)p2 = obj; }
               }
               p2 += sizeof(object);
             }
@@ -1209,19 +1209,19 @@ local void gc_mark (object obj)
 # object is unmarked, then its first pointer is oriented to the address
 # of the next marked object.
   #ifdef SPVW_PURE
-  local aint gc_sweep1_varobject_page (uintL heapnr, aint start, aint end, object* firstmarked, aint dest);
+  local aint gc_sweep1_varobject_page (uintL heapnr, aint start, aint end, gcv_object_t* firstmarked, aint dest);
   local aint gc_sweep1_varobject_page (
     var uintL heapnr,
     var aint start,
     var aint end,
-    var object* firstmarked,
+    var gcv_object_t* firstmarked,
     var aint dest)
   #elif defined(GENERATIONAL_GC)
-  local aint gc_sweep1_varobject_page (aint start, aint end, object* firstmarked, aint dest);
+  local aint gc_sweep1_varobject_page (aint start, aint end, gcv_object_t* firstmarked, aint dest);
   local aint gc_sweep1_varobject_page (
     var aint start,
     var aint end,
-    var object* firstmarked,
+    var gcv_object_t* firstmarked,
     var aint dest)
   #else
   local void gc_sweep1_varobject_page (Page* page);
@@ -1230,12 +1230,12 @@ local void gc_mark (object obj)
   #endif
     {
       #if defined(SPVW_PURE) || defined(GENERATIONAL_GC)
-      var object* last_open_ptr = firstmarked;
+      var gcv_object_t* last_open_ptr = firstmarked;
       var aint p2 = start; # source-pointer
       var aint p2end = end; # upper bound of the source-region
       var aint p1 = dest; # destination-pointer
       #else
-      var object* last_open_ptr = &page->page_gcpriv.firstmarked;
+      var gcv_object_t* last_open_ptr = &page->page_gcpriv.firstmarked;
         # In *last_open_ptr, always store the address of the next marked
         # object (als oint) .
         # Via chained-list-mechanism: At the end, page->page_gcpriv.firstmarked
@@ -1278,7 +1278,7 @@ local void gc_mark (object obj)
           #endif
           var uintL laenge = objsize((Varobject)p2); # determine byte-length
           if (!marked(p2)) # object unmarked?
-            { last_open_ptr = (object*)p2; # yes -> store the next pointer here
+            { last_open_ptr = (gcv_object_t*)p2; # yes -> store the next pointer here
               p2 += laenge; goto sweeploop1; # goto next object
             }
           # object marked
@@ -1305,90 +1305,90 @@ local void gc_mark (object obj)
     #if !defined(MORRIS_GC)
       #ifdef TYPECODES
         #define update(objptr)  \
-          { var tint type = mtypecode(*(object*)objptr);                     \
+          { var tint type = mtypecode(*(gcv_object_t*)objptr);               \
             if (!gcinvariant_type_p(type)) # un-movable -> do nothing        \
-              { var object obj = *(object*)objptr; # object                  \
+              { var object obj = *(gcv_object_t*)objptr; # object            \
                 if (!in_old_generation(obj,type,mem.heapnr_from_type[type])) \
                   # older generation -> do nothing (object stayed there)     \
                   if (marked(ThePointer(obj))) # marked?                     \
                     # no -> do nothing (object stayed there)                 \
                     # yes -> enter new address and typeinfobyte (incl.       \
                     #        poss. symbol-binding-flag)                      \
-                    *(object*)objptr =                                       \
-                      type_untype_object(type,untype(*(object*)ThePointer(obj))); \
+                    *(gcv_object_t*)objptr =                                 \
+                      type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
           }   }
       #else
         #define update(objptr)  \
-          { var object obj = *(object*)objptr; # object                     \
+          { var object obj = *(gcv_object_t*)objptr; # object               \
             if (!gcinvariant_object_p(obj)) # un-movable -> do nothing      \
               if (!in_old_generation(obj,,))                                \
                 # older generation -> do nothing (object stayed there)      \
                 if (marked(ThePointer(obj))) # marked?                      \
                   # no ->  do nothing (object stayed there)                 \
                   # yes -> enter new address                                \
-                  *(object*)objptr =                                        \
-                    as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
+                  *(gcv_object_t*)objptr =                                  \
+                    as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
           }
       #endif
     #else # defined(MORRIS_GC)
       #if defined(SPVW_MIXED_BLOCKS)
         #ifdef TYPECODES
           #define update(objptr)  \
-            { var tint type = mtypecode(*(object*)objptr);                  \
+            { var tint type = mtypecode(*(gcv_object_t*)objptr);            \
               if (!gcinvariant_type_p(type)) # un-movable -> do nothing     \
                 switch (type)                                               \
                   { default: # object of variable length                    \
-                      { var object obj = *(object*)objptr; # object         \
+                      { var object obj = *(gcv_object_t*)objptr; # object   \
                         if (!in_old_generation(obj,type,0))                 \
                           if (marked(ThePointer(obj))) # marked?            \
-                            *(object*)objptr = type_untype_object(type,untype(*(object*)ThePointer(obj))); \
+                            *(gcv_object_t*)objptr = type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
                       }                                                     \
                       break;                                                \
                     case_pair: # Two-Pointer-Object                         \
-                      { var object obj = *(object*)objptr; # object         \
+                      { var object obj = *(gcv_object_t*)objptr; # object   \
                         if (!in_old_generation(obj,type,1))                 \
                           { # for later update, insert into its list:       \
-                            *(object*)objptr = *(object*)ThePointer(obj);   \
-                            *(object*)ThePointer(obj) = with_mark_bit(type_pointer_object(type,objptr)); \
+                            *(gcv_object_t*)objptr = *(gcv_object_t*)ThePointer(obj); \
+                            *(gcv_object_t*)ThePointer(obj) = with_mark_bit(type_pointer_object(type,objptr)); \
                       }   }                                                 \
                       break;                                                \
             }     }
         #else
           #define update(objptr)  \
-            { var object obj = *(object*)objptr; # object                   \
+            { var object obj = *(gcv_object_t*)objptr; # object             \
               if (!gcinvariant_object_p(obj))                               \
                 { if (consp(obj))                                           \
                     # Two-Pointer-Object                                    \
                     { if (!in_old_generation(obj,,1))                       \
                         { # for later update, insert into its list:         \
-                          *(object*)objptr = *(object*)ThePointer(obj);     \
-                          *(object*)ThePointer(obj) = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)objptr)); \
+                          *(gcv_object_t*)objptr = *(gcv_object_t*)ThePointer(obj); \
+                          *(gcv_object_t*)ThePointer(obj) = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)objptr)); \
                     }   }                                                   \
                     else                                                    \
                     # object of variable length                             \
                     { if (!in_old_generation(obj,,0))                       \
                         { if (marked(ThePointer(obj))) # marked?            \
-                            *(object*)objptr = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask)); \
+                            *(gcv_object_t*)objptr = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask)); \
                     }   }                                                   \
             }   }
         #endif
       #else # defined(SPVW_PURE_BLOCKS) # && defined(SINGLEMAP_MEMORY)
         #define update(objptr)  \
-          { var tint type = mtypecode(*(object*)objptr);                    \
+          { var tint type = mtypecode(*(gcv_object_t*)objptr);              \
             if (!is_unused_heap(type)) # unmovable -> do nothing            \
-              { var object obj = *(object*)objptr; # object                 \
+              { var object obj = *(gcv_object_t*)objptr; # object           \
                 if (!in_old_generation(obj,type,?))                         \
                   # older generation -> do nothing (object stayed there)    \
                   { if (is_varobject_heap(type))                            \
                       # object of variable length                           \
                       { if (marked(ThePointer(obj))) # marked?              \
-                          *(object*)objptr = type_untype_object(type,untype(*(object*)ThePointer(obj))); \
+                          *(gcv_object_t*)objptr = type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
                       }                                                     \
                       else                                                  \
                       # Two-Pointer-Object                                  \
                       { # for later update, insert into its list:           \
-                        *(object*)objptr = *(object*)ThePointer(obj);       \
-                        *(object*)ThePointer(obj) = with_mark_bit(pointer_as_object(objptr)); \
+                        *(gcv_object_t*)objptr = *(gcv_object_t*)ThePointer(obj); \
+                        *(gcv_object_t*)ThePointer(obj) = with_mark_bit(pointer_as_object(objptr)); \
                   }   }                                                     \
           }   }
       #endif
@@ -1474,7 +1474,7 @@ local void gc_mark (object obj)
                 { p1 += count; p2 += count; }
             }}
             else
-            { p1 = (aint)pointer_was_object(*(object*)p1); } # with pointer (typeinfo=0) to the next marked object
+            { p1 = (aint)pointer_was_object(*(gcv_object_t*)p1); } # with pointer (typeinfo=0) to the next marked object
         }
       page->page_end = p2; # set upper bound of the objects of variable length
     }
@@ -1633,8 +1633,8 @@ local void gc_unmarkcheck (void) {
         gc_markphase();
         # split (still unmarked) list all_finalizers into two lists:
         { var object Lu = all_finalizers;
-          var object* L1 = &O(all_finalizers);
-          var object* L2 = &O(pending_finalizers);
+          var gcv_object_t* L1 = &O(all_finalizers);
+          var gcv_object_t* L2 = &O(pending_finalizers);
           until (eq(*L2,Fixnum_0))
             { L2 = &TheFinalizer(*L2)->fin_cdr; }
           until (eq(Lu,Fixnum_0))
@@ -1658,8 +1658,8 @@ local void gc_unmarkcheck (void) {
         #ifdef GC_CLOSES_FILES
         # split (still unmarked) list files_to_close into two lists:
         { var object Lu = files_to_close;
-          var object* L1 = &O(open_files);
-          var object* L2 = &O(files_to_close);
+          var gcv_object_t* L1 = &O(open_files);
+          var gcv_object_t* L2 = &O(files_to_close);
           while (consp(Lu))
             { if (in_old_generation(Car(Lu),stream_type,0)
                   || marked(TheStream(Car(Lu))) # (car Lu) marked?
@@ -1676,7 +1676,7 @@ local void gc_unmarkcheck (void) {
         #endif
         { # (still unmarked) shorten the all_weakpointers list:
           var object Lu = all_weakpointers;
-          var object* L1 = &O(all_weakpointers);
+          var gcv_object_t* L1 = &O(all_weakpointers);
           while (!eq(Lu,Fixnum_0)) {
             if (!alive(Lu)) {
               # The weak-pointer itself is being GCed.
@@ -1703,7 +1703,7 @@ local void gc_unmarkcheck (void) {
         }
         { # (still unmarked) shorten the all_weakkvtables list:
           var object Lu = all_weakkvtables;
-          var object* L1 = &O(all_weakkvtables);
+          var gcv_object_t* L1 = &O(all_weakkvtables);
           while (!eq(Lu,Fixnum_0)) {
             ASSERT(weakkvtp(Lu));
             if (!alive(Lu)) {
@@ -1715,7 +1715,7 @@ local void gc_unmarkcheck (void) {
               var uintL len = Weakkvt_length(Lu);
               var uintL idx = 0;
               var WeakKVT wt = TheWeakKVT(Lu);
-              var object* data = wt->data;
+              var gcv_object_t* data = wt->data;
               for (; idx < len; idx += 2) {
                 var object key = data[idx];
                 if (boundp(key)) {
@@ -1776,7 +1776,7 @@ local void gc_unmarkcheck (void) {
                       heap->heap_gen0_end = heap->heap_gen1_start; # temporary - for handle_fault() if SELFMADE_MMAP
                       gc_sweep1_varobject_page(heapnr,
                                                heap->heap_gen1_start,heap->heap_end,
-                                               (object*)gen0_end,
+                                               (gcv_object_t*)gen0_end,
                                                tmp);
                       heap->heap_gen0_end = gen0_end; # temporary - end
                     }
@@ -1809,7 +1809,7 @@ local void gc_unmarkcheck (void) {
                                                  &heap->pages.page_gcpriv.firstmarked,
                                                  heap->heap_gen0_start);
                       gc_sweep1_varobject_page(heap->heap_gen1_start,heap->heap_end,
-                                               (object*)(heap->heap_gen0_end),
+                                               (gcv_object_t*)(heap->heap_gen0_end),
                                                tmp);
                     }
                     else
@@ -1875,7 +1875,7 @@ local void gc_unmarkcheck (void) {
                       { updater(typecode_at(ptr) & ~bit(garcol_bit_t)); }   \
                       else                                                  \
                       # go with pointer (typeinfo=0) to the next marked object \
-                      { ptr = (aint)pointer_was_object(*(object*)ptr); }    \
+                      { ptr = (aint)pointer_was_object(*(gcv_object_t*)ptr); } \
               }   }
             #define update_fpointer_invalid  false
             #define update_fsubr_function false
@@ -2192,7 +2192,7 @@ local void gc_unmarkcheck (void) {
            # copy the object:
            l2 -= laenge; move_aligned_p1_p2(laenge);
            # leave a pointer to the new position:
-           *(object*)old_p1 = with_mark_bit(pointer_as_object(old_p2));
+           *(gcv_object_t*)old_p1 = with_mark_bit(pointer_as_object(old_p2));
            # p1 = source address for the next object
         }}}
       if (!(new_page == EMPTY)) # empty cache?
@@ -2244,10 +2244,10 @@ local void gc_unmarkcheck (void) {
             }
           p1 -= sizeof(cons_); # p1 = source address for next object
           # copy the object:
-          ((object*)p2)[0] = ((object*)p1)[0];
-          ((object*)p2)[1] = ((object*)p1)[1];
+          ((gcv_object_t*)p2)[0] = ((gcv_object_t*)p1)[0];
+          ((gcv_object_t*)p2)[1] = ((gcv_object_t*)p1)[1];
           # leave a pointer to the new position:
-          *(object*)p1 = with_mark_bit(pointer_as_object(p2));
+          *(gcv_object_t*)p1 = with_mark_bit(pointer_as_object(p2));
           p2 += sizeof(cons_); l2 -= sizeof(cons_);
         }
       if (!(new_page == EMPTY)) # empty cache?
@@ -2535,12 +2535,12 @@ local void gc_unmarkcheck (void) {
       gc_timer_on();
       if (delta>0)
         # shift upwards, from above
-        { var object* source = (object*) mem.conses.heap_end;
-          var object* source_end = (object*) mem.conses.heap_start;
+        { var gcv_object_t* source = (gcv_object_t*) mem.conses.heap_end;
+          var gcv_object_t* source_end = (gcv_object_t*) mem.conses.heap_start;
           #if !(defined(MIPS) && !defined(GNU))
-          var object* dest = (object*) (mem.conses.heap_end += delta);
+          var gcv_object_t* dest = (gcv_object_t*) (mem.conses.heap_end += delta);
           #else # circumvent IRIX 4 "cc -ansi" compiler-bug??
-          var object* dest = (mem.conses.heap_end += delta, (object*)mem.conses.heap_end);
+          var gcv_object_t* dest = (mem.conses.heap_end += delta, (gcv_object_t*)mem.conses.heap_end);
           #endif
           mem.conses.heap_start += delta;
           until (source==source_end)
@@ -2549,12 +2549,12 @@ local void gc_unmarkcheck (void) {
         }   }
         else # delta<0
         # shift downwards, from below
-        { var object* source = (object*) mem.conses.heap_start;
-          var object* source_end = (object*) mem.conses.heap_end;
+        { var gcv_object_t* source = (gcv_object_t*) mem.conses.heap_start;
+          var gcv_object_t* source_end = (gcv_object_t*) mem.conses.heap_end;
           #if !(defined(MIPS) && !defined(GNU))
-          var object* dest = (object*) (mem.conses.heap_start += delta);
+          var gcv_object_t* dest = (gcv_object_t*) (mem.conses.heap_start += delta);
           #else # circumvent IRIX 4 "cc -ansi" compiler-bug??
-          var object* dest = (mem.conses.heap_start += delta, (object*)mem.conses.heap_start);
+          var gcv_object_t* dest = (mem.conses.heap_start += delta, (gcv_object_t*)mem.conses.heap_start);
           #endif
           mem.conses.heap_end += delta;
           until (source==source_end)
@@ -2568,16 +2568,16 @@ local void gc_unmarkcheck (void) {
         # update of an object *objptr :
           #ifdef TYPECODES
             #define update(objptr)  \
-              { switch (mtypecode(*(object*)(objptr)))                        \
+              { switch (mtypecode(*(gcv_object_t*)(objptr)))                  \
                   { case_pair: # Two-Pointer-Object?                          \
-                      *(object*)(objptr) = as_object(as_oint(*(object*)(objptr)) + odelta); \
+                      *(gcv_object_t*)(objptr) = as_object(as_oint(*(gcv_object_t*)(objptr)) + odelta); \
                       break;                                                  \
                     default: break;                                           \
               }   }
           #else
             #define update(objptr)  \
-              { if (consp(*(object*)(objptr)))                                \
-                  *(object*)(objptr) = as_object(as_oint(*(object*)(objptr)) + odelta); \
+              { if (consp(*(gcv_object_t*)(objptr)))                          \
+                  *(gcv_object_t*)(objptr) = as_object(as_oint(*(gcv_object_t*)(objptr)) + odelta); \
               }
           #endif
         # peruse all LISP-objects and update:

@@ -30,7 +30,7 @@ local uintC generation;
 # Same things as functions, calling a function, not a macro:
 # walk_physpage_(heapnr,physpage,pageend,heapend,walkstep);
 # walk_area_(heapnr,physpage_start,physpage_end,walkstep);
-  typedef void (*walkstep_fun)(object* ptr);
+  typedef void (*walkstep_fun)(gcv_object_t* ptr);
   local void walk_physpage_ (uintL heapnr, const physpage_state* physpage, aint pageend, aint heapend, walkstep_fun walkstep);
   local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end, walkstep_fun walkstep);
 
@@ -108,27 +108,27 @@ local uintC generation;
   # varobject_alignment is a multiple of sizeof(object).
 
   #define walk_area_cons(objptr,physpage_end,walkfun)          \
-    do { var object* ptr = (object*)objptr;                    \
+    do { var gcv_object_t* ptr = (gcv_object_t*)objptr;        \
          while ((aint)ptr < physpage_end)                      \
            { walkfun(*ptr); ptr++; }                           \
     } while(0)
   #define walk_area_symbol(objptr,physpage_end,walkfun)                       \
-    do { var object* ptr = (object*)(objptr+symbol_objects_offset);           \
+    do { var gcv_object_t* ptr = (gcv_object_t*)(objptr+symbol_objects_offset); \
       var uintC count;                                                        \
-      dotimespC(count,(sizeof(symbol_)-symbol_objects_offset)/sizeof(object),{\
+      dotimespC(count,(sizeof(symbol_)-symbol_objects_offset)/sizeof(object),{ \
         if ((aint)ptr < physpage_end) { walkfun(*ptr); ptr++; }               \
         else break;                                                           \
       });                                                                     \
       objptr += size_symbol();                                                \
     } while(0)
   #define walk_area_iarray(objptr,physpage_end,walkfun)         \
-    do { var object* ptr = &((Iarray)objptr)->data;             \
+    do { var gcv_object_t* ptr = &((Iarray)objptr)->data;       \
          if ((aint)ptr < physpage_end) { walkfun(*ptr); }       \
          objptr += objsize_iarray((Iarray)objptr);              \
     } while(0)
   #define walk_area_svector(objptr,physpage_end,walkfun)                \
     do { var uintL count = svector_length((Svector)objptr);             \
-         var object* ptr = &((Svector)objptr)->data[0];                 \
+         var gcv_object_t* ptr = &((Svector)objptr)->data[0];           \
          objptr += size_svector(count);                                 \
          dotimesL(count,count, {                                        \
            if ((aint)ptr < physpage_end) { walkfun(*ptr); ptr++; }      \
@@ -137,7 +137,7 @@ local uintC generation;
     } while(0)
   #define walk_area_record(objptr,physpage_end,walkfun)  \
     do { var uintC count;                                                   \
-      var object* ptr = &((Record)objptr)->recdata[0];                      \
+      var gcv_object_t* ptr = &((Record)objptr)->recdata[0];                \
       objptr += (record_type((Record)objptr) < rectype_limit                \
                  ? (count = srecord_length((Srecord)objptr),                \
                     size_srecord(count))                                    \
@@ -270,7 +270,7 @@ local uintC generation;
   #define walk_physpage(heapnr,physpage,pageend,heapend,walkfun)         \
     do {{ var uintC count = physpage->continued_count;                   \
         if (count > 0) {                                                 \
-          var object* ptr = physpage->continued_addr;                    \
+          var gcv_object_t* ptr = physpage->continued_addr;              \
           dotimespC(count,count, { walkfun(*ptr); ptr++; } );            \
         }}                                                               \
       { var aint physpage_end = (pageend < heapend ? pageend : heapend); \
@@ -355,18 +355,18 @@ local uintC generation;
                 # for i=0,1,...:
                 #   gen0_start = heap->heap_gen0_start + i*physpagesize
                 #   physpage = &heap->physpages[i]
-                physpage->continued_addr = (object*)gen0_start;
+                physpage->continued_addr = (gcv_object_t*)gen0_start;
                 physpage->continued_count = physpagesize/sizeof(object);
                 gen0_start += physpagesize;
                 physpage->firstobject = gen0_start;
                 physpage++;
               });
-              physpage->continued_addr = (object*)gen0_start;
+              physpage->continued_addr = (gcv_object_t*)gen0_start;
               physpage->continued_count = (gen0_end-gen0_start)/sizeof(object);
               physpage->firstobject = gen0_end;
               #else
               # all pages except the first are full, the first page is partly full.
-              physpage->continued_addr = (object*)gen0_start;
+              physpage->continued_addr = (gcv_object_t*)gen0_start;
               physpage->continued_count = ((gen0_start_pa+physpagesize)-gen0_start)/sizeof(object);
               physpage->firstobject = gen0_start = gen0_start_pa+physpagesize;
               dotimesL(count,physpage_count-1, {
@@ -374,7 +374,7 @@ local uintC generation;
                 # for i=1,...:
                 #   gen0_start = (heap->heap_gen0_start & -physpagesize) + i*physpagesize
                 #   physpage = &heap->physpages[i]
-                physpage->continued_addr = (object*)gen0_start;
+                physpage->continued_addr = (gcv_object_t*)gen0_start;
                 physpage->continued_count = physpagesize/sizeof(object);
                 gen0_start += physpagesize;
                 physpage->firstobject = gen0_start;
@@ -397,7 +397,7 @@ local uintC generation;
               #ifdef SPVW_PURE
               switch (heapnr) {
                 case_symbol: # symbol
-                  physpage->continued_addr = (object*)gen0_start; # irrelevant
+                  physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
                   gen0_start += physpagesize; physpage++;
@@ -408,10 +408,10 @@ local uintC generation;
                       var aint ptr = objptr+symbol_objects_offset;
                       var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(object);
                       if (ptr < gen0_start) {
-                        physpage->continued_addr = (object*)gen0_start;
+                        physpage->continued_addr = (gcv_object_t*)gen0_start;
                         physpage->continued_count = count - (gen0_start-ptr)/sizeof(object);
                       } else {
-                        physpage->continued_addr = (object*)ptr;
+                        physpage->continued_addr = (gcv_object_t*)ptr;
                         physpage->continued_count = count;
                       }
                       physpage->firstobject = nextptr;
@@ -423,7 +423,7 @@ local uintC generation;
                   if (!(objptr == gen0_end)) abort();
                   break;
                 case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # non-simple arrays:
-                  physpage->continued_addr = (object*)gen0_start; # irrelevant
+                  physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
                   gen0_start += physpagesize; physpage++;
@@ -434,10 +434,10 @@ local uintC generation;
                       var aint ptr = (aint)&((Iarray)objptr)->data;
                       # count = 1;
                       if (ptr < gen0_start) {
-                        physpage->continued_addr = (object*)gen0_start; # irrelevant
+                        physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                         physpage->continued_count = 0;
                       } else {
-                        physpage->continued_addr = (object*)ptr;
+                        physpage->continued_addr = (gcv_object_t*)ptr;
                         physpage->continued_count = 1;
                       }
                       # At most one page boundary has been crossed.
@@ -446,7 +446,7 @@ local uintC generation;
                         physpage->firstobject = nextptr;
                         gen0_start += physpagesize; physpage++;
                         if (nextptr < gen0_start) break;
-                        physpage->continued_addr = (object*)gen0_start; # irrelevant
+                        physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                         physpage->continued_count = 0;
                       }
                     }
@@ -456,7 +456,7 @@ local uintC generation;
                   break;
                 case_weakkvt: # weak-key-value-table
                 case_svector: # simple-vector
-                  physpage->continued_addr = (object*)gen0_start; # irrelevant
+                  physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
                   gen0_start += physpagesize; physpage++;
@@ -477,7 +477,7 @@ local uintC generation;
                         ptr = gen0_start;
                       }
                       do {
-                        physpage->continued_addr = (object*)ptr;
+                        physpage->continued_addr = (gcv_object_t*)ptr;
                         gen0_start += physpagesize;
                         var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
                         if (count >= count_thispage) {
@@ -496,7 +496,7 @@ local uintC generation;
                   if (!(objptr == gen0_end)) abort();
                   break;
                 case_record: # record
-                  physpage->continued_addr = (object*)gen0_start; # irrelevant
+                  physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
                   gen0_start += physpagesize; physpage++;
@@ -521,7 +521,7 @@ local uintC generation;
                         ptr = gen0_start;
                       }
                       do {
-                        physpage->continued_addr = (object*)ptr;
+                        physpage->continued_addr = (gcv_object_t*)ptr;
                         gen0_start += physpagesize;
                         var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
                         if (count >= count_thispage) {
@@ -544,7 +544,7 @@ local uintC generation;
                   abort();
               }
               #else # SPVW_MIXED
-              physpage->continued_addr = (object*)gen0_start; # irrelevant
+              physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
               physpage->continued_count = 0;
               physpage->firstobject = gen0_start;
               gen0_start += physpagesize; physpage++;
@@ -565,10 +565,10 @@ local uintC generation;
                         var aint ptr = objptr+symbol_objects_offset;
                         var uintC count = (sizeof(symbol_)-symbol_objects_offset)/sizeof(object);
                         if (ptr < gen0_start) {
-                          physpage->continued_addr = (object*)gen0_start;
+                          physpage->continued_addr = (gcv_object_t*)gen0_start;
                           physpage->continued_count = count - (gen0_start-ptr)/sizeof(object);
                         } else {
-                          physpage->continued_addr = (object*)ptr;
+                          physpage->continued_addr = (gcv_object_t*)ptr;
                           physpage->continued_count = count;
                         }
                         physpage->firstobject = nextptr;
@@ -587,10 +587,10 @@ local uintC generation;
                         var aint ptr = (aint)&((Iarray)objptr)->data;
                         # count = 1;
                         if (ptr < gen0_start) {
-                          physpage->continued_addr = (object*)gen0_start; # irrelevant
+                          physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                           physpage->continued_count = 0;
                         } else {
-                          physpage->continued_addr = (object*)ptr;
+                          physpage->continued_addr = (gcv_object_t*)ptr;
                           physpage->continued_count = 1;
                         }
                         # At most one page boundary has been crossed.
@@ -599,7 +599,7 @@ local uintC generation;
                           physpage->firstobject = nextptr;
                           gen0_start += physpagesize; physpage++;
                           if (nextptr < gen0_start) break;
-                          physpage->continued_addr = (object*)gen0_start; # irrelevant
+                          physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                           physpage->continued_count = 0;
                         }
                       }
@@ -625,7 +625,7 @@ local uintC generation;
                           ptr = gen0_start;
                         }
                         do {
-                          physpage->continued_addr = (object*)ptr;
+                          physpage->continued_addr = (gcv_object_t*)ptr;
                           gen0_start += physpagesize;
                           var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
                           if (count >= count_thispage) {
@@ -692,7 +692,7 @@ local uintC generation;
                           ptr = gen0_start;
                         }
                         do {
-                          physpage->continued_addr = (object*)ptr;
+                          physpage->continued_addr = (gcv_object_t*)ptr;
                           gen0_start += physpagesize;
                           var uintL count_thispage = (gen0_start-ptr)/sizeof(object);
                           if (count >= count_thispage) {
@@ -714,7 +714,7 @@ local uintC generation;
                     # no pointers.
                     objptr += objsize((Varobject)objptr);
                     while (objptr >= gen0_start) {
-                      physpage->continued_addr = (object*)gen0_start; # irrelevant
+                      physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                       physpage->continued_count = 0;
                       physpage->firstobject = objptr;
                       gen0_start += physpagesize; physpage++;
@@ -853,14 +853,14 @@ local uintC generation;
             # then, fill the gap between the old and the new generation,
             # in order to have the compaction-algorithms functional:
             if (is_cons_heap(heapnr)) {
-              var object* ptr;
+              var gcv_object_t* ptr;
               var uintL count;
               #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-              ptr = (object*) heap->heap_gen1_end;
+              ptr = (gcv_object_t*) heap->heap_gen1_end;
               count = (heap->heap_gen0_start - heap->heap_gen1_end)/sizeof(object);
               dotimesL(count,count, { *ptr++ = nullobj; } );
               #else # SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED
-              ptr = (object*) heap->heap_gen0_end;
+              ptr = (gcv_object_t*) heap->heap_gen0_end;
               count = (heap->heap_gen1_start - heap->heap_gen0_end)/sizeof(object);
               #ifndef SELFMADE_MMAP
               dotimesL(count,count, { *ptr++ = nullobj; } );
@@ -918,9 +918,9 @@ local uintC generation;
   #define CHECK_GC_GENERATIONAL()  gc_overall_check()
   local void gc_overall_check (void);
     # control of a single pointer:
-    local bool gc_check_at (object* objptr);
+    local bool gc_check_at (gcv_object_t* objptr);
     local bool gc_check_at(objptr)
-      var object* objptr;
+      var gcv_object_t* objptr;
       {
         var object obj = *objptr;
         var tint type = typecode(obj);

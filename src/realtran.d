@@ -532,7 +532,7 @@ local object R_cos_R (object x)
    if q = 1 mod 4: ((- (sin r)), (cos r))
    if q = 2 mod 4: ((- (cos r)), (- (sin r)))
    if q = 3 mod 4: ((sin r), (- (cos r))) */
-local void R_cos_sin_R_R (object x,bool start_p,object *end_p)
+local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 {
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_0)) # x=0 -> return (1,0)
@@ -734,7 +734,7 @@ local void R_cos_sin_R_R (object x,bool start_p,object *end_p)
 #   (m,e) := (decode-float x), so dass 1/2 <= m < 1.
 #   m<2/3 -> m:=2m, e:=e-1, so dass 2/3 <= m <= 4/3.
 #   ln(m) errechnen, ln(x)=ln(m)+e*ln(2) als Ergebnis.
-local object R_ln_R (object x, bool start_p, object* end_p)
+local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_1)) { return Fixnum_0; } /* x=1 -> return 0 */
@@ -1004,7 +1004,7 @@ local object R_ln_R (object x, bool start_p, object* end_p)
 #   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erhöhen,
 #   (q,r) := (floor x ln(2))
 #   Ergebnis ist exp(q*ln(2)+r) = (scale-float exp(r) q).
-local object R_exp_R (object x, bool start_p, object* end_p)
+local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) { /* x rational */
     if (eq(x,Fixnum_0)) { return Fixnum_1; } /* x=0 -> return 1 */
@@ -1144,7 +1144,7 @@ local object R_exp_R (object x, bool start_p, object* end_p)
 #   falls e>0: y:=exp(x) errechnen,
 #     (scale-float (+ y (/ y)) -1) und (scale-float (- y (/ y)) -1) bilden.
 #   Genauigkeit wieder verringern.
-local void R_cosh_sinh_R_R (object x, bool start_p, object* end_p)
+local void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) { /* x rational */
     if (eq(x,Fixnum_0)) /* x=0 -> return (1,0) */

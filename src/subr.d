@@ -34,7 +34,7 @@
 #define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
   global Values C_##name subr_##rest_flag##_function_args
 #define subr_norest_function_args  (void)
-#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)
+#define subr_rest_function_args  (uintC argcount, gcv_object_t* rest_args_pointer)
 
 /* expander for the declaration of the SUBR-table: */
 #define LISPFUN_C(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \

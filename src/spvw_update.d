@@ -50,15 +50,15 @@
 # ------------------------------ Implementation -------------------------------
 
 # update program constants:
-#define update_subr_tab()                                       \
-  for_all_subrs({                                               \
-    var object* p = (object*)((aint)ptr+subr_const_offset);     \
-    var uintC c;                                                \
-    dotimespC(c,subr_const_anz, { update(p); p++; } );          \
+#define update_subr_tab()                                               \
+  for_all_subrs({                                                       \
+    var gcv_object_t* p = (gcv_object_t*)((aint)ptr+subr_const_offset); \
+    var uintC c;                                                        \
+    dotimespC(c,subr_const_anz, { update(p); p++; } );                  \
   })
 #define update_symbol_tab()                     \
   for_all_constsyms({ # traverse symbol_tab     \
-    var object* p;                              \
+    var gcv_object_t* p;                        \
     p = &ptr->symvalue; update(p);              \
     p = &ptr->symfunction; update(p);           \
     p = &ptr->proplist; update(p);              \
@@ -81,9 +81,9 @@
        var aint objptrend = page->page_end;                                   \
        # update all pointers in the (new) CONS-region start <= address < end: \
        while (objptr != objptrend) {                                          \
-         update((object*)objptr);                                             \
+         update((gcv_object_t*)objptr);                                       \
          objptr += sizeof(object);                                            \
-         update((object*)objptr);                                             \
+         update((gcv_object_t*)objptr);                                       \
          objptr += sizeof(object);                                            \
   }} while(0)
 #define update_conses() for_each_cons_page(page, update_conspage(page) )
@@ -98,20 +98,20 @@
          updater(typecode_at(ptr)); # and advance               \
   }} while(0)
 # subroutines:
-#define do_update_symbol()                                                    \
-  do { var object* p = (object*)pointerplus(ptr,symbol_objects_offset);       \
-    var uintC count;                                                          \
-    dotimespC(count,((sizeof(symbol_)-symbol_objects_offset)/sizeof(object)), \
-      { update(p); p++; } );                                                  \
+#define do_update_symbol()                                                          \
+  do { var gcv_object_t* p = (gcv_object_t*)pointerplus(ptr,symbol_objects_offset); \
+    var uintC count;                                                                \
+    dotimespC(count,((sizeof(symbol_)-symbol_objects_offset)/sizeof(object)),       \
+      { update(p); p++; } );                                                        \
   } while(0)
-#define do_update_svector()                             \
-  do { var uintL count = svector_length((Svector)ptr);  \
-       if (count != 0) {                                \
-         var object* p = &((Svector)ptr)->data[0];      \
-         dotimespL(count,count, { update(p); p++; } );  \
+#define do_update_svector()                              \
+  do { var uintL count = svector_length((Svector)ptr);   \
+       if (count != 0) {                                 \
+         var gcv_object_t* p = &((Svector)ptr)->data[0]; \
+         dotimespL(count,count, { update(p); p++; } );   \
   }} while(0)
 #define do_update_iarray()  \
-  do { var object* p = &((Iarray)ptr)->data; update(p); } while(0)
+  do { var gcv_object_t* p = &((Iarray)ptr)->data; update(p); } while(0)
 #define do_update_record()                                                    \
   do { # on update of pointers, the hash-tables are invalidated               \
        # (because the hash function of an object depends on its address,      \
@@ -128,7 +128,7 @@
                        ? srecord_length((Srecord)ptr)                         \
                        : xrecord_length((Xrecord)ptr));                       \
     if (count != 0) {                                                         \
-      var object* p = &((Record)ptr)->recdata[0];                             \
+      var gcv_object_t* p = &((Record)ptr)->recdata[0];                       \
       dotimespC(count,count, { update(p); p++; } );                           \
   }}} while(0)
 # updates the object at 'ptr', whose typecode is given by 'type_expr'
@@ -256,10 +256,10 @@
 #endif # SPVW_PURE
 
 # update weak-pointer-list:
-#define update_weakpointer(ww)                                      \
-  do { var object* p = &TheRecord(ww)->recdata[weakpointer_length]; \
-       var uintC count = weakpointer_xlength/sizeof(object);        \
-       dotimespC(count,count,{ update(p); p++; });                  \
+#define update_weakpointer(ww)                                            \
+  do { var gcv_object_t* p = &TheRecord(ww)->recdata[weakpointer_length]; \
+       var uintC count = weakpointer_xlength/sizeof(object);              \
+       dotimespC(count,count,{ update(p); p++; });                        \
   } while(0)
 #define update_weakpointers()                     \
   do { var object L = O(all_weakpointers);        \
@@ -276,11 +276,11 @@
   }    } while(0)
 
     # update weak key-value tables
-#define update_weakkvtable(wkvt)                                  \
-  do { # weak key-value table is just another fancy svector       \
-    var object* p = TheSvector(wkvt)->data; # nothing GC-visible  \
-    var uintL count = Svector_length(wkvt);                       \
-    dotimespL(count,count,{ update(p); p++; });                   \
+#define update_weakkvtable(wkvt)                                       \
+  do { # weak key-value table is just another fancy svector            \
+    var gcv_object_t* p = TheSvector(wkvt)->data; # nothing GC-visible \
+    var uintL count = Svector_length(wkvt);                            \
+    dotimespL(count,count,{ update(p); p++; });                        \
   } while(0)
 #define update_weakkvtables()                     \
   do { var object L = O(all_weakkvtables);        \

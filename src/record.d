@@ -44,7 +44,7 @@ nonreturning_function(local, fehler_record, (void)) {
 # > STACK_0: index argument
 # < STACK: cleared up
 # < returns: the address of the referred record item
-local object* record_up (void) {
+local gcv_object_t* record_up (void) {
   # the record must be a Closure/Structure/Stream/OtherRecord:
   if_recordp(STACK_1, ; , { skipSTACK(1); fehler_record(); } );
   var object record = STACK_1;
@@ -116,7 +116,7 @@ nonreturning_function(local, fehler_record_length, (void)) {
 # > STACK_1: structure-argument
 # > STACK_0: index-argument
 # < result: Address of the structure-element
-local object* structure_up (void) {
+local gcv_object_t* structure_up (void) {
   # structure must be of Type structure:
   if (!structurep(STACK_1)) {
    fehler_bad_structure: # STACK_2 = type, STACK_1 = structure
@@ -370,7 +370,7 @@ LISPFUNN(make_closure,3) {
   TheCclosure(closure)->clos_codevec = STACK_1; # fill codevector
   { # fill constants:
     var object constsr = popSTACK();
-    var object* ptr = &TheCclosure(closure)->clos_consts[0];
+    var gcv_object_t* ptr = &TheCclosure(closure)->clos_consts[0];
     while (consp(constsr)) {
       *ptr++ = Car(constsr); constsr = Cdr(constsr);
     }
@@ -695,7 +695,7 @@ LISPFUNN(std_instance_p,1) {
 
 # returns (CLOS:CLASS-OF object). Is especially efficient for CLOS-objects.
 #define class_of(obj)  \
-    (instancep(obj) ? TheInstance(obj)->inst_class           \
+    (instancep(obj) ? TheInstance(obj)->inst_class            \
                     : (pushSTACK(obj), C_class_of(), value1))
 
 # error-message if an object is not a class.
@@ -723,7 +723,7 @@ LISPFUNN(allocate_std_instance,2) {
   TheInstance(instance)->inst_class = clas;
   # fill the slots of the instance with #<UNBOUND> :
   if (--length > 0) {
-    var object* ptr = &TheInstance(instance)->other[0];
+    var gcv_object_t* ptr = &TheInstance(instance)->other[0];
     dotimespL(length,length, { *ptr++ = unbound; } );
   }
   VALUES1(instance); # instance as value
@@ -767,7 +767,7 @@ local Values do_allocate_instance (object clas) {
     # INITIALIZE-INSTANCE to enter the default-values later:
     var uintL count = Structure_length(value1)-1;
     if (count > 0) {
-      var object* ptr = &TheStructure(value1)->recdata[1];
+      var gcv_object_t* ptr = &TheStructure(value1)->recdata[1];
       dotimespL(count,count, { *ptr++ = unbound; } );
     }
   }
@@ -796,11 +796,11 @@ local Values do_allocate_instance (object clas) {
 # > STACK_0: slot-name
 # < result: pointer to the slot (value1 = (class-of instance)),
 #             or NULL (then SLOT-MISSING was called).
-local object* slot_up (void);
+local gcv_object_t* slot_up (void);
 #ifdef RISCOS_CCBUG
   #pragma -z0
 #endif
-local object* slot_up (void) {
+local gcv_object_t* slot_up (void) {
   pushSTACK(STACK_1); C_class_of(); # determine (CLASS-OF instance)
   var object slotinfo = # (GETHASH slot-name (class-slot-location-table class))
     gethash(STACK_0,TheClass(value1)->slot_location_table);
@@ -819,7 +819,7 @@ local object* slot_up (void) {
 #endif
 
 LISPFUNN(slot_value,2) {
-  var object* slot = slot_up();
+  var gcv_object_t* slot = slot_up();
   if (slot) {
     var object value = *slot;
     if (boundp(value)) {
@@ -858,14 +858,14 @@ LISPFUNN(set_slot_value,3) {
 #endif
 
 LISPFUNN(slot_boundp,2) {
-  var object* slot = slot_up();
+  var gcv_object_t* slot = slot_up();
   if (slot) { value1 = (boundp(*slot) ? T : NIL); }
   mv_count=1;
   skipSTACK(2);
 }
 
 LISPFUNN(slot_makunbound,2) {
-  var object* slot = slot_up();
+  var gcv_object_t* slot = slot_up();
   if (slot) { *slot = unbound; }
   VALUES1(STACK_1); /* instance as value */
   skipSTACK(2);
@@ -890,14 +890,14 @@ LISPFUNN(slot_exists_p,2) {
 # > rest_args_pointer: pointer to the arguments
 # > argcount: number of arguments / 2
 # > valid_keywords: list of valid keywords or T if all are valid
-local void keyword_test (object caller, object* rest_args_pointer,
+local void keyword_test (object caller, gcv_object_t* rest_args_pointer,
                          uintC argcount, object valid_keywords) {
   if (argcount==0)
     return;
   if (eq(valid_keywords,T))
     return;
   { # search if :ALLOW-OTHER-KEYS comes:
-    var object* ptr = rest_args_pointer;
+    var gcv_object_t* ptr = rest_args_pointer;
     var uintC count;
     dotimespC(count,argcount, {
       if (eq(NEXT(ptr),S(Kallow_other_keys)))
@@ -907,7 +907,7 @@ local void keyword_test (object caller, object* rest_args_pointer,
     });
   }
   { # search if all specified keywords occur in valid_keywords:
-    var object* ptr = rest_args_pointer;
+    var gcv_object_t* ptr = rest_args_pointer;
     var uintC count;
     dotimespC(count,argcount, {
       var object key = NEXT(ptr);
@@ -935,10 +935,10 @@ local void keyword_test (object caller, object* rest_args_pointer,
 }
 
 # UP: find initarg of the slot in the arglist
-local inline object* slot_in_arglist (const object slot, uintC argcount,
-                                      object* rest_args_pointer) {
+local inline gcv_object_t* slot_in_arglist (const object slot, uintC argcount,
+                                            gcv_object_t* rest_args_pointer) {
   var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-  var object* ptr = rest_args_pointer;
+  var gcv_object_t* ptr = rest_args_pointer;
   var uintC count;
   dotimespC(count,argcount, {
     var object initarg = NEXT(ptr);
@@ -985,7 +985,7 @@ LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
       slots = Cdr(slots);
       # search if the slot is initialized by the initargs:
       if (argcount > 0) {
-        var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
+        var gcv_object_t* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
         if (NULL == ptr)
           goto initarg_not_found;
         value1 = NEXT(ptr);
@@ -1036,10 +1036,10 @@ LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
 
 /* UP: call the non-%SHARED-INITIALIZE init function */
 local inline void call_init_fun (object fun, object last,
-                                 object* rest_args_pointer, uintC argcount) {
+                                 gcv_object_t* rest_args_pointer, uintC argcount) {
   /* shift initargs in the stack down by 1, then call fun: */
   if (argcount > 0) {
-    var object* ptr = rest_args_pointer;
+    var gcv_object_t* ptr = rest_args_pointer;
     var uintC count;
     dotimespC(count,argcount, {
       var object next = Next(ptr); NEXT(ptr) = last;
@@ -1109,7 +1109,7 @@ LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL) {
       slots = Cdr(slots);
       # search if the slot is initialized by the initargs:
       if (argcount > 0) {
-        var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
+        var gcv_object_t* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
         if (NULL != ptr) {
           var object value = NEXT(ptr);
           # initialize slot with value:
@@ -1154,7 +1154,7 @@ LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL) {
 #       ) )
 #       (apply #'initial-initialize-instance instance initargs)
 # ) ) )
-local Values do_initialize_instance (object info, object* rest_args_pointer,
+local Values do_initialize_instance (object info, gcv_object_t* rest_args_pointer,
                                      uintC argcount);
 LISPFUN(pinitialize_instance,1,0,rest,nokey,0,NIL) {
   var object instance = Before(rest_args_pointer);
@@ -1171,7 +1171,7 @@ LISPFUN(pinitialize_instance,1,0,rest,nokey,0,NIL) {
     return_Values do_initialize_instance(info,rest_args_pointer,argcount);
   }
 }
-local Values do_initialize_instance (object info, object* rest_args_pointer,
+local Values do_initialize_instance (object info, gcv_object_t* rest_args_pointer,
                                      uintC argcount) {
   { /* stack layout: instance, argcount Initarg/Value-pairs. */
     var object fun = TheSvector(info)->data[3];
@@ -1189,7 +1189,7 @@ local Values do_initialize_instance (object info, object* rest_args_pointer,
       slots = Cdr(slots);
       # search if the slot is initialized by the initargs:
       if (argcount > 0) {
-        var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
+        var gcv_object_t* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
         if (NULL == ptr)
           goto initarg_not_found;
         value1 = NEXT(ptr);
@@ -1276,7 +1276,7 @@ LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL) {
       var object key = Car(default_initarg);
       # search key among the initargs so far:
       if (argcount > 0) {
-        var object* ptr = rest_args_pointer;
+        var gcv_object_t* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,argcount, {
           if (eq(NEXT(ptr),key))
@@ -1315,7 +1315,7 @@ LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL) {
       {
         var object fun = TheSvector(info)->data[1];
         if (!eq(fun,L(pallocate_instance))) {
-          var object* ptr = rest_args_pointer STACKop 1;
+          var gcv_object_t* ptr = rest_args_pointer STACKop 1;
           var uintC count;
           dotimespC(count,2*argcount+1, { pushSTACK(NEXT(ptr)); });
           funcall(fun,2*argcount+1);
@@ -1343,7 +1343,7 @@ LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL) {
       pushSTACK(value1);
       if (argcount>0) { # (rotatef STACK_0 ... STACK_(2*argcount))
         var uintC count;
-        var object* ptr = &(STACK_0);
+        var gcv_object_t* ptr = &(STACK_0);
         dotimespC(count,2*argcount,
         { *ptr = *(ptr STACKop 1); ptr skipSTACKop 1; });
         *ptr = value1;

@@ -716,27 +716,27 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
    #endif
    #ifdef SPVW_PURE
     # Object of variable length:
-    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)    \
-      do { # search a page with the smallest page_room >= size_expr:       \
-        var AVL(AVLID,stack) stack;                                        \
-        var Pages page;                                                    \
-        var tint _type = (type_expr);                                      \
-        make_space(size_expr,&mem.heaps[_type],&stack, page);              \
-        set_break_sem_1(); # lock Break                                    \
-       {var ptrtype ptrvar =                                               \
-          (ptrtype)(page->page_end); # pointer to memory piece             \
-        var object obj;                                                    \
-        # self pointer:                                                    \
-        ptrvar->GCself = obj = type_pointer_object(_type,ptrvar);          \
-        statement; # initialize memory piece                               \
-        page->page_room -= (size_expr); # adjust memory partitioning       \
-        page->page_end += (size_expr);                                     \
-        mem.used_space += (size_expr);                                     \
-        AVL(AVLID,move)(&stack); # attach page again to the right position \
-        clr_break_sem_1(); # allow Break                                   \
-        CHECK_AVL_CONSISTENCY();                                           \
-        CHECK_GC_CONSISTENCY();                                            \
-        return obj;                                                        \
+    #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement)      \
+      do { # search a page with the smallest page_room >= size_expr:         \
+        var AVL(AVLID,stack) stack;                                          \
+        var Pages page;                                                      \
+        var tint _type = (type_expr);                                        \
+        make_space(size_expr,&mem.heaps[_type],&stack, page);                \
+        set_break_sem_1(); # lock Break                                      \
+       {var ptrtype ptrvar =                                                 \
+          (ptrtype)(page->page_end); # pointer to memory piece               \
+        var object obj;                                                      \
+        # self pointer:                                                      \
+        ptrvar->GCself = obj = type_pointer_object(_type,ptrvar);            \
+        statement; # initialize memory piece                                 \
+        page->page_room -= (size_expr); # adjust memory partitioning         \
+        page->page_end += (size_expr);                                       \
+        mem.used_space += (size_expr);                                       \
+        AVL(AVLID,move)(&stack); # attach page again to the right position   \
+        clr_break_sem_1(); # allow Break                                     \
+        CHECK_AVL_CONSISTENCY();                                             \
+        CHECK_GC_CONSISTENCY();                                              \
+        return obj;                                                          \
       }} while(0)
     # Cons or similar:
     #define allocate_false(type_expr,size_expr,ptrtype,ptrvar,statement) \

@@ -86,7 +86,7 @@ global object allocate_vector (uintL len) {
   allocate(svector_type,true,need,Svector,ptr,{
     SETTFL;
     if (len > 0) {
-      var object* p = &ptr->data[0];
+      var gcv_object_t* p = &ptr->data[0];
       dotimespL(len,len, { *p++ = NIL; } ); # write NIL to the elements
     }
   });
@@ -108,7 +108,7 @@ local inline object allocate_weakkvt_low (uintL len) {
     SETTFL;
     ptr->wkvt_cdr = O(all_weakkvtables);
     if (len > 0) {
-      var object* p = ptr->data;
+      var gcv_object_t* p = ptr->data;
       dotimespL(len,len, { *p++ = unbound; } );
     }
   });
@@ -372,7 +372,7 @@ global object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type)
     # store flags, type:
     *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype;
     ptr->reclength = reclen; # store length
-    var object* p = &ptr->recdata[0];
+    var gcv_object_t* p = &ptr->recdata[0];
     dotimespC(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
   });
 }
@@ -381,7 +381,7 @@ global object allocate_srecord_ (uintW flags_rectype, uintC reclen) {
   var uintL need = size_srecord(reclen);
   allocate(type,true,need,Srecord,ptr,{
     ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16);
-    var object* p = &ptr->recdata[0];
+    var gcv_object_t* p = &ptr->recdata[0];
     dotimespC(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
   });
 }
@@ -404,7 +404,7 @@ global object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
     # store flags, type:
     *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype;
     ptr->reclength = reclen; ptr->recxlength = recxlen; # store lengths
-    var object* p = &ptr->recdata[0];
+    var gcv_object_t* p = &ptr->recdata[0];
     dotimesC(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
     if (recxlen > 0) {
       var uintB* q = (uintB*)p;
@@ -420,7 +420,7 @@ global object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
   allocate(type,true,need,Xrecord,ptr,{
     ptr->tfl = # store flags, type, lengths
       (uintL)flags_rectype + ((uintL)reclen << 16) + ((uintL)recxlen << 24);
-    var object* p = &ptr->recdata[0];
+    var gcv_object_t* p = &ptr->recdata[0];
     dotimesC(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
     if (recxlen > 0) {
       var uintB* q = (uintB*)p;

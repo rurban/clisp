@@ -1037,8 +1037,8 @@ local inline void symlink_file (char* old_pathstring, char* new_pathstring) {
 #endif
 
 #ifdef LOGICAL_PATHNAMES
-#define xpathname_host(logical,pathname)                    \
-  (logical ? TheLogpathname(pathname)->pathname_host :      \
+#define xpathname_host(logical,pathname)                       \
+  (logical ? TheLogpathname(pathname)->pathname_host :         \
              pathname_host_maybe(pathname))
 #define xpathname_device(logical,pathname)                  \
   (logical ? NIL : pathname_device_maybe(pathname))
@@ -1046,13 +1046,13 @@ local inline void symlink_file (char* old_pathstring, char* new_pathstring) {
   (logical ? TheLogpathname(pathname)->pathname_directory : \
                 ThePathname(pathname)->pathname_directory)
 #define xpathname_name(logical,pathname)                    \
-  (logical ? TheLogpathname(pathname)->pathname_name :      \
+  (logical ? TheLogpathname(pathname)->pathname_name : \
                 ThePathname(pathname)->pathname_name)
 #define xpathname_type(logical,pathname)                    \
-  (logical ? TheLogpathname(pathname)->pathname_type :      \
+  (logical ? TheLogpathname(pathname)->pathname_type : \
                 ThePathname(pathname)->pathname_type)
 #define xpathname_version(logical,pathname)                 \
-  (logical ? TheLogpathname(pathname)->pathname_version :   \
+  (logical ? TheLogpathname(pathname)->pathname_version : \
              pathname_version_maybe(pathname))
 #else # no logical pathnames
 #define xpathname_host(logical,pathname) pathname_host_maybe(pathname)
@@ -3625,12 +3625,13 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
   var bool wildp = !missingp(STACK_0);
   skipSTACK(1);
 
-#define SPECIFIED(obj)                                  \
-    !(called_from_make_pathname ? !boundp(obj) :     \
+#define SPECIFIED(obj)                           \
+    !(called_from_make_pathname ? !boundp(obj) : \
       (wildp ? eq(obj,S(Kwild)) : nullp(obj)))
-#define NAMETYPE_MATCH(acc,slot)                                        \
-    { var object tmp = x##slot(p_log,p);                                \
-      acc(newp)->slot = (SPECIFIED(tmp) ? tmp : x##slot(d_log,d)); }
+#define NAMETYPE_MATCH(acc,slot)                                           \
+    { var object tmp = x##slot(p_log,p);                                   \
+      acc(newp)->slot = (SPECIFIED(tmp) ? tmp : x##slot(d_log,d));         \
+    }
 
   # check pathname (STACK_2) and defaults (STACK_1):
   # (coerce defaults 'pathname):
@@ -5091,7 +5092,7 @@ LISPFUNN(pathname_match_p,2) {
 # recursive implementation because of backtracking:
 local void wildcard_diff_ab (object pattern, object sample,
                              uintL m_index, uintL b_index,
-                             const object* previous, object* solutions) {
+                             const gcv_object_t* previous, gcv_object_t* solutions) {
   var chart cc;
   loop {
     if (m_index == Sstring_length(pattern)) {
@@ -5153,7 +5154,7 @@ local void wildcard_diff_ab (object pattern, object sample,
 }
 
 local void wildcard_diff (object pattern, object sample,
-                          const object* previous, object* solutions) {
+                          const gcv_object_t* previous, gcv_object_t* solutions) {
   ASSERT(sstring_normal_p(pattern));
   ASSERT(sstring_normal_p(sample));
   wildcard_diff_ab(pattern,sample,0,0,previous,solutions);
@@ -5173,17 +5174,17 @@ local void wildcard_diff (object pattern, object sample,
 # a pathname-component ("Pattern") at a time.
 # can trigger GC
 local void host_diff      (object pattern, object sample, bool logical,
-                           const object* previous, object* solutions);
+                           const gcv_object_t* previous, gcv_object_t* solutions);
 local void device_diff    (object pattern, object sample, bool logical,
-                           const object* previous, object* solutions);
+                           const gcv_object_t* previous, gcv_object_t* solutions);
 local void directory_diff (object pattern, object sample, bool logical,
-                           const object* previous, object* solutions);
+                           const gcv_object_t* previous, gcv_object_t* solutions);
 local void nametype_diff  (object pattern, object sample, bool logical,
-                           const object* previous, object* solutions);
+                           const gcv_object_t* previous, gcv_object_t* solutions);
 local void version_diff   (object pattern, object sample, bool logical,
-                           const object* previous, object* solutions);
+                           const gcv_object_t* previous, gcv_object_t* solutions);
 local void host_diff (object pattern, object sample, bool logical,
-                      const object* previous, object* solutions) {
+                      const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(host_diff);
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
@@ -5208,7 +5209,7 @@ local void host_diff (object pattern, object sample, bool logical,
  #endif
 }
 local void device_diff (object pattern, object sample, bool logical,
-                        const object* previous, object* solutions) {
+                        const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(device_diff);
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
@@ -5251,7 +5252,7 @@ local void device_diff (object pattern, object sample, bool logical,
  #endif
 }
 local void nametype_diff_aux (object pattern, object sample, bool logical,
-                              const object* previous, object* solutions) {
+                              const gcv_object_t* previous, gcv_object_t* solutions) {
  #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   unused(logical);
   if (eq(pattern,S(Kwild))) {
@@ -5271,7 +5272,7 @@ local void nametype_diff_aux (object pattern, object sample, bool logical,
  #endif
 }
 local void subdir_diff (object pattern, object sample, bool logical,
-                        const object* previous, object* solutions) {
+                        const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(subdir_diff);
   if (eq(pattern,sample)) {
     if (eq(sample,S(Kwild)))
@@ -5300,9 +5301,9 @@ local void subdir_diff (object pattern, object sample, bool logical,
 }
 # recursive implementation because of backtracking:
 local void directory_diff_ab (object m_list, object b_list, bool logical,
-                              const object* previous, object* solutions);
+                              const gcv_object_t* previous, gcv_object_t* solutions);
 local void directory_diff_ab (object m_list, object b_list, bool logical,
-                              const object* previous, object* solutions) {
+                              const gcv_object_t* previous, gcv_object_t* solutions) {
   # algorithm analogous to wildcard_diff_ab.
   var object item;
   if (atomp(m_list)) {
@@ -5360,7 +5361,7 @@ local void directory_diff_ab (object m_list, object b_list, bool logical,
 #define SAMPLE_UNBOUND_CHECK \
   if (!boundp(sample)) { push_solution_with(pattern); return; }
 local void directory_diff (object pattern, object sample, bool logical,
-                           const object* previous, object* solutions) {
+                           const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(directory_diff);
   SAMPLE_UNBOUND_CHECK;
   # compare pattern with O(directory_default) :
@@ -5378,7 +5379,7 @@ local void directory_diff (object pattern, object sample, bool logical,
   directory_diff_ab(pattern,sample,logical,previous,solutions);
 }
 local void nametype_diff (object pattern, object sample, bool logical,
-                          const object* previous, object* solutions) {
+                          const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(nametype_diff);
   SAMPLE_UNBOUND_CHECK;
   if (nullp(pattern)) {
@@ -5389,7 +5390,7 @@ local void nametype_diff (object pattern, object sample, bool logical,
   nametype_diff_aux(pattern,sample,logical,previous,solutions);
 }
 local void version_diff (object pattern, object sample, bool logical,
-                         const object* previous, object* solutions) {
+                         const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(version_diff);
   SAMPLE_UNBOUND_CHECK;
  #ifdef LOGICAL_PATHNAMES
@@ -5500,12 +5501,12 @@ local object translate_pathname (object* subst, object pattern);
 # returns the appropriate replacement for host etc.; shortens subst;
 # returns nullobj on failure
 # may trigger GC
-local object translate_host (object* subst, object pattern, bool logical);
-local object translate_device (object* subst, object pattern, bool logical);
-local object translate_subdir (object* subst, object pattern, bool logical);
-local object translate_directory (object* subst, object pattern, bool logical);
-local object translate_nametype (object* subst, object pattern, bool logical);
-local object translate_version (object* subst, object pattern, bool logical);
+local object translate_host (gcv_object_t* subst, object pattern, bool logical);
+local object translate_device (gcv_object_t* subst, object pattern, bool logical);
+local object translate_subdir (gcv_object_t* subst, object pattern, bool logical);
+local object translate_directory (gcv_object_t* subst, object pattern, bool logical);
+local object translate_nametype (gcv_object_t* subst, object pattern, bool logical);
+local object translate_version (gcv_object_t* subst, object pattern, bool logical);
 #if DEBUG_TRANSLATE_PATHNAME
 # all arguments to translate_* should be on stack - this should be safe
 #define DEBUG_TRAN(f)                                         \
@@ -5514,7 +5515,7 @@ local object translate_version (object* subst, object pattern, bool logical);
 #else
 #define DEBUG_TRAN(f)
 #endif
-local object translate_host (object* subst, object pattern, bool logical) {
+local object translate_host (gcv_object_t* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_host);
 #define TRAN_HOST(subst,pattern)                        \
         if (nullp(pattern) && mconsp(*subst)) {         \
@@ -5543,7 +5544,7 @@ local object translate_host (object* subst, object pattern, bool logical) {
   return pattern;
  #undef TRAN_HOST
 }
-local object translate_device (object* subst, object pattern, bool logical) {
+local object translate_device (gcv_object_t* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_device);
  #if HAS_DEVICE
   #ifdef LOGICAL_PATHNAMES
@@ -5572,7 +5573,7 @@ local object translate_device (object* subst, object pattern, bool logical) {
  #endif
   return pattern;
 }
-local object translate_nametype_aux (object* subst, object pattern,
+local object translate_nametype_aux (gcv_object_t* subst, object pattern,
                                      bool logical) {
   DEBUG_TRAN(translate_nametype_aux);
   if (eq(pattern,S(Kwild)) && mconsp(*subst)) {
@@ -5584,7 +5585,7 @@ local object translate_nametype_aux (object* subst, object pattern,
   }
   if (simple_string_p(pattern)) {
     pushSTACK(pattern); # save pattern
-    var object* pattern_ = &STACK_0;
+    var gcv_object_t* pattern_ = &STACK_0;
     var uintL len = Sstring_length(pattern);
     var uintL index = 0;
     var uintL stringcount = 0; # number of strings on the stack
@@ -5625,7 +5626,7 @@ local object translate_nametype_aux (object* subst, object pattern,
   }
   return pattern;
 }
-local object translate_subdir (object* subst, object pattern, bool logical) {
+local object translate_subdir (gcv_object_t* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_subdir);
  #ifdef LOGICAL_PATHNAMES
   if (logical)
@@ -5635,7 +5636,7 @@ local object translate_subdir (object* subst, object pattern, bool logical) {
   return translate_nametype_aux(subst,pattern,false);
  #endif
 }
-local object translate_directory (object* subst, object pattern,
+local object translate_directory (gcv_object_t* subst, object pattern,
                                   bool logical) {
   DEBUG_TRAN(translate_directory);
   # compare pattern with O(directory_default):
@@ -5682,7 +5683,7 @@ local object translate_directory (object* subst, object pattern,
   }
   return listof(itemcount);
 }
-local object translate_nametype (object* subst, object pattern, bool logical) {
+local object translate_nametype (gcv_object_t* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_nametype);
   if (nullp(pattern) && mconsp(*subst)) {
     if (SIMPLE_P(Car(*subst))) {
@@ -5692,7 +5693,7 @@ local object translate_nametype (object* subst, object pattern, bool logical) {
   }
   return translate_nametype_aux(subst,pattern,logical);
 }
-local object translate_version (object* subst, object pattern, bool logical) {
+local object translate_version (gcv_object_t* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_version);
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
@@ -5735,7 +5736,7 @@ local object translate_version (object* subst, object pattern, bool logical) {
 #undef TRIVIAL_P
 #undef RET_POP
 #undef DEBUG_TRAN
-local object translate_pathname (object* subst, object pattern) {
+local object translate_pathname (gcv_object_t* subst, object pattern) {
   var bool logical = false;
   var object item;
   pushSTACK(*subst); # save subst for the error message
@@ -10498,11 +10499,11 @@ LISPFUNN(file_author,1) {
 
 # (EXECUTE file arg1 arg2 ...) calls a file with the given arguments.
 LISPFUN(execute,1,0,rest,nokey,0,NIL) {
-  var object* args_pointer = rest_args_pointer STACKop 1;
+  var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   {
-    var object* argptr = args_pointer; # Pointer to the arguments
+    var gcv_object_t* argptr = args_pointer; # Pointer to the arguments
     { # check file:
-      var object* file_ = &NEXT(argptr);
+      var gcv_object_t* file_ = &NEXT(argptr);
       var object namestring = true_namestring(coerce_pathname(*file_),
                                               true,false);
       # check, if the file exists:
@@ -10513,7 +10514,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
     { # check the other arguments:
       var uintC count;
       dotimesC(count,argcount, {
-        var object* arg_ = &NEXT(argptr);
+        var gcv_object_t* arg_ = &NEXT(argptr);
         pushSTACK(*arg_); funcall(L(string),1); # convert next argument into a string
         *arg_ = string_to_asciz(value1,O(misc_encoding)); # and convert ASCIZ-string
       });
@@ -10525,7 +10526,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
   {
     var uintL argvdata_length = 0;
     {
-      var object* argptr = args_pointer;
+      var gcv_object_t* argptr = args_pointer;
       var uintC count;
       dotimespC(count,argcount+1, {
         var object arg = NEXT(argptr); # next argument, ASCIZ-string
@@ -10534,7 +10535,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
     }
     var DYNAMIC_ARRAY(argvdata,char,argvdata_length);
     {
-      var object* argptr = args_pointer;
+      var gcv_object_t* argptr = args_pointer;
       var char* argvdataptr = &argvdata[0];
       var uintC count;
       dotimespC(count,argcount+1, {
@@ -10561,7 +10562,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
   { # build up argv-Array in stack and copy strings in the stack:
     var uintL argvdata_length = 0;
     {
-      var object* argptr = args_pointer;
+      var gcv_object_t* argptr = args_pointer;
       var uintC count;
       dotimespC(count,argcount+1, {
         var object arg = NEXT(argptr); # next argument, ASCIZ-string
@@ -10571,7 +10572,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
     var DYNAMIC_ARRAY(argv,char*,1+(uintL)argcount+1);
     var DYNAMIC_ARRAY(argvdata,char,argvdata_length);
     {
-      var object* argptr = args_pointer;
+      var gcv_object_t* argptr = args_pointer;
       var char** argvptr = &argv[0];
       var char* argvdataptr = &argvdata[0];
       var uintC count;
@@ -10837,7 +10838,7 @@ LISPFUNN(dynload_modules,2) {
   STACK_1 = value1;
   # check strings and store in the stack:
   var uintL stringcount = llength(STACK_0);
-  var object* arg_ = &STACK_0;
+  var gcv_object_t* arg_ = &STACK_0;
   {
     var uintL count;
     dotimesL(count,stringcount, {
@@ -10852,7 +10853,7 @@ LISPFUNN(dynload_modules,2) {
     var DYNAMIC_ARRAY(modnames,const char *,stringcount);
     if (stringcount > 0) {
       var uintL count;
-      var object* ptr1 = STACK STACKop stringcount;
+      var gcv_object_t* ptr1 = STACK STACKop stringcount;
       var const char * * ptr2 = modnames;
       dotimespL(count,stringcount, { *ptr2++ = TheAsciz(NEXT(ptr1)); });
     }
@@ -11198,7 +11199,7 @@ local void copy_attributes_and_close () {
 local void copy_file_low (object source, object dest,
                           bool preserve_p, if_exists_t if_exists,
                           if_does_not_exist_t if_not_exists,
-                          object *retval) {
+                          gcv_object_t* retval) {
 /* (let ((buffer (make-array buffer-size :element-type 'unsigned-byte)))
     (with-open-file (source-stream source :direction :input
                                    :element-type 'unsigned-byte)
@@ -11307,7 +11308,7 @@ local void copy_one_file (object source, object src_path,
                           copy_method_t method, bool preserve_p,
                           if_exists_t if_exists,
                           if_does_not_exist_t if_not_exists,
-                          object *retval) {
+                          gcv_object_t* retval) {
   pushSTACK(source); pushSTACK(src_path);
   pushSTACK(dest); pushSTACK(dest_path);
   /* merge source into dest: "cp foo bar/" --> "cp foo bar/foo" */

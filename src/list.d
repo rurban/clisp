@@ -413,7 +413,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # > arg1,arg2: Argumente
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up2_test (const object* stackptr, object arg1, object arg2) {
+local bool up2_test (const gcv_object_t* stackptr, object arg1, object arg2) {
   var object fun = *(stackptr STACKop 1);
   # Special case the most frequent cases,
   if (eq(fun,L(eq)))
@@ -435,7 +435,7 @@ local bool up2_test (const object* stackptr, object arg1, object arg2) {
 # > arg1,arg2: Argumente
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up2_test_not (const object* stackptr, object arg1, object arg2) {
+local bool up2_test_not (const gcv_object_t* stackptr, object arg1, object arg2) {
   pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 0),2);
   if (nullp(value1))
     return true;
@@ -454,9 +454,9 @@ local bool up2_test_not (const object* stackptr, object arg1, object arg2) {
 #       > stackptr: derselbe Pointer in den Stack, arg1, arg2: Argumente
 #       < true, falls der Test erfüllt ist, false sonst.
 # up2_function_t sei der Typ der Adresse einer solchen Testfunktion:
-typedef bool (*up2_function_t) (const object* stackptr,
+typedef bool (*up2_function_t) (const gcv_object_t* stackptr,
                                 object arg1, object arg2);
-local up2_function_t test_test2_args (object* stackptr) {
+local up2_function_t test_test2_args (gcv_object_t* stackptr) {
   var object test_arg = *(stackptr STACKop 1);
   if (!boundp(test_arg))
     test_arg=NIL;
@@ -488,7 +488,7 @@ local up2_function_t test_test2_args (object* stackptr) {
 #       *(stackprt+0).L zugreifen kann.
 # < ergebnis: true, falls gleich, false sonst
 # can trigger GC
-local bool tree_equal (const object* stackptr, up2_function_t up2_fun,
+local bool tree_equal (const gcv_object_t* stackptr, up2_function_t up2_fun,
                        object arg1, object arg2) {
  start:
   if (atomp(arg1))
@@ -515,7 +515,7 @@ local bool tree_equal (const object* stackptr, up2_function_t up2_fun,
 
 LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
 { /* (TREE-EQUAL x y :test :test-not), CLTL p. 264 */
-  var object* stackptr = &STACK_0;
+  var gcv_object_t* stackptr = &STACK_0;
   /* check :TEST/:TEST-NOT arguments: */
   var up2_function_t up2_fun = test_test2_args(stackptr);
   VALUES_IF(tree_equal(stackptr,up2_fun,STACK_3,STACK_2));
@@ -1177,7 +1177,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up_test (const object* stackptr, object x) {
+local bool up_test (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
   var object item = *(stackptr STACKop 3);
   var object fun = *(stackptr STACKop 1);
@@ -1204,7 +1204,7 @@ local bool up_test (const object* stackptr, object x) {
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up_test_not (const object* stackptr, object x) {
+local bool up_test_not (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
   pushSTACK(*(stackptr STACKop 3)); # item
   pushSTACK(x); # x
@@ -1221,7 +1221,7 @@ local bool up_test_not (const object* stackptr, object x) {
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up_if (const object* stackptr, object x) {
+local bool up_if (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (funcall predicate x) ausführen:
   pushSTACK(x); funcall(*(stackptr STACKop 1),1);
   if (nullp(value1))
@@ -1236,7 +1236,7 @@ local bool up_if (const object* stackptr, object x) {
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up_if_not (const object* stackptr, object x) {
+local bool up_if_not (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
   pushSTACK(x); funcall(*(stackptr STACKop 1),1);
   if (nullp(value1))
@@ -1285,7 +1285,7 @@ local void test_key_arg (void) {
 #       > x: Argument
 #       < true, falls der Test erfüllt ist, false sonst.
   # up_function_t sei der Typ der Adresse einer solchen Testfunktion:
-typedef bool (*up_function_t) (const object* stackptr, object x);
+typedef bool (*up_function_t) (const gcv_object_t* stackptr, object x);
 local up_function_t test_test_args (void) {
   var object test_arg = STACK_2;
   if (!boundp(test_arg))
@@ -1319,7 +1319,7 @@ local up_function_t test_test_args (void) {
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: (evtl. neuer) Baum
 # can trigger GC
-local object subst (object tree, object* stackptr, up_function_t up_fun) {
+local object subst (object tree, gcv_object_t* stackptr, up_function_t up_fun) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
@@ -1393,7 +1393,7 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Baum
 # can trigger GC
-local object nsubst (object tree, object* stackptr, up_function_t up_fun) {
+local object nsubst (object tree, gcv_object_t* stackptr, up_function_t up_fun) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
@@ -1460,7 +1460,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
        returns true, when the test passes, false otherwise.
  < return: list element (a CONS) or NIL
  can trigger GC */
-local object sublis_assoc (object* stackptr)
+local object sublis_assoc (gcv_object_t* stackptr)
 {
   var object alist = *(stackptr STACKop 3);
   pushSTACK(alist); /* save the list ((u . v) ...) */
@@ -1506,7 +1506,7 @@ local object sublis_assoc (object* stackptr)
 #             *(stackptr-2) ist frei für (KEY x)
 # < ergebnis: (evtl. neuer) Baum
 # can trigger GC
-local object sublis (object tree, object* stackptr) {
+local object sublis (object tree, gcv_object_t* stackptr) {
   # erst (KEY tree) berechnen und ASSOC aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
@@ -1545,7 +1545,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   # (SUBLIS alist tree :test :test-not :key), CLTL S. 274
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    var object* stackptr = &STACK_1;
+    var gcv_object_t* stackptr = &STACK_1;
     var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
@@ -1570,7 +1570,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
 #             *(stackptr-2) ist frei für (KEY x)
 # < ergebnis: Baum
 # can trigger GC
-local object nsublis (object tree, object* stackptr) {
+local object nsublis (object tree, gcv_object_t* stackptr) {
   # erst (KEY tree) berechnen und ASSOC aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
@@ -1603,7 +1603,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   # (NSUBLIS alist tree :test :test-not :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    var object* stackptr = &STACK_1;
+    var gcv_object_t* stackptr = &STACK_1;
     var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
     # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
@@ -1651,7 +1651,7 @@ LISPFUNN(memq,2) {
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenrest
 # can trigger GC
-local object member (object list, object* stackptr, up_function_t up_fun) {
+local object member (object list, gcv_object_t* stackptr, up_function_t up_fun) {
   while (!endp(list)) {
     pushSTACK(list); # Listenrest retten
     funcall_key(*(stackptr STACKop -1),Car(list)); # (KEY x)
@@ -1833,7 +1833,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
-local object assoc (object alist, object* stackptr, up_function_t up_fun) {
+local object assoc (object alist, gcv_object_t* stackptr, up_function_t up_fun) {
  start:
   if (atomp(alist))
     # Listenende erreicht -> ergibt Ergebnis NIL
@@ -1888,7 +1888,7 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
 # can trigger GC
-local object rassoc (object alist, object* stackptr, up_function_t up_fun) {
+local object rassoc (object alist, gcv_object_t* stackptr, up_function_t up_fun) {
  start:
   if (atomp(alist))
     # Listenende erreicht -> ergibt Ergebnis NIL

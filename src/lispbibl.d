@@ -845,7 +845,7 @@
         SAVE_value1_register(registers);                                     \
         SAVE_back_trace_register(registers);                                 \
         inner_statement;                                                     \
-        { var object* top_of_frame = STACK;                                  \
+        { var gcv_object_t* top_of_frame = STACK;                            \
           pushSTACK(as_object((aint)callback_saved_registers));              \
           finish_frame(CALLBACK);                                            \
         }                                                                    \
@@ -2295,8 +2295,8 @@ Ratio and Complex (only if SPVW_MIXED).
   # But there is an address and type bits in the representation.
 
   # An (unsigned) Integer of the object's size:
-  typedef  uintP  oint;
-  typedef  sintP  soint;
+    typedef  uintP  oint;
+    typedef  sintP  soint;
 
 #else # defined(WIDE_SOFT)
 
@@ -2990,6 +2990,13 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
+# The type `gcv_object_t' denotes a GC visible object, i.e. a slot inside
+# a heap-allocated object or a STACK slot. If its value is not an immediate
+# object, any call that can trigger GC can modify the pointer value.
+# NEVER write "var gcv_object_t foo;" - this is forbidden!
+typedef object gcv_object_t;
+
+
 # Objects with variable length must reside at addresses that are divisable by 2
 #if defined(VAX) # ?? gcc/config/vax/vax.h sagt: Alignment = 4
   #define varobject_alignment  1
@@ -3042,7 +3049,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
           { case_machine:                      \
             case_char: case_subr: case_system: \
             case_fixnum: case_sfloat:          \
-            /* with WIDE also: case_ffloat: */  \
+            /* with WIDE also: case_ffloat: */ \
               _erg = true; break;              \
             default: _erg = false; break;      \
           }                                    \
@@ -3661,7 +3668,7 @@ typedef struct {
     sintB rectype;   # for OtherRecord: sub-type
     uintW recfiller; # length and others
   #endif
-  object recdata[unspecified]; # elements
+  gcv_object_t recdata[unspecified]; # elements
 } record_;
 typedef record_ *  Record;
 # access to type, flags:
@@ -3718,7 +3725,7 @@ typedef lrecord_ *  Lrecord;
 #endif
 typedef struct {
   SRECORD_HEADER
-  object recdata[unspecified]; # reclength elements
+  gcv_object_t recdata[unspecified]; # reclength elements
 } srecord_;
 typedef srecord_ *  Srecord;
 #ifdef TYPECODES
@@ -3741,8 +3748,8 @@ typedef srecord_ *  Srecord;
 #endif
 typedef struct {
   XRECORD_HEADER
-  object recdata[unspecified];  #  reclength elements
-  # uintB  recxdata[unspecified]; # recxlength extra elements
+  gcv_object_t recdata[unspecified];  #  reclength elements
+  # uintB      recxdata[unspecified]; # recxlength extra elements
 } xrecord_;
 typedef xrecord_ *  Xrecord;
 #ifdef TYPECODES
@@ -3846,8 +3853,8 @@ typedef xrecord_ *  Xrecord;
 
 # Cons
 typedef struct {
-  object cdr; # CDR
-  object car; # CAR
+  gcv_object_t cdr; # CDR
+  gcv_object_t car; # CAR
 } cons_;
 typedef cons_ *  Cons;
 
@@ -3856,8 +3863,8 @@ typedef struct {
   #ifdef SPVW_MIXED
   XRECORD_HEADER
   #endif
-  object rt_num; # numerator, Integer
-  object rt_den; # denominator, Integer >0
+  gcv_object_t rt_num; # numerator, Integer
+  gcv_object_t rt_den; # denominator, Integer >0
 } ratio_;
 typedef ratio_ *  Ratio;
 
@@ -3866,19 +3873,19 @@ typedef struct {
   #ifdef SPVW_MIXED
   XRECORD_HEADER
   #endif
-  object c_real; # real part, real number
-  object c_imag; # imaginary part, real number
+  gcv_object_t c_real; # real part, real number
+  gcv_object_t c_imag; # imaginary part, real number
 } complex_;
 typedef complex_ *  Complex;
 
 # Symbol
 typedef struct {
   VAROBJECT_HEADER
-  object symvalue;    # value cell
-  object symfunction; # function definition cell
-  object proplist;    # property list
-  object pname;       # Printname
-  object homepackage; # Home-Package or NIL
+  gcv_object_t symvalue;    # value cell
+  gcv_object_t symfunction; # function definition cell
+  gcv_object_t proplist;    # property list
+  gcv_object_t pname;       # Printname
+  gcv_object_t homepackage; # Home-Package or NIL
 } symbol_;
 typedef symbol_ *  Symbol;
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
@@ -4309,7 +4316,7 @@ typedef sstring_ *  Sstring;
 # simple vector
 typedef struct {
   LRECORD_HEADER # self-pointer for GC, length in objects
-  object data[unspecified]; # elements
+  gcv_object_t data[unspecified]; # elements
 } svector_;
 typedef svector_ *  Svector;
 #define svector_length(ptr)  sarray_length(ptr)
@@ -4318,21 +4325,21 @@ typedef svector_ *  Svector;
 # simple indirect array
 #ifndef TYPECODES
 typedef struct {
-  VAROBJECT_HEADER  # self-pointer for GC, tfl
-  object data;      # data vector
+  VAROBJECT_HEADER   # self-pointer for GC, tfl
+  gcv_object_t data; # data vector
 } siarray_;
 typedef siarray_ *  Siarray;
 #endif
 
 # non-simple indirect Array
 typedef struct {
-  VAROBJECT_HEADER  # self-pointer for GC
+  VAROBJECT_HEADER   # self-pointer for GC
   #ifdef TYPECODES
-  uintB flags;      # flags
-  uintC rank;       # rank n
+  uintB flags;       # flags
+  uintC rank;        # rank n
   #endif
-  object data;      # data vector
-  uintL totalsize;  # totalsize = product of the n dimensions
+  gcv_object_t data; # data vector
+  uintL totalsize;   # totalsize = product of the n dimensions
   uintL dims[unspecified]; # poss. displaced-offset,
                            # n dimensions,
                            # poss. fill-pointer
@@ -4456,13 +4463,13 @@ typedef iarray_ *  Iarray;
 # Packages
 typedef struct {
   XRECORD_HEADER
-  object pack_external_symbols;
-  object pack_internal_symbols;
-  object pack_shadowing_symbols;
-  object pack_use_list;
-  object pack_used_by_list;
-  object pack_name;
-  object pack_nicknames;
+  gcv_object_t pack_external_symbols;
+  gcv_object_t pack_internal_symbols;
+  gcv_object_t pack_shadowing_symbols;
+  gcv_object_t pack_use_list;
+  gcv_object_t pack_used_by_list;
+  gcv_object_t pack_name;
+  gcv_object_t pack_nicknames;
 } *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(object))
 # Some packages are case-sensitive.
@@ -4480,18 +4487,18 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   #ifdef GENERATIONAL_GC
-  object ht_lastrehash;
+  gcv_object_t ht_lastrehash;
   #endif
-  object ht_size;
-  object ht_maxcount;
-  object ht_itable;
-  object ht_ntable;
-  object ht_kvtable;
-  object ht_freelist;
-  object ht_count;
-  object ht_rehash_size;
-  object ht_mincount_threshold;
-  object ht_mincount;
+  gcv_object_t ht_size;
+  gcv_object_t ht_maxcount;
+  gcv_object_t ht_itable;
+  gcv_object_t ht_ntable;
+  gcv_object_t ht_kvtable;
+  gcv_object_t ht_freelist;
+  gcv_object_t ht_count;
+  gcv_object_t ht_rehash_size;
+  gcv_object_t ht_mincount_threshold;
+  gcv_object_t ht_mincount;
 } *  Hashtable;
 #define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(object))
 # Mark a Hash Table as new to reorganize
@@ -4515,17 +4522,18 @@ typedef struct {
    simple_vector_p(TheHashtable(ht)->ht_kvtable) ? false :      \
    (NOTREACHED, false))
 # get the kvtable data array
-#define kvtable_data(kvt)                                               \
-  (weakkvtp(kvt) ? TheWeakKVT(kvt)->data :                              \
-   simple_vector_p(kvt) ? TheSvector(kvt)->data : (NOTREACHED, &kvt))
+#define kvtable_data(kvt)                         \
+  (weakkvtp(kvt) ? TheWeakKVT(kvt)->data :        \
+   simple_vector_p(kvt) ? TheSvector(kvt)->data : \
+   (NOTREACHED, (gcv_object_t*)NULL))
 #define ht_kvt_data(ht)   kvtable_data(TheHashtable(ht)->ht_kvtable)
 
 # Readtables
 typedef struct {
   XRECORD_HEADER
-  object readtable_syntax_table;
-  object readtable_macro_table;
-  object readtable_case;
+  gcv_object_t readtable_syntax_table;
+  gcv_object_t readtable_macro_table;
+  gcv_object_t readtable_case;
 } *  Readtable;
 #define readtable_length  ((sizeof(*(Readtable)0)-offsetofa(record_,recdata))/sizeof(object))
 
@@ -4533,18 +4541,18 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   #if HAS_HOST
-    object pathname_host;
+    gcv_object_t pathname_host;
   #endif
   #if HAS_DEVICE
-    object pathname_device;
+    gcv_object_t pathname_device;
   #endif
   #if 1
-    object pathname_directory;
-    object pathname_name;
-    object pathname_type;
+    gcv_object_t pathname_directory;
+    gcv_object_t pathname_name;
+    gcv_object_t pathname_type;
   #endif
   #if HAS_VERSION
-    object pathname_version;
+    gcv_object_t pathname_version;
   #endif
 } *  Pathname;
 #define pathname_length  ((sizeof(*(Pathname)0)-offsetofa(record_,recdata))/sizeof(object))
@@ -4553,11 +4561,11 @@ typedef struct {
 # Logical Pathnames
 typedef struct {
   XRECORD_HEADER
-  object pathname_host;
-  object pathname_directory;
-  object pathname_name;
-  object pathname_type;
-  object pathname_version;
+  gcv_object_t pathname_host;
+  gcv_object_t pathname_directory;
+  gcv_object_t pathname_name;
+  gcv_object_t pathname_type;
+  gcv_object_t pathname_version;
 } *  Logpathname;
 #define logpathname_length  ((sizeof(*(Logpathname)0)-offsetofa(record_,recdata))/sizeof(object))
 #endif
@@ -4565,23 +4573,23 @@ typedef struct {
 # Random-States
 typedef struct {
   XRECORD_HEADER
-  object random_state_seed;
+  gcv_object_t random_state_seed;
 } *  Random_state;
 #define random_state_length  ((sizeof(*(Random_state)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Bytes
 typedef struct {
   XRECORD_HEADER
-  object byte_size;
-  object byte_position;
+  gcv_object_t byte_size;
+  gcv_object_t byte_position;
 } *  Byte;
 #define byte_length  ((sizeof(*(Byte)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Fsubrs
 typedef struct {
   XRECORD_HEADER
-  object name;
-  object argtype;
+  gcv_object_t name;
+  gcv_object_t argtype;
   void* function; # actually a fsubr_function_t*
 } *  Fsubr;
 #define fsubr_length  2
@@ -4590,52 +4598,52 @@ typedef struct {
 # Load-time-evals
 typedef struct {
   XRECORD_HEADER
-  object loadtimeeval_form;
+  gcv_object_t loadtimeeval_form;
 } *  Loadtimeeval;
 #define loadtimeeval_length  ((sizeof(*(Loadtimeeval)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Symbol-macros
 typedef struct {
   XRECORD_HEADER
-  object symbolmacro_expansion;
+  gcv_object_t symbolmacro_expansion;
 } *  Symbolmacro;
 #define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Macros
 typedef struct {
   XRECORD_HEADER
-  object macro_expander;
+  gcv_object_t macro_expander;
 } *  Macro;
 #define macro_length  ((sizeof(*(Macro)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # FunctionMacros
 typedef struct {
   XRECORD_HEADER
-  object functionmacro_macro_expander;
-  object functionmacro_function;
+  gcv_object_t functionmacro_macro_expander;
+  gcv_object_t functionmacro_function;
 } *  FunctionMacro;
 #define functionmacro_length  ((sizeof(*(FunctionMacro)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Encoding
 typedef struct {
   XRECORD_HEADER
-  object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
-  object enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
-  object enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
+  gcv_object_t enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
+  gcv_object_t enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
+  gcv_object_t enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
   #ifdef UNICODE
-  object enc_charset; # character set, a symbol in the CHARSET package
-                      # or a simple-string
+  gcv_object_t enc_charset; # character set, a symbol in the CHARSET package
+                          # or a simple-string
   # Functions to convert bytes to characters.
-    object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
-    object enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+    gcv_object_t enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
+    gcv_object_t enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
   # Functions to convert characters to bytes.
-    object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
-    object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+    gcv_object_t enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
+    gcv_object_t enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
   # Function to return the set of defined characters in the range [start,end],
   # as a simple-string of intervals #(start1 end1 ... startm endm).
-    object enc_range; # object (*) (object encoding, uintL start, uintL end, uintL maxintervals);
+    gcv_object_t enc_range; # object (*) (object encoding, uintL start, uintL end, uintL maxintervals);
   # An auxiliary pointer.
-  object enc_table;
+  gcv_object_t enc_table;
   # Minimum number of bytes needed to represent a character.
   uintL min_bytes_per_char;
   # Maximum number of bytes needed to represent a character.
@@ -4694,7 +4702,7 @@ typedef struct {
 # foreign adresses
 typedef struct {
   XRECORD_HEADER
-  object fa_base;
+  gcv_object_t fa_base;
   uintP fa_offset;
 } * Faddress;
 #define faddress_length  1
@@ -4703,21 +4711,21 @@ typedef struct {
 # foreign variables
 typedef struct {
   XRECORD_HEADER
-  object fv_name;
-  object fv_address;
-  object fv_size;
-  object fv_type;
+  gcv_object_t fv_name;
+  gcv_object_t fv_address;
+  gcv_object_t fv_size;
+  gcv_object_t fv_type;
 } * Fvariable;
 #define fvariable_length  ((sizeof(*(Fvariable)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # foreign functions
 typedef struct {
   XRECORD_HEADER
-  object ff_name;
-  object ff_address;
-  object ff_resulttype;
-  object ff_argtypes;
-  object ff_flags;
+  gcv_object_t ff_name;
+  gcv_object_t ff_address;
+  gcv_object_t ff_resulttype;
+  gcv_object_t ff_argtypes;
+  gcv_object_t ff_flags;
 } * Ffunction;
 #define ffunction_length  ((sizeof(*(Ffunction)0)-offsetofa(record_,recdata))/sizeof(object))
 
@@ -4726,8 +4734,8 @@ typedef struct {
 # weak pointer
 typedef struct {
   XRECORD_HEADER
-  object wp_cdr;   # active weak-pointers form a chained list
-  object wp_value; # the referenced object
+  gcv_object_t wp_cdr;   # active weak-pointers form a chained list
+  gcv_object_t wp_value; # the referenced object
 } * Weakpointer;
 # Both wp_cdr and wp_value are invisible to gc_mark routines.
 # When the weak-pointer becomes inactive, both fields are turned to unbound.
@@ -4738,8 +4746,8 @@ typedef struct {
 # weak key-value table for weak hashtables
 typedef struct {
   LRECORD_HEADER
-  object wkvt_cdr;          # active weak-kvts form a chained list
-  object data[unspecified]; # elements
+  gcv_object_t wkvt_cdr;          # active weak-kvts form a chained list
+  gcv_object_t data[unspecified]; # elements
 } weakkvt_t;
 typedef weakkvt_t* WeakKVT;
 # Both wkvt_cdr and data are invisible to gc_mark routines.
@@ -4749,10 +4757,10 @@ typedef weakkvt_t* WeakKVT;
 # Finalizer
 typedef struct {
   XRECORD_HEADER
-  object fin_alive;    # only if this object is alive
-  object fin_trigger;  # wait for the death of this object
-  object fin_function; # then this function is called
-  object fin_cdr;
+  gcv_object_t fin_alive;    # only if this object is alive
+  gcv_object_t fin_trigger;  # wait for the death of this object
+  gcv_object_t fin_function; # then this function is called
+  gcv_object_t fin_cdr;
 } * Finalizer;
 #define finalizer_length  ((sizeof(*(Finalizer)0)-offsetofa(record_,recdata))/sizeof(object))
 
@@ -4760,9 +4768,9 @@ typedef struct {
 # Socket-Server
 typedef struct {
   XRECORD_HEADER
-  object socket_handle; # socket handle
-  object host; # host string
-  object port; # port number
+  gcv_object_t socket_handle; # socket handle
+  gcv_object_t host; # host string
+  gcv_object_t port; # port number
 } * Socket_server;
 #define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(object))
 
@@ -4785,9 +4793,9 @@ typedef struct host_data_t {
 #   Win32 registry
 typedef struct {
   XRECORD_HEADER
-  object type;
-  object path;
-  object direction;
+  gcv_object_t type;
+  gcv_object_t path;
+  gcv_object_t direction;
   unsigned int closed_p;
   # LDAP:           LDAP*
   # win32 registry: HKEY
@@ -4804,9 +4812,9 @@ typedef struct {
 # Yet another record
 typedef struct {
   XRECORD_HEADER
-  object yetanother_x;
-  object yetanother_y;
-  object yetanother_z;
+  gcv_object_t yetanother_x;
+  gcv_object_t yetanother_y;
+  gcv_object_t yetanother_z;
 } * Yetanother;
 #define yetanother_length  ((sizeof(*(Yetanother)0)-offsetofa(record_,recdata))/sizeof(object))
 
@@ -4832,18 +4840,18 @@ typedef struct {
     uintB strmtype;  # Subtype
     uintB strmfiller2;
   #endif
-  object strm_rd_by;
-  object strm_rd_by_array;
-  object strm_wr_by;
-  object strm_wr_by_array;
-  object strm_rd_ch;
-  object strm_pk_ch;
-  object strm_rd_ch_array;
-  object strm_rd_ch_last;
-  object strm_wr_ch;
-  object strm_wr_ch_array;
-  object strm_wr_ch_lpos;
-  object strm_other[unspecified]; # type-specific components
+  gcv_object_t strm_rd_by;
+  gcv_object_t strm_rd_by_array;
+  gcv_object_t strm_wr_by;
+  gcv_object_t strm_wr_by_array;
+  gcv_object_t strm_rd_ch;
+  gcv_object_t strm_pk_ch;
+  gcv_object_t strm_rd_ch_array;
+  gcv_object_t strm_rd_ch_last;
+  gcv_object_t strm_wr_ch;
+  gcv_object_t strm_wr_ch_array;
+  gcv_object_t strm_wr_ch_lpos;
+  gcv_object_t strm_other[unspecified]; # type-specific components
 } *  Stream;
 # The macro TheStream actually means TheBuiltinStream.
 #define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object)-unspecified)
@@ -4983,72 +4991,72 @@ typedef Srecord  Structure;
 # CLOS-Classes (= instances of <class>), see clos.lisp
 typedef struct {
   SRECORD_HEADER
-  object structure_types_2;   # list (metaclass <class>)
-  object metaclass;           # a subclass of <class>
-  object classname;           # a symbol
-  object direct_superclasses; # direct superclasses
-  object all_superclasses;    # all superclasses, including itself
-  object precedence_list;     # ordered list of all superclasses
-  object slot_location_table; # hashtable slotname -> where the slot is located
+  gcv_object_t structure_types_2;   # list (metaclass <class>)
+  gcv_object_t metaclass;           # a subclass of <class>
+  gcv_object_t classname;           # a symbol
+  gcv_object_t direct_superclasses; # direct superclasses
+  gcv_object_t all_superclasses;    # all superclasses, including itself
+  gcv_object_t precedence_list;     # ordered list of all superclasses
+  gcv_object_t slot_location_table; # hashtable slotname -> where the slot is located
   # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
-  object slots;
-  object default_initargs;
-  object valid_initargs;
-  object instance_size;
+  gcv_object_t slots;
+  gcv_object_t default_initargs;
+  gcv_object_t valid_initargs;
+  gcv_object_t instance_size;
   # from here on only for metaclass = <standard-class>
-  object shared_slots;
-  object direct_slots;
-  object direct_default_initargs;
-  object other[unspecified];
+  gcv_object_t shared_slots;
+  gcv_object_t direct_slots;
+  gcv_object_t direct_default_initargs;
+  gcv_object_t other[unspecified];
 } *  Class;
 
 # CLOS-instances
 typedef struct {
   SRECORD_HEADER
-  object inst_class; # a CLOS-class
-  object other[unspecified];
+  gcv_object_t inst_class; # a CLOS-class
+  gcv_object_t other[unspecified];
 } *  Instance;
 
 # Closures
 typedef struct {
   SRECORD_HEADER
-  object clos_name;
-  object clos_codevec;
-  object other[unspecified];
+  gcv_object_t clos_name;
+  gcv_object_t clos_codevec;
+  gcv_object_t other[unspecified];
 } *  Closure;
 # interpreted Closure:
 typedef struct {
   SRECORD_HEADER
-  object clos_name;
-  object clos_form;
-  object clos_docstring;
-  object clos_body;
-  object clos_var_env;
-  object clos_fun_env;
-  object clos_block_env;
-  object clos_go_env;
-  object clos_decl_env;
-  object clos_vars;
-  object clos_varflags;
-  object clos_spec_anz;
-  object clos_req_anz;
-  object clos_opt_anz;
-  object clos_opt_inits;
-  object clos_key_anz;
-  object clos_keywords;
-  object clos_key_inits;
-  object clos_allow_flag;
-  object clos_rest_flag;
-  object clos_aux_anz;
-  object clos_aux_inits;
+  gcv_object_t clos_name;
+  gcv_object_t clos_form;
+  gcv_object_t clos_docstring;
+  gcv_object_t clos_body;
+  gcv_object_t clos_var_env;
+  gcv_object_t clos_fun_env;
+  gcv_object_t clos_block_env;
+  gcv_object_t clos_go_env;
+  gcv_object_t clos_decl_env;
+  gcv_object_t clos_vars;
+  gcv_object_t clos_varflags;
+  gcv_object_t clos_spec_anz;
+  gcv_object_t clos_req_anz;
+  gcv_object_t clos_opt_anz;
+  gcv_object_t clos_opt_inits;
+  gcv_object_t clos_key_anz;
+  gcv_object_t clos_keywords;
+  gcv_object_t clos_key_inits;
+  gcv_object_t clos_allow_flag;
+  gcv_object_t clos_rest_flag;
+  gcv_object_t clos_aux_anz;
+  gcv_object_t clos_aux_inits;
 } *  Iclosure;
 #define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(object))
 # compiled Closure:
 typedef struct {
   SRECORD_HEADER
-  object clos_name;
-  object clos_codevec;
-  object clos_consts[unspecified]; # Closure-constants
+  gcv_object_t clos_name;
+  gcv_object_t clos_codevec;
+  gcv_object_t clos_consts[unspecified]; # Closure-constants
 } *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
@@ -5131,8 +5139,8 @@ typedef struct {
 # SUBR table entry:
   typedef struct {
     lisp_function_t function; # function
-    object name;            # name
-    object keywords;        # NIL or vector with the keywords
+    gcv_object_t name;      # name
+    gcv_object_t keywords;  # NIL or vector with the keywords
     uintW argtype;          # short for the argument-type
     uintW req_anz;          # number of required parameters
     uintW opt_anz;          # number of optional parameters
@@ -5372,7 +5380,7 @@ typedef struct {
   #define TheCclosure(obj)  ((Cclosure)(type_pointable(closure_type,obj)))
   #define TheInstance(obj)  ((Instance)(type_pointable(instance_type,obj)))
   #define TheSubr(obj)  ((Subr)(type_pointable(subr_type,obj)))
-  #define TheFramepointer(obj)  ((object*)(type_pointable(system_type,obj)))
+  #define TheFramepointer(obj)  ((gcv_object_t*)(type_pointable(system_type,obj)))
   #define TheMachine(obj)  ((void*)(type_pointable(machine_type,obj)))
   #define TheMachineCode(obj)  TheMachine(obj)
   #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
@@ -5480,7 +5488,7 @@ typedef struct {
   #define TheCclosure(obj)  ((Cclosure)(as_oint(obj)-varobject_bias))
   #define TheInstance(obj)  ((Instance)(as_oint(obj)-varobject_bias))
   #define TheSubr(obj)  ((Subr)(as_oint(obj)-subr_bias))
-  #define TheFramepointer(obj)  ((object*)(as_oint(obj)-machine_bias))
+  #define TheFramepointer(obj)  ((gcv_object_t*)(as_oint(obj)-machine_bias))
   #define TheMachine(obj)  ((void*)(as_oint(obj)-machine_bias))
   #if (log2_C_CODE_ALIGNMENT >= 2)
     #define TheMachineCode(obj)  TheMachine(obj)
@@ -7176,20 +7184,20 @@ typedef SPint sp_jmp_buf[jmpbufsize];
 #if !defined(STACK_register)
   # a global variable
   #ifndef MULTITHREAD
-    extern object* STACK;
+    extern gcv_object_t* STACK;
   #else
     #define STACK  (current_thread()->_STACK)
   #endif
 #else
   # a global register variable
-  register object* STACK __asm__(STACK_register);
+  register gcv_object_t* STACK __asm__(STACK_register);
 #endif
 #if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && !defined(MULTITHREAD) && (SAFETY < 2)
   # a global register variable, but access functions externally in assembler
   #define STACK  _getSTACK()
-  extern_C object* _getSTACK (void);
+  extern_C gcv_object_t* _getSTACK (void);
   #define setSTACK(allocation)  /* hem, yuck! */ \
-    do { var object* tempSTACK; _setSTACK(temp##allocation); } while(0)
+    do { var gcv_object_t* tempSTACK; _setSTACK(temp##allocation); } while(0)
   extern_C void _setSTACK (void* new_STACK);
 #else
   #define setSTACK(allocation)  allocation
@@ -7258,12 +7266,12 @@ typedef SPint sp_jmp_buf[jmpbufsize];
 #define RESTORE_GLOBALS()  RESTORE_mv_count(); RESTORE_value1(); RESTORE_back_trace();
 #if defined(HAVE_SAVED_STACK)
   #ifndef MULTITHREAD
-    extern object* saved_STACK;
+    extern gcv_object_t* saved_STACK;
   #else
     #define saved_STACK  (current_thread()->_saved_STACK)
   #endif
   #define begin_call()  SAVE_GLOBALS(); saved_STACK = STACK
-  #define end_call()  RESTORE_GLOBALS(); saved_STACK = (object*)NULL
+  #define end_call()  RESTORE_GLOBALS(); saved_STACK = (gcv_object_t*)NULL
   #define begin_callback()  SAVE_REGISTERS( STACK = saved_STACK; ); end_call()
   #define end_callback()  SAVE_GLOBALS(); RESTORE_REGISTERS( saved_STACK = STACK; )
 #else
@@ -7490,9 +7498,9 @@ extern void nobject_out (FILE* out, object obj);
 # used for debugging purposes
 
 # After allocating memory for an object, add the type infos.
-#ifdef TYPECODES
+  #ifdef TYPECODES
   #define bias_type_pointer_object(bias,type,ptr) type_pointer_object(type,ptr)
-#else
+  #else
   #define bias_type_pointer_object(bias,type,ptr) as_object((oint)(ptr)+(bias))
 #endif
 # used by SPVW, macros SP_allocate_bit_vector, SP_allocate_string
@@ -7796,25 +7804,26 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 /* copy a section of memory */
 #define copy_mem_b(dest,orig,len) /* bytes */                   \
   do { var char* newptr = (char*)(dest);                        \
-       var char* oldptr = (char*)(orig);                        \
+       var const char* oldptr = (const char*)(orig);            \
        var uintL count;                                         \
        var uintL leng = (len);                                  \
        dotimespL(count,leng,{ *newptr++ = *oldptr++; });        \
   } while(0)
-#define copy_mem_o(dest,orig,len) /* objects */                 \
-  do { var object* newptr = (object*)(dest);                    \
-       var object* oldptr = (object*)(orig);                    \
-       var uintC count;                                         \
-       var uintC leng = (len);                                  \
-       dotimespC(count,leng,{ *newptr++ = *oldptr++; });        \
+#define copy_mem_o(dest,orig,len) /* objects */                  \
+  do { var gcv_object_t* newptr = (dest);                \
+       var const gcv_object_t* oldptr = (orig);          \
+       var uintC count;                                  \
+       var uintC leng = (len);                           \
+       dotimespC(count,leng,{ *newptr++ = *oldptr++; }); \
   } while(0)
-/* the libc alternative turns out to be ~3-5% slower
-#define copy_mem_o(dest,orig,len)                                       \
-    do { begin_system_call(); memcpy(dest,orig,(len)*sizeof(object));   \
-    end_system_call(); } while(0)
+#if 0 /* the libc alternative turns out to be ~3-5% slower */
 #define copy_mem_b(dest,orig,len)                       \
     do { begin_system_call(); memcpy(dest,orig,len);    \
-    end_system_call(); } while(0) */
+         end_system_call(); } while(0)
+#define copy_mem_o(dest,orig,len)                                       \
+    do { begin_system_call(); memcpy(dest,orig,(len)*sizeof(object));   \
+         end_system_call(); } while(0)
+#endif
 
 # Copying a compiled closure:
 # newclos = allocate_cclosure_copy(oldclos);
@@ -8175,7 +8184,7 @@ extern object get_circularities (object obj, bool pr_array, bool pr_closure);
 # > alist : Alist (Read-Label --> Object, to be substituted)
 # < *ptr : Object with unentangled References
 # < result : erroneous Reference or nullobj if everything is OK
-extern object subst_circ (object* ptr, object alist);
+extern object subst_circ (gcv_object_t* ptr, object alist);
 # is used by IO
 
 # UP: Runs through the whole memory, and calls for each
@@ -8359,7 +8368,7 @@ extern const struct fsubr_tab_ fsubr_tab;
 # of the type subr_norest_function_t (no arguments, no value)
 # resp. subr_rest_function_t (two arguments, no value):
 typedef Values subr_norest_function_t (void);
-typedef Values subr_rest_function_t (uintC argcount, object* rest_args_pointer);
+typedef Values subr_rest_function_t (uintC argcount, gcv_object_t* rest_args_pointer);
 
 # As LISP-Subr:    L(name)
 
@@ -8383,8 +8392,8 @@ extern struct subr_tab_ {
   #ifdef TYPECODES
     #define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(subr_type,subr_addr))
   #else
-    #define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+subr_bias)
-  #endif
+      #define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+subr_bias)
+    #endif
   #define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)
 #else
   # define subr_tab_addr  ((struct subr_tab_ *)type_constpointer_object(subr_type,0))
@@ -8516,7 +8525,7 @@ typedef struct {
 typedef struct module_t {
   const char* name; # Name
   subr_t* stab; const uintC* stab_size; # a separate subr_tab
-  object* otab; const uintC* otab_size; # a separate object_tab
+  gcv_object_t* otab; const uintC* otab_size; # a separate object_tab
   bool initialized;
   # Data for Initialization:
   const subr_initdata_t* stab_initdata;
@@ -9022,10 +9031,10 @@ re-enters the corresponding top-level loop.
 # popSTACK()  returns STACK_0 and removes it from the stack.
 # skipSTACK(n);  removes n objects from the STACK.
 # If you want to save the value of the stack, you do this:
-#   var object* temp = STACK; ... (no access through temp !) ... setSTACK(STACK = temp);
+#   var gcv_object_t* temp = STACK; ... (no access through temp !) ... setSTACK(STACK = temp);
 #   but: access through STACKpointable(temp)  is possible.
 # If you want a pointer that can traverse through the Stack, you do this:
-#   var object* ptr = &STACK_0;  or = STACKpointable(STACK);
+#   var gcv_object_t* ptr = &STACK_0;  or = STACKpointable(STACK);
 #   assert( *(ptr STACKop 0) == STACK_0 );
 #   assert( *(ptr STACKop 1) == STACK_1 );
 #   ...
@@ -9039,7 +9048,7 @@ re-enters the corresponding top-level loop.
 
 #ifdef STACK_DOWN
   #define STACK_(n)  (STACK[(sintP)(n)])
-  #define STACKpointable(STACKvar)  ((object*)(STACKvar))
+  #define STACKpointable(STACKvar)  ((gcv_object_t*)(STACKvar))
   #define skipSTACKop  +=
   #define STACKop      +
   #define cmpSTACKop   <
@@ -9048,7 +9057,7 @@ re-enters the corresponding top-level loop.
 #endif
 #ifdef STACK_UP
   #define STACK_(n)  (STACK[-1-(sintP)(n)])
-  #define STACKpointable(STACKvar)  ((object*)(STACKvar)-1)
+  #define STACKpointable(STACKvar)  ((gcv_object_t*)(STACKvar)-1)
   #define skipSTACKop  -=
   #define STACKop      -
   #define cmpSTACKop   >
@@ -9321,7 +9330,7 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 struct backtrace_t {
   struct backtrace_t* next;
   object caller;
-  object *stack;
+  gcv_object_t *stack;
   int num_arg;
 };
 #define bt_beyond_stack_p(bt,st) (bt&&((aint)(bt->stack) cmpSTACKop (aint)st))
@@ -9352,13 +9361,13 @@ struct backtrace_t {
 #   STACK_0 = last argument, STACK_1 = second to last argument etc.
 #   Clean STACK: with skipSTACK(number of arguments) .
 # A SUBR with arbitrarily many arguments (&REST-Parameter) gets passed:
-#     uintC argcount              the number of the remaining arguments
-#     object* rest_args_pointer   Pointer above the remaining arguments
+#     uintC argcount                    the number of the remaining arguments
+#     gcv_object_t* rest_args_pointer   Pointer above the remaining arguments
 #   Additionally:
-#     object* args_end_pointer    Pointer below all arguments, depends on the STACK
+#     gcv_object_t* args_end_pointer    Pointer below all arguments, depends on the STACK
 #   Additionally possible:
-#     object* args_pointer = rest_args_pointer STACKop (fixed number of arguments);
-#                                 Pointer above the first argument
+#     gcv_object_t* args_pointer = rest_args_pointer STACKop (fixed number of arguments);
+#                                       Pointer above the first argument
 #   Typical Loop-Processing:
 #     from the front:
 #       until (argcount==0) {
@@ -9721,12 +9730,12 @@ typedef struct {
 #ifdef TYPECODES
   #if !defined(SINGLEMAP_MEMORY_STACK)
     #define make_framepointer(stack_ptr)  type_pointer_object(system_type,stack_ptr)
-    #define topofframe(bottomword)  (object*)upointer(bottomword)
-    #define uTheFramepointer(obj)  (object*)upointer(obj)
+    #define topofframe(bottomword)  (gcv_object_t*)upointer(bottomword)
+    #define uTheFramepointer(obj)  (gcv_object_t*)upointer(obj)
   #else
     #define make_framepointer(stack_ptr)  (as_object((oint)(stack_ptr)))
-    #define topofframe(bottomword)  (object*)as_oint(type_pointer_object(system_type,upointer(bottomword)))
-    #define uTheFramepointer(obj)  TheFramepointer(obj) # = (object*)(obj)
+    #define topofframe(bottomword)  (gcv_object_t*)as_oint(type_pointer_object(system_type,upointer(bottomword)))
+    #define uTheFramepointer(obj)  TheFramepointer(obj) # = (gcv_object_t*)(obj)
   #endif
   #define framecode(bottomword)  mtypecode(bottomword)
   typedef tint fcint;
@@ -9736,13 +9745,13 @@ typedef struct {
   #define make_framepointer(stack_ptr)  make_machine(stack_ptr)
   #ifdef STACK_UP
     #define topofframe(bottomword)  \
-      (object*)((uintP)(&(bottomword))-(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(object))
+      (gcv_object_t*)((uintP)(&(bottomword))-(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(object))
   #endif
   #ifdef STACK_DOWN
     #define topofframe(bottomword)  \
-      (object*)((uintP)(&(bottomword))+(as_oint(bottomword)&(wbit(FB1)-1)))
+      (gcv_object_t*)((uintP)(&(bottomword))+(as_oint(bottomword)&(wbit(FB1)-1)))
   #endif
-  #define uTheFramepointer(obj)  TheFramepointer(obj) # = (object*)(obj)
+  #define uTheFramepointer(obj)  TheFramepointer(obj) # = (gcv_object_t*)(obj)
   #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))
   typedef oint fcint;
 #endif
@@ -9764,7 +9773,7 @@ typedef struct {
 
 # Finishes a frame.
 # finish_frame(frametype);
-# > object* top_of_frame: pointer to the top of the frame
+# > gcv_object_t* top_of_frame: pointer to the top of the frame
 # decreases STACK by 1
 #ifdef TYPECODES
   #if !defined(SINGLEMAP_MEMORY_STACK)
@@ -9794,7 +9803,7 @@ typedef struct {
 # make_ENV5_frame();
 # decreases STACK by 5
 #define make_ENV5_frame()                       \
-  do { var object* top_of_frame = STACK;        \
+  do { var gcv_object_t* top_of_frame = STACK;  \
        pushSTACK(aktenv.decl_env);              \
        pushSTACK(aktenv.go_env);                \
        pushSTACK(aktenv.block_env);             \
@@ -9806,7 +9815,7 @@ typedef struct {
 
 # Finishes a Frame with entry point and places jump-point here.
 # finish_entry_frame(frametype,returner,retval_allocation,reentry_statement);
-# > object* top_of_frame: pointer to the top of the frame
+# > gcv_object_t* top_of_frame: pointer to the top of the frame
 # > sp_jmp_buf* returner: longjmp-Buffer for re-entry
 # > retval_allocation: allocated of the setjmp()-value to a variable
 # > reentry_statement: what is to be done immediately after re-entry.
@@ -9843,19 +9852,19 @@ typedef struct {
 # make_HANDLER_frame(types_labels_vector_list,handler,sp_arg);
 # make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement);
 # > object types_labels_vector_list: a list containing a simple-vector: (#(type1 label1 ... typem labelm))
-# > handler: void (*) (void* sp, object* frame, object label, object condition)
+# > handler: void (*) (void* sp, gcv_object_t* frame, object label, object condition)
 # > sp_arg: any void*
 # > sp_jmp_buf* returner: longjmp-Buffer for re-entry
 # > reentry_statement: what is to be done right after the re-entry.
 #define make_HANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
-  do { var object* top_of_frame = STACK;      \
-       pushSTACK(types_labels_vector_list);   \
-       pushSTACK(make_machine_code(handler)); \
+  do { var gcv_object_t* top_of_frame = STACK;     \
+       pushSTACK(types_labels_vector_list);        \
+       pushSTACK(make_machine_code(handler));      \
        pushSTACK(as_object((aint)(sp_arg)));  \
-       finish_frame(HANDLER);                 \
+       finish_frame(HANDLER);                      \
   } while(0)
 #define make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
-  do { var object* top_of_frame = STACK;                        \
+  do { var gcv_object_t* top_of_frame = STACK;                  \
        pushSTACK(types_labels_vector_list);                     \
        pushSTACK(make_machine_code(handler));                   \
        finish_entry_frame(HANDLER,returner,,reentry_statement); \
@@ -9938,10 +9947,10 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
 #   and then jumps to unwind_protect_to_save.fun.
 # modifies STACK
 # can trigger GC
-typedef /* nonreturning */ void (*restartf_t)(object* upto_frame);
+typedef /* nonreturning */ void (*restartf_t)(gcv_object_t* upto_frame);
 typedef struct {
   restartf_t fun;
-  object* upto_frame;
+  gcv_object_t* upto_frame;
 } unwind_protect_caller_t;
 #ifndef MULTITHREAD
   extern unwind_protect_caller_t unwind_protect_to_save;
@@ -9974,7 +9983,7 @@ extern void progv (object symlist, object vallist);
 # modifies STACK,SP
 # can trigger GC
 # Jumps to the found Frame.
-nonreturning_function(extern, unwind_upto, (object* upto_frame));
+nonreturning_function(extern, unwind_upto, (gcv_object_t* upto_frame));
 # is used by CONTROL, DEBUG
 
 # UP: throws to the Tag tag and passes the values mv_count/mv_space.
@@ -9990,7 +9999,7 @@ extern void throw_to (object tag);
 extern void invoke_handlers (object cond);
 typedef struct {
   object condition;
-  object* stack;
+  gcv_object_t* stack;
   SPint* sp;
   object spdepth;
 } handler_args_t;
@@ -10001,8 +10010,8 @@ typedef struct {
 #endif
 typedef struct stack_range_t {
   struct stack_range_t * next;
-  object* low_limit;
-  object* high_limit;
+  gcv_object_t* low_limit;
+  gcv_object_t* high_limit;
 } stack_range_t;
 #ifndef MULTITHREAD
   extern stack_range_t* inactive_handlers;
@@ -10157,15 +10166,15 @@ extern object coerce_function (object obj);
 # > val: the new value
 # decreases STACK by 3 entries
 # modifies STACK
-#define dynamic_bind(variable,val_to_use)     \
-  do { var object* top_of_frame = STACK;      \
-    var object sym_to_bind = (variable);      \
-    # Create frame :                          \
-    pushSTACK(Symbol_value(sym_to_bind));     \
-    pushSTACK(sym_to_bind);                   \
-    finish_frame(DYNBIND);                    \
-    # modify value                            \
-    Symbol_value(sym_to_bind) = (val_to_use); \
+#define dynamic_bind(variable,val_to_use)      \
+  do { var gcv_object_t* top_of_frame = STACK; \
+    var object sym_to_bind = (variable);       \
+    # Create frame :                           \
+    pushSTACK(Symbol_value(sym_to_bind));      \
+    pushSTACK(sym_to_bind);                    \
+    finish_frame(DYNBIND);                     \
+    # modify value                             \
+    Symbol_value(sym_to_bind) = (val_to_use);  \
   } while(0)
 # is used by IO, EVAL, DEBUG, ERROR
 
@@ -11276,7 +11285,7 @@ extern object shifthash (object ht, object obj, object value);
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
         index_from_map_hashtable -= 2;                                  \
-      {var object* KVptr_from_map_hashtable =                           \
+      {var gcv_object_t* KVptr_from_map_hashtable =                     \
          kvtable_data(STACK_0)+index_from_map_hashtable;                \
           var object key = KVptr_from_map_hashtable[0];                 \
        if (boundp(key)) {                                               \
@@ -11289,7 +11298,7 @@ extern object shifthash (object ht, object obj, object value);
   do { var object ht_from_map_hashtable = (ht);                         \
     var uintL index_from_map_hashtable =                                \
       posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
-    var object* KVptr_from_map_hashtable =                              \
+    var gcv_object_t* KVptr_from_map_hashtable =                        \
       ht_kvt_data(ht_from_map_hashtable) + 2*index_from_map_hashtable;  \
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
@@ -11327,7 +11336,7 @@ extern void init_reader (void);
 #    (list* (make-Semi-Simple-String 50)
 #           (cons nl_type *PRIN-INDENTATION*)
 #           (strm-pphelp-strings *stream_)))
-extern object cons_ssstring (const object* stream_, object nl_type);
+extern object cons_ssstring (const gcv_object_t* stream_, object nl_type);
 # used by io.d and stream.d
 
 # UP: Reads an object.
@@ -11339,7 +11348,7 @@ extern object cons_ssstring (const object* stream_, object nl_type);
 # < stream: Stream
 # < result: read object (eof_value at EOF, dot_value for single dot)
 # can trigger GC
-extern object stream_read (const object* stream_, object recursive_p, object whitespace_p);
+extern object stream_read (const gcv_object_t* stream_, object recursive_p, object whitespace_p);
 # is used by SPVW, DEBUG
 
 # UP: Write a Simple-String to a Stream element by element.
@@ -11348,7 +11357,7 @@ extern object stream_read (const object* stream_, object recursive_p, object whi
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void write_sstring (const object* stream_, object string);
+extern void write_sstring (const gcv_object_t* stream_, object string);
 # is used by EVAL, DEBUG, ERROR, PACKAGE, SPVW
 
 # UP: Writes a String to a Stream element by element.
@@ -11357,7 +11366,7 @@ extern void write_sstring (const object* stream_, object string);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void write_string (const object* stream_, object string);
+extern void write_string (const gcv_object_t* stream_, object string);
 # is used by PACKAGE, DEBUG
 
 # UP: Writes an object to a Stream.
@@ -11366,7 +11375,7 @@ extern void write_string (const object* stream_, object string);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void prin1 (const object* stream_, object obj);
+extern void prin1 (const gcv_object_t* stream_, object obj);
 # is used by EVAL, DEBUG, PACKAGE, ERROR, SPVW
 
 # UP: Writes a Newline to a Stream.
@@ -11374,7 +11383,7 @@ extern void prin1 (const object* stream_, object obj);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-# extern void terpri (const object* stream_);
+# extern void terpri (const gcv_object_t* stream_);
 #define terpri(stream_)  write_ascii_char(stream_,NL)
 # is used by IO, DEBUG, PACKAGE, ERROR, SPVW
 
@@ -11832,7 +11841,7 @@ extern object intern_keyword (object string);
 # < sym: Symbol, EQ with the old
 # < pack: Package, EQ with the old
 # can trigger GC
-extern void import (const object* sym_, const object* pack_);
+extern void import (const gcv_object_t* sym_, const gcv_object_t* pack_);
 # is used by SPVW
 
 # UP: Exports a symbol from a package
@@ -11842,7 +11851,7 @@ extern void import (const object* sym_, const object* pack_);
 # < sym: Symbol, EQ with the old
 # < pack: Package, EQ with the old
 # can trigger GC
-extern void export (const object* sym_, const object* pack_);
+extern void export (const gcv_object_t* sym_, const gcv_object_t* pack_);
 # is used by SPVW
 
 # UP: gets the current package
@@ -12042,7 +12051,7 @@ extern void write_byte(object stream, object byte);
 # < stream: Stream
 # < result: read character (eof_value at EOF)
 # can trigger GC
-extern object read_char (const object* stream_);
+extern object read_char (const gcv_object_t* stream_);
 # is used by IO, DEBUG, SEQUENCE
 
 # Pushes the last read character back onto a stream.
@@ -12050,7 +12059,7 @@ extern object read_char (const object* stream_);
 # > ch: last read character
 # > stream: Stream
 # < stream: Stream
-extern void unread_char (const object* stream_, object ch);
+extern void unread_char (const gcv_object_t* stream_, object ch);
 # is used by IO, DEBUG
 
 # Reads a character from a stream without using it.
@@ -12059,7 +12068,7 @@ extern void unread_char (const object* stream_, object ch);
 # < stream: Stream
 # < result: read character (eof_value at EOF)
 # can trigger GC
-extern object peek_char (const object* stream_);
+extern object peek_char (const gcv_object_t* stream_);
 # is used by IO
 
 # Reads a line of characters from a stream.
@@ -12070,7 +12079,7 @@ extern object peek_char (const object* stream_);
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true is EOF was seen before newline, else false
 # can trigger GC
-extern bool read_line (const object* stream_, const object* buffer_);
+extern bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_);
 # used by IO
 
 # Write a character onto a stream.
@@ -12079,7 +12088,7 @@ extern bool read_line (const object* stream_, const object* buffer_);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void write_char (const object* stream_, object ch);
+extern void write_char (const gcv_object_t* stream_, object ch);
 # is used by LISPARIT, IO, ERROR, SEQUENCE
 
 # Writes a character onto a stream.
@@ -12088,7 +12097,7 @@ extern void write_char (const object* stream_, object ch);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-# extern void write_code_char (const object* stream_, chart ch);
+# extern void write_code_char (const gcv_object_t* stream_, chart ch);
 #define write_code_char(stream_,ch)  write_char(stream_,code_char(ch))
 # is used by LISPARIT, IO
 
@@ -12098,7 +12107,7 @@ extern void write_char (const object* stream_, object ch);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-# extern void write_ascii_char (const object* stream_, uintB ch);
+# extern void write_ascii_char (const gcv_object_t* stream_, uintB ch);
 #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
 # is used by LISPARIT, IO, DEBUG, Macro TERPRI
 
@@ -12124,7 +12133,7 @@ extern bool interactive_stream_p (object stream);
 # > stream: Builtin-Stream
 # < stream: Builtin-Stream
 # can trigger GC
-extern void builtin_stream_close (const object* stream_);
+extern void builtin_stream_close (const gcv_object_t* stream_);
 # is used by PATHNAME, SPVW, DEBUG, MISC
 
 # UP: Closes a list of open files.
@@ -12216,7 +12225,7 @@ extern object get_line_position (object stream);
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
 # can trigger GC
-extern uintL read_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
+extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);
 # is used by SEQUENCE
 
 # Function: Writes several bytes to a stream.
@@ -12225,7 +12234,7 @@ extern uintL read_byte_array (const object* stream_, const object* bytearray_, u
 # > object bytearray: simple-bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-extern void write_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
+extern void write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len);
 # is used by SEQUENCE
 
 # Function: Reads several characters from a stream.
@@ -12236,7 +12245,7 @@ extern void write_byte_array (const object* stream_, const object* bytearray_, u
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
 # can trigger GC
-extern uintL read_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
+extern uintL read_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
 # is used by SEQUENCE
 
 # Function: Writes several characters to a stream.
@@ -12245,7 +12254,7 @@ extern uintL read_char_array (const object* stream_, const object* chararray_, u
 # > object chararray: simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
-extern void write_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
+extern void write_char_array (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
 # is used by SEQUENCE
 
 # UP: Gives the stream that is the value of a variable
@@ -12309,7 +12318,7 @@ extern object make_string_output_stream (void);
 # < stream: emptied Stream
 # < result: the aggregation, a Simple-String
 # can trigger GC
-extern object get_output_stream_string (const object* stream_);
+extern object get_output_stream_string (const gcv_object_t* stream_);
 # is used by IO, EVAL, DEBUG, ERROR
 
 # UP: Makes a pretty-printer help stream
@@ -12674,7 +12683,7 @@ extern object read_float (uintWL base, signean sign, object string, uintL index1
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void print_integer (object z, uintWL base, const object* stream_);
+extern void print_integer (object z, uintWL base, const gcv_object_t* stream_);
 # is used by IO
 
 # UP: prints a float
@@ -12683,7 +12692,7 @@ extern void print_integer (object z, uintWL base, const object* stream_);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-extern void print_float (object z, const object* stream_);
+extern void print_float (object z, const gcv_object_t* stream_);
 # is used by IO
 
 # UP: Multiply an Integer by 10 and add another digit
@@ -12829,7 +12838,7 @@ extern object decimal_string (object x);
   typedef struct {
     # Most often used:
       #if !defined(STACK_register)
-        object* _STACK;
+        gcv_object_t* _STACK;
       #endif
       #if !defined(mv_count_register)
         uintC _mv_count;
@@ -12853,7 +12862,7 @@ extern object decimal_string (object x);
         object _temp_value1;
       #endif
       #ifdef HAVE_SAVED_STACK
-        object* _saved_STACK;
+        gcv_object_t* _saved_STACK;
       #endif
       #ifdef HAVE_SAVED_mv_count
         uintC _saved_mv_count;
