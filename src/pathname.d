@@ -5716,10 +5716,12 @@ LISPFUNN(pathname_match_p,2)
       {
         #if HAS_HOST
         TRAN_HOST(subst,muster);
-        if (eq(Car(*subst),S(Khost)))
-          *subst = Cdr(*subst);
         #endif
       }
+      #if HAS_HOST
+      if (eq(Car(*subst),S(Khost)))
+        *subst = Cdr(*subst);
+      #endif
       return muster;
 #undef TRAN_HOST
     }
