@@ -94,6 +94,10 @@
 <!ENTITY htons "<ulink url='&unix-f;/htons.html'><function>htons</function></ulink>">
 <!ENTITY ntohl "<ulink url='&unix-f;/ntohl.html'><function>ntohl</function></ulink>">
 <!ENTITY ntohs "<ulink url='&unix-f;/ntohs.html'><function>ntohs</function></ulink>">
+<!ENTITY inet_addr "<ulink url='&unix-f;/inet_addr.html'><function>inet_addr</function></ulink>">
+<!ENTITY inet_ntoa "<ulink url='&unix-f;/inet_ntoa.html'><function>inet_ntoa</function></ulink>">
+<!ENTITY inet_ntop "<ulink url='&unix-f;/inet_ntop.html'><function>inet_ntop</function></ulink>">
+<!ENTITY inet_pton "<ulink url='&unix-f;/inet_pton.html'><function>inet_pton</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">
