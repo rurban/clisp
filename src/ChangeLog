@@ -1,5 +1,11 @@
 2004-05-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (SET-FILE-STAT, CONVERT-MODE, UMASK, MKNOD):
+	implemented
+	* modules/syscalls/posix.lisp: exported them
+
+2004-05-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/pcre/cpcre.c (PCRE-FREE): set fp_pointer to NULL
 	* modules/regexp/regexi.c (REGEXP-FREE): ditto
 

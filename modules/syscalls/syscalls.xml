@@ -84,6 +84,13 @@
     &win32;) is returned.
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
+ <varlistentry id="set-file-stat"><term><literal
+   role="sexp">(<function>POSIX:SET-FILE-STAT</function> &path-r;
+    &key-amp; &mode-r; <replaceable>uid</replaceable>
+    <replaceable>gid</replaceable>)</literal></term>
+  <listitem><simpara>Set some file attributes using &chmod; and &chown;.
+   </simpara><simpara>[&unix; systems only at this time, patches ar welcome.]
+ </simpara></listitem></varlistentry>
  <varlistentry id="stat-vfs"><term><literal
       role="sexp">(<function>POSIX:STAT-VFS</function>
     &path-r;)</literal></term>
@@ -213,7 +220,23 @@
    an <emphasis>exclusive</emphasis> (i.e., <emphasis>write</emphasis>,
    or non-<replaceable>shared</replaceable>) lock.
  </simpara></listitem></varlistentry>
- <varlistentry><term>
+ <varlistentry id="mknod"><term><literal
+   role="sexp">(<function>POSIX:MKNOD</function> &path-r; &type-r;
+    &mode-r;)</literal></term>
+ <listitem><simpara>Create a special file using &mknod;.
+   Use <literal>:FIFO</literal> to create pipes
+   and <literal>:SOCK</literal> to create sockets.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="convert-modes"><term><literal role="sexp"
+   >(<function>POSIX:CONVERT-MODE</function> &mode-r;)</literal></term>
+ <listitem><simpara>Convert between numeric, (e.g., <literal>0644</literal>)
+   and symbolic (e.g., <literal role="sexp">(:RUSR :WUSR :RGRP :ROTH)</literal>)
+   file modes.</simpara></listitem></varlistentry>
+ <varlistentry id="umask"><term><literal role="sexp"
+    >(<function>UMASK</function> &mode-r;)</literal></term>
+ <listitem><simpara>Change process mask using &umask;.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="copy-file"><term>
    <literal role="sexp">(<function>POSIX:COPY-FILE</function>
     <replaceable>source-path</replaceable>
     <replaceable>destination-path</replaceable>
@@ -227,7 +250,7 @@
    </simpara><simpara>Both <replaceable>source-path</replaceable> and
     <replaceable>destination-path</replaceable> may be wild.
  </simpara></listitem></varlistentry>
- <varlistentry><term>
+ <varlistentry id="dup-handle"><term>
    <literal role="sexp">(<function>POSIX:DUPLICATE-HANDLE</function>
     <replaceable>fd1</replaceable>
     &optional-amp; <replaceable>fd2</replaceable>)</literal></term>
