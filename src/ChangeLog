@@ -1,3 +1,17 @@
+2003-03-11  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (fehler_foreign_object, foreign_address)
+	(foreign_pointer): new functions
+	(VALIDP): use foreign_pointer()
+	(FOREIGN-ADDRESS): new function (suggested by Joerg)
+	(FOREIGN-FREE): use fehler_foreign_object()
+	* foreign1.lisp (foreign-value, foreign-address)
+	(foreign-address-unsigned, unsigned-foreign-address): export
+	* subr.d (foreign_address): added
+	(validp, unsigned_foreign_address, foreign_address_unsigned):
+	seclass_read
+	* describe.lisp (describe-object): DEPARSE-C-TYPE is in FFI
+
 2003-03-10  Joerg Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
