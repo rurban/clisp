@@ -39,7 +39,7 @@ local void xmprotect (aint addr, uintL len, int prot);
 
 # Applies mprotect to all (multi-)mappings of an address range.
 # Aborts if unsuccessful.
-local void xmmprotect (aint addr, uintL len, int prot);
+local void xmmprotect (Heap* heap, aint addr, uintL len, int prot);
 
 #endif
 
