@@ -1,3 +1,9 @@
+2003-04-01  Sam Steingold  <sds@gnu.org>
+
+	Export struct slot accessors
+	* linux.lisp (exporting-slots): new local macro, used for def-c-struct
+	Suggested by Pascal Bourguignon <pjb@informatimago.com>
+
 2003-03-31  Bruno Haible  <bruno@clisp.org>
 
 	* runprog.lisp (shell-quote) [UNIX]: Handle empty argument correctly.
