@@ -1,3 +1,7 @@
+2002-09-11  Stefan Kain  <stefan.kain@freenet.de>
+
+	* error.d, socket.d: translated all comments
+
 2002-09-11  Sam Steingold  <sds@gnu.org>
 
 	improved accuracy of some transcendental functions
