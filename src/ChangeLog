@@ -1,5 +1,9 @@
 2005-02-04  Bruno Haible  <bruno@clisp.org>
 
+	* built.d (built_flags): Append libsigsegv version if known.
+
+2005-02-04  Bruno Haible  <bruno@clisp.org>
+
 	* init.lisp: Export clos:standard-accessor-method.
 	* clos-package.lisp: Likewise.
 	Reported by Pascal Costanza <pc@p-cos.net>.
