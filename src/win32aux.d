@@ -747,7 +747,7 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
 
 # Create a new process, given a command line and two handles for standard
 # input and standard output (both must be inheritable).
-  global BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, LPPROCESS_INFORMATION ProcessInformation);
+  global BOOL MyCreateProcess (LPCTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, LPPROCESS_INFORMATION ProcessInformation);
   global BOOL MyCreateProcess(CommandLine,StdInput,StdOutput,ProcessInformation)
     var LPTSTR CommandLine;
     var HANDLE StdInput;

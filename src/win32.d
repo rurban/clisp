@@ -347,7 +347,7 @@
   # extern BOOL CreatePipe (PHANDLE ReadPipe, PHANDLE WritePipe, LPSECURITY_ATTRIBUTES PipeAttributes, DWORD Size);
   # extern BOOL DuplicateHandle (HANDLE SourceProcessHandle, HANDLE SourceHandle, HANDLE TargetProcessHandle, LPHANDLE TargetHandle, DWORD DesiredAccess, BOOL InheritHandle, DWORD Options);
 # used by win32aux.d, pathname.d, stream.d
-  extern BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, LPPROCESS_INFORMATION ProcessInformation);
+  extern BOOL MyCreateProcess (LPCTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, LPPROCESS_INFORMATION ProcessInformation);
 # used by pathname.d, stream.d
 
 # Getting "random" numbers

@@ -1,3 +1,13 @@
+2002-10-16  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	Fix build for MSVC.
+	* win32.d (MyCreateProcess): declare 1st parameter as const
+	* win32aux.d (MyCreateProcess): same.
+	* stream.d (sock_opt_bool, sock_opt_int, sock_opt_time,
+	SOCKET-OPTIONS): change length parameter of [g|s]etsockopt
+	to type int (uint is absent). Cast option to (char *) - as
+	declared in winsock (won't hurt (void *) unix declaration).
+
 2002-10-15  Sam Steingold  <sds@gnu.org>
 
 	* complete.lisp (completion): print help when nothing useful was
