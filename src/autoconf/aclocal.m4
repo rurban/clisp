@@ -243,7 +243,8 @@ AC_SUBST(CC_NEED_MERGESTRINGS)dnl
 ])dnl
 dnl
 AC_DEFUN(CL_AS_UNDERSCORE,
-[AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
+[AC_BEFORE([$0], [CL_GLOBAL_CONSTRUCTORS])
+AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
 cat > conftest.c <<EOF
 int foo() { return 0; }
 EOF
@@ -4304,7 +4305,8 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_GLOBAL_CONSTRUCTORS,
-[if test -n "$GCC"; then
+[AC_REQUIRE([CL_AS_UNDERSCORE])dnl
+if test -n "$GCC"; then
 AC_CACHE_CHECK(for the global constructors function prefix,
 cl_cv_cplusplus_ctorprefix, [
 cat > conftest.cc << EOF
@@ -4333,6 +4335,36 @@ if test "$cl_cv_cplusplus_ctorprefix" '!=' unknown; then
   AC_DEFINE_UNQUOTED(CL_GLOBAL_CONSTRUCTOR_PREFIX,$ac_value)
   ac_value=`echo "$ac_value" | sed -e 's,I,D,'`
   AC_DEFINE_UNQUOTED(CL_GLOBAL_DESTRUCTOR_PREFIX,$ac_value)
+dnl Check whether the global constructors/destructors functions are file-scope
+dnl only by default. This is the case in egcs-1.1.2 or newer.
+AC_CACHE_CHECK(whether the global constructors function need to be exported,
+cl_cv_cplusplus_ctorexport, [
+cat > conftest1.cc << EOF
+struct foo { foo (); };
+foo foobar;
+EOF
+cat > conftest2.cc << EOF
+#include "confdefs.h"
+#ifdef ASM_UNDERSCORE
+#define ASM_UNDERSCORE_PREFIX "_"
+#else
+#define ASM_UNDERSCORE_PREFIX ""
+#endif
+struct foo { foo (); };
+foo::foo () {}
+extern "C" void ctor (void) __asm__ (ASM_UNDERSCORE_PREFIX CL_GLOBAL_CONSTRUCTOR_PREFIX "foobar");
+int main() { ctor(); return 0; }
+EOF
+if AC_TRY_COMMAND(${CXX-g++} -o conftest${ac_exeext} $CXXFLAGS $CPPFLAGS $LDFLAGS conftest1.cc conftest2.cc $LIBS 1>&5) >/dev/null 2>&1 && test -s conftest${ac_exeext}; then
+  cl_cv_cplusplus_ctorexport=no
+else
+  cl_cv_cplusplus_ctorexport=yes
+fi
+rm -f conftest*
+])
+if test "$cl_cv_cplusplus_ctorexport" = yes; then
+  AC_DEFINE(CL_NEED_GLOBALIZE_CTORDTOR)
+fi
 fi
 fi
 ])dnl
