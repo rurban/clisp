@@ -10568,20 +10568,20 @@ typedef struct {
       });
 # wird verwendet von
 
-# UP: verfolgt einen String.
+# UP: unpack a string
 # unpack_string_rw(string,&len)  [for read-write access]
-# > object string: ein String.
-# < uintL len: Anzahl der Zeichen des Strings.
-# < chart* ergebnis: Anfangsadresse der Characters
+# > object string: a string
+# < uintL len: the fill-pointer length of the string
+# < chart* result: the beginning of the characters
   extern chart* unpack_string_rw (object string, uintL* len);
 # wird verwendet von AFFI
 
-# UP: verfolgt einen String.
+# UP: unpack a string
 # unpack_string_ro(string,&len,&offset)  [for read-only access]
-# > object string: ein String.
-# < uintL len: Anzahl der Zeichen des Strings.
-# < uintL offset: Offset in den Datenvektor.
-# < object ergebnis: Datenvektor
+# > object string: a string
+# < uintL len: the fill-pointer length of the string
+# < uintL offset: offset into the datastorage vector
+# < object result: datastorage vector
   extern object unpack_string_ro (object string, uintL* len, uintL* offset);
 # wird verwendet von STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING
 

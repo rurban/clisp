@@ -64,17 +64,17 @@ local object copy_perchar_table (object table) {
 #define copy_perchar_table(table)  copy_svector(table)
 #endif
 
-# Construction of Readtables (cf. LISPBIBL.D):
+# Structure of Readtables (cf. LISPBIBL.D):
   # readtable_syntax_table
   #    bitvector consisting of char_code_limit bytes: for each character the
   #                                                   syntaxcode is assigned
   # readtable_macro_table
   #    a vector with char_code_limit elements: for each character
-  #    either  (if the character is no read-macro)
+  #    either    (if the character is not a read-macro)
   #              NIL
   #    or        (if the character is a dispatch-macro)
   #              a vector with char_code_limit functions/NILs,
-  #    or        (if the character is a miscellaneous read-macro)
+  #    or        (if the character is a read-macro defined by a function)
   #              the function, which is called, when the character is read.
   # readtable_case
   #    a fixnum in {0,1,2,3}
@@ -86,7 +86,7 @@ local object copy_perchar_table (object table) {
   #define case_invert    3
 
 # meaning of the entries in the syntax_table:
-  #define syntax_illegal      0  # invalid
+  #define syntax_illegal      0  # unprintable, excluding whitespace
   #define syntax_single_esc   1  # '\' (Single Escape)
   #define syntax_multi_esc    2  # '|' (Multiple Escape)
   #define syntax_constituent  3  # the rest (Constituent)
@@ -95,15 +95,15 @@ local object copy_perchar_table (object table) {
   #define syntax_t_macro      6  # '()'"' (Terminating Macro)
   #define syntax_nt_macro     7  # '#' (Non-Terminating Macro)
 # <= syntax_constituent : if an object starts with such a character, it's a token.
-#                         (ILL will deliver an error then.)
+#                         (syntax_illegal will deliver an error then.)
 # >= syntax_t_macro : macro-character.
-#                     if an object starts like that: call macro-funktion.
+#                     if an object starts like that: call read-macro function.
 
 # Syntax tables, indexed by characters.
 # allocate_syntax_table()
 # syntax_table_get(table,c)
 # syntax_table_put(table,c,value)
-# can trigger GC
+# syntax_table_put can trigger GC
 #if (small_char_code_limit < char_code_limit)
  # A cons, consisting of a simple-bit-vector with small_char_code_limit
  # bytes, and a hash table mapping characters to fixnums. Characters not
@@ -746,7 +746,7 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
     # store everything in the readtable:
     # syntaxcode into syntax-table:
     syntax_table_put(TheReadtable(STACK_1)->readtable_syntax_table,c,syntaxcode);
-    # new dispatch-macro-table into the  macrodefinitionen-table:
+    # new dispatch-macro-table into the macrodefinition table:
     perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
     value1 = T; mv_count=1; # 1 value T
     skipSTACK(2);
@@ -774,7 +774,7 @@ local object test_disp_sub_char (object readtable) {
     fehler(error,GETTEXT("~: ~ is not a dispatch macro character"));
   }
   # disp-char is a dispatching-macro-character, entry is the vector.
-  var cint sub_c = as_cint(up_case(char_code(sub_ch))); # convert sub-char into capitals
+  var cint sub_c = as_cint(up_case(char_code(sub_ch))); # convert sub-char into upper case
   if ((sub_c >= '0') && (sub_c <= '9')) # digit
     return nullobj;
   else # valid sub-char
@@ -854,7 +854,7 @@ LISPFUNN(set_readtable_case,2)
 # some auxiliary routines and macros for READ and PRINT
 # =============================================================================
 
-# Tests the dynamic value of a  symbols being /=NIL
+# Tests the dynamic value of a symbol being /=NIL
 # < true, if /= NIL
 # #define test_value(sym)  (!nullp(Symbol_value(sym)))
 #define test_value(sym)  (!eq(NIL,Symbol_value(sym)))
@@ -897,28 +897,27 @@ local uintL get_base (object symbol) {
 #                              R E A D
 # =============================================================================
 
-# Single characters are read.
-# The syntaxcodes (compare CLTL Table 22-1)
-# are determined by use of the readtable.
-# An (Extended) token is intercepted when syntaxcode = constituent .
-# An attribut a_xxxx is allocated to every character in the token
-# by use of the attribute-table (compare CLTL Table 22-3).
+# Characters are read one by one.
+# Their syntax codes are determined by use the readtable, cf. CLTL table 22-1.
+# Syntax code 'constituent' starts a new (extended) token.
+# For every character in the token, its attribute a_xxxx is looked up by use
+# of the attribute table, cf. CLTL table 22-3.
 # O(token_buff_1) is a semi-simple-string, which contains the characters of
 # the currently read extended-token.
-# O(token_buff_2) is a semi-simple-byte-vektor, which contains the attributs of
-# the currently read extended-token.
+# O(token_buff_2) is a semi-simple-byte-vektor, which contains the attributes
+# of the currently read extended-token.
 # Both have the same length (in characters respectively bytes).
 
-# special objects, that can be returned by READ:
+# Special objects, that can be returned by READ:
 #   eof_value: special object, that indicates EOF
 #   dot_value: auxiliary value for the detection of single dots
 
 # ------------------------ READ on character-level ---------------------------
 
-# error, if read object is a character:
+# error, if read object is not a character:
 # fehler_charread(ch,&stream);  english: error_charread(ch,&stream);
 nonreturning_function(local,fehler_charread,(object ch,const object* stream_));
-local void fehler_charread (object ch,const object* stream_) {
+local void fehler_charread (object ch, const object* stream_) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(ch); # Character
   pushSTACK(*stream_); # Stream
@@ -1044,7 +1043,7 @@ local object wpeek_char_eof (const object* stream_) {
 # ------------------------ READ at token-level -------------------------------
 
 # read_token and test_potential_number_syntax, test_number_syntax need
-# the attributes according to table 22-3.
+# the attributes according to CLTL table 22-3.
 # During test_potential_number_syntax attributes are transformed,
 # a_digit partially into a_alpha or a_letter or a_expo_m.
 
@@ -1052,7 +1051,7 @@ local object wpeek_char_eof (const object* stream_) {
   #define a_illg     0   # illegal constituent
   #define a_pack_m   1   # ':' = Package-marker
   #define a_alpha    2   # character without special property (alphabetic)
-  #define a_escaped  3   # character without special property, case can not be converted
+  #define a_escaped  3   # character without special property, not subject to case conversion
   #define a_ratio    4   # '/'
   #define a_dot      5   # '.'
   #define a_plus     6   # '+'
@@ -1174,14 +1173,14 @@ local object wpeek_char_eof (const object* stream_) {
     #define attribute_of(c)  attribute_table[as_cint(c)]
   #endif
 
-# Flag. indicates, if  single-escape- or multiple-escape-character
+# Flag. indicates, if a single-escape- or multiple-escape-character
 # occurred in the last read token:
 local bool token_escape_flag;
 
-# UP: delivers two Buffers.
+# UP: delivers two buffers.
 # if two buffers are available in the reservoir O(token_buff_1), O(token_buff_2),
 # they are extracted. Otherwise new ones are allocated.
-# If the buffers are not needed anymore, they can be written in
+# If the buffers are not needed anymore, they can be written back to
 # O(token_buff_1) and O(token_buff_2).
 # < STACK_1: a Semi-Simple String with Fill-Pointer 0
 # < STACK_0: a Semi-Simple Byte-Vector with Fill-Pointer 0
@@ -1197,13 +1196,13 @@ local void get_buffers (void) {
   if (!nullp(buff_1)) {
     # extract buffer and empty:
     TheIarray(buff_1)->dims[1] = 0; # Fill-Pointer:=0
-    pushSTACK(buff_1); # 1. Buffer finished
+    pushSTACK(buff_1); # 1. buffer finished
     var object buff_2 = O(token_buff_2);
     TheIarray(buff_2)->dims[1] = 0; # Fill-Pointer:=0
-    pushSTACK(buff_2); # 2. Buffer finished
+    pushSTACK(buff_2); # 2. buffer finished
     O(token_buff_1) = NIL; # mark buffer as extracted
   } else {
-    # buffers are extracted and must be allocated newly:
+    # buffers are extracted. New ones must be allocated:
     pushSTACK(make_ssstring(50)); # new Semi-Simple-String with Fill-Pointer=0
     pushSTACK(make_ssbvector(50)); # new Semi-Simple-Byte-Vector with Fill-Pointer=0
   }

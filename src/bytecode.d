@@ -1,4 +1,4 @@
-# Values of the bytecodes (256 Stack):
+# Values of the bytecodes (256 items):
 
 # (1) constants
 BYTECODE(cod_nil)
@@ -29,7 +29,7 @@ BYTECODE(cod_pop)
 BYTECODE(cod_skip)
 BYTECODE(cod_skipi)
 BYTECODE(cod_skipsp)
-# (5) execution flow und jump
+# (5) execution flow und jumps
 BYTECODE(cod_skip_ret)
 BYTECODE(cod_skip_retgf)
 BYTECODE(cod_jmp)
@@ -51,7 +51,7 @@ BYTECODE(cod_jmptail)
 BYTECODE(cod_venv)
 BYTECODE(cod_make_vector1_push)
 BYTECODE(cod_copy_closure)
-# (7) funktion calls
+# (7) function calls
 BYTECODE(cod_call)
 BYTECODE(cod_call0)
 BYTECODE(cod_call1)
