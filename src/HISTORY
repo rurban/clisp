@@ -1,5 +1,7 @@
 Version  Date            New features
 
+2.25.1   2001-04-06      bug-fixes only
+
 2.25     2001-03-15      INSPECT, CLHS,
                          CONVERT-STRING-FROM-BYTES, CONVERT-STRING-TO-BYTES,
                          READ-BYTE-LOOKAHEAD, STREAM-READ-BYTE-LOOKAHEAD,
