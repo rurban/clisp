@@ -1,3 +1,11 @@
+User visible changes
+--------------------
+
+* LOAD now takes an additional keyword argument :OBSOLETE-ACTION which
+  specifies what to do with the obsolete .fas files.
+  See <http://clisp.cons.org/impnotes.html#loadfile> for details.
+
+
 2.30 (2002-09-15)
 =================
 

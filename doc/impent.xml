@@ -56,6 +56,7 @@
 <!ENTITY newest-k "<constant>:NEWEST</constant>">
 <!ENTITY name-k "<constant>:NAME</constant>">
 <!ENTITY none-k "<constant>:NONE</constant>">
+<!ENTITY obsolete-action-k "<constant>:OBSOLETE-ACTION</constant>">
 <!ENTITY overwrite-k "<constant>:OVERWRITE</constant>">
 <!ENTITY out-k "<constant>:OUT</constant>">
 <!ENTITY output-k "<constant>:OUTPUT</constant>">
