@@ -4,10 +4,8 @@
 ;;; DEUTSCH: Funktionen, die beim Transportieren zu ändern sind
 ;;; FRANCAIS: Fonctions dépendantes de l'installation
 
-(in-package "LISP")
-(export '(clhs-root *clhs-root-default*))
-(mapcar #'fmakunbound '(short-site-name long-site-name
-                        editor-name edit-file editor-tempfile))
+(in-package "EXT")
+(mapcar #'fmakunbound '(short-site-name long-site-name))
 
 (defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))
 (defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lisp"))

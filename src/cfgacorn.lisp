@@ -4,11 +4,9 @@
 ;;; DEUTSCH: Funktionen, die beim Transportieren zu ändern sind
 ;;; FRANCAIS: Fonctions dépendantes de l'installation
 
-(in-package "LISP")
-(export '(clhs-root *clhs-root-default*))
+(in-package "EXT")
 (mapcar #'fmakunbound '(machine-type machine-version machine-instance
-                        short-site-name long-site-name
-                        edit-file editor-tempfile))
+                        short-site-name long-site-name))
 
 (defun machine-type () "Acorn")
 (defun machine-version () "Risc PC, OS 3.7")

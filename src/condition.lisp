@@ -2,7 +2,7 @@
 ;;; David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
 ;;; Bruno Haible 24.11.1993, 2.12.1993
 
-(in-package "LISP")
+(in-package "COMMON-LISP")
 ;;; exports:
 (export '(
 ;; types:
@@ -12,29 +12,34 @@ floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
 cell-error unbound-variable undefined-function unbound-slot
 type-error package-error print-not-readable parse-error stream-error
-end-of-file reader-error file-error os-error storage-condition warning
+end-of-file reader-error file-error storage-condition warning
 style-warning simple-condition simple-error simple-type-error simple-warning
 ;; macros:
 define-condition handler-bind ignore-errors handler-case
-with-condition-restarts restart-bind restart-case with-restarts
+with-condition-restarts restart-bind restart-case
 with-simple-restart check-type assert etypecase ctypecase ecase ccase
 ;; functions:
 make-condition arithmetic-error-operation arithmetic-error-operands
 cell-error-name unbound-slot-instance type-error-datum
 type-error-expected-type package-error-package print-not-readable-object
-stream-error-stream file-error-pathname simple-condition-format-string
+stream-error-stream file-error-pathname
 simple-condition-format-control simple-condition-format-arguments
 signal restart-name compute-restarts find-restart invoke-restart
 invoke-restart-interactively invoke-debugger break error cerror warn
 ;; functions and restart names:
 abort continue muffle-warning store-value use-value
 ;; variables:
-*break-on-signals* *debugger-hook*
+*break-on-signals* *debugger-hook*))
 ;; extensions:
-muffle-cerrors appease-cerrors exit-on-error
-))
-(in-package "SYSTEM")
-
+(in-package "EXT")
+(export
+ '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
+   simple-condition-format-string simple-charset-type-error)
+ "EXT")
+(in-package "CUSTOM")
+(common-lisp:export '(*break-on-warnings*) "CUSTOM")
+(ext:re-export "CUSTOM" "EXT")
+(common-lisp:in-package "SYSTEM")
 
 ;;; Overview of Concepts
 
@@ -1289,7 +1294,6 @@ muffle-cerrors appease-cerrors exit-on-error
 ;;; 29.4.3. Exhaustive Case Analysis
 
 ;; These macros supersede the corresponding ones from macros2.lisp.
-
 (flet ((parenthesize-keys (clauses)
          ;; PARENTHESIZE-KEYS is necessary to avoid confusing
          ;; the symbols OTHERWISE and T used as keys, with the same

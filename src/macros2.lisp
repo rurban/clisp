@@ -29,9 +29,12 @@
 ;; inheritance doesn't work with EQL methods.)
 ;;
 
-(in-package "LISP")
-(export '(deflanguage definternational deflocalized localized))
-(in-package "SYSTEM")
+(in-package "I18N")
+(common-lisp:export '(deflanguage definternational deflocalized localized))
+
+(common-lisp:in-package "SYSTEM")
+(use-package '("I18N") "EXT")
+(ext:re-export "I18N" "EXT")
 
 (defvar *all-languages* nil)
 (defun assert-language (lang)
@@ -499,8 +502,8 @@
        ) )
 ) ) )
 ;; ----------------------------------------------------------------------------
-(in-package "LISP")
-(export 'with-output-to-printer)
+(in-package "EXT")
+(export '(space with-output-to-printer))
 (in-package "SYSTEM")
 (defmacro with-output-to-printer ((var &rest options &key external-format)
                                   &body body &environment env)
@@ -525,7 +528,7 @@
   (open "prn" :direction :output :external-format external-format)
 )
 ;; ----------------------------------------------------------------------------
-(in-package "LISP")
+(in-package "EXT")
 (export 'without-floating-point-underflow)
 (in-package "SYSTEM")
 (defmacro without-floating-point-underflow (&body body)

@@ -32,10 +32,10 @@
 ; TRACE und UNTRACE sind auch auf Funktionen (SETF symbol) und auf Macros anwendbar,
 ;   nicht jedoch auf lokal definierte Funktionen und Macros.
 
-(in-package "LISP")
-(export '(trace untrace
-          *trace-function* *trace-args* *trace-form* *trace-values*
-)        )
+(in-package "COMMON-LISP")
+(export '(trace untrace))
+(in-package "EXT")
+(export '(*trace-function* *trace-args* *trace-form* *trace-values*))
 (in-package "SYSTEM")
 
 (proclaim '(special *trace-function* *trace-args* *trace-form* *trace-values*))

@@ -1,4 +1,5 @@
-(in-package "SCREEN" :use '("LISP"))
+(use-package '("COMMON-LISP" "EXT") "SCREEN")
+(in-package "SCREEN")
 
 #|
 ; Re-Export von importierten Symbolen kann man nicht mit der
@@ -438,4 +439,3 @@ Will flush pending characters!"
      (UNWIND-PROTECT (PROGN ,@body) (CLOSE *WINDOW*))
    )
 )
-

@@ -1,13 +1,14 @@
 ;;; Dutch translations of DEFINTERNATIONALed values.
 ;;; Bruno Haible, Tijs van Bakel
 
-(in-package "LISP")
+(in-package "I18N")
+(common-lisp:export 'NEDERLANDS)
+(common-lisp:import 'NEDERLANDS "EXT")
+(common-lisp:export 'NEDERLANDS "EXT")
 
-(export 'NEDERLANDS)
+(common-lisp:in-package "SYSTEM")
 
 (deflanguage NEDERLANDS)
-
-(in-package "SYSTEM")
 
 (deflocalized date-format NEDERLANDS
   (formatter "~1{~3@*~D-~4@*~D-~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")

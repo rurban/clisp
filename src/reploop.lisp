@@ -1,7 +1,11 @@
 ;;;; Debugger, Stepper, Errors
 
-(in-package "LISP")
-(export '(*prompt*))
+(in-package "EXT")
+(export '(custom::*prompt*) "CUSTOM")
+(export
+ '(*command-index* prompt-new-package package-short-name
+   custom::*prompt*)
+ "EXT")
 (in-package "SYSTEM")
 
 ;;;--------------------------------------------------------------------------

@@ -1,10 +1,12 @@
 ;;;; Rexx Funktionen für CLISP
 ;;;; Jörg Höhle 15.4.1997
 
-(in-package "LISP")
-(export '(rexx-run-command rexx-send-command rexx-wait-sent-command rexx-do-command
-          rexx-loop *rexx-ignore-errors*
-)        )
+(defpackage "REXX")
+(in-package "REXX")
+(export '(rexx-run-command rexx-send-command rexx-wait-sent-command
+          rexx-do-command rexx-loop *rexx-ignore-errors*))
+(use-package '("REXX") "EXT")
+(ext:re-export "REXX" "EXT")
 
 ;;;; Interface:
 ;;;
@@ -22,7 +24,7 @@
 ;;; rc ist der ARexx return Code.
 ;;; result ist der ARexx return String, nur wenn rc gleich 0.
 
-;;;; ===========================================================================
+;;;; ==========================================================================
 ;;;; Implementation:
 
 (in-package "SYSTEM")

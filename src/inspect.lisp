@@ -26,10 +26,19 @@
 ;;; utilities from cllib
 ;;;
 
-(in-package "SYSTEM")
+(in-package "CUSTOM")
+(common-lisp:export
+ '(*inspect-frontend* *inspect-browser* *inspect-print-lines*
+   *inspect-print-level* *inspect-print-length* *inspect-length*)
+ "CUSTOM")
+(ext:re-export "CUSTOM" "EXT")
 
-;(export '(inspect *inspect-frontend* *inspect-print-lines*
-;          *inspect-print-level* *inspect-print-length* *inspect-length*))
+(common-lisp:in-package "EXT")
+(export
+ '(current-time with-gensyms with-http-output with-html-output)
+ "EXT")
+
+(in-package "SYSTEM")
 
 (defmacro with-gensyms (syms &body body)
   "Bind symbols to gensyms.  First sym is a string - `gensym' prefix.

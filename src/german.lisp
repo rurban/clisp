@@ -1,13 +1,14 @@
 ;;; German translations of DEFINTERNATIONALed values.
 ;;; Bruno Haible, Michael Stoll
 
-(in-package "LISP")
+(in-package "I18N")
+(common-lisp:export 'DEUTSCH)
+(common-lisp:import 'DEUTSCH "EXT")
+(common-lisp:export 'DEUTSCH "EXT")
 
-(export 'DEUTSCH)
+(common-lisp:in-package "SYSTEM")
 
 (deflanguage DEUTSCH)
-
-(in-package "SYSTEM")
 
 (deflocalized date-format DEUTSCH
   (formatter "~1{~3@*~D.~4@*~D.~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")

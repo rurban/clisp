@@ -3,12 +3,11 @@
 
 ;; ============================================================================
 
-(in-package "LISP")
+(in-package "COMMON-LISP")
 (export '(nth-value function-lambda-expression defpackage
           print-unreadable-object declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
-          read-sequence write-sequence designator
-)        )
+          read-sequence write-sequence))
 (in-package "SYSTEM")
 
 ;; ----------------------------------------------------------------------------
@@ -92,7 +91,7 @@
           (shadow-list '()) ; Liste von Symbolnamen für shadow
           (shadowing-list '()) ; Listen von Paaren (Symbolname . Paketname) für shadowing-import
           (use-list '()) ; Liste von Paketnamen für use-package
-          (use-default '("LISP")) ; Default-Wert für use-list
+          (use-default '("COMMON-LISP")) ; default for use-list
           (case-sensitive nil) ; Flag für :CASE-SENSITIVE
           (import-list '()) ; Listen von Paaren (Symbolname . Paketname) für import
           (intern-list '()) ; Liste von Symbolnamen für intern

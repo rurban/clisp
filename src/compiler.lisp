@@ -50,8 +50,11 @@
 
 ; #-CROSS impliziert #+CLISP.
 
-#-CROSS (in-package "LISP")
-#-CROSS (export '(eval-env compile compile-file disassemble))
+#-CROSS (in-package "COMMON-LISP")
+#-CROSS (export '(ext::eval-env) "EXT")
+#-CROSS (export '(custom::*package-tasks-treat-specially*) "CUSTOM")
+#-CROSS (ext:re-export "CUSTOM" "EXT")
+#-CROSS (export '(compile compile-file disassemble))
 #-CROSS (pushnew ':compiler *features*)
 
 #-CROSS (in-package "COMPILER")
@@ -246,7 +249,7 @@
 )
 
 (defconstant *keyword-package* (find-package "KEYWORD"))
-(defconstant *lisp-package* (find-package "LISP"))
+(defconstant *lisp-package* (find-package "COMMON-LISP"))
 
 ; Variablen für Top-Level-Aufruf:
 (defvar *compiling* nil) ; gibt an, ob gerade beim Compilieren
@@ -3101,8 +3104,11 @@ der Docstring (oder NIL).
           (MULTIPLE-VALUE-LIST . c-MULTIPLE-VALUE-LIST)
           (MULTIPLE-VALUE-PROG1 . c-MULTIPLE-VALUE-PROG1)
           (FLET . c-FLET)
+          (SYS::%FLET . c-FLET)
           (LABELS . c-LABELS)
+          (SYS::%LABELS . c-LABELS)
           (MACROLET . c-MACROLET)
+          (SYS::%MACROLET . c-MACROLET)
           (SYSTEM::FUNCTION-MACRO-LET . c-FUNCTION-MACRO-LET)
           (SYMBOL-MACROLET . c-SYMBOL-MACROLET)
           (COMPILER-LET . c-COMPILER-LET)
@@ -4129,10 +4135,8 @@ der Docstring (oder NIL).
     (when (and *package-tasks-treat-specially*
                (memq fun '(MAKE-PACKAGE SYSTEM::%IN-PACKAGE IN-PACKAGE
                            SHADOW SHADOWING-IMPORT EXPORT UNEXPORT
-                           USE-PACKAGE UNUSE-PACKAGE IMPORT
-               )          )
-               (every #'c-constantp (rest *form*))
-          )
+                           USE-PACKAGE UNUSE-PACKAGE IMPORT))
+               (every #'c-constantp (rest *form*)))
       (push
         `(,fun
           ,@(mapcar
@@ -6737,7 +6741,7 @@ der Docstring (oder NIL).
                   :code `(,anode1 (PUSH) ,anode2 (CONS))
 ) ) ) )
 
-(macrolet ((err-syntax (specform fdef)
+(%macrolet ((err-syntax (specform fdef)
              `(catch 'c-error
                 (c-error (ENGLISH "Illegal function definition syntax in ~S: ~S")
                          ,specform ,fdef
