@@ -1,5 +1,11 @@
 1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (XCFLAGS): When compiling for sparc, use
+          -fno-schedule-insns, in order to avoid egcs-1.1.1 bug which
+          miscompiles the division routine and causes an XGCD test failure.
+
+1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * aclocal.m4 (CL_TERM): When `struct winsize' is not defined in
           <termios.h>, check whether it is defined in <sys/ioctl.h>.
         * unixconf.h.in (WINSIZE_NEED_SYS_PTEM_H): Renamed from

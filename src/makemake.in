@@ -857,6 +857,10 @@ if [ $XCC_GCC = true ] ; then
   elif [ "$cpu" = hppa ] ; then
     # gcc-2.7.2 produces incorrect code when compiling spvw (loadmem routine).
     XCFLAGS=$XCFLAGS'-O2 -fno-strength-reduce'
+  elif [ "$cpu" = sparc ] ; then
+    # egcs-1.0.3 and egcs-1.1.1 produce incorrect code when compiling lisparit
+    # (function UDS_divide_).
+    XCFLAGS=$XCFLAGS'-O2 -fno-schedule-insns'
   else
     XCFLAGS=$XCFLAGS'-O2'
   fi
