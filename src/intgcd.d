@@ -1072,7 +1072,7 @@
                var DS r;
                UDS_divide_(a_MSDptr,a_len,a_LSDptr,b_MSDptr,b_len,b_LSDptr, divroomptr, &q,&r);
                a_MSDptr = b_MSDptr; a_len = b_len; a_LSDptr = b_LSDptr; # a := b
-               b_len = r.len; if (b_len==0) break; # b=0 -> fertig
+               b_len = r.len; if (b_len==0) goto return_a; # b=0 -> fertig
                b_LSDptr = old_a_LSDptr; # b übernimmt den vorherigen Platz von a
                b_MSDptr = copy_loop_down(r.LSDptr,b_LSDptr,b_len); # b := r kopieren
                # (uAa,uAb) := (uAb,uAa+q*uAb) :
@@ -1094,15 +1094,37 @@
                goto a_greater_b_swap; # Nun ist a>b>0
              }}
          }
-       # uAb mit Vorfaktor -sA versehen:
-       *--uAb.MSDptr = 0; uAb.len++;
-       if (sA==0) { neg_loop_down(uAb.LSDptr,uAb.len); }
-       # uBb mit Vorfaktor sB versehen:
-       *--uBb.MSDptr = 0; uBb.len++;
-       if (!(sB==0)) { neg_loop_down(uBb.LSDptr,uBb.len); }
-       end_arith_call();
-       pushSTACK(DS_to_I(uAb.MSDptr,uAb.len)); # DS uAb als Vorfaktor von A
-       pushSTACK(DS_to_I(uBb.MSDptr,uBb.len)); # DS uBb als Vorfaktor von B
+       # Nun ist a = b. Wähle diejenige der beiden Linearkombinationen
+       #   a =  uAa*sA * A + -uBa*sB * B
+       #   b = -uAb*sA * A +  uBb*sB * B
+       # die die betragsmäßig kleinsten Koeffizienten hat.
+       # Teste auf uBa < uBb. (Das kann auftreten, z.B. bei
+       # A=560014183, B=312839871 wird a=b=1, uAa < uBa, uAb < uBb.)
+       if ((uBb.len > uBa.len)
+           || (uBb.len == uBa.len
+               && compare_loop_up(uBb.MSDptr,uBa.MSDptr,uBb.len) > 0))
+         { # uAa mit Vorfaktor sA versehen:
+           *--uAa.MSDptr = 0; uAa.len++;
+           if (!(sA==0)) { neg_loop_down(uAa.LSDptr,uAa.len); }
+           # uBa mit Vorfaktor -sB versehen:
+           *--uBa.MSDptr = 0; uBa.len++;
+           if (sB==0) { neg_loop_down(uBa.LSDptr,uBa.len); }
+           end_arith_call();
+           pushSTACK(DS_to_I(uAa.MSDptr,uAa.len)); # DS uAa als Vorfaktor von A
+           pushSTACK(DS_to_I(uBa.MSDptr,uBa.len)); # DS uBa als Vorfaktor von B
+         }
+         else
+         return_a:
+         { # uAb mit Vorfaktor -sA versehen:
+           *--uAb.MSDptr = 0; uAb.len++;
+           if (sA==0) { neg_loop_down(uAb.LSDptr,uAb.len); }
+           # uBb mit Vorfaktor sB versehen:
+           *--uBb.MSDptr = 0; uBb.len++;
+           if (!(sB==0)) { neg_loop_down(uBb.LSDptr,uBb.len); }
+           end_arith_call();
+           pushSTACK(DS_to_I(uAb.MSDptr,uAb.len)); # DS uAb als Vorfaktor von A
+           pushSTACK(DS_to_I(uBb.MSDptr,uBb.len)); # DS uBb als Vorfaktor von B
+         }
       }
       pushSTACK(NUDS_to_I(a_MSDptr,a_len)); # NUDS a als ggT
       RESTORE_NUM_STACK # num_stack zurück
