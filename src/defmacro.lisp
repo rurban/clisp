@@ -26,7 +26,7 @@ von Keyword/Value-Paaren) nur Keywords vorkommen, die in kwlist vorkommen,
 oder ein Keyword/Value-Paar mit Keyword = :ALLOW-OTHER-KEYS und Value /= NIL
 vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
 
-(defun keyword-test (arglist kwlist)
+ (defun keyword-test (arglist kwlist)
   (let ((unallowed-arglistr nil)
         (allow-other-keys-flag nil))
     (do ((arglistr arglist (cddr arglistr)))
@@ -37,15 +37,12 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
                (kwlistr kwlist (cdr kwlistr)))
               ((or (null kwlistr) (eq kw (first kwlistr)))
                (if (and (null kwlistr) (null unallowed-arglistr))
-                   (setq unallowed-arglistr arglistr)
-    ) )   )   ))
+                   (setq unallowed-arglistr arglistr))))))
     (unless allow-other-keys-flag
       (if unallowed-arglistr
         (cerror (TEXT "Both will be ignored.")
                 (TEXT "Invalid keyword-value-pair: ~S ~S")
-                (first unallowed-arglistr) (second unallowed-arglistr)
-    ) ) )
-) )
+                (first unallowed-arglistr) (second unallowed-arglistr))))))
 ; Definition in Assembler siehe CONTROL.Q
 |#
 
@@ -72,42 +69,42 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
                    ; =NIL normalerweise, = (QUOTE *) für DEFTYPE.
 )          )
 #|
-(ANALYZE1 lambdalist accessexp name wholevar)
+ (ANALYZE1 lambdalist accessexp name wholevar)
 analysiert eine Macro-Lambdaliste (ohne &ENVIRONMENT). accessexp ist der
 Ausdruck, der die Argumente liefert, die mit dieser Lambdaliste zu matchen
 sind.
 
-(ANALYZE-REST lambdalistr restexp name)
+ (ANALYZE-REST lambdalistr restexp name)
 analysiert den Teil einer Macro-Lambdaliste, der nach &REST/&BODY kommt.
 restexp ist der Ausdruck, der die Argumente liefert, die mit diesem
 Listenrest zu matchen sind.
 
-(ANALYZE-KEY lambdalistr restvar name)
+ (ANALYZE-KEY lambdalistr restvar name)
 analysiert den Teil einer Macro-Lambdaliste, der nach &KEY kommt.
 restvar ist das Symbol, das die restlichen Argumente enthalten wird.
 
-(ANALYZE-AUX lambdalistr name)
+ (ANALYZE-AUX lambdalistr name)
 analysiert den Teil einer Macro-Lambdaliste, der nach &AUX kommt.
 
-(REMOVE-ENV-ARG lambdalist name)
+ (REMOVE-ENV-ARG lambdalist name)
 entfernt das Paar &ENVIRONMENT/Symbol aus einer Macro-Lambdaliste,
 liefert zwei Werte: die verkürzte Lambdaliste und das als Environment zu
 verwendende Symbol (oder die Lambdaliste selbst und NIL, falls &ENVIRONMENT
 nicht auftritt).
 
-(MAKE-LENGTH-TEST symbol)
+ (MAKE-LENGTH-TEST symbol)
 kreiert aus %restp, %min-args, %arg-count eine Testform, die bei Auswertung
 anzeigt, ob der Inhalt der Variablen symbol als Aufruferform zum Macro
 dienen kann.
 
-(MAKE-MACRO-EXPANSION macrodef)
+ (MAKE-MACRO-EXPANSION macrodef)
 liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
 1. den Macro-Expander als Programmtext (FUNCTION ... (LAMBDA ...)),
 2. name, ein Symbol,
 3. lambdalist,
 4. docstring (oder NIL, wenn keiner da).
 
-(MAKE-MACRO-EXPANDER macrodef)
+ (MAKE-MACRO-EXPANDER macrodef)
 liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
 das fürs FENV bestimmte Objekt #<MACRO expander>.
 |#
