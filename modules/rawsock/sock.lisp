@@ -42,12 +42,13 @@
     (connect socket address)
     (values socket address)))
 
-(defun open-unix-socket-stream (pathname &rest opts &key (type :SOCK_STREAM))
+(defun open-unix-socket-stream (pathname &rest opts &key (type :SOCK_STREAM)
+                                &allow-other-keys)
   "Return the lisp STREAM pointing to this UNIX socket special device.
 The return value is already FINALIZEd by CLOSE.
 Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
   (multiple-value-bind (sock address) (open-unix-socket pathname type)
-    (ext:remove-plist opts :type)
+    (setq opts (ext:remove-plist opts :type))
     (let ((stream (apply #'ext:make-stream sock opts)))
       (finalize stream #'close)
       (sock-close sock)
