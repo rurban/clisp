@@ -1,5 +1,11 @@
 2002-12-05  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (lp_limit_1, ca_limit_1): set to 2^12-1
+	* spvw.d (main) [DEBUG_SPVW]: check that the STACK depth is more
+	that CALL-ARGUMENTS-LIMIT
+
+2002-12-05  Sam Steingold  <sds@gnu.org>
+
 	* clx.f (get_event_mask): fixed error handling
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
