@@ -915,8 +915,8 @@ static void my_chmod (char *path, mode_t mode) {
   if (chmod(path,mode)) OS_file_error(STACK_0);
 #else
   end_system_call();
-  pushSTACK(CLSTEXT("~S(~S ~S): this platform lacks ~S"));
-  pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(CLSTEXT("~S(~S ~S ~S): this platform lacks ~S"));
+  pushSTACK(TheSubr(subr_self)->name); pushSTACK(STACK_2);
   pushSTACK(`:MODE`); pushSTACK(fixnum(mode));
   pushSTACK(`"chmod()"`);
   funcall(S(warn),5);
@@ -931,8 +931,8 @@ static void my_chown (char *path, uid_t uid, gid_t gid) {
   if (chown(path,uid,gid)) OS_file_error(STACK_0);
 #else
   end_system_call();
-  pushSTACK(CLSTEXT("~S(~S ~S ~S ~S): this platform lacks ~S"));
-  pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(CLSTEXT("~S(~S ~S ~S ~S ~S): this platform lacks ~S"));
+  pushSTACK(TheSubr(subr_self)->name); pushSTACK(STACK_2);
   pushSTACK(`:UID`); pushSTACK((uid != (uid_t)-1) ? fixnum(uid) : NIL);
   pushSTACK(`:GID`); pushSTACK((gid != (gid_t)-1) ? fixnum(gid) : NIL);
   pushSTACK(`"chown()"`);
@@ -958,8 +958,8 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   if (utime(path,utb)) OS_file_error(STACK_0);
 #else
   end_system_call();
-  pushSTACK(CLSTEXT("~S(~S ~S ~S ~S): this platform lacks ~S"));
-  pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(CLSTEXT("~S(~S ~S ~S ~S ~S): this platform lacks ~S"));
+  pushSTACK(TheSubr(subr_self)->name); pushSTACK(STACK_2);
   pushSTACK(`:ATIME`);
   pushSTACK(utb_a ? UL_to_I(utb->actime + UNIX_LISP_TIME_DIFF) : NIL);
   pushSTACK(`:MTIME`);
