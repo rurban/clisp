@@ -686,6 +686,39 @@
 
 </section>
 
+<section><title>Converting between strings and byte vectors</title>
+
+<para>Encodings can also be used to convert directly between strings and
+their corresponding byte vector representation according to that encoding.
+</para>
+
+<variablelist>
+
+<varlistentry><term><literal role="sexp">
+ (<function>lisp:convert-string-from-bytes</function>
+  <replaceable>byte-vector</replaceable> <replaceable>encoding</replaceable>
+  &key-amp; :start :end)</literal></term>
+ <listitem><simpara>converts the subsequence of
+  <replaceable>byte-vector</replaceable> from <replaceable>start</replaceable>
+  to <replaceable>end</replaceable> to a string, according to the given
+  <replaceable>encoding</replaceable>, and returns the resulting string.
+  </simpara></listitem></varlistentry>
+
+<varlistentry><term><literal role="sexp">
+ (<function>lisp:convert-string-to-bytes</function>
+  <replaceable>string</replaceable> <replaceable>encoding</replaceable>
+  &key-amp; :start :end)</literal></term>
+ <listitem><simpara>converts the subsequence of
+  <replaceable>string</replaceable> from <replaceable>start</replaceable>
+  to <replaceable>end</replaceable> to a vector of
+  <literal role="sexp">(unsigned-byte 8)</literal>, according to the given
+  <replaceable>encoding</replaceable>, and returns the resulting byte vector.
+  </simpara></listitem></varlistentry>
+
+</variablelist>
+
+</section>
+
 
 <section id="gstream">
   <title>Extensions-1.5. Defining new kinds of Streams</title>

@@ -8,6 +8,8 @@ Important note
 User visible changes
 --------------------
 
+* New functions CONVERT-STRING-FROM-BYTES and CONVERT-STRING-TO-BYTES.
+
 * CONCATENATED-STREAM-STREAMS now returns only the remaining streams,
   as per ANSI CL spec.
 
