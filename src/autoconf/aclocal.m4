@@ -58,22 +58,17 @@ AC_CACHE_VAL(cl_cv_path_install,
     /|./|.//|/etc/*|/usr/sbin/*|/usr/etc/*|/sbin/*|/usr/afsws/bin/*|/usr/ucb/*) ;;
     *)
       # OSF1 and SCO ODT 3.0 have their own names for install.
-      for ac_prog in ginstall installbsd scoinst install; do
+      # Don't use installbsd from OSF since it installs stuff as root
+      # by default.
+      for ac_prog in ginstall scoinst install; do
         if test -f $ac_dir/$ac_prog; then
 	  if test $ac_prog = install &&
             grep dspmsg $ac_dir/$ac_prog >/dev/null 2>&1; then
 	    # AIX install.  It has an incompatible calling convention.
-	    # OSF/1 installbsd also uses dspmsg, but is usable.
 	    :
 	  else
-	    if test $ac_prog = installbsd &&
-	      grep src/bos $ac_dir/$ac_prog >/dev/null 2>&1; then
-	      # AIX installbsd doesn't work without option "-g".
-	      :
-	    else
-	      cl_cv_path_install="$ac_dir/$ac_prog -c"
-	      break 2
-	    fi
+	    cl_cv_path_install="$ac_dir/$ac_prog -c"
+	    break 2
 	  fi
 	fi
       done
@@ -2646,8 +2641,8 @@ error no offsetof
 ], AC_DEFINE(HAVE_OFFSETOF,,[<stddef.h> defines the offsetof macro]))]
 )
 
-# stdbool.m4 serial 2 (gettext-0.11.3)
-dnl Copyright (C) 2001-2002 Free Software Foundation, Inc.
+# stdbool.m4 serial 2.1
+dnl Copyright (C) 2001-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -2672,6 +2667,7 @@ int A[-1];
 #define b 1
 #endif
 int B[b];
+bool c;
 ], [], gt_cv_header_stdbool_h=yes, gt_cv_header_stdbool_h=no)])
 AC_MSG_RESULT([$gt_cv_header_stdbool_h])
 if test $gt_cv_header_stdbool_h = yes; then
@@ -3517,10 +3513,10 @@ AC_PREREQ(2.57)
 AC_DEFUN([CL_LDAP],
 [AC_CHECK_HEADERS(lber.h ldap.h,,,
 dnl Solaris/cc requires <lber.h> to be included before <ldap.h>
-[[#if HAVE_LBER_H
+[#if HAVE_LBER_H
 # include <lber.h>
 #endif
-]])]
+])]
 )
 
 dnl -*- Autoconf -*-
@@ -3861,8 +3857,14 @@ AC_TRY_RUN([
 #endif
 int main ()
 { int fd = open("conftest.c",O_RDONLY,0644);
-  long x;
-  exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&x) >= 0) && (x > 0)));
+  unsigned long bytes_ready;
+  /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
+     apparently expect an 'int *', not a 'long *', as argument of this ioctl,
+     and thus fill only part of the bytes_ready variable. Fortunately,
+     endianness is not a problem here, because we only check whether
+     bytes_ready is == 0 or != 0. */
+  bytes_ready = 0;
+  exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
 }],
 cl_cv_decl_FIONREAD_reliable=yes, cl_cv_decl_FIONREAD_reliable=no,
 dnl When cross-compiling, don't assume anything.
@@ -5256,7 +5258,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -5324,7 +5326,12 @@ AC_DEFINE(INET_ADDR_SUFFIX,[.s_addr],[Define as .s_addr if the return type of in
 else
 AC_DEFINE(INET_ADDR_SUFFIX,[])
 fi
-AC_CHECK_HEADERS(netinet/tcp.h)dnl
+AC_CHECK_HEADERS(netinet/tcp.h,,,
+dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
+[#if HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+])
 CL_PROTO([setsockopt], [
 for z in 'int' 'unsigned int' 'size_t'; do
 for y in 'char*' 'void*'; do

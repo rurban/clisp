@@ -397,22 +397,17 @@ AC_CACHE_VAL(cl_cv_path_install,
     /|./|.//|/etc/*|/usr/sbin/*|/usr/etc/*|/sbin/*|/usr/afsws/bin/*|/usr/ucb/*) ;;
     *)
       # OSF1 and SCO ODT 3.0 have their own names for install.
-      for ac_prog in ginstall installbsd scoinst install; do
+      # Don't use installbsd from OSF since it installs stuff as root
+      # by default.
+      for ac_prog in ginstall scoinst install; do
         if test -f $ac_dir/$ac_prog; then
 	  if test $ac_prog = install &&
             grep dspmsg $ac_dir/$ac_prog >/dev/null 2>&1; then
 	    # AIX install.  It has an incompatible calling convention.
-	    # OSF/1 installbsd also uses dspmsg, but is usable.
 	    :
 	  else
-	    if test $ac_prog = installbsd &&
-	      grep src/bos $ac_dir/$ac_prog >/dev/null 2>&1; then
-	      # AIX installbsd doesn't work without option "-g".
-	      :
-	    else
-	      cl_cv_path_install="$ac_dir/$ac_prog -c"
-	      break 2
-	    fi
+	    cl_cv_path_install="$ac_dir/$ac_prog -c"
+	    break 2
 	  fi
 	fi
       done
