@@ -248,12 +248,6 @@ interpreter compiler
   standard ; Methoden-Kombination
 ))
 
-#+syscalls
-(in-package "POSIX" :use '("LISP"))
-#+syscalls
-(export '(resolve-host-ipaddr user-data file-stat erf erfc
-          j0 j1 jn y0 y1 yn gamma lgamma))
-
 (in-package "LISP")
 ; Exportierungen von conditio.lsp
 (export '(
@@ -1792,6 +1786,10 @@ interpreter compiler
         (apply #'format *debug-io* continue-format-string args)
     ) )
 ) )
+
+;; this has to come before compiler
+#+syscalls
+(load "posix")
 
 (LOAD "trace")     ;; TRACE
 

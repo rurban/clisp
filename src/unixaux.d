@@ -684,7 +684,7 @@ global unsigned int usleep (unsigned int useconds)
 
 #endif
 
-# ==============================================================================
+# =============================================================================
 
 #ifdef UNIX_CONVEX
 
@@ -694,5 +694,56 @@ global int __ap$sigstack (struct sigstack *ss, struct sigstack *oss) { return 0;
 
 #endif
 
-# ==============================================================================
+# =============================================================================
 
+#ifdef EXPORT_SYSCALLS
+
+# in posixmath.d:
+global object bogomips();
+
+#include <sys/systeminfo.h>
+
+# Lisp interface to sysinfo(2) & sysconf(3c)
+LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
+# (POSIX:SYSINFO)
+{
+  var char buffer[BUFSIZ];
+  var long res;
+
+#define SI_S(cmd) \
+  begin_system_call(); res = sysinfo(cmd,buffer,BUFSIZ); end_system_call(); \
+  if (-1 == res) OS_error(); \
+  pushSTACK(asciz_to_string(buffer,O(misc_encoding)))
+
+  SI_S(SI_SYSNAME);             #  1
+  SI_S(SI_HOSTNAME);            #  2
+  SI_S(SI_RELEASE);             #  3
+  SI_S(SI_VERSION);             #  4
+  SI_S(SI_MACHINE);             #  5
+  SI_S(SI_ARCHITECTURE);        #  6
+  SI_S(SI_PLATFORM);            #  7
+  SI_S(SI_HW_PROVIDER);         #  8
+  SI_S(SI_HW_SERIAL);           #  9
+  SI_S(SI_SRPC_DOMAIN);         # 10
+
+#undef SI_S
+
+#define SC_S(cmd) \
+  begin_system_call(); res = sysconf(cmd); end_system_call(); \
+  if (-1 == res) OS_error(); \
+  pushSTACK(L_to_I(res))
+
+  SC_S(_SC_PAGESIZE);           # 11
+  SC_S(_SC_PHYS_PAGES);         # 12
+  SC_S(_SC_AVPHYS_PAGES);       # 13
+  SC_S(_SC_NPROCESSORS_CONF);   # 14
+  SC_S(_SC_NPROCESSORS_ONLN);   # 15
+
+#undef SC_S
+
+  pushSTACK(bogomips());        # 16
+
+  funcall(L(values),16);
+}
+
+#endif

@@ -65,6 +65,30 @@ LISPFUNN(lgamma,1)
   N_D(res,value1); mv_count=2;
 }
 
+# BogoMIPS
+
+#include <time.h>
+
+global object bogomips()
+{
+  var unsigned long loops_per_sec = 1;
+  var unsigned long ticks, ii;
+  var object res;
+
+  while ((loops_per_sec <<= 1)) {
+    ticks = clock();
+    for (ii = loops_per_sec; ii > 0; ii--);
+    ticks = clock() - ticks;
+    if (ticks >= CLOCKS_PER_SEC) {
+      double bogo = (loops_per_sec / ticks) * (CLOCKS_PER_SEC / 500000.0);
+      N_D(bogo,res);
+      return res;
+    }
+  }
+  N_D(-1.0,res);
+  return res;
+}
+
 #undef D_S
 #undef I_S
 #undef N_D

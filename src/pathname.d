@@ -11706,9 +11706,9 @@ LISPFUNN(lib_directory,0)
   pushSTACK(asciz_to_string(pwd->pw_shell,O(misc_encoding)))
 
 # return the data for the user as 7 values (slots of struct passwd)
-# or a list of simple vectors of length 7 is no argument was given.
-LISPFUN(user_data,0,1,norest,nokey,0,NIL)
-# (POSIX:USER-DATA &optional user)
+# or a list of simple vectors of length 7 if user is NIL
+LISPFUN(user_data_,1,0,norest,nokey,0,NIL)
+# (POSIX::USER-DATA-INTERNAL user)
   {
     var object user = popSTACK();
     struct passwd *pwd = NULL;
@@ -11730,10 +11730,11 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
     begin_system_call();
     if (posfixnump(user))
       pwd = getpwuid(posfixnum_to_L(user));
-    elif (eq(user,unbound) || eq(user,S(Kdefault)))
+    elif (eq(user,S(Kdefault)))
       pwd = unix_user_pwd();
     elif (symbolp(user))
-      pwd = getpwnam(TheAsciz(string_to_asciz(Symbol_name(user),O(misc_encoding))));
+      pwd = getpwnam(TheAsciz(string_to_asciz(Symbol_name(user),
+                                              O(misc_encoding))));
     elif (stringp(user))
       pwd = getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding))));
     else {
@@ -11751,8 +11752,8 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
 # the return values are: the file descriptor (int) or the file name
 # (string) on which the appropriate stat function was called,
 # as well as the 13 slots of the struct stat.
-LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
-# (POSIX:FILE-STAT file &optional link-p)
+LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
+# (POSIX::FILE-STAT-INTERNAL file &optional link-p)
   {
     var object link = popSTACK();
     var object file = popSTACK();
