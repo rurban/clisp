@@ -1,5 +1,13 @@
 2002-03-08  Sam Steingold  <sds@gnu.org>
 
+	renamed dirkey.lisp to dirkey1.lisp (like foreign1.lisp/foreign.d)
+	since (compile-file "foo") clobbers foo.c (because of FFI)
+	* init.lisp: "dirkey1", not "dirkey"
+	* makemake.in (LPARTS): ditto
+	* dirkey1.lisp: renamed from dirkey.lisp
+
+2002-03-08  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (nonreturning_function, SLONGLONG, ULONGLONG):
 	fixed for MICROSOFT
 	* makemake.in: create modules-related rules on non-UNIX systems
