@@ -2849,10 +2849,12 @@
          (emf (sys::generic-function-effective-method-function gf))
          (original-em (apply emf original-args))
          (new-em (apply emf new-args)))
-    (unless (eq original-em new-em)
-      (warn (ENGLISH "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
-            'call-next-method gf new-args original-args))
-    (apply next-methods new-args)))
+    (if (eq original-em new-em)
+      (apply next-methods new-args)
+      (error-of-type 'error
+        (ENGLISH "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
+        'call-next-method gf new-args original-args
+) ) ) )
 
 
 ; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
