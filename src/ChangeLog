@@ -1,3 +1,9 @@
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (stream_handles): accept fixnums as pointing to
+	themselves as FDs, this allows RAWSOCK sockets to be used with
+	SOCKET-STATUS and SOCKET-OPTIONS
+
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (direction_t): Work around a g++ 3.4.0 bug.
