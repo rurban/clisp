@@ -219,6 +219,9 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#def-c-var> and
   <http://clisp.cons.org/impnotes.html#def-call-out> for details.
 
+* The user commands can now be extended using CUSTOM:*USER-COMMANDS*.
+  See <http://clisp.cons.org/impnotes.html#user-commands> for details.
+
 * Bug fixes:
   + The interpreter no longer executes the body of (EVAL-WHEN (COMPILE) ...)
     forms.

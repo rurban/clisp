@@ -3,14 +3,13 @@
 (in-package "EXT")
 (export
  '(custom::*prompt-start* custom::*prompt-step* custom::*prompt-break*
-   custom::*prompt-body* custom::*prompt-finish*)
+   custom::*prompt-body* custom::*prompt-finish* custom::*user-commands*)
  "CUSTOM")
+(ext:re-export "CUSTOM" "EXT")
 (export
  '(*command-index* prompt-new-package package-short-name
    #+unix make-xterm-io-stream
-   break-level step-level
-   custom::*prompt-start* custom::*prompt-step* custom::*prompt-break*
-   custom::*prompt-body* custom::*prompt-finish*)
+   break-level step-level)
  "EXT")
 (in-package "SYSTEM")
 
@@ -242,16 +241,33 @@
   (write-string (TEXT "The last error:") *debug-io*)
   (pretty-print-condition condition *debug-io* :indent 3))
 
+(defvar *user-commands* nil
+  "The list of functions, each of which should return a list of bindings.
+A `binding' is either a doc string (printed by `Help' or `:h')
+or a pair (STRING . FUNCTION) so that typing STRING will call FUNCTION.")
+
+(defun wrap-user-commands (functions)
+  "wrap user commands in THROWs"
+  (mapcar (lambda (binding)
+            (etypecase binding
+              (string binding)
+              (cons (cons (car binding)
+                          (lambda ()
+                            (funcall (cdr binding))
+                            (throw 'debug 'continue))))))
+          (mapcap #'funcall functions)))
+
 ;; extended commands
 (defun commands0 ()
-  (list
+  (list*
    (TEXT "
 Help (abbreviated :h) = this list
 Use the usual editing capabilities.
 \(quit) or (exit) leaves CLISP.")
 
    (cons "Help"         #'debug-help)
-   (cons ":h"           #'debug-help)))
+   (cons ":h"           #'debug-help)
+   (wrap-user-commands *user-commands*)))
 
 (defun commands1 ()
   (list
@@ -394,7 +410,8 @@ Continue       :c       switch off single step mode, continue evaluation
            (commands2))
          (when may-continue
            (commands3))
-         commandsr))
+         commandsr
+         (wrap-user-commands *user-commands*)))
 
 ;; Main-Loop with additional help-command
 (defun main-loop ()

@@ -2280,6 +2280,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&sys-pack-list;</member>
   <member>&term-enc;</member>
   <member>&trace-indent;</member>
+  <member>&user-commands;</member>
   <member><varname>CUSTOM:*USER-MAIL-ADDRESS*</varname></member>
   <member>&warn-fpc;</member>
   <member><varname>CUSTOM:*WITH-HTML-OUTPUT-DOCTYPE*</varname></member>
