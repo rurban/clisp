@@ -15,39 +15,39 @@
   (loop as i from 1 to 5
         do (print i)))
 "
-1
-2
-3
-4
+1 
+2 
+3 
+4 
 5 "
 
 (with-output-to-string (*standard-output*)
   (loop for i from 10 downto 1 by 3
         do (print i)))
 "
-10
-7
-4
+10 
+7 
+4 
 1 "
 
 (with-output-to-string (*standard-output*)
   (loop as i below 5
         do (print i)))
 "
-0
-1
-2
-3
+0 
+1 
+2 
+3 
 4 "
 
 (with-output-to-string (*standard-output*)
   (loop for item in '(1 2 3 4 5)
         do (print item)))
 "
-1
-2
-3
-4
+1 
+2 
+3 
+4 
 5 "
 
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-2-1.html>
@@ -55,8 +55,8 @@
   (loop for item in '(1 2 3 4 5) by #'cddr
         do (print item)))
 "
-1
-3
+1 
+3 
 5 "
 
 (loop for (item . x) (t . fixnum) in '((A . 1) (B . 2) (C . 3))
@@ -72,16 +72,16 @@
   (loop for (item) on '(1 2 3)
         do (print item)))
 "
-1
-2
+1 
+2 
 3 "
 
 (with-output-to-string (*standard-output*)
   (loop for item in '(1 2 3)
         do (print item)))
 "
-1
-2
+1 
+2 
 3 "
 
 ;; ON ends on ATOM, not ENDP
@@ -342,11 +342,11 @@ February 17
             finally (setq results (list odd-numbers even-numbers))))
     results))
 ("
-3
+3 
 
-1
+1 
 
-7
+7 
 "
 (3 1 7) (2 4 6 8))
 
@@ -383,7 +383,7 @@ February 17
             do (write-string " c")))
 "
 0  a b c
-1
+1 
 2  a
 3 "
 
@@ -400,7 +400,7 @@ February 17
           do (write-string " c")))
 "
 0  a b c
-1
+1 
 2  a c
 3 "
 
@@ -408,10 +408,10 @@ February 17
   (loop for i from 1 to 5
         do (print i)))
 "
-1
-2
-3
-4
+1 
+2 
+3 
+4 
 5 "
 
 (with-output-to-string (*standard-output*)
@@ -419,13 +419,13 @@ February 17
         do (print i)
            (print (* i i))))
 "
-1
-1
-2
-4
-3
-9
-4
+1 
+1 
+2 
+4 
+3 
+9 
+4 
 16 "
 
 (loop for item in '(1 2 3 a 4 5)
