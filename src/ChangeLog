@@ -1,5 +1,12 @@
 1999-03-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * defs2.lsp (define-symbol-macro, check-not-special-variable-p): Move
+          to macros2.lsp.
+        * macros2.lsp (define-symbol-macro, check-not-special-variable-p):
+          Moved here from defs2.lsp.
+
+1999-03-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (test_socket_server): New argument check_open. When it is
           TRUE, check that the handle is non-NIL.
           (SOCKET-SERVER-CLOSE): After closing, set the handle to NIL. When
