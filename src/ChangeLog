@@ -1,5 +1,10 @@
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
+	* clos-methcomb2.lisp (define-method-combination): Check the :arguments
+	lambda-list.
+
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
 	* clos-methcomb1.lisp (method-combination): Remove order slot.
 	* clos-methcomb2.lisp (compute-short-form-effective-method-form): Take
 	the order from the options, not from the method-combination. Improve
