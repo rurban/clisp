@@ -1,3 +1,7 @@
+1998-09-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (const, __const): Define to empty when using gcc-2.7.x.
+
 1998-09-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw_mmap.d (mprotect): Declare with MPROTECT_CONST.
