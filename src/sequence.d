@@ -2478,7 +2478,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
         if (!(posfixnump(bvsize))) { # fixnum?
           pushSTACK(*(stackptr STACKop 0)); # sequence
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~: sequence ~ is too long"));
+          fehler(error,GETTEXT("~S: sequence ~S is too long"));
         }
         bvl = posfixnum_to_L(bvsize);
       }
@@ -2557,7 +2557,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
         if (!(posfixnump(bvsize))) { # fixnum?
           pushSTACK(*(stackptr STACKop 0)); # sequence
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~: sequence ~ is too long"));
+          fehler(error,GETTEXT("~S: sequence ~S is too long"));
         }
         bvl = posfixnum_to_L(bvsize);
       }
@@ -3509,7 +3509,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
         if (!(posfixnump(bvsize))) { # fixnum?
           pushSTACK(*(stackptr STACKop 0)); # sequence
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~: sequence ~ is too long"));
+          fehler(error,GETTEXT("~S: sequence ~S is too long"));
         }
         bvl = posfixnum_to_L(bvsize);
       }
