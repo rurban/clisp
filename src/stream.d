@@ -14957,7 +14957,7 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
     var int index = 0;
     while(!nullp(list)) {
       index++; pushSTACK(list); # save list
-      object tmp = handle_isset(Car(list),&readfds,&writefds,&errorfds);
+      var object tmp = handle_isset(Car(list),&readfds,&writefds,&errorfds);
       list = Cdr(STACK_0); # (POP list)
       STACK_0 = tmp;
     }
