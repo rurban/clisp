@@ -1536,7 +1536,7 @@ LISPFUNN(charset_range,3)
     if (i1 <= i2)
       value1 = Encoding_range(encoding)(encoding,i1,i2);
     else
-      value1 = O(leer_string);
+      value1 = O(empty_string);
     mv_count=1;
     skipSTACK(3);
   }

@@ -2453,13 +2453,13 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               #   subdir.
               #ifdef PATHNAME_AMIGAOS
               # War es '' ?
-              if (equal(STACK_0,O(leer_string))) {
+              if (equal(STACK_0,O(empty_string))) {
                 STACK_0 = S(Kparent); # replace with :PARENT
               } else
               #endif
               # War es '**' oder '...' ?
               if (equal(STACK_0,O(wildwild_string)) ||
-                  equal(STACK_0,O(punktpunktpunkt_string))) {
+                  equal(STACK_0,O(dotdotdot_string))) {
                 STACK_0 = S(Kwild_inferiors); # replace with :WILD-INFERIORS
               }
             #endif
@@ -2571,7 +2571,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             var object name = popSTACK();
             skipSTACK(1); # Directory ist schon eingetragen
             # name="" durch Name=NIL ersetzen:
-            if (equal(name,O(leer_string)))
+            if (equal(name,O(empty_string)))
               name = NIL;
             var object pathname = STACK_0;
             ThePathname(pathname)->pathname_name = name;
@@ -3020,7 +3020,7 @@ local uintC host_namestring_parts (object pathname) {
     }
 #else
     pushSTACK(host);
-    pushSTACK(O(doppelpunkt_string)); # ":"
+    pushSTACK(O(colon_string)); # ":"
     return 2;
 #endif
   }
@@ -3062,9 +3062,9 @@ local uintC directory_namestring_parts (object pathname) {
   { # Device:
     var object device = xpathname_device(logp,pathname);
     if (!(nullp(device))) { # NIL -> kein String
-      pushSTACK(O(doppelpunkt_string)); # ":"
+      pushSTACK(O(colon_string)); # ":"
       pushSTACK(device); # Device auf den Stack
-      pushSTACK(O(punkt_string)); # "."
+      pushSTACK(O(dot_string)); # "."
       stringcount += 3; # und mitzählen
     }
   }
@@ -3082,33 +3082,33 @@ local uintC directory_namestring_parts (object pathname) {
    #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
     # evtl. Doppelpunkt:
     if (stringcount != 0) { # only if have something on the STACK already
-      pushSTACK(O(doppelpunkt_string)); stringcount++; # ":" auf den Stack
+      pushSTACK(O(colon_string)); stringcount++; # ":"
     }
    #endif
     # Ist das erste subdir = :ABSOLUTE oder = :RELATIVE ?
     if (eq(Car(directory),S(Kabsolute))) {
      #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-      pushSTACK(O(backslash_string)); stringcount++; # "\\" auf den Stack
+      pushSTACK(O(backslash_string)); stringcount++; # "\\"
      #endif
      #ifdef PATHNAME_AMIGAOS
-      pushSTACK(O(doppelpunkt_string)); stringcount++; # ":" auf den Stack
+      pushSTACK(O(colon_string)); stringcount++; # ":"
      #endif
      #ifdef PATHNAME_UNIX
-      pushSTACK(O(slash_string)); stringcount++; # "/" auf den Stack
+      pushSTACK(O(slash_string)); stringcount++; # "/"
      #endif
      #ifdef PATHNAME_RISCOS
       directory = Cdr(directory); # übergehen
       var object firstdir = Car(directory);
       if (eq(firstdir,S(Kroot))) {
-        pushSTACK(O(root_string)); stringcount++; # "$." auf den Stack
+        pushSTACK(O(root_string)); stringcount++; # "$."
       } else if (eq(firstdir,S(Khome))) {
-        pushSTACK(O(home_string)); stringcount++; # "&." auf den Stack
+        pushSTACK(O(home_string)); stringcount++; # "&."
       } else if (eq(firstdir,S(Kcurrent))) {
-        pushSTACK(O(current_string)); stringcount++; # "@." auf den Stack
+        pushSTACK(O(current_string)); stringcount++; # "@."
       } else if (eq(firstdir,S(Klibrary))) {
-        pushSTACK(O(library_string)); stringcount++; # "%." auf den Stack
+        pushSTACK(O(library_string)); stringcount++; # "%."
       } else if (eq(firstdir,S(Kprevious))) {
-        pushSTACK(O(previous_string)); stringcount++; # "\\." auf den Stack
+        pushSTACK(O(previous_string)); stringcount++; # "\\."
       } else {
         NOTREACHED
       }
@@ -3120,18 +3120,18 @@ local uintC directory_namestring_parts (object pathname) {
       stringcount += subdir_namestring_parts(directory,logp);
 #if defined(LOGICAL_PATHNAMES)
     if (logp) {
-      pushSTACK(O(semicolon_string)); stringcount++; # ";" into the Stack
+      pushSTACK(O(semicolon_string)); stringcount++; # ";"
     } else
 #endif
     {
      #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-      pushSTACK(O(backslash_string)); stringcount++; # "\\" auf den Stack
+      pushSTACK(O(backslash_string)); stringcount++; # "\\"
      #endif
      #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
-      pushSTACK(O(slash_string)); stringcount++; # "/" auf den Stack
+      pushSTACK(O(slash_string)); stringcount++; # "/"
      #endif
      #ifdef PATHNAME_RISCOS
-      pushSTACK(O(punkt_string)); stringcount++; # "." auf den Stack
+      pushSTACK(O(dot_string)); stringcount++; # "."
      #endif
     }
     directory = Cdr(directory);
@@ -3164,7 +3164,7 @@ local uintC directory_namestring_parts (object pathname) {
       }
       # Typ:
       if (!nullp(type)) { # type=NIL -> nicht ausgeben
-        pushSTACK(O(punkt_string)); # "." auf den Stack
+        pushSTACK(O(dot_string)); # "."
         stringcount++; # und mitzählen
         var object string = wild2string(type);
         pushSTACK(string);
@@ -3172,7 +3172,7 @@ local uintC directory_namestring_parts (object pathname) {
       }
       #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
       if (!nullp(version)) { # version=NIL -> nicht ausgeben
-        pushSTACK(O(punkt_string)); # "." auf den Stack
+        pushSTACK(O(dot_string)); # "."
         stringcount++; # und mitzählen
         if (eq(version,S(Knewest)))
           pushSTACK(O(zero_string)); # :NEWEST -> String "0"
@@ -4245,7 +4245,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         # nicht angegeben
         if (eq(STACK_7,unbound)) # no defaults?
           STACK_2 = NIL; # -> use NIL
-      } else if (equal(name,O(leer_string))) { # name = "" ?
+      } else if (equal(name,O(empty_string))) { # name = "" ?
         STACK_2 = NIL; # -> use NIL
       } else if (nullp(name)) { # NIL is OK
       }
@@ -5531,7 +5531,7 @@ local object translate_nametype_aux (object* subst, object muster,
   if (eq(muster,S(Kwild)) && mconsp(*subst)) {
     if (TRIVIAL_P(Car(*subst))) {
       var object erg = Car(*subst); *subst = Cdr(*subst);
-      return (nullp(erg) ? O(leer_string) : erg);
+      return (nullp(erg) ? O(empty_string) : erg);
     } else
       return nullobj;
   }
@@ -5565,7 +5565,7 @@ local object translate_nametype_aux (object* subst, object muster,
       # Wildcard ersetzen:
       if (TRIVIAL_P(Car(*subst))) {
         var object s = Car(*subst);
-        pushSTACK(nullp(s) ? O(leer_string) : s);
+        pushSTACK(nullp(s) ? O(empty_string) : s);
         *subst = Cdr(*subst); stringcount++;
       } else {
         skipSTACK(stringcount+1); return nullobj;
@@ -6140,9 +6140,9 @@ local object use_default_dir (object pathname) {
     # Stackaufbau: Pathname, subdir-oldlist, subdir-newlist.
     while (mconsp(STACK_1)) { # Bis oldlist am Ende ist:
       var object subdir = Car(STACK_1); # nächstes subdir
-      if (equal(subdir,O(punkt_string))) {
+      if (equal(subdir,O(dot_string))) {
         # = :CURRENT -> newlist unverändert lassen
-      } else if (equal(subdir,O(punktpunkt_string))) {
+      } else if (equal(subdir,O(dotdot_string))) {
         # = :PARENT -> newlist um eins verkürzen:
         if (matomp(Cdr(STACK_0))) { # newlist (bis auf :ABSOLUTE) leer ?
           # :PARENT von "\" aus liefert Error
@@ -6576,14 +6576,14 @@ global object assume_dir_exists (void) {
       begin_system_call();
       if ( getwd(&path_buffer[0]) ==NULL) {
         end_system_call();
-        pushSTACK(O(punkt_string)); # FILE-ERROR slot PATHNAME
+        pushSTACK(O(dot_string)); # FILE-ERROR slot PATHNAME
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding))); # Meldung
         fehler(file_error,GETTEXT("UNIX error while GETWD: ~"));
       }
       end_system_call();
       # Es muss mit '/' anfangen:
       if (!(path_buffer[0] == '/')) {
-        pushSTACK(O(punkt_string)); # FILE-ERROR slot PATHNAME
+        pushSTACK(O(dot_string)); # FILE-ERROR slot PATHNAME
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
         fehler(file_error,GETTEXT("UNIX GETWD returned ~"));
       }
@@ -6660,7 +6660,7 @@ local object use_default_dir (object pathname) {
             var object pathname = STACK_0;
             var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
             stringcount += directory_namestring_parts(pathname); # Strings zum Directory
-            pushSTACK(O(punkt_string)); # und "."
+            pushSTACK(O(dot_string)); # und "."
             var object string = string_concat(stringcount+1); # zusammenhängen
             # symbolische Links darin auflösen:
             with_sstring_0(string,O(pathname_encoding),string_asciz, {
@@ -6835,9 +6835,9 @@ local object canonicalise_filename (object filename) {
       {
         var object device = ThePathname(pathname)->pathname_device;
         if (!(nullp(device))) { # NIL -> kein String
-          pushSTACK(O(doppelpunkt_string)); # ":"
+          pushSTACK(O(colon_string)); # ":"
           pushSTACK(device); # Device auf den Stack
-          pushSTACK(O(punkt_string)); # "."
+          pushSTACK(O(dot_string)); # "."
           stringcount += 3; # und mitzählen
         }
       }
@@ -7507,7 +7507,7 @@ LISPFUNN(probe_file,1)
       #endif
       #ifdef PATHNAME_UNIX
         pushSTACK(dir_namestring);
-        pushSTACK(O(punkt_string)); # und "."
+        pushSTACK(O(dot_string)); # und "."
         dir_namestring = string_concat(2); # zusammenhängen
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
           var struct stat statbuf;
@@ -8728,7 +8728,7 @@ LISPFUN(open,1,0,norest,key,6,\
   local object directory_search_hashcode()
     {
       pushSTACK(STACK_0); # Directory-Name
-      pushSTACK(O(punkt_string)); # und "."
+      pushSTACK(O(dot_string)); # und "."
       var object namestring = string_concat(2); # zusammenhängen
       var struct stat status;
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -8792,7 +8792,7 @@ LISPFUN(open,1,0,norest,key,6,\
           var object namestring;
           #ifdef UNIX
           pushSTACK(STACK_0); # Directory-Name
-          pushSTACK(O(punkt_string)); # und "."
+          pushSTACK(O(dot_string)); # und "."
           namestring = string_concat(2); # zusammenhängen
           #endif
           #ifdef RISCOS
@@ -8866,8 +8866,8 @@ LISPFUN(open,1,0,norest,key,6,\
             }
             #ifndef RISCOS
             # "." und ".." übergehen:
-            if (!(equal(direntry,O(punkt_string))
-                  || equal(direntry,O(punktpunkt_string))))
+            if (!(equal(direntry,O(dot_string)) ||
+                  equal(direntry,O(dotdot_string))))
             #endif
             {
               pushSTACK(direntry);
@@ -9170,8 +9170,8 @@ LISPFUN(open,1,0,norest,key,6,\
                 # Directory-Eintrag in String umwandeln:
                 var object direntry = asciz_to_string(READDIR_entry_name(),O(pathname_encoding));
                 # "." und ".." übergehen:
-                if (!(equal(direntry,O(punkt_string))
-                      || equal(direntry,O(punktpunkt_string)))) {
+                if (!(equal(direntry,O(dot_string)) ||
+                      equal(direntry,O(dotdot_string)))) {
                   pushSTACK(direntry);
                   # Stackaufbau: ..., pathname, dir_namestring, direntry.
                   if (READDIR_entry_ISDIR()) { # Ist es ein Directory?
@@ -9597,7 +9597,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 # (CD [pathname]) setzt das aktuelle Laufwerk und das aktuelle Directory.
   {
     var object pathname = popSTACK();
-    if (eq(pathname,unbound)) { pathname = O(leer_string); } # "" als Default
+    if (eq(pathname,unbound)) { pathname = O(empty_string); } # ""
     pathname = coerce_pathname(pathname); # zu einem Pathname machen
     # kopieren und Name und Typ auf NIL setzen:
     pathname = copy_pathname(pathname);
