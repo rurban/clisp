@@ -483,7 +483,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           }
           var object dv1 = array_displace_check(STACK_6,count,&index1);
           var object dv2 = array_displace_check(STACK_4,count,&index2);
-          if (dv1 == dv2)
+          if (eq(dv1,dv2))
             elt_move(dv1,index1,dv2,index2,count);
           else
             elt_copy(dv1,index1,dv2,index2,count);
