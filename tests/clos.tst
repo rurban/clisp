@@ -32,7 +32,7 @@ A
           (list slot-name operation new-value new-value-p)))
   (list (slot-boundp a 'abcd) cache
         (slot-value a 'abcd) cache))
-(#+(or CMU18 OpenMCL LISPWORKS) (ABCD SLOT-BOUNDP NIL NIL) #-(or CMU18 OpenMCL LISPWORKS) T
+(#+(or ALLEGRO CMU18 OpenMCL LISPWORKS) (ABCD SLOT-BOUNDP NIL NIL) #-(or ALLEGRO CMU18 OpenMCL LISPWORKS) T
  (ABCD SLOT-BOUNDP NIL NIL) (ABCD SLOT-VALUE NIL NIL) (ABCD SLOT-VALUE NIL NIL))
 
 (x-val a)
@@ -590,8 +590,8 @@ FOO
     (delete-file c)
     #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
 #+(or CLISP LISPWORKS) #S(FOO :SLOT NIL)
-#+(or CMU SBCL) ERROR
-#-(or CLISP CMU SBCL LISPWORKS) UNKNOWN
+#+(or ALLEGRO CMU SBCL) ERROR
+#-(or CLISP ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
 ;; The finalized-direct-subclasses list must be weak.
 #+clisp
@@ -657,9 +657,9 @@ FOO
   (list (slot-value p1 'name) (slot-value p1 'rho) (slot-value p1 'theta)
         (slot-value p2 'name) (slot-value p2 'rho) (slot-value p2 'theta)))
 #+CLISP (FOO 2 0 BAR 1.4142135 0.7853981)
-#+(or CMU SBCL OpenMCL) (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
+#+(or ALLEGRO CMU SBCL OpenMCL) (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
 #+LISPWORKS (FOO 2.0 0.0 BAR 1.4142135623730951 0.7853981633974483)
-#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defclass c0 () (a b c))
@@ -1165,11 +1165,12 @@ T
     (let ((x (make-instance 'foo96b :s 5)))
       (note (foo96b-s x))
       (note
-        (type-of
+        (typep
           (second
             (multiple-value-list
               (ignore-errors
-                (defclass foo96b (foo96a) ((s :accessor foo96b-s))))))))
+                (defclass foo96b (foo96a) ((s :accessor foo96b-s))))))
+          'error))
       (note (foo96b-s x))
       (note (slot-value x 's))
       (defclass foo96a () ((r :accessor foo96b-r)))
@@ -1177,18 +1178,19 @@ T
       (note (slot-value x 's))
       (note (subtypep 'foo96b 'foo96a))
       notes)))
-(5 SIMPLE-ERROR 5 5 5 5 NIL)
+(5 T 5 5 5 5 NIL)
 (let ((notes '()))
   (flet ((note (o) (setq notes (append notes (list o)))))
     (defclass foo97b () ((s :initarg :s :accessor foo97b-s)))
     (let ((x (make-instance 'foo97b :s 5)))
       (note (foo97b-s x))
       (note
-        (type-of
+        (typep
           (second
             (multiple-value-list
               (ignore-errors
-                (defclass foo97b (foo97a) ((s :accessor foo97b-s))))))))
+                (defclass foo97b (foo97a) ((s :accessor foo97b-s))))))
+          'error))
       (note (foo97b-s x))
       (note (slot-value x 's))
       (defclass foo97a () ((r :accessor foo97b-r)))
@@ -1196,7 +1198,7 @@ T
       (note (slot-value x 's))
       (note (subtypep 'foo97b 'foo97a))
       notes)))
-(5 SIMPLE-ERROR 5 5 5 5 NIL)
+(5 T 5 5 5 5 NIL)
 
 
 ;; Test the :fixed-slot-location option.
@@ -1859,7 +1861,7 @@ ERROR
   (defmethod test-mc-standard-bad-qualifiers :beffor ((x float) (y float))
     (format t "x = ~S, y = ~S~%" x y))
   t)
-#+(or CLISP CMU LISPWORKS) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#+(or CLISP CMU LISPWORKS) ERROR #+(or ALLEGRO SBCL OpenMCL) T #-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defgeneric test-mc-standard-bad1 (x y))
@@ -1867,7 +1869,7 @@ ERROR
   (defmethod test-mc-standard-bad1 :after :before ((x integer) (y integer))
     (* x y))
   t)
-#+(or CLISP CMU LISPWORKS) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#+(or CLISP ALLEGRO CMU LISPWORKS) ERROR #+(or SBCL OpenMCL) T #-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defgeneric test-mc-standard-bad2 (x y))
@@ -1914,7 +1916,7 @@ ERROR
     (:method ((x string)) (list (length x)))
     (:method ((x vector)) (list (array-element-type x))))
   t)
-#+(or CLISP CMU LISPWORKS) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
+#+(or CLISP CMU LISPWORKS) ERROR #+(or ALLEGRO SBCL OpenMCL) T #-(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 ; Test ANSI CL 7.6.6.4.
 (progn
