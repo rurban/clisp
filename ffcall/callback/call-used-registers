@@ -28,3 +28,4 @@ rs6000      0,3-12                      0,11,12                 11
 m88k        10,13,11(?)                 r10,r13,r11,r12         r11
 convex      s0-s7,a1-a5                 s1,s2                   s0
 ia64        r14-r31,r8-r11              r8,r14,r15...r19        r15
+x86_64      rax,rdx,rcx,rsi,rdi,r8-r15  rax,r10                 r10

@@ -9,7 +9,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386-macro.S vacall-i386-msvc.c vacall-i386-mingw32.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-rs6000-macos.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall.man \
+all : vacall-i386-macro.S vacall-i386-msvc.c vacall-i386-mingw32.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-rs6000-macos.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall-x86_64.s vacall.man \
       vacall.h.msvc config.h.msvc vacall.h.mingw32 config.h.mingw32
 
 vacall-i386-macro.S : vacall-i386.c vacall.h.in asmi386.sh
@@ -90,6 +90,9 @@ vacall-convex.s : vacall-convex.c vacall.h.in
 vacall-ia64.s : vacall-ia64.c vacall.h.in
 	$(GCC) -V 2.9-ia64-000216 -b ia64-hp-linux $(GCCFLAGS) -D__ia64__ -S vacall-ia64.c -o vacall-ia64.s
 
+vacall-x86_64.s : vacall-x86_64.c vacall.h.in
+	$(GCC) -V 3.2.2 -b x86_64-suse-linux $(GCCFLAGS) -D__x86_64__ -S vacall-x86_64.c -o vacall-x86_64.s
+
 vacall.man : vacall.3
 	$(ROFF_MAN) vacall.3 > vacall.man
 
@@ -105,7 +108,7 @@ config.h.msvc : config.h.in
 config.h.mingw32 : config.h.in
 	cp config.h.in config.h.mingw32
 
-tests : tests-i386.s tests-m68k.s tests-mips.s tests-sparc.s tests-alpha.s tests-hppa.s tests-arm.s tests-rs6000.s tests-m88k.s tests-convex.s tests-ia64.s
+tests : tests-i386.s tests-m68k.s tests-mips.s tests-sparc.s tests-alpha.s tests-hppa.s tests-arm.s tests-rs6000.s tests-m88k.s tests-convex.s tests-ia64.s tests-x86_64.s
 	true
 
 tests-i386.s : tests.c vacall.h.in
@@ -161,5 +164,10 @@ tests-convex.s : tests.c vacall.h.in
 tests-ia64.s : tests.c vacall.h.in
 	$(LN) vacall.h.in vacall.h
 	$(GCC) -V 2.9-ia64-000216 -b ia64-hp-linux $(GCCFLAGS) -I/usr/include -D__ia64__ -S tests.c -o tests-ia64.s
+	$(RM) vacall.h
+
+tests-x86_64.s : tests.c vacall.h.in
+	$(LN) vacall.h.in vacall.h
+	$(GCC) -V 3.2.2 -b x86_64-suse-linux $(GCCFLAGS) -I/usr/include -D__x86_64__ -S tests.c -o tests-x86_64.s
 	$(RM) vacall.h
 

@@ -8,7 +8,7 @@ ASPREFIX = /usr1/gnu/lib
 RM = rm -f
 ROFF_MAN = groff -Tascii -mandoc
 
-all : proto-i386.s proto-m68k.s proto-mips.s proto-mipsn32.s proto-mips64.s proto-sparc.s proto-sparc64.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000-aix.old.s proto-rs6000-aix.new.s proto-rs6000-sysv4.s proto-rs6000-macos.s proto-m88k.s proto-convex.s proto-ia64.c \
+all : proto-i386.s proto-m68k.s proto-mips.s proto-mipsn32.s proto-mips64.s proto-sparc.s proto-sparc64.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000-aix.old.s proto-rs6000-aix.new.s proto-rs6000-sysv4.s proto-rs6000-macos.s proto-m88k.s proto-convex.s proto-ia64.c proto-x86_64.c \
       cache-sparc.S cache-alpha.s cache-hppa.s cache-rs6000-sysv4.s cache-rs6000-macos.s cache-convex.s \
       trampoline_r.man \
       config.h.msvc config.h.mingw32
@@ -63,6 +63,9 @@ proto-convex.s : proto.c
 
 proto-ia64.s : proto64.c
 	$(GCC) -V 2.9-ia64-000216 -b ia64-hp-linux $(GCCFLAGS) -D__ia64__ -S proto64.c -o $@
+
+proto-x86_64.s : proto64.c
+	$(GCC) -V 3.2.2 -b x86_64-suse-linux $(GCCFLAGS) -D__x86_64__ -S proto64.c -o $@
 
 cache-sparc.S : cache-sparc.c asmsparc.sh
 	$(GCC) -V 2.95.2 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S $< -o cache-sparc.s
@@ -134,4 +137,7 @@ tramp-convex.o : tramp-convex.s
 
 tramp-ia64.o : tramp-ia64.s
 	/nue/usr/ia64-hp-linux/bin/as tramp-ia64.s -o $@
+
+tramp-x86_64.o : tramp-x86_64.s
+	$(ASPREFIX)/x86_64-suse-linux/bin/as tramp-x86_64.s -o $@
 

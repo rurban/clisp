@@ -9,7 +9,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386-macro.S avcall-i386-msvc.c avcall-i386-mingw32.c avcall.h.msvc avcall.h.mingw32 avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-sparc64.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-rs6000-macos.s avcall-m88k.s avcall-convex.s avcall-ia64.s avcall.man
+all : avcall-i386-macro.S avcall-i386-msvc.c avcall-i386-mingw32.c avcall.h.msvc avcall.h.mingw32 avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-sparc64.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-rs6000-macos.s avcall-m88k.s avcall-convex.s avcall-ia64.s avcall-x86_64.s avcall.man
 
 avcall-i386-macro.S : avcall-i386.c avcall.h.in asmi386.sh
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
@@ -102,11 +102,14 @@ avcall-convex.s : avcall-convex.c avcall.h.in
 avcall-ia64.s : avcall-ia64.c avcall.h.in
 	$(GCC) -V 2.9-ia64-000216 -b ia64-hp-linux $(GCCFLAGS) -D__ia64__ -S avcall-ia64.c -o avcall-ia64.s
 
+avcall-x86_64.s : avcall-x86_64.c avcall.h.in
+	$(GCC) -V 3.2.2 -b x86_64-suse-linux $(GCCFLAGS) -D__x86_64__ -S avcall-x86_64.c -o avcall-x86_64.s
+
 avcall.man : avcall.3
 	$(ROFF_MAN) avcall.3 > avcall.man
 
 
-tests : tests-i386.s tests-m68k.s tests-mips.s tests-sparc.s tests-alpha.s tests-hppa.s tests-arm.s tests-rs6000.s tests-m88k.s tests-convex.s tests-ia64.s
+tests : tests-i386.s tests-m68k.s tests-mips.s tests-sparc.s tests-alpha.s tests-hppa.s tests-arm.s tests-rs6000.s tests-m88k.s tests-convex.s tests-ia64.s tests-x86_64.s
 	true
 
 tests-i386.s : tests.c avcall.h.in
@@ -162,5 +165,10 @@ tests-convex.s : tests.c avcall.h.in
 tests-ia64.s : tests.c avcall.h.in
 	$(LN) avcall.h.in avcall.h
 	$(GCC) -V 2.9-ia64-000216 -b ia64-hp-linux $(GCCFLAGS) -I/usr/include -D__ia64__ -S tests.c -o tests-ia64.s
+	$(RM) avcall.h
+
+tests-x86_64.s : tests.c avcall.h.in
+	$(LN) avcall.h.in avcall.h
+	$(GCC) -V 3.2.2 -b x86_64-suse-linux $(GCCFLAGS) -I/usr/include -D__x86_64__ -S tests.c -o tests-x86_64.s
 	$(RM) avcall.h
 

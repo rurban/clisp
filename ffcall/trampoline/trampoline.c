@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1999, 2001-2003 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2001-2004 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -299,6 +299,10 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 40
 #define TRAMP_ALIGN 16
 #endif
+#ifdef __x86_64__
+#define TRAMP_LENGTH 32
+#define TRAMP_ALIGN 16
+#endif
 #ifdef __s390__
 #define TRAMP_LENGTH 36
 #define TRAMP_ALIGN 2
@@ -510,53 +514,6 @@ __TR_function alloc_trampoline (address, variable, data)
   *(unsigned int *) (function +24)
 #define tramp_data(function)  \
   *(unsigned int *) (function +28)
-#endif
-#ifdef __s390__
-  /* function:
-
-        lr      %r0,%r13
-        bras    %r13,.LTN0_0
-.LT0_0:
-.LC0:
-        .long   0x73554711
-.LC1:
-        .long   0x12345678
-.LC2:
-        .long   0xbabebec0
-.LTN0_0:
-        l       %r1,.LC0-.LT0_0(%r13)
-        mvc     0(4,%r1),.LC1-.LT0_0(%r13)
-        l       %r1,.LC2-.LT1_0(%r13)
-        lr      %r13,%r0
-        br      %r1
-  */
-  /* What about big endian / little endian ?? */
-  *(unsigned short *) (function + 0) = 0x180D;
-  *(unsigned int *)   (function + 2) = 0xA7D50008;
-  *(unsigned int *)   (function + 6) = (unsigned int) variable;
-  *(unsigned int *)   (function +10) = (unsigned int) data;
-  *(unsigned int *)   (function +14) = (unsigned int) address;
-  *(unsigned int *)   (function +18) = 0x5810D000;
-  *(unsigned int *)   (function +22) = 0xD2031000;
-  *(unsigned short *) (function +26) = 0xD004;
-  *(unsigned int *)   (function +28) = 0x5810D008;
-  *(unsigned short *) (function +32) = 0x18D0;
-  *(unsigned short *) (function +34) = 0x07f1;
-#define is_tramp(function)  \
-  *(short *)          (function + 0) == 0x180D && \
-  *(int *)            (function + 2) == 0xA7D50008 && \
-  *(int *)            (function +18) == 0x5810D000 && \
-  *(int *)            (function +22) == 0xD2031000 && \
-  *(short *)          (function +26) == 0xD004 && \
-  *(int *)            (function +28) == 0x5810D008 && \
-  *(short *)          (function +32) == 0x18D0 && \
-  *(short *)          (function +34) == 0x07f1
-#define tramp_address(function)  \
-  *(unsigned int *) (function +14)
-#define tramp_variable(function)  \
-  *(unsigned int *) (function +6)
-#define tramp_data(function)  \
-  *(unsigned int *) (function +10)
 #endif
 #ifdef __mips64old__
   /* function:
@@ -1102,6 +1059,93 @@ __TR_function alloc_trampoline (address, variable, data)
   ((long *) function)[3]
 #define tramp_data(function)  \
   ((long *) function)[4]
+#endif
+#ifdef __x86_64__
+  /* function:
+   *    movabsq $<data>,%rax		48 B8 <data>
+   *    movabsq %rax, <variable>	48 A3 <variable>
+   *    movabsq $<address>,%rax		48 B8 <address>
+   *    jmp *%rax			FF E0
+   */
+  *(short *) (function + 0) = 0xB848;
+  *(short *) (function + 2) = (unsigned long) data & 0xffff;
+  *(int *)   (function + 4) = ((unsigned long) data >> 16) & 0xffffffff;
+  *(short *) (function + 8) = ((unsigned long) data >> 48) & 0xffff;
+  *(short *) (function +10) = 0xA348;
+  *(int *)   (function +12) = (unsigned long) variable & 0xffffffff;
+  *(int *)   (function +16) = ((unsigned long) variable >> 32) & 0xffffffff;
+  *(short *) (function +20) = 0xB848;
+  *(short *) (function +22) = (unsigned long) address & 0xffff;
+  *(int *)   (function +24) = ((unsigned long) address >> 16) & 0xffffffff;
+  *(short *) (function +28) = ((unsigned long) address >> 48) & 0xffff;
+  *(short *) (function +30) = 0xE0FF;
+#define is_tramp(function)  \
+  *(unsigned short *) (function + 0) == 0xB848 && \
+  *(unsigned short *) (function +10) == 0xA348 && \
+  *(unsigned short *) (function +20) == 0xB848 && \
+  *(unsigned short *) (function +30) == 0xE0FF
+#define hilo(hiword,loword)  \
+  (((unsigned long) (hiword) << 32) | (unsigned long) (loword))
+#define himidlo(hishort,midword,loshort)  \
+  (((unsigned long) (hishort) << 48) | (unsigned long) (midword) << 16 \
+   | (unsigned long) (loshort))
+#define tramp_address(function)  \
+  himidlo(*(unsigned short *) (function +28), \
+          *(unsigned int *)   (function +24), \
+          *(unsigned short *) (function +22))
+#define tramp_variable(function)  \
+  hilo(*(unsigned int *) (function +16), *(unsigned int *) (function +12))
+#define tramp_data(function)  \
+  himidlo(*(unsigned short *) (function + 8), \
+          *(unsigned int *)   (function + 4), \
+          *(unsigned short *) (function + 2))
+#endif
+#ifdef __s390__
+  /* function:
+
+        lr      %r0,%r13
+        bras    %r13,.LTN0_0
+.LT0_0:
+.LC0:
+        .long   0x73554711
+.LC1:
+        .long   0x12345678
+.LC2:
+        .long   0xbabebec0
+.LTN0_0:
+        l       %r1,.LC0-.LT0_0(%r13)
+        mvc     0(4,%r1),.LC1-.LT0_0(%r13)
+        l       %r1,.LC2-.LT1_0(%r13)
+        lr      %r13,%r0
+        br      %r1
+  */
+  /* What about big endian / little endian ?? */
+  *(unsigned short *) (function + 0) = 0x180D;
+  *(unsigned int *)   (function + 2) = 0xA7D50008;
+  *(unsigned int *)   (function + 6) = (unsigned int) variable;
+  *(unsigned int *)   (function +10) = (unsigned int) data;
+  *(unsigned int *)   (function +14) = (unsigned int) address;
+  *(unsigned int *)   (function +18) = 0x5810D000;
+  *(unsigned int *)   (function +22) = 0xD2031000;
+  *(unsigned short *) (function +26) = 0xD004;
+  *(unsigned int *)   (function +28) = 0x5810D008;
+  *(unsigned short *) (function +32) = 0x18D0;
+  *(unsigned short *) (function +34) = 0x07f1;
+#define is_tramp(function)  \
+  *(short *)          (function + 0) == 0x180D && \
+  *(int *)            (function + 2) == 0xA7D50008 && \
+  *(int *)            (function +18) == 0x5810D000 && \
+  *(int *)            (function +22) == 0xD2031000 && \
+  *(short *)          (function +26) == 0xD004 && \
+  *(int *)            (function +28) == 0x5810D008 && \
+  *(short *)          (function +32) == 0x18D0 && \
+  *(short *)          (function +34) == 0x07f1
+#define tramp_address(function)  \
+  *(unsigned int *) (function +14)
+#define tramp_variable(function)  \
+  *(unsigned int *) (function +6)
+#define tramp_data(function)  \
+  *(unsigned int *) (function +10)
 #endif
 
   /* 3. Set memory protection to "executable" */

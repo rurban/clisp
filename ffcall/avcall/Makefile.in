@@ -137,6 +137,9 @@ avcall-convex.lo : $(srcdir)/avcall-convex.s
 avcall-ia64.lo : $(srcdir)/avcall-ia64.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-ia64.s
 
+avcall-x86_64.lo : $(srcdir)/avcall-x86_64.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-x86_64.s
+
 structcpy.lo : $(srcdir)/structcpy.c
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
 
