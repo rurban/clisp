@@ -1,3 +1,7 @@
+2004-04-28  Sam Steingold  <sds@gnu.org>
+
+	* comptran.d (N_cosh_N): Fix a GC-safety bug.
+
 2004-04-28  Bruno Haible  <bruno@clisp.org>
 
 	* charstrg.d (stringof): Fix a GC-safety bug.
