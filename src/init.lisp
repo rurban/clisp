@@ -1583,8 +1583,6 @@
 #-compiler
 (defmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
   `(eval-when (compile) ,@body))
-#-compiler
-(defun LAMBDA-LIST-TO-SIGNATURE (&rest ignore) ignore) ; preliminary
 
 ;; Mapping funname -> symbol
 (sys::%putd 'get-funname-symbol
@@ -1637,14 +1635,14 @@
                              (eql compiler::*denv* *toplevel-denv*))
                       `((COMPILER::EVAL-WHEN-COMPILE
                          (COMPILER::C-DEFUN
-                          ',name ,(lambda-list-to-signature lambdalist)
+                          ',name (lambda-list-to-signature ',lambdalist)
                           ',lambdabody))
                         (EVAL-WHEN (LOAD)
                           (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION
                                         ',lambdabody)))
                       `((COMPILER::EVAL-WHEN-COMPILE
                          (COMPILER::C-DEFUN
-                          ',name ,(lambda-list-to-signature lambdalist)))))
+                          ',name (lambda-list-to-signature ',lambdalist)))))
                     (if (and (null (svref env 0))  ; venv
                              (null (svref env 1))) ; fenv
                        `((EVAL-WHEN (EVAL)
@@ -1660,7 +1658,7 @@
                        '()))
                   `((COMPILER::EVAL-WHEN-COMPILE
                      (COMPILER::C-DEFUN
-                      ',name ,(lambda-list-to-signature lambdalist)))))
+                      ',name (lambda-list-to-signature ',lambdalist)))))
                ,@(if docstring
                    `((SYSTEM::%SET-DOCUMENTATION ,symbolform
                                                  'FUNCTION ',docstring))
