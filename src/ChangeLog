@@ -1,5 +1,11 @@
 2005-02-05  Sam Steingold  <sds@gnu.org>
 
+	* control.d (SYMBOL-MACROLET, LET*, MULTIPLE-VALUE-BIND):
+	always activate all SPECIAL declarations
+	* eval.d (funcall_iclosure): ditto
+
+2005-02-05  Sam Steingold  <sds@gnu.org>
+
 	* cfgwin32.lisp (*load-paths*): use the common "**" instead of
 	the CLISP-specific "..." for :WILD-INFERIORS
 

@@ -2666,6 +2666,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     }
    #undef bind_next_var
   }
+  if (spec_count > 0) activate_specdecls(spec_ptr,spec_count);
   /* 5th step: evaluate Body: */
   implicit_progn(TheIclosure(closure)->clos_body,NIL);
   unwind(); /* unwind ENV-frame */
