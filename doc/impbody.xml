@@ -398,8 +398,8 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   occur)</simpara></listitem>
  <listitem><simpara>any other &symbol-t; (structure types or &clos;
   classes)</simpara></listitem>
- <listitem><simpara>a class object (&clos; classes without a proper
-  name)</simpara></listitem>
+ <listitem><simpara>a class object (&clos; classes without a
+   &proper-name-glo;)</simpara></listitem>
 </itemizedlist>
 
 </section>
