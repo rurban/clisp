@@ -1,3 +1,9 @@
+2002-10-10  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (PARAMS): for the sake of a same-dir build, renamed
+	the temporary C file to tmp.c (instead of the actual name ${parf}.c)
+	(XCFLAGS) [GCC-3 DEBUG]: add -falign-functions=4
+
 2002-10-09  Sam Steingold  <sds@gnu.org>
 
 	* spvw_memfile.d (loadmem_from_handle): accept a second argument
