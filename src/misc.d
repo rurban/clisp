@@ -594,8 +594,9 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
   if (missingp(arg))
     VALUES1(listof(modules_names_to_stack()));
  #if defined(DYNAMIC_FFI) && (defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN))
-  else if (eq(arg,Fixnum_0))
-    {pushSTACK(O(foreign_libraries)); funcall(L(copy_tree),1);}
+  else if (eq(arg,Fixnum_0)) {
+    pushSTACK(O(foreign_libraries)); funcall(L(copy_tree),1);
+  }
  #endif
   else {
     arg = check_string(arg);

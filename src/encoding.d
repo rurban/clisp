@@ -2192,7 +2192,7 @@ global void init_encodings_2 (void) {
     var const nls_table_t * const * ptr = &nls_tables[0];
     var uintC count = sizeof(nls_tables)/sizeof(nls_tables[0]);
     ASSERT(nls_num_encodings == count);
-    while (count--) {
+    for (; count > 0; count--) {
       var object encoding = allocate_encoding();
       TheEncoding(encoding)->enc_eol = S(Kunix);
       TheEncoding(encoding)->enc_towcs_error = S(Kerror);
@@ -2235,7 +2235,7 @@ global void init_encodings_2 (void) {
   {
     var object symbol = iconv_first_sym;
     var uintC count = iconv_num_encodings;
-    while (count--) {
+    for (; count > 0; count--) {
       pushSTACK(Symbol_name(symbol)); pushSTACK(unbound);
       pushSTACK(unbound); pushSTACK(unbound); pushSTACK(NIL);
       C_make_encoding(); /* cannot use funcall yet */
