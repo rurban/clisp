@@ -12,7 +12,7 @@
 # config.status only pays attention to the cache file if you give it the
 # --recheck option to rerun configure.
 #
-ac_cv_c_char_unsigned=${ac_cv_c_char_unsigned='yes'}
+ac_cv_c_char_unsigned=${ac_cv_c_char_unsigned='no'}
 ac_cv_func_mmap=${ac_cv_func_mmap='yes'}
 ac_cv_func_mprotect=${ac_cv_func_mprotect='yes'}
 ac_cv_header_stdc=${ac_cv_header_stdc='yes'}
@@ -22,6 +22,7 @@ ac_cv_header_sys_ipc_h=${ac_cv_header_sys_ipc_h='yes'}
 ac_cv_header_sys_mman_h=${ac_cv_header_sys_mman_h='yes'}
 ac_cv_header_sys_shm_h=${ac_cv_header_sys_shm_h='yes'}
 ac_cv_header_unistd_h=${ac_cv_header_unistd_h='yes'}
+ac_cv_path_install=${ac_cv_path_install='/bin/installbsd -c'}
 ac_cv_prog_CC=${ac_cv_prog_CC='gcc -O'}
 ac_cv_prog_CPP=${ac_cv_prog_CPP='gcc -O -E -w'}
 ac_cv_prog_LN_S=${ac_cv_prog_LN_S='ln -s'}
@@ -39,14 +40,17 @@ cl_cv_c_return_void=${cl_cv_c_return_void='yes'}
 cl_cv_c_struct_return_small=${cl_cv_c_struct_return_small='no'}
 cl_cv_c_struct_return_static=${cl_cv_c_struct_return_static='no'}
 cl_cv_c_void=${cl_cv_c_void='yes'}
-cl_cv_codeexec=${cl_cv_codeexec='guessing no'}
+cl_cv_codeexec=${cl_cv_codeexec='yes'}
 cl_cv_decl_O_RDWR_fcntl_h=${cl_cv_decl_O_RDWR_fcntl_h='yes'}
 cl_cv_func_getpagesize=${cl_cv_func_getpagesize='yes'}
-cl_cv_func_mmap_works=${cl_cv_func_mmap_works='no'}
-cl_cv_func_mprotect_works=${cl_cv_func_mprotect_works='no'}
+cl_cv_func_mmap_anon=${cl_cv_func_mmap_anon='yes'}
+cl_cv_func_mmap_anonymous=${cl_cv_func_mmap_anonymous='yes'}
+cl_cv_func_mmap_devzero=${cl_cv_func_mmap_devzero='yes'}
+cl_cv_func_mmap_works=${cl_cv_func_mmap_works='yes'}
+cl_cv_func_mprotect_works=${cl_cv_func_mprotect_works='yes'}
 cl_cv_func_vm=${cl_cv_func_vm='no'}
 cl_cv_header_stdc=${cl_cv_header_stdc='yes'}
-cl_cv_host=${cl_cv_host='rs6000-ibm-aix3.2.5'}
+cl_cv_host=${cl_cv_host='alpha-dec-osf4.0a'}
 cl_cv_path_install=${cl_cv_path_install='cp'}
 cl_cv_prog_as_underscore=${cl_cv_prog_as_underscore='no'}
 cl_cv_prog_cc_gcc=${cl_cv_prog_cc_gcc='yes'}
@@ -62,25 +66,25 @@ cl_cv_proto_malloc_arg1=${cl_cv_proto_malloc_arg1='size_t'}
 cl_cv_proto_malloc_ret=${cl_cv_proto_malloc_ret='void*'}
 cl_cv_proto_mkdir=${cl_cv_proto_mkdir='extern int mkdir (const char*, mode_t);'}
 cl_cv_proto_mkdir_arg1=${cl_cv_proto_mkdir_arg1='const'}
-cl_cv_proto_mmap=${cl_cv_proto_mmap='extern caddr_t mmap (caddr_t, size_t, int, int, int, off_t);'}
-cl_cv_proto_mmap_arg1=${cl_cv_proto_mmap_arg1='caddr_t'}
+cl_cv_proto_mmap=${cl_cv_proto_mmap='extern void* mmap (void*, size_t, int, int, int, off_t);'}
+cl_cv_proto_mmap_arg1=${cl_cv_proto_mmap_arg1='void*'}
 cl_cv_proto_mmap_arg2=${cl_cv_proto_mmap_arg2='size_t'}
-cl_cv_proto_mmap_ret=${cl_cv_proto_mmap_ret='caddr_t'}
-cl_cv_proto_mprotect=${cl_cv_proto_mprotect='extern int mprotect (caddr_t, size_t, int);'}
-cl_cv_proto_mprotect_arg1=${cl_cv_proto_mprotect_arg1=''}
+cl_cv_proto_mmap_ret=${cl_cv_proto_mmap_ret='void*'}
+cl_cv_proto_mprotect=${cl_cv_proto_mprotect='extern int mprotect (const void*, size_t, int);'}
+cl_cv_proto_mprotect_arg1=${cl_cv_proto_mprotect_arg1='const'}
 cl_cv_proto_open=${cl_cv_proto_open='extern int open (const char*, int, ...);'}
 cl_cv_proto_open_arg1=${cl_cv_proto_open_arg1='const'}
 cl_cv_proto_open_args=${cl_cv_proto_open_args='const char*, int, ...'}
 cl_cv_proto_open_dots=${cl_cv_proto_open_dots='yes'}
-cl_cv_proto_shmat=${cl_cv_proto_shmat='extern char* shmat (int, char*, int);'}
-cl_cv_proto_shmat_arg2=${cl_cv_proto_shmat_arg2=''}
-cl_cv_proto_shmat_ret=${cl_cv_proto_shmat_ret='char*'}
+cl_cv_proto_shmat=${cl_cv_proto_shmat='extern void* shmat (int, const void*, int);'}
+cl_cv_proto_shmat_arg2=${cl_cv_proto_shmat_arg2='const'}
+cl_cv_proto_shmat_ret=${cl_cv_proto_shmat_ret='void*'}
 cl_cv_proto_shmctl=${cl_cv_proto_shmctl='extern int shmctl (int, int, struct shmid_ds *);'}
 cl_cv_proto_shmctl_args=${cl_cv_proto_shmctl_args='int, int, struct shmid_ds *'}
 cl_cv_proto_shmctl_dots=${cl_cv_proto_shmctl_dots='no'}
-cl_cv_proto_shmdt=${cl_cv_proto_shmdt='extern int shmdt (char*);'}
-cl_cv_proto_shmdt_arg1=${cl_cv_proto_shmdt_arg1='char*'}
-cl_cv_proto_shmget=${cl_cv_proto_shmget='extern int shmget (key_t, int, int);'}
-cl_cv_proto_shmget_arg2=${cl_cv_proto_shmget_arg2='int'}
+cl_cv_proto_shmdt=${cl_cv_proto_shmdt='extern int shmdt (const void *);'}
+cl_cv_proto_shmdt_arg1=${cl_cv_proto_shmdt_arg1='const void *'}
+cl_cv_proto_shmget=${cl_cv_proto_shmget='extern int shmget (key_t, size_t, int);'}
+cl_cv_proto_shmget_arg2=${cl_cv_proto_shmget_arg2='size_t'}
 cl_cv_sys_shm_works=${cl_cv_sys_shm_works='no'}
 cl_cv_type_mode_t=${cl_cv_type_mode_t='mode_t'}
