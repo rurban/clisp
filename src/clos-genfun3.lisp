@@ -345,7 +345,7 @@
                  method-forms)))
         (t (error-of-type 'sys::source-program-error
              (TEXT "~S ~S: invalid syntax in ~S option: ~S")
-             caller funname 'defstruct option))))
+             caller funname 'defgeneric option))))
     ;; Check :argument-precedence-order :
     (multiple-value-bind (signature argument-precedence-order argorder)
         (check-gf-lambdalist+argorder lambdalist (rest argorders) argorders
