@@ -45,7 +45,7 @@ given by the function <function>objsize()</function>.</para>
 <para>&clisp; objects which contain exactly 2 &clisp; objects
 (i.e. &cons-class;es, &complex-class; numbers, &ratio-class;s) are
 stored in a separate area and occupy 2 words each.
-All other &clisp; objects have "varying length" (well, more precisely,
+All other &clisp; objects have "varying length" (more precisely,
 not a fixed length) and include a word for garbage collection purposes
 at their beginning.</para>
 
@@ -285,8 +285,7 @@ of this approach, compared to native code compilation, are:
  <listitem><simpara>Bytecode compiled programs are a lot smaller than
   when compiled to native code.  This results in better use of CPU
   caches, and in less virtual memory paging. Users perceive this as good
-  responsiveness.
-  </simpara></listitem>
+  responsiveness.</simpara></listitem>
   <listitem><simpara>Maximum execution speed (throughput in tight loops)
    is limited.</simpara></listitem>
   <listitem><simpara>Since no bytecode instructions are provided for
@@ -305,7 +304,7 @@ of this approach, compared to native code compilation, are:
   <listitem><simpara>The compiler is independent from the hardware CPU.
    Different backends, one for each hardware CPU, are not needed.  As a
    consequence, the compiler is fairly small (and would have been easily
-   maintainable if it were written in a less kludgy way...), and it is
+   maintainable if it were written in a less kludgey way...), and it is
    impossible for the compiler writer to introduce CPU dependent bugs.
  </simpara></listitem></itemizedlist>
 </para>
