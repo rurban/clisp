@@ -1,3 +1,8 @@
+2001-03-07  Bruno Haible  <haible@clisp.cons.org>
+
+        * stream.d (lisp_completion): Remove end_callback() call from last
+          patch.
+
 2001-03-06  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (lisp_completion): [Bug #221956] check the return value
