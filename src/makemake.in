@@ -3031,7 +3031,7 @@ if test -n "$GROFF"; then
 else
   manual_dvi=''
 fi
-echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
+echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi``if [ ${HSYSOS} = cygwin ]; then echol ' cygwin.README'; fi`
 IMPNOTES_FILES="impnotes.html impnotes.css clisp.png";
 if [ ${HOS} = win32 ]; then
   IMPNOTES_FILES=${IMPNOTES_FILES}" clisp.ico";
@@ -3282,6 +3282,10 @@ if [ $CROSS = false ] ; then
         echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_dvi} \$(DESTDIR)\$(lispdocdir)/doc/"
         ;;
     esac
+    if [ ${HSYSOS} = cygwin ]; then
+      echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)/Cygwin"
+      echotab "\$(INSTALL_DATA) cygwin.README \$(DESTDIR)\$(docdir)/Cygwin/clisp-\`cat VERSION\`.README"
+    fi
     echol
     echol
     echol "installcheck : ${TESTSDIR} force"
@@ -3354,11 +3358,24 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "cat SUMMARY >> setup.hint"
   echotab "echo '\"' >> setup.hint"
   echol
+  echol "cygwin.README : setup.hint makemake"
+  echotab "echo 'CLISP: an ANSI Common Lisp implementation' > cygwin.README"
+  echotab "echo '' >> cygwin.README"
+  echotab "grep requires setup.hint >> cygwin.README"
+  echotab "echo 'recommended: libsigsegv http://sourceforge.net/projects/libsigsegv' >> cygwin.README"
+  echotab "echo '' >> cygwin.README"
+  echotab "echo 'builds \"out of the box\" on cygwin:' >> cygwin.README"
+  echotab "echo './configure$makemake_args --install build-cygwin' >> cygwin.README"
+  echotab "echo 'will configure, build and install CLISP' >> cygwin.README"
+  echotab "echo 'see unix/INSTALL for details' >> cygwin.README"
+  echotab "echo '' >> cygwin.README"
+  echotab "cat SUMMARY >> cygwin.README"
+  echol
   echol "DEST_TMP='`pwd`/.install'";
   echol "distrib : setup.hint force"
   echotab "\$(RMRF) \$(DEST_TMP); mkdir -p \$(DEST_TMP)"
   echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
-  echotab "cd \$(DEST_TMP); tar cvfj ../clisp-`cat VERSION`-cygwin-`uname -r|sed 's/(.*)//g'`.tar.bz2 *"
+  echotab "cd \$(DEST_TMP); tar cvfj ../clisp-\`cat ../VERSION\`-cygwin-`uname -r|sed 's/(.*)//g'`.tar.bz2 *"
   echotab "\$(RMRF) \$(DEST_TMP)"
 elif [ ${HOS} = unix ] ; then   # but not cygwin!
 cat <<!!
