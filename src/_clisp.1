@@ -1,4 +1,4 @@
-.TH CLISP 1 "20 May 1999"
+.TH CLISP 1 "20 June 1999"
 
 
 .SH NAME
@@ -556,6 +556,22 @@ or the
 option. The value may be as above.
 #endif
 
+#ifdef UNICODE
+.TP
+.B LC_CTYPE
+specifies the locale which determines the character set in use.
+The value can be of the form
+.IR language " or " language_country " or " language_country.charset ,
+where
+.I language
+is a two-letter ISO 639 language code (lower case), and
+.I country
+is a two-letter ISO 3166 country code (upper case).
+.I charset
+is an optional character set specification, and needs normally not be given
+because the character set can be inferred from the language and country.
+#endif
+
 .TP
 .B LANG
 specifies the language
@@ -565,7 +581,13 @@ the environment variable
 .B CLISP_LANGUAGE
 or the
 .B -L
-option. The value may begin with a two-letter ISO 639 language code, for example
+option.
+#ifdef UNICODE
+It also specifies the locale determining the character set in use, unless
+already specified through the environment variable
+-BR LC_CTYPE .
+#endif
+The value may begin with a two-letter ISO 639 language code, for example
 .BR en ", " de ", " fr .
 
 #ifdef UNIX

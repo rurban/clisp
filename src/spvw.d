@@ -26,9 +26,9 @@
   #include <fpu_control.h>
 #endif
 
+#include <string.h> # declares strchr() and possibly memset()
 #ifdef MULTITHREAD
   #ifdef HAVE_MEMSET
-    #include <string.h>
     #ifndef memset
       extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
     #endif
@@ -846,6 +846,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                      "Please send the authors of the program a description how you produced this error!")
             );
     }
+
+#include "spvw_ctype.c"
 
 #include "spvw_language.c"
 
@@ -2200,9 +2202,6 @@ local void print_banner ()
         # If no memfile is given, LOAD cannot be called with 3 arguments.
         # So disable the loading of ~/.clisprc.
         { argv_norc = TRUE; }
-      #ifndef LANGUAGE_STATIC
-      init_language(argv_language,argv_localedir);
-      #endif
       if (!argv_compile)
         # Manche Optionen sind nur zusammen mit '-c' sinnvoll:
         { if (argv_compile_listing) usage (1); }
@@ -2210,25 +2209,19 @@ local void print_banner ()
         # Andere Optionen sind nur ohne '-c' sinnvoll:
         { if (!(argv_expr == NULL)) usage (1); }
       if (argv_expr && argv_execute_file) usage (1);
+      # The argv_* variables now have their final values.
+      # Analyze the environment variables determining the locale.
+      # Deal with LC_CTYPE.
+      init_ctype();
+      # Deal with LC_MESSAGE.
+      # (This must come last, because it may unset the LC_ALL environment variable.)
+      #ifndef LANGUAGE_STATIC
+      init_language(argv_language,argv_localedir);
+      #endif
      }
-     # Tabelle von Fehlermeldungen initialisieren:
+     # Initialize the table of error messages.
+     # (This must come after init_language.)
      if (init_errormsg_table()<0) goto no_mem;
-     # <ctype.h>-Funktionen 8-bit clean machen, sofern die Environment-Variable
-     # LC_CTYPE passend gesetzt ist:
-     # (Wir verwenden diese Funktionen zwar nicht direkt, aber Zusatzmodule wie
-     # z.B. regexp profitieren davon.)
-     #ifdef HAVE_LOCALE_H
-     { var const char * locale;
-       { locale = getenv("CLISP_LC_CTYPE");
-         if (!locale)
-           { locale = getenv("GNU_LC_CTYPE");
-             if (!locale)
-               { locale = getenv("LC_CTYPE"); }
-       }   }
-       if (locale)
-         { setlocale(LC_CTYPE,locale); }
-     }
-     #endif
      # Initialize the table of relocatable pointers:
      { var object* ptr2 = &pseudofun_tab.pointer[0];
        { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
@@ -2749,6 +2742,8 @@ local void print_banner ()
       #endif
       # Zeitvariablen initialisieren:
       init_time();
+      # Initialize locale dependent encodings:
+      init_dependent_encodings();
       # Stream-Variablen initialisieren:
       init_streamvars(!(argv_execute_file == NULL));
       #ifdef NEXTAPP
