@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2001-02-06 17:24:02 CET\n"
+"POT-Creation-Date: 2001-03-15 19:39:57 CET\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -36,6 +36,108 @@ msgstr "Onbekend argumenttype voor SUBR\n"
 
 msgid "module `%s' requires package %s.\n"
 msgstr "module `%s' vereist package %s.\n"
+
+msgid ""
+"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"Usage:  "
+msgstr ""
+
+msgid ""
+" [options] [lispfile [argument ...]]\n"
+" When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+" to the list of argument strings. Otherwise, an interactive\n"
+" read-eval-print loop is entered.\n"
+msgstr ""
+
+msgid "Informative output:\n"
+msgstr ""
+
+msgid " -h, --help  - print this help and exit\n"
+msgstr ""
+
+msgid " --version   - print the version information\n"
+msgstr ""
+
+msgid " --license   - print the licensing information\n"
+msgstr ""
+
+msgid "Memory image selection:\n"
+msgstr ""
+
+msgid " -B lisplibdir - set the installation directory\n"
+msgstr ""
+
+msgid " -K linkingset - use this executable and memory image\n"
+msgstr ""
+
+msgid " -M memfile  - use this memory image\n"
+msgstr ""
+
+msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr ""
+
+msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr ""
+
+msgid " -t tmpdir   - temporary directory for memmap\n"
+msgstr ""
+
+msgid "Internationalization:\n"
+msgstr ""
+
+msgid " -L language - set user language\n"
+msgstr ""
+
+msgid " -N nlsdir   - NLS catalog directory\n"
+msgstr ""
+
+msgid " -Edomain encoding - set encoding\n"
+msgstr ""
+
+msgid "Interoperability:\n"
+msgstr ""
+
+msgid " -q, --quiet, --silent - do not print the banner\n"
+msgstr ""
+
+msgid " -w          - wait for keypress after program termination\n"
+msgstr ""
+
+msgid " -I          - be ILISP-friendly\n"
+msgstr ""
+
+msgid "Startup actions:\n"
+msgstr ""
+
+msgid " -a          - more ANSI CL compliance\n"
+msgstr ""
+
+msgid " -p package  - start in the package\n"
+msgstr ""
+
+msgid " -C          - set *LOAD-COMPILING* to T\n"
+msgstr ""
+
+msgid " -norc       - do not load the user ~/.clisprc file\n"
+msgstr ""
+
+msgid " -i file     - load initfile (can be repeated)\n"
+msgstr ""
+
+msgid "Actions:\n"
+msgstr ""
+
+msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
+msgstr ""
+
+msgid " -x expression - execute the expression, then exit\n"
+msgstr ""
+
+msgid " lispfile [argument ...] - load lispfile, then exit\n"
+msgstr ""
+
+msgid "Default action is an interactive read-eval-print loop.\n"
+msgstr ""
 
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "Syntaxis voor %s: nnnnnnn of nnnnKB of nMB\n"
@@ -534,18 +636,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 #, fuzzy
 
 #, fuzzy
@@ -574,7 +664,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
 
 
 
@@ -756,6 +845,10 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
+
+#, fuzzy
+
 
 
 
@@ -778,7 +871,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
 
 
 
@@ -1427,7 +1519,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
 #, fuzzy
 
 
@@ -1740,6 +1831,20 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
