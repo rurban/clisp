@@ -10369,7 +10369,7 @@ LISPFUN(execute,seclass_default,1,0,norest,nokey,0,NIL) {
  must be surrounded with begin_system_call()/end_system_call() */
 global Handle handle_dup (Handle old_handle, Handle new_handle) {
  #if defined(UNIX)
-  new_handle = (new_handle == (Handle)-1 ? dup(old_handle)
+  new_handle = (HNULLP(new_handle) ? dup(old_handle)
                 : dup2(old_handle,new_handle));
  #elif defined(WIN32_NATIVE)
   if (!DuplicateHandle(GetCurrentProcess(),old_handle,
@@ -10379,8 +10379,7 @@ global Handle handle_dup (Handle old_handle, Handle new_handle) {
  #else
   NOTREACHED;
  #endif
-  if (new_handle == (Handle)-1)
-    OS_error();
+  if (HNULLP(new_handle)) OS_error();
   return new_handle;
 }
 
@@ -10922,6 +10921,50 @@ local void mkpipe (Handle * hin, Handle * hout) {
   *hout = (Handle) handles[1];
 }
 
+local bool init_launch_streamarg (int istack, bool child_inputp,
+  Handle stdhandle, Handle * h, Handle * ph, Handle * hnull, bool * wait_p)
+{
+  var int handletype = 0;
+  *h = INVALID_HANDLE_VALUE;
+  *ph = INVALID_HANDLE_VALUE;
+  if (boundp(STACK_(istack)) && eq(STACK_(istack),S(Kterminal))
+      || !boundp(STACK_(istack)))
+    *h = handle_dup1(stdhandle);
+  else if (nullp(STACK_(istack))) {
+    if (HNULLP(*hnull)) *hnull = nullfile();
+    *h = handle_dup1(*hnull);
+  } else if (eq(STACK_(istack),S(Kpipe))) {
+    if (child_inputp)
+    /* make an input pipe for child */
+      mkpipe(h,ph);
+    /* make an output pipe for child */
+      else mkpipe(ph,h);
+    if (HNULLP(*ph) || HNULLP(*h)) return false;
+    *wait_p = false; /* TODO: error when wait_p */
+  } else {
+    *h = handle_dup1(stream_lend_handle(STACK_(istack),
+           child_inputp,/* child i/o direction is the same as lisp user i/o direction */
+           &handletype));
+    if (handletype!=1) return false;
+  }
+  return !HNULLP(*h);
+}
+
+local void make_launch_pipe (int istack, bool parent_inputp,
+  Handle hparent_pipe, int childpid)
+{
+  if (!HNULLP(hparent_pipe)) {
+    pushSTACK(STACK_7);     /* encoding */
+    pushSTACK(STACK_(8+1)); /* element-type */
+    pushSTACK(STACK_(6+2)); /* buffered */
+    (parent_inputp?mkips_from_handles:mkops_from_handles)
+      (hparent_pipe,childpid);
+    /* stack has been cleaned by callee */
+    STACK_(istack+1) = STACK_0;/* replace :pipe with PIPE-x-STREAM */
+    skipSTACK(1);
+  }
+}
+
 LISPFUN(launch,seclass_default,1,0,norest,key,9,
         (kw(element_type),kw(external_format),kw(buffered),kw(arguments),
          kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
@@ -10929,55 +10972,31 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   var long priority = boundp(STACK_0) ? (integerp(STACK_0) ? I_to_L(STACK_0)
                        : (fehler_posfixnum(STACK_0), 0)) : 0;
   var bool wait_p = !nullp(STACK_4); /* default: do wait! */
-  var int handletype;
-  var Handle hnull = 0;
-
-  var Handle hinput = NULL; 
-  var Handle hparent_out = NULL; /* in case of pipe */
+  var Handle hnull = INVALID_HANDLE_VALUE;
+  var Handle hinput;
+  var Handle hparent_out; /* in case of pipe */
   /* STACK_3 == input_stream_arg */
-  if (boundp(STACK_3) && eq(STACK_3,S(Kterminal)) || !boundp(STACK_3))
-    hinput = handle_dup1(stdin_handle);
-  else if (nullp(STACK_3)) {
-    if (!hnull) hnull = nullfile();
-    hinput = handle_dup1(hnull);
-  } else if (eq(STACK_3,S(Kpipe))) {
-    /* make an input pipe for child */
-    mkpipe(&hinput,&hparent_out);
-    wait_p = false; /* TODO: error when wait_p */
-  } else hinput = handle_dup1(stream_lend_handle(STACK_3,true,&handletype));
-  if (hinput==-1 || hparent_out==-1) OS_error();
-
-  var Handle houtput = NULL;
-  var Handle hparent_in = NULL;
+  if (!init_launch_streamarg(3, true, stdin_handle, &hinput, &hparent_out,
+                        &hnull,&wait_p)) OS_error();
+  var Handle houtput, hparent_in;
   /* STACK_2 == output_stream_arg */
-  if (boundp(STACK_2) && eq(STACK_2,S(Kterminal)) || !boundp(STACK_2))
-    houtput = handle_dup1(stdout_handle);
-  else if (nullp(STACK_2)) {
-    if (!hnull) hnull = nullfile();
-    houtput = handle_dup1(hnull);
-  } else if (eq(STACK_2,S(Kpipe))) {
-    /* make an output pipe for child */
-    mkpipe(&hparent_in,&houtput);
-    wait_p = false; /* TODO: error when wait_p */
-  } else houtput = handle_dup1(stream_lend_handle(STACK_2,false,&handletype));
-  if (houtput==-1 || hparent_in==-1) OS_error();
-
-  var Handle herror = NULL;
-  var Handle hparent_errin = NULL;
+  if (!init_launch_streamarg(2, false, stdout_handle, &houtput, &hparent_in,
+                        &hnull,&wait_p)) {
+    if (!HNULLP(hinput) && hinput!=stdin_handle) close(hinput);
+    if (!HNULLP(hparent_out)) close(hparent_out);
+    OS_error();
+  }
+  var Handle herror, hparent_errin;
   /* STACK_1 == error_stream_arg */
-  if (boundp(STACK_1) && eq(STACK_1,S(Kterminal)) || !boundp(STACK_1))
-    herror = handle_dup1(stderr_handle);
-  else if (nullp(STACK_1)) {
-    if (!hnull) hnull = nullfile();
-    herror = handle_dup1(hnull);
-  } else if (eq(STACK_1,S(Kpipe))) {
-    /* make an output pipe for child */
-    mkpipe(&hparent_errin,&herror);
-    wait_p = false; /* TODO: error when wait_p */
-  } else herror = handle_dup1(stream_lend_handle(STACK_1,false,&handletype));
-  if (herror==-1 || hparent_errin==-1) OS_error();
-
-  if (hnull) close(hnull);
+  if (!init_launch_streamarg(1, false, stderr_handle, &herror, &hparent_errin,
+                        &hnull,&wait_p)) {
+    if (!HNULLP(hinput) && hinput!=stdin_handle) close(hinput);
+    if (!HNULLP(hparent_out)) close(hparent_out);
+    if (!HNULLP(houtput) && houtput != stdout_handle) close(houtput);
+    if (!HNULLP(hparent_in)) close(hparent_in);
+    OS_error();
+  }
+  if (!HNULLP(hnull)) close(hnull);
   var int exit_code = 0;
   pushSTACK(allocate_cons());
   Car(STACK_0) = string_to_asciz(STACK_(9+1)/*command_arg*/,
@@ -11015,6 +11034,8 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   begin_want_sigcld();
   var int child = vfork();
   if (child == 0) {/* What ?! I am the clone ?! */
+   /* TODO: close ALL unused opened handles since unclosed handles can
+      prevent childs to end up properly */
    #define CHILD_DUP(from,to)                                           \
     if (handle_dup(from,to) == (Handle)-1) {                            \
         fprintf(stderr,"clisp/child: cannot duplicate %d to %d: %s\n",  \
@@ -11027,9 +11048,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
     CHILD_DUP(herror,2);
    #undef CHILD_DUP
     /* close child copies of parent's handles */
-    if (hparent_out>2) close(hparent_out);
-    if (hparent_in>2) close(hparent_in);
-    if (hparent_errin>2) close(hparent_errin);
+    if (!HNULLP(hparent_out)) close(hparent_out);
+    if (!HNULLP(hparent_in)) close(hparent_in);
+    if (!HNULLP(hparent_errin)) close(hparent_errin);
    #ifdef HAVE_NICE
     errno = 0; nice(priority);
     if (errno) {
@@ -11057,48 +11078,24 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   FREE_DYNAMIC_ARRAY(argvdata);
 
   /* close our copies of child's handles */
-  if (hinput>2) close(hinput);
-  if (houtput>2) close(houtput);
-  if (herror>2) close(herror);
+  if (hinput!=stdin_handle) close(hinput);
+  if (houtput!=stdout_handle) close(houtput);
+  if (herror!=stderr_handle) close(herror);
 
   /* make pipe-streams */
   /* child's input stream, pipe-output from our side */
-  if (hparent_out) {
-    pushSTACK(STACK_7);     /* encoding */
-    pushSTACK(STACK_(8+1)); /* element-type */
-    pushSTACK(STACK_(6+2)); /* buffered */
-    mkops_from_handles(hparent_out,child);
-    /* stack has been cleaned by callee */
-    STACK_(3+1) = STACK_0;/* replace :pipe with PIPE-OUTPUT-STREAM */
-    skipSTACK(1);
-  }
-
+  make_launch_pipe (3, false, hparent_out, child);
   /* child's output stream, pipe-input from our side
      double analysis of buffered, eltype,encoding
      drawback: slow; advantage: simple iface with stream.d */
-  if (hparent_in) {
-    pushSTACK(STACK_7);     /* encoding */
-    pushSTACK(STACK_(8+1)); /* element-type */
-    pushSTACK(STACK_(6+2)); /* buffered */
-    mkips_from_handles(hparent_in,child);
-    STACK_(2+1) = STACK_0;
-    skipSTACK(1);
-  }
-
+  make_launch_pipe (2, true, hparent_in, child);
   /* child's error stream, pipe-input from our side */
-  if (hparent_errin) {
-    pushSTACK(STACK_7);     /* encoding */
-    pushSTACK(STACK_(8+1)); /* element-type */
-    pushSTACK(STACK_(6+2)); /* buffered */
-    mkips_from_handles(hparent_errin,child);
-    STACK_(1+1) = STACK_0;
-    skipSTACK(1);
-  }                      
+  make_launch_pipe (1, true, hparent_errin, child);
 
   value1 = wait_p ? sfixnum(exit_code) : fixnum(child);
-  value2 = hparent_out?STACK_3:NIL; /* INPUT */
-  value3 = hparent_in?STACK_2:NIL; /* OUTPUT */
-  value4 = hparent_errin?STACK_1:NIL; /* ERROR */
+  value2 = (!HNULLP(hparent_out))?STACK_3:NIL; /* INPUT */
+  value3 = (!HNULLP(hparent_in))?STACK_2:NIL; /* OUTPUT */
+  value4 = (!HNULLP(hparent_errin))?STACK_1:NIL; /* ERROR */
   mv_count = 4;
 
   skipSTACK(10);
