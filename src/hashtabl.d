@@ -2549,6 +2549,24 @@ LISPFUNNR(hash_table_size,1)
   VALUES1(TheHashtable(ht)->ht_maxcount); /* Fixnum MAXCOUNT */
 }
 
+LISPFUNNR(hash_table_warn_if_needs_rehash_after_gc,1)
+{ /* (HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC hashtable) */
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
+  VALUES_IF(record_flags(TheHashtable(ht)) & htflags_warn_gc_rehash_B);
+}
+
+LISPFUNN(set_hash_table_warn_if_needs_rehash_after_gc,1)
+{ /* (SYS::%SET-HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC hashtable val)
+   == (setf (HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC hashtable) val) */
+  var bool warn_p = !nullp(popSTACK());
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
+  if (warn_p)
+    record_flags_set(TheHashtable(ht),htflags_warn_gc_rehash_B);
+  else
+    record_flags_clr(TheHashtable(ht),htflags_warn_gc_rehash_B);
+  VALUES_IF(warn_p);
+}
+
 /* return the hash table symbol
  or cons (test . hash) for user-defined ht_test
  can trigger GC - for user-defined ht_test */

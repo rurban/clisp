@@ -330,7 +330,7 @@
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
    fasthash-eq stablehash-eq fasthash-eql stablehash-eql fasthash-equal
    stablehash-equal define-hash-table-test package-case-sensitive-p
-   argv
+   argv hash-table-warn-if-needs-rehash-after-gc
    ;; declarations
    constant-inline constant-notinline
    ;; pseudo-types:

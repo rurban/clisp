@@ -1,5 +1,14 @@
 2004-06-19  Sam Steingold  <sds@gnu.org>
 
+	* hashtabl.d (HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC): new accessor
+	(%SET-HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC): new setter
+	* places.lisp (hash-table-warn-if-needs-rehash-after-gc): defsetf
+	* init.lisp (hash-table-warn-if-needs-rehash-after-gc): export
+	* constsym.d, subr.d (hash_table_warn_if_needs_rehash_after_gc)
+	(set_hash_table_warn_if_needs_rehash_after_gc): added
+
+2004-06-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/dbi.lisp (with-open-db): simplified
 
 2004-06-19  Sam Steingold  <sds@gnu.org>
