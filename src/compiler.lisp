@@ -597,7 +597,7 @@ intermediate language after the 1st pass:
 
    (CONSP)                    = (CALL1 #'CONSP)
 
-   (SYMBOL-FUNCTION)          = (CALL1 #'SYMBOL-FUNCTION)
+   (SYMBOL-FUNCTION denv)     = (CALL1 #'SYMBOL-FUNCTION)
 
    (SVREF)                    = (CALL2 #'SVREF)
 
@@ -3132,7 +3132,7 @@ for-value   NIL or T
                                          (t `((PUSH) ; also push last argument to the Stack
                                               (STACK-TO-MV ,n)))))
                                (VALUES-LIST '((LIST-TO-MV)))
-                               (SYMBOL-FUNCTION '((SYMBOL-FUNCTION)))
+                               (SYMBOL-FUNCTION `((SYMBOL-FUNCTION ,*denv*)))
                                (LIST (if (plusp n)
                                        `((PUSH) (LIST ,n))
                                        '((NIL))))
@@ -5121,7 +5121,7 @@ for-value   NIL or T
                                             :value (symbol-function name)
                                             :form `(FUNCTION ,name))))
                       `((CONST ,(make-funname-const name))
-                        (SYMBOL-FUNCTION)))))
+                        (SYMBOL-FUNCTION NIL)))))
           (case f1
             (GLOBAL ; found in %fenv%
              (make-anode
@@ -7822,7 +7822,7 @@ changed:
  (CONS)
  (ATOM)
  (CONSP)
- (SYMBOL-FUNCTION)
+ (SYMBOL-FUNCTION denv)
  (SVREF)
  (SVSET)
  (LIST n)
@@ -8559,8 +8559,13 @@ Simplification-Rules for Operations:
                 (case (first (car middle))
                   ((NIL T CONST LOAD LOADI LOADC LOADV LOADIC GETVALUE VENV
                     BOUNDP VALUES0 VALUES1 MV-TO-LIST LIST-TO-MV NOT CAR CDR
-                    SYMBOL-FUNCTION ATOM CONSP)
+                    ATOM CONSP)
                     (discard1))
+                  ((SYMBOL-FUNCTION)
+                   ; SYMBOL-FUNCTION cannot always be discarded, because it may
+                   ; need to signal an error if SAFETY = 3.
+                   (when (< (declared-optimize 'SAFETY (second (car middle))) 3)
+                     (discard1)))
                   ((LIST LIST* STACK-TO-MV) ; (LIST n) --> (SKIP n), n>0
                                             ; (LIST* n) --> (SKIP n), n>0
                                             ; (STACK-TO-MV n) --> (SKIP n), n>0
@@ -9738,9 +9743,9 @@ This step works on the code-list and changes is destructively.
 
 4. (CONST n c)                          --> (CONST n)
    (CONST n) (PUSH)                     --> (CONST&PUSH n)
-   (CONST n) (SYMBOL-FUNCTION) (PUSH)   --> (CONST&SYMBOL-FUNCTION&PUSH n)
-   (CONST n) (SYMBOL-FUNCTION) (STORE m)--> (CONST&SYMBOL-FUNCTION&STORE n m)
-   (CONST n) (SYMBOL-FUNCTION)          --> (CONST&SYMBOL-FUNCTION n)
+   (CONST n) (SYMBOL-FUNCTION denv) (PUSH)    --> (CONST&SYMBOL-FUNCTION&PUSH n)
+   (CONST n) (SYMBOL-FUNCTION denv) (STORE m) --> (CONST&SYMBOL-FUNCTION&STORE n m)
+   (CONST n) (SYMBOL-FUNCTION denv)     --> (CONST&SYMBOL-FUNCTION n)
 
 5. (COPY-CLOSURE n m) (PUSH)            --> (COPY-CLOSURE&PUSH n m)
 
