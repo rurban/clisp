@@ -89,14 +89,12 @@
   (curr-recno nil :read-only t))
 
 
-;;; macros (see macros1.lisp for `with-open-file')
+;;; macros (see macros2.lisp for `with-open-file')
 (defmacro with-open-db ((var &rest options) &body forms)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY forms)
     `(LET ((,var (BDB:DB-OPEN ,@options)))
        (DECLARE (READ-ONLY ,var) ,@declarations)
-       (UNWIND-PROTECT
-            (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
-              (WHEN ,var (BDB:DB-CLOSE ,var) (setq ,var nil)))
+       (UNWIND-PROTECT (PROGN ,@body-rest)
          (WHEN ,var (BDB:DB-CLOSE ,var))))))
 
 #| sample
