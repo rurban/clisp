@@ -1827,7 +1827,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
             #ifdef TYPECODES
             return highlow32(typecode(obj),0xDABE); # Typinfo*2^16+Kennung
             #else
-            return highlow32((as_oint(obj)>>oint_type_shift)&(bit(oint_type_len)-1),0xDABE); # Typinfo*2^16+Kennung
+            return highlow32((as_oint(obj)>>oint_type_shift)&(bitm(oint_type_len)-1),0xDABE); # Typinfo*2^16+Kennung
             #endif
           case_bvector: # bit-vector
             # Bit-Vektor-Inhalt
