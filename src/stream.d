@@ -15860,13 +15860,13 @@ local struct timeval * sec_usec(sec,usec,tv)
   object sec,usec;
   struct timeval *tv;
 {
-  if (eq(sec,unbound)) {
+  if (eq(sec,unbound) || eq(sec,NIL)) {
     return NULL;
   } else {
     if (!posfixnump(sec))
       fehler_posfixnum(sec);
     tv->tv_sec = posfixnum_to_L(sec);
-    if (eq(usec,unbound)) {
+    if (eq(usec,unbound) || eq(usec,NIL)) {
       tv->tv_usec = 0;
     } else {
       if (!posfixnump(usec))
@@ -15934,7 +15934,7 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
     # Check and canonicalize the :EXTERNAL-FORMAT argument:
     STACK_1 = test_external_format_arg(STACK_1);
 
-    if (eq(STACK_3,unbound))
+    if (eq(STACK_3,unbound) || eq(STACK_3,NIL))
       hostname = "localhost";
     elif (stringp(STACK_3))
       hostname = TheAsciz(string_to_asciz(STACK_3,O(misc_encoding)));
