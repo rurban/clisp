@@ -1237,6 +1237,8 @@ if [ $TSYS = master -o $TSYS = amiga ] ; then
   OTHER_INCLUDES=$OTHER_INCLUDES' amiga2'
 fi
 
+SPVW_INCLUDES=' spvw_module'
+
 ERROR_INCLUDES=''
 if [ $TSYS = master -o $TSYS = amiga ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' erramiga'
@@ -1257,7 +1259,7 @@ LISPARIT_INCLUDES=$LISPARIT_SUBFILES' arilev1c arilev1e arilev1i'
 
 EXTRA_CPARTS='noreadline'
 
-DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph modules $EXTRA_CPARTS"
+DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph modules $EXTRA_CPARTS"
 
 ARI_ASMD=''
 ARI_ASMC=''
@@ -2091,7 +2093,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     depends=$depends' avl'
   fi
   if [ $f = spvw ] ; then
-    depends=$depends' sort subrkw'
+    depends=$depends''$SPVW_INCLUDES' sort subrkw'
   fi
   if [ $f = eval ] ; then
     depends=$depends' bytecode'
