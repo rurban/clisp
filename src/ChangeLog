@@ -1,3 +1,8 @@
+1999-01-21  Sam Steingold  <sds@goems.com>
+
+	* user2.lsp (signature-to-list, arglist): new functions.
+	(describe-signature): use `signature-to-list'.
+
 1999-01-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         For being able to use a C++ compiler in place of a C compiler.

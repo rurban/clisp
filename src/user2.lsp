@@ -673,34 +673,37 @@
                )
 ) ) )     )) )
 
-(defun describe-signature (s req-anz opt-anz rest-p keyword-p keywords allow-other-keys)
-  (format s (DEUTSCH "~%Argumentliste: "
-             ENGLISH "~%argument list: "
-             FRANCAIS "~%Liste des arguments : ")
-  )
-  (format s "(~{~A~^ ~})"
-    (let ((args '()) (count 0))
+(defun signature-to-list (req-anz opt-anz rest-p keyword-p keywords
+                          allow-other-keys)
+  (let ((args '()) (count -1))
       (dotimes (i req-anz)
-        (incf count)
-        (push (format nil "ARG~D" count) args)
-      )
+      (push (intern (format nil "ARG~D" (incf count)) :sys) args))
       (when (plusp opt-anz)
         (push '&OPTIONAL args)
         (dotimes (i opt-anz)
-          (incf count)
-          (push (format nil "ARG~D" count) args)
-      ) )
+        (push (intern (format nil "ARG~D" (incf count)) :sys) args)))
       (when rest-p
         (push '&REST args)
-        (push "OTHER-ARGS" args)
-      )
+      (push 'other-args args))
       (when keyword-p
         (push '&KEY args)
-        (dolist (kw keywords) (push (prin1-to-string kw) args))
-        (when allow-other-keys (push '&ALLOW-OTHER-KEYS args))
-      )
-      (nreverse args)
-) ) )
+      (dolist (kw keywords) (push kw args))
+      (when allow-other-keys (push '&ALLOW-OTHER-KEYS args)))
+    (nreverse args)))
+
+(defun arglist (func)
+  (multiple-value-call #'signature-to-list (function-signature func)))
+
+(defun describe-signature (s req-anz opt-anz rest-p keyword-p keywords
+                           allow-other-keys)
+  (when s
+    (format s (DEUTSCH "~%Argumentliste: "
+               ENGLISH "~%argument list: "
+               FRANCAIS "~%Liste des arguments : ")))
+  (format s "(~{~A~^ ~})"
+          (signature-to-list req-anz opt-anz rest-p keyword-p keywords
+                             allow-other-keys)))
+
 ;; DOCUMENTATION mit abfragen und ausgeben??
 ;; function, variable, type, structure, setf
 
@@ -743,7 +746,7 @@
         (write-to-string object :level level :length length)
 ) ) ) )
 
-;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; ROOM
 
 (definternational room-format (t ENGLISH))
@@ -819,7 +822,7 @@
     (values used room)
 ) )
 
-;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; SPACE
 
 ;; Recall the macro SPACE, making (space form) roughly equivalent to
@@ -992,7 +995,7 @@
     )
 ) )
 
-;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; DRIBBLE
 
 ; The use of an intermediate synonym-stream is for robustness.
@@ -1099,7 +1102,7 @@
                FRANCAIS "Aucun protocole n'est couramment écrit.")
 ) ) ) ) )
 
-;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; ED
 
 ;; *editor*, editor-name und editor-tempfile sind in CONFIG.LSP definiert.
@@ -1225,7 +1228,7 @@
     )
 ) )
 
-;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 
 ; Speichert den momentanen Speicherinhalt unter Weglassen überflüssiger
 ; Objekte ab als LISPIMAG.MEM.
@@ -1264,7 +1267,7 @@
   (room nil)
 )
 
-;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 
 ; Vervollständigungs-Routine in Verbindung mit der GNU Readline-Library:
 ; Input: string die Eingabezeile, (subseq string start end) das zu vervoll-
@@ -1373,7 +1376,7 @@
         L
 ) ) ) )
 
-;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 
 #+(or UNIX OS/2 WIN32)
 ;; UNIX:
