@@ -1748,8 +1748,8 @@ if [ $HOS = unix -a $XCC_GCC = true ] ; then
   # We need the full libgcc.a in general. But we don't know its location.
   LIBGCC='`'"${XCC} -print-libgcc-file-name"'` # something like /usr/somewhere/libgcc.a'
   if [ $CROSS = false ] ; then
-    if [ "$HSYSOS" = linux -o "$HSYSOS" = cygwin32 ] ; then
-      # gcc2 is cc on Linux and Cygwin32. Don't need libgcc.a
+    if [ "$HSYSOS" = linux -o "$HSYSOS" = beos -o "$HSYSOS" = cygwin32 ] ; then
+      # gcc2 is cc on Linux, BeOS and Cygwin32. Don't need libgcc.a
       LIBGCC=''
     fi
   fi
@@ -2650,6 +2650,13 @@ if [ $CROSS = false ] ; then
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
+  if [ $HSYSOS = beos ] ; then
+    # Workaround BeOS 5 kernel bug which causes subsequent invocations
+    # of lisp${LEXE} to be incorrectly relocated. On BeOS, executables and
+    # shared libraries are relocated page-by-page by a kernel routine.
+    echotab "cp -p lisp${LEXE} lisp.tmp"
+    echotab "mv lisp.tmp lisp${LEXE}"
+  fi
   if [ $HOS != os2 ] ; then
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"'
   else
@@ -2686,6 +2693,11 @@ if [ $CROSS = false ] ; then
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
+  if [ $HSYSOS = beos ] ; then
+    # Workaround BeOS 5 kernel bug, see explanation above.
+    echotab "cp -p lisp${LEXE} lisp.tmp"
+    echotab "mv lisp.tmp lisp${LEXE}"
+  fi
   if [ $HOS != os2 ] ; then
     echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"'
   else
@@ -2701,6 +2713,11 @@ if [ $CROSS = false ] ; then
   echol "lispinit.mem : lisp${LEXE} \$(FASFILES)"
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) lispinit.mem"
+  fi
+  if [ $HSYSOS = beos ] ; then
+    # Workaround BeOS 5 kernel bug, see explanation above.
+    echotab "cp -p lisp${LEXE} lisp.tmp"
+    echotab "mv lisp.tmp lisp${LEXE}"
   fi
   if [ $HOS != os2 ] ; then
     echotab "${HERE}lisp${LEXE}$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
@@ -2766,6 +2783,11 @@ if [ $CROSS = false ] ; then
   done
 
   echol "lispinit2.mem : lisp${LEXE} \$(TESTFASFILES)"
+  if [ $HSYSOS = beos ] ; then
+    # Workaround BeOS 5 kernel bug, see explanation above.
+    echotab "cp -p lisp${LEXE} lisp.tmp"
+    echotab "mv lisp.tmp lisp${LEXE}"
+  fi
   echotab "${HERE}lisp${LEXE}$localeflags -Efile ISO-8859-1 -norc"' -x "(cd \"'"${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (exit)"'
   echotab "-\$(RM) lispinit2.mem"
   echotab "\$(MV) lispimag.mem lispinit2.mem"

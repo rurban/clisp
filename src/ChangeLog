@@ -1,3 +1,22 @@
+2000-06-12  Bruno Haible  <haible@clisp.cons.org>
+
+        * makemake.in (LIBGCC): Set to empty on BeOS.
+          (interpreted.mem, lispinit.mem, lispinit2.mem): On BeOS, copy the
+          executable before running it (workaround BeOS kernel bug).
+
+        * unix.d (sock_read, sock_write, closesocket): Don't #define on BeOS.
+        * unixaux.d (sock_read, sock_write): New functions.
+        * stream.d (low_listen_unbuffered_handle): On BeOS, don't use select
+          on file handles. Use O_NONBLOCK as a preferred alternative to
+          O_NDELAY.
+          (rd_ch_keyboard): On BeOS, don't use select on file handles.
+          (low_close_socket, low_read_unbuffered_socket,
+           low_listen_unbuffered_socket, low_clear_input_unbuffered_socket,
+           low_read_array_unbuffered_socket, low_write_unbuffered_socket,
+           low_write_array_unbuffered_socket, low_fill_buffered_socket,
+           low_flush_buffered_socket): Define on BeOS, differently from the
+          file handles analogs.
+
 2000-06-11  Bruno Haible  <haible@clisp.cons.org>
 
         * clos.lisp (analyze-method-description): Generate code expanding into
