@@ -2485,17 +2485,17 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
     <primary id="modset-i">module set</primary></indexterm></firstterm>
    is a directory containing:
 <variablelist>
-<varlistentry><term><command>link.sh</command></term>
+<varlistentry><term>&link-sh;</term>
  <listitem><simpara>some &sh; commands, which prepare the directory
   before linking, and set the variables <envar>NEW_FILES</envar>,
   <envar>NEW_LIBS</envar>, <envar>NEW_MODULES</envar>, <envar>TO_LOAD</envar>
   and optionally <envar>TO_PRELOAD</envar></simpara></listitem></varlistentry>
 <varlistentry><term>and any other files</term>
- <listitem><simpara>needed by <command>link.sh</command>
+ <listitem><simpara>needed by &link-sh;
  </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
-<para>Note that in <command>link.sh</command> the &modset; directory
+<para>Note that in &link-sh; the &modset; directory
  is referred to as <varname>$modulename/</varname>.</para>
 
 <variablelist>
@@ -2607,17 +2607,17 @@ precludes some efficiency optimizations which are on by default.</para></note>
 <orderedlist numeration="arabic">
 <listitem><para>Create a new &modset;:
 
-<screen>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen>
+<screen>$ clisp-link create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></para></listitem>
 
-Modify the newly created <filename>linux/link.sh</filename>
-to add <option>-lm</option>; to the libraries:
-replace <screen>NEW_LIBS="$file_list"</screen>
-with <screen>NEW_LIBS="$file_list -lm"</screen>
-
-Modify the newly created <filename>linux/link.sh</filename>
-to load <filename>linux.fas</filename> before saving the &mem-image;:
-replace <screen>TO_LOAD=''</screen>
-with <screen>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</screen></para></listitem>
+<listitem><para>Modify the newly created <filename>linux/</filename>&link-sh;:
+<orderedlist inheritnum="inherit" numeration="loweralpha">
+ <listitem><para>add <option>-lm</option> to the libraries:
+   replace <screen>NEW_LIBS="$file_list"</screen>
+   with <screen>NEW_LIBS="$file_list -lm"</screen></para></listitem>
+<listitem><para>load <filename>linux.fas</filename> before saving the
+  &mem-image;: replace <screen>TO_LOAD=''</screen> with
+  <screen>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</screen>
+</para></listitem></orderedlist></para></listitem>
 
 <listitem><para>Compile <filename>linux.lisp</filename>, creating
   <filename>linux.c</filename>:
@@ -3830,7 +3830,7 @@ struct cfunr * cfun (int i,char *s,struct cfunr * r,int a[10]) {
 
 It is possible to call this function from Lisp using the file
 <filename>callcfun.lisp</filename> (do not call it
-<filename>cfun.lisp</filename> - &compile-file; would
+<filename>cfun.lisp</filename> - &compile-file; will
 <link linkend="c-file-overwrite">overwrite</link>
 <filename>cfun.c</filename>) whose contents is:
 
@@ -3858,7 +3858,7 @@ $ clisp-link create-module-set cfun callcfun.c
 $ cc -O -c cfun.c
 $ cd cfun
 $ ln -s ../cfun.o cfun.o
-Add cfun.o to NEW_LIBS and NEW_FILES in link.sh.
+Add cfun.o to NEW_LIBS and NEW_FILES in &link-sh;.
 $ cd ..
 $ base/lisp.run -M base/lispinit.mem -c callcfun.lisp
 $ clisp-link add-module-set cfun base base+cfun
@@ -3956,11 +3956,11 @@ $ ln -s ../sort1.o sort1.o
 </screen>
 
 Add <filename>sort1.o</filename> to <envar>NEW_LIBS</envar>
-and <envar>NEW_FILES</envar> in <filename>link.sh</filename>.
+and <envar>NEW_FILES</envar> in &link-sh;.
 Create a file <filename>package.lisp</filename> containing the
 form <literal role="sexp">(&defpackage; "FFI-TEST" (:use &cl-pac;
 &ffi-pac;))</literal> and add <filename>package.lisp</filename>
-to <envar>TO_PRELOAD</envar> in <filename>link.sh</filename>.
+to <envar>TO_PRELOAD</envar> in &link-sh;.
 Proceed:
 
 <screen>
