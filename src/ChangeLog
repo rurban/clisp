@@ -1,5 +1,71 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (Stream): New fields strm_rd_by_array, strm_wr_by_array,
+          strm_rd_ch_array, strm_wr_ch_array.
+        * stream.d (rd_by_array_Pseudofun, wr_by_array_Pseudofun,
+           rd_ch_array_Pseudofun, wr_ch_array_Pseudofun): New types.
+          (rd_by_array, wr_by_array, rd_ch_array, wr_ch_array): New macros.
+          (rd_by_error): Renamed from rd_by_dummy.
+          (rd_by_array_error, rd_by_array_dummy): New functions.
+          (wr_by_error): Renamed from wr_by_dummy.
+          (wr_by_array_error, wr_by_array_dummy): New functions.
+          (rd_ch_error): Renamed from rd_ch_dummy.
+          (rd_ch_array_error, rd_ch_array_dummy): New functions.
+          (wr_ch_error): Renamed from wr_ch_dummy.
+          (wr_ch_array_error, wr_ch_array_dummy): New functions.
+          (read_byte_array, write_byte_array, read_char_array,
+           write_char_array): Rewritten to call the stream's corresponding
+          pseudofunction.
+          (close_dummys): Update.
+          (rd_by_array_synonym, wr_by_array_synonym, rd_ch_array_synonym,
+           wr_ch_array_synonym): New functions.
+          (make_synonym_stream): Update.
+          (wr_by_array_broad0, wr_by_array_broad1, wr_ch_array_broad0,
+           wr_ch_array_broad1): New functions.
+          (make_broadcast_stream): Update.
+          (rd_by_array_concat, rd_ch_array_concat): New functions.
+          (make_concatenated_stream): Update.
+          (wr_by_array_twoway, wr_ch_array_twoway): New functions.
+          (rd_by_array_twoway, rd_ch_array_twoway): New functions.
+          (make_twoway_stream, make_echo_stream): Update.
+          (rd_ch_array_str_in): New function.
+          (MAKE-STRING-INPUT-STREAM): Update.
+          (make_string_output_stream, SYSTEM::MAKE-STRING-PUSH-STREAM): Update.
+          (make_pphelp_stream): Update.
+          (MAKE-BUFFERED-INPUT-STREAM, MAKE-BUFFERED-OUTPUT-STREAM): Update.
+          (MAKE-GENERIC-STREAM): Update.
+          (rd_ch_array_handle, rd_by_array_handle, wr_by_array_handle): New
+          functions.
+          (wr_ch_array_handle): Renamed from write_char_array_handle.
+          (wr_ss_handle): Update.
+          (wr_ch_array_handle_x): New macro.
+          (make_handle_stream): Update.
+          (rd_ch_keyboard) [NEXTAPP]: Update.
+          (make_keyboard_stream, make_terminal_stream_, make_window): Update.
+          (read_byte_array_b_file): New function.
+          (rd_ch_array_ch_file): New function.
+          (wr_ch_array_ch_file): Renamed from write_char_array_ch_file.
+          (wr_ss_ch_file): Update.
+          (read_byte_array_iau8_file): New macro.
+          (write_byte_array_iau8_file): Update.
+          (make_file_stream): Update.
+          (make_printer_stream): Update.
+          (rd_ch_array_pipe_in, rd_by_array_pipe_in): New macros.
+          (MAKE-PIPE-INPUT-STREAM): Update.
+          (wr_ch_array_pipe_out, wr_by_array_pipe_out): New macros.
+          (MAKE-PIPE-OUTPUT-STREAM): Update.
+          (MAKE-PIPE-IO-STREAM): Update.
+          (rd_ch_array_socket): New function.
+          (wr_ch_array_socket): Renamed from write_char_array_socket.
+          (wr_ss_socket): Update.
+          (rd_by_array_socket, wr_by_array_socket): New functions.
+          (rd_ch_array_x11socket, wr_ch_array_x11socket, rd_by_array_x11socket,
+           wr_by_array_x11socket): New macros.
+          (SYS::MAKE-SOCKET-STREAM, make_socket_stream): Update.
+        * pseudofun.d: Update accordingly.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Implement weak-pointers.
         * lispbibl.d (Rectype_Weakpointer): New enum value.
           (Weakpointer): New type.

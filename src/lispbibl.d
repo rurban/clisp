@@ -5191,11 +5191,15 @@ typedef struct {
                  uintB strmfiller2;
                  #endif
                  object strm_rd_by;
+                 object strm_rd_by_array;
                  object strm_wr_by;
+                 object strm_wr_by_array;
                  object strm_rd_ch;
                  object strm_pk_ch;
+                 object strm_rd_ch_array;
                  object strm_rd_ch_last;
                  object strm_wr_ch;
+                 object strm_wr_ch_array;
                  object strm_wr_ch_lpos;
                  object strm_wr_ss;
                  object strm_other[unspecified]; # typspezifische Komponenten
