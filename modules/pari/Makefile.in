@@ -3,8 +3,8 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-PARI_HOME = @PARI_HOME@
-INCLUDES = -I./ -I../ -I$(PARI_HOME)/src/headers/ -I$(PARI_HOME)/build/
+# <FIXME>: -I/usr/local/include should not be necessary
+INCPARI = @INCPARI@ -I/usr/local/include
 
 CLISP = clisp -q -norc
 
@@ -14,7 +14,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = cpari.o pari.o link.sh Makefile pari.lisp pari.fas
+DISTRIBFILES = cpari.o pari.o link.sh Makefile pari.lisp pari.fas preload.lisp
 distribdir =
 
 all : pari.o cpari.o pari.fas
@@ -23,10 +23,10 @@ pari.fas pari.c : pari.lisp
 	$(CLISP) -c pari.lisp
 
 pari.o : pari.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -c pari.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(INCPARI) -c pari.c
 
 cpari.o : cpari.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -c cpari.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(INCPARI) -c cpari.c
 
 # Make a module
 clisp-module : all
