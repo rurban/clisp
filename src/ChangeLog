@@ -1,3 +1,7 @@
+1998-07-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * eval.d (get_closure): Don't call augment_decl_env with argument NIL.
+
 1998-06-29  Sam Steingold  <sds@usa.net>
 
         * compiler.lsp (compile-file): in ANSI CL, compile-file is
