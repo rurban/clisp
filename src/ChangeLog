@@ -33,6 +33,7 @@
 	(%DEFGRAY): use copy_mem_o() instead of memcpy()
 	(create_input_pipe, create_output_pipe, create_io_pipe):
 	move the memcpy() call inside the begin/end_system_call()
+	* encoding.d (MAKE-ENCODING): use copy_mem_b() instead of memcpy()
 
 2002-06-25  Sam Steingold  <sds@gnu.org>
 
