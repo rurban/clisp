@@ -502,7 +502,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 /* (SYSTEM::ERROR-OF-TYPE type {keyword value}* errorstring {expr}*)
  does not return.
  (defun error-of-type (type &rest arguments)
-   ;; Keyword-Argumente von den anderen Argumenten abspalten:
+   ;; split off keyword arguments from the &rest arguments:
    (let ((keyword-arguments '()))
      (loop
        (unless (and (consp arguments) (symbolp (car arguments))) (return))
@@ -511,7 +511,6 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
      (setq keyword-arguments (nreverse keyword-arguments))
      (let ((errorstring (first arguments))
            (args (rest arguments)))
-       ;; Los geht's!
        (if (or *error-handler* (not *use-clcs*))
          (progn
            (if *error-handler*
@@ -1078,4 +1077,3 @@ nonreturning_function(global, fehler_dfloat, (object obj)) {
 }
 
 #endif
-
