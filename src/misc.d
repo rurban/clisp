@@ -580,9 +580,13 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
   var object verbose = popSTACK();
   var bool verbosep = !missingp(verbose);
   var object arg = popSTACK();
-  if (missingp(arg)) {
+  if (missingp(arg))
     VALUES1(listof(modules_names_to_stack()));
-  } else {
+ #if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+  else if (eq(arg,Fixnum_0))
+    {pushSTACK(O(foreign_libraries)); funcall(L(copy_tree),1);}
+ #endif
+  else {
     arg = check_string(arg);
     var module_t *mod;
     with_string_0(arg,O(misc_encoding),mod_namez,

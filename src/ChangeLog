@@ -1,5 +1,10 @@
 2003-08-05  Sam Steingold  <sds@gnu.org>
 
+	* misc.d (MODULE-INFO): argument `O' returns a copy of
+	O(foreign_libraries)
+
+2003-08-05  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (DEF-C-VAR, DEF-CALL-OUT): do not call NOTE-C-VAR
 	and NOTE-C-FUN for dynamic objects
 
