@@ -1,5 +1,9 @@
 2000-05-15  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (defun): emit `c-defun' for not inlined functions too
+
+2000-05-15  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (H_ERRMSG): fixed duplicate test for NO_DATA.
 
 2000-05-15  Sam Steingold  <sds@gnu.org>
