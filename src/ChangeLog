@@ -1,5 +1,13 @@
 2003-08-02  Sam Steingold  <sds@gnu.org>
 
+	use system-wide regex implementation when it is available
+	* modules/regexp/regexi.c: include <regex.h>, not "regex.h"
+	* modules/regexp/link.sh.in: renamed from link.sh
+	* modules/regexp/configure.in: AC_SUBST REGEX_O&REGEX_H
+	* modules/regexp/Makefile.in: use REGEX_O&REGEX_H
+
+2003-08-02  Sam Steingold  <sds@gnu.org>
+
 	* modules/wildcard/wildcard.lisp: #include <fnmatch.h>
 	* modules/regexp/regexp.lisp (*output-c-functions*)
 	(*output-c-variables*): set to T
