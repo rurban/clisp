@@ -1214,8 +1214,7 @@
 
 ;; BREAK, CLtL2 p. 914
 ; (BREAK [format-string {arg}*])
-; It would be unfair to bypass the *debugger-hook* test in INVOKE-DEBUGGER.
-; So we call INVOKE-DEBUGGER and therefore need a condition.
+; we call INVOKE-DEBUGGER and therefore need a condition.
 (defun break (&optional (format-string "Break") &rest args)
   (if (not *use-clcs*)
     (progn
@@ -1225,9 +1224,10 @@
                       args)
       (funcall *break-driver* t))
     (let ((condition
-            (make-condition 'simple-condition
-                            :format-control format-string
-                            :format-arguments args)))
+           (make-condition 'simple-condition
+                           :format-control format-string
+                           :format-arguments args))
+          (*debugger-hook* nil)) ; Issue 91
       (with-restarts
           ((CONTINUE
             :report (lambda (stream)

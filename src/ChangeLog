@@ -1,7 +1,9 @@
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (expand-restart-case): associate when ERROR-OF-TYPE
-	this takes care of item (6) in Issue 76
+	this takes care of the item (6) in Issue 76
+	(break): bind *DEBUGGER-HOOK* to NIL
+	this takes care of the Issue 91
 
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
