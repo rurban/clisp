@@ -1,3 +1,9 @@
+2004-05-16  Sam Steingold  <sds@gnu.org>
+
+	* unix/malloc.c (printf_address): align output
+	(test_malloc): new function
+	(main): when no arguments give, try the whole range
+
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_garcol.d (gc_mark) [TYPECODES]: Fix bug in handling of
