@@ -2,6 +2,8 @@
 
 	* misc.d (MODULE-INFO): argument `O' returns a copy of
 	O(foreign_libraries)
+	(environ) [!HAVE_DECL_ENVIRON]: declare
+	* m4/putenv.m4 (CL_PUTENV): check for environ
 
 2003-08-05  Sam Steingold  <sds@gnu.org>
 
