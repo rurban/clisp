@@ -1936,7 +1936,7 @@ for-value   NIL or T
     (format *c-error-output* (TEXT "ERROR~@[ in ~S~]~A :")
             in-function (c-source-location))
     (terpri *c-error-output*)
-    (format *c-error-output* cstring args)
+    (apply #'format *c-error-output* cstring args)
     (elastic-newline *c-error-output*))
   (throw 'c-error
     (make-anode :source NIL
