@@ -1949,7 +1949,12 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   e.g. functions or keywords, and is indeed used for that purpose by
   <link linkend="modprep">modprep</link>.</simpara>
  <warning><simpara>The &package-t;s must already exist and be unlocked,
-   cf. &mod-preload;.</simpara></warning></listitem></varlistentry>
+   cf. &mod-preload;.</simpara></warning>
+ <warning><simpara>If you are using <link linkend="modprep">modprep</link>
+   <emphasis>and</emphasis> defining your own <quote>init-once</quote>
+   function, it must call the
+   <function>module__&name-r;__init_function_1__modprep</function>
+   function!</simpara></warning></listitem></varlistentry>
 <varlistentry>
  <term><function>module__&name-r;__init_function_2</function></term>
 <listitem><simpara>called <emphasis>every time</emphasis> &clisp; starts.
