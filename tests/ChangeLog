@@ -1,3 +1,7 @@
+2001-04-18  Sam Steingold  <sds@gnu.org>
+
+	* symbols.tst: check the external symbols of the COMMON-LISP package
+
 2001-04-05  Sam Steingold  <sds@gnu.org>
 
 	* conditions.tst (check-superclasses): return the list of
