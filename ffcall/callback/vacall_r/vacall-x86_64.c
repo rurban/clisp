@@ -1,7 +1,7 @@
 /* vacall function for x86_64 CPU */
 
 /*
- * Copyright 1995-1999, 2004 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -16,7 +16,7 @@
 #endif
 
 #ifdef REENTRANT
-#define vacall __vacall_r
+#define __vacall __vacall_r
 register struct { void (*vacall_function) (void*,va_alist); void* arg; }
          *		env	__asm__("r10");
 #endif
@@ -51,9 +51,9 @@ register void*	dummy1	__asm__("%rbx");
 register void*	dummy2	__asm__("%rbp");
 
 void /* the return type is variable, not void! */
-vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
-        __vaword word5, __vaword word6,
-        __vaword firstword)
+__vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
+          __vaword word5, __vaword word6,
+          __vaword firstword)
 {
   __va_alist list;
   /* Move the arguments passed in registers to temp storage. */
