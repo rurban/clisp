@@ -1,5 +1,16 @@
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
+	Move install-class-direct-accessors call to initialize-instance.
+	* clos-class3.lisp (ensure-class-using-class-<t>): Don't call
+	install-class-direct-accessors after making a new class.
+	(initialize-instance-<built-in-class>,
+	initialize-instance-<structure-class>,
+	initialize-instance-<standard-class>): Call
+	install-class-direct-accessors here.
+	* clos-class6.lisp (initialize-instance@class): New method.
+
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to choose between methods and functions as accessors.
 	* lispbibl.d (Class): Add generic_accessors field.
 	* clos-class1.lisp (slotted-class): Add generic-accessors slot.

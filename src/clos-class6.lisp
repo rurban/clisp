@@ -8,6 +8,16 @@
 ;;; ===========================================================================
 
 ;; Make creation of <class> instances customizable.
+
+;; Installing the accessor methods can only be done after a class has been
+;; initialized, but must be done in a _primary_ initialize-instance method,
+;; so that it doesn't interfere with :after/:around methods that a user could
+;; install. See MOP p. 60.
+(defmethod initialize-instance ((class class) &rest args)
+  (call-next-method) ; == (apply #'shared-initialize class 't args)
+  (install-class-direct-accessors class)
+  class)
+
 (setf (fdefinition 'initialize-instance-<built-in-class>) #'initialize-instance)
 (setf (fdefinition 'make-instance-<built-in-class>) #'make-instance)
 (setf (fdefinition 'initialize-instance-<structure-class>) #'initialize-instance)
