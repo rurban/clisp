@@ -416,19 +416,19 @@ local Values compile_eval_form (void)
  > object value2: list of declaration-specifiers
  > object value1: list ({form}) of forms
  < stack layout: variable binding frame, Env-binding-frame, ({form}).
- < object* bind_ptr: pointer to the first "genuine" binding.
+ < gcv_object_t* bind_ptr: pointer to the first "genuine" binding.
  < uintC bind_count: number of "genuine" bindings.
  changes STACK
  can trigger GC */
 local void make_variable_frame (object caller, object varspecs,
-                                object** bind_ptr_, uintC* bind_count_)
+                                gcv_object_t** bind_ptr_, uintC* bind_count_)
 {
   var object declarations = value2;
   { /* build up variable binding frame: */
-    var object* top_of_frame = STACK; /* pointer to frame */
+    var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     /* first store the special-declared variables from
        declarations in the stack: */
-    var object* spec_pointer = args_end_pointer;
+    var gcv_object_t* spec_pointer = args_end_pointer;
     var uintL spec_anz = 0; /* number of SPECIAL-references */
     {
       var object declspecs = declarations;
@@ -489,7 +489,7 @@ local void make_variable_frame (object caller, object varspecs,
           var bool specdecled = false; /* variable is declared special? */
           if (spec_anz > 0) {
            #ifdef NO_symbolflags
-            var object* ptr = spec_pointer;
+            var gcv_object_t* ptr = spec_pointer;
             var uintL count;
             dotimespL(count,spec_anz, {
               NEXT(ptr);
@@ -503,7 +503,7 @@ local void make_variable_frame (object caller, object varspecs,
             });
            #else
             var object to_compare = as_object(as_oint(symbol) | wbit(active_bit_o));
-            var object* ptr = spec_pointer;
+            var gcv_object_t* ptr = spec_pointer;
             var uintL count;
             dotimespL(count,spec_anz, {
               NEXT(ptr);
@@ -561,9 +561,9 @@ local void make_variable_frame (object caller, object varspecs,
     }
   }
   /* The variable binding frame is now finished. */
-  var object* var_frame_ptr = STACK; /* pointer to variable binding frame */
+  var gcv_object_t* var_frame_ptr = STACK; /* pointer to variable binding frame */
   { /* build up VENV binding frame: */
-    var object* top_of_frame = STACK; /* pointer to frame */
+    var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     /* first extend DENV by the necessary declspecs: */
     var object denv = aktenv.decl_env;
     pushSTACK(value1); /* save ({form}) */
@@ -608,26 +608,26 @@ LISPSPECFORM(let, 1,0,body)
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
-    var object* bind_ptr;
+    var gcv_object_t* bind_ptr;
     var uintC bind_count;
     make_variable_frame(S(let),popSTACK(),&bind_ptr,&bind_count);
     if (bind_count > 0) {
       { /* Then, evaluate the initialization forms: */
-        var object* frame_pointer = bind_ptr;
+        var gcv_object_t* frame_pointer = bind_ptr;
         var uintC count;
         dotimespC(count,bind_count, {
-          var object* initptr = &NEXT(frame_pointer);
+          var gcv_object_t* initptr = &NEXT(frame_pointer);
           var object init = *initptr; /* next init */
           *initptr = (!boundp(init) ? NIL : (eval(init),value1)); /* evaluate, NIL as default */
           frame_pointer skipSTACKop -(varframe_binding_size-1);
         });
       }
       { /* Then, activate the bindings: */
-        var object* frame_pointer = bind_ptr;
+        var gcv_object_t* frame_pointer = bind_ptr;
         var uintC count;
         dotimespC(count,bind_count, {
           frame_pointer skipSTACKop -varframe_binding_size;
-          var object* markptr = &Before(frame_pointer);
+          var gcv_object_t* markptr = &Before(frame_pointer);
           if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
             var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
             var object newval = *(markptr STACKop varframe_binding_value); /* new value */
@@ -661,17 +661,17 @@ LISPSPECFORM(letstern, 1,0,body)
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
-    var object* bind_ptr;
+    var gcv_object_t* bind_ptr;
     var uintC bind_count;
     make_variable_frame(S(letstern),popSTACK(),&bind_ptr,&bind_count);
     /* Then, evaluate the initialization forms and activate the bindings */
     if (bind_count > 0) {
-      var object* frame_pointer = bind_ptr;
+      var gcv_object_t* frame_pointer = bind_ptr;
       var uintC count;
       dotimespC(count,bind_count, {
-        var object* initptr = &Next(frame_pointer);
+        var gcv_object_t* initptr = &Next(frame_pointer);
         frame_pointer skipSTACKop -varframe_binding_size;
-        var object* markptr = &Before(frame_pointer);
+        var gcv_object_t* markptr = &Before(frame_pointer);
         var object init = *initptr; /* next init */
         var object newval = (!boundp(init) ? NIL : (eval(init),value1)); /* evaluate, NIL as default */
         if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
@@ -706,7 +706,7 @@ LISPSPECFORM(locally, 0,0,body)
     return_Values compile_eval_form();
   } else {
     /* build variable binding frame, extend VAR_ENV : */
-    var object* bind_ptr;
+    var gcv_object_t* bind_ptr;
     var uintC bind_count;
     make_variable_frame(S(locally),NIL,&bind_ptr,&bind_count);
     /* interpret body: */
@@ -719,12 +719,12 @@ LISPSPECFORM(locally, 0,0,body)
 
 LISPSPECFORM(compiler_let, 1,0,body)
 { /* (COMPILER-LET ({varspec}) {form}), CLTL p. 112 */
-  var object* varspecs_ = &STACK_1;
+  var gcv_object_t* varspecs_ = &STACK_1;
   var object varspecs = *varspecs_; /* list of variables */
   var uintL varcount = llength(varspecs); /* number of variables */
   get_space_on_STACK(varcount*3*sizeof(object));
   /* evaluate varspecs: */
-  var object* val_pointer = args_end_pointer; /* pointer to values */
+  var gcv_object_t* val_pointer = args_end_pointer; /* pointer to values */
   while (consp(varspecs)) {
     var object varspec = Car(varspecs);
     var object symbol;
@@ -754,7 +754,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
   }
   varspecs = *varspecs_;
   { /* build Frame: */
-    var object* top_of_frame = STACK; /* pointer to frame */
+    var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     while (consp(varspecs)) {
       var object varspec = Car(varspecs);
       if (consp(varspec))
@@ -768,7 +768,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
   /* frame finished, now change the values of the variables: */
   varspecs = *varspecs_;
   {
-    var object* valptr = val_pointer;
+    var gcv_object_t* valptr = val_pointer;
     while (consp(varspecs)) {
       var object varspec = Car(varspecs);
       if (consp(varspec))
@@ -821,7 +821,7 @@ local void skip_declarations (object* body) {
  > body: list of forms
  < mv_count/mv_space: values
  can trigger GC */
-local Values finish_flet (object* top_of_frame, object body) {
+local Values finish_flet (gcv_object_t* top_of_frame, object body) {
   {
     var uintL bindcount = /* number of bindings */
       STACK_item_count(STACK,top_of_frame) / 2;
@@ -832,7 +832,7 @@ local Values finish_flet (object* top_of_frame, object body) {
   /* function binding frame is finished.
      build FENV-binding frame: */
   {
-    var object* top_of_frame = STACK; /* pointer to frame */
+    var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     pushSTACK(aktenv.fun_env);
     finish_frame(ENV1F);
     /* FENV-binding frame is finished.
@@ -853,7 +853,7 @@ LISPSPECFORM(flet, 1,0,body)
   var object body = popSTACK(); /* ({form}) */
   var object funspecs = popSTACK(); /* ({funspec}) */
   /* build function binding frame: */
-  var object* top_of_frame = STACK; /* pointer to frame */
+  var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
   while (consp(funspecs)) {
     pushSTACK(body); /* save form list */
     pushSTACK(Cdr(funspecs)); /* remaining funspecs */
@@ -913,7 +913,7 @@ LISPSPECFORM(labels, 1,0,body)
   /* allocate vector of suitable length and store the names: */
   var object vec = allocate_vector(veclength);
   {
-    var object* ptr = &TheSvector(vec)->data[0];
+    var gcv_object_t* ptr = &TheSvector(vec)->data[0];
     var object funspecs = STACK_(1+1);
     while (consp(funspecs)) {
       *ptr++ = Car(Car(funspecs)); /* next name */
@@ -925,7 +925,7 @@ LISPSPECFORM(labels, 1,0,body)
   var object body = popSTACK(); /* form list */
   var object funspecs = popSTACK();
   { /* build FENV binding frame: */
-    var object* top_of_frame = STACK; /* pointer to frame */
+    var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     pushSTACK(aktenv.fun_env);
     finish_frame(ENV1F);
   }
@@ -960,7 +960,7 @@ LISPSPECFORM(macrolet, 1,0,body)
   var object body = popSTACK(); /* ({form}) */
   var object macrodefs = popSTACK(); /* ({macrodef}) */
   /* build macrobinding frame: */
-  var object* top_of_frame = STACK; /* pointer to frame */
+  var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
   while (consp(macrodefs)) {
     pushSTACK(body); /* save form list */
     pushSTACK(Cdr(macrodefs)); /* remaining macrodefs */
@@ -1003,7 +1003,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
   var object body = popSTACK(); /* ({form}) */
   var object funmacspecs = popSTACK(); /* {(name fun-lambdabody macro-lambdabody)} */
   /* build FunctionMacro bindings frame : */
-  var object* top_of_frame = STACK; /* pointer to frame */
+  var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
   while (consp(funmacspecs)) {
     pushSTACK(body); /* save form list */
     pushSTACK(Cdr(funmacspecs)); /* remaining funmacspecs */
@@ -1068,15 +1068,15 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
-    var object* bind_ptr;
+    var gcv_object_t* bind_ptr;
     var uintC bind_count;
     make_variable_frame(S(symbol_macrolet),popSTACK(),&bind_ptr,&bind_count);
     /* then form the symbol-macros and activate the bindings: */
     if (bind_count > 0) {
-      var object* frame_pointer = bind_ptr;
+      var gcv_object_t* frame_pointer = bind_ptr;
       var uintC count;
       dotimespC(count,bind_count, {
-        var object* initptr = &NEXT(frame_pointer);
+        var gcv_object_t* initptr = &NEXT(frame_pointer);
         var object sm = allocate_symbolmacro();
         TheSymbolmacro(sm)->symbolmacro_expansion = *initptr;
         *initptr = sm;
@@ -1209,13 +1209,13 @@ LISPSPECFORM(block, 1,0,body)
   var object name = test_symbol(popSTACK());
   var sp_jmp_buf returner; /* return point */
   { /* build block-frame: */
-    var object* top_of_frame = STACK; /* pointer to frame */
+    var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     pushSTACK(name); /* block-name */
     pushSTACK(aktenv.block_env); /* current BLOCK_ENV as NEXT_ENV */
     finish_entry_frame(IBLOCK,&!returner,, goto block_return; );
   }
   { /* build BENV-frame: */
-    var object* top_of_frame = STACK;
+    var gcv_object_t* top_of_frame = STACK;
     pushSTACK(aktenv.block_env);
     finish_frame(ENV1B);
     /* extend BLOCK_ENV (top_of_frame = pointer to the block-frame) */
@@ -1244,7 +1244,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   var object name = test_symbol(STACK_1);
   /* traverse BLOCK_ENV: */
   var object env = aktenv.block_env; /* current BLOCK_ENV */
-  var object* FRAME;
+  var gcv_object_t* FRAME;
   while (framepointerp(env)) {
     /* env is a frame-pointer to a IBLOCK-frame in the stack. */
     FRAME = TheFramepointer(env);
@@ -1300,18 +1300,18 @@ LISPSPECFORM(return_from, 1,1,nobody)
 
 /* macro for MAPCAR and MAPLIST */
 #define MAPCAR_MAPLIST_BODY(listaccess,caller)                          \
-  { var object* args_pointer = rest_args_pointer STACKop 2;             \
+  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
     get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
     pushSTACK(NIL); /* start of the result list */                      \
-   {var object* ergptr = &STACK_0; /* pointer to it */                  \
+   {var gcv_object_t* ergptr = &STACK_0; /* pointer to it */            \
     /* traverse all lists in parallel: */                               \
-    loop { var object* argptr = args_pointer;                           \
+    loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
       var uintC count;                                                  \
       dotimespC(count,argcount,{                                        \
-        var object* next_list_ = &NEXT(argptr);                         \
+        var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (ENDP(caller,next_list)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
@@ -1332,7 +1332,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 
 /* macro for MAPCAR and MAPLIST */
 #define MAPCAR_MAPLIST_BODY(listaccess,caller)                          \
-  { var object* args_pointer = rest_args_pointer STACKop 2;             \
+  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
     get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
@@ -1341,13 +1341,13 @@ LISPSPECFORM(return_from, 1,1,nobody)
     pushSTACK(new_cons); /* total list */                               \
     pushSTACK(new_cons); /* (last totallist) */                         \
    }                                                                    \
-  {var object* ergptr = &STACK_1; /* pointer to it */                   \
+  {var gcv_object_t* ergptr = &STACK_1; /* pointer to it */             \
    /* traverse all lists in parallel: */                                \
-   loop { var object* argptr = args_pointer;                            \
+   loop { var gcv_object_t* argptr = args_pointer;                      \
      var object fun = NEXT(argptr);                                     \
      var uintC count;                                                   \
      dotimespC(count,argcount,{                                         \
-       var object* next_list_ = &NEXT(argptr);                          \
+       var gcv_object_t* next_list_ = &NEXT(argptr);                    \
        var object next_list = *next_list_;                              \
        if (ENDP(caller,next_list)) goto fertig; /* a list ended -> done */ \
        pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
@@ -1368,18 +1368,18 @@ LISPSPECFORM(return_from, 1,1,nobody)
 
 /* macro for MAPC and MAPL */
 #define MAPC_MAPL_BODY(listaccess,caller)                               \
-  { var object* args_pointer = rest_args_pointer STACKop 2;             \
+  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
     get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
     pushSTACK(BEFORE(rest_args_pointer)); /* save first list argument */ \
-   {var object* ergptr = &STACK_0; /* pointer to it */                  \
+   {var gcv_object_t* ergptr = &STACK_0; /* pointer to it */            \
     /* traverse all lists in parallel: */                               \
-    loop { var object* argptr = args_pointer;                           \
+    loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
       var uintC count;                                                  \
       dotimespC(count,argcount,{                                        \
-        var object* next_list_ = &NEXT(argptr);                         \
+        var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (ENDP(caller,next_list)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
@@ -1396,18 +1396,18 @@ LISPSPECFORM(return_from, 1,1,nobody)
 
 /* macro for MAPCAN and MAPCON */
 #define MAPCAN_MAPCON_BODY(listaccess,caller)                           \
-  { var object* args_pointer = rest_args_pointer STACKop 2;             \
+  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
     get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
     pushSTACK(NIL); /* start of the result list */                      \
-   {var object* ergptr = &STACK_0; /* pointer to it */                  \
+   {var gcv_object_t* ergptr = &STACK_0; /* pointer to it */            \
     /* traverse all lists in parallel: */                               \
-    loop { var object* argptr = args_pointer;                           \
+    loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
       var uintC count;                                                  \
       dotimespC(count,argcount,{                                        \
-        var object* next_list_ = &NEXT(argptr);                         \
+        var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (ENDP(caller,next_list)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
@@ -1425,7 +1425,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 
 /* macro for MAPCAN and MAPCON */
 #define MAPCAN_MAPCON_BODY(listaccess,caller)                           \
-  { var object* args_pointer = rest_args_pointer STACKop 2;             \
+  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;       \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
     get_space_on_STACK(sizeof(object)*(uintL)argcount);                 \
@@ -1434,13 +1434,13 @@ LISPSPECFORM(return_from, 1,1,nobody)
     pushSTACK(new_cons); /* total list */                               \
     pushSTACK(new_cons); /* (last totallist) */                         \
    }                                                                    \
-   {var object* ergptr = &STACK_1; /* pointer to it */                  \
+   {var gcv_object_t* ergptr = &STACK_1; /* pointer to it */            \
     /* traverse all lists in parallel: */                               \
-    loop { var object* argptr = args_pointer;                           \
+    loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
       var uintC count;                                                  \
       dotimespC(count,argcount,{                                        \
-        var object* next_list_ = &NEXT(argptr);                         \
+        var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (ENDP(caller,next_list)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
@@ -1490,12 +1490,12 @@ LISPSPECFORM(tagbody, 0,0,body)
 { /* (TAGBODY {tag | statement}), CLTL p. 130 */
   var object body = popSTACK();
   { /* build GENV-frame: */
-    var object* top_of_frame = STACK; /* pointer to frame */
+    var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     pushSTACK(aktenv.go_env);
     finish_frame(ENV1G);
   }
   /* build TAGBODY-frame: */
-  var object* top_of_frame = STACK; /* pointer to frame */
+  var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
   /* parse body and store tags in stack: */
   var uintL tagcount = 0;
   {
@@ -1562,7 +1562,7 @@ LISPSPECFORM(go, 1,0,nobody)
   }
   /* peruse GO_ENV: */
   var object env = aktenv.go_env; /* current GO_ENV */
-  var object* FRAME;
+  var gcv_object_t* FRAME;
   while (framepointerp(env)) {
     /* env is a frame-pointer to a ITAGBODY-frame in the stack. */
     FRAME = uTheFramepointer(env);
@@ -1571,8 +1571,8 @@ LISPSPECFORM(go, 1,0,nobody)
       env = FRAME_(frame_next_env); break;
     }
     /* search tags in  unnested ITAGBODY-frame: */
-    var object* bind_ptr = &FRAME_(frame_bindings); /* pointer below the tag bindings */
-    var object* bindend_ptr = STACKpointable(topofframe(FRAME_(0))); /* pointer above the tag bindings */
+    var gcv_object_t* bind_ptr = &FRAME_(frame_bindings); /* pointer below the tag bindings */
+    var gcv_object_t* bindend_ptr = STACKpointable(topofframe(FRAME_(0))); /* pointer above the tag bindings */
     do {
       if (eql(*bind_ptr,tag)) { /* tag found? */
         value1 = *(bind_ptr STACKop 1); /* fetch formlist from frame */
@@ -1586,7 +1586,7 @@ LISPSPECFORM(go, 1,0,nobody)
   while (consp(env)) {
     var object tagbody_cons = Car(env);
     var object tagbody_vec = Car(tagbody_cons); /* tag-vector */
-    var object* tagptr = &TheSvector(tagbody_vec)->data[0];
+    var gcv_object_t* tagptr = &TheSvector(tagbody_vec)->data[0];
     var uintL index = 0;
     var uintL count;
     dotimespL(count,Svector_length(tagbody_vec), {
@@ -1648,7 +1648,7 @@ LISPSPECFORM(multiple_value_list, 1,0,nobody)
 
 LISPSPECFORM(multiple_value_call, 1,0,body)
 { /* (MULTIPLE-VALUE-CALL fun {form}), CLTL p. 135 */
-  var object* fun_ = &STACK_1;
+  var gcv_object_t* fun_ = &STACK_1;
   *fun_ = (eval(*fun_),value1); /* evaluate function */
   var object forms = popSTACK(); /* formlist */
   var uintL argcount = 0; /* number of arguments so far */
@@ -1695,8 +1695,8 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
     STACK_2 = STACK_1;
     skipSTACK(2);
     /* build variable binding frame, extend VAR_ENV : */
-    var object* form_ = &STACK_0;
-    var object* bind_ptr;
+    var gcv_object_t* form_ = &STACK_0;
+    var gcv_object_t* bind_ptr;
     var uintC bind_count;
     make_variable_frame(S(multiple_value_bind),varlist,&bind_ptr,&bind_count);
     /* stack layout: values-form, variable binding frame,
@@ -1706,9 +1706,9 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
     /* Macro for binding variables in the variable-frame: binds
        the next variable to value, decreases frame_pointer by 2 resp. 3. */
   #define bind_next_var(value)                                          \
-    { var object* valptr = &Next(frame_pointer);                        \
+    { var gcv_object_t* valptr = &Next(frame_pointer);                  \
       frame_pointer skipSTACKop -varframe_binding_size;                 \
-     {var object* markptr = &Before(frame_pointer);                     \
+     {var gcv_object_t* markptr = &Before(frame_pointer);               \
       if (as_oint(*markptr) & wbit(dynam_bit_o)) {                      \
         /* activate dynamic binding: */                                 \
         var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
@@ -1724,7 +1724,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
        if there are not enough values:    fill with NIL.)
        here, r>=0 and s>=0. */
     {
-      var object* frame_pointer = bind_ptr;
+      var gcv_object_t* frame_pointer = bind_ptr;
       var uintC r = bind_count;
       var object* mv_pointer;
       var uintC s = mv_count;
@@ -1780,10 +1780,10 @@ LISPSPECFORM(multiple_value_setq, 2,0,nobody)
   } else {
     eval(popSTACK()); /* evaluate form */
     var object varlist = popSTACK();
-    var object* args_end = args_end_pointer;
+    var gcv_object_t* args_end = args_end_pointer;
     mv_to_STACK(); /* write values into the stack (eases access) */
     /* peruse variable-list: */
-    var object* mvptr = args_end;
+    var gcv_object_t* mvptr = args_end;
     var uintC count = mv_count; /* number of values that are still available */
     while (consp(varlist)) {
       var object value;
@@ -1805,7 +1805,7 @@ LISPSPECFORM(catch, 1,0,body)
   STACK_1 = (eval(STACK_1),value1); /* evaluate tag */
   /* finish building of CATCH-frame: */
   var object body = popSTACK(); /* ({form}) */
-  var object* top_of_frame = STACK STACKop 1; /* pointer above frame */
+  var gcv_object_t* top_of_frame = STACK STACKop 1; /* pointer above frame */
   var sp_jmp_buf returner; /* memorize return point */
   finish_entry_frame(CATCH,&!returner,, goto catch_return; );
   /* execute body: */
@@ -1821,7 +1821,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
   var object form = popSTACK();
   /* build UNWIND-PROTECT-frame: */
   pushSTACK(cleanup);
-  var object* top_of_frame = STACK;
+  var gcv_object_t* top_of_frame = STACK;
   var sp_jmp_buf returner; /* return point */
   finish_entry_frame(UNWIND_PROTECT,&!returner,, goto throw_save; );
   /* evaluate protected form: */
@@ -1844,7 +1844,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
                 save unwind_protect_to_save and jump to it in the end. */
   {
     var restartf_t fun = unwind_protect_to_save.fun;
-    var object* arg = unwind_protect_to_save.upto_frame;
+    var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
     /* Cleanup: */
     /* unwind UNWIND-PROTECT-frame: */
     skipSTACK(2);
@@ -1877,7 +1877,7 @@ LISPFUNN(driver,1)
 { /* (SYS::DRIVER fun) builds a driver-frame, that calls the function
  fun (with 0 arguments) each time. fun is executed in a endless loop
  that can be aborted with GO or THROW . */
-  var object* top_of_frame = STACK; /* pointer above frame */
+  var gcv_object_t* top_of_frame = STACK; /* pointer above frame */
   var sp_jmp_buf returner; /* remember entry point */
   finish_entry_frame(DRIVER,&!returner,,;);
   /* this is the entry point. */
@@ -1894,8 +1894,8 @@ LISPFUNN(unwind_to_driver,1)
     var uintL count = posfixnum_to_L(arg);
     dotimespL(count, count, { reset(); });
   } else {
-    var object* FRAME = STACK;
-    var object* driver_frame = STACK;
+    var gcv_object_t* FRAME = STACK;
+    var gcv_object_t* driver_frame = STACK;
     while (!eq(FRAME_(0),nullobj)) { /* end of Stack? */
       if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
         if (framecode(FRAME_(0)) == DRIVER_frame_info)
@@ -2141,7 +2141,7 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
   aktenv = env5;
   { /* save fun: */
     pushSTACK(fun);
-    var object* fun_ = &STACK_0;
+    var gcv_object_t* fun_ = &STACK_0;
     /* evaluate each argument and store on the stack: */
     var uintC argcount = 0;
     while (consp(args)) {

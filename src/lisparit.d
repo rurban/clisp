@@ -264,11 +264,11 @@
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  global void print_integer (object z, uintWL base, const object* stream_);
+  global void print_integer (object z, uintWL base, const gcv_object_t* stream_);
   global void print_integer(z,base,stream_)
     var object z;
     var uintWL base;
-    var const object* stream_;
+    var const gcv_object_t* stream_;
     {
       if (R_minusp(z)) {
         # z<0 -> Vorzeichen ausgeben:
@@ -300,10 +300,10 @@
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  global void print_float (object z, const object* stream_);
+  global void print_float (object z, const gcv_object_t* stream_);
   global void print_float(z,stream_)
     var object z;
-    var const object* stream_;
+    var const gcv_object_t* stream_;
     {
       # Falls SYS::WRITE-FLOAT-DECIMAL definiert ist, (SYS::WRITE-FLOAT-DECIMAL stream z) aufrufen:
       var object fun = Symbol_function(S(write_float_decimal));
@@ -514,10 +514,10 @@ LISPFUNN(evenp,1)
 # Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
 # > args_pointer: Pointer über die Argumente
-  local void test_number_args (uintC argcount, object* args_pointer);
+  local void test_number_args (uintC argcount, gcv_object_t* args_pointer);
   local void test_number_args(argcount,args_pointer)
     var uintC argcount;
-    var object* args_pointer;
+    var gcv_object_t* args_pointer;
     {
       dotimespC(argcount,argcount+1, {
         var object arg = NEXT(args_pointer); # nächstes Argument
@@ -529,10 +529,10 @@ LISPFUNN(evenp,1)
 # reelle Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
 # > args_pointer: Pointer über die Argumente
-  local void test_real_args (uintC argcount, object* args_pointer);
+  local void test_real_args (uintC argcount, gcv_object_t* args_pointer);
   local void test_real_args(argcount,args_pointer)
     var uintC argcount;
-    var object* args_pointer;
+    var gcv_object_t* args_pointer;
     {
       dotimespC(argcount,argcount+1, {
         var object arg = NEXT(args_pointer); # nächstes Argument
@@ -544,10 +544,10 @@ LISPFUNN(evenp,1)
 # ganze Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
 # > args_pointer: Pointer über die Argumente
-  local void test_integer_args (uintC argcount, object* args_pointer);
+  local void test_integer_args (uintC argcount, gcv_object_t* args_pointer);
   local void test_integer_args(argcount,args_pointer)
     var uintC argcount;
-    var object* args_pointer;
+    var gcv_object_t* args_pointer;
     {
       dotimespC(argcount,argcount+1, {
         var object arg = NEXT(args_pointer); # nächstes Argument
@@ -558,13 +558,13 @@ LISPFUNN(evenp,1)
 LISPFUN(gleich,1,0,rest,nokey,0,NIL)
 # (= number {number}), CLTL S. 196
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_number_args(argcount,args_pointer); # Alle Argumente Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]/=Arg[i+1] then return(NIL) ), return(T).
     if (argcount > 0) {
-      var const object* arg_i_ptr = args_pointer;
+      var const gcv_object_t* arg_i_ptr = args_pointer;
       dotimespC(argcount,argcount, {
         var object arg_i = NEXT(arg_i_ptr);
         if (!N_N_gleich(arg_i,Next(arg_i_ptr))) goto no;
@@ -581,7 +581,7 @@ LISPFUN(gleich,1,0,rest,nokey,0,NIL)
 LISPFUN(ungleich,1,0,rest,nokey,0,NIL)
 # (/= number {number}), CLTL S. 196
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_number_args(argcount,args_pointer); # Alle Argumente Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
@@ -590,9 +590,9 @@ LISPFUN(ungleich,1,0,rest,nokey,0,NIL)
     #     if Arg[i]=Arg[j] then return(NIL),
     # return(T).
     if (argcount > 0) {
-      var const object* arg_j_ptr = rest_args_pointer;
+      var const gcv_object_t* arg_j_ptr = rest_args_pointer;
       dotimespC(argcount,argcount, {
-        var const object* arg_i_ptr = args_pointer;
+        var const gcv_object_t* arg_i_ptr = args_pointer;
         do { if (N_N_gleich(NEXT(arg_i_ptr),Next(arg_j_ptr))) goto no; }
            until (arg_i_ptr==arg_j_ptr);
         arg_j_ptr skipSTACKop -1;
@@ -609,13 +609,13 @@ LISPFUN(ungleich,1,0,rest,nokey,0,NIL)
 LISPFUN(kleiner,1,0,rest,nokey,0,NIL)
 # (< real {real}), CLTL S. 196
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_real_args(argcount,args_pointer); # Alle Argumente reelle Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]>=Arg[i+1] then return(NIL) ), return(T).
     if (argcount > 0) {
-      var const object* arg_i_ptr = args_pointer;
+      var const gcv_object_t* arg_i_ptr = args_pointer;
       dotimespC(argcount,argcount, {
         var object arg_i = NEXT(arg_i_ptr);
         if (R_R_comp(arg_i,Next(arg_i_ptr))>=0) goto no;
@@ -632,13 +632,13 @@ LISPFUN(kleiner,1,0,rest,nokey,0,NIL)
 LISPFUN(groesser,1,0,rest,nokey,0,NIL)
 # (> real {real}), CLTL S. 196
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_real_args(argcount,args_pointer); # Alle Argumente reelle Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]<=Arg[i+1] then return(NIL) ), return(T).
     if (argcount > 0) {
-      var const object* arg_i_ptr = args_pointer;
+      var const gcv_object_t* arg_i_ptr = args_pointer;
       dotimespC(argcount,argcount, {
         var object arg_i = NEXT(arg_i_ptr);
         if (R_R_comp(arg_i,Next(arg_i_ptr))<=0) goto no;
@@ -655,13 +655,13 @@ LISPFUN(groesser,1,0,rest,nokey,0,NIL)
 LISPFUN(klgleich,1,0,rest,nokey,0,NIL)
 # (<= real {real}), CLTL S. 196
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_real_args(argcount,args_pointer); # Alle Argumente reelle Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]>Arg[i+1] then return(NIL) ), return(T).
     if (argcount > 0) {
-      var const object* arg_i_ptr = args_pointer;
+      var const gcv_object_t* arg_i_ptr = args_pointer;
       dotimespC(argcount,argcount, {
         var object arg_i = NEXT(arg_i_ptr);
         if (R_R_comp(arg_i,Next(arg_i_ptr))>0) goto no;
@@ -678,13 +678,13 @@ LISPFUN(klgleich,1,0,rest,nokey,0,NIL)
 LISPFUN(grgleich,1,0,rest,nokey,0,NIL)
 # (>= real {real}), CLTL S. 196
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_real_args(argcount,args_pointer); # Alle Argumente reelle Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
     # for i:=0 to n-1 do ( if Arg[i]<Arg[i+1] then return(NIL) ), return(T).
     if (argcount > 0) {
-      var const object* arg_i_ptr = args_pointer;
+      var const gcv_object_t* arg_i_ptr = args_pointer;
       dotimespC(argcount,argcount, {
         var object arg_i = NEXT(arg_i_ptr);
         if (R_R_comp(arg_i,Next(arg_i_ptr))<0) goto no;
@@ -703,12 +703,12 @@ LISPFUN(max,1,0,rest,nokey,0,NIL)
 # Methode:
 # (max x1 x2 x3 ... xn) = (max ...(max (max x1 x2) x3)... xn)
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_real_args(argcount,args_pointer); # Alle Argumente reelle Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := max(x,Arg[i]) ), return(x).
-    var object* arg_i_ptr = args_pointer;
+    var gcv_object_t* arg_i_ptr = args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Maximum
     dotimesC(argcount,argcount, { x = R_R_max_R(x,NEXT(arg_i_ptr)); } );
     VALUES1(x); set_args_end_pointer(args_pointer);
@@ -719,12 +719,12 @@ LISPFUN(min,1,0,rest,nokey,0,NIL)
 # Methode:
 # (min x1 x2 x3 ... xn) = (min ...(min (min x1 x2) x3)... xn)
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_real_args(argcount,args_pointer); # Alle Argumente reelle Zahlen?
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := min(x,Arg[i]) ), return(x).
-    var object* arg_i_ptr = args_pointer;
+    var gcv_object_t* arg_i_ptr = args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Minimum
     dotimesC(argcount,argcount, { x = R_R_min_R(x,NEXT(arg_i_ptr)); } );
     VALUES1(x); set_args_end_pointer(args_pointer);
@@ -744,7 +744,7 @@ LISPFUN(plus,0,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := x+Arg[i] ), return(x).
-    var object* arg_i_ptr = rest_args_pointer;
+    var gcv_object_t* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisherige Summe
     dotimesC(argcount,argcount, { x = N_N_plus_N(x,NEXT(arg_i_ptr)); } );
     VALUES1(x); set_args_end_pointer(rest_args_pointer);
@@ -756,7 +756,7 @@ LISPFUN(minus,1,0,rest,nokey,0,NIL)
 # (- x) extra.
 # (- x1 x2 x3 ... xn) = (- ...(- (- x1 x2) x3)... xn)
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_number_args(argcount,args_pointer); # Alle Argumente Zahlen?
     if (argcount==0) {
       # unäres Minus
@@ -765,7 +765,7 @@ LISPFUN(minus,1,0,rest,nokey,0,NIL)
       # Methode:
       # n+1 Argumente Arg[0..n].
       # x:=Arg[0], for i:=1 to n do ( x := x-Arg[i] ), return(x).
-      var object* arg_i_ptr = args_pointer;
+      var gcv_object_t* arg_i_ptr = args_pointer;
       var object x = NEXT(arg_i_ptr); # bisherige Differenz
       dotimespC(argcount,argcount, { x = N_N_minus_N(x,NEXT(arg_i_ptr)); } );
       value1 = x;
@@ -787,7 +787,7 @@ LISPFUN(mal,0,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := x*Arg[i] ), return(x).
-    var object* arg_i_ptr = rest_args_pointer;
+    var gcv_object_t* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Produkt
     dotimesC(argcount,argcount, {
       var object arg = NEXT(arg_i_ptr);
@@ -802,7 +802,7 @@ LISPFUN(durch,1,0,rest,nokey,0,NIL)
 # (/ x) extra.
 # (/ x1 x2 x3 ... xn) = (/ ...(/ (/ x1 x2) x3)... xn)
   {
-    var object* args_pointer = rest_args_pointer STACKop 1;
+    var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
     test_number_args(argcount,args_pointer); # Alle Argumente Zahlen?
     if (argcount==0) {
       # unäres Durch
@@ -811,7 +811,7 @@ LISPFUN(durch,1,0,rest,nokey,0,NIL)
       # Methode:
       # n+1 Argumente Arg[0..n].
       # x:=Arg[0], for i:=1 to n do ( x := x/Arg[i] ), return(x).
-      var object* arg_i_ptr = args_pointer;
+      var gcv_object_t* arg_i_ptr = args_pointer;
       var object x = NEXT(arg_i_ptr); # bisherige Differenz
       dotimespC(argcount,argcount, { x = N_N_durch_N(x,NEXT(arg_i_ptr)); } );
       value1 = x;
@@ -861,7 +861,7 @@ LISPFUN(gcd,0,0,rest,nokey,0,NIL)
       # Methode:
       # n+1 Argumente Arg[0..n].
       # x:=Arg[0], for i:=1 to n do ( x := gcd(x,Arg[i]) ), return(x).
-      var object* arg_i_ptr = rest_args_pointer;
+      var gcv_object_t* arg_i_ptr = rest_args_pointer;
       var object x = NEXT(arg_i_ptr); # bisheriger ggT
       dotimespC(argcount,argcount, { x = I_I_gcd_I(x,NEXT(arg_i_ptr)); } );
       VALUES1(x);
@@ -903,7 +903,7 @@ LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
       #     for j:=i-1 downto 0 do Arg[j]:=u*Arg[j],
       #   ),
       # return values(g,Arg[0],...,Arg[n]).
-      var object* arg_i_ptr = rest_args_pointer;
+      var gcv_object_t* arg_i_ptr = rest_args_pointer;
       var object g; # bisheriger ggT
       {
         var object arg_0 = NEXT(arg_i_ptr);
@@ -917,7 +917,7 @@ LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
         if (arg_i_ptr == args_end_pointer)
           break;
         I_I_xgcd_I_I_I(g,Next(arg_i_ptr));
-        var object* arg_j_ptr = arg_i_ptr;
+        var gcv_object_t* arg_j_ptr = arg_i_ptr;
         do {
           var object arg_j = Before(arg_j_ptr);
           BEFORE(arg_j_ptr) = I_I_mal_I(STACK_2,arg_j);
@@ -927,7 +927,7 @@ LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
       # Beifaktoren als weitere Werte:
       {
         var object* mvp = &value2;
-        var object* arg_i_ptr = rest_args_pointer;
+        var gcv_object_t* arg_i_ptr = rest_args_pointer;
         if (argcount >= mv_limit-2)
           fehler_mv_zuviel(S(xgcd));
         mv_count = argcount+2;
@@ -955,7 +955,7 @@ LISPFUN(lcm,0,0,rest,nokey,0,NIL)
       # Methode:
       # n+1 Argumente Arg[0..n].
       # x:=Arg[0], for i:=1 to n do ( x := lcm(x,Arg[i]) ), return(x).
-      var object* arg_i_ptr = rest_args_pointer;
+      var gcv_object_t* arg_i_ptr = rest_args_pointer;
       var object x = NEXT(arg_i_ptr); # bisheriges kgV
       dotimespC(argcount,argcount, { x = I_I_lcm_I(x,NEXT(arg_i_ptr)); } );
       VALUES1(x);
@@ -1546,7 +1546,7 @@ LISPFUN(logior,0,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := logior(x,Arg[i]) ), return(x).
-    var object* arg_i_ptr = rest_args_pointer;
+    var gcv_object_t* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Oder
     dotimesC(argcount,argcount, { x = I_I_logior_I(x,NEXT(arg_i_ptr)); } );
     VALUES1(x); set_args_end_pointer(rest_args_pointer);
@@ -1566,7 +1566,7 @@ LISPFUN(logxor,0,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := logxor(x,Arg[i]) ), return(x).
-    var object* arg_i_ptr = rest_args_pointer;
+    var gcv_object_t* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Xor
     dotimesC(argcount,argcount, { x = I_I_logxor_I(x,NEXT(arg_i_ptr)); } );
     VALUES1(x); set_args_end_pointer(rest_args_pointer);
@@ -1586,7 +1586,7 @@ LISPFUN(logand,0,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := logand(x,Arg[i]) ), return(x).
-    var object* arg_i_ptr = rest_args_pointer;
+    var gcv_object_t* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges And
     dotimesC(argcount,argcount, { x = I_I_logand_I(x,NEXT(arg_i_ptr)); } );
     VALUES1(x); set_args_end_pointer(rest_args_pointer);
@@ -1606,7 +1606,7 @@ LISPFUN(logeqv,0,0,rest,nokey,0,NIL)
     # Methode:
     # n+1 Argumente Arg[0..n].
     # x:=Arg[0], for i:=1 to n do ( x := logeqv(x,Arg[i]) ), return(x).
-    var object* arg_i_ptr = rest_args_pointer;
+    var gcv_object_t* arg_i_ptr = rest_args_pointer;
     var object x = NEXT(arg_i_ptr); # bisheriges Zwischen-EQV
     dotimesC(argcount,argcount, { x = I_I_logeqv_I(x,NEXT(arg_i_ptr)); } );
     VALUES1(x); set_args_end_pointer(rest_args_pointer);
@@ -2028,11 +2028,11 @@ LISPFUNN(set_long_float_digits,1)
 
 # UP für LOG2 und LOG10: Logarithmus des Fixnums x mit mindestens digits
 # Bits berechnen und - wenn nötig - den Wert in *objptr aktualisieren.
-  local object log_digits (object x, object digits, object* objptr);
+  local object log_digits (object x, object digits, gcv_object_t* objptr);
   local object log_digits(x,digits,objptr)
     var object x;
     var object digits;
-    var object* objptr;
+    var gcv_object_t* objptr;
     {
       # digits-Argument überprüfen:
       if (!posfixnump(digits)) # nicht notwendig Fixnum!??

@@ -13,7 +13,7 @@
 
 #ifdef GENERATIONAL_GC
 
-local void gc_mark_at (object* ptr) {
+local void gc_mark_at (gcv_object_t* ptr) {
   GC_MARK(*ptr);
 }
 

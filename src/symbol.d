@@ -1,5 +1,5 @@
 # Funktionen betr. Symbole für CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 
 #include "lispbibl.c"
 
@@ -50,7 +50,7 @@ nonreturning_function(local, fehler_plist_odd, (object caller, object plist)) {
  > key: indicator
  < tail: eq(Car(*tail),key), or a pointer to an atom if not found,
          or NULL if odd length */
-local inline object* plist_find (object *plist_, object key) {
+local inline gcv_object_t* plist_find (gcv_object_t *plist_, object key) {
   loop {
     var object plistr = *plist_;
     if (atomp(plistr)) /* not found */
@@ -68,8 +68,8 @@ local inline object* plist_find (object *plist_, object key) {
  > plist_: the address of the plist
  > key: indicator
  < 0: if odd length (error); 1: found; -1: not found */
-local inline int plist_rem (object *plist_, object key) {
-  var object *tail = plist_find(plist_,key);
+local inline int plist_rem (gcv_object_t *plist_, object key) {
+  var gcv_object_t *tail = plist_find(plist_,key);
   if (tail == NULL) return 0; /* odd length --> error */
   var object plistr = *tail;
   if (atomp(plistr)) return -1; /* key not found */
@@ -85,7 +85,7 @@ local inline int plist_rem (object *plist_, object key) {
  > key: indicator
  < value: the value of key in the property list or unbound. */
 global object get (object symbol, object key) {
-  var object* plistr_ = plist_find(&(Symbol_plist(symbol)),key);
+  var gcv_object_t* plistr_ = plist_find(&(Symbol_plist(symbol)),key);
   if (plistr_ == NULL) /* property list has odd length */
     fehler_sym_plist_odd(symbol);
   var object plistr = *plistr_;
@@ -164,7 +164,7 @@ LISPFUN(get,2,1,norest,nokey,0,NIL)
 
 LISPFUN(getf,2,1,norest,nokey,0,NIL)
 { /* (GETF place key [not-found]), CLTL p. 166 */
-  var object *plistr_ = plist_find(&STACK_2,STACK_1);
+  var gcv_object_t *plistr_ = plist_find(&STACK_2,STACK_1);
   if (plistr_ == NULL) /* property list has odd length */
     fehler_plist_odd(S(getf),STACK_2);
   var object plistr = *plistr_;
@@ -185,7 +185,7 @@ LISPFUNN(putf,3)
      (setf (getf place key) value)
   see places.lisp: this will return NIL if no allocation was done, i.e.,
   if the list was modified "in place" and the PLACE does not have to be set */
-  var object *tail = plist_find(&STACK_2,STACK_1);
+  var gcv_object_t *tail = plist_find(&STACK_2,STACK_1);
   if (tail == NULL) fehler_plist_odd(S(putf),STACK_2);
   var object plistr = *tail;
   if (atomp(plistr)) { /* key not found => extend plist with 2 conses */
@@ -211,7 +211,7 @@ LISPFUNN(remf,2)
      (multiple-value-bind (new-place removed-p) (SYS::%REMF place key)
        (when (and removed (null new-place)) (setf place new-place)) removed-p)
   see places.lisp: PLACE has to be modified only if the new value is ATOM */
-  var object *tail = plist_find(&STACK_1,STACK_0);
+  var gcv_object_t *tail = plist_find(&STACK_1,STACK_0);
   if (tail == NULL) fehler_plist_odd(S(remf),STACK_1);
   var object plistr = *tail;
   if (atomp(plistr)) value2 = NIL; /* key not found => not removed */
@@ -270,7 +270,7 @@ LISPFUNN(putplist,2)
 LISPFUNN(put,3)
 { /* (SYS::%PUT symbol key value) == (SETF (GET symbol key) value) */
   var object symbol = test_symbol(STACK_2);
-  var object *tail = plist_find(&Symbol_plist(symbol),STACK_1);
+  var gcv_object_t *tail = plist_find(&Symbol_plist(symbol),STACK_1);
   if (tail == NULL) /* property list has odd length */
     fehler_sym_plist_odd(symbol);
   var object plistr = *tail;
@@ -296,7 +296,7 @@ LISPFUNN(remprop,2)
 { /* (REMPROP symbol indicator), CLTL p. 166 */
   var object key = popSTACK();
   var object symbol = test_symbol(popSTACK());
-  var object *tail = plist_find(&Symbol_plist(symbol),key);
+  var gcv_object_t *tail = plist_find(&Symbol_plist(symbol),key);
   if (tail == NULL) fehler_sym_plist_odd(symbol);
   var object plistr = *tail;
   if (atomp(plistr)) value1 = NIL; /* key not found */

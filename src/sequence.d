@@ -349,10 +349,10 @@ nonreturning_function(local, fehler_seqtype_length,
 #          kwptr[1] = END-Keyword
 # > argptr: *(argptr STACKop 1) = START-Argument,
 #           *(argptr STACKop 0) = END-Argument
-  local void test_start_end (const object* kwptr, const object* argptr);
+  local void test_start_end (const gcv_object_t* kwptr, const gcv_object_t* argptr);
   local void test_start_end(kwptr,argptr)
-    var const object* kwptr;
-    var const object* argptr;
+    var const gcv_object_t* kwptr;
+    var const gcv_object_t* argptr;
     { # START-Argument muss ein Integer >= 0 sein:
       var object start = *(argptr STACKop 1);
       if (!(integerp(start) && positivep(start)))
@@ -378,10 +378,10 @@ nonreturning_function(local, fehler_seqtype_length,
 #          kwptr[1] = END-Keyword
 # > argptr: *(argptr STACKop 1) = START-Argument,
 #           *(argptr STACKop 0) = END-Argument
-  local void test_start_end_1 (const object* kwptr, const object* argptr);
+  local void test_start_end_1 (const gcv_object_t* kwptr, const gcv_object_t* argptr);
   local void test_start_end_1(kwptr,argptr)
-    var const object* kwptr;
-    var const object* argptr;
+    var const gcv_object_t* kwptr;
+    var const gcv_object_t* argptr;
     { # START-Argument muss ein Integer >= 0 sein:
       var object start = *(argptr STACKop 1);
       if (!(integerp(start) && positivep(start)))
@@ -1080,7 +1080,7 @@ LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
 
 LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # (CONCATENATE result-type {sequence}), CLTL S. 249
-  { var object* args_pointer = rest_args_pointer;
+  { var gcv_object_t* args_pointer = rest_args_pointer;
     # result-type in Typdescriptor umwandeln:
     { var object type = Before(args_pointer);
       type = valid_type(type);
@@ -1092,12 +1092,12 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     #              [rest_args_pointer] {sequence}, result-type-len, [STACK].
     # Brauche 2*argcount STACK-Einträge:
     get_space_on_STACK(sizeof(object) * 2*(uintL)argcount);
-   {var object* behind_args_pointer = args_end_pointer; # Pointer unter die Argumente
+   {var gcv_object_t* behind_args_pointer = args_end_pointer; # Pointer unter die Argumente
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len, [behind_args_pointer].
     # Typdescriptoren und Längen bestimmen und im STACK ablegen:
     if (argcount > 0)
-      { var object* ptr = rest_args_pointer;
+      { var gcv_object_t* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,argcount,
           { var object seq = NEXT(ptr); # nächste Sequence
@@ -1113,7 +1113,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     # Längen addieren:
     { var object total_length = Fixnum_0;
       if (argcount > 0)
-        { var object* ptr = behind_args_pointer;
+        { var gcv_object_t* ptr = behind_args_pointer;
           var uintC count;
           dotimespC(count,argcount,
             { NEXT(ptr); # typdescr überspringen
@@ -1134,7 +1134,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
       }
       pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); # Dummies
       # neue Sequence allozieren:
-      {var object* ptr = args_pointer;
+      {var gcv_object_t* ptr = args_pointer;
        var object typdescr2 = NEXT(ptr);
        pushSTACK(typdescr2);
        pushSTACK(total_length); funcall(seq_make(typdescr2),1); # (SEQ2-MAKE total_length)
@@ -1219,14 +1219,14 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # can trigger GC
   typedef bool seq_boolop_fun (object pred_ergebnis);
   local Values seq_boolop (seq_boolop_fun* boolop_fun,
-                           object* args_pointer,
-                           object* rest_args_pointer,
+                           gcv_object_t* args_pointer,
+                           gcv_object_t* rest_args_pointer,
                            uintC argcount,
                            object defolt);
   local Values seq_boolop(boolop_fun,args_pointer,rest_args_pointer,argcount,defolt)
     var seq_boolop_fun* boolop_fun;
-    var object* args_pointer;
-    var object* rest_args_pointer;
+    var gcv_object_t* args_pointer;
+    var gcv_object_t* rest_args_pointer;
     var uintC argcount;
     var object defolt;
     { BEFORE(rest_args_pointer);
@@ -1239,10 +1239,10 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
       # 3*(argcount+1) Plätze auf dem STACK beanspruchen:
       # (2mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
       get_space_on_STACK(sizeof(object)*3*(uintL)(argcount+1));
-     {var object* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
+     {var gcv_object_t* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
       # Typdescriptoren und je einen Pointer zu jeder der argcount+1
       # Sequences bestimmen und im STACK ablegen:
-      { var object* ptr = rest_args_pointer;
+      { var gcv_object_t* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,argcount+1,
           { var object seq = NEXT(ptr); # nächste Sequence
@@ -1258,15 +1258,15 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
       #         [typdescr_pointer] {typdescr, pointer}, [STACK].
       # Schleife: die Funktion aufrufen:
       loop
-        { var object* ptr1 = rest_args_pointer;
-          var object* ptr2 = typdescr_pointer;
+        { var gcv_object_t* ptr1 = rest_args_pointer;
+          var gcv_object_t* ptr2 = typdescr_pointer;
           # ptr1 läuft von oben durch die Sequences durch,
           # ptr2 läuft von oben durch die Typdescr/Pointer durch.
           var uintC count;
           dotimespC(count,argcount+1,
-            { var object* sequence_ = &NEXT(ptr1);
-              var object* typdescr_ = &NEXT(ptr2);
-              var object* pointer_ = &NEXT(ptr2);
+            { var gcv_object_t* sequence_ = &NEXT(ptr1);
+              var gcv_object_t* typdescr_ = &NEXT(ptr2);
+              var gcv_object_t* pointer_ = &NEXT(ptr2);
               # (SEQ-ENDTEST sequence pointer) :
               pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_endtest(*typdescr_),2);
               # eine der Sequences zu Ende -> große Schleife beenden:
@@ -1281,7 +1281,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
             });
           # Alle Sequences abgearbeitet.
           # (FUNCALL predicate (SEQ-ACCESS sequence pointer) ...) aufrufen:
-          { var object* ptr = rest_args_pointer;
+          { var gcv_object_t* ptr = rest_args_pointer;
             var object predicate = BEFORE(ptr);
             funcall(predicate,argcount+1);
           }
@@ -1289,7 +1289,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
           if ((*boolop_fun)(value1)) goto end_with_value1;
         }
       end_with_default:
-        { var object* ptr = typdescr_pointer;
+        { var gcv_object_t* ptr = typdescr_pointer;
           value1 = BEFORE(ptr); # default als Wert
         }
       end_with_value1:
@@ -1305,10 +1305,10 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 
 LISPFUN(map,3,0,rest,nokey,0,NIL)
 # (MAP result-type function sequence {sequence}), CLTL S. 249
-  { var object* args_pointer = rest_args_pointer STACKop 3;
+  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 3;
     # args_pointer = Pointer über die Argumente,
     # rest_args_pointer = Pointer über die argcount weiteren Sequence-Argumente.
-    var object* result_type_ = &Next(args_pointer);
+    var gcv_object_t* result_type_ = &Next(args_pointer);
     # result_type_ zeigt in den STACK, auf result-type.
     if (!(nullp(*result_type_)))
       # allgemeines result-type
@@ -1319,13 +1319,13 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         get_space_on_STACK(sizeof(object)*4*(uintL)(argcount+1));
         # result-type überprüfen:
         *result_type_ = valid_type(*result_type_);
-       {var object* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
+       {var gcv_object_t* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
         # Typdescriptoren und je zwei Pointer zu jeder der argcount+1
         # Sequences bestimmen und im STACK ablegen:
-        { var object* ptr = rest_args_pointer;
+        { var gcv_object_t* ptr = rest_args_pointer;
           var uintC count;
           dotimespC(count,argcount+1,
-            { var object* sequence_ = &NEXT(ptr);
+            { var gcv_object_t* sequence_ = &NEXT(ptr);
               var object seq = *sequence_; # nächste Sequence
               var object typdescr = get_valid_seq_type(seq);
               pushSTACK(typdescr); # Typdescriptor im STACK ablegen
@@ -1343,16 +1343,16 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         # zweiten Pointer durchgelaufen wird:
         pushSTACK(Fixnum_0); # minlength:=0
         loop
-          { var object* ptr1 = rest_args_pointer;
-            var object* ptr2 = typdescr_pointer;
+          { var gcv_object_t* ptr1 = rest_args_pointer;
+            var gcv_object_t* ptr2 = typdescr_pointer;
             # ptr1 läuft von oben durch die Sequences durch,
             # ptr2 läuft von oben durch die Typdescr/Pointer durch.
             var uintC count;
             dotimespC(count,argcount+1,
-              { var object* sequence_ = &NEXT(ptr1);
-                var object* typdescr_ = &NEXT(ptr2);
+              { var gcv_object_t* sequence_ = &NEXT(ptr1);
+                var gcv_object_t* typdescr_ = &NEXT(ptr2);
                 NEXT(ptr2);
-               {var object* pointer_ = &NEXT(ptr2);
+               {var gcv_object_t* pointer_ = &NEXT(ptr2);
                 # (SEQ-ENDTEST sequence pointer) :
                 pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_endtest(*typdescr_),2);
                 # eine der Sequences zu Ende -> große Schleife beenden:
@@ -1388,15 +1388,15 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         #         size, seq2, pointer2 [STACK].
         # size mal die Funktion aufrufen, Ergebnis in seq2 eintragen:
         until (eq(STACK_2,Fixnum_0)) # count (ein Integer) = 0 -> fertig
-          { var object* ptr1 = rest_args_pointer;
-            var object* ptr2 = typdescr_pointer;
+          { var gcv_object_t* ptr1 = rest_args_pointer;
+            var gcv_object_t* ptr2 = typdescr_pointer;
             # ptr1 läuft von oben durch die Sequences durch,
             # ptr2 läuft von oben durch die Typdescr/Pointer durch.
             var uintC count;
             dotimespC(count,argcount+1,
-              { var object* sequence_ = &NEXT(ptr1);
-                var object* typdescr_ = &NEXT(ptr2);
-                var object* pointer_ = &NEXT(ptr2);
+              { var gcv_object_t* sequence_ = &NEXT(ptr1);
+                var gcv_object_t* typdescr_ = &NEXT(ptr2);
+                var gcv_object_t* pointer_ = &NEXT(ptr2);
                 NEXT(ptr2);
                 # (SEQ-ACCESS sequence pointer) :
                 pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_access(*typdescr_),2);
@@ -1429,7 +1429,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
 
 LISPFUN(map_into,2,0,rest,nokey,0,NIL)
 # (MAP-INTO result-sequence function {sequence}), CLtL2 S. 395
-  { var object* args_pointer = rest_args_pointer STACKop 2;
+  { var gcv_object_t* args_pointer = rest_args_pointer STACKop 2;
     # args_pointer = Pointer über die Argumente,
     # rest_args_pointer = Pointer über die argcount Sequence-Argumente.
     # 3*argcount Plätze auf dem STACK beanspruchen:
@@ -1437,10 +1437,10 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
     get_space_on_STACK(sizeof(object)*3*(uintL)argcount);
     # result-sequence der Einfachheit halber nochmal in den STACK:
     pushSTACK(Next(args_pointer));
-   {var object* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
+   {var gcv_object_t* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
     # Typdescriptoren und je einen Pointer zu jeder der argcount+1
     # Sequences bestimmen und im STACK ablegen:
-    { var object* ptr = rest_args_pointer;
+    { var gcv_object_t* ptr = rest_args_pointer;
       var uintC count;
       dotimespC(count,argcount+1,
         { var object seq = NEXT(ptr);
@@ -1458,8 +1458,8 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
     # Sooft wie nötig, die Funktion aufrufen, Ergebnis in result-sequence eintragen:
     loop
       { # Test, ob eine weitere Iteration nötig:
-        { var object* ptr1 = rest_args_pointer;
-          var object* ptr2 = typdescr_pointer;
+        { var gcv_object_t* ptr1 = rest_args_pointer;
+          var gcv_object_t* ptr2 = typdescr_pointer;
           # ptr1 läuft von oben durch die Sequences durch,
           # ptr2 läuft von oben durch die Typdescr/Pointer durch.
           var uintC count;
@@ -1489,15 +1489,15 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
           }   }
         }
         # Jetzt die Funktion aufrufen:
-        { var object* ptr1 = rest_args_pointer;
-          var object* ptr2 = typdescr_pointer;
+        { var gcv_object_t* ptr1 = rest_args_pointer;
+          var gcv_object_t* ptr2 = typdescr_pointer;
           # ptr1 läuft von oben durch die Sequences durch,
           # ptr2 läuft von oben durch die Typdescr/Pointer durch.
           var uintC count;
           dotimesC(count,argcount,
-            { var object* sequence_ = &NEXT(ptr1);
-              var object* typdescr_ = &NEXT(ptr2);
-              var object* pointer_ = &NEXT(ptr2);
+            { var gcv_object_t* sequence_ = &NEXT(ptr1);
+              var gcv_object_t* typdescr_ = &NEXT(ptr2);
+              var gcv_object_t* pointer_ = &NEXT(ptr2);
               # (SEQ-ACCESS sequence pointer) :
               pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_access(*typdescr_),2);
               # als Argument auf den STACK legen:
@@ -1510,9 +1510,9 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
           # (FUNCALL function (SEQ-ACCESS sequence pointer) ...) aufrufen:
           funcall(Before(rest_args_pointer),argcount);
           # (SEQ-ACCESS-SET result-sequence result-pointer ...) ausführen:
-          { var object* sequence_ = &NEXT(ptr1);
-            var object* typdescr_ = &NEXT(ptr2);
-            var object* pointer_ = &NEXT(ptr2);
+          { var gcv_object_t* sequence_ = &NEXT(ptr1);
+            var gcv_object_t* typdescr_ = &NEXT(ptr2);
+            var gcv_object_t* pointer_ = &NEXT(ptr2);
             pushSTACK(*sequence_); pushSTACK(*pointer_); pushSTACK(value1);
             funcall(seq_access_set(*typdescr_),3);
             # pointer := (SEQ-UPD sequence pointer) :
@@ -1591,9 +1591,9 @@ LISPFUN(notevery,2,0,rest,nokey,0,NIL)
 # test_key_arg(stackptr)
 # > *(stackptr-4): optionales Argument
 # < *(stackptr-4): korrekte KEY-Funktion
-  local void test_key_arg (object* stackptr);
+  local void test_key_arg (gcv_object_t* stackptr);
   local void test_key_arg(stackptr)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     { var object key_arg = *(stackptr STACKop -4);
       if (missingp(key_arg))
         *(stackptr STACKop -4) = L(identity); # #'IDENTITY als Default für :KEY
@@ -1876,9 +1876,9 @@ LISPFUN(replace,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_test (const object* stackptr, object x);
+  local bool up_test (const gcv_object_t* stackptr, object x);
   local bool up_test(stackptr,x)
-    var const object* stackptr;
+    var const gcv_object_t* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
       pushSTACK(*(stackptr STACKop 1)); # item
@@ -1894,9 +1894,9 @@ LISPFUN(replace,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_test_not (const object* stackptr, object x);
+  local bool up_test_not (const gcv_object_t* stackptr, object x);
   local bool up_test_not(stackptr,x)
-    var const object* stackptr;
+    var const gcv_object_t* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
       pushSTACK(*(stackptr STACKop 1)); # item
@@ -1911,9 +1911,9 @@ LISPFUN(replace,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_if (const object* stackptr, object x);
+  local bool up_if (const gcv_object_t* stackptr, object x);
   local bool up_if(stackptr,x)
-    var const object* stackptr;
+    var const gcv_object_t* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (funcall predicate x) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -1926,9 +1926,9 @@ LISPFUN(replace,2,0,norest,key,4,
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up_if_not (const object* stackptr, object x);
+  local bool up_if_not (const gcv_object_t* stackptr, object x);
   local bool up_if_not(stackptr,x)
-    var const object* stackptr;
+    var const gcv_object_t* stackptr;
     var object x;
     { # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
@@ -1977,10 +1977,10 @@ LISPFUN(replace,2,0,norest,key,4,
 #       > x: Argument
 #       < true, falls der Test erfüllt ist, false sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef bool (*up_function) (const object* stackptr, object x);
-  local up_function test_test_args (object* stackptr);
+  typedef bool (*up_function) (const gcv_object_t* stackptr, object x);
+  local up_function test_test_args (gcv_object_t* stackptr);
   local up_function test_test_args(stackptr)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     { var object test_arg = *(stackptr STACKop -5);
       if (!boundp(test_arg)) { test_arg=NIL; }
       # test_arg ist das :TEST-Argument
@@ -2012,9 +2012,9 @@ LISPFUN(replace,2,0,norest,key,4,
 # > stackptr: Pointer in den Stack
 # < STACK: wird um 1 erniedrigt
 # < STACK_0: typdescr zu sequence
-  local void seq_prepare_testop (object* stackptr);
+  local void seq_prepare_testop (gcv_object_t* stackptr);
   local void seq_prepare_testop(stackptr)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     { # sequence überprüfen, typdescr auf den Stack:
       pushSTACK(get_valid_seq_type(*(stackptr STACKop 0)));
       # key überprüfen:
@@ -2053,10 +2053,10 @@ LISPFUN(replace,2,0,norest,key,4,
 # < mv_space/mv_count: Werte
 # can trigger GC
   # help_function sei der Typ der Adresse einer solchen Hilfsfunktion:
-  typedef object (*help_function) (object* stackptr, uintL bvl, uintL dl);
-  local Values seq_filterop (object* stackptr, up_function up_fun, help_function help_fun);
+  typedef object (*help_function) (gcv_object_t* stackptr, uintL bvl, uintL dl);
+  local Values seq_filterop (gcv_object_t* stackptr, up_function up_fun, help_function help_fun);
   local Values seq_filterop(stackptr,up_fun,help_fun)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var up_function up_fun;
     var help_function help_fun;
     { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
@@ -2174,9 +2174,9 @@ LISPFUN(replace,2,0,norest,key,4,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object remove_help (object* stackptr, uintL bvl, uintL dl);
+  local object remove_help (gcv_object_t* stackptr, uintL bvl, uintL dl);
   local object remove_help(stackptr,bvl,dl)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var uintL bvl;
     var uintL dl;
     { # dl=0 -> sequence unverändert zurückgeben:
@@ -2243,9 +2243,9 @@ LISPFUN(replace,2,0,norest,key,4,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object delete_help (object* stackptr, uintL bvl, uintL dl);
+  local object delete_help (gcv_object_t* stackptr, uintL bvl, uintL dl);
   local object delete_help(stackptr,bvl,dl)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var uintL bvl;
     var uintL dl;
     { # dl=0 -> sequence unverändert zurückgeben:
@@ -2257,7 +2257,7 @@ LISPFUN(replace,2,0,norest,key,4,
           if (mconsp(*(stackptr STACKop 0)))
             { # Listen speziell behandeln:
               var object whole_list = *(stackptr STACKop 0); # ganze Liste
-              var object* list_ = &whole_list;
+              var gcv_object_t* list_ = &whole_list;
               var object list = *list_;
               # Stets list = *list_.
               # Vorderes Teilstück:
@@ -2342,7 +2342,7 @@ LISPFUN(remove,2,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (REMOVE item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 253
-  { var object* stackptr = &STACK_7;
+  { var gcv_object_t* stackptr = &STACK_7;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,up_fun,&remove_help); # Filtern
@@ -2353,7 +2353,7 @@ LISPFUN(remove_if,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (REMOVE-IF test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 253
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,&up_if,&remove_help); # Filtern
     skipSTACK(2+5+1);
@@ -2363,7 +2363,7 @@ LISPFUN(remove_if_not,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (REMOVE-IF-NOT test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 253
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,&up_if_not,&remove_help); # Filtern
     skipSTACK(2+5+1);
@@ -2373,7 +2373,7 @@ LISPFUN(delete,2,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (DELETE item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 254
-  { var object* stackptr = &STACK_7;
+  { var gcv_object_t* stackptr = &STACK_7;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,up_fun,&delete_help); # Filtern
@@ -2384,7 +2384,7 @@ LISPFUN(delete_if,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (DELETE-IF test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 254
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,&up_if,&delete_help); # Filtern
     skipSTACK(2+5+1);
@@ -2394,7 +2394,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (DELETE-IF-NOT test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 254
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,&up_if_not,&delete_help); # Filtern
     skipSTACK(2+5+1);
@@ -2406,9 +2406,9 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
 # > x,y: Argumente
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up2_test (const object* stackptr, object x, object y);
+  local bool up2_test (const gcv_object_t* stackptr, object x, object y);
   local bool up2_test(stackptr,x,y)
-    var const object* stackptr;
+    var const gcv_object_t* stackptr;
     var object x;
     var object y;
     { # ein (funcall testfun x y) ausführen:
@@ -2424,9 +2424,9 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
 # > x,y: Argumente
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-  local bool up2_test_not (const object* stackptr, object x, object y);
+  local bool up2_test_not (const gcv_object_t* stackptr, object x, object y);
   local bool up2_test_not(stackptr,x,y)
-    var const object* stackptr;
+    var const gcv_object_t* stackptr;
     var object x;
     var object y;
     { # ein (not (funcall testfun x y)) ausführen:
@@ -2449,10 +2449,10 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
 #       > x,y: Argumente
 #       < true, falls der Test erfüllt ist, false sonst.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef bool (*up2_function) (const object* stackptr, object x, object y);
-  local up2_function test_test2_args (object* stackptr);
+  typedef bool (*up2_function) (const gcv_object_t* stackptr, object x, object y);
+  local up2_function test_test2_args (gcv_object_t* stackptr);
   local up2_function test_test2_args(stackptr)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     { var object test_arg = *(stackptr STACKop -5);
       if (!boundp(test_arg)) { test_arg=NIL; }
       # test_arg ist das :TEST-Argument
@@ -2495,7 +2495,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
   local Values seq_duplicates (help_function help_fun);
   local Values seq_duplicates(help_fun)
     var help_function help_fun;
-    { var object* stackptr = &STACK_6;
+    { var gcv_object_t* stackptr = &STACK_6;
       # Stackaufbau:
       #   sequence [stackptr], from-end, start, end, key, test, test-not.
       # sequence überprüfen:
@@ -2798,9 +2798,9 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object substitute_help (object* stackptr, uintL bvl, uintL dl);
+  local object substitute_help (gcv_object_t* stackptr, uintL bvl, uintL dl);
   local object substitute_help(stackptr,bvl,dl)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var uintL bvl;
     var uintL dl;
     { # dl=0 -> sequence unverändert zurückgeben:
@@ -2915,7 +2915,7 @@ LISPFUN(substitute,3,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (SUBSTITUTE newitem item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 255
-  { var object* stackptr = &STACK_7;
+  { var gcv_object_t* stackptr = &STACK_7;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,up_fun,&substitute_help); # Filtern
@@ -2926,7 +2926,7 @@ LISPFUN(substitute_if,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (SUBSTITUTE-IF newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 255
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,&up_if,&substitute_help); # Filtern
     skipSTACK(3+5+1);
@@ -2936,7 +2936,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (SUBSTITUTE-IF-NOT newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 255
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     seq_filterop(stackptr,&up_if_not,&substitute_help); # Filtern
     skipSTACK(3+5+1);
@@ -2954,9 +2954,9 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
-  local object nsubstitute_fe_help (object* stackptr, uintL bvl, uintL dl);
+  local object nsubstitute_fe_help (gcv_object_t* stackptr, uintL bvl, uintL dl);
   local object nsubstitute_fe_help(stackptr,bvl,dl)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var uintL bvl;
     var uintL dl;
     { {pushSTACK(*(stackptr STACKop 0)); # sequence
@@ -3012,9 +3012,9 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values nsubstitute_op (object* stackptr, up_function up_fun);
+  local Values nsubstitute_op (gcv_object_t* stackptr, up_function up_fun);
   local Values nsubstitute_op(stackptr,up_fun)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var up_function up_fun;
     { if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
         # from-end ist angegeben -> Bit-Vector erzeugen und dann ersetzen:
@@ -3074,7 +3074,7 @@ LISPFUN(nsubstitute,3,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (NSUBSTITUTE newitem item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
 # CLTL S. 256
-  { var object* stackptr = &STACK_7;
+  { var gcv_object_t* stackptr = &STACK_7;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     nsubstitute_op(stackptr,up_fun); # gefiltert ersetzen
@@ -3085,7 +3085,7 @@ LISPFUN(nsubstitute_if,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (NSUBSTITUTE-IF newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 256
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     nsubstitute_op(stackptr,&up_if); # gefiltert ersetzen
     skipSTACK(3+5+1);
@@ -3095,7 +3095,7 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
 # (NSUBSTITUTE-IF-NOT newitem test sequence [:from-end] [:start] [:end] [:key] [:count]),
 # CLTL S. 256
-  { var object* stackptr = &STACK_5;
+  { var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     nsubstitute_op(stackptr,&up_if_not); # gefiltert ersetzen
     skipSTACK(3+5+1);
@@ -3111,9 +3111,9 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values find_op (object* stackptr, up_function up_fun);
+  local Values find_op (gcv_object_t* stackptr, up_function up_fun);
   local Values find_op(stackptr,up_fun)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var up_function up_fun;
     { pushSTACK(*(stackptr STACKop 0)); # sequence
       # Stackaufbau: ..., typdescr, sequence.
@@ -3189,7 +3189,7 @@ LISPFUN(find,2,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (FIND item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_6;
+  { var gcv_object_t* stackptr = &STACK_6;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     find_op(stackptr,up_fun); # suchen
@@ -3200,7 +3200,7 @@ LISPFUN(find_if,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (FIND-IF test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_4;
+  { var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     find_op(stackptr,&up_if); # suchen
     skipSTACK(2+4+1);
@@ -3210,7 +3210,7 @@ LISPFUN(find_if_not,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (FIND-IF-NOT test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_4;
+  { var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     find_op(stackptr,&up_if_not); # suchen
     skipSTACK(2+4+1);
@@ -3226,9 +3226,9 @@ LISPFUN(find_if_not,2,0,norest,key,4,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values position_op (object* stackptr, up_function up_fun);
+  local Values position_op (gcv_object_t* stackptr, up_function up_fun);
   local Values position_op(stackptr,up_fun)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var up_function up_fun;
     { pushSTACK(*(stackptr STACKop 0)); # sequence
       # Stackaufbau: ..., typdescr, sequence.
@@ -3306,7 +3306,7 @@ LISPFUN(position,2,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (POSITION item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_6;
+  { var gcv_object_t* stackptr = &STACK_6;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     position_op(stackptr,up_fun); # suchen
@@ -3317,7 +3317,7 @@ LISPFUN(position_if,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (POSITION-IF test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_4;
+  { var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     position_op(stackptr,&up_if); # suchen
     skipSTACK(2+4+1);
@@ -3327,7 +3327,7 @@ LISPFUN(position_if_not,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (POSITION-IF-NOT test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_4;
+  { var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     position_op(stackptr,&up_if_not); # suchen
     skipSTACK(2+4+1);
@@ -3343,9 +3343,9 @@ LISPFUN(position_if_not,2,0,norest,key,4,
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local Values count_op (object* stackptr, up_function up_fun);
+  local Values count_op (gcv_object_t* stackptr, up_function up_fun);
   local Values count_op(stackptr,up_fun)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     var up_function up_fun;
     { pushSTACK(*(stackptr STACKop 0)); # sequence
       pushSTACK(Fixnum_0); # total := 0
@@ -3416,7 +3416,7 @@ LISPFUN(count,2,0,norest,key,6,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not)) )
 # (COUNT item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_6;
+  { var gcv_object_t* stackptr = &STACK_6;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     count_op(stackptr,up_fun); # suchen
@@ -3427,7 +3427,7 @@ LISPFUN(count_if,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (COUNT-IF test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_4;
+  { var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     count_op(stackptr,&up_if); # suchen
     skipSTACK(2+4+1);
@@ -3437,7 +3437,7 @@ LISPFUN(count_if_not,2,0,norest,key,4,
         (kw(from_end),kw(start),kw(end),kw(key)) )
 # (COUNT-IF-NOT test sequence [:from-end] [:start] [:end] [:key]),
 # CLTL S. 257
-  { var object* stackptr = &STACK_4;
+  { var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
     count_op(stackptr,&up_if_not); # suchen
     skipSTACK(2+4+1);
@@ -3451,7 +3451,7 @@ LISPFUN(mismatch,2,0,norest,key,8,
 # CLTL S. 257
   { # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
     #              key, test, test-not.
-    var object* stackptr = &STACK_6;
+    var gcv_object_t* stackptr = &STACK_6;
     # key überprüfen:
     test_key_arg(stackptr);
     # test, test-not überprüfen:
@@ -3623,7 +3623,7 @@ LISPFUN(search,2,0,norest,key,8,
   #   Testfunktion erfordert, die nach CLTL S. 247 nicht notwendig gegeben ist.
   { # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
     #              key, test, test-not.
-    var object* stackptr = &STACK_6;
+    var gcv_object_t* stackptr = &STACK_6;
     # key überprüfen:
     test_key_arg(stackptr);
     # test, test-not überprüfen:
@@ -3851,9 +3851,9 @@ LISPFUN(search,2,0,norest,key,8,
 #            pointer3 genau  count1+count2  mal weitergerückt (mit SEQ-UPD).
 # count1 und count2 werden auf 0 gesetzt.
 # can trigger GC
-  local void merge (object* stackptr);
+  local void merge (gcv_object_t* stackptr);
   local void merge(stackptr)
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     { loop
         { if (eq(STACK_4,Fixnum_0)) goto seq1_end; # count1 = 0 -> seq1 zu Ende
           if (eq(STACK_3,Fixnum_0)) goto seq2_end; # count1 = 0 -> seq2 zu Ende
@@ -3946,11 +3946,11 @@ LISPFUN(search,2,0,norest,key,8,
 #       sequence, predicate [stackptr], key, start, end, typdescr, seq2
 # < ergebnis: Pointer nach den k Elementen
 # can trigger GC
-  local object sort_part (object pointer_left, object k, object* stackptr);
+  local object sort_part (object pointer_left, object k, gcv_object_t* stackptr);
   local object sort_part(pointer_left,k,stackptr)
     var object pointer_left;
     var object k;
-    var object* stackptr;
+    var gcv_object_t* stackptr;
     { if (eq(k,Fixnum_1))
         { # k=1. Fast nichts zu tun
           pushSTACK(*(stackptr STACKop 1)); pushSTACK(pointer_left);

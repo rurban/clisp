@@ -25,7 +25,7 @@
 # x reell -> klar.
 # x = a+bi -> (exp a) mit (cos b) + i (sin b) multiplizieren:
 #             (complex (* (exp a) (cos b)) (* (exp a) (sin b)))
-local object N_exp_N (object x, bool start_p, object* end_p)
+local object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
 {
   if (N_realp(x)) {
     return R_exp_R(x,start_p,end_p);
@@ -59,7 +59,7 @@ local object N_exp_N (object x, bool start_p, object* end_p)
 # can trigger GC
 # Methode:
 # (complex (log (abs x)) (phase x))
-local object N_log_N (object x, bool start_p, object *end_p)
+local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
 {
   pushSTACK(x); /* save x */
   pushSTACK(N_abs_R(x)); /* (abs x) */

@@ -1,6 +1,6 @@
 # Foreign language interface for CLISP
 # Marcus Daniels 8.4.1994
-# Bruno Haible 1995-2001
+# Bruno Haible 1995-2002
 
 #include "lispbibl.c"
 #include "arilev0.c" # für mulu32_unchecked
@@ -338,7 +338,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
             && eq(flags,Car(Cdr(Cdr(acons))))
             ) {
           var object index = Cdr(Cdr(Cdr(acons)));
-          var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_L(index)-2];
+          var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*posfixnum_to_L(index)-2];
           triple[2] = fixnum_inc(triple[2],1); # increment reference count
           var object ffun = triple[1];
           ASSERT(equal_fvd(resulttype,TheFfunction(ffun)->ff_resulttype));
@@ -396,7 +396,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
       shifthash(O(foreign_callin_table),STACK_1,new_cons);
     }
     # Put it into the vector.
-    var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+    var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
     triple[1] = popSTACK(); # obj
     triple[0] = popSTACK(); # fun
     triple[2] = Fixnum_1; # refcount := 1
@@ -416,7 +416,7 @@ local object convert_function_to_foreign (object fun, object resulttype,
         var uintL index = (uintL)(uintP)callback_data(address);
         end_system_call();
         var object dv = TheIarray(O(foreign_callin_vector))->data;
-        var object* triple = &TheSvector(dv)->data[3*index-2];
+        var gcv_object_t* triple = &TheSvector(dv)->data[3*index-2];
         if (!nullp(triple[1])) { # safety check
           triple[2] = fixnum_inc(triple[2],-1); # decrement reference count
           if (eq(triple[2],Fixnum_0)) {
@@ -470,7 +470,7 @@ local object convert_function_from_foreign (void* address, object resulttype,
       ) {
     var uintL index = (uintL)(uintP)callback_data(address);
     end_system_call();
-    var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+    var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
     var object ffun = triple[1];
     check_cc_match(ffun,resulttype,argtypes,flags);
     return ffun;
@@ -997,7 +997,7 @@ global object convert_from_foreign(fvd,data)
         if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
           pushSTACK(fvd);
           {
-            var object* fvd_ = &STACK_0;
+            var gcv_object_t* fvd_ = &STACK_0;
             var uintL cumul_size = 0;
             var uintL cumul_alignment = struct_alignment;
             var uintL i;
@@ -2244,8 +2244,8 @@ LISPFUN(element,1,0,rest,nokey,0,NIL)
     # Check the subscripts:
     var uintL row_major_index = 0;
     if (argcount > 0) {
-      var object* args_pointer = rest_args_pointer;
-      var object* dimptr = &TheSvector(fvd)->data[2];
+      var gcv_object_t* args_pointer = rest_args_pointer;
+      var gcv_object_t* dimptr = &TheSvector(fvd)->data[2];
       var uintC count;
       dotimespC(count,argcount, {
         var object subscriptobj = NEXT(args_pointer);
@@ -3018,7 +3018,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
     end_call();
     # Convert the result(s) back to Lisp.
     {
-      var object* resptr = (&STACK_0 STACKop result_count) STACKop -1;
+      var gcv_object_t* resptr = (&STACK_0 STACKop result_count) STACKop -1;
       var uintL i;
       for (i = 0; i < result_count; i++) {
         *resptr = convert_from_foreign(*resptr,results[i].address);
@@ -3394,7 +3394,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
     {
       var uintL index = (uintL)(uintP)data;
       begin_callback();
-      var object* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
+      var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*index-2];
       var object fun = triple[0];
       var object ffun = triple[1];
       var uintWL flags = posfixnum_to_L(TheFfunction(ffun)->ff_flags);

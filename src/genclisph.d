@@ -626,6 +626,7 @@ global int main()
     printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_addr_shift);
     printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
   #endif
+  printf("typedef object gcv_object_t;\n");
   #ifdef TYPECODES
     printf("#define VAROBJECT_HEADER  object GCself;\n");
   #else
@@ -635,9 +636,9 @@ global int main()
     printf("#define varobject_type(ptr) ((sintB)((ptr)->tfl & 0xFF))\n");
   #endif
   #ifdef TYPECODES
-    printf("typedef struct { VAROBJECT_HEADER uintB recflags; sintB rectype; uintW recfiller; object recdata[unspecified]; } record_;\n");
+    printf("typedef struct { VAROBJECT_HEADER uintB recflags; sintB rectype; uintW recfiller; gcv_object_t recdata[unspecified]; } record_;\n");
   #else
-    printf("typedef struct { VAROBJECT_HEADER object recdata[unspecified]; } record_;\n");
+    printf("typedef struct { VAROBJECT_HEADER gcv_object_t recdata[unspecified]; } record_;\n");
   #endif
   printf("typedef record_ *  Record;\n");
   #ifdef TYPECODES
@@ -692,7 +693,7 @@ global int main()
 #   printf("typedef struct { object c_real; object c_imag; } complex_;\n");
 # #endif
 # printf("typedef complex_ *  Complex;\n");
-  printf("typedef struct { VAROBJECT_HEADER object symvalue; object symfunction; object proplist; object pname; object homepackage; } symbol_;\n");
+  printf("typedef struct { VAROBJECT_HEADER gcv_object_t symvalue; gcv_object_t symfunction; gcv_object_t proplist; gcv_object_t pname; gcv_object_t homepackage; } symbol_;\n");
 # printf("typedef symbol_ *  Symbol;\n");
   printf("typedef uint%d cint;\n",char_int_len);
   printf1("#define int_char(int_from_int_char)  type_data_object(%d,(aint)(cint)(int_from_int_char))\n",(tint)char_type);
@@ -789,7 +790,7 @@ global int main()
 # printf("typedef struct { SRECORD_HEADER object class; object other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
   printf("typedef Values (*lisp_function_t)();\n");
-  printf("typedef struct { lisp_function_t function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_t");
+  printf("typedef struct { lisp_function_t function; gcv_object_t name; gcv_object_t keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_t");
   #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
     printf(" __attribute__ ((aligned (4)))");
   #endif
@@ -1113,10 +1114,10 @@ global int main()
     printf("%s\n","#define SP()  ({var aint __SP; __asm__ __volatile__ (\"movl %%esp,%0\" : \"=g\" (__SP) : ); __SP; })");
   #endif
   #if !defined(STACK_register)
-    printf("extern object* STACK;\n");
+    printf("extern gcv_object_t* STACK;\n");
   #else
     printf("#ifndef IN_MODULE_CC\n");
-    printf("register object* STACK __asm__(\"%s\");\n",STACK_register);
+    printf("register gcv_object_t* STACK __asm__(\"%s\");\n",STACK_register);
     printf("#endif\n");
   #endif
   #ifdef HAVE_SAVED_mv_count
@@ -1129,7 +1130,7 @@ global int main()
     printf("extern struct backtrace_t* saved_back_trace;\n");
   #endif
   #if defined(HAVE_SAVED_STACK)
-    printf("extern object* saved_STACK;\n");
+    printf("extern gcv_object_t* saved_STACK;\n");
   #endif
   printf("#define begin_call()");
          #ifdef HAVE_SAVED_mv_count
@@ -1177,7 +1178,7 @@ global int main()
            #ifdef HAVE_SAVED_STACK
              printf(" STACK = saved_STACK;");
            #endif
-           printf(" { var object* top_of_frame = STACK; pushSTACK(as_object((aint)callback_saved_registers)); finish_frame(CALLBACK); } callback_saved_registers = registers; } ");
+           printf(" { var gcv_object_t* top_of_frame = STACK; pushSTACK(as_object((aint)callback_saved_registers)); finish_frame(CALLBACK); } callback_saved_registers = registers; } ");
          #endif
          printf("end_call()\n");
   printf("#define end_callback() ");

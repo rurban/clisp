@@ -158,9 +158,9 @@ local void write_errorasciz (const char* asciz) {
  > STACK_7, STACK_8, ...: arguments (for each '~' resp. '$' one argument),
    in reversed order as with FUNCALL !
  < result: STACK-value above the stream and the arguments */
-local object* write_errorstring (const char* errorstring)
+local gcv_object_t* write_errorstring (const char* errorstring)
 {
-  var object* argptr = args_end_pointer STACKop 7; /* pointer above stream and frame */
+  var gcv_object_t* argptr = args_end_pointer STACKop 7; /* pointer above stream and frame */
   loop {
     var char ch = *errorstring; /* next character */
     if (ch==0) /* string finished? */
@@ -202,7 +202,7 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
 }
 
 /* finishes the output of an error message and starts a new driver. */
-nonreturning_function(local, end_error, (object* stackptr)) {
+nonreturning_function(local, end_error, (gcv_object_t* stackptr)) {
   if (nullp(STACK_1)) {
     /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL */
     skipSTACK(4); /* error message has already been printed */
@@ -387,7 +387,7 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
          resp. ({handler} nil errorstring {expr}) */
       pushSTACK(arg1);
       {
-        var object* ptr = rest_args_pointer;
+        var gcv_object_t* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,1+argcount, { pushSTACK(NEXT(ptr)); } );
       }
@@ -424,7 +424,7 @@ local object convert_simple_condition (object type) {
   var object v = O(error_types);
   var uintL count = Svector_length(v);
   if (count > 0) {
-    var object* ptr = &TheSvector(v)->data[0];
+    var gcv_object_t* ptr = &TheSvector(v)->data[0];
     dotimespL(count,count, {
       if (eq(type,Car(*ptr)))
         return Cdr(*ptr);
@@ -454,7 +454,7 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
                   'cerror (convert-simple-condition type) keyword-arguments))
          args)))) */
 {
-  var object* cfstring_ = &Next(rest_args_pointer STACKop 3);
+  var gcv_object_t* cfstring_ = &Next(rest_args_pointer STACKop 3);
   var uintC keyword_argcount = 0;
   rest_args_pointer skipSTACKop 1; /* pointer to the arguments behind type */
   while (argcount>=2) {
@@ -477,8 +477,8 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
     var object errorstring = STACK_0;
     pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
     {
-      var object* ptr2 = args_end_pointer;
-      var object* ptr1 = ptr2 STACKop 4;
+      var gcv_object_t* ptr2 = args_end_pointer;
+      var gcv_object_t* ptr1 = ptr2 STACKop 4;
       var uintC count;
       dotimesC(count,keyword_argcount, { BEFORE(ptr2) = BEFORE(ptr1); } );
       BEFORE(ptr2) = convert_simple_condition(BEFORE(ptr1));
@@ -552,7 +552,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
          resp. ({handler} nil errorstring {expr}) */
       pushSTACK(arg1);
       {
-        var object* ptr = rest_args_pointer;
+        var gcv_object_t* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,1+argcount, { pushSTACK(NEXT(ptr)); } );
       }
@@ -569,8 +569,8 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
     var object errorstring = STACK_0;
     pushSTACK(NIL); pushSTACK(NIL);
     {
-      var object* ptr2 = args_end_pointer;
-      var object* ptr1 = ptr2 STACKop 3;
+      var gcv_object_t* ptr2 = args_end_pointer;
+      var gcv_object_t* ptr1 = ptr2 STACKop 3;
       var uintC count;
       dotimesC(count,keyword_argcount, { BEFORE(ptr2) = BEFORE(ptr1); } );
       BEFORE(ptr2) = convert_simple_condition(BEFORE(ptr1));

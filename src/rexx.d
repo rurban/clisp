@@ -92,7 +92,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
       fehler_norexx();
     # vorsorglich ein Foreign allozieren:
     pushSTACK(allocate_fpointer(NULL));
-    var object* fargs_pointer = STACK; # Pointer unter alle Argumente inkl. Foreign.
+    var gcv_object_t* fargs_pointer = STACK; # Pointer unter alle Argumente inkl. Foreign.
     # Darunter werden bei Funktion alle Strings aus dem Array abgelegt.
     # Erstes Argument verarbeiten:
     if (stringp(STACK_(5+1))) {
@@ -121,7 +121,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
               );
       }
       # Alle Argumentstrings aus dem Vektor auf dem Stack ablegen:
-      var object* vptr = &STACK_(5+1);
+      var gcv_object_t* vptr = &STACK_(5+1);
       var uintL index;
       for (index = 0; index < fargs; index++) {
         var object arg = TheSvector(*vptr)->data[index];
@@ -174,7 +174,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
           # Argumente einfüllen:
           {
             var uintL i;
-            var object* argptr = fargs_pointer;
+            var gcv_object_t* argptr = fargs_pointer;
             success = true;
             with_sstring(NEXT(argptr),O(misc_encoding),asciz,len, {
               begin_system_call();

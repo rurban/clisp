@@ -146,12 +146,12 @@ local object rehash_symtab (object symtab) {
      first process the symbols, that sit in lists
      (maybe Conses become free): */
   {
-    var object* offset = 0; /* offset = sizeof(object)*index */
+    var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
     var uintC count;
     dotimespC(count,oldsize, {
       var object oldentry = /* entry with number index in oldtable */
-        *(object*)(pointerplus(&TheSvector(STACK_2)->data[0],
-                               (aint)offset));
+        *(gcv_object_t*)(pointerplus(&TheSvector(STACK_2)->data[0],
+                                     (aint)offset));
       if (consp(oldentry)) /* this time process only non-empty symbol-lists */
         do {
           pushSTACK(Cdr(oldentry)); /* save rest-list */
@@ -165,12 +165,12 @@ local object rehash_symtab (object symtab) {
     });
   }
   { /* then process symbols, that sit there collision-free: */
-    var object* offset = 0; /* offset = sizeof(object)*index */
+    var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
     var uintC count;
     dotimespC(count,oldsize, {
       var object oldentry = /* entry with number index in oldtable */
-        *(object*)(pointerplus(&TheSvector(STACK_2)->data[0],
-                               (aint)offset));
+        *(gcv_object_t*)(pointerplus(&TheSvector(STACK_2)->data[0],
+                                     (aint)offset));
       if (!listp(oldentry)) { /* this time process only symbols /= NIL */
         pushSTACK(oldentry); /* dummy, so that the stack is fine */
         newinsert(oldentry,newsize); /* enter into the new table */
@@ -306,7 +306,7 @@ local void symtab_delete (object sym, object symtab) {
   var uintL index = /* Index = Hashcode mod size */
     (uintL)(string_hashcode(Symbol_name(sym)) %
             (uintW)(posfixnum_to_L(Symtab_size(symtab))));
-  var object* entryptr = &TheSvector(Symtab_table(symtab))->data[index];
+  var gcv_object_t* entryptr = &TheSvector(Symtab_table(symtab))->data[index];
   var object entry = *entryptr; /* entry in the table */
   if (!listp(entry)) { /* entry is a single symbol */
     /* sym and found symbol eq ? */
@@ -477,7 +477,7 @@ local bool shadowing_lookup (object string, object pack, object* sym_) {
  < sym: symbol, EQ to the old one
  < pack: package, EQ to the old one
  can trigger GC */
-local void shadowing_insert (const object* sym_, const object* pack_) {
+local void shadowing_insert (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   /* insert a new cons with symbol as CAR in front of the shadowing-symbols: */
   var object new_cons = allocate_cons();
   var object pack = *pack_;
@@ -492,7 +492,7 @@ local void shadowing_insert (const object* sym_, const object* pack_) {
  > string: string
  > pack: package */
 local void shadowing_delete (object string, object pack) {
-  var object* listptr = &ThePackage(pack)->pack_shadowing_symbols;
+  var gcv_object_t* listptr = &ThePackage(pack)->pack_shadowing_symbols;
   var object list = *listptr;
   /* list = *listptr traverses the shadowing-list */
   while (consp(list)) {
@@ -575,7 +575,7 @@ global bool find_external_symbol (object string, object pack, object* sym_) {
 /* push the stream *QUERY-IO* on the stack and TERPRI it.
  returns &STACK_0
  can trigger GC */
-local object* prepare_query_user (void) {
+local gcv_object_t* prepare_query_user (void) {
   var object s = var_stream(S(query_io),strmflags_rd_ch_B|strmflags_wr_ch_B);
   pushSTACK(s);
   terpri(&STACK_0);
@@ -591,7 +591,7 @@ local object* prepare_query_user (void) {
  can trigger GC */
 local object query_user (object ml) {
   pushSTACK(ml);
-  var object* stream_ = prepare_query_user(); /* Stream *QUERY-IO* */
+  var gcv_object_t* stream_ = prepare_query_user(); /* Stream *QUERY-IO* */
   write_sstring(stream_,CLSTEXT("Please choose:"));
   { /* print options: */
     var object mlistr = STACK_1; /* remaining options */
@@ -829,7 +829,7 @@ global object intern_keyword (object string) {
  < sym: symbol, EQ to the old one
  < pack: package, EQ to the old one
  can trigger GC */
-local void shadowing_import (const object* sym_, const object* pack_) {
+local void shadowing_import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(shadowing_import),*pack_,*sym_);
   set_break_sem_2(); /* protect against breaks */
   {
@@ -877,7 +877,7 @@ local void shadowing_import (const object* sym_, const object* pack_) {
 /* > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
-local void shadow (const object* sym_, const object* pack_) {
+local void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(shadow),*pack_,*sym_);
   set_break_sem_2(); /* protect against breaks */
   /* Search an internal or external symbol of the same name: */
@@ -918,7 +918,7 @@ local void shadow (const object* sym_, const object* pack_) {
  < pack: package, EQ to the old
  < result: T if found and deleted, NIL if nothing has been done.
  can trigger GC */
-local object unintern (const object* sym_, const object* pack_) {
+local object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(unintern),*pack_,*sym_);
   var object sym = *sym_;
   var object pack = *pack_;
@@ -1085,7 +1085,7 @@ local bool query_intern_conflict (object pack, object sym, object other,
  > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
-global void import (const object* sym_, const object* pack_) {
+global void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   #define CONFLICT1
   #define CONFLICT2
   var object sym = *sym_;
@@ -1164,7 +1164,7 @@ global void import (const object* sym_, const object* pack_) {
  > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
-local void unexport (const object* sym_, const object* pack_) {
+local void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(unexport),*pack_,*sym_);
   var object sym = *sym_;
   var object pack = *pack_;
@@ -1220,7 +1220,7 @@ local void make_external (object sym, object pack) {
  < sym: symbol, EQ to the old
  < pack: package, EQ to the old
  can trigger GC */
-global void export (const object* sym_, const object* pack_) {
+global void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(export),*pack_,*sym_);
   var object sym = *sym_;
   var object pack = *pack_;
@@ -1390,12 +1390,12 @@ local void map_symtab (object fun, object symtab) {
   pushSTACK(Symtab_table(symtab)); /* table vector */
   /* number of entries */
   var uintL size = posfixnum_to_L(Symtab_size(symtab));
-  var object* offset = 0; /* offset = sizeof(object)*index */
+  var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
   var uintC count;
   dotimespC(count,size, {
     var object entry = /* entry with number index in table */
-      *(object*)(pointerplus(&TheSvector(STACK_0)->data[0],
-                             (aint)offset));
+      *(gcv_object_t*)(pointerplus(&TheSvector(STACK_0)->data[0],
+                                   (aint)offset));
     if (atomp(entry)) {
       if (!nullp(entry)) {
         /* entry is a symbol /= NIL */
@@ -1430,11 +1430,11 @@ local void map_symtab_c (one_sym_function_t* fun, void* data, object symtab) {
   pushSTACK(Symtab_table(symtab)); /* table vector */
   /* number of entries */
   var uintL size = posfixnum_to_L(Symtab_size(symtab));
-  var object* offset = 0; /* offset = sizeof(object)*index */
+  var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
   var uintC count;
   dotimespC(count,size, {
     var object entry = /* entry with number index in table */
-      *(object*)(pointerplus(&TheSvector(STACK_0)->data[0],(aint)offset));
+      *(gcv_object_t*)(pointerplus(&TheSvector(STACK_0)->data[0],(aint)offset));
     if (atomp(entry)) {
       if (!nullp(entry)) { /* entry is a symbol /= NIL */
         (*fun)(data,entry); /* apply function */
@@ -1484,7 +1484,7 @@ local void use_package (object packlist, object pack) {
   /* Remove all the packages from packlist, that are equal to pack
      or that already occur in the use-list of pack: */
   {
-    var object* packlistr_ = &packlist;
+    var gcv_object_t* packlistr_ = &packlist;
     var object packlistr = *packlistr_;
     /* packlistr loops over packlist, packlistr = *packlistr_ */
     while (consp(packlistr)) {
@@ -1652,7 +1652,7 @@ local void use_package (object packlist, object pack) {
  packlist), if it creates a conflict. If yes, extend conflicts.
  can trigger GC */
 local void use_package_aux (void* data, object sym) {
-  var object* localptr = (object*)data;
+  var gcv_object_t* localptr = (gcv_object_t*)data;
   /* Pointer to local variables of use_package:
      *(localptr STACKop 2) = pack,
      *(localptr STACKop 1) = packlist,
@@ -2173,7 +2173,7 @@ LISPFUN(unintern,1,1,norest,nokey,0,NIL) {
    can trigger GC
  < STACK: cleaned up
  can trigger GC */
-typedef void sym_pack_function_t (const object* sym_, const object* pack_);
+typedef void sym_pack_function_t (const gcv_object_t* sym_, const gcv_object_t* pack_);
 local Values apply_symbols (sym_pack_function_t* fun) {
   { /* test, if the first argument is a symbol-list or a symbol: */
     var object symarg = STACK_1;
@@ -2538,7 +2538,7 @@ LISPFUNN(delete_package,1) {
  Remove the argument (a present symbol) from pack.
  can trigger GC */
 local void delete_package_aux (void* data, object sym) {
-  var object* localptr = (object*)data; /* pointer to pack */
+  var gcv_object_t* localptr = (gcv_object_t*)data; /* pointer to pack */
   pushSTACK(sym); unintern(&STACK_0,localptr); skipSTACK(1);
 }
 
@@ -2599,7 +2599,7 @@ LISPFUNN(map_symbols,2) {
  then apply the given function.
  can trigger GC */
 local void map_symbols_aux (void* data, object sym) {
-  var object* localptr = (object*)data;
+  var gcv_object_t* localptr = (gcv_object_t*)data;
   /* Pointer to local variables of map_symbols:
      *(localptr STACKop 1) = fun,
      *(localptr STACKop 0) = pack.
@@ -2647,7 +2647,7 @@ LISPFUNN(map_all_symbols,1) {
 /* UP: Subroutine for EXT:RE-EXPORT.
  Exports a single symbol from TO-PACK. */
 local void export_symbol_from (void *data, object sym) {
-  var object* pack_ = (object*)data; /* points into the STACK */
+  var gcv_object_t* pack_ = (gcv_object_t*)data; /* points into the STACK */
   pushSTACK(sym);
   export(&STACK_0,pack_);
   skipSTACK(1);

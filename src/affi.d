@@ -268,11 +268,11 @@ local void affi_callit(address, ffinfo, args)
 # (asciz) Umwandlung
 # Darf bis zum Aufruf keine GC auslösen.
 # < value1, mv_count
-local void affi_call_argsa (aint address, object ffinfo, const object* args, uintC count);
+local void affi_call_argsa (aint address, object ffinfo, const gcv_object_t* args, uintC count);
 local void affi_call_argsa(address, ffinfo, args, count)
   var aint address;
   var object ffinfo;
-  var const object* args;
+  var const gcv_object_t* args;
   var uintC count;
   {
     # if (!simple_vector_p(ffinfo)) goto bad_proto; # oder fehler_kein_svector();
@@ -304,7 +304,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
     {
       var DYNAMIC_ARRAY(things,aint,count);
       if (count > 0) {
-        var const object* types = &TheSvector(ffinfo)->data[2];
+        var const gcv_object_t* types = &TheSvector(ffinfo)->data[2];
         var aint* thing = &things[0];
         dotimespC(count,count, {
           var object type = *types++;

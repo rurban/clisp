@@ -109,16 +109,16 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
   } while(0)
 
 # Traverse object_tab:
-#define for_all_constobjs(statement)                                    \
-  do { var module_t* module; # loop over modules                         \
-       for_modules(all_modules,{                                        \
-         if (module->initialized)                                       \
-           if (*module->otab_size > 0) {                                \
-             var object* objptr = module->otab; # loop over object_tab  \
-             var uintC count;                                           \
-             dotimespC(count,*module->otab_size,                        \
-                       { statement; objptr++; } );                      \
-       }});                                                             \
+#define for_all_constobjs(statement)                                         \
+  do { var module_t* module; # loop over modules                             \
+       for_modules(all_modules,{                                             \
+         if (module->initialized)                                            \
+           if (*module->otab_size > 0) {                                     \
+             var gcv_object_t* objptr = module->otab; # loop over object_tab \
+             var uintC count;                                                \
+             dotimespC(count,*module->otab_size,                             \
+                       { statement; objptr++; } );                           \
+       }});                                                                  \
   } while(0)
 
 # Semaphores: decide, if a break is effectless (/=0) or
@@ -255,10 +255,10 @@ local int exitcode;
 
   # the STACK:
   #if !defined(STACK_register)
-    global object* STACK;
+    global gcv_object_t* STACK;
   #endif
   #ifdef HAVE_SAVED_STACK
-    global object* saved_STACK;
+    global gcv_object_t* saved_STACK;
   #endif
 
   # MULTIPLE-VALUE-SPACE:
@@ -315,15 +315,15 @@ local int exitcode;
   # is true for one of the regions listed in inactive_handlers:
 
   #define for_all_threadobjs(statement)                         \
-    do { var object* objptr = (object*)&aktenv;                 \
+    do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;     \
          var uintC count;                                       \
          dotimespC(count,sizeof(environment_t)/sizeof(object),  \
            { statement; objptr++; });                           \
     } while(0)
 
-  #define for_all_STACKs(statement)             \
-    do { var object* objptr = &STACK_0;         \
-         { statement; }                         \
+  #define for_all_STACKs(statement)           \
+    do { var gcv_object_t* objptr = &STACK_0; \
+         { statement; }                       \
     } while(0)
 
 #else
@@ -362,11 +362,11 @@ local thread_t* create_thread (void* sp) {
     { thread = NULL; goto done; }
   thread->_index = nthreads;
   {
-    var object* objptr = (object*)((uintP)thread+
-                                   thread_objects_offset(num_symvalues));
+    var gcv_object_t* objptr =
+      (gcv_object_t*)((uintP)thread+thread_objects_offset(num_symvalues));
     var uintC count;
     dotimespC(count,thread_objects_anz(num_symvalues),
-    { *objptr++ = NIL; objptr++; });
+      { *objptr++ = NIL; objptr++; });
   }
   allthreads[nthreads] = thread;
   nthreads++;
@@ -415,16 +415,16 @@ local uintL make_symvalue_perthread (object value) {
 
   #define for_all_threadobjs(statement)  \
     for_all_threads({                                    \
-      var object* objptr = (object*)((uintP)thread+thread_objects_offset(num_symvalues)); \
+      var gcv_object_t* objptr = (gcv_object_t*)((uintP)thread+thread_objects_offset(num_symvalues)); \
       var uintC count;                                   \
       dotimespC(count,thread_objects_anz(num_symvalues), \
         { statement; objptr++; });                       \
     })
 
   #define for_all_STACKs(statement)  \
-    for_all_threads({                                      \
-      var object* objptr = STACKpointable(thread->_STACK); \
-      { statement; }                                       \
+    for_all_threads({                                            \
+      var gcv_object_t* objptr = STACKpointable(thread->_STACK); \
+      { statement; }                                             \
     })
 
 #endif
@@ -911,7 +911,7 @@ local void init_object_tab_1 (void) {
  #if defined(INIT_OBJECT_TAB) && NIL_IS_CONSTANT # object_tab already pre-initialized?
   for_modules(all_other_modules,{
     if (*module->otab_size > 0) {
-      var object* ptr = module->otab; # traverse object_tab
+      var gcv_object_t* ptr = module->otab; # traverse object_tab
       var uintC count;
       dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
     }
@@ -919,7 +919,7 @@ local void init_object_tab_1 (void) {
  #else
   for_modules(all_modules,{
     if (*module->otab_size > 0) {
-      var object* ptr = module->otab; # traverse object_tab
+      var gcv_object_t* ptr = module->otab; # traverse object_tab
       var uintC count;
       dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
     }
@@ -954,7 +954,7 @@ local void init_subr_tab_2 (void) {
   # TURBO-C doesn't get enough memory for compilation!
   # traverse subr_tab
   var object vec;
-  var object* vecptr;
+  var gcv_object_t* vecptr;
  #define LISPFUN  LISPFUN_H
   #define kw(name)  *vecptr++ = S(K##name)
   #include "subr.c"
@@ -963,7 +963,7 @@ local void init_subr_tab_2 (void) {
 #else
   # create keyword-vectors individually:
   var object vec;
-  var object* vecptr;
+  var gcv_object_t* vecptr;
   # fills another single keyword into the vector:
   #define kw(name)  *vecptr++ = S(K##name)
   # creates vector with given keywords:
@@ -1025,7 +1025,7 @@ local void init_symbol_tab_2 (void) {
                       : ascii_to_string(*pname_ptr));
       pname_ptr++;
       var uintB index = *index_ptr++;
-      var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
+      var gcv_object_t* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
       pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
       import(&STACK_0,package_); # first, import normally
       if (index == (uintB)enum_lisp_index # in #<PACKAGE LISP>?
@@ -1367,7 +1367,7 @@ local void init_object_tab (void) {
     define_variable(S(features),list);             # *FEATURES*
   }
   { # read objects from the strings:
-    var object* objptr = (object*)&object_tab; # traverse object_tab
+    var gcv_object_t* objptr = (gcv_object_t*)&object_tab; # traverse object_tab
     var const char * const * stringptr = &object_initstring_tab[0]; # traverse string table
     var uintC count;
     dotimesC(count,object_anz,{
@@ -1428,7 +1428,7 @@ local void init_module_2 (module_t* module) {
     { ptr->name = NIL; ptr->keywords = NIL; ptr++; });
   }
   if (*module->otab_size > 0) {
-    var object* ptr = module->otab; # traverse object_tab
+    var gcv_object_t* ptr = module->otab; # traverse object_tab
     var uintC count;
     dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
   }
@@ -1462,7 +1462,7 @@ local void init_module_2 (module_t* module) {
   }
   # enter objects:
   if (*module->otab_size > 0) {
-    var object* object_ptr = module->otab;
+    var gcv_object_t* object_ptr = module->otab;
     var const object_initdata_t* init_ptr = module->otab_initdata;
     var uintC count;
     dotimespC(count,*module->otab_size, {
@@ -2062,14 +2062,14 @@ global int main (argc_t argc, char* argv[]) {
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
-    var uintC count;
-    dotimesC(count,pseudocode_anz,
-    { *ptr2++ = make_machine_code(*ptr1); ptr1++; });
+      var uintC count;
+      dotimesC(count,pseudocode_anz,
+        { *ptr2++ = make_machine_code(*ptr1); ptr1++; });
     }
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudodata_tab;
-    var uintC count;
-    dotimesC(count,pseudodata_anz,
-    { *ptr2++ = make_machine(*ptr1); ptr1++; });
+      var uintC count;
+      dotimesC(count,pseudodata_anz,
+        { *ptr2++ = make_machine(*ptr1); ptr1++; });
     }
   }
   # fetch memory:
@@ -2341,12 +2341,12 @@ global int main (argc_t argc, char* argv[]) {
       if ( prepare_zeromap(&low,&high,true) <0) goto no_mem;
       if ( zeromap((void*)low,map_len) <0) goto no_mem;
      #ifdef STACK_DOWN
-      STACK_bound = (object*)low + 0x40; # 64 pointers additionally safety margin
-      setSTACK(STACK = (object*)high); # initialize STACK
+      STACK_bound = (gcv_object_t*)low + 0x40; # 64 pointers additionally safety margin
+      setSTACK(STACK = (gcv_object_t*)high); # initialize STACK
      #endif
      #ifdef STACK_UP
-      setSTACK(STACK = (object*)low); # initialize STACK
-      STACK_bound = (object*)high - 0x40; # 64 pointers additionally safety margin
+      setSTACK(STACK = (gcv_object_t*)low); # initialize STACK
+      STACK_bound = (gcv_object_t*)high - 0x40; # 64 pointers additionally safety margin
       #endif
     }
     #undef teile_STACK
@@ -2449,14 +2449,14 @@ global int main (argc_t argc, char* argv[]) {
         for_STACK = 0; # STACK is already allocated elsewhere.
         #else
         #ifdef STACK_DOWN
-          STACK_bound = (object*)ptr + 0x40; # 64 pointer safety margin
+          STACK_bound = (gcv_object_t*)ptr + 0x40; # 64 pointer safety margin
           ptr += for_STACK = teile_STACK*teil; # 2/16 for Lisp-stack
-          setSTACK(STACK = (object*)ptr); # initialize STACK
+          setSTACK(STACK = (gcv_object_t*)ptr); # initialize STACK
         #endif
         #ifdef STACK_UP
-          setSTACK(STACK = (object*)ptr); # initialize STACK
+          setSTACK(STACK = (gcv_object_t*)ptr); # initialize STACK
           ptr += for_STACK = teile_STACK*teil; # 2/16 for Lisp-stack
-          STACK_bound = (object*)ptr - 0x40; # 64 pointer safety margin
+          STACK_bound = (gcv_object_t*)ptr - 0x40; # 64 pointer safety margin
         #endif
         #endif
         #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
@@ -2782,7 +2782,7 @@ global int main (argc_t argc, char* argv[]) {
         }
         # quote all arguments:
         if (argcount > 0) {
-          var object* ptr = args_end_pointer;
+          var gcv_object_t* ptr = args_end_pointer;
           var uintC c;
           dotimespC(c,argcount,{
             pushSTACK(S(quote)); pushSTACK(Before(ptr));
@@ -3056,7 +3056,7 @@ global void dynload_modules (const char * library, uintC modcount,
           }
           {
             sprintf(symbolbuf,"module__%s__object_tab",modname);
-            module->otab = (object*) dlsym(libhandle,symbolbuf);
+            module->otab = (gcv_object_t*) dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
           }

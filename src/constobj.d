@@ -14,7 +14,7 @@
 
 # expander for the declaration of the object-table:
   #define LISPOBJ_A(name,initstring)  \
-    object name;
+    gcv_object_t name;
 
 # expander for the initialization of the object-table:
   #define LISPOBJ_B(name,initstring)  \

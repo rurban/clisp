@@ -1,5 +1,5 @@
 # Module für CLISP
-# Bruno Haible 1994-1999
+# Bruno Haible 1994-2002
 
 # Alle Abhängigkeiten von modules.h werden hier gesammelt!
 
@@ -24,7 +24,7 @@ global var uintC module_count =
   #define MODULE(module_name)  \
     extern subr_t module__##module_name##__subr_tab[]; \
     extern uintC module__##module_name##__subr_tab_size; \
-    extern object module__##module_name##__object_tab[]; \
+    extern gcv_object_t module__##module_name##__object_tab[]; \
     extern uintC module__##module_name##__object_tab_size; \
     extern subr_initdata_t module__##module_name##__subr_tab_initdata[]; \
     extern object_initdata_t module__##module_name##__object_tab_initdata[]; \
@@ -40,7 +40,7 @@ global var uintC module_count =
   global module_t modules[] = {
     { "clisp",
       (subr_t*)&subr_tab_data, &subr_tab_data_size,
-      (object*)&object_tab, &object_tab_size,
+      (gcv_object_t*)&object_tab, &object_tab_size,
       true, NULL, NULL, NULL, NULL
       _NEXT_NULL
     },

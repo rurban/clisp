@@ -146,7 +146,7 @@ typedef struct {
  /* then for each heap the length of physpages,
     then for each heap the complete physpages-array, */
 typedef struct {
-  object* continued_addr;
+  gcv_object_t* continued_addr;
   uintC continued_count;
   aint firstobject;
 } memdump_physpage_state;
@@ -436,9 +436,9 @@ global void savemem (object stream)
         /* update all pointers in the (new) CONS-region */              \
         /* start <= address < end: */                                   \
         while (objptr != objptrend) {                                   \
-          update((object*)objptr);                                      \
+          update((gcv_object_t*)objptr);                                \
           objptr += sizeof(object);                                     \
-          update((object*)objptr);                                      \
+          update((gcv_object_t*)objptr);                                \
           objptr += sizeof(object);                                     \
         }} while(0)
      #define update_page(page,updater)  /* ignores page, uses heapnr */ \
@@ -457,9 +457,9 @@ global void savemem (object stream)
     #endif
     #define update_fsubr_function  true
     #define update(objptr)                                              \
-      do { switch (mtypecode(*(object*)objptr)) {                       \
+      do { switch (mtypecode(*(gcv_object_t*)objptr)) {                 \
         case_system:                                                    \
-          if (wbit_test(as_oint(*(object*)objptr),0+oint_addr_shift))   \
+          if (wbit_test(as_oint(*(gcv_object_t*)objptr),0+oint_addr_shift)) \
             break;                                                      \
         case_subr:                                                      \
         case_machine:                                                   \
@@ -478,22 +478,22 @@ global void savemem (object stream)
     #undef update_fp_invalid
     #undef update_ht_invalid
     #undef update
-    var DYNAMIC_ARRAY(relocbuf,object*,rheader.reloccount);
+    var DYNAMIC_ARRAY(relocbuf,gcv_object_t*,rheader.reloccount);
     var DYNAMIC_ARRAY(htbuf,Hashtable,rheader.htcount);
     var DYNAMIC_ARRAY(fpbuf,Record,rheader.fpcount);
     var DYNAMIC_ARRAY(fsbuf,Fsubr,rheader.fscount);
-    var object** relocbufptr = &relocbuf[0];
+    var gcv_object_t** relocbufptr = &relocbuf[0];
     var Hashtable* htbufptr = &htbuf[0];
     var Record* fpbufptr = &fpbuf[0];
     var Fsubr* fsbufptr = &fsbuf[0];
     #define update(objptr)                                              \
-      do { switch (mtypecode(*(object*)objptr)) {                       \
+      do { switch (mtypecode(*(gcv_object_t*)objptr)) {                 \
         case_system:                                                    \
-          if (wbit_test(as_oint(*(object*)objptr),0+oint_addr_shift))   \
+          if (wbit_test(as_oint(*(gcv_object_t*)objptr),0+oint_addr_shift)) \
             break;                                                      \
         case_subr:                                                      \
         case_machine:                                                   \
-          *relocbufptr++ = (object*)objptr;                             \
+          *relocbufptr++ = (gcv_object_t*)objptr;                       \
         default:                                                        \
           break;                                                        \
         }} while(0)
@@ -513,7 +513,7 @@ global void savemem (object stream)
     #undef update_page
     #undef update_conspage
     WRITE(&rheader,sizeof(rheader));
-    WRITE(&relocbuf[0],rheader.reloccount*sizeof(object*));
+    WRITE(&relocbuf[0],rheader.reloccount*sizeof(gcv_object_t*));
     WRITE(&htbuf[0],rheader.htcount*sizeof(Hashtable));
     WRITE(&fpbuf[0],rheader.fpcount*sizeof(Record));
     WRITE(&fsbuf[0],rheader.fscount*sizeof(Fsubr));
@@ -566,7 +566,7 @@ local var offset_subrs_t* offset_subrs;
 local var uintC offset_subrs_anz;
 local var struct fsubr_tab_ old_fsubr_tab;
 local var struct pseudofun_tab_ old_pseudofun_tab;
-local void loadmem_update (object* objptr)
+local void loadmem_update (gcv_object_t* objptr)
 {
  #ifdef TYPECODES
   switch (mtypecode(*objptr))
@@ -634,9 +634,9 @@ local void loadmem_update (object* objptr)
       {
         var aint addr = /* address */
          #ifdef TYPECODES
-          upointer(*(object*)objptr);
+          upointer(*(gcv_object_t*)objptr);
          #else
-          as_oint(*(object*)objptr);
+          as_oint(*(gcv_object_t*)objptr);
          #endif
           /* As pages have a minimal length, so the start addresses
              of different pages have at least a distance of
@@ -1363,10 +1363,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var memdump_reloc_header rheader;
         READ(&rheader,sizeof(rheader));
         if (rheader.reloccount > 0) {
-          var DYNAMIC_ARRAY(relocbuf,object*,rheader.reloccount);
-          var object** relocbufptr = &relocbuf[0];
+          var DYNAMIC_ARRAY(relocbuf,gcv_object_t*,rheader.reloccount);
+          var gcv_object_t** relocbufptr = &relocbuf[0];
           var uintL count;
-          READ(&relocbuf[0],rheader.reloccount*sizeof(object*));
+          READ(&relocbuf[0],rheader.reloccount*sizeof(gcv_object_t*));
           dotimespL(count,rheader.reloccount, { update(*relocbufptr++); });
           FREE_DYNAMIC_ARRAY(relocbuf);
         }
