@@ -26,8 +26,7 @@
          (keep-case-p
           (or quotedp (case (readtable-case *readtable*)
                         ((:upcase :downcase) nil) ((:preserve :invert) t))))
-         (string-cmp (if keep-case-p #'string= #'string-equal))
-         (char-cmp (if keep-case-p #'char= #'char-equal))
+         string-cmp char-cmp
          (gatherer
           (if functionalp
               (lambda (sym)
@@ -76,7 +75,10 @@
               (setq mapfun #'sys::map-external-symbols))
           (setq prefix (subseq string start colon))
           (setq start colon))))
-    (setq known-part (subseq string start end)
+    (when (package-case-sensitive-p package) (setq keep-case-p t))
+    (setq string-cmp (if keep-case-p #'string= #'string-equal)
+          char-cmp (if keep-case-p #'char= #'char-equal)
+          known-part (subseq string start end)
           known-len (length known-part))
     (funcall mapfun gatherer package)
     (when (null return-list) (return-from completion nil))
@@ -103,7 +105,7 @@
                              (not rest-p) (not key-p))))))
       (setf (car return-list) (string-concat (car return-list) ")")))
     (unless (or quotedp keep-case-p) ; downcase
-      (setq return-list (mapcar #'string-downcase return-list)))
+      (map-into return-list #'string-downcase return-list))
     (setq return-list (sort return-list #'string<))
     ;; look for the largest common initial piece
     (let ((imax (reduce #'min return-list :key #'length)))

@@ -2023,6 +2023,12 @@ LISPFUNNR(package_shadowing_symbols,1)
   VALUES1(copy_list(ThePackage(pack)->pack_shadowing_symbols));
 }
 
+LISPFUNNR(package_case_sensitive_p,1)
+{ /* (EXT:PACKAGE-CASE-SENSITIVE-P package) */
+  var object pack = test_package_arg(popSTACK());
+  VALUES_IF(pack_casesensitivep(pack));
+}
+
 LISPFUNNR(package_lock,1)
 { /* (EXT:PACKAGE-LOCK package) */
   var object pack = test_package_arg(popSTACK());
