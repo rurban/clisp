@@ -59,7 +59,7 @@
      ($from-defgeneric     ; flag, if this method comes from a DEFGENERIC
        :type boolean
        :accessor std-method-from-defgeneric))
-    (:fixed-slot-locations)
+    (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
 ;; Note about the argument passing convention for methods:
@@ -219,7 +219,7 @@
     (($slot-definition     ; direct slot definition responsible for this method
        :type direct-slot-definition
        :accessor %accessor-method-slot-definition))
-    (:fixed-slot-locations)
+    (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
 (defun initialize-instance-<standard-accessor-method> (method &rest args
@@ -242,7 +242,7 @@
 (defparameter <standard-reader-method>
   (defclass standard-reader-method (standard-accessor-method)
     ()
-    (:fixed-slot-locations)))
+    (:fixed-slot-locations t)))
 
 (defun make-instance-<standard-reader-method> (class &rest args
                                                &key &allow-other-keys)
@@ -258,7 +258,7 @@
 (defparameter <standard-writer-method>
   (defclass standard-writer-method (standard-accessor-method)
     ()
-    (:fixed-slot-locations)))
+    (:fixed-slot-locations t)))
 
 (defun make-instance-<standard-writer-method> (class &rest args
                                                &key &allow-other-keys)

@@ -73,14 +73,14 @@
                                               :initarg inheritable-initer)
       ($inheritable-doc :type #| inheritable-slot-definition-doc |# cons
                                               :initarg inheritable-doc))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Information about a slot, as specified in a DEFCLASS form.
 (defvar *<direct-slot-definition>-defclass*
   '(defclass direct-slot-definition (slot-definition)
      (($readers      :type list               :initarg :readers)
       ($writers      :type list               :initarg :writers))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Information about a slot that is still significant at runtime.
 (defvar <effective-slot-definition> 'effective-slot-definition)
@@ -96,7 +96,7 @@
       ($efm-sbuc     :type function)
       ; effective method for slot-makunbound-using-class
       ($efm-smuc     :type function))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
 (defconstant *<slot-definition>-name-location* 1)
@@ -265,7 +265,7 @@
 (defvar *<standard-slot-definition>-defclass*
   '(defclass standard-slot-definition (slot-definition)
      ()
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -274,7 +274,7 @@
 (defvar *<standard-direct-slot-definition>-defclass*
   '(defclass standard-direct-slot-definition (direct-slot-definition standard-slot-definition)
      ()
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<standard-direct-slot-definition>-class-version* (make-class-version))
 
 ;; Initialization of a <standard-direct-slot-definition> instance.
@@ -301,7 +301,7 @@
 (defvar *<standard-effective-slot-definition>-defclass*
   '(defclass standard-effective-slot-definition (effective-slot-definition standard-slot-definition)
      ()
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<standard-effective-slot-definition>-class-version* (make-class-version))
 
 ;; Initialization of a <standard-effective-slot-definition> instance.
@@ -328,7 +328,7 @@
 (defvar *<structure-direct-slot-definition>-defclass*
   '(defclass structure-direct-slot-definition (direct-slot-definition)
      (($initff  :type t       :initarg initff)) ; init-function-fetcher
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<structure-direct-slot-definition>-class-version* (make-class-version))
 
 (defun structure-direct-slot-definition-initff (object)
@@ -368,7 +368,7 @@
       ; New slots:
       ($initff   :type t       :initarg initff) ; init-function-fetcher
       ($readonly :type boolean :initarg readonly))
-     (:fixed-slot-locations)))
+     (:fixed-slot-locations t)))
 (defvar *<structure-effective-slot-definition>-class-version* (make-class-version))
 
 (defun structure-effective-slot-definition-initff (object)
