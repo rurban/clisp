@@ -236,7 +236,7 @@ NIL
 (GET-OUTPUT-STREAM-STRING A)
 #+XCL ""
 #-XCL "
-\"yyy\" 
+\"yyy\"
 \"zzz\" "
 
 (GET-OUTPUT-STREAM-STRING B)
@@ -310,7 +310,7 @@ ERROR
 "EOF"
 
 (PROGN (SETQ A (MAKE-STRING-INPUT-STREAM "1   2   ;32  abA"))
-(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z 
+(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z
 a b c  ")) T)
 T
 
@@ -770,7 +770,7 @@ OBJECT-OUT
   (setf (slot-value x 'b) 123
         (slot-value x 'cc) 42)
   (with-output-to-string (out) (object-out x out)))
-"#[C2 B 123 CC 42]"
+"#[C2 CC 42 B 123]"
 
 (let ((*print-readably* t))
   (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))

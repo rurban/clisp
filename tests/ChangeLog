@@ -1,7 +1,11 @@
+2004-03-19  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst (object-out): test CLOS/PPRINT-LOGICAL-BLOCK
+
 2004-02-16  Bruno Haible  <bruno@clisp.org>
 
-	* clos.tst: Add a test for removal of instance forward pointers during
-	garbage collection.
+	* clos.tst: Add a test for removal of instance forward pointers
+	during garbage collection.
 
 2004-03-18  Bruno Haible  <bruno@clisp.org>
 
