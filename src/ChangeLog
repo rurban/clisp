@@ -1,5 +1,12 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	Move code.
+	* init.lisp (print-unreadable-object): Export it here.
+	* macros2.lisp (print-unreadable-object): Moved to here.
+	* defs2.lisp (print-unreadable-object): Remove from here.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	Forbid change-class for <class>, <slot-definition>.
 	* clos-class5.lisp (update-instance-for-different-class): Add error
 	signalling methods for <class>, <slot-definition>.

@@ -6,7 +6,7 @@
 
 (in-package "COMMON-LISP")
 (export '(nth-value
-          print-unreadable-object declaim destructuring-bind complement
+          declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
           read-sequence write-sequence))
 (in-package "SYSTEM")
@@ -36,19 +36,6 @@
     )
     `(NTH ,n (MULTIPLE-VALUE-LIST ,form))
 ) )
-
-;; ----------------------------------------------------------------------------
-
-;; X3J13 vote <40>
-
-(defmacro print-unreadable-object
-    ((&whole args object stream &key type identity) &body body)
-  (declare (ignore object stream type identity))
-  `(SYSTEM::WRITE-UNREADABLE
-     ,(if body `(FUNCTION (LAMBDA () ,@body)) 'NIL)
-     ,@args
-   )
-)
 
 ;; ----------------------------------------------------------------------------
 
