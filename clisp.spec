@@ -7,7 +7,7 @@
 # If you read the comments below, you will learn why.
 
 # to create the source/binary RPMs, do
-#  rpm -ba --sign clisp.spec
+#  rpmbuild -ba --sign clisp.spec
 
 %define src /usr/local/src
 %define prefix /usr
@@ -93,3 +93,7 @@ echo "Uncomment removing builddir in 'clisp.spec' if you want a cleanup"
 %{prefix}/share/locale/es/LC_MESSAGES/clisplow.mo
 %{prefix}/share/locale/fr/LC_MESSAGES/clisp.mo
 %{prefix}/share/locale/fr/LC_MESSAGES/clisplow.mo
+%{prefix}/share/locale/nl/LC_MESSAGES/clisp.mo
+%{prefix}/share/locale/nl/LC_MESSAGES/clisplow.mo
+%{prefix}/share/locale/ru/LC_MESSAGES/clisp.mo
+%{prefix}/share/locale/ru/LC_MESSAGES/clisplow.mo
