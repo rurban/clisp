@@ -2619,7 +2619,9 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
+  # The strict minimum needed for building interpreted.mem is between 1100KW
+  # and 1200KW. To reduce GCs, we spend 20% more than this.
+  echotab '$(RUN) -m 1400KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
   echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
@@ -2634,9 +2636,9 @@ if [ $CROSS = false ] ; then
       image=halfcompiled.mem
     fi
     echol "${f}.fas : ${f}.lisp lisp${LEXE} $image"
-    # The strict minimum needed for compiling compiler.lisp is between 750KW
-    # and 800KW. To reduce GCs, we spend 20% more than this.
-    echotab "\$(RUN) -m 1000KW -M ${image} -q -c ${f}.lisp"
+    # The strict minimum needed for compiling compiler.lisp is between 1400KW
+    # and 1500KW. To reduce GCs, we spend 20% more than this.
+    echotab "\$(RUN) -m 1800KW -M ${image} -q -c ${f}.lisp"
     echol
   done
 
@@ -2661,7 +2663,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
+  echotab '$(RUN) -m 1400KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
   echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
@@ -2762,7 +2764,7 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     echol "${RECOMPILEDIR}${NEXT_M}${f}.fas : ${RECOMPILEDIR}${NEXT_M}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -M ${TESTIMAGE} -q -d -c ${RECOMPILEDIR}${NEXT_}${f}.lisp"
+    echotab "\$(RUN) -m 750KW -M ${TESTIMAGE} -q -d -c ${RECOMPILEDIR}${NEXT_}${f}.lisp"
     echol
   done
 
@@ -2793,7 +2795,7 @@ if [ $CROSS = false ] ; then
   done
   echol
 
-  ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale -E UTF-8 -norc -ansi -i clispload.lsp"
+  ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale -E UTF-8 -m 30000KW -norc -ansi -i clispload.lsp"
   echol "check-ansi-tests : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log"
   echol
