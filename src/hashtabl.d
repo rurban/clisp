@@ -907,12 +907,12 @@ local object rehash (object ht) {
       if (user_defined_p) { /* restore - don't have to restore fixnums! */
         /* this implementation favors built-in ht-tests at the expense
            of the user-defined ones */
-        var uintL idx = posfixnum_to_L(index)+1;
+        var uintL index = posfixnum_to_L(index)+1;
         ht = popSTACK();
         Ivektor = TheHashtable(ht)->ht_itable;
         Nvektor = TheHashtable(ht)->ht_ntable;
-        Nptr = TheSvector(Nvektor)->data + idx;
-        KVptr = ht_kvt_data(ht) + 2*idx;
+        Nptr = TheSvector(Nvektor)->data + index;
+        KVptr = ht_kvt_data(ht) + 2*index;
       }
       /* "list", that starts at entry hashindex, in order to extend index:
        copy entry from index-vector to the next-vector
