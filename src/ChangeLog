@@ -1,3 +1,8 @@
+2002-03-15  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (expand-compiler-macro): do not expand compiler
+	macros for functions declared NOTINLINE
+
 2002-03-14  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (config.lisp): chmod +w before appending
