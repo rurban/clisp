@@ -201,7 +201,7 @@
 <!ENTITY kwd-pac "<ulink url='&clhs;/Body/sec_11-1-2-3.html'><quote role='package'>KEYWORD</quote></ulink>">
 
 <!-- *** reader *** -->
-<!ENTITY sharp-A "<ulink url='&clhs;/Body/sec_2-4-8-12'><literal role='data'>#A</literal></ulink>">
+<!ENTITY sharp-A "<ulink url='&clhs;/Body/sec_2-4-8-12'><literal role='data'>#<replaceable>rank</replaceable>A</literal></ulink>">
 <!ENTITY sharp-S "<ulink url='&clhs;/Body/sec_2-4-8-13'><literal role='data'>#S</literal></ulink>">
 <!ENTITY sharp-P "<ulink url='&clhs;/Body/sec_2-4-8-14'><literal role='data'>#P</literal></ulink>">
 
