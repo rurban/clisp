@@ -376,7 +376,7 @@ NIL)
 DIRECTORY "HEICKING" SYSTEM::NAME "*" TYPE :WILD SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY (:RELATIVE)
-            :NAME "*" :TYPE "*" :VERSION NIL)
+            :NAME :WILD :TYPE :WILD :VERSION NIL)
 
 (progn (setf file (open "nicht-vorhandenes-file.non"
                         :direction :input
