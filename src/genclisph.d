@@ -455,7 +455,7 @@ int main(int argc, char* argv[])
   sprintf(buf,"sint%d",intDsize); emit_typedef(buf,"sintD");
 #endif
   sprintf(buf,"uint%d",intDsize); emit_typedef(buf,"uintD");
-  printf("typedef enum { persev_full, persev_partial, persev_immediate, persev_bonus } perseverance_t;\n");
+  printf("typedef enum { persev_full=%d, persev_partial=%d, persev_immediate=%d, persev_bonus=%d } perseverance_t;\n",persev_full,persev_partial,persev_immediate,persev_bonus);
   printf("#include <stdlib.h>\n");
   printf("#include <sys/types.h>\n");
 #if defined(UNIX)
