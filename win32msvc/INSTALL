@@ -26,7 +26,7 @@ development environment, using native system calls
         nmake -f Makefile.msvc check
         cd ..
 
-        cd libiconv
+        cd libcharset
         nmake -f Makefile.msvc check
         cd ..
 
