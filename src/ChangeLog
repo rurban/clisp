@@ -1,5 +1,9 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* stdint.h.in: Make it work with AIX 5 xlc.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* m4/tcpconn.m4 (CL_TCPCONN): Include <netinet/in.h> before
 	<netinet/tcp.h>. Needed for AIX 4.
 
