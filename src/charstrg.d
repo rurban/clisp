@@ -655,17 +655,17 @@ static const cint nop_page[256] = {
 # < uintL fil_len: the fill-pointer length of the string
 # < uintL offset: offset in the data vector.
 # < object return: data vector
-local object unpack_string(object string,uintL* tot_len,uintL* fil_len,
-                           uintL* index) {
+local object unpack_string (object string, uintL* tot_len, uintL* fil_len,
+                            uintL* offset) {
   if (simple_string_p(string)) {
-    uintL len = Sstring_length(string);
+    var uintL len = Sstring_length(string);
     if (tot_len) *tot_len = len;
     if (fil_len) *fil_len = len;
-    *index = 0;
+    *offset = 0;
     return string;
   } else {
    # string, but not simple-string => follow the displacement
-   # determine the length (using vector_length() in array.d):
+   # determine the length (like vector_length() in array.d):
     var uintL tot_size;
     var uintL fil_size;
     {
@@ -682,20 +682,26 @@ local object unpack_string(object string,uintL* tot_len,uintL* fil_len,
     if (tot_len) *tot_len = tot_size;
     if (fil_len) *fil_len = fil_size;
     # follow the displacement:
-    *index = 0;
-    return iarray_displace_check(string,fil_size,index);
+    *offset = 0;
+    return iarray_displace_check(string,fil_size,offset);
   }
 }
 
+# UP: unpack a string
+# unpack_string_ro(string,&len,&offset)  [for read-only access]
+# > object string: a string
+# < uintL len: the fill-pointer length of the string
+# < uintL offset: offset into the datastorage vector
+# < object result: datastorage vector
 global object unpack_string_ro (object string, uintL* len, uintL* offset) {
   return unpack_string(string,NULL,len,offset);
 }
 
-# UP: unpack the string
+# UP: unpack a string
 # unpack_string_rw(string,&len)  [for read-write access]
-# > object string: ein String.
+# > object string: a string
 # < uintL len: the fill-pointer length of the string
-# < chart* ergebnis: the beginning of the characters
+# < chart* result: the beginning of the characters
 global chart* unpack_string_rw (object string, uintL* len) {
   var uintL index = 0;
   var object unpacked = unpack_string(string,NULL,len,&index);
@@ -2455,10 +2461,10 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
       fehler_string(string);
     var uintL len;
     # almost unpack_string_rw() -- but need tot_len, not fil_len
-    var uintL index = 0;
-    var object unpacked = unpack_string(string,&len,NULL,&index);
+    var uintL offset = 0;
+    var object unpacked = unpack_string(string,&len,NULL,&offset);
     check_sstring_mutable(unpacked);
-    var chart* charptr = &TheSstring(unpacked)->data[index];
+    var chart* charptr = &TheSstring(unpacked)->data[offset];
     charptr += test_index_arg(len); # go to the element addressed by index
     *charptr = char_code(newchar); # put in the character
     value1 = newchar; mv_count=1;
