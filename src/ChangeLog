@@ -3,6 +3,7 @@
 
 	WRITE-BYTE-SEQUENCE now accepts :NO-HANG keyword argument
 	* genclisph.d (write_byte_array): updated the prototype
+	(write_helper): replaces full_write()
 	* lispbibl.d (write_byte_array): ditto
 	* gray.lisp (stream-write-byte-sequence): accept :NO-HANG
 	* subr.d, subrkw.d (write_byte_sequence): ditto
@@ -12,7 +13,12 @@
 	(strm_unbuffered_extrafields_t/low_write_array): accept no_hang
 	* unix.d (write_helper): prototype
 	(full_write, safe_write): define using write_helper()
-	* unixaux.d ()
+	* unixaux.d (write_helper): implemented
+	(sock_write): accept no_hang
+	* modules/syscalls/calls.c (copy_file_low): use write_helper()
+	instead of full_write()
+	* modules/bindings/glibc/linux.lisp (write-helper): new
+	(write): macro calling write-helper, just like with read
 
 2003-10-02  Bruno Haible  <bruno@clisp.org>
 
