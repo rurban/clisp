@@ -1,3 +1,9 @@
+2002-04-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_orecord): print invalid FOREIGN-VARIABLEs and
+	FOREIGN-FUNCTIONs with INVALID prefix and address with offset
+
 2002-04-16  Sam Steingold  <sds@gnu.org>
 
 	error reporting unification
