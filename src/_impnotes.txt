@@ -1217,21 +1217,27 @@ binds the variable var to an output stream that sends its output to the
 printer.
 #ifdef PIPES
 
-(MAKE-PIPE-INPUT-STREAM command) returns an input stream that will supply the
-output from the execution of the given operating system command.
+(MAKE-PIPE-INPUT-STREAM command [:ELEMENT-TYPE]) returns an input stream
+that will supply the output from the execution of the given operating system
+command. Possible :ELEMENT-TYPE values are types equivalent to CHARACTER or
+(UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of 8.
 See also (SHELL command).
 
-(MAKE-PIPE-OUTPUT-STREAM command) returns an output stream that will pass its
-output as input to the execution of the given operating system command.
+(MAKE-PIPE-OUTPUT-STREAM command [:ELEMENT-TYPE]) returns an output stream
+that will pass its output as input to the execution of the given operating
+system command. Possible :ELEMENT-TYPE values are types equivalent to
+CHARACTER or (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of 8.
 See also (SHELL command).
 #ifdef PIPES2
 
-(MAKE-PIPE-IO-STREAM command) returns three values. The first value is a
+(MAKE-PIPE-IO-STREAM command [:ELEMENT-TYPE]) returns three values. The first value is a
 bidirectional stream that will simultaneously pass its output as input to
 the execution of the given operating system command and supply the output
 from this command as input. The second and third value will be the input
 stream and the output stream that make up the I/O stream, respectively.
 Note that they must be closed individually.
+Possible :ELEMENT-TYPE values are types equivalent to CHARACTER or
+(UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is a multiple of 8.
 Warning: Improper use of this function can lead to deadlocks. You use it at
 your own risk!
 A deadlock occurs if the command and your program either both try to read
@@ -2663,11 +2669,11 @@ Returns the IP address of the localhost naming the server.
 Given time argument(s), waits for (possibly zero) fixed duration for a connect
 on the socket-server.  Without an argument, SOCKET-WAIT blocks indefinitely.
 
-(SOCKET-ACCEPT socket-server)
+(SOCKET-ACCEPT socket-server [:element-type])
 
 Creates the server-side two-way stream for the connection.
 
-(SOCKET-CONNECT port [host])
+(SOCKET-CONNECT port [host] [:element-type])
 
 Attempts to create a client-side two-way stream.  Blocks until
 the server accepts the connections.
