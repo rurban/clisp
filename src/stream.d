@@ -2319,8 +2319,11 @@ LISPFUN(make_string_output_stream,seclass_read,0,0,norest,key,2,
     }
   }
   var object stream;
-  if (nullp(STACK_1)) {         /* (VECTOR NIL) */
-    pushSTACK(fixnum(SEMI_SIMPLE_DEFAULT_SIZE));
+  if (nullp(STACK_1)) {
+    /* A string-output-stream with element type NIL is a handicapped guy:
+       You cannot feed him with any character... */
+    /* Call (MAKE-ARRAY 0 :ELEMENT-TYPE NIL :FILL-POINTER 0): */
+    pushSTACK(fixnum(0));
     pushSTACK(S(Kelement_type)); pushSTACK(NIL);
     pushSTACK(S(Kfill_pointer)); pushSTACK(Fixnum_0);
     funcall(L(make_array),5); pushSTACK(value1);
@@ -2328,8 +2331,9 @@ LISPFUN(make_string_output_stream,seclass_read,0,0,norest,key,2,
     stream_dummy_fill(stream);
     TheStream(stream)->strm_wr_ch = P(wr_ch_forbidden);
     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_forbidden);
-    TheStream(stream)->strm_str_out_string = popSTACK(); /* (VECTOR NIL) */
-  } else stream = make_string_output_stream(); /* String-Output-Stream */
+    TheStream(stream)->strm_str_out_string = popSTACK();
+  } else
+    stream = make_string_output_stream(); /* normal String-Output-Stream */
   TheStream(stream)->strm_wr_ch_lpos = popSTACK(); /* enter Line Position */
   VALUES1(stream); /* return stream */
   skipSTACK(1);
@@ -2343,11 +2347,15 @@ LISPFUN(make_string_output_stream,seclass_read,0,0,norest,key,2,
  can trigger GC */
 global object get_output_stream_string (const gcv_object_t* stream_) {
   var object string = TheStream(*stream_)->strm_str_out_string; # old String
-  if (stringp(string)) {
+  if ((Iarray_flags(string) & arrayflags_atype_mask) == Atype_NIL) {
+    /* Return the encapsulated (VECTOR NIL). It is an immutable object, since
+       it is not adjustable and its fill-pointer is constrained to remain 0.
+       Therefore no need to copy it into a string without fill-pointer. */
+  } else {
     string = coerce_ss(string); # convert to Simple-String (enforces copying)
     # empty old String by Fill-Pointer:=0 :
     TheIarray(TheStream(*stream_)->strm_str_out_string)->dims[1] = 0;
-  } /* if (VECTOR NIL) - return as is */
+  }
   return string;
 }
 
@@ -14668,8 +14676,9 @@ LISPFUNNR(built_in_stream_element_type,1) {
       break;
     # first the stream-types with restricted element-types:
     case strmtype_str_out:      /* could be (VECTOR NIL) */
-      eltype = (stringp(TheStream(stream)->strm_str_out_string)
-                ? S(character) : NIL);
+      eltype = (((Iarray_flags(TheStream(stream)->strm_str_out_string)
+                  & arrayflags_atype_mask) == Atype_NIL)
+                ? NIL : S(character));
       break;
     case strmtype_str_in:
     case strmtype_str_push:
@@ -16515,7 +16524,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
             goto get_position_common;
           default: NOTREACHED;
         }
-         set_position_common:   /* value1 is pre-set! */
+       set_position_common:   /* value1 is pre-set! */
         TheStream(stream)->strm_rd_ch_last = NIL; /* Lastchar := NIL */
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
         mv_count = 1;
