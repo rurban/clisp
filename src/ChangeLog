@@ -1,5 +1,13 @@
 2001-11-07  Sam Steingold  <sds@gnu.org>
 
+	Support CMUCL- and AllegroCL-style logical host loading
+	* defs1.lisp (load-lpt-many): new function (AllegroCL-style)
+	(load-lpt-one): new function (CMUCL-style)
+	(*load-logical-pathname-translations-database*): new user variable
+	(load-logical-pathname-translations): use them
+
+2001-11-07  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (search-file): handle the extension-less situations
 
 2001-11-05  Sam Steingold  <sds@gnu.org>
