@@ -1,5 +1,10 @@
 2002-09-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/bindings/linuxlibc6/linux.lisp (NGROUPS_MAX): do not
+	redefine the constant based on _POSIX_NGROUPS_MAX
+
+2002-09-18  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (default-foreign-language): avoid a compile-time
 	warning by wrapping SETQ *FOREIGN-LANGUAGE* inside a
 	WITHOUT-PACKAGE-LOCK macro
