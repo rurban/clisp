@@ -2234,11 +2234,11 @@ nonreturning_function(local, fehler_undefined, (object caller, object funname)) 
     var object obj;
     {
       # obj should be a symbol, a SUBR or a Closure.
-      if (subrp(obj) || closurep(obj) || ffunctionp(obj)) {
+      if (functionp(obj)) {
         return obj; # function is OK
       } elif (symbolp(obj)) {
         var object fdef = Symbol_function(obj);
-        if (subrp(fdef) || closurep(fdef) || ffunctionp(fdef))
+        if (functionp(fdef))
           return fdef;
         elif (orecordp(fdef)) {
           switch (Record_type(fdef)) {
@@ -2255,7 +2255,7 @@ nonreturning_function(local, fehler_undefined, (object caller, object funname)) 
         if (!symbolp(symbol)) # should be (uninterned) symbol
           fehler_undefined(TheSubr(subr_self)->name,obj);
         var object fdef = Symbol_function(symbol);
-        if (subrp(fdef) || closurep(fdef) || ffunctionp(fdef))
+        if (functionp(fdef))
           return fdef;
         else
           fehler_undefined(TheSubr(subr_self)->name,obj);

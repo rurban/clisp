@@ -1,3 +1,11 @@
+2002-01-06  Sam Steingold  <sds@gnu.org>
+
+	finished the 2001-09-24 (functionp) patch
+	* control.d (FUNCTION): use the functionp() macro
+	* eval.d (coerce_function): ditto
+	* sequence.d (seq_boolop): ditto
+	* symbol.d (%PUTD): ditto
+
 2002-01-05  Sam Steingold  <sds@gnu.org>
 
 	SOCKET-STREAM-PEER et al now work for buffered sockets too
