@@ -48,16 +48,6 @@ LISPSPECFORM(quote, 1,0,nobody)
   VALUES1(popSTACK()); /* argument as value */
 }
 
-/* error-message at FUNCTION/FLET/LABELS, if there is no function symbol.
- > caller: Caller , a symbol
- > obj: erroneous function symbol */
-nonreturning_function(local, fehler_funsymbol, (object caller, object obj)) {
-  pushSTACK(obj);
-  pushSTACK(caller);
-  fehler(source_program_error,
-         GETTEXT("~: function name ~ should be a symbol"));
-}
-
 LISPSPECFORM(function, 1,1,nobody)
 { /* (FUNCTION funname), CLTL. p. 87
  either (FUNCTION symbol)
@@ -90,7 +80,7 @@ LISPSPECFORM(function, 1,1,nobody)
     /* 2 arguments */
     name = STACK_1; /* first argument */
     if (!funnamep(name))
-      fehler_funsymbol(S(function),name);
+      fehler_funname_source(S(function),name);
     funname = STACK_0; /* second argument, hopefully lambda expression */
   }
   if (!(consp(funname) && eq(Car(funname),S(lambda)))) /* (LAMBDA . ...) */
@@ -930,7 +920,7 @@ LISPSPECFORM(flet, 1,0,body)
     var object name = Car(funspecs);
     var object lambdabody = Cdr(funspecs);
     if (!funnamep(name))
-      fehler_funsymbol(S(flet),name);
+      fehler_funname_source(S(flet),name);
     if (!consp(lambdabody))
       goto fehler_spec;
     pushSTACK(name); /* save name */
@@ -967,7 +957,7 @@ LISPSPECFORM(labels, 1,0,body)
       var object name = Car(funspec);
       var object lambdabody = Cdr(funspec);
       if (!funnamep(name))
-        fehler_funsymbol(S(labels),name);
+        fehler_funname_source(S(labels),name);
       if (!consp(lambdabody))
         goto fehler_spec;
       funspecs = Cdr(funspecs);
