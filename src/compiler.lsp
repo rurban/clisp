@@ -2777,6 +2777,8 @@ der Docstring (oder NIL).
   really-usedp                ; falls lexikalisch:
                               ;   wurde die Variable jemals wirklich
                               ;   (um den Wert zu wissen) abgefragt ?
+  (assignedp nil)             ; falls lexikalisch:
+                              ;   wurde der Variablen jemals ein Wert zugewiesen?
   (modified-list '())         ; falls lexikalisch: zu jedem SET auf die Variable
                               ;   eine Liste (value-anode set-anode . for-value)
   (replaceable-list '())      ; falls lexikalisch:
@@ -2918,6 +2920,7 @@ der Docstring (oder NIL).
     sys::in-defun ; zeigt an, zu welcher globalen Funktion der Code gehört
     ignorable ; markiert Variablen als vielleicht ignorierbar
               ; (NB: Gensym-Variablen sind immer automatisch ignorable.)
+    sys::read-only ; markiert Variablen als nicht zugewiesen
 )  )
 
 ; mitgegeben vom Interpreter: %denv%
@@ -2937,8 +2940,9 @@ der Docstring (oder NIL).
 ; PARSE-BODY kommen) auf *denv* und liefert:
 ; eine Liste der Special-deklarierten Symbole,
 ; eine Liste der Ignore-deklarierten Symbole,
-; eine Liste der Ignorable-deklarierten Symbole.
-(defun process-declarations (declspeclist &aux (specials nil) (ignores nil) (ignorables nil))
+; eine Liste der Ignorable-deklarierten Symbole,
+; eine Liste der Read-Only-deklarierten Symbole.
+(defun process-declarations (declspeclist &aux (specials nil) (ignores nil) (ignorables nil) (readonlys nil))
   (setq declspeclist (nreverse declspeclist))
   (dolist (declspec declspeclist)
     (if (or (atom declspec) (cdr (last declspec)))
@@ -2987,6 +2991,15 @@ der Docstring (oder NIL).
                               FRANCAIS "Seuls les symboles peuvent être déclarés IGNORABLE.")
                              x
                 )) ) )
+                ((eq declspectype 'SYS::READ-ONLY)
+                 (dolist (x (cdr declspec))
+                   (if (symbolp x)
+                     (push x readonlys)
+                     (c-warn (DEUTSCH "Nur Symbole können READ-ONLY-deklariert werden, nicht ~S."
+                              ENGLISH "Non-symbol ~S may not be declared READ-ONLY."
+                              FRANCAIS "Seuls les symboles peuvent être déclarés READ-ONLY.")
+                             x
+                )) ) )
                 (t (push declspec *denv*))
           )
           (c-warn (DEUTSCH "Unbekannte Deklaration ~S.~%Die ganze Deklaration ~S wird ignoriert."
@@ -2994,7 +3007,7 @@ der Docstring (oder NIL).
                    FRANCAIS "Déclaration inconnue ~S.~%Toute la déclaration ~S est ignorée.")
                   declspectype declspec
   ) ) ) ) )
-  (values specials ignores ignorables)
+  (values specials ignores ignorables readonlys)
 )
 
 ; (declared-notinline fun denv) stellt fest, ob fun - ein Symbol, das eine
@@ -3926,6 +3939,7 @@ der Docstring (oder NIL).
                              :code `((SET ,var ,*venvc* ,*stackz*))
               )) )
           (unless (var-usedp var) (setf (var-usedp var) t)) ; Zuweisung "benutzt" die Variable
+          (setf (var-assignedp var) t)
           (unless *no-code*
             (setf (var-constantp var) nil) ; nicht mehr konstant wegen Zuweisung
             (push (list* value-anode set-anode for-value) (var-modified-list var))
@@ -5268,6 +5282,7 @@ der Docstring (oder NIL).
 (defvar *specials*) ; Liste aller zuletzt special deklarierten Symbole
 (defvar *ignores*) ; Liste aller zuletzt ignore deklarierten Symbole
 (defvar *ignorables*) ; Liste aller zuletzt ignorable deklarierten Symbole
+(defvar *readonlys*) ; Liste aller zuletzt read-only deklarierten Symbole
 
 ; pusht alle Symbole von specials als Variablen auf *venv* :
 (defun push-specials ()
@@ -5303,7 +5318,16 @@ der Docstring (oder NIL).
                      ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
                      FRANCAIS "La variable ~S n'est pas utilisée.~%Mauvaise orthographe ou déclaration IGNORE manquante?")
                     sym
-) ) ) ) ) ) )
+    ) ) ) ) )
+    (when (member sym *readonlys* :test #'eq)
+      (unless (var-specialp var)
+        (when (var-assignedp var)
+          (c-warn (DEUTSCH "Der Variablen ~S wird trotz READ-ONLY-Deklaration ein Wert zugewiesen."
+                   ENGLISH "The variable ~S is assigned to, despite of READ-ONLY declaration."
+                   FRANCAIS "La variable ~S est affectée malgré la déclaration READ-ONLY.")
+                  sym
+    ) ) ) )
+) )
 
 ; liefert den Code, der zum neuen Aufbau einer Closure und ihrer Unterbringung
 ; im Stack nötig ist:
@@ -5755,7 +5779,7 @@ der Docstring (oder NIL).
               (*denv* *denv*)
               (*venv* *venv*)
               (*venvc* *venvc*)
-              *specials* *ignores* *ignorables*
+              *specials* *ignores* *ignorables* *readonlys*
               req-vars req-dummys req-stackzs
               opt-vars opt-dummys opt-anodes opts-vars opts-anodes opt-stackzs
               rest-vars rest-dummys rest-stackzs
@@ -5763,7 +5787,7 @@ der Docstring (oder NIL).
               aux-vars aux-anodes
               closuredummy-stackz closuredummy-venvc
              )
-          (multiple-value-setq (*specials* *ignores* *ignorables*)
+          (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
             (process-declarations declarations)
           )
           ; Special-Variable auf *venv* pushen:
@@ -6692,7 +6716,7 @@ der Docstring (oder NIL).
           (*denv* *denv*)
           (*venv* *venv*)
           (*venvc* *venvc*))
-      (multiple-value-bind (*specials* *ignores* *ignorables*)
+      (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
           (process-declarations declarations)
         ; Special-Variable auf *venv* pushen:
         (push-specials)
@@ -6744,9 +6768,9 @@ der Docstring (oder NIL).
   (multiple-value-bind (body-rest declarations)
       (parse-body (cdr *form*) nil (vector *venv* *fenv*))
     (let ((*venv* *venv*))
-      (multiple-value-bind (*specials* ignores ignorables)
+      (multiple-value-bind (*specials* ignores ignorables readonlys)
           (process-declarations declarations)
-        (declare (ignore ignores ignorables))
+        (declare (ignore ignores ignorables readonlys))
         ; Special-Variable auf *venv* pushen:
         (push-specials)
         (funcall c `(PROGN ,@body-rest))
@@ -6773,7 +6797,7 @@ der Docstring (oder NIL).
               (*denv* *denv*)
               (*venv* *venv*)
               (*venvc* *venvc*))
-          (multiple-value-bind (*specials* *ignores* *ignorables*)
+          (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
               (process-declarations declarations)
             ; Special-Variable auf *venv* pushen:
             (push-specials)
@@ -7673,7 +7697,7 @@ der Docstring (oder NIL).
       (parse-body (cddr *form*) nil (vector *venv* *fenv*))
     (let ((*denv* *denv*)
           (*venv* *venv*))
-      (multiple-value-bind (*specials* *ignores* *ignorables*)
+      (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
           (process-declarations declarations)
         ; Special-Variable auf *venv* pushen:
         (push-specials)
@@ -8111,7 +8135,7 @@ der Docstring (oder NIL).
            ))       ) )     )
         (multiple-value-bind (body-rest declarations)
             (parse-body lambdabody t (vector *venv* *fenv*))
-          (let (*specials* *ignores* *ignorables*
+          (let (*specials* *ignores* *ignorables* *readonlys*
                 req-vars req-anodes req-stackzs
                 opt-vars opt-anodes opt-stackzs ; optionale und svar zusammen!
                 rest-vars rest-anodes rest-stackzs
@@ -8123,7 +8147,7 @@ der Docstring (oder NIL).
                 aux-vars aux-anodes
                 closuredummy-stackz closuredummy-venvc
                )
-            (multiple-value-setq (*specials* *ignores* *ignorables*)
+            (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
               (process-declarations declarations)
             )
             ; Special-Variable auf *venv* pushen:

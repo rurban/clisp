@@ -447,15 +447,12 @@
     ((var string &key (index nil sindex) (start '0 sstart) (end 'NIL send))
      &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
-    (if declarations
-      (setq declarations (list (cons 'DECLARE declarations)))
-    )
     `(LET ((,var (MAKE-STRING-INPUT-STREAM ,string
                    ,@(if (or sstart send)
                        `(,start ,@(if send `(,end) '()))
                        '()
           ))     )   )
-       ,@declarations
+       (DECLARE (READ-ONLY ,var) ,@declarations)
        (UNWIND-PROTECT
          (PROGN ,@body-rest)
          ,@(if sindex `((SETF ,index (SYSTEM::STRING-INPUT-STREAM-INDEX ,var))) '())
@@ -465,11 +462,8 @@
 ;-------------------------------------------------------------------------------
 (defmacro with-open-file ((stream &rest options) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
-    (if declarations
-      (setq declarations (list (cons 'DECLARE declarations)))
-    )
     `(LET ((,stream (OPEN ,@options)))
-       ,@declarations
+       (DECLARE (READ-ONLY ,stream) ,@declarations)
        (UNWIND-PROTECT
          (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
            (WHEN ,stream (CLOSE ,stream))
@@ -480,11 +474,8 @@
 ;-------------------------------------------------------------------------------
 (defmacro with-open-stream ((var stream) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
-    (if declarations
-      (setq declarations (list (cons 'DECLARE declarations)))
-    )
     `(LET ((,var ,stream))
-       ,@declarations
+       (DECLARE (READ-ONLY ,var) ,@declarations)
        (UNWIND-PROTECT
          (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest) (CLOSE ,var))
          (CLOSE ,var :ABORT T)
@@ -494,12 +485,9 @@
 (defmacro with-output-to-string
     ((var &optional (string nil)) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
-    (if declarations
-      (setq declarations (list (cons 'DECLARE declarations)))
-    )
     (if string
       `(LET ((,var (SYS::MAKE-STRING-PUSH-STREAM ,string)))
-         ,@declarations
+         (DECLARE (READ-ONLY ,var) ,@declarations)
          (UNWIND-PROTECT
            (PROGN ,@body-rest)
            (CLOSE ,var)

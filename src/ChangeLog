@@ -1,5 +1,19 @@
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * compiler.lsp (var): New slot `assignedp'.
+          (*declaration-types*): New declaration `sys::read-only'.
+          (process-declarations): Treat the `sys::read-only' declaration.
+          Return one more value.
+          (*readonlys*): New variable.
+          (ignore-check): Check whether `sys::read-only' declarations are
+          satisfied.
+          (c-LAMBDABODY, c-LET/LET*, c-LOCALLY, c-MULTIPLE-VALUE-BIND,
+          c-SYMBOL-MACROLET, c-FUNCALL-INLINE): Bind *readonlys*.
+        * macros2.lsp (with-input-from-string, with-open-file,
+          with-open-stream, with-output-to-string): Add READ-ONLY declaration.
+
+1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * conditio.lsp (parse-error, reader-error): New classes.
           Export PARSE-ERROR and READER-ERROR.
         * init.lsp: Export PARSE-ERROR and READER-ERROR.
