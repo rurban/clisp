@@ -697,7 +697,7 @@ dnl still generates 32-bit code.
   sparc | sparc64 )
     AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
 AC_EGREP_CPP(yes,
-[#if defined(__arch64__)
+[#if defined(__sparcv9) || defined(__arch64__)
   yes
 #endif
 ], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
@@ -771,7 +771,7 @@ dnl still generates 32-bit code.
   sparc | sparc64 )
     AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
 AC_EGREP_CPP(yes,
-[#if defined(__arch64__)
+[#if defined(__sparcv9) || defined(__arch64__)
   yes
 #endif
 ], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)

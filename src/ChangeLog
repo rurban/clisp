@@ -1,5 +1,12 @@
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * aclocal.m4 (CL_CANONICAL_HOST_CPU, CL_CANONICAL_HOST_CPU_FOR_FFCALL):
+          Tweak test for 64-bit sparc: cc defines `__sparcv9', whereas gcc
+          defines `__arch64__'.
+        * lispbibl.d (SPARC64): Likewise.
+
+1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_memfile.d (loadmem): Before quitting, close handle if needed.
           (loadmem_from_handle): Before quitting, always close handle.
 
