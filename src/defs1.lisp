@@ -416,9 +416,9 @@
 
 ;;; Functions for pathnames (Chapter 23.1.5)
 #+LOGICAL-PATHNAMES
-(progn
-  (export '(custom::*load-logical-pathname-translations-database*) "CUSTOM")
-  (ext:re-export "CUSTOM" "EXT"))
+(export '(custom::*load-logical-pathname-translations-database*) "CUSTOM")
+#+LOGICAL-PATHNAMES
+(ext:re-export "CUSTOM" "EXT")
 #+LOGICAL-PATHNAMES
 (progn
   (defvar *load-logical-pathname-translations-database*
