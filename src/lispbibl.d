@@ -4918,8 +4918,7 @@ typedef struct {
  When the weak-pointer becomes inactive, both fields are turned to unbound.
  When wp_value is GC-invariant, WP does not have to be on the
  O(all_weakpointers) list!  WP is on the list <==> ( wp_cdr != unbound ) */
-#define weakpointer_length  0
-#define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(gcv_object_t))
+#define weakpointer_length  ((sizeof(*(Weakpointer)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 #define weakpointer_broken_p(wp) (!boundp(TheWeakpointer(wp)->wp_value))
 
 # weak key-value table for weak hashtables
@@ -4930,9 +4929,10 @@ typedef struct {
   gcv_object_t data[unspecified] _attribute_aligned_object_; # elements
 } weakkvt_t;
 typedef weakkvt_t* WeakKVT;
-# both wkvt_cdr, wkvt_type and data are invisible to gc_mark routines.
-#define weakkvt_non_data ((offsetofa(weakkvt_t,data)-offsetof(weakkvt_t,wkvt_cdr))/sizeof(gcv_object_t))
-#define Weakkvt_length(obj)   (Sarray_length(obj)-weakkvt_non_data)
+# All of wkvt_cdr, wkvt_type and data are invisible to gc_mark routines.
+# Weakkvt_length(obj) returns the length of the data[] part only.
+#define weakkvt_length(ptr)  (sarray_length(ptr)-2)
+#define Weakkvt_length(obj)  weakkvt_length(TheWeakKVT(obj))
 
 # Finalizer
 typedef struct {
@@ -5788,6 +5788,14 @@ typedef enum {
 # Length (number of objects) of a record, obj has to be a Srecord/Xrecord:
 #define Record_length(obj)  \
  (Record_type(obj) < rectype_limit ? Srecord_length(obj) : Xrecord_length(obj))
+# Likewise, but ignoring weak pointers:
+#define Record_nonweak_length(obj)  \
+ (Record_type(obj) < rectype_limit          \
+  ? Srecord_length(obj)                     \
+  : ((Record_type(obj)==Rectype_Weakpointer \
+      || Record_type(obj)==Rectype_WeakKVT) \
+     ? 0                                    \
+     : Xrecord_length(obj)))
 
 
 # ####################### type test predicates ############################### #

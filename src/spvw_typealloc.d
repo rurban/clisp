@@ -93,22 +93,26 @@ global object allocate_vector (uintL len) {
  #undef SETTFL
 }
 
-/* allocate and init the weak kvtable
+/* UP: allocates a WeakKVT of the given length
+ allocate_weakkvt(len,type)
  > len:    the length of the data vector
  > type:   :KEY or :VALUE or :EITHER or :BOTH
  < result: a fresh weak key-value table
  can trigger GC */
+/* This inline function is needed because allocate() does a 'return'. */
 local inline object allocate_weakkvt_low (uintL len, object type) {
-  var uintL need = size_svector(len+weakkvt_non_data);
+  len += 2; # account for wkvt_cdr and wkvt_type
+  var uintL need = size_svector(len);
  #ifdef TYPECODES
-  #define SETTFL  ptr->length = len+weakkvt_non_data
+  #define SETTFL  ptr->length = len
  #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_WeakKVT,len+weakkvt_non_data)
+  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_WeakKVT,len)
  #endif
   allocate(weakkvt_type,true,need,WeakKVT,ptr,{
     SETTFL;
     ptr->wkvt_cdr = O(all_weakkvtables);
     ptr->wkvt_type = type;
+    len -= 2;
     if (len > 0) {
       var gcv_object_t* p = ptr->data;
       dotimespL(len,len, { *p++ = unbound; } );

@@ -1179,7 +1179,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             mark_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
           # traverse all elements:
           {
-            var uintC len = Record_length(obj);
+            var uintC len = Record_nonweak_length(obj);
             if (!(len==0)) {
               var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
               dotimespC(len,len, { subst_circ_mark(&(*objptr++),env); } );
@@ -1358,7 +1358,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           #endif
           # traverse all elements:
           {
-            var uintC len = Record_length(obj);
+            var uintC len = Record_nonweak_length(obj);
             if (!(len==0)) {
               var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
               dotimespC(len,len, { subst(&(*objptr++)); } );
@@ -1540,7 +1540,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             mark_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
           # traverse all elements:
           {
-            var uintC len = Record_length(obj);
+            var uintC len = Record_nonweak_length(obj);
             if (!(len==0)) {
               var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
               dotimespC(len,len, { subst_circ_mark(&(*objptr++)); } );
@@ -1674,7 +1674,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           unmark(TheRecord(obj)); # unmark
           # traverse all elements:
           {
-            var uintC len = Record_length(obj);
+            var uintC len = Record_nonweak_length(obj);
             if (!(len==0)) {
               var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
               dotimespC(len,len, { subst_circ_unmark(&(*objptr++)); } );
