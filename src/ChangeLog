@@ -1,3 +1,8 @@
+2002-10-03  Sam Steingold  <sds@gnu.org>
+
+	* defs2.lisp (read-sequence, write-sequence): when deciding
+	between byte and char i/o, check the sequence element type too
+
 2002-10-02  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (test_symbol): moved here from symbol.d
