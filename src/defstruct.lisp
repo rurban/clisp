@@ -74,19 +74,19 @@
     'clos::location offset))
 (defun copy-<structure-effective-slot-definition> (slot)
   (make-ds-slot
-    (clos::slot-definition-name slot)
-    (clos::slot-definition-initargs slot)
-    (clos::slot-definition-location slot)
+    (clos:slot-definition-name slot)
+    (clos:slot-definition-initargs slot)
+    (clos:slot-definition-location slot)
     (clos::slot-definition-inheritable-initer slot)
     (clos::structure-effective-slot-definition-initff slot)
-    (clos::slot-definition-type slot)
+    (clos:slot-definition-type slot)
     (clos::structure-effective-slot-definition-readonly slot)))
 (defmacro ds-real-slot-p (slot)
-  `(not (null (clos::slot-definition-initargs ,slot))))
+  `(not (null (clos:slot-definition-initargs ,slot))))
 (defmacro ds-pseudo-slot-default (slot)
   ;; The pseudo-slots have an initform = (QUOTE name) and an initfunction which
   ;; returns the name.
-  `(funcall (clos::slot-definition-initfunction ,slot)))
+  `(funcall (clos:slot-definition-initfunction ,slot)))
 
 #| The type test comes in 4 variants. Keep them in sync! |#
 
@@ -101,7 +101,7 @@
       (and (conses-p size object)
            (dolist (slot (svref desc 3) t)
              (unless (ds-real-slot-p slot)
-               (unless (eq (nth (clos::slot-definition-location slot) object)
+               (unless (eq (nth (clos:slot-definition-location slot) object)
                            (ds-pseudo-slot-default slot))
                  (return nil)))))
       (and (vectorp object) (simple-array-p object)
@@ -113,7 +113,7 @@
            (dolist (slot (svref desc 3) t)
              (unless (ds-real-slot-p slot)
                (unless (and (simple-vector-p object)
-                            (eq (svref object (clos::slot-definition-location slot))
+                            (eq (svref object (clos:slot-definition-location slot))
                                 (ds-pseudo-slot-default slot)))
                  (return nil))))))))
 
@@ -131,7 +131,7 @@
                     (t `((CONSES-P ,size ,tmp))))
                 ,@(mapcan #'(lambda (slot)
                               (unless (ds-real-slot-p slot)
-                                `((EQ (NTH ,(clos::slot-definition-location slot) ,tmp)
+                                `((EQ (NTH ,(clos:slot-definition-location slot) ,tmp)
                                       ',(ds-pseudo-slot-default slot)))))
                           (svref desc 3)))
           (let ((eltype (if (consp type)
@@ -147,7 +147,7 @@
                      (t `(>= (LENGTH ,tmp) ,size)))
                   ,@(mapcan #'(lambda (slot)
                                 (unless (ds-real-slot-p slot)
-                                  `((EQ (SVREF ,tmp ,(clos::slot-definition-location slot))
+                                  `((EQ (SVREF ,tmp ,(clos:slot-definition-location slot))
                                         ',(ds-pseudo-slot-default slot)))))
                             (svref desc 3))))))))
 
@@ -166,7 +166,7 @@
             (dolist (slot slotlist)
               (unless (ds-real-slot-p slot)
                 (let ((resttype resulttype))
-                  (dotimes (j (clos::slot-definition-location slot))
+                  (dotimes (j (clos:slot-definition-location slot))
                     (setq resttype (third resttype)))
                   (setf (second resttype) `(EQL ,(ds-pseudo-slot-default slot))))))
             resulttype)
@@ -203,9 +203,9 @@
          (let ((max-offset -1)
                (max-name-offset -1))
            (dolist (slot slotlist)
-             (setq max-offset (max max-offset (clos::slot-definition-location slot)))
+             (setq max-offset (max max-offset (clos:slot-definition-location slot)))
              (unless (ds-real-slot-p slot)
-               (setq max-name-offset (max max-name-offset (clos::slot-definition-location slot)))))
+               (setq max-name-offset (max max-name-offset (clos:slot-definition-location slot)))))
            ; This code is only used when there is at least one named slot.
            (assert (<= 0 max-name-offset max-offset))
            (assert (< max-offset size))
@@ -216,7 +216,7 @@
                        (t `((CONSES-P ,size OBJECT))))
                    ,@(mapcan #'(lambda (slot)
                                  (unless (ds-real-slot-p slot)
-                                   `((EQ (NTH ,(clos::slot-definition-location slot) OBJECT)
+                                   `((EQ (NTH ,(clos:slot-definition-location slot) OBJECT)
                                          ',(ds-pseudo-slot-default slot)))))
                              slotlist))
              ; This code is only used when there is at least one named slot.
@@ -226,7 +226,7 @@
                    (>= (LENGTH OBJECT) ,size)
                    ,@(mapcan #'(lambda (slot)
                                  (unless (ds-real-slot-p slot)
-                                   `((EQ (SVREF OBJECT ,(clos::slot-definition-location slot))
+                                   `((EQ (SVREF OBJECT ,(clos:slot-definition-location slot))
                                          ',(ds-pseudo-slot-default slot)))))
                              slotlist))))))))
 
@@ -253,12 +253,12 @@
            (do ((slotlistr slotlist (cdr slotlistr))
                 (index 0 (1+ index)))
                ((null slotlistr) (eql index size))
-             (unless (eq (clos::slot-definition-location (car slotlistr)) index)
+             (unless (eq (clos:slot-definition-location (car slotlistr)) index)
                (return nil))))
     ;; optimize the simple case
     `(,type ,@(mapcar #'(lambda (slot var)
                           (if (ds-real-slot-p slot)
-                            `(THE ,(clos::slot-definition-type slot) ,var)
+                            `(THE ,(clos:slot-definition-type slot) ,var)
                             `(QUOTE ,(ds-pseudo-slot-default slot))))
                        slotlist varlist))
     `(LET ((OBJECT
@@ -268,7 +268,7 @@
                      `(MAKE-ARRAY ,size :ELEMENT-TYPE ',(second type)))
                     (t `(MAKE-ARRAY ,size)))))
        ,@(mapcar
-          #'(lambda (slot var &aux (offset (clos::slot-definition-location slot)))
+          #'(lambda (slot var &aux (offset (clos:slot-definition-location slot)))
               `(SETF
                 ,(cond ((eq type 'T)
                         `(%STRUCTURE-REF ',name OBJECT ,offset) )
@@ -278,7 +278,7 @@
                         `(SVREF OBJECT ,offset) )
                        (t `(AREF OBJECT ,offset) ))
                 ,(if (ds-real-slot-p slot)
-                   `(THE ,(clos::slot-definition-type slot) ,var)
+                   `(THE ,(clos:slot-definition-type slot) ,var)
                    `(QUOTE ,(ds-pseudo-slot-default slot)))))
            slotlist varlist)
        OBJECT)))
@@ -297,7 +297,7 @@
     ;; no default value in the lambda-list
     (let* ((var (if (listp arg) (first arg) arg))
            (slot (find (if (consp var) (second var) var) slotlist
-                       :key #'clos::slot-definition-name :test #'eq)))
+                       :key #'clos:slot-definition-name :test #'eq)))
       (if slot
         ;; slot found -> take its default value
         (ds-arg-default var slot)
@@ -363,14 +363,14 @@
                  ,@(let ((slotinitlist nil))
                      (dolist (slot slotlist)
                        (when (ds-real-slot-p slot)
-                         (unless (memq (clos::slot-definition-name slot) argnames)
+                         (unless (memq (clos:slot-definition-name slot) argnames)
                            (push (ds-arg-with-default
-                                   (clos::slot-definition-name slot) slotlist)
+                                   (clos:slot-definition-name slot) slotlist)
                                  slotinitlist))))
                      (nreverse slotinitlist)))))
         `(DEFUN ,constructorname ,new-arglist
            ,(ds-make-constructor-body type name names size slotlist
-                                      (mapcar #'clos::slot-definition-name slotlist)))))))
+                                      (mapcar #'clos:slot-definition-name slotlist)))))))
 
 #| (ds-make-keyword-constructor descriptor type name names size slotlist)
    returns the form, that defines the keyword-constructor. |#
@@ -379,7 +379,7 @@
           (mapcar #'(lambda (slot)
                       (if (ds-real-slot-p slot)
                         (make-symbol
-                          (symbol-name (clos::slot-definition-name slot)))
+                          (symbol-name (clos:slot-definition-name slot)))
                         nil))
                   slotlist)))
     `(DEFUN ,descriptor
@@ -419,9 +419,9 @@
   (mapcap
     #'(lambda (slot)
         (if (ds-real-slot-p slot)
-          (let ((accessorname (ds-accessor-name (clos::slot-definition-name slot) concname))
-                (offset (clos::slot-definition-location slot))
-                (slottype (clos::slot-definition-type slot)))
+          (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
+                (offset (clos:slot-definition-location slot))
+                (slottype (clos:slot-definition-type slot)))
             ;; This makes the macroexpansion depend on the current state
             ;; of the compilation environment, but it doesn't hurt because
             ;; the included structure's definition must already be
@@ -448,9 +448,9 @@
   (mapcap
     #'(lambda (slot)
         (if (and (ds-real-slot-p slot) (not (clos::structure-effective-slot-definition-readonly slot)))
-          (let ((accessorname (ds-accessor-name (clos::slot-definition-name slot) concname))
-                (offset (clos::slot-definition-location slot))
-                (slottype (clos::slot-definition-type slot)))
+          (let ((accessorname (ds-accessor-name (clos:slot-definition-name slot) concname))
+                (offset (clos:slot-definition-location slot))
+                (slottype (clos:slot-definition-type slot)))
             ;; This makes the macroexpansion depend on the current state
             ;; of the compilation environment, but it doesn't hurt because
             ;; the included structure's definition must already be
@@ -718,20 +718,20 @@
           (nreverse
             (mapcar #'copy-<structure-effective-slot-definition>
                     (if incl-class
-                      (clos::class-slots incl-class)
+                      (clos:class-slots incl-class)
                       (svref incl-desc 3)))))
         ;; slotlist is the reversed list of the inherited slots.
         (setq include-skip (if incl-class
                              (clos::class-instance-size incl-class)
                              (svref incl-desc 1)))
         (when slotlist
-          (assert (> include-skip (clos::slot-definition-location (first slotlist)))))
+          (assert (> include-skip (clos:slot-definition-location (first slotlist)))))
         ;; include-skip >=0 is the number of slots that are already consumend
         ;;    by the substructure, the "size" of the substructure.
         ;; process further arguments of the :INCLUDE-option:
         (dolist (slotarg (rest option))
           (let* ((slotname (if (atom slotarg) slotarg (first slotarg)))
-                 (slot (find slotname slotlist :key #'clos::slot-definition-name
+                 (slot (find slotname slotlist :key #'clos:slot-definition-name
                              :test #'eq)))
             (when (null slot)
               (error-of-type 'source-program-error
@@ -779,14 +779,14 @@
                            (unless
                                (subtypep
                                  (type-for-discrimination slot-key-value)
-                                 (type-for-discrimination (clos::slot-definition-type slot)))
+                                 (type-for-discrimination (clos:slot-definition-type slot)))
                              (error-of-type 'source-program-error
                                :form whole-form
                                :detail subname
                                (TEXT "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S.")
                                'defstruct name slot-key-value slotname subname
-                               (clos::slot-definition-type slot)))
-                           (setf (clos::slot-definition-type slot) slot-key-value))
+                               (clos:slot-definition-type slot)))
+                           (setf (clos:slot-definition-type slot) slot-key-value))
                           (t (error-of-type 'source-program-error
                                :form whole-form
                                :detail slot-keyword
@@ -863,7 +863,7 @@
           (when (find (symbol-name slotname) slotlist
                       :test #'(lambda (name slot)
                                 (and (ds-real-slot-p slot)
-                                     (string= (clos::slot-definition-name slot) name))))
+                                     (string= (clos:slot-definition-name slot) name))))
             (error-of-type 'source-program-error
               :form whole-form
               :detail slotname
