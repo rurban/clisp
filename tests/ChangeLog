@@ -1,3 +1,7 @@
+2001-07-19  Sam Steingold  <sds@gnu.org>
+
+	* alltest.tst: added a ldiff/tailp test from CLHS
+
 2001-06-27  Sam Steingold  <sds@gnu.org>
 
 	* streamslong.tst (bin-stream-test): added binary stream checks
