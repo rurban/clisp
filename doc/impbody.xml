@@ -3611,8 +3611,7 @@ is not a defined logical host yet, we proceed as follows:
  <listitem><simpara>Input through &terminal-io-var; uses the &readline;
   library.  Arrow keys can be used to move within the input history. The
   Tab key completes the symbol's name that is being typed.  See
-  <ulink url="clreadline.html">clreadline.html</ulink> or
-  <ulink url="clreadline.dvi">clreadline.dvi</ulink> for a complete
+  <ulink url="clreadline.html">clreadline.html</ulink> for a complete
   description of the key bindings.  The &readline; library is not used
   if standard input and standard output do not both refer to the same
   terminal.</simpara></listitem></varlistentry>
