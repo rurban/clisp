@@ -2525,7 +2525,7 @@
 2004-02-15  Bruno Haible  <bruno@clisp.org>
 
 	Enforce 8-byte alignment needed by GENERATIONAL_GC in WIDE_SOFT mode,
-	working around a gcc-3.3 bug.
+	working around a gcc-3.3 bug that is fixed in gcc-3.4.
 	* lispbibl.d (INNARDS_OF_GCV_OBJECT): Add _attribute_aligned_object_.
 	(_attribute_aligned_object_): Default to empty.
 	(record_, srecord_, xrecord_, cons_, ratio_, complex_, symbol_)
