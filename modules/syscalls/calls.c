@@ -947,15 +947,15 @@ typedef BOOL (WINAPI * BackupWriteFuncType)
    LPDWORD lpNumberOfBytesWritten, BOOL bAbort, BOOL bProcessSecurity,
    LPVOID *lpContext);
 static BackupWriteFuncType BackupWriteFunc = NULL;
+static HMODULE kernel32 = NULL;
+#endif
 
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 typedef HRESULT (WINAPI * StgOpenStorageExFuncType) (const WCHAR* pwcsName,
             DWORD grfMode, DWORD stgfmt, DWORD grfAttrs, void * reserved1,
             void * reserved2, REFIID riid, void ** ppObjectOpen);
 static StgOpenStorageExFuncType StgOpenStorageExFunc = NULL;
-
-static HMODULE kernel32 = NULL;
 static HMODULE ole32 = NULL;
-
 #endif
 
 void module__syscalls__init_function_2 (module_t* module) {
@@ -967,6 +967,8 @@ void module__syscalls__init_function_2 (module_t* module) {
     BackupWriteFunc = (BackupWriteFuncType)
       GetProcAddress (kernel32, "BackupWrite");
   }
+#endif
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
   ole32 =  LoadLibrary ("ole32.dll");
   if (ole32 != NULL)
     StgOpenStorageExFunc = (StgOpenStorageExFuncType)
@@ -2362,24 +2364,21 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   if (argcount == 0) {
     skipSTACK(2);
     VALUES0;
-    return;          }
-  /* count the number of r/rw props, checking arglist sanity */
-  if (argcount % 2) {
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(program_error,
-      GETTEXT("~S: bad argument list - it must have even number of elements"));
+    return;
   }
+  /* count the number of r/rw props, checking arglist sanity */
+  if (argcount % 2)
+    fehler_key_odd(argcount,TheSubr(subr_self)->name);
   for(i=argcount-1;i>=0;i--) {
     if (i % 2) { /* specifier */
       if (!symbolp(STACK_(i)) && !stringp(STACK_(i))
-        && !posfixnump(STACK_(i)))
-      {
+          && !posfixnump(STACK_(i))) {
         pushSTACK(STACK_(i));
         if (!propspeclistp(NULL,NULL)) {
           pushSTACK(TheSubr(subr_self)->name);
           fehler(program_error,
             GETTEXT("~S: bad property specifier - it must be string, "
-            "positive number, list or keyword"));
+                    "positive number, list or keyword"));
         } else { use_wpn++; nproprd++; }
       } else if (symbolp(STACK_(i)) && eq(STACK_(i),`:INITID`)) initid = 0;
       else nproprd++;
@@ -2412,11 +2411,9 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
       case STG_E_FILENOTFOUND:
         fehler(file_error,GETTEXT("~S: file ~S does not exist"));
       case STG_E_FILEALREADYEXISTS:
-        fehler(file_error,GETTEXT(
-          "~S: file ~S is not a compound file nor it is on the NTFS file system"));
+        fehler(file_error,GETTEXT("~S: file ~S is not a compound file nor it is on the NTFS file system"));
       default:
-        fehler(file_error,GETTEXT(
-          "~S: StgOpenStorageEx() failed on file ~S"));
+        fehler(file_error,GETTEXT("~S: StgOpenStorageEx() failed on file ~S"));
     }
   }
   if (eq(STACK_(iset),`:USER-DEFINED`))
