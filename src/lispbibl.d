@@ -11587,6 +11587,14 @@ nonreturning_function(extern, fehler_kein_symbol, (object caller, object obj));
 nonreturning_function(extern, fehler_symbol, (object obj));
 # is used by SYMBOL, CONTROL
 
+/* UP: signal an error if OBJ is not a non-constant symbol and
+ return OBJ otherwise
+ > caller: the caller (function name)
+ > obj: a potential symbol
+ < obj: a non-constant symbol */
+global object test_symbol_non_constant (object caller, object obj);
+/* used by EVAL, CONTROL */
+
 # Error message, if an object isn't a Simple-Vector.
 # fehler_kein_svector(caller,obj);
 # > caller: caller (a Symbol)
@@ -12397,7 +12405,7 @@ static inline object test_symbol (object sy) {
   if (!symbolp(sy)) fehler_symbol(sy);
   return sy;
 }
-/* use by CONTROL */
+/* used by CONTROL, EVAL, I18N, RECORD, STREAM, SYMBOL */
 
 # ##################### ARITBIBL for LISTARIT.D ############################ #
 
