@@ -57,20 +57,8 @@
 #include "rlprivate.h"
 #include "xmalloc.h"
 
-#ifndef _rl_digit_p
-#define _rl_digit_p(c)  ((c) >= '0' && (c) <= '9')
-#endif
-
-#ifndef _rl_digit_value
-#define _rl_digit_value(c) ((c) - '0')
-#endif
-
 #ifndef member
 #define member(c, s) ((c) ? (char *)strchr ((s), (c)) != (char *)NULL : 0)
-#endif
-
-#ifndef isident
-#define isident(c) ((_rl_pure_alphabetic (c) || _rl_digit_p (c) || c == '_'))
 #endif
 
 #ifndef exchange
@@ -81,7 +69,7 @@
 static int _rl_vi_doing_insert;
 
 /* Command keys which do movement for xxx_to commands. */
-static char *vi_motion = " hl^$0ftFt;,%wbeWBE|";
+static const char *vi_motion = " hl^$0ftFT;,%wbeWBE|";
 
 /* Keymap used for vi replace characters.  Created dynamically since
    rarely used. */
@@ -109,13 +97,14 @@ static int _rl_vi_last_key_before_insert;
 static int vi_redoing;
 
 /* Text modification commands.  These are the `redoable' commands. */
-static char *vi_textmod = "_*\\AaIiCcDdPpYyRrSsXx~";
+static const char *vi_textmod = "_*\\AaIiCcDdPpYyRrSsXx~";
 
 /* Arrays for the saved marks. */
-static int vi_mark_chars[27];
+static int vi_mark_chars['z' - 'a' + 1];
 
-/* Prototype declarations. */
-static int rl_digit_loop1 _PROTO((void));
+static void _rl_vi_stuff_insert PARAMS((int));
+static void _rl_vi_save_insert PARAMS((UNDO_LIST *));
+static int rl_digit_loop1 PARAMS((void));
 
 void
 _rl_vi_initialize_line ()
@@ -275,7 +264,7 @@ rl_vi_search (count, key)
       break;
 
     default:
-      ding ();
+      rl_ding ();
       break;
     }
   return (0);
@@ -331,7 +320,7 @@ rl_vi_prev_word (count, key)
 
   if (rl_point == 0)
     {
-      ding ();
+      rl_ding ();
       return (0);
     }
 
@@ -353,7 +342,7 @@ rl_vi_next_word (count, key)
 
   if (rl_point >= (rl_end - 1))
     {
-      ding ();
+      rl_ding ();
       return (0);
     }
 
@@ -371,7 +360,7 @@ rl_vi_end_word (count, key)
 {
   if (count < 0)
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
@@ -461,14 +450,14 @@ rl_vi_fword (count, ignore)
   while (count-- && rl_point < (rl_end - 1))
     {
       /* Move to white space (really non-identifer). */
-      if (isident (rl_line_buffer[rl_point]))
+      if (_rl_isident (rl_line_buffer[rl_point]))
 	{
-	  while (isident (rl_line_buffer[rl_point]) && rl_point < rl_end)
+	  while (_rl_isident (rl_line_buffer[rl_point]) && rl_point < rl_end)
 	    rl_point++;
 	}
       else /* if (!whitespace (rl_line_buffer[rl_point])) */
 	{
-	  while (!isident (rl_line_buffer[rl_point]) &&
+	  while (!_rl_isident (rl_line_buffer[rl_point]) &&
 		 !whitespace (rl_line_buffer[rl_point]) && rl_point < rl_end)
 	    rl_point++;
 	}
@@ -498,9 +487,9 @@ rl_vi_bword (count, ignore)
 	 back so we don't get messed up by the rl_point++ down there in
 	 the while loop.  Without this code, words like `l;' screw up the
 	 function. */
-      last_is_ident = isident (rl_line_buffer[rl_point - 1]);
-      if ((isident (rl_line_buffer[rl_point]) && !last_is_ident) ||
-	  (!isident (rl_line_buffer[rl_point]) && last_is_ident))
+      last_is_ident = _rl_isident (rl_line_buffer[rl_point - 1]);
+      if ((_rl_isident (rl_line_buffer[rl_point]) && !last_is_ident) ||
+	  (!_rl_isident (rl_line_buffer[rl_point]) && last_is_ident))
 	rl_point--;
 
       while (rl_point > 0 && whitespace (rl_line_buffer[rl_point]))
@@ -508,10 +497,10 @@ rl_vi_bword (count, ignore)
 
       if (rl_point > 0)
 	{
-	  if (isident (rl_line_buffer[rl_point]))
-	    while (--rl_point >= 0 && isident (rl_line_buffer[rl_point]));
+	  if (_rl_isident (rl_line_buffer[rl_point]))
+	    while (--rl_point >= 0 && _rl_isident (rl_line_buffer[rl_point]));
 	  else
-	    while (--rl_point >= 0 && !isident (rl_line_buffer[rl_point]) &&
+	    while (--rl_point >= 0 && !_rl_isident (rl_line_buffer[rl_point]) &&
 		   !whitespace (rl_line_buffer[rl_point]));
 	  rl_point++;
 	}
@@ -533,10 +522,10 @@ rl_vi_eword (count, ignore)
 
       if (rl_point < rl_end)
 	{
-	  if (isident (rl_line_buffer[rl_point]))
-	    while (++rl_point < rl_end && isident (rl_line_buffer[rl_point]));
+	  if (_rl_isident (rl_line_buffer[rl_point]))
+	    while (++rl_point < rl_end && _rl_isident (rl_line_buffer[rl_point]));
 	  else
-	    while (++rl_point < rl_end && !isident (rl_line_buffer[rl_point])
+	    while (++rl_point < rl_end && !_rl_isident (rl_line_buffer[rl_point])
 		   && !whitespace (rl_line_buffer[rl_point]));
 	}
       rl_point--;
@@ -612,7 +601,7 @@ _rl_vi_save_insert (up)
   if (len >= vi_insert_buffer_size)
     {
       vi_insert_buffer_size += (len + 32) - (len % 32);
-      vi_insert_buffer = xrealloc (vi_insert_buffer, vi_insert_buffer_size);
+      vi_insert_buffer = (char *)xrealloc (vi_insert_buffer, vi_insert_buffer_size);
     }
   strncpy (vi_insert_buffer, rl_line_buffer + start, len - 1);
   vi_insert_buffer[len-1] = '\0';
@@ -745,7 +734,9 @@ rl_vi_domove (key, nextkey)
   int old_end;
 
   rl_mark = rl_point;
+  RL_SETSTATE(RL_STATE_MOREINPUT);
   c = rl_read_key ();
+  RL_UNSETSTATE(RL_STATE_MOREINPUT);
   *nextkey = c;
 
   if (!member (c, vi_motion))
@@ -756,7 +747,9 @@ rl_vi_domove (key, nextkey)
 	  rl_numeric_arg = _rl_digit_value (c);
 	  rl_digit_loop1 ();
 	  rl_numeric_arg *= save;
+	  RL_SETSTATE(RL_STATE_MOREINPUT);
 	  c = rl_read_key ();	/* real command */
+	  RL_UNSETSTATE(RL_STATE_MOREINPUT);
 	  *nextkey = c;
 	}
       else if (key == c && (key == 'd' || key == 'y' || key == 'c'))
@@ -826,18 +819,30 @@ rl_vi_domove (key, nextkey)
 }
 
 /* A simplified loop for vi. Don't dispatch key at end.
-   Don't recognize minus sign? */
+   Don't recognize minus sign?
+   Should this do rl_save_prompt/rl_restore_prompt? */
 static int
 rl_digit_loop1 ()
 {
   int key, c;
 
+  RL_SETSTATE(RL_STATE_NUMERICARG);
   while (1)
     {
-      rl_message ("(arg: %d) ", rl_arg_sign * rl_numeric_arg, 0);
+      if (rl_numeric_arg > 1000000)
+	{
+	  rl_explicit_arg = rl_numeric_arg = 0;
+	  rl_ding ();
+	  rl_clear_message ();
+	  RL_UNSETSTATE(RL_STATE_NUMERICARG);
+	  return 1;
+	}
+      rl_message ("(arg: %d) ", rl_arg_sign * rl_numeric_arg);
+      RL_SETSTATE(RL_STATE_MOREINPUT);
       key = c = rl_read_key ();
+      RL_UNSETSTATE(RL_STATE_MOREINPUT);
 
-      if (_rl_keymap[c].type == ISFUNC &&
+      if (c >= 0 && _rl_keymap[c].type == ISFUNC &&
 	  _rl_keymap[c].function == rl_universal_argument)
 	{
 	  rl_numeric_arg *= 4;
@@ -860,6 +865,8 @@ rl_digit_loop1 ()
 	  break;
 	}
     }
+
+  RL_UNSETSTATE(RL_STATE_NUMERICARG);
   return (0);
 }
 
@@ -876,7 +883,7 @@ rl_vi_delete_to (count, key)
 
   if (rl_vi_domove (key, &c))
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
@@ -904,7 +911,7 @@ rl_vi_change_to (count, key)
 
   if (rl_vi_domove (key, &c))
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
@@ -954,7 +961,7 @@ rl_vi_yank_to (count, key)
 
   if (rl_vi_domove (key, &c))
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
@@ -980,7 +987,7 @@ rl_vi_delete (count, key)
 
   if (rl_end == 0)
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
@@ -1027,7 +1034,11 @@ rl_vi_char_search (count, key)
       if (vi_redoing)
 	target = _rl_vi_last_search_char;
       else
-	_rl_vi_last_search_char = target = (*rl_getc_function) (rl_instream);
+	{
+	  RL_SETSTATE(RL_STATE_MOREINPUT);
+	  _rl_vi_last_search_char = target = rl_read_key ();
+	  RL_UNSETSTATE(RL_STATE_MOREINPUT);
+	}
 
       switch (key)
         {
@@ -1069,7 +1080,7 @@ rl_vi_match (ignore, key)
       if (brack <= 0)
 	{
 	  rl_point = pos;
-	  ding ();
+	  rl_ding ();
 	  return -1;
 	}
     }
@@ -1090,7 +1101,7 @@ rl_vi_match (ignore, key)
 	    }
 	  else
 	    {
-	      ding ();
+	      rl_ding ();
 	      return -1;
 	    }
 	}
@@ -1109,7 +1120,7 @@ rl_vi_match (ignore, key)
 	    }
 	  else
 	    {
-	      ding ();
+	      rl_ding ();
 	      return -1;
 	    }
 	}
@@ -1143,7 +1154,11 @@ rl_vi_change_char (count, key)
   if (vi_redoing)
     c = _rl_vi_last_replacement;
   else
-    _rl_vi_last_replacement = c = (*rl_getc_function) (rl_instream);
+    {
+      RL_SETSTATE(RL_STATE_MOREINPUT);
+      _rl_vi_last_replacement = c = rl_read_key ();
+      RL_UNSETSTATE(RL_STATE_MOREINPUT);
+    }
 
   if (c == '\033' || c == CTRL ('C'))
     return -1;
@@ -1239,7 +1254,7 @@ rl_vi_overstrike_delete (count, key)
     {
       if (vi_replace_count == 0)
 	{
-	  ding ();
+	  rl_ding ();
 	  break;
 	}
       s = rl_point;
@@ -1309,7 +1324,7 @@ rl_vi_possible_completions()
     }
   else if (rl_line_buffer[rl_point - 1] == ';')
     {
-      ding ();
+      rl_ding ();
       return (0);
     }
 
@@ -1327,10 +1342,13 @@ rl_vi_set_mark (count, key)
 {
   int ch;
 
+  RL_SETSTATE(RL_STATE_MOREINPUT);
   ch = rl_read_key ();
-  if (_rl_lowercase_p (ch) == 0)
+  RL_UNSETSTATE(RL_STATE_MOREINPUT);
+
+  if (ch < 'a' || ch > 'z')
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
   ch -= 'a';
@@ -1344,22 +1362,25 @@ rl_vi_goto_mark (count, key)
 {
   int ch;
 
+  RL_SETSTATE(RL_STATE_MOREINPUT);
   ch = rl_read_key ();
+  RL_UNSETSTATE(RL_STATE_MOREINPUT);
+
   if (ch == '`')
     {
       rl_point = rl_mark;
       return 0;
     }
-  else if (_rl_lowercase_p (ch) == 0)
+  else if (ch < 'a' || ch > 'z')
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
 
   ch -= 'a';
   if (vi_mark_chars[ch] == -1)
     {
-      ding ();
+      rl_ding ();
       return -1;
     }
   rl_point = vi_mark_chars[ch];

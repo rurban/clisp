@@ -84,9 +84,10 @@ extern int errno;
    filename to read_history (), or write_history (). */
 static char *
 history_filename (filename)
-     char *filename;
+     const char *filename;
 {
-  char *return_val, *home;
+  char *return_val;
+  const char *home;
   int home_len;
 
   return_val = filename ? savestring (filename) : (char *)NULL;
@@ -94,7 +95,7 @@ history_filename (filename)
   if (return_val)
     return (return_val);
   
-  home = get_env_value ("HOME");
+  home = sh_get_env_value ("HOME");
 
   if (home == 0)
     {
@@ -104,12 +105,10 @@ history_filename (filename)
   else
     home_len = strlen (home);
 
-  return_val = xmalloc (2 + home_len + 8); /* strlen(".history") == 8 */
+  return_val = (char *)xmalloc (2 + home_len + 8); /* strlen(".history") == 8 */
   strcpy (return_val, home);
   return_val[home_len] = '/';
-#if defined(__EMX__)
-  strcpy (return_val + home_len + 1, "!history");
-#elif defined (__MSDOS__)
+#if defined (__MSDOS__)
   strcpy (return_val + home_len + 1, "_history");
 #else
   strcpy (return_val + home_len + 1, ".history");
@@ -123,7 +122,7 @@ history_filename (filename)
    successful, or errno if not. */
 int
 read_history (filename)
-     char *filename;
+     const char *filename;
 {
   return (read_history_range (filename, 0, -1));
 }
@@ -135,7 +134,7 @@ read_history (filename)
    ~/.history.  Returns 0 if successful, or errno if not. */
 int
 read_history_range (filename, from, to)
-     char *filename;
+     const char *filename;
      int from, to;
 {
   register int line_start, line_end;
@@ -162,7 +161,7 @@ read_history_range (filename, from, to)
       goto error_and_exit;
     }
 
-  buffer = xmalloc (file_size + 1);
+  buffer = (char *)xmalloc (file_size + 1);
 
   chars_read = read (file, buffer, file_size);
   if (chars_read < 0)
@@ -223,14 +222,15 @@ read_history_range (filename, from, to)
 }
 
 /* Truncate the history file FNAME, leaving only LINES trailing lines.
-   If FNAME is NULL, then use ~/.history. */
+   If FNAME is NULL, then use ~/.history.  Returns 0 on success, errno
+   on failure. */
 int
 history_truncate_file (fname, lines)
-     char *fname;
+     const char *fname;
      int lines;
 {
   register int i;
-  int file, chars_read;
+  int file, chars_read, rv;
   char *buffer, *filename;
   struct stat finfo;
   size_t file_size;
@@ -238,13 +238,27 @@ history_truncate_file (fname, lines)
   buffer = (char *)NULL;
   filename = history_filename (fname);
   file = open (filename, O_RDONLY|O_BINARY, 0666);
-
-  if (file == -1 || fstat (file, &finfo) == -1)
-    goto truncate_exit;
+  rv = 0;
 
   /* Don't try to truncate non-regular files. */
-  if (S_ISREG(finfo.st_mode) == 0)
-    goto truncate_exit;
+  if (file == -1 || fstat (file, &finfo) == -1)
+    {
+      rv = errno;
+      if (file != -1)
+	close (file);
+      goto truncate_exit;
+    }
+
+  if (S_ISREG (finfo.st_mode) == 0)
+    {
+      close (file);
+#ifdef EFTYPE
+      rv = EFTYPE;
+#else
+      rv = EINVAL;
+#endif
+      goto truncate_exit;
+    }
 
   file_size = (size_t)finfo.st_size;
 
@@ -253,17 +267,24 @@ history_truncate_file (fname, lines)
     {
       close (file);
 #if defined (EFBIG)
-      errno = EFBIG;
+      rv = errno = EFBIG;
+#elif defined (EOVERFLOW)
+      rv = errno = EOVERFLOW;
+#else
+      rv = errno = EINVAL;
 #endif
       goto truncate_exit;
     }
 
-  buffer = xmalloc (file_size + 1);
+  buffer = (char *)xmalloc (file_size + 1);
   chars_read = read (file, buffer, file_size);
   close (file);
 
   if (chars_read <= 0)
-    goto truncate_exit;
+    {
+      rv = (chars_read < 0) ? errno : 0;
+      goto truncate_exit;
+    }
 
   /* Count backwards from the end of buffer until we have passed
      LINES lines. */
@@ -304,7 +325,7 @@ history_truncate_file (fname, lines)
   FREE (buffer);
 
   free (filename);
-  return 0;
+  return rv;
 }
 
 /* Workhorse function for writing history.  Writes NELEMENT entries
@@ -312,15 +333,16 @@ history_truncate_file (fname, lines)
    wish to replace FILENAME with the entries. */
 static int
 history_do_write (filename, nelements, overwrite)
-     char *filename;
+     const char *filename;
      int nelements, overwrite;
 {
   register int i;
   char *output;
-  int file, mode;
+  int file, mode, rv;
 
   mode = overwrite ? O_WRONLY|O_CREAT|O_TRUNC|O_BINARY : O_WRONLY|O_APPEND|O_BINARY;
   output = history_filename (filename);
+  rv = 0;
 
   if ((file = open (output, mode, 0600)) == -1)
     {
@@ -345,7 +367,7 @@ history_do_write (filename, nelements, overwrite)
       buffer_size += 1 + strlen (the_history[i]->line);
 
     /* Allocate the buffer, and fill it. */
-    buffer = xmalloc (buffer_size);
+    buffer = (char *)xmalloc (buffer_size);
 
     for (j = 0, i = history_length - nelements; i < history_length; i++)
       {
@@ -354,7 +376,8 @@ history_do_write (filename, nelements, overwrite)
 	buffer[j++] = '\n';
       }
 
-    write (file, buffer, buffer_size);
+    if (write (file, buffer, buffer_size) < 0)
+      rv = errno;
     free (buffer);
   }
 
@@ -362,7 +385,7 @@ history_do_write (filename, nelements, overwrite)
 
   FREE (output);
 
-  return (0);
+  return (rv);
 }
 
 /* Append NELEMENT entries to FILENAME.  The entries appended are from
@@ -370,7 +393,7 @@ history_do_write (filename, nelements, overwrite)
 int
 append_history (nelements, filename)
      int nelements;
-     char *filename;
+     const char *filename;
 {
   return (history_do_write (filename, nelements, HISTORY_APPEND));
 }
@@ -380,7 +403,7 @@ append_history (nelements, filename)
    are as in read_history ().*/
 int
 write_history (filename)
-     char *filename;
+     const char *filename;
 {
   return (history_do_write (filename, history_length, HISTORY_OVERWRITE));
 }

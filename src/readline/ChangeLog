@@ -1,9 +1,13 @@
-2001-06-08  Bruno Haible  <linuix.math.u-bordeaux.fr>
+2002-04-24  Sam Steingold  <sds@gnu.org>
+
+	upgrade to readline-4.2a
+
+2001-06-08  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
 	* support/config.guess: Update to GNU version 2001-05-11.
 	* support/config.sub: Likewise.
 
-2001-03-28  Bruno Haible  <linuix.math.u-bordeaux.fr>
+2001-03-28  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
 	* support/config.guess: Upgrade to GNU version 2001-03-19.
 	* support/config.sub: Likewise.
@@ -35,122 +39,122 @@
 	* rlprivate.h (is_in_UTF8_mode, rl_utf8_mode): New declarations.
 	* testUTF8.c: New file.
 
-2000-03-25  Bruno Haible  <linuix.math.u-bordeaux.fr>
+2000-03-25  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        Upgrade to readline-4.1.
+	Upgrade to readline-4.1.
 
-2000-03-19  Bruno Haible  <linuix.math.u-bordeaux.fr>
+2000-03-19  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * bind.c (boolean_varlist, string_varlist): Add 0 to last element,
-          to avoid gcc warning.
+	* bind.c (boolean_varlist, string_varlist): Add 0 to last element,
+	  to avoid gcc warning.
 
-2000-03-13  Bruno Haible  <linuix.math.u-bordeaux.fr>
+2000-03-13  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * input.c, parens.c: Add BeOS support.
-          Patch by Alexis Rivera Rios <ahrivera@yahoo.com>.
+	* input.c, parens.c: Add BeOS support.
+	  Patch by Alexis Rivera Rios <ahrivera@yahoo.com>.
 
-2000-01-23  Bruno Haible  <linuix.math.u-bordeaux.fr>
+2000-01-23  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        Upgrade to readline-4.1-beta3.
+	Upgrade to readline-4.1-beta3.
 
-1999-04-03  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1999-04-03  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * doc/rluserman.texinfo: New file, derived from doc/rlman.texinfo.
-        * doc/Makefile.in (MAKEINFO): Prefix with LANGUAGE=, to force English.
-          (DVIPS): Change -D300 to -D600, to match current printers'
-          resolution.
-          (DVIOBJ): Add rluserman.dvi.
-          (INFOOBJ): Add rluserman.info.
-          (PSOBJ): Add rluserman.ps.
-          (HTMLOBJ): Add rluserman.html.
-          (HTMLTOC): Add rluserman_toc.html.
-          (rluserman.dvi, rluserman.info, rluserman.ps, rluserman.html): New
-          rules.
+	* doc/rluserman.texinfo: New file, derived from doc/rlman.texinfo.
+	* doc/Makefile.in (MAKEINFO): Prefix with LANGUAGE=, to force English.
+	(DVIPS): Change -D300 to -D600, to match current printers'
+	  resolution.
+	(DVIOBJ): Add rluserman.dvi.
+	(INFOOBJ): Add rluserman.info.
+	(PSOBJ): Add rluserman.ps.
+	(HTMLOBJ): Add rluserman.html.
+	(HTMLTOC): Add rluserman_toc.html.
+	(rluserman.dvi, rluserman.info, rluserman.ps, rluserman.html): New
+	  rules.
 
-1999-03-06  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1999-03-06  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        Upgrade to readline-4.0.
+	Upgrade to readline-4.0.
 
-1999-02-25  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1999-02-25  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * readline.h (rl_completion_entry_function): Change type to
-          `CPFunction *'.
-        * complete.c (rl_completion_entry_function): Likewise.
-          (gen_completion_matches): Change type of `our_func' argument.
-          Remove bogus function type cast.
-          (rl_complete_internal): Change type of `our_func' variable.
-          Remove bogus function type casts.
-          (rl_menu_complete): Likewise.
+	* readline.h (rl_completion_entry_function): Change type to
+	  `CPFunction *'.
+	* complete.c (rl_completion_entry_function): Likewise.
+	(gen_completion_matches): Change type of `our_func' argument.
+	  Remove bogus function type cast.
+	(rl_complete_internal): Change type of `our_func' variable.
+	  Remove bogus function type casts.
+	(rl_menu_complete): Likewise.
 
-1998-10-12  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1998-10-12  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * Makefile.in: Rewrite the dependency lines, one rule per target.
-          (Otherwise "make -r bind.o" [GNU make] doesn't compile bind.c.)
+	* Makefile.in: Rewrite the dependency lines, one rule per target.
+	  (Otherwise "make -r bind.o" [GNU make] doesn't compile bind.c.)
 
-1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1998-10-10  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * readline.c (_emx_build_environ): Remove.
-          From Kai Uwe Rommel <rommel@ars.de>.
-        * emacs_keymap.c (emacs_dos_keymap): keymap for DOS.
-        * keymaps.h (emacs_dos_keymap): Declare it.
-        * histfile.c (history_filename): Use "!history" instead of ".history"
-          on DOS.
-          (read_history_range): Don't assume that the number of bytes that
-          can be read from a file is the same as stat's st_size. (Not true on
-          DOS because of CR/LF translation.)
-        * bind.c (_rl_read_file): Likewise.
-        * rlconf.h (DEFAULT_INPUTRC): Use "/!inputrc" instead of "~/.inputrc"
-          on DOS.
-        * rltty.c (prepare_terminal_settings): Support for raw mode on DOS.
-        * rltty.c (rl_prep_terminal): Use Ctrl-Z instead of Ctrl-D as EOF
-          character on DOS.
-        * readline.c (init_terminal_io): Get the real screen size, not a dummy
-          one, from EMX.
-        * signals.c (rl_signal_handler): Support EMX.
+	* readline.c (_emx_build_environ): Remove.
+	  From Kai Uwe Rommel <rommel@ars.de>.
+	* emacs_keymap.c (emacs_dos_keymap): keymap for DOS.
+	* keymaps.h (emacs_dos_keymap): Declare it.
+	* histfile.c (history_filename): Use "!history" instead of ".history"
+	  on DOS.
+	(read_history_range): Don't assume that the number of bytes that
+	  can be read from a file is the same as stat's st_size. (Not true on
+	  DOS because of CR/LF translation.)
+	* bind.c (_rl_read_file): Likewise.
+	* rlconf.h (DEFAULT_INPUTRC): Use "/!inputrc" instead of "~/.inputrc"
+	  on DOS.
+	* rltty.c (prepare_terminal_settings): Support for raw mode on DOS.
+	* rltty.c (rl_prep_terminal): Use Ctrl-Z instead of Ctrl-D as EOF
+	  character on DOS.
+	* readline.c (init_terminal_io): Get the real screen size, not a dummy
+	  one, from EMX.
+	* signals.c (rl_signal_handler): Support EMX.
 
-1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1998-10-10  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * signals.c (rl_set_sighandler): Be careful not to throw away the
-          original handler when installing rl_signal_handler and it is already
-          installed.
+	* signals.c (rl_set_sighandler): Be careful not to throw away the
+	  original handler when installing rl_signal_handler and it is already
+	  installed.
 
-1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1998-10-10  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * rlconf.h (PAREN_MATCHING): Define.
-        * parens.c (rl_insert_close): Define the timeout to 1 sec, not 0.5 sec.
+	* rlconf.h (PAREN_MATCHING): Define.
+	* parens.c (rl_insert_close): Define the timeout to 1 sec, not 0.5 sec.
 
-1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1998-10-10  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * readline.h, readline.c (rl_already_prompted): New variable.
-          Some applications have output the prompt themselves. readline
-          needs to know about the prompt (for cursor movement) but must
-          not output the prompt in the first run.
-        * readline.h, display.c (rl_on_new_line_with_prompt): New function.
-        * readline.c (readline_internal_setup): Call it.
-        * display.c (rl_redisplay): Don't access prompt_this_line[-2],
-          the prompt may be shorter than this.
+	* readline.h, readline.c (rl_already_prompted): New variable.
+	  Some applications have output the prompt themselves. readline
+	  needs to know about the prompt (for cursor movement) but must
+	  not output the prompt in the first run.
+	* readline.h, display.c (rl_on_new_line_with_prompt): New function.
+	* readline.c (readline_internal_setup): Call it.
+	* display.c (rl_redisplay): Don't access prompt_this_line[-2],
+	  the prompt may be shorter than this.
 
-1998-10-07  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1998-10-07  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        * readline.c (rl_present_p): Add constant flag. A replacement
-          library libnoreadline.a shall define rl_present_p = 0. An
-          application can then determine at run time whether is was linked
-          with libreadline.a or libnoreadline.a.
-        * readline.c (RL_LIBRARY_VERSION): Set to "2.2-clisp".
+	* readline.c (rl_present_p): Add constant flag. A replacement
+	  library libnoreadline.a shall define rl_present_p = 0. An
+	  application can then determine at run time whether is was linked
+	  with libreadline.a or libnoreadline.a.
+	* readline.c (RL_LIBRARY_VERSION): Set to "2.2-clisp".
 
-1998-10-06  Bruno Haible  <linuix.math.u-bordeaux.fr>
+1998-10-06  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-        Added ANSI C prototypes, such that the library can be compiled
-        using "gcc -Wall -Wmissing-prototypes".
-        * ansi_proto.h, xmalloc.h, shell.h: New files.
-        * Makefile.in: Update.
-        * tilde.h, tilde.c: Add prototypes.
-        * history.h: Add prototypes.
-        * histlib.h: Add extern declarations.
-        * histexpand.c, histfile.c, history.c, histsearch.c: Remove extern
-          declarations.
-        * readline.h: Add extern declarations and prototypes.
-        * bind.c, callback.c, complete.c, display.c, funmap.c, input.c,
-          isearch.c, keymaps.c, kill.c, macro.c, nls.c, parens.c, readline.c,
-          rltty.c, search.c, signals.c, terminal.c, util.c, vi_mode.c: Remove
-          extern declarations.
+	Added ANSI C prototypes, such that the library can be compiled
+	using "gcc -Wall -Wmissing-prototypes".
+	* ansi_proto.h, xmalloc.h, shell.h: New files.
+	* Makefile.in: Update.
+	* tilde.h, tilde.c: Add prototypes.
+	* history.h: Add prototypes.
+	* histlib.h: Add extern declarations.
+	* histexpand.c, histfile.c, history.c, histsearch.c: Remove extern
+	  declarations.
+	* readline.h: Add extern declarations and prototypes.
+	* bind.c, callback.c, complete.c, display.c, funmap.c, input.c,
+	  isearch.c, keymaps.c, kill.c, macro.c, nls.c, parens.c, readline.c,
+	  rltty.c, search.c, signals.c, terminal.c, util.c, vi_mode.c: Remove
+	  extern declarations.
