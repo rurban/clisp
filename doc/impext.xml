@@ -3028,7 +3028,7 @@ unit</ulink> (usually a file), a warning is issued and
   &c-array;, &c-array-max; values as arguments (not via pointers) is
   only possible to the extent the &c-lang; compiler supports it.
   Most &c-lang; compilers do it right, but some &c-lang; compilers
-  (such as gcc on hppa and win32) have problems with this.
+  (such as &gcc; on hppa and &win32;) have problems with this.
   The recommended workaround is to pass pointers; this is fully supported.
   See also this &clisp-list;
   <ulink url="http://article.gmane.org/gmane.lisp.clisp.devel/10089"

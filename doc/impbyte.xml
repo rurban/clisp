@@ -6,7 +6,7 @@
  <subtitle>These are internals, which are of interest only to the
   &clisp; developers.
   If you are not subscribed to &clisp-devel;,
-  this chapter is not for you.</subtitle>
+  this chapter is probably not for you.</subtitle>
 
 <section id="internals-intro"><title>Introduction</title>
 
@@ -31,8 +31,8 @@ files <filename>#P"spvw*.d"</filename>.</para>
 <para>A &clisp; object is one word, containing a tag
  (partial type information) and either immediate data
  (e.g. &fixnum-t;s or &short-float-t;s) or a pointer to storage.
-Pointers to &c-lang; data have tag = machine_type = 0,
-pointers to &clisp; stack have tag = system_type,
+Pointers to &c-lang; data have tag = <literal>machine_type</literal> = 0,
+pointers to &clisp; stack have tag = <literal>system_type</literal>,
 most other pointers point to &clisp; data.</para>
 
 <para>Let us turn to these &clisp; objects that consume regular &clisp;
@@ -57,7 +57,7 @@ compacts these objects and unmarks them.  Non-live objects are lost;
 their storage is reclaimed.</para>
 
 <para>2-pointer objects are compacted by a simple hole-filling
-algorithm: fill the most-left object into the most-right hole, and so
+algorithm: fill the left-most object into the right-most hole, and so
 on, until the objects are contiguous at the right and the hole is
 contiguous at the left.</para>
 
@@ -266,8 +266,7 @@ bash$ CC=g++ ./configure --with-debug build-g-gxx
 </screen>
 When built like this, &clisp; will abort when you reference GC-unsafe
 data after an allocation (which could have triggered a &gc;ion),
-and <command>gdb</command> will pinpoint the trouble spot.
-</para>
+and &gdb; will pinpoint the trouble spot.</para>
 
 </section>
 
