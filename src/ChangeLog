@@ -1,5 +1,8 @@
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
+	* clx/mit-clx/dependent.lisp (get-host-name): Implement correctly
+	for clisp.
+
 	* clx/mit-clx/dependent.lisp (conditional-store): Rewrite to avoid
 	multiple evaluation of subforms.
 
