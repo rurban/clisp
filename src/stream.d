@@ -7235,7 +7235,8 @@ LISPFUNN(window_cursor_off,1)
                 offset,                       \
                 mode                          \
                );                             \
-        if (ergebnis<0) { OS_error(); } # Fehler aufgetreten? \
+        if (ergebnis<0) # Fehler aufgetreten? \
+          { end_system_call(); OS_filestream_error(stream); } \
         unused (ergebnis_zuweisung ergebnis); \
       }
   #endif
@@ -7247,12 +7248,14 @@ LISPFUNN(window_cursor_off,1)
                _offset,                                        \
                mode                                            \
               );                                               \
-        if (ergebnis<0) { OS_error(); } # Fehler aufgetreten?  \
+        if (ergebnis<0) # Fehler aufgetreten?                  \
+          { end_system_call(); OS_filestream_error(stream); }  \
         if (mode==SEEK_SET) { unused (ergebnis_zuweisung _offset); } \
         elif (mode==SEEK_CUR) { unused (ergebnis_zuweisung ergebnis+_offset); } \
         else /* mode==SEEK_END */                                      \
           { ergebnis = Seek(TheHandle(TheStream(stream)->strm_file_handle),0,SEEK_CUR); \
-            if (ergebnis<0) { OS_error(); } # Fehler aufgetreten?      \
+            if (ergebnis<0) # Fehler aufgetreten?                      \
+              { end_system_call(); OS_filestream_error(stream); }      \
             unused (ergebnis_zuweisung ergebnis);                      \
       }   }
     #define SEEK_SET  OFFSET_BEGINNING
@@ -7266,7 +7269,8 @@ LISPFUNN(window_cursor_off,1)
                          offset, NULL,                         \
                          mode                                  \
                         );                                     \
-        if (ergebnis == (DWORD)(-1)) { OS_error(); }           \
+        if (ergebnis == (DWORD)(-1))                           \
+          { end_system_call(); OS_filestream_error(stream); }  \
         unused (ergebnis_zuweisung ergebnis);                  \
        }
   #endif
@@ -7301,10 +7305,11 @@ LISPFUNN(window_cursor_off,1)
             #ifdef EDQUOT
             if (!(errno == EDQUOT))
             #endif
-              { OS_error(); }
+              { end_system_call(); OS_filestream_error(stream); }
           #endif
           #if defined(AMIGAOS) || defined(WIN32_NATIVE)
-          if (ergebnis<0) { OS_error(); } # Fehler aufgetreten?
+          if (ergebnis<0) # Fehler aufgetreten?
+            { end_system_call(); OS_filestream_error(stream); }
           #endif
           end_system_call();
           # Nicht alles geschrieben, wohl wegen voller Diskette.
@@ -7423,7 +7428,7 @@ LISPFUNN(window_cursor_off,1)
                 TheStream(stream)->strm_file_eofindex = T; # eofindex := T
                 return &TheSstring(TheStream(stream)->strm_file_buffer)->data[0];
               }
-            if (ergebnis<0) { OS_error(); } # Fehler aufgetreten?
+            if (ergebnis<0) { OS_filestream_error(stream); } # Fehler aufgetreten?
           }
         # Es wurden ergebnis (< strm_file_bufflen) Bytes gelesen.
         # Nicht der ganze Buffer wurde gefüllt -> EOF ist erreicht.
@@ -9045,7 +9050,7 @@ LISPFUNN(window_cursor_off,1)
        #ifdef HAVE_FSYNC
         begin_system_call();
         if (!( fsync(TheHandle(TheStream(stream)->strm_file_handle)) ==0))
-          { OS_error(); }
+          { end_system_call(); OS_filestream_error(stream); }
         end_system_call();
        #endif
       #else
@@ -9056,15 +9061,16 @@ LISPFUNN(window_cursor_off,1)
               { var uintW handle = TheHandle(TheStream(stream)->strm_file_handle);
                 begin_system_call();
                {var sintW handle2 = dup(handle);
-                if (handle2 < 0) { OS_error(); } # Error melden
-                if ( CLOSE(handle2) <0) { OS_error(); }
+                if (handle2 < 0) { end_system_call(); OS_filestream_error(stream); } # Error melden
+                if ( CLOSE(handle2) <0) { end_system_call(); OS_filestream_error(stream); }
                 end_system_call();
               }}
             #endif
             #ifdef RISCOS # || MSDOS, wenn wir da nicht schon was besseres hätten
               # File schließen (DOS schreibt physikalisch):
               begin_system_call();
-              if ( CLOSE(TheHandle(TheStream(stream)->strm_file_handle)) <0) { OS_error(); }
+              if ( CLOSE(TheHandle(TheStream(stream)->strm_file_handle)) <0)
+                { end_system_call(); OS_filestream_error(stream); }
               end_system_call();
               # File neu öffnen:
               pushSTACK(stream); # stream retten
@@ -9074,7 +9080,8 @@ LISPFUNN(window_cursor_off,1)
               var sintW handle;
               begin_system_call();
               handle = OPEN(TheAsciz(namestring),O_RDWR); # Datei neu öffnen
-              if (handle < 0) { OS_error(); } # Error melden
+              if (handle < 0) # Error melden
+                { end_system_call(); OS_filestream_error(STACK_1); }
               #ifdef MSDOS
               setmode(handle,O_BINARY);
               #endif
@@ -9101,7 +9108,8 @@ LISPFUNN(window_cursor_off,1)
                   {# Directory existiert schon, Datei neu öffnen:
                    var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
                    handle = Open(TheAsciz(namestring),MODE_OLDFILE);
-                   if (handle==NULL) { OS_error(); } # Error melden
+                   if (handle==NULL) # Error melden
+                     { end_system_call(); OS_filestream_error(STACK_1); }
                    skipSTACK(1);
                    stream = popSTACK(); # stream zurück
                    # neues Handle eintragen:
@@ -9165,7 +9173,7 @@ LISPFUNN(window_cursor_off,1)
       #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
       begin_system_call();
       if (!( CLOSE(TheHandle(TheStream(stream)->strm_file_handle)) ==0))
-        { OS_error(); }
+        { end_system_call(); OS_filestream_error(stream); }
       end_system_call();
       #endif
       #ifdef AMIGAOS
@@ -9176,7 +9184,7 @@ LISPFUNN(window_cursor_off,1)
       #ifdef WIN32_NATIVE
       begin_system_call();
       if (!CloseHandle(TheHandle(TheStream(stream)->strm_file_handle)))
-        { OS_error(); }
+        { end_system_call(); OS_filestream_error(stream); }
       end_system_call();
       #endif
       # Komponenten ungültig machen (close_dummys kommt später):

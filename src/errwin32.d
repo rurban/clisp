@@ -3856,12 +3856,11 @@
   # OS_error();
   # > GetLastError(): Fehlercode
     nonreturning_function(global, OS_error, (void));
-    global void OS_error ()
-      { var DWORD errcode = GetLastError();
-        end_system_call();
-        clr_break_sem_4(); # keine Win32-Operation mehr aktiv
-        begin_error(); # Fehlermeldung anfangen
-        # Meldungbeginn ausgeben:
+    nonreturning_function(global, OS_file_error, (object pathname));
+    local void OS_error_internal (DWORD errcode);
+    local void OS_error_internal(errcode)
+      var DWORD errcode;
+      { # Meldungbeginn ausgeben:
         write_errorstring(DEUTSCH ? "Win32-Fehler " :
                           ENGLISH ? "Win32 error " :
                           FRANCAIS ? "Erreur Win32 " :
@@ -3881,8 +3880,32 @@
           { write_errorstring(": ");
             write_errorstring(errinfo.msg);
           }
-        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }}
+    global void OS_error()
+      { var DWORD errcode;
+        end_system_call(); # just in case
+        begin_system_call();
+        errcode = GetLastError();
+        end_system_call();
+        clr_break_sem_4(); # keine Win32-Operation mehr aktiv
+        begin_error(); # Fehlermeldung anfangen
+        OS_error_internal(errcode);
+        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
+      }
+    global void OS_file_error(pathname)
+      var object pathname;
+      { var DWORD errcode;
+        begin_system_call();
+        errcode = GetLastError();
+        end_system_call();
+        clr_break_sem_4(); # keine Win32-Operation mehr aktiv
+        pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
+        begin_error(); # Fehlermeldung anfangen
+        if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
+          { STACK_3 = S(simple_file_error); }
+        OS_error_internal(errcode);
+        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
+      }
 
   # Behandlung von Winsock-Fehlern
   # SOCK_error();
