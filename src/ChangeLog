@@ -1,5 +1,10 @@
 2004-03-01  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d: Avoid gcc warnings "ISO C does not allow extra `;' outside
+	of a function".
+
+2004-03-01  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (HAVE_SAVED_REGISTERS, struct registers): Define only if
 	needed.
 
