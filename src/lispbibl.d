@@ -1954,12 +1954,10 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #ifdef PATHNAME_WIN32
   #define HAS_HOST      1
   #define HAS_DEVICE    1
-  #define HAS_VERSION   0
 #endif
 #ifdef PATHNAME_UNIX
   #define HAS_HOST      0
   #define HAS_DEVICE    0
-  #define HAS_VERSION   0
 #endif
 # Handling of the file "extension" (pathname-type):
 #if 0
@@ -4722,8 +4720,6 @@ typedef struct {
     gcv_object_t pathname_directory _attribute_aligned_object_;
     gcv_object_t pathname_name      _attribute_aligned_object_;
     gcv_object_t pathname_type      _attribute_aligned_object_;
-  #endif
-  #if HAS_VERSION
     gcv_object_t pathname_version   _attribute_aligned_object_;
   #endif
 } *  Pathname;

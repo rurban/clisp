@@ -153,10 +153,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
    #if HAS_DEVICE
     SLOT(device);
    #endif
-    SLOT(directory); SLOT(name); SLOT(type);
-   #if HAS_VERSION
-    SLOT(version);
-   #endif
+    SLOT(directory); SLOT(name); SLOT(type); SLOT(version);
    #undef SLOT
     fputs(")",out);
   } else if (logpathnamep(obj)) {

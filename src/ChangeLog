@@ -1,3 +1,27 @@
+2004-04-19  Sam Steingold  <sds@gnu.org>
+
+	pathnames always have VERSION slot, even though it is not printed
+	* lispbibl.d (HAS_VERSION): removed
+	(Pathname): always has the version slot
+	* spvw_debug.d (nobject_out1): ditto
+	* constobj.d (type_version): always full-blown
+	(semicolon_string): always present
+	(zero_string): removed
+	* pathname.d (pathname_version_maybe, test_optional_version_): removed
+	(xpathname_version): updated for that
+	(PATHNAME-VERSION, has_version_wildcards): just use xpathname_version()
+	(nametype_namestring_parts_): removed
+	(file_namestring_parts): pass NIL as the version argument to
+	nametype_namestring_parts() because physical pathname version are
+	not printed
+	(MERGE-PATHNAMES): fixed version defaulting logic
+	(namestring_correctly_parseable_p): non-NIL version means
+	unprintable readably
+	(DEFAULT_VERSION): new CPP macro for DIRECTORY
+	(directory_search_scandir, directory_search): set pathname_version
+	to DEFAULT_VERSION to ensure that DIRECTORY does not return wild
+	pathnames
+
 2004-04-20  Bruno Haible  <bruno@clisp.org>
 
 	* po/de.po: Update translations.
