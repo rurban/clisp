@@ -480,24 +480,30 @@ nonreturning_function(global, SP_ueber, (void)) {
   begin_system_call();
   fputs("\n",stderr);
   fputs(GETTEXTL("*** - " "Program stack overflow. RESET"),stderr);
-  if (!interactive_p) fputs("\n",stderr);
+  fputs("\n",stderr);
   fflush(stderr);
   end_system_call();
-  if (interactive_p) reset(1);
-  /* non-interactive session: quit */
-  else { final_exitcode=1; quit(); }
+  if (interactive_p)
+    reset(1);
+  else {
+    /* non-interactive session: quit */
+    final_exitcode = 1; quit();
+  }
 }
 nonreturning_function(global, STACK_ueber, (void)) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
   fputs("\n",stderr);
   fputs(GETTEXTL("*** - " "Lisp stack overflow. RESET"),stderr);
-  if (!interactive_p) fputs("\n",stderr);
+  fputs("\n",stderr);
   fflush(stderr);
   end_system_call();
-  if (interactive_p) reset(1);
-  /* non-interactive session: quit */
-  else { final_exitcode=1; quit(); }
+  if (interactive_p)
+    reset(1);
+  else {
+    /* non-interactive session: quit */
+    final_exitcode = 1; quit();
+  }
 }
 
 # ----------------------------------------------------------------------------

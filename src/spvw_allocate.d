@@ -48,6 +48,8 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       # yes -> hard error-message
       fputs("\n",stderr);
       fprintf(stderr,GETTEXTL("*** - " "No more room for LISP objects: RESET"));
+      fputs("\n",stderr);
+      fflush(stderr);
       reset(1); /* and return to the last driver-frame */
     }
   }
