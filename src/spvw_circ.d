@@ -428,7 +428,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_b32vector: # 32Bit-Vector
         case_string: # String
         case_bignum: # Bignum
-        #ifndef WIDE
+        #ifndef IMMEDIATE_FFLOAT
         case_ffloat: # Single-Float
         #endif
         case_dfloat: # Double-Float
@@ -558,7 +558,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_system: # Frame-pointer, Read-label, system
         case_fixnum: # Fixnum
         case_sfloat: # Short-Float
-        #ifdef WIDE
+        #ifdef IMMEDIATE_FFLOAT
         case_ffloat: # Single-Float
         #endif
         #endif
@@ -719,7 +719,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_b32vector: # 32Bit-Vector
         case_string: # String
         case_bignum: # Bignum
-        #ifndef WIDE
+        #ifndef IMMEDIATE_FFLOAT
         case_ffloat: # Single-Float
         #endif
         case_dfloat: # Double-Float
@@ -860,7 +860,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_system: # Frame-pointer, Read-label, system
         case_fixnum: # Fixnum
         case_sfloat: # Short-Float
-        #ifdef WIDE
+        #ifdef IMMEDIATE_FFLOAT
         case_ffloat: # Single-Float
         #endif
         #endif
@@ -904,7 +904,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_symbol:
           # unmark symbol. value cell etc. irrelevant for PRINT.
         case_bignum: # Bignum
-        #ifndef WIDE
+        #ifndef IMMEDIATE_FFLOAT
         case_ffloat: # Single-Float
         #endif
         case_dfloat: # Double-Float
@@ -1024,7 +1024,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_system: # Frame-pointer, Read-label, system
         case_fixnum: # Fixnum
         case_sfloat: # Short-Float
-        #ifdef WIDE
+        #ifdef IMMEDIATE_FFLOAT
         case_ffloat: # Single-Float
         #endif
         #endif

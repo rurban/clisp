@@ -615,7 +615,7 @@ local void loadmem_update (gcv_object_t* objptr)
     #ifdef TYPECODES
     case_array:
     case_bignum:
-    #ifndef WIDE
+    #ifndef IMMEDIATE_FFLOAT
     case_ffloat:
     #endif
     case_dfloat:
@@ -702,7 +702,7 @@ local void loadmem_update (gcv_object_t* objptr)
     case_char:
     case_fixnum:
     case_sfloat:
-    #ifdef WIDE
+    #ifdef IMMEDIATE_FFLOAT
     case_ffloat:
     #endif
    #endif

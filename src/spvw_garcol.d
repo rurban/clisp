@@ -218,7 +218,7 @@ local void gc_mark (object obj)
    case_sb32vector: /* simple-32bit-vector */
    case_sstring: /* simple-string */
    case_bignum: /* bignum */
-  #ifndef WIDE
+  #ifndef IMMEDIATE_FFLOAT
    case_ffloat: /* single-float */
   #endif
    case_dfloat: /* double-float */
@@ -240,7 +240,7 @@ local void gc_mark (object obj)
    case_system: /* frame-pointer, read-label, system */
    case_fixnum: /* fixnum */
    case_sfloat: /* short-float */
-  #ifdef WIDE
+  #ifdef IMMEDIATE_FFLOAT
    case_ffloat: /* single-float */
   #endif
     /* These are direct objects, no pointers. */
@@ -351,7 +351,7 @@ local void gc_mark (object obj)
      case_system: /* frame-pointer, read-label, system */
      case_fixnum: /* fixnum */
      case_sfloat: /* short-float */
-    #ifdef WIDE
+    #ifdef IMMEDIATE_FFLOAT
      case_ffloat: /* single-float */
     #endif
       /* These are direct objects, no pointers. */
@@ -363,7 +363,7 @@ local void gc_mark (object obj)
      case_sb32vector: /* simple-32bit-vector */
      case_sstring: /* simple-string */
      case_bignum: /* bignum */
-    #ifndef WIDE
+    #ifndef IMMEDIATE_FFLOAT
      case_ffloat: /* single-float */
     #endif
      case_dfloat: /* double-float */
@@ -411,8 +411,13 @@ local void gc_mark (object obj)
     #define pointer_as_object(ptr)  type_pointer_object(0,ptr)
     #define pointer_was_object(obj)  type_pointable(0,obj)
   #else
-    #define pointer_as_object(ptr)  as_object((oint)(ptr))
-    #define pointer_was_object(obj)  ((void*)as_oint(obj))
+    #if defined(WIDE_AUXI)
+      #define pointer_as_object(ptr)  as_object_with_auxi((aint)(ptr))
+      #define pointer_was_object(obj)  ((void*)((obj).one_o))
+    #else
+      #define pointer_as_object(ptr)  as_object((oint)(ptr))
+      #define pointer_was_object(obj)  ((void*)as_oint(obj))
+    #endif
   #endif
 
 # marking phase:
@@ -488,7 +493,7 @@ local void gc_markphase (void)
           case_symbol: # Symbol
           case_array: # Array
           case_bignum: # Bignum
-          #ifndef WIDE
+          #ifndef IMMEDIATE_FFLOAT
           case_ffloat: # Single-Float
           #endif
           case_dfloat: # Double-Float
@@ -504,7 +509,7 @@ local void gc_markphase (void)
           case_system: # Frame-pointer, Read-label, system
           case_fixnum: # Fixnum
           case_sfloat: # Short-Float
-          #ifdef WIDE
+          #ifdef IMMEDIATE_FFLOAT
           case_ffloat: # Single-Float
           #endif
             return true;

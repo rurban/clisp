@@ -5828,7 +5828,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
     #ifdef DECALPHA
       #define byteptr_register  "$14"
     #endif
-    #ifdef WIDE_SOFT
+    #if defined(WIDE) && !defined(WIDE_HARD)
       # An `object' does not fit into a single register, GCC is overcharged.
       #undef closure_register
     #endif

@@ -108,7 +108,7 @@
 #define size_bignum(length)  # Bignum \
   Varobject_aligned_size(offsetofa(bignum_,data),sizeof(uintD),(uintL)(length))
 #ifdef TYPECODES
- #ifndef WIDE
+ #ifndef IMMEDIATE_FFLOAT
   #define size_ffloat()  # Single-Float \
       round_up( sizeof(ffloat_), varobject_alignment)
  #endif
@@ -230,7 +230,7 @@ local uintL objsize (void* addr) {
     case_bignum: # Bignum
       return size_bignum(bignum_length((Bignum)addr));
   #ifdef TYPECODES
-   #ifndef WIDE
+   #ifndef IMMEDIATE_FFLOAT
     case_ffloat: # Single-Float
       return size_ffloat();
    #endif
@@ -248,7 +248,7 @@ local uintL objsize (void* addr) {
     #endif
     case_fixnum:
     case_sfloat:
-    #ifdef WIDE
+    #ifdef IMMEDIATE_FFLOAT
     case_ffloat:
     #endif
       # these are direct objects, no pointers.
@@ -313,7 +313,7 @@ inline local uintL objsize_record (void* addr) { # Record
 inline local uintL objsize_bignum (void* addr) { # Bignum
   return size_bignum(bignum_length((Bignum)addr));
 }
-#ifndef WIDE
+#ifndef IMMEDIATE_FFLOAT
 inline local uintL objsize_ffloat (void* addr) { # Single-Float
   return size_ffloat();
 }
@@ -359,7 +359,7 @@ local void init_objsize_table (void) {
       objsize_table[heapnr] = &objsize_record; break;
      case_bignum:
       objsize_table[heapnr] = &objsize_bignum; break;
-    #ifndef WIDE
+    #ifndef IMMEDIATE_FFLOAT
      case_ffloat:
       objsize_table[heapnr] = &objsize_ffloat; break;
     #endif
@@ -373,7 +373,7 @@ local void init_objsize_table (void) {
      case_system:
      case_fixnum:
      case_sfloat:
-    #ifdef WIDE
+    #ifdef IMMEDIATE_FFLOAT
      case_ffloat:
     #endif
       # these are direct objects, no pointers.

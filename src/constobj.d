@@ -330,7 +330,7 @@
   LISPOBJ(hs_system_function,"EXT::SYSTEM-FUNCTION")
   LISPOBJ(hs_bignum,"BIGNUM")
   LISPOBJ(hs_ratio,"RATIO")
-  #ifndef WIDE
+  #ifndef IMMEDIATE_FFLOAT
   LISPOBJ(hs_single_float,"SINGLE-FLOAT")
   #endif                                            #    |
   LISPOBJ(hs_double_float,"DOUBLE-FLOAT")           #    |
@@ -700,7 +700,7 @@
   LISPOBJ_S(printstring_stream,"-STREAM")
 # for LISPARIT.D:
   # various constant numbers:
-  #ifndef WIDE
+  #ifndef IMMEDIATE_FFLOAT
   LISPOBJ(FF_zero,"0.0F0")
   LISPOBJ(FF_one,"1.0F0")
   LISPOBJ(FF_minusone,"-1.0F0")
