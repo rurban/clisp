@@ -18,7 +18,8 @@ User visible changes
     and functions PPRINT-DISPATCH, COPY-PPRINT-DISPATCH, SET-PPRINT-DISPATCH,
                   PPRINT-FILL, PPRINT-LINEAR, PPRINT-TABULAR, PPRINT-TAB,
                   PPRINT-NEWLINE, PPRINT-INDENT
-  are implemented.  See the impnotes for details.
+  are implemented.
+  See the impnotes <http://clisp.cons.org/impnotes.html#xp> for details.
 
 * The functions WRITE and WRITE-TO-STRING now accept :LINES, :MISER-WIDTH
   and :PRINT-PPRINT-DISPATCH keyword arguments.
@@ -27,6 +28,9 @@ User visible changes
 * Support Cygwin's "/cygdrive/drive/path" pathname symtax on Win32.
 
 * New macro EXT:FCASE which allows specifying comparison function in CASE.
+
+* CLISP now supports internationalized Lisp programs, via GNU gettext.
+  See the impnotes <http://clisp.cons.org/impnotes.html#i18n> for details.
 
 * Fixed a bug: LDIFF now handles dotted lists correctly.
 
