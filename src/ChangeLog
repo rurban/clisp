@@ -1,3 +1,7 @@
+1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in (distmakefile): Don't set $wlibs, not needed any more.
+
 1999-05-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (initmem): Don't call SYS::SET-ANSI (no need, doesn't work).
