@@ -1,5 +1,11 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2.lisp (*dynamically-modifiable-generic-function-names*):
+	Add many MOP generic function names.
+	(need-gf-already-called-warning-p): Test membership with equal, not eq.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (standard-method): Remove initfunction slot.
 	(initialize-instance-<standard-method>): Update.
 	* clos-genfun4.lisp (initialize-extended-method-check): Update.
