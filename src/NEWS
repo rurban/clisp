@@ -175,6 +175,7 @@ User visible changes
   + Passing a package as second argument of RENAME-PACKAGE led to an
     unjustified error.
   + Fixed ATANH on complex numbers.
+  + Fixed a crash of (COPY-READTABLE NIL some-readtable).
 
 
 Modules

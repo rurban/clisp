@@ -1,5 +1,11 @@
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
+	Fix crash of (COPY-READTABLE NIL some-readtable).
+	* io.d (COPY-READTABLE): Store from_readtable in the STACK. Fixes bug
+	introduced on 2003-06-08.
+
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
 	For invalid condition designators, signal a TYPE-ERROR.
 	* condition.lisp (try-coerce-to-condition): Renamed from
 	coerce-to-condition.
