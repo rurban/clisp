@@ -20,6 +20,7 @@ i386        eax,edx,ecx                 eax,edx                 ecx
 m68k        d0,d1,a0,a1                 d0,d1                   a0
 mips        r2-r15                      $2=v0,$3=v1,$8=t0       $2
 sparc       g1-g4                       g1-g3                   g2
+sparc64     g1-g5                       g1-g3                   g5
 alpha       $0-$8,$22-$25,$28           $2,$1                   $1
 hppa        20-22,28-29                 r19,r20,r21,r22         r29
 arm         r12=ip                      r0,r1,r3,r2             r12 (!)

@@ -71,6 +71,12 @@ vacall-sparc.lo : vacall-sparc.s
 vacall-sparc.s : $(srcdir)/vacall-sparc.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > vacall-sparc.s
 
+vacall-sparc64.lo : vacall-sparc64.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-sparc64.s
+
+vacall-sparc64.s : $(srcdir)/vacall-sparc64.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-sparc64.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > vacall-sparc64.s
+
 vacall-m68k.lo : vacall-m68k.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c vacall-m68k.s
 
@@ -169,7 +175,7 @@ mostlyclean : clean
 
 clean : force
 	$(RM) *.o *.lo *.a libvacall.* core
-	$(RM) vacall-i386.s vacall-sparc.s vacall-m68k.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-arm.s
+	$(RM) vacall-i386.s vacall-sparc.s vacall-sparc64.s vacall-m68k.s vacall-mips.s vacall-mipsn32.s vacall-mips64.s vacall-arm.s
 	$(RM) -r .libs _libs
 
 distclean : clean

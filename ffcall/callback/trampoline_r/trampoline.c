@@ -254,10 +254,10 @@ extern int shmctl ();
 #include <sys/syslocal.h>
 #endif
 /* Inline assembly function for instruction cache flush. */
-#if defined(__sparc__) || defined(__alpha__) || defined(__hppaold__) || defined(__rs6000sysv4__) || defined(__convex__)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__alpha__) || defined(__hppaold__) || defined(__rs6000sysv4__) || defined(__convex__)
 #ifdef __GNUC__
 extern inline
-#ifdef __sparc__
+#if defined(__sparc__) || defined(__sparc64__)
 #include "cache-sparc.c"
 #endif
 #ifdef __alpha__
@@ -273,7 +273,11 @@ extern inline
 #include "cache-convex.c"
 #endif
 #else
+#if defined(__sparc__) || defined(__sparc64__)
+extern void __TR_clear_cache_4();
+#else
 extern void __TR_clear_cache();
+#endif
 #endif
 #endif
 
@@ -302,8 +306,12 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 32
 #define TRAMP_ALIGN 8
 #endif
-#ifdef __sparc__
+#if defined(__sparc__) && !defined(__sparc64__)
 #define TRAMP_LENGTH 16
+#define TRAMP_ALIGN 16
+#endif
+#ifdef __sparc64__
+#define TRAMP_LENGTH 32
 #define TRAMP_ALIGN 16
 #endif
 #ifdef __alpha__
@@ -627,7 +635,7 @@ __TR_function alloc_trampoline_r (address, data0, data1)
 #define tramp_data(function)  \
   *(unsigned long *) (function +16)
 #endif
-#ifdef __sparc__
+#if defined(__sparc__) && !defined(__sparc64__)
   /* function:
    *    sethi %hi(<data>),%g2		05000000 | (<data> >> 10)
    *    sethi %hi(<address>),%g1	03000000 | (<address> >> 10)
@@ -650,6 +658,33 @@ __TR_function alloc_trampoline_r (address, data0, data1)
   hilo(*(long *) (function + 4), *(long *) (function + 8))
 #define tramp_data(function)  \
   hilo(*(long *) (function + 0), *(long *) (function +12))
+#endif
+#ifdef __sparc64__
+  /* function:
+   *    rd %pc,%g1			83414000
+   *    ldx [%g1+24],%g2		C4586018
+   *    jmp %g2				81C08000
+   *    ldx [%g1+16],%g5		CA586010
+   *    .long high32(<data>)		<data> >> 32
+   *    .long low32(<data>)		<data> & 0xffffffff
+   *    .long high32(<address>)		<address> >> 32
+   *    .long low32(<address>)		<address> & 0xffffffff
+   */
+  *(int *)  (function + 0) = 0x83414000;
+  *(int *)  (function + 4) = 0xC4586018;
+  *(int *)  (function + 8) = 0x81C08000;
+  *(int *)  (function +12) = 0xCA586010;
+  *(long *) (function +16) = (long) data;
+  *(long *) (function +24) = (long) address;
+#define is_tramp(function)  \
+  *(int *)  (function + 0) == 0x83414000 && \
+  *(int *)  (function + 4) == 0xC4586018 && \
+  *(int *)  (function + 8) == 0x81C08000 && \
+  *(int *)  (function +12) == 0xCA586010
+#define tramp_address(function)  \
+  *(long *) (function +24)
+#define tramp_data(function)  \
+  *(long *) (function +16)
 #endif
 #ifdef __alpha__
   /* function:
@@ -1002,9 +1037,9 @@ __TR_function alloc_trampoline_r (address, data0, data1)
   cacheflush(function,TRAMP_LENGTH,ICACHE);
   /* gforth-0.3.0 uses BCACHE instead of ICACHE. Why?? */
 #endif
-#ifdef __sparc__
-  /* This assumes that the trampoline fits in at most four cache lines. */
-  __TR_clear_cache(function,function+TRAMP_LENGTH-1);
+#if defined(__sparc__) || defined(__sparc64__)
+  /* This assumes that the trampoline fits in at most two cache lines. */
+  __TR_clear_cache_2(function,function+TRAMP_LENGTH-1);
 #endif
 #ifdef __alpha__
   __TR_clear_cache();
