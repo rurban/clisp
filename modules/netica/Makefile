@@ -4,7 +4,7 @@
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES = ../
+INCLUDES = ..
 NETICA = /usr/local/netica
 CLISP = clisp -q -norc
 

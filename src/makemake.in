@@ -2255,7 +2255,7 @@ if [ ! $TSYS = win32msvc ] ; then
 fi
 
 if [ $TSYS = win32msvc ] ; then
-# quote for command arguments when they are unnecessary on DOS 
+# quote for command arguments when they are unnecessary on DOS
   ARGQ=""
 # .. when they are mandatory
   ARGQ1="\""
@@ -3249,9 +3249,9 @@ echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
 echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; ./configure --cache-file=\$\${cache} \$(MODULE_CONFIGURE_FLAGS); else ./configure \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
 EVERY_INCLUDES_DOTS_C=''
 for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
-  EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
+  EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'/$f
 done
-echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 echol "base : modular boot \$(BASE_MODULES)"
 echotab "\$(RMRF) base"

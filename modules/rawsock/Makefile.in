@@ -3,7 +3,7 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ../
+INCLUDES= ..
 MODPREP = ../modprep.fas
 
 CLISP = clisp -q -norc
