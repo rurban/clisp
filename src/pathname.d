@@ -6217,10 +6217,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
     }
 
-# UP: Füllt Default-Drive und Default-Directory in einen Pathname ein.
+# UP: merge the default-drive und default-directory into the pathname.
 # use_default_dir(pathname)
-# > pathname: nicht-Logical Pathname mit Device /= :WILD
-# < ergebnis: neuer absoluter Pathname
+# > pathname: non-Logical Pathname with Device /= :WILD
+# < return: new absolute Pathname
 # can trigger GC
   local object use_default_dir (object pathname);
   local object use_default_dir(pathname)
@@ -6229,17 +6229,25 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # erst den Pathname kopieren:
       pathname = copy_pathname(pathname);
       pushSTACK(pathname);
-      # Stackaufbau: pathname.
-      # Default fürs Device:
-      if (nullp(ThePathname(pathname)->pathname_device)) { # kein Device angegeben?
-        # Nimm das Default-Drive stattdessen:
+      # stack layout: pathname.
+      # default device:
+      if (nullp(ThePathname(pathname)->pathname_device)
+          #if HAS_HOST
+          # host IS the device
+          && nullp(ThePathname(pathname)->pathname_host)
+          #endif
+          )
         ThePathname(pathname)->pathname_device = O(default_drive);
-      }
-      # Default fürs Directory:
+      # default directory:
       {
         var object subdirs = ThePathname(pathname)->pathname_directory;
         # Fängt pathname-directory mit :RELATIVE an?
-        if (eq(Car(subdirs),S(Krelative))) {
+        if (eq(Car(subdirs),S(Krelative))
+            #if HAS_HOST
+            # no default paths on remote machines
+            && nullp(ThePathname(pathname)->pathname_host)
+            #endif
+            ) {
           # ja -> Ersetze :RELATIVE durch das Default-Directory:
           pushSTACK(Cdr(subdirs));
           var uintB drive = as_cint(TheSstring(ThePathname(pathname)->pathname_device)->data[0]);
