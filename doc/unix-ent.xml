@@ -30,4 +30,5 @@
 <!ENTITY stat "<ulink url='&unix1;/stat.html'><function>stat</function></ulink>">
 
 <!-- header files -->
+<!ENTITY regex-h "<ulink url='&unix1;/basedefs/regex.h.html'><filename>regex.h</filename></ulink>">
 <!ENTITY stdlib-h "<ulink url='&unix1;/basedefs/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
