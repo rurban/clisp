@@ -9,8 +9,11 @@ User visible changes
   This is an incompatible change.
   See <http://clisp.cons.org/impnotes.html#name-type-split> for details.
 
-* New user variable CUSTOM:*TRACE-INDENT* controls TRACE ouput indentation.
+* New user variable CUSTOM:*TRACE-INDENT* controls TRACE output indentation.
   See <http://clisp.cons.org/impnotes.html#trace> for details.
+
+* You can now shutdown a socket for input or output separately using CLOSE.
+  See <http://clisp.cons.org/impnotes.html#close> for details.
 
 * CUSTOM:*SOURCE-FILE-TYPES* and CUSTOM:*COMPILED-FILE-TYPES*
   now contain strings, not pathnames.
