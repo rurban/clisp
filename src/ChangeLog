@@ -1,5 +1,10 @@
 2005-03-01  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (find_executable) [UNIX_CYGWIN32]: try to use
+	/proc/<pid>/exe like on Linux
+
+2005-03-01  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (PROCESS-ID): renamed from PROGRAM-ID for semantic
 	compatibility with getpid and GetCurrentProcessId
 	* constsym.d, subr.d: ditto
