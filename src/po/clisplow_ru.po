@@ -1,0 +1,1841 @@
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: clisp 2.27\n"
+"POT-Creation-Date: 2002-06-12 10:35:39 EDT\n"
+"PO-Revision-Date: 1998-09-02 19:50+0600\n"
+"Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=koi8-r\n"
+"Content-Transfer-Encoding: 8-bit\n"
+
+msgid ""
+"\n"
+"*** - Program stack overflow. RESET"
+msgstr ""
+"\n"
+"*** - Переполнение программного стека. СБРОС"
+
+msgid ""
+"\n"
+"*** - Lisp stack overflow. RESET"
+msgstr ""
+"\n"
+"*** - Переполнение стека Лисп'а. СБРОС"
+
+msgid "Unknown signature of an FSUBR\n"
+msgstr "Неизвестная сигнатура FSUBR\n"
+
+msgid "Unknown signature of a SUBR\n"
+msgstr "Неизвестная сигнатура SUBR\n"
+
+msgid "module `%s' requires package %s.\n"
+msgstr "модуль `%s' требует пакета %s.\n"
+
+msgid ""
+"GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp.\n"
+"Usage:  "
+msgstr ""
+"GNU CLISP (http://clisp.cons.org/) - реализация ANSI Common Lisp.\n"
+"Использование:  "
+
+msgid ""
+" [options] [lispfile [argument ...]]\n"
+" When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+" to the list of argument strings. Otherwise, an interactive\n"
+" read-eval-print loop is entered.\n"
+msgstr ""
+" [опции] [Лисп-файл [аргумент1 ...]]\n"
+" Если задан Лисп-файл, он загружается, при этом параметр `*ARGS*'\n"
+" принимает значения списка аргументов. Если файл не задан, происходит\n"
+" вход в интерактивный режим `чтение-выполнение-печать'.\n"
+
+msgid "Informative output:\n"
+msgstr "Информативный вывод:\n"
+
+msgid " -h, --help    - print this help and exit\n"
+msgstr " -h, --help    - вывод этой справки и выход\n"
+
+msgid " --version     - print the version information\n"
+msgstr " --version     - вывод информации о версии программы\n"
+
+msgid " --license     - print the licensing information\n"
+msgstr " --license     - вывод информации о лицензии\n"
+
+msgid "Memory image selection:\n"
+msgstr "Выбор файла с образом памяти:\n"
+
+msgid " -B lisplibdir - set the installation directory\n"
+msgstr " -B библ-дир   - задать директорию установки\n"
+
+msgid " -K linkingset - use this executable and memory image\n"
+msgstr " -K линк-набор - задать исполнимый файл и образ памяти\n"
+
+msgid " -M memfile    - use this memory image\n"
+msgstr " -M образ      - использовать файл образа памяти\n"
+
+msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr " -m размер     - размер памяти (xxxxxxxB или xxxxKB или xMB)\n"
+
+msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgstr " -s размер     - размер стека (xxxxxxxB или xxxxKB или xMB)\n"
+
+msgid " -t tmpdir     - temporary directory for memmap\n"
+msgstr " -t врем-дир   - временная директория для memmap\n"
+
+msgid "Internationalization:\n"
+msgstr "Интернационализация:\n"
+
+msgid " -L language   - set user language\n"
+msgstr " -L язык       - задать язык\n"
+
+msgid " -N nlsdir     - NLS catalog directory\n"
+msgstr " -N nlsdir     - задать каталог с NLS\n"
+
+msgid " -Edomain encoding - set encoding\n"
+msgstr ""
+" -Eтиппотока кодировка - задавать кодировки для различных типов потоков.\n"
+"           Осн. типы: file, terminal, pathname, foreign, misc.\n"
+"           Осн. кодировки: koi8-r, koi8-ru, koi8-u, CP866, CP1251,\n"
+"           ISO-8859-5. См. impnotes.\n"
+
+msgid "Interoperability:\n"
+msgstr "Взаимодействие:\n"
+
+msgid " -q, --quiet, --silent - do not print the banner\n"
+msgstr " -q  --quiet, --silent - не выводить приветствие при старте\n"
+
+msgid " -w            - wait for keypress after program termination\n"
+msgstr " -w            - ожидать нажатия клавиши после работы\n"
+
+msgid " -I            - be ILISP-friendly\n"
+msgstr " -I            - ILISP - наш друг\n"
+
+msgid "Startup actions:\n"
+msgstr "Загрузка:\n"
+
+msgid " -ansi         - more ANSI CL compliance\n"
+msgstr " -ansi         - большее соответствие стандарту ANSI CL\n"
+
+msgid " -traditional  - traditional (undoes -ansi)\n"
+msgstr " -traditional  - традиционные установки clisp (отменяет -ansi)\n"
+
+msgid " -p package    - start in the package\n"
+msgstr " -p пакет      - запускаться в пакете\n"
+
+msgid " -C            - set *LOAD-COMPILING* to T\n"
+msgstr " -C            - установить *LOAD_COMPILING* в T\n"
+
+msgid " -norc         - do not load the user ~/.clisprc file\n"
+msgstr " -norc         - не грузить ~/.clisprc\n"
+
+msgid " -i file       - load initfile (can be repeated)\n"
+msgstr " -i файл       - загрузить файл инициализации (можно повторять)\n"
+
+msgid "Actions:\n"
+msgstr "Действия:\n"
+
+msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
+msgstr " -c [-l] лисп-файл [-o вых-файл] - компилировать лисп-файл\n"
+
+msgid " -x expression - execute the expression, then exit\n"
+msgstr " -x выражение  - выполнить выражение, выйти\n"
+
+msgid " lispfile [argument ...] - load lispfile, then exit\n"
+msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и выйти\n"
+
+msgid "These actions put CLISP into a batch mode, which is overridden by\n"
+msgstr "Эти действия поместят CLISP в пакетный режим, если не задан\n"
+
+msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
+msgstr " -interactive-debug - интерактивное взаимодействие в случае ошибок\n"
+
+msgid "Default action is an interactive read-eval-print loop.\n"
+msgstr "По умолчанию - интерактивный цикл чтение-выполнение-печать.\n"
+
+msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
+msgstr "Синтаксис для %s: nnnnnnn, или nnnnKB, или nMB\n"
+
+msgid "%s out of range\n"
+msgstr "%s вне диапазона\n"
+
+msgid "memory size"
+msgstr "размер памяти"
+
+msgid "stack size"
+msgstr "размер стека"
+
+msgid "CLISP: -a is deprecated, use -ansi\n"
+msgstr "CLISP: опция -a устарела, используйте -ansi\n"
+
+msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
+msgstr "Значение функции malloc() = %x не совместимо с typecode.\n"
+
+msgid "Only %d bytes available.\n"
+msgstr "Только %d байтов доступно.\n"
+
+msgid "Could not determine the end of the SP stack!\n"
+msgstr "Невозможно определить конец стека SP !\n"
+
+msgid "Not enough memory for Lisp.\n"
+msgstr "Не достаточно памяти для Лисп'a.\n"
+
+msgid ""
+"\n"
+"*** - Virtual memory exhausted. RESET"
+msgstr ""
+"\n"
+"*** - Исчерпана виртуальная память. СБРОС"
+
+msgid ""
+"\n"
+"*** - Memory exhausted. RESET"
+msgstr ""
+"\n"
+"*** - Исчерпана память. СБРОС"
+
+msgid "Cannot map memory to address 0x%x ."
+msgstr "Невозможно проецировать память на адрес 0x%x ."
+
+msgid "Cannot reserve address range at 0x%x ."
+msgstr "Невозможно зарезервировать адресный диапазон в 0x%x ."
+
+msgid "Cannot reserve address range 0x%x-0x%x ."
+msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
+
+msgid "CreateFileMapping() failed."
+msgstr "CreateFileMapping(): неудачное завершение."
+
+msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
+msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x): неудачное завершение."
+
+msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
+msgstr "MapViewOfFileEx() вернула 0x%x вместо 0x%x.\n"
+
+msgid "VirtualFree() failed."
+msgstr "VirtualFree(): неудачное завершение."
+
+msgid "VirtualProtect() failed."
+msgstr "VirtualProtect(): неудачное завершение."
+
+msgid "Cannot open /dev/zero ."
+msgstr "Невозможно открыть /dev/zero ."
+
+#, fuzzy
+msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
+msgstr "msync(0x%x,0x%x,MS_INVALIDATE) завершился неудачно."
+
+msgid "Cannot open %s ."
+msgstr "Невозможно открыть %s ."
+
+msgid "Cannot delete %s ."
+msgstr "Невозможно удалить %s ."
+
+msgid "** WARNING: ** Too few free disk space for %s .\n"
+msgstr "** ПРЕДУПРЕЖДЕНИЕ: ** Слишком мало свободного места на диске для %s .\n"
+
+msgid "Please restart LISP with fewer memory (option -m).\n"
+msgstr "Пожалуйста, перезапустите LISP с меньшим количеством памяти (параметр -m).\n"
+
+msgid "Cannot make %s long enough."
+msgstr "Невозможно сделать %s достаточно длинным."
+
+msgid "Cannot fill %s ."
+msgstr "Невозможно заполнить %s ."
+
+msgid "Cannot close %s ."
+msgstr "Невозможно закрыть %s ."
+
+msgid "Cannot close /dev/zero ."
+msgstr "Невозможно закрыть /dev/zero ."
+
+msgid "Recompile your operating system with SYSV IPC support.\n"
+msgstr "Перекомпилируйте вашу операционную систему с поддержкой SYSV IPC.\n"
+
+msgid "Cannot allocate private shared memory segment."
+msgstr "Невозможно разместить сегмент частной разделяемой (private shared) памяти."
+
+msgid "Cannot map shared memory to address 0x%x."
+msgstr "Невозможно проецировать общую память на адрес 0x%x."
+
+msgid "Cannot fill shared memory."
+msgstr "Невозможно заполнить общую память."
+
+msgid "Could not fill shared memory."
+msgstr "Невозможно заполнить общую память."
+
+msgid "Cannot remove shared memory segment."
+msgstr "Невозможно удалить сегмент общей памяти."
+
+#, fuzzy
+msgid "mprotect() failed."
+msgstr "mprotect(): неудачное завершение."
+
+msgid ""
+"\n"
+"SIGSEGV cannot be cured. Fault address = 0x%x.\n"
+msgstr ""
+"\n"
+"SIGSEGV не удается исправить. Ошибочный адрес = 0x%x.\n"
+
+msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
+msgstr "Сценарий Аполло-13: Обработка переполнения стека закончилась неудачей. Следующее переполнение стека приведет к разрушению!!!\n"
+
+#, fuzzy
+msgid "munmap() failed."
+msgstr "munmap(): неудачное завершение."
+
+msgid ""
+"\n"
+"*** - No more room for LISP objects: RESET"
+msgstr ""
+"\n"
+"*** - Нет места для объектов LISP'a: СБРОС"
+
+msgid "Trying to make room through a GC...\n"
+msgstr "Освобождаем память - вызываем GC...\n"
+
+msgid "operating system error during load of initialization file `%s'\n"
+msgstr "ошибка операционной системы во время загрузки файла инициализации `%s'\n"
+
+msgid "Cannot map the initialization file into memory."
+msgstr "Невозможно разместить файл инициализации в памяти."
+
+msgid "operating system error during load of initialization file\n"
+msgstr "ошибка операционной системы во время загрузки файла инициализации\n"
+
+msgid "initialization file was not created by this version of LISP\n"
+msgstr "файл инициализации был создан не этой версией Лисп'а\n"
+
+msgid "not enough memory for initialization\n"
+msgstr "недостаточно памяти для инициализации\n"
+
+msgid "Invalid multibyte or wide character"
+msgstr "Неверный многобайтный или широкий характер"
+
+msgid "Operation not permitted"
+msgstr "Операция не разрешена"
+
+msgid "No such file or directory"
+msgstr "Нет такого файла или каталога"
+
+msgid "No such process"
+msgstr "Нет такого процесса"
+
+msgid "Interrupted system call"
+msgstr "Прерванный системный вызов"
+
+msgid "I/O error"
+msgstr "Ошибка ввода/вывода"
+
+msgid "No such device or address"
+msgstr "Нет такого устройства или адреса"
+
+msgid "Arg list too long"
+msgstr "Список аргументов слишком длинный"
+
+msgid "Exec format error"
+msgstr "Ошибка формата программного файла"
+
+msgid "Bad file number"
+msgstr "Неверный номер файла"
+
+msgid "No child processes"
+msgstr "Нет порожденных процессов"
+
+msgid "No more processes"
+msgstr "Не осталось ни одного процесса"
+
+msgid "Not enough memory"
+msgstr "Недостаточно памяти"
+
+msgid "Permission denied"
+msgstr "Доступ запрещён"
+
+msgid "Bad address"
+msgstr "Неверный адрес"
+
+msgid "Block device required"
+msgstr "Требуется блочное устройство"
+
+msgid "Device busy"
+msgstr "Устройство занято"
+
+msgid "File exists"
+msgstr "Файл/каталог существует"
+
+msgid "Cross-device link"
+msgstr "Ссылка между устройствами"
+
+msgid "No such device"
+msgstr "Нет такого устройства"
+
+msgid "Not a directory"
+msgstr "Не каталог"
+
+msgid "Is a directory"
+msgstr "Является каталогом"
+
+msgid "Invalid argument"
+msgstr "Неправильный аргумент"
+
+msgid "File table overflow"
+msgstr "Переполнение таблицы файлов"
+
+msgid "Too many open files"
+msgstr "Слишком много открытых файлов"
+
+msgid "Inappropriate ioctl for device"
+msgstr "Неподходящий ioctl для устройства"
+
+msgid "Text file busy"
+msgstr "Текстовый файл занят"
+
+msgid "File too large"
+msgstr "Файл слишком большой"
+
+msgid "No space left on device"
+msgstr "Не осталось свободного места на устройстве"
+
+msgid "Illegal seek"
+msgstr "Некорректный seek"
+
+msgid "Read-only file system"
+msgstr "Файловая система с доступом `только на чтение'"
+
+msgid "Too many links"
+msgstr "Слишком много ссылок"
+
+msgid "Broken pipe, child process terminated or socket closed"
+msgstr "Сломаный конвейер (pipe), выполнение дочернего процесса прервано или закрыт сокет"
+
+msgid "Argument out of domain"
+msgstr "Аргумент вне области определения"
+
+msgid "Result too large"
+msgstr "Результат слишком большой"
+
+msgid "Operation would block"
+msgstr "Операция будет блокировать"
+
+msgid "Operation now in progress"
+msgstr "Операция выполняется"
+
+msgid "Operation already in progress"
+msgstr "Операция уже выполняется"
+
+msgid "Too many levels of symbolic links"
+msgstr "Слишком много уровней символьных ссылок"
+
+msgid "File name too long"
+msgstr "Имя файла слишком длинное"
+
+msgid "Directory not empty"
+msgstr "Каталог не пуст"
+
+msgid "Stale NFS file handle"
+msgstr "Отработанный номер файла NFS"
+
+msgid "Too many levels of remote in path"
+msgstr "Слишком много уровней удаленности в пути"
+
+msgid "Socket operation on non-socket"
+msgstr "Операция применена не к сокету"
+
+msgid "Destination address required"
+msgstr "Требуется адрес назначения"
+
+msgid "Message too long"
+msgstr "Сообщение слишком длинное"
+
+msgid "Protocol wrong type for socket"
+msgstr "Протокол неверного типа для сокета"
+
+msgid "Option not supported by protocol"
+msgstr "Возможность не поддерживается протоколом"
+
+msgid "Protocol not supported"
+msgstr "Протокол не поддерживается"
+
+msgid "Socket type not supported"
+msgstr "Тип сокета не поддерживается"
+
+msgid "Operation not supported on socket"
+msgstr "Операция не поддерживается на сокете"
+
+msgid "Protocol family not supported"
+msgstr "Семейство протоколов не поддерживается"
+
+msgid "Address family not supported by protocol family"
+msgstr "Семейство адресов не поддерживается семейством протоколов"
+
+msgid "Address already in use"
+msgstr "Адрес уже используется"
+
+msgid "Cannot assign requested address"
+msgstr "Невозможно присвоить требуемый адрес"
+
+msgid "Network is down"
+msgstr "Сеть сломалась (down)"
+
+msgid "Network is unreachable"
+msgstr "Сеть недостижима"
+
+msgid "Network dropped connection on reset"
+msgstr "Сеть потеряла связи при сбросе"
+
+msgid "Software caused connection abort"
+msgstr "Программа вызвала прерывание связи"
+
+msgid "Connection reset by peer"
+msgstr "Сброс слишком медленной связи"
+
+msgid "No buffer space available"
+msgstr "Нет свободного места в буфере"
+
+msgid "Socket is already connected"
+msgstr "Сокет уже подключен"
+
+msgid "Socket is not connected"
+msgstr "Сокет не подключен"
+
+msgid "Cannot send after socket shutdown"
+msgstr "Невозможно послать данные после отключения сокета"
+
+msgid "Too many references: cannot splice"
+msgstr "Слишком много ссылок: невозможно склеить"
+
+msgid "Connection timed out"
+msgstr "Время связи истекло"
+
+msgid "Connection refused"
+msgstr "В связи отказано"
+
+msgid "Remote peer released connection"
+msgstr "Удаленный компьютер освободил соединение"
+
+msgid "Host is down"
+msgstr "Сервер выключен"
+
+msgid "Host is unreachable"
+msgstr "Сервер недоступен по сети"
+
+msgid "Networking error"
+msgstr "Сетевая ошибка"
+
+msgid "Too many processes"
+msgstr "Слишком много процессов"
+
+msgid "Too many users"
+msgstr "Слишком много пользователей"
+
+msgid "Disk quota exceeded"
+msgstr "Превышена квота диска"
+
+msgid "Not a stream device"
+msgstr "Не поточное устройство"
+
+msgid "Timer expired"
+msgstr "Таймер закончил отсчет"
+
+msgid "Out of stream resources"
+msgstr "Ресурсы потока истекли"
+
+msgid "No message of desired type"
+msgstr "Нет сообщений желаемого типа"
+
+msgid "Not a data message"
+msgstr "Не сообщение с данными"
+
+msgid "Identifier removed"
+msgstr "Идентификатор удален"
+
+msgid "Resource deadlock would occur"
+msgstr "Коллизия блокировки (deadlock) ресурсов"
+
+msgid "No record locks available"
+msgstr "Нет доступных блокировок записи (record locks)"
+
+msgid "Machine is not on the network"
+msgstr "Машина не в сети"
+
+msgid "Object is remote"
+msgstr "Объект является удаленным (remote)"
+
+msgid "Link has been severed"
+msgstr "Связь разорвана"
+
+msgid "Advertise error"
+msgstr "Ошибка объявления (advertise)"
+
+msgid "Srmount error"
+msgstr "Ошибка srmount"
+
+msgid "Communication error on send"
+msgstr "Ошибка обмена при передаче"
+
+msgid "Protocol error"
+msgstr "Ошибка протокола"
+
+msgid "Multihop attempted"
+msgstr "Попытка multihop"
+
+msgid "Remote address changed"
+msgstr "Удаленный (remote) адрес изменен"
+
+msgid "Function not implemented"
+msgstr "Функция не реализована"
+
+msgid "Not supported under MS-DOS"
+msgstr "Не поддерживается под MS-DOS"
+
+msgid "This version of CLISP runs only in low address memory.\n"
+msgstr "Эта версия CLISP'а запускается только в нижней памяти.\n"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
