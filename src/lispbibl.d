@@ -5543,11 +5543,12 @@ typedef enum {
     #define pointable(obj)  ((void*)upointer(obj))
   #else
     # If oint_addr_shift=0 and addr_shift=0, you don't have to shift.
-    #if !(((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0)
+    #if !((tint_type_mask & (addressbus_mask>>oint_type_shift)) == 0)
       #define pointable(obj)  \
         ((void*)((aint)as_oint(obj) & ((aint)oint_addr_mask | ~addressbus_mask)))
     #else
-      # Moreover if oint_type_mask and addressbus_mask are disjunct,
+      # Moreover if oint_type_mask and addressbus_mask are disjunct
+      # (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0),
       # no typebits are being sent to the address bus anyway.
       # So there's nothing to be done:
       #define pointable(obj)  ((void*)(aint)as_oint(obj))
