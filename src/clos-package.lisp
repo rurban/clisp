@@ -126,7 +126,7 @@
           class-direct-default-initargs class-default-initargs class-prototype
           class-finalized-p finalize-inheritance
           compute-class-precedence-list compute-slots
-          compute-effective-slot-definition
+          compute-effective-slot-definition compute-default-initargs
           validate-superclass add-direct-subclass remove-direct-subclass
           ;; MOP for specializers
           specializer-direct-generic-functions specializer-direct-methods
