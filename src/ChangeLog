@@ -2,6 +2,7 @@
 
 	* genclisph.d (nonreturning_function, SLONGLONG, ULONGLONG):
 	fixed for MICROSOFT
+	* makemake.in: create modules-related rules on non-UNIX systems
 	Reported by <Joerg-Cyril.Hoehle@t-systems.com>
 
 2002-03-06  Sam Steingold  <sds@gnu.org>
