@@ -65,7 +65,7 @@
     (:compile (funcall (compile nil `(lambda () ,form))))
     (:both (let ((e-value (eval form))
                  (c-value (funcall (compile nil `(lambda () ,form)))))
-             (unless (equal e-value c-value)
+             (unless (equalp e-value c-value)
                (error "eval: ~S; compile: ~S" e-value c-value))
              e-value))))
 
@@ -139,17 +139,18 @@
                       ((:ignore-errors *test-ignore-errors*)
                         *test-ignore-errors*)
                       ((:eval-method *eval-method*) *eval-method*)
-                 &aux (logname (merge-extension "erg" testname))
+                      (logname testname)
+                 &aux (logfile (merge-extension "erg" logname))
                       error-count total-count)
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
     (format t "~&~s: started ~s~%" 'run-test s)
-    (with-open-file (log logname :direction :output
+    (with-open-file (log logfile :direction :output
                                  #+SBCL :if-exists #+SBCL :supersede
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*) (*print-circle* t) (*print-pretty* nil))
         (setf (values total-count error-count)
               (funcall *run-test-tester* s log)))))
-  (when (zerop error-count) (delete-file logname))
+  (when (zerop error-count) (delete-file logfile))
   (format t "~&~s: finished ~s (~:d error~:p out of ~:d test~:p)~%"
           'run-test testname error-count total-count)
   (values total-count error-count))
@@ -239,6 +240,10 @@
                   #+CLISP           "weak"
                   #+CLISP           "hashweak"))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
+    (with-accumulating-errors (error-count total-count)
+      (run-test "bind" :eval-method :eval :logname "bind-eval"))
+    (with-accumulating-errors (error-count total-count)
+      (run-test "bind" :eval-method :compile :logname "bind-compile"))
     #+CLISP
     (dotimes (i 20)
       (with-accumulating-errors (error-count total-count)
