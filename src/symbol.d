@@ -81,7 +81,7 @@ LISPFUNN(putd,2)
     elif (macrop(fun)) # #<MACRO expander> ist ok
       goto ok;
     elif (consp(fun) && eq(Car(fun),S(lambda))) { # eine Lambda-Expression?
-      fehler_lambda_expression(fun);
+      fehler_lambda_expression(S(putd),fun);
     }
     fehler_function(fun);
    ok: # fun korrekt, in die Funktionszelle stecken:
