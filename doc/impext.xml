@@ -2246,7 +2246,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <varlistentry><term><link linkend="berkeley-db">berkeley-db</link></term>
   <listitem><simpara>&sleepycat-berkeley-db;
     interface</simpara></listitem></varlistentry>
- <varlistentry><term><link linkend="regexp">regexp</link></term>
+ <varlistentry><term><link linkend="regexp-mod">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
      Expressions</ulink> matching, compiling, executing.
     See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
@@ -2289,7 +2289,7 @@ bash$ ./build-dir/clisp &opt-K; full
   in <emphasis>both</emphasis> <command>base</command> <emphasis>and</emphasis>
   <command>full</command> &linkset;s:<simplelist columns="1">
    <member><link linkend="i18n-mod">i18n</link></member>
-   <member><link linkend="regexp">regexp</link></member>
+   <member><link linkend="regexp-mod">regexp</link></member>
    <member><link linkend="syscalls">syscalls</link></member>
 </simplelist></para></note>
 

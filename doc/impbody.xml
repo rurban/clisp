@@ -4641,7 +4641,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <para>Each &module; should add the appropriate keyword, e.g.,
  <link linkend="syscalls"><constant>:SYSCALLS</constant></link>,
  <link linkend="dir-key"><constant>:DIR-KEY</constant></link>,
- <link linkend="regexp"><constant>:REGEXP</constant></link>,
+ <link linkend="regexp-mod"><constant>:REGEXP</constant></link>,
  <link linkend="pcre"><constant>:PCRE</constant></link>, etc.</para>
 </section>
 
