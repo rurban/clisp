@@ -1,3 +1,22 @@
+2002-12-20  James Chacon  <jmc@netbsd.org>
+	    Sam Steingold  <sds@gnu.org>
+
+	applied NetBSD patches: do not assume r11 is free on PowerPC
+	<http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/lang/clisp/patches/>
+	* ffcall/avcall/Makefile.in: use linux syntax for netbsd
+	* ffcall/vacall/Makefile.in: ditto
+	* ffcall/callback/vacall_r/Makefile.in: use netbsd syntax for netbsd
+	* ffcall/callback/trampoline_r/test1.c: do not assume r11 is free
+	* ffcall/callback/trampoline_r/trampoline.c: provide a trampoline
+	implementation that does not presume r11 is free (it is not in
+	dynamically linked programs and the ELF ABI says as much but
+	somehow linux managed to avoid this it seems). Use r13 for the
+	time being since while gcc will allocate it, it is the last
+	"local" one allocated so none of the clisp code hits that (nothing
+	needed 17+ local registers in use ever). Update the vacall
+	implementation to match the trampoline calls but otherwise for any
+	assembly use the linux code.
+
 2002-12-30  Sam Steingold  <sds@gnu.org>
 
 	reversed the 2002-12-12 patch, reinstating the 2001-11-27 patch:
