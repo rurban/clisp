@@ -2303,7 +2303,7 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
             funcall(L(read_line),1); # (READ-LINE stream)
             name = value1;
         } }
-      return name;
+      return coerce_imm_ss(name);
     }
 
 # UP für MAKE-PACKAGE und IN-PACKAGE:
@@ -2744,11 +2744,11 @@ LISPFUNN(package_iterate,1)
 # init_packages();
   global void init_packages (void);
   global void init_packages()
-    { pushSTACK(ascii_to_string("LISP"));
-      pushSTACK(ascii_to_string("SYSTEM"));
-      pushSTACK(ascii_to_string("SYS"));
-      pushSTACK(ascii_to_string("KEYWORD"));
-      pushSTACK(ascii_to_string(""));
+    { pushSTACK(coerce_imm_ss(ascii_to_string("LISP")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("SYSTEM")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("SYS")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("KEYWORD")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("")));
       # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "".
       O(all_packages) = NIL; # ALL_PACKAGES := NIL
       # #<PACKAGE KEYWORD> einrichten:

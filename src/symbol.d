@@ -433,7 +433,7 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
       }
     funcall(L(decimal_string),1); # (sys::decimal-string counter)
     pushSTACK(value1); # 2. String
-    value1 = make_symbol(string_concat(2)); # zusammenhängen, Symbol bilden
+    value1 = make_symbol(coerce_imm_ss(string_concat(2))); # zusammenhängen, Symbol bilden
     mv_count=1; # als Wert
   }
 
