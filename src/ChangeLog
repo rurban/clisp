@@ -1,3 +1,8 @@
+2004-02-15  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (GET-OUTPUT-STREAM-STRING, STRING-INPUT-STREAM-INDEX):
+	signal TYPE-ERROR instead of ERROR
+
 2004-02-13  Sam Steingold  <sds@gnu.org>
 
 	* defstruct.lisp (defstruct): allow slots named NIL by using
