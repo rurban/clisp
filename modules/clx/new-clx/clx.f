@@ -1,7 +1,7 @@
 /* -*- C -*-
 Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 Bruno Haible  1998-2000
-Sam Steingold 2001-2004
+Sam Steingold 2001-2005
 ----------------------------------------------------------------------------
 
    Title:       C implementation of CLX utilizing the Xlib
@@ -2010,7 +2010,7 @@ DEFUN(XLIB:CLOSE-DISPLAY, display &key ABORT) /* OK */
    could occur. */
 
   Display *dpy;
-  popSTACK();                                   /* the :abort option */
+  skipSTACK(1);                                 /* the :abort option */
   pushSTACK(STACK_0);                           /* the display */
   dpy = pop_display ();
   X_CALL(XCloseDisplay (dpy));
@@ -3262,7 +3262,7 @@ DEFUN(XLIB:COPY-GCONTEXT-COMPONENTS, gc1 gc2 &rest rest)
 
   for (i = 0; i < argcount-2; i++) {
     mask |= get_gcontext_key (STACK_0);
-    popSTACK();
+    skipSTACK(1);
   }
 
   gcon1 = get_gcontext_and_display (STACK_0, &dpy);
@@ -6769,7 +6769,7 @@ DEFUN(XLIB:BELL, display &optional percent)
 {
   int percent = (!missingp(STACK_0) ? get_sint16(STACK_0) : 0);
   Display *dpy;
-  popSTACK();
+  skipSTACK(1);
   dpy = pop_display ();
 
   X_CALL(XBell (dpy, percent));
@@ -6908,11 +6908,11 @@ DEFUN(XLIB:KEYCODE->KEYSYM, display keycode keysym-index)
  This functions is somewhat wired:
    - It should be called KEYSYM->SONSTWAS
    - We could also get a string instead of a single character
-   - The modifier bits  (the state argument)  mentioned  in the manual  are no
+   - The modifier bits (the state argument) mentioned in the manual are no
      longer in the Common Lisp standard.
 
- BTW: How  does a LISP  program determinate in  a readable  way  the name of a
-      keysym, I think I should add  that. (For an  idea inspect e.g the libX11
+ BTW: How does a LISP program determine in a readable way the name of a
+      keysym, I think I should add that. (For an idea inspect e.g the libX11
       functions XStringToKeysym and XKeysymToString).
 
  Well with normal CLX this goes just like this:
@@ -6936,7 +6936,7 @@ DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
   KeySym keysym;
 
   /* FIXME for now we ignore the state argument: */
-  popSTACK();
+  skipSTACK(1);
 
   keysym = get_uint32 (popSTACK());
   dpy = pop_display ();
