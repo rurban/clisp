@@ -1,5 +1,9 @@
 1998-08-01  Bruno Haible  <haible@ilog.fr>
 
+        * lispbibl.d: Accept __unix__ as an alternative for __unix.
+
+1998-08-01  Bruno Haible  <haible@ilog.fr>
+
         * clx/mit-clx/package.lsp: Shadow BOOLEAN and don't export it.
 
 1998-07-31  Bruno Haible  <haible@ilog.fr>
