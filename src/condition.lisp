@@ -399,7 +399,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (define-condition simple-error (simple-condition error) ())
 
 ; conditions usually created by CHECK-TYPE
-(define-condition simple-type-error (simple-error type-error) ())
+(define-condition simple-type-error (type-error) ())
 
 ; conditions usually created by WARN
 (define-condition simple-warning (simple-condition warning) ())
@@ -1573,7 +1573,7 @@ Todo:
 #| ; This works as well, but looks more like a hack.
 (defmacro muffle-cerrors (&body body)
   (let ((old-debugger-hook (gensym)))
-    `(LET* ((,old-debugger-hook *DEBUGGER-HOOK*) 
+    `(LET* ((,old-debugger-hook *DEBUGGER-HOOK*)
             (*DEBUGGER-HOOK*
               #'(LAMBDA (CONDITION DEBUGGER-HOOK)
                   (CONTINUE CONDITION)
