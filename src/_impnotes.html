@@ -1739,24 +1739,46 @@ also known as UCS-2).
         binaries built without compile-time flag <code>UNICODE</code>.</em>
 <dd>
 More precisely, CLISP uses the IBM PC character set (code page 437):
-<table BORDER=1>
-  <tr>       <th>    <th>$0 <th>$1 <th>$2 <th>$3 <th>$4 <th>$5 <th>$6 <th>$7 <th>$8 <th>$9 <th>$A <th>$B <th>$C <th>$D <th>$E <th>$F
-  <tr>       <th>$00 <td>** <td>   <td>   <td>   <td>   <td>   <td>   <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td> &para; <td> &sect;
-  <tr>       <th>$10 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>** <td>** <td>   <td>   <td>   <td>
-  <tr>       <th>$20 <td> &nbsp; <td> ! <td> &#34; <td> # <td> $ <td> % <td> &amp; <td> ' <td> ( <td> ) <td> * <td> + <td> , <td> - <td> . <td> /
-  <tr>       <th>$30 <td> 0 <td> 1 <td> 2 <td> 3 <td> 4 <td> 5 <td> 6 <td> 7 <td> 8 <td> 9 <td> : <td> ; <td> &lt; <td> = <td> &gt; <td> ?
-  <tr>       <th>$40 <td> @ <td> A <td> B <td> C <td> D <td> E <td> F <td> G <td> H <td> I <td> J <td> K <td> L <td> M <td> N <td> O
-  <tr>       <th>$50 <td> P <td> Q <td> R <td> S <td> T <td> U <td> V <td> W <td> X <td> Y <td> Z <td> [ <td> \ <td> ] <td> ^ <td> _
-  <tr>       <th>$60 <td> ` <td> a <td> b <td> c <td> d <td> e <td> f <td> g <td> h <td> i <td> j <td> k <td> l <td> m <td> n <td> o
-  <tr>       <th>$70 <td> p <td> q <td> r <td> s <td> t <td> u <td> v <td> w <td> x <td> y <td> z <td> { <td> | <td> } <td> ~ <td>
-  <tr>       <th>$80 <td> &Ccedil; <td> &uuml; <td> &eacute; <td> &acirc; <td> &auml; <td> &agrave; <td> &aring; <td> &ccedil; <td> &ecirc; <td> &euml; <td> &egrave; <td> &iuml; <td> &icirc; <td> &igrave; <td> &Auml; <td> &Aring;
-  <tr>       <th>$90 <td> &Eacute; <td> &aelig; <td> &AElig; <td> &ocirc; <td> &ouml; <td> &ograve; <td> &ucirc; <td> &ugrave; <td> &yuml; <td> &Ouml; <td> &Uuml; <td> &cent; <td> &pound; <td> &yen;
-  <tr>       <th>$A0 <td> &aacute; <td> &iacute; <td> &oacute; <td> &uacute; <td> &ntilde; <td> &Ntilde; <td> &ordf; <td> &ordm; <td> &iquest; <td>   <td> &not; <td> &frac12; <td> &frac14; <td> &iexcl; <td> &laquo; <td> &raquo;
-  <tr>       <th>$B0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr>       <th>$C0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr>       <th>$D0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr>       <th>$E0 <td>   <td> &szlig; <td>   <td>   <td>   <td>   <td> &micro; <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr>       <th>$F0 <td>   <td> &plusmn; <td>   <td>   <td>   <td>   <td> &divide; <td>   <td> &deg; <td>   <td> &middot; <td>   <td>   <td> &sup2; <td>   <td>
+<table border=1>
+  <tr><th><th>#x0 <th>#x1 <th>#x2 <th>#x3 <th>#x4 <th>#x5 <th>#x6 <th>#x7
+          <th>#x8 <th>#x9 <th>#xA <th>#xB <th>#xC <th>#xD <th>#xE <th>#xF
+  <tr><th>#x00 <td>** <td>   <td>   <td>   <td>   <td>   <td>   <td>** <td>**
+               <td>** <td>** <td>** <td>** <td>** <td> &para; <td> &sect;
+  <tr><th>#x10 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+               <td>   <td>   <td>** <td>** <td>   <td>   <td>   <td>
+  <tr><th>#x20 <td> &nbsp; <td> ! <td> &#34; <td> # <td> $ <td> % <td> &amp;
+               <td> ' <td> ( <td> ) <td> * <td> + <td> , <td> - <td> . <td> /
+  <tr><th>#x30 <td> 0 <td> 1 <td> 2 <td> 3 <td> 4 <td> 5 <td> 6 <td> 7
+               <td> 8 <td> 9 <td> : <td> ; <td> &lt; <td> = <td> &gt; <td> ?
+  <tr><th>#x40 <td> @ <td> A <td> B <td> C <td> D <td> E <td> F <td> G
+               <td> H <td> I <td> J <td> K <td> L <td> M <td> N <td> O
+  <tr><th>#x50 <td> P <td> Q <td> R <td> S <td> T <td> U <td> V <td> W
+               <td> X <td> Y <td> Z <td> [ <td> \ <td> ] <td> ^ <td> _
+  <tr><th>#x60 <td> ` <td> a <td> b <td> c <td> d <td> e <td> f <td> g
+               <td> h <td> i <td> j <td> k <td> l <td> m <td> n <td> o
+  <tr><th>#x70 <td> p <td> q <td> r <td> s <td> t <td> u <td> v <td> w
+               <td> x <td> y <td> z <td> { <td> | <td> } <td> ~ <td>
+  <tr><th>#x80 <td> &Ccedil; <td> &uuml; <td> &eacute; <td> &acirc;
+               <td> &auml; <td> &agrave; <td> &aring; <td> &ccedil;
+               <td> &ecirc; <td> &euml; <td> &egrave; <td> &iuml;
+               <td> &icirc; <td> &igrave; <td> &Auml; <td> &Aring;
+  <tr><th>#x90 <td> &Eacute; <td> &aelig; <td> &AElig; <td> &ocirc; <td> &ouml;
+               <td> &ograve; <td> &ucirc; <td> &ugrave; <td> &yuml; <td> &Ouml;
+               <td> &Uuml; <td> &cent; <td> &pound; <td> &yen;
+  <tr><th>#xA0 <td> &aacute; <td> &iacute; <td> &oacute; <td> &uacute;
+               <td> &ntilde; <td> &Ntilde; <td> &ordf; <td> &ordm;
+               <td> &iquest; <td>   <td> &not; <td> &frac12; <td> &frac14;
+               <td> &iexcl; <td> &laquo; <td> &raquo;
+  <tr><th>#xB0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+               <td>   <td>   <td>   <td>   <td>   <td>   <td>
+  <tr><th>#xC0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+               <td>   <td>   <td>   <td>   <td>   <td>   <td>
+  <tr><th>#xD0 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+               <td>   <td>   <td>   <td>   <td>   <td>   <td>
+  <tr><th>#xE0 <td>   <td> &szlig; <td>   <td>   <td>   <td>   <td> &micro;
+               <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+  <tr><th>#xF0 <td> <td> &plusmn; <td> <td> <td> <td> <td> &divide; <td>
+               <td> &deg; <td> <td> &middot; <td> <td> <td> &sup2; <td> <td>
 </table>
 
 <p>Here ** are control characters, not graphic characters. (The
@@ -1770,24 +1792,53 @@ characters left blank here cannot be represented in this character set).
         platforms only, and only in clisp binaries built without
         compile-time flag <code>UNICODE</code>.</em>
 <dd>More precisely, CLISP uses the ISO Latin-1 (ISO 8859-1) character set:
-<table BORDER=1>
-  <tr>       <th>    <th>$0 <th>$1 <th>$2 <th>$3 <th>$4 <th>$5 <th>$6 <th>$7 <th>$8 <th>$9 <th>$A <th>$B <th>$C <th>$D <th>$E <th>$F
-  <tr>       <th>$00 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
-  <tr>       <th>$10 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
-  <tr>       <th>$20 <td> &nbsp; <td> ! <td> &#34; <td> # <td> $ <td> % <td> &amp; <td> ' <td> ( <td> ) <td> * <td> + <td> , <td> - <td> . <td> /
-  <tr>       <th>$30 <td> 0 <td> 1 <td> 2 <td> 3 <td> 4 <td> 5 <td> 6 <td> 7 <td> 8 <td> 9 <td> : <td> ; <td> &lt; <td> = <td> &gt; <td> ?
-  <tr>       <th>$40 <td> @ <td> A <td> B <td> C <td> D <td> E <td> F <td> G <td> H <td> I <td> J <td> K <td> L <td> M <td> N <td> O
-  <tr>       <th>$50 <td> P <td> Q <td> R <td> S <td> T <td> U <td> V <td> W <td> X <td> Y <td> Z <td> [ <td> \ <td> ] <td> ^ <td> _
-  <tr>       <th>$60 <td> ` <td> a <td> b <td> c <td> d <td> e <td> f <td> g <td> h <td> i <td> j <td> k <td> l <td> m <td> n <td> o
-  <tr>       <th>$70 <td> p <td> q <td> r <td> s <td> t <td> u <td> v <td> w <td> x <td> y <td> z <td> { <td> | <td> } <td> ~ <td>
-  <tr>       <th>$80 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr>       <th>$90 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
-  <tr>       <th>$A0 <td> &nbsp; <td> &iexcl; <td> &cent; <td> &pound; <td> &curren; <td> &yen; <td> &brvbar; <td> &sect; <td> &uml; <td> &copy; <td> &ordf; <td> &laquo; <td> &not; <td> &shy; <td> &reg; <td> &macr;
-  <tr>       <th>$B0 <td> &deg; <td> &plusmn; <td> &sup2; <td> &sup3; <td> &acute; <td> &micro; <td> &para; <td> &middot; <td> &cedil; <td> &sup1; <td> &ordm; <td> &raquo; <td> &frac14; <td> &frac12; <td> &frac34; <td> &iquest;
-  <tr>       <th>$C0 <td> &Agrave; <td> &Aacute; <td> &Acirc; <td> &Atilde; <td> &Auml; <td> &Aring; <td> &AElig; <td> &Ccedil; <td> &Egrave; <td> &Eacute; <td> &Ecirc; <td> &Euml; <td> &Igrave; <td> &Iacute; <td> &Icirc; <td> &Iuml;
-  <tr>       <th>$D0 <td> &ETH; <td> &Ntilde; <td> &Ograve; <td> &Oacute; <td> &Ocirc; <td> &Otilde; <td> &Ouml; <td> &times; <td> &Oslash; <td> &Ugrave; <td> &Uacute; <td> &Ucirc; <td> &Uuml; <td> &Yacute; <td> &THORN; <td> &szlig;
-  <tr>       <th>$E0 <td> &agrave; <td> &aacute; <td> &acirc; <td> &atilde; <td> &auml; <td> &aring; <td> &aelig; <td> &ccedil; <td> &egrave; <td> &eacute; <td> &ecirc; <td> &euml; <td> &igrave; <td> &iacute; <td> &icirc; <td> &iuml;
-  <tr>       <th>$F0 <td> &eth; <td> &ntilde; <td> &ograve; <td> &oacute; <td> &ocirc; <td> &otilde; <td> &ouml; <td> &divide; <td> &oslash; <td> &ugrave; <td> &uacute; <td> &ucirc; <td> &uuml; <td> &yacute; <td> &thorn; <td> &yuml;
+<table border=1>
+  <tr><th><th>#x0 <th>#x1 <th>#x2 <th>#x3 <th>#x4 <th>#x5 <th>#x6 <th>#x7
+          <th>#x8 <th>#x9 <th>#xA <th>#xB <th>#xC <th>#xD <th>#xE <th>#xF
+  <tr><th>#x00 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+               <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+  <tr><th>#x10 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+               <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+  <tr><th>#x20 <td> &nbsp; <td> ! <td> &#34; <td> # <td> $ <td> % <td> &amp;
+               <td> ' <td> ( <td> ) <td> * <td> + <td> , <td> - <td> . <td> /
+  <tr><th>#x30 <td> 0 <td> 1 <td> 2 <td> 3 <td> 4 <td> 5 <td> 6 <td> 7
+               <td> 8 <td> 9 <td> : <td> ; <td> &lt; <td> = <td> &gt; <td> ?
+  <tr><th>#x40 <td> @ <td> A <td> B <td> C <td> D <td> E <td> F <td> G
+               <td> H <td> I <td> J <td> K <td> L <td> M <td> N <td> O
+  <tr><th>#x50 <td> P <td> Q <td> R <td> S <td> T <td> U <td> V <td> W
+               <td> X <td> Y <td> Z <td> [ <td> \ <td> ] <td> ^ <td> _
+  <tr><th>#x60 <td> ` <td> a <td> b <td> c <td> d <td> e <td> f <td> g
+               <td> h <td> i <td> j <td> k <td> l <td> m <td> n <td> o
+  <tr><th>#x70 <td> p <td> q <td> r <td> s <td> t <td> u <td> v <td> w
+               <td> x <td> y <td> z <td> { <td> | <td> } <td> ~ <td>
+  <tr><th>#x80 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+               <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+  <tr><th>#x90 <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+               <td>   <td>   <td>   <td>   <td>   <td>   <td>   <td>
+  <tr><th>#xA0 <td> &nbsp; <td> &iexcl; <td> &cent; <td> &pound;
+               <td> &curren; <td> &yen; <td> &brvbar; <td> &sect;
+               <td> &uml; <td> &copy; <td> &ordf; <td> &laquo;
+               <td> &not; <td> &shy; <td> &reg; <td> &macr;
+  <tr><th>#xB0 <td> &deg; <td> &plusmn; <td> &sup2; <td> &sup3;
+               <td> &acute; <td> &micro; <td> &para; <td> &middot;
+               <td> &cedil; <td> &sup1; <td> &ordm; <td> &raquo;
+               <td> &frac14; <td> &frac12; <td> &frac34; <td> &iquest;
+  <tr><th>#xC0 <td> &Agrave; <td> &Aacute; <td> &Acirc; <td> &Atilde;
+               <td> &Auml; <td> &Aring; <td> &AElig; <td> &Ccedil;
+               <td> &Egrave; <td> &Eacute; <td> &Ecirc; <td> &Euml;
+               <td> &Igrave; <td> &Iacute; <td> &Icirc; <td> &Iuml;
+  <tr><th>#xD0 <td> &ETH; <td> &Ntilde; <td> &Ograve; <td> &Oacute;
+               <td> &Ocirc; <td> &Otilde; <td> &Ouml; <td> &times;
+               <td> &Oslash; <td> &Ugrave; <td> &Uacute; <td> &Ucirc;
+               <td> &Uuml; <td> &Yacute; <td> &THORN; <td> &szlig;
+  <tr><th>#xE0 <td> &agrave; <td> &aacute; <td> &acirc; <td> &atilde;
+               <td> &auml; <td> &aring; <td> &aelig; <td> &ccedil;
+               <td> &egrave; <td> &eacute; <td> &ecirc; <td> &euml;
+               <td> &igrave; <td> &iacute; <td> &icirc; <td> &iuml;
+  <tr><th>#xF0 <td> &eth; <td> &ntilde; <td> &ograve; <td> &oacute;
+               <td> &ocirc; <td> &otilde; <td> &ouml; <td> &divide;
+               <td> &oslash; <td> &ugrave; <td> &uacute; <td> &ucirc;
+               <td> &uuml; <td> &yacute; <td> &thorn; <td> &yuml;
 </table>
 Here ** are control characters, not graphic characters. (The characters left
 blank here cannot be represented in this character set).
@@ -1799,24 +1850,53 @@ blank here cannot be represented in this character set).
 <dt><em>Platform dependent: NeXTstep platforms only, and only in clisp
         binaries built without compile-time flag <code>UNICODE</code>.</em>
 <dd>More precisely, CLISP uses the NextStep character set:
-<table BORDER=1>
-  <tr>       <th>    <th>$0 <th>$1 <th>$2 <th>$3 <th>$4 <th>$5 <th>$6 <th>$7 <th>$8 <th>$9 <th>$A <th>$B <th>$C <th>$D <th>$E <th>$F
-  <tr>       <th>$00 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
-  <tr>       <th>$10 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
-  <tr>       <th>$20 <td> &nbsp; <td> ! <td> &#34; <td> # <td> $ <td> % <td> &amp; <td> ' <td> ( <td> ) <td> * <td> + <td> , <td> - <td> . <td> /
-  <tr>       <th>$30 <td> 0 <td> 1 <td> 2 <td> 3 <td> 4 <td> 5 <td> 6 <td> 7 <td> 8 <td> 9 <td> : <td> ; <td> &lt; <td> = <td> &gt; <td> ?
-  <tr>       <th>$40 <td> @ <td> A <td> B <td> C <td> D <td> E <td> F <td> G <td> H <td> I <td> J <td> K <td> L <td> M <td> N <td> O
-  <tr>       <th>$50 <td> P <td> Q <td> R <td> S <td> T <td> U <td> V <td> W <td> X <td> Y <td> Z <td> [ <td> \ <td> ] <td> ^ <td> _
-  <tr>       <th>$60 <td> ` <td> a <td> b <td> c <td> d <td> e <td> f <td> g <td> h <td> i <td> j <td> k <td> l <td> m <td> n <td> o
-  <tr>       <th>$70 <td> p <td> q <td> r <td> s <td> t <td> u <td> v <td> w <td> x <td> y <td> z <td> { <td> | <td> } <td> ~ <td>
-  <tr>       <th>$80 <td> &nbsp; <td> &Agrave; <td> &Aacute; <td> &Acirc; <td> &Atilde; <td> &Auml; <td> &Aring; <td> &Ccedil; <td> &Egrave; <td> &Eacute; <td> &Ecirc; <td> &Euml; <td> &Igrave; <td> &Iacute; <td> &Icirc; <td> &Iuml;
-  <tr>       <th>$90 <td> &ETH; <td> &Ntilde; <td> &Ograve; <td> &Oacute; <td> &Ocirc; <td> &Otilde; <td> &Ouml; <td> &Ugrave; <td> &Uacute; <td> &Ucirc; <td> &Uuml; <td> &Yacute; <td> &THORN; <td> &micro; <td> &times; <td> &divide;
-  <tr>       <th>$A0 <td> &copy; <td> &iexcl; <td> &cent; <td> &pound; <td>   <td> &yen; <td>   <td> &sect; <td> &curren; <td>   <td>   <td> &laquo; <td>   <td>   <td>   <td>
-  <tr>       <th>$B0 <td> &reg; <td>   <td>   <td>   <td> &middot; <td> &brvbar; <td> &para; <td>   <td>   <td>   <td>   <td> &raquo; <td>   <td>   <td> &not; <td> &iquest;
-  <tr>       <th>$C0 <td> &sup1; <td>   <td> &acute; <td>   <td>   <td> &macr; <td>   <td>   <td> &uml; <td> &sup2; <td> &deg; <td> &cedil; <td> &sup3; <td>   <td>   <td>
-  <tr>       <th>$D0 <td>   <td> &plusmn; <td> &frac14; <td> &frac12; <td> &frac34; <td> &agrave; <td> &aacute; <td> &acirc; <td> &atilde; <td> &auml; <td> &aring; <td> &ccedil; <td> &egrave; <td> &eacute; <td> &ecirc; <td> &euml;
-  <tr>       <th>$E0 <td> &igrave; <td> &AElig; <td> &iacute; <td> &ordf; <td> &icirc; <td> &iuml; <td> &eth; <td> &ntilde; <td>   <td> &Oslash; <td>   <td> &ordm; <td> &ograve; <td> &oacute; <td> &ocirc; <td> &otilde;
-  <tr>       <th>$F0 <td> &ouml; <td> &aelig; <td> &ugrave; <td> &uacute; <td> &ucirc; <td>   <td> &uuml; <td> &yacute; <td>   <td> &oslash; <td>   <td> &szlig; <td> &thorn; <td> &yuml;
+<table border=1>
+  <tr><th><th>#x0 <th>#x1 <th>#x2 <th>#x3 <th>#x4 <th>#x5 <th>#x6 <th>#x7
+          <th>#x8 <th>#x9 <th>#xA <th>#xB <th>#xC <th>#xD <th>#xE <th>#xF
+  <tr><th>#x00 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+               <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+  <tr><th>#x10 <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+               <td>** <td>** <td>** <td>** <td>** <td>** <td>** <td>**
+  <tr><th>#x20 <td> &nbsp; <td> ! <td> &#34; <td> # <td> $ <td> % <td> &amp;
+               <td> ' <td> ( <td> ) <td> * <td> + <td> , <td> - <td> . <td> /
+  <tr><th>#x30 <td> 0 <td> 1 <td> 2 <td> 3 <td> 4 <td> 5 <td> 6 <td> 7
+               <td> 8 <td> 9 <td> : <td> ; <td> &lt; <td> = <td> &gt; <td> ?
+  <tr><th>#x40 <td> @ <td> A <td> B <td> C <td> D <td> E <td> F <td> G
+               <td> H <td> I <td> J <td> K <td> L <td> M <td> N <td> O
+  <tr><th>#x50 <td> P <td> Q <td> R <td> S <td> T <td> U <td> V <td> W
+               <td> X <td> Y <td> Z <td> [ <td> \ <td> ] <td> ^ <td> _
+  <tr><th>#x60 <td> ` <td> a <td> b <td> c <td> d <td> e <td> f <td> g
+               <td> h <td> i <td> j <td> k <td> l <td> m <td> n <td> o
+  <tr><th>#x70 <td> p <td> q <td> r <td> s <td> t <td> u <td> v <td> w
+               <td> x <td> y <td> z <td> { <td> | <td> } <td> ~ <td>
+  <tr><th>#x80 <td> &nbsp; <td> &Agrave; <td> &Aacute; <td> &Acirc;
+               <td> &Atilde; <td> &Auml; <td> &Aring; <td> &Ccedil;
+               <td> &Egrave; <td> &Eacute; <td> &Ecirc; <td> &Euml;
+               <td> &Igrave; <td> &Iacute; <td> &Icirc; <td> &Iuml;
+  <tr><th>#x90 <td> &ETH; <td> &Ntilde; <td> &Ograve; <td> &Oacute;
+               <td> &Ocirc; <td> &Otilde; <td> &Ouml; <td> &Ugrave;
+               <td> &Uacute; <td> &Ucirc; <td> &Uuml; <td> &Yacute;
+               <td> &THORN; <td> &micro; <td> &times; <td> &divide;
+  <tr><th>#xA0 <td> &copy; <td> &iexcl; <td> &cent; <td> &pound; <td>
+               <td> &yen; <td>   <td> &sect; <td> &curren; <td>   <td>
+               <td> &laquo; <td>   <td>   <td>   <td>
+  <tr><th>#xB0 <td> &reg; <td>   <td>   <td>   <td> &middot;
+               <td> &brvbar; <td> &para; <td>   <td>   <td>   <td>
+               <td> &raquo; <td> <td>   <td> &not; <td> &iquest;
+  <tr><th>#xC0 <td> &sup1; <td>   <td> &acute; <td>   <td>   <td> &macr;
+               <td>   <td>   <td> &uml; <td> &sup2; <td> &deg;
+               <td> &cedil; <td> &sup3; <td>   <td>   <td>
+  <tr><th>#xD0 <td>   <td> &plusmn; <td> &frac14; <td> &frac12;
+               <td> &frac34; <td> &agrave; <td> &aacute; <td> &acirc;
+               <td> &atilde; <td> &auml; <td> &aring; <td> &ccedil;
+               <td> &egrave; <td> &eacute; <td> &ecirc; <td> &euml;
+  <tr><th>#xE0 <td> &igrave; <td> &AElig; <td> &iacute; <td> &ordf;
+               <td> &icirc; <td> &iuml; <td> &eth; <td> &ntilde; <td>
+               <td> &Oslash; <td>   <td> &ordm; <td> &ograve;
+               <td> &oacute; <td> &ocirc; <td> &otilde;
+  <tr><th>#xF0 <td> &ouml; <td> &aelig; <td> &ugrave; <td> &uacute;
+               <td> &ucirc; <td>   <td> &uuml; <td> &yacute; <td>
+               <td> &oslash; <td>   <td> &szlig; <td> &thorn; <td> &yuml;
 </table>
 
 <p>Here ** are control characters, not graphic characters. (The
@@ -1826,23 +1906,23 @@ characters left blank here cannot be represented in this character set).
 
 The following are standard characters:
 <table border=1>
-  <tr><th><code>#\Space</code>              <td> $20
-  <tr><th><code>#\Newline</code>            <td> $0A
+  <tr><th><code>#\Space</code>              <td> #x20
+  <tr><th><code>#\Newline</code>            <td> #x0A
 </table>
 The following are semi-standard characters:
 <table border=1>
-  <tr><th><code>#\Backspace</code>          <td> $08
-  <tr><th><code>#\Tab</code>                <td> $09
-  <tr><th><code>#\Linefeed</code>           <td> $0A
-  <tr><th><code>#\Page</code>               <td> $0C
-  <tr><th><code>#\Return</code>             <td> $0D
+  <tr><th><code>#\Backspace</code>          <td> #x08
+  <tr><th><code>#\Tab</code>                <td> #x09
+  <tr><th><code>#\Linefeed</code>           <td> #x0A
+  <tr><th><code>#\Page</code>               <td> #x0C
+  <tr><th><code>#\Return</code>             <td> #x0D
 </table>
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <dl>
 <dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
 <dd>
 <table border=1>
-  <tr><th><code>#\Rubout</code>             <td> $08
+  <tr><th><code>#\Rubout</code>             <td> #x08
 </table>
 </dl>
 <!-- #endif -->
@@ -1852,7 +1932,7 @@ The following are semi-standard characters:
 <dt><em>Platform dependent: UNIX, Amiga, Acorn platforms only.</em>
 <dd>
 <table border=1>
-  <tr><th><code>#\Rubout</code>             <td> $7F
+  <tr><th><code>#\Rubout</code>             <td> #x7F
 </table>
 </dl>
 <!-- #endif -->
@@ -1865,24 +1945,24 @@ lines</a>.
 <p>There are the following additional characters with names:
 
 <table border=1>
-  <tr><th><code>#\Null</code>               <td> $00
-  <tr><th><code>#\Bell</code>               <td> $07
-  <tr><th><code>#\Escape</code>             <td> $1B
+  <tr><th><code>#\Null</code>               <td> #x00
+  <tr><th><code>#\Bell</code>               <td> #x07
+  <tr><th><code>#\Escape</code>             <td> #x1B
 </table>
 
 <p> Additionally, the following syntax is defined for characters with code
-from $00 to $1F:
+from #x00 to #x1F:
 <table border=1>
-  <tr><th><code>#\^@</code>                      <td> $00
-  <tr><th><code>#\^A</code> .. <code>#\^Z</code> <td> $01 .. $1A
-  <tr><th><code>#\^[</code>                      <td> $1B
-  <tr><th><code>#\^\</code>                      <td> $1C
-  <tr><th><code>#\^]</code>                      <td> $1D
-  <tr><th><code>#\^^</code>                      <td> $1E
-  <tr><th><code>#\^_</code>                      <td> $1F
+  <tr><th><code>#\^@</code>                      <td> #x00
+  <tr><th><code>#\^A</code> .. <code>#\^Z</code> <td> #x01 .. #x1A
+  <tr><th><code>#\^[</code>                      <td> #x1B
+  <tr><th><code>#\^\</code>                      <td> #x1C
+  <tr><th><code>#\^]</code>                      <td> #x1D
+  <tr><th><code>#\^^</code>                      <td> #x1E
+  <tr><th><code>#\^_</code>                      <td> #x1F
 </table>
 
-<p> See also sec. <a HREF="#chario">character i/o</a>.
+<p> See also the section <a HREF="#chario">character i/o</a>.
 
 <h3>Attributes</h3>
 
@@ -2415,25 +2495,25 @@ directories can not be used interchangeably.
 <dl>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
 <dt><em>Platform dependent: UNIX, Amiga platforms only.</em>
-<dd>For example, <code>#&#34;FOO/BAR&#34;</code> denotes the file
+<dd>For example, <code>#p"FOO/BAR"</code> denotes the file
 <code>BAR</code> in the directory <code>FOO</code>, while
-<code>#&#34;FOO/BAR/&#34;</code> denotes the subdirectory
+<code>#p"FOO/BAR/"</code> denotes the subdirectory
 <code>BAR</code> of the directory <code>FOO</code>.
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
-<dd>For example, <code>#&#34;FOO\\BAR&#34;</code> denotes the file
+<dd>For example, <code>#p"FOO\\BAR"</code> denotes the file
 <code>BAR</code> in the directory <code>FOO</code>, while
-<code>#&#34;FOO\\BAR\\&#34;</code> denotes the subdirectory
+<code>#p"FOO\\BAR\\"</code> denotes the subdirectory
 <code>BAR</code> of the directory <code>FOO</code>.
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_RISCOS -->
 <dt><em>Platform dependent: Acorn platforms only.</em>
-<dd>For example, <code>#&#34;FOO.BAR&#34;</code> denotes the file
+<dd>For example, <code>#p"FOO.BAR"</code> denotes the file
 <code>FOO</code> in the directory <code>BAR</code>, while
-<code>#&#34;FOO.BAR.&#34;</code> denotes the subdirectory
+<code>#p"FOO.BAR."</code> denotes the subdirectory
 <code>BAR</code> of the directory <code>FOO</code>.
 <!-- #endif -->
 
@@ -3387,8 +3467,8 @@ should be the same as <code>(merge-pathnames a b)</code>.
 distinction between "pathnames with defaults merged-in" and "pathnames
 with defaults not yet applied".)
 
-<p>Now, <code>(merge-pathnames (merge-pathnames '#"x/" '#"y/")
-'#"y/")</code> and <code>(merge-pathnames '#"x/" '#"y/")</code> are
+<p>Now, <code>(merge-pathnames (merge-pathnames '#p"x/" '#p"y/")
+'#p"y/")</code> and <code>(merge-pathnames '#p"x/" '#p"y/")</code> are
 equal in CLISP (when <a href="#ansi"><code>lisp:*ansi*</code></a> is
 <code>nil</code>), but not in implementations that strictly follow the
 Common Lisp spec. In fact, the above twice-default = once-default rule
@@ -4274,37 +4354,44 @@ compiles a file to platform-independent bytecode.
 <code>*compile-print*</code></a> provide
 defaults for the <code>:warnings</code>, <code>:verbose</code>,
 <code>:print</code> keyword arguments, respectively.  For each input
-file (default file type: <code>#&#34;.lsp&#34;</code>) the following
+file (default file type: <code>#p".lsp"</code>) the following
 files are generated:
 
-<p><table BORDER=1>
-  <tr> <th>File            <th>When <th>Default file type  <th>Contents
-  <tr> <td>output file              <td>only if <code>:output-file</code> is not <code>nil</code>
-                           <td><code>#&#34;.fas&#34;</code>
-                           <td>can be loaded using the <code>load</code> function.
-  <tr> <td>auxiliary output file    <td>only if <code>:output-file</code> is not <code>nil</code>
-                           <td><code>#&#34;.lib&#34;</code>
-                           <td>used by <code>compile-file</code> when compiling
-                             a <code>require</code> form referring to the input file.
-  <tr> <td>listing file             <td>only if <code>:listing</code> is not <code>nil</code>
-                           <td><code>#&#34;.lis&#34;</code>
-                           <td>disassembly of the output file.
-  <tr> <td>C output file            <td>only if <code>:output-file</code> is not <code>nil</code>
-                           <td><code>#&#34;.c&#34;</code>
-                           <td>foreign function interface;
-                           this file is deleted if it is empty.
+<p><table border=1>
+  <tr><th>File <th>When <th>Default file type  <th>Contents
+  <tr><td>output file
+      <td>only if <code>:output-file</code> is not <code>nil</code>
+      <td><code>#p".fas"</code>
+      <td>can be loaded using the <a href="CLHSROOT/Body/fun_load.html">
+          <code>load</code></a> function.
+  <tr><td>auxiliary output file
+      <td>only if <code>:output-file</code> is not <code>nil</code>
+      <td><code>#p".lib"</code>
+      <td>used by <a href="CLHSROOT/Body/fun_compile-file.html">
+          <code>compile-file</code></a> when compiling
+          a <a href="CLHSROOT/Body/fun_providecm_require.html">
+          <code>require</code></a> form referring to the input file.
+  <tr><td>listing file
+      <td>only if <code>:listing</code> is not <code>nil</code>
+      <td><code>#p".lis"</code>
+      <td>disassembly of the output file.
+  <tr><td>C output file
+      <td>only if <code>:output-file</code> is not <code>nil</code>
+      <td><code>#p".c"</code>
+      <td>foreign function interface; this file is deleted if it is empty.
 </table>
 
 <h4><a href="CLHSROOT/Body/fun_compile-file-pathname.html">
     compile-file-pathname</a></h4>
 
 The default for the <code>:output-file</code> argument is <code>t</code>,
-which means <code>#&#34;.fas&#34;</code>.
+which means <code>#p".fas"</code>.
 
 <h4><a href="CLHSROOT/Body/fun_providecm_require.html">
     require</a></h4>
 
-<p>The function <code>require</code> receives as optional argument
+<p>The function <a href="CLHSROOT/Body/fun_providecm_require.html">
+<code>require</code></a> receives as optional argument
 either a pathname or a list of pathnames: files to be loaded if the
 required module is not already in memory.
 
@@ -4312,7 +4399,8 @@ required module is not already in memory.
 <h4><a href="CLHSROOT/Body/fun_load.html">
     load</a></h4>
 
-<p><code>load</code> has two additional keywords <code>:echo</code> and
+<p><a href="CLHSROOT/Body/fun_load.html">
+<code>load</code></a> has two additional keywords <code>:echo</code> and
 <code>:compiling</code>.
 
 <p><code>(load <var>filename</var> &amp;key :verbose :print :echo
@@ -6032,9 +6120,10 @@ lisp.
      other 13 values are numbers, members of the stat struct: device,
      inode, protection, number of hard links, owner's UID, owner's GID,
      device type, total size (bytes), blocksize for filesystem I/O,
-     number of blocks allocated, atime, mtime, ctime.  If the system
-     doesn't support a particular field (e.g., Win32 does not have hard
-     links), <code>nil</code> (or the default, like 1 for the number of
+     number of blocks allocated, atime, mtime, ctime (as number of
+     seconds since 1900-01-01).  If the system doesn't support a
+     particular field (e.g., Win32 does not have hard links),
+     <code>nil</code> (or the default, like 1 for the number of
      hard links for Win32 or DOS) is returned.
      <br>[UNIX systems only at this time, patches are welcome.]
  <dt><code>(<strong>lisp:user-data</strong>
