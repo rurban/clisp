@@ -48,6 +48,11 @@ int tramp ()
   return (*function)();
 }
 
+#ifdef __i386__
+int tramp2 ()
+{ return (*function)(data); }
+#endif
+
 int jump ()
 { goto *function; }
 
