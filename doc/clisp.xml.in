@@ -13,8 +13,8 @@
   <!ENTITY ld "<replaceable>locale-dir</replaceable>">
   <!ENTITY lf "<replaceable>lisp-file</replaceable>">
   <!ENTITY lld "<replaceable>lisp-lib-dir</replaceable>">
-  <!ENTITY my-compile-file "<olink targetdoc='impnotes' targetptr='compilefile'><function>COMPILE-FILE</function></olink>">
   <!ENTITY rt "<link linkend='runtime'>runtime</link>">
+  <!ENTITY opt-c "<option><link linkend='opt-compile'>-c</link></option>">
   <!ENTITY config-lisp "<link linkend='config-file'><filename>config.lisp</filename></link>">
 ]>
 
@@ -107,10 +107,9 @@ When called without arguments, executes the &repl;,
 in which expressions are in turn &read; from the standard input,
 &eval;uated by the lisp interpreter,
 and their results are &print;ed to the standard output.
-Invoked with <option><link linkend="opt-compile">-c</link></option>,
+Invoked with &opt-c;,
 compiles the specified lisp files to a platform-independent
-<olink targetdoc="impnotes" targetptr="bytecode">bytecode</olink>
-that can be executed more efficiently.</para>
+&bytecode; which can be executed more efficiently.</para>
 
 </refsection>
 
@@ -147,8 +146,7 @@ that can be executed more efficiently.</para>
 <!-- #ifdef UNIX -->
 <varlistentry id="opt-link-set"><term><option>-K</option>
   <replaceable>linking-set</replaceable></term>
- <listitem><para>Specifies the <olink targetdoc="impnotes"
-   targetptr="linkset">linking set</olink> to be run.
+ <listitem><para>Specifies the &linkset; to be run.
    This is a directory (relative to the
    <link linkend="opt-libdir">&lld;</link>)
    containing at least a main executable (&rt;) and an initial &mem-image;.
@@ -216,16 +214,14 @@ that can be executed more efficiently.</para>
 <!-- #else -->
    allocates memory dynamically.
    <replaceable>mem-size</replaceable> is essentially ignored
-   (except that it determines the Lisp <olink targetdoc="impnotes"
-   targetptr="vm"><literal>STACK</literal></olink> size).
+   (except that it determines the Lisp &STACK; size).
 <!-- #endif -->
 </simpara></listitem></varlistentry>
 
 <!-- #ifndef NO_SP_MALLOC -->
 <varlistentry id="opt-stack"><term><option>-s</option>
   <replaceable>stack-size</replaceable></term>
- <listitem><simpara>Sets the size of the program stack
-   (<olink targetdoc="impnotes" targetptr="vm"><literal>SP</literal></olink>)
+ <listitem><simpara>Sets the size of the program stack (&SP;)
    &clisp; allocates for itself.  The syntax is the same as for
    <option><link linkend="opt-memsize">-m</link></option>.
    Default is one eighth of <replaceable>mem-size</replaceable>.
@@ -312,7 +308,7 @@ that can be executed more efficiently.</para>
  &nil;.  <option>-v</option> sets variables &load-print-var; and
  &compile-print-var; to &t;.  These settings affect the output produced by
  <option><link linkend="opt-init">-i</link></option> and
- <option><link linkend="opt-compile">-c</link></option> options.
+ &opt-c; options.
  Note that these settings persist into the &repl;.
  Repeated <option>-q</option> and <option>-v</option> cancel each other, e.g.,
  <option>-q -q -v -v -v</option> is equivalent to <option>-v</option>.
@@ -321,19 +317,17 @@ that can be executed more efficiently.</para>
 <varlistentry id="opt-interactive-debug">
  <term><option>-interactive-debug</option></term>
  <listitem><simpara>Override the batch mode imposed by
-   <option><link linkend="opt-compile">-c</link></option>,
-   <option><link linkend="opt-exec-expr">-x</link></option>, and
-   <link linkend="opt-exec-file">&lf;</link>: &cont-err;s are still
+   &opt-c;, <option><link linkend="opt-exec-expr">-x</link></option>,
+   and <link linkend="opt-exec-file">&lf;</link>: &cont-err;s are still
    turned into &warning-t;s (and, in case of &assert;, you are
    immeditely asked for new values), but other &error-t;s are handled
    interactively.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-repl"><term><option>-repl</option></term>
- <listitem><simpara>Start an interactive &repl; after
-   processing the <option><link linkend="opt-compile">-c</link></option>,
-   <option><link linkend="opt-exec-expr">-x</link></option>, and
-   <link linkend="opt-exec-file">&lf;</link> options and on any
+ <listitem><simpara>Start an interactive &repl; after processing the
+   &opt-c;, <option><link linkend="opt-exec-expr">-x</link></option>,
+   and <link linkend="opt-exec-file">&lf;</link> options and on any
    &error-t; &signal;ed during that processing.
 </simpara></listitem></varlistentry>
 
@@ -358,8 +352,7 @@ that can be executed more efficiently.</para>
 <varlistentry id="opt-ansi"><term><option>-ansi</option></term>
  <listitem><simpara>Comply with the &ansi-cl; specification
    even where &clisp; has been traditionally different.
-   It sets the symbol macro <varname>*ansi*</varname> to &t;.
-   See <olink targetdoc="impnotes" targetptr="ansi"/> for details.
+   It sets the symbol macro &ansi; to &t;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-traditional"><term><option>-traditional</option></term>
@@ -423,7 +416,7 @@ that can be executed more efficiently.</para>
    (<filename>*.lis</filename>)
    of the files being compiled will be produced.
    Useful only for debugging purposes.
-   See the documentation of &my-compile-file; for details.
+   See <olink targetdoc="impnotes" targetptr="compilefile"/> for details.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-exec-expr"><term><option>-x</option>
@@ -479,7 +472,7 @@ that can be executed more efficiently.</para>
 
 <varlistentry><term>(&apropos; &name-r;)</term>
  <listitem><simpara><olink targetdoc="impnotes" targetptr="apropos">list
-    the symbols</olink> related to &name-r;.
+    the symbols</olink> matching to &name-r;.
 </simpara></listitem></varlistentry>
 
 <varlistentry><term>(exit)</term><term>(quit)</term><term>(bye)</term>
@@ -638,9 +631,7 @@ that can be executed more efficiently.</para>
 <term><envar>COMSPEC</envar></term>
 <!-- #endif -->
 <listitem><simpara>is used to find the interactive command interpreter
-  called by <olink targetdoc="impnotes"
-   targetptr="shell"><function>SHELL</function></olink>.
-</simpara></listitem></varlistentry>
+  called by &shell;.</simpara></listitem></varlistentry>
 
 <!-- #ifdef UNIX -->
 <varlistentry><term><envar>TERM</envar></term>
@@ -668,9 +659,7 @@ that can be executed more efficiently.</para>
  <term><envar>LOGICAL_HOST_&host-r;_FROM</envar></term>
  <term><envar>LOGICAL_HOST_&host-r;_TO</envar></term>
  <term><envar>LOGICAL_HOST_&host-r;</envar></term>
- <listitem><simpara>for <olink targetdoc="impnotes" targetptr="load-lpt"
-     ><function>LOAD-LOGICAL-PATHNAME-TRANSLATIONS</function>
-</olink></simpara></listitem></varlistentry>
+ <listitem><simpara>for &load-lpt-db;</simpara></listitem></varlistentry>
 
 </variablelist>
 </refsection>
@@ -733,9 +722,8 @@ following information:</para>
 <listitem><simpara>No on-line documentation beyond &apropos;
   and &describe; is available.</simpara></listitem>
 <!-- #ifdef UNIX_COHERENT -->
-<listitem><simpara><olink targetdoc="impnotes" targetptr="terminal"
-                          ><varname>*KEYBOARD-INPUT*</varname></olink>
-  does not recognize <keycombo>&ctrl;<keysym>S</keysym></keycombo>
+<listitem><simpara>&kbd-in; does not
+  recognize <keycombo>&ctrl;<keysym>S</keysym></keycombo>
   and <keycombo>&ctrl;<keysym>Q</keysym></keycombo>.</simpara></listitem>
 <!-- #endif -->
 </itemizedlist>

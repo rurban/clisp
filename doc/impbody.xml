@@ -166,8 +166,7 @@
 <section id="compiler-terms"><title>Compiler Terminology
   <ulink url="&clhs;/Body/sec_3-2-1.html">[CLHS-3.2.1]</ulink></title>
 
-<para>&clisp; compiles to platform-independent
- <link linkend="bytecode">byte-code</link>.</para>
+<para>&clisp; compiles to platform-independent &bytecode;.</para>
 
 </section>
 
@@ -2410,8 +2409,8 @@ and the international alphabetic characters from the character set:
 
 <section id="sorting"><title>Functions &sort; &amp; &stable-sort;</title>
 
-<para>&sort; and &stable-sort; have two additional keywords &start-k;
-and &end-k;:</para>
+<para>&sort; and &stable-sort; accept two additional keyword arguments
+ &start-k; and &end-k;:</para>
 
 <programlisting>
 (&sort; &sequence-r; &pred-r; &key-amp; &key-k; &start-k; &end-k;)
@@ -2437,7 +2436,7 @@ and &end-k;:</para>
 
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
-<para>&make-hash-table; supports additional keywords
+<para>&make-hash-table; accepts two additional keyword arguments
  <constant>:INITIAL-CONTENTS</constant>
  and <constant>:WEAK</constant>:</para>
 
@@ -4029,7 +4028,7 @@ functions are provided:
 <para><literal role="sexp">(&compile-file;
   <replaceable>input-file</replaceable> &key-amp; &outfile-k;
   :LISTING &warnings-k; &verbose-k; &print-k; &extfmt;)</literal>
-compiles a file to platform-independent bytecode.</para>
+compiles a file to a platform-independent &bytecode;.</para>
 
 <variablelist id="compile-file-arguments">
  <title>Options for &compile-file;</title>
@@ -4144,8 +4143,8 @@ effects when being loaded, this is important as well.
 
 <section id="loadfile"><title>Function &load;</title>
 
-<para>&load; has four additional keywords &echo-k;, &compiling-k;,
- &extra-file-types-k;, and &obsolete-action-k;.</para>
+<para>&load; accepts four additional keyword arguments &echo-k;,
+ &compiling-k;, &extra-file-types-k;, and &obsolete-action-k;.</para>
 
 <para><literal role="sexp">(&load; &filename-r; &key-amp;
   ((&verbose-k; &load-verbose-var;) &load-verbose-var;)
@@ -4162,9 +4161,8 @@ effects when being loaded, this is important as well.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&print-k;</term>
   <listitem><simpara>causes &load; to print the value of each form.  The
-    default is &load-print-var;, which is initially &nil;,
-    but can be changed by the &opt-v; option.
- </simpara></listitem></varlistentry>
+    default is &load-print-var;, which is initially &nil;, but can be
+    changed by the &opt-v; option.</simpara></listitem></varlistentry>
  <varlistentry><term>&echo-k;</term>
   <listitem><simpara>causes the input from the file to be echoed to
     &standard-output-var; (normally to the screen).  Should there be an
@@ -4174,8 +4172,7 @@ effects when being loaded, this is important as well.
  <varlistentry><term>&compiling-k;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
     The compiled code is executed at once and - in contrast to
-    <link linkend="compilefile"><function>COMPILE-FILE</function></link>
-    - not written to a file.
+    &my-compile-file; - not written to a file.
     The default is <firstterm>&load-comp;</firstterm>, which is initially
     &nil;, but can be changed by the &opt-C; option.
  </simpara></listitem></varlistentry>
@@ -4192,9 +4189,8 @@ effects when being loaded, this is important as well.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&obsolete-action-k;</term>
   <listitem><para>Specifies the action to take when loading a
-    &fasl-file; with a different <link linkend="bytecode">bytecode</link>
-    version from the one supported by this &clisp; version.
-    The possible actions are
+    &fasl-file; with a different &bytecode; version from the one
+    supported by this &clisp; version.  The possible actions are
     <variablelist><varlistentry><term><constant>:DELETE</constant></term>
       <listitem><simpara>delete the &fasl-file;
      </simpara></listitem></varlistentry>

@@ -125,7 +125,7 @@
 <!ENTITY clu-pac "<link linkend='clupack'><quote role='package'>COMMON-LISP-USER</quote></link>">
 
 <!-- *** local *** -->
-<!ENTITY ansi "<link linkend='ansi'><varname>CUSTOM:*ANSI*</varname></link>">
+<!ENTITY ansi "<olink targetdoc='impnotes' targetptr='ansi'><varname>CUSTOM:*ANSI*</varname></olink>">
 <!ENTITY ansi-opt "<olink targetdoc='man' targetptr='opt-ansi'><option>-ansi</option></olink>">
 <!ENTITY apropos-do-more "<link linkend='apropos'><varname>CUSTOM:*APROPOS-DO-MORE*</varname></link>">
 <!ENTITY apropos-matcher "<link linkend='apropos'><varname>CUSTOM:*APROPOS-MATCHER*</varname></link>">
@@ -196,7 +196,7 @@
 <!ENTITY gc "<link linkend='gc'>garbage-collect</link>">
 <!ENTITY getenv "<link linkend='getenv'><function>EXT:GETENV</function></link>">
 <!ENTITY input-char "<link linkend='input-char'><classname>SYS::INPUT-CHARACTER</classname></link>">
-<!ENTITY kbd-in "<link linkend='terminal'><varname>EXT:*KEYBOARD-INPUT*</varname></link>">
+<!ENTITY kbd-in "<olink targetdoc='impnotes' targetptr='terminal'><varname>EXT:*KEYBOARD-INPUT*</varname></olink>">
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY letf "<link linkend='letf'><function>EXT:LETF</function></link>">
 <!ENTITY letf-star "<link linkend='letf'><function>EXT:LETF*</function></link>">
@@ -205,7 +205,7 @@
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
 <!ENTITY load-comp "<olink targetdoc='impnotes' targetptr='loadfile'><varname>CUSTOM:*LOAD-COMPILING*</varname></olink>">
 <!ENTITY load-echo "<link linkend='loadfile'><varname>CUSTOM:*LOAD-ECHO*</varname></link>">
-<!ENTITY load-lpt-db "<link linkend='load-lpt'><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></link>">
+<!ENTITY load-lpt-db "<olink targetdoc='impnotes' targetptr='load-lpt'><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></olink>">
 <!ENTITY load-obs "<link linkend='loadfile'><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></link>">
 <!ENTITY load-paths "<link linkend='load-paths'><varname>CUSTOM:*LOAD-PATHS*</varname></link>">
 <!ENTITY make-encoding "<link linkend='make-encoding'><function>EXT:MAKE-ENCODING</function></link>">
@@ -276,7 +276,7 @@
 <!ENTITY run-prog "<link linkend='run-prog'><function>EXT:RUN-PROGRAM</function></link>">
 <!ENTITY scr-win "<link linkend='screen'><varname>SCREEN:*WINDOW*</varname></link>">
 <!ENTITY service-port "<link linkend='service-port'><function>SOCKET:SOCKET-SERVICE-PORT</function></link>">
-<!ENTITY shell "<link linkend='exec'><function>EXT:SHELL</function></link>">
+<!ENTITY shell "<olink targetdoc='impnotes' targetptr='exec'><function>EXT:SHELL</function></olink>">
 <!ENTITY so-accept "<link linkend='so-accept'><function>SOCKET:SOCKET-ACCEPT</function></link>">
 <!ENTITY so-connect "<link linkend='so-connect'><function>SOCKET:SOCKET-CONNECT</function></link>">
 <!ENTITY so-opt "<link linkend='so-opt'><function>SOCKET:SOCKET-OPTIONS</function></link>">
@@ -338,6 +338,8 @@
 <!ENTITY pr-empty-arr-ansi "<link linkend='pr-empty-arr-ansi'><varname>CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*</varname></link>">
 <!ENTITY init-function "<olink targetdoc='impnotes' targetptr='image'>init function</olink>">
 <!ENTITY RC-file "<olink targetdoc='man' targetptr='opt-norc'>RC file</olink>">
+<!ENTITY my-compile-file "<olink targetdoc='impnotes' targetptr='compilefile'><function>COMPILE-FILE</function></olink>">
+<!ENTITY bytecode "<olink targetdoc='impnotes' targetptr='bytecode'>bytecode</olink>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
@@ -407,7 +409,7 @@
 <!ENTITY foreign-pointer "<link linkend='fptr'><function>FFI:FOREIGN-POINTER</function></link>">
 <!ENTITY foreign-pointer-t "<link linkend='fptr'><classname>FFI:FOREIGN-POINTER</classname></link>">
 <!ENTITY foreign-variable "<link linkend='dffi-variables'><classname>FFI:FOREIGN-VARIABLE</classname></link>">
-<!ENTITY linkset "<link linkend='linkset'>linking set</link>">
+<!ENTITY linkset "<olink targetdoc='impnotes' targetptr='linkset'>linking set</olink>">
 <!ENTITY modset "<link linkend='modset'>module set</link>">
 <!ENTITY mod-dynload "<link linkend='mod-dynload'><function>SYS::DYNLOAD-MODULES</function></link>">
 <!ENTITY modinfo "<link linkend='modinfo'><function>EXT:MODULE-INFO</function></link>">
@@ -440,8 +442,8 @@
 <!ENTITY mv-space "<link linkend='vm'><varname>mv_space</varname></link>">
 <!ENTITY numreq "<link linkend='comp-fun'><literal>numreq</literal></link>">
 <!ENTITY other-const "<link linkend='comp-fun'><literal>other-const</literal></link>">
-<!ENTITY SP "<link linkend='vm'><literal>SP</literal></link>">
-<!ENTITY STACK "<link linkend='vm'><literal>STACK</literal></link>">
+<!ENTITY SP "<olink targetdoc='impnotes' targetptr='vm'><literal>SP</literal></olink>">
+<!ENTITY STACK "<olink targetdoc='impnotes' targetptr='vm'><literal>STACK</literal></olink>">
 <!ENTITY tagbody-const "<link linkend='comp-fun'><literal>tagbody-const</literal></link>">
 <!ENTITY unbound "<literal>#&lt;UNBOUND&gt;</literal>">
 <!ENTITY value1 "<link linkend='vm'><varname>value1</varname></link>">
