@@ -204,8 +204,8 @@ ignored by the interpreter.</para>
 
 <section id="safety-decl"><title>Declaration &safety-dec;.</title>
 <para>Declaration <code>(&optimize-dec; (&safety-dec; 3))</code>
- results in <quote>safe</quote> compiled code:
- funtion calls are never eliminated to preserve the semantics described in
+ results in <quote>safe</quote> compiled code: function calls are never
+ eliminated. This guarantees the semantics described in
  <ulink url="&clhs;/Body/sec_3-5.html">Section 3.5</ulink>.
 </para></section>
 
