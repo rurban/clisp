@@ -893,9 +893,7 @@
                           (%expand-list (rest form))))
                        ((and (symbolp f) (setq h (macro-function f)))
                         ;; global Macro-Definition
-                        (values (%expand-form
-                                 (funcall h form (vector *venv* *fenv*)))
-                                t))
+                        (%expand-macro h form))
                        (t ; normal function-call
                         (multiple-value-call #'%expand-cons form
                           f nil
@@ -907,9 +905,7 @@
                      f nil
                      (%expand-list (rest form))))
                   ((macrop h) ; macro to be expanded
-                   (values (%expand-form (funcall (macro-expander h) form
-                                                  (vector *venv* *fenv*)))
-                           t)) ; call expander
+                   (%expand-macro (macro-expander h) form)) ; call expander
                   (t (error-of-type 'error
                        (TEXT "bad function environment occurred in ~S: ~S")
                        '%expand-form *fenv*)))))
@@ -922,6 +918,11 @@
             '%expand-form form))))))
 
 ;; Auxiliary functions for the the expansion:
+
+;; call the macro-expander on the form (expanding after)
+(defun %expand-macro (macro-expander form)
+  (values (%expand-form (funcall macro-expander form (vector *venv* *fenv*)))
+          t))
 
 ;; expands a list of forms. returns 2 values.
 (defun %expand-list (l)
