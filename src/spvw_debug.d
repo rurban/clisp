@@ -342,6 +342,8 @@ global void back_trace_check (const struct backtrace_t *bt,
   }
 }
 
+#if 0 /* These functions are only for debugging. */
+
 /* note that the following will _NOT_ work if CLISP uses O(dynamic_string)
  for DYNAMIC_STRING() because the length of the "dynamic string" will be
  that of its latest allocation, not value of the second argument!!! */
@@ -369,6 +371,8 @@ local object find_sym (char* name_s, char* pack_s) {
   FREE_DYNAMIC_STRING(name);
   return value1;
 }
+
+#endif
 
 #ifdef DEBUG_SPVW
 #define FUN(from,to,name) local to CONCAT(name,_) (from x) { return name(x); }

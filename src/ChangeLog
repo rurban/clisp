@@ -1,5 +1,10 @@
 2004-02-18  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_debug.d (find_pack, find_sym): Comment out unused and unportable
+	functions.
+
+2004-02-18  Bruno Haible  <bruno@clisp.org>
+
 	* pathname.d (LAUNCH): Move declaration of exit_code so as to avoid
 	gcc warning.
 
