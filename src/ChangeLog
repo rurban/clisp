@@ -1,5 +1,10 @@
 2004-02-24  Bruno Haible  <bruno@clisp.org>
 
+	* m4/readline.m4 (CL_READLINE): Don't use AC_SEARCH_LIBS. Instead,
+	use the value of LIBREADLINE, as determined by AC_LIB_LINKFLAGS_BODY.
+
+2004-02-24  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (nil_vector_p): Change to match new nil-vector handling.
 	(nil_vector_0_p): Remove macro.
 	* charstrg.d (test_stringsymchar_arg): Use nil_vector_p.
