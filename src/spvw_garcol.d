@@ -175,7 +175,7 @@ local void gc_markphase (void)
         if (marked(TheSubr(obj))) return true; else return false;
       case_machine: # Machine Pointer
       case_char: # Character
-      case_system: # Frame-pointer, Read-label, system
+      case_system: # Frame-pointer, Small-Read-label, system
       case_fixnum: # Fixnum
       case_sfloat: # Short-Float
       #ifdef IMMEDIATE_FFLOAT

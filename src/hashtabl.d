@@ -1,6 +1,6 @@
 /*
  * Hash-Tables in CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-01-29
  */
@@ -1218,7 +1218,7 @@ local uint32 hashcode4_atom (object obj) {
    #ifdef TYPECODES
     case_machine:               /* machine */
     case_subr:                  /* subr */
-    case_system:                /* frame-pointer, read-label, system */
+    case_system:                /* frame-pointer, small-read-label, system */
    #else
     case_symbol:                /* symbol */
    #endif
@@ -2949,7 +2949,7 @@ local uint32 sxhash_atom (object obj) {
     goto case_subr;
   else if (machinep(obj))
     goto case_machine;
-  else if (read_label_p(obj) || systemp(obj))
+  else if (small_read_label_p(obj) || systemp(obj))
     goto case_system;
   else switch (0)
   #endif
@@ -3084,7 +3084,7 @@ local uint32 sxhash_atom (object obj) {
       /* utilize name */
       check_SP(); return sxhash(TheSubr(obj)->name) + 0xFF3319BAUL;
     case_machine:               /* machine-pointer */
-    case_system:                /* frame-pointer, read-label, system */
+    case_system:                /* frame-pointer, small-read-label, system */
       /* utilize address */
       return hashcode1(obj);
     /* numbers: according to content, like with EQL */

@@ -2138,7 +2138,7 @@ simple-bit-vectors.
 2.1.2. Other immediate objects
 
 Character, Fixnum, Short-Float, and, if IMMEDIATE_FFLOAT, Single-Float.
-Furthermore: Frame-Pointer, Read-Label, System. (System means some
+Furthermore: Frame-Pointer, Small-Read-Label, System. (System means some
 finite number of special values, such as #<UNBOUND>.)
 
 2.2. SUBRs
@@ -3046,16 +3046,16 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     # Note that cons and varobject cannot have the same encoding mod 8
     # (otherwise gc_mark:up wouldn't work).
     # So, here are the encodings.
-    #   machine           ... .00   encodes pointers, offset 0
-    #   subr              ... .10   encodes pointers, offset 2
-    #   varobject         ... .01   offset 1, the pointers are == 0 mod 4
-    #   cons              ... 011   offset 3, the pointers are == 0 mod 8
-    #   immediate         ... 111
-    #     fixnum          00s 111   s = sign bit
-    #     sfloat          01s 111   s = sign bit
-    #     char            100 111
-    #     read-label      110 111
-    #     system          111 111
+    #   machine             ... .00   encodes pointers, offset 0
+    #   subr                ... .10   encodes pointers, offset 2
+    #   varobject           ... .01   offset 1, the pointers are == 0 mod 4
+    #   cons                ... 011   offset 3, the pointers are == 0 mod 8
+    #   immediate           ... 111
+    #     fixnum            00s 111   s = sign bit
+    #     sfloat            01s 111   s = sign bit
+    #     char              100 111
+    #     small-read-label  110 111
+    #     system            111 111
     # Varobjects all start with a word containing the type (1 byte) and a
     # length field (up to 24 bits).
 
@@ -3074,11 +3074,11 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #endif
 
     # The types of immediate objects.
-      #define fixnum_type      ((0 << imm_type_shift) + immediate_bias)
-      #define sfloat_type      ((2 << imm_type_shift) + immediate_bias)
-      #define char_type        ((4 << imm_type_shift) + immediate_bias)
-      #define read_label_type  ((6 << imm_type_shift) + immediate_bias)
-      #define system_type      ((7 << imm_type_shift) + immediate_bias)
+      #define fixnum_type            ((0 << imm_type_shift) + immediate_bias)
+      #define sfloat_type            ((2 << imm_type_shift) + immediate_bias)
+      #define char_type              ((4 << imm_type_shift) + immediate_bias)
+      #define small_read_label_type  ((6 << imm_type_shift) + immediate_bias)
+      #define system_type            ((7 << imm_type_shift) + immediate_bias)
 
     # The sign bit, for immediate numbers only.
       #define sign_bit_t  (0 + imm_type_shift)
@@ -3143,15 +3143,15 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     # Immediates look like pointers in the range 0xC0000000..0xFFFFFFFF.
     # We know that the Linux kernel never assigns virtual memory in this area.
     # So, here are the encodings. Bit 0 is used as the garcol_bit.
-    #   machine           ... ... .00   encodes pointers, offset 0
-    #   cons              ... ... 010   offset 2, the pointers are == 0 mod 8
-    #   varobject         ... ... 110   offset 6, the pointers are == 4 mod 8
-    #   immediate      11 ... ...  00
-    #     fixnum       11 ... 00s  00   s = sign bit
-    #     sfloat       11 ... 01s  00   s = sign bit
-    #     char         11 ... 100  00
-    #     read-label   11 ... 110  00
-    #     system       11 ... 111  00
+    #   machine                ... ... .00   encodes pointers, offset 0
+    #   cons                   ... ... 010   offset 2, the pointers are == 0 mod 8
+    #   varobject              ... ... 110   offset 6, the pointers are == 4 mod 8
+    #   immediate           11 ... ...  00
+    #     fixnum            11 ... 00s  00   s = sign bit
+    #     sfloat            11 ... 01s  00   s = sign bit
+    #     char              11 ... 100  00
+    #     small-read-label  11 ... 110  00
+    #     system            11 ... 111  00
     # Varobjects all start with a word containing the type (1 byte) and a
     # length field (up to 24 bits).
 
@@ -3166,11 +3166,11 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       #define imm_type_shift  2  # could also be 3, if oint_data_shift == 6
 
     # The types of immediate objects.
-      #define fixnum_type      ((0 << imm_type_shift) + immediate_bias)
-      #define sfloat_type      ((2 << imm_type_shift) + immediate_bias)
-      #define char_type        ((4 << imm_type_shift) + immediate_bias)
-      #define read_label_type  ((6 << imm_type_shift) + immediate_bias)
-      #define system_type      ((7 << imm_type_shift) + immediate_bias)
+      #define fixnum_type            ((0 << imm_type_shift) + immediate_bias)
+      #define sfloat_type            ((2 << imm_type_shift) + immediate_bias)
+      #define char_type              ((4 << imm_type_shift) + immediate_bias)
+      #define small_read_label_type  ((6 << imm_type_shift) + immediate_bias)
+      #define system_type            ((7 << imm_type_shift) + immediate_bias)
 
     # The sign bit, for immediate numbers only.
       #define sign_bit_t  (0 + imm_type_shift)
@@ -3472,7 +3472,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define machine_type    (0)                                  # 0x00  # %00000000  ; machine pointer
   #define subr_type       (                              BTB0) # 0x01  # %00000001  ; SUBR
   #define char_type       (                         BTB1     ) # 0x02  # %00000010  ; character
-  #define system_type     (                         BTB1|BTB0) # 0x03  # %00000011  ; frame-pointer, read-label, system
+  #define system_type     (                         BTB1|BTB0) # 0x03  # %00000011  ; frame-pointer, small-read-label, system
   #define symbol_type     (                    BTB2          ) # 0x04  # %000001xx  ; symbol
           # bits for symbols in the GCself pointer:
           #define var_bit0_t  TB0  # set if the symbol is proclaimed SPECIAL or constant
@@ -3869,7 +3869,7 @@ extern bool inside_gc;
   #define case_lrecord    case lrecord_type   # Long Record
   #define case_char       case char_type      # Character
   #define case_subr       case subr_type      # SUBR
-  #define case_system     case system_type    # Frame-Pointer, Read-Label, System
+  #define case_system     case system_type    # Frame-Pointer, Small-Read-Label, System
   #define case_posfixnum  case fixnum_type    # Fixnum >=0
   #define case_negfixnum  case fixnum_type|bit(sign_bit_t) # Fixnum <0
   #define case_fixnum     case_posfixnum: case_negfixnum # Fixnum
@@ -5992,16 +5992,16 @@ typedef enum {
   seclass_default /* may do side effects */
 } seclass_t;
 
-# Read-Label
+# Small-Read-Label
 #ifdef TYPECODES
-  #define make_read_label(n)  \
+  #define make_small_read_label(n)  \
     type_data_object(system_type, ((uintL)(n)<<1) + bit(0))
-  #define read_label_integer_p(obj)  \
+  #define small_read_label_integer_p(obj)  \
     (posfixnump(obj) && (posfixnum_to_L(obj) < bit(oint_data_len-2)))
 #else
-  #define make_read_label(n)  \
-    type_data_object(read_label_type, (uintL)(n))
-  #define read_label_integer_p(obj)  posfixnump(obj)
+  #define make_small_read_label(n)  \
+    type_data_object(small_read_label_type, (uintL)(n))
+  #define small_read_label_integer_p(obj)  posfixnump(obj)
 #endif
 
 # Machine pointers:
@@ -7003,8 +7003,8 @@ typedef enum {
        && (as_oint(obj) & 0xE0000000) != 0xC0000000)
   #endif
 
-  # Test for Read-Label
-  #define read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == read_label_type)
+  # Test for Small-Read-Label
+  #define small_read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == small_read_label_type)
 
   # Test for System-Pointer
   #define systemp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == system_type)

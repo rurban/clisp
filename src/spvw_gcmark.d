@@ -238,7 +238,7 @@ local void gc_mark (object obj)
       down_sxrecord();
     case_machine: /* machine address */
     case_char: /* character */
-    case_system: /* frame-pointer, read-label, system */
+    case_system: /* frame-pointer, small-read-label, system */
     case_fixnum: /* fixnum */
     case_sfloat: /* short-float */
    #ifdef IMMEDIATE_FFLOAT
@@ -374,7 +374,7 @@ local void gc_mark (object obj)
         /*FALLTHROUGH*/
       case_machine: /* machine address */
       case_char: /* character */
-      case_system: /* frame-pointer, read-label, system */
+      case_system: /* frame-pointer, small-read-label, system */
       case_fixnum: /* fixnum */
       case_sfloat: /* short-float */
      #ifdef IMMEDIATE_FFLOAT
