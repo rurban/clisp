@@ -19,7 +19,7 @@
     cl:aref cl:ash cl:coerce cl:compile cl:defconstant cl:dotimes cl:eval
     cl:fill cl:floor cl:gensym cl:let cl:load cl:load-time-value cl:logand
     cl:logbitp cl:logior cl:lognot cl:mod cl:multiple-value-bind cl:not
-    cl:or cl:progn cl:setf cl:t cl:zerop cl:+ cl:- cl:* cl:= cl:1-
+    cl:or cl:&rest cl:progn cl:setf cl:t cl:zerop cl:+ cl:- cl:* cl:= cl:1-
     ffi:bitsizeof ffi:boolean ffi:cast ffi:char ffi:character ffi:c-array
     ffi:c-array-max ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-ptr-null
     ffi:c-pointer ffi:c-string ffi:c-struct ffi:deref ffi::foreign-value
@@ -608,10 +608,8 @@
   (:return-type long))
 (def-call-out srand48 (:arguments (seedval long))
   (:return-type nil))
-;(def-call-out seed48 (:arguments (seed16v (c-ptr (c-array ushort 3))))
-;  (:return-type (c-ptr (c-array ushort 3)) :none))
 (def-call-out seed48 (:arguments (seed16v (c-ptr (c-array ushort 3))))
-  (:return-type (c-ptr ushort) :none))
+  (:return-type (c-ptr (c-array ushort 3)) :none))
 (def-call-out lcong48 (:arguments (param (c-ptr (c-array ushort 7))))
   (:return-type nil))
 
@@ -1116,61 +1114,32 @@
     (:arguments (path c-string) (argv (c-array-ptr c-string))
                 (envp (c-array-ptr c-string)))
   (:return-type int)
-  (:name "execv"))
+  (:name "execve"))
 (def-call-out execvp
     (:arguments (file c-string) (argv (c-array-ptr c-string)))
   (:return-type int)
   (:name "execvp"))
 
-(def-call-out execle0
-    (:arguments (path c-string) (argv0 c-string) (null c-string)
-                (envp c-pointer))
-  (:return-type int) (:name "execle"))
-(def-call-out execle1
-    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
-                (null c-string) (envp c-pointer))
-  (:return-type int) (:name "execle"))
-(def-call-out execle2
-    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
-                (argv2 c-string) (null c-string) (envp c-pointer))
-  (:return-type int) (:name "execle"))
-(def-call-out execle3
-    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
-                (argv2 c-string) (argv3 c-string) (null c-string)
-                (envp c-pointer))
-  (:return-type int) (:name "execle"))
-(def-call-out execl0
-    (:arguments (path c-string) (argv0 c-string) (null c-string))
-  (:return-type int) (:name "execl"))
+; Foreign language interfaces should use the execv* series of functions,
+; not the C varargs convenience functions.
+(defun execl (path &rest args)
+  (execv path (coerce args 'vector)))
+(defun execlp (file &rest args)
+  (execvp file (coerce args 'vector)))
+
+; Provide these stubs so the execl/p/e names become registered
 (def-call-out execl1
     (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
                 (null c-string))
   (:return-type int) (:name "execl"))
-(def-call-out execl2
-    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
-                (argv2 c-string) (null c-string))
-  (:return-type int) (:name "execl"))
-(def-call-out execl3
-    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
-                (argv2 c-string) (argv3 c-string) (null c-string))
-  (:return-type int) (:name "execl"))
-;(def-call-out execvp (:arguments (path c-string) (argv c-pointer)) ; ??
-;  (:return-type int))
-(def-call-out execlp0
-    (:arguments (path c-string) (argv0 c-string) (null c-string))
-  (:return-type int) (:name "execlp"))
 (def-call-out execlp1
     (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
                 (null c-string))
   (:return-type int) (:name "execlp"))
-(def-call-out execlp2
+(def-call-out execle1
     (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
-                (argv2 c-string) (null c-string))
-  (:return-type int) (:name "execlp"))
-(def-call-out execlp3
-    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
-                (argv2 c-string) (argv3 c-string) (null c-string))
-  (:return-type int) (:name "execlp"))
+                (null c-string) (envp c-pointer))
+  (:return-type int) (:name "execle"))
 
 (def-call-out nice (:arguments (increment int)) (:return-type int))
 
