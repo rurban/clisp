@@ -2055,6 +2055,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &phasecont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &loop-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &t;.</simpara></listitem>
+ <listitem><simpara>Setting &pr-unreadable-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &defun-accept-spelalist; to &nil;</simpara></listitem>
 </orderedlist>
 
@@ -2079,6 +2080,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &phasecont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &loop-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &nil;.</simpara></listitem>
+ <listitem><simpara>Setting &pr-unreadable-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &defun-accept-spelalist; to &t;</simpara></listitem>
 </orderedlist>
 
@@ -2249,6 +2251,7 @@ here <function>WITH-FOO</function> does not receive the
   <member><varname>CUSTOM:*PRINT-PRETTY-FILL*</varname></member>
   <member>&pr-rpars;</member>
   <member>&spacecharprint;</member>
+  <member>&pr-unreadable-ansi;</member>
   <member>&prompt-body;</member>
   <member>&prompt-break;</member>
   <member>&prompt-finish;</member>

@@ -10387,7 +10387,9 @@ LISPFUN(write_unreadable,seclass_default,3,0,norest,key,2,
     # print (TYPE-OF object) :
     pushSTACK(*(stream_ STACKop 1)); funcall(L(type_of),1);
     prin1(stream_,value1);
-    if (flag_fun || flag_id)
+    # If *PRINT-UNREADABLE-ANSI* is true, we follow ANSI-CL and print a space
+    # in all cases, even when !flag_fun || !flag_id.
+    if (flag_fun || flag_id || !nullpSv(print_unreadable_ansi))
       JUSTIFY_SPACE;
   }
   if (flag_fun) {
@@ -10395,7 +10397,10 @@ LISPFUN(write_unreadable,seclass_default,3,0,norest,key,2,
     funcall(*(stream_ STACKop 2),0); # (FUNCALL function)
   }
   if (flag_id) {
-    if (flag_fun)
+    # If *PRINT-UNREADABLE-ANSI* is true, we follow ANSI-CL and print a space
+    # in all cases, even when !flag_fun || !flag_type. But when
+    # !flag_fun && flag_type, the space has already been printed above.
+    if (flag_fun || (!flag_type && !nullpSv(print_unreadable_ansi)))
       JUSTIFY_SPACE;
     JUSTIFY_LAST(true);
     pr_hex6(stream_,*(stream_ STACKop 1));

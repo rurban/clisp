@@ -1064,7 +1064,7 @@ Variables affected: `custom:*floating-point-contagion-ansi*´,
  `custom:*floating-point-rational-contagion-ansi*´, `custom:*phase-ansi*´,
  `custom:*merge-pathnames-ansi*´, `custom:*print-pathnames-ansi*´,
  `custom:*print-space-char-ansi*´, `custom:*parse-namestring-ansi*´,
- `custom:*print-empty-arrays-ansi*´,
+ `custom:*print-empty-arrays-ansi*´, `custom:*print-unreadable-ansi*´,
  `custom:*sequence-count-ansi*´, `custom:*coerce-fixnum-char-ansi*´.
 Invoking CLISP with `-ansi´ sets this to T.
 Invoking CLISP with `-traditional´ sets this to NIL.")

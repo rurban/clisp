@@ -1288,6 +1288,7 @@ local void init_symbol_values (void) {
   define_variable(S(print_pathnames_ansi),NIL);   # CUSTOM:*PRINT-PATHNAMES-ANSI*
   define_variable(S(print_space_char_ansi),NIL);  # CUSTOM:*PRINT-SPACE-CHAR-ANSI*
   define_variable(S(print_empty_arrays_ansi),NIL); # CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
+  define_variable(S(print_unreadable_ansi),NIL);  # CUSTOM:*PRINT-UNREADABLE-ANSI*
   define_variable(S(parse_namestring_ansi),NIL);  # CUSTOM:*PARSE-NAMESTRING-ANSI*
  #ifdef PATHNAME_NOEXT
   define_variable(S(parse_namestring_dot_file),S(Ktype)); # CUSTOM:*PARSE-NAMESTRING-DOT-FILE*
