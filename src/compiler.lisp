@@ -8678,7 +8678,13 @@ Optimizations that might apply after this one are retried.
 #|
 ;; Debugging hints:
  (in-package "SYSTEM")
- (setq *print-circle* t)
+ (setq *print-circle* t *suppress-check-redefinition* t)
+;; avoid stack overflow in trace output (calls CLOS::INSTALL-DISPATCH):
+ (print (list (make-anode :source nil :stackz nil) (make-fnode) (make-block)
+              (make-tagbody) (make-var) (make-const) (make-c-source-point)
+              (make-signature) (clos::make-class) clos::<t>
+              (clos::make-slotted-class) (clos::make-structure-class)
+              (clos::make-standard-class) #'compile))
  (trace compile-to-lap)
  (trace (traverse-anode :post-print *code-part*))
  (trace (optimize-part    :pre-print *code-parts* :post-print *code-parts*)
