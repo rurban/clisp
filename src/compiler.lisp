@@ -4,7 +4,7 @@
 ;;   c-VALUES extended on 14.07.1989
 ;;   label-operand in assemble-LAP corrected on 14.07.1989
 ;;   ANODE-Components SOURCE, STACKZ eliminated on 14.07.1989
-;;     (conditionally dependent on #+COMPILER-DEBUG)
+;;     (conditionally dependent on #+CLISP-DEBUG)
 ;;   Peephole-Optimization-Protocol conditionally dependent on #+PEEPHOLE-DEBUG
 ;;   Version for CLISP 28.07.1989-11.08.1989
 ;;   Variable-Optimization 10.03.1991
@@ -987,7 +987,7 @@ for-value   NIL or T
   for-value         ; specifies, if the whole block-construction has to
                     ; return values.
 )
-#-COMPILER-DEBUG (remprop 'block 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'block 'sys::defstruct-description)
 
 ;; Searches for a block with Name name and returns:
 ;; NIL                          if not found,
@@ -1031,7 +1031,7 @@ for-value   NIL or T
                     ; that are jumped at with GO from
                     ; within another function.
 )
-#-COMPILER-DEBUG (remprop 'tagbody 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'tagbody 'sys::defstruct-description)
 
 ;; Searches for a tag with Namen name and returns:
 ;; NIL                                         if not found,
@@ -1132,7 +1132,7 @@ for-value   NIL or T
                            ;   Variable occurs.
   (fnode nil :read-only t) ; function containing this variable, an FNODE
 )
-#-COMPILER-DEBUG (remprop 'var 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'var 'sys::defstruct-description)
 
 ;; (venv-search v) searches in *venv* for a Variable with the Symbol v.
 ;; result:
@@ -1227,7 +1227,7 @@ for-value   NIL or T
   ;;   For *compiling-from-file* /= nil:
   ;;     If (eq horizon ':value), value, else form.
 )
-#-COMPILER-DEBUG (remprop 'const 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'const 'sys::defstruct-description)
 ;; In the 2nd Pass Variables with constantp=T are treated as Constants.
 
 
@@ -1414,7 +1414,7 @@ for-value   NIL or T
   far-used-tagbodys ; list of (tagbody . tag) defined in enclosing
                     ; functions but used by this function
 )
-#-COMPILER-DEBUG (remprop 'fnode 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'fnode 'sys::defstruct-description)
 
 ;; the current function, an FNODE:
 (defvar *func*)
@@ -1484,28 +1484,28 @@ for-value   NIL or T
 ;; An ANODE is the encoding of the information, that is needed for the
 ;; compilation of a form.
 (defstruct (anode
-             (:constructor mk-anode (#+COMPILER-DEBUG source
+             (:constructor mk-anode (#+CLISP-DEBUG source
                                      type
-                                     #+COMPILER-DEBUG sub-anodes
+                                     #+CLISP-DEBUG sub-anodes
                                      seclass
                                      code
-                                     #+COMPILER-DEBUG stackz))
+                                     #+CLISP-DEBUG stackz))
              (:copier nil))
-  #+COMPILER-DEBUG
+  #+CLISP-DEBUG
   source        ; the source pertaining to this Form, mostly a Form
                 ; (only needed for debugging purposes)
   type          ; Type of the ANODE (CALL, PRIMOP, VAR, LET, SETQ, ...)
-  #+COMPILER-DEBUG
+  #+CLISP-DEBUG
   sub-anodes    ; all ANODEs of the sub-forms
   seclass       ; side effect classification
   code          ; generated LAP-Code, a List of LAP-statements and ANODEs
-  #+COMPILER-DEBUG
+  #+CLISP-DEBUG
   stackz)       ; state of the Stacks on entry into the belonging LAP-Code
-#-COMPILER-DEBUG (remprop 'anode 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'anode 'sys::defstruct-description)
 ;; (make-anode ...) is the same as mk-anode, only that the arguments
 ;; are marked with keywords and unnecessary components
-;; may stand there nevertheless because of #+COMPILER-DEBUG.
-(eval-when (compile eval #+COMPILER-DEBUG load)
+;; may stand there nevertheless because of #+CLISP-DEBUG.
+(eval-when (compile eval #+CLISP-DEBUG load)
   (defmacro make-anode (&key
                         (source `*form*)
                         type
@@ -1513,12 +1513,12 @@ for-value   NIL or T
                         seclass
                         code
                         (stackz `*stackz*))
-    `(mk-anode #+COMPILER-DEBUG ,source
+    `(mk-anode #+CLISP-DEBUG ,source
                ,type
-               #+COMPILER-DEBUG ,sub-anodes
+               #+CLISP-DEBUG ,sub-anodes
                ,seclass
                ,code
-               #+COMPILER-DEBUG ,stackz)))
+               #+CLISP-DEBUG ,stackz)))
 
 #|
 ;; A side effect class (SECLASS) is an indicator:
@@ -1678,7 +1678,7 @@ for-value   NIL or T
   (lineno1 *compile-file-lineno1*)
   (lineno2 *compile-file-lineno2*)
   (file *compile-file-truename*))
-#-COMPILER-DEBUG (remprop 'c-source-point 'sys::defstruct-description)
+#-CLISP-DEBUG (remprop 'c-source-point 'sys::defstruct-description)
 
 ;; (C-SOURCE-LOCATION)
 ;; returns a description of the location in the source.
@@ -2106,7 +2106,7 @@ for-value   NIL or T
               (c-form `(FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| not: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
               (c-error (TEXT "Not the name of a function: ~S") fun))))))))
-  #+COMPILER-DEBUG (setf (anode-source anode) *form*)
+  #+CLISP-DEBUG (setf (anode-source anode) *form*)
   ;; If no values are needed and no side effects are produced,
   ;; the appendant code can be discarded completely:
   (when (and (null *for-value*) (null (cdr (anode-seclass anode))))
@@ -2303,10 +2303,10 @@ for-value   NIL or T
 (defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
   (test-list *form* 1)
   (let* ((n (length (cdr *form*)))
-         #+COMPILER-DEBUG (oldstackz *stackz*)
+         #+CLISP-DEBUG (oldstackz *stackz*)
          (*stackz* *stackz*))
     (do ((formlist (cdr *form*))
-         #+COMPILER-DEBUG (anodelist '())
+         #+CLISP-DEBUG (anodelist '())
          (codelist (list '(CALLP))))
         ((null formlist)
          (push
@@ -2322,7 +2322,7 @@ for-value   NIL or T
            :stackz oldstackz))
       (let* ((formi (pop formlist))
              (anodei (c-form formi 'ONE)))
-        #+COMPILER-DEBUG (push anodei anodelist)
+        #+CLISP-DEBUG (push anodei anodelist)
         (push anodei codelist)
         (push '(PUSH) codelist)
         (push 1 *stackz*)))))
@@ -4224,7 +4224,7 @@ for-value   NIL or T
   (let ((L (cdr *form*))) ; list of forms
     (cond ((null L) (c-NIL)) ; no form -> NIL
           ((null (cdr L)) (c-form (car L))) ; exactly one form
-          (t (do (#+COMPILER-DEBUG (anodelist '())
+          (t (do (#+CLISP-DEBUG (anodelist '())
                   (seclass '(NIL . NIL))
                   (codelist '())
                   (Lr L)) ; remaining list of forms
@@ -4236,7 +4236,7 @@ for-value   NIL or T
                     :code (nreverse codelist)))
                (let* ((formi (pop Lr)) ; i-th form
                       (anodei (c-form formi (if (null Lr) *for-value* 'NIL))))
-                 #+COMPILER-DEBUG (push anodei anodelist)
+                 #+CLISP-DEBUG (push anodei anodelist)
                  (seclass-or-f seclass anodei)
                  (push anodei codelist)))))))
 
@@ -4318,7 +4318,7 @@ for-value   NIL or T
            :seclass '(NIL . NIL)
            :code '((T))))
         ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
-        (t (do (#+COMPILER-DEBUG (anodelist '())
+        (t (do (#+CLISP-DEBUG (anodelist '())
                 (seclass '(NIL . NIL))
                 (codelist '())
                 (Lr (cdr *form*))
@@ -4332,7 +4332,7 @@ for-value   NIL or T
                   :code (nreverse codelist)))
              (let* ((formi (pop Lr))
                     (anodei (c-form formi (if (null Lr) *for-value* 'ONE))))
-               #+COMPILER-DEBUG (push anodei anodelist)
+               #+CLISP-DEBUG (push anodei anodelist)
                (seclass-or-f seclass anodei)
                (if (null Lr)
                  ;; last form -> take over directly
@@ -4360,7 +4360,7 @@ for-value   NIL or T
            :seclass '(NIL . NIL)
            :code '((NIL))))
         ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
-        (t (do (#+COMPILER-DEBUG (anodelist '())
+        (t (do (#+CLISP-DEBUG (anodelist '())
                 (seclass '(NIL . NIL))
                 (codelist '())
                 (Lr (cdr *form*))
@@ -4374,7 +4374,7 @@ for-value   NIL or T
                   :code (nreverse codelist)))
              (let* ((formi (pop Lr))
                     (anodei (c-form formi (if (null Lr) *for-value* 'ONE))))
-               #+COMPILER-DEBUG (push anodei anodelist)
+               #+CLISP-DEBUG (push anodei anodelist)
                (seclass-or-f seclass anodei)
                (if (null Lr)
                  ;; last form -> take over directly
@@ -4548,7 +4548,7 @@ for-value   NIL or T
     ;; (c-form `(FUNCALL ,(second *form*))) ; 0 Arguments for form1
     (c-FUNCTION-CALL (second *form*) '())
     (let* ((anode1 (c-form (second *form*) 'ONE))
-           #+COMPILER-DEBUG (anodelist (list anode1))
+           #+CLISP-DEBUG (anodelist (list anode1))
            (codelist '()))
       (push anode1 codelist)
       (push '(MVCALLP) codelist)
@@ -4560,7 +4560,7 @@ for-value   NIL or T
                  (let ((*stackz* (cons (if (zerop i) 'MVCALLP 'MVCALL)
                                        *stackz*)))
                    (c-form formi 'ALL))))
-          #+COMPILER-DEBUG (push anodei anodelist)
+          #+CLISP-DEBUG (push anodei anodelist)
           (push anodei codelist)
           (push '(MV-TO-STACK) codelist)))
       (push '(MVCALL) codelist)
@@ -4606,7 +4606,7 @@ for-value   NIL or T
       (c-form ; (SETF ...) instead of (SETQ ...), macro-expand
         (funcall (macro-function 'SETF) (cons 'SETF (cdr *form*)) (env)))
       (do ((L (cdr *form*) (cddr L))
-           #+COMPILER-DEBUG (anodelist '())
+           #+CLISP-DEBUG (anodelist '())
            (seclass '(NIL . NIL))
            (codelist '()))
           ((null L)
@@ -4618,7 +4618,7 @@ for-value   NIL or T
         (let* ((symboli (first L))
                (formi (second L))
                (anodei (c-form formi 'ONE)))
-          #+COMPILER-DEBUG (push anodei anodelist)
+          #+CLISP-DEBUG (push anodei anodelist)
           (if (symbolp symboli)
             (progn
               (set-check-lock 'setq symboli)
@@ -4719,7 +4719,7 @@ for-value   NIL or T
                     :code `(,anode1
                             ,@(if (eq *for-value* 'ALL) '((VALUES1)) '())))
         (do ((L (second *form*) (cdr L))
-             #+COMPILER-DEBUG (anodelist (list anode1))
+             #+CLISP-DEBUG (anodelist (list anode1))
              (seclass (anode-seclass anode1))
              (codelist '()))
             ((null L)
@@ -5069,14 +5069,14 @@ for-value   NIL or T
            (*genv* (cons (cons (apply #'vector taglist) tagbody) *genv*))
            ;; activate Tagbody
            (codelist '())
-           #+COMPILER-DEBUG (anodelist '())
+           #+CLISP-DEBUG (anodelist '())
            (seclass '(NIL . NIL)))
       ;; compile interior of Tagbody:
       (do ((formlistr (cdr *form*) (cdr formlistr))
            (taglistr taglist)
            (labellistr labellist))
           ((null formlistr)
-           #+COMPILER-DEBUG (setq anodelist (nreverse anodelist))
+           #+CLISP-DEBUG (setq anodelist (nreverse anodelist))
            (setq codelist (nreverse codelist)))
         (let ((formi (car formlistr)))
           (if (atom formi)
@@ -5084,7 +5084,7 @@ for-value   NIL or T
               ;; retrieve Tag
               (pop taglistr) (push (pop labellistr) codelist))
             (let ((anodei (c-form formi 'NIL)))
-              #+COMPILER-DEBUG (push anodei anodelist)
+              #+CLISP-DEBUG (push anodei anodelist)
               (seclass-or-f seclass anodei)
               (push anodei codelist)))))
       (if (> (length (tagbody-used-far tagbody)) 0)
@@ -5999,7 +5999,7 @@ for-value   NIL or T
   (let* ((anode1 (c-form funform 'ONE))
          (*stackz* (cons 1 *stackz*)))
     (do ((formlistr args (cdr formlistr))
-         #+COMPILER-DEBUG (anodelist (list anode1))
+         #+CLISP-DEBUG (anodelist (list anode1))
          (codelist (list '(FUNCALLP) anode1)))
         ((null formlistr)
          (push `(FUNCALL ,(length args)) codelist)
@@ -6009,7 +6009,7 @@ for-value   NIL or T
            :seclass '(T . T)
            :code (nreverse codelist)))
       (let ((anode (c-form (car formlistr) 'ONE)))
-        #+COMPILER-DEBUG (push anode anodelist)
+        #+CLISP-DEBUG (push anode anodelist)
         (push anode codelist))
       (push '(PUSH) codelist)
       (push 1 *stackz*))))
@@ -6425,7 +6425,7 @@ for-value   NIL or T
     (let* ((anode1 (c-form funform 'ONE))
            (*stackz* (cons 1 *stackz*)))
       (do ((formlistr arglist (cdr formlistr))
-           #+COMPILER-DEBUG (anodelist (list anode1))
+           #+CLISP-DEBUG (anodelist (list anode1))
            (codelist (list '(APPLYP) anode1)))
           ((null formlistr)
            (push `(APPLY ,n) codelist)
@@ -6435,7 +6435,7 @@ for-value   NIL or T
              :seclass '(T . T)
              :code (nreverse codelist)))
         (let ((anode (c-form (car formlistr) 'ONE)))
-          #+COMPILER-DEBUG (push anode anodelist)
+          #+CLISP-DEBUG (push anode anodelist)
           (push anode codelist)
           (when (cdr formlistr)
             (push 1 *stackz*) (push '(PUSH) codelist)))))))
