@@ -70,8 +70,8 @@
     <author><firstname>Jim</firstname><surname>des Rivieres</surname></author>
     <author><firstname>Daniel G.</firstname><surname>Bobrow</surname></author>
    </authorgroup>
-   <title><ulink url='&mop-home;'>The Art of the Metaobject
-     Protocol</ulink></title>
+   <citetitle><ulink url='&mop-home;'>The Art of the Metaobject
+     Protocol</ulink></citetitle>
    <pubdate>1991</pubdate> <pagenums>335 pages</pagenums>
    <isbn>0-262-61074-4</isbn>
    <publisher><publishername><ulink url='http://www-mitpress.mit.edu'>MIT
@@ -201,6 +201,7 @@
 <!ENTITY kwd-pac "<ulink url='&clhs;/Body/sec_11-1-2-3.html'><quote role='package'>KEYWORD</quote></ulink>">
 
 <!-- *** reader *** -->
+<!ENTITY sharp-A "<ulink url='&clhs;/Body/sec_2-4-8-12'><literal role='data'>#A</literal></ulink>">
 <!ENTITY sharp-S "<ulink url='&clhs;/Body/sec_2-4-8-13'><literal role='data'>#S</literal></ulink>">
 <!ENTITY sharp-P "<ulink url='&clhs;/Body/sec_2-4-8-14'><literal role='data'>#P</literal></ulink>">
 
