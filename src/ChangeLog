@@ -1,6 +1,11 @@
+2000-12-04  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (registry): do not goto outsize `with_string_0'
+	* dirkey.d (dir_key_value): ditto
+
 2000-12-04  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (dir_key_length): Set to 3.
+	* lispbibl.d (dir_key_length): Set to 3.
 
 2000-12-03  Sam Steingold  <sds@gnu.org>
 

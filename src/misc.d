@@ -223,14 +223,17 @@ LISPFUNN(registry,2)
         begin_system_call();
         err = RegOpenKeyEx(HKEY_LOCAL_MACHINE,pathz,0,KEY_READ, &key);
         if (!(err == ERROR_SUCCESS)) {
-          if (err == ERROR_FILE_NOT_FOUND)
+          if (err == ERROR_FILE_NOT_FOUND) {
+            value1 = NIL;
             goto none;
+          }
           SetLastError(err); OS_error();
         }
         err = RegQueryValueEx(key,namez,NULL,&type, NULL,&size);
         if (!(err == ERROR_SUCCESS)) {
           if (err == ERROR_FILE_NOT_FOUND) {
             RegCloseKey(key);
+            value1 = NIL;
             goto none;
           }
           SetLastError(err); OS_error();
@@ -260,11 +263,8 @@ LISPFUNN(registry,2)
             }
         }
       });
+    none:;
     });
-    if (FALSE) {
-     none:
-      value1 = NIL;
-    }
     mv_count=1;
     skipSTACK(2);
   }

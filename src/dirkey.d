@@ -689,7 +689,7 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
       if ((status == ERROR_FILE_NOT_FOUND) && !eq(default_value,unbound)) {
         value1 = default_value;
         end_system_call();
-        goto end; # FIXME: goto outside with_string_0 is forbidden
+        goto end;
       }
       SetLastError(status); OS_error();
     }
@@ -699,8 +699,8 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
     end_system_call();
     value1 = registry_value_to_object(type,size,buffer);
+  end:;
   });
- end:
   mv_count = 1;
 }
 
