@@ -1378,8 +1378,8 @@ static char* get_signature_for_LISPFUN (const Fundef_t* fdef,
              (sig->rest?"rest":"norest"),
              (sig->key?"key":"nokey"),
              VectorObjdef_length(sig->keywords)); */
-  char buffer[1+10+1+10+1+6+1+5+10+5+1];
-  sprintf(buffer,",%d,%d,%s,%s,%lu,NIL)",
+  char buffer[1+15+1+10+1+10+1+6+1+5+10+5+1];
+  sprintf(buffer,",seclass_default,%d,%d,%s,%s,%lu,NIL)",
                  sig->req,
                  sig->opt,
                  (sig->rest?"rest":"norest"),
