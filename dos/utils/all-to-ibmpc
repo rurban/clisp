@@ -1,9 +1,0 @@
-#!/bin/sh
-# Usage: all-to-ibmpc [file ...]
-for f in $*; do
-  if test -f "$f"; then
-    echo "converting $f"
-    ${CHARSETBINDIR}to-ibmpc "$f" CONVERT.TMP
-    mv CONVERT.TMP "$f"
-  fi
-done
