@@ -5905,7 +5905,7 @@ LISPFUNN(delete_file,1) {
   var object namestring = assure_dir_exists(false,true);
   if (eq(namestring,nullobj)) {
     /* path to the file does not exist ==> return NIL */
-    skipSTACK(1); VALUES1(NIL); return;
+    skipSTACK(2); VALUES1(NIL); return;
   }
   check_delete_open(STACK_0);
   /* delete the original filename - not the truename */
