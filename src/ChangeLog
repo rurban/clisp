@@ -1,5 +1,14 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	* control.d (parse_doc_decl): Fix GC-safety bug introduced on
+	2004-05-27.
+	* hashtabl.d (warn_forced_gc_rehash): Fix GC-safety bug introduced on
+	2004-05-15.
+	(warn_key_forces_gc_rehash): Fix GC-safety bug introduced on
+	2004-05-12.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	* .gdbinit: Don't always execute the "base" command. It made it
 	impossible to attach to an already running lisp.run process.
 
