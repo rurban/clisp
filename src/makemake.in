@@ -3035,6 +3035,10 @@ echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
 echotab "CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 echol
+echol "full-check : full clisp"
+echotab "for m in \$(MODULES); do \$(RM) $$m/*.erg; done;"
+echotab 'z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -norc -K full -C -i suite/tests -x "(run-some-tests '"'"'($$z))"';
+echol
 OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 
 if test -n "$GROFF"; then
