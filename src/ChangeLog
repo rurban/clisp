@@ -1,3 +1,8 @@
+2005-02-07  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (init_module_2, usage, arg_error): Use symmetric quotes,
+	instead of `...'.
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-DIRECT-FUNCTION-CALL): Fix error and wrong warning
