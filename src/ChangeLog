@@ -1,3 +1,8 @@
+1999-03-19  Sam Steingold  <sds@gnu.org>
+
+	* savemem.lsp (saveinitmem): bind +/-/* to nil instead of setting
+	them to nil.  Also, bind sys::*command-index* to 0.
+
 1999-03-18  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lsp (*deprecated-functions-list*): new variable.
