@@ -3,8 +3,10 @@
 	function-name error can now be recovered from
 	* error.d (fehler_funname_source, fehler_funname_type): merged
 	into check_funname()
+	(fehler_key_odd, fehler_key_notkw, fehler_key_badkw): added
 	* lispbibl.d (fehler_funname_source, fehler_funname_type):
 	replaced with check_funname()
+	(fehler_key_odd, fehler_key_notkw, fehler_key_badkw): declare
 	* control.d (FUNCTION, FLET, LABELS): use check_funname()
 	instead of fehler_funname_source()
 	(funname_to_symbol): use check_funname()
@@ -13,6 +15,10 @@
 	instead of fehler_funname_source()
 	(apply, funcall): use check_funname()
 	instead of fehler_funname_type()
+	(fehler_key_unpaarig, fehler_key_notkw, fehler_key_badkw): removed
+	(check_for_illegal_keywords): accept an additional caller arg
+	* record.d (fehler_key_odd): removed
+	(keyword_test): use fehler_key_notkw() and fehler_key_badkw()
 	* trace.lisp (check-function-name): replaces error-function-name
 	(check-traceable): modified to use check-function-name
 	* clos.lisp (documentation): ditto
