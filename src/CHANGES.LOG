@@ -32,7 +32,7 @@ User visible changes
 * Weak hash-tables are now supported.
   See the impnotes <http://clisp.cons.org/impnotes.html#make-hash> for details.
 
-* Support Cygwin's "/cygdrive/drive/path" pathname symtax on Win32.
+* Support Cygwin's "/cygdrive/drive/path" pathname syntax on Win32.
 
 * New macro EXT:FCASE which allows specifying comparison function in CASE.
   See the impnotes <http://clisp.cons.org/impnotes.html#fcase> for details.
