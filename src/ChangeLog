@@ -1,5 +1,9 @@
 2001-09-10  Sam Steingold  <sds@gnu.org>
 
+	* debug.d (read_form): check the input_len before string_eqcomp_ci()
+
+2001-09-10  Sam Steingold  <sds@gnu.org>
+
 	* pprint.lisp (pprint-logical-block): unroll stream-symbol (NIL ->
 	*STANDARD-OUTPUT*, T -> *TERMINAL-IO*)
 
