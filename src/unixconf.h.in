@@ -143,6 +143,9 @@
    <sys/resource.h> defines RUSAGE_SELF */
 #undef HAVE_GETRUSAGE
 
+/* Define to 1 if you have the `getsockopt' function. */
+#undef HAVE_GETSOCKOPT
+
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
