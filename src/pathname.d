@@ -907,8 +907,12 @@ local boolean legal_logical_word_char(ch)
       #ifdef VALID_FILENAME_CHAR # defined in unixconf.h
       return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
       #else
-      #if defined(PATHNAME_MSDOS)
-      return ((ch=='_') || (ch=='-') || alphanumericp(ch));
+      #ifdef PATHNAME_MSDOS
+      # Leo Sarasua says that "%*+,;<=>[]| are invalid.
+      return (alphanumericp(ch) || (ch=='_')
+              || (ch=='!') || (ch=='#') || (ch=='$') || (ch=='&') || (ch=='\'')
+              || (ch=='(') || (ch==')') || (ch=='-') || (ch=='?') || (ch=='@')
+              || (ch=='^') || (ch=='`') || (ch=='{') || (ch=='}') || (ch=='~'));
       #endif
       #ifdef PATHNAME_AMIGAOS
       return (graphic_char_p(ch) && !(ch=='/') && !(ch==':'));
