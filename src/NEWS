@@ -254,6 +254,10 @@ User visible changes
   LOAD can now ignore erroneous forms using SKIP and STOP restarts.
   See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
+* References from within macros defined through MACROLET to variables or
+  functions defined in the lexical environment outside the MACROLET form
+  now signal an error. Previously, this resulted in undefined behaviour.
+
 * The FFI recognizes the c-type declaration (C-POINTER <c-type>) to
   handle references without conversion to/from Lisp structures.
   See <http://clisp.cons.org/impnotes.html#c-pointer> for details.

@@ -1,3 +1,7 @@
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
+	* bind.tst: Add tests for MACROLET expander environments.
+
 2005-01-27  Bruno Haible  <bruno@clisp.org>
 
 	* path.tst: Add test for (logical-pathname ":").

@@ -771,21 +771,41 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
     }
     venv = FRAME_(frame_next_env);
     goto next_env;
-  } else if (simple_vector_p(venv)) { /* environment is a simple-vector */
-    do {
+  }
+  var bool from_inside_macrolet = false;
+  for (;;) {
+    if (simple_vector_p(venv)) {
+      /* environment is a simple-vector */
       var uintL count = floor(Svector_length(venv),2); /* number of bindings */
       var gcv_object_t* ptr = &TheSvector(venv)->data[0];
       dotimesL(count,count, {
-        if (eq(*ptr,sym)) /* right symbol? */
+        if (eq(*ptr,sym)) { /* right symbol? */
+          if (from_inside_macrolet && !eq(*(ptr+1),specdecl)
+              && !symbolmacrop(*(ptr+1)))
+            goto macrolet_error;
           return ptr+1;
+        }
         ptr += 2; /* next binding */
       });
       venv = *ptr; /* next environment */
-    } while (simple_vector_p(venv));
+      continue;
+    } elif (consp(venv)) {
+      /* environment is a MACROLET capsule */
+      ASSERT(eq(Car(venv),S(macrolet)));
+      from_inside_macrolet = true;
+      venv = Cdr(venv);
+      continue;
+    } else
+      break;
   }
   /* Environment is NIL */
   return NULL;
 #undef binds_sym_p
+ macrolet_error:
+  pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
+  pushSTACK(S(macrolet)); pushSTACK(sym);
+  fehler(program_error,
+         GETTEXT("Invalid access to the value of the lexical variable ~S from within a ~S definition"));
 }
 
 /* (SYS::SPECIAL-VARIABLE-P symbol &optional environment)
@@ -924,27 +944,33 @@ global maygc object setq (object sym, object value)
         }
         env = FRAME_(frame_next_env);
         goto next_env;
-      } elif (simple_vector_p(env))
-        # Environment is a Simple-Vector
-        goto next_vector;
-      else
-        # Environment is NIL
-        goto global_value;
-     next_vector:
-      # Environment is a Simple-Vector
-      {
-        var uintL count = floor(Svector_length(env),2); # number of bindings
-        var gcv_object_t* ptr = &TheSvector(env)->data[0];
-        dotimesL(count,count, {
-          if (equal(*ptr,sym)) { # right Symbol?
-            value = *(ptr+1); goto fertig;
-          }
-          ptr += 2; # next binding
-        });
-        env = *ptr; # next Environment
-        if (simple_vector_p(env)) # a Simple-Vector?
-          goto next_vector;
-        # else: Environment is NIL
+      }
+      var bool from_inside_macrolet = false;
+      for (;;) {
+        if (simple_vector_p(env)) {
+          # Environment is a Simple-Vector
+          var uintL count = floor(Svector_length(env),2); # number of bindings
+          var gcv_object_t* ptr = &TheSvector(env)->data[0];
+          dotimesL(count,count, {
+            if (equal(*ptr,sym)) { # right Symbol?
+              value = *(ptr+1);
+              if (from_inside_macrolet && !macrop(value))
+                goto macrolet_error;
+              goto fertig;
+            }
+            ptr += 2; # next binding
+          });
+          env = *ptr; # next Environment
+          continue;
+        } elif (consp(env)) {
+          /* environment is a MACROLET capsule */
+          ASSERT(eq(Car(env),S(macrolet)));
+          from_inside_macrolet = true;
+          env = Cdr(env);
+          continue;
+        } else
+          # Environment is NIL
+          goto global_value;
       }
     }
    global_value: # global function-definition
@@ -961,6 +987,11 @@ global maygc object setq (object sym, object value)
     if (nullp(value))
       value = unbound;
     return value;
+   macrolet_error:
+    pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
+    pushSTACK(S(macrolet)); pushSTACK(sym);
+    fehler(source_program_error,
+           GETTEXT("Invalid access to the local function definition of ~S from within a ~S definition"));
   }
 
 # UP: evaluates a Form in a given Environment.
