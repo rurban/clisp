@@ -21,9 +21,6 @@
     rational
     ))
 
-#+clisp
-(shadow :boolean)
-
 #+(and lispm (not clx-ansi-common-lisp))
 (import
   '(
