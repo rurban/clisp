@@ -1,5 +1,13 @@
 1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_debug.d: New file.
+        * spvw.d (asciz_out, hex_out_, dez_out_, asciz_out_s, asciz_out_ss,
+          asciz_out_aux_hex, asciz_out_aux_dez, asciz_out_1_, asciz_out_2_,
+          asciz_out_3_, mem_hex_out, object_out): Move out.
+        * makemake.in: (SPVW_INCLUDES): Adjust.
+
+1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_module.d: New file.
         * spvw.d (main_module, last_module, init_modules_0, add_module,
           for_modules, all_modules, all_other_modules): Move out.
