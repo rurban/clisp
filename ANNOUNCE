@@ -1,4 +1,4 @@
-This is CLISP, a Common Lisp implementation.
+This is GNU CLISP, a Common Lisp implementation.
 
 CLISP is mostly ANSI CL compliant, including a CLOS implementation.
 
