@@ -1,3 +1,10 @@
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb1.lisp (method-combination): New slot long-expander.
+	* clos-methcomb2.lisp (long-form-method-combination-expander): Remove
+	last argument. Fetch it from the method-combination instead.
+	(define-method-combination): Simplify long-form expansion.
+
 2004-05-30  Bruno Haible  <bruno@clisp.org>
 
 	Make the class-slots computation customizable.
