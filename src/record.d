@@ -850,7 +850,7 @@ local inline void check_initialization_argument_list (uintL argcount, object cal
     do {
       if (!symbolp(Next(argptr))) {
         pushSTACK(Next(argptr)); pushSTACK(caller);
-        fehler(error,"~: invalid initialization argument ~");
+        fehler(error,"~S: invalid initialization argument ~S");
       }
       argptr skipSTACKop -2;
       argcount -= 2;
