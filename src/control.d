@@ -756,7 +756,10 @@ LISPSPECFORM(let, 1,0,body)
               var object newval = *(markptr STACKop varframe_binding_value); # neuer Wert
               *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
               *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren
-              TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
+              pushSTACK(newval); pushSTACK(symbol);
+              symbol_value_check_lock(S(let),symbol);
+              TheSymbolflagged(STACK_0)->symvalue = STACK_1; # new value
+              skipSTACK(2);
             } else {
               *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren
             }
@@ -802,7 +805,10 @@ LISPSPECFORM(letstern, 1,0,body)
             var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
             *initptr = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
             *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren
-            TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
+            pushSTACK(newval); pushSTACK(symbol);
+            symbol_value_check_lock(S(letstern),symbol);
+            TheSymbolflagged(STACK_0)->symvalue = STACK_1; # new value
+            skipSTACK(2);
           } else {
             *initptr = newval; # neuen Wert in den Frame
             *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren
@@ -882,8 +888,9 @@ LISPSPECFORM(compiler_let, 1,0,body)
                  GETTEXT("~: ~ is a constant, cannot be bound")
                 );
         }
-        pushSTACK(Cdr(varspecs));
-        eval_noenv(varspec); # Initform auswerten
+        pushSTACK(Cdr(varspecs)); pushSTACK(varspecs);
+        symbol_value_check_lock(S(compiler_let),symbol);
+        eval_noenv(popSTACK()); # Initform auswerten
         varspecs = STACK_0;
         STACK_0 = value1; # und in den Stack
       } else {
