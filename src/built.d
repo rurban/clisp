@@ -65,14 +65,20 @@ global object built_flags (void) {
     " TRIVIALMAP_MEMORY"
   #endif
     ;
+  var object result = ascii_to_string(part1);
  #ifdef LIBSIGSEGV_VERSION
-  var DYNAMIC_ARRAY(entire_string,char,strlen(part1)+20);
-  sprintf(entire_string, "%s\nlibsigsegv %d.%d",
-          part1, LIBSIGSEGV_VERSION >> 8, LIBSIGSEGV_VERSION & 0xff);
-  var object result = ascii_to_string(entire_string);
-  FREE_DYNAMIC_ARRAY(entire_string);
-  return result;
- #else
-  return ascii_to_string(part1);
+  var char libsigsegv_ver[BUFSIZ];
+  sprintf(libsigsegv_ver, "\nlibsigsegv %d.%d",
+          LIBSIGSEGV_VERSION >> 8, LIBSIGSEGV_VERSION & 0xff);
+  pushSTACK(result); pushSTACK(ascii_to_string(libsigsegv_ver));
+  result = string_concat(2);
  #endif
+ #ifdef _LIBICONV_VERSION
+  var char libiconv_ver[BUFSIZ];
+  sprintf(libiconv_ver, "\nlibiconv %d.%d",
+          _LIBICONV_VERSION >> 8, _LIBICONV_VERSION & 0xff);
+  pushSTACK(result); pushSTACK(ascii_to_string(libiconv_ver));
+  result = string_concat(2);
+ #endif
+  return result;
 }
