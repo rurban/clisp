@@ -68,7 +68,7 @@
                        superclass-specs)))
          (accessor-method-decl-forms '())
          (accessor-function-decl-forms '())
-         (generic-accessors 'T)
+         (generic-accessors nil) (generic-accessors-arg 'T)
          (slot-forms
            (let ((slot-names '()))
              (unless (listp slot-specs)
@@ -342,7 +342,8 @@
               (:GENERIC-ACCESSORS
                (when (eql (length option) 2)
                  (let ((argument (second option)))
-                   (setq generic-accessors argument)
+                   (setq generic-accessors-arg argument)
+                   (setq generic-accessors `(:GENERIC-ACCESSORS ',argument))
                    (return))))
               (T
                (when (symbolp optionkey)
@@ -389,24 +390,29 @@
                :DIRECT-SUPERCLASSES (LIST ,@superclass-forms)
                :DIRECT-SLOTS (LIST ,@slot-forms)
                :METACLASS ,metaclass-var
-               ;; Here we use (or ... '(... NIL)) because when a class is
-               ;; being redefined, :DOCUMENTATION NIL means to erase the
-               ;; documentation string, while nothing means to keep it!
-               ;; See MOP p. 57.
-               ,@(or direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
-               ,@(or documentation '(:DOCUMENTATION NIL))
-               :GENERIC-ACCESSORS ',generic-accessors
+               ,@direct-default-initargs
+               ,@documentation
+               ,@generic-accessors
                ;; Pass user-defined initargs of the metaclass.
                ,@(mapcan #'(lambda (option)
                              (list `',(first option) `',(rest option)))
                          user-defined-args)
-               ;; Pass the default initargs of the metaclass, in
-               ;; order to erase leftovers from the previous definition.
-               ,(if metaclass
-                  `(MAPCAP #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
-                           (CLASS-DEFAULT-INITARGS ,metaclass-var))
-                  `',*<standard-class>-default-initargs*))))
-         ,@(if generic-accessors
+               (APPEND
+                 ;; Pass the default initargs of the metaclass, in
+                 ;; order to erase leftovers from the previous definition.
+                 ,(if metaclass
+                    `(MAPCAN #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
+                             (CLASS-DEFAULT-INITARGS ,metaclass-var))
+                    `',*<standard-class>-default-initargs*)
+                 (LIST
+                   ;; Here we use (unless ... '(... NIL)) because when a class
+                   ;; is being redefined, passing :DOCUMENTATION NIL to
+                   ;; ENSURE-CLASS means to erase the documentation string,
+                   ;; while nothing means to keep it! See MOP p. 57.
+                   ,@(unless direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
+                   ,@(unless documentation '(:DOCUMENTATION NIL))
+                   ,@(unless generic-accessors '(:GENERIC-ACCESSORS 'T)))))))
+         ,@(if generic-accessors-arg
              (nreverse accessor-method-decl-forms) ; the DECLAIM-METHODs
              (nreverse accessor-function-decl-forms)) ; the C-DEFUNs
          (FIND-CLASS ',name)))))
