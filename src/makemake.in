@@ -2994,14 +2994,22 @@ if [ $XCC_GCC = true ] ; then
 fi
 
 
-echol "clisp.h : genclisph.o unixconf.h ${PARAMS_H}"
+echol "clisp.h clisp-test.c : genclisph.o unixconf.h ${PARAMS_H}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
 echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* unixconf */' ; grep '^#' unixconf.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
-echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
-echotab "\$(RM) genclisph${HEXE}"
+echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
+echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=1" "clisp-test.c" "clisp-test-clisp"
+echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=0" "clisp-test.c" "clisp-test-lispbibl"
+echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
+echotab "${HERE}clisp-test-lispbibl > clisp-test-lispbibl.out"
+if [ $HOS = unix -o $HSYS = win32gcc ];
+then echotab  "cmp clisp-test-clisp.out clisp-test-lispbibl.out"
+else echotab "comp clisp-test-clisp.out clisp-test-lispbibl.out"
+fi
+echotab "\$(RM) genclisph${HEXE} clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
 echol
 LINKKIT="modules.d modules.c clisp.h exporting.lisp modprep.lisp"
 echol "linkkit : ${LINKKIT}"
