@@ -118,9 +118,11 @@ Optional arguments:
                  the database as if you were some other user.
     auto-commit  Commit after every operation (default: T).  Set this to NIL if
                  you intend to do transactions, and call call COMMIT explicitly.
-    prefetch-    Number of bytes to cache from SELECT fetches (default: 1,000,000)
+    prefetch-    Number of bytes to cache from SELECT fetches (default: 64 Kbytes)
     buffer-      If you are very short of memory, or have a slow connection to Oracle,
-    bytes        reduce this to 10000 or so.
+    bytes        you can reduce this to 10,000 or so.  Alternatively, if you have a
+                 fast connection to Oracle and regularly do large queries, you can
+                 increase throughput by increasing this value.
 
 Returns: T if a cached connection was re-used (NIL if a new connection
          was created and cached).

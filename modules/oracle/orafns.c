@@ -37,7 +37,7 @@
 /* Constants */
 
 /* Default no. of bytes for row prefetch */
-#define DEFAULT_PREFETCH_BYTES  1024 * 1024
+#define DEFAULT_PREFETCH_BYTES  65536
 /* Size of per-connection error buffer */
 #define ERRBUF_BYTES            100000
 
