@@ -3099,6 +3099,11 @@ der Docstring (oder NIL).
           (ASSOC-IF-NOT . c-ASSOC-IF-NOT)
           (RASSOC-IF . c-RASSOC-IF)
           (RASSOC-IF-NOT . c-RASSOC-IF-NOT)
+          (LDB . c-LDB)
+          (LDB-TEST . c-LDB-TEST)
+          (MASK-FIELD . c-MASK-FIELD)
+          (DPB . c-DPB)
+          (DEPOSIT-FIELD . c-DEPOSIT-FIELD)
     )  )
     hashtable
 ) )
@@ -8596,7 +8601,7 @@ der Docstring (oder NIL).
                          (array-has-fill-pointer-p destination)))
           (c-error (ENGLISH "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
                    (car *form*) destination)))))
-  (if (stringp (third *form*))
+  (if (and (stringp (third *form*)) (not (fenv-search 'FORMATTER)))
     ; Format-String zur Compile-Zeit vorkompilieren.
     (c-GLOBAL-FUNCTION-CALL-form
       `(FORMAT ,(second *form*) (FORMATTER ,(third *form*)) ,@(cdddr *form*))
@@ -8664,6 +8669,109 @@ der Docstring (oder NIL).
   (c-seqop ASSOC 2)
   (c-seqop RASSOC 2)
 )
+
+; Recognizes a constant byte specifier and returns it, or NIL.
+(defun c-constant-byte-p (form)
+  (cond ((c-constantp form)
+          (setq form (c-constant-value form))
+          (if (eq (type-of form) 'BYTE) form nil)
+        )
+        ((and (consp form)
+              (eq (first form) 'BYTE)
+              (consp (cdr form))
+              (typep (second form) '(AND (INTEGER 0 *) FIXNUM))
+              (consp (cddr form))
+              (typep (third form) '(AND (INTEGER 0 *) FIXNUM))
+              (null (cdddr form))
+              (not (fenv-search 'BYTE))
+              (not (declared-notinline 'BYTE))
+         )
+          ; no need to ignore errors, we have checked the arguments
+          (byte (second form) (third form))
+        )
+        (t nil)
+) )
+
+(defun c-LDB ()
+  (test-list *form* 3 3)
+  (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
+    (if arg1
+      ; We optimize (ldb (byte size position) integer) only when position = 0,
+      ; because when position > 0, the expression
+      ; `(logand ,(1- (ash 1 size)) (ash integer ,(- position))
+      ; is not better and causes more heap allocations than the original
+      ; expression. The expression
+      ; `(ash (logand ,(ash (1- (ash 1 size)) position) integer) ,(- position))
+      ; is even worse.
+      ; The "24" below is an arbitrary limit, to avoid huge integers in the code
+      ; [e.g. for (ldb (byte 30000 0) x)]. In particular, we know that for
+      ; size <= 24, (1- (ash 1 size)) is a posfixnum, which makes the LOGAND
+      ; operation particularly efficient.
+      (if (and (= (byte-position arg1) 0) (<= (byte-size arg1) 24))
+        (c-GLOBAL-FUNCTION-CALL-form
+          `(LOGAND ,(1- (ash 1 (byte-size arg1))) ,(third *form*))
+        )
+        (c-GLOBAL-FUNCTION-CALL-form
+          `(LDB (QUOTE ,arg1) ,(third *form*))
+        )
+      )
+      (c-GLOBAL-FUNCTION-CALL 'LDB)
+) ) )
+
+(defun c-LDB-TEST ()
+  (test-list *form* 3 3)
+  (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
+    (if arg1
+      ; The "24" below is an arbitrary limit, to avoid huge integers in the code
+      ; [e.g. for (ldb-test (byte 30000 0) x)].
+      (if (<= (+ (byte-size arg1) (byte-position arg1)) 24)
+        (c-GLOBAL-FUNCTION-CALL-form
+          `(LOGTEST ,(ash (1- (ash 1 (byte-size arg1))) (byte-position arg1)) ,(third *form*))
+        )
+        (c-GLOBAL-FUNCTION-CALL-form
+          `(LDB-TEST (QUOTE ,arg1) ,(third *form*))
+        )
+      )
+      (c-GLOBAL-FUNCTION-CALL 'LDB-TEST)
+) ) )
+
+(defun c-MASK-FIELD ()
+  (test-list *form* 3 3)
+  (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
+    (if arg1
+      ; We know that for size+position <= 24, (ash (1- (ash 1 size)) position)
+      ; is a posfixnum, which makes the LOGAND operation more efficient than
+      ; the MASK-FIELD operation.
+      (if (<= (+ (byte-size arg1) (byte-position arg1)) 24)
+        (c-GLOBAL-FUNCTION-CALL-form
+          `(LOGAND ,(ash (1- (ash 1 (byte-size arg1))) (byte-position arg1)) ,(third *form*))
+        )
+        (c-GLOBAL-FUNCTION-CALL-form
+          `(MASK-FIELD (QUOTE ,arg1) ,(third *form*))
+        )
+      )
+      (c-GLOBAL-FUNCTION-CALL 'MASK-FIELD)
+) ) )
+
+(defun c-DPB ()
+  (test-list *form* 4 4)
+  (let ((arg2 (c-constant-byte-p (macroexpand-form (third *form*)))))
+    (if arg2
+      (c-GLOBAL-FUNCTION-CALL-form
+        `(DPB ,(second *form*) (QUOTE ,arg2) ,(fourth *form*))
+      )
+      (c-GLOBAL-FUNCTION-CALL 'DPB)
+) ) )
+
+(defun c-DEPOSIT-FIELD ()
+  (test-list *form* 4 4)
+  (let ((arg2 (c-constant-byte-p (macroexpand-form (third *form*)))))
+    (if arg2
+      (c-GLOBAL-FUNCTION-CALL-form
+        `(DEPOSIT-FIELD ,(second *form*) (QUOTE ,arg2) ,(fourth *form*))
+      )
+      (c-GLOBAL-FUNCTION-CALL 'DEPOSIT-FIELD)
+) ) )
 
 
 

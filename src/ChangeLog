@@ -1,5 +1,15 @@
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * compiler.lsp (c-form-table): Tread LDB, LDB-TEST, MASK-FIELD, DPB,
+          DEPOSIT-FIELD.
+          (c-constant-byte-p, c-LDB, c-LDB-TEST, c-MASK-FIELD, c-DPB,
+           c-DEPOSIT-FIELD): New functions.
+
+        * compiler.lsp (c-FORMAT): Only insert a FORMATTER call if FORMATTER
+          is not defined locally.
+
+1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * describe.lsp (describe-object): `type-of' does not need `sys::'.
 
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
