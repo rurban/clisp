@@ -172,7 +172,6 @@ local void nobject_out1 (FILE* out, object obj, int level) {
             posfixnum_to_L(TheHashtable(obj)->ht_maxcount),
             posfixnum_to_L(TheHashtable(obj)->ht_count),
             posfixnum_to_L(TheHashtable(obj)->ht_mincount));
-    XOUT(TheHashtable(obj)->ht_freelist);
     fputs("\n  test=",out);
     switch (ht_test_code(record_flags(TheHashtable(obj)))) {
       case bit(0): XOUT(S(eq)); break;
@@ -184,7 +183,6 @@ local void nobject_out1 (FILE* out, object obj, int level) {
         XOUT(TheHashtable(obj)->ht_hash);
         break;
     }
-    fputs("\n  I=",out); XOUT(TheHashtable(obj)->ht_itable);
     fputs("\n  KV=",out); XOUT(TheHashtable(obj)->ht_kvtable);
     fputc(')',out);
   } else if (packagep(obj)) {

@@ -1,3 +1,31 @@
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
+	Move the ht_itable and ht_freelist into ht_kvtable.
+	* lispbibl.d (Hashtable): Remove ht_itable, ht_freelist fields.
+	(hashtable_length): Decrement by 2.
+	(HashedAlist): New type.
+	(TheHashedAlist): New macro.
+	(kvtable_data, ht_kvt_data): Remove macros.
+	(map_hashtable, map_hashtable_nogc): Update.
+	* hashtabl.d (HT_GOOD_P): Remove ht_itable check.
+	(rehash, hash_lookup_builtin, hash_lookup_user, hash_store): Update.
+	(allocate_kvt): Update the allocation size. Initialize the freelist
+	field.
+	(resize): Store the new itable in the kvtable. No need to initialize
+	the freelist here.
+	(hash_prepare_store, clrhash): Update.
+	(MAKE-HASH-TABLE): Store the new itable in the kvtable. No need to
+	initialize the freelist here. Fix GC-safety bug before an error 
+	message.
+	(REMHASH, MAPHASH, SYS::HASH-TABLE-ITERATE): Update.
+	(SYS::%SET-HASH-TABLE-WEAK-P): Copy also the itable and freelist from
+	the old to the new kvtable.
+	(CLOS::CLASS-TUPLE-GETHASH): Update.
+	* io.d (pr_kvtable): Update. Optimize a loop invariant.
+	* predtype.d (hash_table_equalp): Update. Don't pass nullobj to equalp.
+	* spvw_debug.d (nobject_out1): Update.
+	* spvw_weak.d (weak_clean_dead): For WeakHashedAlist, return true.
+
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
 	* comptran.d (R_R_atanh_R_R): fixed ATANH on complex numbers

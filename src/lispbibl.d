@@ -4910,12 +4910,10 @@ typedef struct {
   gcv_object_t ht_lastrehash         _attribute_aligned_object_;
   #endif
   gcv_object_t ht_maxcount           _attribute_aligned_object_;
-  gcv_object_t ht_itable             _attribute_aligned_object_;
   gcv_object_t ht_kvtable            _attribute_aligned_object_;
   gcv_object_t ht_lookupfn           _attribute_aligned_object_;
   gcv_object_t ht_hashcodefn         _attribute_aligned_object_;
   gcv_object_t ht_testfn             _attribute_aligned_object_;
-  gcv_object_t ht_freelist           _attribute_aligned_object_;
   gcv_object_t ht_count              _attribute_aligned_object_;
   gcv_object_t ht_rehash_size        _attribute_aligned_object_;
   gcv_object_t ht_mincount_threshold _attribute_aligned_object_;
@@ -4925,9 +4923,9 @@ typedef struct {
   uintL ht_size;
 } *  Hashtable;
 #ifdef GENERATIONAL_GC
-  #define hashtable_length  14
+  #define hashtable_length  12
 #else
-  #define hashtable_length  13
+  #define hashtable_length  11
 #endif
 #define hashtable_xlength  (sizeof(*(Hashtable)0)-offsetofa(record_,recdata)-hashtable_length*sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize
@@ -4961,10 +4959,19 @@ typedef struct {
 # Test whether a hash table is weak.
 #define ht_weak_p(ht)  \
   !simple_vector_p(TheHashtable(ht)->ht_kvtable)
-# Get a pointer to the kvtable data array.
-#define kvtable_data(kvt)  \
-  (simple_vector_p(kvt) ? TheSvector(kvt)->data : TheWeakHashedAlist(kvt)->whal_data)
-#define ht_kvt_data(ht)   kvtable_data(TheHashtable(ht)->ht_kvtable)
+# The kvtable array is either a HashedAlist or a WeakHashedAlist.
+# Both share the same layout, i.e.
+#   &((HashedAlist)0)->hal_data == &((WeakHashedAlist)0)->whal_data.
+typedef struct {
+  VRECORD_HEADER # self-pointer for GC, length in objects
+  gcv_object_t hal_filler            _attribute_aligned_object_; # for consistency with WeakHashedAlist
+  gcv_object_t hal_itable            _attribute_aligned_object_; # index-vector
+  gcv_object_t hal_count             _attribute_aligned_object_; # remaining pairs
+  gcv_object_t hal_freelist          _attribute_aligned_object_; # start index of freelist
+  gcv_object_t hal_data[unspecified] _attribute_aligned_object_; # (key, value, next) triples
+} * HashedAlist;
+# TheHashedAlist is used to access both HashedAlist and WeakHashedAlist.
+#define TheHashedAlist(obj)  ((HashedAlist)TheVarobject(obj))
 
 # Readtables
 typedef struct {
@@ -12241,10 +12248,10 @@ extern object hash_table_test (object ht);
     pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);         \
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
-        index_from_map_hashtable -= 3;                                  \
+      index_from_map_hashtable -= 3;                                    \
       {var gcv_object_t* KVptr_from_map_hashtable =                     \
-         kvtable_data(STACK_0)+index_from_map_hashtable;                \
-          var object key = KVptr_from_map_hashtable[0];                 \
+         &TheHashedAlist(STACK_0)->hal_data[index_from_map_hashtable];  \
+       var object key = KVptr_from_map_hashtable[0];                    \
        if (boundp(key)) {                                               \
          var object value = KVptr_from_map_hashtable[1];                \
               statement;                                                \
@@ -12257,15 +12264,15 @@ extern object hash_table_test (object ht);
     var uintL index_from_map_hashtable =                                \
       posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     var gcv_object_t* KVptr_from_map_hashtable =                        \
-      ht_kvt_data(ht_from_map_hashtable) + 3*index_from_map_hashtable;  \
+      &TheHashedAlist(TheHashtable(ht_from_map_hashtable)->ht_kvtable)->hal_data[3*index_from_map_hashtable]; \
     loop {                                                              \
       if (index_from_map_hashtable==0) break;                           \
-        index_from_map_hashtable--; KVptr_from_map_hashtable -= 3;      \
-        { var object key = KVptr_from_map_hashtable[0];                 \
-       if (boundp(key)) {                                               \
-         var object value = KVptr_from_map_hashtable[1];                \
-              statement;                                                \
-      } }   }                                                           \
+      index_from_map_hashtable--; KVptr_from_map_hashtable -= 3;        \
+      { var object key = KVptr_from_map_hashtable[0];                   \
+        if (boundp(key)) {                                              \
+          var object value = KVptr_from_map_hashtable[1];               \
+          statement;                                                    \
+    } } }                                                               \
   } while(0)
 # is used by IO
 
