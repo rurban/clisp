@@ -1,5 +1,9 @@
 2002-01-08  Sam Steingold  <sds@gnu.org>
 
+	* deprecated.lisp (deprecate): added optional DEF argument
+
+2002-01-08  Sam Steingold  <sds@gnu.org>
+
 	Implemented arbitrary package locking
 	* lispbibl.d (Package): use bit(1) for package lock
 	(mark_pack_locked, mark_pack_unlocked, pack_locked_p): new macros
