@@ -165,6 +165,7 @@ int main (int argc, char* argv[])
                 case 'I':
                 case 'C':
                 case 'l':
+                case 'a':
                 case '-':
                   break;
                 /* Skippable options with arguments. */

@@ -1,4 +1,4 @@
-.TH CLISP 1 "25 June 1998"
+.TH CLISP 1 "18 October 1998"
 
 
 .SH NAME
@@ -257,6 +257,12 @@ At startup the value of the variable
 .I *package*
 will be set to the package named
 .IR packagename .
+
+.TP
+.B -a
+ANSI CL compliant: Comply with the ANSI CL specification even on those issues
+where ANSI CL is broken. This option is provided for maximum portability of
+Lisp programs. It is not useful for actual everyday work.
 
 .TP
 .BI "-x " expressions

@@ -55,6 +55,7 @@
 [ <A HREF="#Option -i"><CODE>-i</CODE> <EM>initfile</EM> ...</A> ]
 [ <A HREF="#Option -c"><CODE>-c</CODE> [ <CODE>-l</CODE> ] <EM>lispfile</EM> [ <CODE>-o</CODE> <EM>outputfile</EM> ] ...</A> ]
 [ <A HREF="#Option -p"><CODE>-p</CODE> <EM>packagename</EM></A> ]
+[ <A HREF="#Option -a"><CODE>-a</CODE></A> ]
 [ <A HREF="#Option -x"><CODE>-x</CODE> <EM>expression</EM></A> ]
 [ <A HREF="#Option exec"><EM>lispfile</EM></A>
   [ <A HREF="#Option exec"><EM>argument</EM> ...</A> ] ]
@@ -206,6 +207,12 @@ Useful only for debugging purposes.
 <DT> <A NAME="Option -p"> <CODE>-p</CODE> <EM>packagename</EM> </A>
 <DD> At startup the value of the variable <CODE>*package*</CODE> will
 be set to the package named <EM>packagename</EM>.
+<P>
+
+<DT> <A NAME="Option -a"> <CODE>-a</CODE> </A>
+<DD> ANSI CL compliant: Comply with the ANSI CL specification even on
+those issues where ANSI CL is broken. This option is provided for maximum
+portability of Lisp programs. It is not useful for actual everyday work.
 <P>
 
 <DT> <A NAME="Option -x"> <CODE>-x</CODE> <EM>expressions</EM> </A>
@@ -539,7 +546,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 25 June 1998.
+Last modified: 18 October 1998.
 
 </BODY>
 
