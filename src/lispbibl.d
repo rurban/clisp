@@ -846,7 +846,7 @@
         SAVE_back_trace_register(registers);                                 \
         inner_statement;                                                     \
         { var gcv_object_t* top_of_frame = STACK;                            \
-          pushSTACK(as_object((aint)callback_saved_registers));              \
+          pushSTACK(fake_gcv_object((aint)callback_saved_registers));        \
           finish_frame(CALLBACK);                                            \
         }                                                                    \
         callback_saved_registers = registers;                                \
@@ -3003,6 +3003,11 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 # object, any call that can trigger GC can modify the pointer value.
 # NEVER write "var gcv_object_t foo;" - this is forbidden!
 typedef object gcv_object_t;
+
+# fake_gcv_object(value)
+# creates a gcv_object that is actually not seen by GC,
+# for use as second word in SKIP2 frames.
+#define fake_gcv_object(value)  as_object(value)
 
 
 # Objects with variable length must reside at addresses that are divisable by 2
@@ -9887,7 +9892,7 @@ typedef struct {
 # > reentry_statement: what is to be done immediately after re-entry.
 # decreases STACK by 1
 #define finish_entry_frame(frametype,returner,retval_allocation,reentry_statement)  \
-  do { pushSTACK(as_object((aint)(returner))); # SP onto the Stack            \
+  do { pushSTACK(fake_gcv_object((aint)(returner))); # SP onto the Stack      \
     pushSTACK(nullobj); # dummy onto the Stack, until re-entry is permitted   \
     begin_setjmp_call();                                                      \
     if ((retval_allocation setjmpspl(returner))!=0) # set point for returner  \
@@ -9926,7 +9931,7 @@ typedef struct {
   do { var gcv_object_t* top_of_frame = STACK;     \
        pushSTACK(types_labels_vector_list);        \
        pushSTACK(make_machine_code(handler));      \
-       pushSTACK(as_object((aint)(sp_arg)));  \
+       pushSTACK(fake_gcv_object((aint)(sp_arg))); \
        finish_frame(HANDLER);                      \
   } while(0)
 #define make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \

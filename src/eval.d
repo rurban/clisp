@@ -2410,7 +2410,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         }
         # VAR_ENV of closure becomes NEXT_ENV in frame:
         pushSTACK(TheIclosure(closure)->clos_var_env);
-        pushSTACK(as_object(var_count)); # var_count bindungs, all still un-nested
+        pushSTACK(fake_gcv_object(var_count)); # var_count bindungs, all still un-nested
         finish_frame(VAR);
       }
       # STACK now points below the variable-binding-frame.
@@ -7581,7 +7581,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var gcv_object_t* top_of_frame = STACK; # Pointer above Frame
             pushSTACK(TheCclosure(closure)->clos_consts[n]);
             pushSTACK(closure);
-            pushSTACK(as_object((aint)(_SP_(0))));
+            pushSTACK(fake_gcv_object((aint)(_SP_(0))));
             finish_frame(HANDLER);
           }
           goto next_byte;

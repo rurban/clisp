@@ -1,3 +1,10 @@
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (fake_gcv_object): New macro.
+	(SAVE_REGISTERS, finish_entry_frame, make_HANDLER_frame): Use it.
+	* eval.d (funcall_iclosure, interpret_bytecode_): Likewise.
+	* control.d (make_variable_frame, finish_flet): Likewise.
+
 2002-12-15  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (stream_handles): handle KEYBOARD-STREAMs
