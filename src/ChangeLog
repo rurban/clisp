@@ -1,3 +1,11 @@
+2003-04-29  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: Augmented FFI testsuite
+
+	* foreign1.lisp: added FFI:WITH-C-PLACE, FFI:C-VAR-OBJECT
+
+	* ../doc/{impbody,impext}.xml: tiny corrections
+
 2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	partially restored support for --without-unicode
