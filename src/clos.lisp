@@ -2625,6 +2625,10 @@ in the generic function instance."
 ;; Add a method to a generic function
 (defun std-add-method (gf method)
   (check-signature-congruence gf method)
+  (when (std-method-gf method)
+    (error-of-type 'error
+      "~S: ~S already belongs to ~S, cannot also add it to ~S"
+      'std-add-method method (std-method-gf method) gf))
   (setf (std-method-function method) nil
         (std-method-gf method) gf)
   ;; determine function from initfunction:
@@ -2668,7 +2672,8 @@ in the generic function instance."
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
-      (setf (gf-methods gf) (remove old-method (gf-methods gf)))
+      (setf (gf-methods gf) (remove old-method (gf-methods gf))
+            (std-method-gf old-method) nil)
       ;;(sys::closure-set-seclass gf
       ;;  (reduce #'sys::seclass-or (gf-methods gf)
       ;;          :key (lambda (sm) (sys::function-side-effect
