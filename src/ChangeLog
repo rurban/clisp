@@ -1,3 +1,7 @@
+2004-11-20  Sam Steingold  <sds@gnu.org>
+
+	* m4/regexp.m4: new file
+
 2004-11-19  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c (REGEXP-FREE): invalidate the fpointer
