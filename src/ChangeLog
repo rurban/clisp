@@ -1,5 +1,11 @@
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
+	fallout of 2002-07-09 parse-namestring patch in ANSI mode
+	* pathname.d (test_default_pathname): treat NIL as unbound,
+	permitting (parse-namestring "foo" nil nil ...) again
+
+2002-07-15  Sam Steingold  <sds@gnu.org>
+
 	* configure: user-specified options (like --with-noreadline)
 	override the default/inferred options
 
