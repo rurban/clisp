@@ -1,6 +1,7 @@
 # Input/Output for CLISP
 # Bruno Haible 1990-2001
 # Marcus Daniels 11.3.1997
+# Sam Steingold 1998-2001
 
 #include "lispbibl.c"
 #include "arilev0.c" # for Division in pr_uint
@@ -8425,6 +8426,9 @@ local void pr_orecord (const object* stream_, object obj) {
       pr_hex6_obj(stream_,obj,O(printstring_readtable));
       break;
     case Rectype_Pathname:
+#if 0
+      pr_record_descr(stream_,obj,S(pathname),true,O(pathname_slotlist));
+#else
       pushSTACK(obj); # pathname
       # call (NAMESTRING pathname)
       pushSTACK(obj); funcall(L(namestring),1); obj = value1;
@@ -8470,6 +8474,7 @@ local void pr_orecord (const object* stream_, object obj) {
         pr_string(stream_,STACK_0); # print the string
       }
       skipSTACK(1);
+#endif
       break;
 #ifdef LOGICAL_PATHNAMES
     case Rectype_Logpathname:
