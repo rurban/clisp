@@ -2532,7 +2532,6 @@ global int main (argc_t argc, char* argv[]) {
     loadmem(argv_memfile);
   # init O(current_language)
   O(current_language) = current_language_o(language);
-  init_other_modules_2(); # initialize modules yet uninitialized
   # set current evaluator-environments to the toplevel-value:
   aktenv.var_env   = NIL;
   aktenv.fun_env   = NIL;
@@ -2615,7 +2614,8 @@ global int main (argc_t argc, char* argv[]) {
   # initialize FFI:
   init_ffi();
  #endif
-  { # module-initializations:
+  init_other_modules_2(); # initialize modules yet uninitialized
+  { # final module initializations:
     var module_* module; # loop over modules
     for_modules(all_other_modules,{
       if (module->initfunction2)
