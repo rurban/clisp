@@ -1,3 +1,7 @@
+2005-01-24  Sam Steingold  <sds@gnu.org>
+
+	* defpackage.lisp (defpackage): duplicate USE-PACKAGE is OK
+
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
 	* defpackage.lisp (defpackage): Let :case-sensitive and :case-inverted

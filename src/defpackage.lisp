@@ -165,16 +165,12 @@
                 `((when (find "COMMON-LISP" (package-use-list ,packname)
                               :test #'string= :key #'package-name)
                     (unuse-package "COMMON-LISP" ,packname)
-                    (use-package "CS-COMMON-LISP" ,packname)
-                    (setq use-list (delete "CS-COMMON-LISP" use-list
-                                           :test #'string=)))))
+                    (use-package "CS-COMMON-LISP" ,packname))))
                ((nil)
                 `((when (find "CS-COMMON-LISP" (package-use-list ,packname)
                               :test #'string= :key #'package-name)
                     (unuse-package "CS-COMMON-LISP" ,packname)
-                    (use-package "COMMON-LISP" ,packname)
-                    (setq use-list (delete "COMMON-LISP" use-list
-                                           :test #'string=)))))
+                    (use-package "COMMON-LISP" ,packname))))
                ((:DEFAULT) '()))
            ;; Step 1
            ,@(if shadow-list
