@@ -163,10 +163,13 @@
 (defun require (module-name &optional (pathname nil p-given))
   (unless (member (string module-name) *modules* :test #'string-equal)
     (unless p-given (setq pathname (pathname module-name)))
-    (let (#-CLISP(*default-pathname-defaults* '#""))
-      (if (atom pathname) (load pathname) (mapcar #'load pathname))
-    )
-) )
+    (let (#+CLISP
+          (*load-paths* (if (null *load-truename*) *load-paths*
+                            (cons (make-pathname :name nil :type nil
+                                                 :defaults *load-truename*)
+                                  *load-truename*)))
+          #-CLISP (*default-pathname-defaults* '#""))
+      (if (atom pathname) (load pathname) (mapcar #'load pathname)))))
 
 
 ;;; Konstanten für Zahlen (Kapitel 12)

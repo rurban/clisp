@@ -1,5 +1,11 @@
 2002-02-28  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (require): push *load-truename* on *load-paths*
+	* compiler.lisp (c-REQUIRE): push *compile-file-truename*
+	on *load-paths*
+
+2002-02-28  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-form): fixed a bug: EXPAND-COMPILER-MACRO
 	can return an atom
 
