@@ -1760,8 +1760,13 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_FPU_CONTROL,
-[dnl Check for Linux with <fpu_control.h> and __setfpucw(). Calling
-dnl __setfpucw() is preferred to setting __fpu_control directly.
+[dnl Check for Linux with <fpu_control.h> and fpu_control_t or __setfpucw().
+dnl glibc versions since October 1998 define fpu_control_t. Earlier versions
+dnl define and declare __setfpucw(). Very early Linux libc versions have none,
+dnl and __fpu_control is of type `unsigned short'.
+CL_COMPILE_CHECK([for fpu_control_t], cl_cv_type_fpu_control_t,
+[#include <fpu_control.h>], [fpu_control_t x;],
+AC_DEFINE(HAVE_FPU_CONTROL_T))
 CL_COMPILE_CHECK([for __setfpucw], cl_cv_func_setfpucw,
 [#include <fpu_control.h>], [__setfpucw(_FPU_IEEE);],
 AC_DEFINE(HAVE_SETFPUCW))

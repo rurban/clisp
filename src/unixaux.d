@@ -415,7 +415,7 @@
 
 # ==============================================================================
 
-#if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && !defined(HAVE_SETFPUCW)
+#if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && (defined(HAVE_FPU_CONTROL_T) || !defined(HAVE_SETFPUCW))
 
 # Damit Division durch 0.0 ein NaN und kein SIGFPE liefert:
 # Entweder mit -lieee linken,
@@ -423,7 +423,11 @@
 
 #include <fpu_control.h>
 
+#if defined(HAVE_FPU_CONTROL_T)
+global fpu_control_t __fpu_control = _FPU_IEEE;
+#else # !defined(HAVE_FPU_CONTROL_T) && !defined(HAVE_SETFPUCW)
 global unsigned short __fpu_control = _FPU_IEEE;
+#endif
 
 #endif
 
