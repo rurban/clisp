@@ -198,6 +198,8 @@ User visible changes
 * Unified modules postgresql632 and postgresql642 into postgresql.
   The postgresql module works with PostgreSQL 6 and 7 now.
 
+* Removed obsolete module linuxlibc5 and renamed module linuxlibc6 to glibc.
+
 * The BACKQUOTE reader has been reimplemented from scratch by
   Kaz Kylheku <kaz@ashi.footprints.net>.
 
