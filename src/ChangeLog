@@ -1,3 +1,7 @@
+2005-01-29  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (I_integer_length): export
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* foreign1.lisp (with-defining-c-type): Put the declarations from
