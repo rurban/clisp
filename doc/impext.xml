@@ -1966,17 +1966,23 @@ containing:</para>
    <itemizedlist>
     <listitem><simpara>mit-clx, from MIT
      <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"
-                >ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</ulink>
+            >ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</ulink>
     </simpara></listitem>
-    <listitem><simpara>new-clx, by <ulink
-    url="http://www.uni-karlsruhe.de/~unk6/">Gilbert Baumann</ulink>
-    <ulink url="mailto:unk6@rz.uni-karlsruhe.de"
-                  >&lt;unk6@rz.uni-karlsruhe.de&gt;</ulink>.
+    <listitem><simpara>new-clx, by
+      <ulink url="http://www.uni-karlsruhe.de/~unk6/">Gilbert Baumann</ulink>
+      <ulink url="mailto:unk6@rz.uni-karlsruhe.de"
+             >&lt;unk6@rz.uni-karlsruhe.de&gt;</ulink>.
     </simpara></listitem>
    </itemizedlist></para></listitem></varlistentry>
+  <varlistentry><term>oracle</term>
+  <listitem><simpara>Access
+    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
+    by <ulink url="http://www.alma.com/staff/hin">John Hinsdale</ulink>
+    <ulink url="mailto:hin@alma.com">&lt;hin@alma.com&gt;</ulink>.
+  </simpara></listitem></varlistentry>
  <varlistentry><term>postgresql632, postgresql642</term>
-  <listitem><simpara>Access <ulink
-   url="http://www.PostgreSQL.org/">PostgreSQL</ulink> from &clisp;.
+  <listitem><simpara>Access
+    <ulink url="http://www.PostgreSQL.org/">PostgreSQL</ulink> from &clisp;.
   </simpara></listitem></varlistentry>
  <varlistentry><term>queens</term>
   <listitem><simpara>Compute the number of solutions to the n-queens
