@@ -3895,7 +3895,7 @@
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
           STACK_3 = S(simple_os_error);
         OS_error_internal(errcode);
-        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
+        end_error(args_end_pointer STACKop 7,true); # Fehlermeldung beenden
       }
     nonreturning_function(global, OS_file_error, (object pathname))
       {
@@ -3909,7 +3909,7 @@
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
           STACK_3 = S(simple_file_error);
         OS_error_internal(errcode);
-        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
+        end_error(args_end_pointer STACKop 7,true); # Fehlermeldung beenden
       }
 
   # Behandlung von Winsock-Fehlern
@@ -4131,7 +4131,7 @@
           write_errorasciz(": ");
           write_errorasciz(errormsg);
         }
-        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
+        end_error(args_end_pointer STACKop 7,true); # Fehlermeldung beenden
       }
 
 /* print an error

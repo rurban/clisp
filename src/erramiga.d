@@ -155,7 +155,7 @@ nonreturning_function(global, OS_error, (void)) {
   if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
     STACK_3 = S(simple_os_error);
   OS_error_internal(errcode);
-  end_error(args_end_pointer STACKop 7);
+  end_error(args_end_pointer STACKop 7,true);
 }
 nonreturning_function(global, OS_file_error, (object pathname)) {
   var uintC errcode;
@@ -168,7 +168,7 @@ nonreturning_function(global, OS_file_error, (object pathname)) {
   if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
     STACK_3 = S(simple_file_error);
   OS_error_internal(errcode);
-  end_error(args_end_pointer STACKop 7);
+  end_error(args_end_pointer STACKop 7,true);
 }
 
 /* output errors, directly via the OS
