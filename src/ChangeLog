@@ -1,3 +1,9 @@
+2002-06-06  Peter Burwood  <clisp@peterb.org.uk>
+
+	* stdint.h.in (NEED_SIGNED_INT_TYPES): New define.
+	(int8_t) [NEED_SIGNED_INT_TYPES]: Declare type only when needed.
+	(int16_t, int32_t, int64_t): Likewise.
+
 2002-06-05  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (DYNAMIC_STRING) [UNICODE]: Use Rectype_S32string, not
