@@ -1,5 +1,12 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	* debug.d (print_back_trace, print_stackitem): Don't print a newline at
+	the beginning.
+	(SYS::DESCRIBE-FRAME, show_stack): Print the newlines here instead.
+	Use fresh-line at the beginning and elastic-newline at the end.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	* describe.lisp (describe1): Add a fresh-line call after the
 	describe-object call, and a blank line before the documentation.
 
