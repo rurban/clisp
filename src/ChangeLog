@@ -1,5 +1,10 @@
 2004-12-13  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (print_license, print_banner): (FRESH-LINE *STANDARD-OUTPUT*)
+	to clean up after *INIT-HOOKS*
+
+2004-12-13  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit (ansi_tests): wrap setting of an internal variable in
 	WITHOUT-PACKAGE-LOCK
 
