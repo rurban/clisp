@@ -1325,6 +1325,9 @@
             #ifdef LOGICAL_PATHNAMES
               " :LOGICAL-PATHNAMES"
             #endif
+            #ifdef SCREEN
+              " :SCREEN"
+            #endif
             #ifdef DYNAMIC_FFI
               " :FFI"
             #endif
