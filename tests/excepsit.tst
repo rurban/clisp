@@ -1136,11 +1136,15 @@ error
 (unexport ':foo63)
 package-error
 
-(progn
+(unwind-protect (progn
   (defpackage "FOO64" (:export "XYZ"))
   (defpackage "FOO65" (:export "XYZ"))
   (defpackage "FOO66" (:use "FOO64" "FOO65") (:shadow "XYZ"))
   (unintern (find-symbol "XYZ" (find-package "FOO66")) (find-package "FOO66")))
+  (delete-package "FOO20")
+  (delete-package "FOO66")
+  (delete-package "FOO65")
+  (delete-package "FOO64"))
 error
 
 ; update-instance-for-different-class too complicated
