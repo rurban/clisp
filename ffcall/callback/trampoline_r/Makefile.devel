@@ -6,8 +6,8 @@ ASPREFIX = /usr1/gnu/lib
 RM = rm -f
 ROFF_MAN = groff -Tascii -mandoc
 
-all : proto-i386.s proto-m68k.s proto-mips.s proto-mipsn32.s proto-mips64.s proto-sparc.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000.s proto-m88k.s proto-convex.s \
-      cache-sparc.S cache-alpha.s cache-hppa.s cache-rs6000.s cache-convex.s \
+all : proto-i386.s proto-m68k.s proto-mips.s proto-mipsn32.s proto-mips64.s proto-sparc.s proto-alpha.s proto-hppa.s proto-arm.s proto-rs6000-aix.old.s proto-rs6000-aix.new.s proto-rs6000-sysv4.s proto-m88k.s proto-convex.s \
+      cache-sparc.S cache-alpha.s cache-hppa.s cache-rs6000-sysv4.s cache-convex.s \
       trampoline_r.man \
       config.h.msvc
 
@@ -38,8 +38,14 @@ proto-hppa.s : proto.c
 proto-arm.s : proto.c
 	$(GCC) -V 2.6.3 -b arm-acorn-riscix $(GCCFLAGS) -D__arm__ -S proto.c -o $@
 
-proto-rs6000.s : proto.c
-	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+proto-rs6000-aix.old.s : proto.c
+	$(GCC) -V egcs-2.91.57 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mold-mnemonics $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+
+proto-rs6000-aix.new.s : proto.c
+	$(GCC) -V egcs-2.91.57 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mnew-mnemonics $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
+
+proto-rs6000-sysv4.s : proto.c
+	$(GCC) -V egcs-2.91.66 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__rs6000__ -S proto.c -o $@
 
 proto-m88k.s : proto.c
 	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S proto.c -o $@
@@ -58,8 +64,8 @@ cache-alpha.s : cache-alpha.c
 cache-hppa.s : cache-hppa.c
 	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -D__hppa__ -S $< -o $@
 
-cache-rs6000.s : cache-rs6000.c
-	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -D__rs6000__ -S $< -o $@
+cache-rs6000-sysv4.s : cache-rs6000.c
+	$(GCC) -V egcs-2.91.66 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__rs6000__ -S $< -o $@
 
 cache-convex.s : cache-convex.c
 	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S $< -o $@
@@ -96,6 +102,9 @@ tramp-arm.o : tramp-arm.s
 
 tramp-rs6000-old.o : tramp-rs6000-old.s
 	$(ASPREFIX)/rs6000/bin/as tramp-rs6000-old.s -o $@
+
+tramp-rs6000-sysv4.o : tramp-rs6000-sysv4.s
+	$(ASPREFIX)/ppc-linux/bin/as tramp-rs6000-sysv4.s -o $@
 
 tramp-m88k.o : tramp-m88k.s
 	$(ASPREFIX)/m88k-coff/bin/as tramp-m88k.s -o $@

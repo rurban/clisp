@@ -20,6 +20,13 @@
 #define __hppanew__  /* New trampoline, just a closure. */
 #endif
 #endif
+#if defined(__rs6000__)
+#if !defined(_AIX)
+#define __rs6000sysv4__  /* SysV.4 ABI, real machine code. */
+#else
+#define __rs6000aix__  /* AIX ABI, just a closure. */
+#endif
+#endif
 #if defined(__hppanew__)
 /*
  * A function pointer is a biased pointer to a data area whose first word
@@ -33,7 +40,7 @@ extern void tramp_r (); /* trampoline prototype */
 #define CODE_EXECUTABLE
 #endif
 #endif
-#if defined(__rs6000__)
+#if defined(__rs6000aix__)
 /*
  * A function pointer is a pointer to a data area whose first word contains
  * the actual address of the function.
@@ -247,7 +254,7 @@ extern int shmctl ();
 #include <sys/syslocal.h>
 #endif
 /* Inline assembly function for instruction cache flush. */
-#if defined(__sparc__) || defined(__alpha__) || defined(__hppa__) || defined(__rs6000) || defined(__convex__)
+#if defined(__sparc__) || defined(__alpha__) || defined(__hppaold__) || defined(__rs6000sysv4__) || defined(__convex__)
 #ifdef __GNUC__
 extern inline
 #ifdef __sparc__
@@ -316,7 +323,11 @@ extern void __TR_clear_cache();
 #define TRAMP_LENGTH 32
 #define TRAMP_ALIGN 4
 #endif
-#ifdef __rs6000__
+#ifdef __rs6000sysv4__
+#define TRAMP_LENGTH 24
+#define TRAMP_ALIGN 4
+#endif
+#ifdef __rs6000aix__
 #define TRAMP_LENGTH 20
 #define TRAMP_ALIGN 4
 #endif
@@ -773,7 +784,40 @@ __TR_function alloc_trampoline_r (address, data0, data1)
     ((long *) function)[7] = (long) address;
   }
 #endif
-#ifdef __rs6000__
+#ifdef __rs6000sysv4__
+  /* function:
+   *    {liu|lis} 11,hi16(<data>)		3D 60 hi16(<data>)
+   *    {oril|ori} 11,11,lo16(<data>)		61 6B lo16(<data>)
+   *    {liu|lis} 0,hi16(<address>)		3C 00 hi16(<address>)
+   *    {oril|ori} 0,0,lo16(<address>)		60 00 lo16(<address>)
+   *    mtctr 0					7C 09 03 A6
+   *    bctr					4E 80 04 20
+   */
+  *(short *) (function + 0) = 0x3D60;
+  *(short *) (function + 2) = (unsigned long) data >> 16;
+  *(short *) (function + 4) = 0x616B;
+  *(short *) (function + 6) = (unsigned long) data & 0xffff;
+  *(short *) (function + 8) = 0x3C00;
+  *(short *) (function +10) = (unsigned long) address >> 16;
+  *(short *) (function +12) = 0x6000;
+  *(short *) (function +14) = (unsigned long) address & 0xffff;
+  *(long *)  (function +16) = 0x7C0903A6;
+  *(long *)  (function +20) = 0x4E800420;
+#define is_tramp(function)  \
+  *(unsigned short *) (function + 0) == 0x3D60 && \
+  *(unsigned short *) (function + 4) == 0x616B && \
+  *(unsigned short *) (function + 8) == 0x3C00 && \
+  *(unsigned short *) (function +12) == 0x6000 && \
+  *(unsigned long *)  (function +16) == 0x7C0903A6 && \
+  *(unsigned long *)  (function +20) == 0x4E800420
+#define hilo(hiword,loword)  \
+  (((unsigned long) (hiword) << 16) | (unsigned long) (loword))
+#define tramp_address(function)  \
+  hilo(*(unsigned short *) (function +10), *(unsigned short *) (function +14))
+#define tramp_data(function)  \
+  hilo(*(unsigned short *) (function + 2), *(unsigned short *) (function + 6))
+#endif
+#ifdef __rs6000aix__
   /* function:
    *    .long .tramp_r
    *    .long .mytoc
@@ -885,7 +929,7 @@ __TR_function alloc_trampoline_r (address, data0, data1)
    * cache. The freshly built trampoline is visible to the data cache, but not
    * maybe not to the instruction cache. This is hairy.
    */
-#if !(defined(__hppanew__) || defined(__rs6000__))
+#if !(defined(__hppanew__) || defined(__rs6000aix__))
   /* Only needed if we really set up machine instructions. */
 #ifdef __i386__
 #if defined(_WIN32)

@@ -4,6 +4,7 @@
 
 HOST = @host@
 CPU = @host_cpu@
+OS = @host_os@
 
 # Directories used by "make":
 srcdir = @srcdir@
@@ -54,8 +55,8 @@ tramp-hppa.o : $(srcdir)/tramp-hppa.s
 tramp-rs6000.o : tramp-rs6000.s
 	$(CC) @GCC_X_NONE@ -c tramp-rs6000.s
 
-tramp-rs6000.s : $(srcdir)/tramp-rs6000.S
-	$(CPP) $(srcdir)/tramp-rs6000.S > tramp-rs6000.s
+tramp-rs6000.s : $(srcdir)/tramp-rs6000.old.S $(srcdir)/tramp-rs6000.new.S
+	case "$(OS)" in aix3*) syntax=old;; *) syntax=new;; esac; $(CPP) $(srcdir)/tramp-rs6000.$${syntax}.S > tramp-rs6000.s
 
 cache-sparc.o : cache-sparc.s
 	$(CC) @GCC_X_NONE@ -c cache-sparc.s
@@ -69,8 +70,8 @@ cache-alpha.o : $(srcdir)/cache-alpha.s
 cache-hppa.o : $(srcdir)/cache-hppa.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-hppa.s
 
-cache-rs6000.o : $(srcdir)/cache-rs6000.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000.s
+cache-rs6000.o : $(srcdir)/cache-rs6000-sysv4.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-rs6000-sysv4.s ; mv cache-rs6000-sysv4.o cache-rs6000.o
 
 cache-convex.o : $(srcdir)/cache-convex.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-convex.s

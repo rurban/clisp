@@ -38,11 +38,23 @@ CL_CANONICAL_HOST(../../autoconf)
 CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_CODEEXEC
 CPU_OBJECTS=''
-if test ${host_cpu} = hppa -o ${host_cpu} = rs6000; then
+if test ${host_cpu} = hppa; then
   CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o'
 fi
-if test ${host_cpu} = sparc -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${host_cpu} = rs6000 -o ${host_cpu} = convex; then
+if test ${host_cpu} = rs6000; then
+  case "${host_os}" in
+    aix*) CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o' ;;
+    *) ;;
+  esac
+fi
+if test ${host_cpu} = sparc -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${host_cpu} = convex; then
   CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o'
+fi
+if test ${host_cpu} = rs6000; then
+  case "${host_os}" in
+    aix*) ;;
+    *) CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o' ;;
+  esac
 fi
 AC_SUBST(CPU_OBJECTS)
 if test ${host_cpu} = mips -o ${host_cpu} = mipsn32 -o ${host_cpu} = mips64; then
