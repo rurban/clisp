@@ -200,5 +200,6 @@ XPSEUDOCODE(uintL, iconv_wcslen, (object encoding, const chart* src, const chart
 XPSEUDOCODE(void, iconv_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
 XPSEUDOCODE(object, iconv_range, (object encoding, uintL start, uintL end))
 #endif
+#else  /* no UNICODE */
+XPSEUDODATA(struct nls_table, nls_ascii_table)
 #endif
-
