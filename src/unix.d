@@ -578,7 +578,9 @@
     #define CLOSE close
   #endif
   # Wrapper um die System-Aufrufe, die Teilergebnisse und evtl. EINTR behandeln:
-  extern RETRWTYPE full_read (int fd, RW_BUF_T buf, RW_SIZE_T nbyte);
+  extern RETRWTYPE read_helper (int fd, RW_BUF_T buf, RW_SIZE_T nbyte, bool partial_p);
+  #define safe_read(f,b,n)  read_helper(f,b,n,true)
+  #define full_read(f,b,n)  read_helper(f,b,n,false)
   extern RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte);
 # wird verwendet von STREAM, PATHNAME, SPVW, MISC, UNIXAUX
 
@@ -847,7 +849,7 @@
       # extern int closesocket (int socket);
     #else
       # Reading and writing from a socket
-      #define sock_read  full_read
+      #define sock_read   safe_read
       #define sock_write  full_write
       # Closing a socket
       #define closesocket  close

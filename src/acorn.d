@@ -214,7 +214,9 @@
   #define OPEN open
   #define CLOSE close
   # Wrapper um die System-Aufrufe, die Teilergebnisse und evtl. EINTR behandeln:
-  extern_C RETRWTYPE full_read (int fd, RW_BUF_T buf, RW_SIZE_T nbyte);
+  extern_C RETRWTYPE read_helper (int fd, RW_BUF_T buf, RW_SIZE_T nbyte, bool partial_p);
+  #define safe_read(f,b,n)  read_helper(f,b,n,true)
+  #define full_read(f,b,n)  read_helper(f,b,n,false)
   extern_C RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte);
 # wird verwendet von STREAM, PATHNAME, SPVW, MISC
 
