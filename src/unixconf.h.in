@@ -167,6 +167,9 @@
 /* <sys/socket.h> defines AF_INET6 */
 #undef HAVE_IPV6
 
+/* Define to 1 if you have the <lber.h> header file. */
+#undef HAVE_LBER_H
+
 /* Define if your <locale.h> file defines LC_MESSAGES. */
 #undef HAVE_LC_MESSAGES
 
@@ -245,9 +248,6 @@
 
 /* have a working modern GNU readline */
 #undef HAVE_READLINE
-
-/* Define to 1 if you have the <readline/readline.h> header file. */
-#undef HAVE_READLINE_READLINE_H
 
 /* Define to 1 if you have the `readlink' function. */
 #undef HAVE_READLINK
