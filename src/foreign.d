@@ -2006,10 +2006,8 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
         return;
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
         var object eltype = TheSvector(fvd)->data[1];
-        if (fvdlen == 3 && eq(eltype,S(character))) {
+        if (fvdlen == 3 && eq(eltype,S(character)) && stringp(obj)) {
           /* 1-dimensional array of CHARACTER. */
-          if (!stringp(obj))
-            goto bad_obj;
           var uintL clen;
           var uintL offset;
           var object string = unpack_string_ro(obj,&clen,&offset);
@@ -2090,10 +2088,8 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
       } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
         var object eltype = TheSvector(fvd)->data[1];
         var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
-        if (eq(eltype,S(character))) {
+        if (eq(eltype,S(character)) && stringp(obj)) {
           /* 1-dimensional array of CHARACTER. */
-          if (!stringp(obj))
-            goto bad_obj;
           var uintL clen;
           var uintL offset;
           var object string = unpack_string_ro(obj,&clen,&offset);
@@ -2216,10 +2212,8 @@ local maygc void convert_to_foreign (object fvd, object obj, void* data)
           return;
         }
         var object eltype = TheSvector(fvd)->data[1];
-        if (eq(eltype,S(character))) {
+        if (eq(eltype,S(character)) && stringp(obj)) {
           /* 1-dimensional array of CHARACTER. */
-          if (!stringp(obj))
-            goto bad_obj;
           var uintL clen;
           var uintL offset;
           var object string = unpack_string_ro(obj,&clen,&offset);
