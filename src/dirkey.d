@@ -14,22 +14,6 @@
 #include <gnome.h>
 #endif
 
-# CHECK_MEM, inserted at the wrong place, will kill all
-# your local variables of type 'object'
-# (i.e. everything you have not pushSTACK'ed).
-#define DK_DEBUG 0
-#if DK_DEBUG
-#include <stdio.h>
-static unsigned long dkey_gc_count = 0;
-static unsigned long dkey_gc_enable = 1;
-#define CHECK_MEM(msg)                                                  \
- do { printf msg; fflush(stdout); if (dkey_gc_enable) gar_col();        \
-      printf("...%sgar_col done [%u]\n",dkey_gc_enable?"":"no ",        \
-             ++dkey_gc_count); } while(0)
-#else
-#define CHECK_MEM(msg)
-#endif
-
 #ifdef WIN32_NATIVE
 #define DIR_KEY_INPUT  KEY_READ
 #define DIR_KEY_OUTPUT KEY_WRITE
@@ -51,7 +35,7 @@ static unsigned long dkey_gc_enable = 1;
 #ifdef WIN32_NATIVE
 #define SYSCALL_WIN32(call)                                            \
   do {                                                                 \
-    var uintL status;                                                  \
+    uintL status;                                                      \
     begin_system_call();                                               \
     status = call;                                                     \
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); } \
@@ -62,7 +46,7 @@ static unsigned long dkey_gc_enable = 1;
 #ifdef LDAP
 #define SYSCALL_LDAP(call)                                             \
   do {                                                                 \
-    var uintL status;                                                  \
+    uintL status;                                                      \
     begin_system_call();                                               \
     status = call;                                                     \
     if (status != LDAP_SUCCESS) { SetLastError(status); OS_error(); }  \
@@ -309,9 +293,6 @@ local void open_reg_key (HKEY hkey, char* path, REGSAM perms,
                          int if_not_exists, HKEY* p_hkey)
 {
   var DWORD status;
-#if DK_DEBUG
-  printf("open_reg_key: [%s]\n",path);
-#endif
   begin_system_call();
   status = RegOpenKeyEx(hkey,path,0,perms,p_hkey);
   if (status != ERROR_SUCCESS) {
@@ -386,7 +367,6 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
 # in which case PATH must be absolute.
 # :direction and :if-does-not-exist has the same meaning as for OPEN.
 {
-  CHECK_MEM(("dir_key_open: enter"));
   var object if_not_exists_arg = STACK_0;
   var object direction_arg = STACK_1;
   var object path = STACK_2;
@@ -463,7 +443,6 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   pushSTACK(L(dir_key_close));
   funcall(L(finalize),2);
   # Done.
-  CHECK_MEM(("dir_key_open:  exit"));
   value1 = STACK_0; mv_count = 1;
   skipSTACK(5);
 }
@@ -588,7 +567,6 @@ LISPFUNN(dkey_search_iterator,3)
 # > #(dkey init-path scope (node ...))
 # can trigger GC
 {
-  CHECK_MEM(("dkey_search_iterator: enter"));
   if (!stringp(STACK_1)) fehler_string(STACK_1);
   parse_scope(STACK_0);
   value1 = allocate_vector(4);
@@ -597,7 +575,6 @@ LISPFUNN(dkey_search_iterator,3)
   ITST_SCOPE(value1) = STACK_0;
   ITST_STACK(value1) = T;
   STACK_0 = value1;
-  CHECK_MEM(("dkey_search_iterator:  exit"));
   value1 = STACK_0;
   mv_count = 1;
   skipSTACK(3);
@@ -614,7 +591,6 @@ local object init_iteration_node (object state,object subkey)
   pushSTACK(allocate_cons());         # stack
   pushSTACK(allocate_vector(7));      # node
   pushSTACK(allocate_fpointer(NULL)); # handle
-  CHECK_MEM(("init_iteration_node: after allocations"));
   var object handle = STACK_0;
   var object node   = STACK_1;
   var object stack  = STACK_2;
@@ -649,12 +625,11 @@ local object init_iteration_node (object state,object subkey)
   var DWORD d_size;
   SYSCALL_WIN32(RegQueryInfoKey((HKEY)(fp->fp_pointer),NULL,NULL,NULL,NULL,
                                 &k_size,NULL,NULL,&a_size,&d_size,NULL,NULL));
-  NODE_KEY_S(node) = fixnum(k_size+1);
-  NODE_ATT_S(node) = fixnum(a_size+1);
-  NODE_DAT_S(node) = fixnum(d_size+1);
+  NODE_KEY_S(STACK_1) = fixnum(k_size+1); # node
+  NODE_ATT_S(STACK_1) = fixnum(a_size+1); # node
+  NODE_DAT_S(STACK_1) = fixnum(d_size+1); # node
   skipSTACK(5);
   pushSTACK(full_path);
-  CHECK_MEM(("init_iteration_node: exit"));
   return popSTACK();
 }
 
@@ -675,7 +650,6 @@ local object state_next_key (object state)
                                     keynum,buffer,keylen);
       if (status == ERROR_SUCCESS) {
         NODE_KEY(node) = fixnum_inc(NODE_KEY(node),1);
-        CHECK_MEM(("state_next_key: returning [%s]",buffer));
         return asciz_to_string(buffer,O(misc_encoding));
       } else {
         SYSCALL_WIN32(RegCloseKey((HKEY)(fp->fp_pointer)));
@@ -694,7 +668,6 @@ LISPFUNN(dkey_search_next_key,1)
 # return the next key of this iteration
 # can trigger GC
 {
-  CHECK_MEM(("dkey_search_next_key: enter"));
   var object state = STACK_0;
   var object dkey  = test_dir_key(ITST_DKEY(state),TRUE);
   var int scope = parse_scope(ITST_SCOPE(state));
@@ -725,9 +698,6 @@ LISPFUNN(dkey_search_next_key,1)
       break;
     default: NOTREACHED
   }
-  STACK_0 = value1;
-  CHECK_MEM(("dkey_search_next_key:  exit"));
-  value1 = STACK_0;
   skipSTACK(1);
   mv_count = 1;
 }
@@ -737,7 +707,6 @@ LISPFUNN(dkey_search_next_att,1)
 # return the next attribute and its value of this iteration
 # can trigger GC
 {
-  CHECK_MEM(("dkey_search_next_att: enter"));
   var object state = STACK_0;
   var object stack = ITST_STACK(state);
   if (!consp(stack)) {
@@ -760,11 +729,6 @@ LISPFUNN(dkey_search_next_att,1)
   var DWORD status = RegEnumValue((HKEY)(fp->fp_pointer),
                                   attnum,att,&attlen,NULL,
                                   &type,dat,&size);
-#if DK_DEBUG
-  if ((type!=REG_NONE) && (size>= datlen))
-    printf("dkey_search_next_att([%s],%u): error: %u >= %u\n",
-           att,type,size,datlen);
-#endif
   if (status == ERROR_SUCCESS) {
     NODE_ATT(node) = fixnum_inc(NODE_ATT(node),1);
     pushSTACK(asciz_to_string(att,O(misc_encoding)));
@@ -773,8 +737,6 @@ LISPFUNN(dkey_search_next_att,1)
     pushSTACK(NIL);
     pushSTACK(NIL);
   }
-  CHECK_MEM(("dkey_search_next_att: returning [%s:%u]",
-             status==ERROR_SUCCESS?att:"#<nil>",type));
   mv_count = 2;
   value1 = STACK_1;
   value2 = STACK_0;
