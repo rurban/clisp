@@ -656,14 +656,15 @@ DEFUN(XLIB:CLOSED-DISPLAY-P, display)
 }
 
 /* display_hash_table -- return the hashtable of a display object
- > STACK_0 the display object
- < STACK_0 its hash table
+ > the display object
+ < its hash table
  This function is somewhat silly, since it introduces double type checking! */
-static void display_hash_table (void)
+static object display_hash_table (object dpy)
 {
+  pushSTACK(dpy);
   if (!ensure_living_display(&(STACK_0)))
     closed_display_error(TheSubr(subr_self)->name,STACK_0);
-  STACK_0 = TheStructure (STACK_0)->recdata[slot_DISPLAY_HASH_TABLE];
+  return TheStructure (popSTACK())->recdata[slot_DISPLAY_HASH_TABLE];
 }
 
 /* pop_display --- return the C Display* of an display object
@@ -699,7 +700,7 @@ static object make_ptr_obj (object type, object dpy, void *ptr)
 }
 
 static void *get_ptr_object_and_display (object type, object obj,
-                                        Display **dpyf)
+                                         Display **dpyf)
 { /* 'obj'  is the lisp object, whose C representation is returned.
  When 'dpyf' is non-0, the display of 'obj' is also returned and it is
  ensured that it lives. [Otherwise an error is signaled.]
@@ -755,6 +756,27 @@ static object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
 
 DEFVAR(xlib_a_cons,`(NIL . NIL)`);
 
+/* find the resource in the display hash table
+ < display object, XID number
+ > returns dpy->hash-table if NOT found
+           nullobj if found, in which case the object found is in value1 */
+static object lookup_xid (object dpy, XID xid) {
+  if (xid == 0) { /* This is trivial, but is it also right?! */
+    VALUES1(NIL);
+    return nullobj;
+  } else {
+    object ht = display_hash_table(dpy);
+    Car (O(xlib_a_cons)) = make_uint16 (xid & 0xFFFF); /* lower halfword */
+    Cdr (O(xlib_a_cons)) = make_uint16 (xid >> 16);    /* upper halfword */
+    value1 = gethash(O(xlib_a_cons),ht,false);    /* look it up */
+    if (!eq(value1,nullobj)) {  /* something found? */
+      mv_count = 1;             /* simply return what we found */
+      return nullobj;
+    } else
+      return ht;                /* return the hash-table */
+  }
+}
+
 static object make_xid_obj_2 (object type, object dpy, XID xid,
                               object prealloc)
 { /* NOTE: - This code is not reentrant :-( But hence it saves consing
@@ -771,42 +793,24 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
            2. If lookup succeeds we could also check the type.
            3. We should check the type of the preallocated object?!
               [Compare to make_ptr_obj] */
-
-  if (xid == 0) { /* This is trivial, but is it also right?! */
-    VALUES1(NIL);
-  } else {
-    pushSTACK(prealloc);       /* save is save */
-    pushSTACK(type);           /* ditto */
-    pushSTACK(dpy);            /* ditto */
-
-    Car (O(xlib_a_cons)) = make_uint16 (xid & 0xFFFF); /* lower halfword */
-    Cdr (O(xlib_a_cons)) = make_uint16 (xid >> 16);    /* upper halfword */
-
-    /* Now go with that cons into the hash-table ... */
-    pushSTACK(STACK_0);         /* the display object */
-    display_hash_table(); /* the table [also ensures that dpy is a display] */
-    value1 = gethash(O(xlib_a_cons),popSTACK(),true); /* look it up */
-    if (!eq(value1,nullobj)) {  /* something found? */
-      mv_count = 1;             /* simply return what we found */
-    } else { /* Nothing found, so create a new object */
-      pushSTACK(make_xid_obj_low (&STACK_2, &STACK_1, &STACK_0, xid));
-
-      /* Now enter this into the hashtable */
-      pushSTACK(make_uint16 (xid & 0xFFFF)); /* lower halfword */
-      pushSTACK(make_uint16 (xid >> 16));    /* upper halfword */
-      funcall(L(cons),2);                    /* cons `em */
-      pushSTACK(value1);                     /* key for puthash */
-      pushSTACK(STACK_2);
-      display_hash_table();     /* table " " */
-      pushSTACK(STACK_2);       /* value " " */
-      funcall (L(puthash), 3);  /* put it into the hashtable */
-
-      VALUES1(popSTACK()); /* return freshly allocated structure */
-    }
-
-    skipSTACK(3);            /* remove saved prealloc, type, dpy */
+  object ht = lookup_xid(dpy,xid);
+  if (!eq(ht,nullobj)) { /* allocate and enter object into the hashtable */
+    pushSTACK(prealloc);        /* save is save */
+    pushSTACK(type);            /* ditto */
+    pushSTACK(dpy);             /* ditto */
+    pushSTACK(ht);              /* hashtable */
+    pushSTACK(make_xid_obj_low (&STACK_3, &STACK_2, &STACK_1, xid));
+    /* Now enter this into the hashtable */
+    pushSTACK(make_uint16 (xid & 0xFFFF)); /* lower halfword */
+    pushSTACK(make_uint16 (xid >> 16));    /* upper halfword */
+    funcall(L(cons),2);                    /* cons `em */
+    pushSTACK(value1);                     /* key for puthash */
+    pushSTACK(STACK_2);                    /* hashtable */
+    pushSTACK(STACK_2);                    /* value */
+    funcall (L(puthash), 3);    /* put it into the hashtable */
+    VALUES1(popSTACK());        /* return freshly allocated structure */
+    skipSTACK(4);               /* remove saved prealloc, type, dpy, ht */
   }
-
   return value1;
 }
 
@@ -1840,10 +1844,15 @@ DEFUN(XLIB::%DISPLAY-XID, display)
 }
 
 DEFUN(XLIB:DISPLAY-XID, display)
-/* This functions returns a function to allocate new resource id's */
-{
+{ /* This functions returns a function to allocate new resource id's */
   pop_display();
   VALUES1(``XLIB::%DISPLAY-XID``);
+}
+
+DEFUN(XLIB::LOOKUP-RESOURCE-ID, display id) {
+  XID resource_id = get_uint29(popSTACK());
+  object ht = lookup_xid(popSTACK(),resource_id); /* set value1 if found */
+  if (!eq(ht,nullobj)) VALUES1(NIL); /* not found */
 }
 
 DEFUN(XLIB:DISPLAY-AFTER-FUNCTION, display) /* OK */

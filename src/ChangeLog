@@ -2,6 +2,10 @@
 
 	* modules/clx/new-clx/clx.f (XLIB::%DISPLAY-XID): new function
 	(XLIB:DISPLAY-XID): return it
+	(display_hash_table): pass the arguments the usual way, not via STACK
+	(lookup_xid): new function (mostly extracted from make_xid_obj_2)
+	(make_xid_obj_2): use make_xid_obj_2()
+	(XLIB::LOOKUP-RESOURCE-ID): implemented using lookup_xid()
 
 2005-04-05  Sam Steingold  <sds@gnu.org>
 
