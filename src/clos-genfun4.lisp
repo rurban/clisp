@@ -31,7 +31,7 @@
           ;; we can just as well remove the methods directly.
           (setf (gf-methods gf)
                 (remove-if #'(lambda (method)
-                               (when (std-method-origin method)
+                               (when (std-method-from-defgeneric method)
                                  (setf (std-method-generic-function method) nil)
                                  t))
                            (gf-methods gf)))

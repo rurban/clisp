@@ -144,7 +144,8 @@
             ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
       (setf (gf-methods gf) (remove old-method (gf-methods gf))
-            (std-method-generic-function old-method) nil)
+            (std-method-generic-function old-method) nil
+            (std-method-from-defgeneric old-method) nil)
       ;;(sys::closure-set-seclass gf
       ;;  (reduce #'sys::seclass-or (gf-methods gf)
       ;;          :key (lambda (sm) (sys::function-side-effect
