@@ -188,7 +188,7 @@ DEFUNF(POSIX::J1,x) { VAL_D(j1); mv_count=1; }
 DEFUNF(POSIX::JN,i x) { VAL_ID(jn); mv_count=1; }
 DEFUNF(POSIX::Y0,x) { VAL_D(y0); mv_count=1; }
 DEFUNF(POSIX::Y1,x) { VAL_D(y1); mv_count=1; }
-DEFUNF(POSIX:YN,i y){ VAL_ID(yn); mv_count=1; }
+DEFUNF(POSIX::YN,i y){ VAL_ID(yn); mv_count=1; }
 
 #if defined(HAVE_LGAMMA) || defined(HAVE_DECL_LGAMMA_R)
 DEFUNF(POSIX::LGAMMA,x) {
@@ -492,9 +492,9 @@ DEFUN(POSIX::USAGE,)
 }
 #endif /* HAVE_GETRUSAGE */
 
+#if defined(HAVE_GETRLIMIT)
 DEFCHECKER(getrlimit_arg,"RLIMIT", CPU FSIZE DATA STACK CORE RSS NOFILE \
            AS NPROC MEMLOCK LOCKS)
-#if defined(HAVE_GETRLIMIT)
 DEFUN(POSIX::LIMITS, &optional what)
 { /* getrlimit(3) */
 #define RLIM(what)                                                      \
