@@ -127,8 +127,14 @@ AC_TRY_RUN([
 #endif
 int main ()
 { int fd = open("conftest.c",O_RDONLY,0644);
-  long x;
-  exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&x) >= 0) && (x > 0)));
+  unsigned long bytes_ready;
+  /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
+     apparently expect an 'int *', not a 'long *', as argument of this ioctl,
+     and thus fill only part of the bytes_ready variable. Fortunately,
+     endianness is not a problem here, because we only check whether
+     bytes_ready is == 0 or != 0. */
+  bytes_ready = 0;
+  exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
 }],
 cl_cv_decl_FIONREAD_reliable=yes, cl_cv_decl_FIONREAD_reliable=no,
 dnl When cross-compiling, don't assume anything.
