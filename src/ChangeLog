@@ -1,3 +1,10 @@
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method2.lisp (compute-effective-method-as-function): Convert
+	result from a form to a function.
+	* clos-methcomb2.lisp (compute-effective-method-function,
+	standard-method-combination-expander): Don't do the conversion here.
+
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (define-method-combination): Provide bindings
