@@ -1,3 +1,8 @@
+2002-12-18  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (nobject_out): handle uninterned symbols and
+	special forms (Fsubrs) correctly
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (alignof): With g++, use the builtin __alignof__. This
