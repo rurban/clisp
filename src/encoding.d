@@ -29,12 +29,14 @@ local char hex_table[] = "0123456789ABCDEF";
   global void fehler_unencodable(encoding,ch)
     var object encoding;
     var chart ch;
-    { pushSTACK(TheEncoding(encoding)->enc_charset);
+    { pushSTACK(code_char(ch)); # Wert für Slot DATUM von CHARSET-TYPE-ERROR
+      pushSTACK(encoding); # Wert für Slot EXPECTED-TYPE von CHARSET-TYPE-ERROR
+      pushSTACK(TheEncoding(encoding)->enc_charset);
       pushSTACK(ascii_char(hex_table[as_cint(ch)&0x0F]));
       pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
       pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
       pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
-      fehler(error,
+      fehler(charset_type_error,
              DEUTSCH ? "Zeichen #\\u$$$$ kann im Zeichensatz ~ nicht dargestellt werden." :
              ENGLISH ? "Character #\\u$$$$ cannot be represented in the character set ~" :
              FRANCAIS ? "Le caractère #\\u$$$$ ne peut pas être représenté en ~." :

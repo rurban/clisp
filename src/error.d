@@ -207,6 +207,7 @@
               # type-error, keyword-error --> ergänze :datum, :expected-type
               if (eq(type,S(simple_type_error))
                   || eq(type,S(simple_keyword_error))
+                  || eq(type,S(simple_charset_type_error))
                  )
                 { pushSTACK(S(Kexpected_type)); pushSTACK(BEFORE(stackptr)); # :expected-type ...
                   pushSTACK(S(Kdatum)); pushSTACK(BEFORE(stackptr)); # :datum ...

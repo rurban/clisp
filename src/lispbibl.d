@@ -11305,6 +11305,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
           type_error,
             # when some keyword does not belong to one of the allowed keywords
             keyword_error,
+            # when some character does not belong to a given character set
+            charset_type_error,
           # errors during operation on packages
           package_error,
           # attempted violation of *PRINT-READABLY*
