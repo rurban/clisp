@@ -1,5 +1,10 @@
 2004-04-07  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (src/autoconf/aclocal.m4): aclocal 1.8 forbids
+	duplicate AC_CONFIG_HEADERS
+
+2004-04-07  Sam Steingold  <sds@gnu.org>
+
 	* cpcre.c: better support for older PCRE versions
 
 2004-04-05  Sam Steingold  <sds@gnu.org>
