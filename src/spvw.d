@@ -83,14 +83,14 @@
       }
   #else
     #define for_all_subrs(statement)  \
-      { var module_* module; # modules durchgehen                             \
-        for_modules(all_modules,                                              \
-          { if (module->initialized)                                          \
-              if (*module->stab_size > 0)                                     \
-                { var subr_* ptr = module->stab;                              \
-                  var uintC count;                                            \
-                  dotimespC(count,*module->stab_size, { statement; ptr++; } );\
-                });                                                           \
+      { var module_* module; # modules durchgehen                              \
+        for_modules(all_modules,                                               \
+          { if (module->initialized)                                           \
+              if (*module->stab_size > 0)                                      \
+                { var subr_* ptr = module->stab;                               \
+                  var uintC count;                                             \
+                  dotimespC(count,*module->stab_size, { statement; ptr++; } ); \
+                });                                                            \
       }   }
   #endif
 
@@ -114,14 +114,14 @@
 
 # Durchlaufen durch object_tab:
   #define for_all_constobjs(statement)  \
-    { var module_* module; # modules durchgehen                               \
-      for_modules(all_modules,                                                \
-        { if (module->initialized)                                            \
-            if (*module->otab_size > 0)                                       \
-              { var object* objptr = module->otab; # object_tab durchgehen    \
-                var uintC count;                                              \
-                dotimespC(count,*module->otab_size, { statement; objptr++; });\
-              });                                                             \
+    { var module_* module; # modules durchgehen                                 \
+      for_modules(all_modules,                                                  \
+        { if (module->initialized)                                              \
+            if (*module->otab_size > 0)                                         \
+              { var object* objptr = module->otab; # object_tab durchgehen      \
+                var uintC count;                                                \
+                dotimespC(count,*module->otab_size, { statement; objptr++; } ); \
+              });                                                               \
     }   }
 
 # Semaphoren: entscheiden, ob eine Unterbrechung unwirksam (/=0) oder
