@@ -744,10 +744,10 @@
   LISPOBJ(type_rexx_host,"(OR STRING BOOLEAN)")
  #endif
 /* for control & io, function seclass_object(): */
-LISPOBJ(seclass_no_se,"(NIL . NIL)")
-LISPOBJ(seclass_read,"(T . NIL)")
-LISPOBJ(seclass_write,"(NIL . T)")
-LISPOBJ(seclass_default,"(T . T)")
+LISPOBJ(seclass_no_se,"(NIL NIL NIL)")
+LISPOBJ(seclass_read,"(T NIL NIL)")
+LISPOBJ(seclass_write,"(NIL T T)")
+LISPOBJ(seclass_default,"(T T T)")
 # for FOREIGN.D:
  #ifdef DYNAMIC_FFI
   LISPOBJ(fp_zero,"NIL")

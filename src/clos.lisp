@@ -1853,11 +1853,12 @@
             (declare (compile) (ignore args))
             (tagbody 1 (go 1))))
        (prototype-code (sys::%record-ref prototype 1)))
-  ;; seclass is (t . t) because a generic function
+  ;; seclass is dirty because a generic function
   ;; can always signal a NO-APPLICABLE-METHOD error
   (defun %make-gf (name signature argorder methods)
     (sys::%make-closure name prototype-code
-                        (list nil signature argorder methods) '(t . t))))
+                        (list nil signature argorder methods)
+                        sys::*seclass-dirty*)))
 
 #||
  (defun make-gf (name lambdabody signature argorder methods)

@@ -1,5 +1,26 @@
 2004-01-09  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 866282 ]: progv binding not handled properly in compiler
+	* compiler.lisp (seclass): a structure of type LIST
+	(*seclass-dirty*, *seclass-read*): new constant
+	(*seclass-foldable*): renamed from *FOLDABLE-SECLASS*
+	(seclass-or, seclass-without): updated for new SECLASS
+	(anode-side-effect-free-p): new function
+	(c-form, unmodify-unused-var, checking-movable-var-list)
+	(c-bind-with-svars, c-UNWIND-PROTECT, c-MULTIPLE-VALUE-PROG1): use it
+	(c-VARSET): set SECLASS-USES-BINDING for SPECIAL variables
+	(c-PROGV, c-parallel-bind-movable-var-anode):
+	check both both USES and USES-BINDING
+	(c-FUNCTION, c-HANDLER-BIND): use *SECLASS-READ* instead of a literal
+	(f-side-effect, c-unlist, c-DEFUN, c-RETURN-FROM, c-GO):
+	use *SECLASS-DIRTY* instead of a literal
+	* clos.lisp (%make-gf): ditto
+	* record.d (parse_seclass): updated
+	* constobj.d (seclass_no_se, seclass_read, seclass_write)
+	(seclass_default): updated
+
+2004-01-09  Sam Steingold  <sds@gnu.org>
+
 	* list.d (fehler_nth, fehler_butlast): removed
 	(NTH, NTHCDR, LAST, MAKE-LIST, BUTLAST, NBUTLAST):
 	use check_posfixnum() instead
