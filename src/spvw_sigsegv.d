@@ -75,7 +75,7 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->ebx)); }
    #endif
    #ifdef ARM
-    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->arm_r8)); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.gregs[R8])); }
    #endif
    #ifdef DECALPHA
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }

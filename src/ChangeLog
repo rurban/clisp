@@ -1,3 +1,8 @@
+2004-01-20  Bruno Haible  <bruno@clisp.org>
+
+	* spvw_sigsegv.d (stackoverflow_handler) [UNIX_LINUX ARM]: Update for
+	Linux 2.4.x.
+
 2004-03-15  Bruno Haible  <bruno@clisp.org>
 
 	* po/Makefile.devel (MSGATTRIB): New variable.
