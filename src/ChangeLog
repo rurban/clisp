@@ -1,3 +1,8 @@
+2004-01-01  Sam Steingold  <sds@gnu.org>
+
+	* install.bat: fixed bug #[ 868881 ]: replaced `|' with `I'
+	and `/' with `\' for the sake of Windows XP
+
 2003-12-31  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (uninstall-bin) [CYGWIN]: remove clisp.README & clisp.exe
