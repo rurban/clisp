@@ -46,7 +46,7 @@ T = $(TOPDIR)
 
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure #$T/HTML-index.html
 #SOURCES2 = $T/src/*
-# exclude $T/src/g*t $T/src/*ne = $T/src/gettext $T/src/oldoldreadline $T/src/oldreadline $T/src/readline
+# exclude $T/src/g*t $T/src/*ne = $T/src/gettext $T/src/readline
 SOURCES2 = $T/src/*[^et] $T/src/[^g]*t $T/src/*[^n]e $T/src/.??*
 # exclude $T/src/gettext/*o/*p = $T/src/gettext/po/tmp
 SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
@@ -66,7 +66,7 @@ TEMPDIR = /tmp/clispdos
 
 all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src/intparam.c src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/vacall/vacall-i386-msvc.c ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/vacall_r/vacall-i386-msvc.c ffcall/callback/trampoline_r/config.h.msvc acorn/pathname.txt
 
-makefiles : os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/oldoldreadline/Makefile.dos src/oldoldreadline/Makefile.os2 src/oldoldreadline/Makefile.go32 src/oldreadline/Makefile.dos src/oldreadline/Makefile.os2 src/oldreadline/Makefile.go32
+makefiles : os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
 
 os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
@@ -93,26 +93,8 @@ makemake : src/makemake.in
 	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
 	chmod a+x makemake
 
-src/oldoldreadline/Makefile.dos : src/oldoldreadline/Makefile.in
-	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/oldoldreadline/Makefile.in > src/oldoldreadline/Makefile.dos
 
-src/oldoldreadline/Makefile.os2 : src/oldoldreadline/Makefile.in
-	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/config.h//' < src/oldoldreadline/Makefile.in > src/oldoldreadline/Makefile.os2
-
-src/oldoldreadline/Makefile.go32 : src/oldoldreadline/Makefile.in
-	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ranlib/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/oldoldreadline/Makefile.in > src/oldoldreadline/Makefile.go32
-
-src/oldreadline/Makefile.dos : src/oldreadline/Makefile.in
-	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@CFLAGS@/-g -O/' -e 's/@LDFLAGS@//' -e 's/@DEFS@/-DHAVE_CONFIG_H/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/^MV =.*$$/MV = ren/' -e 's/ config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/oldreadline/Makefile.in > src/oldreadline/Makefile.dos
-
-src/oldreadline/Makefile.os2 : src/oldreadline/Makefile.in
-	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@CFLAGS@/-g -O/' -e 's/@LDFLAGS@//' -e 's/@DEFS@/-DHAVE_CONFIG_H/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ar s/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/^MV =.*$$/MV = ren/' -e 's/ config.h//' < src/oldreadline/Makefile.in > src/oldreadline/Makefile.os2
-
-src/oldreadline/Makefile.go32 : src/oldreadline/Makefile.in
-	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@CFLAGS@/-g -O/' -e 's/@LDFLAGS@//' -e 's/@DEFS@/-DHAVE_CONFIG_H/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ranlib/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/^MV =.*$$/MV = ren/' -e 's/ config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/oldreadline/Makefile.in > src/oldreadline/Makefile.go32
-
-
-CONFIGURES = src/configure src/oldoldreadline/configure src/oldreadline/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure modules/clx/new-clx/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure libiconv/configure sigsegv/configure utils/hln/configure
+CONFIGURES = src/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure modules/clx/new-clx/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure libiconv/configure sigsegv/configure utils/hln/configure
 
 configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES) src/gettext/config.h.in
 
@@ -120,12 +102,6 @@ AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/acgeneral.m4 src/autoconf/
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
 	cd src ; autoconf/autoconf -m autoconf
-
-src/oldoldreadline/configure : src/oldoldreadline/configure.in $(AUTOCONF_FILES)
-	cd src/oldoldreadline ; ../autoconf/autoconf -m ../autoconf
-
-src/oldreadline/configure : src/oldreadline/configure.in $(AUTOCONF_FILES)
-	cd src/oldreadline ; ../autoconf/autoconf -m ../autoconf
 
 src/gettext/configure : src/gettext/configure.in src/gettext/aclocal.m4
 	cd src/gettext ; $(MAKE) -f Makefile.devel configure
@@ -270,8 +246,6 @@ src-distrib : src/FILES src/version.h potfiles force
 src--distrib : force
 	ln -s . $(TOPDIR)
 	$(PACK) $(PACKOPT) /tmp/clispsrc$(PACKEXT) $(SOURCES)
-	$(PACK) $(PACKOPT) /tmp/clispsrc-oldoldreadline$(PACKEXT) $T/src/oldoldreadline
-	$(PACK) $(PACKOPT) /tmp/clispsrc-oldreadline$(PACKEXT) $T/src/oldreadline
 	$(PACK) $(PACKOPT) /tmp/clispsrc-readline$(PACKEXT) $T/src/readline
 	$(PACK) $(PACKOPT) /tmp/clispsrc-queens$(PACKEXT) $T/modules/queens
 	$(PACK) $(PACKOPT) /tmp/clispsrc-wildcard$(PACKEXT) $T/modules/wildcard
