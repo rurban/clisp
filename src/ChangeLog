@@ -1,6 +1,7 @@
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
 	* backquote.lisp (bq-vec-expand): fixed the unoptimized case
+	* compiler.lisp (compile-file): finish listing-stream with a newline
 
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
