@@ -2,7 +2,7 @@
 ;;;; 29. 4. 1988, 3. 9. 1988
 
 (in-package "EXT")
-(export '(mapcap maplap))
+(export '(mapcap maplap fcase))
 (in-package "SYSTEM")
 
 ;; (DEFMACRO-SPECIAL . macrodef) is like (DEFMACRO . macrodef) except
