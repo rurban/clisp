@@ -47,8 +47,13 @@
 #define RETSIGTYPE_VOID
 #endif
 
-#if defined(WIN32) /* mingw32 */
+#if defined(WIN32) && defined(_MSC_VER) /* MSVC */
 #define MINIMAL
+#endif
+
+#if defined(WIN32) && !defined(_MSC_VER) /* mingw32 */
+#define MINIMAL
+/* probably HAVE_TERMIOS_H HAVE_TCGETATTR HAVE_TCFLOW */
 #endif
 
 #endif
@@ -139,6 +144,8 @@ typedef struct direct dirent;
 #endif
 
 /* If on, then readline handles signals in a way that doesn't screw. */
+#if !defined(MINIMAL)
 #define HANDLE_SIGNALS
+#endif
 
 #endif

@@ -121,11 +121,8 @@
    to say SigHandler *foo = signal (SIGKILL, SIG_IGN); */
 typedef sighandler SigHandler ();
 
-#ifdef MINIMAL
 #ifdef __GO32__
 #include <pc.h>
-#endif
-#undef HANDLE_SIGNALS
 #endif
 
 #include "rlxref.h"
