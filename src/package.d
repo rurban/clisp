@@ -1,6 +1,6 @@
 /*
  * Package Management for CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1999-2002
  * German comments translated into English: Stefan Kain 2002-02-20
  */
@@ -48,10 +48,13 @@ local uint16 string_hashcode (object string) {
     var const cintX* charptr = &((SstringX)TheVarobject(string))->data[offset];
     /* there are len characters, starting at charptr */
     var uint32 hashcode = 0; /* hashcode, only the lower 16 Bit count */
+    /* Look at all len characters, not just at the first min(len,16)
+       characters, as we did earlier, because a bad hash function quasi
+       turns the hash table into a few long linear lists. */
     var uintC count;
-    dotimesC(count, (len>16 ? 16 : len), { /* min(len,16) times: */
+    dotimesC(count, len, {
       /* rotate hashcode by 5 bits to the left: */
-      hashcode = hashcode << 5; hashcode = hashcode | high16(hashcode);
+      hashcode = hashcode << 5; hashcode = hashcode + high16(hashcode);
       /* 'add' next byte via XOR: */
       hashcode = hashcode ^ (uint32)(*charptr++);
     });
