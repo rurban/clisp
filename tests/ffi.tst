@@ -41,6 +41,7 @@ ERROR
   (cast place '(c-array sint8 (3 2))))
 #2A((-1 -2) (-3 -9) (-8 -7))
 
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=679661&group_id=1355&atid=101355>
 (def-c-struct triv (i int))
 TRIV
 
@@ -77,6 +78,11 @@ TRIGGER
 #+UNICODE
 (setf custom:*foreign-encoding* (ext:make-encoding :charset 'charset:utf-8))
 #+UNICODE ERROR ;  not a 1:1 encoding
+
+(typep (ffi::lookup-foreign-variable
+        "ffi_user_pointer" (ffi::parse-c-type 'ffi:c-pointer))
+       'ffi:foreign-variable)
+T
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -334,15 +340,22 @@ NIL
   (foreign-value x))
 (#(123456789) #(987654321) #(543235263) #(936272894 1333222444))
 
-;;FIXME utf-16 is not in every CLISP with #+UNICODE
-;#+UNICODE
-;(with-foreign-string (fv e b "ABC" :encoding charset:utf-16)
-;  (list e b))
-;#+UNICODE (4 10) ; #\uFEFF is added upfront
+;;TODO utf-16 is not in every CLISP with #+UNICODE
+#+UNICODE
+(let ((sy (find-symbol "UTF-16" "CHARSET")))
+  (if (and sy (boundp sy) (sys::encodingp (symbol-value sy)))
+      (with-foreign-string (fv e b "ABC" :encoding (symbol-value sy))
+        (list e b))
+      '(4 10)))
+#+UNICODE (4 10) ; #\uFEFF is added upfront
 
 ;; prevent the user from shooting himself in the foot
 (setf (validp (unsigned-foreign-address 4)) nil)
 ERROR
+
+#+UNICODE
+(type-of (setq custom:*foreign-encoding* orig-encoding))
+#+UNICODE EXT:ENCODING
 
 (with-c-var (place '(c-ptr (c-struct list
                             (a (c-array long 2))
