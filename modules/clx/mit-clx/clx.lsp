@@ -171,7 +171,7 @@
     `(or (float ,(convert min t) ,(convert max t))
 	 (rational ,(convert min nil) ,(convert max nil)))))
 
-#-(or clx-ansi-common-lisp cmu)
+#-(or clx-ansi-common-lisp cmu CLISP)
 (deftype base-char ()
   'string-char)
 
