@@ -6373,20 +6373,20 @@ resolve_shell_shortcut_more (LPCSTR filename, LPSTR resolved)
  < nameout: filename with directory and file shortcuts resolved
              on failure holds filename resolved so far
  < result:  true if resolving succeeded */
-bool TrueName (LPCSTR namein, LPSTR nameout) {
+global bool TrueName (LPCSTR namein, LPSTR nameout) {
   var WIN32_FIND_DATA wfd;
   var HANDLE h = NULL;
   var char * nametocheck;
   var char * nametocheck_end;
-/*  drive|dir1|dir2|name
-          ^nametocheck
-              ^nametocheck_end */
+  /* drive|dir1|dir2|name
+           ^nametocheck
+               ^nametocheck_end */
   var char saved_char;
-  var int next_name = 0;/* if we found an lnk and need to start over */
+  var bool next_name = 0;/* if we found an lnk and need to start over */
   var int try_counter = 33;
   strcpy(nameout,namein);
   do { /* whole file names */
-    next_name = 0;
+    next_name = false;
     if (!*nameout) return false;
     /* skip drive or host or first slash */
     nametocheck = nameout;
@@ -6486,12 +6486,10 @@ bool TrueName (LPCSTR namein, LPSTR nameout) {
               int l1 = strlen(resolved);
               int l2 = strlen(nametocheck_end + 1);
               if (l1 + l2 + 2 > MAX_PATH) return false;
-              strcpy(nameout,resolved);
-              memmove(nameout+l1,nametocheck_end + 1,l2+1);
-            } else { /* subst all the pathname */
-              strcpy(nameout,resolved);
+              strncat(resolved,nametocheck_end + 1,l2+1);
             }
-            next_name = 1;
+            strcpy(nameout,resolved);
+            next_name = true;
           }
         }
       }
