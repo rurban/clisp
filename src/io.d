@@ -9552,9 +9552,10 @@ LISPFUN(write_spaces,seclass_default,1,1,norest,nokey,0,NIL) {
 # stream     ---an output stream designator. The default is standard output.
 LISPFUN(pprint_indent,seclass_default,2,1,norest,nokey,0,NIL) {
   test_ostream();
-  # check the indentation increment
+  /* check the indentation increment */
+  STACK_1 = check_real(STACK_1);
   var int offset=0;
-  if (numberp(STACK_1) && !complexp(STACK_1)) {
+  {
     var object num = STACK_1;
     if (!integerp(num)) {
       pushSTACK(num); funcall(L(round),1);
@@ -9567,7 +9568,7 @@ LISPFUN(pprint_indent,seclass_default,2,1,norest,nokey,0,NIL) {
       fehler(type_error,GETTEXT("~: argument ~ is too large"));
     }
     offset = fixnum_to_L(num);
-  } else fehler_not_R(STACK_1);
+  }
   # check the relative-to arg
   var object indent = Symbol_value(S(prin_indentation));
   var object linepos = get_line_position(STACK_0);

@@ -7823,7 +7823,6 @@ extern int final_exitcode;
 # > file: Filename (with quotation marks) as constant ASCIZ-String
 # > line: line number
 nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));
-nonreturning_function(extern, fehler_not_R, (object obj));
 # used by all modules
 
 # Language that's used to communicate with the user:
@@ -12116,11 +12115,11 @@ nonreturning_function(extern, fehler_vector, (object obj));
 nonreturning_function(global, fehler_environment, (object obj));
 /* used by EVAL, CONTROL */
 
-# Error message, if an argument isn't a Fixnum >=0:
-# fehler_posfixnum(obj);
-# > obj: the faulty argument
+/* Error message, if an argument isn't a Fixnum >=0:
+ > obj: the faulty argument */
 nonreturning_function(extern, fehler_posfixnum, (object obj));
-# is used by STREAM
+global object check_posfixnum (object obj);
+/* used by STREAM, LISPARIT */
 
 # Error message, if an argument isn't a Character:
 # fehler_char(obj);
@@ -12137,7 +12136,7 @@ extern object check_char (object obj);
 nonreturning_function(extern, fehler_string, (object obj));
 /* can trigger GC */
 extern object check_string (object obj);
-# is used by CHARSTRG, FOREIGN, MISC, PATHNAME, STREAM, SOCKET, I18N, DIRKEY
+# is used by CHARSTRG, FOREIGN, MISC, PATHNAME, STREAM, SOCKET, I18N
 
 # Error message, if an argument isn't a Simple-String:
 # fehler_sstring(obj);
@@ -12941,6 +12940,12 @@ extern object get (object symbol, object key);
 # is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
 
 # ##################### ARITBIBL for LISTARIT.D ############################ #
+
+/* check_real(obj) checks, if obj is a real number.
+ < real number
+ can trigger GC */
+global inline object check_real (object obj);
+/* used by IO */
 
 # UP: Initializes the arithmetics.
 # init_arith();

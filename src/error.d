@@ -833,6 +833,20 @@ nonreturning_function(global, fehler_posfixnum, (object obj)) {
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: argument ~ should be a nonnegative fixnum"));
 }
+/* < posfixnum
+   can trigger GC */
+global object check_posfixnum (object obj) {
+  while (!posfixnump(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: argument ~ should be a nonnegative fixnum"));
+    obj = value1;
+  }
+  return obj;
+}
+
 
 /* error-message, if an argument is not a Character:
  fehler_char(obj);
@@ -844,7 +858,7 @@ nonreturning_function(global, fehler_char, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: argument ~ is not a ~"));
 }
-
+/* can trigger GC */
 global object check_char (object obj) {
   while (!charp(obj)) {
     pushSTACK(NIL); /* no PLACE */
