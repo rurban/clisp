@@ -132,6 +132,7 @@ LISPSYM(vector_init_start,"VECTOR-INIT-START",system)
 LISPSYM(vector_fe_init_end,"VECTOR-FE-INIT-END",system)
 LISPSYM(make_bit_vector,"MAKE-BIT-VECTOR",system)
 # ---------- CHARSTRG ----------
+LISPSYM(string_info,"STRING-INFO",system)
 LISPSYM(standard_char_p,"STANDARD-CHAR-P",lisp)
 LISPSYM(graphic_char_p,"GRAPHIC-CHAR-P",lisp)
 LISPSYM(char_width,"CHAR-WIDTH",ext)

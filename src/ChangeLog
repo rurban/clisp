@@ -1,3 +1,13 @@
+2002-06-25  Sam Steingold  <sds@gnu.org>
+
+	* charstrg.d (STRING-INFO): new function
+	* constsym.d, subr.d (string_info): added
+
+2002-06-25  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (test_external_format_arg): fixed for the 2002-06-19
+	patch (new MAKE-ENCODING keyword arg)
+
 2002-06-20  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (CHART_STRUCT): Enable for gcc >= 3.0.
@@ -6,10 +16,10 @@
 
 	* lispbibl.d (sstring_): Define using chart.
 	(Sstring): Likewise.
-	* array.d (elt_copy_T_Char, ssstring_extend_low): Make it compile with
-	CHART_STRUCT.
+	* array.d (elt_copy_T_Char, ssstring_extend_low): Make it compile
+	with CHART_STRUCT.
 	* charstrg.d (copy_string, subsstring, SUBSTRING, string_concat):
-	LIkewise.
+	Likewise.
 	* io.d (write_sstring_case): LIkewise.
 	* lisparit.d (decimal_string): Likewise.
 	* pathname.d (Z_AT_SLASH): Fix for changed return type of schar.
