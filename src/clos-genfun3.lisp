@@ -446,7 +446,7 @@
            (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
          ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
          (LET ((,generic-function-class-var ,generic-function-class-form))
-           (ENSURE-GENERIC-FUNCTION ',funname
+           (APPLY #'ENSURE-GENERIC-FUNCTION ',funname
              ;; Here we pass :GENERIC-FUNCTION-CLASS, :ARGUMENT-PRECEDENCE-ORDER,
              ;; :METHOD-CLASS, :DOCUMENTATION also if the corresponding option
              ;; wasn't specified in the DEFGENERIC form, because when a generic
@@ -460,7 +460,11 @@
              :METHOD-COMBINATION (,method-combination-lambda ,generic-function-class-var)
              :DOCUMENTATION ',docstring
              :DECLARATIONS ',declspecs
-             'METHODS (LIST ,@method-forms)))))))
+             'METHODS (LIST ,@method-forms)
+             ;; Pass the default initargs of the generic-function class, in
+             ;; order to erase leftovers from the previous definition.
+             (MAPCAP #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
+                     (CLASS-DEFAULT-INITARGS ,generic-function-class-var))))))))
 
 ;; ============================================================================
 
