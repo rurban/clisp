@@ -766,13 +766,19 @@ LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
     #   Sommerzeit-p wird dem Ergebnis von localtime(t) entnommen.
     var object arg = popSTACK();
     var time_t now;
-    if (posfixnump(arg)
-        && (posfixnum_to_L(arg) > 613608) # arg > 1.1.1970
-        && (posfixnum_to_L(arg) < 1314888) # arg < 1.1.2050
-       )
-      # bestimmter Zeitpunkt
-      # Annahme: time_t ist die Anzahl der Sekunden seit 1.1.1970. ??
-      { now = (posfixnum_to_L(arg) - 613608) * 3600; }
+    if (integerp(arg))
+      { # bestimmter Zeitpunkt
+        # Annahme: time_t ist die Anzahl der Sekunden seit 1.1.1970. ??
+        if (posfixnump(arg)
+            && (posfixnum_to_L(arg) >= 613608) # arg >= 1.1.1970
+            && (posfixnum_to_L(arg) < 1314888) # arg < 1.1.2050
+           )
+          { now = (posfixnum_to_L(arg) - 613608) * 3600; }
+        elif (R_minusp(arg) || posfixnump(arg) && (posfixnum_to_L(arg) < 613608))
+          { now = 0; } # < 1.1.1970 -> treat like 1.1.1970
+        else
+          { now = (uintL)(1314888 - 613608) * 3600; } # >= 1.1.2050 -> treat like 1.1.2050
+      }
       else
       # jetzt
       { begin_system_call(); time(&now); end_system_call(); }

@@ -1,3 +1,8 @@
+1998-09-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * time.d (SYS::DEFAULT-TIME-ZONE): Treat dates <= 1.1.1970 or
+          >= 1.1.2050 like 1.1.1970 or 1.1.2050, respectively.
+
 1998-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (FILE-STRING-LENGTH): New function.
