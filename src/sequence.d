@@ -226,7 +226,7 @@ local object valid_type1 (object name) {
     if (eq(name,O(class_string)))
       { name = S(string); goto expanded_unconstrained; }
     if (eq(name,O(class_bit_vector)))
-      { name = S(bit_vector); goto expanded_unconstrained; }
+      { name = fixnum(1); goto expanded_unconstrained; }
     if (eq(name,O(class_array)))
       { name = S(vector); goto expanded_unconstrained; }
     name = TheClass(name)->classname;
