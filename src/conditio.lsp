@@ -1352,7 +1352,7 @@ muffle-cerrors appease-cerrors exit-on-error
                                    ,errorstring ,var
               ) ) ) )
          ) )
-         (retry-loop (casename place clauselist errorstring)
+         (retry-loop (casename place clauselist errorstring expected-type)
            (let ((g (gensym))
                  (h (gensym)))
              `(BLOCK ,g
@@ -1365,7 +1365,8 @@ muffle-cerrors appease-cerrors exit-on-error
                       (OTHERWISE
                         (RESTART-CASE
                           (PROGN       ; no need for explicit association, see applicable-restart-p
-                            (ERROR     ; of-type ??
+                            (ERROR-OF-TYPE 'TYPE-ERROR
+                              :DATUM ,place :EXPECTED-TYPE ',expected-type
                               (TYPE-ERROR-STRING)
                               ,errorstring
                               ,place
@@ -1387,6 +1388,7 @@ muffle-cerrors appease-cerrors exit-on-error
     (defmacro ctypecase (keyplace &rest keyclauselist)
       (retry-loop 'TYPECASE keyplace keyclauselist
                   (typecase-errorstring keyplace keyclauselist)
+                  (typecase-expected-type keyclauselist)
     ) )
     (defmacro ecase (keyform &rest keyclauselist)
       (simply-error 'CASE keyform keyclauselist
@@ -1396,6 +1398,7 @@ muffle-cerrors appease-cerrors exit-on-error
     (defmacro ccase (keyform &rest keyclauselist)
       (retry-loop 'CASE keyform keyclauselist
                   (case-errorstring keyform keyclauselist)
+                  (case-expected-type keyclauselist)
     ) )
 ) )
 
