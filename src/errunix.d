@@ -27,17 +27,18 @@
   # Initialisierung der Tabelle:
     global int init_errormsg_table (void);
     global int init_errormsg_table()
-      { var uintC i;
+      {
+        var uintC i;
         begin_system_call();
         errormsg_table = (os_error_t*) malloc(sys_nerr * sizeof(os_error_t));
         end_system_call();
         if (errormsg_table == NULL) # Speicher reicht nicht?
-          { return -1; }
+          return -1;
         # Tabelle vor-initialisieren:
-        for (i=0; i<sys_nerr; i++)
-          { errormsg_table[i].name = "";
-            errormsg_table[i].msg = sys_errlist[i];
-          }
+        for (i=0; i<sys_nerr; i++) {
+          errormsg_table[i].name = "";
+          errormsg_table[i].msg = sys_errlist[i];
+        }
         # Tabelle initialisieren:
         # Obacht: Auf sys_nerr ist kein Verlass. (Bei IRIX 5.2 ist EDQUOT >= sys_nerr !)
         /* allgemein verbreitete UNIX-Errors: */
@@ -631,7 +632,8 @@
     local void OS_error_internal (uintC errcode);
     local void OS_error_internal(errcode)
       var uintC errcode;
-      { # Meldungbeginn ausgeben:
+      {
+        # Meldungbeginn ausgeben:
         #ifdef UNIX
         write_errorstring(GETTEXT("UNIX error "));
         #else
@@ -640,32 +642,37 @@
         # Fehlernummer ausgeben:
         write_errorobject(fixnum(errcode));
         #if 0
-        { # Fehlermeldung des Betriebssystems ausgeben:
-          if (errcode < sys_nerr)
-            { var const char* errormsg = translate(sys_errlist[errcode]);
+        {
+          # Fehlermeldung des Betriebssystems ausgeben:
+          if (errcode < sys_nerr) {
+            var const char* errormsg = translate(sys_errlist[errcode]);
+            write_errorasciz(": ");
+            write_errorasciz(errormsg);
+          }
+        }
+        #else # nach Möglichkeit noch ausführlicher:
+        {
+          # eigene Fehlermeldung ausgeben:
+          if (errcode < sys_nerr) {
+            # Zu dieser Fehlernummer ist ein Text da.
+            var const char* errorname = errormsg_table[errcode].name;
+            var const char* errormsg = translate(errormsg_table[errcode].msg);
+            if (!(errorname[0] == 0)) { # bekannter Name?
+              write_errorasciz(" (");
+              write_errorasciz(errorname);
+              write_errorasciz(")");
+            }
+            if (!(errormsg[0] == 0)) { # nichtleere Meldung?
               write_errorasciz(": ");
               write_errorasciz(errormsg);
-        }   }
-        #else # nach Möglichkeit noch ausführlicher:
-        { # eigene Fehlermeldung ausgeben:
-          if (errcode < sys_nerr)
-            # Zu dieser Fehlernummer ist ein Text da.
-            { var const char* errorname = errormsg_table[errcode].name;
-              var const char* errormsg = translate(errormsg_table[errcode].msg);
-              if (!(errorname[0] == 0)) # bekannter Name?
-                { write_errorasciz(" (");
-                  write_errorasciz(errorname);
-                  write_errorasciz(")");
-                }
-              if (!(errormsg[0] == 0)) # nichtleere Meldung?
-                { write_errorasciz(": ");
-                  write_errorasciz(errormsg);
-                }
-        }   }
+            }
+          }
+        }
         #endif
       }
     global void OS_error()
-      { var uintC errcode; # positive Fehlernummer
+      {
+        var uintC errcode; # positive Fehlernummer
         end_system_call(); # just in case
         begin_system_call();
         errcode = errno;
@@ -674,13 +681,14 @@
         clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
         begin_error(); # Fehlermeldung anfangen
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-          { STACK_3 = S(simple_os_error); }
+          STACK_3 = S(simple_os_error);
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
     global void OS_file_error(pathname)
       var object pathname;
-      { var uintC errcode; # positive Fehlernummer
+      {
+        var uintC errcode; # positive Fehlernummer
         begin_system_call();
         errcode = errno;
         errno = 0; # Fehlercode löschen (fürs nächste Mal)
@@ -689,7 +697,7 @@
         pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
         begin_error(); # Fehlermeldung anfangen
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-          { STACK_3 = S(simple_file_error); }
+          STACK_3 = S(simple_file_error);
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
@@ -700,19 +708,22 @@
     global void errno_out (int errorcode);
     global void errno_out(errorcode)
       var int errorcode;
-      { asciz_out(" errno = ");
-        if ((uintL)errorcode < sys_nerr)
-          { var const char* errorname = errormsg_table[errorcode].name;
-            var const char* errormsg = translate(errormsg_table[errorcode].msg);
-            if (!(errorname[0] == 0)) # bekannter Name?
-              { asciz_out(errorname); }
-              else
-              { dez_out(errorcode); }
-            if (!(errormsg[0] == 0)) # nichtleere Meldung?
-              { asciz_out(": "); asciz_out(errormsg); }
+      {
+        asciz_out(" errno = ");
+        if ((uintL)errorcode < sys_nerr) {
+          var const char* errorname = errormsg_table[errorcode].name;
+          var const char* errormsg = translate(errormsg_table[errorcode].msg);
+          if (!(errorname[0] == 0)) { # bekannter Name?
+            asciz_out(errorname);
+          } else {
+            dez_out(errorcode);
           }
-          else
-          { dez_out(errorcode); }
+          if (!(errormsg[0] == 0)) { # nichtleere Meldung?
+            asciz_out(": "); asciz_out(errormsg);
+          }
+        } else {
+          dez_out(errorcode);
+        }
         asciz_out("." NLstring);
       }
 

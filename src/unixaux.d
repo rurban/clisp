@@ -11,7 +11,8 @@
   global unsigned int ualarm(value,interval)
     var unsigned int value;
     var unsigned int interval;
-    { var struct itimerval itimer;
+    {
+      var struct itimerval itimer;
       itimer.it_value.tv_sec = floor(value,1000000);
       itimer.it_value.tv_usec = value % 1000000;
       itimer.it_interval.tv_sec = floor(interval,1000000);
@@ -32,37 +33,51 @@
     var fd_set* writefds;
     var fd_set* exceptfds;
     var struct timeval * timeout;
-    { var struct pollfd pollfd_bag[FD_SETSIZE];
+    {
+      var struct pollfd pollfd_bag[FD_SETSIZE];
       var struct pollfd * pollfd_ptr = &pollfd_bag[0];
       var int pollfd_count = 0;
-      if (width<0) { errno = EINVAL; return -1; }
-      if (width>FD_SETSIZE) { width = FD_SETSIZE; }
-      { var int fd;
-        for (fd=0; fd<width; fd++)
-          { var short events = 0;
-            if (!(readfds==NULL) && FD_ISSET(fd,readfds)) { events |= POLLIN; }
-            if (!(writefds==NULL) && FD_ISSET(fd,writefds)) { events |= POLLOUT; }
-            if (!(exceptfds==NULL) && FD_ISSET(fd,exceptfds)) { events |= POLLPRI; }
-            if (events)
-              { pollfd_ptr->fd = fd;
-                pollfd_ptr->events = events;
-                pollfd_ptr->revents = 0;
-                pollfd_ptr++; pollfd_count++;
-      }   }   }
-     {var int poll_timeout = timeout->tv_sec * 1000 + timeout->tv_usec / (1000000/1000);
+      if (width<0) {
+        errno = EINVAL; return -1;
+      }
+      if (width>FD_SETSIZE)
+        width = FD_SETSIZE;
+      {
+        var int fd;
+        for (fd=0; fd<width; fd++) {
+          var short events = 0;
+          if (!(readfds==NULL) && FD_ISSET(fd,readfds))
+            events |= POLLIN;
+          if (!(writefds==NULL) && FD_ISSET(fd,writefds))
+            events |= POLLOUT;
+          if (!(exceptfds==NULL) && FD_ISSET(fd,exceptfds))
+            events |= POLLPRI;
+          if (events) {
+            pollfd_ptr->fd = fd;
+            pollfd_ptr->events = events;
+            pollfd_ptr->revents = 0;
+            pollfd_ptr++; pollfd_count++;
+          }
+        }
+      }
+      var int poll_timeout = timeout->tv_sec * 1000 + timeout->tv_usec / (1000000/1000);
       var int result = poll(pollfd_count,&pollfd_bag[0],poll_timeout);
-      if (result>=0)
-        { pollfd_ptr = &pollfd_bag[0];
-          until (pollfd_count == 0)
-            { var int fd = pollfd_ptr->fd;
-              var short revents = pollfd_ptr->revents;
-              if (!(readfds==NULL) && (revents & POLLIN)) { FD_SET(fd,readfds); }
-              if (!(writefds==NULL) && (revents & POLLOUT)) { FD_SET(fd,writefds); }
-              if (!(exceptfds==NULL) && (revents & (POLLPRI|POLLERR|POLLHUP))) { FD_SET(fd,exceptfds); }
-              pollfd_ptr++; pollfd_count--;
-        }   }
+      if (result>=0) {
+        pollfd_ptr = &pollfd_bag[0];
+        until (pollfd_count == 0) {
+          var int fd = pollfd_ptr->fd;
+          var short revents = pollfd_ptr->revents;
+          if (!(readfds==NULL) && (revents & POLLIN))
+            FD_SET(fd,readfds);
+          if (!(writefds==NULL) && (revents & POLLOUT))
+            FD_SET(fd,writefds);
+          if (!(exceptfds==NULL) && (revents & (POLLPRI|POLLERR|POLLHUP)))
+            FD_SET(fd,exceptfds);
+          pollfd_ptr++; pollfd_count--;
+        }
+      }
       return result;
-    }}
+    }
 #endif
 
 # ==============================================================================
@@ -73,18 +88,19 @@
   global int gettimeofday(tp,tzp)
     var struct timeval * tp;
     var struct timezone * tzp;
-    { var struct timeb timebuf;
-      if (!((tp==NULL) && (tzp==NULL)))
-        { ftime(&timebuf);
-          if (!(tp==NULL))
-            { tp->tv_sec = timebuf.time;
-              tp->tv_usec = (long)(timebuf.millitm) * (1000000/1000);
-            }
-          if (!(tzp==NULL))
-            { tzp->tz_minuteswest = timebuf.timezone;
-              tzp->tz_dsttime = 0; # ??
-            }
+    {
+      var struct timeb timebuf;
+      if (!((tp==NULL) && (tzp==NULL))) {
+        ftime(&timebuf);
+        if (!(tp==NULL)) {
+          tp->tv_sec = timebuf.time;
+          tp->tv_usec = (long)(timebuf.millitm) * (1000000/1000);
         }
+        if (!(tzp==NULL)) {
+          tzp->tz_minuteswest = timebuf.timezone;
+          tzp->tz_dsttime = 0; # ??
+        }
+      }
       return 0;
     }
 #endif
@@ -101,8 +117,11 @@
     var OPEN_CONST char* path;
     var int flags;
     var mode_t mode;
-    { var int retval;
-      do { retval = open(path,flags,mode); } while ((retval < 0) && (errno == EINTR));
+    {
+      var int retval;
+      do {
+        retval = open(path,flags,mode);
+      } while ((retval < 0) && (errno == EINTR));
       return retval;
     }
 
@@ -110,8 +129,11 @@
   global int nonintr_close (int fd);
   global int nonintr_close(fd)
     var int fd;
-    { var int retval;
-      do { retval = close(fd); } while ((retval < 0) && (errno == EINTR));
+    {
+      var int retval;
+      do {
+        retval = close(fd);
+      } while ((retval < 0) && (errno == EINTR));
       return retval;
     }
 
@@ -122,8 +144,11 @@
     var int fd;
     var IOCTL_REQUEST_T request;
     var IOCTL_ARGUMENT_T arg;
-    { var int retval;
-      do { retval = ioctl(fd,request,arg); } while ((retval != 0) && (errno == EINTR));
+    {
+      var int retval;
+      do {
+        retval = ioctl(fd,request,arg);
+      } while ((retval != 0) && (errno == EINTR));
       return retval;
     }
 
@@ -137,9 +162,11 @@
     var int fd;
     var int optional_actions;
     var struct termios * tp;
-    { var int retval;
-      do { retval = tcsetattr(fd,optional_actions,tp); }
-         while ((retval != 0) && (errno == EINTR));
+    {
+      var int retval;
+      do {
+        retval = tcsetattr(fd,optional_actions,tp);
+      } while ((retval != 0) && (errno == EINTR));
       return retval;
     }
 
@@ -147,8 +174,11 @@
   global int nonintr_tcdrain (int fd);
   global int nonintr_tcdrain(fd)
     var int fd;
-    { var int retval;
-      do { retval = tcdrain(fd); } while ((retval != 0) && (errno == EINTR));
+    {
+      var int retval;
+      do {
+        retval = tcdrain(fd);
+      } while ((retval != 0) && (errno == EINTR));
       return retval;
     }
 
@@ -157,8 +187,11 @@
   global int nonintr_tcflush(fd,flag)
     var int fd;
     var int flag;
-    { var int retval;
-      do { retval = tcflush(fd,flag); } while ((retval != 0) && (errno == EINTR));
+    {
+      var int retval;
+      do {
+        retval = tcflush(fd,flag);
+      } while ((retval != 0) && (errno == EINTR));
       return retval;
     }
 
@@ -181,37 +214,40 @@
       var struct sigaction sa;
       sigaction(sig,(struct sigaction *)NULL,&sa);
       #ifdef SA_INTERRUPT
-      if (flag)
-        { if (sa.sa_flags & SA_INTERRUPT) return 0;
-          sa.sa_flags |= SA_INTERRUPT; # system calls will be interrupted
-        }
-        else
-        { if (!(sa.sa_flags & SA_INTERRUPT)) return 0;
-          sa.sa_flags &= ~ SA_INTERRUPT; # system calls will be restarted
-        }
+      if (flag) {
+        if (sa.sa_flags & SA_INTERRUPT)
+          return 0;
+        sa.sa_flags |= SA_INTERRUPT; # system calls will be interrupted
+      } else {
+        if (!(sa.sa_flags & SA_INTERRUPT))
+          return 0;
+        sa.sa_flags &= ~ SA_INTERRUPT; # system calls will be restarted
+      }
       #endif
       #ifdef SA_RESTART
-      if (flag)
-        { if (!(sa.sa_flags & SA_RESTART)) return 0;
-          sa.sa_flags &= ~ SA_RESTART; # system calls will be interrupted
-        }
-        else
-        { if (sa.sa_flags & SA_RESTART) return 0;
-          sa.sa_flags |= SA_RESTART; # system calls will be restarted
-        }
+      if (flag) {
+        if (!(sa.sa_flags & SA_RESTART))
+          return 0;
+        sa.sa_flags &= ~ SA_RESTART; # system calls will be interrupted
+      } else {
+        if (sa.sa_flags & SA_RESTART)
+          return 0;
+        sa.sa_flags |= SA_RESTART; # system calls will be restarted
+      }
       #endif
       sigaction(sig,&sa,(struct sigaction *)NULL);
      #elif defined(HAVE_SIGVEC) && defined(SV_INTERRUPT)
       var struct sigvec sv;
       sigvec(sig,(struct sigvec *)NULL,&sv);
-      if (flag)
-        { if (sv.sv_flags & SV_INTERRUPT) return 0;
-          sv.sv_flags |= SV_INTERRUPT; # system calls will be interrupted
-        }
-        else
-        { if (!(sv.sv_flags & SV_INTERRUPT)) return 0;
-          sv.sv_flags &= ~ SV_INTERRUPT; # system calls will be restarted
-        }
+      if (flag) {
+        if (sv.sv_flags & SV_INTERRUPT)
+          return 0;
+        sv.sv_flags |= SV_INTERRUPT; # system calls will be interrupted
+      } else {
+        if (!(sv.sv_flags & SV_INTERRUPT))
+          return 0;
+        sv.sv_flags &= ~ SV_INTERRUPT; # system calls will be restarted
+      }
       sigvec(sig,&sv,(struct sigvec *)NULL);
      #endif
       return 0; # den Rückgabewert ignorieren wir immer.
@@ -227,7 +263,8 @@
     var int fd;
     var RW_BUF_T bufarea;
     var RW_SIZE_T nbyte;
-    { var char* buf = (char*) bufarea;
+    {
+      var char* buf = (char*) bufarea;
       var RETRWTYPE retval;
       var RW_SIZE_T done = 0;
       #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
@@ -242,18 +279,19 @@
       # does not specify anything about possible side effects.
       handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
       #endif
-      until (nbyte==0)
-        { retval = read(fd,buf,nbyte);
-          if (retval == 0) break;
-          elif (retval < 0)
-            {
-              #ifdef EINTR
-              if (!(errno == EINTR))
-              #endif
-                return retval;
-            }
-          else { buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval; }
+      until (nbyte==0) {
+        retval = read(fd,buf,nbyte);
+        if (retval == 0)
+          break;
+        elif (retval < 0) {
+          #ifdef EINTR
+          if (!(errno == EINTR))
+          #endif
+            return retval;
+        } else {
+          buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval;
         }
+      }
       return done;
     }
 
@@ -263,25 +301,27 @@
     var int fd;
     var WRITE_CONST RW_BUF_T bufarea;
     var RW_SIZE_T nbyte;
-    { var WRITE_CONST char* buf = (WRITE_CONST char*) bufarea;
+    {
+      var WRITE_CONST char* buf = (WRITE_CONST char*) bufarea;
       var RETRWTYPE retval;
       var RW_SIZE_T done = 0;
       #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
       # Must adjust the memory permissions before calling write().
       handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
       #endif
-      until (nbyte==0)
-        { retval = write(fd,buf,nbyte);
-          if (retval == 0) break;
-          elif (retval < 0)
-            {
-              #ifdef EINTR
-              if (!(errno == EINTR))
-              #endif
-                return retval;
-            }
-          else { buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval; }
+      until (nbyte==0) {
+        retval = write(fd,buf,nbyte);
+        if (retval == 0)
+          break;
+        elif (retval < 0) {
+          #ifdef EINTR
+          if (!(errno == EINTR))
+          #endif
+            return retval;
+        } else {
+          buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval;
         }
+      }
       return done;
     }
 
@@ -291,24 +331,28 @@
   global int wait2 (PID_T child);
   global int wait2(child)
     var PID_T child;
-    { var int status = 0;
+    {
+      var int status = 0;
       # vgl. WAIT(2V) und #include <sys/wait.h> :
       #   WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
       #   WEXITSTATUS(status)  == ((status & 0xFF00) >> 8)
-      loop
-        { var int ergebnis = waitpid(child,&status,0);
-          if (!(ergebnis == child))
-            { if (ergebnis<0)
-                { if (errno==EINTR) continue;
-                  #ifdef ECHILD
-                  if (errno==ECHILD) # Wenn der Child-Prozess nicht mehr da ist,
-                    { status = 0; break; } # ist er wohl korrekt beendet worden.
-                  #endif
-                }
-              OS_error();
+      loop {
+        var int ergebnis = waitpid(child,&status,0);
+        if (!(ergebnis == child)) {
+          if (ergebnis<0) {
+            if (errno==EINTR)
+              continue;
+            #ifdef ECHILD
+            if (errno==ECHILD) { # Wenn der Child-Prozess nicht mehr da ist,
+              status = 0; break; # ist er wohl korrekt beendet worden.
             }
-          if (!((status & 0xFF) == 0177)) break; # Child-Prozess beendet?
+            #endif
+          }
+          OS_error();
         }
+        if (!((status & 0xFF) == 0177)) # Child-Prozess beendet?
+          break;
+      }
       return status;
     }
 
@@ -326,7 +370,8 @@
   global signal_handler install_signal_handler(sig,handler)
     var int sig;
     var signal_handler handler;
-    { var signal_handler old_handler;
+    {
+      var signal_handler old_handler;
       #if defined(USE_SIGACTION)
         var struct sigaction old_sa;
         var struct sigaction new_sa;
@@ -337,10 +382,10 @@
         # to be valid).
         sigemptyset(&new_sa.sa_mask);
         #ifdef HAVE_SAVED_STACK
-        if (!(sig == SIGINT || sig == SIGALRM))
-          { sigaddset(&new_sa.sa_mask,SIGINT);
-            sigaddset(&new_sa.sa_mask,SIGALRM);
-          }
+        if (!(sig == SIGINT || sig == SIGALRM)) {
+          sigaddset(&new_sa.sa_mask,SIGINT);
+          sigaddset(&new_sa.sa_mask,SIGALRM);
+        }
         #endif
         # new_sa.sa_mask = 0; # Do not block other signals.
         #ifdef EINTR
@@ -349,9 +394,9 @@
         #endif
         #endif
         if (sigaction(sig,&new_sa,&old_sa)<0)
-          { old_handler = (signal_handler)SIG_IGN; }
+          old_handler = (signal_handler)SIG_IGN;
         else
-          { old_handler = (signal_handler)old_sa.sa_handler; }
+          old_handler = (signal_handler)old_sa.sa_handler;
       #else
         old_handler = signal(sig,handler);
         #ifdef EINTR
@@ -395,7 +440,9 @@ global unsigned short __fpu_control = _FPU_IEEE;
 
 int abort_dummy;
 global void abort()
-  { abort_dummy = 1/0; }
+  {
+    abort_dummy = 1/0;
+  }
 
 # ------------------------------------------------------------------------------
 
@@ -414,88 +461,93 @@ static unsigned int alarm_interval;
 static DWORD WINAPI do_alarm (LPVOID arg);
 static DWORD WINAPI do_alarm(arg)
   LPVOID arg;
-  { struct timeval now;
+  {
+    struct timeval now;
    start:
     gettimeofday(&now,NULL);
     if (now.tv_sec < alarm_date.tv_sec
         || now.tv_sec == alarm_date.tv_sec
-           && now.tv_usec < alarm_date.tv_usec)
-      { struct timeval diff;
-        diff.tv_sec = alarm_date.tv_sec - now.tv_sec;
-        if (alarm_date.tv_usec >= now.tv_usec)
-          { diff.tv_usec = alarm_date.tv_usec - now.tv_usec; }
-        else
-          { diff.tv_usec = 1000000 + alarm_date.tv_usec - now.tv_usec;
-            diff.tv_sec -= 1;
-          }
-        Sleep((DWORD)(diff.tv_sec * 1000 + (diff.tv_usec + 500) / 1000));
+           && now.tv_usec < alarm_date.tv_usec) {
+      struct timeval diff;
+      diff.tv_sec = alarm_date.tv_sec - now.tv_sec;
+      if (alarm_date.tv_usec >= now.tv_usec) {
+        diff.tv_usec = alarm_date.tv_usec - now.tv_usec;
+      } else {
+        diff.tv_usec = 1000000 + alarm_date.tv_usec - now.tv_usec;
+        diff.tv_sec -= 1;
       }
-    if (alarm_interval > 0)
-      { alarm_date.tv_usec += alarm_interval;
-        alarm_date.tv_sec += alarm_date.tv_usec / 1000000;
-        alarm_date.tv_usec = alarm_date.tv_usec % 1000000;
-        _raise(SIGALRM);
-        goto start;
-      }
-    else
-      { _raise(SIGALRM); }
+      Sleep((DWORD)(diff.tv_sec * 1000 + (diff.tv_usec + 500) / 1000));
+    }
+    if (alarm_interval > 0) {
+      alarm_date.tv_usec += alarm_interval;
+      alarm_date.tv_sec += alarm_date.tv_usec / 1000000;
+      alarm_date.tv_usec = alarm_date.tv_usec % 1000000;
+      _raise(SIGALRM);
+      goto start;
+    } else {
+      _raise(SIGALRM);
+    }
     alarm_thread = NULL; return 0;
   }
 
 global unsigned int alarm (seconds)
   unsigned int seconds;
-  { struct timeval now;
+  {
+    struct timeval now;
     unsigned int remaining;
     DWORD alarm_thread_id;
-    if (alarm_thread == NULL && seconds == 0) return 0;
+    if (alarm_thread == NULL && seconds == 0)
+      return 0;
     gettimeofday(&now,NULL);
-    if (alarm_thread != NULL)
-      { if (now.tv_sec < alarm_date.tv_sec
-            || now.tv_sec == alarm_date.tv_sec
-               && now.tv_usec < alarm_date.tv_usec)
-          remaining = (alarm_date.tv_sec - now.tv_sec)
-                      - (alarm_date.tv_usec < now.tv_usec);
-        else
-          remaining = 0;
-        TerminateThread(alarm_thread,0); alarm_thread = NULL;
-      }
-    else
+    if (alarm_thread != NULL) {
+      if (now.tv_sec < alarm_date.tv_sec
+          || now.tv_sec == alarm_date.tv_sec
+             && now.tv_usec < alarm_date.tv_usec)
+        remaining = (alarm_date.tv_sec - now.tv_sec)
+                    - (alarm_date.tv_usec < now.tv_usec);
+      else
+        remaining = 0;
+      TerminateThread(alarm_thread,0); alarm_thread = NULL;
+    } else {
       remaining = 0;
-    if (seconds > 0)
-      { now.tv_sec += seconds;
-        alarm_date = now; alarm_interval = 0;
-        alarm_thread = CreateThread(NULL,10000,do_alarm,0,0,&alarm_thread_id);
-      }
+    }
+    if (seconds > 0) {
+      now.tv_sec += seconds;
+      alarm_date = now; alarm_interval = 0;
+      alarm_thread = CreateThread(NULL,10000,do_alarm,0,0,&alarm_thread_id);
+    }
     return remaining;
   }
 
 global unsigned int ualarm (value, interval)
   unsigned int value;
   unsigned int interval;
-  { struct timeval now;
+  {
+    struct timeval now;
     unsigned int remaining;
     DWORD alarm_thread_id;
-    if (alarm_thread == NULL && value == 0 && interval == 0) return 0;
+    if (alarm_thread == NULL && value == 0 && interval == 0)
+      return 0;
     gettimeofday(&now,NULL);
-    if (alarm_thread != NULL)
-      { if (now.tv_sec < alarm_date.tv_sec
-            || now.tv_sec == alarm_date.tv_sec
-               && now.tv_usec < alarm_date.tv_usec)
-          remaining = (alarm_date.tv_sec - now.tv_sec)*1000000
-                      + alarm_date.tv_usec - now.tv_usec;
-        else
-          remaining = 0;
-        TerminateThread(alarm_thread,0); alarm_thread = NULL;
-      }
-    else
+    if (alarm_thread != NULL) {
+      if (now.tv_sec < alarm_date.tv_sec
+          || now.tv_sec == alarm_date.tv_sec
+             && now.tv_usec < alarm_date.tv_usec)
+        remaining = (alarm_date.tv_sec - now.tv_sec)*1000000
+                    + alarm_date.tv_usec - now.tv_usec;
+      else
+        remaining = 0;
+      TerminateThread(alarm_thread,0); alarm_thread = NULL;
+    } else {
       remaining = 0;
-    if (value > 0 || interval > 0)
-      { now.tv_usec += value;
-        now.tv_sec += now.tv_usec / 1000000;
-        now.tv_usec = now.tv_usec % 1000000;
-        alarm_date = now; alarm_interval = interval;
-        alarm_thread = CreateThread(NULL,10000,do_alarm,0,0,&alarm_thread_id);
-      }
+    }
+    if (value > 0 || interval > 0) {
+      now.tv_usec += value;
+      now.tv_sec += now.tv_usec / 1000000;
+      now.tv_usec = now.tv_usec % 1000000;
+      alarm_date = now; alarm_interval = interval;
+      alarm_thread = CreateThread(NULL,10000,do_alarm,0,0,&alarm_thread_id);
+    }
     return remaining;
   }
 
@@ -512,26 +564,29 @@ static HANDLE interruptible_thread;
 static BOOL interrupt_handler (DWORD CtrlType);
 static BOOL interrupt_handler(CtrlType)
   DWORD CtrlType;
-  { if (CtrlType == CTRL_C_EVENT /* || CtrlType == CTRL_BREAK_EVENT */ )
-      { # Terminate the interruptible operation, set the exitcode to 1.
-        TerminateThread(interruptible_thread,1);
-        # Invoke signal handler.
-        _raise(SIGINT);
-        # Don't invoke the other handlers (in particular, the default handler)
-        return TRUE;
-      }
-    else
+  {
+    if (CtrlType == CTRL_C_EVENT /* || CtrlType == CTRL_BREAK_EVENT */ ) {
+      # Terminate the interruptible operation, set the exitcode to 1.
+      TerminateThread(interruptible_thread,1);
+      # Invoke signal handler.
+      _raise(SIGINT);
+      # Don't invoke the other handlers (in particular, the default handler)
+      return TRUE;
+    } else {
       # Do invoke the other handlers.
       return FALSE;
+    }
   }
 static BOOL DoInterruptible(fn,arg)
   LPTHREAD_START_ROUTINE fn;
   LPVOID arg;
-  { HANDLE thread;
+  {
+    HANDLE thread;
     DWORD thread_id;
     DWORD thread_exitcode;
     thread = CreateThread(NULL,10000,fn,arg,0,&thread_id);
-    if (thread == NULL) return FALSE;
+    if (thread == NULL)
+      return FALSE;
     interruptible_thread = thread;
     SetConsoleCtrlHandler((PHANDLER_ROUTINE)interrupt_handler,TRUE);
     WaitForSingleObject(interruptible_thread,INFINITE);
@@ -544,10 +599,13 @@ static BOOL DoInterruptible(fn,arg)
   }
 static DWORD WINAPI do_sleep(arg)
   LPVOID arg;
-  { Sleep((DWORD)arg); return 0; }
+  {
+    Sleep((DWORD)arg); return 0;
+  }
 
 global unsigned int sleep (unsigned int seconds)
-  { struct timeval target_time;
+  {
+    struct timeval target_time;
     struct timeval end_time;
     gettimeofday(&target_time,NULL); target_time.tv_sec += seconds;
     DoInterruptible(&do_sleep,(void*)(seconds * 1000));
@@ -562,7 +620,8 @@ global unsigned int sleep (unsigned int seconds)
   }
 
 global unsigned int usleep (unsigned int useconds)
-  { struct timeval target_time;
+  {
+    struct timeval target_time;
     struct timeval end_time;
     gettimeofday(&target_time,NULL);
     target_time.tv_usec += useconds;
@@ -597,17 +656,20 @@ global unsigned int usleep (unsigned int useconds)
     var int flags;
     var int fd;
     var off_t off;
-    { if (fd < 0)
+    {
+      if (fd < 0) {
         # Brauche ein Handle auf ein reguläres File.
-        { local var int regular_fd = -2;
-          #define regular_file  "/tmp/lispdummy.mmap"
-          if (regular_fd < -1)
-            { regular_fd = open(regular_file,O_CREAT|O_TRUNC|O_RDWR,my_open_mask);
-              if (regular_fd >= 0) { unlink(regular_file); }
-            }
+        var local int regular_fd = -2;
+        #define regular_file  "/tmp/lispdummy.mmap"
+        if (regular_fd < -1) {
+          regular_fd = open(regular_file,O_CREAT|O_TRUNC|O_RDWR,my_open_mask);
           if (regular_fd >= 0)
-            { return mmap(addr,&len,prot,flags,regular_fd,off); }
+            unlink(regular_file);
         }
+        if (regular_fd >= 0) {
+          return mmap(addr,&len,prot,flags,regular_fd,off);
+        }
+      }
       return mmap(addr,&len,prot,flags|MAP_FILE,fd,off);
     }
 
@@ -616,7 +678,9 @@ global unsigned int usleep (unsigned int useconds)
     var MMAP_ADDR_T addr;
     var MMAP_SIZE_T len;
     var int prot;
-    { return mremap(addr,&len,prot,MAP_PRIVATE); }
+    {
+      return mremap(addr,&len,prot,MAP_PRIVATE);
+    }
 
 #endif
 

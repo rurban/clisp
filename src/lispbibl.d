@@ -759,21 +759,20 @@
     # Saving "save" registers.
     #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA)
       #define HAVE_SAVED_REGISTERS
-      struct registers
-             {
-               #ifdef STACK_register
-                 long STACK_register_contents;
-               #endif
-               #ifdef mv_count_register
-                 long mv_count_register_contents;
-               #endif
-               #ifdef value1_register
-                 long value1_register_contents;
-               #endif
-               #ifdef subr_self_register
-                 long subr_self_register_contents;
-               #endif
-             };
+      struct registers {
+        #ifdef STACK_register
+          long STACK_register_contents;
+        #endif
+        #ifdef mv_count_register
+          long mv_count_register_contents;
+        #endif
+        #ifdef value1_register
+          long value1_register_contents;
+        #endif
+        #ifdef subr_self_register
+          long subr_self_register_contents;
+        #endif
+      };
       #ifndef MULTITHREAD
         extern struct registers * callback_saved_registers;
       #else
@@ -808,20 +807,20 @@
         #define RESTORE_subr_self_register(registers)
       #endif
       #define SAVE_REGISTERS(inner_statement)  \
-        { struct registers * registers = alloca(sizeof(struct registers)); \
-          SAVE_STACK_register(registers);                                  \
-          SAVE_mv_count_register(registers);                               \
-          SAVE_value1_register(registers);                                 \
-          SAVE_subr_self_register(registers);                              \
-          inner_statement;                                                 \
-          { var object* top_of_frame = STACK;                              \
-            pushSTACK(as_object((aint)callback_saved_registers));          \
-            finish_frame(CALLBACK);                                        \
-          }                                                                \
-          callback_saved_registers = registers;                            \
+        { var struct registers * registers = alloca(sizeof(struct registers)); \
+          SAVE_STACK_register(registers);                                      \
+          SAVE_mv_count_register(registers);                                   \
+          SAVE_value1_register(registers);                                     \
+          SAVE_subr_self_register(registers);                                  \
+          inner_statement;                                                     \
+          { var object* top_of_frame = STACK;                                  \
+            pushSTACK(as_object((aint)callback_saved_registers));              \
+            finish_frame(CALLBACK);                                            \
+          }                                                                    \
+          callback_saved_registers = registers;                                \
         }
       #define RESTORE_REGISTERS(inner_statement)  \
-        { struct registers * registers = callback_saved_registers;               \
+        { var struct registers * registers = callback_saved_registers;           \
           if (!(framecode(STACK_0) == CALLBACK_frame_info)) abort();             \
           callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1); \
           skipSTACK(2);                                                          \
@@ -2240,16 +2239,16 @@ Ratio and Complex (only if SPVW_MIXED).
   #ifdef WIDE_STRUCT
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
       #define TYPEDEF_OBJECT  \
-        typedef  union { struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
-                         oint one _attribute_aligned_object_;                           \
-                       }                                                                \
-                 object;
+        typedef  union {                                                 \
+          struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
+          oint one _attribute_aligned_object_;                           \
+        } object;
     #else
       #define TYPEDEF_OBJECT  \
-        typedef  union { struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
-                         oint one _attribute_aligned_object_;                           \
-                       }                                                                \
-                 object;
+        typedef  union {                                                 \
+          struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
+          oint one _attribute_aligned_object_;                           \
+        } object;
     #endif
   #else
     typedef  oint  object;
@@ -4270,16 +4269,18 @@ Ratio and Complex (only if SPVW_MIXED).
 # Objekt variabler Länge
 #ifdef TYPECODES
   #define VAROBJECT_HEADER  \
-               union { object _GCself;  # Selbstpointer für GC            \
-                       hfint flags[sizeof(object)/sizeof(hfint)]; # Flags \
-                     } header;
+               union {                                              \
+                 object _GCself;  # Selbstpointer für GC            \
+                 hfint flags[sizeof(object)/sizeof(hfint)]; # Flags \
+               } header;
 #else
   #define VAROBJECT_HEADER  \
                object GCself;  # Selbstpointer für GC \
                uintL tfl;      # Type, Flags, Länge
 #endif
-typedef struct { VAROBJECT_HEADER }
-        varobject_;
+typedef struct {
+  VAROBJECT_HEADER
+} varobject_;
 typedef varobject_ *  Varobject;
 #ifdef TYPECODES
   #define GCself  header._GCself
@@ -4338,15 +4339,15 @@ typedef varobject_ *  Varobject;
 #   - Simple-Records, if rectype < rectype_limit.
 #   - Extended-Records, if rectype >= rectype_limit.
 
-typedef struct { VAROBJECT_HEADER # Selbstpointer für GC
-                 #ifdef TYPECODES
-                 uintB recflags;  # bei OtherRecord: Flags
-                 sintB rectype;   # bei OtherRecord: Untertyp
-                 uintW recfiller; # Länge u.a.
-                 #endif
-                 object recdata[unspecified]; # Elemente
-               }
-        record_;
+typedef struct {
+  VAROBJECT_HEADER # Selbstpointer für GC
+  #ifdef TYPECODES
+    uintB recflags;  # bei OtherRecord: Flags
+    sintB rectype;   # bei OtherRecord: Untertyp
+    uintW recfiller; # Länge u.a.
+  #endif
+  object recdata[unspecified]; # Elemente
+} record_;
 typedef record_ *  Record;
 # Zugriff auf type, flags:
   #ifdef TYPECODES
@@ -4380,8 +4381,9 @@ typedef record_ *  Record;
   #define LRECORD_HEADER  \
                  VAROBJECT_HEADER # Selbstpointer für GC, tfl
 #endif
-typedef struct { LRECORD_HEADER }
-        lrecord_;
+typedef struct {
+  LRECORD_HEADER
+} lrecord_;
 typedef lrecord_ *  Lrecord;
 #ifdef TYPECODES
   #define lrecord_length(ptr)  ((ptr)->length)
@@ -4399,10 +4401,10 @@ typedef lrecord_ *  Lrecord;
   #define SRECORD_HEADER  \
                  VAROBJECT_HEADER # Selbstpointer für GC, tfl
 #endif
-typedef struct { SRECORD_HEADER
-                 object recdata[unspecified]; # Elemente, reclength Stück
-               }
-        srecord_;
+typedef struct {
+  SRECORD_HEADER
+  object recdata[unspecified]; # Elemente, reclength Stück
+} srecord_;
 typedef srecord_ *  Srecord;
 #ifdef TYPECODES
   #define srecord_length(ptr)  ((ptr)->reclength)
@@ -4422,11 +4424,11 @@ typedef srecord_ *  Srecord;
   #define XRECORD_HEADER  \
                  VAROBJECT_HEADER  # Selbstpointer für GC, tfl
 #endif
-typedef struct { XRECORD_HEADER
-                 object recdata[unspecified];  # Elemente, reclength Stück
-               # uintB  recxdata[unspecified]; # Extra-Elemente, recxlength Stück
-               }
-        xrecord_;
+typedef struct {
+  XRECORD_HEADER
+  object recdata[unspecified];  # Elemente, reclength Stück
+  # uintB  recxdata[unspecified]; # Extra-Elemente, recxlength Stück
+} xrecord_;
 typedef xrecord_ *  Xrecord;
 #ifdef TYPECODES
   #define xrecord_length(ptr)  ((ptr)->reclength)
@@ -4508,43 +4510,41 @@ typedef xrecord_ *  Xrecord;
 # -------------------------- the various types -------------------------- #
 
 # Cons
-typedef struct { object cdr; # CDR
-                 object car; # CAR
-               }
-        cons_;
+typedef struct {
+  object cdr; # CDR
+  object car; # CAR
+} cons_;
 typedef cons_ *  Cons;
 
 # Ratio
 typedef struct {
-                 #ifdef SPVW_MIXED
-                 XRECORD_HEADER
-                 #endif
-                 object rt_num; # Zähler, Integer
-                 object rt_den; # Nenner, Integer >0
-               }
-        ratio_;
+  #ifdef SPVW_MIXED
+  XRECORD_HEADER
+  #endif
+  object rt_num; # Zähler, Integer
+  object rt_den; # Nenner, Integer >0
+} ratio_;
 typedef ratio_ *  Ratio;
 
 # Complex
 typedef struct {
-                 #ifdef SPVW_MIXED
-                 XRECORD_HEADER
-                 #endif
-                 object c_real; # Realteil, reelle Zahl
-                 object c_imag; # Imaginärteil, reelle Zahl
-               }
-        complex_;
+  #ifdef SPVW_MIXED
+  XRECORD_HEADER
+  #endif
+  object c_real; # Realteil, reelle Zahl
+  object c_imag; # Imaginärteil, reelle Zahl
+} complex_;
 typedef complex_ *  Complex;
 
 # Symbol
-typedef struct { VAROBJECT_HEADER
-                 object symvalue;    # Wertzelle
-                 object symfunction; # Funktiondefinitionszelle
-                 object proplist;    # Property-Liste
-                 object pname;       # Printname
-                 object homepackage; # Home-Package oder NIL
-               }
-        symbol_;
+typedef struct {
+  VAROBJECT_HEADER
+  object symvalue;    # Wertzelle
+  object symfunction; # Funktiondefinitionszelle
+  object proplist;    # Property-Liste
+  object pname;       # Printname
+  object homepackage; # Home-Package oder NIL
+} symbol_;
 typedef symbol_ *  Symbol;
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 
@@ -4808,13 +4808,13 @@ typedef symbol_ *  Symbol;
   #endif
 
 # Bignums
-typedef struct { VAROBJECT_HEADER  # Selbstpointer für GC
-                 #ifdef TYPECODES
-                 uintC length;     # Länge in Digits
-                 #endif
-                 uintD data[unspecified]; # Zahl in Zweierkomplementdarstellung
-               }
-        bignum_;
+typedef struct {
+  VAROBJECT_HEADER  # Selbstpointer für GC
+  #ifdef TYPECODES
+  uintC length;     # Länge in Digits
+  #endif
+  uintD data[unspecified]; # Zahl in Zweierkomplementdarstellung
+} bignum_;
 typedef bignum_ *  Bignum;
 # The length is actually an uintWC.
 #ifdef TYPECODES
@@ -4826,17 +4826,17 @@ typedef bignum_ *  Bignum;
 
 # Single-Floats
 typedef uint32 ffloat; # 32-Bit-Float im IEEE-Format
-typedef union { ffloat eksplicit;    # Wert, explizit
-                #ifdef FAST_FLOAT
-                float machine_float; # Wert, als C-'float'
-                #endif
-              }
-        ffloatjanus;
+typedef union {
+  ffloat eksplicit;    # Wert, explizit
+  #ifdef FAST_FLOAT
+  float machine_float; # Wert, als C-'float'
+  #endif
+} ffloatjanus;
 #ifndef WIDE
-typedef struct { VAROBJECT_HEADER            # Selbstpointer für GC
-                 ffloatjanus representation; # Wert
-               }
-        ffloat_;
+typedef struct {
+  VAROBJECT_HEADER            # Selbstpointer für GC
+  ffloatjanus representation; # Wert
+} ffloat_;
 typedef ffloat_ *  Ffloat;
 #define ffloat_value(obj)  (TheFfloat(obj)->float_value)
 #else
@@ -4857,31 +4857,31 @@ typedef # 64-Bit-Float im IEEE-Format:
             struct {uint32 mlo,semhi;}
           #endif
         #endif
-        dfloat;
-typedef union { dfloat eksplicit;      # Wert, explizit
-                #ifdef FAST_DOUBLE
-                double machine_double; # Wert, als C-'double'
-                #endif
-              }
-        dfloatjanus;
-typedef struct { VAROBJECT_HEADER            # Selbstpointer für GC
-                 dfloatjanus representation; # Wert
-               }
-        dfloat_;
+  dfloat;
+typedef union {
+  dfloat eksplicit;      # Wert, explizit
+  #ifdef FAST_DOUBLE
+  double machine_double; # Wert, als C-'double'
+  #endif
+} dfloatjanus;
+typedef struct {
+  VAROBJECT_HEADER            # Selbstpointer für GC
+  dfloatjanus representation; # Wert
+} dfloat_;
 typedef dfloat_ *  Dfloat;
 
 # Single- und Double-Floats
   #define float_value  representation.eksplicit
 
 # Long-Floats
-typedef struct { VAROBJECT_HEADER   # Selbstpointer für GC
-                 #ifdef TYPECODES
-                 uintC  len;        # Länge der Mantisse in Digits
-                 #endif
-                 uint32 expo;       # Exponent
-                 uintD  data[unspecified]; # Mantisse
-               }
-        lfloat_;
+typedef struct {
+  VAROBJECT_HEADER   # Selbstpointer für GC
+  #ifdef TYPECODES
+  uintC  len;        # Länge der Mantisse in Digits
+  #endif
+  uint32 expo;       # Exponent
+  uintD  data[unspecified]; # Mantisse
+} lfloat_;
 typedef lfloat_ *  Lfloat;
 # The length is actually an uintWC.
 #ifdef TYPECODES
@@ -4893,26 +4893,27 @@ typedef lfloat_ *  Lfloat;
 
 # Simple-Array (umfasst einfache eindimensionale Arrays:
 # Simple-Bit-Vector, Simple-String, Simple-Vector)
-typedef struct { LRECORD_HEADER } # Selbstpointer für GC, Länge in Elementen
-        sarray_;
+typedef struct {
+  LRECORD_HEADER # Selbstpointer für GC, Länge in Elementen
+} sarray_;
 typedef sarray_ *  Sarray;
 #define sarray_length(ptr)  lrecord_length(ptr)
 #define Sarray_length(obj)  sarray_length(TheSarray(obj))
 
 # Simple-Bit-Vektor
-typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
-                 uint8  data[unspecified]; # Bits, in Bytes unterteilt
-               }
-        sbvector_;
+typedef struct {
+  LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
+  uint8  data[unspecified]; # Bits, in Bytes unterteilt
+} sbvector_;
 typedef sbvector_ *  Sbvector;
 #define sbvector_length(ptr)  sarray_length(ptr)
 #define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))
 
 # Simple-String (a.k.a. "normal simple string")
-typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
-                 chart  data[unspecified]; # Characters
-               }
-        sstring_;
+typedef struct {
+  LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
+  chart  data[unspecified]; # Characters
+} sstring_;
 typedef sstring_ *  Sstring;
 #define sstring_length(ptr)  sarray_length(ptr)
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
@@ -4920,37 +4921,37 @@ typedef sstring_ *  Sstring;
 # Simple-String with only one byte per character (a.k.a. "small simple string")
 #if !defined(TYPECODES) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
 #define HAVE_SMALL_SSTRING
-typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
-                 scint  data[unspecified]; # Characters
-               }
-        small_sstring_;
+typedef struct {
+  LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
+  scint  data[unspecified]; # Characters
+} small_sstring_;
 typedef small_sstring_ *  SmallSstring;
 # use sstring_length and Sstring_length for the accessing the length
 #endif
 
 # Simple-Vector
-typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Objekten
-                 object data[unspecified]; # Elemente
-               }
-        svector_;
+typedef struct {
+  LRECORD_HEADER # Selbstpointer für GC, Länge in Objekten
+  object data[unspecified]; # Elemente
+} svector_;
 typedef svector_ *  Svector;
 #define svector_length(ptr)  sarray_length(ptr)
 #define Svector_length(obj)  svector_length(TheSvector(obj))
 
 # nicht-simpler, indirekter Array
-typedef struct { VAROBJECT_HEADER  # Selbstpointer für GC
-                 #ifdef TYPECODES
-                 uintB flags;      # Flags
-                                   # dann ein Byte unbenutzt
-                 uintC rank;       # Rang n
-                 #endif
-                 object data;      # Datenvektor
-                 uintL totalsize;  # Totalsize = Produkt der n Dimensionen
-                 uintL dims[unspecified]; # evtl. displaced-offset,
-                                   # n Dimensionen,
-                                   # evtl. Fill-Pointer
-               }
-        iarray_;
+typedef struct {
+  VAROBJECT_HEADER  # Selbstpointer für GC
+  #ifdef TYPECODES
+  uintB flags;      # Flags
+                    # dann ein Byte unbenutzt
+  uintC rank;       # Rang n
+  #endif
+  object data;      # Datenvektor
+  uintL totalsize;  # Totalsize = Produkt der n Dimensionen
+  uintL dims[unspecified]; # evtl. displaced-offset,
+                           # n Dimensionen,
+                           # evtl. Fill-Pointer
+} iarray_;
 typedef iarray_ *  Iarray;
 #define iarray_data_offset  offsetof(iarray_,data)
 # The rank is actually an uintWC.
@@ -5018,16 +5019,16 @@ typedef iarray_ *  Iarray;
   #endif
 
 # Packages
-typedef struct { XRECORD_HEADER
-                 object pack_external_symbols;
-                 object pack_internal_symbols;
-                 object pack_shadowing_symbols;
-                 object pack_use_list;
-                 object pack_used_by_list;
-                 object pack_name;
-                 object pack_nicknames;
-               }
-        *  Package;
+typedef struct {
+  XRECORD_HEADER
+  object pack_external_symbols;
+  object pack_internal_symbols;
+  object pack_shadowing_symbols;
+  object pack_use_list;
+  object pack_used_by_list;
+  object pack_name;
+  object pack_nicknames;
+} *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(object))
 # Manche Packages sind case-sensitive.
   #define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
@@ -5037,22 +5038,22 @@ typedef struct { XRECORD_HEADER
   #define pack_deletedp(obj)  (!((record_flags(ThePackage(obj)) & bit(7)) == 0))
 
 # Hash-Tables
-typedef struct { XRECORD_HEADER
-                 #ifdef GENERATIONAL_GC
-                 object ht_lastrehash;
-                 #endif
-                 object ht_size;
-                 object ht_maxcount;
-                 object ht_itable;
-                 object ht_ntable;
-                 object ht_kvtable;
-                 object ht_freelist;
-                 object ht_count;
-                 object ht_rehash_size;
-                 object ht_mincount_threshold;
-                 object ht_mincount;
-               }
-        *  Hashtable;
+typedef struct {
+  XRECORD_HEADER
+  #ifdef GENERATIONAL_GC
+  object ht_lastrehash;
+  #endif
+  object ht_size;
+  object ht_maxcount;
+  object ht_itable;
+  object ht_ntable;
+  object ht_kvtable;
+  object ht_freelist;
+  object ht_count;
+  object ht_rehash_size;
+  object ht_mincount_threshold;
+  object ht_mincount;
+} *  Hashtable;
 #define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(object))
 # Markiere eine Hash-Table als neu zu reorganisieren:
 # mark_ht_invalid(TheHashtable(ht));
@@ -5067,112 +5068,112 @@ typedef struct { XRECORD_HEADER
   #endif
 
 # Readtables
-typedef struct { XRECORD_HEADER
-                 object readtable_syntax_table;
-                 object readtable_macro_table;
-                 object readtable_case;
-               }
-        *  Readtable;
+typedef struct {
+  XRECORD_HEADER
+  object readtable_syntax_table;
+  object readtable_macro_table;
+  object readtable_case;
+} *  Readtable;
 #define readtable_length  ((sizeof(*(Readtable)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Pathnames
-typedef struct { XRECORD_HEADER
-                 #if HAS_HOST
-                   object pathname_host;
-                 #endif
-                 #if HAS_DEVICE
-                   object pathname_device;
-                 #endif
-                 #if 1
-                   object pathname_directory;
-                   object pathname_name;
-                   object pathname_type;
-                 #endif
-                 #if HAS_VERSION
-                   object pathname_version;
-                 #endif
-               }
-        *  Pathname;
+typedef struct {
+  XRECORD_HEADER
+  #if HAS_HOST
+    object pathname_host;
+  #endif
+  #if HAS_DEVICE
+    object pathname_device;
+  #endif
+  #if 1
+    object pathname_directory;
+    object pathname_name;
+    object pathname_type;
+  #endif
+  #if HAS_VERSION
+    object pathname_version;
+  #endif
+} *  Pathname;
 #define pathname_length  ((sizeof(*(Pathname)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #ifdef LOGICAL_PATHNAMES
 # Logical Pathnames
-typedef struct { XRECORD_HEADER
-                 object pathname_host;
-                 object pathname_directory;
-                 object pathname_name;
-                 object pathname_type;
-                 object pathname_version;
-               }
-        *  Logpathname;
+typedef struct {
+  XRECORD_HEADER
+  object pathname_host;
+  object pathname_directory;
+  object pathname_name;
+  object pathname_type;
+  object pathname_version;
+} *  Logpathname;
 #define logpathname_length  ((sizeof(*(Logpathname)0)-offsetofa(record_,recdata))/sizeof(object))
 #endif
 
 # Random-States
-typedef struct { XRECORD_HEADER
-                 object random_state_seed;
-               }
-        *  Random_state;
+typedef struct {
+  XRECORD_HEADER
+  object random_state_seed;
+} *  Random_state;
 #define random_state_length  ((sizeof(*(Random_state)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Bytes
-typedef struct { XRECORD_HEADER
-                 object byte_size;
-                 object byte_position;
-               }
-        *  Byte;
+typedef struct {
+  XRECORD_HEADER
+  object byte_size;
+  object byte_position;
+} *  Byte;
 #define byte_length  ((sizeof(*(Byte)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Fsubrs
-typedef struct { XRECORD_HEADER
-                 object name;
-                 object argtype;
-                 void* function; # actually a fsubr_function*
-               }
-        *  Fsubr;
+typedef struct {
+  XRECORD_HEADER
+  object name;
+  object argtype;
+  void* function; # actually a fsubr_function*
+} *  Fsubr;
 #define fsubr_length  2
 #define fsubr_xlength  (sizeof(*(Fsubr)0)-offsetofa(record_,recdata)-fsubr_length*sizeof(object))
 
 # Load-time-evals
-typedef struct { XRECORD_HEADER
-                 object loadtimeeval_form;
-               }
-        *  Loadtimeeval;
+typedef struct {
+  XRECORD_HEADER
+  object loadtimeeval_form;
+} *  Loadtimeeval;
 #define loadtimeeval_length  ((sizeof(*(Loadtimeeval)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Symbol-macros
-typedef struct { XRECORD_HEADER
-                 object symbolmacro_expansion;
-               }
-        *  Symbolmacro;
+typedef struct {
+  XRECORD_HEADER
+  object symbolmacro_expansion;
+} *  Symbolmacro;
 #define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Encoding
-typedef struct { XRECORD_HEADER
-                 object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
-                 object enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
-                 object enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
-                 #ifdef UNICODE
-                 object enc_charset; # character set, a symbol in the CHARSET package
-                                     # or a simple-string
-                 # Functions to convert bytes to characters.
-                   object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
-                   object enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
-                 # Functions to convert characters to bytes.
-                   object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
-                   object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
-                 # Function to return the set of defined characters in the range [start,end],
-                 # as a simple-string of intervals #(start1 end1 ... startm endm).
-                   object enc_range; # object (*) (object encoding, uintL start, uintL end);
-                 # An auxiliary pointer.
-                 object enc_table;
-                 # Minimum number of bytes needed to represent a character.
-                 uintL min_bytes_per_char;
-                 # Maximum number of bytes needed to represent a character.
-                 uintL max_bytes_per_char;
-                 #endif
-               }
-        *  Encoding;
+typedef struct {
+  XRECORD_HEADER
+  object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
+  object enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
+  object enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
+  #ifdef UNICODE
+  object enc_charset; # character set, a symbol in the CHARSET package
+                      # or a simple-string
+  # Functions to convert bytes to characters.
+    object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
+    object enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+  # Functions to convert characters to bytes.
+    object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
+    object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+  # Function to return the set of defined characters in the range [start,end],
+  # as a simple-string of intervals #(start1 end1 ... startm endm).
+    object enc_range; # object (*) (object encoding, uintL start, uintL end);
+  # An auxiliary pointer.
+  object enc_table;
+  # Minimum number of bytes needed to represent a character.
+  uintL min_bytes_per_char;
+  # Maximum number of bytes needed to represent a character.
+  uintL max_bytes_per_char;
+  #endif
+} *  Encoding;
 #ifdef UNICODE
   #define encoding_length  10
 #else
@@ -5207,10 +5208,10 @@ typedef struct { XRECORD_HEADER
 
 #ifdef FOREIGN
 # Foreign-Pointer-Verpackung
-typedef struct { XRECORD_HEADER
-                 void* fp_pointer;
-               }
-        *  Fpointer;
+typedef struct {
+  XRECORD_HEADER
+  void* fp_pointer;
+} *  Fpointer;
 #define fpointer_length  0
 #define fpointer_xlength  (sizeof(*(Fpointer)0)-offsetofa(record_,recdata)-fpointer_length*sizeof(object))
 #define mark_fp_invalid(ptr)  record_flags_set(ptr,bit(7))
@@ -5223,66 +5224,66 @@ typedef struct { XRECORD_HEADER
 #ifdef DYNAMIC_FFI
 
 # Foreign-Adressen
-typedef struct { XRECORD_HEADER
-                 object fa_base;
-                 uintP fa_offset;
-               }
-        * Faddress;
+typedef struct {
+  XRECORD_HEADER
+  object fa_base;
+  uintP fa_offset;
+} * Faddress;
 #define faddress_length  1
 #define faddress_xlength  (sizeof(*(Faddress)0)-offsetofa(record_,recdata)-faddress_length*sizeof(object))
 
 # Foreign-Variables
-typedef struct { XRECORD_HEADER
-                 object fv_name;
-                 object fv_address;
-                 object fv_size;
-                 object fv_type;
-               }
-        * Fvariable;
+typedef struct {
+  XRECORD_HEADER
+  object fv_name;
+  object fv_address;
+  object fv_size;
+  object fv_type;
+} * Fvariable;
 #define fvariable_length  ((sizeof(*(Fvariable)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Foreign-Functions
-typedef struct { XRECORD_HEADER
-                 object ff_name;
-                 object ff_address;
-                 object ff_resulttype;
-                 object ff_argtypes;
-                 object ff_flags;
-               }
-        * Ffunction;
+typedef struct {
+  XRECORD_HEADER
+  object ff_name;
+  object ff_address;
+  object ff_resulttype;
+  object ff_argtypes;
+  object ff_flags;
+} * Ffunction;
 #define ffunction_length  ((sizeof(*(Ffunction)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #endif
 
 # Weak-Pointer
-typedef struct { XRECORD_HEADER
-                 object wp_cdr;   # active weak-pointers form a chained list
-                 object wp_value; # the referenced object
-               }
-        * Weakpointer;
+typedef struct {
+  XRECORD_HEADER
+  object wp_cdr;   # active weak-pointers form a chained list
+  object wp_value; # the referenced object
+} * Weakpointer;
 # Both wp_cdr and wp_value are invisible to gc_mark routines.
 # When the weak-pointer becomes inactive, both fields are turned to unbound.
 #define weakpointer_length  0
 #define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
 
 # Finalisierer
-typedef struct { XRECORD_HEADER
-                 object fin_alive;    # nur solange dieses Objekt lebt
-                 object fin_trigger;  # der Tod dieses Objekts wird abgewartet
-                 object fin_function; # dann wird diese Funktion aufgerufen
-                 object fin_cdr;
-               }
-        * Finalizer;
+typedef struct {
+  XRECORD_HEADER
+  object fin_alive;    # nur solange dieses Objekt lebt
+  object fin_trigger;  # der Tod dieses Objekts wird abgewartet
+  object fin_function; # dann wird diese Funktion aufgerufen
+  object fin_cdr;
+} * Finalizer;
 #define finalizer_length  ((sizeof(*(Finalizer)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #ifdef SOCKET_STREAMS
 # Socket-Server
-typedef struct { XRECORD_HEADER
-                 object socket_handle; # socket handle
-                 object host; # host string
-                 object port; # port number
-               }
-        * Socket_server;
+typedef struct {
+  XRECORD_HEADER
+  object socket_handle; # socket handle
+  object host; # host string
+  object port; # port number
+} * Socket_server;
 #define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Information about any of the two ends of a socket connection.
@@ -5300,50 +5301,49 @@ typedef struct host_data {
 #ifdef YET_ANOTHER_RECORD
 
 # Yet another record
-typedef struct { XRECORD_HEADER
-                 object yetanother_x;
-                 object yetanother_y;
-                 object yetanother_z;
-               }
-        * Yetanother;
+typedef struct {
+  XRECORD_HEADER
+  object yetanother_x;
+  object yetanother_y;
+  object yetanother_z;
+} * Yetanother;
 #define yetanother_length  ((sizeof(*(Yetanother)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #endif
 
 # Streams with metaclass BUILT-IN-CLASS
 typedef struct {
-                 #ifdef case_stream
-                 VAROBJECT_HEADER # Selbstpointer für GC
-                 uintB strmflags; # Flags
-                 uintB strmtype;  # Untertyp (als sintB >=0 !)
-                 uintB reclength; # Länge in Objekten
-                 uintB recxlength; # Länge der Extra-Elemente
-                 #else
-                 # Muss strmflags und strmtype aus Platzgründen in einem Fixnum
-                 # in recdata[0] unterbringen.
-                 #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
-                 #error "No room for stream flags -- Stream-Flags neu unterbringen!!"
-                 #endif
-                 XRECORD_HEADER
-                 uintB strmfiller1;
-                 uintB strmflags; # Flags
-                 uintB strmtype;  # Untertyp
-                 uintB strmfiller2;
-                 #endif
-                 object strm_rd_by;
-                 object strm_rd_by_array;
-                 object strm_wr_by;
-                 object strm_wr_by_array;
-                 object strm_rd_ch;
-                 object strm_pk_ch;
-                 object strm_rd_ch_array;
-                 object strm_rd_ch_last;
-                 object strm_wr_ch;
-                 object strm_wr_ch_array;
-                 object strm_wr_ch_lpos;
-                 object strm_other[unspecified]; # typspezifische Komponenten
-               }
-        *  Stream;
+  #ifdef case_stream
+    VAROBJECT_HEADER # Selbstpointer für GC
+    uintB strmflags; # Flags
+    uintB strmtype;  # Untertyp (als sintB >=0 !)
+    uintB reclength; # Länge in Objekten
+    uintB recxlength; # Länge der Extra-Elemente
+  #else
+    # Muss strmflags und strmtype aus Platzgründen in einem Fixnum
+    # in recdata[0] unterbringen.
+    #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
+      #error "No room for stream flags -- Stream-Flags neu unterbringen!!"
+    #endif
+    XRECORD_HEADER
+    uintB strmfiller1;
+    uintB strmflags; # Flags
+    uintB strmtype;  # Untertyp
+    uintB strmfiller2;
+  #endif
+  object strm_rd_by;
+  object strm_rd_by_array;
+  object strm_wr_by;
+  object strm_wr_by_array;
+  object strm_rd_ch;
+  object strm_pk_ch;
+  object strm_rd_ch_array;
+  object strm_rd_ch_last;
+  object strm_wr_ch;
+  object strm_wr_ch_array;
+  object strm_wr_ch_lpos;
+  object strm_other[unspecified]; # typspezifische Komponenten
+} *  Stream;
 # The macro TheStream actually means TheBuiltinStream.
 #define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object)-unspecified)
 #define stream_length(ptr)  xrecord_length(ptr)
@@ -5468,95 +5468,95 @@ typedef Srecord  Structure;
 #define Structure_length(obj)  structure_length(TheStructure(obj))
 
 # CLOS-Klassen (= Instanzen von <class>), siehe clos.lsp
-typedef struct { SRECORD_HEADER
-                 object structure_types_2;   # Liste (metaclass <class>)
-                 object metaclass;           # eine Subklasse von <class>
-                 object classname;           # ein Symbol
-                 object direct_superclasses; # direkte Oberklassen
-                 object all_superclasses;    # alle Oberklassen inkl. sich selbst
-                 object precedence_list;     # angeordnete Liste aller Oberklassen
-                 object slot_location_table; # Hashtabelle Slotname -> wo der Slot sitzt
-                 # ab hier nur bei metaclass = <standard-class> oder metaclass = <structure-class>
-                 object slots;
-                 object default_initargs;
-                 object valid_initargs;
-                 object instance_size;
-                 # ab hier nur bei metaclass = <standard-class>
-                 object shared_slots;
-                 object direct_slots;
-                 object direct_default_initargs;
-                 object other[unspecified];
-               }
-        *  Class;
+typedef struct {
+  SRECORD_HEADER
+  object structure_types_2;   # Liste (metaclass <class>)
+  object metaclass;           # eine Subklasse von <class>
+  object classname;           # ein Symbol
+  object direct_superclasses; # direkte Oberklassen
+  object all_superclasses;    # alle Oberklassen inkl. sich selbst
+  object precedence_list;     # angeordnete Liste aller Oberklassen
+  object slot_location_table; # Hashtabelle Slotname -> wo der Slot sitzt
+  # ab hier nur bei metaclass = <standard-class> oder metaclass = <structure-class>
+  object slots;
+  object default_initargs;
+  object valid_initargs;
+  object instance_size;
+  # ab hier nur bei metaclass = <standard-class>
+  object shared_slots;
+  object direct_slots;
+  object direct_default_initargs;
+  object other[unspecified];
+} *  Class;
 
 # CLOS-Instanzen
-typedef struct { SRECORD_HEADER
-                 object inst_class; # eine CLOS-Klasse
-                 object other[unspecified];
-               }
-        *  Instance;
+typedef struct {
+  SRECORD_HEADER
+  object inst_class; # eine CLOS-Klasse
+  object other[unspecified];
+} *  Instance;
 
 # Closures
-typedef struct { SRECORD_HEADER
-                 object clos_name;
-                 object clos_codevec;
-                 object other[unspecified];
-               }
-        *  Closure;
+typedef struct {
+  SRECORD_HEADER
+  object clos_name;
+  object clos_codevec;
+  object other[unspecified];
+} *  Closure;
 # interpretierte Closure:
-typedef struct { SRECORD_HEADER
-                 object clos_name;
-                 object clos_form;
-                 object clos_docstring;
-                 object clos_body;
-                 object clos_var_env;
-                 object clos_fun_env;
-                 object clos_block_env;
-                 object clos_go_env;
-                 object clos_decl_env;
-                 object clos_vars;
-                 object clos_varflags;
-                 object clos_spec_anz;
-                 object clos_req_anz;
-                 object clos_opt_anz;
-                 object clos_opt_inits;
-                 object clos_key_anz;
-                 object clos_keywords;
-                 object clos_key_inits;
-                 object clos_allow_flag;
-                 object clos_rest_flag;
-                 object clos_aux_anz;
-                 object clos_aux_inits;
-               }
-        *  Iclosure;
+typedef struct {
+  SRECORD_HEADER
+  object clos_name;
+  object clos_form;
+  object clos_docstring;
+  object clos_body;
+  object clos_var_env;
+  object clos_fun_env;
+  object clos_block_env;
+  object clos_go_env;
+  object clos_decl_env;
+  object clos_vars;
+  object clos_varflags;
+  object clos_spec_anz;
+  object clos_req_anz;
+  object clos_opt_anz;
+  object clos_opt_inits;
+  object clos_key_anz;
+  object clos_keywords;
+  object clos_key_inits;
+  object clos_allow_flag;
+  object clos_rest_flag;
+  object clos_aux_anz;
+  object clos_aux_inits;
+} *  Iclosure;
 #define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(object))
 # compilierte Closure:
-typedef struct { SRECORD_HEADER
-                 object clos_name;
-                 object clos_codevec;
-                 object clos_consts[unspecified]; # Closure-Konstanten
-               }
-        *  Cclosure;
+typedef struct {
+  SRECORD_HEADER
+  object clos_name;
+  object clos_codevec;
+  object clos_consts[unspecified]; # Closure-Konstanten
+} *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
 #define clos_venv  clos_consts[0]
-typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
-                 # Ab hier der Inhalt des Bitvektors.
-                 uintW  ccv_spdepth_1;          # maximale SP-Tiefe, 1-Anteil
-                 uintW  ccv_spdepth_jmpbufsize; # maximale SP-Tiefe, jmpbufsize-Anteil
-                 uintW  ccv_numreq;    # Anzahl der required parameter
-                 uintW  ccv_numopt;    # Anzahl der optionalen Parameter
-                 uintB  ccv_flags;     # Flags. Bit 0: ob &REST - Parameter angegeben
-                                       #        Bit 7: ob Keyword-Parameter angegeben
-                                       #        Bit 6: &ALLOW-OTHER-KEYS-Flag
-                                       #        Bit 4: ob generische Funktion
-                                       #        Bit 3: ob generische Funktion mit Aufrufhemmung
-                 uintB  ccv_signature; # Kürzel für den Argumenttyp, für schnelleres FUNCALL
-                 # Falls Keyword-Parameter angegeben:
-                 uintW  ccv_numkey;    # Anzahl der Keyword-Parameter
-                 uintW  ccv_keyconsts; # Offset in FUNC der Keywords
-               }
-        *  Codevec;
+typedef struct {
+  LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
+  # Ab hier der Inhalt des Bitvektors.
+  uintW  ccv_spdepth_1;          # maximale SP-Tiefe, 1-Anteil
+  uintW  ccv_spdepth_jmpbufsize; # maximale SP-Tiefe, jmpbufsize-Anteil
+  uintW  ccv_numreq;    # Anzahl der required parameter
+  uintW  ccv_numopt;    # Anzahl der optionalen Parameter
+  uintB  ccv_flags;     # Flags. Bit 0: ob &REST - Parameter angegeben
+                        #        Bit 7: ob Keyword-Parameter angegeben
+                        #        Bit 6: &ALLOW-OTHER-KEYS-Flag
+                        #        Bit 4: ob generische Funktion
+                        #        Bit 3: ob generische Funktion mit Aufrufhemmung
+  uintB  ccv_signature; # Kürzel für den Argumenttyp, für schnelleres FUNCALL
+  # Falls Keyword-Parameter angegeben:
+  uintW  ccv_numkey;    # Anzahl der Keyword-Parameter
+  uintW  ccv_keyconsts; # Offset in FUNC der Keywords
+} *  Codevec;
 #define CCV_SPDEPTH_1           0
 #define CCV_SPDEPTH_JMPBUFSIZE  2
 #define CCV_NUMREQ              4
@@ -5597,78 +5597,86 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 #         opt_anz          Anzahl optionaler Parameter      uintW
 #         body_flag        Body-Flag                        fsubr_body_t
 # Die Komponente body_flag enthält ein uintW, gemeint ist aber:
-  typedef enum { fsubr_nobody, fsubr_body } fsubr_body_t;
+  typedef enum {
+    fsubr_nobody,
+    fsubr_body
+  } fsubr_body_t;
 # Die Komponente argtype enthält ein Fixnum, gemeint ist aber:
   typedef enum {
-                fsubr_argtype_1_0_nobody,
-                fsubr_argtype_2_0_nobody,
-                fsubr_argtype_1_1_nobody,
-                fsubr_argtype_2_1_nobody,
-                fsubr_argtype_0_body,
-                fsubr_argtype_1_body,
-                fsubr_argtype_2_body
-               }
-          fsubr_argtype_t;
+    fsubr_argtype_1_0_nobody,
+    fsubr_argtype_2_0_nobody,
+    fsubr_argtype_1_1_nobody,
+    fsubr_argtype_2_1_nobody,
+    fsubr_argtype_0_body,
+    fsubr_argtype_1_body,
+    fsubr_argtype_2_body
+  } fsubr_argtype_t;
 # Umwandlung siehe SPVW:
 # extern fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz, fsubr_body_t body_flag);
 
 # SUBRs
 # SUBR-Tabellen-Eintrag:
-  typedef struct { lisp_function function; # Funktion
-                   object name;            # Name
-                   object keywords;        # NIL oder Vektor mit den Keywords
-                   uintW argtype;          # Kürzel für den Argumente-Typ
-                   uintW req_anz;          # Anzahl required Parameter
-                   uintW opt_anz;          # Anzahl optionaler Parameter
-                   uintB rest_flag;        # Flag für beliebig viele Argumente
-                   uintB key_flag;         # Flag für Keywords
-                   uintW key_anz;          # Anzahl Keywordparameter
-                 }
-          subr_;
+  typedef struct {
+    lisp_function function; # Funktion
+    object name;            # Name
+    object keywords;        # NIL oder Vektor mit den Keywords
+    uintW argtype;          # Kürzel für den Argumente-Typ
+    uintW req_anz;          # Anzahl required Parameter
+    uintW opt_anz;          # Anzahl optionaler Parameter
+    uintB rest_flag;        # Flag für beliebig viele Argumente
+    uintB key_flag;         # Flag für Keywords
+    uintW key_anz;          # Anzahl Keywordparameter
+  } subr_;
   typedef subr_ *  Subr;
 # GC benötigt Information, wo hierin Objekte stehen:
   #define subr_const_offset  offsetof(subr_,name)
   #define subr_const_anz     2
 # Die Komponente rest_flag enthält ein uintB, gemeint ist aber:
-  typedef enum { subr_norest, subr_rest } subr_rest_t;
+  typedef enum {
+    subr_norest,
+    subr_rest
+  } subr_rest_t;
 # Die Komponente key_flag enthält ein uintB, gemeint ist aber:
-  typedef enum { subr_nokey, subr_key, subr_key_allow } subr_key_t;
+  typedef enum {
+    subr_nokey,
+    subr_key,
+    subr_key_allow
+  } subr_key_t;
 # Die Komponente argtype enthält ein uintW, gemeint ist aber:
   typedef enum {
-                subr_argtype_0_0,
-                subr_argtype_1_0,
-                subr_argtype_2_0,
-                subr_argtype_3_0,
-                subr_argtype_4_0,
-                subr_argtype_5_0,
-                subr_argtype_6_0,
-                subr_argtype_0_1,
-                subr_argtype_1_1,
-                subr_argtype_2_1,
-                subr_argtype_3_1,
-                subr_argtype_4_1,
-                subr_argtype_0_2,
-                subr_argtype_1_2,
-                subr_argtype_2_2,
-                subr_argtype_0_3,
-                subr_argtype_1_3,
-                subr_argtype_2_3,
-                subr_argtype_0_4,
-                subr_argtype_0_5,
-                subr_argtype_0_0_rest,
-                subr_argtype_1_0_rest,
-                subr_argtype_2_0_rest,
-                subr_argtype_3_0_rest,
-                subr_argtype_0_0_key,
-                subr_argtype_1_0_key,
-                subr_argtype_2_0_key,
-                subr_argtype_3_0_key,
-                subr_argtype_4_0_key,
-                subr_argtype_0_1_key,
-                subr_argtype_1_1_key,
-                subr_argtype_1_2_key
-               }
-          subr_argtype_t;
+    subr_argtype_0_0,
+    subr_argtype_1_0,
+    subr_argtype_2_0,
+    subr_argtype_3_0,
+    subr_argtype_4_0,
+    subr_argtype_5_0,
+    subr_argtype_6_0,
+    subr_argtype_0_1,
+    subr_argtype_1_1,
+    subr_argtype_2_1,
+    subr_argtype_3_1,
+    subr_argtype_4_1,
+    subr_argtype_0_2,
+    subr_argtype_1_2,
+    subr_argtype_2_2,
+    subr_argtype_0_3,
+    subr_argtype_1_3,
+    subr_argtype_2_3,
+    subr_argtype_0_4,
+    subr_argtype_0_5,
+    subr_argtype_0_0_rest,
+    subr_argtype_1_0_rest,
+    subr_argtype_2_0_rest,
+    subr_argtype_3_0_rest,
+    subr_argtype_0_0_key,
+    subr_argtype_1_0_key,
+    subr_argtype_2_0_key,
+    subr_argtype_3_0_key,
+    subr_argtype_4_0_key,
+    subr_argtype_0_1_key,
+    subr_argtype_1_1_key,
+    subr_argtype_1_2_key
+  } subr_argtype_t;
 # Umwandlung siehe SPVW:
 # extern subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz, subr_rest_t rest_flag, subr_key_t key_flag);
 
@@ -6217,24 +6225,24 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 #ifdef TYPECODES
   # Test auf Closure/Structure/Stream/Instanz/OtherRecord
     #define if_recordp(obj,statement1,statement2)  \
-      { switch (typecode(obj))              \
-          { case_record: statement1; break; \
-            default: statement2; break;     \
-      }   }
+      switch (typecode(obj)) {          \
+        case_record: statement1; break; \
+        default: statement2; break;     \
+      }
 #else
   # Test auf Srecord/Xrecord
     #define if_recordp(obj,statement1,statement2)  \
-      if (orecordp(obj))                                                       \
-        switch (Record_type(obj))                                              \
-          { case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_Svector: \
-            case Rectype_mdarray:                                              \
-            case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
-            case Rectype_Bignum: case Rectype_Lfloat:                          \
-            case rectype_unused1:                                              \
-              goto not_record;                                                 \
-            default: { statement1 } break;                                     \
-          }                                                                    \
-      else                                                                     \
+      if (orecordp(obj))                                                     \
+        switch (Record_type(obj)) {                                          \
+          case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_Svector: \
+          case Rectype_mdarray:                                              \
+          case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
+          case Rectype_Bignum: case Rectype_Lfloat:                          \
+          case rectype_unused1:                                              \
+            goto not_record;                                                 \
+          default: { statement1 } break;                                     \
+        }                                                                    \
+      else                                                                   \
         not_record: { statement2 }
 #endif
 
@@ -6271,19 +6279,19 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Unser CLOS implementiert alle Klassen als Instanzen einer (nicht notwendig
 # direkten) Unterklasse von <class>.
   #define if_classp(obj,statement1,statement2)  \
-    if (structurep(obj))                                           \
-      { var object list = Cdr(TheStructure(obj)->structure_types); \
-        var object sublist = O(class_structure_types);             \
-        # (tailp sublist list) bestimmen:                          \
-        loop                                                       \
-          { if (eq(list,sublist)) goto obj##_classp_yes;           \
-            if (atomp(list)) goto obj##_classp_no;                 \
-            list = Cdr(list);                                      \
-          }                                                        \
-        obj##_classp_yes: statement1;                              \
-      }                                                            \
-    else                                                           \
-      { obj##_classp_no: statement2; }
+    if (structurep(obj)) {                                       \
+      var object list = Cdr(TheStructure(obj)->structure_types); \
+      var object sublist = O(class_structure_types);             \
+      # (tailp sublist list) bestimmen:                          \
+      loop {                                                     \
+        if (eq(list,sublist)) goto obj##_classp_yes;             \
+        if (atomp(list)) goto obj##_classp_no;                   \
+        list = Cdr(list);                                        \
+      }                                                          \
+     obj##_classp_yes: statement1;                               \
+    } else {                                                     \
+     obj##_classp_no: statement2;                                \
+    }
 
 # Test for CLOS instance of a given class
   #define instanceof(obj,class)  \
@@ -7088,11 +7096,11 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 #endif
 #ifdef TIME_2
   #ifdef TIME_UNIX
-    typedef struct { uintL tv_sec;    # ganze Sekunden seit 1.1.1970 00:00 GMT,
-                                      # Ein 'uintL' für tv_sec reicht für 136 Jahre.
-                     uintL tv_usec;   # zusätzliche Mikrosekunden
-                   }
-            internal_time;
+    typedef struct {
+      uintL tv_sec;    # ganze Sekunden seit 1.1.1970 00:00 GMT,
+                       # Ein 'uintL' für tv_sec reicht für 136 Jahre.
+      uintL tv_usec;   # zusätzliche Mikrosekunden
+    } internal_time;
     #define ticks_per_second  1000000UL  # 1 Tick = 1 µsec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
       { (z).tv_sec = (x).tv_sec - (y).tv_sec;                   \
@@ -7172,12 +7180,13 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # < timescore.gctime:   GC-Time seit LISP-System-Start (in Ticks)
 # < timescore.gccount:  Anzahl der GC's seit LISP-System-Start
 # < timescore.gcfreed:  Größe des von den GC's bisher wiederbeschafften Platzes
-  typedef struct { internal_time runtime;
-                   internal_time realtime;
-                   internal_time gctime;
-                   uintL gccount;
-                   uintL2 gcfreed; }
-          timescore;
+  typedef struct {
+    internal_time runtime;
+    internal_time realtime;
+    internal_time gctime;
+    uintL gccount;
+    uintL2 gcfreed;
+  } timescore;
   extern void get_running_times (timescore*);
 # wird verwendet von
 
@@ -7200,8 +7209,14 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # wird verwendet von SPVW
 
 # Zeitangabe in Decoded-Time:
-  typedef struct { object Sekunden, Minuten, Stunden, Tag, Monat, Jahr; }
-          decoded_time;
+  typedef struct {
+    object Sekunden;
+    object Minuten;
+    object Stunden;
+    object Tag;
+    object Monat;
+    object Jahr;
+  } decoded_time;
 
 #if defined(MSDOS)
 # UP: Wandelt das DOS-Zeitformat in Decoded-Time um.
@@ -8577,8 +8592,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Fsubr-Tabelle sichtbar machen:
   #define LISPSPECFORM  LISPSPECFORM_C
   struct fsubr_tab_ {
-                      #include "fsubr.c"
-                    };
+    #include "fsubr.c"
+  };
   #undef LISPSPECFORM
   extern const struct fsubr_tab_ fsubr_tab;
 # wird verwendet von CONTROL, SPVW
@@ -8602,9 +8617,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Subr-Tabelle sichtbar machen:
   #define LISPFUN  LISPFUN_C
   extern struct subr_tab_ {
-                            #include "subr.c"
-                          }
-         subr_tab_data;
+    #include "subr.c"
+  } subr_tab_data;
   #undef LISPFUN
 # wird verwendet von Macro L
 
@@ -8635,15 +8649,13 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Deklaration der Tabellen relozierbarer Pointer:
   #define PSEUDO  PSEUDO_A
   extern struct pseudocode_tab_ {
-                                  #include "pseudofun.c"
-                                }
-         pseudocode_tab;
+    #include "pseudofun.c"
+  } pseudocode_tab;
   #undef PSEUDO
   #define PSEUDO  PSEUDO_B
   extern struct pseudodata_tab_ {
-                                  #include "pseudofun.c"
-                                }
-         pseudodata_tab;
+    #include "pseudofun.c"
+  } pseudodata_tab;
   #undef PSEUDO
 # wird verwendet von STREAM, SPVW
 
@@ -8659,9 +8671,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Deklaration der Symbol-Tabelle:
   #define LISPSYM  LISPSYM_A
   extern struct symbol_tab_ {
-                              #include "constsym.c"
-                            }
-         symbol_tab_data;
+    #include "constsym.c"
+  } symbol_tab_data;
   #undef LISPSYM
 # wird verwendet von Macro S
 
@@ -8708,9 +8719,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Deklaration der Tabelle der sonstigen festen Objekte:
   #define LISPOBJ  LISPOBJ_A
   extern struct object_tab_ {
-                              #include "constobj.c"
-                            }
-         object_tab;
+    #include "constobj.c"
+  } object_tab;
   #undef LISPOBJ
 # wird verwendet von Macro O
 
@@ -8750,32 +8760,32 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern uintC module_count;
 
 # Daten für die Initialisierung der subr_tab eines Moduls:
-  typedef struct { const char* packname; # Name der Home-Package des Symbols oder NULL
-                   const char* symname; # Name des Symbols
-                 }
-          subr_initdata;
+  typedef struct {
+    const char* packname; # Name der Home-Package des Symbols oder NULL
+    const char* symname; # Name des Symbols
+  } subr_initdata;
 
 # Daten für die Initialisierung der object_tab eines Moduls:
-  typedef struct { const char* initstring; } # Initialisierungs-String
-          object_initdata;
+  typedef struct {
+    const char* initstring; # Initialisierungs-String
+  } object_initdata;
 
 # Tabelle bzw. Liste der Module:
-  typedef struct module_
-                 { const char* name; # Name
-                   subr_* stab; const uintC* stab_size; # eine eigene subr_tab
-                   object* otab; const uintC* otab_size; # eine eigene object_tab
-                   boolean initialized;
-                   # Daten zur Initialisierung:
-                   const subr_initdata* stab_initdata;
-                   const object_initdata* otab_initdata;
-                   # Funktionen zur Initialisierung
-                   void (*initfunction1) (struct module_ *); # nur einmal
-                   void (*initfunction2) (struct module_ *); # immer bei Programmstart
-                   #ifdef DYNAMIC_MODULES
-                   struct module_ * next; # verkettete Liste
-                   #endif
-                 }
-          module_;
+  typedef struct module_ {
+    const char* name; # Name
+    subr_* stab; const uintC* stab_size; # eine eigene subr_tab
+    object* otab; const uintC* otab_size; # eine eigene object_tab
+    boolean initialized;
+    # Daten zur Initialisierung:
+    const subr_initdata* stab_initdata;
+    const object_initdata* otab_initdata;
+    # Funktionen zur Initialisierung
+    void (*initfunction1) (struct module_ *); # nur einmal
+    void (*initfunction2) (struct module_ *); # immer bei Programmstart
+    #ifdef DYNAMIC_MODULES
+    struct module_ * next; # verkettete Liste
+    #endif
+  } module_;
   #ifdef DYNAMIC_MODULES
     extern module_ modules[]; # Listenanfang
     BEGIN_DECLS
@@ -9589,15 +9599,19 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
 #                                 Pointer über das erste Argument
 #   Typische Abarbeitungsschleifen:
 #     von vorne:
-#       until (argcount==0)
-#         { var object arg = NEXT(rest_args_pointer); ...; argcount--; }
-#       until (rest_args_pointer==args_end_pointer)
-#         { var object arg = NEXT(rest_args_pointer); ...; }
+#       until (argcount==0) {
+#         var object arg = NEXT(rest_args_pointer); ...; argcount--;
+#       }
+#       until (rest_args_pointer==args_end_pointer) {
+#         var object arg = NEXT(rest_args_pointer); ...;
+#       }
 #     von hinten:
-#       until (argcount==0)
-#         { var object arg = BEFORE(args_end_pointer); ...; argcount--; }
-#       until (rest_args_pointer==args_end_pointer)
-#         { var object arg = BEFORE(args_end_pointer); ...; }
+#       until (argcount==0) {
+#         var object arg = BEFORE(args_end_pointer); ...; argcount--;
+#       }
+#       until (rest_args_pointer==args_end_pointer) {
+#         var object arg = BEFORE(args_end_pointer); ...;
+#       }
 #   Die Macros NEXT und BEFORE verändern ihr Argument!
 #   STACK aufräumen: mit set_args_end_pointer(args_pointer)
 #     oder skipSTACK((feste Argumentezahl) + (uintL) (restliche Argumentezahl)) .
@@ -9621,13 +9635,13 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
 
 # Environments:
 
-typedef struct { object var_env;   # Variablenbindungs-Environment
-                 object fun_env;   # Funktionsbindungs-Environment
-                 object block_env; # Block-Environment
-                 object go_env;    # Tagbody/Go-Environment
-                 object decl_env;  # Deklarations-Environment
-               }
-        environment;
+typedef struct {
+  object var_env;   # Variablenbindungs-Environment
+  object fun_env;   # Funktionsbindungs-Environment
+  object block_env; # Block-Environment
+  object go_env;    # Tagbody/Go-Environment
+  object decl_env;  # Deklarations-Environment
+} environment;
 
 # Das aktuelle Environment:
   #ifndef MULTITHREAD
@@ -10163,7 +10177,10 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # verändert STACK
 # can trigger GC
   typedef /* nonreturning */ void (*restart)(object* upto_frame);
-  typedef struct { restart fun; object* upto_frame; } unwind_protect_caller;
+  typedef struct {
+    restart fun;
+    object* upto_frame;
+  } unwind_protect_caller;
   #ifndef MULTITHREAD
     extern unwind_protect_caller unwind_protect_to_save;
   #else
@@ -10209,17 +10226,22 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # invoke_handlers(cond);
 # can trigger GC
   extern void invoke_handlers (object cond);
-  typedef struct { object condition; object* stack; SPint* sp; object spdepth; }
-          handler_args_t;
+  typedef struct {
+    object condition;
+    object* stack;
+    SPint* sp;
+    object spdepth;
+  } handler_args_t;
   #ifndef MULTITHREAD
     extern handler_args_t handler_args;
   #else
     #define handler_args  (current_thread()->_handler_args)
   #endif
-  typedef struct stack_range { struct stack_range * next;
-                               object* low_limit; object* high_limit;
-                             }
-          stack_range;
+  typedef struct stack_range {
+    struct stack_range * next;
+    object* low_limit;
+    object* high_limit;
+  } stack_range;
   #ifndef MULTITHREAD
     extern stack_range* inactive_handlers;
   #else
@@ -11105,10 +11127,10 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < result: String-Argument
 # erhöht STACK um 3
   typedef struct stringarg {
-          object string; # Datenvektor, a simple-string
-          uintL offset;  # offset into this string
-          uintL index;   # :start index
-          uintL len;     # :end - :start
+    object string; # Datenvektor, a simple-string
+    uintL offset;  # offset into this string
+    uintL index;   # :start index
+    uintL len;     # :end - :start
   } stringarg;
   extern object test_string_limits_ro (stringarg* arg);
 # wird verwendet von STREAM, PATHNAME, IO
@@ -12648,63 +12670,61 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Structure containing all the per-thread global variables.
 # (We could use a single instance of this structure also in the single-thread
 # model, but it would make debugging less straightforward.)
-  typedef struct
-    {
-      # Most often used:
-        #if !defined(STACK_register)
-          object* _STACK;
-        #endif
-        #if !defined(mv_count_register)
-          uintC _mv_count;
-        #endif
-        #if !defined(value1_register)
-          object _value1;
-        #endif
-        #if !defined(subr_self_register)
-          object _subr_self;
-        #endif
-      # Less often used:
-        #ifndef NO_SP_CHECK
-          void* _SP_bound;
-        #endif
-        void* _STACK_bound;
-        unwind_protect_caller _unwind_protect_to_save;
-        #ifdef NEED_temp_mv_count
-          uintC _temp_mv_count;
-        #endif
-        #ifdef NEED_temp_value1
-          object _temp_value1;
-        #endif
-        #ifdef HAVE_SAVED_STACK
-          object* _saved_STACK;
-        #endif
-        #ifdef HAVE_SAVED_mv_count
-          uintC _saved_mv_count;
-        #endif
-        #ifdef HAVE_SAVED_value1
-          object _saved_value1;
-        #endif
-        #ifdef HAVE_SAVED_subr_self
-          object _saved_subr_self;
-        #endif
-        #if defined(HAVE_SAVED_REGISTERS)
-          struct registers * _callback_saved_registers;
-        #endif
-        uintC _index; # this thread's index in allthreads[]
-      # Used for exception handling only:
-        handler_args_t _handler_args;
-        stack_range* _inactive_handlers;
-      # Big, rarely used arrays come last:
-        object _mv_space [mv_limit-1];
-      # Now the lisp objects (seen by the GC).
-        # The Lisp object representing this thread:
-        object _lthread;
-        # The lexical environment:
-        environment _aktenv;
-        # The values of per-thread symbols:
-        object _symvalues[unspecified];
-    }
-    thread_;
+  typedef struct {
+    # Most often used:
+      #if !defined(STACK_register)
+        object* _STACK;
+      #endif
+      #if !defined(mv_count_register)
+        uintC _mv_count;
+      #endif
+      #if !defined(value1_register)
+        object _value1;
+      #endif
+      #if !defined(subr_self_register)
+        object _subr_self;
+      #endif
+    # Less often used:
+      #ifndef NO_SP_CHECK
+        void* _SP_bound;
+      #endif
+      void* _STACK_bound;
+      unwind_protect_caller _unwind_protect_to_save;
+      #ifdef NEED_temp_mv_count
+        uintC _temp_mv_count;
+      #endif
+      #ifdef NEED_temp_value1
+        object _temp_value1;
+      #endif
+      #ifdef HAVE_SAVED_STACK
+        object* _saved_STACK;
+      #endif
+      #ifdef HAVE_SAVED_mv_count
+        uintC _saved_mv_count;
+      #endif
+      #ifdef HAVE_SAVED_value1
+        object _saved_value1;
+      #endif
+      #ifdef HAVE_SAVED_subr_self
+        object _saved_subr_self;
+      #endif
+      #if defined(HAVE_SAVED_REGISTERS)
+        struct registers * _callback_saved_registers;
+      #endif
+      uintC _index; # this thread's index in allthreads[]
+    # Used for exception handling only:
+      handler_args_t _handler_args;
+      stack_range* _inactive_handlers;
+    # Big, rarely used arrays come last:
+      object _mv_space [mv_limit-1];
+    # Now the lisp objects (seen by the GC).
+      # The Lisp object representing this thread:
+      object _lthread;
+      # The lexical environment:
+      environment _aktenv;
+      # The values of per-thread symbols:
+      object _symvalues[unspecified];
+  } thread_;
   #define thread_size(nsymvalues)  \
     (offsetofa(thread_,_symvalues)+nsymvalues*sizeof(object))
   #define thread_objects_offset(nsymvalues)  \

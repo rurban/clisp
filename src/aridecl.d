@@ -243,7 +243,8 @@
 
 # NUM_STACK ist eine Art Zahlen-Stack-Pointer.
 # Verwendung:
-#   {SAVE_NUM_STACK
+#   {
+#    SAVE_NUM_STACK
 #    ...
 #    num_stack_need(...);
 #    ...
@@ -332,7 +333,8 @@
 # Fehlermeldung wegen Division durch Null
   nonreturning_function(local, divide_0, (void));
   local void divide_0()
-    { fehler(division_by_zero,
+    {
+      fehler(division_by_zero,
              GETTEXT("division by zero")
             );
     }
@@ -341,7 +343,8 @@
 # fehler_overflow();
   nonreturning_function(local, fehler_overflow, (void));
   local void fehler_overflow()
-    { fehler(floating_point_overflow,
+    {
+      fehler(floating_point_overflow,
              GETTEXT("floating point overflow")
             );
     }
@@ -350,7 +353,8 @@
 # fehler_underflow();
   nonreturning_function(local, fehler_underflow, (void));
   local void fehler_underflow()
-    { fehler(floating_point_underflow,
+    {
+      fehler(floating_point_underflow,
              GETTEXT("floating point underflow")
             );
     }
