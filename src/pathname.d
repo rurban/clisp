@@ -1387,9 +1387,11 @@ local object test_default_pathname (object defaults) {
 nonreturning_function(global, fehler_pathname_designator, (object thing)) {
   pushSTACK(thing);                       # TYPE-ERROR slot DATUM
   pushSTACK(O(type_designator_pathname)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(O(type_designator_pathname));
   pushSTACK(thing);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument should be a string, symbol, file stream or pathname, not ~"));
+  fehler(type_error,
+         GETTEXT("~: argument ~ should be a pathname designator ~"));
 }
 
 # Tracks a chain of Synonym-Streams, so long as a File-Stream
@@ -1976,7 +1978,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
   # thing should now be at least a String or a Symbol:
   var bool thing_symbol = false;
   if (!stringp(thing)) {
-    if (!symbolp(thing))
+    if (!symbolp(thing) || !nullp(Symbol_value(S(parse_namestring_ansi))))
       fehler_pathname_designator(thing);
     thing = Symbol_name(thing); # Symbol -> use symbol name
     thing_symbol = true;
@@ -10667,35 +10669,23 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL) {
   if (builtin_stream_p(file)) {
     pushSTACK(file);
     funcall(L(built_in_stream_open_p),1);
-    if (nullp(value1)) {        # closed stream
-      file = as_file_stream(file);
-      if (nullp(TheStream(file)->strm_file_truename))
-        fehler_file_stream_unnamed(file);
-      file = TheStream(file)->strm_file_truename;
-    } else                      # open stream
+    if (!nullp(value1)) /* open stream ==> use FD */
       file = stream_fd(file);
-  } else if (symbolp(file))
-    file = Symbol_name(file);
-
-  if (pathnamep(file)) {
-    pushSTACK(file);
-    funcall(L(namestring),1);
-    file = value1;
   }
-
-  if (posfixnump(file)) {
+  if (integerp(file)) {
     begin_system_call();
-    if (fstat(posfixnum_to_L(file),&buf) < 0) { OS_error(); }
+    if (fstat(I_to_L(file),&buf) < 0) OS_error();
     end_system_call();
-  } else if (stringp(file)) {
-    var const char * string = TheAsciz(string_to_asciz(file,O(pathname_encoding)));
+  } else {
+    pushSTACK(coerce_pathname(file)); funcall(L(namestring),1); file = value1;
     begin_system_call();
     if (((eq(link,unbound) || nullp(link))
-         ? stat(string,&buf) : lstat(string,&buf)) < 0)
+         ? stat(TheAsciz(string_to_asciz(value1,O(pathname_encoding))),&buf)
+         : lstat(TheAsciz(string_to_asciz(value1,O(pathname_encoding))),&buf))
+        < 0)
       OS_error();
     end_system_call();
-  } else
-    fehler_pathname_designator(file);
+  }
 
   pushSTACK(file);                    # the object stat'ed
   pushSTACK(L_to_I(buf.st_dev));      # device
