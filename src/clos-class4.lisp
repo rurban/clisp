@@ -6,6 +6,7 @@
 (in-package "CLOS")
 
 
+(fmakunbound 'print-object)
 (defgeneric print-object (object stream)
   (:method ((object standard-object) stream)
     (if *print-readably*
@@ -25,7 +26,7 @@
         (write (class-classname object) :stream stream)
         (when (standard-class-p object)
           (if (and (slot-boundp object 'current-version)
-                   (typep (class-current-version object) 'clos::class-version)
+                   (class-version-p (class-current-version object))
                    (slot-boundp object 'precedence-list))
             (progn
               (unless (class-precedence-list object) ; not yet finalized?
