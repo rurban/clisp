@@ -1,5 +1,11 @@
 1999-06-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (UNIX_OPENBSD): New macro.
+        * eval.d (interpret_bytecode_): Use hairy gas assembler syntax only
+          on Linux and *BSD, never on other OSes.
+
+1999-06-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * eval.d (interpret_bytecode_): Use "\n\t" as assembler statement
           separator instead of ";".
 
