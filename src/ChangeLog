@@ -1,5 +1,9 @@
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
+	* clos-class2.lisp (list-direct-subclasses): avoid a compiler warning
+
+2004-06-03  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (retry-function-call): new function
 	* clos-genfun5.lisp (no-applicable-method, no-primary-method):
 	use RETRY-FUNCTION-CALL to make recoverable
