@@ -491,6 +491,10 @@
     extern_C int open (OPEN_CONST char* path, int flags, mode_t mode); # siehe OPEN(2V)
   #endif
   # Only a few Unices (like UNIX_CYGWIN32) have O_TEXT and O_BINARY.
+  # BeOS 5 has them, but they have no effect.
+  #ifdef UNIX_BEOS
+    #undef O_BINARY
+  #endif
   #ifndef O_BINARY
     #define O_BINARY  0
   #endif
