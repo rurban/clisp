@@ -515,7 +515,7 @@ first time said function is called.</para>
 
 <para>This two-stack architecture permits to save an unlimited number of
 &clisp; objects on the &STACK; (needed for handling of &cl; &mul-val;),
-without consing.  Also, in a world with a compacting no-ambiguous-roots
+without &consing;.  Also, in a world with a compacting no-ambiguous-roots
 garbage collector, &STACK; must only hold &clisp; objects, and &SP; can
 hold all the other data belonging to a frame, which would not fit into
 &STACK; without tagging/untagging overhead.</para>
@@ -1641,5 +1641,59 @@ operands) for the following frequent instructions:</para>
 
 </section>
 </section>
+
+<section id="bytecode-design"><title>Bytecode Design</title>
+
+<para>This section offers some insight into bytecode design in the form
+ of questions and answers.</para>
+
+<section id="byte-when-add-q"><title>When to add a new bytecode?</title>
+ <abstract><title>Question:</title>
+  <para>Does it make sense to define a new bytecode instruction for
+   &restart-case;? Why? Why not?</para></abstract>
+ <simplesect id="byte-when-add-a"><title>Answer: Is it speed critical?</title>
+  <para>&restart-case; is a glorified &let; binding
+   for <varname>SYSTEM::*ACTIVE-RESTARTS*</varname> and could well profit
+   from a separate bytecode: it would make it non-&consing;.
+   (Remember that &restart-t;s have dynamic extent and therefore do not
+   really need to be heap allocated.)</para>
+  <para>The reason &handler-bind; has its own bytecodes and
+   &restart-case; does not is that &handler-bind; can occur in inner
+   computation loops, whereas &restart-case; occurs only as part of
+   user-interface programming and therefore not in inner loops where its
+   consing could hurt much.</para></simplesect></section>
+<section id="byte-jmptail-q">
+  <title>Why <link linkend="instr-jump">JMPTAIL</link>?</title>
+  <abstract><title>Question:</title>
+   <para>Consider this function and its disassembly:<programlisting>
+ (defun foo (x y) (if (or (= x 0) (= y 0)) (+ x y) (foo y (1- x))))
+ (&disassemble; 'foo)
+8     (LOAD&amp;PUSH 1)
+9     (LOAD&amp;DEC&amp;PUSH 3)
+11    (JMPTAIL 2 5 L0)
+    </programlisting>
+    Why are the arguments pushed onto the &STACK;, just to be popped off of
+    it during the <literal role="byte">JMPTAIL</literal>?
+    Why not a sequence of <literal role="byte">LOAD</literal>,
+    <literal role="byte">STORE</literal> and
+    <literal role="byte">SKIP</literal> instructions
+    followed by a <literal role="byte">JMP</literal>?
+ </para></abstract>
+ <simplesect id="byte-jmptail-a">
+  <title>Answer: This is a shortcut for the most common use.</title>
+  <para>Using <literal role="byte">JMPTAIL</literal> requires 3
+   instructions, <literal role="byte">JMP</literal> requires more.
+   When <literal role="byte">JMPTAIL</literal> needs to be called, we
+   usually have some stuff close to the top of the &STACK; which will
+   become the new arguments, and some junk between these new arguments
+   and the closure object.  <literal role="byte">JMPTAIL</literal>
+   removes the junk.  <literal role="byte">JMPTAIL</literal> is a
+   convenient shortcut which shortens the bytecode - because typically
+   one would really have to clean-up the &STACK; by hand or make the
+   calculations in <filename>compiler.lisp</filename> more complicated.
+</para></simplesect></section>
+
+</section>
+
 </chapter>
 </part>
