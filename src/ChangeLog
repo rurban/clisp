@@ -1,5 +1,11 @@
 2003-04-26  Sam Steingold  <sds@gnu.org>
 
+	* clos.lisp (finalize-instance-standard-class): use DOLIST
+	instead of MAPC
+	(def-unbound): fixed the call (broken by the CLASS-ID patch)
+
+2003-04-26  Sam Steingold  <sds@gnu.org>
+
 	* array.d (ADJUST-ARRAY): fixed a GC-safety bug
 	* eval.d (funcall_iclosure): fixed 2 GC-safety bugs
 	* record.d (update_instance): fixed 3 GC-safety bugs
