@@ -1,5 +1,11 @@
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
+	* describe.lisp (describe-object@generic-function, arglist): For
+	generic functions, use the lambda-list stored in it, instead of a list
+	with artificially constructed variable names.
+
+2004-10-11  Bruno Haible  <bruno@clisp.org>
+
 	Respect user-defined methods on generic-function-method-class.
 	* clos-genfun1.lisp (generic-function-method-class): New preliminary
 	function.

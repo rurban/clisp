@@ -449,7 +449,7 @@ to print the corresponding values, or T for all of them.")
     (unless (eq (clos::std-gf-signature obj) (sys::%unbound))
       (terpri stream)
       (format stream (TEXT "Argument list: ~A")
-              (compiler::sig-to-list (clos::std-gf-signature obj))))
+              (clos:generic-function-lambda-list obj)))
     (let ((mc (clos::method-combination-name (clos::std-gf-method-combination obj))))
       (unless (eq mc 'STANDARD)
         (terpri stream)
@@ -555,7 +555,12 @@ to print the corresponding values, or T for all of them.")
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of FUNCTION
 
-(defun arglist (func) (sig-to-list (get-signature func)))
+(defun arglist (func)
+  (if (typep func 'generic-function)
+    ; Generic functions store the lambda-list. It has meaningful variable names.
+    (clos:generic-function-lambda-list func)
+    ; Normal functions store only the signature, no variable names.
+    (sig-to-list (get-signature func))))
 
 (defun describe-signature (stream req-anz opt-anz rest-p keyword-p keywords
                            allow-other-keys)
