@@ -3,6 +3,8 @@
 
 #include "lispbibl.c"
 
+#include <stdio.h> # declares sprintf()
+
 # Eigenwissen:
 
 LISPFUNN(lisp_implementation_type,0)
