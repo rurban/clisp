@@ -5144,16 +5144,7 @@ local void write_sstring_case (const object* stream_, object string) {
   var object readtable;
   get_readtable(readtable = ); # current readtable
   switch (RTCase(readtable)) {
-    case case_upcase:
-      # retrieve *PRINT-CASE* - determines how the upper case characters
-      # are printed; lower case characters are always printed lower case.
-      switch_print_case(
-      # :UPCASE -> print upper case characters in Upcase:
-      {
-        write_sstring(stream_,string);
-      },
-      # :DOWNCASE -> print upper case characters in Downcase:
-      do_downcase:
+    do_downcase:
       {
         var uintL count = Sstring_length(string);
         if (count > 0) {
@@ -5167,6 +5158,35 @@ local void write_sstring_case (const object* stream_, object string) {
           });
           skipSTACK(1);
         }
+      }
+      break;
+    do_upcase:
+      {
+        var uintL count = Sstring_length(string);
+        if (count > 0) {
+          var uintL index = 0;
+          pushSTACK(string); # save simple-string
+          SstringDispatch(string,X, {
+            dotimespL(count,count, {
+              write_code_char(stream_,up_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
+              index++;
+            });
+          });
+          skipSTACK(1);
+        }
+      }
+      break;
+    case case_upcase:
+      # retrieve *PRINT-CASE* - determines how the upper case characters
+      # are printed; lower case characters are always printed lower case.
+      switch_print_case(
+      # :UPCASE -> print upper case characters in Upcase:
+      {
+        write_sstring(stream_,string);
+      },
+      # :DOWNCASE -> print upper case characters in Downcase:
+      {
+        goto do_downcase;
       },
       # :CAPITALIZE -> print the first uppercase letter of word
       # as upper case letter, all other letters as lower case.
@@ -5244,20 +5264,8 @@ local void write_sstring_case (const object* stream_, object string) {
       # are printed; upper case characters are always printed upper case.
       switch_print_case(
       # :UPCASE -> print lower case letters in Upcase:
-      do_upcase:
       {
-        var uintL count = Sstring_length(string);
-        if (count > 0) {
-          var uintL index = 0;
-          pushSTACK(string); # save simple-string
-          SstringDispatch(string,X, {
-            dotimespL(count,count, {
-              write_code_char(stream_,up_case(as_chart(((SstringX)TheVarobject(STACK_0))->data[index])));
-              index++;
-            });
-          });
-          skipSTACK(1);
-        }
+        goto do_upcase;
       },
       # :DOWNCASE -> print lower case letters in Downcase:
       {
@@ -6516,34 +6524,35 @@ local void pr_enter_1 (const object* stream_, object obj,
       } else STACK_0 = Cdr(STACK_0);
       # Symbol_value(S(prin_lines)) = Fixnum_0;
       do { # NL & indent
-        var object top = Car(STACK_0);
-        var object indent = Fixnum_0;
-        if (mconsp(top)) { # if :FILL and the next string fits the line
-          STACK_0 = Cdr(STACK_0);
-          if (modus_single_p
-              || (eq(PPHELP_NL_TYPE(top),S(Kfill))
-                  && string_fit_line_p(STACK_0,*stream_,0)))
-            goto skip_NL;
-          indent = PPHELP_INDENTN(top);
-          if (!mconsp(STACK_0)) break; # end of stream
-        } else if (!stringp(top)) { # tab - a vector but not a string
-          STACK_0 = Cdr(STACK_0);
-          if (!mconsp(STACK_0)) break; # end of stream
-          # if the next object is not a NL then indent
-          var uintL num_space = PPH_FORMAT_TAB(*stream_,top);
-          if (modus_single_p || stringp(Car(STACK_0))
-              || (mconsp(Car(STACK_0))  # ignored NL
-                  && (eq(PPHELP_NL_TYPE(Car(STACK_0)),S(Kfill))
-                      && string_fit_line_p(Cdr(STACK_0),*stream_,num_space)))) {
-            spaces(stream_,fixnum(num_space));
-            goto skip_NL;
-          } else if (mconsp(Car(STACK_0))) # set indent
-            indent = PPHELP_INDENTN(Car(STACK_0));
+        { var object top = Car(STACK_0);
+          var object indent = Fixnum_0;
+          if (mconsp(top)) { # if :FILL and the next string fits the line
+            STACK_0 = Cdr(STACK_0);
+            if (modus_single_p
+                || (eq(PPHELP_NL_TYPE(top),S(Kfill))
+                    && string_fit_line_p(STACK_0,*stream_,0)))
+              goto skip_NL;
+            indent = PPHELP_INDENTN(top);
+            if (!mconsp(STACK_0)) break; # end of stream
+          } else if (!stringp(top)) { # tab - a vector but not a string
+            STACK_0 = Cdr(STACK_0);
+            if (!mconsp(STACK_0)) break; # end of stream
+            # if the next object is not a NL then indent
+            var uintL num_space = PPH_FORMAT_TAB(*stream_,top);
+            if (modus_single_p || stringp(Car(STACK_0))
+                || (mconsp(Car(STACK_0))  # ignored NL
+                    && (eq(PPHELP_NL_TYPE(Car(STACK_0)),S(Kfill))
+                        && string_fit_line_p(Cdr(STACK_0),*stream_,num_space)))) {
+              spaces(stream_,fixnum(num_space));
+              goto skip_NL;
+            } else if (mconsp(Car(STACK_0))) # set indent
+              indent = PPHELP_INDENTN(Car(STACK_0));
+          }
+          write_ascii_char(stream_,NL); # #\Newline as the line separator
+          pprint_prefix(stream_,indent); # line prefix & indentation, if any
+          # LINES_INC;
+          # CHECK_LINES_LIMIT(break);
         }
-        write_ascii_char(stream_,NL); # #\Newline as the line separator
-        pprint_prefix(stream_,indent); # line prefix & indentation, if any
-        # LINES_INC;
-        # CHECK_LINES_LIMIT(break);
       skip_NL:
         { # print first element, if string
           var object top = Car(STACK_0);

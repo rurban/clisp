@@ -804,11 +804,12 @@ local object sym_value (object sym, object env)
     goto global_value;
   if (special_var_p(TheSymbol(sym))) # the same for symbols declared special
     goto global_value;
-  var object *binding = symbol_env_search(sym,env);
-  if (binding == NULL || eq(*binding,specdecl)) {
-   global_value: /* the global (dynamic) value of the Symbol */
-    return Symbol_value(sym);
-  } else return *binding;
+  { var object *binding = symbol_env_search(sym,env);
+    if (binding != NULL && !eq(*binding,specdecl))
+      return *binding;
+  }
+ global_value: /* the global (dynamic) value of the Symbol */
+  return Symbol_value(sym);
 }
 
 /* UP: determines, if a Symbol is a Macro in the current environment.
@@ -828,14 +829,17 @@ global void setq (object sym, object value)
 {
   if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
     goto global_value;
-  var object *binding = symbol_env_search(sym,aktenv.var_env);
-  if (binding == NULL || eq(*binding,specdecl)) {
-   global_value: /* the global (dynamic) value of the Symbol */
-    pushSTACK(value); pushSTACK(sym);
-    symbol_value_check_lock(S(setq),sym);
-    Symbol_value(STACK_0) = STACK_1;
-    skipSTACK(2);
-  } else *binding = value;
+  { var object *binding = symbol_env_search(sym,aktenv.var_env);
+    if (binding != NULL && !eq(*binding,specdecl)) {
+      *binding = value;
+      return;
+    }
+  }
+ global_value: /* the global (dynamic) value of the Symbol */
+  pushSTACK(value); pushSTACK(sym);
+  symbol_value_check_lock(S(setq),sym);
+  Symbol_value(STACK_0) = STACK_1;
+  skipSTACK(2);
 }
 
 # UP: returns for a Symbol its function definition in an Environment
@@ -1102,10 +1106,11 @@ global Values eval_noenv (object form) {
         # pseudo-recursion: nests a GO_ENV.
         # Input: env, a GO_ENV. Output: env, with Alist.
        nest_go_start: # start of recursion
+        var object* FRAME;
         if (framepointerp(env)) {
           # env is a pointer into the STACK to a ITAGBODY-frame.
           check_STACK();
-          var object* FRAME = TheFramepointer(env);
+          FRAME = TheFramepointer(env);
           if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # frame already nested?
             env = FRAME_(frame_next_env); # yes -> fetch former Alist
           } else {
@@ -1165,10 +1170,11 @@ global Values eval_noenv (object form) {
         # Pseudo-Recursion: nests a BLOCK_ENV.
         # Input: env, a BLOCK_ENV. Output: env, with Aliste.
        nest_block_start: # start of recursion
+        var object* FRAME;
         if (framepointerp(env)) {
           # env is a pointer into the STACK to a IBLOCK-Frame.
           check_STACK();
-          var object* FRAME = TheFramepointer(env);
+          FRAME = TheFramepointer(env);
           if (framecode(FRAME_(0)) & bit(nested_bit_t)) { # Frame already nested?
             env = FRAME_(frame_next_env); # yes -> fetch previous Alist
           } else {
@@ -3548,9 +3554,9 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
       check_SP(); check_STACK();
       pushSTACK(closure); # save Closure
       var object* closure_ = &STACK_0; # and memorize, where it is
+      var object* STACKbefore = STACK;
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure is a compiled Closure
-        var object* STACKbefore = STACK;
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
         # push arguments evaluated into STACK:
         # first a dispatch for the most important cases:
@@ -3875,21 +3881,6 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
         skipSTACK(1); # discard Closure
         unwind(); # unwind EVAL-Frame
         return; # finished
-        # Gathered errormessages:
-       fehler_zuwenig: # Argument-list args is prematurely an Atom
-        if (!nullp(args)) goto fehler_dotted;
-        setSTACK(STACK = STACKbefore); # clean up STACK
-        closure = popSTACK();
-        fehler_eval_zuwenig(TheCclosure(closure)->clos_name);
-       fehler_zuviel: # Argument-list args is not NIL at the end
-        if (atomp(args)) goto fehler_dotted;
-        setSTACK(STACK = STACKbefore); # clean up STACK
-        closure = popSTACK();
-        fehler_eval_zuviel(TheCclosure(closure)->clos_name);
-       fehler_dotted: # Argument-list args ends with Atom /= NIL
-        setSTACK(STACK = STACKbefore); # clean up STACK
-        closure = popSTACK();
-        fehler_eval_dotted(TheCclosure(closure)->clos_name);
       } else {
         # closure is an interpreted Closure
         var object* args_pointer = args_end_pointer; # Pointer to the arguments
@@ -3907,6 +3898,21 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
         unwind(); # unwind EVAL-Frame
         return; # finished
       }
+      # Gathered errormessages:
+     fehler_zuwenig: # Argument-list args is prematurely an Atom
+      if (!nullp(args)) goto fehler_dotted;
+      setSTACK(STACK = STACKbefore); # clean up STACK
+      closure = popSTACK();
+      fehler_eval_zuwenig(TheCclosure(closure)->clos_name);
+     fehler_zuviel: # Argument-list args is not NIL at the end
+      if (atomp(args)) goto fehler_dotted;
+      setSTACK(STACK = STACKbefore); # clean up STACK
+      closure = popSTACK();
+      fehler_eval_zuviel(TheCclosure(closure)->clos_name);
+     fehler_dotted: # Argument-list args ends with Atom /= NIL
+      setSTACK(STACK = STACKbefore); # clean up STACK
+      closure = popSTACK();
+      fehler_eval_dotted(TheCclosure(closure)->clos_name);
     }
 
 #ifdef DYNAMIC_FFI
@@ -3995,8 +4001,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
         } else
           # if no SUBR, no Closure, no FSUBR, no Macro:
           # Symbol_function(fun) mus be #<UNBOUND> .
-          undef:
-          fehler_undefined(S(apply),fun);
+          goto undef;
       } elif (funnamep(fun)) { # List (SETF symbol) ?
         # global Definition (symbol-function (get-setf-symbol symbol)) applies.
         var object symbol = get(Car(Cdr(fun)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
@@ -4037,6 +4042,8 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
         fehler_lambda_expression(S(apply),fun);
       else
         fehler_funname_type(S(apply),fun);
+     undef:
+      fehler_undefined(S(apply),fun);
     }
 
 # Error because of dotted argument-list
@@ -4841,10 +4848,6 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
           abort(); # no -> go to Debugger
         #endif
         return; # finished
-        # Gathered error-messages:
-       fehler_zuwenig: fehler_closure_zuwenig(closure);
-       fehler_zuviel: fehler_closure_zuviel(closure);
-       fehler_dotted: fehler_apply_dotted(closure,args);
       } else {
         # closure is an interpreted Closure
         # reserve space on STACK:
@@ -4857,7 +4860,12 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
             goto fehler_zuviel;
         }
         with_saved_back_trace(closure,args_on_stack,funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack));
+        return; # finished
       }
+      # Gathered error-messages:
+     fehler_zuwenig: fehler_closure_zuwenig(closure);
+     fehler_zuviel: fehler_closure_zuviel(closure);
+     fehler_dotted: fehler_apply_dotted(closure,args);
     }
 
 
@@ -4907,8 +4915,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         } else
           # if no SUBR, no Closure, no FSUBR, no Macro:
           # Symbol_function(fun) must be #<UNBOUND> .
-          undef:
-          fehler_undefined(S(funcall),fun);
+          goto undef;
       } elif (funnamep(fun)) { # list (SETF symbol) ?
         # global definition (symbol-function (get-setf-symbol symbol)) applies.
         var object symbol = get(Car(Cdr(fun)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
@@ -4949,6 +4956,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         fehler_lambda_expression(S(funcall),fun);
       else
         fehler_funname_type(S(funcall),fun);
+     undef:
+      fehler_undefined(S(funcall),fun);
     }
 
 # In FUNCALL: Applies a SUBR to arguments, cleans up STACK

@@ -153,8 +153,10 @@
               if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {
                 if (len == input_len) goto found;
                 # now len < input_len
-                var chart ch = schar(line,len);
-                if (cint_white_p(as_cint(ch))) {
+                { var chart ch = schar(line,len);
+                  if (cint_white_p(as_cint(ch))) goto found;
+                }
+                if (false) {
                  found:
                   funcall(Cdr(Car(alist)),0); # call the appropriate function
                   dynamic_unbind(); # S(key_bindings)
@@ -1369,7 +1371,8 @@ LISPFUN(show_stack,0,3,norest,nokey,0,NIL)
   var uintL frame_limit = (missingp(STACK_0) ? (skipSTACK(1), 0) :
                            posfixnump(STACK_0) ? posfixnum_to_L(popSTACK())
                            : (fehler_posfixnum(popSTACK()), 0));
-  var climb_fun_t frame_up_x = (missingp(STACK_0) ? (skipSTACK(1), NULL)
+  var climb_fun_t frame_up_x = (missingp(STACK_0)
+                                ? (skipSTACK(1), (climb_fun_t) NULL)
                                 : test_mode_arg(&frame_up_table[0]));
   VALUES1(UL_to_I(show_stack(frame_up_x,frame_limit,start_frame)));
 }

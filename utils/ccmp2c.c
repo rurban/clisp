@@ -273,12 +273,12 @@ static int peek_char (BUFFILE_t* infile) {
     return infile->buf[infile->position];
 }
 
-enum token_t {
+enum token_type_t {
   eof, eofcomment, eol, ident, number, charconst, stringconst, sep, expr
 };
 
 typedef struct {
-  enum token_t type;
+  enum token_type_t type;
   unsigned long startindex; /* start index in buffer */
   unsigned long endindex; /* end index in buffer */
   unsigned char ch; /* Operator/Separator */
