@@ -1828,8 +1828,6 @@ if [ ${TSYS} = win32gcc ]; then
   echol
 fi
 
-echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
-echol "CLISP_VERSION=clisp-\$(VERSION)"
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
@@ -1881,12 +1879,6 @@ if [ $TOS = unix ] ; then
   echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
 fi
 echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
-echol
-echol "# List of add-on modules that are already hardwired in the base linking set"
-# i18n: essential for internationalized programs
-# syscalls: very useful for scripting
-# regexp: useful for scripting and text processing
-echol "BASE_MODULES = i18n syscalls regexp"
 echol
 echol "# Command line options passed to the configure files of add-on modules"
 echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
@@ -2127,6 +2119,15 @@ if [ $HOS = unix ] ; then
   esac
   echol
 fi
+echol "VERSION="`echo '@PACKAGE_VERSION@' | sed -e 's, .*,,'`
+echol "CLISP_VERSION=clisp-\$(VERSION)"
+echol
+echol "# List of add-on modules that are already hardwired in the base linking set"
+# i18n: essential for internationalized programs
+# syscalls: very useful for scripting
+# regexp: useful for scripting and text processing
+echol "BASE_MODULES = i18n syscalls regexp"
+echol
 echol "COMMENT5 = ${HERE}comment5"
 
 if [ -n "$XCC_SUNPRO" ] ; then
