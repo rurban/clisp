@@ -1,23 +1,8 @@
 ;;; Lisp wrappers for the GLIBC FFI
 
-(in-package "SYS")
-
 (require "linux")
 
-(defpackage "LINUX"
-  (:case-sensitive t)
-  (:nicknames "UNIX" "GLIBC")
-  (:use)
-  (:export "real-path" "get-host-name" "get-domain-name"
-           "linux-error" "check-res"
-           "signal-valid-p" "signal-action-retrieve" "signal-action-install"
-           "sa-handler" "sa-flags" "sa-mask" "sigset-empty" "sigset-fill"
-           "sigset-add" "sigset-del" "sigset-member-p" "set-sigprocmask"
-           "sigset-pending" "set-signal-handler"))
-
-(eval-when (compile load eval)
-  (setf (package-lock "SYS") nil))
-(push "LINUX" *system-package-list*)
+(in-package "LINUX")
 
 ;; if you think you need this, you should use (array character)
 ;; instead of (array char)
@@ -26,146 +11,144 @@
 ;;  (convert-string-from-bytes vec *foreign-encoding*
 ;;                             :end (position 0 vec)))
 
-(defun linux:linux-error (caller)
-  (error "~s: ~a" caller (linux::strerror linux::errno)))
-(defmacro linux:check-res (res caller)
-  `(unless (zerop ,res) (linux:linux-error ,caller)))
+(defun linux-error (caller)
+  (error "~s: ~a" caller (strerror errno)))
+(defmacro check-res (res caller)
+  `(unless (zerop ,res) (linux-error ,caller)))
 
-(defun linux:real-path (name)
+(defun real-path (name)
   (multiple-value-bind (success resolved)
       ;; :out or :in-out parameters are returned via multiple values
-      (linux::realpath name)
-    (unless success (linux:linux-error 'linux:real-path))
+      (realpath name)
+    (unless success (linux-error 'real-path))
     resolved))
 
-(defun linux:get-host-name ()
+(defun get-host-name ()
   (multiple-value-bind (success name)
       ;; :out or :in-out parameters are returned via multiple values
-      (linux::gethostname linux::MAXHOSTNAMELEN)
-    (linux:check-res success 'linux:get-host-name)
+      (gethostname MAXHOSTNAMELEN)
+    (check-res success 'get-host-name)
     name))
 
-(defun linux:get-domain-name ()
+(defun get-domain-name ()
   (multiple-value-bind (success name)
       ;; :out or :in-out parameters are returned via multiple values
-      (linux::getdomainname linux::MAXHOSTNAMELEN)
-    (linux:check-res success 'linux:get-domain-name)
+      (getdomainname MAXHOSTNAMELEN)
+    (check-res success 'get-domain-name)
     name))
 
 ;; convenience functions for ffi sigaction definitions
 ;; Peter Wood 2002
 
-(defun linux:signal-valid-p (signal)
+(defun signal-valid-p (signal)
   "Is SIGNAL valid for this machine?"
-  (zerop (linux::sigaction-new signal nil nil)))
+  (zerop (sigaction-new signal nil nil)))
 
-(defun linux:signal-action-retrieve (signal)
+(defun signal-action-retrieve (signal)
   "Return the presently installed sigaction structure for SIGNAL"
-  (multiple-value-bind (ret act) (linux::sigaction-old signal nil)
-    (linux:check-res ret 'linux:signal-action-retrieve)
+  (multiple-value-bind (ret act) (sigaction-old signal nil)
+    (check-res ret 'signal-action-retrieve)
     act))
 
-(defun linux:signal-action-install (signal newact)
+(defun signal-action-install (signal newact)
   "Install NEWACT as the sigaction structure for SIGNAL. Error on failure."
-  (linux:check-res (linux::sigaction-new signal newact nil)
-                   'linux:signal-action-install))
+  (check-res (sigaction-new signal newact nil) 'signal-action-install))
 
-(defun linux:sa-handler (sigact)
+(defun sa-handler (sigact)
   "Returns the signal handler function for SIGACT struct. SETF place."
-  (slot-value sigact 'linux::sa_handler))
-(defsetf linux:sa-handler (sigact) (handler)
-  `(setf (slot-value ,sigact 'linux::sa_handler) ,handler))
+  (slot-value sigact 'sa_handler))
+(defsetf sa-handler (sigact) (handler)
+  `(setf (slot-value ,sigact 'sa_handler) ,handler))
 
-(defun linux:sa-flags (sigact)
+(defun sa-flags (sigact)
   "Returns the sa_flags for SIGACT struct. SETF place."
-  (slot-value sigact 'linux::sa_flags))
-(defsetf linux:sa-flags (sigact) (newflags)
-  `(setf (slot-value ,sigact 'linux::sa_flags) ,newflags))
+  (slot-value sigact 'sa_flags))
+(defsetf sa-flags (sigact) (newflags)
+  `(setf (slot-value ,sigact 'sa_flags) ,newflags))
 
 ;; e.g.: (setf (sa-flags SIGACT) (logior SA_RESETHAND SA_NOCLDSTOP))
 
-(defun linux:sa-mask (sigact)
+(defun sa-mask (sigact)
   "Returns the sa_mask for SIGACT struct. SETF place."
-  (slot-value sigact 'linux::sa_mask))
-(defsetf linux:sa-mask (sigact) (mask)
-  `(setf (slot-value ,sigact 'linux::sa_mask) ,mask))
+  (slot-value sigact 'sa_mask))
+(defsetf sa-mask (sigact) (mask)
+  `(setf (slot-value ,sigact 'sa_mask) ,mask))
 
-(defun linux:sigset-empty ()
+(defun sigset-empty ()
   "Return an empty sigset."
-  (multiple-value-bind (ret act) (linux::sigemptyset)
-    (linux:check-res ret 'linux:sigset-empty)
+  (multiple-value-bind (ret act) (sigemptyset)
+    (check-res ret 'sigset-empty)
     act))
 
-(defun linux:sigset-fill ()
+(defun sigset-fill ()
   "Return a full sigset"
-  (multiple-value-bind (ret set) (linux::sigfillset)
-    (linux:check-res ret 'linux:sigset-fill)
+  (multiple-value-bind (ret set) (sigfillset)
+    (check-res ret 'sigset-fill)
     set))
 
-(defun linux:sigset-add (set signal)
+(defun sigset-add (set signal)
   "Return a new set with SIGNAL"
-  (multiple-value-bind (ret set) (linux::sigaddset set signal)
-    (linux:check-res ret 'linux:sigset-add)
+  (multiple-value-bind (ret set) (sigaddset set signal)
+    (check-res ret 'sigset-add)
     set))
 
-(defun linux:sigset-del (set signal)
+(defun sigset-del (set signal)
   "Return a new set without SIGNAL"
-  (multiple-value-bind (ret set) (linux::sigdelset set signal)
-    (linux:check-res ret 'linux:sigset-del)
+  (multiple-value-bind (ret set) (sigdelset set signal)
+    (check-res ret 'sigset-del)
     set))
 
-(defun linux:sigset-member-p (set signal)
+(defun sigset-member-p (set signal)
   "T if SIGNAL is a member of SET, otherwise NIL"
-  (not (zerop (linux::sigismember set signal))))
+  (not (zerop (sigismember set signal))))
 
-(defun linux:set-sigprocmask (act set)
+(defun set-sigprocmask (act set)
   ;; NB the result of this will not be 'visible' in the sigaction
   ;; struct which contains SET, although the ACT *will* be performed.
-  ;; If you want a visible result, see linux:sigprocmask-set-n-save,
+  ;; If you want a visible result, see sigprocmask-set-n-save,
   ;; which returns as 2nd value the set structure resulting from ACT.
   "Do ACT on SET. Returns NIL on success and signals an error on failure."
-  (linux:check-res (linux::sigprocmask-set act set nil)
-                   'linux:set-sigprocmask))
+  (check-res (sigprocmask-set act set nil) 'set-sigprocmask))
 
-(defun linux:sigset-pending ()
+(defun sigset-pending ()
   "Returns the set of pending signals. Nil on failure"
-  (multiple-value-bind (ret set) (linux::sigpending)
-    (linux:check-res ret 'linux:sigset-pending)
+  (multiple-value-bind (ret set) (sigpending)
+    (check-res ret 'sigset-pending)
     set))
 
-(defun linux:set-signal-handler (signal fn)
+(defun set-signal-handler (signal fn)
   "Sets FN as signal handler for SIGNAL.  Returns old signal handler."
-  (let* ((sigact (linux:signal-action-retrieve signal)) ; the current sigact
-         (oh (linux:sa-handler sigact))) ; save the old handler to return
-    (setf (linux:sa-handler sigact) fn) ; make fn be the handler in sigact
-    (linux:signal-action-install signal sigact) ; install
+  (let* ((sigact (signal-action-retrieve signal)) ; the current sigact
+         (oh (sa-handler sigact))) ; save the old handler to return
+    (setf (sa-handler sigact) fn) ; make fn be the handler in sigact
+    (signal-action-install signal sigact) ; install
     oh))                        ; return the old handler
 
 #| signal handling examples:
 
 ;;; changing signal handlers:
 
- (setf oldsigact (linux:signal-action-retrieve linux:SIGINT))
+ (setf oldsigact (signal-action-retrieve SIGINT))
 #S(LINUX:sigaction :|sa_handler| #<FOREIGN-FUNCTION #x080711D4>
    :|sa_mask| #S(LINUX:sigset_t :|val| #(2)) :|sa_flags| 335544320
    :|sa_restorer| #<FOREIGN-FUNCTION #x401F1868>)
- (setf savehandler (linux:sa-handler oldsigact))
+ (setf savehandler (sa-handler oldsigact))
 #<FOREIGN-FUNCTION #x080711D4>
 ;; this is example is _BAD_ because one cannot do i/o in handlers
 ;; <https://sourceforge.net/mailarchive/message.php?msg_id=3599878>
  (defun test-handler (s) (format t "~&~s: signal ~d~%" 'test-handler s))
- (setf (linux:sa-handler oldsigact) #'test-handler)
- (linux:signal-action-install linux:SIGINT oldsigact)
+ (setf (sa-handler oldsigact) #'test-handler)
+ (signal-action-install SIGINT oldsigact)
 ;; Now Ctrl-C invokes TEST-HANDLER
- (setf (linux:sa-handler oldsigact) savehandler)
- (linux:signal-action-install linux:SIGINT oldsigact)
+ (setf (sa-handler oldsigact) savehandler)
+ (signal-action-install SIGINT oldsigact)
 ;; the standard behavior is restored
 
-;; this is packaged into linux:set-signal-handler:
- (setf savehandler (linux:set-signal-handler linux:SIGINT #'test-handler))
- (linux:raise linux:SIGINT)
+;; this is packaged into set-signal-handler:
+ (setf savehandler (set-signal-handler SIGINT #'test-handler))
+ (raise SIGINT)
 ;; TEST-HANDLER is called
- (linux:set-signal-handler linux:SIGINT savehandler)
+ (set-signal-handler SIGINT savehandler)
 ;; the standard behavior is restored
 
 ;; Please note that if you use SA_RESETHAND, you reset the handler to
@@ -174,21 +157,20 @@
 
 ;;; sigprocmask & sigpending
 
- (setf sigact (linux:signal-action-retrieve linux:SIGINT))
- (linux:raise linux:SIGINT)
+ (setf sigact (signal-action-retrieve SIGINT))
+ (raise SIGINT)
 ;; ** - Continuable Error/PRINT: User break
- (linux:set-sigprocmask linux:SIG_BLOCK (linux:sa-mask sigact))
- (linux:raise linux:SIGINT)
+ (set-sigprocmask SIG_BLOCK (sa-mask sigact))
+ (raise SIGINT)
 ;; nothing
- (linux:sigset-pending)
+ (sigset-pending)
 #S(LINUX:sigset_t :|val| #(2))
- (linux:set-sigprocmask linux:SIG_UNBLOCK (linux:sa-mask sigact))
+ (set-sigprocmask SIG_UNBLOCK (sa-mask sigact))
 ;; ** - Continuable Error/EVAL: User break
- (linux:sigset-pending)
+ (sigset-pending)
 #S(LINUX:sigset_t :|val| #())
- (linux:raise linux:SIGINT)
+ (raise SIGINT)
 ;; ** - Continuable Error/PRINT: User break
 ;; |#
 
-(eval-when (compile load eval)
-  (setf (package-lock *system-package-list*) t))
+(push "LINUX" custom:*system-package-list*)

@@ -6,19 +6,11 @@
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
 (defpackage "NETICA"
-  (:case-sensitive t) (:use))
-
-(eval-when (compile eval)
-  (require "exporting" "../exporting")
-  (make-exporting "NETICA"
-    cl:compile cl:defconstant cl:eval cl:load
-    ffi:cast ffi:char ffi:character ffi:c-array ffi:c-array-max
-    ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-ptr-null ffi:c-pointer
-    ffi:c-string ffi:c-struct ffi:deref ffi::foreign-value ffi:double-float
-    ffi:element ffi:int ffi:long ffi:nil ffi:short ffi:sint8 ffi:sint16
-    ffi:sint32 ffi:sint64 ffi:single-float ffi:sizeof ffi:slot ffi:uchar
-    ffi:uint ffi:uint8 ffi:uint16 ffi:uint32 ffi:uint64 ffi:ulong ffi:ushort
-    ffi:with-c-var))
+  (:case-sensitive t) (:case-inverted t)
+  (:use "CS-COMMON-LISP" "FFI")
+  (:shadowing-import-from "EXPORTING"
+           #:defconstant #:defvar #:defun #:defmacro #:define-symbol-macro
+           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (in-package "NETICA")
 
@@ -707,5 +699,4 @@
   (:arguments (s sensv_bn_) (Fnode node_bn_))
   (:return-type double-float))
 
-(cl:in-package "CL-USER")
 (provide "netica")

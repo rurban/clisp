@@ -2158,6 +2158,8 @@
 (when (find-symbol "%LIBCALL" "SYSTEM")
   (LOAD "affi1"))               ; simple FFI, optional
 
+(LOAD "exporting")              ; auto-exporting defining macros
+
 #+GETTEXT (LOAD "german")       ; German messages
 #+(and GETTEXT UNICODE) (LOAD "french") ; French messages
 #+(and GETTEXT UNICODE) (LOAD "spanish") ; Spanish messages

@@ -3,20 +3,14 @@
 
 (require "netica")
 
-(defpackage "NETICA"
-  (:export "*verbose*" "*env*" "*license*" "error-category" "error-message"
-           "check-errors" "start-netica" "close-netica" "save-net" "read-net"
-           "with-open-dne-file" "make-net" "net-info" "make-node" "node-info"
-           "get-beliefs" "enter-finding"))
+(in-package "NETICA")
 
-(in-package "SYS")
-(eval-when (compile load) (setf (package-lock "SYS") nil))
 (pushnew :netica *features*)
 
 ;;; low level wrappers
 
 (eval-when (compile eval)
-  (defmacro make-node-wrapper (func &rest more-args)
+  (cl:defmacro make-node-wrapper (func &rest more-args)
     (let* ((fun (if (consp func) (first func) func))
            (orig (symbol-name fun)) (node (gensym orig)) (vec (gensym orig))
            (length-form (if (consp func)
@@ -24,14 +18,13 @@
                             `(netica::GetNodeNumberStates_bn ,node)))
            (name (intern (subseq orig 0 (position #\_ orig)) "NETICA")))
       `(progn
-         (export ',name "NETICA")
          (defun ,name (,node ,@more-args)
            ,(concatenate 'string "A low-level wrapper for " orig)
            (ffi:with-c-var (,vec 'ffi:c-pointer (,fun ,node ,@more-args))
              (ffi:cast ,vec `(ffi:c-ptr (ffi:c-array netica::prob_bn
                                                      ,,length-form)))))))))
 
-(defun adjust-number-of-states (num-states type)
+(cl:defun adjust-number-of-states (num-states type)
   (+ num-states
      (gethash type
               (load-time-value
@@ -50,12 +43,12 @@
                      (netica::GetNodeType_bn <node>))))
 
 ;;; user interface variables
-(defvar netica:*verbose* *standard-output* "the netica log stream")
-(defvar netica:*env* nil "the current netica environment")
-(defvar netica:*license* "" "the netica license key - ask norsys")
+(defvar *verbose* *standard-output* "the netica log stream")
+(defvar *env* nil "the current netica environment")
+(defvar *license* "" "the netica license key - ask norsys")
 
 ;;; helpers
-(defun netica:error-category (err)
+(defun error-category (err)
   "return the list of categories where the error belongs"
   (mapcan (lambda (c)
             (unless (zerop (netica::ErrorCategory_ns (symbol-value c) err))
@@ -66,7 +59,7 @@
             netica::FROM_DEVELOPER_CND
             netica::INCONS_FINDING_CND)))
 
-(defun netica:error-message (err)
+(defun error-message (err)
   "Convert netica error to a string"
   (format nil "~s(~s)~@[ ~s~]: ~s~%"
           (ffi:enum-from-value 'netica::errseverity_ns
@@ -75,8 +68,8 @@
           (netica::error-category err)
           (netica::ErrorMessage_ns err)))
 
-(defun netica:check-errors (&key ((:env netica:*env*) netica:*env*) (clear t)
-                            (severity netica::NOTHING_ERR))
+(defun check-errors (&key ((:env netica:*env*) netica:*env*) (clear t)
+                          (severity netica::NOTHING_ERR))
   "Check all errors of the given severity and optionally clear them."
   (let ((err nil))
     (loop (setq err (netica::GetError_ns netica:*env* severity err))
@@ -89,8 +82,8 @@
         (netica::ClearError_ns err) (setq err nil)
         (format *error-output* "~&...cleared~%")))))
 
-(defun netica:start-netica (&key ((:license netica:*license*) netica:*license*)
-                            ((:verbose netica:*verbose*) netica:*verbose*))
+(defun start-netica (&key ((:license netica:*license*) netica:*license*)
+                          ((:verbose netica:*verbose*) netica:*verbose*))
   "Start netica, initialize it, and return the new environment.
 Sets netica:*env* to this environment on success."
   (let ((env (netica::NewNeticaEnviron_ns netica:*license* nil nil))
@@ -114,8 +107,8 @@ Sets netica:*env* to this environment on success."
     (netica:check-errors :env env)
     (setq netica:*env* env)))
 
-(defun netica:close-netica (&key (env netica:*env*)
-                            ((:verbose netica:*verbose*) netica:*verbose*))
+(defun close-netica (&key (env netica:*env*)
+                          ((:verbose netica:*verbose*) netica:*verbose*))
   "Terminate the netica session.
 Sets netica:*env* to NIL when it was closed."
   (netica:check-errors)
@@ -125,12 +118,12 @@ Sets netica:*env* to NIL when it was closed."
   (when (eq env netica:*env*)
     (setq netica:*env* nil)))
 
-(defun required-argument (f a) (error "~s: missing ~s argument" f a))
+(cl:defun required-argument (f a) (error "~s: missing ~s argument" f a))
 
-(defun netica:make-net (&key (name (symbol-name (gensym)))
-                        (comment nil) (title nil)
-                        ((:env netica:*env*) netica:*env*)
-                        ((:verbose netica:*verbose*) netica:*verbose*))
+(defun make-net (&key (name (symbol-name (gensym)))
+                      (comment nil) (title nil)
+                      ((:env netica:*env*) netica:*env*)
+                      ((:verbose netica:*verbose*) netica:*verbose*))
   "Make a network with a given name and return it."
   (let ((net (netica::NewNet_bn name netica:*env*)))
     (when netica:*verbose*
@@ -144,7 +137,7 @@ Sets netica:*env* to NIL when it was closed."
       (netica:check-errors))
     net))
 
-(defun netica:net-info (net)
+(defun net-info (net)
   "Print information about the net."
   (format t "~&net: ~s~%name: ~s~%" net (netica::GetNetName_bn net))
   (let ((title (netica::GetNetTitle_bn net)))
@@ -162,15 +155,15 @@ Sets netica:*env* to NIL when it was closed."
       (netica:node-info (netica::NthNode_bn nodes ii) :header ii)))
   (netica:check-errors))
 
-(defun netica:make-node (&key (name (symbol-name (gensym)))
-                         (net (required-argument 'netica:make-node :net))
-                         (kind netica::NATURE_NODE)
-                         (levels nil) (states nil)
-                         (num-states (if levels 0 (length states)))
-                         (title nil) (comment nil)
-                         (parents nil) (cpt nil) x y
-                         ((:env netica:*env*) netica:*env*)
-                         ((:verbose netica:*verbose*) netica:*verbose*))
+(defun make-node (&key (name (symbol-name (gensym)))
+                       (net (required-argument 'netica:make-node :net))
+                       (kind netica::NATURE_NODE)
+                       (levels nil) (states nil)
+                       (num-states (if levels 0 (length states)))
+                       (title nil) (comment nil)
+                       (parents nil) (cpt nil) x y
+                       ((:env netica:*env*) netica:*env*)
+                       ((:verbose netica:*verbose*) netica:*verbose*))
   "Make a network node with the given parameters and return it.
 The parameters are: name, net, kind, states (state name list),
 levels (vector), number of states, parents list, cpt.
@@ -224,7 +217,7 @@ X & Y are coordinates; both or neither must be supplied."
     (netica:check-errors)
     node))
 
-(defun netica:node-info (node &key header)
+(defun node-info (node &key header)
   "Print information about the node."
   (format t "~&~@[ * [~s] ~]node: ~s (net: ~s)~%name: ~s   (~s ~s)~%"
           header node (netica::GetNodeNet_bn node)
@@ -266,9 +259,9 @@ X & Y are coordinates; both or neither must be supplied."
       (format t "[~:d] level: ~s~%" ii (aref levels ii))))
   (netica:check-errors))
 
-(defun netica:get-beliefs (node &key
-                           ((:env netica:*env*) netica:*env*)
-                           ((:verbose netica:*verbose*) netica:*verbose*))
+(defun get-beliefs (node
+                    &key ((:env netica:*env*) netica:*env*)
+                         ((:verbose netica:*verbose*) netica:*verbose*))
   "Get the belief vector for the node."
   (let ((beliefs (netica::GetNodeBeliefs node))
         (name (netica::GetNodeName_bn node)))
@@ -280,9 +273,9 @@ X & Y are coordinates; both or neither must be supplied."
       (netica:check-errors))
     beliefs))
 
-(defun netica:enter-finding (net node state &key
-                             ((:env netica:*env*) netica:*env*)
-                             ((:verbose netica:*verbose*) netica:*verbose*))
+(defun enter-finding (net node state
+                      &key ((:env netica:*env*) netica:*env*)
+                           ((:verbose netica:*verbose*) netica:*verbose*))
   "Enter a finding by node and state names"
   (let* ((nd (netica::NodeNamed_bn node net))
          (st (netica::StateNamed_bn state nd)))
@@ -291,8 +284,8 @@ X & Y are coordinates; both or neither must be supplied."
     (when netica:*verbose*
       (format netica:*verbose* "~&;; ~s: set to ~s~%" node state))))
 
-(defun open-dne-file (file &key ((:env netica:*env*) netica:*env*)
-                       ((:verbose netica:*verbose*) netica:*verbose*))
+(cl:defun open-dne-file (file &key ((:env netica:*env*) netica:*env*)
+                                   ((:verbose netica:*verbose*) netica:*verbose*))
   (let ((out (netica::NewStreamFile_ns
               (namestring (translate-logical-pathname
                            (merge-pathnames
@@ -303,16 +296,16 @@ X & Y are coordinates; both or neither must be supplied."
     (netica:check-errors)
     out))
 
-(defmacro netica:with-open-dne-file
-    ((var file &rest opts &key &allow-other-keys) &body body)
+(defmacro with-open-dne-file ((var file &rest opts &key &allow-other-keys)
+                              &body body)
   `(let ((,var (open-dne-file ,file ,@opts)))
      (unwind-protect (progn ,@body)
        (netica::DeleteStream_ns ,var)
        (netica:check-errors))))
 
-(defun netica:save-net (net &key (file (netica::GetNetFileName_bn net))
-                        ((:env netica:*env*) netica:*env*)
-                        ((:verbose netica:*verbose*) netica:*verbose*))
+(defun save-net (net &key (file (netica::GetNetFileName_bn net))
+                          ((:env netica:*env*) netica:*env*)
+                          ((:verbose netica:*verbose*) netica:*verbose*))
   "Save the network to the file."
   (netica:with-open-dne-file (out file)
     (netica::WriteNet_bn net out)
@@ -321,13 +314,11 @@ X & Y are coordinates; both or neither must be supplied."
       (format netica:*verbose* ";; saved ~s to ~s~%" net
               (netica::GetNetFileName_bn net)))))
 
-(defun netica:read-net (file &key ((:env netica:*env*) netica:*env*)
-                        ((:verbose netica:*verbose*) netica:*verbose*))
+(defun read-net (file &key ((:env netica:*env*) netica:*env*)
+                           ((:verbose netica:*verbose*) netica:*verbose*))
   (netica:with-open-dne-file (in file)
     (let ((net (netica::ReadNet_bn in netica::NO_WINDOW)))
       (netica:check-errors)
       net)))
 
-(push "NETICA" ext:*system-package-list*)
-(eval-when (compile load)
-  (setf (ext:package-lock ext:*system-package-list*) t))
+(push "NETICA" custom:*system-package-list*)

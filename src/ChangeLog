@@ -1,5 +1,38 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* exporting.lisp: New file.
+	* init.lisp: Load it.
+	* makemake.in (LPARTS): Add exporting.
+	(exporting.fas): Remove target.
+	(LINKKIT, anymodule): Remove special handling of exporting.lisp.
+	* po/Makefile.devel (LISPSOURCES): Add exporting.
+	* modules/exporting.lisp: Remove file.
+
+	* modules/bindings/glibc/linux.lisp: Define package as case-inverted.
+	Use some symbols from package EXPORTING; drop old exporting code.
+	* modules/bindings/glibc/wrap.lisp: Remove contradictory defpackage
+	declaration. Use in-package instead. Remove many useless package
+	prefixes.
+
+	* modules/bindings/win32/win32.lisp: Define package as case-inverted.
+	Use some symbols from package EXPORTING; drop old exporting code.
+
+	* modules/matlab/matlab.lisp: Define package as case-inverted.
+	Use some symbols from package EXPORTING; drop old exporting code.
+	* modules/matlab/wrap.lisp: Remove contradictory defpackage
+	declaration. Use in-package instead. Remove package-lock hacking.
+
+	* modules/netica/netica.lisp: Define package as case-inverted.
+	Use some symbols from package EXPORTING; drop old exporting code.
+	* modules/netica/wrap.lisp: Remove contradictory defpackage
+	declaration. Use in-package instead. Remove many useless package
+	prefixes. Remove package-lock hacking.
+
+	* modules/postgresql/postgresql.lisp: Define package as case-inverted.
+	Use some symbols from package EXPORTING; drop old exporting code.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* utils/clispload.lsp (*expected-failures*): Revisited.
 
 2004-12-19  Bruno Haible  <bruno@clisp.org>
