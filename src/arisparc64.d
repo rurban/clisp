@@ -40,6 +40,9 @@
   #define ret   return %i7+8  # return from subroutine
   #define retl  jmp %o7+8     # return from leaf subroutine (no save/restore)
 
+  # Avoid "detect global register use not covered .register pseudo-op" error
+  .register %g2,#scratch
+
         .seg "text"
 
         .global C(mulu16_),C(mulu32_),C(mulu32_unchecked)
@@ -146,7 +149,7 @@ C(copy_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 C(copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
-        brz,pn %xcc,2f
+        brz,pn %o2,2f
        _ sub %o0,4,%o0
 1:        ld [%o0],%o3
           sub %o1,4,%o1
@@ -159,7 +162,7 @@ C(copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #endif
 #if COUNTER_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
-        brz,pn %xcc,2f
+        brz,pn %o2,2f
        _ sub %o0,4,%o0
         sllx %o2,2,%o2          # %o2 = 4*count
         sub %o0,%o2,%o0         # %o0 = &sourceptr[-count-1]
