@@ -22,8 +22,7 @@
         pushSTACK(symbol);
         pushSTACK(S(function));
         fehler(undefined_function,
-               GETTEXT("~: ~ is a macro, not a function")
-              );
+               GETTEXT("~: ~ is a macro, not a function"));
       }
       return fun;
     }
@@ -32,13 +31,11 @@
 # Fehlermeldung, wenn ein Symbol eine Property-Liste ungerader Länge hat.
 # fehler_plist_odd(symbol);
 # > symbol: Symbol
-  nonreturning_function(local, fehler_plist_odd, (object symbol)) {
-    pushSTACK(symbol);
-    pushSTACK(S(get));
-    fehler(error,
-           GETTEXT("~: the property list of ~ has an odd length")
-          );
-  }
+nonreturning_function(local, fehler_plist_odd, (object symbol)) {
+  pushSTACK(symbol);
+  pushSTACK(S(get));
+  fehler(error,GETTEXT("~: the property list of ~ has an odd length"));
+}
 
 # UP: Holt eine Property aus der Property-Liste eines Symbols.
 # get(symbol,key)
@@ -72,12 +69,16 @@
       return unbound;
     }
 
+/* UP: check whether the argument is a symbol and return it */
+local inline object test_symbol (object sy) {
+  if (!symbol(sy)) fehler_symbol(sy);
+  return sy;
+}
+
 LISPFUNN(putd,2)
 # (SYS::%PUTD symbol function)
   {
-    var object symbol = STACK_1;
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(STACK_1);
     var object fun = STACK_0;
     # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
     # Lambda-Ausdruck ist nicht mehr gültig.
@@ -106,18 +107,14 @@ LISPFUNN(find_subr,1)
 #   (or (get symbol 'sys::traced-definition) (symbol-function symbol))
 # )
   {
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     var object result = get(symbol,S(traced_definition));
     if (! boundp(result))
       result = Symbol_function(symbol);
     if (!subrp(result)) {
       pushSTACK(symbol);
       pushSTACK(S(find_subr));
-      fehler(error,
-             GETTEXT("~: ~ is not a system function")
-            );
+      fehler(error,GETTEXT("~: ~ is not a system function"));
     }
     VALUES1(result);
   }
@@ -127,9 +124,7 @@ LISPFUNN(proclaim_constant,2)
 # und ihm einen Wert zu.
   {
     var object val = popSTACK();
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     set_const_flag(TheSymbol(symbol)); # symbol zu einer Konstanten machen
     Symbol_value(symbol) = val; # ihren Wert setzen
     VALUES1(symbol); /* return symbol */
@@ -138,9 +133,7 @@ LISPFUNN(proclaim_constant,2)
 LISPFUN(get,2,1,norest,nokey,0,NIL)
 # (GET symbol key [not-found]), CLTL S. 164
   {
-    var object symbol = STACK_2;
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(STACK_2);
     var object result = get(symbol,STACK_1); # suchen
     if (! boundp(result)) { /* not found? */
       result = STACK_0; # Defaultwert ist not-found
@@ -222,9 +215,7 @@ LISPFUNN(putplist,2)
 # (SYS::%PUTPLIST symbol list) == (SETF (SYMBOL-PLIST symbol) list)
   {
     var object list = popSTACK();
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     VALUES1(Symbol_plist(symbol) = list);
   }
 
@@ -232,9 +223,7 @@ LISPFUNN(put,3)
 # (SYS::%PUT symbol key value) == (SETF (GET symbol key) value)
   {
     {
-      var object symbol = STACK_2;
-      if (!symbolp(symbol))
-        fehler_symbol(symbol);
+      var object symbol = test_symbol(STACK_2);
       var object key = STACK_1;
       var object plistr = Symbol_plist(symbol);
       loop {
@@ -276,9 +265,7 @@ LISPFUNN(remprop,2)
 # (REMPROP symbol indicator), CLTL S. 166
   {
     var object key = popSTACK();
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     var object* plistr_ = &Symbol_plist(symbol);
     var object plistr;
     loop {
@@ -307,27 +294,21 @@ LISPFUNN(remprop,2)
 LISPFUNN(symbol_package,1)
 # (SYMBOL-PACKAGE symbol), CLTL S. 170
   {
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     VALUES1(Symbol_package(symbol));
   }
 
 LISPFUNN(symbol_plist,1)
 # (SYMBOL-PLIST symbol), CLTL S. 166
   {
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     VALUES1(Symbol_plist(symbol));
   }
 
 LISPFUNN(symbol_name,1)
 # (SYMBOL-NAME symbol), CLTL S. 168
   {
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     VALUES1(Symbol_name(symbol));
   }
 
@@ -343,9 +324,7 @@ LISPFUNN(special_variable_p,1)
 # Special-Variable (oder eine Konstante) darstellt.
 # (Bei Konstanten ist ja das Special-Bit bedeutungslos.)
   {
-    var object symbol = popSTACK();
-    if (!symbolp(symbol))
-      fehler_symbol(symbol);
+    var object symbol = test_symbol(popSTACK());
     VALUES_IF(constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol)));
   }
 
