@@ -17,7 +17,7 @@
 ;                                            no for complex numbers
 ;   <9>  ASSOC/RASSOC-IF :KEY                yes             list.d
 ;  <10>  *BREAK-ON-WARNINGS* obsolete        no              user1.lsp
-;  <11>  character proposal                  no
+;  <11>  character proposal                  yes
 ;  <12>  CLOS                                yes (largely)   clos.lsp
 ;  <13>  CLOS macro compilation              yes             clos.lsp
 ;  <14>  CLOSE constructed stream            yes             stream.d

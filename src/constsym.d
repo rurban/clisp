@@ -132,6 +132,7 @@ LISPSYM(make_bit_vector,"MAKE-BIT-VECTOR",system)
 LISPSYM(standard_char_p,"STANDARD-CHAR-P",lisp)
 LISPSYM(graphic_char_p,"GRAPHIC-CHAR-P",lisp)
 LISPSYM(string_char_p,"STRING-CHAR-P",lisp)
+LISPSYM(base_char_p,"BASE-CHAR-P",system)
 LISPSYM(alpha_char_p,"ALPHA-CHAR-P",lisp)
 LISPSYM(upper_case_p,"UPPER-CASE-P",lisp)
 LISPSYM(lower_case_p,"LOWER-CASE-P",lisp)
@@ -1045,6 +1046,7 @@ LISPSYM(Ktoken,"TOKEN",keyword)
 # sonstige Symbole:
 LISPSYM(ansi,"*ANSI*",lisp) # als Variable
 LISPSYM(string_char,"STRING-CHAR",lisp) # als Typ in PREDTYPE
+LISPSYM(base_char,"BASE-CHAR",lisp) # als Typ in PREDTYPE
 LISPSYM(array_rank_limit,"ARRAY-RANK-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(array_dimension_limit,"ARRAY-DIMENSION-LIMIT",lisp) # als Konstante in ARRAY
 LISPSYM(array_total_size_limit,"ARRAY-TOTAL-SIZE-LIMIT",lisp) # als Konstante in ARRAY
@@ -1064,6 +1066,8 @@ LISPSYM(initial_initialize_instance,"INITIAL-INITIALIZE-INSTANCE",clos) # als Fu
 LISPSYM(initial_make_instance,"INITIAL-MAKE-INSTANCE",clos) # als Funktion für RECORD
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) # als Typ in SEQUENCE, PREDTYPE
+LISPSYM(base_string,"BASE-STRING",lisp) # als Typ in SEQUENCE, PREDTYPE
+LISPSYM(simple_base_string,"SIMPLE-BASE-STRING",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(bit_vector,"BIT-VECTOR",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(simple_bit_vector,"SIMPLE-BIT-VECTOR",lisp) # als Typ in SEQUENCE, PREDTYPE
 LISPSYM(array,"ARRAY",lisp) # als Typ in SEQUENCE, PREDTYPE

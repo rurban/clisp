@@ -91,6 +91,11 @@
 ; CLTL S. 43
 (%put 'ARRAY 'TYPE-SYMBOL #'arrayp)
 (%put 'ATOM 'TYPE-SYMBOL #'atom)
+(%put 'BASE-CHAR 'TYPE-SYMBOL
+  (function type-symbol-base-char
+    (lambda (x) (and (characterp x) (base-char-p x)))
+) )
+(%put 'BASE-STRING 'TYPE-SYMBOL #'stringp)
 (%put 'BIGNUM 'TYPE-SYMBOL
   (function type-symbol-bignum
     (lambda (x) (and (integerp x) (not (fixnump x))))
@@ -110,6 +115,10 @@
 (%put 'COMPLEX 'TYPE-SYMBOL #'complexp)
 (%put 'CONS 'TYPE-SYMBOL #'consp)
 (%put 'DOUBLE-FLOAT 'TYPE-SYMBOL #'double-float-p)
+(%put 'EXTENDED-CHAR 'TYPE-SYMBOL
+  (function type-symbol-extended-char
+    (lambda (x) (and (characterp x) (not (base-char-p x))))
+) )
 (%put 'FIXNUM 'TYPE-SYMBOL #'fixnump)
 (%put 'FLOAT 'TYPE-SYMBOL #'floatp)
 (%put 'FUNCTION 'TYPE-SYMBOL #'functionp)
@@ -140,6 +149,7 @@
 (%put 'SEQUENCE 'TYPE-SYMBOL #'sequencep)
 (%put 'SHORT-FLOAT 'TYPE-SYMBOL #'short-float-p)
 (%put 'SIMPLE-ARRAY 'TYPE-SYMBOL #'simple-array-p)
+(%put 'SIMPLE-BASE-STRING 'TYPE-SYMBOL #'simple-string-p)
 (%put 'SIMPLE-BIT-VECTOR 'TYPE-SYMBOL #'simple-bit-vector-p)
 (%put 'SIMPLE-STRING 'TYPE-SYMBOL #'simple-string-p)
 (%put 'SIMPLE-VECTOR 'TYPE-SYMBOL #'simple-vector-p)
@@ -375,6 +385,20 @@
            (or (eq size '*) (eql size (array-dimension x 0)))
   ) ) )
 )
+(%put 'BASE-STRING 'TYPE-LIST
+  (function type-list-base-string
+    (lambda (x &optional (size '*))
+      (and (stringp x)
+           (or (eq size '*) (eql size (array-dimension x 0)))
+  ) ) )
+)
+(%put 'SIMPLE-BASE-STRING 'TYPE-LIST
+  (function type-list-simple-base-string
+    (lambda (x &optional (size '*))
+      (and (simple-string-p x)
+           (or (eq size '*) (eql size (array-dimension x 0)))
+  ) ) )
+)
 (%put 'BIT-VECTOR 'TYPE-LIST
   (function type-list-bit-vector
     (lambda (x &optional (size '*))
@@ -560,6 +584,7 @@
              (canonicalize-type (funcall f (list type))) ; macroexpandieren
              (case type
                (ATOM '(NOT CONS))
+               (BASE-CHAR '(AND CHARACTER (SATISFIES BASE-CHAR-P)))
                (BIGNUM '(AND INTEGER (NOT FIXNUM)))
                (BIT '(INTEGER 0 1))
                (BOOLEAN '(MEMBER NIL T))
@@ -567,6 +592,7 @@
                          STREAM PACKAGE HASH-TABLE READTABLE PATHNAME RANDOM-STATE
                          STRUCTURE
                )        )
+               (EXTENDED-CHAR '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P))))
                (FIXNUM '(INTEGER #,most-negative-fixnum #,most-positive-fixnum))
                (KEYWORD '(AND SYMBOL (SATISFIES KEYWORDP)))
                (LIST '(OR CONS (MEMBER NIL)))
@@ -576,12 +602,13 @@
                (RATIO '(AND RATIONAL (NOT INTEGER)))
                (SEQUENCE '(OR LIST VECTOR)) ; user-defined sequences??
                (SIGNED-BYTE 'INTEGER)
-               (STANDARD-CHAR '(AND CHARACTER (SATISFIES STANDARD-CHAR-P)))
+               (STANDARD-CHAR '(AND CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
                (STRING-CHAR 'CHARACTER)
                ((T) '(AND))
                (UNSIGNED-BYTE '(INTEGER 0 *))
                ((ARRAY SIMPLE-ARRAY BIT-VECTOR SIMPLE-BIT-VECTOR
-                 STRING SIMPLE-STRING VECTOR SIMPLE-VECTOR
+                 STRING SIMPLE-STRING BASE-STRING SIMPLE-BASE-STRING
+                 VECTOR SIMPLE-VECTOR
                  COMPLEX REAL INTEGER RATIONAL FLOAT
                  SHORT-FLOAT SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT
                 )
@@ -641,6 +668,10 @@
                  (let ((size (or (second type) '*)))
                    `(SIMPLE-ARRAY CHARACTER (,size))
                ) )
+               (SIMPLE-BASE-STRING ; (SIMPLE-BASE-STRING &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(SIMPLE-ARRAY BASE-CHAR (,size))
+               ) )
                (SIMPLE-VECTOR ; (SIMPLE-VECTOR &optional size)
                  (let ((size (or (second type) '*)))
                    `(SIMPLE-ARRAY T (,size))
@@ -652,6 +683,10 @@
                (STRING ; (STRING &optional size)
                  (let ((size (or (second type) '*)))
                    `(ARRAY CHARACTER (,size))
+               ) )
+               (BASE-STRING ; (BASE-STRING &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(ARRAY BASE-CHAR (,size))
                ) )
                (VECTOR ; (VECTOR &optional el-type size)
                  (let ((el-type (or (second type) '*))
@@ -976,11 +1011,11 @@
 
 #| Zu tun:
 SUBTYPEP so verbessern, dass
-(let ((l '(ARRAY BIT-VECTOR BOOLEAN CHARACTER COMPLEX CONS FLOAT FUNCTION
-           CLOS:GENERIC-FUNCTION HASH-TABLE INTEGER LIST NULL NUMBER PACKAGE
-           PATHNAME #+LOGICAL-PATHNAMES LOGICAL-PATHNAME RANDOM-STATE RATIONAL
-           READTABLE REAL SEQUENCE CLOS:STANDARD-GENERIC-FUNCTION STREAM STRING
-           SYMBOL VECTOR
+(let ((l '(ARRAY BASE-CHAR BASE-STRING BIT-VECTOR BOOLEAN CHARACTER COMPLEX
+           CONS FLOAT FUNCTION CLOS:GENERIC-FUNCTION HASH-TABLE INTEGER LIST
+           NULL NUMBER PACKAGE PATHNAME #+LOGICAL-PATHNAMES LOGICAL-PATHNAME
+           RANDOM-STATE RATIONAL READTABLE REAL SEQUENCE
+           CLOS:STANDARD-GENERIC-FUNCTION STREAM STRING SYMBOL VECTOR
      ))   )
   (dolist (a l)
     (dolist (b l)
