@@ -1,5 +1,15 @@
 1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Improve the speed of NLS charset conversions.
+        * utils/unicode/nls_table.java: Emit a value for is_ascii_extension.
+        * encoding.d (nls_table): New field `is_ascii_extension'.
+          (nls_asciiext_mbstowcs, nls_asciiext_wcstombs): New functions.
+          (init_encodings): Choose them if possible.
+        * pseudofun.d (nls_asciiext_mbstowcs, nls_asciiext_wcstombs): New
+          declarations.
+
+1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (init_streamvars): Avoid gcc warning.
 
 1999-02-19  Sam Steingold  <sds@goems.com>
