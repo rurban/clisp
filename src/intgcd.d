@@ -1104,14 +1104,14 @@
        # A=2, B=3 wird a=b=1, uAa < uAb, uBa = uBb.)
        if (uBb.len > uBa.len) goto return_a_coeffsa;
        if (uBb.len < uBa.len) goto return_a_coeffsb;
-       // (uBb.len == uBa.len)
+       # (uBb.len == uBa.len)
        { var signean vergleich = compare_loop_up(uBb.MSDptr,uBa.MSDptr,uBb.len);
          if (vergleich > 0) goto return_a_coeffsa;
          if (vergleich < 0) goto return_a_coeffsb;
        }
        if (uAb.len > uAa.len) goto return_a_coeffsa;
        if (uAb.len < uAa.len) goto return_a_coeffsb;
-       // (uAb.len == uAa.len)
+       # (uAb.len == uAa.len)
        if (compare_loop_up(uAb.MSDptr,uAa.MSDptr,uAb.len) > 0)
          return_a_coeffsa:
          { # uAa mit Vorfaktor sA versehen:
