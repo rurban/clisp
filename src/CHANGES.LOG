@@ -8,6 +8,10 @@ User visible changes
 * X3J13 writeup <SLOT-MISSING-VALUES:SPECIFY> is implemented: Some of the
   values of SLOT-MISSING are ignored, depending on context.
 
+* X3J13 writeup <WITH-OPEN-FILE-SETQ:EXPLICITLY-VAGUE> is implemented:
+  Assigning the variable bound by the WITH-INPUT-FROM-STRING, WITH-OPEN-FILE,
+  WITH-OPEN-STREAM, WITH-OUTPUT-TO-STRING macros generates a compiler warning.
+
 Portability
 -----------
 
