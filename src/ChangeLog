@@ -1,5 +1,9 @@
 2004-02-24  Bruno Haible  <bruno@clisp.org>
 
+	* loadform.lisp (missing-load-form): Fix mistake in last patch,
+
+2004-02-24  Bruno Haible  <bruno@clisp.org>
+
 	* m4/readline.m4 (CL_READLINE): Don't use AC_SEARCH_LIBS. Instead,
 	use the value of LIBREADLINE, as determined by AC_LIB_LINKFLAGS_BODY.
 
