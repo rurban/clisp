@@ -567,7 +567,7 @@
       if (exp < DF_exp_mid-1022+1) {
         if (!(exp == 0)) {
           # produziere denormalisiertes Float
-          val = (val & -bit(DF_exp_len+DF_mant_len)) # selbes Vorzeichen
+          val = (val & minus_bit(DF_exp_len+DF_mant_len)) # selbes Vorzeichen
                 | ((sint64)0 << DF_mant_len) # Exponent 0
                 | (((val & (bit(DF_mant_len)-1)) | bit(DF_mant_len)) # Mantisse shiften
                    >> (DF_exp_mid-1022+1 - exp) # shiften
