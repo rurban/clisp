@@ -807,7 +807,19 @@
                                :form whole-form
                                :detail slot-keyword
                                (TEXT "~S ~S: ~S is not a slot option.")
-                               'defstruct name slot-keyword)))))))))
+                               'defstruct name slot-keyword)))))))
+            (push (clos::make-instance-<structure-direct-slot-definition>
+                    clos::<structure-direct-slot-definition>
+                    :name slotname
+                    :initform (clos:slot-definition-initform slot)
+                    :initfunction (clos:slot-definition-initfunction slot)
+                    :initargs (clos:slot-definition-initargs slot)
+                    :type (clos:slot-definition-type slot)
+                    'clos::inheritable-initer (clos::slot-definition-inheritable-initer slot)
+                    :readers '()
+                    :writers '()
+                    'clos::initff (clos::structure-effective-slot-definition-initff slot))
+                  directslotlist)))
         (dolist (slot slotlist)
           (let ((initfunction (clos:slot-definition-initfunction slot)))
             (unless (or (null initfunction) (constant-initfunction-p initfunction))
@@ -927,7 +939,8 @@
                       :type type
                       'clos::inheritable-initer initer
                       :readers (list accessorname)
-                      :writers (if read-only '() (list `(SETF ,accessorname))))
+                      :writers (if read-only '() (list `(SETF ,accessorname)))
+                      'clos::initff initfunctionform)
                     directslotlist)
               (push (make-ds-slot slotname
                                   initargs
@@ -944,6 +957,7 @@
       (setq size offset))
     ;; size = total length of the structure
     (setq slotlist (nreverse slotlist))
+    (setq directslotlist (nreverse directslotlist))
     (setq slotdefaultfuns (nreverse slotdefaultfuns))
     (setq slotdefaultvars (nreverse slotdefaultvars))
     (setq slotdefaultslots (nreverse slotdefaultslots))

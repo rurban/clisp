@@ -1681,11 +1681,6 @@
       (setf (class-initialized class) 4)))
   (when (or (eq situation 't) direct-superclasses-p
             direct-slots-as-lists-p direct-slots-as-metaobjects-p)
-    (unless names
-      ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
-      (when direct-superclasses
-        (setq slots (class-slots (first direct-superclasses)))
-        (setq size (class-instance-size (first direct-superclasses)))))
     (setf (class-slots class) slots)
     (when (eq situation 't)
       (setf (class-initialized class) 5))
@@ -1694,12 +1689,7 @@
     (unless names
       (setf (class-instance-size class) 1)
       (setf (class-slots class)
-            (compute-slots-<slotted-class>-around class
-              #'(lambda (c)
-                  (append slots
-                    (remove-if (let ((slotnames (mapcar #'slot-definition-name slots)))
-                                 #'(lambda (slot) (member (slot-definition-name slot) slotnames)))
-                               (compute-slots-<class>-primary c))))))
+            (compute-slots-<slotted-class>-around class #'compute-slots-<class>-primary))
       (setf (class-instance-size class) (max size (compute-instance-size class)))
       (when (class-slots class)
         (let ((ht (class-slot-location-table class)))
