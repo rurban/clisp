@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 //EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <HEAD>
 <TITLE>CLISP implementation notes</TITLE>
@@ -24,6 +24,29 @@
 ...
 </DD>
 </DL>
+  * Multi-line code snippets with <SUB> and <SUP> are passed through
+      sed -e 's, ,\&nbsp;,g' -e 's,^,<CODE>,' -e 's,$,</CODE><BR>,'
+    The reverse filter is
+      sed -e 's,\&nbsp;, ,g' -e 's,^<CODE>,,' -e 's,</CODE><BR>$,,'
+    You cannot use <PRE> because <SUB> and <SUP> are not valid HTML inside
+    <PRE> (the rationale being that <PRE> ensures fixed spacing, which is
+    disturbed by <SUB>'s smaller font).
+  * Multi-line code snippets without <SUB> and <SUP> can be written either
+    as above, or as
+          <PRE>
+          <CODE> .....
+          ........
+          </CODE></PRE>
+    Other combinations don't work:
+    - <CODE><PRE>...</PRE></CODE> is not valid HTML, according to the DTD.
+    - <PRE><CODE>...</CODE></PRE>
+      leaves a blank line in Netscape but not in Lynx.
+    - <PRE><CODE>
+      ....</CODE></PRE>
+      leaves two blank lines in Netscape and one blank line in Lynx.
+    - <PRE>
+      <CODE>....</CODE></PRE>
+      leaves one blank line in both Netscape and Lynx.
 -->
 
 <BODY>
@@ -79,7 +102,7 @@ states, structures and functions.
 
 There are four floating point types: short-float, single-float, double-float
 and long-float:
-<TABLE BORDER>
+<TABLE BORDER=1>
   <TR> <TH>               <TH>sign    <TH>mantissa   <TH>exponent  <TH>comment
   <TR> <TH>short-float    <TD>1 bit   <TD ALIGN=CENTER>16+1 bits   <TD ALIGN=CENTER>8 bits   <TD>&nbsp;
   <TR> <TH>single-float   <TD>1 bit   <TD ALIGN=CENTER>23+1 bits   <TD ALIGN=CENTER>8 bits   <TD>CLISP uses IEEE format
@@ -108,7 +131,7 @@ The type specifier for this is <CODE>(complex integer single-float)</CODE>, and
 in general.
 The type specifier <CODE>(complex <VAR>type</VAR>)</CODE> is equivalent to <CODE>(complex <VAR>type</VAR> <VAR>type</VAR>)</CODE>.
 
-<A NAME="2.2.">
+<A NAME="2.2."></A>
 <H3>2.2.1.</H3>
 
 The characters are ordered according to the ASCII encoding.
@@ -118,7 +141,7 @@ The characters are ordered according to the ASCII encoding.
 <DT><EM>Platform dependent: DOS, OS/2 platforms only.</EM></DT>
 <DD>
 More precisely, CLISP uses the IBM PC character set (code page 437):
-<TABLE BORDER>
+<TABLE BORDER=1>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD> &para; <TD> &sect;
   <TR>       <TH>$10 <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>** <TD>** <TD>   <TD>   <TD>   <TD>  
@@ -148,7 +171,7 @@ blank here cannot be represented in this character set).
 <DT><EM>Platform dependent: UNIX (except NeXTstep), Win32, Amiga, Acorn platforms only.</EM></DT>
 <DD>
 More precisely, CLISP uses the ISO Latin-1 (ISO 8859-1) character set:
-<TABLE BORDER>
+<TABLE BORDER=1>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
   <TR>       <TH>$10 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
@@ -178,7 +201,7 @@ blank here cannot be represented in this character set).
 <DT><EM>Platform dependent: NeXTstep platforms only.</EM></DT>
 <DD>
 More precisely, CLISP uses the NextStep character set:
-<TABLE BORDER>
+<TABLE BORDER=1>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
   <TR>       <TH>$10 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
@@ -616,11 +639,12 @@ Additional places:
 <DD>
   <CODE>(setf (values <VAR>place<SUB>1</SUB></VAR> ... <VAR>place<SUB>k</SUB></VAR>) <VAR>form</VAR>)</CODE>
   is approximately equivalent to
-<PRE><CODE>     (multiple-value-bind (dummy1 ... dummyk) <VAR>form</VAR>
-       (setf <VAR>place<SUB>1</SUB></VAR> dummy1 ... <VAR>place<SUB>k</SUB></VAR> dummyk)
-       (values dummy1 ... dummyk)
-     )
-</CODE></PRE>
+<P>
+<CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(multiple-value-bind&nbsp;(dummy1&nbsp;...&nbsp;dummyk)&nbsp;<VAR>form</VAR></CODE><BR>
+<CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(setf&nbsp;<VAR>place<SUB>1</SUB></VAR>&nbsp;dummy1&nbsp;...&nbsp;<VAR>place<SUB>k</SUB></VAR>&nbsp;dummyk)</CODE><BR>
+<CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(values&nbsp;dummy1&nbsp;...&nbsp;dummyk)</CODE><BR>
+<CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</CODE><BR>
+<P>
   Example:
     <CODE>(setf (values a b) (values b a))</CODE> interchanges the values of <CODE>a</CODE> and <CODE>b</CODE>.
 
@@ -1549,7 +1573,7 @@ The backquote read macro also works when nested. Example:
 Multiple backquote combinations like <CODE>,,@</CODE> or <CODE>,@,@</CODE> are not implemented. Their
 use would be confusing anyway.
 
-<A NAME="22.1.4.">
+<A NAME="22.1.4."></A>
 <H3>22.1.4.</H3>
 
 <CODE>#\</CODE> allows inputting characters of arbitrary code: <CODE>#\Code231</CODE> yields the
@@ -1861,7 +1885,7 @@ When a pathname is to be fully specified (no wildcards), that means that
 no <CODE>:wild</CODE>, <CODE>:wild-inferiors</CODE> is allowed, no wildcard characters are allowed in
 the strings, and <VAR>name</VAR> = <CODE>nil</CODE> may not be allowed either.
 <P>
-<A NAME="pathnames-externally-amiga">
+<A NAME="pathnames-externally-amiga"></A>
 <TABLE>
   <TR> <TD>External notation:      <TD ALIGN=RIGHT><CODE>dev:sub1.typ/sub2.typ/name.typ</CODE>
   <TR> <TD>using defaults:         <TD ALIGN=RIGHT><CODE>    sub1.typ/sub2.typ/name.typ</CODE>
@@ -1883,7 +1907,7 @@ Formal specification of the external notation:
 </DL>
 <P>
 Examples:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR> <TH>String       <TH>Device    <TH>Directory                <TH>our pathname
 <TR> <TD><CODE>'c:foo'</CODE>      <TD>'C'     <TD>device-&gt;<CODE>foo</CODE>               <TD><CODE>&quot;c&quot; (:absolute &quot;foo&quot;)</CODE>
 <TR> <TD><CODE>'c:foo/'</CODE>     <TD>'C'     <TD>device-&gt;<CODE>foo</CODE>               <TD><CODE>&quot;c&quot; (:absolute &quot;foo&quot;)</CODE>
@@ -2148,7 +2172,7 @@ NOTE: Path variables are not implemented in this version of CLISP. A
 workaround for this is to use &quot;&lt;Foo$Path&gt;&quot; instead of &quot;Foo:&quot; until they are
 made available.
 <P>
-<A NAME="pathnames-externally-acorn">
+<A NAME="pathnames-externally-acorn"></A>
 <H5>from Lisp-string notation to internal representation</H5>
 <EM>No</EM> swapping. &quot;foo.lsp&quot; means file type &quot;lsp&quot; and file name &quot;foo&quot;.
 This is pseudo-BNF:
@@ -2192,7 +2216,7 @@ This is pseudo-BNF:
 <DT>pathname ::= <DD>host device directory filename filetype
 </DL>
 Examples:
-<TABLE BORDER>
+<TABLE BORDER=1>
   <TR> <TH>String                          <TH>Hostname <TH>Device  <TH>Directory            <TH>Name         <TH>Type
   <TR> <TD><CODE>-net-$.SystemMesg</CODE>                <TD><CODE>&quot;net&quot;</CODE>   <TD><CODE>nil</CODE>     <TD><CODE>(:absolute :root)</CODE>    <TD><CODE>&quot;SystemMesg&quot;</CODE> <TD><CODE>nil</CODE>
   <TR> <TD><CODE>net#MJHardy::disc1.mike</CODE>    <TD><CODE>&quot;net#MJHardy&quot;</CODE> <TD><CODE>&quot;disc1&quot;</CODE> <TD><CODE>(:absolute :root)</CODE>    <TD><CODE>&quot;mike&quot;</CODE>       <TD><CODE>nil</CODE>
@@ -2214,7 +2238,7 @@ Examples:
 
 with swapping <EM>only</EM> of name/type components.
 <P>
-<TABLE BORDER>
+<TABLE BORDER=1>
   <TR> <TH>Hostname    <TH>Device  <TH>Directory                   <TH>Name    <TH>Type      <TH>RISCOS String
   <TR> <TD><CODE>&quot;net&quot;</CODE>       <TD><CODE>&quot;disc1&quot;</CODE> <TD><CODE>(:absolute :root)</CODE>           <TD><CODE>&quot;foo&quot;</CODE>   <TD><CODE>nil</CODE>       <TD><CODE>&quot;net::disc1.$.foo&quot;</CODE>
   <TR> <TD><CODE>&quot;net#MJ&quot;</CODE>    <TD><CODE>&quot;disc1&quot;</CODE> <TD><CODE>(:absolute :root &quot;foo&quot;)</CODE>     <TD><CODE>&quot;bar&quot;</CODE>   <TD><CODE>&quot;baz&quot;</CODE>     <TD><CODE>&quot;net#MJ::disc1.$.foo.baz.bar&quot;</CODE>
@@ -2533,7 +2557,7 @@ is <VAR>programfile</VAR>. It is given the strings <VAR>arg<SUB>1</SUB></VAR>, <
 <DD><CODE>(<STRONG>execute</STRONG> <VAR>command</VAR>)</CODE>  executes a given <VAR>command</VAR> using the operating system's shell.
 <!-- #endif -->
 </DL>
-<A NAME="shell">
+<A NAME="shell"></A>
 <!-- #ifdef HAVE_SHELL -->
 <DL>
 <DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn platforms only.</EM></DT>
@@ -2628,7 +2652,7 @@ The variables <CODE><STRONG>*compile-warnings*</STRONG></CODE>, <CODE>*compile-v
 defaults for the <CODE>:warnings</CODE>, <CODE>:verbose</CODE>, <CODE>:print</CODE> keyword arguments, respectively.
 For each input file (default file type: <CODE>#&quot;.lsp&quot;</CODE>) the following files are
 generated:
-<TABLE BORDER>
+<TABLE BORDER=1>
   <TR> <TH>File            <TH>When <TH>Default file type  <TH>Contents
   <TR> <TD>output file              <TD>only if <CODE>:output-file</CODE> is not <CODE>nil</CODE>
                            <TD><CODE>#&quot;.fas&quot;</CODE>
@@ -3051,12 +3075,12 @@ for the prompt and the set of available commands. Commands must be typed
 literally, without surrounding quotes or white space.
 <P>
 Commands common to the main loop, the debugger and the stepper:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR>  <TD WIDTH=100><CODE>Help</CODE>       <TD>prints a list of available commands.
 </TABLE>
 <P>
 Commands common to the debugger and the stepper:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR>  <TD WIDTH=100><CODE>Abort</CODE>      <TD>abort to the next most recent <CODE>read</CODE> - <CODE>eval</CODE> - <CODE>print</CODE> loop.
 <TR>  <TD WIDTH=100><CODE>Unwind</CODE>     <TD>abort to the next most recent <CODE>read</CODE> - <CODE>eval</CODE> - <CODE>print</CODE> loop.
 </TABLE>
@@ -3079,7 +3103,7 @@ There is a current &quot;stack mode&quot; which defines in how much detail the s
 is shown by the stack related debugger commands.
 <P>
 Commands common to the debugger and the stepper:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR>  <TD WIDTH=100><CODE>Mode-1</CODE>      <TD>sets the current mode to 1: all the stack elements are
               considered. This mode is fine for debugging compiled functions.
 <TR>  <TD WIDTH=100><CODE>Mode-2</CODE>      <TD>sets the current mode to 2: all the frames are considered.
@@ -3108,7 +3132,7 @@ Commands common to the debugger and the stepper:
 </TABLE>
 If the current stack frame is an <CODE>eval</CODE> or <CODE>apply</CODE> frame, the following commands
 are available as well:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR>  <TD WIDTH=100><CODE>Break+</CODE>      <TD>sets a breakpoint in the current frame. When the corresponding
               form or function will be left, the debugger will be entered
               again, with the variable <CODE>*trace-values*</CODE> containing a list of
@@ -3122,12 +3146,12 @@ are available as well:
 </TABLE>
 <P>
 Commands specific to the debugger:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR>  <TD WIDTH=100><CODE>Continue</CODE>    <TD>continues evaluation of the program.
 </TABLE>
 <P>
 Commands specific to the stepper:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR>  <TD WIDTH=100><CODE>Step</CODE>        <TD>step into a form: evaluate this form in single step mode
 <TR>  <TD WIDTH=100><CODE>Next</CODE>        <TD>step over a form: evaluate this form at once
 <TR>  <TD WIDTH=100><CODE>Over</CODE>        <TD>step over this level: evaluate at once up to the next return
@@ -3435,7 +3459,7 @@ A <VAR>c-type</VAR> is either a predefined C type or the name of a type defined 
 <CODE>def-c-type</CODE>.
 <P>
 The simple C types are these:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR> <TH>Lisp name     <TH>Lisp equiv           <TH>C equiv        <TH>ILU equiv <TH>Comment
 <TR>  <TD><CODE>nil</CODE>           <TD><CODE>nil</CODE>                  <TD><CODE>void</CODE>           <TD>                  <TD>as a result type only
 <TR>  <TD><CODE>boolean</CODE>       <TD><CODE>boolean</CODE>              <TD><CODE>int</CODE>            <TD><CODE>BOOLEAN</CODE>
@@ -3675,7 +3699,7 @@ extent. The <VAR>allocation</VAR> is effectively ignored.
 <P>
 Values of type <CODE>c-string</CODE>, <CODE>(c-ptr</CODE> ...<CODE>)</CODE>, <CODE>(c-ptr-null</CODE> ...<CODE>)</CODE>, <CODE>(c-array-ptr</CODE> ...<CODE>)</CODE> need
 storage. The <VAR>allocation</VAR> specifies the allocation policy:
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR>  <TD><VAR>allocation</VAR> is <CODE>:none</CODE>          <TD>means that no storage is allocated.
 <TR>  <TD><VAR>allocation</VAR> is <CODE>:alloca</CODE>        <TD>means allocation of storage on the stack,
                                        which has dynamic extent.
@@ -3774,32 +3798,32 @@ problems with this.
 <H4>Examples</H4>
 
 Ex. 1: The C declaration
-<CODE><PRE>
-       struct foo {
+<PRE>
+<CODE>       struct foo {
            int a;
            struct foo * b[100];
        };
-</PRE></CODE>
+</CODE></PRE>
 corresponds to
-<CODE><PRE>
-       (def-c-struct foo
+<PRE>
+<CODE>       (def-c-struct foo
          (a int)
          (b (c-array (c-ptr foo) 100))
        )
-</PRE></CODE>
+</CODE></PRE>
 The element access
-<CODE><PRE>
-       struct foo f;
+<PRE>
+<CODE>       struct foo f;
        f.b[7].a
-</PRE></CODE>
+</CODE></PRE>
 corresponds to
-<CODE><PRE>
-       (declare (type foo f))
+<PRE>
+<CODE>       (declare (type foo f))
        (foo-a (aref (foo-b f) 7)) or (slot-value (aref (slot-value f 'b) 7) 'a)
-</PRE></CODE>
+</CODE></PRE>
 Ex. 2: Here is an example of an external C variable and some accesses:
-<CODE><PRE>
-       struct bar {
+<PRE>
+<CODE>       struct bar {
            short x, y;
            char a, b;
            int z;
@@ -3811,10 +3835,10 @@ Ex. 2: Here is an example of an external C variable and some accesses:
        my_struct-&gt;x++;
        my_struct-&gt;a = 5;
        my_struct = my_struct-&gt;n;
-</PRE></CODE>
+</CODE></PRE>
 corresponds to
-<CODE><PRE>
-       (def-c-struct bar
+<PRE>
+<CODE>       (def-c-struct bar
          (x short)
          (y short)
          (a char)
@@ -3831,36 +3855,36 @@ corresponds to
        or (setf (slot my_struct 'a) 5)
        (setq my_struct (slot-value my_struct 'n))
        or (setq my_struct (deref (slot my_struct 'n)))
-</PRE></CODE>
+</CODE></PRE>
 Ex. 3: An example for calling an external function:
 On ANSI C systems, &lt;stdlib.h&gt; contains the declarations
-<CODE><PRE>
-       typedef struct {
+<PRE>
+<CODE>       typedef struct {
          int quot;   /* Quotient */
          int rem;    /* Remainder */
        } div_t;
        extern div_t div (int numer, int denom);
-</PRE></CODE>
+</CODE></PRE>
 This translates to
-<CODE><PRE>
-       (def-c-struct div_t
+<PRE>
+<CODE>       (def-c-struct div_t
          (quot int)
          (rem int)
        )
        (def-c-call-out div (:arguments (numer int) (denom int))
                            (:return-type div_t)
        )
-</PRE></CODE>
+</CODE></PRE>
 Sample call from within Lisp:
-<CODE><PRE>
-       &gt; (div 20 3)
+<PRE>
+<CODE>       &gt; (div 20 3)
        #S(DIV :QUOT 6 :REM 2)
-</PRE></CODE>
+</CODE></PRE>
 Ex. 4: Another example for calling an external function:
 <P>
 Suppose the following is defined in a file <CODE>&quot;cfun.c&quot;</CODE>:
-<CODE><PRE>
-       struct cfunr { int x; char *s; };
+<PRE>
+<CODE>       struct cfunr { int x; char *s; };
        struct cfunr * cfun (i,s,r,a)
            int i;
            char *s;
@@ -3879,12 +3903,12 @@ Suppose the following is defined in a file <CODE>&quot;cfun.c&quot;</CODE>:
            r2-&gt;s = &quot;A C string&quot;;
            return r2;
        }
-</PRE></CODE>
+</CODE></PRE>
 It is possible to call this function from Lisp using the file <CODE>&quot;callcfun.lsp&quot;</CODE>
 (don't call it <CODE>&quot;cfun.lsp&quot;</CODE> - <CODE>compile-file</CODE> would overwrite <CODE>&quot;cfun.c&quot;</CODE>) whose
 contents is:
-<CODE><PRE>
-       (in-package &quot;TEST-C-CALL&quot; :use '(&quot;LISP&quot; &quot;FFI&quot;))
+<PRE>
+<CODE>       (in-package &quot;TEST-C-CALL&quot; :use '(&quot;LISP&quot; &quot;FFI&quot;))
        (def-c-struct cfunr (x int) (s c-string))
        (def-c-call-out cfun (:arguments (i int)
                                         (s c-string)
@@ -3897,10 +3921,10 @@ contents is:
          (cfun 5 &quot;A Lisp string&quot; (make-cfunr :x 10 :s &quot;Another Lisp string&quot;)
                '#(0 1 2 3 4 5 6 7 8 9)
        ) )
-</PRE></CODE>
+</CODE></PRE>
 Use the module facility:
-<CODE><PRE>
-       $ clisp-link create-module-set cfun callcfun.c
+<PRE>
+<CODE>       $ clisp-link create-module-set cfun callcfun.c
        $ cc -O -c cfun.c
        $ cd cfun
        $ ln -s ../cfun.o cfun.o
@@ -3927,20 +3951,20 @@ Use the module facility:
        #S(TEST-C-CALL::CFUNR :X 10 :S &quot;A C string&quot;)
        &gt; 
        $ rm -r base+cfun
-</PRE></CODE>
+</CODE></PRE>
 Note that there is a memory leak here: The return value <CODE>r2</CODE> of <CODE>cfun()</CODE> is
 <CODE>malloc()</CODE>ed but never <CODE>free()</CODE>d. Specifying
-<CODE><PRE>
-       (:return-type (c-ptr cfunr) :malloc-free)
-</PRE></CODE>
+<PRE>
+<CODE>       (:return-type (c-ptr cfunr) :malloc-free)
+</CODE></PRE>
 is not an alternative because this would also <CODE>free(r2-&gt;x)</CODE> but <CODE>r2-&gt;x</CODE> is a
 pointer to static data.
 <P>
 Ex. 5: To sort an array of double-floats using the Lisp function <CODE>sort</CODE>
 instead of the C library function <CODE>qsort()</CODE>, one can use the following
 interface code <CODE>&quot;sort1.c&quot;</CODE>. The main problem is to pass a variable-sized array.
-<CODE><PRE>
-       extern void lispsort_begin (int);
+<PRE>
+<CODE>       extern void lispsort_begin (int);
        void* lispsort_function;
        void lispsort_double (int n, double * array)
        {
@@ -3951,10 +3975,10 @@ interface code <CODE>&quot;sort1.c&quot;</CODE>. The main problem is to pass a v
            for (i = 0; i &lt; n; i++) array[i] = sorted_array[i];
            free(sorted_array);
        }
-</PRE></CODE>
+</CODE></PRE>
 This is accompanied by <CODE>&quot;sort2.lsp&quot;</CODE>:
-<CODE><PRE>
-       (use-package &quot;FFI&quot;)
+<PRE>
+<CODE>       (use-package &quot;FFI&quot;)
        (def-call-in lispsort_begin (:arguments (n int))
                                    (:return-type nil)
                                    (:language :stdc)
@@ -3974,20 +3998,20 @@ This is accompanied by <CODE>&quot;sort2.lsp&quot;</CODE>:
          (declare (type vector v))
          (sort v #'&lt;)
        )
-</PRE></CODE>
+</CODE></PRE>
 To test this, use the following test file <CODE>&quot;sorttest.lsp&quot;</CODE>:
-<CODE><PRE>
-       (def-call-out sort10
+<PRE>
+<CODE>       (def-call-out sort10
                      (:name &quot;lispsort_double&quot;)
                      (:language :stdc)
                      (:arguments (n int)
                                  (array (c-ptr (c-array double-float 10))
                                         :in-out
        )             )           )
-</PRE></CODE>
+</CODE></PRE>
 Now try
-<CODE><PRE>
-       $ clisp-link create-module-set sort sort2.c sorttest.c
+<PRE>
+<CODE>       $ clisp-link create-module-set sort sort2.c sorttest.c
        $ cc -O -c sort1.c
        $ cd sort
        $ ln -s ../sort1.o sort1.o
@@ -4000,7 +4024,7 @@ Now try
                        0.523d0 0.585d0 0.670d0 0.271d0 0.063d0))
        #(0.063d0 0.271d0 0.501d0 0.523d0 0.528d0 0.55d0 0.585d0 0.615d0 0.67d0 0.711d0)
        $ rm -r base+sort
-</PRE></CODE>
+</CODE></PRE>
 <!-- #endif -->
 <!-- #ifdef HAVE_AFFI -->
 <H3>99.4'. The Amiga Foreign Function Call Facility</H3>
@@ -4116,7 +4140,7 @@ Programmers, watch <CODE>affi::*libraries-alist*</CODE>.
 The following foreign C types are used in AFFI. They are <EM>not</EM> regular
 Common Lisp types or CLOS classes.
 <P>
-<TABLE BORDER>
+<TABLE BORDER=1>
 <TR> <TH>AFFI name     <TH>Lisp equiv              <TH>C equiv     <TH>Comment
 <TR>  <TD><CODE>nil</CODE>           <TD><CODE>nil</CODE>                     <TD><CODE>void</CODE>            <TD>as a result type for functions only
 <TR>  <TD><CODE>4</CODE>             <TD><CODE>(unsigned-byte 32)</CODE>      <TD><CODE>unsigned long</CODE>
@@ -4247,8 +4271,8 @@ to this facility!
 NB: These examples are somewhat specific to the Amiga.
 <P>
 1. Using a predefined library function file
-<CODE><PRE>
-(use-package &quot;AFFI&quot;)
+<PRE>
+<CODE>(use-package &quot;AFFI&quot;)
 
 ;; SysBase is the conventional name for exec.library
 ;; It is only enforced by the file loaded by REQUIRE-LIBRARY-FUNCTIONS
@@ -4262,14 +4286,14 @@ NB: These examples are somewhat specific to the Amiga.
 
 (with-open-library (&quot;exec.library&quot;)
   (print (mlibcall FindTask 0)))
-</PRE></CODE>
+</CODE></PRE>
 This file can be used in interpreted and compiled mode. Compiled, it will
 have inlined the library function calls.
 <P>
 
 2. Using flibcall
-<CODE><PRE>
-(use-package &quot;AFFI&quot;)
+<PRE>
+<CODE>(use-package &quot;AFFI&quot;)
 
 (eval-when (compile eval load)
   (declare-library-base :SysBase &quot;exec.library&quot;)) ;keyword avoids name conflicts
@@ -4281,12 +4305,12 @@ have inlined the library function calls.
 (unless (open-library 'SysBase) (error &quot;No library for SysBase&quot;))
 (flibcall (if t 'FindTask 'Debug) 0)
 (close-library 'SysBase)
-</PRE></CODE>
+</CODE></PRE>
 <P>
 
 3. Be fully dynamic, defining library bases ourselves
-<CODE><PRE>
-(use-package &quot;AFFI&quot;)
+<PRE>
+<CODE>(use-package &quot;AFFI&quot;)
 
 (eval-when (compile eval load)
   (defvar mylib (declare-library-base :foobase &quot;foo.library&quot;)))
@@ -4298,11 +4322,11 @@ have inlined the library function calls.
   (when (open-library mylib)
     (list (mlibcall foo1 name) (flibcall 'foo2 name 123213))
     (close-library mylib)))
-</PRE></CODE>
+</CODE></PRE>
 <P>
 4. Some sample function definitions
-<CODE><PRE>
-(defflibfun 'FindTask 'SysBase -294 #xA '* 'string)
+<PRE>
+<CODE>(defflibfun 'FindTask 'SysBase -294 #xA '* 'string)
 (declare-library-function FindTask &quot;exec.library&quot;
   (:offset -294)
   (:return-type *)
@@ -4323,7 +4347,7 @@ have inlined the library function calls.
   (with-open-library (DosBase)
     ;; length of -1 means find length of NUL-terminated-string
     (mlibcall SetVar name value -1 GVF_LOCAL_ONLY)))
-</PRE></CODE>
+</CODE></PRE>
 
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
@@ -4511,9 +4535,9 @@ the server-side can use this to see who connected.
 <EM>Platform dependent: UNIX platforms only.</EM>
 <P>
 On Unix, a script can be made executable by adding a first line of the form
-<CODE><PRE>
-#!<VAR>interpreter</VAR> [<VAR>interpreter-args</VAR>]
-</PRE></CODE>
+<PRE>
+<CODE>#!<VAR>interpreter</VAR> [<VAR>interpreter-args</VAR>]
+</CODE></PRE>
 and <CODE>chmod</CODE>ing the script to be executable. CLISP can be used as a script
 interpreter under the following circumstances:
 <OL>
@@ -4567,12 +4591,12 @@ the execution of the Lisp script with error status.
 To have <CODE>*debug-io*</CODE> and <CODE>*error-output*</CODE> point to separate console windows
 (thus keeping your standard console window clean from error messages)
 you can use
-<CODE><PRE>
-  (setq *error-output*
+<PRE>
+<CODE>  (setq *error-output*
     (setq *debug-io*
       (open &quot;CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE&quot; :direction :io)
   ) )
-</PRE></CODE>
+</CODE></PRE>
 at startup.
 
 </DD>
