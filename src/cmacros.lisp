@@ -47,7 +47,7 @@
         ((function-name-p name) ; (setf name)
          (get (second name) 'compiler-macro-setf))
         (t (error-of-type 'source-program-error
-             (ENGLISH "~S: function name should be a symbol, not ~S")
+             (TEXT "~S: function name should be a symbol, not ~S")
              'compiler-macro-function name))))
 
 (defun (setf compiler-macro-function) (newf name &optional environment)
@@ -56,7 +56,7 @@
         ((function-name-p name) ; (setf name)
          (setf (get (second name) 'compiler-macro-setf) newf))
         (t (error-of-type 'source-program-error
-             (ENGLISH "~S: function name should be a symbol, not ~S")
+             (TEXT "~S: function name should be a symbol, not ~S")
              'compiler-macro-function name))))
 
 ;; (proclaim '(inline function-form-funform simple-function-form-p))

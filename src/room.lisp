@@ -14,7 +14,7 @@
 
 (defun room (&optional (kind :default))
   (unless (or (eq kind 'nil) (eq kind ':default) (eq kind 't))
-    (error (ENGLISH "~S: argument must be ~S, ~S or ~S, not ~S")
+    (error (TEXT "~S: argument must be ~S, ~S or ~S, not ~S")
            'room 'nil 't ':default kind
   ) )
   ; Get the figures now, because (heap-statistics) causes heap allocation.
@@ -48,7 +48,7 @@
                 (incf total-bytes bytes)
           ) ) )
           (format t separator-line midcol)
-          (write-string (ENGLISH "Total")
+          (write-string (TEXT "Total")
           )
           (format t data-line midcol
                     total-instances total-bytes
@@ -56,7 +56,7 @@
           )
     ) ) )
     (unless (eq kind 'nil)
-      (format t (ENGLISH "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%")
+      (format t (TEXT "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%")
                 static used room
     ) )
     (values used room)
@@ -212,7 +212,7 @@
           (incf total-temp-bytes temp-bytes)
     ) ) )
     (format stream separator-line midcol)
-    (write-string (ENGLISH "Total")
+    (write-string (TEXT "Total")
                   stream
     )
     (format stream data-line midcol

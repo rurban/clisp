@@ -16,11 +16,11 @@
 (defmacro defvar (symbol &optional (initial-value nil svar) docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: non-symbol ~S cannot be a variable")
+      (TEXT "~S: non-symbol ~S cannot be a variable")
       'defvar symbol))
   (if (constantp symbol)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: the constant ~S must not be redefined to be a variable")
+      (TEXT "~S: the constant ~S must not be redefined to be a variable")
       'defvar symbol))
   `(LET ()
      (PROCLAIM '(SPECIAL ,symbol))
@@ -34,11 +34,11 @@
 (defmacro defparameter (symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: non-symbol ~S cannot be a variable")
+      (TEXT "~S: non-symbol ~S cannot be a variable")
       'defparameter symbol))
   (if (constantp symbol)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: the constant ~S must not be redefined to be a variable")
+      (TEXT "~S: the constant ~S must not be redefined to be a variable")
       'defparameter symbol))
   `(LET ()
      (PROCLAIM '(SPECIAL ,symbol))
@@ -49,7 +49,7 @@
 (defmacro defconstant (&whole form symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: non-symbol ~S cannot be defined constant")
+      (TEXT "~S: non-symbol ~S cannot be defined constant")
       'defconstant symbol))
   (let ((initial-var (gensym)))
     `(LET ()
@@ -77,7 +77,7 @@
        (equal new-value old-value)))
 ; The redefinition warning.
 (defun constant-warning (symbol form)
-  (warn (ENGLISH "~S redefines the constant ~S. Its old value was ~S.")
+  (warn (TEXT "~S redefines the constant ~S. Its old value was ~S.")
         form symbol (symbol-value symbol)))
 
 (defmacro-special and (&body args)
@@ -118,11 +118,11 @@
 (defun do/do*-expand (varclauselist exitclause body env do let psetq)
   (when (atom exitclause)
     (error-of-type 'source-program-error
-      (ENGLISH "exit clause in ~S must be a list")
+      (TEXT "exit clause in ~S must be a list")
       do))
   (flet ((bad-syntax (formpiece)
            (error-of-type 'source-program-error
-             (ENGLISH "Invalid syntax in ~S form: ~S.")
+             (TEXT "Invalid syntax in ~S form: ~S.")
              do
              formpiece ) ))
     (let ((bindlist nil)
@@ -225,7 +225,7 @@
         (cons 'LET (cons (nreverse bindlist) (nreverse setlist))))
     (if (null (cdr arglist))
       (error-of-type 'source-program-error
-        (ENGLISH "~S called with an odd number of arguments: ~S")
+        (TEXT "~S called with an odd number of arguments: ~S")
         'psetq form))
     (let ((g (gensym)))
       (setq setlist (cons `(SETQ ,(first arglist) ,g) setlist))
@@ -261,13 +261,13 @@
                      (remaining-clauses (rest remaining-clauses)))
                  (unless (consp clause)
                    (error-of-type 'source-program-error
-                                  (ENGLISH "~S: missing key list")
+                                  (TEXT "~S: missing key list")
                                   form-name))
                  (let ((keys (first clause)))
                    `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
                              (if remaining-clauses
                                  (error-of-type 'source-program-error
-                                                (ENGLISH "~S: the ~S clause must be the last one")
+                                                (TEXT "~S: the ~S clause must be the last one")
                                                 form-name keys)
                                  't))
                             ((listp keys)
@@ -317,11 +317,11 @@
   (cond ((null clauselist) NIL)
         ((atom clauselist)
          (error-of-type 'source-program-error
-           (ENGLISH "Not a list of COND clauses: ~S")
+           (TEXT "Not a list of COND clauses: ~S")
            clauselist))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
-           (ENGLISH "The atom ~S must not be used as a COND clause.")
+           (TEXT "The atom ~S must not be used as a COND clause.")
            (car clauselist)))
         (t (let ((ifif (ifify (cdr clauselist))))
              (if (cdar clauselist)
@@ -350,12 +350,12 @@
   (cond ((null clauses) 'NIL)
         ((atom clauses)
          (error-of-type 'source-program-error
-           (ENGLISH "COND code contains a dotted list, ending with ~S")
+           (TEXT "COND code contains a dotted list, ending with ~S")
            clauses))
         (t (let ((clause (car clauses)))
              (if (atom clause)
                (error-of-type 'source-program-error
-                 (ENGLISH "COND clause without test: ~S")
+                 (TEXT "COND clause without test: ~S")
                  clause)
                (let ((test (car clause)))
                  (if (cdr clause)
@@ -376,11 +376,11 @@
   (cond ((null clauselist) (values NIL nil))
         ((atom clauselist)
          (error-of-type 'source-program-error
-           (ENGLISH "Not a list of COND clauses: ~S")
+           (TEXT "Not a list of COND clauses: ~S")
            clauselist))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
-           (ENGLISH "The atom ~S must not be used as a COND clause.")
+           (TEXT "The atom ~S must not be used as a COND clause.")
            (car clauselist)))
         (t (multiple-value-bind (ifif needed-g) (ifify (cdr clauselist) g)
              (if (cdar clauselist)

@@ -2,7 +2,7 @@
 
 (in-package "I18N")
 (common-lisp:export '(deflanguage definternational deflocalized localized
-                      gettext ngettext textdomain textdomaindir))
+                      gettext ngettext textdomain textdomaindir english))
 
 (common-lisp:in-package "SYSTEM")
 (use-package '("I18N") "EXT")
@@ -44,7 +44,7 @@
   (let ((h (assoc lang *all-languages*)))
     (unless h
       (error-of-type 'error
-        (ENGLISH "Language ~S is not defined")
+        (TEXT "Language ~S is not defined")
         lang
     ) )
     (cdr h)
@@ -54,7 +54,7 @@
     (if h
       (unless (eq (cdr h) parent-lang)
         (error-of-type 'error
-          (ENGLISH "Language ~S inherits from ~S")
+          (TEXT "Language ~S inherits from ~S")
           lang (cdr h)
       ) )
       (progn
@@ -104,7 +104,7 @@
       (let ((h (assoc lang *all-languages*)))
         (unless h
           (error-of-type 'error
-            (ENGLISH "~S: Language ~S is not defined")
+            (TEXT "~S: Language ~S is not defined")
             'localized lang
         ) )
         (let ((value (get symbol lang notfound)))
@@ -127,7 +127,7 @@
   #'(lambda (language)
       (if (eq *localized-recursion* symbol) ; catch endless recursion
         (error-of-type 'error
-          (ENGLISH "~S ~S: no value for default language ~S")
+          (TEXT "~S ~S: no value for default language ~S")
           'localized symbol language
         )
         (let ((*localized-recursion* symbol))

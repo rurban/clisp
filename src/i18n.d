@@ -1,5 +1,6 @@
 # Internationalization for CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
+# Sam Steingold 1998-2002
 
 #include "lispbibl.c"
 
@@ -13,34 +14,54 @@
 
 # =========== Old-style internationalization, for CLISP itself only ===========
 
-LISPFUNN(current_language,0)
 # (SYS::CURRENT-LANGUAGE) returns the current language.
-  {
-    #ifndef GNU_GETTEXT
-      value1 = (ENGLISH ? S(english) : NIL);
-    #else # GNU_GETTEXT
-      if (nullp(O(current_language_cache))) {
-        O(current_language_cache) = OL(current_language);
-      }
-      value1 = O(current_language_cache);
-    #endif
-    mv_count=1;
-  }
+LISPFUNN(current_language,0) {
+  value1 = O(current_language);
+  mv_count=1;
+}
 
-LISPFUNN(language,3)
-# (SYS::LANGUAGE english deutsch francais) returns the argument corresponding
-# to the current language.
-  {
-    #ifndef GNU_GETTEXT
-      value1 = (ENGLISH ? STACK_2 : NIL);
-    #else
-      if (!stringp(STACK_2))
-        fehler_string(STACK_2);
-      value1 = localized_string(STACK_2);
-    #endif
-    mv_count=1;
-    skipSTACK(3);
+# (SYS::SET-CURRENT-LANGUAGE LANG) ==
+# (SETF (SYS::CURRENT-LANGUAGE) LANG) ==
+# (SETQ *CURRENT-LANGUAGE* LANG)
+# LANG is either LANGUAGE or (LANGUAGE . LOCALE-DIRECTORY)
+LISPFUNN(set_current_language,1) {
+ #ifndef LANGUAGE_STATIC
+  if (consp(STACK_0)) {
+    var object new_lang = Car(STACK_0);
+    var object new_locd = Cdr(STACK_0);
+    if (!symbolp(new_lang)) fehler_symbol(new_lang);
+    if (!stringp(new_locd)) fehler_string(new_locd);
+    with_sstring_0(Symbol_name(new_lang),O(misc_encoding),lang,{
+      with_string_0(new_locd,O(misc_encoding),localedir,
+                    { init_language(lang,localedir); });
+    });
+  } else {
+    if (!symbolp(STACK_0)) fehler_symbol(STACK_0);
+    with_sstring_0(Symbol_name(STACK_0),O(misc_encoding),lang,
+                   { init_language(lang,NULL); });
   }
+ #else
+  if (!eq(STACK_0,O(current_language))) {
+    pushSTACK(STACK_0);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: cannot set language to ~"));
+  }
+ #endif
+  value1 = O(current_language); skipSTACK(1); mv_count = 1;
+}
+
+# (SYS::TEXT english) returns the message in the current language
+LISPFUNN(text,1) {
+ #ifndef GNU_GETTEXT
+  value1 = (ENGLISH ? STACK_0 : NIL);
+ #else
+  if (!stringp(STACK_0))
+    fehler_string(STACK_0);
+  value1 = localized_string(STACK_0);
+ #endif
+  mv_count=1;
+  skipSTACK(1);
+}
 
 # ============ General internationalization, for Lisp programs too ============
 

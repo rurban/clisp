@@ -9,7 +9,7 @@
   (when format-string
     (fresh-line *query-io*)
     (apply #'format *query-io* format-string args)
-    (write-string (ENGLISH " (y/n) ") *query-io*)
+    (write-string (TEXT " (y/n) ") *query-io*)
   )
   (let ((localinfo (localized 'y-or-n)))
     (loop
@@ -20,7 +20,7 @@
             (when (member first-char (cdr localinfo)) (return t))
       ) ) )
       (terpri *query-io*)
-      (write-string (ENGLISH "Please answer with y or n : ") *query-io*)
+      (write-string (TEXT "Please answer with y or n : ") *query-io*)
 ) ) )
 (definternational y-or-n (t ENGLISH))
 (deflocalized y-or-n ENGLISH '((#\N) . (#\Y)))
@@ -30,7 +30,7 @@
   (when format-string
     (fresh-line *query-io*)
     (apply #'format *query-io* format-string args)
-    (write-string (ENGLISH " (yes/no) ") *query-io*)
+    (write-string (TEXT " (yes/no) ") *query-io*)
   )
   (let ((localinfo (localized 'yes-or-no)))
     (loop
@@ -40,8 +40,8 @@
         (when (member line (cdr localinfo) :test #'string-equal) (return t))
       )
       (terpri *query-io*)
-      (write-string (ENGLISH "Please answer with yes or no : ") *query-io*)
+      (write-string (TEXT "Please answer with yes or no : ") *query-io*)
 ) ) )
 (definternational yes-or-no (t ENGLISH))
-(deflocalized yes-or-no ENGLISH '(("no") . ("yes" "yup")))
+(deflocalized yes-or-no ENGLISH '(("no" "nah") . ("yes" "yup" "yep" "yeah")))
 

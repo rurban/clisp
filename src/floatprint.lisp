@@ -338,7 +338,7 @@
   (unless (floatp arg)
     (error-of-type 'type-error
       :datum arg :expected-type 'float
-      (ENGLISH "argument is not a float: ~S")
+      (TEXT "argument is not a float: ~S")
       arg
   ) )
   (multiple-value-bind (mantstring mantlen expo sign)

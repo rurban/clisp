@@ -100,14 +100,14 @@
 (defmacro with-package-iterator ((name pack-list &rest types) &body body)
   (unless types
     (error-of-type 'source-program-error
-      (ENGLISH "missing symbol types (~S/~S/~S) in ~S")
+      (TEXT "missing symbol types (~S/~S/~S) in ~S")
       ':internal ':external ':inherited 'with-package-iterator
   ) )
   (dolist (symboltype types)
     (case symboltype
       ((:INTERNAL :EXTERNAL :INHERITED))
       (t (error-of-type 'source-program-error
-           (ENGLISH "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
+           (TEXT "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
            'with-package-iterator ':internal ':external ':inherited symboltype
   ) ) )  )
   (let ((iterfun (gensym "WPI")))
@@ -443,7 +443,7 @@
   (defun logical-pathname-translations (host)
     (setq host (string-upcase host))
     (or (gethash host *logical-pathname-translations*) ; :test #'equal !
-        (error (ENGLISH "~S: ~S does not name a logical host")
+        (error (TEXT "~S: ~S does not name a logical host")
                'logical-pathname-translations host)))
   (defun set-logical-pathname-translations (host translations)
     (setq host (string-upcase host))
@@ -461,22 +461,22 @@
       (unless fi (return-from load-lpt-many nil))
       (when *load-verbose*
         (fresh-line) (write-string ";; ")
-        (write-string (ENGLISH "Loading logical hosts from file "))
+        (write-string (TEXT "Loading logical hosts from file "))
         (princ file)
         (write-string " ...")
         (terpri))
       (do* ((eof (gensym)) (host (read fi nil eof) (read fi nil eof)))
            ((eq host eof)
             (write-string ";; ")
-            (write-string (ENGLISH "Loading of file "))
+            (write-string (TEXT "Loading of file "))
             (princ file)
-            (write-string (ENGLISH " is finished."))
+            (write-string (TEXT " is finished."))
             (terpri))
         (setq host (string-upcase host))
         (set-logical-pathname-translations host (eval (read fi)))
         (when *load-verbose*
           (fresh-line) (write-string ";; ")
-          (write-string (ENGLISH "Defined logical host "))
+          (write-string (TEXT "Defined logical host "))
           (write-string host)
           (terpri))))
     (gethash host *logical-pathname-translations*))
@@ -486,14 +486,14 @@
       (unless fi (return-from load-lpt-one nil))
       (when *load-verbose*
         (fresh-line) (write-string ";; ")
-        (write-string (ENGLISH "Loading logical host "))
+        (write-string (TEXT "Loading logical host "))
         (write-string host)
-        (write-string (ENGLISH " from file "))
+        (write-string (TEXT " from file "))
         (princ file)
         (write-string " ..."))
       (set-logical-pathname-translations host (read fi))
       (when *load-verbose*
-        (write-string (ENGLISH " done"))
+        (write-string (TEXT " done"))
         (terpri)))
     (gethash host *logical-pathname-translations*))
   (defun load-logical-pathname-translations (host)
@@ -526,7 +526,7 @@
                             (load-lpt-one ff host) ; successfully defined?
                             (return-from load-logical-pathname-translations
                               t)))))))))
-      (error (ENGLISH "No translations for logical host ~S found") host)))
+      (error (TEXT "No translations for logical host ~S found") host)))
   (set-logical-pathname-translations "SYS"
     '((";*.LISP" "*.lisp") ("*.*" "*.*") ("*" "*")))
 )
@@ -609,7 +609,7 @@
     )
     (error-of-type 'type-error
       :datum time :expected-type '(REAL 0 *)
-      (ENGLISH "~S: argument ~S should be a nonnegative number")
+      (TEXT "~S: argument ~S should be a nonnegative number")
       'sleep time
 ) ) )
 
@@ -771,7 +771,7 @@
                                   (<= -13 Zeitzone 12)
           )    ) )    ) )    )
     (error-of-type 'error
-      (ENGLISH "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S")
+      (TEXT "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S")
       Tag Monat Jahr Stunde Minute Sekunde Zeitzone
   ) )
   (+ Sekunde

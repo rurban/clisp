@@ -1496,10 +1496,6 @@
         O(machine_instance_string) = NIL;
       #endif
       #ifndef LANGUAGE_STATIC
-        #ifdef GNU_GETTEXT
-          # Cache von (SYS::CURRENT-LANGUAGE) löschen:
-          O(current_language_cache) = NIL;
-        #endif
         # Cache von (LISP-IMPLEMENTATION-VERSION) löschen
         # (hängt von (SYS::CURRENT-LANGUAGE) ab):
         O(lisp_implementation_version_string) = NIL;

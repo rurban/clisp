@@ -7,7 +7,7 @@
   (unless (fboundp object)
     (error-of-type 'undefined-function
                    :name object
-                   (ENGLISH "Undefined function ~S")
+                   (TEXT "Undefined function ~S")
                    object))
   (let* ((name (get-funname-symbol object))
          (def (or (get name 'sys::traced-definition)
@@ -55,7 +55,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
                 (sys::program-name) (sys::program-id)
                 (format nil "0x~X" (sys::code-address-of object)))))
     (unless (sys::closurep object)
-      (error-of-type 'error (ENGLISH "Cannot disassemble ~S") object))
+      (error-of-type 'error (TEXT "Cannot disassemble ~S") object))
     ;; the object is a closure.
     (unless (compiled-function-p object)
       (setq object

@@ -7344,6 +7344,10 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 # can trigger GC
 #define OGETTEXT(asciz) asciz_to_string(GETTEXT(asciz),Symbol_value(S(utf_8)))
 # used by all modules
+#ifndef LANGUAGE_STATIC
+# init the language and the locale
+  extern void init_language (const char*, const char*);
+#endif
 
 # Prints a constant ASCIZ-String, directly through the operating-system:
 # asciz_out(string);
@@ -10042,7 +10046,8 @@ nonreturning_function(extern, fehler_undef_function, (object caller, object symb
 
 # Initialize the encodings.
 # init_encodings();
-extern void init_encodings (void);
+extern void init_encodings_1 (void);
+extern void init_encodings_2 (void);
 # is used by SPVW
 
 # Initialize the encodings which depend on environment variables.
