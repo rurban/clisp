@@ -648,7 +648,6 @@ void print_he (struct hostent *he) {
   { int ii; for (ii = 0; test; ii ++) { pushSTACK(expr); } val = listof(ii); }
 
 /* push the contents of HE onto the stack
- BUF is temporary storage for ipv4_ntop()
  4 values are pushed:
    h_name
    list of h_aliases
