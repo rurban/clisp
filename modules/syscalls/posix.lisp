@@ -8,7 +8,7 @@
    "RESOLVE-HOST-IPADDR" "BOGOMIPS"
    "STREAM-LOCK" "DUPLICATE-HANDLE" "COPY-FILE"
    "HOSTENT" "HOSTENT-NAME" "HOSTENT-ALIASES" "HOSTENT-ADDR-LIST"
-   "HOSTENT-ADDRTYPE"
+   "HOSTENT-ADDRTYPE" "PHYSICAL-MEMORY"
    "ERF" "ERFC" "J0" "J1" "JN" "Y0" "Y1" "YN" "GAMMA" "LGAMMA"))
 
 (setf (package-lock "EXT") nil)
@@ -106,9 +106,7 @@
 #+unix (progn
 (export
  '(uname uname-sysname uname-nodename uname-release uname-version uname-machine
-   sysconf sysconf-page-size sysconf-physical-pages
-   sysconf-physical-pages-available sysconf-num-processor-conf
-   sysconf-num-processor-online sysconf-max-threads-per-process))
+   sysconf confstr))
 
 (defstruct (uname (:constructor make-uname (sysname nodename release
                                             version machine)))
@@ -118,70 +116,11 @@
   (release      "" :type simple-string :read-only t)
   (version      "" :type simple-string :read-only t)
   (machine      "" :type simple-string :read-only t))
-(defstruct (sysconf (:constructor
-                     make-sysconf (page-size physical-pages
-                                   physical-pages-available
-                                   num-processor-conf num-processor-online
-                                   max-threads-per-process)))
-  "see sysconf(3c) for details"
-  (page-size       nil :type (or null (eq t) (unsigned-byte 32)) :read-only t)
-  (physical-pages  nil :type (or null (eq t) (unsigned-byte 32)) :read-only t)
-  (physical-pages-available nil :type (or null (eq t) (unsigned-byte 32))
-                            :read-only t)
-  (num-processor-conf nil :type (or null (eq t) (unsigned-byte 32))
-                      :read-only t)
-  (num-processor-online nil :type (or null (eq t) (unsigned-byte 32))
-                        :read-only t)
-  (max-threads-per-process nil :type (or null (eq t) (unsigned-byte 32))
-                           :read-only t))
-
-(setf (documentation 'sysconf 'function)
-      "Return an instance of the SYSCONF structure.
-NIL - no such key; T - sysconf(3c) returned -1.")
-
-(export
- '(confstr confstr-path confstr-ilp32-off32-cflags confstr-ilp32-off32-ldflags
-   confstr-ilp32-off32-libs confstr-ilp32-offbig-cflags
-   confstr-ilp32-offbig-ldflags confstr-ilp32-offbig-libs
-   confstr-lp64-off64-cflags confstr-lp64-off64-ldflags
-   confstr-lp64-off64-libs confstr-lpbig-offbig-cflags
-   confstr-lpbig-offbig-ldflags confstr-lpbig-offbig-libs
-   confstr-width-restricted-envs))
-(defstruct (confstr (:constructor
-                     make-confstr (path ilp32-off32-cflags ilp32-off32-ldflags
-                                   ilp32-off32-libs ilp32-offbig-cflags
-                                   ilp32-offbig-ldflags ilp32-offbig-libs
-                                   lp64-off64-cflags lp64-off64-ldflags
-                                   lp64-off64-libs lpbig-offbig-cflags
-                                   lpbig-offbig-ldflags lpbig-offbig-libs
-                                   width-restricted-envs)))
-  "see confstr(3c) for details"
-  (path nil :type (or boolean string) :read-only t)
-  (ilp32-off32-cflags nil :type (or boolean string) :read-only t)
-  (ilp32-off32-ldflags nil :type (or boolean string) :read-only t)
-  (ilp32-off32-libs nil :type (or boolean string) :read-only t)
-  (ilp32-offbig-cflags nil :type (or boolean string) :read-only t)
-  (ilp32-offbig-ldflags nil :type (or boolean string) :read-only t)
-  (ilp32-offbig-libs nil :type (or boolean string) :read-only t)
-  (lp64-off64-cflags nil :type (or boolean string) :read-only t)
-  (lp64-off64-ldflags nil :type (or boolean string) :read-only t)
-  (lp64-off64-libs nil :type (or boolean string) :read-only t)
-  (lpbig-offbig-cflags nil :type (or boolean string) :read-only t)
-  (lpbig-offbig-ldflags nil :type (or boolean string) :read-only t)
-  (lpbig-offbig-libs nil :type (or boolean string) :read-only t)
-  (width-restricted-envs nil :type (or boolean string) :read-only t))
-
-(setf (documentation 'confstr 'function)
-      "Return an instance of the CONFSTR structure.
-NIL - no such key; T - the parameter is not set.")
 )
 ;;; ============================================================
 #+unix (progn
 (export
- '(rlimit rlimit-cur rlimit-max
-   limits limits-cpu limits-file-size limits-data-size limits-stack limits-core
-   limits-rss limits-num-files limits-address-space limits-num-proc
-   limits-memlock limits-locks
+ '(rlimit rlimit-cur rlimit-max limits
    usage usage-user-time usage-system-time usage-max-rss
    usage-shared-memory usage-data-memory usage-stack-memory
    usage-minor-page-faults usage-major-page-faults usage-num-swaps
@@ -193,22 +132,6 @@ NIL - no such key; T - the parameter is not set.")
   "see getrlimit(2) for details"
   (cur nil :type (or null (unsigned-byte 32)) :read-only t)
   (max nil :type (or null (unsigned-byte 32)) :read-only t))
-
-(defstruct (limits (:constructor make-limits (cpu file-size data-size stack
-                                              core rss num-files address-space
-                                              num-proc memlock locks)))
-  "see getrlimit(2) for details"
-  (cpu nil :type (or null rlimit) :read-only t)
-  (file-size nil :type (or null rlimit) :read-only t)
-  (data-size nil :type (or null rlimit) :read-only t)
-  (stack nil :type (or null rlimit) :read-only t)
-  (core nil :type (or null rlimit) :read-only t)
-  (rss nil :type (or null rlimit) :read-only t)
-  (num-files nil :type (or null rlimit) :read-only t)
-  (address-space nil :type (or null rlimit) :read-only t)
-  (num-proc nil :type (or null rlimit) :read-only t)
-  (memlock nil :type (or null rlimit) :read-only t)
-  (locks nil :type (or null rlimit) :read-only t))
 
 (defstruct (usage (:constructor
                    make-usage (user-time system-time max-rss
@@ -314,7 +237,32 @@ NIL - no such key; T - the parameter is not set.")
   (suites nil :read-only t)
   (product-type nil :read-only t))
 
+(export '(memory-status
+          memstat-total-physical memstat-avail-physical memstat-total-page
+          memstat-avail-page memstat-total-virtual memstat-avail-virtual))
+
+(defstruct (memory-status
+             (:conc-name memstat-)
+             (:constructor mkmemstat
+                           (total-physical avail-physical total-page
+                            avail-page total-virtual avail-virtual)))
+  (total-physical 0 :type (integer 0) :read-only t)
+  (avail-physical 0 :type (integer 0) :read-only t)
+  (total-page 0 :type (integer 0) :read-only t)
+  (avail-page 0 :type (integer 0) :read-only t)
+  (total-virtual 0 :type (integer 0) :read-only t)
+  (avail-virtual 0 :type (integer 0) :read-only t))
+
 )
+
+(defun physical-memory ()
+  "Return 2 values: TOTAL and AVAILABLE physical memory."
+  #+unix (let ((page-size (sysconf :_SC_PAGESIZE)))
+           (values (* page-size (sysconf :_SC_PHYS_PAGES))
+                   (* page-size (sysconf :_SC_AVPHYS_PAGES))))
+  #+win32 (let ((mem-stat (memory-status)))
+            (values (memstat-total-physical mem-stat)
+                    (memstat-avail-physical mem-stat))))
 
 ;;; restore locks
 (push "POSIX" *system-package-list*)
