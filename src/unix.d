@@ -222,22 +222,22 @@ extern_C ABORT_VOLATILE RETABORTTYPE abort (void); /* ABORT(3) */
 /* a signal handler is a non-returning function. */
 #ifdef __cplusplus
   #ifdef SIGTYPE_DOTS
-    typedef RETSIGTYPE (*signal_handler) (...);
+    typedef RETSIGTYPE (*signal_handler_t) (...);
   #else
-    typedef RETSIGTYPE (*signal_handler) (int);
+    typedef RETSIGTYPE (*signal_handler_t) (int);
   #endif
 #else
-  typedef RETSIGTYPE (*signal_handler) ();
+  typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
 /* install a signal cleanly: */
-extern_C signal_handler signal (int sig, signal_handler handler); /* SIGNAL(3V) */
+extern_C signal_handler_t signal (int sig, signal_handler_t handler); /* SIGNAL(3V) */
 #if defined(SIGNAL_NEED_UNBLOCK_OTHERS) && defined(HAVE_SIGACTION)
 /* On some BSD systems (e.g. SunOS 4.1.3_U1), the call of a signal handler
    is different when the current signal is blocked.
    We therefore use sigaction() instead of signal(). */
   #define USE_SIGACTION
 #endif
-extern signal_handler install_signal_handler (int sig, signal_handler handler);
+extern signal_handler_t install_signal_handler (int sig, signal_handler_t handler);
 #define SIGNAL(sig,handler)  install_signal_handler(sig,handler)
 /* a signal block and release: */
 #if defined(SIGNALBLOCK_POSIX)

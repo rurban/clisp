@@ -1,3 +1,8 @@
+2002-09-08  Sam Steingold  <sds@gnu.org>
+
+	* acorn.d, msdos.d, unix.d, unixaux.d, m4/signal.m4, unix/sigsegv.c:
+	renamed signal_handler type to signal_handler_t
+
 2002-09-07  Sam Steingold  <sds@gnu.org>
 
 	* defmacro.lisp (analyze-key): fixed the bug with

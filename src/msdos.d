@@ -44,8 +44,8 @@
 # Signalbehandlung
   #include <signal.h>
   # Ein Signal-Handler ist eine Funktion ohne Ergebnis.
-  typedef SIGTY (*signal_handler) ();
-  extern signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
+  typedef SIGTY (*signal_handler_t) ();
+  extern signal_handler_t signal (int sig, signal_handler_t handler); # siehe SIGNAL(3V)
   # Ein Signal erst eine bestimmte Zeit später ausliefern:
   extern unsigned int alarm (unsigned int seconds); # siehe ALARM(3V)
   # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):

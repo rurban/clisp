@@ -72,9 +72,9 @@
 #endif
 
 #include <signal.h>
-typedef RETSIGTYPE (*signal_handler) ();
-extern signal_handler signal (int sig, signal_handler handler);
-/* forward */ void install_signal (int sig, signal_handler handler);
+typedef RETSIGTYPE (*signal_handler_t) ();
+extern signal_handler_t signal (int sig, signal_handler_t handler);
+/* forward */ void install_signal (int sig, signal_handler_t handler);
 
 #include <stdio.h>
 
@@ -275,12 +275,12 @@ int main ()
 { fault_address = (char*) 0x12345678;
   printf("Look out for fault_address=0x%lx\n", (unsigned long)fault_address);
 
-  install_signal(SIGSEGV,(signal_handler)fault_handler);
+  install_signal(SIGSEGV,(signal_handler_t)fault_handler);
 #ifdef SIGBUS
-  install_signal(SIGBUS,(signal_handler)fault_handler);
+  install_signal(SIGBUS,(signal_handler_t)fault_handler);
 #endif
 #ifdef SIGPROTV
-  install_signal(SIGPROTV,(signal_handler)fault_handler);
+  install_signal(SIGPROTV,(signal_handler_t)fault_handler);
 #endif
 
   do_nothing();
@@ -386,7 +386,7 @@ void fault_handler (FAULT_HANDLER_ARGLIST)
     { printf("Doesn't work!!\n"); return; }
   signalled = 1; wp_sig_nr = sig;
   mprotect(page_align(address),pagesize,PROT_READ_WRITE);
-  install_signal(sig,(signal_handler)fault_handler);
+  install_signal(sig,(signal_handler_t)fault_handler);
   printf("Exiting handler.\n");
   return;
 }
@@ -422,7 +422,7 @@ int main ()
   if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0)
     { perror("mprotect failed:"); exit(1); }
   /* Install the handler */
-#define FAULT_HANDLER(sig)  install_signal(sig,(signal_handler)fault_handler);
+#define FAULT_HANDLER(sig)  install_signal(sig,(signal_handler_t)fault_handler);
   WP_SIGNAL
 #undef FAULT_HANDLER
   /* First test: write should provoke a signal */
@@ -457,7 +457,7 @@ void do_nothing() { }
 /* Subroutine for installing the handler. */
 void install_signal (sig, handler)
   int sig;
-  signal_handler handler;
+  signal_handler_t handler;
 {
 #ifdef FAULT_ADDRESS_FROM_SIGINFO
   struct sigaction action, dummy_action;
