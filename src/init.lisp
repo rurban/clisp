@@ -328,7 +328,8 @@
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
    the-environment arglist getenv special-variable-p list-length-dotted
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
-   fasthash-eq stablehash-eq define-hash-table-test package-case-sensitive-p
+   fasthash-eq stablehash-eq fasthash-eql stablehash-eql fasthash-equal
+   stablehash-equal define-hash-table-test package-case-sensitive-p
    argv
    ;; declarations
    constant-inline constant-notinline

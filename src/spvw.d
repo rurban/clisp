@@ -1151,6 +1151,8 @@ local void init_symbol_values (void) {
   define_variable(S(applyhookstern),NIL);         # *APPLYHOOK*
   # for HASHTABL:
   define_variable(S(eq_hashfunction),S(fasthash_eq)); # EXT:*EQ-HASHFUNCTION* := 'EXT:FASTHASH-EQ
+  define_variable(S(eql_hashfunction),S(fasthash_eql)); # EXT:*EQL-HASHFUNCTION* := 'EXT:FASTHASH-EQL
+  define_variable(S(equal_hashfunction),S(fasthash_equal)); # EXT:*EQUAL-HASHFUNCTION* := 'EXT:FASTHASH-EQUAL
   # for PACKAGE:
   define_variable(S(packagestern),Car(O(all_packages))); # *PACKAGE* := '#<PACKAGE LISP>
   # for SYMBOL:

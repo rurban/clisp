@@ -2487,6 +2487,24 @@ used as a <constant>:TEST</constant> argument, the value of the variable
 be one of <constant>EXT:FASTHASH-EQ</constant>,
 <constant>EXT:STABLEHASH-EQ</constant>.</para>
 
+<para>Similarly, the <constant>:TEST</constant> argument can also be one
+ of the symbols <constant>EXT:FASTHASH-EQL</constant>,
+ <constant>EXT:STABLEHASH-EQL</constant>,
+ <constant>EXT:FASTHASH-EQUAL</constant>,
+ <constant>EXT:STABLEHASH-EQUAL</constant>.
+ The same remarks apply as for <constant>EXT:FASTHASH-EQ</constant> and
+ <constant>EXT:STABLEHASH-EQ</constant>.
+ When the symbol &eql; or the function <literal>#'eql</literal> is used as a
+ <constant>:TEST</constant> argument, the value of the variable
+ <varname>EXT:*EQL-HASHFUNCTION*</varname> is used instead; this value must
+ be one of <constant>EXT:FASTHASH-EQL</constant>,
+ <constant>EXT:STABLEHASH-EQL</constant>.
+ Similarly, when the symbol &equal; or the function <literal>#'equal</literal>
+ is used as a <constant>:TEST</constant> argument, the value of the variable
+ <varname>EXT:*EQUAL-HASHFUNCTION*</varname> is used instead; this value
+ must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
+ <constant>EXT:STABLEHASH-EQUAL</constant>.</para>
+
 <para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
 if true, causes a warning to be signalled when an object is stored into
 the table which will force table reorganizations at the first access

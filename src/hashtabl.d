@@ -98,6 +98,8 @@
   (posfixnump(TheHashtable(ht)->ht_maxcount) &&         \
    posfixnump(TheHashtable(ht)->ht_mincount))
 
+/* ============================ Hash functions ============================ */
+
 /* Rotates a hashcode x by n bits to the left (0<n<32).
  rotate_left(n,x) */
 #define rotate_left(n,x)  (((x) << (n)) | ((x) >> (32-(n))))
@@ -105,6 +107,8 @@
 /* mixes two hashcodes.
  one is rotated by 5 bits, then the other one is XOR-ed to it. */
 #define misch(x1,x2) (rotate_left(5,x1) ^ (x2))
+
+/* ------------------------------ FASTHASH EQ ------------------------------ */
 
 /* UP: Calculates the FASTHASH-EQ-hashcode of an object.
  hashcode1(obj)
@@ -118,6 +122,13 @@ local uint32 hashcode1 (object obj);
 #else
  #define hashcode1(obj)  ((uint32)as_oint(obj)) /* address (Bits 23..0) and typeinfo */
 #endif
+
+/* Tests whether hashcode1 of an object is guaranteed to be GC-invariant. */
+global bool gcinvariant_hashcode1_p (object obj) {
+  return gcinvariant_object_p(obj);
+}
+
+/* ----------------------------- STABLEHASH EQ ----------------------------- */
 
 /* UP: Calculates the STABLEHASH-EQ-hashcode of an object.
  hashcode1stable(obj)
@@ -149,7 +160,30 @@ global uint32 hashcode1stable (object obj) {
   return hashcode1(obj);
 }
 
-/* UP: Calculates the EQL-hashcode of an object.
+/* UP: Tests whether an object is instance of STANDARD-STABLEHASH or
+   STRUCTURE-STABLEHASH. */
+local inline bool instance_of_stablehash_p (object obj) {
+  if (instancep(obj)) {
+    var object obj_forwarded = obj;
+    instance_un_realloc(obj_forwarded);
+    var object cv = TheInstance(obj_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    return !nullp(TheClass(clas)->subclass_of_stablehash_p);
+  } else if (structurep(obj)) {
+    return !nullp(memq(S(structure_stablehash),TheStructure(obj)->structure_types));
+  }
+  return false;
+}
+
+/* Tests whether hashcode1stable of an object is guaranteed to be
+   GC-invariant. */
+global bool gcinvariant_hashcode1stable_p (object obj) {
+  return gcinvariant_object_p(obj) || instance_of_stablehash_p(obj);
+}
+
+/* ----------------------------- FASTHASH EQL ----------------------------- */
+
+/* UP: Calculates the FASTHASH-EQL-hashcode of an object.
  hashcode2(obj)
  It is valid only until the next GC.
  (eql X Y) implies (= (hashcode2 X) (hashcode2 Y)).
@@ -272,7 +306,97 @@ global uint32 hashcode2 (object obj) {
  #endif
 }
 
-/* UP: Calculates the EQUAL-hashcode of an object.
+/* Tests whether hashcode2 of an object is guaranteed to be GC-invariant. */
+global bool gcinvariant_hashcode2_p (object obj) {
+  return numberp(obj) || gcinvariant_object_p(obj);
+}
+
+/* ---------------------------- STABLEHASH EQL ---------------------------- */
+
+/* UP: Calculates the STABLEHASH-EQL-hashcode of an object.
+ hashcode2stable(obj)
+ It is valid across GC for instances of STANDARD-STABLEHASH, STRUCTURE-STABLEHASH.
+ (eql X Y) implies (= (hashcode2stable X) (hashcode2stable Y)).
+ > obj: an object
+ < result: hashcode, a 32-Bit-number */
+global uint32 hashcode2stable (object obj) {
+ #ifdef TYPECODES
+  if (!numberp(obj)) {          /* a number? */
+    /* no -> take EQ-hashcode (for characters, EQL == EQ) : */
+    return hashcode1stable(obj);
+  } else {              /* yes -> differentiate according to typecode */
+    switch (typecode(obj) & ~(bit(number_bit_t)|bit(sign_bit_t))) {
+      case fixnum_type & ~(bit(number_bit_t)|bit(sign_bit_t)): /* Fixnum */
+        return hashcode_fixnum(obj);
+      case bignum_type & ~(bit(number_bit_t)|bit(sign_bit_t)): /* Bignum */
+        return hashcode_bignum(obj);
+      case sfloat_type & ~(bit(number_bit_t)|bit(sign_bit_t)): /*Short-Float*/
+        return hashcode_sfloat(obj);
+      case ffloat_type & ~(bit(number_bit_t)|bit(sign_bit_t)): /*Single-Float*/
+        return hashcode_ffloat(obj);
+      case dfloat_type & ~(bit(number_bit_t)|bit(sign_bit_t)): /*Double-Float*/
+        return hashcode_dfloat(obj);
+      case lfloat_type & ~(bit(number_bit_t)|bit(sign_bit_t)): /* Long-Float */
+        return hashcode_lfloat(obj);
+      case ratio_type & ~(bit(number_bit_t)|bit(sign_bit_t)): { /* Ratio */
+        /* hash both components, mix */
+        var uint32 code1 = hashcode2(TheRatio(obj)->rt_num);
+        var uint32 code2 = hashcode2(TheRatio(obj)->rt_den);
+        return misch(code1,code2);
+      }
+      case complex_type & ~(bit(number_bit_t)|bit(sign_bit_t)): { /* Complex */
+        /* hash both components, mix */
+        var uint32 code1 = hashcode2(TheComplex(obj)->c_real);
+        var uint32 code2 = hashcode2(TheComplex(obj)->c_imag);
+        return misch(code1,code2);
+      }
+      default: NOTREACHED;
+    }
+  }
+ #else
+  if (orecordp(obj))
+    switch (Record_type(obj)) {
+      case Rectype_Bignum:
+        return hashcode_bignum(obj);
+      case Rectype_Ffloat:
+        return hashcode_ffloat(obj);
+      case Rectype_Dfloat:
+        return hashcode_dfloat(obj);
+      case Rectype_Lfloat:
+        return hashcode_lfloat(obj);
+      case Rectype_Ratio: {     /* hash both components, mix */
+        var uint32 code1 = hashcode2(TheRatio(obj)->rt_num);
+        var uint32 code2 = hashcode2(TheRatio(obj)->rt_den);
+        return misch(code1,code2);
+      }
+      case Rectype_Complex: {   /* hash both components, mix */
+        var uint32 code1 = hashcode2(TheComplex(obj)->c_real);
+        var uint32 code2 = hashcode2(TheComplex(obj)->c_imag);
+        return misch(code1,code2);
+      }
+      default:
+        break;
+    }
+  else if (immediate_number_p(obj)) {
+    if (as_oint(obj) & wbit(4))
+      return hashcode_sfloat(obj);
+    else
+      return hashcode_fixnum(obj);
+  }
+  return hashcode1stable(obj);
+ #endif
+}
+
+/* Tests whether hashcode2stable of an object is guaranteed to be
+   GC-invariant. */
+global bool gcinvariant_hashcode2stable_p (object obj) {
+  return numberp(obj)
+         || gcinvariant_object_p(obj) || instance_of_stablehash_p(obj);
+}
+
+/* ---------------------------- FASTHASH EQUAL ---------------------------- */
+
+/* UP: Calculates the FASTHASH-EQUAL-hashcode of an object.
  hashcode3(obj)
  It is valid only until the next GC, or the next modification
  of the object.
@@ -459,11 +583,11 @@ local uint32 hashcode3_atom (object obj) {
 }
 /* cons -> look at content up to depth 4:
  determine the hashcode of the CAR and the hashcode of the CDR at a time
- and combine them shifted. As Shifts fit e.g. 16,7,5,3,
- because {0,16} + {0,7} + {0,5} + {0,3} = {0,3,5,7,8,10,12,15,16,19,21,23,24,26,28,31}
- consists of 16 different elements of {0,...,31} .
- object, at cons only up to depth 0 */
-local uint32 hashcode3_cons0 (object obj) {
+ and combine them shifted. As shifts we can choose e.g. 16,7,5,3, because
+ {0,16} + {0,7} + {0,5} + {0,3} = {0,3,5,7,8,10,12,15,16,19,21,23,24,26,28,31}
+ consists of 16 different elements of {0,...,31} . */
+/* object, at cons only up to depth 0 */
+local inline uint32 hashcode3_cons0 (object obj) {
   if (atomp(obj)) {
     return hashcode3_atom(obj);
   } else {                      /* cons -> hashcode := 1 */
@@ -471,30 +595,33 @@ local uint32 hashcode3_cons0 (object obj) {
   }
 }
 /* object, at cons only up to depth 1 */
-local uint32 hashcode3_cons1 (object obj) {
+local inline uint32 hashcode3_cons1 (object obj) {
   if (atomp(obj)) {
     return hashcode3_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+  } else {
+    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
     var uint32 code1 = hashcode3_cons0(Car(obj));
     var uint32 code2 = hashcode3_cons0(Cdr(obj));
     return rotate_left(3,code1) ^ code2;
   }
 }
 /* object, at cons only up to depth 2 */
-local uint32 hashcode3_cons2 (object obj) {
+local inline uint32 hashcode3_cons2 (object obj) {
   if (atomp(obj)) {
     return hashcode3_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+  } else {
+    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
     var uint32 code1 = hashcode3_cons1(Car(obj));
     var uint32 code2 = hashcode3_cons1(Cdr(obj));
     return rotate_left(5,code1) ^ code2;
   }
 }
 /* object, at cons only up to depth 3 */
-local uint32 hashcode3_cons3 (object obj) {
+local inline uint32 hashcode3_cons3 (object obj) {
   if (atomp(obj)) {
     return hashcode3_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+  } else {
+    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
     var uint32 code1 = hashcode3_cons2(Car(obj));
     var uint32 code2 = hashcode3_cons2(Cdr(obj));
     return rotate_left(7,code1) ^ code2;
@@ -504,16 +631,293 @@ local uint32 hashcode3_cons3 (object obj) {
 global uint32 hashcode3 (object obj) {
   if (atomp(obj)) {
     return hashcode3_atom(obj);
-  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+  } else {
+    /* cons -> determine the hashcode of the CAR and the CDR and mix: */
     var uint32 code1 = hashcode3_cons3(Car(obj));
     var uint32 code2 = hashcode3_cons3(Cdr(obj));
     return rotate_left(16,code1) ^ code2;
   }
 }
 
+/* Tests whether hashcode3 of an object is guaranteed to be GC-invariant. */
+global bool gcinvariant_hashcode3_p (object obj);
+local bool gcinvariant_hashcode3_atom_p (object obj) {
+  if (numberp(obj) || gcinvariant_object_p(obj))
+    return true;
+  #ifdef TYPECODES
+  var tint type = typecode(obj) /* typeinfo */
+    & ~bit(notsimple_bit_t);    /* if simple or not, is irrelevant */
+  if (type >= (sbvector_type & ~bit(notsimple_bit_t)) /* bit/byte-vector ? */
+      && type <= (sb32vector_type & ~bit(notsimple_bit_t)))
+    return true;
+  if (type == (sstring_type & ~bit(notsimple_bit_t))) /* string ? */
+    return true;
+  /* Ignore the pathnames, for simplicity. */
+  #else
+  if (orecordp(obj))
+    switch (Record_type(obj)) {
+      case Rectype_Sbvector: case Rectype_bvector:
+      case Rectype_Sb2vector: case Rectype_b2vector:
+      case Rectype_Sb4vector: case Rectype_b4vector:
+      case Rectype_Sb8vector: case Rectype_b8vector:
+      case Rectype_Sb16vector: case Rectype_b16vector:
+      case Rectype_Sb32vector: case Rectype_b32vector:
+      case Rectype_S8string: case Rectype_Imm_S8string:
+      case Rectype_S16string: case Rectype_Imm_S16string:
+      case Rectype_S32string: case Rectype_Imm_S32string:
+      case Rectype_reallocstring: case Rectype_string:
+        return true;
+      /* Ignore the pathnames, for simplicity. */
+      default:
+        break;
+    }
+  #endif
+  return false;
+}
+local inline bool gcinvariant_hashcode3_cons0_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3_atom_p(obj);
+  else
+    return true;
+}
+local inline bool gcinvariant_hashcode3_cons1_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3_atom_p(obj);
+  else
+    return gcinvariant_hashcode3_cons0_p(Car(obj))
+           && gcinvariant_hashcode3_cons0_p(Cdr(obj));
+}
+local inline bool gcinvariant_hashcode3_cons2_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3_atom_p(obj);
+  else
+    return gcinvariant_hashcode3_cons1_p(Car(obj))
+           && gcinvariant_hashcode3_cons1_p(Cdr(obj));
+}
+local inline bool gcinvariant_hashcode3_cons3_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3_atom_p(obj);
+  else
+    return gcinvariant_hashcode3_cons2_p(Car(obj))
+           && gcinvariant_hashcode3_cons2_p(Cdr(obj));
+}
+global bool gcinvariant_hashcode3_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3_atom_p(obj);
+  else
+    return gcinvariant_hashcode3_cons3_p(Car(obj))
+           && gcinvariant_hashcode3_cons3_p(Cdr(obj));
+}
+
+/* --------------------------- STABLEHASH EQUAL --------------------------- */
+
+/* UP: Calculates the STABLEHASH-EQUAL-hashcode of an object.
+ hashcode3stable(obj)
+ It is valid across GC if all cons-tree leaves are instances of
+ STANDARD-STABLEHASH, STRUCTURE-STABLEHASH, but no longer than the next
+ modification of the object.
+ (equal X Y) implies (= (hashcode3stable X) (hashcode3stable Y)).
+ > obj: an object
+ < result: hashcode, a 32-Bit-number */
+global uint32 hashcode3stable (object obj);
+/* atom -> differentiation by type */
+local uint32 hashcode3stable_atom (object obj) {
+ #ifdef TYPECODES
+  if (symbolp(obj)) {           /* a symbol? */
+    return hashcode1stable(obj); /* yes -> take EQ-hashcode */
+  } else if (numberp(obj)) {    /* a number? */
+    return hashcode2(obj);      /* yes -> take EQL-hashcode */
+  } else {
+    var tint type = typecode(obj) /* typeinfo */
+      & ~bit(notsimple_bit_t);    /* if simple or not, is irrelevant */
+    if (type >= (sbvector_type & ~bit(notsimple_bit_t)) /* bit/byte-vector ? */
+        && type <= (sb32vector_type & ~bit(notsimple_bit_t)))
+      return hashcode_bvector(obj); /* look at it component-wise */
+    if (type == (sstring_type & ~bit(notsimple_bit_t))) /* string ? */
+      return hashcode_string(obj); /* look at it component-wise */
+    if (xpathnamep(obj)) { /* -> look at it component-wise: */
+      check_SP();
+      var uint32 bish_code = 0xB0DD939EUL;
+      var const gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
+      var uintC count;
+      dotimespC(count,Xrecord_length(obj), {
+        var uint32 next_code = hashcode_pathcomp(*ptr++); /* hashcode of the next component */
+        bish_code = misch(bish_code,next_code);           /* add */
+      });
+      return bish_code;
+    }
+    /* else: take EQ-hashcode (for characters: EQL == EQ) */
+    return hashcode1stable(obj);
+  }
+ #else
+  if (orecordp(obj))
+    switch (Record_type(obj)) {
+      case_Rectype_number_above;
+      case Rectype_Sbvector: case Rectype_bvector:
+      case Rectype_Sb2vector: case Rectype_b2vector:
+      case Rectype_Sb4vector: case Rectype_b4vector:
+      case Rectype_Sb8vector: case Rectype_b8vector:
+      case Rectype_Sb16vector: case Rectype_b16vector:
+      case Rectype_Sb32vector: case Rectype_b32vector:
+        return hashcode_bvector(obj);
+      case Rectype_S8string: case Rectype_Imm_S8string:
+      case Rectype_S16string: case Rectype_Imm_S16string:
+      case Rectype_S32string: case Rectype_Imm_S32string:
+      case Rectype_reallocstring: case Rectype_string:
+        return hashcode_string(obj);
+     #ifdef LOGICAL_PATHNAMES
+      case Rectype_Logpathname:
+     #endif
+      case Rectype_Pathname: { /* pathname -> look at it component-wise: */
+        check_SP();
+        var uint32 bish_code = 0xB0DD939EUL;
+        var gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
+        var uintC count;
+        dotimespC(count,Xrecord_length(obj), {
+          var uint32 next_code = hashcode_pathcomp(*ptr++); /* hashcode of the next component */
+          bish_code = misch(bish_code,next_code);           /* add */
+        });
+        return bish_code;
+      }
+      default:
+        break;
+    }
+  else if (immediate_number_p(obj)) {
+  case_number: return hashcode2(obj);
+  }
+  return hashcode1stable(obj);
+ #endif
+}
+/* cons -> look at content up to depth 4:
+ determine the hashcode of the CAR and the hashcode of the CDR at a time
+ and combine them shifted. As Shifts fit e.g. 16,7,5,3,
+ because {0,16} + {0,7} + {0,5} + {0,3} = {0,3,5,7,8,10,12,15,16,19,21,23,24,26,28,31}
+ consists of 16 different elements of {0,...,31} .
+ object, at cons only up to depth 0 */
+local uint32 hashcode3stable_cons0 (object obj) {
+  if (atomp(obj)) {
+    return hashcode3stable_atom(obj);
+  } else {                      /* cons -> hashcode := 1 */
+    return 1;
+  }
+}
+/* object, at cons only up to depth 1 */
+local uint32 hashcode3stable_cons1 (object obj) {
+  if (atomp(obj)) {
+    return hashcode3stable_atom(obj);
+  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+    var uint32 code1 = hashcode3stable_cons0(Car(obj));
+    var uint32 code2 = hashcode3stable_cons0(Cdr(obj));
+    return rotate_left(3,code1) ^ code2;
+  }
+}
+/* object, at cons only up to depth 2 */
+local uint32 hashcode3stable_cons2 (object obj) {
+  if (atomp(obj)) {
+    return hashcode3stable_atom(obj);
+  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+    var uint32 code1 = hashcode3stable_cons1(Car(obj));
+    var uint32 code2 = hashcode3stable_cons1(Cdr(obj));
+    return rotate_left(5,code1) ^ code2;
+  }
+}
+/* object, at cons only up to depth 3 */
+local uint32 hashcode3stable_cons3 (object obj) {
+  if (atomp(obj)) {
+    return hashcode3stable_atom(obj);
+  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+    var uint32 code1 = hashcode3stable_cons2(Car(obj));
+    var uint32 code2 = hashcode3stable_cons2(Cdr(obj));
+    return rotate_left(7,code1) ^ code2;
+  }
+}
+/* object, at cons only up to depth 4 */
+global uint32 hashcode3stable (object obj) {
+  if (atomp(obj)) {
+    return hashcode3stable_atom(obj);
+  } else { /* cons -> determine the hashcode of the CAR and the CDR and mix: */
+    var uint32 code1 = hashcode3stable_cons3(Car(obj));
+    var uint32 code2 = hashcode3stable_cons3(Cdr(obj));
+    return rotate_left(16,code1) ^ code2;
+  }
+}
+
+/* Tests whether hashcode3stable of an object is guaranteed to be
+   GC-invariant. */
+global bool gcinvariant_hashcode3stable_p (object obj);
+local bool gcinvariant_hashcode3stable_atom_p (object obj) {
+  if (numberp(obj) || gcinvariant_object_p(obj))
+    return true;
+  #ifdef TYPECODES
+  var tint type = typecode(obj) /* typeinfo */
+    & ~bit(notsimple_bit_t);    /* if simple or not, is irrelevant */
+  if (type >= (sbvector_type & ~bit(notsimple_bit_t)) /* bit/byte-vector ? */
+      && type <= (sb32vector_type & ~bit(notsimple_bit_t)))
+    return true;
+  if (type == (sstring_type & ~bit(notsimple_bit_t))) /* string ? */
+    return true;
+  /* Ignore the pathnames, for simplicity. */
+  #else
+  if (orecordp(obj))
+    switch (Record_type(obj)) {
+      case Rectype_Sbvector: case Rectype_bvector:
+      case Rectype_Sb2vector: case Rectype_b2vector:
+      case Rectype_Sb4vector: case Rectype_b4vector:
+      case Rectype_Sb8vector: case Rectype_b8vector:
+      case Rectype_Sb16vector: case Rectype_b16vector:
+      case Rectype_Sb32vector: case Rectype_b32vector:
+      case Rectype_S8string: case Rectype_Imm_S8string:
+      case Rectype_S16string: case Rectype_Imm_S16string:
+      case Rectype_S32string: case Rectype_Imm_S32string:
+      case Rectype_reallocstring: case Rectype_string:
+        return true;
+      /* Ignore the pathnames, for simplicity. */
+      default:
+        break;
+    }
+  #endif
+  return instance_of_stablehash_p(obj);
+}
+local inline bool gcinvariant_hashcode3stable_cons0_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3stable_atom_p(obj);
+  else
+    return true;
+}
+local inline bool gcinvariant_hashcode3stable_cons1_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3stable_atom_p(obj);
+  else
+    return gcinvariant_hashcode3stable_cons0_p(Car(obj))
+           && gcinvariant_hashcode3stable_cons0_p(Cdr(obj));
+}
+local inline bool gcinvariant_hashcode3stable_cons2_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3stable_atom_p(obj);
+  else
+    return gcinvariant_hashcode3stable_cons1_p(Car(obj))
+           && gcinvariant_hashcode3stable_cons1_p(Cdr(obj));
+}
+local inline bool gcinvariant_hashcode3stable_cons3_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3stable_atom_p(obj);
+  else
+    return gcinvariant_hashcode3stable_cons2_p(Car(obj))
+           && gcinvariant_hashcode3stable_cons2_p(Cdr(obj));
+}
+global bool gcinvariant_hashcode3stable_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode3stable_atom_p(obj);
+  else
+    return gcinvariant_hashcode3stable_cons3_p(Car(obj))
+           && gcinvariant_hashcode3stable_cons3_p(Cdr(obj));
+}
+
+/* ---------------------------- FASTHASH EQUALP ---------------------------- */
+
 /* UP: Calculates the EQUALP-hashcode of an object.
  hashcode4(obj)
- Is is valid onyl until the next GC or the next modification
+ Is is valid only until the next GC or the next modification
  of the object.
  (equalp X Y) implies (= (hashcode4 X) (hashcode4 Y)). */
 global uint32 hashcode4 (object obj);
@@ -866,12 +1270,86 @@ global uint32 hashcode4 (object obj) {
   }
 }
 
+/* Tests whether hashcode4 of an object is guaranteed to be GC-invariant. */
+global bool gcinvariant_hashcode4_p (object obj);
+local bool gcinvariant_hashcode4_atom_p (object obj) {
+  if (numberp(obj) || gcinvariant_object_p(obj))
+    return true;
+  #ifdef TYPECODES
+  var tint type = typecode(obj) /* typeinfo */
+    & ~bit(notsimple_bit_t);    /* if simple or not, is irrelevant */
+  if (type >= (sbvector_type & ~bit(notsimple_bit_t)) /* bit/byte-vector ? */
+      && type <= (sb32vector_type & ~bit(notsimple_bit_t)))
+    return true;
+  if (type == (sstring_type & ~bit(notsimple_bit_t))) /* string ? */
+    return true;
+  /* Ignore other types of arrays and records, for simplicity. */
+  #else
+  if (orecordp(obj))
+    switch (Record_type(obj)) {
+      case Rectype_Sbvector: case Rectype_bvector:
+      case Rectype_Sb2vector: case Rectype_b2vector:
+      case Rectype_Sb4vector: case Rectype_b4vector:
+      case Rectype_Sb8vector: case Rectype_b8vector:
+      case Rectype_Sb16vector: case Rectype_b16vector:
+      case Rectype_Sb32vector: case Rectype_b32vector:
+      case Rectype_S8string: case Rectype_Imm_S8string:
+      case Rectype_S16string: case Rectype_Imm_S16string:
+      case Rectype_S32string: case Rectype_Imm_S32string:
+      case Rectype_reallocstring: case Rectype_string:
+        return true;
+      /* Ignore other types of arrays and records, for simplicity. */
+      default:
+        break;
+    }
+  #endif
+  return false;
+}
+local inline bool gcinvariant_hashcode4_cons0_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode4_atom_p(obj);
+  else
+    return true;
+}
+local inline bool gcinvariant_hashcode4_cons1_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode4_atom_p(obj);
+  else
+    return gcinvariant_hashcode4_cons0_p(Car(obj))
+           && gcinvariant_hashcode4_cons0_p(Cdr(obj));
+}
+local inline bool gcinvariant_hashcode4_cons2_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode4_atom_p(obj);
+  else
+    return gcinvariant_hashcode4_cons1_p(Car(obj))
+           && gcinvariant_hashcode4_cons1_p(Cdr(obj));
+}
+local inline bool gcinvariant_hashcode4_cons3_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode4_atom_p(obj);
+  else
+    return gcinvariant_hashcode4_cons2_p(Car(obj))
+           && gcinvariant_hashcode4_cons2_p(Cdr(obj));
+}
+global bool gcinvariant_hashcode4_p (object obj) {
+  if (atomp(obj))
+    return gcinvariant_hashcode4_atom_p(obj);
+  else
+    return gcinvariant_hashcode4_cons3_p(Car(obj))
+           && gcinvariant_hashcode4_cons3_p(Cdr(obj));
+}
+
+/* ----------------------------- USER DEFINED ----------------------------- */
+
 /* hashcode for user-defined ht_test */
 local uint32 hashcode_raw_user (object fun, object obj) {
   pushSTACK(obj); funcall(fun,1);
   value1 = check_uint32(value1);
   return I_to_UL(value1);
 }
+
+/* =========================== Hash table record =========================== */
 
 # Specification of the flags in a hash-table:
   #define htflags_test_eq_B      bit(0) # test is EQ
@@ -917,6 +1395,12 @@ local uint32 hashcode_raw_user (object fun, object obj) {
   # < result: true if they are considered equal
     typedef bool (* test_Pseudofun) (object obj1, object obj2);
 
+  # Specification for GCINVARIANT - Pseudo-Function:
+  # gcinvariant(obj)
+  # > obj: object
+  # < result: true if its hash code is guaranteed to be GC-invariant
+    typedef bool (* gcinvariant_Pseudofun) (object obj);
+
 # Extract Pseudo-Functions of a hash-table:
 #define lookupfn(ht)  \
   (*(lookup_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_lookupfn))
@@ -924,6 +1408,8 @@ local uint32 hashcode_raw_user (object fun, object obj) {
   (*(hashcode_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_hashcodefn))
 #define testfn(ht)  \
   (*(test_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_testfn))
+#define gcinvariantfn(ht)  \
+  (*(gcinvariant_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_gcinvariantfn))
 
 /* UP: Calculates the hashcode of an object with reference to a hashtable.
  hashcode(ht,obj)
@@ -1153,34 +1639,13 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
 #define hash_lookup(ht,obj,KVptr_,Iptr_)  \
   lookupfn(ht)(ht,obj,KVptr_,Iptr_)
 
-/* UP: Tests whether an object is instance of STANDARD-STABLEHASH or
-   STRUCTURE-STABLEHASH. */
-local inline bool instance_of_stablehash_p (object obj) {
-  if (instancep(obj)) {
-    var object obj_forwarded = obj;
-    instance_un_realloc(obj_forwarded);
-    var object cv = TheInstance(obj_forwarded)->inst_class_version;
-    var object clas = TheClassVersion(cv)->cv_class;
-    return !nullp(TheClass(clas)->subclass_of_stablehash_p);
-  } else if (structurep(obj)) {
-    return !nullp(memq(S(structure_stablehash),TheStructure(obj)->structure_types));
-  }
-  return false;
-}
-
 /* UP: Tests whether the hash code of a given key in a hash table is stable
    i.e. gc-invariant, or not.
  > ht: hash-table
  > obj: object
  < result: true if the key's hash code is gc-invariant */
 local inline bool hashcode_gc_invariant_p (object ht, object obj) {
-  if (gcinvariant_object_p(obj))
-    return true;
-  if (record_flags(TheHashtable(ht)) & htflags_stablehash_B) {
-    /* Test consistently with hashcode1stable. */
-    return instance_of_stablehash_p(obj);
-  }
-  return false;
+  return gcinvariantfn(ht)(obj);
 }
 
 /* Warn if adding an key to a hash table degrades its performance.
@@ -1426,7 +1891,7 @@ local object resize (object ht, object maxcount) {
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
       var uintL hc_raw = 0;                                             \
-      var bool cacheable = (ht_test_code(record_flags(TheHashtable(ht)))==0); /* not EQ|EQL|EQUAL|EQUALP */ \
+      var bool cacheable = (ht_test_code(flags)==0); /* not EQ|EQL|EQUAL|EQUALP */ \
       if (cacheable) hc_raw = hashcode_raw(ht,STACK_(key_pos));         \
       do { /* hash-table must still be enlarged: */                     \
         /* calculate new maxcount: */                                   \
@@ -1491,6 +1956,46 @@ local object get_eq_hashfunction () {
   }
 }
 
+/* UP: fetches the value of *eql-hashfunction*. */
+local object get_eql_hashfunction () {
+  var object value = Symbol_value(S(eql_hashfunction));
+  if (eq(value,S(fasthash_eql)) || eq(value,S(stablehash_eql)))
+    return value;
+  else {
+    Symbol_value(S(eql_hashfunction)) = S(fasthash_eql);
+    pushSTACK(value);                    # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_eql_hashfunction)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(S(fasthash_eql));
+    pushSTACK(value);
+    pushSTACK(S(stablehash_eql)); pushSTACK(S(fasthash_eql));
+    pushSTACK(S(eql_hashfunction));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~S: The value of ~S should be ~S or ~S, not ~S.\n"
+                   "It has been reset to ~S."));
+  }
+}
+
+/* UP: fetches the value of *equal-hashfunction*. */
+local object get_equal_hashfunction () {
+  var object value = Symbol_value(S(equal_hashfunction));
+  if (eq(value,S(fasthash_equal)) || eq(value,S(stablehash_equal)))
+    return value;
+  else {
+    Symbol_value(S(equal_hashfunction)) = S(fasthash_equal);
+    pushSTACK(value);                      # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_equal_hashfunction)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(S(fasthash_equal));
+    pushSTACK(value);
+    pushSTACK(S(stablehash_equal)); pushSTACK(S(fasthash_equal));
+    pushSTACK(S(equal_hashfunction));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~S: The value of ~S should be ~S or ~S, not ~S.\n"
+                   "It has been reset to ~S."));
+  }
+}
+
 /* check the :WEAK argument and return it
  can trigger GC */
 local gcv_object_t check_weak (gcv_object_t weak) {
@@ -1534,51 +2039,82 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
   var object lookuppfn;
   var object hashcodepfn;
   var object testpfn;
+  var object gcinvariantpfn;
  check_test_restart: { /* check test-argument: */
     var object test = STACK_3;
-    if (!boundp(test) || eq(test,S(eql)) || eq(test,L(eql))) {
-      flags = htflags_test_eql_B; /* EQL as default */
-      hashcodepfn = P(hashcode2); testpfn = P(eql);
+    if (!boundp(test) || eq(test,S(eql)) || eq(test,L(eql)))
+      test = get_eql_hashfunction();
+    if (eq(test,S(fasthash_eql))) {
+      flags = htflags_test_eql_B; /* FASTHASH-EQL */
+      hashcodepfn = P(hashcode2);
+      gcinvariantpfn = P(gcinvariant_hashcode2_p);
+      testpfn = P(eql);
+      lookuppfn = P(hash_lookup_builtin);
+    } else if (eq(test,S(stablehash_eql))) {
+      flags = htflags_test_eql_B | htflags_stablehash_B; /* STABLEHASH-EQL */
+      hashcodepfn = P(hashcode2stable);
+      gcinvariantpfn = P(gcinvariant_hashcode2stable_p);
+      testpfn = P(eql);
       lookuppfn = P(hash_lookup_builtin);
     } else {
       if (eq(test,S(eq)) || eq(test,L(eq)))
         test = get_eq_hashfunction();
       if (eq(test,S(fasthash_eq))) {
         flags = htflags_test_eq_B; /* FASTHASH-EQ */
-        hashcodepfn = unbound; testpfn = unbound;
+        hashcodepfn = unbound; /* specially handled in hashcode_builtin */
+        gcinvariantpfn = P(gcinvariant_hashcode1_p);
+        testpfn = unbound; /* specially handled in hash_lookup_builtin */
         lookuppfn = P(hash_lookup_builtin);
       } else if (eq(test,S(stablehash_eq))) {
         flags = htflags_test_eq_B | htflags_stablehash_B; /* STABLEHASH-EQ */
-        hashcodepfn = P(hashcode1stable); testpfn = unbound;
-        lookuppfn = P(hash_lookup_builtin);
-      } else if (eq(test,S(equal)) || eq(test,L(equal))) {
-        flags = htflags_test_equal_B; /* EQUAL */
-        hashcodepfn = P(hashcode3); testpfn = P(equal);
-        lookuppfn = P(hash_lookup_builtin);
-      } else if (eq(test,S(equalp)) || eq(test,L(equalp))) {
-        flags = htflags_test_equalp_B; /* EQUALP */
-        hashcodepfn = P(hashcode4); testpfn = P(equalp);
+        hashcodepfn = P(hashcode1stable);
+        gcinvariantpfn = P(gcinvariant_hashcode1stable_p);
+        testpfn = unbound; /* specially handled in hash_lookup_builtin */
         lookuppfn = P(hash_lookup_builtin);
       } else {
-        hashcodepfn = unbound; testpfn = unbound;
-        lookuppfn = P(hash_lookup_user);
-        if (symbolp(test)) {
-          var object ht_test = get(test,S(hash_table_test));
-          if (!consp(ht_test)) goto test_error;
-          STACK_3 = ht_test;
-          flags = 0; /* user-defined ht_test */
-        } else if (consp(test)) {
-          flags = 0; /* ad hoc (user-defined ht_test) */
+        if (eq(test,S(equal)) || eq(test,L(equal)))
+          test = get_equal_hashfunction();
+        if (eq(test,S(fasthash_equal))) {
+          flags = htflags_test_equal_B; /* FASTHASH-EQUAL */
+          hashcodepfn = P(hashcode3);
+          gcinvariantpfn = P(gcinvariant_hashcode3_p);
+          testpfn = P(equal);
+          lookuppfn = P(hash_lookup_builtin);
+        } else if (eq(test,S(stablehash_equal))) {
+          flags = htflags_test_equal_B | htflags_stablehash_B; /* STABLEHASH-EQUAL */
+          hashcodepfn = P(hashcode3stable);
+          gcinvariantpfn = P(gcinvariant_hashcode3stable_p);
+          testpfn = P(equal);
+          lookuppfn = P(hash_lookup_builtin);
+        } else if (eq(test,S(equalp)) || eq(test,L(equalp))) {
+          flags = htflags_test_equalp_B; /* EQUALP */
+          hashcodepfn = P(hashcode4);
+          gcinvariantpfn = P(gcinvariant_hashcode4_p);
+          testpfn = P(equalp);
+          lookuppfn = P(hash_lookup_builtin);
         } else {
-         test_error:
-          pushSTACK(NIL); /* no PLACE */
-          pushSTACK(test); /* TYPE-ERROR slot DATUM */
-          pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
-          pushSTACK(test); pushSTACK(S(Ktest));
-          pushSTACK(S(make_hash_table));
-          check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
-          STACK_3 = value1;
-          goto check_test_restart;
+          hashcodepfn = unbound;
+          gcinvariantpfn = unbound;
+          testpfn = unbound;
+          lookuppfn = P(hash_lookup_user);
+          if (symbolp(test)) {
+            var object ht_test = get(test,S(hash_table_test));
+            if (!consp(ht_test)) goto test_error;
+            STACK_3 = ht_test;
+            flags = 0; /* user-defined ht_test */
+          } else if (consp(test)) {
+            flags = 0; /* ad hoc (user-defined ht_test) */
+          } else {
+           test_error:
+            pushSTACK(NIL); /* no PLACE */
+            pushSTACK(test); /* TYPE-ERROR slot DATUM */
+            pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
+            pushSTACK(test); pushSTACK(S(Ktest));
+            pushSTACK(S(make_hash_table));
+            check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+            STACK_3 = value1;
+            goto check_test_restart;
+          }
         }
       }
     }
@@ -1713,6 +2249,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
   TheHashtable(ht)->ht_lookupfn = lookuppfn;
   TheHashtable(ht)->ht_hashcodefn = hashcodepfn;
   TheHashtable(ht)->ht_testfn = testpfn;
+  TheHashtable(ht)->ht_gcinvariantfn = gcinvariantpfn;
   /* STACK layout:
      initial-contents, key-type, value-type,
      warn-if-needs-rehash-after-gc, weak, test, -. */
@@ -1970,9 +2507,13 @@ global object hash_table_test (object ht) {
     case htflags_test_eq_B | htflags_stablehash_B:
       return S(stablehash_eq);
     case htflags_test_eql_B:
-      return S(eql);
+      return S(fasthash_eql);
+    case htflags_test_eql_B | htflags_stablehash_B:
+      return S(stablehash_eql);
     case htflags_test_equal_B:
-      return S(equal);
+      return S(fasthash_equal);
+    case htflags_test_equal_B | htflags_stablehash_B:
+      return S(stablehash_equal);
     case htflags_test_equalp_B:
       return S(equalp);
     case 0: { /* user-defined ==> (test . hash) */
@@ -2001,7 +2542,7 @@ LISPFUNNF(hash_table_test,1)
 LISPFUNNF(fasthash_stable_p,1)
 {
   var object obj = popSTACK();
-  VALUES_IF(gcinvariant_object_p(obj));
+  VALUES_IF(gcinvariant_hashcode1_p(obj));
 }
 
 /* (SYSTEM::STABLEHASH-STABLE-P obj)
@@ -2009,7 +2550,7 @@ LISPFUNNF(fasthash_stable_p,1)
 LISPFUNNR(stablehash_stable_p,1)
 {
   var object obj = popSTACK();
-  VALUES_IF(gcinvariant_object_p(obj) || instance_of_stablehash_p(obj));
+  VALUES_IF(gcinvariant_hashcode1stable_p(obj));
 }
 
 /* auxiliary functions for WITH-HASH-TABLE-ITERATOR, CLTL2 p. 439:

@@ -140,6 +140,8 @@
   LISPOBJ(gc_count,"0")
  #endif
   LISPOBJ(type_eq_hashfunction,"(MEMBER EXT::FASTHASH-EQ EXT::STABLEHASH-EQ)")
+  LISPOBJ(type_eql_hashfunction,"(MEMBER EXT::FASTHASH-EQL EXT::STABLEHASH-EQL)")
+  LISPOBJ(type_equal_hashfunction,"(MEMBER EXT::FASTHASH-EQUAL EXT::STABLEHASH-EQUAL)")
   LISPOBJ(type_weak_ht,"(MEMBER :BOTH :EITHER :VALUE :KEY NIL)")
 # for RECORD.D:
   LISPOBJ(constant_initfunction_code,".")
