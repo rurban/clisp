@@ -757,7 +757,7 @@ global int main()
 # printf("typedef sarray_ *  Sarray;\n");
 # printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sbvector_;\n");
 # printf("typedef sbvector_ *  Sbvector;\n");
-# printf("typedef struct { LRECORD_HEADER uintL  length; uintB  data[unspecified]; } sstring_;\n");
+# printf("typedef struct { LRECORD_HEADER uintL  length; chart  data[unspecified]; } sstring_;\n");
 # printf("typedef sstring_ *  Sstring;\n");
 # printf("typedef struct { LRECORD_HEADER uintL  length; object data[unspecified]; } svector_;\n");
 # printf("typedef svector_ *  Svector;\n");
@@ -1415,9 +1415,9 @@ global int main()
   printf("#define LISPFUN  LISPFUN_B\n");
 # printf("extern object vectorof (uintC len);\n");
 # printf("extern object allocate_bit_vector_0 (uintL len);\n");
-# printf("extern uintB up_case (uintB ch);\n");
-# printf("extern uintB down_case (uintB ch);\n");
-# printf("extern uintB* unpack_string (object string, uintL* len);\n");
+# printf("extern chart up_case (chart ch);\n");
+# printf("extern chart down_case (chart ch);\n");
+# printf("extern chart* unpack_string (object string, uintL* len);\n");
 # printf("extern object make_list (uintL len);\n");
 # printf("extern object listof (uintC len);\n");
 # printf("typedef enum { condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, file_error, storage_condition, warning, } conditiontype;\n");
