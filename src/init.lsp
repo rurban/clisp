@@ -169,6 +169,7 @@ formatter
 english deutsch francais
 ;; Symbol-Macros:
 *default-file-encoding*
+*ansi*
 #+UNICODE *pathname-encoding*
 #+UNICODE *terminal-encoding*
 #+UNICODE *misc-encoding*

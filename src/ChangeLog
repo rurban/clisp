@@ -1,3 +1,26 @@
+1999-04-06  Sam Steingold  <sds@goems.com>
+
+	--- *ANSI* is a symbol macro now.
+	* constsym.d: added `:ansi-cl', `ansi' and `set_ansi'.
+	* subr.d: added `ansi' and `set_ansi'.
+	* constobj.d: added `ansi'.
+	* places.lsp: define *ANSI*.
+	* init.lsp: export *ANSI*.
+	* spvw.d: call `set_ansi' instead of setting *ANSI*.
+	* misc.d (ansi, set_ansi): new LISPFUNNs.
+	--- Fix `export-syscalls' damaged by recent patches.
+	* socket.d (resolve_host_ipaddr): replaced `fehler_string_int'
+	with `fehler_string_integer'.
+	* pathname.d (user_data): ditto.  Also,
+	`fehler_pathname_descriptor' --> `fehler_pathname_designator'.
+	(file_stat): use `stream_fd' instead of `strm_ochannel'.
+	* stream.d (file_stat): removed.
+	(stream_fd): added.
+	* lispbibl.d: declare `stream_fd'.
+	--- fix `describe'
+	* describe.lsp (describe): set `*describe-done*' and
+	`*describe-nesting*' instead of binding.
+
 1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Stop storing german and french translations in the source files.

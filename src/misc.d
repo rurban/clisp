@@ -328,3 +328,28 @@ LISPFUNN(program_id,0)
 
 #endif
 
+LISPFUNN(ansi,0)
+  # (SYS::ANSI)
+{ value1 = O(ansi); mv_count = 1; }
+
+LISPFUNN(set_ansi,1)
+  # (SYS::SET-ANSI ansi-p)
+{
+  var object val = (eq(popSTACK(),NIL) ? NIL : T);
+
+  # (SETQ *ANSI* val)
+  O(ansi) = val;
+  # (SETQ *FLOATING-POINT-CONTAGION-ANSI* val)
+  Symbol_value(S(floating_point_contagion_ansi)) = val;
+  # (SETQ *MERGE-PATHNAMES-ANSI* val)
+  Symbol_value(S(merge_pathnames_ansi)) = val;
+  if (!eq(Symbol_value(S(features)),unbound)) { # *FEATURES*: PUSHNEW or DELETE
+    pushSTACK(S(Kansi_cl)); pushSTACK(Symbol_value(S(features)));
+    if (eq(val,T))      # (PUSHNEW :ANSI-CL *FEATURES*)
+      { funcall(L(adjoin),2); }
+    else                # (DELETE :ANSI-CL *FEATURES*)
+      { funcall(L(delete),2); }
+    Symbol_value(S(features)) = value1;
+  }
+  value1 = val; mv_count = 1;
+}

@@ -1030,6 +1030,8 @@
 ;;;                              Symbol-macros
 (define-symbol-macro *default-file-encoding* (system::default-file-encoding))
 (defsetf system::default-file-encoding system::set-default-file-encoding)
+(define-symbol-macro *ansi* (sys::ansi))
+(defsetf sys::ansi sys::set-ansi)
 #+UNICODE
 (progn
   (define-symbol-macro *pathname-encoding* (system::pathname-encoding))
