@@ -19,35 +19,35 @@ vacall-i386-msvc.c : vacall-i386.S
 	(echo '#ifdef _MSC_VER' ; echo '#include "vacall.h"' ; echo '#endif' ; cat vacall-i386.S) > vacall-i386-msvc.c
 
 vacall-m68k.mit.S : vacall-m68k.c vacall.h.in asmm68k.sh
-	$(GCC) -V egcs-2.91.57 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mit.s
+	$(GCC) -V 2.95.2 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mit.s
 	(echo '#include "asmm68k.h"' ; ./asmm68k.sh < vacall-m68k.mit.s) > vacall-m68k.mit.S
 	$(RM) vacall-m68k.mit.s
 
 vacall-m68k.mot.s : vacall-m68k.c vacall.h.in
-	$(GCC) -V egcs-2.91.57 -b m68k-linux $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mot.s
+	$(GCC) -V 2.95.2 -b m68k-linux $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mot.s
 
 vacall-mips.S : vacall-mips.c vacall.h.in asmmips.sh
-	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S vacall-mips.c -o vacall-mips.s
+	$(GCC) -V 2.95.2 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S vacall-mips.c -o vacall-mips.s
 	(echo '#include "asmmips.h"' ; ./asmmips.sh < vacall-mips.s) > vacall-mips.S
 	$(RM) vacall-mips.s
 
 vacall-mipsn32.S : vacall-mipsn32.c vacall.h.in asmmips.sh
-	$(GCC) -V egcs-2.91.57 -b mips-sgi-irix6 $(GCCFLAGS) -D__mipsn32__ -S vacall-mipsn32.c -o vacall-mipsn32.s
-	(echo '#include "asmmips.h"' ; $(SED) -e 's/\$$sp,\$$sp,208/$$sp,$$sp,272/' -e 's/\$$sp,208,/$$sp,272,/' < vacall-mipsn32.s | ./asmmips.sh) > vacall-mipsn32.S
+	$(GCC) -V 2.95.2 -b mips-sgi-irix6 $(GCCFLAGS) -D__mipsn32__ -S vacall-mipsn32.c -o vacall-mipsn32.s
+	(echo '#include "asmmips.h"' ; $(SED) -e 's/\$$sp,\$$sp,192/$$sp,$$sp,256/' -e 's/\$$sp,192,/$$sp,256,/' < vacall-mipsn32.s | ./asmmips.sh) > vacall-mipsn32.S
 	$(RM) vacall-mipsn32.s
 
 vacall-mips64.S : vacall-mips64.c vacall.h.in asmmips.sh
-	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -S vacall-mips64.c -o vacall-mips64.s
-	(echo '#include "asmmips.h"' ; $(SED) -e 's/\([^x0-9]\)208/\1144/g' -e 's/\([^x0-9]\)200/\1136/g' < vacall-mips64.s | ./asmmips.sh) > vacall-mips64.S
+	$(GCC) -V 2.95.2 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -S vacall-mips64.c -o vacall-mips64.s
+	(echo '#include "asmmips.h"' ; ./asmmips.sh < vacall-mips64.s) > vacall-mips64.S
 	$(RM) vacall-mips64.s
 
 vacall-sparc.S : vacall-sparc.c vacall.h.in asmsparc.sh
-	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S vacall-sparc.c -o vacall-sparc.s
+	$(GCC) -V 2.95.2 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S vacall-sparc.c -o vacall-sparc.s
 	(echo '#include "asmsparc.h"' ; ./asmsparc.sh < vacall-sparc.s) > vacall-sparc.S
 	$(RM) vacall-sparc.s
 
 vacall-sparc64.S : vacall-sparc64.c vacall.h.in asmsparc.sh
-	sparc64-linux-gcc -V 2.95 -b sparc64-linux $(GCCFLAGS) -D__sparc64__ -S vacall-sparc64.c -o vacall-sparc64.s
+	sparc64-linux-gcc -V 2.95.2 -b sparc64-linux $(GCCFLAGS) -D__sparc64__ -S vacall-sparc64.c -o vacall-sparc64.s
 	(echo '#include "asmsparc.h"' ; ./asmsparc64.sh < vacall-sparc64.s) > vacall-sparc64.S
 	$(RM) vacall-sparc64.s
 
@@ -65,16 +65,16 @@ vacall-arm.S : vacall-arm.c vacall.h.in asmarm.sh
 	$(RM) vacall-arm.s
 
 vacall-rs6000-aix.old.s : vacall-rs6000.c vacall.h.in
-	$(GCC) -V egcs-2.91.57 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mold-mnemonics $(GCCFLAGS) -D__rs6000__ -S vacall-rs6000.c -o vacall-rs6000-aix.old.s
+	$(GCC) -V 2.95.2 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mold-mnemonics $(GCCFLAGS) -D__rs6000__ -S vacall-rs6000.c -o vacall-rs6000-aix.old.s
 
 vacall-rs6000-aix.new.s : vacall-rs6000.c vacall.h.in
-	$(GCC) -V egcs-2.91.57 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mnew-mnemonics $(GCCFLAGS) -D__rs6000__ -S vacall-rs6000.c -o vacall-rs6000-aix.new.s
+	$(GCC) -V 2.95.2 -b rs6000 -mno-power -mno-power2 -mno-powerpc -mnew-mnemonics $(GCCFLAGS) -D__rs6000__ -S vacall-rs6000.c -o vacall-rs6000-aix.new.s
 
 vacall-rs6000-sysv4.s : vacall-rs6000.c vacall.h.in
-	$(GCC) -V egcs-2.91.66 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__rs6000__ -S vacall-rs6000.c -o vacall-rs6000-sysv4.s
+	$(GCC) -V 2.95.2 -b ppc-linux -mno-power -mno-power2 -mno-powerpc $(GCCFLAGS) -D__rs6000__ -S vacall-rs6000.c -o vacall-rs6000-sysv4.s
 
 vacall-m88k.s : vacall-m88k.c vacall.h.in
-	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S vacall-m88k.c -o vacall-m88k.s
+	$(GCC) -V 2.95.2 -b m88k-dgux $(GCCFLAGS) -D__m88k__ -S vacall-m88k.c -o vacall-m88k.s
 
 vacall-convex.s : vacall-convex.c vacall.h.in
 	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S vacall-convex.c -o vacall-convex.s
@@ -99,17 +99,17 @@ tests-i386.s : tests.c vacall.h.in
 
 tests-m68k.s : tests.c vacall.h.in
 	$(LN) vacall.h.in vacall.h
-	$(GCC) -V egcs-2.91.57 -b m68k-sun $(GCCFLAGS) -I/usr/include -D__m68k__ -S tests.c -o tests-m68k.s
+	$(GCC) -V 2.95.2 -b m68k-sun $(GCCFLAGS) -I/usr/include -D__m68k__ -S tests.c -o tests-m68k.s
 	$(RM) vacall.h
 
 tests-mips.s : tests.c vacall.h.in
 	$(LN) vacall.h.in vacall.h
-	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -I/usr/include -D__mips__ -S tests.c -o tests-mips.s
+	$(GCC) -V 2.95.2 -b mips-sgi $(GCCFLAGS) -I/usr/include -D__mips__ -S tests.c -o tests-mips.s
 	$(RM) vacall.h
 
 tests-sparc.s : tests.c vacall.h.in
 	$(LN) vacall.h.in vacall.h
-	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -I/usr/include -D__sparc__ -S tests.c -o tests-sparc.s
+	$(GCC) -V 2.95.2 -b sparc-sun $(GCCFLAGS) -I/usr/include -D__sparc__ -S tests.c -o tests-sparc.s
 	$(RM) vacall.h
 
 tests-alpha.s : tests.c vacall.h.in
@@ -129,12 +129,12 @@ tests-arm.s : tests.c vacall.h.in
 
 tests-rs6000.s : tests.c vacall.h.in
 	$(LN) vacall.h.in vacall.h
-	$(GCC) -V 2.6.3 -b rs6000 $(GCCFLAGS) -I/usr/include -D__rs6000__ -S tests.c -o tests-rs6000.s
+	$(GCC) -V 2.95.2 -b rs6000 $(GCCFLAGS) -I/usr/include -D__rs6000__ -S tests.c -o tests-rs6000.s
 	$(RM) vacall.h
 
 tests-m88k.s : tests.c vacall.h.in
 	$(LN) vacall.h.in vacall.h
-	$(GCC) -V 2.6.3 -b m88k-dgux $(GCCFLAGS) -I/usr/include -D__m88k__ -S tests.c -o tests-m88k.s
+	$(GCC) -V 2.95.2 -b m88k-dgux $(GCCFLAGS) -I/usr/include -D__m88k__ -S tests.c -o tests-m88k.s
 	$(RM) vacall.h
 
 tests-convex.s : tests.c vacall.h.in
