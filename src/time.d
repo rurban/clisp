@@ -774,7 +774,7 @@ LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
             && (posfixnum_to_L(arg) < 1314888) # arg < 1.1.2050
            )
           { now = (posfixnum_to_L(arg) - 613608) * 3600; }
-        elif (R_minusp(arg) || posfixnump(arg) && (posfixnum_to_L(arg) < 613608))
+        elif (R_minusp(arg) || (posfixnump(arg) && (posfixnum_to_L(arg) < 613608)))
           { now = 0; } # < 1.1.1970 -> treat like 1.1.1970
         else
           { now = (uintL)(1314888 - 613608) * 3600; } # >= 1.1.2050 -> treat like 1.1.2050
