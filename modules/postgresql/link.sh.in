@@ -1,9 +1,9 @@
-file_list='postgresql.o'
+NEW_MODULES='postgresql'
 make clisp-module \
      CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
      INCLUDES="$absolute_linkkitdir"
-
-NEW_FILES="$file_list"
-NEW_LIBS="$file_list @LIBS@"
+NEW_FILES=''
+for f in ${NEW_MODULES}; do NEW_FILES=${NEW_FILES}" ${f}.o"; done
+NEW_LIBS="${NEW_FILES} @LIBS@"
 NEW_MODULES="postgresql"
 TO_LOAD='postgresql'
