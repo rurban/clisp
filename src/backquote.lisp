@@ -219,26 +219,31 @@
 ;;; Handle the transformation of `(x1 x2 x3 ...) as described by HyperSpec
 ;;; to produce a list of forms that can be combined into an APPEND form.
 ;;; There is one deviation from the HyperSpec: namely, in the case
-;;; `(x1 x2 ... xn . atom) the atom is translated to (backquote atom)
-;;; rather than (quote atom). This allows for the atom to be a vector
+;;; `(x1 x2 ... xn . atom) the atom is translated to (BACKQUOTE atom)
+;;; rather than (QUOTE atom). This allows for the atom to be a vector
 ;;; with embedded unquotes, an apparently common extension.
-(defun bq-expand-list (form)
-  (if (null form)
-    nil
-    (let ((expanded-car (bq-transform (first form)))
-          (tail (rest form)))
-      (cond ((null tail) (list expanded-car))
-            ((consp tail)
-             (case (first tail)
-               ;; well-defined dotted unquote `( ... . ,form)
-               ((UNQUOTE)
-                (list expanded-car (second tail)))
-               ;; undefined dotted splice: `( ... . ,@form)
-               ((SPLICE NSPLICE)
-                (bq-dotted-splice-error (first tail)))
-               (otherwise
-                 (cons expanded-car (bq-expand-list tail)))))
-            (t (list expanded-car (list 'BACKQUOTE tail)))))))
+(defun bq-expand-list (forms)
+  (let ((expanded '())) ; reversed list of expanded forms to be APPENDed
+    (do ()
+        ((null forms))
+      (let ((expanded-car (bq-transform (first forms))))
+        (setq expanded (cons expanded-car expanded)))
+      (let ((tail (rest forms)))
+        (cond ((null tail) (return-from nil))
+              ((consp tail)
+               (case (first tail)
+                 ;; well-defined dotted unquote `( ... . ,form)
+                 ((UNQUOTE)
+                  (setq expanded (cons (second tail) expanded))
+                  (return-from nil))
+                 ;; undefined dotted splice: `( ... . ,@form)
+                 ((SPLICE NSPLICE)
+                  (bq-dotted-splice-error (first tail)))
+                 (otherwise
+                  (setq forms tail))))
+              (t (setq expanded (cons (list 'BACKQUOTE tail) expanded))
+                 (return-from nil)))))
+    (nreverse expanded)))
 
 ;;; --------------------------- Expansion Optimizer ---------------------------
 
