@@ -2,6 +2,34 @@
 
 #### Start of system configuration section. ####
 
+# Flags that can be set on the nmake command line:
+#   MFLAGS={-ML|-MT|-MD} for defining the compilation model
+#     MFLAGS=-ML (the default)  Single-threaded, statically linked - libc.lib
+#     MFLAGS=-MT                Multi-threaded, statically linked  - libcmt.lib
+#     MFLAGS=-MD                Multi-threaded, dynamically linked - msvcrt.lib
+#   DEBUG=1   for compiling with debugging information
+# Note that nmake command line flags are automatically passed to subdirectory
+# Makefiles. Therefore we don't need to pass them explicitly to subdirectory
+# Makefiles, but the subdirectory Makefiles need to have the same defaults.
+# Building as a DLL not supported yet.
+STATIC=1
+!if !defined(DEBUG)
+DEBUG=0
+!endif
+!if !defined(MFLAGS)
+!if $(STATIC)
+MFLAGS=
+!else
+MFLAGS=-MD
+!endif
+!endif
+
+!if $(DEBUG)
+OPTIMFLAGS = -Od -Z7
+!else
+OPTIMFLAGS = -D_NDEBUG -O1
+!endif
+
 HOST = i386-pc-win32-msvc
 CPU = i386
 
@@ -18,7 +46,7 @@ mandir = $(exec_prefix)/man
 
 # Programs used by "make":
 CC = cl
-CFLAGS = -O1
+CFLAGS = $(MFLAGS) $(OPTIMFLAGS)
 CPP = cl -E
 INCLUDES = -I. -I$(srcdir)
 AR = lib
@@ -51,9 +79,15 @@ trampoline.obj : $(srcdir)/trampoline.c trampoline_r.h config.h
 trampoline.s : $(srcdir)/trampoline.c trampoline_r.h config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/trampoline.c /FAs /Fatrampoline.s
 
+!if $(STATIC)
 trampoline.lib : $(OBJECTS)
 	$(RM) trampoline.lib
 	$(AR) $(AR_FLAGS)trampoline.lib $(OBJECTS)
+!else
+# trampoline.dll and trampoline.lib are created together.
+trampoline.lib : $(OBJECTS)
+	$(CC) $(MFLAGS) -LD $(OBJECTS)
+!endif
 
 test1.obj : $(srcdir)/test1.c trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/test1.c
@@ -75,12 +109,12 @@ check1 : all test1.exe
 check : all test1.exe test2.exe
 	test1.exe
 	test2.exe
-	touch tests.passed.$(HOST)
+	copy nul tests.passed.$(HOST)
 
 mostlyclean : clean
 
 clean : force
-	$(RM) $(OBJECTS) trampoline.lib core
+	$(RM) $(OBJECTS) trampoline.lib trampoline.exp trampoline.dll core
 	$(RM) test1.obj test1.exe test2.obj test2.exe
 
 distclean : clean
