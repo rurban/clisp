@@ -290,7 +290,7 @@
   <listitem><simpara>yes when &parsename; is non-&nil;
  </simpara></listitem></varlistentry>
  <varlistentry id="iss265"><term><ulink url="&clhs;/Issues/iss265.html">PATHNAME-SYNTAX-ERROR-TIME:EXPLICITLY-VAGUE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss266"><term><ulink url="&clhs;/Issues/iss266.html">PATHNAME-UNSPECIFIC-COMPONENT:NEW-TOKEN</ulink></term>&no;</varlistentry>
+ <varlistentry id="iss266"><term><ulink url="&clhs;/Issues/iss266.html">PATHNAME-UNSPECIFIC-COMPONENT:NEW-TOKEN</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss267"><term><ulink url="&clhs;/Issues/iss267.html">PATHNAME-WILD:NEW-FUNCTIONS</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss268"><term><ulink url="&clhs;/Issues/iss268.html">PEEK-CHAR-READ-CHAR-ECHO:FIRST-READ-CHAR</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss269"><term><ulink url="&clhs;/Issues/iss269.html">PLIST-DUPLICATES:ALLOW</ulink></term>&yes;</varlistentry>
