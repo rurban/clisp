@@ -1,3 +1,15 @@
+2002-05-25  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	fixed win32 build (broken on 2002-05-23 and 2002-05-22)
+	* array.d (elt_move_Char): rename the label right after
+	block beginning from `restart' to `restart_it' since 'restart'
+	is used before as a type name and it confuses the compiler
+	* charstrg.d (sstring_store_array): `small' renamed to `smallp'
+	for a similar reason
+	(coerce_normal_ss, nstring_upcase, nstring_downcase): `restart'
+	renamed to `restart_it'
+	* win32aux.d (read_helper_low, sock_read): fixed typos
+
 2002-05-24  Sam Steingold  <sds@gnu.org>
 
 	* linux.lisp (read-helper): new function (points to read_helper)
