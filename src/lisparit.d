@@ -71,11 +71,11 @@
       I_to_NDS_1(y, MSDptr=,len=,LSDptr=); # NDS zu Y
       begin_arith_call();
      {var uintD carry = mulusmall_loop_down(10,LSDptr,len,x); # mal 10, plus x
+      end_arith_call();
       if (!(carry==0))
         { *--MSDptr = carry; len++;
           if (uintWCoverflow(len)) { BN_ueberlauf(); } # Überlauf der Länge?
         }
-      end_arith_call();
       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
       return UDS_to_I(MSDptr,len); # UDS als Integer zurück
     }}

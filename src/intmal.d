@@ -255,10 +255,10 @@
       var uintC erglen;
       var uintD* ergLSDptr;
       I_to_NDS_nocopy(x, xMSDptr = , xlen = , xLSDptr = );
-      begin_arith_call();
       erglen = 2*xlen;
       if ((intWCsize < 32) && (erglen > (uintL)(bitc(intWCsize)-1))) { mal_ueberlauf(); }
       num_stack_need(erglen, ergMSDptr = , ergLSDptr = );
+      begin_arith_call();
       { var uintC len = xlen;
         var uintD MSD = xMSDptr[0];
         if (MSD == 0) { ergMSDptr[0] = 0; ergMSDptr[1] = 0; len--; }
