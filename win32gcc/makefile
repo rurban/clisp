@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host SSTEINGOLD as the output of the command:
+# This file was created on host brighton.podval.org as the output of the command:
 # ./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi win32gcc gcc
 
 # -------------- Start of configurable section --------------------
@@ -32,19 +32,19 @@ DESTDIR =
 MODULES =  
 
 # Programs used by "make":
-CC = gcc
-CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -mno-cygwin -D_WIN32 -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
+CC = gcc -mno-cygwin
+CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_WIN32 -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
 CPP = gcc -E
 CLFLAGS =  -x none
 LIBS = libsigsegv.a libiconv.a libavcall.a libcallback.a  -luser32 -lwsock32 -lole32 -lm
 X_LIBS = 
 
 MAKE = make
-RM = rm -f
 CP = cp -p
 LN_S = ln -s
 MV = mv
 CAT = cat
+RM = -rm -f
 TOUCH = -touch
 GREP = grep
 AR = ar
@@ -614,7 +614,11 @@ stage/config.fas
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
 makemake : makemake.in
-	./config.status
+	./config.status --file=makemake
+	chmod +x makemake
+
+unixconf.h : unixconf.h.in
+	./config.status --header=unixconf.h
 
 Makefile : makemake
 	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi win32gcc gcc > Makefile.tmp
@@ -1326,10 +1330,13 @@ sigsegv.h libsigsegv.a :
 	-$(LN_S) ../sigsegv/sigsegv.h sigsegv.h
 	-$(LN_S) ../sigsegv/libsigsegv.a libsigsegv.a
 
-UnicodeData.txt :
-	$(LN_S) ../utils/unicode/ftp.unicode.org/UnicodeData.txt UnicodeData.txt
+data : ../utils/unicode/ftp.unicode.org/UnicodeData.txt ../src/clhs.txt
+	-$(RM) data/*
+	-mkdir data
+	cd data && $(LN_S) ../../utils/unicode/ftp.unicode.org/UnicodeData.txt .
+	cd data && $(LN_S) ../../src/clhs.txt .
 
-lisp.exe : $(OBJECTS) modules.o libavcall.a libcallback.a    libiconv.a libsigsegv.a UnicodeData.txt
+lisp.exe : $(OBJECTS) modules.o libavcall.a libcallback.a    libiconv.a libsigsegv.a data
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.o $(LIBS) -o lisp.exe
 
 
@@ -1508,8 +1515,7 @@ halfcompiled.mem : lisp.exe $(LISPFILES) compiler.fas
 
 lispinit.mem : lisp.exe $(FASFILES)
 	-$(RM) lispinit.mem
-	$(RUN) -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"
-	$(MV) lispimag.mem lispinit.mem
+	$(RUN) -x "(load \"init.fas\") (saveinitmem) (exit)"
 
 
 # Perform self-tests.
@@ -1518,7 +1524,7 @@ check : test testsuite
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
 	comp *.fas stage
-	REM The test passed if only GENSYM differences were found.
+	echo The test passed if only GENSYM differences were found.
 
 stage :
 	-mkdir stage
@@ -1855,13 +1861,17 @@ suite :
 
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
-MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.png
+IMPNOTES = impnotes.html impnotes.css clisp.png
+MANUALS = clisp.1 clisp.html $(TXTFILES) $(IMPNOTES)
 
 impnotes.html : ../doc/impnotes.html
-	$(CP) ../doc/impnotes.html impnotes.html
+	$(LN_S) ../doc/impnotes.html impnotes.html
+
+impnotes.css : ../doc/impnotes.css
+	$(LN_S) ../doc/impnotes.css impnotes.css
 
 clisp.png : ../doc/clisp.png
-	$(CP) ../doc/clisp.png clisp.png
+	$(LN_S) ../doc/clisp.png clisp.png
 
 manual : $(READMES) $(MANUALS)
 
@@ -1945,10 +1955,17 @@ distrib : force
 	for f in lisp.exe lispinit.mem install.bat ; do \
 	  cp -p $$f $$distdir/$$f ; \
 	done ; \
+	mkdir $$distdir/data ; \
+	cp -p data/UnicodeData.txt $$distdir/data/UnicodeData.txt ; \
+	cp -p data/clhs.txt $$distdir/data/clhs.txt ; \
 	mkdir $$distdir/doc ; \
-	for f in clisp.1 clisp.man clisp.html $(TXTFILES) impnotes.html clisp.png ; do \
+	for f in clisp.1 clisp.man clisp.html $(TXTFILES) $(IMPNOTES) ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
+	mkdir $$distdir/emacs; \
+	cp -p ../emacs/clisp-coding.el $$distdir/emacs/clisp-coding.el ; \
+	cp -p ../emacs/clisp-indent.el $$distdir/emacs/clisp-indent.el ; \
+	cp -p ../emacs/clisp-indent.lisp $$distdir/emacs/clisp-indent.lisp ; \
 	mkdir $$distdir/src ; \
 	cp -p $(LISPFILES) install.lisp $$distdir/src/ ; \
 	chmod 755 $$distdir/. $$distdir/*/. ; \
@@ -1969,15 +1986,15 @@ clean1 : clean0
 	-$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
 	-rmdir stage
 	-rmdir suite
-	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile $(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
+	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html $(IMPNOTES) clisp.c distmakefile $(TXTFILES)
 
-# clean2 removes everything that becomes obsolete once lisp.exe is recompiled
-# without changing the bytecode format.
+# clean2 removes everything that becomes obsolete once lisp.exe
+# is recompiled without changing the bytecode format.
 clean2 : clean1
 	-$(RM) interpreted.mem halfcompiled.mem lispinit.mem lispinit2.mem
 
-# clean3 removes everything that becomes obsolete once lisp.exe is recompiled.
-# It leaves everything generated by "make allc".
+# clean3 removes everything that becomes obsolete once lisp.exe
+# is recompiled. It leaves everything generated by "make allc".
 clean3 : clean2
 	-$(RM) $(FASFILES) *.lib
 
