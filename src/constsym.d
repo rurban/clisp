@@ -1211,11 +1211,12 @@ LISPSYM(Kinput_error_action,"INPUT-ERROR-ACTION",keyword)
 LISPSYM(Koutput_error_action,"OUTPUT-ERROR-ACTION",keyword)
 LISPSYM(Kansi_cl,"ANSI-CL",keyword)
 LISPSYM(Kextra_file_types,"EXTRA-FILE-TYPES",keyword)
-#ifdef HAVE_SHELL
 LISPSYM(Kwait,"WAIT",keyword)
 LISPSYM(Kterminal,"TERMINAL",keyword)
+LISPSYM(Kpipe,"PIPE",keyword)
 LISPSYM(Karguments,"ARGUMENTS",keyword)
 LISPSYM(Kpriority,"PRIORITY",keyword)
+#ifdef WIN32_NATIVE
 LISPSYM(Khigh,"HIGH",keyword)
 LISPSYM(Knormal,"NORMAL",keyword)
 LISPSYM(Klow,"LOW",keyword)

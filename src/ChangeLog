@@ -1,3 +1,15 @@
+2003-08-29  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* subr.d, subrkw.d (LAUNCH): added kw arguments element-type,
+	external-format, buffered.
+	* constsym.d (PIPE): new keyword. LAUNCH keywords moved out of
+	HAVE_SHELL.
+	* stream.d (mkops_from_handles, mkips_from_handles): new global
+	functions to make pipe-streams.
+	* pathname.d (mkpipe): new local functions.
+	(LAUNCH) [WIN32_NATIVE, UNIX || RISCOS]: use new functions to
+	create pipe - streams.
+
 2003-08-28  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (subr_argtype): accept additional argument for better
