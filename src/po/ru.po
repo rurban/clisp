@@ -9,10 +9,6 @@
 # Дмитрий Иванов          <divanov@aha.ru>
 # Sam Steingold               <sds@gnu.org>
 #
-# ┐╝Ю╝╓╜ОО ▀╗╓╗О ┌═А╗╚Л╔╒╜═ <gorod@lidia.iis.nsk.su>
-# └╛╗БЮ╗╘ ┬╒═╜╝╒          <divanov@aha.ru>
-# Sam Steingold               <sds@gnu.org>
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
@@ -450,7 +446,6 @@ msgstr "Освобождаем память - вызываем GC...\n"
 msgid "disk full"
 msgstr "переполнение диска"
 
-# 0111
 #: spvw_memfile.d:779
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'\n"
@@ -459,7 +454,6 @@ msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
-# 0111
 #: spvw_memfile.d:1514
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: ошибка операционной системы во время загрузки файла инициализации `%s'"
@@ -494,7 +488,7 @@ msgstr "~: неверное объявление ~"
 
 #: eval.d:1838
 msgid "~: variable specification after ~ too long: ~"
-msgstr "~: слишком длинная спецификация переменной после &AUX: ~"
+msgstr "~: слишком длинная спецификация переменной после ~: ~"
 
 #: eval.d:1876
 msgid "~: ~ var must be followed by ~ or ~ or end of list: ~"
@@ -1206,7 +1200,7 @@ msgstr "~: аргумент ~ не содержит номера файла"
 
 #: stream.d:16070
 msgid "~: ~: buffered pipe-input-streams are not supported"
-msgstr "~: ~: буфферизованые конвеерные (pipe) потоки не поддерживаются"
+msgstr "~: ~: буферизованые конвеерные (pipe) потоки ввода не поддерживаются"
 
 #: stream.d:16071
 msgid "~: ~: stream of wrong direction"
@@ -1587,7 +1581,7 @@ msgstr "~: ~ не помещается в ~, неверный тип"
 
 #: array.d:541
 msgid "~: ~ cannot be stored in an array of element type NIL"
-msgstr "~: ~ не может храниться в массиве с типом елементов NIL"
+msgstr "~: ~ не может храниться в массиве с типом элементов NIL"
 
 #: array.d:882
 msgid "~: ~ is not an nonnegative integer less than the rank of ~"
@@ -1731,15 +1725,15 @@ msgstr "~: аргумент ~ может быть ~, ~, ~, ~ или ~."
 
 #: hashtabl.d:1288
 msgid "~: ~ argument should be a fixnum >=0, not ~"
-msgstr "~: аргумент должен быть ограниченным целым >=0, а не ~"
+msgstr "~: аргумент ~ должен быть ограниченным целым >=0, а не ~"
 
 #: hashtabl.d:1310
 msgid "~: ~ argument should be an integer or a float > 1, not ~"
-msgstr "~: аргумент должен быть целым или с плавающей точкой > 1, а не ~"
+msgstr "~: аргумент ~ должен быть целым или с плавающей точкой > 1, а не ~"
 
 #: hashtabl.d:1353
 msgid "~: ~ argument should be a real between 0 and 1, not ~"
-msgstr "~: ~ аргумент должен быть действительным числом между 0 и 1, а не ~"
+msgstr "~: аргумент ~ должен быть действительным числом между 0 и 1, а не ~"
 
 #: hashtabl.d:1433
 msgid "~: internal error while building ~"
@@ -2099,7 +2093,7 @@ msgstr "~: ~-index ~ индекс ~ должен быть меньше, чем длина строки (string)"
 
 #: charstrg.d:2127
 msgid "~: :START-index ~ must not be greater than :END-index ~"
-msgstr "~: :START-index ~ не должен быть больше, чем :END-index ~"
+msgstr "~: начальный индекс ~ не должен быть больше, чем конечный ~"
 
 #: charstrg.d:2203
 msgid "~: argument ~ should be a string, a symbol or a character"
@@ -2107,15 +2101,15 @@ msgstr "~: аргумент ~ должен быть строкой, символом или литерой "
 
 #: charstrg.d:2241 charstrg.d:3258
 msgid "~: :start-index ~ must not be greater than :end-index ~"
-msgstr "~: :start-index ~ не должен быть больше, чем :end-index ~"
+msgstr "~: начальный индекс ~ не должен быть больше, чем конечный ~"
 
 #: charstrg.d:2290
 msgid "~: :start1-index ~ must not be greater than :end1-index ~"
-msgstr "~: :start1-index ~ не должен быть больше, чем :end1-index ~"
+msgstr "~: начальный индекс 1 ~ не должен быть больше, чем конечный индекс 1 ~"
 
 #: charstrg.d:2311
 msgid "~: :start2-index ~ must not be greater than :end2-index ~"
-msgstr "~: :start2-index ~ не должен быть больше, чем :end2-index ~"
+msgstr "~: начальный индекс 2 ~ не должен быть больше, чем конечный индекс 2 ~"
 
 #: charstrg.d:2791
 msgid "~: the string length ~ should be nonnegative fixnum"
@@ -2358,7 +2352,7 @@ msgstr "~: аргумент ~ должен быть неотрицательным ограниченным целым"
 
 #: error.d:904
 msgid "~: ~ is not a non-negative ~"
-msgstr "~: ~ не является неотрицателным ~"
+msgstr "~: ~ не является неотрицательным ~"
 
 #: error.d:967
 msgid "Attempt to modify a read-only string: ~"
@@ -3950,7 +3944,7 @@ msgstr "Директива ~~{ требует аргумента-списка, а не ~S"
 
 #: format.lisp:1642
 msgid "~~<...~~:> not implemented yet"
-msgstr "не реализовано"
+msgstr "~~<...~~:> не реализовано"
 
 #: format.lisp:1669
 msgid "Prefix for logical block must be constant"
@@ -3966,7 +3960,7 @@ msgstr "Слишком много аргументов для этой директивы"
 
 #: format.lisp:2434
 msgid "Error: ~~:@> not implemented"
-msgstr "функция не реализована"
+msgstr "функция ~~:@> не реализована"
 
 #: international.lisp:47
 msgid "Language ~S is not defined"
@@ -4460,11 +4454,11 @@ msgstr "~S из ~S: После ~S символ ~S является неопределенным диспетчерским макро
 
 #: defs2.lisp:458 defs2.lisp:475
 msgid "~S: element types of ~S and ~S are ambiguous. Please use ~S or ~S."
-msgstr "~S: тип елемента ~S в ~S неоднозначен. Используйте ~S или ~S."
+msgstr "~S: тип элемента ~S в ~S неоднозначен. Используйте ~S или ~S."
 
 #: defs2.lisp:615 dribble.lisp:34
 msgid "~S: ~S should be a ~S"
-msgstr "~S: ~S должен быть ~"
+msgstr "~S: ~S должен быть ~S"
 
 #: loop.lisp:47
 msgid "~S: syntax error after ~A in ~S"
