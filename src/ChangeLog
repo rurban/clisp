@@ -1,3 +1,10 @@
+2004-05-07  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/configure.in: check for the library where erf()
+	is implemented
+	* modules/syscalls/link.sh.in (NEW_LIBS): "-m" will be in @LIBS@
+	becausd of the above check
+
 2004-05-07  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (CC_CPLUSPLUS): New variable.
