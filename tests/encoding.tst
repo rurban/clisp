@@ -26,3 +26,10 @@ ERROR
  (ext:make-encoding :charset charset:cp1252
                     :output-error-action :ignore))
 #(65)
+
+;; from Bruno:
+(let ((z #(27 36 40 68 43 35 43 83 43 100 27 40 66)))
+  (equalp z (convert-string-to-bytes (convert-string-from-bytes
+                                      z charset:ISO-2022-JP-2)
+                                     charset:ISO-2022-JP-2)))
+t
