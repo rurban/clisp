@@ -52,7 +52,7 @@
 (defun report-no-new-value-string () ; ABI
   (TEXT "Retry"))
 (defun report-new-values-string () ; ABI
-  (TEXT "You may input new values for ~S."))
+  (TEXT "You may input new values for ~@{~S~^, ~}."))
 (defun assert-error-string (test-form) ; ABI
   (format nil
     (TEXT "~S must evaluate to a non-NIL value.")
@@ -65,8 +65,8 @@
        (WHEN ,test-form (GO ,tag2))
        (CERROR ,(case (length place-list)
                   (0 `(REPORT-NO-NEW-VALUE-STRING))
-                  (1 `(FORMAT NIL (REPORT-ONE-NEW-VALUE-STRING) ',place-list))
-                  (t `(FORMAT NIL (REPORT-NEW-VALUES-STRING) ',place-list)))
+                  (1 `(APPLY #'FORMAT NIL (REPORT-ONE-NEW-VALUE-STRING) ',place-list))
+                  (t `(APPLY #'FORMAT NIL (REPORT-NEW-VALUES-STRING) ',place-list)))
                ',(or string "~A")
                ,@(if string
                    args

@@ -1185,7 +1185,7 @@
            ;; only one restart: CONTINUE
            (CONTINUE
              :REPORT (LAMBDA (STREAM)
-                       (FORMAT STREAM
+                       (APPLY #'FORMAT STREAM
                                (,(case (length place-list)
                                    (0 'REPORT-NO-NEW-VALUE-STRING)
                                    (1 'REPORT-ONE-NEW-VALUE-STRING)

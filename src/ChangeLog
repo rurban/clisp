@@ -1,5 +1,14 @@
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
+	Improve prompt after assert failure.
+	* macros2.lisp (report-new-values-string): Change to a format string
+	that accepts more than 1 argument.
+	(assert): Pass the places individually to the format string, not as
+	a list of places.
+	* condition.lisp (assert): Likewise.
+
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
 	* condition.lisp (assert): Simplify macroexpansion by use of wrap-let*.
 
 2005-01-01  Bruno Haible  <bruno@clisp.org>
