@@ -1997,20 +1997,7 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
         Symbol_value(S(unicode_16_little_endian))));
       break;
     case VT_FILETIME:
-      {
-        /* The FILETIME data structure is a 64-bit value representing
-           the number of 100-nanosecond intervals since January 1, 1601. */
-        /* It represents UTC time usually. */
-        /* divide it by 10 000 000 and subtract 109207*24*3600 - the number of
-           seconds between 1.1.1601 and 1.1.1900 (doesn't fit to ulong)
-           to obtain the time in universal time format */
-        __int64 ft64 = pvar->filetime.dwHighDateTime;
-        ft64 <<= 32;
-        ft64 += pvar->filetime.dwLowDateTime;
-        ft64 /= 10000000; ft64 -= ((__int64)109207)*86400;
-        pushSTACK(UL_to_I((unsigned long) (ft64 & 0xFFFFFFFF)));
-      }
-      break;
+      pushSTACK(convert_time_to_universal(&(pvar->filetime))); break;
     case VT_CF:
       pushSTACK(`:CLIPBOARD-FORMAT`);
       break;
@@ -2020,7 +2007,6 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
   }
   return 1;
 }
-
 /* popSTACK -> pvar  */
 static int LispToPropVariant (PROPVARIANT * pvar) {
   int rv = 0;int sfp = 0;
@@ -2028,8 +2014,8 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
   if (consp(STACK_0)) {
     /* (KW VALUE) OR (KW NIL) ? */
     if (!nullp(Cdr(STACK_0)) && !nullp(Car(STACK_0))
-      && consp(Cdr(STACK_0)) && nullp(Cdr(Cdr(STACK_0)))
-      && symbolp(Car(STACK_0)))
+        && consp(Cdr(STACK_0)) && nullp(Cdr(Cdr(STACK_0)))
+        && symbolp(Car(STACK_0)))
     {
       if (eq(Car(STACK_0),`:I1`)) typehint = VT_I1; else
       if (eq(Car(STACK_0),`:UI1`)) typehint = VT_UI1; else
@@ -2104,16 +2090,8 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
     /* ASSUME FILETIME */
     if (typehint == VT_EMPTY) typehint = VT_FILETIME;
     if (typehint == VT_FILETIME) {
-      /* doesn't always fit in fixnum */
-      /* see filetime read handling in PropVariantToLisp */
-      unsigned long int utf = I_to_UL(STACK_0);
-      __int64 i64 = utf;
-      i64 += ((__int64)109207)*86400;
-      i64 *= 10000000;
-      pvar->filetime.dwHighDateTime = (unsigned long) (i64>>32 & 0xFFFFFFFFul);
-      pvar->filetime.dwLowDateTime  = (unsigned long) (i64 & 0xFFFFFFFFul);
-      pvar->vt = VT_FILETIME;
-      rv = 1;
+      pvar->vt = VT_FILETIME; rv = 1;
+      convert_time_from_universal(STACK_0,&(pvar->filetime));
     } else if (typehint == VT_I1) {
       pvar->vt = typehint; pvar->cVal = I_to_sint8(STACK_0); rv = 1;
     } else if (typehint == VT_UI1) {
