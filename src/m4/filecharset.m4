@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -74,6 +74,7 @@ int main ()
                   while ((d = readdir(dirp)))
                     { if (!strcmp(d->d_name,".")) continue;
                       if (!strcmp(d->d_name,"..")) continue;
+                      if (!strncmp(d->d_name,".nfs",4)) continue;
                       if (!strcmp(d->d_name,filename)) legal[i] = 1;
                       /* Remove the file even if its name is something else. */
                       unlink(d->d_name);
@@ -135,6 +136,19 @@ changequote([,])dnl
 EOF
 AC_TRY_EVAL(ac_link)
 cl_cv_os_valid_filename_char=`./conftest`
+# Workaround a problem with NFS on Solaris 7, where unlink()ed files reappear
+# immediately under a different name and disappear only after 1. the process
+# doing readdir() has exited and 2. waiting a second or two.
+# Even "rm -rf conftestdir" goes into an endless loop, eating CPU time, under
+# these conditions.
+period=1
+while test -n "`ls conftestdir/.nfs* 2>/dev/null`"; do
+  echo "waiting for NFS..."
+  rm -f conftestdir/.nfs* 2>/dev/null
+  sleep $period
+  period=`expr 2 '*' $period`
+done
+# Now it's safe to do "rm -rf conftestdir".
 fi
 rm -rf conftest*
 ])
