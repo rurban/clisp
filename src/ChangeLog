@@ -1,5 +1,7 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_garcol.d (gc_mark): Add DEBUG_GC_MARK debugging facility.
+
 	* lispbibl.d (simple_array_to_storage, simple_array_to_storage1):
 	Change to avoid gcc warning.
 
