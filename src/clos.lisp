@@ -915,16 +915,14 @@
       (setf (class-shared-slots class)
             (let ((v (make-array shared-index))
                   (i 0))
-              (mapc #'(lambda (slot)
-                        (when (eq (slotdef-allocation slot) class)
-                          (setf (svref v i)
-                            (let ((init (slotdef-initer slot)))
-                              (if init
-                                (if (car init) (funcall (car init)) (cdr init))
-                                unbound)))
-                          (incf i)))
-                    (class-slots class))
-              v))))
+              (dolist (slot (class-slots class) v)
+                (when (eq (slotdef-allocation slot) class)
+                  (setf (svref v i)
+                        (let ((init (slotdef-initer slot)))
+                          (if init
+                              (if (car init) (funcall (car init)) (cdr init))
+                              unbound)))
+                  (incf i)))))))
   (setf (class-default-initargs class) ; 28.1.3.3.
         (remove-duplicates
           (mapcan
@@ -1377,7 +1375,7 @@
   (system::note-new-standard-class)
   ;; 7. value #<unbound>
   (def-unbound
-    (sys::%record-ref (allocate-std-instance <standard-object> 2) 1)))
+    (sys::%record-ref (allocate-std-instance <standard-object> 3) 2)))
 
 
 ;; 28.1.4. Integrating Types and Classes

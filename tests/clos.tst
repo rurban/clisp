@@ -751,3 +751,62 @@ good
              (defclass ,c3 (,c5 ,c4) nil)
              (make-instance ',c1)))))
 error
+
+(progn
+  (defclass class-0203 () ((a :allocation :class) (b :allocation :instance)))
+  (defclass class-0204 (class-0203) (c d))
+  (let ((c1 (make-instance 'class-0203)) (c2 (make-instance 'class-0204)))
+    (list
+     :bound (slot-boundp c1 'a) (slot-boundp c1 'b)
+     (slot-boundp c2 'a) (slot-boundp c2 'b)
+     (slot-boundp c2 'c) (slot-boundp c2 'd)
+     (setf (slot-value c1 'a) 'x)
+     :bound (slot-boundp c1 'a) (slot-boundp c1 'b)
+     (slot-boundp c2 'a) (slot-boundp c2 'b)
+     (slot-boundp c2 'c) (slot-boundp c2 'd)
+     (slot-value c1 'a)
+     (slot-value c2 'a)
+     (eq (slot-makunbound c1 'a) c1)
+     :bound (slot-boundp c1 'a) (slot-boundp c1 'b)
+     (slot-boundp c2 'a) (slot-boundp c2 'b)
+     (slot-boundp c2 'c) (slot-boundp c2 'd))))
+(:bound nil nil nil nil nil nil
+ x
+ :bound t nil t nil nil nil
+ x x
+ t
+ :bound nil nil nil nil nil nil)
+
+(progn
+  (defclass class-0206a () ((a :allocation :instance) (b :allocation :class)))
+  (defclass class-0206b (class-0206a)
+    ((a :allocation :class) (b :allocation :instance)))
+  (let ((c1 (make-instance 'class-0206a)) (c2 (make-instance 'class-0206b)))
+    (list
+     :bound (slot-boundp c1 'a) (slot-boundp c1 'b)
+     (slot-boundp c2 'a) (slot-boundp c2 'b)
+     (setf (slot-value c1 'a) 'x)
+     (setf (slot-value c1 'b) 'y)
+     :bound (slot-boundp c1 'a) (slot-boundp c1 'b)
+     (slot-boundp c2 'a) (slot-boundp c2 'b)
+     :value-1
+     (slot-value c1 'a) (slot-value c1 'b)
+     (progn (slot-makunbound c1 'a)
+	    (slot-makunbound c1 'b)
+	    (setf (slot-value c2 'a) 'x))
+     (setf (slot-value c2 'b) 'y)
+     :bound (slot-boundp c1 'a) (slot-boundp c1 'b)
+     (slot-boundp c2 'a) (slot-boundp c2 'b)
+     :value-2
+     (slot-value c2 'a) (slot-value c2 'b)
+     (progn (slot-makunbound c2 'a)
+	    (slot-makunbound c2 'b)
+	    nil))))
+(:bound nil nil nil nil
+ x y
+ :bound t t nil nil
+ :value-1 x y
+ x y
+ :bound nil nil t t
+ :value-2 x y
+ nil)
