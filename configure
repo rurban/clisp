@@ -490,7 +490,9 @@ if test -z "$do_build"; then
   echo
   echo "To continue building CLISP, the following commands are recommended"
   echo "(cf. unix/INSTALL step 4):"
-  echo "    cd $DIRNAME"
+  if test "$DIRNAME" != "."; then
+    echo "    cd $DIRNAME"
+  fi
   echo "    ./makemake $makemake_args > Makefile"
   echo "    make config.lsp"
   echo "    ${EDITOR:-vi} config.lsp"
