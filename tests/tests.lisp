@@ -6,9 +6,11 @@
     `(BLOCK ,b
        (LET ((*ERROR-HANDLER*
               #'(LAMBDA (&REST ARGS)
-                  (LET ((*PRINT-READABLY* NIL) (*PRINT-CIRCLE* NIL))
-                    (TERPRI) (APPLY #'FORMAT T (CDR ARGS)))
-                  (RETURN-FROM ,b 'ERROR))))
+                  (with-standard-io-syntax
+                    (let* ((*print-readably* nil)
+                           (error-message (apply #'format nil (cdr args))))
+                      (terpri) (princ error-message)
+                      (return-from ,b (values 'error error-message)))))))
          ,@forms))))
 
 #+(or AKCL ECL)
@@ -55,10 +57,10 @@
         (when (or (eq form eof) (eq result eof)) (return))
         (incf total-count)
         (print form)
-        (let ((my-result
-               (if ignore-errors
-                  (with-ignored-errors (eval form)) ; return ERROR on errors
-                  (eval form)))) ; don't disturb the condition system when testing it!
+        (multiple-value-bind (my-result error-message)
+            (if ignore-errors
+                (with-ignored-errors (eval form)) ; return ERROR on errors
+                (eval form)) ; don't disturb the condition system when testing it!
           (cond ((eql result my-result)
                  (format t "~%EQL-OK: ~S" result))
                 ((equal result my-result)
@@ -68,9 +70,9 @@
                 (t
                  (incf error-count)
                  (format t "~%ERROR!! ~S should be ~S !" my-result result)
-                 (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
+                 (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]"
                              form result lisp-implementation-type
-                             my-result))))))
+                             my-result error-message))))))
     (values total-count error-count)))
 
 (defun do-errcheck (stream log &optional ignore-errors)
