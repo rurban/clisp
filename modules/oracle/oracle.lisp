@@ -97,8 +97,8 @@ to-sqlval to-string update-row valid-symbol
 
 ; CONNECT
 
-(defun connect (user password server &optional schema (auto-commit t) (prefetch-buffer-bytes 0))
-"(ORACLE::CONNECT user password server &optional schema auto-commit prefetch-buffer-bytes)
+(defun connect (user password server &optional schema (auto-commit t) (prefetch-buffer-bytes 0) (long-len -1) (truncate-ok t))
+"(ORACLE::CONNECT user password server &optional schema auto-commit prefetch-buffer-bytes long-len truncate-ok)
 
 Connect to an Oracle database.  All subsequent operations will affect
 this database.  A single program can access several different
@@ -123,6 +123,12 @@ Optional arguments:
     bytes        you can reduce this to 10,000 or so.  Alternatively, if you have a
                  fast connection to Oracle and regularly do large queries, you can
                  increase throughput by increasing this value.
+    long-len     Number of bytes to fetch for LONG data type.  LONG columns having
+                 data that exceeds this size will raise an error, or be truncated
+                 depending on the value of truncate-ok (below).  Setting this parameter
+                 to zero and disallowing truncation will disable LONG fetching entirely.
+                 If NIL or negative, defaults to 500k bytes.
+    truncate-ok  If set, allow truncation of LONG columns (default: NIL).
 
 Returns: T if a cached connection was re-used (NIL if a new connection
          was created and cached).
@@ -130,7 +136,9 @@ Returns: T if a cached connection was re-used (NIL if a new connection
   (when *oracle-in-transaction* (db-error "CONNECT not allowed inside WITH-TRANSACTION"))
 
   ; Default current schema
-  (if (null schema) (setq schema user))
+  (if (null schema) (setf schema user))
+  (if (null long-len) (setf long-len -1))
+  (if (null prefetch-buffer-bytes) (setf prefetch-buffer-bytes 0))
 
   ; Set up global connection cache
   (if (null *oracle-connection-cache*)
@@ -142,7 +150,7 @@ Returns: T if a cached connection was re-used (NIL if a new connection
          (result t))
     (when (null conn)
           ; Connect to database
-          (let ((handle (oracle_connect user schema password server prefetch-buffer-bytes (c-truth auto-commit))))
+          (let ((handle (oracle_connect user schema password server prefetch-buffer-bytes (c-truth auto-commit) long-len (c-truth truncate-ok))))
             (when (not (lisp-truth (oracle_success handle)))
                    ; Retry connection
                    ; ... TODO: implement retry logic here
@@ -740,7 +748,7 @@ Argument: none
     (cond ((null val) nil)
           ((find dtype '("NUMBER" "INTEGER" "FLOAT") :test #'equal)
            (read-from-string val))
-          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2") :test #'equal)
+          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW") :test #'equal)
            val)
           (t (db-error (cat "Unsupported data type '" dtype "'"))))))
 
@@ -857,7 +865,9 @@ Argument: none
                                          (password       c-string)
                                          (server         c-string)
                                          (prefetch_bytes int)
-                                         (auto_commit    int))
+                                         (auto_commit    int)
+                                         (long_len       int)
+                                         (truncate_ok    int))
                              (:return-type c-pointer))
 
 ; DISCONNECT
