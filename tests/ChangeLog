@@ -1,3 +1,8 @@
+2003-02-13  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst, path.tst, streams.tst, strings.tst: added tests for
+	displaced strings combined with :START/:END arguments
+
 2003-02-04  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-all-tests) [CLISP, FFI]: run "ffi"

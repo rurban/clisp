@@ -168,6 +168,12 @@ ERROR
 (MULTIPLE-VALUE-LIST (PARSE-INTEGER D :JUNK-ALLOWED T))
 (NIL 0)
 
+(let* ((s "0123456789")
+       (d (make-array 5 :displaced-to s :displaced-index-offset 3
+                      :element-type 'character)))
+  (multiple-value-list (parse-integer d :start 2 :end 5)))
+(567 5)
+
 (STREAM-ELEMENT-TYPE #+XCL STDIN #-XCL *TERMINAL-IO*)
 #+(or CLISP ALLEGRO CMU) CHARACTER #-(or CLISP ALLEGRO CMU) STRING-CHAR
 
