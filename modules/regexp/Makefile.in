@@ -16,7 +16,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = regexi.o $(REGEX_O) link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi
+DISTRIBFILES = regexi.o $(REGEX_O) link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi preload.lisp
 distribdir =
 
 all : regexp.fas regexi.o $(REGEX_O)

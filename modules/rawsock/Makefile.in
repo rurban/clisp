@@ -14,7 +14,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = rawsock.o link.sh Makefile sock.lisp rawsock.xml
+DISTRIBFILES = rawsock.o link.sh Makefile sock.lisp rawsock.xml preload.lisp
 distribdir =
 
 all : sock.fas rawsock.o
