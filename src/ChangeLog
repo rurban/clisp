@@ -1,3 +1,9 @@
+2003-04-16  Sam Steingold  <sds@gnu.org>
+
+	* loadform.lisp (mlf-unquote): removed
+	(mlf-init-function): use SUBLIS instead of MLF-UNQUOTE
+	Reported by Christophe Rhodes <csr21@cam.ac.uk>
+
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
 	* backquote.lisp (eval-self-p): T evaluates to itself too

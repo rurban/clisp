@@ -31,34 +31,14 @@
   (:method ((object standard-object) &optional environment)
     (make-load-form-saving-slots object :environment environment)))
 
-(defun mlf-unquote (var form)
-  ;; replace '(... var ...) with `(... ,var ...)
-  ;; (setq v 10)
-  ;; (mlf-unquote 'v ''(1 (2 (b c) v d (a)))) ==>
-  ;; (LIST 1 (LIST 2 '(B C) V 'D '(A)))
-  (cond ((atom form) form)
-        ((eq (car form) 'quote)
-         (labels ((find-var (tree)
-                    (if (atom tree) (eq var tree)
-                        (or (find-var (car tree)) (find-var (cdr tree)))))
-                  (unquote (form)
-                    (if (consp form)
-                        (if (find-var form)
-                            (cons 'list (mapcar #'unquote form))
-                            (list 'quote form))
-                        (if (eq form var) form
-                            (if (constantp form) form (list 'quote form))))))
-           (unquote (cadr form))))
-        (t (cons (mlf-unquote var (car form))
-                 (mlf-unquote var (cdr form))))))
-
 (defun mlf-init-function (object)
   (multiple-value-bind (cre-form ini-form) (make-load-form object)
     (if ini-form
-        (let ((var (gensym)))
+        (let ((var (gensym "MAKE-LOAD-FORM-")))
           `(lambda ()
             (let ((,var ,cre-form))
-              ,(mlf-unquote var (nsubst var object ini-form))
+              ,(sublis `((',object . ,var) (,object . ,var)) ini-form
+                       :test #'equal)
               ,var)))
         `(lambda () ,cre-form))))
 
