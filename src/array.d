@@ -4782,11 +4782,8 @@ LISPFUNN(vector_endtest,2)
   var object seq = STACK_1;
   if (!vectorp(seq))
     fehler_vector(seq);
-  if (eq(fixnum(vector_length(seq)),STACK_0)) {
-    VALUES1(T); skipSTACK(2);
-  } else {
-    VALUES1(NIL); skipSTACK(2);
-  }
+  VALUES_IF(eq(fixnum(vector_length(seq)),STACK_0));
+  skipSTACK(2);
 }
 
 LISPFUNN(vector_fe_init,1)
