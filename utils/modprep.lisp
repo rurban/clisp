@@ -626,9 +626,8 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 (defun new-checker (name cpp-names &key type prefix default enum
                     (condition (current-condition)))
   (setq default (unless (eq default T)
-                  (if default
-                      (or (parse-integer default :junk-allowed t) default)
-                      (to-C-name (first cpp-names) prefix))))
+                  (and default
+                       (or (parse-integer default :junk-allowed t) default))))
   (when (and type enum)
     (error "~S(~S): cannot specify both ~A=~S and ~A=~S"
            'new-checker name :type type :enum enum))
