@@ -98,13 +98,8 @@ LISPSPECFORM(function, 1,1,nobody)
         fehler_funsymbol(S(function),name);
       funname = STACK_0; # 2. Argument, hoffentlich Lambdaausdruck
     }
-    if (!(consp(funname) && eq(Car(funname),S(lambda)))) { # Cons (LAMBDA . ...) ?
-      pushSTACK(funname);
-      pushSTACK(S(function));
-      fehler(source_program_error,
-             GETTEXT("~: ~ is not a function name")
-            );
-    }
+    if (!(consp(funname) && eq(Car(funname),S(lambda)))) # (LAMBDA . ...)
+      fehler_funname_source(S(function),funname);
     # Lambdaausdruck
     # im aktuellen Environment in eine Closure umwandeln:
     value1 = get_closure(Cdr(funname),name,false,&aktenv); mv_count=1;
