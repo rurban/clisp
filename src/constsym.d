@@ -1431,6 +1431,9 @@ LISPSYM(random_state_stern,"*RANDOM-STATE*",lisp) # als Variable in LISPARIT
 LISPSYM(unicode_16,"UNICODE-16",charset)
 LISPSYM(unicode_16_big_endian,"UNICODE-16-BIG-ENDIAN",charset)
 LISPSYM(unicode_16_little_endian,"UNICODE-16-LITTLE-ENDIAN",charset)
+LISPSYM(unicode_32,"UNICODE-32",charset)
+LISPSYM(unicode_32_big_endian,"UNICODE-32-BIG-ENDIAN",charset)
+LISPSYM(unicode_32_little_endian,"UNICODE-32-LITTLE-ENDIAN",charset)
 LISPSYM(utf_8,"UTF-8",charset)
 LISPSYM(java,"JAVA",charset)
 LISPSYM(ascii,"ASCII",charset) # ---------------------------+ These must be
