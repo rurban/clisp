@@ -6,6 +6,7 @@
 	(traverse-anode): use it instead of CONST-VALUE
 	(const-index, make-const-code, traverse-anode):
 	keep using CONST-VALUE where appropriate!
+	(in-same-function-p): remove unused function
 
 2003-10-07  Sam Steingold  <sds@gnu.org>
 
