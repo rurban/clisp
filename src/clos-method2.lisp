@@ -108,68 +108,14 @@
                                (,cont
                                 ,@req-dummies
                                 ,@(if rest-dummy `(&REST ,rest-dummy) '()))
-                               (SYSTEM::FUNCTION-MACRO-LET
-                                ((CALL-NEXT-METHOD
-                                  ((&REST NEW-ARGS)
-                                   (IF NEW-ARGS
-                                     ;; argument checking in the interpreter only
-                                     (IF (EVAL-WHEN (EVAL) T)
-                                       (%CALL-NEXT-METHOD
-                                        ,self
-                                        ,cont
-                                        ,(if rest-dummy
-                                           `(LIST* ,@req-dummies ,rest-dummy)
-                                           `(LIST ,@req-dummies))
-                                        NEW-ARGS)
-                                       (IF ,cont
-                                         (APPLY ,cont NEW-ARGS)
-                                         (APPLY (FUNCTION %NO-NEXT-METHOD)
-                                                ,self NEW-ARGS)))
-                                     ,(if rest-dummy
-                                        `(IF ,cont
-                                           (APPLY ,cont ,@req-dummies ,rest-dummy)
-                                           (APPLY (FUNCTION %NO-NEXT-METHOD) ,self
-                                                  ,@req-dummies ,rest-dummy))
-                                        `(IF ,cont
-                                           (FUNCALL ,cont ,@req-dummies)
-                                           (%NO-NEXT-METHOD ,self ,@req-dummies)))))
-                                  ((&REST NEW-ARG-EXPRS)
-                                   (IF NEW-ARG-EXPRS
-                                     ;; argument checking in the interpreter only
-                                     (LIST 'IF '(EVAL-WHEN (EVAL) T)
-                                       (LIST '%CALL-NEXT-METHOD
-                                         ',self
-                                         ',cont
-                                         (LIST ',(if rest-dummy 'LIST* 'LIST)
-                                           ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                           ,@(if rest-dummy `(',rest-dummy) '()))
-                                         (CONS 'LIST NEW-ARG-EXPRS))
-                                       (LIST 'IF ',cont
-                                         (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
-                                         (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS)))
-                                     ,(if rest-dummy
-                                        `(LIST 'IF ',cont
-                                           (LIST 'APPLY ',cont
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                             ',rest-dummy)
-                                           (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
-                                             ',self
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                             ',rest-dummy))
-                                        `(LIST 'IF ',cont
-                                           (LIST 'FUNCALL ',cont
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies))
-                                           (LIST '%NO-NEXT-METHOD
-                                             ',self
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)))))))
-                                 (NEXT-METHOD-P
-                                  (() ,cont)
-                                  (() ',cont)))
-                                ;; new body:
-                                ,(if rest-dummy
-                                   `(APPLY (FUNCTION ,lambda-expr)
-                                           ,@req-dummies ,rest-dummy)
-                                   `(,lambda-expr ,@req-dummies))))))))
+                               ,(add-next-method-local-functions
+                                  self cont req-dummies rest-dummy
+                                  ;; new body:
+                                  (list
+                                    (if rest-dummy
+                                      `(APPLY (FUNCTION ,lambda-expr)
+                                              ,@req-dummies ,rest-dummy)
+                                      `(,lambda-expr ,@req-dummies)))))))))
                      (sig (make-signature :req-num reqanz :opt-num optanz
                                           :rest-p restp :keys-p keyp
                                           :keywords keywords :allow-p allowp)))
