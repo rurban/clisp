@@ -1,5 +1,9 @@
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
+	* condition.lisp (check-value): Fix bug in the CONTINUE restart.
+
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
 	* record.d (CLOS::%CHANGE-CLASS): Remove third argument. Simplify.
 	* clos-class5.lisp (change-class): Nop.
 
