@@ -437,10 +437,12 @@
 <!ENTITY f-addr "<replaceable>foreign-address</replaceable>">
 <!ENTITY f-ent "<replaceable>foreign-entity</replaceable>">
 <!ENTITY f-ptr "<replaceable>foreign-pointer</replaceable>">
+<!ENTITY set-foreign-pointer "<link linkend='fptr'><function>FFI:SET-FOREIGN-POINTER</function></link>">
 <!ENTITY foreign-address "<link linkend='faddr'><function>FFI:FOREIGN-ADDRESS</function></link>">
 <!ENTITY foreign-address-null "<link linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
 <!ENTITY foreign-address-t "<link linkend='faddr'><classname>FFI:FOREIGN-ADDRESS</classname></link>">
 <!ENTITY foreign-address-unsigned "<link linkend='faddr-u'><function>FFI:FOREIGN-ADDRESS-UNSIGNED</function></link>">
+<!ENTITY foreign-value "<link linkend='foreign-value'><function>FFI:FOREIGN-VALUE</function></link>">
 <!ENTITY foreign-allocate "<link linkend='foreign-heap'><function>FFI:FOREIGN-ALLOCATE</function></link>">
 <!ENTITY foreign-free "<link linkend='foreign-heap'><function>FFI:FOREIGN-FREE</function></link>">
 <!ENTITY foreign-function "<link linkend='dffi-make-func'><function>FFI:FOREIGN-FUNCTION</function></link>">
