@@ -112,119 +112,122 @@ int main (int argc, char* argv[])
    * only at normal spaces, but also at hard spaces.
    * See <impnotes.html#script>.
    */
-  if (argc > 1)
-    { int wordcount = 0; /* number of pieces in argv[1] */
-      { char* arg = argv[1];
+  if (argc > 1) {
+    int wordcount = 0; /* number of pieces in argv[1] */
+    { char* arg = argv[1];
         int inword = 0;
-        while (*arg != '\0')
-          { int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
-            if (!inword && !spacep) wordcount++;
-            inword = !spacep;
-            arg++;
-      }   }
-     {int old_argc = argc;
-      char** old_argv = argv;
-      int new_argc = argc + wordcount - 1;
-      char** new_argv = (char**) malloc((new_argc+1)*sizeof(char*));
-      if (!new_argv) goto oom;
-      argc = new_argc;
-      argv = new_argv;
-      /* Copy argv[0] unmodified. */
-      *new_argv++ = *old_argv++;
-      /* Split argv[1] into pieces. */
-      { char* arg = *old_argv++;
-        int inword = 0;
-        while (*arg != '\0')
-          { int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
-            if (!inword)
-              { if (!spacep) { *new_argv++ = arg; } }
-              else
-              { if (spacep) { *arg = '\0'; } }
-            inword = !spacep;
-            arg++;
-      }   }
-      /* Copy argv[2..argc-1] unmodified. */
-      { int i;
-        for (i = old_argc-2; i > 0; i--) { *new_argv++ = *old_argv++; }
-      }
-      *new_argv = NULL;
-    }}
+        while (*arg != '\0') {
+          int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
+          if (!inword && !spacep) wordcount++;
+          inword = !spacep;
+          arg++;
+        }
+    }
+    {int old_argc = argc;
+     char** old_argv = argv;
+     int new_argc = argc + wordcount - 1;
+     char** new_argv = (char**) malloc((new_argc+1)*sizeof(char*));
+     if (!new_argv) goto oom;
+     argc = new_argc;
+     argv = new_argv;
+     /* Copy argv[0] unmodified. */
+     *new_argv++ = *old_argv++;
+     { /* Split argv[1] into pieces. */
+       char* arg = *old_argv++;
+       int inword = 0;
+       while (*arg != '\0') {
+         int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
+         if (!inword) {
+           if (!spacep) { *new_argv++ = arg; }
+         } else {
+           if (spacep) { *arg = '\0'; }
+         }
+         inword = !spacep;
+         arg++;
+       }
+     }
+     { /* Copy argv[2..argc-1] unmodified. */
+       int i;
+       for (i = old_argc-2; i > 0; i--) { *new_argv++ = *old_argv++; }
+     }
+     *new_argv = NULL;
+    }
+  }
   /*
    * Done with script interpreter argument handling.
    */
   { char** argptr = &argv[1];
     char** argptr_limit = &argv[argc];
     enum { for_exec, for_init, for_compile } argv_for = for_exec;
-    while (argptr < argptr_limit)
-      { char* arg = *argptr++;
-        if ((arg[0] == '-') && !(arg[1] == '\0'))
-          { switch (arg[1])
-              {
-#               define OPTION_ARG  \
-                  if (arg[2] == '\0') \
-                    { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
-                    else { arg = &arg[2]; }
-                /* Options to which we have to pay attention. */
-                case 'B':
-                  OPTION_ARG
-                  argv_lisplibdir = arg;
-                  break;
-                case 'K':
-                  OPTION_ARG
-                  argv_linkingset = arg;
-                  break;
-                case 'M':
-                  OPTION_ARG
-                  argv_memfile = arg;
-                  break;
-                case 'N':
-                  OPTION_ARG
-                  argv_localedir = arg;
-                  break;
-                /* Skippable options without arguments. */
-                case 'h':
-                case 'q':
-                case 'I':
-                case 'C':
-                case 'l':
-                case 'a':
-                case 'w':
-                case 'n': /* -norc */
-                case '-':
-                  break;
-                /* Skippable options with arguments. */
-                case 'W':
-                case 'm':
-                case 's':
-                case 't':
-                case 'L':
-                case 'E':
-                case 'o':
-                case 'p':
-                case 'x':
-                  OPTION_ARG
-                  break;
-                case 'i':
-                  argv_for = for_init;
-                  break;
-                case 'c':
-                  argv_for = for_compile;
-                  break;
-                default:
-                  goto usage;
-              }
-          }
-          else
-          { switch (argv_for)
-              { case for_init:
-                case for_compile:
-                  break;
-                case for_exec:
-                  /* All the remaining options are for the Lisp program. */
-                  goto done_options;
-          }   }
+    while (argptr < argptr_limit) {
+      char* arg = *argptr++;
+      if ((arg[0] == '-') && !(arg[1] == '\0')) {
+        switch (arg[1]) {
+#        define OPTION_ARG  \
+          if (arg[2] == '\0') \
+            { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
+          else { arg = &arg[2]; }
+          /* Options to which we have to pay attention. */
+          case 'B':
+            OPTION_ARG;
+            argv_lisplibdir = arg;
+            break;
+          case 'K':
+            OPTION_ARG;
+            argv_linkingset = arg;
+            break;
+          case 'M':
+            OPTION_ARG;
+            argv_memfile = arg;
+            break;
+          case 'N':
+            OPTION_ARG;
+            argv_localedir = arg;
+            break;
+          /* Skippable options without arguments. */
+          case 'h':
+          case 'q':
+          case 'I':
+          case 'C':
+          case 'l':
+          case 'a':
+          case 'w':
+          case 'n': /* -norc */
+          case '-':
+            break;
+          /* Skippable options with arguments. */
+          case 'W':
+          case 'm':
+          case 's':
+          case 't':
+          case 'L':
+          case 'E':
+          case 'o':
+          case 'p':
+          case 'x':
+            OPTION_ARG;
+            break;
+          case 'i':
+            argv_for = for_init;
+            break;
+          case 'c':
+            argv_for = for_compile;
+            break;
+          default:
+            goto usage;
+        }
+      } else {
+        switch (argv_for) {
+          case for_init:
+          case for_compile:
+            break;
+          case for_exec:
+            /* All the remaining options are for the Lisp program. */
+            goto done_options;
+        }
       }
-    done_options: ;
+    }
+   done_options: ;
   }
   { char* linkingsetdir;
     char* executable;
@@ -232,15 +235,15 @@ int main (int argc, char* argv[])
     /* Compute linking set. */
     if (argv_linkingset[0]=='/')
       linkingsetdir = argv_linkingset;
-      else
-      { linkingsetdir = (char*)malloc(strlen(lisplibdir)+1+strlen(argv_linkingset)+1);
-        if (!linkingsetdir) goto oom;
-        strcpy(linkingsetdir, lisplibdir);
-        strcat(linkingsetdir, "/");
-        strcat(linkingsetdir, argv_linkingset);
-      }
-    /* Compute executable's name. */
-    { char* execname = "lisp.run";
+    else {
+      linkingsetdir = (char*)malloc(strlen(lisplibdir)+1+strlen(argv_linkingset)+1);
+      if (!linkingsetdir) goto oom;
+      strcpy(linkingsetdir, lisplibdir);
+      strcat(linkingsetdir, "/");
+      strcat(linkingsetdir, argv_linkingset);
+    }
+    { /* Compute executable's name. */
+      char* execname = "lisp.run";
       executable = (char*)malloc(strlen(linkingsetdir)+1+strlen(execname)+1);
       if (!executable) goto oom;
       strcpy(executable, linkingsetdir);
@@ -254,44 +257,43 @@ int main (int argc, char* argv[])
     { char** argptr = &argv[1];
       char** argptr_limit = &argv[argc];
       char** new_argptr = &new_argv[1];
-      if (!argv_lisplibdir)
-        { *new_argptr++ = "-B";
-          *new_argptr++ = lisplibdir;
-        }
-      if (!argv_memfile)
-        { char* filename = "lispinit.mem";
-          argv_memfile = (char*)malloc(strlen(linkingsetdir)+1+strlen(filename)+1);
-          if (!argv_memfile) goto oom;
-          strcpy(argv_memfile, linkingsetdir);
-          strcat(argv_memfile, "/");
-          strcat(argv_memfile, filename);
-          *new_argptr++ = "-M";
-          *new_argptr++ = argv_memfile;
-        }
-      if (!argv_localedir)
-        { *new_argptr++ = "-N";
-          *new_argptr++ = localedir;
-        }
+      if (!argv_lisplibdir) {
+        *new_argptr++ = "-B";
+        *new_argptr++ = lisplibdir;
+      }
+      if (!argv_memfile) {
+        char* filename = "lispinit.mem";
+        argv_memfile = (char*)malloc(strlen(linkingsetdir)+1+strlen(filename)+1);
+        if (!argv_memfile) goto oom;
+        strcpy(argv_memfile, linkingsetdir);
+        strcat(argv_memfile, "/");
+        strcat(argv_memfile, filename);
+        *new_argptr++ = "-M";
+        *new_argptr++ = argv_memfile;
+      }
+      if (!argv_localedir) {
+        *new_argptr++ = "-N";
+        *new_argptr++ = localedir;
+      }
       while (argptr < argptr_limit) { *new_argptr++ = *argptr++; }
       *new_argptr = NULL;
     }
     /* Launch the executable. */
     execv(executable,new_argv);
-    /* execv() returns only if there was an error. */
-    { int saved_errno = errno;
+    { /* execv() returns only if there was an error. */
+      int saved_errno = errno;
       fprintf(stderr,"%s: ",program_name);
       errno = saved_errno; perror(executable);
     }
     return 1;
   }
-  usage:
-  { fprintf(stderr,"%s: invalid command-line option, try `%s --help'\n",
-                   program_name,program_name);
+  usage: {
+    fprintf(stderr,"%s: invalid command-line option, try `%s --help'\n",
+            program_name,program_name);
     return 1;
   }
-  oom:
-  { fprintf(stderr,"%s: out of memory\n",program_name);
+  oom: {
+    fprintf(stderr,"%s: out of memory\n",program_name);
     return 1;
   }
 }
-
