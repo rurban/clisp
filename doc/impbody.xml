@@ -43,9 +43,9 @@
 </section>
 
 <section><title><ulink url="&clhs;/Body/sec_1-9.html">1.9
-   Symbols in the &cl-pac; Package</ulink></title>
+   Symbols in the Package</ulink> &cl-pac;</title>
 
-<para>Symbols missing from the &cl-pac; package:</para>
+<para>32 symbols missing from the &cl-pac; package (out of 978):</para>
 
 <simplelist type="horiz" columns="3">
  <member>&print-lines-var;</member>
@@ -77,10 +77,6 @@
  <member>&pprint-tab;</member>
  <member>&pprint-tabular;</member>
  <member>&set-pprint-dispatch;</member>
- <member>&simple-condition-format-control;</member>
- <member>&style-warning-type;</member>
- <member>&unbound-slot-instance;</member>
- <member>&unbound-slot-type;</member>
  <member>&update-instance-for-different-class;</member>
  <member>&update-instance-for-redefined-class;</member>
  <member>&upgraded-complex-part-type;</member>
@@ -174,13 +170,13 @@
 <section><title><ulink url="&clhs;/Body/sec_3-1-1.html">3.1.1
    Introduction to Environments</ulink></title>
 
-<formalpara><title><function>lisp:the-environment</function></title>
+<formalpara><title><function>ext:the-environment</function></title>
 <para>As in Scheme, the macro <literal
- role="sexp">(<function>lisp:the-environment</function>)</literal>
+ role="sexp">(<function>ext:the-environment</function>)</literal>
  returns the current lexical environment.  This works only in
  interpreted code and is not compilable!</para></formalpara>
 
-<formalpara><title><literal role="sexp">(lisp:eval-env
+<formalpara><title><literal role="sexp">(ext:eval-env
  <replaceable>form</replaceable> &optional-amp;
  <replaceable>env</replaceable>)</literal></title>
 <para>evaluates a form in a given lexical environment, just if the form
@@ -255,7 +251,7 @@ executes a compiled version of form.</para>
  <replaceable>value-type</replaceable>
  <replaceable>form</replaceable>)</literal> enforces a type check in
  interpreted code.  No type check is done in compiled code.  See also
- the <link linkend="ethe"><function>lisp:ethe</function></link>
+ the <link linkend="ethe"><function>ext:ethe</function></link>
  macro.</para>
 
 </section>
@@ -332,24 +328,24 @@ executes a compiled version of form.</para>
  but not an &environment-amp; marker.</para>
 
 <formalpara><title><literal
- role="sexp">(<function>lisp:type-expand-1</function>
+ role="sexp">(<function>ext:type-expand-1</function>
   <replaceable>typespec</replaceable>)</literal></title>
 <para>If <replaceable>typespec</replaceable> is a user-defined type,
- <function>lisp:type-expand-1</function> will expand it once and return
+ <function>ext:type-expand-1</function> will expand it once and return
  two values: the expansion and &t;. If
  <replaceable>typespec</replaceable> is not a user-defined type, then
  the two values <replaceable>typespec</replaceable> and &nil; are returned.
 </para></formalpara>
 
 <formalpara><title><literal
- role="sexp">(<function>lisp:type-expand</function>
+ role="sexp">(<function>ext:type-expand</function>
  <replaceable>typespec</replaceable>)</literal></title>
 <para>This is similar to <literal
- role="sexp">(<function>lisp:type-expand-1</function>
+ role="sexp">(<function>ext:type-expand-1</function>
  <replaceable>typespec</replaceable>)</literal>, but repeatedly expands
  <replaceable>typespec</replaceable> until it is no longer a
  user-defined type.  A second value of &t; or &nil; is returned as for
- <function>lisp:type-expand-1</function>, indicating whether the
+ <function>ext:type-expand-1</function>, indicating whether the
  original <replaceable>typespec</replaceable> was a user-definedtype.
 </para></formalpara>
 
@@ -420,7 +416,7 @@ executes a compiled version of form.</para>
 <section><title><ulink url="&clhs;/Body/sec_4-3.html">4.3
    Classes</ulink></title>
 
-<para>The &clos; symbols are exported from the package
+<para>The &clos; symbols are &export;ed from the package
  <quote>CLOS</quote> and thus normally visible in all user packages. If
  you do not want them (for example, if you want to use the
  <ulink url="ftp://clisp.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
@@ -429,7 +425,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>Deviations from ANSI CL:</title>
+<section id="clos-diff"><title>Deviations from ANSI CL:</title>
 
 <formalpara><title>&defclass;</title>
 <para>It <emphasis>is</emphasis> required that the superclasses of a
@@ -652,18 +648,18 @@ executes a compiled version of form.</para>
 <para><literal role="sexp">(&get-setf-expansion;
  <replaceable>form</replaceable> &optional-amp;
  <replaceable>env</replaceable>)</literal>, <literal
- role="sexp">(lisp:get-setf-method <replaceable>form</replaceable>
+ role="sexp">(ext:get-setf-method <replaceable>form</replaceable>
  &optional-amp; <replaceable>env</replaceable>)</literal>, and <literal
- role="sexp">(lisp:get-setf-method-multiple-value
+ role="sexp">(ext:get-setf-method-multiple-value
  <replaceable>form</replaceable> &optional-amp;
  <replaceable>env</replaceable>)</literal> receive as optional argument
  the environment necessary for macro expansions.  In
- &define-setf-expander; and <function>lisp:define-setf-method</function>
+ &define-setf-expander; and <function>ext:define-setf-method</function>
  &lalist;s, one can specify &environment-amp; and a variable, which will
  be bound to the environment.  This environment should be passed to all
  calls of &get-setf-expansion;,
- <function>lisp:get-setf-method</function> and
- <function>lisp:get-setf-method-multiple-value</function>.  If this is
+ <function>ext:get-setf-method</function> and
+ <function>ext:get-setf-method-multiple-value</function>.  If this is
  done, even local macros will be interpreted as places correctly.</para>
 
 <para>Attempts to modify read-only data will signal an error.  Program
@@ -672,8 +668,8 @@ executes a compiled version of form.</para>
  kinds of arrays, and user-defined data types.</para>
 
 <para>See also the <link
- linkend="letf"><function>lisp:letf</function></link> and <link
- linkend="letf"><function>lisp:letf*</function></link> macros.</para>
+ linkend="letf"><function>ext:letf</function></link> and <link
+ linkend="letf"><function>ext:letf*</function></link> macros.</para>
 
 </section>
 
@@ -701,9 +697,9 @@ executes a compiled version of form.</para>
  <replaceable>expansion</replaceable>)</literal>.</para>
 
 <para>The function <emphasis
- role="strong"><function>lisp:symbol-macro-expand</function></emphasis>
+ role="strong"><function>ext:symbol-macro-expand</function></emphasis>
  tests for a &symbol-macro;: If <replaceable>symbol</replaceable> is defined as
- a &symbol-macro;, <literal role="sexp">(lisp:symbol-macro-expand
+ a &symbol-macro;, <literal role="sexp">(ext:symbol-macro-expand
  <replaceable>symbol</replaceable>)</literal> returns two values, &t; and the
  expansion, otherwise it returns &nil;.</para>
 
@@ -853,8 +849,9 @@ executes a compiled version of form.</para>
  <listitem><simpara>You need not worry about the values of
   &print-base-var;, &print-radix-var;, &print-case-var;,
   &print-gensym-var;, &print-array-var;, &pr-closure;,
-  <link linkend="pr-rpars"><varname>lisp:*print-rpars*</varname></link>,
-  <link linkend="pr-indent"><varname>lisp:*print-indent-lists*</varname></link>
+  <link linkend="pr-rpars"><varname>custom:*print-rpars*</varname></link>,
+  <link linkend="pr-indent"
+   ><varname>custom:*print-indent-lists*</varname></link>
   </simpara></listitem>
 </itemizedlist>
 
@@ -872,37 +869,37 @@ executes a compiled version of form.</para>
  there is one) lists the available <link linkend="debugger">debugging
  commands</link>.</para>
 
-<formalpara><title><function>lisp:muffle-cerrors</function></title>
+<formalpara><title><function>ext:muffle-cerrors</function></title>
 <para>The macro <literal
- role="sexp">(<function>lisp:muffle-cerrors</function>
+ role="sexp">(<function>ext:muffle-cerrors</function>
  {<replaceable>form</replaceable>}*)</literal> executes the
  <replaceable>form</replaceable>s.  When a continuable error occurs, no
  message is printed.  Instead, the &continue; restart is invoked.
 </para></formalpara>
 
-<formalpara><title><function>lisp:appease-cerrors</function></title>
+<formalpara><title><function>ext:appease-cerrors</function></title>
 <para>The macro <literal
- role="sexp">(<function>lisp:appease-cerrors</function>
+ role="sexp">(<function>ext:appease-cerrors</function>
  {<replaceable>form</replaceable>}*)</literal> executes the
  <replaceable>form</replaceable>s.  When a continuable error occurs, the
  error is printed as a warning and the &continue; restart is invoked.
 </para></formalpara>
 
-<formalpara><title><function>lisp:exit-on-error</function></title>
+<formalpara><title><function>ext:exit-on-error</function></title>
 <para>The macro <literal
- role="sexp">(<function>lisp:exit-on-error</function>
+ role="sexp">(<function>ext:exit-on-error</function>
  {<replaceable>form</replaceable>}*)</literal> executes the
  <replaceable>form</replaceable>s.  When a non-continuable error or a
  <keycombo><keycap>Ctrl</keycap><keysym>C</keysym></keycombo> interrupt
  occurs, the error is printed and &clisp; terminates with error status.
 </para></formalpara>
 
-<formalpara><title><function>lisp:with-restarts</function></title>
-<para>The macro <function>lisp:with-restarts</function> is like
+<formalpara><title><function>ext:with-restarts</function></title>
+<para>The macro <function>ext:with-restarts</function> is like
  &restart-case;, except that the forms are specified after the restart
  clauses instead of before them, and the restarts created are not
  implicitly associated to any condition.
- <literal role="sexp">(<function>lisp:with-restarts</function>
+ <literal role="sexp">(<function>ext:with-restarts</function>
  ({<varname>restart-clause</varname>}*)
  {<replaceable>form</replaceable>}*)</literal>
  is therefore equivalent to <literal role="sexp">(&restart-case;
@@ -922,10 +919,6 @@ executes a compiled version of form.</para>
 
 <section><title><ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">
     9.2. The Conditions Dictionary</ulink></title>
-
-<formalpara><title>&signal;</title>
-<para>The default condition type for conditions created by &signal; is
- &simple-condition-type;, not &simple-error-type;.</para></formalpara>
 
 <formalpara><title>&restart-case;</title>
 <para>In &restart-case; clauses the argument list can also be specified
@@ -951,10 +944,6 @@ executes a compiled version of form.</para>
  conditions.  This makes the syntax dependent implicit association
  performed by &restart-case; nearly obsolete.</para></formalpara>
 
-<formalpara><title>&warn;</title>
-<para>The default condition type for conditions created by &warn; is
- &simple-warning-type;, not &simple-error-type;.</para></formalpara>
-
 </section>
 </chapter>
 
@@ -971,21 +960,22 @@ executes a compiled version of form.</para>
 
 <para>The standard ANSI CL packages
 <itemizedlist>
- <listitem><simpara>&cl-pac; with the nickname <emphasis
-  role="strong"><constant>CL</constant></emphasis>;</simpara></listitem>
- <listitem><simpara>&clu-pac; with the nickname <emphasis
-  role="strong"><constant>CL-USER</constant></emphasis>
-  and</simpara></listitem>
+ <listitem><simpara>&cl-pac; with the nicknames <emphasis
+  role="strong"><constant>CL</constant></emphasis> and <emphasis
+  role="strong"><constant>LISP</constant></emphasis>;</simpara></listitem>
+ <listitem><simpara>&clu-pac; with the nicknames <emphasis
+  role="strong"><constant>CL-USER</constant></emphasis> and <emphasis
+  role="strong"><constant>USER</constant></emphasis> and</simpara></listitem>
  <listitem><simpara>&kwd-pac;</simpara></listitem>
 </itemizedlist></para>
 
-<para>are implemented. The package &cl-pac; exports only those symbols
+<para>are implemented. The package &cl-pac; &export;s only those symbols
  from the &ansi-cl; that are actually implemented.</para>
 
 <section id="clupack"><title><ulink url="&clhs;/Body/sec_11-1-2-2.html">
     11.1.2.2 The COMMON-LISP-USER Package</ulink></title>
 
-<para>The &clu-pac; package uses only the &cl-pac; package.</para>
+<para>The &clu-pac; package uses the &cl-pac; and &ext-pac; packages.</para>
 
 </section>
 
@@ -994,38 +984,40 @@ executes a compiled version of form.</para>
 
 <para>The following additional packages exist:</para>
 <variablelist><title>Implementation-Defined Packages</title>
-  <varlistentry><term><function>LISP</function></term><listitem>
-   <simpara>exports all symbols needed for a CLtL1/CltL2 environment,
-   excluding &clos;.</simpara></listitem></varlistentry>
-  <varlistentry><term><function>CLOS</function></term><listitem>
-   <simpara>exports all &clos; specific symbols needed for a CLtL1/CltL2
-   environment.</simpara></listitem></varlistentry>
-  <varlistentry><term><function>USER</function></term><listitem>
-   <simpara>is the default user's package for a CLtL1/CltL2
-   environment.</simpara></listitem></varlistentry>
-  <varlistentry><term><function>SYSTEM</function></term><listitem>
-   <simpara>has the nicknames <emphasis
-   role="strong"><function>SYS</function></emphasis> and <emphasis
-   role="strong"><function>COMPILER</function></emphasis>, and has no
-   exported symbols.  It defines many system internals.
+  <varlistentry><term><quote>CLOS</quote></term><listitem>
+   <simpara>&export;s all &clos; specific symbols, including some
+   <link linkend="clos-diff">additional symbols</link>.
    </simpara></listitem></varlistentry>
-  <varlistentry><term><link
-   linkend="encoding"><function>CHARSET</function></link></term><listitem>
-   <simpara>defines and exports some character sets, for use with
+  <varlistentry><term><quote>SYSTEM</quote></term><listitem>
+   <simpara>has the nicknames <emphasis
+   role="strong"><quote>SYS</quote></emphasis> and <emphasis
+   role="strong"><quote>COMPILER</quote></emphasis>, and has no
+   &export;ed symbols.  It defines many system internals.
+   </simpara></listitem></varlistentry>
+  <varlistentry id="ext-pac"><term><quote>EXT</quote></term><listitem><simpara>
+   is the umbrella package for all extensions: it imports and &re-export;s
+   all the external symbols in all &clisp; extensions, so a simple
+   <literal role="sexp">(&use-package; "EXT")</literal> is enough to
+   make all the extensions available in the current package.
+   This package uses packages (in addition to &cl-pac;):
+   &ldap-pac; &posix-pac; &socket-pac; &gstream-pac; &gray-pac;
+   &i18n-pac; &custom-pac;.
+   </simpara></listitem></varlistentry>
+  <varlistentry><term>&charset-pac;</term><listitem>
+   <simpara>defines and &export;s some character sets, for use with
    <function>make-encoding</function> and as &extfmt; argument.
    </simpara></listitem></varlistentry>
-  <varlistentry><term><function>FFI</function></term><listitem>
+  <varlistentry><term>&ffi-pac;</term><listitem>
    <simpara>implements the <link linkend="dffi">foreign function
    interface</link>.  Some platforms only.
    </simpara></listitem></varlistentry>
-  <varlistentry><term><function>SCREEN</function></term><listitem>
+  <varlistentry><term>&screen-pac;</term><listitem>
    <simpara>defines an API for <link linkend="screen">random screen
    access</link>.  Some platforms only.
    </simpara></listitem></varlistentry>
 </variablelist>
 
 <para>All pre-existing packages except <link
- linkend="imppack"><constant>USER</constant></link> and <link
  linkend="clupack"><constant>COMMON-LISP-USER</constant></link> belong
  to the implementation, in the sense that doing side-effects on them or
  on their symbols causes undefined behavior.</para>
@@ -1038,18 +1030,28 @@ executes a compiled version of form.</para>
 <section><title>&make-package;</title>
 
 <para>For &make-package;, the default value of the &use-k; argument is
- <literal role="sexp">("COMMON-LISP")</literal>.  For
- <function>lisp:make-package</function>, the default value of the
- &use-k; argument is <literal role="sexp">("LISP" "CLOS")</literal>.
+ <literal role="sexp">("COMMON-LISP")</literal>.
 </para>
 
-<para>&make-package; and <function>lisp:in-package</function> accept a
- keyword argument &case-sensitive-k;.  Similarly, &defpackage; accepts
- an option &case-sensitive-k;. When its value is non-&nil;, the package
- will be case sensitive, i.e., the reader will not case-convert symbol
- names before looking them up or creating them in this package. The
- package names are still subject to <literal role="sexp">(&readtable-case;
- &readtable-var;)</literal>, though.</para>
+<para>&make-package; accepts a keyword argument &case-sensitive-k;.
+ Similarly, &defpackage; accepts an option &case-sensitive-k;.
+ When its value is non-&nil;, the package will be case sensitive, i.e.,
+ the reader will not case-convert symbol names before looking them up or
+ creating them in this package.
+ The package names are still subject to
+ <literal role="sexp">(&readtable-case; &readtable-var;)</literal>,
+ though.</para>
+
+<section id="re-export"><title><function>ext:re-export</function></title>
+
+<para>The function <literal role="sexp"
+ >(&re-export; <replaceable>FROM-PACK</replaceable>
+               <replaceable>TO-PACK</replaceable>)</literal>
+ re-exports all external symbols from
+ <replaceable>FROM-PACK</replaceable> also from
+ <replaceable>TO-PACK</replaceable>, provided it already uses
+ <replaceable>FROM-PACK</replaceable>.
+</para></section>
 
 </section>
 </section>
@@ -1231,13 +1233,13 @@ executes a compiled version of form.</para>
  every coercion involving different floating-point types.
 </para></formalpara>
 
-<formalpara><title><varname>lisp:*default-float-format*</varname></title>
+<formalpara><title><varname>custom:*default-float-format*</varname></title>
 <para>When rational numbers are to be converted to floats (due to
  &float;, &coerce;, &sqrt; or a transcendental function), the result
  type is given by the variable
- <varname>lisp:*default-float-format*</varname>.</para></formalpara>
+ <varname>custom:*default-float-format*</varname>.</para></formalpara>
 
-<formalpara><title><function>lisp:without-floating-point-underflow</function></title>
+<formalpara><title><function>ext:without-floating-point-underflow</function></title>
 <para>The macro <literal
  role="sexp">(<function>without-floating-point-underflow</function>
  {<replaceable>form</replaceable>}*)</literal> executes the
@@ -1295,15 +1297,15 @@ executes a compiled version of form.</para>
 
 <section><title>Additional Integer Functions</title>
 
-<formalpara><title><function>lisp:!</function></title>
-<para><literal role="sexp">(<function>lisp:!</function>
+<formalpara><title><function>ext:!</function></title>
+<para><literal role="sexp">(<function>ext:!</function>
  <replaceable>n</replaceable>)</literal> returns the factorial of
  <replaceable>n</replaceable>, <replaceable>n</replaceable> a
  nonnegative integer.
 </para></formalpara>
 
-<formalpara><title><function>lisp:exquo</function></title>
-<para><literal role="sexp">(<function>lisp:exquo</function>
+<formalpara><title><function>ext:exquo</function></title>
+<para><literal role="sexp">(<function>ext:exquo</function>
  <replaceable>x</replaceable> <replaceable>y</replaceable>)</literal>
  returns the integer quotient <varname>x/y</varname> of two integers
  <replaceable>x</replaceable>,<replaceable>y</replaceable>, and signals
@@ -1311,8 +1313,8 @@ executes a compiled version of form.</para>
  than &slash;.)
 </para></formalpara>
 
-<formalpara><title><function>lisp:xgcd</function></title>
-<para><literal role="sexp">(<function>lisp:xgcd</function>
+<formalpara><title><function>ext:xgcd</function></title>
+<para><literal role="sexp">(<function>ext:xgcd</function>
  <replaceable>x<subscript>1</subscript></replaceable>
  ... <replaceable>x<subscript>n</subscript></replaceable>)</literal>
  returns the values <replaceable>g</replaceable>,
@@ -1885,45 +1887,45 @@ blank here cannot be represented in this character set).
  <classname>sys::input-character</classname>.</para>
 
 <variablelist>
- <varlistentry><term><constant>lisp:char-font-limit</constant> = 16</term>
+ <varlistentry><term><constant>ext:char-font-limit</constant> = 16</term>
   <listitem><simpara>The system uses only font 0.
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>lisp:char-bits-limit</constant> = 16</term>
+ <varlistentry><term><constant>ext:char-bits-limit</constant> = 16</term>
   <listitem><segmentedlist><title>The following bits are defined:</title>
    <segtitle>key</segtitle><segtitle>value</segtitle>
    <seglistitem><seg>&control-k;</seg>
-             <seg><varname>lisp:char-control-bit</varname></seg></seglistitem>
+             <seg><varname>ext:char-control-bit</varname></seg></seglistitem>
    <seglistitem><seg>&meta-k;</seg>
-             <seg><varname>lisp:char-meta-bit</varname></seg></seglistitem>
+             <seg><varname>ext:char-meta-bit</varname></seg></seglistitem>
    <seglistitem><seg>&super-k;</seg>
-             <seg><varname>lisp:char-super-bit</varname></seg></seglistitem>
+             <seg><varname>ext:char-super-bit</varname></seg></seglistitem>
    <seglistitem><seg>&hyper-k;</seg>
-             <seg><varname>lisp:char-hyper-bit</varname></seg></seglistitem>
+             <seg><varname>ext:char-hyper-bit</varname></seg></seglistitem>
   </segmentedlist></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>lisp:char-font</function>
+ <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
   <replaceable>object</replaceable>)</literal> </term>
  <listitem><simpara>returns the font of a character or
   <classname>sys::input-character</classname>.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>lisp:char-bits</function>
+ <varlistentry><term><literal role="sexp">(<function>ext:char-bits</function>
   <replaceable>object</replaceable>)</literal> </term>
  <listitem><simpara>returns the bits of a character or
   <classname>sys::input-character</classname>.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>lisp:make-char</function>
+ <varlistentry><term><literal role="sexp">(<function>ext:make-char</function>
   <replaceable>char</replaceable> [<replaceable>bits</replaceable>
             [<replaceable>font</replaceable>]])</literal></term>
  <listitem><simpara>returns a new <classname>sys::input-character</classname>,
   or &nil; if such a character cannot be created.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>lisp:char-bit</function>
+ <varlistentry><term><literal role="sexp">(<function>ext:char-bit</function>
   <replaceable>object</replaceable>
   <replaceable>name</replaceable>)</literal></term>
  <listitem><simpara>returns &t; if the named bit is set in
   <replaceable>object</replaceable>, else &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:set-char-bit</function>
+   role="sexp">(<function>ext:set-char-bit</function>
   <replaceable>object</replaceable> <replaceable>name</replaceable>
   <replaceable>newvalue</replaceable>)</literal></term>
  <listitem><simpara>returns a new
@@ -2087,7 +2089,7 @@ are simple characters.</para>
     <entry>2<superscript>16</superscript> = 65536</entry></row>
 </tbody></tgroup></table>
 
-<para>The types <classname>lisp:string-char</classname> and
+<para>The types <classname>ext:string-char</classname> and
  &base-char-type; are equivalent to &character-class;.</para>
 
 <para>The graphic characters have been described above.</para>
@@ -2114,7 +2116,7 @@ and the international alphabetic characters from the character set:
 <section id="char-width"><title>Functions on characters</title>
 
 <formalpara><title><literal
-   role="sexp">(<function>lisp:char-width</function>
+   role="sexp">(<function>ext:char-width</function>
    <replaceable>character</replaceable>)</literal></title>
 <para>returns the number of screen columns occupied by
  <replaceable>character</replaceable>.  This is 0 for non-spacing characters
@@ -2339,13 +2341,13 @@ and the international alphabetic characters from the character set:
 
 <segmentedlist><title>obsolete constants</title>
  <segtitle>constant</segtitle><segtitle>value</segtitle>
- <seglistitem><seg><constant>lisp:char-control-bit</constant></seg>
+ <seglistitem><seg><constant>ext:char-control-bit</constant></seg>
           <seg>1</seg></seglistitem>
- <seglistitem><seg><constant>lisp:char-meta-bit</constant></seg>
+ <seglistitem><seg><constant>ext:char-meta-bit</constant></seg>
           <seg>2</seg></seglistitem>
- <seglistitem><seg><constant>lisp:char-super-bit</constant></seg>
+ <seglistitem><seg><constant>ext:char-super-bit</constant></seg>
           <seg>4</seg></seglistitem>
- <seglistitem><seg><constant>lisp:char-hyper-bit</constant></seg>
+ <seglistitem><seg><constant>ext:char-hyper-bit</constant></seg>
           <seg>8</seg></seglistitem>
 </segmentedlist>
 </section>
@@ -2367,11 +2369,11 @@ and the international alphabetic characters from the character set:
 <section><title>&mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
 
 <para>The constant <emphasis
- role="strong"><function>lisp:mapcap</function></emphasis> is like
+ role="strong"><function>ext:mapcap</function></emphasis> is like
  &mapcan;, except that it concatenates the resulting lists with &append;
  instead of &nconc;:</para>
 
-<para><literal role="sexp">(<function>lisp:mapcap</function>
+<para><literal role="sexp">(<function>ext:mapcap</function>
  <replaceable>fun</replaceable>
  <replaceable>x<subscript>1</subscript></replaceable>
  ... <replaceable>x<subscript>n</subscript></replaceable>)</literal> ==
@@ -2383,11 +2385,11 @@ and the international alphabetic characters from the character set:
 <para>(Actually a bit more efficient that this would be.)</para>
 
 <para>The function <emphasis
- role="strong"><function>lisp:maplap</function></emphasis> is like
+ role="strong"><function>ext:maplap</function></emphasis> is like
  &mapcon;, except that it concatenates the resulting lists with &append;
  instead of &nconc;:</para>
 
-<para><literal role="sexp">(<function>lisp:maplap</function>
+<para><literal role="sexp">(<function>ext:maplap</function>
  <replaceable>fun</replaceable>
  <replaceable>x<subscript>1</subscript></replaceable>
  ... <replaceable>x<subscript>n</subscript></replaceable>)</literal> ==
@@ -2469,7 +2471,7 @@ and the international alphabetic characters from the character set:
 
 <formalpara id="string-width"><title>Functions on strings</title>
 
-<para><literal role="sexp">(<function>lisp:string-width</function>
+<para><literal role="sexp">(<function>ext:string-width</function>
  <replaceable>string</replaceable>)</literal> returns the number of
  screen columns occupied by <replaceable>string</replaceable>.  This is
  computed as the sum of all <link
@@ -2489,16 +2491,16 @@ and the international alphabetic characters from the character set:
 <section><title>&loop; &amp; &map;</title>
 
 <para>For iteration through a sequence, a macro
- <emphasis role="strong"><function>lisp:doseq</function></emphasis>,
+ <emphasis role="strong"><function>ext:doseq</function></emphasis>,
  similar to &dolist;, may be used instead of &map;:</para>
 
 <programlisting>
-(<function>lisp:doseq</function> (<replaceable>var</replaceable> <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
+(<function>ext:doseq</function> (<replaceable>var</replaceable> <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
   {<replaceable>declaration</replaceable>}*
   {<replaceable>tag</replaceable>|<replaceable>statement</replaceable>}*)
 </programlisting>
 
-<para><function>lisp:doseq</function> forms are &iter-forms;.</para>
+<para><function>ext:doseq</function> forms are &iter-forms;.</para>
 
 </section>
 
@@ -2531,7 +2533,7 @@ and the international alphabetic characters from the character set:
  url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>,
  negative &count-k; keyword arguments are not allowed unless you set
  <emphasis
- role="strong"><varname>lisp:*sequence-count-ansi*</varname></emphasis>
+ role="strong"><varname>custom:*sequence-count-ansi*</varname></emphasis>
  to a non-&nil; value, in hich case <quote>using a negative integer
  value is functionally equivalent to using a value of zero</quote>, as
  per the ANSI CL issue.</para>
@@ -2584,16 +2586,16 @@ and &end-k;:</para>
 <section><title>&loop;, &maphash;</title>
 
 <para>For iteration through a hash table, a macro
- <emphasis role="strong"><function>lisp:dohash</function></emphasis>,
+ <emphasis role="strong"><function>ext:dohash</function></emphasis>,
  similar to &dolist;, can be used instead of &maphash;:</para>
 
 <programlisting>
-(lisp:dohash (<replaceable>key-var</replaceable> <replaceable>value-var</replaceable> <replaceable>hash-table-form</replaceable> [<replaceable>resultform</replaceable>])
+(ext:dohash (<replaceable>key-var</replaceable> <replaceable>value-var</replaceable> <replaceable>hash-table-form</replaceable> [<replaceable>resultform</replaceable>])
   {<replaceable>declaration</replaceable>}*
   {<replaceable>tag</replaceable>|<replaceable>statement</replaceable>}*)
 </programlisting>
 
-<para><function>lisp:dohash</function> forms are &iter-forms;.</para>
+<para><function>ext:dohash</function> forms are &iter-forms;.</para>
 
 </section>
 </section>
@@ -2641,9 +2643,9 @@ and &end-k;:</para>
 
 <para>This is especially important for the functions <link
  linkend="dir"><function>directory</function>,
- <function>lisp:dir</function>, <function>lisp:cd</function>,
- <function>lisp:make-dir</function>,
- <function>lisp:delete-dir</function></link>.</para>
+ <function>ext:dir</function>, <function>ext:cd</function>,
+ <function>ext:make-dir</function>,
+ <function>ext:delete-dir</function></link>.</para>
 
 <segmentedlist><title>The minimum filename syntax that may be used
  portably</title>
@@ -3845,7 +3847,7 @@ non-&nil;.</para>
 <formalpara><title>&probe-file;</title>
 <para>&probe-file; can not be used to check whether a directory
  exists. Use the function <link
- linkend="probe-dir"><function>lisp:probe-directory</function></link> or
+ linkend="probe-dir"><function>ext:probe-directory</function></link> or
  the function &directory; for this purpose.</para></formalpara>
 
 <formalpara><title>&file-author;</title>
@@ -3859,7 +3861,7 @@ non-&nil;.</para>
  ownership is not.</para></formalpara>
 
 <formalpara id="probe-dir"><title><function>probe-directory</function></title>
-<para><literal role="sexp">(<function>lisp:probe-directory</function>
+<para><literal role="sexp">(<function>ext:probe-directory</function>
  <replaceable>pathname</replaceable>)</literal> tests whether
  <replaceable>pathname</replaceable> exists and is a directory.  It
  will, unlike &probe-file; or &truename;, not signal an error if the
@@ -3894,58 +3896,58 @@ non-&nil;.</para>
 </variablelist>
 <!-- #endif --></para>
 
-<formalpara><title><function>lisp:dir</function></title>
-<para><literal role="sexp">(<function>lisp:dir</function>
+<formalpara><title><function>ext:dir</function></title>
+<para><literal role="sexp">(<function>ext:dir</function>
  &optional-amp; <replaceable>pathname</replaceable>)</literal> is like
  &directory;, but displays the pathnames instead of returning them.
- <literal role="sexp">(lisp:dir)</literal> shows the contents of the
+ <literal role="sexp">(ext:dir)</literal> shows the contents of the
  current directory.</para></formalpara>
 
-<variablelist><title><function>lisp:cd</function></title>
+<variablelist><title><function>ext:cd</function></title>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
 <varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
- <listitem><simpara><literal role="sexp">(<function>lisp:cd</function>
+ <listitem><simpara><literal role="sexp">(<function>ext:cd</function>
    [<replaceable>pathname</replaceable>])</literal>
    manages the current directory.</simpara></listitem></varlistentry>
 <!-- #elif defined(PATHNAME_RISCOS) -->
 <varlistentry><term>Platform dependent: &acorn; platforms only.</term>
- <listitem><simpara><literal role="sexp">(<function>lisp:cd</function>
+ <listitem><simpara><literal role="sexp">(<function>ext:cd</function>
    [<replaceable>pathname</replaceable>])</literal>
    manages the current host, current device and the current directory.
    </simpara></listitem></varlistentry>
 <!-- #else -->
 <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</term>
- <listitem><simpara><literal role="sexp">(<function>lisp:cd</function>
+ <listitem><simpara><literal role="sexp">(<function>ext:cd</function>
    [<replaceable>pathname</replaceable>])</literal>
    manages the current device and the current directory.
    </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
 
-<formalpara><title><function>lisp:cd</function></title>
-<para><literal role="sexp">(<function>lisp:cd</function>
+<formalpara><title><function>ext:cd</function></title>
+<para><literal role="sexp">(<function>ext:cd</function>
  <replaceable>pathname</replaceable>)</literal> sets it, <literal
- role="sexp">(lisp:cd)</literal> returns it.</para></formalpara>
+ role="sexp">(ext:cd)</literal> returns it.</para></formalpara>
 
-<formalpara><title><function>lisp:default-directory</function></title>
+<formalpara><title><function>ext:default-directory</function></title>
 <para><literal
- role="sexp">(<function>lisp:default-directory</function>)</literal> is
+ role="sexp">(<function>ext:default-directory</function>)</literal> is
  equivalent to <literal
- role="sexp">(<function>lisp:cd</function>)</literal>.  <literal
- role="sexp">(&setf; (<function>lisp:default-directory</function>)
+ role="sexp">(<function>ext:cd</function>)</literal>.  <literal
+ role="sexp">(&setf; (<function>ext:default-directory</function>)
  <replaceable>pathname</replaceable>)</literal> is equivalent to
- <literal role="sexp">(<function>lisp:cd</function>
+ <literal role="sexp">(<function>ext:cd</function>
  <replaceable>pathname</replaceable>)</literal>, except for the return
  value.</para></formalpara>
 
-<formalpara><title><function>lisp:make-dir</function></title>
-<para><literal role="sexp">(<function>lisp:make-dir</function>
+<formalpara><title><function>ext:make-dir</function></title>
+<para><literal role="sexp">(<function>ext:make-dir</function>
  <replaceable>directory-pathname</replaceable>)</literal> creates a new
  subdirectory.</para></formalpara>
 
-<formalpara><title><function>lisp:delete-dir</function></title>
-<para><literal role="sexp">(<function>lisp:delete-dir</function>
+<formalpara><title><function>ext:delete-dir</function></title>
+<para><literal role="sexp">(<function>ext:delete-dir</function>
  <replaceable>directory-pathname</replaceable>)</literal> removes an
  (empty) subdirectory.</para></formalpara>
 
@@ -4126,11 +4128,11 @@ non-&nil;.</para>
 
 <para>&stream-element-type; is &setf;able. The element type of streams
   created by the functions &open;,
-<link linkend="pipe"><function>lisp:make-pipe-input-stream</function></link>,
-<link linkend="pipe"><function>lisp:make-pipe-output-stream</function></link>,
-<link linkend="pipe"><function>lisp:make-pipe-io-stream</function></link>,
-<link linkend="socket"><function>lisp:socket-accept</function></link>,
-<link linkend="socket"><function>lisp:socket-connect</function></link>
+<link linkend="pipe"><function>ext:make-pipe-input-stream</function></link>,
+<link linkend="pipe"><function>ext:make-pipe-output-stream</function></link>,
+<link linkend="pipe"><function>ext:make-pipe-io-stream</function></link>,
+<link linkend="socket"><function>socket:socket-accept</function></link>,
+<link linkend="socket"><function>socket:socket-connect</function></link>
   can be modified, if the old and the new element type are either
 <itemizedlist>
   <listitem><simpara>both equivalent to &character-class; or
@@ -4148,11 +4150,11 @@ non-&nil;.</para>
 </section>
 
 <section><title>Binary input, &read-byte;,
-  <function>lisp:read-integer</function> &amp;
-  <function>lisp:read-float</function></title>
+  <function>ext:read-integer</function> &amp;
+  <function>ext:read-float</function></title>
 
 <para>The function <literal
-    role="sexp">(<function>lisp:read-integer</function>
+    role="sexp">(<function>ext:read-integer</function>
     <replaceable>stream</replaceable>
     <replaceable>element-type</replaceable> &optional-amp;
     &endianness; <replaceable>eof-error-p</replaceable>
@@ -4165,7 +4167,7 @@ non-&nil;.</para>
  <replaceable>n</replaceable>)</literal>, where
  <replaceable>n</replaceable> is a multiple of 8.</para>
 
-<para><literal role="sexp">(<function>lisp:read-integer</function>
+<para><literal role="sexp">(<function>ext:read-integer</function>
  <replaceable>stream</replaceable>
  <replaceable>element-type</replaceable>)</literal> is like <literal
  role="sexp">(&read-byte; <replaceable>stream</replaceable>)</literal>
@@ -4184,7 +4186,7 @@ non-&nil;.</para>
  &stream-element-type;)</literal>, this function permits mixed
  character/binary input from a stream.</para>
 
-<para>The function <literal role="sexp">(<function>lisp:read-float</function>
+<para>The function <literal role="sexp">(<function>ext:read-float</function>
     <replaceable>stream</replaceable>
     <replaceable>element-type</replaceable> &optional-amp;
     &endianness; <replaceable>eof-error-p</replaceable>
@@ -4199,11 +4201,11 @@ non-&nil;.</para>
 </section>
 
 <section><title>Binary output, &write-byte;,
-  <function>lisp:write-integer</function> &amp;
-  <function>lisp:write-float</function></title>
+  <function>ext:write-integer</function> &amp;
+  <function>ext:write-float</function></title>
 
 <para>The function <literal
-    role="sexp">(<function>lisp:write-integer</function>
+    role="sexp">(<function>ext:write-integer</function>
     <replaceable>integer</replaceable> <replaceable>stream</replaceable>
     <replaceable>element-type</replaceable> &optional-amp;
     &endianness;)</literal>
@@ -4215,7 +4217,7 @@ non-&nil;.</para>
  <replaceable>n</replaceable>)</literal>, where
  <replaceable>n</replaceable> is a multiple of 8.</para>
 
-<para><literal role="sexp">(<function>lisp:write-integer</function>
+<para><literal role="sexp">(<function>ext:write-integer</function>
     <replaceable>integer</replaceable> <replaceable>stream</replaceable>
     <replaceable>element-type</replaceable>)</literal>
  is like <literal role="sexp">(&write-byte;
@@ -4232,7 +4234,7 @@ non-&nil;.</para>
   character/binary output to a stream.</para>
 
 <para>The function <literal
-    role="sexp">(<function>lisp:write-float</function>
+    role="sexp">(<function>ext:write-float</function>
     <replaceable>float</replaceable> <replaceable>stream</replaceable>
     <replaceable>element-type</replaceable> &optional-amp;
     &endianness;)</literal>
@@ -4252,11 +4254,11 @@ non-&nil;.</para>
 
 <variablelist>
  <varlistentry><term><emphasis
-   role="strong"><function>lisp:read-byte-sequence</function></emphasis>
+   role="strong"><function>ext:read-byte-sequence</function></emphasis>
    performs multiple &read-byte; operations:</term>
 
  <listitem><simpara><literal
-   role="sexp">(<function>lisp:read-byte-sequence</function>
+   role="sexp">(<function>ext:read-byte-sequence</function>
    <replaceable>sequence</replaceable> <replaceable>stream</replaceable>
    &key-amp; &start-k; &end-k;)</literal> fills the subsequence of
    <replaceable>sequence</replaceable> specified by &start-k; and
@@ -4274,7 +4276,7 @@ non-&nil;.</para>
   8)</literal>.</simpara></listitem></varlistentry>
 
  <varlistentry><term><emphasis
-   role="strong"><function>lisp:read-char-sequence</function></emphasis>
+   role="strong"><function>ext:read-char-sequence</function></emphasis>
    performs multiple &read-char; operations:</term>
 
  <listitem><simpara><literal
@@ -4306,11 +4308,11 @@ functions are provided:</para>
 
 <variablelist>
  <varlistentry><term><emphasis
-   role="strong"><function>lisp:write-byte-sequence</function></emphasis>
+   role="strong"><function>ext:write-byte-sequence</function></emphasis>
    performs multiple &write-byte; operations:</term>
 
  <listitem><simpara><literal
-  role="sexp">(<function>lisp:write-byte-sequence</function>
+  role="sexp">(<function>ext:write-byte-sequence</function>
   <replaceable>sequence</replaceable> <replaceable>stream</replaceable>
   &key-amp; &start-k; &end-k;)</literal> outputs the integers of the
   subsequence of <replaceable>sequence</replaceable> specified by
@@ -4325,11 +4327,11 @@ functions are provided:</para>
  8)</literal>.</simpara></listitem></varlistentry>
 
 <varlistentry><term><emphasis
-  role="strong"><function>lisp:write-char-sequence</function></emphasis>
+  role="strong"><function>ext:write-char-sequence</function></emphasis>
   performs multiple &write-char; operations:</term>
 
  <listitem><simpara><literal
-   role="sexp">(<function>lisp:write-char-sequence</function>
+   role="sexp">(<function>ext:write-char-sequence</function>
    <replaceable>sequence</replaceable> <replaceable>stream</replaceable>
    &key-amp; &start-k; &end-k;)</literal> outputs the characters of the
    subsequence of <replaceable>sequence</replaceable> specified by
@@ -4383,8 +4385,8 @@ functions are provided:</para>
    linkend="newline">line terminator</link> keywords
    <constant>:unix</constant>, <constant>:mac</constant>,
    <constant>:dos</constant>.  The default encoding is
-   <link
- linkend="def-file-enc"><varname>lisp:*default-file-encoding*</varname></link>.
+   <link linkend="def-file-enc"
+     ><varname>custom:*default-file-encoding*</varname></link>.
   </simpara></listitem></varlistentry>
  <varlistentry id="buffered"><term><constant>:buffered</constant></term>
   <listitem><para>&nil;, &t;, or <constant>:default</constant>.
@@ -4427,28 +4429,28 @@ functions are provided:</para>
     22.1.1.1 Multiple Possible Textual Representations</ulink></title>
 
 <para id="pr-closure">An additional variable <emphasis
- role="strong"><varname>lisp:*print-closure*</varname></emphasis>
+ role="strong"><varname>custom:*print-closure*</varname></emphasis>
  controls whether compiled and interpreted functions (closures) are
- output in detailed form.  If <varname>lisp:*print-closure*</varname> is
+ output in detailed form.  If <varname>custom:*print-closure*</varname> is
  non-&nil;, compiled closures are output in <keysym>#Y</keysym> syntax
- which the reader understands.  <varname>lisp:*print-closure*</varname>
+ which the reader understands.  <varname>custom:*print-closure*</varname>
  is initially set to &nil;.</para>
 
 <para id="pr-rpars">An additional variable <emphasis
- role="strong"><varname>lisp:*print-rpars*</varname></emphasis> controls
+ role="strong"><varname>custom:*print-rpars*</varname></emphasis> controls
  the output of the right (closing) parentheses. If
- <varname>lisp:*print-rpars*</varname> is non-&nil;, closing parentheses
+ <varname>custom:*print-rpars*</varname> is non-&nil;, closing parentheses
  which do not fit onto the same line as the the corresponding opening
  parenthesis are output just below their corresponding opening
- parenthesis, in the same column.  <varname>lisp:*print-rpars*</varname>
+ parenthesis, in the same column.  <varname>custom:*print-rpars*</varname>
  is initially set to &nil;.</para>
 
 <para id="pr-indent">An additional variable <emphasis
- role="strong"><varname>lisp:*print-indent-lists*</varname></emphasis>
+ role="strong"><varname>custom:*print-indent-lists*</varname></emphasis>
  controls the indentation of lists that span more than one line. It
  specifies by how many characters items within the list will be indented
  relative to the beginning of the list.
- <varname>lisp:*print-indent-lists*</varname> is initially set to
+ <varname>custom:*print-indent-lists*</varname> is initially set to
  <literal>1</literal>.</para>
 
 </section>
@@ -4733,9 +4735,9 @@ functions are provided:</para>
 
 <variablelist>
  <varlistentry><term><literal
-  role="sexp">(<function>lisp:read-char-will-hang-p</function>
+  role="sexp">(<function>ext:read-char-will-hang-p</function>
               <replaceable>stream</replaceable>)</literal></term>
-  <listitem><simpara><function>lisp:read-char-will-hang-p</function>
+  <listitem><simpara><function>ext:read-char-will-hang-p</function>
   queries the stream's input status. It returns &nil; if &read-char; and
   &peek-char; with a <replaceable>peek-type</replaceable> of &nil; will return
   immediately. Otherwise it returns true. (In the latter case the standard
@@ -4743,10 +4745,10 @@ functions are provided:</para>
   <simpara>Note the difference with <literal role="sexp">(not (listen
   <replaceable>stream</replaceable>))</literal>: When the &eos; is reached,
   &listen; returns &nil;, whereas
-  <function>lisp:read-char-will-hang-p</function> returns &nil;.</simpara>
+  <function>ext:read-char-will-hang-p</function> returns &nil;.</simpara>
   <simpara>Note also that
-  <function>lisp:read-char-will-hang-p</function> is not a good mean to
-  test for &eos;: If <function>lisp:read-char-will-hang-p</function>
+  <function>ext:read-char-will-hang-p</function> is not a good mean to
+  test for &eos;: If <function>ext:read-char-will-hang-p</function>
   returns &t;, this does not mean that the stream will deliver more
   characters. It only means that it is not known at this moment whether
   the stream is already at &eos;, or will deliver more characters.
@@ -4759,7 +4761,7 @@ functions are provided:</para>
 
 <variablelist>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:read-byte-lookahead</function>
+    role="sexp">(<function>ext:read-byte-lookahead</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>To be called only if
    <replaceable>stream</replaceable>'s element-type is
@@ -4771,7 +4773,7 @@ functions are provided:</para>
    instead of waiting.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-  role="sexp">(<function>lisp:read-byte-will-hang-p</function>
+  role="sexp">(<function>ext:read-byte-will-hang-p</function>
               <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>To be called only if
    <replaceable>stream</replaceable>'s element-type is
@@ -4780,7 +4782,7 @@ functions are provided:</para>
    &read-byte; will return immediately. Otherwise it returns true.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:read-byte-no-hang</function>
+    role="sexp">(<function>ext:read-byte-no-hang</function>
                  <replaceable>stream</replaceable> &optional-amp;
                  <replaceable>eof-error-p</replaceable>
                  <replaceable>eof-value</replaceable>)</literal></term>
@@ -4841,7 +4843,7 @@ compiles a file to platform-independent bytecode.</para>
 </variablelist>
 
 <para>The variables <emphasis
- role="strong"><varname>lisp:*compile-warnings*</varname></emphasis>,
+ role="strong"><varname>custom:*compile-warnings*</varname></emphasis>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
  &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively.
  For each input file (default file type: <filename>#p".lsp"</filename>)
@@ -4904,19 +4906,19 @@ compiles a file to platform-independent bytecode.</para>
   &standard-output-var; (normally to the screen).  Should
   there be an error in the file, you can see at one glance where it is.
   The default is <emphasis
-  role="strong"><varname>lisp:*load-echo*</varname></emphasis>, which is
+  role="strong"><varname>custom:*load-echo*</varname></emphasis>, which is
   initially &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term>&compiling-k; &t;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
   The compiled code is executed at once and - in contrast to <link
   linkend="compilefile"><function>compile-file</function></link> - not
   written to a file.  The default is <emphasis
-  role="strong"><varname>lisp:*load-compiling*</varname></emphasis>,
+  role="strong"><varname>custom:*load-compiling*</varname></emphasis>,
   which is initially &nil;.
 </simpara></listitem></varlistentry></variablelist>
 
 <para>The variable <emphasis
- role="strong"><varname>lisp:*load-paths*</varname></emphasis> contains
+ role="strong"><varname>custom:*load-paths*</varname></emphasis> contains
  a list of directories where program files are searched - additionally
  to the specified or current directory - by &load;, &require;,
  &compile-file;.</para>
@@ -5220,12 +5222,12 @@ compiles a file to platform-independent bytecode.</para>
 
 <!-- #endif -->
 
-<section><title>lisp:uncompile</title>
+<section><title>ext:uncompile</title>
 
 <para>The function <emphasis
- role="strong"><function>lisp:uncompile</function></emphasis> does the
+ role="strong"><function>ext:uncompile</function></emphasis> does the
  converse of &compile;: <literal
- role="sexp">(<function>lisp:uncompile</function>
+ role="sexp">(<function>ext:uncompile</function>
  <replaceable>function-name</replaceable>)</literal> reverts an
  interpreted function that has been entered or loaded in the same
  session and then compiled back to its interpreted form.</para>
@@ -5237,13 +5239,13 @@ compiles a file to platform-independent bytecode.</para>
 <para>No on-line documentation is available for the system functions
  (yet).  &documentation; still has the CLtL1 implementation.</para>
 
-<formalpara id="browser"><title><function>lisp:clhs</function></title>
+<formalpara id="browser"><title><function>ext:clhs</function></title>
 <para>&hyperspec; access is provided via <literal
-  role="sexp">(<function>lisp:clhs</function>
+  role="sexp">(<function>ext:clhs</function>
   <replaceable>symbol</replaceable> &key-amp;
   <replaceable>browser</replaceable>)</literal> function which uses
   your web browser.  <replaceable>browser</replaceable> should be a
-  valid keyword in the <varname>lisp:*browsers*</varname> alist.
+  valid keyword in the <varname>custom:*browsers*</varname> alist.
 </para></formalpara>
 
 </section>
@@ -5305,17 +5307,17 @@ compiles a file to platform-independent bytecode.</para>
 
 <para>In all these forms you can access the following variables:
 <variablelist>
- <varlistentry><term><varname>lisp:*trace-function*</varname></term>
+ <varlistentry><term><varname>ext:*trace-function*</varname></term>
   <listitem><simpara>the function itself
   </simpara></listitem></varlistentry>
- <varlistentry><term><varname>lisp:*trace-args*</varname></term>
+ <varlistentry><term><varname>ext:*trace-args*</varname></term>
   <listitem><simpara>the arguments to the function
   </simpara></listitem></varlistentry>
- <varlistentry><term><varname>lisp:*trace-form*</varname></term>
+ <varlistentry><term><varname>ext:*trace-form*</varname></term>
   <listitem><simpara>the function/macro call as form
   </simpara></listitem></varlistentry>
  <varlistentry id="trace-val">
-    <term><varname>lisp:*trace-values*</varname></term>
+    <term><varname>ext:*trace-values*</varname></term>
   <listitem><simpara>after return from the function: the list of return
   values from the function call
   </simpara></listitem></varlistentry>
@@ -5356,11 +5358,11 @@ and you can leave the function call with specified values by using
 </variablelist>
 </section>
 
-<section id="space"><title>lisp:space</title>
+<section id="space"><title>ext:space</title>
 
 <para>The macro <emphasis
- role="strong"><function>lisp:space</function></emphasis> is like the
- macro &time;: <literal role="sexp">(<function>lisp:space</function>
+ role="strong"><function>ext:space</function></emphasis> is like the
+ macro &time;: <literal role="sexp">(<function>ext:space</function>
  <replaceable>form</replaceable>)</literal> evaluates the
  <replaceable>form</replaceable>, and, as a side effect, outputs
  information about the memory allocations caused by this evaluation.  It
@@ -5376,7 +5378,7 @@ and you can leave the function call with specified values by using
  allocated before the next regular &gc;ion occurs.</para>
 
 <para>The function <emphasis
- role="strong"><function>lisp:gc</function></emphasis> starts a
+ role="strong"><function>ext:gc</function></emphasis> starts a
  global &gc;ion and its return value has the same meaning as the
  second value of &room;.</para>
 
@@ -5387,7 +5389,7 @@ and you can leave the function call with specified values by using
 <para>The timing data printed by the macro &time; includes: The real
  time (elapsed time), the run time (processor time for this process),
  the number of bytes allocated (use the <link
- linkend="space"><function>lisp:space</function></link> macro for more
+ linkend="space"><function>ext:space</function></link> macro for more
  detailed analysis), and the number of GCs performed, if any.</para>
 
 </section>
@@ -5396,7 +5398,7 @@ and you can leave the function call with specified values by using
 
 <para>The function &ed; calls the external editor specified by the
  variable <emphasis
- role="strong"><varname>lisp:*editor*</varname></emphasis> (see
+ role="strong"><varname>custom:*editor*</varname></emphasis> (see
  &config-file;).  If the argument is a function name which was defined
  in the current session (not loaded from a file), the program text to be
  edited is a pretty-printed version (without comments) of the text which
@@ -5411,7 +5413,7 @@ and you can leave the function call with specified values by using
 <varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
    platforms only.</term>
  <listitem><simpara>The variable <emphasis
-   role="strong"><varname>lisp:*default-time-zone*</varname></emphasis>
+   role="strong"><varname>custom:*default-time-zone*</varname></emphasis>
    contains the default time zone used by &encode-universal-time; and
    &decode-universal-time;.  It is initially set to -1 (which
    means 1 hour east of Greenwich, i.e., Mid European Time).
