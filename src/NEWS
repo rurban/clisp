@@ -96,7 +96,7 @@ User visible changes
   + Allow () to match NIL in destructuring lambda lists.
   + Documentation strings at a place where only declarations and forms are
     allowed now give a warning, not an error.
-  + BUTLAST and NBUTLAST check their argument for circularity.
+  + LAST, BUTLAST and NBUTLAST check their list argument for circularity.
 
 * The behaviour of the function UPGRADED-COMPLEX-PART-TYPE has changed.
 

@@ -1,5 +1,11 @@
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
+	* list.d (replace_circular_list): new function
+	(LAST): check the list argument for circularity, do not accept ATOMs
+	(check_list_length): use replace_circular_list()
+
+2004-06-03  Sam Steingold  <sds@gnu.org>
+
 	* clos-class2.lisp (list-direct-subclasses): avoid a compiler warning
 
 2004-06-03  Sam Steingold  <sds@gnu.org>
