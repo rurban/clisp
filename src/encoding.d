@@ -1218,6 +1218,8 @@ LISPFUN(make_encoding,0,0,norest,key,2,
             ptr++;
           });
       }
+      # Now some aliases.
+      define_constant(S(unicode_16),Symbol_value(S(unicode_16_big_endian))); # network byte order = big endian
       #endif
       # Initialize O(default_encoding):
         #ifdef UNICODE
