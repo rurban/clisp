@@ -1609,19 +1609,10 @@ Todo:
          (eq (restart-interactive restart) #'default-restart-interactive)
          restart)))
 
-(defun maybe-continue (condition report-p)
+(defun muffle-cerror (condition) ; ABI
   (let ((restart (find-noninteractively-invokable-continue-restart condition)))
     (when restart
-      (when report-p
-        (warn "~A" (with-output-to-string (stream)
-                     (print-condition condition stream)
-                     (let ((report-function (restart-report restart)))
-                       (when report-function
-                         (terpri stream)
-                         (funcall report-function stream))))))
       (invoke-restart restart))))
-
-(defun muffle-cerror (condition) (maybe-continue condition nil)) ; ABI
 (defmacro muffle-cerrors (&body body)
   "(MUFFLE-CERRORS {form}*) executes the forms, but when a continuable
 error occurs, the CONTINUE restart is silently invoked."
@@ -1639,7 +1630,16 @@ error occurs, the CONTINUE restart is silently invoked."
       (PROGN ,@body))))
 ||#
 
-(defun appease-cerror (condition) (maybe-continue condition t)) ; ABI
+(defun appease-cerror (condition) ; ABI
+  (let ((restart (find-noninteractively-invokable-continue-restart condition)))
+    (when restart
+      (warn "~A" (with-output-to-string (stream)
+                   (print-condition condition stream)
+                   (let ((report-function (restart-report restart)))
+                     (when report-function
+                       (terpri stream)
+                       (funcall report-function stream)))))
+      (invoke-restart restart))))
 (defmacro appease-cerrors (&body body)
   "(APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
 into warnings. A continuable error is signalled again as a warning, then
