@@ -1546,6 +1546,17 @@ local void init_module_2 (module_t* module) {
         intern(symname,false,pack,&symbol);
       }
       subr_ptr->name = symbol; # complete Subr
+      if (pack_locked_p(Symbol_package(symbol))
+          && !nullp(Symbol_function(symbol))) { /* package lock error */
+        fprintf(stderr,GETTEXTL("module '%s' redefines symbol "),module->name);
+        nobject_out(stderr,symbol);
+        fprintf(stderr,GETTEXTL(" in the locked package "));
+        nobject_out(stderr,Symbol_package(symbol));
+        fprintf(stderr,GETTEXTL("\nold definition: "));
+        nobject_out(stderr,Symbol_function(symbol));
+        fprintf(stderr,"\n");
+        quit_sofort(1);
+      }
       Symbol_function(symbol) = subr_tab_ptr_as_object(subr_ptr); # define function
       init_ptr++; subr_ptr++;
     });
