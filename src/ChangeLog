@@ -1,5 +1,10 @@
 2005-02-16  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in: Use the config.cache in the main build dir only if it
+	exists. Fixes bug introduced on 2005-02-11.
+
+2005-02-16  Bruno Haible  <bruno@clisp.org>
+
 	Simplify the version handling.
 	* version.sh: New file.
 	* configure.in: Source the version.sh file. Call AC_INIT without
