@@ -17,13 +17,6 @@
 
 ;;; ===========================================================================
 
-;; Define the class <eql-specializer>.
-(defparameter <eql-specializer>
-  (macrolet ((form () *<eql-specializer>-defclass*))
-    (form)))
-(replace-class-version (find-class 'eql-specializer)
-                       *<eql-specializer>-class-version*)
-
 (defmethod shared-initialize ((specializer eql-specializer) situation &rest args
                               &key ((singleton singleton) nil)
                               &allow-other-keys)
