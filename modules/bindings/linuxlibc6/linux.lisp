@@ -2992,6 +2992,192 @@
     (:arguments (fd int) (request int) (arg (c-ptr int) :out :alloca))
   (:return-type int) (:name "ioctl"))
 
+;;; --------------------------------- <bits/signum.h> ------------------------
+;;;  --- Posix sigaction ---
+;;;  Peter Wood 2002
+
+(defconstant SIGHUP		1) ; Hangup (POSIX).
+(defconstant SIGINT		2) ; Interrupt (ANSI).
+(defconstant SIGQUIT		3) ; quit (POSIX).
+(defconstant SIGILL		4) ; Illegal instruction (ANSI).
+(defconstant SIGTRAP		5) ; Trace trap (POSIX).
+(defconstant SIGABRT		6) ; Abort (ANSI).
+(defconstant SIGIOT		6) ; IOT trap (4.2 BSD).
+(defconstant SIGBUS		7) ; BUS error (4.2 BSD).
+(defconstant SIGFPE		8) ; Floating-point exception (ANSI).
+(defconstant SIGKILL		9) ; Kill, unblockable (POSIX).
+(defconstant SIGUSR1		10) ; User-defined signal 1 (POSIX).
+(defconstant SIGSEGV		11) ; Segmentation violation (ANSI).
+(defconstant SIGUSR2		12) ; User-defined signal 2 (POSIX).
+(defconstant SIGPIPE		13) ; Broken pipe (POSIX).
+(defconstant SIGALRM		14) ; Alarm clock (POSIX).
+(defconstant SIGTERM		15) ; Termination (ANSI).
+(defconstant SIGSTKFLT	        16) ; Stack fault.
+(defconstant SIGCHLD		17) ; Child status has changed (POSIX).
+(defconstant SIGCLD		SIGCHLD) ; Same as SIGCHLD (System V).
+(defconstant SIGCONT		18) ; Continue (POSIX).
+(defconstant SIGSTOP		19) ; Stop, unblockable (POSIX).
+(defconstant SIGTSTP		20) ; Keyboard stop (POSIX).
+(defconstant SIGTTIN		21) ; Background read from tty (POSIX).
+(defconstant SIGTTOU		22) ; Background write to tty (POSIX).
+(defconstant SIGURG		23) ; Urgent condition on socket (4.2 BSD).
+(defconstant SIGXCPU		24) ; CPU limit exceeded (4.2 BSD).
+(defconstant SIGXFSZ		25) ; File size limit exceeded (4.2 BSD).
+(defconstant SIGVTALRM	        26) ; Virtual alarm clock (4.2 BSD).
+(defconstant SIGPROF		27) ; Profiling alarm clock (4.2 BSD).
+(defconstant SIGWINCH	        28) ; Window size change (4.3 BSD, Sun).
+(defconstant SIGIO		29) ; I/O now possible (4.2 BSD).
+(defconstant SIGPOLL		SIGIO) ; Pollable event occurred (System V).
+(defconstant SIGPWR		30) ; Power failure restart (System V).
+(defconstant SIGSYS		31) ; Bad system call.
+(defconstant SIGUNUSED	        31)
+
+#|
+;pseudo sigs :-(
+
+I don't know how to do these...
+
+#define SIG_ERR	((__sighandler_t) -1)		/* Error return.  */
+#define SIG_DFL	((__sighandler_t) 0)		/* Default action.  */
+#define SIG_IGN	((__sighandler_t) 1)		/* Ignore signal.  */
+
+But it's not the end of the world, since its easy to accomplish what SIG_DFL
+and SIG_IGN do anyway, by other means ... They are just sugar, really.
+
+|#
+;;; --------------------------------- <bits/sigset.h> -----------------------
+(eval-when (load compile eval)
+  (defconstant SIGSET_NWORDS
+    ;; #.(lisp:/ 1024 #.(lisp:* 8 (ffi:sizeof 'ffi:uint)))
+    32))
+
+(def-c-struct sigset_t
+  (val (c-array-max uint #.SIGSET_NWORDS)))
+
+;;; --------------------------------- <bits/sigaction.h> ---------------------
+
+(def-c-type sighandler_t (c-function (:arguments (sig int)) ;from signal.h
+                                     (:return-type nil)))
+
+(def-c-struct sigaction
+  (sa_handler sighandler_t)
+  (sa_mask sigset_t)
+  (sa_flags uint32) ; actually int but otherwise CLISP can't coerce SA_RESETHAND?!
+  (sa_restorer (c-function (:arguments) (:return-type))))
+
+(defconstant SA_NOCLDSTOP  1)   ; Don't send SIGCHLD when children stop.
+(defconstant SA_NOCLDWAIT  2)   ; Don't create zombie on child death.
+                                ; ?not available?
+(defconstant SA_RESTART #x10000000) ; Restart syscall on signal return.
+(defconstant SA_NODEFER #x40000000) ; Don't automatically block the signal
+                                    ; when its handler is being executed.
+(defconstant SA_RESETHAND  #x80000000) ;Reset to SIG_DFL on entry to handler.
+(defconstant SA_NOMASK     SA_NODEFER)
+(defconstant SA_ONESHOT    SA_RESETHAND)
+
+
+(defconstant SIG_BLOCK     0)   ; Block signals
+(defconstant SIG_UNBLOCK   1)   ; Unblock signals.
+(defconstant SIG_SETMASK   2)   ; Set the set of blocked signals.
+
+;; sa_flags is the bitwise-or of zero or more of the following:
+;; SA_NOCLDSTOP SA_ONESHOT SA_RESETHAND SA_RESTART SA_NOMASK SA_NODEFER
+
+;;; --------------------------------- <signal.h> -----------------------------
+
+;; sigsetops (3)
+(def-c-call-out sigemptyset
+    (:arguments (sigs (c-ptr sigset_t) :out :alloca))
+  (:return-type int))
+
+(def-c-call-out sigfillset
+    (:arguments (sigs (c-ptr sigset_t) :out :alloca))
+  (:return-type int))
+
+(def-c-call-out sigaddset
+    (:arguments (sigset (c-ptr sigset_t) :in-out :alloca)
+                (sig int))
+  (:return-type int))
+
+(def-c-call-out sigdelset
+    (:arguments (sigset (c-ptr sigset_t) :in-out :alloca)
+                (sig int))
+  (:return-type int))
+
+(def-c-call-out sigismember
+    (:arguments (sigset (c-ptr sigset_t) :in :alloca)
+                (sig int))
+  (:return-type int))
+
+(def-c-call-out sigprocmask-set-n-save
+    (:arguments (how int)
+                (sigset (c-ptr sigset_t) :in :alloca)
+                (newset (c-ptr sigset_t) :out :alloca))
+  (:name "sigprocmask")
+  (:return-type int))
+
+(def-c-call-out sigprocmask-set
+    (:arguments (how int) ; can be: SIG_BLOCK SIG_UNBLOCK SIG_SETMASK
+                (sigset (c-ptr sigset_t) :in :alloca)
+                (null c-string))
+  (:name "sigprocmask")
+  (:return-type int))
+
+(def-c-call-out sigpending
+    (:arguments (sigset (c-ptr sigset_t) :out :alloca))
+  (:return-type int))
+
+(def-c-call-out sigsuspend
+    (:arguments (mask (c-ptr sigset_t) :in :alloca))
+  (:return-type int))
+
+;; int sigaction (int signum, const struct sigaction *act,
+;;                struct sigaction *oldact);
+
+(def-c-call-out sigaction-new
+    (:arguments (sig int)
+                (act (c-ptr sigaction) :in :alloca)
+                (null c-string)) ;nil
+  (:name "sigaction")
+  (:return-type int))
+;; e.g.: (sigaction-new SIGINT newhandler nil) => 0
+
+(def-c-call-out sigaction-old
+    (:arguments (sig int)
+                (null c-string) ; nil
+                (oact (c-ptr sigaction) :out :alloca))
+  (:name "sigaction")
+  (:return-type int))
+;; e.g.: (nth-value 1 (sigaction-old SIGINT nil)) => oldhandler
+
+(def-c-call-out sigaction-query
+    ;; if 2nd & 3rd args are null, query if signal SIG is valid
+    (:arguments (sig int)
+                (null1 c-string) ; nil
+                (null2 c-string)) ; nil
+  (:name "sigaction")
+  (:return-type int))
+;; e.g.: (linux:sigaction-query linux:SIGINT nil nil) => 0
+
+;; miscellaneous signal stuff
+(def-c-call-out kill
+    (:arguments (pid pid_t) (sig int))
+  (:return-type int))
+
+(def-c-call-out raise
+    (:arguments (sig int))
+  (:return-type int))
+
+(def-c-call-out sigpause
+    (:arguments (sig int))
+  (:return-type int))
+
+(def-c-call-out killpg
+    (:arguments (pgrp pid_t)
+                (sig int))
+  (:return-type int))
+
+
 ;;; ==========================================================================
 ;;; clean up
 (lisp:in-package "LISP")
