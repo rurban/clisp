@@ -61,7 +61,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) tidy.conf
 #		-diag -edump -in $< -out $@ \
 #		-xsl "file://$(XMLHOME)/docbook.xsl/xhtml/docbook.xsl"
 #	cp impnotes.html impnotes-saved.html
-	tidy -config tidy.conf impnotes.html || true
+	tidy -config tidy.conf -f tidy.err impnotes.html || true
 
 regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
 	perl $(TEXI2HTML) -monolithic -verbose $<
