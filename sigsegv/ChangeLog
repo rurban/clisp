@@ -1,3 +1,12 @@
+1999-02-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * sigsegv/sigsegv.h.in: Renamed from sigsegv/sigsegv.h.
+          Added "#undef HAVE_SIGSEGV_RECOVERY", commented out.
+        * Makefile.in (sigsegv.h): Try compiling and running test1. If it
+          fails, like on Solaris 2.5 and 2.5.1, uncomment "#undef
+          HAVE_SIGSEGV_RECOVERY".
+        * Makefile.msvc: Update.
+
 1999-01-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * sigsegv.h [linux && sparc]: Disable HAVE_SIGSEGV_RECOVERY. It does

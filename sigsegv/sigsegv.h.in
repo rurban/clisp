@@ -2,7 +2,7 @@
 #define _SIGSEGV_H
 
 /*
- * Copyright 1998, 1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1998-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -46,6 +46,8 @@
 #define HAVE_SIGSEGV_RECOVERY
 #define HAVE_STACK_OVERFLOW_RECOVERY
 #endif
+
+/* #undef HAVE_SIGSEGV_RECOVERY here if test1 crashes */
 
 #ifdef __cplusplus
 extern "C" {
