@@ -1038,7 +1038,7 @@
       (push `(DEFCONSTANT ,item ,next-value) forms)
       (when (gethash this-val ht)
         (warn (TEXT "~S (~S): value ~S will be assigned to both ~S and ~S")
-              'def-c-enum name this-val (gethash this-val ht) item ))
+              'def-c-enum name this-val (gethash this-val ht) item))
       (setf (gethash this-val ht) item)
       (setq next-value `(1+ ,item) this-val (1+ this-val)))
     `(PROGN ,@(nreverse forms) (setf (get ',name 'def-c-enum) ,ht)
