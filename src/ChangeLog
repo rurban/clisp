@@ -14,7 +14,7 @@
 	(bq-expand): Don't test *backquote-optimize* any more. Call
 	bq-append-multiple.
 	(bq-transform): Call bq-list.
-	(*backquote-optimize[12345]*): New variables, replacing
+	(*backquote-optimize-...*): New variables, replacing
 	*backquote-optimize*.
 	(bq-splicing-p, bq-non-splicing): New functions.
 	(bq-cons, bq-list, bq-append, bq-nconc): New functions.
