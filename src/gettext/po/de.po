@@ -1,12 +1,12 @@
 # German messages for CLISP
-# Copyright (C) 1992-1998 Bruno Haible, Michael Stoll
+# Copyright (C) 1992-1999 Bruno Haible, Michael Stoll
 # Bruno Haible <haible@clisp.cons.org>, 1999.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 1999-04-03\n"
 "POT-Creation-Date: 1999-04-05 19:23:25 MEST\n"
-"PO-Revision-Date: 1999-04-05 08:45:53 MEST\n"
+"PO-Revision-Date: 1999-04-22 10:40:09 MEST\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -2956,9 +2956,8 @@ msgid "Connection refused"
 msgstr "Gegenseite verweigert die Verbindung"
 
 #: errunix.d:450
-#, fuzzy
 msgid "Remote peer released connection"
-msgstr "Musste diese Verbindung kappen"
+msgstr "Gegenseite hat die Verbindung gekappt"
 
 #: errunix.d:455
 msgid "Host is down"
@@ -2969,9 +2968,8 @@ msgid "Host is unreachable"
 msgstr "Gegenseite nicht in Sichtweite, nicht erreichbar"
 
 #: errunix.d:466
-#, fuzzy
 msgid "Networking error"
-msgstr "Netz streikt"
+msgstr "Netz-Fehler"
 
 #: errunix.d:472
 msgid "Too many processes"
