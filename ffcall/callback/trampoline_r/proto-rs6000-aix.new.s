@@ -20,15 +20,14 @@ tramp:
 	mflr 0
 	stw 0,8(1)
 	stwu 1,-56(1)
-	lis 0,0xbabe
 	lis 11,0x7355
-	ori 0,0,48832
+	lis 9,0xbabe
 	ori 11,11,18193
-	mr 9,0
+	ori 9,9,48832
 	stw 2,20(1)
-	lwz 10,0(9)
+	lwz 0,0(9)
 	lwz 2,4(9)
-	mtlr 10
+	mtlr 0
 	lwz 11,8(9)
 	blrl
 	lwz 2,20(1)
@@ -61,5 +60,5 @@ LT..jump:
 	.short 4
 	.byte "jump"
 _section_.text:
-.csect .data[RW]
+.csect .data[RW],3
 	.long _section_.text

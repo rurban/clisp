@@ -36,4 +36,4 @@ jump:
 	bctr
 .Lfe2:
 	.size	 jump,.Lfe2-jump
-	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"

@@ -1,6 +1,14 @@
 	.file	1 "proto.c"
 	.set	nobopt
 	.abicalls
+
+ # GNU C 2.6.3 [AL 1.1, MM 40] Silicon Graphics Mips compiled by GNU C
+
+ # Cc1 defaults:
+
+ # Cc1 arguments (-G value = 8, Cpu = 3000, ISA = 1):
+ # -quiet -dumpbase -mabicalls -O2 -fomit-frame-pointer -o
+
 gcc2_compiled.:
 __gnu_compiled_c:
 	.text
@@ -9,7 +17,6 @@ __gnu_compiled_c:
 	.align	2
 	.globl	jump
 
-	.text
 	.text
 	.ent	tramp
 tramp:
@@ -21,23 +28,16 @@ tramp:
 	.set	reorder
 	subu	$sp,$sp,32
 	.cprestore 16
-	li	$2,1934950400			# 0x73550000
+	li	$2,0x73550000		# 1934950400
 	ori	$2,$2,0x4711
 	sw	$31,28($sp)
 	sw	$28,24($sp)
 	li	$25,-1161904448
 	jal	$31,$25
 	lw	$31,28($sp)
-	#nop
-	.set	noreorder
-	.set	nomacro
-	j	$31
 	addu	$sp,$sp,32
-	.set	macro
-	.set	reorder
-
+	j	$31
 	.end	tramp
-	.text
 	.ent	jump
 jump:
 	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
