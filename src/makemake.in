@@ -2977,8 +2977,17 @@ if [ $CROSS = false ] ; then
     echotab 'echo "MAINICON ICON \"clisp.ico\"" > clisp.rc'
     echol
   fi
+  DRIVERFLAGS=''
+  case "$host_os" in
+    hpux*)
+      # gcc-2.95.2 on HP-UX 10 miscompiles clisp.c when optimization -O is used.
+      if [ $XCC_GCC = true ] ; then
+        DRIVERFLAGS=' -O0'
+      fi
+      ;;
+  esac
   echol "clisp : clisp.c${DRIVER_DEP}"
-  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"'"\$\$builddir"'\"' -DLOCALEDIR='\"'"\$\$builddir/locale"'\"' clisp.c${DRIVER_RES} ${LIBS} -o clisp"
+  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"'"\$\$builddir"'\"' -DLOCALEDIR='\"'"\$\$builddir/locale"'\"' clisp.c${DRIVER_RES} ${LIBS} -o clisp"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
@@ -3045,7 +3054,7 @@ if [ $CROSS = false ] ; then
       echotab "cd po && \$(MAKE) install prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
     echotab_mkdir_maybe "\$(DESTDIR)\$(bindir)"
-    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
     echol
     echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
     echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
