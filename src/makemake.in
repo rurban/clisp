@@ -2907,17 +2907,30 @@ else
   manualx_readline=''
 fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
-echol "MANUALS = clisp.1${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
+echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
 echol
 echol "impnotes.html : ${SRCDIR}_impnotes.html"
 echotab "sed -e 's,href=\"CLHSROOT/,href=\"${hyperspec}/,' ${SRCDIR}_impnotes.html > impnotes.html"
 echol
-echol "manual : \$(READMES) \$(MANUALS)"
-echodummyrule manual
-echol
-echol "manualx : manual clisp.man${manualx_readline}"
-echodummyrule manualx
-echol
+# On Unix, clisp.dvi must be built by "make all", because "make install" needs
+# it and "make install" must not create files in the current directory, for
+# compliance with the GNU standards. On other OSes, clisp.dvi must be built
+# manually on another machine, so don't make it part of "make all".
+if [ $HOS = unix ] ; then
+  echol "manual : \$(READMES) \$(MANUALS)${manual_dvi}"
+  echodummyrule manual
+  echol
+  echol "manualx : manual clisp.man${manualx_readline}"
+  echodummyrule manualx
+  echol
+else
+  echol "manual : \$(READMES) \$(MANUALS)"
+  echodummyrule manual
+  echol
+  echol "manualx : manual clisp.man${manual_dvi}${manualx_readline}"
+  echodummyrule manualx
+  echol
+fi
 
 for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol "${f} : ${SRCTOPDIR_M}${f}"
@@ -3126,14 +3139,14 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     echol
-    echol "install-doc : \$(READMES) \$(MANUALS) force"
+    echol "install-doc : \$(READMES) \$(MANUALS)${manual_dvi} force"
     echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
     echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
     echotab "if [ ! -d \$(lispdocdir) ] ; then mkdir \$(lispdocdir) ; fi"
     echotab "if [ ! -d \$(lispdocdir)/doc ] ; then mkdir \$(lispdocdir)/doc ; fi"
     echotab "\$(INSTALL_DATA) \$(READMES) \$(lispdocdir)/"
-    echotab "\$(INSTALL_DATA) \$(MANUALS) \$(lispdocdir)/doc/"
+    echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(lispdocdir)/doc/"
     echol
     echol
     echol "installcheck : ${TESTSDIR} force"
@@ -3171,7 +3184,7 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     echotab "for f in \$(READMES); do \$(RM) \$(lispdocdir)/\$\$f; done"
-    echotab "for f in \$(MANUALS); do \$(RM) \$(lispdocdir)/doc/\$\$f; done"
+    echotab "for f in \$(MANUALS)${manual_dvi}; do \$(RM) \$(lispdocdir)/doc/\$\$f; done"
     echol
     echol
   fi

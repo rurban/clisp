@@ -1,5 +1,13 @@
 1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Don't force building clisp.dvi on non-Unix OSes.
+        * makemake.in (MANUALS): Remove clisp.dvi.
+          (manual): Add it, on Unix only.
+          (manualx): Add it, on non-Unix only.
+          (install-doc, uninstall-man): Treat it like $(MANUALS).
+
+1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * cfgacorn.lsp, cfgamiga.lsp, cfgdos.lsp, cfgwin32.lsp
           (*clhs-root-default*): Assign default value.
         * makemake.in (config.lsp): Emit "echo ... >> config.lsp" only for
