@@ -595,9 +595,12 @@ global object I_I_ash_I (object x, object y)
       }
     } else { /* y<0 */
       if (I_bignump(y)) {
-        goto sign; /* y a bignum -> restore sign of x */
+        goto sign; /* y a bignum -> return sign of x */
       } else {
         var uintL y_ = ((as_oint(Fixnum_minus1)-as_oint(y))>>oint_data_shift)+1; /* value of -y, >0 */
+        #if (oint_data_len==32)
+        if (y_==0) goto sign; /* y = most-negative-fixnum -> return sign of x */
+        #endif
         var uintL i = y_%intDsize; /* i = (-y) mod intDsize, >=0, <intDsize */
         var uintL k = floor(y_,intDsize); /* k = (-y) div intDsize, >=0 */
         /* build DS for x: */
