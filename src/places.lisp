@@ -316,6 +316,7 @@
 ;;;----------------------------------------------------------------------------
 (defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
 (defsetf hash-table-weak-p SYSTEM::%SET-HASH-TABLE-WEAK-P)
+(defsetf weak-pointer-value SYSTEM::%SET-WEAK-POINTER-VALUE)
 ;;;----------------------------------------------------------------------------
 (defsetf aref (array &rest indices) (value)
   `(SYSTEM::STORE ,array ,@indices ,value))
