@@ -8719,24 +8719,25 @@ local object make_key_event (const key_event* event) {
             if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
               ev.bits |= char_meta_c;
           } else {
-            #ifdef UNICODE
+           #ifdef UNICODE
             var object encoding = TheStream(*stream_)->strm_encoding;
             var chart c = 0;
             var uintB buf[max_bytes_per_chart];
             var chart* cptr  = &c;
-            var char* bptr         = buf;
+            var char* bptr   = buf;
             memset(buf,0,max_bytes_per_chart);
-            OemToCharBuff((char *)&(event.Event.KeyEvent.uAsciiChar),buf,1);
+            buf[0] = (uintB) event.Event.KeyEvent.uAsciiChar;
             Encoding_mbstowcs(encoding)
               (encoding,*stream_,&bptr,bptr+max_bytes_per_chart,&cptr,cptr+1);
-            #else
+           #else
             var chart c = event.Event.KeyEvent.uAsciiChar;
             OemToCharBuff((char *)c,(char *)c,1);
-            #endif
+           #endif
             ev.key = NULL;
             ev.code = c;
             ev.bits = 0;
-            if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) {
+            if (event.Event.KeyEvent.dwControlKeyState &
+                (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) {
               # c = 'a'..'z' -> translate to 'A'..'Z'
               # c = 'A'..'Z' -> add "Shift"
               # c = '<','>' etc. -> don't add "Shift"
