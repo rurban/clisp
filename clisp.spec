@@ -1,4 +1,4 @@
-# File: <clisp.spec - 1999-01-10 Sun 14:30:04 EST sds@eho.eaglets.com>
+# File: <clisp.spec - 1999-01-11 Mon 12:35:58 EST sds@eho.eaglets.com>
 # $Id$
 # Copyright (C) 1998 by Sam Steingold
 # GNU General Public License v.2 (GPL2) is applicable:
@@ -17,7 +17,7 @@
 Summary:   Common Lisp (ANSI CL) implementation
 Name:      %{name}
 Version:   %{version}
-Release:   1
+Release:   2
 Icon:      clisp.gif
 Copyright: GPL [slightly modified]
 Group:     development/languages
@@ -52,38 +52,47 @@ The latest and greatest i386 binary RPM is on
 # I am doomed to untar, compile and install!)  This is unacceptable, so
 # I disabled untar completely - I don't need it anyway, I work from a
 # CVS repository, and I comment out the build clause and `make install`.
+# Is *YOU* want to build using RPM, you are welcome to it: just
+# uncomment the commands in the appropriate sections (do not uncomment
+# the doubly commented lines - they are maintainer-only commands).
+
 %prep
 %setup -T -D -n /usr/src/%{name}
 %build
-#rm -rf src/VERSION
-#date +%Y-%02m-%02d > src/VERSION
-#make -f Makefile.devel src/version.h
+##rm -rf src/VERSION
+##date +%Y-%02m-%02d > src/VERSION
+##make -f Makefile.devel src/version.h
 ## make -f Makefile.devel
 ## make -f Makefile.devel check-configures
 #./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
 #    --with-module=regexp --with-module=bindings/linuxlibc6 \
 #    --with-module=clx/new-clx --build %{clisp_build}
 %install
-cd %{clisp_build}
+#cd %{clisp_build}
 #make install
-test -d doc || mkdir doc
-cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
-    LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
-    impnotes.html clisp.gif clreadline.html doc
-cd ..
+#test -d doc || mkdir doc
+#cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
+#    LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
+#    impnotes.html clisp.gif clreadline.html doc
+#cd ..
 
 # Can you believe it?!!  RPM runs chown -R root.root / chmod -R!!!
 # Who was the wise guy who invented this?!  Now not only I have to run
 # rpm as root (as I should not have to - chown/chmod can be done in the
 # package file itself, not on disk!) but I also cannot work with the
 # sources afterwards!
-chgrp -R src
+chgrp -R src .
 chmod -R g+wX .
 
 # create the source tar, necessary for source RPMs
-#cd ..
-#tar cfz redhat/SOURCES/clispsrc.tar.gz clisp/ --exclude build
-#cd clisp
+find . -name ".#*" | xargs rm -f
+cd ..
+mv clisp clisp-%{version}
+tar cfz redhat/SOURCES/clispsrc.tar.gz clisp-%{version} \
+    --exclude build --exclude CVS --exclude .cvsignore
+mv clisp-%{version} clisp
+cd clisp
+
 %files
 %dir /usr/lib/clisp/
 %docdir /usr/doc/%{name}-%{version}
@@ -109,5 +118,3 @@ chmod -R g+wX .
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
 /usr/share/locale/fr/LC_MESSAGES/clisp.mo
-
-
