@@ -574,14 +574,6 @@ extern RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte);
 
 /* inquire the terminal, window size: */
 extern_C int isatty (int fd); /* TTYNAME(3V) */
-#ifdef IOCTL_DOTS
-  extern_C int ioctl (int fd, IOCTL_REQUEST_T request, ...); /* IOCTL(2) */
-  #define IOCTL_ARGUMENT_T  CADDR_T
-#else
-  extern_C int ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg); /* IOCTL(2) */
-  /* 3rd argument is always cast to type IOCTL_ARGUMENT_T (usually CADDR_T): */
-  #define ioctl(fd,request,arg)  (ioctl)(fd,request,(IOCTL_ARGUMENT_T)(arg))
-#endif
 #if defined(HAVE_TERMIOS_H) && defined(HAVE_TCGETATTR) && defined(HAVE_TCSAFLUSH)
   #define UNIX_TERM_TERMIOS
   #include <termios.h> /* TERMIOS(3V) */
@@ -630,6 +622,14 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
   #include <sys/filio.h>
 #elif defined(NEED_SYS_IOCTL_H)
   #include <sys/ioctl.h>
+#endif
+#ifdef IOCTL_DOTS
+  extern_C int ioctl (int fd, IOCTL_REQUEST_T request, ...); /* IOCTL(2) */
+  #define IOCTL_ARGUMENT_T  CADDR_T
+#else
+  extern_C int ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg); /* IOCTL(2) */
+  /* 3rd argument is always cast to type IOCTL_ARGUMENT_T (usually CADDR_T): */
+  #define ioctl(fd,request,arg)  (ioctl)(fd,request,(IOCTL_ARGUMENT_T)(arg))
 #endif
 #ifndef HAVE_SELECT
   #ifdef FCNTL_DOTS

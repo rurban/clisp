@@ -718,7 +718,7 @@ local void loadmem_update_fsubr (Fsubr fsubrptr)
   while (i!=0) {
     i--;
     if ((void*) *--p == addr) {
-      fsubrptr->function = ((const fsubr_t *)(&fsubr_tab))[i];
+      fsubrptr->function = (void*) ((const fsubr_t *)(&fsubr_tab))[i];
       break;
     }
   }

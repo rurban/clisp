@@ -9183,23 +9183,24 @@ global char** lisp_completion (char* text, int start, int end) {
       # Upon charset_type_error, call lisp_completion_ignore.
       make_HANDLER_frame(O(handler_for_charset_type_error),
                          &lisp_completion_ignore,NULL);
-      # Convert ptr1 to *TERMINAL-ENCODING*:
-      var uintL bytecount = cslen(O(terminal_encoding),ptr1,charcount);
-      begin_system_call();
-      var char* ptr2 = (char*) malloc((bytecount+1)*sizeof(char));
-      if (ptr2==NULL) { # malloc fails -> return everything
-        until (ptr==array) { free(*--ptr); }
-        free(array);
+      { # Convert ptr1 to *TERMINAL-ENCODING*:
+        var uintL bytecount = cslen(O(terminal_encoding),ptr1,charcount);
+        begin_system_call();
+        var char* ptr2 = (char*) malloc((bytecount+1)*sizeof(char));
+        if (ptr2==NULL) { # malloc fails -> return everything
+          until (ptr==array) { free(*--ptr); }
+          free(array);
+          end_system_call();
+          unwind_HANDLER_frame();
+          skipSTACK(3+1); # unwind CATCH frame, pop mlist
+          end_callback();
+          return NULL;
+        }
         end_system_call();
-        unwind_HANDLER_frame();
-        skipSTACK(3+1); # unwind CATCH frame, pop mlist
-        end_callback();
-        return NULL;
+        cstombs(O(terminal_encoding),ptr1,charcount,(uintB*)ptr2,bytecount);
+        ptr2[bytecount] = '\0';
+        *ptr++ = ptr2;
       }
-      end_system_call();
-      cstombs(O(terminal_encoding),ptr1,charcount,(uintB*)ptr2,bytecount);
-      ptr2[bytecount] = '\0';
-      *ptr++ = ptr2;
       unwind_HANDLER_frame();
     catch_return:
       skipSTACK(3); # unwind CATCH frame
@@ -9720,7 +9721,7 @@ local object rd_ch_terminal3 (const object* stream_) {
       run_time_stop(); # hold run time clock
       begin_call();
       rl_already_prompted = true;
-      var uintB* line = strip_white(readline(prompt==NULL ? "" : prompt));
+      var uintB* line = (uintB*)strip_white(readline(prompt==NULL ? "" : prompt));
       end_call();
       run_time_restart(); # resume run time clock
       if (!(prompt==NULL)) {
@@ -9767,12 +9768,12 @@ local object rd_ch_terminal3 (const object* stream_) {
           begin_system_call();
           var int offset = where_history();
           var HIST_ENTRY *old;
-          var char *new_line = (char*)xmalloc(2+strlen(line)+
-                                              strlen(prev->line));
+          var char *new_line =
+            (char*)xmalloc(2+strlen((char*)line)+strlen(prev->line));
           # strcpy(new_line,prev->line[0]=='\n' ? "" : "\n");
           strcpy(new_line,prev->line);
           strcat(new_line,"\n");
-          strcat(new_line,line);
+          strcat(new_line,(char*)line);
           old = replace_history_entry(offset,new_line,prev->data);
           if (old) {
             free(old->line);
@@ -14997,7 +14998,7 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
 local void sock_opt_bool (SOCKET handle, int option, object value)
 {
   var int val;
-  var int len = sizeof(val);
+  var socklen_t len = sizeof(val);
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   pushSTACK(val ? T : NIL);
   if (!(eq(value,nullobj))) {
@@ -15009,7 +15010,7 @@ local void sock_opt_bool (SOCKET handle, int option, object value)
 local void sock_opt_int (SOCKET handle, int option, object value)
 {
   var uintL val;
-  var int len = sizeof(val);
+  var socklen_t len = sizeof(val);
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   pushSTACK(fixnum(val));
   if (!(eq(value,nullobj))) {
@@ -15022,7 +15023,7 @@ local void sock_opt_int (SOCKET handle, int option, object value)
 local void sock_opt_time (SOCKET handle, int option, object value)
 { /* may trigger GC */
   var struct timeval val;
-  var int len = sizeof(val);
+  var socklen_t len = sizeof(val);
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   if (val.tv_usec) {
     double x = val.tv_sec + val.tv_sec*0.000001;
@@ -15062,7 +15063,7 @@ LISPFUN(socket_options,1,0,rest,nokey,0,NIL) {
       sock_opt_bool(handle,SO_ERROR,arg);
     } else if (eq(kwd,S(Kso_linger))) {
       struct linger val;
-      var int len = sizeof(val);
+      var socklen_t len = sizeof(val);
       if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,(char *)&val,&len)) OS_error();
       if (val.l_onoff) pushSTACK(fixnum(val.l_linger));
       else pushSTACK(NIL);
@@ -16278,8 +16279,8 @@ global bool read_line (const object* stream_, const object* buffer_) {
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
       var object ch = TheStream(stream)->strm_rd_ch_last;
       if (!charp(ch)) {
-       read_line_fehler_char:
-        if (eq(subr_self,L(read_line))) fehler_char(ch);
+        if (eq(subr_self,L(read_line)))
+          fehler_char(ch);
         else
           with_saved_back_trace(L(read_line),-1, fehler_char(ch));
       }
@@ -16309,7 +16310,12 @@ global bool read_line (const object* stream_, const object* buffer_) {
             eofp = true; break;
           }
           # else check for Character:
-          if (!charp(ch)) goto read_line_fehler_char;
+          if (!charp(ch)) {
+            if (eq(subr_self,L(read_line)))
+              fehler_char(ch);
+            else
+              with_saved_back_trace(L(read_line),-1, fehler_char(ch));
+          }
           if (eq(ch,ascii_char(NL))) { # NL -> End of Line
             eofp = false; break;
           }

@@ -4042,6 +4042,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
         fehler_lambda_expression(S(apply),fun);
       else
         fehler_funname_type(S(apply),fun);
+      return;
      undef:
       fehler_undefined(S(apply),fun);
     }
@@ -4956,6 +4957,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         fehler_lambda_expression(S(funcall),fun);
       else
         fehler_funname_type(S(funcall),fun);
+      return;
      undef:
       fehler_undefined(S(funcall),fun);
     }
