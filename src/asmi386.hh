@@ -178,7 +178,7 @@
 #define ALIGN(log) .align log,0x90
 #endif
 #if defined(ELF_SYNTAX) || defined(__CYGWIN32__) || defined(__MINGW32__)
-#define ALIGN(log) .align 1<<(log)
+#define ALIGN(log) .align 1<<log
 #endif
 #endif
 #ifdef INTEL_SYNTAX
