@@ -1,3 +1,16 @@
+2002-05-29  Bruno Haible  <bruno@clisp.org>
+
+	Upgrade CHAR-WIDTH and STRING-WIDTH to Unicode 3.2.
+	* streq.h: New file, from libunistring-0.0.
+	* cjk.h: New file, from libunistring-0.0.
+	* uniwidth.h: New file, from libunistring-0.0.
+	* width.c: New file, from libunistring-0.0.
+	* charstrg.d (nonspacing_table_data, nonspacing_table_ind): Remove
+	arrays. Instead include width.c.
+	(char_width): Rewritten to use uc_width.
+	* spvw.d (locale_encoding): New variable.
+	* encoding.d (init_dependent_encodings): Initialize locale_encoding.
+
 2002-05-28  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (buffered_half_flush, buffered_full_flush): removed
