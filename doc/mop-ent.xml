@@ -165,3 +165,4 @@
  inheritance and defaulting of slot options following the rules
  described in the &ansi-cl; section <ulink url='&clhs;/Body/sec_7-5-3.html'
  >7.5.3 <quote>Inheritance of Slots and Options</quote></ulink>.</simpara>">
+<!ENTITY dsds-r "<replaceable>direct-slot-definitions</replaceable>">
