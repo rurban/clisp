@@ -98,11 +98,7 @@ install-bin : all force
 	$(CC) $(CFLAGS) -DLISPLIBDIR='"$(lisplibdir)"' -DLOCALEDIR='"$(localedir)"' src/clisp.c -o $(bindir)/clisp
 #endif
 
-#ifdef GNU_READLINE
-install-man : doc/clisp.1 doc/clisp.html doc/clreadline.3 doc/clreadline.html doc/clreadline.dvi force
-#else
 install-man : doc/clisp.1 doc/clisp.html force
-#endif
 	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
 	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
@@ -113,12 +109,6 @@ install-man : doc/clisp.1 doc/clisp.html force
 	$(INSTALL_DATA) doc/clisp.1 $(mandir)/man1/clisp.1
 	$(INSTALL_DATA) doc/clisp.html $(htmldir)/clisp.html
 	test ! -f doc/clisp.dvi || $(INSTALL_DATA) doc/clisp.dvi $(dvidir)/clisp.dvi
-#ifdef GNU_READLINE
-	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	$(INSTALL_DATA) doc/clreadline.3 $(mandir)/man3/clreadline.3
-	$(INSTALL_DATA) doc/clreadline.html $(htmldir)/clreadline.html
-	$(INSTALL_DATA) doc/clreadline.dvi $(dvidir)/clreadline.dvi
-#endif
 
 install-doc : force
 	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi

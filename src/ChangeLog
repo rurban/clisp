@@ -16,6 +16,7 @@
 	* stream.d [GNU_READLINE]: include system headers, not local ones
 	* unixconf.h.in (HAVE_READLINE_READLINE_H): undef
 	* readline/*, termcap/*: removed
+	* _distmakefile: removed readline docs
 
 2002-07-19  Sam Steingold  <sds@gnu.org>
 
