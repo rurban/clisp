@@ -571,26 +571,25 @@ abort continue muffle-warning store-value use-value
 
 ;; HANDLER-CASE, CLtL2 p. 895
 (defmacro handler-case (form &rest clauses)
-  ; split off the :NO-ERROR clause and
-  ; add a GO tag to the other clauses (type varlist . body)
-  (let ((no-error-clause nil) ; the last clause, if it is a :no-error clause
+  ;; split off the :NO-ERROR clause and
+  ;; add a GO tag to the other clauses (type varlist . body)
+  (let ((no-error-clause nil)
         (extended-clauses '())) ; ((tag type varlist . body) ...)
     (do ()
         ((endp clauses))
       (let ((clause (pop clauses)))
         (block check-clause
-          (unless (and (consp clause) (consp (cdr clause)) (listp (second clause)))
+          (unless (and (consp clause) (consp (cdr clause))
+                       (listp (second clause)))
             (error-of-type 'source-program-error
-              (ENGLISH "~S: illegal syntax of clause ~S")
-              'handler-case clause
-          ) )
+                           (ENGLISH "~S: illegal syntax of clause ~S")
+                           'handler-case clause))
           (when (eq (first clause) ':no-error)
-            (if (null clauses) ; at the end of the clauses?
+            (if (null no-error-clause)
               (progn (setq no-error-clause clause) (return-from check-clause))
-              (warn (ENGLISH "~S: misplaced ~S clause: ~S")
-                    'handler-case ':no-error clause
-          ) ) )
-          (let ((varlist (second clause))) ; known as a list
+              (warn (ENGLISH "~S: multiple ~S clauses: ~S and ~S")
+                    'handler-case ':no-error clause no-error-clause)))
+          (let ((varlist (second clause))) ; known to be a list
             (unless (null (cdr varlist))
               (error-of-type 'source-program-error
                 (ENGLISH "~S: too many variables ~S in clause ~S")

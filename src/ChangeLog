@@ -1,3 +1,13 @@
+2001-05-01  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main): added "-t" ("traditional") command line
+	option to override "-a" ("maximum ANSI")
+
+2001-05-01  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (handler-case): accept :NO-ERROR clause in any
+	position, not just the last one
+
 2001-04-30  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (test-argument-syntax): call C-WARN and return NIL
