@@ -1,3 +1,7 @@
+2004-04-08  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp: export ABORT here to avoid conflict with gray.lisp
+
 2004-04-07  Sam Steingold  <sds@gnu.org>
 
 	fill/indent warnings and error messages
