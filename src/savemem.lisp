@@ -27,6 +27,7 @@
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function verbose
+                    ((:start-package *package*) *package*)
                     (locked-packages *system-package-list*))
   (let* ((old-driver *driver*)
          (fn (merge-pathnames filename #.(make-pathname :type "mem")))

@@ -8,24 +8,34 @@
 <section id="image"><title>Extensions-1.1. Saving an Image</title>
 
 <para>The function
-  <literal role="sexp">(<function>ext:saveinitmem</function>
+  <literal role="sexp">(<function>EXT:SAVEINITMEM</function>
     &optional-amp; (&filename-r; "lispinit.mem")
-    &key-amp; :quiet :init-function :locked-packages)</literal>
+    &key-amp; :QUIET :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE)</literal>
 saves the running &clisp;'s memory to the file &filename-r;;
-extension &mem-file; is recommended.  When &filename-r; does not have an
-extension, &mem-file; extension is automatically used.
-If the <constant>:quiet</constant> argument is not &nil;, the startup
-banner and the good-bye message will be suppressed.
-The <constant>:init-function</constant> argument specifies a function
-that will be executed at startup of the saved image, before entering
-the standard &repl;, thus, if you want to avoid it, you have to call
-<link linkend="quit"><function>EXT:EXIT</function></link>.
-The <constant>:locked-packages</constant> argument specifies the
-packages to lock before saving the image; this is convenient for
-application delivery, when you do not want your user to mess up your
-product.  This argument defaults to &sys-pack-list;.
-The starting package of the new image is the one in which you were when
-you invoked <function>ext:saveinitmem</function>.</para>
+extension &mem-file; is recommended (when &filename-r; does not have an
+extension, &mem-file; extension is automatically added).
+<variablelist>
+ <varlistentry><term><constant>:QUIET</constant></term>
+  <listitem><simpara>If the this argument is not &nil;, the startup
+   banner and the good-bye message will be suppressed.
+   </simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:INIT-FUNCTION</constant></term>
+  <listitem><simpara>This argument specifies a function that will be
+   executed at startup of the saved image, before entering the standard
+   &repl;, thus, if you want to avoid the &repl;, you have to call
+   <link linkend="quit"><function>EXT:EXIT</function></link> at the end
+   of the init function yourself.</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
+  <listitem><simpara>This argument specifies the packages to lock before
+   saving the image; this is convenient for application delivery, when
+   you do not want your user to mess up your product.
+   This argument defaults to &sys-pack-list;.
+   </simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:START-PACKAGE</constant></term>
+  <listitem><simpara>This argument specifies the starting value of
+   &package-var; in the image being saved, and defaults to the current
+   value of &package-var;.</simpara></listitem></varlistentry>
+</variablelist></para>
 
 </section>
 

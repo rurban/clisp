@@ -5,6 +5,10 @@
 
 2002-06-04  Sam Steingold  <sds@gnu.org>
 
+	* savemem.lisp (saveinitmem): added :START-PACKAGE argument
+
+2002-06-04  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (CONFIGURES): added libcharset/configure
 	(libcharset/configure): new target
 
