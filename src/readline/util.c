@@ -108,7 +108,7 @@ rl_tty_status (count, key)
 {
 #if defined (TIOCSTAT)
   ioctl (1, TIOCSTAT, (char *)0);
-  rl_refresh_line ();
+  rl_refresh_line (count, key);
 #else
   ding ();
 #endif

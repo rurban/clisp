@@ -113,7 +113,6 @@ static int vi_mark_chars[27];
 
 /* Prototype declarations. */
 static int rl_digit_loop1 _PROTO((void));
-int rl_vi_domove _PROTO((int key, int *nextkey));
 
 void
 _rl_vi_initialize_line ()
@@ -334,9 +333,9 @@ rl_vi_prev_word (count, key)
     }
 
   if (_rl_uppercase_p (key))
-    rl_vi_bWord (count);
+    rl_vi_bWord (count, key);
   else
-    rl_vi_bword (count);
+    rl_vi_bword (count, key);
 
   return (0);
 }
@@ -356,9 +355,9 @@ rl_vi_next_word (count, key)
     }
 
   if (_rl_uppercase_p (key))
-    rl_vi_fWord (count);
+    rl_vi_fWord (count, key);
   else
-    rl_vi_fword (count);
+    rl_vi_fword (count, key);
   return (0);
 }
 
@@ -374,16 +373,16 @@ rl_vi_end_word (count, key)
     }
 
   if (_rl_uppercase_p (key))
-    rl_vi_eWord (count);
+    rl_vi_eWord (count, key);
   else
-    rl_vi_eword (count);
+    rl_vi_eword (count, key);
   return (0);
 }
 
 /* Move forward a word the way that 'W' does. */
 int
-rl_vi_fWord (count)
-     int count;
+rl_vi_fWord (count, ignore)
+     int count, ignore;
 {
   while (count-- && rl_point < (rl_end - 1))
     {
@@ -399,8 +398,8 @@ rl_vi_fWord (count)
 }
 
 int
-rl_vi_bWord (count)
-     int count;
+rl_vi_bWord (count, ignore)
+     int count, ignore;
 {
   while (count-- && rl_point > 0)
     {
@@ -423,8 +422,8 @@ rl_vi_bWord (count)
 }
 
 int
-rl_vi_eWord (count)
-     int count;
+rl_vi_eWord (count, ignore)
+     int count, ignore;
 {
   while (count-- && rl_point < (rl_end - 1))
     {
@@ -453,8 +452,8 @@ rl_vi_eWord (count)
 }
 
 int
-rl_vi_fword (count)
-     int count;
+rl_vi_fword (count, ignore)
+     int count, ignore;
 {
   while (count-- && rl_point < (rl_end - 1))
     {
@@ -479,8 +478,8 @@ rl_vi_fword (count)
 }
 
 int
-rl_vi_bword (count)
-     int count;
+rl_vi_bword (count, ignore)
+     int count, ignore;
 {
   while (count-- && rl_point > 0)
     {
@@ -518,8 +517,8 @@ rl_vi_bword (count)
 }
 
 int
-rl_vi_eword (count)
-     int count;
+rl_vi_eword (count, ignore)
+     int count, ignore;
 {
   while (count-- && rl_point < rl_end - 1)
     {
@@ -711,7 +710,7 @@ rl_vi_put (count, key)
   if (!_rl_uppercase_p (key) && (rl_point + 1 <= rl_end))
     rl_point++;
 
-  rl_yank (0, 0);
+  rl_yank (1, key);
   rl_backward (1, key);
   return (0);
 }

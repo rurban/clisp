@@ -156,7 +156,7 @@ noninc_search (dir, pchar)
   rl_message (p, 0, 0);
   free (p);
 
-#define SEARCH_RETURN _rl_restore_prompt (); return
+#define SEARCH_RETURN rl_restore_prompt (); return
 
   /* Read the search string. */
   while ((c = rl_read_key ()) != '\0')
@@ -225,7 +225,7 @@ noninc_search (dir, pchar)
       noninc_search_string = savestring (rl_line_buffer);
     }
 
-  _rl_restore_prompt ();
+  rl_restore_prompt ();
   noninc_dosearch (noninc_search_string, dir);
 }
 

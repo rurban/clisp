@@ -25,9 +25,9 @@
 #  define _TILDE_H_
 
 #if defined (READLINE_LIBRARY)
-#  include "ansi_proto.h"
+#  include "rlstdc.h"
 #else
-#  include <readline/ansi_proto.h>
+#  include <readline/rlstdc.h>
 #endif
 
 /* Function pointers can be declared as (Function *)foo. */

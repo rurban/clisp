@@ -48,6 +48,9 @@
 #include "readline.h"
 #include "history.h"
 
+/* Variables exported to other files in the readline library. */
+unsigned char *_rl_isearch_terminators = (unsigned char *)NULL;
+
 static int rl_search_history _PROTO((int direction, int invoking_key));
 
 /* Last line found by the current incremental search, so we don't `find'
@@ -161,11 +164,19 @@ rl_search_history (direction, invoking_key)
   /* Non-zero if we are doing a reverse search. */
   int reverse;
 
+  /* The list of characters which terminate the search, but are not
+     subsequently executed.  If the variable isearch-terminators has
+     been set, we use that value, otherwise we use ESC and C-J. */
+  unsigned char *isearch_terminators;
+
   orig_point = rl_point;
   last_found_line = orig_line = where_history ();
   reverse = direction < 0;
   hlist = history_list ();
   allocated_line = (char *)NULL;
+
+  isearch_terminators = _rl_isearch_terminators ? _rl_isearch_terminators
+						: (unsigned char *)"\033\012";
 
   /* Create an arrary of pointers to the lines that we want to search. */
   maybe_replace_line ();
@@ -194,7 +205,7 @@ rl_search_history (direction, invoking_key)
   /* The line where we start the search. */
   i = orig_line;
 
-  _rl_save_prompt ();
+  rl_save_prompt ();
 
   /* Initialize search parameters. */
   search_string = xmalloc (search_string_size = 128);
@@ -229,10 +240,18 @@ rl_search_history (direction, invoking_key)
 	    c =  !reverse ? -1 : -2;
 	}
 
+#if 0
       /* Let NEWLINE (^J) terminate the search for people who don't like
 	 using ESC.  ^M can still be used to terminate the search and
 	 immediately execute the command. */
       if (c == ESC || c == NEWLINE)
+#else
+      /* The characters in isearch_terminators (set from the user-settable
+	 variable isearch-terminators) are used to terminate the search but
+	 not subsequently execute the character as a command.  The default
+	 value is "\033\012" (ESC and C-J). */
+      if (strchr (isearch_terminators, c))
+#endif
 	{
 	  /* ESC still terminates the search, but if there is pending
 	     input or if input arrives within 0.1 seconds (on systems
@@ -274,7 +293,7 @@ rl_search_history (direction, invoking_key)
 	  strcpy (rl_line_buffer, lines[orig_line]);
 	  rl_point = orig_point;
 	  rl_end = strlen (rl_line_buffer);
-	  _rl_restore_prompt();
+	  rl_restore_prompt();
 	  rl_clear_message ();
 	  if (allocated_line)
 	    free (allocated_line);
@@ -392,7 +411,7 @@ rl_search_history (direction, invoking_key)
   /* First put back the original state. */
   strcpy (rl_line_buffer, lines[orig_line]);
 
-  _rl_restore_prompt ();
+  rl_restore_prompt ();
 
   /* Free the search string. */
   free (search_string);
