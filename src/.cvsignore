@@ -103,6 +103,8 @@ modules.c
 noreadline.c
 package.c
 pathname.c
+posixmath.c
+posixmisc.c
 predtype.c
 pseudofun.c
 rational.c
