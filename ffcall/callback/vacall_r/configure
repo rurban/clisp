@@ -5381,8 +5381,8 @@ cl_cv_proto_abort="extern $cl_cv_proto_abort_vol $cl_cv_proto_abort_ret abort (v
 fi
 
 cl_cv_proto_abort=`echo "$cl_cv_proto_abort" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_abort" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_abort" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETABORTTYPE $cl_cv_proto_abort_ret
