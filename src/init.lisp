@@ -1042,12 +1042,6 @@
                        :detail symdef
                        (TEXT "illegal syntax in SYMBOL-MACROLET: ~S")
                        symdef)))))
-              ((%HANDLER-BIND)  ; expand handler-list and body
-               (multiple-value-call #'%expand-cons form
-                 (first form) nil
-                 (multiple-value-call #'%expand-cons (rest form)
-                   (%expand-handlers (second form))
-                   (%expand-list (cddr form)))))
               (t (cond ((and (symbolp f) (special-operator-p f))
                         ;; other Special-forms,
                         ;; e.g. IF, CATCH, THROW, PROGV, UNWIND-PROTECT, PROGN,

@@ -6,8 +6,6 @@ MUST-FIX BEFORE NEXT RELEASE
 
 :modern declaration in DEFPACKAGE
 
-Fix the %HANDLER-BIND walker problem by using a function syntax for it.
-
 Contagion warnings emitted by many floating-point operations.
 Even though the warnings are off by default now,
 the user who enables them will report bug
@@ -20,7 +18,7 @@ Examples:
 Passing --with-...-prefix=... configure argument to modules/.../configure
 <http://article.gmane.org/gmane.lisp.clisp.devel:13286>
 how do I add options like "--with-libpari-prefix" to configure?
-I tried putting 
+I tried putting
 AC_LIB_LINKFLAGS_BODY([pari])
 into pari/configure.in
 and it would have worked if pari/configure were passed
@@ -244,7 +242,7 @@ There are two independent issues here:
 2. "return-from" restart that will return the specified
 values from the given function on the stack. we
 already have that in interpreted functions, but we must
-also have it in compiled functions. 
+also have it in compiled functions.
 <http://thread.gmane.org/gmane.lisp.clisp.devel/11448>
 
 

@@ -1802,6 +1802,10 @@ for-value   NIL or T
 (defmacro eval-when-compile (&body body)
   `(eval-when (compile) (c-eval-and-write-lib '(progn ,@body))))
 
+;; check whether FORM is a (QUOTE FOO)
+(defun quote-p (form)
+  (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form))))
+
 ;; (l-constantp form) determines, if form may be handled in the compiler
 ;; as load-time-constant.
 (defun l-constantp (form)
@@ -1812,7 +1816,7 @@ for-value   NIL or T
                    ((eq (symbol-package form) *lisp-package*)
                     (constantp form))
                    (t (not (null (assoc form *constant-special-vars*)))))))
-    (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form)))))
+    (quote-p form)))
 
 ;; (c-constantp form) determines, if form may be handled in the compiler
 ;; as compile-time-constant, and if the value is known and may be inserted
@@ -1829,7 +1833,7 @@ for-value   NIL or T
                    ((eq (symbol-package form) *lisp-package*)
                     (constantp form))
                    (t (not (null (assoc form *constant-special-vars*)))))))
-    (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form)))))
+    (quote-p form)))
 
 ;; (c-constant-value form) returns the value of a constant.
 ;; (c-constantp form) is required.
@@ -1958,7 +1962,6 @@ for-value   NIL or T
        (%OPTIMIZE-FUNCTION-LAMBDA . c-%OPTIMIZE-FUNCTION-LAMBDA)
        (CLOS:GENERIC-FLET . c-GENERIC-FLET)
        (CLOS:GENERIC-LABELS . c-GENERIC-LABELS)
-       (HANDLER-BIND . c-HANDLER-BIND)
        (SYS::%HANDLER-BIND . c-HANDLER-BIND)
        (SYS::CONSTANT-EQL . c-CONSTANT-EQL)
        (WITHOUT-PACKAGE-LOCK . c-WITHOUT-PACKAGE-LOCK)
@@ -5711,22 +5714,19 @@ for-value   NIL or T
 
 ;;;;****             FIRST PASS :    MACROS
 
-;;; compile   (HANDLER-BIND ({(typespec handler)}*) {form}*)
-;;; and (SYS::%HANDLER-BIND ({(typespec handler)}*) {form}*)
+;;; (SYS::%HANDLER-BIND body-function 'typespec1 handler1 ...)
 (defun c-HANDLER-BIND ()
-  (test-list *form* 2)
-  (test-list (second *form*) 0)
-  (let ((body (cddr *form*))
+  (test-list *form* 1)
+  (let ((body-f (second *form*))
         (types '())
         (handler-labels '())
         (handler-anodes '()))
-    (dolist (clause (second *form*))
-      (test-list clause 2 2)
-      (let ((type (first clause))
-            (handler (second clause)))
+    (do ((tail (cddr *form*))) ((endp tail))
+      (let ((type (pop tail)) (handler (pop tail)))
+        (unless (quote-p type) (compiler-error 'c-HANDLER-BIND type))
         ;; the handler is a function with dynamic extent.
         (let ((label (make-label 'ONE)))
-          (push type types)
+          (push (second type) types)
           (push label handler-labels)
           (push
            (let* ((*stackz* (cons 'ANYTHING *stackz*))
@@ -5768,7 +5768,7 @@ for-value   NIL or T
                    anode))))
            handler-anodes))))
     (if (null types)
-      (c-form `(PROGN ,@body))
+      (c-form `(FUNCALL ,body-f))
       (progn
         (setq types (nreverse types))
         (setq handler-labels (nreverse handler-labels))
@@ -5776,7 +5776,7 @@ for-value   NIL or T
         (let* ((label (make-label 'NIL))
                (oldstackz *stackz*)
                (*stackz* (cons 4 *stackz*)) ; HANDLER-Frame
-               (body-anode (c-form `(PROGN ,@body))))
+               (body-anode (c-form `(FUNCALL ,body-f))))
           (make-anode
             :type 'HANDLER-BIND
             :sub-anodes `(,body-anode ,@handler-anodes)
