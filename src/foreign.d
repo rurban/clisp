@@ -2731,6 +2731,12 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
         var object addr_obj = TheFfunction(obj)->ff_address;
         address = Faddress_value(addr_obj);
         free_foreign_callin(address);
+        /* make the function invalid */
+        pushSTACK(addr_obj);
+        TheFaddress(STACK_0)->fa_base =
+          allocate_fpointer(Faddress_value(addr_obj));
+        TheFaddress(STACK_0)->fa_offset = 0;
+        mark_fp_invalid(TheFpointer(TheFaddress(popSTACK())->fa_base));
         VALUES1(NIL);
         return;
       }
