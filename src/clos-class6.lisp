@@ -66,8 +66,8 @@
       (error-of-type 'error
         (TEXT "~S: The name of the built-in class ~S cannot be modified")
         '(setf class-name) class))
-    ; TODO: Call (reinitialize-instance class :name new-value) instead.
-    (setf (class-classname class) new-value)))
+    (reinitialize-instance class :name new-value)
+    new-value))
 
 ;; MOP p. 76
 (fmakunbound 'class-direct-superclasses)

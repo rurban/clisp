@@ -360,7 +360,6 @@
       ;; Modify the class and return the modified class.
       (apply #'reinitialize-instance ; => #'reinitialize-instance-<class>
              class
-             :name name
              :direct-superclasses direct-superclasses
              all-keys)
       (setf (find-class name)
@@ -425,7 +424,8 @@
 ;; ---------------------------- Class redefinition ----------------------------
 
 (defun reinitialize-instance-<class> (class &rest all-keys
-                                      &key (direct-superclasses '() direct-superclasses-p)
+                                      &key (name nil name-p)
+                                           (direct-superclasses '() direct-superclasses-p)
                                            (direct-slots '() direct-slots-p)
                                            (direct-default-initargs '() direct-default-initargs-p)
                                            (documentation nil documentation-p)
@@ -460,7 +460,7 @@
       ;; Trivial changes (that can occur when loading the same code twice)
       ;; do not require updating the instances:
       ;; changed slot-options :initform, :documentation,
-      ;; changed class-options :default-initargs, :documentation.
+      ;; changed class-options :name, :default-initargs, :documentation.
       (if (or (and direct-superclasses-p
                    (not (equal (or direct-superclasses (default-direct-superclasses class))
                                (class-direct-superclasses class))))
@@ -512,9 +512,13 @@
                      `(,@(if direct-slots-p (list 'direct-slots direct-slots) '())
                        ,@all-keys))
               (update-subclasses-for-redefined-class class
-                was-finalized must-be-finalized old-direct-superclasses))))
+                was-finalized must-be-finalized old-direct-superclasses)))
+          (install-class-direct-accessors class))
         ;; Instances don't need to be updated:
         (progn
+          (when name-p
+            ;; Store new name:
+            (setf (class-classname class) name))
           (when direct-slots-p
             ;; Store new slot-inits:
             (do ((l-old (class-direct-slots class) (cdr l-old))
@@ -542,8 +546,8 @@
           ;; NB: These modifications are automatically inherited by the
           ;; subclasses of class! Due to <inheritable-slot-definition-initer>
           ;; and <inheritable-slot-definition-doc>.
+          ;; No need to call (install-class-direct-accessors class) here.
   ) ) ) )
-  (install-class-direct-accessors class)
   class)
 
 (defun equal-direct-slots (slots1 slots2)

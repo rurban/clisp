@@ -1,5 +1,14 @@
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
+	Implement (SETF CLASS-NAME) as the MOP says.
+	* clos-class3.lisp (ensure-class-using-class-<t>): Don't pass :name
+	initializer to reinitialize-instance.
+	(reinitialize-instance-<class>): Accept :name argument. Don't call
+	install-class-direct-accessors when not needed.
+	* clos-class6.lisp ((setf class-name)): Call reinitialize-instance.
+
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
 	Let class redefinition go through REINITIALIZE-INSTANCE.
 	* clos-class3.lisp (ensure-class-using-class-<t>): Call
 	reinitialize-instance.
