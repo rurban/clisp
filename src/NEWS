@@ -27,6 +27,10 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#so-opt> for details.
   Suggested by Dave Richards <dave@synergy.org>.
 
+* SOCKET:SOCKET-STATUS now distinguishes between :EOF and :INPUT.
+  Also, it does not have to cons up a fresh list even for multiple streams.
+  See <http://clisp.cons.org/impnotes.html#so-status> for details.
+
 * CLISP character set now uses Unicode 3.2.
   See <http://clisp.cons.org/impnotes.html#characters> for details.
 
@@ -76,6 +80,7 @@ User visible changes
     is NIL (i.e., does not intern the name in *PACKAGE*), and does not
     bind slot names in the arglist of keyword constructors;
   + a character is now accepted as a package designator.
+  Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite
 
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
   See <http://clisp.cons.org/impnotes.html#fle> for details.
