@@ -1,3 +1,8 @@
+2003-05-13  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: raised test coverage from 53 to 75% of foreign.d
+	* foreign.d (FFI::FOREIGN-SIZE): remove
+	
 2003-05-12  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (check_uint8, check_sint8, check_uint16, check_sint16)

@@ -5,6 +5,12 @@
 (progn (defpackage "FTEST" (:use "FFI" "COMMON-LISP")) (in-package "FTEST") T)
 T
 
+(multiple-value-list (sizeof 'uint8))
+(1 1)
+
+(bitsizeof 'sint32)
+32
+
 (foreign-address-unsigned (unsigned-foreign-address 3))
 3
 
@@ -41,7 +47,7 @@ ERROR
   (cast place '(c-array sint8 (3 2))))
 #2A((-1 -2) (-3 -9) (-8 -7))
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=679661&group_id=1355&atid=101355>
+;; <http://sourceforge.net/tracker/index.php?func=detail&aid=679661&group_id=1355&atid=101355>
 (def-c-struct triv (i int))
 TRIV
 
@@ -81,7 +87,16 @@ TRIGGER
 
 (typep (ffi::lookup-foreign-variable
         "ffi_user_pointer" (ffi::parse-c-type 'ffi:c-pointer))
-       'ffi:foreign-variable)
+       'foreign-variable)
+T
+
+(ffi::lookup-foreign-variable "ffi_user_pointer" (parse-c-type 'uint64))
+ERROR
+
+(typep (ffi::lookup-foreign-variable
+        "ffi_user_pointer"
+        (parse-c-type '(c-array-ptr sint8)))
+       'foreign-variable)
 T
 
 (progn
@@ -102,7 +117,8 @@ T
   (def-call-out c-self (:name "ffi_identity")
     (:arguments (obj (c-ptr-null (c-array uint8 5))))
     (:return-type (c-array-ptr sint8)) (:language :stdc))
-  (c-self #(127 63 64 0 6)))
+  (c-self (make-array 5 :element-type '(unsigned-byte 8)
+                      :initial-contents '(127 63 64 0 6))))
 #(127 63 64)
 
 (progn
@@ -114,10 +130,27 @@ T
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
-    (:arguments (obj (c-ptr (c-array-max uint8 4)) :in-out))
+    (:arguments (obj (c-ptr (c-array-max uint16 4)) :in-out))
     (:return-type nil) (:language :stdc))
-  (c-self #(128 255 0 127)))
+  (c-self (make-array 4 :element-type '(unsigned-byte 16)
+                      :initial-contents '(128 255 0 127))))
 #(128 255)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (a1 (c-ptr (c-array-max uint32 4)))
+		(a2 (c-ptr (c-array-max uint8 4)))
+		(a3 (c-ptr (c-array-max uint8 4)))
+		(a4 (c-ptr (c-array     uint32 2))))
+    (:return-type (c-ptr (c-array-max sint32 4))) (:language :stdc))
+  (c-self (make-array 3 :element-type '(unsigned-byte 32)
+		      :initial-contents '(128 0 127))
+	  (vector 1 2 3)
+	  (make-array 2 :element-type '(unsigned-byte 8)
+		      :initial-contents '(241 17))
+	  (make-array 2 :element-type '(unsigned-byte 32)
+		      :initial-contents '(1299 192225))))
+#(128)
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -128,9 +161,10 @@ T
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
-    (:arguments (obj (c-ptr (c-array uint8 4)) :in-out))
+    (:arguments (obj (c-ptr (c-array uint16 4)) :in-out))
     (:return-type nil) (:language :stdc))
-  (c-self #(128 255 0 127)))
+  (c-self (make-array 4 :element-type '(unsigned-byte 16)
+                      :initial-contents '(128 255 0 127))))
 #(128 255 0 127)
 
 (progn
@@ -140,6 +174,16 @@ T
     (:return-type nil) (:language :stdc))
   (c-self T #(1000 #xff 0 127)))
 #(1000 255 0 127)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-union (c1 (c-ptr character))
+                                (s (c-array-ptr character))))
+                (obj (c-ptr (c-union (c character)
+                                     (b boolean) (p c-pointer))) :in-out))
+    (:return-type (c-ptr character)) (:language :stdc))
+  (multiple-value-list (c-self #\w #\j)))
+(#\w #\j)
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
@@ -171,8 +215,73 @@ T
   (c-self nil #(#xffffffff #xffffff 0 127)))
 #(#xffffffff #xffffff 0 127)
 
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (obj (c-ptr (c-array-max sint16 17)) :out))
+    (:return-type nil) (:language :stdc))
+  (c-self))
+#()
+
 (with-foreign-object (fv 'long -12345678) (typep fv 'foreign-variable))
 T
+
+(progn
+  (defparameter *x* 0)
+  (defun callback (x)
+    (the (unsigned-byte 16) x)
+    (setf *x* x)
+    (the (unsigned-byte 16) (1+ (* 2 x))))
+  *x*)
+0
+
+(def-c-type idfun
+ (c-function (:arguments (x uint)) (:return-type uint)
+   (:language :stdc)))
+IDFUN
+
+;; convert forth and back
+(type-of (setq callbackf (with-c-var (x 'idfun #'callback) x)))
+FOREIGN-FUNCTION
+
+(list (funcall callbackf 32767) *x*)
+(65535 32767)
+
+(with-foreign-object (x '(c-function
+    (:arguments (x uint)) (:return-type uint)(:language :stdc)) callbackf))
+NIL
+
+(with-foreign-object (x '(c-function
+    (:arguments (x int)) (:return-type uint)(:language :stdc)) callbackf))
+ERROR
+
+(progn (foreign-free callbackf) (makunbound 'callbackf))
+CALLBACKF
+
+(progn
+  (defparameter *x* 0)
+  (defun pass-float (x)
+    (the double-float x)
+    (setf *x* x)
+    (the single-float (float x 1f0)))
+  *x*)
+0
+
+(def-c-type idfpfun
+ (c-function (:arguments (x double-float)) (:return-type single-float)
+   (:language :stdc)))
+IDFPFUN
+
+(type-of (setq fpcallback (with-c-var (x 'idfpfun #'pass-float) x)))
+FOREIGN-FUNCTION
+
+(list (funcall fpcallback 3.5d0) *x*)
+(3.5f0 3.5d0)
+
+(progn (foreign-free fpcallback) 4)
+4
+
+(funcall fpcallback -7.5d0)
+ERROR
 
 (def-call-out foreign-as-string (:name "ffi_identity")
   (:arguments (obj c-pointer))
@@ -219,7 +328,7 @@ ERROR
 (with-c-var (x '(c-array-max character 32) "") x)
 ""
 
-(progn (setq fm (allocate-deep 'c-string "abc")) (type-of fm))
+(progn (setq fm (allocate-deep 'c-string "abc" :read-only t)) (type-of fm))
 FOREIGN-VARIABLE
 
 (foreign-value fm)
@@ -227,6 +336,9 @@ FOREIGN-VARIABLE
 
 (with-c-place (x fm) x)
 "abc"
+
+(with-c-place (x fm) (setf x "xyz"))
+ERROR
 
 (foreign-value (ffi::%cast fm (ffi::parse-c-type
                                '(c-ptr (c-array-max character 20)))))
@@ -256,6 +368,23 @@ FOREIGN-VARIABLE
 (with-foreign-object (fv `(c-array-max character ,5) "abc")
   (with-c-place (x fv) (typeof x)))
 (C-ARRAY-MAX CHARACTER 5)
+
+(with-c-place (x fm) (setf (element x 1) #\Z))
+#\Z
+
+(foreign-value fm)
+"aZc"
+
+(with-c-place (x fm) (cast x '(c-array character 3)))
+ERROR
+
+(with-c-place (x fm) (offset x 1 '(c-array character 2)))
+"Zc"
+
+(with-c-place (x fm)
+  (slot (cast x '(c-union (s (c-array character 5))
+                          (c character))) 'c))
+#\a
 
 (progn (foreign-free fm) (validp fm))
 T
@@ -340,7 +469,7 @@ NIL
   (foreign-value x))
 (#(123456789) #(987654321) #(543235263) #(936272894 1333222444))
 
-;;TODO utf-16 is not in every CLISP with #+UNICODE
+;; UTF-16 is not in every CLISP with #+UNICODE
 #+UNICODE
 (let ((sy (find-symbol "UTF-16" "CHARSET")))
   (if (and sy (boundp sy) (sys::encodingp (symbol-value sy)))

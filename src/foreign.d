@@ -2300,17 +2300,6 @@ LISPFUNN(foreign_type,1)
     mv_count=1;
   }
 
-# (FFI::FOREIGN-SIZE foreign-variable)
-LISPFUNN(foreign_size,1)
-  {
-    var object fvar = popSTACK();
-    if (!fvariablep(fvar))
-      fehler_foreign_variable(fvar);
-    if (nullp(TheFvariable(fvar)->fv_type))
-      fehler_variable_no_fvd(fvar);
-    VALUES1(TheFvariable(fvar)->fv_size);
-  }
-
 # (FFI::%ELEMENT foreign-array-variable {index}*)
 # returns a foreign variable, corresponding to the specified array element.
 LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
