@@ -88,13 +88,14 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
     #         Bearbeitung)
     # > iop: Flag: E/A Kanäle übernehmen?
     # Es sind nicht alle Kombinationen sinvoll.
-    var uintL vargs; # 1 + Zahl Funktionsargumente
+    var uintL fargs; # 1 + Zahl Funktionsargumente
     var boolean functionp; # Funktions- statt Kommandoaufruf
     var UBYTE* portname;
     if (rexxPort == NULL) { fehler_norexx(); }
     # vorsorglich ein Foreign allozieren:
     pushSTACK(allocate_fpointer(NULL));
-   {var object* args_pointer = args_end_pointer;
+   {var object* fargs_pointer = STACK; # Pointer unter alle Argumente inkl. Foreign.
+    # Darunter werden bei Funktion alle Strings aus dem Array abgelegt.
     # Erstes Argument verarbeiten:
     if (stringp(STACK_(5+1)))
       { # String
@@ -116,8 +117,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
                    ""
                   );
           }
-        vargs = Svector_length(STACK_(5+1));
-        if (!( /* vargs > 0 && */ vargs-1 <= MAXRMARG))
+        fargs = Svector_length(STACK_(5+1));
+        if (!( /* fargs > 0 && */ fargs-1 <= MAXRMARG))
           { pushSTACK(STACK_(5+1));
             pushSTACK(fixnum(MAXRMARG));
             pushSTACK(S(rexx_put));
@@ -131,7 +132,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
         # Alle Argumentstrings aus dem Vektor auf dem Stack ablegen:
        {var object* vptr = &STACK_(5+1);
         var uintL index;
-        for (index = 0; index < vargs; index++)
+        for (index = 0; index < fargs; index++)
           { var object arg = TheSvector(*vptr)->data[index];
             if (!stringp(arg))
               { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
@@ -150,7 +151,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
           }
       }}
     # :HOST-Argument umsetzen:
-    { var object host = Before(args_pointer STACKop 1);
+    { var object host = Before(fargs_pointer STACKop (1+1));
       if (eq(host,unbound) || nullp(host))
         { portname = RXSDIR; }
       elif (eq(host,T))
@@ -169,7 +170,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
                  ""
                 );
     }   }
-    # Stackaufbau: ... string/vector ..(5 keyword-args).. foreign ..(vargs).. .
+    # Stackaufbau: ... string/vector ..(5 keyword-args).. foreign ..(fargs).. .
     # Ab hier für eine Weile keine GC mehr
     { var struct RexxMsg * rexxmsg;
       debug_asciz_out("%REXX-PUT: ");
@@ -184,10 +185,10 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
               debug_asciz_out("function ");
               # Argumente einfüllen:
               { var uintL i;
-                var object* argptr = args_pointer;
+                var object* argptr = fargs_pointer;
                 success = TRUE;
                 begin_system_call();
-                for (i=0; i<vargs; i++)
+                for (i=0; i<fargs; i++)
                   { var object s = NEXT(argptr);
                     if ((rexxmsg->rm_Args[i] = CreateArgstring(&TheSstring(s)->data[0],Sstring_length(s))) == NULL)
                       { if (i>0) ClearRexxMsg(rexxmsg,i);
@@ -196,7 +197,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
                   }   }
                 end_system_call();
               }
-              set_args_end_pointer(args_pointer); # Stack aufräumen
+              setSTACK(STACK = fargs_pointer); # Stack aufräumen
             }
             else
             { # ARexx Kommando
@@ -211,7 +212,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
           # Stackaufbau: ... string/vector ..(5 keyword-args).. foreign.
           if (success)
             # vorerst immer noch erfolgreich
-            { rexxmsg->rm_Action = (functionp ? (RXFUNC | (vargs-1)) : RXCOMM);
+            { rexxmsg->rm_Action = (functionp ? (RXFUNC | (fargs-1)) : RXCOMM);
               # Keyword-Argumente verarbeiten:
               #define is_set(obj)  (!(eq(obj,unbound) || nullp(obj)))
               # :RESULT-Argument:
@@ -246,7 +247,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
                 # nicht erfolgreich -> aufräumen:
                 { begin_system_call();
                   if (functionp)
-                    { ClearRexxMsg(rexxmsg,vargs); }
+                    { ClearRexxMsg(rexxmsg,fargs); }
                   else
                     { DeleteArgstring(rexxmsg->rm_Args[0]); }
                   end_system_call();
@@ -261,7 +262,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
               value1 = NIL;
         }   }
         else
-        { set_args_end_pointer(args_pointer); # Stack aufräumen
+        { setSTACK(STACK = fargs_pointer); # Stack aufräumen
           value1 = NIL;
         }
       debug_asciz_out(NLstring);
