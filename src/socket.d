@@ -372,6 +372,18 @@ global SOCKET connect_to_x_server(host,display)
   extern_C void bcopy (void* source, void* dest, int len);
 #endif
 
+local void fill_hostname (host_data * hd);
+local void fill_hostname (hd)
+  var host_data * hd;
+  {
+    sprintf(hd->hostname, "%lu.%lu.%lu.%lu",
+            (hd->host >> 24) & 0xff,
+            (hd->host >> 16) & 0xff,
+            (hd->host >>  8) & 0xff,
+            hd->host & 0xff);
+    return;
+  }
+
 # Creation of sockets on the server side:
 # SOCKET socket_handle = create_server_socket (port, sock);
 #   creates a socket to which other processes can connect.
@@ -380,9 +392,9 @@ global SOCKET connect_to_x_server(host,display)
 #   This can (and should) be done multiple times for the same
 #   socket_handle.
 
-global SOCKET create_server_socket (unsigned int *port, SOCKET sock);
-global SOCKET create_server_socket (port, sock)
-  var unsigned int *port;
+global SOCKET create_server_socket (host_data *hd, SOCKET sock);
+global SOCKET create_server_socket (hd, sock)
+  var host_data *hd;
   var SOCKET sock;
   {
     var struct sockaddr_in sa;
@@ -410,7 +422,7 @@ global SOCKET create_server_socket (port, sock)
         return INVALID_SOCKET;
       bcopy(hp->h_addr, (char *) &sa.sin_addr, hp->h_length);
       sa.sin_family = hp->h_addrtype;
-      sa.sin_port = htons(*port);
+      sa.sin_port = htons(hd->port);
     } else {
       if (-1 == getsockname(sock,(struct sockaddr*)&sa,&addr_len))
         return INVALID_SOCKET;
@@ -422,11 +434,15 @@ global SOCKET create_server_socket (port, sock)
 
     if (-1 == getsockname(sk,(struct sockaddr*)&sa,&addr_len))
       return INVALID_SOCKET;
-    *port = ntohs(sa.sin_port);
 
     # Start listening for client connections.
     if (listen(sk, 1) < 0)
       return INVALID_SOCKET;
+
+    hd->port = ntohs(sa.sin_port);
+    hd->host = ntohl(sa.sin_addr.s_addr);
+    hd->truename = NULL;
+    fill_hostname (hd);
 
     return sk;
   }
@@ -537,57 +553,57 @@ global int resolve_service (name_or_number,name)
   }
 
 # Auxiliary function:
-# socket_getpeername(fd)
+# socket_getpeername (socket_handle, hd)
 # returns the name of the host to which IP socket fd is connected.
-# Return value: A pointer to a statically allocated string!
 
-local const char * ip_to_string (unsigned long norder);
-local const char * ip_to_string (norder)
-  var unsigned long norder;
-  {
-    static char dotted[20];
-    sprintf(dotted, "%lu.%lu.%lu.%lu",
-            (norder >> 24) & 0xff,
-            (norder >> 16) & 0xff,
-            (norder >>  8) & 0xff,
-            norder & 0xff);
-    return dotted;
-  }
-
-global const char * socket_getpeername (SOCKET socket_handle);
-global const char * socket_getpeername(socket_handle)
+global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
+global host_data * socket_getpeername (socket_handle, hd)
   var SOCKET socket_handle;
+  var host_data * hd;
   {
     var struct hostent *hostent;
     var struct sockaddr_in addr_in;
     var int len = sizeof(addr_in);
-    var unsigned long norder;
 
     # Get host's IP address.
     if (getpeername(socket_handle, (struct sockaddr *) &addr_in, &len) < 0)
       return NULL;
-    norder = htonl(addr_in.sin_addr.s_addr);
 
     # Convert it to an ASCII host name.
-    hostent = gethostbyaddr((const char *)&norder,sizeof(norder),AF_INET);
-    if (hostent == NULL) return ip_to_string (norder);
-    else return hostent->h_name;
+    hostent = gethostbyaddr ((const char *)&(addr_in.sin_addr.s_addr),
+                             sizeof(addr_in.sin_addr.s_addr),AF_INET);
+
+    # Fill the host_data structure
+    hd->host = ntohl(addr_in.sin_addr.s_addr);
+    hd->port = ntohs(addr_in.sin_port);
+    hd->truename = hostent ? hostent->h_name : NULL;
+    fill_hostname (hd);
+
+    return hd;
       }
 
 # Auxiliary function:
-# socket_getmyname(socket_handle)
+# socket_getlocalname(socket_handle, hd)
 # return the IP name of the localhost for the given socket.
-# Return value: A pointer to a statically allocated string!
-global const char * socket_getmyname (SOCKET socket_handle);
-global const char * socket_getmyname(socket_handle)
+
+global const char * socket_getlocalname (SOCKET socket_handle, host_data * hd);
+global const char * socket_getlocalname(socket_handle, hd)
   var SOCKET socket_handle;
+  var host_data * hd;
   {
     var struct sockaddr_in addr_in;
     var int addr_len = sizeof(addr_in);
 
     if (-1 == getsockname (socket_handle,(struct sockaddr*)&addr_in,&addr_len))
-      return "invalid socket";
-    return ip_to_string (htonl (addr_in.sin_addr.s_addr));
+      return NULL;
+
+    # Fill the host_data structure
+    hd->host = ntohl(addr_in.sin_addr.s_addr);
+    hd->port = ntohs(addr_in.sin_port);
+    hd->truename = "localhost";
+    fill_hostname (hd);
+
+    return hd;
   }
 
 #endif # SOCKET_STREAMS

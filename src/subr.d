@@ -873,7 +873,8 @@ LISPFUN(socket_connect,1,1,norest,nokey,0,NIL)
 LISPFUNN(socket_service_port,1)
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
-LISPFUNN(socket_stream_peer_host,1)
+LISPFUNN(socket_stream_peer,1)
+LISPFUNN(socket_stream_local,1)
 #ifndef WIN32_NATIVE
 LISPFUNN(socket_stream_handle,1)
 #endif
