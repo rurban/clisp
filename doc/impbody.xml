@@ -2437,8 +2437,7 @@ and the international alphabetic characters from the character set:
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
 <para>&make-hash-table; accepts two additional keyword arguments
- <constant>:INITIAL-CONTENTS</constant>
- and <constant>:WEAK</constant>:</para>
+ <constant>:INITIAL-CONTENTS</constant> and <constant>:WEAK</constant>:</para>
 
 <programlisting>
 (&make-hash-table; &key-amp; :test :initial-contents :size
@@ -2446,61 +2445,54 @@ and the international alphabetic characters from the character set:
                  :warn-if-needs-rehash-after-gc :weak)
 </programlisting>
 
-<para>The <constant>:TEST</constant> argument can be, other than one of
- the symbols &eq;, &eql;, &equal;, &equalp;, one of the symbols
- <constant>EXT:FASTHASH-EQ</constant> and
- <constant>EXT:STABLEHASH-EQ</constant>. Both of these tests use &eq; as
- comparison function; they differ in their performance characteristics.
+<para>The &test-k; argument can be, other than one of the symbols &eq;,
+ &eql;, &equal;, &equalp;, one of the symbols &fasthash-eq; and
+ &stablehash-eq;.  Both of these tests use &eq; as the comparison
+ function; they differ in their performance characteristics.
  <variablelist>
-  <varlistentry><term><constant>EXT:FASTHASH-EQ</constant></term>
+  <varlistentry><term>&fasthash-eq;</term>
    <listitem><simpara>This uses the fastest possible hash function.
-     Its drawback is that its hash codes become invalid at every GC
-     (except if all keys are of type &fixnum;, &character; or &short-float;),
+     Its drawback is that its hash codes become invalid at every &gc;ion
+     (except if all keys are &immediate-o;s),
      thus requiring a reorganization of the hash table at the first
-     access after each GC. Especially when generational GC is used,
-     which leads to frequent small GCs, large hash table with this test
+     access after each &gc;ion. Especially when generational &gc;ion is used,
+     which leads to frequent small &gc;ions, large hash table with this test
      can lead to scalability problems.</simpara></listitem></varlistentry>
-  <varlistentry><term><constant>EXT:STABLEHASH-EQ</constant></term>
+  <varlistentry><term>&stablehash-eq;</term>
    <listitem><simpara>This uses a slower hash function that has the
      property that its hash codes for instances of the classes
-     <classname>EXT:STANDARD-STABLEHASH</classname> (subclass of
-     &standard-object-t;) and <classname>EXT:STRUCTURE-STABLEHASH</classname>
-     (subclass of &structure-object-t;) are stable across GCs.
+     &standard-stablehash; (subclass of &standard-object-t;) and
+     &structure-stablehash; (subclass of &structure-object-t;) are
+     stable across GCs.
      This test can thus avoid the scalability problems if all keys,
-     other than &fixnum;, &character; or &short-float;, are
-     <classname>EXT:STANDARD-STABLEHASH</classname> or
-     <classname>EXT:STRUCTURE-STABLEHASH</classname>
-     instances.</simpara></listitem></varlistentry>
+     other than &immediate-o;s, are &standard-stablehash; or
+     &structure-stablehash; instances.</simpara></listitem></varlistentry>
  </variablelist>
- One can recommend to use <constant>EXT:FASTHASH-EQ</constant> for
- short-lived hash tables. For hash tables with a long lifespan which can
- be big or accessed frequently, it is recommended to use
- <constant>EXT:STABLEHASH-EQ</constant>, and to modify the objects that
- are used as its keys to become instances of
- <constant>EXT:STANDARD-STABLEHASH</constant> or
- <constant>EXT:STRUCTURE-STABLEHASH</constant>.
+ One can recommend to use &fasthash-eq; for short-lived hash tables.
+ For hash tables with a long lifespan which can be big or accessed
+ frequently, it is recommended to use &stablehash-eq;, and to modify the
+ objects that are used as its keys to become instances of
+ &standard-stablehash; or &structure-stablehash;.
 </para>
 
 <para>When the symbol &eq; or the function <literal>#'eq</literal> is
-used as a <constant>:TEST</constant> argument, the value of the variable
+used as a &test-k; argument, the value of the variable
 <varname>EXT:*EQ-HASHFUNCTION*</varname> is used instead. This value must
-be one of <constant>EXT:FASTHASH-EQ</constant>,
-<constant>EXT:STABLEHASH-EQ</constant>.</para>
+be one of &fasthash-eq;, &stablehash-eq;.</para>
 
-<para>Similarly, the <constant>:TEST</constant> argument can also be one
+<para>Similarly, the &test-k; argument can also be one
  of the symbols <constant>EXT:FASTHASH-EQL</constant>,
  <constant>EXT:STABLEHASH-EQL</constant>,
  <constant>EXT:FASTHASH-EQUAL</constant>,
  <constant>EXT:STABLEHASH-EQUAL</constant>.
- The same remarks apply as for <constant>EXT:FASTHASH-EQ</constant> and
- <constant>EXT:STABLEHASH-EQ</constant>.
+ The same remarks apply as for &fasthash-eq; and &stablehash-eq;.
  When the symbol &eql; or the function <literal>#'eql</literal> is used as a
- <constant>:TEST</constant> argument, the value of the variable
+ &test-k; argument, the value of the variable
  <varname>EXT:*EQL-HASHFUNCTION*</varname> is used instead; this value must
  be one of <constant>EXT:FASTHASH-EQL</constant>,
  <constant>EXT:STABLEHASH-EQL</constant>.
  Similarly, when the symbol &equal; or the function <literal>#'equal</literal>
- is used as a <constant>:TEST</constant> argument, the value of the variable
+ is used as a &test-k; argument, the value of the variable
  <varname>EXT:*EQUAL-HASHFUNCTION*</varname> is used instead; this value
  must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
  <constant>EXT:STABLEHASH-EQUAL</constant>.</para>
@@ -2509,8 +2501,8 @@ be one of <constant>EXT:FASTHASH-EQ</constant>,
 if true, causes a warning to be signalled when an object is stored into
 the table which will force table reorganizations at the first access
 of the table after each GC. This keyword argument can be used to check
-whether <constant>EXT:STABLEHASH-EQ</constant> should be preferred over
-<constant>EXT:FASTHASH-EQ</constant> for a particular table.</para>
+whether &stablehash-eq; should be preferred over
+&fasthash-eq; for a particular table.</para>
 
 <para>The <constant>:INITIAL-CONTENTS</constant> argument is an
  &alist; that is used to initialize the new hash table.</para>
@@ -2535,7 +2527,7 @@ and &weak-pointer;s, it is &gc;ed and removed from the weak
 checks whether the &hash-table-t; is weak.</para>
 
 <para>Note that the only test that makes sense for weak hash tables are
-&eq; and its variants &fasthash-eq; and &smallhash-eq;.</para>
+&eq; and its variants &fasthash-eq; and &stablehash-eq;.</para>
 
 <para>Just like all other <link linkend="weak">weak objects</link>, weak
 &hash-table-t;s cannot be printed readably.</para>
@@ -2549,7 +2541,7 @@ checks whether the &hash-table-t; is weak.</para>
 <para>You can define a new hash table test using the macro
  &defhash;: <literal role="sexp">(&defhash; test-name &test-f;
   &hash-f;)</literal>, after which <replaceable>test-name</replaceable>
- can be passed as the <constant>:TEST</constant> argument to
+ can be passed as the &test-k; argument to
  &make-hash-table;.  E.g.: <programlisting>
  (&defhash; string &string-eq; &sxhash;)
  (&make-hash-table; :test 'string)

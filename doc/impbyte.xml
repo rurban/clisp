@@ -70,11 +70,11 @@ address decreases).</para>
 
 <para>&clisp; implements two ways of representing object pointers.
 (An object pointer, &c-lang; type <type>object</type>, contains a
-pointer to the memory location of the object, or - for immediate objects
+pointer to the memory location of the object, or - for &immediate-o;
  - all bits of the object itself.)
 Both of them have some things in common:
 <itemizedlist>
- <listitem><simpara>There is a distinction betweem immediate objects
+ <listitem><simpara>There is a distinction between &immediate-o;s
    (&character-t;s, &fixnum-t;s, &short-float-t;s, etc) and
    heap allocated objects.</simpara></listitem>
  <listitem><simpara>All object pointers are typed, i.e. contain a few
@@ -90,7 +90,7 @@ Both of them have some things in common:
 
 <para>The &heapcodes; object representation has a minimum of type
 bits in the object pointer, namely, 2 bits. They allow to distinguish
-immediate objects (which have some more type bits), &cons-t;es (which
+&immediate-o;s (which have some more type bits), &cons-t;es (which
 have no type bits in the heap, since they occupy just two words in the
 heap, with no header), other heap objects (many, from &simple-vector-t;s
 to &foreign-pointer-t;s), and <type>Subr</type>s. Most object types are
@@ -309,8 +309,8 @@ have been developed):</para>
    <title>The burden of &gc;ion upon the rest of &clisp;</title>
 
 <para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
-may invoke &gc;.
-&gc; moves all the &clisp; objects and updates the pointers.
+may invoke &gc;ion.
+&gc; moves all the &clisp; non-&immediate-o;s and updates the pointers.
 But the &gc; looks only on the &STACK; and not in the &c-lang;
 variables. (Anything else would not be portable.)
 Therefore at every "unsafe" point, i.e. every call to such a subroutine,

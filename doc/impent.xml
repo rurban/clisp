@@ -84,6 +84,7 @@
 <!ENTITY stdc-sc-k "<constant>:STDC-STDCALL</constant>">
 <!ENTITY stream-k "<constant>:STREAM</constant>">
 <!ENTITY super-k "<constant>:SUPER</constant>">
+<!ENTITY test-k "<constant>:TEST</constant>">
 <!ENTITY type-k "<constant>:TYPE</constant>">
 <!ENTITY use-k "<constant>:USE</constant>">
 <!ENTITY value-k "<constant>:VALUE</constant>">
@@ -340,6 +341,11 @@
 <!ENTITY RC-file "<olink targetdoc='man' targetptr='opt-norc'>RC file</olink>">
 <!ENTITY my-compile-file "<olink targetdoc='impnotes' targetptr='compilefile'><function>COMPILE-FILE</function></olink>">
 <!ENTITY bytecode "<olink targetdoc='impnotes' targetptr='bytecode'>bytecode</olink>">
+<!ENTITY immediate-o "<link linkend='lisp-obj-in-c'>immediate object</link>">
+<!ENTITY fasthash-eq "<link linkend='make-hash'><constant>EXT:FASTHASH-EQ</constant></link>">
+<!ENTITY stablehash-eq "<link linkend='make-hash'><constant>EXT:STABLEHASH-EQ</constant></link>">
+<!ENTITY standard-stablehash "<link linkend='make-hash'><classname>EXT:STANDARD-STABLEHASH</classname></link>">
+<!ENTITY structure-stablehash "<link linkend='make-hash'><classname>EXT:STRUCTURE-STABLEHASH</classname></link>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
