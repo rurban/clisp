@@ -165,7 +165,7 @@
               }
             }
         }
-        # tweak string-input-stream for this line:
+        # create string-input-stream for this line:
         if (nullp(value2)) {
           pushSTACK(line); pushSTACK(O(newline_string));
           line = string_concat(2); # maybe need another Newline

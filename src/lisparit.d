@@ -1975,7 +1975,8 @@ LISPFUNN(fakultaet,1)
   }
 
 LISPFUNN(exquo,2)
-# (EXT:EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y)))
+# (EXT:EXQUO x y) returns the quotient of x and y. The caller
+# asserts that x is a multiple of y.
 # (EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y)))
   {
     var object x = STACK_1;
@@ -1985,7 +1986,7 @@ LISPFUNN(exquo,2)
   }
 
 LISPFUNN(long_float_digits,0)
-# (EXT:LONG-FLOAT-DIGITS) resurn the default bitsize of long-floats
+# (EXT:LONG-FLOAT-DIGITS) returns the default bitsize of long-floats
   {
     value1 = UL_to_I(intDsize * I_to_UL(O(LF_digits))); mv_count=1;
   }

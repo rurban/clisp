@@ -4593,7 +4593,7 @@ local sintL low_read_unbuffered_handle (object stream) {
   #endif
   run_time_stop(); # hold run time clock
   begin_system_call();
-  var int result = read(handle,&b,1); # try to read chars
+  var int result = read(handle,&b,1); # try to read a byte
   end_system_call();
   run_time_restart(); # resume run time clock
   if (result<0) {
@@ -6116,13 +6116,13 @@ local void low_flush_buffered_handle (object stream, uintL bufflen) {
     }
     #endif
     end_system_call();
-    # not everything was written, probably because of full diskette.
-    # in order to avoid inconsistencies, must close the file
+    # Not everything was written, probably because of full disk.
+    # In order to avoid inconsistencies, must close the file.
     BufferedStream_modified(stream) = false; # data is lost!
     pushSTACK(stream);
     builtin_stream_close(&STACK_0); # file close
     clr_break_sem_4(); # no more UNIX operations are active
-    # Report the error
+    # Report the error.
     pushSTACK(Truename_or_Self(STACK_0)); # FILE-ERROR slot PATHNAME
     pushSTACK(STACK_(0+1)); # stream
     fehler(file_error,GETTEXT("Closed ~ because disk is full."));
@@ -7084,7 +7084,7 @@ local object rd_by_aux_ibx_buffered (object stream, rd_by_ix_I* finisher) {
     var uintB* ptr = buffered_nextbyte(stream);
     if (ptr == (uintB*)NULL)
       goto eof;
-    # start getting bytes:
+    # Get first partial byte:
     bit_akku = (*ptr)>>bitindex;
     # bitshift := 8-bitindex
     # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
@@ -8829,7 +8829,7 @@ local object make_key_event (const key_event* event) {
         {
           run_time_stop(); # hold run time clock
           begin_system_call();
-          var int ergebnis = read(stdin_handle,&c,1); # try to read chars
+          var int ergebnis = read(stdin_handle,&c,1); # try to read a byte
           end_system_call();
           run_time_restart(); # resume run time clock
           if (ergebnis<0) {
@@ -8964,7 +8964,7 @@ local object make_key_event (const key_event* event) {
             if (!(errno==ENOTTY)) { OS_error(); }
           }
           #endif
-          var int ergebnis = read(stdin_handle,&c,1); # try to read chars, with timeout
+          var int ergebnis = read(stdin_handle,&c,1); # try to read a byte, with timeout
           #ifdef UNIX_TERM_TERMIOS
           if (!( TCSETATTR(stdin_handle,TCSANOW,&oldtermio) ==0)) {
             if (!(errno==ENOTTY)) { OS_error(); }
@@ -9802,7 +9802,7 @@ LISPFUNN(make_keyboard_stream,0)
                < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
               );
       }
-      # index<count -> there are still characters in the Buffer
+      # index<count -> there are still characters in the buffer
       var uintL index =
         posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
       TheStream(stream)->strm_terminal_index =
@@ -9824,7 +9824,7 @@ LISPFUNN(make_keyboard_stream,0)
         return ls_eof;
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
           < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
-        # index<count -> there are still characters in the Buffer
+        # index<count -> there are still characters in the buffer
         return ls_avail;
       return listen_char_unbuffered(stream);
     }
@@ -10065,7 +10065,7 @@ local char * strip_white (char *string) {
                < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
               );
       }
-      # index<count -> there are still characters in the Buffer
+      # index<count -> there are still characters in the buffer
       var uintL index =
         posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
       TheStream(stream)->strm_terminal_index =
@@ -10087,7 +10087,7 @@ local char * strip_white (char *string) {
         return ls_eof;
       if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
           < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
-        # index<count -> there are still characters in the Buffer
+        # index<count -> there are still characters in the buffer
         return ls_avail;
       return listen_char_unbuffered(stream);
     }
@@ -14796,7 +14796,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
       var uintB b;
       begin_system_call();
-      var int result = sock_read(handle,&b,1); # try to read chars
+      var int result = sock_read(handle,&b,1); # try to read a byte
       if (result<0) {
         #ifdef WIN32_NATIVE
         if (WSAGetLastError()==WSAEINTR) { # Unterbrechung durch Ctrl-C ?

@@ -616,13 +616,14 @@ global void throw_to (object tag) {
   unwind_upto(FRAME); # unwind upto there, then jump
 }
 
-# UP: calls all handlers for Condition cond. returns only, if none
+# UP: Invokes all handlers for condition cond. Returns only, if none
 # of these handlers feels responsible (i.e. if each handler returns).
 # invoke_handlers(cond);
 # can trigger GC
 # This deactivates the handler, that is called right now,
 # and all newer handlers.
 global void invoke_handlers (object cond) {
+  # Also deactivates the handler being called, and all newer handlers.
   # the handler-ranges, which are screened off:
   var stack_range* other_ranges = inactive_handlers;
   var stack_range new_range;
