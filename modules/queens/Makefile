@@ -2,6 +2,7 @@
 
 # Programs used by "make":
 CC = gcc -O
+CPPFLAGS =
 CFLAGS = -Wall -fomit-frame-pointer -O2
 INCLUDES=.
 CPP = gcc -O -E -w
@@ -23,13 +24,13 @@ distribdir =
 all : queens.o callqueens.o
 
 queens.o : queens.c
-	$(CC) $(CFLAGS) -c queens.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c queens.c
 
 callqueens.m.c : callqueens.c $(MODPREP)
 	$(CLISP) $(MODPREP) callqueens.c
 
 callqueens.o : callqueens.m.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
 
 # Make a module
 clisp-module : all

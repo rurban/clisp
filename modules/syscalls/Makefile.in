@@ -1,6 +1,7 @@
 # Makefile for CLISP module set wildcard
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
 MODPREP = ../modprep.fas
@@ -24,7 +25,7 @@ calls.m.c: calls.c $(MODPREP)
 	$(CLISP) $(MODPREP) calls.c
 
 calls.o : calls.m.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
 
 # Make a module
 clisp-module : all

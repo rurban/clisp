@@ -7,7 +7,9 @@ fi
 if test -z "@FNMATCH_O@"; then
   rm -f fnmatch.*; # use system-wide fnmatch implementation
 fi
-make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"
+make clisp-module \
+     CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
+     INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list @FNMATCH_O@ wildcard.dvi"
 NEW_LIBS="$file_list @FNMATCH_O@"
 NEW_MODULES="$mod_list"

@@ -7,6 +7,7 @@
 # ORACLE_HOME = /usr/local/oracle
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 
 # Get Oracle OCI library headers
@@ -41,13 +42,13 @@ oracle.c:       oracle.lisp
 	$(CLISP) -c oracle.lisp
 
 oracle.o:       oracle.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oracle.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oracle.c
 
 orafns.o:       orafns.c oiface.h
-	$(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c orafns.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c orafns.c
 
 oiface.o:       oiface.c oiface.h
-	$(CC) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oiface.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(ORA_INCLUDES) -c oiface.c
 
 # Make a module
 clisp-module : all

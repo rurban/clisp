@@ -1,6 +1,7 @@
 # Makefile for CLISP module set Berkeley-DB
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
 MODPREP = ../modprep.fas
@@ -24,7 +25,7 @@ bdb.m.c: bdb.c $(MODPREP)
 	$(CLISP) $(MODPREP) bdb.c
 
 bdb.o : bdb.m.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c bdb.m.c -o bdb.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c bdb.m.c -o bdb.o
 
 # Make a module
 clisp-module : all
