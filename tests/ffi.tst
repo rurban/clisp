@@ -1,6 +1,6 @@
 ;; -*- lisp -*-
 ;; (ext:cd "../tests/") (load "tests") (run-test "ffi")
-;; ./clisp -norc -i suite/tests -x '(run-test "suite/ffi")'
+;; ./clisp -E utf-8 -norc -i tests/tests -x '(run-test "tests/ffi")'
 
 (progn (defpackage "FTEST" (:use "FFI" "COMMON-LISP")) (in-package "FTEST") T)
 T
