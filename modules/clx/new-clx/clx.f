@@ -2746,12 +2746,12 @@ defun XLIB:VISUAL-INFO (2) // NIM // OK
 
 /* 4.2 Creating Windows */
 defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
-	                      (:WINDOW :PARENT :X :Y :WIDTH :HEIGHT
-			       :DEPTH :BORDER-WIDTH :CLASS :VISUAL :BACKGROUND
-			       :BORDER :BIT-GRAVITY :GRAVITY :BACKING-STORE
-			       :BACKING-PLANES :BACKING-PIXEL :SAVE-UNDER
-			       :EVENT-MASK :DO-NOT-PROPAGATE-MASK :OVERRIDE-REDIRECT
-			       :COLORMAP :CURSOR))
+                          (:WINDOW :PARENT :X :Y :WIDTH :HEIGHT         \
+                           :DEPTH :BORDER-WIDTH :CLASS :VISUAL          \
+                           :BACKGROUND :BORDER :BIT-GRAVITY :GRAVITY    \
+                           :BACKING-STORE :BACKING-PLANES :BACKING-PIXEL \
+                           :SAVE-UNDER :EVENT-MASK :DO-NOT-PROPAGATE-MASK \
+                           :OVERRIDE-REDIRECT :COLORMAP :CURSOR))
 {
   XSetWindowAttributes attr;
   unsigned long valuemask = 0;
@@ -3378,11 +3378,12 @@ defun XLIB:FREE-PIXMAP (1)
 /* 5.2 Creating Graphics Contexts */
 
 defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
-	  (:DRAWABLE :FUNCTION :PLANE-MASK :FOREGROUND :BACKGROUND
-	   :LINE-WIDTH :LINE-STYLE :CAP-STYLE :JOIN-STYLE :FILL-STYLE
-	   :FILL-RULE :ARC-MODE :TILE :STIPPLE :TS-X :TS-Y :FONT
-	   :SUBWINDOW-MODE :EXPOSURES :CLIP-X :CLIP-Y :CLIP-MASK
-	   :CLIP-ORDERING :DASH-OFFSET :DASHES :CACHE-P))
+                            (:DRAWABLE :FUNCTION :PLANE-MASK :FOREGROUND \
+                             :BACKGROUND :LINE-WIDTH :LINE-STYLE :CAP-STYLE \
+                             :JOIN-STYLE :FILL-STYLE :FILL-RULE :ARC-MODE \
+                             :TILE :STIPPLE :TS-X :TS-Y :FONT :SUBWINDOW-MODE \
+                             :EXPOSURES :CLIP-X :CLIP-Y :CLIP-MASK      \
+                             :CLIP-ORDERING :DASH-OFFSET :DASHES :CACHE-P))
 /* the keyword list must be in sync with
    (defconstant *GCONTEXT-COMPONENTS* ...) in clx.lisp */
 {
@@ -5912,8 +5913,8 @@ defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3, (:PLANES :CONTIGUOUS-P :RESU
   unsigned int nplanes = boundp(STACK_2) ? get_uint32(STACK_2) : 0;
   Bool    contiguous_p = !missingp(STACK_1);
 
-  // FIXME -- we should introduce some checks here, since the luser gave nonsens
-  //          arguments, we might run into real problems.
+  // FIXME -- we should introduce some checks here, since if the luser gave
+  //          nonsense arguments, we might run into real problems.
 
   {
     DYNAMIC_ARRAY (plane_masks, unsigned long, nplanes);
@@ -5921,7 +5922,8 @@ defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3, (:PLANES :CONTIGUOUS-P :RESU
 	DYNAMIC_ARRAY (pixels, unsigned long, npixels);
 
 	begin_call ();
-	if (XAllocColorCells (dpy, cm, contiguous_p, plane_masks, nplanes, pixels, npixels))
+	if (XAllocColorCells (dpy, cm, contiguous_p, plane_masks,
+                              nplanes, pixels, npixels))
 	  {
 	    unsigned i;
 	    end_call ();
@@ -5963,7 +5965,9 @@ defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3, (:PLANES :CONTIGUOUS-P :RESU
 //           red-mask, green-mask, blue-mask -- Type pixel.
 //
 
-defun XLIB:ALLOC-COLOR-PLANES (2, 0, norest, key, 5, (:REDS :GREENS :BLUES :CONTIGUOUS-P :RESULT-TYPE))
+defun XLIB:ALLOC-COLOR-PLANES (2, 0, norest, key, 5,
+                               (:REDS :GREENS :BLUES :CONTIGUOUS-P      \
+                                :RESULT-TYPE))
 {
   Display         *dpy;
   Colormap          cm = get_colormap_and_display (STACK_6, &dpy);
@@ -8192,8 +8196,9 @@ defun XLIB:BELL (1, 1)
 }
 
 defun XLIB:CHANGE-KEYBOARD-CONTROL (1, 0, norest, key, 8,
-          (:KEY-CLICK-PERCENT :BELL-PERCENT :BELL-PITCH :BELL-DURATION
-           :LED :LED-MODE :KEY :AUTO-REPEAT-MODE))
+				    (:KEY-CLICK-PERCENT :BELL-PERCENT   \
+                                     :BELL-PITCH :BELL-DURATION :LED    \
+                                     :LED-MODE :KEY :AUTO-REPEAT-MODE))
 {UNDEFINED;}
 
 defun XLIB:KEYBOARD-CONTROL (1)

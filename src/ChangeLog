@@ -1,9 +1,14 @@
+2003-06-06  Will Newton  <will@misconception.org.uk>
+
+	* clx.f: fix the build with gcc 3.3, which has some changes
+	with respect to multi-line strings
+
 2003-06-06  Bruno Haible  <bruno@clisp.org>
 
-	* clos.lisp (analyze-method-description): Call %call-next-method even
-	if there is no next method.
-	(%call-next-method): When there is no next method, call %no-next-method
-	here.
+	* clos.lisp (analyze-method-description): Call %call-next-method
+	even if there is no next method.
+	(%call-next-method): When there is no next method, call
+	%no-next-method here.
 
 2003-06-05  Sam Steingold  <sds@gnu.org>
 
