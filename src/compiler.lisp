@@ -1294,61 +1294,63 @@ for-value   NIL or T
 ;;                       processing form instead.
 ;; Additional Declaration (INLINING symbol) against recursive Inlining.
 
-;; (process-declarations declspeclist) pushes the Declarations (as they come
-;; from PARSE-BODY) to *denv* and returns:
-;; a list of the Special-declared symbols,
-;; a list of the Ignore-declared symbols,
-;; a list of the Ignorable-declared symbols,
-;; a list of the Read-Only-declared symbols.
-(defun process-declarations (declspeclist &aux (specials nil) (ignores nil)
-                             (ignorables nil) (readonlys nil))
+;; (process-declarations declspeclist) analyzes the declarations (as they come
+;; from PARSE-BODY) and returns:
+;; a fresh list of the Special-declared symbols,
+;; a fresh list of the Ignore-declared symbols,
+;; a fresh list of the Ignorable-declared symbols,
+;; a fresh list of the Read-Only-declared symbols,
+;; a fresh list of other declaration specifiers.
+(defun process-declarations (declspeclist)
   (setq declspeclist (nreverse declspeclist))
-  (dolist (declspec declspeclist)
-    (if (or (atom declspec) (cdr (last declspec)))
-      (c-warn (TEXT "Bad declaration syntax: ~S~%Will be ignored.")
-              declspec)
-      (let ((declspectype (car declspec)))
-        (if (and (symbolp declspectype)
-                 (or (memq declspectype *declaration-types*)
-                     (do ((L *denv* (cdr L)))
-                         ((null L) nil)
-                       (if (and (eq (first (car L)) 'DECLARATION)
-                                (memq declspectype (rest (car L))))
-                         (return t)))
-                     (and *compiling-from-file*
-                          (memq declspectype *user-declaration-types*))))
-          (cond ((eq declspectype 'SPECIAL)
-                 (dolist (x (cdr declspec))
-                   (if (symbolp x)
-                     (push x specials)
-                     (c-warn
-                      (TEXT "Non-symbol ~S may not be declared SPECIAL.")
-                      x))))
-                ((eq declspectype 'IGNORE)
-                 (dolist (x (cdr declspec))
-                   (if (symbolp x)
-                     (push x ignores)
-                     (c-warn
-                      (TEXT "Non-symbol ~S may not be declared IGNORE.")
-                      x))))
-                ((eq declspectype 'IGNORABLE)
-                 (dolist (x (cdr declspec))
-                   (if (symbolp x)
-                     (push x ignorables)
-                     (c-warn
-                      (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
-                      x))))
-                ((eq declspectype 'SYS::READ-ONLY)
-                 (dolist (x (cdr declspec))
-                   (if (symbolp x)
-                     (push x readonlys)
-                     (c-warn
-                      (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
-                      x))))
-                (t (push declspec *denv*)))
-          (c-warn (TEXT "Unknown declaration ~S.~%The whole declaration will be ignored.")
-                  declspectype declspec)))))
-  (values specials ignores ignorables readonlys))
+  (let ((specials '())
+        (ignores '())
+        (ignorables '())
+        (readonlys '())
+        (other '()))
+    (dolist (declspec declspeclist)
+      (if (or (atom declspec) (cdr (last declspec)))
+        (c-warn (TEXT "Bad declaration syntax: ~S~%Will be ignored.")
+                declspec)
+        (let ((declspectype (car declspec)))
+          (if (and (symbolp declspectype)
+                   (or (memq declspectype *declaration-types*)
+                       (do ((L *denv* (cdr L)))
+                           ((null L) nil)
+                         (if (and (eq (first (car L)) 'DECLARATION)
+                                  (memq declspectype (rest (car L))))
+                           (return t)))
+                       (and *compiling-from-file*
+                            (memq declspectype *user-declaration-types*))))
+            (cond ((eq declspectype 'SPECIAL)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x specials)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared SPECIAL.")
+                               x))))
+                  ((eq declspectype 'IGNORE)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x ignores)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORE.")
+                               x))))
+                  ((eq declspectype 'IGNORABLE)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x ignorables)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
+                               x))))
+                  ((eq declspectype 'SYS::READ-ONLY)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x readonlys)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
+                               x))))
+                  (t
+                   (push declspec other)))
+            (c-warn (TEXT "Unknown declaration ~S.~%The whole declaration will be ignored.")
+                    declspectype declspec)))))
+    (values specials ignores ignorables readonlys other)))
 
 ;; (declared-notinline fun denv) determines, if fun - a Symbol pointing to a
 ;; global function, which is not shadowed by a local function-definition -
@@ -1391,6 +1393,11 @@ for-value   NIL or T
                  (memq sym (cdr declspec)))
         (return t)))
     (setq denv (cdr denv))))
+
+;; (push-*denv* declspecs) extends *denv* by the declspecs.
+;; declspecs must be a freshly consed list.
+(defun push-*denv* (declspecs)
+  (setq *denv* (nreconc declspecs *denv*)))
 
 
 ;;;;****             FUNCTION   MANAGEMENT
@@ -3776,14 +3783,14 @@ for-value   NIL or T
               (*denv* *denv*)
               (*venv* *venv*)
               (*venvc* *venvc*)
-              *specials* *ignores* *ignorables* *readonlys*
+              *specials* *ignores* *ignorables* *readonlys* other-decls
               req-vars req-dummys req-stackzs
               opt-vars opt-dummys opt-anodes opts-vars opts-anodes opt-stackzs
               rest-vars rest-dummys rest-stackzs
               key-vars key-dummys key-anodes keys-vars keys-anodes key-stackzs
               aux-vars aux-anodes
               closuredummy-stackz closuredummy-venvc)
-          (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
+          (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys* other-decls)
             (process-declarations declarations))
           ;; visibility of Closure-Dummyvar:
           (push nil *venvc*)
@@ -3819,6 +3826,7 @@ for-value   NIL or T
           (multiple-value-setq (aux-vars aux-anodes)
             (bind-aux-vars auxvar auxinit))
           (push-specials)
+          (push-*denv* other-decls)
           (let* ((body-anode (c-form `(PROGN ,@body-rest) (if gf-p 'ONE 'ALL)))
                  ;; check the variables:
                  (closurevars
@@ -4615,7 +4623,7 @@ for-value   NIL or T
           (*denv* *denv*)
           (*venv* *venv*)
           (*venvc* *venvc*))
-      (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
+      (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys* other-decls)
           (process-declarations declarations)
         ;; syntax-test of the parameter-list:
         (multiple-value-bind (symbols initforms)
@@ -4627,6 +4635,7 @@ for-value   NIL or T
                 (process-movable-var-list symbols initforms *-flag)
               (unless *-flag (push 0 *stackz*)) ; room for closing-bindings
               (push-specials)
+              (push-*denv* other-decls)
               (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; compile Body
                 ;; check the variables:
                 (let* ((closurevars
@@ -4663,10 +4672,11 @@ for-value   NIL or T
   (test-list *form* 1)
   (multiple-value-bind (body-rest declarations) (parse-body (cdr *form*))
     (let ((*venv* *venv*))
-      (multiple-value-bind (*specials* ignores ignorables readonlys)
+      (multiple-value-bind (*specials* ignores ignorables readonlys other-decls)
           (process-declarations declarations)
         (declare (ignore ignores ignorables readonlys))
         (push-specials)
+        (push-*denv* other-decls)
         (funcall c `(PROGN ,@body-rest))))))
 
 ;; compile (MULTIPLE-VALUE-BIND ({var}*) form1 {declaration}* {form}*)
@@ -4686,11 +4696,12 @@ for-value   NIL or T
               (*denv* *denv*)
               (*venv* *venv*)
               (*venvc* *venvc*))
-          (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
+          (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys* other-decls)
               (process-declarations declarations)
             (if (null symbols) ; empty variable-list -> bind nothing
               (let ((anode1 (c-form (third *form*) 'NIL)))
                 (push-specials)
+                (push-*denv* other-decls)
                 (let ((anode2 (c-form `(PROGN ,@(cdddr *form*)))))
                   (make-anode :type 'MULTIPLE-VALUE-BIND
                     :sub-anodes (list anode1 anode2)
@@ -4711,6 +4722,7 @@ for-value   NIL or T
                                (push-*venv* var)
                                (push *stackz* L) (bind-fixed-var-2 var)))))
                     (push-specials)
+                    (push-*denv* other-decls)
                     (let* ((body-anode ; compile Body
                              (c-form `(PROGN ,@body-rest)))
                            ; check the variables:
@@ -5526,9 +5538,10 @@ for-value   NIL or T
                                   symbols expansions)
                           (list *venv*)))))
       (multiple-value-bind (body-rest declarations) (parse-body (cddr *form*))
-        (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
+        (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys* other-decls)
             (process-declarations declarations)
           (push-specials)
+          (push-*denv* other-decls)
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
               (c-error-c (TEXT "~S: symbol ~S is declared special and must not be declared a macro")
@@ -5920,7 +5933,7 @@ for-value   NIL or T
                              *denv*)))))
         (multiple-value-bind (body-rest declarations)
             (parse-body lambdabody t)
-          (let (*specials* *ignores* *ignorables* *readonlys*
+          (let (*specials* *ignores* *ignorables* *readonlys* other-decls
                 req-vars req-anodes req-stackzs
                 opt-vars opt-anodes opt-stackzs ; optional and svar together!
                 rest-vars rest-anodes rest-stackzs
@@ -5931,8 +5944,7 @@ for-value   NIL or T
                 restfixed-vars restfixed-dummys restfixed-stackzs
                 aux-vars aux-anodes
                 closuredummy-stackz closuredummy-venvc)
-            (multiple-value-setq
-                (*specials* *ignores* *ignorables* *readonlys*)
+            (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys* other-decls)
               (process-declarations declarations))
             (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
             (setq closuredummy-stackz *stackz* closuredummy-venvc *venvc*)
@@ -6069,6 +6081,7 @@ for-value   NIL or T
             (multiple-value-setq (aux-vars aux-anodes)
               (bind-aux-vars auxvar auxinit))
             (push-specials)
+            (push-*denv* other-decls)
             (let* ((body-anode (c-form `(PROGN ,@body-rest)))
                    ;; check the variables:
                    (varlist

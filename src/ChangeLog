@@ -1,3 +1,14 @@
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
+	Implement the scope of other free declarations as ANSI CL 3.3.4
+	specifies it. ANSI CL issue <DECLARATION-SCOPE:NO-HOISTING>.
+	* compiler.lisp (process-declarations): Return the other declspecs as a
+	fifth value.
+	(push-*denv*): New function.
+	(c-LAMBDABODY, c-LET/LET*, c-LOCALLY, c-MULTIPLE-VALUE-BIND,
+	c-SYMBOL-MACROLET, c-FUNCALL-INLINE): Call push-*denv* immediately
+	before compiling the body-forms.
+
 2005-01-21  Bruno Haible  <bruno@clisp.org>
 
 	Implement the scope of free SPECIAL declarations as ANSI CL 3.3.4
