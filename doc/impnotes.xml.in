@@ -25,7 +25,7 @@
  * package (CL-USER)   == quote
  -->
 
-<book><title>Implementation Notes for &gnu; &clisp;.</title>
+<book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;.</title>
 
 <bookinfo>
  <legalnotice><para>These notes are covered by the &gnu; &gfdl;:</para>
