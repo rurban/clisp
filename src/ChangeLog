@@ -1,6 +1,8 @@
 2003-07-16  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (.gdbinit): substitute ${LEXE} for .run on w32
+	(lisp.a): do not use lisp.o on w32 because it leads to a crash on
+	the first statement in main() (when built --with-debug)
 
 2003-07-16  Sam Steingold  <sds@gnu.org>
 
