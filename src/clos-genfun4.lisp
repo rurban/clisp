@@ -451,8 +451,10 @@
 (setq |#'generic-function-argorder| #'generic-function-argorder)
 
 ;; MOP p. 79
+(fmakunbound 'generic-function-declarations)
 (defgeneric generic-function-declarations (generic-function)
   (:method ((gf standard-generic-function))
     (check-generic-function-initialized gf)
     (std-gf-declspecs gf)))
+(setq |#'generic-function-declarations| #'generic-function-declarations)
 (initialize-extended-method-check #'generic-function-declarations)

@@ -204,6 +204,8 @@
   (std-gf-method-combination gf))
 (defun generic-function-argorder (gf)
   (std-gf-argorder gf))
+(defun generic-function-declarations (gf)
+  (std-gf-declspecs gf))
 
 ;; ============================================================================
 
@@ -218,6 +220,7 @@
 (defvar |#'generic-function-signature| nil)
 (defvar |#'generic-function-method-combination| nil)
 (defvar |#'generic-function-argorder| nil)
+(defvar |#'generic-function-declarations| nil)
 (defvar |#'method-qualifiers| nil)
 (defvar |#'method-specializers| nil)
 
@@ -255,6 +258,14 @@
           (eq gf |#'compute-effective-method|))
     (std-gf-argorder gf)
     (generic-function-argorder gf)))
+
+(defun safe-gf-declspecs (gf)
+  (if (or (eq gf |#'generic-function-declarations|)
+          (eq gf |#'generic-function-argorder|)
+          (eq gf |#'method-qualifiers|)
+          (eq gf |#'compute-effective-method|))
+    (std-gf-declspecs gf)
+    (generic-function-declarations gf)))
 
 (defun safe-method-qualifiers (method gf)
   (if (or (eq gf #'method-qualifiers) ; for bootstrapping

@@ -1,5 +1,15 @@
 2004-10-12  Bruno Haible  <bruno@clisp.org>
 
+	Respect user-defined methods on generic-function-declarations.
+	* clos-genfun1.lisp (generic-function-declarations): New preliminary
+	function.
+	(|#'generic-function-declarations|): New variable.
+	(safe-gf-declspecs): New function.
+	* clos-genfun2.lisp (compute-discriminating-function-<standard-generic-function>):
+	Call safe-gf-declspecs instead of std-gf-declspecs.
+	* clos-genfun4.lisp (generic-function-declarations): Redefine smoothly.
+	Initialize |#'generic-function-declarations|.
+
 	Respect user-defined methods on
 	generic-function-argument-precedence-order.
 	* clos-genfun1.lisp (generic-function-argorder): New preliminary
