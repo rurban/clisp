@@ -572,20 +572,16 @@ LISPFUNNR(elt,2) # (ELT sequence index), CLTL S. 248
     # value1 als Wert
   }
 
-LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
-  {
-    # check sequence:
-    var object typdescr = get_valid_seq_type(STACK_2);
-    # check index:
-    seq_check_index(STACK_2,STACK_1);
-    # call SEQ-SET-ELT:
-    pushSTACK(STACK_(2+0)); # sequence
-    pushSTACK(STACK_(1+1)); # index
-    pushSTACK(STACK_(0+2)); # value
-    funcall(seq_set_elt(typdescr),3); # (SEQ-SET-ELT sequence index value)
-    VALUES1(popSTACK()); # value als Wert
-    skipSTACK(2);
-  }
+LISPFUNN(setelt,3) { /* ((SETF ELT) value sequence index), vgl. CLTL S. 248 */
+  /* check sequence: */
+  var object typdescr = get_valid_seq_type(STACK_1);
+  /* check index: */
+  seq_check_index(STACK_1,STACK_0);
+  /* call SEQ-SET-ELT: */
+  pushSTACK(STACK_2);               /* value */
+  funcall(seq_set_elt(typdescr),3); /* (SEQ-SET-ELT sequence index value) */
+  VALUES1(popSTACK());              /* value */
+}
 
 # UP: Kopiert ein sequence1 - Teilstück in sequence2 hinein
 # und liefert sequence2 als Wert.
@@ -3254,9 +3250,9 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         var object test = STACK_(1+3);
         if (eq(test,S(eq)) || eq(test,L(eq)))
           test = S(fasthash_eq);
-        else if (eq(test,S(eql)) || eq(test,L(eql))) 
+        else if (eq(test,S(eql)) || eq(test,L(eql)))
           test = S(fasthash_eql);
-        else if (eq(test,S(equal)) || eq(test,L(equal))) 
+        else if (eq(test,S(equal)) || eq(test,L(equal)))
           test = S(fasthash_equal);
         pushSTACK(S(Ktest)); pushSTACK(test);
       }
