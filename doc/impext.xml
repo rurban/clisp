@@ -296,7 +296,7 @@ localized.</para>
 </simplelist></para>
 
 <para>This is controlled by the &symbol-macro; <emphasis
- role="strong">&curr-lang;</emphasis>,
+ role="first">&curr-lang;</emphasis>,
  which can be set at run time as well as using <ulink
  url="clisp.html#opt-lang"><option>-L</option></ulink> start-up option.
  If you wish to change the <ulink url="clisp.html#opt-locale">locale
@@ -306,7 +306,7 @@ localized.</para>
  &cdr; is the new locale directory.</para>
 
 <para>More languages can be defined through the macro <emphasis
- role="strong"><function>I18N:DEFLANGUAGE</function></emphasis>:
+ role="first"><function>I18N:DEFLANGUAGE</function></emphasis>:
  <literal role="sexp">(<function>I18N:DEFLANGUAGE</function>
  <replaceable>lang</replaceable>)</literal>.  For such an additional
  language to take effect, you must install the corresponding message
@@ -315,19 +315,19 @@ localized.</para>
 
 <para>This works only for strings.  For arbitrary language-dependent
  Lisp objects, you define one through the macro <emphasis
- role="strong"><function>I18N:DEFINTERNATIONAL</function></emphasis>:
+ role="first"><function>I18N:DEFINTERNATIONAL</function></emphasis>:
  <literal role="sexp">(<function>I18N:DEFINTERNATIONAL</function>
  &symbol-r; &optional-amp;
  (<replaceable>default-language</replaceable> &t;))</literal> and add
  language-dependent values through the macro <emphasis
- role="strong"><function>I18N:DEFLOCALIZED</function></emphasis>:
+ role="first"><function>I18N:DEFLOCALIZED</function></emphasis>:
  <literal role="sexp">(<function>I18N:DEFLOCALIZED</function>
  &symbol-r; &lang-r; <replaceable>value-form</replaceable>)</literal></para>
 
 <para>(One such form for each language.  Languages without an assigned
  value will be treated like the default-language.)  You can then access
  the localized value by calling <emphasis
- role="strong"><function>I18N:LOCALIZED</function></emphasis>: <literal
+ role="first"><function>I18N:LOCALIZED</function></emphasis>: <literal
  role="sexp">(<function>I18N:LOCALIZED</function>
  &symbol-r; &optional-amp; &lang-r;)</literal></para>
 
@@ -1438,7 +1438,7 @@ N. Gray to X3J13.</para>
 
 <section id="prompt"><title>Extensions-1.8. The Prompt</title>
 
-<para>The variable <emphasis role="strong">&prompt;</emphasis> controls
+<para>The variable <emphasis role="first">&prompt;</emphasis> controls
  the appearance of the prompt.  When its value is a function, it is
  called and its value is printed with &princ;.  Otherwise, the value
  itself is printed with &princ;.  The default value of &prompt; prints
@@ -1721,7 +1721,7 @@ returns two values:
     role="sexp">(<function>screen:with-window</function>
                  . &body-r;)</literal></term>
   <listitem><simpara>binds <emphasis
-   role="strong"><varname>screen:*window*</varname></emphasis> to a
+   role="first"><varname>screen:*window*</varname></emphasis> to a
    window stream and executes &body-r;.  The stream is guaranteed to be
    closed when the body is left.  During its execution,
    &terminal-io-var; should not be used, as above.
@@ -4544,7 +4544,7 @@ bash$
 <section id="hardcopy"><title>Printing</title>
 
 <para>The macro <emphasis
- role="strong"><function>EXT:WITH-OUTPUT-TO-PRINTER</function></emphasis>:
+ role="first"><function>EXT:WITH-OUTPUT-TO-PRINTER</function></emphasis>:
 <programlisting>
 (ext:with-output-to-printer (&var-r; [&extfmt;])
   {&declaration-r;}*
@@ -4721,7 +4721,7 @@ are returned in an &alist;.</para>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>When running under the &X;, you can create
   a &bidi-s;, which uses a new dedicated xterm, using the function <emphasis
-  role="strong"><function>EXT:MAKE-XTERM-IO-STREAM</function></emphasis>:
+  role="first"><function>EXT:MAKE-XTERM-IO-STREAM</function></emphasis>:
 <programlisting>
   (&setq; &error-output-var;
     (&setq; &debug-io-var;

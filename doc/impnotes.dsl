@@ -39,9 +39,10 @@
       ($img$ (current-node) #f)))
 
 (element emphasis
-  (if (equal? (normalize "strong") (attribute-string (normalize "role")))
-      ($bold-seq$)
-      ($italic-seq$)))
+  (let ((role (attribute-string (normalize "role"))))
+    (case role
+      (("strong" "first") ($bold-seq$))
+      (else ($italic-seq$)))))
 
 (element literal
   (let ((role (attribute-string (normalize "role"))))
