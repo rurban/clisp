@@ -936,7 +936,12 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
     # Suche, wo sublist in list beginnt:
     var uintL new_len = 0;
    {var object listr = STACK_0;
+    #ifndef X3J13_175
     until (endp(listr) || eq(listr,sublist)) { listr = Cdr(listr); new_len++; }
+    #else
+    if (!listp(listr)) { fehler_list(listr); }
+    until (atomp(listr) || eq(listr,sublist)) { listr = Cdr(listr); new_len++; }
+    #endif
    }
     # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
    {var object new_list = make_list(new_len); # neue Liste allozieren
