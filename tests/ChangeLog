@@ -1,3 +1,7 @@
+2005-03-06  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst: added (DEBUG 1) to OPTIMIZE
+
 2005-02-21  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Add a test for method-function.
