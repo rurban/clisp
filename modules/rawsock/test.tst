@@ -21,7 +21,7 @@
             (aref ve 1) (ldb #.(byte 8 8) port))
       (replace ve li :start1 2)
       (print ve)
-      (setq sa (print (rawsock:make-sockaddr :AF_INET ve)))
+      (setq sa (print (rawsock:make-sockaddr :INET ve)))
       (assert (equalp ve (rawsock:sockaddr-data sa)))
       (print (list 'rawsock:sockaddr-family
                    (multiple-value-list (rawsock:sockaddr-family sa))))
@@ -45,7 +45,7 @@
 (progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
 (progn (setq *sa-local* (host->sa :default)) T) T
 
-(integerp (print (setq *sock* (rawsock:socket :AF_INET :SOCK_STREAM nil)))) T
+(integerp (print (setq *sock* (rawsock:socket :INET :STREAM nil)))) T
 
 (unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
   (rawsock:bind *sock* *sa-local*)
@@ -61,7 +61,7 @@ NIL
 (rawsock:shutdown *sock* :io) 0
 (rawsock:sock-close *sock*) 0
 
-(let ((so (rawsock:socket :AF_INET :SOCK_STREAM nil)))
+(let ((so (rawsock:socket :INET :STREAM nil)))
   (print (list so *sock*))
   (= so *sock*))
 T
@@ -83,8 +83,8 @@ NIL
 ;; no socketpair() on win32
 #-:win32 (progn
   (setf (values *sock1* *sock2*)
-        ;; :AF_INET works on cygwin but not on Linux
-        (rawsock:socketpair :AF_UNIX :SOCK_STREAM nil))
+        ;; :INET works on cygwin but not on Linux
+        (rawsock:socketpair :UNIX :STREAM nil))
   (print (list *sock1* *sock2*))
   T) T
 

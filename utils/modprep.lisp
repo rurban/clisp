@@ -50,8 +50,10 @@ The input file is normal C code, modified like this:
     return ret;
   }}
   it is convenient for parsing flag arguments to DEFUNs
-- DEFCHECKER(c_name,C_CONST1 C_CONST2 C_CONST3) or
-  DEFCHECKER(c_name,enum_type, C_CONST1 C_CONST2 C_CONST3)
+- DEFCHECKER(c_name, C_CONST1 C_CONST2 C_CONST3) or
+  DEFCHECKER(c_name, enum_type, C_CONST1 C_CONST2 C_CONST3) or
+  DEFCHECKER(c_name, "prefix", C_CONST1 C_CONST2 C_CONST3)
+  DEFCHECKER(c_name, enum_type, "prefix", C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
   static enum_type c_name (object arg) {
@@ -107,7 +109,8 @@ Restrictions and caveats:
 (defun next-non-blank (line beg)
   (position-if-not #'sys::whitespacep line :start beg))
 (defun prev-non-blank (line end)
-  (1+ (position-if-not #'sys::whitespacep line :from-end t :end end)))
+  (let ((pos (position-if-not #'sys::whitespacep line :from-end t :end end)))
+    (and pos (1+ pos))))
 (defun next-blank (line beg) (position-if #'sys::whitespacep line :start beg))
 
 (defun decode-directive (line)
@@ -218,29 +221,59 @@ The vector is freshly constructed, but the strings are shared"
 (defvar *init-2-name* nil "Did the module define its own init2?")
 (defvar *fini-name* nil "Did the module define its own fini?")
 
+(defconstant *commands*
+  '("DEFMODULE" "DEFUN" "DEFVAR" "DEFCHECKER" "DEFFLAGSET"))
+
+(defun split-command (line &key (start 0) (end (length line)))
+  "parse command line into command name and arguments:
+FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
+  (setq start (next-non-blank line start))
+  (unless start (return-from split-command nil)) ; blank line
+  (setq end (position #\) line :start start :end end))
+  (let* ((last (or (prev-non-blank line end)         ;nothing before #\)
+                   (return-from split-command nil))) ; => no command
+         (paren (position #\( line :start start :end last)) args
+         (name (subseq line start
+                       (or (prev-non-blank line paren) ; nothing before #\(
+                           (return-from split-command nil))))) ; => no command
+    (unless (member name *commands* :test #'string=)
+      (return-from split-command nil))
+    ;; valid command in LINE
+    (unless end (error "no closing paren in ~S[~:D;~:D]" line start end))
+    (unless paren (error "no opening paren in ~S[~:D;~:D]" line start last))
+    (setq start (next-non-blank line (1+ paren)))
+    (do ((comma (position #\, line :end last :start start)))
+        ((null comma) (push (subseq line start last) args))
+      (push (subseq line start (prev-non-blank line comma)) args)
+      (setq start (next-non-blank line (1+ comma))
+            comma (position #\, line :end last :start (1+ comma))))
+    (values name (nreverse args) (1+ end))))
+(defun argument-string (arg)
+  "check whether the argument (returned by SPLIT-COMMAND) is a string,
+and, if yes, return the string"
+  (let ((len (1- (length arg))))
+    (and (char= #\" (aref arg 0))
+         (char= #\" (aref arg len))
+         (subseq arg 1 len))))
+(defun ensure-argument-string (arg)
+  (or (argument-string arg)
+      (error "expected a string, got ~A" arg)))
+
 (defun defmodule-p (line)
-  (let* ((pos (next-non-blank line 0))
-         (end (and pos (+ pos #.(length "DEFMODULE")))))
-    (when (and pos (<= end (length line))
-               (string= "DEFMODULE" line :start2 pos :end2 end)
-               (char= (aref line (setq pos (next-non-blank line end))) #\())
-      (setq *module-name*
-            (subseq line (next-non-blank line (1+ pos))
-                    (prev-non-blank line (setq pos (position #\, line))))
-            *init-1-name* (format nil "module__~A__init_function_1"
-                                  *module-name*)
-            *init-2-name* (format nil "module__~A__init_function_2"
-                                  *module-name*)
-            *fini-name* (format nil "module__~A__fini_function"
-                                *module-name*))
-      (assert pos () "no comma in DEFMODULE directive")
-      (setq *module-package*
-            (subseq line (setq pos (1+ (position #\" line)))
-                    (position #\" line :start pos))
-            *module-all-packages* (list *module-package*))
-      (setq pos (position #\) line))
-      (assert pos () "no closing paren in DEFMODULE directive")
-      (values *module-name* *module-package*))))
+  (multiple-value-bind (name args) (split-command line)
+    (unless (string= "DEFMODULE" name) (return-from defmodule-p nil))
+    (assert (= 2 (length args)) () "~S: requires 2 arguments, got ~S"
+            name args)
+    (setq *module-name* (first args)
+          *init-1-name* (format nil "module__~A__init_function_1"
+                                    *module-name*)
+          *init-2-name* (format nil "module__~A__init_function_2"
+                                *module-name*)
+          *fini-name* (format nil "module__~A__fini_function"
+                              *module-name*)
+          *module-package* (ensure-argument-string (second args))
+          *module-all-packages* (list *module-package*))
+    (values *module-name* *module-package*)))
 
 (defstruct objdef
   ;; init is either a string or a list of either text-strings or pairs
@@ -563,20 +596,28 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 
 (defstruct (flag-set (:include cpp-helper)))
 (defvar *flag-sets* (make-array 5 :adjustable t :fill-pointer 0))
-(defun new-flag-set (name cpp-names &optional (condition (current-condition)))
-  (let ((fs (make-flag-set :name name :cpp-names cpp-names)))
+(defun new-flag-set (name cpp-names &key type prefix
+                     (condition (current-condition)))
+  (declare (ignore type prefix))
+  ;; must nreverse cpp-names to match the order of keywords
+  (let ((fs (make-flag-set :name name :cpp-names (nreverse cpp-names))))
     (vector-push-extend fs *flag-sets*)
     (stack-push-optimize (flag-set-cond-stack fs) condition)
     fs))
 
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
-(defstruct (checker (:include cpp-helper)) type cpp-odefs type-odef)
+(defstruct (checker (:include cpp-helper)) type prefix cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
-(defun new-checker (name cpp-names &optional type
+(defun to-C-name (name prefix)
+  (setq name (substitute #\_ #\- name))
+  (when prefix (setq name (ext:string-concat prefix "_" name)))
+  name)
+(defun new-checker (name cpp-names &key type prefix
                     (condition (current-condition)))
   (setq cpp-names (nreverse cpp-names))
-  (let ((ch (make-checker :type type :name name :cpp-names cpp-names))
+  (let ((ch (make-checker :type type :name name :prefix prefix
+                          :cpp-names cpp-names))
         (type-odef "(OR NULL (INTEGER 0) (MEMBER") cpp-odefs)
     (vector-push-extend ch *checkers*)
     (stack-push-optimize (checker-cond-stack ch) condition)
@@ -590,7 +631,8 @@ and turn it into DEFUN(funname,lambdalist,signature)."
           (t
            (setq type-odef (list type-odef))
            (dolist (name cpp-names)
-             (let ((co (ext:string-concat "defined(" name ")")))
+             (let ((co (ext:string-concat
+                        "defined(" (to-C-name name prefix) ")")))
                (push (init-to-objdef (ext:string-concat ":" name)
                                      (concatenate 'vector condition (list co)))
                      cpp-odefs)
@@ -600,29 +642,32 @@ and turn it into DEFUN(funname,lambdalist,signature)."
     (setf (checker-cpp-odefs ch) (nreverse cpp-odefs))
     ch))
 
-(defun word-list (line start end)
-  (loop :with l :and pos2 = start
-    :for pos1 = (next-non-blank line (1+ pos2))
-    :while (and pos1 (< pos1 end))
-    :do (setq pos2 (min end (or (next-blank line pos1) end)))
-    (push (subseq line pos1 pos2) l) :finally (return l)))
-(defun def-something-p (line command constructor)
+(defun word-list (line)
+  (loop :with len = (length line) :with pos2 = -1
+    :for pos1 = (and (< pos2 len) (next-non-blank line (1+ pos2)))
+    :while (and pos1 (< pos1 len))
+    :do (setq pos2 (min len (or (next-blank line pos1) len)))
+    :collect (subseq line pos1 pos2)))
+(defun def-something-p (line command-alist)
   "Parse a COMMAND(c_name,[type,]CPP_CONST...) line."
-  (let* ((pos (next-non-blank line 0)) (len (length line)) cc comma fname
-         (end (and pos (+ pos (length command)))))
-    (when (and pos (< end len)
-               (string= command line :start2 pos :end2 end)
-               (case (setq cc (aref line end))
-                 (#\( t)
-                 (t (sys::whitespacep cc))))
-      (multiple-value-setq (comma end fname) (parse-name line end command))
-      (setq cc (position #\, line :start (1+ comma)))
-      (if cc
-          (funcall constructor fname (word-list line cc end)
-                   (let ((beg (next-non-blank line (1+ comma))))
-                     (subseq line beg (min cc (next-blank line beg)))))
-          (funcall constructor fname (word-list line comma end)))
-      (ext:string-concat (subseq line 0 pos) (subseq line (1+ end))))))
+  (multiple-value-bind (name args last constructor) (split-command line)
+    (setq constructor (cdr (assoc name command-alist :test #'string=)))
+    (unless constructor (return-from def-something-p nil))
+    (let ((word-list (car (last args))) type prefix)
+      (dolist (arg (cdr (nbutlast args)))
+        (let ((s (argument-string arg)))
+          (if s
+              (if prefix
+                  (error "~A: too many prefixes: ~S and ~S in ~S"
+                         name prefix s line)
+                  (setq prefix s))
+              (if type
+                  (error "~A: too many types: ~S and ~S in ~S"
+                         name type s line)
+                  (setq type arg)))))
+      (funcall constructor (first args) (word-list word-list)
+               :type type :prefix prefix))
+    (subseq line last)))
 
 (defstruct vardef
   tag (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
@@ -788,8 +833,9 @@ commas and parentheses."
       (when (setq condition (elif-p line)) (sharp-elif condition))
       (when (endif-p line) (sharp-endif))
       (setq line (or (defvar-p line)
-                     (def-something-p line "DEFFLAGSET" #'new-flag-set)
-                     (def-something-p line "DEFCHECKER" #'new-checker)
+                     (def-something-p line
+                         `(("DEFFLAGSET" . ,#'new-flag-set)
+                           ("DEFCHECKER" . ,#'new-checker)))
                      line))
       (multiple-value-bind (l p) (defun-p line)
         (when l (setq line l end (1- p)))))
@@ -932,6 +978,7 @@ commas and parentheses."
             (format out "}") (newline out)))
     (newline out)
     (loop :for ch :across *checkers*
+      :for prefix = (checker-prefix ch)
       :for type-tag = (objdef-tag (checker-type-odef ch))
       :for c-name = (checker-name ch) :for c-type = (checker-type ch)
       :initially
@@ -941,9 +988,10 @@ commas and parentheses."
             (format out "static struct c_lisp_pair ~A_table[] = {" c-name)
             (newline out)
             (loop :for name :in (checker-cpp-names ch)
+              :for C-name = (to-C-name name prefix)
               :for odef :in (checker-cpp-odefs ch)
-              :do (unless c-type (format out " #ifdef ~A" name) (newline out))
-              (format out "  { ~A, &(O(~A)) }," name (objdef-tag odef))
+              :do (unless c-type (format out " #ifdef ~A" C-name) (newline out))
+              (format out "  { ~A, &(O(~A)) }," C-name (objdef-tag odef))
               (newline out)
               (unless c-type (format out " #endif") (newline out)))
             (format out "  { 0, NULL }") (newline out)

@@ -32,10 +32,8 @@
 DEFMODULE(i18n,"I18N")
 
 /* Returns the <locale.h> value corresponding to a LC_... constant. */
-DEFCHECKER(check_locale_category, LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES \
-           LC_MONETARY LC_NUMERIC LC_TIME                               \
-           LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT      \
-           LC_IDENTIFICATION)
+DEFCHECKER(check_locale_category,"LC", ALL COLLATE CTYPE MESSAGES MONETARY \
+           NUMERIC TIME PAPER NAME ADDRESS TELEPHONE MEASUREMENT IDENTIFICATION)
 
 static inline object do_gettext (const char* msgid,
                                  const char* domain, int category)
