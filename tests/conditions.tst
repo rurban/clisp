@@ -478,6 +478,14 @@ check-use-value
 (check-use-value fboundp cons "CONS") t
 (check-use-value fdefinition cons "CONS") t
 
+(handler-bind ((undefined-function
+                (lambda (c) (princ c) (terpri) (store-value #'car))))
+  (fdefinition '(setf zz)))
+#.#'car
+
+(fdefinition '(setf zz)) #.#'car
+(fmakunbound '(setf zz)) (setf zz)
+
 (handler-bind ((error (lambda (c) (princ c) (terpri) (use-value '+))))
   (eval '(function "+")))
 #.#'+

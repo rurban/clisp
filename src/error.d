@@ -1051,9 +1051,9 @@ global object check_fdefinition (object funname, object caller)
 {
   var object name = (symbolp(funname) ? funname
                      : get(Car(Cdr(funname)),S(setf_function)));
-  var object def = Symbol_function(name);
-  while (!functionp(def)) {
-    pushSTACK(funname); pushSTACK(caller); /* save */
+  var object def = (symbolp(name) ? Symbol_function(name) : unbound);
+  if (!functionp(def)) {
+    pushSTACK(funname); /* save */
     pushSTACK(S(quote)); pushSTACK(funname); def = listof(2);
     pushSTACK(S(fdefinition)); pushSTACK(def); def = listof(2);
     pushSTACK(def); /* PLACE */
@@ -1061,12 +1061,25 @@ global object check_fdefinition (object funname, object caller)
     pushSTACK(STACK_0); /* funname */
     pushSTACK(STACK_3); /* caller */
     check_value(undefined_function,GETTEXT("~: undefined function ~"));
-    caller = popSTACK(); funname = popSTACK(); /* restore */
-    name = (symbolp(funname) ? funname
-            : get(Car(Cdr(funname)),S(setf_function)));
+    var bool store_p = !nullp(value2);
+    with_saved_back_trace(L(fdefinition),-1,value1 = check_function(value1));
+    funname = popSTACK(); /* restore */
     def = value1;
-    if (functionp(def) && !nullp(value2))
+    if (store_p) {
+      name = (symbolp(funname) ? funname
+              : get(Car(Cdr(funname)),S(setf_function)));
+      if (!symbolp(name)) {
+        pushSTACK(Car(Cdr(funname))); /* the symbol in (setf symbol) */
+        pushSTACK(def); /* save new function */
+        pushSTACK(funname); funcall(S(get_funname_symbol),1);
+        pushSTACK(value1); /* save new name */
+        pushSTACK(value1); pushSTACK(S(setf_function)); pushSTACK(STACK_4);
+        funcall(L(put),3); /* (put symbol 'setf-function name) */
+        name = popSTACK(); def = popSTACK(); /* restore */
+        skipSTACK(1); /* drop symbol in (setf symbol) */
+      }
       Symbol_function(name) = def;
+    }
   }
   return def;
 }
