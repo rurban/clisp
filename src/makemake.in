@@ -710,10 +710,10 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
     # I don't know why advapi32 is not needed here.
-    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -luuid -lpsapi '$LIBSIGSEGV
+    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -luuid '$LIBSIGSEGV
   else
     if [ $TSYS = win32msvc ] ; then
-      LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib psapi.lib'
+      LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib'
     fi
     LIBS=$LIBS' ole32.lib shell32.lib'
   fi
