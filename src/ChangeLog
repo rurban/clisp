@@ -1,3 +1,8 @@
+1999-10-05  Sam Shteingold  <sds@ksp.com>
+
+	* socket.d (ADDR_TO_STRING): new macro
+	(HOSTENT_TO_STACK): use it
+
 1999-09-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * genclisph.d (main): Define minus_bit, needed for minus_wbit. Define
