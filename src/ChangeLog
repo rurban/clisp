@@ -7,11 +7,11 @@
 	* constsym.d (CP1255, CP1258, WINDOWS-1255, WINDOWS-1258):
 	Conditionalize on GNU_LIBICONV || glibc-2.2.
 	(BIG5-HKSCS): Renamed from BIG5HKSCS.
-	(KOI8-RU, EUC-JP, SHIFT-JIS, CP932, ISO-2022-JP, EUC-CN, GBK, CP936,
-	GB18030, EUC-TW, BIG5, CP950, BIG5-HKSCS, ISO-2022-CN,
-	ISO-2022-CN-EXT, EUC-KR, CP949, ISO-2022-KR, JOHAB, ARMSCII-8,
-	GEORGIAN-ACADEMY, GEORGIAN-PS, TIS-620, CP1133, VISCII, TCVN, UTF-16,
-	UTF-7): Also enable on glibc-2.2.
+	(KOI8-RU, EUC-JP, SHIFT-JIS, CP932, ISO-2022-JP, EUC-CN, GBK, CP936)
+	(GB18030, EUC-TW, BIG5, CP950, BIG5-HKSCS, ISO-2022-CN)
+	(ISO-2022-CN-EXT, EUC-KR, CP949, ISO-2022-KR, JOHAB, ARMSCII-8)
+	(GEORGIAN-ACADEMY, GEORGIAN-PS, TIS-620, CP1133, VISCII, TCVN, UTF-16)
+	(UTF-7): Also enable on glibc-2.2.
 	(ISO-2022-JP-2): Also enable on glibc-2.3.
 	* encoding.d: Don't include nls_cp1255.c and nls_cp1258.c.
 	(nls_tables): Remove nls_cp1255_table, nls_cp1258_table.
@@ -51,11 +51,11 @@
 
 	Implement UCS-4 strings.
 	* lispbibl.d: Accept new flag NO_SMALL_SSTRING.
-	(Rectype_S8string, Rectype_Imm_S8string, Rectype_S16string,
-	Rectype_Imm_S16string, Rectype_S32string, Rectype_Imm_S32string): New
-	enumeration values.
-	(Rectype_Sstring, Rectype_Imm_Sstring, Rectype_SmallSstring,
-	Rectype_Imm_SmallSstring): Remove enumeration values.
+	(Rectype_S8string, Rectype_Imm_S8string, Rectype_S16string)
+	(Rectype_Imm_S16string, Rectype_S32string, Rectype_Imm_S32string):
+	New enumeration values.
+	(Rectype_Sstring, Rectype_Imm_Sstring, Rectype_SmallSstring)
+	(Rectype_Imm_SmallSstring): Remove enumeration values.
 	(char_int_len): Define to 24 instead of 16.
 	(char_int_limit): Define to 0x110000 instead of 0x10000.
 	(HAVE_SMALL_SSTRING): Don't define if NO_SMALL_SSTRING is specified.
@@ -71,24 +71,24 @@
 	(Array_type_sstring): Handle 3 different simple-string types.
 	(TheSmallSstring): Remove macro.
 	(TheS8string, TheS16string, TheS32string): New macros.
-	(vectorp, simplep, array_simplep, simple_string_p, stringp, arrayp):
-	Update.
+	(vectorp, simplep, array_simplep, simple_string_p, stringp)
+	(arrayp): Update.
 	(if_recordp): Handle 3 different simple-string types.
 	(small_char_p): Remove macro.
 	(case_Rectype_Sstring_above): Handle 3 different simple-string types.
 	(case_Rectype_string_above): Likewise.
 	(case_Rectype_array_above): Likewise.
-	(allocate_s8string, allocate_imm_s8string, allocate_s16string,
-	allocate_imm_s16string, allocate_s32string, allocate_imm_s32string):
-	New declarations.
+	(allocate_s8string, allocate_imm_s8string, allocate_s16string)
+	(allocate_imm_s16string, allocate_s32string)
+	(allocate_imm_s32string): New declarations.
 	(allocate_string): Change to a macro.
 	(allocate_imm_string): Likewise.
 	(allocate_small_string, allocate_imm_small_string): Remove
 	declarations.
 	(reallocate_small_string): Add an argument 'newtype'.
-	(copy_8bit_8bit, copy_8bit_16bit, copy_8bit_32bit, copy_16bit_8bit,
-	copy_16bit_16bit, copy_16bit_32bit, copy_32bit_8bit, copy_32bit_16bit,
-	copy_32bit_32bit): New declarations.
+	(copy_8bit_8bit, copy_8bit_16bit, copy_8bit_32bit, copy_16bit_8bit)
+	(copy_16bit_16bit, copy_16bit_32bit, copy_32bit_8bit)
+	(copy_32bit_16bit, copy_32bit_32bit): New declarations.
 	(chartcopy): Remove macro.
 	(scintcopy): Remove declaration.
 	(SstringCase): Renamed from SstringDispatch. Add one more case.
@@ -107,16 +107,16 @@
 	(elt_fill): Update SstringDispatch invocation.
 	(elt_reverse): Handle 3 different simple-string types.
 	(elt_nreverse): Update SstringDispatch invocation.
-	(ssstring_extend_low): Call copy_32bit_32bit/copy_8bit_8bit instead of
-	chartcopy.
+	(ssstring_extend_low): Call copy_32bit_32bit/copy_8bit_8bit
+	instead of chartcopy.
 	(ssstring_append_extend): Handle 3 different simple-string types.
 	(initial_contents_aux): Make it compile if TYPECODES.
 	(ADJUST-ARRAY): Replace allocate_small_string call by one of
 	allocate_s[8|16|32]string.
 	* charstrg.d (nop_page): Change element type to uint16.
-	(copy_8bit_8bit, copy_8bit_16bit, copy_8bit_32bit, copy_16bit_8bit,
-	copy_16bit_16bit, copy_16bit_32bit, copy_32bit_8bit, copy_32bit_16bit,
-	copy_32bit_32bit): New functions.
+	(copy_8bit_8bit, copy_8bit_16bit, copy_8bit_32bit, copy_16bit_8bit)
+	(copy_16bit_16bit, copy_16bit_32bit, copy_32bit_8bit)
+	(copy_32bit_16bit, copy_32bit_32bit): New functions.
 	(scintcopy): Remove function.
 	(string_gleich): Update SstringDispatch invocations.
 	(string_equal): Likewise.
@@ -126,8 +126,8 @@
 	(coerce_imm_ss): Likewise.
 	(coerce_normal_ss): Likewise.
 	(coerce_char): Update SstringDispatch invocation.
-	(char_name): Update allocate_small_string invocation. Return a string
-	of length 9 for characters with code >= 0x10000.
+	(char_name): Update allocate_small_string invocation. Return a
+	string of length 9 for characters with code >= 0x10000.
 	(name_char): Accept names of the form "Uxxxxxxxx" of length 9.
 	(CHAR): Update SstringDispatch invocation.
 	(SCHAR): Likewise.
@@ -147,8 +147,8 @@
 	* encoding.d (hex_table): Make read-only.
 	(fehler_unencodable): Display character codes >= 0x10000 correctly.
 	(bmp_range): New function.
-	(uni16_wcslen): Handle the case of characters >= 0x10000 in the source
-	string.
+	(uni16_wcslen): Handle the case of characters >= 0x10000 in the
+	source string.
 	(uni16be_wcstombs): Likewise.
 	(uni16le_wcstombs): Likewise.
 	(fehler_uni32_invalid): Update error message.
@@ -200,18 +200,18 @@
 	(uni32_mblen): Remove entry.
 	* spvw_garcol.d (gc_mark): Handle 3 different simple-string types.
 	* spvw_genera1.d (walk_area, build_old_generation_cache): Likewise.
-	* spvw_objsize.d (size_s8string, size_s16string, size_s32string): New
-	macros.
+	* spvw_objsize.d (size_s8string, size_s16string, size_s32string):
+	New macros.
 	(size_sstring): Define as alias of size_s32string or size_s8string.
 	(objsize): Handle 3 different simple-string types.
-	* spvw_typealloc.d (allocate_string, allocate_imm_string,
-	allocate_small_string, allocate_imm_small_string): Remove functions.
-	(allocate_s8string, allocate_imm_s8string, allocate_s16string,
-	allocate_imm_s16string, allocate_s32string, allocate_imm_s32string):
-	New functions.
+	* spvw_typealloc.d (allocate_string, allocate_imm_string)
+	(allocate_small_string, allocate_imm_small_string): Remove functions.
+	(allocate_s8string, allocate_imm_s8string, allocate_s16string)
+	(allocate_imm_s16string, allocate_s32string)
+	(allocate_imm_s32string): New functions.
 	(reallocate_small_string): Add 'newtype' argument.
-	* spvw_update.d (update_varobject): Handle 3 different simple-string
-	types.
+	* spvw_update.d (update_varobject): Handle 3 different
+	simple-string types.
 	* stream.d (wr_ch_array_dummy): Update SstringDispatch invocation.
 	(read_char_array): Likewise.
 	(rd_ch_str_in): Likewise.
@@ -230,9 +230,9 @@
 	* utils/unicode/downcase_table.java: Remove file.
 	* utils/unicode/uni_bothcase.java: Remove file.
 	* utils/unicode/Makefile (JAVA, JAVAC): Remove variables.
-	(uni_upcase.c, upcase_table.class, uni_downcase.c,
-	downcase_table.class, uni_attribute.c, attribute_table.class): Remove
-	rules.
+	(uni_upcase.c, upcase_table.class, uni_downcase.c)
+	(downcase_table.class, uni_attribute.c, attribute_table.class):
+	Remove rules.
 	* uni_attribute.c: Regenerated for Unicode 3.2.0 by gen-ctype.c.
 	* uni_upcase.c: Likewise.
 	* uni_downcase.c: Likewise.
@@ -252,8 +252,8 @@
 	* charstrg.d: Include uniname.h and uniname.c instead of uninames.c.
 	(unicode_name_word, unicode_name_word_lookup): Remove functions, now
 	contained in uniname.c.
-	(jamo_initial_short_name, jamo_medial_short_name,
-	jamo_final_short_name): Remove arrays, now contained in uniname.c.
+	(jamo_initial_short_name, jamo_medial_short_name)
+	(jamo_final_short_name): Remove arrays, now contained in uniname.c.
 	(char_name): Use unicode_character_name function from uniname.c.
 	(name_char): Use unicode_name_character function from uniname.c.
 	* makemake.in (UNICODE_INCLUDES): Remove uninames, add uniname.
@@ -274,15 +274,15 @@
 
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
-	* constsym.d: Avoid compilation error when compiling with GNU_GETTEXT
-	but without UNICODE.
+	* constsym.d: Avoid compilation error when compiling with
+	GNU_GETTEXT but without UNICODE.
 
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (FILES): List the additional .a files in the same order
-	as in LIBS, not in the reverse order.
-	(LIBS): Add libreadline.a in front of libcharset.a. This avoids a link
-	error for 'locale_charset' when compiling without -DUNICODE.
+	* makemake.in (FILES): List the additional .a files in the same
+	order as in LIBS, not in the reverse order.
+	(LIBS): Add libreadline.a in front of libcharset.a. This avoids a
+	link error for 'locale_charset' when compiling without -DUNICODE.
 
 2002-05-26  Sam Steingold  <sds@gnu.org>
 
