@@ -52,7 +52,10 @@
            (setq start (+ pos 2) end white))
         (cond ((char= #\( (schar string pos)) (incf depth))
               ((char= #\) (schar string pos)) (decf depth))
-              ((whitespacep (schar string pos)) (setq white pos)))))
+              ((whitespacep (schar string pos)) (setq white pos))))
+      (when (< end start)       ; nothing useful was entered - just whitespace
+        (sys::help) (terpri)
+        (return-from completion 0)))
     ;; get the package name:
     (unless quotedp
       (let ((colon (position #\: string :start start :end end)))
