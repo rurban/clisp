@@ -1,3 +1,10 @@
+2003-06-24  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (nobject_out1): new function, extracted from
+	nobject_out() to do all the recursive work
+	(nobject_out): call it; now nobject_out() does fflush() and
+	begin_system_call()/end_system_call() just once
+
 2003-06-23  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (alloca) [UNIX_CYGWIN32]: use __builtin_alloca()
