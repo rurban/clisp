@@ -1,3 +1,11 @@
+2004-11-02  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (ffi-module): new slots INIT-ONCE and INIT-ALWAYS
+	(*init-once*, *init-always*): new symbol macros
+	(finalize-coutput-file): write their contents into initfunction[12]
+	(C-INIT-ONCE, C-INIT-ALWAYS): new public macros
+	(do-c-init-once, do-c-init-always): new aux function
+
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	Portability to BeOS.

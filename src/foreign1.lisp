@@ -15,6 +15,7 @@
           def-c-call-out def-call-out #+AFFI def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
           c-lines *output-c-functions* *output-c-variables*
+          c-init-once c-init-always
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
           single-float double-float
@@ -517,6 +518,8 @@
                                  :test 'stablehash-equal :warn-if-needs-rehash-after-gc t))
   (type-table (make-hash-table :key-type 'symbol :value-type '(or null string)
                                :test 'stablehash-eq :warn-if-needs-rehash-after-gc t))
+  (init-once '())
+  (init-always '())
   (variable-list '())
   (function-list '()))
 (define-symbol-macro *name*
@@ -527,6 +530,10 @@
     (ffi-module-object-table *ffi-module*))
 (define-symbol-macro *type-table*
     (ffi-module-type-table *ffi-module*))
+(define-symbol-macro *init-once*
+    (ffi-module-init-once *ffi-module*))
+(define-symbol-macro *init-always*
+    (ffi-module-init-always *ffi-module*))
 (define-symbol-macro *variable-list*
     (ffi-module-variable-list *ffi-module*))
 (define-symbol-macro *function-list*
@@ -710,9 +717,11 @@
                           *coutput-stream*)))
         (format *coutput-stream* ");~%")))
     (format *coutput-stream*
-            "~%void module__~A__init_function_1 (module_t* module)~%{ }~2%~
-            void module__~A__init_function_2 (module_t* module)~%{~%"
-            *c-name* *c-name*)
+            "~%void module__~A__init_function_1 (module_t* module)~%~
+            {~{~%~A~}~%}~2%~
+            void module__~A__init_function_2 (module_t* module)~%~
+            {~{~%~A~}~%"
+            *c-name* *init-once* *c-name* *init-always*)
     (dolist (variable *variable-list*)
       (format *coutput-stream*
               "  register_foreign_variable((void*)&~A,~A,~D,sizeof(~A));~%"
@@ -754,6 +763,23 @@
   (when (compiler::prepare-coutput-file)
     (prepare-module)
     (apply #'format *coutput-stream* format-string args)))
+
+(defmacro C-INIT-ONCE (format-string &rest args)
+  `(EVAL-WHEN (COMPILE)
+     (DO-C-INIT-ONCE ,format-string ,@args)))
+(defun do-c-init-once (format-string &rest args) ; ABI
+  (when (compiler::prepare-coutput-file)
+    (prepare-module)
+    (push (apply #'format nil format-string args) *init-once*)))
+
+(defmacro C-INIT-ALWAYS (format-string &rest args)
+  `(EVAL-WHEN (COMPILE)
+     (DO-C-INIT-ALWAYS ,format-string ,@args)))
+(defun do-c-init-always (format-string &rest args) ; ABI
+  (when (compiler::prepare-coutput-file)
+    (prepare-module)
+    (push (apply #'format nil format-string args) *init-always*)))
+
 
 ;; ============================ named C variables ============================
 
