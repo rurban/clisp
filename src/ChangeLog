@@ -1,3 +1,8 @@
+2005-03-29  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (LISPFUN_F) [TYPECODES]: do no wrap gcv_nullobj
+	with {} to avoid a gcc warning
+
 2005-03-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (xlib_error_handler): use switch, not if
@@ -13,7 +18,7 @@
 	rely on get_modifier_mask() default
 	(get_shape_kind): default=ShapeBounding
 	(get_shape_operation): default=ShapeSet
-	(XLIB:SHAPE-COMBINE): reply on these defaults
+	(XLIB:SHAPE-COMBINE): rely on these defaults
 	(general_draw_text, XLIB:TEXT-EXTENTS, XLIB:TEXT-WIDTH):
 	removed the SIMPLE-STRING limitation
 
