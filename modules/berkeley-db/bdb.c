@@ -251,13 +251,13 @@ static void set_flags (object arg, u_int32_t *flag_on, u_int32_t *flag_off,
     *(nullp(arg) ? flag_off : flag_on) |= values;
 }
 
-DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :DATA-DIR :TMP-DIR                  \
-      :AUTO-COMMIT :CDB-ALLDB :DIRECT-DB :DIRECT-LOG :NOLOCKING         \
-      :NOMMAP :NOPANIC :OVERWRITE :PANIC-ENVIRONMENT :REGION-INIT       \
-      :TXN-NOSYNC :TXN-WRITE-NOSYNC :YIELDCPU                           \
-      :VERB-CHKPOINT :VERB-DEADLOCK :VERB-RECOVERY :VERB-REPLICATION    \
-      :VERB-WAITSFOR :VERBOSE)
-{ /* set many options - but how do we query them?! */
+DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :DATA_DIR :TMP_DIR                  \
+      :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
+      :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
+      :TXN_NOSYNC :TXN_WRITE_NOSYNC :YIELDCPU                           \
+      :VERB_CHKPOINT :VERB_DEADLOCK :VERB_RECOVERY :VERB_REPLICATION    \
+      :VERB_WAITSFOR :VERBOSE)
+{ /* set many options */
   u_int32_t flags_on = 0, flags_off = 0;
   DB_ENV *dbe = object_handle(STACK_(21),`BDB::ENV`,false);
   /* verbose */
@@ -299,6 +299,154 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :DATA-DIR :TMP-DIR                  \
                   { SYSCALL(dbe->set_data_dir,(dbe,data_dir)); });
   } else skipSTACK(1);
   VALUES0; skipSTACK(1);        /* skip dbe */
+}
+
+/* get the list of verbosity options
+ can trigger GC */
+static object env_verbose (DB_ENV *dbe) {
+  int count = 0, onoffp;
+  SYSCALL(dbe->get_verbose,(dbe,DB_VERB_WAITSFOR,&onoffp));
+  if (onoffp) { pushSTACK(`:VERB_WAITSFOR`); count++; }
+  SYSCALL(dbe->get_verbose,(dbe,DB_VERB_REPLICATION,&onoffp));
+  if (onoffp) { pushSTACK(`:VERB_REPLICATION`); count++;}
+  SYSCALL(dbe->get_verbose,(dbe,DB_VERB_RECOVERY,&onoffp));
+  if (onoffp) { pushSTACK(`:VERB_RECOVERY`); count++; }
+  SYSCALL(dbe->get_verbose,(dbe,DB_VERB_DEADLOCK,&onoffp));
+  if (onoffp) { pushSTACK(`:VERB_DEADLOCK`); count++; }
+  SYSCALL(dbe->get_verbose,(dbe,DB_VERB_CHKPOINT,&onoffp));
+  if (onoffp) { pushSTACK(`:VERB_CHKPOINT`); count++; }
+  return listof(count);
+}
+/* get the tmp directory
+ can trigger GC */
+static object env_tmp_dir (DB_ENV *dbe) {
+  const char *dir;
+  SYSCALL(dbe->get_tmp_dir,(dbe,&dir));
+  return dir ? asciz_to_string(dir,GLO(pathname_encoding)) : NIL;
+}
+/* get the data directory list
+ can trigger GC */
+static object env_data_dirs (DB_ENV *dbe) {
+  const char **dirs; int ii;
+  SYSCALL(dbe->get_data_dirs,(dbe,&dirs));
+  if (dirs) {
+    for (ii=0; dirs[ii]; ii++)
+      pushSTACK(asciz_to_string(dirs[ii],GLO(pathname_encoding)));
+    return listof(ii);
+  } else return NIL;
+}
+
+DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
+  object what = popSTACK();
+  DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,false);
+ restart_ENV_GET_OPTIONS:
+  if (missingp(what)) {         /* get everything */
+    /* verbose */
+    value1 = env_verbose(dbe); pushSTACK(value1); /* save */
+    { /* flags */
+      u_int32_t count = 0, flags;
+      SYSCALL(dbe->get_flags,(dbe,&flags));
+      if (flags & DB_YIELDCPU) { pushSTACK(`:YIELDCPU`); count++; }
+      if (flags & DB_TXN_WRITE_NOSYNC) {pushSTACK(`:TXN_WRITE_NOSYNC`);count++;}
+      if (flags & DB_TXN_NOSYNC) { pushSTACK(`:TXN_NOSYNC`); count++; }
+      if (flags & DB_REGION_INIT) { pushSTACK(`:REGION_INIT`); count++; }
+      if (flags &DB_PANIC_ENVIRONMENT){pushSTACK(`:PANIC_ENVIRONMENT`);count++;}
+      if (flags & DB_OVERWRITE) { pushSTACK(`:OVERWRITE`); count++; }
+      if (flags & DB_NOPANIC) { pushSTACK(`:NOPANIC`); count++; }
+      if (flags & DB_NOMMAP) { pushSTACK(`:NOMMAP`); count++; }
+      if (flags & DB_NOLOCKING) { pushSTACK(`:NOLOCKING`); count++; }
+      if (flags & DB_DIRECT_LOG) { pushSTACK(`:DIRECT_LOG`); count++; }
+      if (flags & DB_CDB_ALLDB) { pushSTACK(`:CDB_ALLDB`); count++; }
+      if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO_COMMIT`); count++; }
+      value1 = listof(count); pushSTACK(value1); /* save */
+      pushSTACK(fixnum(flags));                  /* raw flags too! */
+    }
+    /* tmp-dir */
+    pushSTACK(env_tmp_dir(dbe));
+    /* data-dir */
+    value1 = env_data_dirs(dbe); pushSTACK(value1);
+    funcall(L(values),5);
+  } else if (eq(what,S(Kverbose))) {
+    VALUES1(env_verbose(dbe));
+  } else if (eq(what,`:VERB_WAITSFOR`)) {
+    int onoffp;
+    SYSCALL(dbe->get_verbose,(dbe,DB_VERB_WAITSFOR,&onoffp));
+    VALUES_IF(onoffp);
+  } else if (eq(what,`:VERB_REPLICATION`)) {
+    int onoffp;
+    SYSCALL(dbe->get_verbose,(dbe,DB_VERB_REPLICATION,&onoffp));
+    VALUES_IF(onoffp);
+  } else if (eq(what,`:VERB_RECOVERY`)) {
+    int onoffp;
+    SYSCALL(dbe->get_verbose,(dbe,DB_VERB_RECOVERY,&onoffp));
+    VALUES_IF(onoffp);
+  } else if (eq(what,`:VERB_DEADLOCK`)) {
+    int onoffp;
+    SYSCALL(dbe->get_verbose,(dbe,DB_VERB_DEADLOCK,&onoffp));
+    VALUES_IF(onoffp);
+  } else if (eq(what,`:VERB_CHKPOINT`)) {
+    int onoffp;
+    SYSCALL(dbe->get_verbose,(dbe,DB_VERB_CHKPOINT,&onoffp));
+    VALUES_IF(onoffp);
+  } else if (eq(what,`:YIELDCPU`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_YIELDCPU);
+  } else if (eq(what,`:TXN_WRITE_NOSYNC`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_TXN_WRITE_NOSYNC);
+  } else if (eq(what,`:TXN_NOSYNC`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_TXN_NOSYNC);
+  } else if (eq(what,`:REGION_INIT`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_REGION_INIT);
+  } else if (eq(what,`:PANIC_ENVIRONMENT`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_PANIC_ENVIRONMENT);
+  } else if (eq(what,`:OVERWRITE`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_OVERWRITE);
+  } else if (eq(what,`:NOPANIC`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_NOPANIC);
+  } else if (eq(what,`:NOMMAP`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_NOMMAP);
+  } else if (eq(what,`:NOLOCKING`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_NOLOCKING);
+  } else if (eq(what,`:DIRECT_LOG`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_DIRECT_LOG);
+  } else if (eq(what,`:CDB_ALLDB`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_CDB_ALLDB);
+  } else if (eq(what,`:AUTO_COMMIT`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_flags,(dbe,&flags));
+    VALUES_IF(flags & DB_AUTO_COMMIT);
+  } else if (eq(what,`:DATA_DIR`)) {
+    VALUES1(env_data_dirs(dbe));
+  } else if (eq(what,`:TMP_DIR`)) {
+    VALUES1(env_tmp_dir(dbe));
+  } else {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(what); pushSTACK(TheSubr(subr_self)->name);
+    check_value(error,GETTEXT("~S: invalid argument ~S"));
+    what = value1;
+    goto restart_ENV_GET_OPTIONS;
+  }
 }
 
 /* ===== Database Operations ===== */
