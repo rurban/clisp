@@ -81,17 +81,14 @@ int find_executable (const char * program_name) {
   /* Now we guess the executable's full path. We assume the executable
    has been called via execlp() or execvp() with properly set up argv[0].
    The login(1) convention to add a '-' prefix to argv[0] is not supported. */
-  bool has_slash = false;
   {
     const char * p;
     for (p = program_name; *p; p++)
-      if (*p == '/') {
-        has_slash = true; break;
-      }
+      if (*p == '/')
+        goto has_slash;
   }
-  if (!has_slash) {
-    /* exec searches paths without slashes in the directory list given
-     by $PATH. */
+  { /* exec searches paths without slashes in the directory list given
+       by $PATH. */
     const char * path = getenv("PATH");
     if (!(path==NULL)) {
       const char * p;
@@ -124,6 +121,7 @@ int find_executable (const char * program_name) {
     }
     /* Not found in the PATH, assume the current directory. */
   }
+ has_slash:
   /* exec treats paths containing slashes as relative to the current
      directory */
   if (maybe_executable(program_name)) {

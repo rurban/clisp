@@ -1,5 +1,10 @@
 2005-03-18  Sam Steingold  <sds@gnu.org>
 
+	* execname.c (find_executable): avoid declaring variables in the
+	middle of a block (OSX portability)
+
+2005-03-18  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d: DYNAMIC_FFI does not imply that dlopen() is present,
 	need to check for HAVE_DLOPEN or WIN32_NATIVE
 
