@@ -80,11 +80,13 @@
   local BOOL interruptible_active;
   local HANDLE interruptible_thread;
   local BOOL interruptible_socketp;
+  local DWORD interruptible_abort_code;
 
   local BOOL temp_interrupt_handler (DWORD CtrlType);
   local BOOL temp_interrupt_handler(CtrlType)
     var DWORD CtrlType;
     {
+      var DWORD thread_exit_code = 0;
       if (CtrlType == CTRL_C_EVENT || CtrlType == CTRL_BREAK_EVENT) {
         # Could invoke a signal handler at this point.??
         if (interruptible_active) {
@@ -95,9 +97,13 @@
           if (interruptible_socketp) {
             WSACancelBlockingCall();
           }
-          if (!TerminateThread(interruptible_thread,1+CtrlType)) {
-            OS_error();
-          }
+          # We treat error as nonexistent thread which shouldn't be closed
+          if (GetExitCodeThread(interruptible_thread,&thread_exit_code)
+              && thread_exit_code == STILL_ACTIVE)
+            if (!TerminateThread(interruptible_thread,0)) {
+              OS_error();
+            }
+          interruptible_abort_code = 1+CtrlType;
         }
         # Don't invoke the other handlers (in particular, the default handler)
         return true;
@@ -114,25 +120,24 @@
     {
       var HANDLE thread;
       var DWORD thread_id;
-      var DWORD thread_exitcode;
       thread = CreateThread(NULL,10000,fn,arg,0,&thread_id);
       if (thread==NULL) {
         OS_error();
       }
       interruptible_active = false;
       interruptible_thread = thread;
+      interruptible_abort_code = 0;
       interruptible_socketp = socketp;
       SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,true);
       interruptible_active = true;
       WaitForSingleObject(interruptible_thread,INFINITE);
       interruptible_active = false;
       SetConsoleCtrlHandler((PHANDLER_ROUTINE)temp_interrupt_handler,false);
-      GetExitCodeThread(interruptible_thread,&thread_exitcode);
       CloseHandle(interruptible_thread);
-      if (thread_exitcode==0) {
+      if (!interruptible_abort_code) {
         return true; # successful termination
       } else {
-        if (thread_exitcode == 1+CTRL_BREAK_EVENT) {
+        if (interruptible_abort_code == 1+CTRL_BREAK_EVENT) {
           final_exitcode = 130; quit(); # aborted by Ctrl-Break
         }
         return false; # aborted by Ctrl-C
