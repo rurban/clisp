@@ -4426,8 +4426,8 @@ Compiled, it will have inlined the library function calls.
    is <envar>$0</envar> in &sh;, can be found in &load-truename-var; and
    &load-pathname-var;).</simpara></listitem>
   <listitem><simpara>Before it is loaded, the variable &args; is bound
-   to a list of strings, representing the arguments given to the Lisp
-   script (i.e., <envar>$1</envar> in &sh; becomes <code>(&first;
+   to a &list-t; of &string-t;s, representing the arguments given to the
+   Lisp script (i.e., <envar>$1</envar> in &sh; becomes <code>(&first;
      &args;)</code> etc).</simpara></listitem>
   <listitem><simpara>The standard &unix; i/o facilities (see &stdio-h;)
     are used: &standard-input-var; is bound to &stdin;,
@@ -4601,7 +4601,7 @@ bash$
        <replaceable>arg&sub-2;</replaceable> ...)</code>
    executes an external program.
    Its name is &program-r; (a full pathname).
-   It is given the strings <replaceable>arg&sub-1;</replaceable>,
+   It is given the &string-t;s <replaceable>arg&sub-1;</replaceable>,
    <replaceable>arg&sub-2;</replaceable>, ... as arguments.
  </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -4653,8 +4653,8 @@ bash$
      &env-var; <envar>PATH</envar> will be searched for it.
     </simpara></listitem></varlistentry>
    <varlistentry><term>&arguments-k;</term>
-    <listitem><simpara>a list of arguments (strings) that are given to the
-     program.</simpara></listitem></varlistentry>
+    <listitem><simpara>a list of arguments (&string-t;s) that are given
+      to the program.</simpara></listitem></varlistentry>
    <varlistentry><term>&input-k;</term>
     <listitem><simpara>where the program's input is to come from: either
      <constant>:TERMINAL</constant> (the standard input, default) or
