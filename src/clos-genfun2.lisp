@@ -316,7 +316,7 @@
   (if (eq (std-gf-signature gf) (sys::%unbound))
     ;; The first added method determines the generic-function's signature.
     (shared-initialize-<standard-generic-function> gf nil
-      :lambda-list (gf-lambdalist-from-first-method (std-method-lambda-list method)
+      :lambda-list (gf-lambdalist-from-first-method (method-lambda-list method)
                                                     (std-method-signature method)))
     (check-signature-congruence gf method))
   (when (std-method-generic-function method)
