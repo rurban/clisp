@@ -1,3 +1,8 @@
+2001-11-27  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst (clisp-test-bin-i/o): new function to test
+	read-float, write-float, read-integer, write-integer
+
 2001-10-18  Sam Steingold  <sds@gnu.org>
 
 	* clos.tst: test for initialize-instance returning junk
