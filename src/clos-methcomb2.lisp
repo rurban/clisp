@@ -333,6 +333,7 @@
 (defun build-effective-method-function-form (generic-function combination methods
                                              effective-method-form
                                              combination-arguments-lambda-list
+                                             generic-function-variable
                                              duplicates)
   (multiple-value-bind (lambdalist lambdalist-keypart firstforms apply-fun apply-args macrodefs)
       (effective-method-code-bricks generic-function methods duplicates)
@@ -461,6 +462,11 @@
                                                 ,@declarations
                                                 ,wrapped-ef-form)
                                             ,@apply-args))))))
+                 (when generic-function-variable
+                   (setq wrapped-ef-form
+                         `(LET ((,generic-function-variable ',generic-function))
+                            ,@declarations
+                            ,wrapped-ef-form)))
                  `#'(LAMBDA ,lambdalist
                       ,@declarations
                       ,@firstforms
@@ -492,6 +498,17 @@
         (if option
           (check-em-arguments-option option 'compute-discriminating-function gf)
           '()))
+      ;; Supporting the :GENERIC-FUNCTION effective-method option here is
+      ;; is useless, since COMPUTE-EFFECTIVE-METHOD has been passed the
+      ;; generic function as argument, and COMPUTE-EFFECTIVE-METHOD could just
+      ;; use this generic function object (quoted or not, doesn't matter, since
+      ;; it's self-evaluating) instead of introducing a variable. But the MOP
+      ;; p. 42 talks about it, and it increases consistency with the
+      ;; DEFINE-METHOD-COMBINATION macro, so let's support it.
+      (let ((option (assoc ':GENERIC-FUNCTION effective-method-options)))
+        (if option
+          (check-em-generic-function-option option 'compute-discriminating-function gf)
+          nil))
       (let ((option (assoc ':DUPLICATES effective-method-options)))
         (if option
           (check-em-duplicates-option option 'compute-discriminating-function gf)
