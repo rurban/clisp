@@ -219,7 +219,8 @@
               *describe-nesting* *print-indent-lists*)))
   (:method ((obj stream) (stream stream))
     (format stream (ENGLISH "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream.")
-            (input-stream-p obj) (output-stream-p obj)))
+            (and (input-stream-p obj) (open-stream-p obj))
+            (and (output-stream-p obj) (open-stream-p obj))))
   (:method ((obj package) (stream stream))
     (if (package-name obj)
       (progn
