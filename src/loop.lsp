@@ -14,9 +14,9 @@
 
 (eval-when (compile load eval)
 
+;; (loop-keywordp obj) determines whether OBJ is a loop keyword,
+;; and then returns the appropriate unique symbol, otherwise NIL.
 (defun loop-keywordp (obj)
-  ;; (loop-keywordp obj) determines whether OBJ is a loop keyword,
-  ;; and then returns the appropriate unique symbol, otherwise NIL.
   (and (symbolp obj)
        (gethash (symbol-name obj)
          (load-time-value
@@ -42,66 +42,79 @@
 
 (defvar *whole*)                ; the entire form (LOOP ...)
 
+;; (loop-syntax-error loop-keyword) reports a syntax error.
 (defun loop-syntax-error (loop-keyword)
-  ;; report a syntax error
   (error (ENGLISH "~S: syntax error after ~A in ~S")
          'loop (symbol-name loop-keyword) *whole*))
 
 ;; destructuring:
 
+;; (destructure-vars pattern) returns the list of variables occuring
+;; in the pattern.
 (defun destructure-vars (pattern)
-  ;; return the list of variables occuring in the pattern
-  (labels ((flatten (ll acc)
-             (cond ((null ll) acc)
-                   ((atom ll) (cons ll acc))
-                   (t (flatten (car ll) (flatten (cdr ll) acc))))))
-    (flatten pattern nil)))
+  (let ((vars '()))
+    (labels ((accumulate (pattern)
+               (cond ((null pattern))
+                     ((atom pattern) (push pattern vars))
+                     (t
+                       (accumulate (car pattern))
+                       (accumulate (cdr pattern))))))
+      (accumulate pattern))
+    (nreverse vars)))
 
+;; (empty-tree-p pattern) determine whether the pattern has no variables
+;; at all.
 (defun empty-tree-p (pattern)
-  ;; determine whether the pattern has any variables at all
   (cond ((null pattern) t)
         ((atom pattern) nil)
         (t (and (empty-tree-p (car pattern))
                 (empty-tree-p (cdr pattern))))))
 
+;; (destructure-type pattern type) returns the list of declaration
+;; specifiers, that declare that each variable in 'pattern' is of the
+;; corresponding type in 'type'.
 (defun destructure-type (pattern type)
-  ;; return the list of declspecs for variables in PATTERN and types in TYPE
-  (labels ((dt (pat typ acc)
-             (cond ((null pat) nil)
-                   ((atom pat) (cons `(TYPE ,typ ,pat) acc))
-                   ((consp typ)
-                    (dt (car pat) (car typ)
-                        (dt (cdr pat) (cdr typ) acc)))
-                   (t (let ((vars (destructure-vars pat)))
-                        (if vars (list `(TYPE ,typ ,@vars)) nil))))))
-    (dt pattern type nil)))
+  (let ((declspecs '()))
+    (labels ((accumulate (pattern type)
+               (cond ((null pattern))
+                     ((atom pattern)
+                       (push `(TYPE ,type ,pattern) declspecs))
+                     ((consp type)
+                       (accumulate (car pattern) (car type))
+                       (accumulate (cdr pattern) (cdr type)))
+                     (t
+                       (let ((vars (destructure-vars pattern)))
+                         (when vars
+                           (push `(TYPE ,type ,@vars) declspecs)))))))
+      (accumulate pattern type))
+    (nreverse declspecs)))
 
+;; (simple-type-p type) determines whether 'type' contains, after
+;; destructuring, only NIL, T, FIXNUM, FLOAT, and therefore can be
+;; used without OF-TYPE.
 (defun simple-type-p (type)
-  ;; check that all type in TYPE are simple (NIL, T, FIXNUM, FLOAT)
-  ;; (thus whether OF-TYPE is unnecessary)
   (if (atom type)
-      (case type
-        ((NIL T FIXNUM FLOAT) t)
-        (t nil))
-      (and (simple-type-p (car type))
-           (simple-type-p (cdr type)))))
+    (case type
+      ((NIL T FIXNUM FLOAT) t)
+      (t nil))
+    (and (simple-type-p (car type))
+         (simple-type-p (cdr type)))))
 
 (defvar *helpvars*) ;; vector of auxiliary variables for destructuring
 
+;; (helpvar n) returns the (n+1)-st auxiliary variable (n>=0).
+;; At least n auxiliary variable must already have been used.
 (defun helpvar (n)
-  ;; return the Nth auxiliary variable (N>=0)
-  ;; at least N auxiliary variables should already exist
-  ;; `*helpvars*' is extended if necessary
+  ;; '*helpvars*' is extended if necessary.
   (when (= n (fill-pointer *helpvars*))
     (vector-push-extend (gensym) *helpvars*))
   (aref *helpvars* n))
 
-; (destructure pattern form) liefert eine Liste von Listen
-; (Variable Form). Das erste ist eine Variable aus pattern, das
-; zweite eine Form, an die die Variable zu binden ist bzw. die
-; der Variablen zuzuweisen ist. Auf die Reihenfolge der Bindungen
-; bzw. Zuweisungen kommt es nicht an (d.h. es sind sowohl LET
-; als auch LET* bzw. sowohl PSETQ als auch SETQ möglich).
+;; (destructure pattern form) returns a list of lists (variable_i form_i).
+;; variable_i is a variable from 'pattern', form_i is a form, whose
+;; result must be bound or assigned to variable_i. The order of the
+;; bindings/assignments doesn't matter, i.e. both LET and LET*, or
+;; both PSETQ and SETQ are possible.
 (defun destructure (pattern form)
   (labels ((destructure-tree (pattern form helpvar-count)
              ; helpvar-count = Anzahl der belegten Hilfsvariablen
@@ -116,19 +129,20 @@
                        (nconc (destructure-tree (car pattern) `(CAR (SETQ ,helpvar ,form)) (1+ helpvar-count))
                               (destructure-tree (cdr pattern) `(CDR ,helpvar) helpvar-count)))))))
     (or (destructure-tree pattern form 0)
-        ; keine Variablen -> muss trotzdem form auswerten!
+        ; no variables -> must nevertheless evaluate form!
         (list (list (helpvar 0) form)))))
 
-; Liefert zu einer Liste (var ...) von Variablen ohne Initialisierungsformen
-; die Bindungsliste ((var var-init) ...), wobei var-init mit den declspecs
-; verträglich ist.
+;; (default-bindings vars declspecs).
+;; vars = (var ...) is a list of variables without init forms.
+;; Returns the binding list ((var var-init) ...), where var-init is
+;; compatible with the declspecs.
 (defun default-bindings (vars declspecs)
-  ; Verwende NIL oder 0 oder 0.0 - falls das passt -
-  ; oder verwende NIL und erweitere die Typdeklaration.
+  ; Use NIL or 0 or 0.0 if it fits the declarations.
+  ; Otherwise use NIL and extend the type declarations.
   (let ((bindings (mapcar #'(lambda (var) (list var 'NIL)) vars)))
-    (dolist (declspec declspecs bindings)
+    (dolist (declspec declspecs)
       (when (eq (first declspec) 'TYPE)
-        ; declspec hat die Form (TYPE type . vars)
+        ; declspec is of form (TYPE type . vars)
         (let* ((type (second declspec))
                (dtype (type-for-discrimination type))
                h)
@@ -136,7 +150,8 @@
                 ((or (typep (setq h '0) dtype) (typep (setq h '0.0) dtype))
                  (dolist (var (cddr declspec))
                    (setf (second (find var bindings :key #'first)) h)))
-                (t (setf (second declspec) `(OR NULL ,type)))))))))
+                (t (setf (second declspec) `(OR NULL ,type)))))))
+    bindings))
 
 ;; A loop-initialisation describes at macro expansion time the task
 ;; to initialise one or more variables. The initialisation may end up
@@ -174,7 +189,7 @@
 ; (wrap-initialisations initialisations form) wickelt eine (umgedrehte!)
 ; Liste von Initialisierungen um form herum und liefert die neue Form.
 (defun wrap-initialisations (initialisations form)
-  (dolist (initialisation initialisations form)
+  (dolist (initialisation initialisations)
     (let ((name (li-specform initialisation))
           (bindings (li-bindings initialisation))
           (declarations (li-declspecs initialisation)))
@@ -183,14 +198,16 @@
               ,@(case name (MULTIPLE-VALUE-BIND bindings) (LET `(,bindings)))
               ,@(if declarations `((DECLARE ,@declarations)))
               ,@(li-endtest-forms initialisation)
-              ,form)))))
+              ,form))))
+  form)
 
-(defvar *last-it*) ; Variable, die das letzte Test-Ergebnis ("it") enthält
-;; Variable one, those the last test result (" it ") contains
-(defvar *used-it*)              ; flag whether this variable is used
+;; Variable containing the last test result, called "it".
+(defvar *last-it*)
+;; Flag whether this variable is used.
+(defvar *used-it*)
 
+;; The bulk of the expander.
 (defun expand-loop (*whole* body)
-  ;; the bulk of the expander is here
   (let ((body-rest body) ; alle Parse-Funktionen verkürzen body-rest
         (block-name 'NIL) ; Name des umgebenden BLOCKs
         (already-within-main nil) ; im zweiten Teil von {variables}* {main}* ?
@@ -227,10 +244,10 @@
          (unless (consp body-rest) (loop-syntax-error kw))
          (let ((form (pop body-rest)))
            (if (eq (loop-keywordp form) 'it)
-               (if *last-it*
-                   (progn (setq *used-it* t) *last-it*)
-                   (loop-syntax-error 'it))
-               form)))
+             (if *last-it*
+               (progn (setq *used-it* t) *last-it*)
+               (loop-syntax-error 'it))
+             form)))
        (parse-var-typespec () ;; parse var [typespec]
          ;; return the variable pattern and the list of declspecs
          (unless (consp body-rest)
@@ -252,7 +269,7 @@
                (T (return)))    ; other
              (setq typedecl (destructure-type pattern typedecl)))
            (values pattern typedecl)))
-       (parse-progn () ;; pars: {expr}* and return the list of forms
+       (parse-progn () ;; parses {expr}* and return the list of forms
          (let ((list nil))
            (loop
             (unless (and (consp body-rest)
@@ -263,7 +280,7 @@
        (parse-unconditional () ;; parse an unconditional
          ;; unconditional ::= {do | doing} {expr}*
          ;; unconditional ::= return expr
-         ;; return the lisp form or NIL when no unconditional
+         ;; Returns a lisp form or NIL when no unconditional was parsed.
          (let ((kw (next-kw)))
            (case kw
              ((DO DOING)
@@ -273,7 +290,7 @@
               (pop body-rest)
               `(RETURN-FROM ,block-name ,(parse-form-or-it kw)))
              (t 'NIL))))
-       (parse-clause () ;; parse a clause
+       (parse-clause () ;; parses a clause
          ;; clause ::= accumulation | conditional | unconditional
          ;; accumulation ::= {collect | collecting | append | appending |
          ;;                   nconc | nconcing} expr [into var]
@@ -282,7 +299,7 @@
          ;;                   minimizing} expr [into var] [typespec]
          ;; conditional ::= {if | when | unless} expr clause {and clause}*
          ;;                 [else clause {and clause}*] [end]
-         ;; return the lisp form or NIL when no clause
+         ;; Returns a lisp form or NIL when no clause was parsed.
          (or (parse-unconditional)
              (let ((kw (next-kw)))
                (case kw
@@ -307,36 +324,35 @@
                                    (symbolp (setq accuvar (pop body-rest))))
                         (loop-syntax-error 'into)))
                     (if accuvar
-                        ;; Named accumulation variable -> forward-consing.
-                        (let ((tailvar
-                               (cdr (or (assoc accuvar accuvar-tailvar-alist)
-                                        (car (setq accuvar-tailvar-alist
-                                                   (acons accuvar
-                                                          (gensym (symbol-name
-                                                                   accuvar))
-                                                          accuvar-tailvar-alist))))))
-                              (incrementvar (gensym)))
-                          (push accuvar accu-vars-nil)
-                          (push tailvar accu-vars-nil)
-                          `(LET ((,incrementvar
-                                  ,(ecase accufuncsym
-                                          (CONS `(LIST ,form))
-                                          (REVAPPEND `(COPY-LIST ,form))
-                                          (NRECONC `,form))))
-                            (IF ,accuvar
-                                ,(case accufuncsym
-                                       (CONS `(SETF ,tailvar (SETF (CDR ,tailvar) ,incrementvar)))
-                                       (t `(SETF ,tailvar (LAST (RPLACD ,tailvar ,incrementvar)))))
-                                ,(case accufuncsym
-                                       (CONS `(SETF ,tailvar (SETF ,accuvar ,incrementvar)))
-                                       (t `(SETF ,tailvar (LAST (SETF ,accuvar ,incrementvar))))))))
-                        ;; Unnamed accumulation variable -> backward-consing.
-                        (progn
-                          (setq accuvar
-                                (or acculist-var (setq acculist-var (gensym))))
-                          (push accuvar accu-vars-nil)
-                          (push `(SYS::LIST-NREVERSE ,accuvar) results)
-                          `(SETQ ,accuvar (,accufuncsym ,form ,accuvar))))))
+                      ;; Named accumulation variable -> forward-consing.
+                      (let ((tailvar
+                              (cdr (or (assoc accuvar accuvar-tailvar-alist)
+                                       (car (setq accuvar-tailvar-alist
+                                                  (acons accuvar
+                                                         (gensym (symbol-name accuvar))
+                                                         accuvar-tailvar-alist))))))
+                            (incrementvar (gensym)))
+                        (push accuvar accu-vars-nil)
+                        (push tailvar accu-vars-nil)
+                        `(LET ((,incrementvar
+                                ,(ecase accufuncsym
+                                   (CONS `(LIST ,form))
+                                   (REVAPPEND `(COPY-LIST ,form))
+                                   (NRECONC `,form))))
+                           (IF ,accuvar
+                             ,(case accufuncsym
+                                (CONS `(SETF ,tailvar (SETF (CDR ,tailvar) ,incrementvar)))
+                                (t `(SETF ,tailvar (LAST (RPLACD ,tailvar ,incrementvar)))))
+                             ,(case accufuncsym
+                                (CONS `(SETF ,tailvar (SETF ,accuvar ,incrementvar)))
+                                (t `(SETF ,tailvar (LAST (SETF ,accuvar ,incrementvar))))))))
+                      ;; Unnamed accumulation variable -> backward-consing.
+                      (progn
+                        (setq accuvar
+                              (or acculist-var (setq acculist-var (gensym))))
+                        (push accuvar accu-vars-nil)
+                        (push `(SYS::LIST-NREVERSE ,accuvar) results)
+                        `(SETQ ,accuvar (,accufuncsym ,form ,accuvar))))))
                  ((COUNT COUNTING SUM SUMMING MAXIMIZE MAXIMIZING
                    MINIMIZE MINIMIZING)
                   (pop body-rest)
@@ -445,12 +461,12 @@
            (push initialisation initialisations)))
        (make-endtest (endtest-form)
          (make-loop-init
-          :specform 'PROGN
-          :bindings nil
-          :declspecs nil
-          :endtest-forms (list endtest-form)
-          :everytime (setq stepafter-code (cons 'NIL stepafter-code))
-          :requires-stepbefore seen-endtest)))
+           :specform 'PROGN
+           :bindings nil
+           :declspecs nil
+           :endtest-forms (list endtest-form)
+           :everytime (setq stepafter-code (cons 'NIL stepafter-code))
+           :requires-stepbefore seen-endtest)))
       ;; Los geht's!
       ; parst: [named name]
       (when (parse-kw-p 'named)
@@ -551,7 +567,8 @@
                           (old-seen-endtest seen-endtest)
                           (depends-preceding nil))
                       (flet ((note-initialisation (initialisation)
-                               ;; supersedes the old def!
+                               ;; supersedes the outer definition!
+                               ;; Calls to note-initialisation must temporarily be suspended.
                                (when (li-endtest-forms initialisation)
                                  (setq seen-endtest t))
                                (push initialisation initialisations)))
@@ -562,10 +579,10 @@
                                 ((IN ON)
                                  (pop body-rest)
                                  (let ((start-form (parse-form preposition))
-                                       (step-function-form
-                                        (if (parse-kw-p 'by) (parse-form 'by)
-                                            '(FUNCTION CDR)))
+                                       (step-function-form '(FUNCTION CDR))
                                        (step-function-var nil))
+                                   (when (parse-kw-p 'by)
+                                     (setq step-function-form (parse-form 'by)))
                                    (unless (and (consp step-function-form)
                                                 (eq (first step-function-form) 'FUNCTION)
                                                 (consp (cdr step-function-form))
@@ -575,18 +592,17 @@
                                    (let ((var (gensym))) ; Hilfsvariable
                                      (push `(,var ,start-form) bindings)
                                      (when step-function-var
-                                       (push `(,step-function-var
-                                               ,step-function-form) bindings))
+                                       (push `(,step-function-var ,step-function-form)
+                                             bindings))
                                      (note-initialisation
-                                      (make-endtest `(WHEN (ENDP ,var)
-                                                      (LOOP-FINISH))))
+                                       (make-endtest `(WHEN (ENDP ,var) (LOOP-FINISH))))
                                      (note-initialisation
-                                      (make-loop-init
-                                       :specform 'LET
-                                       :bindings (destructure pattern (if (eq preposition 'IN) `(CAR ,var) var))
-                                       :declspecs new-declspecs
-                                       :everytime t
-                                       :requires-stepbefore seen-endtest))
+                                       (make-loop-init
+                                         :specform 'LET
+                                         :bindings (destructure pattern (if (eq preposition 'IN) `(CAR ,var) var))
+                                         :declspecs new-declspecs
+                                         :everytime t
+                                         :requires-stepbefore seen-endtest))
                                      (push
                                        (list var
                                              (if step-function-var
@@ -830,13 +846,13 @@
                         (push `(PSETQ ,@stepafter) stepafter-code))
                       (push 'NIL stepafter-code) ; Markierung für spätere Initialisierungen
                       (note-initialisation ; outer `note-initialisation'!
-                       (make-loop-init
-                        :specform 'LET
-                        :bindings (nreverse bindings)
-                        :declspecs (nreverse declspecs)
-                        :everytime nil
-                        :requires-stepbefore old-seen-endtest
-                        :depends-preceding depends-preceding))
+                        (make-loop-init
+                          :specform 'LET
+                          :bindings (nreverse bindings)
+                          :declspecs (nreverse declspecs)
+                          :everytime nil
+                          :requires-stepbefore old-seen-endtest
+                          :depends-preceding depends-preceding))
                       (dolist (initialisation (nreverse initialisations))
                         (when (li-everytime initialisation)
                           (setf (li-everytime initialisation) stepafter-code))
@@ -845,13 +861,13 @@
                     (let ((form (parse-form kw))
                           (var (gensym)))
                       (note-initialisation
-                       (make-loop-init
-                        :specform 'LET
-                        :bindings `((,var ,form))
-                        :declspecs nil
-                        :everytime nil
-                        :requires-stepbefore seen-endtest
-                        :depends-preceding t))
+                        (make-loop-init
+                          :specform 'LET
+                          :bindings `((,var ,form))
+                          :declspecs nil
+                          :everytime nil
+                          :requires-stepbefore seen-endtest
+                          :depends-preceding t))
                       (push `(SETQ ,var (1- ,var)) stepafter-code)
                       (note-initialisation
                        (make-endtest `(UNLESS (PLUSP ,var) (LOOP-FINISH))))))))
