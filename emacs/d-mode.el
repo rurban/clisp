@@ -10,6 +10,14 @@
 (require 'cc-mode)
 (require 'cl)                   ; `subst'
 
+(defun d-mode-beg-of-defun ()
+  "A valid value for `beginning-of-defun-function' for `d-mode'."
+  (re-search-backward
+   (eval-when-compile
+    (concat "^" (regexp-opt '("LISPFUN" "local " "global "
+                              "nonreturning_function") t)))
+   nil t))
+
 (defun d-mode-convert-function ()
   "Convert from the old-style to ANSI function definition.
 The point should be on the prototype and the definition should follow."
@@ -107,6 +115,9 @@ Beware - this will modify the original C-mode too!"
                      (t "<makefile>"))))
          (concat make " -f " makefile " " target)))
   (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-sharp)
+  ;; (setq defun-prompt-regexp
+  ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|nonreturning_function\\) .*\\)")
+  ;; (setq beginning-of-defun-function 'd-mode-beg-of-defun)
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
          d-mode-font-lock-defaults)))
