@@ -51,10 +51,10 @@ The search is done according to the `scope', in the sub-`path' of `dkey'."
     (error (ENGLISH "~S: macro name should be a symbol, not ~S")
            'with-dir-key-search att-iter))
   (let ((k-it (gensym "WDKS-")))
-    `(let ((,k-it (sys::dkey-search-iterator ,dkey ,path ,scope)))
-      (macrolet ((,key-iter () '(sys::dkey-search-next-key ,k-it)) .
+    `(let ((,k-it (dkey-search-iterator ,dkey ,path ,scope)))
+      (macrolet ((,key-iter () '(dkey-search-next-key ,k-it)) .
                  ,(if att-iter
-                      `((,att-iter () '(sys::dkey-search-next-att ,k-it)))))
+                      `((,att-iter () '(dkey-search-next-att ,k-it)))))
         ,@body))))
 
 ;; the following two functions are re-implementations of
@@ -107,7 +107,7 @@ If collect is non-nil, collect all the keys into an a-list."
         (class-name n-sub-keys max-sub-key-len max-sub-key-class-len
          n-values max-value-name-len max-value-data-len
          security write-time)
-      (sys::dkey-info dkey)
+      (dkey-info dkey)
     (make-dir-key-info
      :type (dir-key-type dkey) :path (dir-key-path dkey) :class-name class-name
      :n-sub-keys n-sub-keys :max-sub-key-len max-sub-key-len
