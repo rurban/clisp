@@ -181,7 +181,7 @@
  <varlistentry><term><ulink url="&clhs;/Issues/iss084.html">CONSTANTP-DEFINITION:INTENTIONAL</ulink></term>
     <listitem><simpara>yes</simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss085.html">CONSTANTP-ENVIRONMENT:ADD-ARG</ulink></term>
-    <listitem><simpara>no</simpara></listitem></varlistentry>
+    <listitem><simpara>yes</simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss086.html">CONTAGION-ON-NUMERICAL-COMPARISONS:TRANSITIVE</ulink></term>
     <listitem><simpara>yes</simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss087.html">COPY-SYMBOL-COPY-PLIST:COPY-LIST</ulink></term>
