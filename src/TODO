@@ -17,9 +17,6 @@ Documentation:
 for Emacs: GC root macro, YETANOTHER macro
 
 
-Unify typep and c-typep
-
-
 (let ((x 0)) (declare (special x)) (let ((x 1)) (let ((y x)) (declare (special x)) y)))
 (let ((x 0)) (declare (special x)) (let ((x 1)) (let ((y x) (x 5)) (declare (special x)) y)))
 (let ((x 0)) (declare (special x)) (let ((x 1)) (let* ((y x) (x 5)) (declare (special x)) y)))
