@@ -1,5 +1,5 @@
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
 dnl -*- Autoconf -*-
+dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -16,6 +16,6 @@ dnl tgoto() in libc, some have it in libtermcap, some have it in libncurses.
 dnl When both libtermcap and libncurses exist, we prefer the latter,
 dnl because libtermcap is being phased out.
 LIBTERMCAP="broken"
-AC_SEARCH_LIBS(tgetent, ncurses termcap, LIBTERMCAP="")
+AC_SEARCH_LIBS(tgetent, ncurses curses termcap, LIBTERMCAP="")
 AC_SUBST(LIBTERMCAP)
 ])
