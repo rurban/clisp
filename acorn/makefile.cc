@@ -2093,8 +2093,8 @@ mem.lispinit2 : lisp $(TESTFASFILES)
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README_de README_es
 MANUALS = 1.clisp html.clisp $(TXTFILES) html.impnotes clisp.gif
 
-html.impnotes : html._impnotes
-	sed -e 's,href="CLHSROOT/,href="http://www.lisp.org/HyperSpec/,' html._impnotes > html.impnotes
+html.impnotes : ^.doc.html.impnotes
+	$(CP) ^.doc.html.impnotes html.impnotes
 
 manual : $(READMES) $(MANUALS)
 	$(TOUCH) manual

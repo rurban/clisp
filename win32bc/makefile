@@ -6,7 +6,7 @@
 # -------------- Start of configurable section --------------------
 
 # Directories used by "make install":
-prefix =
+prefix = 
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)\bin
 mandir = $(exec_prefix)\man
@@ -24,15 +24,15 @@ DESTDIR =
 # queens               the queens function as a separate module
 # clx/mit-clx          classical X11 interface
 # If you change this after doing "make", you have to "rm -r full; make".
-MODULES =
+MODULES =  
 
 # Programs used by "make":
 CC = bcc32i -O2 -g0 -w-rch
 CFLAGS =  -DUNICODE -DDIR_KEY -DNO_GETTEXT
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D__BORLANDC__=0x460 -D__TURBOC__=0x460 -D_M_IX86=300 -D__WIN32__ -D__FLAT__ -DDEBUG_OS_ERROR -I$(BCDIR)/include
-CLFLAGS =
-LIBS = sigsegv.lib iconv.lib  ole32.lib
-X_LIBS =
+CLFLAGS = 
+LIBS = sigsegv.lib iconv.lib  ole32.lib wldap32.lib
+X_LIBS = 
 BCDIR = d:/bc5
 WIN32DIR = c:\winnt35\system32
 
@@ -512,7 +512,6 @@ stage\foreign1.lisp \
 stage\defs3.lisp \
 stage\clhs.lisp \
 stage\inspect.lisp \
-stage\dirkey.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
@@ -560,7 +559,6 @@ stage\foreign1.fas \
 stage\defs3.fas \
 stage\clhs.fas \
 stage\inspect.fas \
-stage\dirkey.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
@@ -1857,10 +1855,13 @@ sigsegv.lib : ..\sigsegv\sigsegv.lib
 ole32.lib :
 	implib ole32.lib $(WIN32DIR)\ole32.dll
 
+wldap32.lib :
+	implib wldap32.lib $(WIN32DIR)\wldap32.dll
+
 UnicodeData.txt :
 	$(LN_S) ..\utils\unicode\ftp.unicode.org\UnicodeData.txt UnicodeData.txt
 
-lisp.exe : $(OBJECTS) modules.obj     iconv.lib sigsegv.lib ole32.lib UnicodeData.txt
+lisp.exe : $(OBJECTS) modules.obj     iconv.lib sigsegv.lib ole32.lib wldap32.lib UnicodeData.txt
 	$(CC) $(CFLAGS) $(CLFLAGS) -elisp.exe $(OBJECTS) modules.obj $(LIBS)
 
 
@@ -2313,8 +2314,8 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif
 
-impnotes.html : _impnotes.html
-	$(CP) _impnotes.html impnotes.html
+impnotes.html : ../doc/impnotes.html
+	$(CP) ../doc/impnotes.html impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
@@ -2393,11 +2394,9 @@ editors.txt : ..\doc\editors.txt
 	-$(LN_S) ..\doc\editors.txt editors.txt
 
 
-# Distribution, to be executed on the NFS host (a Unix host).
+# Distribution, to be executed on a Unix host or using Cygwin.
 distrib : force
 	nroff -man clisp.1 > clisp.man
-	sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' < impnotes.html > impnotes.html.new
-	mv impnotes.html.new impnotes.html
 	sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' < clisp.html > clisp.html.new
 	mv clisp.html.new clisp.html
 	version=`cat VERSION` ; \

@@ -15,7 +15,7 @@ MFLAGS=
 !endif
 
 # Directories used by "make install":
-prefix =
+prefix = 
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)\bin
 mandir = $(exec_prefix)\man
@@ -36,15 +36,15 @@ DESTDIR =
 # postgresql           PostgreSQL interface
 # clx/mit-clx          classical X11 interface
 # If you change this after doing "make", you have to "rm -r full; make".
-MODULES =
+MODULES =  
 
 # Programs used by "make":
 CC = cl $(MFLAGS) -G5 -O1
 CFLAGS =  -DUNICODE -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_MSC_VER=1000 -D_M_IX86=500 -D_WIN32 -DDEBUG_OS_ERROR -I$(MSVCDIR)/include
-CLFLAGS =
-LIBS = sigsegv.lib iconv.lib avcall.lib callback.lib  user32.lib wsock32.lib advapi32.lib ole32.lib
-X_LIBS =
+CLFLAGS = 
+LIBS = sigsegv.lib iconv.lib avcall.lib callback.lib  user32.lib wsock32.lib advapi32.lib ole32.lib wldap32.lib
+X_LIBS = 
 MSVCDIR = d:/msdev
 
 MAKE = nmake
@@ -532,7 +532,6 @@ stage\foreign1.lisp \
 stage\defs3.lisp \
 stage\clhs.lisp \
 stage\inspect.lisp \
-stage\dirkey.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
@@ -580,7 +579,6 @@ stage\foreign1.fas \
 stage\defs3.fas \
 stage\clhs.fas \
 stage\inspect.fas \
-stage\dirkey.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
@@ -949,10 +947,10 @@ modules.c : modules.d comment5.exe ansidecl.exe varbrace.exe
 noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) noreadline.d | $(ANSIDECL) | $(VARBRACE) > noreadline.c
 
-ari80386.c : ari80386.d comment5.exe
+ari80386.c : ari80386.d comment5.exe 
 	$(COMMENT5) ari80386.d > ari80386.c
 
-sp80386.c : sp80386.d comment5.exe
+sp80386.c : sp80386.d comment5.exe 
 	$(COMMENT5) sp80386.d > sp80386.c
 
 allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj foreign.obj win32aux.obj dirkey.obj
@@ -1977,8 +1975,8 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif
 
-impnotes.html : _impnotes.html
-	$(CP) _impnotes.html impnotes.html
+impnotes.html : ../doc/impnotes.html
+	$(CP) ../doc/impnotes.html impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
@@ -2062,11 +2060,9 @@ editors.txt : ..\doc\editors.txt
 	-$(LN_S) ..\doc\editors.txt editors.txt
 
 
-# Distribution, to be executed on the NFS host (a Unix host).
+# Distribution, to be executed on a Unix host or using Cygwin.
 distrib : force
 	nroff -man clisp.1 > clisp.man
-	sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' < impnotes.html > impnotes.html.new
-	mv impnotes.html.new impnotes.html
 	sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' < clisp.html > clisp.html.new
 	mv clisp.html.new clisp.html
 	version=`cat VERSION` ; \
