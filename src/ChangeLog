@@ -1,3 +1,7 @@
+2003-01-14  Stefan Kain  <stefan.kain@freenet.de>
+
+	* defstruct.lisp: translated all comments
+
 2003-01-14  Sam Steingold  <sds@gnu.org>
 
 	* defstruct.lisp (ds-make-constructor-body): optimize LIST
