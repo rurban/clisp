@@ -300,7 +300,8 @@ global object allocate_stream (uintB strmflags, uintB strmtype,
     allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
   # Fixnum as place for strmflags and strmtype:
   TheRecord(obj)->recdata[0] = Fixnum_0;
-  TheStream(obj)->strmflags = strmflags; TheStream(obj)->strmtype = strmtype;
+  TheStream(obj)->strmflags = strmflags | strmflags_open_B;
+  TheStream(obj)->strmtype = strmtype;
   return obj;
 }
 
