@@ -1,3 +1,8 @@
+2001-06-08  Bruno Haible  <haible@clisp.cons.org>
+
+        * autoconf/config.guess: Update to GNU version 2001-05-11.
+        * autoconf/config.sub: Likewise.
+
 2001-05-09  Bruno Haible  <haible@clisp.cons.org>
 
         * sigsegv.h.in: Recognize __arm__ as CPU indicator on Linux.
