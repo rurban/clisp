@@ -65,7 +65,7 @@ SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
 		-e 's/ *--> *<!-- */\n/g' \
 		-e 's/ *<!-- */\n/g' -e 's/ *--> */\n/g'
 
-all:  impnotes.html regexp.html wildcard.html _clisp.html _clisp.1 # check
+all: check impnotes.html regexp.html wildcard.html _clisp.html _clisp.1
 
 MAKE_TDB=xsltproc --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
