@@ -3705,8 +3705,7 @@ for-value   NIL or T
                ;; are subsumed here.
                (t '(T . T)))))) ; maybe side-effects
     (if (and (null *for-value*) (null (cdr sideeffects)))
-      ;; Do not need to call the function,
-      ;; only evaluate the arguments.
+      ;; Do not need to call the function, just evaluate the arguments.
       (progn
         (let ((*no-code* t) (*for-value* 'NIL))
           (funcall call-code-producer))
@@ -3848,77 +3847,80 @@ for-value   NIL or T
                 (let ((depth1 0)
                       (depth2 0)
                       (codelist-from-end '()))
-                  ;; bring forward as much as possible:
-                  (do ((anodesr anodes (cdr anodesr)))
-                      ((null anodesr))
-                    (let ((anodeetc (car anodesr))) ; next Quadruple
-                      (when (first anodeetc) ; something else to do?
-                        (if (and
-                             (or ; no Keyword, i.e. no (STORE ...) necessary?
-                              (null (second anodeetc))
-                              ;; topmost Keyword?
-                              (= (second anodeetc) (- keyanz depth1 1)))
-                             ;; does anodeetc commute with all previous anodes?
-                             (let ((anode (third anodeetc)))
-                               (do ((anodesr2 anodes (cdr anodesr2)))
-                                   ((eq anodesr2 anodesr) t)
-                                 (unless (anodes-commute
-                                          anode (third (car anodesr2)))
-                                   (return nil)))))
-                          ;; bring forward:
-                          (progn
-                            (setf (first (fourth anodeetc)) depth1) ; correct stack depth
-                            (push (third anodeetc) codelist) ; into the code-list
-                            (when (second anodeetc)
-                              (push '(PUSH) codelist)
-                              (incf depth1))
-                            ;; we don't need this one anymore:
-                            (setf (first anodeetc) nil))
-                          ;; else we do nothing.
-                          ))))
-                  ;; bring backwards as much as possible:
-                  (setq anodes (nreverse anodes))
-                  (do ((anodesr anodes (cdr anodesr)))
-                      ((null anodesr))
-                    (let ((anodeetc (car anodesr))) ; next Quadruple
-                      (when (first anodeetc) ; still sth. to do?
-                        (if (and
-                             (or ; no Keyword, i.e. no (STORE ...) necessary?
-                              (null (second anodeetc))
-                              ;; lowest Keyword?
-                              (= (second anodeetc) depth2))
-                             ;; does anodeetc commute with all later anodes?
-                             (let ((anode (third anodeetc)))
-                               (do ((anodesr2 anodes (cdr anodesr2)))
-                                   ((eq anodesr2 anodesr) t)
-                                 (unless (anodes-commute
-                                          anode (third (car anodesr2)))
-                                   (return nil)))))
-                          ;; push to the End:
-                          (progn
-                            (when (second anodeetc)
-                              (push '(PUSH) codelist-from-end)
-                              (incf depth2))
-                            (setf (first (fourth anodeetc)) (- keyanz depth2)) ; correct stack-depth
-                            (push (third anodeetc) codelist-from-end) ; into the code-list
-                            (setf (first anodeetc) nil)) ; we don't need this one anymore
-                          ;; else we do nothing.
-                          ))))
-                  (setq anodes (nreverse anodes))
-                  (let ((depth-now (- keyanz depth2)))
-                    ;; codelist-from-end decreases the Stack by depth2
-                    (when (> depth-now depth1)
-                      (push `(PUSH-UNBOUND ,(- depth-now depth1)) codelist))
-                    ;; In code-list stack-depth is now depth-now.
-                    (dolist (anodeetc anodes)
-                      (when (first anodeetc)
-                        (setf (first (fourth anodeetc)) depth-now) ; correct stack-depth
-                        (push (third anodeetc) codelist)
-                        (when (second anodeetc)
-                          (push `(STORE ,(- (second anodeetc) depth2))
-                                codelist)))))
-                  ;; now codelist-from-end:
-                  (setq codelist (nreconc codelist-from-end codelist))))
+                  (flet ((commute-with-rest-p (anodeetc anodes anodesr)
+                           (let ((anode (third anodeetc)))
+                             (do ((anodesr2 anodes (cdr anodesr2)))
+                                 ((eq anodesr2 anodesr) t)
+                               (unless (anodes-commute
+                                        anode (third (car anodesr2)))
+                                 (return nil))))))
+                    ;; bring forward as much as possible:
+                    (do ((anodesr anodes (cdr anodesr)))
+                        ((null anodesr))
+                      (let ((anodeetc (car anodesr))) ; next Quadruple
+                        (when (first anodeetc) ; something else to do?
+                          (if (and
+                               (or ; no Keyword, i.e. no (STORE ...) necessary?
+                                (null (second anodeetc))
+                                ;; topmost Keyword?
+                                (= (second anodeetc) (- keyanz depth1 1)))
+                               ;; does anodeetc commute with previous anodes?
+                               (commute-with-rest-p anodeetc anodes anodesr))
+                              ;; bring forward:
+                              (progn
+                                (setf (first (fourth anodeetc))
+                                      depth1) ; correct stack depth
+                                (push (third anodeetc)
+                                      codelist) ; into the code-list
+                                (when (second anodeetc)
+                                  (push '(PUSH) codelist)
+                                  (incf depth1))
+                                ;; we don't need this one anymore:
+                                (setf (first anodeetc) nil))
+                              ;; else we do nothing.
+                              ))))
+                    ;; bring backwards as much as possible:
+                    (setq anodes (nreverse anodes))
+                    (do ((anodesr anodes (cdr anodesr)))
+                        ((null anodesr))
+                      (let ((anodeetc (car anodesr))) ; next Quadruple
+                        (when (first anodeetc) ; still sth. to do?
+                          (if (and
+                               (or ; no Keyword, i.e. no (STORE ...) necessary?
+                                (null (second anodeetc))
+                                ;; lowest Keyword?
+                                (= (second anodeetc) depth2))
+                               ;; does anodeetc commute with all later anodes?
+                               (commute-with-rest-p anodeetc anodes anodesr))
+                              ;; push to the End:
+                              (progn
+                                (when (second anodeetc)
+                                  (push '(PUSH) codelist-from-end)
+                                  (incf depth2))
+                                (setf (first (fourth anodeetc))
+                                      (- keyanz depth2)) ; correct stack-depth
+                                (push (third anodeetc)
+                                      codelist-from-end) ; into the code-list
+                                ;; we don't need this one anymore
+                                (setf (first anodeetc) nil))
+                              ;; else we do nothing.
+                              ))))
+                    (setq anodes (nreverse anodes))
+                    (let ((depth-now (- keyanz depth2)))
+                      ;; codelist-from-end decreases the Stack by depth2
+                      (when (> depth-now depth1)
+                        (push `(PUSH-UNBOUND ,(- depth-now depth1)) codelist))
+                      ;; In code-list stack-depth is now depth-now.
+                      (dolist (anodeetc anodes)
+                        (when (first anodeetc)
+                          ;; correct stack-depth
+                          (setf (first (fourth anodeetc)) depth-now)
+                          (push (third anodeetc) codelist)
+                          (when (second anodeetc)
+                            (push `(STORE ,(- (second anodeetc) depth2))
+                                  codelist)))))
+                    ;; now codelist-from-end:
+                    (setq codelist (nreconc codelist-from-end codelist)))))
               ;; now all key argument are on the Stack.
               (push keyanz *stackz*)))
           (setq codelist (nreconc codelist (funcall call-code-producer))))
