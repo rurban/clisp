@@ -1,3 +1,14 @@
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2.lisp (compute-applicable-methods-effective-method): Do
+	the method selection here.
+	(compute-effective-method-as-function): New function.
+	* clos-methcomb2.lisp (standard-method-combination-expander,
+	short-form-method-combination-expander,
+	long-form-method-combination-expander): Add methods argument, remove
+	args argument. Don't do the method selection here.
+	(define-method-combination): Update.
+
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (Class): Add direct_subclasses field.

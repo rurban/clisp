@@ -574,9 +574,28 @@
 ;;; for the same EQL and class restrictions as the given arguments,
 ;;; therefore compute dispatch is already taken care of.
 (defun compute-applicable-methods-effective-method (gf &rest args)
-  (let ((combination (gf-method-combination gf)))
-    (funcall (method-combination-expander combination) gf combination
-             (method-combination-options combination) args)))
+  ;; FIXME: Unify this with compute-applicable-methods.
+  ;; 1. Select the applicable methods:
+  (let* ((signature (gf-signature gf))
+         (req-num (sig-req-num signature))
+         (req-args (subseq args 0 req-num))
+         (methods
+           (remove-if-not #'(lambda (method)
+                              (method-applicable-p method req-args))
+                          (the list (gf-methods gf)))))
+    (when (null methods)
+      (return-from compute-applicable-methods-effective-method
+        (no-method-caller 'no-applicable-method gf)))
+    ;; 2. Sort the applicable methods by precedence order:
+    (setq methods (sort-applicable-methods methods req-args (gf-argorder gf)))
+    ;; 3. Combine the methods to an effective method:
+    (let ((*method-combination-arguments* args))
+      (compute-effective-method-as-function gf (gf-method-combination gf) methods))))
+
+(defun compute-effective-method-as-function (gf combination methods)
+  ;; Apply method combination:
+  (funcall (method-combination-expander combination) gf combination methods
+           (method-combination-options combination)))
 
 (defun gf-keyword-arguments (restp signature methods)
   ;; CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5. Keyword Arguments in
