@@ -1247,9 +1247,7 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_MEMSET,
-[AC_CHECK_FUNCS(memset)
-if test $ac_cv_func_memset = yes; then
-CL_PROTO([memset], [
+[CL_PROTO([memset], [
 for y in 'int' 'size_t'; do
 for x in 'char*' 'void*'; do
 if test -z "$have_memset"; then
@@ -1278,7 +1276,6 @@ done
 done
 ], [extern $cl_cv_proto_memset_ret memset ($cl_cv_proto_memset_arg1, int, $cl_cv_proto_memset_arg3);])
 AC_DEFINE_UNQUOTED(RETMEMSETTYPE,$cl_cv_proto_memset_ret)
-fi
 ])dnl
 dnl
 AC_DEFUN(CL_GMALLOC,
@@ -1726,11 +1723,7 @@ signal_handler mysignal (sig, handler)
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
-#ifdef HAVE_MEMSET
   memset(&new_sa,0,sizeof(new_sa));
-#else
-  bzero(&new_sa,sizeof(new_sa));
-#endif
   new_sa.sa_handler = handler;
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
@@ -1795,11 +1788,7 @@ signal_handler mysignal (sig, handler)
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
-#ifdef HAVE_MEMSET
   memset(&new_sa,0,sizeof(new_sa));
-#else
-  bzero(&new_sa,sizeof(new_sa));
-#endif
   new_sa.sa_handler = handler;
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
