@@ -234,7 +234,7 @@ else
   fi
 fi
 }
-maybe_link () { test -f "$1" && link "$1" "$2"; }
+maybe_link () { if [ -f "$1" ]; then link "$1" "$2"; fi; }
 
 # Note that we would need to call `/bin/pwd` if we wanted to compare two
 # directories for equality. But here we only need to get _some_ absolute
