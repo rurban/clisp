@@ -1,3 +1,9 @@
+2003-01-26  Bruno Haible  <bruno@clisp.org>
+
+	Allow multibyte characters in pathnames.
+	* pathname.d (legal_namebyte): New function.
+	(legal_namechar): Invoke it.
+
 2004-02-16  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (stream_get_read_eval, stream_set_read_eval): Invoke
