@@ -1021,11 +1021,11 @@ static void wfd_to_stack (WIN32_FIND_DATA *wfd) {
   pushSTACK(convert_time_to_universal(&(wfd->ftLastAccessTime)));
   pushSTACK(convert_time_to_universal(&(wfd->ftLastWriteTime)));
 #else  /* cygwin */
-  { time_t unix_time = to_time_t_(wfd->ftCreationTime);
+  { time_t unix_time = to_time_t_(&(wfd->ftCreationTime));
     pushSTACK(convert_time_to_universal(&unix_time));
-    unix_time = to_time_t_(wfd->ftLastAccessTime);
+    unix_time = to_time_t_(&(wfd->ftLastAccessTime));
     pushSTACK(convert_time_to_universal(&unix_time));
-    unix_time = to_time_t_(wfd->ftLastWriteTime);
+    unix_time = to_time_t_(&(wfd->ftLastWriteTime));
     pushSTACK(convert_time_to_universal(&unix_time));
   }
 #endif
