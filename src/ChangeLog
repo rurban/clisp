@@ -1,3 +1,7 @@
+2001-04-25  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (invoke_handlers): fixed the 2001-04-18 patch for Linux
+
 2001-04-24  Sam Steingold  <sds@gnu.org>
 
 	* intgcd.d (I_I_xgcd_I_I_I): do not use bit operations for logical
