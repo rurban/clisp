@@ -6,6 +6,8 @@
 	(symbolp): uncommented
 	(stringp): fixed
 	(array_displace_check): replaces iarray_displace_check()
+	* dirkey.c (SET-DKEY-VALUE): use array_displace_check() instead
+	of iarray_displace_check(); many cosmetic tweaks
 
 2003-07-23  Sam Steingold  <sds@gnu.org>
 
