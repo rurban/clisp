@@ -22,6 +22,7 @@
 # once again the structure of Streams:
 # strmflags = Flags
   # Bits in the Flags:
+  # define strmflags_open_bit_B  0  # set, if the Stream is open
   # define strmflags_immut_bit_B 1  # set if read literals are immutable
   # define strmflags_reval_bit_B 2  # set if Read-Eval is allowed
   #define strmflags_unread_bit_B 3  # set while strm_rd_ch_last is back
@@ -30,6 +31,7 @@
   # define strmflags_rd_ch_bit_B 6  # set if READ-CHAR is possible
   # define strmflags_wr_ch_bit_B 7  # set if WRITE-CHAR is possible
   # Bitmasks in the Flags:
+  # define strmflags_open_B  bit(strmflags_open_bit_B)
   #define strmflags_immut_B  bit(strmflags_immut_bit_B)
   #define strmflags_reval_B  bit(strmflags_reval_bit_B)
   #define strmflags_unread_B bit(strmflags_unread_bit_B)
@@ -41,7 +43,7 @@
   # define strmflags_wr_B  (strmflags_wr_by_B | strmflags_wr_ch_B)
   #define strmflags_by_B  (strmflags_rd_by_B | strmflags_wr_by_B)
   #define strmflags_ch_B  (strmflags_rd_ch_B | strmflags_wr_ch_B)
-  # strmflags_open_B: the 4 upper Bits
+  #define strmflags_rdwr_B (strmflags_rd_B | strmflags_wr_B)
 # strmtype = further Typinfo. See LISPBIBL.D.
 
 # individual fields:
@@ -1188,7 +1190,7 @@ local void clear_output_synonym (object stream) {
 local object make_synonym_stream (object symbol) {
   pushSTACK(symbol); # save Symbol
   var object stream = # new Stream, all Operations permitted
-    allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1,0);
+    allocate_stream(strmflags_rdwr_B,strmtype_synonym,strm_len+1,0);
   TheStream(stream)->strm_rd_by = P(rd_by_synonym);
   TheStream(stream)->strm_rd_by_array = P(rd_by_array_synonym);
   TheStream(stream)->strm_wr_by = P(wr_by_synonym);
@@ -1837,8 +1839,8 @@ local bool read_line_twoway (object stream, const object* buffer_) {
 # can trigger GC
 global object make_twoway_stream (object input_stream, object output_stream) {
   pushSTACK(input_stream); pushSTACK(output_stream); # save Streams
-  var uintB flags =
-    strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
+  var uintB flags = strmflags_rdwr_B
+    | (TheStream(input_stream)->strmflags & strmflags_immut_B);
   var object stream = # new Stream, all Operations allowed
     allocate_stream(flags,strmtype_twoway,strm_len+2,0);
   TheStream(stream)->strm_rd_by = P(rd_by_twoway);
@@ -1963,8 +1965,8 @@ local uintL rd_ch_array_echo (const object* stream_, const object* chararray_,
 # can trigger GC
 local object make_echo_stream (object input_stream, object output_stream) {
   pushSTACK(input_stream); pushSTACK(output_stream); # save Streams
-  var uintB flags =
-    strmflags_open_B | (TheStream(input_stream)->strmflags & strmflags_immut_B);
+  var uintB flags = strmflags_rdwr_B
+    | (TheStream(input_stream)->strmflags & strmflags_immut_B);
   var object stream = # new Stream, all Operations allowed
     allocate_stream(flags,strmtype_echo,strm_len+2,0);
   TheStream(stream)->strm_rd_by = P(rd_by_echo);
@@ -2836,7 +2838,7 @@ LISPFUNN(generic_stream_controller,1) {
 
 LISPFUNN(make_generic_stream,1) {
   var object stream =
-    allocate_stream(strmflags_open_B,strmtype_generic,strm_len+1,0);
+    allocate_stream(strmflags_rdwr_B,strmtype_generic,strm_len+1,0);
   TheStream(stream)->strm_rd_by = P(rd_by_generic);
   TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
   TheStream(stream)->strm_wr_by = P(wr_by_generic);
@@ -14569,7 +14571,7 @@ local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
     TheStream(stream)->strm_socket_host = STACK_(3+1);
     pushSTACK(stream);
     # Allocate a Two-Way-Socket-Stream:
-    stream = allocate_stream(strmflags_open_B,strmtype_twoway_socket,
+    stream = allocate_stream(strmflags_rdwr_B,strmtype_twoway_socket,
                              strm_len+2,0);
     TheStream(stream)->strm_rd_by = P(rd_by_twoway);
     TheStream(stream)->strm_rd_by_array = P(rd_by_array_twoway);
@@ -15429,139 +15431,133 @@ LISPFUNN(stream_element_type_eq,2) {
 }
 
 # (SYS::BUILT-IN-STREAM-ELEMENT-TYPE stream)
-# returns NIL (for closed Streams) or CHARACTER or INTEGER or T
-# or (more special) (UNSIGNED-BYTE n) or (SIGNED-BYTE n).
+# returns CHARACTER or INTEGER or T
+# or (more specific) (UNSIGNED-BYTE n) or (SIGNED-BYTE n).
 LISPFUNN(built_in_stream_element_type,1) {
   var object stream = popSTACK();
   check_builtin_stream(stream);
   var object eltype;
-  if ((TheStream(stream)->strmflags & strmflags_open_B) == 0) {
-    # Stream closed
-    eltype = NIL;
-  } else {
-    # Stream open
-    switch (TheStream(stream)->strmtype) {
-      # first the stream-types with restricted element-types:
-      case strmtype_str_in:
-      case strmtype_str_out:
-      case strmtype_str_push:
-      case strmtype_pphelp:
-      case strmtype_buff_in:
-      case strmtype_buff_out:
-        # CHARACTER
-        eltype = S(character); break;
-     #ifdef KEYBOARD
-      case strmtype_keyboard:
-        eltype = T;
-        break;
-     #endif
-      case strmtype_terminal:
-     #ifdef SCREEN
-      case strmtype_window:
-     #endif
-     #ifdef PRINTER
-      case strmtype_printer:
-     #endif
-        # CHARACTER
-        eltype = S(character); break;
-      case strmtype_file:
-     #ifdef PIPES
-      case strmtype_pipe_in:
-      case strmtype_pipe_out:
-     #endif
-     #ifdef X11SOCKETS
-      case strmtype_x11socket:
-     #endif
-     #ifdef SOCKET_STREAMS
-      case strmtype_socket:
-     #endif
-        # CHARACTER or ([UN]SIGNED-BYTE n)
-        eltype = TheStream(stream)->strm_eltype; break;
-     #ifdef SOCKET_STREAMS
-      case strmtype_twoway_socket:
-        # CHARACTER or ([UN]SIGNED-BYTE n)
-        stream = TheStream(stream)->strm_twoway_socket_input;
-        eltype = TheStream(stream)->strm_eltype; break;
-     #endif
-      case strmtype_twoway:
-      case strmtype_echo:
-        # (let ((itype (stream-element-type (two-way-input-stream stream)))
-        #       (otype (stream-element-type (two-way-output-stream stream))))
-        #   ; Simplify `(OR ,itype ,otype)
-        #   (cond ((eq itype 'NIL) otype)
-        #         ((eq otype 'NIL) itype)
-        #         ((eq itype otype) itype)
-        #         (t
-        #           (cons 'OR
-        #             (remove-duplicates
-        #               (append
-        #                 (if (and (consp itype) (eq (car itype) 'OR))
-        #                   (cdr itype)
-        #                   (list itype)
-        #                 )
-        #                 (if (and (consp otype) (eq (car otype) 'OR))
-        #                   (cdr otype)
-        #                   (list otype)
-        #                 ))
-        # ) )     ) ) ) )
-        {
-          pushSTACK(TheStream(stream)->strm_twoway_input);
-          pushSTACK(TheStream(stream)->strm_twoway_output);
-          pushSTACK(STACK_1); funcall(S(stream_element_type),1);
-          STACK_1 = value1; funcall(S(stream_element_type),1);
-          pushSTACK(value1);
-          var object itype = STACK_1;
-          var object otype = STACK_0;
-          if (nullp(itype)) {
-            eltype = otype;
-            skipSTACK(2);
-          } else if (nullp(otype) || eq(itype,otype)) {
-            eltype = itype;
-            skipSTACK(2);
-          } else {
-            var object tmp;
-            if (consp(itype) && eq(Car(itype),S(or)))
-              tmp = Cdr(itype);
-            else {
-              tmp = allocate_cons();
-              Car(tmp) = STACK_1;
-              otype = STACK_0;
-            }
-            STACK_1 = tmp;
-            if (consp(otype) && eq(Car(otype),S(or)))
-              tmp = Cdr(otype);
-            else {
-              tmp = allocate_cons();
-              Car(tmp) = STACK_0;
-            }
-            STACK_0 = tmp;
-            funcall(L(append),2);
-            pushSTACK(value1); pushSTACK(S(Ktest));
-            pushSTACK(S(stream_element_type_eq));
-            funcall(L(remove_duplicates),3);
-            pushSTACK(value1);
-            eltype = allocate_cons();
-            Car(eltype) = S(or); Cdr(eltype) = popSTACK();
+  switch (TheStream(stream)->strmtype) {
+    # first the stream-types with restricted element-types:
+    case strmtype_str_in:
+    case strmtype_str_out:
+    case strmtype_str_push:
+    case strmtype_pphelp:
+    case strmtype_buff_in:
+    case strmtype_buff_out:
+      # CHARACTER
+      eltype = S(character); break;
+   #ifdef KEYBOARD
+    case strmtype_keyboard:
+      eltype = T;
+      break;
+   #endif
+    case strmtype_terminal:
+   #ifdef SCREEN
+    case strmtype_window:
+   #endif
+   #ifdef PRINTER
+    case strmtype_printer:
+   #endif
+      # CHARACTER
+      eltype = S(character); break;
+    case strmtype_file:
+   #ifdef PIPES
+    case strmtype_pipe_in:
+    case strmtype_pipe_out:
+   #endif
+   #ifdef X11SOCKETS
+    case strmtype_x11socket:
+   #endif
+   #ifdef SOCKET_STREAMS
+    case strmtype_socket:
+   #endif
+      # CHARACTER or ([UN]SIGNED-BYTE n)
+      eltype = TheStream(stream)->strm_eltype; break;
+   #ifdef SOCKET_STREAMS
+    case strmtype_twoway_socket:
+      # CHARACTER or ([UN]SIGNED-BYTE n)
+      stream = TheStream(stream)->strm_twoway_socket_input;
+      eltype = TheStream(stream)->strm_eltype; break;
+   #endif
+    case strmtype_twoway:
+    case strmtype_echo:
+      # (let ((itype (stream-element-type (two-way-input-stream stream)))
+      #       (otype (stream-element-type (two-way-output-stream stream))))
+      #   ; Simplify `(OR ,itype ,otype)
+      #   (cond ((eq itype 'NIL) otype)
+      #         ((eq otype 'NIL) itype)
+      #         ((eq itype otype) itype)
+      #         (t
+      #           (cons 'OR
+      #             (remove-duplicates
+      #               (append
+      #                 (if (and (consp itype) (eq (car itype) 'OR))
+      #                   (cdr itype)
+      #                   (list itype)
+      #                 )
+      #                 (if (and (consp otype) (eq (car otype) 'OR))
+      #                   (cdr otype)
+      #                   (list otype)
+      #                 ))
+      # ) )     ) ) ) )
+      {
+        pushSTACK(TheStream(stream)->strm_twoway_input);
+        pushSTACK(TheStream(stream)->strm_twoway_output);
+        pushSTACK(STACK_1); funcall(S(stream_element_type),1);
+        STACK_1 = value1; funcall(S(stream_element_type),1);
+        pushSTACK(value1);
+        var object itype = STACK_1;
+        var object otype = STACK_0;
+        if (nullp(itype)) {
+          eltype = otype;
+          skipSTACK(2);
+        } else if (nullp(otype) || eq(itype,otype)) {
+          eltype = itype;
+          skipSTACK(2);
+        } else {
+          var object tmp;
+          if (consp(itype) && eq(Car(itype),S(or)))
+            tmp = Cdr(itype);
+          else {
+            tmp = allocate_cons();
+            Car(tmp) = STACK_1;
+            otype = STACK_0;
           }
+          STACK_1 = tmp;
+          if (consp(otype) && eq(Car(otype),S(or)))
+            tmp = Cdr(otype);
+          else {
+            tmp = allocate_cons();
+            Car(tmp) = STACK_0;
+          }
+          STACK_0 = tmp;
+          funcall(L(append),2);
+          pushSTACK(value1); pushSTACK(S(Ktest));
+          pushSTACK(S(stream_element_type_eq));
+          funcall(L(remove_duplicates),3);
+          pushSTACK(value1);
+          eltype = allocate_cons();
+          Car(eltype) = S(or); Cdr(eltype) = popSTACK();
         }
-        break;
-        # then the general streams:
-     #ifdef GENERIC_STREAMS
-      case strmtype_generic:
-     #endif
-      default: {
-        var uintB flags = TheStream(stream)->strmflags;
-        if (flags & strmflags_by_B) {
-          if (flags & strmflags_ch_B) { # (OR CHARACTER INTEGER)
-            pushSTACK(S(or)); pushSTACK(S(character)); pushSTACK(S(integer));
-            eltype = listof(3);
-          } else eltype = S(integer);
-        } else
-          if (flags & strmflags_ch_B) eltype = S(character);
-          else eltype = NIL;
       }
-        break;
+      break;
+      # then the general streams:
+   #ifdef GENERIC_STREAMS
+    case strmtype_generic:
+   #endif
+    default: {
+      var uintB flags = TheStream(stream)->strmflags;
+      if (flags & strmflags_by_B) {
+        if (flags & strmflags_ch_B) { # (OR CHARACTER INTEGER)
+          pushSTACK(S(or)); pushSTACK(S(character)); pushSTACK(S(integer));
+          eltype = listof(3);
+        } else eltype = S(integer);
+      } else
+        if (flags & strmflags_ch_B) eltype = S(character);
+        else eltype = NIL;
     }
+      break;
   }
   value1 = eltype; mv_count=1;
 }
@@ -15677,13 +15673,13 @@ LISPFUNN(built_in_stream_set_element_type,2) {
             }
         { # Actually change the stream's element type.
           var uintB flags = TheStream(stream)->strmflags;
-          flags = (flags & ~strmflags_open_B)
+          flags = (flags & ~strmflags_rdwr_B)
             | (flags & strmflags_rd_B ? strmflags_rd_B : 0)
             | (flags & strmflags_wr_B ? strmflags_wr_B : 0);
           ChannelStream_bitsize(stream) = eltype.size;
           if (eltype.kind == eltype_ch) {
             # New element type is CHARACTER.
-            flags &= ~(strmflags_open_B & ~strmflags_ch_B);
+            flags &= ~(strmflags_rdwr_B & ~strmflags_ch_B);
           } else {
             # New element type is an integer type.
             # allocate Bitbuffer:
@@ -15691,7 +15687,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
             var object bitbuffer = allocate_bit_vector(Atype_Bit,eltype.size);
             stream = popSTACK();
             TheStream(stream)->strm_bitbuffer = bitbuffer;
-            flags &= ~(strmflags_open_B & ~strmflags_by_B);
+            flags &= ~(strmflags_rdwr_B & ~strmflags_by_B);
           }
           TheStream(stream)->strmflags = flags;
         }

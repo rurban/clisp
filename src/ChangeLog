@@ -1,3 +1,19 @@
+2002-04-01  Sam Steingold  <sds@gnu.org>
+
+	uncouple OPEN-STREAM-P from INPUT-STREAM-P/OUTPUT-STREAM-P
+	* lispbibl.d (strmflags_open_bit_B): new bit (0)
+	(strmflags_open_B): use it, not the top 4 bits
+	(allocate_stream): add it to strmflags
+	* spvw_typealloc.d (allocate_stream): ditto
+	* stream.d (strmflags_rdwr_B): new mask (top 4 bits)
+	(make_synonym_stream, make_twoway_stream, make_echo_stream)
+	(MAKE-GENERIC-STREAM, make_socket_stream)
+	(BUILT-IN-STREAM-SET-ELEMENT-TYPE): use it instead of
+	strmflags_open_B
+	(BUILT-IN-STREAM-ELEMENT-TYPE): do not return NIL for closed
+	streams
+	* io.d (pr_stream): print INPUT/OUTPUT/IO even for closed streams
+
 2002-04-01  Stefan Kain  <stefan.kain@freenet.de>
 
 	* spvw_heap.diff, spvw_language.diff, spvw_objsize.diff:

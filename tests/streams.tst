@@ -1,10 +1,26 @@
-(progn (in-package "SYS") t) t
+;; -*- lisp -*-
+(progn (in-package "COMMON-LISP-USER") t) t
 
 #-(or AKCL ECL ALLEGRO) (PRIN1-TO-STRING (MAKE-BROADCAST-STREAM))
 #+XCL "#<%TYPE-STRUCTURE-STREAM NIL>"
 #+CLISP "#<OUTPUT BROADCAST-STREAM>"
 #+CMU "#<Broadcast Stream>"
 #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+
+;; CLOSE should not delete information about
+;; element type, direction, and external format
+(defun close-1 (s)
+  (let* ((i (input-stream-p s))
+         (o (output-stream-p s))
+         (e (stream-element-type s))
+         (f (stream-external-format s))
+         (c (close s)))
+    (and (eq i (input-stream-p s))
+         (eq o (output-stream-p s))
+         (equal e (stream-element-type s))
+         (equal f (stream-external-format s))
+         c)))
+close-1
 
 (PROGN (SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT))
 (SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT))
@@ -17,11 +33,11 @@
 
 (PRINT "test broadcast satz 3" B1)   "test broadcast satz 3"
 
-(CLOSE S1)   T
+(CLOSE-1 S1)   T
 
-(CLOSE S2)   T
+(CLOSE-1 S2)   T
 
-(CLOSE S3)   T
+(CLOSE-1 S3)   T
 
 (PROGN (SETQ S (OPEN "d1.plc")) T)   T
 
@@ -31,7 +47,7 @@
 
 (READ S)   "test broadcast satz 3"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d2.plc")) T)   T
 
@@ -41,7 +57,7 @@
 
 (READ S)   "test broadcast satz 3"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d3.plc")) T)   T
 
@@ -51,7 +67,7 @@
 
 (READ S)   "test broadcast satz 3"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t0.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -59,7 +75,7 @@
 
 (PRINT (QUOTE READ2) S)   READ2
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ INPTW (OPEN "t0.plc"))
 (SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT))
@@ -105,21 +121,21 @@
 
 (PRINT "w to b2 8.satz" B2)   "w to b2 8.satz"
 
-(CLOSE INPTW)   T
+(CLOSE-1 INPTW)   T
 
-(CLOSE S1)   T
+(CLOSE-1 S1)   T
 
-(CLOSE S2)   T
+(CLOSE-1 S2)   T
 
-(CLOSE S3)   T
+(CLOSE-1 S3)   T
 
-(CLOSE S4)   T
+(CLOSE-1 S4)   T
 
-(CLOSE S5)   T
+(CLOSE-1 S5)   T
 
-(CLOSE S6)   T
+(CLOSE-1 S6)   T
 
-(CLOSE S7)   T
+(CLOSE-1 S7)   T
 
 (PROGN (SETQ S (OPEN "d1.plc")) T)   T
 
@@ -139,7 +155,7 @@
 
 (READ S)   "w to b2 8.satz"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d2.plc")) T)   T
 
@@ -161,7 +177,7 @@
 
 (READ S)   "w to b2 8.satz"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d3.plc")) T)   T
 
@@ -183,7 +199,7 @@
 
 (READ S)   "w to b2 8.satz"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d4.plc")) T)   T
 
@@ -207,7 +223,7 @@
 
 (READ S)   "w to b2 8.satz"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d5.plc")) T)   T
 
@@ -229,7 +245,7 @@
 
 (READ S)   "w to b2 8.satz"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d6.plc")) T)   T
 
@@ -251,7 +267,7 @@
 
 (READ S)   "w to b2 8.satz"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "d7.plc")) T)   T
 
@@ -273,7 +289,7 @@
 
 (READ S)   "w to b2 8.satz"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t1.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -281,7 +297,7 @@
 
 (PRINT "2.satz t1" S)   "2.satz t1"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t2.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -289,7 +305,7 @@
 
 (PRINT "2.satz t2" S)   "2.satz t2"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t3.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -297,7 +313,7 @@
 
 (PRINT "2.satz t3" S)   "2.satz t3"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t4.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -305,7 +321,7 @@
 
 (PRINT "2.satz t4" S)   "2.satz t4"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t5.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -313,7 +329,7 @@
 
 (PRINT "2.satz t5" S)   "2.satz t5"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t6.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -321,7 +337,7 @@
 
 (PRINT "2.satz t6" S)   "2.satz t6"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t7.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -329,7 +345,7 @@
 
 (PRINT "2.satz t7" S)   "2.satz t7"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t8.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -337,7 +353,7 @@
 
 (PRINT "2.satz t8" S)   "2.satz t8"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t9.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -345,7 +361,7 @@
 
 (PRINT "2.satz t9" S)   "2.satz t9"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S (OPEN "t10.plc" :DIRECTION :OUTPUT)) T)   T
 
@@ -353,7 +369,7 @@
 
 (PRINT "2.satz t10" S)   "2.satz t10"
 
-(CLOSE S)   T
+(CLOSE-1 S)   T
 
 (PROGN (SETQ S1 (OPEN "t1.plc")) (SETQ S2 (OPEN "t2.plc"))
 (SETQ S3 (OPEN "t3.plc")) (SETQ S4 (OPEN "t4.plc")) (SETQ S5 (OPEN
@@ -381,15 +397,15 @@
 
 (READ C2)   "2.satz t5"
 
-(CLOSE S1)   T
+(CLOSE-1 S1)   T
 
-(CLOSE S2)   T
+(CLOSE-1 S2)   T
 
-(CLOSE S3)   T
+(CLOSE-1 S3)   T
 
-(CLOSE S4)   T
+(CLOSE-1 S4)   T
 
-(CLOSE S5)   T
+(CLOSE-1 S5)   T
 
 (PROGN (SETQ S1 (OPEN "t1.plc")) (SETQ S2 (OPEN "t2.plc"))
 (SETQ S3 (OPEN "t3.plc")) (SETQ S4 (OPEN "t4.plc")) (SETQ S5 (OPEN
@@ -442,25 +458,25 @@
 
 (READ C4)   "2.satz t10"
 
-(CLOSE S1)   T
+(CLOSE-1 S1)   T
 
-(CLOSE S2)   T
+(CLOSE-1 S2)   T
 
-(CLOSE S3)   T
+(CLOSE-1 S3)   T
 
-(CLOSE S4)   T
+(CLOSE-1 S4)   T
 
-(CLOSE S5)   T
+(CLOSE-1 S5)   T
 
-(CLOSE S6)   T
+(CLOSE-1 S6)   T
 
-(CLOSE S7)   T
+(CLOSE-1 S7)   T
 
-(CLOSE S8)   T
+(CLOSE-1 S8)   T
 
-(CLOSE S9)   T
+(CLOSE-1 S9)   T
 
-(CLOSE S10)   T
+(CLOSE-1 S10)   T
 
 (SETQ STR1 "test 123456")   "test 123456"
 
@@ -486,7 +502,7 @@
 
 (READ-CHAR S1)   #\6
 
-(CLOSE S1)   T
+(CLOSE-1 S1)   T
 
 STR1   "test 123456"
 
@@ -650,7 +666,7 @@ E"
 (PRINC "'(a b #.(format nil  \"3.zwischenwert\") c d)" IS)
 "'(a b #.(format nil  \"3.zwischenwert\") c d)"
 
-(CLOSE IS)   T
+(CLOSE-1 IS)   T
 
 (PROGN (SETQ IS (OPEN "t0.plc")) (SETQ ES (MAKE-ECHO-STREAM IS OS))
 T)   T
@@ -669,9 +685,9 @@ T)   T
 
 (PRINT "ausgabe os1" OS1)   "ausgabe os1"
 
-(CLOSE IS)   T
+(CLOSE-1 IS)   T
 
-(CLOSE OS)   T
+(CLOSE-1 OS)   T
 
 (PROGN (SETQ IS (OPEN "d0.plc")) T)   T
 
@@ -681,9 +697,9 @@ T)   T
 
 (READ IS)   (QUOTE (A B "3.zwischenwert" C D))
 
-(CLOSE IS)   T
+(CLOSE-1 IS)   T
 
-(CLOSE OS1)   T
+(CLOSE-1 OS1)   T
 
 (PROGN (SETQ IS (OPEN "d1.plc")) T)   T
 
@@ -699,7 +715,7 @@ T)   T
 
 (READ IS)   "1.zwischenwert"
 
-(CLOSE IS)   T
+(CLOSE-1 IS)   T
 
 (progn (mapc #'delete-file (directory "*.plc")) t)
 T
