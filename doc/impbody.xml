@@ -4324,8 +4324,14 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>if &hw; = PC (clone) and &os; = &win32;
   (Windows 95/98/NT/Me/2000/XP)</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:PC386</constant></term>
- <listitem><simpara>if &hw; = PC (clone) with a 32-bit 386/486/586/686/786 CPU
-</simpara></listitem></varlistentry>
+ <listitem><simpara>if &hw; = PC (clone).  It can be used as an
+   indicator for the mainstream hardware characteristics (such as the
+   existence of a graphics card with a non-graphics text mode,
+   or the presence of a keyboard with arrows and
+   <keysym>Insert</keysym>/<keysym>Delete</keysym> keys,
+   or an ISA/VLB/PCI bus) or software characteristics (such as the
+   <keycombo>&ctrl;&alt;<keysym>Delete</keysym></keycombo> keyboard
+   combination).</simpara></listitem></varlistentry>
 <varlistentry><term>&unix-k;</term>
  <listitem><simpara>if &os; = &unix; (in this case the &hw; is irrelevant!)
 </simpara></listitem></varlistentry>
