@@ -248,7 +248,8 @@ int main (int argc, char* argv[])
     } else if (argv_linkingset[0]=='/') {
       linkingsetdir = argv_linkingset;
     } else {
-      linkingsetdir = (char*)malloc(strlen(lisplibdir)+1+strlen(argv_linkingset)+1);
+      linkingsetdir =
+        (char*)malloc(strlen(lisplibdir)+1+strlen(argv_linkingset)+1);
       if (!linkingsetdir) goto oom;
       strcpy(linkingsetdir, lisplibdir);
       strcat(linkingsetdir, "/");
@@ -279,7 +280,8 @@ int main (int argc, char* argv[])
       }
       if (!argv_memfile) {
         char* filename = "lispinit.mem";
-        argv_memfile = (char*)malloc(strlen(linkingsetdir)+1+strlen(filename)+1);
+        argv_memfile =
+          (char*)malloc(strlen(linkingsetdir)+1+strlen(filename)+1);
         if (!argv_memfile) goto oom;
         strcpy(argv_memfile, linkingsetdir);
         strcat(argv_memfile, "/");
@@ -333,7 +335,8 @@ int main (int argc, char* argv[])
       if (!CloseHandle(pinfo.hProcess)) goto w32err;
       return exitcode;
      w32err:
-      fprintf(stderr,"%s (%s): %s\n",program_name,command_line,strerror(GetLastError()));
+      fprintf(stderr,"%s (%s): %s\n",program_name,command_line,
+              strerror(GetLastError()));
       return 1;
     }
 #else
