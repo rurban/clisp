@@ -3,6 +3,7 @@
         * array.d (elt_move_T): Use eq instead of ==.
           (elt_move_Char, elt_move_Bit, elt_move_2Bit, elt_move_4Bit,
            elt_move_8Bit, elt_move_16Bit, elt_move_32Bit): Likewise.
+        * sequence.d (copy_seqpart_into): Likewise.
 
 2000-11-15  Bruno Haible  <haible@clisp.cons.org>
 
