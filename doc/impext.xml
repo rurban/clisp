@@ -1993,8 +1993,8 @@ containing:</para>
 
 <section><title>Example</title>
 
-<para>To link in the FFI bindings for the GNU/Linux operating system,
- the following steps are needed.  (Step 1 and step 2 need not be
+<para>To link in the &ffi-pac; bindings for the GNU/Linux operating
+ system, the following steps are needed.  (Step 1 and step 2 need not be
  executed in this order.)</para>
 
 <orderedlist numeration="arabic">
@@ -2071,7 +2071,8 @@ containing:</para>
   <para>The following code computes the number of people who use
     a particular shell:
 <programlisting>
-(use-package :regexp)
+(&defpackage; "REGEXP-TEST" (:use "LISP" "REGEXP"))
+(&in-package; "REGEXP-TEST")
 (let ((h (make-hash-table :test #'equal :size 10)) (n 0))
   (with-open-file (f "/etc/passwd")
     (with-loop-split (s f ":")
@@ -2126,19 +2127,19 @@ for my $kk (keys(%hash)) {
  <filename>lisp.a</filename>.</para>
 
 <para>All symbols relating to the foreign function interface are
- exported from the package FFI.  To use them,
+ exported from the package &ffi-pac;.  To use them,
  <literal role="sexp">(&use-package; "FFI")</literal>.</para>
 
-<para>Special FFI forms may appear anywhere in the Lisp file.</para>
+<para>Special &ffi-pac; forms may appear anywhere in the Lisp file.</para>
 
 <section><title>Overview</title>
 
-<para>These are the special FFI forms.  We have taken a pragmatic
+<para>These are the special &ffi-pac; forms.  We have taken a pragmatic
  approach: the only foreign languages we support for now are &c-lang;
  and ANSI &c-lang;.</para>
 
-<variablelist><title>special FFI forms; &name-r; is any Lisp symbol;
-   &cname-r; is a string.</title>
+<variablelist><title>special &ffi-pac; forms; &name-r; is any Lisp
+   symbol; &cname-r; is a string.</title>
 <varlistentry id="def-c-type">
   <term><literal role="sexp">(<function>def-c-type</function>
         &name-r; &ctype-r;)</literal></term>
@@ -2391,8 +2392,8 @@ within Lisp (using &setq; or similar).</simpara>
 
 <section><title>(Foreign) &c-lang; types</title>
 
-<para>Foreign &c-lang; types are used in the FFI. They are
- <emphasis>not</emphasis> regular &cl; types or &clos;
+<para>Foreign &c-lang; types are used in the &ffi-pac;.
+ They are <emphasis>not</emphasis> regular &cl; types or &clos;
  classes.</para>
 
 <para>A &ctype-r; is either a predefined &c-lang; type or the name of a
@@ -2761,8 +2762,8 @@ within Lisp (using &setq; or similar).</simpara>
 <listitem><simpara>A &symbol-macro; place <emphasis
  role="strong"><varname>custom:*foreign-encoding*</varname></emphasis>
  contains the encoding for characters and strings passed through the
- FFI.  Its value must be a 1:1 encoding, i.e., an encoding in which
- every character is represented by one byte.
+ &ffi-pac;.  Its value must be a 1:1 encoding, i.e., an encoding in
+ which every character is represented by one byte.
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
@@ -2981,7 +2982,8 @@ void lispsort_double (int n, double * array) {
 This is accompanied by <filename>sort2.lisp</filename>:
 
 <programlisting>
-(use-package "FFI")
+(&defpackage; "FFI-TEST" (:use "LISP" "FFI"))
+(&in-package; "FFI-TEST")
 (def-call-in lispsort_begin (:arguments (n int))
                             (:return-type nil)
                             (:language :stdc))
@@ -3040,31 +3042,31 @@ $ rm -r base+sort
 
 <formalpara><title>Another Foreign Function Interface</title>
 <para>All symbols relating to the simple foreign function interface are
- exported from the package <quote>AFFI</quote>. To use them,
+ exported from the package &affi-pac;. To use them,
  <literal role="sexp">(&use-package; "AFFI")</literal>.</para>
 </formalpara>
 
 <section><title>Design issues</title>
 
-<para>AFFI was designed to be small in size but powerful enough to use
-most library functions.  Lisp files may be compiled to
-<filename>.fas</filename> files without the need to load function
-definition files at run-time and without external &c-lang; or linker
-support.  Memory images can be created, provided that the function
-libraries are opened at run-time.</para>
+<para>&affi-pac; was designed to be small in size but powerful enough to
+use most library functions.  Lisp files may be compiled to &fasl-file;
+files without the need to load function definition files at run-time and
+without external &c-lang; or linker support.
+Memory images can be created, provided that the function libraries are
+opened at run-time.</para>
 
-<para>Therefore, AFFI supports only primitive &c-lang; types (integers
+<para>Therefore, &affi-pac; supports only primitive &c-lang; types (integers
 8, 16 and 32 bits wide, signed or unsigned, pointers) and defines no new
 types or classes.  Foreign functions are not first-class objects (you
 can define a lambda yourself), name spaces are separate.</para>
 
-<para>The AFFI does no tracking of resources.  Use &finalize;.</para>
+<para>The &affi-pac; does no tracking of resources.  Use &finalize;.</para>
 
 </section>
 
 <section><title>Overview</title>
 
-<para>These are the AFFI forms:</para>
+<para>These are the &affi-pac; forms:</para>
 
 <para><literal role="sexp">(declare-library-base
  <replaceable>keyword-base</replaceable>
@@ -3122,12 +3124,13 @@ can define a lambda yourself), name spaces are separate.</para>
 the above are functions.</para>
 
 <para>A library contains a collection of functions.  The library is
-referred to by a symbol referred as library-base at the AFFI level.
-This symbol is created in the package <quote>AFFI</quote>.  The link
-between this symbol and the OS-level library name is established by
-<function>declare-library-base</function>.  To avoid multiple package
-conflicts, this and only this function requires the symbol-name to be in
-the &kwd-pac; package. The function returns the library-base.</para>
+referred to by a symbol referred as library-base at the &affi-pac;
+level.  This symbol is created in the package <quote>&affi-pac;</quote>.
+The link between this symbol and the OS-level library name is
+established by <function>declare-library-base</function>.  To avoid
+multiple package conflicts, this and only this function requires the
+symbol-name to be in the &kwd-pac; package. The function returns the
+library-base.</para>
 
 <para>A library may be opened by <function>open-library</function> and
  closed by <function>close-library</function>. An opened library must be
@@ -3143,7 +3146,7 @@ name, the library-base, an offset into the library, a mask (or &nil;)
 for register-based library calls, the result type and all
 parameter-types.  <function>require-library-functions</function> loads
 the complete set of functions defined in a library file. Symbols are
-created in the package <quote>AFFI</quote> and imported into the
+created in the package <quote>&affi-pac;</quote> and imported into the
 current package.</para>
 
 <para><function>flibcall</function> and <function>mlibcall</function>
@@ -3184,21 +3187,22 @@ you to specify the library by name, provided that its base has been
 declared.  It is recommended to use this macro and to reference the
 library by name.</para>
 
-<para>&clisp; will not close libraries for you at program exit. [A
-previous version did so but now AFFI is a module and there are no module
-exit functions.]  Programmers, watch
+<para>&clisp; will not close libraries for you at program exit.  [A
+previous version did so but now &affi-pac; is a module and there are no
+module exit functions.]  Programmers, watch
 <function>affi::*libraries-alist*</function>.</para>
 
 </section>
 
 <section><title>(Foreign) &c-lang; types</title>
 
-<para>The following foreign &c-lang; types are used in AFFI. They are
- <emphasis>not</emphasis> regular &cl; types or &clos; classes.</para>
+<para>The following foreign &c-lang; types are used in &affi-pac;.
+They are <emphasis>not</emphasis> regular &cl; types or &clos;
+classes.</para> 
 
-<table frame="all"><title>foreign &c-lang; types used in AFFI</title>
+<table frame="all"><title>foreign &c-lang; types used in &affi-pac;</title>
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
- <thead><row><entry>AFFI name</entry><entry>Lisp equivalent</entry>
+ <thead><row><entry>&affi-pac; name</entry><entry>Lisp equivalent</entry>
  <entry>&c-lang; equivalent</entry><entry>Comment</entry></row></thead><tbody>
 <row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
   <entry>as a result type for functions only</entry></row>
@@ -3253,7 +3257,8 @@ acceptable where a &string-class; or &io-k; type is specified.</para>
    &with; compile-time flag &unicode;.</term>
 <listitem><simpara>A &symbol-macro; place <emphasis
 role="strong"><varname>custom:*foreign-encoding*</varname></emphasis>
-contains the encoding for characters and strings passed through the FFI.
+contains the encoding for characters and strings passed
+through the &ffi-pac;.
 Its value must be a 1:1 encoding, i.e., an encoding in which every
 character is represented by one byte.
 </simpara></listitem></varlistentry></variablelist>
@@ -3273,7 +3278,7 @@ Use <function>nzero-pointer-p</function> for &c-NULL; tests.</para>
 <function>defflibfun</function> or
 <function>declare-library-function</function>.  The former is closer to
 the low-level implementation of the interface, the latter is closer to
-the other FFI.</para>
+the other &ffi-pac;.</para>
 
 <para><function>defflibfun</function> requires the library base symbol
 and register mask to be specified,
@@ -3286,7 +3291,7 @@ argument register numbers, where d0 has number <function>1</function>
 and a6 number <function>#xF</function>.  A &nil; mask is reserved for
 stack-based calls (unimplemented).</para>
 
-<para>The AFFI type <function>0</function> is only acceptable as a
+<para>The &affi-pac; type <function>0</function> is only acceptable as a
 function result type and yields either &t; or &nil;. The difference
 between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
@@ -3307,10 +3312,10 @@ for resource-tracking on the output side.</para>
     <replaceable>library-offset</replaceable>)</literal></entry></row>
   <row><entry>|</entry><entry><literal role="sexp">(:arguments
     {(<replaceable>arg-name</replaceable>
-    <replaceable>AFFI-type</replaceable>
+    <replaceable>&affi-pac;-type</replaceable>
     <replaceable>register</replaceable>)}*)</literal></entry></row>
   <row><entry>|</entry><entry><literal role="sexp">(:return-type
-    <replaceable>AFFI-type</replaceable>)</literal></entry></row>
+    <replaceable>&affi-pac;-type</replaceable>)</literal></entry></row>
 </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term><replaceable>register</replaceable> ::==</term>
  <listitem><simpara><constant>:d0</constant> | <constant>:d1</constant>
@@ -3332,7 +3337,7 @@ inlined.</para>
 <para><literal role="sexp">(affi:mem-read <replaceable>address</replaceable>
 &type-r;
 <replaceable>offset</replaceable>)</literal> can read 8, 16 and 32 bit
-signed or unsigned integers (AFFI types <type>-4</type>,
+signed or unsigned integers (&affi-pac; types <type>-4</type>,
 <type>-2</type>, <type>-1</type>, <type>1</type>, <type>2</type>,
 <type>4</type>), a pointer (<type>*</type>), a &c-NULL;-terminated string
 (<type>string</type>) or, if the type argument is of type &string-class;
@@ -3342,7 +3347,7 @@ using <function>affi:mem-read</function>.</para>
 
 <para><literal role="sexp">(affi:mem-write
 <replaceable>address</replaceable> &type-r; &value-r;
-[<replaceable>offset</replaceable>])</literal> writes integers (AFFI
+[<replaceable>offset</replaceable>])</literal> writes integers (&affi-pac;
 type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 <type>2</type> and <type>4</type>) or pointer values (type
 <type>*</type>), but not vectors to the specified memory address.</para>
@@ -3402,7 +3407,7 @@ does not call finalizers when it exits, use &unwind-protect;.</para>
 <section><title>Caveats</title>
 
 <para>You can consider the library bases being symbols in need of being
-imported from the package AFFI originating from a brain-damage, causing
+imported from the package &affi-pac; originating from a brain-damage, causing
 the usual symbol headaches when using foreign functions calls within
 macros.  Luckily, even if the high-level interface (or its
 implementation in <filename>affi1.lisp</filename>) were to change, the
@@ -3419,7 +3424,8 @@ Feel free to suggest enhancements to this facility!</para>
 <example><title>Using a predefined library function file</title>
 
 <para><programlisting>
-(use-package "AFFI")
+(&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
+(&in-package; "AFFI-TEST")
 
 ;; SysBase is the conventional name for exec.library
 ;; It is only enforced by the file loaded by REQUIRE-LIBRARY-FUNCTIONS
@@ -3441,7 +3447,8 @@ have inlined the library function calls.
 
 <example><title>Using flibcall</title>
 <programlisting>
-(use-package "AFFI")
+(&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
+(&in-package; "AFFI-TEST")
 
 (eval-when (compile eval load)
   ;; keyword avoids name conflicts
@@ -3458,7 +3465,8 @@ have inlined the library function calls.
 
 <example><title>Be fully dynamic, defining library bases ourselves</title>
 <programlisting>
-(use-package "AFFI")
+(&defpackage; "AFFI-TEST" (:use "LISP" "AFFI"))
+(&in-package; "AFFI-TEST")
 
 (eval-when (compile eval load)
   (defvar mylib (declare-library-base :foobase "foo.library")))
@@ -4067,22 +4075,21 @@ bash$
  system.</para>
 
 <para>&clisp; extensions, i.e. programs which need to access
- non-portable &clisp; internal symbols (in the packages SYSTEM,
- COMPILER, CLOS, FFI, ...), must be covered by &gnu; &gpl; as
- well.</para>
+ non-portable &clisp; internal symbols (in the packages
+ <quote>SYSTEM</quote>, <quote>COMPILER</quote>, <quote>CLOS</quote>,
+ &ffi-pac;, ...), must be covered by &gnu; &gpl; as well.</para>
 
 <para>Other programs running in &clisp; have to or need not to be placed
  under &gnu; &gpl;, depending on their distribution form:
 
 <itemizedlist>
  <listitem><simpara>Programs distributed as Lisp source of
-  <filename>.fas</filename> files can be distributed without
-  restrictions coming from &clisp;.</simpara></listitem>
+  &fasl-file; files can be distributed without restrictions coming from
+  &clisp;.</simpara></listitem> 
  <listitem><simpara>Programs distributed as &clisp; memory images can be
-  distributed only if accompanied with the non-&clisp;
-  <filename>.fas</filename> files which make up the memory image, and a
-  <filename>Makefile</filename> for rebuilding the memory image.
-  </simpara></listitem>
+  distributed only if accompanied with the non-&clisp; &fasl-file; files
+  which make up the memory image, and a <filename>Makefile</filename>
+  for rebuilding the memory image.</simpara></listitem>
  <listitem><simpara>If you need to distribute a modified &clisp;
   executable (for example, incorporating additional modules written in
   &c-lang;), you must distribute its full source under &gnu; &gpl;.
