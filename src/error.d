@@ -956,8 +956,12 @@ global object check_encoding (object arg, const gcv_object_t *e_default,
  > caller: function */
 nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
 {
+  var uintC count;
+  pushSTACK(NIL); pushSTACK(NIL);
+  for (count=0; count<argcount; count++) STACK_(count) = STACK_(count+2);
+  STACK_(argcount) = caller;
   var object arglist = listof(argcount);
-  pushSTACK(arglist); pushSTACK(caller);
+  STACK_1 = arglist;
   fehler(program_error,
          GETTEXT("~: keyword arguments in ~ should occur pairwise"));
 }
