@@ -13,6 +13,7 @@
 	(merge_pathnames): new macros SPECIFIED, NAMETYPE_MATCH, and
 	 VERSION_MATCH; chenaged the previous patch: re-parse pathname
 	 as logical when the default is logical
+	(make_pathname): do not translate :name :wild to :name "*"
 	(has_wildcards): replaced with wild_p() which handles :WILD
 	(has_word_wildcards): ditto with word_wild_p()
 	(has_*_wildcards): simplified accordingly

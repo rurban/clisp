@@ -4401,8 +4401,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       }
       #endif
       #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
-      elif (eq(name,S(Kwild))) {
-        STACK_2 = O(wild_string); # aus :WILD mache "*"
+      elif (eq(name,S(Kwild))) { # :WILD is OK
       }
       #endif
       elif (equal(name,O(leer_string))) { # name = "" ?
@@ -4442,8 +4441,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       }
       #endif
       #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
-      elif (eq(type,S(Kwild))) {
-        STACK_1 = O(wild_string); # aus :WILD mache "*"
+      elif (eq(type,S(Kwild))) { # :WILD is OK
       }
       #endif
       elif (legal_type(type)) { # zulässiger Typ ist OK
