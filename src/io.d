@@ -4237,7 +4237,7 @@ LISPFUNN(closure_reader,3) { # read #Y
       fehler_closure_badchar();
     {
       var uintL index = 0;
-      for (; index!=n; index++) {
+      for (; index < n; index++) {
         # skip Whitespace:
         do { read_char_syntax(ch = ,scode = ,stream_); # read character
         } while (scode == syntax_whitespace);
@@ -6214,7 +6214,7 @@ local bool circle_p (object obj,circle_info_t* ci) {
     var gcv_object_t* ptr = &TheSvector(table)->data[0]; # pointer in the vector
     var uintL i = posfixnum_to_L(*ptr++); # first element i
     var uintL index = 1;
-    for (; index != m1; index++) { # run through the loop m times
+    for (; index < m1; index++) { # run through the loop m times
       if (eq(*ptr++,obj)) # compare obj with the next vector-element
         goto found;
     }
@@ -6929,7 +6929,7 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
     # and fill:
     SstringDispatch(STACK_2,X, {
       var uintL index = 0;
-      for (; index != len; index++) {
+      for (; index < len; index++) {
         var chart c = as_chart(((SstringX)TheVarobject(STACK_2))->data[index]); # the next character
         ssstring_push_extend(STACK_1,c); # into the character-buffer
         ssbvector_push_extend(STACK_0,attribute_of(c)); # und into the Attributcode-Buffer
@@ -6965,7 +6965,7 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
   write_ascii_char(stream_,'|');
   SstringDispatch(STACK_0,X, {
     var uintL index = 0;
-    for (; index != len; index++) {
+    for (; index < len; index++) {
       var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # the next character
       switch (syntax_table_get(STACK_1,c)) { # its Syntaxcode
         case syntax_single_esc:
