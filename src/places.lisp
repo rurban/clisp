@@ -314,30 +314,23 @@
              (TEXT "(~S ~S): Illegal syntax.")
              'defsetf accessfn))))
 ;;;----------------------------------------------------------------------------
+;; Redirects #'(SETF accessfn) to be the same as setterfn.
+(defmacro def-setf-alias (accessfn setterfn)
+  `(SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-FUNCTION ',setterfn))
+;;;----------------------------------------------------------------------------
 ;;; Definition of places:
 ;;;----------------------------------------------------------------------------
-(system::%put 'system::package-documentation 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF PACKAGE-DOCUMENTATION)|)
-(system::%put 'package-lock 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF PACKAGE-LOCK)|)
-(system::%put 'hash-table-weak-p 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF HASH-TABLE-WEAK-P)|)
-(system::%put 'hash-table-warn-if-needs-rehash-after-gc 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)|)
-(system::%put 'weak-pointer-value 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF WEAK-POINTER-VALUE)|)
-(system::%put 'weak-list-list 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF WEAK-LIST-LIST)|)
-(system::%put 'weak-mapping-value 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF WEAK-MAPPING-VALUE)|)
-(system::%put 'weak-and-mapping-value 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF WEAK-AND-MAPPING-VALUE)|)
-(system::%put 'weak-or-mapping-value 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF WEAK-OR-MAPPING-VALUE)|)
-(system::%put 'weak-alist-contents 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF WEAK-ALIST-CONTENTS)|)
-(system::%put 'weak-alist-value 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF WEAK-ALIST-VALUE)|)
+(def-setf-alias system::package-documentation SYSTEM::|(SETF PACKAGE-DOCUMENTATION)|)
+(def-setf-alias package-lock SYSTEM::|(SETF PACKAGE-LOCK)|)
+(def-setf-alias hash-table-weak-p SYSTEM::|(SETF HASH-TABLE-WEAK-P)|)
+(def-setf-alias hash-table-warn-if-needs-rehash-after-gc SYSTEM::|(SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)|)
+(def-setf-alias weak-pointer-value SYSTEM::|(SETF WEAK-POINTER-VALUE)|)
+(def-setf-alias weak-list-list SYSTEM::|(SETF WEAK-LIST-LIST)|)
+(def-setf-alias weak-mapping-value SYSTEM::|(SETF WEAK-MAPPING-VALUE)|)
+(def-setf-alias weak-and-mapping-value SYSTEM::|(SETF WEAK-AND-MAPPING-VALUE)|)
+(def-setf-alias weak-or-mapping-value SYSTEM::|(SETF WEAK-OR-MAPPING-VALUE)|)
+(def-setf-alias weak-alist-contents SYSTEM::|(SETF WEAK-ALIST-CONTENTS)|)
+(def-setf-alias weak-alist-value SYSTEM::|(SETF WEAK-ALIST-VALUE)|)
 ;;;----------------------------------------------------------------------------
 (defsetf aref (array &rest indices) (value)
   `(SYSTEM::STORE ,array ,@indices ,value))
@@ -354,7 +347,7 @@
 ) )
 (defsetf nth SYSTEM::%SETNTH)
 ;;;----------------------------------------------------------------------------
-(system::%put 'elt 'SYSTEM::SETF-FUNCTION 'SYSTEM::|(SETF ELT)|)
+(def-setf-alias elt SYSTEM::|(SETF ELT)|)
 ;;;----------------------------------------------------------------------------
 (defsetf rest SYSTEM::%RPLACD)
 (defsetf first SYSTEM::%RPLACA)
@@ -941,8 +934,7 @@
   `(PROGN (SET-DISPATCH-MACRO-CHARACTER ,disp-char ,sub-char ,value ,readtable) ,value)
 )
 ;;;----------------------------------------------------------------------------
-(system::%put 'long-float-digits 'SYSTEM::SETF-FUNCTION
-              'SYSTEM::|(SETF LONG-FLOAT-DIGITS)|)
+(def-setf-alias long-float-digits SYSTEM::|(SETF LONG-FLOAT-DIGITS)|)
 ;;;----------------------------------------------------------------------------
 (defsetf system::%record-ref system::%record-store)
 ;;;----------------------------------------------------------------------------
