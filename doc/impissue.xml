@@ -31,7 +31,7 @@
  <varlistentry id="iss018"><term><ulink url="&clhs;/Issues/iss018.html">ASSOC-RASSOC-IF-KEY:YES</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss019"><term><ulink url="&clhs;/Issues/iss019.html">BOA-AUX-INITIALIZATION:ERROR-ON-READ</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss020"><term><ulink url="&clhs;/Issues/iss020.html">BREAK-ON-WARNINGS-OBSOLETE:REMOVE</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss021"><term><ulink url="&clhs;/Issues/iss021.html">BROADCAST-STREAM-RETURN-VALUES:CLARIFY-MINIMALLY</ulink></term>&no;</varlistentry>
+ <varlistentry id="iss021"><term><ulink url="&clhs;/Issues/iss021.html">BROADCAST-STREAM-RETURN-VALUES:CLARIFY-MINIMALLY</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss022"><term><ulink url="&clhs;/Issues/iss022.html">BUTLAST-NEGATIVE:SHOULD-SIGNAL</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss023"><term><ulink url="&clhs;/Issues/iss023.html">CHANGE-CLASS-INITARGS:PERMIT</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss024"><term><ulink url="&clhs;/Issues/iss024.html">CHAR-NAME-CASE:X3J13-MAR-91</ulink></term>&yes;</varlistentry>
