@@ -255,9 +255,12 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       default: fputs("**UNKNOWN**",out);
     }
     fprintf(out," 0x%X>",as_oint(obj));
-  } else if (varobjectp(obj))
+  }
+  #ifndef TYPECODES
+  else if (varobjectp(obj))
     fprintf(out,"#<varobject type=%d address=0x%X>",
             varobject_type(TheVarobject(obj)),ThePointer(obj));
+  #endif
   else fprintf(out,"#<huh?! address=0x%X>",ThePointer(obj));
  #undef XOUT
 }

@@ -1,5 +1,9 @@
 2003-10-24  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_debug.d (nobject_out1): Make it compile when TYPECODES are used.
+
+2003-10-24  Bruno Haible  <bruno@clisp.org>
+
 	* stdbool.h.in: Update from gnulib.
 	2003-08-11  Bruno Haible  <bruno@clisp.org>
 		* stdbool_.h (_Bool): Undo last change; instead use a negative
