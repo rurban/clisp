@@ -1,5 +1,9 @@
 2001-05-09  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (ARM): Recognize __arm__ as CPU indicator on Linux
+
+2001-05-09  Sam Steingold  <sds@gnu.org>
+
 	ANSI CL compiler macros are implemented
 	* cmacros.lisp: new file
 	* makemake.in (LPARTS): added cmacros
