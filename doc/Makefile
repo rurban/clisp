@@ -54,13 +54,13 @@ impnotes.texi: $(IMPNOTES)
 
 impnotes.html: impnotes.xml $(IMPNOTES)
 	$(JAVA) -classpath "$(CLASSPATH)" com.icl.saxon.StyleSheet \
-		-t -dt -o $@ $< $(XMLHOME)/docbook.xsl/html/docbook.xsl \
+		-t -dt -o $@ $< $(XMLHOME)/docbook.xsl/xhtml/docbook.xsl \
 		process.source.toc=1 html.stylesheet=impnotes.css
 #	$(JAVA) -classpath "$(CLASSPATH)" \
 #		org.apache.xalan.xslt.Process \
 #		-diag -edump -in $< -out $@ \
-#		-xsl "file://$(XMLHOME)/docbook.xsl/html/docbook.xsl"
-	tidy -wrap 75 -m impnotes.html || true
+#		-xsl "file://$(XMLHOME)/docbook.xsl/xhtml/docbook.xsl"
+	tidy -wrap 75 -xml -asxml -m impnotes.html || true
 
 regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
 	perl $(TEXI2HTML) -monolithic -verbose $<
