@@ -1,3 +1,10 @@
+2003-10-11  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (clisp.h): check that the typedef sizes in clisp.h
+	and lispbibl.d are the same
+	* genclisph.d: when supplied an argument, create a test file to
+	check that the typedef sizes in clisp.h and lispbibl.d are the same
+
 2003-10-10  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (break-loop): bind *FASOUTPUT-STREAM* to NIL
