@@ -1417,7 +1417,7 @@ for-value   NIL or T
               (and (consp spec) (symbolp (setq quality (car spec)))
                    (consp (cdr spec)) (realp (setq value (cadr spec)))
                    (null (cddr spec))))
-        (if (memq quality '(COMPILATION-SPEED CL:DEBUG SAFETY SPACE SPEED))
+        (if (memq quality '(COMPILATION-SPEED DEBUG SAFETY SPACE SPEED))
           (if (typep value '(INTEGER 0 3))
             (values quality value)
             (broken (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")

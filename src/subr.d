@@ -382,7 +382,7 @@ LISPFUNN(redo_eval_frame,1)
 LISPFUNN(return_from_eval_frame,2)
 LISPFUNN(describe_frame,2)
 LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
-LISPFUNN(debug,0)
+LISPFUNN(crash,0)
 LISPFUNN(proom,0)
 LISPFUNN(gc,0)
 /* ---------- ENCODING ---------- */
