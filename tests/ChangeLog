@@ -1,3 +1,8 @@
+2004-08-27  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (c-malloc, c-free): use a full path to /lib/libc.so,
+	it appears that "c" is a cygwin-ism
+
 2004-06-23  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add 2 tests for ensure-generic-function.
