@@ -199,3 +199,7 @@ s(dir_key_open)
 v(2, (kw(shared),kw(block)))
 s(stream_lock)
 #endif
+#ifdef WIN32_NATIVE
+v(4, (kw(wait),kw(input),kw(output),kw(error)))
+s(launch)
+#endif
