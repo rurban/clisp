@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -11,7 +11,8 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_PUTENV],
-[dnl Not AC_CHECK_FUNCS(putenv) because it doesn't work when CC=g++.
+[AC_REQUIRE([AC_GNU_SOURCE])
+dnl Not AC_CHECK_FUNCS(putenv) because it doesn't work when CC=g++.
 AC_CACHE_CHECK([for putenv], ac_cv_func_putenv, [
 AC_LINK_IFELSE(AC_LANG_PROGRAM(,[putenv("")]),
 ac_cv_func_putenv=yes, ac_cv_func_putenv=no)])
