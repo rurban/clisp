@@ -1,3 +1,9 @@
+2002-07-08  Sam Steingold  <sds@gnu.org>
+
+	* clos.lisp (check-metaclass-mix): new function
+	(initialize-instance-standard-class, make-instance-built-in-class):
+	(initialize-instance-structure-class): use it
+
 2002-07-02  Sam Steingold  <sds@gnu.org>
 
 	* _clisp.c [STDC_HEADERS]: #include <stdlib.h> (HAVE_STDLIB_H is
