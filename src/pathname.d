@@ -6238,11 +6238,11 @@ local object use_default_dir (object pathname) {
 
 #ifdef WIN32_NATIVE
 
-# UP: translates short name to full name
-# > shortname: old DOS 8.3 pathname
-# < fullname: buffer should be not less than MAX_PATH
-# < result: true on success
-bool FullName(LPCSTR shortname, LPSTR fullname) {
+/* UP: translates short name to full name
+ > shortname: old DOS 8.3 pathname
+ < fullname: buffer should be not less than MAX_PATH
+ < result: true on success */
+bool FullName (LPCSTR shortname, LPSTR fullname) {
   var WIN32_FIND_DATA wfd;
   var char drive[_MAX_DRIVE];
   var char dir[_MAX_DIR];
@@ -6250,14 +6250,14 @@ bool FullName(LPCSTR shortname, LPSTR fullname) {
   var char ext[_MAX_EXT];
   var char current[_MAX_PATH];
   var HANDLE h = NULL;
-  var *fullname = 0; # also first loop flag
+  var *fullname = 0; /* also first loop flag */
   var char savedslash[2];savedslash[0] = 0;savedslash[1] = 0;
   strcpy(current,shortname);
   do {
     var int l = strlen(current);
     if (l>0 && (current[l-1]=='\\'|| current[l-1]=='/')) {
       if (!*fullname) *savedslash = current[l-1];
-      current[l-1] = 0; # remove trailing slash
+      current[l-1] = 0; /* remove trailing slash */
     }
     _splitpath(current,drive,dir,fname,ext);
     h = FindFirstFile(current,&wfd);
@@ -6278,12 +6278,11 @@ bool FullName(LPCSTR shortname, LPSTR fullname) {
 }
 
 
-# UP: extracts a filename field from windows shortcut
-# > filename: name the shortcut file
-# < resolved: buffer not less than MAX_PATH
-# < result:   true if link was successfully resolved
-bool resolve_shell_shortcut(LPCSTR filename,
-                            LPSTR resolved) {
+/* UP: extracts a filename field from windows shortcut
+ > filename: name the shortcut file
+ < resolved: buffer not less than MAX_PATH
+ < result:   true if link was successfully resolved */
+bool resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
   var DWORD fileattr;
   var HRESULT hres;
   var IShellLink* psl;
@@ -6293,49 +6292,53 @@ bool resolve_shell_shortcut(LPCSTR filename,
 
   fileattr = GetFileAttributes(filename);
   if (fileattr == 0xFFFFFFFF) return false;
-  # Get a pointer to the IShellLink interface.
-  hres = CoCreateInstance(&CLSID_ShellLink, NULL,
-      CLSCTX_INPROC_SERVER, &IID_IShellLink, (LPVOID *) &psl);
+  /* Get a pointer to the IShellLink interface. */
+  hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+                          &IID_IShellLink, (LPVOID *) &psl);
   if (FAILED(hres)) return false;
-  # Get a pointer to the IPersistFile interface.
+  /* Get a pointer to the IPersistFile interface. */
   hres = psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile,(LPVOID *) &ppf);
   if (SUCCEEDED(hres)) {
     var WCHAR wsz[MAX_PATH];
-    # Ensure that the string is Unicode.
+    /* Ensure that the string is Unicode. */
     MultiByteToWideChar(CP_ACP, 0, filename, -1, wsz,MAX_PATH);
-    # Load the shortcut.
+    /* Load the shortcut. */
     hres = ppf->lpVtbl->Load(ppf, wsz, STGM_READ);
     if (SUCCEEDED(hres)) {
-      # Get the path to the link target.
-      hres = psl->lpVtbl->GetPath(psl, resolved,
-               MAX_PATH, (WIN32_FIND_DATA *)&wfd, 4 /* SLGP_RAWPATH */);
+      /* Get the path to the link target. */
+      hres = psl->lpVtbl->GetPath(psl, resolved, MAX_PATH,
+                                  (WIN32_FIND_DATA *)&wfd,
+                                  4 /* SLGP_RAWPATH */);
       if (SUCCEEDED(hres)) result = true;
-      if (!*resolved) { # empty string. maybe broken link. try to get description
-                        # as cygwin stores filenames there
-         hres = psl->lpVtbl->GetDescription(psl, resolved, MAX_PATH);
-         if (FAILED(hres)) *resolved = 0;
+      if (!*resolved) {
+        /* empty string. maybe broken link. try to get description
+           as cygwin stores filenames there */
+        hres = psl->lpVtbl->GetDescription(psl, resolved, MAX_PATH);
+        if (FAILED(hres)) *resolved = 0;
       }
     }
-    # Release the pointer to the IPersistFile interface.
+    /* Release the pointer to the IPersistFile interface. */
     ppf->lpVtbl->Release(ppf);
   }
-  # Release the pointer to the IShellLink interface.
+  /* Release the pointer to the IShellLink interface. */
   psl->lpVtbl->Release(psl);
   return result;
 }
 
-typedef enum {shell_shortcut_notresolved = 0,
-              shell_shortcut_notexists,
-              shell_shortcut_file,
-              shell_shortcut_directory } shell_shortcut_target_t;
+typedef enum {
+  shell_shortcut_notresolved = 0,
+  shell_shortcut_notexists,
+  shell_shortcut_file,
+  shell_shortcut_directory
+} shell_shortcut_target_t;
 
-# UP: resolves shortcuts to shortcuts
-# > filename : name of link file to resolve
-# < resolved : buffer to receive resolved name
-# < result : status of resolving and target file attributes
+/* UP: resolves shortcuts to shortcuts
+ > filename : name of link file to resolve
+ < resolved : buffer to receive resolved name
+ < result : status of resolving and target file attributes */
 shell_shortcut_target_t
-  resolve_shell_shortcut_more (LPCSTR filename,
-                                 LPSTR resolved) {
+resolve_shell_shortcut_more (LPCSTR filename, LPSTR resolved)
+{
   var char pathname[_MAX_PATH];
   var int dirp = 0;
   var int exists = 0;
@@ -6345,11 +6348,11 @@ shell_shortcut_target_t
   resolvedp = resolve_shell_shortcut(filename,pathname);
   /* handle links to links. cygwin can do such */
   while (resolvedp
-     && try_counter--
-     && (l=strlen(pathname))>4
-     && stricmp(pathname+l-4,".lnk") == 0
-     && (resolvedp = resolve_shell_shortcut(pathname,pathname)));
-  if (resolvedp) { # additional checks
+         && try_counter--
+         && (l=strlen(pathname))>4
+         && stricmp(pathname+l-4,".lnk") == 0
+         && (resolvedp = resolve_shell_shortcut(pathname,pathname)));
+  if (resolvedp) { /* additional checks */
     DWORD fileattr = GetFileAttributes(pathname);
     exists = fileattr != 0xFFFFFFFF;
     dirp = exists && fileattr&FILE_ATTRIBUTE_DIRECTORY;
@@ -6363,14 +6366,14 @@ shell_shortcut_target_t
   } else return shell_shortcut_notresolved;
 }
 
-# UP: ultimate shortcut megaresolver
-#   style inspired by directory_search_scandir
-# > namein: filename pointing to file or directory
-#            wildcards (only asterisk) may appear only as filename
-# < nameout: filename with directory and file shortcuts resolved
-#             on failure holds filename resolved so far
-# < result:  true if resolving succeeded
-int TrueName (LPCSTR namein, LPSTR nameout) {
+/* UP: ultimate shortcut megaresolver
+   style inspired by directory_search_scandir
+ > namein: filename pointing to file or directory
+            wildcards (only asterisk) may appear only as filename
+ < nameout: filename with directory and file shortcuts resolved
+             on failure holds filename resolved so far
+ < result:  true if resolving succeeded */
+bool TrueName (LPCSTR namein, LPSTR nameout) {
   var WIN32_FIND_DATA wfd;
   var HANDLE h = NULL;
   var char * nametocheck;
@@ -6384,7 +6387,7 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
   strcpy(nameout,namein);
   do { /* whole file names */
     next_name = 0;
-    if (!*nameout) return 0;
+    if (!*nameout) return false;
     /* skip drive or host or first slash */
     nametocheck = nameout;
     if ((*nametocheck >= 'a' && *nametocheck <= 'z'
@@ -6401,7 +6404,7 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
       for (i=0;i<2;i++) {/* skip host and sharename */
         while (*nametocheck && *nametocheck!='\\' && *nametocheck!='/')
           nametocheck++;
-        if (*nametocheck) nametocheck++; else return 0;
+        if (*nametocheck) nametocheck++; else return false;
       }
     } else
     if (*nametocheck == '\\' || *nametocheck == '/') nametocheck++;
@@ -6411,12 +6414,12 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
       var int have_stars = 0;
       /* separate a component */
       for (nametocheck_end = nametocheck;
-        *nametocheck_end
-        && *nametocheck_end!='\\'
-        && *nametocheck_end!='/';
-        nametocheck_end++);
-      if (*nametocheck_end
-          && nametocheck_end == nametocheck) return 0;/* two slashes one after another */
+           *nametocheck_end
+             && *nametocheck_end!='\\'
+             && *nametocheck_end!='/';
+           nametocheck_end++);
+      if (*nametocheck_end && nametocheck_end == nametocheck)
+        return false;/* two slashes one after another */
       /* save slash or zero */
       saved_char = *nametocheck_end;
       *nametocheck_end = 0;
@@ -6429,13 +6432,13 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
       { char * cp = nametocheck;
         for (;*cp && *cp!='*';cp++);
         have_stars = *cp == '*'; }
-      if (have_stars && saved_char) return 0;
+      if (have_stars && saved_char) return false;
       if (!have_stars) {
         if (dots_only || !*nametocheck) {
           /* treat 'start/./end' and 'drive|host|slash/' specially */
           /* search for ....\.\* */
           char saved[2];
-          if (nametocheck_end - nameout + 2 > MAX_PATH) return 0;
+          if (nametocheck_end - nameout + 2 > MAX_PATH) return false;
           strncpy(saved,nametocheck_end+1,2);
           strncpy(nametocheck_end,"\\*",3);
           h = FindFirstFile(nameout,&wfd);
@@ -6443,7 +6446,7 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
           *nametocheck_end = 0;
           if (h != INVALID_HANDLE_VALUE) {
             FindClose(h); /* don't substitute */
-          } else return 0; /* don't try lnk */
+          } else return false; /* don't try lnk */
         } else {/* not only dots */
           h = FindFirstFile(nameout,&wfd);
           if (h != INVALID_HANDLE_VALUE) {
@@ -6451,8 +6454,12 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
             int l = strlen(wfd.cFileName);
             FindClose(h);
             if (l != (nametocheck_end - nametocheck)) {
-              int restlen = saved_char?(strlen(nametocheck_end+1)+1/*saved_char*/+1/*zero byte*/):0;
-              if (nametocheck - nameout + restlen + l + 2 > MAX_PATH) return 0;
+              int restlen =
+                saved_char?(strlen(nametocheck_end+1)
+                            +1/*saved_char*/+1/*zero byte*/)
+                :0;
+              if (nametocheck - nameout + restlen + l + 2 > MAX_PATH)
+                return false;
               if (restlen) memmove(nametocheck+l,nametocheck_end,restlen);
             }
             strncpy(nametocheck,wfd.cFileName,l);
@@ -6462,7 +6469,7 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
             char resolved[MAX_PATH];
             shell_shortcut_target_t rresult;
             int l = 0;
-            if (nametocheck_end - nameout + 4 > MAX_PATH) return 0;
+            if (nametocheck_end - nameout + 4 > MAX_PATH) return false;
             strncpy(saved,nametocheck_end+1,4);
             strncpy(nametocheck_end,".lnk",5);
             rresult = resolve_shell_shortcut_more(nameout,resolved);
@@ -6472,12 +6479,13 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
             if (rresult == shell_shortcut_notresolved
                 || rresult == shell_shortcut_notexists
                 || !saved_char && rresult == shell_shortcut_directory
-                || saved_char && rresult == shell_shortcut_file) return 0;
-
-            if (saved_char) {/*need to subst nameout..nametocheck-1 with resolved path */
+                || saved_char && rresult == shell_shortcut_file)
+              return false;
+            if (saved_char) {
+              /*need to subst nameout..nametocheck-1 with resolved path */
               int l1 = strlen(resolved);
               int l2 = strlen(nametocheck_end + 1);
-              if (l1 + l2 + 2 > MAX_PATH) return 0;
+              if (l1 + l2 + 2 > MAX_PATH) return false;
               strcpy(nameout,resolved);
               memmove(nameout+l1,nametocheck_end + 1,l2+1);
             } else { /* subst all the pathname */
@@ -6493,23 +6501,22 @@ int TrueName (LPCSTR namein, LPSTR nameout) {
         if (*nametocheck) nametocheck++;
       }
     } while (!next_name && *nametocheck);
-    if (!(--try_counter)) return 0;
+    if (!(--try_counter)) return false;
   } while (next_name);
-  return 1;
+  return true;
 }
 
-# UP: see if a file is normal file or it is a "shell symlink"
-# If directory+filename exists do nothing return false
-# If it doesn't but direstory+filename+".lnk" exists then
-# try to read it. On reading success return true with lnk
-# filename value as resolved. See resolve_shell_shortcut also.
-# > filename: resolving file name
-# < resolved: buffer for resolved path and filename.
-# < result: shell_shortcut_notresolved if file exists or link is invalid.
-#           otherwise - shortcut target status
-shell_shortcut_target_t
- resolve_shell_symlink( LPCSTR filename,
-                            LPSTR resolved) {
+/* UP: see if a file is normal file or it is a "shell symlink"
+ If directory+filename exists do nothing return false
+ If it doesn't but direstory+filename+".lnk" exists then
+ try to read it. On reading success return true with lnk
+ filename value as resolved. See resolve_shell_shortcut also.
+ > filename: resolving file name
+ < resolved: buffer for resolved path and filename.
+ < result: shell_shortcut_notresolved if file exists or link is invalid.
+           otherwise - shortcut target status */
+shell_shortcut_target_t resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
+{
   var char pathname[_MAX_PATH];
   var DWORD fileattr;
 
@@ -6524,18 +6531,18 @@ shell_shortcut_target_t
 
 #endif
 
-# UP: guarantees that the Directory of the Pathname exists
-# (signals an error if it does not)
-# assure_dir_exists(links_resolved,tolerantp)
-# > STACK_0: absolute pathname without wildcards in directory
-# > links_resolved: Flag, whether all links in the directory
-#                   of the pathname are already resolved
-# > tolerantp: Flag, whether an error should be avoided
-# < returns:
-#     if Name=NIL: Directory-Namestring (for DOS)
-#     if Name/=NIL: Namestring (for DOS)
-#     if tolerantp, maybe: nullobj
-# can trigger GC
+/* UP: guarantees that the Directory of the Pathname exists
+ (signals an error if it does not)
+ assure_dir_exists(links_resolved,tolerantp)
+ > STACK_0: absolute pathname without wildcards in directory
+ > links_resolved: Flag, whether all links in the directory
+                   of the pathname are already resolved
+ > tolerantp: Flag, whether an error should be avoided
+ < returns:
+     if Name=NIL: Directory-Namestring (for DOS)
+     if Name/=NIL: Namestring (for DOS)
+     if tolerantp, maybe: nullobj
+ can trigger GC */
 #ifdef MSDOS
 local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var object dir_namestring = directory_namestring(STACK_0);
