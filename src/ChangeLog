@@ -1,5 +1,9 @@
 2002-07-26  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (RESOLVE-HOST-IPADDR-INTERNAL): fixed a GC safety bug
+
+2002-07-26  Sam Steingold  <sds@gnu.org>
+
 	Readline is now used properly on Cygwin
 	* stream.d (make_terminal_stream_) [UNIX_CYGWIN32]: inode numbers
 	do not make sense on Cygwin: they are based on filenames
