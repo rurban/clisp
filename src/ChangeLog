@@ -1,3 +1,10 @@
+2004-11-27  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (c-init-once, c-init-always, c-fini, do-c-init-once)
+	(do-c-init-always, do-c-fini): removed
+	(do-c-lines): when FORMAT-STRING is a symbol, add the code to the
+	appropriate init/fini function
+
 2004-11-27  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (uintM, sintM): Fix conditional.

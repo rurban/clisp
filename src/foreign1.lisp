@@ -15,7 +15,6 @@
           def-c-call-out def-call-out #+AFFI def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
           c-lines *output-c-functions* *output-c-variables*
-          c-init-once c-init-always c-fini
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
           single-float double-float
@@ -768,32 +767,14 @@
 (defun do-c-lines (format-string &rest args) ; ABI
   (when (compiler::prepare-coutput-file)
     (prepare-module)
-    (apply #'format *coutput-stream* format-string args)))
-
-(defmacro C-INIT-ONCE (format-string &rest args)
-  `(EVAL-WHEN (COMPILE)
-     (DO-C-INIT-ONCE ,format-string ,@args)))
-(defun do-c-init-once (format-string &rest args) ; ABI
-  (when (compiler::prepare-coutput-file)
-    (prepare-module)
-    (push (apply #'format nil format-string args) *init-once*)))
-
-(defmacro C-INIT-ALWAYS (format-string &rest args)
-  `(EVAL-WHEN (COMPILE)
-     (DO-C-INIT-ALWAYS ,format-string ,@args)))
-(defun do-c-init-always (format-string &rest args) ; ABI
-  (when (compiler::prepare-coutput-file)
-    (prepare-module)
-    (push (apply #'format nil format-string args) *init-always*)))
-
-(defmacro C-FINI (format-string &rest args)
-  `(EVAL-WHEN (COMPILE)
-     (DO-C-FINI ,format-string ,@args)))
-(defun do-c-fini (format-string &rest args) ; ABI
-  (when (compiler::prepare-coutput-file)
-    (prepare-module)
-    (push (apply #'format nil format-string args) *fini*)))
-
+    (etypecase format-string
+      (string (apply #'format *coutput-stream* format-string args))
+      (symbol
+       (let ((code (apply #'format nil format-string args)))
+         (ecase format-string
+           (:init-always (push code *init-always*))
+           (:init-once (push code *init-once*))
+           (:fini (push code *fini*))))))))
 
 ;; ============================ named C variables ============================
 
