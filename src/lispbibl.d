@@ -2474,27 +2474,32 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFFUL
   #endif
-# Now come the platforms with TYPECODES. oint_type_len should be >= 8,
-# and oint_type_mask should have at least 8 bits set and at most one bit in
-# common with oint_addr_mask.
+/* Now come the platforms with TYPECODES. oint_type_len should be >= 8,
+ and oint_type_mask should have at least 8 bits set and at most one bit in
+ common with oint_addr_mask. */
 #elif defined(WIDE_HARD)
-  #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD))
-    # UNIX_OSF:
-    #   Ordinary pointers are in the range 1*2^32..2*2^32.
-    #   Code address range:    0x000000012xxxxxxx
-    #   Malloc address range:  0x000000014xxxxxxx
-    #   Shared libraries:      0x000003FFCxxxxxxx
-    # UNIX_LINUX:
-    #   Code address range:    0x000000012xxxxxxx
-    #   Malloc address range:  0x000000012xxxxxxx
-    #                    and:  0x0000015555xxxxxx
-    #   Shared libraries:      0x0000015555xxxxxx
-    #   Virtual address limit: 0x0000040000000000
-    # UNIX_FREEBSD
-    #   Code address range:    0x0000000120000000
-    #   Malloc address range:  0x0000000120000000
-    #   Shared libraries:      0x0000000160000000
-    #   Stack address range:   0x0000000011000000
+  #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD))
+  /* UNIX_OSF:
+     Ordinary pointers are in the range 1*2^32..2*2^32.
+     Code address range:    0x000000012xxxxxxx
+     Malloc address range:  0x000000014xxxxxxx
+     Shared libraries:      0x000003FFCxxxxxxx
+   UNIX_LINUX:
+     Code address range:    0x000000012xxxxxxx
+     Malloc address range:  0x000000012xxxxxxx
+                      and:  0x0000015555xxxxxx
+     Shared libraries:      0x0000015555xxxxxx
+     Virtual address limit: 0x0000040000000000
+   UNIX_FREEBSD
+     Code address range:    0x0000000120000000
+     Malloc address range:  0x0000000120000000
+     Shared libraries:      0x0000000160000000
+     Stack address range:   0x0000000011000000
+   UNIX_NETBSD
+     Code address range:    0x0000000120000000
+     Malloc address range:  0x0000000120000000
+     Shared libraries:      0x0000000160000000
+     Stack address range:   0x00000001FF000000 */
     #if defined(NO_SINGLEMAP)
       # If MAP_MEMORY is not demanded, this is the safest.
       # Bits 63..48 = type code, Bits 47..0 = address

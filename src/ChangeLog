@@ -1,3 +1,9 @@
+2003-01-02  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d [WIDE_HARD]: treat UNIX_NETBSD on DECALPHA just like
+	UNIX_OSF, UNIX_LINUX and UNIX_FREEBSD
+	From Indrayana Rustandi <i_rustandi@yahoo.com>
+
 2002-12-24  Sam Steingold  <sds@gnu.org>
 
 	added VALUE, EITHER and BOTH weak hash tables
