@@ -4435,8 +4435,10 @@ bash$
 <!-- #ifdef HAVE_SHELL -->
 <varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&shell; [&command-r;])</literal>
-   calls the operating system's shell. <literal
-   role="sexp">(&shell;)</literal> calls the shell for interactive use.
+   calls the operating system's shell, the value of the &env-var;
+   <envar>SHELL</envar> on &unix; and <envar>COMSPEC</envar> on &win32;.
+   <literal role="sexp">(&shell;)</literal> calls the shell
+   for interactive use.
    <literal role="sexp">(&shell; &command-r;)</literal> calls the shell
    only for execution of the one given &command-r;.
  </simpara></listitem></varlistentry>
