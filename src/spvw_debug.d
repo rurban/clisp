@@ -88,11 +88,11 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     string_out(out,Symbol_name(obj));
   } else if (simple_vector_p(obj)) {
     var uintL len = vector_length(obj);
-    var uintL index = 0;
+    var uintL elt_index = 0;
     fputs("#(",out);
-    while (index < len) {
-      if (index) fputc(' ',out);
-      XOUT(TheSvector(obj)->data[index++]);
+    while (elt_index < len) {
+      if (elt_index) fputc(' ',out);
+      XOUT(TheSvector(obj)->data[elt_index++]);
     }
     fputc(')',out);
   } else if (consp(obj)) {
@@ -279,23 +279,23 @@ global object nobject_out (FILE* out, object obj) {
 /* use (struct backtrace_t*) and not p_backtrace_t
    so that this is useable from the p_backtrace_t C++ definition */
 local int back_trace_depth (const struct backtrace_t *bt) {
-  var uintL index = 0;
+  var uintL bt_index = 0;
   var const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
   var const struct backtrace_t *bt_slow = bt_fast;
   while (bt_fast) {
-    bt_fast = bt_fast->bt_next; index++;
-    if (bt_fast == bt_slow) return -index;
-    if (bt_fast) { bt_fast = bt_fast->bt_next; index++; }
-    if (bt_fast == bt_slow) return -index;
+    bt_fast = bt_fast->bt_next; bt_index++;
+    if (bt_fast == bt_slow) return -bt_index;
+    if (bt_fast) { bt_fast = bt_fast->bt_next; bt_index++; }
+    if (bt_fast == bt_slow) return -bt_index;
     bt_slow = bt_slow->bt_next;
   }
-  return index;
+  return bt_index;
 }
 
 /* print a single struct backtrace_t object
  the caller must do begin_system_call()/end_system_call() ! */
-local void bt_out (FILE* out, const struct backtrace_t *bt, uintL index) {
-  fprintf(out,"[%d/0x%X]%s ",index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
+local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
+  fprintf(out,"[%d/0x%X]%s ",bt_index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
   nobject_out(out,bt->bt_caller);
   if (bt->bt_num_arg >= 0)
     fprintf(out," %d args",bt->bt_num_arg);
@@ -309,25 +309,28 @@ local void bt_out (FILE* out, const struct backtrace_t *bt, uintL index) {
 
 /* print the whole backtrace stack */
 local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
-  var uintL index = 0;
+  var uintL bt_index = 0;
   var const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
   var const struct backtrace_t *bt_slow = bt_fast;
   if (out == NULL) out = stdout;
   begin_system_call();
   while (bt_fast) {
-    bt_out(out,bt_fast,index++); bt_fast = bt_fast->bt_next;
+    bt_out(out,bt_fast,bt_index++); bt_fast = bt_fast->bt_next;
     if (bt_fast == bt_slow) {
      circular:
       fprintf(out,"*** error: backtrace circularity detected!\n");
-      index = -index;
+      bt_index = -bt_index;
       break;
     }
-    if (bt_fast) { bt_out(out,bt_fast,index++); bt_fast = bt_fast->bt_next; }
+    if (bt_fast) {
+      bt_out(out,bt_fast,bt_index++);
+      bt_fast = bt_fast->bt_next;
+    }
     if (bt_fast == bt_slow) goto circular;
     bt_slow = bt_slow->bt_next;
   }
   end_system_call();
-  return index;
+  return bt_index;
 }
 
 global void back_trace_check (const struct backtrace_t *bt,
