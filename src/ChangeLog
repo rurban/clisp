@@ -1,3 +1,7 @@
+2002-07-10  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (quit): call done_win32()
+
 2002-07-09  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (compile-file): do not clobber *.c file when
