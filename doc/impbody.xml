@@ -45,12 +45,11 @@
 <section id="cl-symb"><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
-<para>The 11 symbols missing from the &cl-pac; package
+<para>The 9 symbols missing from the &cl-pac; package
  (out of 978 specified by the &ansi-cl;):</para>
 
 <simplelist type="horiz" columns="3">
  <member>&call-method;</member>
- <member>&change-class;</member>
  <member>&define-method-combination;</member>
  <member>&ensure-generic-function;</member>
  <member>&invalid-method-error;</member>
@@ -58,7 +57,6 @@
  <member>&make-method;</member>
  <member>&method-combination-error;</member>
  <member>&method-combination-t;</member>
- <member>&update-instance-for-different-class;</member>
  <member>&update-instance-for-redefined-class;</member>
 </simplelist>
 
@@ -516,7 +514,8 @@ executes a compiled version of form.</para>
 <section id="redef-class"><title>Redefining Classes
   <ulink url="&clhs;/Body/sec_4-3-6.html">[CLHS-4.3.6]</ulink></title>
 
-<para>Redefining classes is not supported.  The function
+<para>Redefining classes is not supported.
+ The functions &make-instances-obsolete; and
  &update-instance-for-redefined-class; is not implemented.</para>
 
 </section>
@@ -801,11 +800,6 @@ is the same as
 
 <chapter id="objects"><title>Objects
    <ulink url="&clhs;/Body/chap-7.html">[CLHS-7]</ulink></title>
-
-<para><ulink url="&clhs;/Body/sec_7-2.html">Changing the class of a given
- instance</ulink> is not supported.  The functions &change-class;,
- &update-instance-for-different-class;, &make-instances-obsolete; are
- not implemented.</para>
 
 <para>Only the &standard; method combination is implemented.</para>
 

@@ -758,6 +758,7 @@ LISPSYM(pshared_initialize,"%SHARED-INITIALIZE",clos)
 LISPSYM(preinitialize_instance,"%REINITIALIZE-INSTANCE",clos)
 LISPSYM(pinitialize_instance,"%INITIALIZE-INSTANCE",clos)
 LISPSYM(pmake_instance,"%MAKE-INSTANCE",clos)
+LISPSYM(pchange_class,"%CHANGE-CLASS",clos)
 LISPSYM(make_instance,"MAKE-INSTANCE",clos) /* error reporting in record.d */
 LISPSYM(shared_initialize,"SHARED-INITIALIZE",clos) /* ditto */
 LISPSYM(reinitialize_instance,"REINITIALIZE-INSTANCE",clos) /* ditto */

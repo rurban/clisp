@@ -1419,6 +1419,7 @@ LISPFUNN(type_of,1)  /* (TYPE-OF object), CLTL p. 52 */
       break;
     case_instance: { /* Instance -> name of the class or the class itself */
         /* (CLtL2 p. 781 top) */
+        instance_un_realloc(arg);
         var object clas = TheInstance(arg)->inst_class;
         var object name = TheClass(clas)->classname;
         value1 = (eq(get(name,S(closclass)),clas)
@@ -1527,17 +1528,18 @@ LISPFUNN(class_of,1) /* (CLOS:CLASS-OF object), CLTL2 p. 822,783 */
  #endif
   {
     case_instance: /* instance -> its class */
-    value1 = TheInstance(arg)->inst_class; break;
+      instance_un_realloc(arg);
+      value1 = TheInstance(arg)->inst_class; break;
     case_structure: { /* Structure -> type of the structure or <t> */
-        var object type = TheStructure(arg)->structure_types;
-        /* (name_1 ... name_i-1 name_i). type is name_1. */
-        while (consp(type)) {
-          var object name = Car(type);
-          var object clas = get(name,S(closclass)); /* (GET name 'CLOS::CLOSCLASS) */
-          if_classp(clas, { value1 = clas; goto fertig; }, ; );
-          type = Cdr(type);
-        }
+      var object type = TheStructure(arg)->structure_types;
+      /* (name_1 ... name_i-1 name_i). type is name_1. */
+      while (consp(type)) {
+        var object name = Car(type);
+        var object clas = get(name,S(closclass)); /* (GET name 'CLOS::CLOSCLASS) */
+        if_classp(clas, { value1 = clas; goto fertig; }, ; );
+        type = Cdr(type);
       }
+    }
       value1 = O(class_t); break;
     case_cons: /* Cons -> <cons> */
       value1 = O(class_cons); break;
@@ -1661,11 +1663,11 @@ LISPFUNN(class_of,1) /* (CLOS:CLASS-OF object), CLTL2 p. 822,783 */
     case_integer: /* Integer -> <integer> */
       value1 = O(class_integer); break;
     case_ratio: /* Ratio -> <ratio> */
-        value1 = O(class_ratio); break;
+      value1 = O(class_ratio); break;
     case_float: /* Float -> <float> */
-        value1 = O(class_float); break;
+      value1 = O(class_float); break;
     case_complex: /* Complex -> <complex> */
-        value1 = O(class_complex); break;
+      value1 = O(class_complex); break;
     default:
     unknown: /* unknown type */
       pushSTACK(S(class_of));

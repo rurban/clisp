@@ -416,3 +416,40 @@ T
     #+clisp (delete-file (make-pathname :type "lib" :defaults lisp-file))
     (mapcar #'foo *t-list*)))
 (100 200)
+
+;; change-class
+;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
+(progn
+  (defclass position () ())
+  (defclass x-y-position (position)
+    ((name :initarg :name)
+     (x :initform 0 :initarg :x)
+     (y :initform 0 :initarg :y)))
+  (defclass rho-theta-position (position)
+    ((name :initarg :name)
+     (rho :initform 0)
+     (theta :initform 0)))
+  (defmethod update-instance-for-different-class :before
+      ((old x-y-position) (new rho-theta-position) &key)
+    ;; Copy the position information from old to new to make new
+    ;; be a rho-theta-position at the same position as old.
+    (let ((x (slot-value old 'x))
+          (y (slot-value old 'y)))
+      (setf (slot-value new 'rho) (sqrt (+ (* x x) (* y y)))
+            (slot-value new 'theta) (atan y x))))
+  (setq p1 (make-instance 'x-y-position :name 'foo :x 2 :y 0)
+        p2 (make-instance 'x-y-position :name 'bar :x 1 :y 1))
+  (change-class p1 'rho-theta-position)
+  (change-class p2 'rho-theta-position)
+  (list (slot-value p1 'name) (slot-value p1 'rho) (slot-value p1 'theta)
+        (slot-value p2 'name) (slot-value p2 'rho) (slot-value p2 'theta)))
+(FOO 2 0 BAR 1.4142135 0.7853981)
+
+(progn
+  (defclass c0 () (a b c))
+  (defclass c1 () (b c a))
+  (setq i (make-instance 'c0))
+  (setf (slot-value i 'a) 1 (slot-value i 'b) 2 (slot-value i 'c) 3)
+  (change-class i 'c1)
+  (list (slot-value i 'a) (slot-value i 'b) (slot-value i 'c)))
+(1 2 3)

@@ -695,9 +695,14 @@ LISPFUNN(std_instance_p,1) {
 }
 
 /* returns (CLOS:CLASS-OF object). Is especially efficient for CLOS-objects. */
-#define class_of(obj)  \
-    (instancep(obj) ? (object)TheInstance(obj)->inst_class    \
-                    : (pushSTACK(obj), C_class_of(), value1))
+local inline object class_of (object obj) {
+  if (instancep(obj)) {
+    instance_un_realloc(obj);
+    return (object)TheInstance(obj)->inst_class;
+  } else {
+    pushSTACK(obj); C_class_of(); return value1;
+  }
+}
 
 /* error-message if an object is not a class.
  fehler_keine_klasse(caller,obj);
@@ -781,13 +786,15 @@ local Values do_allocate_instance (object clas) {
 
 /* Derives the address of an existing slot in an instance of a standard-
  or structure-class from a slot-location-info. */
-#define ptr_to_slot(instance,slotinfo)                          \
-  (atomp(slotinfo)                                              \
-   /* local slot, slotinfo is index */                          \
-   ? &TheSrecord(instance)->recdata[posfixnum_to_L(slotinfo)]   \
-   /* shared slot, slotinfo is (class . index) */               \
-   : &TheSvector(TheClass(Car(slotinfo))->shared_slots)         \
-                ->data[posfixnum_to_L(Cdr(slotinfo))])
+local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo) {
+  instance_un_realloc(instance);
+  return (atomp(slotinfo)
+          /* local slot, slotinfo is index */
+          ? &TheSrecord(instance)->recdata[posfixnum_to_L(slotinfo)]
+          /* shared slot, slotinfo is (class . index) */
+          : &TheSvector(TheClass(Car(slotinfo))->shared_slots)
+               ->data[posfixnum_to_L(Cdr(slotinfo))]);
+}
 
 /* UP: visits a slot.
  slot_up()
@@ -805,8 +812,7 @@ local gcv_object_t* slot_up (void) {
     gethash(STACK_0,TheClass(value1)->slot_location_table);
   if (!eq(slotinfo,nullobj)) { /* found? */
     return ptr_to_slot(STACK_1,slotinfo);
-  } else {
-    /* missing slot -> (SLOT-MISSING class instance slot-name caller) */
+  } else { /* missing slot -> (SLOT-MISSING class instance slot-name caller) */
     pushSTACK(value1); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
     pushSTACK(TheSubr(subr_self)->name);
     funcall(S(slot_missing),4);
@@ -882,6 +888,51 @@ LISPFUNN(slot_exists_p,2) {
 #ifdef RISCOS_CCBUG
   #pragma -z1
 #endif
+
+/* (CLOS::%CHANGE-CLASS instance new-class)
+   copy instance (and return the copy)
+   make instance point to a new instance of new-class */
+LISPFUNN(pchange_class,2) {
+  /* STACK: instance, new-class */
+  do_allocate_instance(STACK_0);
+  pushSTACK(value1); /* the new object, to be filled in Lisp */
+  /* a copy of the old instance - the return value of CHANGE-CLASS */
+  pushSTACK(class_of(STACK_2));
+  do_allocate_instance(STACK_0); /* these values are returned */
+  if (structurep(value1))
+    copy_mem_o(&TheStructure(value1)->structure_types,
+               &TheStructure(STACK_3)->structure_types,
+               Structure_length(STACK_3));
+  else /* CLOS class instance */
+    copy_mem_o(&TheInstance(value1)->inst_class,
+               &TheInstance(STACK_3)->inst_class,
+               posfixnum_to_L(TheClass(STACK_0)->instance_size));
+  skipSTACK(1);
+  /* STACK: instance, new-class, new-instance */
+  { /* turn instance into a realloc (see reallocate_small_string
+       in spvw_typealloc.d for inspiration) */
+    set_break_sem_1(); /* forbid interrupts */
+    var Instance ptr;
+   #ifdef TYPECODES
+    ptr = (Instance)upointer(STACK_2);
+   #else
+    ptr = (Instance)TheRecord(STACK_2);
+   #endif
+    var object mutated_instance = /* mutation! */
+      bias_type_pointer_object(varobject_bias,instance_type,ptr);
+    ptr->GCself = mutated_instance;
+   #ifdef TYPECODES
+    ptr->rectype = Rectype_realloc_Instance;
+   #else
+    ptr->tfl = xrecord_tfl(Rectype_realloc_Instance,0,xrecord_length(ptr),
+                           xrecord_xlength(ptr));
+   #endif
+    ptr->inst_class = STACK_0;
+    clr_break_sem_1(); /* permit interrupts again */
+  }
+  ASSERT(Record_type(STACK_2) == Rectype_realloc_Instance);
+  skipSTACK(3);
+}
 
 /* UP: check keywords, cf. SYSTEM::KEYWORD-TEST
  keyword_test(caller,rest_args_pointer,argcount,valid_keywords);

@@ -1920,6 +1920,7 @@ local uint32 sxhash_atom (object obj) {
    }
     case_instance: # instance
       # utilize only the class
+      instance_un_realloc(obj);
       return sxhash(TheInstance(obj)->inst_class) + 0x61EFA249;
     case_char: # character
       # take EQ-hashcode (for characters EQUAL == EQL == EQ)
