@@ -133,7 +133,7 @@ installing the distribution in under the "modules" subdirectory of
 your CLISP distribution, then running CLISP's "configure" script with
 the --build option.  To combine this module with your CLISP source:
 
-        cd /path/to/clisp-2.2.9
+        cd /path/to/clisp/
         cp -p clisp-oracle-0.01.tar.gz .
         gunzip < clisp-oracle.tar.gz | tar xf
 
@@ -153,7 +153,7 @@ Oracle module, and to build in a separate area.  The command I use is:
        --build oralisp
 
 If all goes well, this will build a complete Lisp in
-        /path/to/clisp-2.2.9/oralisp/full
+        /path/to/clisp/oralisp/full
 From that directory, you can run
          ./lisp.run -M lispinit.mem
 
