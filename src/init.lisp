@@ -1599,7 +1599,7 @@ interpreter compiler
                           )) ) )
                          '()
                      ) )
-                     '()
+                     `((EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name)))
                    )
                  ,@(if docstring
                      `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION ',docstring))
