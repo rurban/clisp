@@ -1,5 +1,5 @@
 /*
- * External routins for ARILEV1.D
+ * External routines for ARILEV1.D
  * Processor: HPPA, because of XMPYU only on HPPA 1.1 (like HP9000/720)
  * Compiler: GNU-C or HP-C
  * Parameter Passing: in registers %arg0,%arg1,%arg2, return value in %ret0.
