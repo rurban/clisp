@@ -1664,6 +1664,9 @@ local void usage (int exit_code)
   #ifdef MULTIMAP_MEMORY_VIA_FILE
   asciz_out(" -t tmpdir   - temporary directory for memmap" NLstring);
   #endif
+  #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+  asciz_out(" -K linkingset - use this executable and memory image" NLstring);
+  #endif
   asciz_out(" -M memfile  - use this memory image" NLstring
             " -L language - set user language" NLstring
             " -N nlsdir   - NLS catalog directory" NLstring
@@ -1904,6 +1907,7 @@ local void print_banner ()
       #   -s size         Stack size (size = xxxxxxxB oder xxxxKB oder xMB)
       #   -t directory    temporäres Directory
       #   -W              WIDE-Version wählen
+      #   -K linkingset   specify executable and mem file
       #   -M file         MEM-File laden
       #   -L language     set the user language
       #   -N directory    NLS catalog directory
@@ -2025,6 +2029,13 @@ local void print_banner ()
                     if (!strcmp (arg, "-norc")) argv_norc = TRUE;
                     else usage (1);
                     break;
+                  #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+                  case 'K': # linKing set
+                    OPTION_ARG
+                    # This option has already been digested by clisp.c.
+                    # We can ignore it.
+                    break;
+                  #endif
                   case 'M': # MEM-File
                     OPTION_ARG
                     # Bei mehreren -M Argumenten zählt nur das letzte.
