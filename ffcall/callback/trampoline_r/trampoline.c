@@ -171,7 +171,6 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #endif
 #ifdef __cplusplus
 extern "C" int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
-extern "C" RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
 #ifdef SHMCTL_DOTS
 extern "C" int shmctl (int shmid, int cmd, ...);
 #else
@@ -179,7 +178,6 @@ extern "C" int shmctl (int shmid, int cmd, struct shmid_ds * buf);
 #endif
 #elif defined(__STDC__)
 extern int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
-extern RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
 #ifdef SHMCTL_DOTS
 extern int shmctl (int shmid, int cmd, ...);
 #else
@@ -187,7 +185,6 @@ extern int shmctl (int shmid, int cmd, struct shmid_ds * buf);
 #endif
 #else
 extern int shmget ();
-extern RETSHMATTYPE shmat ();
 extern int shmctl ();
 #endif
 #endif
