@@ -1930,12 +1930,13 @@ LISPFUNN(subr_info,1)
                   else
                   # item = (key var)
                   { keyword = Car(item); # key
-                    # sollte ein Keyword sein:
-                    if (!(symbolp(keyword)))
+                    # sollte ein Symbol (früher: Keyword) sein:
+                    if (!symbolp(keyword))
                       { pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
                         pushSTACK(keyword);
                         fehler(source_program_error,
-                               GETTEXT("FUNCTION: ~ in ~ is not a symbol"));
+                               GETTEXT("FUNCTION: ~ in ~ is not a symbol")
+                              );
                       }
                     item = Cdr(item); # (var)
                     if (!(consp(item) && matomp(Cdr(item))))
@@ -2305,14 +2306,16 @@ LISPFUNN(subr_info,1)
 
 # Fehlermeldung bei fehlerhaftem Keyword
 # fehler_key_notkw(kw);
-# > kw: Nicht-Keyword
+# > kw: Nicht-Symbol
   nonreturning_function(local, fehler_key_notkw, (object kw));
   local void fehler_key_notkw(kw)
     var object kw;
     { pushSTACK(kw); # Wert für Slot DATUM von KEYWORD-ERROR
       pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
       pushSTACK(kw);
-      fehler(keyword_error,GETTEXT("EVAL/APPLY: ~ is not a symbol"));
+      fehler(keyword_error,
+             GETTEXT("EVAL/APPLY: ~ is not a symbol")
+            );
     }
 
 # Fehlermeldung bei fehlerhaftem Keyword
@@ -2378,11 +2381,7 @@ LISPFUNN(subr_info,1)
       if (!allow_flag)                                                      \
         if (!eq(bad_keyword,nullobj))                                       \
           # falsches Keyword aufgetreten                                    \
-          { if (!symbolp(bad_keyword))                                      \
-              { fehler_key_notkw(bad_keyword); }                            \
-              else                                                          \
-              { fehler_statement }                                          \
-          }                                                                 \
+          { fehler_statement }                                              \
     }
 
 # Zu einem Keyword 'keyword' das Paar Key.Wert suchen:

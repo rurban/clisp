@@ -205,7 +205,7 @@ das fürs FENV bestimmte Cons (SYSTEM::MACRO . expander).
                        ) )
                        (setq kwlist (cons kw kwlist))
                       )
-                      ((not (and (consp (car next)) (keywordp (caar next)) (consp (cdar next))))
+                      ((not (and (consp (car next)) (symbolp (caar next)) (consp (cdar next))))
                        (cerror (ENGLISH "~0*It will be ignored.")
                                (ENGLISH "The lambda list of macro ~S contains an invalid keyword specification ~S")
                                name (car next)
