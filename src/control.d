@@ -647,7 +647,7 @@ local void activate_bindings (gcv_object_t* frame_pointer, uintC count) {
   } while (--count);
 }
 /* activate all SPECDECL declarations */
-local void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count) {
+global void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count) {
   do {
     spec_ptr skipSTACKop -varframe_binding_size;
     var gcv_object_t* markptr = &Before(spec_ptr);
@@ -724,6 +724,7 @@ LISPSPECFORM(letstern, 1,0,body)
         *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */
       } while (--count);
     }
+    if (spec_count > 0) activate_specdecls(spec_ptr,spec_count);
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
     /* unwind frames: */
@@ -1151,6 +1152,7 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
         Before(frame_pointer) = SET_BIT(Before(frame_pointer),active_bit_o);
       } while (--count);
     }
+    if (spec_count) activate_specdecls(spec_ptr,spec_count);
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
     /* unwind frames: */
@@ -1826,6 +1828,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
       do { bind_next_var(NIL); } while (--r);
      ok: ;
     }
+    if (spec_count > 0) activate_specdecls(spec_ptr,spec_count);
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
     /* unwind frames: */

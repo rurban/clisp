@@ -11451,6 +11451,7 @@ extern maygc void init_cclosures (void);
  or NULL if no such binding is found */
 extern gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
                                   uintL spec_anz);
+/* used by CONTROL, EVAL */
 
 /* activate the SPECDECL binding if found */
 #define activate_specdecl(sym,ptr,nn) do {                      \
@@ -11458,6 +11459,10 @@ extern gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
   if (spec)                                                     \
     *spec = SET_BIT(*spec,active_bit_o); /* activate binding */ \
  } while(0)
+
+/* activate all SPECDECL declarations */
+extern void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count);
+/* used by CONTROL, EVAL */
 
 # Error if a block has already been left.
 # fehler_block_left(name);
