@@ -26,7 +26,7 @@
 #include <winreg.h>
 #if !defined(__MINGW32__) && !defined(UNIX_CYGWIN32)
 #include <winldap.h>
-# define LDAP /* not yet */
+# define LDAP # not yet
 #endif
 #endif
 #if defined(LDAP) && !defined(WIN32_NATIVE)
