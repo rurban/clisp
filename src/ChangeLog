@@ -1,3 +1,13 @@
+2003-08-18  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (set-logical-pathname-translations): missing slots
+	default to :WILD, as per ANSI CL
+	* pathname.d (MAKE-LOGICAL-PATHNAME): upcase host
+	(host_match, nametype_match_aux, subdir_match, version_match)
+	(version_diff, translate_subdir, translate_version):
+	merge identical LOGICAL and PHYSICAL code
+	(translate_nametype_aux): do not replace NIL with ""
+
 2003-08-17  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [darwin]: removed `--traditional-cpp'

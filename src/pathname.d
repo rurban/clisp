@@ -263,21 +263,22 @@ local char* realpath (const char* path, char* resolved_path) {
 local char* realpath (char* path, char* resolved_path) {
   var int handle;
   var int r[10];
-  #if 0 /* Both of these implementations should work. */
+ #if 0 /* Both of these implementations should work. */
   if (os_fopen(0x40,path,&handle))
     return NULL;
   r[0] = 7; r[1] = handle; r[2] = (long)resolved_path; r[5] = MAXPATHLEN;
   os_swi(9,r);
   os_fclose(handle);
-  #else
-  var os_error* err;
-  r[0] = 37; r[1] = (long)path; r[2] = (long)resolved_path;
-  r[3] = 0; r[4] = 0; r[5] = MAXPATHLEN;
-  err = os_swi(0x29,r);
-  if (err) {
-    __seterr(err); return NULL;
+ #else
+  { var os_error* err;
+    r[0] = 37; r[1] = (long)path; r[2] = (long)resolved_path;
+    r[3] = 0; r[4] = 0; r[5] = MAXPATHLEN;
+    err = os_swi(0x29,r);
+    if (err) {
+      __seterr(err); return NULL;
+    }
   }
-  #endif
+ #endif
   if (r[5] <= 0) {
     errno = ENOMEM /* ENAMETOOLONG would be better, but does not yet exist */;
     return NULL;
@@ -1138,15 +1139,16 @@ local bool legal_hostchar (chart ch) {
           && !chareq(ch,ascii('"'))
           && !chareq(ch,ascii('|')));
  #elif defined(PATHNAME_WIN32)
-  /* This is just a guess. I do not know which characters are allowed in
-   Windows host names. */
-  var cint c = as_cint(ch);
-  if ((c >= ' ') && (c <= '~')
-      && (c != '"') && (c != '/') && (c != ':') && (c != '<') && (c != '>')
-      && (c != '\\'))
-    return true;
-  else
-    return false;
+  { /* This is just a guess. I do not know which characters are allowed in
+       Windows host names. */
+    var cint c = as_cint(ch);
+    if ((c >= ' ') && (c <= '~')
+        && (c != '"') && (c != '/') && (c != ':') && (c != '<') && (c != '>')
+        && (c != '\\'))
+      return true;
+    else
+      return false;
+  }
  #else
   return alphanumericp(ch) || chareq(ch,ascii('-'));
  #endif
@@ -4456,10 +4458,11 @@ LISPFUN(make_logical_pathname,seclass_read,0,0,norest,key,8,
          kw(directory),kw(name),kw(type),kw(version)) )
 { /* A logical pathname as :HOST-Argument for MAKE-PATHNAME
    enforces a logical pathname as result. */
-  var object obj = allocate_logpathname();
-  TheLogpathname(obj)->pathname_host =
-    (boundp(STACK_5) ? (object)STACK_5 : NIL);
-  STACK_5 = obj;
+  if (boundp(STACK_5)) STACK_5 = string_upcase(STACK_5); /* host */
+  else STACK_5 = NIL;
+  { var object obj = allocate_logpathname();
+    TheLogpathname(obj)->pathname_host = STACK_5;
+    STACK_5 = obj; }
   /* continue at MAKE-PATHNAME. */
   C_make_pathname();
 }
@@ -4845,14 +4848,9 @@ local bool device_match (object pattern, object sample, bool logical);
 local bool directory_match (object pattern, object sample, bool logical);
 local bool nametype_match (object pattern, object sample, bool logical);
 local bool version_match (object pattern, object sample, bool logical);
-local bool host_match (object pattern, object sample, bool logical) {
- #ifdef LOGICAL_PATHNAMES
-  if (logical) {
-    if (nullp(pattern)) return true;
-    return equal(pattern,sample);
-  }
- #endif
- #if HAS_HOST
+local bool host_match (object pattern, object sample, bool logical)
+{/* logical is ignored */
+ #if defined(LOGICAL_PATHNAMES) || HAS_HOST
   if (nullp(pattern)) return true;
   return equal(pattern,sample);
  #else
@@ -4880,48 +4878,33 @@ local bool device_match (object pattern, object sample, bool logical) {
   return true;
  #endif
 }
-local bool nametype_match_aux (object pattern, object sample, bool logical) {
- #ifdef LOGICAL_PATHNAMES
-  if (logical) {
-    if (eq(pattern,S(Kwild))) return true;
-    if (eq(sample,S(Kwild))) return false;
-    if (nullp(pattern)) {
-      if (nullp(sample))
-        return true;
-      else
-        return false;
-    }
-    if (nullp(sample)) {
-      return false;
-    }
-    return wildcard_match(pattern,sample);
-  }
- #endif
- #ifdef PATHNAME_NOEXT
+local bool nametype_match_aux (object pattern, object sample, bool logical)
+{ /* logical is ignored */
+ #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
+  if (eq(pattern,S(Kwild))) return true;
+  if (eq(sample,S(Kwild))) return false;
   if (nullp(pattern)) {
     if (nullp(sample))
       return true;
     else
       return false;
   }
-  if (nullp(sample)) {
+  if (nullp(sample))
     return false;
-  }
   return wildcard_match(pattern,sample);
+ #else
+  return true;                 /* when do we get here?! */
  #endif
 }
-local bool subdir_match (object pattern, object sample, bool logical) {
+local bool subdir_match (object pattern, object sample, bool logical)
+{ /* logical is ignored */
   if (eq(pattern,sample)) return true;
- #ifdef LOGICAL_PATHNAMES
-  if (logical) {
-    if (eq(pattern,S(Kwild))) return true;
-    if (!simple_string_p(pattern) || !simple_string_p(sample)) return false;
-    return wildcard_match(pattern,sample);
-  }
- #endif
- #ifdef PATHNAME_NOEXT
+ #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
+  if (eq(pattern,S(Kwild))) return true;
   if (!simple_string_p(pattern) || !simple_string_p(sample)) return false;
   return wildcard_match(pattern,sample);
+ #else
+  return true;                 /* when do we get here?! */
  #endif
 }
 /* recursive implementation because of backtracking: */
@@ -4968,17 +4951,12 @@ local bool nametype_match (object pattern, object sample, bool logical) {
   if (missingp(pattern)) return true;
   return nametype_match_aux(pattern,sample,logical);
 }
-local bool version_match (object pattern, object sample, bool logical) {
+local bool version_match (object pattern, object sample, bool logical)
+{ /* logical is ignored */
   SDOUT("version_match:",pattern);
   SDOUT("version_match:",sample);
   if (!boundp(sample)) return true;
- #ifdef LOGICAL_PATHNAMES
-  if (logical) {
-    if (nullp(pattern) || eq(pattern,S(Kwild))) return true;
-    return eql(pattern,sample);
-  }
- #endif
- #if HAS_VERSION
+ #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if (nullp(pattern) || eq(pattern,S(Kwild))) return true;
   if (eq(sample,S(Kwild))) return false;
   return eql(pattern,sample);
@@ -5384,29 +5362,13 @@ local void nametype_diff (object pattern, object sample, bool logical,
 }
 local void version_diff (object pattern, object sample, bool logical,
                          const gcv_object_t* previous, gcv_object_t* solutions)
-{
+{ /* logical is ignored */
   DEBUG_DIFF(version_diff);
   SAMPLE_UNBOUND_CHECK;
- #ifdef LOGICAL_PATHNAMES
-  if (logical) {
-    if (nullp(pattern) || eq(pattern,S(Kwild))) {
-      var object string =
-        (eq(sample,S(Kwild)) ? (object)O(wild_string) :
-         /* (SYS::DECIMAL-STRING sample) : */
-         integerp(sample) ? decimal_string(sample) : NIL);
-      push_solution_with(string);
-      return;
-    }
-    if (eq(sample,S(Kwild))) return;
-    if (!eql(pattern,sample)) return;
-    push_solution();
-    return;
-  }
- #endif
- #if HAS_VERSION
+ #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
     var object string =
-      (eq(sample,S(Kwild)) ? O(wild_string) :
+      (eq(sample,S(Kwild)) ? (object)O(wild_string) :
        /* (SYS::DECIMAL-STRING sample) : */
        integerp(sample) ? decimal_string(sample) : NIL);
     push_solution_with(string);
@@ -5581,7 +5543,7 @@ local object translate_nametype_aux (gcv_object_t* subst, object pattern,
   if (eq(pattern,S(Kwild)) && mconsp(*subst)) {
     if (TRIVIAL_P(Car(*subst))) {
       var object erg = Car(*subst); *subst = Cdr(*subst);
-      return (nullp(erg) ? (object)O(empty_string) : erg);
+      return erg;
     } else
       return nullobj;
   }
@@ -5629,12 +5591,8 @@ local object translate_nametype_aux (gcv_object_t* subst, object pattern,
 local object translate_subdir (gcv_object_t* subst, object pattern,
                                bool logical) {
   DEBUG_TRAN(translate_subdir);
- #ifdef LOGICAL_PATHNAMES
-  if (logical)
-    return translate_nametype_aux(subst,pattern,logical);
- #endif
- #ifdef PATHNAME_NOEXT
-  return translate_nametype_aux(subst,pattern,false);
+ #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
+  return translate_nametype_aux(subst,pattern,logical);
  #endif
 }
 local object translate_directory (gcv_object_t* subst, object pattern,
@@ -5697,24 +5655,10 @@ local object translate_nametype (gcv_object_t* subst, object pattern,
   return translate_nametype_aux(subst,pattern,logical);
 }
 local object translate_version (gcv_object_t* subst, object pattern,
-                                bool logical) {
+                                bool logical)
+{ /* logical is ignored */
   DEBUG_TRAN(translate_version);
- #ifdef LOGICAL_PATHNAMES
-  if (logical) {
-    if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
-      if (SIMPLE_P(Car(*subst))) {
-        var object erg = Car(*subst); *subst = Cdr(*subst);
-        if (nullp(erg))
-          return erg;
-        pushSTACK(erg); funcall(L(parse_integer),1);
-        return value1;
-      } else
-        return nullobj;
-    }
-    return pattern;
-  }
- #endif
- #if HAS_VERSION
+ #if defined(LOGICAL_PATHNAMES) || HAS_VERSION
   if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
     if (SIMPLE_P(Car(*subst))) {
       var object erg = Car(*subst); *subst = Cdr(*subst);
@@ -10785,7 +10729,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
 
   end_system_call();
   if (wait_p) VALUES1(fixnum(exitcode));
-  else VALUES1(sfixnum(prochandle));
+  else VALUES1(UL_to_I((uintL)prochandle));
   skipSTACK(7);
 }
 
