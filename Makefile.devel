@@ -23,10 +23,10 @@ GROFF = nroff -man
 #PACKEXT = .tar.Z
 
 # set this if you are using GNU tar
-EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj  \
-        --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build  \
-        --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html \
-	--exclude $(AUTOCONF_CACHE) --exclude tmp \
+EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
+        --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
+        --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html  \
+	--exclude $(AUTOCONF_CACHE) --exclude tmp			   \
 	--exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 # GNU tar together with GNU gzip. Good performance.
@@ -75,15 +75,24 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/VERSION src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc ffcall/callback/vacall_r/config.h.msvc ffcall/callback/vacall_r/vacall_r.h.msvc ffcall/callback/trampoline_r/config.h.msvc acorn/pathname.txt htmldoc
+all : makefiles configures potfiles src/FILES src/VERSION src/uninames.h \
+	src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c		 \
+	ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc		 \
+	ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc	 \
+	ffcall/callback/vacall_r/config.h.msvc				 \
+	ffcall/callback/vacall_r/vacall_r.h.msvc			 \
+	ffcall/callback/trampoline_r/config.h.msvc			 \
+	acorn/pathname.txt htmldoc
 
-ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/vacall-i386-msvc.c ffcall/callback/vacall_r/vacall-i386-msvc.c
+ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c		\
+	ffcall/vacall/vacall-i386-msvc.c		\
+	ffcall/callback/vacall_r/vacall-i386-msvc.c
 
 htmldoc:
 	cd doc && make impnotes.html && make html && cd ..;
 
-makefiles : os2/makefile acorn/makefile.cc acorn/makefile.gcc \
-	win32bc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc7
+makefiles : os2/makefile acorn/makefile.cc acorn/makefile.gcc		   \
+	win32bc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc7 \
 	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d
 
 os2/makefile : makemake
@@ -119,14 +128,14 @@ makemake : src/makemake.in
 	chmod a+x makemake
 
 
-CONFIGURES = src/configure \
-	modules/wildcard/configure modules/regexp/configure \
-	modules/clx/new-clx/configure \
+CONFIGURES = src/configure						 \
+	modules/wildcard/configure modules/regexp/configure		 \
+	modules/clx/new-clx/configure					 \
 	ffcall/configure ffcall/avcall/configure ffcall/vacall/configure \
-	ffcall/trampoline/configure ffcall/callback/configure \
-	ffcall/callback/vacall_r/configure \
-	ffcall/callback/trampoline_r/configure \
-	utils/hln/configure \
+	ffcall/trampoline/configure ffcall/callback/configure		 \
+	ffcall/callback/vacall_r/configure				 \
+	ffcall/callback/trampoline_r/configure				 \
+	utils/hln/configure						 \
 	libcharset/configure
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES)
