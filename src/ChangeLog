@@ -1,3 +1,33 @@
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
+	Remove all leading and trailing formatting commands from
+	internationalized strings, to make it easier for translators.
+	* debug.d (print_stackitem): Move newline out of CLSTEXT.
+	* encoding.d (encoding_from_name, init_dependent_encodings): Move
+	newline out of GETTEXT.
+	* spvw.d (SP_ueber, STACK_ueber): Move newline out of GETTEXTL.
+	(main): Likewise, also out of CLSTEXT.
+	* spvw_alloca.d (malloca): Move newline out of GETTEXTL.
+	* spvw_allocate.d (error_speicher_voll, make_space_gc_true,
+	make_space_gc_false, make_space_gc): Likewise.
+	* spvw_memfile.d (loadmem, loadmem_from_handle): Likewise.
+	* spvw_mmap.d (mmap_zeromap): Likewise.
+	* spvw_multimap.d (fdmap, open_temp_fd, initmap): Likewise.
+	* spvw_sigsegv.d (sigsegv_handler_failed, stackoverflow_handler):
+	Likewise.
+	* affi1.lisp (defflibfun): Move newline and freshline out of TEXT.
+	* compiler.lisp (c-warn, c-error, match-known-unknown-functions,
+	c-report-problems, compile-file, disassemble-closure): Likewise.
+	* condition.lisp (prompt-for-new-value): Likewise.
+	* describe.lisp (describe-slotted-object, describe-object, describe1):
+	Likewise.
+	* format.lisp (format-error): Likewise.
+	* macros2.lisp (prompt-for-new-value-string): Likewise.
+	* reploop.lisp (debug-reset-io, get-frame-limit, debug-backtrace,
+	print-error): Likewise.
+	* room.lisp (room): Likewise.
+	* trace.lisp (trace1): Likewise.
+
 2004-03-30  Bruno Haible  <bruno@clisp.org>
 
 	* po/de.po: Update translations.

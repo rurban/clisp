@@ -780,7 +780,8 @@ local void loadmem (const char* filename)
   return;
  abort1: {
     var int abort_errno = OS_errno;
-    fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'" NLstring),program_name,filename);
+    fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'"),program_name,filename);
+    fputs("\n",stderr);
     errno_out(abort_errno);
   }
   goto abort_quit;
@@ -1524,10 +1525,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   }
   goto abort_quit;
  abort2:
-  fprintf(stderr,GETTEXTL("%s: initialization file `%s' was not created by this version of CLISP" NLstring),program_name,filename);
+  fprintf(stderr,GETTEXTL("%s: initialization file `%s' was not created by this version of CLISP"),program_name,filename);
+  fputs("\n",stderr);
   goto abort_quit;
  abort3:
-  fprintf(stderr,GETTEXTL("%s: not enough memory for initialization" NLstring),program_name);
+  fprintf(stderr,GETTEXTL("%s: not enough memory for initialization"),program_name);
+  fputs("\n",stderr);
   goto abort_quit;
  abort_quit:
   /* close the file beforehand. */

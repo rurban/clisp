@@ -308,8 +308,8 @@
   (when control-string
     (unless errorpos (setq errorpos (csd-cs-index (car *FORMAT-CSDL*))))
     (setq errorstring
-      (string-concat errorstring
-        (TEXT "~%Current point in control string:")))
+      (string-concat errorstring "~%"
+        (TEXT "Current point in control string:")))
     (let ((pos1 0) (pos2 0))
       (declare (simple-string errorstring) (fixnum pos1 pos2))
       (loop

@@ -1063,11 +1063,13 @@ local void print_back_trace (const gcv_object_t* stream_,
       switch (framecode(FRAME_(0))) { # je nach Frametyp
         case TRAPPED_APPLY_frame_info:
           # getrapte APPLY-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "APPLY frame with breakpoint for call "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("APPLY frame with breakpoint for call "));
           goto APPLY_frame;
         case APPLY_frame_info:
           # APPLY-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "APPLY frame for call "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("APPLY frame for call "));
         APPLY_frame:
           # Funktionsnamen und Argumente ausgeben:
           write_ascii_char(stream_,'('); # '(' ausgeben
@@ -1085,17 +1087,20 @@ local void print_back_trace (const gcv_object_t* stream_,
           break;
         case TRAPPED_EVAL_frame_info:
           # getrapte EVAL-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "EVAL frame with breakpoint for form "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("EVAL frame with breakpoint for form "));
           goto EVAL_frame;
         case EVAL_frame_info:
           # EVAL-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "EVAL frame for form "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("EVAL frame for form "));
         EVAL_frame:
           prin1(stream_,FRAME_(frame_form)); # Form ausgeben
           break;
         case DYNBIND_frame_info:
           # dynamische Variablenbindungsframes:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding variables (~ = dynamically):"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding variables (~ = dynamically):"));
           # Bindungen ausgeben:
           FRAME skipSTACKop 1;
           until (FRAME==FRAME_top) {
@@ -1112,12 +1117,14 @@ local void print_back_trace (const gcv_object_t* stream_,
         #ifdef HAVE_SAVED_REGISTERS
         case CALLBACK_frame_info:
           # Callback-Register-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "CALLBACK frame"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("CALLBACK frame"));
           break;
         #endif
         # Variablen- und Funktionsbindungsframes:
         case VAR_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding variables "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding variables "));
           #ifdef NO_symbolflags
           prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
           write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
@@ -1142,7 +1149,8 @@ local void print_back_trace (const gcv_object_t* stream_,
           goto VARFUN_frame;
           #endif
         case FUN_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding functions "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding functions "));
           goto VARFUN_frame;
         VARFUN_frame:
           prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
@@ -1165,7 +1173,8 @@ local void print_back_trace (const gcv_object_t* stream_,
           }
         VARFUN_frame_next:
           # Weiteres Environment ausgeben:
-          write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("  Next environment: "));
           {
             var object env = popSTACK(); # weiteres Environment
             if (!simple_vector_p(env)) {
@@ -1189,22 +1198,25 @@ local void print_back_trace (const gcv_object_t* stream_,
           break;
         # Compilierte Block/Tagbody-Frames:
         case CBLOCK_CTAGBODY_frame_info:
+          terpri(stream_);
           if (simple_vector_p(Car(FRAME_(frame_ctag)))) {
             # compilierte Tagbody-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "compiled tagbody frame for "));
+            write_sstring(stream_,CLSTEXT("compiled tagbody frame for "));
             prin1(stream_,Car(FRAME_(frame_ctag))); # Tag-Vektor
           } else {
             # compilierte Block-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "compiled block frame for "));
+            write_sstring(stream_,CLSTEXT("compiled block frame for "));
             prin1(stream_,Car(FRAME_(frame_ctag))); # Blockname
           }
           break;
         # Interpretierte Block-Frames:
         case IBLOCK_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "block frame "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("block frame "));
           goto IBLOCK_frame;
         case NESTED_IBLOCK_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "nested block frame "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("nested block frame "));
           goto IBLOCK_frame;
         IBLOCK_frame:
           pushSTACK(FRAME_(frame_next_env));
@@ -1214,10 +1226,12 @@ local void print_back_trace (const gcv_object_t* stream_,
           goto NEXT_ENV;
         # Interpretierte Tagbody-Frames:
         case ITAGBODY_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "tagbody frame "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("tagbody frame "));
           goto ITAGBODY_frame;
         case NESTED_ITAGBODY_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "nested tagbody frame "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("nested tagbody frame "));
           goto ITAGBODY_frame;
         ITAGBODY_frame:
           pushSTACK(FRAME_(frame_next_env));
@@ -1235,7 +1249,8 @@ local void print_back_trace (const gcv_object_t* stream_,
           }
           goto NEXT_ENV;
         NEXT_ENV: # Ausgeben eines Block- oder Tagbody-Environments STACK_0
-          write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("  Next environment: "));
           {
             var object env = popSTACK();
             if (!consp(env)) {
@@ -1264,12 +1279,14 @@ local void print_back_trace (const gcv_object_t* stream_,
           break;
         case CATCH_frame_info:
           # Catch-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "catch frame for tag "));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("catch frame for tag "));
           prin1(stream_,FRAME_(frame_tag)); # Tag
           break;
         case HANDLER_frame_info:
           # Handler-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "handler frame for conditions"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("handler frame for conditions"));
           {
             var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
             var uintL i = 0;
@@ -1282,47 +1299,57 @@ local void print_back_trace (const gcv_object_t* stream_,
           break;
         case UNWIND_PROTECT_frame_info:
           # Unwind-Protect-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring "unwind-protect frame"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("unwind-protect frame"));
           break;
         case DRIVER_frame_info:
           # Driver-Frames:
-          write_sstring(stream_,CLSTEXT(NLstring NLstring "driver frame"));
+          terpri(stream_);
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("driver frame"));
           break;
         # Environment-Frames:
         case ENV1V_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding environments"));
           write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
           prin1(stream_,FRAME_(1));
           break;
         case ENV1F_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding environments"));
           write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
           prin1(stream_,FRAME_(1));
           break;
         case ENV1B_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding environments"));
           write_sstring(stream_,O(showstack_string_BENV_frame)); # "¿  BLOCK_ENV <--> "
           prin1(stream_,FRAME_(1));
           break;
         case ENV1G_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding environments"));
           write_sstring(stream_,O(showstack_string_GENV_frame)); # "¿  GO_ENV <--> "
           prin1(stream_,FRAME_(1));
           break;
         case ENV1D_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding environments"));
           write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
           prin1(stream_,FRAME_(1));
           break;
         case ENV2VD_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding environments"));
           write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
           prin1(stream_,FRAME_(1));
           write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
           prin1(stream_,FRAME_(2));
           break;
         case ENV5_frame_info:
-          write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+          terpri(stream_);
+          write_sstring(stream_,CLSTEXT("frame binding environments"));
           write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
           prin1(stream_,FRAME_(1));
           write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
