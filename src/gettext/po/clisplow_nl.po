@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2001-03-16 01:24:00 CET\n"
+"POT-Creation-Date: 2001-07-16 18:42:48 EDT\n"
 "PO-Revision-Date: 2000-03-03 15:02+01:00\n"
 "Last-Translator: Tijs van Bakel <smoke@casema.net>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -52,13 +52,13 @@ msgstr ""
 msgid "Informative output:\n"
 msgstr ""
 
-msgid " -h, --help  - print this help and exit\n"
+msgid " -h, --help    - print this help and exit\n"
 msgstr ""
 
-msgid " --version   - print the version information\n"
+msgid " --version     - print the version information\n"
 msgstr ""
 
-msgid " --license   - print the licensing information\n"
+msgid " --license     - print the licensing information\n"
 msgstr ""
 
 msgid "Memory image selection:\n"
@@ -70,25 +70,25 @@ msgstr ""
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-msgid " -M memfile  - use this memory image\n"
+msgid " -M memfile    - use this memory image\n"
 msgstr ""
 
-msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-msgid " -t tmpdir   - temporary directory for memmap\n"
+msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr ""
 
 msgid "Internationalization:\n"
 msgstr ""
 
-msgid " -L language - set user language\n"
+msgid " -L language   - set user language\n"
 msgstr ""
 
-msgid " -N nlsdir   - NLS catalog directory\n"
+msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr ""
 
 msgid " -Edomain encoding - set encoding\n"
@@ -100,28 +100,31 @@ msgstr ""
 msgid " -q, --quiet, --silent - do not print the banner\n"
 msgstr ""
 
-msgid " -w          - wait for keypress after program termination\n"
+msgid " -w            - wait for keypress after program termination\n"
 msgstr ""
 
-msgid " -I          - be ILISP-friendly\n"
+msgid " -I            - be ILISP-friendly\n"
 msgstr ""
 
 msgid "Startup actions:\n"
 msgstr ""
 
-msgid " -a          - more ANSI CL compliance\n"
+msgid " -ansi         - more ANSI CL compliance\n"
 msgstr ""
 
-msgid " -p package  - start in the package\n"
+msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr ""
 
-msgid " -C          - set *LOAD-COMPILING* to T\n"
+msgid " -p package    - start in the package\n"
 msgstr ""
 
-msgid " -norc       - do not load the user ~/.clisprc file\n"
+msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-msgid " -i file     - load initfile (can be repeated)\n"
+msgid " -norc         - do not load the user ~/.clisprc file\n"
+msgstr ""
+
+msgid " -i file       - load initfile (can be repeated)\n"
 msgstr ""
 
 msgid "Actions:\n"
@@ -150,6 +153,9 @@ msgstr "grootte geheugen"
 
 msgid "stack size"
 msgstr "grootte stapel"
+
+msgid "CLISP: -a is deprecated, use -ansi\n"
+msgstr ""
 
 #, fuzzy
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
@@ -626,6 +632,9 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
+
+#, fuzzy
 
 
 
@@ -686,6 +695,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
 
 
@@ -699,17 +709,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+#, fuzzy
 
 
 
@@ -737,17 +737,19 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
+
+
+
+
+
+
+
+
+
+
 #, fuzzy
 
-
-
-
-
-
-
-
-
-
+#, fuzzy
 
 
 
@@ -917,8 +919,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
-
 
 
 
@@ -942,7 +942,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
 
 
 
@@ -970,7 +969,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
 
 
 
@@ -1042,6 +1040,8 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 #, fuzzy
 
+#, fuzzy
+
 
 
 
@@ -1059,7 +1059,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 #, fuzzy
-
 
 
 
@@ -1275,30 +1274,13 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
 #, fuzzy
 
 #, fuzzy
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#, fuzzy
 
 
 #, fuzzy
@@ -1324,63 +1306,8 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #, fuzzy
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #, fuzzy
 
@@ -1392,24 +1319,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 #, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1444,27 +1353,10 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-#, fuzzy
-
 #, fuzzy
 
 
 
-
-#, fuzzy
 
 
 #, fuzzy
@@ -1475,7 +1367,12 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
 
+#, fuzzy
+
+
+#, fuzzy
 
 
 
@@ -1501,74 +1398,7 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
 
 
 
@@ -1625,6 +1455,85 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+#, fuzzy
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
 
 
 
@@ -1660,41 +1569,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1707,41 +1581,6 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 #, fuzzy
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
 
 
 
@@ -1812,6 +1651,183 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #, fuzzy
 
 
@@ -1871,6 +1887,23 @@ msgstr "Deze versie van CLISP draait alleen in low address geheugen."
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
 
 
 
