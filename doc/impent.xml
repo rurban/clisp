@@ -5,11 +5,11 @@
 <!ENTITY clisp-devel "<email><ulink url='http://lists.sourceforge.net/lists/listinfo/clisp-devel'>clisp-devel/at/lists.sourceforge.net</ulink></email>">
 
 <!-- *** people *** -->
-<!ENTITY bruno "<author><honorific>Dr</honorific><firstname>Bruno</firstname><surname>Haible</surname><address><otheraddr><ulink url='http://www.haible.de/bruno/'/></otheraddr></address></author>">
+<!ENTITY bruno "<author><firstname>Bruno</firstname><surname>Haible</surname><address><otheraddr><ulink url='http://www.haible.de/bruno/'/></otheraddr></address></author>">
 <!ENTITY gilbert-baumann "<author><firstname>Gilbert</firstname><surname>Baumann</surname><address><otheraddr><ulink url='http://www.uni-karlsruhe.de/~unk6/'/></otheraddr></address><email>unk6@rz.uni-karlsruhe.de</email></author>">
 <!ENTITY hin "<author><firstname>John</firstname><surname>Hinsdale</surname><address><otheraddr><ulink url='http://www.alma.com/staff/hin'/></otheraddr></address><email>hin@alma.com</email></author>">
 <!ENTITY sds "<author><honorific>Dr</honorific><firstname>Sam</firstname><surname>Steingold</surname><address><otheraddr><ulink url='http://www.podval.org/~sds/'/></otheraddr></address></author>">
-<!ENTITY stoll "<author><honorific>Dr</honorific><firstname>Michael</firstname><surname>Stoll</surname><address><otheraddr><ulink url='http://www.math.iu-bremen.de/stoll/'/></otheraddr></address></author>">
+<!ENTITY stoll "<author><firstname>Michael</firstname><surname>Stoll</surname><address><otheraddr><ulink url='http://www.math.iu-bremen.de/stoll/'/></otheraddr></address></author>">
 
 <!-- *** platforms *** -->
 <!ENTITY noreadline "<emphasis role='strong'><option>NO_READLINE</option></emphasis>">
