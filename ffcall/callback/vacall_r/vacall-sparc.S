@@ -35,113 +35,121 @@ C(__vacall_r:)
 	call %o2,0
 	add %fp,-48,%o1
 	ld [%fp-36],%o0
-	cmp %o0,15
-	bgu L2
-	sethi %hi(L35),%o0
-	ld [%fp-36],%o1
-	or %o0,%lo(L35),%o0
-	sll %o1,2,%o1
-	ld [%o1+%o0],%o0
-	jmp %o0
-	nop
-L35:
-	.word	L2
-	.word	L4
-	.word	L5
-	.word	L6
-	.word	L7
-	.word	L8
-	.word	L19
-	.word	L19
-	.word	L19
-	.word	L19
-	.word	L14
-	.word	L14
-	.word	L15
-	.word	L18
-	.word	L19
-	.word	L20
-L4:
-L5:
-	b L2
+	cmp %o0,0
+	be L3
+	cmp %o0,1
+	be L45
+	cmp %o0,2
+	bne L6
+	cmp %o0,3
+L45:
+	b L3
 	ldsb [%fp-24],%i0
 L6:
-	b L2
+	bne L8
+	ld [%fp-36],%o0
+	b L3
 	ldub [%fp-24],%i0
-L7:
-	b L2
-	ldsh [%fp-24],%i0
 L8:
-	b L2
+	cmp %o0,4
+	bne L10
+	ld [%fp-36],%o0
+	b L3
+	ldsh [%fp-24],%i0
+L10:
+	cmp %o0,5
+	bne L12
+	ld [%fp-36],%o0
+	b L3
 	lduh [%fp-24],%i0
-L14:
+L12:
+	cmp %o0,6
+	be L46
+	ld [%fp-36],%o0
+	cmp %o0,7
+	be L46
+	cmp %o0,8
+	be L46
+	cmp %o0,9
+	be L46
+	add %o0,-10,%o0
+	cmp %o0,1
+	bgu L22
+	ld [%fp-36],%o0
 	ld [%fp-24],%i0
-	b L2
+	b L3
 	ld [%fp-20],%i1
-L15:
+L22:
+	cmp %o0,12
+	bne L24
+	ld [%fp-36],%o0
 	ld [%fp-48],%o0
 	andcc %o0,32,%g0
-	be L16
+	be L25
 	ld [%fp-24],%f2
-	b L2
+	b L3
 	fstod %f2,%f0
-L16:
-	b L2
+L25:
+	b L3
 	ld [%fp-24],%f0
-L18:
-	b L2
+L24:
+	cmp %o0,13
+	bne L28
+	ld [%fp-36],%o0
+	b L3
 	ldd [%fp-24],%f0
-L19:
-	b L2
+L28:
+	cmp %o0,14
+	bne L30
+	ld [%fp-36],%o0
+L46:
+	b L3
 	ld [%fp-24],%i0
-L20:
+L30:
+	cmp %o0,15
+	bne L3
 	ld [%fp-48],%o0
 	andcc %o0,24,%g0
-	be L21
+	be L33
 	ld [%fp-32],%o0
 	ld [%i7+8],%o1
 	and %o0,4095,%o0
 	cmp %o0,%o1
-	bne L2
+	bne L3
 	ld [%fp-40],%i0
-	b L2
+	b L3
 	add %i7,4,%i7
-L21:
+L33:
 	ld [%fp-48],%o0
 	andcc %o0,1,%g0
-	be L24
+	be L36
 	andcc %o0,2,%g0
-	b L2
+	b L3
 	ld [%fp-40],%i0
-L24:
-	be L26
+L36:
+	be L38
 	ld [%fp-32],%o0
-	cmp %o0,2
-	be,a L30
-	ld [%fp-40],%o0
-	bgu L34
 	cmp %o0,1
-	be L28
+	bne L39
+	cmp %o0,2
 	ld [%fp-40],%o0
-	b L2
-	add %i7,4,%i7
-L34:
-	cmp %o0,4
-	be L31
-	ld [%fp-40],%o0
-	b L2
-	add %i7,4,%i7
-L28:
-	b L2
+	b L3
 	ldub [%o0],%i0
-L30:
-	b L2
+L39:
+	bne L42
+	ld [%fp-32],%o0
+	ld [%fp-40],%o0
+	b L3
 	lduh [%o0],%i0
-L31:
-	b L2
-	ld [%o0],%i0
-L26:
+L42:
+	cmp %o0,4
+	bne,a L3
 	add %i7,4,%i7
-L2:
+	ld [%fp-40],%o0
+	b L3
+	ld [%o0],%i0
+L38:
+	add %i7,4,%i7
+L3:
 	ret
 	restore

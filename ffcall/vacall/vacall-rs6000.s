@@ -7,8 +7,6 @@ __gnu_compiled_c:
 .toc
 LC..0:
 	.tc vacall_function[TC],vacall_function[RW]
-LC..1:
-	.tc L..30[TC],L..30
 .csect .text[PR]
 	.align 2
 	.globl vacall
@@ -61,99 +59,100 @@ vacall:
 	brl
 	l 2,20(1)
 	l 0,68(1)
-	cmpli 1,0,15
-	bc 12,5,L..2
-	l 9,LC..1(2)
-	sli 0,0,2
-	lx 0,9,0
-	cax 0,0,9
-	mtctr 0
-	bctr
-	.align 2
-L..30:
-	.long L..2-L..30
-	.long L..6-L..30
-	.long L..5-L..30
-	.long L..6-L..30
-	.long L..7-L..30
-	.long L..8-L..30
-	.long L..17-L..30
-	.long L..17-L..30
-	.long L..17-L..30
-	.long L..17-L..30
-	.long L..14-L..30
-	.long L..14-L..30
-	.long L..15-L..30
-	.long L..16-L..30
-	.long L..17-L..30
-	.long L..18-L..30
-L..5:
+	cmpi 1,0,0
+	bc 12,6,L..3
+	cmpi 1,0,1
+	bc 12,6,L..41
+	cmpi 1,0,2
+	bc 4,6,L..6
 	lbz 0,76(1)
 	sli 0,0,24
 	srai 3,0,24
-	b L..2
+	b L..3
 L..6:
+	cmpi 1,0,3
+	bc 4,6,L..8
+L..41:
 	lbz 3,76(1)
-	b L..2
-L..7:
-	lha 3,76(1)
-	b L..2
+	b L..3
 L..8:
+	cmpi 1,0,4
+	bc 4,6,L..10
+	lha 3,76(1)
+	b L..3
+L..10:
+	cmpi 1,0,5
+	bc 4,6,L..12
 	lhz 3,76(1)
-	b L..2
-L..14:
+	b L..3
+L..12:
+	cmpi 1,0,6
+	bc 12,6,L..42
+	cmpi 1,0,7
+	bc 12,6,L..42
+	cmpi 1,0,8
+	bc 12,6,L..42
+	cmpi 1,0,9
+	bc 12,6,L..42
+	ai 0,0,-10
+	cmpli 1,0,1
+	bc 12,5,L..22
 	l 3,76(1)
 	l 4,80(1)
-	b L..2
-L..15:
+	b L..3
+L..22:
+	l 0,68(1)
+	cmpi 1,0,12
+	bc 4,6,L..24
 	lfs 1,76(1)
-	b L..2
-L..16:
+	b L..3
+L..24:
+	cmpi 1,0,13
+	bc 4,6,L..26
 	lfd 1,76(1)
-	b L..2
-L..17:
+	b L..3
+L..26:
+	cmpi 1,0,14
+	bc 4,6,L..28
+L..42:
 	l 3,76(1)
-	b L..2
-L..18:
+	b L..3
+L..28:
+	cmpi 1,0,15
+	bc 4,6,L..3
 	l 9,56(1)
 	andil. 0,9,1
-	bc 12,2,L..19
+	bc 12,2,L..31
 	l 3,64(1)
-	b L..2
-L..19:
+	b L..3
+L..31:
 	andil. 0,9,1024
-	bc 12,2,L..2
+	bc 12,2,L..3
 	l 0,72(1)
-	cmpi 1,0,2
-	bc 12,6,L..24
-	cmpli 1,0,2
-	bc 12,5,L..29
 	cmpi 1,0,1
-	bc 12,6,L..23
-	b L..2
-L..29:
-	cmpi 1,0,4
-	bc 12,6,L..25
-	cmpi 1,0,8
-	bc 12,6,L..26
-	b L..2
-L..23:
+	bc 4,6,L..34
 	l 9,64(1)
 	lbz 3,0(9)
-	b L..2
-L..24:
+	b L..3
+L..34:
+	cmpi 1,0,2
+	bc 4,6,L..36
 	l 9,64(1)
 	lhz 3,0(9)
-	b L..2
-L..25:
+	b L..3
+L..36:
+	cmpi 1,0,4
+	bc 4,6,L..38
 	l 9,64(1)
 	l 3,0(9)
-	b L..2
-L..26:
+	b L..3
+L..38:
+	cmpi 1,0,8
+	bc 4,6,L..3
 	l 9,64(1)
 	l 3,0(9)
 	l 4,4(9)
-L..2:
+L..3:
 	cal 1,192(1)
 	l 0,8(1)
 	mtlr 0

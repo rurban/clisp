@@ -15,26 +15,27 @@
 	.text
 	.ent	__vacall_r
 __vacall_r:
-	.frame	$sp,216,$31		# vars= 168, regs= 2/0, args= 32, extra= 0
-	.mask	0x80010000,-8
+	.frame	$sp,224,$31		# vars= 168, regs= 3/0, args= 32, extra= 0
+	.mask	0x80030000,-8
 	.fmask	0x00000000,0
-	dsubu	$sp,$sp,216
-	sd	$31,144($sp)
+	dsubu	$sp,$sp,224
+	sd	$31,216($sp)
+	sd	$17,144($sp)
 	sd	$16,136($sp)
 	dsubu	$sp,$sp,64
  #APP
 	
  #NO_APP
-	daddu	$24,$sp,216
-	daddu	$12,$sp,280
-	sd	$4,216($sp)
-	sd	$5,224($sp)
-	sd	$6,232($sp)
-	sd	$7,240($sp)
-	sd	$8,248($sp)
-	sd	$9,256($sp)
-	sd	$10,264($sp)
-	sd	$11,272($sp)
+	daddu	$17,$sp,224
+	daddu	$12,$sp,288
+	sd	$4,224($sp)
+	sd	$5,232($sp)
+	sd	$6,240($sp)
+	sd	$7,248($sp)
+	sd	$8,256($sp)
+	sd	$9,264($sp)
+	sd	$10,272($sp)
+	sd	$11,280($sp)
 	s.d	$f12,136($sp)
 	s.d	$f13,144($sp)
 	s.d	$f14,152($sp)
@@ -52,7 +53,7 @@ __vacall_r:
 	s.s	$f18,124($sp)
 	s.s	$f19,128($sp)
 	sw	$0,32($sp)
-	sd	$24,40($sp)
+	sd	$17,40($sp)
 	sd	$0,48($sp)
 	sw	$0,56($sp)
 	sd	$12,88($sp)
@@ -68,91 +69,167 @@ __vacall_r:
 
 	lw	$13,56($sp)
 	#nop
-	sltu	$12,$13,16
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L2
-	dsll	$12,$13,32
+	beq	$13,$0,$L3
+	li	$12,0x00000001		# 1
 	.set	macro
 	.set	reorder
 
-	dsrl	$12,$12,32
-	dsll	$12,$12,3
-	ld	$12,$L70($12)
-	#nop
-	j	$12
-	.rdata
-	.align	3
-$L70:
-	.dword	$L2
-	.dword	$L6
-	.dword	$L5
-	.dword	$L6
-	.dword	$L7
-	.dword	$L8
-	.dword	$L9
-	.dword	$L10
-	.dword	$L17
-	.dword	$L17
-	.dword	$L17
-	.dword	$L17
-	.dword	$L15
-	.dword	$L16
-	.dword	$L17
-	.dword	$L18
-	.text
-$L5:
+	.set	noreorder
+	.set	nomacro
+	beq	$13,$12,$L86
+	li	$12,0x00000002		# 2
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L6
+	li	$12,0x00000003		# 3
+	.set	macro
+	.set	reorder
+
 	lb	$2,72($sp)
-	j	$L2
+	j	$L3
 $L6:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L8
+	li	$12,0x00000004		# 4
+	.set	macro
+	.set	reorder
+
+$L86:
 	lbu	$2,72($sp)
-	j	$L2
-$L7:
-	lh	$2,72($sp)
-	j	$L2
+	j	$L3
 $L8:
-	lhu	$2,72($sp)
-	j	$L2
-$L9:
-	lw	$2,72($sp)
-	j	$L2
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L10
+	li	$12,0x00000005		# 5
+	.set	macro
+	.set	reorder
+
+	lh	$2,72($sp)
+	j	$L3
 $L10:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L12
+	li	$12,0x00000006		# 6
+	.set	macro
+	.set	reorder
+
+	lhu	$2,72($sp)
+	j	$L3
+$L12:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L14
+	li	$12,0x00000007		# 7
+	.set	macro
+	.set	reorder
+
+	lw	$2,72($sp)
+	j	$L3
+$L14:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L16
+	li	$12,0x00000008		# 8
+	.set	macro
+	.set	reorder
+
 	lwu	$2,72($sp)
-	j	$L2
-$L15:
-	l.s	$f0,72($sp)
-	j	$L2
+	j	$L3
 $L16:
+	.set	noreorder
+	.set	nomacro
+	beq	$13,$12,$L87
+	li	$12,0x00000009		# 9
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$13,$12,$L87
+	li	$12,0x0000000a		# 10
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$13,$12,$L87
+	li	$12,0x0000000b		# 11
+	.set	macro
+	.set	reorder
+
+	lw	$13,56($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$13,$12,$L87
+	li	$12,0x0000000c		# 12
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L26
+	li	$12,0x0000000d		# 13
+	.set	macro
+	.set	reorder
+
+	l.s	$f0,72($sp)
+	j	$L3
+$L26:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L28
+	li	$12,0x0000000e		# 14
+	.set	macro
+	.set	reorder
+
 	l.d	$f0,72($sp)
-	j	$L2
-$L17:
+	j	$L3
+$L28:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L30
+	li	$12,0x0000000f		# 15
+	.set	macro
+	.set	reorder
+
+$L87:
 	ld	$2,72($sp)
-	j	$L2
-$L18:
+	j	$L3
+$L30:
+	bne	$13,$12,$L3
 	lw	$13,32($sp)
 	#nop
 	andi	$12,$13,0x0001
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L19
+	beq	$12,$0,$L33
 	andi	$12,$13,0x0400
 	.set	macro
 	.set	reorder
 
 	ld	$2,48($sp)
-	j	$L2
-$L19:
+	j	$L3
+$L33:
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L2
+	beq	$12,$0,$L3
 	andi	$12,$13,0x0004
 	.set	macro
 	.set	reorder
 
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L22
-	li	$12,2
+	beq	$12,$0,$L36
+	li	$12,1
 	.set	macro
 	.set	reorder
 
@@ -160,98 +237,87 @@ $L19:
 	#nop
 	.set	noreorder
 	.set	nomacro
-	beq	$13,$12,$L25
-	sltu	$12,$13,3
+	bne	$13,$12,$L37
+	li	$12,2
 	.set	macro
 	.set	reorder
 
+	ld	$12,48($sp)
+	#nop
+	lbu	$2,0($12)
+	j	$L3
+$L37:
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L30
-	li	$12,1
-	.set	macro
-	.set	reorder
-
-	beq	$13,$12,$L24
-	j	$L2
-$L30:
+	bne	$13,$12,$L39
 	li	$12,4
+	.set	macro
+	.set	reorder
+
+	ld	$12,48($sp)
+	#nop
+	lhu	$2,0($12)
+	j	$L3
+$L39:
 	.set	noreorder
 	.set	nomacro
-	beq	$13,$12,$L26
+	bne	$13,$12,$L41
 	li	$12,8
 	.set	macro
 	.set	reorder
 
-	beq	$13,$12,$L27
-	j	$L2
-$L24:
-	ld	$12,48($sp)
-	#nop
-	lbu	$2,0($12)
-	j	$L2
-$L25:
-	ld	$12,48($sp)
-	#nop
-	lhu	$2,0($12)
-	j	$L2
-$L26:
 	ld	$12,48($sp)
 	#nop
 	lwu	$2,0($12)
-	j	$L2
-$L27:
+	j	$L3
+$L41:
+	bne	$13,$12,$L3
 	ld	$12,48($sp)
 	#nop
 	ld	$2,0($12)
-	j	$L2
-$L22:
-	ld	$12,64($sp)
+	j	$L3
+$L36:
+	ld	$24,64($sp)
 	#nop
-	dsubu	$13,$12,1
-	sltu	$12,$13,16
+	sltu	$13,$0,$24
+	dsll	$13,$13,32
+	dsra	$13,$13,32
+	sltu	$12,$24,17
+	dsll	$12,$12,32
+	dsra	$12,$12,32
+	and	$13,$13,$12
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L32
-	dsll	$12,$13,3
+	beq	$13,$0,$L45
+	li	$12,1
 	.set	macro
 	.set	reorder
 
-	ld	$12,$L50($12)
-	#nop
-	j	$12
-	.rdata
-	.align	3
-$L50:
-	.dword	$L33
-	.dword	$L34
-	.dword	$L35
-	.dword	$L36
-	.dword	$L37
-	.dword	$L38
-	.dword	$L39
-	.dword	$L48
-	.dword	$L48
-	.dword	$L48
-	.dword	$L48
-	.dword	$L48
-	.dword	$L48
-	.dword	$L48
-	.dword	$L48
-	.dword	$L48
-	.text
-$L33:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L46
+	li	$12,2
+	.set	macro
+	.set	reorder
+
 	ld	$12,48($sp)
 	#nop
 	lbu	$12,0($12)
 	.set	noreorder
 	.set	nomacro
-	j	$L32
+	j	$L45
 	dsll	$2,$12,56
 	.set	macro
 	.set	reorder
 
-$L34:
+$L46:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L48
+	li	$12,3
+	.set	macro
+	.set	reorder
+
 	ld	$12,48($sp)
 	#nop
 	lbu	$13,0($12)
@@ -260,12 +326,19 @@ $L34:
 	dsll	$12,$12,48
 	.set	noreorder
 	.set	nomacro
-	j	$L32
+	j	$L45
 	or	$2,$13,$12
 	.set	macro
 	.set	reorder
 
-$L35:
+$L48:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L50
+	li	$12,4
+	.set	macro
+	.set	reorder
+
 	ld	$12,48($sp)
 	#nop
 	lbu	$14,0($12)
@@ -274,14 +347,22 @@ $L35:
 	dsll	$14,$14,56
 	dsll	$13,$13,48
 	or	$14,$14,$13
+	dsll	$12,$12,40
 	.set	noreorder
 	.set	nomacro
-	j	$L72
-	dsll	$12,$12,40
+	j	$L45
+	or	$2,$14,$12
 	.set	macro
 	.set	reorder
 
-$L36:
+$L50:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L52
+	li	$12,5
+	.set	macro
+	.set	reorder
+
 	ld	$15,48($sp)
 	#nop
 	lbu	$12,0($15)
@@ -296,12 +377,19 @@ $L36:
 	dsll	$13,$13,32
 	.set	noreorder
 	.set	nomacro
-	j	$L32
+	j	$L45
 	or	$2,$12,$13
 	.set	macro
 	.set	reorder
 
-$L37:
+$L52:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L54
+	li	$12,6
+	.set	macro
+	.set	reorder
+
 	ld	$15,48($sp)
 	#nop
 	lbu	$12,0($15)
@@ -316,14 +404,22 @@ $L37:
 	lbu	$14,4($15)
 	dsll	$13,$13,32
 	or	$12,$12,$13
+	dsll	$14,$14,24
 	.set	noreorder
 	.set	nomacro
-	j	$L72
-	dsll	$14,$14,24
+	j	$L45
+	or	$2,$12,$14
 	.set	macro
 	.set	reorder
 
-$L38:
+$L54:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L56
+	li	$12,7
+	.set	macro
+	.set	reorder
+
 	ld	$16,48($sp)
 	#nop
 	lbu	$12,0($16)
@@ -341,14 +437,22 @@ $L38:
 	lbu	$14,5($16)
 	dsll	$13,$13,24
 	or	$12,$12,$13
+	dsll	$14,$14,16
 	.set	noreorder
 	.set	nomacro
-	j	$L72
-	dsll	$14,$14,16
+	j	$L45
+	or	$2,$12,$14
 	.set	macro
 	.set	reorder
 
-$L39:
+$L56:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L58
+	dsubu	$12,$24,8
+	.set	macro
+	.set	reorder
+
 	ld	$15,48($sp)
 	#nop
 	lbu	$12,0($15)
@@ -369,14 +473,17 @@ $L39:
 	lbu	$14,6($15)
 	dsll	$13,$13,16
 	or	$12,$12,$13
+	dsll	$14,$14,8
 	.set	noreorder
 	.set	nomacro
-	j	$L72
-	dsll	$14,$14,8
+	j	$L45
+	or	$2,$12,$14
 	.set	macro
 	.set	reorder
 
-$L48:
+$L58:
+	sltu	$12,$12,9
+	beq	$12,$0,$L45
 	ld	$16,48($sp)
 	#nop
 	lbu	$12,0($16)
@@ -400,121 +507,132 @@ $L48:
 	lbu	$14,7($16)
 	dsll	$13,$13,8
 	or	$12,$12,$13
-$L72:
 	or	$2,$12,$14
-$L32:
-	ld	$12,64($sp)
-	#nop
-	dsubu	$13,$12,9
-	sltu	$12,$13,8
+	li	$12,8
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L51
-	dsll	$12,$13,3
+	beq	$24,$12,$L45
+	li	$12,9
 	.set	macro
 	.set	reorder
 
-	ld	$12,$L61($12)
-	#nop
-	j	$12
-	.rdata
-	.align	3
-$L61:
-	.dword	$L52
-	.dword	$L53
-	.dword	$L54
-	.dword	$L55
-	.dword	$L56
-	.dword	$L57
-	.dword	$L58
-	.dword	$L59
-	.text
-$L52:
-	ld	$12,48($sp)
-	#nop
-	lbu	$12,8($12)
 	.set	noreorder
 	.set	nomacro
-	j	$L51
+	bne	$24,$12,$L63
+	li	$12,10
+	.set	macro
+	.set	reorder
+
+	lbu	$12,8($16)
+	.set	noreorder
+	.set	nomacro
+	j	$L45
 	dsll	$3,$12,56
 	.set	macro
 	.set	reorder
 
-$L53:
-	ld	$12,48($sp)
-	#nop
-	lbu	$13,8($12)
-	lbu	$12,9($12)
+$L63:
+	.set	noreorder
+	.set	nomacro
+	bne	$24,$12,$L65
+	li	$12,11
+	.set	macro
+	.set	reorder
+
+	lbu	$13,8($16)
+	lbu	$12,9($16)
 	dsll	$13,$13,56
 	dsll	$12,$12,48
 	.set	noreorder
 	.set	nomacro
-	j	$L51
+	j	$L45
 	or	$3,$13,$12
 	.set	macro
 	.set	reorder
 
-$L54:
-	ld	$12,48($sp)
-	#nop
-	lbu	$14,8($12)
-	lbu	$13,9($12)
-	lbu	$12,10($12)
-	dsll	$14,$14,56
-	dsll	$13,$13,48
-	or	$14,$14,$13
+$L65:
 	.set	noreorder
 	.set	nomacro
-	j	$L73
-	dsll	$12,$12,40
+	bne	$24,$12,$L67
+	li	$12,12
 	.set	macro
 	.set	reorder
 
-$L55:
-	ld	$15,48($sp)
-	#nop
-	lbu	$12,8($15)
-	lbu	$13,9($15)
-	lbu	$14,10($15)
+	lbu	$12,8($16)
+	lbu	$13,9($16)
+	lbu	$14,10($16)
 	dsll	$12,$12,56
 	dsll	$13,$13,48
 	or	$12,$12,$13
-	lbu	$13,11($15)
+	.set	noreorder
+	.set	nomacro
+	j	$L88
+	dsll	$14,$14,40
+	.set	macro
+	.set	reorder
+
+$L67:
+	ld	$13,64($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L69
+	li	$12,13
+	.set	macro
+	.set	reorder
+
+	lbu	$12,8($16)
+	lbu	$13,9($16)
+	lbu	$14,10($16)
+	dsll	$12,$12,56
+	dsll	$13,$13,48
+	or	$12,$12,$13
+	lbu	$13,11($16)
 	dsll	$14,$14,40
 	or	$12,$12,$14
 	dsll	$13,$13,32
 	.set	noreorder
 	.set	nomacro
-	j	$L51
+	j	$L45
 	or	$3,$12,$13
 	.set	macro
 	.set	reorder
 
-$L56:
-	ld	$15,48($sp)
-	#nop
-	lbu	$12,8($15)
-	lbu	$13,9($15)
-	lbu	$14,10($15)
+$L69:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L71
+	li	$12,14
+	.set	macro
+	.set	reorder
+
+	lbu	$12,8($16)
+	lbu	$13,9($16)
+	lbu	$14,10($16)
 	dsll	$12,$12,56
 	dsll	$13,$13,48
 	or	$12,$12,$13
 	dsll	$14,$14,40
-	lbu	$13,11($15)
+	lbu	$13,11($16)
 	or	$12,$12,$14
-	lbu	$14,12($15)
+	lbu	$14,12($16)
 	dsll	$13,$13,32
 	or	$12,$12,$13
 	.set	noreorder
 	.set	nomacro
-	j	$L73
+	j	$L88
 	dsll	$14,$14,24
 	.set	macro
 	.set	reorder
 
-$L57:
-	ld	$16,48($sp)
-	#nop
+$L71:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L73
+	li	$12,15
+	.set	macro
+	.set	reorder
+
 	lbu	$12,8($16)
 	lbu	$13,9($16)
 	lbu	$14,10($16)
@@ -532,42 +650,46 @@ $L57:
 	or	$12,$12,$13
 	.set	noreorder
 	.set	nomacro
-	j	$L73
+	j	$L88
 	dsll	$14,$14,16
 	.set	macro
 	.set	reorder
 
-$L58:
-	ld	$15,48($sp)
-	#nop
-	lbu	$12,8($15)
-	lbu	$13,9($15)
-	lbu	$14,10($15)
+$L73:
+	.set	noreorder
+	.set	nomacro
+	bne	$13,$12,$L75
+	li	$12,16
+	.set	macro
+	.set	reorder
+
+	lbu	$12,8($16)
+	lbu	$13,9($16)
+	lbu	$14,10($16)
 	dsll	$12,$12,56
 	dsll	$13,$13,48
 	or	$12,$12,$13
 	dsll	$14,$14,40
-	lbu	$13,11($15)
+	lbu	$13,11($16)
 	or	$12,$12,$14
-	lbu	$14,12($15)
+	lbu	$14,12($16)
 	dsll	$13,$13,32
 	or	$12,$12,$13
 	dsll	$14,$14,24
-	lbu	$13,13($15)
+	lbu	$13,13($16)
 	or	$12,$12,$14
-	lbu	$14,14($15)
+	lbu	$14,14($16)
 	dsll	$13,$13,16
 	or	$12,$12,$13
 	.set	noreorder
 	.set	nomacro
-	j	$L73
+	j	$L88
 	dsll	$14,$14,8
 	.set	macro
 	.set	reorder
 
-$L59:
-	ld	$16,48($sp)
-	#nop
+$L75:
+	bne	$13,$12,$L45
 	lbu	$12,8($16)
 	lbu	$13,9($16)
 	lbu	$14,10($16)
@@ -589,15 +711,15 @@ $L59:
 	lbu	$14,15($16)
 	dsll	$13,$13,8
 	or	$12,$12,$13
-$L73:
+$L88:
 	or	$3,$12,$14
-$L51:
+$L45:
 	lw	$12,32($sp)
 	#nop
 	andi	$12,$12,0x2000
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L62
+	beq	$12,$0,$L78
 	li	$12,4
 	.set	macro
 	.set	reorder
@@ -606,7 +728,7 @@ $L51:
 	#nop
 	.set	noreorder
 	.set	nomacro
-	bne	$13,$12,$L63
+	bne	$13,$12,$L79
 	li	$12,8
 	.set	macro
 	.set	reorder
@@ -614,20 +736,20 @@ $L51:
 	ld	$12,48($sp)
 	#nop
 	l.s	$f0,0($12)
-	j	$L62
-$L63:
-	bne	$13,$12,$L62
+	j	$L78
+$L79:
+	bne	$13,$12,$L78
 	ld	$12,48($sp)
 	#nop
 	l.s	$f0,0($12)
 	l.s	$f2,4($12)
-$L62:
+$L78:
 	lw	$12,32($sp)
 	#nop
 	andi	$12,$12,0x4000
 	.set	noreorder
 	.set	nomacro
-	beq	$12,$0,$L2
+	beq	$12,$0,$L3
 	li	$12,8
 	.set	macro
 	.set	reorder
@@ -636,7 +758,7 @@ $L62:
 	#nop
 	.set	noreorder
 	.set	nomacro
-	bne	$13,$12,$L67
+	bne	$13,$12,$L83
 	li	$12,16
 	.set	macro
 	.set	reorder
@@ -644,20 +766,21 @@ $L62:
 	ld	$12,48($sp)
 	#nop
 	l.d	$f0,0($12)
-	j	$L2
-$L67:
-	bne	$13,$12,$L2
+	j	$L3
+$L83:
+	bne	$13,$12,$L3
 	ld	$12,48($sp)
 	#nop
 	l.d	$f0,0($12)
 	l.d	$f2,8($12)
-$L2:
+$L3:
  #APP
 	
  #NO_APP
 	daddu	$sp,$sp,64
-	ld	$31,144($sp)
+	ld	$31,216($sp)
+	ld	$17,144($sp)
 	ld	$16,136($sp)
-	daddu	$sp,$sp,216
+	daddu	$sp,$sp,224
 	j	$31
 	.end	__vacall_r
