@@ -234,6 +234,7 @@
 <!ENTITY st-rb "<link linkend='st-rb'><function>GRAY:STREAM-READ-BYTE</function></link>">
 <!ENTITY st-rbla "<link linkend='st-rbla'><function>GRAY:STREAM-READ-BYTE-LOOKAHEAD</function></link>">
 <!ENTITY rbla "<link linkend='rbla'><function>EXT:READ-BYTE-LOOKAHEAD</function></link>">
+<!ENTITY spe-var-p "<link linkend='spe-var-p'><function>EXT:SPECIAL-VARIABLE-P</function></link>">
 <!ENTITY st-rcnh "<link linkend='st-rcnh'><function>GRAY:STREAM-READ-CHAR-NO-HANG</function></link>">
 <!ENTITY st-uc "<link linkend='st-uc'><function>GRAY:STREAM-UNREAD-CHAR</function></link>">
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
