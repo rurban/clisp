@@ -340,7 +340,9 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
             break;
           }
         } while (nbyte != 0);
+        var int saved_errno = errno;
         END_NO_BLOCK(fd);
+        errno = saved_errno;
         return done;
       #endif
     }
@@ -478,7 +480,9 @@ global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance
             break;
           }
         } while (nbyte != 0);
+        var int saved_errno = errno;
         END_NO_BLOCK(fd);
+        errno = saved_errno;
         return done;
       #endif
     }
@@ -666,7 +670,9 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
           break;
         }
       } while (nbyte != 0);
+      var int saved_errno = errno;
       END_NO_BLOCK(fd);
+      errno = saved_errno;
       return done;
     }
   }
