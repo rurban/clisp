@@ -1,3 +1,15 @@
+2005-01-21  Bruno Haible  <bruno@clisp.org>
+
+	* alltest.tst: At the end, clean up symbols affected by side-effects.
+	* backquot.tst: Likewise.
+	* eval20.tst: Likewise.
+	* format.tst: Likewise.
+	* lists152.tst: Likewise.
+	* macro8.tst: Likewise.
+	* map.tst: Likewise.
+	* pack11.tst: Likewise.
+	* setf.tst: Likewise.
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* type.tst: Rename some classes to avoid collisions with other tests.

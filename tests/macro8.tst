@@ -908,3 +908,8 @@ ERROR
 ;; <http://article.gmane.org/gmane.lisp.clisp.general:9093>
 (multiple-value-list (compile nil #'test-constant-folding))
 (#.#'test-constant-folding nil nil)
+
+
+; Clean up.
+(unintern 'x)
+T

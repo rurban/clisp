@@ -262,3 +262,8 @@ ERROR
 (mapcap #'list '(a b c) '(1 2 3) '(u i v))
 #+CLISP
 (A 1 U B 2 I C 3 V)
+
+
+; Clean up.
+(unintern 'x)
+T

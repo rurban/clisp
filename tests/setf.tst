@@ -548,3 +548,8 @@ BOTHVARS
   (push (make-array 2) (bothvars a b))
   (eq a b))
 T
+
+
+; Clean up.
+(unintern 'x)
+T
