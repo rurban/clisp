@@ -411,6 +411,7 @@
         :type boolean)
       ($fixed-slot-locations ; flag whether to guarantee same slot locations
                            ; in all subclasses
+        :initarg :fixed-slot-locations
         )
       ($instantiated       ; true if an instance has already been created
         :type boolean
@@ -421,6 +422,7 @@
         :initform '())
       ($prototype          ; class prototype - an instance or NIL
         :type (or standard-object null)))
+     (:default-initargs :fixed-slot-locations nil)
      (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
@@ -470,6 +472,12 @@
 (defvar *<standard-class>-class-version* (make-class-version))
 
 (defconstant *<standard-class>-instance-size* 27)
+
+;; For DEFCLASS macro expansions.
+(defconstant *<standard-class>-valid-initialization-keywords*
+             '(:name :direct-superclasses :direct-slots :direct-default-initargs
+               :documentation :generic-accessors :fixed-slot-locations))
+(defconstant *<standard-class>-default-initargs* '(:fixed-slot-locations nil))
 
 ;;; ===========================================================================
 
