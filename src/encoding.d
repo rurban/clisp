@@ -53,15 +53,19 @@ nonreturning_function(global, fehler_unencodable,
 }
 
 # The range function for an encoding covering all of Unicode.
-global object all_range (object encoding, uintL start, uintL end) {
-  pushSTACK(code_char(as_chart(start))); pushSTACK(code_char(as_chart(end)));
-  return stringof(2);
+global object all_range (object encoding, uintL start, uintL end, uintL maxintervals) {
+  var uintL count = 0;
+  if (maxintervals > 0) {
+    pushSTACK(code_char(as_chart(start))); pushSTACK(code_char(as_chart(end)));
+    count = 2;
+  }
+  return stringof(count);
 }
 
 # The range function for an encoding covering the BMP of Unicode.
-global object bmp_range (object encoding, uintL start, uintL end) {
+global object bmp_range (object encoding, uintL start, uintL end, uintL maxintervals) {
   var uintL count = 0;
-  if (start < 0x10000) {
+  if (maxintervals > 0 && start < 0x10000) {
     if (end >= 0x10000)
       end = 0xFFFF;
     pushSTACK(code_char(as_chart(start))); pushSTACK(code_char(as_chart(end)));
@@ -1306,7 +1310,7 @@ global uintL nls_asciiext_wcslen (object encoding, const chart* src,
 global void nls_asciiext_wcstombs (object encoding, object stream,
                                    const chart* *srcp, const chart* srcend,
                                    uintB* *destp, uintB* destend);
-global object nls_range (object encoding, uintL start, uintL end);
+global object nls_range (object encoding, uintL start, uintL end, uintL maxintervals);
 
 # Bytes to characters.
 
@@ -1583,10 +1587,10 @@ global void nls_asciiext_wcstombs (object encoding, object stream,
 }
 
 # Determining the range of encodable characters.
-global object nls_range (object encoding, uintL start, uintL end) {
+global object nls_range (object encoding, uintL start, uintL end, uintL maxintervals) {
   var uintL count = 0; # number of intervals already on the STACK
   # The range lies in the BMP; no need to look beyond U+FFFF.
-  if (start < 0x10000) {
+  if (maxintervals > 0 && start < 0x10000) {
     if (end >= 0x10000)
       end = 0xFFFF;
     var const nls_table* table =
@@ -1597,7 +1601,7 @@ global object nls_range (object encoding, uintL start, uintL end) {
     var bool have_i1_i2 = false; # [i1,i2] = interval being built
     var uintL i;
     for (i = start;;) {
-      # Here i < 0x10000.
+      # Here i < 0x10000 and count < maxintervals.
       var chart ch = as_chart(i);
       if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0
           || chareq(ch,ascii(0))) {
@@ -1611,8 +1615,12 @@ global object nls_range (object encoding, uintL start, uintL end) {
         if (have_i1_i2) {
           pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
           check_STACK(); count++;
+          have_i1_i2 = false;
+          # If we have already produced the maximum number of intervals
+          # requested by the caller, it's of no use to search further.
+          if (count == maxintervals)
+            break;
         }
-        have_i1_i2 = false;
       }
       if (i == end)
         break;
@@ -1644,7 +1652,7 @@ extern uintL iconv_wcslen (object encoding, const chart* src,
 extern void iconv_wcstombs (object encoding, object stream, const chart* *srcp,
                             const chart* srcend, uintB* *destp,
                             uintB* destend);
-extern object iconv_range (object encoding, uintL start, uintL end);
+extern object iconv_range (object encoding, uintL start, uintL end, uintL maxintervals);
 
 #endif # HAVE_GOOD_ICONV
 
@@ -1809,7 +1817,7 @@ LISPFUNN(charset_typep,2) {
   if (charp(obj)) {
    #ifdef UNICODE
     var uintL i = as_cint(char_code(obj));
-    obj = Encoding_range(encoding)(encoding,i,i);
+    obj = Encoding_range(encoding)(encoding,i,i,1);
     value1 = (Svector_length(obj) > 0 ? T : NIL); mv_count=1;
    #else
     value1 = T; mv_count=1;
@@ -1831,24 +1839,31 @@ LISPFUNN(encoding_charset,1) {
 
 #ifdef UNICODE
 
-# (SYSTEM::CHARSET-RANGE encoding char1 char2)
+# (SYSTEM::CHARSET-RANGE encoding char1 char2 [maxintervals])
 # returns the range of characters in [char1,char2] encodable in the encoding.
-LISPFUNN(charset_range,3) {
-  var object encoding = STACK_2;
+LISPFUN(charset_range,3,1,norest,nokey,0,NIL) {
+  var object encoding = STACK_3;
   if (!encodingp(encoding))
     fehler_encoding(encoding);
+  if (!charp(STACK_2))
+    fehler_char(STACK_2);
   if (!charp(STACK_1))
     fehler_char(STACK_1);
-  if (!charp(STACK_0))
-    fehler_char(STACK_0);
-  var uintL i1 = as_cint(char_code(STACK_1));
-  var uintL i2 = as_cint(char_code(STACK_0));
+  var uintL i1 = as_cint(char_code(STACK_2));
+  var uintL i2 = as_cint(char_code(STACK_1));
+  var uintL maxintervals;
+  if (eq(STACK_0,unbound) || nullp(STACK_0))
+    maxintervals = ~(uintL)0;
+  else if (posfixnump(STACK_0))
+    maxintervals = posfixnum_to_L(STACK_0);
+  else
+    fehler_posfixnum(STACK_0);
   if (i1 <= i2)
-    value1 = Encoding_range(encoding)(encoding,i1,i2);
+    value1 = Encoding_range(encoding)(encoding,i1,i2,maxintervals);
   else
     value1 = O(empty_string);
   mv_count=1;
-  skipSTACK(3);
+  skipSTACK(4);
 }
 
 #endif
