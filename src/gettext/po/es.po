@@ -97,7 +97,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2000-03-03 22:56:47 CET\n"
+"POT-Creation-Date: 2000-03-06 19:32:02 CET\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -1712,56 +1712,56 @@ msgstr "la lista de argumentos clave ~ tiene longitud impar"
 msgid "illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~"
 msgstr "par argumento clave/valor inválido ~, ~ en la lista de argumentos. Los parámetros clave permitidos son ~"
 
-#: encoding.d:41
+#: encoding.d:43
 msgid "Character #\\u$$$$ cannot be represented in the character set ~"
 msgstr ""
 
-#: encoding.d:220
+#: encoding.d:222
 msgid "character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry"
 msgstr ""
 
-#: encoding.d:414
+#: encoding.d:416
 msgid "invalid byte #x$$ in ~ conversion, not a Unicode-16"
 msgstr ""
 
-#: encoding.d:432
+#: encoding.d:434
 msgid "invalid byte sequence #x$$ #x$$ in ~ conversion"
 msgstr ""
 
-#: encoding.d:453
+#: encoding.d:455
 msgid "invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion"
 msgstr ""
 
-#: encoding.d:1052
+#: encoding.d:1054
 msgid "invalid byte #x$$ in ~ conversion"
 msgstr ""
 
-#: encoding.d:1434
+#: encoding.d:1436
 #, fuzzy
 msgid "~: illegal :CHARSET argument ~"
 msgstr "~: argumento :TEST inválido ~"
 
-#: encoding.d:1447
+#: encoding.d:1449
 #, fuzzy
 msgid "~: illegal :LINE-TERMINATOR argument ~"
 msgstr "~: argumento :TEST inválido ~"
 
-#: encoding.d:1459
+#: encoding.d:1461
 #, fuzzy
 msgid "~: illegal :INPUT-ERROR-ACTION argument ~"
 msgstr "~: argumento :DIRECTION inválido ~"
 
-#: encoding.d:1471
+#: encoding.d:1473
 #, fuzzy
 msgid "~: illegal :OUTPUT-ERROR-ACTION argument ~"
 msgstr "~: argumento :DIRECTION inválido ~"
 
-#: encoding.d:1520
+#: encoding.d:1522
 #, fuzzy
 msgid "~: argument ~ is not a character set"
 msgstr "~: el argumento ~ no es un carácter"
 
-#: encoding.d:2110
+#: encoding.d:2112
 #, fuzzy
 msgid "~: ~ is not a 1:1 encoding"
 msgstr "~: ~ no es un registro"
@@ -3144,7 +3144,7 @@ msgstr "~: la longitud de BIT-VECTOR ~ es inválida"
 # hash'. Todos los informáticos las llamamos así. Jamás he oído `Tabla
 # *de* hash' cll
 #
-#: hashtabl.d:1151
+#: hashtabl.d:1152
 msgid "Hash table size ~ too large"
 msgstr "La tabla hash ~ es demasiado grande"
 
@@ -3153,31 +3153,31 @@ msgstr "La tabla hash ~ es demasiado grande"
 #
 # Me gusta, salvo que el error ocurre "durante" - cll
 #
-#: hashtabl.d:1197
+#: hashtabl.d:1198
 msgid "internal error occured while resizing ~"
 msgstr "error interno durante el redimensionamiento de ~"
 
-#: hashtabl.d:1308
+#: hashtabl.d:1309
 msgid "~: illegal :TEST argument ~"
 msgstr "~: argumento :TEST inválido ~"
 
-#: hashtabl.d:1325
+#: hashtabl.d:1326
 msgid "~: :SIZE argument should be a fixnum >=0, not ~"
 msgstr "~: el argumento :SIZE debe ser del tipo FIXNUM >= 0, no ~"
 
-#: hashtabl.d:1348
+#: hashtabl.d:1349
 msgid "~: :REHASH-SIZE argument should be a float > 1, not ~"
 msgstr "~: el argumento :REHASH-SIZE debe ser del tipo FLOAT > 1, no ~"
 
-#: hashtabl.d:1393
+#: hashtabl.d:1394
 msgid "~: :REHASH-THRESHOLD argument should be a float between 0 and 1, not ~"
 msgstr "~: el argumento :REHASH-THRESHOLD debe ser un número del tipo FLOAT entre 0 y 1, no ~"
 
-#: hashtabl.d:1468
+#: hashtabl.d:1469
 msgid "~: internal error while building ~"
 msgstr "~: error interno durante la construcción de ~"
 
-#: hashtabl.d:1512
+#: hashtabl.d:1513
 msgid "~: argument ~ is not a hash-table"
 msgstr "~: el argumento ~ no es una tabla hash"
 

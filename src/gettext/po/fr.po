@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2000-03-03 22:56:47 CET\n"
+"POT-Creation-Date: 2000-03-06 19:32:02 CET\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -1037,51 +1037,51 @@ msgstr "La liste de mots clé ~ est de longueur impaire."
 msgid "illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~"
 msgstr "Paire mot-clé - valeur ~, ~ illicite dans une liste d'arguments. Les mots-clé permis sont ~"
 
-#: encoding.d:41
+#: encoding.d:43
 msgid "Character #\\u$$$$ cannot be represented in the character set ~"
 msgstr "Le caractère #\\u$$$$ ne peut pas être représenté en ~."
 
-#: encoding.d:220
+#: encoding.d:222
 msgid "character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry"
 msgstr "caractère #x$$$$$$$$ pendant conversion ~, pas un Unicode-16, désolé"
 
-#: encoding.d:414
+#: encoding.d:416
 msgid "invalid byte #x$$ in ~ conversion, not a Unicode-16"
 msgstr "octet invalide #x$$ pendant conversion ~, pas un Unicode-16"
 
-#: encoding.d:432
+#: encoding.d:434
 msgid "invalid byte sequence #x$$ #x$$ in ~ conversion"
 msgstr "séquence d'octets invalide #x$$ #x$$ pendant conversion ~"
 
-#: encoding.d:453
+#: encoding.d:455
 msgid "invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion"
 msgstr "séquence d'octets invalide #x$$ #x$$ #x$$ pendant conversion ~"
 
-#: encoding.d:1052
+#: encoding.d:1054
 msgid "invalid byte #x$$ in ~ conversion"
 msgstr "octet invalide #x$$ pendant conversion ~"
 
-#: encoding.d:1434
+#: encoding.d:1436
 msgid "~: illegal :CHARSET argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :CHARSET."
 
-#: encoding.d:1447
+#: encoding.d:1449
 msgid "~: illegal :LINE-TERMINATOR argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :LINE-TERMINATOR."
 
-#: encoding.d:1459
+#: encoding.d:1461
 msgid "~: illegal :INPUT-ERROR-ACTION argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :INPUT-ERROR-ACTION."
 
-#: encoding.d:1471
+#: encoding.d:1473
 msgid "~: illegal :OUTPUT-ERROR-ACTION argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :OUTPUT-ERROR-ACTION."
 
-#: encoding.d:1520
+#: encoding.d:1522
 msgid "~: argument ~ is not a character set"
 msgstr "~ : L'argument ~ n'est pas un jeu de caractères."
 
-#: encoding.d:2110
+#: encoding.d:2112
 msgid "~: ~ is not a 1:1 encoding"
 msgstr "~ : ~ n'est pas un système de codage 1:1"
 
@@ -2017,35 +2017,35 @@ msgstr "Index END ~ invalide pour ~."
 msgid "~: invalid bit-vector length ~"
 msgstr "~: ~ n'est pas convenable comme longeur de vecteur bit."
 
-#: hashtabl.d:1151
+#: hashtabl.d:1152
 msgid "Hash table size ~ too large"
 msgstr "La taille ~ est trop grande pour une table de hachage."
 
-#: hashtabl.d:1197
+#: hashtabl.d:1198
 msgid "internal error occured while resizing ~"
 msgstr "Une erreur interne s'est produite au moment de la réorganisation de ~."
 
-#: hashtabl.d:1308
+#: hashtabl.d:1309
 msgid "~: illegal :TEST argument ~"
 msgstr "~: Argument pour :TEST illicite : ~"
 
-#: hashtabl.d:1325
+#: hashtabl.d:1326
 msgid "~: :SIZE argument should be a fixnum >=0, not ~"
 msgstr "~: L'argument :SIZE doit être de type FIXNUM positif ou zéro et non ~."
 
-#: hashtabl.d:1348
+#: hashtabl.d:1349
 msgid "~: :REHASH-SIZE argument should be a float > 1, not ~"
 msgstr "~: L'argument :REHASH-SIZE devrait être un nombre à virgule flottante supérieur à 1 et non ~."
 
-#: hashtabl.d:1393
+#: hashtabl.d:1394
 msgid "~: :REHASH-THRESHOLD argument should be a float between 0 and 1, not ~"
 msgstr "~: L'argument :REHASH-THRESHOLD devrait être un nombre à virgule flottante compris entre 0 et 1 et non ~."
 
-#: hashtabl.d:1468
+#: hashtabl.d:1469
 msgid "~: internal error while building ~"
 msgstr "~: Une erreur interne s'est produite lors de la construction de ~."
 
-#: hashtabl.d:1512
+#: hashtabl.d:1513
 msgid "~: argument ~ is not a hash-table"
 msgstr "~: L'argument ~ n'est pas une table de hachage."
 
