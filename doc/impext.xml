@@ -1587,7 +1587,7 @@ expands to
 <programlisting>
  (defmacro with-foo ((&key-amp; foo1 foo2) &body-amp; body)
    `(... ,foo1 ... ,foo2 ... ,@body))
- (defmacro with-foo-bar ((&rest-amp; opts &key bar1 bar2
+ (defmacro with-foo-bar ((&rest-amp; opts &key-amp; bar1 bar2
                           &allow-other-keys-amp;)
                          &body-amp; body)
    `(with-foo (,@(remove-plist opts :bar1 :bar2)
@@ -1602,8 +1602,8 @@ here <function>WITH-FOO</function> does not receive the
 <formalpara id="html-http-output">
      <title>Macros <function>EXT:WITH-HTML-OUTPUT</function> and
                    <function>EXT:WITH-HTTP-OUTPUT</function></title>
-<para>Defined in <file>inspect.lisp</file>, these macros are useful for
- the rudimentary &http; server defined there.</para></formalpara>
+<para>Defined in <filename>inspect.lisp</filename>, these macros are useful
+ for the rudimentary &http; server defined there.</para></formalpara>
 
 </section>
 
