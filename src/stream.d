@@ -3538,6 +3538,16 @@ LISPFUNN(generic_stream_p,1)
             );
     }
 
+# UP: Check whether the stream is binary or not
+# local inline bool stream_char_p (object stream) {
+#   decoded_eltype det;
+#   test_eltype_arg(&(TheStream(stream)->strm_eltype),&det);
+#   return det.kind == eltype_ch;
+# }
+#define stream_char_p(stream)                           \
+ (eq(TheStream(stream)->strm_eltype,S(character)) ||    \
+  eq(TheStream(stream)->strm_eltype,S(string_char)))
+
 # UP: Returns a canonical representation for a :ELEMENT-TYPE.
 # canon_eltype(&decoded)
 # > decoded: decoded eltype
@@ -16525,15 +16535,16 @@ local object test_socket_stream(obj,check_open)
       if (input_stream_p(obj)) FD_SET(handle,&readfds);         \
       if (output_stream_p(obj)) FD_SET(handle,&writefds); }}
 
-#define HANDLE_ISSET(stream,res)                                          \
-  { SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);          \
-    if (FD_ISSET(handle,&exceptfds)) res = S(Kerror);                     \
-    else {                                                                \
-      bool wr = FD_ISSET(handle,&writefds),                               \
-        rd = FD_ISSET(handle,&readfds)&&ls_avail_p(listen_char(stream));  \
-      if      ( rd && !wr) res = S(Kinput);                               \
-      else if (!rd &&  wr) res = S(Koutput);                              \
-      else if ( rd &&  wr) res = S(Kio);                                  \
+#define HANDLE_ISSET(stream,res)                                        \
+  { SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);        \
+    if (FD_ISSET(handle,&exceptfds)) res = S(Kerror);                   \
+    else {                                                              \
+      bool wr = FD_ISSET(handle,&writefds),                             \
+        rd = FD_ISSET(handle,&readfds) &&                               \
+          (!stream_char_p(stream) || ls_avail_p(listen_char(stream)));  \
+      if      ( rd && !wr) res = S(Kinput);                             \
+      else if (!rd &&  wr) res = S(Koutput);                            \
+      else if ( rd &&  wr) res = S(Kio);                                \
       else                 res = NIL; }}
 
 LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
