@@ -273,33 +273,33 @@ User visible changes
                   PPRINT-FILL, PPRINT-LINEAR, PPRINT-TABULAR, PPRINT-TAB,
                   PPRINT-NEWLINE, PPRINT-INDENT
   are implemented.
-  See the impnotes <http://clisp.cons.org/impnotes.html#clpp> for details.
+  See <http://clisp.cons.org/impnotes.html#clpp> for details.
 
 * The functions WRITE and WRITE-TO-STRING now accept :LINES, :MISER-WIDTH
   and :PRINT-PPRINT-DISPATCH keyword arguments.
   This change requires recompilation of all .fas files.
 
 * Weak hash-tables are now supported.
-  See the impnotes <http://clisp.cons.org/impnotes.html#make-hash> for details.
+  See <http://clisp.cons.org/impnotes.html#make-hash> for details.
 
 * Support Cygwin's "/cygdrive/drive/path" pathname syntax on Win32.
 
 * New macro EXT:FCASE which allows specifying comparison function in CASE.
-  See the impnotes <http://clisp.cons.org/impnotes.html#fcase> for details.
+  See <http://clisp.cons.org/impnotes.html#fcase> for details.
 
 * New user variable CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*.
-  See the impnotes <http://clisp.cons.org/impnotes.html#load-lpt> for details.
+  See <http://clisp.cons.org/impnotes.html#load-lpt> for details.
 
 * Packages can now be locked and unlocked using EXT:PACKAGE-LOCK
-  See the impnotes <http://clisp.cons.org/impnotes.html#pack-lock> for details.
+  See <http://clisp.cons.org/impnotes.html#pack-lock> for details.
 
 * CLISP now supports internationalized Lisp programs, via GNU gettext.
   Macros ENGLISH, FRANCAIS and DEUTSCH have been removed.
-  See the impnotes <http://clisp.cons.org/impnotes.html#language> for details.
+  See <http://clisp.cons.org/impnotes.html#language> for details.
 
 * The UI language can now be changed dynamically,
   via symbol-macro *CURRENT-LANGUAGE*.
-  See the impnotes <http://clisp.cons.org/impnotes.html#i18n> for details.
+  See <http://clisp.cons.org/impnotes.html#i18n> for details.
 
 * Fixed a bug: LDIFF now handles dotted lists correctly.
 
@@ -433,7 +433,8 @@ User visible changes
   *PRINT-RPARS* now defaults to NIL and *PRINT-INDENT-LISTS* to 1, so
   that the lists are printed like in CLHS and CLtL.
 
-* New extension: directory access (win32 registry).  See impnotes for details.
+* New extension: directory access (win32 registry).
+  See <http://clisp.cons.org/impnotes.html#dir-key> for details.
 
 * Support UNC pathnames (\\host\dir\name.ext) on win32.
 
@@ -478,7 +479,8 @@ User visible changes
   the stream's constituents. Previously, it was always (OR CHARACTER INTEGER).
 
 * Fixed a bug: REPLACE signalled an error if the source and destination
-  sequences were the same and the source and destination ranges didn't overlap.
+  sequences were the same and the source and destination ranges did not
+  overlap.
 
 * Fixed a bug: A garbage collection during the execution of a foreign function
   callback caused a crash.
@@ -501,7 +503,7 @@ Portability
 
 * Added support for BeOS 5. Thanks to Alexis Rivera Rios <ahrivera@yahoo.com>.
 
-* Removed support for DOS. Don't worry, OS/2 and Win32 are still supported.
+* Removed support for DOS. Not to worry, OS/2 and Win32 are still supported.
 
 
 2000-03-06
@@ -670,6 +672,7 @@ User visible changes
     STREAM-WRITE-BYTE, STREAM-WRITE-BYTE-SEQUENCE.
   The functions CLOSE, OPEN-STREAM-P, STREAM-ELEMENT-TYPE are now generic
   functions.
+  See <http://clisp.cons.org/impnotes.html#gray> for details.
 
 * The macros FFI:DEF-C-CALL-OUT and FFI:DEF-C-CALL-IN now add an argument
   :LANGUAGE :STDC (means ANSI C) instead of :LANGUAGE :C (means old K&R C).
@@ -772,7 +775,8 @@ User visible changes
   multiple value places in setf &c.
 
 * The variable `*prompt-with-package*' is replaced with `*prompt*',
-  which can be a function.  See the impnotes for further details.
+  which can be a function.
+  See <http://clisp.cons.org/impnotes.html#prompt> for details.
 
 * Conforming with X3J13 writeup <FUNCTION-TYPE:X3J13-MARCH-88>, an error
   is now signalled when a lambda expression (not a function) is passed to
@@ -789,7 +793,7 @@ User visible changes
 * X3J13 vote <11> = writeups <CHARACTER-PROPOSAL:2>,
   <CHARACTER-LOOSE-ENDS:FIX>, <CHARACTER-VS-CHAR:LESS-INCONSISTENT-SHORT>,
   <JUN90-TRIVIAL-ISSUES:24>, <STANDARD-REPERTOIRE-GRATUITOUS:RENAME> are
-  implemented: Characters don't have font and bits attributes any more.
+  implemented: Characters do not have font and bits attributes any more.
   The following symbols are not exported from package COMMON-LISP any more:
      STRING-CHAR STRING-CHAR-P
      CHAR-FONT-LIMIT CHAR-BITS-LIMIT
@@ -980,7 +984,7 @@ User visible changes
   the type STRUCTURE.
 
 * X3J13 writeup <EVALHOOK-STEP-CONFUSION:X3J13-NOV-89> is implemented:
-  Don't export EVALHOOK, APPLYHOOK, *EVALHOOK*, *APPLYHOOK* from package
+  Do not export EVALHOOK, APPLYHOOK, *EVALHOOK*, *APPLYHOOK* from package
   COMMON-LISP any more.
 
 * X3J13 writeup <MACRO-DECLARATIONS:MAKE-EXPLICIT> is implemented: NOTINLINE
@@ -1022,7 +1026,7 @@ User visible changes
 * The CLX documentation now also exists in HTML format.
   Thanks to Gilbert Baumann <unk6@rz.uni-karlsruhe.de>.
 
-* The normal read-eval-print loop doesn't call (CLEAR-INPUT *STANDARD-INPUT*)
+* The normal read-eval-print loop does not call (CLEAR-INPUT *STANDARD-INPUT*)
   any more. This means that under X11, cut and paste of multiple lines into
   an xterm running clisp now works.
   Suggested by Sam Steingold.
@@ -1038,7 +1042,7 @@ User visible changes
   of the form ([SIMPLE-]ARRAY eltype 1). SUBTYPEP returned wrong results
   for type specifiers of the form ([SIMPLE-]ARRAY eltype n).
 
-* Fixed a bug: GET-MACRO-CHARACTER on a dispatch macro character doesn't
+* Fixed a bug: GET-MACRO-CHARACTER on a dispatch macro character does not
   result in an error any more.
 
 * Fixed a bug in ECASE, ETYPECASE, CCASE, CTYPECASE.
@@ -1067,7 +1071,7 @@ User visible changes
 * Fixed a bug: CLISP was unable to determine the user's homedir in
   certain (obscure) circumstances.
 
-* Don't warn anymore if someone modifies one of the standard generic
+* Do not warn anymore if someone modifies one of the standard generic
   functions of CL like PRINT-OBJECT and INITIALIZE-INSTANCE.
 
 Portability
@@ -1176,7 +1180,7 @@ User visible changes
   resolution of some IMPORT/EXPORT package operations aborted with an internal
   error.
 
-* Fixed a bug in the foreign function interface: call-ins didn't work on
+* Fixed a bug in the foreign function interface: call-ins did not work on
   some platforms.
   Thanks to Matthias Lindner <matthias@intellektik.informatik.th-darmstadt.de>.
 
@@ -1223,7 +1227,7 @@ User visible changes
 * Two new add-on modules:
     clx/new-clx: Fast Common Lisp to X11 interface. Written by
                  Gilbert Baumann <gilbert@ma2s2.mathematik.uni-karlsruhe.de>.
-    clx/mit-clx: Classical Common Lisp to X11 interface.
+    clx/mit-clx: Classic Common Lisp to X11 interface.
 
 * (DRIBBLE filename) now appends to the given file instead of overwriting it.
 
@@ -1240,7 +1244,7 @@ User visible changes
 
 * Fixed a bug: The error message issued by CHECK-TYPE was wrong.
 
-* Fixed a bug: Calling (DRIBBLE pathname) after (DRIBBLE) didn't work.
+* Fixed a bug: Calling (DRIBBLE pathname) after (DRIBBLE) did not work.
   Thanks to Art Nuzzo <artn@bs724.comm.mot.com>.
 
 * Fixed a bug: The WITH-STANDARD-IO-SYNTAX macro caused *PACKAGE* to be bound
@@ -1474,7 +1478,8 @@ User visible changes
 * Socket streams are implemented. New functions SOCKET-SERVER,
   SOCKET-SERVER-CLOSE, SOCKET-SERVER-PORT, SOCKET-WAIT, SOCKET-ACCEPT,
   SOCKET-CONNECT, SOCKET-STREAM-HOST, SOCKET-STREAM-PORT, SOCKET-SERVICE-PORT,
-  SOCKET-STREAM-PEER-HOST. See impnotes.txt for details.
+  SOCKET-STREAM-PEER-HOST.
+  See <http://clisp.cons.org/impnotes.html#socket> for details.
   Thanks to Marcus Daniels <marcus@sysc.pdx.edu> and
   Marco Ramoni <M.Ramoni@open.ac.uk>.
 
@@ -1492,7 +1497,7 @@ User visible changes
 * During directory search, symbolic link loops are now ignored instead
   of resulting in an error. Thanks to Dan Stanger.
 
-* Fixed a CLOS bug: REMOVE-METHOD didn't work.
+* Fixed a CLOS bug: REMOVE-METHOD did not work.
   Thanks to Roger Kehr <kehr@iti.informatik.th-darmstadt.de>.
 
 * Fixed a bug in the compiler: A (MULTIPLE-VALUE-SETQ vars valform)
@@ -1519,7 +1524,7 @@ User visible changes
   status 0 although the command had failed.
   Thanks to Brian F. Dennis <xjam@cs.Berkeley.edu>.
 
-* Fixed a bug: LOGTEST didn't work correctly if both arguments were bignums.
+* Fixed a bug: LOGTEST did not work correctly if both arguments were bignums.
 
 * Fixed a bug in the floating point number printing routine:
   In rare cases, a number was printed with more digits than necessary
@@ -1846,7 +1851,7 @@ Other modifications
 
 * Generational garbage collection now also works on IRIX 5.2.
 
-* Generational garbage collection and support for immutable objects don't
+* Generational garbage collection and support for immutable objects do not
   exclude each other any more.
 
 * Speed up the bytecode interpreter by about 2%.
@@ -2128,9 +2133,9 @@ Other modifications
   with powerful virtual memory management, currently only SunOS.
 
 * Improved virtual memory efficiency:
-  - Memory model SPVW_PAGES: don't put a piece of management data into
+  - Memory model SPVW_PAGES: do not put a piece of management data into
     every page.
-  - Memory model SPVW_BLOCKS: compact conses, don't shuffle them, so that
+  - Memory model SPVW_BLOCKS: compact conses, do not shuffle them, so that
     they are kept sorted according to their age.
   - Memory model SPVW_PURE_BLOCKS: pages containing garbage are
     immediately freed.
@@ -2213,8 +2218,8 @@ User visible changes
   GET-MACRO-CHARACTER and GET-DISPATCH-MACRO-CHARACTER is NIL, the standard
   readtable is used.
 
-* PROBE-FILE doesn't report an error any more if an intermediate directory
-  in the path doesn't exist. NIL is returned instead.
+* PROBE-FILE does not report an error any more if an intermediate directory
+  in the path does not exist. NIL is returned instead.
 
 * The DEFCONSTANT warning about redefinition of a constant is inhibited if
   the constant's new and old values are the same (in the sense of EQL).
@@ -2230,12 +2235,13 @@ User visible changes
   GENERIC-STREAM-WRITE-STRING, GENERIC-STREAM-CLEAR-INPUT,
   GENERIC-STREAM-CLEAR-OUTPUT, GENERIC-STREAM-FINISH-OUTPUT,
   GENERIC-STREAM-FORCE-OUTPUT, GENERIC-STREAM-CLOSE.
-  See impnotes.txt for details. Thanks to Marcus Daniels and Don Cohen.
+  See <http://clisp.cons.org/impnotes.html#gstream> for details.
+  Thanks to Marcus Daniels and Don Cohen.
 
 * The macro WITH-OUTPUT-TO-PRINTER may now also work on OS/2.
 
 * Fixed a CLOS bug: Generic functions with both optional and keyword
-  arguments didn't work.
+  arguments did not work.
 
 * Fixed a serious bug in the compiler which caused incorrect code to be
   generated for functions like (LAMBDA (X) (SETQ X 1)).
@@ -2291,7 +2297,7 @@ Portability
 
 * Better support (speedup) for HP 9000/800 running HP-UX.
 
-* On HP 9000/700 running HP-UX: Don't depend directly on the assembler.
+* On HP 9000/700 running HP-UX: Do not depend directly on the assembler.
 
 * Maybe some support for SCO. Thanks to Cathy Bareiss.
 
@@ -2382,7 +2388,8 @@ User visible changes
     SIMPLE-CONDITION-FORMAT-ARGUMENTS,
   new variables
     *BREAK-ON-SIGNALS*, *DEBUGGER-HOOK*.
-  See impnotes.txt for details. Thanks to David Gadbois who wrote most of this.
+  See <http://clisp.cons.org/impnotes.html#conditions> for details.
+  Thanks to David Gadbois who wrote most of this.
 
 * X3J13 vote <40> is partially implemented: New variable *PRINT-READABLY*.
 
@@ -2399,7 +2406,7 @@ User visible changes
         (SYMBOLP object)
         (AND (CONSP object) (EQ (CAR object) 'LAMBDA))
     )
-  This fixes a CLOS bug: (TYPEP object 'FUNCTION) wasn't equivalent to
+  This fixes a CLOS bug: (TYPEP object 'FUNCTION) was not equivalent to
   (TYPEP object (FIND-CLASS 'FUNCTION)).
 
 * Two new debugger commands Break+ and Break- permit to set resp. remove
@@ -2577,7 +2584,7 @@ User visible changes
   working on Linux and SunOS.
 
 * Fixed a CLOS bug: Specifying &KEY without &REST in generic function
-  lambda lists didn't have the desired effect.
+  lambda lists did not have the desired effect.
 
 * DEFCLASS supports both :DEFAULT-INITARGS syntaxes.
 
@@ -2674,7 +2681,8 @@ User visible changes
     STANDARD-GENERIC-FUNCTION, STANDARD-METHOD and all predefined classes,
   and the method combination
     STANDARD.
-  See impnotes.txt for details. X3J13 vote <13> is implemented, too.
+  See <http://clisp.cons.org/impnotes.html#classes> for details.
+  X3J13 vote <13> is implemented, too.
 
 * X3J13 vote <63> is implemented: DESCRIBE receives the output stream as
   optional argument. New function CLOS:DESCRIBE-OBJECT.
@@ -2690,18 +2698,18 @@ User visible changes
   implemented.
 
 * New DEFSTRUCT option :INHERIT which is exactly like :INCLUDE except that it
-  doesn't create new accessors for the inherited slots. Use this option to
+  does not create new accessors for the inherited slots. Use this option to
   avoid the problems that occur when using the same :CONC-NAME for the new
   and the inherited structure.
 
-* Fixed EXPORT and USE-PACKAGE: Don't signal a name conflict between the
+* Fixed EXPORT and USE-PACKAGE: Do not signal a name conflict between the
   symbol being exported and a symbol accessible in the using package if
   the latter symbol is on the list of shadowing symbols of the using package.
 
 * Fixed VECTOR-PUSH-EXTEND. It now works on vectors of dimension 0 and
   on bit-vectors.
 
-* Fixed PRINT-UNREADABLE-OBJECT: Don't output adjacent spaces.
+* Fixed PRINT-UNREADABLE-OBJECT: Do not output adjacent spaces.
 
 * Fixed a bug in the reader that caused an endless loop or endless recursion
   when resolving #n=/#n# references in objects that already contained cyclic
@@ -3119,7 +3127,7 @@ User visible changes
 
 * rexx.d, rexx.lsp: remove the trailing "p" from the keywords.
 
-* init.lsp: don't call a macro a "Common Lisp function".
+* init.lsp: do not call a macro a "Common Lisp function".
 
 * stream.d, readline/readline.[ch]: exported rl_deprep_terminal such that a
   failing call to xmalloc() can now signal an ordinary error instead of exiting.
@@ -3161,7 +3169,7 @@ Other modifications
 
 * spvw.d: use IPC_PRIVATE as key for all shared memory segments.
 
-* avl.d: don't generate code for unused functions insert and delete.
+* avl.d: do not generate code for unused functions insert and delete.
 
 * Miscellaneous documentation updates.
 
