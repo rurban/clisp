@@ -349,6 +349,8 @@ DEFUN(POSIX:BOGOMIPS,)
 #undef VAL_D
 #undef VAL_ID
 
+/* "gcc --mno-cygwin -l crypt" links with cygwin lib-crypt,
+   so we have to disable this explicitly */
 #if defined(HAVE_CRYPT) && !defined(WIN32_NATIVE)
 DEFUN(POSIX::CRYPT, key salt) {
   char *result;
@@ -734,8 +736,6 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
   funcall(`POSIX::MAKE-HOSTENT`,4);
 }
 
-#if defined(UNIX)
-
 #if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
 
 #if defined(HAVE_PWD_H)
@@ -798,7 +798,10 @@ DEFUN(POSIX::USER-DATA, user)
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
-#if defined(HAVE_FSTAT) && defined(HAVE_LSTAT) && defined(HAVE_STAT)
+#if defined(HAVE_FSTAT) && defined(HAVE_STAT)
+# if !defined(HAVE_LSTAT)
+#  define lstat stat
+# endif
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be a pathname designator or a file descriptor designator
@@ -812,7 +815,8 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     funcall(L(built_in_stream_open_p),1);
     if (!nullp(value1)) { /* open stream ==> use FD */
       begin_system_call();
-      if (fstat(stream_lend_handle(file,true,NULL),&buf) < 0) OS_error();
+      /* win32 declares fstat() as accepting int, not HANDLE */
+      if (fstat((int)stream_lend_handle(file,true,NULL),&buf) < 0) OS_error();
       end_system_call();
     } else goto stat_pathname;
   } else if (integerp(file)) {
@@ -836,10 +840,22 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   pushSTACK(UL_to_I(buf.st_nlink));   /* number of hard links */
   pushSTACK(UL_to_I(buf.st_uid));     /* user ID of owner */
   pushSTACK(UL_to_I(buf.st_gid));     /* group ID of owner */
+#if defined(HAVE_STAT_ST_RDEV)
   pushSTACK(L_to_I(buf.st_rdev));     /* device type (if inode device) */
+#else
+  pushSTACK(NIL);
+#endif
   pushSTACK(L_to_I(buf.st_size));     /* total size, in bytes */
+#if defined(HAVE_STAT_ST_BLKSIZE)
   pushSTACK(UL_to_I(buf.st_blksize)); /* blocksize for filesystem I/O */
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(HAVE_STAT_ST_BLOCKS)
   pushSTACK(UL_to_I(buf.st_blocks));  /* number of blocks allocated */
+#else
+  pushSTACK(NIL);
+#endif
   pushSTACK(UL_to_I(buf.st_atime+UNIX_LISP_TIME_DIFF));/*time of last access*/
   pushSTACK(UL_to_I(buf.st_mtime+UNIX_LISP_TIME_DIFF));/*last modification*/
   pushSTACK(UL_to_I(buf.st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
@@ -847,7 +863,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 }
 #endif  /* fstat lstat fstat */
 
-#if defined(HAVE_CHMOD) && defined(HAVE_CHOWN) && defined(HAVE_UTIME)
+#if defined(HAVE_CHMOD) || defined(HAVE_CHOWN) || defined(HAVE_UTIME)
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
@@ -912,65 +928,29 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 }
 #endif  /* chmod chown utime */
 
-static uintL check_chmod_mode (object type) {
- check_chmod_mode_restart:
-       if (eq(type,`:SUID`)) return S_ISUID;
-  else if (eq(type,`:SGID`)) return S_ISGID;
-  else if (eq(type,`:SVTX`)) return S_ISVTX;
-  else if (eq(type,`:RWXU`)) return S_IRWXU; /* owner: Read Write eXec */
-  else if (eq(type,`:RUSR`)) return S_IRUSR;
-  else if (eq(type,`:WUSR`)) return S_IWUSR;
-  else if (eq(type,`:XUSR`)) return S_IXUSR;
-  else if (eq(type,`:RWXG`)) return S_IRWXG; /* group: Read Write eXec */
-  else if (eq(type,`:RGRP`)) return S_IRGRP;
-  else if (eq(type,`:WGRP`)) return S_IWGRP;
-  else if (eq(type,`:XGRP`)) return S_IXGRP;
-  else if (eq(type,`:RWXO`)) return S_IRWXO; /* others: Read Write eXec */
-  else if (eq(type,`:ROTH`)) return S_IROTH;
-  else if (eq(type,`:WOTH`)) return S_IWOTH;
-  else if (eq(type,`:XOTH`)) return S_IXOTH;
-  else {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(type);            /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(MEMBER :SUID :SGID :RWXU :RUSR :WUSR :XUSR :RWXG :RGRP :WGRP :XGRP :RWXO :ROTH :WOTH :XOTH :SVTX)`); /* EXPECTED-TYPE */
-    pushSTACK(STACK_0); pushSTACK(type);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-    type = value1;
-    goto check_chmod_mode_restart;
-  }
-}
+/* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
+DEFCHECKER(check_chmod_mode,prefix=S_,default=, SUID SGID SVTX \
+           RWXU RUSR WUSR XUSR RWXG RGRP WGRP XGRP RWXO ROTH WOTH XOTH)
+
 DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
  convert_mode_restart:
   if (posfixnump(STACK_0)) {
     mode_t mode = posfixnum_to_L(check_posfixnum(popSTACK()));
     int count = 0;
-    if (mode & S_ISUID)         /* Set user ID on execution. */
-      { pushSTACK(`:SUID`); count++; }
-    if (mode & S_ISGID)         /* Set group ID on execution. */
-      { pushSTACK(`:SGID`); count++; }
-    if (mode & S_ISVTX)  /* On directories, restricted deletion flag, on files,
-                            sticky bit: save swapped text even after use */
-      { pushSTACK(`:SVTX`); count++; }
-    if (mode & S_IRUSR)         /* Read by owner. */
-      { pushSTACK(`:RUSR`); count++; }
-    if (mode & S_IWUSR)         /* Write by owner. */
-      { pushSTACK(`:WUSR`); count++; }
-    if (mode & S_IXUSR)         /* Execute (search) by owner. */
-      { pushSTACK(`:XUSR`); count++; }
-    if (mode & S_IRGRP)         /* Read by group. */
-      { pushSTACK(`:RGRP`); count++; }
-    if (mode & S_IWGRP)         /* Write by group. */
-      { pushSTACK(`:WGRP`); count++; }
-    if (mode & S_IXGRP)         /* Execute (search) by group. */
-      { pushSTACK(`:XGRP`); count++; }
-    if (mode & S_IROTH)         /* Read by others. */
-      { pushSTACK(`:ROTH`); count++; }
-    if (mode & S_IWOTH)         /* Write by others. */
-      { pushSTACK(`:WOTH`); count++; }
-    if (mode & S_IXOTH)         /* Execute (search) by others. */
-      { pushSTACK(`:XOTH`); count++; }
+    unsigned int index;
+    for (index = 0; index < check_chmod_mode_table_size; index++) {
+      unsigned int c_const = check_chmod_mode_table[index].c_const;
+      if (c_const == (mode & c_const)) {
+        pushSTACK(check_chmod_mode_table[index].l_const);
+        count++;
+        mode &= ~c_const;       /* clear this bit */
+      }
+    }
+    if (mode) {                 /* not all bit have been accounted for */
+      pushSTACK(fixnum(mode));
+      count++;
+    }
     VALUES1(listof(count));
   } else if (listp(STACK_0)) {
     mode_t mode = 0;
@@ -985,7 +965,7 @@ DEFUN(POSIX::CONVERT-MODE, mode)
 
 #if defined(HAVE_UMASK)
 DEFUN(POSIX::UMASK, cmask)
-{ /* lisp interface to mknod(2)
+{ /* lisp interface to umask(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/umask.html */
   mode_t cmask = posfixnum_to_L(check_posfixnum(popSTACK()));
   begin_system_call();
@@ -1087,8 +1067,6 @@ DEFUN(POSIX::STAT-VFS, file)
 }
 
 #endif  /* fstatvfs statvfs */
-
-#endif /* UNIX */
 
 
 /* FILE-OWNER */
