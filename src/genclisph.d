@@ -1679,7 +1679,9 @@ int main()
   printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
   printf("extern object check_posfixnum (object obj);\n");
   printf("extern object check_string (object obj);\n");
+ #ifdef FOREIGN
   printf("extern object check_fpointer (object obj, bool restart_p);\n");
+ #endif
   printf("extern object check_uint8 (object obj);\n");
   printf("extern object check_sint8 (object obj);\n");
   printf("extern object check_uint16 (object obj);\n");

@@ -1,3 +1,12 @@
+2003-09-01  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_fpointer) [FOREIGN]: moved here from foreign.d
+	* foreign.d (check_fpointer): moved to error.d
+	* lispbibl.d (check_fpointer) [FOREIGN]: prototype
+	* genclisph.d (check_fpointer): conditionalize on FOREIGN
+	* modules/regexp/regexi.c [!FOREIGN]: error (FOREIGN is required)
+	Reported by Douglas Philips <dgou@mac.com>
+
 2003-08-31  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* lispbibl.d (INVALID_HANDLE_VALUE) [!WIN32_NATIVE]: new macro.

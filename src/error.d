@@ -700,6 +700,42 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
   VALUES1(NIL);
 }
 
+#ifdef FOREIGN
+/* check that the argument is a valid foreign pointer.
+ check_fpointer(obj);
+ > obj: object
+ > restart_p: allow entering a new value
+ < a valid foreign pointer
+ this is used by foreign.d and also by some modules
+ that rely on fpointer but not FFI, e.g., regexp
+ can trigger GC */
+global object check_fpointer (object obj, bool restart_p) {
+ check_fpointer_restart:
+  if (!fpointerp(obj)) {
+    pushSTACK(NIL);                /* no PLACE */
+    pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(foreign_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(foreign_pointer)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    if (restart_p)
+      check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    else fehler(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1;
+    goto check_fpointer_restart;
+  }
+  if (!fp_validp(TheFpointer(obj))) {
+    pushSTACK(NIL);                /* no PLACE */
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    if (restart_p)
+      check_value(error,GETTEXT("~: ~ comes from a previous Lisp session and is invalid"));
+    else fehler(error,GETTEXT("~: ~ comes from a previous Lisp session and is invalid"));
+    obj = value1;
+    goto check_fpointer_restart;
+  }
+  return obj;
+}
+#endif
+
 /* error-message, if an object is not a list.
  fehler_list(obj);
  > obj: non-list */
