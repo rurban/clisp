@@ -1348,9 +1348,9 @@ local maygc uintL parse_logical_pathnamestring (zustand z) {
           if (eq(version,S(Kwild))) {
           } else if (equal(version,Symbol_name(S(Knewest)))) {
             version = S(Knewest);
-          } else if (all_digits(version)) { /* convert version into Integer */
+          } else if (stringp(version) && all_digits(version)) {
             pushSTACK(version); funcall(L(parse_integer),1);
-            version = value1;
+            version = value1; /* version: string -> integer */
           } else {
             version = NIL;
           }
