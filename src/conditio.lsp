@@ -23,7 +23,7 @@ make-condition arithmetic-error-operation arithmetic-error-operands
 cell-error-name unbound-slot-instance type-error-datum
 type-error-expected-type package-error-package print-not-readable-object
 stream-error-stream file-error-pathname simple-condition-format-string
-simple-condition-format-arguments
+simple-condition-format-control simple-condition-format-arguments
 signal restart-name compute-restarts find-restart invoke-restart
 invoke-restart-interactively invoke-debugger break error cerror warn
 ;; functions and restart names:
@@ -181,7 +181,7 @@ muffle-cerrors appease-cerrors exit-on-error
     )
     ((or string function) ; only this case uses default-type and more-initargs
       (apply #'make-condition default-type
-             #-ANSI-CL :format-string #+ANSI-CL :format-control datum
+             :format-control datum
              :format-arguments arguments
              more-initargs
     ) )
@@ -379,20 +379,17 @@ muffle-cerrors appease-cerrors exit-on-error
 
 ; conditions usually created by SIGNAL
 (define-condition simple-condition ()
-  (#-ANSI-CL ($format-string :initarg :format-string :initform nil
-                             :reader simple-condition-format-string
-             )
-   #+ANSI-CL ($format-control :initarg :format-control :initform nil
-                              :reader simple-condition-format-string
-                              :reader simple-condition-format-control
-             )
+  (($format-control :initarg :format-control :initform nil
+                    :reader simple-condition-format-string ; for CLtL2 backward compatibility
+                    :reader simple-condition-format-control
+   )
    ($format-arguments :initarg :format-arguments :initform nil
                       :reader simple-condition-format-arguments
   ))
   #|
   (:report
     (lambda (condition stream)
-      (let ((fstring (simple-condition-format-string condition)))
+      (let ((fstring (simple-condition-format-control condition)))
         (when fstring
           (apply #'format stream fstring (simple-condition-format-arguments condition))
   ) ) ) )
@@ -401,7 +398,7 @@ muffle-cerrors appease-cerrors exit-on-error
 ; We don't use the :report option here. Instead we define a print-condition
 ; method which will be executed regardless of the condition type's CPL.
 (clos:defmethod print-condition :around ((condition simple-condition) stream)
-  (let ((fstring (simple-condition-format-string condition)))
+  (let ((fstring (simple-condition-format-control condition)))
     (if fstring
       (apply #'format stream fstring (simple-condition-format-arguments condition))
       (clos:call-next-method)
