@@ -786,3 +786,94 @@ NIL
        6)
 NIL
 
+;; <http://www.lisp.org/HyperSpec/Body/fun_revappendcm_nreconc.html>
+(let ((list-1 (list 1 2 3))
+      (list-2 (list 'a 'b 'c)))
+  (list (revappend list-1 list-2)
+        (equal list-1 '(1 2 3))
+        (equal list-2 '(a b c))))
+((3 2 1 A B C) T T)
+
+(revappend '(1 2 3) '())
+(3 2 1)
+
+(revappend '(1 2 3) '(a . b))
+(3 2 1 A . B)
+
+(revappend '() '(a b c))
+(A B C)
+
+(revappend '(1 2 3) 'a)
+(3 2 1 . A)
+
+(revappend '() 'a)
+A   ;degenerate case
+
+(let ((list-1 '(1 2 3))
+      (list-2 '(a b c)))
+  (list (nreconc list-1 list-2)
+        (equal list-1 '(1 2 3))
+        (equal list-2 '(a b c))))
+((3 2 1 A B C) NIL T)
+
+;; <http://www.lisp.org/HyperSpec/Body/fun_nconc.html>
+(nconc)
+NIL
+
+(setq x '(a b c))
+(A B C)
+
+(setq y '(d e f))
+(D E F)
+
+(nconc x y)
+(A B C D E F)
+
+x
+(A B C D E F)
+
+(setq foo (list 'a 'b 'c 'd 'e)
+      bar (list 'f 'g 'h 'i 'j)
+      baz (list 'k 'l 'm))
+(K L M)
+
+(setq foo (nconc foo bar baz))
+(A B C D E F G H I J K L M)
+
+foo     (A B C D E F G H I J K L M)
+bar     (F G H I J K L M)
+baz     (K L M)
+
+(setq foo (list 'a 'b 'c 'd 'e)
+      bar (list 'f 'g 'h 'i 'j)
+      baz (list 'k 'l 'm))
+(K L M)
+
+(setq foo (nconc nil foo bar nil baz))
+(A B C D E F G H I J K L M)
+
+foo     (A B C D E F G H I J K L M)
+bar     (F G H I J K L M)
+baz     (K L M)
+
+;; <http://www.lisp.org/HyperSpec/Body/fun_append.html>
+(append '(a b c) '(d e f) '() '(g))
+(A B C D E F G)
+
+(append '(a b c) 'd)
+(A B C . D)
+
+(setq lst '(a b c))
+(A B C)
+
+(append lst '(d))
+(A B C D)
+
+lst
+(A B C)
+
+(append)
+NIL
+
+(append 'a)
+A
