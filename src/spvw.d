@@ -299,7 +299,7 @@ local int exitcode;
   global void* STACK_bound; # STACK-growth-limit
 
   # the lexical environment:
-  global environment_t aktenv;
+  global gcv_environment_t aktenv;
 
   global unwind_protect_caller_t unwind_protect_to_save;
 
