@@ -54,11 +54,6 @@
                ENGLISH "a foreign variable of foreign type ~S."
                FRANCAIS "une variable étrangère de type étranger ~S.")
               (sys::deparse-c-type (sys::%record-ref obj 3))))
-     #+FFI
-     (foreign-function
-      (format stream (DEUTSCH "eine Foreign-Funktion."
-                      ENGLISH "a foreign function."
-                      FRANCAIS "une fonction étrangère.")))
      (byte
       (format stream (DEUTSCH "ein Byte-Specifier, bezeichnet die ~S Bits ab Bitposition ~S eines Integers."
                       ENGLISH "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer."
@@ -364,13 +359,17 @@
                                          ENGLISH "exports ~[no symbols~:;~:*~:d symbols ~]"
                                          FRANCAIS "~[n'exporte pas de symboles~:;exporte~:* ~:d symboles ~]")
                                  (length L))))
-                   (when used-by-list
-                     (format stream
-                             (DEUTSCH "an die Package~:[~;s~] ~{~A~^, ~}"
-                              ENGLISH " to the package~:[~;s~] ~{~A~^, ~}"
-                              FRANCAIS " vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}")
-                             (cdr used-by-list)
-                             (mapcar #'package-name used-by-list)))
+                   (if used-by-list
+                       (format stream
+                               (DEUTSCH "an die Package~:[~;s~] ~{~A~^, ~}"
+                                ENGLISH "to the package~:[~;s~] ~{~A~^, ~}"
+                                FRANCAIS "vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}")
+                               (cdr used-by-list)
+                               (mapcar #'package-name used-by-list))
+                       (format stream
+                               (DEUTSCH ""
+                                ENGLISH ", but no package uses it"
+                                FRANCAIS "")))
                    (format stream ".")))
                (format stream (DEUTSCH "eine gelöschte Package."
                                ENGLISH "a deleted package."
@@ -440,50 +439,59 @@
              (format stream "."))))
 
 (defmethod describe-object ((obj function) (stream stream))
-  (if (eq 'compiled-function (type-of obj))
-      (if (functionp obj)
-          (progn                ; SUBR
-            (format stream (DEUTSCH "eine eingebaute System-Funktion."
-                            ENGLISH "a built-in system function."
-                            FRANCAIS "une fonction prédéfinie du système."))
-            (multiple-value-bind (name req opt rest-p keywords other-keys)
-                (sys::subr-info obj)
-              (when name
-                (sys::describe-signature stream req opt rest-p
-                                         keywords keywords other-keys))))
+  (ecase (type-of obj)
+    #+FFI
+    (foreign-function
+     (format stream (DEUTSCH "eine Foreign-Funktion."
+                     ENGLISH "a foreign function."
+                     FRANCAIS "une fonction étrangère."))
+     (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
+         (sys::function-signature obj)
+       (sys::describe-signature stream req opt rest-p key-p keywords
+                                other-keys-p)))
+    (compiled-function
+     (if (functionp obj)
+         (progn                 ; SUBR
+           (format stream (DEUTSCH "eine eingebaute System-Funktion."
+                           ENGLISH "a built-in system function."
+                           FRANCAIS "une fonction prédéfinie du système."))
+           (multiple-value-bind (name req opt rest-p keywords other-keys)
+               (sys::subr-info obj)
+             (when name
+               (sys::describe-signature stream req opt rest-p
+                                        keywords keywords other-keys))))
                                 ; FSUBR
-          (format stream (DEUTSCH "ein Special-Form-Handler."
-                          ENGLISH "a special form handler."
-                          FRANCAIS "un interpréteur de forme spéciale.")))
-      (let ((compiledp (compiled-function-p obj)))
-        (format stream
-                (DEUTSCH "eine ~:[interpret~;compil~]ierte Funktion."
-                 ENGLISH "a~:[n interpret~; compil~]ed function."
-                 FRANCAIS "une fonction ~:[interprét~;compil~]ée.")
-                compiledp)
-        (if compiledp
-            (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
-                (sys::signature obj)
-              (sys::describe-signature stream req opt rest-p key-p keywords
-                                       other-keys-p)
-              (format stream (DEUTSCH "~%~v,vtMehr Information durch Auswerten von ~{~S~^ oder ~}."
-                              ENGLISH "~%~v,vtFor more information, evaluate ~{~S~^ or ~}."
-                              FRANCAIS "~%~v,vtPour obtenir davantage d'information, évaluez ~{~S~^ ou ~}.")
-                      *describe-nesting* lisp:*print-indent-lists*
-                      `((DISASSEMBLE #',(sys::closure-name obj)))))
-            (progn
-              (format stream (DEUTSCH "~%~v,vtArgumentliste: ~S"
-                              ENGLISH "~%~v,vtargument list: ~S"
-                              FRANCAIS "~%~v,vtListe des arguments: ~S")
-                      *describe-nesting* lisp:*print-indent-lists*
-                      (car (sys::%record-ref obj 1)))
-              (let ((doc (sys::%record-ref obj 2)))
-                (when doc
-                  (format stream (DEUTSCH "~%~v,vtDokumentation: ~A"
-                                  ENGLISH "~%~v,vtdocumentation: ~A"
-                                  FRANCAIS "~%~v,vtDocumentation: ~A")
-                          *describe-nesting* lisp:*print-indent-lists*
-                          doc))))))))
+         (format stream (DEUTSCH "ein Special-Form-Handler."
+                         ENGLISH "a special form handler."
+                         FRANCAIS "un interpréteur de forme spéciale."))))
+    (function
+     (format stream
+             (DEUTSCH "eine ~:[interpret~;compil~]ierte Funktion."
+              ENGLISH "a~:[n interpret~; compil~]ed function."
+              FRANCAIS "une fonction ~:[interprét~;compil~]ée.")
+             (compiled-function-p obj))
+     (if (compiled-function-p obj)
+         (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
+             (sys::signature obj)
+           (sys::describe-signature stream req opt rest-p key-p keywords
+                                    other-keys-p)
+           (format stream (DEUTSCH "~%~v,vtMehr Information durch Auswerten von ~{~S~^ oder ~}."
+                           ENGLISH "~%~v,vtFor more information, evaluate ~{~S~^ or ~}."
+                           FRANCAIS "~%~v,vtPour obtenir davantage d'information, évaluez ~{~S~^ ou ~}.")
+                   *describe-nesting* lisp:*print-indent-lists*
+                   `((DISASSEMBLE #',(sys::closure-name obj)))))
+         (let ((doc (sys::%record-ref obj 2)))
+           (format stream (DEUTSCH "~%~v,vtArgumentliste: ~S"
+                           ENGLISH "~%~v,vtargument list: ~S"
+                           FRANCAIS "~%~v,vtListe des arguments: ~S")
+                   *describe-nesting* lisp:*print-indent-lists*
+                   (car (sys::%record-ref obj 1)))
+           (when doc
+             (format stream (DEUTSCH "~%~v,vtDokumentation: ~A"
+                             ENGLISH "~%~v,vtdocumentation: ~A"
+                             FRANCAIS "~%~v,vtDocumentation: ~A")
+                     *describe-nesting* lisp:*print-indent-lists*
+                     doc)))))))
 
 (defun describe (obj &optional stream)
   (cond ((eq stream 'nil) (setq stream *standard-output*))
@@ -624,9 +632,10 @@
 (defun describe-signature (s req-anz opt-anz rest-p keyword-p keywords
                            allow-other-keys)
   (when s
-    (format s (DEUTSCH "~%Argumentliste: "
-               ENGLISH "~%argument list: "
-               FRANCAIS "~%Liste des arguments : ")))
+    (format s (DEUTSCH "~%~v,vtArgumentliste: "
+               ENGLISH "~%~v,vtArgument list: "
+               FRANCAIS "~%~v,vtListe des arguments : ")
+            clos::*describe-nesting* lisp:*print-indent-lists*))
   (format s "(~{~A~^ ~})"
           (signature-to-list req-anz opt-anz rest-p keyword-p keywords
                              allow-other-keys)))

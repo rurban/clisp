@@ -1,3 +1,7 @@
+1999-03-20  Sam Steingold  <sds@gnu.org>
+
+	* describe.lsp (describe-onject): handle foreign functions correctly.
+
 1999-03-19  Sam Steingold  <sds@gnu.org>
 
 	* savemem.lsp (saveinitmem): bind +/-/* to nil instead of setting
