@@ -2969,9 +2969,9 @@ local Values eval1 (object form)
           break;
           default: undef: {
             pushSTACK(form);
-            check_fdefinition(Car(form),S(eval));
+            fun = check_fdefinition(Car(form),S(eval));
             form = popSTACK();
-            goto eval_cons;
+            goto fun_dispatch;
           }
         }
       } else if (consp(fun) && eq(Car(fun),S(lambda))) {
