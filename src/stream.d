@@ -6037,14 +6037,17 @@ global object file_stream_truename (object s)
 local uintL low_fill_buffered_handle (object stream, bool no_hang) {
   var sintL result = 0;
   var Handle handle = TheHandle(BufferedStream_channel(stream));
-  if (!no_hang || ls_avail_p(listen_handle(handle,false,NULL))) {
+  var signean listen_status = ls_avail;
+  if (!no_hang
+      || ls_avail_p(listen_status = listen_handle(handle,false,NULL))) {
     begin_system_call();
     result = read_helper(handle,BufferedStream_buffer_address(stream,0),
                          strm_buffered_bufflen,no_hang);
     end_system_call();
-    if (result<0) # error occurred?
+    if (result<0)               /* error occurred? */
       OS_filestream_error(stream);
   }
+  BufferedStream_have_eof_p(stream) = ((result==0) && ls_eof_p(listen_status));
   return result;
 }
 
@@ -6132,7 +6135,7 @@ local void buffered_flush (object stream) {
 local uintB* buffered_nextbyte (object stream, bool no_hang) {
   var sintL endvalid = BufferedStream_endvalid(stream);
   var uintL index = BufferedStream_index(stream);
-  if ((endvalid == index) && !BufferedStream_have_eof_p (stream)) {
+  if ((endvalid == index) && !BufferedStream_have_eof_p(stream)) {
     /* Buffer must be newly filled. */
     if (BufferedStream_modified(stream))
       /* First, the Buffer must be flushed out: */
@@ -6142,10 +6145,8 @@ local uintB* buffered_nextbyte (object stream, bool no_hang) {
     if (BufferedStream_blockpositioning(stream)
         || (TheStream(stream)->strmflags & strmflags_rd_B)) {
       result = BufferedStreamLow_fill(stream)(stream,no_hang);
-     if (errno == EAGAIN) {
-        /* FIXME: never executes printf("buffered_nextbyte returning -1\n");*/
+      if (result == 0 && !BufferedStream_have_eof_p(stream))
         return (uintB*)-1; /* hang case */
-      }
     } else
       result = 0;
     BufferedStream_index(stream) = index = 0;

@@ -1,5 +1,14 @@
 2003-10-11  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (low_fill_buffered_handle): set
+	BufferedStream_have_eof_p to true when result is 0
+	(buffered_nextbyte): use BufferedStream_have_eof_p instead of
+	errno to determine whether the i/o is blocked
+	[this is better than what was before - at list it builds on both
+	unix and win32 - but I am still not sure that it DTRT]
+
+2003-10-11  Sam Steingold  <sds@gnu.org>
+
 	* win32aux.d, win32.d (sock_write): accept no_hang
 
 2003-10-11  Sam Steingold  <sds@gnu.org>
