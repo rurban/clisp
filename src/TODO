@@ -193,11 +193,6 @@ local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
  use STACK instead?
 
 
-:CASE-SENSITIVE for PACKAGE is immutable.
-1. add an accessor PACKAGE-CASE-SENSITIVE-P
-2. make it mutable via DEFPACKAGE.
-
-
 LAUNCH/RUN-PROGRAM:
 CLISP has now 6 built-ins for launching external executables:
 SHELL, EXECUTE, MAKE-PIPE-*-STREAM, LAUNCH.
