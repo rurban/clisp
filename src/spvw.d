@@ -1289,8 +1289,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_constant(S(nil),S(nil));                 # NIL := NIL
         define_constant(S(t),S(t));                     # T := T
         define_variable(S(gc_statistics_stern),Fixnum_minus1); # SYS::*GC-STATISTICS* := -1
-        {pushSTACK(S(nil));                # *ANSI* := NIL
-         funcall(S(set_ansi),1);}
         # zu EVAL/CONTROL:
         define_constant_UL1(S(lambda_parameters_limit),lp_limit_1); # LAMBDA-PARAMETERS-LIMIT := lp_limit_1 + 1
         define_constant_UL1(S(call_arguments_limit),ca_limit_1); # CALL-ARGUMENTS-LIMIT := ca_limit_1 + 1
@@ -1556,6 +1554,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         init_symbol_values();
         # sonstige Objekte kreieren:
         init_object_tab();
+        pushSTACK(NIL); funcall(S(set_ansi),1); # (SYS::SET-ANSI NIL)
       }
   # Laden vom MEM-File:
     local void loadmem (const char* filename); # siehe unten
@@ -2791,8 +2790,10 @@ local void print_banner ()
          {var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
           Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
         }}
-      if (argv_ansi) { # Maximum ANSI CL compliance
+      if (argv_ansi) {
+        # Maximum ANSI CL compliance, even where it hurts.
         pushSTACK(T); funcall(L(set_ansi),1);
+        # (IN-PACKAGE "COMMON-LISP-USER")
         pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
       }
       if (!(argv_package == NULL))
