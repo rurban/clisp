@@ -26,7 +26,7 @@ GROFF = nroff -man
 EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
         --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html  \
-	--exclude $(AUTOCONF_CACHE) --exclude tmp			   \
+	--exclude $(AUTOCONF_CACHE) --exclude tmp                          \
 	--exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 # GNU tar together with GNU gzip. Good performance.
@@ -75,23 +75,23 @@ RSXDIR = /c:/rsx
 TEMPDIR = /tmp/clispdos
 
 
-all : makefiles configures potfiles src/FILES src/VERSION src/version.h	 \
+all : makefiles configures potfiles src/FILES src/VERSION src/version.h     \
 	src/uninames.h src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c \
-	ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc		 \
-	ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc	 \
-	ffcall/callback/vacall_r/config.h.msvc				 \
-	ffcall/callback/vacall_r/vacall_r.h.msvc			 \
-	ffcall/callback/trampoline_r/config.h.msvc			 \
+	ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc             \
+	ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc         \
+	ffcall/callback/vacall_r/config.h.msvc                              \
+	ffcall/callback/vacall_r/vacall_r.h.msvc                            \
+	ffcall/callback/trampoline_r/config.h.msvc                          \
 	acorn/pathname.txt htmldoc
 
-ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c		\
-	ffcall/vacall/vacall-i386-msvc.c		\
+ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
+	ffcall/vacall/vacall-i386-msvc.c                \
 	ffcall/callback/vacall_r/vacall-i386-msvc.c
 
 htmldoc:
 	cd doc && make impnotes.html && make html && cd ..;
 
-makefiles : os2/makefile acorn/makefile.cc acorn/makefile.gcc		   \
+makefiles : os2/makefile acorn/makefile.cc acorn/makefile.gcc              \
 	win32bc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc7 \
 	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d
 
@@ -129,22 +129,22 @@ makemake : src/makemake.in
 
 CURDIR=$(shell pwd)
 
-CONFIGURES = src/configure						 \
-	modules/wildcard/configure modules/regexp/configure 		 \
-	modules/clx/new-clx/configure modules/postgresql/configure	 \
-	modules/dirkey/configure modules/syscalls/configure 		 \
-	modules/oracle/configure modules/fastcgi/configure		 \
-	modules/berkeley-db/configure modules/pcre/configure		 \
+CONFIGURES = src/configure                                               \
+	modules/wildcard/configure modules/regexp/configure              \
+	modules/clx/new-clx/configure modules/postgresql/configure       \
+	modules/dirkey/configure modules/syscalls/configure              \
+	modules/oracle/configure modules/fastcgi/configure               \
+	modules/berkeley-db/configure modules/pcre/configure             \
 	ffcall/configure ffcall/avcall/configure ffcall/vacall/configure \
-	ffcall/trampoline/configure ffcall/callback/configure		 \
-	ffcall/callback/vacall_r/configure				 \
-	ffcall/callback/trampoline_r/configure				 \
-	utils/hln/configure						 \
+	ffcall/trampoline/configure ffcall/callback/configure            \
+	ffcall/callback/vacall_r/configure                               \
+	ffcall/callback/trampoline_r/configure                           \
+	utils/hln/configure                                              \
 	libcharset/configure
-CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in	\
-	modules/dirkey/config.h.in modules/syscalls/config.h.in		\
-	modules/clx/new-clx/config.h.in modules/postgresql/config.h.in  \
-	modules/berkeley-db/config.h.in modules/pcre/config.h.in	\
+CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in    \
+	modules/dirkey/config.h.in modules/syscalls/config.h.in          \
+	modules/clx/new-clx/config.h.in modules/postgresql/config.h.in   \
+	modules/berkeley-db/config.h.in modules/pcre/config.h.in         \
 	src/unixconf.h.in
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
