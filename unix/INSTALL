@@ -79,7 +79,7 @@ some platforms can be found in file unix/PLATFORMS.
 
          ./makemake > Makefile
 
-   If you wish to compile the sources such that you may debug them,
+   If you wish to compile the sources so that you can debug them,
    then type instead:
 
          ./makemake debug > Makefile
