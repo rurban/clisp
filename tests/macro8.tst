@@ -646,3 +646,7 @@ nil
                 -110730)))
  123 456)
 -110730
+
+;;<https://sourceforge.net/tracker/?func=detail&aid=864220&group_id=1355&atid=101355>
+(funcall (compile nil (lambda () (tagbody (flet ((f6 () (go 18))) (f6)) 18))))
+nil
