@@ -55,6 +55,9 @@
 #if defined(HAVE_UTIME_H)
 # include <utime.h>
 #endif
+#if defined(HAVE_WCHAR_H)
+# include <wchar.h>
+#endif
 
 #include <stdio.h>             /* for BUFSIZ */
 
