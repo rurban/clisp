@@ -395,7 +395,7 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
 # (defun cerror-of-type (continue-format-string type &rest arguments)
 #   (let ((keyword-arguments '()))
 #     (loop
-#       (unless (and (consp arguments) (keywordp (car arguments))) (return))
+#       (unless (and (consp arguments) (symbolp (car arguments))) (return))
 #       (push (pop arguments) keyword-arguments)
 #       (push (pop arguments) keyword-arguments)
 #     )
@@ -416,7 +416,7 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
     rest_args_pointer skipSTACKop 1; # Pointer über die Argumente hinter type
     while (argcount>=2)
       { var object next_arg = Next(rest_args_pointer); # nächstes Argument
-        if (!(symbolp(next_arg) && keywordp(next_arg))) break; # Keyword?
+        if (!symbolp(next_arg)) break; # Keyword?
         rest_args_pointer skipSTACKop -2; argcount -= 2; keyword_argcount += 2;
       }
     # Nächstes Argument hoffentlich ein String.
@@ -457,7 +457,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 #   ; Keyword-Argumente von den anderen Argumenten abspalten:
 #   (let ((keyword-arguments '()))
 #     (loop
-#       (unless (and (consp arguments) (keywordp (car arguments))) (return))
+#       (unless (and (consp arguments) (symbolp (car arguments))) (return))
 #       (push (pop arguments) keyword-arguments)
 #       (push (pop arguments) keyword-arguments)
 #     )
@@ -488,7 +488,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
     rest_args_pointer skipSTACKop 1; # Pointer über die Argumente hinter type
     while (argcount>=2)
       { var object next_arg = Next(rest_args_pointer); # nächstes Argument
-        if (!(symbolp(next_arg) && keywordp(next_arg))) break; # Keyword?
+        if (!symbolp(next_arg)) break; # Keyword?
         rest_args_pointer skipSTACKop -2; argcount -= 2; keyword_argcount += 2;
       }
     # Nächstes Argument hoffentlich ein String.
