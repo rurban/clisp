@@ -1,5 +1,11 @@
 2004-12-21  Bruno Haible  <bruno@clisp.org>
 
+	* predtype.d (COERCE): Accept cs-cl:string as equivalent to cl:string.
+	* sequence.d (valid_type1): Likewise.
+	* subtypep.lisp (canonicalize-type): Likewise.
+
+2004-12-21  Bruno Haible  <bruno@clisp.org>
+
 	* format.lisp (format-error): Take additional arguments specifying the
 	error type and initargs.
 	(format-parse-cs, next-arg, format-old-roman, format-new-roman,

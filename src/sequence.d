@@ -156,7 +156,8 @@ local maygc object valid_type1 (gcv_object_t* type_) {
     if (eq(name,S(simple_vector)))
       { name = S(vector); goto expanded_unconstrained; }
     if (eq(name,S(string))) { goto expanded_unconstrained; }
-    if (eq(name,S(simple_string)) || eq(name,S(base_string))
+    if (eq(name,S(cs_string))
+        || eq(name,S(simple_string)) || eq(name,S(base_string))
         || eq(name,S(simple_base_string)))
       { name = S(string); goto expanded_unconstrained; }
     if (eq(name,S(bit_vector)) || eq(name,S(simple_bit_vector)))
@@ -171,7 +172,8 @@ local maygc object valid_type1 (gcv_object_t* type_) {
       if (nullp(name2) || (consp(name2) && nullp(Cdr(name2)))) {
         if (eq(name1,S(simple_vector)))
           { name = S(vector); goto expanded_maybe_constrained; }
-        if (eq(name1,S(string)) || eq(name1,S(simple_string))
+        if (eq(name1,S(string)) || eq(name1,S(cs_string))
+            || eq(name1,S(simple_string))
             || eq(name1,S(base_string)) || eq(name1,S(simple_base_string)))
           { name = S(string); goto expanded_maybe_constrained; }
         if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
