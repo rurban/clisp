@@ -225,7 +225,7 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
+  alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
     host_cpu=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
@@ -288,7 +288,7 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
+  alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
     host_cpu=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
@@ -716,8 +716,9 @@ AC_SUBST(LN_S)dnl
 
 AC_DEFUN([CL_PROG_HLN],
 [AC_REQUIRE([CL_PROG_LN_S])dnl
-dnl SVR4 "ln" makes hard links to symbolic links, instead of resolving the
-dnl symbolic link. To avoid this, use the "hln" program.
+dnl SVR4 & cygwin "ln" makes hard links to symbolic links,
+dnl instead of resolving the symbolic link.
+dnl To avoid this, use the "hln" program.
 AC_CACHE_CHECK(how to make hard links to symlinks, cl_cv_prog_hln, [
 cl_cv_prog_hln="ln"
 if test "$cl_cv_prog_LN_S" = "ln -s"; then
@@ -726,11 +727,11 @@ ln -s conftest.x conftest.y
 ln conftest.y conftest.z 2>&AC_FD_CC
 rm -f conftest.x
 if cat conftest.z > /dev/null 2>&1 ; then
-  # ln is usable.
-  cl_cv_prog_hln="ln"
-else
-  # conftest.z is a symbolic link to the non-existent conftest.x
+  # conftest.z is a symbolic link to a symbolic link
   cl_cv_prog_hln="hln"
+else
+  # ln is usable - it links to the target, not the symbolic link
+  cl_cv_prog_hln="ln"
 fi
 else
 # If there are no symbolic links, the problem cannot occur.
