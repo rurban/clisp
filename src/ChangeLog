@@ -1,3 +1,10 @@
+2001-10-18  Sam Steingold  <sds@gnu.org>
+
+	pass *ARGS* to :INIT-FUNCTION when argv_execute_file is ""
+	* spvw.d (init_symbol_values): define_variable EXT:*ARGS*
+	(main): when argv_execute_file is "", do not call LOAD,
+	just set EXT:*ARGS*
+
 2001-10-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
 
