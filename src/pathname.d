@@ -8251,8 +8251,8 @@ local Handle nullfile () {
   var Handle result = NULL;
   begin_system_call();
   result = CreateFile("NUL", GENERIC_READ | GENERIC_WRITE,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                    OPEN_EXISTING, 0, NULL);
+                      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                      OPEN_EXISTING, 0, NULL);
   end_system_call();
   return result;
 }
@@ -8277,7 +8277,8 @@ local void mkpipe (Handle * hin, bool dupinp, Handle * hout, bool dupoutp) {
 #endif
 
 local bool init_launch_streamarg (int istack, bool child_inputp,
-  Handle stdhandle, Handle * h, Handle * ph, Handle * hnull, bool * wait_p)
+                                  Handle stdhandle, Handle * h, Handle * ph,
+                                  Handle * hnull, bool * wait_p)
 {
   var int handletype = 0;
   *h = INVALID_HANDLE_VALUE;
@@ -8298,8 +8299,8 @@ local bool init_launch_streamarg (int istack, bool child_inputp,
     *wait_p = false; /* TODO: error when wait_p */
   } else {
     *h = handle_dup1(stream_lend_handle(STACK_(istack),
-           child_inputp,/* child i/o direction is the same as lisp user i/o direction */
-           &handletype));
+                                        child_inputp,/* child i/o direction is the same as lisp user i/o direction */
+                                        &handletype));
     if (handletype!=1) return false;
   }
   return !HNULLP(*h);
