@@ -1,5 +1,10 @@
 2003-02-28  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (canonicalize-type): canonicalize MOD, SIGNED-BYTE,
+	and UNSIGNED-BYTE to an inclusive interval
+
+2003-02-28  Sam Steingold  <sds@gnu.org>
+
 	* io.d (PARSE-INTEGER): seclass_read
 	print the error index on badsyntax
 	* subr.d (parse_integer): seclass_read
