@@ -3689,7 +3689,11 @@ disabled at once upon close by sharing their &foreign-pointer; using
     (PQfinish connection)
     (setf (&validp; connection) nil)
     T))
-</programlisting></para></example>
+</programlisting></para>
+<warning><para>Sharing &foreign-pointer; goes both ways:
+  invalidating the dependent resource will invalidate the primary one.
+</para></warning>
+</example>
 
 <example id="ex-dffi-float"><title>Float point array computations.</title>
 <para>Save this code into <filename>sum.c</filename>:
