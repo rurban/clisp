@@ -1,3 +1,7 @@
+2002-07-25  Sam Steingold  <sds@gnu.org>
+
+	* version.h: 2.29 is released
+
 2002-07-22  Sam Steingold  <sds@gnu.org>
 
 	fixed the (compile nil (lambda () ... #'(lambda ...))) bug
