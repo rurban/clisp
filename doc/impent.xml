@@ -13,8 +13,6 @@
 <!ENTITY without "<emphasis role='strong'>without</emphasis>">
 
 <!-- *** literals *** -->
-<!ENTITY eos "<literal>end-of-stream</literal>">
-
 <!ENTITY abort-k "<constant>:ABORT</constant>">
 <!ENTITY absolute-k "<constant>:ABSOLUTE</constant>">
 <!ENTITY all-k "<constant>:ALL</constant>">
