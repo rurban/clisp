@@ -105,7 +105,7 @@
                  `(progn
                     (defmacro ,new-macro-name (name &rest more)
                       `(progn
-                         (export ',name)
+                         (export ',(if (consp name) (car name) name))
                          (,',original-macro-name ,name ,@(sublis substitution more))
                        )
                   ) )
@@ -608,18 +608,15 @@
 
 ; ============================== <stdlib.h> ===================================
 
-(def-c-struct div_t
+(def-c-struct (div_t :typedef)
   (quot int)
-  (rem int)
-)
-(def-c-struct ldiv_t
+  (rem int))
+(def-c-struct (ldiv_t :typedef)
   (quot long)
-  (rem long)
-)
+  (rem long))
 (def-c-struct lldiv_t
   (quot longlong)
-  (rem longlong)
-)
+  (rem longlong))
 
 (defconstant rand-max 2147483647)
 
@@ -964,8 +961,10 @@
 (def-call-out atanf (:arguments (x single-float)) (:return-type single-float))
 (def-call-out atan2f (:arguments (y single-float) (x single-float))
   (:return-type single-float))
-(def-call-out cosf (:arguments (x single-float)) (:return-type single-float))
-(def-call-out sinf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out cosf (:arguments (x single-float))
+  (:return-type single-float) (:built-in t))
+(def-call-out sinf (:arguments (x single-float))
+  (:return-type single-float) (:built-in t))
 (def-call-out tanf (:arguments (x single-float)) (:return-type single-float))
 
 (def-call-out coshf (:arguments (x single-float)) (:return-type single-float))
@@ -992,11 +991,13 @@
 
 (def-call-out powf (:arguments (x single-float) (y single-float))
   (:return-type single-float))
-(def-call-out sqrtf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out sqrtf (:arguments (x single-float))
+  (:return-type single-float) (:built-in t))
 (def-call-out cbrtf (:arguments (x single-float)) (:return-type single-float))
 
 (def-call-out ceilf (:arguments (x single-float)) (:return-type single-float))
-(def-call-out fabsf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out fabsf (:arguments (x single-float))
+  (:return-type single-float) (:built-in t))
 (def-call-out floorf (:arguments (x single-float)) (:return-type single-float))
 (def-call-out fmodf (:arguments (x single-float) (y single-float))
   (:return-type single-float))
@@ -1813,14 +1814,15 @@
 ;  (:return-type c-string)) ; ??
 (def-call-out fopen (:arguments (path c-string) (mode c-string))
   (:return-type c-pointer))
+;; it is pointless to mark (f)printf as (:built-in t)
+;; because the signature will be different anyway (variadic!)
 (def-call-out fprintf0 (:arguments (fp c-pointer) (format c-string))
   (:return-type int) (:name "fprintf"))
 (def-call-out fprintf1i (:arguments (fp c-pointer) (format c-string) (arg int))
   (:return-type int) (:name "fprintf"))
 (def-call-out fprintf1l
     (:arguments (fp c-pointer) (format c-string) (arg long))
-  (:return-type int)
-  (:name "fprintf"))
+  (:return-type int) (:name "fprintf"))
 (def-call-out fprintf1d
     (:arguments (fp c-pointer) (format c-string) (arg double-float))
   (:return-type int) (:name "fprintf"))
@@ -1862,7 +1864,7 @@
 (def-call-out printf0 (:arguments (format c-string))
   (:return-type int) (:name "printf"))
 (def-call-out printf1i (:arguments (format c-string) (arg int))
-  (:return-type int) (:name "printf") )
+  (:return-type int) (:name "printf"))
 (def-call-out printf1l (:arguments (format c-string) (arg long))
   (:return-type int) (:name "printf"))
 (def-call-out printf1d (:arguments (format c-string) (arg double-float))
@@ -1937,6 +1939,7 @@
 ; and lots of lock/unlock functions
 
 ;;; ============================== <dirent.h> ================================
+;; (c-lines "#include <dirent.h>~%")
 
 ;;; ----------------------------- <direntry.h> -------------------------------
 
@@ -1962,12 +1965,10 @@
 (defmacro IFTODT (mode) `(ash (logand ,mode #o170000) -12))
 (defmacro DTTOIF (dirtype) `(ash ,dirtype 12))
 
-(def-c-type DIR
-  (c-struct vector
-    ; components unknown
-) )
+(def-c-struct (DIR :typedef)) ; components unknown
 
-(def-call-out opendir (:arguments (name c-string)) (:return-type c-pointer))
+(def-call-out opendir (:arguments (name c-string))
+  (:return-type c-pointer))     ; (c-ptr DIR)?!
 (def-call-out closedir (:arguments (dirp c-pointer)) (:return-type int))
 (def-call-out readdir (:arguments (dirp c-pointer))
   (:return-type (c-ptr dirent)))
@@ -2007,8 +2008,9 @@
 ;  (:return-type ssize_t))
 
 ;;; ================================ <pwd.h> =================================
+(c-lines "#include <pwd.h>~%")
 
-(def-c-struct passwd
+(def-c-struct (passwd :external)
   (pw_name c-string)
   (pw_passwd c-string)
   (pw_uid uid_t)
@@ -2044,8 +2046,9 @@
 ; ... lots of reentrant variants ...
 
 ;;; ================================ <grp.h> =================================
+(c-lines "#include <grp.h>~%")
 
-(def-c-struct group
+(def-c-struct (group :external)
   (gr_name c-string)
   (gr_passwd c-string)
   (gr_gid gid_t)
