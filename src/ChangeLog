@@ -1,3 +1,19 @@
+2004-12-06  Arseny Slobodyuk  <ampy@ich.dvo.ru>
+
+	IPropertyStorage interface on WIN32_NATIVE.
+	* makemake.in: add liboleaut32 to libraries on cygwin.
+	* modules/calls.c (StgOpenStorageExFuncType): new type.
+	(StgOpenStorageExFunc, ole32): new global static variables.
+	(module__syscalls__init_function_2): load ole32.dll and
+	  get the StgOpenStorageEx address.
+	(PropVariantToLisp, LispToPropVariant, kwtopropid, PropSpecSetStr)
+	(propspeclistp, PropSpecSet, DecodeHRESULT): new static
+	helper functions.
+	(with_string_0w, MyPropVariantInit) new defines.
+	Added a number of IPropertyStorage API defines missing in
+	cygwin headers.
+	(POSIX::FILE-PROPERTIES): new DEFUN.
+
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
 	Sequence constructing functions must check whether the result belongs
