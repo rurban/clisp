@@ -3070,15 +3070,20 @@ and possibly the calling convention.</para>
 <section id="dffi-variables"><title>Foreign variables</title>
 
 <para>Foreign variables are variables whose storage is allocated in the
- foreign language module.  They can nevertheless be evaluated and
- modified through &setq;, just as normal variables can, except that the
- range of allowed values is limited according to the variable's foreign
- type.</para>
+ foreign language module.
+ They can nevertheless be evaluated and modified through &setq;,
+ just as normal variables can, except that the range of allowed values
+ is limited according to the variable's foreign type.</para>
 
 <warning><para>For a foreign variable &x-r; the form <code>(&eql; &x-r;
- &x-r;)</code> is not necessarily true, since every time &x-r; is
- evaluated its foreign value is converted to a &fresh; Lisp value.
- Foreign variables are defined using &def-c-var;.</para></warning>
+   &x-r;)</code> is not necessarily true, since every time &x-r; is
+  evaluated its foreign value is converted to a &fresh; Lisp value.
+  Ergo, <code>(&setf; (&aref; &x-r; &n-r;) &y-r;)</code> modifies this
+  &fresh; Lisp value (immediately discarded), &not-e; the foreign data.
+  Use &element; et al instead,
+  see <xref linkend="dffi-places"/>.</para></warning>
+
+<para>Foreign variables are defined using &def-c-var; and &with-c-var;.</para>
 
 </section>
 
