@@ -1,3 +1,18 @@
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
+	Remove initff slot from structure-direct-slot-definition.
+	* clos-slotdef1.lisp (structure-direct-slot-definition): Remove initff
+	slot.
+	(structure-direct-slot-definition-initff): Remove accessor.
+	(initialize-instance-<structure-direct-slot-definition>): Remove initff
+	argument.
+	(make-instance-<structure-direct-slot-definition>): Update.
+	(make-load-form-<structure-direct-slot-definition>): Use optional
+	argument always.
+	* defstruct.lisp (defstruct): Change directslotlist and
+	slotdefaultdirectslots to contain the initff separately. Always pass
+	a form to make-load-form-<structure-direct-slot-definition>.
+
 2004-11-02  Sam Steingold  <sds@gnu.org>
 
 	allow the user to define his own init-once function
