@@ -1678,7 +1678,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
    systems whose memory map looks like Swiss Cheese. */
 
 #if defined(WIDE_SOFT) && defined(NO_TYPECODES)
-  #error "WIDE and NO_TYPECODES make no sense together, no need for WIDE"
+  #error "WIDE_SOFT and NO_TYPECODES make no sense together, no need for WIDE"
 #endif
 
 #if !(defined(TYPECODES) || defined(NO_TYPECODES))
