@@ -1821,8 +1821,8 @@ local void usage (int exit_code)
       #   -p package      *PACKAGE* setzen
       #   -a              ANSI CL Compliance
       #   -x expr         LISP-Expressions ausführen, dann LISP verlassen
-      #   --help	  print usage and exit (should be the only option)
-      #   --version	  print version and exit (should be the only option)
+      #   --help          print usage and exit (should be the only option)
+      #   --version       print version and exit (should be the only option)
       #   file [arg ...]  LISP-File im Batch-Modus laden und ausführen,
       #                   dann LISP verlassen
       #
