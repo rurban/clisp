@@ -2276,7 +2276,7 @@ only.</subtitle>
    </simpara></listitem></varlistentry>
 
 <varlistentry id="def-c-struct"><term><literal role="sexp">(&def-c-struct;
-   &name-r; (<replaceable>ident</replaceable> &ctype-r;)*)</literal></term>
+   &name-r; (&symbol-r; &ctype-r;)*)</literal></term>
  <listitem><para>This form defines &name-r; to be both a
   &structure-class; and a foreign &c-lang; type with the given slots.
   &name-r; is a &symbol-t; (structure name) or a &list-t; whose &first;
@@ -2298,13 +2298,18 @@ only.</subtitle>
 </para></listitem></varlistentry>
 
 <varlistentry id="def-c-enum"><term><literal role="sexp">(&def-c-enum;
-        &name-r; {<replaceable>ident</replaceable> |
-                  (<replaceable>ident</replaceable>
-                  [&value-r;])}*)</literal></term>
- <listitem><simpara>This form defines <replaceable>ident</replaceable>s
+   &name-r; {&symbol-r; | (&symbol-r; [&value-r;])}*)</literal></term>
+ <listitem><simpara>This form defines &symbol-r;s
   as constants, similarly to the &c-lang; declaration <type>enum {
-  <replaceable>ident</replaceable> [= &value-r;],
-  ... };</type></simpara></listitem></varlistentry>
+  &symbol-r; [= &value-r;], ... };</type></simpara>
+<simpara>You can use
+ <literal role="sexp">(<function>FFI:ENUM-FROM-VALUE</function> &name-r;
+  &value-r;)</literal> and
+ <literal role="sexp">(<function>FFI:ENUM-TO-VALUE</function> &name-r;
+  &symbol-r;)</literal> to convert between the numeric and symbolic
+ representations (of course, the latter function boils down to
+ &symbol-value; plus a check that the &symbol-r; is indeed a constant
+ defined in the &def-c-enum; &name-r;).</simpara></listitem></varlistentry>
 
 <varlistentry id="c-lines"><term><literal role="sexp">(&c-lines;
   <replaceable>format-string</replaceable> {&arg-r;}*)</literal></term>
