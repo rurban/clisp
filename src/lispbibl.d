@@ -4269,9 +4269,9 @@ typedef sbvector_ *  Sbvector;
 
 # simple string template
 #define STRUCT_SSTRING(cint_type) \
-  struct {                                                    \
-    LRECORD_HEADER # self-pointer for GC, lenth in characters \
-    cint_type  data[unspecified];  # Characters               \
+  struct {                                                              \
+    LRECORD_HEADER /* self-pointer for GC, length in characters */      \
+    cint_type  data[unspecified];  /* characters */                     \
   }
 #ifdef HAVE_SMALL_SSTRING
   typedef STRUCT_SSTRING(cint8)  s8string_;
