@@ -174,6 +174,10 @@ if [ `echo ABC | tr '[A-Z]' '[a-z]'` = "abc" ] ; then
 else
   tolower="tr A-Z a-z"
 fi
+my_eval(){
+  eval "$*";
+  if [ "${verbose}" = true -o "${verbose}" = yes ]; then echo "$*" >&2; fi
+}
 
 verbose=${CLISP_MAKEMAKE_VERBOSE:-false};
 # Handle --with-... arguments
@@ -188,13 +192,13 @@ while test -z "$endofargs"; do
       MODULES="$MODULES "`echol "$1"|sed 's/-*with-module=//'`
       shift
       ;;
-    -without-* | --without-* | -with-no-* | --with-no-*)
-      package=`echol "$1"|sed 's/-*with(out|-no)-//' `
+    -without-* | --without-* | -with-no* | --with-no*)
+      package=`echol "$1"|sed 's/-*with\(out-\|-no-*\)//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
         echol "makemake: $package: invalid package name" >&2; exit 1
       fi
-      eval "with_`echol $package|sed s/-/_/g`=0"
+      my_eval "with_`echol $package|sed s/-/_/g`=0"
       shift
       ;;
     -with-* | --with-*)
@@ -211,7 +215,7 @@ while test -z "$endofargs"; do
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
         echol "makemake: $package: invalid package name" >&2; exit 1
       fi
-      eval "with_`echol $package|sed s/-/_/g`=${packopt}"
+      my_eval "with_`echol $package|sed s/-/_/g`=${packopt}"
       shift
       ;;
     -srcdir* | --srcdir*)
@@ -2571,7 +2575,7 @@ if [ -n "$USE_GETTEXT" ] ; then
     echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA=ln) || (rm -rf locale ; exit 1)"
   else
     echotab "mkdir locale"
-    eval `grep ALL_LINGUAS= src/configure.in`
+    my_eval `grep ALL_LINGUAS= src/configure.in`
     for lang in ${ALL_LINGUAS:-"en de fr"}; do
       echotab "mkdir locale${NEXT_}${lang}"
       echotab "mkdir locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
