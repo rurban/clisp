@@ -1,3 +1,14 @@
+2004-11-23  Sam Steingold  <sds@gnu.org>
+
+	reverted the 2003-10-10 patch and fixed the problem differently:
+	since the problem is that COMPILE/LOAD-TIME-VALUE must work even
+	inside COMPILE-FILE, *FASOUTPUT-STREAM* should be bound there
+	* compiler.lisp (compile): bind *FASOUTPUT-STREAM* to NIL
+	(c-EVAL-WHEN): do not bind *FASOUTPUT-STREAM*
+	* reploop.lisp (break-loop): ditto
+	Suggested by Don Cohen in
+	<http://article.gmane.org/gmane.lisp.clisp.devel/13127>
+
 2004-11-23  Bruno Haible  <bruno@clisp.org>
 
 	* clhs.lisp (browse-url): On MacOS X, use the system's browser by
