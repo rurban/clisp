@@ -25,6 +25,7 @@ This file presents
     IRIX 4
     IRIX 5
     IRIX 6.2
+    IRIX 6.3
     DECstation 5000, Ultrix
     Apple Macintosh, A/UX
     Amiga running AMIX 2.1 SVR4.0
@@ -656,6 +657,12 @@ introduce assembly language parts). Do *not* add "-OPT:Olimit=6000" to the
 CFLAGS, as the compiler suggests when compiling eval.d, because then
 eval.d is apparently miscompiled. Remove the "-L/usr/lib -lX11" from the
 CFLAGS in the makefile, if your X11 libraries are 32-bit.
+
+
+On IRIX 6.3:
+
+The configuration of ffcall hangs during "checking for working mprotect".
+The running `conftest' process is unkillable. No workaround is known.
 
 
 On DECstation 5000, Ultrix:
