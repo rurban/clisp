@@ -2969,9 +2969,10 @@ local Values eval1 (object form)
           }
           break;
           default: undef: {
-            pushSTACK(Cdr(form));
-            var object fun = check_fdefinition(Car(form),S(eval));
-            apply(fun,0,popSTACK());
+            pushSTACK(form);
+            check_fdefinition(Car(form),S(eval));
+            form = popSTACK();
+            goto eval_cons;
           }
         }
       } else if (consp(fun) && eq(Car(fun),S(lambda))) {

@@ -2,6 +2,7 @@
 
 	* error.d (check_fdefinition): fixed stack handling
 	(check_function): get(sym,ind) may not be a symbol
+	* eval.d (eval1): do not use apply() after check_fdefinition()
 
 2003-05-21  Sam Steingold  <sds@gnu.org>
 
