@@ -1,5 +1,9 @@
 2003-05-24  Sam Steingold  <sds@gnu.org>
 
+	* spvw_debug.d (nobject_out): handle hash tables
+
+2003-05-24  Sam Steingold  <sds@gnu.org>
+
 	* hashtabl.d (rehash): fixed an "off by one" bug in user-defined HTs
 	(hash_lookup): fixed a GC-safety bug in user-defined HTs
 
