@@ -45,7 +45,7 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
     goto restart_regcomp;
   }
   STACK_2 = STACK_1 = allocate_fpointer((FOREIGN)re);
-  STACK_0 = `REGEXP::REGEXP-FREE`; funcall(L(finalize),2);
+  STACK_0 = ``REGEXP::REGEXP-FREE``; funcall(L(finalize),2);
   VALUES1(STACK_0);
   skipSTACK(3);
 }
