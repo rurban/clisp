@@ -2312,7 +2312,8 @@ LISPFUNN(deref,1)
   if (!(simple_vector_p(fvd)
         && (Svector_length(fvd) == 2)
         && (eq(TheSvector(fvd)->data[0],S(c_ptr))
-            || eq(TheSvector(fvd)->data[0],S(c_ptr_null))))) {
+            || eq(TheSvector(fvd)->data[0],S(c_ptr_null))
+            || eq(TheSvector(fvd)->data[0],S(c_pointer))))) {
     dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
     pushSTACK(fvd);
     pushSTACK(fvar);
@@ -2675,7 +2676,6 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
   }
   /* Check alignment */
   if (!(((uintP)arg_address & (arg_alignment-1)) == 0)) {
-    dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
     pushSTACK(fvar);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~S: foreign variable ~S does not have the required alignment"));

@@ -14,6 +14,11 @@
 	direct-slot-definition class. Remove the slot option checking from
 	here.
 
+2004-09-27  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d (%deref): may be useful with (c-pointer <c-type>)
+	(foreign_allocate): bind *print-circle* iff fvd shown.
+
 2004-09-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp, modules/bindings/glibc/linux.lisp:
