@@ -505,6 +505,11 @@
   LISPOBJ_S(error_string1,"*** - ")
   # Vektor mit Conditions und Simple-Conditions:
   LISPOBJ(error_types,"#()")
+  # Interrupt handling:
+  LISPOBJ_LS(continue_interrupt,
+    /* ENGLISH */ "Continue execution")
+  LISPOBJ_LS(user_break,
+    /* ENGLISH */ "~S: User break")
   # für Errors vom Typ TYPE-ERROR:
   LISPOBJ(type_uint8,"(INTEGER 0 255)") # oder "(UNSIGNED-BYTE 8)"
   LISPOBJ(type_sint8,"(INTEGER -128 127)") # oder "(SIGNED-BYTE 8)"

@@ -1241,6 +1241,7 @@ LISPSYM(simple_reader_error,"SIMPLE-READER-ERROR",system) # als Typ für ERROR  
 LISPSYM(simple_file_error,"SIMPLE-FILE-ERROR",system) # als Typ für ERROR                               |
 LISPSYM(simple_os_error,"SIMPLE-OS-ERROR",system) # als Typ für ERROR                                   |
 LISPSYM(simple_storage_condition,"SIMPLE-STORAGE-CONDITION",system) # als Typ für ERROR                 |
+LISPSYM(simple_interrupt_condition,"SIMPLE-INTERRUPT-CONDITION",system) # als Typ für ERROR             |
 LISPSYM(simple_warning,"SIMPLE-WARNING",lisp) # als Typ für ERROR                                     --+
 LISPSYM(Kinstance,"INSTANCE",keyword) # als make-condition-Argument für ERROR
 LISPSYM(Kdatum,"DATUM",keyword) # als make-condition-Argument für ERROR
