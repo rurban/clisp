@@ -14,7 +14,7 @@ AC_DEFUN([CL_PUTENV],
 [AC_REQUIRE([AC_GNU_SOURCE])
 dnl Not AC_CHECK_FUNCS(putenv) because it doesn't work when CC=g++.
 AC_CACHE_CHECK([for putenv], ac_cv_func_putenv, [
-AC_LINK_IFELSE(AC_LANG_PROGRAM(,[putenv("")]),
+AC_LINK_IFELSE(AC_LANG_PROGRAM([#include <stdlib.h>], [putenv("")]),
 ac_cv_func_putenv=yes, ac_cv_func_putenv=no)])
 if test $ac_cv_func_putenv = yes; then
   AC_DEFINE(HAVE_PUTENV, 1, [Define if you have the putenv() function.])
