@@ -1331,6 +1331,14 @@
           filename)
         nil))))
 
+(sys::%putd 'check-symbol
+  (function check-symbol
+    (lambda (caller object)
+      (unless (symbolp object)
+        (error-of-type 'source-program-error
+          (TEXT "~S: ~S is not a symbol.")
+          caller object)))))
+
 (sys::%putd 'defun              ; preliminary:
   (sys::make-macro
     (function defun
@@ -1342,10 +1350,7 @@
         (let ((name (cadr form))
               (lambdalist (caddr form))
               (body (cdddr form)))
-          (unless (symbolp name)
-            (error-of-type 'source-program-error
-              (TEXT "~S: ~S is not a symbol.")
-              'defun name))
+          (check-symbol 'defun name)
           (when (special-operator-p name)
             (error-of-type 'source-program-error
               (TEXT "~S: special operator ~S cannot be redefined.")

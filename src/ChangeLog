@@ -1,5 +1,16 @@
 2002-03-09  Sam Steingold  <sds@gnu.org>
 
+	more error unification
+	* init.lisp (check-symbol): new function
+	(defun): use it
+	* foreign1.lisp (check-symbol): removed
+	(DEF-C-TYPE, DEF-C-VAR, DEF-CALL-OUT, DEF-LIB-CALL-OUT)
+	(DEF-CALL-IN, def-c-enum): use the new check-symbol
+	* defstruct.lisp (defstruct): ditto
+	(ds-symbol-or-error): removed
+
+2002-03-09  Sam Steingold  <sds@gnu.org>
+
 	autoconf tweaks for hp/ux and cygwin
 	* autoconf/aclocal.m4 (CL_CANONICAL_HOST_CPU_FOR_FFCALL)
 	(CL_CANONICAL_HOST_CPU): hppa2.0* --> hppa

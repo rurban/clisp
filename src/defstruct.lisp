@@ -55,15 +55,6 @@
 (defmacro ds-slot-readonly (slot) `(svref ,slot 6))
 (defun copy-ds-slot (slot) (sys::%copy-simple-vector slot))
 
-#| (ds-symbol-or-error x) liefert eine Fehlermeldung, falls x kein Symbol ist.
-|#
-(defun ds-symbol-or-error (x)
-  (unless (symbolp x)
-    (error-of-type 'source-program-error
-      (TEXT "~S: this is not a symbol: ~S")
-      'defstruct x
-) ) )
-
 #| Hilfsfunktion für beide Konstruktoren:
    (ds-arg-default arg slot)
    liefert zu einem Argument arg (Teil einer Argumentliste) den Teil der
@@ -436,7 +427,7 @@
                  ; Default-Keyword-Constructor
                  (push (concat-pnames "MAKE-" name) constructor-option-list)
                  (let ((arg (second option)))
-                   (ds-symbol-or-error arg)
+                   (check-symbol 'defstruct arg)
                    (push
                      (if (atom (cddr option))
                        arg ; Keyword-Constructor
@@ -452,13 +443,13 @@
             (:COPIER
                (when (consp (cdr option))
                  (let ((arg (second option)))
-                   (ds-symbol-or-error arg)
+                   (check-symbol 'defstruct arg)
                    (setq copier-option arg)
             )  ) )
             (:PREDICATE
                (when (consp (cdr option))
                  (let ((arg (second option)))
-                   (ds-symbol-or-error arg)
+                   (check-symbol 'defstruct arg)
                    (setq predicate-option arg)
             )  ) )
             ((:INCLUDE :INHERIT)

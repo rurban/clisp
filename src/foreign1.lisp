@@ -1,5 +1,6 @@
 ;;; Foreign function interface for CLISP
 ;;; Bruno Haible 19.2.1995
+;;; Sam Steingold 1998-2002
 
 #+UNICODE
 (progn
@@ -334,14 +335,8 @@
     (error (TEXT "The name ~S is not a valid C identifier")
            name)))
 
-(defun check-symbol (whole &optional (name (second whole)))
-  (unless (symbolp name)
-    (sys::error-of-type 'sys::source-program-error
-      (TEXT "~S: this is not a symbol: ~S")
-      (first whole) name)))
-
 (defmacro DEF-C-TYPE (&whole whole name typespec)
-  (check-symbol whole)
+  (check-symbol (first whole) name)
   `(EVAL-WHEN (LOAD COMPILE EVAL)
      (PARSE-C-TYPE ',typespec ',name)
      ',name))
@@ -664,7 +659,7 @@
     (to-c-name lisp-name)))
 
 (defmacro DEF-C-VAR (&whole whole name &rest options)
-  (check-symbol whole)
+  (check-symbol (first whole) name)
   (let* ((alist (parse-options options '(:name :type :read-only :alloc) whole))
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
@@ -719,7 +714,7 @@
   `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
-  (check-symbol whole)
+  (check-symbol (first whole) name)
   (let* ((alist (parse-options options '(:name :arguments :return-type :language) whole))
          (parsed-function (parse-c-function alist whole))
          (signature (argvector-to-signature (svref parsed-function 2)))
@@ -742,7 +737,7 @@
 
 #+AMIGA
 (defmacro DEF-LIB-CALL-OUT (&whole whole name library &rest options)
-  (check-symbol whole)
+  (check-symbol (first whole) name)
   (let* ((alist (parse-options options '(:name :offset :arguments :return-type) whole))
          (parsed-function
           (parse-c-function (remove (assoc ':name alist) alist) whole))
@@ -763,7 +758,7 @@
   `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC)))
 
 (defmacro DEF-CALL-IN (&whole whole name &rest options)
-  (check-symbol whole)
+  (check-symbol (first whole) name)
   (let* ((alist (parse-options
                  options '(:name :arguments :return-type :language) whole))
          (c-name (foreign-name name (assoc ':name alist))))
@@ -883,7 +878,7 @@
   (count-inarguments (sys::%record-ref obj 3)))
 
 (defmacro def-c-enum (&whole whole name &rest items)
-  (check-symbol whole)
+  (check-symbol (first whole) name)
   (let ((forms '())
         (next-value 0))
     (dolist (item items)
