@@ -91,7 +91,8 @@
 
 2004-10-18  Sam Steingold  <sds@gnu.org>
 
-	* clos-print.lisp (compute-effective-method): avoid a compiler warning
+	* clos-print.lisp (compute-effective-method@(eql #'print-object)):
+	avoid a compiler warning
 
 2004-10-18  Sam Steingold  <sds@gnu.org>
 
@@ -350,8 +351,9 @@
 	STANDARD-CLASS or FUNCALLABLE-STANDARD-CLASS.
 	(ensure-class-using-class-<t>): Test for subclass of
 	<semi-standard-class>, not of <standard-class>.
-	* clos-genfun1.lisp (*<funcallable-standard-class>-valid-initialization-keywords*):
-	New constant.
+	* clos-genfun1.lisp
+	(*<funcallable-standard-class>-valid-initialization-keywords*): New
+	constant.
 	(funcallable-standard-object, generic-function,
 	standard-generic-function): Define through defclass instead of
 	ensure-class.
