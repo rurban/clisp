@@ -1491,6 +1491,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #ifdef EXPORT_SYSCALLS
               " :SYSCALLS"
             #endif
+            #ifdef DIR_KEY
+              " :DIR-KEY"
+            #endif
             #ifdef AMIGA
               " :AMIGA"
             #endif

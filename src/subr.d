@@ -1151,3 +1151,22 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
 LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
 LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
 #endif
+# ---------------- directory key
+#ifdef DIR_KEY
+LISPFUNN(dir_key_type,1)
+LISPFUNN(dir_key_path,1)
+LISPFUNN(dir_key_direction,1)
+LISPFUNN(dir_key_open_p,1)
+LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
+LISPFUNN(dir_key_close,1)
+LISPFUNN(dir_key_subkey_delete,2)
+LISPFUNN(dir_key_subkeys,1)
+LISPFUN(dir_key_value,2,1,norest,nokey,0,NIL)
+LISPFUNN(dir_key_value_delete,2)
+LISPFUNN(dir_key_attributes,1)
+LISPFUNN(set_dkey_value,3)
+LISPFUNN(dkey_info,1)
+LISPFUNN(dkey_search_iterator,3)
+LISPFUNN(dkey_search_next_key,1)
+LISPFUNN(dkey_search_next_att,1)
+#endif

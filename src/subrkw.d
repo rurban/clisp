@@ -179,4 +179,7 @@ s(rexx_put)
 #endif
 v(1, (kw(verbose)))
 s(ensure_directories_exist)
-
+#ifdef DIR_KEY
+v(2, (kw(direction),kw(if_does_not_exist)))
+s(dir_key_open)
+#endif

@@ -2,7 +2,6 @@
 # Bruno Haible 1990-2000
 # Marcus Daniels 11.11.1994
 
-
 # Flags intended to be set through CFLAGS:
 #   Readline library:
 #     NO_READLINE
@@ -2072,7 +2071,7 @@
 # Bei Erweiterung: PATHNAME erweitern.
 
 # Ob es einen Typ FOREIGN gibt (eine Verpackung für diverse Pointer):
-  #if defined(UNIX) || defined(DYNAMIC_FFI) || defined(AMIGAOS)
+  #if defined(UNIX) || defined(DYNAMIC_FFI) || defined(AMIGAOS) || defined(DIR_KEY)
     # (Wird benutzt vom FFI und von CLX.)
     #define FOREIGN  void*
   #endif
@@ -3727,6 +3726,9 @@ typedef xrecord_ *  Xrecord;
          #ifdef SOCKET_STREAMS
          Rectype_Socket_Server,
          #endif
+         #ifdef DIR_KEY
+         Rectype_Dir_Key,
+         #endif
          #ifdef YET_ANOTHER_RECORD
          Rectype_Yetanother,
          #endif
@@ -4589,6 +4591,27 @@ typedef struct host_data {
 } host_data;
 #endif
 
+#ifdef DIR_KEY
+# directory services interface, such as
+#   LDAP (via the OpenLDAP libraries),
+#   Gnome-config
+#   Win32 registry
+typedef struct {
+  XRECORD_HEADER
+  object type;
+  object path;
+  object direction;
+  unsigned int closed_p;
+  # LDAP:           LDAP*
+  # win32 registry: HKEY
+  # gnome-conf:     NULL
+  void* handle;
+} * Dir_Key;
+# this is the number if OBJECTS inside Dir_Key that the GC must track
+#define dir_key_length 2
+#define dir_key_xlength (sizeof(*(Dir_Key)0)-offsetofa(record_,recdata)-dir_key_length*sizeof(object))
+#endif
+
 #ifdef YET_ANOTHER_RECORD
 
 # Yet another record
@@ -5131,6 +5154,9 @@ typedef struct {
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(type_pointable(orecord_type,obj)))
   #endif
+  #ifdef DIR_KEY
+  #define TheDirKey(obj) ((Dir_Key)(type_pointable(orecord_type,obj)))
+  #endif
   #ifdef YET_ANOTHER_RECORD
   #define TheYetanother(obj)  ((Yetanother)(type_pointable(orecord_type,obj)))
   #endif
@@ -5227,6 +5253,9 @@ typedef struct {
   #define TheFinalizer(obj)  ((Finalizer)(as_oint(obj)-varobject_bias))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(as_oint(obj)-varobject_bias))
+  #endif
+  #ifdef DIR_KEY
+  #define TheDirKey(obj) ((Dir_Key)(as_oint(obj)-varobject_bias))
   #endif
   #ifdef YET_ANOTHER_RECORD
   #define TheYetanother(obj)  ((Yetanother)(as_oint(obj)-varobject_bias))
@@ -5713,6 +5742,11 @@ typedef struct {
     (orecordp(obj) && (Record_type(obj) == Rectype_Socket_Server))
   #define socket_stream_p(obj)  \
     (builtin_stream_p(obj) && (TheStream(obj)->strmtype==strmtype_socket))
+#endif
+
+#ifdef DIR_KEY
+  #define dir_key_p(obj)  \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Dir_Key))
 #endif
 
 #ifdef YET_ANOTHER_RECORD
@@ -7664,6 +7698,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #ifdef SOCKET_STREAMS
   #define allocate_socket_server() \
     allocate_xrecord(0,Rectype_Socket_Server,socket_server_length,0,orecord_type)
+#endif
+
+#ifdef DIR_KEY
+  #define allocate_dir_key() \
+    allocate_xrecord(0,Rectype_Dir_Key,dir_key_length,dir_key_xlength,orecord_type)
 #endif
 
 #ifdef YET_ANOTHER_RECORD

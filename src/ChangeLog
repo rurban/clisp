@@ -1,20 +1,38 @@
+2000-12-02  Sam Steingold  <sds@gnu.org>
+
+	Directory access (LDAP, Win32 registry, gnome config.
+	Only Win32 registry works at this time.
+	* lispbibl.d (FOREIGN): define when DIR_KEY is defined.
+	(Dir_Key): new record type.
+	* constobj.d (hs_dir_key, type_dir_key, type_scope)
+	(printstring_dir_key): added.
+	(slash_string): define when DIR_KEY id defined.
+	* constsym.d, subr.d, subrkw.d: define the dirkey functions.
+	* predtype.d: recognize the new rectype.
+	* io.d: print the new rectype.
+	* spvw.d: added :DIR-KEY to `*features*' when DIR_KEY is defined.
+	* places.lisp (dir-key-value): new defsetf.
+	* init.lisp: load dirkey.lisp.
+	* dirkey.lisp, dirkey.d: new files.
+	* makemake.in: added --with-dir-key.
+
 2000-11-30  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (convert_time_to_universal): New declaration.
-        * time.d (convert_time_to_universal): New function.
-        * pathname.d (FILE-WRITE-DATE): Use it.
+	* lispbibl.d (convert_time_to_universal): New declaration.
+	* time.d (convert_time_to_universal): New function.
+	* pathname.d (FILE-WRITE-DATE): Use it.
 
 2000-11-29  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (set_start_time): Remove declaration.
-        * time.d (internal_time_to_I): New function.
-          (GET-INTERNAL-REAL-TIME, GET-INTERNAL-RUN-TIME): Use
-          internal_time_to_I.
-          (encode_universal_time): New function.
-          (calc_start_UT): Remove function.
-          (get_start_time): New function.
-          (universal_time_sec): New function.
-          (GET-UNIVERSAL-TIME): Call universal_time_sec.
+	* lispbibl.d (set_start_time): Remove declaration.
+	* time.d (internal_time_to_I): New function.
+	(GET-INTERNAL-REAL-TIME, GET-INTERNAL-RUN-TIME): Use
+	internal_time_to_I.
+	(encode_universal_time): New function.
+	(calc_start_UT): Remove function.
+	(get_start_time): New function.
+	(universal_time_sec): New function.
+	(GET-UNIVERSAL-TIME): Call universal_time_sec.
 
 2000-11-25  Sam Steingold  <sds@gnu.org>
 

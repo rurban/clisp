@@ -485,6 +485,7 @@ LISPSYM(get_env,"GETENV",system)
 #endif
 #ifdef WIN32_NATIVE
 LISPSYM(registry,"REGISTRY",system)
+LISPSYM(Kwin32,"WIN32",keyword)
 #endif
 LISPSYM(software_type,"SOFTWARE-TYPE",lisp)
 LISPSYM(software_version,"SOFTWARE-VERSION",lisp)
@@ -1706,4 +1707,27 @@ LISPSYM(mem_read,"MEM-READ",system)
 LISPSYM(mem_write,"MEM-WRITE",system)
 LISPSYM(mem_write_vector,"MEM-WRITE-VECTOR",system)
 LISPSYM(affi_nonzerop,"NZERO-POINTER-P",system)
+#endif
+# ---------------- directory key
+#ifdef DIR_KEY
+LISPSYM(dir_key,"DIR-KEY",lisp)
+LISPSYM(dir_key_type,"DIR-KEY-TYPE",lisp)
+LISPSYM(dir_key_path,"DIR-KEY-PATH",lisp)
+LISPSYM(dir_key_direction,"DIR-KEY-DIRECTION",lisp)
+LISPSYM(dir_key_open_p,"DIR-KEY-OPEN-P",lisp)
+LISPSYM(dir_key_open,"DIR-KEY-OPEN",lisp)
+LISPSYM(dir_key_close,"DIR-KEY-CLOSE",lisp)
+LISPSYM(dir_key_subkey_delete,"DIR-KEY-SUBKEY-DELETE",lisp)
+LISPSYM(dir_key_subkeys,"DIR-KEY-SUBKEYS",lisp)
+LISPSYM(dir_key_value,"DIR-KEY-VALUE",lisp)
+LISPSYM(dir_key_value_delete,"DIR-KEY-VALUE-DELETE",lisp)
+LISPSYM(dir_key_attributes,"DIR-KEY-ATTRIBUTES",lisp)
+LISPSYM(set_dkey_value,"SET-DKEY-VALUE",system)
+LISPSYM(dkey_info,"DKEY-INFO",system)
+LISPSYM(dkey_search_iterator,"DKEY-SEARCH-ITERATOR",system)
+LISPSYM(dkey_search_next_key,"DKEY-SEARCH-NEXT-KEY",system)
+LISPSYM(dkey_search_next_att,"DKEY-SEARCH-NEXT-ATT",system)
+LISPSYM(Kscope,"SCOPE",keyword)
+LISPSYM(Kself,"SELF",keyword)
+LISPSYM(Ktree,"TREE",keyword)
 #endif
