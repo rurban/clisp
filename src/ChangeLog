@@ -1,3 +1,9 @@
+2004-09-18  Bruno Haible  <bruno@clisp.org>
+
+	* aridecl.d (SF_exp_mid, SF_exp_high): Use the IEEE single-float
+	values.
+	Fixes problem introduced on 1999-08-07.
+
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun4.lisp (shared-initialize@generic-function): New method.

@@ -109,9 +109,17 @@
 #             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
   #define SF_exp_len    8  # Anzahl der Bits des Exponenten
   #define SF_mant_len  16  # Anzahl der Bits der Mantisse
-  #define SF_exp_low   1                    # minimaler Exponent
-  #define SF_exp_mid   bit(SF_exp_len-1)    # "Nullstellung" des Exponenten
-  #define SF_exp_high  (bit(SF_exp_len)-1)  # maximaler Exponent
+  # Choose the same values as for Single Float, so that conversion from
+  # Short Float to Single Float always succeeds without overflow or underflow.
+  #if 1
+    #define SF_exp_low   1                    # minimal exponent
+    #define SF_exp_mid   126                  # value representing exponent 0
+    #define SF_exp_high  254                  # maximal exponent
+  #else
+    #define SF_exp_low   1                    # minimal exponent
+    #define SF_exp_mid   bit(SF_exp_len-1)    # value representing exponent 0
+    #define SF_exp_high  (bit(SF_exp_len)-1)  # maximal exponent
+  #endif
   #define SF_exp_shift  (SF_mant_len+SF_mant_shift) # unterstes Bit des Exponenten im oint
   #define SF_mant_shift  oint_data_shift            # unterstes Bit der Mantisse im oint
 # Typinfo-Byte für SF >=0 :

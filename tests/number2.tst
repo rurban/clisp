@@ -34,6 +34,14 @@ check-xgcd
 (isqrt #x3FFFFFFFC000000000007F)
 #x7FFFFFFFBFF
 
+;; floating-point functions
+
+(< 0.0 least-positive-short-float 1.0)
+t
+
+(> most-positive-short-float 1.0)
+t
+
 ;; transcendental functions
 
 (expt -5s0 2s0) #c(25s0 0s0)
