@@ -37,8 +37,8 @@
   (set-syntax-from-char #\Code26 #\Space))
 
 (defparameter *load-paths*
-  '(#"C:"                ; erst im Current-Directory von Laufwerk C:
-    #"C:\\CLISP\\...\\") ; dann in allen Directories unterhalb C:\CLISP
+  '(#"C:"               ; the current directory on drive C:
+    #"C:\\CLISP\\**\\") ; all subdirectories under C:\CLISP
   "The list of directories where programs are searched on LOAD etc.
 if device and directory are unspecified:")
 
