@@ -1,5 +1,11 @@
 2004-02-25  Bruno Haible  <bruno@clisp.org>
 
+	* unix.d (msync, mmap, munmap): Comment out prototype. Needed to avoid
+	prototype clash on Solaris 7.
+	* spvw_mmap.d (munmap): Likewise.
+
+2004-02-25  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (XCPPFLAGS): New variable.
 	(XCFLAGS): Don't add the value of XCPPFLAGS here.
 	(MODULE_CPPFLAGS_VAR): New variable.

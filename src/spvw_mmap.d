@@ -37,7 +37,9 @@
 #endif
 
 # Unmaps a memory range.
+#if 0 /* Already declared in <sys/mman.h> on those platforms that have it. */
   global int munmap (void* addr, size_t len);
+#endif
 
 # Changes the access protection for a memory range.
 #if 0 /* Already declared in <sys/mman.h> on those platforms that have it. */

@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2002
  */
 
@@ -89,7 +89,7 @@ extern_C char* strerror (int errnum);
       /* tested only on UNIX_LINUX, not UNIX_SUNOS4, not UNIX_SUNOS5,
          not UNIX_FREEBSD. ?? */
       /* for MULTIMAP_MEMORY_VIA_FILE: */
-      extern_C int msync (void* addr, size_t len, int flags);
+      /* extern_C int msync (void* addr, size_t len, int flags); */
     #else
       /* NetBSD has a 2-argument msync(), unusable for our purposes. */
       #undef HAVE_MSYNC
@@ -126,10 +126,10 @@ extern_C char* strerror (int errnum);
   #define PROT_EXEC  VM_PROT_EXECUTE
 #endif
 #ifdef HAVE_MMAP
-  extern_C void* mmap (void* addr, size_t len, int prot, int flags, int fd, off_t off); /* MMAP(2) */
+  /* extern_C void* mmap (void* addr, size_t len, int prot, int flags, int fd, off_t off); */ /* MMAP(2) */
 #endif
 #ifdef HAVE_MUNMAP
-  extern_C int munmap (void* addr, size_t len); /* MUNMAP(2) */
+  /* extern_C int munmap (void* addr, size_t len); */ /* MUNMAP(2) */
 #endif
 #ifdef HAVE_WORKING_MPROTECT
   /* extern_C int mprotect (void* addr, size_t len, int prot); */ /* MPROTECT(2) */
