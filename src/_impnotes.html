@@ -666,7 +666,10 @@ than the one the method came from.
 
 <P><a href="CLHSROOT/Body/stagenfun_print-object.html">
 <code>print-object</code></a> is only called on objects of type
-<code>standard-object</code>.
+<a href="CLHSROOT/Body/cla_standard-object.html">
+<code>standard-object</code></a> and
+<a href="CLHSROOT/Body/cla_structure-object.html">
+<code>structure-object</code></a>.
 
 <P><a href="CLHSROOT/Body/stagenfun_doc_umentationcp.html">
 <code>documentation</code></a> still has the CLtL1 implementation.
@@ -5613,7 +5616,7 @@ returning its shortest name or nickname.  Also, a variable
 is your responsibility to increment it (you might also want to reset
 it).
 
-<a name="prompt"></a><H3>Extensions-1.8. System Calls</H3>
+<a name="syscalls"></a><H3>Extensions-1.8. System Calls</H3>
 
 <p>When CLISP is configured with an option
 <code>--export-syscalls</code>, some system calls are available from
