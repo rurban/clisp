@@ -442,6 +442,19 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pointer = value1; # =: pointer                        \
     }
 
+# Error message when trying to access past the end of a vector.
+# > vector: the vector
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(local, fehler_vector_index_range, (object vector));
+  local void fehler_vector_index_range(vector)
+    var object vector;
+    {
+      var uintL len = vector_length(vector);
+      pushSTACK(vector);
+      pushSTACK(UL_to_I(len));
+      fehler_index_range(len);
+    }
+
 # UP: kopiert einen Teil einer Sequence in eine andere Sequence.
 # > STACK_6: sequence1
 # > STACK_5: typdescr1
@@ -462,6 +475,12 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
         if (count > 0) {
           var uintL index1 = posfixnum_to_L(STACK_1);
           var uintL index2 = posfixnum_to_L(STACK_0);
+          if (index1+count > vector_length(STACK_6)) {
+            subr_self = L(aref); fehler_vector_index_range(STACK_6);
+          }
+          if (index2+count > vector_length(STACK_4)) {
+            subr_self = L(store); fehler_vector_index_range(STACK_4);
+          }
           var object dv1 = array_displace_check(STACK_6,count,&index1);
           var object dv2 = array_displace_check(STACK_4,count,&index2);
           if (dv1 == dv2)
@@ -1668,6 +1687,9 @@ LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
       var uintL count = posfixnum_to_L(STACK_1);
       if (count > 0) {
         var uintL index = posfixnum_to_L(STACK_2);
+        if (index+count > vector_length(STACK_4)) {
+          subr_self = L(store); fehler_vector_index_range(STACK_4);
+        }
         var object dv = array_displace_check(STACK_4,count,&index);
         if (elt_fill(dv,index,count,STACK_3))
           fehler_store(STACK_4,STACK_3);

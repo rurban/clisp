@@ -9993,6 +9993,13 @@ typedef struct {
   extern object array_displace_check (object array, uintL size, uintL* index);
 # used by HASHTABL, PREDTYPE, IO, FOREIGN
 
+# Fehlermeldung
+# > STACK_1: Array (meist Vektor)
+# > STACK_0: (fehlerhafter) Index
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(extern, fehler_index_range, (uintL bound));
+# used by SEQUENCE
+
 # Function: Performs an AREF access.
 # storagevector_aref(storagevector,index)
 # > storagevector: a storage vector (simple vector or semi-simple byte vector)
