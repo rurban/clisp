@@ -467,6 +467,7 @@
 <!ENTITY foreign-pointer-t "<link linkend='fptr'><classname>FFI:FOREIGN-POINTER</classname></link>">
 <!ENTITY foreign-variable "<link linkend='dffi-make-var'><function>FFI:FOREIGN-VARIABLE</function></link>">
 <!ENTITY foreign-variable-t "<link linkend='dffi-variables'><classname>FFI:FOREIGN-VARIABLE</classname></link>">
+<!ENTITY close-foreign-library "<link linkend='dffi-close-lib'><function>FFI:CLOSE-FOREIGN-LIBRARY</function></link>">
 <!ENTITY linkset "<olink targetdoc='impnotes' targetptr='linkset'>linking set</olink>">
 <!ENTITY link-sh "<olink targetdoc='impnotes' targetptr='modset'><command>link.sh</command></olink>">
 <!ENTITY modset "<olink targetdoc='impnotes' targetptr='modset'>module set</olink>">

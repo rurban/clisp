@@ -2429,6 +2429,14 @@ bash$ ./build-dir/clisp &opt-K; full
    &lang-k; &stdc-k;.  <emphasis>deprecated</emphasis>.
    </simpara></listitem></varlistentry>
 
+<varlistentry id="dffi-close-lib"><term><code>(&close-foreign-library;
+   &name-r;)</code></term>
+ <listitem><simpara>Close (unload) a foreign library (opened by the
+   &library-k; argument to &def-call-out; or &def-c-var;).</simpara>
+  <simpara>When you try to use the &foreign-variable-t; or the
+   &foreign-function-t; which resides in the library &name-r;, it will
+   be re-opened automatically.</simpara></listitem></varlistentry>
+
 <varlistentry id="def-c-struct"><term><code>(&def-c-struct;
    &name-r; (&symbol-r; &ctype-r;)*)</code></term>
  <listitem><para>This form defines &name-r; to be both a

@@ -274,6 +274,9 @@ User visible changes
   initialization and finalization.
   See <http://clisp.cons.org/impnotes.html#c-lines> for details.
 
+* New FFI function CLOSE-FOREIGN-LIBRARY can be used to unload a library.
+  See <http://clisp.cons.org/impnotes.html#dffi-close-lib> for details.
+
 * Buffered streams now are suitable for interactive streams. It is no longer
   necessary to use :BUFFERED NIL to avoid blocking in various situations.
 
