@@ -1,3 +1,15 @@
+2000-12-28  Bruno Haible  <haible@clisp.cons.org>
+
+        * makemake.in: encoding.o depends on libcharset.h.
+          (libcharset.h): New rule.
+        * encoding.d: Include libcharset.h.
+          (encoding_from_name): Argument is now canonicalized like
+          locale_charset(), not like X11.
+          (init_dependent_encodings): Call locale_charset().
+        * spvw_ctype.d (locale_charset): Remove variable.
+          (init_ctype): Remove initialization of locale_charset.
+        * constsym.d: Add JOHAB and AIX specific encoding.
+
 2000-12-29  Bruno Haible  <haible@clisp.cons.org>
 
         * utils/gen-uninames: New file.

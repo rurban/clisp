@@ -1668,6 +1668,7 @@ LISPSYM(iso_2022_cn_ext,"ISO-2022-CN-EXT",charset)
 LISPSYM(euc_kr,"EUC-KR",charset)
 LISPSYM(cp949,"CP949",charset)
 LISPSYM(iso_2022_kr,"ISO-2022-KR",charset)
+LISPSYM(johab,"JOHAB",charset)
 LISPSYM(armscii_8,"ARMSCII-8",charset)
 LISPSYM(georgian_academy,"GEORGIAN-ACADEMY",charset)
 LISPSYM(georgian_ps,"GEORGIAN-PS",charset)
@@ -1675,7 +1676,15 @@ LISPSYM(tis_620,"TIS-620",charset)
 LISPSYM(mulelao_1,"MULELAO-1",charset)
 LISPSYM(cp1133,"CP1133",charset)
 LISPSYM(viscii,"VISCII",charset)
-LISPSYM(tcvn,"TCVN",charset) #                              |
+LISPSYM(tcvn,"TCVN",charset)
+#ifdef UNIX_AIX
+LISPSYM(cp856,"CP856",charset)
+LISPSYM(cp922,"CP922",charset)
+LISPSYM(cp943,"CP943",charset)
+LISPSYM(cp1046,"CP1046",charset)
+LISPSYM(cp1124,"CP1124",charset)
+LISPSYM(cp1129,"CP1129",charset)
+#endif
 LISPSYM(utf_16,"UTF-16",charset) #                          |
 LISPSYM(utf_7,"UTF-7",charset) # ---------------------------+
 #endif
