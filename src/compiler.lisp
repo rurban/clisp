@@ -8679,7 +8679,8 @@ Optimizations that might apply after this one are retried.
 ;; Debugging hints:
  (in-package "SYSTEM")
  (setq *print-circle* t *suppress-check-redefinition* t)
-;; avoid stack overflow in trace output (calls CLOS::INSTALL-DISPATCH):
+;; avoid stack overflow in trace output (calls CLOS::INSTALL-DISPATCH)
+;; by adding all needed PRINT-OBJECT methods before tracing begins:
  (print (list (make-anode :source nil :stackz nil) (make-fnode) (make-block)
               (make-tagbody) (make-var) (make-const) (make-c-source-point)
               (make-signature) (clos::make-class) clos::<t>
@@ -8687,6 +8688,7 @@ Optimizations that might apply after this one are retried.
               (clos::make-standard-class) #'compile))
  (trace compile-to-lap)
  (trace (traverse-anode :post-print *code-part*))
+ (trace (traverse-anode :post-print (cons *code-part* (reverse (coerce *code-parts* 'list)))))
  (trace (optimize-part    :pre-print *code-parts* :post-print *code-parts*)
         (optimize-label   :pre-print *code-parts* :post-print *code-parts*)
         (optimize-short   :pre-print *code-parts* :post-print *code-parts*)
