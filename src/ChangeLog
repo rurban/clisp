@@ -1,5 +1,13 @@
 2002-01-27  Sam Steingold  <sds@gnu.org>
 
+	code simplifications
+	* foreign.d (check_cc_match): new function
+	(convert_function_to_foreign, convert_function_from_foreign): use it
+	(fehler_eltype_zero_size): new function
+	(convert_from_foreign, walk_foreign_pointers): use it
+
+2002-01-27  Sam Steingold  <sds@gnu.org>
+
 	added FFI:FOREIGN-ADDRESS-NULL to check for NULL pointers
 	* foreign.d (FOREIGN-ADDRESS-VALUE): new function
 	* subr.d, constsym.d (foreign_address_value): added
