@@ -4289,7 +4289,7 @@ functions are provided:
 <variablelist>
  <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
     platforms only.</term>
-<listitem><simpara>&file-position; works on any buffered file stream.
+<listitem><simpara>&file-position; works on any &buffered; &file-stream-t;.
   When a &nl-c; is output to (respectively input from) a file stream,
   its file position is increased by 2 since &nl-c; is encoded as
   &cr-c;/&lf-c; in the file.
@@ -4326,13 +4326,19 @@ functions are provided:
    &charset-pac; package, &string-t;s (denoting &iconv;-based
    encodings), the symbol &default-k;, and the &line-term; keywords
    &unix-k;, &mac-k;, &dos-k;.  The default encoding is &def-file-enc;.
+    This argument determines how the lisp &character-t; data is
+   converted to/from the 8-bit bytes that the underlying OS uses.
   </simpara></listitem></varlistentry>
  <varlistentry id="buffered"><term>&buffered;</term>
   <listitem><para>&nil;, &t;, or &default-k;.
+    Have &clisp; manage an internal buffer for input or output (in
+    addition to the buffering that might be used by the underlying OS).
+    Buffering is a known general technique to significantly speed up i/o.
   <itemizedlist>
    <listitem><simpara>for functions that create &socket-stream;s and
-    <link linkend="pipe">pipes</link>, &default-k; is
-    equivalent to &nil;;</simpara></listitem>
+    <link linkend="pipe">pipes</link>, &default-k; is equivalent to
+    &nil;; it you are transmitting a lot of data then using buffering
+    will significantly speed up your i/o;</simpara></listitem>
    <listitem><simpara>for functions that <link linkend="open">open</link>
     files, &default-k; means that buffered file streams will be returned
     for regular files and (on Unix) block-devices, and unbuffered file
