@@ -230,6 +230,8 @@
 <!ENTITY gc "<link linkend='gc'>garbage-collect</link>">
 <!ENTITY getenv "<link linkend='getenv'><function>EXT:GETENV</function></link>">
 <!ENTITY input-char "<link linkend='input-char'><classname>SYS::INPUT-CHARACTER</classname></link>">
+<!ENTITY init-hooks "<link linkend='init-hooks'><varname>CUSTOM:*INIT-HOOKS*</varname></link>">
+<!ENTITY fini-hooks "<link linkend='fini-hooks'><varname>CUSTOM:*FINI-HOOKS*</varname></link>">
 <!ENTITY kbd-in "<olink targetdoc='impnotes' targetptr='terminal'><varname>EXT:*KEYBOARD-INPUT*</varname></olink>">
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY letf "<link linkend='letf'><function>EXT:LETF</function></link>">

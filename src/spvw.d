@@ -1310,7 +1310,8 @@ local void init_symbol_values (void) {
   define_variable(S(recursive_error_count),Fixnum_0); # SYS::*RECURSIVE-ERROR-COUNT* := 0
   define_variable(S(error_handler),NIL);          # *ERROR-HANDLER* := NIL
   # for SPVW:
-  define_variable(S(init_hooks),NIL);             # SYS::*INIT-HOOKS* := NIL
+  define_variable(S(init_hooks),NIL);             # CUSTOM::*INIT-HOOKS* := NIL
+  define_variable(S(fini_hooks),NIL);             # CUSTOM::*FINI-HOOKS* := NIL
   define_variable(S(quiet),NIL);                  # SYS::*QUIET* := NIL
   define_variable(S(args),NIL);                   # EXT:*ARGS* := NIL
   define_variable(S(load_compiling),NIL); /* *LOAD-COMPILING* := NIL */
@@ -2788,6 +2789,17 @@ local inline int init_memory (const struct argv_initparams *p) {
   return 0;
 }
 
+/* run all functions in the list
+ can trigger GC */
+void run_hooks (object hooks) {
+  pushSTACK(hooks);
+  while (mconsp(STACK_0)) {     /* process */
+    var object obj = STACK_0;
+    STACK_0 = Cdr(obj); funcall(Car(obj),0);
+  }
+  skipSTACK(1);
+}
+
 # Perform the main actions as specified by the command-line arguments.
 local inline void main_actions (struct argv_actions *p) {
   /* print greeting: */
@@ -3180,14 +3192,7 @@ global int main (argc_t argc, char* argv[]) {
         (*module->initfunction2)(module);
     });
   }
-  { # other initializations:
-    pushSTACK(Symbol_value(S(init_hooks))); # SYS::*INIT-HOOKS*
-    while (mconsp(STACK_0)) { # process
-      var object obj = STACK_0;
-      STACK_0 = Cdr(obj); funcall(Car(obj),0);
-    }
-    skipSTACK(1);
-  }
+  run_hooks(Symbol_value(S(init_hooks)));
   # Perform the desired actions (compilations, read-eval-print loop etc.):
   main_actions(&argv2);
   quit();
@@ -3233,6 +3238,7 @@ nonreturning_function(global, quit, (void)) {
     else
       # STACK_0 contains a normal LISP-object
       { skipSTACK(1); }
+  run_hooks(Symbol_value(S(fini_hooks)));
   # Then, a farewell message:
   if (quit_retry==0) {
     quit_retry++; # If this fails, do not retry it. For robustness.

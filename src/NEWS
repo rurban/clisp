@@ -253,6 +253,11 @@ User visible changes
 * The user commands can now be extended using CUSTOM:*USER-COMMANDS*.
   See <http://clisp.cons.org/impnotes.html#user-commands> for details.
 
+* Initialisation and finalization of the CLISP process can now be
+  augmented with CUSTOM:*INIT-HOOKS* and CUSTOM:*FINI-HOOKS*.
+  See <http://clisp.cons.org/impnotes.html#init-hooks> and
+  <http://clisp.cons.org/impnotes.html#fini-hooks> for details.
+
 * SET functions (like UNION et al) are now much faster on large lists.
 
 * Bug fixes:
