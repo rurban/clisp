@@ -328,10 +328,12 @@
               (return))
             (push (pop body-rest) list))
            (nreverse list)))
-       (parse-nonempty-progn (kw) ;; after kw: parses {expr}* (CLtL2) or {expr}+ (CLHS)
+       (parse-nonempty-progn (kw) ;; after kw: [CLTS] {expr}+ or [CLTL2] {expr}*
          (let ((exprs (parse-progn)))
            (unless exprs
-             (warn (TEXT "~S: missing forms after ~A") 'loop (symbol-name kw)))
+             (if *loop-ansi*
+               (loop-syntax-error kw)
+               (warn (TEXT "~S: missing forms after ~A: permitted by CLtL2, forbidden by ANSI CL.") 'loop (symbol-name kw))))
            exprs))
        (parse-unconditional () ;; parse an unconditional
          ;; unconditional ::= {do | doing} {expr}*
@@ -557,8 +559,13 @@
                  (push `(PROGN ,@(parse-nonempty-progn kw)) initially-code))
                 ((FINALLY)
                  (pop body-rest)
-                 (push (or (parse-unconditional)
-                           `(PROGN ,@(parse-nonempty-progn kw)))
+                 (push (let ((form (parse-unconditional)))
+                         (if form
+                           (if *loop-ansi*
+                             (loop-syntax-error 'FINALLY)
+                             (warn (TEXT "~S: loop keyword immediately after ~A: permitted by CLtL2, forbidden by ANSI CL.") 'loop (symbol-name kw)))
+                           (setq form `(PROGN ,@(parse-nonempty-progn kw))))
+                          form)
                        finally-code))
                 ((WITH FOR AS REPEAT)
                  (pop body-rest)

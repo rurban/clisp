@@ -826,7 +826,7 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
   <ulink url="&clhs;/Body/sec_6-1.html">[CLHS-6.1]</ulink></title>
 
 <section id="loop-inter-var-finally">
- <title>Iteration variables in the loop epilogue.</title>
+ <title>Iteration variables in the loop epilogue</title>
 
 <para>The standard is unambiguous in that the iteration variables do
  still exist in the &finally; clause, but &not-e; as to what values
@@ -835,6 +835,16 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
  <programlisting>(loop for x on y finally (return x))</programlisting>
  is inherently non-portable across &cl; implementations,
  and should be avoided.</para>
+
+<section id="loop-ansi"><title>Backward Compatibility</title>
+<para>There have been some tightening in the &loop; syntax between
+ &cltl2; and &ansi-cl;, e.g., the following form is legal in the
+ former but not the latter:<programlisting>
+  (loop initially for i from 1 to 5 do (print i) finally return i)
+</programlisting>
+When <firstterm>&loop-ansi;</firstterm> is &nil;, such forms are still
+accepted in &clisp; but elicit a warning at macro-expansion time.
+When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
 </section>
 </section>
