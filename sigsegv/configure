@@ -5480,8 +5480,8 @@ cl_cv_proto_memset="extern $cl_cv_proto_memset_ret memset ($cl_cv_proto_memset_a
 fi
 
 cl_cv_proto_memset=`echo "$cl_cv_proto_memset" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_memset" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_memset" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMEMSETTYPE $cl_cv_proto_memset_ret
@@ -5577,8 +5577,8 @@ cl_cv_proto_malloc="extern $cl_cv_proto_malloc_ret malloc ($cl_cv_proto_malloc_a
 fi
 
 cl_cv_proto_malloc=`echo "$cl_cv_proto_malloc" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_malloc" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_malloc" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMALLOCTYPE $cl_cv_proto_malloc_ret
@@ -6669,30 +6669,71 @@ cl_cv_proto_getpagesize="extern $cl_cv_proto_getpagesize_ret getpagesize (void);
 fi
 
 cl_cv_proto_getpagesize=`echo "$cl_cv_proto_getpagesize" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getpagesize" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getpagesize" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETGETPAGESIZETYPE $cl_cv_proto_getpagesize_ret
 EOF
 
+else
+for ac_hdr in sys/param.h
+do
+ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+echo "configure:6685: checking for $ac_hdr" >&5
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 6690 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:6695: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ 
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
 fi
 
                       echo $ac_n "checking for vadvise""... $ac_c" 1>&6
-echo "configure:6683: checking for vadvise" >&5
+echo "configure:6724: checking for vadvise" >&5
 if eval "test \"`echo '$''{'cl_cv_func_vadvise'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 6689 "configure"
+#line 6730 "configure"
 #include "confdefs.h"
 #include <sys/vadvise.h>
 int main() {
 vadvise(0);
 ; return 0; }
 EOF
-if { (eval echo configure:6696: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:6737: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   cl_cv_func_vadvise=yes
 else
@@ -6714,20 +6755,20 @@ EOF
 fi
 
                       echo $ac_n "checking for vm_allocate""... $ac_c" 1>&6
-echo "configure:6718: checking for vm_allocate" >&5
+echo "configure:6759: checking for vm_allocate" >&5
 if eval "test \"`echo '$''{'cl_cv_func_vm'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 6724 "configure"
+#line 6765 "configure"
 #include "confdefs.h"
 
 int main() {
 vm_allocate(); task_self();
 ; return 0; }
 EOF
-if { (eval echo configure:6731: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:6772: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   cl_cv_func_vm=yes
 else
@@ -6751,17 +6792,17 @@ fi
                       
 ac_safe=`echo "sys/mman.h" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for sys/mman.h""... $ac_c" 1>&6
-echo "configure:6755: checking for sys/mman.h" >&5
+echo "configure:6796: checking for sys/mman.h" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 6760 "configure"
+#line 6801 "configure"
 #include "confdefs.h"
 #include <sys/mman.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:6765: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:6806: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -6784,12 +6825,12 @@ no_mmap=1
 fi
 if test -z "$no_mmap"; then
 echo $ac_n "checking for mmap""... $ac_c" 1>&6
-echo "configure:6788: checking for mmap" >&5
+echo "configure:6829: checking for mmap" >&5
 if eval "test \"`echo '$''{'ac_cv_func_mmap'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 6793 "configure"
+#line 6834 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char mmap(); below.  */
@@ -6815,7 +6856,7 @@ mmap();
 
 ; return 0; }
 EOF
-if { (eval echo configure:6819: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:6860: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_mmap=yes"
 else
@@ -6840,7 +6881,7 @@ cat >> confdefs.h <<\EOF
 EOF
 
 echo $ac_n "checking for mmap declaration""... $ac_c" 1>&6
-echo "configure:6844: checking for mmap declaration" >&5
+echo "configure:6885: checking for mmap declaration" >&5
 if eval "test \"`echo '$''{'cl_cv_proto_mmap'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -6850,7 +6891,7 @@ for y in 'void*' 'caddr_t'; do
 for x in 'void*' 'caddr_t'; do
 if test -z "$have_mmap_decl"; then
 cat > conftest.$ac_ext <<EOF
-#line 6854 "configure"
+#line 6895 "configure"
 #include "confdefs.h"
 
 #include <stdlib.h>
@@ -6875,7 +6916,7 @@ int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:6879: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:6920: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   
 cl_cv_proto_mmap_ret="$x"
@@ -6897,8 +6938,8 @@ cl_cv_proto_mmap="extern $cl_cv_proto_mmap_ret mmap ($cl_cv_proto_mmap_arg1, $cl
 fi
 
 cl_cv_proto_mmap=`echo "$cl_cv_proto_mmap" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_mmap" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_mmap" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMMAPTYPE $cl_cv_proto_mmap_ret
@@ -6913,7 +6954,7 @@ cat >> confdefs.h <<EOF
 EOF
 
 echo $ac_n "checking for working mmap""... $ac_c" 1>&6
-echo "configure:6917: checking for working mmap" >&5
+echo "configure:6958: checking for working mmap" >&5
 if eval "test \"`echo '$''{'cl_cv_func_mmap_works'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -6991,7 +7032,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 6995 "configure"
+#line 7036 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7002,7 +7043,7 @@ $mmap_prog_1
 $mmap_prog_2
 
 EOF
-if { (eval echo configure:7006: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7047: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   have_mmap_anon=1
 cl_cv_func_mmap_anon=yes
@@ -7029,7 +7070,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 7033 "configure"
+#line 7074 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7040,7 +7081,7 @@ $mmap_prog_1
 $mmap_prog_2
 
 EOF
-if { (eval echo configure:7044: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7085: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   have_mmap_anon=1
 cl_cv_func_mmap_anonymous=yes
@@ -7067,7 +7108,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 7071 "configure"
+#line 7112 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7082,7 +7123,7 @@ $mmap_prog_1
 $mmap_prog_2
 
 EOF
-if { (eval echo configure:7086: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7127: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   have_mmap_devzero=1
 cl_cv_func_mmap_devzero=yes
@@ -7111,7 +7152,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 7115 "configure"
+#line 7156 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7127,7 +7168,7 @@ $mmap_prog_1
 $mmap_prog_2
 
 EOF
-if { (eval echo configure:7131: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7172: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   have_mmap_devzero=1
 cl_cv_func_mmap_devzero_sun4_29=yes
@@ -7188,12 +7229,12 @@ fi
                       for ac_func in mprotect
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:7192: checking for $ac_func" >&5
+echo "configure:7233: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 7197 "configure"
+#line 7238 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -7219,7 +7260,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:7223: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:7264: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
@@ -7244,13 +7285,13 @@ fi
 done
 if test $ac_cv_func_mprotect = yes; then
 echo $ac_n "checking for mprotect declaration""... $ac_c" 1>&6
-echo "configure:7248: checking for mprotect declaration" >&5
+echo "configure:7289: checking for mprotect declaration" >&5
 if eval "test \"`echo '$''{'cl_cv_proto_mprotect'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 7254 "configure"
+#line 7295 "configure"
 #include "confdefs.h"
 
 #include <stdlib.h>
@@ -7275,7 +7316,7 @@ int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:7279: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:7320: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   cl_cv_proto_mprotect_arg1=""
 else
@@ -7292,15 +7333,15 @@ cl_cv_proto_mprotect="extern int mprotect ($cl_cv_proto_mprotect_arg1 $cl_cv_pro
 fi
 
 cl_cv_proto_mprotect=`echo "$cl_cv_proto_mprotect" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_mprotect" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_mprotect" 1>&6
 
 cat >> confdefs.h <<EOF
 #define MPROTECT_CONST $cl_cv_proto_mprotect_arg1
 EOF
 
 echo $ac_n "checking for working mprotect""... $ac_c" 1>&6
-echo "configure:7304: checking for working mprotect" >&5
+echo "configure:7345: checking for working mprotect" >&5
 if eval "test \"`echo '$''{'cl_cv_func_mprotect_works'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -7361,7 +7402,7 @@ if test "$cross_compiling" = yes; then
 no_mprotect=1
 else
   cat > conftest.$ac_ext <<EOF
-#line 7365 "configure"
+#line 7406 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7370,7 +7411,7 @@ $mprotect_prog
   if ((pagesize-1) & pagesize) exit(1);
   exit(0); }
 EOF
-if { (eval echo configure:7374: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7415: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   :
 else
@@ -7401,7 +7442,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 7405 "configure"
+#line 7446 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7411,7 +7452,7 @@ $mprotect_prog
   foo = *fault_address; /* this should cause a core dump */
   exit(0); }
 EOF
-if { (eval echo configure:7415: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7456: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   no_mprotect=1
 else
@@ -7439,7 +7480,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 7443 "configure"
+#line 7484 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7449,7 +7490,7 @@ $mprotect_prog
   *fault_address = 'z'; /* this should cause a core dump */
   exit(0); }
 EOF
-if { (eval echo configure:7453: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7494: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   no_mprotect=1
 else
@@ -7477,7 +7518,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 7481 "configure"
+#line 7522 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7487,7 +7528,7 @@ $mprotect_prog
   *fault_address = 'z'; /* this should cause a core dump */
   exit(0); }
 EOF
-if { (eval echo configure:7491: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7532: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   no_mprotect=1
 else
@@ -7515,7 +7556,7 @@ if test "$cross_compiling" = yes; then
 
 else
   cat > conftest.$ac_ext <<EOF
-#line 7519 "configure"
+#line 7560 "configure"
 #include "confdefs.h"
 #ifdef __cplusplus
 extern "C" void exit(int);
@@ -7526,7 +7567,7 @@ $mprotect_prog
   *fault_address = 'z'; /* this should not cause a core dump */
   exit(0); }
 EOF
-if { (eval echo configure:7530: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:7571: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   :
 else
@@ -7568,12 +7609,12 @@ fi
                       for ac_func in setrlimit
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:7572: checking for $ac_func" >&5
+echo "configure:7613: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 7577 "configure"
+#line 7618 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -7599,7 +7640,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:7603: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:7644: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
@@ -7624,13 +7665,13 @@ fi
 done
 if test $ac_cv_func_setrlimit = yes; then
 echo $ac_n "checking for getrlimit declaration""... $ac_c" 1>&6
-echo "configure:7628: checking for getrlimit declaration" >&5
+echo "configure:7669: checking for getrlimit declaration" >&5
 if eval "test \"`echo '$''{'cl_cv_proto_getrlimit'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 7634 "configure"
+#line 7675 "configure"
 #include "confdefs.h"
 
 #include <stdlib.h>
@@ -7656,7 +7697,7 @@ int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:7660: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:7701: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   cl_cv_proto_getrlimit_arg1="int"
 else
@@ -7672,21 +7713,21 @@ cl_cv_proto_getrlimit="extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct
 fi
 
 cl_cv_proto_getrlimit=`echo "$cl_cv_proto_getrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getrlimit" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getrlimit" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RLIMIT_RESOURCE_T $cl_cv_proto_getrlimit_arg1
 EOF
 
 echo $ac_n "checking for setrlimit declaration""... $ac_c" 1>&6
-echo "configure:7684: checking for setrlimit declaration" >&5
+echo "configure:7725: checking for setrlimit declaration" >&5
 if eval "test \"`echo '$''{'cl_cv_proto_setrlimit'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 7690 "configure"
+#line 7731 "configure"
 #include "confdefs.h"
 
 #include <stdlib.h>
@@ -7712,7 +7753,7 @@ int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:7716: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:7757: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   cl_cv_proto_setrlimit_arg2=""
 else
@@ -7729,8 +7770,8 @@ cl_cv_proto_setrlimit="extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv
 fi
 
 cl_cv_proto_setrlimit=`echo "$cl_cv_proto_setrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_setrlimit" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_setrlimit" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SETRLIMIT_CONST $cl_cv_proto_setrlimit_arg2
