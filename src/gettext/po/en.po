@@ -1,12 +1,12 @@
 # English messages for CLISP
-# Copyright (C) 1992-1999 Bruno Haible, Marcus Daniels
-# Bruno Haible <haible@clisp.cons.org>, 1999.
+# Copyright (C) 1992-2000 Bruno Haible, Marcus Daniels
+# Bruno Haible <haible@clisp.cons.org>, 2000.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2000-03-02 13:37:42 CET\n"
-"PO-Revision-Date: 2000-03-02 13:46:40 CET\n"
+"POT-Creation-Date: 2000-03-02 14:59:09 CET\n"
+"PO-Revision-Date: 2000-03-02 15:08:07 CET\n"
 "Last-Translator: Automatically generated <haible@laplace.ilog.fr>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"

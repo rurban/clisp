@@ -1,12 +1,12 @@
 # Template messages for CLISP
-# Copyright (C) 1992-1999 Bruno Haible, Michael Stoll, Marcus Daniels
-# Bruno Haible <haible@clisp.cons.org>, 1999.
+# Copyright (C) 1992-2000 Bruno Haible, Michael Stoll, Marcus Daniels
+# Bruno Haible <haible@clisp.cons.org>, 2000.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2000-03-02 13:44:53 CET\n"
-"PO-Revision-Date: 2000-03-02 13:44:53 CET\n"
+"POT-Creation-Date: 2000-03-02 15:06:13 CET\n"
+"PO-Revision-Date: 2000-03-02 15:06:13 CET\n"
 "Last-Translator: Automatically generated <haible@laplace.ilog.fr>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
