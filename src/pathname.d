@@ -2678,7 +2678,6 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     skipSTACK(5+2); return;
   }
 #undef pslashp
-#undef slashp
 #undef colonp
 #undef Z_SUB
 #undef Z_AT_SLASH
@@ -9626,32 +9625,53 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
     mv_count=1;
   }
 
-LISPFUN(cd,0,1,norest,nokey,0,NIL)
-# (CD [pathname]) setzt das aktuelle Laufwerk und das aktuelle Directory.
-  {
-    var object pathname = popSTACK();
-    if (eq(pathname,unbound)) { pathname = O(empty_string); } # ""
-    pathname = coerce_pathname(pathname); # zu einem Pathname machen
-    # kopieren und Name und Typ auf NIL setzen:
-    pathname = copy_pathname(pathname);
-    ThePathname(pathname)->pathname_name = NIL;
-    ThePathname(pathname)->pathname_type = NIL;
-    check_no_wildcards(pathname); # mit Wildcards -> Fehler
-    pathname = use_default_dir(pathname); # absoluten Pathname draus machen
-    pushSTACK(pathname);
-    assure_dir_exists(false,false); # Directory muss existieren
-    #if HAS_HOST # necessary at least for PATHNAME_WIN32
-    if (!nullp(ThePathname(STACK_0)->pathname_host)) {
-      pushSTACK(STACK_0); # value for slot PATHNAME of FILE-ERROR
-      pushSTACK(STACK_(0+1));
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(file_error,
-             GETTEXT("~: cannot change default directory on remote host: ~"));
+# (CD [pathname]) sets the current drive and the current directory.
+LISPFUN(cd,0,1,norest,nokey,0,NIL) {
+  var object pathname = popSTACK();
+  if (eq(pathname,unbound)) { pathname = O(empty_string); } # ""
+  else if (stringp(pathname)) { # make sure it ends with a slash
+    var uintL len, offset;
+    var object str = unpack_string_ro(pathname,&len,&offset);
+    var cint ch;
+    SstringDispatch(str,
+    { ch = as_cint(TheSstring(str)->data[len+offset-1]); },
+    { ch = TheSmallSstring(str)->data[len+offset-1]; });
+    if (!slashp(ch)) {
+      pushSTACK(pathname);
+     #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+      pushSTACK(O(backslash_string));
+     #elif defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+      pushSTACK(O(slash_string));
+     #elif defined(PATHNAME_RISCOS)
+      pushSTACK(O(dot_string));
+     #else
+      #error "what is your pathname type?"
+     #endif
+      pathname = string_concat(2);
     }
-    #endif
-    change_default(); # Default-Drive, Default-Directory setzen
-    value1 = popSTACK(); mv_count=1; # neuer pathname als Wert
   }
+  pathname = coerce_pathname(pathname); # turn into a pathname
+  # copy and set name and type to NIL:
+  pathname = copy_pathname(pathname);
+  ThePathname(pathname)->pathname_name = NIL;
+  ThePathname(pathname)->pathname_type = NIL;
+  check_no_wildcards(pathname); # with wildcards -> error
+  pathname = use_default_dir(pathname); # turn into an absolute pathname
+  pushSTACK(pathname);
+  assure_dir_exists(false,false); # the directory must exist
+ #if HAS_HOST # necessary at least for PATHNAME_WIN32
+  if (!nullp(ThePathname(STACK_0)->pathname_host)) {
+    pushSTACK(STACK_0); # value for slot PATHNAME of FILE-ERROR
+    pushSTACK(STACK_(0+1));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(file_error,
+           GETTEXT("~: cannot change default directory on remote host: ~"));
+  }
+ #endif
+  change_default(); # set default drive and default directory
+  value1 = popSTACK(); mv_count=1; # new pathname as the value
+}
+#undef slashp
 
 # UP: Überprüft ein Pathname, ob Name und Typ beide =NIL sind,
 # und ob das Directory "fast" existiert.
