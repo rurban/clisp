@@ -256,7 +256,9 @@ LISPSYM(gc,"GC",lisp)
 LISPSYM(make_encoding,"MAKE-ENCODING",lisp)
 LISPSYM(encodingp,"ENCODINGP",system)
 LISPSYM(charset_typep,"CHARSET-TYPEP",system)
+#ifdef UNICODE
 LISPSYM(charset_range,"CHARSET-RANGE",system)
+#endif
 LISPSYM(default_file_encoding,"DEFAULT-FILE-ENCODING",system)
 LISPSYM(set_default_file_encoding,"SET-DEFAULT-FILE-ENCODING",system)
 #ifdef UNICODE

@@ -1,3 +1,10 @@
+2000-03-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * po/nl.po: New translation, from Tijs van Bakel <smoke@casema.net>.
+        * po/Makefile.trans.nl: New file.
+        * configure.in (ALL_LINGUAS): Add nl.
+        * po/Makefile.devel (OTHER_LINGUAS): Add nl.
+
 1999-07-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * po/Makefile.devel (*.po.merged): Use clisp.pot, not de.pot.

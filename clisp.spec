@@ -28,8 +28,8 @@ Release:      %{release}
 Icon:         clisp.gif
 Copyright:    GPL
 Group:        development/languages
-Source:       ftp://seagull.cdrom.com/pub/lisp/clisp/source/clispsrc.tar.gz
-URL:          http://clisp.cons.org
+Source:       ftp://clisp.cons.org/pub/lisp/clisp/source/clispsrc.tar.gz
+URL:          http://clisp.cons.org/
 Packager:     Red Hat Contrib|Net <rhcn-bugs@redhat.com>
 Provides:     clisp, ansi-cl
 Distribution: Red Hat Contrib|Net
@@ -52,7 +52,7 @@ An X11 interface is available through CLX and Garnet.
 
 More information on at <http://clisp.cons.org/>.
 Sources and selected binaries are available by anonymous ftp from
-<ftp://ftp2.cons.org/pub/lisp/clisp>.
+<ftp://clisp.cons.org/pub/lisp/clisp/>.
 The latest and greatest i386 binary RPM is on
 <ftp://cellar.goems.com/pub/clisp>.
 

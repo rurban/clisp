@@ -622,7 +622,7 @@ fi
 
 
 
-ALL_LINGUAS="en de fr es"
+ALL_LINGUAS="en de fr es nl"
 
 # Extract the first word of "gcc", so it can be a program name with args.
 set dummy gcc; ac_word=$2

@@ -241,14 +241,14 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           case Array_type_sb16vector:
           case Array_type_sb32vector:
             # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-            name = fixnum(bit(Array_type(seq)-Array_type_sbvector)); break;
+            name = fixnum(bit(sbNvector_atype(seq))); break;
           case Array_type_b2vector:
           case Array_type_b4vector:
           case Array_type_b8vector:
           case Array_type_b16vector:
           case Array_type_b32vector:
             # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-            name = fixnum(bit(Array_type(seq)-Array_type_bvector)); break;
+            name = fixnum(bit(bNvector_atype(seq))); break;
           default:
             name = S(vector); break; # Typ [GENERAL-]VECTOR
         }

@@ -32,8 +32,8 @@ fi
 
 cat << EOF
 # ${language} messages for CLISP
-# Copyright (C) 1992-1999 ${authors}
-# Bruno Haible <haible@clisp.cons.org>, 1999.
+# Copyright (C) 1992-2000 ${authors}
+# Bruno Haible <haible@clisp.cons.org>, 2000.
 #
 msgid ""
 msgstr ""

@@ -51,7 +51,7 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
 
 (defun macro-call-error (macro-form)
   (error-of-type 'source-program-error
-    (ENGLISH "The macro ~S may not be called with ~S arguments")
+    (ENGLISH "The macro ~S may not be called with ~S arguments: ~S")
     (car macro-form) (1- (length macro-form)) macro-form
 ) )
 
