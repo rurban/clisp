@@ -3938,12 +3938,29 @@ LISPFUNN(structure_reader,3) { # reads #S
         pushSTACK(S(hash_table)); pushSTACK(*stream_); pushSTACK(S(read));
         fehler(stream_error,GETTEXT("~S from ~S: bad ~S"));
       }
-      # (MAKE-HASH-TABLE :TEST (car args) :INITIAL-CONTENTS (cdr args))
-      pushSTACK(S(Ktest)); # :TEST
-      pushSTACK(Car(args)); # Test (Symbol)
-      pushSTACK(S(Kinitial_contents)); # :INITIAL-CONTENTS
-      pushSTACK(Cdr(args)); # Alist ((Key_1 . Value_1) ... (Key_n . Value_n))
-      funcall(L(make_hash_table),4); # build Hash-Table
+      if (symbolp(Car(args)) && keywordp(Car(args))) {
+        # New syntax with implicit :INITIAL-CONTENTS keyword:
+        var uintL argcount = 2;
+        while (consp(args) && symbolp(Car(args)) && mconsp(Cdr(args))) {
+          get_space_on_STACK(2);
+          pushSTACK(Car(args));
+          args = Cdr(args);
+          pushSTACK(Car(args));
+          args = Cdr(args);
+          argcount += 2;
+        }
+        pushSTACK(S(Kinitial_contents)); # :INITIAL-CONTENTS
+        pushSTACK(args); # Alist ((Key_1 . Value_1) ... (Key_n . Value_n))
+        funcall(L(make_hash_table),argcount); # build Hash-Table
+      } else {
+        # Old syntax with implicit :TEST and :INITIAL-CONTENTS keywords:
+        # (MAKE-HASH-TABLE :TEST (car args) :INITIAL-CONTENTS (cdr args))
+        pushSTACK(S(Ktest)); # :TEST
+        pushSTACK(Car(args)); # Test (Symbol)
+        pushSTACK(S(Kinitial_contents)); # :INITIAL-CONTENTS
+        pushSTACK(Cdr(args)); # Alist ((Key_1 . Value_1) ... (Key_n . Value_n))
+        funcall(L(make_hash_table),4); # build Hash-Table
+      }
       mv_count=1; # value1 as value
       skipSTACK(3); return;
     }
@@ -8448,90 +8465,94 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
     case Rectype_Hashtable:
       # depending on *PRINT-ARRAY* :
       # #<HASH-TABLE #x...> or
-      # #S(HASH-TABLE test (Key_1 . Value_1) ... (Key_n . Value_n))
-      if (!nullpSv(print_array) || !nullpSv(print_readably)) {
-        LEVEL_CHECK;
-        {
-          pushSTACK(obj); # save Hash-Table
-          var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
-          if (ht_weak_p(obj)) { # weak ==> #<HASH-TABLE :WEAK ...>
-            CHECK_PRINT_READABLY(obj);
-            UNREADABLE_START;
-            JUSTIFY_LAST(false);
-          } else { # non-weak ==> #S(HASH-TABLE ...)
-            write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
-            KLAMMER_AUF;
-            INDENT_START(3); # indent by 3 characters, because of '#S('
-            JUSTIFY_START(1);
-            JUSTIFY_LAST(false);
-          }
-          prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
-          if (ht_weak_p(*obj_)) {
-            JUSTIFY_SPACE; JUSTIFY_LAST(false);
-            {
-              JUSTIFY_START(0); JUSTIFY_LAST(false);
-              prin_object(stream_,S(Kweak)); # print :WEAK
-              JUSTIFY_SPACE; JUSTIFY_LAST(true);
-              prin_object(stream_,hash_table_weak_type(*obj_)); /*:KEY/:VALUE/:BOTH/:EITHER*/
-              JUSTIFY_END_FILL;
-            }
-          }
-          if (record_flags(TheHashtable(*obj_)) & htflags_warn_gc_rehash_B) {
-            JUSTIFY_SPACE; JUSTIFY_LAST(false);
-            {
-              JUSTIFY_START(0); JUSTIFY_LAST(false);
-              prin_object(stream_,S(Kwarn_if_needs_rehash_after_gc)); # print :WARN-IF-NEEDS-REHASH-AFTER-GC
-              JUSTIFY_SPACE; JUSTIFY_LAST(true);
-              prin_object(stream_,T); # print T
-              JUSTIFY_END_FILL;
-            }
-          }
-          obj = *obj_;
+      # #S(HASH-TABLE :TEST test [:WEAK ...] [:WARN-IF-NEEDS-REHASH-AFTER-GC T]
+      #               (Key_1 . Value_1) ... (Key_n . Value_n))
+      LEVEL_CHECK;
+      {
+        var bool detailed_contents = (!nullpSv(print_array) || !nullpSv(print_readably));
+        var bool readable = (detailed_contents && !ht_weak_p(obj));
+        pushSTACK(obj); # save Hash-Table
+        var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
+        if (readable) {
+          # #S(HASH-TABLE ...)
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
+          KLAMMER_AUF;
+          INDENT_START(3); # indent by 3 characters, because of '#S('
+          JUSTIFY_START(1);
+        } else {
+          # #<HASH-TABLE ...>
+          CHECK_PRINT_READABLY(obj);
+          UNREADABLE_START;
+        }
+        JUSTIFY_LAST(false);
+        prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
+        obj = *obj_;
+        var bool show_test = true;
+        var bool show_weak = ht_weak_p(obj);
+        var bool show_warn = ((record_flags(TheHashtable(obj)) & htflags_warn_gc_rehash_B) != 0);
+        var bool show_contents = (!detailed_contents || !eq(TheHashedAlist(TheHashtable(obj)->ht_kvtable)->hal_count,Fixnum_0));
+        if (show_test) {
+          JUSTIFY_SPACE; JUSTIFY_LAST(!(show_weak||show_warn||show_contents));
           {
+            JUSTIFY_START(0); JUSTIFY_LAST(false);
+            prin_object(stream_,S(Ktest)); # print :TEST
+            JUSTIFY_SPACE; JUSTIFY_LAST(true);
+            prin_object(stream_,hash_table_test(*obj_));
+            JUSTIFY_END_FILL;
+          }
+        }
+        if (show_weak) {
+          JUSTIFY_SPACE; JUSTIFY_LAST(!(show_warn||show_contents));
+          {
+            JUSTIFY_START(0); JUSTIFY_LAST(false);
+            prin_object(stream_,S(Kweak)); # print :WEAK
+            JUSTIFY_SPACE; JUSTIFY_LAST(true);
+            prin_object(stream_,hash_table_weak_type(*obj_)); /*:KEY/:VALUE/:BOTH/:EITHER*/
+            JUSTIFY_END_FILL;
+          }
+        }
+        if (show_warn) {
+          JUSTIFY_SPACE; JUSTIFY_LAST(!show_contents);
+          {
+            JUSTIFY_START(0); JUSTIFY_LAST(false);
+            prin_object(stream_,S(Kwarn_if_needs_rehash_after_gc)); # print :WARN-IF-NEEDS-REHASH-AFTER-GC
+            JUSTIFY_SPACE; JUSTIFY_LAST(true);
+            prin_object(stream_,T); # print T
+            JUSTIFY_END_FILL;
+          }
+        }
+        obj = *obj_;
+        if (show_contents) {
+          if (detailed_contents) {
             var uintL index = # move Index into the Key-Value-Vector
               3*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
             pushSTACK(TheHashtable(obj)->ht_kvtable); # Key-Value-Vector
             var uintL count = posfixnum_to_L(TheHashedAlist(STACK_0)->hal_count);
-            JUSTIFY_SPACE; # print Space
-            # test for attaining of *PRINT-LINES* :
-            CHECK_LINES_LIMIT(goto kvtable_end);
-            JUSTIFY_LAST(count==0);
-            /* print Hash-Test: */
-            prin_object(stream_,hash_table_test(*obj_));
             pr_kvtable(stream_,&STACK_0,index,count);
-          kvtable_end: # output of Key-Value-Pairs finished
             skipSTACK(1);
-          }
-          JUSTIFY_END_FILL;
-          if (ht_weak_p(*obj_)) {
-            UNREADABLE_END;
           } else {
-            INDENT_END;
-            KLAMMER_ZU;
+            JUSTIFY_SPACE; JUSTIFY_LAST(false);
+            {
+              JUSTIFY_START(0); JUSTIFY_LAST(false);
+              prin_object(stream_,S(Kcount)); # print :COUNT
+              JUSTIFY_SPACE; JUSTIFY_LAST(true);
+              prin_object(stream_,TheHashedAlist(TheHashtable(*obj_)->ht_kvtable)->hal_count); # print hash-table-count
+              JUSTIFY_END_FILL;
+            }
+            JUSTIFY_SPACE; JUSTIFY_LAST(true);
+            pr_hex6(stream_,*obj_);
           }
-          skipSTACK(1);
         }
-        LEVEL_END;
-      } else {
-        var uintL count = posfixnum_to_L(TheHashedAlist(TheHashtable(obj)->ht_kvtable)->hal_count);
-        pushSTACK(obj);
-        var gcv_object_t* obj_ = &STACK_0;
-        UNREADABLE_START; JUSTIFY_LAST(false);
-        prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
-        if (ht_weak_p(*obj_)) {
-          JUSTIFY_SPACE; JUSTIFY_LAST(false);
-          prin_object(stream_,S(Kweak)); # print :WEAK
-        }
-        JUSTIFY_SPACE; JUSTIFY_LAST(false);
-        prin_object(stream_,hash_table_test(*obj_));
-        JUSTIFY_SPACE; JUSTIFY_LAST(false);
-        pr_uint(stream_,count); # print HASH-TABLE-COUNT
-        JUSTIFY_SPACE; JUSTIFY_LAST(true);
-        pr_hex6(stream_,*obj_);
         JUSTIFY_END_FILL;
-        UNREADABLE_END;
+        if (readable) {
+          INDENT_END;
+          KLAMMER_ZU;
+        } else {
+          UNREADABLE_END;
+        }
         skipSTACK(1);
       }
+      LEVEL_END;
       break;
     case Rectype_Package:
       # depending on *PRINT-READABLY*:

@@ -1,5 +1,12 @@
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (structure_reader): Accept both the new syntax with :TEST and
+	the old syntax.
+	(pr_orecord): For hash tables, make the output in the three possible
+	cases more consistent.
+
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
 	Add a hash code to symbols.
 	* lispbibl.d (symbol_): Add hashcode field. Disable filler for
 	LINUX_NOEXEC_HEAPCODES.
