@@ -528,9 +528,7 @@
         { q_zuweisung divu_3216_1616_(x,y); r_zuweisung divu_16_rest; }
       #ifdef LISPARIT
       global uint16 divu_16_rest;
-      global uint16 divu_3216_1616_(x,y)
-        var uint32 x;
-        var uint16 y;
+      global uint16 divu_3216_1616_ (uint32 x, uint16 y)
         {
           var uint16 q = floor(x,(uint32)y);
           divu_16_rest = x - (uint32)q * (uint32)y;
@@ -633,9 +631,7 @@
       # divu_3216_3216_ extern in Assembler
     #else
       #ifdef LISPARIT
-      global uint32 divu_3216_3216_(x,y)
-        var uint32 x;
-        var uint16 y;
+      global uint32 divu_3216_3216_ (uint32 x, uint16 y)
         {
           var uint16 q1;
           var uint16 q0;
