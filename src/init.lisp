@@ -1350,11 +1350,11 @@
                  (warn message 'load (pathname stream))))
            (check-compiled-file (stream last-p obj)
              (and (or (and (consp obj) (eq (car obj) 'system::version))
-                      (bad last-p stream (TEXT "~s: compiled file ~s lacks a version marker")))
+                      (bad last-p stream (TEXT "~S: compiled file ~A lacks a version marker")))
                   (or (= 2 (length obj))
-                      (bad last-p stream (TEXT "~s: compiled file ~s has a corrupt version marker ~s")))
+                      (bad last-p stream (TEXT "~S: compiled file ~A has a corrupt version marker ~S")))
                   (or (equal (system::version) (eval (second obj)))
-                      (bad last-p stream (TEXT "~s: compiled file ~s was created by an older CLISP version and needs to be recompiled"))))))
+                      (bad last-p stream (TEXT "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"))))))
     (setq filename (pathname filename) path filename stream (my-open path))
     (tagbody proceed
       (when (and stream
