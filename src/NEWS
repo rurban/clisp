@@ -1,3 +1,200 @@
+1999-07-22
+==========
+
+User visible changes
+--------------------
+
+* Added a new module - "postgresql": interface to the PostgreSQL ODBMS.
+
+* Implemented ANSI CL macro WITH-PACKAGE-ITERATOR.
+
+* Conforming to ANSI CL issue <ALLOCATE-INSTANCE:ADD>: New function
+  ALLOCATE-INSTANCE.
+
+* Conforming to ANSI CL issue <GENERIC-FLET-POORLY-DESIGNED:DELETE>: The
+  symbols GENERIC-FLET and GENERIC-LABELS are not exported from the
+  COMMON-LISP package any more.
+
+* Conforming to ANSI CL issues <KEYWORD-ARGUMENT-NAME-PACKAGE:ANY> and
+  <MULTIPLE-VALUE-SETQ-ORDER:LIKE-SETF-OF-VALUES>.
+
+* Conforming to ANSI CL Issue <MACRO-FUNCTION-ENVIRONMENT:YES>
+  MACRO-FUNCTION now takes an optional second argument ENV.
+
+* When CLISP is invoked with an "-a" option, *features* contain :ANSI-CL.
+
+* Weak pointers are implemented. New functions MAKE-WEAK-POINTER,
+  WEAK-POINTER-P, WEAK-POINTER-VALUE.
+
+* The function OPEN, when creating unbuffered file streams, now supports any
+  of the following :ELEMENT-TYPEs: CHARACTER and ([UN]SIGNED-BYTE n), where n
+  is a multiple of 8.
+
+* The functions
+    MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM,
+    SOCKET-ACCEPT, SOCKET-CONNECT
+  accept a keyword argument :ELEMENT-TYPE. Possible values are types
+  equivalent to CHARACTER or (UNSIGNED-BYTE n), (SIGNED-BYTE n), where n is
+  a positive multiple of 8. Previously these functions returned streams whose
+  element-type was (OR CHARACTER (UNSIGNED-BYTE 8)).
+
+* STREAM-ELEMENT-TYPE is SETFable. The element type of streams created by the
+  functions MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+  MAKE-PIPE-IO-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT can be modified, if the
+  old and the new element type are compatible.
+  (UNSIGNED-BYTE n) and (SIGNED-BYTE n) are compatible, and CHARACTER is
+  compatible with ([UN]SIGNED-BYTE 8).
+
+* Character I/O can now be customized via encodings. A stream's external
+  format is an encoding, and the symbol macros
+    *DEFAULT-FILE-ENCODING*, *PATHNAME-ENCODING*, *TERMINAL-ENCODING*,
+    *MISC-ENCODING*, FFI:*FOREIGN-ENCODING*, AFFI:*FOREIGN-ENCODING*
+  contain user-settable encodings.
+  Encodings can be obtained through the function MAKE-ENCODING, and as values
+  of the constants
+    CHARSET:UCS-2, CHARSET:UNICODE-16, CHARSET:UNICODE-16-BIG-ENDIAN,
+    CHARSET:UNICODE-16-LITTLE-ENDIAN, CHARSET:UCS-4, CHARSET:UNICODE-32,
+    CHARSET:UNICODE-32-BIG-ENDIAN, CHARSET:UNICODE-32-LITTLE-ENDIAN,
+    CHARSET:UTF-8, CHARSET:JAVA, CHARSET:ASCII, CHARSET:ISO-8859-1,
+    CHARSET:ISO-8859-2, CHARSET:ISO-8859-3, CHARSET:ISO-8859-4,
+    CHARSET:ISO-8859-5, CHARSET:ISO-8859-6, CHARSET:ISO-8859-7,
+    CHARSET:ISO-8859-8, CHARSET:ISO-8859-9, CHARSET:ISO-8859-10,
+    CHARSET:ISO-8859-13, CHARSET:ISO-8859-14, CHARSET:ISO-8859-15,
+    CHARSET:KOI8-R, CHARSET:MAC-ARABIC, CHARSET:MAC-CENTRAL-EUROPE,
+    CHARSET:MAC-CROATIAN, CHARSET:MAC-CYRILLIC, CHARSET:MAC-DINGBAT,
+    CHARSET:MAC-GREEK, CHARSET:MAC-HEBREW, CHARSET:MAC-ICELAND,
+    CHARSET:MAC-ROMAN, CHARSET:MAC-ROMANIA, CHARSET:MAC-SYMBOL,
+    CHARSET:MAC-THAI, CHARSET:MAC-TURKISH, CHARSET:MAC-UKRAINE,
+    CHARSET:CP437, CHARSET:CP737, CHARSET:CP775, CHARSET:CP850, CHARSET:CP852,
+    CHARSET:CP855, CHARSET:CP857, CHARSET:CP860, CHARSET:CP861, CHARSET:CP862,
+    CHARSET:CP863, CHARSET:CP864, CHARSET:CP865, CHARSET:CP866, CHARSET:CP869,
+    CHARSET:CP874, CHARSET:WINDOWS-1250, CHARSET:WINDOWS-1251,
+    CHARSET:WINDOWS-1252, CHARSET:WINDOWS-1253, CHARSET:WINDOWS-1254,
+    CHARSET:WINDOWS-1255, CHARSET:WINDOWS-1256, CHARSET:WINDOWS-1257,
+    CHARSET:WINDOWS-1258, CHARSET:HP-ROMAN8, CHARSET:NEXTSTEP.
+
+* The functions
+    OPEN, MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM,
+    SOCKET-ACCEPT, SOCKET-CONNECT
+  and the macro
+    WITH-OUTPUT-TO-PRINTER
+  accept a keyword argument :EXTERNAL-FORMAT. Possible values are encodings,
+  such as returned by the function MAKE-ENCODING, the line terminator keywords
+  :UNIX, :MAC, :DOS, and :DEFAULT.
+
+* STREAM-EXTERNAL-FORMAT is SETFable. The external format of streams created
+  by the functions OPEN, MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+  MAKE-PIPE-IO-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT can be modified.
+
+* OPEN has a new keyword argument :BUFFERED. It determines whether the file
+  stream returned is buffered or not. Possible values for it are NIL, T, or
+  :DEFAULT. If it is :DEFAULT, buffered file streams will be returned for
+  regular files and (on Unix) block-devices, and unbuffered file streams for
+  special files.
+
+* The functions MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+  MAKE-PIPE-IO-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT have a new keyword
+  argument :BUFFERED. It determines whether the stream returned is buffered or
+  not. Possible values for it are NIL, T, or :DEFAULT. :DEFAULT is equivalent
+  to NIL.
+
+* New functions READ-INTEGER, WRITE-INTEGER which can be used to do binary I/O
+  on streams with element-type (UNSIGNED-BYTE 8).
+
+* The Gray proposal <STREAM-DEFINITION-BY-USER> is implemented:
+  New classes
+    FUNDAMENTAL-STREAM,
+    FUNDAMENTAL-INPUT-STREAM, FUNDAMENTAL-OUTPUT-STREAM,
+    FUNDAMENTAL-CHARACTER-STREAM, FUNDAMENTAL-BINARY-STREAM,
+    FUNDAMENTAL-CHARACTER-INPUT-STREAM, FUNDAMENTAL-CHARACTER-OUTPUT-STREAM,
+    FUNDAMENTAL-BINARY-INPUT-STREAM, FUNDAMENTAL-BINARY-OUTPUT-STREAM.
+  New generic functions
+    STREAM-READ-CHAR, STREAM-UNREAD-CHAR, STREAM-READ-CHAR-NO-HANG,
+    STREAM-PEEK-CHAR, STREAM-LISTEN, STREAM-READ-CHAR-WILL-HANG-P,
+    STREAM-READ-CHAR-SEQUENCE, STREAM-READ-LINE, STREAM-CLEAR-INPUT,
+    STREAM-WRITE-CHAR, STREAM-LINE-COLUMN, STREAM-START-LINE-P,
+    STREAM-WRITE-CHAR-SEQUENCE, STREAM-WRITE-STRING, STREAM-TERPRI,
+    STREAM-FRESH-LINE, STREAM-FINISH-OUTPUT, STREAM-FORCE-OUTPUT,
+    STREAM-CLEAR-OUTPUT, STREAM-ADVANCE-TO-COLUMN,
+    STREAM-READ-BYTE, STREAM-READ-BYTE-SEQUENCE,
+    STREAM-WRITE-BYTE, STREAM-WRITE-BYTE-SEQUENCE.
+  The functions CLOSE, OPEN-STREAM-P, STREAM-ELEMENT-TYPE are now generic
+  functions.
+
+* The macros FFI:DEF-C-CALL-OUT and FFI:DEF-C-CALL-IN now add an argument
+  :LANGUAGE :STDC (means ANSI C) instead of :LANGUAGE :C (means old K&R C).
+
+* Conforming with ANSI CL, SIMPLE-CONDITION now has the initarg
+  :FORMAT-CONTROL instead of :FORMAT-STRING. New function
+  SIMPLE-CONDITION-FORMAT-CONTROL.
+
+* Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
+  an unbuffered file stream, now return NIL instead of signalling an error.
+
+* Conforming with ANSI CL, MACROEXPAND and MACROEXPAND-1 now accept NIL as
+  second argument, denoting the global environment.
+
+* Conforming with ANSI CL, the reader now signals an error of type
+  READER-ERROR when trying to parse tokens like 35/000 or 1.5e1000,
+  instead of DIVISION-BY-ZERO and FLOATING-POINT-OVERFLOW, respectively.
+
+* On Unix, calling OPEN on a block device now returns a buffered stream
+  instead of an unbuffered stream.
+
+* On Unix, writing to a pipe created by MAKE-PIPE-OUTPUT-STREAM or
+  MAKE-PIPE-IO-STREAM after the corresponding child process has exited
+  now leads to an error message instead of terminating the CLISP process.
+
+* The generic function GENERIC-STREAM-LISTEN is replaced with
+  GENERIC-STREAM-READ-CHAR-WILL-HANG-P.
+
+* The function XGCD now really always returns coefficients of smallest
+  possible absolute value.
+
+* Fixed a interpreter bug: (let (x) (declare (special x)) ...) did not change
+  the global value of x in interpreted mode.
+
+* Fixed a bug: On Win32, Ctrl-Z sometimes caused two levels of the read-eval-
+  print loop to be aborted instead of just one.
+
+* Fixed a bug: READ-CHAR-SEQUENCE, when called on a string input stream,
+  forgot to advance the pointer into the string.
+
+* Fixed a bug: WRITE-CHAR-SEQUENCE on Win32 failed to convert NL to CR/LF.
+
+* Fixed a bug: Calling (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char) would
+  crash, instead of returning NIL, if there is no macro-character function
+  associated with sub-char after disp-char.
+
+* Fixed a bug: (CHECK-TYPE place typespec string) did not evaluate `string'.
+
+* Fixed a bug: Calling the function FINALIZE caused a crash during the next GC
+  on many platforms.
+
+* Fixed a bug: Calling a generic function without any installed method
+  resulted in an inappropriate error message, not a call to
+  NO-APPLICABLE-METHOD.
+
+* Fixed a bug: Closing a SOCKET-SERVER twice, or using a closed SOCKET-SERVER
+  could result in inappropriate error messages.
+
+* Fixed a bug: (format nil "~@D" 0) ==> "+0" now.
+
+Portability
+-----------
+
+* Added support for SPARC running Linux.
+
+* Added support for Apple PowerPC running MacOS X Server (a.k.a. Rhapsody).
+
+Other modifications
+-------------------
+
+* On Linux 2.2.x with glibc-2.1, Solaris, OSF/1 and Irix, stack overflow is
+  now caught reliably. Previously, endless recursion in interpreted code could
+  cause a crash in some cases.
+
+
 1999-01-08
 ==========
 
@@ -455,7 +652,7 @@ User visible changes
   Thanks to Art Nuzzo <artn@bs724.comm.mot.com>.
 
 * Fixed a bug: The WITH-STANDARD-IO-SYNTAX macro caused *PACKAGE* to be bound
-  to a invalid value.
+  to an invalid value.
 
 * Fixed two bugs in the GC (one in the generational GC, one in the
   non-generational GC).
