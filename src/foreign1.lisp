@@ -1,6 +1,12 @@
 ;;; Foreign function interface for CLISP
 ;;; Bruno Haible 19.2.1995
 
+#+UNICODE
+(progn
+  (in-package "EXT")
+  (export '(custom::*foreign-encoding*) "CUSTOM")
+  (export '(custom::*foreign-encoding*) "EXT"))
+
 (use-package '("COMMON-LISP" "EXT") "FFI")
 (in-package "FFI")
 
@@ -16,7 +22,6 @@
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof
           validp foreign-address-null
-          #+UNICODE *foreign-encoding*
           foreign-address foreign-variable foreign-function))
 
 (eval-when (load compile eval)
