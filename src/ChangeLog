@@ -1,3 +1,8 @@
+2004-11-04  Sam Steingold  <sds@gnu.org>
+
+	* win32aux.d (fd_read, fd_write): fixed the definition
+	to conform with the declaration
+
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	* unixaux.d (fd_read_will_hang_p): New function, extracted from
