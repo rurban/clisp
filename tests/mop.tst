@@ -2107,6 +2107,20 @@ T
  x3 y3 z4)
 
 
+(progn
+  #+SBCL
+  (defun clos::compute-effective-method-as-function (gf methods args)
+    (declare (ignore args))
+    (if methods
+      (let ((emf (clos::get-effective-method-function gf methods)))
+        #'(lambda (&rest args) (clos::invoke-emf emf args)))
+      #'(lambda (&rest args) (apply 'no-applicable-method gf args))))
+  (unless (fboundp 'clos::compute-effective-method-as-function)
+    (error "compute-effective-method-as-function not yet implemented"))
+  t)
+t
+
+
 ;;; Application example: Virtual-dispatch generic functions
 
 ;; There are two variants:
@@ -2188,8 +2202,10 @@ T
                            :initial-element (find-class 't))))
       (unless certain
         (error "Problem determining the applicable methods of ~S on ~S" gf class))
-      (clos::compute-effective-method-as-function
-        gf (clos:generic-function-method-combination gf) methods)))
+      (clos::compute-effective-method-as-function gf methods
+        (cons (clos:class-prototype class)
+              (make-list (1- (length (clos:generic-function-argument-precedence-order gf)))
+                         :initial-element nil)))))
 
   ;; Initialize the virtual table slot.
   (defmethod initialize-classof-slot ((class virtual-class) (slot virtual-table-effective-slot-definition))
