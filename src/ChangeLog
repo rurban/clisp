@@ -1,5 +1,10 @@
 2002-09-25  Sam Steingold  <sds@gnu.org>
 
+	* check-lispfun.lisp (check-lisp-defs): do not need explicit
+	APPEASE-CERRORS
+
+2002-09-25  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (symbol_env_search): new function
 	(sym_value, setq): use it
 	(SPECIAL-VARIABLE-P): accept an optional second argument

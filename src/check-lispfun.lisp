@@ -52,22 +52,19 @@
         kwd (error-count 0))
     (cond ((= (length def-forms) (length dec-forms))
            (format t "~d forms~%" (length def-forms)))
-          (t (appease-cerrors
-              (cerror "proceed with checks"
-                      "# of defined forms ~s != # of declared forms ~s"
-                      (length def-forms) (length dec-forms)))
+          (t (cerror "proceed with checks"
+                     "# of defined forms ~s != # of declared forms ~s"
+                     (length def-forms) (length dec-forms))
              (incf error-count)))
     (when (set-difference dec-forms def-forms :test #'equal)
-      (appease-cerrors
-       (cerror "proceed with checks"
-               "declaration (subr.d) differs from the definition:~%~s"
-               (set-difference dec-forms def-forms :test #'equal)))
+      (cerror "proceed with checks"
+              "declaration (subr.d) differs from the definition:~%~s"
+              (set-difference dec-forms def-forms :test #'equal))
       (incf error-count))
     (when (set-difference def-forms dec-forms :test #'equal)
-      (appease-cerrors
-       (cerror "proceed with checks"
-               "definition differs from the declaration (subr.d):~%~s"
-               (set-difference def-forms dec-forms :test #'equal)))
+      (cerror "proceed with checks"
+              "definition differs from the declaration (subr.d):~%~s"
+              (set-difference def-forms dec-forms :test #'equal))
       (incf error-count))
     (with-open-file (st (merge-pathnames "subrkw.d" dir)
                         :direction :input :external-format charset:utf-8)
@@ -81,10 +78,9 @@
                      (let ((fn (car (get-lisp-def line st #.(length "s")))))
                        (unless (equal (cdr (member 'key (assoc fn dec-forms)))
                                       kwd)
-                         (appease-cerrors
-                          (cerror "proceed with checks"
-                                  "subrkw.d vs subr.d (~s):~%~s~%~s" fn kwd
-                                  (cdr (member 'key (assoc fn dec-forms)))))
+                         (cerror "proceed with checks"
+                                 "subrkw.d vs subr.d (~s):~%~s~%~s" fn kwd
+                                 (cdr (member 'key (assoc fn dec-forms))))
                          (incf error-count))))))))
     (when (plusp error-count)
       (error "~d errors" error-count))))
