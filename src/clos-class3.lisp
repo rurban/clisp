@@ -835,99 +835,109 @@
 (defun compute-effective-slot-definition (class slotname direct-slot-definitions)
   (compute-effective-slot-definition-<class> class slotname direct-slot-definitions))
 
-(defun std-compute-slots (class)
+(defun compute-slots-<class>-primary (class)
   ;; Gather all slot-specifiers, ordered by precedence:
   (let ((all-slots
-          (mapcan
-            #'(lambda (c)
-                (mapcar #'(lambda (slot)
-                            (let ((alloc (slot-definition-allocation slot))
-                                  (loc nil))
-                              (if (eq alloc ':class)
-                                (setq alloc c)
-                                (when (and (not (eq c class))
-                                           (standard-class-p c)
-                                           (class-fixed-slot-locations c))
-                                  (let* ((name (slot-definition-name slot))
-                                         (slot-in-c (find name (class-slots c) :key #'slot-definition-name)))
-                                    (when slot-in-c
-                                      (let ((location (slot-definition-location slot-in-c)))
-                                        (assert (or (null location) (integerp location)))
-                                        (when location
-                                          (setq loc location)))))))
-                              (list* slot alloc loc)))
-                        (reverse (class-direct-slots c))))
-            (%class-precedence-list class))))
+          (mapcan #'(lambda (c) (nreverse (copy-list (class-direct-slots c))))
+                  (%class-precedence-list class))))
     ;; Partition by slot-names:
     (setq all-slots
           (let ((ht (make-hash-table :key-type 'symbol :value-type 't
                                      :test 'ext:stablehash-eql :warn-if-needs-rehash-after-gc t)))
-            (dolist (slot+alloc all-slots)
-              (let ((slot-name (slot-definition-name (car slot+alloc))))
-                (push slot+alloc (gethash slot-name ht nil))))
+            (dolist (slot all-slots)
+              (let ((slot-name (slot-definition-name slot)))
+                (push slot (gethash slot-name ht nil))))
             (let ((L nil))
-              (maphash #'(lambda (name slot+alloc-list)
-                           (push (cons name (nreverse slot+alloc-list)) L))
+              (maphash #'(lambda (name slot-list)
+                           (push (cons name (nreverse slot-list)) L))
                        ht)
               L))) ; not (nreverse L), because maphash reverses the order
     ;; Bring the slots into final order: Superclass before subclass, and
     ;; inside each class, keeping the same order as in the direct-slots.
     (setq all-slots (nreverse all-slots))
     ;; all-slots is now a list of lists of the form
-    ;; (name most-specific-slot+alloc ... least-specific-slot+alloc).
+    ;; (name most-specific-slot ... least-specific-slot).
     (mapcar
       #'(lambda (slotbag)
-          (let* ((name (car slotbag))
-                 (slotspecs (cdr slotbag))
-                 ;; Create the effective slot definition in a way that depends
-                 ;; only on the class, name, and direct-slot-definitions.
-                 (effslot
-                   (compute-effective-slot-definition class name
-                                                      (mapcar #'car slotspecs))))
-            ;; Compute and store the allocation and location afterwards.
-            (setf (slot-definition-allocation effslot)
-                  ; "The allocation of a slot is controlled by the most
-                  ;  specific slot specifier."
-                  (cadr (first slotspecs)))
-            (setf (slot-definition-location effslot)
-                  (let ((location nil))
-                    ;; Implementation of fixed-slot-locations policy, part 1.
-                    (dolist (slot+alloc slotspecs)
-                      (let ((guaranteed-location (cddr slot+alloc)))
-                        (when guaranteed-location
-                          (if location
-                            (unless (equal location guaranteed-location)
-                              (error (TEXT "In class ~S, the slot ~S is constrained by incompatible constraints inherited from the superclasses.")
-                                     (class-name class) name))
-                            (setq location guaranteed-location)))))
-                    location))
-            effslot))
+          (let ((name (car slotbag))
+                (directslotdefs (cdr slotbag)))
+            ;; Create the effective slot definition in a way that depends
+            ;; only on the class, name, and direct-slot-definitions.
+            (compute-effective-slot-definition class name directslotdefs)))
       all-slots)))
 
-;; Allocation of local and shared slots
-
-;; Add the local and shared slots to the slot-location-table ht,
-;; incrementing the instance-size, and return the new shared-size.
-(defun std-layout-slots (class slots)
-  ;; Implementation of fixed-slot-locations policy, part 2.
-  (let (constrained-indices)
-    (let ((constrained-slots (remove-if-not #'slot-definition-location slots)))
-      (setq constrained-slots (copy-list constrained-slots))
-      (setq constrained-slots (sort constrained-slots #'< :key #'slot-definition-location))
-      (do ((l constrained-slots (cdr l)))
-          ((null (cdr l)))
-        (when (= (slot-definition-location (car l)) (slot-definition-location (cadr l)))
-          (error (TEXT "In class ~S, the slots ~S and ~S are constrained from the superclasses to both be located at offset ~S.")
-                 (class-name class)
-                 (slot-definition-name (car l)) (slot-definition-name (cadr l))
-                 (slot-definition-location (car l)))))
-      (setq constrained-indices (mapcar #'slot-definition-location constrained-slots)))
-    ;; Actually the constrained-indices must form a list of consecutive indices
-    ;; (1 2 ... n), but we don't need to make use of this.
-    ;; Now determine the location of each slot.
-    (let ((ht (class-slot-location-table class))
+;; Allocation of local and shared slots.
+;; Side effects done by this function: The slot-definition-location of the
+;; slots is determined.
+(defun compute-slots-<slotted-class>-around (class next-method)
+  (let ((cpl (%class-precedence-list class))
+        (slots (funcall next-method class)))
+    ; Some checks, to guarantee that user-defined primary methods on
+    ; compute-slots don't break our CLOS.
+    (unless (proper-list-p slots)
+      (error (TEXT "Wrong ~S result for class ~S: not a proper list: ~S")
+             'compute-slots (class-name class) slots))
+    (cond ((standard-class-p class)
+           (dolist (slot slots)
+             (unless (standard-effective-slot-definition-p slot)
+               (error (TEXT "Wrong ~S result for class ~S: list element is not a ~S: ~S")
+                      'compute-slots (class-name class)
+                      'standard-effective-slot-definition slot))))
+          ((structure-class-p class)
+           (dolist (slot slots)
+             (unless (typep slot <structure-effective-slot-definition>)
+               (error (TEXT "Wrong ~S result for class ~S: list element is not a ~S: ~S")
+                      'compute-slots (class-name class)
+                      'structure-effective-slot-definition slot)))))
+    (unless (= (length slots)
+               (length (delete-duplicates (mapcar #'slot-definition-name slots))))
+      (error (TEXT "Wrong ~S result for class ~S: list contains duplicate slot names: ~S")
+             'compute-slots (class-name class) slots))
+    ;; Implementation of fixed-slot-locations policy.
+    (let ((superclasses-with-fixed-slot-locations
+            (remove-if-not #'(lambda (c)
+                               (and (standard-class-p c)
+                                    (class-fixed-slot-locations c)))
+                           (cdr (%class-precedence-list class)))))
+      (when superclasses-with-fixed-slot-locations
+        (dolist (slot slots)
+          (let ((name (slot-definition-name slot))
+                (location nil))
+            (dolist (superclass superclasses-with-fixed-slot-locations)
+              (let ((slot-in-superclass (find name (class-slots superclass)
+                                              :key #'slot-definition-name)))
+                (when slot-in-superclass
+                  (when (eq (slot-definition-allocation slot-in-superclass) ':instance)
+                    (let ((guaranteed-location
+                            (slot-definition-location slot-in-superclass)))
+                      (assert (integerp guaranteed-location))
+                      (if location
+                        (unless (equal location guaranteed-location)
+                          (error (TEXT "In class ~S, the slot ~S is constrained by incompatible constraints inherited from the superclasses.")
+                                 (class-name class) name))
+                        (setq location guaranteed-location)))))))
+            (when location
+              (unless (eq (slot-definition-allocation slot) ':instance)
+                (error (TEXT "In class ~S, non-local slot ~S is constrained to be a local slot at offset ~S.")
+                       (class-name class) name location))
+              (setf (slot-definition-location slot) location))))))
+    (let ((constrained-indices
+            (let ((constrained-slots (remove-if-not #'slot-definition-location slots)))
+              (setq constrained-slots (copy-list constrained-slots))
+              (setq constrained-slots (sort constrained-slots #'< :key #'slot-definition-location))
+              (do ((l constrained-slots (cdr l)))
+                  ((null (cdr l)))
+                (when (= (slot-definition-location (car l)) (slot-definition-location (cadr l)))
+                  (error (TEXT "In class ~S, the slots ~S and ~S are constrained from the superclasses to both be located at offset ~S.")
+                         (class-name class)
+                         (slot-definition-name (car l)) (slot-definition-name (cadr l))
+                         (slot-definition-location (car l)))))
+              (mapcar #'slot-definition-location constrained-slots)))
           (local-index (class-instance-size class))
           (shared-index 0))
+      ;; Actually the constrained-indices must form a list of consecutive indices
+      ;; (1 2 ... n), but we don't need to make use of this.
+      ;; Now determine the location of each slot.
       (when (and constrained-indices (< (first constrained-indices) local-index))
         (error (TEXT "In class ~S, a slot constrained from a superclass wants to be located at offset ~S, which is impossible.")
                (class-name class) (first constrained-indices)))
@@ -939,39 +949,132 @@
                    (return)))))
         (skip-constrained-indices)
         (dolist (slot slots)
-          (let* ((name (slot-definition-name slot))
-                 (allocation (slot-definition-allocation slot))
-                 (location
-                   (if (eq allocation ':instance)
-                     ; local slot
-                     (or (slot-definition-location slot)
-                         (prog1
-                           local-index
-                           (incf local-index)
-                           (skip-constrained-indices)))
-                     ; shared slot
-                     (if (slot-definition-location slot)
-                       (error (TEXT "In class ~S, shared slot ~S is constrained to be a local slot at offset ~S.")
-                              (class-name class) name (slot-definition-location slot))
-                       (if (eq allocation class)
-                         ; new shared slot
-                         (prog1
-                           (cons (class-current-version class) shared-index)
-                           (incf shared-index))
-                         ; inherited shared slot
-                         (gethash name (class-slot-location-table allocation)))))))
-            (setf (slot-definition-location slot) location)
-            (setf (gethash name ht) location)))
-        ;; Actually the constrained-indices must already have been emptied by
-        ;; the first (skip-constrained-indices) call, but we don't need to make
-        ;; use of this. Warn if :fixed-slot-locations would cause a waste of
-        ;; space.
-        (when constrained-indices
-          (setq local-index (1+ (car (last constrained-indices))))
-          (warn (TEXT "In class ~S, constrained slot locations cause holes to appear.")
-                (class-name class))))
-      (setf (class-instance-size class) local-index)
-      shared-index)))
+          (let ((name (slot-definition-name slot))
+                (allocation (slot-definition-allocation slot)))
+            (setf (slot-definition-location slot)
+                  (cond ((eq allocation ':instance)
+                         ;; Local slot.
+                         (or (slot-definition-location slot)
+                             (prog1
+                               local-index
+                               (incf local-index)
+                               (skip-constrained-indices))))
+                        ((eq allocation ':class)
+                         ;; Shared slot.
+                         ;; This is a flaw in the compute-slots protocol: the
+                         ;; primary compute-slots method returns a list of slots,
+                         ;; without information about the class where the slot
+                         ;; comes from. So we have to re-scan the direct slots
+                         ;; lists.
+                         (let ((origin
+                                 (dolist (superclass cpl class)
+                                   (when (find name (class-direct-slots superclass)
+                                               :key #'slot-definition-name)
+                                     (return superclass)))))
+                           (if (eq origin class)
+                             ;; New shared slot.
+                             (prog1
+                               (cons (class-current-version class) shared-index)
+                               (incf shared-index))
+                             ;; Inherited shared slot.
+                             (gethash name (class-slot-location-table origin)))))
+                        (t ;; Don't signal an error for user-defined allocation
+                           ;; types. They can be handled by user-defined around
+                           ;; methods.
+                           nil))))))
+      ;; Actually the constrained-indices must already have been emptied by
+      ;; the first (skip-constrained-indices) call, but we don't need to make
+      ;; use of this. Warn if :fixed-slot-locations would cause a waste of
+      ;; space.
+      (when constrained-indices
+        (setq local-index (1+ (car (last constrained-indices))))
+        (warn (TEXT "In class ~S, constrained slot locations cause holes to appear.")
+              (class-name class)))
+      slots)))
+
+;; Preliminary.
+(defun compute-slots (class)
+  (compute-slots-<slotted-class>-around class #'compute-slots-<class>-primary))
+
+(defun checked-compute-slots (class)
+  (let ((slots (compute-slots class)))
+    ; Some checks, to guarantee that user-defined around methods on
+    ; compute-slots don't break our CLOS.
+    (unless (proper-list-p slots)
+      (error (TEXT "Wrong ~S result for class ~S: not a proper list: ~S")
+             'compute-slots (class-name class) slots))
+    (dolist (slot slots)
+      (unless (standard-effective-slot-definition-p slot)
+        (error (TEXT "Wrong ~S result for class ~S: list element is not a ~S: ~S")
+               'compute-slots (class-name class)
+               'standard-effective-slot-definition slot)))
+    (unless (= (length slots)
+               (length (delete-duplicates (mapcar #'slot-definition-name slots))))
+      (error (TEXT "Wrong ~S result for class ~S: list contains duplicate slot names: ~S")
+             'compute-slots (class-name class) slots))
+    (dolist (slot slots)
+      (unless (slot-definition-location slot)
+        (error (TEXT "Wrong ~S result for class ~S: not slot location has been assigned to ~S")
+               'compute-slots (class-name class) slot)))
+    slots))
+
+;; The MOP lacks a way to customize the instance size as a function of the
+;; slots. This becomes an issue when you have slots which occupy more than one
+;; word, and such a slot is the last local slot.
+(defun compute-instance-size (class)
+  (let ((size (class-instance-size class))) ; initial size depends on the metaclass
+    (dolist (slot (class-slots class))
+      (when (eq (slot-definition-allocation slot) ':instance)
+        (let ((location (slot-definition-location slot)))
+          (assert (integerp location))
+          (setq size (max size (+ location 1))))))
+    size))
+
+;; Similarly, the MOP lacks a way to customize the shared slot values vector's
+;; size as a function of the slots.
+(defun compute-shared-size (class)
+  (let ((shared-size 0))
+    (dolist (slot (class-slots class))
+      (let ((location (slot-definition-location slot)))
+        (when (and (consp location) (eq (cv-newest-class (car location)) class))
+          (let ((shared-index (cdr location)))
+            (setq shared-size (max shared-size (+ shared-index 1)))))))
+    shared-size))
+
+;; Creates the shared slot values vector for a class.
+(defun create-shared-slots-vector (class shared-size old-slot-location-table)
+  (let ((v (make-array shared-size :initial-element 'DEADBEEF)))
+    (dolist (slot (class-slots class))
+      (let ((location (slot-definition-location slot)))
+        (when (and (consp location)
+                   (eq (cv-newest-class (car location)) class))
+          (let ((shared-index (cdr location)))
+            (setf (svref v shared-index)
+                  (let ((old-slot-location
+                          (gethash (slot-definition-name slot) old-slot-location-table)))
+                    (if (and (consp old-slot-location)
+                             (eq (cv-newest-class (car old-slot-location)) class))
+                      ;; The slot was already shared. Retain its value.
+                      (svref (cv-shared-slots (car old-slot-location))
+                             (cdr old-slot-location))
+                      ;; A new shared slot.
+                      (let ((initfunction (slot-definition-initfunction slot)))
+                        (if initfunction
+                          (funcall initfunction)
+                          (sys::%unbound))))))))))
+    v))
+
+(defun compute-slot-location-table (class)
+  (let ((slots (class-slots class)))
+    (if slots
+      (make-hash-table
+        :key-type 'symbol :value-type 't
+        :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
+        :initial-contents
+          (mapcar #'(lambda (slot)
+                      (cons (slot-definition-name slot) (slot-definition-location slot)))
+                  slots))
+      empty-ht)))
 
 ;; --------------- Creation of an instance of <built-in-class> ---------------
 
@@ -1052,24 +1155,27 @@
     (when direct-superclasses
       (setq slots (class-slots (first direct-superclasses)))
       (setq size (class-instance-size (first direct-superclasses)))))
-  (setf (class-slot-location-table class)
-        (make-hash-table
-          :key-type 'symbol :value-type 't
-          :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
-          :initial-contents
-            (mapcar #'(lambda (slot)
-                        (cons (slot-definition-name slot) (slot-definition-location slot)))
-                    slots)))
+  (setf (class-slots class) slots)
+  (setf (class-slot-location-table class) (compute-slot-location-table class))
   (setf (class-instance-size class) size)
   (unless names
-    (let* ((more-slots (std-compute-slots class))
-           (shared-index (std-layout-slots class more-slots)))
-      (when (plusp shared-index)
-        (error-of-type 'error
-          (TEXT "(~S ~S): metaclass ~S does not support shared slots")
-                'DEFCLASS name 'STRUCTURE-CLASS))
-      (setq slots (append slots more-slots))))
-  (setf (class-slots class) slots)
+    (setf (class-instance-size class) 1)
+    (setf (class-slots class)
+          (compute-slots-<slotted-class>-around class
+            #'(lambda (c)
+                (append slots
+                  (remove-if (let ((slotnames (mapcar #'slot-definition-name slots)))
+                               #'(lambda (slot) (member (slot-definition-name slot) slotnames)))
+                             (compute-slots-<class>-primary c))))))
+    (setf (class-instance-size class) (max size (compute-instance-size class)))
+    (let ((ht (class-slot-location-table class)))
+      (dolist (slot (class-slots class))
+        (setf (gethash (slot-definition-name slot) ht)
+              (slot-definition-location slot))))
+    (when (plusp (compute-shared-size class))
+      (error-of-type 'error
+        (TEXT "(~S ~S): metaclass ~S does not support shared slots")
+              'DEFCLASS name 'STRUCTURE-CLASS)))
   (setf (class-default-initargs class)
         (remove-duplicates
           (append direct-default-initargs
@@ -1082,7 +1188,6 @@
         (std-compute-subclass-of-stablehash-p class))
   (setf (class-valid-initargs class)
         (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
-  (setf (class-instance-size class) size)
   ; Initialize the remaining <structure-class> slots:
   (unless names
     (setq names
@@ -1230,32 +1335,14 @@
       (add-finalized-direct-subclass super class)))
   (setf (class-subclass-of-stablehash-p class)
         (std-compute-subclass-of-stablehash-p class))
-  (setf (class-slots class) (std-compute-slots class))
-  (setf (class-slot-location-table class)
-        (make-hash-table :key-type 'symbol :value-type 't
-                         :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   (setf (class-instance-size class) 1) ; slot 0 is the class_version pointer
-  (let ((shared-index (std-layout-slots class (class-slots class))))
-    (when (plusp shared-index)
+  (setf (class-slots class) (checked-compute-slots class))
+  (setf (class-instance-size class) (compute-instance-size class))
+  (setf (class-slot-location-table class) (compute-slot-location-table class))
+  (let ((shared-size (compute-shared-size class)))
+    (when (plusp shared-size)
       (setf (cv-shared-slots (class-current-version class))
-            (let ((v (make-array shared-index))
-                  (i 0))
-              (dolist (slot (class-slots class) v)
-                (when (eq (slot-definition-allocation slot) class)
-                  (setf (svref v i)
-                        (let ((old-slot-location
-                                (gethash (slot-definition-name slot) old-slot-location-table)))
-                          (if (and (consp old-slot-location)
-                                   (eq (cv-newest-class (car old-slot-location)) class))
-                            ;; The slot was already shared. Retain its value.
-                            (svref (cv-shared-slots (car old-slot-location))
-                                   (cdr old-slot-location))
-                            ;; A new shared slot.
-                            (let ((initfunction (slot-definition-initfunction slot)))
-                              (if initfunction
-                                (funcall initfunction)
-                                (sys::%unbound))))))
-                  (incf i)))))))
+            (create-shared-slots-vector class shared-size old-slot-location-table))))
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
   (setf (class-default-initargs class)
         (remove-duplicates

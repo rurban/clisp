@@ -287,6 +287,15 @@
   (:method ((class class) slotname direct-slot-definitions)
     (compute-effective-slot-definition-<class> class slotname direct-slot-definitions)))
 
+;; MOP p. 43
+(fmakunbound 'compute-slots)
+(defgeneric compute-slots (class)
+  (:method ((class standard-class))
+    (compute-slots-<class>-primary class))
+  (:method :around ((class standard-class))
+    (compute-slots-<slotted-class>-around class
+      #'(lambda (c) (call-next-method c)))))
+
 ;;; ===========================================================================
 
 ;;; Class definition customization

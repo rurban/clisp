@@ -68,7 +68,7 @@
      ((name          :type symbol             :initarg :name)
       (initargs      :type list               :initarg :initargs)
       (type          :type t                  :initarg :type)
-      (allocation    :type (or symbol class)  :initarg :allocation)
+      (allocation    :type symbol             :initarg :allocation)
       (inheritable-initer :type #| inheritable-slot-definition-initer |# cons
                                               :initarg inheritable-initer)
       (inheritable-doc :type #| inheritable-slot-definition-doc |# cons
@@ -176,6 +176,9 @@
       (unless (functionp initfunction)
         (error (TEXT "(~S ~S) for slot ~S: The ~S argument should be a function, not ~S")
                'initialize-instance 'slot-definition name ':initfunction initfunction))))
+  (unless (symbolp allocation)
+    (error (TEXT "(~S ~S) for slot ~S: The ~S argument should be a symbol, not ~S")
+           'initialize-instance 'slot-definition name ':allocation allocation))
   (unless (and (proper-list-p initargs) (every #'symbolp initargs))
     (error (TEXT "(~S ~S) for slot ~S: The ~S argument should be a proper list of symbols, not ~S")
            'initialize-instance 'slot-definition name ':initargs initargs))
@@ -198,14 +201,10 @@
 
 ;; Initialization of a <direct-slot-definition> instance.
 (defun initialize-instance-<direct-slot-definition> (slotdef &rest args
-                                                     &key (allocation ':instance)
-                                                          (readers '())
+                                                     &key (readers '())
                                                           (writers '())
                                                      &allow-other-keys)
   (apply #'initialize-instance-<slot-definition> slotdef args)
-  (unless (symbolp allocation)
-    (error (TEXT "(~S ~S) for slot ~S: The ~S argument should be a symbol, not ~S")
-           'initialize-instance 'slot-definition (slot-definition-name slotdef) ':allocation allocation))
   (unless (and (proper-list-p readers) (every #'sys::function-name-p readers))
     (error (TEXT "(~S ~S) for slot ~S: The ~S argument should be a proper list of function names, not ~S")
            'initialize-instance 'slot-definition (slot-definition-name slotdef) ':readers readers))
@@ -218,13 +217,9 @@
 
 ;; Initialization of a <effective-slot-definition> instance.
 (defun initialize-instance-<effective-slot-definition> (slotdef &rest args
-                                                        &key (allocation ':instance)
-                                                             ((location location) nil)
+                                                        &key ((location location) nil)
                                                         &allow-other-keys)
   (apply #'initialize-instance-<slot-definition> slotdef args)
-  (unless (or (eq allocation ':instance) (class-p allocation))
-    (error (TEXT "(~S ~S) for slot ~S: The ~S argument should be ~S or a class, not ~S")
-           'initialize-instance 'slot-definition (slot-definition-name slotdef) ':allocation ':instance allocation))
   (setf (slot-definition-location slotdef) location)
   slotdef)
 
@@ -412,6 +407,16 @@
 (defun effective-slot-definition-class (class &rest initargs)
   (declare (ignore class initargs))
   'standard-effective-slot-definition)
+
+;; Type test.
+(defun standard-effective-slot-definition-p (object)
+  (and (std-instance-p object)
+       (let ((cv (sys::%record-ref object 0)))
+         ; Treat the most frequent case first, for speed and bootstrapping.
+         (cond ((eq cv *<standard-effective-slot-definition>-class-version*) t)
+               (t ; Now a slow, but general instanceof test.
+                 (gethash <standard-effective-slot-definition>
+                          (class-all-superclasses (class-of object))))))))
 
 ;; To avoid function calls when calling the initfunction of constants, we use
 ;; a specially tagged function.
