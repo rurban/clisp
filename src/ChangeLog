@@ -1,5 +1,10 @@
 2004-12-13  Bruno Haible  <bruno@clisp.org>
 
+	* utils/clispload.lsp: Call disable-note.
+	(*expected-failures*): Update.
+
+2004-12-13  Bruno Haible  <bruno@clisp.org>
+
 	* places.lisp (remf): Reorder bindings according to ANSI CL 5.1.3.
 
 2004-12-13  Bruno Haible  <bruno@clisp.org>
