@@ -64,12 +64,8 @@
 /* Define if you have <stdlib.h>. */
 #undef HAVE_STDLIB_H
 
-/* CL_STDDEF_H */
-/* Define if you have <stddef.h>. */
-#undef HAVE_STDDEF_H
-
 /* CL_OFFSETOF */
-/* Define if you have <stddef.h> and it defines the offsetof macro. */
+/* Define if <stddef.h> defines the offsetof macro. */
 #undef HAVE_OFFSETOF
 
 /* CL_LOCALE_H */
