@@ -1,3 +1,9 @@
+1998-08-14  Jörg Höhle  <hoehle@tzd.telekom.de>
+
+        * affi.d (C_mem_write): accept Foreign-Pointer as address.
+        * rexx.d (C_rexx_put): fixed ~S/~ typo.
+        * pathname.d (AmigaOS C_shell): use NLstring instead of CRLFstring.
+
 1998-08-24  Sam Steingold  <sds@gnu.org>
 
         * init.lsp: Export *PRINT-RIGHT-MARGIN*.
