@@ -41,8 +41,7 @@ extension, &mem-file; extension is automatically added).
 </variablelist>
 You can use this memory image with the
 <olink targetdoc="man" targetptr="opt-memfile"><option>-M</option></olink>
-option.  On &unix; systems, you may compress it with &gnu;
-<ulink url="http://www.gzip.org/"><command>gzip</command></ulink>
+option.  On &unix; systems, you may compress it with &gnu; &gzip;
 to save disk space.</para>
 
 </section>
