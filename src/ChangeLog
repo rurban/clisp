@@ -1,3 +1,7 @@
+2004-03-01  Sam Steingold  <sds@gnu.org>
+
+	* cfgunix.lisp (*device-prefix*) [CYGWIN]: set to "cygdrive"
+
 2004-02-29  Kaz Kylheku  <kaz@ashi.footprints.net>
 
 	* backquote.lisp (bq-expand-list): If the backquote form is an
