@@ -16,6 +16,8 @@
 (use-package '("LDAP") "EXT")
 (ext:re-export "LDAP" "EXT")
 
+(in-package "SYSTEM")
+
 ;;; utilities
 
 (defmacro with-dir-key-open ((var key subkey &rest opts) &body body)
