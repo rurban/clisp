@@ -10,6 +10,7 @@ Supported CPUs:  (Put the GNU config.guess values here.)
             i386-pc-win32 (msvc4, msvc5)             i386/486/586  Win32
    m68k     m68k-next-nextstep3 (cc)                 NeXT          NeXTstep 3
             m68k-sun-sunos4.0 (cc)                   Sun3          SunOS 4.0.3
+            m68k-unknown-linux (gcc)                 Amiga3000     Linux
    mips     mips-sgi-irix4.0.5 (gcc,                 SGI mips      Irix 4.0.x
                 cc -ansi, cc -D__STDC__, cc -cckr)
             mips-sgi-irix5.2 (gcc, cc -ansi, ...)    SGI mips      Irix 5.2

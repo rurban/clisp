@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.s avcall-m68k-amiga.s avcall-mips.s avcall-mipsn32.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000.s avcall-m88k.s avcall-convex.s avcall.man
+all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.s avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.s avcall-mipsn32.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000.s avcall-m88k.s avcall-convex.s avcall.man
 
 avcall-i386.S : avcall-i386.c avcall.h.in
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
@@ -20,11 +20,14 @@ avcall-i386-msvc.c : avcall-i386.S asmi386.sh
 avcall.h.msvc : avcall.h.in
 	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < avcall.h.in > avcall.h.msvc
 
-avcall-m68k.s : avcall-m68k.c avcall.h.in
-	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S avcall-m68k.c -o avcall-m68k.s
+avcall-m68k.mit.s : avcall-m68k.c avcall.h.in
+	$(GCC) -V egcs-2.91.57 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S avcall-m68k.c -o avcall-m68k.mit.s
+
+avcall-m68k.mot.s : avcall-m68k.c avcall.h.in
+	$(GCC) -V egcs-2.91.57 -b m68k-linux $(GCCFLAGS) -D__m68k__ -S avcall-m68k.c -o avcall-m68k.mot.s
 
 avcall-m68k-amiga.s : avcall-m68k-amiga.c avcall.h.in
-	$(GCC) -V 2.6.3 -b m68k-sun -m68000 $(GCCFLAGS) -D__m68k__ -DAMIGA -S avcall-m68k-amiga.c -o avcall-m68k-amiga.s
+	$(GCC) -V egcs-2.91.57 -b m68k-sun -m68000 $(GCCFLAGS) -D__m68k__ -DAMIGA -S avcall-m68k-amiga.c -o avcall-m68k-amiga.s
 
 avcall-mips.s : avcall-mips.c avcall.h.in
 	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S avcall-mips.c -o avcall-mips.s
@@ -80,7 +83,7 @@ tests-i386.s : tests.c avcall.h.in
 
 tests-m68k.s : tests.c avcall.h.in
 	$(LN) avcall.h.in avcall.h
-	$(GCC) -V 2.6.3 -b m68k-sun $(GCCFLAGS) -I/usr/include -D__m68k__ -S tests.c -o tests-m68k.s
+	$(GCC) -V egcs-2.91.57 -b m68k-sun $(GCCFLAGS) -I/usr/include -D__m68k__ -S tests.c -o tests-m68k.s
 	$(RM) avcall.h
 
 tests-mips.s : tests.c avcall.h.in

@@ -143,7 +143,7 @@ L33:
 	jbr L6
 L24:
 	mov.w s2,s1
-	and #256,s1
+	and #512,s1
 	eq.w #0,s1
 	jbrs.t L6
 	ld.w 16(a4),s1
