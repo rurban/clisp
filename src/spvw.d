@@ -165,6 +165,11 @@
 #include "spvw_debug.c"
 
 # ------------------------------------------------------------------------------
+#                          Eigenes alloca()
+
+#include "spvw_alloca.c"
+
+# ------------------------------------------------------------------------------
 #                         Schnelles Programm-Ende
 
 # jmp_buf zur Rückkehr zum Original-Wert des SP beim Programmstart:
@@ -443,75 +448,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     #define canon(address)  (address)
   #endif
   # Es gilt canonaddr(obj) == canon((aint)ThePointer(obj)).
-
-# ------------------------------------------------------------------------------
-#                          Eigenes malloc(), free()
-
-#ifdef NEED_MALLOCA
-
-# Eigener alloca()-Ersatz.
-# ptr = malloca(size) liefert einen Speicherblock gegebener Größe. Er kann
-# (muß aber nicht) mit freea(ptr) freigegeben werden.
-# freea(ptr) gibt alle seit der Allozierung von ptr per malloca()
-# gelieferten Speicherblöcke zurück, einschließlich ptr selbst.
-
-# Die so allozierten Speicherblöcke bilden eine verkettete Liste.
-typedef struct malloca_header
-               { struct malloca_header * next;
-                 oint usable_memory[unspecified]; # "oint" erzwingt Alignment
-               }
-        malloca_header;
-
-# Verkettete Liste der Speicherblöcke, der jüngste ganz vorn, der älteste
-# ganz hinten.
-  local malloca_header* malloca_list = NULL;
-
-# malloca(size) liefert einen Speicherblock der Größe size.
-  global void* malloca (size_t size);
-  global void* malloca(size)
-    var size_t size;
-    { var malloca_header* ptr = (malloca_header*)malloc(offsetofa(malloca_header,usable_memory) + size);
-      if (!(ptr == NULL))
-        { ptr->next = malloca_list;
-          malloca_list = ptr;
-          return &ptr->usable_memory;
-        }
-        else
-        {
-          #ifdef VIRTUAL_MEMORY
-          asciz_out( DEUTSCH ? NLstring "*** - " "Kein virtueller Speicher mehr verfügbar: RESET" :
-                     ENGLISH ? NLstring "*** - " "Virtual memory exhausted. RESET" :
-                     FRANCAIS ? NLstring "*** - " "La mémoire virtuelle est épuisée : RAZ" :
-                     ""
-                   );
-          #else
-          asciz_out( DEUTSCH ? NLstring "*** - " "Speicher voll: RESET" :
-                     ENGLISH ? NLstring "*** - " "Memory exhausted. RESET" :
-                     FRANCAIS ? NLstring "*** - " "La mémoire est épuisée : RAZ" :
-                     ""
-                   );
-          #endif
-          reset();
-    }   }
-
-# freea(ptr) gibt den Speicherblock ab ptr und alle jüngeren frei.
-  global void freea (void* ptr);
-  global void freea(address)
-    var void* address;
-    { var malloca_header* ptr = (malloca_header*)
-        ((aint)address - offsetofa(malloca_header,usable_memory));
-      var malloca_header* p = malloca_list;
-      loop
-        { var malloca_header* n = p->next;
-          free(p);
-          if (!(p == ptr))
-            { p = n; }
-            else
-            { malloca_list = n; break; }
-        }
-    }
-
-#endif # NEED_MALLOCA
 
 # ------------------------------------------------------------------------------
 #                          Page-Allozierung

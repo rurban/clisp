@@ -1,5 +1,11 @@
 1998-07-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_alloca.d: New file.
+        * spvw.d (malloca_header, malloca_list, malloca, freea): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw.d (cpu_is_68000, CPU_IS_68000, default_allocmemflag,
           retry_allocmemflag, MemBlockHeader, allocmemblocks, allocmem,
           freemem, stdin_handle, stdout_handle, orig_dir_lock, init_amiga,
