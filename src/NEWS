@@ -12,6 +12,9 @@ User visible changes
   and allows working the Berkeley DB databases.
   See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
 
+* Module syscalls now exports function POSIX:STAT-VFS.
+  See <http://clisp.cons.org/impnotes.html#syscalls> for details.
+
 * Readline is now used properly on Cygwin/X11.
 
 

@@ -28,6 +28,12 @@
 #if defined(HAVE_SYS_STAT_H)
 # include <sys/stat.h>
 #endif
+#if defined(HAVE_SYS_TYPES_H)
+# include <sys/types.h>
+#endif
+#if defined(HAVE_SYS_STATVFS_H)
+# include <sys/statvfs.h>
+#endif
 
 #if defined(_WIN32)
 /* need this for CreateHardLink to work */
@@ -547,7 +553,7 @@ DEFUN(POSIX::USER-DATA, user)
 
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
- the first arg can be: file stream, pathname, string, symbol, number.
+ the first arg can be a pathname designator or a file descriptor designator
  the return value is the FILE-STAT structure */
   bool link_p = missingp(STACK_0);
   object file = (skipSTACK(1), popSTACK());
@@ -592,6 +598,73 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   funcall(`POSIX::MAKE-FILE-STAT`,14);
 }
 #endif  /* fstat lstat fstat */
+
+#if defined(HAVE_FSTATVFS) && defined(HAVE_STATVFS)
+/* there is also a legacy interface (f)statfs()
+   which is not POSIX and is not supported */
+
+DEFUN(POSIX::STAT-VFS, file)
+{ /* Lisp interface to statvfs(2), fstatvfs(2)
+ the first arg can be a pathname designator or a file descriptor designator
+ the return value is the STAT-VFS structure */
+  object file = popSTACK();
+  struct statvfs buf;
+
+  if (builtin_stream_p(file)) {
+    pushSTACK(file);
+    funcall(L(built_in_stream_open_p),1);
+    if (!nullp(value1)) { /* open stream ==> use FD */
+      begin_system_call();
+      if (fstatvfs(stream_lend_handle(file,true,NULL),&buf) < 0) OS_error();
+      end_system_call();
+    } else goto stat_pathname;
+  } else if (integerp(file)) {
+    begin_system_call();
+    if (fstatvfs(I_to_L(file),&buf) < 0) OS_error();
+    end_system_call();
+  } else { stat_pathname:
+    file = whole_namestring(file);
+    with_string_0(file,GLO(pathname_encoding),namez, {
+      begin_system_call();
+      if (statvfs(namez,&buf) < 0) OS_error();
+      end_system_call();
+    });
+  }
+
+  pushSTACK(file);                  /* the object statvfs'ed */
+  pushSTACK(UL_to_I(buf.f_bsize));  /* file system block size */
+  pushSTACK(UL_to_I(buf.f_frsize)); /* fundamental file system block size */
+  pushSTACK(UL_to_I(buf.f_blocks)); /* total # of blocks on file system */
+  pushSTACK(UL_to_I(buf.f_bfree));  /* total number of free blocks */
+  pushSTACK(UL_to_I(buf.f_bavail)); /* # of free blocks available to
+                                       non-privileged processes */
+  pushSTACK(UL_to_I(buf.f_files));  /* total # of file serial numbers */
+  pushSTACK(UL_to_I(buf.f_ffree));  /* total # of free file serial numbers */
+  pushSTACK(UL_to_I(buf.f_favail)); /* # of file serial numbers available to
+                                       non-privileged processes */
+  pushSTACK(UL_to_I(buf.f_fsid));   /* file system ID */
+  { /* bit mask of f_flag values */
+    unsigned long count = 0;
+#  ifdef ST_RDONLY
+    if (buf.f_flag & ST_RDONLY) { pushSTACK(S(Kread_only)); count++; }
+#  endif
+#  ifdef ST_NOSUID
+    if (buf.f_flag & ST_NOSUID) { pushSTACK(`:NO-SUID`); count++; }
+#  endif
+#  ifdef ST_NOTRUNC
+    if (buf.f_flag & ST_NOTRUNC) { pushSTACK(`:NO-TRUNCATE`); count++; }
+#  endif
+    if (count) {
+      object res = listof(count);
+      pushSTACK(res);
+    } else pushSTACK(NIL);
+  }
+  pushSTACK(UL_to_I(buf.f_namemax));/* maximum filename length */
+  funcall(`POSIX::MAKE-STAT-VFS`,12);
+}
+
+#endif  /* fstatvfs statvfs */
+
 #endif /* UNIX */
 
 /* COPY-FILE related functions. */

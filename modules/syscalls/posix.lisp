@@ -76,6 +76,33 @@
 ;;; ============================================================
 #+unix (progn
 (export
+ '(stat-vfs stat-vfs-file stat-vfs-bsize stat-vfs-stat-vfs-frsize
+   stat-vfs-stat-vfs-blocks stat-vfs-stat-vfs-bfree stat-vfs-stat-vfs-bavail
+   stat-vfs-stat-vfs-files stat-vfs-stat-vfs-ffree stat-vfs-stat-vfs-favail
+   stat-vfs-stat-vfs-fsid stat-vfs-stat-vfs-flag stat-vfs-namemax))
+
+(defstruct (stat-vfs
+             (:constructor
+              make-stat-vfs (file bsize frsize blocks bfree bavail files
+                             ffree favail fsid flag namemax)))
+  (file  nil :read-only t)
+  (bsize   0 :type (unsigned-byte 32) :read-only t)
+  (frsize  0 :type (unsigned-byte 32) :read-only t)
+  (blocks  0 :type (unsigned-byte 32) :read-only t)
+  (bfree   0 :type (unsigned-byte 32) :read-only t)
+  (bavail  0 :type (unsigned-byte 32) :read-only t)
+  (files   0 :type (unsigned-byte 32) :read-only t)
+  (ffree   0 :type (unsigned-byte 32) :read-only t)
+  (favail  0 :type (unsigned-byte 32) :read-only t)
+  (fsid    0 :type (unsigned-byte 32) :read-only t)
+  (flag    0 :type (unsigned-byte 32) :read-only t)
+  (namemax 0 :type (unsigned-byte 32) :read-only t))
+
+)
+
+;;; ============================================================
+#+unix (progn
+(export
  '(uname uname-sysname uname-nodename uname-release uname-version uname-machine
    sysconf sysconf-page-size sysconf-physical-pages
    sysconf-physical-pages-available sysconf-num-processor-conf
