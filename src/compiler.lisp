@@ -1548,7 +1548,8 @@ for-value   NIL or T
              ,code
              #+CLISP-DEBUG ,stackz))
 
-;; A Side-Effect-Class (SECLASS) is EITHER an Indicator (uses . modifies):
+;; A Side-Effect-Class (SECLASS) is EITHER an Indicator
+;;   (uses modifies uses-binding):
 ;; uses = NIL : this Anode can not be influenced by side-effects,
 ;;        List : this Anode depends on the value of the variables in the list,
 ;;        T : this Anode can possibly be influenced by every side-effect.
@@ -1556,6 +1557,10 @@ for-value   NIL or T
 ;;            list : ... produces side-effects only on the values of the
 ;;                    Variables in the list
 ;;            T : ... produces side-effects of unknown dimension.
+;; uses-binding = NIL or list : this Anode depends on the fact that a binding
+;;                              for the listed variables is in effect or not.
+;;                              Only dynamic variables are in this list.
+;;                T : ... can be influenced by binding any dynamic variable.
 ;; OR NIL, which means that the anode is FOLDABLE (see lispbibl & control)
 ;;   and may be evaluated at compile-time
 ;; (Here, variables are VAR-Structures for lexical variables and symbols for
@@ -1569,16 +1574,18 @@ for-value   NIL or T
 ;; FIXME1: foldability of compiled closures is not detected
 ;; FIXME2: RETURN-FROM, GO, HANDLER-BIND ==> *dirty-seclass*
 
-(proclaim '(inline seclass-foldable-p))
-(defun seclass-foldable-p (seclass) (null seclass))
-;; we use MAPCAR in SECLASS-OR and SECLASS-WITHOUT, so SECLASS must be a list
-;; if you midify SECLASS structure, you also need to update
+;; SECLASS is a list, so that we can use MAPCAR in SECLASS-OR, SECLASS-WITHOUT.
+;; If you modify SECLASS structure, you also need to update
+;;  * the comment above
 ;;  * seclass_object() in lispbibl.d
 ;;  * parse_seclass() in record.d
 (defstruct (seclass (:type list))
   (uses nil :read-only t)
   (modifies nil :read-only t)
   (uses-binding nil :read-only t))
+(proclaim '(inline seclass-foldable-p))
+(defun seclass-foldable-p (seclass) (null seclass))
+
 (defconstant *seclass-foldable* NIL)
 (defconstant *seclass-pure* (make-seclass))
 (defconstant *seclass-read* (make-seclass :uses 'T))
@@ -2262,7 +2269,7 @@ for-value   NIL or T
           (make-anode :type 'VARSET
                       :sub-anodes '()
                       :seclass
-                      (if (var-constantp var)
+                        (if (var-constantp var)
                           *seclass-pure*
                           (make-seclass :uses-binding (list symbol)
                                         :modifies (list symbol)))
@@ -4350,9 +4357,11 @@ for-value   NIL or T
     (make-anode :type 'THROW
                 :sub-anodes (list anode1 anode2)
                 :seclass
-                (make-seclass
-                 :uses (seclass-uses (anodes-seclass-or anode1 anode2))
-                 :uses-binding 'T :modifies 'T)
+                  (let ((seclass12 (anodes-seclass-or anode1 anode2)))
+                    (make-seclass
+                      :uses (seclass-uses seclass12)
+                      :uses-binding (seclass-uses-binding seclass12)
+                      :modifies 'T))
                 :code `(,anode1 (PUSH) ,anode2 (THROW)))))
 
 ;; compile (UNWIND-PROTECT form1 {form}*)

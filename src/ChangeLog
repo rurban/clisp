@@ -1,3 +1,8 @@
+2004-03-07  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (seclass): Update comments.
+	(c-THROW): Reduce the seclass' uses-binding value.
+
 2004-03-22  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (MAKE-STRING-OUTPUT-STREAM): For element type NIL, create
