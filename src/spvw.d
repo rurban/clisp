@@ -482,8 +482,8 @@ global bool near_SP_overflow (void) {
 nonreturning_function(global, SP_ueber, (void)) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
-  fputs(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"),stderr);
-  if (!interactive_p) fputs(NLstring,stderr);
+  fputs(GETTEXTL("\n*** - " "Program stack overflow. RESET"),stderr);
+  if (!interactive_p) fputs("\n",stderr);
   fflush(stderr);
   end_system_call();
   if (interactive_p) reset(1);
@@ -493,8 +493,8 @@ nonreturning_function(global, SP_ueber, (void)) {
 nonreturning_function(global, STACK_ueber, (void)) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
-  fputs(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"),stderr);
-  if (!interactive_p) fputs(NLstring,stderr);
+  fputs(GETTEXTL("\n*** - " "Lisp stack overflow. RESET"),stderr);
+  if (!interactive_p) fputs("\n",stderr);
   fflush(stderr);
   end_system_call();
   if (interactive_p) reset(1);
@@ -627,7 +627,7 @@ nonreturning_function(global, fehler_notreached,
   pushSTACK(fixnum(line));
   pushSTACK(ascii_to_string(file));
   fehler(serious_condition,
-         GETTEXT("internal error: statement in file ~, line ~ has been reached!!" NLstring
+         GETTEXT("Internal error: statement in file ~, line ~ has been reached!!\n"
                  "Please send the authors of the program a description how you produced this error!"));
 }
 
@@ -678,7 +678,7 @@ local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
     default: goto illegal;
   }
  illegal:
-  fprintf(stderr,GETTEXTL("Unknown FSUBR signature: %d %d %d" NLstring),
+  fprintf(stderr,GETTEXTL("Unknown FSUBR signature: %d %d %d\n"),
           req_anz,opt_anz,body_flag);
   quit_sofort(1);
 }
@@ -790,7 +790,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
           req_anz,opt_anz,rest_flag,key_flag);
   if (sid)
     fprintf(stderr," (%s::%s)\n",sid->packname,sid->symname);
-  else fputs(NLstring,stderr);
+  else fputs("\n",stderr);
   quit_sofort(1);
 }
 # set the argtype of a subr_t *ptr
@@ -1471,7 +1471,7 @@ local void init_module_2 (module_t* module) {
         var object pack =
           find_package(asciz_to_string(packname,O(internal_encoding)));
         if (nullp(pack)) { # package not found?
-          fprintf(stderr,GETTEXTL("module `%s' requires package %s." NLstring),
+          fprintf(stderr,GETTEXTL("module `%s' requires package %s.\n"),
                   module->name, packname);
           quit_sofort(1);
         }
@@ -1510,84 +1510,85 @@ local void init_other_modules_2 (void) {
 # print usage and exit
 nonreturning_function (local, usage, (int exit_code)) {
   printf(PACKAGE_NAME " (" PACKAGE_BUGREPORT ") ");
-  printf(GETTEXTL("is an ANSI Common Lisp." NLstring "Usage:  "));
+  printf(GETTEXTL("is an ANSI Common Lisp.\nUsage:  "));
   printf(program_name);
-  printf(GETTEXTL(" [options] [lispfile [argument ...]]" NLstring
-                  " When `lispfile' is given, it is loaded and `*ARGS*' is set" NLstring
-                  " to the list of argument strings. Otherwise, an interactive" NLstring
-                  " read-eval-print loop is entered." NLstring));
-  printf(GETTEXTL("Informative output:" NLstring));
-  printf(GETTEXTL(" -h, --help    - print this help and exit" NLstring));
-  printf(GETTEXTL(" --version     - print the version information" NLstring));
-  printf(GETTEXTL(" --license     - print the licensing information" NLstring));
-  printf(GETTEXTL("Memory image selection:" NLstring));
-  printf(GETTEXTL(" -B lisplibdir - set the installation directory" NLstring));
+  printf(GETTEXTL(" [options] [lispfile [argument ...]]\n"
+                  " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+                  " to the list of argument strings. Otherwise, an interactive\n"
+                  " read-eval-print loop is entered.\n"));
+  printf(GETTEXTL("Informative output:\n"));
+  printf(GETTEXTL(" -h, --help    - print this help and exit\n"));
+  printf(GETTEXTL(" --version     - print the version information\n"));
+  printf(GETTEXTL(" --license     - print the licensing information\n"));
+  printf(GETTEXTL("Memory image selection:\n"));
+  printf(GETTEXTL(" -B lisplibdir - set the installation directory\n"));
  #if defined(UNIX) || defined(WIN32_NATIVE)
-  printf(GETTEXTL(" -K linkingset - use this executable and memory image" NLstring));
+  printf(GETTEXTL(" -K linkingset - use this executable and memory image\n"));
  #endif
-  printf(GETTEXTL(" -M memfile    - use this memory image" NLstring));
-  printf(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
+  printf(GETTEXTL(" -M memfile    - use this memory image\n"));
+  printf(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"));
   #ifndef NO_SP_MALLOC
-  printf(GETTEXTL(" -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
+  printf(GETTEXTL(" -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"));
   #endif
   #ifdef MULTIMAP_MEMORY_VIA_FILE
-  printf(GETTEXTL(" -t tmpdir     - temporary directory for memmap" NLstring));
+  printf(GETTEXTL(" -t tmpdir     - temporary directory for memmap\n"));
   #endif
-  printf(GETTEXTL("Internationalization:" NLstring));
-  printf(GETTEXTL(" -L language   - set user language" NLstring));
-  printf(GETTEXTL(" -N nlsdir     - NLS catalog directory" NLstring));
-  printf(GETTEXTL(" -Edomain encoding - set encoding" NLstring));
-  printf(GETTEXTL("Interoperability:" NLstring));
-  printf(GETTEXTL(" -q, --quiet, --silent, -v, --verbose - verbosity level:" NLstring
-                  "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*," NLstring
-                  "     and *LOAD-PRINT*/*COMPILE-PRINT*" NLstring));
-  printf(GETTEXTL(" -w            - wait for keypress after program termination" NLstring));
-  printf(GETTEXTL(" -I            - be ILISP-friendly" NLstring));
-  printf(GETTEXTL("Startup actions:" NLstring));
-  printf(GETTEXTL(" -ansi         - more ANSI CL compliance" NLstring));
-  printf(GETTEXTL(" -traditional  - traditional (undoes -ansi)" NLstring));
-  printf(GETTEXTL(" -p package    - start in the package" NLstring));
-  printf(GETTEXTL(" -C            - set *LOAD-COMPILING* to T" NLstring));
-  printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file" NLstring));
-  printf(GETTEXTL(" -i file       - load initfile (can be repeated)" NLstring));
-  printf(GETTEXTL("Actions:" NLstring));
-  printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring));
-  printf(GETTEXTL(" -x expressions - execute the expressions, then exit" NLstring));
-  printf(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit" NLstring));
-  printf(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by" NLstring));
-  printf(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends" NLstring));
-  printf(GETTEXTL(" -repl              - enter the interactive read-eval-print loop when done" NLstring));
-  printf(GETTEXTL("Default action is an interactive read-eval-print loop." NLstring));
+  printf(GETTEXTL("Internationalization:\n"));
+  printf(GETTEXTL(" -L language   - set user language\n"));
+  printf(GETTEXTL(" -N nlsdir     - NLS catalog directory\n"));
+  printf(GETTEXTL(" -Edomain encoding - set encoding\n"));
+  printf(GETTEXTL("Interoperability:\n"));
+  printf(GETTEXTL(" -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
+                  "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+                  "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"));
+  printf(GETTEXTL(" -w            - wait for a keypress after program termination\n"));
+  printf(GETTEXTL(" -I            - be ILISP-friendly\n"));
+  printf(GETTEXTL("Startup actions:\n"));
+  printf(GETTEXTL(" -ansi         - more ANSI CL compliance\n"));
+  printf(GETTEXTL(" -traditional  - traditional (undoes -ansi)\n"));
+  printf(GETTEXTL(" -p package    - start in the package\n"));
+  printf(GETTEXTL(" -C            - set *LOAD-COMPILING* to T\n"));
+  printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file\n"));
+  printf(GETTEXTL(" -i file       - load initfile (can be repeated)\n"));
+  printf(GETTEXTL("Actions:\n"));
+  printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"));
+  printf(GETTEXTL(" -x expressions - execute the expressions, then exit\n"));
+  printf(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit\n"));
+  printf(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by\n"));
+  printf(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends\n"));
+  printf(GETTEXTL(" -repl              - enter the interactive read-eval-print loop when done\n"));
+  printf(GETTEXTL("Default action is an interactive read-eval-print loop.\n"));
   quit_sofort (exit_code); # abnormal end of program
 }
 
 # print license and exit
 nonreturning_function (local, print_license, (void)) {
   local const char * const license [] = {
-    "This program is free software; you can redistribute it and/or modify" NLstring,
-    "it under the terms of the GNU General Public License as published by" NLstring,
-    "the Free Software Foundation; either version 2, or (at your option)"  NLstring,
-    "any later version."                                                   NLstring,
-                                                                           NLstring,
-    "This program is distributed in the hope that it will be useful, but"  NLstring,
-    "WITHOUT ANY WARRANTY; without even the implied warranty of"           NLstring,
-    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU"    NLstring,
-    "General Public License for more details."                             NLstring,
-                                                                           NLstring,
-    "You should have received a copy of the GNU General Public License"    NLstring,
-    "along with this program; if not, write to the Free Software"          NLstring,
-    "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA." NLstring,
-                                                                           NLstring,
-    "Distribution of Lisp programs meant to run in CLISP in compiled form" NLstring,
-    "and without source is possible under certain conditions.  See"        NLstring,
-    "http://clisp.sourceforge.net/copyright.html for details."             NLstring,
-                                                                           NLstring,
+    PACKAGE_NAME " is free software; you can redistribute and/or modify it\n",
+    "under the terms of the GNU General Public License as published by\n",
+    "the Free Software Foundation; either version 2, or (at your option)\n",
+    "any later version.\n",
+    "\n",
+    PACKAGE_NAME " is distributed in the hope that it will be useful,\n",
+    "but WITHOUT ANY WARRANTY; without even the implied warranty of\n",
+    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n",
+    "See the GNU General Public License for more details.\n",
+    "\n",
+    "You should have received a copy of the GNU General Public License\n",
+    "along with " PACKAGE_NAME ", see file GNU-GPL.\n",
+    "If not, write to the Free Software Foundation, Inc.,\n",
+    "59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.\n",
+    "\n",
+    "Distribution of Lisp programs meant to run in " PACKAGE_NAME "\n",
+    "without sources is possible under certain conditions.\n",
+    "See file COPYRIGHT that came with " PACKAGE_NAME " for details.\n",
+    "\n",
   };
   var const char * const * ptr = license;
-  var uintC count;
+  var uintC count = sizeof(license)/sizeof(license[0]);
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-  dotimesC(count,sizeof(license)/sizeof(license[0]),
-           { write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));});
+  while (count--)
+    write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
   skipSTACK(1);
   quit_sofort (0);
 }
@@ -1597,43 +1598,43 @@ local void print_banner ()
 { const char * const banner0[] = { # some lines above 66 characters
  #  |Column 0           |Column 20                                    |Col 66
  # "012345678901234567890123456789012345678901234567890123456789012345678901"
-   "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo" NLstring,
-   "  I I I I I I I      8     8   8           8     8     o  8    8" NLstring,
-  "  I  \\ `+' /  I      8         8           8     8        8    8" NLstring,
-  "   \\  `-+-'  /       8         8           8      ooooo   8oooo" NLstring,
-   "    `-__|__-'        8         8           8           8  8" NLstring,
-   "        |            8     o   8           8     o     8  8" NLstring,
-   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8" NLstring,
+   "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo\n",
+   "  I I I I I I I      8     8   8           8     8     o  8    8\n",
+  "  I  \\ `+' /  I      8         8           8     8        8    8\n",
+  "   \\  `-+-'  /       8         8           8      ooooo   8oooo\n",
+   "    `-__|__-'        8         8           8           8  8\n",
+   "        |            8     o   8           8     o     8  8\n",
+   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8\n",
   };
   const char * const banner1[] = {
-   NLstring,
-   "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
-   "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
-   "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998" NLstring,
-   "Copyright (c) Bruno Haible, Sam Steingold 1999-2003" NLstring,
+   "\n",
+   "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993\n",
+   "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997\n",
+   "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
+   "Copyright (c) Bruno Haible, Sam Steingold 1999-2003\n",
   };
   #ifdef AMIGA
   var const char * banner2 =
-    GETTEXT("                    Amiga version: Joerg Hoehle" NLstring);
+    GETTEXT("                    Amiga version: Joerg Hoehle\n");
   #endif
   #ifdef RISCOS
   var const char * banner2 =
-    GETTEXT("                    RISCOS port: Peter Burwood, Bruno Haible" NLstring);
+    GETTEXT("                    RISCOS port: Peter Burwood, Bruno Haible\n");
   #endif
-  var const char * banner3 = NLstring ;
+  var const char * banner3 = "\n";
   var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
   var const char * const * ptr = banner0;
-  var uintC count;
+  var uintC count = sizeof(banner0)/sizeof(banner0[0]);
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # to *STANDARD-OUTPUT*
-  dotimesC(count,sizeof(banner0)/sizeof(banner0[0]),
-           { write_sstring(&STACK_0,asciz_to_string(&(*ptr++)[offset],O(internal_encoding))); });
-  ptr = banner1;
-  dotimesC(count,sizeof(banner1)/sizeof(banner1[0]),
-           { write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding))); });
-  #if defined(AMIGA) || defined(RISCOS)
-  write_sstring(&STACK_0,asciz_to_string(&banner2[offset],O(internal_encoding)));
-  #endif
-  write_sstring(&STACK_0,asciz_to_string(&banner3[offset],O(internal_encoding)));
+  while (count--)
+    write_sstring(&STACK_0,asciz_to_string((*ptr++)+offset,O(internal_encoding)));
+  ptr = banner1; count = sizeof(banner1)/sizeof(banner1[0]);
+  while (count--)
+    write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
+ #if defined(AMIGA) || defined(RISCOS)
+  write_sstring(&STACK_0,asciz_to_string(banner2+offset,O(internal_encoding)));
+ #endif
+  write_sstring(&STACK_0,asciz_to_string(banner3,O(internal_encoding)));
   skipSTACK(1);
 }
 
@@ -1839,11 +1840,11 @@ global int main (argc_t argc, char* argv[]) {
                     arg++; break;                                          \
                 }                                                          \
                 if (*arg != '\0') { # argument finished?                   \
-                  fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
+                  fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB\n"), docstring); \
                   usage (1);                                               \
                 }                                                          \
                 if (!((val >= limit_low) && (val <= limit_high))) {        \
-                  fprintf(stderr,GETTEXTL("%s out of range" NLstring),  \
+                  fprintf(stderr,GETTEXTL("%s out of range\n"),  \
                           docstring);                                   \
                   usage (1);                                               \
                 }                                                          \
@@ -1987,8 +1988,7 @@ global int main (argc_t argc, char* argv[]) {
               argv_ansi = 1; # ANSI
             else if (arg[2] != '\0') usage (1);
             else {
-              fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi"
-                                      NLstring));
+              fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi\n"));
               argv_ansi = 1; # ANSI
             }
             break;
@@ -2238,13 +2238,13 @@ global int main (argc_t argc, char* argv[]) {
       begin_system_call();
       memblock = (aint)malloc(1);
       end_system_call();
-      fprintf(stderr,GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution." NLstring),
+      fprintf(stderr,GETTEXTL("Return value of malloc() = %x is not compatible with type code distribution.\n"),
               memblock);
       goto no_mem;
     }
     if (memneed < MINIMUM_SPACE+RESERVE) { # but with less than MINIMUM_SPACE
       # we will not be satisfied:
-      fprintf(stderr,GETTEXTL("Only %d bytes available." NLstring),memneed);
+      fprintf(stderr,GETTEXTL("Only %d bytes available.\n"),memneed);
       goto no_mem;
     }
    #endif
@@ -2487,7 +2487,7 @@ global int main (argc_t argc, char* argv[]) {
             # page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000.
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info))) {
-                fprintf(stderr,GETTEXTL("Could not determine the end of the SP stack!" NLstring));
+                fprintf(stderr,GETTEXTL("Could not determine the end of the SP stack!\n"));
                 SP_bound = 0;
               } else { # 0x4000 might be enough, but 0x8000 will be better.
                 SP_bound = (void*)((aint)info.AllocationBase + 0x8000);
@@ -2742,13 +2742,13 @@ global int main (argc_t argc, char* argv[]) {
   if ((argv_memfile == NULL) && (argv_expr_count == 0)) {
     # warning for beginners
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
-    write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: No initialization file specified." NLstring));
+    write_sstring(&STACK_0,CLSTEXT("\nWARNING: No initialization file specified.\n"));
     write_sstring(&STACK_0,CLSTEXT("Please try: "));
     write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
    #ifdef RISCOS
-    write_string(&STACK_0,ascii_to_string(" -M mem.lispinit" NLstring));
+    write_string(&STACK_0,ascii_to_string(" -M mem.lispinit\n"));
    #else
-    write_string(&STACK_0,ascii_to_string(" -M lispinit.mem" NLstring));
+    write_string(&STACK_0,ascii_to_string(" -M lispinit.mem\n"));
    #endif
     skipSTACK(1);
   }
@@ -2756,10 +2756,10 @@ global int main (argc_t argc, char* argv[]) {
     if (nullp(O(lib_dir))) {
       # warning for beginners and careless developers
       pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
-      write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: No installation directory specified." NLstring));
+      write_sstring(&STACK_0,CLSTEXT("\nWARNING: No installation directory specified.\n"));
       write_sstring(&STACK_0,CLSTEXT("Please try: "));
       write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
-      write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp" NLstring));
+      write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp\n"));
       skipSTACK(1);
     }
   } else { # set it
@@ -2908,7 +2908,7 @@ global int main (argc_t argc, char* argv[]) {
       Symbol_value(S(packagestern)) = package;
     } else {
       pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-      write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: no such package: "));
+      write_sstring(&STACK_0,CLSTEXT("\nWARNING: no such package: "));
       write_sstring(&STACK_0,packname);
       terpri(&STACK_0);
       skipSTACK(1);
@@ -2988,8 +2988,7 @@ global int main (argc_t argc, char* argv[]) {
  } # end var bt
   # if the memory does not suffice:
   no_mem:
-  fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp." NLstring),
-          program_name);
+  fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp.\n"),program_name);
   quit_sofort(1);
   /*NOTREACHED*/
   # termination of program via quit_sofort() (engl. quit_instantly() ):
