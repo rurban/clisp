@@ -299,16 +299,10 @@ local void end_error (gcv_object_t* stackptr, bool start_driver_p) {
   }
 }
 
-/* Error message with Errorstring. Does not return.
- fehler(errortype,errorstring);
- > errortype: condition type
- > errorstring: Constant ASCIZ-string, in UTF-8 Encoding.
-   At each tilde a LISP-object is taken from STACK and printed instead of
-   the tilde.
- > on the STACK: initialization values for the condition,
-                 according to errortype */
-nonreturning_function(global, fehler, (condition_t errortype,
-                                       const char* errorstring)) {
+/* helper -- see doc for fehler() */
+local void prepare_error (condition_t errortype, const char* errorstring,
+                          bool start_driver_p)
+{ /* the common part of fehler(), check_value() &c */
   begin_error(); /* start error message */
   if (!nullp(STACK_3)) { /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
     /* choose error-type-symbol for errortype: */
@@ -319,7 +313,20 @@ nonreturning_function(global, fehler, (condition_t errortype,
                      * (uintL)errortype);
     STACK_3 = sym;
   }
-  end_error(write_errorstring(errorstring),true); /* finish error message */
+  end_error(write_errorstring(errorstring),start_driver_p); /* finish */
+}
+
+/* Error message with Errorstring. Does not return.
+ fehler(errortype,errorstring);
+ > errortype: condition type
+ > errorstring: Constant ASCIZ-string, in UTF-8 Encoding.
+   At each tilde a LISP-object is taken from STACK and printed instead of
+   the tilde.
+ > on the STACK: initialization values for the condition,
+                 according to errortype */
+nonreturning_function(global, fehler, (condition_t errortype,
+                                       const char* errorstring)) {
+  prepare_error(errortype,errorstring,true); /* finish error message */
   /* there is no point in using the condition system here:
      we will get into an infinite loop reporting the error */
   fprintf(stderr,"[%s:%d] cannot handle the fatal error due to a fatal error in the fatal error handler!\n",__FILE__,__LINE__);
@@ -334,21 +341,23 @@ nonreturning_function(global, fehler, (condition_t errortype,
  may trigger GC */
 global void check_value (condition_t errortype, const char* errorstring)
 {
-  begin_error(); /* start error message */
-  if (!nullp(STACK_3)) { /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
-    /* choose error-type-symbol for errortype: */
-    var object sym = S(simple_condition); /* first error-type */
-    sym = objectplus(sym,
-                     (soint)(sizeof(*TheSymbol(sym))
-                             <<(oint_addr_shift-addr_shift))
-                     * (uintL)errortype);
-    STACK_3 = sym;
-  }
-  /* finish the error message */
-  end_error(write_errorstring(errorstring),nullpSv(use_clcs));
+  prepare_error(errortype,errorstring,nullpSv(use_clcs));
   /* if SYS::*USE-CLCS* /= NIL, use CHECK-VALUE */
   pushSTACK(value1); /* place is already on the stack! */
   funcall(S(check_value),2);
+}
+
+/* just like check_value(), but allow recovery via a set of restarts
+ created dynamically from options (an extra object on the STACK,
+ like PLACE for check_value()): a list of 3 element lists
+  (restart-name restart-help-string value-returned-by-the-restart)
+ may trigger GC */
+global void correctable_error (condition_t errortype, const char* errorstring)
+{
+  prepare_error(errortype,errorstring,nullpSv(use_clcs));
+  /* if SYS::*USE-CLCS* /= NIL, use CORRECTABLE-ERROR */
+  pushSTACK(value1); /* options are already on the stack! */
+  funcall(S(correctable_error),2);
 }
 
 #undef OS_error
