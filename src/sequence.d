@@ -316,13 +316,10 @@ nonreturning_function(local, fehler_seqtype_length,
   (eq(cl,Fixnum_minus1) ? !eq(Fixnum_0,stl) : eql(cl,stl))
 
 /* error when the argument is not an integer >=0 */
-nonreturning_function(local, fehler_posint,
-                      (object fun, object kw, object obj)) {
+nonreturning_function(local, fehler_posint, (object kw, object obj)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  pushSTACK(kw);
-  pushSTACK(fun);
+  pushSTACK(obj); pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: ~ should be an integer >=0, not ~"));
 }
 
@@ -356,11 +353,11 @@ nonreturning_function(local, fehler_posint,
     # START-Argument muss ein Integer >= 0 sein:
     var object start = *(argptr STACKop 1);
     if (!(integerp(start) && positivep(start)))
-      fehler_posint(TheSubr(subr_self)->name,kwptr[0],start);
+      fehler_posint(kwptr[0],start);
     # END-Argument muss ein Integer >= 0 sein:
     var object end = *(argptr STACKop 0);
     if (!(integerp(end) && positivep(end)))
-      fehler_posint(TheSubr(subr_self)->name,kwptr[1],end);
+      fehler_posint(kwptr[1],end);
     # Argumente vergleichen:
     if (!(I_I_comp(end,start)>=0)) { # end >= start ?
       # nein -> Fehler melden:
@@ -381,13 +378,13 @@ nonreturning_function(local, fehler_posint,
     # START-Argument muss ein Integer >= 0 sein:
     var object start = *(argptr STACKop 1);
     if (!(integerp(start) && positivep(start)))
-      fehler_posint(TheSubr(subr_self)->name,kwptr[0],start);
+      fehler_posint(kwptr[0],start);
     # END-Argument muss NIL oder ein Integer >= 0 sein:
     var object end = *(argptr STACKop 0);
     if (nullp(end)) # end=NIL -> OK, fertig
       return;
     if (!(integerp(end) && positivep(end)))
-      fehler_posint(TheSubr(subr_self)->name,kwptr[1],end);
+      fehler_posint(kwptr[1],end);
     # Argumente vergleichen:
     if (!(I_I_comp(end,start)>=0)) { # end >= start ?
       # nein -> Fehler melden:
@@ -1988,7 +1985,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
         STACK_1 = Fixnum_0; return; # treat negative integers as 0
       }
     }
-    fehler_posint(TheSubr(subr_self)->name,S(Kcount),count);
+    fehler_posint(S(Kcount),count);
   }
 
 # Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
