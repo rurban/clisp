@@ -10218,19 +10218,19 @@ LISPFUNN(file_write_date,1)
         # Streamtyp File-Stream
        #if !defined(AMIGAOS)
         if ((TheStream(pathname)->strmflags & strmflags_open_B)
-            && (!nullp(TheStream(pathname)->strm_file_handle))
+            && (!nullp(TheStream(pathname)->strm_buffered_channel))
            )
           # offener File-Stream
           { # direkt mit dem Handle arbeiten:
             #if defined(DJUNIX) || defined(WATCOM)
             begin_system_call();
-            get_file_write_datetime(TheHandle(TheStream(pathname)->strm_file_handle));
+            get_file_write_datetime(TheHandle(TheStream(pathname)->strm_buffered_channel));
             end_system_call();
             #endif
             #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
             var struct stat status;
             begin_system_call();
-            if (!( fstat(TheHandle(TheStream(pathname)->strm_file_handle),&status) ==0))
+            if (!( fstat(TheHandle(TheStream(pathname)->strm_buffered_channel),&status) ==0))
               { end_system_call(); OS_filestream_error(pathname); }
             end_system_call();
             file_datetime = status.st_mtime;
@@ -10239,7 +10239,7 @@ LISPFUNN(file_write_date,1)
             var BY_HANDLE_FILE_INFORMATION fileinfo;
             var BOOL result;
             begin_system_call();
-            result = GetFileInformationByHandle(TheHandle(TheStream(pathname)->strm_file_handle),&fileinfo);
+            result = GetFileInformationByHandle(TheHandle(TheStream(pathname)->strm_buffered_channel),&fileinfo);
             end_system_call();
             if (result)
               { filedata.ftCreationTime   = fileinfo.ftCreationTime;
