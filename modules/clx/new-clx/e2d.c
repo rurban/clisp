@@ -618,7 +618,7 @@ char *do_defun (FILE *in, FILE *out, char *line)
   s = line;
   d = name;
   while ((*s) && isspace (*s)) { s++; }
-  while ((*s) && !isspace (*s)) { *(d++) = *(s++); }
+  while ((*s) && !isspace(*s) && (*s != '(')) { *(d++) = *(s++); }
   *d = 0;
   c_name = make_c_name (name);
 

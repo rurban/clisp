@@ -37,6 +37,7 @@
 	ensure_living_display() twice
 	(xlib_after_function): no need to call ensure_living_display()
 	converted *-SETTER --> SET-*
+	* modules/clx/new-clx/e2d.c (do_defun): terminate name on '('
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
