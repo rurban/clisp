@@ -12314,12 +12314,13 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (disassemble-closures form *c-listing-output*)
       )
       (when *fasoutput-stream*
-        (terpri *fasoutput-stream*)
         (write form :stream *fasoutput-stream* :pretty t
                     :readably t :right-margin 79
                     ; :closure t :circle t :array t :gensym t
                     ; :escape t :level nil :length nil :radix t
-      ) )
+        )
+        (terpri *fasoutput-stream*)
+      )
       (when *package-tasks*
         (c-eval-when-compile `(PROGN ,@(nreverse *package-tasks*)))
       )
@@ -12459,7 +12460,9 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (write `(SYSTEM::VERSION ',(version)) :stream *fasoutput-stream*
                            :readably t :right-margin 79
                            ; :escape t :level nil :length nil :radix t
-                ) ) )
+                  ) )
+                  (terpri *fasoutput-stream*)
+                )
                 (loop
                   (peek-char t istream nil eof-value)
                   (setq *compile-file-lineno1* (line-number istream))
@@ -12531,7 +12534,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                         )
             ) ) )
             (when new-output-stream
-              (terpri *fasoutput-stream*) (close *fasoutput-stream*)
+              (close *fasoutput-stream*)
               (close *liboutput-stream*)
               (if *coutput-stream*
                 (close *coutput-stream*)
