@@ -531,6 +531,18 @@
                      ENGLISH "a load-time evaluation promise." ; ??
                      FRANCAIS "une promesse d'évaluation au moment du chargement.") ; ??
         ) )
+        (WEAK-POINTER
+          (multiple-value-bind (value validp) (weak-pointer-value obj)
+            (if validp
+              (format s (DEUTSCH "ein für die GC unsichtbarer Pointer auf ~S."
+                         ENGLISH "a GC-invisible pointer to ~S."
+                         FRANCAIS "un pointeur, invisible pour le GC, sur ~S.")
+                        value
+              )
+              (format s (DEUTSCH "ein für die GC unsichtbarer Pointer auf ein nicht mehr existierendes Objekt."
+                         ENGLISH "a GC-invisible pointer to a now defunct object."
+                         FRANCAIS "un pointeur, invisible pour le GC, sur un objet qui n'existe plus.")
+        ) ) ) )
         (READ-LABEL
           (format s (DEUTSCH "eine Markierung zur Auflösung von #~D#-Verweisen bei READ."
                      ENGLISH "a label used for resolving #~D# references during READ."

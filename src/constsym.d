@@ -643,6 +643,9 @@ LISPSYM(make_load_time_eval,"MAKE-LOAD-TIME-EVAL",system)
 LISPSYM(make_symbol_macro,"MAKE-SYMBOL-MACRO",system)
 LISPSYM(symbol_macro_p,"SYMBOL-MACRO-P",system)
 LISPSYM(symbol_macro_expand,"SYMBOL-MACRO-EXPAND",lisp)
+LISPSYM(make_weak_pointer,"MAKE-WEAK-POINTER",lisp)
+LISPSYM(weak_pointer_p,"WEAK-POINTER-P",lisp)
+LISPSYM(weak_pointer_value,"WEAK-POINTER-VALUE",lisp)
 LISPSYM(finalize,"FINALIZE",lisp)
 LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
 LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
@@ -1335,6 +1338,7 @@ LISPSYM(foreign_address,"FOREIGN-ADDRESS",lisp) # als Typ in PREDTYPE
 LISPSYM(foreign_variable,"FOREIGN-VARIABLE",lisp) # als Typ in PREDTYPE
 LISPSYM(foreign_function,"FOREIGN-FUNCTION",lisp) # als Typ in PREDTYPE
 #endif
+LISPSYM(weak_pointer,"WEAK-POINTER",lisp) # als Typ in PREDTYPE
 LISPSYM(finalizer,"FINALIZER",lisp) # als Typ in PREDTYPE
 #ifdef YET_ANOTHER_RECORD
 LISPSYM(yet_another,"YET-ANOTHER",lisp) # als Typ in PREDTYPE

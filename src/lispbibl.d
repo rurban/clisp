@@ -4438,6 +4438,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_Fvariable,
          Rectype_Ffunction,
          #endif
+         Rectype_Weakpointer,
          Rectype_Finalizer,
          #ifdef SOCKET_STREAMS
          Rectype_Socket_Server,
@@ -5116,6 +5117,17 @@ typedef struct { XRECORD_HEADER
 
 #endif
 
+# Weak-Pointer
+typedef struct { XRECORD_HEADER
+                 object wp_cdr;   # active weak-pointers form a chained list
+                 object wp_value; # the referenced object
+               }
+        * Weakpointer;
+# Both wp_cdr and wp_value are invisible to gc_mark routines.
+# When the weak-pointer becomes inactive, both fields are turned to unbound.
+#define weakpointer_length  0
+#define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
+
 # Finalisierer
 typedef struct { XRECORD_HEADER
                  object fin_alive;    # nur solange dieses Objekt lebt
@@ -5659,6 +5671,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheFvariable(obj)  ((Fvariable)(type_pointable(orecord_type,obj)))
   #define TheFfunction(obj)  ((Ffunction)(type_pointable(orecord_type,obj)))
   #endif
+  #define TheWeakpointer(obj)  ((Weakpointer)(type_pointable(orecord_type,obj)))
   #define TheFinalizer(obj)  ((Finalizer)(type_pointable(orecord_type,obj)))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(type_pointable(orecord_type,obj)))
@@ -5741,6 +5754,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheFvariable(obj)  ((Fvariable)(as_oint(obj)-varobject_bias))
   #define TheFfunction(obj)  ((Ffunction)(as_oint(obj)-varobject_bias))
   #endif
+  #define TheWeakpointer(obj)  ((Weakpointer)(as_oint(obj)-varobject_bias))
   #define TheFinalizer(obj)  ((Finalizer)(as_oint(obj)-varobject_bias))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(as_oint(obj)-varobject_bias))
@@ -6237,6 +6251,10 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 #else
   #define ffunctionp(obj)  ((void)(obj), 0)
 #endif
+
+# Test for Weakpointer
+  #define weakpointerp(obj)  \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Weakpointer))
 
 # test for socket-server and for socket-stream
 #ifdef SOCKET_STREAMS
@@ -7952,6 +7970,14 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define allocate_ffunction()  \
     allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
 # wird verwendet von FOREIGN
+
+# UP, allocates a Weakpointer
+# allocate_weakpointer()
+# < result: a fresh weak-pointer
+# kann GC auslösen
+  #define allocate_weakpointer()  \
+    allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,weakpointer_xlength,orecord_type)
+# wird verwendet von RECORD
 
 # UP, beschafft Finalisierer
 # allocate_finalizer()
