@@ -1,3 +1,10 @@
+2004-03-22  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (MAKE-STRING-OUTPUT-STREAM): For element type NIL, create
+	an nil-vector of length 0, not 50.
+	(get_output_stream_string): Don't use stringp to test for nil-vector.
+	(SYS::BUILT-IN-STREAM-ELEMENT-TYPE): Likewise.
+
 2004-03-22  Sam Steingold  <sds@gnu.org>
 
 	* clisp.spec: removed anti-RPM comments
