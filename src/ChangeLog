@@ -1,3 +1,8 @@
+2005-03-14  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/configure.in (stat): check for struct members
+	st_rdev, st_blksize and st_blocks
+
 2005-03-14  Doug Currie  <e@flavors.com>
 	    Sam Steingold  <sds@gnu.org>
 
