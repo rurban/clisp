@@ -1,5 +1,16 @@
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
+	Fix problematic initialization protocol of standard-class and
+	structure-class.
+	* clos-class2.lisp (initialize-instance-standard-class): Call
+	%initialize-instance. Initialize a few slots to nil.
+	(initialize-instance-structure-class): Call %initialize-instance.
+	* clos-class5.lisp (initialize-instance@standard-class,
+	initialize-instance@structure-class): Remove (call-next-method) that
+	doesn't belong here.
+
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
 	* clos-print.lisp: Renamed from clos-class4.lisp.
 	* clos.lisp: Update.
 	* makemake.in (LPARTS): Add clos-print, remove clos-class4.

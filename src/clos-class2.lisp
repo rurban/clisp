@@ -543,18 +543,24 @@
     (apply #'initialize-instance-standard-class class args)))
 
 (defun initialize-instance-standard-class
-    (class &key (direct-superclasses '()) (direct-slots '())
+    (class &rest args &key (direct-superclasses '()) (direct-slots '())
      (direct-default-initargs '()) &allow-other-keys)
   (unless (slot-boundp class 'current-version)
     (setf (class-current-version class)
           (make-class-version :newest-class class
                               :class class
-                              :serial 0)))
+                              :serial 0))
+    (setf (class-direct-accessors class) '())
+    (setf (class-instantiated class) nil)
+    (setf (class-direct-subclasses class) '()))
+  (when *classes-finished*
+    (apply #'%initialize-instance class args)) ; == (call-next-method)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-direct-slots class) direct-slots)
   (setf (class-direct-default-initargs class) direct-default-initargs)
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
   (setf (class-all-superclasses class) nil) ; mark as not yet finalized
+  (setf (class-proto class) nil)
   (finalize-class class nil) ; try to finalize it
   class)
 
@@ -1155,12 +1161,14 @@
     (apply #'initialize-instance-structure-class class args)))
 
 (defun initialize-instance-structure-class
-    (class &key name (direct-superclasses '())
+    (class &rest args &key name (direct-superclasses '())
      ;; The following keys come from ENSURE-CLASS.
      (direct-slots '()) (direct-default-initargs '())
      ;; The following keys come from DEFINE-STRUCTURE-CLASS.
      names (slots '()) (size 1) &allow-other-keys)
   ;; metaclass <= <structure-class>
+  (when *classes-finished*
+    (apply #'%initialize-instance class args)) ; == (call-next-method)
   (unless (null (cdr direct-superclasses))
     (error-of-type 'error
       (TEXT "(~S ~S): metaclass ~S forbids more than one direct superclass")
