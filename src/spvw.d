@@ -2534,7 +2534,7 @@ global int main (argc_t argc, char* argv[]) {
   aktenv.go_env    = NIL;
   aktenv.decl_env  = O(top_decl_env);
   # everything completely initialized.
-  var struct backtrace_t bt = { NULL, NIL, STACK, -1 };
+ {var struct backtrace_t bt = { NULL, NIL, STACK, -1 };
   back_trace = &bt;
   clear_break_sems(); set_break_sem_1();
   begin_system_call();
@@ -2879,6 +2879,7 @@ global int main (argc_t argc, char* argv[]) {
   driver();
   quit();
   /*NOTREACHED*/
+ } # end var bt
   # if the memory does not suffice:
   no_mem:
   fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp." NLstring),

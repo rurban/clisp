@@ -24,6 +24,32 @@
 
 	* utils/ccmp2c.c (token_type_t): Renamed from enum token_t.
 
+	* debug.d (read_form): Limit variable scope because of 'goto'.
+	(SHOW-STACK): Add a cast.
+	* eval.d (sym_value): Limit variable scope because of 'goto'.
+	(setq): Likewise.
+	(nest_env): Move variable declaration because of 'goto'.
+	(eval_closure): Bug fix: Avoid setting the STACK to an uninitialized
+	value in case of error.
+	(apply): Move error code because of 'goto'.
+	(apply_closure): Likewise.
+	(funcall): Likewise.
+	* io.d (write_sstring_case): Move some code because of 'goto'.
+	(pr_enter_1): Limit variable scope because of 'goto'.
+	* realelem.d (defaultfloatcase): Move variable declaration because of
+	'goto'.
+	* spvw.d (main): Limit variable scope because of 'goto'.
+	* spvw_debug.d (string_out): Fix element type of buffer.
+	* spvw_memfile.d (loadmem_update_fsubr): Add cast.
+	* stream.d (lisp_completion): Limit variable scope because of 'goto'.
+	(rd_ch_terminal3): Add some casts.
+	(sock_opt_bool, sock_opt_int, sock_opt_time, SOCKET-OPTIONS): Use
+	socklen_t instead of 'int'.
+	(read_line): Bug fix: Avoid using uninitialized variable in error
+	message.
+	* unix.d (ioctl): Move declaration after <sys/ioctl.h> has been
+	included.
+
 2002-12-01  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (check_wr_char): new macro (used in 18 places)
