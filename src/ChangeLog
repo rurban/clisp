@@ -1,5 +1,19 @@
 2002-03-15  Sam Steingold  <sds@gnu.org>
 
+	minor error reporting unification
+	* lispbibl.d (fehler_too_many_args, fehler_too_few_args): declare
+	* error.d (fehler_too_many_args, fehler_too_few_args): implement
+	* foreign.d (FOREIGN-CALL-OUT): use them
+	* eval.d (fehler_key_zuviel): removed
+	(match_subr_key, match_cclosure_key): use fehler_too_many_args()
+	(fehler_apply_[zuviel/zuwenig]): unchanged for now: it is unclear
+	how to keep enough info for a good error message without taking a
+	performane hit in apply_*()
+	(fehler_apply_dotted): accept another argument -
+	the arglist terminator
+
+2002-03-15  Sam Steingold  <sds@gnu.org>
+
 	Incorporated more of Joerg's suggestions
 	* bindings/linuxlibc6/linux.lisp (substitution): added ffi:c-ptr-null
 	(realpath, gethostname, getdomainname): using arrays of `character'
