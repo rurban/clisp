@@ -8,6 +8,7 @@
   <!ENTITY imp-ext SYSTEM "impext.xml">
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
+  <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.sgml">
 ]>
 
 <!-- *** Conventions: ***
@@ -30,13 +31,13 @@
  <legalnotice><para>These notes are covered by the &gnu; &gfdl;:</para>
 
  <para>Permission is granted to copy, distribute and/or modify this
-  document under the terms of the GNU Free Documentation License,
-  Version 1.1 or any later version published by the Free Software
-  Foundation; with the Invariant Sections being this section [FIXME],
-  with the Front-Cover Texts being this section [FIXME], and with the
-  Back-Cover Texts being this section [FIXME].
-  A copy of the license is not yet [FIXME] included in the section
-  entitled "GNU Free Documentation License".</para>
+  document under the terms of the GNU Free Documentation License
+  (&gfdl;), Version 1.1 or any later version published by the &fsf;;
+  with no Invariant Sections,
+  with Front-Cover Text being this section, and
+  with no Back-Cover Texts.
+  A copy of the license is included in the section entitled
+  <link linkend="gfdl">"GNU Free Documentation License."</link></para>
 
  </legalnotice>
  <authorgroup>
@@ -64,7 +65,7 @@
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2001-11-29</subtitle>
+<subtitle>Last modified: 2002-01-02</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
@@ -201,6 +202,9 @@
    <tocentry linkend="other">[Other]</tocentry>
  </tocchap>
 </tocpart>
+<tocpart><tocentry>Appendices</tocentry>
+<tocentry linkend="gfdl">GNU Free Documentation License</tocentry>
+</tocpart>
 </toc>
 
 <part id="clhs-chapters"><title>Chapters or the &hyperspec;</title>
@@ -214,6 +218,8 @@
 &imp-byte;
 
 &imp-ext;
+
+&gfdl-text;
 
 <bibliography id="references">
  <title>References</title>
