@@ -1380,9 +1380,13 @@ done
 
 EVERY_INCLUDES_H=''
 if [ $TOS = unix ] ; then
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' @STDBOOL_H@ @STDINT_H@'
+  if [ -n '@STDBOOL_H@' -o -n '@STDINT_H@' ]; then
+    EVERY_INCLUDES_H=${EVERY_INCLUDES_H}' @STDBOOL_H@ @STDINT_H@';
+    XCFLAGS=${XCFLAGS}' -I.';
+  fi
 else
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h stdint.h'
+  XCFLAGS=${XCFLAGS}' -I.';
 fi
 if [ -n "$USE_LIBCHARSET" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'

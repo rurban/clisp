@@ -20,11 +20,7 @@
 #define _UNITYPES_H
 
 /* Get uint8_t, uint16_t, uint32_t.  */
-#ifdef HAVE_STDINT_H
-#  include <stdint.h>
-#else
-#  include "stdint.h"
-#endif
+#include <stdint.h>
 
 /* Type representing a Unicode character.  */
 typedef uint32_t ucs4_t;
