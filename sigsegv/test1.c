@@ -135,6 +135,8 @@ static int mmap_zeromap (void* map_addr, unsigned long map_len)
 
 /* Now the test program. */
 
+#include <stdlib.h>
+
 int handler_called = 0;
 
 int handler (void* fault_address, int serious)
