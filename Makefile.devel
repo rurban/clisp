@@ -140,10 +140,10 @@ AUTOCONF = autoconf
 AUTOCONF_CACHE = autom4te.cache
 AUTOHEADER = autoheader
 
-%/configure : %/configure.in $(AUTOCONF_FILES)
+$(filter-out libcharset/%, $(filter-out ffcall/%, $(CONFIGURES))) : %/configure : %/configure.in $(AUTOCONF_FILES)
 	cd $*; $(AUTOCONF) --include=$(CURDIR)/src/autoconf
 
-%/config.h.in : %/configure.in $(AUTOCONF_FILES)
+$(filter %/config.h.in, $(CONFIG_H_IN)) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
 	cd $*; $(AUTOHEADER) --include=$(CURDIR)/src/autoconf
 
 src/unixconf.h.in : src/configure.in $(AUTOCONF_FILES)
@@ -226,8 +226,7 @@ ffcall/avcall/avcall-i386-msvc.c : ffcall/avcall/avcall-i386-macro.S ffcall/avca
 
 # ffcall/vacall/config.h.in , ffcall/trampoline/config.h.in,
 # all/callback/vacall_r/vacall_r.h.in, ffcall/callback/trampoline_r/config.h.in
-# are not auto-generated!  [FIXME!!!]
-ffcall/vacall/config.h.in :
+# are not auto-generated!
 ffcall/vacall/config.h.msvc : ffcall/vacall/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/config.h.msvc
 
@@ -237,21 +236,18 @@ ffcall/vacall/vacall.h.msvc : ffcall/vacall/vacall.h.in
 ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386-macro.S ffcall/vacall/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall-i386-msvc.c
 
-ffcall/trampoline/config.h.in :
 ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/config.h.msvc
 
 ffcall/callback/vacall_r/config.h.msvc : ffcall/callback/vacall_r/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/config.h.msvc
 
-ffcall/callback/vacall_r/vacall_r.h.in :
 ffcall/callback/vacall_r/vacall_r.h.msvc : ffcall/callback/vacall_r/vacall_r.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.msvc
 
 ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i386-macro.S ffcall/callback/vacall_r/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall-i386-msvc.c
 
-ffcall/callback/trampoline_r/config.h.in :
 ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/config.h.msvc
 
