@@ -121,6 +121,17 @@ static void wrap_finalize (void* pointer, gcv_object_t* maker,
  DB_ENV->errx	Error message
 */
 
+DEFCHECKER(env_encryption_check, DB_ENCRYPT_AES)
+/* set the password to perform encryption and decryption.
+ can trigger GC */
+static void env_set_encryption (DB_ENV *dbe, gcv_object_t *o_flags_,
+                                gcv_object_t *o_password_) {
+  u_int32_t flags = env_encryption_check(*o_flags_);
+  *o_password_ = check_string(*o_password_);
+  with_string_0(o_password_,GLO(misc_encoding),password,
+                { SYSCALL(dbe->set_encrypt,(dbe,password,flags)); });
+}
+
 DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
       :HOST :CLIENT_TIMEOUT :SERVER_TIMEOUT)
 { /* Create an environment handle */
@@ -163,11 +174,8 @@ DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
     }
     if (status) error_bdb(status,"set_rpc_server");
   }
-  if (!missingp(STACK_4)) { /* :PASSWD */
-    u_int32_t flags = missingp(STACK_3) ? 0 : DB_ENCRYPT_AES;
-    with_string_0(check_string(STACK_4),GLO(misc_encoding),password,
-                  { SYSCALL(dbe->set_encrypt,(dbe,password,flags)); });
-  }
+  if (!missingp(STACK_4))       /* :PASSWD */
+    env_set_encryption(dbe,&STACK_3,&STACK_4);
   skipSTACK(5);
   wrap_finalize(dbe,&`BDB::MKENV`,&``BDB::ENV-CLOSE``);
 }
@@ -270,7 +278,8 @@ static void set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
   if (boundp(arg)) SYSCALL(dbe->set_verbose,(dbe,flag,!nullp(arg)));
 }
 
-DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
+DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :PASSWORD :ENCRYPT                  \
+      :LOCK_TIMEOUT :TXN_TIMEOUT                                        \
       :SHM_KEY :TAS_SPINS :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR      \
       :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
@@ -310,41 +319,48 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key                                     \
     if (flags_off) SYSCALL(dbe->set_flags,(dbe,flags_off,0));
     if (flags_on)  SYSCALL(dbe->set_flags,(dbe,flags_on,1));
   }
-  /* TMP_DIR */
-  if (!missingp(STACK_0)) {
+  if (!missingp(STACK_0)) {     /* TMP_DIR */
     with_string_0(check_string(popSTACK()),GLO(misc_encoding),tmp_dir,
                   { SYSCALL(dbe->set_tmp_dir,(dbe,tmp_dir)); });
   } else skipSTACK(1);
-  /* DATA_DIR */
-  if (!missingp(STACK_0)) {
+  if (!missingp(STACK_0)) {     /* DATA_DIR */
     with_string_0(check_string(popSTACK()),GLO(misc_encoding),data_dir,
                   { SYSCALL(dbe->set_data_dir,(dbe,data_dir)); });
   } else skipSTACK(1);
-  /* TX_MAX */
-  if (!missingp(STACK_0)) {
+  if (!missingp(STACK_0)) {     /* TX_MAX */
     u_int32_t tx_max = posfixnum_to_L(check_posfixnum(STACK_0));
     SYSCALL(dbe->set_tx_max,(dbe,tx_max));
   }
   skipSTACK(1);
-  /* TX_TIMESTAMP */
-  if (!missingp(STACK_0)) {
+  if (!missingp(STACK_0)) {     /* TX_TIMESTAMP */
     time_t timestamp;
     convert_time_from_universal(STACK_0,&timestamp);
     SYSCALL(dbe->set_tx_timestamp,(dbe,&timestamp));
   }
   skipSTACK(1);
-  /* TAS_SPINS */
-  if (!missingp(STACK_0)) {
+  if (!missingp(STACK_0)) {     /* TAS_SPINS */
     u_int32_t tas_spins = posfixnum_to_L(check_posfixnum(STACK_0));
     SYSCALL(dbe->set_tas_spins,(dbe,tas_spins));
   }
   skipSTACK(1);
-  /* SHM_KEY */
-  if (!missingp(STACK_0)) {
+  if (!missingp(STACK_0)) {     /* SHM_KEY */
     long shm_key = posfixnum_to_L(check_posfixnum(STACK_0));
     SYSCALL(dbe->set_shm_key,(dbe,shm_key));
   }
   skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* TXN_TIMEOUT */
+    db_timeout_t timeout = posfixnum_to_L(check_posfixnum(STACK_0));
+    SYSCALL(dbe->set_timeout,(dbe,timeout,DB_SET_TXN_TIMEOUT));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_0)) {     /* LOCK_TIMEOUT */
+    db_timeout_t timeout = posfixnum_to_L(check_posfixnum(STACK_0));
+    SYSCALL(dbe->set_timeout,(dbe,timeout,DB_SET_LOCK_TIMEOUT));
+  }
+  skipSTACK(1);
+  if (!missingp(STACK_1))       /* PASSWORD */
+    env_set_encryption(dbe,&STACK_0,&STACK_1);
+  skipSTACK(2);
   VALUES0; skipSTACK(1);        /* skip dbe */
 }
 
@@ -451,6 +467,12 @@ static object env_get_flags (DB_ENV *dbe) {
   if (flags & DB_DIRECT_LOG) { pushSTACK(`:DIRECT_LOG`); count++; }
   if (flags & DB_CDB_ALLDB) { pushSTACK(`:CDB_ALLDB`); count++; }
   if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO_COMMIT`); count++; }
+  SYSCALL(dbe->get_encrypt_flags,(dbe,&flags));
+  switch (flags) {
+    case DB_ENCRYPT_AES: pushSTACK(`:ENCRYPT_AES`); count++; break;
+    case 0: break;
+    default: NOTREACHED;
+  }
   return listof(count);
 }
 /* get test-and-set spin count */
@@ -459,11 +481,24 @@ static object env_get_tas_spins (DB_ENV *dbe) {
   SYSCALL(dbe->get_tas_spins,(dbe,&tas_spins));
   return fixnum(tas_spins);
 }
-/* get shm_key */
+/* get base segment ID for shared memory regions */
 static object env_get_shm_key (DB_ENV *dbe) {
   long shm_key;
   SYSCALL(dbe->get_shm_key,(dbe,&shm_key));
   return fixnum(shm_key);
+}
+/* get timeout values for locks or transactions in the database environment */
+static object env_get_timeout (DB_ENV *dbe, u_int32_t which) {
+  db_timeout_t timeout;
+  SYSCALL(dbe->get_timeout,(dbe,&timeout,which));
+  return UL_to_I(timeout);
+}
+/* both timeouts as a list
+ can trigger GC */
+static object env_get_timeouts (DB_ENV *dbe) {
+  pushSTACK(env_get_timeout(dbe,DB_SET_LOCK_TIMEOUT));
+  pushSTACK(env_get_timeout(dbe,DB_SET_TXN_TIMEOUT));
+  return listof(2);
 }
 DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
   object what = popSTACK();
@@ -471,17 +506,18 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
   DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,eq(what,`:DB_XIDDATASIZE`));
  restart_ENV_GET_OPTIONS:
   if (missingp(what)) {         /* get everything */
-    value1 = env_get_verbose(dbe); pushSTACK(value1); /* verbose */
-    value1 = env_get_flags(dbe); pushSTACK(value1); /* flags */
-    pushSTACK(env_get_tx_timestamp(dbe)); /* TX_TIMESTAMP */
-    pushSTACK(env_get_tx_max(dbe));       /* TX_MAX */
-    pushSTACK(env_get_tmp_dir(dbe));      /* TMP_DIR */
-    value1 = env_get_data_dirs(dbe); pushSTACK(value1); /* DATA_DIR */
+    value1 = env_get_verbose(dbe); pushSTACK(value1);
+    value1 = env_get_flags(dbe); pushSTACK(value1);
+    pushSTACK(env_get_tx_timestamp(dbe));
+    pushSTACK(env_get_tx_max(dbe));
+    pushSTACK(env_get_tmp_dir(dbe));
+    value1 = env_get_data_dirs(dbe); pushSTACK(value1);
     pushSTACK(env_get_tas_spins(dbe));
     pushSTACK(env_get_shm_key(dbe));
+    value1 = env_get_timeouts(dbe); pushSTACK(value1);
     pushSTACK(env_get_home_dir(dbe));
     value1 = env_get_open_flags(dbe); pushSTACK(value1);
-    funcall(L(values),10);
+    funcall(L(values),11);
   } else if (eq(what,S(Kverbose))) {
     VALUES1(env_get_verbose(dbe));
   } else if (eq(what,`:FLAGS`)) {
@@ -566,6 +602,20 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
     VALUES1(env_get_tas_spins(dbe));
   } else if (eq(what,`:SHM_KEY`)) {
     VALUES1(env_get_shm_key(dbe));
+  } else if (eq(what,`:LOCK_TIMEOUT`)) {
+    VALUES1(env_get_timeout(dbe,DB_SET_LOCK_TIMEOUT));
+  } else if (eq(what,`:TXN_TIMEOUT`)) {
+    VALUES1(env_get_timeout(dbe,DB_SET_TXN_TIMEOUT));
+  } else if (eq(what,`:TIMEOUT`)) {
+    VALUES1(env_get_timeouts(dbe));
+  } else if (eq(what,`:ENCRYPT`)) {
+    u_int32_t flags;
+    SYSCALL(dbe->get_encrypt_flags,(dbe,&flags));
+    switch (flags) {
+      case DB_ENCRYPT_AES: VALUES1(`:ENCRYPT_AES`);
+      case 0: VALUES1(NIL);
+      default: NOTREACHED;
+    }
   } else if (eq(what,`:DB_XIDDATASIZE`)) {
     VALUES1(fixnum(DB_XIDDATASIZE));
   } else if (eq(what,`:HOME`)) {
