@@ -767,10 +767,45 @@
             (if (null (rest type)) '(OR) type))
            (EQL ; (EQL object)
             `(MEMBER ,(second type)))
-           ((AND OR) ; (AND type*), (OR type*) kann man evtl. vereinfachen
-            (if (and (consp (cdr type)) (null (cddr type)))
-                (canonicalize-type (second type))
-                type))
+           ((AND OR) ; (AND type*), (OR type*) - may be able to simplify
+            (if (null (cdr type)) type ; itself: (or), (and)
+              (let ((terms (delete-duplicates
+                            (mapcar #'canonicalize-type (rest type))
+                            :test #'equal)))
+                (cond ((null (cdr terms)) (car terms)) ; (or type), (and type)
+                      ((and (eq (first type) 'and) ; (and ... nil ...) => nil
+                            (member '(or) terms :test #'equal))
+                       '(or))   ; nil
+                      ((and (eq (first type) 'or) ; (or ... t ...) => t
+                            (member '(and) terms) :test #'equal)
+                       '(and))  ; t
+                      (t
+                       (let ((new-rest
+                              (delete-duplicates
+                               ;; splice (OR (OR foo) bar) into (OR foo bar)
+                               (mapcap (lambda (ty)
+                                         (if (and (consp ty)
+                                                  (eq (first ty) (first type)))
+                                             (rest ty) (list ty)))
+                                       terms)
+                               :test #'equal)))
+                         (if (equal new-rest (rest type)) type
+                           (canonicalize-type
+                            (cons (first type) new-rest)))))))))
+           (NOT                 ; (NOT type)
+            (let ((not-type (canonicalize-type (second type))))
+              (cond ((and (consp not-type) (eq (car not-type) 'NOT))
+                     (second not-type)) ; (NOT (NOT A)) ==> A
+                    ((and (consp not-type) (member (car not-type) '(AND OR))
+                          (null (cdr not-type))) ; i.e., '(AND) or '(OR)
+                     ;; this might not be good
+                     ;; (NOT (AND A B)) ==> (OR (NOT A) (NOT B))
+                     ;;(canonicalize-type
+                     ;; (cons (case (car not-type) (AND OR) (OR AND))
+                     ;;       (mapcar (lambda (ty) (list 'NOT ty))
+                     ;;               (rest not-type)))))
+                     (list (case (car not-type) (AND OR) (OR AND))))
+                    (t (list 'NOT not-type)))))
            (MOD ; (MOD n)
             (let ((n (second type)))
               (unless (and (integerp n) (>= n 0))
@@ -847,10 +882,11 @@
              (unknown () '(return-from subtypep (values nil nil))))
     (setq type1 (canonicalize-type type1))
     (setq type2 (canonicalize-type type2))
-    (when (or (null type1) (eq t type2)) (yes))
-    (when (null type2) (no))
-    (when (equal type1 type2) (yes)) ; (subtypep type type) stimmt immer
-                                     ; equal auf MEMBER und EQL verboten!!??
+    ;; canonicalize-type: T ==> (AND),  NIL ==> (OR)
+    (when (or (equal '(OR) type1) (equal (AND) type2)) (yes))
+    (when (equal '(OR) type2) (no))
+    (when (equal type1 type2) (yes)) ; (subtypep type type) always true
+                                     ; equal on MEMBER and EQL is forbidden!!??
     (when (consp type1)
       (cond ;; über SATISFIES-Typen kann man nichts aussagen
             ;((and (eq (first type1) 'SATISFIES) (eql (length type1) 2))
@@ -865,10 +901,12 @@
             ;; zu (subtypep type2 type1), sonst ist Entscheidung schwierig
             ((and (eq (first type1) 'NOT) (eql (length type1) 2))
              (return-from subtypep
-               (if (and (consp type2) (eq (first type2) 'NOT) (eql (length type2) 2))
-                 (subtypep (second type2) (second type1))
-                 (unknown)
-            )) )
+               (cond ((and (consp type2) (eq (first type2) 'NOT)
+                           (eql (length type2) 2))
+                      (subtypep (second type2) (second type1)))
+                     ((subtypep (second type1) type2)
+                      (no))     ; assumes type2 != T
+                     (t (unknown)))))
             ;; OR: Jeder Typ muss Subtyp von type2 sein
             ((eq (first type1) 'OR)
              (dolist (type (rest type1) (yes))

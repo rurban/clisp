@@ -1,5 +1,11 @@
 2001-12-17  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (canonicalize-type): extensive treatment of AND/OR
+	and NOT (with flattening and special cases)
+	(subtypep): a hack for NOT added; corrected T & NIL special cases
+
+2001-12-17  Sam Steingold  <sds@gnu.org>
+
 	* predtype.d (expand_deftype): check that (CAR TYPE-SPEC) is a
 	symbol before calling GET
 
