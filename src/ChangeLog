@@ -1,3 +1,8 @@
+2004-06-13  Bruno Haible  <bruno@clisp.org>
+
+	* lambdalist.lisp (analyze-modify-macro-lambdalist): New function.
+	* places.lisp (define-modify-macro): Use it.
+
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (define-method-combination): Check the :arguments
