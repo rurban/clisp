@@ -227,7 +227,6 @@
          (metaclass nil)
          (direct-default-initargs nil)
          (documentation nil)
-         (fixed-slot-locations nil)
          (user-defined-args nil))
     (dolist (option options)
       (block nil
@@ -315,9 +314,6 @@
                  (let ((argument (second option)))
                    (setq generic-accessors argument)
                    (return))))
-              (:FIXED-SLOT-LOCATIONS
-               (setq fixed-slot-locations `(:FIXED-SLOT-LOCATIONS 'T))
-               (return))
               (T
                (when (symbolp optionkey)
                  (when (assoc optionkey user-defined-args)
@@ -341,7 +337,9 @@
            (LET* ((,metaclass-var ,(or metaclass '<STANDARD-CLASS>))
                   ,@(if user-defined-args
                       `((,metaclass-keywords-var
-                          (CLASS-VALID-INITIALIZATION-KEYWORDS ,metaclass-var)))))
+                          ,(if metaclass
+                             `(CLASS-VALID-INITIALIZATION-KEYWORDS ,metaclass-var)
+                             '*<STANDARD-CLASS>-VALID-INITIALIZATION-KEYWORDS*)))))
              ;; Provide good error messages. The error message from
              ;; ENSURE-CLASS (actually MAKE-INSTANCE) later is unintelligible.
              ,@(if user-defined-args
@@ -366,7 +364,6 @@
                ,@(or direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
                ,@(or documentation '(:DOCUMENTATION NIL))
                :GENERIC-ACCESSORS ',generic-accessors
-               ,@(or fixed-slot-locations '(:FIXED-SLOT-LOCATIONS NIL))
                ;; Pass user-defined initargs of the metaclass.
                ,@(mapcan #'(lambda (option)
                              (list `',(first option) `',(rest option)))
@@ -375,8 +372,8 @@
                ;; order to erase leftovers from the previous definition.
                ,(if metaclass
                   `(MAPCAP #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
-                           (CLASS-DEFAULT-INITARGS ,metaclass))
-                  `NIL))))
+                           (CLASS-DEFAULT-INITARGS ,metaclass-var))
+                  `',*<standard-class>-default-initargs*))))
          ,@(if generic-accessors
              (nreverse accessor-method-decl-forms) ; the DECLAIM-METHODs
              (nreverse accessor-function-decl-forms)) ; the C-DEFUNs

@@ -1,5 +1,17 @@
 2004-09-20  Bruno Haible  <bruno@clisp.org>
 
+	Treat the DEFCLASS :fixed-slot-locations option like user-defined
+	options.
+	* clos-class1.lisp (semi-standard-class): Provide an initarg and a
+	default-initarg for the fixed-slot-locations slot.
+	(*<standard-class>-valid-initialization-keywords*,
+	*<standard-class>-default-initargs*): New constants.
+	* clos-class3.lisp (defclass): Don't special-case :fixed-slot-locations
+	option. Use *<standard-class>-valid-initialization-keywords*,
+	*<standard-class>-default-initargs*.
+
+2004-09-20  Bruno Haible  <bruno@clisp.org>
+
 	Change syntax of DEFCLASS :fixed-slot-locations option.
 	* clos-slotdef1.lisp (slot-definition, direct-slot-definition,
 	effective-slot-definition, standard-slot-definition,
