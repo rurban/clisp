@@ -59,10 +59,10 @@
 (fmakunbound 'slot-definition-type)
 (defgeneric slot-definition-type (slotdef)
   (:method ((slotdef slot-definition))
-    (slot-value slotdef 'type)))
+    (slot-value slotdef '$type)))
 (defun (setf slot-definition-type) (new-value slotdef)
   (accessor-typecheck slotdef 'slot-definition '(setf slot-definition-type))
-  (setf (slot-value slotdef 'type) new-value))
+  (setf (slot-value slotdef '$type) new-value))
 
 ;; MOP p. 84
 (fmakunbound 'slot-definition-allocation)
