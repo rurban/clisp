@@ -710,8 +710,8 @@ local const kletterfun frame_down_table[] =
             && ((mode = posfixnum_to_L(arg)) > 0)
             && (mode<=5)
          ) ) {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_climb_mode)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_climb_mode)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,

@@ -541,7 +541,7 @@ LISPFUNN(defseq,1)
 
 local void seq_check_index (object seq,object typdescr,object index) {
   if (!(posfixnump(index))) {
-    pushSTACK(STACK_0);           # Slot DATUM von TYPE-ERROR
+    pushSTACK(STACK_0);           # TYPE-ERROR slot DATUM
     pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(STACK_(0+2)); pushSTACK(S(elt));
     fehler(type_error,GETTEXT("~: the index should be a fixnum >=0, not ~"));
@@ -2515,7 +2515,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 #       > bvl: Länge des Bit-Vektors (= end - start),
 #       > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 #       < ergebnis: Ergebnis
-#       kann GC auslösen
+#       can trigger GC
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC

@@ -109,8 +109,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       # sollte (Simple-)Vector sein:
       # evtl.: STACK_(5+1) = coerce_sequence(STACK_(5+1),S(simple_vector));
       if (!simple_vector_p(STACK_(5+1))) {
-        pushSTACK(STACK_(5+1)); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(simple_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_(5+1)); # TYPE-ERROR slot DATUM
+        pushSTACK(S(simple_vector)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_1);
         fehler(type_error,
                GETTEXT("~ must be a string for commands or a vector of strings for a function")
@@ -131,8 +131,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       for (index = 0; index < fargs; index++) {
         var object arg = TheSvector(*vptr)->data[index];
         if (!stringp(arg)) {
-          pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(arg); # TYPE-ERROR slot DATUM
+          pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(arg);
           pushSTACK(S(rexx_put));
           fehler(type_error,
@@ -153,8 +153,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       elif (stringp(host))
         portname = TheAsciz(string_to_asciz(host,O(misc_encoding))); # Ab hier für eine Weile keine GC mehr!
       else {
-        pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_rexx_host)); # (OR STRING BOOLEAN), Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(host); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_rexx_host)); # (OR STRING BOOLEAN), TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(host);
         pushSTACK(S(Khost));
         fehler(type_error,
@@ -466,8 +466,8 @@ LISPFUNN(rexx_reply,3)
     # Argumente überprüfen:
     # return-code sollte ein Fixnum sein:
     if (!fixnump(STACK_1)) {
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(fixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1);   # TYPE-ERROR slot DATUM
+      pushSTACK(S(fixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(1+2));
       pushSTACK(S(rexx_reply));
       fehler(type_error,

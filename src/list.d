@@ -626,8 +626,8 @@ LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
   nonreturning_function(local, fehler_nth, (void));
   local void fehler_nth()
     {
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(0+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -723,8 +723,8 @@ LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
   local void fehler_butlast(badindex)
     var object badindex;
     {
-      pushSTACK(badindex); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(badindex); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(badindex); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a nonnegative integer and therefore not a valid argument")
@@ -793,7 +793,7 @@ LISPFUN(last,1,1,norest,nokey,0,NIL) # (LAST list [n]), CLtL2 S. 416-417, dpANS 
 # > auf STACK: len Objekte, erstes zuoberst
 # < ergebnis: Liste dieser Objekte
 # Erhöht STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   global object listof (uintC len);
   global object listof(len)
     var uintC len;
@@ -849,8 +849,8 @@ LISPFUN(make_list,1,0,norest,key,1, (kw(initial_element)) )
       skipSTACK(2);
     } else {
       # size in STACK_1
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(1+2)); # size
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1159,8 +1159,8 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
   local void fehler_cons(badobject)
     object badobject;
     {
-      pushSTACK(badobject); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(cons)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(badobject); # TYPE-ERROR slot DATUM
+      pushSTACK(S(cons)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a pair")
@@ -1846,7 +1846,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
   {
     if (eq(STACK_0,unbound))
       STACK_0=NIL; # NIL als Default für alist
-   
+
     {
       var object keys_list = STACK_2;
       var object data_list = STACK_1;
@@ -2093,14 +2093,14 @@ LISPFUNN(list_llength,1)
       }
       return l;
      index_too_large:
-      pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(index); # TYPE-ERROR slot DATUM
       pushSTACK(NIL);
       pushSTACK(seq); pushSTACK(index); pushSTACK(TheSubr(subr_self)->name);
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
         tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        STACK_3 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        STACK_3 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
       }
       fehler(type_error,
              GETTEXT("~: index ~ too large for ~")
@@ -2155,11 +2155,11 @@ LISPFUNN(list_init_start,2)
     value1 = l; mv_count=1; return;
    index_too_large:
     pushSTACK(seq);
-    pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(index); # TYPE-ERROR slot DATUM
     {
       var object tmp;
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
-      tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      tmp = listof(3); pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
     }
     pushSTACK(STACK_2); # seq
     pushSTACK(STACK_2); # index
@@ -2200,11 +2200,11 @@ LISPFUNN(list_fe_init_end,2)
       STACK_0 = fixnum_inc(STACK_0,1); # i := i+1
     }
    index_too_large:
-    pushSTACK(STACK_3); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(STACK_3); # TYPE-ERROR slot DATUM
     {
       var object tmp;
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(STACK_(0+3));
-      tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      tmp = listof(3); pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
     }
     pushSTACK(STACK_(4+2));
     pushSTACK(STACK_(3+3));

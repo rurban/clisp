@@ -263,7 +263,7 @@
 # > codevec: ihr Codevektor, ein Simple-Bit-Vector
 # > index: Start-Index
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   # local Values interpret_bytecode (object closure, object codevec, uintL index);
   local Values interpret_bytecode_ (object closure, Sbvector codeptr, const uintB* byteptr);
   #define interpret_bytecode(closure,codevec,index)  \
@@ -1169,7 +1169,7 @@ LISPFUNN(subr_info,1)
 # nest_env(env)
 # > environment* env: Pointer auf fünf einzelne Environments
 # < environment* ergebnis: Pointer auf die Environments im STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   global environment* nest_env (environment* env);
   global environment* nest_env(env5)
     var environment* env5;
@@ -1300,7 +1300,7 @@ LISPFUNN(subr_info,1)
 # Veränderung von VAR_ENV aktiviert werden können müssen.)
 # nest_aktenv()
 # < environment* ergebnis: Pointer auf die Environments im STACK
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   #define nest_aktenv()  nest_env(&aktenv)
 
 # UP: Ergänzt ein Deklarations-Environment um ein decl-spec.
@@ -4198,7 +4198,7 @@ LISPFUNN(subr_info,1)
 #              restliche Argumentliste in other_args
 # < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   global Values apply (object fun, uintC args_on_stack, object other_args);
   global Values apply(fun,args_on_stack,other_args)
     var object fun;
@@ -4277,8 +4277,8 @@ LISPFUNN(subr_info,1)
       elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
         subr_self = L(apply); fehler_lambda_expression(fun);
       } else {
-        pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(fun); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(fun);
         pushSTACK(S(apply));
         fehler(type_error,
@@ -4341,7 +4341,7 @@ LISPFUNN(subr_info,1)
 #              restliche Argumentliste in other_args
 # < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   local Values apply_subr(fun,args_on_stack,args)
     var object fun;
     var uintC args_on_stack;
@@ -4699,7 +4699,7 @@ LISPFUNN(subr_info,1)
 #              restliche Argumentliste in other_args
 # < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   local Values apply_closure(closure,args_on_stack,args)
     var object closure;
     var uintC args_on_stack;
@@ -5133,7 +5133,7 @@ LISPFUNN(subr_info,1)
 # > Argumente: argcount Argumente auf dem STACK
 # < STACK: aufgeräumt (d.h. STACK wird um argcount erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   global Values funcall (object fun, uintC argcount);
   global Values funcall(fun,args_on_stack)
     var object fun;
@@ -5211,8 +5211,8 @@ LISPFUNN(subr_info,1)
       elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
         subr_self = L(funcall); fehler_lambda_expression(fun);
       } else {
-        pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(fun); # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(fun);
         pushSTACK(S(funcall));
         fehler(type_error,
@@ -5228,7 +5228,7 @@ LISPFUNN(subr_info,1)
 # > Argumente: args_on_stack Argumente auf dem STACK
 # < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   local Values funcall_subr(fun,args_on_stack)
     var object fun;
     var uintC args_on_stack;
@@ -5566,7 +5566,7 @@ LISPFUNN(subr_info,1)
 # > Argumente: args_on_stack Argumente auf dem STACK
 # < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   local Values funcall_closure(closure,args_on_stack)
     var object closure;
     var uintC args_on_stack;
@@ -6018,7 +6018,7 @@ LISPFUNN(subr_info,1)
 # > codeptr: ihr Codevektor, ein Simple-Bit-Vector, pointable
 # > byteptr: Start-Bytecodepointer
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# changes STACK, can trigger GC
   # Syntax lokaler Labels in GNU-C Assembler-Anweisungen:
   #if defined(GNU) && !defined(NO_ASM)
     # LD(x) definiert Label mit Nummer x
@@ -8118,12 +8118,12 @@ LISPFUNN(subr_info,1)
         svref_kein_index: # unpassender Index in index, zum Vektor vec
           pushSTACK(vec);
           pushSTACK(index);
-          pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(index); # TYPE-ERROR slot DATUM
           {
             var object tmp;
             pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(Svector_length(vec)));
             tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-            pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
           }
           pushSTACK(STACK_(1+2)); # vec
           pushSTACK(STACK_(0+3)); # index

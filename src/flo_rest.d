@@ -764,7 +764,7 @@
     # < STACK_1: Quotient q, ein Integer       \
     # < STACK_0: Rest r, eine reelle Zahl      \
     # Erniedrigt STACK um 2                    \
-    # kann GC auslösen                         \
+    # can trigger GC                           \
     # Methode:                                               \
     # F_rounding_I_F(x/y) -> (q,r). Liefere q und x-y*q=y*r. \
     local void CONCAT3(F_F_,rounding,_I_F) (var object x, var object y) \

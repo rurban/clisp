@@ -114,8 +114,8 @@ local void fehler_ffi_argtype(obj,type,ffinfo)
   var object type; # wird nur unpräzise verwendet
   var object ffinfo;
   {
-    pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(fixnump(type) ? S(integer) : T); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(fixnump(type) ? S(integer) : T); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(obj); pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
            GETTEXT("~: Bad argument for prototype ~: ~")
@@ -146,8 +146,8 @@ local aint convert_address(obj, offset)
       address = (aint)(TheFpointer(obj)->fp_pointer);
     }
     if (address == 0) {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(unsigned_byte)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(unsigned_byte)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a valid address")
@@ -481,7 +481,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
   }
 
 # (SYSTEM::%LIBCALL base ff-description &rest args)
-# kann GC auslösen (nach erfolgtem Aufruf)
+# can trigger GC (after the call)
 LISPFUN(affi_libcall,2,0,rest,nokey,0,NIL)
   {
     var object ffinfo = Before(rest_args_pointer); # #((offset . mask) return-type . arg-types*))
