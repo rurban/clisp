@@ -1090,7 +1090,7 @@
 
 ;; Der eigentliche Macro:
 (defmacro loop (&whole whole &body body)
-  (if (some #'loop-keywordp body)
+  (if (some #'atom body)
     ;; "extended" loop form
     (expand-loop whole body)
     ;; "simple" loop form

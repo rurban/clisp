@@ -745,9 +745,8 @@
         (halfadvance1)
         (halfadvance2)
         (block outer-loop
-          (loop
+          (tagbody start
             ;; Search the start of a union interval.
-            label0
             (if (interval-lolo-<= lo1-incl lo1-excl lo2-incl lo2-excl)
               (progn
                 (push (if lo1-incl lo1-incl (if lo1-excl `(,lo1-excl) '*))
@@ -758,12 +757,13 @@
                       new-intervals)
                 (go label2)))
             ;; Seach the end of the union interval.
-            label1
+           label1
             (advance1)
             (when (null intervals1)
               (loop
                 (cond ((and intervals2
-                            (not (interval-hilo-< hi1-incl hi1-excl lo2-incl lo2-excl)))
+                            (not (interval-hilo-< hi1-incl hi1-excl
+                                                  lo2-incl lo2-excl)))
                        (advance2))
                       (t (return))))
               (return-from outer-loop))
@@ -771,13 +771,14 @@
               (go label2))
             (push (if hi1-incl hi1-incl (if hi1-excl `(,hi1-excl) '*))
                   new-intervals)
-            (go label0)
-            label2
+            (go start)
+           label2
             (advance2)
             (when (null intervals2)
               (loop
                 (cond ((and intervals1
-                            (not (interval-hilo-< hi2-incl hi2-excl lo1-incl lo1-excl)))
+                            (not (interval-hilo-< hi2-incl hi2-excl
+                                                  lo1-incl lo1-excl)))
                        (advance1))
                       (t (return))))
               (return-from outer-loop))
@@ -785,8 +786,7 @@
               (go label1))
             (push (if hi2-incl hi2-incl (if hi2-excl `(,hi2-excl) '*))
                   new-intervals)
-            (go label0)
-        ) )
+            (go start)))
         (if (cond ((eq hi1-incl 'uninitialized) t)
                   ((eq hi2-incl 'uninitialized) nil)
                   (t (interval-hihi-<= hi1-incl hi1-excl hi2-incl hi2-excl)))
