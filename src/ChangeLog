@@ -1,3 +1,14 @@
+2001-02-08  Bruno Haible  <haible@clisp.cons.org>
+
+        * cfgunix.lisp: Mark the file as being UTF-8 encoded, so it can be
+          loaded and compiled in any locale.
+        * cfgacorn.lisp: Likewise.
+        * cfgamiga.lisp: Likewise.
+        * cfgdos.lisp: Likewise.
+        * cfgsunux.lisp: Likewise.
+        * cfgwin32.lisp: Likewise.
+        Reported by Ulrich Drepper <drepper@redhat.com>.
+
 2001-02-07  Sam Steingold  <sds@gnu.org>
 
 	* inspect.lisp: Fixed bug #130567: unbound slots.
