@@ -90,7 +90,7 @@
 (defvar *compile-warnings* t) ; if compiler-warnings are reported
 (defvar *compile-verbose* t) ; if compiler-comments are reported
 (defvar *compile-print* nil) ; if compiler reports, where he currently is
-(defvar *compiling-from-file*) ; NIL or T if called by COMPILE-FILE
+(defvar *compiling-from-file*) ; NIL or T if called by COMPILE-FILE or LOAD :COMPILE
 (defvar *compile-file-pathname* nil) ; CLtL2 p. 680
 (defvar *compile-file-truename* nil) ; CLtL2 p. 680
 (defvar *compile-file-directory* nil) ; for c-REQUIRE
@@ -4250,7 +4250,7 @@ for-value   NIL or T
      :sub-anodes '()
      :seclass '(NIL . NIL)
      :code (if *for-value*
-               `((CONST ,(if *compiling-from-file*
+               `((CONST ,(if *fasoutput-stream*
                            (if (and (symbolp form) (c-constantp form))
                              (make-const :horizon ':all :form form
                                          :value (c-constant-value form))
