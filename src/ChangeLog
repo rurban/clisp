@@ -1,5 +1,11 @@
 2001-09-20  Sam Steingold  <sds@gnu.org>
 
+	handle *PRINT-LEVEL* for CLOS instances correctly
+	* io.d (pr_instance, pr_structure_external): do level check
+	(pr_structure): do not do level check
+
+2001-09-20  Sam Steingold  <sds@gnu.org>
+
 	PPRINT-LOGICAL-BLOCK supports *PRINT-CIRCLE* and *PRINT-LENGTH*
 	* pprint.lisp (pprint-pop): handle *PRINT-LENGTH* & *PRINT-CIRCLE*
 	* constsym.d, subr.d (pcirclep): added
