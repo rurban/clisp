@@ -9689,7 +9689,7 @@ The function make-closure is required.
         (let ((l (append
                    (make-list (fnode-Keyword-Offset fnode))
                    (fnode-keywords fnode)
-                   (if *compiling-from-file*
+                   (if *fasoutput-stream*
                      (mapcar #'(lambda (value form)
                                  (if form (make-load-time-eval form) value))
                              (fnode-Consts fnode) (fnode-Consts-forms fnode))
