@@ -143,7 +143,7 @@
  <row><entry>#,</entry><entry>load-time evaluation</entry></row>
  <row><entry>#Y</entry><entry>function objects and file
   encodings</entry></row>
- <row><entry>#&quot;</entry><entry>pathname</entry></row>
+ <row><entry>#&quot;&quot;</entry><entry>pathname</entry></row>
 </tbody></tgroup></table>
 </para>
 
@@ -172,8 +172,7 @@
  interpreted code and is not compilable!</para></formalpara>
 
 <formalpara><title><literal role="sexp">(ext:eval-env
- &form-r; &optional-amp;
- <replaceable>env</replaceable>)</literal></title>
+ &form-r; &optional-amp; &env-r;)</literal></title>
 <para>evaluates a form in a given lexical environment, just as if the
  form had been a part of the program that the environment came from.
 </para></formalpara>
@@ -250,10 +249,10 @@ executes a compiled version of form.</para>
  second is interpreted (slower) and decrements the same &x-r;.</para>
 
 <para>The type assertion <literal role="sexp">(&the;
- <replaceable>value-type</replaceable>
- &form-r;)</literal> enforces a type check in
- interpreted code.  No type check is done in compiled code.  See also
- the <link linkend="ethe"><function>ext:ethe</function></link>
+ <replaceable>value-type</replaceable> &form-r;)</literal>
+ enforces a type check in interpreted code.
+ No type check is done in compiled code.
+ See also the <link linkend="ethe"><function>ext:ethe</function></link>
  macro.</para>
 
 </section>
@@ -623,8 +622,7 @@ executes a compiled version of form.</para>
    <literal role="sexp">(&setf; (&values-list;
        <replaceable>list</replaceable>) &form-r;)</literal>
     is equivalent to
-   <literal role="sexp">(&values-list; (&setf;
-       <replaceable>list</replaceable>
+   <literal role="sexp">(&values-list; (&setf; <replaceable>list</replaceable>
     (&multiple-value-list; &form-r;)))</literal>
   </simpara></listitem></varlistentry>
 </variablelist></para>
@@ -633,11 +631,11 @@ executes a compiled version of form.</para>
  corresponding keywords must appear literally in the program text.</para>
 
 <para><literal role="sexp">(&get-setf-expansion; &form-r; &optional-amp;
- <replaceable>env</replaceable>)</literal>, <literal
+ &env-r;)</literal>, <literal
  role="sexp">(ext:get-setf-method &form-r; &optional-amp;
- <replaceable>env</replaceable>)</literal>, and <literal
+ &env-r;)</literal>, and <literal
  role="sexp">(ext:get-setf-method-multiple-value &form-r; &optional-amp;
- <replaceable>env</replaceable>)</literal> receive as optional argument
+ &env-r;)</literal> receive as optional argument &env-r;
  the environment necessary for macro expansions.  In
  &define-setf-expander; and <function>ext:define-setf-method</function>
  &lalist;s, one can specify &environment-amp; and a variable, which will
@@ -906,8 +904,10 @@ executes a compiled version of form.</para>
  {<varname>restart-clause</varname>}*)</literal></title>
  <varlistentry><term><varname>restart-clause</varname> ::==</term><listitem>
   <programlisting>
-   (<varname>restart-name</varname> <replaceable>arglist</replaceable> {<varname>keyword value</varname>}* {&form-r;}*)
-   | (<varname>restart-name</varname> {<varname>keyword value</varname>}* <replaceable>arglist</replaceable> {&form-r;}*)
+   (<varname>restart-name</varname> <replaceable>arglist</replaceable>
+    {<varname>keyword value</varname>}* {&form-r;}*) |
+   (<varname>restart-name</varname> {<varname>keyword value</varname>}*
+    <replaceable>arglist</replaceable> {&form-r;}*)
 </programlisting></listitem></varlistentry></variablelist>
 </para></formalpara>
 
@@ -3216,7 +3216,7 @@ and &end-k;:</para>
 
  <listitem><simpara><emphasis>No</emphasis> swapping.
    <filename>foo.lisp</filename> means file type
-   <filename>lisp</filename> and file name <filename>foo</filename>.
+   &lisp-file; and file name <filename>foo</filename>.
    This is pseudo-BNF:</simpara>
  <variablelist>
   <varlistentry><term>legal character ::==</term>
@@ -4748,7 +4748,7 @@ compiles a file to platform-independent bytecode.</para>
  role="strong"><varname>custom:*compile-warnings*</varname></emphasis>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
  &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively.
- For each input file (default file type: <filename>#p".lisp"</filename>)
+ For each input file (default file type: &lisp-file;)
  the following files are generated:</para>
 
 <table frame="all"><title/>
@@ -4757,7 +4757,7 @@ compiles a file to platform-independent bytecode.</para>
   <entry>Default file type</entry><entry>Contents</entry></row></thead><tbody>
  <row><entry>output file</entry>
    <entry>only if <constant>:output-file</constant> is not &nil;</entry>
-   <entry><function>#p".fas"</function></entry>
+   <entry>&fasl-file;</entry>
    <entry>can be loaded using the &load; function</entry></row>
  <row><entry>auxiliary output file</entry>
    <entry>only if <constant>:output-file</constant> is not &nil;</entry>
@@ -4779,10 +4779,10 @@ compiles a file to platform-independent bytecode.</para>
 
 <section><title>Function &compile-file-pathname;</title>
 <para>The default for the <constant>:output-file</constant> argument is
- &t;, which means <function>#p".fas"</function>.</para></section>
+ &t;, which means &fasl-file;.</para></section>
 
 <section><title>Function &require;</title>
-<para>The function &require; receives as optional argument either a
+<para>The function &require; receives as the optional argument either a
  pathname or a list of pathnames: files to be loaded if the required
  module is not already in memory.</para></section>
 
@@ -4791,9 +4791,8 @@ compiles a file to platform-independent bytecode.</para>
 <para>&load; has two additional keywords &echo-k; and
  &compiling-k;.</para>
 
-<para><literal role="sexp">(&load; <replaceable>filename</replaceable>
- &key-amp; &verbose-k; &print-k; &echo-k;
- &if-does-not-exist; &compiling-k;)</literal></para>
+<para><literal role="sexp">(&load; &filename-r; &key-amp; &verbose-k;
+ &print-k; &echo-k; &if-does-not-exist; &compiling-k;)</literal></para>
 
 <variablelist>
  <varlistentry><term>&verbose-k; &t;</term>
@@ -5260,10 +5259,10 @@ and you can leave the function call with specified values by using
 <para>The macro <emphasis
  role="strong"><function>ext:space</function></emphasis> is like the
  macro &time;: <literal role="sexp">(<function>ext:space</function>
- &form-r;)</literal> evaluates the
- &form-r;, and, as a side effect, outputs
- information about the memory allocations caused by this evaluation.  It
- also prints everything printed by <link
+ &form-r;)</literal> evaluates the &form-r;, and, as a side effect,
+ outputs information about the memory allocations caused by this
+ evaluation.
+ It also prints everything printed by <link
  linkend="time"><function>time</function></link>.</para>
 
 </section>
