@@ -103,6 +103,8 @@
   extern_C char *setlocale (int category, const char *locale);
 #ifdef _MSC_VER
   #define HAVE_LC_MESSAGES 0
+#elif defined(__MINGW32__)
+  #define HAVE_LC_MESSAGES 0
 #else # place appropriate checks here
   #define HAVE_LC_MESSAGES 1
 #endif
