@@ -3500,7 +3500,7 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
       if (count > 0) {
         var uint8 x = I_to_uint8(element);
         var uint8* ptr = &TheSbvector(dv)->data[index];
-        SIMPLE_FILL(ptr,coutnt,x);
+        SIMPLE_FILL(ptr,count,x);
       }
       break;
     case Array_type_sb16vector:
@@ -3508,7 +3508,7 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
       if (count > 0) {
         var uint16 x = I_to_uint16(element);
         var uint16* ptr = &((uint16*)&TheSbvector(dv)->data[0])[index];
-        SIMPLE_FILL(ptr,coutnt,x);
+        SIMPLE_FILL(ptr,count,x);
       }
       break;
     case Array_type_sb32vector:
@@ -3516,7 +3516,7 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
       if (count > 0) {
         var uint32 x = I_to_uint32(element);
         var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
-        SIMPLE_FILL(ptr,coutnt,x);
+        SIMPLE_FILL(ptr,count,x);
       }
       break;
   #else # optimized: use 32-bit accesses where possible
