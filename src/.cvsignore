@@ -32,6 +32,7 @@ README.en
 README.es
 UnicodeData.txt
 clisp.1
+clisp.man
 clisp.html
 Makefile.readline
 ansidecl
