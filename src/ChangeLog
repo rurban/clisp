@@ -1,5 +1,12 @@
 2004-04-15  Sam Steingold  <sds@gnu.org>
 
+	* clos-methcomb5.lisp (compute-method-partition-lambdas):
+	removed unused variable
+	(compute-effective-method-function): do not call
+	GF-KEYWORD-ARGUMENTS since the values are not used
+
+2004-04-15  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (update-ansi-tests): do not pass "-d" to "cvs
 	update" becase "ansi-tests" could be a symlink to a writable sandbox
 
