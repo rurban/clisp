@@ -501,7 +501,11 @@ global int main()
   #endif
   #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
     printf("#define as_oint(expr)  ((expr).one)\n");
-    printf("#define as_object(o)  ((object){u:{one:(o)}})\n");
+    #if defined(WIDE_STRUCT)
+      printf("#define as_object(o)  ((object){u:{one_u:(o)}})\n");
+    #elif defined(OBJECT_STRUCT)
+      printf("#define as_object(o)  ((object){one_o:(o)})\n");
+    #endif
   #else
     printf("#define as_oint(expr)  (oint)(expr)\n");
     printf("#define as_object(o)  (object)(o)\n");
