@@ -138,7 +138,19 @@ global void get_real_time (internal_time_t* it)
 {
  #ifdef HAVE_GETTIMEOFDAY
   begin_system_call();
-  if (gettimeofday((struct timeval *)it,NULL) != 0) { OS_error(); }
+  if (long_bitsize == 32
+      && sizeof(struct timeval) == sizeof(internal_time_t)
+      && offsetof(struct timeval,tv_sec) == offsetof(internal_time_t,tv_sec)
+      && offsetof(struct timeval,tv_usec) == offsetof(internal_time_t,tv_usec)) {
+    # internal_time_t and struct timeval are effectively the same type.
+    if (gettimeofday((struct timeval *)it,NULL) != 0) { OS_error(); }
+  } else {
+    # On some 64-bit platforms, time_t is 64-bit, and struct timeval has
+    # twice the size than internal_time_t!
+    struct timeval tmp;
+    if (gettimeofday(&tmp,NULL) != 0) { OS_error(); }
+    it->tv_sec = tmp.tv_sec; it->tv_usec = tmp.tv_usec;
+  }
   end_system_call();
  #elif defined(HAVE_FTIME)
   var struct timeb timebuf;

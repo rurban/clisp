@@ -1,4 +1,9 @@
-2004-02-26  Bruno Haible  <bruno@clisp.org>
+2004-02-27  Bruno Haible  <bruno@clisp.org>
+
+	* time.d (get_real_time): Take care of the case when struct timeval is
+	not the same thing as internal_time_t.
+
+2004-02-27  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (XCFLAGS): Don't use -O2 with current gcc on x86_64.
 
