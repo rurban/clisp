@@ -1,3 +1,10 @@
+2004-07-21  Sam Steingold  <sds@gnu.org>
+
+	CLOSE recursively closes all dependents
+	* modules/berkeley-db/bdb.c (wrap_finalize): call MKHANDLE
+	* modules/berkeley-db/dbi.lisp (dbe, db, dbc, txn, logc, mpoolfile):
+	inherit from BDB-HANDLE
+
 2004-07-21  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/oracle.lisp: Handle FLOAT type properly

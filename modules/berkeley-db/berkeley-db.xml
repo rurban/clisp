@@ -5,6 +5,31 @@
 <para>This interface to &sleepycat-berkeley-db; exports almost all
  functions in the official &c-lang; API.</para>
 
+<section id="bdb-objects"><title>Berkeley-DB Objects</title>
+
+<para>Thie module exports the following object types:
+ <variablelist>
+ <varlistentry><term><literal role="type">BDB:DBE</literal></term>
+  <listitem><simpara>environment handle</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="type">BDB:DB</literal></term>
+  <listitem><simpara>database handle</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="type">BDB:DBC</literal></term>
+  <listitem><simpara>cursor handle</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="type">BDB:TXN</literal></term>
+  <listitem><simpara>transaction handle</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="type">BDB:LOGC</literal></term>
+  <listitem><simpara>log cursor handle</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="type">BDB:MPOOLFILE</literal></term>
+  <listitem><simpara>memory pool file handle</simpara></listitem></varlistentry>
+</variablelist></para></section>
+
+<section id="bdb-close"><title>Closing handles</title>
+
+<para>&close; will close (or commit, in the case of a transaction) the
+ DB handle objects.  &gc;or will also call &close;.
+ Closing an object will first close all its dependents.</para>
+</section>
+
 <section id="bdb-db-environment"><title>Database Environment</title>
 
 <variablelist>
@@ -12,13 +37,13 @@
   <listitem><simpara>Return version information as 4 values: descriptive
     &string-t; and 3 &fixnum-t;s: major, minor and patch number (&db_version;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:ENV-CREATE &key-amp;
+ <varlistentry><term><literal role="sexp">(BDB:DBE-CREATE &key-amp;
     PASSWORD ENCRYPT HOST CLIENT_TIMEOUT SERVER_TIMEOUT)</literal></term>
   <listitem><simpara>Create an environment handle (&dbe_create;),
     possibly connecting to a remote host (&DBE_set_rpc_server;) and
     possibly using encryption with password (&DBE_set_encrypt;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:ENV-CLOSE dbe)</literal></term>
+ <varlistentry><term><literal role="sexp">(BDB:DBE-CLOSE dbe)</literal></term>
   <listitem><simpara>Close an environment (&DBE_close;).
     You can also call &close;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(BDB:DBREMOVE dbe file
@@ -29,13 +54,13 @@
     database newname &key-amp; TRANSACTION AUTO_COMMIT)</literal></term>
   <listitem><simpara>Rename a database (&DBE_dbrename;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:ENV-OPEN dbe &key-amp;
+ <varlistentry><term><literal role="sexp">(BDB:DBE-OPEN dbe &key-amp;
     HOME JOIN INIT_CDB INIT_LOCK INIT_LOG INIT_MPOOL INIT_TXN
     RECOVER RECOVER_FATAL USE_ENVIRON USE_ENVIRON_ROOT CREATE
     LOCKDOWN PRIVATE SYSTEM_MEM THREAD MODE)</literal></term>
   <listitem><simpara>Open an environment (&DBE_open;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:ENV-REMOVE dbe &key-amp;
+ <varlistentry><term><literal role="sexp">(BDB:DBE-REMOVE dbe &key-amp;
     HOME FORCE USE_ENVIRON USE_ENVIRON_ROOT)</literal></term>
   <listitem><simpara>Destroy an environment (&DBE_remove;).
  </simpara></listitem></varlistentry>
@@ -45,7 +70,7 @@
 <section id="bdb-environment-config"><title>Environment Configuration</title>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:ENV-SET-OPTIONS dbe
+<varlistentry><term><literal role="sexp">(BDB:DBE-SET-OPTIONS dbe
    &key-amp; ERRFILE PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
    TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR AUTO_COMMIT CDB_ALLDB
    DIRECT_DB DIRECT_LOG NOLOCKING NOMMAP NOPANIC OVERWRITE
@@ -65,7 +90,7 @@
     <member>&DBE_set_encrypt;</member>
     <member>&DBE_set_errfile;</member>
    </simplelist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
+<varlistentry><term><literal role="sexp">(BDB:DBE-GET-OPTIONS dbe
    &optional-amp; what)</literal></term>
  <listitem><para>Retrieve some environment options.
    <variablelist><title>Values of <replaceable>what</replaceable></title>
@@ -236,6 +261,10 @@
    file name.  <constant>:DATABASE</constant>, if supplied,
    will force <constant>DB_ORDERCHKONLY</constant>.
 </simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:WITH-DB (var dbe file
+   &rest-amp; options &key-amp; xa &allow-other-keys)
+   &body-amp; body)</literal></term>
+ <listitem><simpara>Open the database, execute &body-r;, close it.
 </variablelist></section>
 
 
@@ -402,27 +431,27 @@
  DBcursor->c_put	Store by cursor
 -->
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:MAKE-CURSOR db &key-amp;
+<varlistentry><term><literal role="sexp">(BDB:MAKE-DBC db &key-amp;
    DIRTY_READ WRITECURSOR TRANSACTION)</literal></term>
  <listitem><simpara>Create a cursor handle (&DB_cursor;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:CURSOR-CLOSE
+<varlistentry><term><literal role="sexp">(BDB:DBC-CLOSE
    cursor)</literal></term>
  <listitem><simpara>Close the cursor handle (&DBC_close;).
    You can also call &close;.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:CURSOR-COUNT
+<varlistentry><term><literal role="sexp">(BDB:DBC-COUNT
    cursor)</literal></term>
  <listitem><simpara>Return count of duplicates (&DBC_count;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:CURSOR-DEL
+<varlistentry><term><literal role="sexp">(BDB:DBC-DEL
    cursor)</literal></term>
  <listitem><simpara>Delete by cursor (&DBC_del;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:CURSOR-DUP
+<varlistentry><term><literal role="sexp">(BDB:DBC-DUP
    cursor &key-amp; POSITION)</literal></term>
  <listitem><simpara>Duplicate a cursor (&DBC_dup;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:CURSOR-GET cursor key data
+<varlistentry><term><literal role="sexp">(BDB:DBC-GET cursor key data
    action &key-amp; DIRTY_READ MULTIPLE (ERROR &t;))</literal></term>
  <listitem><para>Retrieve by cursor (&DBC_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
@@ -445,12 +474,14 @@
     <member><constant>:DB_SET_RANGE</constant></member>
     <member><constant>:DB_SET_RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:CURSOR-PUT
+<varlistentry><term><literal role="sexp">(BDB:DBC-PUT
    cursor key data flag)</literal></term>
  <listitem><simpara>Store by cursor (&DBC_put;).
 </simpara></listitem></varlistentry>
-</variablelist>
-</section>
+<varlistentry><term><literal role="sexp">(BDB:WITH-DBC (var &rest-amp;
+   options) &body-amp; &body-r;))</literal></term>
+ <listitem><simpara>Open a cursor, execute &body-r;, close it.
+</simpara></listitem></varlistentry></variablelist></section>
 
 
 <section id="bdb-lock"><title>Lock Subsystem</title>
