@@ -105,6 +105,13 @@ char *getcwd ();
 static char *stpcpy PARAMS ((char *dest, const char *src));
 # endif
 #endif
+#ifdef __EMX__
+#undef getcwd
+#define getcwd _getcwd2
+#define IS_ABSOLUTE(path) (path[0] == '/' || isalpha(path[0]) && path[1] == ':')
+#else
+#define IS_ABSOLUTE(path) (path[0] == '/')
+#endif
 
 /* Amount to increase buffer size by in each try.  */
 #define PATH_INCR 32
@@ -264,7 +271,7 @@ DCGETTEXT (domainname, msgid, category)
 
   if (binding == NULL)
     dirname = (char *) _nl_default_dirname;
-  else if (binding->dirname[0] == '/')
+  else if (IS_ABSOLUTE(binding->dirname))
     dirname = binding->dirname;
   else
     {
