@@ -129,18 +129,18 @@
 	(initialize-instance-<structure-effective-slot-definition>: Remove
 	initff argument.
 	(make-instance-<structure-effective-slot-definition>): Update.
-	(make-load-form-<structure-effective-slot-definition>): Use optional
-	argument always.
+	(make-load-form-<structure-effective-slot-definition>): Use
+	optional argument always.
 	* clos-slotdef2.lisp (structure-effective-slot-definition-initff):
 	Remove accessor.
 	* defstruct.lisp (make-ds-slot): Remove initff argument.
 	(copy-<structure-effective-slot-definition>): Update.
-	(defstruct): Change slotlist and slotdefaultslots to contain the initff
-	separately. Always pass a form to
+	(defstruct): Change slotlist and slotdefaultslots to contain the
+	initff separately.  Always pass a form to
 	make-load-form-<structure-effective-slot-definition>
-	(ds-make-pred, ds-arg-default, ds-make-constructor-body,
-	ds-arg-with-default, ds-make-boa-constructor,
-	ds-make-keyword-constructor, ds-make-readers, ds-make-writers): Update.
+	(ds-make-pred, ds-arg-default, ds-make-constructor-body)
+	(ds-arg-with-default, ds-make-boa-constructor)
+	(ds-make-keyword-constructor, ds-make-readers, ds-make-writers): Update.
 
 2004-11-03  Sam Steingold  <sds@gnu.org>
 
