@@ -35,6 +35,7 @@
   (import (intern "*FFI-MODULE*" "COMPILER"))
   (import (intern "FINALIZE-COUTPUT-FILE" "COMPILER"))
   (import (intern "TEXT" "SYSTEM")) ; messages
+  (import (intern "SYMBOL-KEYWORD" "SYSTEM"))
   (import (intern "CHECK-SYMBOL" "SYSTEM")) ; error checking
   (import (intern "FOREIGN-FUNCTION-IN-ARG-COUNT" "SYSTEM")) ; called by SYS::FUNCTION-SIGNATURE
 )
