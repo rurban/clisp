@@ -266,13 +266,33 @@
 ;; Primitive types (symbols) can be safely inlined at compile-time.
 ;; Handle (parse-c-type 'uint8) as well as
 ;; (def-c-type PGconn c-pointer) (parse-c-type 'pgconn)
+;; In addition, `(c-array uint8 ,(length foo))
+;;  -> (vector 'c-array (parse-c-type 'uint8) (length foo))
+;;  -> (vector 'c-array 'uint8 (length foo))
+;; As a result, execution time is nearly halved.
 (define-compiler-macro parse-c-type (&whole form typespec &optional name)
-  (when (and (not name)
-             (typep typespec '(CONS (EQL QUOTE) (CONS SYMBOL NULL))))
-    (let* ((typespec (second typespec))
-           (internal (gethash typespec *c-type-table* 0)))
-      (when (symbolp internal)
-        (return-from parse-c-type `',internal))))
+  (unless name
+    (cond
+      ((typep typespec '(CONS (EQL QUOTE) (CONS SYMBOL NULL)))
+       (let* ((typespec (second typespec))
+              (internal (gethash typespec *c-type-table* 0)))
+         (when (symbolp internal)
+           (return-from parse-c-type `',internal))))
+      ;; Under Kaz Kylheku's backquote reader, `(c-array x ,l) yields
+      ;;(SYSTEM::BACKQUOTE (C-ARRAY X (SYSTEM::UNQUOTE L)))
+      ;; which is optimized because it is costly, yet a common pattern.
+      ((typep typespec
+              '(CONS (EQL SYS::BACKQUOTE)
+                (CONS
+                 (CONS (MEMBER C-ARRAY C-ARRAY-MAX)
+                  (CONS * (CONS (CONS (EQL SYS::UNQUOTE)
+                                      (CONS * NULL)) NULL))) NULL)))
+       (return-from parse-c-type
+         (let ((typespec (second typespec)))
+           `(VECTOR
+             ',(first typespec)
+             (PARSE-C-TYPE ',(second typespec))
+             (EXT:ETHE UNSIGNED-BYTE ,(second (third typespec)))))))))
   form)
 
 (defun parse-options (options keywords whole)
@@ -813,32 +833,11 @@
 
 ;; c-type is evaluated. This is particularly useful for variable sized arrays
 ;; using: `(c-array uint8 ,(length foo))
-(flet ((optimize-type (c-type)
-         ;; Under Kaz Kylheku's backquote reader, `(c-array x ,l) yields
-         ;;(SYSTEM::BACKQUOTE (C-ARRAY X (SYSTEM::UNQUOTE L)))
-         ;; which is optimized because it is costly, yet a common pattern.
-         (if (typep c-type
-                    '(CONS (EQL SYS::BACKQUOTE)
-                      (CONS
-                       (CONS (MEMBER C-ARRAY C-ARRAY-MAX)
-                        (CONS * (CONS (CONS (EQL SYS::UNQUOTE)
-                                            (CONS * NULL)) NULL))) NULL)))
-             (let ((c-type (cadr c-type)))
-               `(vector
-                 ',(first c-type)
-                 (parse-c-type ',(second c-type))
-                 (ext:ethe unsigned-byte ,(second (third c-type)))))
-             `(parse-c-type ,c-type))))
-  ;; Additionaly, `(c-array uint8 ,(length foo)) transforms to
-  ;; (vector 'c-array (parse-c-type 'uint8) (length foo)) which compiles
-  ;; to (vector 'c-array 'uint8 (length foo)) thanks to compiler-macros.
-  ;; As a result, execution time is nearly halved.
-
 (defmacro with-foreign-object ((var c-type &optional (init nil init-p))
                                &body body)
   `(EXEC-ON-STACK
     (LAMBDA (,var) ,@body)
-    ,(optimize-type c-type)
+    (PARSE-C-TYPE ,c-type)
     . ,(if init-p (list init))))
 
 ;; symbol-macro based interface (like DEF-C-VAR)
@@ -847,9 +846,8 @@
   (let ((fv (gensym (symbol-name var))))
     `(EXEC-ON-STACK
       (LAMBDA (,fv) (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))
-      ,(optimize-type c-type)
+      (PARSE-C-TYPE ,c-type)
       . ,(if init-p (list init)))))
-);flet
 
 (defun exec-with-foreign-string (thunk string
                                  &key (encoding #+UNICODE custom:*foreign-encoding*

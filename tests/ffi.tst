@@ -51,6 +51,9 @@ OPAQUE
 (funcall parse-c-type-optimizer '(parse-c-type '(c-ptr uint8)) nil)
 (PARSE-C-TYPE '(c-ptr uint8))
 
+(car (funcall parse-c-type-optimizer '(parse-c-type `(c-array uint8 ,l)) nil))
+VECTOR
+
 (let () (declare (compile)) (with-c-var (place 'long -12345678) place))
 -12345678
 
@@ -403,6 +406,21 @@ FOREIGN-VARIABLE
 (with-foreign-object (fv `(c-array-max character ,5) "abc")
   (with-c-place (x fv) (typeof x)))
 (C-ARRAY-MAX CHARACTER 5)
+
+(let () (declare (compile))
+  (with-foreign-object (fv `(c-array-max character ,5) "abc")
+    (with-c-place (x fv) (typeof x))))
+(C-ARRAY-MAX CHARACTER 5)
+
+(let () (declare (compile))
+  (with-c-var (x `(c-array uint32 ,1))
+    (typeof (cast x `(c-array uint8 ,4)))))
+(C-ARRAY UINT8 4)
+
+(let () (declare (compile))
+  (with-c-var (x `(c-array-max uint32 ,1) #(#x11111111))
+    (cast x `(c-array uint8 ,4))))
+#(#x11 #x11 #x11 #x11)
 
 (with-c-place (x fm) (setf (element x 1) #\Z))
 #\Z
