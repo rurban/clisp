@@ -35,13 +35,14 @@ options:
        --with-unicode          Unicode character set
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
+       --with-export-syscalls  export some UNIX system calls to Lisp
        --with-module=wildcard
        --with-module=regexp
-       --with-module=postgresql
+       --with-module=postgresql632
+       --with-module=postgresql642
        --with-module=bindings/linuxlibc5
        --with-module=bindings/linuxlibc6
        --with-module=bindings/amigaos
-       --with-export-syscalls  export some UNIX system calls to Lisp
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
        ./makemake --with-readline --with-dynamic-ffi > Makefile
