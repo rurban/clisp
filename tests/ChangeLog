@@ -1,3 +1,8 @@
+1999-01-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * excepsit.tst: Delete some garbage "foo" files after creating them.
+        * Makefile: Don't delete them here.
+
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * conditions.tst: Check the superclasses of parse-error,
