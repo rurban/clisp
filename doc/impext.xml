@@ -4113,8 +4113,170 @@ bash$
 </section>
 </section>
 
+<!-- #ifdef DIR_KEY -->
+<section id="dir-key"><title>Extensions-2.11. Directory Access</title>
+
+<para>When &clisp; is configured with an option
+ <option>--with-dir-key</option>, some directory access is available
+ from lisp, in package <quote>LISP</quote>.  3 types of directory keys
+ may exist, depending on the compilation environment.</para>
+
+<variablelist id="dir-key-type"><title>valid directory key types</title>
+ <varlistentry><term>:win32</term>
+  <listitem><simpara>&win32; registry access
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>:gnome</term>
+  <listitem><simpara>Gnome-config access
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>:ldap</term>
+  <listitem><simpara>LDAP interface via
+   <ulink url='http://www.openldap.org'>OpenLDAP</ulink>.
+  </simpara></listitem></varlistentry>
+</variablelist>
+
+<para>The following functions and macros are exported (please note that
+these features are experimental and the API may be modified in the
+future).</para>
+
+<variablelist>
+ <varlistentry id="dir-key-open"><term><literal
+   role="sexp">(<function>lisp:dir-key-open</function>
+                <replaceable>dkey</replaceable>
+                <replaceable>path</replaceable>
+                &key-amp; (&direction-k; &input-k;)
+                          &if-does-not-exist;</literal></term>
+  <listitem><simpara>Open the directory key under
+   <replaceable>dkey</replaceable>, which should be either an open
+   directory key or a valid <link linkend="dir-key-type">directory key
+   type</link>.
+   The meaning of the &direction-k; and &if-does-not-exist; keyword
+   arguments is the same as for &open;.
+  </simpara></listitem></varlistentry>
+ <varlistentry id="dir-key-close"><term><literal
+   role="sexp">(<function>lisp:dir-key-close</function>
+                <replaceable>dkey</replaceable>)</literal></term>
+  <listitem><simpara>Close the directory key.
+   The preferred way is to use the <link linkend="with-dir-key-open"
+   ><function>lisp:with-dir-key-open</function></link> macro.
+  </simpara></listitem></varlistentry>
+ <varlistentry id="with-dir-key-open"><term><literal
+   role="sexp">(<function>lisp:with-dir-key-open</function>
+                (<replaceable>var</replaceable>
+                 <replaceable>dkey</replaceable>
+                 <replaceable>path</replaceable>
+                 &rest-amp; <replaceable>options</replaceable>)
+                &body-amp; <replaceable>body</replaceable>)</literal></term>
+  <listitem><simpara>Open the directory key (by calling <link
+   linkend="dir-key-open"><function>lisp:dir-key-open</function></link>
+   on <replaceable>dkey</replaceable>, <replaceable>path</replaceable>
+   and <replaceable>options</replaceable>), bind it to
+   <replaceable>var</replaceable>, execute
+   <replaceable>body</replaceable>, then close it with <link
+   linkend="dir-key-close"><function>lisp:dir-key-close</function></link>.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-type</function>
+                <replaceable>dkey</replaceable>)</literal></term>
+  <listitem><simpara>Return the <link linkend="dir-key-type">type</link>
+   of the directory key</simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-path</function>
+                <replaceable>dkey</replaceable>)</literal></term>
+  <listitem><simpara>Return the path of this directory key, which is the
+   <replaceable>path</replaceable> argument of <link
+   linkend="dir-key-open"><function>lisp:dir-key-open</function></link>
+   if <replaceable>dkey</replaceable> was a <link
+   linkend="dir-key-type">type</link> or the concatenation of the
+   <replaceable>path</replaceable> argument and the
+   <function>lisp:dir-key-path</function> of
+   <replaceable>dkey</replaceable>.
+   </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-direction</function>
+                <replaceable>dkey</replaceable>)</literal></term>
+  <listitem><simpara>One of &input-k;, &output-k; and &io-k;, indicating
+   the permitted operation on this key and its derivatives.
+   </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-closed-p</function>
+                <replaceable>dkey</replaceable>)</literal></term>
+  <listitem><simpara>Check whether the key has been closed.
+   It is not an error to close a closed key.
+   </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-subkey-delete</function>
+                <replaceable>dkey</replaceable>
+                <replaceable>subkey</replaceable>)</literal>
+   <literal role="sexp">(<function>lisp:dir-key-value-delete</function>
+                         <replaceable>dkey</replaceable>
+                         <replaceable>attribute</replaceable>)</literal></term>
+  <listitem><simpara>Delete the specified subkey or attribute.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-subkey</function>
+                <replaceable>dkey</replaceable>)</literal>
+  <literal role="sexp">(<function>lisp:dir-key-attributes</function>
+                <replaceable>dkey</replaceable>)</literal></term>
+  <listitem><simpara>Return the list of the subkeys or attributes.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-value</function>
+                <replaceable>dkey</replaceable>
+                <replaceable>attribute</replaceable>
+                &optional-amp; <replaceable>default</replaceable>)
+                </literal></term>
+  <listitem><simpara>Return the value of the specified attribute,
+   similar to &gethash; and &setf;able just like &gethash;.
+   </simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:dir-key-info</function>
+                <replaceable>dkey</replaceable>)</literal></term>
+  <listitem><simpara>Return some information about the directory key.
+   This is highly platform-dependent and will probably be removed or
+   replaced or modified in the future.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>with-dir-key-search</function>
+                (<replaceable>key-iter</replaceable>
+                 <replaceable>atribute-iter</replaceable>
+                 <replaceable>dkey</replaceable>
+                 <replaceable>path</replaceable>
+                 &key-amp; <constant>:scope</constant>)
+                 &body-amp; <replaceable>body</replaceable>)</literal></term>
+  <listitem><simpara>This is the main way to iterate over the subtree
+   under the key
+   <replaceable>dkey</replaceable>+<replaceable>path</replaceable>.
+   </simpara>
+   <simpara><replaceable>key-iter</replaceable> is a non-&nil; symbol
+    and is bound via &macrolet; to a macro, each call of which returns
+    the next subkey.</simpara>
+   <simpara><replaceable>atribute-iter</replaceable> is a symbol and is
+    bound, when non-&nil;, to a macro, each call of which returns two
+   values - the next attribute and its value.</simpara>
+   <para>The <constant>:scope</constant> keyword argument specifies the
+    scope of the search and can be
+   <variablelist>
+    <varlistentry><term><constant>:self</constant></term>
+     <listitem><simpara>iterate over the key itself
+     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:level</constant></term>
+     <listitem><simpara>iterate over the children of the key
+     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:tree</constant></term>
+     <listitem><simpara>iterate over the subtree
+     </simpara></listitem></varlistentry></variablelist></para>
+   <simpara><function>with-dir-key-search</function> is used to
+    implement <function>dir-key-values</function>,
+    <function>dir-key-childred</function> and
+    <function>dir-key-dump-tree</function> in
+    <filename>dirkey.lisp</filename>.
+    </simpara></listitem></varlistentry>
+</variablelist>
+
+</section>
+<!-- #endif -->
+
 <!-- #ifdef AMIGAOS -->
-<section id="other"><title>Extensions-2.11. Other</title>
+<section id="other"><title>Extensions-2.12. Other</title>
 
 <variablelist>
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
@@ -4124,7 +4286,8 @@ bash$
 <programlisting>
   (&setq; &error-output-var;
     (&setq; &debug-io-var;
-      (&open; "CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE" :direction :io)))
+      (&open; "CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE"
+              &direction-k; &io-k;)))
 </programlisting>
 at startup.
 </para></listitem></varlistentry></variablelist>
