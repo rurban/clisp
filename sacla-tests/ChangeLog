@@ -1,0 +1,5 @@
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
+	* *.lisp: Taken from the sacla project from Yuji Minejima. Untabified.
+	Adapted for CLISP.
+	* tests.lisp: New file.
