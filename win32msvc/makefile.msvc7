@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host lenin as the output of the command:
+# This file was created on host winsteingoldlap as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc7
 
 # -------------- Start of configurable section --------------------
@@ -47,6 +47,7 @@ DESTDIR =
 # fastcgi              FastCGI (http://www.fastcgi.com/) interface
 # oracle               Oracle (http://www.oracle.com/) interface
 # netica               Netica (http://norsys.com/netica_c_api.htm)
+# zlib                 ZLIB (http://www.zlib.org)
 # clx/mit-clx          classical X11 interface
 MODULES =  
 
@@ -425,14 +426,22 @@ macros1.lisp \
 macros2.lisp \
 defs1.lisp \
 timezone.lisp \
+lambdalist.lisp \
 places.lisp \
 floatprint.lisp \
 defpackage.lisp \
 type.lisp \
 subtypep.lisp \
 clos-package.lisp \
+clos-macros.lisp \
 clos-class0.lisp \
+clos-metaobject1.lisp \
 clos-slotdef1.lisp \
+clos-stablehash1.lisp \
+clos-specializer1.lisp \
+clos-class1.lisp \
+clos-class2.lisp \
+clos-class3.lisp \
 defstruct.lisp \
 format.lisp \
 international.lisp \
@@ -444,10 +453,12 @@ compiler.lisp \
 defs2.lisp \
 loop.lisp \
 clos.lisp \
-clos-class1.lisp \
-clos-class2.lisp \
-clos-class3.lisp \
+clos-stablehash2.lisp \
+clos-specializer2.lisp \
+clos-specializer3.lisp \
+clos-class4.lisp \
 clos-class5.lisp \
+clos-class6.lisp \
 clos-slotdef2.lisp \
 clos-slotdef3.lisp \
 clos-slots1.lisp \
@@ -455,16 +466,17 @@ clos-slots2.lisp \
 clos-method1.lisp \
 clos-method2.lisp \
 clos-method3.lisp \
+clos-method4.lisp \
 clos-methcomb1.lisp \
 clos-methcomb2.lisp \
 clos-methcomb3.lisp \
 clos-methcomb4.lisp \
-clos-methcomb5.lisp \
 clos-genfun1.lisp \
 clos-genfun2.lisp \
 clos-genfun3.lisp \
 clos-genfun4.lisp \
 clos-genfun5.lisp \
+clos-dependent.lisp \
 clos-print.lisp \
 documentation.lisp \
 fill-out.lisp \
@@ -507,14 +519,22 @@ macros1.fas \
 macros2.fas \
 defs1.fas \
 timezone.fas \
+lambdalist.fas \
 places.fas \
 floatprint.fas \
 defpackage.fas \
 type.fas \
 subtypep.fas \
 clos-package.fas \
+clos-macros.fas \
 clos-class0.fas \
+clos-metaobject1.fas \
 clos-slotdef1.fas \
+clos-stablehash1.fas \
+clos-specializer1.fas \
+clos-class1.fas \
+clos-class2.fas \
+clos-class3.fas \
 defstruct.fas \
 format.fas \
 international.fas \
@@ -526,10 +546,12 @@ compiler.fas \
 defs2.fas \
 loop.fas \
 clos.fas \
-clos-class1.fas \
-clos-class2.fas \
-clos-class3.fas \
+clos-stablehash2.fas \
+clos-specializer2.fas \
+clos-specializer3.fas \
+clos-class4.fas \
 clos-class5.fas \
+clos-class6.fas \
 clos-slotdef2.fas \
 clos-slotdef3.fas \
 clos-slots1.fas \
@@ -537,16 +559,17 @@ clos-slots2.fas \
 clos-method1.fas \
 clos-method2.fas \
 clos-method3.fas \
+clos-method4.fas \
 clos-methcomb1.fas \
 clos-methcomb2.fas \
 clos-methcomb3.fas \
 clos-methcomb4.fas \
-clos-methcomb5.fas \
 clos-genfun1.fas \
 clos-genfun2.fas \
 clos-genfun3.fas \
 clos-genfun4.fas \
 clos-genfun5.fas \
+clos-dependent.fas \
 clos-print.fas \
 documentation.fas \
 fill-out.fas \
@@ -594,14 +617,22 @@ stage\macros1.lisp \
 stage\macros2.lisp \
 stage\defs1.lisp \
 stage\timezone.lisp \
+stage\lambdalist.lisp \
 stage\places.lisp \
 stage\floatprint.lisp \
 stage\defpackage.lisp \
 stage\type.lisp \
 stage\subtypep.lisp \
 stage\clos-package.lisp \
+stage\clos-macros.lisp \
 stage\clos-class0.lisp \
+stage\clos-metaobject1.lisp \
 stage\clos-slotdef1.lisp \
+stage\clos-stablehash1.lisp \
+stage\clos-specializer1.lisp \
+stage\clos-class1.lisp \
+stage\clos-class2.lisp \
+stage\clos-class3.lisp \
 stage\defstruct.lisp \
 stage\format.lisp \
 stage\international.lisp \
@@ -613,10 +644,12 @@ stage\compiler.lisp \
 stage\defs2.lisp \
 stage\loop.lisp \
 stage\clos.lisp \
-stage\clos-class1.lisp \
-stage\clos-class2.lisp \
-stage\clos-class3.lisp \
+stage\clos-stablehash2.lisp \
+stage\clos-specializer2.lisp \
+stage\clos-specializer3.lisp \
+stage\clos-class4.lisp \
 stage\clos-class5.lisp \
+stage\clos-class6.lisp \
 stage\clos-slotdef2.lisp \
 stage\clos-slotdef3.lisp \
 stage\clos-slots1.lisp \
@@ -624,16 +657,17 @@ stage\clos-slots2.lisp \
 stage\clos-method1.lisp \
 stage\clos-method2.lisp \
 stage\clos-method3.lisp \
+stage\clos-method4.lisp \
 stage\clos-methcomb1.lisp \
 stage\clos-methcomb2.lisp \
 stage\clos-methcomb3.lisp \
 stage\clos-methcomb4.lisp \
-stage\clos-methcomb5.lisp \
 stage\clos-genfun1.lisp \
 stage\clos-genfun2.lisp \
 stage\clos-genfun3.lisp \
 stage\clos-genfun4.lisp \
 stage\clos-genfun5.lisp \
+stage\clos-dependent.lisp \
 stage\clos-print.lisp \
 stage\documentation.lisp \
 stage\fill-out.lisp \
@@ -676,14 +710,22 @@ stage\macros1.fas \
 stage\macros2.fas \
 stage\defs1.fas \
 stage\timezone.fas \
+stage\lambdalist.fas \
 stage\places.fas \
 stage\floatprint.fas \
 stage\defpackage.fas \
 stage\type.fas \
 stage\subtypep.fas \
 stage\clos-package.fas \
+stage\clos-macros.fas \
 stage\clos-class0.fas \
+stage\clos-metaobject1.fas \
 stage\clos-slotdef1.fas \
+stage\clos-stablehash1.fas \
+stage\clos-specializer1.fas \
+stage\clos-class1.fas \
+stage\clos-class2.fas \
+stage\clos-class3.fas \
 stage\defstruct.fas \
 stage\format.fas \
 stage\international.fas \
@@ -695,10 +737,12 @@ stage\compiler.fas \
 stage\defs2.fas \
 stage\loop.fas \
 stage\clos.fas \
-stage\clos-class1.fas \
-stage\clos-class2.fas \
-stage\clos-class3.fas \
+stage\clos-stablehash2.fas \
+stage\clos-specializer2.fas \
+stage\clos-specializer3.fas \
+stage\clos-class4.fas \
 stage\clos-class5.fas \
+stage\clos-class6.fas \
 stage\clos-slotdef2.fas \
 stage\clos-slotdef3.fas \
 stage\clos-slots1.fas \
@@ -706,16 +750,17 @@ stage\clos-slots2.fas \
 stage\clos-method1.fas \
 stage\clos-method2.fas \
 stage\clos-method3.fas \
+stage\clos-method4.fas \
 stage\clos-methcomb1.fas \
 stage\clos-methcomb2.fas \
 stage\clos-methcomb3.fas \
 stage\clos-methcomb4.fas \
-stage\clos-methcomb5.fas \
 stage\clos-genfun1.fas \
 stage\clos-genfun2.fas \
 stage\clos-genfun3.fas \
 stage\clos-genfun4.fas \
 stage\clos-genfun5.fas \
+stage\clos-dependent.fas \
 stage\clos-print.fas \
 stage\documentation.fas \
 stage\fill-out.fas \
@@ -1781,6 +1826,9 @@ defs1.fas : defs1.lisp lisp.exe halfcompiled.mem
 timezone.fas : timezone.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c timezone.lisp
 
+lambdalist.fas : lambdalist.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c lambdalist.lisp
+
 places.fas : places.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c places.lisp
 
@@ -1799,11 +1847,32 @@ subtypep.fas : subtypep.lisp lisp.exe halfcompiled.mem
 clos-package.fas : clos-package.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-package.lisp
 
+clos-macros.fas : clos-macros.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-macros.lisp
+
 clos-class0.fas : clos-class0.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class0.lisp
 
+clos-metaobject1.fas : clos-metaobject1.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-metaobject1.lisp
+
 clos-slotdef1.fas : clos-slotdef1.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-slotdef1.lisp
+
+clos-stablehash1.fas : clos-stablehash1.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-stablehash1.lisp
+
+clos-specializer1.fas : clos-specializer1.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-specializer1.lisp
+
+clos-class1.fas : clos-class1.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class1.lisp
+
+clos-class2.fas : clos-class2.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class2.lisp
+
+clos-class3.fas : clos-class3.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class3.lisp
 
 defstruct.fas : defstruct.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c defstruct.lisp
@@ -1838,17 +1907,23 @@ loop.fas : loop.lisp lisp.exe halfcompiled.mem
 clos.fas : clos.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos.lisp
 
-clos-class1.fas : clos-class1.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class1.lisp
+clos-stablehash2.fas : clos-stablehash2.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-stablehash2.lisp
 
-clos-class2.fas : clos-class2.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class2.lisp
+clos-specializer2.fas : clos-specializer2.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-specializer2.lisp
 
-clos-class3.fas : clos-class3.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class3.lisp
+clos-specializer3.fas : clos-specializer3.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-specializer3.lisp
+
+clos-class4.fas : clos-class4.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class4.lisp
 
 clos-class5.fas : clos-class5.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class5.lisp
+
+clos-class6.fas : clos-class6.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-class6.lisp
 
 clos-slotdef2.fas : clos-slotdef2.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-slotdef2.lisp
@@ -1871,6 +1946,9 @@ clos-method2.fas : clos-method2.lisp lisp.exe halfcompiled.mem
 clos-method3.fas : clos-method3.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-method3.lisp
 
+clos-method4.fas : clos-method4.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-method4.lisp
+
 clos-methcomb1.fas : clos-methcomb1.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-methcomb1.lisp
 
@@ -1882,9 +1960,6 @@ clos-methcomb3.fas : clos-methcomb3.lisp lisp.exe halfcompiled.mem
 
 clos-methcomb4.fas : clos-methcomb4.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-methcomb4.lisp
-
-clos-methcomb5.fas : clos-methcomb5.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-methcomb5.lisp
 
 clos-genfun1.fas : clos-genfun1.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-genfun1.lisp
@@ -1900,6 +1975,9 @@ clos-genfun4.fas : clos-genfun4.lisp lisp.exe halfcompiled.mem
 
 clos-genfun5.fas : clos-genfun5.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-genfun5.lisp
+
+clos-dependent.fas : clos-dependent.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-dependent.lisp
 
 clos-print.fas : clos-print.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1800KW -M halfcompiled.mem -q -c clos-print.lisp
@@ -2008,7 +2086,7 @@ lispinit.mem : lisp.exe $(FASFILES)
 
 
 # Perform self-tests.
-check : check-recompile check-tests check-ansi-tests
+check : check-recompile check-tests check-sacla-tests check-ansi-tests
 
 # check the sources:
 # 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up
@@ -2049,6 +2127,9 @@ stage\defs1.lisp : defs1.lisp
 stage\timezone.lisp : timezone.lisp
 	$(LN_S) timezone.lisp stage
 
+stage\lambdalist.lisp : lambdalist.lisp
+	$(LN_S) lambdalist.lisp stage
+
 stage\places.lisp : places.lisp
 	$(LN_S) places.lisp stage
 
@@ -2067,11 +2148,32 @@ stage\subtypep.lisp : subtypep.lisp
 stage\clos-package.lisp : clos-package.lisp
 	$(LN_S) clos-package.lisp stage
 
+stage\clos-macros.lisp : clos-macros.lisp
+	$(LN_S) clos-macros.lisp stage
+
 stage\clos-class0.lisp : clos-class0.lisp
 	$(LN_S) clos-class0.lisp stage
 
+stage\clos-metaobject1.lisp : clos-metaobject1.lisp
+	$(LN_S) clos-metaobject1.lisp stage
+
 stage\clos-slotdef1.lisp : clos-slotdef1.lisp
 	$(LN_S) clos-slotdef1.lisp stage
+
+stage\clos-stablehash1.lisp : clos-stablehash1.lisp
+	$(LN_S) clos-stablehash1.lisp stage
+
+stage\clos-specializer1.lisp : clos-specializer1.lisp
+	$(LN_S) clos-specializer1.lisp stage
+
+stage\clos-class1.lisp : clos-class1.lisp
+	$(LN_S) clos-class1.lisp stage
+
+stage\clos-class2.lisp : clos-class2.lisp
+	$(LN_S) clos-class2.lisp stage
+
+stage\clos-class3.lisp : clos-class3.lisp
+	$(LN_S) clos-class3.lisp stage
 
 stage\defstruct.lisp : defstruct.lisp
 	$(LN_S) defstruct.lisp stage
@@ -2106,17 +2208,23 @@ stage\loop.lisp : loop.lisp
 stage\clos.lisp : clos.lisp
 	$(LN_S) clos.lisp stage
 
-stage\clos-class1.lisp : clos-class1.lisp
-	$(LN_S) clos-class1.lisp stage
+stage\clos-stablehash2.lisp : clos-stablehash2.lisp
+	$(LN_S) clos-stablehash2.lisp stage
 
-stage\clos-class2.lisp : clos-class2.lisp
-	$(LN_S) clos-class2.lisp stage
+stage\clos-specializer2.lisp : clos-specializer2.lisp
+	$(LN_S) clos-specializer2.lisp stage
 
-stage\clos-class3.lisp : clos-class3.lisp
-	$(LN_S) clos-class3.lisp stage
+stage\clos-specializer3.lisp : clos-specializer3.lisp
+	$(LN_S) clos-specializer3.lisp stage
+
+stage\clos-class4.lisp : clos-class4.lisp
+	$(LN_S) clos-class4.lisp stage
 
 stage\clos-class5.lisp : clos-class5.lisp
 	$(LN_S) clos-class5.lisp stage
+
+stage\clos-class6.lisp : clos-class6.lisp
+	$(LN_S) clos-class6.lisp stage
 
 stage\clos-slotdef2.lisp : clos-slotdef2.lisp
 	$(LN_S) clos-slotdef2.lisp stage
@@ -2139,6 +2247,9 @@ stage\clos-method2.lisp : clos-method2.lisp
 stage\clos-method3.lisp : clos-method3.lisp
 	$(LN_S) clos-method3.lisp stage
 
+stage\clos-method4.lisp : clos-method4.lisp
+	$(LN_S) clos-method4.lisp stage
+
 stage\clos-methcomb1.lisp : clos-methcomb1.lisp
 	$(LN_S) clos-methcomb1.lisp stage
 
@@ -2150,9 +2261,6 @@ stage\clos-methcomb3.lisp : clos-methcomb3.lisp
 
 stage\clos-methcomb4.lisp : clos-methcomb4.lisp
 	$(LN_S) clos-methcomb4.lisp stage
-
-stage\clos-methcomb5.lisp : clos-methcomb5.lisp
-	$(LN_S) clos-methcomb5.lisp stage
 
 stage\clos-genfun1.lisp : clos-genfun1.lisp
 	$(LN_S) clos-genfun1.lisp stage
@@ -2168,6 +2276,9 @@ stage\clos-genfun4.lisp : clos-genfun4.lisp
 
 stage\clos-genfun5.lisp : clos-genfun5.lisp
 	$(LN_S) clos-genfun5.lisp stage
+
+stage\clos-dependent.lisp : clos-dependent.lisp
+	$(LN_S) clos-dependent.lisp stage
 
 stage\clos-print.lisp : clos-print.lisp
 	$(LN_S) clos-print.lisp stage
@@ -2269,244 +2380,277 @@ stage\testinit.mem: lispinit.mem
 	$(CP) lispinit.mem stage\testinit.mem
 
 stage\init.fas : stage\init.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\init.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\init.lisp
 
 stage\defseq.fas : stage\defseq.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\defseq.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\defseq.lisp
 
 stage\backquote.fas : stage\backquote.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\backquote.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\backquote.lisp
 
 stage\defmacro.fas : stage\defmacro.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\defmacro.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\defmacro.lisp
 
 stage\macros1.fas : stage\macros1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\macros1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\macros1.lisp
 
 stage\macros2.fas : stage\macros2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\macros2.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\macros2.lisp
 
 stage\defs1.fas : stage\defs1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\defs1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\defs1.lisp
 
 stage\timezone.fas : stage\timezone.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\timezone.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\timezone.lisp
+
+stage\lambdalist.fas : stage\lambdalist.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\lambdalist.lisp
 
 stage\places.fas : stage\places.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\places.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\places.lisp
 
 stage\floatprint.fas : stage\floatprint.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\floatprint.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\floatprint.lisp
 
 stage\defpackage.fas : stage\defpackage.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\defpackage.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\defpackage.lisp
 
 stage\type.fas : stage\type.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\type.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\type.lisp
 
 stage\subtypep.fas : stage\subtypep.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\subtypep.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\subtypep.lisp
 
 stage\clos-package.fas : stage\clos-package.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-package.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-package.lisp
+
+stage\clos-macros.fas : stage\clos-macros.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-macros.lisp
 
 stage\clos-class0.fas : stage\clos-class0.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-class0.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-class0.lisp
+
+stage\clos-metaobject1.fas : stage\clos-metaobject1.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-metaobject1.lisp
 
 stage\clos-slotdef1.fas : stage\clos-slotdef1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-slotdef1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-slotdef1.lisp
 
-stage\defstruct.fas : stage\defstruct.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\defstruct.lisp
+stage\clos-stablehash1.fas : stage\clos-stablehash1.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-stablehash1.lisp
 
-stage\format.fas : stage\format.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\format.lisp
-
-stage\international.fas : stage\international.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\international.lisp
-
-stage\savemem.fas : stage\savemem.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\savemem.lisp
-
-stage\functions.fas : stage\functions.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\functions.lisp
-
-stage\trace.fas : stage\trace.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\trace.lisp
-
-stage\cmacros.fas : stage\cmacros.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\cmacros.lisp
-
-stage\compiler.fas : stage\compiler.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\compiler.lisp
-
-stage\defs2.fas : stage\defs2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\defs2.lisp
-
-stage\loop.fas : stage\loop.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\loop.lisp
-
-stage\clos.fas : stage\clos.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos.lisp
+stage\clos-specializer1.fas : stage\clos-specializer1.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-specializer1.lisp
 
 stage\clos-class1.fas : stage\clos-class1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-class1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-class1.lisp
 
 stage\clos-class2.fas : stage\clos-class2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-class2.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-class2.lisp
 
 stage\clos-class3.fas : stage\clos-class3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-class3.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-class3.lisp
+
+stage\defstruct.fas : stage\defstruct.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\defstruct.lisp
+
+stage\format.fas : stage\format.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\format.lisp
+
+stage\international.fas : stage\international.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\international.lisp
+
+stage\savemem.fas : stage\savemem.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\savemem.lisp
+
+stage\functions.fas : stage\functions.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\functions.lisp
+
+stage\trace.fas : stage\trace.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\trace.lisp
+
+stage\cmacros.fas : stage\cmacros.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\cmacros.lisp
+
+stage\compiler.fas : stage\compiler.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\compiler.lisp
+
+stage\defs2.fas : stage\defs2.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\defs2.lisp
+
+stage\loop.fas : stage\loop.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\loop.lisp
+
+stage\clos.fas : stage\clos.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos.lisp
+
+stage\clos-stablehash2.fas : stage\clos-stablehash2.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-stablehash2.lisp
+
+stage\clos-specializer2.fas : stage\clos-specializer2.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-specializer2.lisp
+
+stage\clos-specializer3.fas : stage\clos-specializer3.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-specializer3.lisp
+
+stage\clos-class4.fas : stage\clos-class4.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-class4.lisp
 
 stage\clos-class5.fas : stage\clos-class5.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-class5.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-class5.lisp
+
+stage\clos-class6.fas : stage\clos-class6.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-class6.lisp
 
 stage\clos-slotdef2.fas : stage\clos-slotdef2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-slotdef2.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-slotdef2.lisp
 
 stage\clos-slotdef3.fas : stage\clos-slotdef3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-slotdef3.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-slotdef3.lisp
 
 stage\clos-slots1.fas : stage\clos-slots1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-slots1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-slots1.lisp
 
 stage\clos-slots2.fas : stage\clos-slots2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-slots2.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-slots2.lisp
 
 stage\clos-method1.fas : stage\clos-method1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-method1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-method1.lisp
 
 stage\clos-method2.fas : stage\clos-method2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-method2.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-method2.lisp
 
 stage\clos-method3.fas : stage\clos-method3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-method3.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-method3.lisp
+
+stage\clos-method4.fas : stage\clos-method4.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-method4.lisp
 
 stage\clos-methcomb1.fas : stage\clos-methcomb1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-methcomb1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-methcomb1.lisp
 
 stage\clos-methcomb2.fas : stage\clos-methcomb2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-methcomb2.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-methcomb2.lisp
 
 stage\clos-methcomb3.fas : stage\clos-methcomb3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-methcomb3.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-methcomb3.lisp
 
 stage\clos-methcomb4.fas : stage\clos-methcomb4.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-methcomb4.lisp
-
-stage\clos-methcomb5.fas : stage\clos-methcomb5.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-methcomb5.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-methcomb4.lisp
 
 stage\clos-genfun1.fas : stage\clos-genfun1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-genfun1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun1.lisp
 
 stage\clos-genfun2.fas : stage\clos-genfun2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-genfun2.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun2.lisp
 
 stage\clos-genfun3.fas : stage\clos-genfun3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-genfun3.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun3.lisp
 
 stage\clos-genfun4.fas : stage\clos-genfun4.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-genfun4.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun4.lisp
 
 stage\clos-genfun5.fas : stage\clos-genfun5.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-genfun5.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-genfun5.lisp
+
+stage\clos-dependent.fas : stage\clos-dependent.lisp lisp.exe stage\testinit.mem
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-dependent.lisp
 
 stage\clos-print.fas : stage\clos-print.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clos-print.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clos-print.lisp
 
 stage\documentation.fas : stage\documentation.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\documentation.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\documentation.lisp
 
 stage\fill-out.fas : stage\fill-out.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\fill-out.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\fill-out.lisp
 
 stage\disassem.fas : stage\disassem.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\disassem.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\disassem.lisp
 
 stage\condition.fas : stage\condition.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\condition.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\condition.lisp
 
 stage\loadform.fas : stage\loadform.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\loadform.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\loadform.lisp
 
 stage\gstream.fas : stage\gstream.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\gstream.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\gstream.lisp
 
 stage\xcharin.fas : stage\xcharin.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\xcharin.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\xcharin.lisp
 
 stage\keyboard.fas : stage\keyboard.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\keyboard.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\keyboard.lisp
 
 stage\screen.fas : stage\screen.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\screen.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\screen.lisp
 
 stage\beossock.fas : stage\beossock.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\beossock.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\beossock.lisp
 
 stage\runprog.fas : stage\runprog.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\runprog.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\runprog.lisp
 
 stage\query.fas : stage\query.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\query.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\query.lisp
 
 stage\reploop.fas : stage\reploop.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\reploop.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\reploop.lisp
 
 stage\dribble.fas : stage\dribble.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\dribble.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\dribble.lisp
 
 stage\complete.fas : stage\complete.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\complete.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\complete.lisp
 
 stage\pprint.fas : stage\pprint.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\pprint.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\pprint.lisp
 
 stage\describe.fas : stage\describe.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\describe.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\describe.lisp
 
 stage\room.fas : stage\room.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\room.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\room.lisp
 
 stage\edit.fas : stage\edit.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\edit.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\edit.lisp
 
 stage\macros3.fas : stage\macros3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\macros3.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\macros3.lisp
 
 stage\clhs.fas : stage\clhs.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\clhs.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\clhs.lisp
 
 stage\inspect.fas : stage\inspect.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\inspect.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\inspect.lisp
 
 stage\gray.fas : stage\gray.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\gray.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\gray.lisp
 
 stage\foreign1.fas : stage\foreign1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\foreign1.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\foreign1.lisp
 
 stage\german.fas : stage\german.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\german.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\german.lisp
 
 stage\french.fas : stage\french.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\french.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\french.lisp
 
 stage\spanish.fas : stage\spanish.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\spanish.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\spanish.lisp
 
 stage\russian.fas : stage\russian.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\russian.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\russian.lisp
 
 stage\dutch.fas : stage\dutch.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\dutch.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\dutch.lisp
 
 stage\deprecated.fas : stage\deprecated.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\deprecated.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\deprecated.lisp
 
 stage\config.fas : stage\config.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 750KW -M stage\testinit.mem -q -d -c stage\config.lisp
+	$(RUN) -m 800KW -M stage\testinit.mem -q -d -c stage\config.lisp
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
 	$(RUN) -x "(and (cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%%saveinitmem) (ext::exit))"
@@ -2526,11 +2670,18 @@ tests :
 	cd tests && $(LN_S) ..\..\tests\*.lisp .
 	cd tests && $(LN_S) ..\..\tests\*.tst .
 
+check-sacla-tests : sacla-tests lisp.exe lispinit.mem
+	cd sacla-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -i tests.lisp -x '(ext:exit (> (nth-value 1 (run-all-tests)) 0))'
+
+sacla-tests :
+	-mkdir sacla-tests
+	cd sacla-tests && $(LN_S) ..\..\sacla-tests\*.lisp .
+
 check-ansi-tests : ansi-tests lisp.exe lispinit.mem
-	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale -E UTF-8 -m 30000KW -norc -ansi -i clispload.lsp -x '(in-package "CL-TEST") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log
+	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -m 30000KW -ansi -i clispload.lsp -x '(in-package "CL-TEST") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log
 
 check-ansi-tests-debug : ansi-tests lisp.exe lispinit.mem
-	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale -E UTF-8 -m 30000KW -norc -ansi -i clispload.lsp -p CL-TEST -repl
+	cd ansi-tests && ../lisp.exe -B .. -M ../lispinit.mem -N ../locale  -Efile UTF-8 -Eterminal UTF-8 -norc -m 30000KW -ansi -i clispload.lsp -p CL-TEST -repl
 
 ansi-tests :
 	-mkdir ansi-tests
@@ -2545,7 +2696,7 @@ clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
 	(echo; echo '/* 'intparam.h' */' ; grep '^#' intparam.h ) >> clisp.h
 	(echo; echo '/* 'floatparam.h' */' ; grep '^#' floatparam.h ) >> clisp.h
 	(echo; echo '/* genclisph */' ; genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=1 clisp-test.c /Feclisp-test-clisp.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE clisp-test.c /Feclisp-test-clisp.exe
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE clisp-test.c /Feclisp-test-lispbibl.exe
 	clisp-test-clisp > clisp-test-clisp.out
 	clisp-test-lispbibl > clisp-test-lispbibl.out
@@ -2571,11 +2722,11 @@ exporting.lisp : ..\modules\exporting.lisp
 
 modular : lisp.a avcall.lib callback.lib  clisp-link linkkit modules.h modules.o makevars
 
-makevars :
+makevars : Makefile
 	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a avcall.lib callback.lib '"'") > makevars
 
 clisp-link : clisp-link.in
-	sed -e 's%%@with_dynamic_modules@%%%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' < clisp-link.in > clisp-link
+	sed -e 's%%@with_dynamic_modules@%%no%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' < clisp-link.in > clisp-link
 	chmod a+x clisp-link
 
 base : modular lispinit.mem
@@ -2592,7 +2743,7 @@ full : modular base $(MODULES)
 
 full-check : full clisp
 	for m in $(MODULES); do $(RM) $$m/*.erg; done
-	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -norc -K full -C -i suite/tests -x "(run-some-tests '($$z))"
+	z=""; for m in $(MODULES); do z=$$z" \""$$m/\"; done; ./clisp -K full  -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(run-some-tests '($$z))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
@@ -2764,7 +2915,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-$(RM) lispbibl.h clisp.h *.i *.s *.obj *.a lisp.exe clisp-link makevars stage\* tests\* ansi-tests\* ansi-tests-log
+	-$(RM) lispbibl.h clisp.h *.i *.s *.obj *.a lisp.exe clisp-link makevars stage\* tests\* sacla-tests\* ansi-tests\* ansi-tests-log
 	-$(RMRF) base full
 	-$(RM) charset.lib avcall.lib callback.lib
 	-rmdir stage
