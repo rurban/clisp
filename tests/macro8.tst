@@ -870,3 +870,7 @@ NIL
 (multiple-value-list (compile 'test-constant-folding))
 (test-constant-folding 1 1)
 (test-constant-folding 12)  error
+
+;; <http://article.gmane.org/gmane.lisp.clisp.general:9093>
+(multiple-value-list (compile nil #'test-constant-folding))
+(#.#'test-constant-folding nil nil)
