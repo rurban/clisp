@@ -5,7 +5,7 @@
 	(c-source-point, c-source-point-location, current-function,
 	get-signature, sig-to-list, inline-lambdabody,
 	inline-callable-lambdabody-p, lambda-list-to-signature,
-	match-known-unknown-functions): new functions
+	match-known-unknown-functions, in-defun-p): new functions
 	(c-warn): use C-COMMENT and CURRENT-FUNCTION
 	(c-error): use CURRENT-FUNCTION
 	(signature): new defstruct
@@ -23,6 +23,7 @@
 	(c-report-problems): use MATCH-KNOWN-UNKNOWN-FUNCTIONS
 	(compile-file): call C-REPORT-PROBLEMS before reporing
 	 *ERROR-COUNT* and *WARNING-COUNT*
+	(c-form): use IN-DEFUN-P
 	* clos.lisp: import SIGNATURE structure from COMPILER and use
 	 them instead of simple lists throughout the file
 	* constobj.d (version): bumped (generic functions use SIGNATUREs
