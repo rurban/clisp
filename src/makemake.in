@@ -1625,6 +1625,10 @@ echotab "\$(TOUCH) $1"
 }
 fi
 
+# echotab_mkdir_maybe dir
+# make the directory if it is not there
+echotab_mkdir_maybe () { echotab "test -d $1 || mkdir $1"; }
+
 echol "# -*- Makefile -*- for the CLISP binaries"
 echol "# DO NOT EDIT! GENERATED AUTOMATICALLY!"
 echol "# This file was created on host $hostname as the output of the command:"
@@ -2090,7 +2094,7 @@ if [ -n "${SRCDIR}" ] ; then
 fi
 echol $line
 if [ $HOS = unix -a $CROSS = false ] ; then
-  echotab "test -d bindings || mkdir bindings"
+  echotab_mkdir_maybe "bindings"
 else
   echodummyrule init
 fi
@@ -3195,52 +3199,52 @@ if [ $CROSS = false ] ; then
     echodummyrule install
     echol
     echol "installdirs : force"
-    echotab "if [ ! -d \$(DESTDIR)\$(prefix) ] ; then mkdir \$(DESTDIR)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(exec_prefix) ] ; then mkdir \$(DESTDIR)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(libdir) ] ; then mkdir \$(DESTDIR)\$(libdir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir) ] ; then mkdir \$(DESTDIR)\$(lisplibdir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir)/data ] ; then mkdir \$(DESTDIR)\$(lisplibdir)/data ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir)/linkkit ] ; then mkdir \$(DESTDIR)\$(lisplibdir)/linkkit ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir)/base ] ; then mkdir \$(DESTDIR)\$(lisplibdir)/base ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir)/full ] ; then mkdir \$(DESTDIR)\$(lisplibdir)/full ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(bindir) ] ; then mkdir \$(DESTDIR)\$(bindir) ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(libdir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/data"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/linkkit"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/base"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/full"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(bindir)"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd gettext/po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
-    echotab "if [ ! -d \$(DESTDIR)\$(mandir) ] ; then mkdir \$(DESTDIR)\$(mandir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(mandir)/man1 ] ; then mkdir \$(DESTDIR)\$(mandir)/man1 ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     if [ $TERMINAL = readline ] ; then
-      echotab "if [ ! -d \$(DESTDIR)\$(mandir)/man3 ] ; then mkdir \$(DESTDIR)\$(mandir)/man3 ; fi"
+      echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man3"
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "if [ ! -d \$(DESTDIR)\$(exec_prefix)/share ] ; then mkdir \$(DESTDIR)\$(exec_prefix)/share ; fi"
-        echotab "if [ ! -d \$(DESTDIR)\$(htmldir) ] ; then mkdir \$(DESTDIR)\$(htmldir) ; fi"
-        echotab "if [ ! -d \$(DESTDIR)\$(dvidir) ] ; then mkdir \$(DESTDIR)\$(dvidir) ; fi"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)/share"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(dvidir)"
         ;;
       netbsd)
-        echotab "if [ ! -d \$(DESTDIR)\$(lispdocdir) ] ; then mkdir \$(DESTDIR)\$(lispdocdir) ; fi"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
         ;;
     esac
-    echotab "if [ ! -d \$(DESTDIR)\$(docdir) ] ; then mkdir \$(DESTDIR)\$(docdir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lispdocdir) ] ; then mkdir \$(DESTDIR)\$(lispdocdir) ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
     case "$fsstnd" in
       netbsd)
         ;;
       *)
-        echotab "if [ ! -d \$(DESTDIR)\$(lispdocdir)/doc ] ; then mkdir \$(DESTDIR)\$(lispdocdir)/doc ; fi"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)/doc"
         ;;
     esac
     echol
     echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
-    echotab "if [ ! -d \$(DESTDIR)\$(prefix) ] ; then mkdir \$(DESTDIR)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(exec_prefix) ] ; then mkdir \$(DESTDIR)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(libdir) ] ; then mkdir \$(DESTDIR)\$(libdir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir) ] ; then mkdir \$(DESTDIR)\$(lisplibdir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir)/data ] ; then mkdir \$(DESTDIR)\$(lisplibdir)/data ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(libdir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/data"
     echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(DESTDIR)\$(lisplibdir)/data/UnicodeData.txt"
     echotab "\$(INSTALL_DATA) data/clhs.txt \$(DESTDIR)\$(lisplibdir)/data/clhs.txt"
-    echotab "if [ ! -d \$(DESTDIR)\$(lisplibdir)/linkkit ] ; then mkdir \$(DESTDIR)\$(lisplibdir)/linkkit ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/linkkit"
     echotab "(cd \$(DESTDIR)\$(lisplibdir) && rm -rf base full)"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/base"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
@@ -3258,7 +3262,7 @@ if [ $CROSS = false ] ; then
     else
       localeflags=" -B \$(lisplibdir)"
     fi
-    echotab "if [ ! -d \$(DESTDIR)\$(bindir) ] ; then mkdir \$(DESTDIR)\$(bindir) ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(bindir)"
     echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
     echol
     if [ $TERMINAL = readline ] ; then
@@ -3266,24 +3270,24 @@ if [ $CROSS = false ] ; then
     else
       echol "install-man : clisp.1${manual_dvi} clisp.html force"
     fi
-    echotab "if [ ! -d \$(DESTDIR)\$(prefix) ] ; then mkdir \$(DESTDIR)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(exec_prefix) ] ; then mkdir \$(DESTDIR)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(mandir) ] ; then mkdir \$(DESTDIR)\$(mandir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(mandir)/man1 ] ; then mkdir \$(DESTDIR)\$(mandir)/man1 ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     echotab "\$(INSTALL_DATA) clisp.1 \$(DESTDIR)\$(mandir)/man1/clisp.1"
     if [ $TERMINAL = readline ] ; then
-      echotab "if [ ! -d \$(DESTDIR)\$(mandir)/man3 ] ; then mkdir \$(DESTDIR)\$(mandir)/man3 ; fi"
+      echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man3"
       echotab "\$(INSTALL_DATA) clreadline.3 \$(DESTDIR)\$(mandir)/man3/clreadline.3"
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "if [ ! -d \$(DESTDIR)\$(exec_prefix)/share ] ; then mkdir \$(DESTDIR)\$(exec_prefix)/share ; fi"
-        echotab "if [ ! -d \$(DESTDIR)\$(htmldir) ] ; then mkdir \$(DESTDIR)\$(htmldir) ; fi"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)/share"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(htmldir)"
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(htmldir)/clisp.html"
         if [ $TERMINAL = readline ] ; then
           echotab "\$(INSTALL_DATA) clreadline.html \$(DESTDIR)\$(htmldir)/clreadline.html"
         fi
-        echotab "if [ ! -d \$(DESTDIR)\$(dvidir) ] ; then mkdir \$(DESTDIR)\$(dvidir) ; fi"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(dvidir)"
         if test -n "$GROFF"; then
           echotab "\$(INSTALL_DATA) clisp.dvi \$(DESTDIR)\$(dvidir)/clisp.dvi"
         fi
@@ -3292,7 +3296,7 @@ if [ $CROSS = false ] ; then
         fi
         ;;
       netbsd)
-        echotab "if [ ! -d \$(DESTDIR)\$(lispdocdir) ] ; then mkdir \$(DESTDIR)\$(lispdocdir) ; fi"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(lispdocdir)/clisp.html"
         if [ $TERMINAL = readline ] ; then
           echotab "\$(INSTALL_DATA) clreadline.html \$(DESTDIR)\$(lispdocdir)/clreadline.html"
@@ -3301,17 +3305,17 @@ if [ $CROSS = false ] ; then
     esac
     echol
     echol "install-doc : \$(READMES) \$(MANUALS)${manual_dvi} force"
-    echotab "if [ ! -d \$(DESTDIR)\$(prefix) ] ; then mkdir \$(DESTDIR)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(exec_prefix) ] ; then mkdir \$(DESTDIR)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(docdir) ] ; then mkdir \$(DESTDIR)\$(docdir) ; fi"
-    echotab "if [ ! -d \$(DESTDIR)\$(lispdocdir) ] ; then mkdir \$(DESTDIR)\$(lispdocdir) ; fi"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
     echotab "\$(INSTALL_DATA) \$(READMES) \$(DESTDIR)\$(lispdocdir)/"
     case "$fsstnd" in
       netbsd)
         echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(DESTDIR)\$(lispdocdir)/"
         ;;
       *)
-        echotab "if [ ! -d \$(DESTDIR)\$(lispdocdir)/doc ] ; then mkdir \$(DESTDIR)\$(lispdocdir)/doc ; fi"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)/doc"
         echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(DESTDIR)\$(lispdocdir)/doc/"
         ;;
     esac

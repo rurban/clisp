@@ -2,6 +2,7 @@
 
 	* configure (link): remove the target ($2) first
 	(maybe_mkdir): new function
+	* makemake.in (echotab_mkdir_maybe): new function
 
 2001-11-28  Sam Steingold  <sds@gnu.org>
 
