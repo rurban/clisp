@@ -237,7 +237,7 @@
                                                      '()))))
                          ; gf-lambdalist's signature is
                          ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
-                         (make-fast-gf funname gf-lambdalist (subseq m-lambdalist 0 req-num)))))))
+                         (make-fast-gf funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method>))))))
          (method
            (if (listp method-or-initargs)
              ;; During bootstrap, the only used method-class is <standard-method>.
@@ -268,7 +268,7 @@
 ;; funname: function name, symbol or (SETF symbol)
 ;; lambdalist: lambdalist of the generic function
 ;; options: (option*)
-;; --> signature, argument-precedence-order, method combination, method-forms, docstring
+;; --> signature, argument-precedence-order, method combination, method-class-form, method-forms, docstring
 (defun analyze-defgeneric (caller funname lambdalist options)
   (sys::check-function-name funname caller)
   ;; Parse the lambdalist:
@@ -276,6 +276,7 @@
   ;; Process the options:
   (let ((method-forms '())
         (method-combination 'STANDARD)
+        (method-classes nil)
         (argorders nil)
         (docstrings nil))
     (dolist (option options)
@@ -333,17 +334,20 @@
              (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
              caller funname 'standard-generic-function option)))
         (:METHOD-CLASS
-         ;; the class of the methods is being ignored.
-         (unless (equal (rest option) '(STANDARD-METHOD))
+         (unless (and (eql (length option) 2) (symbolp (second option)))
            (error-of-type 'ext:source-program-error
              :form option
-             (TEXT "~S ~S: The only valid method class name is ~S : ~S")
-             caller funname 'standard-method option)))
+             (TEXT "~S ~S: A class name must be specified after ~S : ~S")
+             caller funname ':method-class option))
+         (when method-classes
+           (error-of-type 'ext:source-program-error
+             :form options
+             (TEXT "~S ~S: Only one ~S option is allowed.")
+             caller funname ':method-class))
+         (setq method-classes (rest option)))
         (:METHOD
-         (let ((method-initargs-forms
-                 (analyze-method-description caller funname (rest option))))
-           (push `(MAKE-INSTANCE-<STANDARD-METHOD> <STANDARD-METHOD> ,@method-initargs-forms)
-                 method-forms)))
+         (push (analyze-method-description caller funname (rest option))
+               method-forms))
         (t (error-of-type 'ext:source-program-error
              :form option
              (TEXT "~S ~S: invalid syntax in ~S option: ~S")
@@ -356,13 +360,24 @@
                 :form form (TEXT "~S ~S: ~A")
                 caller funname (apply #'format nil errorstring arguments))))
       (declare (ignore argorder))
-      (values signature
-              argument-precedence-order
-              method-combination
-              ;; list of the method-forms
-              (nreverse method-forms)
-              ;; docstring or nil
-              (car docstrings)))))
+      (let ((method-class-form
+              (if method-classes
+                `(FIND-CLASS ',(first method-classes))
+                '<STANDARD-METHOD>)))
+        (values signature
+                argument-precedence-order
+                method-combination
+                method-class-form
+                ;; list of the method-forms
+                (mapcar #'(lambda (method-initargs-forms)
+                            ;; During bootstrap, the only used method-class is <standard-method>.
+                            ;; After bootstrap, make-instance-<standard-method> is the same
+                            ;; as the general make-instance.
+                            `(MAKE-INSTANCE-<STANDARD-METHOD> ,method-class-form
+                               ,@method-initargs-forms))
+                  (nreverse method-forms))
+                ;; docstring or nil
+                (car docstrings))))))
 
 ;; parse the lambdalist:
 ;; lambdalist --> reqnum, req-vars, optnum, restp, keyp, keywords, allowp
@@ -390,7 +405,7 @@
 ;;; DEFGENERIC
 
 (defmacro defgeneric (funname lambda-list &rest options)
-  (multiple-value-bind (signature argument-precedence-order method-combo method-forms docstring)
+  (multiple-value-bind (signature argument-precedence-order method-combo method-class-form method-forms docstring)
       (analyze-defgeneric 'defgeneric funname lambda-list options)
     `(LET ()
        (DECLARE (SYS::IN-DEFUN ,funname))
@@ -405,7 +420,7 @@
                                         ',(second funname))))))
              `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION
                                            ',docstring))))
-       (DO-DEFGENERIC ',funname ',lambda-list ',signature ',argument-precedence-order ',method-combo
+       (DO-DEFGENERIC ',funname ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form
                       ,@method-forms))))
 
 (defun ensure-generic-function (function-name &key argument-precedence-order
@@ -413,7 +428,7 @@
                                 generic-function-class lambda-list
                                 method-class method-combination)
   (declare (ignore environment))
-  (multiple-value-bind (signature argument-precedence-order method-combo)
+  (multiple-value-bind (signature argument-precedence-order method-combo method-class-form)
       (analyze-defgeneric
        'defgeneric function-name lambda-list
        `(,@(if declare `(:declare ,declare))
@@ -427,4 +442,4 @@
                       generic-function-class)))
          ,@(if method-combination `(:method-combination ,method-combination))
          ,@(if method-class `(:method-class ,method-class))))
-    (do-defgeneric function-name lambda-list signature argument-precedence-order method-combo)))
+    (do-defgeneric function-name lambda-list signature argument-precedence-order method-combo (eval method-class-form))))
