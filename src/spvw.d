@@ -1669,36 +1669,37 @@ local void usage (int exit_code)
                      " to the list of argument strings. Otherwise, an interactive" NLstring
                      " read-eval-print loop is entered." NLstring));
   asciz_out(GETTEXTL("Informative output:" NLstring));
-  asciz_out(GETTEXTL(" -h, --help  - print this help and exit" NLstring));
-  asciz_out(GETTEXTL(" --version   - print the version information" NLstring));
-  asciz_out(GETTEXTL(" --license   - print the licensing information" NLstring));
+  asciz_out(GETTEXTL(" -h, --help    - print this help and exit" NLstring));
+  asciz_out(GETTEXTL(" --version     - print the version information" NLstring));
+  asciz_out(GETTEXTL(" --license     - print the licensing information" NLstring));
   asciz_out(GETTEXTL("Memory image selection:" NLstring));
   asciz_out(GETTEXTL(" -B lisplibdir - set the installation directory" NLstring));
   #ifdef UNIX
   asciz_out(GETTEXTL(" -K linkingset - use this executable and memory image" NLstring));
   #endif
-  asciz_out(GETTEXTL(" -M memfile  - use this memory image" NLstring));
-  asciz_out(GETTEXTL(" -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
+  asciz_out(GETTEXTL(" -M memfile    - use this memory image" NLstring));
+  asciz_out(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
   #ifndef NO_SP_MALLOC
-  asciz_out(GETTEXTL(" -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
+  asciz_out(GETTEXTL(" -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
   #endif
   #ifdef MULTIMAP_MEMORY_VIA_FILE
-  asciz_out(GETTEXTL(" -t tmpdir   - temporary directory for memmap" NLstring));
+  asciz_out(GETTEXTL(" -t tmpdir     - temporary directory for memmap" NLstring));
   #endif
   asciz_out(GETTEXTL("Internationalization:" NLstring));
-  asciz_out(GETTEXTL(" -L language - set user language" NLstring));
-  asciz_out(GETTEXTL(" -N nlsdir   - NLS catalog directory" NLstring));
+  asciz_out(GETTEXTL(" -L language   - set user language" NLstring));
+  asciz_out(GETTEXTL(" -N nlsdir     - NLS catalog directory" NLstring));
   asciz_out(GETTEXTL(" -Edomain encoding - set encoding" NLstring));
   asciz_out(GETTEXTL("Interoperability:" NLstring));
   asciz_out(GETTEXTL(" -q, --quiet, --silent - do not print the banner" NLstring));
-  asciz_out(GETTEXTL(" -w          - wait for keypress after program termination" NLstring));
-  asciz_out(GETTEXTL(" -I          - be ILISP-friendly" NLstring));
+  asciz_out(GETTEXTL(" -w            - wait for keypress after program termination" NLstring));
+  asciz_out(GETTEXTL(" -I            - be ILISP-friendly" NLstring));
   asciz_out(GETTEXTL("Startup actions:" NLstring));
-  asciz_out(GETTEXTL(" -a          - more ANSI CL compliance" NLstring));
-  asciz_out(GETTEXTL(" -p package  - start in the package" NLstring));
-  asciz_out(GETTEXTL(" -C          - set *LOAD-COMPILING* to T" NLstring));
-  asciz_out(GETTEXTL(" -norc       - do not load the user ~/.clisprc file" NLstring));
-  asciz_out(GETTEXTL(" -i file     - load initfile (can be repeated)" NLstring));
+  asciz_out(GETTEXTL(" -ansi         - more ANSI CL compliance" NLstring));
+  asciz_out(GETTEXTL(" -traditional  - traditional (undoes -ansi)" NLstring));
+  asciz_out(GETTEXTL(" -p package    - start in the package" NLstring));
+  asciz_out(GETTEXTL(" -C            - set *LOAD-COMPILING* to T" NLstring));
+  asciz_out(GETTEXTL(" -norc         - do not load the user ~/.clisprc file" NLstring));
+  asciz_out(GETTEXTL(" -i file       - load initfile (can be repeated)" NLstring));
   asciz_out(GETTEXTL("Actions:" NLstring));
   asciz_out(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring));
   asciz_out(GETTEXTL(" -x expression - execute the expression, then exit" NLstring));
@@ -1744,7 +1745,7 @@ local void print_banner ()
 { const char * const banner0[] = { # einige Zeilen à 66 Zeichen
  #  |Column 0           |Column 20                                    |Col 66
  # "012345678901234567890123456789012345678901234567890123456789012345678901"
-   "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo " NLstring,
+   "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo" NLstring,
    "  I I I I I I I      8     8   8           8     8     o  8    8" NLstring,
   "  I  \\ `+' /  I      8         8           8     8        8    8" NLstring,
   "   \\  `-+-'  /       8         8           8      ooooo   8oooo" NLstring,
@@ -1922,21 +1923,22 @@ local void print_banner ()
       #   -c file ...     LISP-Files compilieren, dann LISP verlassen
       #   -l              Beim Compilieren: Listings anlegen
       #   -p package      set *PACKAGE*
-      #   -a              more ANSI CL Compliance
+      #   -ansi           more ANSI CL Compliance
+      #   -traditional    traditional (undoes -ansi)
       #   -x expr         LISP-Expressions ausführen, dann LISP verlassen
       #   -w              wait for keypress after termination
       #   --help          print usage and exit (should be the only option)
       #   --version       print version and exit (should be the only option)
       #   file [arg ...]  LISP-File im Batch-Modus laden und ausführen,
       #                   dann LISP verlassen
-      #
+
       # Neu hinzukommende Optionen müssen aufgeführt werden:
       # - in obiger Tabelle,
       # - in der usage-Meldung hier,
       # - im Optionsparser hier,
       # - im Optionsparser in _clisp.c,
       # - in den Manual-Pages _clisp.1 und _clisp.html.
-      #
+
       program_name = argv[0]; # argv[0] ist der Programmname
      {var char** argptr = &argv[1];
       var char** argptr_limit = &argv[argc];
@@ -2107,8 +2109,17 @@ local void print_banner ()
                     argv_package = arg;
                     break;
                   case 'a': # ANSI CL Compliance
-                    argv_ansi = true;
-                    if (!(arg[2] == '\0')) usage (1);
+                    if (asciz_equal(arg,"-ansi")) argv_ansi = true;
+                    else if (!(arg[2] == '\0')) usage (1);
+                    else {
+                      asciz_out(GETTEXTL("CLISP: -a is deprecated, use -ansi"
+                                         NLstring));
+                      argv_ansi = true;
+                    }
+                    break;
+                  case 't': # traditional
+                    if (asciz_equal(arg,"-traditional")) argv_ansi = false;
+                    else usage(1);
                     break;
                   case 'x': # LISP-Expression ausführen
                     OPTION_ARG
@@ -2822,6 +2833,9 @@ local void print_banner ()
       if (argv_ansi) {
         # Maximum ANSI CL compliance, even where it hurts.
         pushSTACK(T); funcall(L(set_ansi),1);
+      } else {
+        # traditional CLISP behavior
+        pushSTACK(NIL); funcall(L(set_ansi),1);
       }
       if (argv_package != NULL) {
         # (IN-PACKAGE packagename)
