@@ -1,5 +1,9 @@
 2004-02-27  Bruno Haible  <bruno@clisp.org>
 
+	* error.d (check_pos_integer): Fix typo in error message.
+
+2004-02-27  Bruno Haible  <bruno@clisp.org>
+
 	* spvw.d (main): Combine the handling of the options -t TMPDIR and
 	-traditional.
 
