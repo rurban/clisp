@@ -2442,12 +2442,62 @@ and the international alphabetic characters from the character set:
 
 <programlisting>
 (&make-hash-table; &key-amp; :test :initial-contents :size
-                 :rehash-size :rehash-threshold :weak)
+                 :rehash-size :rehash-threshold
+                 :warn-if-needs-rehash-after-gc :weak)
 </programlisting>
 
+<para>The <constant>:TEST</constant> argument can be, other than one of
+ the symbols &eq;, &eql;, &equal;, &equalp;, one of the symbols
+ <constant>EXT:FASTHASH-EQ</constant> and
+ <constant>EXT:STABLEHASH-EQ</constant>. Both of these tests use &eq; as
+ comparison function; they differ in their performance characteristics.
+ <variablelist>
+  <varlistentry><term><constant>EXT:FASTHASH-EQ</constant></term>
+   <listitem><simpara>This uses the fastest possible hash function.
+     Its drawback is that its hash codes become invalid at every GC
+     (except if all keys are of type &fixnum;, &character; or &short-float;),
+     thus requiring a reorganization of the hash table at the first
+     access after each GC. Especially when generational GC is used,
+     which leads to frequent small GCs, large hash table with this test
+     can lead to scalability problems.</simpara></listitem></varlistentry>
+  <varlistentry><term><constant>EXT:STABLEHASH-EQ</constant></term>
+   <listitem><simpara>This uses a slower hash function that has the
+     property that its hash codes for instances of the classes
+     <classname>EXT:STANDARD-STABLEHASH</classname> (subclass of
+     &standard-object-t;) and <classname>EXT:STRUCTURE-STABLEHASH</classname>
+     (subclass of &structure-object-t;) are stable across GCs.
+     This test can thus avoid the scalability problems if all keys,
+     other than &fixnum;, &character; or &short-float;, are
+     <classname>EXT:STANDARD-STABLEHASH</classname> or
+     <classname>EXT:STRUCTURE-STABLEHASH</classname>
+     instances.</simpara></listitem></varlistentry>
+ </variablelist>
+ One can recommend to use <constant>EXT:FASTHASH-EQ</constant> for
+ short-lived hash tables. For hash tables with a long lifespan which can
+ be big or accessed frequently, it is recommended to use
+ <constant>EXT:STABLEHASH-EQ</constant>, and to modify the objects that
+ are used as its keys to become instances of
+ <constant>EXT:STANDARD-STABLEHASH</constant> or
+ <constant>EXT:STRUCTURE-STABLEHASH</constant>.
+</para>
+
+<para>When the symbol &eq; or the function <literal>#'eq</literal> is
+used as a <constant>:TEST</constant> argument, the value of the variable
+<varname>EXT:*EQ-HASHFUNCTION*</varname> is used instead. This value must
+be one of <constant>EXT:FASTHASH-EQ</constant>,
+<constant>EXT:STABLEHASH-EQ</constant>.</para>
+
+<para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
+if true, causes a warning to be signalled when an object is stored into
+the table which will force table reorganizations at the first access
+of the table after each GC. This keyword argument can be used to check
+whether <constant>EXT:STABLEHASH-EQ</constant> should be preferred over
+<constant>EXT:FASTHASH-EQ</constant> for a particular table.</para>
+
 <para>The <constant>:INITIAL-CONTENTS</constant> argument is an
- &alist; that is used to initialize the new hash table.
- The <constant>:REHASH-THRESHOLD</constant> argument is ignored.</para>
+ &alist; that is used to initialize the new hash table.</para>
+
+<para>The <constant>:REHASH-THRESHOLD</constant> argument is ignored.</para>
 
 <para>The <constant>:WEAK</constant> can take the following values:
  <simplelist columns="1">
@@ -2465,6 +2515,9 @@ and &weak-pointer;s, it is &gc;ed and removed from the weak
 
 <para>The &setf;able predicate <function>EXT:HASH-TABLE-WEAK-P</function>
 checks whether the &hash-table-t; is weak.</para>
+
+<para>Note that the only test that makes sense for weak hash tables are
+&eq; and its variants &fasthash-eq; and &smallhash-eq;.</para>
 
 <para>Just like all other <link linkend="weak">weak objects</link>, weak
 &hash-table-t;s cannot be printed readably.</para>

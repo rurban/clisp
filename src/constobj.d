@@ -139,6 +139,7 @@
  #ifdef GENERATIONAL_GC
   LISPOBJ(gc_count,"0")
  #endif
+  LISPOBJ(type_eq_hashfunction,"(MEMBER EXT::FASTHASH-EQ EXT::STABLEHASH-EQ)")
   LISPOBJ(type_weak_ht,"(MEMBER :BOTH :EITHER :VALUE :KEY NIL)")
 # for RECORD.D:
   LISPOBJ(constant_initfunction_code,".")

@@ -1149,6 +1149,8 @@ local void init_symbol_values (void) {
   define_variable(S(macroexpand_hook),L(funcall)); # *MACROEXPAND-HOOK* := #'FUNCALL
   define_variable(S(evalhookstern),NIL);          # *EVALHOOK*
   define_variable(S(applyhookstern),NIL);         # *APPLYHOOK*
+  # for HASHTABL:
+  define_variable(S(eq_hashfunction),S(fasthash_eq)); # EXT:*EQ-HASHFUNCTION* := 'EXT:FASTHASH-EQ
   # for PACKAGE:
   define_variable(S(packagestern),Car(O(all_packages))); # *PACKAGE* := '#<PACKAGE LISP>
   # for SYMBOL:

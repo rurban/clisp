@@ -8458,9 +8458,23 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
           if (ht_weak_p(*obj_)) {
             JUSTIFY_SPACE; JUSTIFY_LAST(false);
-            prin_object(stream_,S(Kweak)); # print :WEAK
+            {
+              JUSTIFY_START(0); JUSTIFY_LAST(false);
+              prin_object(stream_,S(Kweak)); # print :WEAK
+              JUSTIFY_SPACE; JUSTIFY_LAST(true);
+              prin_object(stream_,hash_table_weak_type(*obj_)); /*:KEY/:VALUE/:BOTH/:EITHER*/
+              JUSTIFY_END_FILL;
+            }
+          }
+          if (record_flags(TheHashtable(*obj_)) & htflags_warn_gc_rehash_B) {
             JUSTIFY_SPACE; JUSTIFY_LAST(false);
-            prin_object(stream_,hash_table_weak_type(*obj_)); /*:KEY/:VALUE/:BOTH/:EITHER*/
+            {
+              JUSTIFY_START(0); JUSTIFY_LAST(false);
+              prin_object(stream_,S(Kwarn_if_needs_rehash_after_gc)); # print :WARN-IF-NEEDS-REHASH-AFTER-GC
+              JUSTIFY_SPACE; JUSTIFY_LAST(true);
+              prin_object(stream_,T); # print T
+              JUSTIFY_END_FILL;
+            }
           }
           obj = *obj_;
           {

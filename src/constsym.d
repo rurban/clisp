@@ -312,6 +312,8 @@ LISPSYM(hash_table_rehash_size,"HASH-TABLE-REHASH-SIZE",lisp)
 LISPSYM(hash_table_rehash_threshold,"HASH-TABLE-REHASH-THRESHOLD",lisp)
 LISPSYM(hash_table_size,"HASH-TABLE-SIZE",lisp)
 LISPSYM(hash_table_test,"HASH-TABLE-TEST",lisp)
+LISPSYM(fasthash_stable_p,"FASTHASH-STABLE-P",system)
+LISPSYM(stablehash_stable_p,"STABLEHASH-STABLE-P",system)
 LISPSYM(hash_table_iterator,"HASH-TABLE-ITERATOR",system)
 LISPSYM(hash_table_iterate,"HASH-TABLE-ITERATE",system)
 LISPSYM(hash_table_weak_p,"HASH-TABLE-WEAK-P",ext)
@@ -1214,6 +1216,7 @@ LISPSYM(Krehash_size,"REHASH-SIZE",keyword)
 LISPSYM(Krehash_threshold,"REHASH-THRESHOLD",keyword)
 LISPSYM(Kkey_type,"KEY-TYPE",keyword)
 LISPSYM(Kvalue_type,"VALUE-TYPE",keyword)
+LISPSYM(Kwarn_if_needs_rehash_after_gc,"WARN-IF-NEEDS-REHASH-AFTER-GC",keyword)
 LISPSYM(Kweak,"WEAK",keyword)
 LISPSYM(Kboth,"BOTH",keyword)
 LISPSYM(Keither,"EITHER",keyword)
@@ -1331,6 +1334,10 @@ LISPSYM(allocate_instance,"ALLOCATE-INSTANCE",clos) /* function for RECORD */
 LISPSYM(finalize_inheritance,"FINALIZE-INHERITANCE",clos) /* function for RECORD */
 LISPSYM(class_version_compute_slotlists,"CLASS-VERSION-COMPUTE-SLOTLISTS",clos) /* function for RECORD */
 LISPSYM(constant_initfunction,"CONSTANT-INITFUNCTION",clos) /* marker in RECORD */
+LISPSYM(fasthash_eq,"FASTHASH-EQ",ext) /* test for HASHTABL */
+LISPSYM(stablehash_eq,"STABLEHASH-EQ",ext) /* test for HASHTABL */
+LISPSYM(eq_hashfunction,"*EQ-HASHFUNCTION*",ext) /* variable for HASHTABL */
+LISPSYM(structure_stablehash,"STRUCTURE-STABLEHASH",clos) /* class for HASHTABL */
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(base_string,"BASE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */

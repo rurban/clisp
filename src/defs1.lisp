@@ -372,6 +372,10 @@
                ,HTvar)
              ,resultform))))))
 
+;; Different hash code algorithms for the same test.
+(sys::%putd 'ext:fasthash-eq #'eq)
+(sys::%putd 'ext:stablehash-eq #'eq)
+
 
 ;;; functions for strings (Chapter 18)
 

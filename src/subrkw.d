@@ -54,7 +54,8 @@ s(write_byte_sequence)
 v(5, (kw(charset),kw(line_terminator),kw(input_error_action),
       kw(output_error_action),kw(if_does_not_exist)) )
 s(make_encoding)
-v(8, (kw(weak),kw(initial_contents),kw(key_type),kw(value_type),
+v(9, (kw(initial_contents),kw(key_type),kw(value_type),
+      kw(warn_if_needs_rehash_after_gc),kw(weak),
       kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 s(make_hash_table)
 v(3, (kw(preserve_whitespace),kw(start),kw(end)) )

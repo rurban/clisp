@@ -1689,10 +1689,15 @@ local void gc_unmarkcheck (void) {
                 }                                                          \
               }                                                            \
             }
+          #ifdef GENERATIONAL_GC
+            #define update_hashtable_invalid  false
+          #else
+            #define update_hashtable_invalid  true
+          #endif
           #define update_unrealloc  true
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_ht_invalid  set_ht_invalid
+          #define update_ht_invalid  set_ht_invalid_if_needed
           #define update_ss_unrealloc  mark_sstring_clean
           #define update_in_unrealloc  mark_inst_clean
           #define update_fp_invalid  mark_fp_invalid
@@ -1706,6 +1711,7 @@ local void gc_unmarkcheck (void) {
           #undef update_fsubr_function
           #undef update_fpointer_invalid
           #undef update_unrealloc
+          #undef update_hashtable_invalid
           #undef update_page
         #ifdef GENERATIONAL_GC
         # update pointers in the objects of the old generation:
@@ -2244,10 +2250,15 @@ local void gc_unmarkcheck (void) {
                 updater(typecode_at(ptr) & ~bit(garcol_bit_t)); # and advance \
               }                                                               \
             }
+          #ifdef GENERATIONAL_GC
+            #define update_hashtable_invalid  false
+          #else
+            #define update_hashtable_invalid  true
+          #endif
           #define update_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_ht_invalid  set_ht_invalid
+          #define update_ht_invalid  set_ht_invalid_if_needed
           #define update_ss_unrealloc(ptr)
           #define update_in_unrealloc(ptr)
           #define update_fp_invalid  mark_fp_invalid
@@ -2261,6 +2272,7 @@ local void gc_unmarkcheck (void) {
           #undef update_fsubr_function
           #undef update_fpointer_invalid
           #undef update_unrealloc
+          #undef update_hashtable_invalid
           #undef update_page
     # execution of the relocations in the not entirely emptied pages:
       for_each_varobject_page(page, {
@@ -2449,10 +2461,15 @@ local void gc_unmarkcheck (void) {
           #undef update_conspage
         # update pointers in the objects of variable length:
           #define update_page  update_page_normal
+          #ifdef GENERATIONAL_GC
+            #define update_hashtable_invalid  false
+          #else
+            #define update_hashtable_invalid  true
+          #endif
           #define update_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_ht_invalid  set_ht_invalid
+          #define update_ht_invalid  set_ht_invalid_if_needed
           #define update_ss_unrealloc(ptr)
           #define update_in_unrealloc(ptr)
           #define update_fp_invalid  mark_fp_invalid
@@ -2466,6 +2483,7 @@ local void gc_unmarkcheck (void) {
           #undef update_fsubr_function
           #undef update_fpointer_invalid
           #undef update_unrealloc
+          #undef update_hashtable_invalid
           #undef update_page
       # Macro update is now unnecessary:
         #undef update
