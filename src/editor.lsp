@@ -1,7 +1,7 @@
 (in-package "LISP")
-(export '(editor ed *use-ed*))
-(pushnew 'editor *features*)
-#+(or DOS OS/2) (eval-when (compile load eval) (pushnew 'dose *features*))
+(export '(ed *use-ed*))
+(pushnew ':editor *features*)
+#+(or DOS OS/2) (eval-when (compile load eval) (pushnew ':dose *features*))
 (eval-when (compile)
   ;; On some platforms, #<PACKAGE SCREEN> does not exist. Create it.
   (unless (find-package "SCREEN")

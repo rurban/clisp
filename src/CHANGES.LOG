@@ -36,6 +36,11 @@ User visible changes
   implemented: PEEK-CHAR does less side effects than READ-CHAR followed by 
   UNREAD-CHAR would do.
 
+* X3J13 writeup <SHARPSIGN-PLUS-MINUS-PACKAGE:KEYWORD> is implemented:
+  When looking up a feature symbol in *FEATURES*, the package is no longer
+  ignored. All initial elements of *FEATURES* are now keywords. The reader
+  binds *PACKAGE* to #<PACKAGE KEYWORD> during #+ and #-.
+
 * X3J13 writeup <SLOT-MISSING-VALUES:SPECIFY> is implemented: Some of the
   values of SLOT-MISSING are ignored, depending on context.
 

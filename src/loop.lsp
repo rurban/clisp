@@ -4,7 +4,7 @@
 
 (in-package "LISP")
 (export '(loop loop-finish))
-(pushnew 'loop *features*)
+(pushnew ':loop *features*)
 
 (in-package "SYSTEM")
 

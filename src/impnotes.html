@@ -2815,29 +2815,29 @@ site-specific <CODE>config.lsp</CODE> file.
 <P>
 The variable <CODE>*features*</CODE> initially contains the symbols
 <TABLE>
-   <TR><TD><CODE>CLISP</CODE>            <TD> this implementation
-   <TR><TD><CODE>COMMON-LISP</CODE>
-   <TR><TD><CODE>CLTL2</CODE>
-   <TR><TD><CODE>INTERPRETER</CODE>
-   <TR><TD><CODE>COMPILER</CODE>
+   <TR><TD><CODE>:CLISP</CODE>            <TD> this implementation
+   <TR><TD><CODE>:COMMON-LISP</CODE>
+   <TR><TD><CODE>:CLTL2</CODE>
+   <TR><TD><CODE>:INTERPRETER</CODE>
+   <TR><TD><CODE>:COMPILER</CODE>
 <!-- #ifdef LOGICAL_PATHNAMES -->
-   <TR><TD><CODE>LOGICAL-PATHNAMES</CODE>
+   <TR><TD><CODE>:LOGICAL-PATHNAMES</CODE>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
-   <TR><TD><CODE>FFI</CODE>              <TD> if a foreign function interface is supported <EM>(Platform dependent: many UNIX, Win32 platforms only)</EM>
+   <TR><TD><CODE>:FFI</CODE>              <TD> if a foreign function interface is supported <EM>(Platform dependent: many UNIX, Win32 platforms only)</EM>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
-   <TR><TD><CODE>GETTEXT</CODE>          <TD> if internationalization using the GNU gettext package is supported <EM>(Platform dependent: most UNIX platforms only)</EM>
+   <TR><TD><CODE>:GETTEXT</CODE>          <TD> if internationalization using the GNU gettext package is supported <EM>(Platform dependent: most UNIX platforms only)</EM>
 <!-- #endif -->
-   <TR><TD><CODE>LOOP</CODE>
-   <TR><TD><CODE>CLOS</CODE>
-   <TR><TD><CODE>AMIGA</CODE>            <TD> if <VAR>hardware</VAR> = Amiga and <VAR>operating system</VAR> = Exec/AmigaDOS
-   <TR><TD><CODE>DOS</CODE>              <TD> if <VAR>hardware</VAR> = PC (clone) and <VAR>operating system</VAR> = DOS
-   <TR><TD><CODE>OS/2</CODE>             <TD> if <VAR>hardware</VAR> = PC (clone) and <VAR>operating system</VAR> = OS/2
-   <TR><TD><CODE>WIN32</CODE>            <TD> if <VAR>hardware</VAR> = PC (clone) and <VAR>operating system</VAR> = Win32
+   <TR><TD><CODE>:LOOP</CODE>
+   <TR><TD><CODE>:CLOS</CODE>
+   <TR><TD><CODE>:AMIGA</CODE>            <TD> if <VAR>hardware</VAR> = Amiga and <VAR>operating system</VAR> = Exec/AmigaDOS
+   <TR><TD><CODE>:DOS</CODE>              <TD> if <VAR>hardware</VAR> = PC (clone) and <VAR>operating system</VAR> = DOS
+   <TR><TD><CODE>:OS/2</CODE>             <TD> if <VAR>hardware</VAR> = PC (clone) and <VAR>operating system</VAR> = OS/2
+   <TR><TD><CODE>:WIN32</CODE>            <TD> if <VAR>hardware</VAR> = PC (clone) and <VAR>operating system</VAR> = Win32
                                                    (Windows NT or Windows 95)
-   <TR><TD><CODE>PC386</CODE>            <TD> if <VAR>hardware</VAR> = PC (clone) with a 386/486/586/686
-   <TR><TD><CODE>UNIX</CODE>             <TD> if                            <VAR>operating system</VAR> = Unix
+   <TR><TD><CODE>:PC386</CODE>            <TD> if <VAR>hardware</VAR> = PC (clone) with a 386/486/586/686
+   <TR><TD><CODE>:UNIX</CODE>             <TD> if                            <VAR>operating system</VAR> = Unix
                                                    (yes, in this case the
                                                    hardware is irrelevant!)
 </TABLE>
