@@ -1,5 +1,23 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_page.d: New file.
+        * spvw_heap.d: New file.
+        * spvw_global.d: New file.
+        * spvw.d (typecount, _Page, Page, Pages, Heap, oint_addr_relevant_len,
+           min_page_size_brutto, std_page_size, old_new_pointer,
+           physpage_state, heapcount, is_cons_heap, is_varobject_heap,
+           is_heap_containing_objects, is_unused_heap, map_heap,
+           for_each_cons_page, for_each_cons_page_reversed,
+           for_each_varobject_page, for_each_page, mem, RESERVE,
+           MINIMUM_SPACE, RESERVE_FOR_MALLOC, check_avl_consistency,
+           check_gc_consistency, check_gc_consistency_2,
+           check_pack_consistency): Move out.
+          (memfile_handle, memfile_still_being_read): Move into the mem struct.
+          (main): Call init_mem_heaptypes() and init_mem_heapnr_from_type().
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_singlemap.d: New file.
         * spvw.d (map_pagesize, initmap, prepare_zeromap, zeromap): Move out.
           (main): Call init_map_pagesize().

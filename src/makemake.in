@@ -1254,7 +1254,7 @@ if [ $TSYS = master -o $TSYS = amiga ] ; then
   OTHER_INCLUDES=$OTHER_INCLUDES' amiga2'
 fi
 
-SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_singlemap spvw_circ'
+SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_singlemap spvw_page spvw_heap spvw_global spvw_circ'
 
 ERROR_INCLUDES=''
 if [ $TSYS = master -o $TSYS = amiga ] ; then
