@@ -22,11 +22,11 @@
 (defvar <structure-object>)            ; <structure-class>
 (defvar <generic-function>)            ; <funcallable-standard-class>
 (defvar <standard-generic-function>)   ; <funcallable-standard-class>
-;(defvar <method>)                     ; here <structure-class>
-;(defvar <standard-method>)            ; here <structure-class>
-(defvar <standard-reader-method>)      ; here <structure-class>
-(defvar <standard-writer-method>)      ; here <structure-class>
-;(defvar <method-combination>)         ; here <structure-class>
+;(defvar <method>)                     ; <standard-class>
+;(defvar <standard-method>)            ; <standard-class>
+(defvar <standard-reader-method>)      ; <standard-class>
+(defvar <standard-writer-method>)      ; <standard-class>
+;(defvar <method-combination>)         ; <standard-class>
 (defvar <array>)                       ; <built-in-class>
 (defvar <bit-vector>)                  ; <built-in-class>
 (defvar <character>)                   ; <built-in-class>
