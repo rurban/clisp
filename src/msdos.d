@@ -9,10 +9,8 @@
 #define RUBOUT 127          # Rubout = Delete
 #define CRLFstring  "\r\n"  # C-String, der BS-Newline enthält
 
-#ifndef WINDOWS
-  #define stdin_handle  0  # File-Handle von Standard-Input
-  #define stdout_handle  1  # File-Handle von Standard-Output
-#endif
+#define stdin_handle  0  # File-Handle von Standard-Input
+#define stdout_handle  1  # File-Handle von Standard-Output
 
 # Deklaration von Typen von Ein-/Ausgabe-Parametern von Betriebssystemfunktionen
   #ifdef DJUNIX
@@ -81,9 +79,6 @@
 # Bereitstellen des Arbeitsspeichers
   extern void* malloc (size_t size); # siehe MALLOC(3V)
   extern void free (void* ptr); # siehe MALLOC(3V)
-  #if defined(WATCOM) && defined(WINDOWS)
-    #error "malloc does not work, neither does the replacement malloc32!"
-  #endif
 # wird verwendet von SPVW
 
 # Normales Programmende
@@ -105,41 +100,32 @@
 # wird verwendet von SPVW, DEBUG, EVAL, IO
 
 # Signalbehandlung
-  #ifndef WINDOWS
-    #ifdef EMUNIX
-      #include <signal.h>
-      # Ein Signal-Handler ist eine Funktion ohne Ergebnis.
-      typedef SIGTY (*signal_handler) ();
-      extern signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
-      # Ein Signal erst eine bestimmte Zeit später ausliefern:
-      extern unsigned int alarm (unsigned int seconds); # siehe ALARM(3V)
-      # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):
-      #define signal_acknowledge(sig,handler)  signal(sig,SIG_ACK)
-      # Das Verhalten von Signalen bei System-Calls ist OK:
-      #define SIGNAL  signal
-    #endif
-    #ifdef WATCOM
-      #include <signal.h>
-      # Ein Signal-Handler ist eine Funktion ohne Ergebnis.
-      typedef void (*signal_handler) ();
-      extern signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
-      # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):
-      #define signal_acknowledge(sig,handler)  signal(sig,handler)
-      # Das Verhalten von Signalen bei System-Calls ist OK:
-      #define SIGNAL  signal
-    #endif
-    #ifdef DJUNIX
-      # Damit kann man nur auf Ctrl-Break abfragen:
-      extern void _go32_want_ctrl_break (int flag);
-      extern unsigned long _go32_was_ctrl_break_hit (void);
-    #endif
+  #ifdef EMUNIX
+    #include <signal.h>
+    # Ein Signal-Handler ist eine Funktion ohne Ergebnis.
+    typedef SIGTY (*signal_handler) ();
+    extern signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
+    # Ein Signal erst eine bestimmte Zeit später ausliefern:
+    extern unsigned int alarm (unsigned int seconds); # siehe ALARM(3V)
+    # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):
+    #define signal_acknowledge(sig,handler)  signal(sig,SIG_ACK)
+    # Das Verhalten von Signalen bei System-Calls ist OK:
+    #define SIGNAL  signal
   #endif
-# wird verwendet von SPVW
-
-# GC-Notifikation:
-  #ifdef WINDOWS
-    extern void windows_note_gc_start (void);
-    extern void windows_note_gc_end (void);
+  #ifdef WATCOM
+    #include <signal.h>
+    # Ein Signal-Handler ist eine Funktion ohne Ergebnis.
+    typedef void (*signal_handler) ();
+    extern signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
+    # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):
+    #define signal_acknowledge(sig,handler)  signal(sig,handler)
+    # Das Verhalten von Signalen bei System-Calls ist OK:
+    #define SIGNAL  signal
+  #endif
+  #ifdef DJUNIX
+    # Damit kann man nur auf Ctrl-Break abfragen:
+    extern void _go32_want_ctrl_break (int flag);
+    extern unsigned long _go32_was_ctrl_break_hit (void);
   #endif
 # wird verwendet von SPVW
 
@@ -393,9 +379,7 @@
   #endif
   #ifdef EMUNIX
     extern int eof (int fd); # meldet, ob EOF erreicht
-    #ifndef WINDOWS
-      extern void _scrsize (int* dst); # dst[0]:=columns, dst[1]:=rows
-    #endif
+    extern void _scrsize (int* dst); # dst[0]:=columns, dst[1]:=rows
   #endif
   #ifdef EMUNIX
     # vgl. UNIX_TERM_TERMIO
@@ -410,51 +394,39 @@
       #define TCSETAF  TCSETA
     #endif
   #endif
-  #ifdef WINDOWS
-    # siehe winmain.d, wintext.d:
-    typedef struct mywindow * mywindow;
-    extern mywindow main_window;
-    extern void get_text_size (mywindow w, int* width, int* height);
-  #endif
-# wird verwendet von SPVW, STREAM, WINDOWS
+# wird verwendet von SPVW, STREAM
 
 # Tastatur abfragen, direkte Bildschirm-Ausgabe
-  #if !defined(WINDOWS)
-    #ifdef DJUNIX
+  #ifdef DJUNIX
     # #include <pc.h>
     # kbhit() [TP: KeyPressed] sagt, ob ein Tastendruck wartet.
     # getch() [TP: ReadKey] liefert den letzten Tastendruck, wartet evtl.
     # Da getch() nicht den Scan-Code liefert - wie ein Blick in libsrc\c\dos\*k*.s
     # verrät - benutzen wir diese Funktionen aber nicht, sondern programmieren
     # das Nötige selber.
-    #endif
-    #ifdef WATCOM
+  #endif
+  #ifdef WATCOM
     # #include <conio.h>
     # extern int kbhit (void);
     # extern int getch (void);
-    #endif
-    #ifdef EMUNIX_PORTABEL
-      #include <sys/video.h>
-      extern int v_init (void);
-      extern int v_hardware (void);
-      extern void v_dimen (int* width, int* height);
-      extern void v_getctype (int* start, int* end);
-      extern void v_ctype (int start, int end);
-      extern void v_attrib (int attrib);
-      extern void v_putc (char c);
-      extern void v_putn (char c, int count);
-      extern void v_getxy (int* x, int* y);
-      extern void v_gotoxy (int x, int y);
-      extern void v_clear (void);
-      extern void v_clreol (void);
-      extern void v_delline (int count);
-      extern void v_insline (int count);
-      extern void v_scroll (int x_left, int y_top, int x_right, int y_bottom, int count, int direction);
-    #endif
-  #else # defined(WINDOWS)
-    # siehe winmain.d, wintext.d:
-    extern boolean win_main_kbhit (void);
-    extern uintW win_main_getch (void);
+  #endif
+  #ifdef EMUNIX_PORTABEL
+    #include <sys/video.h>
+    extern int v_init (void);
+    extern int v_hardware (void);
+    extern void v_dimen (int* width, int* height);
+    extern void v_getctype (int* start, int* end);
+    extern void v_ctype (int start, int end);
+    extern void v_attrib (int attrib);
+    extern void v_putc (char c);
+    extern void v_putn (char c, int count);
+    extern void v_getxy (int* x, int* y);
+    extern void v_gotoxy (int x, int y);
+    extern void v_clear (void);
+    extern void v_clreol (void);
+    extern void v_delline (int count);
+    extern void v_insline (int count);
+    extern void v_scroll (int x_left, int y_top, int x_right, int y_bottom, int count, int direction);
   #endif
 # wird verwendet von STREAM
 
@@ -469,32 +441,8 @@
     extern int gettimeofday (struct timeval * tp, struct timezone * tzp); # siehe GETTIMEOFDAY(2)
   #endif
   #ifdef EMUNIX
-    #if !defined(WINDOWS)
-      #include <sys/timeb.h>
-      extern void __ftime (struct timeb * time); # ftime() ohne Zeitzone
-    #else # defined(WINDOWS)
-      # muß intdos() verwenden
-      # (Note: Must push/pop %ebx because this is the STACK_register.)
-      static __inline void intdos (union REGS * in_regs, union REGS * out_regs)
-        { __asm__ __volatile__ ( "pushl %%ebx ; "
-                                 "movl 0(%%esi),%%eax ; "
-                                 "movl 4(%%esi),%%ebx ; "
-                                 "movl 8(%%esi),%%ecx ; "
-                                 "movl 12(%%esi),%%edx ; "
-                                 "pushl %%edi ; "
-                                 "call ___syscall ; "
-                                 "popl %%edi ; "
-                                 "movl %%eax,0(%%edi) ; "
-                                 "movl %%ebx,4(%%edi) ; "
-                                 "movl %%ecx,8(%%edi) ; "
-                                 "movl %%edx,12(%%edi) ; "
-                                 "popl %%ebx"
-                                 :                                                     # OUT
-                                 : "S" /* %esi */ (in_regs), "D" /* %edi */ (out_regs) # IN
-                                 : "ax","cx","dx","si" /* %eax,%ecx,%edx,%esi */       # CLOBBER
-                               );
-        }
-    #endif
+    #include <sys/timeb.h>
+    extern void __ftime (struct timeb * time); # ftime() ohne Zeitzone
   #endif
   #if defined(WATCOM) && 0 # zu kompliziert
     #include <sys/timeb.h>
@@ -510,9 +458,7 @@
 
 # Programme aufrufen:
   #include <process.h>
-  #if !(defined(WATCOM) && defined(WINDOWS))
-    extern int spawnv (int pmode, CONST char* path, char* CONST argv[]);
-  #endif
+  extern int spawnv (int pmode, CONST char* path, char* CONST argv[]);
   extern int system (CONST char* command);
   # system(NULL) stellt fest, ob ein Kommandoprozessor zur Verfügung steht.
   # system(command) übergibt dem Kommandoprozessor einen Befehl.

@@ -1663,14 +1663,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
 #ifdef MSDOS
 
-#ifdef WINDOWS
-
-# Tastaturabfrage im Haupt-Fenster
-#define kbhit  win_main_kbhit
-#define getch  win_main_getch
-
-#else
-
 # Für Tastaturabfrage unter DOS:
 #
 # INT 16 documentation:
@@ -1967,8 +1959,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
 #endif # EMUNIX_PORTABEL
 
-#endif # !WINDOWS
-
 #endif # MSDOS
 
 # Stellt fest, ob der Keyboard-Stream ein Zeichen verfügbar hat.
@@ -2117,9 +2107,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       run_time_stop(); # Run-Time-Stoppuhr anhalten
       { # Tastendruck abwarten, nichts ausgeben:
         var uintW erg = getch();
-        #ifdef WINDOWS
-        var cint c = erg;
-        #else
         var uintB code = (uintB)erg; # Ascii-Code
         var uintB scancode = (uintB)(erg>>8); # Scan-Code
         var cint c = 0; # neues Character
@@ -2158,7 +2145,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         # Ctrl-6          071E
         # Ctrl-ß          0C1C
         # Ctrl--          0C1F
-        #endif
         ch = int_char(c);
       }
       run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
@@ -2762,94 +2748,6 @@ LISPFUNN(make_keyboard_stream,0)
     }}}
 #endif
 
-#ifdef WINDOWS
-
-# Benutze die Eingabefunktionen aus wintext.d.
-# Output:
-extern void winterm_writechar (mywindow w, uintB c);
-# Input:
-extern signean winterm_listen (mywindow w);
-extern boolean winterm_clear_input (mywindow w);
-extern cint winterm_readchar (mywindow w);
-
-# Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
-# listen_terminal(stream)
-# > stream: Terminal-Stream
-# < ergebnis:  0 falls Zeichen verfügbar,
-#             -1 falls bei EOF angelangt,
-#             +1 falls kein Zeichen verfügbar, aber nicht wegen EOF
-  local signean listen_terminal (object stream);
-  local signean listen_terminal(stream)
-    var object stream;
-    { return winterm_listen(main_window); }
-
-# UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
-# clear_input_terminal(stream);
-# > stream: Terminal-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  local boolean clear_input_terminal (object stream);
-  local boolean clear_input_terminal(stream)
-    var object stream;
-    { return winterm_clear_input(main_window); }
-
-# UP: Ein Zeichen auf einen Terminal-Stream ausgeben.
-# wr_ch_terminal(&stream,ch);
-# > stream: Terminal-Stream
-# > ch: auszugebendes Zeichen
-  local void wr_ch_terminal (object* stream_, object ch);
-  local void wr_ch_terminal(stream_,ch)
-    var object* stream_;
-    var object ch;
-    { var object stream = *stream_;
-      if (!string_char_p(ch)) { fehler_wr_string_char(stream,ch); } # ch sollte String-Char sein
-      winterm_writechar(main_window,char_code(ch));
-    }
-
-# UP: Bringt den wartenden Output eines Terminal-Stream ans Ziel.
-# finish_output_terminal(stream);
-# > stream: Terminal-Stream
-# kann GC auslösen
-  #define finish_output_terminal(stream)
-
-# UP: Bringt den wartenden Output eines Terminal-Stream ans Ziel.
-# force_output_terminal(stream);
-# > stream: Terminal-Stream
-# kann GC auslösen
-  #define force_output_terminal(stream)
-
-# UP: Ein Zeichen von einem Terminal-Stream lesen.
-# rd_ch_terminal(&stream)
-# > stream: Terminal-Stream
-# < object ch: eingegebenes Zeichen
-  local object rd_ch_terminal (object* stream_);
-  local object rd_ch_terminal(stream_)
-    var object* stream_;
-    { return int_char(winterm_readchar(main_window)); }
-
-# Liefert einen interaktiven Terminal-Stream.
-# kann GC auslösen
-  local object make_terminal_stream_ (void);
-  local object make_terminal_stream_()
-    { # neuen Stream allozieren:
-      var object stream =
-        allocate_stream(strmflags_ch_B,strmtype_terminal,strm_len+0);
-        # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
-      # und füllen:
-      var Stream s = TheStream(stream);
-        s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-        s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
-        s->strm_rd_ch = P(rd_ch_terminal); # READ-CHAR-Pseudofunktion
-        s->strm_rd_ch_last = NIL; # Lastchar := NIL
-        s->strm_wr_ch = P(wr_ch_terminal); # WRITE-CHAR-Pseudofunktion
-        s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-        #ifdef STRM_WR_SS
-        s->strm_wr_ss = P(wr_ss_dummy);
-        #endif
-      return stream;
-    }
-
-#endif # WINDOWS
-
 #ifdef NEXTAPP
 
 # Benutze das von nxterminal.m zur Verfügung gestellte Interface, siehe unix.d.
@@ -2954,7 +2852,7 @@ extern cint winterm_readchar (mywindow w);
 
 #endif # NEXTAPP
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WINDOWS)) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+#if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
 
 # Funktionsweise:
 # Es wird auf Standard-Input und Standard-Output zugegriffen.
@@ -4089,7 +3987,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
 
 #endif # UNIX || AMIGAOS || RISCOS
 
-#endif # (UNIX && !NEXTAPP) || (MSDOS && !WINDOWS) || AMIGAOS || RISCOS || WIN32_NATIVE
+#endif # (UNIX && !NEXTAPP) || MSDOS || AMIGAOS || RISCOS || WIN32_NATIVE
 
 #if !((defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS))
 
@@ -4187,7 +4085,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
             );
     }
 
-#if defined(MSDOS) && !defined(EMUNIX_PORTABEL) && !defined(WINDOWS)
+#if defined(MSDOS) && !defined(EMUNIX_PORTABEL)
 
 # Aus der Distribution von ELVIS 1.4, File PC.C :
 
@@ -4720,7 +4618,7 @@ LISPFUNN(window_cursor_off,1)
     value1 = NIL; mv_count=0;
   }
 
-#endif # MSDOS && !EMUNIX_PORTABEL && !WINDOWS
+#endif # MSDOS && !EMUNIX_PORTABEL
 
 #if defined(MSDOS) && defined(EMUNIX_PORTABEL)
 
@@ -4909,193 +4807,6 @@ LISPFUNN(window_cursor_off,1)
   }
 
 #endif # MSDOS && EMUNIX_PORTABEL
-
-#if defined(MSDOS) && defined(WINDOWS)
-
-# Benutze ein Text-Fenster, siehe wintext.d.
-extern mywindow text_create (void);
-extern void text_destroy (mywindow w);
-extern void text_cursor_on (mywindow w);
-extern void text_cursor_off (mywindow w);
-extern void get_text_size (mywindow w, int* width, int* height);
-extern void get_text_cursor_position (mywindow w, int* x, int* y);
-extern void set_text_cursor_position (mywindow w, int x, int y);
-extern void text_writechar (mywindow w, char c);
-extern void text_clear (mywindow w);
-extern void text_clear_to_eol (mywindow w);
-extern void text_clear_to_eot (mywindow w);
-extern void text_delete_line (mywindow w);
-extern void text_insert_line (mywindow w);
-
-#define strm_mywindow  strm_other[0]  # Maschinenpointer auf ein struct mywindow
-
-# UP: Ein Zeichen auf einen Window-Stream ausgeben.
-# wr_ch_window(&stream,ch);
-# > stream: Window-Stream
-# > ch: auszugebendes Zeichen
-  local void wr_ch_window (object* stream_, object ch);
-  local void wr_ch_window(stream_,ch)
-    var object* stream_;
-    var object ch;
-    { if (!string_char_p(ch)) { fehler_wr_string_char(*stream_,ch); } # ch sollte String-Char sein
-     {var uintB c = char_code(ch); # Code des Zeichens
-      var mywindow w = (mywindow)TheMachine(TheStream(*stream_)->strm_mywindow);
-      # Code c auf den Bildschirm ausgeben:
-      if (c=='\t')
-        { var int x,y;
-          do { text_writechar(w,' ');
-               get_text_cursor_position(w,&x,&y);
-             }
-             until ((x % 8) == 0);
-        }
-        else
-        { text_writechar(w,c); }
-    }}
-
-LISPFUNN(make_window,0)
-  { var mywindow w = text_create();
-    if (!w)
-      { pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               DEUTSCH ? "~: Kann keinen Window-Stream erzeugen." :
-               ENGLISH ? "~: cannot create a window stream" :
-               FRANCAIS ? "~ : Ne peux pas établir un WINDOW-STREAM." :
-               ""
-              );
-      }
-   {var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+1);
-      # Flags: nur WRITE-CHAR erlaubt
-    # und füllen:
-    var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_dummy); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_dummy); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_dummy); # READ-CHAR unmöglich
-      s->strm_rd_ch_last = NIL; # Lastchar := NIL
-      s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
-      s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-      #ifdef STRM_WR_SS
-      s->strm_wr_ss = P(wr_ss_dummy);
-      #endif
-      s->strm_mywindow = type_untype_object(machine_type,w);
-    value1 = stream; mv_count=1;
-  }}
-
-# Schließt einen Window-Stream.
-  local void close_window (object stream);
-  local void close_window(stream)
-    var object stream;
-    { var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-      text_destroy(w);
-    }
-
-LISPFUNN(window_size,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    var int current_width;
-    var int current_height;
-    get_text_size(w,&current_width,&current_height);
-    value1 = fixnum((uintW)current_height);
-    value2 = fixnum((uintW)current_width);
-    mv_count=2;
-  }}
-
-LISPFUNN(window_cursor_position,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    var int current_x;
-    var int current_y;
-    get_text_cursor_position(w,&current_x,&current_y);
-    value1 = fixnum((uintW)current_y);
-    value2 = fixnum((uintW)current_x);
-    mv_count=2;
-  }}
-
-LISPFUNN(set_window_cursor_position,3)
-  { var object stream = STACK_2;
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    var uintL line = posfixnum_to_L(STACK_1);
-    var uintL column = posfixnum_to_L(STACK_0);
-    var int current_width;
-    var int current_height;
-    get_text_size(w,&current_width,&current_height);
-    if ((line < (uintL)current_height) && (column < (uintL)current_width))
-      { set_text_cursor_position(w,column,line); }
-    value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
-  }}
-
-LISPFUNN(clear_window,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    text_clear(w);
-    value1 = NIL; mv_count=0;
-  }}
-
-LISPFUNN(clear_window_to_eot,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    text_clear_to_eot(w);
-    value1 = NIL; mv_count=0;
-  }}
-
-LISPFUNN(clear_window_to_eol,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    text_clear_to_eol(w);
-    value1 = NIL; mv_count=0;
-  }}
-
-LISPFUNN(delete_window_line,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    text_delete_line(w);
-    value1 = NIL; mv_count=0;
-  }}
-
-LISPFUNN(insert_window_line,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    text_insert_line(w);
-    value1 = NIL; mv_count=0;
-  }}
-
-LISPFUNN(highlight_on,1)
-  { check_window_stream(popSTACK());
-    # noch nicht implementiert
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(highlight_off,1)
-  { check_window_stream(popSTACK());
-    # noch nicht implementiert
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(window_cursor_on,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    text_cursor_on(w);
-    value1 = NIL; mv_count=0;
-  }}
-
-LISPFUNN(window_cursor_off,1)
-  { var object stream = popSTACK();
-    check_window_stream(stream);
-   {var mywindow w = (mywindow)TheMachine(TheStream(stream)->strm_mywindow);
-    text_cursor_off(w);
-    value1 = NIL; mv_count=0;
-  }}
-
-#endif # MSDOS && WINDOWS
 
 #if (defined(UNIX) && !defined(NEXTAPP)) || (defined(EMUNIX_PORTABEL) && 0) || defined(RISCOS)
 
@@ -12854,8 +12565,8 @@ LISPFUNN(stream_element_type,1)
       # Stream offen
       switch (TheStream(stream)->strmtype)
         {
-          #if !(defined(WINDOWS) || defined(NEXTAPP)) || defined(HANDLES)
-          #if !(defined(WINDOWS) || defined(NEXTAPP))
+          #if !(defined(NEXTAPP)) || defined(HANDLES)
+          #if !defined(NEXTAPP)
           case strmtype_terminal:
           #endif
           #ifdef HANDLES
@@ -12869,7 +12580,7 @@ LISPFUNN(stream_element_type,1)
           #ifdef KEYBOARD
           case strmtype_keyboard:
           #endif
-          #if defined(WINDOWS) || defined(NEXTAPP)
+          #if defined(NEXTAPP)
           case strmtype_terminal:
           #endif
           case strmtype_buff_in:
@@ -13079,10 +12790,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_keyboard: return listen_keyboard(stream);
               #endif
               case strmtype_terminal:
-                #if defined(WINDOWS) || defined(NEXTAPP)
+                #if defined(NEXTAPP)
                 return listen_terminal(stream);
                 #endif
-                #if (defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WINDOWS)) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+                #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
                 terminalcase(stream,
                              { return listen_terminal1(stream); },
                              { return listen_terminal2(stream); },
@@ -13173,10 +12884,10 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             ergebnis = clear_input_keyboard(stream); break;
           #endif
           case strmtype_terminal:
-            #if defined(WINDOWS) || defined(NEXTAPP)
+            #if defined(NEXTAPP)
             ergebnis = clear_input_terminal(stream);
             #endif
-            #if (defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WINDOWS)) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+            #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
             terminalcase(stream,
                          { ergebnis = clear_input_terminal1(stream); },
                          { ergebnis = clear_input_terminal2(stream); },
@@ -13347,7 +13058,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         # nein -> fertig, ja -> nach Streamtyp verzweigen:
         { switch (TheStream(stream)->strmtype)
             { case strmtype_terminal:
-                #if (defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WINDOWS)) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+                #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
                 terminalcase(stream,
                              { clear_output_terminal1(stream); },
                              { clear_output_terminal2(stream); },

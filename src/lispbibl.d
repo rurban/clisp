@@ -41,9 +41,7 @@
 # IBM-PC/386   beliebig           DJUNIX (UNIXlike auf MSDOS)   GNU           unix, i386, [__MSDOS__,] __GNUC__, __GO32__; __GO32__ muß man evtl. selbst definieren!
 # IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf MSDOS) GNU           [unix,] i386, __GNUC__, __EMX__
 # IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf OS/2)  GNU           [unix,] i386, __GNUC__, __EMX__, OS2; OS2 muß man selbst definieren!
-# IBM-PC/386   beliebig           MSDOS + MS Windows 3.1 + RSX  GNU           [unix,] i386, __GNUC__, __EMX__, WINDOWS; WINDOWS muß man selbst definieren!
 # IBM-PC/386   beliebig           MSDOS                         WATCOM        MSDOS, __386__, M_I386, __WATCOMC__, __FLAT__
-# IBM-PC/386   beliebig           MSDOS + MS Windows 3.1        WATCOM        __WINDOWS_386__, __386__, M_I386, __WATCOMC__, __FLAT__
 # IBM-PC/386   beliebig           Cygwin32 auf WinNT/Win95      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
 # IBM-PC/386   beliebig           Mingw32 auf WinNT/Win95       GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
 # IBM-PC/386   beliebig           WinNT/Win95                   MSVC4.0,5.0   _WIN32, _M_IX86, _MSC_VER
@@ -69,7 +67,7 @@
 #if (defined(arm) || defined(__arm)) && (defined(riscos) || defined(__riscos))
   #define ACORN
 #endif
-#if (defined(i386) && defined(__EMX__)) || defined(__GO32__) || (defined(__386__) && defined(__WATCOMC__) && (defined(MSDOS) || defined(__WINDOWS_386__)))
+#if (defined(i386) && defined(__EMX__)) || defined(__GO32__) || (defined(__386__) && defined(__WATCOMC__) && defined(MSDOS))
   #define DOSPC
 #endif
 #if (defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))) || (defined(__WIN32__) && defined(__BORLANDC__))
@@ -308,11 +306,7 @@
   #endif
   #ifdef __WATCOMC__
     #define WATCOM  # Bibliotheksfunktionen von WATCOM C
-    #ifdef __WINDOWS_386__
-      #define WINDOWS
-    #endif
   #endif
-  # WINDOWS ist definiert, wenn wir für MS Windows 3.1 compilieren
 #endif
 
 
@@ -1631,7 +1625,7 @@
 
 # statement im Unterbrechungsfalle ausführen:
 # interruptp(statement);
- #if defined(UNIX) || (defined(EMUNIX) && !defined(WINDOWS)) || defined(WIN32_NATIVE)
+ #if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
   # Eine Tastatur-Unterbrechung (Signal SIGINT, erzeugt durch Ctrl-C)
   # wird eine Sekunde lang aufgehoben. In dieser Zeit kann sie mittels
   # 'interruptp' auf fortsetzbare Art behandelt werden. Nach Ablauf dieser
@@ -1645,16 +1639,9 @@
   # Hat auch kein alarm() oder ualarm().
   #define interruptp(statement)  if (_go32_was_ctrl_break_hit()) { statement; }
  #endif
- #if defined(WATCOM) && !defined(WINDOWS)
+ #if defined(WATCOM)
   # WATCOM hat kein alarm() oder ualarm().
   #define interruptp(statement)  FALSE
- #endif
- #if defined(WINDOWS)
-  # Eine Unterbrechung (erzeugt durch einen Windows-Event) wird aufgehoben.
-  # Sie kann mittels 'interruptp' auf fortsetzbare Art behandelt werden.
-  #define PENDING_INTERRUPTS
-  extern uintB interrupt_pending;
-  #define interruptp(statement)  if (interrupt_pending) { statement; }
  #endif
 # wird verwendet von EVAL, IO, SPVW, STREAM
 
@@ -1702,16 +1689,15 @@
 # und ob er für den Stream *TERMINAL-IO* verwendet wird:
   #if defined(MSDOS) || (defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
     #define KEYBOARD
-    #if 0 # || defined(WINDOWS) ??
+    #if 0
       #define TERMINAL_USES_KEYBOARD
     #endif
   #endif
 # Bei Erweiterung: STREAM, USER1.LSP erweitern.
 
 # Ob wir die GNU Readline-Library für *TERMINAL-IO* benutzen:
-  #if ((defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WATCOM) && !defined(WINDOWS))) && !defined(__cplusplus) && !defined(NO_READLINE)
+  #if ((defined(UNIX) && !defined(NEXTAPP)) || (defined(MSDOS) && !defined(WATCOM))) && !defined(__cplusplus) && !defined(NO_READLINE)
     # Auf WATCOM ist die Readline-Library noch nicht portiert.
-    # Unter Windows und bei NEXTAPP haben wir Besseres vor.
     # Mit einem C++-Compiler ist die Readline-Library nicht compilierbar.
     #define GNU_READLINE
   #endif
@@ -1794,7 +1780,7 @@
 # Bei Erweiterung: REXX erweitern.
 
 # Ob Graphik-Operationen unterstützt werden.
-  #if (defined(EMUNIX) && !defined(WINDOWS)) || (defined(UNIX_LINUX) && defined(PC386))
+  #if defined(EMUNIX) || (defined(UNIX_LINUX) && defined(PC386))
     #define GRAPHICS
     #define GRAPHICS_SWITCH  # Umschalten zwischen Text-Modus und Grafik-Modus
   #endif
@@ -1831,7 +1817,7 @@
 # Dann die, die nur intern bedeutsam sind:
 
 # Ob die GC nicht mehr referenzierte Files schließt:
-  #if defined(UNIX) || defined(WINDOWS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
+  #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
     #define GC_CLOSES_FILES
   #endif
 # Bei Erweiterung: nichts zu tun.
@@ -1892,14 +1878,14 @@
 # Bei Erweiterung: TIME erweitern.
 
 # Ob das Betriebssystem Virtual Memory zur Verfügung stellt.
-  #if defined(UNIX) || defined(EMUNIX) || defined(DJUNIX) || defined(WINDOWS) || defined(WIN32)
+  #if defined(UNIX) || defined(EMUNIX) || defined(DJUNIX) || defined(WIN32)
     #define VIRTUAL_MEMORY
   #endif
 # Bei Erweiterung: nichts zu tun.
 
 # Ob das Betriebssystem Unterbrechungen (Ctrl-C o.ä.) als Signal auszuliefern
 # in der Lage ist:
-  #if defined(UNIX) || ((defined(EMUNIX) || defined(WATCOM)) && !defined(WINDOWS)) || defined(RISCOS)
+  #if defined(UNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
     #define HAVE_SIGNALS
   #endif
 # Ob wir auf asynchrone Signale auch reagieren können:
@@ -7520,16 +7506,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #endif
 #define SAVE_GLOBALS()     SAVE_mv_count(); SAVE_value1(); SAVE_subr_self();
 #define RESTORE_GLOBALS()  RESTORE_mv_count(); RESTORE_value1(); RESTORE_subr_self();
-#if defined(EMUNIX) && defined(WINDOWS)
-  # Bei RSXW32 müssen wir den SP vorübergehend in die unteren 64 KB legen,
-  # damit MS-Windows-Aufrufe möglich werden. Ansonsten brauchen wir aber
-  # einen größeren Stack.
-  #define begin_call()  if ((aint)SP() > (aint)SP_start) alloca((aint)SP() - (aint)SP_start)
-  #define end_call()
-  # Bei Callbacks bleiben wir im kleinen Stack.
-  #define begin_callback()
-  #define end_callback()
-#elif defined(HAVE_SAVED_STACK)
+#if defined(HAVE_SAVED_STACK)
   extern object* saved_STACK;
   #define begin_call()  SAVE_GLOBALS(); saved_STACK = STACK
   #define end_call()  RESTORE_GLOBALS(); saved_STACK = (object*)NULL
@@ -7597,7 +7574,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define end_arith_call()
 #endif
 
-#if (defined(UNIX) && !defined(UNIX_MINT)) || (defined(EMUNIX) && !defined(WINDOWS)) || defined(RISCOS) || defined(WIN32) # || defined(AMIGAOS) # ?JCH??
+#if (defined(UNIX) && !defined(UNIX_MINT)) || defined(EMUNIX) || defined(RISCOS) || defined(WIN32) # || defined(AMIGAOS) # ?JCH??
   # Unter Unix wird der Speicherbereich für den SP vom Betriebssystem
   # bereitgestellt, kein malloc() nötig.
   # Ebenso unter EMX (ausgenommen RSXW32 mit seinem Mini-60KB-Stack).
@@ -7617,13 +7594,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # check_SP();            testet auf Überlauf
 # check_SP_notUNIX();    dito, außer wenn temporärer Überlauf nicht ins Gewicht fällt
   #define check_SP()  if (SP_overflow()) SP_ueber()
-  #if (defined(EMUNIX) && defined(WINDOWS))
-    # Der SP liegt entweder im Original-Bereich (<= SP_start) oder
-    # im neu allozierten Bereich, der durch SP_bound begrenzt ist.
-    #define SP_overflow()  \
-      ( (aint)SP() > (aint)SP_start && (aint)SP() < (aint)SP_bound )
-    extern void* SP_start;
-  #elif !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
+  #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
     #ifdef SP_DOWN
       #define SP_overflow()  ( (aint)SP() < (aint)SP_bound )
     #endif
@@ -7676,7 +7647,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # > final_exitcode: 0 bei normalem Ende, 1 bei Abbruch
   nonreturning_function(extern, quit, (void));
   extern boolean final_exitcode;
-# wird verwendet von CONTROL, WINDOWS
+# wird verwendet von CONTROL
 
 # Fehlermeldung wegen Erreichen einer unerreichbaren Programmstelle.
 # Kehrt nicht zurück.
