@@ -1,3 +1,4 @@
+;; -*- lisp -*-
 
 (CHAR  "abcdef-dg1ndh" 0)
 #\a
@@ -1153,3 +1154,9 @@ error
 
 (elt x 7)
 error
+
+(reverse x)   "edcba"
+
+(nreverse x)  "edcba"
+
+x             "edcba"
