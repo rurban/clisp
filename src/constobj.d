@@ -480,6 +480,7 @@
  #endif
  #if defined(PATHNAME_WIN32)
   LISPOBJ(backslashbackslash_string,"\"\\\\\\\\\"")
+  LISPOBJ_S(lnk_string,"lnk") /* for woe32 shell link resolution */
  #endif
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
   LISPOBJ_S(slash_string,"/")

@@ -9305,7 +9305,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
 
             # try to resolve .lnk files
             if (!READDIR_entry_ISDIR() && !nullp(STACK_0)
-                && string_equal(STACK_0,ascii_to_string("lnk")))
+                && string_equal(STACK_0,O(lnk_string)))
             {
               var char resolved[MAX_PATH];
               var char * full_resolved = resolved;
@@ -9644,12 +9644,12 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
                  #endif
                     SUBDIR_PUSHSTACK(subdir);
                 }
-                namestring = string_concat(2); # concatenate
-                #if defined(WIN32_NATIVE)
-                pushSTACK(namestring);
-                pushSTACK(ascii_to_string("\\"));
+               #if defined(WIN32_NATIVE)
+                pushSTACK(O(backslash_string));
+                namestring = string_concat(3); /* concatenate */
+               #else
                 namestring = string_concat(2);
-                #endif
+               #endif
                 # get information:
                 directory_search_1subdir(Car(STACK_(1+4+1)),namestring);
               }
