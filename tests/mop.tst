@@ -14,6 +14,16 @@
 #-(or CLISP ALLEGRO LISPWORKS)
 T
 
+#+CMU
+(export 'pcl::compute-effective-slot-definition-initargs "PCL")
+#+CMU
+T
+
+#+SBCL
+(export 'sb-pcl::compute-effective-slot-definition-initargs "SB-PCL")
+#+SBCL
+T
+
 #+OpenMCL
 (progn
   (import 'ccl::funcallable-standard-object "OPENMCL-MOP")
@@ -1298,7 +1308,7 @@ EXTRA
 (progn
   (defclass auto-initargs-2-class (standard-class)
     ())
-  (defmethod clos::compute-effective-slot-definition-initargs ((class auto-initargs-2-class) direct-slot-definitions)
+  (defmethod clos:compute-effective-slot-definition-initargs ((class auto-initargs-2-class) direct-slot-definitions)
     (let ((initargs (call-next-method)))
       (unless (getf initargs ':initargs)
         (setq initargs
@@ -2518,6 +2528,7 @@ T
 
 ;;; Application example: Slot which has one value cell per subclass.
 
+#+(or CLISP CMU SBCL)
 (progn
 
   ;; We must limit the support for per-subclass slots to those that inherit
@@ -2556,7 +2567,7 @@ T
 
   ;; If the direct slot has :per-subclass t, let the effective slot have
   ;; :per-subclass t as well.
-  (defmethod clos::compute-effective-slot-definition-initargs ((class class-supporting-classof-slots) direct-slot-definitions)
+  (defmethod clos:compute-effective-slot-definition-initargs ((class class-supporting-classof-slots) direct-slot-definitions)
     (if (typep (first direct-slot-definitions) 'classof-direct-slot-definition-mixin)
       (append (call-next-method) (list ':per-subclass t))
       (call-next-method)))
@@ -2670,6 +2681,7 @@ T
           (slot-value insta2 'x) (slot-value insta2 'y) (slot-value insta2 'z)
           (slot-value instb1 'x) (slot-value instb1 'y) (slot-value instb1 'z)
           (slot-value instb2 'x) (slot-value instb2 'y) (slot-value instb2 'z))))
+#+(or CLISP CMU SBCL)
 (x1 y4 z4
  x4 y4 z4
  x2 y3 z4
@@ -2690,7 +2702,7 @@ t
 ;; Here we represent the virtual function table as a per-subclass shared slot.
 ;; TODO: Needs a little more work to deal with non-finalized classes.
 
-#-OpenMCL
+#+(or CLISP CMU SBCL)
 (progn
 
   ;; Every virtual generic function belongs to a particular "base class";
@@ -2741,7 +2753,7 @@ t
     (if (getf initargs ':base-class)
       (find-class 'virtual-table-direct-slot-definition)
       (call-next-method)))
-  (defmethod clos::compute-effective-slot-definition-initargs ((class virtual-class) direct-slot-definitions)
+  (defmethod clos:compute-effective-slot-definition-initargs ((class virtual-class) direct-slot-definitions)
     (if (typep (first direct-slot-definitions) 'virtual-table-direct-slot-definition)
       (append (call-next-method)
               (list ':base-class (slot-value (first direct-slot-definitions) 'base-class)))
@@ -2937,5 +2949,5 @@ t
           (testgf30g instd 20)
           (testgf30h instc 30)
           (testgf30h instd 40))))
-#-OpenMCL
+#+(or CLISP CMU SBCL)
 ("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40))
