@@ -30,7 +30,8 @@ to that in the &clos; specification, but some minor changes have been
 made in the way methods are presented.</para>
 
 <para>The following is an example of the format for the syntax
-description of a generic function:<programlisting>
+description of a generic function:
+<programlisting>
 <literal role="sexp">(<function>gf1</function> &x-r; &y-r; &optional-amp; &y-r; &key-amp; &k-r;)</literal>
 </programlisting></para>
 
@@ -96,7 +97,7 @@ The results are undefined if an attempt is made to define a &class;
 that is a subclass of more than one basic metaobject class.
 A <firstterm>metaobject<indexterm id="mop-mo" significance="preferred">
    <primary>metaobject</primary></indexterm></firstterm>
-is an instance of a &metaobject-t; class.</para>
+is an instance of a metaobject class.</para>
 
 <para>Each metaobject represents one program element.  Associated with
 each metaobject is the information required to serve its role.  This
@@ -286,8 +287,8 @@ combination metaobjects.</para></note>
 
 <para>The inheritance structure of the specified metaobject classes is
  shown in <xref linkend="mop-inherit-struct"/>.  The class of every class
- shown is &standard-class; except for the class &t-t;, which is an
- instance of the class &built-in-class;, and the classes
+ shown is &standard-class; except for the classes &t-t; and &function-t;,
+ which are instances of the class &built-in-class;, and the classes
  &generic-function-t; and &standard-generic-function-t;, which are
  instances of the class &funcallable-standard-class;.
 <table id="mop-inherit-struct"><title>Direct Superclass Relationships
