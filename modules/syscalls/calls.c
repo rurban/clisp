@@ -426,6 +426,10 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR-INTERNAL,host)
 }
 
 /* ===== PATH ===== */
+static object whole_namestring (object path) {
+  pushSTACK(path); funcall(L(namestring),1); return value1;
+}
+
 #if defined(UNIX)
 
 #if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
@@ -499,10 +503,6 @@ DEFUN(POSIX::USER-DATA-INTERNAL, user) {
 # include <sys/stat.h>
 #endif
 
-static object whole_namestring (object path) {
-  pushSTACK(path); funcall(L(namestring),1); return value1;
-}
-
 /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be: file stream, pathname, string, symbol, number.
  the return values are: the file descriptor (int) or the file name
@@ -571,15 +571,14 @@ DEFUN(POSIX::FILE-STAT-INTERNAL, file &optional linkp) {
 static inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
   begin_system_call();
 # if defined(WIN32_NATIVE)
-  if (CreateHardLink(new_pathstring,old_pathstring,NULL) == 0) {
+  if (CreateHardLink(new_pathstring,old_pathstring,NULL) == 0)
     if (GetLastError() == ERROR_FILE_NOT_FOUND)
 # else
-  if (link(old_pathstring,new_pathstring) < 0) { /* hardlink file */
+  if (link(old_pathstring,new_pathstring) < 0)
     if (errno==ENOENT)
 # endif
       OS_file_error(STACK_3);
     else OS_file_error(STACK_1);
-  }
   end_system_call();
 }
 #endif
@@ -748,7 +747,7 @@ static inline copy_method_t check_copy_method (object method) {
     return COPY_METHOD_RENAME;
   else {
     pushSTACK(method);           /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(MEMBER :HARDLINK :SYMLINK :RENAME :COPY)`); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(`(MEMBER :HARDLINK :SYMLINK :RENAME :COPY)`); /* EXPECTED-TYPE */
     pushSTACK(method);
     pushSTACK(`:METHOD`);
     pushSTACK(`POSIX::COPY-FILE`);
@@ -812,7 +811,7 @@ static void copy_one_file (object source, object src_path,
       case IF_EXISTS_UNBOUND: case IF_EXISTS_ERROR:
       case IF_EXISTS_RENAME:    /* delegate to OPEN */
         pushSTACK(value1);      /* destination */
-        pushSTACK(`:IF-EXIST`); pushSTACK(if_exists_symbol(if_exists));
+        pushSTACK(`:IF-EXISTS`); pushSTACK(if_exists_symbol(if_exists));
         pushSTACK(`:DIRECTION`); pushSTACK(`:OUTPUT`);
         funcall(L(open),5);
         pushSTACK(value1); builtin_stream_close(&STACK_0);
@@ -848,7 +847,7 @@ static void copy_one_file (object source, object src_path,
       source = STACK_4; dest = STACK_1;
       break;
     case COPY_METHOD_SYMLINK:
-#    if defined(UNIX)
+#    if defined(HAVE_SYMLINK)
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
       source = stringp(STACK_5) ? (object)STACK_5 : whole_namestring(STACK_4);
@@ -860,7 +859,7 @@ static void copy_one_file (object source, object src_path,
 #    endif
       /* FALLTHROUGH if no symlinks */
     case COPY_METHOD_HARDLINK:
-#    if defined(UNIX)
+#    if defined(HAVE_LINK)
       with_string_0(source, O(pathname_encoding), source_asciz, {
         with_string_0(dest, O(pathname_encoding), dest_asciz,
                       { hardlink_file(source_asciz,dest_asciz); });
@@ -914,7 +913,8 @@ static void copy_one_file (object source, object src_path,
  if-does-not-exist := nil ;; do nothing and return nil
                     | :error ;; (default) signal an error
  */
-DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE IF-EXISTS IF-DOES-NOT-EXIST)
+DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE \
+      IF-EXISTS IF-DOES-NOT-EXIST)
 {
   if_does_not_exist_t if_not_exists = check_if_does_not_exist(STACK_0);
   if_exists_t if_exists = check_if_exists(STACK_1);
@@ -977,3 +977,280 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
   end_system_call();
   VALUES1(fixnum(new_handle));
 }}
+
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#include <shlobj.h>
+/* push the 8 members of WIN32_FIND_DATA onto the STACK */
+static void wfd_to_stack (WIN32_FIND_DATA *wfd) {
+  pushSTACK(UL_to_I(wfd->dwFileAttributes));
+#if defined(WIN32_NATIVE)
+  pushSTACK(convert_time_to_universal(&(wfd->ftCreationTime)));
+  pushSTACK(convert_time_to_universal(&(wfd->ftLastAccessTime)));
+  pushSTACK(convert_time_to_universal(&(wfd->ftLastWriteTime)));
+#else  /* cygwin */
+  { time_t unix_time = to_time_t_(wfd->ftCreationTime);
+    pushSTACK(convert_time_to_universal(&unix_time));
+    unix_time = to_time_t_(wfd->ftLastAccessTime);
+    pushSTACK(convert_time_to_universal(&unix_time));
+    unix_time = to_time_t_(wfd->ftLastWriteTime);
+    pushSTACK(convert_time_to_universal(&unix_time));
+  }
+#endif
+  pushSTACK(UL_to_I(wfd->nFileSizeHigh));
+  pushSTACK(UL_to_I(wfd->nFileSizeLow));
+  pushSTACK(asciz_to_string(wfd->cFileName,O(pathname_encoding)));
+  pushSTACK(asciz_to_string(wfd->cAlternateFileName,O(pathname_encoding)));
+}
+
+DEFUN(POSIX::FILE-INFO, file)
+{
+  WIN32_FIND_DATA wfd;
+  Handle hf;
+  object file = whole_namestring(STACK_0);
+  with_string_0(file, O(pathname_encoding), pathz, {
+    begin_system_call();
+    hf = FindFirstFile(pathz, &wfd);
+    end_system_call();
+    if (hf == INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
+  });
+  wfd_to_stack(&wfd); FindClose(hf);
+  funcall(`POSIX::MAKE-FI`,8); skipSTACK(1);
+}
+
+DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
+      SHOW-COMMAND ICON DESCRIPTION HOT-KEY PATH)
+{
+  HRESULT hres;
+  IShellLink* psl;
+  IPersistFile* ppf;
+  gcv_object_t *file = &STACK_7;
+
+  /* Get a pointer to the IShellLink interface. */
+  begin_system_call();
+  hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+                          &IID_IShellLink, (LPVOID*)&psl);
+  if (!SUCCEEDED(hres)) goto fail_none;
+  end_system_call();
+  if (!missingp(STACK_0)) {     /* PATH */
+    object path = check_string(STACK_0);
+    with_string_0(path,O(pathname_encoding),pathz, {
+      begin_system_call();
+      hres = psl->lpVtbl->SetPath(psl,pathz);
+      if (!SUCCEEDED(hres)) goto fail_psl;
+      end_system_call();
+    });
+  }
+  skipSTACK(1);                 /* drop PATH */
+  if (!missingp(STACK_0)) {     /* HOT-KEY */
+    WORD hot_key = 0;
+    object hk = STACK_0;
+    BYTE *pb = (BYTE*)&hot_key;
+   restart_hot_key:
+    if (charp(hk)) hot_key = char_int(hk);
+    else while (consp(hk)) {
+      if (eq(Car(hk),`:CONTROL`)) pb[1] |= HOTKEYF_CONTROL;
+      else if (eq(Car(hk),`:ALT`)) pb[1] |= HOTKEYF_ALT;
+      else if (eq(Car(hk),`:EXT`)) pb[1] |= HOTKEYF_EXT;
+      else if (eq(Car(hk),`:SHIFT`)) pb[1] |= HOTKEYF_SHIFT;
+      else if (charp(Car(hk))) {
+        pb[0] = char_int(hk);
+        break;
+      } else {
+        pushSTACK(NIL);         /* no PLACE */
+        pushSTACK(hk);          /* TYPE-ERROR slot DATUM */
+        pushSTACK(`(MEMBER :ALT :CONTROL :EXT :SHIFT)`); /* EXPECTED-TYPE */
+        pushSTACK(STACK_0); pushSTACK(hk); pushSTACK(TheSubr(subr_self)->name);
+        check_value(type_error,GETTEXT("~: ~ is not a ~"));
+        hk = value1;
+        goto restart_hot_key;
+      }
+      hk = Cdr(hk);
+    }
+    if (pb[0] == 0) {           /* STACK_0 is the HOT-KEY arg */
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~: invalid hotkey spec ~"));
+    }
+    begin_system_call();
+    hres = psl->lpVtbl->SetHotkey(psl,hot_key);
+    if (!SUCCEEDED(hres)) goto fail_psl;
+    end_system_call();
+  }
+  skipSTACK(1);                 /* drop HOT-KEY */
+  if (!missingp(STACK_0)) {     /* DESCRIPTION */
+    object desc = check_string(STACK_0);
+    with_string_0(desc,O(pathname_encoding),descz, {
+      begin_system_call();
+      hres = psl->lpVtbl->SetDescription(psl,descz);
+      if (!SUCCEEDED(hres)) goto fail_psl;
+      end_system_call();
+    });
+  }
+  skipSTACK(1);                 /* drop DESCRIPTION */
+  if (!missingp(STACK_0)) {     /* ICON */
+    object icon_name;
+    int icon_idx = 0;
+    if (consp(STACK_0)) {       /* (file . index) or (file index) */
+      icon_name = check_string(Car(STACK_0));
+      icon_idx = posfixnum_to_L(check_posfixnum(consp(Cdr(STACK_0))
+                                                ? Car(Cdr(STACK_0))
+                                                : Cdr(STACK_0)));
+    } else icon_name = check_string(STACK_0);
+    with_string_0(icon_name,O(pathname_encoding),iconz, {
+      begin_system_call();
+      hres = psl->lpVtbl->SetIconLocation(psl,iconz,icon_idx);
+      if (!SUCCEEDED(hres)) goto fail_psl;
+      end_system_call();
+    });
+  }
+  skipSTACK(1);                 /* drop ICON */
+  if (!missingp(STACK_0)) {     /* SHOW-COMMAND */
+    object sc = STACK_0;
+    int sci;
+   restart_show_command:
+    if (eq(sc,`:NORMAL`)) sci = SW_SHOWNORMAL;
+    else if (eq(sc,`:MAX`)) sci = SW_SHOWMAXIMIZED;
+    else if (eq(sc,`:MIN`)) sci = SW_SHOWMINIMIZED;
+    else {
+      pushSTACK(NIL);           /* no PLACE */
+      pushSTACK(sc);            /* TYPE-ERROR slot DATUM */
+      pushSTACK(`(MEMBER :NORMAL :MAX :MIN)`); /* EXPECTED-TYPE */
+      pushSTACK(STACK_0); pushSTACK(sc); pushSTACK(TheSubr(subr_self)->name);
+      check_value(type_error,GETTEXT("~: ~ is not a ~"));
+      sc = value1;
+      goto restart_show_command;
+    }
+    begin_system_call();
+    hres = psl->lpVtbl->SetShowCmd(psl,sci);
+    if (!SUCCEEDED(hres)) goto fail_psl;
+    end_system_call();
+  }
+  skipSTACK(1);                 /* drop SHOW-COMMAND */
+  if (!missingp(STACK_0)) {     /* ARGUMENTS */
+    object args = check_string(STACK_0);
+    with_string_0(args,O(pathname_encoding),argz, {
+      begin_system_call();
+      hres = psl->lpVtbl->SetArguments(psl,argz);
+      if (!SUCCEEDED(hres)) goto fail_psl;
+      end_system_call();
+    });
+  }
+  skipSTACK(1);                 /* drop ARGUMENTS */
+  if (!missingp(STACK_0)) {     /* WORKING-DIRECTORY */
+    object wd = check_string(STACK_0);
+    with_string_0(wd,O(pathname_encoding),wdz, {
+      begin_system_call();
+      hres = psl->lpVtbl->SetWorkingDirectory(psl,wdz);
+      if (!SUCCEEDED(hres)) goto fail_psl;
+      end_system_call();
+    });
+  }
+  skipSTACK(1);                 /* drop WORKING-DIRECTORY */
+  STACK_0 = whole_namestring(STACK_0); /* pathname */
+
+  begin_system_call();
+  hres = psl->lpVtbl->QueryInterface(psl,&IID_IPersistFile,(LPVOID*)&ppf);
+  if (!SUCCEEDED(hres)) goto fail_psl;
+  { /* Ensure that the string is Unicode & Save the shortcut. */
+    WCHAR wsz[MAX_PATH];
+    with_string_0(*file, O(pathname_encoding), pathz, {
+      MultiByteToWideChar(CP_ACP, 0, pathz, -1, wsz, MAX_PATH);
+      hres = ppf->lpVtbl->Save(ppf, wsz, TRUE);
+      if (!SUCCEEDED(hres)) goto fail_ppf;
+    });
+  }
+  ppf->lpVtbl->Release(ppf);
+  psl->lpVtbl->Release(psl);
+  end_system_call();
+  VALUES1(popSTACK()); return;
+ fail_ppf: ppf->lpVtbl->Release(ppf);
+ fail_psl: psl->lpVtbl->Release(psl);
+ fail_none: end_system_call(); OS_file_error(*file);
+}
+
+DEFUN(POSIX::SHORTCUT-INFO, file)
+{
+  HRESULT hres;
+  IShellLink* psl;
+  char path[MAX_PATH], wd[MAX_PATH], args[MAX_PATH],
+    icon[MAX_PATH], desc[MAX_PATH];
+  WIN32_FIND_DATA wfd;
+  IPersistFile* ppf;
+  gcv_object_t *file = &STACK_0;
+  int icon_idx, show_cmd;
+  WORD hot_key;
+
+  STACK_0 = whole_namestring(STACK_0);
+
+  /* Get a pointer to the IShellLink interface. */
+  begin_system_call();
+  hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+                          &IID_IShellLink, (LPVOID*)&psl);
+  if (!SUCCEEDED(hres)) goto fail_none;
+  /* Get a pointer to the IPersistFile interface. */
+  hres = psl->lpVtbl->QueryInterface(psl,&IID_IPersistFile,(LPVOID*)&ppf);
+  if (!SUCCEEDED(hres)) goto fail_psl;
+  { /* Ensure that the string is Unicode & Load the shortcut. */
+    WCHAR wsz[MAX_PATH];
+    with_string_0(STACK_0, O(pathname_encoding), pathz, {
+      MultiByteToWideChar(CP_ACP, 0, pathz, -1, wsz, MAX_PATH);
+      hres = ppf->lpVtbl->Load(ppf, wsz, STGM_READ);
+      if (!SUCCEEDED(hres)) goto fail_ppf;
+    });
+  }
+  /* Resolve the link. */
+  hres = psl->lpVtbl->Resolve(psl,NULL,0);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  /* 1 path, 2 file info */
+  hres = psl->lpVtbl->GetPath(psl,path, MAX_PATH, &wfd, 4/*SLGP_RAWPATH*/);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  /* 3 working directory */
+  hres = psl->lpVtbl->GetWorkingDirectory(psl,wd, MAX_PATH);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  /* 4 arguments */
+  hres = psl->lpVtbl->GetArguments(psl,args, MAX_PATH);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  /* 5 show command */
+  hres = psl->lpVtbl->GetShowCmd(psl,&show_cmd);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  /* 6 icon */
+  hres = psl->lpVtbl->GetIconLocation(psl,icon, MAX_PATH, &icon_idx);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  /* 7 description */
+  hres = psl->lpVtbl->GetDescription(psl,desc, MAX_PATH);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  /* 8 hot key */
+  hres = psl->lpVtbl->GetHotkey(psl,&hot_key);
+  if (!SUCCEEDED(hres)) goto fail_ppf;
+  ppf->lpVtbl->Release(ppf);
+  psl->lpVtbl->Release(psl);
+  end_system_call();
+  pushSTACK(asciz_to_string(path,O(pathname_encoding))); /* 1 */
+  wfd_to_stack(&wfd); funcall(`POSIX::MAKE-FI`,8); pushSTACK(value1); /* 2 */
+  pushSTACK(asciz_to_string(wd,O(pathname_encoding))); /* 3 */
+  pushSTACK(asciz_to_string(args,O(pathname_encoding))); /* 4 */
+  switch (show_cmd) {                                    /* 5 */
+    case SW_SHOWNORMAL: pushSTACK(`:NORMAL`); break;
+    case SW_SHOWMAXIMIZED: pushSTACK(`:MAX`); break;
+    case SW_SHOWMINIMIZED: pushSTACK(`:MIN`); break;
+    default: NOTREACHED;
+  }
+  pushSTACK(asciz_to_string(icon,O(pathname_encoding)));
+  pushSTACK(fixnum(icon_idx));
+  { object tmp = listof(2); pushSTACK(tmp); } /* 6 */
+  pushSTACK(asciz_to_string(desc,O(pathname_encoding))); /* 7 */
+  { int count=0;                                         /* 8 */
+    BYTE *pb = (BYTE*)&hot_key;
+    if (pb[1] & HOTKEYF_ALT) { pushSTACK(`:ALT`); count++; }
+    if (pb[1] & HOTKEYF_CONTROL) { pushSTACK(`:CONTROL`); count++; }
+    if (pb[1] & HOTKEYF_EXT) { pushSTACK(`:EXT`); count++; }
+    if (pb[1] & HOTKEYF_SHIFT) { pushSTACK(`:SHIFT`); count++; }
+    pushSTACK(int_char(pb[0]));
+    if (count) { object tmp = listof(count+1); pushSTACK(tmp); }
+  }
+  funcall(`POSIX::MAKE-SI`,9);
+  return;
+ fail_ppf: ppf->lpVtbl->Release(ppf);
+ fail_psl: psl->lpVtbl->Release(psl);
+ fail_none: end_system_call(); OS_file_error(*file);
+}
+#endif
