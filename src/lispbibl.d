@@ -8369,9 +8369,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #ifdef HAVE_BUILTIN_STRLEN
     #define asciz_length(a)  ((uintL)__builtin_strlen(a))
   #endif
-  #ifdef HAVE_BUILTIN_STRCMP
-    #define asciz_equal(a1,a2)  (__builtin_strcmp(a1,a2)==0)
-  #endif
 #endif
 #ifndef asciz_length
   #ifdef HAVE_SAVED_STACK
@@ -8386,19 +8383,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
     #endif
     #define asciz_length(a)  ((uintL)strlen(a))
-  #endif
-#endif
-#ifndef asciz_equal
-  #if 1
-    # strcmp() ist vermutlich Overkill für asciz_equal().
-  #else
-    # Gehen wir davon aus, dass strcmp() es auch tut.
-    #ifdef STDC_HEADERS
-      #include <string.h> # deklariert strcmp()
-    #else
-      extern_C int strcmp (char* s1, char* s2);
-    #endif
-    #define asciz_equal(p1,p2)  (strcmp(p1,p2)==0)
   #endif
 #endif
 

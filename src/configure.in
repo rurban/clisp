@@ -313,8 +313,6 @@ dnl           checks for compiler characteristics
 dnl
 CL_BUILTIN_STRLEN
                       dnl DEFS HAVE_BUILTIN_STRLEN
-CL_BUILTIN_STRCMP
-                      dnl DEFS HAVE_BUILTIN_STRCMP
 CL_CHAR_UNSIGNED
                       dnl DEFS __CHAR_UNSIGNED__ if char is unsigned
 CL_MACHINE([integer types and behaviour],${srcdir}/intparam.c,intparam.h,cl_cv_file_intparam_h)

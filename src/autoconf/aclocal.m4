@@ -4250,32 +4250,6 @@ if test $cl_cv_builtin_strlen = yes; then
 fi
 ])dnl
 dnl
-AC_DEFUN(CL_BUILTIN_STRCMP,
-[AC_CACHE_CHECK(for inline __builtin_strcmp, cl_cv_builtin_strcmp, [
-cat > conftest.$ac_ext <<EOF
-#if defined(__STDC__) || defined(__cplusplus)
-int foo (char* x, char* y)
-#else
-int foo (x,y) char* x; char* y;
-#endif
-{ return __builtin_strcmp(x,y); }
-EOF
-if AC_TRY_COMMAND(${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext) >/dev/null 2>&1 ; then
-  if grep strcmp conftest.s >/dev/null ; then
-    cl_cv_builtin_strcmp=no
-  else
-    cl_cv_builtin_strcmp=yes
-  fi
-else
-  cl_cv_builtin_strcmp=no
-fi
-rm -f conftest*
-])
-if test $cl_cv_builtin_strcmp = yes; then
-  AC_DEFINE(HAVE_BUILTIN_STRCMP)
-fi
-])dnl
-dnl
 AC_DEFUN(CL_CHAR_UNSIGNED,
 [dnl This is mostly copied from AC_C_CHAR_UNSIGNED.
 AC_CACHE_CHECK(whether characters are unsigned, ac_cv_c_char_unsigned, [

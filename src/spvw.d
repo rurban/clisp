@@ -747,7 +747,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     }
 #endif
 
-#ifndef asciz_equal
 # UP: Vergleicht zwei ASCIZ-Strings.
 # asciz_equal(asciz1,asciz2)
 # > char* asciz1: erster ASCIZ-String
@@ -766,7 +765,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       yes: return TRUE;
       no: return FALSE;
     }
-#endif
 
 # -----------------------------------------------------------------------------
 #                  Andere globale Hilfsfunktionen
