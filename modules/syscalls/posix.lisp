@@ -4,12 +4,14 @@
 (defpackage #:posix
   (:use #:common-lisp #:ext)
   (:nicknames #:os)
+  (:import-from "SYS" sys::process-id)
   (:export
    #:resolve-host-ipaddr #:bogomips
    #:stream-lock #:duplicate-handle #:copy-file
    #:hostent #:hostent-name #:hostent-aliases #:hostent-addr-list
    #:hostent-addrtype #:file-owner #:physical-memory
    #+(or :win32 :cygwin) #:file-properties
+   #:priority #:process-id
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma))
 
 (setf (package-lock "EXT") nil)
@@ -18,6 +20,8 @@
 (pushnew :syscalls *features*)
 (in-package "POSIX")
 
+;;; ============================================================
+(defsetf priority set-priority)
 ;;; ============================================================
 (defstruct (hostent (:constructor
                      make-hostent (name aliases addr-list addrtype)))
