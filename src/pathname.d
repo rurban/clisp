@@ -1372,7 +1372,7 @@ local object defaults_pathname (void); # later
 # < result: value of the defaults-argument, a pathname
 # can trigger GC
 local object test_default_pathname (object defaults) {
-  if (eq(defaults,unbound))
+  if (eq(defaults,unbound) || eq(defaults,NIL))
     # not specified -> take value of *DEFAULT-PATHNAME-DEFAULTS* :
     return defaults_pathname();
   else
