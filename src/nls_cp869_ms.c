@@ -247,7 +247,8 @@ static const unsigned char * const uni2charset[256] = {
 struct nls_table nls_cp869_ms_table = {
   "cp869-ms",
   uni2charset,
-  charset2uni
+  charset2uni,
+  1
 };
 
 #undef uni2charset
