@@ -1,3 +1,12 @@
+2002-01-17  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (read-byte): respect the unread chars
+	(stream_reset_eltype): new function - rectify the
+	ignore_next_LF lossage when changing STREAM-ELEMENT-TYPE
+	(BUILT-IN-STREAM-SET-ELEMENT-TYPE, SET-STREAM-EXTERNAL-FORMAT): use it
+	(resolve_synonym_stream): new function
+	(TERMINAL-RAW, check_open_file_stream): use it
+
 2002-01-16  Sam Steingold  <sds@gnu.org>
 
 	* inspect.lisp (close) [html-stream-out]: new method
