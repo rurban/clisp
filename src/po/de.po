@@ -33,18 +33,14 @@ msgstr "Konnte Symbol-Wert nicht per-Thread machen."
 
 #: spvw.d:487
 msgid ""
-"\n"
 "*** - Program stack overflow. RESET"
 msgstr ""
-"\n"
 "*** - Programmstack-Überlauf: RESET"
 
 #: spvw.d:498
 msgid ""
-"\n"
 "*** - Lisp stack overflow. RESET"
 msgstr ""
-"\n"
 "*** - LISP-Stack-Überlauf: RESET"
 
 #: spvw.d:617
@@ -283,10 +279,8 @@ msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!\n"
 
 #: spvw.d:2756
 msgid ""
-"\n"
 "WARNING: No initialization file specified.\n"
 msgstr ""
-"\n"
 "WARNUNG: Keine Initialisierungs-Datei angegeben.\n"
 
 #: spvw.d:2757 spvw.d:2767
@@ -295,18 +289,14 @@ msgstr "Versuchen Sie: "
 
 #: spvw.d:2766
 msgid ""
-"\n"
 "WARNING: No installation directory specified.\n"
 msgstr ""
-"\n"
 "WARNUNG: Kein Initialisierungs-Verzeichnis angegeben.\n"
 
 #: spvw.d:2918
 msgid ""
-"\n"
 "WARNING: no such package: "
 msgstr ""
-"\n"
 "WARNUNG: Paket existiert nicht: "
 
 #: spvw.d:2998
@@ -323,18 +313,14 @@ msgstr "Zum Beenden bitte Taste drücken..."
 
 #: spvw_alloca.d:47
 msgid ""
-"\n"
 "*** - Virtual memory exhausted. RESET"
 msgstr ""
-"\n"
 "*** - Kein virtueller Speicher mehr verfügbar: RESET"
 
 #: spvw_alloca.d:49
 msgid ""
-"\n"
 "*** - Memory exhausted. RESET"
 msgstr ""
-"\n"
 "*** - Speicher voll: RESET"
 
 #: spvw_mmap.d:66 spvw_mmap.d:196 spvw_mmap.d:355 spvw_multimap.d:160
@@ -427,10 +413,8 @@ msgstr "mprotect(0x%x,%d,%d) scheitert."
 
 #: spvw_sigsegv.d:29
 msgid ""
-"\n"
 "SIGSEGV cannot be cured. Fault address = 0x%x.\n"
 msgstr ""
-"\n"
 "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%x.\n"
 
 #: spvw_sigsegv.d:63
@@ -455,10 +439,8 @@ msgstr "Speicherplatz für LISP-Objekte ist voll."
 
 #: spvw_allocate.d:49
 msgid ""
-"\n"
 "*** - No more room for LISP objects: RESET"
 msgstr ""
-"\n"
 "*** - Speicherplatz für LISP-Objekte ist voll: RESET"
 
 #: spvw_allocate.d:248 spvw_allocate.d:311 spvw_allocate.d:391
@@ -2252,58 +2234,44 @@ msgstr "~: ~ ist kein Pointer auf einen EVAL/APPLY-Frame."
 
 #: debug.d:1066
 msgid ""
-"\n"
 "APPLY frame with breakpoint for call "
 msgstr ""
-"\n"
 "APPLY-Frame mit Breakpoint für Aufruf "
 
 #: debug.d:1070
 msgid ""
-"\n"
 "APPLY frame for call "
 msgstr ""
-"\n"
 "APPLY-Frame für Aufruf "
 
 #: debug.d:1088
 msgid ""
-"\n"
 "EVAL frame with breakpoint for form "
 msgstr ""
-"\n"
 "EVAL-Frame mit Breakpoint für Form "
 
 #: debug.d:1092
 msgid ""
-"\n"
 "EVAL frame for form "
 msgstr ""
-"\n"
 "EVAL-Frame für Form "
 
 #: debug.d:1098
 msgid ""
-"\n"
 "frame binding variables (~ = dynamically):"
 msgstr ""
-"\n"
 "Variablenbindungs-Frame bindet (~ = dynamisch):"
 
 #: debug.d:1115
 msgid ""
-"\n"
 "CALLBACK frame"
 msgstr ""
-"\n"
 "CALLBACK-Frame"
 
 #: debug.d:1120
 msgid ""
-"\n"
 "frame binding variables "
 msgstr ""
-"\n"
 "Variablenbindungs-Frame "
 
 #: debug.d:1123 debug.d:1149
@@ -2312,50 +2280,38 @@ msgstr " bindet (~ = dynamisch):"
 
 #: debug.d:1145
 msgid ""
-"\n"
 "frame binding functions "
 msgstr ""
-"\n"
 "Funktionsbindungs-Frame "
 
 #: debug.d:1168 debug.d:1238
 msgid ""
-"\n"
 "  Next environment: "
 msgstr ""
-"\n"
 "  Weiteres Environment: "
 
 #: debug.d:1194
 msgid ""
-"\n"
 "compiled tagbody frame for "
 msgstr ""
-"\n"
 "Tagbody-Frame (compiliert) für "
 
 #: debug.d:1198
 msgid ""
-"\n"
 "compiled block frame for "
 msgstr ""
-"\n"
 "Block-Frame (compiliert) für "
 
 #: debug.d:1204
 msgid ""
-"\n"
 "block frame "
 msgstr ""
-"\n"
 "Block-Frame "
 
 #: debug.d:1207
 msgid ""
-"\n"
 "nested block frame "
 msgstr ""
-"\n"
 "Block-Frame (genestet) "
 
 #: debug.d:1212
@@ -2364,18 +2320,14 @@ msgstr " für "
 
 #: debug.d:1217
 msgid ""
-"\n"
 "tagbody frame "
 msgstr ""
-"\n"
 "Tagbody-Frame "
 
 #: debug.d:1220
 msgid ""
-"\n"
 "nested tagbody frame "
 msgstr ""
-"\n"
 "Tagbody-Frame (genestet) "
 
 #: debug.d:1225
@@ -2388,45 +2340,33 @@ msgstr "~: Environment ist keine Aliste"
 
 #: debug.d:1267
 msgid ""
-"\n"
 "catch frame for tag "
 msgstr ""
-"\n"
 "Catch-Frame für Tag "
 
 #: debug.d:1272
 msgid ""
-"\n"
 "handler frame for conditions"
 msgstr ""
-"\n"
 "Handler-Frame für Conditions"
 
 #: debug.d:1285
 msgid ""
-"\n"
 "unwind-protect frame"
 msgstr ""
-"\n"
 "Unwind-Protect-Frame"
 
 #: debug.d:1289
 msgid ""
-"\n"
-"\n"
 "driver frame"
 msgstr ""
-"\n"
-"\n"
 "Driver-Frame"
 
 #: debug.d:1293 debug.d:1298 debug.d:1303 debug.d:1308 debug.d:1313
 #: debug.d:1318 debug.d:1325
 msgid ""
-"\n"
 "frame binding environments"
 msgstr ""
-"\n"
 "Environment-Bindungs-Frame"
 
 #: debug.d:1340
@@ -5690,10 +5630,8 @@ msgstr "~&*PACKAGE* wurde zurückgesetzt auf ~S."
 
 #: reploop.lisp:179
 msgid ""
-"\n"
 "Enter the limit for max. frames to print or ':all' for all: "
 msgstr ""
-"\n"
 "Bitte die maximale Anzahl von Frames eingeben, oder »:ALL« für alle: "
 
 #: reploop.lisp:184
@@ -6712,12 +6650,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 #~ msgid "Cannot map memory to address 0x%x ."
 #~ msgstr "Kann keinen Speicher an Adresse 0x%x legen."
 
-#~ msgid "*** - Program stack overflow. RESET"
-#~ msgstr "*** - Programmstack-Überlauf: RESET"
-
-#~ msgid "*** - Lisp stack overflow. RESET"
-#~ msgstr "*** - LISP-Stack-Überlauf: RESET"
-
 #~ msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 #~ msgstr "Syntax für %s: nnnnnnn oder nnnnKB oder nMB"
 
@@ -6745,17 +6677,8 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 #~ msgid "WARNING: No installation directory specified."
 #~ msgstr "WARNUNG: Kein Initialisierungs-Verzeichnis angegeben."
 
-#~ msgid "WARNING: no such package: "
-#~ msgstr "WARNUNG: Paket existiert nicht: "
-
 #~ msgid "%s: Not enough memory for Lisp."
 #~ msgstr "%s: Nicht genug Speicher für Lisp."
-
-#~ msgid "*** - Virtual memory exhausted. RESET"
-#~ msgstr "*** - Kein virtueller Speicher mehr verfügbar: RESET"
-
-#~ msgid "*** - Memory exhausted. RESET"
-#~ msgstr "*** - Speicher voll: RESET"
 
 #~ msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
 #~ msgstr "MapViewOfFileEx() lieferte 0x%x statt 0x%x."
@@ -6779,9 +6702,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 #~ msgstr ""
 #~ "Szenario Apollo 13: Stack-Überlauf-Behandlung ging schief. Beim nächsten "
 #~ "Stack-Überlauf kracht's!!!"
-
-#~ msgid "*** - No more room for LISP objects: RESET"
-#~ msgstr "*** - Speicherplatz für LISP-Objekte ist voll: RESET"
 
 #~ msgid "Trying to make room through a GC..."
 #~ msgstr "Versuche, durch eine GC Platz zu schaffen..."
@@ -6872,66 +6792,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 
 #~ msgid "You can input another nickname."
 #~ msgstr "Sie dürfen einen neuen Nickname eingeben."
-
-#~ msgid "APPLY frame with breakpoint for call "
-#~ msgstr "APPLY-Frame mit Breakpoint für Aufruf "
-
-#~ msgid "APPLY frame for call "
-#~ msgstr "APPLY-Frame für Aufruf "
-
-#~ msgid "EVAL frame with breakpoint for form "
-#~ msgstr "EVAL-Frame mit Breakpoint für Form "
-
-#~ msgid "EVAL frame for form "
-#~ msgstr "EVAL-Frame für Form "
-
-#~ msgid "frame binding variables (~ = dynamically):"
-#~ msgstr "Variablenbindungs-Frame bindet (~ = dynamisch):"
-
-#~ msgid "CALLBACK frame"
-#~ msgstr "CALLBACK-Frame"
-
-#~ msgid "frame binding variables "
-#~ msgstr "Variablenbindungs-Frame "
-
-#~ msgid "frame binding functions "
-#~ msgstr "Funktionsbindungs-Frame "
-
-#~ msgid "  Next environment: "
-#~ msgstr "  Weiteres Environment: "
-
-#~ msgid "compiled tagbody frame for "
-#~ msgstr "Tagbody-Frame (compiliert) für "
-
-#~ msgid "compiled block frame for "
-#~ msgstr "Block-Frame (compiliert) für "
-
-#~ msgid "block frame "
-#~ msgstr "Block-Frame "
-
-#~ msgid "nested block frame "
-#~ msgstr "Block-Frame (genestet) "
-
-#~ msgid "tagbody frame "
-#~ msgstr "Tagbody-Frame "
-
-#~ msgid "nested tagbody frame "
-#~ msgstr "Tagbody-Frame (genestet) "
-
-#~ msgid "catch frame for tag "
-#~ msgstr "Catch-Frame für Tag "
-
-#~ msgid "handler frame for conditions"
-#~ msgstr "Handler-Frame für Conditions"
-
-#~ msgid "unwind-protect frame"
-#~ msgstr "Unwind-Protect-Frame"
-
-#~ msgid "driver frame"
-#~ msgstr "Driver-Frame"
-
-#~ msgid "frame binding environments"
-#~ msgstr "Environment-Bindungs-Frame"
 
 #~ msgid "New ~S: "
 #~ msgstr "Neues ~S: "
@@ -7098,10 +6958,6 @@ msgstr "Falsche anzahl an Argumenten für ~S: ~S"
 
 #~ msgid "Reset *PACKAGE* to ~s"
 #~ msgstr "*PACKAGE* wurde zurückgesetzt auf ~S."
-
-#~ msgid "Enter the limit for max. frames to print or ':all' for all: "
-#~ msgstr ""
-#~ "Bitte die maximale Anzahl von Frames eingeben, oder »:ALL« für alle: "
 
 #~ msgid "~A is not a number. Try again."
 #~ msgstr "~A ist keine Zahl. Versuchen Sie's nochmal."
