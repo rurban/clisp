@@ -414,6 +414,21 @@ if test -n "$do_config"; then
     subdir_srcdir_args="--srcdir=$REL_SRCDIR/src"
   fi
   ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args $subdir_configure_args
+  # libiconv must be built before gettext is even configured. This is because
+  # we want gettext to recognize libiconv as being present, even though we
+  # don't install it publicly.
+  for subdir in libiconv; do
+    if test -d $subdir; then
+      echo "executing $DIRNAME/$subdir/configure ..."
+      cd $subdir
+      ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/$subdir" \
+          $subdir_configure_args --cache-file=../config.cache \
+          --enable-static --disable-shared
+      make
+      make install-lib libdir="$ABS_DIRNAME" includedir="$ABS_DIRNAME"
+      cd ..
+    fi
+  done
   for subdir in readline gettext; do
     if test -d $subdir; then
       # readline is not even configurable in C++ mode.
@@ -423,21 +438,28 @@ if test -n "$do_config"; then
         fi
       fi
       echo "executing $DIRNAME/$subdir/configure ..."
-      cd $subdir
-      if test -n "$INPLACE" -o $subdir = readline -o $subdir = gettext; then
-        subdir_srcdir_args=''
-      else
-        subdir_srcdir_args="--srcdir=$RREL_SRCDIR/src/$subdir"
-      fi
-      if test $subdir = readline; then
-        subdir_cache_args=''
-      else
-        subdir_cache_args="--cache-file=../config.cache"
-      fi
-      ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
-         `if test $subdir = gettext; then echo "--with-included-gettext"; fi` \
-         $subdir_configure_args $subdir_cache_args
-      cd ..
+      (if test $subdir = gettext; then
+         CPPFLAGS="$CPPFLAGS -I${ABS_DIRNAME}"
+         export CPPFLAGS
+         LDFLAGS="$LDFLAGS -L${ABS_DIRNAME}"
+         export LDFLAGS
+       fi
+       cd $subdir
+       if test -n "$INPLACE" -o $subdir = readline -o $subdir = gettext; then
+         subdir_srcdir_args=''
+       else
+         subdir_srcdir_args="--srcdir=$RREL_SRCDIR/src/$subdir"
+       fi
+       if test $subdir = readline; then
+         subdir_cache_args=''
+       else
+         subdir_cache_args="--cache-file=../config.cache"
+       fi
+       ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
+          `if test $subdir = gettext; then echo "--with-included-gettext"; fi` \
+          $subdir_configure_args $subdir_cache_args
+       cd ..
+      )
     fi
   done
   for subdir in avcall callback; do
@@ -446,16 +468,6 @@ if test -n "$do_config"; then
       cd $subdir
       ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
           $subdir_configure_args --cache-file=../config.cache
-    cd ..
-    fi
-  done
-  for subdir in libiconv; do
-    if test -d $subdir; then
-      echo "executing $DIRNAME/$subdir/configure ..."
-      cd $subdir
-      ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/$subdir" \
-          $subdir_configure_args --cache-file=../config.cache \
-          --enable-static --disable-shared
     cd ..
     fi
   done
