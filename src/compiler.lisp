@@ -3191,7 +3191,7 @@ der Docstring (oder NIL).
                    (c-VAR *form*)
               )) )
               ((or (numberp *form*) (characterp *form*) (stringp *form*)
-                   (bit-vector-p *form*)
+                   (bit-vector-p *form*) (simple-vector-p *form*)
                    ;; X3J13 vote <72> conditionally implemented: check *package*
                    (member (find-package "COMMON-LISP") (package-use-list *package*))
                )
