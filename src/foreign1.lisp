@@ -54,6 +54,13 @@
   (defvar ff-language-stdcall)
 )
 
+;; ===========================================================================
+
+#+UNICODE
+(progn
+  (define-symbol-macro *foreign-encoding* (system::foreign-encoding))
+  (defsetf system::foreign-encoding system::set-foreign-encoding))
+
 ;; ============================ helper functions ============================
 
 ; Determines whether a name is a valid C identifier.
@@ -789,9 +796,10 @@
 ;; using: `(c-array uint8 ,(length foo))
 (defmacro with-foreign-object ((var c-type &optional (init nil init-p))
                                &body body)
-  `(EXEC-ON-STACK (LAMBDA (,var) ,@body)
-                  (PARSE-C-TYPE ,c-type)
-                  . ,(if init-p (list init))))
+  `(EXEC-ON-STACK
+    (LAMBDA (,var) ,@body)
+    (PARSE-C-TYPE ,c-type)
+    . ,(if init-p (list init))))
 
 ;; symbol-macro based interface (like DEF-C-VAR)
 ; WITH-C-VAR appears as a composition of WITH-FOREIGN-OBJECT and WITH-C-PLACE
@@ -802,16 +810,22 @@
       (PARSE-C-TYPE ,c-type)
       . ,(if init-p (list init)))))
 
+(defun exec-with-foreign-string (thunk string
+                                 &key (encoding #+UNICODE custom:*foreign-encoding*
+                                                #-UNICODE custom:*default-file-encoding*)
+                                      (null-terminated-p t) (start 0) (end nil))
+  (call-with-foreign-string
+   thunk encoding string start end
+   (if null-terminated-p
+       #-UNICODE 1
+       #+UNICODE (sys::encoding-zeroes encoding) 0)))
+
 (defmacro with-foreign-string ((foreign-variable char-count byte-count string
                                 &rest keywords
                                 &key encoding null-terminated-p start end)
                                &body body)
   (declare (ignore encoding null-terminated-p start end)) ; get them via keywords
-  `((lambda (thunk string &key (null-terminated-p t) (start 0) (end nil)
-             (encoding #+UNICODE custom:*foreign-encoding* #-UNICODE nil))
-      (call-with-foreign-string thunk encoding string start end
-                                (if null-terminated-p
-                                    (sys::encoding-zeroes encoding) 0)))
+  `(exec-with-foreign-string
     (lambda (,foreign-variable ,char-count ,byte-count) ,@body)
     ,string .,keywords))
 
@@ -1102,13 +1116,6 @@
       (if (foreign-place-p place 'DEPARSE-C-TYPE)
         `(%BITSIZEOF ,(second place))
         `(%BITSIZEOF (PARSE-C-TYPE ,place))))))
-
-;; ===========================================================================
-
-#+UNICODE
-(progn
-  (define-symbol-macro *foreign-encoding* (system::foreign-encoding))
-  (defsetf system::foreign-encoding system::set-foreign-encoding))
 
 ;; ===========================================================================
 

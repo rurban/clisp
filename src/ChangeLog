@@ -1,3 +1,10 @@
+2003-05-12  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign1.lisp (exec-with-foreign-string): new internal function
+	to let FFI:WITH-FOREIGN-STRING to expand the same with or without
+	unicode.
+	* foreign.d (call_with_foreign_string): fixed --without-unicode
+
 2003-05-09  Sam Steingold  <sds@gnu.org>
 
 	function-name error can now be recovered from
