@@ -1671,10 +1671,10 @@ if [ ${TSYS} = win32gcc ]; then
   echol
 fi
 
-if -z "$fsstnd"; then           # default fsstnd depends on the OS
+if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
   case ${HSYSOS} in
     cygwin | win32gcc )  fsstnd=redhat; ;; # cygwin == redhat!
-    * ) fsstnd=gnu_ext; ;;
+    * )  fsstnd=gnu_ext; ;;
   esac
 fi
 
