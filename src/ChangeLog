@@ -1,3 +1,12 @@
+2003-08-29  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/posix.lisp (make-file-stat):
+	fixed the typo in the signature
+	* modules/syscalls/configure.in: check for <shlobj.h>
+	* modules/syscalls/link.sh.in (NEW_LIBS): add win32-specific
+	libraries only when needed
+	Reported by Douglas Philips <dgou@mac.com>
+
 2003-08-29  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* subr.d, subrkw.d (LAUNCH): added kw arguments element-type,
