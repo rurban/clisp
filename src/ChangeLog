@@ -3,6 +3,10 @@
 	* makemake.in (MODULESDIR, MODULESDIR_, MODULESDIR_M): new vars
 	(exporting.fas): depend on ${MODULESDIR_M}exporting.lisp, not the link
 	(modular): depend on clisp.h
+	* configure: do not link plain files in modules (exporting will
+	picked up from here); link modules/* directories even when
+	building without FFI because many modules (regexp, syscalls,
+	dirkey, clx/new-clx) do not require FFI
 
 2003-08-22  Sam Steingold  <sds@gnu.org>
 
