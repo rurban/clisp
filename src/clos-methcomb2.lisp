@@ -606,9 +606,9 @@
   ;; probably return just the first value, letting the second value default
   ;; to empty.)
   (multiple-value-bind (effective-method-form effective-method-options)
-      (funcall (cond ((or (eq gf #'compute-discriminating-function)  ; for bootstrapping
-                          (eq gf #'compute-effective-method)
-                          (eq gf #'compute-applicable-methods-using-classes))
+      (funcall (cond ((or (eq gf |#'compute-discriminating-function|)  ; for bootstrapping
+                          (eq gf |#'compute-effective-method|)
+                          (eq gf |#'compute-applicable-methods-using-classes|))
                       #'compute-effective-method-<standard-generic-function>)
                      (t #'compute-effective-method))
                gf combination methods)
