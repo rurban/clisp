@@ -1,5 +1,14 @@
 2004-01-18  Bruno Haible  <bruno@clisp.org>
 
+	* loadform.lisp (missing-load-form): New type.
+	(signal-missing-load-form): New function.
+	(make-load-form): Add the methods that must exist according to CLHS.
+	(make-init-form): Ignore only errors coming from make-load-form,
+	not just any method-call-error. Don't warn for other errors, instead
+	pass them on to the caller.
+
+2004-01-18  Bruno Haible  <bruno@clisp.org>
+
 	Remove support for Borland C compiler on Woe32.
 	* win32bc: Remove directory.
 	* Makefile.devel, makemake.in: Remove Borland C support.
