@@ -197,6 +197,7 @@
          )     )
          #+WIN32 (setq indirectp t)
     ) )
+    #-WIN32
     (unless wait
       (setq command (string-concat command " &")))
     #+UNIX
