@@ -1597,10 +1597,22 @@ nonreturning_function (local, print_license, (void)) {
 
 # print the banner
 local void print_banner ()
-{ const char * banner0[] = { # some lines above 66 characters
+{ const char * const banner0[] = { # some lines above 66 characters
+  #  |Column 0           |Column 20                                    |Col 66
+  # "012345678901234567890123456789012345678901234567890123456789012345678901"
+    "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo\n",
+    "  I I I I I I I      8     8   8           8     8     o  8    8\n",
+   "  I  \\ `+' /  I      8         8           8     8        8    8\n",
+   "   \\  `-+-'  /       8         8           8      ooooo   8oooo\n",
+    "    `-__|__-'        8         8           8           8  8\n",
+    "        |            8     o   8           8     o     8  8\n",
+    "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8\n",
+   };
+  const char * banner0_hanukka[] = { # some lines above 66 characters
  #  |Column 0           |Column 20                                    |Col 66
  # "012345678901234567890123456789012345678901234567890123456789012345678901"
-   ". . . . . . . . .     ooooo    o        ooooooo   ooooo   ooooo\n",
+   "        .\n",
+   ". . . . I . . . .     ooooo    o        ooooooo   ooooo   ooooo\n",
    "I I I I I I I I I    8     8   8           8     8     o  8    8\n",
   "I I  \\ `+' /  I I    8         8           8     8        8    8\n",
   "I  \\  `-+-'  /  I    8         8           8      ooooo   8oooo\n",
@@ -1609,6 +1621,7 @@ local void print_banner ()
    "        |             ooooo    8oooooo  ooo8ooo   ooooo   8\n",
    "--------+--------\n",
   };
+  char banner0_line0[100];
   char banner0_line1[100];
   const char * const banner1[] = {
    "\n",
@@ -1626,10 +1639,12 @@ local void print_banner ()
     GETTEXT("                    RISCOS port: Peter Burwood, Bruno Haible\n");
   #endif
   var const char * banner3 = "\n";
+  var int candles = 0;
   var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
   if (offset == 0) {
     begin_system_call();
-    strcpy(banner0_line1,banner0[0]);
+    strcpy(banner0_line0,banner0_hanukka[0]);
+    strcpy(banner0_line1,banner0_hanukka[1]);
     var time_t now = time(NULL);
     var struct tm now_local;
     var struct tm now_gm;
@@ -1649,9 +1664,9 @@ local void print_banner ()
     var uintL hours_since_1900 = ((unsigned long)now / 3600) - hourswest + 613608;
     /* Add 6 because Hebrew days begin in the evening. */
     var uintL days_since_1900 = (hours_since_1900 + 6) / 24;
-    var int candles = hebrew_calendar_hanukka_candles(days_since_1900);
+    candles = hebrew_calendar_hanukka_candles(days_since_1900);
     if (candles > 0) {
-      banner0_line1[8] = 'i';
+      banner0_line0[8] = 'i';
       if (candles >= 1) {
         banner0_line1[16] = 'i';
         if (candles >= 2) {
@@ -1677,12 +1692,17 @@ local void print_banner ()
         }
       }
     }
-    banner0[0] = banner0_line1;
+    banner0_hanukka[0] = banner0_line0;
+    banner0_hanukka[1] = banner0_line1;
   }
   var const char * const * ptr;
   var uintC count;
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # to *STANDARD-OUTPUT*
-  ptr = banner0; count = sizeof(banner0)/sizeof(banner0[0]);
+  if (candles > 0) {
+    ptr = banner0_hanukka; count = sizeof(banner0_hanukka)/sizeof(banner0_hanukka[0]);
+  } else {
+    ptr = banner0; count = sizeof(banner0)/sizeof(banner0[0]);
+  }
   while (count--)
     write_sstring(&STACK_0,asciz_to_string((*ptr++)+offset,O(internal_encoding)));
   ptr = banner1; count = sizeof(banner1)/sizeof(banner1[0]);
