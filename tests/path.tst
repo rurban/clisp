@@ -711,3 +711,15 @@ t
 (make-pathname :directory '(:absolute :wild) :host nil :device nil
                :name nil :type nil :version nil)
 #P"/*/"
+
+(pathname-match-p "foo" "foo.*")           T
+(translate-pathname "foo" "foo.*" "bar")   #p"bar"
+(translate-pathname "foo" "foo.*" "bar.*") #p"bar"
+(progn
+  (setf (logical-pathname-translations "FOO") '(("FOO:**;*" "/foo/**/*")))
+  (translate-logical-pathname "foo:bar;baz;zot.txt"))
+#P"/foo/bar/baz/zot.txt"
+(progn
+  (setf (logical-pathname-translations "FOO") '(("**;*" "/foo/**/*")))
+  (translate-logical-pathname "foo:bar;baz;zot.txt"))
+#P"/foo/bar/baz/zot.txt"

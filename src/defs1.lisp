@@ -408,13 +408,14 @@
   (defun set-logical-pathname-translations (host translations)
     (setq host (string-upcase host))
     (puthash host *logical-pathname-translations* ; :test #'equal !
-             (let ((host-pathname (make-logical-pathname :host host)))
-               (mapcar #'(lambda (rule)
-                           (cons (merge-pathnames
-                                  (logical-pathname (first rule))
-                                  host-pathname 'NIL)
-                                 (rest rule)))
-                       translations))))
+             (mapcar #'(lambda (rule)
+                         (cons (parse-namestring
+                                (first rule) nil
+                                (make-logical-pathname
+                                 :host host :name :wild :type :wild
+                                 :version :wild))
+                               (rest rule)))
+                     translations)))
   ;; load many hosts from a file, AllegroCL-style
   (defun load-lpt-many (file host)
     (with-open-file (fi file :if-does-not-exist nil)
@@ -487,7 +488,7 @@
                               t)))))))))
       (error (TEXT "No translations for logical host ~S found") host)))
   (set-logical-pathname-translations "SYS"
-    '((";*.LISP" "*.lisp") ("*.*" "*.*") ("*" "*"))))
+    '((";*.LISP" "*.lisp") ("*" "*"))))
 
 
 ;;; functions for time (Chapter 25.4.1)
