@@ -1,3 +1,8 @@
+1999-06-10  Sam Steingold  <sds@goems.com>
+
+	* list.d (nreconc): be as smart about `nreconc' as we are about
+	`nreverse'.
+
 1999-06-09  Sam Steingold  <sds@goems.com>
 
 	* misc.d (set-ansi): set `*coerce-fixnum-char-ansi*',
