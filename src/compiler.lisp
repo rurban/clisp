@@ -1786,16 +1786,15 @@ for-value   NIL or T
 (defun c-write-lib (form)
   (when (and *compiling-from-file* *liboutput-stream*)
     ;; write form to the liboutput stream:
-    (let ((*print-symbols-long* t))
-      (unless (eq (car form) 'progn)
-        (compiler-error 'c-write-lib form))
-      (dolist (fo (cdr form))
-        (unless (constantp fo)
-          (write fo :stream *liboutput-stream* :pretty t
-                  ; :closure t :circle t :array t :gensym t
-                  ; :escape t :level nil :length nil :radix t
-                    :readably t :right-margin 79)
-          (terpri *liboutput-stream*))))))
+    (unless (eq (car form) 'progn)
+      (compiler-error 'c-write-lib form))
+    (dolist (fo (cdr form))
+      (unless (constantp fo)
+        (write fo :stream *liboutput-stream* :pretty t
+                ; :closure t :circle t :array t :gensym t
+                ; :escape t :level nil :length nil :radix t
+                  :readably t :right-margin 79)
+        (terpri *liboutput-stream*)))))
 (defun c-eval-and-write-lib (form) (c-write-lib form) (eval form))
 (defmacro eval-when-compile (&body body)
   `(eval-when (compile) (c-eval-and-write-lib '(progn ,@body))))
@@ -10163,12 +10162,11 @@ The function make-closure is required.
       (when *c-listing-output*
         (disassemble-closures form *c-listing-output*))
       (when *fasoutput-stream*
-        (let ((*print-symbols-long* t))
-          (write form :stream *fasoutput-stream* :pretty t
-                    ; :closure t :circle t :array t :gensym t
-                    ; :escape t :level nil :length nil :radix t
-                      :readably t :right-margin 79)
-          (terpri *fasoutput-stream*)))
+        (write form :stream *fasoutput-stream* :pretty t
+                  ; :closure t :circle t :array t :gensym t
+                  ; :escape t :level nil :length nil :radix t
+                    :readably t :right-margin 79)
+        (terpri *fasoutput-stream*))
       (when (and *package-tasks-treat-specially* *package-tasks*)
         (c-eval-and-write-lib `(PROGN ,@(nreverse *package-tasks*)))))))
 
