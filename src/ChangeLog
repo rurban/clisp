@@ -1,3 +1,12 @@
+1999-03-14  Sam Steingold  <sds@gnu.org>
+
+	OS_error() generates an error of type `os-error'.
+	* erramiga.d, errdjgpp.d, errunix.d, errwin32.d (OS_error): use
+	`simple_os_error'.
+	* constsym.d: added `simple_os_error' symbol.
+	* error.d: handle `simple_os_error'.
+	* conditio.lsp: added `os-error' and `simple-os-error'.
+
 1999-03-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (strm_encoding): New macro.

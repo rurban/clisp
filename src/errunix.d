@@ -16,8 +16,8 @@
   #endif
 
   # Tabelle der Fehlermeldungen und ihrer Namen:
-    typedef struct { const char* name; const char* msg; } os_error;
-    local os_error* errormsg_table;
+    typedef struct { const char* name; const char* msg; } os_error_t;
+    local os_error_t* errormsg_table;
 
   #ifdef GNU_GETTEXT
     # Translate the messages when we access the table, not when filling it.
@@ -29,7 +29,7 @@
     global int init_errormsg_table()
       { var uintC i;
         begin_system_call();
-        errormsg_table = (os_error*) malloc(sys_nerr * sizeof(os_error));
+        errormsg_table = (os_error_t*) malloc(sys_nerr * sizeof(os_error_t));
         end_system_call();
         if (errormsg_table == NULL) # Speicher reicht nicht?
           { return -1; }
@@ -1047,6 +1047,8 @@
         end_system_call();
         clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
         begin_error(); # Fehlermeldung anfangen
+        if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
+          { STACK_3 = S(simple_os_error); }
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }

@@ -13,7 +13,7 @@ floating-point-invalid-operation
 cell-error unbound-variable undefined-function unbound-slot
 type-error package-error print-not-readable parse-error stream-error
 end-of-file reader-error file-error storage-condition warning style-warning
-simple-condition simple-error simple-type-error simple-warning
+simple-condition simple-error simple-type-error os-error simple-warning
 ;; macros:
 define-condition handler-bind ignore-errors handler-case
 with-condition-restarts restart-bind restart-case with-restarts
@@ -232,6 +232,8 @@ muffle-cerrors appease-cerrors exit-on-error
 ;   |   |   |
 ;   |   |   |-- file-error
 ;   |   |   |
+;   |   |   |-- os-error
+;   |   |   |
 ;   |   |   |-- package-error
 ;   |   |   |
 ;   |   |   |-- print-not-readable
@@ -359,6 +361,8 @@ muffle-cerrors appease-cerrors exit-on-error
       (($pathname :initarg :pathname :reader file-error-pathname))
     )
 
+    (define-condition os-error (error) ())
+
   ; "Virtual memory exhausted"
   (define-condition storage-condition (serious-condition) ())
 
@@ -433,6 +437,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (define-condition simple-end-of-file (simple-error end-of-file) ())
 (define-condition simple-reader-error (simple-error reader-error) ())
 (define-condition simple-file-error (simple-error file-error) ())
+(define-condition simple-os-error (simple-error os-error) ())
 (define-condition simple-storage-condition (simple-condition storage-condition) ())
 
 ; Bootstrapping
@@ -462,6 +467,7 @@ muffle-cerrors appease-cerrors exit-on-error
      (end-of-file              . simple-end-of-file)
      (reader-error             . simple-reader-error)
      (file-error               . simple-file-error)
+     (os-error                 . simple-os-error)
      (storage-condition        . simple-storage-condition)
      (warning                  . simple-warning)
     )
