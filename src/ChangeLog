@@ -1,3 +1,12 @@
+2000-08-19  Bruno Haible  <haible@clisp.cons.org>
+
+        * utils/ccpaux.c: main() returns int. Call fflush(stdout) before
+          testing ferror(stdout).
+        * utils/deema.c: Likewise.
+        * utils/txt2c.c: Call fflush(stdout) before testing ferror(stdout).
+        * utils/comment5.d: Call fflush(outfile) before testing
+          ferror(outfile).
+
 2000-08-26  Bruno Haible  <haible@clisp.cons.org>
 
         * autoconf/acgeneral.m4 (AC_OUTPUT): Use braces in exec_prefix default

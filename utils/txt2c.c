@@ -146,10 +146,10 @@ global int main (argc,argv)
     printf("\n");
     printf("int main () {\n");
     process_file(stdin);
-    printf("  if (ferror(stdout)) { exit(1); }\n");
+    printf("  if (fflush(stdout) || ferror(stdout)) { exit(1); }\n");
     printf("  exit(0);\n");
     printf("}\n");
-    if (ferror(stdout)) { exit(1); }
+    if (fflush(stdout) || ferror(stdout)) { exit(1); }
     exit(0);
   }
 
