@@ -32,6 +32,7 @@ local object debug_output (const char*label,object obj,const int pos) {
   return popSTACK();
 }
 # define DOUT(l,o) printf("[%d] %s %s\n",__LINE__,l,#o);gar_col()
+#define DOUT0(label,object) debug_output(label #object,object,__LINE__)
 #define DOUT(label,object) object=debug_output(label #object,object,__LINE__)
 #else
 #define DOUT(l,o)
@@ -5288,7 +5289,7 @@ local void wildcard_diff (object muster, object beispiel,
 # all arguments to *_diff are on stack - this should be safe
 #define DEBUG_DIFF(f)                                         \
   printf("\n* " #f " [logical: %d]\n",logical);               \
-  DOUT("",muster); DOUT("",beispiel); DOUT("",*previous); DOUT("",*solutions)
+  DOUT("",muster); DOUT("",beispiel); DOUT0("",*previous); DOUT("",*solutions)
 #else
 #define DEBUG_DIFF(f)
 #endif
@@ -6006,7 +6007,7 @@ local void wildcard_diff (object muster, object beispiel,
 #define GET_ITEM(what,xwhat,where,skip)                                     \
    item = translate_##what(subst,xpathname_##xwhat(logical,where),logical); \
    if (eq(item,nullobj)) { skipSTACK(skip); goto subst_error; }             \
-   pushSTACK(S(K##xwhat)); pushSTACK(item)
+   DOUT(#what " > ",item); pushSTACK(S(K##xwhat)); pushSTACK(item)
 #define GET_ITEM_S(y,x,w) GET_ITEM(y,x,STACK_(w),w)
       # Argumente für MAKE-PATHNAME zusammenbauen:
       GET_ITEM(host,host,muster,0);
