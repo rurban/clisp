@@ -303,11 +303,13 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <para>&eval-when; also accepts the situations <literal role="sexp">(NOT
  EVAL)</literal> and <literal role="sexp">(NOT COMPILE)</literal>.</para>
 
-<para>Note that the situations <constant>LOAD</constant> and
- <constant>COMPILE</constant> are deprecated by the spec,
- and they are &not-e; equivalent to the new
- standard situations <constant>:LOAD-TOPLEVEL</constant>
- and <constant>:COMPILE-TOPLEVEL</constant>.</para>
+<warning><para>Note that the situations <constant>EVAL</constant>,
+ <constant>LOAD</constant> and <constant>COMPILE</constant> are
+ deprecated by the spec, and they are &not-e; equivalent to the new
+ standard situations <constant>:EXECUTE</constant>,
+ <constant>:LOAD-TOPLEVEL</constant>
+ and <constant>:COMPILE-TOPLEVEL</constant> in that they ignore the
+ top-level versus non-top-level distinction.</para></warning>
 
 </section>
 

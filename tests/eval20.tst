@@ -30,6 +30,57 @@ ERROR
   nil)
 nil
 
+(defvar *collector*)
+*collector*
+
+(let ((forms nil) all (ff "eval-when-test.lisp"))
+  (dolist (c '(nil (:compile-toplevel)))
+    (dolist (l '(nil (:load-toplevel)))
+      (dolist (x '(nil (:execute)))
+        (push `(eval-when (,@c ,@l ,@x)
+                 (push '(,@c ,@l ,@x) *collector*))
+              forms))))
+  (dolist (c '(nil (:compile-toplevel)))
+    (dolist (l '(nil (:load-toplevel)))
+      (dolist (x '(nil (:execute)))
+        (push `(let () (eval-when (,@c ,@l ,@x)
+                         (push '(let ,@c ,@l ,@x) *collector*)))
+              forms))))
+  (with-open-file (o ff :direction :output)
+    (dolist (f forms)
+      (prin1 f o)
+      (terpri o)))
+  (let ((*collector* nil))
+    (load ff)
+    (push (cons "load source" *collector*) all))
+  (let ((*collector* nil))
+    (compile-file ff)
+    (push (cons "compile source" *collector*) all))
+  (let ((*collector* nil))
+    (load (compile-file-pathname ff))
+    (push (cons "load compiled" *collector*) all))
+  (delete-file ff)
+  (delete-file (compile-file-pathname ff))
+  #+clisp (delete-file (make-pathname :type "lib" :defaults ff))
+  (nreverse all))
+(("load source"
+  (:EXECUTE) (:LOAD-TOPLEVEL :EXECUTE) (:COMPILE-TOPLEVEL :EXECUTE)
+  (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
+  (LET :EXECUTE) (LET :LOAD-TOPLEVEL :EXECUTE)
+  (LET :COMPILE-TOPLEVEL :EXECUTE)
+  (LET :COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE))
+ ("compile source"
+  (:COMPILE-TOPLEVEL) (:COMPILE-TOPLEVEL :EXECUTE)
+  (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL)
+  (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE))
+ ("load compiled"
+  (:LOAD-TOPLEVEL) (:LOAD-TOPLEVEL :EXECUTE)
+  (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL)
+  (:COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)
+  (LET :EXECUTE) (LET :LOAD-TOPLEVEL :EXECUTE)
+  (LET :COMPILE-TOPLEVEL :EXECUTE)
+  (LET :COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)))
+
 ;; constantp
 
 (constantp 2)
