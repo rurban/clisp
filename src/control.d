@@ -1,7 +1,7 @@
 /*
  * Special Forms, Control Structures, Evaluator Related Stuff for CLISP
- * Bruno Haible 1990-2002
- * Sam Steingold 1998-2002
+ * Bruno Haible 1990-2003
+ * Sam Steingold 1998-2003
  * German comments translated into English: Stefan Kain 2002-09-28
  */
 
@@ -256,23 +256,23 @@ LISPSPECFORM(psetq, 0,0,body)
     if (body_length > 0) {
       get_space_on_STACK(body_length*2*sizeof(gcv_object_t));
       {
-        var uintL count;
-        dotimespL(count,body_length, {
+        var uintL count = body_length;
+        do {
           pushSTACK(Car(body)); /* push variable on stack */
           body = Cdr(body);
           pushSTACK(Cdr(body)); /* remaining list on stack */
           eval(Car(body)); /* evaluate next form */
           body = STACK_0;
           STACK_0 = value1; /* its result in the stack */
-        });
+        } while (--count);
       }
       {
-        var uintL count;
-        dotimespL(count,body_length, {
+        var uintL count = body_length;
+        do {
           var object val = popSTACK(); /* value */
           var object sym = popSTACK(); /* symbol */
           setq(sym,val); /* execute assignment */
-        });
+        } while (--count);
       }
     }
     VALUES1(NIL);
@@ -495,8 +495,8 @@ local void make_variable_frame (object caller, object varspecs,
           if (spec_anz > 0) {
            #ifdef NO_symbolflags
             var gcv_object_t* ptr = spec_pointer;
-            var uintL count;
-            dotimespL(count,spec_anz, {
+            var uintL count = spec_anz;
+            do {
               NEXT(ptr);
               if (eq(NEXT(ptr),symbol)) {
                 if (eq(NEXT(ptr),fixnum(bit(active_bit)))) {
@@ -505,17 +505,17 @@ local void make_variable_frame (object caller, object varspecs,
               } else {
                 NEXT(ptr);
               }
-            });
+            } while (--count);
            #else
             var object to_compare = as_object(as_oint(symbol) | wbit(active_bit_o));
             var gcv_object_t* ptr = spec_pointer;
-            var uintL count;
-            dotimespL(count,spec_anz, {
+            var uintL count = spec_anz;
+            do {
               NEXT(ptr);
               if (eq(NEXT(ptr),to_compare)) {
                 specdecled = true; break;
               }
-            });
+            } while (--count);
            #endif
           }
           if (eq(caller,S(symbol_macrolet))) {
@@ -619,18 +619,18 @@ LISPSPECFORM(let, 1,0,body)
     if (bind_count > 0) {
       { /* Then, evaluate the initialization forms: */
         var gcv_object_t* frame_pointer = bind_ptr;
-        var uintC count;
-        dotimespC(count,bind_count, {
+        var uintC count = bind_count;
+        do {
           var gcv_object_t* initptr = &NEXT(frame_pointer);
           var object init = *initptr; /* next init */
           *initptr = (!boundp(init) ? NIL : (eval(init),value1)); /* evaluate, NIL as default */
           frame_pointer skipSTACKop -(varframe_binding_size-1);
-        });
+        } while (--count);
       }
       { /* Then, activate the bindings: */
         var gcv_object_t* frame_pointer = bind_ptr;
-        var uintC count;
-        dotimespC(count,bind_count, {
+        var uintC count = bind_count;
+        do {
           frame_pointer skipSTACKop -varframe_binding_size;
           var gcv_object_t* markptr = &Before(frame_pointer);
           if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
@@ -642,7 +642,7 @@ LISPSPECFORM(let, 1,0,body)
           } else {
             *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
           }
-        });
+        } while (--count);
       }
     }
     /* interpret body: */
@@ -672,8 +672,8 @@ LISPSPECFORM(letstern, 1,0,body)
     /* Then, evaluate the initialization forms and activate the bindings */
     if (bind_count > 0) {
       var gcv_object_t* frame_pointer = bind_ptr;
-      var uintC count;
-      dotimespC(count,bind_count, {
+      var uintC count = bind_count;
+      do {
         var gcv_object_t* initptr = &Next(frame_pointer);
         frame_pointer skipSTACKop -varframe_binding_size;
         var gcv_object_t* markptr = &Before(frame_pointer);
@@ -688,7 +688,7 @@ LISPSPECFORM(letstern, 1,0,body)
           *initptr = newval; /* new value into the frame */
           *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); /* activate binding */
         }
-      });
+      } while (--count);
     }
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
@@ -1079,15 +1079,15 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
     /* then form the symbol-macros and activate the bindings: */
     if (bind_count > 0) {
       var gcv_object_t* frame_pointer = bind_ptr;
-      var uintC count;
-      dotimespC(count,bind_count, {
+      var uintC count = bind_count;
+      do {
         var gcv_object_t* initptr = &NEXT(frame_pointer);
         var object sm = allocate_symbolmacro();
         TheSymbolmacro(sm)->symbolmacro_expansion = *initptr;
         *initptr = sm;
         frame_pointer skipSTACKop -(varframe_binding_size-1);
         Before(frame_pointer) = as_object(as_oint(Before(frame_pointer)) | wbit(active_bit_o));
-      });
+      } while (--count);
     }
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
@@ -1355,14 +1355,14 @@ local inline void set_last_copy (object list) {
     /* traverse all lists in parallel: */                               \
     loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
-      var uintC count;                                                  \
-      dotimespC(count,argcount,{                                        \
+      var uintC count = argcount;                                       \
+      do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (endp(next_list)) goto fertig; /* a list ended -> done */    \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
-      });                                                               \
+      } while (--count);                                                \
       funcall(fun,argcount); /* call function */                        \
       pushSTACK(value1);                                                \
      {var object new_cons = allocate_cons(); /* new cons */             \
@@ -1389,14 +1389,14 @@ local inline void set_last_copy (object list) {
     /* traverse all lists in parallel: */                               \
     loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
-      var uintC count;                                                  \
-      dotimespC(count,argcount,{                                        \
+      var uintC count = argcount;                                       \
+      do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (endp(next_list)) goto fertig; /* a list ended -> done */    \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
-      });                                                               \
+      } while (--count);                                                \
       funcall(fun,argcount); /* call function */                        \
       pushSTACK(value1);                                                \
      {var object new_cons = allocate_cons(); /* new cons */             \
@@ -1422,14 +1422,14 @@ local inline void set_last_copy (object list) {
     /* traverse all lists in parallel: */                               \
     loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
-      var uintC count;                                                  \
-      dotimespC(count,argcount,{                                        \
+      var uintC count = argcount;                                       \
+      do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (endp(next_list)) goto fertig; /* a list ended -> done */    \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
-      });                                                               \
+      } while (--count);                                                \
       funcall(fun,argcount); /* call function */                        \
     }                                                                   \
     fertig:                                                             \
@@ -1454,14 +1454,14 @@ local inline void set_last_copy (object list) {
     /* traverse all lists in parallel: */                               \
     loop { var gcv_object_t* argptr = args_pointer;                     \
       var object fun = NEXT(argptr);                                    \
-      var uintC count;                                                  \
-      dotimespC(count,argcount,{                                        \
+      var uintC count = argcount;                                       \
+      do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
         if (endp(next_list)) goto fertig; /* a list ended -> done */    \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
-      });                                                               \
+      } while (--count);                                                \
       funcall(fun,argcount); /* call function */                        \
       append_function(value1);                                          \
     }                                                                   \
@@ -1606,8 +1606,8 @@ LISPSPECFORM(go, 1,0,nobody)
     var object tagbody_vec = Car(tagbody_cons); /* tag-vector */
     var gcv_object_t* tagptr = &TheSvector(tagbody_vec)->data[0];
     var uintL index = 0;
-    var uintL count;
-    dotimespL(count,Svector_length(tagbody_vec), {
+    var uintL count = Svector_length(tagbody_vec);
+    do {
       if (eql(*tagptr++,tag)) { /* tag found? */
         env = Cdr(tagbody_cons);
         if (eq(env,disabled)) { /* tagbody still active? */
@@ -1621,7 +1621,7 @@ LISPSPECFORM(go, 1,0,nobody)
         goto found;
       }
       index++;
-    });
+    } while (--count);
     env = Cdr(env);
   }
   /* env is finished. */
@@ -1765,7 +1765,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
         if (--s == 0) goto fill; /* no more values? */
       }
      fill: /* still bind r>0 variables to NIL */
-      dotimespC(r,r, { bind_next_var(NIL); });
+      do { bind_next_var(NIL); } while (--r);
      ok: ;
     }
     /* interpret body: */
@@ -1911,7 +1911,7 @@ LISPFUNN(unwind_to_driver,1)
     reset();
   } else if (posfixnump(arg)) {
     var uintL count = posfixnum_to_L(arg);
-    dotimespL(count, count, { reset(); });
+    do { reset(); } while (--count);
   } else {
     var gcv_object_t* FRAME = STACK;
     var gcv_object_t* driver_frame = STACK;
