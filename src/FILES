@@ -1,7 +1,5 @@
-
-
-
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
+
 
 
 AABBOOUUTT
@@ -19,7 +17,7 @@ FFIILLEE TTYYPPEESS
        **..lliisspp The source files for lisp code.
 
 
-       **..ffaass  Compiled lisp code. Now platform-independent.
+       **..ffaass  Compiled lisp code (platform-independent).
 
 
 
@@ -57,22 +55,14 @@ FFIILLEESS
                mmssddooss..dd        include file for  OS/2  based  ver-
                               sions
 
-               wwiinn3322..dd        include   file   for   Win32  based
-
-
-
-                           17 July 1999                         1
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
-
-                              versions
+               wwiinn3322..dd        include  file  for Win32 based ver-
+                              sions
 
                xxtthhrreeaadd..dd      include file for thread support
+
+               ppoossiixxmmaatthh..dd    POSIX math functions
+
+               ppoossiixxmmiisscc..dd    misc POSIX (system information etc)
 
                mmoodduulleess..hh      list of foreign modules
 
@@ -81,15 +71,15 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
            Modules:
 
-               ssppvvww..dd         Memory management (garbage  collec-
-                              tion),  startup. some OS interface.
+               ssppvvww..dd         Memory  management (garbage collec-
+                              tion), startup. some OS  interface.
 
                    aavvll..dd          An implementation of AVL (Adel-
-                                  son-Velskii  and Landis) trees.
+                                  son-Velskii and Landis)  trees.
 
                    ssoorrtt..dd         A sorting routine.
 
-                   ssuubbrrkkww..dd       list of all built-in  functions
+                   ssuubbrrkkww..dd       list  of all built-in functions
                                   with keywords
 
                ssppvvwwttaabbff..dd     Table of built-in special forms and
@@ -98,7 +88,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                ssppvvwwttaabbss..dd     Table  of  symbols  accessed  by  C
                               code.
 
-               ssppvvwwttaabboo..dd     Table   of   miscellaneous  objects
+               ssppvvwwttaabboo..dd     Table  of   miscellaneous   objects
                               accessed by C code.
 
                eevvaall..dd         Evaluator  (form  interpreter)  and
@@ -108,14 +98,14 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                ccoonnttrrooll..dd      Special forms (form interpreter).
 
-               ppaatthhnnaammee..dd     Pathnames,   file-  and  directory-
+               ppaatthhnnaammee..dd     Pathnames,  file-  and   directory-
                               related functions.
 
                ssttrreeaamm..dd       Streams of all kinds: file streams,
-                              terminal   stream,  string  streams
+                              terminal  stream,  string   streams
                               etc.
 
-               ssoocckkeett..dd       Opening sockets for CLX.
+               ssoocckkeett..dd       Opening sockets for TCP/IP and CLX.
 
                iioo..dd           The  lisp   reader   (parser)   and
                               printer (also pretty printer).
@@ -124,17 +114,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                               vectors.
 
                hhaasshhttaabbll..dd     Functions dealing with hash tables.
-
-
-
-                           17 July 1999                         2
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
 
                lliisstt..dd         Functions dealing with lists.
 
@@ -189,18 +168,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
                lliissppaarriitt..dd     Functions  dealing   with   numbers
                               (arithmetic), see below.
-
-
-
-
-                           17 July 1999                         3
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
 
                nnoorreeaaddlliinnee..dd   Replacement    for   GNU   readline
                               library.
@@ -257,17 +224,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                ssffllooaatt..dd       elementary  operations  for   short
                               floats
 
-
-
-                           17 July 1999                         4
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
-
                ffffllooaatt..dd       elementary  operations  for  single
                               floats
 
@@ -296,8 +252,8 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                               plex numbers
 
 
-           External routines for the arithmetic system, written
-           in  assembly language:
+           External routines for the arithmetic  system,  written
+           in assembly language:
 
                aarrii6688000000..dd          written  in  68000  assembler,
                                    MIT syntax
@@ -322,23 +278,11 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                aarriivvaaxxuunniixx..dd        written in VAX assembler, Unix
                                    assembler syntax
 
-
-
-
-                           17 July 1999                         5
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
-
                aarriiaarrmm..dd            written in ARM assembler
 
 
-           External routines for accessing the stack,  written
-           in  assembly language:
+           External routines for accessing the stack, written  in
+           assembly language:
 
                sspp6688000000..dd           written  in  68000  assembler,
                                    MIT syntax
@@ -386,19 +330,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
            mmaaccrrooss22..lliisspp
                   some other macros
-
-
-
-
-
-                           17 July 1999                         6
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
 
            ddeeffss11..lliisspp
                   miscellaneous definitions
@@ -454,18 +385,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ccoommppiilleerr..lliisspp
                   compiles lisp code to bytecode
 
-
-
-
-                           17 July 1999                         7
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
-
            ddiissaasssseemm..lliisspp
                   disassembles machine code
 
@@ -497,11 +416,18 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            rreexxxx11..lliisspp
                   for Amiga, an interface to Rexx
 
-           eeddiittoorr..lliisspp
+           eeddiitt..lliisspp
                   (optional) the screen editor
 
-           ssppaanniisshh..lliisspp
-                  spanish user messages
+           ppoossiixx..lliisspp
+                  export POSIX calls
+
+           tthhrreeaaddss..lliisspp
+                  MT interface
+
+           ssppaanniisshh..lliisspp, ggeerrmmaann..lliisspp, ffrreenncchh..lliisspp,  rruussssiiaann..lliisspp,
+           dduuttcchh..lliisspp
+                  i18n user messages
 
 
        Documentation:
@@ -512,25 +438,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            FFIILLEESS..11
                   nroff master for _F_I_L_E_S
 
-           bbyytteeccooddee..hhttmmll
-                  documents the bytecode instruction set
-
-           CCHHAANNGGEESS..LLOOGG
-                  lists the changes to the source
-
            NNEEWWSS   lists the user visible changes
-
-
-
-
-                           17 July 1999                         8
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
 
            __RREEAADDMMEE
                   master for the distribution's README
@@ -545,29 +453,25 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
                   master for the distribution's  manual  page  in
                   HTML format
 
-           __iimmppnnootteess..hhttmmll
-                  master  for  the  distribution's implementation
-                  notes
+           iimmppnnootteess..hhttmmll
+                  the implementation notes
 
 
 
        Internationalization:
 
 
-           ggeetttteexxtt//iinnttll//**
-                  internationalization library,  taken  from  GNU
-                  gettext-0.10.35
+           ppoo//**..ppoott
+                  list    of   translatable   messages
+                  ("portable object template")
 
-           ggeetttteexxtt//ppoo//**..ppoott
-                  list of translatable messages ("portable object
-                  template")
-
-           ggeetttteexxtt//ppoo//**..ppoo
-                  translated messages ("portable objects")
-
-           ggeetttteexxtt//ppoo//**..ggmmoo
-                  translated  messages   ("GNU   format   message
+           ppoo//**..ppoo
+                  translated    messages    ("portable
                   objects")
+
+           ppoo//**..ggmmoo
+                  translated   messages  ("GNU  format
+                  message objects")
 
 
        Automatic configuration on Unix:
@@ -576,85 +480,41 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
            ccoonnffiigguurree..iinn
                   lists the features to be checked
 
-           aauuttooccoonnff//aauuttooccoonnff
-                  the main program of GNU autoconf-2.13
-
            aauuttooccoonnff//aauuttooccoonnff..mm44
-                  _a_u_t_o_c_o_n_f's  driver  macros.   Part of GNU auto-
-                  conf-2.13
-
-           aauuttooccoonnff//aaccggeenneerraall..mm44
-                  _a_u_t_o_c_o_n_f's  general  feature  testing   macros.
-                  Part of GNU autoconf-2.13
-
-
-
-                           17 July 1999                         9
-
-
-
-
-
-CLISP SOURCE(1)                                   CLISP SOURCE(1)
-
-
-           aauuttooccoonnff//aaccssppeecciiffiicc..mm44
-                  macros  that  test  for some standard features.
-                  Part of GNU autoconf-2.13
+                  _a_u_t_o_c_o_n_f's driver macros.   Part  of
+                  GNU autoconf-2.13
 
            aauuttooccoonnff//aaccllooccaall..mm44
-                  a repertoire of features.  Use with  GNU  auto-
-                  conf-2.13
+                  a  repertoire of features.  Use with
+                  GNU autoconf-2.13
 
            ccoonnffiigguurree
-                  configuration script, checks for dozens of fea-
-                  tures
+                  configuration  script,  checks   for
+                  dozens of features
 
            iinnttppaarraamm..dd
-                  figures out some machine parameters (word size,
-                  endianness etc.)
+                  figures  out some machine parameters
+                  (word size, endianness etc.)
 
            iinnttppaarraamm..cc
                   preprocessed version of _i_n_t_p_a_r_a_m_._d
 
            uunniixxccoonnff..hh..iinn
-                  header  file  master.  unixconf.h  contains the
-                  values of the features found out by  configure.
+                  header file master. unixconf.h  con-
+                  tains  the  values  of  the features
+                  found out by configure.
 
            mmaakkeemmaakkee..iinn
                   makefile construction script master
 
            __cclliisspp..cc
-                  master for the distribution's driver program
+                  master for the distribution's driver
+                  program
 
            __ddiissttmmaakkeeffiillee
-                  master for the distribution's Makefile
+                  master  for the distribution's Make-
+                  file
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                           17 July 1999                        10
-
-
+                            2002-08-28            CLISP SOURCE(1)
