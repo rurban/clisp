@@ -359,9 +359,10 @@ global void done_win32 (void) {
       }
     }
 
+
 # Reading from a file/pipe/console handle.
 # This is the non-interruptible routine.
-local int read_helper_low (HANDLE fd, void* buf, int nbyte, bool partial_p) {
+local int read_helper_low (HANDLE fd, void* bufarea, int nbyte, bool partial_p) {
  #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
   handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
  #endif
@@ -589,7 +590,6 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       params.nbyte   = nbyte;
       params.retval  = 0;
       params.errcode = 0;
-      params.partial_p = true;  /* not used */
       if (DoInterruptible(&do_sock_read,(void*)&params,true)) {
         if (params.retval < 0)
           WSASetLastError(params.errcode);

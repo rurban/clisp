@@ -3293,72 +3293,50 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     {
       check_sstring_mutable(dv2);
       if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
-        SstringDispatch(dv1,
-          {
-            var const chart* ptr1 = &TheSstring(dv1)->data[index1+count];
-            var chart* ptr2 = &TheSstring(dv2)->data[index2+count];
-            dotimespL(count,count, {
-              *--ptr2 = *--ptr1;
-            });
-          },
-          {
-            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1+count];
-            var scint* ptr2 = &TheSmallSstring(dv2)->data[index2+count];
-            dotimespL(count,count, {
-              *--ptr2 = *--ptr1;
-            });
-          }
-          );
+        SstringDispatch(dv1,{
+          var const chart* ptr1 = &TheSstring(dv1)->data[index1+count];
+          var chart* ptr2 = &TheSstring(dv2)->data[index2+count];
+          dotimespL(count,count, { *--ptr2 = *--ptr1; });
+        },{
+          var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1+count];
+          var scint* ptr2 = &TheSmallSstring(dv2)->data[index2+count];
+          dotimespL(count,count, { *--ptr2 = *--ptr1; });
+        });
       } else {
         # elt_copy_Char_Char(dv1,index1,dv2,index2,count) inlined:
-       restart:
-        SstringDispatch(dv2,
-          {
-            var chart* ptr2 = &TheSstring(dv2)->data[index2];
-            SstringDispatch(dv1,
-              {
-                # Equivalent to chartcopy, but we inline it here.
-                var const chart* ptr1 = &TheSstring(dv1)->data[index1];
-                dotimespL(count,count, {
-                  *ptr2++ = *ptr1++;
-                });
-              },
-              {
-                # Equivalent to scintcopy, but we inline it here.
-                var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-                dotimespL(count,count, {
-                  *ptr2++ = as_chart(*ptr1++);
-                });
+       restart_it:
+        SstringDispatch(dv2,{
+          var chart* ptr2 = &TheSstring(dv2)->data[index2];
+          SstringDispatch(dv1,{
+            # Equivalent to chartcopy, but we inline it here.
+            var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+            dotimespL(count,count, { *ptr2++ = *ptr1++; });
+          },{
+            # Equivalent to scintcopy, but we inline it here.
+            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+            dotimespL(count,count, { *ptr2++ = as_chart(*ptr1++); });
+          });
+        },{
+          SstringDispatch(dv1,{
+            pushSTACK(dv1);
+            for (;;) {
+              var chart ch = TheSstring(dv1)->data[index1++];
+              dv2 = sstring_store(dv2,index2++,ch);
+              if (--count == 0)
+                break;
+              if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                dv2 = TheSiarray(dv2)->data;
+                dv1 = popSTACK();
+                goto restart_it;
               }
-              );
-          },
-          {
-            SstringDispatch(dv1,
-              {
-                pushSTACK(dv1);
-                for (;;) {
-                  var chart ch = TheSstring(dv1)->data[index1++];
-                  dv2 = sstring_store(dv2,index2++,ch);
-                  if (--count == 0)
-                    break;
-                  if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
-                    dv2 = TheSiarray(dv2)->data;
-                    dv1 = popSTACK();
-                    goto restart;
-                  }
-                }
-                skipSTACK(1);
-              },
-              {
-                var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-                var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
-                dotimespL(count,count, {
-                  *ptr2++ = *ptr1++;
-                });
-              }
-              );
-          }
-          )
+            }
+            skipSTACK(1);
+          },{
+            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+            var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
+            dotimespL(count,count, { *ptr2++ = *ptr1++; });
+          });
+        });
       }
     }
   local void elt_move_Bit(dv1,index1,dv2,index2,count)

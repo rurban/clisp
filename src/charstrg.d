@@ -875,19 +875,19 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
           #ifdef HAVE_SMALL_SSTRING
           case Rectype_SmallSstring: # mutable Simple-String
             {
-              var bool small = true;
+              var bool smallp = true;
               {
                 var uintL n;
                 var const chart* p = charptr;
                 dotimespL(n,len, {
                   if (!(as_cint(*p) < small_char_int_limit)) {
-                    small = false;
+                    smallp = false;
                     break;
                   }
                   p++;
                 });
               }
-              if (small) {
+              if (smallp) {
                 var const chart* p = charptr;
                 var scint* q = &TheSmallSstring(inner_string)->data[offset];
                 dotimespL(len,len, {
@@ -1101,7 +1101,7 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
     var object obj;
     {
       if (orecordp(obj))
-       restart:
+       restart_it:
         switch (Record_type(obj)) {
           case Rectype_Imm_Sstring:
           case Rectype_Sstring:
@@ -1115,7 +1115,7 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
           case Rectype_reallocstring:
             # reallocated simple string
             obj = TheSiarray(obj)->data;
-            goto restart;
+            goto restart_it;
           default:
             break;
         }
@@ -3529,7 +3529,7 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
     var uintL offset;
     var uintL len;
     {
-    restart:
+    restart_it:
       if (len > 0)
         SstringDispatch(dv,
           {
@@ -3545,7 +3545,7 @@ LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
               len--;
               if (Record_type(dv) == Rectype_reallocstring) { # has it been reallocated?
                 dv = TheSiarray(dv)->data;
-                goto restart;
+                goto restart_it;
               }
             } while (len > 0);
           }
