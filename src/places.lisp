@@ -480,15 +480,17 @@
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5) (get-setf-method place env)
     (let* ((indicatorvar (gensym))
            (bindlist
-            `(,@(mapcar #'list SM1 SM2)
-              (,(first SM3) ,SM5)
-              (,indicatorvar ,indicator)))
+             ;; The order of the bindings is a not strictly left-to-right here,
+             ;; but that's how ANSI CL 5.1.3 specifies it.
+             `(,@(mapcar #'list SM1 SM2)
+               (,indicatorvar ,indicator)
+               (,(first SM3) ,SM5)))
            (new-plist (gensym))
            (removed-p (gensym)))
       `(LET* ,bindlist
-         (multiple-value-bind (,new-plist ,removed-p)
-             (sys::%remf ,(first SM3) ,indicatorvar)
-           (when (and ,removed-p (atom ,new-plist))
+         (MULTIPLE-VALUE-BIND (,new-plist ,removed-p)
+             (SYSTEM::%REMF ,(first SM3) ,indicatorvar)
+           (WHEN (AND ,removed-p (ATOM ,new-plist))
              ,(if (simple-assignment-p SM4 SM3)
                 (subst new-plist (first SM3) SM4)
                 `(PROGN (SETQ ,(first SM3) ,new-plist) ,SM4)))
