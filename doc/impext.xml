@@ -2053,18 +2053,20 @@ containing:</para>
     <listitem><simpara>mit-clx, from MIT
      <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"
             >ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</ulink>
-    </simpara></listitem>
+     - the standard implementation</simpara></listitem>
     <listitem><simpara>new-clx, by
-      <ulink url="http://www.uni-karlsruhe.de/~unk6/">Gilbert Baumann</ulink>
-      <ulink url="mailto:unk6@rz.uni-karlsruhe.de"
-             >&lt;unk6@rz.uni-karlsruhe.de&gt;</ulink>.
+      <author><firstname>Gilbert</firstname> <surname>Baumann</surname>
+       <address><otheraddr><ulink url="http://www.uni-karlsruhe.de/~unk6/"/>
+       </otheraddr></address><email>unk6@rz.uni-karlsruhe.de</email></author>
+      - faster, with additional features, but not quite complete yet.
     </simpara></listitem>
    </itemizedlist></para></listitem></varlistentry>
   <varlistentry><term>oracle</term>
   <listitem><simpara>Access
-    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
-    by <ulink url="http://www.alma.com/staff/hin">John Hinsdale</ulink>
-    <ulink url="mailto:hin@alma.com">&lt;hin@alma.com&gt;</ulink>.
+    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;; by
+    <author><firstname>John</firstname> <surname>Hinsdale</surname>
+     <address><otheraddr><ulink url="http://www.alma.com/staff/hin"/>
+     </otheraddr></address><email>hin@alma.com</email></author>.
   </simpara></listitem></varlistentry>
  <varlistentry><term>postgresql632, postgresql642</term>
   <listitem><simpara>Access
@@ -2072,14 +2074,14 @@ containing:</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term>queens</term>
   <listitem><simpara>Compute the number of solutions to the n-queens
-   problem on a n*n checkboard.
-  </simpara></listitem></varlistentry>
+    problem on a n*n checkboard (a toy example for the users to
+    explore).</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="regexp">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
    Expressions</ulink> matching, compiling, executing.
   </simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
-  <listitem><simpara>Shell (&sh;;) globbing</simpara></listitem></varlistentry>
+  <listitem><simpara>Shell (&sh;) globbing</simpara></listitem></varlistentry>
 </variablelist>
 
 &regexp;
@@ -2468,7 +2470,7 @@ only.</subtitle>
    <link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>
    or &utf-8;, circumventing the usual 1:1 limit imposed on
    &foreign-enc;.</simpara>
-  <simpara>&body-r; is then executing with the three variables &f-addr;,
+  <simpara>&body-r; is then executed with the three variables &f-addr;,
    <replaceable>char-count</replaceable> and
    <replaceable>byte-count</replaceable> respectively bound to an
    untyped &foreign-address-t; (as known from the &c-pointer; foreign
