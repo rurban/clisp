@@ -4286,9 +4286,8 @@ functions are provided:</para>
  <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
     platforms only.</term>
 <listitem><simpara>&file-position; works on any buffered file stream.
-  When a &nl-c; is output to (respectively input
-  from) a file stream, its file position is increased by 2 since
-  &nl-c; is encoded as
+  When a &nl-c; is output to (respectively input from) a file stream,
+  its file position is increased by 2 since &nl-c; is encoded as
   <keycode>CR</keycode>/<keycode>LF</keycode> in the file.
 </simpara></listitem></varlistentry></variablelist>
 </section>
@@ -4303,13 +4302,13 @@ functions are provided:</para>
 
 <variablelist><title>The acceptable values for the
    &file-pipe-socket; functions</title>
- <varlistentry id="eltype"><term><constant>:element-type</constant></term>
+ <varlistentry id="eltype"><term>&eltype;</term>
   <listitem><simpara>types equivalent to &character-class; or
    <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal>,
    <literal role="sexp">(&signed-byte-type; &n-r;)</literal>; if the
    stream is to be unbuffered, &n-r; must be a multiple of 8.
    </simpara></listitem></varlistentry>
- <varlistentry id="extfmt"><term><constant>:external-format</constant></term>
+ <varlistentry id="extfmt"><term>&extfmt;</term>
   <listitem><simpara>&encoding;s,
    (constant) &symbol-class;s in the &charset-pac; package,
    &string-class;s (denoting <link linkend="iconv">iconv()</link> based
@@ -4317,7 +4316,7 @@ functions are provided:</para>
    <constant>:unix</constant>, <constant>:mac</constant>,
    <constant>:dos</constant>.  The default encoding is &def-file-enc;.
   </simpara></listitem></varlistentry>
- <varlistentry id="buffered"><term><constant>:buffered</constant></term>
+ <varlistentry id="buffered"><term>&buffered;</term>
   <listitem><para>&nil;, &t;, or &default-k;.
   <itemizedlist>
    <listitem><simpara>for functions that create &socket-stream;s and
@@ -4890,7 +4889,7 @@ compiles a file to platform-independent bytecode.</para>
 <row><entry><constant>:COMPILER</constant></entry><entry/></row>
 <!-- #ifdef SOCKET_STREAMS -->
 <row><entry><constant>:SOCKETS</constant></entry>
-   <entry>see <link linkend="socket">Socket Streams</link></entry></row>
+   <entry>see &socket-stream;s</entry></row>
 <!-- #endif -->
 <!-- #ifdef GENERIC_STREAMS -->
 <row><entry><constant>:GENERIC-STREAMS</constant></entry>
@@ -4911,19 +4910,22 @@ compiles a file to platform-independent bytecode.</para>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
 <row><entry><constant>:FFI</constant></entry>
-   <entry>if a foreign function interface is supported <emphasis>(Platform
-     dependent: many &unix;, &win32; platforms only)</emphasis>
+   <entry>if a foreign function interface (see &ffi-pac;) is supported
+     <emphasis>(Platform dependent: many &unix;, &win32; platforms
+     only)</emphasis>
     </entry></row>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
 <row><entry><constant>:GETTEXT</constant></entry>
-   <entry>if internationalization using the &gnu; gettext package is
-     supported <emphasis>(Platform dependent: most &unix; platforms
+   <entry>if internationalization (see &i18n-pac;) using the &ggettext;
+     package is supported
+     <emphasis>(Platform dependent: most &unix; platforms
      only)</emphasis></entry></row>
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
 <row><entry><constant>:UNICODE</constant></entry>
-   <entry>if Unicode (ISO 10646) characters are supported</entry></row>
+   <entry>if Unicode (ISO 10646) characters are supported (see
+     &charset-pac;)</entry></row>
 <!-- #endif -->
 <row><entry><constant>:LOOP</constant></entry><entry/></row>
 <row><entry><constant>:CLOS</constant></entry><entry/></row>
@@ -5344,7 +5346,7 @@ and you can leave the function call with specified values by using
 
 <para>The function &ed; calls the external editor specified by the
  variable <emphasis
- role="strong"><varname>custom:*editor*</varname></emphasis> (see
+ role="strong"><varname>CUSTOM:*EDITOR*</varname></emphasis> (see
  &config-file;).  If the argument is a function name which was defined
  in the current session (not loaded from a file), the program text to be
  edited is a pretty-printed version (without comments) of the text which
@@ -5359,7 +5361,7 @@ and you can leave the function call with specified values by using
 <varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
    platforms only.</term>
  <listitem><simpara>The variable <emphasis
-   role="strong"><varname>custom:*default-time-zone*</varname></emphasis>
+   role="strong"><varname>CUSTOM:*DEFAULT-TIME-ZONE*</varname></emphasis>
    contains the default time zone used by &encode-universal-time; and
    &decode-universal-time;.  It is initially set to -1 (which
    means 1 hour east of Greenwich, i.e., Mid European Time).
@@ -5367,7 +5369,8 @@ and you can leave the function call with specified values by using
 </variablelist>
 <!-- #endif -->
 
-<para>The timezone in a decoded time must not necessarily be an integer,
+<para>The <ulink url="&clhs;/Body/glo_t.html#time_zone">time
+ zone</ulink> in a decoded time must not necessarily be an integer,
  but (as float or rational number) it should be a multiple of
  <literal>1/3600</literal>.</para>
 
