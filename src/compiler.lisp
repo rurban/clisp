@@ -7748,7 +7748,7 @@ for-value   NIL or T
     (if arg2
       (c-GLOBAL-FUNCTION-CALL-form
         `(DEPOSIT-FIELD ,(second *form*) (QUOTE ,arg2) ,(fourth *form*)))
-      (c-GLOBAL-FUNCTION-CALL `(DEPOSIT-FIELD ,(second *form*) ,arg2-form ,@(cdddr *form*))))))
+      (c-GLOBAL-FUNCTION-CALL-form `(DEPOSIT-FIELD ,(second *form*) ,arg2-form ,@(cdddr *form*))))))
 
 
 
