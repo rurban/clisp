@@ -1,3 +1,7 @@
+2003-07-23  Sam Steingold  <sds@gnu.org>
+
+	* record.d (fehler_record_length): fixed stack
+
 2003-07-21  Sam Steingold  <sds@gnu.org>
 
 	* _clisp.c (main): use shell_quote() and real_path()
