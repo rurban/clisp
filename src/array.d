@@ -4750,6 +4750,7 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
 # make_storagevector(len,eltype)
 # > len: Länge
 # > eltype: Elementtyp-Code
+# > STACK_4: initial-element
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: einfacher Vektor des gegebenen Typs, evtl. gefüllt.
 # can trigger GC
@@ -4763,8 +4764,21 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
         case Atype_T: # Simple-Vector erzeugen
           vector = allocate_vector(len);
           break;
-        case Atype_Char: # Normal-Simple-String erzeugen
+        case Atype_Char: # Simple-String erzeugen
+          #ifdef HAVE_SMALL_SSTRING
+          if (charp(STACK_4) && len>0) {
+            var cint initial_element = as_cint(STACK_4);
+            if (initial_element < cint8_limit)
+              vector = allocate_s8string(len);
+            else if (initial_element < cint16_limit)
+              vector = allocate_s16string(len);
+            else
+              vector = allocate_s32string(len);
+          } else
+            vector = allocate_s8string(len);
+          #else
           vector = allocate_string(len);
+          #endif
           break;
         case Atype_Bit:
         case Atype_2Bit:
@@ -4779,16 +4793,21 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
       if (!eq(STACK_4,unbound)) # initial-element angegeben?
         if (!(len==0)) { # und Länge > 0 ?
           # Fill vector with initial-element:
-          if (elt_fill(vector,0,len,STACK_4)) {
-            pushSTACK(STACK_4); # TYPE-ERROR slot DATUM
-            pushSTACK(STACK_(5+1)); # TYPE-ERROR slot EXPECTED-TYPE
-            pushSTACK(STACK_(5+2)); # element-type
-            pushSTACK(STACK_(4+3)); # initial-element
+          pushSTACK(vector);
+          if (elt_fill(vector,0,len,STACK_(4+1))) {
+            pushSTACK(STACK_(4+1)); # TYPE-ERROR slot DATUM
+            pushSTACK(STACK_(5+2)); # TYPE-ERROR slot EXPECTED-TYPE
+            pushSTACK(STACK_(5+3)); # element-type
+            pushSTACK(STACK_(4+4)); # initial-element
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
                    GETTEXT("~: the initial-element ~ is not of type ~")
                   );
           }
+          vector = popSTACK();
+          #ifdef HAVE_SMALL_SSTRING
+          ASSERT(!(Record_type(vector) == Rectype_reallocstring));
+          #endif
         }
       return vector;
     }
@@ -5369,10 +5388,10 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
       } else {
         # Datenvektor bilden:
         if (eltype == Atype_Char) {
-          var uintL oldoffset = 0;
           #ifdef HAVE_SMALL_SSTRING
-          datenvektor = iarray_displace(STACK_6,&oldoffset);
-          SstringCase(datenvektor,
+          var uintL oldoffset = 0;
+          var object olddatenvektor = iarray_displace(STACK_6,&oldoffset);
+          SstringCase(olddatenvektor,
             { datenvektor = allocate_s8string(totalsize); },
             { datenvektor = allocate_s16string(totalsize); },
             { datenvektor = allocate_s32string(totalsize); });
