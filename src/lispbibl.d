@@ -1046,9 +1046,9 @@
 
 # Swap the contents of to variables:  swap(register int, x1, x2);
 #define swap(swap_type,swap_var1,swap_var2)  \
-  { var swap_type swap_temp;                                             \
+  do { var swap_type swap_temp;                                          \
     swap_temp = swap_var1; swap_var1 = swap_var2; swap_var2 = swap_temp; \
-  } while (0)
+  } while(0)
 
 # Marking a program line that may not be reached: NOTREACHED;
 #define NOTREACHED  fehler_notreached(__FILE__,__LINE__)
@@ -7578,14 +7578,14 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #define allocate_cclosure_copy(oldclos)  \
   allocate_closure(Cclosure_length(oldclos))
 # do_cclosure_copy(newclos,oldclos);
-#define do_cclosure_copy(newclos,oldclos)  \
-  { var object* newptr = &((Srecord)TheCclosure(newclos))->recdata[0]; \
-    var object* oldptr = &((Srecord)TheCclosure(oldclos))->recdata[0]; \
-    var uintC count;                                                   \
-    dotimespC(count,Cclosure_length(oldclos),                          \
-      { *newptr++ = *oldptr++; }                                       \
-      );                                                               \
-  } while (0)
+#define do_cclosure_copy(newclos,oldclos) do {                          \
+    var object* newptr = &((Srecord)TheCclosure(newclos))->recdata[0];  \
+    var object* oldptr = &((Srecord)TheCclosure(oldclos))->recdata[0];  \
+    var uintC count;                                                    \
+    dotimespC(count,Cclosure_length(oldclos),                           \
+      { *newptr++ = *oldptr++; }                                        \
+      );                                                                \
+  } while(0)
 # is used by EVAL, IO, RECORD
 
 # UP: allocates Structure
@@ -9058,7 +9058,7 @@ re-enters the corresponding top-level loop.
 #endif
 # is used by EVAL, CONTROL
 
-# Gives the list of the multivle values on -(STACK).
+# Gives the list of the multiple values on -(STACK).
 # mv_to_list()
 # can trigger GC
 #define mv_to_list()  \
@@ -10880,20 +10880,13 @@ extern object shifthash (object ht, object obj, object value);
 extern void init_reader (void);
 # is used by SPVW
 
-# UP: returns (cons (make-Semi-Simple-String 50) nil)
-extern object cons_ssstring (void);
+# UP:
+# (setf (strm-pphelp-strings *stream_)
+#    (list* (make-Semi-Simple-String 50)
+#           (cons nl_type *PRIN-INDENTATION*)
+#           (strm-pphelp-strings *stream_)))
+extern object cons_ssstring (const object* stream_,const object nl_type);
 # used by io.d and stream.d
-# (setf (cdr new_cons) old_cons old_cons new_cons)
-#define PUSH_CONS(old_cons,new_cons) \
-  do { Cdr(new_cons) = old_cons; old_cons = new_cons; } while(0)
-#define PPHELP_PUSH(stream_,thing)                                      \
-  do { pushSTACK(thing);                                                \
-   {object new_cons = allocate_cons();                                  \
-    Car(new_cons) = popSTACK();                                         \
-    PUSH_CONS(TheStream(*stream_)->strm_pphelp_strings,new_cons); }} while(0)
-#define PPHELP_NEW_STRING(stream_)                                          \
-  do { object new_cons = cons_ssstring();                                   \
-   PUSH_CONS(TheStream(*stream_)->strm_pphelp_strings,new_cons); } while(0)
 
 # UP: Reads on object.
 # stream_read(&stream,recursive-p,whitespace-p)

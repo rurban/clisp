@@ -2327,7 +2327,7 @@ local void wr_ch_pphelp (const object* stream_, object ch) {
   # Bei NL: Ab jetzt  Modus := Mehrzeiler
   if (chareq(c,ascii(NL))) {
     TheStream(stream)->strm_pphelp_modus = T;
-    PPHELP_NEW_STRING(stream_);
+    cons_ssstring(stream_,NIL);
   } else
     # Character in den ersten String schieben:
     ssstring_push_extend(Car(TheStream(stream)->strm_pphelp_strings),c);
@@ -2346,7 +2346,7 @@ local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
 # make_pphelp_stream()
 # can trigger GC
 global object make_pphelp_stream (void) {
-  pushSTACK(cons_ssstring());
+  pushSTACK(cons_ssstring(NULL,NIL));
   var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
     allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
   stream_dummy_fill(stream);

@@ -6,12 +6,81 @@
 #include "lispbibl.c"
 #include "arilev0.c" # for Division in pr_uint
 
-# define IO_DEBUG 1
+# define IO_DEBUG 0
 #ifdef IO_DEBUG
 #include <stdio.h>
 global object car (object o) { return Car(o); }
 global object cdr (object o) { return Cdr(o); }
 global object pph_str (object o) { return TheStream(o)->strm_pphelp_strings; }
+global Stream thestream (object o) { return TheStream(o); }
+global char* clisp_type_of (object o) {
+  pushSTACK(o); funcall(L(type_of),1);
+  pushSTACK(value1); funcall(L(prin1_to_string),1);
+  var object ret = string_to_asciz(value1,O(misc_encoding));
+  return TheSbvector(ret)->data;
+}
+global void string_printf (object str) {
+  uintL len, offset, idx;
+  ASSERT(stringp(str));
+  str = unpack_string_ro(str,&len,&offset);
+  printf("<%d\"",len);
+  for(idx=offset;idx<len;idx++) {
+    chart ch;
+    SstringDispatch(str,{ ch=TheSstring(str)->data[idx]; },
+                    { ch=as_chart(TheSmallSstring(str)->data[idx]); });
+    printf("%c",as_cint(ch));
+  }
+  printf("\">");
+}
+#define NL_TYPE(x) \
+ (eq(x,S(Klinear))? 'L' : eq(x,S(Kmiser)) ? 'M' : eq(x,S(Kfill)) ? 'F' : 'D')
+global void pph_top_printf (object top) {
+  if (stringp(top)) string_printf(top);
+  else if (posfixnump(top)) printf("%d",posfixnum_to_L(top));
+  else if (symbolp(top)) printf("%c",NL_TYPE(top));
+  else if (mconsp(top))
+    printf("%d/%c",posfixnum_to_L(Cdr(top)),NL_TYPE(Car(top)));
+  else if (vectorp(top)) {
+    var object * data = TheSvector(top)->data;
+    printf("[%c/%c/%d/%d]",
+           eq(data[0],T) ? 't' : 'n',eq(data[1],T) ? 't' : 'n',
+           posfixnum_to_L(data[2]),posfixnum_to_L(data[3]));
+  } else { object_out(top); NOTREACHED; }
+}
+#define PPH_TOP(label,top)                      \
+  do { printf(#label "[%d]: [",__LINE__);       \
+       pph_top_printf(top);                     \
+       printf("]\n"); } while(0)
+static bool inside_pp = false;
+global void pphelp_printf (object pph) {
+  if (inside_pp) return;
+  inside_pp = true;
+  ASSERT(streamp(pph));
+  var object zz = T;
+  var object yy = NIL;
+  var object list = TheStream(pph)->strm_pphelp_strings;
+  printf("#<pphelp[%c/%d]",
+         (eq(TheStream(pph)->strm_pphelp_modus,NIL) ? 'e' : 'm'),
+         llength(list));
+  while (mconsp(list)) {
+    printf(" ");
+    pph_top_printf(Car(list));
+    list = Cdr(list);
+  }
+  printf(">");
+  inside_pp = false;
+}
+#undef NL_TYPE
+#define GC_CHECK \
+  do{printf("<%d",__LINE__);fflush(stdout);gar_col();printf(">\n");}while(0)
+#define PPH_OUT(label,stream)                   \
+  do { printf(#label "[%d]: [",__LINE__);       \
+       pphelp_printf(stream);                   \
+       printf("]\n"); } while(0)
+#else
+#define GC_CHECK
+#define PPH_OUT(l,s)
+#define PPH_TOP(l,s)
 #endif
 
 # =============================================================================
@@ -54,10 +123,10 @@ local void perchar_table_put (object table, chart c, object value) {
 }
 local object copy_perchar_table (object table) {
   pushSTACK(copy_svector(table));
-# Allocate a new hash table.
+  # Allocate a new hash table.
   pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
   pushSTACK(value1);
-# stack layout: table, newht.
+  # stack layout: table, newht.
   map_hashtable(TheSvector(STACK_1)->data[small_char_code_limit],
                 key,value,{ shifthash(STACK_(0+1),key,value); });
   var object newht = popSTACK();
@@ -5429,11 +5498,9 @@ local void write_sstring_case (const object* stream_, object string) {
 # can trigger GC
 local void spaces (const object* stream_, object anzahl) {
   var uintL count;
-#ifdef IO_DEBUG
-  if (!posfixnump(anzahl)) {
-    printf("ERROR[spaces]: "); fehler_posfixnum(anzahl);
-  } else printf("spaces: %d\n",posfixnum_to_L(anzahl));
-#endif
+ #ifdef IO_DEBUG
+  ASSERT(posfixnump(anzahl));
+ #endif
   dotimesL(count,posfixnum_to_L(anzahl), {
     write_ascii_char(stream_,' ');
   });
@@ -5457,9 +5524,12 @@ local void spaces (const object* stream_, object anzahl) {
 
 # components of a Pretty-Print-Help-Streams:
 #   strm_pphelp_lpos     Line Position (Fixnum>=0)
-#   strm_pphelp_strings  non-empty list of Semi-Simple-Strings. They
-#                        contain the recent Output (in reversed
-#                        order: last line as CAR).
+#   strm_pphelp_strings  non-empty list of
+#                          Semi-Simple-Strings and
+#                          (newline-keyword . indentation) and
+#                          tab_spec = #(colon atsig col_num col_inc)
+#                        They contain the recent output (in reversed
+#                        order: last line as CAR);
 #   strm_pphelp_modus    Mode: single-liner, if there is only 1 String and
 #                        it contains no NL, otherwise it's a multi-liner.
 # WRITE-CHAR always pushes its Character only to the last line
@@ -5494,27 +5564,105 @@ local void spaces (const object* stream_, object anzahl) {
 #                    or NIL if the closing parenthesis should be moved to the
 #                    end of the line and not below the opening parenthesis)
 
-# this is a PPHELP helper - used here and in stream.d
-# (list (make-Semi-Simple-String (+ 50 *PRIN-INDENTATION*)))
-#  init the first *PRIN-INDENTATION* chars as spaces
-global object cons_ssstring (void) {
-  var uintL indent = 0;
-  if (!eq(unbound,Symbol_value(S(prin_indentation))))
-    indent = posfixnum_to_L(Symbol_value(S(prin_indentation)));
-  pushSTACK(make_ssstring(50+indent));
-  if (indent > 0) {
-    var object sstring = TheIarray(STACK_0)->data;
-    dotimesL(indent,indent, {
-      TheSstring(sstring)->data[TheIarray(STACK_0)->dims[1]++] = ascii(' ');
-    });
-  }
+# UP: this is a PPHELP helper - used here and in stream.d
+# (setf (strm-pphelp-strings *stream_)
+#   (list* (make-Semi-Simple-String 50)
+#          (cons nl_type *PRIN-INDENTATION*)
+#          (strm-pphelp-strings *stream_))
+# can trigger GC
+global object cons_ssstring (const object* stream_, object nl_type) {
+  var object indent = Symbol_value(S(prin_indentation));
+  if (eq(unbound,indent)) indent = Fixnum_0;
+  pushSTACK(indent);
+  pushSTACK(nl_type);
   var object new_cons = allocate_cons();
   Car(new_cons) = popSTACK();
+  Cdr(new_cons) = popSTACK();
+  pushSTACK(new_cons); # = (nl . ident)
+  new_cons = allocate_cons();
+  Car(new_cons) = popSTACK(); # new_cons = ((nl . ident) . nil)
+  if ((stream_ != NULL) &&
+      stringp(Car(TheStream(*stream_)->strm_pphelp_strings)) &&
+      vector_length(Car(TheStream(*stream_)->strm_pphelp_strings)) == 0) {
+    Cdr(new_cons) = Cdr(TheStream(*stream_)->strm_pphelp_strings);
+    Cdr(TheStream(*stream_)->strm_pphelp_strings) = new_cons;
+    new_cons = TheStream(*stream_)->strm_pphelp_strings;
+  } else {
+    pushSTACK(new_cons);
+    pushSTACK(make_ssstring(50));
+    new_cons = allocate_cons();
+    Car(new_cons) = popSTACK();
+    Cdr(new_cons) = popSTACK(); # new_cons = ("" (nl . ident))
+    if (stream_ != NULL) {
+      Cdr(Cdr(new_cons)) = TheStream(*stream_)->strm_pphelp_strings;
+      TheStream(*stream_)->strm_pphelp_strings = new_cons;
+    }
+  }
+ #if IO_DEBUG > 1
+  PPH_OUT(cons_ssstring,*stream_);
+ #endif
   return new_cons;
+}
+# access the NL type and indentation
+#define PPHELP_NL_TYPE Car
+#define PPHELP_INDENTN Cdr
+
+# UP: tabulation (see format-tabulate here in io.d and in format.lisp)
+# can trigger GC
+#define PPH_TAB_COLON(tab_spec) TheSvector(tab_spec)->data[0]
+#define PPH_TAB_ATSIG(tab_spec) TheSvector(tab_spec)->data[1]
+#define PPH_TAB_COL_N(tab_spec) TheSvector(tab_spec)->data[2]
+#define PPH_TAB_COL_I(tab_spec) TheSvector(tab_spec)->data[3]
+#ifdef IO_DEBUG
+#define PPH_FORMAT_TAB(out,spec)                                \
+  (4 != vector_length(spec) ? NOTREACHED,0 :                    \
+   format_tab(out,PPH_TAB_COLON(spec),PPH_TAB_ATSIG(spec),      \
+              PPH_TAB_COL_N(spec),PPH_TAB_COL_I(spec)))
+#else
+#define PPH_FORMAT_TAB(out,spec)                                \
+  format_tab(out,PPH_TAB_COLON(spec),PPH_TAB_ATSIG(spec),       \
+             PPH_TAB_COL_N(spec),PPH_TAB_COL_I(spec))
+#endif
+local uintL format_tab (object stream, object colon_p, object atsig_p,
+                        object col_num, object col_inc) {
+  var uintL col_num_i;
+  if (nullp(col_num)) col_num_i = 1;
+  else if (posfixnump(col_num)) col_num_i = posfixnum_to_L(col_num);
+  else NOTREACHED; # fehler_posfixnum(col_num);
+  var uintL col_inc_i;
+  if (nullp(col_inc)) col_inc_i = 1;
+  else if (posfixnump(col_inc)) col_inc_i = posfixnum_to_L(col_inc);
+  else NOTREACHED; # fehler_posfixnum(col_inc);
+  var uintL new_col_i = col_num_i +
+    (!nullp(colon_p) && !eq(unbound,Symbol_value(S(prin_indentation)))
+     ? posfixnum_to_L(Symbol_value(S(prin_indentation))) : 0);
+  var uintL new_inc_i = (col_inc_i == 0 ? 1 : col_inc_i);
+  var object pos = get_line_position(stream);
+  var uintL pos_i = (nullp(pos) ? (uintL)-1 : posfixnum_to_L(pos));
+ #if IO_DEBUG > 1
+  printf("format_tab[%s%s]: cn=%d ci=%d nc=%d ni=%d p=%d ==> ",
+         (nullp(atsig_p)?"":"@"),(nullp(colon_p)?"":":"),col_num_i,
+         col_inc_i,new_col_i,new_inc_i,pos_i);
+ #endif
+  var uintL ret;
+  if (nullp(atsig_p)) {
+    if (nullp(pos)) ret = 2;
+    else if (pos_i < new_col_i) ret = new_col_i - pos_i;
+    else if (col_inc_i == 0) ret = 0;
+    else ret = col_inc_i - (pos_i - new_col_i) % col_inc_i;
+  } else {
+    if (nullp(pos)) ret = new_col_i;
+    else ret = new_col_i +
+           (new_inc_i - (pos_i + new_col_i) % new_inc_i) % new_inc_i;
+  }
+ #if IO_DEBUG > 1
+  printf("%d\n",ret);
+ #endif
+  return ret;
 }
 
 # Sub-Routines:
-# ===============
+# =============
 
 # These work on the stream and must be undone in the right order,
 # because they can modify the STACK.
@@ -5522,7 +5670,7 @@ global object cons_ssstring (void) {
 # print the pretty prefix (prefix string and indentation)
 # and compute its length
 # can trigger GC when stream_ is non-NULL
-local uintL pprint_prefix (const object *stream_) {
+local uintL pprint_prefix (const object *stream_,object indent) {
   var uintL len = 0;
   var object prefix = Symbol_value(S(prin_line_prefix));
   if (stringp(prefix)) {
@@ -5531,24 +5679,22 @@ local uintL pprint_prefix (const object *stream_) {
     if ((stream_ != NULL) && (add != 0))
       write_string(stream_,prefix);
   }
-  var object indent = Symbol_value(S(prin_indentation));
   if (posfixnump(indent)) {
     var uintL add = posfixnum_to_L(indent);
     len += add;
-    # output in wr_ch_pphelp()
-    # if ((stream_ != NULL) && (add != 0))
-    #   spaces(stream_,indent);
+    if ((stream_ != NULL) && (add != 0))
+      spaces(stream_,indent);
   }
-#ifdef IO_DEBUG
+ #if IO_DEBUG > 1
   printf("pprint_prefix(%s): %d\n",(stream_==NULL?"null":"valid"),len);
-#endif
+ #endif
   return len;
 }
 
 # return
 #     (- (or *print-right-margin* sys::*prin-linelength*) (pprint_prefix))
 local object right_margin (void) {
-  var uintL pp_pref_len = pprint_prefix(NULL);
+  var uintL pp_pref_len = pprint_prefix(NULL,Fixnum_0);
   var object prm = Symbol_value(S(print_right_margin));
   if (nullp(prm))
     prm = Symbol_value(S(prin_linelength));
@@ -5587,7 +5733,7 @@ local uintL pphelp_string_width (object string) {
 # can trigger GC
 local void pphelp_newline (const object* stream_) {
   # (push (make-ssstring 50) (strm-pphelp-strings stream)) :
-  PPHELP_NEW_STRING(stream_);
+  cons_ssstring(stream_,NIL);
   var object stream = *stream_;
   # Line-Position := 0, Modus := multi-liner :
   TheStream(stream)->strm_pphelp_lpos = Fixnum_0;
@@ -5654,6 +5800,12 @@ local void klammer_zu (const object* stream_) {
       # if no, start new line, print Spaces and the parenthesis.
       var object lastline = # last line
         Car(TheStream(stream)->strm_pphelp_strings);
+      if (!stringp(lastline)) { # drop the newline / indentation / tab
+        do { TheStream(stream)->strm_pphelp_strings =
+               Cdr(TheStream(stream)->strm_pphelp_strings);
+        } while (!stringp(TheStream(stream)->strm_pphelp_strings));
+        goto new_line;
+      }
       var uintL len = TheIarray(lastline)->dims[1]; # lendgh = Fill-Pointer of line
       var uintL need = posfixnum_to_L(pos) + 1; # necessary number of Spaces
       if (len < need) # line too short ?
@@ -5733,7 +5885,7 @@ local void double_dots (const object*);
 # < stream: Stream
 # can trigger GC
 local void justify_empty_1 (const object* stream_) {
-  var object new_cons = cons_ssstring(); # = (list (make-ssstring 50))
+  var object new_cons = cons_ssstring(NULL,NIL);
   var object stream = *stream_;
   TheStream(stream)->strm_pphelp_strings = new_cons; # new, empty line
   TheStream(stream)->strm_pphelp_modus = einzeiler; # Modus := single-liner
@@ -5806,6 +5958,20 @@ local void justify_space (const object* stream_) {
   }
 }
 
+local void mutli_line_sub_block_out (object block, const object* stream_) {
+  block = nreverse(block); # bring lines into the right order
+  if (!stringp(Car(block))) # drop the initial indentation
+    block = Cdr(block);
+  # print first line on the PPHELP-stream:
+  pushSTACK(block);
+  write_string(stream_,Car(block));
+  block = popSTACK();
+  # append remaining lines to the lines in front of the stream:
+  var object stream = *stream_;
+  TheStream(stream)->strm_pphelp_strings =
+    nreconc(Cdr(block),TheStream(stream)->strm_pphelp_strings);
+}
+
 # UP: Finalizes a Justify-Block, determines the shape of the Block and
 # prints its content to the old Stream.
 # justify_end_eng(&stream);
@@ -5834,19 +6000,10 @@ local void justify_end_eng (const object* stream_) {
     loop { # Run through Blocklist STACK_0:
       var object block = Car(STACK_0); # next block
       STACK_0 = Cdr(STACK_0); # shorten blocklist
-      if (consp(block)) {
-        # Sub-Block with several lines
-        # put lines in the right order:
-        block = nreverse(block);
-        # print first line to PPHELP-Stream:
-        pushSTACK(block);
-        write_string(stream_,Car(block));
-        block = popSTACK();
-        # attach remaining lines to the lines in front of the stream:
-        stream = *stream_;
-        TheStream(stream)->strm_pphelp_strings =
-          nreconc(Cdr(block),TheStream(stream)->strm_pphelp_strings);
+      if (consp(block)) { # Sub-Block with several lines
+        mutli_line_sub_block_out(block,stream_);
         # Modus := multi-liner:
+        stream = *stream_;
         TheStream(stream)->strm_pphelp_modus = mehrzeiler;
         if (matomp(STACK_0)) { # Restlist empty?
           # yes -> reset Line-Position, finished
@@ -5969,16 +6126,7 @@ local void justify_end_weit (const object* stream_) {
       var object block = Car(STACK_0); # next block
       STACK_0 = Cdr(STACK_0); # shorten block list
       if (consp(block)) { # multi-line sub-block
-        # bring lines into the right order:
-        block = nreverse(block);
-        # print first line on the PPHELP-stream:
-        pushSTACK(block);
-        write_string(stream_,Car(block));
-        block = popSTACK();
-        # append remaining lines to the lines in front of the stream:
-        stream = *stream_;
-        TheStream(stream)->strm_pphelp_strings =
-          nreconc(Cdr(block),TheStream(stream)->strm_pphelp_strings);
+        mutli_line_sub_block_out(block,stream_);
       } else { # single-line sub-block
         # print it on the PPHELP-stream:
         write_string(stream_,block);
@@ -6353,6 +6501,58 @@ local void pretty_print_call (const object* stream_,object obj,
 }
 #undef DISPATCH_TABLE_VALID_P
 
+# UP: return the number of spaces available on the current line in this stream
+# NIL means unlimited
+local object space_available (object stream) {
+  var object line_pos = get_line_position(stream);
+  if (!posfixnump(line_pos)) return NIL;
+  var uintL pos = posfixnum_to_L(line_pos);
+  var object prm = right_margin();
+  if (!posfixnump(prm)) return NIL;
+  var uintL mar = posfixnum_to_L(prm);
+  if (mar < pos) return Fixnum_0;
+  return fixnum(mar-pos);
+}
+
+# UP: return the total length of all the strings in the PPHELP stream
+# return NIL if this is a multi-liner
+local object pphelp_length (object pph_stream) {
+ #if IO_DEBUG > 0
+  PPH_OUT(pphelp_length,pph_stream);
+ #endif
+  if (eq(TheStream(pph_stream)->strm_pphelp_modus,mehrzeiler))
+    return NIL;
+  var uintL ret = 0;
+  var object list = Cdr(TheStream(pph_stream)->strm_pphelp_strings);
+  while (mconsp(list)) {
+    var object top = Car(list); list = Cdr(list); # (pop list)
+    if (stringp(top)) ret += vector_length(top);
+    else if (vectorp(top)) ret += PPH_FORMAT_TAB(pph_stream,top);
+    else if (mconsp(top)) {
+      if (nullp(Car(top))) { # mandatory newline
+        TheStream(pph_stream)->strm_pphelp_modus = mehrzeiler;
+        return NIL;
+      }
+    } # else if (posfixnump(top)) ret += posfixnum_to_L(top);
+    else NOTREACHED;
+  }
+  return fixnum(ret);
+}
+
+# UP: check whether the string fits into the current line in the stream
+local inline bool string_fit_line_p (object list, object stream) {
+  var object avail = space_available(stream);
+  if (nullp(avail)) return true; # unlimited space available
+  var uintL len;
+  var object top = Car(list); list = Cdr(list); # (pop list)
+  if (stringp(top)) len = vector_length(top);
+  else if (mconsp(top)) return true;
+  else if (vectorp(top))
+    len = PPH_FORMAT_TAB(stream,top) + vector_length(Car(list));
+  else NOTREACHED;
+  return posfixnum_to_L(avail) >= len;
+}
+
 # UP: Binds the variables of the printer and then calls a printer-routine.
 # pr_enter(&stream,obj,&pr_xxx);
 # > obj: object
@@ -6379,41 +6579,90 @@ local void pr_enter_1 (const object* stream_, object obj,
         Symbol_value(S(prin_l1)) = linepos;
       }
       pushSTACK(make_pphelp_stream()); # new PPHELP-Stream, line-position = 0
-      if (stream_get_read_eval(*stream_))
-        TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B); # adopt READ-EVAL-Bit
+      if (stream_get_read_eval(*stream_)) # adopt READ-EVAL-Bit
+        TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B);
       # print object to the new stream:
       pretty_print_call(&STACK_0,STACK_1,pr_xxx);
+      var bool skip_first_nl = false;
+      var bool modus_single_p;
       { # print content of the new stream to the old stream:
         var object ppstream = popSTACK(); # the new stream
-        STACK_0 = nreverse(TheStream(ppstream)->strm_pphelp_strings); # list of output-lines
+        STACK_0 = nreverse(TheStream(ppstream)->strm_pphelp_strings);
+        TheStream(ppstream)->strm_pphelp_strings = STACK_0;
         # if it has become a multi-liner that does not start with a
         # Newline, and the old line-position is >0 ,
         # print a Newline to the old stream first:
-        if (eq(TheStream(ppstream)->strm_pphelp_modus,einzeiler) # single-liner ?
-            || nullp(Symbol_value(S(pprint_first_newline))))
-          goto skip_first_NL; # into the loop
-        {
-          var object firststring = Car(STACK_0); # first line, a Semi-Simple-String
-          if ((TheIarray(firststring)->dims[1] == 0) # empty?
-              || chareq(TheSstring(TheIarray(firststring)->data)->data[0],ascii(NL))) # or Newline at the beginning?
-            goto skip_first_NL; # into the loop
+        { var object firststring = Car(STACK_0); # first line
+          if (stringp(firststring) &&
+              ((TheIarray(firststring)->dims[1] == 0) # empty?
+               || chareq(TheSstring(TheIarray(firststring)->data)->data[0],
+                         ascii(NL)))) # or Newline at the beginning?
+            skip_first_nl = true;
         }
         if (eq(Symbol_value(S(prin_l1)),Fixnum_0)) # or at position 0 ?
-          goto skip_first_NL; # into the loop
+          skip_first_nl = true;
+        { # if modus is mehrzeiler, we KNOW it is so
+          # if it is einzeiler, it might have :LINEAR newlines
+          var object pphs_len = pphelp_length(ppstream);
+          var object prm = right_margin();
+          var bool fit_this_line = !nullp(pphs_len);
+          if (posfixnump(pphs_len) && # maybe single-liner?
+              posfixnump(prm)) { # have right margin
+            var uintL pphs_len_i = posfixnum_to_L(pphs_len);
+            var uintL prm_i = posfixnum_to_L(prm);
+            var uintL pos_i = posfixnum_to_L(Symbol_value(S(prin_l1)));
+            fit_this_line = (pphs_len_i <= (prm_i - pos_i));
+            if (pphs_len_i > prm_i)
+              TheStream(ppstream)->strm_pphelp_modus = mehrzeiler;
+            if (fit_this_line
+                || nullp(Symbol_value(S(pprint_first_newline))))
+              skip_first_nl = true;
+          }
+          if (skip_first_nl && !fit_this_line)
+            TheStream(ppstream)->strm_pphelp_modus = mehrzeiler;
+        }
+        modus_single_p = eq(TheStream(ppstream)->strm_pphelp_modus,einzeiler);
+       #if IO_DEBUG > 0
+        PPH_OUT(pr_enter_1,ppstream);
+       #endif
       }
+      if (skip_first_nl) {
+        pprint_prefix(stream_,PPHELP_INDENTN(Car(STACK_0)));
+        STACK_0 = Cdr(STACK_0);
+        goto skip_NL;
+      } else STACK_0 = Cdr(STACK_0);
       do {
-        write_ascii_char(stream_,NL); # #\Newline as separating character between the lines
-        # check out line prefix, if any
-        pprint_prefix(stream_);
-      skip_first_NL:
-        # print non-empty string list STACK_0 to the stream:
-        var object list = STACK_0;
-        STACK_0 = Cdr(list);
-        write_string(stream_,Car(list)); # print single String
+        # NL & indent
+        var object top = Car(STACK_0);
+        var object indent = Fixnum_0;
+        if (mconsp(top)) { # if :FILL and the next string fits the line
+          STACK_0 = Cdr(STACK_0);
+          if (modus_single_p ||
+              (eq(PPHELP_NL_TYPE(top),S(Kfill)) &&
+               string_fit_line_p(STACK_0,*stream_)))
+            goto skip_NL;
+          indent = PPHELP_INDENTN(top);
+          if (!mconsp(STACK_0)) break; # end of stream
+        } else if (!stringp(top)) { # tab - a vector but not a string
+          STACK_0 = Cdr(STACK_0);
+          spaces(stream_,fixnum(PPH_FORMAT_TAB(*stream_,top)));
+          if (!mconsp(STACK_0)) break; # end of stream
+          goto skip_NL;
+        }
+        write_ascii_char(stream_,NL); # #\Newline as the line separator
+        pprint_prefix(stream_,indent); # line prefix & indentation, if any
+      skip_NL:
+        { # print first element, if string
+          var object top = Car(STACK_0);
+          if (stringp(top)) {
+            write_string(stream_,top); # print single String
+            STACK_0 = Cdr(STACK_0);
+          }
+        }
       } while (mconsp(STACK_0));
-      skipSTACK(1);
-      dynamic_unbind();
-      dynamic_unbind();
+      skipSTACK(1); # obj
+      dynamic_unbind(); # SYS::*PRIN-LM*
+      dynamic_unbind(); # SYS::*PRIN-L1*
     } else { # already a PPHELP-stream
       pretty_print_call(stream_,obj,pr_xxx);
     }
@@ -9482,11 +9731,11 @@ LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
   if (PPHELP_STREAM_P(STACK_0) && test_value(S(print_pretty))) {
     # set indentation
     if (offset<0) offset = 0;
-#ifdef IO_DEBUG
+   #if IO_DEBUG > 1
     printf("pprint-indent: %d --> %d\n",
            eq(unbound,Symbol_value(S(prin_indentation))) ? -1 :
            posfixnum_to_L(Symbol_value(S(prin_indentation))),offset);
-#endif
+   #endif
     Symbol_value(S(prin_indentation)) = fixnum(offset);
     if (linepos_i < offset)
       spaces(&STACK_0,fixnum(offset-linepos_i));
@@ -9525,11 +9774,21 @@ LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
   }
   if (PPHELP_STREAM_P(STACK_0) && test_value(S(print_pretty)))
     switch (ppn_type) {
-      case PPRINT_NEWLINE_LINEAR: # FIXME
-      case PPRINT_NEWLINE_FILL:   # FIXME
-      case PPRINT_NEWLINE_MISER:  # FIXME
+      case PPRINT_NEWLINE_MISER:
+        if (!test_value(S(prin_miserp))) # miser style
+          break;
+        STACK_1 = S(Klinear);
+        /*FALLTHROUGH*/
+      case PPRINT_NEWLINE_LINEAR:
+        if (eq(TheStream(STACK_0)->strm_pphelp_modus,mehrzeiler))
+          goto mandatory;
+        /*FALLTHROUGH*/
+      case PPRINT_NEWLINE_FILL:
+        cons_ssstring(&STACK_0,STACK_1);
+        break;
       case PPRINT_NEWLINE_MANDATORY:
-        terpri(&STACK_0);
+    mandatory:
+        cons_ssstring(&STACK_0,NIL);
         break;
     }
   skipSTACK(2);
@@ -9560,6 +9819,42 @@ LISPFUNN(ppprint_logical_block,3)
   } else
     pr_enter(&STACK_0,STACK_1,&prin_object);
   skipSTACK(3);
+  value1=NIL;
+  mv_count=1;
+}
+
+LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL)
+# (format-tabulate stream colon-modifier atsign-modifier
+#                  &optional (colnum 1) (colinc 1))
+# see format.lisp
+{
+  swap(object,STACK_0,STACK_4); # get the stream into STACK_0
+  test_ostream();
+  if (PPHELP_STREAM_P(STACK_0) && test_value(S(print_pretty))) {
+    var object tab_spec = allocate_vector(4);
+    PPH_TAB_COLON(tab_spec) = STACK_3;
+    PPH_TAB_ATSIG(tab_spec) = STACK_2;
+    PPH_TAB_COL_N(tab_spec) = STACK_1;
+    PPH_TAB_COL_I(tab_spec) = STACK_4;
+    var object list = TheStream(STACK_0)->strm_pphelp_strings;
+    pushSTACK(tab_spec);
+    if (stringp(Car(list)) && (0==vector_length(Car(list)))) {
+      # last string is empty -- keep it!
+      var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      Cdr(new_cons) = Cdr(TheStream(STACK_0)->strm_pphelp_strings);
+      TheStream(STACK_0)->strm_pphelp_strings = new_cons;
+    } else {
+      pushSTACK(make_ssstring(50));
+      swap(object,STACK_0,STACK_1);
+      var object new_cons = listof(2);
+      Cdr(Cdr(new_cons)) = TheStream(STACK_0)->strm_pphelp_strings;
+      TheStream(STACK_0)->strm_pphelp_strings = new_cons;
+    }
+  } else
+    spaces(&STACK_0,
+           fixnum(format_tab(STACK_0,STACK_3,STACK_2,STACK_1,STACK_4)));
+  skipSTACK(5);
   value1=NIL;
   mv_count=1;
 }
