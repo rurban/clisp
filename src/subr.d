@@ -701,7 +701,7 @@ LISPFUNN(rename_file,2)
 LISPFUN(open,seclass_default,1,0,norest,key,6,
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),
          kw(external_format),kw(buffered)) )
-LISPFUN(directory,seclass_read,0,1,norest,key,3,
+LISPFUN(directory,seclass_read,1,0,norest,key,3,
         (kw(if_does_not_exist),kw(circle),kw(full)))
 LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(make_dir,1)

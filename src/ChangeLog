@@ -1,3 +1,9 @@
+2004-02-23  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (DIRECTORY): pathname argument is required
+	* subr.d (directory): ditto
+	* constobj.d (version): bumped
+
 2004-02-20  Bruno Haible  <bruno@clisp.org>
 
 	* time.d (encode_universal_time): Define only if TIME_RELATIVE.
@@ -53,12 +59,12 @@
 	working around a gcc-3.3 bug.
 	* lispbibl.d (INNARDS_OF_GCV_OBJECT): Add _attribute_aligned_object_.
 	(_attribute_aligned_object_): Default to empty.
-	(record_, srecord_, xrecord_, cons_, ratio_, complex_, symbol_,
-	svector_, siarray_, iarray_, Package, Hashtable, Readtable, Pathname,
-	Logpathname, Random_state, Byte, Fsubr, Loadtimeeval, Symbolmacro,
-	Macro, FunctionMacro, Encoding, Faddress, Fvariable, Ffunction,
-	Weakpointer, weakkvt_t, Finalizer, Socket_server, Yetanother, Stream,
-	Class, Instance, Closure, Iclosure, Cclosure, subr_t): Add
+	(record_, srecord_, xrecord_, cons_, ratio_, complex_, symbol_)
+	(svector_, siarray_, iarray_, Package, Hashtable, Readtable, Pathname)
+	(Logpathname, Random_state, Byte, Fsubr, Loadtimeeval, Symbolmacro)
+	(Macro, FunctionMacro, Encoding, Faddress, Fvariable, Ffunction)
+	(Weakpointer, weakkvt_t, Finalizer, Socket_server, Yetanother, Stream)
+	(Class, Instance, Closure, Iclosure, Cclosure, subr_t): Add
 	_attribute_aligned_object_ to all fields of type gcv_object_t.
 	* genclisph.d (main): Adjust accordingly.
 
@@ -95,24 +101,24 @@
 	Rectype_Snilvector.
 	(allocate_nilvector): Remove declaration.
 	(fehler_retrieve): New declaration.
-	* spvw_circ.d (get_circ_mark, get_circ_unmark, subst_circ_mark, subst,
-	subst_circ_unmark): Remove handling of nilvector and snilvector types.
+	* spvw_circ.d (get_circ_mark, get_circ_unmark, subst_circ_mark, subst)
+	(subst_circ_unmark): Remove handling of nilvector and snilvector types.
 	* spvw_garcol.d (gc_mark): Likewise.
 	* spvw_genera1.d (walk_area, build_old_generation_cache): Likewise.
 	* spvw_objsize.d (objsize): Likewise.
 	* spvw_update.d (update_varobject): Likewise.
 	* spvw_typealloc.d (allocate_nilvector): Remove function.
-	* array.d (eltype_code): Recognize also types equivalent to the NIL
-	type, not only NIL itself.
-	(iarray_displace, iarray_displace_check, array_displace_check): Handle
-	the case when the storage vector is NIL.
+	* array.d (eltype_code): Recognize also types equivalent to the
+	NIL type, not only NIL itself.
+	(iarray_displace, iarray_displace_check, array_displace_check):
+	Handle the case when the storage vector is NIL.
 	(fehler_retrieve): Change error message, ignore the storage vector.
-	(fehler_store): Give a different error message if the storage vector
-	is NIL.
+	(fehler_store): Give a different error message if the storage
+	vector is NIL.
 	(array_atype): Recognize vectors of element type NIL. Drop
 	Array_type_nilvector and Array_type_snilvector.
-	(elt_reverse, elt_nreverse): Give an error for a vector of element type
-	NIL.
+	(elt_reverse, elt_nreverse): Give an error for a vector of element
+	type NIL.
 	(make_storagevector): For eltype==Atype_NIL, just return NIL.
 	(MAKE-ARRAY): For eltype==Atype_NIL, return a vector of type
 	vector_type, not just the storage vector.
@@ -120,20 +126,20 @@
 	element type is known to be NIL.
 	(pr_array): Likewise.
 	(pr_orecord): Remove handling of Rectype_nilvector, Rectype_Snilvector.
-	* sequence.d (get_seq_type): Change recognition of arrays with element
-	type NIL.
-	* hashtabl.d (hashcode4_vector): Handle the case of a vector of element
-	type NIL.
+	* sequence.d (get_seq_type): Change recognition of arrays with
+	element type NIL.
+	* hashtabl.d (hashcode4_vector): Handle the case of a vector of
+	element type NIL.
 	* predtype.d (elt_compare): Handle the cases when dv1 or dv2 are
 	storage vectors of element type NIL.
 	(TYPE-OF): Handle vectors of element type NIL specially.
 	(CLOS:CLASS-OF): Remove handling of nilvector and snilvector types.
 	(heap_statistics_mapper): Likewise, but still distinguish general
 	vectors and those of element type NIL.
-	* type.lisp (upgraded-element-type): Recognize also types equivalent to
-	the NIL type, not only NIL itself.
-	* genclisph.d (general_vector_p): Exclude the vectors of element type
-	NIL.
+	* type.lisp (upgraded-element-type): Recognize also types
+	equivalent to the NIL type, not only NIL itself.
+	* genclisph.d (general_vector_p): Exclude the vectors of element
+	type NIL.
 
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
