@@ -1,3 +1,9 @@
+2003-12-27  Bruno Haible  <bruno@clisp.org>
+
+	* m4/mmap.m4: Treat i786 CPUs like i686.
+	* asmi386.hh: Likewise.
+	* makemake.in: Likewise.
+
 2003-12-26  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 864479 ]: GO from deep nesting does not work
