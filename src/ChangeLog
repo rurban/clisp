@@ -76,6 +76,10 @@
 
         * arilev1c.d (eqv_loop_up, nand_loop_up): Fix typo in declaration.
 
+1998-06-20  Gilbert Baumann  <unk6@rz.uni-karlsruhe.de>
+ 
+        * io.d (SYS::REAL-LISTEN): New function.
+
 1998-06-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * lispbibl.d: Remove the last vestiges of STDWIN.
