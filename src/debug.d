@@ -58,6 +58,18 @@
      5
      [4]>
 
+   - Likewise for multiline paste:
+
+     [1]> (setq x 3)
+          (setq y 4)
+          (setq z (sqrt (+ (* x x) (* y y))))
+     3
+     [2]>
+     4
+     [3]>
+     5
+     [4]>
+
    - Separation of form input and data input.
 
      Form input is not mistakenly considered as data. Example:
