@@ -212,7 +212,7 @@
 
 ;;; Returns true if form evaluates to itself.
 (defun eval-self-p (form)
-  (or (null form)
+  (or (null form) (eq form t)
       (keywordp form)
       (not (or (symbolp form)
                (consp form)))))
@@ -221,7 +221,15 @@
 (defun maybe-quote (form)
   (if (eval-self-p form) form (list 'quote form)))
 
-(defun bq-optimize-append (forms)
+;;; unquote if the quoted form evaluates to iteself
+(defun maybe-unquote (form)
+  (if (and (consp form)
+           (eq 'quote (first form))
+           (eval-self-p (second form)))
+      (second form)
+      form))
+
+(defun bq-optimize-append (forms &aux butlast)
   (cond
     ;; () -> ()
     ((null forms) nil)
@@ -234,9 +242,9 @@
     ;; ((list x1) ... (list xn-1) xn) -> (list* x1 ... xn-1 xn)
     ((every #'(lambda (form)
                 (and (consp form) (eq (first form) 'list)))
-            (butlast forms))
-     (bq-optimize-list* (append (mapcan #'rest (butlast forms))
-                                (last forms))))
+            (setq butlast (butlast forms)))
+     (bq-optimize-list* (nconc (mapcap #'rest butlast)
+                               (last forms))))
     ;; ((bq-nconc x) ...) -> (nconc x <recurse (...)>)
     ((and (consp (first forms))
           (eq (first (first forms)) 'bq-nconc))
@@ -278,7 +286,7 @@
              (memq (first (first forms)) '(SPLICE NSPLICE)))
       (list 'append (first forms))
       (bq-optimize-list (first forms)))
-    (let* ((forms (bq-drop-superfluous-quotes forms))
+    (let* ((forms (mapcar #'maybe-unquote forms))
            (last-opt (bq-optimize-list (first (last forms)))))
       (cond
         ;; (... ,@form) -> (list* ... (append form))
@@ -310,18 +318,6 @@
         ;; (... x) -> (list* ... x) [ -> '(... . x) ]
         (t (bq-optimize-list
              (append '(list*) (butlast forms) (list last-opt))))))))
-
-;;; BQ-DROP-SUPERFLUOUS-QUOTES reduces every element of the input list
-;;; that is (QUOTE FORM) to FORM, provided that FORM
-;;; evaluates to itself already.
-(defun bq-drop-superfluous-quotes (forms)
-  (mapcar #'(lambda (form)
-              (if (and (consp form)
-                       (eq 'quote (first form))
-                       (eval-self-p (second form)))
-                (second form)
-                form))
-          forms))
 
 ;;; BQ-OPTIMIZE-LIST tries to turn a (list ...) or
 ;;; (list* ...) form into a '(...) form.

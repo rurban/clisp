@@ -1,3 +1,13 @@
+2003-04-18  Sam Steingold  <sds@gnu.org>
+
+	* backquote.lisp (eval-self-p): T evaluates to itself too
+	(maybe-unquote): new function - the dual for MAYBE-QUOTE
+	(bq-optimize-append): avoid consing up BUTLAST twice;
+	do not destructively modify input lists (suggested by Kaz)
+	(bq-optimize-list*): call MAYBE-UNQUOTE instead of the
+	obsolete BQ-DROP-SUPERFLUOUS-QUOTES
+	(bq-drop-superfluous-quotes): removed
+
 2003-04-10  Kaz Kylheku  <kaz@ashi.footprints.net>
 
 	* backquote.lisp (bq-optimize-vec): New function.
