@@ -1881,10 +1881,9 @@ fi
 echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
 echol
 echol "# List of add-on modules that are already hardwired in the base linking set"
-# We put i18n into 'base' because it's essential for internationalized programs.
-# We put syscalls into 'base' because it is very useful for scripting.
-# We put regexp into 'base' because it is useful for scripting and text processing,
-# and we don't want P*rl to take over 100% of CPU time.
+# i18n: essential for internationalized programs
+# syscalls: very useful for scripting
+# regexp: useful for scripting and text processing
 if [ -n "$USE_GETTEXT" ]; then
   echol "BASE_MODULES = i18n syscalls regexp"
 else
