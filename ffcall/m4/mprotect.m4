@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -52,38 +52,41 @@ mprotect_prog="$mprotect_prog"'
 '
 if test -z "$no_mprotect"; then
 AC_TRY_RUN([$mprotect_prog
+  nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
-  foo = *fault_address; /* this should cause a core dump */
+  foo = *fault_address; /* this should cause an exception or signal */
   exit(0); }],
-  no_mprotect=1, rm -f core,
+  no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
 if test -z "$no_mprotect"; then
 AC_TRY_RUN([$mprotect_prog
+  nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
-  *fault_address = 'z'; /* this should cause a core dump */
+  *fault_address = 'z'; /* this should cause an exception or signal */
   exit(0); }],
-  no_mprotect=1, rm -f core,
+  no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
 if test -z "$no_mprotect"; then
 AC_TRY_RUN([$mprotect_prog
+  nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
-  *fault_address = 'z'; /* this should cause a core dump */
+  *fault_address = 'z'; /* this should cause an exception or signal */
   exit(0); }],
-  no_mprotect=1, rm -f core,
+  no_mprotect=1, ,
 : # When cross-compiling, don't assume anything.
 )
 fi
 if test -z "$no_mprotect"; then
 AC_TRY_RUN([$mprotect_prog
+  nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(1);
   if (mprotect(page_align(fault_address),pagesize,PROT_READ|PROT_WRITE) < 0) exit(1);
-  *fault_address = 'z'; /* this should not cause a core dump */
-  exit(0); }], , no_mprotect=1
-rm -f core,
+  *fault_address = 'z'; /* this should not cause an exception or signal */
+  exit(0); }], , no_mprotect=1,
 : # When cross-compiling, don't assume anything.
 )
 fi
