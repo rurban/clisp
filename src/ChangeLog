@@ -1,3 +1,12 @@
+2004-09-15  Bruno Haible  <bruno@clisp.org>
+
+	Fix "make distclean".
+	* makemake.in (OBSOLETE): Add Makefile~, clisp-test.c.
+	(clean4): Also remove cflags.h, localcharset.h.
+	(clean5): Also remove spvw_calendar.c, w32shell.c, exporting.lisp,
+	modprep.lisp.
+	(clean7): Also remove version.h.
+
 2004-09-15  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (main): define NULL differently for C & C++
