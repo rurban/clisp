@@ -381,7 +381,6 @@ local void fill_hostname (hd)
             (hd->host >> 16) & 0xff,
             (hd->host >>  8) & 0xff,
             hd->host & 0xff);
-    return;
   }
 
 # Creation of sockets on the server side:
@@ -555,6 +554,8 @@ global int resolve_service (name_or_number,name)
 # Auxiliary function:
 # socket_getpeername (socket_handle, hd)
 # returns the name of the host to which IP socket fd is connected.
+# Note that hd->truename may point to static data; it must therefore be
+# used immediately and must not be free()d.
 
 global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
 global host_data * socket_getpeername (socket_handle, hd)

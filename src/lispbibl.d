@@ -5107,10 +5107,12 @@ typedef struct { XRECORD_HEADER
                }
         * Socket_server;
 #define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(object))
-typedef struct {
-  unsigned long int host;
-  char hostname[20];
-  char * truename;
+
+# Information about any of the two ends of a socket connection.
+typedef struct host_data {
+  unsigned long host;    # IP address
+  char hostname[20];     # IP address in aaa.bbb.ccc.ddd notation
+  const char * truename; # hostname, with or without domain name
   unsigned int port;
 } host_data;
 #endif
