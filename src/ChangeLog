@@ -1,5 +1,10 @@
 1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
+        * stream.d (FILE-POSITION): Accept any integer >= 0, < 2^32, not only
+          fixnums.
+
+1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
         * stream.d (SOCKET-SERVER, publish_host_data): Remove call to
           undeclared function `bzero'.
         * socket.d (create_server_socket, socket_getpeername,
