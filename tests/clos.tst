@@ -841,3 +841,9 @@ t) t
        (obj2 (reinitialize-instance obj :x 3 :garbage 100)))
   (list (eq obj obj2) (slot-value obj2 'a) (slot-value obj2 'b)))
 error
+
+(let ((gf (defgeneric no-app-meth-gf-02 (x))))
+  (defmethod no-applicable-method ((x (eql gf)) &rest args)
+    (list 'no-applicable-method args))
+  (no-app-meth-gf-02 (cons 'a 'b)))
+(NO-APPLICABLE-METHOD ((A . B)))
