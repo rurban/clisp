@@ -21,9 +21,8 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
             (sys::program-name) (sys::program-id) object))
   (:method ((object clos::standard-method) &rest junk)
     (declare (ignore junk))
-    (values
-     (disassemble (clos::std-method-function object))
-     (disassemble (clos::std-method-initfunction object))))
+    (disassemble (clos::std-method-function object))
+    (disassemble (clos::std-method-initfunction object)))
   (:method ((object standard-generic-function) &key qualifiers specializers)
     (if (or qualifiers specializers)
         (disassemble (find-method object qualifiers
@@ -67,7 +66,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
                             nil)))  ; no error even on failure
     ;; object is a compiled closure.
     (sys::disassemble-closure object) ; disassemble
-    object)) ; compiled closure as value
+    nil))
 
 ;; Disassemble machine code.
 ;; Bruno Haible 1995
@@ -127,4 +126,4 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
       (format f "quit~%"))           ; quit the debugger
     (shell (format nil "~A -c ~A -a ~D ~A" "dbx"
                    tempfilename pid program-name))) |#
-  (values))
+  nil)

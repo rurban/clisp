@@ -1,5 +1,10 @@
 2003-05-21  Sam Steingold  <sds@gnu.org>
 
+	* disassem.lisp (disassemble, disassemble-machine-code): return
+	NIL, as per ANSI CL spec
+
+2003-05-21  Sam Steingold  <sds@gnu.org>
+
 	MAKE-INSTANCES-OBSOLETE now does nothing except for issuing a
 	warning: there is no point in obsoleting instances if the class
 	has not been redefined
