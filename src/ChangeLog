@@ -1,3 +1,10 @@
+2003-02-05  Sam Steingold  <sds@gnu.org>
+
+	turned FCASE into a special form, just like CASE
+	* macros1.lisp (fcase): defmacro-special
+	* compiler.lisp (c-form-table): FCASE --> c-CASE
+	(c-CASE): handle FCASE
+
 2003-02-04  Sam Steingold  <sds@gnu.org>
 
 	* clos.lisp (class): new slot DIRECT-SUBCLASSES
