@@ -1,3 +1,20 @@
+2002-07-15  Bruno Haible  <bruno@clisp.org>
+
+	* unix.d (fstatfs): Remove unused declaration.
+
+	* makemake.in (lisp.a): Adapt to gcc-3.1; its libgcc.a contains *.oS,
+	not *.o.
+
+	* spvw_sigsegv.d (stackoverflow_handler): Add support for FreeBSD.
+
+	* io.d (right_margin): Avoid gcc warning when compiling with -DWIDE.
+
+	* lispbibl.d (copy_mem_o): Fix parentheses.
+	(UNIX_HURD): Renamed from UNIX_GNU.
+	(UNIX_GNU): New macro.
+	(_REENTRANT): Use for UNIX_GNU, not only UNIX_LINUX.
+	(setjmp, longjmp): Treat UNIX_GNU like UNIX_LINUX.
+
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
 	check for OpenLDAP
