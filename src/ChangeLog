@@ -1,3 +1,8 @@
+2005-03-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/postgresql/configure.in: restore the second argument
+	to AC_SEARCH_LIBS
+
 2005-03-07  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regex.c [clisp]: include "clisp.h"
