@@ -2,7 +2,7 @@
 (defpackage "NETICA-DEMO" (:use "CL" "EXT" "FFI" "NETICA"))
 (in-package "NETICA-DEMO")
 
-(netica:start-netica "+DunnM/Alphatech/310-2/5865")
+(netica:start-netica "your license key here")
 (defparameter *net* (netica:make-net :name "AsiaEx"))
 (defparameter *visit-asia*
   (netica:make-node :name "VisitAsia" :net *net*
