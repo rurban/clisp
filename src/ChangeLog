@@ -1,3 +1,12 @@
+2002-12-17  Bruno Haible  <bruno@clisp.org>
+
+	* utils/unicode/UnicodeDataFull.txt: Renamed from
+	utils/unicode/ftp.unicode.org/UnicodeData.txt.
+	* Makefile.devel (src/uninames.h): Update.
+	* src/makemake.in: Use UnicodeDataFull.txt instead of UnicodeData.txt.
+	* src/describe.lisp (unicode-attributes-line): Likewise.
+	* src/_README.en: Update.
+
 2002-12-17  Sam Steingold  <sds@gnu.org>
 
 	when :CONC-NAME is NIL, use the slot name as accessor and setter

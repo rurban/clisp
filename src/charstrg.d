@@ -1272,7 +1272,7 @@ global object char_name (chart code) {
   }
   /* not found */
  #ifdef UNICODE
-  /* Try to find the long name, from UnicodeData.txt. It is the second
+  /* Try to find the long name, from UnicodeDataFull.txt. It is the second
      semicolon separated field from (sys::unicode-attributes-line c). */
   #ifdef AWFULLY_SLOW
   {
