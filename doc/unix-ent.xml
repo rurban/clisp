@@ -52,6 +52,9 @@
 <!ENTITY stat "<ulink url='&unix-f;/stat.html'><function>stat</function></ulink>">
 <!ENTITY statvfs "<ulink url='&unix-f;/statvfs.html'><function>statvfs</function></ulink>">
 <!ENTITY strerror "<ulink url='&unix-f;/strerror.html'><function>strerror</function></ulink>">
+<!ENTITY stderr "<ulink url='&unix-f;/stderr.html'><varname>stderr</varname></ulink>">
+<!ENTITY stdin "<ulink url='&unix-f;/stdin.html'><varname>stdin</varname></ulink>">
+<!ENTITY stdout "<ulink url='&unix-f;/stdout.html'><varname>stdout</varname></ulink>">
 <!ENTITY symlink "<ulink url='&unix-f;/symlink.html'><function>symlink</function></ulink>">
 <!ENTITY sysconf "<ulink url='&unix-f;/sysconf.html'><function>sysconf</function></ulink>">
 <!ENTITY uname "<ulink url='&unix-f;/uname.html'><function>uname</function></ulink>">
@@ -62,6 +65,7 @@
 <!ENTITY unix-b "&unix-top;/basedefs">
 <!ENTITY regex-h "<ulink url='&unix-b;/regex.h.html'><filename>regex.h</filename></ulink>">
 <!ENTITY stdlib-h "<ulink url='&unix-b;/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
+<!ENTITY stdio-h "<ulink url='&unix-b;/stdio.h.html'><filename>stdio.h</filename></ulink>">
 <!ENTITY fcntl-h "<ulink url='&unix-b;/fcntl.h.html'><filename>fcntl.h</filename></ulink>">
 <!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 <!ENTITY file-des "<ulink url='&unix-b;/xbd_chap03.html#tag_03_165'>file descriptor</ulink>">
