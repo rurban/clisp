@@ -2,9 +2,10 @@
 
 <section id="netica"><title>Netica Interface</title>
 
-<para>This is an interface to the
- <ulink url="http://norsys.com/netica_c_api.htm">Netica C API</ulink>.
- The package <quote role="package">NETICA</quote> is
+<para>This is an interface to the &netica-link; for working with
+ Bayesian belief networks and influence diagrams.</para>
+
+<para>The package <quote role="package">NETICA</quote> is
  <link linkend="package-case">case-sensitive</link>, you would write
  <code>(netica:GetNodeExpectedUtils_bn ...)</code>
  when you need to call

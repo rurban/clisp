@@ -2230,9 +2230,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="netica">netica</link></term>
   <listitem><simpara>Work with Bayesian belief networks and influence
-    diagrams using
-    <ulink url="http://norsys.com/netica_c_api.htm">Netica</ulink>.
- </simpara></listitem></varlistentry>
+    diagrams using &netica-link;.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="postgresql">postgresql</link></term>
   <listitem><simpara>Access &postgresql-link; from &clisp;.
   </simpara></listitem></varlistentry>
