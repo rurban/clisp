@@ -9183,8 +9183,8 @@ local void pr_stream (const object* stream_,object obj) {
   if ((TheStream(*obj_)->strmflags & strmflags_open_B) == 0)
     write_sstring_case(stream_,O(printstring_closed));
   else { # INPUT/OUTPUT/IO
-    var bool input_p = input_stream_p(*obj_);
-    var bool output_p = output_stream_p(*obj_);
+    var bool input_p = (TheStream(*obj_)->strmflags & strmflags_rd_B) != 0;
+    var bool output_p = (TheStream(*obj_)->strmflags & strmflags_wr_B) != 0;
     if (input_p) {
       if (output_p) write_sstring_case(stream_,O(printstring_io));
       else write_sstring_case(stream_,O(printstring_input));

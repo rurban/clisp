@@ -285,7 +285,7 @@ global int clisp_setenv (const char * name, const char * value) {
   var uintL namelen = asciz_length(name);
   var uintL valuelen = (value==NULL ? 0 : asciz_length(value));
 #if defined(HAVE_PUTENV)
-  var char* buffer = malloc(namelen+1+valuelen+1);
+  var char* buffer = (char*)malloc(namelen+1+valuelen+1);
   if (!buffer)
     return -1; # no need to set errno = ENOMEM
   return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
@@ -358,18 +358,22 @@ LISPFUNN(set_env,2)
   if (!stringp(STACK_0) && !nullp(STACK_0)) fehler_string(STACK_0);
   var object value = popSTACK();
   var object name = popSTACK();
-  var int error;
+  var int ret;
   with_string_0(name,O(misc_encoding),namez, {
     begin_system_call();
     if (nullp(value)) {
       if (getenv(namez))
-        error = clisp_setenv(namez,NULL);
-    } else with_string_0(value,O(misc_encoding),valuez, {
-      error = clisp_setenv(namez,valuez);
-    });
+        ret = clisp_setenv(namez,NULL);
+      else
+        ret = 0;
+    } else {
+      with_string_0(value,O(misc_encoding),valuez, {
+        ret = clisp_setenv(namez,valuez);
+      });
+    }
     end_system_call();
   });
-  if (error) {
+  if (ret) {
     pushSTACK(value);
     pushSTACK(name);
     pushSTACK(TheSubr(subr_self)->name);

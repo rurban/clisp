@@ -23,20 +23,20 @@
   # define strmflags_immut_bit_B 1  # set if read literals are immutable
   # define strmflags_reval_bit_B 2  # gesetzt, falls Read-Eval erlaubt ist
   #define strmflags_unread_bit_B 3  # gesetzt, während strm_rd_ch_last zurück ist
-  #define strmflags_rd_by_bit_B  4  # gesetzt, falls READ-BYTE möglich ist
-  #define strmflags_wr_by_bit_B  5  # gesetzt, falls WRITE-BYTE möglich ist
+  # define strmflags_rd_by_bit_B 4  # gesetzt, falls READ-BYTE möglich ist
+  # define strmflags_wr_by_bit_B 5  # gesetzt, falls WRITE-BYTE möglich ist
   # define strmflags_rd_ch_bit_B 6  # gesetzt, falls READ-CHAR möglich ist
   # define strmflags_wr_ch_bit_B 7  # gesetzt, falls WRITE-CHAR möglich ist
   # Bitmasken in den Flags:
   #define strmflags_immut_B  bit(strmflags_immut_bit_B)
   #define strmflags_reval_B  bit(strmflags_reval_bit_B)
   #define strmflags_unread_B bit(strmflags_unread_bit_B)
-  #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
-  #define strmflags_wr_by_B  bit(strmflags_wr_by_bit_B)
+  # define strmflags_rd_by_B bit(strmflags_rd_by_bit_B)
+  # define strmflags_wr_by_B bit(strmflags_wr_by_bit_B)
   # define strmflags_rd_ch_B bit(strmflags_rd_ch_bit_B)
   # define strmflags_wr_ch_B bit(strmflags_wr_ch_bit_B)
-  #define strmflags_rd_B  (strmflags_rd_by_B | strmflags_rd_ch_B)
-  #define strmflags_wr_B  (strmflags_wr_by_B | strmflags_wr_ch_B)
+  # define strmflags_rd_B  (strmflags_rd_by_B | strmflags_rd_ch_B)
+  # define strmflags_wr_B  (strmflags_wr_by_B | strmflags_wr_ch_B)
   #define strmflags_by_B  (strmflags_rd_by_B | strmflags_wr_by_B)
   #define strmflags_ch_B  (strmflags_rd_ch_B | strmflags_wr_ch_B)
   # strmflags_open_B: die 4 oberen Bits
@@ -327,7 +327,7 @@ local void wr_ch_array_dummy (const object* stream_,const object* chararray_,
 }
 
 # check whether the stream is a terminal stream
-global bool terminal_stream_p (const object stream) {
+global bool terminal_stream_p (object stream) {
   if (!streamp(stream)) return false;
   if (eq(stream,Symbol_value(S(terminal_read_stream)))) return true;
   if (TheStream(stream)->strmtype == strmtype_terminal) return true;
@@ -832,7 +832,7 @@ local void test_stream_args (object* args_pointer, uintC argcount) {
 # Function: Tests whether an object is an input-stream.
 # input_stream_p(stream)
 # > stream: object
-global inline bool input_stream_p (const object stream) {
+local inline bool input_stream_p (object stream) {
   return (builtin_stream_p(stream) ?
           (TheStream(stream)->strmflags & strmflags_rd_B) != 0
           : instanceof(stream,O(class_fundamental_input_stream)));
@@ -841,7 +841,7 @@ global inline bool input_stream_p (const object stream) {
 # Function: Tests whether an object is an output-stream.
 # output_stream_p(stream)
 # > stream: object
-global inline bool output_stream_p (const object stream) {
+local inline bool output_stream_p (object stream) {
   return (builtin_stream_p(stream) ?
           (TheStream(stream)->strmflags & strmflags_wr_B) != 0
           : instanceof(stream,O(class_fundamental_output_stream)));
@@ -7129,38 +7129,38 @@ local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
   var uintL count = bitsize;
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uintB* ptr = buffered_nextbyte(stream);
-  if (ptr == (uintB*)NULL)
-    goto eof;
-  # start getting bytes:
-  var uint16 bit_akku = (*ptr)>>bitshift;
-  bitshift = 8-bitshift; # bitshift := 8-bitindex
-  count -= bitshift;
-  loop {
-    BufferedStream_index(stream) += 1;
-    # bit_akku: bits (bitshift-1)..0 are valid.
-    # have to get count (>0) bits.
-    {
-      var uintB* ptr = buffered_nextbyte(stream);
-      if (ptr == (uintB*)NULL)
-        goto eof;
-      # get next byte:
-      bit_akku |= (uint16)(*ptr)<<bitshift;
+  if (ptr != (uintB*)NULL) {
+    # start getting bytes:
+    var uint16 bit_akku = (*ptr)>>bitshift;
+    bitshift = 8-bitshift; # bitshift := 8-bitindex
+    count -= bitshift;
+    loop {
+      BufferedStream_index(stream) += 1;
+      # bit_akku: bits (bitshift-1)..0 are valid.
+      # have to get count (>0) bits.
+      {
+        var uintB* ptr = buffered_nextbyte(stream);
+        if (ptr == (uintB*)NULL)
+          goto eof;
+        # get next byte:
+        bit_akku |= (uint16)(*ptr)<<bitshift;
+      }
+      # bit_akku: bits (7+bitshift)..0 are valid.
+      *bitbufferptr++ = (uint8)bit_akku; # store 8 Bit
+      bit_akku >>= 8;
+      if (count<=8) # are count bits finished?
+        break;
+      count -= 8;
     }
-    # bit_akku: bits (7+bitshift)..0 are valid.
-    *bitbufferptr++ = (uint8)bit_akku; # store 8 Bit
-    bit_akku >>= 8;
-    if (count<=8) # are count bits finished?
-      break;
-    count -= 8;
+    # count > 0 -- the number of bits to get
+    ptr = buffered_nextbyte(stream);
+    if (ptr == (uintB*)NULL) # EOF ?
+      bit_akku = *buffered_eofbyte(stream);
+    *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
+    BufferedStream_bitindex(stream) = count;
+    BufferedStream_position(stream) += 1; # increment position
+    return (*finisher)(stream,bitsize,bytesize); # convert to a number
   }
-  # count > 0 -- the number of bits to get
-  ptr = buffered_nextbyte(stream);
-  if (ptr == (uintB*)NULL) # EOF ?
-    bit_akku = *buffered_eofbyte(stream);
-  *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
-  BufferedStream_bitindex(stream) = count;
-  BufferedStream_position(stream) += 1; # increment position
-  return (*finisher)(stream,bitsize,bytesize); # convert to a number
  eof:
   position_file_i_buffered(stream,BufferedStream_position(stream));
   return eof_value;
@@ -14137,10 +14137,10 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     # Stream allozieren:
     var object stream;
     if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
-      stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,false);
+      stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,&eltype,false);
       UnbufferedPipeStream_input_init(stream);
     } else {
-      stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,false,false);
+      stream = make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,&eltype,false,false);
       BufferedPipeStream_init(stream);
     }
     ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -14370,10 +14370,10 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     # Stream allozieren:
     var object stream;
     if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
-      stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,false);
+      stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,&eltype,false);
       UnbufferedPipeStream_output_init(stream);
     } else {
-      stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,false,false);
+      stream = make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,&eltype,false,false);
       BufferedPipeStream_init(stream);
     }
     ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -14568,10 +14568,10 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       pushSTACK(STACK_(1+2));
       var object stream;
       if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
-        stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,false);
+        stream = make_unbuffered_stream(strmtype_pipe_in,DIRECTION_INPUT,&eltype,false);
         UnbufferedPipeStream_input_init(stream);
       } else {
-        stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,false,false);
+        stream = make_buffered_stream(strmtype_pipe_in,DIRECTION_INPUT,&eltype,false,false);
         BufferedPipeStream_init(stream);
       }
       ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -14585,10 +14585,10 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       pushSTACK(STACK_(0+2));
       var object stream;
       if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
-        stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,false);
+        stream = make_unbuffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,&eltype,false);
         UnbufferedPipeStream_output_init(stream);
       } else {
-        stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,false,false);
+        stream = make_buffered_stream(strmtype_pipe_out,DIRECTION_OUTPUT,&eltype,false,false);
         BufferedPipeStream_init(stream);
       }
       ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -14910,7 +14910,7 @@ LISPFUNN(make_x11socket_stream,2)
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
     var decoded_eltype eltype = { eltype_iu, 8 };
-    var object stream = make_unbuffered_stream(strmtype_x11socket,5,&eltype,false);
+    var object stream = make_unbuffered_stream(strmtype_x11socket,DIRECTION_IO,&eltype,false);
     UnbufferedSocketStream_input_init(stream);
     UnbufferedSocketStream_output_init(stream);
     ChannelStreamLow_close(stream) = &low_close_socket;
@@ -15146,7 +15146,7 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
     # Stream allozieren:
     var object stream;
     if (buffered <= 0) {
-      stream = make_unbuffered_stream(strmtype_socket,5,eltype,false);
+      stream = make_unbuffered_stream(strmtype_socket,DIRECTION_IO,eltype,false);
       UnbufferedSocketStream_input_init(stream);
       UnbufferedSocketStream_output_init(stream);
       ChannelStreamLow_close(stream) = &low_close_socket;
@@ -15155,7 +15155,7 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
     } else {
       # Input-Stream allozieren:
       pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-      stream = make_buffered_stream(strmtype_socket,1,eltype,false,false);
+      stream = make_buffered_stream(strmtype_socket,DIRECTION_INPUT,eltype,false,false);
       BufferedSocketStream_init(stream);
       ChannelStreamLow_close(stream) = &low_close_socket;
       TheStream(stream)->strm_socket_port = port;
@@ -15163,7 +15163,7 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
       pushSTACK(stream);
       # Output-Stream allozieren:
       pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2)); pushSTACK(STACK_(0+3));
-      stream = make_buffered_stream(strmtype_socket,4,eltype,false,false);
+      stream = make_buffered_stream(strmtype_socket,DIRECTION_OUTPUT,eltype,false,false);
       BufferedSocketStream_init(stream);
       ChannelStreamLow_close(stream) = &low_close_socket;
       TheStream(stream)->strm_socket_port = port;
@@ -15349,8 +15349,9 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
 
 local struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
 local struct timeval * sec_usec(sec,usec,tv)
-  object sec,usec;
-  struct timeval *tv;
+  var object sec;
+  var object usec;
+  var struct timeval *tv;
 {
   if (eq(sec,unbound) || eq(sec,NIL)) {
     return NULL;
@@ -15695,7 +15696,7 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
           pushSTACK(S(character));
           pushSTACK(allocate_handle(stdin_handle));
-          stream = make_file_stream(1,false,false);
+          stream = make_file_stream(DIRECTION_INPUT,false,false);
         } else {
           stream = make_terminal_stream();
         }
@@ -15713,7 +15714,7 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
           pushSTACK(S(character));
           pushSTACK(allocate_handle(stdout_handle));
-          stream = make_file_stream(4,false,false);
+          stream = make_file_stream(DIRECTION_OUTPUT,false,false);
         } else {
           stream = make_terminal_stream();
         }
@@ -15804,7 +15805,7 @@ global void init_streamvars (bool unixyp) {
       pushSTACK(S(character));
       pushSTACK(allocate_handle(2));
       var decoded_eltype eltype = { eltype_ch, 0 };
-      stream = make_unbuffered_stream(strmtype_file,4,&eltype,false);
+      stream = make_unbuffered_stream(strmtype_file,DIRECTION_OUTPUT,&eltype,false);
       UnbufferedHandleStream_output_init(stream);
       ChannelStreamLow_close(stream) = &low_close_handle;
       TheStream(stream)->strm_file_name =
