@@ -199,10 +199,10 @@
       (when (and (built-in-class-p h) (eq (class-name h) symbol)) ; protect structure classes, too??
         (error-of-type 'error
           (TEXT "~S: cannot redefine built-in class ~S")
-          '(setf find-class) h))
-      (sys::check-redefinition symbol '(setf find-class) "class")
-      ;; should we do (setf (class-name h) nil) ??
-      ))
+          '(setf find-class) h)))
+    ;; should we do (setf (class-name h) nil) ??
+    (sys::check-redefinition symbol '(setf find-class)
+                             (and (class-p h) "class")))
   (if new-value
       (setf (get symbol 'CLOSCLASS) new-value)
       (progn (remprop symbol 'CLOSCLASS) nil)))
