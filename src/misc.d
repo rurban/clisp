@@ -1,5 +1,5 @@
 # Diverse Funktionen für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -37,7 +37,7 @@ LISPFUN(version,0,1,norest,nokey,0,NIL)
     if (eq(arg,unbound)) {
       value1 = O(version); mv_count=1;
     } else {
-      if (equal(arg,O(version)) || equal(arg,O(oldversion))) {
+      if (equal(arg,O(version)) /* || equal(arg,O(oldversion)) */) {
         value1 = NIL; mv_count=0;
       } else {
         fehler(error,

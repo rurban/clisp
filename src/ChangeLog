@@ -1,3 +1,18 @@
+2000-06-11  Bruno Haible  <haible@clisp.cons.org>
+
+        * constobj.d (O(version)): Bump version number.
+          (O(old_version)): Remove.
+        * misc.d (SYSTEM::VERSION): Don't test for O(old_version) any more.
+        * control.d (SYS::OLD-MACRO-FUNCTION): Remove function.
+        * pathname.d (SYS::OLD-OPEN): Remove function.
+        * record.d (CLOS::OLD-%ALLOCATE-INSTANCE): Remove function.
+        * subrkw.d: Remove SYS::OLD-OPEN initialization.
+        * eval.d (FUNTAB): Remove SYS::OLD-MACRO-FUNCTION, SYS::OLD-OPEN,
+          CLOS::OLD-%ALLOCATE-INSTANCE. Add MACRO-FUNCTION, OPEN. Move
+          SYS::%COPY-GENERIC-FUNCTION.
+          (FUNTABR): Add CLOS::%ALLOCATE-INSTANCE.
+        * compiler.lisp (funtab, c-DIRECT-FUNCTION-CALL): Update accordingly.
+
 2000-05-30  Bruno Haible  <haible@clisp.cons.org>
 
         * pathname.d (MERGE-PATHNAMES): New variable called_from_make_pathname.

@@ -8401,14 +8401,6 @@ LISPFUNN(rename_file,2)
       return stream;
     }
 
-LISPFUN(old_open,1,0,norest,key,5,\
-        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
-# (SYS::OLD-OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format)
-# for binary backward compatibility only.
-  {
-    pushSTACK(unbound); C_open();
-  }
-
 LISPFUN(open,1,0,norest,key,6,\
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
 # (OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format :buffered)

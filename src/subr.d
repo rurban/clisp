@@ -1,5 +1,5 @@
 # Liste aller SUBRs
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 # Eine C-compilierte LISP-Funktion wird definiert durch eine Deklaration
 #   LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
@@ -257,7 +257,6 @@ LISPFUNN(values_list,1)
 LISPFUNN(driver,1)
 LISPFUNN(unwind_to_driver,0)
 LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
-LISPFUNN(old_macro_function,1)
 LISPFUN(macroexpand,1,1,norest,nokey,0,NIL)
 LISPFUN(macroexpand_1,1,1,norest,nokey,0,NIL)
 LISPFUNN(proclaim,1)
@@ -640,8 +639,6 @@ LISPFUNN(probe_file,1)
 LISPFUNN(probe_directory,1)
 LISPFUNN(delete_file,1)
 LISPFUNN(rename_file,2)
-LISPFUN(old_open,1,0,norest,key,5,
-        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
 LISPFUN(open,1,0,norest,key,6,
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
 LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
@@ -767,7 +764,6 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL)
 LISPFUNN(structure_object_p,1)
 LISPFUNN(std_instance_p,1)
 LISPFUNN(allocate_std_instance,2)
-LISPFUNN(old_pallocate_instance,1)
 LISPFUN(pallocate_instance,1,0,rest,nokey,0,NIL)
 LISPFUNN(slot_value,2)
 LISPFUNN(set_slot_value,3)

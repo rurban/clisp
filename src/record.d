@@ -1,5 +1,5 @@
 # Funktionen für Records und Structures von CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -710,10 +710,6 @@ LISPFUNN(allocate_std_instance,2)
   }
 
 local Values do_allocate_instance (object clas);
-LISPFUNN(old_pallocate_instance,1)
-# (CLOS::OLD-%ALLOCATE-INSTANCE class) returns an instance of the class.
-# For backward compatibility only.
-{ return_Values do_allocate_instance(popSTACK()); }
 LISPFUN(pallocate_instance,1,0,rest,nokey,0,NIL)
 # (CLOS::%ALLOCATE-INSTANCE class &rest initargs) returns an instance of the class.
 # class must be an instance of <standard-class> or <structure-class>.
