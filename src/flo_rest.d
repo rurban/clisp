@@ -36,16 +36,13 @@
 # Warnt, wenn Floats verschiedenen Typs kombiniert werden.
 # warn_floating_point_contagion();
 # can trigger GC
-  local void warn_floating_point_contagion (void);
-  local void warn_floating_point_contagion()
-    {
-      # (WARN "Floating point operation combines numbers of different precision.~%See ANSI CL 12.1.4.4 and the CLISP impnotes for details.~%The result's actual precision is controlled by~%~S.~%To shut off this warning, set ~S to ~S." '*FLOATING-POINT-CONTAGION-ANSI* '*WARN-ON-FLOATING-POINT-CONTAGION* 'NIL) :
-      pushSTACK(OLS(fpcontagion_warn_string));
-      pushSTACK(S(floating_point_contagion_ansi));
-      pushSTACK(S(warn_on_floating_point_contagion));
-      pushSTACK(NIL);
-      funcall(S(warn),4);
-    }
+local void warn_floating_point_contagion (void) {
+  pushSTACK(CLSTEXT("Floating point operation combines numbers of different precision." NLstring "See ANSI CL 12.1.4.4 and the CLISP impnotes for details." NLstring "The result's actual precision is controlled by" NLstring "~S." NLstring "To shut off this warning, set ~S to ~S."));
+  pushSTACK(S(floating_point_contagion_ansi));
+  pushSTACK(S(warn_on_floating_point_contagion));
+  pushSTACK(NIL);
+  funcall(S(warn),4);
+}
 
 
 # Generiert eine Float-Operation F_op_F wie F_minus_F oder F_durch_F

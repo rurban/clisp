@@ -18,13 +18,15 @@
 ;;
 ;;    Alternatively,
 ;;       GETTEXT(string)
-;;    and
 ;;       GETTEXTL(string)
+;;       CLSTEXT(string)
+;;       CLOTEXT(string)
+;;
 ;;    is treated as equivalent to
 ;;       ENGLISH ? string : ""
 ;;
 ;; 2. In .lisp files,
-;;       (ENGLISH string)
+;;       (TEXT string)
 ;;    The strings may cross lines; in that case, "\n" is to be inserted.
 ;;
 ;; We present to the translator:
@@ -195,14 +197,15 @@
                )
          (cond ((search ".d$" (concatenate 'string filename "$"))
                 ;; Extract strings from a .d file
-                (do-one-file :all-grepper "grep -n '\\(GETTEXT(\\|GETTEXTL(\\|OGETTEXT(\\|ENGLISH \\*/\\)' "
-                             :keys '("GETTEXT(" "GETTEXTL(" "OGETTEXT(" "ENGLISH ")
+                (do-one-file :all-grepper "grep -n '\\(GETTEXT(\\|GETTEXTL(\\|CLSTEXT(\\|CLOTEXT(\\)' "
+                             :keys '("GETTEXT(" "GETTEXTL("
+                                     "CLSTEXT(" "CLOTEXT(")
                              :string-parser #'d-parse-string
                ))
                ((search ".lisp$" (concatenate 'string filename "$"))
                 ;; Extract strings from a .lisp file
-                (do-one-file :all-grepper "grep -n 'ENGLISH ' "
-                             :keys '("ENGLISH ")
+                (do-one-file :all-grepper "grep -n '(TEXT ' "
+                             :keys '("(TEXT ")
                              :string-parser #'lisp-parse-string
                ))
                (t (error "unknown file type: ~S" filename))
