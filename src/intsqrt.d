@@ -363,12 +363,8 @@
             # Subtraktion von b*^2 lieferte negativen Carry
             b_stern = b_stern-1; # b* := b* - 1
             # Workaround gcc-2.7.0 bug on i386 and gcc-2.5.8 bug on hppa.
-              #if defined(__GNUC__)
-                #if (__GNUC__ == 2)
-                  #if (__GNUC_MINOR__ <= 7)
-                    *&b_stern = *&b_stern;
-                  #endif
-                #endif
+              #if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)
+                *&b_stern = *&b_stern;
               #endif
             # erhöhe [a[2n-j-1],...,a[2n-2j-2]] um [b[n],...,b[n-j],0] + 2 * b* + 1
             if ((sintD)b_stern < 0)

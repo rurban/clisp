@@ -1189,12 +1189,8 @@
 #   Falls der Quotient <2^16(n+1) ist, runde das letzte Digit weg. Bei rounding
 #     overflow schiebe um 1 Bit nach rechts und erhöhe den Exponenten um 1.
   # Workaround gcc-2.7.0 bug on i386.
-    #if defined(__GNUC__)
-      #if (__GNUC__ == 2)
-        #if (__GNUC_MINOR__ == 7)
-          #define workaround_gcc270_bug()  *&uexp1 = *&uexp1;
-        #endif
-      #endif
+    #if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
+      #define workaround_gcc270_bug()  *&uexp1 = *&uexp1;
     #endif
     #ifndef workaround_gcc270_bug
       #define workaround_gcc270_bug()
