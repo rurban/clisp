@@ -1269,7 +1269,7 @@ DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :ACTION :TRANSACTION)
       case DB_NODUPDATA: case DB_NOOVERWRITE: {
         int status;
         begin_system_call();
-        db->put(db,txn,&key,&val,action | flags);
+        status = db->put(db,txn,&key,&val,action | flags);
         free(val.data); free(key.data);
         end_system_call();
         switch (status) {
