@@ -1,3 +1,9 @@
+2001-08-18  Sam Steingold  <sds@gnu.org>
+
+	* loadform.lisp (make-load-form-saving-slots): compute the slot
+	list differently for STANDARD-OBJECTs and STRUCTURE-OBJECTs;
+	quote slot values
+
 2001-08-17  Sam Steingold  <sds@gnu.org>
 
 	implemented the ANSI CL pretty-printer
