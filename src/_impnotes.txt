@@ -2644,6 +2644,10 @@ Closes down the server socket.
 
 Returns the port which was bound using SOCKET-SERVER.
 
+(SOCKET-SERVER-HOST socket-server)
+
+Returns the IP address of the localhost naming the server.
+
 (SOCKET-WAIT socket-server [seconds [microseconds]])
 
 Given time argument(s), waits for (possibly zero) fixed duration for a connect

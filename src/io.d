@@ -8593,7 +8593,7 @@ LISPFUNN(print_structure,2)
             } break;
           #ifdef SOCKET_STREAMS
           case Rectype_Socket_Server:
-            # #<SOCKET-SERVER port>
+            # #<SOCKET-SERVER host:port>
             { if (test_value(S(print_readably))) { fehler_print_readably(obj); }
               LEVEL_CHECK;
               pushSTACK(obj); # retten
@@ -8607,7 +8607,9 @@ LISPFUNN(print_structure,2)
                # auf Erreichen von *PRINT-LENGTH* prüfen:
                if (length >= length_limit) goto socket_server_end;
                JUSTIFY_SPACE; # Space ausgeben
-               # Port ausgeben:
+               # output host
+               write_string(stream_,TheSocketServer(*obj_)->host);
+               write_schar(stream_,':'); # Port ausgeben:
                pr_number(stream_,TheSocketServer(*obj_)->port);
                length++; # bisherige Länge erhöhen
               }

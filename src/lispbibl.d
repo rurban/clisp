@@ -5102,6 +5102,7 @@ typedef struct { XRECORD_HEADER
 # Socket-Server
 typedef struct { XRECORD_HEADER
                  object socket_handle; # socket handle
+                 object host; # host string
                  object port; # port number
                }
         * Socket_server;
@@ -6198,10 +6199,12 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define ffunctionp(obj)  ((void)(obj), 0)
 #endif
 
-# Test auf Socket-Server
+# test for socket-server and for socket-stream
 #ifdef SOCKET_STREAMS
   #define socket_server_p(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Socket_Server))
+  #define socket_stream_p(obj)  \
+    (streamp(obj) && (TheStream(obj)->strmtype==strmtype_socket))
 #endif
 
 #ifdef YET_ANOTHER_RECORD
