@@ -1,9 +1,12 @@
-2005-03-16  Sam Steingold  <sds@gnu.org>
+2005-03-14  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (checker): new slot bitmasks
 	(new-checker): accept bitmasks
 	(print-tables-1): when bitmasks is supplied,
 	output *_to_list() and *_from_list()
+	* modules/syscalls/calls.c (check_chmod_mode): bitmasks=both
+	(CONVERT-MODE): use check_chmod_mode_to_list()
+	and check_chmod_mode_from_list()
 
 2005-03-16  Sam Steingold  <sds@gnu.org>
 
