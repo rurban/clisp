@@ -1046,7 +1046,7 @@ global object Q_to_I (sint64 wert)
 }
 #endif
 
-#if defined(intQsize) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4)
+#if defined(intQsize) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
 /* converts unsigned quadword into integer >=0 .
  UQ_to_I(wert)
  > wert: value of the integer, an unsigned 64-bit-integer.
