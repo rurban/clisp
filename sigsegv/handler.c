@@ -537,13 +537,11 @@ static void install_for (int sig)
   action.sa_flags = 0;
 #endif
 #ifdef HAVE_STACK_OVERFLOW_RECOVERY
-#ifdef SA_ONSTACK
   /* Work around Linux 2.2.5 bug: If SA_ONSTACK is specified but sigaltstack()
      has not been called, the kernel will busy loop, eating CPU time. So avoid
      setting SA_ONSTACK until the user has requested stack overflow handling. */
   if (stk_user_handler)
     action.sa_flags |= SA_ONSTACK;
-#endif
 #endif
   sigaction(sig,&action,(struct sigaction *)NULL);
 
@@ -720,13 +718,11 @@ void stackoverflow_deinstall_handler (void)
 #ifdef HAVE_SIGSEGV_RECOVERY
   if (user_handler)
     {
-#ifdef SA_ONSTACK
       /* Reinstall the signal handlers without SA_ONSTACK, to avoid Linux
          bug. */
 #define FAULT_HANDLER(sig)  install_for(sig);
       SIGSEGV_ALL_SIGNALS
 #undef FAULT_HANDLER
-#endif
     }
   else
 #endif
