@@ -1,5 +1,9 @@
 2004-10-29  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (sys::member1): do not call IDENTITY
+
+2004-10-29  Sam Steingold  <sds@gnu.org>
+
 	* loop.lisp (expand-loop): check that the accumulation variables
 	are re-used compatibly, as described in
 	<http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>;
