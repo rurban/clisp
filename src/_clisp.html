@@ -137,7 +137,8 @@ symbol-macro <code>*lib-directory*</code>.
  This must be a memory dump produced by the
  <code><a href="impnotes.html#image">saveinitmem</a></code> function.
 #ifdef UNIX
- It may have been compressed using GNU gzip.
+ It may have been compressed using GNU
+ <a href="http://www.gzip.org/">gzip</a>.
 #endif
 <p/></dd>
 
@@ -152,11 +153,7 @@ symbol-macro <code>*lib-directory*</code>.
   <li><var>n</var> <code>M</code> or
       <var>n</var> <code>MB</code> (measured in megabytes).</li>
  </ul>
-#ifdef WIDE
- Default is 4 megabytes.
-#else
  Default is 2 megabytes.
-#endif
 #if (oint_addr_len+addr_shift==24)
  The argument is constrained between 100 KB and 16 MB.
 #elif (oint_addr_len+addr_shift==26)
@@ -166,7 +163,7 @@ symbol-macro <code>*lib-directory*</code>.
 #else
  The argument is constrained above 100 KB.
 #endif
--- This version of <code>clisp</code>
+This version of <code>clisp</code>
 #if defined(SPVW_MIXED) && defined(SPVW_BLOCKS)
 #ifdef GENERATIONAL_GC
 is not likely to actually use the entire <var>memsize</var>
@@ -250,7 +247,8 @@ which depends on the environment variables <code>LC_ALL</code>,
      ><code>*misc-encoding*</code></a>.</dd>
   <dt><var>blank</var>,</dt>
    <dd>affecting all of the above.</dd></dl>
- Note that these values cannot be saved in a memory image.
+ <strong>Note</strong> that these values cannot be saved in a
+ <a href="impnotes.html#image">memory image</a>.
  You have to use the <a href="#opt-norc">init file</a>
  to set them on startup.<p/></dd>
 
@@ -481,7 +479,7 @@ EOF (Ctrl-\e)
    name functions.</li>
   <li>If you are in the "filename position" (inside a string
    after <code>#P</code>), the completion is done across file names,
-   <a href="http://www.gnu.org/software/bash/">bash</a>-style.
+   <a href="http://www.gnu.org/software/bash/">bash</a>-style.</li>
   <li>If you have not started typing the next symbol (i.e., you are at
    a whitespace), the current function or macro is
    <a href="http://www.lisp.org/HyperSpec/Body/fun_describe.html"
@@ -515,7 +513,7 @@ EOF (Ctrl-\e)
 </dt><dd>main executable (runtime)<p/></dd>
 
 <dt><code>lispinit.mem</code></dt>
-<dd>initial memory image<p/></dd>
+<dd>initial <a href="impnotes.html#image">memory image</a><p/></dd>
 
 <dt><code>config.lisp</code></dt>
 <dd>site-dependent configuration<p/></dd>
