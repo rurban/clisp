@@ -105,11 +105,31 @@
                  `(progn
                     (defmacro ,new-macro-name (name &rest more)
                       `(progn
-                         (export ',(if (consp name) (car name) name))
+                         (export ',name)
                          (,',original-macro-name ,name ,@(sublis substitution more))
                        )
                   ) )
              ) )
+             (exporting-slots (defining-macro-name)
+               (let ((original-macro-name
+                      (intern (string-upcase defining-macro-name) "FFI"))
+                     (new-macro-name (intern defining-macro-name "LINUX")))
+                 `(defmacro ,new-macro-name (name &rest more)
+                    (let ((sname (if (consp name) (car name) name)))
+                      `(progn
+                         (export '(,sname
+                                   ,@(let ((cname (sys::string-concat
+                                                   (symbol-name sname) "-")))
+                                       (list*
+                                        (sys::concat-pnames "COPY-" cname)
+                                        (sys::concat-pnames "MAKE-" cname)
+                                        (sys::concat-pnames cname "-P")
+                                        (mapcar (lambda (slot)
+                                                  (sys::concat-pnames
+                                                   cname (car slot)))
+                                                more)))))
+                         (,',original-macro-name
+                          ,name ,@(sublis substitution more)))))))
              (normal (defining-macro-name)
                (let ((original-macro-name (intern (string-upcase defining-macro-name) "FFI"))
                      (new-macro-name (intern defining-macro-name "LINUX")))
@@ -125,7 +145,7 @@
     (exporting "define-symbol-macro")
     (exporting "def-c-type")
     (exporting "def-c-enum")
-    (exporting "def-c-struct")
+    (exporting-slots "def-c-struct")
     (exporting "def-c-var")
     (exporting "def-call-out")
     (normal "c-lines")
@@ -2113,8 +2133,7 @@
 (defconstant SYS_NMLN _UTSNAME_LENGTH)
 
 (def-call-out uname (:arguments (utsbuf (c-ptr utsname) :out))
-                      (:return-type int)
-)
+  (:return-type int))
 
 ;;; ============================= <termios.h> ================================
 
