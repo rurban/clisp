@@ -6,15 +6,15 @@
 
 (in-package "SYSTEM")
 
-;; Import upon CONTROL.Q:
+;; Import from CONTROL.Q:
 
 #| (SYSTEM::PARSE-BODY body &optional docstring-allowed env)
-   expands the first form in the form list body (in the macro-expansion
-   environment env), resolves from them following declarations (and if
-   docstring-allowed=T, also a docstring) and supplies three values:
+   expands the first forms in the form list body (in the macro-expansion
+   environment env), detects occurring declarations (and if
+   docstring-allowed=T, also a docstring) and returns three values:
    1. body-rest, the remaining forms
-   2. declspec-list, a subsequent list of declspecs
-   3. docstring, a subsequent docstring, or NIL
+   2. declspec-list, a list of declspecs that appeared
+   3. docstring, a docstring that appeared, or NIL
 |#
 #| (SYSTEM::KEYWORD-TEST arglist kwlist)
    tests if arglist (a pair of keyword/value lists) contains only
@@ -25,7 +25,7 @@
 #| (keyword-test arglist kwlist) determines whether only keywords from
 kwlist (a list of keyword/value pairs), or else a keyword/value pair
 with keyword = :ALLOW-OTHER-KEYS and value other than NIL, appears
-in arglist.  If this is not the case, and error message is returned.
+in arglist.  If this is not the case, an error message is returned.
 
  (defun keyword-test (arglist kwlist)
   (let ((unallowed-arglistr nil)
@@ -54,31 +54,30 @@ in arglist.  If this is not the case, and error message is returned.
 
 (proclaim '(special
         %restp ;; indicates whether &REST/&BODY/&KEY was given,
-	       ;; and therefore the number of arguments is unbound.
+               ;; and therefore the number of arguments is unbound.
 
         %min-args ;; indicates the mininum number of arguments
 
         %arg-count ;; indicates the number of individual arguments
-	           ;; (required and optional arguments combined)
+                   ;; (required and optional arguments combined)
 
-        %let-list ;; list of bindings made with LET*
+        %let-list ;; reversed list of bindings that have to be done with LET*
 
-        %keyword-tests ;; list of keyword-tests - are bound to calls
+        %keyword-tests ;; list of KEYWORD-TEST calls that have to be included
 
-	%default-form ;; default form for optional and keyword arguments;
-	              ;;  if no default form is supplied, it defaults to
-	              ;;  NIL normally, or (QUOTE *) for DEFTYPE.
+        %default-form ;; default form for optional and keyword arguments,
+                      ;; for which no default form is supplied
+                      ;; NIL normally, or (QUOTE *) for DEFTYPE.
 ))
 #|
  (ANALYZE1 lambdalist accessexp name wholevar)
 analyses a macro lambda list (without &ENVIRONMENT).  accessexp is the
-expression which supplies the arguments to be matched with these
-lambda lists.
+expression which supplies the arguments to be matched with this
+lambda list.
 
  (ANALYZE-REST lambdalistr restexp name)
-analyses the part of a macro lambda list in which restexp is the
-&REST/&BODY expression to be matched with the extra arguments in the
-list.
+analyses the part of a macro lambda list that appears after the &REST/&BODY
+expression. restexp is the expression that returns the arguments to be matched with this rest of the list.
 
  (ANALYZE-KEY lambdalistr restvar name)
 analyses the part of a macro lambda list which comes after &KEY.
@@ -89,7 +88,7 @@ analyses the part of a macro lambda list that comes after &AUX.
 
  (REMOVE-ENV-ARG lambdalist name)
 removes the pair &ENVIRONMENT/Symbol from a macro lambda list; returns
-two values: the shorted lambda list and the symbol which can be used
+two values: the shortened lambda list and the symbol to be used
 as environment (or the original lambda list and NIL, if &ENVIRONMENT
 is not found).
 
@@ -100,7 +99,7 @@ function call for the macro.
 
  (MAKE-MACRO-EXPANSION macrodef)
 returns, for a macro definition macrodef = (name lambdalist . body),
-1. the macro-expander for the program text (FUNCTION ... (LAMBDA ..)),
+1. the macro-expander as the program text (FUNCTION ... (LAMBDA ..)),
 2. name, a symbol
 3. lambda list
 4. docstring (or NIL, if not there)
@@ -480,8 +479,8 @@ the actual object #<MACRO expander> for the FENV.
                      (LAMBDA (<MACRO-FORM> &OPTIONAL ,(or envvar '<ENV-ARG>))
                        (DECLARE (CONS <MACRO-FORM>))
                        ,@(if envvar
-                           declarations ;; eventually contains a
-			                ;; (declare (ignore envvar))
+                           declarations ;; possibly contains a
+                                        ;; (declare (ignore envvar))
                            '((DECLARE (IGNORE <ENV-ARG>))))
                        ,@(if docstring (list docstring))
                        ,@(if pre-process

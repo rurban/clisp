@@ -9,15 +9,15 @@
 
 (proclaim '(special *backquote-level*))
 ;; Either NIL or the number of nested backquote expressions permitted.
-;; It is bound in the reader at top level.
+;; It is bound at top level in the reader to nil.
 
 (proclaim '(special *nsplice-fun*))
-(setq *nsplice-fun* 'NCONC) ; Function which NSPLICE calls
+(setq *nsplice-fun* 'NCONC) ; Function which calls NSPLICE
 ;; (Bound to 'APPEND for the production of the output form in
 ;; nested backquotes.)
 
 ;; Bug: With nested backquotes some partial forms are evaluated several
-;; times (e.g. in the primary evaluation forms, which are needed for
+;; times (e.g. in the primary evaluation: forms, which are needed for
 ;; the interpretation of secondary evaluation forms) and should
 ;; therefore be free from side-effects.
 
@@ -157,14 +157,14 @@
                                         (eq (first (second subskel))
                                             'UNQUOTE-VALUE))
                                  (list 'VALUES-LIST (backquote-1 (second subskel)))
-                                 ;; SPLICE and/or NSPLICE to return later
+                                 ;; save SPLICE resp. NSPLICE for later
                                  (backquote-cons (backquote-1 (first subskel))
                                                  (backquote-1 (rest subskel))))
                                (list 'VALUES (backquote-1 subskel))))
                          skel))
              (let ((einzelne (map 'list #'backquote-1 skel)))
                (if (every #'constantp einzelne)
-                 ;; all components are contant -> concatenate immediately
+                 ;; all components are constant -> concatenate immediately
                  (list 'QUOTE (map 'vector #'eval einzelne))
                  (cons 'VECTOR einzelne)))))
           (t                    ; convert other atoms A into 'A
