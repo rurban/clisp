@@ -1521,6 +1521,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       if (markwatchset==NULL) goto abort3;
     }
   }
+  /* Delete cache of standard file streams. */
+  O(standard_input_file_stream) = NIL;
+  O(standard_output_file_stream) = NIL;
+  O(standard_error_file_stream) = NIL;
  #ifdef MACHINE_KNOWN
   /* declare (MACHINE-TYPE), (MACHINE-VERSION), (MACHINE-INSTANCE)
      as unknown again: */

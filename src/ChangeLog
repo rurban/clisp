@@ -1,3 +1,27 @@
+2004-11-21  Bruno Haible  <bruno@clisp.org>
+
+	Make FRESH-LINE work correctly in batch-mode when stdout and stderr
+	point to the same target.
+	* spvw_memfile.d (loadmem_from_handle): Reset
+	O(standard_{input,output,error}_file_stream) to NIL.
+	* stream.d (same_handle_p): New function.
+	(make_standard_input_file_stream): Renamed from make_standard_input.
+	Turn into a function.
+	(make_standard_output_file_stream): Renamed from make_standard_output.
+	Turn into a function.
+	(make_standard_error_file_stream): New function.
+	(get_standard_input_file_stream, get_standard_output_file_stream,
+	get_standard_error_file_stream): New functions.
+	(make_terminal_io): Use get_standard_{input,output}_file_stream instead
+	of make_standard_{input,output}.
+	(terminal_io_input_stream): New function, replaces init_standard_input.
+	(terminal_io_output_stream): New function, replaces
+	init_standard_output.
+	(init_standard_input, init_standard_output): Remove functions.
+	(init_standard_io): Remove macro.
+	(init_streamvars): Update.
+	(fehler_value_stream): Update.
+
 2004-11-16  Bruno Haible  <bruno@clisp.org>
 
 	Implement forward-referenced-class.
