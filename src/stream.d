@@ -18,7 +18,6 @@
   #include <string.h>  # declares strcpy(), strcat()
 #endif
 
-
 # once again the structure of Streams:
 # strmflags = Flags
   # Bits in the Flags:
@@ -3540,6 +3539,20 @@ nonreturning_function(local, fehler_interrupt, (void)) {
 # General Subroutines
 # ===================
 
+# saving_errno(statement) -- execute a statement, but save the errno during it
+# error_saving_errno(statement) -- ... then signal the error
+#ifdef WIN32
+  #define saving_errno(statement)  \
+    do { int _olderrno = GetLastError(); statement; SetLastError(_olderrno); } while(0)
+  #define error_saving_errno(statement)  \
+    do { int _olderrno = GetLastError(); statement; SetLastError(_olderrno); OS_error(); } while(0)
+#else
+  #define saving_errno(statement)  \
+    do { int _olderrno = errno; statement; errno = _olderrno; } while(0)
+  #define error_saving_errno(statement)  \
+    do { int _olderrno = errno; statement; errno = _olderrno; OS_error(); } while(0)
+#endif
+
 # iconv-based encodings
 # ---------------------
 
@@ -3637,12 +3650,7 @@ global uintL iconv_mblen (object encoding, const uintB* src,
               outptr += sizeof(chart);
               inptr++; insize--;
             }
-          } else {
-            var int saved_errno = errno;
-            iconv_close(cd);
-            errno = saved_errno;
-            OS_error();
-          }
+          } else error_saving_errno(iconv_close(cd));
         }
         count += (outptr-(char*)tmpbuf);
       }
@@ -3691,12 +3699,7 @@ global void iconv_mbstowcs (object encoding, object stream,
               outptr += sizeof(chart); outsize -= sizeof(chart);
               inptr++; insize--;
             }
-          } else {
-            var int saved_errno = errno;
-            iconv_close(cd);
-            errno = saved_errno;
-            OS_error();
-          }
+          } else error_saving_errno(iconv_close(cd));
         }
       }
       if (iconv_close(cd) < 0) { OS_error(); }
@@ -3794,12 +3797,7 @@ global uintL iconv_wcslen (object encoding, const chart* src,
             }
           } else if (errno == EINVAL) { # incomplete input?
             NOTREACHED;
-          } else {
-            var int saved_errno = errno;
-            iconv_close(cd);
-            errno = saved_errno;
-            OS_error();
-          }
+          } else error_saving_errno(iconv_close(cd));
         }
         count += (outptr-(char*)tmpbuf);
       }
@@ -3811,12 +3809,7 @@ global uintL iconv_wcslen (object encoding, const chart* src,
       if (res == (size_t)(-1)) {
         if (errno == E2BIG) { # output buffer too small?
           NOTREACHED;
-        } else {
-          var int saved_errno = errno;
-          iconv_close(cd);
-          errno = saved_errno;
-          OS_error();
-        }
+        } else error_saving_errno(iconv_close(cd));
       }
       count += (outptr-(char*)tmpbuf);
     }
@@ -3879,12 +3872,7 @@ global void iconv_wcstombs (object encoding, object stream,
             NOTREACHED;
           } else if (errno == E2BIG) { # output buffer too small?
             NOTREACHED;
-          } else {
-            var int saved_errno = errno;
-            iconv_close(cd);
-            errno = saved_errno;
-            OS_error();
-          }
+          } else error_saving_errno(iconv_close(cd));
         }
       }
       {
@@ -3892,12 +3880,7 @@ global void iconv_wcstombs (object encoding, object stream,
         if (res == (size_t)(-1)) {
           if (errno == E2BIG) { # output buffer too small?
             NOTREACHED;
-          } else {
-            var int saved_errno = errno;
-            iconv_close(cd);
-            errno = saved_errno;
-            OS_error();
-          }
+          } else error_saving_errno(iconv_close(cd));
         }
       }
       if (iconv_close(cd) < 0) { OS_error(); }
@@ -4003,12 +3986,7 @@ global object iconv_range (object encoding, uintL start, uintL end) {
               NOTREACHED;
             } else if (errno == E2BIG) { # output buffer too small?
               NOTREACHED;
-            } else {
-              var int saved_errno = errno;
-              iconv_close(cd);
-              errno = saved_errno;
-              OS_error();
-            }
+            } else error_saving_errno(iconv_close(cd));
           } else {
             end_system_call();
             # ch encodable -> extend the interval
@@ -13579,21 +13557,14 @@ local inline void create_input_pipe (const char* command) {
       _exit(-1); # if this fails, finish child-process
     }
     # This piece of code is again executed by the caller:
-    if (child==-1) {
+    if (child==-1)
       # Something failed, either on vfork or on execl.
       # In both cases errno was set.
-      var int saved_errno = errno;
-      CLOSE(handles[1]); CLOSE(handles[0]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+      error_saving_errno(CLOSE(handles[1]); CLOSE(handles[0]);
+                         FREE_DYNAMIC_ARRAY(command_data));
     # We only want to read from the pipe, not write:
-    if (!( CLOSE(handles[1]) ==0)) {
-      var int saved_errno = errno;
-      CLOSE(handles[0]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+    if (!( CLOSE(handles[1]) ==0))
+      error_saving_errno(CLOSE(handles[0]); FREE_DYNAMIC_ARRAY(command_data));
     # (I have to tell this the operating system. Then - if the parent-process
     # has emptied the pipe - the child-process is called in order to fill the
     # pipe again (and not the parent-process).)
@@ -13791,21 +13762,14 @@ local inline void create_output_pipe (const char* command) {
       _exit(-1); # if this fails, finish child-process
     }
     # This piece of code is again executed by the caller:
-    if (child==-1) {
+    if (child==-1)
       # Something failed, either on vfork or on execl.
       # In both cases errno was set.
-      var int saved_errno = errno;
-      CLOSE(handles[1]); CLOSE(handles[0]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+      error_saving_errno(CLOSE(handles[1]); CLOSE(handles[0]);
+                         FREE_DYNAMIC_ARRAY(command_data));
     # We only want to write to the pipe, not read:
-    if (!( CLOSE(handles[0]) ==0)) {
-      var int saved_errno = errno;
-      CLOSE(handles[1]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+    if (!( CLOSE(handles[0]) ==0))
+      error_saving_errno(CLOSE(handles[1]); FREE_DYNAMIC_ARRAY(command_data));
     # (I have to tell this the operating system, so that - when the
     # parent-process has filled the pipe - the child-process and not the
     # parent-process is called, in order to empty the pipe again.)
@@ -13922,12 +13886,9 @@ local inline void create_io_pipe (const char* command) {
     if (!( pipe(in_handles) ==0)) {
       FREE_DYNAMIC_ARRAY(command_data); OS_error();
     }
-    if (!( pipe(out_handles) ==0)) {
-      var int saved_errno = errno;
-      CLOSE(in_handles[1]); CLOSE(in_handles[0]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+    if (!( pipe(out_handles) ==0))
+      error_saving_errno(CLOSE(in_handles[1]); CLOSE(in_handles[0]);
+                         FREE_DYNAMIC_ARRAY(command_data));
     # Everything, that is stuffed in handles[1], resurfaces at handles[0]
     # again. We will utilize this as follows:
     #        write                system                read
@@ -13962,34 +13923,24 @@ local inline void create_io_pipe (const char* command) {
       _exit(-1); # if this fails, finish child-process
     }
     # This piece of code is again executed by the caller:
-    if (child==-1) {
+    if (child==-1)
       # Something failed, either on vfork or on execl.
       # In both cases errno was set.
-      var int saved_errno = errno;
-      CLOSE(in_handles[1]); CLOSE(in_handles[0]);
-      CLOSE(out_handles[1]); CLOSE(out_handles[0]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+      error_saving_errno(CLOSE(in_handles[1]); CLOSE(in_handles[0]);
+                         CLOSE(out_handles[1]); CLOSE(out_handles[0]);
+                         FREE_DYNAMIC_ARRAY(command_data));
     # We only want to write to the pipe, not read:
-    if (!( CLOSE(out_handles[0]) ==0)) {
-      var int saved_errno = errno;
-      CLOSE(in_handles[1]); CLOSE(in_handles[0]);
-      CLOSE(out_handles[1]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+    if (!( CLOSE(out_handles[0]) ==0))
+      error_saving_errno(CLOSE(in_handles[1]); CLOSE(in_handles[0]);
+                         CLOSE(out_handles[1]);
+                         FREE_DYNAMIC_ARRAY(command_data));
     # (I have to tell this the operating system, so that - when the
     # parent-process has filled the pipe - the child-process and not the
     # parent-process is called, in order to empty the pipe again.)
     # We only want to read from the pipe, not write:
-    if (!( CLOSE(in_handles[1]) ==0)) {
-      var int saved_errno = errno;
-      CLOSE(in_handles[0]);
-      CLOSE(out_handles[1]);
-      FREE_DYNAMIC_ARRAY(command_data);
-      errno = saved_errno; OS_error();
-    }
+    if (!( CLOSE(in_handles[1]) ==0))
+      error_saving_errno(CLOSE(in_handles[0]);CLOSE(out_handles[1]);
+                         FREE_DYNAMIC_ARRAY(command_data));
     # (I have to tell this the operating system, so that - when the
     # parent-process has emptied the pipe - the child-process and not the
     # parent-process is called, in order to fill the pipe again.)

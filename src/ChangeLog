@@ -1,3 +1,11 @@
+2002-04-30  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 550528 ]: misleading error converting UTF-7
+	* stream.d (saving_errno, error_saving_errno): new macros
+	(iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs)
+	(iconv_range, create_input_pipe, create_output_pipe)
+	(create_io_pipe): use them
+
 2002-04-28  Bruno Haible  <bruno@clisp.org>
 
 	Split autoconf/aclocal.m4 into pieces.
