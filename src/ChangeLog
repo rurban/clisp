@@ -1,5 +1,9 @@
 2005-01-24  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (BASE_MODULES): add i18n only when USE_GETTEXT is true
+
+2005-01-24  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (clisp.rc) [win32]: depend on clisp.ico
 
 2005-01-23  Bruno Haible  <bruno@clisp.org>
