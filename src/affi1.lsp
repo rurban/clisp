@@ -19,7 +19,9 @@
 (export '(declare-library-base require-library-functions
           open-library close-library with-open-library
           defflibfun declare-library-function flibcall mlibcall
-          nzero-pointer-p mem-read mem-write mem-write-vector))
+          nzero-pointer-p mem-read mem-write mem-write-vector
+          #+UNICODE *foreign-encoding*
+)        )
 
 ;; The libraries a-list associates the symbol used to denote the library
 ;; (e.g. SysBase for exec.library) with an opencount and the OS name (as a
@@ -265,4 +267,10 @@ be a string, which must be the name of a known library."
           name (length args)))))
 
 ) ; flet
+
+#+UNICODE
+(progn
+  (define-symbol-macro *foreign-encoding* (system::foreign-encoding))
+  (defsetf system::foreign-encoding system::set-foreign-encoding)
+)
 

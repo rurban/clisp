@@ -15,6 +15,7 @@
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof
           validp
+          #+UNICODE *foreign-encoding*
 )        )
 
 (eval-when (load compile eval)
@@ -1149,5 +1150,13 @@ void module__~A__init_function_2(module)
       `(%BITSIZEOF ,(second place))
       `(%BITSIZEOF (PARSE-C-TYPE ,place))
 ) ) )
+
+;; ===========================================================================
+
+#+UNICODE
+(progn
+  (define-symbol-macro *foreign-encoding* (system::foreign-encoding))
+  (defsetf system::foreign-encoding system::set-foreign-encoding)
+)
 
 ;; ===========================================================================

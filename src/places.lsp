@@ -1081,3 +1081,15 @@
      ) )
 ) )
 ;;;----------------------------------------------------------------------------
+;;;                              Symbol-macros
+(define-symbol-macro *default-file-encoding* (system::default-file-encoding))
+(defsetf system::default-file-encoding system::set-default-file-encoding)
+#+UNICODE
+(progn
+  (define-symbol-macro *pathname-encoding* (system::pathname-encoding))
+  (defsetf system::pathname-encoding system::set-pathname-encoding)
+  (define-symbol-macro *terminal-encoding* (system::terminal-encoding))
+  (defsetf system::terminal-encoding system::set-terminal-encoding)
+  (define-symbol-macro *misc-encoding* (system::misc-encoding))
+  (defsetf system::misc-encoding system::set-misc-encoding)
+)

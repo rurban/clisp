@@ -292,6 +292,20 @@ LISPFUN(make_encoding,0,0,norest,key,2,
 LISPFUNN(encodingp,1)
 LISPFUNN(charset_typep,2)
 LISPFUNN(charset_range,3)
+LISPFUNN(default_file_encoding,0)
+LISPFUNN(set_default_file_encoding,1)
+#ifdef UNICODE
+LISPFUNN(pathname_encoding,0)
+LISPFUNN(set_pathname_encoding,1)
+LISPFUNN(terminal_encoding,0)
+LISPFUNN(set_terminal_encoding,1)
+#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+LISPFUNN(foreign_encoding,0)
+LISPFUNN(set_foreign_encoding,1)
+#endif
+LISPFUNN(misc_encoding,0)
+LISPFUNN(set_misc_encoding,1)
+#endif
 # ---------- ERROR ----------
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 LISPFUNN(defclcs,1)
