@@ -1,5 +1,12 @@
 2002-04-10  Sam Steingold  <sds@gnu.org>
 
+	new built-in DELTA4 for metering.lisp optimization
+	* time.d (delta4): implemented
+	* subr.d, constsym.d (delta4): added
+	* defs1.lisp (%time): use DELTA4
+
+2002-04-10  Sam Steingold  <sds@gnu.org>
+
 	* configure: handle --with-no-dynamic-modules
 	* makemake.in: uniform handling of --with* arguments
 
