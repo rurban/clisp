@@ -870,7 +870,7 @@
 #elif defined(SPARC) && !defined(SPARC64)
   #define integerlength16(digit,size_zuweisung)  \
     integerlength32((uint32)(digit),size_zuweisung) # siehe unten
-#elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
+#elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
   #define integerlength16(digit,size_zuweisung)  \
     {                                                                       \
       var uintW one_position; # Position der führenden 1                    \
@@ -921,7 +921,7 @@
       # Hole davon den Exponenten:                                   \
       size_zuweisung ((__fi.i[0] >> (DF_mant_len-32)) - DF_exp_mid); \
     }
-#elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
+#elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
     {                                                                        \
       var uintL one_position; # Position der führenden 1                     \
@@ -1111,7 +1111,7 @@
 # setzt size auf die kleinste in digit vorkommende Bitnummer.
 # > digit: ein uint32 >0
 # < count: >=0, <32, mit 2^count | digit, digit/2^count ungerade
-  #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
+  #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
     #define ord2_32(digit,count_zuweisung)  \
       {                                                                        \
         var uintL one_position; # Position der letzten 1                       \

@@ -122,7 +122,7 @@
             .globl C(divu_loop_up)
             .globl C(divucopy_loop_up)
 
-#ifndef __GNUC__ /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
+#if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
 
 # extern struct { uint32 lo; uint32 hi; } mulu32_ (uint32 arg1, uint32 arg2);
 # 2^32*hi+lo := arg1*arg2.
@@ -136,7 +136,7 @@ C(mulu32_:)
 
 #endif
 
-#ifndef __GNUC__ /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
+#if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
 
 # extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .

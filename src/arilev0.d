@@ -137,7 +137,7 @@
   extern uint32 mulu16 (uint16 arg1, uint16 arg2);
 # in 68000-Assembler (Input D0.W, D1.W, Output D0.L):
 #   MULU D1,D0
-  #ifdef GNU
+  #if defined(GNU) || defined(INTEL)
     #if defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE) # Ist das schneller als _mulu16 ??
       #define mulu16(arg1,arg2)  \
         ({var union { double f; uint32 i[2]; } __fi; \
@@ -242,7 +242,7 @@
 #   ; D0.L = lo, D1.L = hi fertig.
 # in 68020-Assembler (Input D0.L,D1.L, Output D0.L,D1.L):
 #   MULU.L D1,D1:D0
-  #ifdef GNU
+  #if defined(GNU) || defined(INTEL)
     #ifdef MC680X0
       #if !(defined(MC680Y0) && !defined(NO_ASM))
         #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
@@ -445,7 +445,7 @@
 #   DIVU D1,D0    ; D0.L=x / D1.W=y -> q=D0.W, r=D0.H.W
 #   MOVE.L D0,D1
 #   SWAP D1
-  #ifdef GNU
+  #if defined(GNU) || defined(INTEL)
     #if defined(SPARC64) && !defined(NO_ASM)
       #define divu_3216_1616(x,y,q_zuweisung,r_zuweisung)  \
         ({var uint32 __x = (x);        \
@@ -783,7 +783,7 @@
 # < x = q*y+r
   extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # -> Quotient q
   extern uint32 divu_32_rest;                                         # -> Rest r
-  #ifdef GNU
+  #if defined(GNU) || defined(INTEL)
     #if defined(MC680Y0) && !defined(NO_ASM)
       #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung)  \
         ({var uint32 __xhi = (xhi);  \
