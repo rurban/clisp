@@ -31,6 +31,8 @@
 	[cod_const_symbol_function_store]:
 	use check_symbol() and check_fdefinition()
 	instead of fehler_kein_symbol() and fehler_undefined()
+	(funcall_iclosure): push arguments on STACK
+	before calling fehler_key_odd()
 	* foreign.d (EXEC-ON-STACK, CALL-WITH-FOREIGN-STRING):
 	use check_function() instead of fehler_function()
 	* lispbibl.d (progv): documented as GC-unsafe

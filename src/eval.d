@@ -2515,8 +2515,11 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         var gcv_object_t* rest_args_pointer = args_pointer;
         /* argcount = number of remaining arguments */
         /* halve argcount --> number of pairs Key.Value: */
-        if (argcount%2) /* number was odd -> not paired: */
+        if (argcount%2) { /* number was odd -> not paired: */
+          var uintC count = 0;
+          while (count<argcount) pushSTACK(rest_args_pointer[count++]);
           fehler_key_odd(argcount,TheIclosure(closure)->clos_name);
+        }
         argcount = argcount/2;
         { /* test for illegal keywords: */
           var object keywords = TheIclosure(closure)->clos_keywords;
