@@ -2364,7 +2364,7 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 24
       #define oint_data_mask 0x3FFFFFC0UL
       #define garcol_bit_o 30
-    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC))
+    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
       # On Sparc-Linux with glibc 2.1 and older:
       # malloc()ed addresses are of the form 0x0....... or 0xe........
       # Bits 31..29 are therefore part of an address and cannot
