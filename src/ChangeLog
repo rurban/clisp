@@ -1,5 +1,13 @@
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
+	* configure: link all modules/* files, not just directories
+	* modules/exporting.lisp: new files, abstracted from linux.lisp
+	* makemake.in: compile exporting.lisp
+	* modules/bindings/glibc/linux.lisp, modules/netica/netica.lisp:
+	* modules/postgresql/postgresql.lisp: load exporting.lisp
+
+2003-08-06  Sam Steingold  <sds@gnu.org>
+
 	removed obsolete module linuxlibc5 and renamed linuxlibc6 to glibc
 
 2003-08-06  Sam Steingold  <sds@gnu.org>

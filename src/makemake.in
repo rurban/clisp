@@ -42,8 +42,7 @@ options:
                                FLAVOR: POSIX_THREADS POSIXOLD_THREADS
                                        SOLARIS_THREADS C_THREADS WIN32_THREADS
        --with-module=bindings/amigaos
-       --with-module=bindings/linuxlibc5
-       --with-module=bindings/linuxlibc6
+       --with-module=bindings/glibc
        --with-module=dirkey
        --with-module=postgresql
        --with-module=regexp
@@ -1710,8 +1709,7 @@ if test -n "$with_dynamic_ffi"; then
   echol   "# regexp               Unix-style regular expression matching and searching"
   echol   "# postgresql           interface to PostgreSQL ODBMS"
   if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
-    echol "# bindings/linuxlibc5  Linux libc/libm bindings (lib[cm]4, lib[cm]5 only)"
-    echol "# bindings/linuxlibc6  Linux libc/libm bindings (lib[cm]6 only)"
+    echol "# bindings/glibc       Linux glibc bindings (GNU libc version 2)"
   fi
 fi
 if [ $TOS = unix -o $TOS = win32 ] ; then
@@ -1907,7 +1905,7 @@ cat <<\!!
 #   1. The module must be located in a subdirectory of clisp's source
 #      directory.
 #      Examples: clisp/src/ wildcard/
-#                clisp/src/ bindings/linuxlibc6/
+#                clisp/src/ bindings/glibc/
 #
 #   2. If the module contains a file called "configure", it is assumed
 #      to be a GNU autoconf generated configuration file, and is called
@@ -2982,7 +2980,10 @@ echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
 echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
 echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
 echol
-echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
+echol "exporting.fas : exporting.lisp # lisp${LEXE} lispinit.mem"
+echotab "\$(RUN) -M lispinit.mem -q -c exporting.lisp"
+echol
+echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars exporting.fas"
 echodummyrule modular
 echol
 echol "makevars :"

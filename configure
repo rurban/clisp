@@ -374,13 +374,15 @@ if test -n "$do_config"; then
     #for f in `cd modules > /dev/null ; find . '!' -type d -print`; do
     #  link $f $ABS_DIRNAME/$f
     #done
-    ( cd modules
-        for d in *; do
-          if [ -d "$d" -a '!' "$d" = CVS ] ; then
-            ../src/lndir "$d" "$ABS_DIRNAME/$d"
-          fi
-        done
-    )
+    cd modules;
+    for d in *; do
+      if [ "$d" != CVS ] ; then
+        if [ -d "$d" ]; then ../src/lndir "$d" "$ABS_DIRNAME/$d"
+        else link "$d" "$ABS_DIRNAME/$d"
+        fi
+      fi
+    done
+    cd ..;
     # Create subdirectories for the ffcall parts, and fill them.
     # The Makefiles carefully use $(srcdir).
     # Need to link over only a few files.
