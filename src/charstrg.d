@@ -665,78 +665,59 @@ static const cint nop_page[256] = {
 #endif
 
 # UP: verfolgt einen String.
+# unpack_string(string,&tot_len,&fil_len,&offset)
+# > object string: the string.
+# < uintL tot_len: the total length of the string
+# < uintL fil_len: the fill-pointer length of the string
+# < uintL offset: offset in the data vector.
+# < object return: data vector
+local object unpack_string(object string,uintL* tot_len,uintL* fil_len,
+                           uintL* index) {
+  if (simple_string_p(string)) {
+    uintL len = Sstring_length(string);
+    if (tot_len) *tot_len = len;
+    if (fil_len) *fil_len = len;
+    *index = 0;
+    return string;
+  } else {
+   # string, but not simple-string => follow the displacement
+   # determine the length (using vector_length() in array.d):
+    var uintL tot_size;
+    var uintL fil_size;
+    {
+      var Iarray addr = TheIarray(string);
+      var uintL offset_fil = offsetofa(iarray_,dims);
+      if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
+        offset_fil += sizeof(uintL);
+      var uintL offset_tot = offset_fil;
+      if (iarray_flags(addr) & bit(arrayflags_fillp_bit))
+        offset_fil += sizeof(uintL);
+      fil_size = *(uintL*)pointerplus(addr,offset_fil);
+      tot_size = *(uintL*)pointerplus(addr,offset_tot);
+    }
+    if (tot_len) *tot_len = tot_size;
+    if (fil_len) *fil_len = fil_size;
+    # follow the displacement:
+    *index = 0;
+    return iarray_displace_check(string,fil_size,index);
+  }
+}
+
+global object unpack_string_ro (object string, uintL* len, uintL* offset) {
+  return unpack_string(string,NULL,len,offset);
+}
+
+# UP: unpack the string
 # unpack_string_rw(string,&len)  [for read-write access]
 # > object string: ein String.
-# < uintL len: Anzahl der Zeichen des Strings.
-# < chart* ergebnis: Anfangsadresse der Characters
-  global chart* unpack_string_rw (object string, uintL* len);
-  global chart* unpack_string_rw(string,len)
-    var object string;
-    var uintL* len;
-    {
-      if (simple_string_p(string)) {
-        *len = Sstring_length(string);
-        check_sstring_mutable(string);
-        return &TheSstring(string)->data[0];
-      } else {
-        # String, aber kein Simple-String => Displacement verfolgen
-        # Länge bestimmen (wie in vector_length in ARRAY.D):
-        var uintL size;
-        {
-          var Iarray addr = TheIarray(string);
-          var uintL offset = offsetofa(iarray_,dims);
-          if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
-            offset += sizeof(uintL);
-          # Bei addr+offset fangen die Dimensionen an.
-          if (iarray_flags(addr) & bit(arrayflags_fillp_bit)) # evtl. Fillpointer
-            offset += sizeof(uintL);
-          size = *(uintL*)pointerplus(addr,offset);
-        }
-        *len = size;
-        # Displacement verfolgen:
-        var uintL index = 0;
-        var object datenvektor = iarray_displace_check(string,size,&index);
-        check_sstring_mutable(datenvektor);
-        return &TheSstring(datenvektor)->data[index];
-      }
-    }
-
-# UP: verfolgt einen String.
-# unpack_string_ro(string,&len,&offset)  [for read-only access]
-# > object string: ein String.
-# < uintL len: Anzahl der Zeichen des Strings.
-# < uintL offset: Offset in den Datenvektor.
-# < object ergebnis: Datenvektor
-  global object unpack_string_ro (object string, uintL* len, uintL* offset);
-  global object unpack_string_ro(string,len,index)
-    var object string;
-    var uintL* len;
-    var uintL* index;
-    {
-      if (simple_string_p(string)) {
-        *len = Sstring_length(string);
-        *index = 0;
-        return string;
-      } else {
-        # String, aber kein Simple-String => Displacement verfolgen
-        # Länge bestimmen (wie in vector_length in ARRAY.D):
-        var uintL size;
-        {
-          var Iarray addr = TheIarray(string);
-          var uintL offset = offsetofa(iarray_,dims);
-          if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
-            offset += sizeof(uintL);
-          # Bei addr+offset fangen die Dimensionen an.
-          if (iarray_flags(addr) & bit(arrayflags_fillp_bit)) # evtl. Fillpointer
-            offset += sizeof(uintL);
-          size = *(uintL*)pointerplus(addr,offset);
-        }
-        *len = size;
-        # Displacement verfolgen:
-        *index = 0;
-        return iarray_displace_check(string,size,index);
-      }
-    }
+# < uintL len: the fill-pointer length of the string
+# < chart* ergebnis: the beginning of the characters
+global chart* unpack_string_rw (object string, uintL* len) {
+  var uintL index = 0;
+  var object unpacked = unpack_string(string,NULL,len,&index);
+  check_sstring_mutable(unpacked);
+  return &TheSstring(unpacked)->data[index];
+}
 
 # UP: vergleicht zwei Strings auf Gleichheit
 # string_gleich(string1,string2)
@@ -2410,43 +2391,44 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
             }                                                                   \
     }   }
 
-# UP: Überprüft ein Index-Argument für Stringfunktionen
+# UP: check the index argument for string functions
 # > STACK_0: Argument
-# > len: Länge des Strings (< array-total-size-limit)
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Index in den String
+# > len: length of the strings (< array-total-size-limit)
+# > subr_self: caller (ein SUBR)
+# < return: index in the string
   local uintL test_index_arg (uintL len);
   local uintL test_index_arg(len)
     var uintL len;
     {
       var uintL i;
-      # i := Index STACK_0, kein Defaultwert nötig, muss <len sein:
+      # i := Index STACK_0, no default value, must be <len:
       test_index(STACK_0,i=,0,0,<,len,nullobj);
       return i;
     }
 
 LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
   {
-    var object string = STACK_1; # string-Argument
-    if (!stringp(string)) # muss ein String sein
+    var object string = STACK_1;
+    if (!stringp(string))
       fehler_string(string);
     var uintL len;
     var uintL offset;
-    string = unpack_string_ro(string,&len,&offset); # zu den Characters vorrücken
+    # almost unpack_string_ro() -- but need tot_len, not fil_len
+    string = unpack_string(string,&len,NULL,&offset);
     var uintL index = test_index_arg(len);
     var chart ch;
     SstringDispatch(string,
       { ch = TheSstring(string)->data[offset+index]; },
       { ch = as_chart(TheSmallSstring(string)->data[offset+index]); }
       );
-    value1 = code_char(ch); mv_count=1; # Character herausgreifen
+    value1 = code_char(ch); mv_count=1;
     skipSTACK(2);
   }
 
 LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
   {
-    var object string = STACK_1; # string-Argument
-    if (!simple_string_p(string)) # muss ein Simple-String sein
+    var object string = STACK_1;
+    if (!simple_string_p(string))
       fehler_sstring(string);
     var uintL index = test_index_arg(Sstring_length(string));
     var chart ch;
@@ -2454,7 +2436,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
       { ch = TheSstring(string)->data[index]; },
       { ch = as_chart(TheSmallSstring(string)->data[index]); }
       );
-    value1 = code_char(ch); mv_count=1; # Character herausgreifen
+    value1 = code_char(ch); mv_count=1;
     skipSTACK(2);
   }
 
@@ -2488,9 +2470,13 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
     if (!stringp(string)) # muss ein String sein
       fehler_string(string);
     var uintL len;
-    var chart* charptr = unpack_string_rw(string,&len); # zu den Characters vorrücken
-    charptr += test_index_arg(len); # zum vom Index angesprochenen Element gehen
-    *charptr = char_code(newchar); # Character eintragen
+    # almost unpack_string_rw() -- but need tot_len, not fil_len
+    var uintL index = 0;
+    var object unpacked = unpack_string(string,&len,NULL,&index);
+    check_sstring_mutable(unpacked);
+    var chart* charptr = &TheSstring(unpacked)->data[index];
+    charptr += test_index_arg(len); # go to the element addressed by index
+    *charptr = char_code(newchar); # put in the character
     value1 = newchar; mv_count=1;
     skipSTACK(2);
   }
