@@ -1852,8 +1852,16 @@ LISPFUNN(list_init_start,2)
         }
       value1 = l; mv_count=1; return;
       index_too_large:
-        pushSTACK(seq); pushSTACK(index); pushSTACK(S(list_init_start));
-        fehler(error,
+        pushSTACK(seq);
+        pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+        { var object tmp;
+          pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
+          tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        }
+        pushSTACK(STACK_2); # seq
+        pushSTACK(STACK_2); # index
+        pushSTACK(S(list_init_start));
+        fehler(type_error,
                DEUTSCH ? "~: START-Index ~ zu groß für ~" :
                ENGLISH ? "~: start index ~ too large for ~" :
                FRANCAIS ? "~ : L'index :START ~ est trop grand pour ~." :
@@ -1891,9 +1899,15 @@ LISPFUNN(list_fe_init_end,2)
         STACK_0 = fixnum_inc(STACK_0,1); # i := i+1
       }}
     index_too_large:
-      skipSTACK(3); # Stackaufbau: seq, index
+      pushSTACK(STACK_3); # Wert für Slot DATUM von TYPE-ERROR
+      { var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(STACK_(0+3));
+        tmp = listof(3); pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
+      pushSTACK(STACK_(4+2));
+      pushSTACK(STACK_(3+3));
       pushSTACK(S(list_fe_init_end));
-      fehler(error,
+      fehler(type_error,
              DEUTSCH ? "~: END-Index ~ zu groß für ~" :
              ENGLISH ? "~: end index ~ too large for ~" :
              FRANCAIS ? "~ : L'index :END ~ est trop grand pour ~." :

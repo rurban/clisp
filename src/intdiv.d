@@ -338,7 +338,12 @@
 # > STACK_0: Nenner y
   nonreturning_function(local, fehler_exquo, (void));
   local void fehler_exquo()
-    { fehler(error,
+    { pushSTACK(S(exquo)); # Wert für Slot OPERATION von ARITHMETIC-ERROR
+      pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+      { var object tmp = listof(2); pushSTACK(tmp); } # Wert für Slot OPERANDS von ARITHMETIC-ERROR
+      pushSTACK(STACK_(1+2)); # x
+      pushSTACK(STACK_(0+3)); # y
+      fehler(arithmetic_error,
              DEUTSCH ? "Quotient ~ / ~ ist keine ganze Zahl." :
              ENGLISH ? "quotient ~ / ~ is not an integer" :
              FRANCAIS ? "Le quotient de ~ par ~ n'est pas un entier." :

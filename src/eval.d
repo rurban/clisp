@@ -587,7 +587,7 @@ LISPFUNN(subr_info,1)
             if (constantp(TheSymbol(sym)))
               { pushSTACK(sym);
                 pushSTACK(S(progv));
-                fehler(error,
+                fehler(program_error,
                        DEUTSCH ? "~: ~ ist eine Konstante und kann nicht dynamisch gebunden werden." :
                        ENGLISH ? "~: ~ is a constant, cannot be bound dynamically" :
                        FRANCAIS ? "~: ~ est une constante et ne peut pas être liée dynamiquement." :
@@ -2136,7 +2136,7 @@ LISPFUNN(subr_info,1)
                 );
         fehler_constant:
           pushSTACK(item);
-          fehler(error,
+          fehler(program_error,
                  DEUTSCH ? "FUNCTION: ~ ist eine Konstante und kann daher nicht als Variable verwendet werden." :
                  ENGLISH ? "FUNCTION: ~ is a constant, may not be used as a variable" :
                  FRANCAIS ? "FUNCTION: ~ est une constante et ne peut donc pas être utilisée comme variable." :
@@ -2307,6 +2307,19 @@ LISPFUNN(subr_info,1)
           else
             { fehler_undefined(TheSubr(subr_self)->name,obj); }
         }
+      elif (funnamep(obj))
+        { var object symbol = get(Car(Cdr(obj)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
+          if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
+            { fehler_undefined(TheSubr(subr_self)->name,obj); }
+         {var object fdef = Symbol_function(symbol);
+          if (subrp(fdef)) { return fdef; }
+          elif (closurep(fdef)) { return fdef; }
+          #ifdef DYNAMIC_FFI
+          elif (ffunctionp(fdef)) { return fdef; }
+          #endif
+          else
+            { fehler_undefined(TheSubr(subr_self)->name,obj); }
+        }}
       elif (consp(obj) && eq(Car(obj),S(lambda))) # Cons (LAMBDA . ...) ?
         { fehler_lambda_expression(obj); }
       else
@@ -2433,7 +2446,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(fun);
       pushSTACK(kw);
       {var object type = allocate_cons();
-       Car(type) = S(member); Cdr(type) = kwlist;
+       Car(type) = S(member); Cdr(type) = STACK_3;
        STACK_3 = type; # `(MEMBER ,@kwlist) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
       }
       fehler(keyword_error,
@@ -3210,10 +3223,11 @@ LISPFUNN(subr_info,1)
                 }
               else
                 { pushSTACK(fun);
-                  fehler(error,
-                         DEUTSCH ? "EVAL: ~ ist keine Funktionsbezeichnung." :
-                         ENGLISH ? "EVAL: ~ is not a function name" :
-                         FRANCAIS ? "EVAL: ~ n'est pas un nom de fonction." :
+                  pushSTACK(S(eval));
+                  fehler(source_program_error,
+                         DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
+                         ENGLISH ? "~: ~ is not a function name" :
+                         FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
                          ""
                         );
                 }
@@ -4189,6 +4203,10 @@ LISPFUNN(subr_info,1)
             { return_Values apply_closure(fdef,args_on_stack,other_args); }
           elif (subrp(fdef)) # SUBR -> anwenden
             { return_Values apply_subr(fdef,args_on_stack,other_args); }
+          #ifdef DYNAMIC_FFI
+          elif (ffunctionp(fdef)) # Foreign-Function ?
+            { fun = fdef; goto call_ffunction; }
+          #endif
           else
             # Solche Funktionsnamen können keine FSUBRs oder Macros bezeichnen.
             # fdef wird vermutlich #<UNBOUND> sein.
@@ -4212,11 +4230,14 @@ LISPFUNN(subr_info,1)
       elif (consp(fun) && eq(Car(fun),S(lambda))) # Cons (LAMBDA ...) ?
         { subr_self = L(apply); fehler_lambda_expression(fun); }
       else
-        { pushSTACK(fun);
-          fehler(error,
-                 DEUTSCH ? "APPLY: ~ ist keine Funktionsbezeichnung." :
-                 ENGLISH ? "APPLY: ~ is not a function name" :
-                 FRANCAIS ? "APPLY: ~ n'est pas un nom de fonction." :
+        { pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(fun);
+          pushSTACK(S(apply));
+          fehler(type_error,
+                 DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
+                 ENGLISH ? "~: ~ is not a function name" :
+                 FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
                  ""
                 );
         }
@@ -4228,7 +4249,7 @@ LISPFUNN(subr_info,1)
   local void fehler_apply_dotted(name)
     var object name;
     { pushSTACK(name);
-      fehler(error,
+      fehler(program_error,
              DEUTSCH ? "APPLY: Argumentliste für ~ ist dotted." :
              ENGLISH ? "APPLY: argument list given to ~ is dotted" :
              FRANCAIS ? "APPLY: La liste d'arguments pour ~ est pointée." :
@@ -5088,6 +5109,10 @@ LISPFUNN(subr_info,1)
             { return_Values funcall_closure(fdef,args_on_stack); }
           elif (subrp(fdef)) # SUBR -> anwenden
             { return_Values funcall_subr(fdef,args_on_stack); }
+          #ifdef DYNAMIC_FFI
+          elif (ffunctionp(fdef)) # Foreign-Function ?
+            { fun = fdef; goto call_ffunction; }
+          #endif
           else
             # Solche Funktionsnamen können keine FSUBRs oder Macros bezeichnen.
             # fdef wird vermutlich #<UNBOUND> sein.
@@ -5111,11 +5136,14 @@ LISPFUNN(subr_info,1)
       elif (consp(fun) && eq(Car(fun),S(lambda))) # Cons (LAMBDA ...) ?
         { subr_self = L(funcall); fehler_lambda_expression(fun); }
       else
-        { pushSTACK(fun);
-          fehler(error,
-                 DEUTSCH ? "FUNCALL: ~ ist keine Funktionsbezeichnung." :
-                 ENGLISH ? "FUNCALL: ~ is not a function name" :
-                 FRANCAIS ? "FUNCALL: ~ n'est pas un nom de fonction." :
+        { pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(fun);
+          pushSTACK(S(funcall));
+          fehler(type_error,
+                 DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
+                 ENGLISH ? "~: ~ is not a function name" :
+                 FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
                  ""
                 );
         }
@@ -7869,8 +7897,16 @@ LISPFUNN(subr_info,1)
             svref_kein_index: # unpassender Index in index, zum Vektor vec
               pushSTACK(vec);
               pushSTACK(index);
+              pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+              { var object tmp;
+                pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(Svector_length(vec)));
+                tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+                pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+              }
+              pushSTACK(STACK_(1+2)); # vec
+              pushSTACK(STACK_(0+3)); # index
               pushSTACK(S(svref));
-              fehler(error,
+              fehler(type_error,
                      DEUTSCH ? "~: ~ ist kein passender Index für ~" :
                      ENGLISH ? "~: ~ is not a correct index into ~" :
                      FRANCAIS ? "~: ~ n'est pas un index convenable dans ~." :

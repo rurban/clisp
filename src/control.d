@@ -104,7 +104,7 @@ LISPSPECFORM(function, 1,1,nobody)
         fehler(source_program_error,
                DEUTSCH ? "~: ~ ist keine Funktionsbezeichnung." :
                ENGLISH ? "~: ~ is not a function name" :
-               FRANCAIS ? "~: ~ n'est pas un nom de fonction." :
+               FRANCAIS ? "~ : ~ n'est pas un nom de fonction." :
                ""
               );
       }
@@ -840,7 +840,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
               { fehler_constant:
                 pushSTACK(symbol);
                 pushSTACK(S(compiler_let));
-                fehler(error,
+                fehler(program_error,
                        DEUTSCH ? "~: ~ ist eine Konstante und kann nicht dynamisch gebunden werden." :
                        ENGLISH ? "~: ~ is a constant, cannot be bound" :
                        FRANCAIS ? "~: ~ est une constante et ne peut pas être liée." :
@@ -2390,7 +2390,7 @@ LISPFUNN(keyword_test,2)
     { var uintL argcount = llength(arglist);
       if (!((argcount%2) == 0))
         { pushSTACK(arglist);
-          fehler(error,
+          fehler(program_error,
                  DEUTSCH ? "Keyword-Argumentliste ~ hat ungerade Länge." :
                  ENGLISH ? "keyword argument list ~ has an odd length" :
                  FRANCAIS ? "La liste de mots clé ~ est de longueur impaire." :
@@ -2414,9 +2414,16 @@ LISPFUNN(keyword_test,2)
               kwlistr = Cdr(kwlistr);
             }
           # nicht gefunden
+          pushSTACK(key); # Wert für Slot DATUM von KEYWORD-ERROR
+          pushSTACK(key);
+          pushSTACK(STACK_(0+2));
           pushSTACK(Car(Cdr(arglistr)));
           pushSTACK(key);
-          fehler(error,
+          { var object type = allocate_cons();
+            Car(type) = S(member); Cdr(type) = STACK_(0+5);
+            STACK_3 = type; # `(MEMBER ,@kwlist) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
+          }
+          fehler(keyword_error,
                  DEUTSCH ? "Unzulässiges Keyword/Wert-Paar ~, ~ in einer Argumentliste. Die erlaubten Keywords sind ~" :
                  ENGLISH ? "illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~" :
                  FRANCAIS ? "Paire mot-clé - valeur ~, ~ illicite dans une liste d'arguments. Les mots-clé permis sont ~" :

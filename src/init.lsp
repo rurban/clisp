@@ -248,8 +248,8 @@ interpreter compiler
   condition warning serious-condition error storage-condition type-error
   program-error control-error package-error print-not-readable parse-error
   stream-error end-of-file reader-error file-error cell-error unbound-variable
-  undefined-function arithmetic-error division-by-zero floating-point-overflow
-  floating-point-underflow floating-point-inexact
+  undefined-function unbound-slot arithmetic-error division-by-zero
+  floating-point-overflow floating-point-underflow floating-point-inexact
   floating-point-invalid-operation
 ))
 

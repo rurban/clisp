@@ -15,11 +15,21 @@
 # Fehlermeldung
 # > STACK_1: Record
 # > STACK_0: (fehlerhafter) Index
+# > limit: exklusive Obergrenze für den Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_index, (void));
-  local void fehler_index()
-    { pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-      fehler(error,
+  nonreturning_function(local, fehler_index, (uintL limit));
+  local void fehler_index(limit)
+    var uintL limit;
+    { pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      { var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(limit));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+        pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
+      pushSTACK(STACK_(1+2)); # Record
+      pushSTACK(STACK_(0+3)); # Index
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      fehler(type_error,
              DEUTSCH ? "~: ~ ist kein erlaubter Index für ~." :
              ENGLISH ? "~: ~ is not a valid index into ~" :
              FRANCAIS ? "~ : ~ n'est pas un index valide pour ~." :
@@ -41,17 +51,6 @@
             );
     }
 
-# Überprüfung eines Index auf Typ `(INTEGER 0 (,ARRAY-SIZE-LIMIT))
-# > STACK_0: Index
-# > STACK_1: Record o.ä. (für Fehlermeldung)
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Index
-  local uintL test_index (void);
-  local uintL test_index()
-    { if (!posfixnump(STACK_0)) { fehler_index(); }
-      return posfixnum_to_L(STACK_0);
-    }
-
 # Unterprogramm für Record-Zugriffsfunktionen:
 # > STACK_1: record-Argument
 # > STACK_0: index-Argument
@@ -62,10 +61,11 @@
   local object* record_up ()
     { # record muß vom Typ Closure/Structure/Stream/OtherRecord sein:
       if_recordp(STACK_1, ; , { skipSTACK(1); fehler_record(); } );
-     {var uintL index = test_index(); # Index holen
-      var object record = STACK_1;
+     {var object record = STACK_1;
       var uintL length = Record_length(record);
-      if (!(index < length)) { fehler_index(); } # und prüfen
+      var uintL index;
+      if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length))) # Index holen und prüfen
+        { fehler_index(length); }
       skipSTACK(2); # Stack aufräumen
       return &TheRecord(record)->recdata[index]; # Record-Element adressieren
     }}
@@ -153,8 +153,7 @@ LISPFUNN(record_length,1)
                  ""
                 );
         }
-     {var uintL index = test_index(); # Index holen
-      var object structure = STACK_1;
+     {var object structure = STACK_1;
       var object namelist = TheStructure(structure)->structure_types; # erste Komponente
       var object type = STACK_2; # type-Argument
       # Teste, ob in namelist = (name_1 ... name_i-1 name_i) type vorkommt:
@@ -166,9 +165,12 @@ LISPFUNN(record_length,1)
       goto fehler_bad_structure;
       # type kam vor:
       yes:
-      if (!(index < (uintL)Structure_length(structure))) { fehler_index(); } # und prüfen
-      return &TheStructure(structure)->recdata[index]; # Structure-Komponente adressieren
-    }}
+      {var uintL length = (uintL)Structure_length(structure);
+       var uintL index;
+       if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length))) # Index holen und prüfen
+         { fehler_index(length); }
+       return &TheStructure(structure)->recdata[index]; # Structure-Komponente adressieren
+    }}}
 
 LISPFUNN(pstructure_ref,3)
 # (SYS::%%STRUCTURE-REF type structure index) liefert zu einer Structure vom
@@ -184,12 +186,20 @@ LISPFUNN(structure_ref,3)
   { value1 = *(structure_up()); # Structure-Element als Wert
     if (eq(value1,unbound)) # Könnte = #<UNBOUND> sein, nach Gebrauch von SLOT-MAKUNBOUND oder nach unvollständigem INITIALIZE-INSTANCE
       { dynamic_bind(S(print_length),Fixnum_0); # *PRINT-LENGTH* an 0 binden
-        pushSTACK(STACK_(1+3));
+        pushSTACK(STACK_(1+3)); # Wert für Slot INSTANCE von UNBOUND-SLOT
+        # (clos::slotdef-name (find index (clos::class-slots (find-class type)) :key #'clos::slotdef-location))
+        pushSTACK(STACK_(2+3+1)); funcall(L(find_class),1);
+        pushSTACK(value1); funcall(S(class_slots),1);
+        pushSTACK(STACK_(0+3+1)); pushSTACK(value1); pushSTACK(S(Kkey)); pushSTACK(Symbol_function(S(slotdef_location))); funcall(L(find),4);
+        pushSTACK(value1); funcall(S(slotdef_name),1);
+        pushSTACK(value1); # Wert für Slot NAME von UNBOUND-SLOT
+        pushSTACK(STACK_(1+3+2));
+        pushSTACK(value1);
         pushSTACK(S(structure_ref));
-        fehler(error,
-               DEUTSCH ? "~: Ein Slot von ~ hat keinen Wert." :
-               ENGLISH ? "~: A slot of ~ has no value" :
-               FRANCAIS ? "~ : Un composant de ~ n'a pas de valeur." :
+        fehler(unbound_slot,
+               DEUTSCH ? "~: Slot ~ von ~ hat keinen Wert." :
+               ENGLISH ? "~: Slot ~ of ~ has no value" :
+               FRANCAIS ? "~ : Composant ~ de ~ n'a pas de valeur." :
                ""
               );
       }
@@ -441,8 +451,11 @@ LISPFUNN(generic_function_effective_method_function,1)
   { var object oldclos = STACK_0;
     var object newclos;
     if (!genericfunctionp(oldclos))
-      { pushSTACK(TheSubr(subr_self)->name); # Funktionsname
-        fehler(error, # type_error ??
+      { pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(oldclos);
+        pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+        fehler(type_error,
                DEUTSCH ? "~: Das ist keine generische Funktion: ~" :
                ENGLISH ? "~: This is not a generic function: ~" :
                FRANCAIS ? "~ : Ceci n'est pas une fonction générique : ~" :
@@ -773,11 +786,17 @@ LISPFUNN(slot_exists_p,2)
                 kwlistr = Cdr(kwlistr);
               }
             # nicht gefunden
+            pushSTACK(key); # Wert für Slot DATUM von KEYWORD-ERROR
+            pushSTACK(valid_keywords);
             pushSTACK(valid_keywords);
             pushSTACK(Next(ptr));
             pushSTACK(key);
             pushSTACK(caller);
-            fehler(error,
+            {var object type = allocate_cons();
+             Car(type) = S(member); Cdr(type) = STACK_4;
+             STACK_4 = type; # `(MEMBER ,@valid_keywords) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
+            }
+            fehler(keyword_error,
                    DEUTSCH ? "~: Unzulässiges Keyword/Wert-Paar ~, ~ in der Argumentliste." NLstring "Die erlaubten Keywords sind ~" :
                    ENGLISH ? "~: illegal keyword/value pair ~, ~ in argument list." NLstring "The allowed keywords are ~" :
                    FRANCAIS ? "~ : Paire mot-clé - valeur ~, ~ illicite dans la liste d'arguments." NLstring "Les mots-clé permis sont ~" :
@@ -814,7 +833,7 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
 { if (!((argcount%2) == 0))
     { var object arglist = listof(argcount);
       pushSTACK(arglist);
-      fehler(error,
+      fehler(program_error,
              DEUTSCH ? "SHARED-INITIALIZE: Keyword-Argumentliste ~ hat ungerade Länge." :
              ENGLISH ? "SHARED-INITIALIZE: keyword argument list ~ has an odd length" :
              FRANCAIS ? "SHARED-INITIALIZE : La liste de mots clé ~ est de longueur impaire." :
@@ -930,7 +949,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
     if (!((argcount%2) == 0))
       { var object arglist = listof(argcount);
         pushSTACK(arglist);
-        fehler(error,
+        fehler(program_error,
                DEUTSCH ? "REINITIALIZE-INSTANCE: Keyword-Argumentliste ~ hat ungerade Länge." :
                ENGLISH ? "REINITIALIZE-INSTANCE: keyword argument list ~ has an odd length" :
                FRANCAIS ? "REINITIALIZE-INSTANCE : La liste de mots clé ~ est de longueur impaire." :
@@ -1029,7 +1048,7 @@ LISPFUN(initialize_instance,1,0,rest,nokey,0,NIL)
     if (!((argcount%2) == 0))
       { var object arglist = listof(argcount);
         pushSTACK(arglist);
-        fehler(error,
+        fehler(program_error,
                DEUTSCH ? "INITIALIZE-INSTANCE: Keyword-Argumentliste ~ hat ungerade Länge." :
                ENGLISH ? "INITIALIZE-INSTANCE: keyword argument list ~ has an odd length" :
                FRANCAIS ? "INITIALIZE-INSTANCE : La liste de mots clé ~ est de longueur impaire." :
@@ -1156,7 +1175,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
 { if (!((argcount%2) == 0))
     { var object arglist = listof(argcount);
       pushSTACK(arglist);
-      fehler(error,
+      fehler(program_error,
              DEUTSCH ? "MAKE-INSTANCE: Keyword-Argumentliste ~ hat ungerade Länge." :
              ENGLISH ? "MAKE-INSTANCE: keyword argument list ~ has an odd length" :
              FRANCAIS ? "MAKE-INSTANCE : La liste de mots clé ~ est de longueur impaire." :

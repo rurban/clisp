@@ -3,7 +3,7 @@
 # meldet Überlauf bei der Multiplikation:
   nonreturning_function(local, mal_ueberlauf, (void));
   local void mal_ueberlauf()
-    { fehler(error,
+    { fehler(arithmetic_error,
              DEUTSCH ? "Überlauf bei Multiplikation langer Zahlen" :
              ENGLISH ? "overflow during multiplication of large numbers" :
              FRANCAIS ? "Débordement de capacité lors d'une multiplication de grands nombres." :

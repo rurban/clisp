@@ -296,6 +296,8 @@
   LISPOBJ(bitnamekw_1,":META")
   LISPOBJ(bitnamekw_2,":SUPER")
   LISPOBJ(bitnamekw_3,":HYPER")
+# zu ARRAY.D:
+  LISPOBJ(type_vector_with_fill_pointer,"(AND VECTOR (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
 # zu HASHTABL.D:
  #ifdef GENERATIONAL_GC
   LISPOBJ(gc_count,"0")
@@ -303,6 +305,7 @@
 # zu SEQUENCE.D:
   # interne Liste aller definierten Sequence-Typen:
   LISPOBJ(seq_types,"NIL")
+  LISPOBJ(type_recognizable_sequence_type,"(SATISFIES SYSTEM::RECOGNIZABLE-SEQUENCE-TYPE-P)") # Typ für Fehlermeldung
   # Keywordpaare für test_start_end (Paare nicht trennen!):
   LISPOBJ(kwpair_start,":START")
   LISPOBJ(kwpair_end,":END")
@@ -347,7 +350,7 @@
   LISPOBJ(class_vector,"VECTOR")           # ---+
   LISPOBJ(type_designator_character,"(DESIGNATOR CHARACTER)")
   LISPOBJ(type_designator_string_char,"(DESIGNATOR STRING-CHAR)")
-  LISPOBJ(type_designator_function,"(OR SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)) (CONS (EQL LAMBDA)))")
+  LISPOBJ(type_designator_function,"(OR FUNCTION SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)) (CONS (EQL LAMBDA)))")
   # Upper bound for the number of structure classes present in the system:
   LISPOBJ(structure_class_count_max,"0")
   # Upper bound for the number of standard classes present in the system:
@@ -753,6 +756,7 @@
   LISPOBJ(type_logical_pathname,"(OR LOGICAL-PATHNAME STRING STREAM SYMBOL)")
  #endif
 # zu PATHNAME.D:
+  LISPOBJ(type_designator_pathname,"(OR STRING FILE-STREAM PATHNAME)")
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(empty_logical_pathname,".") # (schon initialisiert)
   LISPOBJ(default_logical_pathname_host,"\"SYS\"")
@@ -860,6 +864,8 @@
 # zu STREAM.D:
   LISPOBJ(type_input_stream,"(SATISFIES INPUT-STREAM-P)") # Typ für Fehlermeldung
   LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # Typ für Fehlermeldung
+  LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
+  LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # Typ für Fehlermeldung
 # zu IO.D:
   # 4 Bitnamen:
   LISPOBJ(bitname_0,"\"CONTROL\"")
