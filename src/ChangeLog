@@ -1,3 +1,8 @@
+2003-07-28  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d, stream.d, socket.d, misc.d, win32aux.d:
+	fixed g++/mingw compilation
+
 2003-07-27  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d, encoding.d (cstombs_f, cslen_f) [!UNICODE]: macros

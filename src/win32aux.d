@@ -399,7 +399,8 @@ local int read_helper_low (HANDLE fd, void* bufarea, int nbyte, bool partial_p) 
     var DWORD err;
     overlap.Offset = 0;
     overlap.OffsetHigh = 0;
-    overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
+    overlap.Offset = SetFilePointer(fd, 0, (LONG*)&overlap.OffsetHigh,
+                                    FILE_CURRENT);
     ResetEvent(aux_event);
     overlap.hEvent = aux_event;
     if (ReadFile(fd, buf, limited_nbyte, &nchars, &overlap))
@@ -531,7 +532,8 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
         var DWORD err;
         overlap.Offset = 0;
         overlap.OffsetHigh = 0;
-        overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
+        overlap.Offset = SetFilePointer(fd, 0, (LONG*) &overlap.OffsetHigh,
+                                        FILE_CURRENT);
         ResetEvent(aux_event);
         overlap.hEvent = aux_event;
         if (WriteFile(fd, buf, limited_nbyte, &nchars, &overlap))
