@@ -1,0 +1,2524 @@
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GNU clisp 1996-03-31\n"
+"POT-Creation-Date: 2001-02-06 17:24:02 CET\n"
+"PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
+"Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
+"Language-Team: Spanish <es@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8-bit\n"
+
+#
+#
+msgid ""
+"\n"
+"*** - Program stack overflow. RESET"
+msgstr ""
+"\n"
+"*** - Desbordamiento de la pila del programa. REINICIE"
+
+#
+#
+#
+#
+#
+#
+msgid ""
+"\n"
+"*** - Lisp stack overflow. RESET"
+msgstr ""
+"\n"
+"*** - Desbordamiento de la pila de Lisp. REINICIE"
+
+#
+#
+#
+#
+#
+msgid "Unknown signature of an FSUBR\n"
+msgstr "Tipo de argumento desconocido para FSUBR\n"
+
+#
+#
+#
+#
+#
+#
+#
+#
+msgid "Unknown signature of a SUBR\n"
+msgstr "Tipo de argumento desconocido para SUBR\n"
+
+#
+#
+#
+#
+msgid "module `%s' requires package %s.\n"
+msgstr "el módulo `%s' necesita el paquete %s.\n"
+
+msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
+msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB\n"
+
+#
+#
+#
+#
+#
+msgid "%s out of range\n"
+msgstr "%s se ha salido del rango\n"
+
+msgid "memory size"
+msgstr "tamaño de memoria"
+
+msgid "stack size"
+msgstr "tamaño de la pila"
+
+msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
+msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución del código de tipo.\n"
+
+#
+#
+msgid "Only %d bytes available.\n"
+msgstr "Sólo quedan %d bytes disponibles.\n"
+
+#
+msgid "Couldn't determine the end of the SP stack!\n"
+msgstr "No fue posible determinar el final de la pila SP!\n"
+
+#
+#
+#
+#
+#
+msgid ""
+"\n"
+"WARNING: No initialisation file specified.\n"
+msgstr ""
+"\n"
+"ATENCIÓN: No se ha especificado ningún fichero de inicialización.\n"
+
+msgid "Please try: "
+msgstr "Por favor, intente:"
+
+msgid "Not enough memory for Lisp.\n"
+msgstr "No hay memoria suficiente para Lisp.\n"
+
+#
+#
+msgid ""
+"\n"
+"*** - Virtual memory exhausted. RESET"
+msgstr ""
+"\n"
+"*** - Memoria virtual agotada. REINICIE"
+
+#
+#
+msgid ""
+"\n"
+"*** - Memory exhausted. RESET"
+msgstr ""
+"\n"
+"*** - Memoria agotada. REINICIE"
+
+#
+#
+#
+#
+msgid "Cannot map memory to address 0x%x ."
+msgstr "No se puede asignar la memoria a la dirección 0x%x ."
+
+#
+#
+#
+#
+msgid "Cannot reserve address range at 0x%x ."
+msgstr "No se puede reservar el rango de direcciones a 0x%x ."
+
+#
+#
+#
+#
+msgid "Cannot reserve address range 0x%x-0x%x ."
+msgstr "No se puede reservar el rango de direcciones 0x%x-0x%x ."
+
+msgid "CreateFileMapping() failed."
+msgstr "CreateFileMapping() falló."
+
+msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
+msgstr "MapViewOfFileEx(dirección=0x%x,segmento=0x%x) falló."
+
+msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
+msgstr "MapViewOfFileEx() devolvió 0x%x en vez de 0x%x.\n"
+
+msgid "VirtualFree() failed."
+msgstr "VirtualFree() falló."
+
+msgid "VirtualProtect() failed."
+msgstr "VirtualProtect() falló."
+
+msgid "Cannot open /dev/zero ."
+msgstr "No se puede abrir /dev/zero."
+
+#
+#
+msgid "msync(0x%x,0x%x,MS_INVALIDATE) fails."
+msgstr "msync(0x%x,0x%x,MS_INVALIDATE) falló."
+
+msgid "Cannot open %s ."
+msgstr "No se puede abrir %s."
+
+msgid "Cannot delete %s ."
+msgstr "No se puede borrar %s ."
+
+#
+msgid "** WARNING: ** Too few free disk space for %s .\n"
+msgstr "** ATENCIÓN: ** Hay muy poco espacio libre en disco para %s .\n"
+
+msgid "Please restart LISP with fewer memory (option -m).\n"
+msgstr "Por favor, vuelva a ejecutar LISP con menos memoria (opción -m).\n"
+
+msgid "Cannot make %s long enough."
+msgstr "No es posible agrandar %s lo suficiente."
+
+msgid "Cannot fill %s ."
+msgstr "No se puede rellenar %s ."
+
+msgid "Cannot close %s ."
+msgstr "No se puede cerrar %s ."
+
+msgid "Cannot close /dev/zero ."
+msgstr "No se puede cerrar /dev/zero ."
+
+#
+#
+#
+#
+msgid "Recompile your operating system with SYSV IPC support.\n"
+msgstr "Recompile su sistema operativo con soporte para SYSV IPC.\n"
+
+#
+#
+msgid "Cannot allocate private shared memory segment."
+msgstr "No se puede asignar un segmento privado en la memoria compartida."
+
+msgid "Cannot map shared memory to address 0x%x."
+msgstr "No se puede asignar la memoria compartida a la direccion 0x%x."
+
+msgid "Cannot fill shared memory."
+msgstr "No se puede rellenar la memoria compartida."
+
+msgid "Could not fill shared memory."
+msgstr "No se pudo rellenar la memoria compartida."
+
+#
+#
+msgid "Cannot remove shared memory segment."
+msgstr "No se puede desechar el segmento de memoria compartida."
+
+msgid "mprotect() fails."
+msgstr "mprotect() falló."
+
+#
+#
+#
+#
+#
+msgid ""
+"\n"
+"SIGSEGV cannot be cured. Fault address = 0x%x.\n"
+msgstr ""
+"\n"
+"No se puede subsanar SIGSEGV. Dirección de fallo = 0x%x.\n"
+
+msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
+msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. ¡¡¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
+
+msgid "munmap() fails."
+msgstr "munmap() falló."
+
+#
+#
+#
+msgid ""
+"\n"
+"*** - No more room for LISP objects: RESET"
+msgstr ""
+"\n"
+"*** - No queda espacio para almacenar más objetos LISP: REINICIE"
+
+msgid "Trying to make room through a GC...\n"
+msgstr "Intentando obtener más espacio a través de un GC ...\n"
+
+#
+#
+#
+#
+#
+msgid "operating system error during load of initialisation file `%s'\n"
+msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
+
+msgid "Cannot map the initialisation file into memory."
+msgstr "No puedo escribir el fichero de inicialización en memoria."
+
+msgid "operating system error during load of initialisation file\n"
+msgstr "error del sistema operativo durante la carga del fichero de inicialización\n"
+
+msgid "initialisation file was not created by this version of LISP\n"
+msgstr "el fichero de inicialización no fue creado con esta versión de LISP\n"
+
+msgid "not enough memory for initialisation\n"
+msgstr "no hay memoria suficiente para la inicialización\n"
+
+msgid "Operation not permitted"
+msgstr "Operación no permitida"
+
+#
+#
+#
+msgid "No such file or directory"
+msgstr "No existe ese fichero o directorio"
+
+msgid "No such process"
+msgstr "No existe tal proceso"
+
+msgid "Interrupted system call"
+msgstr "Llamada al sistema interrumpida"
+
+#
+#
+msgid "I/O error"
+msgstr "Error de E/S"
+
+#
+msgid "No such device or address"
+msgstr "Dispositivo no configurado"
+
+msgid "Arg list too long"
+msgstr "Lista de argumentos demasiado larga"
+
+msgid "Exec format error"
+msgstr "Formato de programa no ejecutable"
+
+msgid "Bad file number"
+msgstr "Número de fichero incorrecto"
+
+#
+#
+msgid "No child processes"
+msgstr "Ningún proceso hijo"
+
+msgid "No more processes"
+msgstr "No hay más procesos"
+
+msgid "Not enough memory"
+msgstr "No hay memoria suficiente"
+
+msgid "Permission denied"
+msgstr "Permiso denegado"
+
+msgid "Bad address"
+msgstr "Dirección incorrecta"
+
+msgid "Block device required"
+msgstr "Se requiere un dispositivo de bloque"
+
+msgid "Device busy"
+msgstr "Dispositivo ocupado"
+
+msgid "File exists"
+msgstr "El fichero ya existe"
+
+msgid "Cross-device link"
+msgstr "Enlace cruzado entre dispositivos"
+
+msgid "No such device"
+msgstr "No existe tal dispositivo"
+
+msgid "Not a directory"
+msgstr "No es un directorio"
+
+msgid "Is a directory"
+msgstr "Es un directorio"
+
+#
+#
+#
+msgid "Invalid argument"
+msgstr "Argumento inválido"
+
+msgid "File table overflow"
+msgstr "Desbordamiento de la tabla de ficheros"
+
+msgid "Too many open files"
+msgstr "Demasiados ficheros abiertos"
+
+msgid "Inappropriate ioctl for device"
+msgstr "El dispositivo no acepta la llamada `ioctl'"
+
+msgid "Text file busy"
+msgstr "Fichero de texto en uso"
+
+msgid "File too large"
+msgstr "Fichero demasiado grande"
+
+msgid "No space left on device"
+msgstr "No queda espacio en el dispositivo"
+
+msgid "Illegal seek"
+msgstr "Desplazamiento inválido"
+
+msgid "Read-only file system"
+msgstr "Sistema de ficheros de sólo lectura"
+
+msgid "Too many links"
+msgstr "Demasiados enlaces"
+
+msgid "Broken pipe, child process terminated or socket closed"
+msgstr ""
+
+msgid "Argument out of domain"
+msgstr "Argumento fuera del dominio"
+
+#
+#
+#
+msgid "Result too large"
+msgstr "El resultado es demasiado grande"
+
+msgid "Invalid multibyte or wide character"
+msgstr ""
+
+#
+msgid "Operation would block"
+msgstr "La operación se bloquearía"
+
+#
+msgid "Operation now in progress"
+msgstr "Operación en curso"
+
+#
+#
+msgid "Operation already in progress"
+msgstr "La operación ya se está llevando a cabo"
+
+#
+msgid "Too many levels of symbolic links"
+msgstr "Demasiados niveles de enlaces simbólicos"
+
+msgid "File name too long"
+msgstr "Nombre de fichero demasiado largo"
+
+msgid "Directory not empty"
+msgstr "El directorio no está vacío"
+
+#
+msgid "Stale NFS file handle"
+msgstr "Fichero NFS bloqueado"
+
+#
+#
+msgid "Too many levels of remote in path"
+msgstr "Demasiados niveles de profundidad en la trayectoria"
+
+msgid "Socket operation on non-socket"
+msgstr "Operación de `sockets' sobre un \"no-socket\""
+
+msgid "Destination address required"
+msgstr "Se necesita la dirección del destino"
+
+msgid "Message too long"
+msgstr "Mensaje demasiado largo"
+
+msgid "Protocol wrong type for socket"
+msgstr "Tipo de protocolo incorrecto para el `socket'"
+
+msgid "Option not supported by protocol"
+msgstr "Opción no soportada por el protocolo"
+
+msgid "Protocol not supported"
+msgstr "Protocolo no soportado"
+
+msgid "Socket type not supported"
+msgstr "Tipo de `socket' no soportado"
+
+msgid "Operation not supported on socket"
+msgstr "Acción no permitida en un `socket'"
+
+msgid "Protocol family not supported"
+msgstr "Familia de protocolos no soportada"
+
+msgid "Address family not supported by protocol family"
+msgstr "Familia de direcciones no soportada por el protocolo"
+
+msgid "Address already in use"
+msgstr "Dirección en uso"
+
+#
+msgid "Can't assign requested address"
+msgstr "No se puede asignar la dirección requerida"
+
+#
+#
+msgid "Network is down"
+msgstr "La red no está operativa"
+
+msgid "Network is unreachable"
+msgstr "No es posible conectarse con la red"
+
+msgid "Network dropped connection on reset"
+msgstr "Se ha perdido la conexión con la red debido a una reinicialización"
+
+#
+#
+msgid "Software caused connection abort"
+msgstr "El software ha provocado la interrupción de la conexión"
+
+msgid "Connection reset by peer"
+msgstr "Conexión reinicializada por el otro extremo"
+
+#
+#
+#
+#
+#
+#
+#
+#
+msgid "No buffer space available"
+msgstr "No queda espacio en el buffer"
+
+#
+#
+msgid "Socket is already connected"
+msgstr "El `socket' ya está conectado"
+
+msgid "Socket is not connected"
+msgstr "El `socket' no está conectado"
+
+msgid "Can't send after socket shutdown"
+msgstr "No se puede enviar después de la ruptura del `socket'"
+
+msgid "Too many references: can't splice"
+msgstr ""
+
+msgid "Connection timed out"
+msgstr "Se excedió el tiempo para la conexión"
+
+msgid "Connection refused"
+msgstr "Conexión rechazada"
+
+#
+#
+#, fuzzy
+msgid "Remote peer released connection"
+msgstr "El software ha provocado la interrupción de la conexión"
+
+#
+#
+#
+#
+msgid "Host is down"
+msgstr "El servidor no está disponible"
+
+#
+msgid "Host is unreachable"
+msgstr "No se puede conectar con el servidor"
+
+#
+#
+#, fuzzy
+msgid "Networking error"
+msgstr "La red no está operativa"
+
+msgid "Too many processes"
+msgstr "Demasiados procesos"
+
+msgid "Too many users"
+msgstr "Demasiados usuarios"
+
+msgid "Disk quota exceeded"
+msgstr "Cuota de disco excedida"
+
+msgid "Not a stream device"
+msgstr "No es un dispositivo de flujo"
+
+msgid "Timer expired"
+msgstr "El temporizador expiró"
+
+#
+msgid "Out of stream resources"
+msgstr "Alcanzado el límite de recursos de `streams'"
+
+msgid "No message of desired type"
+msgstr "No hay mensajes del tipo deseado"
+
+msgid "Not a data message"
+msgstr "No es un mensaje de datos"
+
+msgid "Identifier removed"
+msgstr "Identificador desechado"
+
+#
+msgid "Resource deadlock would occur"
+msgstr "Podría ocurrir un interbloqueo entre recursos"
+
+#
+msgid "No record locks available"
+msgstr "No quedan registros de bloqueo disponibles"
+
+msgid "Machine is not on the network"
+msgstr "La máquina no está en la red"
+
+msgid "Object is remote"
+msgstr "El objeto es remoto"
+
+msgid "Link has been severed"
+msgstr "El enlace ha sido destruído"
+
+msgid "Advertise error"
+msgstr "Error de anuncio"
+
+#
+msgid "Srmount error"
+msgstr "Error de `srmount'"
+
+msgid "Communication error on send"
+msgstr "Error de comunicaciones en el envío"
+
+msgid "Protocol error"
+msgstr "Error de protocolo"
+
+#
+msgid "Multihop attempted"
+msgstr "Se ha intentado un multihop"
+
+#
+msgid "Remote address changed"
+msgstr "La dirección remota ha cambiado"
+
+msgid "Function not implemented"
+msgstr "Función no implementada"
+
+msgid "Not supported under MS-DOS"
+msgstr "No soportado en MS-DOS"
+
+msgid "This version of CLISP runs only in low address memory.\n"
+msgstr ""
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+#
+#
+
+#
+#
+
+
+#
+#
+
+
+#
+#
+
+
+
+
+
+#
+#
+
+
+
+
+
+#
+#
+#
+
+
+#
+#
+#
+#
+#
+
+#
+#
+
+
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+#
+
+
+
+
+#
+#
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+
+
+
+#
+#
+
+#
+#
+#
+#
+#
+#
+#
+
+#
+#
+#
+#
+
+#
+#
+#
+#
+
+#
+#
+#
+#
+#
+
+#
+#
+
+#
+#
+#, fuzzy
+
+#, fuzzy
+
+#
+#
+#
+#
+#
+#, fuzzy
+
+
+
+
+#
+#
+
+
+#
+#
+#
+
+#
+#
+#
+
+
+#
+#
+
+
+#
+#
+#
+
+#
+#
+#
+
+#, fuzzy
+
+
+#
+#
+#
+
+
+
+
+#
+#
+
+
+
+#, fuzzy
+
+
+
+
+
+#
+#
+#
+
+#, fuzzy
+
+
+#
+#
+#
+
+#
+#
+#
+
+
+
+#
+#
+
+#
+#
+#
+
+
+#
+#
+#
+
+#
+#
+#
+
+#
+#
+#
+
+
+#
+#
+#
+
+#
+#
+#
+
+#
+#
+#
+
+
+#
+#
+#
+#
+#
+
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#
+#
+#
+#
+#
+
+#
+#
+
+#
+#
+#
+#
+
+
+
+
+
+
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+#
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+#
+#
+#
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+#
+#
+#
+
+#
+#
+#, fuzzy
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+#, fuzzy
+
+
+#
+#
+
+#
+#
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+#
+#, fuzzy
+
+#
+
+
+#
+
+
+
+
+
+#
+#
+#
+
+#
+
+
+
+
+
+#
+#
+#
+
+#
+#
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+
+
+#, fuzzy
+
+
+
+
+#
+#
+
+#
+#
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+
+
+#
+
+#
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+
+
+
+
+
+#
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+#
+#
+#
+
+
+#
+#
+#
+#
+
+
+#
+
+#
+#
+
+#
+#
+
+
+
+
+#
+#
+
+
+
+
+#
+#
+#
+
+#
+#
+#
+#
+#
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+
+
+
+#
+#
+#
+
+
+
+
+#
+#
+
+
+
+#
+#
+
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+
+#, fuzzy
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+
+
+
+
+
+
+#
+
+
+
+
+
+#
+#
+#
+
+
+#
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+#
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+#
+#
+#
+
+
+
+
+
+
+
+#
+#
+
+
+
+#
+#
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+#
+#
+
+
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+
+#
+#
+#
+
+
+#
+#
+#
+#
+
+
+
+
+#, fuzzy
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+
+#
+#
+
+
+
+#
+#
+
+
+
+
+
+
+#
+#
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+
+
+
+
+
+
+#, fuzzy
+
+#
+#
+
+
+
+
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#
+#
+#
+#
+#
+#
+#
+
+
+#, fuzzy
+
+
+
+#
+#
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+
+
+
+#
+#
+
+#
+#
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#
+#, fuzzy
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+#
+#
+
+
+
+
+#
+#
+#
+
+#, fuzzy
+
+#
+#
+#
+#, fuzzy
+
+#, fuzzy
+
+#
+#
+#, fuzzy
+
+#, fuzzy
+
+
+#
+#
+#
+#
+#, fuzzy
+
+
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+#
+#
+
+
+
+
+
+
+#
+#
+#, fuzzy
+
+
+#
+#
+#, fuzzy
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#
+#, fuzzy
+
+
+
+
+
+
+
+
+
+#
+
+
+
+
+#, fuzzy
+
+
+#
+
+#
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+#
+#
+
+#, fuzzy
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
+
+#, fuzzy
+
+#
+#
+
+
+
+
+
+
+
+#
+#, fuzzy
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+#
+#
+#
+#
+#
+
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+#
+
+
+
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+#
+#
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+
+
+
+#
+#
+#
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
