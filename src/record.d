@@ -444,10 +444,12 @@ LISPFUNN(closure_set_seclass,2)
   skipSTACK(2);
 }
 
-/* ensure that OBJ is a generic function and return it
+/* check_generic_function(obj)
+ > obj: an object
+ < result: a generic function, either the same as obj or a replacement
  can trigger GC */
-local object check_generic_function (object obj) {
-  while (!genericfunctionp(obj)) {
+local object check_generic_function_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(standard_generic_function)); /* slot EXPECTED-TYPE */
@@ -455,7 +457,12 @@ local object check_generic_function (object obj) {
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
-  }
+  } while (!genericfunctionp(obj));
+  return obj;
+}
+local inline object check_generic_function (object obj) {
+  if (!genericfunctionp(obj))
+    obj = check_generic_function_replacement(obj);
   return obj;
 }
 
