@@ -3,7 +3,7 @@
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
 
-  Copyright 1995-2001 Bruno Haible, <haible@clisp.cons.org>
+  Copyright 1995-2004 Bruno Haible, <haible@clisp.cons.org>
 
   This is free software distributed under the GNU General Public
   Licence described in the file COPYING. Contact the author if
@@ -340,7 +340,7 @@ typedef struct
   unsigned long		rsize;
   /* current pointer into the args[] array */
   __avword*		aptr;
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__s390__)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX) && !(defined(__MACH__) && defined(__APPLE__))) || defined(__s390__)
   /* limit pointer into the args[] array */
   __avword*		eptr;
 #endif
@@ -407,7 +407,7 @@ typedef struct
 } av_alist;
 
 /* The limit for the pointer into the args[] array. */
-#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__s390)
+#if defined(__sparc__) || defined(__sparc64__) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX) && !(defined(__MACH__) && defined(__APPLE__))) || defined(__s390)
 #define __av_eptr(LIST)	((LIST).eptr)
 #else
 #define __av_eptr(LIST)	(&(LIST).args[__AV_ALIST_WORDS])
@@ -470,7 +470,7 @@ typedef struct
    (LIST).eptr = &(LIST).args[0],
 #endif
 #if defined(__rs6000__)
-#if defined(_AIX)
+#if defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))
 #define __av_start1(LIST)						\
    (LIST).aptr = &(LIST).args[0],					\
    (LIST).faptr = &(LIST).fargs[0],
@@ -718,13 +718,13 @@ typedef struct
 /* `long long's are passed embedded on the arg stack. */
 #define av_longlong(LIST,VAL)	__av_longlong(LIST,long long,VAL)
 #define av_ulonglong(LIST,VAL)	__av_longlong(LIST,unsigned long long,VAL)
-#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || (defined(__rs6000__) && defined(_AIX)) || defined(__convex__)
+#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || (defined(__rs6000__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__convex__)
 /* `long long's are (at most) word-aligned. */
 #define __av_longlong(LIST,TYPE,VAL)					\
   (((LIST).aptr += sizeof(TYPE)/sizeof(__avword)) > __av_eptr(LIST)	\
    ? -1 : (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0))
 #endif
-#if defined(__mips__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__m88k__) || defined(__s390__)
+#if defined(__mips__) || (defined(__sparc__) && !defined(__sparc64__)) || defined(__hppa__) || (defined(__rs6000__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__) || defined(__s390__)
 /* `long long's have alignment 8. */
 #if defined(__mips__)
 #define __av_longlong(LIST,TYPE,VAL)					\
@@ -747,7 +747,7 @@ typedef struct
   (((LIST).aptr = (__avword*)(((__avword)(LIST).aptr & -(long)__AV_alignof(TYPE)) - sizeof(TYPE))) < __av_eptr(LIST) \
    ? -1 : (*(TYPE*)(LIST).aptr = (TYPE)(VAL), 0))
 #endif
-#if (defined(__rs6000__) && !defined(_AIX)) || defined(__m88k__)
+#if (defined(__rs6000__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__)
 #define __av_longlong(LIST,TYPE,VAL)					\
   (((LIST).aptr = (__avword*)(((__avword)(LIST).aptr+sizeof(TYPE)+__AV_alignof(TYPE)-1) & -(long)__AV_alignof(TYPE))) > __av_eptr(LIST) \
    ? -1 : (((TYPE*)(LIST).aptr)[-1] = (TYPE)(VAL), 0))
@@ -902,7 +902,7 @@ typedef struct
 
 #endif
 
-#if defined(__rs6000__) && defined(_AIX)
+#if defined(__rs6000__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
 
 /* Up to 13 float or double non-varargs args can be passed in
  * float registers, but we also push them into the corresponding int
@@ -928,7 +928,7 @@ typedef struct
 
 #endif
 
-#if defined(__rs6000__) && !defined(_AIX)
+#if defined(__rs6000__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))
 
 /* Up to 8 float or double non-varargs args can be passed in
  * float registers, without occupying space in the general registers.
@@ -1038,7 +1038,7 @@ typedef struct
 #define __av_struct_alignment(TYPE_ALIGN)  \
   (TYPE_ALIGN)
 #endif
-#if defined(__i386__) || defined(__mips__) || defined(__mipsn32__) || defined(__mips64__) || defined(__alpha__) || (defined(__rs6000__) && defined(_AIX)) || defined(__m88k__) || defined(__ia64__) || defined(__s390__)
+#if defined(__i386__) || defined(__mips__) || defined(__mipsn32__) || defined(__mips64__) || defined(__alpha__) || (defined(__rs6000__) && (defined(_AIX) || (defined(__MACH__) && defined(__APPLE__)))) || defined(__m88k__) || defined(__ia64__) || defined(__s390__)
 /* Structures are passed as fully aligned structures on the arg stack.
  * We align the aptr, store the structure, then fill to word alignment.
  * Single-small-integer structures are NOT promoted to integers and have
@@ -1189,7 +1189,7 @@ typedef struct
     ? -1 : (ASSIGN(TYPE,TYPE_SIZE,TYPE_ALIGN,(void*)((__avword)(LIST).aptr-(TYPE_SIZE)),VAL),\
 	    0))
 #endif
-#if (defined(__sparc__) && !defined(__sparc64__)) || (defined(__rs6000__) && !defined(_AIX))
+#if (defined(__sparc__) && !defined(__sparc64__)) || (defined(__rs6000__) && !(defined(_AIX) || (defined(__MACH__) && defined(__APPLE__))))
 /* Structures are passed as pointers to caller-made local copies. We
  * grab space for the copies from the end of the argument list space
  * and always use maximal (double) alignment.
