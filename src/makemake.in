@@ -2854,6 +2854,12 @@ if [ $CROSS = false ] ; then
   echodummyrule check
   echol
 
+  echol "# check the sources: subr.d, fsubr.d, subrkw.d and"
+  echol "# all the LISPFUNs must add up"
+  echol "check-sources : lisp.run lispinit.mem"
+  echotab "\$(RUN) -M lispinit.mem -C -i ${SRCDIR}check-lispfun.lisp -x '(check-lisp-defs \"${SRCDIR}\")'"
+  echol
+
   echol "# Test: recompile \$(LISPFILES) and compare their contents."
 
   echol "test : lispinit.mem ${TESTDIR} \$(TESTLISPFILES) \$(TESTFASFILES)"

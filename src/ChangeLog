@@ -1,5 +1,13 @@
 2002-07-22  Sam Steingold  <sds@gnu.org>
 
+	* check-lispfun.lisp: new file: check LISPFUN, LISPFUNN and
+	LISPSPECFORM between *.d and subr.d/subrkw.d/fsubr.d
+	* makemake.in (check-sources): new target
+	* array.d, charstrg.d, dirkey.d, io.d, posixmisc.d, rexx.d:
+	* sequence.d, subr.d: removed backslashes from LISPFUNs
+
+2002-07-22  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 584866 ]: inspect.lisp invalid XHTML & e-mail
 	* inspect.lisp (*user-mail-address*): new user variable
 	(with-html-output): use it; link/rev should be a string,

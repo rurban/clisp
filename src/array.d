@@ -5045,9 +5045,9 @@ local void initial_contents_aux(arg,obj)
       }
     }
 
-LISPFUN(make_array,1,0,norest,key,7,\
-        (kw(adjustable),kw(element_type),kw(initial_element),\
-         kw(initial_contents),kw(fill_pointer),\
+LISPFUN(make_array,1,0,norest,key,7,
+        (kw(adjustable),kw(element_type),kw(initial_element),
+         kw(initial_contents),kw(fill_pointer),
          kw(displaced_to),kw(displaced_index_offset)) )
 # (MAKE-ARRAY dimensions :adjustable :element-type :initial-element
 #   :initial-contents :fill-pointer :displaced-to :displaced-index-offset),
@@ -5300,211 +5300,195 @@ LISPFUN(make_array,1,0,norest,key,7,\
         goto reentry;
     }
 
-LISPFUN(adjust_array,2,0,norest,key,6,\
-        (kw(element_type),kw(initial_element),\
-         kw(initial_contents),kw(fill_pointer),\
-         kw(displaced_to),kw(displaced_index_offset)) )
 # (ADJUST-ARRAY array dimensions :element-type :initial-element
 #   :initial-contents :fill-pointer :displaced-to :displaced-index-offset),
 #   CLTL S. 297
-  {
-    # array überprüfen:
-    {
-      var object array = STACK_7;
-      if (!arrayp(array))
-        fehler_array(array);
-      if (array_simplep(array)
-          || ((Iarray_flags(array) & bit(arrayflags_adjustable_bit)) == 0)
-         ) {
-        # nicht adjustierbarer Array
-        #ifndef X3J13_003
-          pushSTACK(array);
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
-                 GETTEXT("~: array ~ is not adjustable")
-                );
-        #else
-          ??
-        #endif
-      }
-      STACK_7 = STACK_6; STACK_6 = array; # Stack etwas umordnen
+LISPFUN(adjust_array,2,0,norest,key,6,
+        (kw(element_type),kw(initial_element),
+         kw(initial_contents),kw(fill_pointer),
+         kw(displaced_to),kw(displaced_index_offset)) ) {
+  { # check the array :
+    var object array = STACK_7;
+    if (!arrayp(array))
+      fehler_array(array);
+    if (array_simplep(array)
+        || ((Iarray_flags(array) & bit(arrayflags_adjustable_bit)) == 0)) {
+        # not an adjustable array
+     #ifndef X3J13_003
+      pushSTACK(array);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~: array ~ is not adjustable"));
+     #else
+      ??
+     #endif
     }
-    # Stackaufbau:
-    #   dims, array, element-type, initial-element, initial-contents,
-    #   fill-pointer, displaced-to, displaced-index-offset.
-    # Dimensionen überprüfen und Rang und Total-Size berechnen:
-    var uintL totalsize;
-    var uintL rank = test_dims(&totalsize);
-    # Rang überprüfen, muss = (array-rank array) sein:
-    {
-      var uintL oldrank = (uintL)Iarray_rank(STACK_6);
-      if (!(rank==oldrank)) {
-        pushSTACK(STACK_7); # dims
-        pushSTACK(STACK_(6+1)); # array
-        pushSTACK(fixnum(oldrank));
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: rank ~ of array ~ cannot be altered: ~")
-              );
-      }
-    }
-    # element-type in einen Code umwandeln und überprüfen:
-    var uintB eltype;
-    if (!(eq(STACK_5,unbound))) {
-      eltype = eltype_code(STACK_5);
-      # mit dem Elementtyp des Array-Arguments vergleichen:
-      if (!(eltype == (Iarray_flags(STACK_6) & arrayflags_atype_mask))) {
-        pushSTACK(STACK_6); # TYPE-ERROR slot DATUM
-        pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(STACK_(5+2)); # element-type
-        pushSTACK(STACK_(6+3)); # array
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: array ~ does not have element-type ~")
-              );
-      }
-    } else {
-      # Defaultwert ist der Elementtyp des Array-Arguments.
-      eltype = (Iarray_flags(STACK_6) & arrayflags_atype_mask);
-      STACK_5 = array_element_type(STACK_6);
-    }
-    test_otherkeys(); # einiges überprüfen
-    var uintB flags = Iarray_flags(STACK_6);
-    # Die Flags enthalten genau eltype als Atype und
-    # arrayflags_adjustable_bit und daher auch
-    # arrayflags_dispoffset_bit und vielleicht auch arrayflags_fillp_bit
-    # (diese werden nicht verändert) und vielleicht auch
-    # arrayflags_displaced_bit (dieses kann geändert werden).
-    var uintL displaced_index_offset;
-    var uintL fillpointer;
-    # Falls nicht displaced, Datenvektor bilden und evtl. füllen:
-    if (nullp(STACK_1)) { # displaced-to nicht angegeben?
-      var object datenvektor;
-      if (!eq(STACK_3,unbound)) { # und falls initial-contents angegeben:
-        # Datenvektor bilden:
-        datenvektor = make_storagevector(totalsize,eltype);
-        # mit dem initial-contents-Argument füllen:
-        datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);
-      } else {
-        # Datenvektor bilden:
-        if (eltype == Atype_Char) {
-          #ifdef HAVE_SMALL_SSTRING
-          var uintL oldoffset = 0;
-          var object olddatenvektor = iarray_displace(STACK_6,&oldoffset);
-          SstringCase(olddatenvektor,
-            { datenvektor = allocate_s8string(totalsize); },
-            { datenvektor = allocate_s16string(totalsize); },
-            { datenvektor = allocate_s32string(totalsize); });
-          #else
-          datenvektor = allocate_string(totalsize);
-          #endif
-        } else
-          datenvektor = make_storagevector(totalsize,eltype);
-        # mit dem ursprünglichen Inhalt von array füllen:
-        var object oldarray = STACK_6; # array
-        var uintL oldoffset = 0;
-        var object oldvec = iarray_displace_check(oldarray,TheIarray(oldarray)->totalsize,&oldoffset);
-        # oldvec ist der Datenvektor, mit Displaced-Offset oldoffset.
-        var uintL* olddimptr = &TheIarray(oldarray)->dims[1];
-        # Ab olddimptr kommen die alten Dimensionen von array
-        # (beachte: Da arrayflags_adjustable_bit gesetzt ist, ist auch
-        # arrayflags_dispoffset_bit gesetzt, also ist
-        # TheIarray(array)->data[0] für den Displaced-Offset reserviert.)
-        reshape(datenvektor,STACK_7,oldvec,olddimptr,oldoffset,rank,eltype);
-      }
-      STACK_1 = datenvektor; # datenvektor als "displaced-to" ablegen
-      displaced_index_offset = 0; # mit Displacement 0
-      flags &= ~bit(arrayflags_displaced_bit); # und ohne Displacement-Bit in den Flags
-    } else {
-      # displaced-to angegeben.
-      displaced_index_offset = test_displaced(eltype,totalsize);
-      # Test auf entstehenden Zyklus:
-      {
-        var object array = STACK_6; # Array, der displaced werden soll
-        var object to_array = STACK_1; # Array, auf den displaced werden soll
-        # Teste, ob array in der Datenvektorenkette von to_array vorkommt:
-        loop {
-          # Falls array = to_array, ist ein Zyklus da.
-          if (eq(array,to_array)) {
-            pushSTACK(array);
-            pushSTACK(TheSubr(subr_self)->name);
-            fehler(error,
-                   GETTEXT("~: cannot displace array ~ to itself")
-                  );
-          }
-          # Falls to_array simple ist (also nicht displaced),
-          # liegt kein Zyklus vor.
-          if (simplep(to_array))
-            break;
-          # Displaced-Kette von to_array weiterverfolgen:
-          to_array = TheIarray(to_array)->data;
-        }
-      }
-      # Flags enthalten das Displacement-Bit:
-      flags |= bit(arrayflags_displaced_bit);
-    }
-    # Flags sind nun korrekt.
-    # Modifiziere den gegebenen Array.
-    if (!nullp(STACK_2)) { # fill-pointer angegeben?
-      # array muss Fill-Pointer haben:
-      if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit))) {
-        pushSTACK(STACK_6); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_vector_with_fill_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(STACK_(6+2));
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: array ~ has no fill-pointer")
-              );
-      }
-      fillpointer = test_fillpointer(totalsize); # Fill-Pointer-Wert
-    } else {
-      # Hat array einen Fill-Pointer, so muss er <= neue Total-Size sein:
-      var object array = STACK_6;
-      if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
-        if (!(TheIarray(array)->dims[2] <= totalsize)) {
-               # dims[0] = displaced-offset, dims[1] = Länge, dims[2] = Fill-Pointer
-          pushSTACK(fixnum(totalsize));
-          pushSTACK(fixnum(TheIarray(array)->dims[2]));
-          pushSTACK(array);
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
-                 GETTEXT("~: the fill-pointer of array ~ is ~, greater than ~")
-                );
-        }
-    }
-    # Array modifizieren:
-    {
-      var object array = STACK_6;
-      set_break_sem_1(); # forbid interrupts
-      iarray_flags_replace(TheIarray(array),flags); # neue Flags eintragen
-      TheIarray(array)->totalsize = totalsize; # neue Total-Size eintragen
-      {
-        var uintL* dimptr = &TheIarray(array)->dims[0];
-        *dimptr++ = displaced_index_offset; # Displaced-Index-Offset eintragen
-        # neue Dimensionen eintragen:
-        {
-          var object dims = STACK_7;
-          if (listp(dims)) {
-            while (consp(dims)) {
-              *dimptr++ = posfixnum_to_L(Car(dims)); dims = Cdr(dims);
-            }
-          } else {
-            *dimptr++ = posfixnum_to_L(dims);
-          }
-        }
-        # evtl. Fill-Pointer eintragen bzw. korrigieren:
-        if (flags & bit(arrayflags_fillp_bit)) # Array mit Fill-Pointer?
-          if (!nullp(STACK_2)) # und fill-pointer angegeben?
-            # fill-pointer war angegeben und /=NIL
-            *dimptr = fillpointer;
-      }
-      # Datenvektor eintragen:
-      TheIarray(array)->data = STACK_1; # displaced-to-Argument oder neuer Datenvektor
-      clr_break_sem_1(); # permit interrupts again
-      # array als Wert:
-      value1 = array; mv_count=1; skipSTACK(8);
+    STACK_7 = STACK_6; STACK_6 = array; # Stack etwas umordnen
+  }
+  /* stack layout:
+     dims, array, element-type, initial-element, initial-contents,
+     fill-pointer, displaced-to, displaced-index-offset. */
+  /* check dimensions and rank and compute total-size: */
+  var uintL totalsize;
+  var uintL rank = test_dims(&totalsize);
+  { # check rank, must be == (array-rank array):
+    var uintL oldrank = (uintL)Iarray_rank(STACK_6);
+    if (rank != oldrank) {
+      pushSTACK(STACK_7); # dims
+      pushSTACK(STACK_(6+1)); # array
+      pushSTACK(fixnum(oldrank));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~: rank ~ of array ~ cannot be altered: ~"));
     }
   }
+  /* check element-type and convert it into code: */
+  var uintB eltype;
+  if (!(eq(STACK_5,unbound))) {
+    eltype = eltype_code(STACK_5);
+    /* compare with the element-type of the array argument */
+    if (eltype != (Iarray_flags(STACK_6) & arrayflags_atype_mask)) {
+      pushSTACK(STACK_6); /* TYPE-ERROR slot DATUM */
+      pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(STACK_(5+2)); /* element-type */
+      pushSTACK(STACK_(6+3)); /* array */
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,GETTEXT("~: array ~ does not have element-type ~"));
+    }
+  } else { /* default is the element-type of the array-argument */
+    eltype = (Iarray_flags(STACK_6) & arrayflags_atype_mask);
+    STACK_5 = array_element_type(STACK_6);
+  }
+  test_otherkeys(); # einiges überprüfen
+  var uintB flags = Iarray_flags(STACK_6);
+  # Die Flags enthalten genau eltype als Atype und
+  # arrayflags_adjustable_bit und daher auch
+  # arrayflags_dispoffset_bit und vielleicht auch arrayflags_fillp_bit
+  # (diese werden nicht verändert) und vielleicht auch
+  # arrayflags_displaced_bit (dieses kann geändert werden).
+  var uintL displaced_index_offset;
+  var uintL fillpointer;
+  # Falls nicht displaced, Datenvektor bilden und evtl. füllen:
+  if (nullp(STACK_1)) { # displaced-to nicht angegeben?
+    var object datenvektor;
+    if (!eq(STACK_3,unbound)) { # und falls initial-contents angegeben:
+      # Datenvektor bilden:
+      datenvektor = make_storagevector(totalsize,eltype);
+      # mit dem initial-contents-Argument füllen:
+      datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);
+    } else {
+      # Datenvektor bilden:
+      if (eltype == Atype_Char) {
+       #ifdef HAVE_SMALL_SSTRING
+        var uintL oldoffset = 0;
+        var object olddatenvektor = iarray_displace(STACK_6,&oldoffset);
+        SstringCase(olddatenvektor,
+          { datenvektor = allocate_s8string(totalsize); },
+          { datenvektor = allocate_s16string(totalsize); },
+          { datenvektor = allocate_s32string(totalsize); });
+       #else
+        datenvektor = allocate_string(totalsize);
+       #endif
+      } else
+        datenvektor = make_storagevector(totalsize,eltype);
+      # mit dem ursprünglichen Inhalt von array füllen:
+      var object oldarray = STACK_6; # array
+      var uintL oldoffset = 0;
+      var object oldvec = iarray_displace_check(oldarray,TheIarray(oldarray)->totalsize,&oldoffset);
+      # oldvec ist der Datenvektor, mit Displaced-Offset oldoffset.
+      var uintL* olddimptr = &TheIarray(oldarray)->dims[1];
+      # Ab olddimptr kommen die alten Dimensionen von array
+      # (beachte: Da arrayflags_adjustable_bit gesetzt ist, ist auch
+      # arrayflags_dispoffset_bit gesetzt, also ist
+      # TheIarray(array)->data[0] für den Displaced-Offset reserviert.)
+      reshape(datenvektor,STACK_7,oldvec,olddimptr,oldoffset,rank,eltype);
+    }
+    STACK_1 = datenvektor; # datenvektor als "displaced-to" ablegen
+    displaced_index_offset = 0; # mit Displacement 0
+    flags &= ~bit(arrayflags_displaced_bit); # und ohne Displacement-Bit in den Flags
+  } else {
+    # displaced-to angegeben.
+    displaced_index_offset = test_displaced(eltype,totalsize);
+    # Test auf entstehenden Zyklus:
+    {
+      var object array = STACK_6; # Array, der displaced werden soll
+      var object to_array = STACK_1; # Array, auf den displaced werden soll
+      # Teste, ob array in der Datenvektorenkette von to_array vorkommt:
+      loop {
+        # Falls array = to_array, ist ein Zyklus da.
+        if (eq(array,to_array)) {
+          pushSTACK(array);
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,GETTEXT("~: cannot displace array ~ to itself"));
+        }
+        # Falls to_array simple ist (also nicht displaced),
+        # liegt kein Zyklus vor.
+        if (simplep(to_array))
+          break;
+        # Displaced-Kette von to_array weiterverfolgen:
+        to_array = TheIarray(to_array)->data;
+      }
+    }
+    # Flags enthalten das Displacement-Bit:
+    flags |= bit(arrayflags_displaced_bit);
+  }
+  # Flags sind nun korrekt.
+  # Modifiziere den gegebenen Array.
+  if (!nullp(STACK_2)) { # fill-pointer angegeben?
+    # array muss Fill-Pointer haben:
+    if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit))) {
+      pushSTACK(STACK_6); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_vector_with_fill_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_(6+2));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,GETTEXT("~: array ~ has no fill-pointer"));
+    }
+    fillpointer = test_fillpointer(totalsize); # Fill-Pointer-Wert
+  } else {
+    # Hat array einen Fill-Pointer, so muss er <= neue Total-Size sein:
+    var object array = STACK_6;
+    if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
+      if (!(TheIarray(array)->dims[2] <= totalsize)) {
+        # dims[0] = displaced-offset, dims[1] = Länge, dims[2] = Fill-Pointer
+        pushSTACK(fixnum(totalsize));
+        pushSTACK(fixnum(TheIarray(array)->dims[2]));
+        pushSTACK(array);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               GETTEXT("~: the fill-pointer of array ~ is ~, greater than ~"));
+      }
+  }
+  # Array modifizieren:
+  {
+    var object array = STACK_6;
+    set_break_sem_1(); # forbid interrupts
+    iarray_flags_replace(TheIarray(array),flags); # neue Flags eintragen
+    TheIarray(array)->totalsize = totalsize; # neue Total-Size eintragen
+    {
+      var uintL* dimptr = &TheIarray(array)->dims[0];
+      *dimptr++ = displaced_index_offset; # Displaced-Index-Offset eintragen
+      # neue Dimensionen eintragen:
+      {
+        var object dims = STACK_7;
+        if (listp(dims)) {
+          while (consp(dims)) {
+            *dimptr++ = posfixnum_to_L(Car(dims)); dims = Cdr(dims);
+          }
+        } else {
+          *dimptr++ = posfixnum_to_L(dims);
+        }
+      }
+      # evtl. Fill-Pointer eintragen bzw. korrigieren:
+      if (flags & bit(arrayflags_fillp_bit)) # Array mit Fill-Pointer?
+        if (!nullp(STACK_2)) # und fill-pointer angegeben?
+          # fill-pointer war angegeben und /=NIL
+          *dimptr = fillpointer;
+    }
+    # Datenvektor eintragen:
+    TheIarray(array)->data = STACK_1; # displaced-to-Argument oder neuer Datenvektor
+    clr_break_sem_1(); # permit interrupts again
+    # array als Wert:
+    value1 = array; mv_count=1; skipSTACK(8);
+  }
+}
 
 # ============================================================================
 #                       Arrays as sequences

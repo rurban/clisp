@@ -953,12 +953,12 @@ LISPFUNN(file_stream_p,1)
 LISPFUNN(make_printer_stream,0)
 #endif
 #ifdef PIPES
-LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
+LISPFUN(make_pipe_input_stream,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) )
-LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
+LISPFUN(make_pipe_output_stream,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) )
 #ifdef PIPES2
-LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
+LISPFUN(make_pipe_io_stream,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) )
 #endif
 #endif
@@ -972,11 +972,11 @@ LISPFUNN(socket_server_close,1)
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 LISPFUNN(socket_server_port,1)
 LISPFUNN(socket_server_host,1)
-LISPFUN(socket_accept,1,0,norest,key,4,\
+LISPFUN(socket_accept,1,0,norest,key,4,
         (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) )
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
 LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
-LISPFUN(socket_connect,1,1,norest,key,4,\
+LISPFUN(socket_connect,1,1,norest,key,4,
         (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) )
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
@@ -998,7 +998,7 @@ LISPFUNN(built_in_stream_set_element_type,2)
 LISPFUNN(stream_external_format,1)
 LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 LISPFUNN(interactive_stream_p,1)
-LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(close)) )
+LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
 LISPFUNN(read_byte_lookahead,1)
 LISPFUNN(read_byte_will_hang_p,1)

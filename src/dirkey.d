@@ -7,33 +7,34 @@
 #include "lispbibl.c"
 
 #if defined(UNIX_CYGWIN32)
-#ifdef UNICODE
-#define UNICODE_SAVED
-#undef UNICODE
-#endif
-#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
-/* `unused' is used in function declarations. */
-#undef unused
-#define ULONGLONG OS_ULONGLONG
-#define ULONG OS_ULONG
-#include <windows.h>
-#undef ULONG
-#undef ULONGLONG
-#define unused (void)
+ #ifdef UNICODE
+  #define UNICODE_SAVED
+  #undef UNICODE
+ #endif
+ #define WIN32_LEAN_AND_MEAN  /* avoid including junk */
+ /* `unused' is used in function declarations. */
+ #undef unused
+ #define ULONGLONG OS_ULONGLONG
+ #define ULONG OS_ULONG
+ #include <windows.h>
+ #undef ULONG
+ #undef ULONGLONG
+ #define unused (void)
 #endif
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
-#include <winreg.h>
-#if !defined(__MINGW32__) && !defined(UNIX_CYGWIN32)
-#include <winldap.h>
-# define LDAP # not yet
+ #include <winreg.h>
+ #if !defined(__MINGW32__) && !defined(UNIX_CYGWIN32)
+  #include <winldap.h>
+  # define ACCESS_LDAP # not yet!
+ #endif
+ #define WIN32_REGISTRY 1
+#elif defined(HAVE_LDAP_H)
+ #include <ldap.h>
+ #define ACCESS_LDAP
 #endif
-#endif
-#if defined(LDAP) && !defined(WIN32_NATIVE)
-#include <ldap.h>
-#endif
-#ifdef GNOME
-#include <gnome.h>
+#ifdef HAVE_GNOME_H
+ #include <gnome.h>
 #endif
 
 # as per RFC1777 and RFC2255
@@ -46,7 +47,7 @@
 #define SCOPE_KIDS  1
 #define SCOPE_TREE  2
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#ifdef WIN32_REGISTRY
 #define SYSCALL_WIN32(call)                                            \
   do {                                                                 \
     var uintL status;                                                  \
@@ -57,7 +58,7 @@
   } while(0)
 #endif
 
-#ifdef LDAP
+#ifdef ACCESS_LDAP
 #ifdef WIN32_NATIVE
 #define SYSCALL_LDAP(call) SYSCALL_WIN32(call)
 #else
@@ -66,7 +67,7 @@
     var uintL status;                                                  \
     begin_system_call();                                               \
     status = call;                                                     \
-    if (status != LDAP_SUCCESS) { SetLastError(status); OS_error(); }  \
+    if (status != LDAP_SUCCESS) { errno=status; OS_error(); }          \
     end_system_call();                                                 \
   } while(0)
 #endif
@@ -99,7 +100,7 @@ local object reg_val_to_vector (uintL size, const char* buffer) {
   return vec;
 }
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#ifdef WIN32_REGISTRY
 # convert a registry value [type;size;buffer] to the appropriate Lisp object
 # can trigger GC
 local object registry_value_to_object (DWORD type, DWORD size,
@@ -155,7 +156,7 @@ local object registry_value_to_object (DWORD type, DWORD size,
 #endif
 
 # (LDAP:DIR-KEY-TYPE dkey)
-# return the type of the key (:win32 or :gnome-config or :ldap)
+# return the type of the key (:win32 or :gnome or :ldap)
 LISPFUNN(dir_key_type,1) {
   var object dkey = test_dir_key(popSTACK(),false);
   value1 = TheDirKey(dkey)->type; mv_count = 1;
@@ -186,7 +187,7 @@ LISPFUNN(dir_key_open_p,1) {
 # close the supplied DIR-KEY
 LISPFUNN(dir_key_close,1) {
   var object dkey = popSTACK();
-  #ifdef WIN32_NATIVE
+  #ifdef WIN32_REGISTRY
   if (fpointerp(dkey)) { # an HKEY in an iterator_state
     if (TheFpointer(dkey)->fp_pointer)
       SYSCALL_WIN32(RegCloseKey((HKEY)(TheFpointer(dkey)->fp_pointer)));
@@ -195,12 +196,12 @@ LISPFUNN(dir_key_close,1) {
   {
     test_dir_key(dkey,false);
     if (!TheDirKey(dkey)->closed_p) {
-      #ifdef WIN32_NATIVE
+      #ifdef WIN32_REGISTRY
       if (eq(TheDirKey(dkey)->type,S(Kwin32))) {
         SYSCALL_WIN32(RegCloseKey((HKEY)(TheDirKey(dkey)->handle)));
       } else
       #endif
-      #ifdef LDAP
+      #ifdef ACCESS_LDAP
       if (eq(TheDirKey(dkey)->type,S(Kldap))) {
         SYSCALL_LDAP(ldap_unbind((struct ldap*)(TheDirKey(dkey)->handle)));
       } else
@@ -213,14 +214,14 @@ LISPFUNN(dir_key_close,1) {
         });
       } else
       #endif
-        /* noop */ ;
+        { /* noop */ ; }
       TheDirKey(dkey)->closed_p = true;
     }
   }
   value1 = NIL; mv_count = 1;
 }
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#ifdef WIN32_REGISTRY
 struct root {
   const char *name;
   unsigned int namelen;
@@ -260,7 +261,9 @@ local HKEY parse_registry_path (const char* path, const char** base_ret) {
   var char* host;
   # Path syntax HOSTNAME\\... denotes a remote registry access.
   host = NULL;
+  begin_system_call();
   base = strstr(path,"\\\\");
+  if (base == NULL) base = strstr(path,"//")
   if (base != NULL) {
     len = base-path;
     host = (char*)alloca(len+1);
@@ -270,7 +273,8 @@ local HKEY parse_registry_path (const char* path, const char** base_ret) {
   }
   # Now look for the topmost directory component.
   base = strchr(path,'\\');
-  if (base==NULL)
+  if (base == NULL) base = strchr(path,'/');
+  if (base == NULL)
     len = strlen(path);
   else {
     len = base-path;
@@ -284,6 +288,7 @@ local HKEY parse_registry_path (const char* path, const char** base_ret) {
       hkey = roots[ii].hkey;
       break;
     }
+  end_system_call();
   if (hkey == NULL) { SetLastError(ERROR_PATH_NOT_FOUND); OS_error(); }
   if (host == NULL)
     return hkey;
@@ -324,6 +329,19 @@ local void open_reg_key (HKEY hkey, char* path, direction_t dir,
 }
 #endif
 
+#ifdef ACCESS_LDAP
+nonreturning_function(local, fehler_ldap,
+                      (object dk, object path, char* errmsg)) {
+  end_system_call();
+  pushSTACK(NIL); pushSTACK(path); pushSTACK(dk);
+  pushSTACK(TheSubr(subr_self)->name);
+  STACK_3 = CLSTEXT(errmsg);
+  fehler(error,"~(~ ~): ~");
+}
+#define LDAP_ERR2STR(d,p,status) fehler_ldap(d,p,ldap_err2string(status))
+#define LDAP_RES2STR(d,p,ld,res) LDAP_ERR2STR(d,p,ldap_result2error(ld,res,1))
+#endif
+
 # (LDAP:DIR-KEY-OPEN key path [:direction] [:if-does-not-exist])
 # return the DIR-KEY object corresponding to the PATH under KEY
 # PATH should be a string, like "HKEY_LOCAL_MACHINE\\Something"
@@ -347,7 +365,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
   if (!stringp(path)) fehler_string(path);
   # create the key handle
   var object type = (dir_key_p(root) ? TheDirKey(root)->type : root);
-  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+  #ifdef WIN32_REGISTRY
   if (eq(type,S(Kwin32))) {
     if (dir_key_p(root)) {
       test_dir_key(root,true);
@@ -364,24 +382,39 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
     }
   } else
   #endif
-  #ifdef LDAP
+  #ifdef ACCESS_LDAP
   if (eq(type,S(Kldap))) {
     if (dir_key_p(root)) {
       test_dir_key(root,true);
+      begin_system_call();
       with_string_0(path,O(misc_encoding),pathz,{
-        char *host = NULL;
-        begin_system_call();
-        if (ldap_get_option(TheDirKey(root)->handle,LDAP_OPT_HOST_NAME,
-                            (void*)&host))
-          printf("no host!\n");
-        ret_handle = ldap_init((unsigned short*)host,LDAP_PORT);
-        # FIXME: chdir to pathz
+        status = ldap_simple_bind_s((LDAP*)ret_handle,pathz,NULL);
       });
-    } else {
-      with_string_0(path,O(misc_encoding),pathz,{
-        # FIXME: parse the URL `pathz'
-        ret_handle = ldap_init((unsigned short*)pathz,LDAP_PORT);
-      });
+      if (status != LDAP_SUCCESS)
+        LDAP_ERR2STR(root,path,status);
+      end_system_call();
+    } else { /* :LDAP */
+      var struct ldap_url_desc* ldap_url = NULL;
+      begin_system_call();
+      with_string_0(path,O(misc_encoding),pathz,
+                    { status = ldap_url_parse(pathz,&ldap_url); });
+      if (status != 0) {
+        end_system_call();
+        pushSTACK(path);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,GETTEXT("~: ~ is not an LDAP URL"));
+      }
+      ret_handle = (void*)ldap_open(ldap_url->lud_host,ldap_url->lud_port);
+      if (ret_handle == NULL) OS_error();
+      if ((status = ldap_simple_bind_s((LDAP*)ret_handle,ldap_url->lud_dn,
+                                       NULL)) != LDAP_SUCCESS) {
+        pushSTACK(path);
+        var object dn = asciz_to_string(ldap_url->lud_dn,O(misc_encoding));
+        path = popSTACK();
+        LDAP_ERR2STR(path,dn,status);
+      }
+      ldap_free_urldesc(ldap_url);
+      end_system_call();
     }
   } else
   #endif
@@ -399,7 +432,6 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
     fehler(type_error,GETTEXT("~: ~ is not a ~"));
   }
   # create the DIR-KEY
-  pushSTACK(ret_handle);
   pushSTACK(direction_arg);
   if (dir_key_p(root)) {
     pushSTACK(TheDirKey(root)->path);
@@ -420,7 +452,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
   TheDirKey(dkey)->closed_p = false;
   TheDirKey(dkey)->path = popSTACK();
   TheDirKey(dkey)->direction = popSTACK();
-  TheDirKey(dkey)->handle = popSTACK();
+  TheDirKey(dkey)->handle = ret_handle;
   pushSTACK(dkey);
   # Call (FINALIZE dir-key #'dir-key-close).
   pushSTACK(dkey);
@@ -433,7 +465,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
 
 # The common code in DIR-KEY-SUBKEYS & DIR-KEY-ATTRIBUTES
 #define MAKE_OBJECT_LIST(COUNT_EXPR,GET_NEXT_OBJ_EXPR)                     \
-  var object dkey = test_dir_key(popSTACK(),TRUE);                         \
+  var object dkey = test_dir_key(popSTACK(),true);                         \
   var LONG status;                                                         \
   var DWORD n_obj;                                                         \
   var DWORD maxlen;                                                        \
@@ -467,6 +499,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
 # (LDAP:DIR-KEY-SUBKEYS key)
 # return the list of subkey names of the given KEY
 LISPFUNN(dir_key_subkeys,1) {
+ #ifdef WIN32_REGISTRY
   if (eq(STACK_0,S(Kwin32))) { # top-level keys
     skipSTACK(1);
     var int ii;
@@ -475,7 +508,9 @@ LISPFUNN(dir_key_subkeys,1) {
       pushSTACK(asciz_to_string(roots[ii].name,O(misc_encoding)));
     value1 = listof(len);
     mv_count = 1;
-  } else {
+  } else
+ #endif
+  {
     MAKE_OBJECT_LIST(RegQueryInfoKey(hkey,NULL,NULL,NULL,&n_obj,&maxlen,
                                      NULL,NULL,NULL,NULL,NULL,NULL),
                      RegEnumKey(hkey,ii,buf,len));
@@ -552,7 +587,7 @@ LISPFUNN(dkey_search_iterator,3) {
   if (!stringp(STACK_1)) fehler_string(STACK_1);
   parse_scope(STACK_0);
   value1 = allocate_vector(4);
-  ITST_DKEY(value1)  = test_dir_key(STACK_2,TRUE);
+  ITST_DKEY(value1)  = test_dir_key(STACK_2,true);
   ITST_PATH(value1)  = STACK_1;
   ITST_SCOPE(value1) = STACK_0;
   ITST_STACK(value1) = T;
@@ -595,7 +630,7 @@ local void init_iteration_node (object state, object subkey,
   pushSTACK(L(dir_key_close));
   funcall(L(finalize),2); # (FINALIZE handle #'dir-key-close)
   *new_path = itst_current(STACK_4); # state
-  var Dir_Key dk = TheDirKey(test_dir_key(ITST_DKEY(STACK_4),TRUE)); # state
+  var Dir_Key dk = TheDirKey(test_dir_key(ITST_DKEY(STACK_4),true)); # state
   var Fpointer fp = TheFpointer(STACK_0); # handle
   with_string_0(*new_path,O(misc_encoding),pathz,{
     open_reg_key((HKEY)(dk->handle),pathz,check_direction(dk->direction),
@@ -657,7 +692,7 @@ local object state_next_key (object state) {
 # and T if open failed
 LISPFUNN(dkey_search_next_key,1) {
   var object state = STACK_0;
-  var object dkey  = test_dir_key(ITST_DKEY(state),TRUE);
+  var object dkey  = test_dir_key(ITST_DKEY(state),true);
   var int scope = parse_scope(ITST_SCOPE(state));
   var object stack = ITST_STACK(state);
   switch (scope) {
@@ -750,7 +785,7 @@ LISPFUNN(dkey_search_next_att,1) {
 # KEY must be an open DIR-KEY, NAME - a string
 # if the name does not exists, return the DEFAULT (or signal an error)
 # setf-able
-LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL) {
+LISPFUN(dir_key_value,2,1,norest,nokey,0,NIL) {
   var object default_value = popSTACK();
   var object name = popSTACK();
   var object dkey = test_dir_key(popSTACK(),true);
@@ -872,7 +907,7 @@ local long to_time_t_ (FILETIME * ptr) {
 # security_descriptor; write_time
 # can trigger GC
 LISPFUNN(dkey_info,1) {
-  var object dkey = test_dir_key(popSTACK(),TRUE);
+  var object dkey = test_dir_key(popSTACK(),true);
   var HKEY hkey = (HKEY)(TheDirKey(dkey)->handle);
   var char* class_name = NULL;
   var DWORD class_length;
