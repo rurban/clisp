@@ -24,6 +24,17 @@ NIL
 (defparameter a (make-instance (find-class '<C1>) :x 10))
 A
 
+(let (cache)
+  (defmethod slot-missing ((class t) (obj <C1>)
+                           (slot-name t) (operation t)
+                           &optional (new-value nil new-value-p))
+    (setf cache
+          (list slot-name operation new-value new-value-p)))
+  (list (slot-boundp a 'abcd) cache
+        (slot-value a 'abcd) cache))
+(T (ABCD SLOT-BOUNDP NIL NIL)
+ (ABCD SLOT-VALUE NIL NIL) (ABCD SLOT-VALUE NIL NIL))
+
 (x-val a)
 10
 
