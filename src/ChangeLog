@@ -1,3 +1,13 @@
+2002-03-09  Peter Burwood  <clisp@peterb.org.uk>
+
+	cygwin (u)alarm is adequate - do not re-implement it
+	* unix.d (HAVE_UALARM): Remove as defined in unixconf.h.
+	* unixaux.d (alarm, ualarm, sleep, usleep): Remove function as
+	cygwin supplied function works.
+	(do_alarm, do_sleep, interrupt_handler, DoInterruptible): Remove
+	support functions.
+	(alarm_thread, alarm_date, alarm_interval): Remove support variables.
+
 2002-03-09  Peter Wood <peter.wood@worldonline.dk>
 	    Sam Steingold  <sds@gnu.org>
 
