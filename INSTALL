@@ -20,7 +20,7 @@ Source:
       src/FILES.1        source documentation
       src/_README        README master
       src/_clisp.1       manual page master
-      src/_impnotes.txt  implementation documentation master
+      src/_impnotes.html implementation documentation master
       src/*.d            C source files
       src/*.il           auxiliary file
       src/*.lsp          Lisp source files

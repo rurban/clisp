@@ -33,6 +33,8 @@ options: The following options are recognized:
          --with-PACKAGE        use PACKAGE
          --without-PACKAGE     do not use PACKAGE
          --with-module=MODULE  build with add-on MODULE
+         --hyperspec=URL       the path to the CLHS (the default is
+                           http://www.harlequin.com/education/books/HyperSpec).
 Example:
          configure --build built-with-gcc
          su bin
@@ -135,6 +137,9 @@ do
 
       --fsstnd=* | --fsstn=* | --fsst=* | --fss=* | --fs=* | --f=*)
         makemake_args="$makemake_args --fsstnd="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --hyperspec=* | --hyperspe=* | --hypersp=* | --hypers=* | --hs=* | --hy=*)
+        makemake_args="$makemake_args --hyperspec="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
 
       --host=* | --hos=* | --ho=* | --h=* | \
       --quiet | --quie | --qui | --qu | --q | \

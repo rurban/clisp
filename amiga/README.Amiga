@@ -7,7 +7,7 @@ Dear lisper,
 
 This archive contains an Amiga version of CLISP as of 30th August 1998. Please
 see the files README (general description, installation), clisp.man (command
-line switches, tooltypes, explanation of files) and impnotes.(txt|html)
+line switches, tooltypes, explanation of files) and impnotes.html
 (differences between CLISP and the Common Lisp reference, extensions, ARexx
 interface documentation). See also CHANGES.LOG if you are not a new user.
 Aminet archive names have been shortened to fit the 20 characters limit.
@@ -108,7 +108,7 @@ Notes
 
 o If you start (REXX-LOOP), the only exit is the exit-loop.cl ARexx
   script. I'd like comments and ideas for improvements of the ARexx
-  interface. See also impnotes.txt.
+  interface. See also impnotes.html.
 
 o CLISP always allocates its own stack (in private memory) and should
   not cause MungWall or Enforcer hits. This stack allocation feature
@@ -261,7 +261,7 @@ User visible changes
 * Socket streams are implemented. New functions SOCKET-SERVER,
   SOCKET-SERVER-CLOSE, SOCKET-SERVER-PORT, SOCKET-WAIT, SOCKET-ACCEPT,
   SOCKET-CONNECT, SOCKET-STREAM-HOST, SOCKET-STREAM-PORT, SOCKET-SERVICE-PORT,
-  SOCKET-STREAM-PEER-HOST. See impnotes.txt for details.
+  SOCKET-STREAM-PEER-HOST. See impnotes.html for details.
   Thanks to Marcus Daniels <marcus@sysc.pdx.edu> and
   Marco Ramoni <M.Ramoni@open.ac.uk>.
 

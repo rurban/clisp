@@ -94,7 +94,7 @@ EOF
 cd %{clisp_build}
 make install
 test -d doc || mkdir doc
-cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
+cp CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
     LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
     impnotes.html clisp.gif clreadline.html doc
 cd ..

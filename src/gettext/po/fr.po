@@ -5,215 +5,215 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 1999-01-08\n"
-"POT-Creation-Date: 1999-01-09 16:38:08 EST\n"
-"PO-Revision-Date: 1999-01-09 16:38:57 EST\n"
+"POT-Creation-Date: 1999-02-17 14:23:04 EST\n"
+"PO-Revision-Date: 1999-02-17 14:23:41 EST\n"
 "Last-Translator: Automatically generated <sds@delysid.gnu.org>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: constobj.d:336
+#: constobj.d:362
 msgid "Please choose:"
 msgstr "Choisissez :"
 
-#: constobj.d:342
+#: constobj.d:368
 msgid "Please choose one of ~:{~A~:^, ~} ."
 msgstr "Choisissez parmi ~:{~A~:^, ~}, s.v.p."
 
-#: constobj.d:347
+#: constobj.d:373
 msgid "symbol ~A from #<PACKAGE ~A> will become a shadowing symbol"
 msgstr "Le symbole ~A du paquetage #<PACKAGE ~A> sera déclaré «shadowing»."
 
-#: constobj.d:351
+#: constobj.d:377
 msgid "You may choose the symbol in favour of which to resolve the conflict."
 msgstr "Vous pouvez choisir, parmi les symboles homonymes, auquel donner priorité pour éviter le conflit de noms."
 
-#: constobj.d:355
+#: constobj.d:381
 msgid "uninterning ~S from ~S uncovers a name conflict."
 msgstr "Un conflit de noms apparaît dès que ~S est retiré de ~S."
 
-#: constobj.d:359 constobj.d:389
+#: constobj.d:385 constobj.d:415
 msgid "You may choose how to proceed."
 msgstr "Vous pouvez décider de la démarche à suivre."
 
-#: constobj.d:363
+#: constobj.d:389
 msgid "importing ~S into ~S produces a name conflict with ~S."
 msgstr "Un conflit de noms apparaît par l'importation de ~S dans ~S avec ~S."
 
-#: constobj.d:367
+#: constobj.d:393
 msgid "importing ~S into ~S produces a name conflict with ~S and other symbols."
 msgstr "Un conflit de noms apparaît par l'importation de ~S dans ~S avec ~S et d'autres symboles."
 
-#: constobj.d:371
+#: constobj.d:397
 msgid "((\"I\" \"import it and unintern the other symbol\" T) (\"N\" \"do not import it, leave undone\" NIL))"
 msgstr "((\"I\" \"Importer en retirant l'autre symbole\" T) (\"N\" \"Ne pas importer, ne rien faire\" NIL))"
 
-#: constobj.d:378
+#: constobj.d:404
 msgid "((\"I\" \"import it, unintern one other symbol and shadow the other symbols\" T) (\"N\" \"do not import it, leave undone\" NIL))"
 msgstr "((\"I\" \"Importer en retirant l'autre symbole et en cachant les autres\" T) (\"N\" \"Ne pas importer, ne rien faire\" NIL))"
 
-#: constobj.d:385
+#: constobj.d:411
 msgid "((\"I\" \"import it and shadow the other symbol\" T) (\"N\" \"do nothing\" NIL))"
 msgstr "((\"I\" \"Importer et cacher l'autre symbole\" T) (\"N\" \"Ne rien faire\"NIL))"
 
-#: constobj.d:393
+#: constobj.d:419
 msgid "symbol ~S should be imported into ~S before being exported."
 msgstr "Le symbole ~S devrait d'abord être importé avant de pouvoir être exporté."
 
-#: constobj.d:397
+#: constobj.d:423
 msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
 msgstr "((\"I\" \"Tout d'abord importer le symbole\" NIL) (\"N\" \"Ne rien faire, ne pas exporter le symbole\" T))"
 
-#: constobj.d:404
+#: constobj.d:430
 msgid "You may choose in favour of which symbol to resolve the conflict."
 msgstr "Vous pouvez choisir à quel symbole donner priorité."
 
-#: constobj.d:408
+#: constobj.d:434
 msgid "exporting ~S from ~S produces a name conflict with ~S from ~S."
 msgstr "Un conflit de noms apparaît par l'exportation de ~S depuis ~S avec ~S de ~S."
 
-#: constobj.d:412
+#: constobj.d:438
 msgid "Which symbol should be accessible in ~S ?"
 msgstr "Quel symbole devrait obtenir la priorité dans ~S ?"
 
-#: constobj.d:418
+#: constobj.d:444
 msgid "the symbol to export, "
 msgstr "Le symbole à exporter "
 
-#: constobj.d:422
+#: constobj.d:448
 msgid "the old symbol, "
 msgstr "Le symbole original "
 
-#: constobj.d:426
+#: constobj.d:452
 msgid "You may choose for every conflict in favour of which symbol to resolve it."
 msgstr "Pour chaque conflit, vous pouvez choisir à quel symbole donner priorité."
 
-#: constobj.d:430
+#: constobj.d:456
 msgid "~S name conflicts while executing USE-PACKAGE of ~S into package ~S."
 msgstr "~S conflits de nom par USE-PACKAGE de ~S dans le paquetage ~S."
 
-#: constobj.d:434
+#: constobj.d:460
 msgid "which symbol with name ~S should be accessible in ~S ?"
 msgstr "À quel symbole de nom ~S donner priorité dans ~S ?"
 
-#: constobj.d:438
+#: constobj.d:464
 msgid "You can input another name."
 msgstr "Vous pouvez entrer un nouveau nom."
 
-#: constobj.d:442
+#: constobj.d:468
 msgid "You can input another nickname."
 msgstr "Vous pouvez entrer un nouveau nom supplémentaire."
 
-#: constobj.d:446
+#: constobj.d:472
 msgid "a package with name ~S already exists."
 msgstr "Il existe déjà un paquetage de nom ~S."
 
-#: constobj.d:450
+#: constobj.d:476
 msgid "Please input new package name:"
 msgstr "Prière d'entrer un nouveau nom de paquetage :"
 
-#: constobj.d:454
+#: constobj.d:480
 msgid "Please input new package nickname:"
 msgstr "Prière d'entrer un nouveau nom supplémentaire du paquetage :"
 
-#: constobj.d:458
+#: constobj.d:484
 msgid "Ignore."
 msgstr "Ignorer cela."
 
-#: constobj.d:462
+#: constobj.d:488
 msgid "~S: There is no package with name ~S."
 msgstr "~S : Il n'y a pas de paquetage de nom ~S."
 
-#: constobj.d:466
+#: constobj.d:492
 msgid "~*Nevertheless delete ~S."
 msgstr "~*Tout de même effacer ~S."
 
-#: constobj.d:470
+#: constobj.d:496
 msgid "~S: ~S is used by ~{~S~^, ~}."
 msgstr "~S: De ~S héritent ~{~S~^, ~}."
 
-#: constobj.d:486
+#: constobj.d:512
 msgid "January"
 msgstr "Janvier"
 
-#: constobj.d:492
+#: constobj.d:518
 msgid "February"
 msgstr "Février"
 
-#: constobj.d:498
+#: constobj.d:524
 msgid "March"
 msgstr "Mars"
 
-#: constobj.d:504
+#: constobj.d:530
 msgid "April"
 msgstr "Avril"
 
-#: constobj.d:510
+#: constobj.d:536
 msgid "May"
 msgstr "Mai"
 
-#: constobj.d:516
+#: constobj.d:542
 msgid "June"
 msgstr "Juin"
 
-#: constobj.d:522
+#: constobj.d:548
 msgid "July"
 msgstr "Juillet"
 
-#: constobj.d:528
+#: constobj.d:554
 msgid "August"
 msgstr "Août"
 
-#: constobj.d:534
+#: constobj.d:560
 msgid "September"
 msgstr "Septembre"
 
-#: constobj.d:540
+#: constobj.d:566
 msgid "October"
 msgstr "Octobre"
 
-#: constobj.d:546
+#: constobj.d:572
 msgid "November"
 msgstr "Novembre"
 
-#: constobj.d:552
+#: constobj.d:578
 msgid "December"
 msgstr "Décembre"
 
-#: constobj.d:568
+#: constobj.d:594
 msgid "ANSI C program"
 msgstr "Programme en ANSI C"
 
-#: constobj.d:574
+#: constobj.d:600
 msgid "GNU C++ "
 msgstr "GNU C++ "
 
-#: constobj.d:579
+#: constobj.d:605
 msgid "GNU C "
 msgstr "GNU C "
 
-#: constobj.d:588
+#: constobj.d:614
 msgid "C++ compiler"
 msgstr "Compilateur C++"
 
-#: constobj.d:593
+#: constobj.d:619
 msgid "C compiler"
 msgstr "Compilateur C"
 
-#: constobj.d:600
+#: constobj.d:626
 msgid "ENGLISH"
 msgstr "FRANCAIS"
 
-#: constobj.d:760
+#: constobj.d:785
 msgid "The value of ~S was not a pathname. ~:*~S is being reset."
 msgstr "La valeur de ~S n'était pas de type PATHNAME. ~:*~S est réinitialisé."
 
-#: constobj.d:767
+#: constobj.d:792
 msgid "Creating directory: "
 msgstr "Création du répertoire : "
 
-#: constobj.d:904
+#: constobj.d:931
 msgid ""
 "The variable ~S had an illegal value.\n"
 "~S has been reset to ~S."
@@ -221,7 +221,7 @@ msgstr ""
 "Une valeur invalide fut trouvée dans la variable ~S,\n"
 "~S fut réinitialisé à ~S."
 
-#: constobj.d:908
+#: constobj.d:935
 msgid ""
 "Floating point operation combines numbers of different precision.\n"
 "See ANSI CL 12.1.4.4 and the CLISP impnotes for details.\n"
@@ -235,11 +235,11 @@ msgstr ""
 "~S.\n"
 "Pour éviter cet avertissement, mettre ~S à ~S."
 
-#: constobj.d:925
+#: constobj.d:952
 msgid "Bye."
 msgstr "À bientôt!"
 
-#: constobj.d:932
+#: constobj.d:959
 msgid ""
 "\n"
 "  Next environment: "
@@ -247,7 +247,7 @@ msgstr ""
 "\n"
 "  prochain environnement : "
 
-#: constobj.d:936
+#: constobj.d:963
 msgid ""
 "\n"
 "APPLY frame with breakpoint for call "
@@ -255,7 +255,7 @@ msgstr ""
 "\n"
 "«frame» APPLY avec point d'interception pour l'application "
 
-#: constobj.d:940
+#: constobj.d:967
 msgid ""
 "\n"
 "APPLY frame for call "
@@ -263,7 +263,7 @@ msgstr ""
 "\n"
 "«frame» APPLY pour l'application "
 
-#: constobj.d:944
+#: constobj.d:971
 msgid ""
 "\n"
 "EVAL frame with breakpoint for form "
@@ -271,7 +271,7 @@ msgstr ""
 "\n"
 "«frame» EVAL avec point d'interception pour la forme "
 
-#: constobj.d:948
+#: constobj.d:975
 msgid ""
 "\n"
 "EVAL frame for form "
@@ -279,7 +279,7 @@ msgstr ""
 "\n"
 "«frame» EVAL pour la forme "
 
-#: constobj.d:952
+#: constobj.d:979
 msgid ""
 "\n"
 "frame binding variables (~ = dynamically):"
@@ -287,7 +287,7 @@ msgstr ""
 "\n"
 "Le «frame» de liaison de variables (~ signifiant dynamique) lie :"
 
-#: constobj.d:957
+#: constobj.d:984
 msgid ""
 "\n"
 "CALLBACK frame"
@@ -295,7 +295,7 @@ msgstr ""
 "\n"
 "«frame» CALLBACK"
 
-#: constobj.d:962
+#: constobj.d:989
 msgid ""
 "\n"
 "frame binding variables "
@@ -303,7 +303,7 @@ msgstr ""
 "\n"
 "«frame» de liaison de variables "
 
-#: constobj.d:966
+#: constobj.d:993
 msgid ""
 "\n"
 "frame binding functions "
@@ -311,11 +311,11 @@ msgstr ""
 "\n"
 "«frame» de liaison de fonctions "
 
-#: constobj.d:970
+#: constobj.d:997
 msgid " binds (~ = dynamically):"
 msgstr " lie (~ signifiant dynamiquement) :"
 
-#: constobj.d:975
+#: constobj.d:1002
 msgid ""
 "\n"
 "block frame "
@@ -323,7 +323,7 @@ msgstr ""
 "\n"
 "«frame» BLOCK "
 
-#: constobj.d:979
+#: constobj.d:1006
 msgid ""
 "\n"
 "nested block frame "
@@ -331,11 +331,11 @@ msgstr ""
 "\n"
 "«frame» BLOCK dépilé "
 
-#: constobj.d:983
+#: constobj.d:1010
 msgid " for "
 msgstr " pour "
 
-#: constobj.d:987
+#: constobj.d:1014
 msgid ""
 "\n"
 "compiled block frame for "
@@ -343,7 +343,7 @@ msgstr ""
 "\n"
 "«frame» BLOCK compilé pour "
 
-#: constobj.d:991
+#: constobj.d:1018
 msgid ""
 "\n"
 "tagbody frame "
@@ -351,7 +351,7 @@ msgstr ""
 "\n"
 "«frame» TAGBODY "
 
-#: constobj.d:995
+#: constobj.d:1022
 msgid ""
 "\n"
 "nested tagbody frame "
@@ -359,11 +359,11 @@ msgstr ""
 "\n"
 "«frame» TAGBODY dépilé "
 
-#: constobj.d:999
+#: constobj.d:1026
 msgid " for"
 msgstr " pour"
 
-#: constobj.d:1004
+#: constobj.d:1031
 msgid ""
 "\n"
 "compiled tagbody frame for "
@@ -371,7 +371,7 @@ msgstr ""
 "\n"
 "«frame» TAGBODY compilé pour "
 
-#: constobj.d:1008
+#: constobj.d:1035
 msgid ""
 "\n"
 "catch frame for tag "
@@ -379,7 +379,7 @@ msgstr ""
 "\n"
 "«frame» CATCH pour l'étiquette "
 
-#: constobj.d:1012
+#: constobj.d:1039
 msgid ""
 "\n"
 "handler frame for conditions"
@@ -387,7 +387,7 @@ msgstr ""
 "\n"
 "«frame» HANDLER pour les conditions"
 
-#: constobj.d:1016
+#: constobj.d:1043
 msgid ""
 "\n"
 "unwind-protect frame"
@@ -395,7 +395,7 @@ msgstr ""
 "\n"
 "«frame» UNWIND-PROTECT"
 
-#: constobj.d:1020
+#: constobj.d:1047
 msgid ""
 "\n"
 "\n"
@@ -405,7 +405,7 @@ msgstr ""
 "\n"
 "«driver frame»"
 
-#: constobj.d:1024
+#: constobj.d:1051
 msgid ""
 "\n"
 "frame binding environments"
@@ -433,7 +433,7 @@ msgstr ""
 "\n"
 "*** - Débordement de pile Lisp : RAZ"
 
-#: spvw.d:851
+#: spvw.d:797
 msgid ""
 "internal error: statement in file ~, line ~ has been reached!!\n"
 "Please send the authors of the program a description how you produced this error!"
@@ -441,59 +441,59 @@ msgstr ""
 "Erreur interne : Dans le fichier ~, la ligne ~ fut exécutée!\n"
 "Veuillez signaler aux auteurs du programme comment vous avez pu faire apparaître cette erreur, s.v.p.!"
 
-#: spvw.d:919
+#: spvw.d:865
 msgid "Unknown signature of an FSUBR\n"
 msgstr "Type d'argument inconnu pour FSUBR\n"
 
-#: spvw.d:1030
+#: spvw.d:976
 msgid "Unknown signature of a SUBR\n"
 msgstr "Type d'argument inconnu pour SUBR\n"
 
-#: spvw.d:1624
+#: spvw.d:1580
 msgid "module `%s' requires package %s.\n"
 msgstr "Pas de module «%s» sans le paquetage %s.\n"
 
-#: spvw.d:1880
-msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
-msgstr "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB\n"
-
-#: spvw.d:1887
-msgid "%s out of range\n"
-msgstr "%s n'est pas entre les bornes\n"
-
-#: spvw.d:1902
-msgid "memory size"
-msgstr "taille mémoire"
-
-#: spvw.d:1915
-msgid "stack size"
-msgstr "taille de pile"
-
-#: spvw.d:2198
-msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
-msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types.\n"
-
-#: spvw.d:2208
-msgid "Only %d bytes available.\n"
-msgstr "Seuls %d octets libres.\n"
-
-#: spvw.d:2446
-msgid "Couldn't determine the end of the SP stack!\n"
-msgstr "Impossible de savoir où se termine la pile SP!\n"
-
-#: spvw.d:2696
+#: spvw.d:1709
 msgid "                    Amiga version: Jörg Höhle\n"
 msgstr "                    version Amiga: Jörg Höhle\n"
 
-#: spvw.d:2706
+#: spvw.d:1716
 msgid "                    RISCOS port: Peter Burwood, Bruno Haible\n"
 msgstr "                    portage RISCOS: Peter Burwood et Bruno Haible\n"
 
-#: spvw.d:2716
+#: spvw.d:1728
 msgid "                    DOS port: Jürgen Weber, Bruno Haible\n"
 msgstr "                    adapté à DOS par Jürgen Weber et Bruno Haible\n"
 
-#: spvw.d:2743
+#: spvw.d:1953
+msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
+msgstr "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB\n"
+
+#: spvw.d:1960
+msgid "%s out of range\n"
+msgstr "%s n'est pas entre les bornes\n"
+
+#: spvw.d:1975
+msgid "memory size"
+msgstr "taille mémoire"
+
+#: spvw.d:1988
+msgid "stack size"
+msgstr "taille de pile"
+
+#: spvw.d:2283
+msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
+msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types.\n"
+
+#: spvw.d:2293
+msgid "Only %d bytes available.\n"
+msgstr "Seuls %d octets libres.\n"
+
+#: spvw.d:2531
+msgid "Couldn't determine the end of the SP stack!\n"
+msgstr "Impossible de savoir où se termine la pile SP!\n"
+
+#: spvw.d:2770
 msgid ""
 "\n"
 "WARNING: No initialisation file specified.\n"
@@ -501,11 +501,11 @@ msgstr ""
 "\n"
 "AVERTISSEMENT : Pas de fichier d'initialisation.\n"
 
-#: spvw.d:2749
+#: spvw.d:2777
 msgid "Please try: "
 msgstr "Essayez: "
 
-#: spvw.d:2935
+#: spvw.d:2974
 msgid "Not enough memory for Lisp.\n"
 msgstr "Il n'y a pas assez de mémoire pour LISP.\n"
 
@@ -621,7 +621,7 @@ msgstr "Ne pouvais pas remplir la mémoire partagée."
 msgid "Cannot remove shared memory segment."
 msgstr "Ne peux pas retirer un segment de mémoire partagée."
 
-#: spvw_fault.d:434
+#: spvw_fault.d:436
 msgid "mprotect() fails."
 msgstr "mprotect() ne fonctionne pas."
 
@@ -641,7 +641,7 @@ msgstr "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au proc
 msgid "Ctrl-C: User break"
 msgstr "Ctrl-C : Interruption clavier"
 
-#: spvw_garcol.d:1964
+#: spvw_garcol.d:1999
 msgid "munmap() fails."
 msgstr "munmap() ne fonctionne pas."
 
@@ -661,27 +661,27 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr "Essayons de faire de la place par un GC...\n"
 
-#: spvw_memfile.d:208
+#: spvw_memfile.d:211
 msgid "disk full"
 msgstr "Disque plein."
 
-#: spvw_memfile.d:711
+#: spvw_memfile.d:716
 msgid "operating system error during load of initialisation file `%s'\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
 
-#: spvw_memfile.d:1159
+#: spvw_memfile.d:1164
 msgid "Cannot map the initialisation file into memory."
 msgstr "Ne peux placer le fichier d'initialisation en mémoire."
 
-#: spvw_memfile.d:1410
+#: spvw_memfile.d:1417
 msgid "operating system error during load of initialisation file\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation.\n"
 
-#: spvw_memfile.d:1421
+#: spvw_memfile.d:1428
 msgid "initialisation file was not created by this version of LISP\n"
 msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP.\n"
 
-#: spvw_memfile.d:1430
+#: spvw_memfile.d:1437
 msgid "not enough memory for initialisation\n"
 msgstr "Il n'y a pas assez de mémoire pour l'initialisation.\n"
 
@@ -1033,411 +1033,459 @@ msgstr "La liste de mots clé ~ est de longueur impaire."
 msgid "illegal keyword/value pair ~, ~ in argument list. The allowed keywords are ~"
 msgstr "Paire mot-clé - valeur ~, ~ illicite dans une liste d'arguments. Les mots-clé permis sont ~"
 
-#: pathname.d:1024 pathname.d:1074
+#: encoding.d:31
+msgid "~: illegal :CHARSET argument ~"
+msgstr "~ : ~ n'est pas permis comme argument pour :CHARSET."
+
+#: encoding.d:47
+msgid "~: illegal :LINE-TERMINATOR argument ~"
+msgstr "~ : ~ n'est pas permis comme argument pour :LINE-TERMINATOR."
+
+#: encoding.d:228
+msgid "Character #\\u$$$$ cannot be represented in the character set ~"
+msgstr "Le caractère #\\u$$$$ ne peut pas être représenté en ~."
+
+#: encoding.d:384
+msgid "invalid byte #x$$ in ~ conversion, not a Unicode-16"
+msgstr "octet invalide #x$$ pendant conversion ~, pas un Unicode-16"
+
+#: encoding.d:404
+msgid "invalid byte sequence #x$$ #x$$ in ~ conversion"
+msgstr "séquence d'octets invalide #x$$ #x$$ pendant conversion ~"
+
+#: encoding.d:427
+msgid "invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion"
+msgstr "séquence d'octets invalide #x$$ #x$$ #x$$ pendant conversion ~"
+
+#: encoding.d:936
+msgid "invalid byte #x$$ in ~ conversion"
+msgstr "octet invalide #x$$ pendant conversion ~"
+
+#: pathname.d:1028 pathname.d:1078
 msgid "~: host should be NIL or a string, not ~"
 msgstr "~ : Le nom de machine hôte doit être NIL ou de type STRING et non ~"
 
-#: pathname.d:1044 pathname.d:1093
+#: pathname.d:1048 pathname.d:1097
 msgid "~: illegal hostname ~"
 msgstr "~ : Syntaxe incorrecte pour un nom de machine hôte: ~"
 
-#: pathname.d:1118
+#: pathname.d:1122
 msgid "~: host should be NIL, not ~"
 msgstr "~ : Le nom de machine hôte doit être NIL et non ~"
 
-#: pathname.d:1235
+#: pathname.d:1241
 msgid "~: argument should be a string, symbol, file stream or pathname, not ~"
 msgstr "~ : L'argument doit être une chaîne, un symbole, un «stream» de fichier ou un «pathname» et non ~"
 
-#: pathname.d:1276
+#: pathname.d:1282
 msgid "~: filename for ~ is unknown"
 msgstr "~ : Pas de nom de fichier connu pour ~"
 
-#: pathname.d:1774 pathname.d:2088
+#: pathname.d:1794 pathname.d:2099
 msgid "~: there is no environment variable ~"
 msgstr "~ : Il n'y a pas de variable ~ dans l'environnement."
 
-#: pathname.d:2028
+#: pathname.d:2044
 msgid "~: there is no user named ~"
 msgstr "~ : Il n'y a pas d'utilisateur de nom ~."
 
-#: pathname.d:2406
+#: pathname.d:2418
 msgid "~: syntax error in filename ~ at position ~"
 msgstr "~ : Erreur de syntaxe dans le nom de fichier ~, à la position ~."
 
-#: pathname.d:2422
+#: pathname.d:2434
 msgid "~: hosts ~ and ~ of ~ should coincide"
 msgstr "~ : Les «hosts» ~ et ~ de ~ ne sont pas les mêmes."
 
-#: pathname.d:2650
+#: pathname.d:2662
 msgid "~: argument ~ is not a logical pathname, string, stream or symbol"
 msgstr "~ : L'argument ~ n'est pas un «pathname logique», une chaîne, un «stream» ou un symbole."
 
-#: pathname.d:2708
+#: pathname.d:2720
 msgid "~: endless loop while resolving ~"
 msgstr "~ : boucle infinie pour ~"
 
-#: pathname.d:2733
+#: pathname.d:2745
 msgid "~: unknown logical host ~ in ~"
 msgstr "~ : host ~ inconnu dans ~"
 
-#: pathname.d:2748
+#: pathname.d:2760
 msgid "~: No replacement rule for ~ is known."
 msgstr "~ : Aucune règle de traduction est connue pour ~."
 
-#: pathname.d:3119
+#: pathname.d:3131
 msgid "~: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~"
 msgstr "~ : L'argument pour :VERSION doit être NIL, un petit nombre entier positif, :WILD ou :NEWEST mais non ~"
 
-#: pathname.d:3148
+#: pathname.d:3160
 msgid "~: :VERSION-argument should be NIL or :WILD or :NEWEST, not ~"
 msgstr "~ : L'argument pour :VERSION doit être NIL, :WILD ou :NEWEST mais non ~"
 
-#: pathname.d:4161
+#: pathname.d:4173
 msgid "~: illegal ~ argument ~"
 msgstr "~ : Argument incorrect pour ~ : ~"
 
-#: pathname.d:4470
+#: pathname.d:4482
 msgid "wildcards are not allowed here: ~"
 msgstr "Les caractères joker ne sont pas permis ici : ~"
 
-#: pathname.d:4502
+#: pathname.d:4514
 msgid "~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~"
 msgstr "~ : L'argument ~ devrait être ~, ~, ~, ~, ~, ~ ou ~ ."
 
-#: pathname.d:5630
+#: pathname.d:5642
 msgid "~: replacement pieces ~ do not fit into ~"
 msgstr "~ : Les pièces ~ ne vont pas dans ~."
 
-#: pathname.d:5699
+#: pathname.d:5711
 msgid "~: ~ is not a specialization of ~"
 msgstr "~ : ~ ne spécialise pas ~."
 
-#: pathname.d:5751
+#: pathname.d:5763
 msgid "(~ ~ ~ ~) is ambiguous: ~"
 msgstr "(~ ~ ~ ~) est ambigu: ~"
 
-#: pathname.d:5779
+#: pathname.d:5791
 msgid "nonexistent directory: ~"
 msgstr "Le répertoire ~ n'existe pas."
 
-#: pathname.d:5797
+#: pathname.d:5809
 msgid "~: File ~ already exists"
 msgstr "~ : Le fichier ~ existe déjà."
 
-#: pathname.d:6140 pathname.d:6958
+#: pathname.d:6151 pathname.d:7002
 msgid "no directory ~ above ~"
 msgstr "Il n'y a pas de répertoire ~ au delà de ~."
 
-#: pathname.d:6151
+#: pathname.d:6162
 msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" après \"...\\\\\" n'est pas permis : ~"
 
-#: pathname.d:6339
+#: pathname.d:6360
 msgid "Couldn't access current directory"
 msgstr "Le répertoire courant n'est pas accessible."
 
-#: pathname.d:6484
+#: pathname.d:6510
 msgid "~: ~ names a file, not a directory"
 msgstr "~ : ~ est un fichier et non un répertoire."
 
-#: pathname.d:6533 pathname.d:6725 pathname.d:7075
+#: pathname.d:6562 pathname.d:6760 pathname.d:7124
 msgid "~: ~ names a directory, not a file"
 msgstr "~ : ~ désigne un répertoire et non un fichier."
 
-#: pathname.d:6580
+#: pathname.d:6609
 msgid "UNIX error while GETWD: ~"
 msgstr "Erreur UNIX pendant GETWD : ~"
 
-#: pathname.d:6592
+#: pathname.d:6621
 msgid "UNIX GETWD returned ~"
 msgstr "GETWD d'UNIX a retourné ~"
 
-#: pathname.d:6680
+#: pathname.d:6713
 msgid "UNIX REALPATH returned ~"
 msgstr "REALPATH d'UNIX a retourné ~"
 
-#: pathname.d:6888
+#: pathname.d:6932
 msgid "~: If a device is specified, the directory must begin with ~: ~"
 msgstr "~ : Quand un composant DEVICE est spécifié, le répertoire doit commencer par ~: ~"
 
-#: pathname.d:7273
+#: pathname.d:7329
 msgid "no file name given: ~"
 msgstr "Un nom de fichier doit être fourni : ~"
 
-#: pathname.d:7289
+#: pathname.d:7345
 msgid "not a directory: ~"
 msgstr "Ceci ne désigne pas un répertoire : ~"
 
-#: pathname.d:7350
+#: pathname.d:7413
 msgid "~: file ~ does not exist"
 msgstr "~ : Le fichier ~ n'existe pas."
 
-#: pathname.d:7382
+#: pathname.d:7445
 msgid "~: pathname with type but without name makes no sense: ~"
 msgstr "~ : Un PATHNAME avec TYPE mais sans NAME est insensé: ~"
 
-#: pathname.d:7609
+#: pathname.d:7676
 msgid "cannot delete file ~ since there is file stream open to it"
 msgstr "Le fichier ~ ne peut pas être effacé car il est encore ouvert comme «stream»."
 
-#: pathname.d:7665
+#: pathname.d:7736
 msgid "cannot rename file ~ since there is file stream open to it"
 msgstr "Le fichier ~ ne peut pas être renommé car il est encore ouvert comme «stream»."
 
-#: pathname.d:8255
+#: pathname.d:8323
 msgid "file ~ does not exist"
 msgstr "Un fichier de nom ~ n'existe pas."
 
-#: pathname.d:8264
+#: pathname.d:8332
 msgid "a file named ~ already exists"
 msgstr "Un fichier de nom ~ existe déjà."
 
-#: pathname.d:8307
+#: pathname.d:8385
 msgid "~: illegal :DIRECTION argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :DIRECTION."
 
-#: pathname.d:8387
-msgid "~: illegal :ELEMENT-TYPE argument ~"
-msgstr "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE."
-
-#: pathname.d:8417
+#: pathname.d:8407
 msgid "~: illegal :IF-EXISTS argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :IF-EXISTS."
 
-#: pathname.d:8434
+#: pathname.d:8424
 msgid "~: illegal :IF-DOES-NOT-EXIST argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :IF-DOES-NOT-EXIST."
 
-#: pathname.d:8447
-msgid "~: illegal :EXTERNAL-FORMAT argument ~"
-msgstr "~ : ~ n'est pas permis comme argument pour :EXTERNAL-FORMAT."
-
-#: pathname.d:9841
+#: pathname.d:9899
 msgid "root directory not allowed here: ~"
 msgstr "Le répertoire racine n'est pas permis ici : ~"
 
-#: pathname.d:10542 pathname.d:10588 pathname.d:10651
+#: pathname.d:10630 pathname.d:10677 pathname.d:10740
 msgid "~: the command should be a string, not ~"
 msgstr "~ : La commande doit être de type STRING et non ~."
 
-#: stream.d:217
+#: stream.d:231
 msgid "~ on ~ is illegal"
 msgstr "~ de/sur ~ est impossible."
 
-#: stream.d:393
+#: stream.d:485
 msgid "~: the last character read from ~ was not ~"
 msgstr "~ : Le dernier caractère lu dans ~ n'était pas ~."
 
-#: stream.d:405
+#: stream.d:497
 msgid "~ from ~ without ~ before it"
 msgstr "~ de ~ sans précédent ~."
 
-#: stream.d:546
+#: stream.d:687
 msgid "~: cannot output to ~"
 msgstr "~ : Ne peux rien écrire sur ~."
 
-#: stream.d:565
+#: stream.d:705
 msgid "~ is not a character, cannot be output onto ~"
 msgstr "~, n'étant pas de type CHARACTER, ne peut pas être écrit dans ~."
 
-#: stream.d:583
+#: stream.d:723
 msgid "~ is not an integer, cannot be output onto ~"
 msgstr "~, n'étant pas un entier, ne peut pas être écrit dans ~."
 
-#: stream.d:600
+#: stream.d:740
 msgid "integer ~ is out of range, cannot be output onto ~"
 msgstr "L'entier ~, n'étant pas dans l'intervalle souhaité, ne peut pas être écrit dans ~."
 
-#: stream.d:636
+#: stream.d:776
 msgid "~: argument ~ should be an input stream"
 msgstr "~ : L'argument doit être un «stream» d'entrée et non pas ~."
 
-#: stream.d:657
+#: stream.d:797
 msgid "~: argument ~ should be an output stream"
 msgstr "~ : L'argument doit être un «stream» de sortie et non pas ~."
 
-#: stream.d:3208
-msgid "character ~ contains bits, cannot be output onto ~"
-msgstr "Le caractère ~ contient des «bits» et ne peut pas être écrit dans ~."
-
-#: stream.d:3868
-msgid "RAW mode not supported on ~"
-msgstr "Le mode «RAW» n'est pas supporté par ~."
-
-#: stream.d:4245
-msgid "~: argument ~ should be a window stream"
-msgstr "~ : L'argument ~ devrait être un WINDOW-STREAM."
-
-#: stream.d:5050
-msgid "cannot output to standard output"
-msgstr "Ne peut rien écrire sur la sortie principale."
-
-#: stream.d:6300
-msgid "environment has no TERM variable"
-msgstr "L'environnment ne contient pas de variable TERM."
-
-#: stream.d:6309
-msgid "terminal type ~ unknown to termcap"
-msgstr "TERMCAP ne connait pas le type d'écran ~."
-
-#: stream.d:6333
-msgid "insufficient terminal: hardcopy terminal"
-msgstr "Terminal insuffisant : imprimante au lieu d'écran."
-
-#: stream.d:6341
-msgid "insufficient terminal: overstrikes, cannot clear output"
-msgstr "Terminal insuffisant : ne peut rien effacer."
-
-#: stream.d:6349
-msgid "insufficient terminal: cannot scroll"
-msgstr "Terminal insuffisant : pas de défilement."
-
-#: stream.d:6358
-msgid "insufficient terminal: cannot clear screen"
-msgstr "Terminal insuffisant : ne peut pas effacer l'écran."
-
-#: stream.d:6366
-msgid "insufficient terminal: cannot position cursor randomly"
-msgstr "Terminal insuffisant : ne peut pas placer le curseur n'importe où."
-
-#: stream.d:6823
-msgid "~: package SCREEN is not implemented"
-msgstr "~ : Le paquet SCREEN n'est pas implémenté."
-
-#: stream.d:7410
-msgid "Closed ~ because disk is full."
-msgstr "Ai fermé ~, parce que le disque est sans doute plein."
-
-#: stream.d:7586
-msgid "cannot position ~ beyond EOF"
-msgstr "Ne peux pas positionner ~ au-delà de la fin du fichier."
-
-#: stream.d:8755
-msgid "~: ~ is not a regular file."
-msgstr "~: ~ n'est pas un fichier régulier."
-
-#: stream.d:8917
-msgid "file ~ is not an integer file"
-msgstr "Le fichier ~ n'a pas le format d'un fichier d'entiers."
-
-#: stream.d:9338
+#: stream.d:1085
 msgid "~: argument should be a symbol, not ~"
 msgstr "~ : L'argument doit être un symbole et non ~"
 
-#: stream.d:10075 stream.d:10534
+#: stream.d:1968 stream.d:2467
 msgid "~ is beyond the end because the string ~ has been adjusted"
 msgstr "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée."
 
-#: stream.d:10165
+#: stream.d:2086
 msgid "~: ~ is not a string input stream"
 msgstr "~ : ~ n'est pas un «stream» lisant d'une chaîne."
 
-#: stream.d:10265 charstrg.d:1992
+#: stream.d:2190 charstrg.d:2123
 msgid "~: ~ argument must be a subtype of ~, not ~"
 msgstr "~ : L'argument ~ doit être un sous-type de ~, et non ~"
 
-#: stream.d:10301
+#: stream.d:2226
 msgid "~: ~ is not a string output stream"
 msgstr "~ : ~ n'est pas un «stream» écrivant dans une chaîne."
 
-#: stream.d:10342
+#: stream.d:2267
 msgid "~: argument ~ should be a string with fill pointer"
 msgstr "~ : L'argument doit être une chaîne munie d'un pointeur de remplissage et non ~."
 
-#: stream.d:10635
+#: stream.d:2572
 msgid "~: ~ is not a buffered input stream"
 msgstr "~ : ~ n'est pas un «stream» d'entrée bufferisé."
 
-#: stream.d:11658
-msgid "host should be string, not ~"
-msgstr "L'hôte devrait être un chaîne et non ~"
-
-#: stream.d:11669
-msgid "display should be a nonnegative fixnum, not ~"
-msgstr "Le «display» doit être de type FIXNUM >= 0 et non ~"
-
-#: stream.d:11742
-msgid "~: stream must be a socket-stream, not ~"
-msgstr "~ : Le stream doit être un «socket-stream» et non ~"
-
-#: stream.d:11757
-msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
-msgstr "~ : l'argument ~ doit être un vecteur de type (ARRAY (UNSIGNED-BYTE 8) (*))."
-
-#: stream.d:11865
-msgid "~: ~ is not a SOCKET-SERVER"
-msgstr "~ : ~ n'est pas un SOCKET-SERVER"
-
-#: stream.d:11912
-msgid "~: argument ~ is neither a SOCKET-STREAM nor a positive FIXNUM"
-msgstr "~ : L'argument ~ n'est pas un SOCKET-STREAM ou FIXNUM positif"
-
-#: stream.d:12068
-msgid "~: argument ~ is not a SOCKET-STREAM"
-msgstr "~ : L'argument ~ n'est pas un SOCKET-STREAM"
-
-#: stream.d:12339
+#: stream.d:2882
 msgid "~: stream must be a generic-stream, not ~"
 msgstr "~ : Le stream doit être un «generic-stream» et non ~"
 
-#: stream.d:12516
-msgid "The value of ~ is not a stream: ~"
-msgstr "La valeur de ~ n'est pas de type STREAM : ~"
+#: stream.d:2969
+msgid "~: illegal :BUFFERED argument ~"
+msgstr "~ : ~ n'est pas permis comme argument pour :BUFFERED."
 
-#: stream.d:12524
-msgid "The value of ~ is not an appropriate stream: ~"
-msgstr "La valeur de ~ n'est pas un STREAM acceptable : ~"
+#: stream.d:3083
+msgid "~: illegal :ELEMENT-TYPE argument ~"
+msgstr "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE."
 
-#: stream.d:12540
-msgid "The value of ~ was not a stream: ~. It has been changed to ~."
-msgstr "La valeur de ~ n'était pas de type STREAM : ~. Changé en ~."
+#: stream.d:3144
+msgid "~: illegal :EXTERNAL-FORMAT argument ~"
+msgstr "~ : ~ n'est pas permis comme argument pour :EXTERNAL-FORMAT."
 
-#: stream.d:12561
-msgid "readline library: out of memory."
-msgstr "Bibliothèque readline: mémoire épuisée."
-
-#: stream.d:13367 stream.d:13546 stream.d:13583
+#: stream.d:3549
 msgid "~: Ctrl-C: User break"
 msgstr "~ : Ctrl-C : Interruption clavier"
 
-#: stream.d:13713 io.d:846
+#: stream.d:5154
+msgid "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"
+msgstr "Les flots non bufferisés nécessitent un ~ avec un taille (en bits) divisible par 8, et non ~"
+
+#: stream.d:5551
+msgid "Closed ~ because disk is full."
+msgstr "Ai fermé ~, parce que le disque est sans doute plein."
+
+#: stream.d:5729
+msgid "cannot position ~ beyond EOF"
+msgstr "Ne peux pas positionner ~ au-delà de la fin du fichier."
+
+#: stream.d:7221
+msgid "~: argument ~ ~ was specified, but ~ is not a regular file."
+msgstr "~ : L'argument ~ ~ a été donné, mais ~ n'est pas un fichier régulier."
+
+#: stream.d:7256
+msgid "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file."
+msgstr "~ : Les arguments ~ ~ et ~ ~ ont été donnés, mais ~ n'est pas un fichier régulier."
+
+#: stream.d:7321
+msgid "file ~ is not an integer file"
+msgstr "Le fichier ~ n'a pas le format d'un fichier d'entiers."
+
+#: stream.d:9092
+msgid "character ~ contains bits, cannot be output onto ~"
+msgstr "Le caractère ~ contient des «bits» et ne peut pas être écrit dans ~."
+
+#: stream.d:9765
+msgid "RAW mode not supported on ~"
+msgstr "Le mode «RAW» n'est pas supporté par ~."
+
+#: stream.d:10143
+msgid "~: argument ~ should be a window stream"
+msgstr "~ : L'argument ~ devrait être un WINDOW-STREAM."
+
+#: stream.d:10956
+msgid "cannot output to standard output"
+msgstr "Ne peut rien écrire sur la sortie principale."
+
+#: stream.d:12206
+msgid "environment has no TERM variable"
+msgstr "L'environnment ne contient pas de variable TERM."
+
+#: stream.d:12215
+msgid "terminal type ~ unknown to termcap"
+msgstr "TERMCAP ne connait pas le type d'écran ~."
+
+#: stream.d:12239
+msgid "insufficient terminal: hardcopy terminal"
+msgstr "Terminal insuffisant : imprimante au lieu d'écran."
+
+#: stream.d:12247
+msgid "insufficient terminal: overstrikes, cannot clear output"
+msgstr "Terminal insuffisant : ne peut rien effacer."
+
+#: stream.d:12255
+msgid "insufficient terminal: cannot scroll"
+msgstr "Terminal insuffisant : pas de défilement."
+
+#: stream.d:12264
+msgid "insufficient terminal: cannot clear screen"
+msgstr "Terminal insuffisant : ne peut pas effacer l'écran."
+
+#: stream.d:12272
+msgid "insufficient terminal: cannot position cursor randomly"
+msgstr "Terminal insuffisant : ne peut pas placer le curseur n'importe où."
+
+#: stream.d:12733
+msgid "~: package SCREEN is not implemented"
+msgstr "~ : Le paquet SCREEN n'est pas implémenté."
+
+#: stream.d:14035
+msgid "host should be string, not ~"
+msgstr "L'hôte devrait être un chaîne et non ~"
+
+#: stream.d:14046
+msgid "display should be a nonnegative fixnum, not ~"
+msgstr "Le «display» doit être de type FIXNUM >= 0 et non ~"
+
+#: stream.d:14086 stream.d:14135
+msgid "~: stream must be a socket-stream, not ~"
+msgstr "~ : Le stream doit être un «socket-stream» et non ~"
+
+#: stream.d:14150
+msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
+msgstr "~ : l'argument ~ doit être un vecteur de type (ARRAY (UNSIGNED-BYTE 8) (*))."
+
+#: stream.d:14174 stream.d:15910 io.d:1012
 msgid "~: input stream ~ has reached its end"
 msgstr "~ : Le «stream» d'entrée ~ est épuisé."
 
-#: stream.d:13770
+#: stream.d:14362
+msgid "~: ~ is not a SOCKET-SERVER"
+msgstr "~ : ~ n'est pas un SOCKET-SERVER"
+
+#: stream.d:14415
+msgid "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"
+msgstr "~ : L'argument ~ n'est pas un SOCKET-STREAM ouvert ou FIXNUM positif"
+
+#: stream.d:14617
+msgid "~: argument ~ is not an open SOCKET-STREAM"
+msgstr "~ : L'argument ~ n'est pas un SOCKET-STREAM ouvert"
+
+#: stream.d:14632
+msgid "~: argument ~ is not a SOCKET-STREAM"
+msgstr "~ : L'argument ~ n'est pas un SOCKET-STREAM"
+
+#: stream.d:14870
+msgid "The value of ~ is not a stream: ~"
+msgstr "La valeur de ~ n'est pas de type STREAM : ~"
+
+#: stream.d:14878
+msgid "The value of ~ is not an appropriate stream: ~"
+msgstr "La valeur de ~ n'est pas un STREAM acceptable : ~"
+
+#: stream.d:14894
+msgid "The value of ~ was not a stream: ~. It has been changed to ~."
+msgstr "La valeur de ~ n'était pas de type STREAM : ~. Changé en ~."
+
+#: stream.d:14915
+msgid "readline library: out of memory."
+msgstr "Bibliothèque readline: mémoire épuisée."
+
+#: stream.d:15107
+msgid "~: The ~ of ~ cannot be changed from ~ to ~."
+msgstr "~ : Le ~ de ~ ne peux pas être changé de ~ en ~."
+
+#: stream.d:15967
 msgid "~: argument ~ is not an open file stream"
 msgstr "~ : L'argument ~ doit être un «stream» ouvert sur un fichier."
 
-#: stream.d:13802
+#: stream.d:16003
 msgid "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
 msgstr "~ : L'argument position doit être ~, ~ ou un entier positif ou zéro, mais non ~."
 
-#: io.d:297
+#: io.d:472
 msgid "The value of ~ was not a readtable. It has been reset."
 msgstr "La valeur de ~ n'était pas un «readtable» et fut remise à la valeur standard."
 
-#: io.d:382
+#: io.d:557
 msgid "~: argument ~ is not a readtable"
 msgstr "~ : L'argument ~ n'est pas un «readtable»."
 
-#: io.d:566
+#: io.d:736
 msgid "~: ~ is a dispatch macro character"
 msgstr "~ : ~ est un caractère de «macro-dispatch»."
 
-#: io.d:635
+#: io.d:800
 msgid "~: ~ is not a dispatch macro character"
 msgstr "~ : ~ n'est pas un caractère de «macro-dispatch»."
 
-#: io.d:666
+#: io.d:831
 msgid "~: digit $ not allowed as sub-char"
 msgstr "~ : Un chiffre $ n'est pas permis comme sous-caractère."
 
-#: io.d:713
+#: io.d:879
 msgid "~: new value ~ should be ~, ~, ~ or ~."
 msgstr "~ : La nouvelle valeur ~ devrait être ~, ~, ~ ou ~."
 
-#: io.d:752
+#: io.d:918
 msgid ""
 "The value of ~ should be an integer between 2 and 36, not ~.\n"
 "It has been reset to 10."
@@ -1445,275 +1493,275 @@ msgstr ""
 "La valeur de ~ doit être un nombre entier entre 2 et 36 et non ~.\n"
 "Elle a été mise à 10."
 
-#: io.d:807
+#: io.d:973
 msgid "~ from ~: character read should be a character: ~"
 msgstr "~ de ~ : le caractère lu n'est pas un caractère: ~"
 
-#: io.d:865
+#: io.d:1031
 msgid "~: input stream ~ ends within an object. Last opening parenthesis probably in line ~."
 msgstr "~ : Le «stream» d'entrée ~ se termine à l'intérieur d'un objet. La dernière parenthèse ouverte se trouve probablement dans la ligne ~."
 
-#: io.d:875
+#: io.d:1041
 msgid "~: input stream ~ ends within an object"
 msgstr "~ : Le «stream» d'entrée ~ se termine à l'intérieur d'un objet."
 
-#: io.d:1166
+#: io.d:1346
 msgid "~ from ~: illegal character ~"
 msgstr "~ de ~ : Le caractère ~ n'est pas permis ici."
 
-#: io.d:1182
+#: io.d:1362
 msgid "~: input stream ~ ends within a token after single escape character"
 msgstr "~ : Le «stream» d'entrée ~ se termine à l'intérieur d'un lexème, suivant un caractère de simple échappement."
 
-#: io.d:1232
+#: io.d:1412
 msgid "~: input stream ~ ends within a token after multiple escape character"
 msgstr "~ : Le «stream» d'entrée se termine au milieu d'un lexème, suivant un caractère de multi-échappement."
 
-#: io.d:1749
+#: io.d:1931
 msgid "~ from ~: ~ has no macro character definition"
 msgstr "~ de ~ : ~ n'a pas de définition de macro-caractère."
 
-#: io.d:1766
+#: io.d:1948
 msgid "~ from ~: macro character definition for ~ may not return ~ values, only one value."
 msgstr "~ de ~ : La définition du macro-caractère ~ ne doit pas retourner ~ valeurs mais au plus une."
 
-#: io.d:1793
+#: io.d:1975
 msgid "~: input stream ~ ends within read macro beginning to ~"
 msgstr "~ : Le «stream» d'entrée se termine à l'intérieur d'un macro de lecture en ~"
 
-#: io.d:1825
+#: io.d:2008
 msgid "~ from ~: After ~ is ~ an undefined dispatch macro character"
 msgstr "~ de ~ : Après ~ ~ n'est plus défini comme macro caractère de «dispatch»."
 
-#: io.d:1842
+#: io.d:2025
 msgid "~ from ~: dispatch macro character definition for ~ after ~ may not return ~ values, only one value."
 msgstr "~ de ~ : La définition de caractère macro de «dispatch» pour ~ après ~ ne doit pas retourner ~ valeurs."
 
-#: io.d:1920
+#: io.d:2103
 msgid "~ from ~: a token consisting only of dots cannot be meaningfully read in"
 msgstr "~ de ~ : Un lexème ne comprenant que des points ne peut pas être lu."
 
-#: io.d:2011
+#: io.d:2194
 msgid "~ from ~: too many colons in token ~"
 msgstr "~ de ~ : Trop de deux-points dans le lexème ~"
 
-#: io.d:2063
+#: io.d:2246
 msgid "~ from ~: there is no package with name ~"
 msgstr "~ de ~ : Il n'y a pas de paquetage de nom ~."
 
-#: io.d:2096
+#: io.d:2279
 msgid "~ from ~: ~ has no external symbol with name ~"
 msgstr "~ de ~ : ~ ne comprend pas de symbole externe de nom ~."
 
-#: io.d:2143
+#: io.d:2326
 msgid "~ from ~: token \".\" not allowed here"
 msgstr "~ de ~ : Le lexème \".\" n'est pas permis ici."
 
-#: io.d:2195 io.d:6086
+#: io.d:2378 io.d:6296
 msgid "~: the value of ~ has been arbitrarily altered"
 msgstr "~ : La valeur de ~ fut modifiée extérieurement."
 
-#: io.d:2213
+#: io.d:2396
 msgid "~: no entry for ~ from ~ in ~ = ~"
 msgstr "~ : ~ dans ~ n'est pas énoncé dans ~ = ~."
 
-#: io.d:2413
+#: io.d:2596
 msgid "~ from ~: illegal end of dotted list"
 msgstr "~ de ~ : liste pointée ne se termine pas correctement."
 
-#: io.d:2487
+#: io.d:2670
 msgid "~ from ~: an object cannot start with ~"
 msgstr "~ de ~ : un object ne peut pas commencer par ~"
 
-#: io.d:2565
+#: io.d:2748
 msgid "~: input stream ~ ends within a string"
 msgstr "~ : Le «stream» d'entrée ~ se termine au milieu d'une chaîne."
 
-#: io.d:2629
+#: io.d:2812
 msgid "~ from ~: no number allowed between # and $"
 msgstr "~ de ~ : il ne faut pas de nombre entre # et $"
 
-#: io.d:2724
+#: io.d:2907
 msgid "~: input stream ~ ends within a comment #$ ... $#"
 msgstr "~ : Le «stream» d'entrée se termine au cours d'un commentaire #$ ... $#"
 
-#: io.d:2806
+#: io.d:2989
 msgid "~ from ~: font number ~ for character is too large, should be = 0"
 msgstr "~ de ~ : Le numéro ~ de font de caractère est trop grand (devrait être = 0)."
 
-#: io.d:2839
+#: io.d:3022
 msgid "~ from ~: there is no character bit with name ~"
 msgstr "~ de ~ : ~ n'est pas le nom d'un bit de caractère."
 
-#: io.d:2901
+#: io.d:3111
 msgid "~ from ~: there is no character with name ~"
 msgstr "~ de ~ : ~ n'est pas le nom d'un caractère."
 
-#: io.d:2965
+#: io.d:3175
 msgid "~ from ~: token ~ after #$ is not a rational number in base ~"
 msgstr "~ de ~ : Le lexème ~ après ne peut être interprété comme nombre rationnel en base ~."
 
-#: io.d:3034
+#: io.d:3244
 msgid "~ from ~: the number base must be given between # and R"
 msgstr "~ de ~ : La base numérique doit être spécifiée entre # et R."
 
-#: io.d:3052
+#: io.d:3262
 msgid "~ from ~: The base ~ given between # and R should lie between 2 and 36"
 msgstr "~ de ~ : La base numérique ~ spécifiée entre # et R doit être entre 2 et 36."
 
-#: io.d:3099
+#: io.d:3309
 msgid "~ from ~: bad syntax for complex number: #C~"
 msgstr "~ de ~ : Syntaxe inadmissible pour un nombre complexe: #C~"
 
-#: io.d:3134
+#: io.d:3344
 msgid "~ from ~: token expected after #:"
 msgstr "~ de ~ : Il faut un lexème après #:"
 
-#: io.d:3162
+#: io.d:3372
 msgid "~ from ~: token ~ after #: should contain no colon"
 msgstr "~ de ~ : Le lexème ~ après ne doit pas contenir de deux-points."
 
-#: io.d:3215
+#: io.d:3425
 msgid "~ from ~: only zeroes and ones are allowed after #*"
 msgstr "~ de ~ : Seuls 0 et 1 sont permis après #*"
 
-#: io.d:3246
+#: io.d:3456
 msgid "~ from ~: bit vector is longer than the explicitly given length ~"
 msgstr "~ de ~ : Le vecteur de bits est plus long que la longueur explicite ~."
 
-#: io.d:3258
+#: io.d:3468
 msgid "~ from ~: must specify element of bit vector of length ~"
 msgstr "~ de ~ : Il faut spécifier un élément pour un vecteur de bits de longueur ~."
 
-#: io.d:3335
+#: io.d:3545
 msgid "~ from ~: vector is longer than the explicitly given length ~"
 msgstr "~ de ~ : Le vecteur est plus long que la longueur explicite ~."
 
-#: io.d:3347
+#: io.d:3557
 msgid "~ from ~: must specify element of vector of length ~"
 msgstr "~ de ~ : Il faut spécifier un élément pour un vecteur de longueur ~."
 
-#: io.d:3430
+#: io.d:3640
 msgid "~ from ~: bad syntax for array: #A~"
 msgstr "~ de ~ : Syntaxe inadmissible pour une matrice: #A~"
 
-#: io.d:3496
+#: io.d:3706
 msgid "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
 msgstr "~ de ~ : ~ = ~ ne permet pas l'évaluation de ~"
 
-#: io.d:3622
+#: io.d:3832
 msgid "~ from ~: a number must be given between # and $"
 msgstr "~ de ~ : Un nombre doit être spécifié entre # et $"
 
-#: io.d:3637
+#: io.d:3847
 msgid "~ from ~: label #~? too large"
 msgstr "~ de ~ : La marque #~? est trop grande."
 
-#: io.d:3662
+#: io.d:3872
 msgid "~ from ~: the value of ~ has been altered arbitrarily, it is not an alist: ~"
 msgstr "~ de ~ : La valeur de ~ a été modifiée extérieurement, elle n'est plus une aliste: ~"
 
-#: io.d:3682
+#: io.d:3892
 msgid "~ from ~: label #~= may not be defined twice"
 msgstr "~ de ~ : La marque #~= ne peut pas être définie deux fois."
 
-#: io.d:3711
+#: io.d:3921
 msgid "~ from ~: #~= #~# is illegal"
 msgstr "~ de ~ : #~= #~# n'est pas permis."
 
-#: io.d:3739
+#: io.d:3949
 msgid "~ from ~: undefined label #~#"
 msgstr "~ de ~ : La marque #~# n'est pas définie."
 
-#: io.d:3758
+#: io.d:3968
 msgid "~ from ~: objects printed as #<...> cannot be read back in"
 msgstr "~ de ~ : Des objets qui ont été imprimés en forme #<...> ne peuvent servir d'entrée."
 
-#: io.d:3778
+#: io.d:3988
 msgid "~ from ~: objects printed as # in view of ~ cannot be read back in"
 msgstr "~ de ~ : Des objets qui ont été imprimés en # à cause de ~ ne peuvent servir d'entrée."
 
-#: io.d:3861
+#: io.d:4071
 msgid "~ from ~: illegal feature ~"
 msgstr "~ de ~ : Feature ~ n'est pas permis."
 
-#: io.d:3995
+#: io.d:4205
 msgid "~ from ~: #S must be followed by the type and the contents of the structure, not ~"
 msgstr "~ de ~ : Après #S on s'attend au type et au contenu de la structure, entre parenthèses, et pas à ~"
 
-#: io.d:4010
+#: io.d:4220
 msgid "~ from ~: the type of a structure should be a symbol, not ~"
 msgstr "~ de ~ : Le type d'une structure doit être un symbole et non ~"
 
-#: io.d:4027
+#: io.d:4237
 msgid "~ from ~: bad HASH-TABLE"
 msgstr "~ de ~ : HASH-TABLE inadmissible."
 
-#: io.d:4057
+#: io.d:4267
 msgid "~ from ~: bad ~"
 msgstr "~ de ~ : ~ inadmissible."
 
-#: io.d:4089
+#: io.d:4299
 msgid "~ from ~: no structure of type ~ has been defined"
 msgstr "~ de ~ : Aucune structure de type ~ n'est définie."
 
-#: io.d:4103
+#: io.d:4313
 msgid "~ from ~: bad ~ for ~"
 msgstr "~ de ~ : Mauvaise ~ appartenante à ~"
 
-#: io.d:4118
+#: io.d:4328
 msgid "~ from ~: structures of type ~ cannot be read in, missing constructor function"
 msgstr "~ de ~ : Des structures de type ~ ne peuvent être entrées car la fonction constructeur est inconnue."
 
-#: io.d:4140
+#: io.d:4350
 msgid "~ from ~: a structure ~ may not contain a component \".\""
 msgstr "~ de ~ : Une structure ~ ne doit pas contenir un composant \".\""
 
-#: io.d:4154
+#: io.d:4364
 msgid "~ from ~: ~ is not a symbol, not a slot name of structure ~"
 msgstr "~ de ~ : ~ n'est pas un symbole, donc pas le nom d'un composant de la structure ~."
 
-#: io.d:4167
+#: io.d:4377
 msgid "~ from ~: missing value of slot ~ in structure ~"
 msgstr "~ de ~ : La valeur du composant ~ dans la structure ~ manque."
 
-#: io.d:4190
+#: io.d:4400
 msgid "~ from ~: too many slots for structure ~"
 msgstr "~ de ~ : Trop de composants pour une structure ~."
 
-#: io.d:4229
+#: io.d:4439
 msgid "~ from ~: illegal syntax of closure code vector after #~Y"
 msgstr "~ de ~ : Mauvaise syntaxe de vecteur pour le code d'une «closure» après #~Y"
 
-#: io.d:4270
+#: io.d:4480
 msgid "~ from ~: object #Y~ has not the syntax of a compiled closure"
 msgstr "~ de ~ : L'objet #Y~ n'a pas la syntaxe d'une «closure» compilée."
 
-#: io.d:4407
+#: io.d:4617
 msgid "~ from ~: bad syntax for pathname: #P~"
 msgstr "~ de ~ : Syntaxe inadmissible pour un pathname: #P~"
 
-#: io.d:4613 io.d:9304
+#: io.d:4823 io.d:9609
 msgid "~: ~ is not a character"
 msgstr "~ : ~ n'est pas un caractère."
 
-#: io.d:4660
+#: io.d:4870
 msgid "~: peek type should be NIL or T or a character, not ~"
 msgstr "~ : Le mode de PEEK doit être NIL ou T ou un caractère et non ~"
 
-#: io.d:4812
+#: io.d:5022
 msgid "~: ~ argument should be an integer between 2 and 36, not ~"
 msgstr "~ : L'argument ~ doit être un entier entre 2 et 36, pas ~"
 
-#: io.d:4905
+#: io.d:5115
 msgid "~: string ~ does not have integer syntax"
 msgstr "~ : La chaîne ~ n'a pas la syntaxe d'un nombre entier."
 
-#: io.d:5071
+#: io.d:5281
 msgid "~: Despite of ~, ~ cannot be printed readably."
 msgstr "~ : Malgré ~, ~ ne peut pas être imprimé de façon lisible."
 
-#: io.d:5099
+#: io.d:5309
 msgid ""
 "~: the value ~ of ~ is neither ~ nor ~ nor ~.\n"
 "It is reset to ~."
@@ -1721,23 +1769,23 @@ msgstr ""
 "~ : La valeur ~ de ~ n'est ni ~ ni ~ ni ~.\n"
 "Elle est remplacée par ~."
 
-#: io.d:5445
+#: io.d:5655
 msgid "~: must be a positive integer or NIL, not ~"
 msgstr "~: ~"
 
-#: io.d:6294
+#: io.d:6504
 msgid "~: not enough stack space for carrying out circularity analysis"
 msgstr "~ : La pile n'est pas suffisante pour analyser les liaisons circulaires."
 
-#: io.d:7780
+#: io.d:7992
 msgid "~: bad ~"
 msgstr "~ : Mauvaise ~"
 
-#: io.d:7897 record.d:240
+#: io.d:8109 record.d:240
 msgid "~: ~ is not a structure"
 msgstr "~ : ~ n'est pas une structure."
 
-#: io.d:8636
+#: io.d:8914
 msgid "~: an unknown record type has been generated!"
 msgstr "~ : Un objet composé de type inconnu a été rencontré!"
 
@@ -1753,15 +1801,15 @@ msgstr "La matrice cible d'un «displaced-array» a été rapetissée par ajustement.
 msgid "~: ~ is not an array"
 msgstr "~ : ~ n'est pas une matrice."
 
-#: array.d:374 foreign.d:2234
+#: array.d:374 foreign.d:2255
 msgid "~: got ~ subscripts, but ~ has rank ~"
 msgstr "~: ~ indices donnés mais ~ est de rang ~."
 
-#: array.d:392 foreign.d:2253
+#: array.d:392 foreign.d:2274
 msgid "~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 msgstr "~: Les indices ~ pour ~ ne sont pas de type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))."
 
-#: array.d:420 foreign.d:2267
+#: array.d:420 foreign.d:2288
 msgid "~: subscripts ~ for ~ are out of range"
 msgstr "~: Les indices ~ pour ~ ne sont pas dans l'intervalle permis."
 
@@ -1957,19 +2005,19 @@ msgstr "~ : ~, n'étant pas de type FIXNUM positif ou zéro, n'est pas acceptable 
 msgid "~: ~ is not a pair"
 msgstr "~ : ~ n'est pas une paire."
 
-#: list.d:1604
+#: list.d:1618
 msgid "~: lists ~ and ~ are not of same length"
 msgstr "~ : Les listes ~ et ~ sont de longueurs distinctes."
 
-#: list.d:1799
+#: list.d:1813
 msgid "~: index ~ too large for ~"
 msgstr "~ : L'index ~ est trop grand pour ~."
 
-#: list.d:1858
+#: list.d:1872
 msgid "~: start index ~ too large for ~"
 msgstr "~ : L'index :START ~ est trop grand pour ~."
 
-#: list.d:1904
+#: list.d:1918
 msgid "~: end index ~ too large for ~"
 msgstr "~ : L'index :END ~ est trop grand pour ~."
 
@@ -2017,7 +2065,7 @@ msgstr "~ : L'argument doit être un symbole ou une chaîne et non ~."
 msgid "~: there is already a package named ~"
 msgstr "~ : Il y a déjà un paquetage de nom ~."
 
-#: package.d:2121 predtype.d:1777
+#: package.d:2121 predtype.d:1783
 msgid "~: argument ~ is not a symbol"
 msgstr "~ : L'argument ~ n'est pas un symbole."
 
@@ -2073,11 +2121,15 @@ msgstr "~ : La function ~ est trop grosse: ~"
 msgid "~: This is not a generic function: ~"
 msgstr "~ : Ceci n'est pas une fonction générique : ~"
 
-#: record.d:588
+#: record.d:571
+msgid "~: ~ is not a weak pointer"
+msgstr "~ : ~ n'est pas de type WEAK-POINTER."
+
+#: record.d:636
 msgid "~: ~ is not a class"
 msgstr "~ : ~ n'est pas une classe."
 
-#: record.d:800
+#: record.d:848
 msgid ""
 "~: illegal keyword/value pair ~, ~ in argument list.\n"
 "The allowed keywords are ~"
@@ -2085,19 +2137,19 @@ msgstr ""
 "~ : Paire mot-clé - valeur ~, ~ illicite dans la liste d'arguments.\n"
 "Les mots-clé permis sont ~"
 
-#: record.d:837
+#: record.d:885
 msgid "SHARED-INITIALIZE: keyword argument list ~ has an odd length"
 msgstr "SHARED-INITIALIZE : La liste de mots clé ~ est de longueur impaire."
 
-#: record.d:953
+#: record.d:1001
 msgid "REINITIALIZE-INSTANCE: keyword argument list ~ has an odd length"
 msgstr "REINITIALIZE-INSTANCE : La liste de mots clé ~ est de longueur impaire."
 
-#: record.d:1052
+#: record.d:1100
 msgid "INITIALIZE-INSTANCE: keyword argument list ~ has an odd length"
 msgstr "INITIALIZE-INSTANCE : La liste de mots clé ~ est de longueur impaire."
 
-#: record.d:1179
+#: record.d:1227
 msgid "MAKE-INSTANCE: keyword argument list ~ has an odd length"
 msgstr "MAKE-INSTANCE : La liste de mots clé ~ est de longueur impaire."
 
@@ -2157,171 +2209,171 @@ msgstr "~ : Séquence trop longue: ~"
 msgid "too long sequence ~"
 msgstr "Séquence trop longue : ~"
 
-#: charstrg.d:484
+#: charstrg.d:567
 msgid "This is not a string: ~"
 msgstr "Ceci n'est pas une chaîne : ~"
 
-#: charstrg.d:719
+#: charstrg.d:804
 msgid "~: the radix must be an integer between 2 and 36, not ~"
 msgstr "~: Seuls les entiers compris entre 2 et 36 sont possible comme base et non ~."
 
-#: charstrg.d:1009
+#: charstrg.d:1140
 msgid "~: the code argument should be an integer, not ~"
 msgstr "~: L'argument code doit être un entier et non ~."
 
-#: charstrg.d:1032
+#: charstrg.d:1163
 msgid "~: cannot coerce ~ to a character"
 msgstr "~: ~ ne peut pas être transformé en caractère."
 
-#: charstrg.d:1071
+#: charstrg.d:1202
 msgid "~: the weight argument should be an integer, not ~"
 msgstr "~ : L'argument poids doit être un entier et non ~."
 
-#: charstrg.d:1112
+#: charstrg.d:1243
 msgid "~: argument should be an integer, not ~"
 msgstr "~: L'argument doit être un entier et non ~."
 
-#: charstrg.d:1139
+#: charstrg.d:1270
 msgid "~: index should be an integer, not ~"
 msgstr "~: L'index doit être un entier et non ~."
 
-#: charstrg.d:1148
+#: charstrg.d:1279
 msgid "~: ~-index should be an integer, not ~"
 msgstr "~: L'index ~ doit être un entier et non ~."
 
-#: charstrg.d:1166
+#: charstrg.d:1297
 msgid "~: index should be NIL or an integer, not ~"
 msgstr "~: L'index doit être NIL ou un entier et non ~."
 
-#: charstrg.d:1175
+#: charstrg.d:1306
 msgid "~: ~-index should be NIL or an integer, not ~"
 msgstr "~: L'index ~ doit être NIL ou un entier et non ~."
 
-#: charstrg.d:1193
+#: charstrg.d:1324
 msgid "~: index should not be negative: ~"
 msgstr "~: L'index doit être positif ou zéro et non ~."
 
-#: charstrg.d:1202
+#: charstrg.d:1333
 msgid "~: ~-index should not be negative: ~"
 msgstr "~: L'index ~ doit être positif ou zéro et non ~."
 
-#: charstrg.d:1226
+#: charstrg.d:1357
 msgid "~: index ~ should not be greater than the length of the string"
 msgstr "~: L'index ~ ne peut pas être plus grand que la longueur de la chaîne."
 
-#: charstrg.d:1235
+#: charstrg.d:1366
 msgid "~: ~-index ~ should not be greater than the length of the string"
 msgstr "~: L'index ~ = ~ ne peut pas être plus grand que la longueur de la chaîne."
 
-#: charstrg.d:1259
+#: charstrg.d:1390
 msgid "~: index ~ should be less than the length of the string"
 msgstr "~: L'index ~ doit être plus petit que la longueur de la chaîne."
 
-#: charstrg.d:1268
+#: charstrg.d:1399
 msgid "~: ~-index ~ should be less than the length of the string"
 msgstr "~: L'index ~ = ~ doit être plus petit que la longueur de la chaîne."
 
-#: charstrg.d:1361
+#: charstrg.d:1492
 msgid "~: argument should be a character, not ~"
 msgstr "~: L'argument doit être un caractère et non ~."
 
-#: charstrg.d:1435 charstrg.d:1509 charstrg.d:2278
+#: charstrg.d:1566 charstrg.d:1640 charstrg.d:2409
 msgid "~: :start-index ~ must not be greater than :end-index ~"
 msgstr "~: L'index :START ~ ne doit pas être supérieur à l'index :END ~."
 
-#: charstrg.d:1465
+#: charstrg.d:1596
 msgid "~: argument ~ should be a string, a symbol or a character"
 msgstr "~: L'argument ~ doit être de type STRING, SYMBOL ou CHARACTER et non ~."
 
-#: charstrg.d:1573
+#: charstrg.d:1704
 msgid "~: :start1-index ~ must not be greater than :end1-index ~"
 msgstr "~: L'index :START1 ~ ne doit pas être supérieur à l'index :END1 ~."
 
-#: charstrg.d:1599
+#: charstrg.d:1730
 msgid "~: :start2-index ~ must not be greater than :end2-index ~"
 msgstr "~: L'index :START2 ~ ne doit pas être supérieur à l'index :END2 ~."
 
-#: charstrg.d:1973
+#: charstrg.d:2104
 msgid "~: the string length ~ should be nonnegative fixnum"
 msgstr "~: La longueur de chaîne ~ doit être de type FIXNUM positif ou zéro."
 
-#: charstrg.d:2009
+#: charstrg.d:2140
 msgid "~: :initial-element ~ should be of type character"
 msgstr "~: L'élément initial ~ n'est pas de type CHARACTER."
 
-#: debug.d:686
+#: debug.d:687
 msgid "~: bad frame climbing mode ~"
 msgstr "~: Mauvais mode de saut d'environnement ~."
 
-#: debug.d:708
+#: debug.d:709
 msgid "~: ~ is not a stack pointer"
 msgstr "~: ~ n'est pas un pointeur de pile."
 
-#: debug.d:889
+#: debug.d:890
 msgid "~: ~ is not a pointer to an EVAL/APPLY frame"
 msgstr "~: ~ n'est pas une pointeur vers un environnement EVAL/APPLY."
 
-#: debug.d:1143
+#: debug.d:1144
 msgid "~: environment is not an alist"
 msgstr "~: L'environnement n'est pas une liste d'association."
 
-#: debug.d:1239
+#: debug.d:1240
 msgid "~: unknown frame type"
 msgstr "~: Type d'environnement inconnu."
 
-#: error.d:42 user1.lsp:369
+#: error.d:42 reploop.lsp:355
 msgid "Unprintable error message"
 msgstr "Message inimprimable"
 
-#: error.d:578
+#: error.d:591
 msgid "~: User break"
 msgstr "~ : Interruption clavier"
 
-#: error.d:630
+#: error.d:643
 msgid "~: ~ is not a list"
 msgstr "~ : ~ n'est pas une liste."
 
-#: error.d:648
+#: error.d:661
 msgid "~: A true list must not end with ~"
 msgstr "~ : Une vraie liste ne peut pas se terminer en ~."
 
-#: error.d:668
+#: error.d:681
 msgid "~: ~ is not a symbol"
 msgstr "~ : ~ n'est pas un symbole."
 
-#: error.d:700
+#: error.d:713
 msgid "~: ~ is not a simple-vector"
 msgstr "~: ~ n'est pas de type SIMPLE-VECTOR."
 
-#: error.d:718
+#: error.d:731
 msgid "~: ~ is not a vector"
 msgstr "~: ~ n'est pas un vecteur."
 
-#: error.d:736
+#: error.d:749
 msgid "~: argument ~ should be a nonnegative fixnum"
 msgstr "~ : L'argument doit être de type FIXNUM positif ou zéro et non pas ~."
 
-#: error.d:754
+#: error.d:767
 msgid "~: argument ~ is not a character"
 msgstr "~: L'argument ~ n'est pas un caractère."
 
-#: error.d:771
+#: error.d:784
 msgid "~: argument ~ is not a string"
 msgstr "~: L'argument ~ n'est pas une chaîne."
 
-#: error.d:788
+#: error.d:801
 msgid "~: argument ~ is not a simple string"
 msgstr "~: L'argument ~ n'est pas de type SIMPLE-STRING."
 
-#: error.d:806
+#: error.d:819
 msgid "~: argument ~ should be a stream"
 msgstr "~ : L'argument doit être de type STREAM et non pas ~."
 
-#: error.d:826
+#: error.d:839
 msgid "~: argument ~ should be a stream of type ~"
 msgstr "~ : L'argument ~ devrait être de type ~."
 
-#: error.d:844
+#: error.d:857
 msgid ""
 "~: argument ~ is not a function.\n"
 "To get a function in the current environment, write (FUNCTION ...).\n"
@@ -2331,43 +2383,43 @@ msgstr ""
 "Pour obtenir une fonction dans l'environnement courant, écrire (FUNCTION ...).\n"
 "Pour obtenir une fonction dans l'environnement global, écrire (COERCE '... 'FUNCTION)."
 
-#: error.d:864 error.d:882
+#: error.d:877 error.d:895
 msgid "~: ~ is not an 8-bit number"
 msgstr "~ : ~ n'est pas un nombre à 8 bits."
 
-#: error.d:900 error.d:918
+#: error.d:913 error.d:931
 msgid "~: ~ is not a 16-bit number"
 msgstr "~ : ~ n'est pas un nombre à 16 bits."
 
-#: error.d:936 error.d:954
+#: error.d:949 error.d:967
 msgid "~: ~ is not an 32-bit number"
 msgstr "~ : ~ n'est pas un nombre à 32 bits."
 
-#: error.d:972 error.d:990
+#: error.d:985 error.d:1003
 msgid "~: ~ is not an 64-bit number"
 msgstr "~ : ~ n'est pas un nombre à 64 bits."
 
-#: error.d:1012
+#: error.d:1025
 msgid "~: ~ is not an `unsigned int' number"
 msgstr "~ : ~ n'est pas un nombre «unsigned int»."
 
-#: error.d:1034
+#: error.d:1047
 msgid "~: ~ is not an `int' number"
 msgstr "~ : ~ n'est pas un nombre «int»."
 
-#: error.d:1056
+#: error.d:1069
 msgid "~: ~ is not a `unsigned long' number"
 msgstr "~ : ~ n'est pas un nombre «unsigned long»."
 
-#: error.d:1078
+#: error.d:1091
 msgid "~: ~ is not a `long' number"
 msgstr "~ : ~ n'est pas un nombre «long»."
 
-#: error.d:1096
+#: error.d:1109
 msgid "~: ~ is not a single-float"
 msgstr "~ : ~ n'est pas de type SINGLE-FLOAT."
 
-#: error.d:1114
+#: error.d:1127
 msgid "~: ~ is not a double-float"
 msgstr "~ : ~ n'est pas de type DOUBLE-FLOAT."
 
@@ -2979,23 +3031,23 @@ msgstr "Ce fichier provient d'une autre version de LISP et doit être recompilé."
 msgid "~: type of attribute ~ is unsupported"
 msgstr "~ : Le type de l'attribut ~ n'est pas supporté."
 
-#: predtype.d:1555 predtype.d:1727
+#: predtype.d:1559 predtype.d:1733
 msgid "~: unidentifiable type!!!"
 msgstr "~ : Type non identifiable!!!"
 
-#: predtype.d:1737
+#: predtype.d:1743
 msgid "~: type ~ does not correspond to a class"
 msgstr "~ : aucune classe ne correspond au type ~"
 
-#: predtype.d:1789
+#: predtype.d:1795
 msgid "~: ~ does not name a class"
 msgstr "~ : ~ n'est pas le nom d'une classe."
 
-#: predtype.d:2090
+#: predtype.d:2096
 msgid "~: bad type specification ~"
 msgstr "~ : ~ est une mauvaise spécification de type."
 
-#: predtype.d:2101
+#: predtype.d:2107
 msgid "~: ~ cannot be coerced to type ~"
 msgstr "~ : ~ ne peut pas être transformé en objet de type ~."
 
@@ -3051,19 +3103,19 @@ msgstr "L'argument pour ~ doit être un nombre entier et non ~."
 msgid "~: argument should be a positive fixnum, not ~"
 msgstr "~ : L'argument doit être de type FIXNUM positif et non ~."
 
-#: lisparit.d:1682
+#: lisparit.d:1687
 msgid "~: argument should be a random-state, not ~"
 msgstr "~ : L'argument doit être un «random-state» et non ~."
 
-#: lisparit.d:1700
+#: lisparit.d:1705
 msgid "~: the value of ~ should be a random-state, not ~"
 msgstr "~ : La valeur de ~ devrait être un «random-state» et non ~."
 
-#: lisparit.d:1722
+#: lisparit.d:1727
 msgid "~: argument should be positive and an integer or float, not ~"
 msgstr "~ : L'argument doit être positif et de type entier ou flottant et non ~."
 
-#: lisparit.d:1805
+#: lisparit.d:1812
 msgid "~ : argument should be a fixnum >=0, not ~"
 msgstr "~ : L'argument doit être de type FIXNUM positif ou zéro et non ~."
 
@@ -3151,11 +3203,11 @@ msgstr "~ : Doit être une chaîne pour ARexx : ~"
 msgid "Only NIL, T and strings are accepted for ~ : ~"
 msgstr "Seul NIL, T ou bien une chaîne sont permis pour ~ : ~"
 
-#: rexx.d:459
+#: rexx.d:463
 msgid "~: Not a Fixnum: ~"
 msgstr "~ : ~ n'est pas de type FIXNUM"
 
-#: rexx.d:474
+#: rexx.d:476
 msgid "~: Not an incoming Rexx message: ~"
 msgstr "~ : ~ n'est pas un message Rexx entrant"
 
@@ -3227,91 +3279,91 @@ msgstr "Il n'y a pas assez de place pour l'interface aux langages étrangers."
 msgid ":MALLOC-FREE is not available under AMIGAOS."
 msgstr ":MALLOC-FREE n'est pas applicable sous AMIGAOS."
 
-#: foreign.d:1089 foreign.d:1151 foreign.d:1297 foreign.d:1336
+#: foreign.d:1108 foreign.d:1170 foreign.d:1316 foreign.d:1355
 msgid "element type has size 0: ~"
 msgstr "Le type des éléments est de grandeur 0 : ~"
 
-#: foreign.d:2059
+#: foreign.d:2080
 msgid "~: argument is not a foreign variable: ~"
 msgstr "~ : l'argument n'est pas une variable étrangère: ~"
 
-#: foreign.d:2071
+#: foreign.d:2092
 msgid "~: foreign variable with unknown type, missing DEF-C-VAR: ~"
 msgstr "~ : variable étrangère de type inconnu, DEF-C-VAR manquant: ~"
 
-#: foreign.d:2087
+#: foreign.d:2108
 msgid "A foreign variable ~ does not exist"
 msgstr "Il n'y a pas de variable étrangère ~."
 
-#: foreign.d:2102
+#: foreign.d:2123
 msgid "~: foreign variable ~ does not have the required size or alignment"
 msgstr "~ : la variable étrangère ~ n'a pas la taille ou le placement nécessaire."
 
-#: foreign.d:2119
+#: foreign.d:2140
 msgid "~: type specifications for foreign variable ~ conflict: ~ and ~"
 msgstr "~ : types contradictoires pour la variable étrangère ~ : ~ et ~"
 
-#: foreign.d:2165
+#: foreign.d:2186
 msgid "~: foreign variable ~ may not be modified"
 msgstr "~ : la variable étrangère ~ n'est pas modifiable."
 
-#: foreign.d:2221
+#: foreign.d:2242
 msgid "~: foreign variable ~ of type ~ is not an array"
 msgstr "~ : la variable étrangère ~ de type ~ n'est pas une matrice."
 
-#: foreign.d:2316
+#: foreign.d:2337
 msgid "~: foreign variable ~ of type ~ is not a pointer"
 msgstr "~ : la variable étrangère ~ de type ~ n'est pas un pointeur."
 
-#: foreign.d:2419
+#: foreign.d:2440
 msgid "~: foreign variable ~ of type ~ is not a struct or union"
 msgstr "~ : la variable étrangère ~ de type ~ n'est pas un «struct» ou «union»."
 
-#: foreign.d:2431
+#: foreign.d:2452
 msgid "~: foreign variable ~ of type ~ has no component with name ~"
 msgstr "~ : la variable étrangère ~ de type ~ n'a pas de composante de nom ~."
 
-#: foreign.d:2496 foreign.d:3579
+#: foreign.d:2517 foreign.d:3600
 msgid "~: foreign variable ~ does not have the required alignment"
 msgstr "~ : la variable étrangère ~ n'a pas le placement nécessaire."
 
-#: foreign.d:2514
+#: foreign.d:2535
 msgid "~: argument is not a foreign function: ~"
 msgstr "~ : l'argument n'est pas une fonction étrangère: ~"
 
-#: foreign.d:2527
+#: foreign.d:2548
 msgid "~: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~"
 msgstr "~ : convention d'appel inconnue pour fonction étrangère, DEF-CALL-OUT manquant: ~"
 
-#: foreign.d:2547 foreign.d:3605
+#: foreign.d:2568 foreign.d:3626
 msgid "~: illegal foreign function type ~"
 msgstr "~ : type invalide de fonction externe : ~"
 
-#: foreign.d:2558
+#: foreign.d:2579
 msgid "~: A foreign function ~ does not exist"
 msgstr "~ : Il n'y a pas de fonction étrangère ~."
 
-#: foreign.d:2568
+#: foreign.d:2589
 msgid "~: calling conventions for foreign function ~ conflict"
 msgstr "~ : conventions d'appel de fonction étrangère ~ se contredisent."
 
-#: foreign.d:2841
+#: foreign.d:2862
 msgid "~: Too few arguments (~ instead of at least ~) to ~"
 msgstr "~ : Trop peu d'arguments (~ au lieu d'au moins ~) pour ~."
 
-#: foreign.d:2855
+#: foreign.d:2876
 msgid "~: :OUT argument is not a pointer: ~"
 msgstr "~ : paramètre :OUT n'est pas indirecte: ~"
 
-#: foreign.d:2901
+#: foreign.d:2922
 msgid "~: Too many arguments (~ instead of ~) to ~"
 msgstr "~ : Trop d'arguments (~ au lieu de ~) pour ~."
 
-#: foreign.d:3463
+#: foreign.d:3484
 msgid "~: Cannot open library ~"
 msgstr "~ : Ne peux ouvrir bibliothèque ~."
 
-#: foreign.d:3552
+#: foreign.d:3573
 msgid "~: ~ is not a library"
 msgstr "~ : ~ n'est pas une bibliothèque."
 
@@ -3367,11 +3419,11 @@ msgstr "syntaxe illégale dans MACROLET : ~S"
 msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
 msgstr "Le code de SYMBOL-MACROLET contient une paire pointée, terminée par ~S"
 
-#: init.lsp:821 compiler.lsp:7218
+#: init.lsp:821 compiler.lsp:7220
 msgid "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
 msgstr "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps."
 
-#: init.lsp:838 compiler.lsp:7211
+#: init.lsp:838 compiler.lsp:7213
 msgid "~S: symbol ~S is declared special and must not be declared a macro"
 msgstr "~S : Le symbole ~S est déclaré SPECIAL et ne peut être déclaré macro."
 
@@ -3451,13 +3503,17 @@ msgstr "La clause de sortie dans ~S doit être une liste."
 msgid "~S: cannot define a function from that: ~S"
 msgstr "~S : Pas de définition de fonction possible à partir de: ~S"
 
-#: init.lsp:1593 clos.lsp:3072 clos.lsp:3133
+#: init.lsp:1593 clos.lsp:3077 clos.lsp:3138
 msgid "~S: the name of a function must be a symbol, not ~S"
 msgstr "~S : Le nom d'une fonction doit être un symbole et non ~S"
 
 #: init.lsp:1600
 msgid "~S: function ~S is missing a lambda list"
 msgstr "~S : Il manque une lambda-liste à la fonction ~S."
+
+#: init.lsp:1817 conditio.lsp:1499 reploop.lsp:376
+msgid "If you continue (by typing 'continue'): "
+msgstr "Si vous continuez (en tapant «continue»): "
 
 #: backquot.lsp:39
 msgid "~S: comma is illegal outside of backquote"
@@ -3631,7 +3687,7 @@ msgstr "Ceci est une atome et n'est donc pas utilisable comme clause COND : ~S"
 msgid "COND code contains a dotted list, ending with ~S"
 msgstr "Occurence d'une paire pointée dans le code de COND, terminée en : ~S."
 
-#: macros1.lsp:456 compiler.lsp:7273
+#: macros1.lsp:456 compiler.lsp:7275
 msgid "COND clause without test: ~S"
 msgstr "Clause COND sans aucun test : ~S"
 
@@ -3722,6 +3778,18 @@ msgstr "~S : L'argument doit être un nombre positif ou zéro et non ~S"
 #: defs1.lsp:671
 msgid "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S"
 msgstr "Date incorrecte : ~S/~S/~S, ~Sh~Sm~Ss, heure ~S"
+
+#: defs1.lsp:742
+msgid "special form"
+msgstr "forme spéciale"
+
+#: defs1.lsp:747
+msgid "function"
+msgstr "fonction"
+
+#: defs1.lsp:751
+msgid "macro"
+msgstr "macro"
 
 #: places.lsp:24
 msgid "The function (~S ~S) is hidden by a SETF expander."
@@ -3831,23 +3899,23 @@ msgstr "L'argument n'est pas un FLOAT : ~S"
 msgid "~S: invalid type specification ~S"
 msgstr "~S : ~S n'est pas une spécification de type légale."
 
-#: type.lsp:59 compiler.lsp:8666
+#: type.lsp:59 compiler.lsp:8668
 msgid "~S: argument to SATISFIES must be a symbol: ~S"
 msgstr "~S : L'argument de SATISFIES doit être un symbole: ~S"
 
-#: type.lsp:275 type.lsp:286 compiler.lsp:8476 compiler.lsp:8488
+#: type.lsp:275 type.lsp:286 compiler.lsp:8478 compiler.lsp:8490
 msgid "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
 msgstr "~S : L'argument de ~S doit être *, ~S ou une liste de ~S: ~S"
 
-#: type.lsp:296 compiler.lsp:8537
+#: type.lsp:296 compiler.lsp:8539
 msgid "~S: argument to MOD must be an integer: ~S"
 msgstr "~S : L'argument de MOD doit être un entier: ~S"
 
-#: type.lsp:309 compiler.lsp:8551
+#: type.lsp:309 compiler.lsp:8553
 msgid "~S: argument to SIGNED-BYTE must be an integer or * : ~S"
 msgstr "~S : L'argument de SIGNED-BYTE doit être un entier ou bien * : ~S"
 
-#: type.lsp:322 compiler.lsp:8567
+#: type.lsp:322 compiler.lsp:8569
 msgid "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S"
 msgstr "~S : L'argument de UNSIGNED-BYTE doit être un entier ou bien * : ~S"
 
@@ -3883,11 +3951,11 @@ msgstr ""
 msgid "~S ~S: unknown option ~S"
 msgstr "~S ~S : Option ~S non reconnue."
 
-#: defstruc.lsp:511 clos.lsp:3229 conditio.lsp:118
+#: defstruc.lsp:511 clos.lsp:3234 conditio.lsp:118
 msgid "~S ~S: invalid syntax in ~S option: ~S"
 msgstr "~S ~S : Mauvaise syntaxe dans l'option ~S: ~S"
 
-#: defstruc.lsp:517 clos.lsp:3148 conditio.lsp:124
+#: defstruc.lsp:517 clos.lsp:3153 conditio.lsp:124
 msgid "~S ~S: not a ~S option: ~S"
 msgstr "~S ~S : Ceci n'est pas une option ~S: ~S"
 
@@ -4051,532 +4119,6 @@ msgstr "Trop d'arguments pour cette directive."
 msgid "The control-string must be a string, not ~S"
 msgstr "La chaîne de contrôle doit être une chaîne et non ~S"
 
-#: user1.lsp:67
-msgid "[*package* invalid]"
-msgstr "[*package* invalide]"
-
-#: user1.lsp:178
-msgid "Values: "
-msgstr "Valeurs : "
-
-#: user1.lsp:188
-msgid ""
-"\n"
-"Help = this list\n"
-"Use the usual editing capabilities.\n"
-"(quit) or (exit) leaves CLISP."
-msgstr ""
-"\n"
-"Help = cette liste\n"
-"Éditez de la façon habituelle.\n"
-"(quit) ou (exit) quitte CLISP."
-
-#: user1.lsp:205
-msgid ""
-"\n"
-"Help   = this command list\n"
-"Abort  = abort to the next recent input loop\n"
-"Unwind = abort to the next recent input loop\n"
-"Mode-1 = inspect all the stack elements\n"
-"Mode-2 = inspect all the frames\n"
-"Mode-3 = inspect only lexical frames\n"
-"Mode-4 = inspect only EVAL and APPLY frames (default)\n"
-"Mode-5 = inspect only APPLY frames\n"
-"Where  = inspect this frame\n"
-"Up     = go up one frame, inspect it\n"
-"Top    = go to top frame, inspect it\n"
-"Down   = go down one frame, inspect it\n"
-"Bottom = go to bottom (most recent) frame, inspect it\n"
-"Backtrace-1 = list all stack elements\n"
-"Backtrace-2 = list all frames\n"
-"Backtrace-3 = list all lexical frames\n"
-"Backtrace-4 = list all EVAL and APPLY frames\n"
-"Backtrace-5 = list all APPLY frames\n"
-"Backtrace   = list stack in current mode\n"
-"Break+ = set breakpoint in EVAL frame\n"
-"Break- = disable breakpoint in EVAL frame\n"
-"Redo   = re-evaluate form in EVAL frame\n"
-"Return = leave EVAL frame, prescribing the return values"
-msgstr ""
-"\n"
-"Help   = ce menu-ci\n"
-"Abort  = arrêt, retour au niveau supérieur\n"
-"Unwind = arrêt, retour au niveau supérieur\n"
-"Mode-1 = examiner tous les éléments de la pile\n"
-"Mode-2 = examiner tous les «frames»\n"
-"Mode-3 = examiner uniquement les «frames» lexicaux\n"
-"Mode-4 = examiner uniquement les «frames» EVAL et APPLY (par défaut)\n"
-"Mode-5 = examiner uniquement les «frames» APPLY\n"
-"Where  = examiner ce «frame»\n"
-"Up     = examiner un «frame» supérieur\n"
-"Top    = examiner le «frame» le plus élevé\n"
-"Down   = examiner un prochain «frame» plus récent (inférieur)\n"
-"Bottom = examiner le «frame» le plus récent (le plus bas)\n"
-"Backtrace-1 = montrer tous les éléments de la pile\n"
-"Backtrace-2 = montrer tous les «frames»\n"
-"Backtrace-3 = montrer tous les «frames» lexicaux\n"
-"Backtrace-4 = montrer tous les «frames» EVAL et APPLY\n"
-"Backtrace-5 = montrer tous les «frames» APPLY\n"
-"Backtrace   = montrer la pile en mode actuel\n"
-"Break+ = placer un point d'interception dans le «frame» EVAL\n"
-"Break- = enlever le point d'interception du «frame» EVAL\n"
-"Redo   = réévaluer la forme dans le «frame» EVAL\n"
-"Return = quitter le «frame» EVAL avec certaines valeurs"
-
-#: user1.lsp:308
-msgid ""
-"\n"
-"Continue = continue evaluation"
-msgstr ""
-"\n"
-"Continue = continuer l'évaluation"
-
-#: user1.lsp:381
-msgid "You can continue (by typing 'continue')."
-msgstr "Vous pouvez continuer (tapez «continue» pour cela)."
-
-#: user1.lsp:390 user1.lsp:686 conditio.lsp:1489
-msgid "If you continue (by typing 'continue'): "
-msgstr "Si vous continuez (en tapant «continue»): "
-
-#: user1.lsp:404
-msgid "The following restarts are available too:"
-msgstr "D'autres rentrées possibles:"
-
-#: user1.lsp:407
-msgid "The following restarts are available:"
-msgstr "Rentrées possibles:"
-
-#: user1.lsp:501
-msgid ""
-"\n"
-"Step     = step into form: evaluate this form in single step mode\n"
-"Next     = step over form: evaluate this form at once\n"
-"Over     = step over this level: evaluate at once up to the next return\n"
-"Continue = switch off single step mode, continue evaluation\n"
-"Step-until, Next-until, Over-until, Continue-until:\n"
-"           same as above, specify a condition when to stop"
-msgstr ""
-"\n"
-"Step     = step into form: évaluer cette forme petit à petit\n"
-"Next     = step over form: évaluer cette forme en bloc\n"
-"Over     = step over this level: évaluer tout le reste jusqu'au prochain retour\n"
-"Continue = continue: évaluer tout le reste en bloc\n"
-"Step-until, Next-until, Over-until, Continue-until:\n"
-"           de même, avec spécification d'une condition d'arrêt"
-
-#: user1.lsp:536 user1.lsp:597
-msgid "step "
-msgstr "Step "
-
-#: user1.lsp:544
-msgid "no values"
-msgstr "Aucune valeur"
-
-#: user1.lsp:549
-msgid "value: "
-msgstr "Valeur : "
-
-#: user1.lsp:557
-msgid " values: "
-msgstr " Valeurs : "
-
-#: user1.lsp:629
-msgid "condition when to stop: "
-msgstr "condition d'arrêt : "
-
-#: user1.lsp:703 conditio.lsp:1523 conditio.lsp:1550
-msgid "WARNING:"
-msgstr "AVERTISSEMENT :"
-
-#: user1.lsp:757
-msgid " (y/n) "
-msgstr " (o/n) "
-
-#: user1.lsp:771
-msgid "Please answer with y or n : "
-msgstr "Répondez par o ou n : "
-
-#: user1.lsp:786
-msgid " (yes/no) "
-msgstr " (oui/non) "
-
-#: user1.lsp:799
-msgid "Please answer with yes or no : "
-msgstr "Répondez par oui ou non : "
-
-#: user2.lsp:35
-msgid "special form"
-msgstr "forme spéciale"
-
-#: user2.lsp:40
-msgid "function"
-msgstr "fonction"
-
-#: user2.lsp:44
-msgid "macro"
-msgstr "macro"
-
-#: user2.lsp:59
-msgid "constant"
-msgstr "constante"
-
-#: user2.lsp:63
-msgid "variable"
-msgstr "variable"
-
-#: user2.lsp:71
-msgid "type"
-msgstr "type"
-
-#: user2.lsp:77
-msgid "class"
-msgstr "classe"
-
-#: user2.lsp:92
-msgid "~%Description of~%"
-msgstr "~%Description de~%"
-
-#: user2.lsp:97
-msgid "~%This is "
-msgstr "~%Ceci est "
-
-#: user2.lsp:119
-msgid "a list of length ~S."
-msgstr "une liste de longueur ~S."
-
-#: user2.lsp:125
-msgid "a dotted list of length ~S."
-msgstr "une liste pointée de longueur ~S."
-
-#: user2.lsp:130
-msgid "a cons."
-msgstr "un «cons»."
-
-#: user2.lsp:134
-msgid "a cyclic list."
-msgstr "une liste circulaire."
-
-#: user2.lsp:140
-msgid "the empty list, "
-msgstr "la liste vide, "
-
-#: user2.lsp:144
-msgid "the symbol ~S"
-msgstr "le symbole ~S"
-
-#: user2.lsp:150
-msgid ", a keyword"
-msgstr ", un mot-clé"
-
-#: user2.lsp:156
-msgid ", a constant"
-msgstr ", une constante"
-
-#: user2.lsp:161
-msgid ", a variable declared SPECIAL"
-msgstr ", une variable declarée SPECIAL"
-
-#: user2.lsp:165
-msgid ", a variable"
-msgstr ", une variable"
-
-#: user2.lsp:170
-msgid " (macro)"
-msgstr " (macro)"
-
-#: user2.lsp:180
-msgid ", names "
-msgstr ", le nom "
-
-#: user2.lsp:185
-msgid "a special form"
-msgstr "d'une forme spéciale"
-
-#: user2.lsp:190
-msgid " with macro definition"
-msgstr ", aussi d'un macro"
-
-#: user2.lsp:195
-msgid "a function"
-msgstr "d'une fonction"
-
-#: user2.lsp:203
-msgid "a macro"
-msgstr "d'un macro"
-
-#: user2.lsp:212
-msgid ", names a type"
-msgstr ", le nom d'un type"
-
-#: user2.lsp:220
-msgid ", names a class"
-msgstr ", le nom d'une classe"
-
-#: user2.lsp:231
-msgid ", has the propert~@P ~{~S~^, ~}"
-msgstr ", a ~[~;la propriété~:;les propriétés~] ~{~S~^, ~}"
-
-#: user2.lsp:238 user2.lsp:280 user2.lsp:339 user2.lsp:448 user2.lsp:478 user2.lsp:621
-msgid "."
-msgstr "."
-
-#: user2.lsp:242
-msgid "~%The symbol "
-msgstr "~%Le symbole "
-
-#: user2.lsp:248
-msgid "lies in ~S"
-msgstr "est situé dans ~S"
-
-#: user2.lsp:253
-msgid "is uninterned"
-msgstr "n'appartient à aucun paquetage"
-
-#: user2.lsp:274
-msgid " and is accessible in the package~:[~;s~] ~{~A~^, ~}"
-msgstr " et est visible dans le~:[ paquetage~;s paquetages~] ~{~A~^, ~}"
-
-#: user2.lsp:285
-msgid "an integer, uses ~S bits, is represented as a ~(~A~)."
-msgstr "un nombre entier, occupant ~S bits, est représenté comme ~(~A~)."
-
-#: user2.lsp:291
-msgid "a rational, not integral number."
-msgstr "un nombre rationnel mais pas entier."
-
-#: user2.lsp:296
-msgid "a float with ~S bits of mantissa (~(~A~))."
-msgstr "un nombre à virgule flottante avec une précision de ~S bits (un ~(~A~))."
-
-#: user2.lsp:302
-msgid "a complex number "
-msgstr "un nombre complexe "
-
-#: user2.lsp:310
-msgid "at the origin"
-msgstr "à l'origine"
-
-#: user2.lsp:314
-msgid "on the ~:[posi~;nega~]tive real axis"
-msgstr "sur la partie ~:[posi~;nega~]tive de l'axe réelle"
-
-#: user2.lsp:320
-msgid "on the ~:[posi~;nega~]tive imaginary axis"
-msgstr "sur la partie ~:[posi~;nega~]tive de l'axe imaginaire"
-
-#: user2.lsp:325
-msgid "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
-msgstr "dans le ~:[~:[premier~;quatrième~]~;~:[deuxième~;troisième~]~] quartier"
-
-#: user2.lsp:330
-msgid " of the Gaussian number plane."
-msgstr " du plan Gaussien."
-
-#: user2.lsp:335
-msgid "a character"
-msgstr "un caractère"
-
-#: user2.lsp:343
-msgid "~%It is a ~:[non-~;~]printable character."
-msgstr "~%C'est un caractère ~:[non ~;~]imprimable."
-
-#: user2.lsp:349
-msgid "~%Its use is non-portable."
-msgstr "~%Il n'est pas portable de l'utiliser."
-
-#: user2.lsp:356
-msgid "a~:[n interpret~; compil~]ed function."
-msgstr "une fonction ~:[interprét~;compil~]ée."
-
-#: user2.lsp:369
-msgid "~%argument list: ~S"
-msgstr "~%Liste des arguments: ~S"
-
-#: user2.lsp:376
-msgid "~%documentation: ~A"
-msgstr "~%Documentation: ~A"
-
-#: user2.lsp:386
-msgid "a built-in system function."
-msgstr "une fonction prédéfinie du système."
-
-#: user2.lsp:396
-msgid "a special form handler."
-msgstr "un interpréteur de forme spéciale."
-
-#: user2.lsp:402
-msgid "a foreign pointer"
-msgstr "un pointeur étranger."
-
-#: user2.lsp:408
-msgid "a foreign address"
-msgstr "une addresse étrangère."
-
-#: user2.lsp:414
-msgid "a foreign variable of foreign type ~S."
-msgstr "une variable étrangère de type étranger ~S."
-
-#: user2.lsp:421
-msgid "a foreign function."
-msgstr "une fonction étrangère."
-
-#: user2.lsp:428
-msgid "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream."
-msgstr "un «stream» ~:[~:[fermé~;de sortie~]~;~:[d'entrée~;d'entrée/sortie~]~]."
-
-#: user2.lsp:436
-msgid "the package named ~A"
-msgstr "le paquetage de nom ~A"
-
-#: user2.lsp:443
-msgid ". It has the nicknames ~{~A~^, ~}"
-msgstr ". Il porte aussi les noms ~{~A~^, ~}"
-
-#: user2.lsp:454
-msgid "~%It "
-msgstr "~%Il "
-
-#: user2.lsp:459
-msgid "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and "
-msgstr "importe les symboles externes d~:[u paquetage~;es paquetages~] ~{~A~^, ~} et "
-
-#: user2.lsp:464
-msgid "exports ~:[no symbols~;the symbols~:*~{~<~%~:; ~S~>~^~}~]"
-msgstr "~:[n'exporte pas de symboles~;exporte les symboles~:*~{~<~%~:; ~S~>~^~}~]"
-
-#: user2.lsp:473
-msgid " to the package~:[~;s~] ~{~A~^, ~}"
-msgstr " vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}"
-
-#: user2.lsp:482
-msgid "a deleted package."
-msgstr "un paquetage éliminé."
-
-#: user2.lsp:487
-msgid "a hash table with ~S entr~:@P."
-msgstr "un tableau de hachage avec ~S entrée~:*~[s~;~:;s~]."
-
-#: user2.lsp:493
-msgid "~:[a~;the Common Lisp~] readtable."
-msgstr "~:[un~;le~] tableau de lecture~:*~:[~; de Common Lisp~]."
-
-#: user2.lsp:499
-msgid "a ~:[~;portable ~]pathname~:[.~;~:*, with the following components:~{~A~}~]"
-msgstr "un «pathname»~:[~; portable~]~:[.~;~:*, composé de:~{~A~}~]"
-
-#: user2.lsp:519
-msgid "a random-state."
-msgstr "un «random-state»."
-
-#: user2.lsp:524
-msgid "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer."
-msgstr "un intervalle de bits, comportant ~S bits à partir de la position ~S d'un entier."
-
-#: user2.lsp:530
-msgid "a load-time evaluation promise."
-msgstr "une promesse d'évaluation au moment du chargement."
-
-#: user2.lsp:535
-msgid "a label used for resolving #~D# references during READ."
-msgstr "une marque destinée à résoudre #~D# au cours de READ."
-
-#: user2.lsp:541
-msgid "a pointer into the stack. It points to:"
-msgstr "un pointeur dans la pile. Il pointe vers :"
-
-#: user2.lsp:548
-msgid "a special-purpose object."
-msgstr "un objet distingué."
-
-#: user2.lsp:553
-msgid "a machine address."
-msgstr "une addresse au niveau de la machine."
-
-#: user2.lsp:561
-msgid "a structure of type ~S."
-msgstr "une structure de type ~S."
-
-#: user2.lsp:568
-msgid "~%As such, it is also a structure of type ~{~S~^, ~}."
-msgstr "~%En tant que telle, c'est aussi une structure de type ~{~S~^, ~}."
-
-#: user2.lsp:577
-msgid "an instance of the CLOS class ~S."
-msgstr "un objet appartenant à la classe ~S de CLOS."
-
-#: user2.lsp:588
-msgid "a~:[~; simple~] ~A dimensional array"
-msgstr "une matrice~:[~; simple~] à ~A dimension~:P"
-
-#: user2.lsp:594
-msgid " (vector)"
-msgstr " (vecteur)"
-
-#: user2.lsp:599
-msgid " of ~(~A~)s"
-msgstr " de ~(~A~)s"
-
-#: user2.lsp:605
-msgid ", adjustable"
-msgstr ", ajustable"
-
-#: user2.lsp:610
-msgid ", of size ~{~S~^ x ~}"
-msgstr ", de grandeur ~{~S~^ x ~}"
-
-#: user2.lsp:616
-msgid " and current length (fill-pointer) ~S"
-msgstr " et longueur courante (fill-pointer) ~S"
-
-#: user2.lsp:627
-msgid "~%For more information, evaluate ~{~S~^ or ~}."
-msgstr "~%Pour obtenir davantage d'information, évaluez ~{~S~^ ou ~}."
-
-#: user2.lsp:669
-msgid "~S: ~S is not a function."
-msgstr "~S : ~S n'est pas une fonction."
-
-#: user2.lsp:677
-msgid "~%argument list: "
-msgstr "~%Liste des arguments : "
-
-#: user2.lsp:768
-msgid "~S: argument must be ~S, ~S or ~S, not ~S"
-msgstr "~S : L'argument doit être ~S, ~S ou ~S et non ~S"
-
-#: user2.lsp:804 user2.lsp:984
-msgid "Total"
-msgstr "total"
-
-#: user2.lsp:814
-msgid "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%"
-msgstr "~%Allocation permanente:                   ~9D~%Octets couramment utilisés:              ~9D~%Octets disponibles jusqu'au prochain GC: ~9D~%"
-
-#: user2.lsp:1009
-msgid "Already dribbling to ~S"
-msgstr "Le protocole est déjà écrit sur ~S."
-
-#: user2.lsp:1097
-msgid "Currently not dribbling."
-msgstr "Aucun protocole n'est couramment écrit."
-
-#: user2.lsp:1126
-msgid "No external editor installed."
-msgstr "Un éditeur externe n'est pas installé."
-
-#: user2.lsp:1200
-msgid "~S cannot be edited."
-msgstr "~S ne peut pas être édité."
-
-#: user2.lsp:1221
-msgid "~S: source code for ~S not available."
-msgstr "~S : Les sources de ~S ne sont pas présentes."
-
-#: user2.lsp:1530
-msgid "~S: File ~S already exists"
-msgstr "~S : Le fichier ~S existe déjà."
-
 #: trace.lsp:85 trace.lsp:276
 msgid "~S: function name should be a symbol, not ~S"
 msgstr "~S : Le nom de la fonction doit être un symbole et non ~S"
@@ -4597,103 +4139,79 @@ msgstr "~&;; Traçage ~:[de la fonction~;du macro~] ~S."
 msgid "~S: ~S was traced and has been redefined!"
 msgstr "~S : ~S était tracée et a été redéfinie!"
 
-#: macros3.lsp:13
-msgid ""
-"The form ~S yielded ~:[no values~;~:*~{~S~^ ; ~}~] ,~@\n"
-"                       that's not of type ~S."
-msgstr ""
-"La forme ~S a rendu ~:[aucune valeur~;~:*~{~S~^ ; ~}~] ,~@\n"
-"                        ceci n'est pas de type ~S."
-
-#: macros3.lsp:68
-msgid "LETF* code contains a dotted list, ending with ~S"
-msgstr "Dans le code de LETF*, occurence d'une paire pointée terminée en ~S"
-
-#: macros3.lsp:89
-msgid "illegal syntax in LETF* binding: ~S"
-msgstr "Syntaxe illégale dans une liaison pour LETF* : ~S"
-
-#: macros3.lsp:235
-msgid "LETF code contains a dotted list, ending with ~S"
-msgstr "Dans le code de LETF, occurence d'une paire pointée terminée en ~S"
-
-#: macros3.lsp:256
-msgid "illegal syntax in LETF binding: ~S"
-msgstr "Syntaxe illégale dans une liaison pour LETF : ~S"
-
-#: compiler.lsp:217
+#: compiler.lsp:216
 msgid "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}"
 msgstr "~1{~3@*~D/~4@*~D/~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}"
 
-#: compiler.lsp:360
+#: compiler.lsp:359
 msgid "Bad length of closure vector: ~S"
 msgstr "Mauvaise longueur pour un vecteur de fermeture : ~S"
 
-#: compiler.lsp:1748
+#: compiler.lsp:1750
 msgid "Compiler bug!! Occurred in ~A~@[ at ~A~]."
 msgstr "Erreur dans le compilateur!! Arrivé dans ~A~@[ au point ~A~]."
 
-#: compiler.lsp:2427
+#: compiler.lsp:2429
 msgid "Bad declaration syntax: ~S~%Will be ignored."
 msgstr "Mauvaise syntaxe pour une déclaration : ~S~%Ignorée."
 
-#: compiler.lsp:2449
+#: compiler.lsp:2451
 msgid "Non-symbol ~S may not be declared SPECIAL."
 msgstr "Seuls les symboles peuvent être déclarés SPECIAL, pas ~S."
 
-#: compiler.lsp:2458
+#: compiler.lsp:2460
 msgid "Non-symbol ~S may not be declared IGNORE."
 msgstr "Seuls les symboles peuvent être déclarés IGNORE, pas ~S."
 
-#: compiler.lsp:2467
+#: compiler.lsp:2469
 msgid "Non-symbol ~S may not be declared IGNORABLE."
 msgstr "Seuls les symboles peuvent être déclarés IGNORABLE."
 
-#: compiler.lsp:2476
+#: compiler.lsp:2478
 msgid "Non-symbol ~S may not be declared READ-ONLY."
 msgstr "Seuls les symboles peuvent être déclarés READ-ONLY."
 
-#: compiler.lsp:2483
+#: compiler.lsp:2485
 msgid "Unknown declaration ~S.~%The whole declaration will be ignored."
 msgstr "Déclaration inconnue ~S.~%Toute la déclaration ~S est ignorée."
 
-#: compiler.lsp:2817
+#: compiler.lsp:2819
 msgid " in line ~D"
 msgstr " dans la ligne ~D"
 
-#: compiler.lsp:2820
+#: compiler.lsp:2822
 msgid " in lines ~D..~D"
 msgstr " dans les lignes ~D..~D"
 
-#: compiler.lsp:2834
+#: compiler.lsp:2836
 msgid "~%WARNING~@[ in function ~S~]~A :~%"
 msgstr "~%AVERTISSEMENT~@[ dans la fonction ~S~]~A :~%"
 
-#: compiler.lsp:2868
+#: compiler.lsp:2870
 msgid "~%ERROR~@[ in function ~S~]~A :~%~?"
 msgstr "~%ERREUR~@[ dans la fonction ~S~]~A :~%~?"
 
-#: compiler.lsp:3012
+#: compiler.lsp:3014
 msgid "Code contains dotted list ~S"
 msgstr "Paire pointée dans le code en ~S"
 
-#: compiler.lsp:3018
+#: compiler.lsp:3020
 msgid "Form too short, too few arguments: ~S"
 msgstr "Forme trop courte (trop peu d'arguments) : ~S"
 
-#: compiler.lsp:3025
+#: compiler.lsp:3027
 msgid "Form too long, too many arguments: ~S"
 msgstr "Forme trop longue (trop d'arguments) : ~S"
 
-#: compiler.lsp:3161
+#: compiler.lsp:3163
 msgid "Invalid form: ~S"
 msgstr "Forme invalide : ~S"
 
-#: compiler.lsp:3215
+#: compiler.lsp:3217
 msgid "Not the name of a function: ~S"
 msgstr "Ceci n'est pas le nom d'une fonction : ~S"
 
-#: compiler.lsp:3292 compiler.lsp:3376
+#: compiler.lsp:3294 compiler.lsp:3378
 msgid ""
 "~S is neither declared nor bound,~@\n"
 "                        it will be treated as if it were declared SPECIAL."
@@ -4701,7 +4219,7 @@ msgstr ""
 "~S n'est ni déclaré ni lié,~@\n"
 "                         et va être traité comme étant déclaré SPECIAL."
 
-#: compiler.lsp:3397
+#: compiler.lsp:3399
 msgid ""
 "The constant ~S may not be assigned to.~@\n"
 "                                                  The assignment will be ignored."
@@ -4709,11 +4227,11 @@ msgstr ""
 "Rien ne peut être assigné à la constante ~S.~@\n"
 "                                                   L'assignation est ignorée."
 
-#: compiler.lsp:3543
+#: compiler.lsp:3545
 msgid "argument list to function ~S is dotted: ~S"
 msgstr "Liste pointée d'arguments pour la fonction ~S : ~S"
 
-#: compiler.lsp:3551
+#: compiler.lsp:3553
 msgid ""
 "~S called with ~S~:[~; or more~] arguments, but it requires ~\n"
 "                        ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
@@ -4721,11 +4239,11 @@ msgstr ""
 "~S est appelé avec ~S ~:[~;ou plus d'~]arguments mais a besoin ~\n"
 "                         ~:[de ~:[~S à ~S~;~S~]~;d'au moins ~*~S~] arguments."
 
-#: compiler.lsp:3568
+#: compiler.lsp:3570
 msgid "keyword arguments to function ~S should occur pairwise: ~S"
 msgstr "Les arguments de genre mot-clé pour la fonction ~S ne sont pas par paires : ~S"
 
-#: compiler.lsp:3581
+#: compiler.lsp:3583
 msgid ""
 "keyword ~S is not allowed for function ~S.~\n"
 "                              ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~]."
@@ -4733,11 +4251,11 @@ msgstr ""
 "L'argument mot-clé ~S n'est pas permis pour la fonction ~S.~\n"
 "                               ~%Seul~:[s sont permis ~{~S~#[~; et ~S~:;, ~]~}~; est permis ~{~S~}~]."
 
-#: compiler.lsp:3597
+#: compiler.lsp:3599
 msgid "argument ~S to function ~S is not a keyword"
 msgstr "L'argument ~S pour la fonction ~S n'est pas un mot-clé."
 
-#: compiler.lsp:4255
+#: compiler.lsp:4257
 msgid ""
 "~S called with ~S arguments, but it requires ~\n"
 "                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] arguments."
@@ -4745,251 +4263,251 @@ msgstr ""
 "~S est appelé avec ~S arguments mais a besoin ~\n"
 "                                    ~:[de ~:[~S à ~S~;~S~]~;d'au moins ~*~S~] arguments."
 
-#: compiler.lsp:4436
+#: compiler.lsp:4438
 msgid "Illegal syntax in LET/LET*: ~S"
 msgstr "Mauvaise syntaxe pour LET/LET* : ~S"
 
-#: compiler.lsp:4475
+#: compiler.lsp:4477
 msgid "Lambda list marker ~S not allowed here."
 msgstr "Le marqueur de lambda-liste ~S n'est pas permis ici."
 
-#: compiler.lsp:4483
+#: compiler.lsp:4485
 msgid "Missing &REST parameter in lambda list ~S"
 msgstr "Il manque le paramètre &REST dans la lambda-liste ~S"
 
-#: compiler.lsp:4491
+#: compiler.lsp:4493
 msgid "Lambda list element ~S is superfluous."
 msgstr "L'élément de lambda-liste est superflu : ~S"
 
-#: compiler.lsp:4668
+#: compiler.lsp:4670
 msgid "Lambda lists with dots are only allowed in macros, not here: ~S"
 msgstr "Les listes lambdas contenant une paire pointée ne sont permises qu'avec des macros et non ici : ~S"
 
-#: compiler.lsp:4686
+#: compiler.lsp:4688
 msgid "Illegal lambda list element ~S"
 msgstr "N'est pas permis dans une lambda-liste : ~S"
 
-#: compiler.lsp:4784
+#: compiler.lsp:4786
 msgid "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL."
 msgstr "Lier la variable ~S peut avoir des effets de bord malgré la déclaration IGNORE~%car elle a été déclarée SPECIAL."
 
-#: compiler.lsp:4790
+#: compiler.lsp:4792
 msgid "variable ~S is used despite of IGNORE declaration."
 msgstr "La variable ~S est utilisée malgré la déclaration IGNORE."
 
-#: compiler.lsp:4803
+#: compiler.lsp:4805
 msgid "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
 msgstr "La variable ~S n'est pas utilisée.~%Mauvaise orthographe ou déclaration IGNORE manquante?"
 
-#: compiler.lsp:4811
+#: compiler.lsp:4813
 msgid "The variable ~S is assigned to, despite of READ-ONLY declaration."
 msgstr "La variable ~S est affectée malgré la déclaration READ-ONLY."
 
-#: compiler.lsp:4859 compiler.lsp:4997
+#: compiler.lsp:4861 compiler.lsp:4999
 msgid "Constant ~S cannot be bound."
 msgstr "La constante ~S ne peut pas être liée."
 
-#: compiler.lsp:5738
+#: compiler.lsp:5740
 msgid "Misplaced declaration: ~S"
 msgstr "Une déclaration n'est pas permise ici : ~S"
 
-#: compiler.lsp:5952
+#: compiler.lsp:5954
 msgid "Odd number of arguments to SETQ: ~S"
 msgstr "Nombre impair d'arguments pour SETQ : ~S"
 
-#: compiler.lsp:5991 compiler.lsp:6032 compiler.lsp:6132
+#: compiler.lsp:5993 compiler.lsp:6034 compiler.lsp:6134
 msgid "Cannot assign to non-symbol ~S."
 msgstr "Rien ne peut être assigné à ~S car ce n'est pas un symbole."
 
-#: compiler.lsp:6005
+#: compiler.lsp:6007
 msgid "Odd number of arguments to PSETQ: ~S"
 msgstr "Nombre impair d'arguments pour PSETQ : ~S"
 
-#: compiler.lsp:6272
+#: compiler.lsp:6274
 msgid "Only symbols may be used as variables, not ~S"
 msgstr "Seuls les symboles peuvent servir de variable et non ~S"
 
-#: compiler.lsp:6379
+#: compiler.lsp:6381
 msgid "Illegal syntax in COMPILER-LET: ~S"
 msgstr "Mauvaise syntaxe pour COMPILER-LET : ~S"
 
-#: compiler.lsp:6389
+#: compiler.lsp:6391
 msgid "Block name must be a symbol, not ~S"
 msgstr "Un nom de bloc doit être un symbole et non ~S"
 
-#: compiler.lsp:6440
+#: compiler.lsp:6442
 msgid "RETURN-FROM block ~S is impossible from here."
 msgstr "RETURN-FROM bloc ~S est impossible à partir d'ici."
 
-#: compiler.lsp:6513
+#: compiler.lsp:6515
 msgid "Only numbers and symbols are valid tags, not ~S"
 msgstr "Seuls les symboles et les nombres peuvent servir de marqueur de saut et non ~S"
 
-#: compiler.lsp:6586
+#: compiler.lsp:6588
 msgid "Tag must be a symbol or a number, not ~S"
 msgstr "Le marqueur de saut doit être un symbole ou un nombre et non ~S"
 
-#: compiler.lsp:6593
+#: compiler.lsp:6595
 msgid "GO to tag ~S is impossible from here."
 msgstr "GO vers le marqueur ~S n'est pas possible ici."
 
-#: compiler.lsp:6670
+#: compiler.lsp:6672
 msgid "~S is not a function. It is a locally defined macro."
 msgstr "~S n'est pas une fonction mais une macro définie localement."
 
-#: compiler.lsp:6708
+#: compiler.lsp:6710
 msgid "Only symbols and lambda expressions are function names, not ~S"
 msgstr "Seuls les symboles et les lambda-expressions sont des noms de fonction et non ~S"
 
-#: compiler.lsp:6761
+#: compiler.lsp:6763
 msgid "Illegal function definition syntax in ~S: ~S"
 msgstr "Mauvaise syntaxe de définition de fonction dans ~S : ~S"
 
-#: compiler.lsp:7203
+#: compiler.lsp:7205
 msgid "Illegal syntax in SYMBOL-MACROLET: ~S"
 msgstr "Mauvaise syntaxe pour SYMBOL-MACROLET : ~S"
 
-#: compiler.lsp:7250
+#: compiler.lsp:7252
 msgid "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S"
 msgstr "EVAL-WHEN ne s'applique qu'aux situations EVAL, LOAD ou COMPILE et non ~S."
 
-#: compiler.lsp:7297
+#: compiler.lsp:7299
 msgid "CASE clause without objects: ~S"
 msgstr "Clause CASE sans objets LISP : ~S"
 
-#: compiler.lsp:7309
+#: compiler.lsp:7311
 msgid "~S: the ~S clause must be the last one: ~S"
 msgstr "~S : La clause ~S doit être la dernière: ~S"
 
-#: compiler.lsp:7321
+#: compiler.lsp:7323
 msgid "Duplicate ~S label ~S : ~S"
 msgstr "~S : Le choix ~S se répète: ~S"
 
-#: compiler.lsp:7585
+#: compiler.lsp:7587
 msgid "Too many arguments to ~S"
 msgstr "Trop d'arguments pour ~S"
 
-#: compiler.lsp:7602
+#: compiler.lsp:7604
 msgid "Too few arguments to ~S"
 msgstr "Trop peu d'arguments pour ~S"
 
-#: compiler.lsp:12091
+#: compiler.lsp:12104
 msgid "Name of function to be compiled must be a symbol, not ~S"
 msgstr "Le nom d'une fonction à compiler doit être un symbole et non ~S"
 
-#: compiler.lsp:12104
+#: compiler.lsp:12117
 msgid "~S: redefining ~S; it was traced!"
 msgstr "~S: ~S est redéfinie, alors qu'elle était tracée!"
 
-#: compiler.lsp:12114 compiler.lsp:12151
+#: compiler.lsp:12127 compiler.lsp:12164
 msgid "~S is already compiled."
 msgstr "~S est déjà compilée."
 
-#: compiler.lsp:12137 compiler.lsp:12749
+#: compiler.lsp:12150 compiler.lsp:12765
 msgid "Undefined function ~S"
 msgstr "Fonction non définie ~S."
 
-#: compiler.lsp:12162
+#: compiler.lsp:12175
 msgid "Not a lambda expression nor a function: ~S"
 msgstr "Ni lambda-expression ni fonction : ~S"
 
-#: compiler.lsp:12394
+#: compiler.lsp:12408
 msgid "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
 msgstr "~&Listage de la compilation du fichier ~A~%le ~@? par ~A, version ~A"
 
-#: compiler.lsp:12439
+#: compiler.lsp:12453
 msgid "~%Compiling file ~A ..."
 msgstr "~%Compilation du fichier ~A..."
 
-#: compiler.lsp:12463
+#: compiler.lsp:12479
 msgid "~&~%Compilation of file ~A is finished."
 msgstr "~&~%Compilation du fichier ~A terminée."
 
-#: compiler.lsp:12468
+#: compiler.lsp:12484
 msgid "~%~D error~:P, ~D warning~:P"
 msgstr "~%~D erreur~:P, ~D avertissement~:P"
 
-#: compiler.lsp:12475
+#: compiler.lsp:12491
 msgid "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Il y a des erreurs dans les fonctions :~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lsp:12484
+#: compiler.lsp:12500
 msgid "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Les fonctions suivantes sont utilisées mais non définies :~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lsp:12492
+#: compiler.lsp:12508
 msgid "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Les variables utilisées comme SPECIAL ne sont pas définies :~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lsp:12498
+#: compiler.lsp:12514
 msgid "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Les variables déclarées SPECIAL sont définies trop tard :~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lsp:12504
+#: compiler.lsp:12520
 msgid "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Les fonctions suivantes sont utilisées mais sont découragées :~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lsp:12567
+#: compiler.lsp:12583
 msgid "~%~%Disassembly of function ~S"
 msgstr "~%~%Déassemblage de la fonction ~S"
 
-#: compiler.lsp:12580
+#: compiler.lsp:12596
 msgid "~%~S required arguments"
 msgstr "~%~S arguments nécessaires"
 
-#: compiler.lsp:12585
+#: compiler.lsp:12601
 msgid "~%~S optional arguments"
 msgstr "~%~S arguments facultatifs"
 
-#: compiler.lsp:12590
+#: compiler.lsp:12606
 msgid "~%~:[No rest parameter~;Rest parameter~]"
 msgstr "~%~:[Pas de paramètre &REST~;Paramètre &REST~]"
 
-#: compiler.lsp:12597
+#: compiler.lsp:12613
 msgid "~%~S keyword parameter~:P: ~{~S~^, ~}."
 msgstr "~%~S mot~:P-clé : ~{~S~^, ~}."
 
-#: compiler.lsp:12603
+#: compiler.lsp:12619
 msgid "~%Other keywords are allowed."
 msgstr "~%D'autres mots-clé sont permis."
 
-#: compiler.lsp:12607
+#: compiler.lsp:12623
 msgid "~%No keyword parameters"
 msgstr "~%Pas de mot-clé"
 
-#: compiler.lsp:12626
+#: compiler.lsp:12642
 msgid "Disassembly of function "
 msgstr "Déassemblage de la fonction "
 
-#: compiler.lsp:12646
+#: compiler.lsp:12662
 msgid " required arguments"
 msgstr " arguments nécessaires"
 
-#: compiler.lsp:12653
+#: compiler.lsp:12669
 msgid " optional arguments"
 msgstr " arguments facultatifs"
 
-#: compiler.lsp:12660
+#: compiler.lsp:12676
 msgid "Rest parameter"
 msgstr "Paramètre &REST"
 
-#: compiler.lsp:12665
+#: compiler.lsp:12681
 msgid "No rest parameter"
 msgstr "Pas de paramètre &REST"
 
-#: compiler.lsp:12674
+#: compiler.lsp:12690
 msgid " keyword parameter~P: "
 msgstr " mot~P-clé : "
 
-#: compiler.lsp:12686
+#: compiler.lsp:12702
 msgid "Other keywords are allowed."
 msgstr "D'autres mots-clé sont permis."
 
-#: compiler.lsp:12693
+#: compiler.lsp:12709
 msgid "No keyword parameters"
 msgstr "Pas de mot-clé"
 
-#: compiler.lsp:12774
+#: compiler.lsp:12790
 msgid "Cannot disassemble ~S"
 msgstr "Impossible de déassembler ~S"
 
@@ -5057,11 +4575,11 @@ msgstr "~S : Le «stream» d'entrée se termine à l'intérieur d'un macro de lecture
 msgid "~S from ~S: character read should be a character: ~S"
 msgstr "~S de ~S : le caractère lu n'est pas un caractère: ~S"
 
-#: defs2.lsp:497
+#: defs2.lsp:502
 msgid "~S from ~S: After ~S is ~S an undefined dispatch macro character"
 msgstr "~S de ~S : Après ~S ~S n'est plus défini comme macro caractère de «dispatch»."
 
-#: defs2.lsp:565 defs2.lsp:582
+#: defs2.lsp:570 defs2.lsp:587
 msgid "~S: ~S of ~S is ambiguous. Please use ~S or ~S."
 msgstr "~S : ~S de ~S est ambigu. Utilisez ~S ou ~S."
 
@@ -5293,151 +4811,151 @@ msgstr "~S ~S : ~S n'est pas permit dans des méthodes ~S."
 msgid "Too few arguments to ~S: ~S"
 msgstr "Trop peu d'arguments pour ~S : ~S"
 
-#: clos.lsp:2356
+#: clos.lsp:2359
 msgid "The generic function ~S is being modified, but has already been called."
 msgstr "On change la fonction générique ~S qui a déjà été appelée."
 
-#: clos.lsp:2921
+#: clos.lsp:2924
 msgid "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S"
 msgstr "~S dans ~S : les nouveaux arguments ~S ont une méthode effective différentes des anciens arguments ~S"
 
-#: clos.lsp:2944
+#: clos.lsp:2948
 msgid "~S has ~S, but ~S has ~S required parameters"
 msgstr "~S reçoit ~S arguments obligatoires, mais ~S en reçoit ~S."
 
-#: clos.lsp:2951
+#: clos.lsp:2955
 msgid "~S has ~S, but ~S has ~S optional parameters"
 msgstr "~S reçoit ~S arguments facultatifs, mais ~S en reçoit ~S."
 
-#: clos.lsp:2958 clos.lsp:2965
+#: clos.lsp:2962 clos.lsp:2969
 msgid "~S has &REST or &KEY, but ~S hasn't."
 msgstr "~S spécifie &REST ou &KEY, mais ~S pas."
 
-#: clos.lsp:2979
+#: clos.lsp:2983
 msgid "~S doesn't accept the keywords ~S of ~S"
 msgstr "~S n'accepte pas les mots clé ~S de ~S."
 
-#: clos.lsp:3009
+#: clos.lsp:3014
 msgid "Replacing method ~S in ~S"
 msgstr "On remplace la méthode ~S dans ~S."
 
-#: clos.lsp:3029
+#: clos.lsp:3034
 msgid "Removing method ~S in ~S"
 msgstr "On retire la méthode ~S de ~S."
 
-#: clos.lsp:3058
+#: clos.lsp:3063
 msgid "~S has no method with qualifiers ~:S and specializers ~S"
 msgstr "~S n'a pas de méthode qualifiée ~:S qui est spécialisée sur ~S."
 
-#: clos.lsp:3091 clos.lsp:3436
+#: clos.lsp:3096 clos.lsp:3443
 msgid "~S doesn't name a generic function"
 msgstr "~S n'est pas le nom d'une fonction générique."
 
-#: clos.lsp:3159
+#: clos.lsp:3164
 msgid "~S ~S: Only ~S declarations are permitted: ~S"
 msgstr "~S ~S : Seules les déclarations ~S sont permises: ~S"
 
-#: clos.lsp:3170
+#: clos.lsp:3175
 msgid "~S ~S: ~S may only be specified once."
 msgstr "~S ~S : ~S ne peut être spécifié qu'une seule fois."
 
-#: clos.lsp:3180
+#: clos.lsp:3185
 msgid "~S ~S: A string must be specified after ~S : ~S"
 msgstr "~S ~S : Il faut une chaîne après ~S : ~S"
 
-#: clos.lsp:3187
+#: clos.lsp:3192
 msgid "~S ~S: Only one ~S string is allowed"
 msgstr "~S ~S : Il faut qu'une seule chaîne ~S."
 
-#: clos.lsp:3197
+#: clos.lsp:3202
 msgid "~S ~S: The only valid method combination is ~S : ~S"
 msgstr "~S ~S : La seule combinaison de méthodes valable est ~S : ~S"
 
-#: clos.lsp:3207
+#: clos.lsp:3212
 msgid "~S ~S: The only valid generic function class name is ~S : ~S"
 msgstr "~S ~S : Le seul nom valable d'une classe de fonction générique est ~S : ~S"
 
-#: clos.lsp:3217
+#: clos.lsp:3222
 msgid "~S ~S: The only valid method class name is ~S : ~S"
 msgstr "~S ~S : Le seul nom valable d'une classe de méthodes est ~S : ~S"
 
-#: clos.lsp:3240
+#: clos.lsp:3245
 msgid "~S ~S: ~S is not one of the required parameters: ~S"
 msgstr "~S ~S : ~S n'est pas parmi les noms d'arguments obligatoires: ~S"
 
-#: clos.lsp:3254
+#: clos.lsp:3259
 msgid "~S ~S: some variable occurs twice in ~S"
 msgstr "~S ~S : une variable apparaît plusieurs fois dans ~S."
 
-#: clos.lsp:3261
+#: clos.lsp:3266
 msgid "~S ~S: ~S is missing some required parameter"
 msgstr "~S ~S : ~S ne contient pas tous les noms d'arguments obligatoires."
 
-#: clos.lsp:3292
+#: clos.lsp:3297
 msgid "~S ~S: No initializations are allowed in a generic function lambda-list: ~S"
 msgstr "~S ~S : Des initialisations ne sont pas permises dans la lambda-liste d'une fonction générique: ~S"
 
-#: clos.lsp:3300
+#: clos.lsp:3305
 msgid "~S ~S: variable name ~S should be a symbol"
 msgstr "~S ~S : le nom de variable ~S devrait être un symbole."
 
-#: clos.lsp:3307
+#: clos.lsp:3312
 msgid "~S ~S: duplicate variable name ~S"
 msgstr "~S ~S : le nom de variable ~S apparaît plusieurs fois."
 
-#: clos.lsp:3360
+#: clos.lsp:3365
 msgid "~S ~S: invalid lambda list portion: ~S"
 msgstr "~S ~S : lambda-liste partiellement invalide: ~S"
 
-#: clos.lsp:3413
+#: clos.lsp:3420
 msgid "Removing all methods of ~S"
 msgstr "On enlève toutes les méthodes de ~S."
 
-#: clos.lsp:3423
+#: clos.lsp:3430
 msgid "Modifying the parameter profile of ~S"
 msgstr "On change le nombre / l'ordre des arguments de ~S."
 
-#: clos.lsp:3483
+#: clos.lsp:3490
 msgid "~S: ~S is not a generic function specification"
 msgstr "~S: ~S n'est pas une spécification de fonction générique."
 
-#: clos.lsp:3548
+#: clos.lsp:3555
 msgid "~S: The name of a class must be a symbol, not ~S"
 msgstr "~S : Le nom d'une classe doit être un symbole et non ~S."
 
-#: clos.lsp:3555
+#: clos.lsp:3562
 msgid "~S: The name of the built-in class ~S cannot be modified"
 msgstr "~S : Le nom de la classe prédéfinie ~S ne peut pas être changée."
 
-#: clos.lsp:3566
+#: clos.lsp:3573
 msgid "~S: When calling ~S with arguments ~S, no method is applicable."
 msgstr "~S : À l'appel de ~S avec les arguments ~S, aucune méthode ne s'applique."
 
-#: clos.lsp:3575
+#: clos.lsp:3582
 msgid "~S: When calling ~S with arguments ~S, no primary method is applicable."
 msgstr "~S : À l'appel de ~S avec les arguments ~S, aucune méthode primaire ne s'applique."
 
-#: clos.lsp:3587
+#: clos.lsp:3594
 msgid "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called."
 msgstr "~S : À l'appel de ~S avec les arguments ~S, il n'y a plus de méthode après ~S, et ~S a été appelé."
 
-#: clos.lsp:3640
+#: clos.lsp:3647
 msgid "~S: The class ~S has no slot named ~S"
 msgstr "~S : La classe ~S n'a pas de composant de nom ~S."
 
-#: clos.lsp:3652
+#: clos.lsp:3659
 msgid "~S: The slot ~S of ~S has no value"
 msgstr "~S : Le composant ~S de ~S n'a pas de valeur."
 
-#: clos.lsp:3683
+#: clos.lsp:3690
 msgid "~%Slots:"
 msgstr "~%Composants:"
 
-#: clos.lsp:3691
+#: clos.lsp:3698
 msgid "unbound"
 msgstr "aucune valeur"
 
-#: clos.lsp:3697
+#: clos.lsp:3704
 msgid "~%No slots."
 msgstr "~%Aucun composant."
 
@@ -5513,17 +5031,17 @@ msgstr "~S : Ce «restart» ne peut prendre le contrôle en dialogue car il manque 
 msgid "~%New ~S [value ~D of ~D]: "
 msgstr "~%Nouveau ~S [valeur ~D de ~D]: "
 
-#: conditio.lsp:1438 conditio.lsp:1561
+#: conditio.lsp:1447 conditio.lsp:1573
 msgid "Return from ~S loop"
 msgstr "Quitter le cycle de ~S."
 
-#: conditio.lsp:1537
+#: conditio.lsp:1535 conditio.lsp:1562
+msgid "WARNING:"
+msgstr "AVERTISSEMENT :"
+
+#: conditio.lsp:1549
 msgid "~S: This is more serious than a warning: ~A"
 msgstr "~S : C'est plus sérieux qu'un avertissement: ~A"
-
-#: defs3.lsp:229
-msgid "~S: argument ~S should be a string or a symbol"
-msgstr "~S : L'argument doit être un symbole ou une chaîne et non ~S."
 
 #: xcharin.lsp:36
 msgid "~: argument ~S is not a character"
@@ -5540,6 +5058,548 @@ msgstr "~S : L'argument bits doit être un entier et non ~S."
 #: xcharin.lsp:94
 msgid "~S: the only bit names are ~S, ~S, ~S, ~S, not ~S"
 msgstr "~S : Les seuls noms bits permis sont ~S, ~S, ~S et ~S et non ~S."
+
+#: screen.lsp:226
+msgid "Got bad response from ~S: ~S"
+msgstr "Mauvaise réponse par ~S : ~S"
+
+#: runprog.lsp:162
+msgid "~S: File ~S already exists"
+msgstr "~S : Le fichier ~S existe déjà."
+
+#: query.lsp:12
+msgid " (y/n) "
+msgstr " (o/n) "
+
+#: query.lsp:26
+msgid "Please answer with y or n : "
+msgstr "Répondez par o ou n : "
+
+#: query.lsp:41
+msgid " (yes/no) "
+msgstr " (oui/non) "
+
+#: query.lsp:54
+msgid "Please answer with yes or no : "
+msgstr "Répondez par oui ou non : "
+
+#: reploop.lsp:53
+msgid "[*package* invalid]"
+msgstr "[*package* invalide]"
+
+#: reploop.lsp:164
+msgid "Values: "
+msgstr "Valeurs : "
+
+#: reploop.lsp:174
+msgid ""
+"\n"
+"Help = this list\n"
+"Use the usual editing capabilities.\n"
+"(quit) or (exit) leaves CLISP."
+msgstr ""
+"\n"
+"Help = cette liste\n"
+"Éditez de la façon habituelle.\n"
+"(quit) ou (exit) quitte CLISP."
+
+#: reploop.lsp:191
+msgid ""
+"\n"
+"Help   = this command list\n"
+"Abort  = abort to the next recent input loop\n"
+"Unwind = abort to the next recent input loop\n"
+"Mode-1 = inspect all the stack elements\n"
+"Mode-2 = inspect all the frames\n"
+"Mode-3 = inspect only lexical frames\n"
+"Mode-4 = inspect only EVAL and APPLY frames (default)\n"
+"Mode-5 = inspect only APPLY frames\n"
+"Where  = inspect this frame\n"
+"Up     = go up one frame, inspect it\n"
+"Top    = go to top frame, inspect it\n"
+"Down   = go down one frame, inspect it\n"
+"Bottom = go to bottom (most recent) frame, inspect it\n"
+"Backtrace-1 = list all stack elements\n"
+"Backtrace-2 = list all frames\n"
+"Backtrace-3 = list all lexical frames\n"
+"Backtrace-4 = list all EVAL and APPLY frames\n"
+"Backtrace-5 = list all APPLY frames\n"
+"Backtrace   = list stack in current mode\n"
+"Break+ = set breakpoint in EVAL frame\n"
+"Break- = disable breakpoint in EVAL frame\n"
+"Redo   = re-evaluate form in EVAL frame\n"
+"Return = leave EVAL frame, prescribing the return values"
+msgstr ""
+"\n"
+"Help   = ce menu-ci\n"
+"Abort  = arrêt, retour au niveau supérieur\n"
+"Unwind = arrêt, retour au niveau supérieur\n"
+"Mode-1 = examiner tous les éléments de la pile\n"
+"Mode-2 = examiner tous les «frames»\n"
+"Mode-3 = examiner uniquement les «frames» lexicaux\n"
+"Mode-4 = examiner uniquement les «frames» EVAL et APPLY (par défaut)\n"
+"Mode-5 = examiner uniquement les «frames» APPLY\n"
+"Where  = examiner ce «frame»\n"
+"Up     = examiner un «frame» supérieur\n"
+"Top    = examiner le «frame» le plus élevé\n"
+"Down   = examiner un prochain «frame» plus récent (inférieur)\n"
+"Bottom = examiner le «frame» le plus récent (le plus bas)\n"
+"Backtrace-1 = montrer tous les éléments de la pile\n"
+"Backtrace-2 = montrer tous les «frames»\n"
+"Backtrace-3 = montrer tous les «frames» lexicaux\n"
+"Backtrace-4 = montrer tous les «frames» EVAL et APPLY\n"
+"Backtrace-5 = montrer tous les «frames» APPLY\n"
+"Backtrace   = montrer la pile en mode actuel\n"
+"Break+ = placer un point d'interception dans le «frame» EVAL\n"
+"Break- = enlever le point d'interception du «frame» EVAL\n"
+"Redo   = réévaluer la forme dans le «frame» EVAL\n"
+"Return = quitter le «frame» EVAL avec certaines valeurs"
+
+#: reploop.lsp:294
+msgid ""
+"\n"
+"Continue = continue evaluation"
+msgstr ""
+"\n"
+"Continue = continuer l'évaluation"
+
+#: reploop.lsp:367
+msgid "You can continue (by typing 'continue')."
+msgstr "Vous pouvez continuer (tapez «continue» pour cela)."
+
+#: reploop.lsp:390
+msgid "The following restarts are available too:"
+msgstr "D'autres rentrées possibles:"
+
+#: reploop.lsp:393
+msgid "The following restarts are available:"
+msgstr "Rentrées possibles:"
+
+#: reploop.lsp:487
+msgid ""
+"\n"
+"Step     = step into form: evaluate this form in single step mode\n"
+"Next     = step over form: evaluate this form at once\n"
+"Over     = step over this level: evaluate at once up to the next return\n"
+"Continue = switch off single step mode, continue evaluation\n"
+"Step-until, Next-until, Over-until, Continue-until:\n"
+"           same as above, specify a condition when to stop"
+msgstr ""
+"\n"
+"Step     = step into form: évaluer cette forme petit à petit\n"
+"Next     = step over form: évaluer cette forme en bloc\n"
+"Over     = step over this level: évaluer tout le reste jusqu'au prochain retour\n"
+"Continue = continue: évaluer tout le reste en bloc\n"
+"Step-until, Next-until, Over-until, Continue-until:\n"
+"           de même, avec spécification d'une condition d'arrêt"
+
+#: reploop.lsp:522 reploop.lsp:583
+msgid "step "
+msgstr "Step "
+
+#: reploop.lsp:530
+msgid "no values"
+msgstr "Aucune valeur"
+
+#: reploop.lsp:535
+msgid "value: "
+msgstr "Valeur : "
+
+#: reploop.lsp:543
+msgid " values: "
+msgstr " Valeurs : "
+
+#: reploop.lsp:615
+msgid "condition when to stop: "
+msgstr "condition d'arrêt : "
+
+#: dribble.lsp:19
+msgid "Already dribbling to ~S"
+msgstr "Le protocole est déjà écrit sur ~S."
+
+#: dribble.lsp:107
+msgid "Currently not dribbling."
+msgstr "Aucun protocole n'est couramment écrit."
+
+#: describe.lsp:36
+msgid "constant"
+msgstr "constante"
+
+#: describe.lsp:40
+msgid "variable"
+msgstr "variable"
+
+#: describe.lsp:48
+msgid "type"
+msgstr "type"
+
+#: describe.lsp:54
+msgid "class"
+msgstr "classe"
+
+#: describe.lsp:69
+msgid "~%Description of~%"
+msgstr "~%Description de~%"
+
+#: describe.lsp:74
+msgid "~%This is "
+msgstr "~%Ceci est "
+
+#: describe.lsp:96
+msgid "a list of length ~S."
+msgstr "une liste de longueur ~S."
+
+#: describe.lsp:102
+msgid "a dotted list of length ~S."
+msgstr "une liste pointée de longueur ~S."
+
+#: describe.lsp:107
+msgid "a cons."
+msgstr "un «cons»."
+
+#: describe.lsp:111
+msgid "a cyclic list."
+msgstr "une liste circulaire."
+
+#: describe.lsp:117
+msgid "the empty list, "
+msgstr "la liste vide, "
+
+#: describe.lsp:121
+msgid "the symbol ~S"
+msgstr "le symbole ~S"
+
+#: describe.lsp:127
+msgid ", a keyword"
+msgstr ", un mot-clé"
+
+#: describe.lsp:133
+msgid ", a constant"
+msgstr ", une constante"
+
+#: describe.lsp:138
+msgid ", a variable declared SPECIAL"
+msgstr ", une variable declarée SPECIAL"
+
+#: describe.lsp:142
+msgid ", a variable"
+msgstr ", une variable"
+
+#: describe.lsp:147
+msgid " (macro)"
+msgstr " (macro)"
+
+#: describe.lsp:157
+msgid ", names "
+msgstr ", le nom "
+
+#: describe.lsp:162
+msgid "a special form"
+msgstr "d'une forme spéciale"
+
+#: describe.lsp:167
+msgid " with macro definition"
+msgstr ", aussi d'un macro"
+
+#: describe.lsp:172
+msgid "a function"
+msgstr "d'une fonction"
+
+#: describe.lsp:180
+msgid "a macro"
+msgstr "d'un macro"
+
+#: describe.lsp:189
+msgid ", names a type"
+msgstr ", le nom d'un type"
+
+#: describe.lsp:197
+msgid ", names a class"
+msgstr ", le nom d'une classe"
+
+#: describe.lsp:208
+msgid ", has the propert~@P ~{~S~^, ~}"
+msgstr ", a ~[~;la propriété~:;les propriétés~] ~{~S~^, ~}"
+
+#: describe.lsp:215 describe.lsp:257 describe.lsp:316 describe.lsp:425 describe.lsp:455 describe.lsp:610
+msgid "."
+msgstr "."
+
+#: describe.lsp:219
+msgid "~%The symbol "
+msgstr "~%Le symbole "
+
+#: describe.lsp:225
+msgid "lies in ~S"
+msgstr "est situé dans ~S"
+
+#: describe.lsp:230
+msgid "is uninterned"
+msgstr "n'appartient à aucun paquetage"
+
+#: describe.lsp:251
+msgid " and is accessible in the package~:[~;s~] ~{~A~^, ~}"
+msgstr " et est visible dans le~:[ paquetage~;s paquetages~] ~{~A~^, ~}"
+
+#: describe.lsp:262
+msgid "an integer, uses ~S bits, is represented as a ~(~A~)."
+msgstr "un nombre entier, occupant ~S bits, est représenté comme ~(~A~)."
+
+#: describe.lsp:268
+msgid "a rational, not integral number."
+msgstr "un nombre rationnel mais pas entier."
+
+#: describe.lsp:273
+msgid "a float with ~S bits of mantissa (~(~A~))."
+msgstr "un nombre à virgule flottante avec une précision de ~S bits (un ~(~A~))."
+
+#: describe.lsp:279
+msgid "a complex number "
+msgstr "un nombre complexe "
+
+#: describe.lsp:287
+msgid "at the origin"
+msgstr "à l'origine"
+
+#: describe.lsp:291
+msgid "on the ~:[posi~;nega~]tive real axis"
+msgstr "sur la partie ~:[posi~;nega~]tive de l'axe réelle"
+
+#: describe.lsp:297
+msgid "on the ~:[posi~;nega~]tive imaginary axis"
+msgstr "sur la partie ~:[posi~;nega~]tive de l'axe imaginaire"
+
+#: describe.lsp:302
+msgid "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
+msgstr "dans le ~:[~:[premier~;quatrième~]~;~:[deuxième~;troisième~]~] quartier"
+
+#: describe.lsp:307
+msgid " of the Gaussian number plane."
+msgstr " du plan Gaussien."
+
+#: describe.lsp:312
+msgid "a character"
+msgstr "un caractère"
+
+#: describe.lsp:320
+msgid "~%It is a ~:[non-~;~]printable character."
+msgstr "~%C'est un caractère ~:[non ~;~]imprimable."
+
+#: describe.lsp:326
+msgid "~%Its use is non-portable."
+msgstr "~%Il n'est pas portable de l'utiliser."
+
+#: describe.lsp:333
+msgid "a~:[n interpret~; compil~]ed function."
+msgstr "une fonction ~:[interprét~;compil~]ée."
+
+#: describe.lsp:346
+msgid "~%argument list: ~S"
+msgstr "~%Liste des arguments: ~S"
+
+#: describe.lsp:353
+msgid "~%documentation: ~A"
+msgstr "~%Documentation: ~A"
+
+#: describe.lsp:363
+msgid "a built-in system function."
+msgstr "une fonction prédéfinie du système."
+
+#: describe.lsp:373
+msgid "a special form handler."
+msgstr "un interpréteur de forme spéciale."
+
+#: describe.lsp:379
+msgid "a foreign pointer"
+msgstr "un pointeur étranger."
+
+#: describe.lsp:385
+msgid "a foreign address"
+msgstr "une addresse étrangère."
+
+#: describe.lsp:391
+msgid "a foreign variable of foreign type ~S."
+msgstr "une variable étrangère de type étranger ~S."
+
+#: describe.lsp:398
+msgid "a foreign function."
+msgstr "une fonction étrangère."
+
+#: describe.lsp:405
+msgid "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream."
+msgstr "un «stream» ~:[~:[fermé~;de sortie~]~;~:[d'entrée~;d'entrée/sortie~]~]."
+
+#: describe.lsp:413
+msgid "the package named ~A"
+msgstr "le paquetage de nom ~A"
+
+#: describe.lsp:420
+msgid ". It has the nicknames ~{~A~^, ~}"
+msgstr ". Il porte aussi les noms ~{~A~^, ~}"
+
+#: describe.lsp:431
+msgid "~%It "
+msgstr "~%Il "
+
+#: describe.lsp:436
+msgid "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and "
+msgstr "importe les symboles externes d~:[u paquetage~;es paquetages~] ~{~A~^, ~} et "
+
+#: describe.lsp:441
+msgid "exports ~:[no symbols~;the symbols~:*~{~<~%~:; ~S~>~^~}~]"
+msgstr "~:[n'exporte pas de symboles~;exporte les symboles~:*~{~<~%~:; ~S~>~^~}~]"
+
+#: describe.lsp:450
+msgid " to the package~:[~;s~] ~{~A~^, ~}"
+msgstr " vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}"
+
+#: describe.lsp:459
+msgid "a deleted package."
+msgstr "un paquetage éliminé."
+
+#: describe.lsp:464
+msgid "a hash table with ~S entr~:@P."
+msgstr "un tableau de hachage avec ~S entrée~:*~[s~;~:;s~]."
+
+#: describe.lsp:470
+msgid "~:[a~;the Common Lisp~] readtable."
+msgstr "~:[un~;le~] tableau de lecture~:*~:[~; de Common Lisp~]."
+
+#: describe.lsp:476
+msgid "a ~:[~;portable ~]pathname~:[.~;~:*, with the following components:~{~A~}~]"
+msgstr "un «pathname»~:[~; portable~]~:[.~;~:*, composé de:~{~A~}~]"
+
+#: describe.lsp:496
+msgid "a random-state."
+msgstr "un «random-state»."
+
+#: describe.lsp:501
+msgid "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer."
+msgstr "un intervalle de bits, comportant ~S bits à partir de la position ~S d'un entier."
+
+#: describe.lsp:507
+msgid "a load-time evaluation promise."
+msgstr "une promesse d'évaluation au moment du chargement."
+
+#: describe.lsp:514
+msgid "a GC-invisible pointer to ~S."
+msgstr "un pointeur, invisible pour le GC, sur ~S."
+
+#: describe.lsp:519
+msgid "a GC-invisible pointer to a now defunct object."
+msgstr "un pointeur, invisible pour le GC, sur un objet qui n'existe plus."
+
+#: describe.lsp:524
+msgid "a label used for resolving #~D# references during READ."
+msgstr "une marque destinée à résoudre #~D# au cours de READ."
+
+#: describe.lsp:530
+msgid "a pointer into the stack. It points to:"
+msgstr "un pointeur dans la pile. Il pointe vers :"
+
+#: describe.lsp:537
+msgid "a special-purpose object."
+msgstr "un objet distingué."
+
+#: describe.lsp:542
+msgid "a machine address."
+msgstr "une addresse au niveau de la machine."
+
+#: describe.lsp:550
+msgid "a structure of type ~S."
+msgstr "une structure de type ~S."
+
+#: describe.lsp:557
+msgid "~%As such, it is also a structure of type ~{~S~^, ~}."
+msgstr "~%En tant que telle, c'est aussi une structure de type ~{~S~^, ~}."
+
+#: describe.lsp:566
+msgid "an instance of the CLOS class ~S."
+msgstr "un objet appartenant à la classe ~S de CLOS."
+
+#: describe.lsp:577
+msgid "a~:[~; simple~] ~A dimensional array"
+msgstr "une matrice~:[~; simple~] à ~A dimension~:P"
+
+#: describe.lsp:583
+msgid " (vector)"
+msgstr " (vecteur)"
+
+#: describe.lsp:588
+msgid " of ~(~A~)s"
+msgstr " de ~(~A~)s"
+
+#: describe.lsp:594
+msgid ", adjustable"
+msgstr ", ajustable"
+
+#: describe.lsp:599
+msgid ", of size ~{~S~^ x ~}"
+msgstr ", de grandeur ~{~S~^ x ~}"
+
+#: describe.lsp:605
+msgid " and current length (fill-pointer) ~S"
+msgstr " et longueur courante (fill-pointer) ~S"
+
+#: describe.lsp:616
+msgid "~%For more information, evaluate ~{~S~^ or ~}."
+msgstr "~%Pour obtenir davantage d'information, évaluez ~{~S~^ ou ~}."
+
+#: describe.lsp:658
+msgid "~S: ~S is not a function."
+msgstr "~S : ~S n'est pas une fonction."
+
+#: describe.lsp:689
+msgid "~%argument list: "
+msgstr "~%Liste des arguments : "
+
+#: room.lsp:27
+msgid "~S: argument must be ~S, ~S or ~S, not ~S"
+msgstr "~S : L'argument doit être ~S, ~S ou ~S et non ~S"
+
+#: room.lsp:63 room.lsp:243
+msgid "Total"
+msgstr "total"
+
+#: room.lsp:73
+msgid "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%"
+msgstr "~%Allocation permanente:                   ~9D~%Octets couramment utilisés:              ~9D~%Octets disponibles jusqu'au prochain GC: ~9D~%"
+
+#: edit.lsp:31
+msgid "No external editor installed."
+msgstr "Un éditeur externe n'est pas installé."
+
+#: edit.lsp:105
+msgid "~S cannot be edited."
+msgstr "~S ne peut pas être édité."
+
+#: edit.lsp:126
+msgid "~S: source code for ~S not available."
+msgstr "~S : Les sources de ~S ne sont pas présentes."
+
+#: macros3.lsp:13
+msgid ""
+"The form ~S yielded ~:[no values~;~:*~{~S~^ ; ~}~] ,~@\n"
+"                       that's not of type ~S."
+msgstr ""
+"La forme ~S a rendu ~:[aucune valeur~;~:*~{~S~^ ; ~}~] ,~@\n"
+"                        ceci n'est pas de type ~S."
+
+#: macros3.lsp:68
+msgid "LETF* code contains a dotted list, ending with ~S"
+msgstr "Dans le code de LETF*, occurence d'une paire pointée terminée en ~S"
+
+#: macros3.lsp:89
+msgid "illegal syntax in LETF* binding: ~S"
+msgstr "Syntaxe illégale dans une liaison pour LETF* : ~S"
+
+#: macros3.lsp:235
+msgid "LETF code contains a dotted list, ending with ~S"
+msgstr "Dans le code de LETF, occurence d'une paire pointée terminée en ~S"
+
+#: macros3.lsp:256
+msgid "illegal syntax in LETF binding: ~S"
+msgstr "Syntaxe illégale dans une liaison pour LETF : ~S"
 
 #: foreign1.lsp:85
 msgid "Cannot map string ~S to C since it contains a character ~S"
@@ -5597,14 +5657,6 @@ msgstr "~S : paramètre :OUT n'est pas indirecte: ~S"
 msgid "~S is only allowed after ~S: ~S"
 msgstr "~S n'est permis qu'après ~S: ~S"
 
-#: screen.lsp:226
-msgid "Got bad response from ~S: ~S"
-msgstr "Mauvaise réponse par ~S : ~S"
-
-#: rexx1.lsp:146
-msgid "No waiting for ~S possible."
-msgstr "Pas d'attente de ~S possible."
-
 #: affi1.lsp:39
 msgid "Basename ~S not a keyword or libraryname ~S not a string"
 msgstr "La base ~S n'est pas un mot-clé ou alors le nom de librairie ~S n'est pas une chaîne"
@@ -5648,4 +5700,12 @@ msgstr "Fonction d'une librairie inconnue : ~S"
 #: affi1.lsp:262
 msgid "Bad number of arguments for ~S: ~S"
 msgstr "Mauvais nombre d'arguments pour ~S : ~S"
+
+#: rexx1.lsp:146
+msgid "No waiting for ~S possible."
+msgstr "Pas d'attente de ~S possible."
+
+#: defs3.lsp:229
+msgid "~S: argument ~S should be a string or a symbol"
+msgstr "~S : L'argument doit être un symbole ou une chaîne et non ~S."
 
