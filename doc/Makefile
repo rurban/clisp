@@ -6,6 +6,15 @@ IMPNOTES=impnotes.xml cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
 	impext.xml impissue.xml
 RM=/bin/rm -f
 
+ifeq (,$(filter CYGWIN%,$(OS)))
+NSGMLS=c:/gnu/sp/bin/nsgmls.exe
+XMLSOC=c:/gnu/sp/pubtext/xml.soc
+else
+NSGMLS=nsgmls
+XMLSOC=/usr/local/src/sp/pubtext/xml.soc
+endif
+
+
 impnotes.xml: impnotes.xml.in
 	$(RM) $@
 	echo '<?xml version="1.0"?>' >> $@
@@ -14,7 +23,7 @@ impnotes.xml: impnotes.xml.in
 	cat $^ >> $@
 
 check: $(IMPNOTES)
-	nsgmls -s -wxml -c/usr/local/src/sp/pubtext/xml.soc impnotes.xml
+	$(NSGMLS) -s -wxml -c$(XMLSOC) impnotes.xml
 
 impnotes.texi: $(IMPNOTES)
 	docbook2texi impnotes.xml > $@
