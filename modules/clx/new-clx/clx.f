@@ -9,6 +9,9 @@
 //
 // --------------------------------------------------------------------------------
 //
+// Revision 1.21  1999-05-30  bruno
+// - Add missing begin_callback() in `xlib_io_error_handler'.
+//
 // Revision 1.20  1999-04-04  bruno
 // - Modifications for UNICODE.
 //
@@ -8739,6 +8742,8 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
 
 int xlib_io_error_handler (Display *display)
 {
+  begin_callback ();
+
   pushSTACK (find_display (display));
   fehler (error, "IO Error on display ~.");
 }
