@@ -6973,6 +6973,7 @@ defun XLIB:CONVERT-SELECTION (3, 2)
   end_call ();
 
   value1 = NIL; mv_count = 1;
+  skipSTACK (5);		// all done
 }
 
 //
@@ -7225,6 +7226,7 @@ defun XLIB:SELECTION-OWNER-SETTER (3, 1)
     ESLOT (`:TIME`,		uint32,			time)					\
 												\
   DEF_EVENT (`:SELECTION-NOTIFY`, SelectionNotify, XSelectionEvent, xselection)			\
+    ESLOT2(`:WINDOW`,		window,			requestor)				\
     ESLOT4(`:SELECTION`,	xatom,			selection)				\
     ESLOT4(`:TARGET`,		xatom,			target)					\
     ESLOT4(`:PROPERTY`,		xatom,			property)				\
