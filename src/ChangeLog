@@ -1,3 +1,11 @@
+2002-06-15  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Bug #[ 542902 ] fixed more: not only socket-wait is
+	interruptible on windows, but also namely socket-accept.
+	* socket.d (accept_connection) [WIN32_NATIVE]: interruptible
+	check socket for readability (infinitely long) before calling
+	accept.
+
 2002-06-14  Sam Steingold  <sds@gnu.org>
 
 	* complete.lisp (completion): when there is no word to complete,
