@@ -1,3 +1,7 @@
+2004-04-20  Sam Steingold  <sds@gnu.org>
+
+	* clispload.lsp (*expected-failures*): updated
+
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
 	pathnames always have VERSION slot, even though it is not printed
