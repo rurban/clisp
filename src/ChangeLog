@@ -1,3 +1,8 @@
+2004-01-04  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (full-check): new target: call RUN-SOME-TESTS in
+	tests/tests.lisp on $(MODULES)/*.tst
+
 2004-01-02  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (cygwin-src) [cygwin]: cygwin source package
