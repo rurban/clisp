@@ -1764,6 +1764,7 @@
 (LOAD "clos-package")           ; Early CLOS
 (LOAD "clos-class0")
 (LOAD "clos-slotdef1")
+(LOAD "clos-stablehash1")
 
 (LOAD "defstruct")              ; DEFSTRUCT-macro
 

@@ -1,3 +1,14 @@
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Load clos-stablehash1.
+	* clos.lisp: Load clos-stablehash2.
+	* clos-stablehash1.lisp: New file.
+	* clos-stablehash2.lisp: New file.
+	* clos-class5.lisp (standard-stablehash): Moved to clos-stablehash1.
+	* makemake.in (LPARTS): Add clos-stablehash1, clos-stablehash2.
+	* po/Makefile.devel (LISPSOURCES): Add clos-stablehash1,
+	clos-stablehash2.
+
 2004-06-13  Bruno Haible  <bruno@clisp.org>
 
 	Fixed DEFSETF lambda-list handling.

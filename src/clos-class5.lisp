@@ -772,14 +772,6 @@
   (:method ((class standard-class)) (finalize-class class t))
   (:method ((name symbol)) (finalize-inheritance (find-class name))))
 
-;;; Misc classes
-
-;; Definition of <standard-stablehash>.
-;; Used for (make-hash-table :test 'stablehash-eq).
-(defclass standard-stablehash (standard-object)
-  ((hashcode :initform (sys::random-posfixnum))) ; GC invariant hash code
-  (:fixed-slot-locations))
-
 ;;; Utility functions
 
 ;; Returns the slot names of an instance of a slotted-class
