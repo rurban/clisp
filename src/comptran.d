@@ -502,10 +502,11 @@ local object N_cis_N (object x)
     STACK_3 = R_R_contagion_R(STACK_3,STACK_2);
     STACK_2 = x = R_exp_R(R_minus_R(STACK_2),false,NULL); /* (exp (- b)) */
     /* stack layout: exp(-b), cos(a), sin(a). */
-    STACK_0 = R_R_mal_R(x,STACK_0); /* (* (exp (- b)) (sin a)) */
+    STACK_0 = R_R_mal_R(x,STACK_0); /* (* (exp (- b)) (sin a)), maybe 0 */
     x = R_R_mal_R(STACK_2,STACK_1); /* (* (exp (- b)) (cos a)) */
     x = R_R_complex_N(F_R_float_F(x,STACK_3), /* (complex ... ...) */
-                      F_R_float_F(STACK_0,STACK_3));
+                      eq(Fixnum_0,STACK_0) ? Fixnum_0
+                      : F_R_float_F(STACK_0,STACK_3));
     skipSTACK(4); return x;
   }
 }
