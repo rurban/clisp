@@ -2171,8 +2171,9 @@ for-value   NIL or T
 ;;; That is exactly what c-form does later anyway.
 ;;; (c-form (macroexpand-form form)) == (c-form form).
 (defun macroexpand-form (form)
-  ;; The difference from (values (macroexpand form (env)))
-  ;; is that here the macros mentioned in `c-form-table' are not expanded.
+  ;; The difference from  (values (macroexpand form (env)))  is that here
+  ;; 1. compiler macros expanders are preferred over normal macro expanders,
+  ;; 2. the macros mentioned in 'c-form-table' are not expanded.
   (tagbody
    reexpand
     (setq form (expand-compiler-macro form))
@@ -3726,7 +3727,8 @@ for-value   NIL or T
          (*venvc* (cons *func* *venvc*))
          (*func-start-label* (make-label 'NIL))
          (*anonymous-count* 0)
-         (lalist (car lambdabody)) (type-decls '())
+         (lalist (car lambdabody))
+         (type-decls '())
          (anode (catch 'c-error
     ;; here it starts to become complicated
     (multiple-value-bind (reqvar  optvar optinit optsvar  restvar
@@ -5208,9 +5210,9 @@ for-value   NIL or T
                           (multiple-value-list ; values from c-analyze-lambdalist
                             (c-analyze-lambdalist
                              (if *defun-accept-specialized-lambda-list*
-                                 (sys::specialized-lambda-list-to-ordinary
-                                  (cadr fdef) 'compile)
-                                 (cadr fdef))))))
+                               (sys::specialized-lambda-list-to-ordinary
+                                 (cadr fdef) 'compile)
+                               (cadr fdef))))))
                       ;; Variable
                       (car L2))
                     L5))
@@ -6391,28 +6393,33 @@ for-value   NIL or T
 (defun c-COMPARE-NUMBERS ()
   (test-list *form* 2)
   (if (= (length *form*) 3)
-      (multiple-value-bind (arg-1 const1-p) (c-constant-number (second *form*))
-        (if (and const1-p (zerop arg-1))
-            (c-form (ecase (first *form*)
-                      (= `(ZEROP ,(third *form*)))
-                      (/= `(NOT (ZEROP ,(third *form*))))
-                      (< `(PLUSP ,(third *form*)))
-                      (<= `(NOT (MINUSP ,(third *form*))))
-                      (> `(MINUSP ,(third *form*)))
-                      (>= `(NOT (PLUSP ,(third *form*))))))
-            (multiple-value-bind (arg-2 const2-p)
-                (c-constant-number (third *form*))
-              (c-GLOBAL-FUNCTION-CALL-form
-               (if (and const2-p (zerop arg-2))
-                   (ecase (first *form*)
-                     (= `(ZEROP ,arg-1))
-                     (/= `(NOT (ZEROP ,arg-1)))
-                     (< `(MINUSP ,arg-1))
-                     (<= `(NOT (PLUSP ,arg-1)))
-                     (> `(PLUSP ,arg-1))
-                     (>= `(NOT (MINUSP ,arg-1))))
-                   `(,(first *form*) ,arg-1 ,arg-2))))))
-      (c-GLOBAL-FUNCTION-CALL (first *form*))))
+    ;; Optimize (cmp arg1 arg2) by looking whether arg1 or arg2 is known to be
+    ;; zero. (Which kind of zero, doesn't matter.)
+    (multiple-value-bind (arg-1 const1-p) (c-constant-number (second *form*))
+      (if (and const1-p (zerop arg-1))
+        (c-GLOBAL-FUNCTION-CALL-form
+          (ecase (first *form*)
+            (= `(ZEROP ,(third *form*)))
+            (/= `(NOT (ZEROP ,(third *form*))))
+            (< `(PLUSP ,(third *form*)))
+            (<= `(NOT (MINUSP ,(third *form*))))
+            (> `(MINUSP ,(third *form*)))
+            (>= `(NOT (PLUSP ,(third *form*))))))
+        (multiple-value-bind (arg-2 const2-p)
+            (c-constant-number (third *form*))
+          (c-GLOBAL-FUNCTION-CALL-form
+            (if (and const2-p (zerop arg-2))
+              (ecase (first *form*)
+                (= `(ZEROP ,arg-1))
+                (/= `(NOT (ZEROP ,arg-1)))
+                (< `(MINUSP ,arg-1))
+                (<= `(NOT (PLUSP ,arg-1)))
+                (> `(PLUSP ,arg-1))
+                (>= `(NOT (MINUSP ,arg-1))))
+             ;; Use arg-1 and arg-2 instead of (second *form*), (third *form*),
+             ;; to avoid expanding these subforms a second time.
+             `(,(first *form*) ,arg-1 ,arg-2))))))
+    (c-GLOBAL-FUNCTION-CALL (first *form*))))
 
 (defun c-SVSTORE ()
   (test-list *form* 4 4)
