@@ -68,3 +68,34 @@ NIL
 (progn (remhash 100 ht1)
        (equalp ht1 ht2))
 T
+
+(defun hash-table-keys (ht)
+  (loop :for kk :being :each :hash-key :of ht :collect kk))
+hash-table-keys
+
+(defun check-hash-unique (ht)
+  (do* ((keys (hash-table-keys ht) (cdr keys))
+        (key (car keys) (car keys)) (error-count 0)
+        (other-keys (cdr keys) (cdr keys)))
+       ((null keys) error-count)
+    (when (member key other-keys :test (hash-table-test ht))
+      (format t "<ERROR> key ~s occurs multiple times!~%" key)
+      (incf error-count))))
+check-hash-unique
+
+(defun do-hash-test (ht &key (size 15000))
+  (clrhash ht)
+  (loop :for countval :from 1 :to size
+    :for key = (format nil "HT-~D" countval)
+    :do (setf (gethash key ht) t
+              (gethash key ht) countval))
+  (check-hash-unique ht))
+do-hash-test
+
+(loop :for test :in '(eq eql equal equalp)
+  :do (format t "~& === ~10@S:" test)
+  :sum (loop :with ht = (make-hash-table :test test :size 1000)
+         :for i :from 1 :to 1 :do (format t " <*>") (force-output)
+         :sum (do-hash-test ht))
+  :do (format t " done~%"))
+0                               ; there should have been 0 errors!
