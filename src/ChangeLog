@@ -1,3 +1,8 @@
+2000-06-21  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (built_in_stream_element_type): Special case for
+	two-way and echo streams.
+
 2000-06-16  Thomas Klausner  <wiz@danbala.ifoer.tuwien.ac.at>
             Bruno Haible  <haible@clisp.cons.org>
 

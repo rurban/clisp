@@ -16499,6 +16499,10 @@ LISPFUNN(built_in_stream_element_type,1)
         #endif
           # CHARACTER or ([UN]SIGNED-BYTE n)
           eltype = TheStream(stream)->strm_eltype; break;
+        case strmtype_twoway:
+        case strmtype_echo:
+          stream = TheStream(stream)->strm_twoway_input;
+          eltype = TheStream(stream)->strm_eltype; break;
         #ifdef SOCKET_STREAMS
         case strmtype_twoway_socket:
           # CHARACTER or ([UN]SIGNED-BYTE n)
