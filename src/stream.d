@@ -14111,15 +14111,18 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
 /* the next three functions handle getsockopt()/setsockopt() calls
    for boolean, integer and timeval options respectively.
    each pushes one result on STACK */
-#if defined(SO_KEEPALIVE) || defined(SO_ERROR) || defined(SO_OOBINLINE) || defined(SO_TYPE)
+#if defined(SO_DEBUG) || defined(SO_ACCEPTCONN) || defined(SO_BROADCAST) || defined(SO_REUSEADDR) || defined(SO_DONTROUTE) || defined(SO_KEEPALIVE) || defined(SO_ERROR) || defined(SO_OOBINLINE) || defined(SO_TYPE)
 local void sock_opt_bool (SOCKET handle, int option, object value)
 {
   var int val;
   var SOCKLEN_T len = sizeof(val);
+  #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char*)&val,&len))
     OS_error();
   pushSTACK(val ? T : NIL);
-  if (!(eq(value,nullobj))) {
+  if (!(eq(value,nullobj)))
+  #endif
+  {
     val = !nullp(value);
     if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
       OS_error();
@@ -14131,10 +14134,13 @@ local void sock_opt_int (SOCKET handle, int option, object value)
 {
   var uintL val;
   var SOCKLEN_T len = sizeof(val);
+  #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char*)&val,&len))
     OS_error();
   pushSTACK(fixnum(val));
-  if (!(eq(value,nullobj))) {
+  if (!(eq(value,nullobj)))
+  #endif
+  {
     if (!posfixnump(value)) fehler_posfixnum(value);
     val = posfixnum_to_L(value);
     if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
@@ -14147,13 +14153,17 @@ local void sock_opt_time (SOCKET handle, int option, object value)
 { /* may trigger GC */
   var struct timeval val;
   var SOCKLEN_T len = sizeof(val);
+  #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   if (val.tv_usec) {
     double x = val.tv_sec + val.tv_sec*0.000001;
     dfloatjanus t = *(dfloatjanus*)&x;
     pushSTACK(c_double_to_DF(&t));
-  } else pushSTACK(fixnum(val.tv_sec));
-  if (!(eq(value,nullobj))) {
+  } else
+    pushSTACK(fixnum(val.tv_sec));
+  if (!(eq(value,nullobj)))
+  #endif
+  {
     sec_usec(value,unbound,&val);
     if (-1 == setsockopt(handle,SOL_SOCKET,option,(char*)&val,len))
       OS_error();
@@ -14171,16 +14181,19 @@ local void sock_opt_time (SOCKET handle, int option, object value)
 LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
   var object socket = *(rest_args_pointer STACKop 1);
   var gcv_object_t *arg_p = rest_args_pointer;
-  var int count = argcount, retval_count = argcount;
+  var int count = argcount;
   var SOCKET handle;
   stream_handles(socket,true,NULL,&handle,NULL);
+  var gcv_object_t *old_STACK = STACK;
   while (count-->0) {
+    check_STACK();
     var object kwd = NEXT(arg_p);
     var object arg = Next(arg_p);
     if (count && !(symbolp(arg) && keywordp(arg))) {
       NEXT(arg_p);
-      count--; retval_count--;
-    } else arg = nullobj;
+      count--;
+    } else
+      arg = nullobj;
     begin_system_call();
     if (false)
       ;
@@ -14216,11 +14229,16 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
     else if (eq(kwd,S(Kso_linger))) {
       struct linger val;
       var SOCKLEN_T len = sizeof(val);
+      #ifdef HAVE_GETSOCKOPT
       if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,&len))
         OS_error();
-      if (val.l_onoff) pushSTACK(fixnum(val.l_linger));
-      else pushSTACK(NIL);
-      if (!(eq(arg,nullobj))) { /* arg points to STACK so it is safe */
+      if (val.l_onoff)
+        pushSTACK(fixnum(val.l_linger));
+      else
+        pushSTACK(NIL);
+      if (!(eq(arg,nullobj)))
+      #endif
+      { /* arg points to STACK so it is safe */
         if (posfixnump(arg)) {
           val.l_onoff = 1;
           val.l_linger = posfixnum_to_L(arg);
@@ -14228,7 +14246,8 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
           val.l_onoff = 1;
         } else if (nullp(arg)) {
           val.l_onoff = 0;
-        } else fehler_posfixnum(arg);
+        } else
+          fehler_posfixnum(arg);
         if (-1 == setsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,len))
           OS_error();
       }
@@ -14275,6 +14294,12 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
     }
     end_system_call();
   }
+  #ifdef STACK_DOWN
+  var uintL retval_count = old_STACK - STACK;
+  #endif
+  #ifdef STACK_UP
+  var uintL retval_count = STACK - old_STACK;
+  #endif
   STACK_to_mv(retval_count);
   skipSTACK(argcount+1);
 }
