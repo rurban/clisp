@@ -1,3 +1,8 @@
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (stream_get_read_eval, stream_set_read_eval): Use the
+	forwarded instance for the access. Fixes bug introduced on 2004-04-12.
+
 2004-12-12  Sam Steingold  <sds@gnu.org>
 
 	new module PARI for interface to <http://pari.math.u-bordeaux.fr/>
