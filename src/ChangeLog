@@ -1,5 +1,19 @@
 1999-08-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * utils/varbrace.d: New file.
+        * makemake.in (NEED_ANSIDECL): Remove variable.
+          (VARBRACE): New Makefile variable.
+          (UTILS, XDECL_FILTER, XDECL_DEPENDENCIES): Add `varbrace'.
+        * spvw_memfile.d (loadmem_from_handle): Define this function always,
+          not only on UNIX.
+        * spvw_sigint.d (react_on_sigint): New function.
+          (interrupt_handler, alarm_handler): Use it. Remove #if across
+          function bodies.
+
+        * utils/modprep.d (is_if): Check for "#ifndef" as well.
+
+1999-08-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * ansidecl.d (char_out, next_token, handle_closing_token): Turn
           macros into inline function definitions. Speed doesn't matter here.
 

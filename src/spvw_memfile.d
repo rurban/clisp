@@ -498,9 +498,7 @@
 # UP, lädt Speicherabbild von Diskette
 # loadmem(filename);
 # Zerstört alle LISP-Daten.
-  #ifdef UNIX
-  local void loadmem_from_handle (int handle);
-  #endif
+  local void loadmem_from_handle (Handle handle);
   # Aktualisierung eines Objektes im Speicher:
   #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
   local var oint offset_varobjects_o;
@@ -696,7 +694,6 @@
       if (handle==INVALID_HANDLE_VALUE) goto abbruch1;
       #endif
       end_system_call();
-  #ifdef UNIX
       loadmem_from_handle(handle);
       return;
       abbruch1:
@@ -714,9 +711,8 @@
         quit_sofort(1);
     }}
   local void loadmem_from_handle(handle)
-    var int handle;
-    {{
-  #endif
+    var Handle handle;
+    {
       {
        #if (defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))
          #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
@@ -1425,4 +1421,4 @@
           { begin_system_call(); CloseHandle(handle); end_system_call(); }
         #endif
         quit_sofort(1);
-    }}
+    }
