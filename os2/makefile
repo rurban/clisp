@@ -406,7 +406,6 @@ edit.lisp \
 macros3.lisp \
 posix.lisp \
 foreign1.lisp \
-defs3.lisp \
 clhs.lisp \
 inspect.lisp \
 gray.lisp \
@@ -454,7 +453,6 @@ edit.fas \
 macros3.fas \
 posix.fas \
 foreign1.fas \
-defs3.fas \
 clhs.fas \
 inspect.fas \
 gray.fas \
@@ -507,7 +505,6 @@ stage\edit.lisp \
 stage\macros3.lisp \
 stage\posix.lisp \
 stage\foreign1.lisp \
-stage\defs3.lisp \
 stage\clhs.lisp \
 stage\inspect.lisp \
 stage\gray.lisp \
@@ -555,7 +552,6 @@ stage\edit.fas \
 stage\macros3.fas \
 stage\posix.fas \
 stage\foreign1.fas \
-stage\defs3.fas \
 stage\clhs.fas \
 stage\inspect.fas \
 stage\gray.fas \
@@ -1335,9 +1331,6 @@ posix.fas : posix.lisp lisp.exe interpreted.mem
 foreign1.fas : foreign1.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c foreign1.lisp
 
-defs3.fas : defs3.lisp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c defs3.lisp
-
 clhs.fas : clhs.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile UTF-8 -norc -q -c clhs.lisp
 
@@ -1498,9 +1491,6 @@ stage\posix.lisp : posix.lisp
 stage\foreign1.lisp : foreign1.lisp
 	$(LN_S) foreign1.lisp stage
 
-stage\defs3.lisp : defs3.lisp
-	$(LN_S) defs3.lisp stage
-
 stage\clhs.lisp : clhs.lisp
 	$(LN_S) clhs.lisp stage
 
@@ -1635,9 +1625,6 @@ stage\posix.fas : stage\posix.lisp lisp.exe lispinit.mem
 
 stage\foreign1.fas : stage\foreign1.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/foreign1.lisp
-
-stage\defs3.fas : stage\defs3.lisp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/defs3.lisp
 
 stage\clhs.fas : stage\clhs.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -N locale -Efile UTF-8 -norc -q -c stage/clhs.lisp
