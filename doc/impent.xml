@@ -18,7 +18,7 @@
 <!ENTITY with "<emphasis role='strong'>with</emphasis>">
 <!ENTITY without "<emphasis role='strong'>without</emphasis>">
 <!ENTITY typecodes "<link linkend='typecodes'><emphasis role='strong'><option>TYPECODES</option></emphasis></link>">
-<!ENTITY no-typecodes "<link linkend='typecodes'><emphasis role='strong'><option>NO_TYPECODES</option></emphasis></link>">
+<!ENTITY heapcodes "<link linkend='typecodes'><emphasis role='strong'><option>HEAPCODES</option></emphasis></link>">
 
 <!-- *** literals *** -->
 <!ENTITY abort-k "<constant>:ABORT</constant>">

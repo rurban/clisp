@@ -932,7 +932,7 @@ int main(int argc, char* argv[])
   printf("typedef void Values;\n"); /* emit_typedef useless: no sizeof(void) */
   emit_typedef_f("Values (*%s)()","lisp_function_t");
   sprintf(buf,"struct { lisp_function_t function; gcv_object_t name%s; gcv_object_t keywords%s; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
-#if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
+#if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
   strcat(buf," __attribute__ ((aligned (4)))");
 #endif
   emit_typedef_f(buf,"subr_t");
