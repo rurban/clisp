@@ -117,7 +117,7 @@
 
 2002-09-20  Stefan Kain  <stefan.kain@freenet.de>
 
-	* constsym.d, subr.d, encoding.d, predtype.d, intlog.d:
+	* constsym.d, subr.d, encoding.d, predtype.d, intlog.d, control.d:
 	* charstrg.d, arihppa.d, array.d: translated all comments
 
 2002-09-20  John Hinsdale <hin@alma.com>
