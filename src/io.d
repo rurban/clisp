@@ -2216,7 +2216,7 @@ local maygc object read_recursive_no_dot (const gcv_object_t* stream_) {
 # UP: disentangles #n# - References to #n= - markings in an Object.
 # > value of SYS::*READ-REFERENCE-TABLE*:
 #     Aliste of Pairs (marking . marked Object), where
-#     each marking is an Object  #<READ-LABEL n>.
+#     each marking is an object  #<READ-LABEL n>.
 # > obj: Object
 # < result: destructively  modified Object without References
 local object make_references (object obj) {
@@ -2224,7 +2224,8 @@ local object make_references (object obj) {
   # SYS::*READ-REFERENCE-TABLE* = NIL -> nothing to do:
   if (nullp(alist)) {
     return obj;
-  } else { # check, if SYS::*READ-REFERENCE-TABLE* is an Aliste:
+  } else {
+    # Check if SYS::*READ-REFERENCE-TABLE* is an alist:
     {
       var object alistr = alist; # run through list
       while (consp(alistr)) { # each List-Element must be a Cons:
@@ -3581,20 +3582,16 @@ LISPFUNN(load_eval_reader,3) { # reads #,
 #   #'(lambda (stream sub-char n)
 #       (if *read-suppress*
 #         (if n
-#           (if (sys::fixnump n)
-#             (let* ((label (make-internal-label n))
-#                    (h (assoc label sys::*read-reference-table* :test #'eq)))
-#               (if (consp h)
-#                 (error "~S of ~S: Label #~S= must not be defined twice." 'read stream n)
-#                 (progn
-#                   (push (setq h (cons label label)) sys::*read-reference-table*)
-#                   (let ((obj (read stream t nil t)))
-#                     (if (eq obj label)
-#                       (error "~S of ~S: #~S= #~S# is not allowed." 'read stream n n)
-#                       (setf (cdr h) obj)
-#             ) ) ) ) )
-#             (error "~S of ~S: Label #~S= too big" 'read stream n)
-#           )
+#           (let ((h (assoc n sys::*read-reference-table* :test #'read-label-equal)))
+#             (if (consp h)
+#               (error "~S of ~S: Label #~S= must not be defined twice." 'read stream n)
+#               (let ((label (make-read-label n)))
+#                 (push (setq h (cons label label)) sys::*read-reference-table*)
+#                 (let ((obj (read stream t nil t)))
+#                   (if (equal obj label)
+#                     (error "~S of ~S: #~S= #~S# is not allowed." 'read stream n n)
+#                     (setf (cdr h) obj)
+#           ) ) ) ) )
 #           (error "~S of ~S: Between # and = a number must be specified." 'read stream)
 #         )
 #         (values) ; no values (comment)
@@ -3604,24 +3601,21 @@ LISPFUNN(load_eval_reader,3) { # reads #,
 #   #'(lambda (stream sub-char n)
 #       (unless *read-suppress*
 #         (if n
-#           (if (sys::fixnump n)
-#             (let* ((label (make-internal-label n))
-#                    (h (assoc label sys::*read-reference-table* :test #'eq)))
-#               (if (consp h)
-#                 label ; will be disentangled later
-#                 ; (you could also return (cdr h) )
-#                 (error "~S of ~S: Label #~S= is not defined." 'read stream n)
-#               )
-#             (error "~S of ~S: Label #~S# too big" 'read stream n)
-#           )
+#           (let ((h (assoc n sys::*read-reference-table* :test #'read-label-equal)))
+#             (if (consp h)
+#               (car h) ; the label, will be disentangled later
+#               ; (you could also return (cdr h) )
+#               (error "~S of ~S: Label #~S= is not defined." 'read stream n)
+#           ) )
 #           (error "~S of ~S: Between # and # a number must be specified." 'read stream)
 # )   ) ) )
 
 # UP: creates an internal Label and looks it up in *READ-REFERENCE-TABLE*.
 # lookup_label()
 # > stack layout: Stream, sub-char, n.
-# < result: (or (assoc label sys::*read-reference-table* :test #'eq) label)
-local object lookup_label (void) {
+# < result: (or (assoc n sys::*read-reference-table* :test #'read-label-equal) label)
+# can trigger GC
+local maygc object lookup_label (void) {
   var object n = STACK_0;
   if (nullp(n)) { # not specified?
     pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
@@ -3631,28 +3625,34 @@ local object lookup_label (void) {
     fehler(reader_error,
            GETTEXT("~S from ~S: a number must be given between #"" and ~C"));
   }
-  # n is an Integer >=0
-  if (!small_read_label_integer_p(n)) { # n is too big
-    pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
-    pushSTACK(STACK_(1+1)); # sub-char
-    pushSTACK(STACK_(0+2)); # n
-    pushSTACK(STACK_(2+3)); # Stream
-    pushSTACK(S(read));
-    fehler(reader_error,GETTEXT("~S from ~S: label #~S? too large"));
-  }
-  var object label = make_small_read_label(posfixnum_to_L(n)); # Internal-Label with Nummer n
+  # n is an Integer >=0.
   var object alist = # value of SYS::*READ-REFERENCE-TABLE*
     Symbol_value(S(read_reference_table));
-  # execute (assoc label alist :test #'eq):
+  # Execute (assoc n alist :test #'read-label-equal):
+  var bool smallp = small_read_label_integer_p(n);
+  var object label = (smallp ? make_small_read_label(posfixnum_to_L(n)) : nullobj);
   while (consp(alist)) {
     var object acons = Car(alist); # List-element
     if (!consp(acons)) goto bad_reftab; # must be a Cons !
-    if (eq(Car(acons),label)) # its CAR = label ?
-      return acons; # yes -> fertig
+    var object key = Car(acons); # its CAR is a read-label
+    if (smallp
+        ? eq(key,label) # is it = <READ-LABEL n> ?
+        : big_read_label_p(key) && eql(TheBigReadLabel(key)->brl_value,n))
+      return acons; # yes -> done
     alist = Cdr(alist);
   }
-  if (nullp(alist)) # List-end with NIL ?
-    return label; # yes -> (assoc ...) = NIL -> finished with label
+  if (nullp(alist)) { # List-end with NIL ?
+    # yes -> (assoc ...) = NIL -> create read-label with number n:
+    if (smallp)
+      return label;
+    else {
+      # This is the extremely rare case that n is so large that a BigReadLabel
+      # is needed.
+      label = allocate_big_read_label();
+      TheBigReadLabel(label)->brl_value = STACK_0;
+      return label;
+    }
+  }
  bad_reftab: # value of SYS::*READ-REFERENCE-TABLE* is no Alist
   pushSTACK(Symbol_value(S(read_reference_table))); # value of SYS::*READ-REFERENCE-TABLE*
   pushSTACK(S(read_reference_table)); # SYS::*READ-REFERENCE-TABLE*
@@ -3668,10 +3668,10 @@ LISPFUNN(label_definition_reader,3) { # reads #=
     VALUES0; skipSTACK(3);
     return;
   }
-  # create Label and lookup in Table:
+  # Create label and lookup in table:
   var object lookup = lookup_label();
   if (consp(lookup)) {
-    # found -> has already been there -> error:
+    # Found -> has already been there -> error:
     pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
     pushSTACK(STACK_(0+1)); # n
     pushSTACK(STACK_(2+2)); # Stream
@@ -3679,34 +3679,36 @@ LISPFUNN(label_definition_reader,3) { # reads #=
     fehler(reader_error,
            GETTEXT("~S from ~S: label #~S= may not be defined twice"));
   } else {
-    # lookup = label, not jeopardized by GC.
+    # lookup = label.
+    pushSTACK(lookup);
+    # Stack layout: stream, sub-char, n, label.
     # (push (setq h (cons label label)) sys::*read-reference-table*) :
-    var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
+    var gcv_object_t* stream_ = check_stream_arg(&STACK_3);
     {
       var object new_cons = allocate_cons();
-      Car(new_cons) = Cdr(new_cons) = lookup; # h = (cons label label)
+      Car(new_cons) = Cdr(new_cons) = STACK_0; # h = (cons label label)
       pushSTACK(new_cons); # save h
     }
+    # Stack layout: stream, sub-char, n, label, h.
     {
       var object new_cons = allocate_cons(); # new List-Cons
       Car(new_cons) = STACK_0;
       Cdr(new_cons) = Symbol_value(S(read_reference_table));
       Symbol_value(S(read_reference_table)) = new_cons;
     }
-    var object obj = read_recursive_no_dot(stream_); # read Objekt
-    var object h = popSTACK();
-    if (eq(obj,Car(h))) { # read Objekt = (car h) = label ?
+    var object obj = read_recursive_no_dot(stream_); # read an object
+    if (eq(obj,STACK_1)) { # read object = label ?
       # yes -> cyclic Definition -> Error
       pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(STACK_(0+2)); # n
+      pushSTACK(STACK_(2+1)); # n
+      pushSTACK(STACK_(2+2)); # n
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(reader_error,GETTEXT("~S from ~S: #~S= #~S#"" is illegal"));
     }
-    # insert read Objekt as (cdr h):
-    Cdr(h) = obj;
-    VALUES1(obj); skipSTACK(3);
+    # Insert read object as (cdr h):
+    Cdr(STACK_0) = obj;
+    VALUES1(obj); skipSTACK(5);
   }
 }
 
@@ -3716,9 +3718,10 @@ LISPFUNN(label_reference_reader,3) { # reads ##
     VALUES1(NIL); skipSTACK(3);
     return;
   }
-  /* construct Label and lookup in Table: */
+  /* Lookup in table: */
   var object lookup = lookup_label();
-  if (consp(lookup)) { /* found -> return Label as read object: */
+  if (consp(lookup)) {
+    /* Found -> return label as read object: */
     VALUES1(Car(lookup)); skipSTACK(3);
   } else { /* not found */
     pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
@@ -8448,11 +8451,10 @@ local maygc void pr_readlabel (const gcv_object_t* stream_, object obj) {
   write_sstring_case(stream_,O(printstring_read_label)); # "READ-LABEL"
   JUSTIFY_SPACE;
   JUSTIFY_LAST(true);
-#ifdef TYPECODES
-  pr_uint(stream_,(as_oint(obj) >> (oint_data_shift+1)) & (bit(oint_data_len-2)-1)); # print bits 21..0 decimally
-#else
-  pr_uint(stream_,(as_oint(obj) >> oint_data_shift) & (bit(oint_data_len)-1)); # print bits decimally
-#endif
+  var object n = (orecordp(obj) # BigReadLabel or Small-Read-Label?
+                  ? TheBigReadLabel(obj)->brl_value
+                  : small_read_label_value(obj));
+  print_integer(n,10,stream_); # print n in decimal
   JUSTIFY_END_FILL;
   UNREADABLE_END;
 }
@@ -8977,6 +8979,9 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         skipSTACK(1);
       }
       LEVEL_END;
+      break;
+    case Rectype_BigReadLabel: # #<READ-LABEL n>
+      pr_readlabel(stream_,obj);
       break;
     case Rectype_Encoding: # #<ENCODING [charset] line-terminator>
       CHECK_PRINT_READABLY(obj);
