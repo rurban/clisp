@@ -729,15 +729,15 @@ DEFUN(BDB:DB-REMOVE, db file database)
   VALUES0; skipSTACK(3);
 }
 
-DEFFLAGSET(db_put_flags, DB_APPEND DB_NODUPDATA DB_NOOVERWRITE DB_AUTO_COMMIT)
-
-DEFUN(BDB:DB-PUT, db key val &key :APPEND :NODUPDATA :NOOVERWRITE \
-      :AUTO-COMMIT :TRANSACTION)
+DEFCHECKER(db_put_flag, DB_APPEND DB_NODUPDATA DB_NOOVERWRITE)
+DEFUN(BDB:DB-PUT, db key val &key :AUTO-COMMIT :FLAG :TRANSACTION)
 { /* Store items into a database */
   DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
-  u_int32_t flags = db_put_flags();
-  DB *db = object_handle(STACK_2,`BDB::DB`,false);
+  u_int32_t flags = db_put_flag(popSTACK());
+  DB *db = object_handle(STACK_3,`BDB::DB`,false);
   DBT key, val;
+  if (!missingp(STACK_0)) flags |= DB_AUTO_COMMIT;
+  skipSTACK(1);
   fill_dbt(STACK_0,&val);
   fill_dbt(STACK_1,&key);
   SYSCALL(db->put,(db,txn,&key,&val,flags));
