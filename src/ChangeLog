@@ -1,3 +1,7 @@
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
+	* po/Makefile.devel (LISPSOURCES): Add loadform.
+
 2004-03-13  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_memfile.d (savemem, loadmem_from_handle): Remove calls to
