@@ -615,22 +615,17 @@ FIXME
 (make-pathname :defaults "a.b" :name "c" :type nil)
 #p"c"
 
-(make-pathname :defaults (make-pathname :directory
+(defun foo (x)
+  (let ((path (make-pathname
+               :defaults (make-pathname :directory
                                         '(:relative :wild-inferiors)
-                                        :type "c" :case :common)
-                         :host "CL-LIBRARY" :case :common)
-#+CLISP
-#S(logical-pathname :host "CL-LIBRARY" :device nil
-   :directory (:relative :wild-inferiors) :name nil :type "c" :version nil)
-#-CLISP
-FIXME
+                                        :type x :case :common)
+               :host "CL-LIBRARY" :case :common)))
+    (string= x (pathname-type path))))
+foo
 
-(make-pathname :defaults (make-pathname :directory
-                                        '(:relative :wild-inferiors)
-                                        :type "C" :case :common)
-                         :host "CL-LIBRARY" :case :common)
-#+CLISP
-#S(logical-pathname :host "CL-LIBRARY" :device nil
-   :directory (:relative :wild-inferiors) :name nil :type "C" :version nil)
-#-CLISP
-FIXME
+(foo "c")
+t
+
+(foo "C")
+t
