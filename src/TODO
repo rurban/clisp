@@ -4,8 +4,6 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
-:modern declaration in DEFPACKAGE
-
 Contagion warnings emitted by many floating-point operations.
 Even though the warnings are off by default now,
 the user who enables them will report bug
@@ -64,6 +62,9 @@ Right now, `regular' means "file on disk", as in
 what about pipes?
 while MAKE-STREAM should provide a universal solution to these issues,
 it still might make sense to change regular_handle_p().
+Note that this runs into the FRESH-LINE/same_handle_p issues.
+Maybe (SETF STREAM-ELEMENT-TYPE) should work on TERMINAL-STREAMs?
+Maybe all streams should be bivalent?
 
 
 URGENT PROBLEMS
