@@ -37,8 +37,8 @@
      (unwind-protect (progn ,@body)
        (when ,file (matClose ,file)))))
 
-(defun copy-lisp-to-matlab (lisp-mx &optional mx-array)
-  "copy the data in the matrix into the matlab array.
+(defun copy-lisp-to-mxArray (lisp-mx &optional mx-array)
+  "copy the data in the matrix into the matlab mxArray.
 the dimensions should be compatible.
 if the destination does not exist, it is created."
   (let ((d0 (array-dimension lisp-mx 0)) (d1 (array-dimension lisp-mx 1)))
@@ -49,12 +49,18 @@ if the destination does not exist, it is created."
         (setq mx-array (mxCreateDoubleMatrix d0 d1 mxREAL)))
     (loop :for i :from 0 :below d0 :do
       (loop :for j :from 0 :below d1 :do
-        (setf (mx-aref mx-array i j d1)
+        (setf (mx-aref mx-array i j d0)
               (coerce (aref lisp-mx i j) 'double-float))))
     mx-array))
 
-(defun copy-matlab-to-lisp (mx-array &optional lisp-mx)
-  "copy the data from the matlab array into the matrix.
+(defun copy-lisp-to-matlab (lisp-mx var &key ((:engine *engine*) (engine)))
+  "copy the lisp matrix to the matlab variable"
+  (let ((mmx (copy-lisp-to-mxArray lisp-mx)))
+    (engPutVariable *engine* var mmx)
+    (mxDestroyArray mmx)))
+
+(defun copy-mxArray-to-lisp (mx-array &optional lisp-mx)
+  "copy the data from the matlab mxArray into the matrix.
 the dimensions should be compatible.
 if the destination does not exist, it is created."
   (let ((d0 (mxGetM mx-array)) (d1 (mxGetN mx-array)))
@@ -67,18 +73,23 @@ if the destination does not exist, it is created."
     (loop :for i :from 0 :below d0 :do
       (loop :for j :from 0 :below d1 :do
         (setf (aref lisp-mx i j)
-              (mx-aref mx-array i j d1))))
+              (mx-aref mx-array i j d0))))
     lisp-mx))
 
-(defun invert-matrix (mx &optional (eng (engine)))
+(defun copy-matlab-to-lisp (var &optional lisp-mx
+                            &key ((:engine *engine*) (engine)))
+  "copy the matlab variable to the lisp matrix"
+  (let ((mmx (engGetVariable *engine* var)))
+    (setq lisp-mx (copy-mxArray-to-lisp mmx lisp-mx))
+    (mxDestroyArray mmx)
+    lisp-mx))
+
+(defun invert-matrix (lisp-mx &key ((:engine *engine*) (engine)))
   "open an engine, compute the matrix inverse (in place), close engine"
-  (let ((mmx (copy-lisp-to-matlab mx)))
-    (engPutVariable eng "mx" mmx)
-    (engEvalString eng "mx=inv(mx);")
-    (mxDestroyArray mmx)
-    (setq mmx (engGetVariable eng "mx"))
-    (copy-matlab-to-lisp mmx mx)
-    (mxDestroyArray mmx)
-    mx))
+  (copy-lisp-to-matlab lisp-mx "mx")
+  (engEvalString *engine* "mx=inv(mx);")
+  (copy-matlab-to-lisp "mx" lisp-mx)
+  (engEvalString *engine* "clear mx;")
+  lisp-mx)
 
 (pushnew "MATLAB" custom:*system-package-list* :test #'string=)
