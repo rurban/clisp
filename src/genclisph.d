@@ -45,9 +45,7 @@ local const char* ULsuffix = "UL";
 local const char* ULLsuffix = "ULL";
 #endif
 
-global void print_printf_arg (const printf_arg* arg);
-global void print_printf_arg(arg)
-  var const printf_arg* arg;
+void print_printf_arg (const printf_arg* arg)
   {
     switch (arg->size) {
       case sizeof(uint8):
@@ -79,23 +77,19 @@ global void print_printf_arg(arg)
     }
   }
 
-global void printf_with_args (const char* string, int argcount, printf_arg* args);
-global void printf_with_args(string,argcount,args)
-  var const char* string;
-  var int argcount;
-  var printf_arg* args;
-  {
-    while (*string) {
-      if (string[0]=='%') {
-        if (!(string[1]=='d' || string[1]=='x')) abort();
-        if (!(argcount > 0)) abort();
-        args->base = string[1]; print_printf_arg(args);
-        string+=2; args++; argcount--;
-      } else {
-        putchar(*string); string++;
-      }
+void printf_with_args (const char* string, int argcount, printf_arg* args)
+{
+  while (*string) {
+    if (string[0]=='%') {
+      if (!(string[1]=='d' || string[1]=='x')) abort();
+      if (!(argcount > 0)) abort();
+      args->base = string[1]; print_printf_arg(args);
+      string+=2; args++; argcount--;
+    } else {
+      putchar(*string); string++;
     }
   }
+}
 
 #define printf0(string)  printf(string)
 #define printf1(string,arg0)  \
@@ -155,7 +149,7 @@ global void printf_with_args(string,argcount,args)
     printf_with_args(string,7,args); \
   }
 
-global void print_file (const char* fname) {
+void print_file (const char* fname) {
   char buf[BUFSIZ];
   FILE* includefile = fopen(fname,"r");
   char* line;
@@ -165,7 +159,7 @@ global void print_file (const char* fname) {
   if (ferror(includefile) || fclose(includefile)) { perror(fname); exit(1); }
 }
 
-global int main()
+int main()
 {
   printf("#define SAFETY %d\n",SAFETY);
  #if defined(UNICODE)
@@ -184,7 +178,7 @@ global int main()
 # #ifdef LANGUAGE_STATIC
 #   printf1("#define ENGLISH  %d\n",ENGLISH);
 # #endif
-# printf1("#define BIG_ENDIAN_P  %d\n",BIG_ENDIAN_P);
+  printf1("#define BIG_ENDIAN_P  %d\n",BIG_ENDIAN_P);
   #ifdef HAVE_SAVED_REGISTERS
     printf("#ifndef IN_MODULE_CC\n");
     #ifdef STACK_register
@@ -236,8 +230,6 @@ global int main()
 # printf("#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)\n");
   printf("#define STRING(token) #token\n");
   printf("#define STRINGIFY(token) STRING(token)\n");
-  printf("#define global\n");
-# printf("#define local  static\n");
   #ifdef GNU
     #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
       printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
@@ -807,7 +799,7 @@ global int main()
  printf("#define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))\n");
  printf("#define sstring_length(ptr)  sarray_length(ptr)\n");
  printf("#define Sstring_length(obj)  sstring_length(TheSstring(obj))\n");
-
+ printf("extern bool string_equal (object string1, object string2);\n");
 # #ifdef TYPECODES
 #   printf("#define Array_type_simple_bit_vector(atype)  (%d+((atype)<<%d)",Array_type_sbvector,TB0);
 #   if (TB0+1 != TB1) printf("+((atype)&%d)",bit(TB0+1)-bit(TB1));
@@ -817,7 +809,7 @@ global int main()
 # printf("typedef struct { XRECORD_HEADER gcv_object_t pack_external_symbols; gcv_object_t pack_internal_symbols; gcv_object_t pack_shadowing_symbols; gcv_object_t pack_use_list; gcv_object_t pack_used_by_list; gcv_object_t pack_name; gcv_object_t pack_nicknames; } *  Package;\n");
   printf("typedef Srecord  Structure;\n");
   printf("#define structure_types   recdata[0]\n");
-# printf("typedef struct { SRECORD_HEADER gcv_object_t class; gcv_object_t inst_cl_id; gcv_object_t other[unspecified]; } *  Instance;\n");
+  printf("typedef struct { SRECORD_HEADER gcv_object_t inst_class; gcv_object_t inst_cl_id; gcv_object_t other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
   printf("typedef Values (*lisp_function_t)();\n");
   printf("typedef struct { lisp_function_t function; gcv_object_t name; gcv_object_t keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } subr_t");
@@ -887,11 +879,11 @@ global int main()
    printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
    printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
    printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
-#   printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(closure_type|structure_type|orecord_type|instance_type); printf("))\n");
+   printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(closure_type|structure_type|orecord_type|instance_type); printf("))\n");
 #   printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(stream_type|orecord_type); printf("))\n");
 #   printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(orecord_type); printf("))\n");
    printf("#define TheStructure(obj)  ((Structure)("); printf_type_pointable(structure_type); printf("))\n");
-#   printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(instance_type); printf("))\n");
+   printf("#define TheInstance(obj)  ((Instance)("); printf_type_pointable(instance_type); printf("))\n");
    printf("#define TheSubr(obj)  ((Subr)("); printf_type_pointable(subr_type); printf("))\n");
 #   printf("#define TheMachine(obj)  ((void*)("); printf_type_pointable(machine_type); printf("))\n");
   #else
@@ -921,21 +913,21 @@ global int main()
   printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheRecord(obj)  ((Record)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
 #   printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias);
   #endif
   printf("#define Car(obj)  (TheCons(obj)->car)\n");
   printf("#define Cdr(obj)  (TheCons(obj)->cdr)\n");
-# printf("#define Symbol_value(obj)  (TheSymbol(obj)->symvalue)\n");
-# printf("#define Symbol_function(obj)  (TheSymbol(obj)->symfunction)\n");
-# printf("#define Symbol_plist(obj)  (TheSymbol(obj)->proplist)\n");
+  printf("#define Symbol_value(obj)  (TheSymbol(obj)->symvalue)\n");
+  printf("#define Symbol_function(obj)  (TheSymbol(obj)->symfunction)\n");
+  printf("#define Symbol_plist(obj)  (TheSymbol(obj)->proplist)\n");
   printf("#define Symbol_name(obj)  (TheSymbol(obj)->pname)\n");
-# printf("#define Symbol_package(obj)  (TheSymbol(obj)->homepackage)\n");
+  printf("#define Symbol_package(obj)  (TheSymbol(obj)->homepackage)\n");
   #if defined(DEBUG_GCSAFETY)
     printf("#define eq(obj1,obj2)  (pgci_pointable(obj1) == pgci_pointable(obj2))\n");
   #elif defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
@@ -1009,11 +1001,11 @@ global int main()
 # #else
 #   printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",(4 << imm_type_shift) | immediate_bias,(fixnum_type&sfloat_type));
 # #endif
-# #ifdef TYPECODES
-#   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
-# #else
-#   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",23-1);
-# #endif
+ #ifdef TYPECODES
+   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
+ #else
+   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",23-1);
+ #endif
  #ifdef TYPECODES
    printf2("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
  #else
@@ -1024,21 +1016,21 @@ global int main()
 # #else
 #   printf2("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Svector^Rectype_vector,Rectype_Svector&Rectype_vector);
 # #endif
-# #ifdef TYPECODES
-#   printf2("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
-# #else
-#   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= %d))\n",22-16);
-# #endif
+ #ifdef TYPECODES
+   printf2("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
+ #else
+   printf("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_S8string,Rectype_reallocstring - Rectype_S8string);
+ #endif
  #ifdef TYPECODES
    printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
  #else
    printf("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_S8string,Rectype_reallocstring - Rectype_S8string);
  #endif
-# #ifdef TYPECODES
-#   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
-# #else
-#   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
-# #endif
+ #ifdef TYPECODES
+   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
+ #else
+   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
+ #endif
  #ifdef TYPECODES
    printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
  #else
@@ -1051,11 +1043,11 @@ global int main()
 # #endif
    printf("extern object array_displace_check (object array, uintL size, uintL* index);\n");
    printf("extern uintL vector_length (object vector);\n");
-# #ifdef TYPECODES
-#   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
-# #else
-#   printf1("#define instancep(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Instance);
-# #endif
+ #ifdef TYPECODES
+   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
+ #else
+   printf1("#define instancep(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Instance);
+ #endif
  #ifdef TYPECODES
     printf1("#define orecordp(obj)  (typecode(obj)==%d)\n",(tint)orecord_type);
  #else
@@ -1311,24 +1303,26 @@ global int main()
   printf("extern object allocate_cons (void);\n");
 # printf("extern object make_symbol (object string);\n");
   printf("extern object allocate_vector (uintL len);\n");
-  printf("#define Atype_8Bit 3\n");
+  printf("#define Atype_8Bit %d\n",Atype_8Bit);
+  printf("#define Atype_Bit %d\n",Atype_Bit);
   printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
-# #ifdef UNICODE
-#   printf("extern object allocate_s32string (uintL len);\n");
-#   printf("#define allocate_string(len)  allocate_s32string(len)\n");
-# #else
-#   printf("extern object allocate_s8string (uintL len);\n");
-#   printf("#define allocate_string(len)  allocate_s8string(len)\n");
-# #endif
-# #ifdef asciz_length
-#   #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
-#     printf("#define asciz_length(a)  ((uintL)__builtin_strlen(a))\n");
-#   #else
-#     printf("#define asciz_length(a)  ((uintL)strlen(a))\n");
-#   #endif
-# #else
-#   printf("extern uintL asciz_length (const char * asciz);\n");
-# #endif
+ #ifdef UNICODE
+   printf("extern object allocate_s32string (uintL len);\n");
+   printf("#define allocate_string(len)  allocate_s32string(len)\n");
+ #else
+   printf("extern object allocate_s8string (uintL len);\n");
+   printf("#define allocate_string(len)  allocate_s8string(len)\n");
+ #endif
+   printf("gcv_object_t* slot_up (void);\n");
+ #ifdef asciz_length
+   #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
+     printf("#define asciz_length(a)  ((uintL)__builtin_strlen(a))\n");
+   #else
+     printf("#define asciz_length(a)  ((uintL)strlen(a))\n");
+   #endif
+ #else
+   printf("extern uintL asciz_length (const char * asciz);\n");
+ #endif
 # #ifdef asciz_length
 #   printf("#define asciz_equal(a1,a2)  (__builtin_strcmp(a1,a2)==0)\n");
 # #else
@@ -1491,7 +1485,10 @@ global int main()
     for (; i <=9 ; i++)
       printf("#define value%d  mv_space[%d]\n",i,i-1);
   }
+  printf("#define VALUES0 do{ value1 = NIL; mv_count = 0; }while(0)\n");
   printf("#define VALUES1(A) do{ value1 = (A); mv_count = 1; }while(0)\n");
+  printf("#define VALUES2(A,B) do{ value1 = (A); value2 = (B); mv_count = 3;}while(0)\n");
+  printf("#define VALUES3(A,B,C) do{ value1 = (A); value2 = (B); value3 = (C); mv_count = 3;}while(0)\n");
   printf("#define VALUES_IF(C) do{ value1 = (C) ? T : NIL; mv_count = 1; }while(0)\n");
   printf("#define args_end_pointer  STACK\n");
 # printf("#define set_args_end_pointer(new_args_end_pointer)  STACK = (new_args_end_pointer)\n");
@@ -1532,7 +1529,7 @@ global int main()
   printf("extern Values funcall (object fun, uintC argcount);\n");
 # printf("extern Values eval (object form);\n");
   printf("#define LISPFUNN(name,req_anz)  LISPFUN(name,sec,req_anz,0,norest,nokey,0,NIL)\n");
-  printf("#define LISPFUN_B(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  global Values C_##name subr_##rest_flag##_function_args\n");
+  printf("#define LISPFUN_B(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  extern Values C_##name subr_##rest_flag##_function_args\n");
   printf("#define subr_norest_function_args  (void)\n");
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
   printf("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function_t)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n");
@@ -1543,6 +1540,7 @@ global int main()
    printf("#define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)\n");
    printf("extern object n_char_to_string_ (const char* charptr, uintL len);\n");
  #endif
+   printf("extern object gethash (object obj, object ht);\n");
  #ifdef UNICODE
    printf("extern object asciz_to_string (const char * asciz, object encoding);\n");
  #else
@@ -1663,7 +1661,8 @@ global int main()
 # printf("extern object make_list (uintL len);\n");
   printf("extern object listof (uintC len);\n");
   printf("extern object nreverse (object list);\n");
-  printf("global object memq (const object obj, const object lis);\n");
+  printf("extern object deleteq (object list, object obj);\n");
+  printf("extern object memq (const object obj, const object lis);\n");
   printf("typedef enum { condition=%d, serious_condition=%d, error=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, os_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d, } condition_t;\n",condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, os_error, storage_condition, interrupt_condition, warning);
   printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
   printf("nonreturning_function(extern, OS_error, (void));\n");
@@ -1675,6 +1674,9 @@ global int main()
 # printf("extern object check_char (object obj);\n");
 # printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
   printf("nonreturning_function(extern, fehler_string_integer, (object obj));\n");
+  printf("nonreturning_function(extern, fehler_proper_list, (object caller, object obj));\n");
+  printf("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));\n");
+  printf("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));\n");
   printf("extern void check_value (condition_t errortype, const char * errorstring);\n");
   printf("extern object check_posfixnum (object obj);\n");
   printf("extern object check_string (object obj);\n");
@@ -1695,9 +1697,9 @@ global int main()
   printf("extern object check_dfloat (object obj);\n");
   printf("extern double to_double (object obj);\n");
   printf("extern int to_int (object obj);\n");
-# printf("extern object find_package (object string);\n");
-# printf("extern uintBWL intern (object string, object pack, object* sym_);\n");
-# printf("extern object intern_keyword (object string);\n");
+  printf("extern object find_package (object string);\n");
+  printf("extern uintBWL intern (object string, object pack, object* sym_);\n");
+  printf("extern object intern_keyword (object string);\n");
   printf("extern object object_out (object obj);\n");
   printf("#define OBJECT_OUT(obj,label)");
   printf(" (printf(\"[%%s:%%d] %%s: %%s:\\n\",__FILE__,__LINE__,STRING(obj),label),");
@@ -1847,14 +1849,15 @@ global int main()
     printf("typedef struct { XRECORD_HEADER void* fp_pointer;} * Fpointer;\n");
     printf("#define fpointerp(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Fpointer);
     #ifdef TYPECODES
-      printf("#define TheFpointer(obj)  ((Fpointer)(type_pointable(orecord_type,obj)))\n");
+    printf("#define TheFpointer(obj)  ((Fpointer)(");print_type_pointable(orecord_type,obj);printf("))\n");
     #else
       printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
     #endif
     printf("extern object allocate_fpointer (FOREIGN foreign);\n");
     printf("#define fp_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)\n");
   #endif
-    printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
+  printf("#define unused %s\n",STRINGIFY(unused));
+  printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
 /* Additional stuff for modules. */
   printf("#define DEFMODULE(module_name,package_name)\n");
   printf("#define DEFUN(funname,lambdalist,signature) LISPFUN signature\n");
