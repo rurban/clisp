@@ -243,7 +243,7 @@
     #define UNIX_LINUX  # Linux (Linus Torvalds Unix)
   #endif
   #ifdef __GNU__
-    #define UNIX_GNU  # the GNU system (Hurd + glibc)
+    #define UNIX_HURD  # the GNU system (Hurd + glibc)
   #endif
   #ifdef __NetBSD__
     #define UNIX_NETBSD
@@ -491,7 +491,7 @@
   #define FAST_DOUBLE
   #define FAST_FLOAT
 #endif
-#if defined(I80386) && (defined(UNIX_LINUX) || defined(UNIX_NEXTSTEP) || defined(UNIX_GNU))
+#if defined(I80386) && (defined(UNIX_LINUX) || defined(UNIX_NEXTSTEP) || defined(UNIX_HURD))
   # Linux has a working emulator for a floating-point coprocessor.
   # NeXTstep only works with a floating-point coprocessor.
   # GNU only runs with an i486 (or better),
@@ -1251,7 +1251,7 @@ typedef signed int  signean;
 
 # non-local exits
 #include <setjmp.h>
-#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS)
+#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_HURD) && !defined(UNIX_BEOS)
   # The following routines are more efficient (don't use with signal-masks):
   #undef setjmp
   #undef longjmp
@@ -2557,7 +2557,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # MC680X0 platforms without new gcc.
 # It worked on the following platforms in the past, and may still work on:
 #   (defined(MC680X0) && !defined(AMIGA3000) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
-#   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_GNU) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
+#   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
 #   (defined(SPARC) && !defined(SUN4_29))
 #   (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX))
 #   defined(M88000)
