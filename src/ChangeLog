@@ -1,3 +1,10 @@
+2002-09-18  Sam Steingold  <sds@gnu.org>
+
+	do not print QUOTE and FUNCTION specially when that results
+	in a dotted list representation
+	* io.d (special_list_p): new `dotted_p' argument
+	(pr_cons): pass `dotted_p' to special_list_p()
+
 2002-09-17  John  Hinsdale <hin@alma.com>
 
 	* modules/oracle/oracle.lisp: use new FFI calls; many performance
