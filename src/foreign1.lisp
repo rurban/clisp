@@ -374,8 +374,8 @@
     (error (TEXT "The name ~S is not a valid C identifier")
            name)))
 
-(defmacro DEF-C-TYPE (&whole whole name typespec)
-  (setq name (check-symbol name (first whole)))
+(defmacro DEF-C-TYPE (&whole whole-form name typespec)
+  (setq name (check-symbol name (first whole-form)))
   `(EVAL-WHEN (LOAD COMPILE EVAL)
      (PARSE-C-TYPE ',typespec ',name)
      ',name))
@@ -722,17 +722,19 @@
     (parse-foreign-name (second name-option))
     (to-c-name lisp-name)))
 
-(defmacro DEF-C-VAR (&whole whole name &rest options)
-  (setq name (check-symbol name (first whole)))
+(defmacro DEF-C-VAR (&whole whole-form
+                     name &rest options)
+  (setq name (check-symbol name (first whole-form)))
   (let* ((alist (parse-options options '(:name :type :read-only
                                          :alloc :library)
-                               whole))
+                               whole-form))
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
                            (sys::error-of-type 'ext:source-program-error
-                             :form whole
+                             :form whole-form
+                             :detail whole-form
                              (TEXT "~S: ~S option missing in ~S")
-                             'def-c-var ':type whole))))
+                             'def-c-var ':type whole-form))))
          (read-only (second (assoc ':read-only alist)))
          (flags (+ (if read-only fv-flag-readonly 0)
                    (let ((alloc (assoc ':alloc alist)))
@@ -853,12 +855,12 @@
         'def-c-call-out 'def-call-out)
   `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC)))
 
-(defmacro DEF-CALL-OUT (&whole whole name &rest options)
-  (setq name (check-symbol name (first whole)))
+(defmacro DEF-CALL-OUT (&whole whole-form name &rest options)
+  (setq name (check-symbol name (first whole-form)))
   (let* ((alist (parse-options options '(:name :arguments :return-type
                                          :language :built-in :library)
-                               whole))
-         (parsed-function (parse-c-function alist whole))
+                               whole-form))
+         (parsed-function (parse-c-function alist whole-form))
          (signature (argvector-to-signature (svref parsed-function 2)))
          (library (second (assoc :library alist)))
          (c-name (foreign-name name (assoc :name alist))))
@@ -866,7 +868,7 @@
                            alist))
     `(PROGN
        ,(unless library
-          `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole)))
+          `(EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole-form)))
        (LET ()
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
@@ -886,11 +888,11 @@
           *function-list*)))
 
 #+AFFI
-(defmacro DEF-LIB-CALL-OUT (&whole whole name library &rest options)
-  (setq name (check-symbol name (first whole)))
-  (let* ((alist (parse-options options '(:name :offset :arguments :return-type) whole))
+(defmacro DEF-LIB-CALL-OUT (&whole whole-form name library &rest options)
+  (setq name (check-symbol name (first whole-form)))
+  (let* ((alist (parse-options options '(:name :offset :arguments :return-type) whole-form))
          (parsed-function
-          (parse-c-function (remove (assoc ':name alist) alist) whole))
+          (parse-c-function (remove (assoc ':name alist) alist) whole-form))
          (signature (argvector-to-signature (svref parsed-function 2)))
          (c-name (foreign-name name (assoc ':name alist)))
          (offset (second (assoc ':offset alist))))
@@ -901,7 +903,7 @@
          (FOREIGN-LIBRARY-FUNCTION ',c-name
            (FOREIGN-LIBRARY ',library)
            ',offset
-           (PARSE-C-FUNCTION ',(remove (assoc ':name alist) alist) ',whole)))
+           (PARSE-C-FUNCTION ',(remove (assoc ':name alist) alist) ',whole-form)))
        ',name)))
 
 (defmacro DEF-C-CALL-IN (name &rest options)
@@ -909,15 +911,15 @@
         'def-c-call-in 'def-call-in)
   `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC)))
 
-(defmacro DEF-CALL-IN (&whole whole name &rest options)
-  (setq name (check-symbol name (first whole)))
+(defmacro DEF-CALL-IN (&whole whole-form name &rest options)
+  (setq name (check-symbol name (first whole-form)))
   (let* ((alist (parse-options
-                 options '(:name :arguments :return-type :language) whole))
+                 options '(:name :arguments :return-type :language) whole-form))
          (c-name (foreign-name name (assoc ':name alist))))
     (setq alist (remove (assoc ':name alist) alist))
     `(PROGN
        (EVAL-WHEN (COMPILE)
-         (NOTE-C-CALL-IN ',name ',c-name ',alist ',whole))
+         (NOTE-C-CALL-IN ',name ',c-name ',alist ',whole-form))
        ',name)))
 
 (defun note-c-call-in (name c-name alist whole)
@@ -1027,8 +1029,8 @@
 (defun foreign-function-in-arg-count (obj)
   (count-inarguments (sys::%record-ref obj 3)))
 
-(defmacro def-c-enum (&whole whole name &rest items)
-  (setq name (check-symbol name (first whole)))
+(defmacro def-c-enum (&whole whole-form name &rest items)
+  (setq name (check-symbol name (first whole-form)))
   (let ((forms '()) (ht (make-hash-table :key-type 'fixnum :value-type 'symbol))
         (next-value 0) (this-val 0))
     (dolist (item items)
@@ -1074,58 +1076,76 @@
 ;; (slot (foreign-value x) ...)    --> (foreign-value (%slot x ...))
 ;; (cast (foreign-value x) ...)    --> (foreign-value (%cast x ...))
 ;; (offset (foreign-value x) ...)  --> (foreign-value (%offset x ...))
-(flet ((err (whole)
+(flet ((err (whole-form reconsed-form)
          (sys::error-of-type 'ext:source-program-error
-           :form whole
+           :form whole-form
+           :detail reconsed-form
            (TEXT "~S is only allowed after ~S: ~S")
-           (first whole) 'FOREIGN-VALUE whole))
+           (first whole-form) 'FOREIGN-VALUE whole-form))
        (foreign-place-p (place type)
          (and (consp place) (eq (first place) type) (eql (length place) 2))))
-  (defmacro element (place &rest indices &environment env)
+
+  (defmacro element (&whole whole-form
+                     place &rest indices &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-VALUE (%ELEMENT ,(second place) ,@indices))
-      (err `(element ,place ,@indices))))
-  (defmacro deref (place &environment env)
+      (err whole-form `(element ,place ,@indices))))
+
+  (defmacro deref (&whole whole-form
+                   place &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-VALUE (%DEREF ,(second place)))
-      (err `(deref ,place))))
-  (defmacro slot (place slotname &environment env)
+      (err whole-form `(deref ,place))))
+
+  (defmacro slot (&whole whole-form
+                  place slotname &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-VALUE (%SLOT ,(second place) ,slotname))
-      (err `(slot ,place ,slotname))))
-  (defmacro cast (place type &environment env)
+      (err whole-form `(slot ,place ,slotname))))
+
+  (defmacro cast (&whole whole-form
+                  place type &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-VALUE (%CAST ,(second place) (PARSE-C-TYPE ,type)))
-      (err `(cast ,place ,type))))
-  (defmacro offset (place offset type &environment env)
+      (err whole-form `(cast ,place ,type))))
+
+  (defmacro offset (&whole whole-form
+                    place offset type &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-VALUE (%OFFSET ,(second place) ,offset (PARSE-C-TYPE ,type)))
-      (err `(offset ,place ,offset ,type))))
+      (err whole-form `(offset ,place ,offset ,type))))
+
   ;; Extract FOREIGN-VARIABLE object underlying the place
-  (defmacro c-var-object (place &environment env)
+  (defmacro c-var-object (&whole whole-form
+                          place &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       (second place)
-      (err `(c-var-object ,place))))
+      (err whole-form `(c-var-object ,place))))
+
   ;; The equivalent of (FOREIGN-ADDRESS fvar) for c-places:
   ;; (c-var-address (foreign-value x)) --> (foreign-address x)
-  (defmacro c-var-address (place &environment env)
+  (defmacro c-var-address (&whole whole-form
+                           place &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(FOREIGN-ADDRESS ,(second place))
-      (err `(c-var-address ,place))))
+      (err whole-form `(c-var-address ,place))))
+
   ;; Similarly for TYPEOF.
   ;; (typeof (foreign-value x)) --> (deparse-c-type (foreign-type x))
-  (defmacro typeof (place &environment env)
+  (defmacro typeof (&whole whole-form
+                    place &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)
       `(DEPARSE-C-TYPE (FOREIGN-TYPE ,(second place)))
-      (err `(typeof ,place))))
+      (err whole-form `(typeof ,place))))
+
   ;; Similar tricks are being played for SIZEOF, BITSIZEOF.
   ;; They are macros which work on <c-place>s.
   ;; If the argument is not a <c-place>, they behave like
@@ -1142,6 +1162,7 @@
       (if (foreign-place-p place 'DEPARSE-C-TYPE)
         `(%SIZEOF ,(second place))
         `(%SIZEOF (PARSE-C-TYPE ,place)))))
+
   (defmacro bitsizeof (place &environment env)
     (setq place (macroexpand place env))
     (if (foreign-place-p place 'FOREIGN-VALUE)

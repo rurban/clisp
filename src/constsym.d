@@ -1409,7 +1409,7 @@ LISPSYM(Kexpected_type,"EXPECTED-TYPE",keyword) /* make-condition-argument for E
 LISPSYM(Kpackage,"PACKAGE",keyword) /* make-condition-argument for ERROR */
 LISPSYM(Kobject,"OBJECT",keyword) /* make-condition-argument for ERROR */
 LISPSYM(Kpathname,"PATHNAME",keyword) /* make-condition-argument for ERROR */
-LISPSYM(Kform,"FORM",keyword) /* make-condition-argument for ERROR */
+LISPSYM(Kdetail,"DETAIL",keyword) /* make-condition-argument for ERROR */
 LISPSYM(format,"FORMAT",lisp) /* function in ERROR */
 LISPSYM(debugger_hook,"*DEBUGGER-HOOK*",lisp) /* variable in ERROR */
 LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) /* function for ERROR */

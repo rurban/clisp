@@ -77,17 +77,20 @@
          ,resultform))))
 
 ;;; <HS>/Body/mac_with-package-iterator.html
-(defmacro with-package-iterator ((name pack-list &rest types) &body body)
+(defmacro with-package-iterator (&whole whole-form
+                                 (name pack-list &rest types) &body body)
   (unless types
     (error-of-type 'source-program-error
-      :form types               ; == NIL
+      :form whole-form
+      :detail types             ; == NIL
       (TEXT "missing symbol types (~S/~S/~S) in ~S")
       ':internal ':external ':inherited 'with-package-iterator))
   (dolist (symboltype types)
     (case symboltype
       ((:INTERNAL :EXTERNAL :INHERITED))
       (t (error-of-type 'source-program-error
-           :form symboltype
+           :form whole-form
+           :detail symboltype
            (TEXT "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
            'with-package-iterator ':internal ':external ':inherited
            symboltype))))

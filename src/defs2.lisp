@@ -64,10 +64,12 @@
 
 ;; X3J13 vote <64>
 
-(defmacro destructuring-bind (lambdalist form &body body)
+(defmacro destructuring-bind (&whole whole-form
+                              lambdalist form &body body)
   (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (if declarations (setq declarations `((DECLARE ,@declarations))))
-    (let ((%arg-count 0) (%min-args 0) (%restp nil) (%ignored nil)
+    (let ((%whole-form whole-form)
+          (%arg-count 0) (%min-args 0) (%restp nil) (%ignored nil)
           (%let-list nil) (%keyword-tests nil) (%default-form nil))
       (analyze1 lambdalist '<DESTRUCTURING-FORM> 'destructuring-bind '<DESTRUCTURING-FORM>)
       (let ((lengthtest (make-length-test '<DESTRUCTURING-FORM> 0))
@@ -178,9 +180,9 @@
 
 ;; ANSI-CL
 
-(defmacro lambda (&whole whole lambdalist &body body)
+(defmacro lambda (&whole whole-form lambdalist &body body)
   (declare (ignore lambdalist body))
-  `(FUNCTION ,whole))
+  `(FUNCTION ,whole-form))
 
 ;; ----------------------------------------------------------------------------
 

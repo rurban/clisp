@@ -13,7 +13,8 @@
 ;; X3J13 vote <52>
 
 ;; Package-Definition und -Installation, CLtL2 S. 270
-(defmacro defpackage (packname &rest options)
+(defmacro defpackage (&whole whole-form
+                      packname &rest options)
   (setq packname (string packname))
   ;; process options:
   (let ((size nil) ; :SIZE has been supplied
@@ -31,7 +32,8 @@
     (flet ((record-symname (name)
              (if (member name symname-list :test #'string=)
                (error-of-type 'source-program-error
-                 :form name
+                 :form whole-form
+                 :detail name
                  (TEXT "~S ~A: the symbol ~A must not be specified more than once")
                  'defpackage packname name)
                (push name symname-list))))
@@ -42,14 +44,16 @@
               (:SIZE
                (if size
                  (error-of-type 'source-program-error
-                   :form size
+                   :form whole-form
+                   :detail options
                    (TEXT "~S ~A: the ~S option must not be given more than once")
                    'defpackage packname ':SIZE)
                  (setq size t))) ; ignored
               (:DOCUMENTATION ; ANSI-CL
                (if documentation
                  (error-of-type 'source-program-error
-                   :form documentation
+                   :form whole-form
+                   :detail options
                    (TEXT "~S ~A: the ~S option must not be given more than once")
                    'defpackage packname ':DOCUMENTATION)
                  (setq documentation (second option))))
@@ -97,15 +101,18 @@
                (when (not (null (second option)))
                  (setq case-sensitive t)))
               (T (error-of-type 'source-program-error
-                   :form (first option)
+                   :form whole-form
+                   :detail (first option)
                    (TEXT "~S ~A: unknown option ~S")
                    'defpackage packname (first option))))
             (error-of-type 'source-program-error
-              :form option
+              :form whole-form
+              :detail option
               (TEXT "~S ~A: invalid syntax in ~S option: ~S")
               'defpackage packname 'defpackage option))
           (error-of-type 'source-program-error
-            :form option
+            :form whole-form
+            :detail option
             (TEXT "~S ~A: not a ~S option: ~S")
             'defpackage packname 'defpackage option)))
       ;; check for overlaps between intern-list and export-list:

@@ -35,7 +35,7 @@
 (in-package "EXT")
 (export
  '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
-   source-program-error source-program-error-form
+   source-program-error source-program-error-form source-program-error-detail
    simple-condition-format-string simple-charset-type-error retry)
  "EXT")
 (in-package "CUSTOM")
@@ -279,9 +279,12 @@
 
       ; statically detectable errors of a program, source available
       (define-condition source-program-error (program-error)
-        ;; this is the "inner-most" bad form, e.g., when a string is given
-        ;; as a variable name, this is the string, not the whole SETQ form
-        (($form :initarg :form :reader source-program-error-form)))
+        (;; The "outer-most" bad form, i.e. the list whose first element is the
+         ;; macro or special-operator name.
+         ($form   :initarg :form   :reader source-program-error-form)
+         ;; The "inner-most" detail of the bad form, e.g., when a string is
+         ;; given as a variable name, this is the string, not the whole form.
+         ($detail :initarg :detail :reader source-program-error-detail)))
       ; CLISP specific
 
     ; not statically detectable errors in program control
@@ -874,10 +877,11 @@
 ;; WITH-CONDITION-RESTARTS, we do not go through RESTART-BIND.
 
 (eval-when (compile load eval)
-  (defun expand-restart-case (caller restart-clauses form)
+  (defun expand-restart-case (caller whole-form restart-clauses form)
     (unless (listp restart-clauses)
       (error-of-type 'source-program-error
-        :form restart-clauses
+        :form whole-form
+        :detail restart-clauses
         (TEXT "~S: not a list: ~S")
         caller restart-clauses))
     (let ((xclauses ;; list of expanded clauses
@@ -887,7 +891,8 @@
                 (unless (and (consp clause) (consp (cdr clause))
                              (symbolp (first clause)))
                   (error-of-type 'source-program-error
-                    :form clause
+                    :form whole-form
+                    :detail clause
                     (TEXT "~S: invalid restart specification ~S")
                     caller clause))
                 (let ((name (pop clause))
@@ -908,7 +913,8 @@
                           (t (return))))
                   (unless passed-arglist
                     (error-of-type 'source-program-error
-                      :form clause
+                      :form whole-form
+                      :detail clause
                       (TEXT "~S: missing lambda list in restart specification ~S")
                       caller clause))
                   (multiple-value-bind (test interactive report)
@@ -921,7 +927,8 @@
                       ;; CLtL2 p. 906: "It is an error if an unnamed restart
                       ;; is used and no report information is provided."
                       (error-of-type 'source-program-error
-                        :form restart-clause
+                        :form whole-form
+                        :detail restart-clause
                         (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
                         caller ':REPORT restart-clause))
                     (when (and (consp arglist) (not (member (first arglist) lambda-list-keywords))
@@ -1011,12 +1018,14 @@
                        xclauses))))))
 )
 
-(defmacro restart-case (form &rest restart-clauses &environment env)
-  (expand-restart-case 'restart-case restart-clauses
+(defmacro restart-case (&whole whole-form
+                        form &rest restart-clauses &environment env)
+  (expand-restart-case 'restart-case whole-form restart-clauses
                        (macroexpand form env)))
 
-(defmacro with-restarts (restart-clauses &body body &environment env)
-  (expand-restart-case 'with-restarts restart-clauses
+(defmacro with-restarts (&whole whole-form
+                         restart-clauses &body body &environment env)
+  (expand-restart-case 'with-restarts whole-form restart-clauses
                        (if (cdr body)
                            (cons 'PROGN body)
                            (macroexpand (car body) env))))

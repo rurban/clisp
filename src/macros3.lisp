@@ -47,19 +47,21 @@
 ; (LETF (((VALUES-LIST A) form)) ...)
 ;   --> (LET ((A (MULTIPLE-VALUE-LIST form))) ...)
 
-(defmacro LETF* (bindlist &body body)
+(defmacro LETF* (&whole whole-form
+                 bindlist &body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (let ((declare (if declarations `((DECLARE ,@declarations)) '())))
-      (values (expand-LETF* bindlist declare body-rest)))))
+      (values (expand-LETF* bindlist declare body-rest whole-form)))))
 
 ; expandiert ein LETF*, liefert die Expansion und
 ; T, falls diese Expansion mit einem LET* anfängt, dessen Bindungsliste
 ; erweitert werden darf.
-(defun expand-LETF* (bindlist declare body)
+(defun expand-LETF* (bindlist declare body whole-form)
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
-        :form bindlist
+        :form whole-form
+        :detail bindlist
         (TEXT "LETF* code contains a dotted list, ending with ~S")
         bindlist
       )
@@ -79,12 +81,13 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
-            :form bind
+            :form whole-form
+            :detail bind
             (TEXT "illegal syntax in LETF* binding: ~S")
             bind
       ) ) )
       (multiple-value-bind (rest-expanded flag)
-          (expand-LETF* (cdr bindlist) declare body)
+          (expand-LETF* (cdr bindlist) declare body whole-form)
         (if (atom place)
           (values
             (if flag
@@ -145,12 +148,13 @@
             ) ) )
 ) ) ) ) ) )
 
-(defmacro LETF (bindlist &body body)
+(defmacro LETF (&whole whole-form
+                bindlist &body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (let ((declare (if declarations `((DECLARE ,@declarations)) '()))
           (let-list nil))
       (multiple-value-bind (let*-list let/let*-list uwp-store1 uwp-store2)
-          (expand-LETF bindlist)
+          (expand-LETF bindlist whole-form)
         ; mehrfach folgendes anwenden:
         ; endet let*-list mit (#:G form) und kommt in let/let*-list (var #:G)
         ; vor, so dürfen beide gestrichen werden, und dafür kommt (var form)
@@ -219,11 +223,12 @@
 ; eine Bindungsliste für LET/LET* (Reihenfolge der Bindung darin beliebig),
 ; eine Liste von Bindungsanweisungen, eine Liste von Entbindungsanweisungen
 ; (beide gleich lang).
-(defun expand-LETF (bindlist)
+(defun expand-LETF (bindlist whole-form)
   (if (atom bindlist)
     (if bindlist
       (error-of-type 'source-program-error
-        :form bindlist
+        :form whole-form
+        :detail bindlist
         (TEXT "LETF code contains a dotted list, ending with ~S")
         bindlist
       )
@@ -243,11 +248,12 @@
                 (return)
           ) ) )
           (error-of-type 'source-program-error
-            :form bind
+            :form whole-form
+            :detail bind
             (TEXT "illegal syntax in LETF binding: ~S")
             bind
       ) ) )
-      (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist))
+      (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist) whole-form)
         (if (atom place)
           (let ((g (gensym)))
             (values (cons (list g form) L1) (cons (list place g) L2) L3 L4)
