@@ -2864,45 +2864,41 @@ only.</subtitle>
    Forward declarations of types are not possible, however.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-var">
- <term><literal role="sexp">(&def-c-var; &name-r;
+<varlistentry id="def-c-var"><term><literal role="sexp">(&def-c-var; &name-r;
    {&option-r;}*)</literal></term>
- <listitem><simpara>This form defines a &foreign-variable;.
-   &name-r; is the Lisp name, a regular Lisp &symbol-t;.</simpara>
-  <variablelist id="def-c-var-opts"><title>Options for &def-c-var;</title>
-   <varlistentry><term><literal role="sexp">(&name-k;
-      &cname-r;)</literal></term>
-    <listitem><simpara>specifies the name as seen from &c-lang;, as a
-      string.  If not specified, it is derived from the print name of
-      the Lisp name.</simpara></listitem></varlistentry>
-   <varlistentry><term><literal role="sexp">(&type-k;
-      &ctype-r;)</literal></term>
-    <listitem><simpara>specifies the variable's foreign type.
-   </simpara></listitem></varlistentry>
-   <varlistentry><term><literal role="sexp">(&ro-k;
-      &boolean-t;)</literal></term>
-    <listitem><simpara>If this option is specified and non-&nil;,
-      it will be impossible to change the variable's value from within
-      Lisp (using &setq; or similar).</simpara></listitem></varlistentry>
-   <varlistentry><term><literal role="sexp">(:ALLOC
-      &allocation;)</literal></term>
-    <listitem><simpara>This option can be either &none-k; or
-      &malloc-free-k; and defaults to &none-k;.  If it is
-      &malloc-free-k;, any values of type &c-string;, &c-ptr;,
-      &c-ptr-null;, &c-array-ptr; within the foreign value are assumed
-      to be pointers to &malloc;-allocated storage, and when &setq;
-      replaces an old value by a new one, the old storage is freed using
-      &free; and the new storage allocated using &malloc;.  If it is
-      &none-k;, &setq; assumes that the pointers point to good storage
-      (not &c-NULL;!) and overwrites the old values by the new ones.
-      This is dangerous (just think of overwriting a string with a
-      longer one or storing some data in a &c-NULL; pointer...)  and
-      deprecated.</simpara></listitem></varlistentry>
-   <varlistentry><term><literal role="sexp">(&library-k;
-      &string-t;)</literal></term>
-    <listitem><simpara>Specifies the (optional) dynamic library
-      which contains the variable.
- </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+<listitem><simpara>This form defines a &foreign-variable;.
+  &name-r; is the Lisp name, a regular Lisp &symbol-t;.</simpara>
+ <variablelist id="def-c-var-opts"><title>Options for &def-c-var;</title>
+<varlistentry><term><literal role="sexp">(&name-k; &cname-r;)</literal></term>
+ <listitem><simpara>specifies the name as seen from &c-lang;, as a
+   string.  If not specified, it is derived from the print name of
+   the Lisp name.</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&type-k; &ctype-r;)</literal></term>
+ <listitem><simpara>specifies the variable's foreign type.
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&ro-k; &boolean-t;)</literal></term>
+ <listitem><simpara>If this option is specified and non-&nil;,
+   it will be impossible to change the variable's value from within
+   Lisp (using &setq; or similar).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(:ALLOC &allocation;)</literal></term>
+ <listitem><simpara>This option can be either &none-k; or
+   &malloc-free-k; and defaults to &none-k;.  If it is
+   &malloc-free-k;, any values of type &c-string;, &c-ptr;,
+   &c-ptr-null;, &c-array-ptr; within the foreign value are assumed
+   to be pointers to &malloc;-allocated storage, and when &setq;
+   replaces an old value by a new one, the old storage is freed using
+   &free; and the new storage allocated using &malloc;.  If it is
+   &none-k;, &setq; assumes that the pointers point to good storage
+   (not &c-NULL;!) and overwrites the old values by the new ones.
+   This is dangerous (just think of overwriting a string with a
+   longer one or storing some data in a &c-NULL; pointer...)  and
+   deprecated.</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&library-k; &name-r;)</literal></term>
+ <listitem><simpara>Specifies the (optional) dynamic library
+   which contains the variable.  &name-r; should be a &string-t; or,
+   depending on the underlying &dlsym; implementation, &default-k;
+   or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
 
 <varlistentry id="def-call-out"><term><literal role="sexp">(&def-call-out;
               &name-r; {&option-r;}*)</literal></term>
@@ -2929,11 +2925,12 @@ only.</subtitle>
  <listitem><simpara>When the function is a &c-lang; built-in, the full
    prototype will be output (unless suppressed by &ffi-out-fun;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&library-k;
-   &string-t;)</literal></term>
+<varlistentry><term><literal role="sexp">(&library-k; &name-r;)</literal></term>
  <listitem><simpara>Specifies the (optional) dynamic library
-  which contains the variable.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+   which contains the function.  &name-r; should be a &string-t; or,
+   depending on the underlying &dlsym; implementation, &default-k;
+   or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
 
 <varlistentry id="def-call-in"><term><literal role="sexp">(&def-call-in;
               &name-r; {&option-r;}*)</literal></term>
