@@ -957,7 +957,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # Function: Tests whether an object is an input-stream.
 # input_stream_p(stream)
 # > stream: object
-global inline bool input_stream_p(stream) {
+global inline bool input_stream_p (const object stream) {
   return (builtin_stream_p(stream) ?
           (TheStream(stream)->strmflags & strmflags_rd_B) != 0
           : instanceof(stream,O(class_fundamental_input_stream)));
@@ -966,7 +966,7 @@ global inline bool input_stream_p(stream) {
 # Function: Tests whether an object is an output-stream.
 # output_stream_p(stream)
 # > stream: object
-global inline bool output_stream_p(stream) {
+global inline bool output_stream_p (const object stream) {
   return (builtin_stream_p(stream) ?
           (TheStream(stream)->strmflags & strmflags_wr_B) != 0
           : instanceof(stream,O(class_fundamental_output_stream)));

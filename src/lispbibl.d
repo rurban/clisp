@@ -11845,10 +11845,10 @@ extern if_exists_t check_if_exists (const object if_exists);
 #endif
 
 # Function: Tests whether an object is an input-stream.
-extern inline bool input_stream_p(stream);
+extern inline bool input_stream_p(const object stream);
 
 # Function: Tests whether an object is an output-stream.
-extern inline bool output_stream_p(stream);
+extern inline bool output_stream_p(const object stream);
 
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
