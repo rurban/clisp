@@ -1,5 +1,12 @@
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
+	Avoid a possible collision with SP in libncurses.
+	* lispbibl.d (SP): Alias to getSP in all cases.
+	(NEED_OWN_GETSP): New macro.
+	* spvw.d (getSP): Renamed from SP. Define if NEED_OWN_GETSP.
+
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
 	* spvw_language.d (init_language): Invalidate the gettext internal
 	caches.
 
