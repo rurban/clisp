@@ -1,4 +1,4 @@
-# File: <clisp.spec - 1999-01-11 Mon 12:35:58 EST sds@eho.eaglets.com>
+# File: <clisp.spec - 1999-01-15 Fri 12:05:39 EST sds@eho.eaglets.com>
 # $Id$
 # Copyright (C) 1998 by Sam Steingold
 # GNU General Public License v.2 (GPL2) is applicable:
@@ -14,17 +14,18 @@
 %define version 1999.01.08
 %define clisp_build build
 
-Summary:   Common Lisp (ANSI CL) implementation
-Name:      %{name}
-Version:   %{version}
-Release:   2
-Icon:      clisp.gif
-Copyright: GPL [slightly modified]
-Group:     development/languages
-Source:    ftp://seagull.cdrom.com/pub/lisp/clisp/source/clispsrc.tar.gz
-URL:       http://clisp.cons.org/~haible/clisp.html
-Packager:  Sam Steingold <sds@goems.com>
-Provides:  clisp, ansi-cl
+Summary:      Common Lisp (ANSI CL) implementation
+Name:         %{name}
+Version:      %{version}
+Release:      3
+Icon:         clisp.gif
+Copyright:    GPL
+Group:        development/languages
+Source:       ftp://seagull.cdrom.com/pub/lisp/clisp/source/clispsrc.tar.gz
+URL:          http://clisp.cons.org/~haible/clisp.html
+Packager:     Red Hat Contrib|Net <rhcn-bugs@redhat.com>
+Provides:     clisp, ansi-cl
+Distribution: Red Hat Contrib|Net
 %description
 Common Lisp is a high-level, all-purpose programming language.
 CLISP is a Common Lisp implementation by Bruno Haible of Karlsruhe
@@ -35,16 +36,22 @@ It runs on microcomputers (DOS, OS/2, Windows NT, Windows 95, Amiga
 500-4000, Acorn RISC PC) as well as on Unix workstations (Linux, SVR4,
 Sun4, DEC Alpha OSF, HP-UX, NeXTstep, SGI, AIX, Sun3 and others) and
 needs only 2 MB of RAM.
-It is free software and may be distributed under the terms of GNU GPL.
+It is free software and may be distributed under the terms of GNU GPL,
+while it is possible to distribute commercial applications compiled
+with CLISP.
 The user interface comes in German, English, French and Spanish.
 CLISP includes an interpreter, a compiler, a large subset of CLOS, a
 foreign language interface and a socket interface.
 An X11 interface is available through CLX and Garnet.
 
+More information on at <http://clisp.cons.org/>.
 Sources and selected binaries are available by anonymous ftp from
 <ftp://ftp2.cons.org/pub/lisp/clisp>.
 The latest and greatest i386 binary RPM is on
 <ftp://cellar.goems.com/pub/clisp>.
+
+The package was created by Sam Steingold <sds@goems.com>.
+(RHCN requires that I put their e-mail into the "Packager:" header).
 
 # RPM doesn't provide for comfortable operation: when I want to create a
 # package, I have to untar, build and install (--short-circuit works for
@@ -52,9 +59,12 @@ The latest and greatest i386 binary RPM is on
 # I am doomed to untar, compile and install!)  This is unacceptable, so
 # I disabled untar completely - I don't need it anyway, I work from a
 # CVS repository, and I comment out the build clause and `make install`.
-# Is *YOU* want to build using RPM, you are welcome to it: just
+# If *YOU* want to build using RPM, you are welcome to it: just
 # uncomment the commands in the appropriate sections (do not uncomment
 # the doubly commented lines - they are maintainer-only commands).
+# Additionally, RPM barfs on rpmrc created with `rpm --showrc > /etc/rpmrc`
+# which is an unspeakable abomination.
+# I reported all these as bugs.  No reply.
 
 %prep
 %setup -T -D -n /usr/src/%{name}
@@ -81,10 +91,13 @@ The latest and greatest i386 binary RPM is on
 # rpm as root (as I should not have to - chown/chmod can be done in the
 # package file itself, not on disk!) but I also cannot work with the
 # sources afterwards!
+# Allright, I can set `fixperms' in /etc/rpmrc, but how do I avoid chown?!
+cd /usr/src/%{name}
 chgrp -R src .
-chmod -R g+wX .
+#chmod -R g+wX .
 
 # create the source tar, necessary for source RPMs
+cd /usr/src/%{name}
 find . -name ".#*" | xargs rm -f
 cd ..
 mv clisp clisp-%{version}
@@ -118,3 +131,4 @@ cd clisp
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
 /usr/share/locale/fr/LC_MESSAGES/clisp.mo
+
