@@ -10827,8 +10827,6 @@ local int shell_quote (char * dest, const char * source,
   return dcp - dest;
 }
 
-Handle stream_lend_handle (object stream, bool inputp, int * handletype);
-
 # (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
 # Launches a program.
 # :arguments : a list of strings
@@ -11285,24 +11283,26 @@ LISPFUNN(user_data_,1) {
 # if you modify this function wrt its return values,
 # you should modify POSIX:FILE-STAT in posix.lisp accordingly
 LISPFUN(file_stat_,seclass_default,1,1,norest,nokey,0,NIL) {
-  var object link = popSTACK();
+  var bool link_p = missingp(STACK_0); skipSTACK(1);
   var object file = popSTACK();
   struct stat buf;
 
   if (builtin_stream_p(file)) {
     pushSTACK(file);
     funcall(L(built_in_stream_open_p),1);
-    if (!nullp(value1)) /* open stream ==> use FD */
-      file = stream_lend_handle(file,true,NULL);
-  }
-  if (integerp(file)) {
+    if (!nullp(value1)) { /* open stream ==> use FD */
+      begin_system_call();
+      if (fstat(stream_lend_handle(file,true,NULL),&buf) < 0) OS_error();
+      end_system_call();
+    } else goto stat_pathname;
+  } else if (integerp(file)) {
     begin_system_call();
     if (fstat(I_to_L(file),&buf) < 0) OS_error();
     end_system_call();
-  } else {
+  } else { stat_pathname:
     pushSTACK(coerce_pathname(file)); funcall(L(namestring),1); file = value1;
     begin_system_call();
-    if ((missingp(link)
+    if ((link_p
          ? stat(TheAsciz(string_to_asciz(value1,O(pathname_encoding))),&buf)
          : lstat(TheAsciz(string_to_asciz(value1,O(pathname_encoding))),&buf))
         < 0)
@@ -11335,8 +11335,8 @@ LISPFUN(file_stat_,seclass_default,1,1,norest,nokey,0,NIL) {
    can trigger GC */
 local void copy_attributes_and_close () {
  #if defined(UNIX)
-  var int source_fd = posfixnum_to_L(stream_lend_handle(STACK_2,true,NULL));
-  var int dest_fd = posfixnum_to_L(stream_lend_handle(STACK_1,true,NULL));
+  var Handle source_fd = stream_lend_handle(STACK_2,true,NULL);
+  var Handle dest_fd = stream_lend_handle(STACK_1,true,NULL);
   var struct stat source_sb;
   var struct stat dest_sb;
 
