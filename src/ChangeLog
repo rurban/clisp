@@ -1,5 +1,15 @@
 2005-02-28  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/configure.in: use AC_LIB_LINKFLAGS([pq])
+	* modules/postgresql/Makefile.in; use PQCPPFLAGS instead of
+	CPPFLAGS to pass the result of --with-pq-prefix to CC
+	* modules/pari/configure.in: use AC_LIB_LINKFLAGS instead of
+	AC_LIB_LINKFLAGS_BODY
+	* modules/pari/Makefile.in: use PARICPPFLAGS instead of CPPFLAGS
+	to pass the result of --with-pari-prefix to CC
+
+2005-02-28  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/gettext.c (SET-LOCALE, LOCALE-CONV, res_to_obj)
 	(locale_string_to_STACK): use *MISC-ENCODING* instead of UTF-8
 	(get_locale_info) [WIN32_NATIVE]: do not use LOCALE_USE_CP_ACP
