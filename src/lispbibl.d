@@ -5123,6 +5123,7 @@ typedef struct { XRECORD_HEADER
                  object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
                  #ifdef UNICODE
                  object enc_charset; # character set, a symbol in the CHARSET package
+                                     # or a simple-string
                  # Functions to convert bytes to characters.
                    object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
                    object enc_mbstowcs; # void (*) (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);

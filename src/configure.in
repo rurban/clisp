@@ -306,6 +306,8 @@ CL_SHM_RMID
                       dnl DEFS SHM_RMID_VALID
 CL_DYNLOAD
                       dnl DEFS HAVE_DLOPEN, DLERROR_CONST, set variable LIBDL
+CL_ICONV
+                      dnl DEFS HAVE_ICONV
 dnl
 dnl           checks for libraries
 dnl

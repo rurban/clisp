@@ -3156,6 +3156,14 @@ LISPFUNN(generic_stream_p,1)
           && encodingp(Symbol_value(arg))
          )
         { return Symbol_value(arg); }
+      #ifdef HAVE_ICONV
+      if (stringp(arg))
+        { # (make-encoding :charset arg)
+          pushSTACK(arg); pushSTACK(unbound);
+          C_make_encoding();
+          return value1;
+        }
+      #endif
       #endif
       if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos)))
         { # (make-encoding :charset default-file-encoding :line-terminator arg)

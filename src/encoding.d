@@ -22,6 +22,21 @@ LISPFUN(make_encoding,0,0,norest,key,2,
           && encodingp(Symbol_value(arg))
          )
       { arg = Symbol_value(arg); }
+    #ifdef HAVE_ICONV
+    elif (stringp(arg))
+      { pushSTACK(coerce_ss(arg));
+       {var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_charset = popSTACK();
+        TheEncoding(encoding)->enc_mblen    = P(iconv_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
+        TheEncoding(encoding)->min_bytes_per_char = 1;
+        TheEncoding(encoding)->max_bytes_per_char = 6; # unfounded assumption
+        arg = encoding;
+      }}
+    #endif
     #endif
     else
       { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
@@ -1084,6 +1099,195 @@ global void nls_asciiext_wcstombs(encoding,srcp,srcend,destp,destend)
        bad:
         fehler_unencodable(encoding,ch);
   }   }
+
+# -----------------------------------------------------------------------------
+#                             iconv-based encodings
+
+# Here enc_charset is a simple-string, not a symbol. The system decides
+# which encodings are available, and there is no API for getting them all.
+
+# FIXME: This doesn't work for streams yet. The stream should keep two iconv_t
+# pointers.
+
+#ifdef HAVE_ICONV
+
+# Our internal encoding is UCS-2 with platform dependent endianness.
+#if BIG_ENDIAN_P
+  #define CLISP_INTERNAL_CHARSET  "UNICODEBIG//"
+#else
+  #define CLISP_INTERNAL_CHARSET  "UNICODELITTLE//"
+#endif
+
+# min. bytes per character = 1
+# max. bytes per character unknown, assume it's <= 6
+
+global uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend);
+global void iconv_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global uintL iconv_wcslen (object encoding, const chart* src, const chart* srcend);
+global void iconv_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+
+# fehler_iconv_invalid_charset(encoding);
+  nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding));
+  local void fehler_iconv_invalid_charset(encoding)
+    var object encoding;
+    { pushSTACK(TheEncoding(encoding)->enc_charset);
+      fehler(error,
+             DEUTSCH ? "Unbekannter Zeichensatz ~" :
+             ENGLISH ? "unknown character set ~" :
+             FRANCAIS ? "jeu de caractères ~ inconnu" :
+             ""
+            );
+    }
+
+# Bytes to characters.
+
+global uintL iconv_mblen(encoding,src,srcend)
+  var object encoding;
+  var const uintB* src;
+  var const uintB* srcend;
+  { var uintL count = 0;
+    #define tmpbufsize 4096
+    var chart tmpbuf[tmpbufsize];
+    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
+      { begin_system_call();
+       {var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
+        if (cd == (iconv_t)(-1))
+          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+            OS_error();
+          }
+        while (src < srcend)
+          { var const char* inptr = src;
+            var size_t insize = srcend-src;
+            var char* outptr = (char*)tmpbuf;
+            var size_t outsize = tmpbufsize*sizeof(chart);
+            var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
+            if (res == (size_t)(-1))
+              { if (!(errno == EINVAL))
+                  { var int saved_errno = errno;
+                    iconv_close(cd);
+                    errno = saved_errno;
+                    OS_error();
+              }   }
+            src = inptr; count += (outptr-(char*)tmpbuf);
+          }
+        if (iconv_close(cd) < 0) { OS_error(); }
+        end_system_call();
+      }});
+    #undef tmpbufsize
+    return count/sizeof(chart);
+  }
+
+global void iconv_mbstowcs(encoding,srcp,srcend,destp,destend)
+  var object encoding;
+  var const uintB* *srcp;
+  var const uintB* srcend;
+  var chart* *destp;
+  var chart* destend;
+  { var const char* inptr = *srcp;
+    var size_t insize = srcend-*srcp;
+    var char* outptr = (char*)*destp;
+    var size_t outsize = (char*)destend-(char*)*destp;
+    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
+      { begin_system_call();
+       {var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
+        if (cd == (iconv_t)(-1))
+          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+            OS_error();
+          }
+        while (insize > 0 && outsize > 0)
+          { var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
+            if (res == (size_t)(-1))
+              { if (!(errno == EINVAL))
+                  { var int saved_errno = errno;
+                    iconv_close(cd);
+                    errno = saved_errno;
+                    OS_error();
+              }   }
+          }
+        if (iconv_close(cd) < 0) { OS_error(); }
+        end_system_call();
+        ASSERT(insize == 0 && outsize == 0);
+      }});
+    *srcp = (const uintB*)inptr;
+    *destp = (chart*)outptr;
+  }
+
+# Characters to bytes.
+
+global uintL iconv_wcslen(encoding,src,srcend)
+  var object encoding;
+  var const chart* src;
+  var const chart* srcend;
+  { var uintL count = 0;
+    #define tmpbufsize 4096
+    var uintB tmpbuf[tmpbufsize];
+    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
+      { begin_system_call();
+       {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
+        if (cd == (iconv_t)(-1))
+          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+            OS_error();
+          }
+        # FIXME: glibc2.1 recommends calling iconv(cd,NULL,....) to initialize.
+        while (src < srcend)
+          { var const char* inptr = src;
+            var size_t insize = (char*)srcend-(char*)src;
+            var char* outptr = (char*)tmpbuf;
+            var size_t outsize = tmpbufsize;
+            var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
+            if (res == (size_t)(-1))
+              { if (!(errno == EINVAL))
+                  { var int saved_errno = errno;
+                    iconv_close(cd);
+                    errno = saved_errno;
+                    OS_error();
+              }   }
+            src = (const chart*)inptr; count += (outptr-(char*)tmpbuf);
+          }
+        if (iconv_close(cd) < 0) { OS_error(); }
+        end_system_call();
+      }});
+    #undef tmpbufsize
+    return count;
+  }
+
+global void iconv_wcstombs(encoding,srcp,srcend,destp,destend)
+  var object encoding;
+  var const chart* *srcp;
+  var const chart* srcend;
+  var uintB* *destp;
+  var uintB* destend;
+  { var const char* inptr = (char*)*srcp;
+    var size_t insize = (char*)srcend-(char*)*srcp;
+    var char* outptr = *destp;
+    var size_t outsize = destend-*destp;
+    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
+      { begin_system_call();
+       {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
+        if (cd == (iconv_t)(-1))
+          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+            OS_error();
+          }
+        # FIXME: glibc2.1 recommends calling iconv(cd,NULL,....) to initialize.
+        while (insize > 0 && outsize > 0)
+          { var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
+            if (res == (size_t)(-1))
+              { if (!(errno == EINVAL))
+                  { var int saved_errno = errno;
+                    iconv_close(cd);
+                    errno = saved_errno;
+                    OS_error();
+              }   }
+          }
+        if (iconv_close(cd) < 0) { OS_error(); }
+        end_system_call();
+        ASSERT(insize == 0 && outsize == 0);
+      }});
+    *srcp = (const chart*)inptr;
+    *destp = (uintB*)outptr;
+  }
+
+#endif # HAVE_ICONV
 
 # -----------------------------------------------------------------------------
 
