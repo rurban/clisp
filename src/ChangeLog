@@ -1,3 +1,30 @@
+2002-01-08  Sam Steingold  <sds@gnu.org>
+
+	Implemented arbitrary package locking
+	* lispbibl.d (Package): use bit(1) for package lock
+	(mark_pack_locked, mark_pack_unlocked, pack_locked_p): new macros
+	* package.d (cerror_package_locked): new function
+	(check_pack_lock, safe_check_pack_lock): new macros
+	(intern, shadowing_import, shadow, unintern, unexport, export)
+	(use_package, RENAME-PACKAGE): check pakcage lock
+	(PACKAGE-LOCK, %SET-PACKAGE-LOCK, CHECK-PACKAGE-LOCK): implemented
+	* subr.d, constsym.d (package_lock, set_package_lock)
+	(check_package_lock): added
+	* init.lisp (package-lock): export from EXT
+	(exported-lisp-symbol-p): removed
+	(fbound-string): do not barf on non-fbound symbols
+	(check-redefinition): new function
+	(remove-old-definitions): use CHECK-REDEFINITION
+	* places.lisp (check-accessor-name): new function
+	(define-setf-expander, defsetf): use CHECK-ACCESSOR-NAME and
+	CHECK-REDEFINITION
+	(package-lock): defsetf to SYSTEM::%SET-PACKAGE-LOCK
+	* clos.lisp ((setf find-class)): use SYS::CHECK-REDEFINITION
+	* savemem.lisp (saveinitmem): new argument: :locked-packages
+	to lock the system packages when saving the final image
+	* os2/lispinit.in: call saveinitmem
+	* makemake.in (lispinit.mem): call lispinitmem (not %lispinitmem)
+
 2002-01-07  Sam Steingold  <sds@gnu.org>
 
 	* symbol.d (Symbol_function_checked): use fehler_undef_function()

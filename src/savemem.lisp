@@ -26,7 +26,8 @@
 ;; Saves the current memory contents.
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
-                    &key ((:quiet *quiet*) nil) init-function)
+                    &key ((:quiet *quiet*) nil) init-function
+                    (locked-packages '("SYSTEM" "LISP" "EXT" "CUSTOM")))
   (let* ((old-driver *driver*)
          (*driver*
            #'(lambda ()
@@ -59,6 +60,8 @@
                (funcall *driver*)
              )
         ))
+    (dolist (pack locked-packages)
+      (setf (package-lock pack) t))
     (savemem (merge-pathnames #p".mem" filename)))
   (room nil)
 )

@@ -4394,10 +4394,14 @@ typedef struct {
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(object))
 # Some packages are case-sensitive.
 #define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
-#define pack_casesensitivep(obj)  (!((record_flags(ThePackage(obj)) & bit(0)) == 0))
+#define pack_casesensitivep(obj)      (record_flags(ThePackage(obj)) & bit(0))
+# Some packages, such as COMMON-LISP, are locked.
+#define mark_pack_locked(obj)    record_flags_set(ThePackage(obj),bit(1))
+#define mark_pack_unlocked(obj)  record_flags_clr(ThePackage(obj),bit(1))
+#define pack_locked_p(obj)       (record_flags(ThePackage(obj)) & bit(1))
 # do not do anything with deleted packages.
 #define mark_pack_deleted(obj)  record_flags_set(ThePackage(obj),bit(7))
-#define pack_deletedp(obj)  (!((record_flags(ThePackage(obj)) & bit(7)) == 0))
+#define pack_deletedp(obj)      (record_flags(ThePackage(obj)) & bit(7))
 
 # Hash-Tables
 typedef struct {

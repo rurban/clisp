@@ -2861,11 +2861,10 @@ if [ $CROSS = false ] ; then
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
   if [ $HOS != os2 ] ; then
-    echotab '$(RUN) -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
+    echotab '$(RUN) -x "(load \"init.fas\") (saveinitmem) (exit)"'
   else
     echotab '$(RUN) < lispinit.in'
   fi
-  echotab "\$(MV) lispimag.mem lispinit.mem"
   echol
 
 fi

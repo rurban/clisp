@@ -204,11 +204,7 @@
           (ENGLISH "~S: cannot redefine built-in class ~S")
           '(setf find-class) h
       ) )
-      (when (sys::exported-lisp-symbol-p symbol)
-        (cerror (ENGLISH "The old definition will be lost")
-                (ENGLISH "~S: Redefining the COMMON LISP class ~S")
-                '(setf find-class) symbol
-      ) )
+      (sys::check-redefinition symbol '(setf find-class) "class")
       ; Sollte man (setf (class-name h) nil) machen??
   ) )
   (setf (get symbol 'CLOSCLASS) new-value)
