@@ -493,6 +493,12 @@ LISPSYM(program_id,"PROGRAM-ID",system)
 #ifdef MACHINE_KNOWN
 LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #endif
+#ifdef HAVE_GETHOSTBYNAME
+LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
+#ifdef EXPORT_SYSCALLS
+LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",lisp)
+#endif
+#endif
 # ---------- TIME ----------
 LISPSYM(get_universal_time,"GET-UNIVERSAL-TIME",lisp)
 #if defined(UNIX) || defined(WIN32)
@@ -821,7 +827,6 @@ LISPSYM(socket_server_host,"SOCKET-SERVER-HOST",lisp)
 LISPSYM(socket_accept,"SOCKET-ACCEPT",lisp)
 LISPSYM(socket_wait,"SOCKET-WAIT",lisp)
 LISPSYM(socket_connect,"SOCKET-CONNECT",lisp)
-LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
 LISPSYM(socket_stream_port,"SOCKET-STREAM-PORT",lisp)
 LISPSYM(socket_stream_host,"SOCKET-STREAM-HOST",lisp)
 LISPSYM(socket_stream_peer,"SOCKET-STREAM-PEER",lisp)
@@ -830,11 +835,6 @@ LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",lisp)
 LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",lisp)
 #endif
 #endif
-#ifdef EXPORT_SYSCALLS
-#ifdef HAVE_GETHOSTBYNAME
-LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",lisp)
-#endif # HAVE_GETHOSTBYNAME
-#endif # EXPORT_SYSCALLS
 LISPSYM(open_stream_p,"OPEN-STREAM-P",lisp)
 LISPSYM(input_stream_p,"INPUT-STREAM-P",lisp)
 LISPSYM(output_stream_p,"OUTPUT-STREAM-P",lisp)
