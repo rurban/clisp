@@ -7210,7 +7210,7 @@ LISPFUNN(window_cursor_off,1)
   # define strm_file_truename   strm_other[4] # Truename, ein non-logical pathname or NIL
   # define strm_file_handle     strm_other[2] # a wrapped Handle
   #define strm_file_bufflen     4096          # buffer length, a power of 2, <2^16
-  #define strm_file_buffer      strm_other[0] # our own buffer, a simple-string
+  #define strm_file_buffer      strm_other[0] # our own buffer, a simple-bit-vector
                                               # with strm_file_bufflen bytes
   #define strm_file_extrafields strm_other[5] # here some binary fields begin
 #define strm_file_length  (strm_len+5)
@@ -7366,7 +7366,7 @@ typedef struct strm_i_file_extrafields_struct {
     { begin_system_call();
      {var sintL ergebnis = # Buffer hinausschreiben
         full_write(TheHandle(TheStream(stream)->strm_file_handle), # Handle
-                   &TheSstring(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
+                   &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
                    bufflen
                   );
       if (ergebnis==bufflen)
@@ -7479,7 +7479,7 @@ typedef struct strm_i_file_extrafields_struct {
       # Bufferdaten ganz gültig
       if (!(index == strm_file_bufflen)) # index = bufflen ?
         # nein, also 0 <= index < strm_file_bufflen -> OK
-        { return &TheSstring(TheStream(stream)->strm_file_buffer)->data[index]; }
+        { return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[index]; }
       # Buffer muss neu gefüllt werden.
       if (FileStream_modified(stream))
         # Zuvor muss der Buffer hinausgeschrieben werden:
@@ -7493,7 +7493,7 @@ typedef struct strm_i_file_extrafields_struct {
           { begin_system_call();
             ergebnis = # Buffer füllen
               full_read(TheHandle(TheStream(stream)->strm_file_handle), # Handle
-                        &TheSstring(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
+                        &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0], # Bufferadresse
                         strm_file_bufflen
                        );
             end_system_call();
@@ -7502,7 +7502,7 @@ typedef struct strm_i_file_extrafields_struct {
               { FileStream_index(stream) = 0; # Index := 0
                 FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
                 FileStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
-                return &TheSstring(TheStream(stream)->strm_file_buffer)->data[0];
+                return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[0];
               }
             if (ergebnis<0) { OS_filestream_error(stream); } # Fehler aufgetreten?
           }
@@ -7516,7 +7516,7 @@ typedef struct strm_i_file_extrafields_struct {
       if (index == eofindex)
         { return (uintB*)NULL; } # EOF erreicht
         else
-        { return &TheSstring(TheStream(stream)->strm_file_buffer)->data[index]; }
+        { return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[index]; }
     }
 
 # UP: Bereitet das Schreiben eines Bytes am EOF vor.
@@ -7541,7 +7541,7 @@ typedef struct strm_i_file_extrafields_struct {
         }
       # eofindex erhöhen:
       FileStream_eofindex(stream) += 1;
-      return &TheSstring(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
+      return &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
     }
 
 # UP: Schreibt ein Byte auf einen Byte-basierten File-Stream.
@@ -7807,7 +7807,7 @@ typedef struct strm_i_file_extrafields_struct {
             if (next > remaining) { next = remaining; }
             # next Bytes in den Buffer kopieren:
             {var uintL count;
-             ptr = &TheSstring(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
+             ptr = &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
              dotimespL(count,next, { *ptr++ = *strptr++; } );
              FileStream_modified(stream) = TRUE;
             }
@@ -8585,7 +8585,7 @@ typedef struct strm_i_file_extrafields_struct {
             if (next > remaining) { next = remaining; }
             # next Bytes in den Buffer kopieren:
             {var uintL count;
-             ptr = &TheSstring(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
+             ptr = &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
              dotimespL(count,next, { *ptr++ = *byteptr++; } );
              FileStream_modified(stream) = TRUE;
             }
@@ -8892,7 +8892,7 @@ typedef struct strm_i_file_extrafields_struct {
            FileStream_buffstart(stream) = 0; # buffstart := 0
            # Buffer allozieren:
            pushSTACK(stream);
-          {var object buffer = allocate_string(strm_file_bufflen); # neuer String
+          {var object buffer = allocate_bit_vector(strm_file_bufflen*8);
            stream = popSTACK();
            TheStream(stream)->strm_file_buffer = buffer;
           }
