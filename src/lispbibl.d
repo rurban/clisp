@@ -11212,10 +11212,10 @@ extern void driver (void);
 # is used by SPVW
 
 # Starts a secondary driver (Read-Eval-Print-Loop)
-# break_driver(continuable);
-# > continuable: Flag, whether it can be continued after the driver finishes.
+# break_driver(continuable_p);
+# > continuable_p == can be continued after the driver finishes
 # can trigger GC
-extern void break_driver (object continuable);
+extern void break_driver (bool continuable_p);
 # is used by ERROR, EVAL
 
 # ##################### HASHBIBL for HASHTABL.D ########################## #

@@ -1,5 +1,15 @@
 2002-06-25  Sam Steingold  <sds@gnu.org>
 
+	fixed the spurious "fatal error in the fatal error handler" message:
+	break_driver() lost the stack location of its `continuable' argument
+	* debug.d (break_driver): accept a boolean argument instead of an
+	object (save on stack manipulation, gain clarity)
+	* lispbibl.d (break_driver): fixed the prototype
+	* eval.d (unwind): adjusted break_driver() call
+	* error.d (end_error, ERROR, ERROR-OF-TYPE, tast_break): ditto
+
+2002-06-25  Sam Steingold  <sds@gnu.org>
+
 	* error.d (end_error): print the abort message to stderr
 	include <stdio.h> to avoid compiler warning
 
