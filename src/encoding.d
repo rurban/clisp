@@ -1163,145 +1163,150 @@ global void nls_asciiext_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
 
 # Characters to bytes.
 
-global uintL nls_wcslen(encoding,src,srcend)
-  var object encoding;
-  var const chart* src;
-  var const chart* srcend;
-  {
-    if (!eq(TheEncoding(encoding)->enc_tombs_error,S(Kignore)))
-      return (srcend-src);
-    else {
-      var uintL count = srcend-src;
-      var uintL result = 0;
-      if (count > 0) {
-        var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
-        var const unsigned char* const* cvtable = table->page_uni2charset;
-        dotimespL(count,count, {
-          var chart ch = *src++;
-          if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0 || chareq(ch,ascii(0)))
+global uintL nls_wcslen (object encoding, const chart* src,
+                         const chart* srcend) {
+  var uintL count = srcend-src;
+  var uintL result = 0;
+  if (count > 0) {
+    var const nls_table* table = (const nls_table*)
+      TheMachine(TheEncoding(encoding)->enc_table);
+    var const unsigned char* const* cvtable = table->page_uni2charset;
+    dotimespL(count,count, {
+      var chart ch = *src++;
+      if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0
+          || chareq(ch,ascii(0)))
+        result++;
+      else {
+        var object action = TheEncoding(encoding)->enc_tombs_error;
+        if (eq(action,S(Kignore))) {
+        } else if (uint8_p(action)) {
+          result++;
+        } else if (!eq(action,S(Kerror))) {
+          var chart c = char_code(action);
+          var uintB b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
+          if (b != 0 || chareq(c,ascii(0)))
             result++;
-        });
-      }
-      return result;
-    }
-  }
-
-global void nls_wcstombs(encoding,stream,srcp,srcend,destp,destend)
-  var object encoding;
-  var object stream;
-  var const chart* *srcp;
-  var const chart* srcend;
-  var uintB* *destp;
-  var uintB* destend;
-  {
-    var const chart* src = *srcp;
-    var uintB* dest = *destp;
-    var uintL count = srcend-src;
-    if (count > destend-dest)
-      count = destend-dest;
-    if (count > 0) {
-      var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
-      var const unsigned char* const* cvtable = table->page_uni2charset;
-      dotimespL(count,count, {
-        var chart ch = *src++;
-        var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-        if (b != 0 || chareq(ch,ascii(0))) {
-          *dest++ = b;
-        } else {
-          var object action = TheEncoding(encoding)->enc_tombs_error;
-          if (eq(action,S(Kignore))) {
-          } elif (uint8_p(action)) {
-            *dest++ = I_to_uint8(action);
-          } elif (!eq(action,S(Kerror))) {
-            var chart c = char_code(action);
-            b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-            if (b != 0 || chareq(c,ascii(0))) {
-              *dest++ = b;
-            } else {
-              fehler_unencodable(encoding,ch);
-            }
-          } else {
-            fehler_unencodable(encoding,ch);
-          }
         }
-      });
-      *srcp = src;
-      *destp = dest;
-    }
+      }
+     });
   }
+  return result;
+}
+
+global void nls_wcstombs (object encoding, object stream,
+                          const chart* *srcp, const chart* srcend,
+                          uintB* *destp, uintB* destend) {
+  var const chart* src = *srcp;
+  var uintB* dest = *destp;
+  var uintL scount = srcend-src;
+  var uintL dcount = destend-dest;
+  if ((scount > 0) && (dcount > 0)) {
+    var const nls_table* table = (const nls_table*)
+      TheMachine(TheEncoding(encoding)->enc_table);
+    var const unsigned char* const* cvtable = table->page_uni2charset;
+    while (scount && dcount) {
+      var chart ch = *src++; scount--;
+      var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
+      if (b != 0 || chareq(ch,ascii(0))) {
+        *dest++ = b; dcount--;
+      } else {
+        var object action = TheEncoding(encoding)->enc_tombs_error;
+        if (eq(action,S(Kignore))) {
+        } else if (uint8_p(action)) {
+          *dest++ = I_to_uint8(action); dcount--;
+        } else if (!eq(action,S(Kerror))) {
+          var chart c = char_code(action);
+          b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
+          if (b != 0 || chareq(c,ascii(0))) {
+            *dest++ = b; dcount--;
+          } else
+            fehler_unencodable(encoding,ch);
+        } else
+          fehler_unencodable(encoding,ch);
+      }
+    };
+    *srcp = src;
+    *destp = dest;
+  }
+}
 
 # Same thing, specially optimized for ASCII extensions.
 
-global uintL nls_asciiext_wcslen(encoding,src,srcend)
-  var object encoding;
-  var const chart* src;
-  var const chart* srcend;
-  {
-    if (!eq(TheEncoding(encoding)->enc_tombs_error,S(Kignore)))
-      return (srcend-src);
-    else {
-      var uintL count = srcend-src;
-      var uintL result = 0;
-      if (count > 0) {
-        var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
-        var const unsigned char* const* cvtable = table->page_uni2charset;
-        dotimespL(count,count, {
-          var chart ch = *src++;
-          if (as_cint(ch) < 0x80 || cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0)
+global uintL nls_asciiext_wcslen (object encoding, const chart* src,
+                                  const chart* srcend) {
+  var uintL count = srcend-src;
+  var uintL result = 0;
+  if (count > 0) {
+    var const nls_table* table = (const nls_table*)
+      TheMachine(TheEncoding(encoding)->enc_table);
+    var const unsigned char* const* cvtable = table->page_uni2charset;
+    dotimespL(count,count, {
+      var chart ch = *src++;
+      if (as_cint(ch) < 0x80 || cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0)
+        result++;
+      else {
+        var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
+        if (b != 0)
+          result++;
+        else {
+          var object action = TheEncoding(encoding)->enc_tombs_error;
+          if (eq(action,S(Kignore))) {
+          } else if (uint8_p(action)) {
             result++;
-        });
-      }
-      return result;
-    }
-  }
-
-global void nls_asciiext_wcstombs(encoding,stream,srcp,srcend,destp,destend)
-  var object encoding;
-  var object stream;
-  var const chart* *srcp;
-  var const chart* srcend;
-  var uintB* *destp;
-  var uintB* destend;
-  {
-    var const chart* src = *srcp;
-    var uintB* dest = *destp;
-    var uintL count = srcend-src;
-    if (count > destend-dest)
-      count = destend-dest;
-    if (count > 0) {
-      var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
-      var const unsigned char* const* cvtable = table->page_uni2charset;
-      dotimespL(count,count, {
-        var chart ch = *src++;
-        if (as_cint(ch) < 0x80) {
-          *dest++ = (uintB)as_cint(ch); # avoid memory reference (big speedup!)
-        } else {
-          var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-          if (b != 0) {
-            *dest++ = b;
-          } else {
-            var object action = TheEncoding(encoding)->enc_tombs_error;
-            if (eq(action,S(Kignore))) {
-            } elif (uint8_p(action)) {
-              *dest++ = I_to_uint8(action);
-            } elif (!eq(action,S(Kerror))) {
-              var chart c = char_code(action);
-              b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-              if (b != 0 || chareq(c,ascii(0))) {
-                *dest++ = b;
-              } else {
-                fehler_unencodable(encoding,ch);
-              }
-            } else {
-              fehler_unencodable(encoding,ch);
-            }
+          } else if (!eq(action,S(Kerror))) {
+            var chart c = char_code(action);
+            b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
+            if (b != 0 || chareq(c,ascii(0)))
+              result++;
           }
         }
-      });
-      *srcp = src;
-      *destp = dest;
-    }
+      }
+    });
   }
+  return result;
+}
+
+global void nls_asciiext_wcstombs (object encoding, object stream,
+                                   const chart* *srcp, const chart* srcend,
+                                   uintB* *destp, uintB* destend) {
+  var const chart* src = *srcp;
+  var uintB* dest = *destp;
+  var uintL scount = srcend-src;
+  var uintL dcount = destend-dest;
+  if ((scount > 0) && (dcount > 0)) {
+    var const nls_table* table = (const nls_table*)
+      TheMachine(TheEncoding(encoding)->enc_table);
+    var const unsigned char* const* cvtable = table->page_uni2charset;
+    while (scount && dcount) {
+      var chart ch = *src++; scount--;
+      if (as_cint(ch) < 0x80) {
+        *dest++ = (uintB)as_cint(ch); # avoid memory reference (big speedup!)
+        dcount--;
+      } else {
+        var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
+        if (b != 0) {
+          *dest++ = b; dcount--;
+        } else {
+          var object action = TheEncoding(encoding)->enc_tombs_error;
+          if (eq(action,S(Kignore))) {
+          } else if (uint8_p(action)) {
+            *dest++ = I_to_uint8(action); dcount--;
+          } else if (!eq(action,S(Kerror))) {
+            var chart c = char_code(action);
+            b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
+            if (b != 0 || chareq(c,ascii(0))) {
+              *dest++ = b; dcount--;
+            } else
+              fehler_unencodable(encoding,ch);
+          } else
+            fehler_unencodable(encoding,ch);
+        }
+      }
+    };
+    *srcp = src;
+    *destp = dest;
+  }
+}
 
 # Determining the range of encodable characters.
 global object nls_range(encoding,start,end)

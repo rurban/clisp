@@ -779,7 +779,7 @@
       return;
      abbruch1:
       {
-        var int abbruch_errno = errno;
+        var int abbruch_errno = OS_errno;
         asciz_out(program_name); asciz_out(": ");
         asciz_out_s(
           GETTEXTL("operating system error during load of initialization file `%s'" NLstring),
