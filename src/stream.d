@@ -2118,9 +2118,10 @@ LISPFUNNR(echo_stream_output_stream,1)
 # ===================
 
 # Additional Components:
-  #define strm_str_in_string    strm_other[0]  # String for Input
-  #define strm_str_in_index     strm_other[1]  # Index in the String (Fixnum >=0)
-  #define strm_str_in_endindex  strm_other[2]  # Endindex (Fixnum >= index >=0)
+#define strm_str_in_string   strm_other[0] /* String for Input */
+#define strm_str_in_index    strm_other[1] /* Index in the String (Fixnum>=0)*/
+#define strm_str_in_begindex strm_other[2] /* Begindex (Fixnum >= index >=0) */
+#define strm_str_in_endindex strm_other[3] /* Endindex (Fixnum >= index >=0) */
 
 # error-message, if index >= length(string):
 # fehler_str_in_adjusted(stream);
@@ -2213,12 +2214,13 @@ LISPFUN(make_string_input_stream,seclass_read,1,2,norest,nokey,0,NIL)
   var object end_arg = fixnum_inc(start_arg,arg.len); # end-Argument (Fixnum >=0)
   pushSTACK(string); # save String
   var object stream = # new Stream, only READ-CHAR allowed
-    allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+3,0);
+    allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+4,0);
   stream_dummy_fill(stream);
   TheStream(stream)->strm_rd_ch = P(rd_ch_str_in);
   TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_str_in);
   TheStream(stream)->strm_str_in_string = popSTACK();
-  TheStream(stream)->strm_str_in_index = start_arg; # Index := start-Argument
+  TheStream(stream)->strm_str_in_index = # (Beg)Index := start-Argument
+    TheStream(stream)->strm_str_in_begindex = start_arg;
   TheStream(stream)->strm_str_in_endindex = end_arg; # Endindex := end-Argument
   VALUES1(stream); # stream as value
 }
@@ -7151,7 +7153,7 @@ local uintL wr_by_array_iau8_buffered (const gcv_object_t* stream_,
 # logical_position_file_start(stream);
 # > stream : (open) File-Stream.
 # changed in stream: index, endvalid, buffstart, ..., position, rd_ch_last
-local void logical_position_file_start (object stream) {
+local uoff_t logical_position_file_start (object stream) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   position_file_buffered
     (stream,
@@ -7160,9 +7162,9 @@ local void logical_position_file_start (object stream) {
   if (!((bitsize % 8) == 0))
     # Integer-Stream of Type b,c
     BufferedStream_bitindex(stream) = 0; # bitindex := 0
-  BufferedStream_position(stream) = 0; # position := 0
   TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
   TheStream(stream)->strmflags &= ~strmflags_unread_B;
+  return BufferedStream_position(stream) = 0; /* position := 0 */
 }
 
 # UP: Positions an (open) File-Stream to a given Position.
@@ -7170,7 +7172,7 @@ local void logical_position_file_start (object stream) {
 # > stream : (open) File-Stream.
 # > position : new (logical) Position
 # changed in stream: index, endvalid, buffstart, ..., position, rd_ch_last
-local void logical_position_file (object stream, uoff_t position) {
+local uoff_t logical_position_file (object stream, uoff_t position) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   if (bitsize > 0) { # Integer-Stream ?
     if ((bitsize % 8) == 0) { # Type a
@@ -7183,14 +7185,14 @@ local void logical_position_file (object stream, uoff_t position) {
     TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
     TheStream(stream)->strmflags &= ~strmflags_unread_B;
   }
-  BufferedStream_position(stream) = position;
+  return BufferedStream_position(stream) = position;
 }
 
 # UP: Positions an (open) File-Stream to the end.
 # logical_position_file_end(stream);
 # > stream : (open) File-Stream.
 # changed in stream: index, endvalid, buffstart, ..., position, rd_ch_last
-local void logical_position_file_end (object stream) {
+local uoff_t logical_position_file_end (object stream) {
   # poss. flush Buffer:
   if (BufferedStream_modified(stream))
     buffered_flush(stream);
@@ -7262,10 +7264,9 @@ local void logical_position_file_end (object stream) {
   if (!((bitsize % 8) == 0)) { # Integer-Stream of type b,c
     BufferedStream_bitindex(stream) = eofbits;
   }
-  # set position:
-  BufferedStream_position(stream) = position;
   TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
   TheStream(stream)->strmflags &= ~strmflags_unread_B;
+  return BufferedStream_position(stream) = position; /* set position */
 }
 
 # UP: Fills in the pseudofunctions for a buffered stream.
@@ -16347,46 +16348,155 @@ global object open_file_stream_handle (object stream, Handle *fd) {
   return stream;
 }
 
-# (FILE-POSITION file-stream [position]), CLTL p. 425
-LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL) {
-  var object position = popSTACK();
-  var object stream = popSTACK();
-  stream = check_open_file_stream(stream,false); /* check stream */
-  if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM */
-    /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
-    VALUES1(Fixnum_0); return;
-  }
-  if (!ChannelStream_buffered(stream)) {
-    # Don't know how to deal with the file position on unbuffered streams.
-    VALUES1(NIL);
-  } else {
-    if (!boundp(position)) {
-      # position not specified -> Position as value:
-      VALUES1(uoff_t_to_I(BufferedStream_position(stream)
-                          /* if a character has been unread, decrement position
-                             so that PEEK-CHAR does not modify FILE-POSITION */
-                          - (TheStream(stream)->strmflags & strmflags_unread_B
-                             ? 1 : 0)));
-    } else {
-      if (eq(position,S(Kstart))) {
-        # :START -> set position to start:
-        logical_position_file_start(stream);
-      } else if (eq(position,S(Kend))) {
-        # :END -> set position to end:
-        logical_position_file_end(stream);
-      } else if (uoff_t_p(position)) {
-        # set position to specified Position:
-        logical_position_file(stream,I_to_uoff_t(position));
-      } else {
-        # illegal Position-Argument
-        pushSTACK(position);         # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_position)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,GETTEXT("~: position argument should be ~ or ~ or a nonnegative integer, not ~"));
-      }
-      VALUES1(T);
+typedef enum { POS_QUERY, POS_SET_START, POS_SET_END, POS_SET_OFF } pos_arg_t;
+LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
+{ /* (FILE-POSITION stream [position]), CLTL p. 425 */
+  var object position = STACK_0;
+  var object stream = STACK_1;
+  var uoff_t pos_off = 0;
+  var pos_arg_t pos_type = POS_QUERY;
+  if (boundp(position)) {
+    if (eq(position,S(Kstart))) { /* set position to start: */
+      pos_type = POS_SET_START;
+    } else if (eq(position,S(Kend))) { /* set position to end: */
+      pos_type = POS_SET_END;
+    } else if (uoff_t_p(position)) { /* set position as specified: */
+      pos_type = POS_SET_OFF;
+      pos_off = I_to_uoff_t(position);
+    } else { /* illegal Position-Argument */
+      pushSTACK(position);         /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_position)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,GETTEXT("~: position argument should be ~ or ~ or a nonnegative integer, not ~"));
     }
+  }
+ restart_file_position:
+  if (builtin_stream_p(stream)) {
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_synonym:    /* Synonym-Stream: follow further */
+        resolve_as_synonym(stream);
+        goto restart_file_position;
+      case strmtype_broad:      /* Broadcast-Stream: */
+        stream = broadcast_stream_last(stream);
+        if (eq(stream,nullobj)) /* empty BROADCAST-STREAM */
+          /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
+          VALUES1(Fixnum_0); break;
+        goto restart_file_position;
+      case strmtype_str_in: {
+        var stringarg arg;
+        pushSTACK(TheStream(stream)->strm_str_in_string);
+        switch (pos_type) {
+          case POS_SET_END:     /* :END */
+            pushSTACK(TheStream(stream)->strm_str_in_begindex);
+            pushSTACK(TheStream(stream)->strm_str_in_endindex);
+            test_string_limits_ro(&arg);
+            TheStream(stream)->strm_str_in_index =
+              TheStream(stream)->strm_str_in_endindex;
+            value1 = fixnum(arg.len);
+            break;
+          case POS_SET_START:   /* :START */
+            TheStream(stream)->strm_str_in_index =
+              TheStream(stream)->strm_str_in_begindex;
+            value1 = Fixnum_0;
+            skipSTACK(1);
+            break;
+          case POS_SET_OFF:     /* OFFSET */
+            pushSTACK(TheStream(stream)->strm_str_in_begindex);
+            pushSTACK(fixnum_inc(STACK_0,pos_off));
+            test_string_limits_ro(&arg);
+            TheStream(stream)->strm_str_in_index =
+              fixnum(arg.offset+arg.index+arg.len);
+            value1 = fixnum(arg.len); /* == pos */
+            break;
+          case POS_QUERY:       /* ask for position */
+            pushSTACK(TheStream(stream)->strm_str_in_begindex);
+            pushSTACK(TheStream(stream)->strm_str_in_index);
+            test_string_limits_ro(&arg);
+            pos_off = arg.len;
+            goto get_position_common;
+          default: NOTREACHED;
+        }
+         set_position_common:   /* value1 is pre-set! */
+        TheStream(stream)->strm_rd_ch_last = NIL; /* Lastchar := NIL */
+        TheStream(stream)->strmflags &= ~strmflags_unread_B;
+        mv_count = 1;
+      } break;
+      case strmtype_str_out: {
+        var object ssstring = TheStream(stream)->strm_str_out_string;
+        switch (pos_type) {
+          case POS_SET_END:     /* :END */
+            break;              /* do nothing */
+          case POS_SET_START:   /* :START */
+            TheIarray(ssstring)->dims[1] = 0; /* fill-pointer := 0 */
+            break;
+          case POS_SET_OFF:     /* OFFSET */
+            if (pos_off <= TheIarray(ssstring)->dims[1]) {
+              TheIarray(ssstring)->dims[1] = pos_off;
+            } else {
+              pushSTACK(ssstring); pushSTACK(fixnum(pos_off));
+              fehler_index_range(TheIarray(ssstring)->dims[1]);
+            }
+            break;
+          case POS_QUERY:
+            pos_off = TheIarray(ssstring)->dims[1];
+            goto get_position_common;
+          default: NOTREACHED;
+        }
+        value1 = fixnum(TheIarray(ssstring)->dims[1]);
+        goto set_position_common;
+      } break;
+      case strmtype_str_push: {
+        var object string = TheStream(stream)->strm_str_push_string;
+        switch (pos_type) {
+          case POS_SET_END:     /* :END */
+            value1 = fixnum(vector_length(string));
+            break;                   /* do nothing */
+          case POS_SET_START:        /* :START, pos_off==0 already */
+          case POS_SET_OFF:          /* OFFSET */
+            pushSTACK(string); pushSTACK(fixnum(pos_off));
+            funcall(L(set_fill_pointer),2);
+            break;
+          case POS_QUERY:
+            pos_off = vector_length(string);
+            goto get_position_common;
+          default: NOTREACHED;
+        }
+        goto set_position_common;
+      } break;
+      case strmtype_file:
+        stream = check_open_file_stream(stream,false); /* check open */
+        if (!ChannelStream_buffered(stream)) {
+          /* cannot deal with the file position on unbuffered streams. */
+          VALUES1(NIL);
+        } else {
+          switch (pos_type) {
+            case POS_SET_END:   /* :END */
+              VALUES1(uoff_t_to_I(logical_position_file_end(stream))); break;
+            case POS_SET_START: /* :START */
+              VALUES1(uoff_t_to_I(logical_position_file_start(stream))); break;
+            case POS_SET_OFF:   /* OFFSET */
+              VALUES1(uoff_t_to_I(logical_position_file(stream,pos_off)));
+              break;
+            case POS_QUERY:
+              pos_off = BufferedStream_position(stream);
+              /* if a character has been unread, decrement position
+                 so that PEEK-CHAR does not modify FILE-POSITION */
+            get_position_common:
+              VALUES1(uoff_t_to_I(pos_off - (TheStream(stream)->strmflags
+                                             & strmflags_unread_B ? 1 : 0)));
+              break;
+            default: NOTREACHED;
+          }
+        }
+        break;
+      default: file_position_failed: /* do not know what to do ==> NIL */
+        VALUES1(NIL); break;
+    }
+    skipSTACK(2);
+  } else { /* (GRAY:STREAM-POSITION stream position) */
+    if (!boundp(STACK_0)) STACK_0 = NIL;
+    funcall(S(stream_position),2);
   }
 }
 
@@ -16404,10 +16514,8 @@ LISPFUNNR(file_length,1)
   } else {
     # memorize Position:
     var uoff_t position = BufferedStream_position(stream);
-    # set position to end:
-    logical_position_file_end(stream);
-    # memorize End-Position:
-    var uoff_t endposition = BufferedStream_position(stream);
+    # set position to end and memorize End-Position:
+    var uoff_t endposition = logical_position_file_end(stream);
     # set back to old position:
     logical_position_file(stream,position);
     VALUES1(uoff_t_to_I(endposition)); /* return End-Position */

@@ -1348,6 +1348,7 @@ LISPSYM(stream_finish_output,"STREAM-FINISH-OUTPUT",gray)
 LISPSYM(stream_force_output,"STREAM-FORCE-OUTPUT",gray)
 LISPSYM(stream_clear_output,"STREAM-CLEAR-OUTPUT",gray)
 LISPSYM(stream_line_column,"STREAM-LINE-COLUMN",gray)
+LISPSYM(stream_position,"STREAM-POSITION",gray)
 #ifdef GENERIC_STREAMS
 LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",gstream)
 LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",gstream)
