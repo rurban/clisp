@@ -40,3 +40,8 @@
     |#
 )
 
+; Used by spvw.d.
+(defun wait-keypress ()
+  (with-keyboard (read-char *keyboard-input*))
+)
+
