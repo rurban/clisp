@@ -1,3 +1,10 @@
+2004-02-08  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 890138 ]: 0 distance jump as 2 bytes => segfault
+	* compiler.lisp (assemble-LAP): make sure that a jump of 0
+	distance is not encoded with 2 bytes (otherwise 128 0 is
+	treated as a 6 byte label)
+
 2004-02-05  Sam Steingold  <sds@gnu.org>
 
 	allow current directory to be on a remote host

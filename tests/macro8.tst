@@ -737,3 +737,7 @@ nil
      (unwind-protect b (print 123))))
  :good)
 (T :GOOD :GOOD)
+
+;; <https://sourceforge.net/tracker/index.php?func=detail&aid=890138&group_id=1355&atid=101355>
+(load "bug001.lisp") T
+(load "bug002.lisp") T
