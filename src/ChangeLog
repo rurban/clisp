@@ -1,3 +1,8 @@
+2004-01-11  Sam Steingold  <sds@gnu.org>
+
+	* record.d (parse_seclass): be backward compatible (wrt 2004-01-09
+	SECLASS change)
+
 2004-01-10  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (check_structure): added a prototype
