@@ -75,6 +75,9 @@ User visible changes
 * Fixed a bug: Calling the function INTERACTIVE-STREAM-P with a non-stream
   argument could cause a crash.
 
+* Fixed a bug in the LOOP macro: OF-TYPE was not supported in numeric
+  accumulation clauses (COUNT/SUM/MAXIMIZE/MINIMIZE).
+
 * Fixed a bug: The function CERROR signalled an error if more than two
   arguments were given and the second argument was a condition.
 
