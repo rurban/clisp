@@ -1,3 +1,8 @@
+2004-05-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/defsystem.lisp (compile-clx, load-clx):
+	compile and load "shape"
+
 2004-05-14  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (*documentation*): still non-weak: although works on
