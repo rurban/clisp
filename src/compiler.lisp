@@ -10596,20 +10596,29 @@ The function make-closure is required.
                               (cdr definition))))
           (let ((funobj (compile-lambdabody name lambdabody)))
             (values
-             (if (zerop *error-count*)
-               (if name
-                 (progn
-                   (when macro-flag (setq funobj (make-macro funobj)))
-                   (if trace-flag
-                     (setf (get symbol 'sys::traced-definition) funobj)
-                     (setf (symbol-function symbol) funobj))
-                   (when save-flag
-                     (setf (get symbol 'sys::definition) save-flag))
-                   name)
-                 funobj)
-               nil)
-             (compile-warnings-p)
-             (compile-failure-p))))))))
+              (if (zerop *error-count*)
+                (if name
+                  (progn
+                    (when macro-flag (setq funobj (make-macro funobj)))
+                    (if trace-flag
+                      (setf (get symbol 'sys::traced-definition) funobj)
+                      (setf (symbol-function symbol) funobj))
+                    (when save-flag
+                      (setf (get symbol 'sys::definition) save-flag))
+                    name)
+                  funobj)
+                (compile-lambdabody '#:***COMPILED-WITH-ERRORS***
+                  `((&REST ARGUMENTS) (DECLARE (IGNORE ARGUMENTS))
+                    (COMPILED-WITH-ERRORS ',lambdabody))))
+              (compile-warnings-p)
+              (compile-failure-p))))))))
+
+;; Signals an error.
+(defun compiled-with-errors (lambdabody)
+  (error-of-type 'source-program-error
+    :form lambdabody
+    :detail lambdabody
+    (TEXT "A function compiled with errors cannot be executed.")))
 
 ;; Top-Level-Forms must be written solitary to the .fas-File,
 ;; because of the semantics of EVAL-WHEN and LOAD-TIME-VALUE.
