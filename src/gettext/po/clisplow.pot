@@ -1,0 +1,613 @@
+# Template messages for CLISP
+# Copyright (C) 1992-2000 Bruno Haible, Michael Stoll, Marcus Daniels
+# Bruno Haible <haible@clisp.cons.org>, 2000.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: clisp 2000-03-09\n"
+"POT-Creation-Date: 2001-02-06 17:24:02 CET\n"
+"PO-Revision-Date: 2001-02-06 17:24:02 CET\n"
+"Last-Translator: Automatically generated <haible@honolulu>\n"
+"Language-Team: Template <xx@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8-bit\n"
+
+#: spvw.d:657
+msgid ""
+"\n"
+"*** - Program stack overflow. RESET"
+msgstr ""
+
+#: spvw.d:662
+msgid ""
+"\n"
+"*** - Lisp stack overflow. RESET"
+msgstr ""
+
+#: spvw.d:861
+msgid "Unknown signature of an FSUBR\n"
+msgstr ""
+
+#: spvw.d:970
+msgid "Unknown signature of a SUBR\n"
+msgstr ""
+
+#: spvw.d:1612
+msgid "module `%s' requires package %s.\n"
+msgstr ""
+
+#: spvw.d:1968
+msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
+msgstr ""
+
+#: spvw.d:1972
+msgid "%s out of range\n"
+msgstr ""
+
+#: spvw.d:1984
+msgid "memory size"
+msgstr ""
+
+#: spvw.d:1994
+msgid "stack size"
+msgstr ""
+
+#: spvw.d:2315
+msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
+msgstr ""
+
+#: spvw.d:2322
+msgid "Only %d bytes available.\n"
+msgstr ""
+
+#: spvw.d:2556
+msgid "Couldn't determine the end of the SP stack!\n"
+msgstr ""
+
+#: spvw.d:2777
+msgid ""
+"\n"
+"WARNING: No initialisation file specified.\n"
+msgstr ""
+
+#: spvw.d:2781
+msgid "Please try: "
+msgstr ""
+
+#: spvw.d:3000
+msgid "Not enough memory for Lisp.\n"
+msgstr ""
+
+#: spvw_alloca.d:49
+msgid ""
+"\n"
+"*** - Virtual memory exhausted. RESET"
+msgstr ""
+
+#: spvw_alloca.d:51
+msgid ""
+"\n"
+"*** - Memory exhausted. RESET"
+msgstr ""
+
+#: spvw_mmap.d:67 spvw_mmap.d:219 spvw_mmap.d:396 spvw_multimap.d:174
+msgid "Cannot map memory to address 0x%x ."
+msgstr ""
+
+#: spvw_mmap.d:188
+msgid "Cannot reserve address range at 0x%x ."
+msgstr ""
+
+#: spvw_mmap.d:199
+msgid "Cannot reserve address range 0x%x-0x%x ."
+msgstr ""
+
+#: spvw_mmap.d:252
+msgid "CreateFileMapping() failed."
+msgstr ""
+
+#: spvw_mmap.d:259
+msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
+msgstr ""
+
+#: spvw_mmap.d:266
+msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
+msgstr ""
+
+#: spvw_mmap.d:283
+msgid "VirtualFree() failed."
+msgstr ""
+
+#: spvw_mmap.d:299
+msgid "VirtualProtect() failed."
+msgstr ""
+
+#: spvw_mmap.d:371 spvw_multimap.d:115
+msgid "Cannot open /dev/zero ."
+msgstr ""
+
+#: spvw_multimap.d:144
+msgid "msync(0x%x,0x%x,MS_INVALIDATE) fails."
+msgstr ""
+
+#: spvw_multimap.d:209
+msgid "Cannot open %s ."
+msgstr ""
+
+#: spvw_multimap.d:220
+msgid "Cannot delete %s ."
+msgstr ""
+
+#: spvw_multimap.d:235
+msgid "** WARNING: ** Too few free disk space for %s .\n"
+msgstr ""
+
+#: spvw_multimap.d:238
+msgid "Please restart LISP with fewer memory (option -m).\n"
+msgstr ""
+
+#: spvw_multimap.d:246
+msgid "Cannot make %s long enough."
+msgstr ""
+
+#: spvw_multimap.d:265
+msgid "Cannot fill %s ."
+msgstr ""
+
+#: spvw_multimap.d:282
+msgid "Cannot close %s ."
+msgstr ""
+
+#: spvw_multimap.d:317
+msgid "Cannot close /dev/zero ."
+msgstr ""
+
+#: spvw_multimap.d:353
+msgid "Recompile your operating system with SYSV IPC support.\n"
+msgstr ""
+
+#: spvw_multimap.d:367
+msgid "Cannot allocate private shared memory segment."
+msgstr ""
+
+#: spvw_multimap.d:389
+msgid "Cannot map shared memory to address 0x%x."
+msgstr ""
+
+#: spvw_multimap.d:412
+msgid "Cannot fill shared memory."
+msgstr ""
+
+#: spvw_multimap.d:418
+msgid "Could not fill shared memory."
+msgstr ""
+
+#: spvw_multimap.d:433
+msgid "Cannot remove shared memory segment."
+msgstr ""
+
+#: spvw_fault.d:482
+msgid "mprotect() fails."
+msgstr ""
+
+#: spvw_sigsegv.d:31
+msgid ""
+"\n"
+"SIGSEGV cannot be cured. Fault address = 0x%x.\n"
+msgstr ""
+
+#: spvw_sigsegv.d:73
+msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
+msgstr ""
+
+#: spvw_garcol.d:2020
+msgid "munmap() fails."
+msgstr ""
+
+#: spvw_allocate.d:54
+msgid ""
+"\n"
+"*** - No more room for LISP objects: RESET"
+msgstr ""
+
+#: spvw_allocate.d:272 spvw_allocate.d:337 spvw_allocate.d:418
+msgid "Trying to make room through a GC...\n"
+msgstr ""
+
+#: spvw_memfile.d:744
+msgid "operating system error during load of initialisation file `%s'\n"
+msgstr ""
+
+#: spvw_memfile.d:1216
+msgid "Cannot map the initialisation file into memory."
+msgstr ""
+
+#: spvw_memfile.d:1480
+msgid "operating system error during load of initialisation file\n"
+msgstr ""
+
+#: spvw_memfile.d:1486
+msgid "initialisation file was not created by this version of LISP\n"
+msgstr ""
+
+#: spvw_memfile.d:1490
+msgid "not enough memory for initialisation\n"
+msgstr ""
+
+#: errunix.d:57
+msgid "Operation not permitted"
+msgstr ""
+
+#: errunix.d:63
+msgid "No such file or directory"
+msgstr ""
+
+#: errunix.d:69
+msgid "No such process"
+msgstr ""
+
+#: errunix.d:75
+msgid "Interrupted system call"
+msgstr ""
+
+#: errunix.d:81
+msgid "I/O error"
+msgstr ""
+
+#: errunix.d:87
+msgid "No such device or address"
+msgstr ""
+
+#: errunix.d:93
+msgid "Arg list too long"
+msgstr ""
+
+#: errunix.d:99
+msgid "Exec format error"
+msgstr ""
+
+#: errunix.d:105
+msgid "Bad file number"
+msgstr ""
+
+#: errunix.d:111
+msgid "No child processes"
+msgstr ""
+
+#: errunix.d:117
+msgid "No more processes"
+msgstr ""
+
+#: errunix.d:123
+msgid "Not enough memory"
+msgstr ""
+
+#: errunix.d:129
+msgid "Permission denied"
+msgstr ""
+
+#: errunix.d:135
+msgid "Bad address"
+msgstr ""
+
+#: errunix.d:141
+msgid "Block device required"
+msgstr ""
+
+#: errunix.d:147
+msgid "Device busy"
+msgstr ""
+
+#: errunix.d:153
+msgid "File exists"
+msgstr ""
+
+#: errunix.d:159
+msgid "Cross-device link"
+msgstr ""
+
+#: errunix.d:165
+msgid "No such device"
+msgstr ""
+
+#: errunix.d:171
+msgid "Not a directory"
+msgstr ""
+
+#: errunix.d:177
+msgid "Is a directory"
+msgstr ""
+
+#: errunix.d:183
+msgid "Invalid argument"
+msgstr ""
+
+#: errunix.d:189
+msgid "File table overflow"
+msgstr ""
+
+#: errunix.d:195
+msgid "Too many open files"
+msgstr ""
+
+#: errunix.d:201
+msgid "Inappropriate ioctl for device"
+msgstr ""
+
+#: errunix.d:207
+msgid "Text file busy"
+msgstr ""
+
+#: errunix.d:213
+msgid "File too large"
+msgstr ""
+
+#: errunix.d:219
+msgid "No space left on device"
+msgstr ""
+
+#: errunix.d:225
+msgid "Illegal seek"
+msgstr ""
+
+#: errunix.d:231
+msgid "Read-only file system"
+msgstr ""
+
+#: errunix.d:237
+msgid "Too many links"
+msgstr ""
+
+#: errunix.d:243
+msgid "Broken pipe, child process terminated or socket closed"
+msgstr ""
+
+#: errunix.d:253
+msgid "Argument out of domain"
+msgstr ""
+
+#: errunix.d:259
+msgid "Result too large"
+msgstr ""
+
+#: errunix.d:266
+msgid "Invalid multibyte or wide character"
+msgstr ""
+
+#: errunix.d:273
+msgid "Operation would block"
+msgstr ""
+
+#: errunix.d:279
+msgid "Operation now in progress"
+msgstr ""
+
+#: errunix.d:285
+msgid "Operation already in progress"
+msgstr ""
+
+#: errunix.d:292
+msgid "Too many levels of symbolic links"
+msgstr ""
+
+#: errunix.d:298
+msgid "File name too long"
+msgstr ""
+
+#: errunix.d:304
+msgid "Directory not empty"
+msgstr ""
+
+#: errunix.d:311
+msgid "Stale NFS file handle"
+msgstr ""
+
+#: errunix.d:317
+msgid "Too many levels of remote in path"
+msgstr ""
+
+#: errunix.d:324
+msgid "Socket operation on non-socket"
+msgstr ""
+
+#: errunix.d:330
+msgid "Destination address required"
+msgstr ""
+
+#: errunix.d:336
+msgid "Message too long"
+msgstr ""
+
+#: errunix.d:342
+msgid "Protocol wrong type for socket"
+msgstr ""
+
+#: errunix.d:348
+msgid "Option not supported by protocol"
+msgstr ""
+
+#: errunix.d:354
+msgid "Protocol not supported"
+msgstr ""
+
+#: errunix.d:360
+msgid "Socket type not supported"
+msgstr ""
+
+#: errunix.d:366
+msgid "Operation not supported on socket"
+msgstr ""
+
+#: errunix.d:372
+msgid "Protocol family not supported"
+msgstr ""
+
+#: errunix.d:378
+msgid "Address family not supported by protocol family"
+msgstr ""
+
+#: errunix.d:384
+msgid "Address already in use"
+msgstr ""
+
+#: errunix.d:390
+msgid "Can't assign requested address"
+msgstr ""
+
+#: errunix.d:396
+msgid "Network is down"
+msgstr ""
+
+#: errunix.d:402
+msgid "Network is unreachable"
+msgstr ""
+
+#: errunix.d:408
+msgid "Network dropped connection on reset"
+msgstr ""
+
+#: errunix.d:414
+msgid "Software caused connection abort"
+msgstr ""
+
+#: errunix.d:420
+msgid "Connection reset by peer"
+msgstr ""
+
+#: errunix.d:426
+msgid "No buffer space available"
+msgstr ""
+
+#: errunix.d:432
+msgid "Socket is already connected"
+msgstr ""
+
+#: errunix.d:438
+msgid "Socket is not connected"
+msgstr ""
+
+#: errunix.d:444
+msgid "Can't send after socket shutdown"
+msgstr ""
+
+#: errunix.d:450
+msgid "Too many references: can't splice"
+msgstr ""
+
+#: errunix.d:456
+msgid "Connection timed out"
+msgstr ""
+
+#: errunix.d:462
+msgid "Connection refused"
+msgstr ""
+
+#: errunix.d:467
+msgid "Remote peer released connection"
+msgstr ""
+
+#: errunix.d:472
+msgid "Host is down"
+msgstr ""
+
+#: errunix.d:478
+msgid "Host is unreachable"
+msgstr ""
+
+#: errunix.d:483
+msgid "Networking error"
+msgstr ""
+
+#: errunix.d:489
+msgid "Too many processes"
+msgstr ""
+
+#: errunix.d:495
+msgid "Too many users"
+msgstr ""
+
+#: errunix.d:501
+msgid "Disk quota exceeded"
+msgstr ""
+
+#: errunix.d:508
+msgid "Not a stream device"
+msgstr ""
+
+#: errunix.d:514
+msgid "Timer expired"
+msgstr ""
+
+#: errunix.d:520
+msgid "Out of stream resources"
+msgstr ""
+
+#: errunix.d:526
+msgid "No message of desired type"
+msgstr ""
+
+#: errunix.d:532
+msgid "Not a data message"
+msgstr ""
+
+#: errunix.d:539
+msgid "Identifier removed"
+msgstr ""
+
+#: errunix.d:546
+msgid "Resource deadlock would occur"
+msgstr ""
+
+#: errunix.d:552
+msgid "No record locks available"
+msgstr ""
+
+#: errunix.d:559
+msgid "Machine is not on the network"
+msgstr ""
+
+#: errunix.d:565 errunix.d:571
+msgid "Object is remote"
+msgstr ""
+
+#: errunix.d:577
+msgid "Link has been severed"
+msgstr ""
+
+#: errunix.d:583
+msgid "Advertise error"
+msgstr ""
+
+#: errunix.d:589
+msgid "Srmount error"
+msgstr ""
+
+#: errunix.d:595
+msgid "Communication error on send"
+msgstr ""
+
+#: errunix.d:601
+msgid "Protocol error"
+msgstr ""
+
+#: errunix.d:607
+msgid "Multihop attempted"
+msgstr ""
+
+#: errunix.d:619
+msgid "Remote address changed"
+msgstr ""
+
+#: errunix.d:626
+msgid "Function not implemented"
+msgstr ""
+
+#: errunix.d:633
+msgid "Not supported under MS-DOS"
+msgstr ""
+
+#: amigaaux.d:212
+msgid "This version of CLISP runs only in low address memory.\n"
+msgstr ""
+
