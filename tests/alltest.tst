@@ -2264,6 +2264,14 @@ ICE-CREAM-FACTORY
 )
 (VANILLA CHOCOLATE STRAWBERRY MANGO)
 
+;; <http://www.lisp.org/HyperSpec/Issues/iss111-writeup.html>
+(progn
+  (defvar *x* 'global-x)
+  (let ((y 'local-y))
+    (defstruct baz (*x* 'x-init) (y *x*) (z y)))
+  (make-baz))
+#S(BAZ :*X* X-INIT :Y GLOBAL-X :Z LOCAL-Y)
+
 ;Kap 20 EVAL
 ;-------------------------------------------------------------------------------
 
