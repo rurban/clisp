@@ -9,6 +9,17 @@
 
 (in-package "SYSTEM") ; necessary despite DEFPACKAGE!
 
+;; Defined later, in functions.lisp.
+(import 'make-signature)
+(import 'sig-req-num)
+(import 'sig-opt-num)
+(import 'sig-rest-p)
+(import 'sig-keys-p)
+(import 'sig-keywords)
+(import 'sig-allow-p)
+(import 'check-function-name)
+
+;; Defined later, in compiler.lisp.
 (import 'compiler::%generic-function-lambda)
 (import 'compiler::%optimize-function-lambda)
 
