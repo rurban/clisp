@@ -6,7 +6,7 @@
 
         * utils/modprep.d: New file.
         * makemake.in: Build it.
-        * genclisp.h: Define DEFMODULE, DEFUN, DEFVAR, for use by modules.
+        * genclisp.d: Define DEFMODULE, DEFUN, DEFVAR, for use by modules.
 
 1998-10-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
