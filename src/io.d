@@ -1880,7 +1880,7 @@ local Values read_macro (object ch, const gcv_object_t* stream_) {
       pushSTACK(ch); # Mainchar
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
-      fehler(stream_error,
+      fehler(reader_error, # ANSI CL spec of MAKE-DISPATCH-MACRO-CHARACTER wants a reader-error here
              GETTEXT("~S from ~S: After ~S is ~S an undefined dispatch macro character"));
     }
     pushSTACK(*stream_); # Stream as 1. argument
@@ -1958,7 +1958,7 @@ local object read_internal (const gcv_object_t* stream_) {
       pushSTACK(*stream_); # STREAM-ERROR slot STREAM
       pushSTACK(*stream_);
       pushSTACK(S(read));
-      fehler(stream_error,
+      fehler(reader_error, # ANSI CL 2.4.9. wants a reader-error here
              GETTEXT("~S from ~S: a token consisting only of dots cannot be meaningfully read in"));
     }
     # Length=1 -> dot_value as value
@@ -2175,7 +2175,8 @@ nonreturning_function(local, fehler_dot, (object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream); # Stream
   pushSTACK(S(read));
-  fehler(stream_error,GETTEXT("~S from ~S: token \".\" not allowed here"));
+  fehler(reader_error, # ANSI CL 2.3.3. wants a reader-error here.
+         GETTEXT("~S from ~S: token \".\" not allowed here"));
 }
 
 # UP: reads an Object, with SYS::*READ-RECURSIVE-P* /= NIL
@@ -3206,7 +3207,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
     pushSTACK(*stream_); # STREAM-ERROR slot STREAM
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
-    fehler(stream_error,
+    fehler(reader_error, # ANSI CL 2.4.8.4. wants a reader-error here
            GETTEXT("~S from ~S: only zeroes and ones are allowed after #*"));
   }
   var object buff_1 = O(token_buff_1); # Character-Buffer
@@ -3233,7 +3234,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
-      fehler(stream_error,
+      fehler(reader_error, # ANSI CL 2.4.8.4. wants a reader-error here
              GETTEXT("~S from ~S: bit vector is longer than the explicitly given length ~S"));
     }
     if ((n>0) && (len==0)) {
@@ -3241,7 +3242,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
       pushSTACK(STACK_(0+1)); # n
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
-      fehler(stream_error,
+      fehler(reader_error, # ANSI CL 2.4.8.4. wants a reader-error here
              GETTEXT("~S from ~S: must specify element of bit vector of length ~S"));
     }
   }
@@ -3470,7 +3471,7 @@ nonreturning_function(local, fehler_read_eval_forbidden, (const gcv_object_t* st
   pushSTACK(S(read_eval)); # *READ-EVAL*
   pushSTACK(*stream_); # Stream
   pushSTACK(S(read));
-  fehler(stream_error,
+  fehler(reader_error, # ANSI CL 2.4.8.6. wants a reader-error here
          GETTEXT("~S from ~S: ~S = ~S does not allow the evaluation of ~S"));
 }
 
@@ -3703,7 +3704,7 @@ LISPFUNN(not_readable_reader,3) { # reads #<
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(*stream_); # Stream
   pushSTACK(S(read));
-  fehler(stream_error,
+  fehler(reader_error, # ANSI CL 2.4.8.20. wants a reader-error here
          GETTEXT("~S from ~S: objects printed as #<...> cannot be read back in"));
 }
 
@@ -3719,7 +3720,7 @@ LISPFUNN(syntax_error_reader,3) { # reads #) and #whitespace
   pushSTACK(S(print_level));
   pushSTACK(*stream_); # Stream
   pushSTACK(S(read));
-  fehler(stream_error,
+  fehler(reader_error, # ANSI CL 2.4.9. wants a reader-error here
          GETTEXT("~S from ~S: objects printed as #"" in view of ~S cannot be read back in"));
 }
 
