@@ -498,3 +498,13 @@ pl
 ;; <http://article.gmane.org/gmane.lisp.clisp.general:9034>
 (defsetf foo22 () () '(values))
 FOO22
+
+;; Check that dotted lists are rejected.
+(get-setf-expansion '(nth x y . z))
+ERROR
+
+(get-setf-expansion '(ldb x . y))
+ERROR
+
+(get-setf-expansion '(ldb x y . z))
+ERROR
