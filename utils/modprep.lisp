@@ -932,7 +932,7 @@ commas and parentheses."
               (unless c-type (format out " #endif") (newline out)))
             (format out "  { 0, NULL }") (newline out)
             (format out "};") (newline out)
-            (format out "const uintL ~A_table_size = ((sizeof(~A_table)-1)/sizeof(struct c_lisp_pair));" c-name c-name) (newline out)
+            (format out "const uintL ~A_table_size = (sizeof(~A_table)/sizeof(struct c_lisp_pair))-1;" c-name c-name) (newline out)
             (format out "static ~A ~A (object a) {" (or c-type "int") c-name)
             (newline out) (format out "  int index;") (newline out)
             (format out " restart_~A:" c-name) (newline out)
