@@ -1,3 +1,10 @@
+2004-05-02  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 946645 ]: rename-package does not accept
+	package-designators
+	* package.d (RENAME-PACKAGE): second argument can be a package
+	designator
+
 2004-05-02  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in: Use "tail -n 1" instead of "tail -1".
