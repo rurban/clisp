@@ -1,5 +1,9 @@
 1998-11-05  Sam Steingold  <sds@goems.com>
 
+        * loop.lsp (expand-loop): allow `by' to precede `upto' &c.
+
+1998-11-05  Sam Steingold  <sds@goems.com>
+
 	* type.lsp (canonicalize-type): handle `SIGNED-BYTE' and
 	  `UNSIGNED-BYTE', thus recognize them as subtypes of `INTEGER'.
 
