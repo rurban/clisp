@@ -319,8 +319,8 @@
                            ; (as plist)
         :type list
         :initform '())
-      ($valid-initargs     ; list of valid initargs
-        :type list)
+      ($valid-initargs-from-slots ; list of valid initargs, computed from slots
+        :type list)        ; (not including those declared valid by methods!)
       ($instance-size      ; number of local slots of the direct instances + 1
         :type (integer 1 *)))
      (:fixed-slot-locations)))
@@ -329,7 +329,7 @@
 (defconstant *<slotted-class>-subclass-of-stablehash-p-location* 16)
 (defconstant *<slotted-class>-generic-accessors-location* 17)
 (defconstant *<slotted-class>-direct-accessors-location* 18)
-(defconstant *<slotted-class>-valid-initargs-location* 19)
+(defconstant *<slotted-class>-valid-initargs-from-slots-location* 19)
 (defconstant *<slotted-class>-instance-size-location* 20)
 
 ;; Preliminary accessors.
@@ -345,10 +345,10 @@
   (sys::%record-ref object *<slotted-class>-direct-accessors-location*))
 (defun (setf class-direct-accessors) (new-value object)
   (setf (sys::%record-ref object *<slotted-class>-direct-accessors-location*) new-value))
-(defun class-valid-initargs (object)
-  (sys::%record-ref object *<slotted-class>-valid-initargs-location*))
-(defun (setf class-valid-initargs) (new-value object)
-  (setf (sys::%record-ref object *<slotted-class>-valid-initargs-location*) new-value))
+(defun class-valid-initargs-from-slots (object)
+  (sys::%record-ref object *<slotted-class>-valid-initargs-from-slots-location*))
+(defun (setf class-valid-initargs-from-slots) (new-value object)
+  (setf (sys::%record-ref object *<slotted-class>-valid-initargs-from-slots-location*) new-value))
 (defun class-instance-size (object)
   (sys::%record-ref object *<slotted-class>-instance-size-location*))
 (defun (setf class-instance-size) (new-value object)
@@ -367,7 +367,7 @@
     (setf (class-generic-accessors class) generic-accessors))
   ; The following slots are initialized by the subclass' shared-initialize:
   ;   subclass-of-stablehash-p
-  ;   valid-initargs
+  ;   valid-initargs-from-slots
   ;   instance-size
   class)
 

@@ -1601,7 +1601,7 @@
           (std-compute-subclass-of-stablehash-p class)))
   (when (or (eq situation 't) direct-superclasses-p
             direct-slots-as-lists-p direct-slots-as-metaobjects-p)
-    (setf (class-valid-initargs class)
+    (setf (class-valid-initargs-from-slots class)
           (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class)))))
   ; Initialize the remaining <structure-class> slots:
   (when (or (eq situation 't) direct-superclasses-p names-p)
@@ -1767,7 +1767,7 @@
             (create-shared-slots-vector class shared-size old-slot-location-table))))
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
   (setf (class-default-initargs class) (checked-compute-default-initargs class))
-  (setf (class-valid-initargs class)
+  (setf (class-valid-initargs-from-slots class)
         (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
   (when (< (class-initialized class) 6)
     (setf (class-initialized class) 6))
