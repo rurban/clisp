@@ -9745,11 +9745,11 @@ local void pprin_object_dispatch (const gcv_object_t* stream_,object obj) {
 LISPFUNN(ppprint_logical_block,3) {
   test_ostream();
   if (listp(STACK_1)) {
-    var object stream = STACK_0;
+    var gcv_object_t* stream_ = &STACK_0;
     var object obj = STACK_1;
     var object func = STACK_2;
     dynamic_bind(S(prin_pprinter),func); # *PRIN-PPRINTER*
-    pr_enter(&stream,obj,&pprin_object);
+    pr_enter(stream_,obj,&pprin_object);
     dynamic_unbind(); # *PRIN-PPRINTER*
   } else
     pr_enter(&STACK_0,STACK_1,&prin_object);

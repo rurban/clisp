@@ -1,5 +1,9 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (%PPRINT-LOGICAL-BLOCK): Make GC-safe.
+	* package.d (shadow, use_package): Prepare for DEBUG_GCSAFETY.
+	* sequence.d (delete_help): Likewise.
+
 	Fix some GC-safety bugs.
 	* package.d (safe_check_pack_lock): Use the first argument.
 	(unuse_1package): Mark as "can trigger GC".
