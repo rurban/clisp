@@ -1930,10 +1930,10 @@ LISPFUNN(unwind_to_driver,1)
       } else
         FRAME skipSTACKop 1;
     }
+    unwind_upto(driver_frame);
     if (eq(FRAME_(1),nullobj)) {
       driver(); quit(); /* STACK completely gone -> restart */
-    } else
-      unwind_upto(driver_frame);
+    }
   }
 }
 
