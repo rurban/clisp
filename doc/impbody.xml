@@ -4667,7 +4667,7 @@ effects when being loaded, this is important as well.
 <varname>CUSTOM:*LOAD-COMPILING*</varname>, and
 <varname>CUSTOM:*LOAD-ECHO*</varname> are bound by &load; when it
 receives a corresponding keyword argument (&verbose-k;, &print-k;,
-&obsolete-action-k, &compiling-k;, and &echo-k;), i.e., these arguments
+&obsolete-action-k;, &compiling-k;, and &echo-k;), i.e., these arguments
 are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 &print-k; for &compile-file;.</para>
 
