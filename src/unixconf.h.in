@@ -51,10 +51,6 @@
 /* Define as __inline if that's what the C compiler calls it. */
 #undef inline
 
-/* CL_NOWARN */
-/* Define this as empty if your compiler doesn't support the `__nowarn__' keyword. */
-#undef __nowarn__
-
 /* CL_VOID */
 /* Define this as `char' if your compiler doesn't understand the void type. */
 #undef void

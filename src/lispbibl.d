@@ -859,12 +859,6 @@
 #if !defined(GNU) && !defined(UNIXCONF)
   #define inline      # inline foo() {...} --> foo() {...}
 #endif
-#if !defined(UNIXCONF)
-  #define nowarn
-#else
-  # Um GCC-Warnungen selektiv auszuschalten:
-  #define nowarn  __nowarn__
-#endif
 
 # Definitionen für C++-Compiler:
 #ifdef __cplusplus

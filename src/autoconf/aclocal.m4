@@ -689,18 +689,6 @@ cat >> confdefs.h <<EOF
 EOF
 ])dnl
 dnl
-AC_DEFUN(CL_NOWARN,
-[AC_REQUIRE([AC_PROG_CC])
-if test $ac_cv_prog_gcc = yes; then
-CL_COMPILE_CHECK([__nowarn__], cl_cv_c_nowarn,
-[int x;], [__nowarn__ x;],
-have_nowarn=1)
-fi
-if test -z "$have_nowarn"; then
-AC_DEFINE(__nowarn__,)
-fi
-])dnl
-dnl
 AC_DEFUN(RL_VOID,
 [CL_COMPILE_CHECK([working void], rl_cv_c_void, ,
 [void f();
