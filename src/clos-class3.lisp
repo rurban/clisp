@@ -1895,6 +1895,59 @@
                 '()
                 '()))
 
+  ;; 10. Define other classes whose definition was delayed.
+
+  ;; Define the class <slot-definition>.
+  (macrolet ((form () *<slot-definition>-defclass*))
+    (form))
+
+  ;; Define the class <direct-slot-definition>.
+  (macrolet ((form () *<direct-slot-definition>-defclass*))
+    (form))
+
+  ;; Define the class <effective-slot-definition>.
+  (macrolet ((form () *<effective-slot-definition>-defclass*))
+    (form))
+
+  ;; Define the class <standard-slot-definition>.
+  (macrolet ((form () *<standard-slot-definition>-defclass*))
+    (form))
+
+  ;; Define the class <standard-direct-slot-definition>.
+  (setq <standard-direct-slot-definition>
+        (macrolet ((form () *<standard-direct-slot-definition>-defclass*))
+          (form)))
+  (replace-class-version (find-class 'standard-direct-slot-definition)
+                         *<standard-direct-slot-definition>-class-version*)
+
+  ;; Define the class <standard-effective-slot-definition>.
+  (setq <standard-effective-slot-definition>
+        (macrolet ((form () *<standard-effective-slot-definition>-defclass*))
+          (form)))
+  (replace-class-version (find-class 'standard-effective-slot-definition)
+                         *<standard-effective-slot-definition>-class-version*)
+
+  ;; Define the class <structure-direct-slot-definition>.
+  (setq <structure-direct-slot-definition>
+        (macrolet ((form () *<structure-direct-slot-definition>-defclass*))
+          (form)))
+  (replace-class-version (find-class 'structure-direct-slot-definition)
+                         *<structure-direct-slot-definition>-class-version*)
+
+  ;; Define the class <structure-effective-slot-definition>.
+  (setq <structure-effective-slot-definition>
+        (macrolet ((form () *<structure-effective-slot-definition>-defclass*))
+          (form)))
+  (replace-class-version (find-class 'structure-effective-slot-definition)
+                         *<structure-effective-slot-definition>-class-version*)
+
+  ;; Define the class <eql-specializer>.
+  (setq <eql-specializer>
+        (macrolet ((form () *<eql-specializer>-defclass*))
+          (form)))
+  (replace-class-version (find-class 'eql-specializer)
+                         *<eql-specializer>-class-version*)
+
 );progn
 
 ;;; Install built-in classes:
