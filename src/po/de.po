@@ -1696,7 +1696,7 @@ msgstr "~: Dimension ~ ist nicht vom Typ `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))."
 
 #: array.d:4417
 msgid "~: dimensions ~ produce too large total-size"
-msgstr "~: Dimensionen ~ ergeben zu große GesamtgröÂße."
+msgstr "~: Dimensionen ~ ergeben zu große Gesamtgröße."
 
 #: array.d:4459
 msgid "~: ambiguous, more than one initialization specified"
@@ -1728,7 +1728,7 @@ msgstr "~: ~-Argument ~ ist nicht vom Typ `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))
 
 #: array.d:4712
 msgid "~: array-total-size + displaced-offset (= ~) exceeds total size ~ of ~-argument"
-msgstr "~: Array-GesamtgröÂße mit Displaced-Offset (~) > GesamtgröÂße ~ des ~-Arguments"
+msgstr "~: Array-Gesamtgröße mit Displaced-Offset (~) > Gesamtgröße ~ des ~-Arguments"
 
 #: array.d:4738
 msgid "~: fill-pointer ~ should be a nonnegative fixnum"
@@ -1736,7 +1736,7 @@ msgstr "~: Gewünschter Fill-Pointer ~ sollte ein Fixnum >=0 sein."
 
 #: array.d:4747
 msgid "~: fill-pointer argument ~ is larger than the length ~"
-msgstr "~: Gewünschter Fill-Pointer ~ ist gröÂßer als die Länge ~"
+msgstr "~: Gewünschter Fill-Pointer ~ ist größer als die Länge ~"
 
 #: array.d:4817
 msgid "~: attempted rank ~ is too large"
@@ -1784,7 +1784,7 @@ msgstr "~: Als Bit-Vektoren-Länge ist ~ ungeeignet."
 
 #: hashtabl.d:1035
 msgid "Hash table size ~ too large"
-msgstr "Zu große HashtabellengröÂße ~"
+msgstr "Zu große Hashtabellengröße ~"
 
 #: hashtabl.d:1077
 msgid "internal error occured while resizing ~"
@@ -1820,7 +1820,7 @@ msgstr "~: ~ ist keine erlaubte Abschnittlänge, da kein Integer >=0."
 
 #: list.d:804
 msgid "~: ~ is not a nonnegative fixnum and therefore not a valid list length"
-msgstr "~: ~ ist als ListengröÂße nicht geeignet, da kein Fixnum >= 0"
+msgstr "~: ~ ist als Listengröße nicht geeignet, da kein Fixnum >= 0"
 
 #: list.d:1107
 msgid "~: ~ is not a pair"
@@ -3271,7 +3271,7 @@ msgstr ":MALLOC-FREE ist unter AMIGAOS nicht verfügbar."
 #: foreign.d:882
 #, fuzzy
 msgid "~: element type has size 0: ~"
-msgstr "Elementtyp hat GröÂße 0: ~"
+msgstr "Elementtyp hat Größe 0: ~"
 
 #: foreign.d:2050
 msgid "~: argument is not a foreign variable: ~"
@@ -3287,7 +3287,7 @@ msgstr "Eine Foreign-Variable ~ gibt es nicht."
 
 #: foreign.d:2077
 msgid "~: foreign variable ~ does not have the required size or alignment"
-msgstr "~: Foreign-Variable ~ hat nicht die geforderte GröÂße oder Alignment."
+msgstr "~: Foreign-Variable ~ hat nicht die geforderte Größe oder Alignment."
 
 #: foreign.d:2089
 msgid "~: type specifications for foreign variable ~ conflict: ~ and ~"
@@ -5689,7 +5689,7 @@ msgstr ", adjustierbar"
 
 #: describe.lisp:425
 msgid ", of size ~{~S~^ x ~}"
-msgstr ", der GröÂße ~{~S~^ x ~}"
+msgstr ", der Größe ~{~S~^ x ~}"
 
 #: describe.lisp:428
 msgid " and current length (fill-pointer) ~S"
