@@ -1,8 +1,3 @@
-*.fas
-*.lib
-*.mem
-*.run
-*.exe
 *.ilk
 *.i.c
 *.i
@@ -13,16 +8,12 @@ avcall.h
 callback
 callback.h
 libcharset.h
-config.log
 unixconf.h
-config.cache
-config.status
 makefile*
 makemake
 comment5
 intparam.h
 clisp.h
-config.lsp
 ANNOUNCE
 CLOS-guide.txt
 config.lisp
