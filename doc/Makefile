@@ -19,11 +19,12 @@ JAVAXML=c:/java
 JAVA=/cygdrive/c/java/bin/java.exe
 SEP=;
 else
-# XMLSOC=/usr/local/src/sp/pubtext/xml.soc
-# XMLSOC=/usr/share/sgml/xml.soc
-# XMLSOC=/usr/share/sgml/jade_dsl/xml.soc
-# XMLSOC=/usr/share/sgml/openjade-1.3.1/pubtext/xml.soc
-XMLSOC := $(shell find /usr/share/sgml -name xml.soc -print | head -1)
+# XMLSOC is found at wildly different locations. It's tedious to write down
+# all possible pathnames found so far, but we know no better solution.
+XMLSOC := $(firstword $(wildcard /usr/share/sgml/xml.soc \
+                                 /usr/share/sgml/jade_dsl/xml.soc \
+                                 /usr/share/sgml/openjade-1.3.1/pubtext/xml.soc \
+                                 ))
 JAVAXML=/usr/local/src/xml
 JAVA=java
 SEP=:
