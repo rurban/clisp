@@ -75,7 +75,7 @@ EOP
 set -e
 
 # Nuisances.
-unset CDPATH
+(unset CDPATH) >/dev/null 2>&1 && unset CDPATH
 
 srcdir=''
 subdir_configure_args=''
