@@ -3308,7 +3308,8 @@
      ;; list of all applicable methods from ALLOCATE-INSTANCE
      (remove-if-not
       #'(lambda (method)
-          (let ((specializer (first (std-method-parameter-specializers method))))
+          (let ((specializer
+                 (first (std-method-parameter-specializers method))))
             (if (consp specializer)
               (eql class (second specializer))
               (subclassp (class-of class) specializer)))) ; <==> (typep class specializer)
@@ -3321,7 +3322,8 @@
           (compute-effective-method |#'shared-initialize| instance 'T)))
 
 ;; 28.1.9.5., 28.1.9.4.
-(defgeneric shared-initialize (instance slot-names &rest initargs))
+(defgeneric shared-initialize
+    (instance slot-names &rest initargs &key &allow-other-keys))
 (setq |#'shared-initialize| #'shared-initialize)
 #||
  (defmethod shared-initialize ((instance standard-object)
@@ -3362,7 +3364,8 @@
    :signature #s(compiler::signature :req-num 2 :rest-p t)))
 
 ;; 28.1.12.
-(defgeneric reinitialize-instance (instance &rest initargs))
+(defgeneric reinitialize-instance
+    (instance &rest initargs &key &allow-other-keys))
 (setq |#'reinitialize-instance| #'reinitialize-instance)
 #||
  (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
@@ -3416,15 +3419,24 @@
          (valid-keywords
           (valid-initarg-keywords
            class
-           ;; list of all applicable methods from SHARED-INITIALIZE
-           (remove-if-not
-            #'(lambda (method)
-                (let* ((specializers (std-method-parameter-specializers method))
-                       (specializer1 (first specializers))
-                       (specializer2 (second specializers)))
-                  (and (atom specializer1) (subclassp class specializer1)
-                       (typep 'NIL specializer2))))
-            (gf-methods |#'shared-initialize|)))))
+           (append
+            ;; list of all applicable methods from SHARED-INITIALIZE
+            (remove-if-not
+             #'(lambda (method)
+                 (let* ((specializers (std-method-parameter-specializers
+                                       method))
+                        (specializer1 (first specializers))
+                        (specializer2 (second specializers)))
+                   (and (atom specializer1) (subclassp class specializer1)
+                        (typep 'NIL specializer2))))
+             (gf-methods |#'shared-initialize|))
+            ;; list of all applicable methods from REINITIALIZE-INSTANCE
+            (remove-if-not
+             #'(lambda (method)
+                 (let ((specializer
+                        (first (std-method-parameter-specializers method))))
+                   (and (atom specializer) (subclassp class specializer))))
+             (gf-methods |#'reinitialize-instance|))))))
     ;; 28.1.9.2. validity of initialization arguments
     (unless (eq valid-keywords 't)
       (sys::keyword-test initargs valid-keywords))
@@ -3495,7 +3507,8 @@
         (apply si-ef instance 'T initargs)))))
 
 ;; User-defined methods on allocate-instance are now supported.
-(defgeneric allocate-instance (instance &rest initargs))
+(defgeneric allocate-instance
+    (instance &rest initargs &key &allow-other-keys))
 (setq |#'allocate-instance| #'allocate-instance)
 #||
  (defgeneric allocate-instance (class)
@@ -3536,7 +3549,7 @@
    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 
 ;; 28.1.9.7.
-(defgeneric make-instance (class &rest initargs)
+(defgeneric make-instance (class &rest initargs &key &allow-other-keys)
   (:method ((class symbol) &rest initargs)
     (apply #'make-instance (find-class class) initargs)))
 #||
