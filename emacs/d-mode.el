@@ -158,7 +158,9 @@ Beware - this will modify the original C-mode too!"
               (cons (cons 'd-mode d-mode-font-lock-defaults)
                     font-lock-defaults-alist)))))
 
-(setq c-C-specifier-kwds (concat c-C-specifier-kwds "\\|" d-extra-keywords))
+(when (boundp 'c-C-specifier-kwds) ; Emacs 21.1 has it, Emacs 20.7 does not
+  (setq c-C-specifier-kwds
+        (concat c-C-specifier-kwds "\\|" d-extra-keywords)))
 
 ;; enable CLISP "# foo" comments
 (modify-syntax-entry ?# ". 1b" d-mode-syntax-table)
