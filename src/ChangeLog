@@ -1,5 +1,14 @@
 2003-03-30  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (init_symbol_values): define_variable's
+	*LOAD-COMPILING*, *LOAD-VERBOSE*, *LOAD-PRINT*, *COMPILE-PRINT*.
+	(usage): mention `-v'
+	(main): accept -v(erbose).
+	* constsym.d (*LOAD-PRINT*, *COMPILE-PRINT*): added
+	* _clisp.c: accept -v
+
+2003-03-30  Sam Steingold  <sds@gnu.org>
+
 	* regexp.lisp (cflags, eflags): new macros
 	(cflags-max): new constant
 	(regexp-compile): accept extended/case-sensitive/newline/nosub/cflags

@@ -93,6 +93,13 @@ clisp \- Common Lisp language interpreter and compiler
 .B \-C
 ]
 [
+.B \-v
+|
+.B \-verbose
+|
+.B \-\-verbose
+]
+[
 .B \-norc
 ]
 [
@@ -391,6 +398,16 @@ Code being
 .IR load ed
 will then be compiled on the fly.
 This results in slower loading, but faster execution.
+
+.TP
+.BR \-v ", " \-verbose ", " \-\-verbose
+Verbose loading (with
+.BI \-i
+) and compiling (with
+.BI \-c
+); this sets variables
+.I *load-print* " and " *compile-print* " to " t "."
+Note that this setting persists into the read-eval-print loop.
 
 .TP
 .BI "\-norc"

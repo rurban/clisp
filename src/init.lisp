@@ -1244,13 +1244,13 @@
           extensions))
 
 (proclaim '(special *load-verbose*))
-(setq *load-verbose* t)
+(setq *load-verbose* t)         ; defined in spvw.d
 (proclaim '(special *load-print*))
-(setq *load-print* nil)
+(setq *load-print* nil)         ; defined in spvw.d
 (proclaim '(special *load-echo*))
 (setq *load-echo* nil)
 (proclaim '(special *load-compiling*))
-(setq *load-compiling* nil)
+(setq *load-compiling* nil)     ; defined in spvw.d
 (proclaim '(special *load-pathname*))
 (setq *load-pathname* nil)
 (proclaim '(special *load-input-stream*))
