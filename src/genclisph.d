@@ -1253,9 +1253,9 @@ int main(int argc, char* argv[])
   printf1("#define bignump(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Bignum);
 #endif
 #ifdef TYPECODES
-  printf1("#define posbignump(obj)  (typecode(obj) == %d)\n",(tint)bignum_type);
+  printf("#define posbignump(obj)  (typecode(obj) == %d)\n",(tint)bignum_type);
 #else
-  printf1("#define posbignump(obj)  (varobjectp(obj) && (Record_type(obj) == %d) && ((Record_flags(obj) & bit(7)) == 0))\n",Rectype_Bignum);
+  printf("#define posbignump(obj)  (varobjectp(obj) && (Record_type(obj) == %d) && ((Record_flags(obj) & %d) == 0))\n",Rectype_Bignum,bit(7));
 #endif
 #if notused
 #ifdef TYPECODES
@@ -2173,7 +2173,8 @@ int main(int argc, char* argv[])
       printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
     #endif
     printf("extern object allocate_fpointer (FOREIGN foreign);\n");
-    printf("#define fp_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)\n");
+    printf("#define fp_validp(ptr)  ((record_flags(ptr) & %d) == 0)\n",bit(7));
+    printf("#define mark_fp_invalid(ptr)  record_flags_set(ptr,%d)\n",bit(7));
     printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
     printf("static inline object check_fpointer (object obj, bool restart_p) {"
            "  if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
