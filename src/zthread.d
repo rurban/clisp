@@ -19,7 +19,7 @@ struct call_data_t {
   xmutex_t mutex;
   xcondition_t cond;
   bool done;
-  thread_t *calling_thread;
+  clisp_thread_t *calling_thread;
 };
 
 /* execute the call specified by the call_data_t argument
@@ -30,7 +30,8 @@ local void *exec_call (void *arg)
   uintC argcount = pcd->argcount;
   xmutex_lock(&pcd->mutex); /* wait for the main thread to start waiting */
   /* init the current thread - same "stack group" */
-  copy_mem_b(current_thread(),pcd->calling_thread,sizeof(thread_t)); /* ?!! */
+  copy_mem_b(current_thread(),pcd->calling_thread,
+             sizeof(clisp_thread_t)); /* ?!! */
   xmutex_unlock(&pcd->mutex); /* allow the main thread to timeout */
   /* unwind if the thread gets cancelled */
   pthread_cleanup_push(&unwind_upto,(void*)&STACK[0]);
@@ -38,7 +39,8 @@ local void *exec_call (void *arg)
   pthread_cleanup_pop(0);
   xmutex_lock(&pcd->mutex);
   /* copy the return values &c */
-  copy_mem_b(pcd->calling_thread,current_thread(),sizeof(thread_t)); /* ?!! */
+  copy_mem_b(pcd->calling_thread,current_thread(),
+             sizeof(clisp_thread_t)); /* ?!! */
   pcd->done = true;
   xmutex_unlock(&pcd->mutex);
   xcondition_broadcast(&pcd->cond);
