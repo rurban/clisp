@@ -1,3 +1,7 @@
+2003-10-28  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (CHART_STRUCT): Don't define when using g++ 3.3.x.
+
 2003-10-27  Bruno Haible  <bruno@clisp.org>
 
 	* stdbool.h.in: Better support for BeOS.
