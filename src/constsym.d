@@ -888,6 +888,7 @@ LISPSYM(socket_stream_port,"SOCKET-STREAM-PORT",socket)
 LISPSYM(socket_stream_host,"SOCKET-STREAM-HOST",socket)
 LISPSYM(socket_stream_peer,"SOCKET-STREAM-PEER",socket)
 LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",socket)
+LISPSYM(Ktimeout,"TIMEOUT",keyword)
 #ifdef HAVE_SHUTDOWN
 LISPSYM(socket_stream_shutdown,"SOCKET-STREAM-SHUTDOWN",socket)
 #endif

@@ -1,3 +1,20 @@
+2002-05-26  Sam Steingold  <sds@gnu.org>
+
+	timeout on connecting, see <http://cr.yp.to/docs/connect.html>
+	* socket.d (socket_connect_fn_t): accept 3rd arg `opts' (renamed
+	from `socket_connect_fn')
+	(with_hostname): accept 4th arg `opts' (passed to `connector')
+	(connect_to_x_via_ip, bindlisten_via_ip): accept and ignore `opts'
+	(connect_to_x_server, create_server_socket): pass NULL to
+	`with_hostname' as `opts'
+	(create_client_socket, connect_via_ip): accept 3rd `timeout' arg
+	* stream.d (sec_usec): sec may also be a cons and a real
+	(socket_server_wait): extracted from SOCKET-WAIT
+	(SOCKET-ACCEPT, SOCKET-CONNECT): accept 4th keyword arg :TIMEOUT
+	(SOCKET-WAIT): use socket_server_wait()
+	* subr.d, subrkwd.d (socket_accept, socket_connect): updated
+	* constsym.d (TIMEOUT): added the keyword
+
 2002-05-25  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	fixed win32 build (broken on 2002-05-23 and 2002-05-22)
