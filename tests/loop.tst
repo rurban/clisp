@@ -812,6 +812,9 @@ nil
 (let ((x 1)) (loop for i by (incf x) from x to 10 collect i))
 (2 4 6 8 10)
 
+(loop for i from 1 to 5 collect i into c collect (copy-list c))
+((1) (1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5))
+
 ;; Clean up.
 (progn (delete-package "LOOP-TEST") t)
 T
