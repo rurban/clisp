@@ -139,7 +139,8 @@ function, you got an error saying that #<CLOSURE TRACED-xxx> is not a generic
 function. Now the function is silently untraced, which is just as bad. Need
 to untrace and then re-trace the function. This holds for both defmethod and
 defgeneric.
-
+ -- this is how function (re)definition also works in CLISP and all other lisps
+    why should CLISP generic functions be any different?!
 
 clean up and modularize spvw.d
 
