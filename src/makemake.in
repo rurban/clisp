@@ -755,15 +755,12 @@ fi
 
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
-if [ ${TOS} = os2 -o ${TOS} = win32 ] ; then
+if [ ${TOS} = os2 -o ${TOS} = win32 -o ${HSYSOS} = cygwin32 ] ; then
   TEXE='.exe'
   LEXE='.exe'
 elif [ $TOS = acorn ] ; then
   TEXE=''
   LEXE=''
-elif [ ${HSYSOS} = cygwin32 ] ; then
-  TEXE='.exe'
-  LEXE='.run'
 else
   TEXE=''
   LEXE='.run'
