@@ -56,7 +56,19 @@
   #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
   #-(or CLISP AKCL ECL ALLEGRO CMU) (lisp-implementation-type))
 
-(defun do-test (stream log &optional (ignore-errors t))
+(defvar *eval-method* 'eval)
+(defun my-eval (form)
+  (ecase *eval-method*
+    (:eval (eval form))
+    (:compile (funcall (compile nil `(lambda () ,form))))
+    (:both (let ((e-value (eval form))
+                 (c-value (funcall (compile nil `(lambda () ,form)))))
+             (unless (equal e-value c-value)
+               (error "eval: ~S; compile: ~S" e-value c-value))
+             e-value))))
+
+(defvar *test-ignore-errors* t)
+(defun do-test (stream log)
   (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
       (let ((form (read stream nil eof))
@@ -65,9 +77,9 @@
         (incf total-count)
         (print form)
         (multiple-value-bind (my-result error-message)
-            (if ignore-errors
-                (with-ignored-errors (eval form)) ; return ERROR on errors
-                (eval form)) ; don't disturb the condition system when testing it!
+            (if *test-ignore-errors*
+                (with-ignored-errors (my-eval form)) ; return ERROR on errors
+                (my-eval form)) ; don't disturb the condition system when testing it!
           (cond ((eql result my-result)
                  (format t "~%EQL-OK: ~S" result))
                 ((equal result my-result)
@@ -98,8 +110,7 @@
                                  (pretty-tail-10 my-result)))))))))))
     (values total-count error-count)))
 
-(defun do-errcheck (stream log &optional ignore-errors)
-  (declare (ignore ignore-errors))
+(defun do-errcheck (stream log)
   (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
       (let ((form (read stream nil eof))
@@ -107,7 +118,7 @@
         (when (or (eq form eof) (eq errtype eof)) (return))
         (incf total-count)
         (print form)
-        (let ((my-result (nth-value 1 (ignore-errors (eval form)))))
+        (let ((my-result (nth-value 1 (ignore-errors (my-eval form)))))
           (multiple-value-bind (typep-result typep-error)
               (ignore-errors (typep my-result errtype))
             (cond ((and (not typep-error) typep-result)
@@ -121,11 +132,11 @@
     (values total-count error-count)))
 
 (defvar *run-test-tester* #'do-test)
-(defvar *run-test-ignore-errors* t)
-
 (defun run-test (testname
-                 &optional (tester *run-test-tester*)
-                           (ignore-errors *run-test-ignore-errors*)
+                 &key ((:tester *run-test-tester*) *run-test-tester*)
+                      ((:ignore-errors *test-ignore-errors*)
+                        *test-ignore-errors*)
+                      ((:eval-method *eval-method*) *eval-method*)
                  &aux (logname (merge-extension "erg" testname))
                       error-count total-count)
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
@@ -135,7 +146,7 @@
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*) (*print-circle* t) (*print-pretty* nil))
         (setf (values total-count error-count)
-              (funcall tester s log ignore-errors)))))
+              (funcall *run-test-tester* s log)))))
   (when (zerop error-count) (delete-file logname))
   (format t "~&~s: finished ~s (~:d error~:p out of ~:d test~:p)~%"
           'run-test testname error-count total-count)
@@ -163,7 +174,8 @@
               (enough-namestring (first rec) here) (second rec) (third rec)))
     (values error-count total-count res)))
 
-(defun run-some-tests (&optional (dirlist '("./")))
+(defun run-some-tests (&key (dirlist '("./"))
+                       ((:eval-method *eval-method*) *eval-method*))
   (let ((files (mapcan (lambda (dir)
                          (directory (make-pathname :name :wild :type "tst"
                                                    :defaults dir)))
@@ -171,7 +183,8 @@
     (if files (run-files files)
         (warn "no TST files in directories ~S" dirlist))))
 
-(defun run-all-tests (&optional (disable-risky t))
+(defun run-all-tests (&key (disable-risky t)
+                      ((:eval-method *eval-method*) *eval-method*))
   (let ((error-count 0) (total-count 0)
         #+CLISP (custom:*load-paths* nil)
         #+CLISP (custom:*warn-on-floating-point-contagion* nil)
@@ -230,9 +243,9 @@
         (run-test "weakptr")))
     #+(or CLISP ALLEGRO CMU)
     (with-accumulating-errors (error-count total-count)
-      (run-test "conditions" #'do-test nil))
+      (run-test "conditions" :ignore-errors nil))
     (with-accumulating-errors (error-count total-count)
-      (run-test "excepsit" #'do-errcheck))
+      (run-test "excepsit" :tester #'do-errcheck))
     (format t "~s: grand total: ~:d error~:p out of ~:d test~:p~%"
             'run-all-tests error-count total-count)
     (values total-count error-count)))
