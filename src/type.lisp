@@ -925,9 +925,9 @@
                                (let ((c1 (type-class t1)) (c2 (type-class t2)))
                                  ;; FIXME: remember the list of subclasses for
                                  ;; all classes and check them here!
-                                 (when (or (and (clos::built-in-class-p c1)
-                                                (clos::built-in-class-p c2)
-                                                (null (clos::bc-and c1 c2)))
+                                 (when (or (and (clos::class-p c1)
+                                                (clos::class-p c2)
+                                                (null (clos::class-and c1 c2)))
                                            (and (clos::class-p c1)
                                                 (symbolp c2))
                                            (and (clos::class-p c2)
@@ -1297,7 +1297,7 @@
        (if (eq type2 'FUNCTION) (yes) (no))
       )
       (CLOS:STANDARD-GENERIC-FUNCTION
-       (when  (yes))
+       (when (eq type2 'atom) (yes))
        (if (or (eq type2 'CLOS:GENERIC-FUNCTION) (eq type2 'FUNCTION)
                (eq type2 'atom))
            (yes) (no)))
