@@ -1,3 +1,8 @@
+2004-08-03  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (number_immediatep): export
+	(positivep): use it
+
 2004-06-12  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (Closure, Cclosure): Rename field clos_name to
