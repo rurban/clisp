@@ -17,7 +17,6 @@
 <!ENTITY ansi-cl "<citation><link linkend='ansi-cl'>ANSI CL standard</link></citation>">
 <!ENTITY ansi-cl-bib
   "<biblioentry id='ansi-cl'>
-   <abbrev>ANSI CL standard</abbrev>
    <abbrev>ANSI CL</abbrev>
    <pubdate>1994</pubdate>
    <citetitle>ANSI Common Lisp standard X3.226-1994 -
@@ -32,7 +31,7 @@
    <citetitle><ulink url='&clhs;/FrontMatter/'>Common Lisp HyperSpec</ulink></citetitle>
   </biblioentry>">
 
-<!ENTITY cltl1 "<citation><link linkend='CLtL1'>CLtL1</link></citation>">
+<!ENTITY cltl1 "<xref linkend='CLtL1'/>">
 <!ENTITY cltl1-bib
   "<biblioentry id='CLtL1'>
    <abbrev>CLtL1</abbrev>
@@ -47,7 +46,7 @@
    <publisher><publishername>Digital Press</publishername></publisher>
   </biblioentry>">
 
-<!ENTITY cltl2 "<citation><link linkend='CLtL2'>CLtL2</link></citation>">
+<!ENTITY cltl2 "<xref linkend='CLtL2'/>">
 <!ENTITY cltl2-bib
   "<biblioentry id='CLtL2'>
    <abbrev>CLtL2</abbrev>
@@ -77,6 +76,20 @@
    <publisher><publishername><ulink url='http://www-mitpress.mit.edu'>MIT
       Press</ulink></publishername></publisher>
   </biblioentry>">
+
+<!ENTITY pg-ansi-cl-bib
+ "<biblioentry id='pg-ansi-cl'><abbrev>PG-ANSI-CL</abbrev>
+   <author><firstname>Paul</firstname><surname>Graham</surname></author>
+   <title>ANSI Common Lisp</title>
+   <publishername>Prentice Hall</publishername><pubdate>1995</pubdate>
+   <pagenums>432 pages</pagenums><isbn>0133708756</isbn></biblioentry>">
+<!ENTITY pg-on-lisp-bib
+ "<biblioentry id='pg-on-lisp'><abbrev>PG-On-Lisp</abbrev>
+   <author><firstname>Paul</firstname><surname>Graham</surname></author>
+   <title>On Lisp</title>
+   <publishername>Prentice Hall</publishername><pubdate>1993</pubdate>
+   <pagenums>413 pages</pagenums><isbn>0130305529</isbn></biblioentry>">
+
 
 <!ENTITY gray-streams "<ulink url='ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail'>STREAM-DEFINITION-BY-USER:GENERIC-FUNCTIONS</ulink>">
 
