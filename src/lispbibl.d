@@ -2404,7 +2404,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif
   #if defined(SPARC64)
     # Virtual address limit on some systems: -2^43..2^43.
-    #if defined(NO_SINGLEMAP)
+    #if 1
       # If MAP_MEMORY isn't demanded, this is the safest.
       # Bits 63..48 = type code, bits 47..0 = address
       #define oint_type_shift 48

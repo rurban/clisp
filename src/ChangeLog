@@ -1,3 +1,9 @@
+2004-05-11  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d [SPARC64]: use Bits 63..48 for type code, bits 47..0
+	for address always, not just when defined(NO_SINGLEMAP)
+	Suggested by Bruno
+
 2004-05-11  Bruno Haible  <bruno@clisp.org>
 
 	Optimize constants a little better.
