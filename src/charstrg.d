@@ -2959,8 +2959,7 @@ LISPFUNN(string_both_trim,3)
   pushSTACK(fixnum(vector_length(string))); /* length as fixnum into the stack */
   pushSTACK(Fixnum_0); /* i := 0 */
   /* stack layout: bag-left, bag-right, string, l, i */
-  loop {
-    if (eq(STACK_0,STACK_1)) break; /* for i = l (both fixnums): loop done */
+  while (!eq(STACK_0,STACK_1)) { /* for i = l (both fixnums): loop done */
     /* determine (char string i) : */
     pushSTACK(STACK_2); pushSTACK(STACK_1); funcall(L(char),2);
     /* determine (find (char ...) character-bag-left) : */
@@ -2970,8 +2969,7 @@ LISPFUNN(string_both_trim,3)
   }
   pushSTACK(STACK_1); /* j := l */
   /* stack layout: bag-left, bag-right, string, l, i, j */
-  loop {
-    if (eq(STACK_0,STACK_1)) break; /* for j = i (both fixnums): loop done */
+  while (!eq(STACK_0,STACK_1)) { /* for j = i (both fixnums): loop done */
     /* determine (char string (1- j)) : */
     pushSTACK(STACK_3); pushSTACK(fixnum_inc(STACK_1,-1)); funcall(L(char),2);
     /* determine (find (char ...) character-bag-right) : */

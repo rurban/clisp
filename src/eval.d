@@ -3421,12 +3421,11 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
           args = STACK_0; STACK_0 = value1; # and into Stack
         });
       }
-      # evaluate optional parameters and push into Stack:
-      {
+      { /* evaluate optional parameters and push into Stack: */
         var uintC count = TheSubr(fun)->opt_anz;
-        loop {
-          if (atomp(args)) break; # at the end of argument-list?
-          if (count==0) goto optionals_ok; # all optional parameters supplied with?
+        while (!atomp(args)) { /* argument-list not finished? */
+          if (count==0) # all optional parameters supplied with?
+            goto optionals_ok;
           count--;
           pushSTACK(Cdr(args)); # remaining argument-list
           eval(Car(args)); # evaluate next argument
@@ -3758,12 +3757,11 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
               args = STACK_0; STACK_0 = value1; # and into Stack
             });
           }
-          # evaluate optional parameters and push into Stack:
-          {
+          { /* evaluate optional parameters and push into Stack: */
             var uintC count = opt_anz;
-            loop {
-              if (atomp(args)) break; # argument-list finished?
-              if (count==0) goto optionals_ok; # all optional parameters supplied with?
+            while (!atomp(args)) { /* argument-list not finished? */
+              if (count==0) # all optional parameters supplied with?
+                goto optionals_ok;
               count--;
               pushSTACK(Cdr(args)); # remaining argument-list
               eval(Car(args)); # evaluate next argument
@@ -4289,12 +4287,9 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
             # reserve space on STACK:
             get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_anz + key_anz));
            optionals_from_list:
-            # store optional Parameters on Stack:
-            {
+            { /* store optional Parameters on Stack: */
               var uintC count = opt_anz;
-              loop {
-                if (atomp(args)) # Argument-list finished?
-                  break;
+              while (!atomp(args)) { /* argument-list not finished? */
                 if (count==0) # all optional Parameters supplied with?
                   goto optionals_ok;
                 count--;
@@ -4682,12 +4677,9 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
               # reserve space on STACK:
               get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_anz);
               optionals_from_list:
-              # store optional parameters on Stack:
-              {
+              { /* store optional parameters on Stack: */
                 var uintC count = opt_anz;
-                loop {
-                  if (atomp(args)) # argument-list finished?
-                    break;
+                while (!atomp(args)) { /* argument-list not finished? */
                   if (count==0) # all optional parameters supplied with?
                     goto optionals_ok;
                   count--;

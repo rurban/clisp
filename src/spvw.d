@@ -2941,15 +2941,13 @@ nonreturning_function(global, quit, (void)) {
   # first "unwind" the STACK downto STACK-end:
   VALUES0; /* do not save values for UNWIND-PROTECT-frames */
   unwind_protect_to_save.fun = (restartf_t)&quit;
-  loop { # does STACK end here?
-    if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;
+  while (!(eq(STACK_0,nullobj) && eq(STACK_1,nullobj)))
     if (framecode(STACK_0) & bit(frame_bit_t))
       # At STACK_0 a frame starts
       { unwind(); } # unwind frame
     else
       # STACK_0 contains a normal LISP-object
       { skipSTACK(1); }
-  }
   # Then, a farewell message:
   if (quit_retry==0) {
     quit_retry++; # If this fails, do not retry it. For robustness.

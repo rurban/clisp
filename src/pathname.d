@@ -9354,9 +9354,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
           FREE_DYNAMIC_ARRAY(namestring_asciz); return;
         } else OS_file_error(STACK_1);
       }
-      loop {
-        if (! ExNext(lock,fibptr) ) # error or directory finished?
-          break;
+      while (ExNext(lock,fibptr)) { /* no error and directory not finished? */
         end_system_call();
         # convert directory-entry into string:
         var object direntry = asciz_to_string(&fibptr->fib_FileName[0],O(pathname_encoding));
