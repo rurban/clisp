@@ -406,6 +406,21 @@ AS-STRING
 T
 
 
+;; Check that the prototype of every non-abstract built-in class is correct.
+(let ((wrong '()))
+  (labels ((check-tree (c)
+             (unless (member (class-name c)
+                             '(stream sequence list number real rational))
+               (let ((p (clos:class-prototype c)))
+                 (unless (eq (class-of p) c) (push (list c p) wrong))))
+             (unless (or (member (find-class 'standard-object) (clos:class-precedence-list c))
+                         (member (find-class 'structure-object) (clos:class-precedence-list c)))
+               (mapc #'check-tree (clos:class-direct-subclasses c)))))
+    (check-tree (find-class 't))
+    wrong))
+NIL
+
+
 ;; Check that undefined classes are treated as undefined, even though they
 ;; are represented by a FORWARD-REFERENCED-CLASS.
 (progn

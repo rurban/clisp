@@ -1,3 +1,21 @@
+2005-01-27  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class1.lisp (built-in-class): Add slot $prototype.
+	(*<built-in-class>-prototype-location*): New constant.
+	(*<built-in-class>-instance-size*): Increment.
+	(structure-class): Add slot $prototype.
+	(*<structure-class>-prototype-location*): New constant.
+	(*<structure-class>-instance-size*): Increment.
+	* clos-class3.lisp (shared-initialize-<built-in-class>): Add prototype
+	argument. Initialize the $prototype slot with it.
+	(shared-initialize-<structure-class>): Initialize the $prototype slot
+	to nil.
+	(<t>, <character>, <function>, ...): Initialize with a prototype.
+	* clos-class4.lisp (shared-initialize@built-in-class): Add prototype
+	argument.
+	* clos-class6.lisp (class-prototype): Accept also built-in-class and
+	structure-class instances.
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (compile): If there were errors, return an error-

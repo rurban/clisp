@@ -359,7 +359,18 @@
                   ;; thrown away when the class is redefined, 2. we don't want
                   ;; a redefinition with nonexistent or non-finalized
                   ;; superclasses to succeed despite of the prototype.
-                  (setf (class-instantiated class) old-instantiated)))))))
+                  (setf (class-instantiated class) old-instantiated))))))
+  (:method ((class built-in-class))
+    (let ((prototype (sys::%record-ref class *<built-in-class>-prototype-location*)))
+      (if (eq prototype (sys::%unbound))
+        (error (TEXT "~S: ~S is an abstract class and therefore does not have a direct instance")
+               'class-prototype class)
+        prototype)))
+  ;; CLISP extension:
+  (:method ((class structure-class))
+    (or (sys::%record-ref class *<structure-class>-prototype-location*)
+        (setf (sys::%record-ref class *<structure-class>-prototype-location*)
+              (clos::%allocate-instance class)))))
 (initialize-extended-method-check #'class-prototype)
 ;; Not in MOP.
 (defun (setf class-prototype) (new-value class)
