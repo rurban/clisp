@@ -1,3 +1,8 @@
+1998-09-03  Sam Steingold  <sds@goems.com>
+
+	* places.lsp (shiftf): fixed the return values, as well as the
+	failed test setf.tst.
+
 1998-09-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * pathname.d (legal_namechar): On DOS, accept more misc characters
