@@ -9,11 +9,11 @@
 
 (defun matfile-content (mf)
   "return the vector of strings naming variables in MATfile"
-  (multiple-value-bind (buf num) (matlab::matGetDir mf)
+  (multiple-value-bind (buf num) (matGetDir mf)
     (unwind-protect
-         (ffi:with-c-var (names `(ffi:c-ptr (ffi:c-array ffi:c-string ,num)))
-           (setf (ffi:cast names 'ffi:c-pointer) buf)
+         (with-c-var (names `(c-ptr (c-array c-string ,num)))
+           (setf (cast names 'c-pointer) buf)
            names)
-      (matlab::mxFree buf))))
+      (mxFree buf))))
 
 (push "MATLAB" custom:*system-package-list*)
