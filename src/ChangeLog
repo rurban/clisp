@@ -2,6 +2,7 @@
 
         * spvw_sigsegv.d (stackoverflow_handler): Restore the STACK on Solaris
           and OSF/1 as well.
+        * lispbibl.d: After sigsegv.h is included, undefine DS, SP, EAX.
 
 1999-06-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
