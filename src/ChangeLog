@@ -200,8 +200,9 @@
 	a kind of protocol, i.e. shutdown SEND and wait for client
 	acknowledgment (client should support that protocol).
 	(SOCKET-WAIT) [WIN32_NATIVE]: use interruptible_wait()
-	(SOCKET-STREAM-SHUTDOWN): explicitly cast handle to stream
-	* socket.d (lingerize_socket): new function: set SO_LINGER to 30sec
+	(SOCKET-STREAM-SHUTDOWN): explicitly cast handle to socket
+	* socket.d (lingerize_socket) [WIN32_NATIVE]: new function: set
+	SO_LINGER to 30sec, as is done in Apache
 	(bindlisten_via_ip, connect_via_ip) [WIN32_NATIVE]: use it
 	* spvw.d (main) [WIN32_NATIVE]: call done_win32() to finalize sockets
 	* win32.d (done_win32, interruptible_wait): declare new functions

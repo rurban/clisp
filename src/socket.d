@@ -692,6 +692,7 @@ global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
   return hd;
 }
 
+#if defined(WIN32_NATIVE)
 # set linger timeout affecting closesocket() graceful behaviour.
 # Default socket option of SO_DONTLINGER seems unacceptable on win32.
 # Who can get that option working as it described
@@ -699,14 +700,14 @@ global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
 local int lingerize_socket(SOCKET * socket_handle) {
   var struct linger li;
   li.l_onoff = 1;
-  li.l_linger = 30; # 30 seconds to linger
+  li.l_linger = 30; # 30 seconds to linger - as in Apache
   if (setsockopt(*socket_handle,SOL_SOCKET,SO_LINGER,
                  (SETSOCKOPT_ARG_T)&li,sizeof(li)) < 0) {
     saving_sock_errno(CLOSESOCKET(*socket_handle)); return false;
   }
   return true;
 }
-
+#endif
 
 # Creation of sockets on the server side:
 # SOCKET socket_handle = create_server_socket (&host_data, sock, port);
