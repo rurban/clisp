@@ -590,29 +590,13 @@ LISPFUNNR(list_length_dotted,1)
   else VALUES2(len,tail);
 }
 
-# Fehlermeldung für NTH und NTHCDR
-# fehler_nth()
-# > STACK_0: fehlerhafter Index
-nonreturning_function(local, fehler_nth, (void)) {
-  pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(STACK_(0+2));
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,
-         GETTEXT("~: ~ is not a nonnegative fixnum and therefore not a valid index"));
-}
-
 LISPFUNNR(nth,2)
 { /* (NTH integer list), CLTL p. 265 */
-  var object list = popSTACK();
-  if (posfixnump(STACK_0)) { # integer muss ein Fixnum >=0 sein
-    var uintL count = posfixnum_to_L(popSTACK()); # Wert des Fixnum
-    # count mal den CDR von list nehmen:
-    dotimesL(count,count, { list = cdr(list); } );
-    # 1 mal den CAR nehmen:
-    VALUES1(car(list));
-  } else
-    fehler_nth();
+  var uintL count = posfixnum_to_L(check_posfixnum(STACK_1));
+  var object list = STACK_0;
+  while (count--) { list = cdr(list); } /* count CDRs */
+  VALUES1(car(list));                   /* one CAR */
+  skipSTACK(2);
 }
 
 LISPFUNNR(first,1)
@@ -672,25 +656,11 @@ LISPFUNNR(rest,1)
 
 LISPFUNNR(nthcdr,2)
 { /* (NTHCDR integer list), CLTL p. 267 */
-  var object list = popSTACK();
-  if (posfixnump(STACK_0)) { /* must be an integer and fixnum >=0 */
-    var uintL count = posfixnum_to_L(popSTACK()); /* fixnum value */
-    /* count mal den CDR von list nehmen: */
-    dotimesL(count,count, { list = cdr(list); } );
-    VALUES1(list);
-  } else
-    fehler_nth();
-}
-
-# Fehlermeldung für LAST, BUTLAST und NBUTLAST
-# fehler_butlast(badindex)
-# > badindex: fehlerhaftes 2. Argument
-nonreturning_function(local, fehler_butlast, (object badindex)) {
-  pushSTACK(badindex); # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(badindex); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,
-         GETTEXT("~: ~ is not a nonnegative integer and therefore not a valid argument"));
+  var uintL count = posfixnum_to_L(check_posfixnum(STACK_1));
+  var object list = STACK_0;
+  while (count--) { list = cdr(list); } /* count CDRs */
+  VALUES1(list);
+  skipSTACK(2);
 }
 
 LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
@@ -703,15 +673,9 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
        ((atom l) r)
      (when (>= i n) (pop r)))) */
   var object intarg = popSTACK();
-  # optionales Integer-Argument überprüfen:
-  var uintL count; # Anzahl der zu kopierenden Elemente
-  if (!boundp(intarg)) {
-    count = 1;
-  } else {
-    if (!(integerp(intarg) && positivep(intarg)))
-      fehler_butlast(intarg);
-    count = (posfixnump(intarg) ? posfixnum_to_L(intarg) : ~(uintL)0);
-  }
+  /* check optional integer argument: */
+  var uintL count = (!boundp(intarg) ? 1 :
+                     posfixnum_to_L(check_posfixnum(intarg)));
   var object list = popSTACK();
   # Optimierung der beiden häufigsten Fälle count=1 und count=0:
   switch (count) {
@@ -785,21 +749,10 @@ LISPFUN(liststern,seclass_no_se,1,0,rest,nokey,0,NIL)
 
 LISPFUN(make_list,seclass_no_se,1,0,norest,key,1, (kw(initial_element)) )
 { /* (MAKE-LIST size :initial-element), CLTL p. 268 */
-  /* check :initial-element: */
-  if (!boundp(STACK_0))
-    STACK_0 = NIL; /* Default-Initialisierung für initial-element */
-  /* checl :size: */
-  if (posfixnump(STACK_1)) {
-    VALUES1(make_list(posfixnum_to_L(STACK_1)));
-    skipSTACK(2);
-  } else { /* size in STACK_1 */
-    pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(STACK_(1+2)); /* size */
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: ~ is not a nonnegative fixnum and therefore not a valid list length"));
-  }
+  if (!boundp(STACK_0)) /* check :initial-element */
+    STACK_0 = NIL; /* default :initial-element is NIL */
+  VALUES1(make_list(posfixnum_to_L(check_posfixnum(STACK_1))));
+  skipSTACK(2);
 }
 
 LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
@@ -987,67 +940,55 @@ LISPFUNN(list_nreverse,1) # (SYS::LIST-NREVERSE list)
 
 LISPFUN(butlast,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (BUTLAST list [integer]), CLTL S. 271 */
-    var object intarg = popSTACK();
-    # optionales Integer-Argument überprüfen:
-    var uintL count; # Anzahl der zu entfernenden Elemente
-    if (!boundp(intarg)) {
-      count = 1;
-    } else {
-      if (!(integerp(intarg) && positivep(intarg)))
-        fehler_butlast(intarg);
-      count = (posfixnump(intarg) ? posfixnum_to_L(intarg) : ~(uintL)0);
-    }
-    var uintL len = llength(STACK_0); # Anzahl der Elemente der Liste
-    # Give an error if the argument is not a list. (It's stupid to allow
-    # dotted lists of length > 0 but to forbid dotted lists of length 0,
-    # but that's how ANSI CL specifies it.)
-    if (len==0 && !nullp(STACK_0))
-      fehler_list(STACK_0);
-    if (len<=count) {
-      VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
-    } else {
-      var uintL new_len = len - count; # >0
-      # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
-      var object new_list = make_list(new_len); # neue Liste allozieren
-      # Listenelemente einzeln kopieren, bis new_list voll ist:
-      var object new_lauf = new_list; # läuft durch die neue Liste
-      var object old_lauf = popSTACK(); # läuft durch die alte Liste
-      do {
-        Car(new_lauf) = Car(old_lauf);
-        old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
-      } until (atomp(new_lauf));
-      VALUES1(new_list);
-    }
+  var object intarg = popSTACK();
+  /* check optional integer argument: */
+  var uintL count = (!boundp(intarg) ? 1 :
+                     posfixnum_to_L(check_posfixnum(intarg)));
+  var uintL len = llength(STACK_0); /* list length */
+  /* Give an error if the argument is not a list. (It's stupid to allow
+     dotted lists of length > 0 but to forbid dotted lists of length 0,
+     but that's how ANSI CL specifies it.) */
+  if (len==0 && !nullp(STACK_0))
+    fehler_list(STACK_0);
+  if (len<=count) {
+    VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
+  } else {
+    var uintL new_len = len - count; /* >0 */
+    # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
+    var object new_list = make_list(new_len); # neue Liste allozieren
+    # Listenelemente einzeln kopieren, bis new_list voll ist:
+    var object new_lauf = new_list; # läuft durch die neue Liste
+    var object old_lauf = popSTACK(); # läuft durch die alte Liste
+    do {
+      Car(new_lauf) = Car(old_lauf);
+      old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
+    } while (!atomp(new_lauf));
+    VALUES1(new_list);
+  }
 }
 
 LISPFUN(nbutlast,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (NBUTLAST list [integer]), CLTL p. 271 */
-    var object intarg = popSTACK();
-    # optionales Integer-Argument überprüfen:
-    var uintL count; # Anzahl der zu entfernenden Elemente
-    if (!boundp(intarg)) {
-      count = 1;
-    } else {
-      if (!(integerp(intarg) && positivep(intarg)))
-        fehler_butlast(intarg);
-      count = (posfixnump(intarg) ? posfixnum_to_L(intarg) : ~(uintL)0);
-    }
-    var uintL len = llength(STACK_0); # Anzahl der Elemente der Liste
-    # Give an error if the argument is not a list. (It's stupid to allow
-    # dotted lists of length > 0 but to forbid dotted lists of length 0,
-    # but that's how ANSI CL specifies it.)
-    if (len==0 && !nullp(STACK_0))
-      fehler_list(STACK_0);
-    if (len<=count) {
-      VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
-    } else {
-      var uintL new_len = len - count; # >0
-      var object lauf = STACK_0; # läuft durch die Liste
-      # new_len-1 mal den CDR nehmen und dann den CDR auf NIL setzen:
-      dotimesL(new_len,new_len-1, { lauf = Cdr(lauf); } );
-      Cdr(lauf) = NIL;
-      VALUES1(popSTACK()); /* return list */
-    }
+  var object intarg = popSTACK();
+  /* check optional integer argument: */
+  var uintL count = (!boundp(intarg) ? 1 :
+                     posfixnum_to_L(check_posfixnum(intarg)));
+  var uintL len = llength(STACK_0); /* list length */
+  /* Give an error if the argument is not a list. (It's stupid to allow
+     dotted lists of length > 0 but to forbid dotted lists of length 0,
+     but that's how ANSI CL specifies it.) */
+  if (len==0 && !nullp(STACK_0))
+    fehler_list(STACK_0);
+  if (len<=count) {
+    VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
+  } else {
+    var uintL new_len = len - count; # >0
+    var object lauf = STACK_0; # läuft durch die Liste
+    # new_len-1 mal den CDR nehmen und dann den CDR auf NIL setzen:
+    dotimesL(new_len,new_len-1, { lauf = Cdr(lauf); } );
+    Cdr(lauf) = NIL;
+    VALUES1(popSTACK()); /* return list */
+  }
 }
 
 LISPFUNNR(ldiff,2)
