@@ -3589,9 +3589,6 @@ local void callback (void* data, va_alist alist)
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
-#if defined(WIN32_NATIVE)
-#include <psapi.h>
-#endif
 
 /* O(foreign_libraries) is an alist of all open libraries.
  It is a list ((string fpointer function ...) ...)
@@ -3657,6 +3654,7 @@ local void * open_library (object name, uintL version)
 }
 
 #if defined(WIN32_NATIVE)
+/* #include <psapi.h> */
 /* support older woe32 incarnations:
    fEnumProcessModules is 1 until the first call,
    it is NULL if this woe32 does not have EnumProcessModules(),
