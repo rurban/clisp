@@ -494,6 +494,7 @@ esac
 
 TESTDIR=stage
 TESTSDIR=suite
+BENCHDIR=benchmarks
 
 # Main host OS dependencies:
 
@@ -2912,8 +2913,21 @@ if [ $CROSS = false ] ; then
     echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}tests${NEXT_}${f} ."
   done
   echol
-  echol
 
+  # benchmarks are for developers only, and the developers work from the CVS
+  if test -d ${SRCTOPDIR}CVS; then
+    echol "bench : ${BENCHDIR}"
+    echotab "CLISP=\"${CLISP_}\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
+    echol
+    echol "${BENCHDIR} :"
+    echotab "-mkdir ${BENCHDIR}"
+    for f in Makefile '*.lisp'; do
+      echotab "cd ${BENCHDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}benchmarks${NEXT_}${f} ."
+    done
+    echotab
+    echol
+  fi
+  echol
 fi
 
 if [ $HOS = unix ] && [ $XCC_GCC = true ] ; then
@@ -2921,6 +2935,7 @@ if [ $HOS = unix ] && [ $XCC_GCC = true ] ; then
   echotab "((${XCPP} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
   echol
   echol
+
 fi
 
 echol "clisp.h : genclisph.o unixconf.h intparam.h"
