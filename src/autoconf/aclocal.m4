@@ -1095,15 +1095,25 @@ fi
 CL_LINK_CHECK([TCSAFLUSH in termios.h], cl_cv_decl_TCSAFLUSH,
 [#include <termios.h>], [int x = TCSAFLUSH;],
 AC_DEFINE(HAVE_TCSAFLUSH))dnl
+dnl Linux libc5 defines struct winsize in <termios.h>, <termio.h>, <sys/ioctl.h>.
+dnl Linux libc6 defines struct winsize in <termio.h>, <sys/ioctl.h>.
+dnl Since we don't want to include both <termios.h> and <termio.h> (they may
+dnl conflict), prefer <sys/ioctl.h> to <termio.h>.
 dnl SCO defines struct winsize in <sys/ptem.h>, which itself needs <sys/stream.h>.
-CL_COMPILE_CHECK([struct winsize], cl_cv_struct_winsize,
+CL_COMPILE_CHECK([struct winsize in termios.h], cl_cv_struct_winsize,
 [#include <termios.h>], [struct winsize w;], )dnl
 if test $cl_cv_struct_winsize = no; then
+CL_COMPILE_CHECK([struct winsize in sys/ioctl.h], cl_cv_struct_winsize_ioctl,
+[#include <sys/types.h>
+#include <sys/ioctl.h>],
+[struct winsize w;], AC_DEFINE(WINSIZE_NEED_SYS_IOCTL_H))dnl
+if test $cl_cv_struct_winsize_ioctl = no; then
 CL_COMPILE_CHECK([struct winsize in sys/ptem.h], cl_cv_struct_winsize_ptem,
 [#include <sys/types.h>
 #include <sys/stream.h>
 #include <sys/ptem.h>],
-[struct winsize w;], AC_DEFINE(NEED_SYS_PTEM_H))dnl
+[struct winsize w;], AC_DEFINE(WINSIZE_NEED_SYS_PTEM_H))dnl
+fi
 fi
 fi
 ])dnl
