@@ -10,6 +10,7 @@
 ;; otherwise, CDR = list of all meaningful completions,
 ;; CAR = the immediate replacement
 #+(or UNIX OS/2)
+(let ((state nil))
 (defun completion (string start end)
   (let* ((quotedp (and (>= start 1) ; quoted completion?
                        (member (char string (- start 1)) '(#\" #\|))))
@@ -37,7 +38,21 @@
                     (push name return-list))))))
          (package *package*)
          (mapfun #'sys::map-symbols)
-         (prefix nil))
+         (prefix nil)
+         (new-state (list* string start end))
+         (void-completion
+          ;; special case: nothing was entered to be completed,
+          ;; so we try to DESCRIBE the last function symbol entered
+          (and (= start end)
+               (or (>= start (length string))
+                   (whitespacep (schar string start))))))
+    (when void-completion
+      (do ((pos (min end (1- (length string))) (1- pos)) (depth 0) (white end))
+          ((or (minusp pos) (plusp depth))
+           (setq start (+ pos 2) end white))
+        (cond ((char= #\( (schar string pos)) (incf depth))
+              ((char= #\) (schar string pos)) (decf depth))
+              ((whitespacep (schar string pos)) (setq white pos)))))
     ;; get the package name:
     (unless quotedp
       (let ((colon (position #\: string :start start :end end)))
@@ -55,12 +70,19 @@
     (setq known-len (length known-part))
     (funcall mapfun gatherer package)
     (when (null return-list) (return-from completion nil))
-    ;; for a function without arguments, return the closing paren
+    (when void-completion
+      (let ((sym (find-symbol (car return-list) package)))
+        (return-from completion
+          (when (and sym (fboundp sym)) ; (null (cdr return-list))
+            (cond ((equalp state new-state)
+                   (describe sym) (terpri) (terpri))
+                  ((setq state new-state)))
+            0))))
+    ;; for a function without arguments, append the closing paren
     (when (and functionalp1
                (null (cdr return-list))
                (let ((sym (find-symbol (car return-list) package)))
-                 (and sym (fboundp sym)
-                      (functionp (symbol-function sym))
+                 (and sym (fboundp sym) (functionp (symbol-function sym))
                       (multiple-value-bind (name req-anz opt-anz rest-p key-p)
                           (function-signature (symbol-function sym))
                         (declare (ignore name))
@@ -83,3 +105,4 @@
       (mapl #'(lambda (l) (setf (car l) (string-concat prefix (car l))))
             return-list))
     return-list))
+)

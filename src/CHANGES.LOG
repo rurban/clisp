@@ -45,6 +45,9 @@ User visible changes
 * Russian translations of the user interface messages have been added
   Thanks to Arseny Slobodjuck <ampy@ich.dvo.ru>.
 
+* When built with readline, CLISP will describe the current function
+  when you hit TAB after a #\Space.
+
 * Fixed a bug: Conversion from bytes to string did not work for the encoding
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).
