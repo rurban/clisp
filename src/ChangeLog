@@ -1,5 +1,10 @@
 2005-02-07  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_sigsegv.d (print_mem_stats): Fix fprintf statements for 64-bit
+	platforms.
+
+2005-02-07  Bruno Haible  <bruno@clisp.org>
+
 	* spvw.d (INVALID_ARG): Renamed from ILLEGAL_ARG.
 	(parse_options): Use term "invalid" instead of "illegal".
 
