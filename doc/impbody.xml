@@ -383,7 +383,7 @@ executes a compiled version of form.</para>
  to &make-package; is &cl-pac;, the &clos; symbols are normally visible
  in all user-defined packages.
  If you do not want them (for example, if you want to use the
- <ulink url="ftp://clisp.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
+ <ulink url="ftp://cvs2.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
  implementation of &clos; instead of the native one), do the following:
 <programlisting>
 (&defpackage; "CL-NO-CLOS" (:use "CL"))
