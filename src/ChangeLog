@@ -10,8 +10,8 @@
 
 2002-03-05  Sam Steingold  <sds@gnu.org>
 
-	* array.d (elt_nreverse): do not use SIMPLE_NREVERSE for simple strings
-	since TheSstring != TheSvector (breaks NREVERSE on Alpha)
+	* array.d (elt_nreverse): do not use SIMPLE_NREVERSE for simple
+	strings since TheSstring != TheSvector (breaks NREVERSE on Alpha)
 
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
@@ -55,17 +55,17 @@
 
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
-	* linux.lisp (WEXITSTATUS, WTERMSIG, WSTOPSIG, WIFEXITED)
-	(WIFSIGNALED, WIFSTOPPED, WCOREFLAG, WCOREDUMP, W_EXITCODE)
-	(W_STOPCODE): added #define's from <bits/waitstatus.h>
+	* bindings/linuxlibc6/linux.lisp (WEXITSTATUS, WTERMSIG, WSTOPSIG)
+	(WIFEXITED, WIFSIGNALED, WIFSTOPPED, WCOREFLAG, WCOREDUMP)
+	(W_EXITCODE, W_STOPCODE): added #define's from <bits/waitstatus.h>
 
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
-	* regexp.lisp (with-loop-split): fixed :START/:END
+	* modules/regexp/regexp.lisp (with-loop-split): fixed :START/:END
 
 2002-02-27  Sam Steingold  <sds@gnu.org>
 
-	* linux.lisp (wait, waitpid): new C call-outs
+	* bindings/linuxlibc6/linux.lisp (wait, waitpid): new C call-outs
 	(provide "linux"): for (require "linux") in wrap.lisp
 
 2002-03-01  Sam Steingold  <sds@gnu.org>
@@ -1452,8 +1452,8 @@
 
 2001-09-14  Sam Steingold  <sds@gnu.org>
 
-	* regexp.lisp (with-loop-split): :case-sensitive is a &key, not
-	&optional, added :start and :end
+	* modules/regexp/regexp.lisp (with-loop-split): :case-sensitive is
+	a &key, not &optional, added :start and :end
 	(regexp-exec): accept negative :end
 
 2001-09-14  Sam Steingold  <sds@gnu.org>
@@ -1481,8 +1481,8 @@
 
 2001-09-13  Sam Steingold  <sds@gnu.org>
 
-	* regexp.lisp: replaced CASE-INSENSITIVE with CASE-SENSITIVE
-	throughout (preserving the defaults)
+	* modules/regexp/regexp.lisp: replaced CASE-INSENSITIVE with
+	CASE-SENSITIVE throughout (preserving the defaults)
 
 2001-09-11  Sam Steingold  <sds@gnu.org>
 
@@ -2675,7 +2675,7 @@
 
 2001-05-27  Sam Steingold  <sds@gnu.org>
 
-	* regexp.lisp (mregerror): FINALIZE is in EXT
+	* modules/regexp/regexp.lisp (mregerror): FINALIZE is in EXT
 
 2001-05-25  Sam Steingold  <sds@gnu.org>
 
