@@ -5,8 +5,8 @@ It mostly supports the Lisp described in "Common LISP: The Language
 (2nd edition)" and the ANSI Common Lisp standard.
 It runs on microcomputers (OS/2, Windows NT, Windows 95, Amiga
 500-4000, Acorn RISC PC) as well as on Unix workstations (Linux, SVR4,
-Sun4, DEC Alpha OSF, HP-UX, NeXTstep, SGI, AIX, Sun3 and others) and
-needs only 2 MB of RAM.
+Sun4, DEC Alpha OSF, HP-UX, BeOS, NeXTstep, SGI, AIX, Sun3 and others)
+and needs only 2 MB of RAM.
 It is free software and may be distributed under the terms of GNU GPL,
 while it is possible to distribute commercial applications compiled
 with CLISP.
