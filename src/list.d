@@ -558,9 +558,7 @@ local inline object list_length (object list, object *dottedp) {
   var object fast = list;
   var object slow = fast;
   var uintL n = 0;
-  loop {
-    if (atomp(fast))
-      break;
+  while (consp(fast)) {
     fast = Cdr(fast); n++;
     if (atomp(fast))
       break;
@@ -1711,9 +1709,7 @@ LISPFUNN(tailp,2) # (TAILP sublist list), CLTL S. 275
     var object list = popSTACK();
     var object sublist = popSTACK();
     #ifndef X3J13_175
-    loop {
-      if (endp(list))
-        break;
+    while (!endp(list)) {
       if (eq(list,sublist))
         goto yes;
       list = Cdr(list);
@@ -2051,9 +2047,7 @@ LISPFUNN(list_init_start,2)
     var object seq = popSTACK();
     var object l = seq;
     var object n = Fixnum_0;
-    loop {
-      if (eq(n,index))
-        break;
+    while (!eq(n,index)) {
       if (atomp(l))
         goto index_too_large;
       l = Cdr(l);

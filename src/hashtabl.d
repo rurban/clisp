@@ -1484,9 +1484,7 @@ LISPFUNN(maphash,2) {
   var uintL index = 2*posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
   STACK_0 = TheHashtable(ht)->ht_kvtable; # key-value-vector
   # stack-layout: function, key-value-vector.
-  loop {
-    if (index==0)
-      break;
+  while (index) {
     index -= 2;
     var gcv_object_t* KVptr = kvtable_data(STACK_0) + index;
     if (!eq(KVptr[0],leer)) { # key /= "leer" ?
