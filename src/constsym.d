@@ -539,6 +539,7 @@ LISPSYM(default_time_zone,"DEFAULT-TIME-ZONE",system)
 #endif
 LISPSYM(sleep,"%SLEEP",system)
 LISPSYM(time,"%%TIME",system)
+LISPSYM(delta4,"DELTA4",system)
 # ---------- PACKAGE ----------
 LISPSYM(make_symbol,"MAKE-SYMBOL",lisp)
 LISPSYM(find_package,"FIND-PACKAGE",lisp)

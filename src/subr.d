@@ -590,6 +590,7 @@ LISPFUNN(sleep,1)
 LISPFUNN(sleep,2)
 #endif
 LISPFUNN(time,0)
+LISPFUNN(delta4,5)
 # ---------- PACKAGE ----------
 LISPFUNN(make_symbol,1)
 LISPFUNN(find_package,1)

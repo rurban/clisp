@@ -545,15 +545,14 @@
   (macrolet ((diff4 (val1-n val2-n val1-o val2-o)
                (if (< internal-time-units-per-second 1000000)
                  ;; TIME_1: AMIGA, OS/2, UNIX_TIMES
-                 `(dpb (- ,val1-n ,val1-o) (byte 16 16) (- ,val2-n  ,val2-o))
+                 `(delta4 ,val1-n ,val2-n ,val1-o ,val2-o 16)
                  ;; TIME_2: other UNIX, WIN32
                  `(+ (* (- ,val1-n ,val1-o) internal-time-units-per-second)
                      (- ,val2-n ,val2-o)))))
     (let ((Real-Time (diff4 new-real1 new-real2 old-real1 old-real2))
           (Run-Time (diff4 new-run1 new-run2 old-run1 old-run2))
           (GC-Time (diff4 new-gc1 new-gc2 old-gc1 old-gc2))
-          (Space (dpb (- new-space1 old-space1) (byte 24 24)
-                      (- new-space2 old-space2)))
+          (Space (delta4 new-space1 new-space2 old-space1 old-space2 24))
           (GC-Count (- new-gccount old-gccount))
           (stream *trace-output*))
       (terpri stream)
