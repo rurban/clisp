@@ -1,3 +1,13 @@
+2003-08-31  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* lispbibl.d (INVALID_HANDLE_VALUE) [!WIN32_NATIVE]: new macro.
+	(HNULLP):new macro.
+	* pathname.d (handle_dup): use new macros.
+	(init_launch_streamarg, make_launch_pipe) [UNIX || RISCOS]:
+	new helper functions.
+	(LAUNCH) [UNIX || RISCOS]: use all of it, don't do HANDLE=NULL
+	according to Sam's suggestion.
+
 2003-08-30  John Hinsdale  <hin@alma.com>
 
 	* intelem.d: Fix bug #726433: Floating point numbers
