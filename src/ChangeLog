@@ -1,3 +1,8 @@
+2001-07-16  Sam Steingold  <sds@gnu.org>
+
+	* defstruct.lisp (defstruct): warn when the slot accessor shadows
+	the predicate (i.e., when the slot is named "P")
+
 2001-07-13  Bruno Haible  <haible@clisp.cons.org>
 
 	* io.d (char_reader): do not search for hyphens.
