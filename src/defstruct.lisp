@@ -27,8 +27,7 @@
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
    slot = #(name initargs offset initer default type readonly var)
-   with name being the slotname,
-              (NIL for the slot, that contains the structure-name)
+   with name being the slotname
          default is the default value:
               either a constant, that evaluates to the default value,
               or a form (a symbol or a list (SVREF ...)), that yields
@@ -38,14 +37,16 @@
          readonly = NIL or = T specifying, if this slot is readonly, i.e.
               after the construction of the Structure the slot cannot be
                changed with (setf ...) anymore.
+         var  is the dummy variable used in constructors, it is NIL when
+              the slot describes structure name for named structures
+              (see also pr_structure_default() in io.d)
    if type = T, the Structure-Name occupies the slot 0, but is not itemized
      in the slotlist, because there is nothing to do for its initialization.
-
 |#
 
-(defun make-ds-slot (name initargs offset initer default type readonly)
-  (vector name initargs offset initer default type readonly
-          (and name (make-symbol (symbol-name name)))))
+(defun make-ds-slot (name initargs offset initer default type readonly
+                     &optional (dummy (make-symbol (symbol-name name))))
+  (vector name initargs offset initer default type readonly dummy))
 (proclaim '(inline ds-slot-name ds-slot-var))
 (defun ds-slot-name (slot) (svref slot 0))
 ;(defun ds-slot-initargs (slot) (svref slot 1)) ; only used in clos.lisp
@@ -56,6 +57,7 @@
 (defmacro ds-slot-readonly (slot) `(svref ,slot 6))
 (defun ds-slot-var (slot) (svref slot 7))
 (defun copy-ds-slot (slot) (sys::%copy-simple-vector slot))
+(defmacro ds-real-slot-p (slot) `(ds-slot-var ,slot))
 
 #| auxiliary function for both constructors:
    (ds-arg-default arg slot)
@@ -84,7 +86,7 @@
                (return nil))))
     ;; optimize the simple case
     `(,type ,@(mapcar #'(lambda (slot)
-                          (if (ds-slot-name slot)
+                          (if (ds-real-slot-p slot)
                             `(THE ,(ds-slot-type slot) ,(funcall get-var slot))
                             `(QUOTE ,(ds-slot-default slot))))
                        slotlist))
@@ -104,7 +106,7 @@
                        ((eq type 'VECTOR)
                         `(SVREF OBJECT ,offset) )
                        (t `(AREF OBJECT ,offset) ))
-                ,(if (ds-slot-name slot)
+                ,(if (ds-real-slot-p slot)
                    `(THE ,(ds-slot-type slot) ,(funcall get-var slot))
                    `(QUOTE ,(ds-slot-default slot)))))
            slotlist)
@@ -195,7 +197,7 @@
                     (push (ds-arg-with-default aux-arg slotlist) new-aux-args))
               ,@(let ((slotinitlist nil))
                   (dolist (slot slotlist)
-                    (when (ds-slot-name slot)
+                    (when (ds-real-slot-p slot)
                       (unless (memq (ds-slot-name slot) argnames)
                         (push (ds-arg-with-default
                                (ds-slot-name slot) slotlist)
@@ -210,9 +212,9 @@
 (defun ds-make-keyword-constructor (descriptor type name names size slotlist)
   `(DEFUN ,descriptor
      (&KEY
-      ,@(mapcap
+      ,@(mapcan
           #'(lambda (slot)
-              (if (ds-slot-name slot)
+              (if (ds-real-slot-p slot)
                 (list (ds-arg-default (ds-slot-var slot) slot))
                 '()))
           slotlist))
@@ -264,7 +266,7 @@
 (defun ds-make-accessors (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
-        (if (ds-slot-name slot)
+        (if (ds-real-slot-p slot)
           (let ((accessorname
                  (if concname
                      (concat-pnames concname (ds-slot-name slot))
@@ -296,7 +298,7 @@
 (defun ds-make-defsetfs (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
-        (if (and (ds-slot-name slot) (not (ds-slot-readonly slot)))
+        (if (and (ds-real-slot-p slot) (not (ds-slot-readonly slot)))
           (let ((accessorname
                  (if concname
                      (concat-pnames concname (ds-slot-name slot))
@@ -618,7 +620,8 @@
                         (setq initial-offset-option initial-offset)
                         (cons 'NIL name) name ; "default value" = name
                         'SYMBOL ; type = symbol
-                        T) ; read-only
+                        T       ; read-only
+                        NIL)    ; no dummy variable
           slotlist)
         (incf initial-offset)))
     ;; the slots are situated behind initial-offset.
@@ -643,8 +646,9 @@
           ;; #'eq, because if we have two slots P::X and Q::X, the two accessor
           ;; functions would have the same name FOO-X.
           (when (find (symbol-name slotname) slotlist
-                      :key #'(lambda (slot) (symbol-name (ds-slot-name slot)))
-                      :test #'string=)
+                      :test #'(lambda (name slot)
+                                (and (ds-real-slot-p slot)
+                                     (string= (ds-slot-name slot) name))))
             (error-of-type 'source-program-error
               (TEXT "~S ~S: There may be only one slot with the name ~S.")
               'defstruct name slotname))
@@ -665,10 +669,8 @@
                              (TEXT "~S ~S: ~S is not a slot option.")
                              'defstruct name slot-keyword))))))
             (push (make-ds-slot slotname
-                                (if slotname
-                                  (list (intern (symbol-name slotname)
-                                                *keyword-package*))
-                                  '()) ; initargs
+                                (list (intern (symbol-name slotname)
+                                              *keyword-package*)) ; initargs
                                 offset ; location
                                 (if (constantp default)
                                   ;; default is a constant

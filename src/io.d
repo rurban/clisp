@@ -8044,7 +8044,8 @@ local bool some_printable_slots (object slotlist) {
   }
   return false;
 }
-local void pr_structure_default (const gcv_object_t* stream_, object structure) {
+local void pr_structure_default (const gcv_object_t* stream_, object structure)
+{
   var object name = Car(TheStructure(structure)->structure_types);
   # name = (car '(name_1 ... name_i-1 name_i)) = name_1.
   pushSTACK(structure);
@@ -8063,7 +8064,7 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure) 
     bad_description:
       pushSTACK(S(defstruct_description));
       pushSTACK(S(print));
-      fehler(error,GETTEXT("~: bad ~"));
+      fehler(error,GETTEXT("~: bad ~: ~"));
     }
     var bool readable = # true if (svref description 2) /= NIL
       !nullp(TheSvector(description)->data[2]);
@@ -8087,10 +8088,9 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure) 
         var object slot = STACK_0;
         STACK_0 = Cdr(slot); # shorten list
         slot = Car(slot); # a single slot
-        if (!(simple_vector_p(slot)
-              && (Svector_length(slot) >= 7)))
-          goto bad_description; # should be a ds-slot
-        if (!nullp(TheSvector(slot)->data[0])) { # skip Slot #(NIL ...)
+        if (!simple_vector_p(slot) || Svector_length(slot) != 8)
+          { pushSTACK(slot); goto bad_description; } /* should be a ds-slot */
+        if (!nullp(TheSvector(slot)->data[7])) { # see defstruct.lisp
           pushSTACK(slot); # save slot
           JUSTIFY_SPACE; # print Space
           # check for attaining of *PRINT-LENGTH* :
@@ -8106,7 +8106,7 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure) 
           write_ascii_char(stream_,':'); # keyword-mark
           {
             var object obj = TheSvector(*slot_)->data[0]; # (ds-slot-name slot)
-            if (!symbolp(obj)) goto bad_description; # should be a symbol
+            if (!symbolp(obj)) goto bad_description; /* STACK_0==slot */
             pr_like_symbol(stream_,Symbol_name(obj)); # print symbolname of component
           }
           JUSTIFY_SPACE;
