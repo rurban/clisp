@@ -35,10 +35,10 @@
 <section><title><ulink url="&clhs;/Body/sec_1-4-4-5.html">1.4.4.5
    Class Precedence Lists</ulink></title>
 
-<para>The class precedence lists of the system classes &class-class;
+<para>The class precedence lists of the system classes &class;
  &built-in-class;, &structure-class;, &standard-class;,
- &standard-method; contain the class &structure-object; instead of the
- class &standard-object;.</para>
+ &standard-method-class; contain the class &structure-object-class;
+ instead of the class &standard-object-class;.</para>
 
 </section>
 
@@ -54,7 +54,7 @@
  <member>&call-method;</member>
  <member>&change-class;</member>
  <member>&compiler-macro-function;</member>
- <member>&compiler-macro;</member>
+ <member>&compiler-macro-doc;</member>
  <member>&copy-pprint-dispatch;</member>
  <member>&define-compiler-macro;</member>
  <member>&define-method-combination;</member>
@@ -78,9 +78,9 @@
  <member>&pprint-tabular;</member>
  <member>&set-pprint-dispatch;</member>
  <member>&simple-condition-format-control;</member>
- <member>&style-warning;</member>
+ <member>&style-warning-type;</member>
  <member>&unbound-slot-instance;</member>
- <member>&unbound-slot;</member>
+ <member>&unbound-slot-type;</member>
  <member>&update-instance-for-different-class;</member>
  <member>&update-instance-for-redefined-class;</member>
  <member>&upgraded-complex-part-type;</member>
@@ -137,7 +137,7 @@
 </programlisting></informalexample></para>
 
 <para>Multiple backquote combinations like <literal>,,@</literal> or
- <literal>,@,@</literal> are not implemented. Their use would be
+ <literal>,@,@</literal> are not implemented.  Their use would be
  confusing anyway.</para>
 
 </section>
@@ -214,21 +214,18 @@
    Declarations</ulink></title>
 
 <para>The declarations
- <literal role="sexp">(&type; <replaceable>type</replaceable>
+ <literal role="sexp">(&type-dec; <replaceable>type</replaceable>
         <replaceable>var</replaceable> ...)</literal>,
- <literal role="sexp">(&ftype; <replaceable>type</replaceable>
+ <literal role="sexp">(&ftype-dec; <replaceable>type</replaceable>
         <replaceable>fun</replaceable> ...)</literal>,
- <literal role="sexp">(&function-class; <replaceable>name</replaceable>
-        <replaceable>arglist</replaceable>
-        <replaceable>result-type</replaceable>)</literal>,
- <literal role="sexp">(&optimize; (<replaceable>quality</replaceable>
+ <literal role="sexp">(&optimize-dec; (<replaceable>quality</replaceable>
         <replaceable>value</replaceable>) ...)</literal>
    are ignored by the interpreter and the compiler.</para>
 
-<para>The ANSI CL declaration <literal role="sexp">(&optimize; (debug
+<para>The ANSI CL declaration <literal role="sexp">(&optimize-dec; (debug
  ...))</literal> is legal.</para>
 
-<para>The ANSI CL declaration <literal role="sexp">(&ignorable;
+<para>The ANSI CL declaration <literal role="sexp">(&ignorable-dec;
  <replaceable>var</replaceable> ...)</literal> affects the variable
  binding for the variable <replaceable>var</replaceable>.  The compiler
  will not warn about the variable, regardless whether it is used or
@@ -279,9 +276,9 @@ executes a compiled version of form.</para>
 <section><title><ulink url="&clhs;/Body/sec_3-8.html">3.8
    The Evaluation and Compilation Dictionary</ulink></title>
 
-<section><title>&special;</title>
+<section><title>&special-dec;</title>
 
-<para><literal role="sexp">(&proclaim; '(&special;
+<para><literal role="sexp">(&proclaim; '(&special-dec;
  <replaceable>var</replaceable>))</literal> declarations may not be
  undone.  The same holds for &defvar;, &defparameter; and &defconstant;
  declarations.</para>
@@ -426,7 +423,7 @@ executes a compiled version of form.</para>
 <para>The &clos; symbols are exported from the package
  <quote>CLOS</quote> and thus normally visible in all user packages. If
  you do not want them (for example, if you want to use the
- <ulink url="ftp://ftp2.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
+ <ulink url="ftp://clisp.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
  implementation of &clos; instead of the native one), do
  <literal role="sexp">(&unuse-package; &quot;CLOS&quot;)</literal>.</para>
 
@@ -475,11 +472,12 @@ executes a compiled version of form.</para>
 <para>&add-method; can put methods into other generic functions
  than the one the method came from.</para>
 
-<para>&print-object; is only called on objects of type &standard-object;
- and &structure-object;.  It is not called on other objects, like conses
- and numbers, due to the performance concerns.</para>
+<para>&print-object; is only called on objects of type
+ &standard-object-class; and &structure-object-class;.
+ It is not called on other objects, like &cons-class;es
+ and &number-class;s, due to the performance concerns.</para>
 
-<para>&documentation; still has the CLtL1 implementation.</para>
+<para>&documentation; still has the &cltl1; implementation.</para>
 
 </section>
 
@@ -668,10 +666,10 @@ executes a compiled version of form.</para>
  the global function definition.</para>
 
 <para><literal role="sexp">(&special-operator-p;
- <replaceable>symbol</replaceable>)</literal> returns &nil; or &t;.  If it
- returns &t;, then <literal role="sexp">(&symbol-function;
- <replaceable>symbol</replaceable>)</literal> returns the (useless) special
- operator handler.</para>
+ <replaceable>symbol</replaceable>)</literal> returns &nil; or &t;.
+ If it returns &t;, then <literal role="sexp">(&symbol-function;
+ <replaceable>symbol</replaceable>)</literal> returns the (useless)
+ special operator handler.</para>
 
 </section>
 
@@ -779,7 +777,7 @@ executes a compiled version of form.</para>
  &update-instance-for-different-class;, &make-instances-obsolete; are
  not implemented.</para>
 
-<para>Only the &standard-mc; method combination is implemented.</para>
+<para>Only the &standard; method combination is implemented.</para>
 
 <para><ulink url="&clhs;/Body/sec_7-6-6-3.html">User-defined method
  combination</ulink> is not supported.  The macros
@@ -910,7 +908,7 @@ executes a compiled version of form.</para>
 
 <formalpara><title>&signal;</title>
 <para>The default condition type for conditions created by &signal; is
- &simple-condition;, not &simple-error;.</para></formalpara>
+ &simple-condition-type;, not &simple-error-type;.</para></formalpara>
 
 <formalpara><title>&restart-case;</title>
 <para>In &restart-case; clauses the argument list can also be specified
@@ -938,7 +936,7 @@ executes a compiled version of form.</para>
 
 <formalpara><title>&warn;</title>
 <para>The default condition type for conditions created by &warn; is
- &simple-warning;, not &simple-error;.</para></formalpara>
+ &simple-warning-type;, not &simple-error-type;.</para></formalpara>
 
 </section>
 </chapter>
@@ -1109,8 +1107,8 @@ executes a compiled version of form.</para>
  (1981), except that &clisp; does not support features like
  <literal>+0</literal>, <literal>-0</literal>, <literal>+inf</literal>,
  <literal>-inf</literal>, gradual underflow, <literal>NaN</literal>,
- etc. (&cl; does not make use of these features.)  This is why <link
- linkend="features">&features-var;</link> does not contain the
+ etc. (&cl; does not make use of these features.)  This is why
+ &features-var; does not contain the
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
 <para id="lfd">Long floats have variable mantissa length, which is a
@@ -1129,8 +1127,8 @@ executes a compiled version of form.</para>
 
 <para>The floating point contagion is controlled by the variable
  &flocont;.  When it is non-&nil;, contagion is done as per the
- &ansi-cl;: &short-float-type; &map; &single-float-type; &map;
- &double-float-type; &map; &long-float-type;.</para>
+ &ansi-cl;: &short-float-type; &rarr; &single-float-type; &rarr;
+ &double-float-type; &rarr; &long-float-type;.</para>
 
 <variablelist>
 <varlistentry><term>Rationale:</term>
@@ -1178,9 +1176,9 @@ executes a compiled version of form.</para>
 <para>When &flocont; is &nil;, the traditional &clisp; method is used,
  namely the result of an arithmetic operation whose arguments are of
  different float types is rounded to the float format of the shortest
- (least precise) of the arguments: &rational-class; &map;
- &long-float-type; &map; &double-float-type; &map; &single-float-type;
- &map; &short-float-type; (in contrast to <ulink
+ (least precise) of the arguments: &rational-class; &rarr;
+ &long-float-type; &rarr; &double-float-type; &rarr; &single-float-type;
+ &rarr; &short-float-type; (in contrast to <ulink
  url="&clhs;/Body/sec_12-1-4-4.html">12.1.4.4 Rule of Float Precision
  Contagion</ulink>!)</para>
 
@@ -1227,9 +1225,10 @@ executes a compiled version of form.</para>
  role="sexp">(<function>without-floating-point-underflow</function>
  {<replaceable>form</replaceable>}*)</literal> executes the
  <replaceable>form</replaceable>s, with errors of type
- &floating-point-underflow; inhibited.  Floating point operations will
- silently return zero instead of signalling an error of type
- &floating-point-underflow;.</para></formalpara>
+ &floating-point-underflow-type; inhibited.
+ Floating point operations will silently return zero instead of
+ signalling an error of type &floating-point-underflow-type;.
+ </para></formalpara>
 
 </section>
 </section>
@@ -1430,13 +1429,13 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section><title>&floating-point-invalid-operation;</title>
+<section><title>&floating-point-invalid-operation-type;</title>
 
 <para>This condition is never signaled by &clisp;.</para>
 
 </section>
 
-<section><title>&floating-point-inexact;</title>
+<section><title>&floating-point-inexact-type;</title>
 
 <para>This condition is never signaled by &clisp;.</para>
 
@@ -1453,8 +1452,7 @@ encoding.</para>
 <!-- #ifdef UNICODE -->
 <variablelist>
 <varlistentry><term>Platform dependent: only in &clisp; built
-  <emphasis role="strong">with</emphasis> the compile-time flag
-  <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+  &with; the compile-time flag &unicode;.</term>
 <listitem><simpara>More precisely, &clisp; uses the 16-bit
  <ulink url="http://www.unicode.org/">Unicode</ulink> character set (ISO
  10646, also known as UCS-2).</simpara></listitem></varlistentry>
@@ -1463,12 +1461,9 @@ encoding.</para>
 
 <!-- #if defined(IBMPC_CHS) && !defined(UNICODE) -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>
- platforms only, and only in &clisp; built
-   <emphasis role="strong">without</emphasis> compile-time flag
-   <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+<varlistentry><term>Platform dependent: &dos;, &os2;
+   platforms only, and only in &clisp; built
+   &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the IBM PC character set
  (code page 437):
 <table frame="all"><title>the IBM PC character set (code page 437)</title>
@@ -1574,13 +1569,9 @@ encoding.</para>
 
 <!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis> (except NeXTstep),
-   <emphasis role="strong">Win32</emphasis>,
-   <emphasis role="strong">Amiga</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only, and only in
- &clisp; built <emphasis role="strong">without</emphasis> compile-time flag
- <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
+<varlistentry><term>Platform dependent: &unix; (except &nextstep;),
+   &win32;, &amiga;, &acorn; platforms only, and only in
+   &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
 <table frame="all"><title>the ISO Latin-1 (ISO 8859-1) character set</title>
@@ -1683,12 +1674,10 @@ blank here cannot be represented in this character set).
 
 <!-- #if defined(NEXTSTEP_CHS) && !defined(UNICODE) -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">NeXTstep</emphasis> platforms only, and only
- in &clisp; built <emphasis role="strong">without</emphasis> compile-time flag
- <emphasis role="strong"><option>UNICODE</option></emphasis>.</term>
-<listitem><para>More precisely, &clisp; uses the NextStep character set:
-<table frame="all"><title>the NextStep character set</title>
+<varlistentry><term>Platform dependent: &nextstep; platforms only, and
+ only in &clisp; built &without; compile-time flag &unicode;.</term>
+<listitem><para>More precisely, &clisp; uses the &nextstep; character set:
+<table frame="all"><title>the &nextstep; character set</title>
  <tgroup cols="17" colsep="1" rowsep="1" align="center">
   <thead><row><entry></entry><entry>#x0</entry><entry>#x1</entry>
    <entry>#x2</entry><entry>#x3</entry><entry>#x4</entry><entry>#x5</entry>
@@ -1813,10 +1802,8 @@ blank here cannot be represented in this character set).
 </segmentedlist>
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
-<segmentedlist><title>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</title>
+<segmentedlist><title>Platform dependent: &dos;, &os2;, &win32;
+  platforms only.</title>
  <segtitle>character</segtitle><segtitle>code</segtitle>
  <seglistitem><seg><keysym>#\Rubout</keysym></seg>
               <seg><keycode>#x08</keycode></seg></seglistitem>
@@ -1824,10 +1811,8 @@ blank here cannot be represented in this character set).
 <!-- #endif -->
 
 <!-- #if defined(UNIX_CHARNAMES) || defined(AMIGA_CHARNAMES) -->
-<segmentedlist><title>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">Amiga</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</title>
+<segmentedlist><title>Platform dependent: &unix;, &amiga;, &acorn;
+   platforms only.</title>
  <segtitle>character</segtitle><segtitle>code</segtitle>
  <seglistitem><seg><keysym>#\Rubout</keysym></seg>
               <seg><keycode>#x7F</keycode></seg></seglistitem>
@@ -1868,25 +1853,26 @@ blank here cannot be represented in this character set).
               <seg><keycode>#x1F</keycode></seg></seglistitem>
 </segmentedlist>
 
-<para>See also the section <link linkend="chario">character i/o</link>.</para>
+<para>See also the section <link linkend="chario">Character
+ I/O</link>.</para>
 
 
 <section><title>Attributes</title>
 
-<para>Characters do not have the CLtL1 font and bits attributes. For
- backward compatibility, there is a class
- <function>sys::input-character</function> representing either a
- character with font and bits, or a keystroke.  The following functions
- work with objects of types &character-class; and
- <function>sys::input-character</function>. Note that &eql; or &equal;
- can not be used to compare objects of type
- <function>sys::input-character</function>.</para>
+<para>Characters do not have the &cltl1; font and bits attributes.
+ For backward compatibility, there is a class
+ <classname>sys::input-character</classname> representing either a
+ character with font and bits, or a keystroke.
+ The following functions work with objects of types &character-class;
+ and <classname>sys::input-character</classname>.
+ Note that &eql; or &equal; can not be used to compare objects of type
+ <classname>sys::input-character</classname>.</para>
 
 <variablelist>
- <varlistentry><term><function>lisp:char-font-limit</function> = 16</term>
+ <varlistentry><term><constant>lisp:char-font-limit</constant> = 16</term>
   <listitem><simpara>The system uses only font 0.
   </simpara></listitem></varlistentry>
- <varlistentry><term><function>lisp:char-bits-limit</function> = 16</term>
+ <varlistentry><term><constant>lisp:char-bits-limit</constant> = 16</term>
   <listitem><segmentedlist><title>The following bits are defined:</title>
    <segtitle>key</segtitle><segtitle>value</segtitle>
    <seglistitem><seg>&control-k;</seg>
@@ -1898,51 +1884,48 @@ blank here cannot be represented in this character set).
    <seglistitem><seg>&hyper-k;</seg>
              <seg><varname>lisp:char-hyper-bit</varname></seg></seglistitem>
   </segmentedlist></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(lisp:char-font
+ <varlistentry><term><literal role="sexp">(<function>lisp:char-font</function>
   <replaceable>object</replaceable>)</literal> </term>
  <listitem><simpara>returns the font of a character or
-  <function>sys::input-character</function>.
+  <classname>sys::input-character</classname>.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(lisp:char-bits
+ <varlistentry><term><literal role="sexp">(<function>lisp:char-bits</function>
   <replaceable>object</replaceable>)</literal> </term>
  <listitem><simpara>returns the bits of a character or
-  <function>sys::input-character</function>.
+  <classname>sys::input-character</classname>.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(lisp:make-char
+ <varlistentry><term><literal role="sexp">(<function>lisp:make-char</function>
   <replaceable>char</replaceable> [<replaceable>bits</replaceable>
             [<replaceable>font</replaceable>]])</literal></term>
- <listitem><simpara>returns a new <function>sys::input-character</function>,
+ <listitem><simpara>returns a new <classname>sys::input-character</classname>,
   or &nil; if such a character cannot be created.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(lisp:char-bit
+ <varlistentry><term><literal role="sexp">(<function>lisp:char-bit</function>
   <replaceable>object</replaceable>
   <replaceable>name</replaceable>)</literal></term>
  <listitem><simpara>returns &t; if the named bit is set in
   <replaceable>object</replaceable>, else &nil;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(lisp:set-char-bit
+ <varlistentry><term><literal
+   role="sexp">(<function>lisp:set-char-bit</function>
   <replaceable>object</replaceable> <replaceable>name</replaceable>
   <replaceable>newvalue</replaceable>)</literal></term>
  <listitem><simpara>returns a new
-  <function>sys::input-character</function> with the named bit set or
+  <classname>sys::input-character</classname> with the named bit set or
   unset, depending on the boolean <replaceable>newvalue</replaceable>.
   </simpara></listitem></varlistentry>
 </variablelist>
 
 <!-- #ifdef KEYBOARD -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;, &acorn;
+   platforms only.</term>
 <listitem><simpara>The system itself uses this
- <function>sys::input-character</function> type only to mention special
+ <classname>sys::input-character</classname> type only to mention special
  keys and
  <keycap>Control</keycap>/<keycap>Alternate</keycap>/<keycap>Shift</keycap>
- key status on return from <literal role="sexp">(&read-char; <link
- linkend="terminal">lisp:*keyboard-input*</link>)</literal>.
+ key status on return from
+ <literal role="sexp">(&read-char; &kbd-in;)</literal>.
  </simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
@@ -2036,10 +2019,8 @@ are simple characters.</para>
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+   platforms only.</term>
 <listitem><simpara>When writing to a file, <keysym>#\Newline</keysym> is
  converted to <keycode>CR</keycode>/<keycode>LF</keycode>.  (This is the
  usual convention on DOS.)  For example,
@@ -2083,8 +2064,8 @@ are simple characters.</para>
 <table frame="all"><title>Platform dependent</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">
  <thead><row><entry>binaries built</entry>
-             <entry>without UNICODE support</entry>
-             <entry>with UNICODE support</entry></row></thead>
+             <entry>&without; &unicode; support</entry>
+             <entry>&with; &unicode; support</entry></row></thead>
  <tbody><row><entry>&char-code-limit;</entry>
     <entry>2<superscript>8</superscript> = 256</entry>
     <entry>2<superscript>16</superscript> = 65536</entry></row>
@@ -2135,8 +2116,7 @@ and the international alphabetic characters from the character set:
  have names:</para>
 
 <!-- #ifdef AMIGA_CHARNAMES -->
-<segmentedlist><title>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</title>
+<segmentedlist><title>Platform dependent: &amiga; platforms only.</title>
  <segtitle>code</segtitle><segtitle>char</segtitle>
  <seglistitem><seg><literal role="sexp">(&code-char; #x00)</literal></seg>
           <seg><keysym>#\Null</keysym></seg></seglistitem>
@@ -2220,10 +2200,8 @@ and the international alphabetic characters from the character set:
 <!-- #endif -->
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
-<segmentedlist><title>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</title>
+<segmentedlist><title>Platform dependent: &dos;, &os2;, &win32;
+   platforms only.</title>
  <segtitle>code</segtitle><segtitle>char</segtitle>
  <seglistitem><seg><literal role="sexp">(&code-char; #x00)</literal></seg>
           <seg><keysym>#\Null</keysym></seg></seglistitem>
@@ -2253,9 +2231,8 @@ and the international alphabetic characters from the character set:
 <!-- #endif -->
 
 <!-- #ifdef UNIX_CHARNAMES -->
-<segmentedlist><title>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</title>
+<segmentedlist><title>Platform dependent: &unix;, &acorn;,
+    platforms only.</title>
  <segtitle>code</segtitle><segtitle>char</segtitle>
  <seglistitem><seg><literal role="sexp">(&code-char; #x00)</literal></seg>
           <seg><keysym>#\Null</keysym></seg>
@@ -2415,11 +2392,11 @@ and the international alphabetic characters from the character set:
 
 <formalpara><title>&make-array;</title>
 <para>&make-array; can return specialized arrays for the element types
- <literal role="type">(&unsigned-byte; 2)</literal>,
- <literal role="type">(&unsigned-byte; 4)</literal>,
- <literal role="type">(&unsigned-byte; 8)</literal>,
- <literal role="type">(&unsigned-byte; 16)</literal>,
- <literal role="type">(&unsigned-byte; 32)</literal>
+ <literal role="type">(&unsigned-byte-type; 2)</literal>,
+ <literal role="type">(&unsigned-byte-type; 4)</literal>,
+ <literal role="type">(&unsigned-byte-type; 8)</literal>,
+ <literal role="type">(&unsigned-byte-type; 16)</literal>,
+ <literal role="type">(&unsigned-byte-type; 32)</literal>
  and of course &bit-type; and &character-class;.</para></formalpara>
 
 <section><title><ulink url="&clhs;/Body/sec_15-1-1.html">
@@ -2467,10 +2444,10 @@ and the international alphabetic characters from the character set:
 <chapter id="strings"><title><ulink url="&clhs;/Body/chap-16.html">
     Chapter 16: Strings</ulink></title>
 
-<para>String comparison is based on the function &char-le;.  Therefore
- diphthongs do not obey the usual national rules. Example:
- <literal>"o"</literal> &lt; <literal>"oe"</literal> &lt;
- <literal>"z"</literal> &lt; <literal>"&ouml;"</literal>.</para>
+<para>String comparison is based on the function &char-leq;.  Therefore
+ diphthongs do not obey the usual national rules.  Example:
+ <literal>o</literal> &lt; <literal>oe</literal> &lt;
+ <literal>z</literal> &lt; <literal>&ouml;</literal>.</para>
 
 <section><title><ulink url="&clhs;/Body/sec_the_strings_dictionary.html">
     16.2 The Strings Dictionary</ulink></title>
@@ -2615,9 +2592,7 @@ and &end-k;:</para>
 
 <variablelist>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
 <listitem><simpara>For example, <filename>#p"FOO/BAR"</filename> denotes
  the file <filename>BAR</filename> in the directory
  <filename>FOO</filename>, while <filename>#p"FOO/BAR/"</filename>
@@ -2627,10 +2602,8 @@ and &end-k;:</para>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+   platforms only.</term>
 <listitem><simpara>For example, <filename>#p"FOO\\BAR"</filename>
  denotes the file <filename>BAR</filename> in the directory
  <filename>FOO</filename>, while <filename>#p"FOO\\BAR\\"</filename>
@@ -2640,8 +2613,7 @@ and &end-k;:</para>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_RISCOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
 <listitem><simpara>For example, <filename>#p"FOO.BAR"</filename> denotes
  the file <filename>FOO</filename> in the directory
  <filename>BAR</filename>, while <filename>#p"FOO.BAR."</filename>
@@ -2661,12 +2633,12 @@ and &end-k;:</para>
 <segmentedlist><title>The minimum filename syntax that may be used
  portably</title>
  <segtitle>pathname</segtitle><segtitle>meaning</segtitle>
- <seglistitem><seg><filename>"xxx"</filename></seg>
+ <seglistitem><seg><filename>xxx</filename></seg>
    <seg>for a file with name <replaceable>xxx</replaceable></seg></seglistitem>
- <seglistitem><seg><filename>"xxx.yy"</filename></seg>
+ <seglistitem><seg><filename>xxx.yy</filename></seg>
    <seg>for a file with name <replaceable>xxx</replaceable> and type
    <replaceable>yy</replaceable></seg></seglistitem>
- <seglistitem><seg><filename>".yy"</filename></seg>
+ <seglistitem><seg><filename>.yy</filename></seg>
    <seg>for a pathname with type <replaceable>yy</replaceable> and no
    name specified</seg></seglistitem>
 </segmentedlist>
@@ -2688,15 +2660,14 @@ and &end-k;:</para>
 
 <!-- #ifdef PATHNAME_MSDOS -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &dos; platforms only.</term>
 <listitem>
 <variablelist><title>Pathname components</title>
 <varlistentry><term><replaceable>host</replaceable></term>
  <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>device</replaceable></term>
  <listitem><simpara>&nil; or &wild-k; or
-    <filename>"A"</filename>|...|<filename>"Z"</filename>
+    <filename>A</filename>|...|<filename>Z</filename>
   </simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>directory</replaceable></term>
  <listitem>
@@ -2712,11 +2683,11 @@ and &end-k;:</para>
         role="sexp">(<replaceable>subdir</replaceable>
         . <replaceable>subdirs</replaceable>)</literal></seg></seglistitem>
    <seglistitem><seg><replaceable>subdir</replaceable></seg>
-        <seg>&current-k;</seg><seg><filename>"."</filename></seg></seglistitem>
+        <seg>&current-k;</seg><seg><filename>.</filename></seg></seglistitem>
    <seglistitem><seg><replaceable>subdir</replaceable></seg>
-        <seg>&parent-k;</seg><seg><filename>".."</filename></seg></seglistitem>
+        <seg>&parent-k;</seg><seg><filename>..</filename></seg></seglistitem>
    <seglistitem><seg><replaceable>subdir</replaceable></seg>
-        <seg>&wild-inferiors-k;</seg><seg><filename>"..."</filename> -
+        <seg>&wild-inferiors-k;</seg><seg><filename>...</filename> -
         all subdirectories</seg></seglistitem>
    <seglistitem><seg><replaceable>subdir</replaceable></seg>
         <seg><literal role="sexp">(<replaceable>name</replaceable>
@@ -2751,16 +2722,15 @@ and &end-k;:</para>
  <seglistitem><seg>or similar.</seg><seg></seg></seglistitem>
 </segmentedlist>
 
-<para>Instead of <filename>'\'</filename> one may use
- <filename>'/'</filename>, as usual for DOS calls.
+<para>Instead of <filename>\</filename> one may use
+ <filename>/</filename>, as usual for DOS calls.
 </para></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem>
 <variablelist><title>Pathname components</title>
 <varlistentry><term><replaceable>host</replaceable></term>
@@ -2782,11 +2752,11 @@ and &end-k;:</para>
     . <replaceable>subdirs</replaceable>)</literal></seg></seglistitem>
   <seglistitem><seg><replaceable>subdir</replaceable></seg>
     <seg>&wild-inferiors-k;</seg>
-    <seg><filename>"**"</filename> or <filename>"..."</filename>,
+    <seg><filename>**</filename> or <filename>...</filename>,
     all subdirectories</seg></seglistitem>
   <seglistitem><seg><replaceable>subdir</replaceable></seg>
-    <seg>&parent-k;</seg><seg><filename>"/"</filename> instead of
-   <filename>"subdir/"</filename></seg></seglistitem>
+    <seg>&parent-k;</seg><seg><filename>/</filename> instead of
+   <filename>subdir/</filename></seg></seglistitem>
   <seglistitem><seg><replaceable>subdir</replaceable></seg>
     <seg>&simple-string-type;, may contain wildcard
     characters <filename>?</filename> and
@@ -2813,10 +2783,10 @@ and &end-k;:</para>
  the following rule:</para>
 
 <itemizedlist>
- <listitem><simpara>if there is no <filename>'.'</filename> in the
+ <listitem><simpara>if there is no <filename>.</filename> in the
   filename, then the <replaceable>name</replaceable> is everything,
   <replaceable>type</replaceable> is &nil;;</simpara></listitem>
- <listitem><simpara>if there is a <filename>'.'</filename>, then
+ <listitem><simpara>if there is a <filename>.</filename>, then
   <replaceable>name</replaceable> is the part before and
   <replaceable>type</replaceable> the part after the last dot.
   </simpara></listitem>
@@ -2883,10 +2853,10 @@ and &end-k;:</para>
  <seglistitem><seg><filename>'c:'</filename></seg><seg>'C'</seg>
    <seg><filename>device</filename></seg>
    <seg><filename>"c" (&absolute-k;)</filename></seg></seglistitem>
- <seglistitem><seg><filename>':foo'</filename></seg><seg>current</seg>
+ <seglistitem><seg><filename>:foo</filename></seg><seg>current</seg>
    <seg><filename>device-&gt;root-&gt;foo</filename></seg>
    <seg><filename>nil (&absolute-k; "foo")</filename></seg></seglistitem>
- <seglistitem><seg><filename>'foo'</filename></seg><seg>current</seg>
+ <seglistitem><seg><filename>foo</filename></seg><seg>current</seg>
    <seg><filename>device-&gt;foo</filename></seg>
    <seg><filename>nil (&relative-k; "foo")</filename></seg></seglistitem>
  <seglistitem><seg><filename>'/foo'</filename></seg><seg>current</seg>
@@ -2919,8 +2889,7 @@ and &end-k;:</para>
 
 <!-- #ifdef PATHNAME_UNIX -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><variablelist><title>Pathname components</title>
 <varlistentry><term><replaceable>host</replaceable></term>
  <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
@@ -2939,8 +2908,8 @@ and &end-k;:</para>
    role="sexp">(<replaceable>subdir</replaceable> .
    <replaceable>subdirs</replaceable>)</literal></seg><seg></seg></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
-  <seg>&wild-inferiors-k;</seg><seg><filename>"**"</filename> or
-   <filename>"..."</filename>, all subdirectories</seg></seglistitem>
+  <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
+   <filename>...</filename>, all subdirectories</seg></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
   <seg>&simple-string-type;, may contain wildcard characters
   <filename>?</filename> and <filename>*</filename></seg>
@@ -2988,15 +2957,13 @@ and &end-k;:</para>
 
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
 <listitem><variablelist><title>Pathname components</title>
 <varlistentry><term><replaceable>host</replaceable></term>
  <listitem><simpara>always &nil;</simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>device</replaceable></term>
  <listitem><simpara>&nil; or &wild-k; or
- <filename>"A"</filename>|...|<filename>"Z"</filename>
+ <filename>A</filename>|...|<filename>Z</filename>
  </simpara></listitem></varlistentry>
 <varlistentry><term><replaceable>directory</replaceable></term>
  <listitem><segmentedlist><title><literal
@@ -3011,8 +2978,8 @@ and &end-k;:</para>
     role="sexp">(<replaceable>subdir</replaceable> .
    <replaceable>subdirs</replaceable>)</literal></seg><seg></seg></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
-  <seg>&wild-inferiors-k;</seg><seg><filename>"**"</filename> or
-  <filename>"..."</filename>, all subdirectories </seg></seglistitem>
+  <seg>&wild-inferiors-k;</seg><seg><filename>**</filename> or
+  <filename>...</filename>, all subdirectories </seg></seglistitem>
  <seglistitem><seg><replaceable>subdir</replaceable></seg>
    <seg>&simple-string-type;, may contain wildcard characters
    <filename>?</filename> and <filename>*</filename></seg>
@@ -3062,24 +3029,18 @@ and &end-k;:</para>
 
 <!-- #ifdef PATHNAME_NOEXT -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis>,
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
-<listitem><simpara>The wildcard characters: <filename>'*'</filename>
- matches any sequence of characters, <filename>'?'</filename> matches
+<varlistentry><term>Platform dependent: &unix;, &amiga;, &os2;, &win32;
+    platforms only.</term>
+<listitem><simpara>The wildcard characters: <filename>*</filename>
+ matches any sequence of characters, <filename>?</filename> matches
  any one character.</simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_NOEXT -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis>,
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent:  &unix;, &amiga;, &os2;, &win32;
+   platforms only.</term>
 <listitem><simpara>Due to the name/type splitting rule, there are
  pathnames that cannot result from &parse-namestring;.  To get a pathname
  whose type contains a dot or whose name contains a dot and whose type
@@ -3091,8 +3052,7 @@ and &end-k;:</para>
 
 <!-- #ifdef PATHNAME_RISCOS -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
 <listitem><simpara>RISC OS provides several file systems as standard
   (ADFS, IDEFS, NetFS, RamFS, NetPrint) and support for extra file
   systems (DOSFS, ResourceFS and DeviceFS).</simpara>
@@ -3220,7 +3180,7 @@ and &end-k;:</para>
 </itemizedlist>
 
  <simpara>The special fields here are all MJHardy, and give the name of
-  the fileserver to use. Special fields may use any character except for
+  the fileserver to use.  Special fields may use any character except for
   control characters, double quote '&quot;', solidus '|' and space.  If
   a special field contains a hyphen you may only use the first two
   syntaxes given above.</simpara></listitem></varlistentry>
@@ -3268,8 +3228,8 @@ and &end-k;:</para>
   notation to internal representation</term>
 
  <listitem><simpara><emphasis>No</emphasis> swapping.
-   <filename>"foo.lsp"</filename> means file type
-   <filename>"lsp"</filename> and file name <filename>"foo"</filename>.
+   <filename>foo.lsp</filename> means file type
+   <filename>lsp</filename> and file name <filename>foo</filename>.
    This is pseudo-BNF:</simpara>
  <variablelist>
   <varlistentry><term>legal character ::==</term>
@@ -3611,38 +3571,35 @@ and &end-k;:</para>
 
 <variablelist>
 <!-- #ifdef PATHNAME_MSDOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &dos; platforms only.</term>
 <listitem><segmentedlist>
   <seglistitem><seg>[ [drivespec] : ]</seg>
-   <seg>a letter <filename>'*'</filename> |
-    <filename>'A'</filename>|...|<filename>'Z'</filename>|
-    <filename>'a'</filename>|...|<filename>'z'</filename></seg></seglistitem>
+   <seg>a letter <filename>*</filename> |
+    <filename>A</filename>|...|<filename>Z</filename>|
+    <filename>a</filename>|...|<filename>z</filename></seg></seglistitem>
   <seglistitem><seg>{ name [. type] \ }</seg>
-   <seg>each one a subdirectory, <filename>'\'</filename> may be
-    replaced by <filename>'/'</filename></seg></seglistitem>
+   <seg>each one a subdirectory, <filename>\</filename> may be
+    replaced by <filename>/</filename></seg></seglistitem>
   <seglistitem><seg>[ name [. type] ]</seg>
    <seg>filename with type (extension)</seg></seglistitem>
 </segmentedlist>
 
 <para>Name and type may be character sequences of any &length;
- (consisting of alphanumeric characters and <filename>'-'</filename>,
- <filename>'_'</filename>). They are shortened to 8 resp. 3 characters
- and converted to upper case. A single <filename>'*'</filename> is
- allowed for &wild-k;.</para>
+ (consisting of alphanumeric characters and <filename>-</filename>,
+ <filename>_</filename>).  They are shortened to 8 (respectively 3)
+ characters and converted to upper case.  A single
+ <filename>*</filename> is allowed for &wild-k;.</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_AMIGAOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><simpara>see <link linkend="pathnames-externally-amiga">above</link>.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_UNIX -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><segmentedlist>
   <seglistitem><seg>[ <filename>/</filename> ]</seg>
    <seg><filename>/</filename> denotes absolute
@@ -3657,23 +3614,21 @@ and &end-k;:</para>
 
 <para>Name and type may be character sequences of any &length;
  (consisting of printing ASCII characters, except
- <filename>'/'</filename>).</para>
+ <filename>/</filename>).</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
 <listitem><segmentedlist>
   <seglistitem><seg>[ [<replaceable>drivespec</replaceable>] : ]</seg>
-   <seg>a letter <filename>'*'</filename>|
-     <filename>'a'</filename>|...|<filename>'z'</filename>|
-     <filename>'A'</filename>|...|<filename>'Z'</filename></seg></seglistitem>
+   <seg>a letter <filename>*</filename>|
+     <filename>a</filename>|...|<filename>z</filename>|
+     <filename>A</filename>|...|<filename>Z</filename></seg></seglistitem>
   <seglistitem><seg>{ <replaceable>name</replaceable>
       [. <replaceable>type</replaceable>] \ }</seg>
-   <seg>each one a subdirectory, <filename>'\'</filename> may be
-     replaced by <filename>'/'</filename></seg></seglistitem>
+   <seg>each one a subdirectory, <filename>\</filename> may be
+     replaced by <filename>/</filename></seg></seglistitem>
   <seglistitem><seg>[ <replaceable>name</replaceable>
       [. <replaceable>type</replaceable>] ]</seg>
    <seg>filename with type (extension)</seg></seglistitem>
@@ -3681,14 +3636,13 @@ and &end-k;:</para>
 
 <para>Name and type may be character sequences of any &length;
  (consisting of printing ASCII characters, except
- <filename>'/'</filename>, <filename>'\'</filename>,
- <filename>':'</filename>).</para>
+ <filename>/</filename>, <filename>\</filename>,
+ <filename>:</filename>).</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_RISCOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
 <listitem><simpara>see <link linkend="pathnames-externally-acorn">above</link>.
 </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -3702,17 +3656,13 @@ and &end-k;:</para>
 
 <!-- #if !defined(USER_HOMEDIR) -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent:  &dos;, &os2;, &amiga;
+   platforms only.</term>
 <listitem><simpara>The function &user-homedir-pathname; is not implemented.
 </simpara></listitem></varlistentry>
 <!-- #if defined(MSDOS) -->
 
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &dos;, &os2; platforms only.</term>
 <listitem><para>If you really need that function, you might define it
     like this:
 <programlisting>
@@ -3765,12 +3715,15 @@ and &end-k;:</para>
 
 <para><literal role="sexp">(&parse-namestring;
    <replaceable>string</replaceable> &optional-amp;
-   <replaceable>host</replaceable>
-   <replaceable>defaults</replaceable>)</literal>
- returns a logical pathname only if host is a logical host or host is
- &nil; and defaults is a logical pathname.  To construct a logical
- pathname from a string, the function &logical-pathname; can be
- used.</para>
+   <replaceable>host</replaceable> <replaceable>defaults</replaceable>
+   &key-amp; <replaceable>start</replaceable> <replaceable>end</replaceable>
+   <replaceable>junk-allowed</replaceable>)</literal>
+ returns a logical pathname only if <replaceable>host</replaceable> is a
+ <ulink url="&clhs;/Body/glo_l.html#logical_host">logical host</ulink>
+ or <replaceable>host</replaceable> is &nil; and
+ <replaceable>defaults</replaceable> is a &logical-pathname-class;.
+ To construct a logical pathname from a string, the function
+ &logical-pathname; can be used.</para>
 
 </section>
 
@@ -3881,8 +3834,7 @@ and &end-k;:</para>
 
 <!-- #ifdef UNIX -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><simpara>If the <constant>:circle</constant> argument is
  non-&nil;, the function avoids endless loops that may result from
  symbolic links.</simpara></listitem></varlistentry>
@@ -3898,24 +3850,19 @@ and &end-k;:</para>
 
 <variablelist><title><function>lisp:cd</function></title>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &amiga; platforms only.</term>
  <listitem><simpara><literal role="sexp">(<function>lisp:cd</function>
    [<replaceable>pathname</replaceable>])</literal>
    manages the current directory.</simpara></listitem></varlistentry>
 <!-- #elif defined(PATHNAME_RISCOS) -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
  <listitem><simpara><literal role="sexp">(<function>lisp:cd</function>
    [<replaceable>pathname</replaceable>])</literal>
    manages the current host, current device and the current directory.
    </simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+   platforms only.</term>
  <listitem><simpara><literal role="sexp">(<function>lisp:cd</function>
    [<replaceable>pathname</replaceable>])</literal>
    manages the current device and the current directory.
@@ -3968,59 +3915,46 @@ and &end-k;:</para>
 <section id="terminal"><title>terminal interaction.</title>
 
 <!-- #ifdef GNU_READLINE -->
-<variablelist><title>&gnu; readline</title>
- <varlistentry><term>Platform dependent:
-    <emphasis role="strong">UNIX</emphasis>,
-    <emphasis role="strong">DOS</emphasis>,
-    <emphasis role="strong">OS/2</emphasis> platforms only, and only in
-  &clisp; built <emphasis role="strong">without</emphasis> compile-time flag
-    <emphasis role="strong"><option>NO_READLINE</option></emphasis>.</term>
- <listitem><simpara>Input through &terminal-io-var; uses the &gnu; readline
+<variablelist><title>&readline;</title>
+ <varlistentry><term>Platform dependent: &unix;, &dos;, &os2;
+    platforms only, and only in &clisp; built &without; compile-time
+    flag &noreadline;.</term>
+ <listitem><simpara>Input through &terminal-io-var; uses the &readline;
   library.  Arrow keys can be used to move within the input history. The
   Tab key completes the symbol's name that is being typed.  See
   <ulink url="clreadline.html">clreadline.html</ulink> or
   <ulink url="clreadline.dvi">clreadline.dvi</ulink> for a complete
-  description of the key bindings.  The &gnu; readline library is not used
+  description of the key bindings.  The &readline; library is not used
   if standard input and standard output do not both refer to the same
   terminal.</simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
 
 <!-- #if defined(KEYBOARD) || defined(AMIGAOS) -->
-<variablelist><title><function>lisp:with-keyboard</function></title>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis>,
-   <emphasis role="strong">Amiga</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<variablelist><title>&with-kbd;</title>
+<varlistentry><term>Platform dependent: &unix;, &amiga;, &acorn;, &dos;,
+  &os2;, &win32; platforms only.</term>
 <listitem><para>&terminal-io-var; is not the only stream that
  communicates directly with the user: During execution of the body of a
- <literal role="sexp">(<function>lisp:with-keyboard</function>
+ <literal role="sexp">(&with-kbd;
  . <replaceable>body</replaceable>)</literal> form, <emphasis
- role="strong"><varname>lisp:*keyboard-input*</varname></emphasis> is
- the stream that reads the keystrokes from the keyboard.  It returns
- every keystroke in detail, as character or
+ role="strong">&kbd-in;</emphasis> is the stream that reads the
+ keystrokes from the keyboard.
+ It returns every keystroke in detail, as character or
  <classname>sys::input-character</classname> with the following bits:
 <variablelist>
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
  <varlistentry><term><constant>:hyper</constant></term>
-  <listitem><simpara><emphasis>(Platform dependent:
-    <emphasis role="strong">DOS</emphasis>,
-    <emphasis role="strong">OS/2</emphasis>,
-    <emphasis role="strong">Win32</emphasis>,
-    <emphasis role="strong">Amiga</emphasis> platforms only.)</emphasis>
+  <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;,
+   &win32;, &amiga; platforms only.)</emphasis>
    if a non-standard key.  These keys are:
 <!-- #if defined(MSDOS) || defined(WIN32) -->
    Function keys, cursor keypads, numeric keypad <emphasis>(Platform
-   dependent: <emphasis role="strong">DOS</emphasis>, <emphasis
-   role="strong">OS/2</emphasis>, <emphasis
-   role="strong">Win32</emphasis> platforms only)</emphasis>.
+   dependent: &dos;, &os2;, &win32; platforms only)</emphasis>.
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
      Function keys, cursor keypad <emphasis>(Platform dependent:
-     <emphasis role="strong">Amiga</emphasis> platforms only)</emphasis>.
+     &amiga; platforms only)</emphasis>.
 <!-- #endif -->
    </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -4028,9 +3962,8 @@ and &end-k;:</para>
     <listitem><para>the key name, for non-standard keys:
       <variablelist>
 <!-- #ifdef MSDOS -->
-       <varlistentry><term>Platform dependent:
-         <emphasis role="strong">DOS</emphasis>,
-         <emphasis role="strong">OS/2</emphasis> platforms only.</term>
+       <varlistentry><term>Platform dependent: &dos;, &os2;
+          platforms only.</term>
       <listitem><segmentedlist>
        <segtitle>key</segtitle><segtitle>value</segtitle>
        <seglistitem><seg><keycode>F1</keycode>..<keycode>F12</keycode></seg>
@@ -4055,9 +3988,8 @@ and &end-k;:</para>
 <!-- #endif -->
 
 <!-- #if defined(UNIX) || defined(WIN32) -->
-      <varlistentry><term>Platform dependent:
-         <emphasis role="strong">UNIX</emphasis>,
-         <emphasis role="strong">Win32</emphasis> platforms only.</term>
+      <varlistentry><term>Platform dependent: &unix;, &win32;
+         platforms only.</term>
       <listitem><segmentedlist>
        <segtitle>key</segtitle><segtitle>value</segtitle>
        <seglistitem><seg><keycode>F1</keycode>..<keycode>F12</keycode></seg>
@@ -4084,8 +4016,7 @@ and &end-k;:</para>
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-    <varlistentry><term>Platform dependent:
-      <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+    <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
     <listitem><segmentedlist>
        <segtitle>key</segtitle><segtitle>value</segtitle>
        <seglistitem><seg><keycode>F1</keycode>..<keycode>F10</keycode></seg>
@@ -4106,11 +4037,8 @@ and &end-k;:</para>
 
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
   <varlistentry><term><constant>:super</constant></term>
-   <listitem><simpara><emphasis>(Platform dependent:
-      <emphasis role="strong">DOS</emphasis>,
-      <emphasis role="strong">OS/2</emphasis>,
-      <emphasis role="strong">Win32</emphasis>,
-      <emphasis role="strong">Amiga</emphasis> platforms only.)</emphasis>
+   <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;,
+     &win32;, &amiga; platforms only.)</emphasis>
   if pressed together with <keycap>Shift</keycap> key(s) and if the
   keystroke would have been an other without <keycap>Shift</keycap>.
   </simpara></listitem></varlistentry>
@@ -4121,25 +4049,18 @@ and &end-k;:</para>
    </simpara></listitem></varlistentry>
 <!-- #if defined(MSDOS) || defined(WIN32) -->
   <varlistentry><term><constant>:meta</constant></term>
-  <listitem><simpara><emphasis>(Platform dependent:
-     <emphasis role="strong">DOS</emphasis>,
-     <emphasis role="strong">OS/2</emphasis>,
-     <emphasis role="strong">Win32</emphasis> platforms only.)</emphasis>
+  <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;, &win32;
+    platforms only.)</emphasis>
   if pressed together with the <keycap>Alternate</keycap> key.
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
 
  This keyboard input is not echoed on the screen.  During execution of a
- <literal role="sexp">(<function>lisp:with-keyboard</function>
+ <literal role="sexp">(&with-kbd;
  . <replaceable>body</replaceable>)</literal> form, no input from
  &terminal-io-var; or any synonymous stream should be requested.</para>
 </listitem></varlistentry>
-
-<!-- #ifdef TERMINAL_USES_KEYBOARD -->
-<!-- the stream <varname>lisp:*keyboard-input*</varname> is used by
-     &terminal-io;. -->
-<!-- #endif -->
 </variablelist>
 <!-- #endif -->
 
@@ -4163,10 +4084,8 @@ and &end-k;:</para>
 
 <!-- #ifdef PIPES -->
 <variablelist id="pipe">
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
+    platforms only.</term>
 <listitem><variablelist>
  <varlistentry><term><literal
     role="sexp">(<function>lisp:make-pipe-input-stream</function>
@@ -4215,9 +4134,9 @@ and &end-k;:</para>
 <variablelist>
  <varlistentry id="eltype"><term><constant>:element-type</constant></term>
   <listitem><simpara>types equivalent to &character-class; or
-   <literal role="sexp">(&unsigned-byte;
+   <literal role="sexp">(&unsigned-byte-type;
    <replaceable>n</replaceable>)</literal>,
-   <literal role="sexp">(&signed-byte;
+   <literal role="sexp">(&signed-byte-type;
    <replaceable>n</replaceable>)</literal>; if the stream is to be
    unbuffered, <replaceable>n</replaceable> must be a multiple of 8.
    </simpara></listitem></varlistentry>
@@ -4268,13 +4187,13 @@ and &end-k;:</para>
   can be modified, if the old and the new element type are either
 <itemizedlist>
   <listitem><simpara>both equivalent to &character-class; or
-      <literal role="sexp">(&unsigned-byte; 8)</literal> or
-      <literal role="sexp">(&signed-byte; 8)</literal>, or
+      <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
+      <literal role="sexp">(&signed-byte-type; 8)</literal>, or
     </simpara></listitem>
   <listitem><simpara>both equivalent to
-      <literal role="sexp">(&unsigned-byte;
+      <literal role="sexp">(&unsigned-byte-type;
         <replaceable>n</replaceable>)</literal> or
-      <literal role="sexp">(&signed-byte;
+      <literal role="sexp">(&signed-byte-type;
         <replaceable>n</replaceable>)</literal>,
       with the same <replaceable>n</replaceable>.</simpara></listitem>
 </itemizedlist></para>
@@ -4293,9 +4212,9 @@ and &end-k;:</para>
     <replaceable>eof-value</replaceable>)</literal>
  reads a multi-byte integer from <replaceable>stream</replaceable>.
  <replaceable>stream</replaceable> should be a stream with element-type
- <literal role="sexp">(&unsigned-byte; 8)</literal>.
+ <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
  <replaceable>element-type</replaceable> should be a type equivalent to
- <literal role="sexp">(&unsigned-byte;
+ <literal role="sexp">(&unsigned-byte-type;
  <replaceable>n</replaceable>)</literal>, where
  <replaceable>n</replaceable> is a multiple of 8.</para>
 
@@ -4326,7 +4245,7 @@ and &end-k;:</para>
  reads a floating-point number in IEEE binary representation from
  <replaceable>stream</replaceable>.  <replaceable>stream</replaceable>
  should be a stream with element-type <literal
- role="sexp">(&unsigned-byte; 8)</literal>.
+ role="sexp">(&unsigned-byte-type; 8)</literal>.
  <replaceable>element-type</replaceable> should be a type equivalent to
  &single-float-type; or &double-float-type;.</para>
 
@@ -4343,9 +4262,9 @@ and &end-k;:</para>
     &endianness;)</literal>
  writes a multi-byte integer to <replaceable>stream</replaceable>.
  <replaceable>stream</replaceable> should be a stream with element-type
- <literal role="sexp">(&unsigned-byte; 8)</literal>.
+ <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
  <replaceable>element-type</replaceable> should be a type equivalent to
- <literal role="sexp">(&unsigned-byte;
+ <literal role="sexp">(&unsigned-byte-type;
  <replaceable>n</replaceable>)</literal>, where
  <replaceable>n</replaceable> is a multiple of 8.</para>
 
@@ -4373,7 +4292,7 @@ and &end-k;:</para>
  writes a floating-point number in IEEE binary representation to
  <replaceable>stream</replaceable>.  <replaceable>stream</replaceable>
  should be a stream with element-type <literal
- role="sexp">(&unsigned-byte; 8)</literal>.
+ role="sexp">(&unsigned-byte-type; 8)</literal>.
  <replaceable>element-type</replaceable> should be a type equivalent to
  &single-float-type; or &double-float-type;.</para>
 
@@ -4402,9 +4321,9 @@ and &end-k;:</para>
 
  <simpara>This function is especially efficient if
   <replaceable>sequence</replaceable> is a <literal
-  role="sexp">(&vector-class; (&unsigned-byte; 8))</literal> and
+  role="sexp">(&vector-class; (&unsigned-byte-type; 8))</literal> and
   <replaceable>stream</replaceable> is a &file-pipe-socket; stream with
-  element type <literal role="sexp">(&unsigned-byte;
+  element type <literal role="sexp">(&unsigned-byte-type;
   8)</literal>.</simpara></listitem></varlistentry>
 
  <varlistentry><term><emphasis
@@ -4417,7 +4336,7 @@ and &end-k;:</para>
   &key-amp; &start-k; &end-k;)</literal> fills the subsequence of
   <replaceable>sequence</replaceable> specified by &start-k; and &end-k;
   with characters consecutively read from
-  <replaceable>stream</replaceable>. It returns the index of the first
+  <replaceable>stream</replaceable>.  It returns the index of the first
   element of <replaceable>sequence</replaceable> that was not updated (=
   <replaceable>end</replaceable> or &lt; <replaceable>end</replaceable>
   if the stream reached its end).</simpara>
@@ -4453,9 +4372,9 @@ functions are provided:</para>
 
  <simpara>This function is especially efficient if
  <replaceable>sequence</replaceable> is a <literal
- role="sexp">(&vector-class; (&unsigned-byte; 8))</literal> and
+ role="sexp">(&vector-class; (&unsigned-byte-type; 8))</literal> and
  <replaceable>stream</replaceable> is a &file-pipe-socket; stream with
- element type <literal role="sexp">(&unsigned-byte;
+ element type <literal role="sexp">(&unsigned-byte-type;
  8)</literal>.</simpara></listitem></varlistentry>
 
 <varlistentry><term><emphasis
@@ -4481,13 +4400,12 @@ functions are provided:</para>
 <section><title>&file-position;</title>
 
 <variablelist>
- <varlistentry><term>Platform dependent:
-    <emphasis role="strong">DOS</emphasis>,
-    <emphasis role="strong">OS/2</emphasis>,
-    <emphasis role="strong">Win32</emphasis> platforms only.</term>
+ <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+    platforms only.</term>
 <listitem><simpara>&file-position; works on any buffered file stream.
-  When a Newline is output to resp. input from a file stream, its file
-  position is increased by 2 since Newline is encoded as
+  When a <keysym>#\Newline</keysym> is output to (respectively input
+  from) a file stream, its file position is increased by 2 since
+  <keysym>#\Newline</keysym> is encoded as
   <keycode>CR</keycode>/<keycode>LF</keycode> in the file.
 </simpara></listitem></varlistentry></variablelist>
 </section>
@@ -4670,18 +4588,13 @@ functions are provided:</para>
 
 <variablelist>
 <!-- #ifndef AMIGAOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;,
+   &acorn;  platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes screen output prettier.
  </simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Amiga</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes unbuffered screen output both much faster
  and prettier.
@@ -4744,36 +4657,31 @@ functions are provided:</para>
 <!-- #ifdef FOREIGN -->
  <seglistitem><seg><literal>#&lt;FOREIGN-POINTER #x...&gt;</literal></seg>
     <seg>foreign pointer
-      <emphasis>(Platform dependent:
-        <emphasis role="strong">UNIX</emphasis>,
-        <emphasis role="strong">Win32</emphasis>,
-        <emphasis role="strong">Amiga</emphasis> platforms only.)</emphasis>
+      <emphasis>(Platform dependent: &unix;, &win32;, &amiga;
+         platforms only.)</emphasis>
      </seg></seglistitem>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
  <seglistitem><seg><literal>#&lt;FOREIGN-ADDRESS #x...&gt;</literal></seg>
     <seg>foreign address
-     <emphasis>(Platform dependent: <emphasis role="strong">UNIX</emphasis>,
-       <emphasis role="strong">Win32</emphasis> platforms only.)</emphasis>
+     <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </seg></seglistitem>
  <seglistitem><seg><literal>#&lt;FOREIGN-VARIABLE
        <replaceable>name</replaceable> #x...&gt;</literal></seg>
     <seg>foreign variable
-      <emphasis>(Platform dependent: <emphasis role="strong">UNIX</emphasis>,
-        <emphasis role="strong">Win32</emphasis> platforms only.)</emphasis>
+     <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </seg></seglistitem>
  <seglistitem><seg><literal>#&lt;FOREIGN-FUNCTION
        <replaceable>name</replaceable> #x...&gt;</literal></seg>
     <seg>foreign function
-      <emphasis>(Platform dependent: <emphasis role="strong">UNIX</emphasis>,
-        <emphasis role="strong">Win32</emphasis> platforms only.)</emphasis>
+     <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </seg></seglistitem>
 <!-- #endif -->
  <seglistitem><seg><literal>#&lt;UNBOUND&gt;</literal></seg>
     <seg>"value" of a symbol without value, "value" of an unsupplied
       optional or keyword argument</seg></seglistitem>
  <seglistitem><seg><literal>#&lt;SPECIAL REFERENCE&gt;</literal></seg>
-    <seg>environment marker for variables declared &special;
+    <seg>environment marker for variables declared &special-dec;
       </seg></seglistitem>
  <seglistitem><seg><literal>#&lt;DOT&gt;</literal></seg>
     <seg>internal &read; result for "."</seg></seglistitem>
@@ -4808,18 +4716,15 @@ functions are provided:</para>
   role="sexp">(&pathname; "test.lsp")</literal></simpara>
 <variablelist>
 <!-- #if defined(MSDOS) -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+   platforms only.</term>
 <listitem><simpara>As in all strings, backslashes must be written twice
   here: <filename>#"A:\\programs\\test.lsp"</filename>
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef RISCOS -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &acorn; platforms only.</term>
 <listitem><simpara> As in all strings, backslashes must be written twice
   here: <filename>#"\\.test.lsp"</filename>
   </simpara></listitem></varlistentry>
@@ -4992,7 +4897,9 @@ compiles a file to platform-independent bytecode.</para>
 
 </section>
 
-<section id="features"><title>&features-var;</title>
+<section id="features"><title><ulink
+  url="&clhs;/Body/var_stfeaturesst.html"><varname>*features*</varname></ulink>
+  </title>
 
 <para>The variable &features-var; initially contains the symbols
 <segmentedlist>
@@ -5018,15 +4925,13 @@ compiles a file to platform-independent bytecode.</para>
 <!-- #ifdef DYNAMIC_FFI -->
 <seglistitem><seg><constant>:FFI</constant></seg>
    <seg>if a foreign function interface is supported <emphasis>(Platform
-     dependent: many <emphasis role="strong">UNIX</emphasis>, <emphasis
-     role="strong">Win32</emphasis> platforms
-     only)</emphasis></seg></seglistitem>
+     dependent: many &unix;, &win32; platforms only)</emphasis>
+    </seg></seglistitem>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
 <seglistitem><seg><constant>:GETTEXT</constant></seg>
    <seg>if internationalization using the &gnu; gettext package is
-     supported <emphasis>(Platform dependent: most
-     <emphasis role="strong">UNIX</emphasis> platforms
+     supported <emphasis>(Platform dependent: most &unix; platforms
      only)</emphasis></seg></seglistitem>
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
@@ -5076,26 +4981,30 @@ compiles a file to platform-independent bytecode.</para>
  execute subordinate &repl; (called "break loops") which are similar to
  the main &repl; except for the prompt and the set of available
  commands.  Commands must be typed literally, without surrounding quotes
- or white space.</para>
+ or white space.  Each command has a keyword abbreviation, indicated in
+ the second column.</para>
 
 <segmentedlist><title>Commands common to the main loop, the debugger and
  the stepper</title>
  <seglistitem><seg><command>Help</command></seg>
+   <seg><command>:h</command></seg>
    <seg>prints a list of available commands</seg></seglistitem>
 </segmentedlist>
 
 <segmentedlist><title>Commands common to the debugger and the
  stepper</title>
  <seglistitem><seg><command>Abort</command></seg>
+   <seg><command>:a</command></seg>
    <seg>abort to the next most recent &repl;</seg></seglistitem>
  <seglistitem><seg><command>Unwind</command></seg>
+   <seg><command>:uw</command></seg>
    <seg>abort to the next most recent &repl;</seg></seglistitem>
 </segmentedlist>
 
 <para>The stack is organized into frames and other stack elements.
  Usually every invocation of an interpreted function and every
  evaluation of an interpreted form corresponds to one stack frame.
- Special forms such as &let;, &let-s;, &unwind-protect; and &catch;
+ Special forms such as &let;, &let-star;, &unwind-protect; and &catch;
  produce special kinds of stack frames.</para>
 
 <para>In a break loop there is a current stack frame, which is initially
@@ -5114,54 +5023,80 @@ compiles a file to platform-independent bytecode.</para>
 
 <segmentedlist><title>Commands common to the debugger and the
  stepper</title>
+ <seglistitem><seg><command>Error</command></seg>
+   <seg><command>:e</command></seg>
+   <seg>print the last error message.</seg></seglistitem>
  <seglistitem><seg><command>Mode-1</command></seg>
+   <seg><command>:m1</command></seg>
    <seg>sets the current mode to 1: all the stack elements are
          considered.  This mode is fine for debugging compiled
          functions.</seg></seglistitem>
  <seglistitem><seg><command>Mode-2</command></seg>
+   <seg><command>:m2</command></seg>
    <seg>sets the current mode to 2: all the frames are considered.
      </seg></seglistitem>
  <seglistitem><seg><command>Mode-3</command></seg>
+   <seg><command>:m3</command></seg>
    <seg>sets the current mode to 3: only lexical frames (frames that
          correspond to special forms that modify the lexical environment)
          are considered.</seg></seglistitem>
  <seglistitem><seg><command>Mode-4</command></seg>
+   <seg><command>:m4</command></seg>
    <seg>sets the current mode to 4 (the default): only &eval;
          and &apply; frames are considered. Every evaluation
          of a form in the interpreter corresponds to an EVAL frame.
      </seg></seglistitem>
  <seglistitem><seg><command>Mode-5</command></seg>
+   <seg><command>:m5</command></seg>
    <seg>sets the current mode to 5: only &apply; frames are
          considered. Every invocation of an interpreted function
          corresponds to one &apply; frame.</seg></seglistitem>
  <seglistitem><seg><command>Where</command></seg>
+   <seg><command>:w</command></seg>
    <seg>shows the current stack frame.</seg></seglistitem>
  <seglistitem><seg><command>Up</command></seg>
+   <seg><command>:u</command></seg>
    <seg>goes up one frame, i.e., to the caller if in mode-5
     </seg></seglistitem>
  <seglistitem><seg><command>Down</command></seg>
+   <seg><command>:d</command></seg>
    <seg>does down one frame, i.e., to the callee if in mode-5
     </seg></seglistitem>
  <seglistitem><seg><command>Top</command></seg>
+   <seg><command>:t</command></seg>
    <seg>goes to top frame, i.e., to the top-level form if in mode-4
     </seg></seglistitem>
  <seglistitem><seg><command>Bottom</command></seg>
+   <seg><command>:b</command></seg>
    <seg>goes to bottom (most recent) frame, i.e., most probably to the
          form or function that caused the debugger to be entered.
     </seg></seglistitem>
  <seglistitem><seg><command>Backtrace</command></seg>
+   <seg><command>:bt</command></seg>
    <seg>lists the stack in current mode, bottom frame first, top frame
      last.</seg></seglistitem>
  <seglistitem><seg><command>Backtrace-1</command></seg>
+   <seg><command>:bt1</command></seg>
    <seg>lists the stack in mode 1.</seg></seglistitem>
  <seglistitem><seg><command>Backtrace-2</command></seg>
+   <seg><command>:bt2</command></seg>
    <seg>lists the stack in mode 2.</seg></seglistitem>
  <seglistitem><seg><command>Backtrace-3</command></seg>
+   <seg><command>:bt3</command></seg>
    <seg>lists the stack in mode 3.</seg></seglistitem>
  <seglistitem><seg><command>Backtrace-4</command></seg>
+   <seg><command>:bt4</command></seg>
    <seg>lists the stack in mode 4.</seg></seglistitem>
  <seglistitem><seg><command>Backtrace-5</command></seg>
+   <seg><command>:bt5</command></seg>
    <seg>lists the stack in mode 5.</seg></seglistitem>
+ <seglistitem><seg><command>Frame-limit</command></seg>
+   <seg><command>:fl</command></seg>
+   <seg>set the frame-limit: this many frames will be printed in a
+     backtrace at most.</seg></seglistitem>
+ <seglistitem><seg><command>Backtrace-l</command></seg>
+   <seg><command>:bl</command></seg>
+   <seg>limit of frames to print will be prompted for.</seg></seglistitem>
 </segmentedlist>
 
 <para>If the current stack frame is an &eval; or &apply; frame, the
@@ -5169,38 +5104,47 @@ compiles a file to platform-independent bytecode.</para>
 
 <segmentedlist>
 <seglistitem><seg><command>Break+</command></seg>
+   <seg><command>:br+</command></seg>
    <seg>sets a breakpoint in the current frame.  When the corresponding
      form or function will be left, the debugger will be entered again,
      with the variable <link
      linkend="trace-val"><varname>*trace-values*</varname></link>
      containing a list of its values.</seg></seglistitem>
 <seglistitem><seg><command>Break-</command></seg>
+   <seg><command>:br-</command></seg>
    <seg>removes a breakpoint from the current frame.</seg></seglistitem>
 <seglistitem><seg><command>Redo</command></seg>
+   <seg><command>:rd</command></seg>
    <seg>re-evaluates the corresponding form or function call. This
      command can be used to restart parts of a computation without
      aborting it entirely.</seg></seglistitem>
 <seglistitem><seg><command>Return</command></seg>
+   <seg><command>:rt</command></seg>
    <seg>leaves the current frame.  You will be prompted for the return
      values.</seg></seglistitem>
 </segmentedlist>
 
 <segmentedlist><title>Commands specific to the debugger</title>
 <seglistitem><seg><command>Continue</command></seg>
+   <seg><command>:c</command></seg>
    <seg>continues evaluation of the program.</seg></seglistitem>
 </segmentedlist>
 
 <segmentedlist><title>Commands specific to the stepper</title>
 <seglistitem><seg><command>Step</command></seg>
+   <seg><command>:s</command></seg>
    <seg>step into a form: evaluate this form in single step mode
    </seg></seglistitem>
 <seglistitem><seg><command>Next</command></seg>
+   <seg><command>:n</command></seg>
    <seg>step over a form: evaluate this form at once
    </seg></seglistitem>
 <seglistitem><seg><command>Over</command></seg>
+   <seg><command>:o</command></seg>
    <seg>step over this level: evaluate at once up to the next return
    </seg></seglistitem>
 <seglistitem><seg><command>Continue</command></seg>
+   <seg><command>:c</command></seg>
    <seg>switch off single step mode, continue evaluation
    </seg></seglistitem>
 </segmentedlist>
@@ -5226,8 +5170,7 @@ compiles a file to platform-independent bytecode.</para>
 <section><title>&disassemble;</title>
 
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><simpara>&disassemble; can disassemble to machine code,
  provided that &gnu; gdb is present.  In that case the argument may be a
  <classname>system-function</classname>, a
@@ -5254,7 +5197,16 @@ compiles a file to platform-independent bytecode.</para>
 <section><title>&documentation;</title>
 
 <para>No on-line documentation is available for the system functions
- (yet).</para>
+ (yet).  &documentation; still has the CLtL1 implementation.</para>
+
+<formalpara id="browser"><title><function>lisp:clhs</function></title>
+<para>&hyperspec; access is provided via <literal
+  role="sexp">(<function>lisp:clhs</function>
+  <replaceable>symbol</replaceable> &key-amp;
+  <replaceable>browser</replaceable>)</literal> function which uses
+  your web browser.  <replaceable>browser</replaceable> should be a
+  valid keyword in the <varname>lisp:*browsers*</varname> alist.
+</para></formalpara>
 
 </section>
 
@@ -5341,11 +5293,29 @@ and you can leave the function call with specified values by using
 
 <section><title>&inspect;</title>
 
-<para>The function &inspect; is not built in.  Two implementations are
- available as add-ons from the <ulink
- url="ftp://clisp.cons.org/pub/lisp/clisp/contrib/">ftp://clisp.cons.org/pub/lisp/clisp/contrib/</ulink>
- directory.)</para>
+<para>The function &inspect; takes a keyword argument
+ <constant>:frontend</constant>, which specifies the way &clisp; will
+ interact with the user.</para>
 
+<variablelist><title>Available <constant>:frontend</constant>s for
+   &inspect; in &clisp;</title>
+ <varlistentry><term><constant>:tty</constant></term>
+  <listitem><simpara>The interaction is conducted via the &terminal-io-var;
+   stream.  Please use the <userinput>:h</userinput> command to get the
+   list of all available commands.</simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:http</constant></term>
+  <listitem><simpara>A window in your Web browser (specified by the
+   &browser; keyword argument) is opened and it is controlled by
+   &clisp; via a socket, using the HTTP protocol.  You should be
+   able to use all the standard browser features.</simpara>
+   <simpara>Since &clisp; is not multitasking at this time, you will not
+   be able to do anything else during an &inspect; session.  Please click on
+   the <userinput>quit</userinput> link to terminate the session.</simpara>
+   <simpara>Please be aware though, that once you terminate an &inspect;
+   session, all links in all &inspect; windows in your browser will become
+   obsolete and using them in a new &inspect; session will result in
+   unpredictable behavior.</simpara></listitem></varlistentry>
+</variablelist>
 </section>
 
 <section id="space"><title>lisp:space</title>
@@ -5361,15 +5331,15 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section><title>&room;</title>
+<section id="gc"><title>&room;</title>
 
 <para>The function &room; returns two values: the number of bytes
  currently occupied by Lisp objects, and the number of bytes that can be
- allocated before the next regular garbage collection occurs.</para>
+ allocated before the next regular &gc;ion occurs.</para>
 
 <para>The function <emphasis
- role="strong"><function>lisp:gc</function></emphasis> starts global
- garbage collection and its return value has the same meaning as the
+ role="strong"><function>lisp:gc</function></emphasis> starts a
+ global &gc;ion and its return value has the same meaning as the
  second value of &room;.</para>
 
 </section>
@@ -5400,11 +5370,8 @@ and you can leave the function call with specified values by using
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <variablelist>
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">DOS</emphasis>,
-   <emphasis role="strong">OS/2</emphasis>,
-   <emphasis role="strong">Amiga</emphasis>,
-   <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
+   platforms only.</term>
  <listitem><simpara>The variable <emphasis
    role="strong"><varname>lisp:*default-time-zone*</varname></emphasis>
    contains the default time zone used by &encode-universal-time; and
@@ -5419,8 +5386,9 @@ and you can leave the function call with specified values by using
  <literal>1/3600</literal>.</para>
 
 <segmentedlist><title>Platform dependent</title>
- <segtitle>platform</segtitle><segtitle>DOS, OS/2, Acorn</segtitle>
- <segtitle>Amiga</segtitle><segtitle>UNIX</segtitle><segtitle>Win32</segtitle>
+ <segtitle>platform</segtitle><segtitle>&acorn;, &dos;, &os2;</segtitle>
+ <segtitle>&amiga;</segtitle><segtitle>&unix;</segtitle>
+ <segtitle>&win32;</segtitle>
  <seglistitem><seg>&internal-time-units-per-second;</seg><seg>100</seg>
   <seg>50</seg><seg>1,000,000</seg><seg>10,000,000</seg></seglistitem>
 </segmentedlist>
@@ -5433,18 +5401,13 @@ and you can leave the function call with specified values by using
 <section><title>machine</title>
 <variablelist>
 <!-- #ifdef MACHINE_KNOWN -->
-<varlistentry><term>Platform dependent:
-   <emphasis role="strong">UNIX</emphasis>,
-   <emphasis role="strong">Win32</emphasis> platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
   should be defined in a site-specific &config-file; file.
   </simpara></listitem></varlistentry>
 <!-- #else -->
- <varlistentry><term>Platform dependent:
-    <emphasis role="strong">DOS</emphasis>,
-    <emphasis role="strong">OS/2</emphasis>,
-    <emphasis role="strong">Amiga</emphasis>,
-    <emphasis role="strong">Acorn</emphasis> platforms only.</term>
+ <varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
+    platforms only.</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
   &machine-instance; and &short-site-name;, &long-site-name; should be
   defined by every user in his site-specific &config-file; file.
