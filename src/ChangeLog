@@ -1,3 +1,7 @@
+2002-04-16  Stefan Kain  <stefan.kain@freenet.de>
+
+	* clos.lisp, record.d: translated all comments
+
 2002-04-12  Peter Burwood  <clisp@peterb.org.uk>
 
 	* stream.d (finish_tty_output) [UNIX_CYGWIN32]: ignore EBADF from
