@@ -2270,6 +2270,20 @@ global void init_encodings_2 (void) {
   init_dependent_encodings();
 }
 
+#ifdef UNICODE
+/* convert the encoding name to its canonical form
+ at this time, just upper-case the encoding name
+ in the future, might insert/delete `-' &c
+ (do not use toupper() because we know that encoding name is ASCII) */
+local char *canonicalize_encoding (char *encoding) {
+  var char* p;
+  for (p = encoding; *p != '\0'; p++)
+    if (*p >= 'a' && *p <= 'z')
+      *p += 'A' - 'a';
+  return encoding;
+}
+#endif
+
 /* Returns an encoding specified by a name.
  The line-termination is OS dependent.
  encoding_from_name(name,context)
@@ -2340,6 +2354,7 @@ local object encoding_from_name (const char* name, const char* context) {
     { "UTF-8", Symbol_value(S(utf_8)) }
   };
   int ii;
+  name = canonicalize_encoding(name);
   for (ii=0; ii < sizeof(encoding_table)/sizeof(struct enc_tab); ii++)
     if (asciz_equal(name,encoding_table[ii].name)) break;
   if (ii < sizeof(encoding_table)/sizeof(struct enc_tab)) /* found! */

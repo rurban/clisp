@@ -5,6 +5,7 @@
 	encoding cannot be found
 	default to ASCII for *FOREIGN-ENCODING* and UTF-8 for others
 	(init_dependent_encodings): pass `context' to encoding_from_name()
+	(canonicalize_encoding): uppercase the encoding name
 
 2004-01-15  Bruno Haible  <bruno@clisp.org>
 
