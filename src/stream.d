@@ -620,8 +620,20 @@ global object read_char (const gcv_object_t* stream_) {
       return newch;
     } else {
       # yes -> deleteFlagbit and fetch last character:
+      object ret = TheStream(stream)->strm_rd_ch_last;
+     read_char_restart_clear_flag:
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
-      return TheStream(stream)->strm_rd_ch_last;
+      switch (TheStream(stream)->strmtype) {
+        case strmtype_concat:
+          /* presence of rd_ch_last indicates that concat_list is non-NIL */
+          stream = Car(TheStream(stream)->strm_concat_list);
+          goto read_char_restart_clear_flag;
+        case strmtype_echo:
+        case strmtype_twoway:
+          stream = TheStream(stream)->strm_twoway_input;
+          goto read_char_restart_clear_flag;
+      }
+      return ret;
     }
   } else {
     # Call the generic function (STREAM-READ-CHAR stream):
@@ -647,14 +659,18 @@ global void unread_char (const gcv_object_t* stream_, object ch) {
       /* composite streams operate on their constituent streams */
       switch (TheStream(stream)->strmtype) {
         case strmtype_concat:
-          stream = Car(TheStream(stream)->strm_concat_list);
-          break;
+          /* presence of rd_ch_last indicates that concat_list is non-NIL */
+          pushSTACK(Car(TheStream(stream)->strm_concat_list));
+          goto unread_char_recurse;
         case strmtype_echo:
         case strmtype_twoway:
-          stream = TheStream(stream)->strm_twoway_input;
-          break;
+          pushSTACK(TheStream(stream)->strm_twoway_input);
+        unread_char_recurse:
+          unread_char(&STACK_0,ch); popSTACK();
+          /*FALLTHROUGH*/
+        default:
+          TheStream(stream)->strmflags |= strmflags_unread_B; /* set Flagbit */
       }
-      TheStream(stream)->strmflags |= strmflags_unread_B; # set Flagbit
     } else {
       if (!nullp(TheStream(stream)->strm_rd_ch_last)
           && !(TheStream(stream)->strmflags & strmflags_unread_B)) {

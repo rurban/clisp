@@ -1,7 +1,8 @@
 2004-07-28  Sam Steingold  <sds@gnu.org>
 
-	* stream.d (unread_char): composite streams operate on their
-	constituent streams, not themselves
+	composite streams operate on their constituent streams, not themselves
+	* stream.d (unread_char): recursively unread for composite streams
+	(read_char): recursively clear unread_B for composite streams
 	This fixes the REPL bug whereby "1 ," signals an error
 	while "1," does not.
 	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
