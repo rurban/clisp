@@ -22,7 +22,7 @@
 
 (defparameter *make-instance-table*
   (make-hash-table :key-type 'class :value-type '(simple-vector 4)
-                   :test #'eq))
+                   :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   ;; Hash table, mapping a class to a simple-vector containing
   ;; - a list of valid keyword arguments,
   ;; - the effective method of allocate-instance,
@@ -31,14 +31,14 @@
 
 (defparameter *reinitialize-instance-table*
   (make-hash-table :key-type 'class :value-type 'cons
-                   :test #'eq))
+                   :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   ;; Hash table, mapping a class to a cons containing
   ;; - a list of valid keyword arguments,
   ;; - the effective method of shared-initialize.
 
 (defparameter *update-instance-for-redefined-class-table*
   (make-hash-table :key-type 'class :value-type 'list
-                   :test #'eq))
+                   :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))
   ;; Hash table, mapping a class to
   ;; - a list of valid keyword arguments.
 
