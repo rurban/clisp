@@ -855,12 +855,11 @@ for-value   NIL oder T
        bit-not array-has-fill-pointer-p fill-pointer system::set-fill-pointer
        vector-push vector-pop vector-push-extend make-array adjust-array
        standard-char-p graphic-char-p string-char-p alpha-char-p upper-case-p
-       lower-case-p both-case-p digit-char-p alphanumericp char-code char-bits
-       char-font code-char make-char character char-upcase char-downcase
-       digit-char char-int int-char char-name char-bit set-char-bit char schar
-       system::store-char system::store-schar string= string/= string< string>
-       string<= string>= string-equal string-not-equal string-lessp
-       string-greaterp string-not-greaterp string-not-lessp
+       lower-case-p both-case-p digit-char-p alphanumericp char-code code-char
+       character char-upcase char-downcase digit-char char-int int-char
+       char-name char schar system::store-char system::store-schar string=
+       string/= string< string> string<= string>= string-equal string-not-equal
+       string-lessp string-greaterp string-not-greaterp string-not-lessp
        system::search-string= system::search-string-equal make-string
        system::string-both-trim nstring-upcase string-upcase nstring-downcase
        string-downcase nstring-capitalize string-capitalize string name-char
@@ -1103,12 +1102,9 @@ for-value   NIL oder T
           (cdr 1 0 nil nil nil)
           (ceiling 1 1 nil nil nil)
           (char 2 0 nil nil nil)
-          (char-bit 2 0 nil nil nil)
-          (char-bits 1 0 nil nil nil)
           (char-code 1 0 nil nil nil)
           (char-downcase 1 0 nil nil nil)
           (char-equal 1 0 t nil nil)
-          (char-font 1 0 nil nil nil)
           (char-greaterp 1 0 t nil nil)
           (char-int 1 0 nil nil nil)
           (char-lessp 1 0 t nil nil)
@@ -1140,7 +1136,7 @@ for-value   NIL oder T
           (system::closure-reader 3 0 nil nil nil)
           (system::closurep 1 0 nil nil nil)
           (clrhash 1 0 nil nil nil)
-          (code-char 1 2 nil nil nil)
+          (code-char 1 0 nil nil nil)
           (coerce 2 0 nil nil nil)
           (system::comment-reader 3 0 nil nil nil)
           (commonp 1 0 nil nil nil)
@@ -1178,7 +1174,7 @@ for-value   NIL oder T
           (denominator 1 0 nil nil nil)
           (deposit-field 3 0 nil nil nil)
           (system::describe-frame 2 0 nil nil nil)
-          (digit-char 1 2 nil nil nil)
+          (digit-char 1 1 nil nil nil)
           (digit-char-p 1 1 nil nil nil)
           (directory 0 1 nil (:circle :full) nil)
           (directory-namestring 1 0 nil nil nil)
@@ -1356,7 +1352,6 @@ for-value   NIL oder T
           (make-broadcast-stream 0 0 t nil nil)
           (make-buffered-input-stream 2 0 nil nil nil)
           (make-buffered-output-stream 1 0 nil nil nil)
-          (make-char 1 2 nil nil nil)
           (system::make-code-vector 1 0 nil nil nil)
           (make-concatenated-stream 0 0 t nil nil)
           (make-dir 1 0 nil nil nil)
@@ -1525,7 +1520,6 @@ for-value   NIL oder T
           (second 1 0 nil nil nil)
           (system::sequencep 1 0 nil nil nil)
           (set 2 0 nil nil nil)
-          (set-char-bit 3 0 nil nil nil)
           (set-dispatch-macro-character 3 1 nil nil nil)
           (system::set-fill-pointer 2 0 nil nil nil)
           (set-macro-character 2 2 nil nil nil)
@@ -3649,9 +3643,9 @@ der Docstring (oder NIL).
                  STANDARD-CHAR-P GRAPHIC-CHAR-P STRING-CHAR-P ALPHA-CHAR-P UPPER-CASE-P
                  LOWER-CASE-P BOTH-CASE-P DIGIT-CHAR-P ALPHANUMERICP CHAR= CHAR/= CHAR< CHAR>
                  CHAR<= CHAR>= CHAR-EQUAL CHAR-NOT-EQUAL CHAR-LESSP CHAR-GREATERP
-                 CHAR-NOT-GREATERP CHAR-NOT-LESSP CHAR-CODE CHAR-BITS CHAR-FONT CODE-CHAR
-                 MAKE-CHAR CHAR-UPCASE CHAR-DOWNCASE DIGIT-CHAR CHAR-INT INT-CHAR
-                 CHAR-NAME CHAR-BIT
+                 CHAR-NOT-GREATERP CHAR-NOT-LESSP CHAR-CODE CODE-CHAR
+                 CHAR-UPCASE CHAR-DOWNCASE DIGIT-CHAR CHAR-INT INT-CHAR
+                 CHAR-NAME
                  SPECIAL-OPERATOR-P
                  ENDP
                  IDENTITY
