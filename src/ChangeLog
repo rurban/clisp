@@ -1,3 +1,8 @@
+2002-06-11  Sam Steingold  <sds@gnu.org>
+
+	* spvw_ctype.d (init_ctype) [UNIX_DARWIN]: no LC_MESSAGES,
+	just like on WIN32_NATIVE
+
 2002-06-10  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (string_gleich): use string_eqcomp()
