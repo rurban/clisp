@@ -1,5 +1,11 @@
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Improve error checking in parse-namestring.
+        * pathname.d (legal_namechar): Don't accept Unicode characters which
+          are not 1 byte in the pathname_encoding.
+
+1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Use the system's iconv() function if available.
         * aclocal.m4 (CL_ICONV): New macro.
         * configure.in: Call it.
