@@ -391,7 +391,7 @@
  </listitem></varlistentry>
  <varlistentry id="priority"><term><code>(OS:PRIORITY &pid-r;
     &optional-amp; &what-r;)</code></term>
-  <listitem><simpara>Return the process priority, platform-dependent
+  <listitem><para>Return the process priority, platform-dependent
     &integer-t; or platform-independent &symbol-t;, one of
     <simplelist columns="3">
      <member><constant>:REALTIME</constant></member>
@@ -402,7 +402,7 @@
      <member><constant>:LOW</constant></member>
      <member><constant>:IDLE</constant></member></simplelist>
     On &unix; calls &getpriority;, on &win32; calls
-    <function>GetPriorityClass</function>).</simpara>
+    <function>GetPriorityClass</function>).</para>
    <simpara>&setf;able using &setpriority; and
     <function>SetPriorityClass</function>.</simpara></listitem></varlistentry>
  <varlistentry id="process-id"><term><code>(OS:PROCESS-ID)</code></term>
