@@ -21,11 +21,8 @@
   * Platform depencencies are emphasized like this:
 <dl>
 <dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
-platforms only.
-</em></dt>
-<dd>
-...
-</dd>
+platforms only.</em>
+<dd>...
 </dl>
   * Multi-line code snippets with <sub> and <sup> are passed through
       sed -e 's, ,\&nbsp;,g' -e 's,^,<code>,' -e 's,$,</code><br>,'
@@ -60,10 +57,10 @@ platforms only.
 <img src="clisp.gif" width=48 height=48>
 </center>
 
-<p>This implementation is mostly compatible to the
-<a href="http://www.x3.org/tc_home/j13sd4.htm">ANSI CL standard X3.226-1994
-"Programming Language Common Lisp"</a>, available as
-<a href="http://www.harlequin.com/education/books/HyperSpec/FrontMatter/index.html">
+<p>This implementation is mostly conformant to the <a
+href="http://www.x3.org/tc_home/j13sd4.htm">ANSI CL standard X3.226-1994
+"Programming Language Common Lisp"</a>, available as <a
+href="http://www.harlequin.com/education/books/HyperSpec/FrontMatter/index.html">
 Common Lisp HyperSpec (CLHS)</a> on line (but the printed ANSI document
 remains the authoritative source of information).  This document is
 indexed in parallel to CLHS.
@@ -73,13 +70,13 @@ indexed in parallel to CLHS.
 <blockquote>
 <cite> Guy L. Steele Jr.: Common Lisp - The Language (1st ed.).<br>
        Digital Press 1984, 465 pages.<br>
-       (&quot;CLtL1&quot; for short)
+       (&#34;CLtL1&#34; for short)
 </cite></blockquote>
 and
 <blockquote>
 <cite> Guy L. Steele Jr.: Common Lisp - The Language (2nd ed.).<br>
        Digital Press 1990, 1032 pages.<br>
-       (&quot;CLtL2&quot; for short)
+       (&#34;CLtL2&#34; for short)
 </cite>
        <a href="http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cltl2.html">available on-line</a>
 </blockquote>
@@ -93,64 +90,64 @@ details.
 
 <ol>
  <li><a href="#intro"><b>Introduction</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-1.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-1.html">[CLHS-1]</a>
  <li><a href="#syntax"><b>Syntax</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-2.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-2.html">[CLHS-2]</a>
  <li><a href="#eval"><b>Evaluation and Compilation</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-3.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-3.html">[CLHS-3]</a>
  <li><a href="#types"><b>Types and Classes</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-4.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-4.html">[CLHS-4]</a>
  <li><a href="#data"><b>Data and Control Flow</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-5.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-5.html">[CLHS-5]</a>
  <li><a href="#iteration"><b>Iteration</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-6.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-6.html">[CLHS-6]</a>
  <li><a href="#objects"><b>Objects</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-7.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-7.html">[CLHS-7]</a>
  <li><a href="#structures"><b>Structures</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-8.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-8.html">[CLHS-8]</a>
  <li><a href="#conditions"><b>Conditions</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-9.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-9.html">[CLHS-9]</a>
  <li><a href="#symbols"><b>Symbols</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-10.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-10.html">[CLHS-10]</a>
  <li><a href="#packages"><b>Packages</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-11.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-11.html">[CLHS-11]</a>
  <li><a href="#numbers"><b>Numbers</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-12.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-12.html">[CLHS-12]</a>
  <li><a href="#characters"><b>Characters</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-13.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-13.html">[CLHS-13]</a>
  <li><a href="#conses"><b>Conses</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-14.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-14.html">[CLHS-14]</a>
  <li><a href="#arrays"><b>Arrays</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-15.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-15.html">[CLHS-15]</a>
  <li><a href="#strings"><b>Strings</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-16.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-16.html">[CLHS-16]</a>
  <li><a href="#sequences"><b>Sequences</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-17.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-17.html">[CLHS-17]</a>
  <li><a href="#hash"><b>Hash Tables</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-18.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-18.html">[CLHS-18]</a>
  <li><a href="#filenames"><b>Filenames</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-19.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-19.html">[CLHS-19]</a>
  <li><a href="#files"><b>Files</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-20.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-20.html">[CLHS-20]</a>
  <li><a href="#streams"><b>Streams</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-21.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-21.html">[CLHS-21]</a>
  <li><a href="#printer"><b>Printer</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-22.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-22.html">[CLHS-22]</a>
  <li><a href="#reader"><b>Reader</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-23.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-23.html">[CLHS-23]</a>
  <li><a href="#system"><b>System Construction</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-24.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-24.html">[CLHS-24]</a>
  <li><a href="#environment"><b>Environment</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-25.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-25.html">[CLHS-25]</a>
  <li><a href="#glossary"><b>Glossary</b></a>
-  <a rel=child href="CLHSROOT/Body/chap-26.html">[CLHS]</a>
+  <a rel=child href="CLHSROOT/Body/chap-26.html">[CLHS-26]</a>
 </ol>
 
 <ul>
  <li><a href="#appendix"><b>Appendix</b></a>
-  <a href="CLHSROOT/Body/chap-a.html">[CLHS]</a>
- <li><a href="#issues"><b>X3J13 Issue Index</b></a> (categorized)
-  <a href="CLHSROOT/Issues/Issues-Categorized.html">[CLHS]</a>
+  <a href="CLHSROOT/Body/chap-a.html">[CLHS-a]</a>
+ <li><a href="#issues"><b>X3J13 Issue Index</b></a>
+  <a href="CLHSROOT/Issues/Issues-Categorized.html">[CLHS-ic]</a>
 </UL>
 
 <h1><a href="#extensions">Extensions</a></h1>
@@ -193,18 +190,18 @@ details.
 <h3><a href="CLHSROOT/Body/sec_2-3-4.html">
     2.3.4 Symbols as Tokens</a></h3>
 
-<p>A &quot;reserved token&quot;, i.e. a token that has potential number
+<p>A &#34;reserved token&#34;, i.e. a token that has potential number
 syntax but cannot be interpreted as a number, is interpreted as symbol
-when being read. (CLtL1 p. 341)
+when being read.
 
 <h3><a href="CLHSROOT/Body/sec_2-3-5.html">
     2.3.5 Valid Patterns for Tokens</a></h3>
 
-<p>When a token with package markers is read, then (CLtL1 p. 343/344) no
-checking is done whether the package part and the symbol-name part do
-not have number syntax. (What's the purpose of this check?) So we
-consider tokens like <CODE>USER::</CODE> or <CODE>:1</CODE> or
-<CODE>LISP::4711</CODE> or <CODE>21:3</CODE> as symbols.
+<p>When a token with package markers is read, then no checking is done
+whether the package part and the symbol-name part do not have number
+syntax. (What's the purpose of this check?) So we consider tokens like
+<CODE>USER::</CODE> or <CODE>:1</CODE> or <CODE>LISP::4711</CODE> or
+<CODE>21:3</CODE> as symbols.
 
 <h3><a href="CLHSROOT/Body/sec_2-4-5.html">
     2.4.5 Double-Quote</a></h3>
@@ -233,12 +230,14 @@ anyway.
 <p>All the functions built by <code>function</code>, <code>compile</code>
 and the like are atoms. There are built-in functions written in C,
 compiled functions (both of type <code>compiled-function</code>) and
-interpreted functions (of type <code>function</code>).  The possible
-function names (CLtL1 p. 59) are symbols and lambda expressions.
+interpreted functions (of type <code>function</code>).
 
-<p>As in Scheme, the macro <code>(the-environment)</code> returns the
-current lexical environment. This works only in interpreted code and is
-not compilable!
+<h3><a href="CLHSROOT/Body/sec_3-1-1.html">
+    3.1.1 Introduction to Environments</a></h3>
+
+<p>As in Scheme, the macro <code>(lisp:the-environment)</code> returns
+the current lexical environment. This works only in interpreted code and
+is not compilable!
 
 <p><code>(eval-env <var>form</var> [<var>env</var>])</code> evaluates a
 form in a given lexical environment, just if the form had been part of
@@ -252,7 +251,8 @@ the program text that environment came from.
 <h3><a href="CLHSROOT/Body/sec_3-3.html">
     3.2.1 Declarations</a></h3>
 
-<p>The ANSI macro <code>declaim</code> is implemented.
+<p>The ANSI macro <a href="CLHSROOT/Body/mac_declaim.html">
+<code>declaim</code></a> is implemented.
 
 <p>The declarations <code>(type <var>type</var> <var>var</var>
 ...)</code>, <code>(ftype <var>type</var> <var>fun</var> ...)</code>,
@@ -294,12 +294,10 @@ compiler.
 type check is done in compiled code.
 
 <P><DL>
-<DT><EM>If using the optional package <code>macros3</code>:</EM></DT>
-<DD>
-The macro <STRONG><code>ethe</code></STRONG>:
-<code>(ethe <var>value-type</var> <var>form</var>)</code> enforces a type check in both interpreted and
-compiled code.
-</DD>
+ <DT><EM>If using the optional package <code>macros3</code>:</EM>
+ <DD>The macro <STRONG><code>lisp:ethe</code></STRONG>: <code>(ethe
+<var>value-type</var> <var>form</var>)</code> enforces a type check in
+both interpreted and compiled code.
 </DL>
 
 <h3><a href="CLHSROOT/Body/sec_3-3.html">
@@ -410,106 +408,196 @@ original <var>typespec</var> was a user-defined type.
     4.3 Classes</a></H3>
 
 <p>The CLOS symbols are exported from the package
-<code>&quot;CLOS&quot;</code> and thus normally visible in all user
+<code>&#34;CLOS&#34;</code> and thus normally visible in all user
 packages. If you don't want them (for example, if you want to use PCL
-instead of CLOS), do <code>(unuse-package &quot;CLOS&quot;)</code>.
+instead of CLOS), do <code>(unuse-package &#34;CLOS&#34;)</code>.
 
 <p>
 <dl>
  <dt>The functions
-  <dd><code>slot-value</code>, <code>slot-boundp</code>,
-  <code>slot-makunbound</code>, <code>slot-exists-p</code>,
-  <code>find-class</code>, <code>(setf find-class)</code>,
-  <code>class-of</code>, <code>call-next-method</code>,
-  <code>next-method-p</code>, <code>class-name</code>, <code>(setf
-  class-name)</code>, <code>no-applicable-method</code>,
-  <code>no-next-method</code>, <code>find-method</code>,
-  <code>add-method</code>, <code>remove-method</code>,
-  <code>compute-applicable-methods</code>,
-  <code>method-qualifiers</code>, <code>function-keywords</code>,
-  <code>slot-missing</code>, <code>slot-unbound</code>,
-  <code>print-object</code>, <code>describe-object</code>,
-  <code>make-instance</code>, <code>initialize-instance</code>,
-  <code>reinitialize-instance</code>, <code>shared-initialize</code>,
+  <dd><a href="CLHSROOT/Body/fun_slot-value.html">
+   <code>slot-value</code></a>,
+   <a href="CLHSROOT/Body/fun_slot-boundp.html">
+   <code>slot-boundp</code></a>,
+   <a href="CLHSROOT/Body/fun_slot-makunbound.html">
+   <code>slot-makunbound</code></a>,
+   <a href="CLHSROOT/Body/fun_slot-exists-p.html">
+   <code>slot-exists-p</code></a>,
+   <a href="CLHSROOT/Body/acc_find-class.html">
+   <code>find-class</code></a>,
+   <a href="CLHSROOT/Body/acc_find-class.html">
+   <code>(setf find-class)</code></a>,
+   <a href="CLHSROOT/Body/fun_class-of.html">
+   <code>class-of</code></a>,
+   <a href="CLHSROOT/Body/locfun_call-next-method.html">
+   <code>call-next-method</code></a>,
+   <a href="CLHSROOT/Body/locfun_next-method-p.html">
+   <code>next-method-p</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_class-name.html">
+   <code>class-name</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_class-name.html">
+   <code>(setf class-name)</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_no-_cable-method.html">
+   <code>no-applicable-method</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_no-next-method.html">
+   <code>no-next-method</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_find-method.html">
+   <code>find-method</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_add-method.html">
+   <code>add-method</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_remove-method.html">
+   <code>remove-method</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_com_able-methods.html">
+   <code>compute-applicable-methods</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_met_d-qualifiers.html">
+   <code>method-qualifiers</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_fun_ion-keywords.html">
+   <code>function-keywords</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_slot-missing.html">
+   <code>slot-missing</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_slot-unbound.html">
+   <code>slot-unbound</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_print-object.html">
+   <code>print-object</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_describe-object.html">
+   <code>describe-object</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_make-instance.html">
+   <code>make-instance</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_ini_ize-instance.html">
+   <code>initialize-instance</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_rei_ize-instance.html">
+   <code>reinitialize-instance</code></a>,
+   <a href="CLHSROOT/Body/stagenfun_sha_d-initialize.html">
+   <code>shared-initialize</code></a>,
  <dt>the macros
-  <dd><code>with-slots</code>, <code>with-accessors</code>,
-  <code>defclass</code>, <code>defmethod</code>,
-  <code>defgeneric</code>, <code>generic-function</code>,
-  <code>generic-flet</code>, <code>generic-labels</code>,
+  <dd><a href="CLHSROOT/Body/mac_with-slots.html">
+   <code>with-slots</code></a>,
+   <a href="CLHSROOT/Body/mac_with-accessors.html">
+   <code>with-accessors</code></a>,
+   <a href="CLHSROOT/Body/mac_defclass.html">
+   <code>defclass</code></a>,
+   <a href="CLHSROOT/Body/mac_defmethod.html">
+   <code>defmethod</code></a>,
+   <a href="CLHSROOT/Body/mac_defgeneric.html">
+   <code>defgeneric</code></a>,
+   <a href="CLHSROOT/Body/syscla_generic-function.html">
+   <code>generic-function</code></a>,
+   <code>clos:generic-flet</code>,
+   <code>clos:generic-labels</code>,
  <dt>the classes
-  <dd><code>standard-class</code>, <code>structure-class</code>,
-  <code>built-in-class</code>, <code>standard-object</code>,
-  <code>standard-generic-function</code>, <code>standard-method</code>
-  and all predefined classes,
+  <dd><a href="CLHSROOT/Body/syscla_standard-class.html">
+   <code>standard-class</code></a>,
+   <a href="CLHSROOT/Body/syscla_structure-class.html">
+   <code>structure-class</code></a>,
+   <a href="CLHSROOT/Body/syscla_built-in-class.html">
+   <code>built-in-class</code></a>,
+   <a href="CLHSROOT/Body/cla_standard-object.html">
+   <code>standard-object</code></a>,
+   <a href="CLHSROOT/Body/syscla_standa_ric-function.html">
+   <code>standard-generic-function</code></a>,
+   <a href="CLHSROOT/Body/syscla_standard-method.html">
+   <code>standard-method</code></a> and all predefined classes,
  <dt>and the method combination
-  <dd> <code>standard</code>
+  <dd> <a href="CLHSROOT/Body/sec_7-6-6-2.html">
+    <code>standard</code></a>
 </dl>
 are implemented.
 
 <h4>Deviations from ANSI CL:</h4>
 
-<p><code>defclass</code>: It <EM>is</EM> required that the superclasses
+<p><a href="CLHSROOT/Body/mac_defclass.html">
+<code>defclass</code></a>: It <EM>is</EM> required that the superclasses
 of a class be defined before the <code>defclass</code> form for the
 class is evaluated.
 
-<P><code>defclass</code> supports the option <code>:metaclass
+<P><a href="CLHSROOT/Body/mac_defclass.html">
+<code>defclass</code></a> supports the option <code>:metaclass
 structure-class</code>. This option is necessary in order to define a
-subclass of a <code>defstruct</code>-defined structure type using
-<code>defclass</code> instead of <code>defstruct</code>.
+subclass of a <a href="CLHSROOT/Body/mac_defstruct.html">
+<code>defstruct</code></a>-defined structure type using
+<a href="CLHSROOT/Body/mac_defclass.html">
+<code>defclass</code></a> instead of
+<a href="CLHSROOT/Body/mac_defstruct.html">
+<code>defstruct</code></a>.
 
-<P>The <code>real</code> type is added to the predefined classes listed
-in table 28-1.
+<P>Only <a href="CLHSROOT/Body/sec_7-6-6-2.html">
+<code>standard</code></a> method combination is implemented.
 
-<P>Only <code>standard</code> method combination is implemented.
-
-<P>When <code>call-next-method</code> is called with arguments, the rule
+<P>When <a href="CLHSROOT/Body/locfun_call-next-method.html">
+<code>call-next-method</code></a> is called with arguments, the rule
 that the ordered set of applicable methods must be the same as for the
 original arguments is enforced by the implementation only in interpreted
 code.
 
-<P><code>call-next-method</code> and <code>next-method-p</code> are
+<P><a href="CLHSROOT/Body/locfun_call-next-method.html">
+<code>call-next-method</code></a> and
+<a href="CLHSROOT/Body/locfun_next-method-p.html">
+<code>next-method-p</code></a> are
 local macros, not local functions.  Use <code>#'(lambda ()
 (call-next-method))</code> instead of <code>#'call-next-method</code> if
 you really need it as a function.
 
 <P>There is a generic function
 <code><STRONG>no-primary-method</STRONG></code> (analogous to
-<code>no-applicable-method</code>) which is called when a generic
-function of the class <code>standard-generic-function</code> is invoked
+<a href="CLHSROOT/Body/stagenfun_no-_cable-method.html">
+<code>no-applicable-method</code></a>) which is called when a generic
+function of the class <a href="CLHSROOT/Body/syscla_standa_ric-function.html">
+<code>standard-generic-function</code></a> is invoked
 and no primary method on that generic function is applicable.
 
-<P><code>generic-flet</code> and <code>generic-labels</code> are
-implemented as macros, not as special operators.
+<p><code>clos:generic-flet</code> and
+<code>clos:generic-labels</code> are implemented as macros, not as
+special operators.  They are not exported from the package CLOS
+because of the ANSI CL issue
+<a href="CLHSROOT/Issues/iss181.html">
+GENERIC-FLET-POORLY-DESIGNED:DELETE</a>.
 
-<P>The function <code>ensure-generic-function</code> is not implemented.
+<p>The function <a href="CLHSROOT/Body/fun_ensure-ge_ric-function.html">
+<code>ensure-generic-function</code></a> is not implemented.
 
-<P><code>add-method</code> can put methods into other generic functions
+<P><a href="CLHSROOT/Body/stagenfun_add-method.html">
+<code>add-method</code></a> can put methods into other generic functions
 than the one the method came from.
 
-<P><code>print-object</code> and <code>describe-object</code> are only
+<P><a href="CLHSROOT/Body/stagenfun_print-object.html">
+<code>print-object</code></a> and
+<a href="CLHSROOT/Body/stagenfun_describe-object.html">
+<code>describe-object</code></a> are only
 called on objects of type <code>standard-object</code>.
 
-<P><code>describe-object</code> should not call <code>describe</code>
-recursively as this would produce more information than is likely to be
-useful to a human reader.
+<P><a href="CLHSROOT/Body/stagenfun_describe-object.html">
+<code>describe-object</code></a> should not call
+<a href="CLHSROOT/Body/fun_describe.html">
+<code>describe</code></a> recursively as this would produce more
+information than is likely to be useful to a human reader.
 
-<P><code>documentation</code> still has the CLtL1 implementation.
+<P><a href="CLHSROOT/Body/stagenfun_doc_umentationcp.html">
+<code>documentation</code></a> still has the CLtL1 implementation.
 
 <P>User-defined method combination is not supported.  The macros
-<code>define-method-combination</code>, <code>call-method</code> and the
-functions <code>invalid-method-error</code>,
-<code>method-combination-error</code>, <code>method-qualifiers</code>
-are not implemented.
-
-<P>The special operator <code>with-added-methods</code> is not implemented.
+<a href="CLHSROOT/Body/mac_define-me_-combination.html">
+<code>define-method-combination</code></a>,
+<a href="CLHSROOT/Body/locmac_call-m__make-method.html">
+<code>call-method</code></a> and the functions
+<a href="CLHSROOT/Body/fun_invalid-method-error.html">
+<code>invalid-method-error</code></a>,
+<a href="CLHSROOT/Body/fun_method-co_nation-error.html">
+<code>method-combination-error</code></a>,
+<a href="CLHSROOT/Body/stagenfun_met_d-qualifiers.html">
+<code>method-qualifiers</code></a> are not implemented.
 
 <P>Redefining classes is not supported.  The function
-<code>update-instance-for-redefined-class</code> is not implemented.
+<a href="CLHSROOT/Body/stagenfun_upd_efined-class.html">
+<code>update-instance-for-redefined-class</code></a> is not
+implemented.
 
 <P>Changing the class of a given instance is not supported.  The the
-functions <code>change-class</code>,
-<code>update-instance-for-different-class</code>,
-<code>make-instances-obsolete</code> are not implemented.
+functions <a href="CLHSROOT/Body/stagenfun_change-class.html">
+<code>change-class</code></a>,
+<a href="CLHSROOT/Body/stagenfun_upd_ferent-class.html">
+<code>update-instance-for-different-class</code></a>,
+<a href="CLHSROOT/Body/stagenfun_mak_ces-obsolete.html">
+<code>make-instances-obsolete</code></a> are not implemented.
 
 <h2><a name="data"></a><a href="CLHSROOT/Body/chap-5.html">
     Chapter 5: Data and Control Flow</a></h2>
@@ -517,21 +605,12 @@ functions <code>change-class</code>,
 <h3><a href="CLHSROOT/Body/sec_the_data__w_dictionary.html">
     5.3. The Data and Control Flow Dictionary</a></h3>
 
-<p>In addition to the 24 special operators listed on p. 57 (CLtL2: p. 73),
-the ANSI CL special operators <code>locally</code>,
-<code>symbol-macrolet</code>, <code>load-time-value</code> are
-implemented, and the macros <code>psetq</code>, <code>prog1</code>,
-<code>prog2</code>, <code>when</code>, <code>unless</code>,
-<code>cond</code>, <code>case</code>, <code>multiple-value-list</code>,
-<code>multiple-value-bind</code>, <code>multiple-value-setq</code>,
-<code>and</code>, <code>or</code> are implemented as special operators.
-
 <p><code>prog1</code>, <code>prog2</code>, <code>and</code>,
 <code>or</code>, <code>psetq</code>, <code>when</code>,
 <code>unless</code>, <code>cond</code>, <code>case</code>,
 <code>multiple-value-list</code>, <code>multiple-value-bind</code>,
-<code>multiple-value-setq</code> are implemented as special operators and,
-as such, rather efficient.
+<code>multiple-value-setq</code> are implemented as special operators
+and, as such, rather efficient.
 
 <h4><a href="CLHSROOT/Body/mac_destructuring-bind.html">
     destructuring-bind</a></h4>
@@ -629,14 +708,12 @@ local macros will be interpreted as places correctly.
 
 <!-- #ifdef IMMUTABLE -->
 <DL>
-<DT><EM>Platform dependent: UNIX platforms only, and only in clisp
-binaries built with compile-time flag <code>IMMUTABLE</code>.</EM></DT>
-<DD>
-Attempts to modify read-only data will signal an error. Program text and
-quoted constants loaded from files are considered read-only data. This
-check is only performed for conses and arrays, not for user-defined data
-types.
-</DD>
+ <DT><EM>Platform dependent: UNIX platforms only, and only in clisp
+binaries built with compile-time flag <code>IMMUTABLE</code>.</EM>
+ <DD>Attempts to modify read-only data will signal an error. Program text
+and quoted constants loaded from files are considered read-only
+data. This check is only performed for conses and arrays, not for
+user-defined data types.
 </DL>
 <!-- #endif -->
 
@@ -655,86 +732,92 @@ special operator handler.
 <p>The ANSI CL special operator <code>symbol-macrolet</code> is
 implemented.
 
-<P>The macro <STRONG><code>define-symbol-macro</code></STRONG>
+<P>The macro <STRONG><a href="CLHSROOT/Body/mac_define-symbol-macro.html">
+<code>define-symbol-macro</code></a></STRONG>
 establishes symbol macros with global scope (as opposed to symbol macros
-defined with <code>symbol-macrolet</code>, which have local scope):
+defined with <a href="CLHSROOT/Body/speope_symbol-macrolet.html">
+<code>symbol-macrolet</code></a>, which have local scope):
 <code>(define-symbol-macro <var>symbol</var>
 <var>expansion</var>)</code>.
 
-<p>The function <STRONG><code>symbol-macro-expand</code></STRONG> tests
-for a symbol macro: If <var>symbol</var> is defined as symbol macro,
-<code>(symbol-macro-expand <var>symbol</var>)</code> returns two values,
-<code>t</code> and the expansion, else it returns <code>nil</code>.
+<p>The function <STRONG><code>lisp:symbol-macro-expand</code></STRONG>
+tests for a symbol macro: If <var>symbol</var> is defined as symbol
+macro, <code>(symbol-macro-expand <var>symbol</var>)</code> returns two
+values, <code>t</code> and the expansion, else it returns
+<code>nil</code>.
 
-<p>Calling <code>boundp</code> on a symbol defined as symbol macro
+<p>Calling <a href="CLHSROOT/Body/fun_boundp.html">
+<code>boundp</code></a> on a symbol defined as symbol macro
 returns <code>t</code>.
 
-<p>Calling <code>symbol-value</code> on a symbol defined as symbol
+<p>Calling <a href="CLHSROOT/Body/acc_symbol-value.html">
+<code>symbol-value</code></a> on a symbol defined as symbol
 macro returns the value of the expansion. Calling <code>set</code> on a
 symbol defined as symbol macro calls <code>setf</code> on the expansion.
 
-<p>Calling <code>makunbound</code> on a symbol defined as symbol macro
+<p>Calling <a href="CLHSROOT/Body/fun_makunbound.html">
+<code>makunbound</code></a> on a symbol defined as symbol macro
 removes the symbol macro definition.
 
 <P><DL>
-<DT><EM>If using the optional package <code>macros3</code>:</EM></DT>
-<DD>
-  The macros <STRONG><code>letf</code></STRONG> and
+<DT><EM>If using the optional package <code>macros3</code>:</EM>
+<DD> The macros <STRONG><code>letf</code></STRONG> and
   <STRONG><code>letf*</code></STRONG> are like <code>let</code> and
   <code>let*</code>, resp., except that they
   can bind places, even places with multiple values.
   Example:
   <DL>
-  <DT><code>(letf (((values a b) <var>form</var>)) ...)</code></DT>
+  <DT><code>(letf (((values a b) <var>form</var>)) ...)</code>
   <DD>is equivalent to
       <code>(multiple-value-bind (a b) <var>form</var> ...)</code>
-  </DD>
-  <DT><code>(letf (((first l) 7)) ...)</code></DT>
+  <DT><code>(letf (((first l) 7)) ...)</code>
   <DD>is approximately equivalent to
     <PRE><code>    (let* ((#:g1 l) (#:g2 (first #:g1)))
       (unwind-protect (progn (setf (first #:g1) 7) ...)
                       (setf (first #:g1) #:g2)
     ) )
     </code></PRE>
-  </DD>
   </DL>
-</DD>
 </DL>
 
-<p><code>call-arguments-limit</code> is 65536 on 16-bit processors,
+<p><a href="CLHSROOT/Body/convar_call-a_uments-limit.html">
+<code>call-arguments-limit</code></a> is 65536 on 16-bit processors,
 4294967296 on 32-bit processors.
 
-<p><code>multiple-values-limit</code> = 128
+<p><a href="CLHSROOT/Body/convar_multip_values-limit.html">
+<code>multiple-values-limit</code></a> = 128
 
 <h4><a href="CLHSROOT/Body/mac_lambda.html">
     lambda</a></h4>
 
-<code>lambda-list-keywords</code> =
+<p><a href="CLHSROOT/Body/convar_lambda_ist-keywords.html">
+<code>lambda-list-keywords</code></a> =
     <code>(&amp;optional &amp;rest &amp;key &amp;allow-other-keys
     &amp;aux &amp;body &amp;whole &amp;environment)</code>
 
-<p><code>lambda-parameters-limit</code> is 65536 on 16-bit processors,
+<p><a href="CLHSROOT/Body/convar_lambda_meters-limit.html">
+<code>lambda-parameters-limit</code></a> is 65536 on 16-bit processors,
 4294967296 on 32-bit processors.
 
 <h4><a href="CLHSROOT/Body/mac_defun.html">
     defun</a> &amp; <a href="CLHSROOT/Body/mac_defmacro.html">
     defmacro</a></h4>
 
-<code>defun</code> and <code>defmacro</code> are allowed in non-toplevel
-positions. As an example, consider the old (CLtL1) definition of
-<code>gensym</code>:
+<p><code>defun</code> and <code>defmacro</code> are allowed in
+non-toplevel positions. As an example, consider the old (CLtL1)
+definition of <code>gensym</code>:
 
-<PRE><code>(let ((gensym-prefix &quot;G&quot;)
+<PRE><code>(let ((gensym-prefix &#34;G&#34;)
       (gensym-count 1))
   (defun gensym (&amp;optional (x nil s))
     (when s
       (cond ((stringp x) (setq gensym-prefix x))
             ((integerp x)
              (if (minusp x)
-               (error &quot;~S: index ~S is negative&quot; 'gensym x)
+               (error &#34;~S: index ~S is negative&#34; 'gensym x)
                (setq gensym-count x)
             ))
-            (t (error &quot;~S: argument ~S of wrong type&quot; 'gensym x))
+            (t (error &#34;~S: argument ~S of wrong type&#34; 'gensym x))
     ) )
     (prog1
       (make-symbol
@@ -753,7 +836,8 @@ positions. As an example, consider the old (CLtL1) definition of
 be undone. The same holds for <code>defvar</code>,
 <code>defparameter</code> and <code>defconstant</code> declarations.
 
-<p>It is an error if a <code>defconstant</code> variable is bound at the
+<p>It is an error if a <a href="CLHSROOT/Body/mac_defconstant.html">
+<code>defconstant</code></a> variable is bound at the
 moment the <code>defconstant</code> is executed, but
 <code>defconstant</code> does not check this.
 
@@ -776,7 +860,8 @@ interpreted function: lambda-expression, lexical environment, name.
 <h4><a href="CLHSROOT/Body/fun_complement.html">
     complement</a></h4>
 
-<p>The ANSI CL function <code>complement</code> is implemented.
+<p>The ANSI CL function <a href="CLHSROOT/Body/fun_complement.html">
+<code>complement</code></a> is implemented.
 
 <h2><a name="iteration"></a><a href="CLHSROOT/Body/chap-6.html">
     Chapter 6: Iteration</a></h2>
@@ -859,25 +944,26 @@ new accessors for the inherited slots.
 forms as usual. The <code>help</code> command (or help key if there is
 one) lists the available debugging commands.
 
-<p>The macro <code>(<STRONG>muffle-cerrors</STRONG>
+<p>The macro <code>(<STRONG>lisp:muffle-cerrors</STRONG>
 {<var>form</var>}*)</code> executes the <var>form</var>s. When a
 continuable error occurs, no message is printed. Instead, the
 <code>continue</code> restart is invoked.
 
-<P>The macro <code>(<STRONG>appease-cerrors</STRONG>
+<P>The macro <code>(<STRONG>lisp:appease-cerrors</STRONG>
 {<var>form</var>}*)</code> executes the <var>form</var>s. When a
 continuable error occurs, the error is printed as a warning and the
 <code>continue</code> restart is invoked.
 
-<P>The macro <code>(<STRONG>exit-on-error</STRONG>
+<P>The macro <code>(<STRONG>lisp:exit-on-error</STRONG>
 {<var>form</var>}*)</code> executes the <var>form</var>s. When a
 non-continuable error or a Ctrl-C interrupt occurs, the error is printed
 and CLISP terminates with error status.
 
-<P>The macro <code><STRONG>with-restarts</STRONG></code> is like
-<code>restart-case</code>, except that the forms are specified after the
-restart clauses instead of before them, and the restarts created are not
-implicitly associated to any condition.
+<P>The macro <code><STRONG>lisp:with-restarts</STRONG></code> is like
+<a href="CLHSROOT/Body/mac_restart-case.html">
+<code>restart-case</code></a>, except that the forms are specified after
+the restart clauses instead of before them, and the restarts created are
+not implicitly associated to any condition.
   <code>(with-restarts
   (</code>{<var>restart-clause</var>}*<code>)</code>
   {<var>form</var>}*<code>)</code>
@@ -892,7 +978,10 @@ is therefore equivalent to <code>(restart-case (progn
     signal</a></h4>
 
 The default condition type for conditions created by <code>signal</code>
-is <code>simple-condition</code>, not <code>simple-error</code>.
+is <a href="CLHSROOT/Body/contyp_simple-condition.html">
+<code>simple-condition</code></a>, not
+<a href="CLHSROOT/Body/contyp_simple-error.html">
+<code>simple-error</code></a>.
 
 <h4><a href="CLHSROOT/Body/mac_restart-case.html">
     restart-case</a></h4>
@@ -927,8 +1016,12 @@ nearly obsolete.
     simple-warning</a></h4>
 
 <p>The default condition type for conditions created by
-<code>warn</code> is <code>simple-warning</code>, not
-<code>simple-error</code>.
+<a href="CLHSROOT/Body/fun_warn.html">
+<code>warn</code></a> is
+<a href="CLHSROOT/Body/contyp_simple-warning.html">
+<code>simple-warning</code></a>, not
+<a href="CLHSROOT/Body/contyp_simple-error.html">
+<code>simple-error</code></a>.
 
 
 <h2><a name="symbols"></a><a href="CLHSROOT/Body/chap-10.html">
@@ -940,14 +1033,14 @@ nearly obsolete.
     Chapter 11: Packages</a></h2>
 
 <p>The package <code>SYSTEM</code> has the nicknames
-<code>&quot;SYS&quot;</code> and, additionally,
-<code>&quot;COMPILER&quot;</code>.
+<code>&#34;SYS&#34;</code> and, additionally,
+<code>&#34;COMPILER&#34;</code>.
 
 <p>The ANSI packages
 <UL>
- <LI> <code>COMMON-LISP</code> with nickname <code>&quot;CL&quot;</code> and
+ <LI> <code>COMMON-LISP</code> with nickname <code>&#34;CL&#34;</code> and
  <LI> <code>COMMON-LISP-USER</code> with nickname
- <code>&quot;CL-USER&quot;</code>
+ <code>&#34;CL-USER&#34;</code>
 </UL>
 
 <p>are implemented. The package <code>COMMON-LISP</code> exports only
@@ -956,24 +1049,21 @@ those symbols from the ANSI CL standard that are actually implemented.
 <H3><a href="CLHSROOT/Body/sec_the_packa_s_dictionary.html">
     11.2. The Packages Dictionary</a></H3>
 
-<h4><a href="CLHSROOT/Body/fun_make-package.html">
-    make-package</a></h4>
+<p>For <a href="CLHSROOT/Body/fun_make-package.html">
+<code>make-package</code></a>, the default value of the
+<code>:use</code> argument is <code>(&#34;LISP&#34;
+&#34;CLOS&#34;)</code>.
 
-<p>For <code>make-package</code>, the default value of the
-<code>:use</code> argument is <code>(&quot;LISP&quot;
-&quot;CLOS&quot;)</code>.
+<p>The ANSI CL macro <a href="CLHSROOT/Body/mac_defpackage.html">
+<code>defpackage</code></a> is implemented.
 
-<h4><a href="CLHSROOT/Body/mac_defpackage.html">
-    defpackage</a></h4>
-
-<p>The ANSI CL macro <code>defpackage</code> is implemented.
-
-<h4><a href="CLHSROOT/Body/mac_in-package.html">
-    in-package</a></h4>
-
-<p><code>make-package</code> and <code>in-package</code> accept a
+<p><a href="CLHSROOT/Body/fun_make-package.html">
+<code>make-package</code></a> and
+<a href="CLHSROOT/Body/mac_in-package.html">
+<code>in-package</code></a> accept a
 keyword argument <code>:case-sensitive</code>.  Similarly,
-<code>defpackage</code> accepts an option
+<a href="CLHSROOT/Body/mac_defpackage.html">
+<code>defpackage</code></a> accepts an option
 <code>:case-sensitive</code>. When its value is non-<code>nil</code>,
 the package will be case sensitive, i.e. the reader will not
 case-convert symbol names before looking them up or creating them in
@@ -984,8 +1074,9 @@ this package. The package names are still subject to
     Chapter 12: Numbers</a></h2>
 
 <p>The type <code>number</code> is the disjoint union of the types
-<code>real</code> and <code>complex</code>. (CLtL wording:
-&quot;exhaustive partition&quot;)
+<code>real</code> and <code>complex</code>.  (&#34;<a
+href="CLHSROOT/Body/glo_e.html#exhaustive_partition">exhaustive
+partition</a>&#34;)
 
 <p>The type <code>real</code> is the disjoint union of the types
 <code>rational</code> and <code>float</code>.
@@ -1038,15 +1129,15 @@ When it is non-nil, contagion is done as per the ANSI CL standard:
 short-&gt;single-&gt;double-&gt;long.
 
 <p>
-<DL><DT>Rationale:</DT>
+<DL><DT>Rationale:
 <DD>See it pragmatically: save what you can and let others worry about
- the rest.</DD>
-<DT>Short:</DT>
+ the rest.
+<DT>Short:
 <DD>CL knows the number's precision, not accuracy, so preserving
  the precision can be accomplished reliably, while anything relating to
  the accuracy is just a speculation - only the user (programmer) knows
- what it is in each case.</DD>
-<DT>Long:</DT>
+ what it is in each case.
+<DT>Long:
 <DD>A float is an approximation of a real number.  One can think of it
  as a random variable with the mean equal to itself and standard
  deviation equal to half the last significant digit.  E.g.,
@@ -1063,15 +1154,15 @@ short-&gt;single-&gt;double-&gt;long.
  knowing the actual accuracy, ANSI CL (and all the other standard
  engineering programming languages, like C, FORTRAN etc) decides that
  keeping the accuracy correct is the business of the programmer, while
- the language should preserve what it can - the precision.</DD>
-<DT>Experience:</DT>
+ the language should preserve what it can - the precision.
+<DT>Experience:
 <DD> Rounding errors accumulate, and if a computation is conducted with
  insufficient precision, an outright incorrect result can be returned.
  (E.g., <code>E(x^2)-E(x)^2</code> can be negative!)  The user should not
  mix floats of different precision (that's what
  <code>*warn-on-floating-point-contagion*</code> is for), but s/he should
  not be penalized for this too harshly.
-</DD></DL>
+</DL>
 
 <P>When <code>*floating-point-contagion-ansi*</code> is nil, the
 traditional CLISP method is used, namely:
@@ -1084,34 +1175,26 @@ different float types is rounded to the float format of the shortest
 (in contrast to <a href="CLHSROOT/Body/sec_12-1-4-4.html">
 12.1.4.4 Rule of Float Precision Contagion</a>!)
 
-<p><DL><DT>Rationale:</DT>
-<DD>
-  See it mathematically.  Add intervals:
+<p><DL><DT>Rationale:
+<DD> See it mathematically.  Add intervals:
   {1.0 &plusmn; 1e-8} + {1.0 &plusmn; 1e-16} = {2.0 &plusmn; 1e-8}
   So, if we add <code>1.0s0</code> and <code>1.0d0</code>, we should get
   <code>2.0s0</code>.
-</DD>
-<DT>Shortly:</DT>
-<DD>
-  Do not suggest accuracy of a result by giving it a precision that is
-  greater than its accuracy.
-</DD>
-<DT>Example:</DT>
-<DD>
-  <code>(- (+ 1.7 pi) pi)</code> should not return
-  <code>1.700000726342836417234L0</code>, it should return
-  <code>1.7f0</code> (or <code>1.700001f0</code> if there were rounding
-  errors).
-</DD>
-<DT>Experience:</DT>
-<DD>
-  If in a computation using thousands of short floats, a long float
+<DT>Briefly:
+<DD> Do not suggest accuracy of a result by giving it a precision that
+ is greater than its accuracy.
+<DT>Example:
+<DD> <code>(- (+ 1.7 pi) pi)</code> should not return
+     <code>1.700000726342836417234L0</code>, it should return
+     <code>1.7f0</code> (or <code>1.700001f0</code> if there were
+     rounding errors).
+<DT>Experience:
+<DD> If in a computation using thousands of short floats, a long float
   (like pi) happens to be used, the long precision should not propagate
   throughout all the intermediate values. Otherwise, the long result
   would look precise, but its accuracy is only that of a short float;
   furthermore much computation time would be lost by calculating with
   long floats when only short floats would be needed.
-</DD>
 </DL>
 
 <p>If the variable
@@ -1139,7 +1222,7 @@ type <code>floating-point-underflow</code>.
 <P>Complex numbers can have a real part and an imaginary part of different
 types. For example, <code>(sqrt -9.0)</code> evaluates to the number
 <code>#C(0 3.0)</code>, which has a real part of exactly 0, not only 0.0
-(which would mean &quot;approximately 0&quot;).
+(which would mean &#34;approximately 0&#34;).
 
 <P>The type specifier for this is <code>(complex integer
 single-float)</code>, and <code>(complex <var>type-of-real-part</var>
@@ -1148,9 +1231,12 @@ single-float)</code>, and <code>(complex <var>type-of-real-part</var>
 <P>The type specifier <code>(complex <var>type</var>)</code> is
 equivalent to <code>(complex <var>type</var> <var>type</var>)</code>.
 
-<p>Complex numbers can have a real part and an imaginary part of different
-types. If the imaginary part is <code>eql</code> to <code>0</code>, the
-number is automatically converted to a real number. (Cf. CLtL1 p. 195)
+<h4><a href="CLHSROOT/Body/sec_12-1-5-3.html">
+    12.1.5.3 Rule of Canonical Representation for Complex Rationals</a></h4>
+
+<p>Complex numbers can have a real part and an imaginary part of
+different types. If the imaginary part is <code>eql</code> to
+<code>0</code>, the number is automatically converted to a real number.
 
 <p>This has the advantage that <code>(let ((x (sqrt -9.0))) (* x
 x))</code> - instead of evaluting to <code>#C(-9.0 0.0)</code>, with
@@ -1252,16 +1338,24 @@ with at least <var>digits</var> mantissa digits. The following holds:
     float limits</a></h4>
 
 <p>Together with <code>pi</code>, the other long float constants
-<code>most-positive-long-float</code>,
-<code>least-positive-long-float</code>,
-<code>least-negative-long-float</code>,
-<code>most-negative-long-float</code>,
-<code>least-positive-normalized-long-float</code>,
-<code>least-negative-normalized-long-float</code>,
-<code>long-float-epsilon</code>,
-<code>long-float-negative-epsilon</code> are recomputed whenever
-<code>(long-float-digits)</code> is changed. They are variables, not
-constants.
+<a href="CLHSROOT/Body/convar_most-p_d-long-float.html">
+<code>most-positive-long-float</code></a>,
+<a href="CLHSROOT/Body/convar_most-p_d-long-float.html">
+<code>least-positive-long-float</code></a>,
+<a href="CLHSROOT/Body/convar_most-p_d-long-float.html">
+<code>least-negative-long-float</code></a>,
+<a href="CLHSROOT/Body/convar_most-p_d-long-float.html">
+<code>most-negative-long-float</code></a>,
+<a href="CLHSROOT/Body/convar_most-p_d-long-float.html">
+<code>least-positive-normalized-long-float</code></a>,
+<a href="CLHSROOT/Body/convar_most-p_d-long-float.html">
+<code>least-negative-normalized-long-float</code></a>,
+<a href="CLHSROOT/Body/convar_short-_tive-epsilon.html">
+<code>long-float-epsilon</code></a>,
+<a href="CLHSROOT/Body/convar_short-_tive-epsilon.html">
+<code>long-float-negative-epsilon</code></a> are recomputed whenever
+<code>(lisp:long-float-digits)</code> is changed. They are variables,
+not constants.
 
 
 <h2><a name="characters"></a><a href="CLHSROOT/Body/chap-13.html">
@@ -1271,14 +1365,14 @@ constants.
 
 <!-- #ifdef IBMPC_CHS -->
 <DL>
-<DT><EM>Platform dependent: DOS, OS/2 platforms only.</EM></DT>
+<DT><EM>Platform dependent: DOS, OS/2 platforms only.</EM>
 <DD>
 More precisely, CLISP uses the IBM PC character set (code page 437):
 <TABLE BORDER=1>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD> &para; <TD> &sect;
   <TR>       <TH>$10 <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>   <TD>** <TD>** <TD>   <TD>   <TD>   <TD>
-  <TR>       <TH>$20 <TD> &nbsp; <TD> ! <TD> &quot; <TD> # <TD> $ <TD> % <TD> &amp; <TD> ' <TD> ( <TD> ) <TD> * <TD> + <TD> , <TD> - <TD> . <TD> /
+  <TR>       <TH>$20 <TD> &nbsp; <TD> ! <TD> &#34; <TD> # <TD> $ <TD> % <TD> &amp; <TD> ' <TD> ( <TD> ) <TD> * <TD> + <TD> , <TD> - <TD> . <TD> /
   <TR>       <TH>$30 <TD> 0 <TD> 1 <TD> 2 <TD> 3 <TD> 4 <TD> 5 <TD> 6 <TD> 7 <TD> 8 <TD> 9 <TD> : <TD> ; <TD> &lt; <TD> = <TD> &gt; <TD> ?
   <TR>       <TH>$40 <TD> @ <TD> A <TD> B <TD> C <TD> D <TD> E <TD> F <TD> G <TD> H <TD> I <TD> J <TD> K <TD> L <TD> M <TD> N <TD> O
   <TR>       <TH>$50 <TD> P <TD> Q <TD> R <TD> S <TD> T <TD> U <TD> V <TD> W <TD> X <TD> Y <TD> Z <TD> [ <TD> \ <TD> ] <TD> ^ <TD> _
@@ -1296,20 +1390,19 @@ More precisely, CLISP uses the IBM PC character set (code page 437):
 
 <p>Here ** are control characters, not graphic characters. (The
 characters left blank here cannot be represented in this character set).
-
-</DD>
 </DL>
 <!-- #endif -->
+
 <!-- #ifdef ISOLATIN_CHS -->
 <DL>
-<DT><EM>Platform dependent: UNIX (except NeXTstep), Win32, Amiga, Acorn platforms only.</EM></DT>
-<DD>
-More precisely, CLISP uses the ISO Latin-1 (ISO 8859-1) character set:
+<DT><EM>Platform dependent: UNIX (except NeXTstep), Win32, Amiga, Acorn
+platforms only.</EM>
+<DD>More precisely, CLISP uses the ISO Latin-1 (ISO 8859-1) character set:
 <TABLE BORDER=1>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
   <TR>       <TH>$10 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
-  <TR>       <TH>$20 <TD> &nbsp; <TD> ! <TD> &quot; <TD> # <TD> $ <TD> % <TD> &amp; <TD> ' <TD> ( <TD> ) <TD> * <TD> + <TD> , <TD> - <TD> . <TD> /
+  <TR>       <TH>$20 <TD> &nbsp; <TD> ! <TD> &#34; <TD> # <TD> $ <TD> % <TD> &amp; <TD> ' <TD> ( <TD> ) <TD> * <TD> + <TD> , <TD> - <TD> . <TD> /
   <TR>       <TH>$30 <TD> 0 <TD> 1 <TD> 2 <TD> 3 <TD> 4 <TD> 5 <TD> 6 <TD> 7 <TD> 8 <TD> 9 <TD> : <TD> ; <TD> &lt; <TD> = <TD> &gt; <TD> ?
   <TR>       <TH>$40 <TD> @ <TD> A <TD> B <TD> C <TD> D <TD> E <TD> F <TD> G <TD> H <TD> I <TD> J <TD> K <TD> L <TD> M <TD> N <TD> O
   <TR>       <TH>$50 <TD> P <TD> Q <TD> R <TD> S <TD> T <TD> U <TD> V <TD> W <TD> X <TD> Y <TD> Z <TD> [ <TD> \ <TD> ] <TD> ^ <TD> _
@@ -1326,20 +1419,18 @@ More precisely, CLISP uses the ISO Latin-1 (ISO 8859-1) character set:
 </TABLE>
 Here ** are control characters, not graphic characters. (The characters left
 blank here cannot be represented in this character set).
-
-</DD>
 </DL>
 <!-- #endif -->
+
 <!-- #ifdef NEXTSTEP_CHS -->
 <DL>
-<DT><EM>Platform dependent: NeXTstep platforms only.</EM></DT>
-<DD>
-More precisely, CLISP uses the NextStep character set:
+<DT><EM>Platform dependent: NeXTstep platforms only.</EM>
+<DD>More precisely, CLISP uses the NextStep character set:
 <TABLE BORDER=1>
   <TR>       <TH>    <TH>$0 <TH>$1 <TH>$2 <TH>$3 <TH>$4 <TH>$5 <TH>$6 <TH>$7 <TH>$8 <TH>$9 <TH>$A <TH>$B <TH>$C <TH>$D <TH>$E <TH>$F
   <TR>       <TH>$00 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
   <TR>       <TH>$10 <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>** <TD>**
-  <TR>       <TH>$20 <TD> &nbsp; <TD> ! <TD> &quot; <TD> # <TD> $ <TD> % <TD> &amp; <TD> ' <TD> ( <TD> ) <TD> * <TD> + <TD> , <TD> - <TD> . <TD> /
+  <TR>       <TH>$20 <TD> &nbsp; <TD> ! <TD> &#34; <TD> # <TD> $ <TD> % <TD> &amp; <TD> ' <TD> ( <TD> ) <TD> * <TD> + <TD> , <TD> - <TD> . <TD> /
   <TR>       <TH>$30 <TD> 0 <TD> 1 <TD> 2 <TD> 3 <TD> 4 <TD> 5 <TD> 6 <TD> 7 <TD> 8 <TD> 9 <TD> : <TD> ; <TD> &lt; <TD> = <TD> &gt; <TD> ?
   <TR>       <TH>$40 <TD> @ <TD> A <TD> B <TD> C <TD> D <TD> E <TD> F <TD> G <TD> H <TD> I <TD> J <TD> K <TD> L <TD> M <TD> N <TD> O
   <TR>       <TH>$50 <TD> P <TD> Q <TD> R <TD> S <TD> T <TD> U <TD> V <TD> W <TD> X <TD> Y <TD> Z <TD> [ <TD> \ <TD> ] <TD> ^ <TD> _
@@ -1357,8 +1448,6 @@ More precisely, CLISP uses the NextStep character set:
 
 <p>Here ** are control characters, not graphic characters. (The
 characters left blank here cannot be represented in this character set).
-
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -1377,22 +1466,21 @@ The following are semi-standard characters:
 </TABLE>
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <DL>
-<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
+<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
 <DD>
 <TABLE>
   <TR> <TD><code>#\Rubout</code>             <TD> $08
 </TABLE>
-</DD>
 </DL>
 <!-- #endif -->
+
 <!-- #if defined(UNIX_CHARNAMES) || defined(AMIGA_CHARNAMES) -->
 <DL>
-<DT><EM>Platform dependent: UNIX, Amiga, Acorn platforms only.</EM></DT>
+<DT><EM>Platform dependent: UNIX, Amiga, Acorn platforms only.</EM>
 <DD>
 <TABLE>
   <TR> <TD><code>#\Rubout</code>             <TD> $7F
 </TABLE>
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -1402,12 +1490,10 @@ The following are semi-standard characters:
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <P><DL>
-<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
-<DD>
-When writing to a file, <code>#\Newline</code> is converted to
+<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
+<DD>When writing to a file, <code>#\Newline</code> is converted to
 CR/LF. (This is the usual convention on DOS.) For example,
 <code>#\Return #\Newline</code> is written as CR/CR/LF.
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -1440,8 +1526,9 @@ from $00 to $1F:
 
 <H3>Attributes</H3>
 
-<p>The code of a character is &gt;=0,
-&lt;256. <code>char-code-limit</code> = 256.
+<p>The code of a character is &gt;=0, &lt;256.
+<a href="CLHSROOT/Body/convar_char-code-limit.html">
+<code>char-code-limit</code></a> = 256.
 
 <p>There are fonts 0 to 15, and <code>lisp:char-font-limit</code> =
 16. But the system itself uses only font 0.
@@ -1452,19 +1539,18 @@ from $00 to $1F:
 
 <!-- #ifdef KEYBOARD -->
 <p><DL>
-<DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Acorn platforms only.</EM></DT>
-<DD>
-The system itself uses these bits only to mention special keys and
+<DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Acorn platforms
+only.</EM>
+<DD>The system itself uses these bits only to mention special keys and
 Control/Alternate/Shift key status on return from <code>(read-char
 *keyboard-input*)</code>.
-</DD>
 </DL>
 <!-- #endif -->
 
 <h3><a href="CLHSROOT/Body/sec_the_chara_s_dictionary.html">
     13.2. The Characters Dictionary</a></h3>
 
-<table>
+<p><table>
  <tr><td><code>char-code-limit</code>     <td>=<td align=right> 256
  <tr><td><code>lisp:char-bits-limit</code><td>=<td align=right>  16
  <tr><td><code>lisp:char-font-limit</code><td>=<td align=right>  16
@@ -1492,114 +1578,135 @@ and the international alphabetic characters from the character set:
 <code>char-not-greaterp</code>, <code>char-not-lessp</code> ignore bits
 and font attributes of their arguments.
 
-<h3>13.4.</h3>
+<h3>platform-dependent characters</h3>
 
 <p>The characters that are not graphic chars and the space character
 have names:
 
 <!-- #ifdef AMIGA_CHARNAMES -->
 <DL>
-<DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
-<DD>
-      <code>(code-char #x00)</code> = <code>#\Null</code>
-  <BR><code>(code-char #x01)</code> = <code>#\Code1</code>
-  <BR><code>(code-char #x02)</code> = <code>#\Code2</code>
-  <BR><code>(code-char #x03)</code> = <code>#\Code3</code>
-  <BR><code>(code-char #x04)</code> = <code>#\Code4</code>
-  <BR><code>(code-char #x05)</code> = <code>#\Code5</code>
-  <BR><code>(code-char #x06)</code> = <code>#\Code6</code>
-  <BR><code>(code-char #x07)</code> = <code>#\Bell</code> = <code>#\Bel</code>
-  <BR><code>(code-char #x08)</code> = <code>#\Backspace</code> = <code>#\Bs</code>
-  <BR><code>(code-char #x09)</code> = <code>#\Tab</code> = <code>#\Ht</code>
-  <BR><code>(code-char #x0A)</code> = <code>#\Newline</code> = <code>#\Linefeed</code> = <code>#\Lf</code>
-  <BR><code>(code-char #x0B)</code> = <code>#\Vt</code>
-  <BR><code>(code-char #x0C)</code> = <code>#\Page</code> = <code>#\Ff</code>
-  <BR><code>(code-char #x0D)</code> = <code>#\Return</code> = <code>#\Cr</code>
-  <BR><code>(code-char #x0E)</code> = <code>#\So</code>
-  <BR><code>(code-char #x0F)</code> = <code>#\Si</code>
-  <BR><code>(code-char #x10)</code> = <code>#\Code16</code>
-  <BR><code>(code-char #x11)</code> = <code>#\Code17</code>
-  <BR><code>(code-char #x12)</code> = <code>#\Code18</code>
-  <BR><code>(code-char #x13)</code> = <code>#\Code19</code>
-  <BR><code>(code-char #x14)</code> = <code>#\Code20</code>
-  <BR><code>(code-char #x15)</code> = <code>#\Code21</code>
-  <BR><code>(code-char #x16)</code> = <code>#\Code22</code>
-  <BR><code>(code-char #x17)</code> = <code>#\Code23</code>
-  <BR><code>(code-char #x18)</code> = <code>#\Code24</code>
-  <BR><code>(code-char #x19)</code> = <code>#\Code25</code>
-  <BR><code>(code-char #x1A)</code> = <code>#\Code26</code>
-  <BR><code>(code-char #x1B)</code> = <code>#\Escape</code> = <code>#\Esc</code>
-  <BR><code>(code-char #x1C)</code> = <code>#\Code28</code>
-  <BR><code>(code-char #x1D)</code> = <code>#\Code29</code>
-  <BR><code>(code-char #x1E)</code> = <code>#\Code30</code>
-  <BR><code>(code-char #x1F)</code> = <code>#\Code31</code>
-  <BR><code>(code-char #x20)</code> = <code>#\Space</code>
-  <BR><code>(code-char #x7F)</code> = <code>#\Rubout</code>
-  <BR><code>(code-char #x9B)</code> = <code>#\Csi</code>
-</DD>
-</DL>
-<!-- #endif -->
-<!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
-<DL>
-<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
-<DD>
-      <code>(code-char #x00)</code> = <code>#\Null</code>
-  <BR><code>(code-char #x07)</code> = <code>#\Bell</code>
-  <BR><code>(code-char #x08)</code> = <code>#\Backspace</code> = <code>#\Rubout</code>
-  <BR><code>(code-char #x09)</code> = <code>#\Tab</code>
-  <BR><code>(code-char #x0A)</code> = <code>#\Newline</code> = <code>#\Linefeed</code>
-  <BR><code>(code-char #x0B)</code> = <code>#\Code11</code>
-  <BR><code>(code-char #x0C)</code> = <code>#\Page</code>
-  <BR><code>(code-char #x0D)</code> = <code>#\Return</code>
-  <BR><code>(code-char #x1A)</code> = <code>#\Code26</code>
-  <BR><code>(code-char #x1B)</code> = <code>#\Escape</code>
-  <BR><code>(code-char #x20)</code> = <code>#\Space</code>
-</DD>
-</DL>
-<!-- #endif -->
-<!-- #ifdef UNIX_CHARNAMES -->
-<DL>
-<DT><EM>Platform dependent: UNIX, Acorn platforms only.</EM></DT>
-<DD>
-      <code>(code-char #x00)</code> = <code>#\Null</code> = <code>#\Nul</code>
-  <BR><code>(code-char #x01)</code> = <code>#\Soh</code>
-  <BR><code>(code-char #x02)</code> = <code>#\Stx</code>
-  <BR><code>(code-char #x03)</code> = <code>#\Etx</code>
-  <BR><code>(code-char #x04)</code> = <code>#\Eot</code>
-  <BR><code>(code-char #x05)</code> = <code>#\Enq</code>
-  <BR><code>(code-char #x06)</code> = <code>#\Ack</code>
-  <BR><code>(code-char #x07)</code> = <code>#\Bell</code> = <code>#\Bel</code>
-  <BR><code>(code-char #x08)</code> = <code>#\Backspace</code> = <code>#\Bs</code>
-  <BR><code>(code-char #x09)</code> = <code>#\Tab</code> = <code>#\Ht</code>
-  <BR><code>(code-char #x0A)</code> = <code>#\Newline</code> = <code>#\Nl</code> = <code>#\Linefeed</code>
-  <BR><code>(code-char #x0B)</code> = <code>#\Vt</code>
-  <BR><code>(code-char #x0C)</code> = <code>#\Page</code> = <code>#\Np</code>
-  <BR><code>(code-char #x0D)</code> = <code>#\Return</code> = <code>#\Cr</code>
-  <BR><code>(code-char #x0E)</code> = <code>#\So</code>
-  <BR><code>(code-char #x0F)</code> = <code>#\Si</code>
-  <BR><code>(code-char #x10)</code> = <code>#\Dle</code>
-  <BR><code>(code-char #x11)</code> = <code>#\Dc1</code>
-  <BR><code>(code-char #x12)</code> = <code>#\Dc2</code>
-  <BR><code>(code-char #x13)</code> = <code>#\Dc3</code>
-  <BR><code>(code-char #x14)</code> = <code>#\Dc4</code>
-  <BR><code>(code-char #x15)</code> = <code>#\Nak</code>
-  <BR><code>(code-char #x16)</code> = <code>#\Syn</code>
-  <BR><code>(code-char #x17)</code> = <code>#\Etb</code>
-  <BR><code>(code-char #x18)</code> = <code>#\Can</code>
-  <BR><code>(code-char #x19)</code> = <code>#\Em</code>
-  <BR><code>(code-char #x1A)</code> = <code>#\Sub</code>
-  <BR><code>(code-char #x1B)</code> = <code>#\Escape</code> = <code>#\Esc</code>
-  <BR><code>(code-char #x1C)</code> = <code>#\Fs</code>
-  <BR><code>(code-char #x1D)</code> = <code>#\Gs</code>
-  <BR><code>(code-char #x1E)</code> = <code>#\Rs</code>
-  <BR><code>(code-char #x1F)</code> = <code>#\Us</code>
-  <BR><code>(code-char #x20)</code> = <code>#\Space</code> = <code>#\Sp</code>
-  <BR><code>(code-char #x7F)</code> = <code>#\Rubout</code> = <code>#\Delete</code> = <code>#\Del</code>
-</DD>
+<DT><EM>Platform dependent: Amiga platforms only.</EM>
+<DD><table>
+  <tr><td><code>(code-char #x00)</code><td>=<td><code>#\Null</code>
+  <tr><td><code>(code-char #x01)</code><td>=<td><code>#\Code1</code>
+  <tr><td><code>(code-char #x02)</code><td>=<td><code>#\Code2</code>
+  <tr><td><code>(code-char #x03)</code><td>=<td><code>#\Code3</code>
+  <tr><td><code>(code-char #x04)</code><td>=<td><code>#\Code4</code>
+  <tr><td><code>(code-char #x05)</code><td>=<td><code>#\Code5</code>
+  <tr><td><code>(code-char #x06)</code><td>=<td><code>#\Code6</code>
+  <tr><td><code>(code-char #x07)</code><td>=<td><code>#\Bell</code>
+      <td>=<td><code>#\Bel</code>
+  <tr><td><code>(code-char #x08)</code><td>=<td><code>#\Backspace</code>
+      <td>=<td><code>#\Bs</code>
+  <tr><td><code>(code-char #x09)</code><td>=<td><code>#\Tab</code>
+      <td>=<td><code>#\Ht</code>
+  <tr><td><code>(code-char #x0A)</code><td>=<td><code>#\Newline</code>
+      <td>=<td><code>#\Linefeed</code><td>=<td><code>#\Lf</code>
+  <tr><td><code>(code-char #x0B)</code><td>=<td><code>#\Vt</code>
+  <tr><td><code>(code-char #x0C)</code><td>=<td><code>#\Page</code>
+      <td>=<td><code>#\Ff</code>
+  <tr><td><code>(code-char #x0D)</code><td>=<td><code>#\Return</code>
+      <td>=<td><code>#\Cr</code>
+  <tr><td><code>(code-char #x0E)</code><td>=<td><code>#\So</code>
+  <tr><td><code>(code-char #x0F)</code><td>=<td><code>#\Si</code>
+  <tr><td><code>(code-char #x10)</code><td>=<td><code>#\Code16</code>
+  <tr><td><code>(code-char #x11)</code><td>=<td><code>#\Code17</code>
+  <tr><td><code>(code-char #x12)</code><td>=<td><code>#\Code18</code>
+  <tr><td><code>(code-char #x13)</code><td>=<td><code>#\Code19</code>
+  <tr><td><code>(code-char #x14)</code><td>=<td><code>#\Code20</code>
+  <tr><td><code>(code-char #x15)</code><td>=<td><code>#\Code21</code>
+  <tr><td><code>(code-char #x16)</code><td>=<td><code>#\Code22</code>
+  <tr><td><code>(code-char #x17)</code><td>=<td><code>#\Code23</code>
+  <tr><td><code>(code-char #x18)</code><td>=<td><code>#\Code24</code>
+  <tr><td><code>(code-char #x19)</code><td>=<td><code>#\Code25</code>
+  <tr><td><code>(code-char #x1A)</code><td>=<td><code>#\Code26</code>
+  <tr><td><code>(code-char #x1B)</code><td>=<td><code>#\Escape</code>
+      <td>=<td><code>#\Esc</code>
+  <tr><td><code>(code-char #x1C)</code><td>=<td><code>#\Code28</code>
+  <tr><td><code>(code-char #x1D)</code><td>=<td><code>#\Code29</code>
+  <tr><td><code>(code-char #x1E)</code><td>=<td><code>#\Code30</code>
+  <tr><td><code>(code-char #x1F)</code><td>=<td><code>#\Code31</code>
+  <tr><td><code>(code-char #x20)</code><td>=<td><code>#\Space</code>
+  <tr><td><code>(code-char #x7F)</code><td>=<td><code>#\Rubout</code>
+  <tr><td><code>(code-char #x9B)</code><td>=<td><code>#\Csi</code>
+  </table>
 </DL>
 <!-- #endif -->
 
-<h3>13.5.</h3>
+<!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
+<DL>
+<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
+<DD><table>
+  <tr><td><code>(code-char #x00)</code><td>=<td><code>#\Null</code>
+  <tr><td><code>(code-char #x07)</code><td>=<td><code>#\Bell</code>
+  <tr><td><code>(code-char #x08)</code><td>=<td><code>#\Backspace</code>
+      <td>=<td><code>#\Rubout</code>
+  <tr><td><code>(code-char #x09)</code><td>=<td><code>#\Tab</code>
+  <tr><td><code>(code-char #x0A)</code><td>=<td><code>#\Newline</code>
+      <td>=<td><code>#\Linefeed</code>
+  <tr><td><code>(code-char #x0B)</code><td>=<td><code>#\Code11</code>
+  <tr><td><code>(code-char #x0C)</code><td>=<td><code>#\Page</code>
+  <tr><td><code>(code-char #x0D)</code><td>=<td><code>#\Return</code>
+  <tr><td><code>(code-char #x1A)</code><td>=<td><code>#\Code26</code>
+  <tr><td><code>(code-char #x1B)</code><td>=<td><code>#\Escape</code>
+  <tr><td><code>(code-char #x20)</code><td>=<td><code>#\Space</code>
+  </table>
+</DL>
+<!-- #endif -->
+
+<!-- #ifdef UNIX_CHARNAMES -->
+<DL>
+<DT><EM>Platform dependent: UNIX, Acorn platforms only.</EM>
+<DD><table>
+  <tr><td><code>(code-char #x00)</code><td>=<td><code>#\Null</code>
+      <td>=<td><code>#\Nul</code>
+  <tr><td><code>(code-char #x01)</code><td>=<td><code>#\Soh</code>
+  <tr><td><code>(code-char #x02)</code><td>=<td><code>#\Stx</code>
+  <tr><td><code>(code-char #x03)</code><td>=<td><code>#\Etx</code>
+  <tr><td><code>(code-char #x04)</code><td>=<td><code>#\Eot</code>
+  <tr><td><code>(code-char #x05)</code><td>=<td><code>#\Enq</code>
+  <tr><td><code>(code-char #x06)</code><td>=<td><code>#\Ack</code>
+  <tr><td><code>(code-char #x07)</code><td>=<td><code>#\Bell</code>
+      <td>=<td><code>#\Bel</code>
+  <tr><td><code>(code-char #x08)</code><td>=<td><code>#\Backspace</code>
+      <td>=<td><code>#\Bs</code>
+  <tr><td><code>(code-char #x09)</code><td>=<td><code>#\Tab</code>
+      <td>=<td><code>#\Ht</code>
+  <tr><td><code>(code-char #x0A)</code><td>=<td><code>#\Newline</code>
+      <td>=<td><code>#\Nl</code><td>=<td><code>#\Linefeed</code>
+  <tr><td><code>(code-char #x0B)</code><td>=<td><code>#\Vt</code>
+  <tr><td><code>(code-char #x0C)</code><td>=<td><code>#\Page</code>
+      <td>=<td><code>#\Np</code>
+  <tr><td><code>(code-char #x0D)</code><td>=<td><code>#\Return</code>
+      <td>=<td><code>#\Cr</code>
+  <tr><td><code>(code-char #x0E)</code><td>=<td><code>#\So</code>
+  <tr><td><code>(code-char #x0F)</code><td>=<td><code>#\Si</code>
+  <tr><td><code>(code-char #x10)</code><td>=<td><code>#\Dle</code>
+  <tr><td><code>(code-char #x11)</code><td>=<td><code>#\Dc1</code>
+  <tr><td><code>(code-char #x12)</code><td>=<td><code>#\Dc2</code>
+  <tr><td><code>(code-char #x13)</code><td>=<td><code>#\Dc3</code>
+  <tr><td><code>(code-char #x14)</code><td>=<td><code>#\Dc4</code>
+  <tr><td><code>(code-char #x15)</code><td>=<td><code>#\Nak</code>
+  <tr><td><code>(code-char #x16)</code><td>=<td><code>#\Syn</code>
+  <tr><td><code>(code-char #x17)</code><td>=<td><code>#\Etb</code>
+  <tr><td><code>(code-char #x18)</code><td>=<td><code>#\Can</code>
+  <tr><td><code>(code-char #x19)</code><td>=<td><code>#\Em</code>
+  <tr><td><code>(code-char #x1A)</code><td>=<td><code>#\Sub</code>
+  <tr><td><code>(code-char #x1B)</code><td>=<td><code>#\Escape</code>
+      <td>=<td><code>#\Esc</code>
+  <tr><td><code>(code-char #x1C)</code><td>=<td><code>#\Fs</code>
+  <tr><td><code>(code-char #x1D)</code><td>=<td><code>#\Gs</code>
+  <tr><td><code>(code-char #x1E)</code><td>=<td><code>#\Rs</code>
+  <tr><td><code>(code-char #x1F)</code><td>=<td><code>#\Us</code>
+  <tr><td><code>(code-char #x20)</code><td>=<td><code>#\Space</code>
+      <td>=<td><code>#\Sp</code>
+  <tr><td><code>(code-char #x7F)</code><td>=<td><code>#\Rubout</code>
+      <td>=<td><code>#\Delete</code><td>=<td><code>#\Del</code>
+</table>
+</DL>
+<!-- #endif -->
+
+<h3>obsolete constants</h3>
 
 <table>
  <tr><td><code>lisp:char-control-bit</code> <td>=<td> 1
@@ -1644,19 +1751,28 @@ with <code>append</code> instead of <code>nconc</code>:
 <h2><a name="arrays"></a><a href="CLHSROOT/Body/chap-15.html">
     Chapter 15: Arrays</a></h2>
 
-<p><code>make-array</code> can return specialized arrays for the element
-types <code>(unsigned-byte 2)</code>, <code>(unsigned-byte 4)</code>,
-<code>(unsigned-byte 8)</code>, <code>(unsigned-byte 16)</code>,
-<code>(unsigned-byte 32)</code> and of course <code>bit</code> and
-<code>character</code>.
+<p><a href="CLHSROOT/Body/fun_make-array.html">
+<code>make-array</code></a> can return specialized arrays for the
+element types <code>(unsigned-byte 2)</code>, <code>(unsigned-byte
+4)</code>, <code>(unsigned-byte 8)</code>, <code>(unsigned-byte
+16)</code>, <code>(unsigned-byte 32)</code> and of course
+<code>bit</code> and <code>character</code>.
 
-<P><code>array-rank-limit</code> is either 65536 or 4294967296.
-<P><code>array-dimension-limit</code> = 2<SUP>24</SUP> = 16777216
-<p><code>array-total-size-limit</code> = 2<SUP>24</SUP> = 16777216
+<p><table>
+<tr><td><a href="CLHSROOT/Body/convar_array-rank-limit.html">
+    <code>array-rank-limit</code></a>
+    <td>=<td>2<SUP>16</SUP><td>=<td>65536 (4294967296 ??)
+<tr><td><a href="CLHSROOT/Body/convar_array-_ension-limit.html">
+    <code>array-dimension-limit</code></a>
+    <td>=<td>2<SUP>24</SUP><td>=<td>16777216
+<tr><td><a href="CLHSROOT/Body/convar_array-_l-size-limit.html">
+    <code>array-total-size-limit</code></a>
+    <td>=<td>2<SUP>24</SUP><td>=<td>16777216
+</table>
 
-<p>Note that these constants are not fixnums, contrary to
-<a href="CLHSROOT/Issues/iss014.html">
-Issue ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</a>.
+<p>Note that these constants are not fixnums, contrary to the ANSI CL
+Issue <a href="CLHSROOT/Issues/iss014.html">
+ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</a>.
 
 <H3><a href="CLHSROOT/Body/fun_adjust-array.html">
     adjust-array</a> for displaced arrays</H3>
@@ -1672,9 +1788,9 @@ points into void space.  This is not checked at the time
 
 <p>String comparison is based on the function
 <code>char&lt;=</code>. Therefore diphtongs do not obey the usual
-national rules. Example: <code>&quot;o&quot;</code> &lt;
-<code>&quot;oe&quot;</code> &lt; <code>&quot;z&quot;</code> &lt;
-<code>&quot;&ouml;&quot;</code>.
+national rules. Example: <code>&#34;o&#34;</code> &lt;
+<code>&#34;oe&#34;</code> &lt; <code>&#34;z&#34;</code> &lt;
+<code>&#34;&ouml;&#34;</code>.
 
 <h2><a name="sequences"></a><a href="CLHSROOT/Body/chap-17.html">
     Chapter 17: Sequences</a></h2>
@@ -1690,10 +1806,8 @@ national rules. Example: <code>&quot;o&quot;</code> &lt;
 <H3><a href="CLHSROOT/Body/sec_the_seque_s_dictionary.html">
     17.3. The Sequences Dictionary</a></H3>
 
-<h4><a href="CLHSROOT/Body/fun_map-into.html">
-    map-into</a></h4>
-
-<p>The ANSI CL function <code>map-into</code> is implemented.
+<p>The ANSI CL function <a href="CLHSROOT/Body/fun_map-into.html">
+<code>map-into</code></a> is implemented.
 
 <h4><a href="CLHSROOT/Body/fun_reversecm_nreverse.html">
     nreverse</a></h4>
@@ -1738,8 +1852,9 @@ implement the mergesort algorithm.
 <H3><a href="CLHSROOT/Body/sec_the_hash__s_dictionary.html">
     18.2. The Hash Tables Dictionary</a></H3>
 
-<p><code>make-hash-table</code> has an additional keyword
-  <code>:initial-contents</code>:
+<p><a href="CLHSROOT/Body/fun_make-hash-table.html">
+<code>make-hash-table</code></a> has an additional keyword
+<code>:initial-contents</code>:
 
 <p><code>(make-hash-table &amp;key :test :initial-contents :size
                           :rehash-size :rehash-threshold)</code>
@@ -1767,32 +1882,29 @@ directories can not be used interchangeably.
 
 <DL>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<DT><EM>Platform dependent: UNIX, Amiga platforms only.</EM></DT>
-<DD>
-For example, <code>#&quot;FOO/BAR&quot;</code> denotes the file
+<DT><EM>Platform dependent: UNIX, Amiga platforms only.</EM>
+<DD>For example, <code>#&#34;FOO/BAR&#34;</code> denotes the file
 <code>BAR</code> in the directory <code>FOO</code>, while
-<code>#&quot;FOO/BAR/&quot;</code> denotes the subdirectory
+<code>#&#34;FOO/BAR/&#34;</code> denotes the subdirectory
 <code>BAR</code> of the directory <code>FOO</code>.
-</DD>
 <!-- #endif -->
+
 <!-- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
-<DD>
-For example, <code>#&quot;FOO\\BAR&quot;</code> denotes the file
+<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
+<DD>For example, <code>#&#34;FOO\\BAR&#34;</code> denotes the file
 <code>BAR</code> in the directory <code>FOO</code>, while
-<code>#&quot;FOO\\BAR\\&quot;</code> denotes the subdirectory
+<code>#&#34;FOO\\BAR\\&#34;</code> denotes the subdirectory
 <code>BAR</code> of the directory <code>FOO</code>.
-</DD>
 <!-- #endif -->
+
 <!-- #ifdef PATHNAME_RISCOS -->
-<DT><EM>Platform dependent: Acorn platforms only.</EM></DT>
-<DD>
-For example, <code>#&quot;FOO.BAR&quot;</code> denotes the file
+<DT><EM>Platform dependent: Acorn platforms only.</EM>
+<DD>For example, <code>#&#34;FOO.BAR&#34;</code> denotes the file
 <code>FOO</code> in the directory <code>BAR</code>, while
-<code>#&quot;FOO.BAR.&quot;</code> denotes the subdirectory
+<code>#&#34;FOO.BAR.&#34;</code> denotes the subdirectory
 <code>BAR</code> of the directory <code>FOO</code>.
-</DD>
 <!-- #endif -->
+
 </DL>
 This is especially important for the functions <code>directory</code>,
 <code>dir</code>, <code>cd</code>, <code>make-dir</code>,
@@ -1800,9 +1912,12 @@ This is especially important for the functions <code>directory</code>,
 
 <P>The minimum filename syntax that may be used portably is:
 <TABLE>
-  <TR> <TD><code>&quot;<var>xxx</var>&quot;</code>       <TD>for a file with name <var>xxx</var>,
-  <TR> <TD><code>&quot;<var>xxx</var>.<var>yy</var>&quot;</code>    <TD>for a file with name <var>xxx</var> and type <var>yy</var>,
-  <TR> <TD><code>&quot;.<var>yy</var>&quot;</code>       <TD>for a pathname with type <var>yy</var> and no name specified.
+  <TR> <TD><code>&#34;<var>xxx</var>&#34;</code>
+       <TD>for a file with name <var>xxx</var>,
+  <TR> <TD><code>&#34;<var>xxx</var>.<var>yy</var>&#34;</code>
+       <TD>for a file with name <var>xxx</var> and type <var>yy</var>,
+  <TR> <TD><code>&#34;.<var>yy</var>&#34;</code>
+       <TD>for a pathname with type <var>yy</var> and no name specified.
 </TABLE>
 
 <p>Hereby <var>xxx</var> denote 1 to 8 characters, and <var>yy</var>
@@ -1815,18 +1930,18 @@ vary between operating systems.
 
 <!-- #ifdef PATHNAME_MSDOS -->
 <DL>
-<DT><EM>Platform dependent: DOS platforms only.</EM></DT>
+<DT><EM>Platform dependent: DOS platforms only.</EM>
 <DD>
 Pathname components:
 <DL>
 <DT><code>host</code>          <DD>always <code>nil</code>
-<DT><code>device</code>        <DD><code>nil</code> or <code>:wild</code> or <code>&quot;A&quot;</code>|...|<code>&quot;Z&quot;</code>
+<DT><code>device</code>        <DD><code>nil</code> or <code>:wild</code> or <code>&#34;A&#34;</code>|...|<code>&#34;Z&#34;</code>
 <DT><code>directory</code>     <DD><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
                <BR><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
                <BR><var>subdirs</var> = <code>()</code> | <code>(<var>subdir</var> . <var>subdirs</var>)</code>
-               <BR><var>subdir</var> = <code>:current</code> (means <code>&quot;.&quot;</code>) or
-               <BR><var>subdir</var> = <code>:parent</code> (means <code>&quot;..&quot;</code>) or
-               <BR><var>subdir</var> = <code>:wild-inferiors</code> (means <code>&quot;...&quot;</code>, all subdirectories) or
+               <BR><var>subdir</var> = <code>:current</code> (means <code>&#34;.&#34;</code>) or
+               <BR><var>subdir</var> = <code>:parent</code> (means <code>&#34;..&#34;</code>) or
+               <BR><var>subdir</var> = <code>:wild-inferiors</code> (means <code>&#34;...&#34;</code>, all subdirectories) or
                <BR><var>subdir</var> = <code>(<var>name</var> . <var>type</var>)</code>
                 <BR><var>name</var> = <code>:wild</code> or a simple string with 8 characters maximum
                 <BR><var>type</var> = <code>:wild</code> or a simple string with 3 characters maximum
@@ -1853,13 +1968,12 @@ that no <code>:wild</code>, <code>:wild-inferiors</code> is allowed, and
 
 <P> Instead of <code>'\'</code> one may use <code>'/'</code>, as usual
 for DOS calls.
-
-</DD>
 </DL>
 <!-- #endif -->
+
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <DL>
-<DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
+<DT><EM>Platform dependent: Amiga platforms only.</EM>
  <DD> Pathname components:
  <DL>
   <DT><code>host</code>
@@ -1871,11 +1985,11 @@ for DOS calls.
     <BR><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
    <BR><var>subdirs</var> = <code>()</code> | <code>(<var>subdir</var> . <var>subdirs</var>)</code>
    <BR><var>subdir</var> = <code>:wild-inferiors</code>
-    (means <code>&quot;**&quot;</code> or <code>&quot;...&quot;</code>,
+    (means <code>&#34;**&#34;</code> or <code>&#34;...&#34;</code>,
     all subdirectories) or
    <BR><var>subdir</var> = <code>:parent</code>
-    (means <code>&quot;/&quot;</code> instead of
-    <code>&quot;subdir/&quot;</code>) or
+    (means <code>&#34;/&#34;</code> instead of
+    <code>&#34;subdir/&#34;</code>) or
    <BR><var>subdir</var> = simple string, may contain wildcard
     characters <code>?</code> and <code>*</code>
   <DT><code>name</code>
@@ -1942,15 +2056,15 @@ wildcard characters are allowed in the strings, and <var>name</var> =
 
 <p><TABLE BORDER=1>
 <TR> <TH>String       <TH>Device    <TH>Directory                <TH>our pathname
-<TR> <TD><code>'c:foo'</code>      <TD>'C'     <TD>device-&gt;<code>foo</code>               <TD><code>&quot;c&quot; (:absolute &quot;foo&quot;)</code>
-<TR> <TD><code>'c:foo/'</code>     <TD>'C'     <TD>device-&gt;<code>foo</code>               <TD><code>&quot;c&quot; (:absolute &quot;foo&quot;)</code>
-<TR> <TD><code>'c:foo/bar'</code>  <TD>'C'     <TD>device-&gt;<code>foo</code>-&gt;<code>bar</code>          <TD><code>&quot;c&quot; (:absolute &quot;foo&quot; &quot;bar&quot;)</code>
-<TR> <TD><code>'c:/foo'</code>     <TD>'C'     <TD>device-&gt;up-&gt;<code>foo</code>           <TD><code>&quot;c&quot; (:absolute :parent &quot;foo&quot;)</code>
-<TR> <TD><code>'c:'</code>         <TD>'C'     <TD>device                    <TD><code>&quot;c&quot; (:absolute)</code>
-<TR> <TD><code>':foo'</code>       <TD>current <TD>device-&gt;root-&gt;<code>foo</code>         <TD><code>nil (:absolute &quot;foo&quot;)</code>
-<TR> <TD><code>'foo'</code>        <TD>current <TD>device-&gt;<code>foo</code>               <TD><code>nil (:relative &quot;foo&quot;)</code>
-<TR> <TD><code>'/foo'</code>       <TD>current <TD>device-&gt;up-&gt;<code>foo</code>           <TD><code>nil (:relative :parent &quot;foo&quot;)</code>
-<TR> <TD><code>'//foo/bar'</code>  <TD>current <TD>device-&gt;up-&gt;up-&gt;<code>foo</code>-&gt;<code>bar</code>  <TD><code>nil (:relative :parent :parent &quot;foo&quot; &quot;bar&quot;)</code>
+<TR> <TD><code>'c:foo'</code>      <TD>'C'     <TD>device-&gt;<code>foo</code>               <TD><code>&#34;c&#34; (:absolute &#34;foo&#34;)</code>
+<TR> <TD><code>'c:foo/'</code>     <TD>'C'     <TD>device-&gt;<code>foo</code>               <TD><code>&#34;c&#34; (:absolute &#34;foo&#34;)</code>
+<TR> <TD><code>'c:foo/bar'</code>  <TD>'C'     <TD>device-&gt;<code>foo</code>-&gt;<code>bar</code>          <TD><code>&#34;c&#34; (:absolute &#34;foo&#34; &#34;bar&#34;)</code>
+<TR> <TD><code>'c:/foo'</code>     <TD>'C'     <TD>device-&gt;up-&gt;<code>foo</code>           <TD><code>&#34;c&#34; (:absolute :parent &#34;foo&#34;)</code>
+<TR> <TD><code>'c:'</code>         <TD>'C'     <TD>device                    <TD><code>&#34;c&#34; (:absolute)</code>
+<TR> <TD><code>':foo'</code>       <TD>current <TD>device-&gt;root-&gt;<code>foo</code>         <TD><code>nil (:absolute &#34;foo&#34;)</code>
+<TR> <TD><code>'foo'</code>        <TD>current <TD>device-&gt;<code>foo</code>               <TD><code>nil (:relative &#34;foo&#34;)</code>
+<TR> <TD><code>'/foo'</code>       <TD>current <TD>device-&gt;up-&gt;<code>foo</code>           <TD><code>nil (:relative :parent &#34;foo&#34;)</code>
+<TR> <TD><code>'//foo/bar'</code>  <TD>current <TD>device-&gt;up-&gt;up-&gt;<code>foo</code>-&gt;<code>bar</code>  <TD><code>nil (:relative :parent :parent &#34;foo&#34; &#34;bar&#34;)</code>
 <TR> <TD><code>''</code>           <TD>current <TD>device                    <TD><code>nil (:relative)</code>
 </TABLE>
 
@@ -1965,30 +2079,40 @@ to a path string that is empty or ends with <code>':'</code> or
 <code>':'</code> or <code>'/'</code> as pathname of a directory (with
 <var>name</var> = <code>nil</code> and <var>type</var> =
 <code>nil</code>).
-
-</DD>
 </DL>
 <!-- #endif -->
+
 <!-- #ifdef PATHNAME_UNIX -->
 <DL>
-<DT><EM>Platform dependent: UNIX platforms only.</EM></DT>
+<DT><EM>Platform dependent: UNIX platforms only.</EM>
 <DD>
 Pathname components:
 <DL>
-<DT><code>host</code>          <DD>always <code>nil</code>
-<DT><code>device</code>        <DD>always <code>nil</code>
-<DT><code>directory</code>     <DD><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
-               <BR><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
-               <BR><var>subdirs</var> = <code>()</code> | <code>(<var>subdir</var> . <var>subdirs</var>)</code>
-               <BR><var>subdir</var> = <code>:wild-inferiors</code> (means <code>&quot;**&quot;</code> or <code>&quot;...&quot;</code>, all subdirectories) or
-               <BR><var>subdir</var> = simple string, may contain wildcard characters <code>?</code> and <code>*</code>
-<DT><code>name</code>          <DD><code>nil</code> or
-              simple string, may contain wildcard characters <code>?</code> and <code>*</code>
-              (may also be specified as <code>:wild</code>)
-<DT><code>type</code>          <DD><code>nil</code> or
-              simple string, may contain wildcard characters <code>?</code> and <code>*</code>
-              (may also be specified as <code>:wild</code>)
-<DT><code>version</code>       <DD>always <code>nil</code> (may also be specified as <code>:wild</code> or <code>:newest</code>)
+<DT><code>host</code>
+ <DD>always <code>nil</code>
+<DT><code>device</code>
+ <DD>always <code>nil</code>
+<DT><code>directory</code>
+ <DD><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
+  <BR><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
+  <BR><var>subdirs</var> = <code>()</code> |
+             <code>(<var>subdir</var> . <var>subdirs</var>)</code>
+  <BR><var>subdir</var> = <code>:wild-inferiors</code>
+      (means <code>&#34;**&#34;</code> or <code>&#34;...&#34;</code>,
+      all subdirectories) or
+  <BR><var>subdir</var> = simple string, may contain wildcard characters
+      <code>?</code> and <code>*</code>
+<DT><code>name</code>
+ <DD><code>nil</code> or simple string, may contain wildcard characters
+ <code>?</code> and <code>*</code> (may also be specified as
+ <code>:wild</code>)
+<DT><code>type</code>
+ <DD><code>nil</code> or simple string, may contain wildcard characters
+ <code>?</code> and <code>*</code> (may also be specified as
+ <code>:wild</code>)
+<DT><code>version</code>
+ <DD>always <code>nil</code> (may also be specified as
+ <code>:wild</code> or <code>:newest</code>)
 </DL>
 
 <P>A UNIX filename is split into name and type according to the
@@ -2016,29 +2140,40 @@ wildcard characters are allowed in the strings, and <var>name</var> =
    <TD ALIGN=RIGHT><code>       sub1.typ/**/sub3.typ/x*.lsp</code>
   <TR> <TD>or similar.
 </TABLE>
-</DD>
 </DL>
 <!-- #endif -->
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <DL>
-<DT><EM>Platform dependent: OS/2, Win32 platforms only.</EM></DT>
+<DT><EM>Platform dependent: OS/2, Win32 platforms only.</EM>
 <DD>
 Pathname components:
 <DL>
-<DT><code>host</code>          <DD>always <code>nil</code>
-<DT><code>device</code>        <DD><code>nil</code> or <code>:wild</code> or <code>&quot;A&quot;</code>|...|<code>&quot;Z&quot;</code>
-<DT><code>directory</code>     <DD><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
-               <BR><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
-               <BR><var>subdirs</var> = <code>()</code> | <code>(<var>subdir</var> . <var>subdirs</var>)</code>
-               <BR><var>subdir</var> = <code>:wild-inferiors</code> (means <code>&quot;**&quot;</code> or <code>&quot;...&quot;</code>, all subdirectories) or
-               <BR><var>subdir</var> = simple string, may contain wildcard characters <code>?</code> and <code>*</code>
-<DT><code>name</code>          <DD><code>nil</code> or
-              simple string, may contain wildcard characters <code>?</code> and <code>*</code>
-              (may also be specified as <code>:wild</code>)
-<DT><code>type</code>          <DD><code>nil</code> or
-              simple string, may contain wildcard characters <code>?</code> and <code>*</code>
-              (may also be specified as <code>:wild</code>)
-<DT><code>version</code>       <DD>always <code>nil</code> (may also be specified as <code>:wild</code> or <code>:newest</code>)
+<DT><code>host</code>
+ <DD>always <code>nil</code>
+<DT><code>device</code>
+ <DD><code>nil</code> or <code>:wild</code>
+ or <code>&#34;A&#34;</code>|...|<code>&#34;Z&#34;</code>
+<DT><code>directory</code>
+ <DD><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
+  <BR><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
+  <BR><var>subdirs</var> = <code>()</code> |
+      <code>(<var>subdir</var> . <var>subdirs</var>)</code>
+  <BR><var>subdir</var> = <code>:wild-inferiors</code> (
+      means <code>&#34;**&#34;</code> or <code>&#34;...&#34;</code>, all
+      subdirectories) or
+  <BR><var>subdir</var> = simple string, may contain wildcard characters
+      <code>?</code> and <code>*</code>
+<DT><code>name</code>
+ <DD><code>nil</code> or simple string, may contain wildcard characters
+ <code>?</code> and <code>*</code> (may also be specified as
+ <code>:wild</code>)
+<DT><code>type</code>
+ <DD><code>nil</code> or simple string, may contain wildcard characters
+ <code>?</code> and <code>*</code> (may also be specified as
+ <code>:wild</code>)
+<DT><code>version</code>
+ <DD>always <code>nil</code> (may also be specified as
+ <code>:wild</code> or <code>:newest</code>)
 </DL>
 
 <P>An OS/2 filename is split into name and type according to the
@@ -2056,47 +2191,44 @@ wildcard characters are allowed in the strings, and <var>name</var> =
 <code>nil</code> may not be allowed either.
 
 <P><TABLE>
-  <TR> <TD>External notation:       <TD ALIGN=RIGHT><code>A:\sub1.typ\sub2.typ\name.typ</code>
-  <TR> <TD>using defaults:          <TD ALIGN=RIGHT><code>  \sub1.typ\sub2.typ\name.typ</code>
-  <TR> <TD>or                       <TD ALIGN=RIGHT><code>                     name.typ</code>
-  <TR> <TD>or                       <TD ALIGN=LEFT><code>*:\sub1.typ\**\sub3.typ\x*.lsp</code>
+  <TR> <TD>External notation:
+   <TD ALIGN=RIGHT><code>A:\sub1.typ\sub2.typ\name.typ</code>
+  <TR> <TD>using defaults:
+   <TD ALIGN=RIGHT><code>  \sub1.typ\sub2.typ\name.typ</code>
+  <TR> <TD>or
+   <TD ALIGN=RIGHT><code>                     name.typ</code>
+  <TR> <TD>or
+   <TD ALIGN=LEFT><code>*:\sub1.typ\**\sub3.typ\x*.lsp</code>
   <TR> <TD>or similar.
 </TABLE>
 
 <P>Instead of '\' one may use '/', as usual for DOS calls.
+</DL>
+<!-- #endif -->
 
-<p></DD>
-</DL>
-<!-- #endif -->
 <!-- #ifdef PATHNAME_NOEXT -->
 <DL>
-<DT><EM>Platform dependent: UNIX, OS/2, Win32, Amiga platforms only.</EM></DT>
-<DD>
-The wildcard characters: <code>'*'</code> matches any sequence of
+<DT><EM>Platform dependent: UNIX, OS/2, Win32, Amiga platforms only.</EM>
+<DD>The wildcard characters: <code>'*'</code> matches any sequence of
 characters, <code>'?'</code> matches any one character.
-</DD>
 </DL>
 <!-- #endif -->
+
 <!-- #ifdef PATHNAME_NOEXT -->
 <DL>
-<DT><EM>Platform dependent: UNIX, OS/2, Win32, Amiga platforms only.</EM></DT>
-<DD>
-Due to the name/type splitting rule, there are pathnames that can't
+<DT><EM>Platform dependent: UNIX, OS/2, Win32, Amiga platforms only.</EM>
+<DD>Due to the name/type splitting rule, there are pathnames that can't
 result from <code>parse-namestring</code>. To get a pathname whose type
 contains a dot or whose name contains a dot and whose type is
 <code>nil</code>, <code>make-pathname</code> must be used.  Example:
-<code>(make-pathname :name &quot;.profile&quot;)</code>.
-</DD>
+<code>(make-pathname :name &#34;.profile&#34;)</code>.
 </DL>
 <!-- #endif -->
+
 <!-- #ifdef PATHNAME_RISCOS -->
 <DL>
-<DT><EM>Platform dependent: Acorn platforms only.</EM></DT>
-<DD>
-
-<H4>The Acorn file system and CLISP's interface to it</H4>
-
-<p>RISC OS provides several file systems as standard (ADFS, IDEFS,
+<DT><EM>Platform dependent: Acorn platforms only.</EM>
+<DD>RISC OS provides several file systems as standard (ADFS, IDEFS,
 NetFS, RamFS, NetPrint) and support for extra file systems (DOSFS,
 ResourceFS and DeviceFS).
 
@@ -2123,23 +2255,24 @@ Rather than accessing the hardware directly they rely on standard RISC
 OS file systems to do so. DOSFS is an example of an image file
 system used to handle DOS format discs.
 
-<H5>Terminology</H5>
+<p><dl>
+ <dt>Terminology
 
-<p>A pathname may include a file system name, a special field, a media
+ <dd>A pathname may include a file system name, a special field, a media
 name (e.g., a disc name), directory name(s), and the name of the object
 itself; each of these parts of a pathname is known as an `element' of
 the pathname.
 
-<H5>Filenames</H5>
+ <p><dt>Filenames
 
-<p>Filename `elements' may be up to ten characters in length on
-FileCore-based file systems and on NetFS. These characters may be
-digits or letters.  FileSwitch makes no distinction between upper and
-lower case, although file systems can do so. As a general rule, you
-should not use top-bit-set characters in filenames, although some file
-systems (such as FileCore-based ones) support them. Other characters may
-be used provided they do not have a special significance. Those that do
-are listed below :
+ <dd>Filename `elements' may be up to ten characters in length on
+FileCore-based file systems and on NetFS. These characters may be digits
+or letters.  FileSwitch makes no distinction between upper and lower
+case, although file systems can do so. As a general rule, you should not
+use top-bit-set characters in filenames, although some file systems
+(such as FileCore-based ones) support them. Other characters may be used
+provided they do not have a special significance. Those that do are
+listed below :
 <DL>
   <DT> .   <DD>Separates directory specifications, e.g., $.fred
   <DT> :   <DD>Introduces a drive or disc specification, e.g., :0, :bigdisc. It also
@@ -2154,9 +2287,9 @@ are listed below :
   <DT> \   <DD>is the previously selected directory (PSD)
 </DL>
 
-<H5>Directories</H5>
+ <p><dt>Directories
 
-<p>The root directory, $, forms the top of the directory hierarchy of
+ <dd>The root directory, $, forms the top of the directory hierarchy of
 the media which contains the CSD. $ does not have a parent directory,
 trying to access its parent will just access $. Each directory name is
 separated by a '.' character. For example:
@@ -2165,56 +2298,56 @@ separated by a '.' character. For example:
   <TR> <TD> %.cc
 </TABLE>
 
-<H5>File Systems</H5>
+ <p><dt>File Systems
 
-<p>Files may also be accessed on file systems other than the current
-one by prefixing the filename with a file system specification. A
-file system name may appear between '-' characters, or suffixed by a
-':', though the latter is advised since '-' can also be used to
-introduce a parameter on a command line, or as part of a file name. For
-example:
+ <dd>Files may also be accessed on file systems other than the current
+one by prefixing the filename with a file system specification. A file
+system name may appear between '-' characters, or suffixed by a ':',
+though the latter is advised since '-' can also be used to introduce a
+parameter on a command line, or as part of a file name. For example:
 <TABLE>
   <TR> <TD> -net-$.SystemMesg
   <TR> <TD> adfs:%.aasm
 </TABLE>
 
-<H5>Special Fields</H5>
+ <p><dt>Special Fields
 
-<p>Special fields are used to supply more information to the file system
-than you can using standard path names; for example NetFS and NetPrint
-use them to specify server addresses or names. They are introduced by a
-'#' character; a variety of syntaxes are possible:
+ <dd>Special fields are used to supply more information to the file
+system than you can using standard path names; for example NetFS and
+NetPrint use them to specify server addresses or names. They are
+introduced by a '#' character; a variety of syntaxes are possible:
 <TABLE>
   <TR> <TD ALIGN=RIGHT>  net#MJHardy::disc1.mike
   <TR> <TD ALIGN=RIGHT>     #MJHardy::disc1.mike
   <TR> <TD ALIGN=RIGHT> -net#MJHardy-:disc1.mike
   <TR> <TD ALIGN=RIGHT>    -#MJHardy-:disc1.mike
 </TABLE>
+ The special fields here are all MJHardy, and give the name of the
+fileserver to use. Special fields may use any character except for
+control characters, double quote '&#34;', solidus '|' and space. If a
+special field contains a hypen you may only use the first two syntaxes
+given above.
 
-<P>The special fields here are all MJHardy, and give the name of the fileserver
-to use. Special fields may use any character except for control characters,
-double quote '&quot;', solidus '|' and space. If a special field contains a hypen
-you may only use the first two syntaxes given above.
+ <p><dt>File$Path and Run$Path
 
-<H5>File$Path and Run$Path</H5>
-
-These two special variables control exactly where a file will be looked for,
-according to the operation being performed on it.
+ <dd>These two special variables control exactly where a file will be
+looked for, according to the operation being performed on it.
 <TABLE>
    <TR> <TD>File$Path   <TD>for read operations
    <TR> <TD>Run$Path    <TD>for execute operations
 </TABLE>
-The contents of each variable should expand to a list or prefixes, separated
-by commas. When a read operation is performed then the prefixes in File$Path
-are used in the order in which they are listed. The first object that
-matches is used, whether it be a file or directory. Similarly any execute
-operation uses the prefixes in Run$Path. These search paths are only used
-when the pathname does not contain an explicit file system reference,
-e.g., executing adfs:file will not use Run$Path.
+The contents of each variable should expand to a list or prefixes,
+separated by commas. When a read operation is performed then the
+prefixes in File$Path are used in the order in which they are
+listed. The first object that matches is used, whether it be a file or
+directory. Similarly any execute operation uses the prefixes in
+Run$Path. These search paths are only used when the pathname does not
+contain an explicit file system reference, e.g., executing adfs:file
+will not use Run$Path.
 
-<H5>Other path variables</H5>
+ <p><dt>Other path variables
 
-<p>You can set up other path variables and use them as pseudo file
+ <dd>You can set up other path variables and use them as pseudo file
 systems.  For example if you typed:
 <TABLE>
   <TR> <TD> *Set Source$Path adfs:$.src.,adfs:$.public.src.
@@ -2224,19 +2357,20 @@ preferable) as -Source-. These path variables work in the same was as
 File$Path and Run$Path.
 
 <p>NOTE: Path variables are not implemented in this version of CLISP. A
-workaround for this is to use &quot;&lt;Foo$Path&gt;&quot; instead of
-&quot;Foo:&quot; until they are made available.
+workaround for this is to use &#34;&lt;Foo$Path&gt;&#34; instead of
+&#34;Foo:&#34; until they are made available.
 
-<P><A NAME="pathnames-externally-acorn"></A>
-<H5>from Lisp-string notation to internal representation</H5>
-<EM>No</EM> swapping. &quot;foo.lsp&quot; means file type
-&quot;lsp&quot; and file name &quot;foo&quot;. This is pseudo-BNF:
+ <p><dt><a name="pathnames-externally-acorn">
+     from Lisp-string notation to internal representation</a>
+
+ <dd><EM>No</EM> swapping. &#34;foo.lsp&#34; means file type
+&#34;lsp&#34; and file name &#34;foo&#34;. This is pseudo-BNF:
 <DL>
 <DT>legal character ::= <DD>any ISO latin-1 graphic character &gt;= ' ' except
                     '.' ':' '*' '#' '$' '&amp;' '@' '^' '%' '\' '?'
 
 <DT>extended legal character ::= <DD>any ISO latin-1 graphic character &gt;= ' ' except
-                             ':' '&quot;' '|'
+                             ':' '&#34;' '|'
 
 <DT>legal-wild char ::= <DD>legal char | '*' | '#' | '?'
 
@@ -2273,73 +2407,73 @@ workaround for this is to use &quot;&lt;Foo$Path&gt;&quot; instead of
 Examples:
 <TABLE BORDER=1>
   <TR> <TH>String                          <TH>Hostname <TH>Device  <TH>Directory            <TH>Name         <TH>Type
-  <TR> <TD><code>-net-$.SystemMesg</code>                <TD><code>&quot;net&quot;</code>   <TD><code>nil</code>     <TD><code>(:absolute :root)</code>    <TD><code>&quot;SystemMesg&quot;</code> <TD><code>nil</code>
-  <TR> <TD><code>net#MJHardy::disc1.mike</code>    <TD><code>&quot;net#MJHardy&quot;</code> <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :root)</code>    <TD><code>&quot;mike&quot;</code>       <TD><code>nil</code>
-  <TR> <TD><code>#MJHardy::disc1.mike</code>          <TD><code>&quot;#MJHardy&quot;</code> <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :root)</code>    <TD><code>&quot;mike&quot;</code>       <TD><code>nil</code>
-  <TR> <TD><code>-net#MJHardy-:disc1.mike</code>   <TD><code>&quot;net#MJHardy&quot;</code> <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :root)</code>    <TD><code>&quot;mike&quot;</code>       <TD><code>nil</code>
-  <TR> <TD><code>-#MJHardy-:disc1.mike</code>         <TD><code>&quot;#MJHardy&quot;</code> <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :root)</code>    <TD><code>&quot;mike&quot;</code>       <TD><code>nil</code>
-  <TR> <TD><code>@.foo</code>                            <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:absolute :current)</code> <TD><code>&quot;foo&quot;</code>        <TD><code>nil</code>
-  <TR> <TD><code>foo</code>                              <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative)</code>          <TD><code>&quot;foo&quot;</code>        <TD><code>nil</code>
+  <TR> <TD><code>-net-$.SystemMesg</code>                <TD><code>&#34;net&#34;</code>   <TD><code>nil</code>     <TD><code>(:absolute :root)</code>    <TD><code>&#34;SystemMesg&#34;</code> <TD><code>nil</code>
+  <TR> <TD><code>net#MJHardy::disc1.mike</code>    <TD><code>&#34;net#MJHardy&#34;</code> <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :root)</code>    <TD><code>&#34;mike&#34;</code>       <TD><code>nil</code>
+  <TR> <TD><code>#MJHardy::disc1.mike</code>          <TD><code>&#34;#MJHardy&#34;</code> <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :root)</code>    <TD><code>&#34;mike&#34;</code>       <TD><code>nil</code>
+  <TR> <TD><code>-net#MJHardy-:disc1.mike</code>   <TD><code>&#34;net#MJHardy&#34;</code> <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :root)</code>    <TD><code>&#34;mike&#34;</code>       <TD><code>nil</code>
+  <TR> <TD><code>-#MJHardy-:disc1.mike</code>         <TD><code>&#34;#MJHardy&#34;</code> <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :root)</code>    <TD><code>&#34;mike&#34;</code>       <TD><code>nil</code>
+  <TR> <TD><code>@.foo</code>                            <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:absolute :current)</code> <TD><code>&#34;foo&#34;</code>        <TD><code>nil</code>
+  <TR> <TD><code>foo</code>                              <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative)</code>          <TD><code>&#34;foo&#34;</code>        <TD><code>nil</code>
   <TR> <TD><code>^.</code>                               <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative :parent)</code>  <TD><code>nil</code>          <TD><code>nil</code>
   <TR> <TD><code>@.^.</code>                             <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:absolute :current :parent)</code> <TD><code>nil</code>  <TD><code>nil</code>
-  <TR> <TD><code>foo.bar</code>                          <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative)</code>          <TD><code>&quot;foo&quot;</code>        <TD><code>&quot;bar&quot;</code>
-  <TR> <TD><code>foo.bar.baz</code>                      <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative &quot;foo&quot;)</code>    <TD><code>&quot;bar&quot;</code>        <TD><code>&quot;baz&quot;</code>
-  <TR> <TD><code>foo.bar.</code>                         <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative &quot;foo&quot; &quot;bar&quot;)</code> <TD><code>nil</code>       <TD><code>nil</code>
+  <TR> <TD><code>foo.bar</code>                          <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative)</code>          <TD><code>&#34;foo&#34;</code>        <TD><code>&#34;bar&#34;</code>
+  <TR> <TD><code>foo.bar.baz</code>                      <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative &#34;foo&#34;)</code>    <TD><code>&#34;bar&#34;</code>        <TD><code>&#34;baz&#34;</code>
+  <TR> <TD><code>foo.bar.</code>                         <TD><code>nil</code>     <TD><code>nil</code>     <TD><code>(:relative &#34;foo&#34; &#34;bar&#34;)</code> <TD><code>nil</code>       <TD><code>nil</code>
   <TR> <TD><code>foo.@.</code>                       <TD COLSPAN=5 ALIGN=CENTER>illegal
 </TABLE>
 
-<h5>From internal representation to RISCOS string</h5>
+ <p><dt>From internal representation to RISCOS string
 
-<p>with swapping <EM>only</EM> of name/type components.
+ <dd>with swapping <EM>only</EM> of name/type components.
 
 <P><TABLE BORDER=1>
   <TR> <TH>Hostname    <TH>Device  <TH>Directory                   <TH>Name    <TH>Type      <TH>RISCOS String
-  <TR> <TD><code>&quot;net&quot;</code>       <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :root)</code>           <TD><code>&quot;foo&quot;</code>   <TD><code>nil</code>       <TD><code>&quot;net::disc1.$.foo&quot;</code>
-  <TR> <TD><code>&quot;net#MJ&quot;</code>    <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :root &quot;foo&quot;)</code>     <TD><code>&quot;bar&quot;</code>   <TD><code>&quot;baz&quot;</code>     <TD><code>&quot;net#MJ::disc1.$.foo.baz.bar&quot;</code>
-  <TR> <TD><code>&quot;adfs&quot;</code>      <TD><code>&quot;4&quot;</code>     <TD><code>(:absolute :root &quot;foo&quot; &quot;bar&quot;)</code> <TD><code>nil</code>   <TD><code>nil</code>       <TD><code>&quot;adfs::4.$.foo.bar&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :root &quot;foo&quot;)</code>     <TD><code>&quot;bar&quot;</code>   <TD><code>nil</code>       <TD><code>&quot;:disc1.$.foo.bar&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>&quot;disc1&quot;</code> <TD><code>(:absolute :current)</code>        <TD><code>nil</code>     <TD><code>nil</code>       <TD>illegal here
-  <TR> <TD><code>nil</code>         <TD><code>&quot;disc1&quot;</code> <TD><code>(:relative)</code>                 <TD><code>nil</code>     <TD><code>nil</code>       <TD><code>&quot;:disc1.&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>&quot;disc1&quot;</code> <TD><code>nil</code>                         <TD><code>nil</code>     <TD><code>nil</code>       <TD><code>&quot;:disc1.&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :root)</code>           <TD><code>&quot;foo&quot;</code>   <TD><code>nil</code>       <TD><code>&quot;$.foo&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :current)</code>        <TD><code>&quot;foo&quot;</code>   <TD><code>nil</code>       <TD><code>&quot;@.foo&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative)</code>                 <TD><code>&quot;foo&quot;</code>   <TD><code>&quot;bar&quot;</code>     <TD><code>&quot;bar.foo&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative &quot;foo&quot;)</code>           <TD><code>&quot;bar&quot;</code>   <TD><code>&quot;baz&quot;</code>     <TD><code>&quot;foo.baz.bar&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :library)</code>        <TD><code>&quot;bar&quot;</code>   <TD><code>nil</code>       <TD><code>&quot;%.bar&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :library &quot;foo&quot;)</code>  <TD><code>&quot;bar&quot;</code>   <TD><code>nil</code>       <TD><code>&quot;%.foo.bar&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative)</code>                 <TD><code>&quot;foo&quot;</code>   <TD><code>&quot;bar&quot;</code>     <TD><code>&quot;bar.foo&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative &quot;foo&quot;)</code>           <TD><code>&quot;bar&quot;</code>   <TD><code>nil</code>       <TD><code>&quot;foo.bar&quot;</code>
-  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative &quot;foo&quot;)</code>           <TD><code>nil</code>     <TD><code>&quot;bar&quot;</code>     <TD>illegal here
+  <TR> <TD><code>&#34;net&#34;</code>       <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :root)</code>           <TD><code>&#34;foo&#34;</code>   <TD><code>nil</code>       <TD><code>&#34;net::disc1.$.foo&#34;</code>
+  <TR> <TD><code>&#34;net#MJ&#34;</code>    <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :root &#34;foo&#34;)</code>     <TD><code>&#34;bar&#34;</code>   <TD><code>&#34;baz&#34;</code>     <TD><code>&#34;net#MJ::disc1.$.foo.baz.bar&#34;</code>
+  <TR> <TD><code>&#34;adfs&#34;</code>      <TD><code>&#34;4&#34;</code>     <TD><code>(:absolute :root &#34;foo&#34; &#34;bar&#34;)</code> <TD><code>nil</code>   <TD><code>nil</code>       <TD><code>&#34;adfs::4.$.foo.bar&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :root &#34;foo&#34;)</code>     <TD><code>&#34;bar&#34;</code>   <TD><code>nil</code>       <TD><code>&#34;:disc1.$.foo.bar&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>&#34;disc1&#34;</code> <TD><code>(:absolute :current)</code>        <TD><code>nil</code>     <TD><code>nil</code>       <TD>illegal here
+  <TR> <TD><code>nil</code>         <TD><code>&#34;disc1&#34;</code> <TD><code>(:relative)</code>                 <TD><code>nil</code>     <TD><code>nil</code>       <TD><code>&#34;:disc1.&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>&#34;disc1&#34;</code> <TD><code>nil</code>                         <TD><code>nil</code>     <TD><code>nil</code>       <TD><code>&#34;:disc1.&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :root)</code>           <TD><code>&#34;foo&#34;</code>   <TD><code>nil</code>       <TD><code>&#34;$.foo&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :current)</code>        <TD><code>&#34;foo&#34;</code>   <TD><code>nil</code>       <TD><code>&#34;@.foo&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative)</code>                 <TD><code>&#34;foo&#34;</code>   <TD><code>&#34;bar&#34;</code>     <TD><code>&#34;bar.foo&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative &#34;foo&#34;)</code>           <TD><code>&#34;bar&#34;</code>   <TD><code>&#34;baz&#34;</code>     <TD><code>&#34;foo.baz.bar&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :library)</code>        <TD><code>&#34;bar&#34;</code>   <TD><code>nil</code>       <TD><code>&#34;%.bar&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:absolute :library &#34;foo&#34;)</code>  <TD><code>&#34;bar&#34;</code>   <TD><code>nil</code>       <TD><code>&#34;%.foo.bar&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative)</code>                 <TD><code>&#34;foo&#34;</code>   <TD><code>&#34;bar&#34;</code>     <TD><code>&#34;bar.foo&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative &#34;foo&#34;)</code>           <TD><code>&#34;bar&#34;</code>   <TD><code>nil</code>       <TD><code>&#34;foo.bar&#34;</code>
+  <TR> <TD><code>nil</code>         <TD><code>nil</code>     <TD><code>(:relative &#34;foo&#34;)</code>           <TD><code>nil</code>     <TD><code>&#34;bar&#34;</code>     <TD>illegal here
 </TABLE>
 
 <P>That is, the RISCOS string is the flattenation-concatenation of
 
 <p><PRE><code>
   (append
-    (if (null hostname) &quot;&quot; (append hostname &quot;:&quot;))
-    (if (null device) &quot;&quot; (append &quot;:&quot; device &quot;.&quot;))
+    (if (null hostname) &#34;&#34; (append hostname &#34;:&#34;))
+    (if (null device) &#34;&#34; (append &#34;:&#34; device &#34;.&#34;))
     (case (pop directory)
       (:absolute (case (pop directory)
-                         (:root &quot;$.&quot;)
-                         (:home &quot;&amp;.&quot;)
-                         (:current &quot;@.&quot;)
-                         (:library &quot;%.&quot;)
-                         (:previous &quot;\\.&quot;)
+                         (:root &#34;$.&#34;)
+                         (:home &#34;&amp;.&#34;)
+                         (:current &#34;@.&#34;)
+                         (:library &#34;%.&#34;)
+                         (:previous &#34;\\.&#34;)
       )          )
-      (:relative &quot;&quot;)
+      (:relative &#34;&#34;)
     )
-    (mapcar (lambda (subdir) (append subdir &quot;.&quot;)) directory)
+    (mapcar (lambda (subdir) (append subdir &#34;.&#34;)) directory)
     (if (null name)
-      (if (null type) &quot;&quot; (error &quot;type with name illegal here&quot;))
+      (if (null type) &#34;&#34; (error &#34;type with name illegal here&#34;))
       (if (null type)
         name
-        (append type &quot;.&quot; name)
+        (append type &#34;.&#34; name)
   ) ) )
 </code></PRE>
 
-<H5>internal representation</H5>
+ <p><dt>internal representation
 
-<P>Pathname components:
+ <dd>Pathname components:
 <DL>
 <DT><code>host</code>          <DD>Simple-String or <code>nil</code>
 <DT><code>device</code>        <DD>Simple-String or <code>nil</code>
@@ -2369,10 +2503,10 @@ character.
 <P>Due to the name/type swapping rule, there are pathnames that can't
 result from <code>parse-namestring</code>. To get a pathname whose type
 is <code>nil</code>, <code>make-pathname</code> must be used.  Example:
-<code>(make-pathname :directory &quot;!Clisp.&quot; :name
-&quot;README&quot;)</code>.
-</DD>
+<code>(make-pathname :directory &#34;!Clisp.&#34; :name
+&#34;README&#34;)</code>.
 </DL>
+</dl>
 <!-- #endif -->
 
 <h3>External notation.</H3>
@@ -2381,7 +2515,7 @@ is <code>nil</code>, <code>make-pathname</code> must be used.  Example:
 <code>namestring</code>), of course without spaces, [,],{,}:
 <DL>
 <!-- #ifdef PATHNAME_MSDOS -->
-<DT><EM>Platform dependent: DOS platforms only.</EM></DT>
+<DT><EM>Platform dependent: DOS platforms only.</EM>
 <DD>
 <TABLE>
  <TR><TD>[ [drivespec] : ]     <TD>a letter <code>'*'</code>|<code>'A'</code>|...|<code>'Z'</code>|<code>'a'</code>|...|<code>'z'</code>
@@ -2396,12 +2530,12 @@ single <code>'*'</code> is allowed for <code>:wild</code>.
 
 <!-- #endif -->
 <!-- #ifdef PATHNAME_AMIGAOS -->
-<DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
+<DT><EM>Platform dependent: Amiga platforms only.</EM>
 <DD>
 see <A HREF="#pathnames-externally-amiga">above</A>.
 <!-- #endif -->
 <!-- #ifdef PATHNAME_UNIX -->
-<DT><EM>Platform dependent: UNIX platforms only.</EM></DT>
+<DT><EM>Platform dependent: UNIX platforms only.</EM>
 <DD>
 <TABLE>
  <TR><TD>[ / ]                 <TD>/ denotes absolute pathnames
@@ -2414,7 +2548,7 @@ printing ASCII characters, except <code>'/'</code>).
 
 <!-- #endif -->
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<DT><EM>Platform dependent: OS/2, Win32 platforms only.</EM></DT>
+<DT><EM>Platform dependent: OS/2, Win32 platforms only.</EM>
 <DD>
 <TABLE>
  <TR><TD>[ [drivespec] : ]     <TD>a letter '*'|'A'|...|'Z'|'a'|...|'z'
@@ -2428,28 +2562,30 @@ printing ASCII characters, except <code>'/'</code>, <code>'\'</code>,
 
 <!-- #endif -->
 <!-- #ifdef PATHNAME_RISCOS -->
-<DT><EM>Platform dependent: Acorn platforms only.</EM></DT>
+<DT><EM>Platform dependent: Acorn platforms only.</EM>
 <DD>
 see <A HREF="#pathnames-externally-acorn">above</A>.
 <!-- #endif -->
 </DL>
 
-<P><code>namestring</code> has an optional flag argument:
+<P><a href="CLHSROOT/Body/fun_namestrin_h-namestring.html">
+<code>namestring</code></a> has an optional flag argument:
 <code>(namestring <var>pathname</var> t)</code> returns an external
 notation suitable for passing to the operating system or other programs.
 <!-- #if !defined(USER_HOMEDIR) -->
 
 <P><DL>
-<DT><EM>Platform dependent: DOS, OS/2, Acorn platforms only.</EM></DT>
+<DT><EM>Platform dependent: DOS, OS/2, Acorn platforms only.</EM>
 <DD>
-The function <code>user-homedir-pathname</code> is not implemented.
+The function <a href="CLHSROOT/Body/fun_user-homedir-pathname.html">
+<code>user-homedir-pathname</code></a> is not implemented.
 <!-- #if defined(MSDOS) -->
-<DT><EM>Platform dependent: DOS, OS/2 platforms only.</EM></DT>
+<DT><EM>Platform dependent: DOS, OS/2 platforms only.</EM>
 <DD>
 If you really need that function, you might define it like this:
 <PRE><code>  (defun user-homedir-pathname (&amp;optional host)
     (declare (ignore host))
-    (or (system::getenv &quot;HOME&quot;) &quot;\\&quot;)
+    (or (system::getenv &#34;HOME&#34;) &#34;\\&#34;)
   )
 </code></PRE>
 <!-- #endif -->
@@ -2479,20 +2615,19 @@ as a logical pathname string.
 <h3><a href="CLHSROOT/Body/sec_the_filen_s_dictionary.html">
     19.4 The Filenames Dictionary.</a></H3>
 
-<p>The ANSI CL functions <code>wild-pathname-p</code>,
-<code>pathname-match-p</code> and <code>translate-pathname</code> are
-implemented.
+<p>The ANSI CL functions <a href="CLHSROOT/Body/fun_wild-pathname-p.html">
+<code>wild-pathname-p</code></a>,
+<a href="CLHSROOT/Body/fun_pathname-match-p.html">
+<code>pathname-match-p</code></a> and
+<a href="CLHSROOT/Body/fun_translate-pathname.html">
+<code>translate-pathname</code></a> are implemented.
 
-<h4><a href="CLHSROOT/Body/fun_pathname-match-p.html">
-    pathname-match-p</a></h4>
-
-<p><code>pathname-match-p</code> does not interpret missing components
+<p><a href="CLHSROOT/Body/fun_pathname-match-p.html">
+<code>pathname-match-p</code></a> does not interpret missing components
 as wild.
 
-<h4><a href="CLHSROOT/Body/fun_translate-pathname.html">
-    translate-pathname</a></h4>
-
-<P><code>translate-pathname</code> has two additional keywords:
+<P><a href="CLHSROOT/Body/fun_translate-pathname.html">
+<code>translate-pathname</code></a> has two additional keywords:
 <BR>  <code>(translate-pathname <var>source</var>
       <var>from-wildname</var> <var>to-wildname</var> &amp;key :all
       :merge)</code>
@@ -2531,23 +2666,18 @@ construct a logical pathname from a string, the function
 <h3><a href="CLHSROOT/Body/sec_the_files_dictionary.html">
     20.2 The Files Dictionary.</a></h3>
 
-<h4><a href="CLHSROOT/Body/fun_rename-file.html">
-    rename-file</a></h4>
+<P><a href="CLHSROOT/Body/fun_rename-file.html">
+<code>rename-file</code></a> always returns a non-logical pathname as
+its first value.
 
-<P><code>rename-file</code> always returns a non-logical pathname as its
-first value.
+<p><a href="CLHSROOT/Body/fun_probe-file.html">
+<code>probe-file</code></a> can not be used to check whether a directory
+exists. Use the function <code>lisp:probe-directory</code> or the
+function <a href="CLHSROOT/Body/fun_directory.html">
+<code>directory</code></a> for this purpose.
 
-<h4><a href="CLHSROOT/Body/fun_probe-file.html">
-    probe-file</a></h4>
-
-<p><code>probe-file</code> can not be used to check whether a directory
-exists. Use the function <code>probe-directory</code> or the function
-<code>directory</code> for this purpose.
-
-<h4><a href="CLHSROOT/Body/fun_file-author.html">
-    file-author</a></h4>
-
-<P><code>file-author</code> always returns <code>nil</code>.
+<P><a href="CLHSROOT/Body/fun_file-author.html">
+<code>file-author</code></a> always returns <code>nil</code>.
 
 <h4>probe-directory</h4>
 
@@ -2556,11 +2686,9 @@ tests whether <var>pathname</var> exists and is a directory. It will,
 unlike <code>probe-file</code> or <code>truename</code>, not signal an
 error if the parent directory of <var>pathname</var> doesn't exist.
 
-<h4><a href="CLHSROOT/Body/fun_ensure-di_tories-exist.html">
-    ensure-directories-exist</a></h4>
-
-<P>The ANSI CL function <code>ensure-directories-exist</code> is
-implemented.
+<p>The ANSI CL function
+<a href="CLHSROOT/Body/fun_ensure-di_tories-exist.html">
+<code>ensure-directories-exist</code></a> is implemented.
 
 <h4><a href="CLHSROOT/Body/fun_directory.html">
     directory</a></h4>
@@ -2580,12 +2708,10 @@ run in two modes:
 </UL>
 <!-- #ifdef UNIX -->
 <DL>
-<DT><EM>Platform dependent: UNIX platforms only.</EM></DT>
-<DD>
-If the <code>:circle</code> argument is not <code>eq</code> to
+<DT><EM>Platform dependent: UNIX platforms only.</EM>
+<DD>If the <code>:circle</code> argument is not <code>eq</code> to
 <code>nil</code>, the function avoids endless loops that may result from
 symbolic links.
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -2595,15 +2721,15 @@ them. <code>(dir)</code> shows the contents of the current directory.
 
 <P><DL>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<DT><EM>Platform dependent: UNIX, Amiga platforms only.</EM></DT>
+<DT><EM>Platform dependent: UNIX, Amiga platforms only.</EM>
  <DD><code>(<STRONG>cd</STRONG> [<var>pathname</var>])</code> manages the
   current directory.
 <!-- #elif defined(PATHNAME_RISCOS) -->
- <DT><EM>Platform dependent: Acorn platforms only.</EM></DT>
+ <DT><EM>Platform dependent: Acorn platforms only.</EM>
   <DD><code>(<STRONG>cd</STRONG> [<var>pathname</var>])</code> manages
    the current host, current device and the current directory.
 <!-- #else -->
- <DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
+ <DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
   <DD><code>(<STRONG>cd</STRONG> [<var>pathname</var>])</code> manages
    the current device and the current directory.
 <!-- #endif -->
@@ -2625,7 +2751,7 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
 
 <DL>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
- <DT><EM>Platform dependent: UNIX, DOS, OS/2, Acorn platforms only.</EM></DT>
+ <DT><EM>Platform dependent: UNIX, DOS, OS/2, Acorn platforms only.</EM>
   <DD><code>(<STRONG>execute</STRONG> <var>programfile</var>
    <var>arg<SUB>1</SUB></var> <var>arg<SUB>2</SUB></var> ...)</code>
    executes an external program. Its name is <var>programfile</var>. It is
@@ -2633,7 +2759,7 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
    <var>arg<SUB>2</SUB></var>, ... as arguments.
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
- <DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
+ <DT><EM>Platform dependent: Amiga platforms only.</EM>
   <DD><code>(<STRONG>execute</STRONG> <var>command</var>)</code>
    executes a given <var>command</var> using the operating system's
    shell.
@@ -2643,10 +2769,20 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
 <h2><a name="streams"></a><a href="CLHSROOT/Body/chap-21.html">
     Chapter 21: Streams</a></h2>
 
-<p>The ANSI CL types <code>broadcast-stream</code>,
-<code>concatenated-stream</code>, <code>echo-stream</code>,
-<code>synonym-stream</code>, <code>string-stream</code>,
-<code>file-stream</code>, <code>two-way-stream</code> are implemented.
+<p>The ANSI CL types <a href="CLHSROOT/Body/syscla_broadcast-stream.html">
+<code>broadcast-stream</code></a>,
+<a href="CLHSROOT/Body/syscla_concatenated-stream.html">
+<code>concatenated-stream</code></a>,
+<a href="CLHSROOT/Body/syscla_echo-stream.html">
+<code>echo-stream</code></a>,
+<a href="CLHSROOT/Body/syscla_synonym-stream.html">
+<code>synonym-stream</code></a>,
+<a href="CLHSROOT/Body/syscla_string-stream.html">
+<code>string-stream</code></a>,
+<a href="CLHSROOT/Body/syscla_file-stream.html">
+<code>file-stream</code></a>,
+<a href="CLHSROOT/Body/syscla_two-way-stream.html">
+<code>two-way-stream</code></a> are implemented.
 
 <H3>terminal interaction.</H3>
 
@@ -2654,7 +2790,7 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
 <P><DL>
  <DT><EM>Platform dependent: UNIX, DOS, OS/2 platforms only, and only in
   clisp binaries built without compile-time flag
-  <code>NO_READLINE</code>.</EM></DT>
+  <code>NO_READLINE</code>.</EM>
  <DD>Input through <code>*terminal-io*</code> uses the GNU readline
   library. Arrow keys can be used to move within the input history. The
   Tab key completes the symbol's name that is being typed.  See
@@ -2662,14 +2798,13 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
   description of the key bindings.  The GNU readline library is not used
   if standard input and standard output do not both refer to the same
   terminal.
- </DD>
 </DL>
 <!-- #endif -->
 
 <!-- #if defined(KEYBOARD) || defined(AMIGAOS) -->
 <P><DL>
 <DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
- platforms only.</EM></DT>
+ platforms only.</EM>
 <DD><code>*terminal-io*</code> is not the only stream that communicates
  directly with the user: During execution of the body of a
  <code>(<STRONG>with-keyboard</STRONG> . <var>body</var>)</code> form,
@@ -2678,7 +2813,7 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
  as character with the following bits:
 <DL>
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
- <DT><code>hyper</code></DT>
+ <DT><code>hyper</code>
   <DD><EM>(Platform dependent: DOS, OS/2, Win32, Amiga platforms
  only.)</EM> if a non-standard key. These are:
 <!-- #if defined(MSDOS) || defined(WIN32) -->
@@ -2689,60 +2824,68 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
      Function keys, cursor keypad <EM>(Platform dependent: Amiga
      platforms only)</EM>.
 <!-- #endif -->
-  </DD>
+
 <!-- #endif -->
-  <DT><code>char-code</code>    <DD>the Ascii code for standard keys,
-               for non-standard keys:
-               <DL>
+  <DT><code>char-code</code>
+    <DD>the Ascii code for standard keys, for non-standard keys:
+      <DL>
 <!-- #ifdef MSDOS -->
-               <DT><EM>Platform dependent: DOS, OS/2 platforms only.</EM></DT>
-               <DD>
-                 F1 -&gt; <code>#\F1</code>, ..., F10 -&gt; <code>#\F10</code>, F11 -&gt; <code>#\F11</code>, F12 -&gt; <code>#\F12</code>,
-                 Insert -&gt; <code>#\Insert</code>, Delete -&gt; <code>#\Delete</code>,
-                 Home -&gt; <code>#\Home</code>, End -&gt; <code>#\End</code>, PgUp -&gt; <code>#\PgUp</code>, PgDn -&gt; <code>#\PgDn</code>,
-                 Arrow keys -&gt; <code>#\Up</code>, <code>#\Down</code>, <code>#\Left</code>, <code>#\Right</code>.
-               </DD>
+         <DT><EM>Platform dependent: DOS, OS/2 platforms only.</EM>
+          <DD> F1 -&gt; <code>#\F1</code>, ..., F10 -&gt;
+           <code>#\F10</code>, F11 -&gt; <code>#\F11</code>, F12 -&gt;
+           <code>#\F12</code>, Insert -&gt; <code>#\Insert</code>,
+           Delete -&gt; <code>#\Delete</code>, Home -&gt;
+           <code>#\Home</code>, End -&gt; <code>#\End</code>, PgUp -&gt;
+           <code>#\PgUp</code>, PgDn -&gt; <code>#\PgDn</code>, Arrow
+           keys -&gt; <code>#\Up</code>, <code>#\Down</code>,
+           <code>#\Left</code>, <code>#\Right</code>.
 <!-- #endif -->
+
 <!-- #if defined(UNIX) || defined(WIN32) -->
-               <DT><EM>Platform dependent: UNIX, Win32 platforms only.</EM></DT>
-               <DD>
-                 F1 -&gt; <code>#\F1</code>, ..., F10 -&gt; <code>#\F10</code>, F11 -&gt; <code>#\F11</code>, F12 -&gt; <code>#\F12</code>,
-                 Insert -&gt; <code>#\Insert</code>, Delete -&gt; <code>#\Delete</code>, Center -&gt; <code>#\Center</code>,
-                 Home -&gt; <code>#\Home</code>, End -&gt; <code>#\End</code>, PgUp -&gt; <code>#\PgUp</code>, PgDn -&gt; <code>#\PgDn</code>,
-                 Arrow keys -&gt; <code>#\Up</code>, <code>#\Down</code>, <code>#\Left</code>, <code>#\Right</code>.
-               </DD>
+         <DT><EM>Platform dependent: UNIX, Win32 platforms only.</EM>
+
+          <DD> F1 -&gt; <code>#\F1</code>, ..., F10 -&gt;
+           <code>#\F10</code>, F11 -&gt; <code>#\F11</code>, F12 -&gt;
+           <code>#\F12</code>, Insert -&gt; <code>#\Insert</code>,
+           Delete -&gt; <code>#\Delete</code>, Center -&gt;
+           <code>#\Center</code>, Home -&gt; <code>#\Home</code>, End
+           -&gt; <code>#\End</code>, PgUp -&gt; <code>#\PgUp</code>,
+           PgDn -&gt; <code>#\PgDn</code>, Arrow keys -&gt;
+           <code>#\Up</code>, <code>#\Down</code>, <code>#\Left</code>,
+           <code>#\Right</code>.
 <!-- #endif -->
+
 <!-- #ifdef AMIGAOS -->
-               <DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
-               <DD>
-                 F1 -&gt; <code>#\F1</code>, ..., F9 -&gt; <code>#\F9</code>, F10 -&gt; <code>#\F10</code>,
-                 Help -&gt; <code>#\Help</code>,
-                 Arrow keys -&gt; <code>#\Up</code>, <code>#\Down</code>, <code>#\Left</code>, <code>#\Right</code>.
-               </DD>
+         <DT><EM>Platform dependent: Amiga platforms only.</EM>
+          <DD> F1 -&gt; <code>#\F1</code>, ..., F9 -&gt;
+           <code>#\F9</code>, F10 -&gt; <code>#\F10</code>, Help -&gt;
+           <code>#\Help</code>, Arrow keys -&gt; <code>#\Up</code>,
+           <code>#\Down</code>, <code>#\Left</code>,
+           <code>#\Right</code>.
 <!-- #endif -->
-               </DL>
-  </DD>
+      </DL>
+
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
-  <DT><code>super</code></DT>        <DD><EM>(Platform dependent: DOS, OS/2, Win32, Amiga platforms only.)</EM> if pressed together with Shift key(s) and if the keystroke
-               would have been an other without Shift.
-  </DD>
+  <DT><code>super</code>
+  <DD><EM>(Platform dependent: DOS, OS/2, Win32, Amiga platforms only.)</EM>
+  if pressed together with Shift key(s) and if the keystroke
+  would have been an other without Shift.
 <!-- #endif -->
-  <DT><code>control</code></DT>      <DD>if pressed together with the Control key.
-  </DD>
+  <DT><code>control</code> <DD>if pressed together with the Control key.
 <!-- #if defined(MSDOS) || defined(WIN32) -->
-  <DT><code>meta</code></DT>         <DD><EM>(Platform dependent: DOS, OS/2, Win32 platforms only.)</EM> if pressed together with the Alternate key.
-  </DD>
+  <DT><code>meta</code>
+  <DD><EM>(Platform dependent: DOS, OS/2, Win32 platforms only.)</EM>
+  if pressed together with the Alternate key.
 <!-- #endif -->
 </DL>
-This keyboard input is not echoed on the screen.
-During execution of a <code>(with-keyboard . <var>body</var>)</code> form, no input from <code>*terminal-io*</code>
-or any synonymous stream should be requested.
+This keyboard input is not echoed on the screen.  During execution of a
+<code>(with-keyboard . <var>body</var>)</code> form, no input from
+<code>*terminal-io*</code> or any synonymous stream should be requested.
+
 <!-- #ifdef TERMINAL_USES_KEYBOARD -->
-<!--
-The stream <code>*keyboard-input*</code> is used by <code>*terminal-io*</code>.
--->
+<!-- The stream <code>*keyboard-input*</code> is used by
+     <code>*terminal-io*</code>. -->
 <!-- #endif -->
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -2758,9 +2901,9 @@ encodings and the line terminator keywords <code>:unix</code>,
 <!-- #ifdef PIPES -->
 
 <P><DL>
-<DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM></DT>
-<DD>
-<code>(<STRONG>make-pipe-input-stream</STRONG> <var>command</var>
+<DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM>
+
+<DD><code>(<STRONG>make-pipe-input-stream</STRONG> <var>command</var>
 [:element-type] [:external-format] [:buffered])</code> returns an input
 stream that will supply the output from the execution of the given
 operating system command.
@@ -2838,7 +2981,6 @@ called command as well.
 
 <br>See also <A HREF="#shell"><code>(shell <var>command</var>)</code></A>.
 <!-- #endif -->
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -2847,18 +2989,19 @@ called command as well.
 Generic streams are user programmable streams. The programmer interface:
 <DL>
   <DT><code>(<STRONG>lisp:make-generic-stream</STRONG>
-  <var>controller</var>)</code></DT> <DD>returns a generic stream.</DD>
+   <var>controller</var>)</code>
+  <DD>returns a generic stream.
 
   <DT><code>(<STRONG>lisp:generic-stream-controller</STRONG>
-     <var>stream</var>)</code></DT>
-     <DD>returns a private object to which generic stream methods dispatch.
+     <var>stream</var>)</code>
+   <DD>returns a private object to which generic stream methods dispatch.
      The typical usage is to retrieve the object originally provided by the
-     user in <code>make-generic-stream</code>.</DD>
+     user in <code>make-generic-stream</code>.
 
   <DT><code>(<STRONG>lisp:generic-stream-p</STRONG>
-    <var>stream</var>)</code></DT> <DD>determines whether a stream is a
-    generic stream, returning <code>t</code> if it is, <code>nil</code>
-    otherwise.</DD>
+    <var>stream</var>)</code>
+   <DD>determines whether a stream is a generic stream, returning
+    <code>t</code> if it is, <code>nil</code> otherwise.
 </DL>
 
 <p>In order to specify the behaviour of a generic stream, the user must
@@ -2868,65 +3011,61 @@ Common Lisp function <code><var>xyz</var></code>. They all take a
 controller and some number of arguments.
 
 <DL>
-  <DT><code>(generic-stream-read-char    <var>controller</var>)</code></DT>
+  <DT><code>(generic-stream-read-char    <var>controller</var>)</code>
    <DD> Returns and consumes the next character, <code>nil</code> at
     end of file. Takes one argument, the controller object.
-  </DD>
-  <DT><code>(generic-stream-peek-char    <var>controller</var>)</code></DT>
-  <DD> Returns the next character, <code>nil</code> at end of file. A
+  <DT><code>(generic-stream-peek-char    <var>controller</var>)</code>
+   <DD> Returns the next character, <code>nil</code> at end of file. A
    second value indicates whether the side effects associated with
    consuming the character were executed: <code>t</code> means that a
    full <code>read-char</code> was done, <code>nil</code> means that no
    side effects were done. Takes one argument, the controller object.
-  </DD>
-  <DT><code>(generic-stream-read-byte    <var>controller</var>)</code></DT>
-  <DD> Returns and consumes the next integer, <code>nil</code> at end of file.
+  <DT><code>(generic-stream-read-byte    <var>controller</var>)</code>
+   <DD> Returns and consumes the next integer, <code>nil</code> at end of file.
        Takes one argument, the controller object.
-  </DD>
   <DT><A name=generic-stream-listen></A>
-      <code>(generic-stream-listen       <var>controller</var>)</code></DT>
-  <DD>
-    <P>
-    This generic function is used to query the stream's input status.
+      <code>(generic-stream-listen <var>controller</var>)</code>
+  <DD> This generic function is used to query the stream's input status.
     The possible return values are the same as for the
     <A HREF="#real-listen"><code>sys::real-listen</code></A> function.
-    </P>
     <DL COMPACT>
-      <DT><code>:eof</code></DT>             <DD>means EOF</DD>
-      <DT><code>:input-available</code></DT> <DD>means a character (or byte) pending</DD>
-      <DT><code>:wait</code></DT>            <DD>means no input available.</DD>
+      <DT><code>:eof</code>             <DD>means EOF
+      <DT><code>:input-available</code> <DD>means a character (or byte) pending
+      <DT><code>:wait</code>            <DD>means no input available
     </DL>
-  </DD>
-  <DT><code>(generic-stream-write-char   <var>controller</var> <var>ch</var>)</code></DT>
-  <DD>   First argument is the controller object.
+  <DT><code>(generic-stream-write-char
+             <var>controller</var> <var>ch</var>)</code>
+    <DD> First argument is the controller object.
          Second argument is the character to be written.
-  </DD>
-  <DT><code>(generic-stream-write-byte   <var>controller</var> <var>by</var>)</code></DT>
-  <DD>   First argument is the controller object.
+  <DT><code>(generic-stream-write-byte
+             <var>controller</var> <var>by</var>)</code>
+    <DD> First argument is the controller object.
          Second argument is the integer to be written.
-  </DD>
-  <DT><code>(generic-stream-write-string <var>controller</var> <var>string</var> <var>start</var> <var>len</var>)</code></DT>
-  <DD>   Called with argument list <code>(<var>controller</var> <var>string</var> <var>start</var> <var>len</var>)</code>,
-         this function shall write
-           <code>(subseq (the string <var>string</var>) <var>start</var> (+ <var>start</var> <var>len</var>))</code>
-         First argument is the controller object.
-  </DD>
-  <DT><code>(generic-stream-clear-input   <var>controller</var>)</code></DT>
-  <DT><code>(generic-stream-clear-output  <var>controller</var>)</code></DT>
-  <DT><code>(generic-stream-finish-output <var>controller</var>)</code></DT>
-  <DT><code>(generic-stream-force-output  <var>controller</var>)</code></DT>
-  <DT><code>(generic-stream-close         <var>controller</var>)</code></DT>
-  <DD>   Takes one argument, the controller object.
-  </DD>
+  <DT><code>(generic-stream-write-string
+            <var>controller</var> <var>string</var> <var>start</var>
+            <var>len</var>)</code>
+   <DD> Called with argument list <code>(<var>controller</var>
+     <var>string</var> <var>start</var> <var>len</var>)</code>, this
+     function shall write <code>(subseq (the string <var>string</var>)
+     <var>start</var> (+ <var>start</var> <var>len</var>))</code>
+     First argument is the controller object.
+  <DT><code>(generic-stream-clear-input   <var>controller</var>)</code>
+  <DT><code>(generic-stream-clear-output  <var>controller</var>)</code>
+  <DT><code>(generic-stream-finish-output <var>controller</var>)</code>
+  <DT><code>(generic-stream-force-output  <var>controller</var>)</code>
+  <DT><code>(generic-stream-close         <var>controller</var>)</code>
+    <DD> Take one argument, the controller object.
 </DL>
 <!-- #endif -->
 
 <H3><a href="CLHSROOT/Body/sec_the_streams_dictionary.html">
     21.2. The Streams Dictionary</a></H3>
 
-<p>The ANSI CL function <code>open-stream-p</code> is implemented.
+<p>The ANSI CL function <a href="CLHSROOT/Body/fun_open-stream-p.html">
+<code>open-stream-p</code></a> is implemented.
 
-<P><code>stream-element-type</code> is <code>setf</code>able. The
+<P><a href="CLHSROOT/Body/fun_stream-element-type.html">
+<code>stream-element-type</code></a> is <code>setf</code>able. The
 element type of streams created by the functions
 <code>make-pipe-input-stream</code>,
 <code>make-pipe-output-stream</code>, <code>make-pipe-io-stream</code>,
@@ -2936,26 +3075,34 @@ if both the old and the new element type are equivalent to
 <code>(signed-byte <var>n</var>)</code>, where <var>n</var> is a
 positive multiple of 8.
 
-<P><code>close</code> ignores its <code>:abort</code> argument.
+<p><a href="CLHSROOT/Body/fun_close.html">
+<code>close</code></a> ignores its <code>:abort</code> argument.
 
-<P>The ANSI CL functions <code>broadcast-stream-streams</code>,
-<code>concatenated-stream-streams</code>,
-<code>echo-stream-input-stream</code>,
-<code>echo-stream-output-stream</code>,
-<code>synonym-stream-symbol</code>,
-<code>two-way-stream-input-stream</code>,
-<code>two-way-stream-output-stream</code> are implemented.
+<P>The ANSI CL functions
+<a href="CLHSROOT/Body/fun_broadcast_ream-streams.html">
+<code>broadcast-stream-streams</code></a>,
+<a href="CLHSROOT/Body/fun_concatena_ream-streams.html">
+<code>concatenated-stream-streams</code></a>,
+<a href="CLHSROOT/Body/fun_echo-stre_utput-stream.html">
+<code>echo-stream-input-stream</code></a>,
+<a href="CLHSROOT/Body/fun_echo-stre_utput-stream.html">
+<code>echo-stream-output-stream</code></a>,
+<a href="CLHSROOT/Body/fun_synonym-stream-symbol.html">
+<code>synonym-stream-symbol</code></a>,
+<a href="CLHSROOT/Body/fun_two-way-s_utput-stream.html">
+<code>two-way-stream-input-stream</code></a>,
+<a href="CLHSROOT/Body/fun_two-way-s_utput-stream.html">
+<code>two-way-stream-output-stream</code></a> are implemented.
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <h4><a href="CLHSROOT/Body/fun_file-position.html">
     file-position</a></h4>
 
 <DL>
- <DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
+ <DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
   <DD><code>file-position</code> works on any buffered file stream. When
   a Newline is output to resp. input from a file stream, its file
   position is increased by 2 since Newline is encoded as CR/LF in the file.
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -2988,27 +3135,28 @@ for special files.
 <h2><a name="printer"></a><a href="CLHSROOT/Body/chap-22.html">
     Chapter 22: Printer</a></h2>
 
-<p>The ANSI CL macro <code>formatter</code> is implemented.
+<p>The ANSI CL macro <a href="CLHSROOT/Body/mac_formatter.html">
+<code>formatter</code></a> is implemented.
 
-<H3><a href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
-    write</a> &amp; <a href="CLHSROOT/Body/fun_write-to-_nc-to-string.html">
-    write-to-string</a></H3>
+<p>The functions <a href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
+<code>write</code></a> and
+<a href="CLHSROOT/Body/fun_write-to-_nc-to-string.html">
+<code>write-to-string</code></a> have an additional keyword
+<code>:closure</code> that can be used to bind
+<code>*print-closure*</code>.
 
-<p>The functions <code>write</code> and <code>write-to-string</code>
-have an additional keyword <code>:closure</code> that can be used to
-bind <code>*print-closure*</code>.
-
-<P>The ANSI CL macro <code>print-unreadable-object</code> is implemented.
+<P>The ANSI CL macro <a href="CLHSROOT/Body/mac_print-unr_dable-object.html">
+<code>print-unreadable-object</code></a> is implemented.
 
 <H3><a href="CLHSROOT/Body/fun_write-sequence.html">
     write-sequence</a></H3>
 
-<p>In addition to <code>write-sequence</code>, the following functions
-are provided:
+<p>In addition to <code>write-sequence</code>, the following two
+functions are provided:
 
 <p><dl>
- <dt>The function <STRONG><code>lisp:write-byte-sequence</code></STRONG>
- performs multiple <code>write-byte</code> operations:</dt>
+ <dt><STRONG><code>lisp:write-byte-sequence</code></STRONG>
+ performs multiple <code>write-byte</code> operations:
 
  <dd><code>(write-byte-sequence <var>sequence</var> <var>stream</var>
 [:start] [:end])</code> outputs the integers of the subsequence of
@@ -3016,13 +3164,13 @@ are provided:
 <var><code>:end</code></var> to <var>stream</var>. It returns
 <var>sequence</var>.
 
-<br>This function is especially efficient if <var>sequence</var> is a
+<p>This function is especially efficient if <var>sequence</var> is a
 <code>(vector (unsigned-byte 8))</code> and <var>stream</var> is a file
 stream with element type <code>(unsigned-byte 8)</code> or a pipe
-stream.</dd>
+stream.
 
- <dt>The function <STRONG><code>lisp:write-char-sequence</code></STRONG>
- performs multiple <code>write-char</code> operations:</dt>
+ <p><dt><STRONG><code>lisp:write-char-sequence</code></STRONG>
+ performs multiple <code>write-char</code> operations:
 
  <dd><code>(write-char-sequence <var>sequence</var> <var>stream</var>
 [:start] [:end])</code> outputs the characters of the subsequence of
@@ -3030,10 +3178,10 @@ stream.</dd>
 <var><code>:end</code></var> to <var>stream</var>.  It returns
 <var>sequence</var>.
 
-<br>This function is especially efficient if <var>sequence</var> is a
+<p>This function is especially efficient if <var>sequence</var> is a
 string and <var>stream</var> is a file stream with element type
 <code>character</code> or <code>string-char</code> or a pipe
-stream.</dd>
+stream.
 </dl>
 
 <H3><a href="CLHSROOT/Body/fun_format.html">
@@ -3042,7 +3190,7 @@ stream.</dd>
 <p>The <code>format</code> option <code>~W</code> is analogous to
 <code>~A</code> and <code>~S</code>, but avoids binding of
 <code>*print-escape*</code>. <code>(format <var>stream</var>
-&quot;~W&quot; <var>object</var>)</code> is equivalent to <code>(write
+&#34;~W&#34; <var>object</var>)</code> is equivalent to <code>(write
 <var>object</var> :stream <var>stream</var>)</code>.
 
 <P>The <code>format</code> option <code>~!</code> is analogous to
@@ -3073,98 +3221,97 @@ stream.
 
 <P>Pathnames are printed as follows: If <code>*print-escape*</code> is
 <code>nil</code>, only the namestring is printed; otherwise it is
-printed with <code>#P&quot;&quot;</code> syntax, as per ANSI CL
-&lt;PRINT-READABLY-BEHAVIOR:CLARIFY&gt;.  But, if
+printed with <code>#P&#34;&#34;</code> syntax, as per ANSI CL Issue
+<a href="CLHSROOT/Issues/iss276.html">
+PRINT-READABLY-BEHAVIOR:CLARIFY</a>.  But, if
 <code>*print-readably*</code> is true, we are in trouble as
-<code>#P&quot;&quot;</code> is ambiguous (which is verboten when
+<code>#P&#34;&#34;</code> is ambiguous (which is verboten when
 <code>*print-readably*</code> is true), while being mandated by the
 ANSI.  Therefore, in this case, we print it like this
 
-<P><code>#-CLISP #P&quot;...&quot; #+CLISP #S(PATHNAME ...)</code>
+<P><code>#-CLISP #P&#34;...&#34; #+CLISP #S(PATHNAME ...)</code>
 
 <p>when the variable <code>lisp:*ansi*</code> is not set, otherwise the
-<code>#P&quot;&quot;</code> notation is used as per
+<code>#P&#34;&#34;</code> notation is used as per
 <a href="CLHSROOT/Body/sec_1-5-1-4.html">1.5.1.4.1 Resolution of Apparent
 Conflicts in Exceptional Situations</a>.
 
 <h3>misc</h3>
 
-<P><code>*print-case*</code> controls the output not only of symbols,
+<P><a href="CLHSROOT/Body/var_stprint-casest.html">
+<code>*print-case*</code></a> controls the output not only of symbols,
 but also of characters and some <code>#&lt;...&gt;</code> objects.
 
 <p>In absence of <code>sys::write-float</code>, floating point numbers
 are output in radix 2.
 
-<P>If <code>*print-readably*</code> is true,
-<code>*read-default-float-format*</code> has no influence on the way
+<P>If <a href="CLHSROOT/Body/var_stprint-readablyst.html">
+<code>*print-readably*</code></a> is true,
+<a href="CLHSROOT/Body/var_stread-de_oat-formatst.html">
+<code>*read-default-float-format*</code></a> has no influence on the way
 floating point numbers are printed.
 
 <P><DL>
 <!-- #ifndef AMIGAOS -->
-<DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Acorn platforms only.</EM></DT>
-<DD>
-<code>*print-pretty*</code> is initially = <code>nil</code> but set to <code>t</code> in <code>config.lsp</code>. This makes
-screen output prettier.
-</DD>
+<DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Acorn platforms only.</EM>
+<DD><a href="CLHSROOT/Body/var_stprint-prettyst.html">
+<code>*print-pretty*</code></a> is initially = <code>nil</code> but set
+to <code>t</code> in <code>config.lsp</code>. This makes screen output
+prettier.
 <!-- #else -->
-<DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
-<DD>
-<code>*print-pretty*</code> is initially = <code>nil</code> but set to <code>t</code> in <code>config.lsp</code>. This makes
-unbuffered screen output much faster.
-</DD>
+<DT><EM>Platform dependent: Amiga platforms only.</EM>
+<DD><a href="CLHSROOT/Body/var_stprint-prettyst.html">
+<code>*print-pretty*</code></a> is initially = <code>nil</code> but set
+to <code>t</code> in <code>config.lsp</code>. This makes unbuffered screen
+output much faster.
 <!-- #endif -->
 </DL>
 
-<P><code>*print-array*</code> is initially set to <code>t</code>.
-
-<P>An additional variable <STRONG><code>*print-closure*</code></STRONG>
-controls whether compiled and interpreted functions (closures) are
-output in detailed form. If <code>*print-closure*</code> not
-<code>eq</code> to <code>nil</code>, compiled closures are output in
-<code>#Y</code> syntax the reader
-understands. <code>*print-closure*</code> is initially set to
-<code>nil</code>.
-
-<P>An additional variable <STRONG><code>*print-rpars*</code></STRONG>
-controls the output of right (closing) parentheses. If
-<code>*print-rpars*</code> not <code>eq</code> to <code>nil</code>,
-closing parentheses which don't fit onto the same line as the the
-corresponding opening parenthesis are output just below their
-corresponding opening parenthesis, in the same column.
-<code>*print-rpars*</code> is initially set to <code>t</code>.
+<p><a href="CLHSROOT/Body/var_stprint-arrayst.html">
+<code>*print-array*</code></a> is initially set to <code>t</code>.
 
 <P>An additional variable
-<STRONG><code>*print-indent-lists*</code></STRONG> controls the
+<STRONG><code>lisp:*print-closure*</code></STRONG> controls whether
+compiled and interpreted functions (closures) are output in detailed
+form. If <code>*print-closure*</code> not <code>eq</code> to
+<code>nil</code>, compiled closures are output in <code>#Y</code> syntax
+the reader understands. <code>*print-closure*</code> is initially set to
+<code>nil</code>.
+
+<P>An additional variable
+<STRONG><code>lisp:*print-rpars*</code></STRONG> controls the output of
+right (closing) parentheses. If <code>*print-rpars*</code> not
+<code>eq</code> to <code>nil</code>, closing parentheses which don't fit
+onto the same line as the the corresponding opening parenthesis are
+output just below their corresponding opening parenthesis, in the same
+column.  <code>*print-rpars*</code> is initially set to <code>t</code>.
+
+<P>An additional variable
+<STRONG><code>lisp:*print-indent-lists*</code></STRONG> controls the
 indentation of lists that span more than one line. It specifies by how
 many characters items within the list will be indented relative to the
 beginning of the list.  <code>*print-indent-lists*</code> is initially
 set to <code>2</code>.
 
-<P>The ANSI CL macro <code>with-standard-io-syntax</code> is implemented.
+<P>The ANSI CL macro
+<a href="CLHSROOT/Body/mac_with-stan_rd-io-syntax.html">
+<code>with-standard-io-syntax</code></a> is implemented.
 
 <DL>
-  <DT>
-    <A NAME=real-listen></A>
+  <DT> <A NAME=real-listen></A>
     <code>(system::<STRONG>real-listen</STRONG> <var>stream</var>)</code>
-  </DT>
-  <DD>
-    <P>
-    <code>sys::real-listen</code> is a variant of the standard
+  <DD> <code>sys::real-listen</code> is a variant of the standard
     <code>listen</code> function, which returns more detailed information
     about the stream's input status. The return value is one of:
-    </P>
     <DL COMPACT>
-      <DT><code>:eof</code></DT>             <DD>means EOF</DD>
-      <DT><code>:input-available</code></DT> <DD>means a character (or byte) pending</DD>
-      <DT><code>:wait</code></DT>            <DD>means no input available.</DD>
+      <DT><code>:eof</code>             <DD>means EOF
+      <DT><code>:input-available</code> <DD>means a character (or byte) pending
+      <DT><code>:wait</code>            <DD>means no input available
     </DL>
-    <P>
-    The return values are the same as for the
+    <p> The return values are the same as for the
     <code><A HREF="#generic-stream-listen">generic-stream-listen</A></code>
     method, so this function is a good fit to define some generic streams
     based upon other CLISP streams.
-    </P>
-  </DD>
 </DL>
 
 <h2><a name="reader"></a><a href="CLHSROOT/Body/chap-23.html">
@@ -3225,12 +3372,12 @@ meaningfully read in:
             <BR><EM>(Platform dependent: UNIX, Win32 platforms only.)</EM>
 <!-- #endif -->
   <TR> <TD VALIGN=TOP> <code>#&lt;UNBOUND&gt;</code>
-       <TD> &quot;value&quot; of a symbol without value, &quot;value&quot;
+       <TD> &#34;value&#34; of a symbol without value, &#34;value&#34;
             of an unsupplied optional or keyword argument
   <TR> <TD VALIGN=TOP> <code>#&lt;SPECIAL REFERENCE&gt;</code>
        <TD> environment marker for variables declared <code>special</code>
   <TR> <TD VALIGN=TOP> <code>#&lt;DOT&gt;</code>
-       <TD> internal <code>read</code> result for &quot;.&quot;
+       <TD> internal <code>read</code> result for &#34;.&#34;
   <TR> <TD VALIGN=TOP> <code>#&lt;END OF FILE&gt;</code>
        <TD> internal <code>read</code> result, when the end of file
             is reached
@@ -3253,23 +3400,20 @@ meaningfully read in:
 
 <UL>
 <LI><code>#Y</code> is used to read compiled functions.
-<LI><code>#&quot;</code> is used to read pathnames:
-     <code>#&quot;test.lsp&quot;</code> is the value of
-     <code>(pathname &quot;test.lsp&quot;)</code>
+<LI><code>#&#34;</code> is used to read pathnames:
+     <code>#&#34;test.lsp&#34;</code> is the value of
+     <code>(pathname &#34;test.lsp&#34;)</code>
 <DL>
 <!-- #if defined(MSDOS) -->
-<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM></DT>
-<DD>
-     As in all strings, backslashes must be written twice here:
-     <code>#&quot;A:\\programs\\test.lsp&quot;</code>
-</DD>
+<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
+<DD> As in all strings, backslashes must be written twice here:
+     <code>#&#34;A:\\programs\\test.lsp&#34;</code>
 <!-- #endif -->
+
 <!-- #ifdef RISCOS -->
-<DT><EM>Platform dependent: Acorn platforms only.</EM></DT>
-<DD>
-     As in all strings, backslashes must be written twice here:
-     <code>#&quot;\\.test.lsp&quot;</code>
-</DD>
+<DT><EM>Platform dependent: Acorn platforms only.</EM>
+<DD> As in all strings, backslashes must be written twice here:
+     <code>#&#34;\\.test.lsp&#34;</code>
 <!-- #endif -->
 </DL>
 </UL>
@@ -3288,12 +3432,12 @@ alternative to the use of <code>readtable-case</code> is the use of the
 <h3><a href="CLHSROOT/Body/fun_read-sequence.html">
     read-sequence</a></h3>
 
-<p>In addition to <code>read-sequence</code>, the following functions
-are provided:
+<p>In addition to <code>read-sequence</code>, the following two
+functions are provided:
 
 <p><dl>
- <dt>The function <STRONG><code>lisp:read-byte-sequence</code></STRONG>
- performs multiple <code>read-byte</code> operations:</dt>
+ <dt><STRONG><code>lisp:read-byte-sequence</code></STRONG>
+ performs multiple <code>read-byte</code> operations:
 
  <dd><code>(read-byte-sequence <var>sequence</var> <var>stream</var>
 [:start] [:end])</code> fills the subsequence of <var>sequence</var>
@@ -3303,13 +3447,13 @@ specified by <var><code>:start</code></var> and
 <var>sequence</var> that was not updated (= <var>end</var> or &lt;
 <var>end</var> if the stream reached its end).
 
-<br>This function is especially efficient if <var>sequence</var> is a
+<p>This function is especially efficient if <var>sequence</var> is a
 <code>(vector (unsigned-byte 8))</code> and <var>stream</var> is a file
 stream with element type <code>(unsigned-byte 8)</code> or a pipe
-stream.</dd>
+stream.
 
- <dt>The function <STRONG><code>lisp:read-char-sequence</code></STRONG>
- performs multiple <code>read-char</code> operations:</dt>
+ <p><dt><STRONG><code>lisp:read-char-sequence</code></STRONG>
+ performs multiple <code>read-char</code> operations:
 
  <dd><code>(read-char-sequence <var>sequence</var> <var>stream</var>
 [:start] [:end])</code> fills the subsequence of <var>sequence</var>
@@ -3319,10 +3463,10 @@ specified by <var><code>:start</code></var> and
 <var>sequence</var> that was not updated (= <var>end</var> or &lt;
 <var>end</var> if the stream reached its end).
 
-<br>This function is especially efficient if <var>sequence</var> is a
+<p>This function is especially efficient if <var>sequence</var> is a
 string and <var>stream</var> is a file stream with element type
 <code>character</code> or <code>string-char</code>, a pipe stream or a
-string input stream.</dd>
+string input stream.
 </dl>
 
 <h2><a name="system"></a><a href="CLHSROOT/Body/chap-24.html">
@@ -3332,8 +3476,12 @@ string input stream.</dd>
     24.2: The System Construction Dictionary</a></h3>
 
 <p>The compiler can be called not only by the functions
-<code>compile</code>, <code>compile-file</code> and
-<code>disassemble</code>, also by the declaration
+<a href="CLHSROOT/Body/fun_compile.html">
+<code>compile</code></a>,
+<a href="CLHSROOT/Body/fun_compile-file.html">
+<code>compile-file</code></a> and
+<a href="CLHSROOT/Body/fun_disassemble.html">
+<code>disassemble</code></a>, but also by the declaration
 <code>(compile)</code>.
 
 <P><code>(compile-file <var>input-file</var> [:output-file] [:listing]
@@ -3362,32 +3510,38 @@ compiles a file to bytecode.
 </DL>
 
 <p>The variables <code><STRONG>lisp:*compile-warnings*</STRONG></code>,
-<code>*compile-verbose*</code>, <code>*compile-print*</code> provide
+<a href="CLHSROOT/Body/var_stcompile_le-verbosest.html">
+<code>*compile-verbose*</code></a>,
+<a href="CLHSROOT/Body/var_stcompile_le-verbosest.html">
+<code>*compile-print*</code></a> provide
 defaults for the <code>:warnings</code>, <code>:verbose</code>,
 <code>:print</code> keyword arguments, respectively.  For each input
-file (default file type: <code>#&quot;.lsp&quot;</code>) the following
+file (default file type: <code>#&#34;.lsp&#34;</code>) the following
 files are generated:
 
 <p><TABLE BORDER=1>
   <TR> <TH>File            <TH>When <TH>Default file type  <TH>Contents
   <TR> <TD>output file              <TD>only if <code>:output-file</code> is not <code>nil</code>
-                           <TD><code>#&quot;.fas&quot;</code>
+                           <TD><code>#&#34;.fas&#34;</code>
                            <TD>can be loaded using the <code>load</code> function.
   <TR> <TD>auxiliary output file    <TD>only if <code>:output-file</code> is not <code>nil</code>
-                           <TD><code>#&quot;.lib&quot;</code>
+                           <TD><code>#&#34;.lib&#34;</code>
                            <TD>used by <code>compile-file</code> when compiling
                              a <code>require</code> form referring to the input file.
   <TR> <TD>listing file             <TD>only if <code>:listing</code> is not <code>nil</code>
-                           <TD><code>#&quot;.lis&quot;</code>
+                           <TD><code>#&#34;.lis&#34;</code>
                            <TD>disassembly of the output file.
   <TR> <TD>C output file            <TD>only if <code>:output-file</code> is not <code>nil</code>
-                           <TD><code>#&quot;.c&quot;</code>
+                           <TD><code>#&#34;.c&#34;</code>
                            <TD>foreign function interface;
                            this file is deleted if it is empty.
 </TABLE>
 
-<P>The ANSI CL variables <code>*compile-file-pathname*</code> and
-<code>*compile-file-truename*</code> are implemented.
+<P>The ANSI CL variables
+<a href="CLHSROOT/Body/var_stcompile_e-truenamest.html">
+<code>*compile-file-pathname*</code></a> and
+<a href="CLHSROOT/Body/var_stcompile_e-truenamest.html">
+<code>*compile-file-truename*</code></a> are implemented.
 
 
 <h4><a href="CLHSROOT/Body/fun_providecm_require.html">
@@ -3429,11 +3583,14 @@ required module is not already in memory.
   <code>nil</code>.
 </DL>
 
-<P>The ANSI CL variables <code>*load-pathname*</code> and
-<code>*load-truename*</code> are implemented.
+<P>The ANSI CL variables
+<a href="CLHSROOT/Body/var_stload-pa_d-truenamest.html">
+<code>*load-pathname*</code></a> and
+<a href="CLHSROOT/Body/var_stload-pa_d-truenamest.html">
+<code>*load-truename*</code></a> are implemented.
 
-<P>The variable <STRONG><code>*load-paths*</code></STRONG> contains a
-list of directories where program files are searched - additionally to
+<P>The variable <STRONG><code>lisp:*load-paths*</code></STRONG> contains
+a list of directories where program files are searched - additionally to
 the specified or current directory - by <code>load</code>,
 <code>require</code>, <code>compile-file</code>.
 
@@ -3497,14 +3654,12 @@ the specified or current directory - by <code>load</code>,
     disassemble</a></h4>
 
 <p><DL>
-<DT><EM>Platform dependent: UNIX platforms only.</EM></DT>
-<DD>
-<code><STRONG>disassemble</STRONG></code> can disassemble to machine
+<DT><EM>Platform dependent: UNIX platforms only.</EM>
+<DD><code><STRONG>disassemble</STRONG></code> can disassemble to machine
 code, provided that GNU gdb is present.  In that case the argument may
 be a <code>system-function</code>, a <code>foreign-function</code>, a
 special operator indicator, a symbol denoting one of these, a number, or a
 string.
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -3531,20 +3686,29 @@ its interpreted form.
 
        <code>(<var>symbol</var></code>
          <TABLE>
-         <TR><TD><code>[:suppress-if <var>form</var>]</code>   <TD> no trace output as long as <var>form</var> is true
-         <TR><TD><code>[:step-if <var>form</var>]</code>       <TD> invokes the stepper as soon as <var>form</var> is true
-         <TR><TD><code>[:pre <var>form</var>]</code>           <TD> evaluates <var>form</var> before calling the function
-         <TR><TD><code>[:post <var>form</var>]</code>          <TD> evaluates <var>form</var> after return from the function
-         <TR><TD><code>[:pre-break-if <var>form</var>]</code>  <TD> goes into the break loop before calling the
-                                function if <var>form</var> is true
-         <TR><TD><code>[:post-break-if <var>form</var>]</code> <TD> goes into the break loop after return from
-                                the function if <var>form</var> is true
-         <TR><TD><code>[:pre-print <var>form</var>]</code>     <TD> prints the values of <var>form</var> before calling the
-                                function
-         <TR><TD><code>[:post-print <var>form</var>]</code>    <TD> prints the values of <var>form</var> after return from
-                                the function
-         <TR><TD><code>[:print <var>form</var>]</code>         <TD> prints the values of <var>form</var> both before
-                                calling and after return from the function
+         <TR><TD><code>[:suppress-if <var>form</var>]</code>
+             <TD> no trace output as long as <var>form</var> is true
+         <TR><TD><code>[:step-if <var>form</var>]</code>
+             <TD> invokes the stepper as soon as <var>form</var> is true
+         <TR><TD><code>[:pre <var>form</var>]</code>
+             <TD> evaluates <var>form</var> before calling the function
+         <TR><TD><code>[:post <var>form</var>]</code>
+             <TD> evaluates <var>form</var> after return from the function
+         <TR><TD><code>[:pre-break-if <var>form</var>]</code>
+             <TD> goes into the break loop before calling the function
+                  if <var>form</var> is true
+         <TR><TD><code>[:post-break-if <var>form</var>]</code>
+             <TD> goes into the break loop after return from the
+                  function if <var>form</var> is true
+         <TR><TD><code>[:pre-print <var>form</var>]</code>
+             <TD> prints the values of <var>form</var> before calling
+                  the function
+         <TR><TD><code>[:post-print <var>form</var>]</code>
+             <TD> prints the values of <var>form</var> after return from
+                  the function
+         <TR><TD><code>[:print <var>form</var>]</code>
+             <TD> prints the values of <var>form</var> both before
+                  calling and after return from the function
          </TABLE>
        <code>)</code>
 
@@ -3577,9 +3741,10 @@ memory allocations caused by this evaluation.
 <h4><a href="CLHSROOT/Body/fun_inspect.html">
     inspect</a></h4>
 
-<P>The function <code><STRONG>inspect</STRONG></code> is not
-implemented. (It is available as an add-on from the
-<a href="http://ftp2.cons.org/pub/lisp/clisp/contrib/">contrib</a>
+<P>The function <STRONG><a href="CLHSROOT/Body/fun_inspect.html">
+<code>inspect</code></a></STRONG> is not implemented. (It is available
+as an add-on from the <a
+href="http://ftp2.cons.org/pub/lisp/clisp/contrib/">contrib</a>
 directory.
 
 <h4><a href="CLHSROOT/Body/fun_room.html">
@@ -3599,30 +3764,27 @@ editor specified by the variable <code><STRONG>*editor*</STRONG></code>
 
 <!-- #if defined(MSDOS) || defined(UNIX) || defined(AMIGAOS) -->
 <DL>
-<DT><EM>Platform dependent: UNIX, DOS, OS/2, Amiga platforms only.</EM></DT>
+<DT><EM>Platform dependent: UNIX, DOS, OS/2, Amiga platforms only.</EM>
 <DD>
 <DL>
-<DT><EM>If using the optional package <code>editor</code>:</EM></DT>
-<DD>
-  <code>ed</code> behaves like this only if the variable
+<DT><EM>If using the optional package <code>editor</code>:</EM>
+<DD> <code>ed</code> behaves like this only if the variable
   <code><STRONG>*use-ed*</STRONG></code> is <code>nil</code>.
   Otherwise <code>ed</code> uses a screen editor with multiple windows.
-</DD></DL>
-</DD></DL>
+</DL>
+</DL>
 <!-- #endif -->
 
 <h4>time</h4>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <DL>
-<DT><EM>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</EM></DT>
-<DD>
-The variable <code><STRONG>lisp:*default-time-zone*</STRONG></code>
+<DT><EM>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</EM>
+<DD>The variable <code><STRONG>lisp:*default-time-zone*</STRONG></code>
 contains the default time zone used by
 <code>encode-universal-time</code> and
 <code>decode-universal-time</code>. It is initially set to -1 (which
 means 1 hour east of Greenwich, i.e. Mid European Time).
-</DD>
 </DL>
 <!-- #endif -->
 
@@ -3632,19 +3794,19 @@ but (as float or rational number) it should be a multiple of
 
 <P><DL>
 <!-- #if defined(TIME_MSDOS) || defined(TIME_RISCOS) -->
-<DT><EM>Platform dependent: DOS, OS/2, Acorn platforms only.</EM></DT>
+<DT><EM>Platform dependent: DOS, OS/2, Acorn platforms only.</EM>
 <DD><code>internal-time-units-per-second</code> = 100.
 <!-- #endif -->
 <!-- #ifdef TIME_AMIGAOS -->
-<DT><EM>Platform dependent: Amiga platforms only.</EM></DT>
+<DT><EM>Platform dependent: Amiga platforms only.</EM>
 <DD><code>internal-time-units-per-second</code> = 50.
 <!-- #endif -->
 <!-- #ifdef TIME_UNIX -->
-<DT><EM>Platform dependent: most UNIX platforms only.</EM></DT>
+<DT><EM>Platform dependent: most UNIX platforms only.</EM>
 <DD><code>internal-time-units-per-second</code> = 1000000.
 <!-- #endif -->
 <!-- #ifdef TIME_WIN32 -->
-<DT><EM>Platform dependent: Win32 platforms only.</EM></DT>
+<DT><EM>Platform dependent: Win32 platforms only.</EM>
 <DD><code>internal-time-units-per-second</code> = 10000000.
 <!-- #endif -->
 </DL>
@@ -3652,12 +3814,12 @@ but (as float or rational number) it should be a multiple of
 <h4>machine</h4>
 <p><DL>
 <!-- #ifdef MACHINE_KNOWN -->
- <DT><EM>Platform dependent: UNIX, Win32 platforms only.</EM></DT>
+ <DT><EM>Platform dependent: UNIX, Win32 platforms only.</EM>
   <DD>The functions <code>short-site-name</code>,
   <code>long-site-name</code> should be defined in a site-specific
   <code>config.lsp</code> file.
 <!-- #else -->
- <DT><EM>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</EM></DT>
+ <DT><EM>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</EM>
   <DD>The functions <code>machine-type</code>,
   <code>machine-version</code>, <code>machine-instance</code> and
   <code>short-site-name</code>, <code>long-site-name</code> should be
@@ -4059,7 +4221,7 @@ vote.
  <tr><td><a href="CLHSROOT/Issues/iss180.html">
      GENERALIZE-PRETTY-PRINTER:UNIFY</a>           <td>no
  <tr><td><a href="CLHSROOT/Issues/iss181.html">
-     GENERIC-FLET-POORLY-DESIGNED:DELETE</a>       <td>no
+     GENERIC-FLET-POORLY-DESIGNED:DELETE</a>       <td>yes
  <tr><td><a href="CLHSROOT/Issues/iss182.html">
      GENSYM-NAME-STICKINESS:LIKE-TEFLON</a>        <td>yes
  <tr><td><a href="CLHSROOT/Issues/iss183.html">
@@ -4536,7 +4698,7 @@ vote.
 <p>The function <code>(<STRONG>saveinitmem</STRONG> [<var>filename</var>
 [:quiet] [:init-function]])</code> saves the running CLISP's memory to a
 file. The <var>filename</var> defaults to
-<code>&quot;lispinit.mem&quot;</code>.  If the <code>:quiet</code>
+<code>&#34;lispinit.mem&#34;</code>.  If the <code>:quiet</code>
 argument is not <code>nil</code>, the startup banner and the good-bye
 message will be suppressed. The <code>:init-function</code> argument
 specifies a function that will be executed at startup of the saved
@@ -4617,18 +4779,18 @@ object is being garbage collected, <code>(funcall <var>function</var>
 
 <P>Calling <code>(finalize <var>object</var> <var>function</var>
 <var>guardian</var>)</code> has a similar effect, but only as long as
-the &quot;guardian&quot; has not been garbage collected: When
+the &#34;guardian&#34; has not been garbage collected: When
 <var>object</var> is being garbage collected, <code>(funcall
 <var>function</var> <var>object</var> <var>guardian</var>)</code> will
 be executed.  If the guardian is garbage collected before
 <var>object</var> is, nothing happens.
 
-<P>Note: The time when &quot;<var>object</var> is being garbage
-collected&quot; is not defined deterministically. (Actually, it possibly
+<P>Note: The time when &#34;<var>object</var> is being garbage
+collected&#34; is not defined deterministically. (Actually, it possibly
 never occurs.) It denotes a moment at which no references to
 <var>object</var> exist from other Lisp objects. When the
 <var>function</var> is called, <var>object</var> (and possibly
-<var>guardian</var>) enter the &quot;arena of live Lisp objects&quot;
+<var>guardian</var>) enter the &#34;arena of live Lisp objects&#34;
 again.
 
 <P>No finalization request will be executed more than once.
@@ -4640,7 +4802,7 @@ the prompt.  When its value is a function, it is called and it's value
 is printed with <code>princ</code>.  Otherwise, the value itself is
 printed with <code>princ</code>.  The default value of
 <code>sys::*prompt*</code> prints
-&quot;<var>package[nn]</var>&gt;&nbsp;&quot; where <var>package</var> is
+&#34;<var>package[nn]</var>&gt;&nbsp;&#34; where <var>package</var> is
 the shortest (nick)name of the current package <code>*package*</code> if
 it is the same as it was in the beginning or if it doesn't contain
 symbol <code>t</code> (it is assumed that in the latter case you would
@@ -4664,7 +4826,7 @@ it).
 <code>error</code>, <code>cerror</code>, <code>warn</code>. The stepper
 is invoked through the macro <code>step</code>.  Debugger and stepper
 execute subordinate <code>read</code> - <code>eval</code> -
-<code>print</code> loops (called &quot;break loops&quot;) which are
+<code>print</code> loops (called &#34;break loops&#34;) which are
 analogous to the main <code>read</code> - <code>eval</code> -
 <code>print</code> loop except for the prompt and the set of available
 commands. Commands must be typed literally, without surrounding quotes
@@ -4703,7 +4865,7 @@ variable all you have to do is to move to the current stack frame just
 below the frame that corresponds to the form or the function call that
 binds that variable.
 
-<P>There is a current &quot;stack mode&quot; which defines in how much
+<P>There is a current &#34;stack mode&#34; which defines in how much
 detail the stack is shown by the stack related debugger commands.
 
 <P>Commands common to the debugger and the stepper:
@@ -4791,7 +4953,7 @@ help.
 
 <DL>
  <DT><code>(<STRONG>screen:make-window</STRONG>)</code>
-  <DD>returns a &quot;window stream&quot;. As long as this stream is
+  <DD>returns a &#34;window stream&#34;. As long as this stream is
   open, the terminal is in cbreak/noecho
   mode. <code>*terminal-io*</code> shouldn't be used for input or output
   during this time. (Use <code>with-keyboard</code> and
@@ -4872,7 +5034,7 @@ example).  It is invoked through <code>clisp-link</code>.
 
 <P>A module is a piece of external code which defines extra Lisp
 objects, symbols and functions. A module name must consist of the
-characters A-Z,a-z,_,0-9. The module name <code>&quot;clisp&quot;</code>
+characters A-Z,a-z,_,0-9. The module name <code>&#34;clisp&#34;</code>
 is reserved. Normally a module name is derived from the corresponding
 file name.
 
@@ -4907,8 +5069,8 @@ current directory. This can be overridden by the environment variable
 </DL>
 
 <p>To run a clisp contained in some linking set <var>dir</var>, call
-&quot;<code><var>dir</var>/lisp.run -M
-<var>dir</var>/lispinit.mem</code>&quot;.
+&#34;<code><var>dir</var>/lisp.run -M
+<var>dir</var>/lispinit.mem</code>&#34;.
 
 <P>A <STRONG>module set</STRONG> is a directory containing:
 
@@ -4922,7 +5084,7 @@ current directory. This can be overridden by the environment variable
 </DL>
 
 <p>Note that in <code>link.sh</code> the module set directory is
-referred to as <code>&quot;$modulename&quot;/</code>.
+referred to as <code>&#34;$modulename&#34;/</code>.
 
 <p><DL>
 <DT>The <code>NEW_FILES</code> variable <DD>shall contain a
@@ -4951,21 +5113,21 @@ referred to as <code>&quot;$modulename&quot;/</code>.
   present when the new <code>.c</code> files are initialized.
 </DL>
 
-<P>The command &quot;<code>clisp-link create-module-set
-<var>module-dir</var> <var>file1.c</var> ...</code>&quot; creates a
+<P>The command &#34;<code>clisp-link create-module-set
+<var>module-dir</var> <var>file1.c</var> ...</code>&#34; creates a
 module set in <var>module-dir</var> which refers (via symbolic links) to
 <code><var>file1.c</var></code> etc. The files are expected to be
 modules of their own.
 
-<P>The command &quot;<code>clisp-link add-module-set
+<P>The command &#34;<code>clisp-link add-module-set
 <var>module-dir</var> <var>source-dir</var>
-<var>destination-dir</var></code>&quot; combines a linking set in
+<var>destination-dir</var></code>&#34; combines a linking set in
 <var>source-dir</var> and a module in <var>module-dir</var> to a new
 linking set, in a directory <var>destination-dir</var> which is newly
 created.
 
-<P>The command &quot;clisp-link run <var>source-dir</var>
-<var>module-dir</var> ...&quot; runs the linking set in
+<P>The command &#34;clisp-link run <var>source-dir</var>
+<var>module-dir</var> ...&#34; runs the linking set in
 <var>source-dir</var>, with the module in <var>module-dir</var> loaded.
 More than one module can be specified. If CLISP has been built with the
 configuration option <code>--with-dynamic-modules</code>, the loading
@@ -4985,10 +5147,10 @@ this order.)
 <LI>Create a new module set:
 <PRE><code>   $ clisp-link create-module-set linux /<var>somewhere</var>/bindings/linux.c
 </code></PRE>
-   Modify the newly created <code>linux/link.sh</code> to add &quot;<code>-lm</code>&quot; to the libraries:
-<PRE><code>   NEW_LIBS=&quot;$file_list&quot;
+   Modify the newly created <code>linux/link.sh</code> to add &#34;<code>-lm</code>&#34; to the libraries:
+<PRE><code>   NEW_LIBS=&#34;$file_list&#34;
    --&gt;
-   NEW_LIBS=&quot;$file_list -lm&quot;
+   NEW_LIBS=&#34;$file_list -lm&#34;
 </code></PRE>
    Modify the newly created <code>linux/link.sh</code> to load <code>linux.fas</code> before saving
    the memory image:
@@ -5004,7 +5166,7 @@ this order.)
 </code></PRE>
 <LI>Run and try it:
 <PRE><code>   $ base+linux/lisp.run -M base+linux/lispinit.mem
-   &gt; (linux::stat &quot;/tmp&quot;)
+   &gt; (linux::stat &#34;/tmp&#34;)
 </code></PRE>
 </OL>
 <!-- #endif -->
@@ -5020,7 +5182,7 @@ the C compiler and may be linked together with <code>lisp.a</code>.
 
 <P>All symbols relating to the foreign function interface are exported
 from the package FFI. To use them, <code>(use-package
-&quot;FFI&quot;)</code>.
+&#34;FFI&#34;)</code>.
 
 <P>Special FFI forms may appear anywhere in the Lisp file.
 
@@ -5181,19 +5343,19 @@ type defined by <code>def-c-type</code>.
 name. Forward declarations of types are not possible, however.
 
 <P>The type <code>c-pointer</code> corresponds to what C calls
-&quot;<code>void*</code>&quot;, an opaque pointer.
+&#34;<code>void*</code>&#34;, an opaque pointer.
 
 <P>The type <code>c-string</code> corresponds to what C calls
-&quot;<code>char*</code>&quot;, a zero-terminated string. Its Lisp
+&#34;<code>char*</code>&#34;, a zero-terminated string. Its Lisp
 equivalent is a string, without the trailing zero character.
 
 <P>The type <code>(c-struct <var>class</var>
 (<var>ident<SUB>1</SUB></var> <var>type<SUB>1</SUB></var>)
 ... (<var>ident<SUB>n</SUB></var> <var>type<SUB>n</SUB></var>))</code>
-is equivalent to what C calls &quot;<code>struct {
+is equivalent to what C calls &#34;<code>struct {
 <var>type<SUB>1</SUB></var> <var>ident<SUB>1</SUB></var>; ...;
 <var>type<SUB>n</SUB></var> <var>ident<SUB>n</SUB></var>;
-}</code>&quot;. Its Lisp equivalent is: if <var>class</var> is
+}</code>&#34;. Its Lisp equivalent is: if <var>class</var> is
 <code>vector</code>, a simple-vector; if <var>class</var> is
 <code>list</code>, a list; if <var>class</var> is a symbol naming a
 structure or CLOS class: an instance of this class, with slots of names
@@ -5202,39 +5364,39 @@ structure or CLOS class: an instance of this class, with slots of names
 <P>The type <code>(c-union (<var>ident<SUB>1</SUB></var>
 <var>type<SUB>1</SUB></var>) ... (<var>ident<SUB>n</SUB></var>
 <var>type<SUB>n</SUB></var>))</code> is equivalent to what C calls
-&quot;<code>union { <var>type<SUB>1</SUB></var>
+&#34;<code>union { <var>type<SUB>1</SUB></var>
 <var>ident<SUB>1</SUB></var>; ...; <var>type<SUB>n</SUB></var>
-<var>ident<SUB>n</SUB></var>; }</code>&quot;. Conversion to and from
+<var>ident<SUB>n</SUB></var>; }</code>&#34;. Conversion to and from
 Lisp assumes that a value is to be viewed as being of
 <var>type<SUB>1</SUB></var>.
 
 <P>The type <code>(c-array <var>type</var> <var>dim<SUB>1</SUB></var>
 ... <var>dim<SUB>n</SUB></var>)</code> is equivalent to what C calls
-&quot;<code><var>type</var>
-[<var>dim<SUB>1</SUB></var>]...[<var>dim<SUB>n</SUB></var>]</code>&quot;. Note
+&#34;<code><var>type</var>
+[<var>dim<SUB>1</SUB></var>]...[<var>dim<SUB>n</SUB></var>]</code>&#34;. Note
 that when an array is passed as an argument to a function in C, it is
 actually passed as a pointer; you therefore have to write <code>(c-ptr
 (c-array ...))</code> for this argument's type.
 
 <P>The type <code>(c-array-max <var>type</var> <var>maxdim</var>)</code>
-is equivalent to what C calls &quot;<code><var>type</var>
-[<var>maxdim</var>]</code>&quot;, an array containing up to
+is equivalent to what C calls &#34;<code><var>type</var>
+[<var>maxdim</var>]</code>&#34;, an array containing up to
 <var>maxdim</var> elements. The array is zero-terminated if it contains
 less than <var>maxdim</var> elements. Conversion from Lisp of an array
 with more than <var>maxdim</var> elements silently ignores the
 superfluous elements.
 
 <P>The type <code>(c-ptr <var>type</var>)</code> is equivalent to what C
-calls &quot;<code><var>type</var> *</code>&quot;: a pointer to a single
+calls &#34;<code><var>type</var> *</code>&#34;: a pointer to a single
 item of the given <var>type</var>.
 
 <P>The type <code>(c-ptr-null <var>type</var>)</code> is also equivalent
-to what C calls &quot;<code><var>type</var> *&quot;</code>: a pointer to
+to what C calls &#34;<code><var>type</var> *&#34;</code>: a pointer to
 a single item of the given <var>type</var>, with the exception that C
 <code>NULL</code> corresponds to Lisp <code>nil</code>.
 
 <P>The type <code>(c-array-ptr <var>type</var>)</code> is equivalent to
-what C calls &quot;<code><var>type</var> (*)[]</code>&quot;: a pointer
+what C calls &#34;<code><var>type</var> (*)[]</code>&#34;: a pointer
 to a zero-terminated array of items of the given <var>type</var>.
 
 <P>The type <code>(c-function (:return-type <var>rtype</var>)
@@ -5327,8 +5489,8 @@ a <code>NULL</code> pointer...) and deprecated.
 <H4>Operations on foreign places</H4>
 
 <p>A foreign variable <var>name</var> defined by <code>def-c-var</code>
-defines a &quot;place&quot;, i.e.  a form which can also be used as
-argument to <code>setf</code>. (An &quot;lvalue&quot; in C terminology.)
+defines a &#34;place&#34;, i.e.  a form which can also be used as
+argument to <code>setf</code>. (An &#34;lvalue&#34; in C terminology.)
 The following operations are available on foreign places:
 
 <P><code>(<STRONG>element</STRONG> <var>place</var>
@@ -5387,9 +5549,9 @@ language.  There are <EM>named foreign functions</EM> (imported via
 <EM>anonymous foreign functions</EM>; they arise through conversion of
 function pointers.
 
-<P>A <EM>&quot;call-out&quot;</EM> function is a foreign function called
+<P>A <EM>&#34;call-out&#34;</EM> function is a foreign function called
 from Lisp: control flow temporarily leaves Lisp.  A
-<EM>&quot;call-in&quot;</EM> function is a Lisp function called from the
+<EM>&#34;call-in&#34;</EM> function is a Lisp function called from the
 foreign language: control flow temporary enters Lisp.
 
 <P><code>(<STRONG>def-call-out</STRONG> <var>name</var>
@@ -5515,7 +5677,7 @@ pointers pointing to structs ... within a single conversion.
        to this, instead it means an additional return value.
 <DT>or     <code>:in-out</code> (means: read-write):
 <DD>       Information is passed from the caller to the callee and then back to
-       the caller. When viewed as a Lisp function, the &quot;<code>:out</code>&quot; value is
+       the caller. When viewed as a Lisp function, the &#34;<code>:out</code>&#34; value is
        returned as an additional multiple value.
 </DL>
 The default is <code>:in</code>.
@@ -5526,7 +5688,7 @@ implemented. <code>:out</code> works only with
 <P>
 <DL>
 <DT><EM>Platform dependent: Amiga platforms only.
-</EM></DT>
+</EM>
 <DD>
 <var>allocation</var> may not be <code>:malloc-free</code> because there is no commonly
 used <code>malloc()/free()</code> library function.
@@ -5539,7 +5701,6 @@ specification, any of the symbols <code>:d0</code>, <code>:d1</code>,
 <code>:a6</code>, each representing one 680x0 register. This works only
 for integral types: integers, pointers, <code>c-string</code>,
 <code>c-function</code>.
-</DD>
 </DL>
 
 <P>Passing <code>c-struct</code>, <code>c-union</code>,
@@ -5635,7 +5796,7 @@ Sample call from within Lisp:
 </code></PRE>
 Ex. 4: Another example for calling an external function:
 <P>
-Suppose the following is defined in a file <code>&quot;cfun.c&quot;</code>:
+Suppose the following is defined in a file <code>&#34;cfun.c&#34;</code>:
 <PRE>
 <code>       struct cfunr { int x; char *s; };
        struct cfunr * cfun (i,s,r,a)
@@ -5646,22 +5807,22 @@ Suppose the following is defined in a file <code>&quot;cfun.c&quot;</code>:
        {
            int j;
            struct cfunr * r2;
-           printf(&quot;i = %d\n&quot;, i);
-           printf(&quot;s = %s\n&quot;, s);
-           printf(&quot;r-&gt;x = %d\n&quot;, r-&gt;x);
-           printf(&quot;r-&gt;s = %s\n&quot;, r-&gt;s);
-           for (j = 0; j &lt; 10; j++) printf(&quot;a[%d] = %d.\n&quot;, j, a[j]);
+           printf(&#34;i = %d\n&#34;, i);
+           printf(&#34;s = %s\n&#34;, s);
+           printf(&#34;r-&gt;x = %d\n&#34;, r-&gt;x);
+           printf(&#34;r-&gt;s = %s\n&#34;, r-&gt;s);
+           for (j = 0; j &lt; 10; j++) printf(&#34;a[%d] = %d.\n&#34;, j, a[j]);
            r2 = (struct cfunr *) malloc (sizeof (struct cfunr));
            r2-&gt;x = i+5;
-           r2-&gt;s = &quot;A C string&quot;;
+           r2-&gt;s = &#34;A C string&#34;;
            return r2;
        }
 </code></PRE>
-It is possible to call this function from Lisp using the file <code>&quot;callcfun.lsp&quot;</code>
-(don't call it <code>&quot;cfun.lsp&quot;</code> - <code>compile-file</code> would overwrite <code>&quot;cfun.c&quot;</code>) whose
+It is possible to call this function from Lisp using the file <code>&#34;callcfun.lsp&#34;</code>
+(don't call it <code>&#34;cfun.lsp&#34;</code> - <code>compile-file</code> would overwrite <code>&#34;cfun.c&#34;</code>) whose
 contents is:
 <PRE>
-<code>       (in-package &quot;TEST-C-CALL&quot; :use '(&quot;LISP&quot; &quot;FFI&quot;))
+<code>       (in-package &#34;TEST-C-CALL&#34; :use '(&#34;LISP&#34; &#34;FFI&#34;))
        (def-c-struct cfunr (x int) (s c-string))
        (def-c-call-out cfun (:arguments (i int)
                                         (s c-string)
@@ -5671,7 +5832,7 @@ contents is:
                             (:return-type (c-ptr cfunr))
        )
        (defun call-cfun ()
-         (cfun 5 &quot;A Lisp string&quot; (make-cfunr :x 10 :s &quot;Another Lisp string&quot;)
+         (cfun 5 &#34;A Lisp string&#34; (make-cfunr :x 10 :s &#34;Another Lisp string&#34;)
                '#(0 1 2 3 4 5 6 7 8 9)
        ) )
 </code></PRE>
@@ -5701,7 +5862,7 @@ Use the module facility:
        a[7] = 7.
        a[8] = 8.
        a[9] = 9.
-       #S(TEST-C-CALL::CFUNR :X 10 :S &quot;A C string&quot;)
+       #S(TEST-C-CALL::CFUNR :X 10 :S &#34;A C string&#34;)
        &gt;
        $ rm -r base+cfun
 </code></PRE>
@@ -5720,7 +5881,7 @@ static data.
 <P>Ex. 5: To sort an array of double-floats using the Lisp function
 <code>sort</code> instead of the C library function
 <code>qsort()</code>, one can use the following interface code
-<code>&quot;sort1.c&quot;</code>. The main problem is to pass a
+<code>&#34;sort1.c&#34;</code>. The main problem is to pass a
 variable-sized array.
 
 <PRE>
@@ -5736,9 +5897,9 @@ variable-sized array.
            free(sorted_array);
        }
 </code></PRE>
-This is accompanied by <code>&quot;sort2.lsp&quot;</code>:
+This is accompanied by <code>&#34;sort2.lsp&#34;</code>:
 <PRE>
-<code>       (use-package &quot;FFI&quot;)
+<code>       (use-package &#34;FFI&#34;)
        (def-call-in lispsort_begin (:arguments (n int))
                                    (:return-type nil)
                                    (:language :stdc)
@@ -5759,10 +5920,10 @@ This is accompanied by <code>&quot;sort2.lsp&quot;</code>:
          (sort v #'&lt;)
        )
 </code></PRE>
-To test this, use the following test file <code>&quot;sorttest.lsp&quot;</code>:
+To test this, use the following test file <code>&#34;sorttest.lsp&#34;</code>:
 <PRE>
 <code>       (def-call-out sort10
-                     (:name &quot;lispsort_double&quot;)
+                     (:name &#34;lispsort_double&#34;)
                      (:language :stdc)
                      (:arguments (n int)
                                  (array (c-ptr (c-array double-float 10))
@@ -5796,7 +5957,7 @@ Now try
 
 <p>All symbols relating to the simple foreign function interface are
 exported from the package <code>AFFI</code>. To use them,
-<code>(use-package &quot;AFFI&quot;)</code>.
+<code>(use-package &#34;AFFI&#34;)</code>.
 
 <H4>Design issues</H4>
 
@@ -6038,7 +6199,7 @@ type <code>string</code> or unsigned byte vector).
 
 <p><code>require-library-functions</code> will <code>require</code> a
 file of name derived from thelibrary name and with type
-<code>&quot;affi&quot;</code>. It may be used to import all names into
+<code>&#34;affi&#34;</code>. It may be used to import all names into
 the current package or only a given subset identified by string names,
 using the <code>:import</code> keword (recommended use). Some definition
 files for standard Amiga libraries are provided. See example 1 below.
@@ -6050,7 +6211,7 @@ are. See example 4 below.
 
 <P>The file <code>read-fd.lsp</code> defines the function
 <code>make-partial-fd-file</code> with which the provided
-<code>&quot;.affi&quot;</code> files have been prepared from the
+<code>&#34;.affi&#34;</code> files have been prepared from the
 original Amiga FD files (located in the directory
 <code>FD:</code>). They must still be edited as the function cannot know
 whether a function accepts a <code>*</code>, <code>:io</code>,
@@ -6092,19 +6253,19 @@ this facility!
 
 <P>1. Using a predefined library function file
 <PRE>
-<code>(use-package &quot;AFFI&quot;)
+<code>(use-package &#34;AFFI&#34;)
 
 ;; SysBase is the conventional name for exec.library
 ;; It is only enforced by the file loaded by REQUIRE-LIBRARY-FUNCTIONS
 (eval-when (compile eval load)
-  (declare-library-base :SysBase &quot;exec.library&quot;)) ;keyword avoids name conflicts
+  (declare-library-base :SysBase &#34;exec.library&#34;)) ;keyword avoids name conflicts
 
 ;; using only MLIBCALL allows not to load definitions at load-time
 (eval-when (compile eval)
-  (require-library-functions &quot;exec.library&quot;
-    :import '(&quot;FindTask&quot;)))
+  (require-library-functions &#34;exec.library&#34;
+    :import '(&#34;FindTask&#34;)))
 
-(with-open-library (&quot;exec.library&quot;)
+(with-open-library (&#34;exec.library&#34;)
   (print (mlibcall FindTask 0)))
 </code></PRE>
 This file can be used in interpreted and compiled mode. Compiled, it will
@@ -6113,16 +6274,16 @@ have inlined the library function calls.
 
 2. Using flibcall
 <PRE>
-<code>(use-package &quot;AFFI&quot;)
+<code>(use-package &#34;AFFI&#34;)
 
 (eval-when (compile eval load)
-  (declare-library-base :SysBase &quot;exec.library&quot;)) ;keyword avoids name conflicts
+  (declare-library-base :SysBase &#34;exec.library&#34;)) ;keyword avoids name conflicts
 
 ;; The load situation permits the use of flibcall
 (eval-when (eval compile load)
-  (require-library-functions &quot;exec.library&quot;))
+  (require-library-functions &#34;exec.library&#34;))
 
-(unless (open-library 'SysBase) (error &quot;No library for SysBase&quot;))
+(unless (open-library 'SysBase) (error &#34;No library for SysBase&#34;))
 (flibcall (if t 'FindTask 'Debug) 0)
 (close-library 'SysBase)
 </code></PRE>
@@ -6130,10 +6291,10 @@ have inlined the library function calls.
 
 3. Be fully dynamic, defining library bases ourselves
 <PRE>
-<code>(use-package &quot;AFFI&quot;)
+<code>(use-package &#34;AFFI&#34;)
 
 (eval-when (compile eval load)
-  (defvar mylib (declare-library-base :foobase &quot;foo.library&quot;)))
+  (defvar mylib (declare-library-base :foobase &#34;foo.library&#34;)))
 (eval-when (eval compile load)          ;eval allows mlibcall, load flibcall
   (defflibfun 'foo1 mylib -30 '#xA '* 'string)
   (defflibfun 'foo2 mylib -36 '#x21 0 * 4))
@@ -6147,12 +6308,12 @@ have inlined the library function calls.
 4. Some sample function definitions
 <PRE>
 <code>(defflibfun 'FindTask 'SysBase -294 #xA '* 'string)
-(declare-library-function FindTask &quot;exec.library&quot;
+(declare-library-function FindTask &#34;exec.library&#34;
   (:offset -294)
   (:return-type *)
   (:arguments
    (name   string   :A1)))
-(declare-library-function NameFromLock &quot;dos.library&quot;
+(declare-library-function NameFromLock &#34;dos.library&#34;
   (:offset -402)
   (:return-type 0)
   (:arguments
@@ -6177,9 +6338,9 @@ have inlined the library function calls.
 
 <P>CLISP comes with a small yet extensible and powerful ARexx interface.
 
-<P><code>(rexx-do-command &quot;return address()&quot; :string t :result
+<P><code>(rexx-do-command &#34;return address()&#34; :string t :result
 t)</code> <BR>tells you the name of the CLISP ARexx port. The default
-extension for CLISP ARexx scripts is <code>&quot;cl&quot;</code>.
+extension for CLISP ARexx scripts is <code>&#34;cl&#34;</code>.
 
 <P><code>(REXX-DO-COMMAND <var>command</var> &amp;key :string :result
 :token :io :host)</code> <BR> -&gt; <code>(RC &amp;optional
@@ -6205,8 +6366,8 @@ call. The first element in the vector is the function name, the others
 are the up to 15 arguments.
 
 <P>Messages may be sent to an arbitrary ARexx host, special cases are
-<code>nil</code> (meaning <code>&quot;REXX&quot;</code>, the default)
-and <code>t</code> (<code>&quot;AREXX&quot;</code> for asynchronouns
+<code>nil</code> (meaning <code>&#34;REXX&#34;</code>, the default)
+and <code>t</code> (<code>&#34;AREXX&#34;</code> for asynchronouns
 execution).
 
 <P>ARexx server mode: Like Ispell, Csh and SKsh, you can run it in
@@ -6367,7 +6528,7 @@ socket stream.  For a server, <code>socket-stream-host</code>
 returns <code>nil</code>.
 <DT>
 <code>(<STRONG>socket-service-port</STRONG>
-       &quot;<var>service-name</var>&quot;)</code>
+       &#34;<var>service-name</var>&#34;)</code>
 <DD>
 A convenience function for looking up a port given the service name.
 <DT>
@@ -6408,12 +6569,12 @@ as a script interpreter under the following circumstances:
    Solaris, <code>clisp</code> is a shell script because a C compiler
    cannot be assumed to be installed on this platform. If you have a C
    compiler installed, build CLISP from source yourself;
-   &quot;<code>make install</code>&quot; will install <code>clisp</code>
+   &#34;<code>make install</code>&#34; will install <code>clisp</code>
    as a real executable.
 <P>
 <LI>On some platforms, the first line
-   &quot;<code>#!<var>interpreter</var>
-   [<var>interpreter-args</var>]</code>&quot; is limited in length:
+   &#34;<code>#!<var>interpreter</var>
+   [<var>interpreter-args</var>]</code>&#34; is limited in length:
    <UL>
          <LI>max. 32 characters on SunOS 4,
          <LI>max. 80 characters on HP-UX,
@@ -6426,8 +6587,8 @@ as a script interpreter under the following circumstances:
 <P>
 <LI>On Solaris and HP-UX, only the first <var>interpreter-arg</var> is
    passed to the <var>interpreter</var>. In order to pass more than one
-   option (for example, &quot;<code>-Msomewhere.mem</code>&quot; and
-   &quot;<code>-C</code>&quot;) to <code>clisp</code>, separate them by
+   option (for example, &#34;<code>-Msomewhere.mem</code>&#34; and
+   &#34;<code>-C</code>&#34;) to <code>clisp</code>, separate them by
    hard spaces (ISO Latin-1 character 160) instead of normal
    spaces. (But the separator between <var>interpreter</var> and
    <var>interpreter-args</var> must still be a normal space!) CLISP will
@@ -6452,7 +6613,7 @@ script with error status.
 <!-- #ifdef HAVE_SHELL -->
 <DL>
  <DT><EM>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
- platforms only.</EM></DT>
+ platforms only.</EM>
   <DD><code>(<STRONG>shell</STRONG> [<var>command</var>])</code>  calls
    the operating system's shell. <code>(shell)</code> calls the shell
    for interactive use. <code>(shell <var>command</var>)</code> calls the
@@ -6461,7 +6622,7 @@ script with error status.
 <!-- #endif -->
 <!-- #ifdef PIPES2 -->
 <DL>
- <DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM></DT>
+ <DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM>
   <DD>The functions <code><STRONG>run-shell-command</STRONG></code> and
    <code><STRONG>run-program</STRONG></code> are a general interface to
    <code>shell</code> and the above:
@@ -6473,14 +6634,13 @@ script with error status.
 <DT>The <var>command</var> argument     <DD>specifies the shell command.
 <!-- #ifdef UNIX -->
  <DL>
-  <DT><EM>Platform dependent: UNIX platforms only.</EM></DT>
+  <DT><EM>Platform dependent: UNIX platforms only.</EM>
   <DD>The shell the command is passed to is the value of the environment
    variable <code>SHELL</code>, which normally is
    <code>/bin/sh</code>. The command should be a ``simple command''; a
-   ``command list'' should be enclosed in &quot;{ ... ; }&quot; (for
-   <code>/bin/sh</code>) or &quot;( ... )&quot; (for
+   ``command list'' should be enclosed in &#34;{ ... ; }&#34; (for
+   <code>/bin/sh</code>) or &#34;( ... )&#34; (for
    <code>/bin/csh</code>).
-  </DD>
  </DL>
 <!-- #endif -->
  <DT>The <var>program</var> argument
@@ -6521,7 +6681,7 @@ function <code>make-pipe-io-stream</code>. This use of
 <p>
 <DL>
 <DT><EM>Platform dependent: Amiga platforms only.
-</EM></DT>
+</EM>
 <DD>
 To have <code>*debug-io*</code> and <code>*error-output*</code> point to
 separate console windows (thus keeping your standard console window
@@ -6529,12 +6689,10 @@ clean from error messages) you can use
 <PRE>
 <code>  (setq *error-output*
     (setq *debug-io*
-      (open &quot;CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE&quot; :direction :io)
+      (open &#34;CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE&#34; :direction :io)
   ) )
 </code></PRE>
 at startup.
-
-</DD>
 </DL>
 <!-- #endif -->
 <!-- #endif -->
@@ -6560,6 +6718,12 @@ at startup.
 <a href="mailto:haible@clisp.cons.org">Bruno Haible</a><br>
 <a href="mailto:sds@gnu.org">Sam Steingold</a>
 <p>
+
+<center>
+<a href="http://validator.w3.org/">
+<img border=0 src="http://validator.w3.org/images/vh32.gif"
+     alt="Valid HTML 3.2!" height=31 width=88></a>
+</center>
 
 </body>
 </html>
