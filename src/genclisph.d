@@ -1,6 +1,6 @@
 /*
  * Export CLISP internals for modules
- * Bruno Haible 1994-2002
+ * Bruno Haible 1994-2004
  * Sam Steingold 1998-2003
  */
 
@@ -865,7 +865,7 @@ int main(int argc, char* argv[])
   printf1("#define make_machine(ptr)  as_object((oint)(ptr)+%d)\n",machine_bias);
  #endif
 #endif
-  printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(bit(oint_data_len-1) | bit(0)),(oint)(bit(oint_data_len)-1));
+  printf3("#define make_system(data)  type_data_object(%d,%x | (%x & (data)))\n",(tint)system_type,(oint)(bit(oint_data_len-1) | bit(0)),(oint)(bitm(oint_data_len)-1));
   printf("#define unbound  make_system(0x%x)\n",0xFFFFFFUL);
   printf("#define nullobj  make_machine(0)\n");
 #ifdef TYPECODES
@@ -1040,20 +1040,20 @@ int main(int argc, char* argv[])
 #ifdef TYPECODES
   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
 #else
-  printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",23-1);
+  printf2("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_vector,Rectype_string-Rectype_vector);
 #endif
 #ifdef TYPECODES
-  printf2("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
+  printf1("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
 #else
   printf1("#define simple_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Svector);
 #endif
-/* #ifdef TYPECODES
-   printf2("#define general_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)svector_type);
- #else
-   printf2("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Svector^Rectype_vector,Rectype_Svector&Rectype_vector);
- #endif */
 #ifdef TYPECODES
-  printf2("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
+  printf2("#define general_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)svector_type);
+#else
+  printf2("#define general_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Svector^Rectype_vector,Rectype_Svector&Rectype_vector);
+#endif
+#ifdef TYPECODES
+  printf1("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
 #else
   printf("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_S8string,Rectype_reallocstring - Rectype_S8string);
 #endif
@@ -1063,20 +1063,20 @@ int main(int argc, char* argv[])
   printf("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_S8string,Rectype_reallocstring - Rectype_S8string);
 #endif
 #ifdef TYPECODES
-  printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
+  printf("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
 #else
   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
 #endif
 #ifdef TYPECODES
-  printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
+  printf1("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
 #else
   printf2("#define bit_vector_p(atype,obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d+(atype)))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
 #endif
-/* #ifdef TYPECODES
-   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
- #else
-   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",24-1);
- #endif */
+#ifdef TYPECODES
+  printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
+#else
+  printf2("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-%d) <= %d))\n",Rectype_vector,Rectype_mdarray-Rectype_vector);
+#endif
   printf("extern object array_displace_check (object array, uintL size, uintL* index);\n");
   printf("extern uintL vector_length (object vector);\n");
 #ifdef TYPECODES
@@ -1876,7 +1876,7 @@ int main(int argc, char* argv[])
     emit_typedef("struct { XRECORD_HEADER void* fp_pointer;} *","Fpointer");
     printf("#define fpointerp(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Fpointer);
     #ifdef TYPECODES
-    printf("#define TheFpointer(obj)  ((Fpointer)(");print_type_pointable(orecord_type,obj);printf("))\n");
+      printf("#define TheFpointer(obj)  ((Fpointer)("); printf_type_pointable(orecord_type); printf("))\n");
     #else
       printf("#define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-%d))\n",varobject_bias);
     #endif
