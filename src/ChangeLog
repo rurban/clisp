@@ -1,5 +1,9 @@
 2005-01-11  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (array_atype): declare
+
+2005-01-11  Sam Steingold  <sds@gnu.org>
+
 	* intelem.d (udigits_to_I): new helper function for modules
 	* lispbibl.d, genclisph.d (udigits_to_I): export
 	* modules/berkeley-db/bdb.c (dbt_to_object): use it
