@@ -809,6 +809,16 @@ interpreter compiler
                          L1
                        )
                        (let ((*venv* (apply #'vector (nreverse (cons *venv* L2)))))
+                         (let ((specials (%expand-special-declarations (cddr form))))
+                           (do ((L3 (second form) (cdr L3)))
+                               ((atom L3))
+                             (if (member (caar L3) specials :test #'eq)
+                               (error-of-type 'source-program-error
+                                 (DEUTSCH "~S: Symbol ~S darf nicht gleichzeitig SPECIAL und Makro deklariert werden."
+                                  ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
+                                  FRANCAIS "~S : Le symbole ~S ne peut être déclaré SPECIAL et macro en même temps.")
+                                 'symbol-macrolet (caar L3)
+                         ) ) ) )
                          (values (%expand-form (cons 'LOCALLY (cddr form))) t)
                     )) )
                   (let ((symdef (car L1)))
@@ -817,9 +827,18 @@ interpreter compiler
                              (consp (cdr symdef))
                              (null (cddr symdef))
                         )
-                      (setq L2
-                        (cons (make-symbol-macro (cadr symdef)) (cons (car symdef) L2))
-                      )
+                      (let ((symbol (car symdef))
+                            (expansion (cadr symdef)))
+                        (if (special-variable-p symbol)
+                          (error-of-type 'program-error
+                            (DEUTSCH "~S: Symbol ~S ist SPECIAL deklariert und darf nicht Makro deklariert werden."
+                             ENGLISH "~S: symbol ~S is declared special and must not be declared a macro"
+                             FRANCAIS "~S : Le symbole ~S est déclaré SPECIAL et ne peut être déclaré macro.")
+                            'symbol-macrolet symbol
+                          )
+                          (setq L2
+                            (cons (make-symbol-macro expansion) (cons symbol L2))
+                      ) ) )
                       (error-of-type 'source-program-error
                         (DEUTSCH "Falsche Syntax in SYMBOL-MACROLET: ~S"
                          ENGLISH "illegal syntax in SYMBOL-MACROLET: ~S"
@@ -920,7 +939,9 @@ interpreter compiler
               ) ) ) )
             (nreverse declarations)
       )
-      (%expand-lexical-variables (nreverse specials)) ; auf specdecl kommt es hier nicht an
+      (setq specials (nreverse specials))
+      (%expand-lexical-variables specials) ; auf specdecl kommt es hier nicht an
+      specials
 ) ) )
 
 ; expandiert einen Funktionsnamen, der ein Cons ist (das muß ein
