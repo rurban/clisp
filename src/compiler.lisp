@@ -190,7 +190,6 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
     further constants)
 |#
 
-(defsetf sys::%record-ref sys::%record-store)
 (defsetf closure-name (closure) (new-name)
   `(sys::%record-store ,closure 0 ,new-name))
 (defun make-closure (&key name codevec consts seclass)
