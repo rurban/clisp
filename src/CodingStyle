@@ -83,8 +83,9 @@ Please avoid adding code in this style.
 Most of the C code of CLISP is stored in files with extension '.d'. It _is_
 C code, but the file will be preprocessed a bit.
 
-A comment until end of line is introduced by '# '. Other '#' signs, not
-followed by a space, have the usual C meaning.
+A comment until end of line is introduced by '# '.  Other '#' signs, not
+followed by a space, have the usual C meaning.  Please avoid adding new
+comments in this style, use the normal /* C comments */.
 
 Preprocessor commands can start at any column, not necessarily at the first
 column of a line.
@@ -100,7 +101,7 @@ additional braces.
 We have a few macros defined in lispbibl.d: 'elif' means 'else if',
 'until' means 'while not' (both are now deprecated).
 'loop' introduces a loop which can be exited only via 'break'; it's
-equivalent to 'for(;;)'.
+equivalent to 'for(;;)'.  It is deprecated as well.
 
                              C indentation
                              -------------
