@@ -176,38 +176,38 @@
           directive             ; directive (its Name) reached
           (setf (csd-parm-list newcsd) (nreverse (csd-parm-list newcsd)))
           (let ((directive-name
-                 (cdr (assoc (char-upcase ch)
-                         ; with function-definition     ; without function-definition
-                        '((#\A . FORMAT-ASCII)
-                          (#\S . FORMAT-S-EXPRESSION)
-                          (#\W . FORMAT-WRITE)
-                          (#\D . FORMAT-DECIMAL)
-                          (#\B . FORMAT-BINARY)
-                          (#\O . FORMAT-OCTAL)
-                          (#\X . FORMAT-HEXADECIMAL)
-                          (#\R . FORMAT-RADIX)
-                          (#\P . FORMAT-PLURAL)
-                          (#\C . FORMAT-CHARACTER)
-                          (#\F . FORMAT-FIXED-FLOAT)
-                          (#\E . FORMAT-EXPONENTIAL-FLOAT)
-                          (#\G . FORMAT-GENERAL-FLOAT)
-                          (#\$ . FORMAT-DOLLARS-FLOAT)
-                          (#\% . FORMAT-TERPRI)
-                          (#\_ . FORMAT-PPRINT-NEWLINE)
-                          (#\I . FORMAT-PPRINT-INDENT)
-                          (#\& . FORMAT-FRESH-LINE)      (#\Newline . #\Newline)
-                          (#\| . FORMAT-PAGE)
-                          (#\~ . FORMAT-TILDE)
-                          (#\T . FORMAT-TABULATE)
-                          (#\* . FORMAT-GOTO)
-                          (#\? . FORMAT-INDIRECTION)
-                          (#\/ . FORMAT-CALL-USER-FUNCTION)
-                          (#\( . FORMAT-CASE-CONVERSION) (#\) . FORMAT-CASE-CONVERSION-END)
-                          (#\[ . FORMAT-CONDITIONAL)     (#\] . FORMAT-CONDITIONAL-END)
-                          (#\{ . FORMAT-ITERATION)       (#\} . FORMAT-ITERATION-END)
-                          (#\< . FORMAT-JUSTIFICATION)   (#\> . FORMAT-JUSTIFICATION-END)
-                          (#\^ . FORMAT-UP-AND-OUT)      (#\; . FORMAT-SEPARATOR)
-                          (#\! . FORMAT-CALL))))))
+                  (cdr (assoc (char-upcase ch)
+                           ; with function-definition     ; without function-definition
+                         '((#\A . FORMAT-ASCII)
+                           (#\S . FORMAT-S-EXPRESSION)
+                           (#\W . FORMAT-WRITE)
+                           (#\D . FORMAT-DECIMAL)
+                           (#\B . FORMAT-BINARY)
+                           (#\O . FORMAT-OCTAL)
+                           (#\X . FORMAT-HEXADECIMAL)
+                           (#\R . FORMAT-RADIX)
+                           (#\P . FORMAT-PLURAL)
+                           (#\C . FORMAT-CHARACTER)
+                           (#\F . FORMAT-FIXED-FLOAT)
+                           (#\E . FORMAT-EXPONENTIAL-FLOAT)
+                           (#\G . FORMAT-GENERAL-FLOAT)
+                           (#\$ . FORMAT-DOLLARS-FLOAT)
+                           (#\% . FORMAT-TERPRI)
+                           (#\_ . FORMAT-PPRINT-NEWLINE)
+                           (#\I . FORMAT-PPRINT-INDENT)
+                           (#\& . FORMAT-FRESH-LINE)      (#\Newline . #\Newline)
+                           (#\| . FORMAT-PAGE)
+                           (#\~ . FORMAT-TILDE)
+                           (#\T . FORMAT-TABULATE)
+                           (#\* . FORMAT-GOTO)
+                           (#\? . FORMAT-INDIRECTION)
+                           (#\/ . FORMAT-CALL-USER-FUNCTION)
+                           (#\( . FORMAT-CASE-CONVERSION) (#\) . FORMAT-CASE-CONVERSION-END)
+                           (#\[ . FORMAT-CONDITIONAL)     (#\] . FORMAT-CONDITIONAL-END)
+                           (#\{ . FORMAT-ITERATION)       (#\} . FORMAT-ITERATION-END)
+                           (#\< . FORMAT-JUSTIFICATION)   (#\> . FORMAT-JUSTIFICATION-END)
+                           (#\^ . FORMAT-UP-AND-OUT)      (#\; . FORMAT-SEPARATOR)
+                           (#\! . FORMAT-CALL))))))
             (if directive-name
               (setf (csd-data newcsd) directive-name)
               (format-error control-string index
@@ -221,19 +221,19 @@
                                (TEXT "Closing '/' is missing"))))
                     (pos (position #\: control-string :start start :end end))
                     (name (string-upcase
-                           (subseq control-string
-                                   (if pos
-                                     (if (char= #\: (char control-string (1+ pos))) (+ 2 pos) (1+ pos))
-                                     start)
-                                   end)))
+                            (subseq control-string
+                                    (if pos
+                                      (if (char= #\: (char control-string (1+ pos))) (+ 2 pos) (1+ pos))
+                                      start)
+                                    end)))
                     (pack (if pos
-                            (let ((packname (string-upcase
-                                             (subseq control-string
-                                                     start pos))))
+                            (let ((packname
+                                    (string-upcase
+                                      (subseq control-string start pos))))
                               (or (find-package packname)
                                   (format-error control-string index
-                                   (TEXT "There is no package with name ~S")
-                                   packname)))
+                                    (TEXT "There is no package with name ~S")
+                                    packname)))
                             *common-lisp-user-package*)))
                (push (list (intern name pack)) (csd-parm-list newcsd))
                (setq index (1+ end))))
@@ -280,8 +280,8 @@
                  (setq index
                    (or (position-if-not #'whitespacep control-string :start index)
                        (length control-string)))))))
-        )                       ; tagbody finished
-      )                         ; loop finished
+        ) ; tagbody finished
+      )   ; loop finished
 
       string-ended
       (when stop-at
@@ -432,8 +432,7 @@
 
 ;; Defines a simple FORMAT-subfunction, i.e. a function that consumes
 ;; exactly one argument.
-(defmacro defformat-simple (name (stream colon atsign .
-                                         optionals-with-defaults)
+(defmacro defformat-simple (name (stream colon atsign . optionals-with-defaults)
                             (arg) &body body)
   (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (let ((name2 (concat-pnames "DO-" name)) ; in #<PACKAGE SYSTEM>
@@ -447,7 +446,7 @@
            ,@(mapcap #'(lambda (opt)
                          (if (and (consp opt) (not (null (second opt))))
                            `((IF (NULL ,(first opt))
-                                 (SETQ ,(first opt) ,(second opt))))
+                               (SETQ ,(first opt) ,(second opt))))
                            '()))
                      optionals-with-defaults)
            ,@body-rest)))))
@@ -455,15 +454,15 @@
 ;; Moves the value of "Pointers into the argument-list" in one direction.
 (defun format-goto-new-arg (backwardp index)
   (if backwardp
-      ;; backwards
-      (setq *FORMAT-NEXT-ARG*
-            (nthcdr
-             (max (- (list-length *FORMAT-ARG-LIST*)
-                     (list-length *FORMAT-NEXT-ARG*) index)
-                  0)
-             *FORMAT-ARG-LIST*))
-      ;; forwards is easier:
-      (setq *FORMAT-NEXT-ARG* (nthcdr index *FORMAT-NEXT-ARG*))))
+    ;; backwards
+    (setq *FORMAT-NEXT-ARG*
+          (nthcdr (max (- (list-length *FORMAT-ARG-LIST*)
+                          (list-length *FORMAT-NEXT-ARG*)
+                          index)
+                       0)
+                  *FORMAT-ARG-LIST*))
+    ;; forwards is easier:
+    (setq *FORMAT-NEXT-ARG* (nthcdr index *FORMAT-NEXT-ARG*))))
 
 ;; prints arg as old-Roman number to stream, e.g. 4 as IIII.
 (defun format-old-roman (arg stream)
@@ -537,17 +536,18 @@
     (write-string "zero" stream)
     (progn
       (when (minusp arg) (write-string "minus " stream) (setq arg (- arg)))
-      (labels
-        ((blocks1000 (illions-list arg) ; decomposition in 1000er-Blocks
-           (when (null illions-list)
-             (format-error *FORMAT-CS* nil
-               (TEXT "The argument for the ~~R format directive is too large.")))
-           (multiple-value-bind (thousands small) (truncate arg 1000)
-             (when (> thousands 0) (blocks1000 (cdr illions-list) thousands))
-             (when (> small 0)
-               (when (> thousands 0) (write-string ", " stream))
-               (format-small-cardinal small stream)
-               (write-string (car illions-list) stream)))))
+      (labels ((blocks1000 (illions-list arg) ; decomposition in 1000er-Blocks
+                 (when (null illions-list)
+                   (format-error *FORMAT-CS* nil
+                     (TEXT "The argument for the ~~R format directive is too large.")))
+                 (multiple-value-bind (thousands small) (truncate arg 1000)
+                   (when (> thousands 0)
+                     (blocks1000 (cdr illions-list) thousands))
+                   (when (> small 0)
+                     (when (> thousands 0)
+                       (write-string ", " stream))
+                     (format-small-cardinal small stream)
+                     (write-string (car illions-list) stream)))))
         (blocks1000
           ; American (billion=10^9)
           '("" " thousand" " million" " billion" " trillion" " quadrillion"
@@ -676,9 +676,9 @@
           (*print-radix* nil)
           (*print-readably* nil))
       (if (integerp arg)
-          (princ arg stream)
-          (format-padded-string mincol 1 0 padchar t
-                                (princ-to-string arg) stream)))
+        (princ arg stream)
+        (format-padded-string mincol 1 0 padchar t
+                              (princ-to-string arg) stream)))
     (format-integer base mincol padchar commachar commainterval
                     colon-modifier atsign-modifier arg stream)))
 
@@ -919,12 +919,12 @@
           (dotimes (i (- d (- digit-count point-pos)))
             (incf digit-count)
             (vector-push-extend #\0 digit-string)))
-        (values                 ; 5 values
-         digit-string           ; digits
-         (1+ digit-count)       ; number of digits
-         (= point-pos 0)        ; leading point?
-         (= point-pos digit-count) ; trailing point?
-         point-pos)))))         ; position of the decimal point
+        (values                     ; 5 values
+          digit-string              ; digits
+          (1+ digit-count)          ; number of digits
+          (= point-pos 0)           ; leading point?
+          (= point-pos digit-count) ; trailing point?
+          point-pos)))))            ; position of the decimal point
 ) ; let
 
 ;; (format-float-for-f w d k overflowchar padchar plus-sign-flag arg stream)
@@ -1000,7 +1000,7 @@
         (progn
           (if w
             (if (or plus-sign-flag (minusp arg))
-                (setq mantwidth (1- mantwidth))))
+              (setq mantwidth (1- mantwidth))))
           ;; mantwidth = number of available characters (or nil)
           ;;  for the Mantissa (without sign,including point)
           (multiple-value-bind (mantdigits mantdigitslength
@@ -1081,13 +1081,13 @@
            (width-need (+ pieceswidth (* padblocks minpad)))
            (width (+ mincol
                      (if (<= width-need mincol)
-                         0
-                         (* (ceiling (- width-need mincol) colinc) colinc)))))
+                       0
+                       (* (ceiling (- width-need mincol) colinc) colinc)))))
       (declare (fixnum piecesnumber pieceswidth padblocks width-need width))
       (multiple-value-bind (padwidth rest)
           (floor (- width pieceswidth) padblocks)
         (let ((padblock-lengths
-               (make-array (1+ piecesnumber) :initial-element padwidth)))
+                (make-array (1+ piecesnumber) :initial-element padwidth)))
           (unless new-justify-left (setf (svref padblock-lengths 0) nil))
           (unless justify-right
             (setf (svref padblock-lengths piecesnumber) nil))
@@ -1261,7 +1261,7 @@
       (if (null d)
         (setq d
           (multiple-value-bind (digits digitslength)
-            (format-float-to-string (abs arg) nil nil nil nil)
+              (format-float-to-string (abs arg) nil nil nil nil)
             (declare (ignore digits))
             (max (max (1- digitslength) 1) (min n 7)))))
       (let* ((ee (if e (+ 2 e) 4))
@@ -1287,7 +1287,7 @@
   (if (floatp arg)
     (multiple-value-bind (digits digitslength
                           leadingpoint trailingpoint leadings)
-      (format-float-to-string arg nil d 0 nil)
+        (format-float-to-string arg nil d 0 nil)
       (declare (ignore digitslength leadingpoint trailingpoint))
       (let* ((lefts (max leadings n))
              (totalwidth (+ (if (or atsign-modifier (minusp arg)) 1 0)
@@ -1312,8 +1312,8 @@
 
 (defun format-pprint-newline (stream colon-modifier atsign-modifier)
   (pprint-newline (if colon-modifier
-                      (if atsign-modifier :mandatory :fill)
-                      (if atsign-modifier :miser :linear))
+                    (if atsign-modifier :mandatory :fill)
+                    (if atsign-modifier :miser :linear))
                   stream))
 
 (defun format-pprint-indent (stream colon-modifier atsign-modifier
@@ -1350,14 +1350,15 @@
   (if (null colinc) (setq colinc 1))
   (let* ((new-colnum (+ (max colnum 0)
                         (if (and colon-modifier (boundp '*prin-indentation*))
-                            *prin-indentation* 0)))
+                          *prin-indentation*
+                          0)))
          (new-colinc (max colinc 1)) ; >0
          (pos (sys::line-position stream))) ; actual position, fixnum>=0 or NIL
     (if atsign-modifier
       (format-padding
         (if pos
-            (+ new-colnum (mod (- (+ pos new-colnum)) new-colinc))
-            new-colnum)
+          (+ new-colnum (mod (- (+ pos new-colnum)) new-colinc))
+          new-colnum)
         #\Space stream)
       (if pos
         (if (< pos new-colnum)
@@ -1438,7 +1439,7 @@
   (setq *FORMAT-CSDL* (cdr *FORMAT-CSDL*))
   (let ((tempstr
           (let ((tempstream (make-string-output-stream
-                             :line-position (sys::line-position stream))))
+                              :line-position (sys::line-position stream))))
             (format-interpret tempstream 'FORMAT-CASE-CONVERSION-END)
             ;; what does UP-AND-OUT effectuate in ~{...~(...~^...~)...~} ??
             (get-output-stream-string tempstream))))
@@ -1562,8 +1563,8 @@
           ;; inner-cs may be a function in the ~{~} case
           (if (functionp inner-cs)
             (if colon-modifier
-              (let* ((arglist (if atsign-modifier
-                                  (next-arg) (pop arg-list-rest)))
+              (let* ((arglist
+                       (if atsign-modifier (next-arg) (pop arg-list-rest)))
                      (*FORMAT-CS* nil))
                 (apply inner-cs stream arglist))
               (if atsign-modifier
@@ -1598,8 +1599,8 @@
                    (when (setq check-on-line-overflow
                                (csd-colon-p (car *FORMAT-CSDL*)))
                      (multiple-value-setq (supplementary-need line-length)
-                       (values-list (format-resolve-parms
-                                     (car *FORMAT-CSDL*))))))
+                       (values-list
+                         (format-resolve-parms (car *FORMAT-CSDL*))))))
                  (when *FORMAT-UP-AND-OUT*
                    (setq *FORMAT-CSDL* saved-csdl)
                    (format-skip-to-end)
@@ -1612,7 +1613,8 @@
                              (if check-on-line-overflow (car old-piecelist))
                              supplementary-need line-length
                              (if check-on-line-overflow
-                                 (cdr old-piecelist) old-piecelist))))
+                               (cdr old-piecelist)
+                               old-piecelist))))
 (defun do-format-justification (stream colon-modifier atsign-modifier
                                 mincol colinc minpad padchar
                                 pos check-on-line-overflow firstpiece
@@ -1673,7 +1675,7 @@
       (pop temp)
       (cond ((eql (csd-type (car temp)) 1)
              (setq suffix (subseq *FORMAT-CS* (csd-cs-index (car temp))
-                                  (csd-data (car temp))))
+                                              (csd-data (car temp))))
              (pop temp))))
     (unless (and (eql (csd-type (car temp)) 2)
                  (eq (csd-data (car temp)) 'FORMAT-JUSTIFICATION-END))
@@ -1688,8 +1690,7 @@
   (declare (ignore stream atsign-modifier))
   (if (up-and-out-p a b c
         (if colon-modifier *FORMAT-NEXT-ARGLIST* *FORMAT-NEXT-ARG*))
-    (setq *FORMAT-UP-AND-OUT* (if colon-modifier
-                                  ':TERMINATE-ALL ':TERMINATE))))
+    (setq *FORMAT-UP-AND-OUT* (if colon-modifier ':TERMINATE-ALL ':TERMINATE))))
 (defun up-and-out-p (a b c &optional args)
   (cond ((and (null a) (null b) (null c)) ; no parameters
          (null args))
@@ -1882,7 +1883,7 @@
   ;; variable for accessing the list as *args*
   ;; rather than try to find and fix all the places
   ;; that use *args* in various ways.
-  (setf forms
+  (setq forms
         (subst-if-then #'(lambda (x) ; x = `(POP OBJ)
                            (declare (ignore x))
                            `(PPRINT-POP))
@@ -1900,7 +1901,7 @@
                                   (consp (cdr x)) (numberp (cadr x))
                                   (null (cddr x))))
                          forms)))
-  (setf forms
+  (setq forms
         (subst-if-then #'(lambda (x) ; x = `(IF (ENDP OBJ)
                                      ;        (RETURN-FROM ,*format-terminate*))
                            (declare (ignore x))
@@ -1918,8 +1919,8 @@
                                 (null (cdddr x))))
                        forms))
   ;; the terminate won't be used (I think....)
-  (values `(,*args* ,@(and *formatter-whole-args*
-                           `(&aux (WHOLE-ARGS ,*args*))))
+  (values `(,*args* ,@(if *formatter-whole-args*
+                        `(&aux (WHOLE-ARGS ,*args*))))
           `((DECLARE (IGNORABLE ,*args*)) ,@forms)))
 
 ;; terminates the linear mode.
@@ -1940,12 +1941,12 @@
 ;; This form must be substituted with SUBST afterwards.
 (defun formatter-next-arg ()
   (if *formatter-linear-args*
-      (prog1
-          `(ARG ,*formatter-linear-position*)
-        (incf *formatter-linear-position*)
-        (setq *formatter-linear-argcount*
-              (max *formatter-linear-argcount* *formatter-linear-position*)))
-      `(POP ,*args*)))
+    (prog1
+      `(ARG ,*formatter-linear-position*)
+      (incf *formatter-linear-position*)
+      (setq *formatter-linear-argcount*
+            (max *formatter-linear-argcount* *formatter-linear-position*)))
+    `(POP ,*args*)))
 
 ;; Fetches a Form, that returns an nthcdr of the whole argument-list.
 ;; This form must be substituted with SUBST afterwards.
@@ -1965,7 +1966,7 @@
 ;; Fetches a Form-list for the skipping (forwards/backwards) of arguments.
 (defun formatter-goto-arg (absolute-p backward-p n)
   (if absolute-p
-      ;; the simplest case: (setq args (nthcdr n whole-args))
+    ;; the simplest case: (setq args (nthcdr n whole-args))
     (if (numberp n)
       (progn
         (setq n (max n 0))
@@ -2016,478 +2017,476 @@
 (defun formatter-main-1 (&optional (endmarker nil))
   (let ((forms '()))
     (loop
-     (when (endp *format-csdl*) (return))
-     (let ((csd (car *format-csdl*)))
-       (case (csd-type csd)
-         (0 )
-         (1 (push (subseq *format-cs* (csd-cs-index csd) (csd-data csd))
-                  forms))
-         (2 (let ((directive-name (csd-data csd)))
-              (if (eq directive-name endmarker) (return))
-              (if (eq directive-name 'FORMAT-SEPARATOR) (return))
-              (let ((colon-p (csd-colon-p csd))
-                    (atsign-p (csd-atsign-p csd))
-                    (arglist (mapcar #'formatter-arg (csd-parm-list csd))))
-                (labels ((simple-arglist (n)
-                           (unless (<= (length arglist) n)
-                             (format-error *format-cs* nil
-                                (TEXT "Too many arguments for this format directive")))
-                           (setq arglist
-                                 (append arglist
-                                         (make-list (- n (length arglist))
-                                                    :initial-element 'NIL))))
-                         (trivial-call ()
-                           (push `(,directive-name
-                                   STREAM
-                                   ,colon-p
-                                   ,atsign-p
-                                   ,@arglist)
+      (when (endp *format-csdl*) (return))
+      (let ((csd (car *format-csdl*)))
+        (case (csd-type csd)
+          (0 )
+          (1 (push (subseq *format-cs* (csd-cs-index csd) (csd-data csd))
+                   forms))
+          (2 (let ((directive-name (csd-data csd)))
+               (if (eq directive-name endmarker) (return))
+               (if (eq directive-name 'FORMAT-SEPARATOR) (return))
+               (let ((colon-p (csd-colon-p csd))
+                     (atsign-p (csd-atsign-p csd))
+                     (arglist (mapcar #'formatter-arg (csd-parm-list csd))))
+                 (labels ((simple-arglist (n)
+                            (unless (<= (length arglist) n)
+                              (format-error *format-cs* nil
+                                 (TEXT "Too many arguments for this format directive")))
+                            (setq arglist
+                                  (append arglist
+                                          (make-list (- n (length arglist))
+                                                     :initial-element 'NIL))))
+                          (trivial-call ()
+                            (push `(,directive-name
+                                    STREAM
+                                    ,colon-p
+                                    ,atsign-p
+                                    ,@arglist)
+                                   forms))
+                           (trivial (n)
+                             (simple-arglist n)
+                             (trivial-call))
+                          (simple-call ()
+                            (push `(,(intern (string-concat
+                                               "DO-" (string directive-name))
+                                             (find-package "SYSTEM"))
+                                    STREAM
+                                    ,colon-p
+                                    ,atsign-p
+                                    ,@arglist
+                                    ;; Pass the actual argument at last because
+                                    ;; ,@arglist may contain `(POP ,*args*)
+                                    ;; as well.
+                                    ,(formatter-next-arg))
                                   forms))
-                          (trivial (n)
-                            (simple-arglist n)
-                            (trivial-call))
-                         (simple-call ()
-                           (push `(,(intern (string-concat
-                                             "DO-" (string directive-name))
-                                            (find-package "SYSTEM"))
-                                   STREAM
-                                   ,colon-p
-                                   ,atsign-p
-                                   ,@arglist
-                                   ;; Pass the actual argument at last because
-                                   ;; ,@arglist may contain `(POP ,*args*)
-                                   ;; as well.
-                                   ,(formatter-next-arg))
-                                 forms))
-                          (simple (n)
-                            (simple-arglist n)
-                            (simple-call)))
-                  (case directive-name
-                    (FORMAT-ASCII                  ; #\A
-                     (simple-arglist 4)
-                     (if (and (member (first arglist) '(nil 0)) ; mincol
-                              (member (third arglist) '(nil 0))) ; minpad
-                       (progn
-                         (setq forms (revappend (remove 'NIL arglist) forms))
-                         (push `(PRINC ,(if colon-p
-                                            `(OR ,(formatter-next-arg) "()")
-                                            (formatter-next-arg))
-                                         STREAM)
-                               forms))
-                       (simple-call)))
-                    (FORMAT-S-EXPRESSION           ; #\S
-                     (simple-arglist 4)
-                     (if (and (member (first arglist) '(nil 0)) ; mincol
-                              (member (third arglist) '(nil 0)) ; minpad
-                              (not colon-p))
-                       (progn
-                         (setq forms (revappend (remove 'NIL arglist) forms))
-                         (push `(PRIN1 ,(formatter-next-arg) STREAM) forms))
-                       (simple-call)))
-                    (FORMAT-WRITE                  ; #\W
-                     (simple-arglist 4)
-                     (if (and (member (first arglist) '(nil 0)) ; mincol
-                              (member (third arglist) '(nil 0))) ; minpad
-                       (progn
-                         (setq forms (revappend (remove 'NIL arglist) forms))
-                         (push `(WRITE ,(formatter-next-arg) :STREAM STREAM)
-                               forms))
-                       (simple-call)))
-                    (FORMAT-DECIMAL                ; #\D
-                     (simple 4))
-                    (FORMAT-BINARY                 ; #\B
-                     (simple 4))
-                    (FORMAT-OCTAL                  ; #\O
-                     (simple 4))
-                    (FORMAT-HEXADECIMAL            ; #\X
-                     (simple 4))
-                    (FORMAT-RADIX                  ; #\R
-                     (simple-arglist 5)
-                     (if (and (null (first arglist)) (not atsign-p))
-                       (progn
-                         (setq forms (revappend (remove 'NIL arglist) forms))
-                         (push `(,(if colon-p 'FORMAT-ORDINAL 'FORMAT-CARDINAL)
-                                 ,(formatter-next-arg) STREAM)
-                               forms))
-                       (simple-call)))
-                    (FORMAT-PLURAL                 ; #\P
-                     (simple-arglist 0)
-                     (when colon-p
-                       (setq forms (revappend (formatter-goto-arg nil t 1)
-                                              forms)))
-                     (push (if atsign-p
-                             `(WRITE-STRING
-                               (IF (EQL ,(formatter-next-arg) 1) "y" "ies")
-                               STREAM)
-                             `(UNLESS (EQL ,(formatter-next-arg) 1)
-                               (WRITE-CHAR #\s STREAM)))
-                           forms))
-                    (FORMAT-CHARACTER              ; #\C
-                     (simple 0))
-                    (FORMAT-FIXED-FLOAT            ; #\F
-                     (simple 5))
-                    (FORMAT-EXPONENTIAL-FLOAT      ; #\E
-                     (simple 7))
-                    (FORMAT-GENERAL-FLOAT          ; #\G
-                     (simple 7))
-                    (FORMAT-DOLLARS-FLOAT          ; #\$
-                     (simple 4))
-                    (FORMAT-TERPRI                 ; #\%
-                     (simple-arglist 1)
-                     (if (member (first arglist) '(nil 1))
-                         (push #\Newline forms) ; equiv. to `(TERPRI STREAM)
-                         (trivial-call)))
-                    (FORMAT-PPRINT-NEWLINE         ; #\_
-                     (simple-arglist 0)
-                     (push `(pprint-newline ,(if colon-p
-                                               (if atsign-p :mandatory :fill)
-                                               (if atsign-p :miser :linear))
+                           (simple (n)
+                             (simple-arglist n)
+                             (simple-call)))
+                   (case directive-name
+                     (FORMAT-ASCII                  ; #\A
+                      (simple-arglist 4)
+                      (if (and (member (first arglist) '(nil 0)) ; mincol
+                               (member (third arglist) '(nil 0))) ; minpad
+                        (progn
+                          (setq forms (revappend (remove 'NIL arglist) forms))
+                          (push `(PRINC ,(if colon-p
+                                           `(OR ,(formatter-next-arg) "()")
+                                           (formatter-next-arg))
+                                          STREAM)
+                                forms))
+                        (simple-call)))
+                     (FORMAT-S-EXPRESSION           ; #\S
+                      (simple-arglist 4)
+                      (if (and (member (first arglist) '(nil 0)) ; mincol
+                               (member (third arglist) '(nil 0)) ; minpad
+                               (not colon-p))
+                        (progn
+                          (setq forms (revappend (remove 'NIL arglist) forms))
+                          (push `(PRIN1 ,(formatter-next-arg) STREAM) forms))
+                        (simple-call)))
+                     (FORMAT-WRITE                  ; #\W
+                      (simple-arglist 4)
+                      (if (and (member (first arglist) '(nil 0)) ; mincol
+                               (member (third arglist) '(nil 0))) ; minpad
+                        (progn
+                          (setq forms (revappend (remove 'NIL arglist) forms))
+                          (push `(WRITE ,(formatter-next-arg) :STREAM STREAM)
+                                forms))
+                        (simple-call)))
+                     (FORMAT-DECIMAL                ; #\D
+                      (simple 4))
+                     (FORMAT-BINARY                 ; #\B
+                      (simple 4))
+                     (FORMAT-OCTAL                  ; #\O
+                      (simple 4))
+                     (FORMAT-HEXADECIMAL            ; #\X
+                      (simple 4))
+                     (FORMAT-RADIX                  ; #\R
+                      (simple-arglist 5)
+                      (if (and (null (first arglist)) (not atsign-p))
+                        (progn
+                          (setq forms (revappend (remove 'NIL arglist) forms))
+                          (push `(,(if colon-p 'FORMAT-ORDINAL 'FORMAT-CARDINAL)
+                                  ,(formatter-next-arg) STREAM)
+                                forms))
+                        (simple-call)))
+                     (FORMAT-PLURAL                 ; #\P
+                      (simple-arglist 0)
+                      (when colon-p
+                        (setq forms
+                              (revappend (formatter-goto-arg nil t 1) forms)))
+                      (push (if atsign-p
+                              `(WRITE-STRING
+                                 (IF (EQL ,(formatter-next-arg) 1) "y" "ies")
+                                 STREAM)
+                              `(UNLESS (EQL ,(formatter-next-arg) 1)
+                                 (WRITE-CHAR #\s STREAM)))
+                            forms))
+                     (FORMAT-CHARACTER              ; #\C
+                      (simple 0))
+                     (FORMAT-FIXED-FLOAT            ; #\F
+                      (simple 5))
+                     (FORMAT-EXPONENTIAL-FLOAT      ; #\E
+                      (simple 7))
+                     (FORMAT-GENERAL-FLOAT          ; #\G
+                      (simple 7))
+                     (FORMAT-DOLLARS-FLOAT          ; #\$
+                      (simple 4))
+                     (FORMAT-TERPRI                 ; #\%
+                      (simple-arglist 1)
+                      (if (member (first arglist) '(nil 1))
+                        (push #\Newline forms) ; equiv. to `(TERPRI STREAM)
+                        (trivial-call)))
+                     (FORMAT-PPRINT-NEWLINE         ; #\_
+                      (simple-arglist 0)
+                      (push `(pprint-newline ,(if colon-p
+                                                (if atsign-p :mandatory :fill)
+                                                (if atsign-p :miser :linear))
+                                             stream)
+                            forms))
+                     (FORMAT-PPRINT-INDENT          ; #\I
+                      (simple-arglist 1)
+                      (push `(pprint-indent ,(if colon-p :current :block)
+                                            ,(or (first arglist) 0)
                                             stream)
-                           forms))
-                    (FORMAT-PPRINT-INDENT          ; #\I
-                     (simple-arglist 1)
-                     (push `(pprint-indent ,(if colon-p :current :block)
-                                           ,(or (first arglist) 0)
-                                           stream)
-                           forms))
-                    (FORMAT-FRESH-LINE             ; #\&
-                     (simple-arglist 1)
-                     (if (member (first arglist) '(nil 1))
-                         (push `(FRESH-LINE STREAM) forms)
-                         (trivial-call)))
-                    (FORMAT-PAGE                   ; #\|
-                     (simple-arglist 1)
-                     (if (member (first arglist) '(nil 1))
-                         (push #\Page forms)
-                         (trivial-call)))
-                    (FORMAT-TILDE                  ; #\~
-                     (simple-arglist 1)
-                     (if (member (first arglist) '(nil 1))
-                         (push #\~ forms)
-                         (trivial-call)))
-                    (FORMAT-TABULATE               ; #\T
-                     (trivial 2))
-                    (FORMAT-GOTO                   ; #\*
-                     (simple-arglist 1)
-                     (setq forms (revappend (formatter-goto-arg
-                                             atsign-p colon-p
-                                             (or (first arglist)
-                                                 (if atsign-p 0 1)))
-                                            forms)))
-                    (FORMAT-INDIRECTION            ; #\?
-                     (simple-arglist 0)
-                     (if atsign-p
-                       (push `(SETQ ,*args*
-                               (DO-FORMAT-INDIRECTION STREAM
-                                 ,(formatter-next-arg)
-                                 ,(progn (formatter-stop-linear) `,*args*)))
-                             forms)
-                       (push `(DO-FORMAT-INDIRECTION
-                               STREAM ,(formatter-next-arg)
-                               ,(formatter-next-arg))
-                             forms)))
-                    (FORMAT-CALL-USER-FUNCTION     ; #\/
-                     (let* ((func (car (pop arglist)))
-                            (argsvars (gensym-list arglist))
-                            (inner-form
-                             `(,func STREAM ,(formatter-next-arg) ,colon-p
-                               ,atsign-p ,@argsvars)))
-                       (push (if argsvars
-                               `(LET ,(mapcar #'list argsvars arglist)
-                                 ,inner-form)
-                               inner-form)
-                             forms)))
-                    (FORMAT-CASE-CONVERSION        ; #\(
-                     (simple-arglist 0)
-                     (setq *format-csdl* (cdr *format-csdl*))
-                     (if *format-case*
-                       ;; Richard Waters notes: It is possible for ~(...~) to
-                       ;; be nested in a format string, but note that inner
-                       ;; nested modes never have any effect. You can just
-                       ;; ignore them.
-                       (let ((inner-forms
-                              ;; no need to bind *format-case* to t here
-                              (formatter-main-1 'FORMAT-CASE-CONVERSION-END)))
-                         (setq forms (revappend inner-forms forms)))
-                       (push `(LET ((ORIG-STREAM STREAM)
-                                    (STREAM (MAKE-STRING-OUTPUT-STREAM
-                                             :LINE-POSITION
-                                             (SYS::LINE-POSITION STREAM))))
-                               ,@(let* ((*format-uwps*
-                                         (cons 'NIL *format-uwps*))
-                                        (inner-forms
-                                         (let ((*format-case* t))
-                                           (formatter-main
-                                            'FORMAT-CASE-CONVERSION-END)))
-                                        (cleanup-forms
-                                         `((WRITE-STRING
-                                            (,(if colon-p
-                                                (if atsign-p
-                                                  'NSTRING-UPCASE
-                                                  'NSTRING-CAPITALIZE)
-                                                (if atsign-p
-                                                  'SYS::NSTRING-CAPITALIZE1
-                                                  'NSTRING-DOWNCASE))
-                                             (GET-OUTPUT-STREAM-STRING STREAM))
-                                            ORIG-STREAM))))
-                                       (if (car *format-uwps*)
-                                         `((UNWIND-PROTECT (PROGN ,@inner-forms) ,@cleanup-forms))
-                                         `(,@inner-forms ,@cleanup-forms))))
-                             forms)))
-                    (FORMAT-CONDITIONAL            ; #\[
-                     (if colon-p
-                       (if atsign-p
-                         (format-conditional-error)
-                         (progn
-                           (simple-arglist 0)
-                           (push `(IF (NOT ,(formatter-next-arg))
-                                   (PROGN ,@(progn
-                                             (formatter-stop-linear)
-                                             (setq *format-csdl*
-                                                   (cdr *format-csdl*))
-                                             (formatter-main
-                                              'FORMAT-CONDITIONAL-END)))
-                                   (PROGN ,@(progn
-                                             (formatter-stop-linear)
-                                             (setq *format-csdl*
-                                                   (cdr *format-csdl*))
-                                             (formatter-main
-                                              'FORMAT-CONDITIONAL-END))))
-                                 forms)))
-                       (if atsign-p
-                         (progn
-                           (simple-arglist 0)
-                           (formatter-stop-linear)
-                           (push `(IF (CAR ,*args*)
-                                   (PROGN ,@(progn
-                                             (setq *format-csdl*
-                                                   (cdr *format-csdl*))
-                                             (formatter-main
-                                              'FORMAT-CONDITIONAL-END)))
-                                   (SETQ ,*args* (CDR ,*args*)))
-                                   forms)
-                           (unless (null (csd-clause-chain
-                                          (car *format-csdl*)))
-                             (format-error *format-cs* nil
-                                 (TEXT "The ~~; format directive is not allowed at this point."))))
-                         (progn
-                           (simple-arglist 1)
-                           (push `(CASE ,(or (first arglist)
-                                             (formatter-next-arg))
-                                   ,@(let ((index 0) (cases '()))
-                                      (formatter-stop-linear)
-                                      (loop
-                                       (when (null (csd-clause-chain
-                                                    (car *format-csdl*)))
-                                         (return))
-                                       (when (csd-colon-p (car *format-csdl*))
-                                         (setq index 'T))
-                                       (setq *format-csdl* (cdr *format-csdl*))
-                                       (push `(,index ,@(formatter-main 'FORMAT-CONDITIONAL-END))
-                                             cases)
-                                       (if (eq index 'T) (return) (incf index)))
-                                          (nreverse cases)))
-                                   forms)))))
-                    (FORMAT-ITERATION              ; #\{
-                     (simple-arglist 1)
-                     (setq *format-csdl* (cdr *format-csdl*))
-                     (let ((max-n-iterations (first arglist))
-                           (min-1-iteration (csd-colon-p (car (csd-clause-chain csd))))
-                           (indirect (eq (csd-clause-chain csd) *format-csdl*)))
-                       (flet ((compute-innermost ()
-                                (if indirect
-                                  (progn
-                                    (formatter-stop-linear)
-                                    `((SETQ ,*args*
-                                       (DO-FORMAT-INDIRECTION-2 STREAM NODE
-                                                                ,*args* ,(formatter-whole-args 0)))))
-                                  (formatter-main 'FORMAT-ITERATION-END))))
-                         (flet ((compute-inner ()
-                                  (if colon-p
-                                    (let ((*iterargs* *args*))
-                                      (formatter-bind-terminator
-                                       (multiple-value-bind (lambdalist innermost)
-                                           (formatter-bind-args (compute-innermost))
-                                         `((APPLY #'(LAMBDA ,lambdalist ,@innermost)
-                                            ,(formatter-next-arg))))))
-                                    (let ((*iterargs* nil))
-                                      ;; CLtL2 p. 598: "When within a ~{ construct, the "goto" is
-                                      ;; relative to the list of arguments being processed by the
-                                      ;; iteration." Does that mean, that for ~@{, WHOLE-ARGS has to
-                                      ;; be freshly bound to ARGS at the beginning of each Iteration??
-                                      ;; (if atsign-p
-                                      ;;   (progn (formatter-stop-linear)
-                                      ;;     `((LET ((WHOLE-ARGS ,*args*)) ,@(compute-innermost)))
-                                      ;;   )
-                                      ;;   (compute-innermost)
-                                      ;; )
-                                      (compute-innermost)))))
-                           (flet ((compute-middle ()
-                                    (if (eql max-n-iterations 0)
-                                      '()
-                                      (progn
-                                        (unless (and (eql max-n-iterations 1) min-1-iteration)
-                                          (formatter-stop-linear))
-                                        (if (eql max-n-iterations 1)
-                                          (if min-1-iteration
-                                            (compute-inner)
-                                            `((UNLESS (ENDP ,*args*) ,@(compute-inner))))
-                                          `((BLOCK NIL
-                                              (TAGBODY
-                                               L
+                            forms))
+                     (FORMAT-FRESH-LINE             ; #\&
+                      (simple-arglist 1)
+                      (if (member (first arglist) '(nil 1))
+                        (push `(FRESH-LINE STREAM) forms)
+                        (trivial-call)))
+                     (FORMAT-PAGE                   ; #\|
+                      (simple-arglist 1)
+                      (if (member (first arglist) '(nil 1))
+                        (push #\Page forms)
+                        (trivial-call)))
+                     (FORMAT-TILDE                  ; #\~
+                      (simple-arglist 1)
+                      (if (member (first arglist) '(nil 1))
+                        (push #\~ forms)
+                        (trivial-call)))
+                     (FORMAT-TABULATE               ; #\T
+                      (trivial 2))
+                     (FORMAT-GOTO                   ; #\*
+                      (simple-arglist 1)
+                      (setq forms
+                            (revappend (formatter-goto-arg atsign-p colon-p
+                                         (or (first arglist) (if atsign-p 0 1)))
+                                       forms)))
+                     (FORMAT-INDIRECTION            ; #\?
+                      (simple-arglist 0)
+                      (if atsign-p
+                        (push `(SETQ ,*args*
+                                 (DO-FORMAT-INDIRECTION STREAM
+                                   ,(formatter-next-arg)
+                                   ,(progn (formatter-stop-linear) `,*args*)))
+                              forms)
+                        (push `(DO-FORMAT-INDIRECTION
+                                 STREAM ,(formatter-next-arg)
+                                 ,(formatter-next-arg))
+                              forms)))
+                     (FORMAT-CALL-USER-FUNCTION     ; #\/
+                      (let* ((func (car (pop arglist)))
+                             (argsvars (gensym-list arglist))
+                             (inner-form
+                               `(,func STREAM ,(formatter-next-arg) ,colon-p
+                                       ,atsign-p ,@argsvars)))
+                        (push (if argsvars
+                                `(LET ,(mapcar #'list argsvars arglist)
+                                   ,inner-form)
+                                inner-form)
+                              forms)))
+                     (FORMAT-CASE-CONVERSION        ; #\(
+                      (simple-arglist 0)
+                      (setq *format-csdl* (cdr *format-csdl*))
+                      (if *format-case*
+                        ;; Richard Waters notes: It is possible for ~(...~) to
+                        ;; be nested in a format string, but note that inner
+                        ;; nested modes never have any effect. You can just
+                        ;; ignore them.
+                        (let ((inner-forms
+                                ;; no need to bind *format-case* to t here
+                                (formatter-main-1 'FORMAT-CASE-CONVERSION-END)))
+                          (setq forms (revappend inner-forms forms)))
+                        (push `(LET ((ORIG-STREAM STREAM)
+                                     (STREAM (MAKE-STRING-OUTPUT-STREAM
+                                               :LINE-POSITION (SYS::LINE-POSITION STREAM))))
+                                 ,@(let* ((*format-uwps*
+                                            (cons 'NIL *format-uwps*))
+                                          (inner-forms
+                                            (let ((*format-case* t))
+                                              (formatter-main
+                                                'FORMAT-CASE-CONVERSION-END)))
+                                          (cleanup-forms
+                                            `((WRITE-STRING
+                                                (,(if colon-p
+                                                    (if atsign-p
+                                                      'NSTRING-UPCASE
+                                                      'NSTRING-CAPITALIZE)
+                                                    (if atsign-p
+                                                      'SYS::NSTRING-CAPITALIZE1
+                                                      'NSTRING-DOWNCASE))
+                                                 (GET-OUTPUT-STREAM-STRING STREAM))
+                                                ORIG-STREAM))))
+                                     (if (car *format-uwps*)
+                                       `((UNWIND-PROTECT (PROGN ,@inner-forms) ,@cleanup-forms))
+                                       `(,@inner-forms ,@cleanup-forms))))
+                              forms)))
+                     (FORMAT-CONDITIONAL            ; #\[
+                      (if colon-p
+                        (if atsign-p
+                          (format-conditional-error)
+                          (progn
+                            (simple-arglist 0)
+                            (push `(IF (NOT ,(formatter-next-arg))
+                                     (PROGN ,@(progn
+                                                (formatter-stop-linear)
+                                                (setq *format-csdl*
+                                                      (cdr *format-csdl*))
+                                                (formatter-main
+                                                  'FORMAT-CONDITIONAL-END)))
+                                     (PROGN ,@(progn
+                                                (formatter-stop-linear)
+                                                (setq *format-csdl*
+                                                      (cdr *format-csdl*))
+                                                (formatter-main
+                                                  'FORMAT-CONDITIONAL-END))))
+                                  forms)))
+                        (if atsign-p
+                          (progn
+                            (simple-arglist 0)
+                            (formatter-stop-linear)
+                            (push `(IF (CAR ,*args*)
+                                     (PROGN ,@(progn
+                                                (setq *format-csdl*
+                                                      (cdr *format-csdl*))
+                                                (formatter-main
+                                                  'FORMAT-CONDITIONAL-END)))
+                                     (SETQ ,*args* (CDR ,*args*)))
+                                  forms)
+                            (unless (null (csd-clause-chain (car *format-csdl*)))
+                              (format-error *format-cs* nil
+                                (TEXT "The ~~; format directive is not allowed at this point."))))
+                          (progn
+                            (simple-arglist 1)
+                            (push `(CASE ,(or (first arglist)
+                                              (formatter-next-arg))
+                                     ,@(let ((index 0) (cases '()))
+                                         (formatter-stop-linear)
+                                         (loop
+                                           (when (null (csd-clause-chain
+                                                         (car *format-csdl*)))
+                                             (return))
+                                           (when (csd-colon-p (car *format-csdl*))
+                                             (setq index 'T))
+                                           (setq *format-csdl* (cdr *format-csdl*))
+                                           (push `(,index ,@(formatter-main 'FORMAT-CONDITIONAL-END))
+                                                 cases)
+                                           (if (eq index 'T) (return) (incf index)))
+                                         (nreverse cases)))
+                                  forms)))))
+                     (FORMAT-ITERATION              ; #\{
+                      (simple-arglist 1)
+                      (setq *format-csdl* (cdr *format-csdl*))
+                      (let ((max-n-iterations (first arglist))
+                            (min-1-iteration (csd-colon-p (car (csd-clause-chain csd))))
+                            (indirect (eq (csd-clause-chain csd) *format-csdl*)))
+                        (flet ((compute-innermost ()
+                                 (if indirect
+                                   (progn
+                                     (formatter-stop-linear)
+                                     `((SETQ ,*args*
+                                             (DO-FORMAT-INDIRECTION-2 STREAM NODE
+                                                                      ,*args*
+                                                                      ,(formatter-whole-args 0)))))
+                                   (formatter-main 'FORMAT-ITERATION-END))))
+                          (flet ((compute-inner ()
+                                   (if colon-p
+                                     (let ((*iterargs* *args*))
+                                       (formatter-bind-terminator
+                                         (multiple-value-bind (lambdalist innermost)
+                                             (formatter-bind-args (compute-innermost))
+                                           `((APPLY #'(LAMBDA ,lambdalist ,@innermost)
+                                               ,(formatter-next-arg))))))
+                                     (let ((*iterargs* nil))
+                                       ;; CLtL2 p. 598: "When within a ~{ construct, the "goto" is
+                                       ;; relative to the list of arguments being processed by the
+                                       ;; iteration." Does that mean, that for ~@{, WHOLE-ARGS has to
+                                       ;; be freshly bound to ARGS at the beginning of each Iteration??
+                                       ;; (if atsign-p
+                                       ;;   (progn (formatter-stop-linear)
+                                       ;;     `((LET ((WHOLE-ARGS ,*args*)) ,@(compute-innermost)))
+                                       ;;   )
+                                       ;;   (compute-innermost)
+                                       ;; )
+                                       (compute-innermost)))))
+                            (flet ((compute-middle ()
+                                     (if (eql max-n-iterations 0)
+                                       '()
+                                       (progn
+                                         (unless (and (eql max-n-iterations 1) min-1-iteration)
+                                           (formatter-stop-linear))
+                                         (if (eql max-n-iterations 1)
+                                           (if min-1-iteration
+                                             (compute-inner)
+                                             `((UNLESS (ENDP ,*args*) ,@(compute-inner))))
+                                           `((BLOCK NIL
+                                               (TAGBODY
+                                                 L
                                                  ,@(if max-n-iterations
                                                      `((WHEN (>= I N) (RETURN)) (INCF I)))
                                                  ,@(if (not min-1-iteration)
                                                      `((WHEN (ENDP ,*args*) (RETURN))))
                                                  ,@(compute-inner)
                                                  ,@(if min-1-iteration
-                                                       `((WHEN (ENDP ,*args*) (RETURN))))
-                                                  (GO L)))))))))
-                             (flet ((compute-outer ()
-                                      (formatter-bind-terminators
-                                       ;; *format-terminate-all* and *format-terminate* will be
-                                       ;; bound, but if colon-p, *format-terminate* will be
-                                       ;; shadowed further inside (see above).
-                                       (if atsign-p
-                                         (compute-middle)
-                                         (multiple-value-bind (lambdalist inner-forms)
-                                             (formatter-bind-args (compute-middle))
-                                           `((APPLY #'(LAMBDA ,lambdalist ,@inner-forms)
-                                              ,(formatter-next-arg))))))))
-                               (flet ((compute-outermost ()
-                                        (if indirect
-                                          `((LET ((NODE (DO-FORMAT-INDIRECTION-1 ,(formatter-next-arg))))
-                                              ,@(compute-outer)))
-                                            (compute-outer))))
-                                 (let ((new-forms
-                                        (if (and max-n-iterations (not (member max-n-iterations '(0 1))))
+                                                     `((WHEN (ENDP ,*args*) (RETURN))))
+                                                 (GO L)))))))))
+                              (flet ((compute-outer ()
+                                       (formatter-bind-terminators
+                                         ;; *format-terminate-all* and *format-terminate* will be
+                                         ;; bound, but if colon-p, *format-terminate* will be
+                                         ;; shadowed further inside (see above).
+                                         (if atsign-p
+                                           (compute-middle)
+                                           (multiple-value-bind (lambdalist inner-forms)
+                                               (formatter-bind-args (compute-middle))
+                                             `((APPLY #'(LAMBDA ,lambdalist ,@inner-forms)
+                                                 ,(formatter-next-arg))))))))
+                                (flet ((compute-outermost ()
+                                         (if indirect
+                                           `((LET ((NODE (DO-FORMAT-INDIRECTION-1 ,(formatter-next-arg))))
+                                               ,@(compute-outer)))
+                                           (compute-outer))))
+                                  (let ((new-forms
+                                          (if (and max-n-iterations (not (member max-n-iterations '(0 1))))
                                             `((LET ((N ,(first arglist)) (I 0))
                                                 ,@(compute-outermost)))
-                                              (compute-outermost))))
-                                     (setq forms (revappend new-forms
-                                                            forms))))))))))
-                    (FORMAT-JUSTIFICATION          ; #\<
-                     (simple-arglist 4)
-                     (let* ((firstseparator (car (csd-clause-chain csd)))
-                            (check-on-line-overflow
-                             (and (eq (csd-data firstseparator)
-                                      'FORMAT-SEPARATOR)
-                                  (csd-colon-p firstseparator)))
-                            (bindings
-                             `((POS (SYS::LINE-POSITION STREAM))
-                               (ORIG-STREAM STREAM)
-                               (STREAM (MAKE-STRING-OUTPUT-STREAM
-                                        :LINE-POSITION POS))))
-                            (justify-args
-                             `(ORIG-STREAM
-                               ,colon-p
-                               ,atsign-p
-                               ,@arglist
-                               POS
-                               ,check-on-line-overflow
-                               ,(when check-on-line-overflow
-                                  (setq *format-csdl* (cdr *format-csdl*))
-                                  `(PROGN
-                                    ,@(formatter-main 'FORMAT-JUSTIFICATION-END)
-                                    (GET-OUTPUT-STREAM-STRING STREAM)))
-                               ,(when check-on-line-overflow
-                                  (formatter-arg (first (csd-parm-list firstseparator))))
-                               ,(when check-on-line-overflow
-                                  (formatter-arg (second (csd-parm-list firstseparator))))))
-                            (*format-uwps* (cons 'NIL *format-uwps*))
-                            (pieces-forms '()))
-                       (loop
-                        (when (null (csd-clause-chain (car *format-csdl*))) (return))
-                        (setq *format-csdl* (cdr *format-csdl*))
-                        (push (formatter-main 'FORMAT-JUSTIFICATION-END) pieces-forms))
-                       (setq pieces-forms (nreverse pieces-forms))
-                       (push
-                        (if (car *format-uwps*)
-                          `(LET* (,@bindings
-                                  (JARGS (LIST ,@justify-args))
-                                  (PIECES '()))
-                            (UNWIND-PROTECT
-                                 (PROGN
-                                   ,@(mapcap #'(lambda (piece-forms)
-                                                 `(,@piece-forms
-                                                   (PUSH (GET-OUTPUT-STREAM-STRING STREAM) PIECES)))
-                                              pieces-forms))
-                              (APPLY #'DO-FORMAT-JUSTIFICATION
-                                     (NCONC JARGS (LIST (SYS::LIST-NREVERSE PIECES))))))
-                          `(LET* (,@bindings)
-                            (DO-FORMAT-JUSTIFICATION
-                                ,@justify-args
-                              (LIST
-                               ,@(mapcar #'(lambda (piece-forms)
-                                             `(PROGN ,@piece-forms (GET-OUTPUT-STREAM-STRING STREAM)))
-                                         pieces-forms)))))
-                        forms)))
-                    (FORMAT-LOGICAL-BLOCK          ; #\< ending with ~:>
-                     (simple-arglist 0)
-                     (multiple-value-bind
-                           (prefix suffix per-line-p body-csdl add-fill
-                                   last-csdl)
-                         (format-logical-block-parse *FORMAT-CSDL*)
-                      ;(when add-fill
-                      ;  (format-error *FORMAT-CS*
-                      ;      (csd-cs-index (car *FORMAT-CSDL*))
-                      ;    (TEXT "Error: ~~:@> not implemented")))
-                      (setq *FORMAT-CSDL* body-csdl)
-                      (labels ((compute-inner ()
-                                `((PPRINT-LOGICAL-BLOCK
-                                   ;; *args refers to things *after*
-                                   ;; anything used in the body.
-                                   ;; I need some way to refer to
-                                   ;; all the list.
-                                   (STREAM ,*args*
-                                    ,@(and prefix
+                                            (compute-outermost))))
+                                    (setq forms
+                                          (revappend new-forms forms))))))))))
+                     (FORMAT-JUSTIFICATION          ; #\<
+                      (simple-arglist 4)
+                      (let* ((firstseparator (car (csd-clause-chain csd)))
+                             (check-on-line-overflow
+                               (and (eq (csd-data firstseparator)
+                                        'FORMAT-SEPARATOR)
+                                    (csd-colon-p firstseparator)))
+                             (bindings
+                               `((POS (SYS::LINE-POSITION STREAM))
+                                 (ORIG-STREAM STREAM)
+                                 (STREAM (MAKE-STRING-OUTPUT-STREAM
+                                           :LINE-POSITION POS))))
+                             (justify-args
+                               `(ORIG-STREAM
+                                 ,colon-p
+                                 ,atsign-p
+                                 ,@arglist
+                                 POS
+                                 ,check-on-line-overflow
+                                 ,(when check-on-line-overflow
+                                    (setq *format-csdl* (cdr *format-csdl*))
+                                    `(PROGN
+                                       ,@(formatter-main 'FORMAT-JUSTIFICATION-END)
+                                       (GET-OUTPUT-STREAM-STRING STREAM)))
+                                 ,(when check-on-line-overflow
+                                    (formatter-arg (first (csd-parm-list firstseparator))))
+                                 ,(when check-on-line-overflow
+                                    (formatter-arg (second (csd-parm-list firstseparator))))))
+                              (*format-uwps* (cons 'NIL *format-uwps*))
+                              (pieces-forms '()))
+                        (loop
+                          (when (null (csd-clause-chain (car *format-csdl*))) (return))
+                          (setq *format-csdl* (cdr *format-csdl*))
+                          (push (formatter-main 'FORMAT-JUSTIFICATION-END) pieces-forms))
+                        (setq pieces-forms (nreverse pieces-forms))
+                        (push
+                          (if (car *format-uwps*)
+                            `(LET* (,@bindings
+                                    (JARGS (LIST ,@justify-args))
+                                    (PIECES '()))
+                               (UNWIND-PROTECT
+                                   (PROGN
+                                     ,@(mapcap #'(lambda (piece-forms)
+                                                   `(,@piece-forms
+                                                     (PUSH (GET-OUTPUT-STREAM-STRING STREAM) PIECES)))
+                                               pieces-forms))
+                                 (APPLY #'DO-FORMAT-JUSTIFICATION
+                                        (NCONC JARGS (LIST (SYS::LIST-NREVERSE PIECES))))))
+                            `(LET* (,@bindings)
+                               (DO-FORMAT-JUSTIFICATION
+                                 ,@justify-args
+                                 (LIST
+                                   ,@(mapcar #'(lambda (piece-forms)
+                                                 `(PROGN ,@piece-forms (GET-OUTPUT-STREAM-STRING STREAM)))
+                                             pieces-forms)))))
+                          forms)))
+                     (FORMAT-LOGICAL-BLOCK          ; #\< ending with ~:>
+                      (simple-arglist 0)
+                      (multiple-value-bind (prefix suffix per-line-p
+                                            body-csdl add-fill last-csdl)
+                          (format-logical-block-parse *FORMAT-CSDL*)
+                       ;(when add-fill
+                       ;  (format-error *FORMAT-CS*
+                       ;      (csd-cs-index (car *FORMAT-CSDL*))
+                       ;    (TEXT "Error: ~~:@> not implemented")))
+                       (setq *FORMAT-CSDL* body-csdl)
+                       (labels ((compute-inner ()
+                                  `((PPRINT-LOGICAL-BLOCK
+                                      ;; *args refers to things *after*
+                                      ;; anything used in the body.
+                                      ;; I need some way to refer to
+                                      ;; all the list.
+                                      (STREAM
+                                       ,*args*
+                                       ,@(and prefix
                                            (if per-line-p
-                                               `(:per-line-prefix ,prefix)
+                                             `(:per-line-prefix ,prefix)
                                              `(:prefix ,prefix)))
-                                    ,@(and suffix `(:suffix ,suffix)))
-                                   ,@(let ((*args* 'OBJ))
-                                       (formatter-main
-                                        'FORMAT-JUSTIFICATION-END)))))
-                               (compute-outer ()
+                                       ,@(and suffix `(:suffix ,suffix)))
+                                       ,@(let ((*args* 'OBJ))
+                                           (formatter-main
+                                             'FORMAT-JUSTIFICATION-END)))))
+                                (compute-outer ()
                                   (multiple-value-bind (lambdalist inner)
                                       (formatter-bind-block (compute-inner))
                                     `(((LAMBDA ,lambdalist ,@inner)
-                                       ,(if atsign-p
+                                         ,(if atsign-p
                                             (formatter-whole-args*)
                                             (formatter-next-arg)))))))
-                            (let ((body (compute-outer)))
-                              (setq *format-csdl* last-csdl)
-                              (setq forms (append body forms))))))
-                    (FORMAT-UP-AND-OUT             ; #\^
-                     (simple-arglist 3)
-                     (formatter-stop-linear)
-                     (let ((argsvar (if colon-p *iterargs* *args*)))
-                       (push `(IF ,(if (some #'(lambda (x) (and (constantp x) x)) arglist)
-                                     `(UP-AND-OUT-P ,@arglist)
-                                     (if (and (null (second arglist)) (null (third arglist)))
-                                       (let ((first-arg (first arglist)))
-                                         (if (null first-arg)
-                                           `(ENDP ,argsvar)
-                                           (if (and (consp first-arg) (eq (car first-arg) 'LENGTH))
-                                             `(ENDP ,(second first-arg)) ; (EQL (LENGTH x) 0) == (ENDP x)
-                                             `(CASE ,first-arg ((NIL) (ENDP ,argsvar)) ((0) T) (T NIL)))))
-                                         `(UP-AND-OUT-P ,@arglist ,argsvar)))
-                               (RETURN-FROM ,(if colon-p (formatter-terminate-all) (formatter-terminate))))
-                             forms)))
-                    (FORMAT-CALL                   ; #\!
-                     (let* ((argsvars (gensym-list arglist))
-                            (inner-form
-                             `(FUNCALL ,(formatter-next-arg)
-                               STREAM ,(formatter-next-arg) ,colon-p ,atsign-p
-                               ,@argsvars)))
-                       (push (if argsvars
-                               `(LET ,(mapcar #'list argsvars arglist)
-                                 ,inner-form)
-                               inner-form)
-                             forms)))
-                    (t ;; Huh? Someone implemented a new format directive,
-                       ;; but forgot it here! Bail out.
-                     (throw 'formatter-hairy nil)))))))))
+                         (let ((body (compute-outer)))
+                           (setq *format-csdl* last-csdl)
+                           (setq forms (append body forms))))))
+                     (FORMAT-UP-AND-OUT             ; #\^
+                      (simple-arglist 3)
+                      (formatter-stop-linear)
+                      (let ((argsvar (if colon-p *iterargs* *args*)))
+                        (push `(IF ,(if (some #'(lambda (x) (and (constantp x) x)) arglist)
+                                      `(UP-AND-OUT-P ,@arglist)
+                                      (if (and (null (second arglist)) (null (third arglist)))
+                                        (let ((first-arg (first arglist)))
+                                          (if (null first-arg)
+                                            `(ENDP ,argsvar)
+                                            (if (and (consp first-arg) (eq (car first-arg) 'LENGTH))
+                                              `(ENDP ,(second first-arg)) ; (EQL (LENGTH x) 0) == (ENDP x)
+                                              `(CASE ,first-arg ((NIL) (ENDP ,argsvar)) ((0) T) (T NIL)))))
+                                          `(UP-AND-OUT-P ,@arglist ,argsvar)))
+                                 (RETURN-FROM ,(if colon-p (formatter-terminate-all) (formatter-terminate))))
+                              forms)))
+                     (FORMAT-CALL                   ; #\!
+                      (let* ((argsvars (gensym-list arglist))
+                             (inner-form
+                               `(FUNCALL ,(formatter-next-arg)
+                                  STREAM ,(formatter-next-arg) ,colon-p ,atsign-p
+                                  ,@argsvars)))
+                        (push (if argsvars
+                                `(LET ,(mapcar #'list argsvars arglist)
+                                   ,inner-form)
+                                inner-form)
+                              forms)))
+                     (t ;; Huh? Someone implemented a new format directive,
+                        ;; but forgot it here! Bail out.
+                      (throw 'formatter-hairy nil)))))))))
       (setq *format-csdl* (cdr *format-csdl*)))
     ;; Combine adjacent strings:
     (let ((new-forms '()))
