@@ -4864,7 +4864,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
   }
   # try to read a byte
   var uintB b;
-  var int result = read(handle,&b,1);
+  var int result = full_read(handle,&b,1);
   if (result<0) {
     OS_error();
   }
